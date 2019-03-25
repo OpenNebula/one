@@ -104,9 +104,9 @@ func (d *Driver) buildConfig() {
 	d.Config = goca.NewConfig(d.User, d.Password, d.Xmlrpcurl)
 }
 
-func (d *Driver) setClient() error {
+func (d *Driver) setClient() {
 	d.buildConfig()
-	return goca.SetClient(d.Config)
+	goca.SetClient(d.Config)
 }
 
 // GetCreateFlags registers the flags this driver adds to
@@ -521,8 +521,10 @@ func (d *Driver) GetIP() (string, error) {
 		return "", err
 	}
 
-	if ip, ok := vm.XPath("/VM/TEMPLATE/NIC/IP"); ok {
-		d.IPAddress = ip
+	if len(vm.Template.NIC) > 0 {
+		if vm.Template.NIC[0].IP != "" {
+			d.IPAddress = vm.Template.NIC[0].IP
+		}
 	}
 
 	if d.IPAddress == "" {

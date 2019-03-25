@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -42,25 +42,25 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     USE = {
-        :name  => 'use',
+        :name => 'use',
         :large => '--use',
         :description => 'lock use actions'
     }
 
     MANAGE = {
-        :name  => 'manage',
+        :name => 'manage',
         :large => '--manage',
         :description => 'lock manage actions'
     }
 
     ADMIN = {
-        :name  => 'admin',
+        :name => 'admin',
         :large => '--admin',
         :description => 'lock admin actions'
     }
 
     ALL = {
-        :name  => 'all',
+        :name => 'all',
         :large => '--all',
         :description => 'lock all actions'
     }

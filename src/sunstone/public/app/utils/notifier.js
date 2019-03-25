@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,16 +15,16 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  require('jgrowl');
+  require("jgrowl");
 
-  var Locale = require('utils/locale');
+  var Locale = require("utils/locale");
 
   //Notification of submission of action
   var _notifySubmit = function(action, args, extra_param) {
-    var action_text = action.replace(/OpenNebula\./, '').replace(/\./, ' ');
+    var action_text = action.replace(/OpenNebula\./, "").replace(/\./, " ");
 
     var msg = "";
-    if (!args || (typeof args == 'object' && args.constructor != Array)) {
+    if (!args || (typeof args === "object" && args.constructor != Array)) {
 
       msg += action_text;
     } else {
@@ -36,22 +36,26 @@ define(function(require) {
     };
 
     $.jGrowl(msg, {theme: "jGrowl-notify-submit", position: "bottom-right"});
-  }
+  };
 
   //Notification on error
-  var _notifyError = function(msg) {
+  var _notifyError = function(msg, target=undefined, context=undefined) {
+    if(target && context){
+      var tab = $(target).find($(".is-invalid-input",context)).closest(".tabs-panel",context);
+      tab.parent().siblings($(".tabs",context)).find($("a[href$=\"#"+tab.attr("id")+"\"]",context)).click();
+    }
     $.jGrowl(msg, {theme: "jGrowl-notify-error", position: "bottom-right", sticky: true});
-  }
+  };
 
   //Standard notification
   var _notifyMessage = function(msg) {
     $.jGrowl(msg, {theme: "jGrowl-notify-submit", position: "bottom-right"});
-  }
+  };
 
   var _notifyCustom = function(title, msg, sticky) {
     msg = (title ? title + "</br>" : "") + msg;
     $.jGrowl(msg, {theme: "jGrowl-notify-submit", position: "bottom-right", sticky: sticky});
-  }
+  };
 
   //standard handling for the server errors on ajax requests.
   //Pops up a message with the information.
@@ -122,13 +126,13 @@ define(function(require) {
 
     _notifyError(message);
     return true;
-  }
+  };
 
   return {
-    'notifySubmit': _notifySubmit,
-    'notifyError': _notifyError,
-    'notifyMessage': _notifyMessage,
-    'notifyCustom': _notifyCustom,
-    'onError': _onError
-  }
+    "notifySubmit": _notifySubmit,
+    "notifyError": _notifyError,
+    "notifyMessage": _notifyMessage,
+    "notifyCustom": _notifyCustom,
+    "onError": _onError
+  };
 });

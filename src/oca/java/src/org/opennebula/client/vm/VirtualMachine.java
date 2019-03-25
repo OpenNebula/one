@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2018, OpenNebula Project, OpenNebula Systems
+ * Copyright 2002-2019, OpenNebula Project, OpenNebula Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -709,6 +709,27 @@ public class VirtualMachine extends PoolElement{
     protected OneResponse action(String action)
     {
         return client.call(ACTION, action, id);
+    }
+
+    /**
+     * Migrates the virtual machine to the target host (hid).
+     *
+     * @param hostId The target host id (hid) where we want to migrate
+     * the vm.
+     * @param live If true we are indicating that we want livemigration,
+     * otherwise false.
+     * @param enforce If it is set to true, the host capacity
+     * will be checked, and the deployment will fail if the host is
+     * overcommited. Defaults to false
+     * @param ds_id The System Datastore where to migrate the VM. To use the
+     * current one, set it to -1
+     * @param migration_type the migration type to use
+     * (0 save, 1 poweroff, 2 poweroff hard)
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse migrate(int hostId, boolean live, boolean enforce, int ds_id, int migration_type)
+    {
+        return client.call(MIGRATE, id, hostId, live, enforce, ds_id, migration_type);
     }
 
     /**

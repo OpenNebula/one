@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -198,7 +198,7 @@ public:
             int id,
             string& error_msg)
     {
-        return cluster->add_vnet(id, error_msg);
+        return clpool->add_to_cluster(PoolObjectSQL::NET, cluster, id, error_msg);
     };
 };
 
@@ -263,6 +263,39 @@ public:
             PoolObjectAuth *cluster_perms);
 };
 
+class VirtualNetworkTemplateAllocate : public RequestManagerAllocate
+{
+public:
+    VirtualNetworkTemplateAllocate():
+        RequestManagerAllocate("one.vntemplate.allocate",
+                               "Allocates a new virtual network template",
+                               "A:ss",
+                               true)
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vntpool();
+        auth_object = PoolObjectSQL::VNTEMPLATE;
+    };
+
+    ~VirtualNetworkTemplateAllocate(){};
+
+    /* --------------------------------------------------------------------- */
+
+    Template * get_object_template()
+    {
+        return new VirtualMachineTemplate;
+    };
+
+    Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
+                                     Template *                  tmpl,
+                                     int&                        id,
+                                     RequestAttributes&          att);
+
+    bool allocate_authorization(xmlrpc_c::paramList const&  paramList,
+            Template *obj_template, RequestAttributes&  att,
+            PoolObjectAuth *cluster_perms);
+};
+
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
@@ -301,7 +334,7 @@ public:
             int id,
             string& error_msg)
     {
-        return cluster->add_host(id, error_msg);
+        return clpool->add_to_cluster(PoolObjectSQL::HOST, cluster, id, error_msg);;
     };
 };
 
@@ -412,7 +445,7 @@ public:
             int id,
             string& error_msg)
     {
-        return cluster->add_datastore(id, error_msg);
+        return clpool->add_to_cluster(PoolObjectSQL::DATASTORE, cluster, id, error_msg);
     };
 };
 

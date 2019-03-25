@@ -1,0 +1,14 @@
+---
+
+- include: redhat.yml
+  when: ansible_os_family == "RedHat"
+
+- include: debian.yml
+  when: ansible_os_family == "Debian"
+
+- block:
+  - name: Activate interface
+    shell: ifup {{ tuntap_name }}
+  - name: Refresh facts
+    setup:
+  when: not tuntap_name in ansible_interfaces

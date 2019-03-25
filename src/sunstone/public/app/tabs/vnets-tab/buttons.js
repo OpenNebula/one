@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,30 +26,36 @@ define(function(require) {
     },
     "Network.create_dialog" : {
       type: "create_dialog",
-      layout: "create"
+      text:  Locale.tr("Create"),
+      layout: "create_flatten",
+      custom_classes: "only-sunstone-list"
     },
     "Network.import_dialog" : {
       type: "create_dialog",
-      layout: "create",
+      layout: "create_flatten",
       text:  Locale.tr("Import"),
-      icon: '<i class="fas fa-download"/>',
-      alwaysActive: true
+      custom_classes: "only-sunstone-list"
+    },
+    "Network.instantiate_dialog" : {
+      type: "create_dialog",
+      text:  Locale.tr("Instantiate"),
+      layout: "create_flatten",
+      custom_classes: "only-sunstone-list"
+    },
+    "Network.reserve_dialog" : {
+      type: "create_dialog",
+      layout: "create_flatten",
+      text: Locale.tr("Reserve")
     },
     "Network.update_dialog" : {
       type: "action",
       layout: "main",
       text: Locale.tr("Update")
     },
-    "Network.reserve_dialog" : {
-      type: "action",
-      layout: "main",
-      text: Locale.tr("Reserve"),
-      custom_classes: "only-sunstone-info reserve-sunstone-info",
-    },
     "Network.addtocluster" : {
       type : "action",
       layout: "main",
-      text : Locale.tr("Select cluster")
+      text : Locale.tr("Clusters")
     },
     "Network.chown" : {
       type: "confirm_with_select",

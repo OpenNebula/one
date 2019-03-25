@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -33,11 +33,17 @@ MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)
     //lastOID is set in PoolSQL::init_cb
     if (get_lastOID() == -1)
     {
-        // Build the default default security group
+        // Build the template for the OpenNebula Systems MarketPlace
         string default_market =
             "NAME=\"OpenNebula Public\"\n"
             "MARKET_MAD=one\n"
             "DESCRIPTION=\"OpenNebula Systems MarketPlace\"";
+
+        string lxc_market =
+            "NAME=\"Linux Containers\"\n"
+            "MARKET_MAD=linuxcontainers\n"
+            "DESCRIPTION=\"MarketPlace for the public image server fo LXC &"
+            " LXD hosted at linuxcontainers.org\"";
 
         Nebula& nd         = Nebula::instance();
         UserPool * upool   = nd.get_upool();
@@ -46,9 +52,12 @@ MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)
         string error;
 
         MarketPlaceTemplate * default_tmpl = new MarketPlaceTemplate;
+        MarketPlaceTemplate * lxc_tmpl     = new MarketPlaceTemplate;
+
         char * error_parse;
 
         default_tmpl->parse(default_market, &error_parse);
+        lxc_tmpl->parse(lxc_market, &error_parse);
 
         MarketPlace * marketplace = new MarketPlace(
                 oneadmin->get_uid(),
@@ -58,19 +67,33 @@ MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)
                 oneadmin->get_umask(),
                 default_tmpl);
 
+        MarketPlace * lxc_marketplace = new MarketPlace(
+                oneadmin->get_uid(),
+                oneadmin->get_gid(),
+                oneadmin->get_uname(),
+                oneadmin->get_gname(),
+                oneadmin->get_umask(),
+                lxc_tmpl);
+
         oneadmin->unlock();
 
         marketplace->set_permissions(1,1,1, 1,0,0, 1,0,0, error);
+        lxc_marketplace->set_permissions(1,1,1, 1,0,0, 1,0,0, error);
 
         marketplace->zone_id = Nebula::instance().get_zone_id();
+        lxc_marketplace->zone_id = Nebula::instance().get_zone_id();
 
         marketplace->parse_template(error);
+        lxc_marketplace->parse_template(error);
 
-        if (PoolSQL::allocate(marketplace, error) < 0)
+        int rc = PoolSQL::allocate(marketplace, error);
+
+        rc += PoolSQL::allocate(lxc_marketplace, error);
+
+        if (rc < 0)
         {
             ostringstream oss;
-            oss << "Error trying to create default "
-                << "OpenNebula Systems MarketPlace: " << error;
+            oss << "Error trying to create default marketplaces: " << error;
             NebulaLog::log("MKP", Log::ERROR, oss);
 
             throw runtime_error(oss.str());

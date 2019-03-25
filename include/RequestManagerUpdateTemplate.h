@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -66,6 +66,24 @@ public:
     };
 
     ~TemplateUpdateTemplate(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkTemplateUpdateTemplate: public RequestManagerUpdateTemplate
+{
+public:
+    VirtualNetworkTemplateUpdateTemplate():
+        RequestManagerUpdateTemplate("one.vntemplate.update",
+                                     "Updates a virtual network template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vntpool();
+        auth_object = PoolObjectSQL::VNTEMPLATE;
+    };
+
+    ~VirtualNetworkTemplateUpdateTemplate(){};
 };
 
 /* ------------------------------------------------------------------------- */

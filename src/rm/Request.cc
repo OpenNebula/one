@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -71,6 +71,8 @@ string Request::object_name(PoolObjectSQL::ObjectType ob)
             return "marketplaceapp";
         case PoolObjectSQL::VMGROUP:
             return "vm group";
+        case PoolObjectSQL::VNTEMPLATE:
+            return "virtual network template";
         default:
             return "-";
       }
@@ -381,11 +383,15 @@ void Request::execute(
         return;
     }
 
-    if ( raftm->is_follower() && leader_only)
+    if ( (raftm->is_follower() || nd.is_cache()) && leader_only)
     {
         string leader_endpoint, error;
 
-        if ( raftm->get_leader_endpoint(leader_endpoint) != 0 )
+        if ( nd.is_cache() )
+        {
+            leader_endpoint = nd.get_master_oned();
+        }
+        else if ( raftm->get_leader_endpoint(leader_endpoint) != 0 )
         {
             att.resp_msg = "Cannot process request, no leader found";
             failure_response(INTERNAL, att);

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -248,6 +248,12 @@ void LifeCycleManager::user_action(const ActionRequest& ar)
         shutdown_action(la, true);
         break;
     case LCMAction::MIGRATE:
+        migrate_action(la);
+        break;
+    case LCMAction::POFF_MIGRATE:
+        migrate_action(la);
+        break;
+    case LCMAction::POFF_HARD_MIGRATE:
         migrate_action(la);
         break;
     case LCMAction::LIVE_MIGRATE:

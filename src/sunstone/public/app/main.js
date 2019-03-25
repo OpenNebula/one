@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,21 +17,24 @@
 require.config({
   paths: {
     /* Almond */
-    'almond': '../bower_components/almond/almond',
+    "almond": "../bower_components/almond/almond",
 
     /* jQuery */
-    'jquery': '../bower_components/jquery/dist/jquery',
-    'jquery-ui': '../bower_components/jquery-ui/jquery-ui',
+    "jquery": "../bower_components/jquery/dist/jquery",
+    "jquery-ui": "../bower_components/jquery-ui/jquery-ui",
+
+    /** Wickedpicker */
+    "wickedpicker": "../bower_components/wickedpicker/dist/wickedpicker.min",
 
     /* DataTables */
-    'datatables.net': '../bower_components/datatables/media/js/jquery.dataTables',
-    'datatables.foundation': '../bower_components/datatables/media/js/dataTables.foundation',
+    "datatables.net": "../bower_components/datatables/media/js/jquery.dataTables",
+    "datatables.foundation": "../bower_components/datatables/media/js/dataTables.foundation",
 
     /* DataTables */
-    'jgrowl': '../bower_components/jgrowl/jquery.jgrowl',
+    "jgrowl": "../bower_components/jgrowl/jquery.jgrowl",
 
     /* Foundation */
-    'foundation': '../bower_components/foundation-sites/dist/foundation',
+    "foundation": "../bower_components/foundation-sites/dist/foundation",
     //'foundation.core': '../bower_components/foundation/js/foundation/foundation',
     //'foundation.abide': '../bower_components/foundation/js/foundation/foundation.abide',
     //'foundation.accordion': '../bower_components/foundation/js/foundation/foundation.accordion',
@@ -51,130 +54,131 @@ require.config({
     //'foundation.topbar': '../bower_components/foundation/js/foundation/foundation.topbar',
 
     /* Handlebars */
-    'hbs': '../bower_components/require-handlebars-plugin/hbs',
+    "hbs": "../bower_components/require-handlebars-plugin/hbs",
 
     /* Resumable */
-    'resumable': '../bower_components/resumablejs/resumable',
+    "resumable": "../bower_components/resumablejs/resumable",
 
     /* Flot Graphs */
-    'flot': '../bower_components/flot/jquery.flot',
-    'flot.stack': '../bower_components/flot/jquery.flot.stack',
-    'flot.navigate': '../bower_components/flot/jquery.flot.navigate',
-    'flot.canvas': '../bower_components/flot/jquery.flot.canvas',
-    'flot.resize': '../bower_components/flot/jquery.flot.resize',
-    'flot.time': '../bower_components/flot/jquery.flot.time',
-    'flot.tooltip': '../bower_components/flot.tooltip/js/jquery.flot.tooltip',
+    "flot": "../bower_components/flot/jquery.flot",
+    "flot.stack": "../bower_components/flot/jquery.flot.stack",
+    "flot.navigate": "../bower_components/flot/jquery.flot.navigate",
+    "flot.canvas": "../bower_components/flot/jquery.flot.canvas",
+    "flot.resize": "../bower_components/flot/jquery.flot.resize",
+    "flot.time": "../bower_components/flot/jquery.flot.time",
+    "flot.tooltip": "../bower_components/flot.tooltip/js/jquery.flot.tooltip",
 
     /* VNC */
-    'vnc-util': '../bower_components/no-vnc/include/util',
-    'vnc-webutil': '../bower_components/no-vnc/include/webutil',
-    'vnc-base64': '../bower_components/no-vnc/include/base64',
-    'vnc-websock': '../bower_components/no-vnc/include/websock',
-    'vnc-des': '../bower_components/no-vnc/include/des',
-    'vnc-keysymdef': '../bower_components/no-vnc/include/keysymdef',
-    'vnc-keyboard': '../bower_components/no-vnc/include/keyboard',
-    'vnc-input': '../bower_components/no-vnc/include/input',
-    'vnc-display': '../bower_components/no-vnc/include/display',
-    'vnc-jsunzip': '../bower_components/no-vnc/include/jsunzip',
-    'vnc-rfb': '../bower_components/no-vnc/include/rfb',
-    'vnc-keysym': '../bower_components/no-vnc/include/keysym',
+    "vnc-util": "../bower_components/no-vnc/include/util",
+    "vnc-webutil": "../bower_components/no-vnc/include/webutil",
+    "vnc-base64": "../bower_components/no-vnc/include/base64",
+    "vnc-websock": "../bower_components/no-vnc/include/websock",
+    "vnc-des": "../bower_components/no-vnc/include/des",
+    "vnc-keysymdef": "../bower_components/no-vnc/include/keysymdef",
+    "vnc-keyboard": "../bower_components/no-vnc/include/keyboard",
+    "vnc-input": "../bower_components/no-vnc/include/input",
+    "vnc-display": "../bower_components/no-vnc/include/display",
+    "vnc-jsunzip": "../bower_components/no-vnc/include/jsunzip",
+    "vnc-rfb": "../bower_components/no-vnc/include/rfb",
+    "vnc-keysym": "../bower_components/no-vnc/include/keysym",
 
     /* Spice */
-    'spice-main': '../bower_components/spice-html5/main',
-    'spice-spicearraybuffer': '../bower_components/spice-html5/spicearraybuffer',
-    'spice-enums': '../bower_components/spice-html5/enums',
-    'spice-atKeynames': '../bower_components/spice-html5/atKeynames',
-    'spice-utils': '../bower_components/spice-html5/utils',
-    'spice-png': '../bower_components/spice-html5/png',
-    'spice-lz': '../bower_components/spice-html5/lz',
-    'spice-quic': '../bower_components/spice-html5/quic',
-    'spice-bitmap': '../bower_components/spice-html5/bitmap',
-    'spice-spicedataview': '../bower_components/spice-html5/spicedataview',
-    'spice-spicetype': '../bower_components/spice-html5/spicetype',
-    'spice-spicemsg': '../bower_components/spice-html5/spicemsg',
-    'spice-wire': '../bower_components/spice-html5/wire',
-    'spice-spiceconn': '../bower_components/spice-html5/spiceconn',
-    'spice-display': '../bower_components/spice-html5/display',
-    'spice-inputs': '../bower_components/spice-html5/inputs',
-    'spice-webm': '../bower_components/spice-html5/webm',
-    'spice-playback': '../bower_components/spice-html5/playback',
-    'spice-simulatecursor': '../bower_components/spice-html5/simulatecursor',
-    'spice-cursor': '../bower_components/spice-html5/cursor',
-    'spice-jsbn': '../bower_components/spice-html5/thirdparty/jsbn',
-    'spice-rsa': '../bower_components/spice-html5/thirdparty/rsa',
-    'spice-prng4': '../bower_components/spice-html5/thirdparty/prng4',
-    'spice-rng': '../bower_components/spice-html5/thirdparty/rng',
-    'spice-sha1': '../bower_components/spice-html5/thirdparty/sha1',
-    'spice-ticket': '../bower_components/spice-html5/ticket',
-    'spice-resize': '../bower_components/spice-html5/resize',
-    'spice-filexfer': '../bower_components/spice-html5/filexfer',
+    "spice-main": "../bower_components/spice-html5/main",
+    "spice-spicearraybuffer": "../bower_components/spice-html5/spicearraybuffer",
+    "spice-enums": "../bower_components/spice-html5/enums",
+    "spice-atKeynames": "../bower_components/spice-html5/atKeynames",
+    "spice-utils": "../bower_components/spice-html5/utils",
+    "spice-png": "../bower_components/spice-html5/png",
+    "spice-lz": "../bower_components/spice-html5/lz",
+    "spice-quic": "../bower_components/spice-html5/quic",
+    "spice-bitmap": "../bower_components/spice-html5/bitmap",
+    "spice-spicedataview": "../bower_components/spice-html5/spicedataview",
+    "spice-spicetype": "../bower_components/spice-html5/spicetype",
+    "spice-spicemsg": "../bower_components/spice-html5/spicemsg",
+    "spice-wire": "../bower_components/spice-html5/wire",
+    "spice-spiceconn": "../bower_components/spice-html5/spiceconn",
+    "spice-display": "../bower_components/spice-html5/display",
+    "spice-inputs": "../bower_components/spice-html5/inputs",
+    "spice-webm": "../bower_components/spice-html5/webm",
+    "spice-playback": "../bower_components/spice-html5/playback",
+    "spice-simulatecursor": "../bower_components/spice-html5/simulatecursor",
+    "spice-cursor": "../bower_components/spice-html5/cursor",
+    "spice-jsbn": "../bower_components/spice-html5/thirdparty/jsbn",
+    "spice-rsa": "../bower_components/spice-html5/thirdparty/rsa",
+    "spice-prng4": "../bower_components/spice-html5/thirdparty/prng4",
+    "spice-rng": "../bower_components/spice-html5/thirdparty/rng",
+    "spice-sha1": "../bower_components/spice-html5/thirdparty/sha1",
+    "spice-ticket": "../bower_components/spice-html5/ticket",
+    "spice-resize": "../bower_components/spice-html5/resize",
+    "spice-filexfer": "../bower_components/spice-html5/filexfer",
 
     /* vis.js */
-    'vis': '../bower_components/vis/dist/vis.min',
+    "vis": "../bower_components/vis/dist/vis.min",
 
     /* navigo */
-    'Navigo': '../bower_components/navigo/lib/navigo.min',
+    "Navigo": "../bower_components/navigo/lib/navigo.min",
 
     /* sprintf */
-    'sprintf': '../bower_components/sprintf/dist/sprintf.min'
+    "sprintf": "../bower_components/sprintf/dist/sprintf.min"
   },
   shim: {
     /* Tabs */
-    'app': {
+    "app": {
       deps: [
-        'foundation',
-        'jquery',
-        'tabs/provision-tab',
-        'tabs/dashboard-tab',
-        'tabs/system-top-tab',
-        'tabs/users-tab',
-        'tabs/groups-tab',
-        'tabs/vdcs-tab',
-        'tabs/acls-tab',
-        'tabs/templates-top-tab',
-        'tabs/templates-tab',
-        'tabs/oneflow-templates-tab',
-        'tabs/vrouter-templates-tab',
-        'tabs/instances-top-tab',
-        'tabs/vms-tab',
-        'tabs/oneflow-services-tab',
-        'tabs/vrouters-tab',
-        'tabs/infrastructure-top-tab',
-        'tabs/clusters-tab',
-        'tabs/hosts-tab',
-        'tabs/zones-tab',
-        'tabs/storage-top-tab',
-        'tabs/datastores-tab',
-        'tabs/images-tab',
-        'tabs/files-tab',
-        'tabs/marketplaces-tab',
-        'tabs/marketplaceapps-tab',
-        'tabs/network-top-tab',
-        'tabs/vnets-tab',
-        'tabs/vnets-topology-tab',
-        'tabs/secgroups-tab',
-        'tabs/settings-tab',
-        'tabs/support-tab',
-        'tabs/upgrade-top-tab',
-        'tabs/vmgroup-tab',
-        'addons/start',
-        'addons/end'
+        "foundation",
+        "jquery",
+        "tabs/provision-tab",
+        "tabs/dashboard-tab",
+        "tabs/system-top-tab",
+        "tabs/users-tab",
+        "tabs/groups-tab",
+        "tabs/vdcs-tab",
+        "tabs/acls-tab",
+        "tabs/templates-top-tab",
+        "tabs/templates-tab",
+        "tabs/oneflow-templates-tab",
+        "tabs/vrouter-templates-tab",
+        "tabs/instances-top-tab",
+        "tabs/vms-tab",
+        "tabs/oneflow-services-tab",
+        "tabs/vrouters-tab",
+        "tabs/infrastructure-top-tab",
+        "tabs/clusters-tab",
+        "tabs/hosts-tab",
+        "tabs/zones-tab",
+        "tabs/storage-top-tab",
+        "tabs/datastores-tab",
+        "tabs/images-tab",
+        "tabs/files-tab",
+        "tabs/marketplaces-tab",
+        "tabs/marketplaceapps-tab",
+        "tabs/network-top-tab",
+        "tabs/vnets-tab",
+        "tabs/vnets-templates-tab",
+        "tabs/vnets-topology-tab",
+        "tabs/secgroups-tab",
+        "tabs/settings-tab",
+        "tabs/support-tab",
+        "tabs/upgrade-top-tab",
+        "tabs/vmgroup-tab",
+        "addons/start",
+        "addons/end"
       ]
     },
 
     /* jQuery */
-    'jquery': {
-      exports: '$'
+    "jquery": {
+      exports: "$"
     },
 
     /* jGrowl */
-    'jgrowl': {
-      deps: ['jquery']
+    "jgrowl": {
+      deps: ["jquery"]
     },
 
     /* Foundation */
-    'foundation': {
-        deps: ['jquery']
+    "foundation": {
+        deps: ["jquery"]
     },
     //'foundation.core': {
     //  deps: ['jquery', 'modernizr'],
@@ -244,123 +248,123 @@ require.config({
     //},
 
     /* Flot Graphs */
-    'flot': {
-      deps: ['jquery']
+    "flot": {
+      deps: ["jquery"]
     },
-    'flot.stack': {
-      deps: ['flot']
+    "flot.stack": {
+      deps: ["flot"]
     },
-    'flot.resize': {
-      deps: ['flot']
+    "flot.resize": {
+      deps: ["flot"]
     },
-    'flot.time': {
-      deps: ['flot']
+    "flot.time": {
+      deps: ["flot"]
     },
-    'flot.tooltip': {
-      deps: ['flot']
+    "flot.tooltip": {
+      deps: ["flot"]
     },
 
     /* VNC */
-    'vnc-util': {
-      exports: 'Util'
+    "vnc-util": {
+      exports: "Util"
     },
-    'vnc-webutil': {
+    "vnc-webutil": {
       deps: ["vnc-util"]
     },
-    'vnc-base64': {
+    "vnc-base64": {
       deps: ["vnc-util"]
     },
-    'vnc-websock': {
+    "vnc-websock": {
       deps: ["vnc-util"]
     },
-    'vnc-des': {
+    "vnc-des": {
       deps: ["vnc-util"]
     },
-    'vnc-keysymdef': {
+    "vnc-keysymdef": {
       deps: ["vnc-util"]
     },
-    'vnc-keyboard': {
+    "vnc-keyboard": {
       deps: ["vnc-util"]
     },
-    'vnc-input': {
+    "vnc-input": {
       deps: ["vnc-util"]
     },
-    'vnc-display': {
+    "vnc-display": {
       deps: ["vnc-util"]
     },
-    'vnc-jsunzip': {
+    "vnc-jsunzip": {
       deps: ["vnc-util"]
     },
-    'vnc-rfb': {
+    "vnc-rfb": {
       deps: ["vnc-util"]
     },
-    'vnc-keysym': {
+    "vnc-keysym": {
       deps: ["vnc-util"]
     },
 
-    'spice-main': {
-      exports: 'SpiceMainConn',
+    "spice-main": {
+      exports: "SpiceMainConn",
       deps: [
-        'spice-spiceconn',
-        'spice-spicearraybuffer',
-        'spice-enums',
-        'spice-atKeynames',
-        'spice-utils',
-        'spice-png',
-        'spice-lz',
-        'spice-quic',
-        'spice-bitmap',
-        'spice-spicedataview',
-        'spice-spicetype',
-        'spice-spicemsg',
-        'spice-wire',
-        'spice-display',
-        'spice-inputs',
-        'spice-webm',
-        'spice-playback',
-        'spice-simulatecursor',
-        'spice-cursor',
-        'spice-jsbn',
-        'spice-rsa',
-        'spice-prng4',
-        'spice-rng',
-        'spice-sha1',
-        'spice-ticket',
-        'spice-resize',
-        'spice-filexfer'
+        "spice-spiceconn",
+        "spice-spicearraybuffer",
+        "spice-enums",
+        "spice-atKeynames",
+        "spice-utils",
+        "spice-png",
+        "spice-lz",
+        "spice-quic",
+        "spice-bitmap",
+        "spice-spicedataview",
+        "spice-spicetype",
+        "spice-spicemsg",
+        "spice-wire",
+        "spice-display",
+        "spice-inputs",
+        "spice-webm",
+        "spice-playback",
+        "spice-simulatecursor",
+        "spice-cursor",
+        "spice-jsbn",
+        "spice-rsa",
+        "spice-prng4",
+        "spice-rng",
+        "spice-sha1",
+        "spice-ticket",
+        "spice-resize",
+        "spice-filexfer"
       ]
     },
 
-    'spice-rng': {
+    "spice-rng": {
       deps: [
-        'spice-prng4'
+        "spice-prng4"
       ]
     },
 
-    'spice-display': {
+    "spice-display": {
       deps: [
-        'spice-spiceconn'
+        "spice-spiceconn"
       ]
     },
 
-    'spice-inputs': {
+    "spice-inputs": {
       deps: [
-        'spice-spiceconn'
+        "spice-spiceconn"
       ]
     },
 
-    'spice-playback': {
+    "spice-playback": {
       deps: [
-        'spice-spiceconn'
+        "spice-spiceconn"
       ]
     },
 
-    'spice-cursor': {
+    "spice-cursor": {
       deps: [
-        'spice-spiceconn'
+        "spice-spiceconn"
       ]
     }
   }
 });
 
-require(['app'], function(App) {});
+require(["app"], function(App) {});

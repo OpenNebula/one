@@ -1,15 +1,48 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/*--------------------------------------------------------------------------- */
+
 package goca
 
-// Group represents an OpenNebula Group
-type Group struct {
-	XMLResource
-	ID   uint
-	Name string
-}
+import (
+	"encoding/xml"
+	"errors"
+)
 
 // GroupPool represents an OpenNebula GroupPool
 type GroupPool struct {
-	XMLResource
+	Groups            []Group    `xml:"GROUP"`
+	Quotas            []quotas   `xml:"QUOTAS"`
+	DefaultUserQuotas quotasList `xml:"DEFAULT_USER_QUOTAS"`
+}
+
+// Group represents an OpenNebula Group
+type Group struct {
+	ID       uint          `xml:"ID"`
+	Name     string        `xml:"NAME"`
+	Users    []int         `xml:"USERS>ID"`
+	Admins   []int         `xml:"ADMINS>ID"`
+	Template groupTemplate `xml:"TEMPLATE"`
+
+	// Variable part between one.grouppool.info and one.group.info
+	quotasList
+	DefaultUserQuotas quotasList `xml:"DEFAULT_USER_QUOTAS"`
+}
+
+type groupTemplate struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
 // NewGroupPool returns a group pool. A connection to OpenNebula is
@@ -20,9 +53,13 @@ func NewGroupPool() (*GroupPool, error) {
 		return nil, err
 	}
 
-	grouppool := &GroupPool{XMLResource{body: response.Body()}}
+	groupPool := &GroupPool{}
+	err = xml.Unmarshal([]byte(response.Body()), groupPool)
+	if err != nil {
+		return nil, err
+	}
 
-	return grouppool, err
+	return groupPool, nil
 }
 
 // NewGroup finds a group object by ID. No connection to OpenNebula.
@@ -34,14 +71,26 @@ func NewGroup(id uint) *Group {
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the group.
 func NewGroupFromName(name string) (*Group, error) {
+	var id uint
+
 	groupPool, err := NewGroupPool()
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := groupPool.GetIDFromName(name, "/GROUP_POOL/GROUP")
-	if err != nil {
-		return nil, err
+	match := false
+	for i := 0; i < len(groupPool.Groups); i++ {
+		if groupPool.Groups[i].Name != name {
+			continue
+		}
+		if match {
+			return nil, errors.New("multiple resources with that name")
+		}
+		id = groupPool.Groups[i].ID
+		match = true
+	}
+	if !match {
+		return nil, errors.New("resource not found")
 	}
 
 	return NewGroup(id), nil
@@ -65,8 +114,12 @@ func (group *Group) Delete() error {
 
 // Info retrieves information for the group.
 func (group *Group) Info() error {
-	_, err := client.Call("one.group.info", group.ID)
-	return err
+	response, err := client.Call("one.group.info", group.ID)
+	if err != nil {
+		return err
+	}
+	*group = Group{}
+	return xml.Unmarshal([]byte(response.Body()), group)
 }
 
 // Update replaces the group template contents.

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -44,10 +44,10 @@ LOGOS_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-logos.yaml"
 
 SUNSTONE_ROOT_DIR = File.dirname(__FILE__)
 
-$: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+'/cloud'
-$: << SUNSTONE_ROOT_DIR
-$: << SUNSTONE_ROOT_DIR+'/models'
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cloud'
+$LOAD_PATH << SUNSTONE_ROOT_DIR
+$LOAD_PATH << SUNSTONE_ROOT_DIR + '/models'
 
 DISPLAY_NAME_XPATH = 'TEMPLATE/SUNSTONE/DISPLAY_NAME'
 TABLE_ORDER_XPATH = 'TEMPLATE/SUNSTONE/TABLE_ORDER'
@@ -213,7 +213,7 @@ SUPPORT = {
     :author_name => "OpenNebula Support Team",
     :support_subscription => "http://opennebula.systems/support/",
     :account => "http://opennebula.systems/buy/",
-    :docs => "http://docs.opennebula.org/5.7/",
+    :docs => "http://docs.opennebula.org/5.9/",
     :community => "http://opennebula.org/support/community/",
     :project => "OpenNebula"
 }
@@ -281,9 +281,9 @@ helpers do
             session[:display_name] = user[DISPLAY_NAME_XPATH] || user['NAME']
 
             csrftoken_plain = Time.now.to_f.to_s + SecureRandom.base64
-            session[:csrftoken] = Digest::MD5.hexdigest(csrftoken_plain)
+            session[:csrftoken] = Digest::SHA256.hexdigest(csrftoken_plain)
 
-            group = OpenNebula::Group.new_with_id(user['GID'], client)
+            group = OpenNebula::Group.new_with_id(OpenNebula::Group::SELF, client)
             rc = group.info
             if OpenNebula.is_error?(rc)
                 logger.error { rc.message }
@@ -662,6 +662,14 @@ get '/infrastructure' do
     end
 
     infrastructure[:kvm_info] = { :set_cpu_models => set_cpu_models.to_a, :set_kvm_machines => set_kvm_machines.to_a }
+
+    set_lxd_profiles = Set.new
+
+    xml.each('HOST/TEMPLATE/LXD_PROFILES') do |lxd_profiles|
+        set_lxd_profiles += lxd_profiles.text.split(" ")
+    end
+
+    infrastructure[:lxd_profiles] = set_lxd_profiles.to_a
 
     [200, infrastructure.to_json]
 end

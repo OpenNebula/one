@@ -1,0 +1,22 @@
+---
+
+- name: Remove OpenNebula contextualization
+  package: name=one-context state=absent
+
+- include: redhat.yml
+  when: ansible_os_family == "RedHat"
+
+- include: debian.yml
+  when: ansible_os_family == "Debian"
+
+- name: Force all notified handlers to run now
+  meta: flush_handlers
+
+- name: Refresh facts
+  setup:
+
+- name: Validate availability of bridge and port
+  assert:
+    that:
+      - "bridged_networking_bridge.replace(':', '_') in ansible_interfaces"
+      - "bridged_networking_iface.replace(':', '_') in hostvars[inventory_hostname]['ansible_'+bridged_networking_bridge.replace(':', '_')]['interfaces']"

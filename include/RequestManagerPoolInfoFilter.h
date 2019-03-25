@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -113,7 +113,7 @@ public:
     VirtualMachinePoolInfo():
         RequestManagerPoolInfoFilter("one.vmpool.info",
                                      "Returns the virtual machine instances pool",
-                                     "A:siiii")
+                                     "A:siiiis")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
@@ -242,6 +242,26 @@ public:
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkTemplatePoolInfo: public RequestManagerPoolInfoFilter
+{
+public:
+    VirtualNetworkTemplatePoolInfo():
+        RequestManagerPoolInfoFilter("one.vntemplatepool.info",
+                                     "Returns the virtual network template pool",
+                                     "A:siii")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vntpool();
+        auth_object = PoolObjectSQL::VNTEMPLATE;
+    };
+
+    ~VirtualNetworkTemplatePoolInfo(){};
+
 };
 
 /* ------------------------------------------------------------------------- */

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,6 +26,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var DataStoresTable = require('tabs/datastores-tab/datatable');
   var DataStore = require('opennebula/datastore');
+  var OpenNebulaMarketPlaceApp = require('opennebula/marketplaceapp');
   var Config = require('sunstone-config');
   var OpenNebula = require('opennebula');
   var TemplateUtils = require('utils/template-utils');
@@ -87,6 +88,7 @@ define(function(require) {
   function _htmlWizard() {
     return TemplateWizardHTML({
       'formPanelId': this.formPanelId,
+      'template': this.type == "VMTEMPLATE",
       'datastoresTableHTML': this.datastoresTable.dataTableHTML
     });
   }
@@ -119,8 +121,9 @@ define(function(require) {
     });
   }
 
-  function _setResourceId(context, resourceId) {
+  function _setResourceId(context, resourceId, type) {
     this.resourceId = resourceId;
+    this.type       = type;
 
     OpenNebula.MarketPlaceApp.show({
       data : {

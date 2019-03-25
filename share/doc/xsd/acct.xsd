@@ -151,7 +151,9 @@
                 <xs:complexType>
                   <xs:sequence>
                     <xs:element name="ALLOW_ORPHANS" type="xs:string"/>
+                    <xs:element name="CURRENT_BASE" type="xs:integer"/>
                     <xs:element name="DISK_ID" type="xs:integer"/>
+                    <xs:element name="NEXT_SNAPSHOT" type="xs:integer"/>
                     <xs:element name="SNAPSHOT" minOccurs="0" maxOccurs="unbounded">
                       <xs:complexType>
                         <xs:sequence>

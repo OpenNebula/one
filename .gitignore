@@ -4,6 +4,7 @@
 *.DS_Store
 .xmlrpc_test/
 .sconsign.dblite
+share/install_gems/Gemfile.lock
 share/man/*
 !share/man/build.sh
 src/im_mad/collectd/collectd
@@ -14,12 +15,21 @@ src/mad/utils/tty_expect
 src/nebula/.xmlrpc_test/
 src/nebula/oned
 share/doc/one/html
+src/vmm_mad/remotes/lib/lxd/svncterm_server/genfont
+src/vmm_mad/remotes/lib/lxd/svncterm_server/svncterm_server
 
 *.class
 src/oca/java/bin
 src/oca/java/jar
 src/oca/java/share/doc
 src/oca/java/java-oca*.tar.gz
+
+src/vmm_mad/remotes/lxd/tests/
+src/oca/python/pyone/bindings
+src/oca/python/build/
+src/oca/python/dist/
+src/oca/python/pyone.egg-info/
+src/oca/python/doc/
 
 src/docker_machine/pkg
 src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula
@@ -32,7 +42,10 @@ src/sunstone/public/css/app.css
 src/sunstone/public/css/app.min.css
 src/sunstone/public/dist/
 src/sunstone/public/locale/languages/*.js
+src/sunstone/public/package-lock.json
 .tx/config
 
 share/esx-fw-vnc/*.rpm
 share/esx-fw-vnc/.vagrant*
+
+*.vscode

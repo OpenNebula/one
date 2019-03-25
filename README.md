@@ -1,6 +1,8 @@
 
 # OpenNebula
 
+[![Build Status](https://travis-ci.org/OpenNebula/one.svg?branch=master)](https://travis-ci.org/OpenNebula/one)
+
 ## Description
 
 OpenNebula is an open-source project delivering a simple but feature-rich and
@@ -33,6 +35,7 @@ Additionally, to build OpenNebula from source you need:
 * **flex** >= 2.5 (optional, only needed to rebuild the parsers)
 * **bison** >= 2.3 (optional, only needed to rebuild the parsers)
 * **libxml2-dev**
+* **libvncserver-dev** (optional, only needed to build svncterm_server)
 
 ### Ruby Libraries Requirements
 
@@ -41,7 +44,7 @@ include a handy script to install them and the requirements. It is located at
 `share/install_gems/install_gems` and you should use it to install the
 required gems. You have more information at:
 
-  https://docs.opennebula.org/5.4/integration/references/compile.html
+  https://docs.opennebula.org/stable/integration/references/compile.html
 
 If you want to install them manually here are the list of required rubygems:
 
@@ -115,6 +118,7 @@ The argument expression *[OPTIONAL]* is used to set non-default values for:
         new_xmlrpc  yes if you have an xmlrpc-c version >= 1.31
         sunstone    yes if you want to build sunstone minified files
         systemd     yes if you want to build systemd support
+        svncterm    no if you want to skip building vnc support for LXD drivers
 
 
 ### Installation
@@ -152,11 +156,11 @@ You can find the documentation about OpenNebula architecture, installation,
 configuration and references to configuration files in this documentation
 chapter:
 
-https://docs.opennebula.org/5.4/deployment/index.html
+https://docs.opennebula.org/stable/deployment/index.html
 
 The reference about the main configuration file is located here:
 
-https://docs.opennebula.org/5.4/deployment/references/oned_conf.html
+https://docs.opennebula.org/stable/deployment/references/oned_conf.html
 
 
 ## Contact
@@ -170,7 +174,7 @@ Support: https://opennebula.org/support
 
 ## License
 
-Copyright 2002-2018, OpenNebula Project, OpenNebula Systems (formerly C12G Labs)
+Copyright 2002-2019, OpenNebula Project, OpenNebula Systems (formerly C12G Labs)
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may
 not use this file except in compliance with the License. You may obtain

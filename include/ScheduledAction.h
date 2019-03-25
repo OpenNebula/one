@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -99,15 +99,16 @@ public:
     int parse(std::string& error, bool clean);
 
     /**
+     *  @param stime time when the time was started for relative time specs
      *  @return true if the action needs to be executed.
      */
-    bool is_due();
+    bool is_due(time_t stime);
 
     /**
      *  Compute the next action, updating the TIME attribute for this action
-     *    @return -1 if action ended 0 otherwise
+     *    @return time for next action, if ended or error -1
      */
-    int next_action();
+    time_t next_action();
 };
 
 /**

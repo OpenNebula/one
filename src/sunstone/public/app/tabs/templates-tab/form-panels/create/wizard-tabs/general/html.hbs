@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -26,6 +26,8 @@
     <label for="kvmRadio">{{tr "KVM"}}</label>
     <input type="radio" wizard_field="HYPERVISOR" name="hypervisor" value="vcenter" id="vcenterRadio">
     <label for="vcenterRadio">{{tr "vCenter"}}</label>
+    <input type="radio" wizard_field="HYPERVISOR" name="hypervisor" value="lxd" id="lxdRadio">
+    <label for="lxdRadio">{{tr "LXD"}}</label>
   </div>
 </div>
 <div class="row">
@@ -106,6 +108,38 @@
         {{{tip (tr "If specified, the the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located.")}}}
       </label>
       <input type="text" id="vcenter_vm_folder"/>
+    </div>
+  </div>
+</fieldset>
+<fieldset class="hypervisor only_lxd" style="display: none;">
+  <legend>{{tr "LXD"}}</legend>
+  <div class="row hypervisor only_lxd" style="display: none;">
+    <div class="medium-6 columns">
+      <label  for="lxd_security_privileged">
+        {{tr "Security Privileged"}}
+      </label>
+      <select id="lxd_security_privileged">
+         <option value="yes">Yes</option>
+         <option selected="selected" value="no">No</option>
+      </select>
+    </div>
+  </div>
+  <div class="row hypervisor only_lxd" style="display: none;">
+    <div class="medium-6 columns">
+      <label  for="lxd_security_nesting">
+        {{tr "Security Nesting"}}
+      </label>
+      <select id="lxd_security_nesting">
+         <option value="yes">Yes</option>
+         <option selected="selected" value="no">No</option>
+      </select>
+    </div>
+  </div>
+  <div class="row hypervisor only_lxd" style="display: none;">
+    <div class="medium-6 columns">
+      <label id="lxd_profile_label">
+        {{tr "Profile"}}
+      </label>
     </div>
   </div>
 </fieldset>

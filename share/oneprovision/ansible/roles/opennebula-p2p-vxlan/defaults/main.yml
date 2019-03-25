@@ -1,0 +1,23 @@
+---
+
+###############################################################################
+# Valid defaults
+###############################################################################
+
+# Name of VXLAN bridge
+opennebula_p2p_vxlan_bridge: NULL
+
+# Name of VXLAN physical interface
+opennebula_p2p_vxlan_phydev: NULL
+
+# VXLAN ID (VNI)
+opennebula_p2p_vxlan_vxlan_vni: NULL
+
+# Name of VXLAN device
+opennebula_p2p_vxlan_vxlan_dev: NULL
+
+# Source IP address to use by VXLAN device
+opennebula_p2p_vxlan_vxlan_local_ip: NULL
+
+# List of all remote VXLAN endpoints
+opennebula_p2p_vxlan_remotes: []

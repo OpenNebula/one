@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -101,13 +101,15 @@ class ClusterComputeResource
         total_memory,
         effective_mem,
         num_hosts,
-        num_eff_hosts = @item.collect("summary.totalCpu",
+        num_eff_hosts,
+        overall_status = @item.collect("summary.totalCpu",
                                       "summary.numCpuCores",
                                       "summary.effectiveCpu",
                                       "summary.totalMemory",
                                       "summary.effectiveMemory",
                                       "summary.numHosts",
-                                      "summary.numEffectiveHosts"
+                                      "summary.numEffectiveHosts",
+                                      "summary.overallStatus"
         )
 
         mhz_core = total_cpu.to_f / num_cpu_cores.to_f
@@ -129,6 +131,7 @@ class ClusterComputeResource
         str_info << "HYPERVISOR=vcenter\n"
         str_info << "TOTALHOST=" << num_hosts.to_s << "\n"
         str_info << "AVAILHOST=" << num_eff_hosts.to_s << "\n"
+        str_info << "STATUS=" << overall_status << "\n"
 
         # CPU
         str_info << "CPUSPEED=" << mhz_core.to_s   << "\n"
@@ -243,9 +246,21 @@ class ClusterComputeResource
         return rp_info
     end
 
-    def monitor_host_systems
-        host_info = ""
+    def hostname_to_moref(hostname)
+        result = filter_hosts
 
+        moref = ""
+        result.each do |r|
+            if r.obj.name == hostname
+                moref = r.obj._ref
+                break
+            end
+        end
+        raise "Host #{hostname} was not found" if moref.empty?
+        return moref
+    end
+
+    def filter_hosts
         view = @vi_client.vim.serviceContent.viewManager.CreateContainerView({
             container: @item, #View for Hosts inside this cluster
             type:      ['HostSystem'],
@@ -284,7 +299,13 @@ class ClusterComputeResource
         )
 
         result = pc.RetrieveProperties(:specSet => [filterSpec])
+        view.DestroyView # Destroy the view
+        return result
+    end
 
+    def monitor_host_systems
+        host_info = ""
+        result = filter_hosts
         hosts = {}
         result.each do |r|
             hashed_properties = r.to_hash
@@ -318,8 +339,6 @@ class ClusterComputeResource
             host_info << "FREE_MEM="    << free_memory.to_s
             host_info << "]"
         end
-
-        view.DestroyView # Destroy the view
 
         return host_info
     end

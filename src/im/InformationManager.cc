@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -182,7 +182,7 @@ void InformationManager::timer_action(const ActionRequest& ar)
     Nebula& nd          = Nebula::instance();
     RaftManager * raftm = nd.get_raftm();
 
-    if ( !raftm->is_leader() && !raftm->is_solo() )
+    if ( !raftm->is_leader() && !raftm->is_solo() && !nd.is_cache() )
     {
         return;
     }

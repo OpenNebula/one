@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -16,36 +16,36 @@
 <form data-abide novalidate id="{{formPanelId}}Wizard" class="custom creation">
   <dl id="vnet_create_tabs" class="tabs sunstone-info-tabs text-center" data-tabs>
     <dd class="tabs-title is-active">
-      <a href="#vnetCreateGeneralTab"> <i class="fas fa-globe"></i>
+      <a href="#{{createGeneralTab}}"> <i class="fas fa-globe"></i>
         <br>{{tr "General"}}</a>
     </dd>
     <dd class="tabs-title">
-      <a href="#vnetCreateBridgeTab"> <i class="fas fa-cog"></i>
+      <a href="#{{createBridgeTab}}"> <i class="fas fa-cog"></i>
         <br>{{tr "Conf"}}</a>
     </dd>
     <dd class="tabs-title">
-      <a href="#vnetCreateARTab">
+      <a href="#{{createARTab}}">
         <i class="fas fa-align-justify"></i>
         <br>{{tr "Addresses"}}</a>
     </dd>
     <dd class="tabs-title">
-      <a href="#vnetCreateSecurityTab">
+      <a href="#{{createSecurityTab}}">
         <i class="fas fa-shield-alt"></i>
         <br>{{tr "Security"}}</a>
     </dd>
     <dd class="tabs-title">
-      <a href="#vnetCreateQoSTab">
+      <a href="#{{createQoSTab}}">
         <i class="fas fa-wrench"></i>
         <br>{{tr "QoS"}}</a>
     </dd>
     <dd class="tabs-title">
-      <a href="#vnetCreateContextTab">
+      <a href="#{{createContextTab}}">
         <i class="fas fa-folder"></i>
         <br>{{tr "Context"}}</a>
     </dd>
   </dl>
   <div id="vnet_create_tabs_content" class="tabs-content" data-tabs-content="vnet_create_tabs">
-    <div class="tabs-panel is-active" id="vnetCreateGeneralTab">
+    <div class="tabs-panel is-active" id="{{createGeneralTab}}">
       <div class="row">
         <div class="medium-6 columns">
           <label for="name" >
@@ -66,8 +66,14 @@
           <textarea type="text" wizard_field="DESCRIPTION" id="DESCRIPTION" name="DESCRIPTION"/>
         </div>
       </div>
+      <div class="row">
+        <div class="medium-12 columns" id="vnet_cluster_table_div" hidden>
+          <label for="cluster">{{tr "Clusters"}}</label>
+          {{{clustersTableHTML}}}
+        </div>
+      </div>
     </div>
-    <div class="tabs-panel" id="vnetCreateBridgeTab">
+    <div class="tabs-panel" id="{{createBridgeTab}}">
       <div class="row">
         <div class="medium-6 columns">
           <label for="bridge">
@@ -230,8 +236,8 @@
         </div>
       </div>
     </div>
-    <div class="tabs-panel" id="vnetCreateARTab">
-      <div class="row collapse" id="vnetCreateARTabCreate">
+    <div class="tabs-panel" id="{{createARTab}}">
+      <div class="row collapse" id="{{createARTab}}Create">
         <div class="medium-2 columns">
           <ul class="tabs vertical" id="vnet_wizard_ar_tabs" data-tabs></ul>
           <div class="text-center">
@@ -244,7 +250,7 @@
           <div class="tabs-content vertical" id="vnet_wizard_ar_tabs_content" data-tabs-content="vnet_wizard_ar_tabs"></div>
         </div>
       </div>
-      <div class="row" id="vnetCreateARTabUpdate">
+      <div class="row" id="{{createARTab}}Update">
         <div class="large-12 columns">
           <p>
             {{tr "Address Ranges need to be managed in the individual Virtual Network panel"}}
@@ -252,7 +258,7 @@
         </div>
       </div>
     </div>
-    <div class="tabs-panel" id="vnetCreateSecurityTab">
+    <div class="tabs-panel" id="{{createSecurityTab}}">
       {{{securityGroupsTableHTML}}}
       <div class="row" id="default_sg_warning">
         <div class="large-12 columns">
@@ -262,7 +268,7 @@
         </div>
       </div>
     </div>
-    <div class="tabs-panel" id="vnetCreateQoSTab">
+    <div class="tabs-panel" id="{{createQoSTab}}">
       <fieldset>
         <legend>{{tr "Inbound traffic"}}</legend>
         <div class="row">
@@ -317,7 +323,7 @@
         </div>
       </div>
     </div>
-    <div class="tabs-panel" id="vnetCreateContextTab">
+    <div class="tabs-panel" id="{{createContextTab}}">
       <div class="row">
         <div class="medium-6 columns">
           <label for="net_address">

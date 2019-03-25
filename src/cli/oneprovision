@@ -1,0 +1,528 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    LIB_LOCATION      = '/usr/lib/one'
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    REMOTES_LOCATION  = '/var/lib/one/remotes'
+    ANSIBLE_LOCATION  = '/usr/share/one/oneprovision/ansible'
+else
+    LIB_LOCATION      = ONE_LOCATION + '/usr/lib/one'
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    REMOTES_LOCATION  = ONE_LOCATION + '/var/remotes'
+    ANSIBLE_LOCATION  = ONE_LOCATION + '/usr/share/oneprovision/ansible'
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
+$LOAD_PATH << LIB_LOCATION      + '/oneprovision/lib'
+
+PING_TIMEOUT_DEFAULT  = 20
+PING_RETRIES_DEFAULT  = 10
+MAX_RETRIES_DEFAULT   = 3
+RUN_MODE_DEFAULT      = :interactive
+FAIL_CHOICE_DEFAULT   = :quit
+CLEANUP_DEFAULT       = false
+THREADS_DEFAULT       = 3
+
+require 'command_parser'
+
+require 'one_helper'
+require 'one_helper/oneprovision_helper'
+require 'one_helper/onecluster_helper'
+require 'one_helper/onehost_helper'
+require 'one_helper/onedatastore_helper'
+require 'one_helper/onevnet_helper'
+
+require 'oneprovision'
+
+CommandParser::CmdParser.new(ARGV) do
+    usage '`oneprovision` <command> [<file>] [<hostid>] [<args>] [<options>]'
+    version OpenNebulaHelper::ONE_VERSION
+
+    helper = OneProvisionHelper.new
+
+    before_proc do
+        helper.set_client(options)
+    end
+
+    ########################################################################
+    # Global Options
+    ########################################################################
+
+    VERBOSE = {
+        :name => 'verbose',
+        :short => '-d',
+        :large => '--verbose',
+        :description => 'Set verbose logging mode'
+    }
+
+    DEBUG = {
+        :name => 'debug',
+        :short => '-D',
+        :large => '--debug',
+        :description => 'Set debug logging mode',
+        :format => String
+    }
+
+    BATCH = {
+        :name => 'batch',
+        :short => '-b',
+        :large => '--batch',
+        :description => 'Run in non-interactive mode (no questions)',
+        :format => String
+    }
+
+    FAIL_RETRY = {
+        :name => 'fail_retry',
+        :large => '--fail-retry number',
+        :description => 'Set batch failover mode to number of retries',
+        :format => Integer
+    }
+
+    FAIL_CLEANUP = {
+        :name => 'fail_cleanup',
+        :large => '--fail-cleanup',
+        :description => 'Set batch failover mode to clean up and quit'
+    }
+
+    FAIL_SKIP = {
+        :name => 'fail_skip',
+        :large => '--fail-skip',
+        :description => 'Set batch failover mode to skip failing part'
+    }
+
+    FAIL_QUIT = {
+        :name => 'fail_quit',
+        :large => '--fail-quit',
+        :description => 'Set batch failover mode to quit (default)'
+    }
+
+    FORCE = {
+        :name => 'force',
+        :short => '-F',
+        :large => '--force',
+        :description => 'Force configure to execute',
+        :format => String
+    }
+
+    HARD = {
+        :name => 'hard',
+        :short => '-H',
+        :large => '--hard',
+        :description => 'Reset the host',
+        :format => String
+    }
+
+    PING_TIMEOUT = {
+        :name => 'ping_timeout',
+        :large => '--ping-timeout seconds',
+        :description => 'Set timeout for ping ' \
+                        "(default: #{PING_TIMEOUT_DEFAULT} secs)",
+        :format => Integer
+    }
+
+    PING_RETRIES = {
+        :name => 'ping_retries',
+        :large => '--ping-retries number',
+        :description => 'Set retries for ping ' \
+                        "(default: #{PING_RETRIES_DEFAULT})",
+        :format => Integer
+    }
+
+    THREADS = {
+        :name => 'threads',
+        :short => '-t threads',
+        :large => '--threads threads',
+        :description => "Set threads for create (default: #{THREADS_DEFAULT})",
+        :format => Integer
+    }
+
+    CLEANUP = {
+        :name => 'cleanup',
+        :large => '--cleanup',
+        :description => 'Delete all vms and images first, ' \
+                        'then delete the resources.'
+    }
+
+    INCREMENTAL = {
+        :name => 'incremental',
+        :large => '--incremental',
+        :description => 'Configure just new hosts, default ' \
+                        'is configure the whole provision.'
+    }
+
+    DUMP = {
+        :name => 'dump',
+        :large => '--dump',
+        :description => 'Dump the configuration file result.'
+    }
+
+    MODES = CommandParser::OPTIONS - [CommandParser::VERBOSE] +
+            [VERBOSE,
+             DEBUG,
+             BATCH,
+             FAIL_RETRY,
+             FAIL_CLEANUP,
+             FAIL_SKIP,
+             FAIL_QUIT]
+
+    CREATE_OPTIONS = [THREADS, MODES, PING_TIMEOUT, PING_RETRIES]
+
+    ONE_OPTIONS = CommandParser::OPTIONS +
+                  CLIHelper::OPTIONS +
+                  OpenNebulaHelper::OPTIONS
+
+    ########################################################################
+    # Provision Commands
+    ########################################################################
+
+    create_desc = <<-EOT.unindent
+        Provision a new cluster via bare metal provider
+    EOT
+
+    command :create, create_desc, :config, :options => CREATE_OPTIONS do
+        helper.parse_options(options)
+
+        helper.create(args[0])
+    end
+
+    ###
+
+    validate_desc = <<-EOT.unindent
+        Validate configuration file
+    EOT
+
+    command :validate, validate_desc, %i[config_file], :options => DUMP do
+        dump = options.key? :dump
+
+        OneProvision::Utils.validate_configuration(args[0], dump)
+    end
+
+    ###
+
+    provision_list_desc = <<-EOT.unindent
+        List all avaliable provisions
+    EOT
+
+    # TODO: add xml option
+    command :list,
+            provision_list_desc,
+            :options => CommandParser::OPTIONS + CLIHelper::OPTIONS do
+        helper.list(options)
+    end
+
+    ###
+
+    provision_show_desc = <<-EOT.unindent
+        Show provision details
+    EOT
+
+    command :show,
+            provision_show_desc,
+            :provisionid,
+            :options => CommandParser::OPTIONS do
+        helper.show(args[0])
+    end
+
+    ###
+
+    provision_configure_desc = <<-EOT.unindent
+        Run configuration in all provision hosts
+    EOT
+
+    command :configure,
+            provision_configure_desc,
+            :provisionid,
+            :options => [MODES, FORCE] do
+        helper.parse_options(options)
+
+        helper.configure(args[0], (options.key?(:force)))
+    end
+
+    ###
+
+    provision_delete_desc = <<-EOT
+        Deletes and unprovisions all the resources
+    EOT
+
+    command :delete,
+            provision_delete_desc,
+            :provisionid,
+            :options => [MODES, THREADS, CLEANUP] do
+        helper.parse_options(options)
+
+        helper.delete(args[0], (options.key? :cleanup))
+    end
+
+    ########################################################################
+    # Cluster Commands
+    ########################################################################
+
+    cluster_list_desc = <<-EOT
+        List all availables clusters
+    EOT
+
+    command %i[cluster list],
+            cluster_list_desc,
+            :options => ONE_OPTIONS + [OpenNebulaHelper::DESCRIBE] do
+        columns = %w[hosts vnets datastores]
+
+        cluster_helper = OneClusterHelper.new
+        list           = helper.get_list(columns, false)
+
+        cluster_helper.format_pool(options).show(list, options)
+
+        0
+    end
+
+    ###
+
+    cluster_delete_desc = <<-EOT
+        Deletes and unprovisions the given cluster
+    EOT
+
+    command %i[cluster delete],
+            cluster_delete_desc,
+            %i[range clusterid_list],
+            :options => [MODES, FORCE] do
+        cluster_helper = OneClusterHelper.new
+        cluster_helper.set_client(options)
+
+        cluster_helper.perform_actions(args[0], options, 'deleted') do |cluster|
+            msg = "Deleting cluster #{cluster['ID']}"
+
+            OneProvision::OneProvisionLogger.info(msg)
+
+            rc = cluster.delete
+
+            if OpenNebula.is_error?(rc)
+                OneProvision::Utils.fail(rc.message)
+            end
+
+            rc
+        end
+    end
+
+    ########################################################################
+    # Host Commands
+    ########################################################################
+
+    host_resume_desc = <<-EOT.unindent
+        Resume the host
+    EOT
+
+    command %i[host resume],
+            host_resume_desc,
+            %i[range hostid_list],
+            :options => [MODES] do
+        operation =  { :operation => 'resume', :message => 'enabled' }
+
+        helper.resources_operation(args, operation, options, 'HOST')
+    end
+
+    ###
+
+    host_poweroff_desc = <<-EOT.unindent
+        Power off the host
+    EOT
+
+    command %i[host poweroff],
+            host_poweroff_desc,
+            %i[range hostid_list],
+            :options => [MODES] do
+        operation =  { :operation => 'poweroff', :message => 'disabled' }
+
+        helper.resources_operation(args, operation, options, 'HOST')
+    end
+
+    ###
+
+    host_reboot_desc = <<-EOT.unindent
+        Reboot the host
+    EOT
+
+    command %i[host reboot],
+            host_reboot_desc,
+            %i[range hostid_list],
+            :options => [MODES, HARD] do
+        operation =  { :operation => 'reboot', :message => 'enabled' }
+
+        helper.resources_operation(args, operation, options, 'HOST')
+    end
+
+    ###
+
+    host_delete_desc = <<-EOT.unindent
+        Unprovisions and deletes the given Host
+    EOT
+
+    command %i[host delete],
+            host_delete_desc,
+            %i[range hostid_list],
+            :options => [MODES] do
+        operation =  { :operation => 'delete', :message => 'deleted' }
+
+        helper.resources_operation(args, operation, options, 'HOST')
+    end
+
+    ###
+
+    host_configure_desc = <<-EOT.unindent
+        Run configuration on the host
+    EOT
+
+    command %i[host configure],
+            host_configure_desc,
+            %i[range hostid_list],
+            :options => [MODES, FORCE] do
+        operation =  { :operation => 'configure', :message => 'enabled' }
+
+        helper.resources_operation(args, operation, options, 'HOST')
+    end
+
+    ###
+
+    host_ssh_desc = <<-EOT.unindent
+        Establish SSH conection to the host
+    EOT
+
+    command %i[host ssh],
+            host_ssh_desc,
+            :hostid,
+            [:command, nil] do
+        operation =  { :operation => 'ssh', :message => 'enabled' }
+
+        helper.resources_operation(args, operation, options, 'HOST')
+    end
+
+    ###
+
+    host_list_desc = <<-EOT.unindent
+        Lists bare metal Hosts in the pool
+    EOT
+
+    command %i[host list],
+            host_list_desc,
+            :options => ONE_OPTIONS + [OpenNebulaHelper::DESCRIBE] do
+        if !options.key? :filter
+            options[:filter] = ['PROVIDER!=-']
+        end
+
+        if !options.key? :list
+            options[:list] = %w[ID NAME CLUSTER ALLOCATED_CPU
+                                ALLOCATED_MEM PROVIDER STAT]
+        end
+
+        host_helper = OneHostHelper.new
+        host_helper.set_client(options)
+        host_helper.list_pool(options)
+    end
+
+    ###
+
+    host_top_desc = <<-EOT.unindent
+        Lists bare metal Hosts continuously
+    EOT
+
+    command %i[host top],
+            host_top_desc,
+            :options => ONE_OPTIONS do
+        if !options.key? :filter
+            options[:filter] = ['PROVIDER!=-']
+        end
+
+        if !options.key? :list
+            options[:list] = %w[ID NAME CLUSTER ALLOCATED_CPU
+                                ALLOCATED_MEM PROVIDER STAT]
+        end
+
+        host_helper = OneHostHelper.new
+        host_helper.set_client(options)
+        host_helper.list_pool(options, true)
+    end
+
+    ########################################################################
+    # Datastores Commands
+    ########################################################################
+
+    datastore_list_desc = <<-EOT
+        List all availables datastores
+    EOT
+
+    command %i[datastore list], datastore_list_desc,
+            :options => ONE_OPTIONS + [OpenNebulaHelper::DESCRIBE] do
+        datastore_helper = OneDatastoreHelper.new
+        datastore        = OneProvision::Datastore.new
+
+        datastore_helper.format_pool(options).show(datastore.get)
+
+        0
+    end
+
+    ###
+
+    datastore_delete_desc = <<-EOT
+        Deletes and unprovisions the given datastore
+    EOT
+
+    command %i[datastore delete],
+            datastore_delete_desc,
+            %i[range datastoreid_list],
+            :options => [MODES, FORCE] do
+        operation =  { :operation => 'delete', :message => 'deleted' }
+
+        helper.resources_operation(args, operation, options, 'DATASTORE')
+    end
+
+    ########################################################################
+    # Vnets Commands
+    ########################################################################
+
+    vnet_list_desc = <<-EOT
+        List all availables virtual networks
+    EOT
+
+    command %i[vnet list],
+            vnet_list_desc,
+            :options => ONE_OPTIONS + [OpenNebulaHelper::DESCRIBE] do
+        vnet_helper = OneVNetHelper.new
+        vnet        = OneProvision::Vnet.new
+
+        vnet_helper.format_pool(options).show(vnet.get, options)
+
+        0
+    end
+
+    ###
+
+    vnet_delete_desc = <<-EOT
+        Deletes and unprovisions the given virtual network
+    EOT
+
+    command %i[vnet delete],
+            vnet_delete_desc,
+            %i[range vnetid_list],
+            :options => [MODES, FORCE] do
+        operation =  { :operation => 'delete', :message => 'deleted' }
+
+        helper.resources_operation(args, operation, options, 'VNET')
+    end
+end

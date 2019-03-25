@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -31,6 +31,7 @@ module OpenNebulaCloudAuth
     #
     def do_auth(env, params={})
         auth = Rack::Auth::Basic::Request.new(env)
+
         if auth.provided? && auth.basic?
             username, password = auth.credentials
             authenticated = false
@@ -63,11 +64,14 @@ module OpenNebulaCloudAuth
                 end
 
                 username = parser.escape(username)
-                password = parser.escape(password)
-                client = OpenNebula::Client.new("#{username}:#{password}", @conf[:one_xmlrpc])
+                epassword = parser.escape(password)
+
+                client = OpenNebula::Client.new("#{username}:#{epassword}", @conf[:one_xmlrpc])
                 user   = OpenNebula::User.new_with_id(OpenNebula::User::SELF, client)
+
                 rc = user.info
             end
+
             if OpenNebula.is_error?(rc)
                 if logger
                     logger.error{ "User #{username} could not be authenticated"}
@@ -77,7 +81,14 @@ module OpenNebulaCloudAuth
                 return nil
             end
 
-            return user.name
+            # Check if the user authenticated with a scoped token. In this case
+            # encode the EGID in the username as "user:egid"
+            egid = user["//LOGIN_TOKEN [ TOKEN = \"#{password}\" ]/EGID"]
+
+            auth_name = user.name
+            auth_name = "#{auth_name}:#{egid}" if egid
+
+            return auth_name
         end
 
         return nil

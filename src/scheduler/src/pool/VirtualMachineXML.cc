@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -168,6 +168,8 @@ void VirtualMachineXML::init_attributes()
     xpath(resched, "/VM/RESCHED", 0);
 
     xpath(action, "/VM/HISTORY_RECORDS/HISTORY/ACTION", -1);
+
+    xpath(stime,  "/VM/STIME", (time_t) 0);
 
     resume = (action == History::STOP_ACTION ||
               action == History::UNDEPLOY_ACTION ||

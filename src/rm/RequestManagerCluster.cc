@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -280,7 +280,7 @@ void RequestManagerClusterHost::add_generic(
         return;
     }
 
-    if ( cluster->add_host(host_id, att.resp_msg) < 0 )
+    if ( clpool->add_to_cluster(PoolObjectSQL::HOST, cluster, host_id, att.resp_msg) < 0 )
     {
         cluster->unlock();
 
@@ -301,8 +301,6 @@ void RequestManagerClusterHost::add_generic(
         return;
     }
 
-    clpool->update(cluster);
-
     cluster->unlock();
 
     // ------------- Remove host from old cluster ---------------------
@@ -318,15 +316,13 @@ void RequestManagerClusterHost::add_generic(
         return;
     }
 
-    if ( cluster->del_host(host_id, att.resp_msg) < 0 )
+    if ( clpool->del_from_cluster(PoolObjectSQL::HOST, cluster, host_id, att.resp_msg) < 0 )
     {
         cluster->unlock();
 
         failure_response(INTERNAL, att);
         return;
     }
-
-    clpool->update(cluster);
 
     cluster->unlock();
 

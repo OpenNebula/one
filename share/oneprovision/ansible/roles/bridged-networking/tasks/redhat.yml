@@ -1,0 +1,57 @@
+---
+
+- name: Install bridge-utils
+  package:
+    name: bridge-utils
+    state: present
+
+- block:
+  - name: Configuration for bridge
+    template:
+      src: ifcfg-br.j2
+      dest: /etc/sysconfig/network-scripts/ifcfg-{{ bridged_networking_bridge }}
+    notify: restart network
+    when: bridged_networking_bridge_manage
+
+#  - name: Remove configuration for IP interface
+#    file:
+#      path: /etc/sysconfig/network-scripts/ifcfg-{{ bridged_networking_ip_iface }}
+#      state: absent
+#    when: bridged_networking_ip_iface is defined
+
+  - name: Configuration for bridge port interface
+    template:
+      src: ifcfg.j2
+      dest: /etc/sysconfig/network-scripts/ifcfg-{{ bridged_networking_iface }}
+    notify: restart network
+    when: bridged_networking_iface_manage
+
+  # Note: Even though the 'bridged_networking_iface_manage' is set
+  # *NOT* to manage the configuration, in case of Red Hat we need to
+  # add at least BRIDGE attribute.
+  - name: Minimal configuration for bridge port interface
+    lineinfile:
+      dest: /etc/sysconfig/network-scripts/ifcfg-{{ bridged_networking_iface }}
+      regexp: "^BRIDGE"
+      line: "BRIDGE={{ bridged_networking_bridge }}"
+    notify: restart network
+    when: not bridged_networking_iface_manage
+  when: not bridged_networking_bridge in ansible_interfaces
+
+## Put interfaces up
+#- block:
+#  - name: Stop interfaces
+#    shell: |
+#      ifdown {{ bridged_networking_ip_iface }} || :
+#      ifdown {{ bridged_networking_iface }}    || :
+#
+#  - name: Remove configuration for IP interface
+#    file:
+#      path: /etc/sysconfig/network-scripts/ifcfg-{{ bridged_networking_ip_iface }}
+#      state: absent
+#    when: bridged_networking_ip_iface is defined
+#
+#  - name: Start bridge
+#    shell: |
+#      ifup {{ bridged_networking_bridge }}
+#  when: ( conf_bridge | changed ) or ( conf_iface | changed )

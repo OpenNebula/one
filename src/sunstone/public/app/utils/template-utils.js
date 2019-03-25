@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,13 +16,13 @@
 
 define(function(require) {
 
-  var Locale = require('utils/locale');
-  var Sunstone = require('sunstone');
-  var Notifier = require('utils/notifier');
+  var Locale = require("utils/locale");
+  var Sunstone = require("sunstone");
+  var Notifier = require("utils/notifier");
 
   //Escape doublequote in a string and return it
   function _escapeDoubleQuotes(string) {
-    if (string != undefined && typeof(string) == "string") {
+    if (string != undefined && typeof(string) === "string") {
       // Recursive to deal with strings like: 'aa""b"'
       // The second " would not match
 
@@ -31,8 +31,8 @@ define(function(require) {
 
       do {
         prev = result;
-        result = prev.replace(/([^\\]|^)"/g, '$1\\"');
-      } while (prev != result)
+        result = prev.replace(/([^\\]|^)"/g, "$1\\\"");
+      } while (prev != result);
 
       return result;
     } else {
@@ -44,14 +44,14 @@ define(function(require) {
   //  input:      &lt;b&gt;bold&lt;/b&gt; "text"
   //  output:     <b>bold</b> "text"
   function _htmlDecode(value) {
-    return $('<div/>').html(value).text();
+    return $("<div/>").html(value).text();
   }
 
   // Transforms text:
   //  input:      <b>bold</b> "text"
   //  output:     &lt;b&gt;bold&lt;/b&gt; "text"
   function _htmlEncode(value) {
-    return $('<div/>').text(value).html();
+    return $("<div/>").text(value).html();
   }
 
   // Transforms an object to an opennebula template string
@@ -75,16 +75,16 @@ define(function(require) {
         $.each(values, function(index, element) {
           if (!element) return true;
           // current value can be an object
-          if (typeof element == 'object') {
+          if (typeof element === "object") {
             template_str += key + " = [\n";
 
             template_str += Object.keys(element).map(function(k){
-              return "  " + k + " = \"" + _escapeDoubleQuotes(element[k].toString()) + "\"";
-            }).join(",\n")
+              return "  " + k + " = \"" + _escapeDoubleQuotes(element[k] ? element[k].toString() : "") + "\"";
+            }).join(",\n");
 
             template_str += " ]\n";
           } else { // or a string
-            template_str += key + " = \"" + _escapeDoubleQuotes(element.toString()) + "\"\n";
+            template_str += key + " = \"" + _escapeDoubleQuotes(element? element.toString() : "") + "\"\n";
           }
         });
       }
@@ -103,8 +103,8 @@ define(function(require) {
     var array = false;
     while (i <= string_json.length-1){
       var symbol = symbols[symbols.length-1];
-      if(string_json[i] != " " && string_json[i] != "," && string_json[i] != "\n" || symbol == '"'){
-        if(string_json[i] == "=" && symbol != '"' && characters.length > 0 && (!symbol || (symbol && symbol == "["))){
+      if(string_json[i] != " " && string_json[i] != "," && string_json[i] != "\n" || symbol == "\""){
+        if(string_json[i] == "=" && symbol != "\"" && characters.length > 0 && (!symbol || (symbol && symbol == "["))){
           var key_aux = "";
           while(characters.length > 0){
             key_aux += characters.shift();
@@ -126,7 +126,7 @@ define(function(require) {
             sub_key = key_aux;
           }
         }
-        else if(string_json[i] == '"' && symbol && symbol == '"' && characters[characters.length-1] != "\\"){
+        else if(string_json[i] == "\"" && symbol && symbol == "\"" && characters[characters.length-1] != "\\"){
           symbols.pop();
           var value_aux = "";
           while(characters.length > 0){
@@ -144,13 +144,13 @@ define(function(require) {
             template_json[key] = value_aux;
           }
         }
-        else if(string_json[i] == '[' && !symbol){
+        else if(string_json[i] == "[" && !symbol){
           symbols.push("[");
         }
-        else if(string_json[i] == '"' && characters[characters.length-1] != "\\"){
-          symbols.push('"');
+        else if(string_json[i] == "\"" && characters[characters.length-1] != "\\"){
+          symbols.push("\"");
         }
-        else if(string_json[i] == ']' && symbol && symbol == '['){
+        else if(string_json[i] == "]" && symbol && symbol == "["){
           symbols.pop();
           if(array){
             template_json[key].push(obj_aux);
@@ -158,7 +158,7 @@ define(function(require) {
           }
         }
         else{
-          if(JSON.stringify(template_json[key]) === '{}' && symbols.length <= 0){ //Empty
+          if(JSON.stringify(template_json[key]) === "{}" && symbols.length <= 0){ //Empty
             return false;
           }
           else{
@@ -172,11 +172,11 @@ define(function(require) {
   }
 
   return {
-    'stringToTemplate': _convert_string_to_template,
-    'templateToString': _convert_template_to_string,
-    'htmlDecode': _htmlDecode,
-    'htmlEncode': _htmlEncode,
-    'escapeDoubleQuotes': _escapeDoubleQuotes
+    "stringToTemplate": _convert_string_to_template,
+    "templateToString": _convert_template_to_string,
+    "htmlDecode": _htmlDecode,
+    "htmlEncode": _htmlEncode,
+    "escapeDoubleQuotes": _escapeDoubleQuotes
   };
 });
 

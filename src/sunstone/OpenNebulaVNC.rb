@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -109,7 +109,7 @@ class OpenNebulaVNC
 
         @pipe = nil
         @token_folder = File.join(VAR_LOCATION, opts[:token_folder_name])
-        @proxy_path   = File.join(SHARE_LOCATION, "websockify/websocketproxy.py")
+        @proxy_path   = File.join(SHARE_LOCATION, "websockify/run")
         @proxy_port   = config[:vnc_proxy_port]
 
         @proxy_ipv6   = config[:vnc_proxy_ipv6]
@@ -151,10 +151,7 @@ class OpenNebulaVNC
             proxy_options << " -6"
         end
 
-        system("which python2 >/dev/null 2>&1")
-        python = $?.success? ? "python2" : "python"
-
-        cmd ="#{python} #{@proxy_path} #{proxy_options} #{@proxy_port}"
+        cmd ="python #{@proxy_path} #{proxy_options} #{@proxy_port}"
 
         begin
             @logger.info { "Starting VNC proxy: #{cmd}" }

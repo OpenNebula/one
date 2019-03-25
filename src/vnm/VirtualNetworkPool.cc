@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -128,13 +128,7 @@ int VirtualNetworkPool::allocate (
     vn = new VirtualNetwork(uid, gid, uname, gname, umask, pvid,
                             cluster_ids, vn_template);
 
-    // Check name
-    vn->PoolObjectSQL::get_template_attribute("NAME", name);
 
-    if ( !PoolObjectSQL::name_is_valid(name, error_str) )
-    {
-        goto error_name;
-    }
 
     // Check for duplicates
     db_oid = exist(name, uid);
@@ -151,6 +145,12 @@ int VirtualNetworkPool::allocate (
     if ( *oid != -1 )
     {
         vn = get(*oid);
+
+        if (vn == 0)
+        {
+            error_str = "An error occurred while allocating the virtual network.";
+            goto error_common;
+        }
 
         if ( set_vlan_id(vn) != 0 )
         {
@@ -169,9 +169,11 @@ int VirtualNetworkPool::allocate (
 error_duplicated:
     oss << "NAME is already taken by NET " << db_oid << ".";
     error_str = oss.str();
-
-error_name:
+    
     delete vn;
+
+error_common:
+
     *oid = -1;
 
     return *oid;

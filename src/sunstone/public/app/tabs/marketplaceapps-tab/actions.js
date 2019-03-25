@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -51,11 +51,12 @@ define(function(require) {
         }
 
         var resourceId = "" + selected_nodes[0];
+        var type       = Sunstone.getDataTable(TAB_ID).type;
 
         Sunstone.resetFormPanel(TAB_ID, EXPORT_DIALOG_ID);
         Sunstone.showFormPanel(TAB_ID, EXPORT_DIALOG_ID, "export",
           function(formPanelInstance, context) {
-            formPanelInstance.setResourceId(context, resourceId);
+            formPanelInstance.setResourceId(context, resourceId, type);
           });
       }
     },

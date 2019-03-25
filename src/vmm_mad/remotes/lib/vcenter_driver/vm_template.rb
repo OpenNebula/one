@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -47,7 +47,7 @@ class Template
         end
     end
 
-    def wild?
+    def vm?
         self.class == VCenterDriver::VirtualMachine
     end
 
@@ -110,7 +110,7 @@ class Template
                                           :name   => template_name,
                                           :spec   => clone_spec).wait_for_completion
             template_ref = template._ref
-        rescue Exception => e
+        rescue StandardError => e
             if !e.message.start_with?('DuplicateName')
                 error = "Could not create the template clone. Reason: #{e.message}"
                 return error, nil
@@ -159,7 +159,7 @@ class Template
                 if self['config.template']
                     @item.MarkAsVirtualMachine(:pool => get_rp, :host => self['runtime.host'])
                 end
-            rescue Exception => e
+            rescue StandardError => e
                 @item.MarkAsTemplate()
                 error = "Cannot mark the template as a VirtualMachine. Not using linked clones. Reason: #{e.message}/#{e.backtrace}"
                 use_linked_clones = false
@@ -186,7 +186,7 @@ class Template
                 end
 
                 @item.ReconfigVM_Task(:spec => spec).wait_for_completion if !spec[:deviceChange].empty?
-            rescue Exception => e
+            rescue StandardError => e
                 error = "Cannot create the delta disks on top of the template. Reason: #{e.message}."
                 use_linked_clones = false
                 return error, use_linked_clones
@@ -213,7 +213,7 @@ class Template
 
     ########################################################################
     # Import vcenter disks
-    # @param type [object] contains the type of the object(:object) and identificator(:id)
+    # @param type [object] contains the type of the object(:object) and identifier(:id)
     # @return error, template_disks
     ########################################################################
     def import_vcenter_disks(vc_uuid, dpool, ipool, type)
@@ -229,6 +229,7 @@ class Template
 
             #Get disks and info required
             vc_disks = get_vcenter_disks
+            vc_disks.sort_by! {|d| d[:device].unitNumber}
 
             # Track allocated images
             allocated_images = []
@@ -255,7 +256,7 @@ class Template
                     break
                 end
 
-                opts = {:persistent => wild? ? "YES":"NO"}
+                opts = {:persistent => vm? ? "YES":"NO"}
                 image_import = VCenterDriver::Datastore.get_image_import_template(disk, ipool, type, datastore_found["ID"], opts)
                 #Image is already in the datastore
                 if image_import[:one]
@@ -298,7 +299,7 @@ class Template
                 end
             end
 
-        rescue Exception => e
+        rescue StandardError => e
             error = "\n    There was an error trying to create an image for disk in vcenter template. Reason: #{e.message}\n#{e.backtrace}"
         ensure
             unlock
@@ -424,7 +425,7 @@ class Template
                     nic_tmp = "NIC=[\n"
                     nic_tmp << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
 
-                    if wild?
+                    if vm?
                         ar_tmp = create_ar(nic)
                         network_found.add_ar(ar_tmp)
                         network_found.info
@@ -462,7 +463,7 @@ class Template
                                                             hpool)["CLUSTER_ID"] rescue -1
                     end
 
-                    if wild?
+                    if vm?
                         unmanaged = "wild"
                     else
                         unmanaged = "template"
@@ -493,7 +494,7 @@ class Template
                     ar_tmp << "SIZE=255\n"
                     ar_tmp << "]\n"
 
-                    if wild?
+                    if vm?
                         ar_tmp << create_ar(nic, true)
                     end
 
@@ -509,7 +510,7 @@ class Template
                     nic_tmp = "NIC=[\n"
                     nic_tmp << "NETWORK_ID=\"#{one_vn.id}\",\n"
 
-                    if wild?
+                    if vm?
                         last_id = save_ar_ids(one_vn, nic, ar_ids)
                         nic_tmp << "AR_ID=\"#{last_id}\",\n"
                         nic_tmp << "MAC=\"#{nic[:mac]}\",\n" if nic[:mac]
@@ -528,7 +529,7 @@ class Template
                     npool.info_all
                 end
             end
-        rescue Exception => e
+        rescue StandardError => e
             error = "\n    There was an error trying to create a virtual network to repesent a vCenter network for a VM or VM Template. Reason: #{e.message}"
         ensure
             unlock
@@ -570,24 +571,30 @@ class Template
         ide_controlled  = []
         sata_controlled = []
         scsi_controlled = []
+        controller      = {}
 
         @item["config.hardware.device"].each do |device|
             disk = {}
 
             if device.is_a? RbVmomi::VIM::VirtualIDEController
                 ide_controlled.concat(device.device)
+                controller[device.key] = "ide#{device.busNumber}"
             end
 
             if device.is_a? RbVmomi::VIM::VirtualSATAController
                 sata_controlled.concat(device.device)
+                controller[device.key] = "sata#{device.busNumber}"
             end
 
             if device.is_a? RbVmomi::VIM::VirtualSCSIController
                 scsi_controlled.concat(device.device)
+                controller[device.key] = "scsi#{device.busNumber}"
             end
 
             if is_disk_or_iso?(device)
                 disk[:device]    = device
+
+                raise "datastore not found for VM's device" unless device.backing.datastore
                 disk[:datastore] = device.backing.datastore
                 disk[:path]      = device.backing.fileName
                 disk[:path_wo_ds]= disk[:path].sub(/^\[(.*?)\] /, "")
@@ -596,6 +603,8 @@ class Template
                 disk[:prefix]    = "hd" if ide_controlled.include?(device.key)
                 disk[:prefix]    = "sd" if scsi_controlled.include?(device.key)
                 disk[:prefix]    = "sd" if sata_controlled.include?(device.key)
+                disk[:tag]       = "#{controller[device.controllerKey]}:#{device.unitNumber}"
+
                 disks << disk
             end
         end
@@ -605,7 +614,9 @@ class Template
 
     def get_vcenter_nics
         nics = []
-        self["config.hardware.device"].each { |device| nics << device if is_nic?(device)}
+        @item.config.hardware.device.each do |device|
+            nics << device if is_nic?(device)
+        end
 
         nics
     end
@@ -613,12 +624,17 @@ class Template
     def retrieve_from_device(device)
         res = {}
 
-        # Let's find out if it is a standard or distributed network
-        # If distributed, it needs to be instantitaed from the ref
-        if device.backing.is_a? RbVmomi::VIM::VirtualEthernetCardDistributedVirtualPortBackingInfo
-            if device.backing.port.portKey.match(/^[a-z]+-\d+$/)
+        # Lets find out if it is a standard or distributed network
+        # If distributed, it needs to be instantiated from the ref
+        vim_eth_dist_class =
+            RbVmomi::VIM::VirtualEthernetCardDistributedVirtualPortBackingInfo
+
+        if device.backing.is_a? vim_eth_dist_class
+            if device.backing.port.portKey &&
+               device.backing.port.portKey.match(/^[a-z]+-\d+$/)
                 ref = device.backing.port.portKey
-            elsif device.backing.port.portgroupKey.match(/^[a-z]+-\d+$/)
+            elsif device.backing.port.portgroupKey &&
+                  device.backing.port.portgroupKey.match(/^[a-z]+-\d+$/)
                 ref = device.backing.port.portgroupKey
             else
                 raise "Cannot get hold of Network for device #{device}"
@@ -659,19 +675,18 @@ class Template
         nics = []
         inets_raw = nil
         inets = {}
-        num_device = 0
         @item["config.hardware.device"].each do |device|
             next unless is_nic?(device)
 
             nic = retrieve_from_device(device)
             nic[:mac] = device.macAddress rescue nil
-            if wild?
+            if vm?
                 if online?
                     inets_raw ||= @item["guest.net"].map.with_index { |x,i| [x.macAddress, x] }
                     inets = parse_live.call(inets_raw) if inets.empty?
 
                     if !inets[nic[:mac]]
-                        ipAddresses = inets[nic[:mac]].ipConfig.ipAddress
+                        ipAddresses = inets[nic[:mac]].ipConfig.ipAddress rescue nil
                     end
 
                     if !ipAddresses.nil? && !ipAddresses.empty?
@@ -781,6 +796,10 @@ class Template
         !(device.class.ancestors.index(RbVmomi::VIM::VirtualDisk)).nil?
     end
 
+    def is_cdrom?(device)
+        device.backing.is_a? RbVmomi::VIM::VirtualCdromIsoBackingInfo
+    end
+
     #  Checks if a RbVmomi::VIM::VirtualDevice is a network interface
     def is_nic?(device)
         !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?
@@ -796,7 +815,6 @@ class Template
     end
 
     def vm_to_one(vm_name)
-
         str = "NAME   = \"#{vm_name}\"\n"\
               "CPU    = \"#{@vm_info["config.hardware.numCPU"]}\"\n"\
               "vCPU   = \"#{@vm_info["config.hardware.numCPU"]}\"\n"\
@@ -817,8 +835,9 @@ class Template
         if !@vm_info["datastore"].nil?
            !@vm_info["datastore"].last.nil? &&
            !@vm_info["datastore"].last._ref.nil?
-            str << "VCENTER_DS_REF = \"#{@vm_info["datastore"].last._ref}\"\n"
-        end
+            ds_ref = vm_template_ds_ref
+            str << "VCENTER_DS_REF = \"#{ds_ref}\"\n"
+       end
 
         vnc_port = nil
         keymap = VCenterDriver::VIHelper.get_default("VM/TEMPLATE/GRAPHICS/KEYMAP")
@@ -869,6 +888,40 @@ class Template
 
         return str
     end
+
+    #Gets MOREF from Datastore used by the VM. It validates
+    #the selected DS is not only used to host swap.
+    def vm_template_ds_ref
+        begin
+            ds_ref = nil
+            if @vm_info["datastore"].length > 1
+                swap_path = ""
+                @vm_info["config.extraConfig"].each do |element|
+                    if element.key == "sched.swap.derivedName"
+                        swap_path = element.value
+                    end
+                end
+                @vm_info["datastore"].each do |datastore|
+                    path = datastore.summary.url.sub(/ds:\/\/\/*/, "")
+                    if !swap_path.include?(path) && !datastore._ref.nil?
+                        ds_ref = datastore._ref
+                        break
+                    end
+                end
+            elsif @vm_info["datastore"].length == 1
+                if !@vm_info["datastore"].first._ref.nil?
+                    ds_ref = @vm_info["datastore"].first._ref
+                end
+            end
+
+	        return ds_ref
+        rescue StandardError => e
+            error = "Could not find DATASTORE for this VM. Reason: #{e.message}"
+
+	        return error
+        end
+    end
+
 
     def self.template_to_one(template, vc_uuid, ccr_ref, ccr_name, import_name, host_id)
 
@@ -1012,7 +1065,7 @@ class Template
             # Get the OpenNebula's template hash
             one_tmp[:one] = template_to_one(template, vcenter_uuid, template_ccr_ref, template_ccr_name, import_name, host_id)
             return one_tmp
-        rescue Exception => e
+        rescue StandardError => e
             return nil
         end
     end

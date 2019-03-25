@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -352,6 +352,12 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
 
     file << "\t<name>one-" << vm->get_oid() << "</name>" << endl;
+
+    // ------------------------------------------------------------------------
+    // Title name
+    // ------------------------------------------------------------------------
+
+    file << "\t<title>" << vm->get_name() << "</title>" << endl;
 
     // ------------------------------------------------------------------------
     // CPU & Memory
@@ -1037,7 +1043,7 @@ int LibVirtDriver::deployment_description_kvm(
         ip            = nic[i]->vector_value("IP");
         filter        = nic[i]->vector_value("FILTER");
         virtio_queues = nic[i]->vector_value("VIRTIO_QUEUES");
-        bridge_type   = nic[i]->vector_value("BRDIGE_TYPE");
+        bridge_type   = nic[i]->vector_value("BRIDGE_TYPE");
 
         vrouter_ip = nic[i]->vector_value("VROUTER_IP");
 
@@ -1472,9 +1478,35 @@ int LibVirtDriver::deployment_description_kvm(
     // Metadata used by drivers
     // ------------------------------------------------------------------------
     file << "\t<metadata>\n"
-         << "\t\t<system_datastore>"
+         << "\t\t<one:vm xmlns:one=\"http://opennebula.org/xmlns/libvirt/1.0\">\n"
+         << "\t\t\t<one:system_datastore>"
          << one_util::escape_xml(vm->get_system_dir())
-         << "</system_datastore>\n"
+         << "</one:system_datastore>\n"
+         << "<one:name>"
+         << one_util::escape_xml(vm->get_name())
+         << "</one:name>\n"
+         << "\t\t\t<one:uname>"
+         << one_util::escape_xml(vm->get_uname())
+         << "</one:uname>\n"
+         << "\t\t\t<one:uid>"
+         << vm->get_uid()
+         << "</one:uid>\n"
+         << "\t\t\t<one:gname>"
+         << one_util::escape_xml(vm->get_gname())
+         << "</one:gname>\n"
+         << "\t\t\t<one:gid>"
+         << vm->get_gid()
+         << "</one:gid>\n"
+         << "\t\t\t<one:opennebula_version>"
+         << Nebula::instance().code_version()
+         << "</one:opennebula_version>\n"
+         << "\t\t\t<one:stime>"
+         << vm->get_stime()
+         << "</one:stime>\n"
+         << "\t\t\t<one:deployment_time>"
+         << time(0)
+         << "</one:deployment_time>\n"
+         << "\t\t</one:vm>\n"
         // << "\t\t<opennebula>\n" << vm->to_xml(vm_xml) << "\t\t</opennebula>\n"
          << "\t</metadata>\n";
 

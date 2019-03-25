@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -280,12 +280,12 @@ def show_service(client, args, options)
                 if !role['elasticity_policies'].nil? &&
                    !role['elasticity_policies'].empty? ||
                    !role['scheduled_policies'].nil? &&
-                   !role['scheduled_policies'].emtpty?
+                   !role['scheduled_policies'].empty?
                     puts
                     puts 'ELASTICITY RULES'
 
                     if role['elasticity_policies'] &&
-                       !role['elasticity_policies'].emtpty?
+                       !role['elasticity_policies'].empty?
                         puts
                         #                        puts 'ELASTICITY POLICIES'
                         CLIHelper::ShowTable.new(nil, self) do
@@ -433,9 +433,9 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :list, list_desc, :options => Service::JSON_FORMAT do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -452,9 +452,9 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :show, show_desc, :service_id, :options => Service::JSON_FORMAT do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -475,9 +475,9 @@ CommandParser::CmdParser.new(ARGV) do
                          Service::TOP,
                          CLIHelper::DELAY] do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -514,9 +514,9 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :delete, delete_desc, [:range, :service_id_list] do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -536,9 +536,9 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :shutdown, shutdown_desc, [:range, :service_id_list] do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -564,9 +564,9 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :recover, recover_desc, [:range, :service_id_list] do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -588,9 +588,9 @@ CommandParser::CmdParser.new(ARGV) do
     command :scale, scale_desc, :service_id, :role_name,
             :cardinality, :options => [Service::FORCE] do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -621,9 +621,9 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :chgrp, chgrp_desc, [:range, :service_id_list], :groupid do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -644,9 +644,9 @@ CommandParser::CmdParser.new(ARGV) do
     command :chown, chown_desc,
             [:range, :service_id_list], :userid, [:groupid, nil] do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -667,9 +667,9 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :chmod, chmod_desc, [:range, :service_id_list], :octet do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -689,9 +689,9 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :rename, rename_desc, :service_id, :name do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -719,9 +719,9 @@ CommandParser::CmdParser.new(ARGV) do
             :options => [Service::PERIOD, Service::NUMBER] do
 
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -51,6 +51,7 @@ class SunstoneServer < CloudServer
             when "vm_group"         then VMGroupPoolJSON.new(client, user_flag)
             when "vm"               then VirtualMachinePoolJSON.new(client, user_flag)
             when "vnet"             then VirtualNetworkPoolJSON.new(client, user_flag)
+            when "vntemplate"       then VNTemplatePoolJSON.new(client, user_flag)
             when "user"             then UserPoolJSON.new(client)
             when "acl"              then AclPoolJSON.new(client)
             when "datastore"        then DatastorePoolJSON.new(client)
@@ -112,6 +113,7 @@ class SunstoneServer < CloudServer
             when "vm_group"         then VMGroupJSON.new(VMGroup.build_xml,@client)
             when "vm"               then VirtualMachineJSON.new(VirtualMachine.build_xml,@client)
             when "vnet"             then VirtualNetworkJSON.new(VirtualNetwork.build_xml, @client)
+            when "vntemplate"       then VNTemplateJSON.new(VNTemplate.build_xml, @client)
             when "user"             then UserJSON.new(User.build_xml, @client)
             when "acl"              then AclJSON.new(Acl.build_xml, @client)
             when "datastore"        then DatastoreJSON.new(Datastore.build_xml, @client)
@@ -483,9 +485,10 @@ class SunstoneServer < CloudServer
             when "host"             then HostJSON.new_with_id(id, @client)
             when "image"            then ImageJSON.new_with_id(id, @client)
             when "vmtemplate"       then TemplateJSON.new_with_id(id, @client)
-            when "vm_group"          then VMGroupJSON.new_with_id(id, @client)
+            when "vm_group"         then VMGroupJSON.new_with_id(id, @client)
             when "vm"               then VirtualMachineJSON.new_with_id(id, @client)
             when "vnet"             then VirtualNetworkJSON.new_with_id(id, @client)
+            when "vntemplate"       then VNTemplateJSON.new_with_id(id, @client)
             when "user"             then UserJSON.new_with_id(id, @client)
             when "acl"              then AclJSON.new_with_id(id, @client)
             when "datastore"        then DatastoreJSON.new_with_id(id, @client)

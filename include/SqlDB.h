@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,8 +20,6 @@
 #include <sstream>
 #include "Callbackable.h"
 
-using namespace std;
-
 /**
  * SqlDB class.Provides an abstract interface to implement a SQL backend
  */
@@ -32,6 +30,15 @@ public:
     SqlDB(){};
 
     virtual ~SqlDB(){};
+
+    enum SqlError
+    {
+        SUCCESS     = 0,
+        INTERNAL    = -1,
+        CONNECTION  = -100,
+        SQL         = -200,
+        SQL_DUP_KEY = -201
+    };
 
     /* ---------------------------------------------------------------------- */
     /* Database Operations                                                    */
@@ -46,24 +53,36 @@ public:
      *    @param callbak function to execute on each data returned
      *    @return 0 on success
      */
-    virtual int exec_local_wr(ostringstream& cmd)
+    virtual int exec_local_wr(std::ostringstream& cmd)
     {
         return exec(cmd, 0, false);
     }
 
-    virtual int exec_rd(ostringstream& cmd, Callbackable* obj)
+    virtual int exec_rd(std::ostringstream& cmd, Callbackable* obj)
     {
         return exec(cmd, obj, false);
     }
 
-    virtual int exec_wr(ostringstream& cmd)
+    virtual int exec_wr(std::ostringstream& cmd)
     {
         return exec(cmd, 0, false);
     }
 
-    virtual int exec_wr(ostringstream& cmd, Callbackable* obj)
+    virtual int exec_wr(std::ostringstream& cmd, Callbackable* obj)
     {
         return exec(cmd, obj, false);
+    }
+
+    /* ---------------------------------------------------------------------- */
+
+    int exec_ext(std::ostringstream& cmd)
+    {
+        return exec_ext(cmd, 0, false);
+    }
+
+    int exec_ext(std::ostringstream& cmd, Callbackable * obj)
+    {
+        return exec_ext(cmd, obj, false);
     }
 
    /**
@@ -72,7 +91,7 @@ public:
      *    @param str the string to be escaped
      *    @return a valid SQL string or NULL in case of failure
      */
-    virtual char * escape_str(const string& str) = 0;
+    virtual char * escape_str(const std::string& str) = 0;
 
     /**
      *  Frees a previously scaped string
@@ -96,15 +115,36 @@ public:
      */
     virtual bool limit_support() = 0;
 
+    /**
+     *  Return true if the backend allows FTS index
+     */
+    virtual bool fts_available() = 0;
+
 protected:
     /**
      *  Performs a DB transaction
      *    @param sql_cmd the SQL command
      *    @param callbak function to execute on each data returned
      *    @param quiet True to log errors with DDEBUG level instead of ERROR
-     *    @return 0 on success
+     *    @return 0 on success -1 on failure
      */
-    virtual int exec(ostringstream& cmd, Callbackable* obj, bool quiet) = 0;
+    int exec(std::ostringstream& cmd, Callbackable* obj, bool quiet)
+    {
+        int rc = exec_ext(cmd, obj, quiet);
+
+        if (rc != 0)
+        {
+            rc = -1;
+        };
+
+        return rc;
+    }
+
+    /**
+     *  This function performs a DB transaction and returns and extended error code
+     *    @return SqlError enum
+     */
+    virtual int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet) = 0;
 };
 
 #endif /*SQL_DB_H_*/

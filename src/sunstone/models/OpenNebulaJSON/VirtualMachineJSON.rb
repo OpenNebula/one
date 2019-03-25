@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -45,8 +45,10 @@ module OpenNebulaJSON
             rc = case action_hash['perform']
                  when "deploy"       then self.deploy(action_hash['params'])
                  when "hold"         then self.hold
-                 when "livemigrate"  then self.migrate(action_hash['params'], true)
-                 when "migrate"      then self.migrate(action_hash['params'], false)
+                 when "livemigrate"  then self.migrate(action_hash['params'], true, 0)
+                 when "migrate"      then self.migrate(action_hash['params'], false, 0)
+                 when "migrate_poff"      then self.migrate(action_hash['params'], false, 1)
+                 when "migrate_poff_hard" then self.migrate(action_hash['params'], false, 2)
                  when "resume"       then self.resume
                  when "release"      then self.release
                  when "stop"         then self.stop
@@ -107,8 +109,8 @@ module OpenNebulaJSON
             super(params['hard'])
         end
 
-        def migrate(params=Hash.new, live=false)
-            super(params['host_id'], live, params['enforce'], params['ds_id'])
+        def migrate(params=Hash.new, live=false, mtype)
+            super(params['host_id'], live, params['enforce'], params['ds_id'], mtype)
         end
 
         def disk_saveas(params=Hash.new)

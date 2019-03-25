@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -60,6 +60,7 @@ define(function(require) {
     "marketplaceapps-tab",
     "network-top-tab",
     "vnets-tab",
+    "vnets-templates-tab",
     "vnets-topology-tab",
     "vnets-topology-tab",
     "support-tab",
@@ -84,7 +85,7 @@ define(function(require) {
     $.each(Config.enabledTabs, function(i, tabName){
       var name = "./tabs/" + tabName;
       if (DefaultTabsArr.indexOf(tabName) == -1){
-        name = "./addons/tabs/" + tabName
+        name = "./addons/tabs/" + tabName;
       }
       var tabObj = require(name);
       var _tabId = tabObj.tabId;
@@ -121,7 +122,7 @@ define(function(require) {
     $.each(Config.allTabs(), function(i, tabName){
       var name = "./tabs/" + tabName;
       if (DefaultTabsArr.indexOf(tabName) == -1){
-        name = "./addons/tabs/" + tabName
+        name = "./addons/tabs/" + tabName;
       }
       var tabObj = require(name);
 
@@ -350,6 +351,11 @@ define(function(require) {
           strClass.push("success", "button");
           buttonCode = "<button class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\">" + text + "</button>";
           break;
+        case "create_flatten":
+          buttonContext = $("#" + customId + "create_buttons_flatten", buttonsRow);
+          text = button.text;
+          buttonCode = "<li><a class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\" data=\"" + data + "\">" + text + "</a></li>";
+          break;
         case "refresh":
           buttonContext = $("#" + customId + "refresh_buttons", buttonsRow);
           icon = button.icon ? button.icon : "<i class=\"fas fa-sync-alt\"/>";
@@ -408,6 +414,11 @@ define(function(require) {
           text = button.text;
           buttonCode = "<li><a class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\">" + text + "</a></li>";
           break;
+        case "vmsmigration_buttons":
+          buttonContext = $("#" + customId + "vmsmigration_buttons", buttonsRow);
+          text = button.text;
+          buttonCode = "<li><a class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\">" + text + "</a></li>";
+          break;
         case "more_select":
           buttonContext = $("#" + customId + "more_buttons", buttonsRow);
           text = button.text;
@@ -461,6 +472,10 @@ define(function(require) {
         $("button[data-toggle=" + customId + "vmsplanification_buttons]", actionBlock).remove();
       }
 
+      if ($("#" + customId + "vmsmigration_buttons li", actionBlock).length == 0) {
+        $("button[data-toggle=" + customId + "vmsmigration_buttons]", actionBlock).remove();
+      }
+
       if ($("#" + customId + "vmsdelete_buttons li", actionBlock).length == 0) {
         $("button[data-toggle=" + customId + "vmsdelete_buttons]", actionBlock).remove();
       }
@@ -488,6 +503,10 @@ define(function(require) {
       if ($("#" + customId + "labels_buttons button", buttonsRow).length != 0) {
         $("#" + customId + "labels_buttons").append(
           "<div id=\"" + customId + "LabelsDropdown\" class=\"only-sunstone-info only-sunstone-list labels-dropdown dropdown-pane large menu vertical\" data-dropdown data-close-on-click=\"true\"></div>");
+      }
+
+      if ($("#" + customId + "create_buttons_flatten li", actionBlock).length == 0) {
+        $("button[data-toggle=" + customId + "create_buttons_flatten]", actionBlock).remove();
       }
 
       $("#" + customId + "labels_buttons").foundation();
@@ -1014,7 +1033,6 @@ define(function(require) {
     //_popFormPanelLoading(tabId);
     // Workaround until Foundation.abide support hidden forms
 
-    var context = $("#" + tabId);
     $(".sunstone-form-title", context).text(Locale.tr("Submitting..."));
     $(".submit_button", context).text(Locale.tr("Submitting..."));
 
@@ -1022,7 +1040,6 @@ define(function(require) {
 
     setTimeout(function() {
       var formPanelInstance = SunstoneCfg["tabs"][tabId].activeFormPanel;
-
       if ($(".wizardForms", context).is(":visible")) {
         $("#" + formPanelInstance.formPanelId + "Wizard").submit();
       } else if ($(".advancedForms", context).is(":visible")) {
@@ -1185,11 +1202,7 @@ define(function(require) {
   };
 
   var _rightInfoVisible = function(context) {
-    return $(".sunstone-info", context).is(":visible")
-  };
-
-  var _infoTabVisible = function(context, tab) {
-    return $(tab, $(".sunstone-info", context)).is(":visible")
+    return $(".sunstone-info", context).is(":visible");
   };
 
   var _rightListVisible = function(context) {
@@ -1289,7 +1302,6 @@ define(function(require) {
 
 
     "rightInfoVisible": _rightInfoVisible,
-    "infoTabVisible": _infoTabVisible,
     "rightListVisible": _rightListVisible,
     "rightInfoResourceId": _rightInfoResourceId,
 

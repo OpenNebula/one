@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -60,7 +60,7 @@ protected:
         RequestAttributes& att);
 
     ErrorCode delete_object(int oid, bool recursive,
-        RequestAttributes& att);
+        RequestAttributes& att, AuthRequest::Operation auth);
 
     /* -------------------------------------------------------------------- */
 
@@ -105,12 +105,37 @@ public:
 
     ErrorCode request_execute(int oid, bool recursive, RequestAttributes& att)
     {
-        return delete_object(oid, recursive, att);
+        return delete_object(oid, recursive, att, auth_op);
     }
 
 protected:
 
     int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkTemplateDelete : public RequestManagerDelete
+{
+public:
+    VirtualNetworkTemplateDelete():
+        RequestManagerDelete("one.vntemplate.delete",
+                             "A:si",
+                             "Deletes a virtual network template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vntpool();
+        auth_object = PoolObjectSQL::VNTEMPLATE;
+    };
+
+    ~VirtualNetworkTemplateDelete(){};
+
+    ErrorCode request_execute(int oid, bool recursive, RequestAttributes& att)
+    {
+        return delete_object(oid, false, att, auth_op);
+    }
+
 };
 
 /* ------------------------------------------------------------------------- */
@@ -139,7 +164,7 @@ protected:
 
     int del_from_cluster(Cluster* cluster, int id, string& error_msg)
     {
-        return cluster->del_vnet(id, error_msg);
+        return clpool->del_from_cluster(PoolObjectSQL::NET, cluster, id, error_msg);
     };
 
     int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
@@ -163,8 +188,11 @@ public:
 
     ErrorCode request_execute(int oid, RequestAttributes& att)
     {
-        return delete_object(oid, false, att);
+        return delete_object(oid, false, att, auth_op);
     };
+
+    void request_execute(xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att);
 
 protected:
 
@@ -201,7 +229,7 @@ protected:
 
     int del_from_cluster(Cluster* cluster, int id, string& error_msg)
     {
-        return cluster->del_host(id, error_msg);
+        return clpool->del_from_cluster(PoolObjectSQL::HOST, cluster, id, error_msg);
     };
 
     int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
@@ -282,7 +310,7 @@ public:
 
     int del_from_cluster(Cluster* cluster, int id, string& error_msg)
     {
-        return cluster->del_datastore(id, error_msg);
+        return clpool->del_from_cluster(PoolObjectSQL::DATASTORE, cluster, id, error_msg);
     };
 };
 

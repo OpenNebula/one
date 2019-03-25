@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -84,6 +84,11 @@ public:
      */
     bool limit_support();
 
+    /**
+     *  Return true if the backend allows FTS index
+     */
+     bool fts_available();
+
 protected:
     /**
      *  Wraps the mysql_query function call
@@ -91,7 +96,7 @@ protected:
      *    @param obj Callbackable obj to call if the query succeeds
      *    @return 0 on success
      */
-    int exec(ostringstream& cmd, Callbackable* obj, bool quiet);
+    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet);
 
 private:
 
@@ -171,8 +176,10 @@ public:
 
     bool limit_support(){return true;};
 
+    bool fts_available(){return false;};
+
 protected:
-    int exec(ostringstream& cmd, Callbackable* obj, bool quiet){return -1;};
+    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet){return -1;};
 };
 #endif
 

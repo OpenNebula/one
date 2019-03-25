@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -173,7 +173,7 @@ UserPool::UserPool(SqlDB * db,
     allocate(&server_uid,
              SERVER_NAME,
              GroupPool::ONEADMIN_ID,
-             one_util::sha1_digest(random),
+             one_util::sha256_digest(random),
              "server_cipher",
              true,
              gids,
@@ -374,7 +374,7 @@ int UserPool::allocate (
 
     if (auth_driver == UserPool::CORE_AUTH)
     {
-        upass = one_util::sha1_digest(password);
+        upass = one_util::sha256_digest(password);
     }
 
     if (gids.empty())
@@ -662,6 +662,19 @@ bool UserPool::authenticate_internal(User *        user,
     AuthRequest ar(user_id, group_ids);
 
     // -------------------------------------------------------------------------
+    // Update SHA1 to SHA256
+    // -------------------------------------------------------------------------
+    if (password == one_util::sha1_digest(token))
+    {
+        int rc = user->set_password(token, error_str);
+
+        if ( rc == 0 )
+        {
+            update(user);
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // Check if token is a login or session token, and set EGID if needed
     // -------------------------------------------------------------------------
     bool exists_token = false;
@@ -704,6 +717,7 @@ bool UserPool::authenticate_internal(User *        user,
     }
 
     user->unlock();
+
     // -------------------------------------------------------------------------
     // Not a valid token, perform authentication
     // -------------------------------------------------------------------------
@@ -871,16 +885,16 @@ auth_failure_driver:
     NebulaLog::log("AuM",Log::ERROR,oss);
 
     goto auth_failure;
-	
+
 auth_failure_token:
     NebulaLog::log("AuM", Log::ERROR, "Token has expired.");
     goto auth_failure;
-	
+
 auth_failure_nodriver:
     NebulaLog::log("AuM",Log::ERROR,
         "Auth Error: Authentication driver not enabled. "
         "Check AUTH_MAD in oned.conf");
-	
+
 auth_failure:
     user_id  = -1;
     group_id = -1;
@@ -920,9 +934,15 @@ bool UserPool::authenticate_server(User *        user,
 
     string target_username;
     string second_token;
+    string egid;
+
+    istringstream iss;
+
+    int egid_i = -1;
 
     Nebula& nd         = Nebula::instance();
     AuthManager* authm = nd.get_authm();
+    GroupPool* gpool   = nd.get_gpool();
 
     server_username = user->name;
     server_password = user->password;
@@ -934,11 +954,32 @@ bool UserPool::authenticate_server(User *        user,
     user->unlock();
 
     // token = target_username:second_token
-    int rc = User::split_secret(token,target_username,second_token);
+    int rc = User::split_secret(token, target_username, second_token);
 
     if ( rc != 0 )
     {
         goto wrong_server_token;
+    }
+
+    // Look for a EGID in the user token. The second token can be:
+    // second_token = egid:server_admin_auth
+    // second_token = server_admin_auth
+    rc = User::split_secret(second_token, egid, second_token);
+
+    if ( rc == -1 ) //No EGID found
+    {
+        egid_i = -1;
+    }
+    else
+    {
+        iss.str(egid);
+
+        iss >> egid_i;
+
+        if (iss.fail() || !iss.eof())
+        {
+            goto wrong_server_token;
+        }
     }
 
     user = get_ro(target_username);
@@ -963,6 +1004,16 @@ bool UserPool::authenticate_server(User *        user,
     umask  = user->get_umask();
 
     user->unlock();
+
+    //server_admin token set a EGID, update auth info
+    if ( egid_i != - 1 )
+    {
+        group_id = egid_i;
+        gname    = gpool->get_name(egid_i);
+
+        group_ids.clear();
+        group_ids.insert(egid_i);
+    }
 
     if (result)
     {

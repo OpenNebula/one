@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,9 +16,10 @@
 
 #include "MySqlDB.h"
 #include <mysql/errmsg.h>
+#include <mysqld_error.h>
 
 /*********
- * Doc: http://dev.mysql.com/doc/refman/5.5/en/c-api-function-overview.html
+ * Doc: https://dev.mysql.com/doc/refman/8.0/en/c-api.html
  ********/
 
 /* -------------------------------------------------------------------------- */
@@ -162,10 +163,12 @@ bool MySqlDB::limit_support()
 
 /* -------------------------------------------------------------------------- */
 
-int MySqlDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
+int MySqlDB::exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
 {
     string str         = cmd.str();
     const char * c_str = str.c_str();
+
+    int ec = SqlDB::SUCCESS;
 
     Log::MessageType error_level = quiet ? Log::DDEBUG : Log::ERROR;
 
@@ -179,37 +182,52 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
 
     if (rc != 0)
     {
-        ostringstream   oss;
-        const char *    err_msg = mysql_error(db);
-        int             err_num = mysql_errno(db);
+        ostringstream oss;
 
-        if( err_num == CR_SERVER_GONE_ERROR || err_num == CR_SERVER_LOST )
+        const char * err_msg = mysql_error(db);
+        int          err_num = mysql_errno(db);
+
+        switch(err_num)
         {
-            oss << "MySQL connection error " << err_num << " : " << err_msg;
+            case CR_SERVER_GONE_ERROR:
+            case CR_SERVER_LOST:
+                oss << "MySQL connection error " << err_num << " : " << err_msg;
 
-            // Try to re-connect
-            if (mysql_real_connect(db, server.c_str(), user.c_str(),
-                                    password.c_str(), database.c_str(),
-                                    port, NULL, 0))
-            {
-                oss << "... Reconnected.";
-            }
-            else
-            {
-                oss << "... Reconnection attempt failed.";
-            }
+                // Try to re-connect
+                if (mysql_real_connect(db, server.c_str(), user.c_str(),
+                        password.c_str(), database.c_str(), port, NULL, 0))
+                {
+                    oss << "... Reconnected.";
+                }
+                else
+                {
+                    oss << "... Reconnection attempt failed.";
+                }
+
+                ec = SqlDB::CONNECTION;
+                break;
+
+            // Error codes that should be considered applied for the RAFT log.
+            case ER_DUP_ENTRY:
+                ec = SqlDB::SQL_DUP_KEY;
+                break;
+
+            default:
+                ec = SqlDB::SQL; //Default exit code for errors
+                break;
         }
-        else
+
+        if (ec != SqlError::CONNECTION)
         {
             oss << "SQL command was: " << c_str;
             oss << ", error " << err_num << " : " << err_msg;
         }
 
-        NebulaLog::log("ONE",error_level,oss);
+        NebulaLog::log("ONE", error_level, oss);
 
         free_db_connection(db);
 
-        return -1;
+        return ec;
     }
 
     if (obj != 0)
@@ -238,12 +256,12 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
 
                 free_db_connection(db);
 
-                return -1;
+                return SqlDB::SQL;
             }
 
             // Fetch the names of the fields
-            num_fields  = mysql_num_fields(result);
-            fields      = mysql_fetch_fields(result);
+            num_fields = mysql_num_fields(result);
+            fields     = mysql_fetch_fields(result);
 
             char ** names = new char*[num_fields];
 
@@ -257,7 +275,7 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
             {
                 if ( obj->do_callback(num_fields, row, names) != 0 )
                 {
-                    rc = -1;
+                    ec = SqlDB::SQL;
                     break;
                 }
             }
@@ -288,7 +306,7 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
         NebulaLog::log("SQL", Log::WARNING, oss);
     }
 
-    return rc;
+    return ec;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -342,6 +360,24 @@ void MySqlDB::free_db_connection(MYSQL * db)
     pthread_cond_signal(&cond);
 
     pthread_mutex_unlock(&mutex);
+}
+
+/* -------------------------------------------------------------------------- */
+
+bool MySqlDB::fts_available()
+{
+    unsigned long version;
+
+    version = mysql_get_server_version(db_escape_connect);
+
+    if (version >= 50600)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 /* -------------------------------------------------------------------------- */

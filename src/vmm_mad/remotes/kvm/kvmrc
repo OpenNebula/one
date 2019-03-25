@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -19,6 +19,9 @@ export LANG=C
 export LIBVIRT_URI=qemu:///system
 
 export QEMU_PROTOCOL=qemu+ssh
+
+export LIBVIRT_MD_URI=http://opennebula.org/xmlns/libvirt/1.0
+export LIBVIRT_MD_KEY=one
 
 # Seconds to wait after shutdown until timeout
 export SHUTDOWN_TIMEOUT=300

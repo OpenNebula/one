@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -181,7 +181,8 @@ int DispatchManager::import(VirtualMachine * vm, const RequestAttributes& ra)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DispatchManager::migrate(VirtualMachine * vm, const RequestAttributes& ra)
+int DispatchManager::migrate(VirtualMachine * vm, int poff_migrate,
+        const RequestAttributes& ra)
 {
     ostringstream oss;
     int           vid;
@@ -202,7 +203,21 @@ int DispatchManager::migrate(VirtualMachine * vm, const RequestAttributes& ra)
          vm->get_state() == VirtualMachine::POWEROFF ||
          vm->get_state() == VirtualMachine::SUSPENDED)
     {
-        lcm->trigger(LCMAction::MIGRATE, vid, ra);
+        switch (poff_migrate) {
+            case 0:
+                lcm->trigger(LCMAction::MIGRATE, vid, ra);
+                break;
+            case 1:
+                lcm->trigger(LCMAction::POFF_MIGRATE, vid, ra);
+                break;
+            case 2:
+                lcm->trigger(LCMAction::POFF_HARD_MIGRATE, vid, ra);
+                break;
+
+            default: /* Defaults to <5.8 behavior */
+                lcm->trigger(LCMAction::MIGRATE, vid, ra);
+                break;
+        }
     }
     else
     {
@@ -1752,7 +1767,14 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
 
         vm->set_etime(the_time);
 
-        vm->set_action(History::NIC_ATTACH_ACTION, ra.uid, ra.gid, ra.req_id);
+        if ( tmpl->get("NIC") != 0 )
+        {
+            vm->set_action(History::NIC_ATTACH_ACTION, ra.uid, ra.gid, ra.req_id);
+        }
+        else
+        {
+            vm->set_action(History::ALIAS_ATTACH_ACTION, ra.uid, ra.gid, ra.req_id);
+        }
 
         vmpool->update_history(vm);
 
@@ -1843,7 +1865,14 @@ int DispatchManager::detach_nic(int vid, int nic_id,const RequestAttributes& ra,
 
         vm->set_etime(the_time);
 
-        vm->set_action(History::NIC_DETACH_ACTION, ra.uid, ra.gid, ra.req_id);
+        if ( !vm->get_nic(nic_id)->is_alias() )
+        {
+            vm->set_action(History::NIC_DETACH_ACTION, ra.uid, ra.gid, ra.req_id);
+        }
+        else
+        {
+            vm->set_action(History::ALIAS_DETACH_ACTION, ra.uid, ra.gid, ra.req_id);
+        }
 
         vmpool->update_history(vm);
 

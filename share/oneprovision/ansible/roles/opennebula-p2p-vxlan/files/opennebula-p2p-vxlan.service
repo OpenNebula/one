@@ -1,0 +1,15 @@
+[Unit]
+Description=OpenNebula Private VXLAN point-to-point network
+After=network.target
+Wants=network.target
+
+[Service]
+EnvironmentFile=/etc/default/opennebula-p2p-vxlan
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/local/sbin/opennebula-p2p-vxlan start
+ExecStop=/usr/local/sbin/opennebula-p2p-vxlan stop
+ExecReload=/usr/local/sbin/opennebula-p2p-vxlan reload
+
+[Install]
+WantedBy=multi-user.target

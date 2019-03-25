@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -27,8 +27,8 @@ define(function(require) {
   var TemplateTableVcenter = require("utils/panel/template-table");
   var OpenNebula = require("opennebula");
   var Sunstone = require("sunstone");
-  var Navigation = require("utils/navigation");
   var Config = require("sunstone-config");
+  var Navigation = require("utils/navigation");
 
   /*
     TEMPLATES
@@ -44,13 +44,6 @@ define(function(require) {
   var PANEL_ID = require("./info/panelId");
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
-
-  setInterval(function() {
-    var tab = $('#' + TAB_ID);
-    if (Sunstone.infoTabVisible(tab, "#vm_info_tab")){
-      $("#vms-tabrefresh_buttons button").click();
-    }
-  }, Config.autorefreshInfo("vms-tab"));
 
   /*
     CONSTRUCTOR
@@ -86,6 +79,8 @@ define(function(require) {
     var vrouterHTML = "--";
 
     var IP = OpenNebula.VM.ipsStr(this.element);
+
+    var alias = OpenNebula.VM.aliasStr(this.element);
 
     if (this.element.TEMPLATE.VROUTER_ID != undefined){
       vrouterHTML = Navigation.link(
@@ -140,6 +135,7 @@ define(function(require) {
       "prettyStartTime": prettyStartTime,
       "deployId": deployId,
       "IP": IP,
+      "alias": alias,
       "resched": resched,
       "permissionsTableHTML": permissionsTableHTML,
       "templateTableVcenterHTML": templateTableVcenterHTML,
@@ -174,6 +170,5 @@ define(function(require) {
 
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, unshownValues, strippedTemplateVcenter);
     TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, unshownValues, strippedTemplate);
-
   }
 });

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -589,11 +589,11 @@ void RaftManager::replicate_log(ReplicaRequest * request)
     }
 
     //Count servers that need to replicate this record
-    int to_commit = num_servers / 2; 
+    int to_commit = num_servers / 2;
 
     std::map<int, unsigned int>::iterator it;
 
-    for (it = next.begin(); it != next.end() && to_commit > 0; ++it)
+    for (it = next.begin(); it != next.end() ; ++it)
     {
         int rindex = request->index();
 
@@ -601,8 +601,8 @@ void RaftManager::replicate_log(ReplicaRequest * request)
         {
             to_commit--;
         }
-		 else if ( rindex == (int) it->second )
-		 {
+        else
+        {
             replica_manager.replicate(it->first);
         }
     }
@@ -641,7 +641,7 @@ void RaftManager::replicate_success(int follower_id)
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
 
-	unsigned int db_lindex, db_lterm;
+    unsigned int db_lindex, db_lterm;
 
     logdb->get_last_record_index(db_lindex, db_lterm);
 
@@ -665,7 +665,7 @@ void RaftManager::replicate_success(int follower_id)
     {
         commit = replicated_index;
     }
-        
+
     if (db_lindex > replicated_index && state == LEADER &&
             requests.is_replicable(replicated_index + 1))
     {
@@ -789,6 +789,13 @@ void RaftManager::timer_action(const ActionRequest& ar)
     static int purge_tics = 0;
     ostringstream oss;
 
+    Nebula& nd = Nebula::instance();
+
+    if ( nd.is_cache() )
+    {
+        return;
+    }
+
     mark_tics++;
     purge_tics++;
 
@@ -802,12 +809,7 @@ void RaftManager::timer_action(const ActionRequest& ar)
     // Database housekeeping
     if ( (purge_tics * timer_period_ms) >= purge_period_ms )
     {
-        ostringstream oss;
-
-        Nebula& nd    = Nebula::instance();
         LogDB * logdb = nd.get_logdb();
-
-        oss << "Purging obsolete LogDB records: ";
 
         int rc = logdb->purge_log();
 
@@ -817,66 +819,61 @@ void RaftManager::timer_action(const ActionRequest& ar)
         {
             purge_tics = (int) ((purge_period_ms - 60000)/timer_period_ms);
         }
-
-        oss << rc << " records purged";
-
-        NebulaLog::log("RCM", Log::INFO, oss);
     }
 
-	// Leadership
-	struct timespec the_time;
+    // Leadership
+    struct timespec the_time;
 
-	clock_gettime(CLOCK_REALTIME, &the_time);
+    clock_gettime(CLOCK_REALTIME, &the_time);
 
-	pthread_mutex_lock(&mutex);
+    pthread_mutex_lock(&mutex);
 
-	if ( state == LEADER ) // Send the heartbeat
-	{
-		time_t sec  = last_heartbeat.tv_sec + broadcast_timeout.tv_sec;
-		long   nsec = last_heartbeat.tv_nsec + broadcast_timeout.tv_nsec;
+    if ( state == LEADER ) // Send the heartbeat
+    {
+        time_t sec  = last_heartbeat.tv_sec + broadcast_timeout.tv_sec;
+        long   nsec = last_heartbeat.tv_nsec + broadcast_timeout.tv_nsec;
 
 
-		if ((sec < the_time.tv_sec) || (sec == the_time.tv_sec &&
-				nsec <= the_time.tv_nsec))
-		{
-			heartbeat_manager.replicate();
+        if ((sec < the_time.tv_sec) || (sec == the_time.tv_sec &&
+                nsec <= the_time.tv_nsec))
+        {
+            heartbeat_manager.replicate();
 
             clock_gettime(CLOCK_REALTIME, &last_heartbeat);
 
             pthread_mutex_unlock(&mutex);
-		}
+        }
         else
         {
             pthread_mutex_unlock(&mutex);
         }
+    }
+    else if ( state == FOLLOWER )
+    {
+        time_t sec  = last_heartbeat.tv_sec + election_timeout.tv_sec;
+        long   nsec = last_heartbeat.tv_nsec + election_timeout.tv_nsec;
 
-	}
-	else if ( state == FOLLOWER )
-	{
-		time_t sec  = last_heartbeat.tv_sec + election_timeout.tv_sec;
-		long   nsec = last_heartbeat.tv_nsec + election_timeout.tv_nsec;
-
-		if ((sec < the_time.tv_sec) || (sec == the_time.tv_sec &&
-				nsec <= the_time.tv_nsec))
-		{
-			NebulaLog::log("RRM", Log::ERROR, "Failed to get heartbeat from "
-				"leader. Starting election proccess");
+        if ((sec < the_time.tv_sec) || (sec == the_time.tv_sec &&
+                nsec <= the_time.tv_nsec))
+        {
+            NebulaLog::log("RRM", Log::ERROR, "Failed to get heartbeat from "
+                "leader. Starting election proccess");
 
             state = CANDIDATE;
 
             pthread_mutex_unlock(&mutex);
 
             request_vote();
-		}
+        }
         else
         {
             pthread_mutex_unlock(&mutex);
         }
-	}
-	else //SOLO or CANDIDATE, do nothing
-	{
-		pthread_mutex_unlock(&mutex);
-	}
+    }
+    else //SOLO or CANDIDATE, do nothing
+    {
+        pthread_mutex_unlock(&mutex);
+    }
 
     return;
 }

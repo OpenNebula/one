@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -184,7 +184,7 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
             oss << name << "-disk-" << ndisk;
 
             ec = img_clone.request_execute(img_id, oss.str(), -1,
-                    (*disk)->is_managed(), new_img_id, img_att);
+                    true, new_img_id, img_att);
 
             if ( ec != SUCCESS)
             {

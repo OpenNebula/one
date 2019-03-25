@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -148,7 +148,14 @@ int PoolSQL::allocate(PoolObjectSQL *objsql, string& error_str)
 
     if( rc == -1 )
     {
-        _set_lastOID(--lastOID, db, table);
+        lastOID = lastOID - 1;
+
+        if ( lastOID < 0 )
+        {
+            lastOID = 0;
+        }
+
+        _set_lastOID(lastOID, db, table);
     }
 
     unlock();
@@ -214,6 +221,26 @@ PoolObjectSQL * PoolSQL::get_ro(int oid)
     }
 
     return objectsql;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void PoolSQL::exist(const string& id_str, std::set<int>& id_list)
+{
+    std::vector<int> existing_items;
+    std::set<int>::iterator iterator;
+
+    one_util::split_unique(id_str, ',', id_list);
+    search(existing_items, table.c_str(), "1 order by 1 ASC");
+
+    for (iterator = id_list.begin(); iterator != id_list.end(); ++iterator)
+    {
+        if (!std::binary_search(existing_items.begin(), existing_items.end(), *iterator))
+        {
+            id_list.erase(iterator);
+        }
+    }
 }
 
 /* -------------------------------------------------------------------------- */

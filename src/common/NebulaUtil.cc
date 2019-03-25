@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -211,6 +211,23 @@ string one_util::sha1_digest(const string& in)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+string one_util::sha256_digest(const string& in)
+{
+    unsigned char digest[SHA256_DIGEST_LENGTH];
+    stringstream oss;
+
+    SHA256((unsigned char*) in.c_str(), in.length(), digest);
+
+    for(int i = 0; i < SHA256_DIGEST_LENGTH; i++)
+         oss << setfill('0') << setw(2) << hex << nouppercase
+             << (unsigned int) digest[i];
+
+    return oss.str();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 string * one_util::aes256cbc_encrypt(const string& in, const string password)
 {
     EVP_CIPHER_CTX *ctx;
@@ -262,7 +279,7 @@ string one_util::random_password()
 
     sstr << rand();
 
-    return sha1_digest(sstr.str());
+    return sha256_digest(sstr.str());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -375,6 +392,57 @@ std::string one_util::gsub(const std::string& st, const std::string& sfind,
     }
 
     return result;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void one_util::escape_json(const std::string& str, std::ostringstream& s)
+{
+    std::string::const_iterator it;
+
+    s << "\"";
+
+    for (it = str.begin(); it != str.end(); ++it)
+    {
+        switch (*it)
+        {
+            case '\\': s << "\\\\"; break;
+            case '"' : s << "\\\""; break;
+            case '/' : s << "\\/";  break;
+            case '\b': s << "\\b";  break;
+            case '\f': s << "\\f";  break;
+            case '\n': s << "\\n";  break;
+            case '\r': s << "\\r";  break;
+            case '\t': s << "\\t";  break;
+            default  : s << *it;
+        }
+    }
+
+    s << "\"";
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void one_util::escape_token(const std::string& str, std::ostringstream& s)
+{
+    std::string::const_iterator it;
+
+    for (it = str.begin(); it != str.end(); ++it)
+    {
+        switch (*it)
+        {
+            case '-':
+            case '_':
+            case '.':
+            case ':':
+                s << '_';
+                break;
+            default :
+                s << *it;
+        }
+    }
 }
 
 /* -------------------------------------------------------------------------- */

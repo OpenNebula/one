@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,7 +26,9 @@ define(function(require) {
     },
     "Image.create_dialog" : {
       type: "create_dialog",
-      layout: "create"
+      text:  Locale.tr("Create"),
+      layout: "create_flatten",
+      custom_classes: "only-sunstone-list"
     },
     "Image.upload_marketplace_dialog" : {
       type: "action",
@@ -34,9 +36,10 @@ define(function(require) {
     },
     "Image.import_dialog" : {
       type: "create_dialog",
-      layout: "create",
       text:  Locale.tr("Import"),
-      icon: '<i class="fas fa-download"/>'
+      layout: "create_flatten",
+      custom_classes: "only-sunstone-list",
+      alwaysActive: true
     },
     "Image.chown" : {
       type: "confirm_with_select",

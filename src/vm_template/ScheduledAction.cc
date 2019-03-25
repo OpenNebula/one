@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -293,21 +293,42 @@ static int days_in_period(SchedAction::Repeat& r, int month, int year)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool SchedAction::is_due()
+bool SchedAction::is_due(time_t stime)
 {
-    time_t action_time, done_time;
+    time_t action_time, done_time, origin = 0;
+    int repeat;
 
-    bool has_done = vector_value("DONE", done_time) == 0;
+    std::istringstream iss;
 
-    vector_value("TIME", action_time);
+    bool has_done   = vector_value("DONE", done_time) == 0;
+    bool has_repeat = vector_value("REPEAT", repeat) == 0;
+    std::string action_time_s = vector_value("TIME");
 
-    return ((!has_done || done_time < action_time) && action_time < time(0));
+    if ( action_time_s[0] == '+' )
+    {
+        origin = stime;
+        action_time_s.erase(0, 1);
+    }
+
+    iss.str(action_time_s);
+
+    iss >> action_time;
+
+    if (iss.fail() || !iss.eof())
+    {
+        return false;
+    }
+
+    action_time += origin;
+
+    return ((!has_done || done_time < action_time || has_repeat)
+                && action_time < time(0));
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int SchedAction::next_action()
+time_t SchedAction::next_action()
 {
     Repeat r;
     EndOn  eo;
@@ -339,7 +360,7 @@ int SchedAction::next_action()
     int end_value;
     int rc = vector_value("END_VALUE", end_value);
 
-    if ( rc == -1 )
+    if ( rc == -1 && eo != NEVER)
     {
         return -1;
     }
@@ -374,7 +395,7 @@ int SchedAction::next_action()
 
         replace("TIME", action_time);
 
-        return 0;
+        return action_time;
     }
 
     /* ---------------------------------------------------------------------  */
@@ -430,5 +451,5 @@ int SchedAction::next_action()
 
     replace("TIME", action_time);
 
-    return 0;
+    return action_time;
 }

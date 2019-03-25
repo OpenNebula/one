@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,78 +16,78 @@
 
 module.exports = function(grunt) {
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
+    pkg: grunt.file.readJSON("package.json"),
 
     sass: {
       options: {
-        includePaths: ['bower_components/foundation-sites/scss']
+        includePaths: ["bower_components/foundation-sites/scss"]
       },
       dist: {
         options: {
-          outputStyle: 'compressed'
+          outputStyle: "compressed"
         },
         files: {
-          'css/app.css': 'scss/app.scss'
+          "css/app.css": "scss/app.scss"
         }
       }
     },
 
     watch: {
       grunt: {
-        files: ['Gruntfile.js']
+        files: ["Gruntfile.js"]
       },
 
       sass: {
-        files: 'scss/*.scss',
-        tasks: ['sass']
+        files: "scss/*.scss",
+        tasks: ["sass"]
       },
 
       requirejs: {
-        files: 'app/**/*.js',
-        tasks: ['requirejs']
+        files: "app/**/*.js",
+        tasks: ["requirejs"]
       }
     },
 
     requirejs: {
       compileCSS: {
         options: {
-          out: './css/app.min.css',
-          cssIn: './css/app.css',
-          optimizeCss: 'default'
+          out: "./css/app.min.css",
+          cssIn: "./css/app.css",
+          optimizeCss: "default"
         }
       },
       compileJS: {
         options: {
-          appDir: './app',
-          baseUrl: './', // 1
-          dir: './dist', // 2
+          appDir: "./app",
+          baseUrl: "./", // 1
+          dir: "./dist", // 2
           //name: 'vendor/almond', // 3
-          mainConfigFile: './app/main.js', // 5
+          mainConfigFile: "./app/main.js", // 5
           preserveLicenseComments: false,
-          optimize: 'none',
+          optimize: "none",
           generateSourceMaps: true,
           removeCombined: true,
           //skipDirOptimize: false,
           //findNestedDependencies: true,
           modules: [
             {
-              name: 'main',
-              include: ['almond']
+              name: "main",
+              include: ["almond"]
             },
             {
-              name: 'login',
-              include: ['almond'],
-              insertRequire: ['login']
+              name: "login",
+              include: ["almond"],
+              insertRequire: ["login"]
             },
             {
-              name: 'console/vnc',
-              include: ['almond'],
-              insertRequire: ['console/vnc']
+              name: "console/vnc",
+              include: ["almond"],
+              insertRequire: ["console/vnc"]
             },
             {
-              name: 'console/spice',
-              include: ['almond'],
-              insertRequire: ['console/spice']
+              name: "console/spice",
+              include: ["almond"],
+              insertRequire: ["console/spice"]
             }
             /*{
               name: 'main'
@@ -232,10 +232,10 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.loadNpmTasks('grunt-sass');
-  grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-contrib-requirejs');
+  grunt.loadNpmTasks("grunt-sass");
+  grunt.loadNpmTasks("grunt-contrib-watch");
+  grunt.loadNpmTasks("grunt-contrib-requirejs");
 
-  grunt.registerTask('build', ['sass']);
-  grunt.registerTask('default', ['build','watch']);
-}
+  grunt.registerTask("build", ["sass"]);
+  grunt.registerTask("default", ["build","watch"]);
+};

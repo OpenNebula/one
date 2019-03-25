@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -77,36 +77,36 @@ CommandParser::CmdParser.new(ARGV) do
     }
 
     VCENTER = {
-        :name   => 'vcenter',
-        :large  => '--vcenter vCenter',
+        :name => 'vcenter',
+        :large => '--vcenter vCenter',
         :description => 'The vCenter hostname',
         :format => String
     }
 
     USER = {
-        :name   => 'vuser',
-        :large  => '--vuser username',
+        :name => 'vuser',
+        :large => '--vuser username',
         :description => 'The username to interact with vCenter',
         :format => String
     }
 
     PASS = {
-        :name   => 'vpass',
-        :large  => '--vpass password',
+        :name => 'vpass',
+        :large => '--vpass password',
         :description => 'The password for the user',
         :format => String
     }
 
     USE_DEFAULTS = {
-        :name   => 'defaults',
-        :large  => '--use-defaults',
+        :name => 'defaults',
+        :large => '--use-defaults',
         :description => 'Use defaults for answers to questions',
         :format => String
     }
 
     ALL = {
-        :name   => 'all',
-        :large  => '--all',
+        :name => 'all',
+        :large => '--all',
         :description => 'Import all list',
         :format => String
     }

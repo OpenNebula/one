@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -106,12 +106,8 @@ class Storage
         image = VIHelper.find_image_by("SOURCE", OpenNebula::ImagePool, image_path, ds_id, ipool)
 
         if image.nil?
-            # Generate a name with the reference
-            begin
-                image_name = "#{file_name} - #{ds_name} [#{type[:object]} #{type[:id]}]"
-            rescue
-                image_name = "#{file_name} - #{ds_name}"
-            end
+            key = "#{file_name}#{ds_name}#{image_path}"
+            image_name = VCenterDriver::VIHelper.one_name(OpenNebula::ImagePool, file_name, key, ipool)
 
             #Set template
             one_image[:template] << "NAME=\"#{image_name}\"\n"
@@ -355,25 +351,53 @@ class Datastore < Storage
         end
 
         copy_params = {
-            :sourceName       => "[#{source_ds_name}] #{src_path}",
-            :sourceDatacenter => get_dc.item,
-            :destName         => "[#{target_ds_name}] #{target_path}"
+            :sourceName        => "[#{source_ds_name}] #{src_path}",
+            :sourceDatacenter  => get_dc.item
         }
 
-        get_vdm.CopyVirtualDisk_Task(copy_params).wait_for_completion
+        if File.extname(src_path) == '.vmdk'
+            copy_params[:destName] = "[#{target_ds_name}] #{target_path}"
+            get_vdm.CopyVirtualDisk_Task(copy_params).wait_for_completion
 
-        if new_size
-            resize_spec = {
-                :name => "[#{target_ds_name}] #{target_path}",
-                :datacenter => target_ds.get_dc.item,
-                :newCapacityKb => new_size,
-                :eagerZero => false
-            }
+            if new_size
+                resize_spec = {
+                    :name => "[#{target_ds_name}] #{target_path}",
+                    :datacenter => target_ds.get_dc.item,
+                    :newCapacityKb => new_size,
+                    :eagerZero => false
+                }
 
-            get_vdm.ExtendVirtualDisk_Task(resize_spec).wait_for_completion
+                get_vdm.ExtendVirtualDisk_Task(resize_spec).wait_for_completion
+            end
+        else
+            copy_params[:destinationName] = "[#{target_ds_name}] #{target_path}"
+            get_fm.CopyDatastoreFile_Task(copy_params)
         end
 
         target_path
+    end
+
+    def move_virtual_disk(disk, dest_path, dest_dsid, vi_client = nil)
+        vi_client = @vi_client unless vi_client
+
+        target_ds     = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, dest_dsid, false)
+        target_ds_ref = target_ds['TEMPLATE/VCENTER_DS_REF']
+        target_ds_vc  = VCenterDriver::Datastore.new_from_ref(target_ds_ref, vi_client)
+        dest_name     = target_ds_vc['name']
+
+        target_ds_vc.create_directory(File.dirname(dest_path))
+
+        dpath_ds  = "[#{dest_name}] #{dest_path}"
+        orig_path = "[#{self['name']}] #{disk.path}"
+
+        move_params = {
+            sourceName:       orig_path,
+            sourceDatacenter: get_dc.item,
+            destName:         dpath_ds,
+            force:            true
+        }
+
+        get_vdm.MoveVirtualDisk_Task(move_params).wait_for_completion
     end
 
     def rm_directory(directory)

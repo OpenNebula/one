@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -212,7 +212,9 @@ module OpenNebula
             disk-snapshot-create disk-snapshot-delete terminate terminate-hard
             disk-resize deploy chown chmod updateconf rename resize update
             snapshot-resize snapshot-delete snapshot-revert disk-saveas
-            disk-snapshot-revert recover retry monitor disk-snapshot-rename}
+            disk-snapshot-revert recover retry monitor disk-snapshot-rename
+            alias-attach alias-detach poweroff-migrate poweroff-hard-migrate
+            }
 
         EXTERNAL_IP_ATTRS = [
             'GUEST_IP',
@@ -466,12 +468,16 @@ module OpenNebula
         #   overcommited. Defaults to false
         # @param ds_id [Integer] The System Datastore where to migrate the VM.
         #   To use the current one, set it to -1
+        # @param mtype [Integer] How to perform the cold migration: 
+        #     - 0: save - restore,
+        #     - 1: power off - boot
+        #     - 2: power off hard - boot
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def migrate(host_id, live=false, enforce=false, ds_id=-1)
+        def migrate(host_id, live=false, enforce=false, ds_id=-1, mtype=0)
             call(VM_METHODS[:migrate], @pe_id, host_id.to_i, live==true,
-                enforce, ds_id.to_i)
+                enforce, ds_id.to_i, mtype)
         end
 
         # @deprecated use {#migrate} instead
@@ -776,6 +782,12 @@ module OpenNebula
         REMOVE_VNET_ATTRS = %w{AR_ID BRIDGE CLUSTER_ID IP MAC TARGET NIC_ID
             NETWORK_ID VN_MAD SECURITY_GROUPS VLAN_ID}
 
+        REMOVE_IMAGE_ATTRS = %w{DEV_PREFIX SOURCE ORIGINAL_SIZE SIZE
+            DISK_SNAPSHOT_TOTAL_SIZE DRIVER IMAGE_STATE SAVE CLONE READONLY
+            PERSISTENT TARGET ALLOW_ORPHANS CLONE_TARGET CLUSTER_ID DATASTORE
+            DATASTORE_ID DISK_ID DISK_TYPE IMAGE_ID IMAGE IMAGE_UNAME IMAGE_UID
+            LN_TARGET TM_MAD TYPE OPENNEBULA_MANAGED}
+
         def save_as_template(name,description, persistent=nil)
             img_ids = []
             new_tid = nil
@@ -852,20 +864,41 @@ module OpenNebula
                         raise
                     end
 
-                    image_id = disk["IMAGE_ID"]
+                    image_id           = disk["IMAGE_ID"]
+                    opennebula_managed = disk["OPENNEBULA_MANAGED"]
+                    type               = disk["TYPE"]
+
+                    REMOVE_IMAGE_ATTRS.each do |attr|
+                        disk.delete_element(attr)
+                    end
 
                     if !image_id.nil? && !image_id.empty?
-                        rc = disk_saveas(disk_id.to_i,"#{name}-disk-#{disk_id}","",-1)
+                        if type == 'CDROM'
+                            replace << "DISK = [ IMAGE_ID = #{image_id}"
+                            if opennebula_managed
+                                replace << ", OPENNEBULA_MANAGED=#{opennebula_managed}"
+                            end
+                            replace << " ]\n"
+                        else
+                            rc = disk_saveas(disk_id.to_i,"#{name}-disk-#{disk_id}","",-1)
 
-                        raise if OpenNebula.is_error?(rc)
+                            raise if OpenNebula.is_error?(rc)
 
-                        if persistent == true
-                            OpenNebula::Image.new_with_id(rc.to_i, @client).persistent()
+                            if persistent == true
+                                OpenNebula::Image.new_with_id(rc.to_i, @client).persistent()
+                            end
+
+                            img_ids << rc.to_i
+
+                            disk_template = disk.template_like_str(".").tr("\n", ",\n")
+
+                            if disk_template.empty?
+                                replace << "DISK = [ IMAGE_ID = #{rc} ] \n"
+                            else
+                                replace << "DISK = [ IMAGE_ID = #{rc}, " <<
+                                    disk_template << " ] \n"
+                            end
                         end
-
-                        img_ids << rc.to_i
-
-                        replace << "DISK = [ IMAGE_ID = #{rc} ]\n"
                     else
                         # Volatile disks cannot be saved, so the definition is copied
                         replace << self.template_like_str(
@@ -874,12 +907,13 @@ module OpenNebula
                 end
 
                 self.each('TEMPLATE/NIC') do |nic|
-
                     nic_id = nic["NIC_ID"]
+
                     if nic_id.nil? || nic_id.empty?
                         rc = Error.new('The NIC_ID is missing from the VM template')
                         raise
                     end
+
                     REMOVE_VNET_ATTRS.each do |attr|
                         nic.delete_element(attr)
                     end
@@ -913,16 +947,6 @@ module OpenNebula
             end
         end
 
-    private
-        def action(name)
-            return Error.new('ID not defined') if !@pe_id
-
-            rc = @client.call(VM_METHODS[:action], name, @pe_id)
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
-        end
-
         def wait_state(state, timeout=10)
             vm_state = ""
             lcm_state = ""
@@ -943,6 +967,16 @@ module OpenNebula
 
             return Error.new("Timeout expired for state #{state}. "<<
                 "VM is in state #{vm_state}, #{lcm_state}")
+        end
+
+    private
+        def action(name)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(VM_METHODS[:action], name, @pe_id)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
         end
 
         def wait_lcm_state(state, timeout=10)

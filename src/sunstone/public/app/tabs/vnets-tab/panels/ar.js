@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -116,7 +116,11 @@ define(function(require) {
 
     return TemplateAR({
       'element': this.element,
-      'arList' : processedARList
+      'arList' : processedARList,
+      'tab': "vnets-tab",
+      'action_add': "Network.add_ar",
+      'action_update': "Network.update_ar",
+      'action_rm': "Network.rm_ar"
     });
   }
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -86,6 +86,8 @@ define(function(require) {
     "VM.append_template": _commonActions.appendTemplate(),
     "VM.deploy_action": _commonActions.singleAction('deploy'),
     "VM.migrate_action": _commonActions.singleAction('migrate'),
+    "VM.migrate_poff_action": _commonActions.singleAction('migrate_poff'),
+    "VM.migrate_poff_hard_action": _commonActions.singleAction('migrate_poff_hard'),
     "VM.migrate_live_action": _commonActions.singleAction('livemigrate'),
     "VM.attachdisk": _commonActions.singleAction('attachdisk'),
     "VM.detachdisk": _commonActions.singleAction('detachdisk'),
@@ -135,6 +137,27 @@ define(function(require) {
        var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
        dialog.reset();
        dialog.setLive(false);
+       dialog.setType(0);
+       dialog.show();
+     }
+    },
+    "VM.migrate_poff" : {
+      type: "custom",
+      call: function() {
+       var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
+       dialog.reset();
+       dialog.setLive(false);
+       dialog.setType(1);
+       dialog.show();
+     }
+    },
+    "VM.migrate_poff_hard" : {
+      type: "custom",
+      call: function() {
+       var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
+       dialog.reset();
+       dialog.setLive(false);
+       dialog.setType(2);
        dialog.show();
      }
     },
@@ -144,6 +167,7 @@ define(function(require) {
        var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
        dialog.reset();
        dialog.setLive(true);
+       dialog.setType(0);
        dialog.show();
      }
     },

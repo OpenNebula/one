@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -128,10 +128,6 @@ define(function(require) {
 
     "tableOrder": function() {
       return _config['user_config']["table_order"];
-    },
-
-    "autorefreshInfo": function(tabName) {
-      return _config['view']['tabs'][tabName]['autorefresh_info'] || 10000;
     },
 
     "provision": {

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -460,12 +460,23 @@ function ssh_make_path
 {
     SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
 set -e -o pipefail
-if [ ! -d $2 ]; then
-   mkdir -p $2
 
-   if [ -n "$3" ]; then
-       echo "$3" > "\$(dirname $2)/.monitor"
-   fi
+if [ ! -d $2 ]; then
+    mkdir -p $2
+fi
+
+# create or update .monitor content
+if [ -n "$3" ]; then
+    MONITOR_FN="\$(dirname $2)/.monitor"
+
+    MONITOR=''
+    if [ -f "\\${MONITOR_FN}" ]; then
+        MONITOR="\\$(cat "\\${MONITOR_FN}" 2>/dev/null)"
+    fi
+
+    if [ "x\\${MONITOR}" != "x$3" ]; then
+        echo "$3" > "\\${MONITOR_FN}"
+    fi
 fi
 EOF`
     SSH_EXEC_RC=$?
@@ -955,6 +966,7 @@ function get_nic_information {
     done < <($CMD       /VMM_DRIVER_ACTION_DATA/VM/ID \
                         $NIC_XPATH/NIC_ID \
                         $NIC_XPATH/BRIDGE \
+                        $NIC_XPATH/BRIDGE_TYPE \
                         $NIC_XPATH/VN_MAD \
                         $NIC_XPATH/MAC \
                         $NIC_XPATH/TARGET \
@@ -975,6 +987,7 @@ function get_nic_information {
     VMID="${XPATH_ELEMENTS[j++]}"
     NIC_ID="${XPATH_ELEMENTS[j++]}"
     BRIDGE="${XPATH_ELEMENTS[j++]}"
+    BRIDGE_TYPE="${XPATH_ELEMENTS[j++]}"
     VN_MAD="${XPATH_ELEMENTS[j++]}"
     MAC="${XPATH_ELEMENTS[j++]}"
     NIC_TARGET="${XPATH_ELEMENTS[j++]}"
@@ -991,4 +1004,10 @@ function get_nic_information {
     OUTBOUND_PEAK_BW="${XPATH_ELEMENTS[j++]}"
     OUTBOUND_PEAK_KB="${XPATH_ELEMENTS[j++]}"
     ORDER="${XPATH_ELEMENTS[j++]}"
+}
+
+function hup_collectd
+{
+    SEND_HUP='kill -HUP `cat /tmp/one-collectd-client.pid` || true'
+    ssh_exec_and_log_no_error $1 "$SEND_HUP"
 }

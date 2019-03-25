@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -80,58 +80,58 @@ CommandParser::CmdParser.new(ARGV) do
     }
 
     ENFORCE = {
-        :name  => 'enforce',
+        :name => 'enforce',
         :short => '-e',
         :large => '--enforce',
         :description => 'Enforce that the host capacity is not exceeded'
     }
 
     SUCCESS = {
-        :name  => 'success',
+        :name => 'success',
         :large => '--success',
         :description => 'Recover a VM by succeeding the pending action'
     }
 
     FAILURE = {
-        :name  => 'failure',
+        :name => 'failure',
         :large => '--failure',
         :description => 'Recover a VM by failing the pending action'
     }
 
     RETRY = {
-        :name  => 'retry',
+        :name => 'retry',
         :large => '--retry',
         :description => 'Recover a VM by retrying the last failed action'
     }
 
     DELETE = {
-        :name  => 'delete',
+        :name => 'delete',
         :large => '--delete',
         :description => 'No recover action possible, delete the VM'
     }
 
     RECREATE = {
-        :name  => 'recreate',
+        :name => 'recreate',
         :large => '--recreate',
         :description => 'No recover action possible, delete and recreate the VM'
     }
 
     DELETE_DB = {
-        :name  => 'deletedb',
+        :name => 'deletedb',
         :large => '--delete-db',
         :description => 'No recover action possible, delete the VM from the '\
                         'DB. It does not trigger any action on the hypervisor'
     }
 
     INTERACTIVE = {
-        :name  => 'interactive',
+        :name => 'interactive',
         :large => '--interactive',
         :description => 'Enables interactive recovery. Only works alongside '\
                         ' the --retry option.'
     }
 
     SNAP = {
-        :name  => 'snapshot',
+        :name => 'snapshot',
         :short => '-s snapshot',
         :large => '--snapshot snapshot',
         :format => String,
@@ -139,31 +139,31 @@ CommandParser::CmdParser.new(ARGV) do
     }
 
     PERSISTENT = {
-        :name  => 'persistent',
+        :name => 'persistent',
         :large => '--persistent',
         :description => 'Make the new images persistent'
     }
 
     USE = {
-        :name  => 'use',
+        :name => 'use',
         :large => '--use',
         :description => 'lock use actions'
     }
 
     MANAGE = {
-        :name  => 'manage',
+        :name => 'manage',
         :large => '--manage',
         :description => 'lock manage actions'
     }
 
     ADMIN = {
-        :name  => 'admin',
+        :name => 'admin',
         :large => '--admin',
         :description => 'lock admin actions'
     }
 
     ALL = {
-        :name  => 'all',
+        :name => 'all',
         :large => '--all',
         :description => 'lock all actions'
     }
@@ -557,7 +557,10 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :migrate, migrate_desc, [:range, :vmid_list], :hostid,
-            [:datastoreid, nil], :options => [ENFORCE, OneVMHelper::LIVE] do
+            [:datastoreid, nil], :options => [ENFORCE,
+                                              OneVMHelper::LIVE,
+                                              OneVMHelper::POFF,
+                                              OneVMHelper::POFFHARD] do
         host_id = args[1]
         verbose = "migrating to #{host_id}"
 
@@ -567,7 +570,8 @@ CommandParser::CmdParser.new(ARGV) do
             vm.migrate(host_id,
                        options[:live] == true,
                        options[:enforce] == true,
-                       ds_id)
+                       ds_id,
+                       helper.get_migration_type(options))
         end
     end
 
@@ -764,13 +768,17 @@ CommandParser::CmdParser.new(ARGV) do
         Attaches a NIC to a running VM. When using --file add only one
         NIC instance.
 
+        To attach a nic alias, use --file or --alias option.
+
         States: RUNNING, POWEROFF
     EOT
 
     command :"nic-attach", nic_attach_desc, :vmid,
             :options => [OneVMHelper::FILE,
                          OneVMHelper::NETWORK,
-                         OneVMHelper::IP] do
+                         OneVMHelper::IP,
+                         OneVMHelper::ALIAS,
+                         OneVMHelper::NIC_NAME] do
 
         if options[:file].nil? && options[:network].nil?
             STDERR.puts 'Provide a template file or a network:'
@@ -784,10 +792,34 @@ CommandParser::CmdParser.new(ARGV) do
         else
             network_id = options[:network]
             ip = options[:ip]
+            nic_alias = options[:alias]
+            nic_name = options[:nic_name]
+
             if ip
-                template = "NIC = [ NETWORK_ID = #{network_id}, IP = #{ip} ]"
+                if !nic_alias && !nic_name
+                    template = "NIC = [ NETWORK_ID = #{network_id}, \
+                                IP = #{ip} ]"
+                elsif !nic_alias && nic_name
+                    template = "NIC = [ NETWORK_ID = #{network_id},
+                                        IP = #{ip},
+                                        NAME = #{nic_name} ]"
+                else
+                    template = "NIC_ALIAS = \
+                                [ NETWORK_ID = #{network_id},\
+                                  IP = #{ip},\
+                                  PARENT = #{nic_alias} ]"
+                end
             else
-                template = "NIC = [ NETWORK_ID = #{network_id} ]"
+                if !nic_alias && !nic_name
+                    template = "NIC = [ NETWORK_ID = #{network_id} ]"
+                elsif !nic_alias && nic_name
+                    template = "NIC = [ NETWORK_ID = #{network_id},
+                                        NAME = #{nic_name} ]"
+                else
+                    template = "NIC_ALIAS = \
+                                [ NETWORK_ID = #{network_id},\
+                                  PARENT = #{nic_alias} ]"
+                end
             end
         end
 
@@ -1015,8 +1047,28 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :list, list_desc, [:filterflag, nil],
             :options => CLIHelper::OPTIONS + OpenNebulaHelper::OPTIONS +
-                        [OpenNebulaHelper::DESCRIBE] do
-        helper.list_pool(options, false, args[0])
+                        [OpenNebulaHelper::DESCRIBE] + [OneVMHelper::SEARCH] do
+        if !options[:search]
+            helper.list_pool(options, false, args[0])
+        else
+            table = helper.format_pool(options)
+            pool = OpenNebula::VirtualMachinePool.new(OneVMHelper.get_client)
+
+            rc = pool.info_search(:query => options[:search])
+
+            if !rc.nil?
+                puts rc.message
+                exit(-1)
+            end
+
+            if options[:xml]
+                puts pool.to_xml
+            else
+                table.show(pool.to_hash, options)
+            end
+
+            0
+        end
     end
 
     show_desc = <<-EOT.unindent
@@ -1099,11 +1151,12 @@ CommandParser::CmdParser.new(ARGV) do
         This command accepts a template file or opens an editor, the full list of
         configuration attributes are:
 
-        OS       = ["ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT"]
-        FEATURES = ["ACPI", "PAE", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT"]
-        INPUT    = ["TYPE", "BUS"]
-        GRAPHICS = ["TYPE", "LISTEN", "PASSWD", "KEYMAP" ]
-        RAW      = ["DATA", "DATA_VMX", "TYPE"]
+        OS        = ["ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT"]
+        FEATURES  = ["ACPI", "PAE", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT"]
+        INPUT     = ["TYPE", "BUS"]
+        GRAPHICS  = ["TYPE", "LISTEN", "PASSWD", "KEYMAP" ]
+        RAW       = ["DATA", "DATA_VMX", "TYPE"]
+        CPU_MODEL = ["MODEL"]
         CONTEXT (any value, **variable substitution will be made**)
     EOT
 
@@ -1124,7 +1177,8 @@ CommandParser::CmdParser.new(ARGV) do
 
                 template = vm.template_like_str('TEMPLATE', true,
                                                 'OS | FEATURES | INPUT | '\
-                                                'GRAPHICS | RAW | CONTEXT')
+                                                'GRAPHICS | RAW | CONTEXT | '\
+                                                'CPU_MODEL')
                 template = OpenNebulaHelper.editor_input(template)
             end
 

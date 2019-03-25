@@ -1,0 +1,63 @@
+---
+
+- name: Install bridge-utils
+  package:
+    name: bridge-utils
+    state: present
+
+- block:
+  - block:
+    - name: Install augeas-tools
+      package:
+        name: augeas-tools
+        state: present
+
+    - name: Stop bridge port interface
+      shell: |
+        ifdown {{ bridged_networking_iface }} || :
+        ip link set dev {{ bridged_networking_iface }} down || :
+
+    - name: Remove old configuration for bridge port interface (Debian like)
+      shell: '{{ item }}'
+      with_items: #TODO: fix repeated runs
+        - 'ifdown {{ bridged_networking_iface }}'
+        - 'augtool rm /files/etc/network/interfaces/auto[ * = \"{{ bridged_networking_iface }}\" ]'
+        - 'augtool rm /files/etc/network/interfaces/iface[ .=\"{{ bridged_networking_iface }}\" ]'
+
+    - name: Configuration for bridge port interface (Debian like)
+      blockinfile:
+        dest: /etc/network/interfaces
+        block: |
+          iface {{ bridged_networking_iface }} inet manual
+        marker: "# {mark} ANSIBLE MANAGED BLOCK {{ bridged_networking_iface }}"
+    when: bridged_networking_iface_manage
+
+  - name: Configuration for bridge (Debian like)
+    blockinfile:
+      dest: /etc/network/interfaces
+      block: |
+        auto {{ bridged_networking_bridge }}
+        iface {{ bridged_networking_bridge }} inet static
+            bridge_ports {{ bridged_networking_iface }}
+        {% if bridged_networking_static_ip %}
+                address {{ bridged_networking_static_ip }}
+                {% if bridged_networking_static_netmask %}netmask {{ bridged_networking_static_netmask }}{% endif %}
+                {% if bridged_networking_static_gateway %}gateway {{ bridged_networking_static_gateway }}{% endif %}
+        {% elif bridged_networking_ip_iface and bridged_networking_ip_iface.replace(':', '_') in ansible_interfaces and 'ipv4' in hostvars[inventory_hostname]["ansible_"+bridged_networking_ip_iface.replace(':', '_') ] %}
+                # IP configuration taken from '{{ bridged_networking_ip_iface }}'
+                address {{ hostvars[inventory_hostname]["ansible_"+bridged_networking_ip_iface.replace(':', '_') ].ipv4.address }}
+                netmask {{ hostvars[inventory_hostname]["ansible_"+bridged_networking_ip_iface.replace(':', '_') ].ipv4.netmask }}
+        {% if ansible_default_ipv4.interface == bridged_networking_ip_iface.replace(':', '_') %}
+                gateway {{ ansible_default_ipv4.gateway }}
+        {% endif %}
+        {% endif %}
+      marker: "# {mark} ANSIBLE MANAGED BLOCK {{ bridged_networking_bridge }}"
+    #notify: restart networking
+    when: bridged_networking_bridge_manage
+
+  - name: Start bridge (Debian like)
+    shell: |
+      ifup {{ bridged_networking_iface }}
+      ifup {{ bridged_networking_bridge }}
+  when: not bridged_networking_bridge in ansible_interfaces
+

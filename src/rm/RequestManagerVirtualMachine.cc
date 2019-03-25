@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -1084,6 +1084,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     bool live    = xmlrpc_c::value_boolean(paramList.getBoolean(3));
     bool enforce = false;
     int  ds_id   = -1;
+    int  poffmgr = 0;
 
     if ( paramList.size() > 4 )
     {
@@ -1093,6 +1094,11 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     if ( paramList.size() > 5 )
     {
         ds_id = xmlrpc_c::value_int(paramList.getInt(5));
+    }
+
+    if ( paramList.size() > 6 )
+    {
+        poffmgr = xmlrpc_c::value_int(paramList.getInt(6));
     }
 
     if (get_host_information(hid,
@@ -1251,7 +1257,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     {
         ostringstream oss;
 
-        oss << "Cannot migrate to host [" << hid << "]. Host is in cluster ["
+        oss << "Cannot migrate  VM [" << id << "] to host [" << hid << "]. Host is in cluster ["
             << cluster_id << "], and VM requires to be placed on cluster ["
             << one_util::join(cluster_ids, ',') << "]";
 
@@ -1271,7 +1277,17 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     if (ds_id != -1)
     {
-        if ( c_ds_id != ds_id && live )
+        VirtualMachineManager * vmm = Nebula::instance().get_vmm();
+        const VirtualMachineManagerDriver * vmmd = vmm->get(vmm_mad);
+
+        if ( vmmd == 0 )
+        {
+            att.resp_msg = "Cannot find vmm driver: " + vmm_mad;
+            failure_response(ACTION, att);
+            return;
+        }
+
+        if ( c_ds_id != ds_id && live && !vmmd->is_ds_live_migration())
         {
             att.resp_msg = "A migration to a different system datastore "
                 "cannot be performed live.";
@@ -1313,7 +1329,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     {
         ostringstream oss;
 
-        oss << "Cannot migrate to host [" << hid << "] and system datastore [" << ds_id << "]. Host is in cluster ["
+        oss << "Cannot migrate VM [" << id << "] to host [" << hid << "] and system datastore [" << ds_id << "]. Host is in cluster ["
             << cluster_id << "], and the datastore is in cluster ["
             << one_util::join(ds_cluster_ids, ',') << "]";
 
@@ -1357,7 +1373,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     }
     else
     {
-        dm->migrate(vm, att);
+        dm->migrate(vm, poffmgr, att);
     }
 
     vm->unlock();

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -115,7 +115,6 @@ define(function(require) {
     $(context).off("click", "#import_vcenter_networks");
     $(context).on("click", "#import_vcenter_networks", function(){
       that.vCenterNetworks.import(context);
-      $("#vnets-tabrefresh_buttons button").click();
       return false;
     });
 

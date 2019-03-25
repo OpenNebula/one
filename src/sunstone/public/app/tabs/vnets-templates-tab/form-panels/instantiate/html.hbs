@@ -1,0 +1,41 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
+<form data-abide novalidate id="{{formPanelId}}Wizard" class="custom creation">
+  <div class="row">
+    <div class="large-12 large-centered columns selectVNTemplateTable">
+    </div>
+  </div>
+  <div class="row nameContainer">
+    <div class="medium-4 columns">
+      <label for="vnet_name">
+        {{tr "Network name"}}
+        <span class="tip">
+          {{tr "Defaults to 'template name-<vnetid>' when empty."}}.
+        </span>
+      </label>
+      <input type="text" name="vnet_name" id="vnet_name" />
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-12 large-centered columns list_of_vntemplates">
+      <span class="fa-stack fa-5x">
+        <i class="fas fa-cloud fa-stack-2x"></i>
+        <i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>
+      </span>
+    </div>
+  </div>
+</form>

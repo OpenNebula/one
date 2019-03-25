@@ -1,17 +1,47 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/*--------------------------------------------------------------------------- */
+
 package goca
 
-import "errors"
-
-// Document represents an OpenNebula Document
-type Document struct {
-	XMLResource
-	ID   uint
-	Name string
-}
+import (
+	"encoding/xml"
+	"errors"
+)
 
 // DocumentPool represents an OpenNebula DocumentPool
 type DocumentPool struct {
-	XMLResource
+	Documents []Document `xml:"DOCUMENT"`
+}
+
+// Document represents an OpenNebula Document
+type Document struct {
+	ID          uint             `xml:"ID"`
+	UID         int              `xml:"UID"`
+	GID         int              `xml:"GID"`
+	UName       string           `xml:"UNAME"`
+	GName       string           `xml:"GNAME"`
+	Name        string           `xml:"NAME"`
+	Type        string           `xml:"TYPE"`
+	Permissions *Permissions     `xml:"PERMISSIONS"`
+	LockInfos   *Lock            `xml:"LOCK"`
+	Template    documentTemplate `xml:"TEMPLATE"`
+}
+
+type documentTemplate struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
 // NewDocumentPool returns a document pool. A connection to OpenNebula is
@@ -41,9 +71,13 @@ func NewDocumentPool(documentType int, args ...int) (*DocumentPool, error) {
 		return nil, err
 	}
 
-	documentpool := &DocumentPool{XMLResource{body: response.Body()}}
+	documentPool := &DocumentPool{}
+	err = xml.Unmarshal([]byte(response.Body()), documentPool)
+	if err != nil {
+		return nil, err
+	}
 
-	return documentpool, err
+	return documentPool, nil
 }
 
 // NewDocument finds a document object by ID. No connection to OpenNebula.
@@ -55,14 +89,26 @@ func NewDocument(id uint) *Document {
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the document.
 func NewDocumentFromName(name string, documentType int) (*Document, error) {
+	var id uint
+
 	documentPool, err := NewDocumentPool(documentType)
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := documentPool.GetIDFromName(name, "/DOCUMENT_POOL/DOCUMENT")
-	if err != nil {
-		return nil, err
+	match := false
+	for i := 0; i < len(documentPool.Documents); i++ {
+		if documentPool.Documents[i].Name != name {
+			continue
+		}
+		if match {
+			return nil, errors.New("multiple resources with that name")
+		}
+		id = documentPool.Documents[i].ID
+		match = true
+	}
+	if !match {
+		return nil, errors.New("resource not found")
 	}
 
 	return NewDocument(id), nil
@@ -117,8 +163,8 @@ func (document *Document) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
 // Chown changes the ownership of a document.
 // * userID: The User ID of the new owner. If set to -1, it will not change.
 // * groupID: The Group ID of the new group. If set to -1, it will not change.
-func (document *Document) Chown(userID, groupID uint) error {
-	_, err := client.Call("one.document.chown", document.ID, int(userID), int(groupID))
+func (document *Document) Chown(userID, groupID int) error {
+	_, err := client.Call("one.document.chown", document.ID, userID, groupID)
 	return err
 }
 

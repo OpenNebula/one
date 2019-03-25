@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -55,13 +55,6 @@ usage() {
 
 PARAMETERS=":u:g:d:ehkrlcsporlfG"
 
-if [ $# = 0 ] ; then
-    usage
-    exit 1
-fi
-
-eval set -- "$TEMP_OPT"
-
 INSTALL_ETC="yes"
 UNINSTALL="no"
 LINK="no"
@@ -75,24 +68,26 @@ ONEADMIN_GROUP=`id -g`
 SRC_DIR=$PWD
 DOCKER_MACHINE="no"
 
-while getopts $PARAMETERS opt ; do
+while getopts $PARAMETERS opt; do
     case $opt in
-        -e) DOCKER_MACHINE="yes" ;;
-        -h) usage; exit 0;;
-        -k) INSTALL_ETC="no" ;;
-        -r) UNINSTALL="yes" ;;
-        -l) LINK="yes" ;;
-        -c) CLIENT="yes"; INSTALL_ETC="no" ;;
-        -G) ONEGATE="yes" ;;
-        -s) SUNSTONE="yes" ;;
-        -p) SUNSTONE_DEV="no" ;;
-        -f) ONEFLOW="yes" ;;
-        -u) ONEADMIN_USER="$OPTARG" ;;
-        -g) ONEADMIN_GROUP="$OPTARG" ;;
-        -d) ROOT="$OPTARG" ;;
+        e) DOCKER_MACHINE="yes" ;;
+        h) usage; exit 0;;
+        k) INSTALL_ETC="no" ;;
+        r) UNINSTALL="yes" ;;
+        l) LINK="yes" ;;
+        c) CLIENT="yes"; INSTALL_ETC="no" ;;
+        G) ONEGATE="yes" ;;
+        s) SUNSTONE="yes" ;;
+        p) SUNSTONE_DEV="no" ;;
+        f) ONEFLOW="yes" ;;
+        u) ONEADMIN_USER="$OPTARG" ;;
+        g) ONEADMIN_GROUP="$OPTARG" ;;
+        d) ROOT="$OPTARG" ;;
         \?) usage; exit 1 ;;
     esac
 done
+
+shift $(($OPTIND - 1))
 
 #-------------------------------------------------------------------------------
 # Definition of locations
@@ -224,7 +219,9 @@ fi
 
 SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/websockify \
-            $SHARE_LOCATION/esx-fw-vnc"
+            $SHARE_LOCATION/websockify/websockify \
+            $SHARE_LOCATION/esx-fw-vnc \
+            $SHARE_LOCATION/oneprovision"
 
 ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/hm \
@@ -252,22 +249,33 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/sh \
           $LIB_LOCATION/ruby/cli \
           $LIB_LOCATION/ruby/cli/one_helper \
-          $LIB_LOCATION/ruby/vcenter_driver"
+          $LIB_LOCATION/ruby/vcenter_driver \
+          $LIB_LOCATION/oneprovision/lib"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc \
+          $VAR_LOCATION/remotes/etc/tm/fs_lvm \
           $VAR_LOCATION/remotes/etc/datastore/ceph \
           $VAR_LOCATION/remotes/etc/im/kvm-probes.d \
+          $VAR_LOCATION/remotes/etc/im/lxd-probes.d \
           $VAR_LOCATION/remotes/etc/vmm/kvm \
+          $VAR_LOCATION/remotes/etc/vmm/lxd \
           $VAR_LOCATION/remotes/etc/vmm/vcenter \
           $VAR_LOCATION/remotes/etc/vnm \
           $VAR_LOCATION/remotes/im \
           $VAR_LOCATION/remotes/im/kvm.d \
           $VAR_LOCATION/remotes/im/kvm-probes.d \
+          $VAR_LOCATION/remotes/im/lxd.d \
+          $VAR_LOCATION/remotes/im/lxd-probes.d \
           $VAR_LOCATION/remotes/im/vcenter.d \
           $VAR_LOCATION/remotes/im/ec2.d \
           $VAR_LOCATION/remotes/im/az.d \
           $VAR_LOCATION/remotes/im/one.d \
+          $VAR_LOCATION/remotes/im/packet.d \
+          $VAR_LOCATION/remotes/pm \
+          $VAR_LOCATION/remotes/pm/ec2 \
+          $VAR_LOCATION/remotes/pm/dummy \
+          $VAR_LOCATION/remotes/pm/packet \
           $VAR_LOCATION/remotes/vmm \
           $VAR_LOCATION/remotes/vmm/lib \
           $VAR_LOCATION/remotes/vmm/kvm \
@@ -275,6 +283,8 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vmm/ec2 \
           $VAR_LOCATION/remotes/vmm/az \
           $VAR_LOCATION/remotes/vmm/one \
+          $VAR_LOCATION/remotes/vmm/lxd \
+          $VAR_LOCATION/remotes/vmm/packet \
           $VAR_LOCATION/remotes/vnm \
           $VAR_LOCATION/remotes/vnm/802.1Q \
           $VAR_LOCATION/remotes/vnm/vxlan \
@@ -309,6 +319,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/market/http \
           $VAR_LOCATION/remotes/market/one \
           $VAR_LOCATION/remotes/market/s3 \
+          $VAR_LOCATION/remotes/market/linuxcontainers \
           $VAR_LOCATION/remotes/datastore/iscsi_libvirt \
           $VAR_LOCATION/remotes/auth \
           $VAR_LOCATION/remotes/auth/plain \
@@ -401,10 +412,14 @@ INSTALL_FILES=(
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
     IM_PROBES_KVM_PROBES_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d
     IM_PROBES_ETC_KVM_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/kvm-probes.d
+    IM_PROBES_LXD_FILES:$VAR_LOCATION/remotes/im/lxd.d
+    IM_PROBES_LXD_PROBES_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d
+    IM_PROBES_ETC_LXD_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/lxd-probes.d
     IM_PROBES_VCENTER_FILES:$VAR_LOCATION/remotes/im/vcenter.d
     IM_PROBES_EC2_FILES:$VAR_LOCATION/remotes/im/ec2.d
     IM_PROBES_AZ_FILES:$VAR_LOCATION/remotes/im/az.d
     IM_PROBES_ONE_FILES:$VAR_LOCATION/remotes/im/one.d
+    IM_PROBES_PACKET_FILES:$VAR_LOCATION/remotes/im/packet.d
     IM_PROBES_VERSION:$VAR_LOCATION/remotes
     AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
     AUTH_X509_FILES:$VAR_LOCATION/remotes/auth/x509
@@ -413,18 +428,26 @@ INSTALL_FILES=(
     AUTH_SERVER_CIPHER_FILES:$VAR_LOCATION/remotes/auth/server_cipher
     AUTH_DUMMY_FILES:$VAR_LOCATION/remotes/auth/dummy
     AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain
+    PM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/pm/ec2
+    PM_EXEC_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/pm/dummy
+    PM_EXEC_PACKET_SCRIPTS:$VAR_LOCATION/remotes/pm/packet
     VMM_EXEC_LIB_FILES:$VAR_LOCATION/remotes/vmm/lib
     VMM_EXEC_LIB_VCENTER_FILES:$LIB_LOCATION/ruby/vcenter_driver
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
+    VMM_EXEC_LXD_SCRIPTS:$VAR_LOCATION/remotes/vmm/lxd
+    VMM_EXEC_LXD_LIB:$VAR_LOCATION/remotes/vmm/lxd
     VMM_EXEC_ETC_KVM_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/kvm
+    VMM_EXEC_ETC_LXD_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/lxd
     VMM_EXEC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/vmm/vcenter
     VMM_EXEC_ETC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/vcenter
     VMM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/vmm/ec2
     VMM_EXEC_AZ_SCRIPTS:$VAR_LOCATION/remotes/vmm/az
     VMM_EXEC_ONE_SCRIPTS:$VAR_LOCATION/remotes/vmm/one
+    VMM_EXEC_PACKET_SCRIPTS:$VAR_LOCATION/remotes/vmm/packet
     TM_FILES:$VAR_LOCATION/remotes/tm
     TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
     TM_FS_LVM_FILES:$VAR_LOCATION/remotes/tm/fs_lvm
+    TM_FS_LVM_ETC_FILES:$VAR_LOCATION/remotes/etc/tm/fs_lvm/fs_lvm.conf
     TM_QCOW2_FILES:$VAR_LOCATION/remotes/tm/qcow2
     TM_SSH_FILES:$VAR_LOCATION/remotes/tm/ssh
     TM_CEPH_FILES:$VAR_LOCATION/remotes/tm/ceph
@@ -443,6 +466,7 @@ INSTALL_FILES=(
     MARKETPLACE_DRIVER_HTTP_SCRIPTS:$VAR_LOCATION/remotes/market/http
     MARKETPLACE_DRIVER_ONE_SCRIPTS:$VAR_LOCATION/remotes/market/one
     MARKETPLACE_DRIVER_S3_SCRIPTS:$VAR_LOCATION/remotes/market/s3
+    MARKETPLACE_DRIVER_LXC_SCRIPTS:$VAR_LOCATION/remotes/market/linuxcontainers
     IPAM_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/ipam/dummy
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_ETC_FILES:$VAR_LOCATION/remotes/etc/vnm
@@ -456,7 +480,8 @@ INSTALL_FILES=(
     NETWORK_OVSWITCH_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/ovswitch_vxlan
     NETWORK_VCENTER_FILES:$VAR_LOCATION/remotes/vnm/vcenter
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
-    WEBSOCKIFY_SHARE_FILES:$SHARE_LOCATION/websockify
+    WEBSOCKIFY_SHARE_RUN_FILES:$SHARE_LOCATION/websockify
+    WEBSOCKIFY_SHARE_MODULE_FILES:$SHARE_LOCATION/websockify/websockify
     ESX_FW_VNC_SHARE_FILES:$SHARE_LOCATION/esx-fw-vnc
     INSTALL_GEMS_SHARE_FILES:$SHARE_LOCATION
     ONETOKEN_SHARE_FILE:$SHARE_LOCATION
@@ -490,6 +515,15 @@ INSTALL_CLIENT_FILES=(
     RUBY_AUTH_LIB_FILES:$LIB_LOCATION/ruby/opennebula
 )
 
+INSTALL_ONEPROVISION_FILES=(
+    ONEPROVISION_BIN_FILES:$BIN_LOCATION
+    ONEPROVISION_ONE_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
+    ONEPROVISION_CONF_FILES:$ETC_LOCATION/cli
+    ONEPROVISION_ANSIBLE_FILES:$SHARE_LOCATION/oneprovision
+    ONEPROVISION_TEMPLATES_FILES:$SHARE_LOCATION/oneprovision
+    ONEPROVISION_LIB_FILES:$LIB_LOCATION/oneprovision/lib
+)
+
 INSTALL_SUNSTONE_RUBY_FILES=(
     RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/opennebula
     OCA_LIB_FILES:$LIB_LOCATION/ruby
@@ -515,7 +549,6 @@ INSTALL_SUNSTONE_PUBLIC_MINIFIED_FILES=(
   SUNSTONE_PUBLIC_LOCALE_CS_CZ:$SUNSTONE_LOCATION/public/locale/languages
   SUNSTONE_PUBLIC_LOCALE_DE:$SUNSTONE_LOCATION/public/locale/languages
   SUNSTONE_PUBLIC_LOCALE_DA:$SUNSTONE_LOCATION/public/locale/languages
-  SUNSTONE_PUBLIC_LOCALE_EL_GR:$SUNSTONE_LOCATION/public/locale/languages
   SUNSTONE_PUBLIC_LOCALE_EN_US:$SUNSTONE_LOCATION/public/locale/languages
   SUNSTONE_PUBLIC_LOCALE_ES_ES:$SUNSTONE_LOCATION/public/locale/languages
   SUNSTONE_PUBLIC_LOCALE_FA_IR:$SUNSTONE_LOCATION/public/locale/languages
@@ -574,6 +607,7 @@ INSTALL_ETC_FILES=(
     EC2_ETC_FILES:$ETC_LOCATION
     VCENTER_ETC_FILES:$ETC_LOCATION
     AZ_ETC_FILES:$ETC_LOCATION
+    PACKET_ETC_FILES:$ETC_LOCATION
     VMM_EXEC_ETC_FILES:$ETC_LOCATION/vmm_exec
     HM_ETC_FILES:$ETC_LOCATION/hm
     AUTH_ETC_FILES:$ETC_LOCATION/auth
@@ -610,8 +644,8 @@ BIN_FILES="src/nebula/oned \
            src/cli/onemarket \
            src/cli/onemarketapp \
            src/cli/onevcenter \
+           src/cli/onevntemplate \
            src/onedb/onedb \
-           src/mad/utils/tty_expect \
            share/scripts/one"
 
 #-------------------------------------------------------------------------------
@@ -641,7 +675,8 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/vmm_mad/remotes/vcenter/vcenter_driver.rb \
                 src/vmm_mad/remotes/az/az_driver.rb \
                 src/vmm_mad/remotes/ec2/ec2_driver.rb \
-                src/vmm_mad/remotes/one/opennebula_driver.rb"
+                src/vmm_mad/remotes/one/opennebula_driver.rb \
+                src/vmm_mad/remotes/packet/packet_driver.rb"
 
 #-------------------------------------------------------------------------------
 # Ruby auth library files, to be installed under $LIB_LOCATION/ruby/opennebula
@@ -658,7 +693,9 @@ RUBY_AUTH_LIB_FILES="src/authm_mad/remotes/ssh/ssh_auth.rb \
 # and remotes directory
 #-----------------------------------------------------------------------------
 
-MAD_SH_LIB_FILES="src/mad/sh/scripts_common.sh"
+MAD_SH_LIB_FILES="src/mad/sh/scripts_common.sh \
+                src/mad/sh/create_container_image.sh"
+
 MAD_RUBY_LIB_FILES="src/mad/ruby/scripts_common.rb"
 
 #-------------------------------------------------------------------------------
@@ -693,6 +730,39 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/ipamm_mad/one_ipam.rb"
 
 #-------------------------------------------------------------------------------
+# PM Driver EC2 scripts, installed under $REMOTES_LOCATION/pm/ec2
+#-------------------------------------------------------------------------------
+
+PM_EXEC_EC2_SCRIPTS="src/pm_mad/remotes/ec2/cancel \
+                     src/pm_mad/remotes/ec2/deploy \
+                     src/pm_mad/remotes/ec2/poll \
+                     src/pm_mad/remotes/ec2/reboot \
+                     src/pm_mad/remotes/ec2/reset \
+                     src/pm_mad/remotes/ec2/shutdown"
+
+#-------------------------------------------------------------------------------
+# PM Driver Dummy scripts, installed under $REMOTES_LOCATION/pm/dummy
+#-------------------------------------------------------------------------------
+
+PM_EXEC_DUMMY_SCRIPTS="src/pm_mad/remotes/dummy/cancel \
+                       src/pm_mad/remotes/dummy/deploy \
+                       src/pm_mad/remotes/dummy/poll \
+                       src/pm_mad/remotes/dummy/reboot \
+                       src/pm_mad/remotes/dummy/reset \
+                       src/pm_mad/remotes/dummy/shutdown"
+
+#-------------------------------------------------------------------------------
+# PM Driver Packet scripts, installed under $REMOTES_LOCATION/pm/packet
+#-------------------------------------------------------------------------------
+
+PM_EXEC_PACKET_SCRIPTS="src/pm_mad/remotes/packet/cancel \
+                        src/pm_mad/remotes/packet/deploy \
+                        src/pm_mad/remotes/packet/poll \
+                        src/pm_mad/remotes/packet/reboot \
+                        src/pm_mad/remotes/packet/reset \
+                        src/pm_mad/remotes/packet/shutdown"
+
+#-------------------------------------------------------------------------------
 # VMM Lib files, used by some VMM Drivers, to be installed in
 # $REMOTES_LOCATION/vmm/lib
 #-------------------------------------------------------------------------------
@@ -715,6 +785,45 @@ VMM_EXEC_LIB_VCENTER_FILES="src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb
                     src/vmm_mad/remotes/lib/vcenter_driver/datacenter.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/vm_template.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/network.rb"
+
+#-------------------------------------------------------------------------------
+# VMM SH Driver LXD scripts, to be installed under $REMOTES_LOCATION/vmm/lxd
+#-------------------------------------------------------------------------------
+VMM_EXEC_LXD_SCRIPTS="src/vmm_mad/remotes/lxd/cancel \
+                    src/vmm_mad/remotes/lxd/deploy \
+                    src/vmm_mad/remotes/lxd/migrate \
+                    src/vmm_mad/remotes/lxd/migrate_local \
+                    src/vmm_mad/remotes/lxd/restore \
+                    src/vmm_mad/remotes/lxd/reboot \
+                    src/vmm_mad/remotes/lxd/reset \
+                    src/vmm_mad/remotes/lxd/save \
+                    src/vmm_mad/remotes/lxd/poll \
+                    src/vmm_mad/remotes/lxd/attach_disk \
+                    src/vmm_mad/remotes/lxd/detach_disk \
+                    src/vmm_mad/remotes/lxd/attach_nic \
+                    src/vmm_mad/remotes/lxd/detach_nic \
+                    src/vmm_mad/remotes/lxd/snapshot_create \
+                    src/vmm_mad/remotes/lxd/snapshot_revert \
+                    src/vmm_mad/remotes/lxd/snapshot_delete \
+                    src/vmm_mad/remotes/lxd/shutdown \
+                    src/vmm_mad/remotes/lxd/reconfigure \
+                    src/vmm_mad/remotes/lxd/prereconfigure \
+                    src/vmm_mad/remotes/lxd/resize_disk"
+
+VMM_EXEC_LXD_LIB="src/vmm_mad/remotes/lib/lxd/opennebula_vm.rb \
+                src/vmm_mad/remotes/lib/lxd/mapper/mapper.rb \
+                src/vmm_mad/remotes/lib/lxd/mapper/qcow2.rb \
+                src/vmm_mad/remotes/lib/lxd/mapper/raw.rb \
+                src/vmm_mad/remotes/lib/lxd/mapper/rbd.rb \
+                src/vmm_mad/remotes/lib/lxd/client.rb \
+                src/vmm_mad/remotes/lib/lxd/command.rb \
+                src/vmm_mad/remotes/lib/lxd/container.rb"
+
+#-------------------------------------------------------------------------------
+# VMM configuration LXD scripts, to be installed under $REMOTES_LOCATION/etc/vmm/lxd
+#-------------------------------------------------------------------------------
+
+VMM_EXEC_ETC_LXD_SCRIPTS="src/vmm_mad/remotes/lxd/lxdrc"
 
 #-------------------------------------------------------------------------------
 # VMM SH Driver KVM scripts, to be installed under $REMOTES_LOCATION/vmm/kvm
@@ -777,7 +886,7 @@ VMM_EXEC_VCENTER_SCRIPTS="src/vmm_mad/remotes/vcenter/cancel \
 # VMM configuration VCENTER scripts, to be installed under $REMOTES_LOCATION/etc/vmm/vcenter
 #-------------------------------------------------------------------------------
 
-VMM_EXEC_ETC_VCENTER_SCRIPTS="src/vmm_mad/remotes/vcenter/vcenterc"
+VMM_EXEC_ETC_VCENTER_SCRIPTS="src/vmm_mad/remotes/vcenter/vcenterrc"
 
 #------------------------------------------------------------------------------
 # VMM Driver EC2 scripts, to be installed under $REMOTES_LOCATION/vmm/ec2
@@ -851,6 +960,17 @@ VMM_EXEC_ONE_SCRIPTS="src/vmm_mad/remotes/one/cancel \
                      src/vmm_mad/remotes/one/reconfigure \
                      src/vmm_mad/remotes/one/prereconfigure"
 
+#------------------------------------------------------------------------------
+# VMM Driver Packet scripts, to be installed under $REMOTES_LOCATION/vmm/packet
+#------------------------------------------------------------------------------
+
+VMM_EXEC_PACKET_SCRIPTS="src/vmm_mad/remotes/packet/cancel \
+                     src/vmm_mad/remotes/packet/deploy \
+                     src/vmm_mad/remotes/packet/reboot \
+                     src/vmm_mad/remotes/packet/reset \
+                     src/vmm_mad/remotes/packet/poll \
+                     src/vmm_mad/remotes/packet/shutdown"
+
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $REMOTES_LOCATION/im
 #-------------------------------------------------------------------------------
@@ -874,6 +994,22 @@ IM_PROBES_KVM_PROBES_FILES="src/im_mad/remotes/kvm-probes.d/kvm.rb \
 
 IM_PROBES_ETC_KVM_PROBES_FILES="src/im_mad/remotes/kvm-probes.d/pci.conf"
 
+IM_PROBES_LXD_PROBES_FILES="src/im_mad/remotes/lxd-probes.d/lxd.rb \
+                     src/im_mad/remotes/lxd-probes.d/architecture.sh \
+                     src/im_mad/remotes/lxd-probes.d/cpu.sh \
+                     src/im_mad/remotes/lxd-probes.d/poll.sh \
+                     src/im_mad/remotes/lxd-probes.d/name.sh \
+                     src/im_mad/remotes/lxd-probes.d/pci.rb \
+                     src/im_mad/remotes/lxd-probes.d/monitor_ds.sh \
+                     src/im_mad/remotes/lxd-probes.d/version.sh \
+                     src/im_mad/remotes/lxd-probes.d/profiles.sh \
+                     src/im_mad/remotes/lxd-probes.d/collectd-client-shepherd.sh"
+
+IM_PROBES_LXD_FILES="src/im_mad/remotes/lxd.d/collectd-client_control.sh \
+                     src/im_mad/remotes/lxd.d/collectd-client.rb"
+
+IM_PROBES_ETC_LXD_PROBES_FILES="src/im_mad/remotes/lxd-probes.d/pci.conf"
+
 IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/poll"
 
 IM_PROBES_EC2_FILES="src/im_mad/remotes/ec2.d/poll"
@@ -881,6 +1017,8 @@ IM_PROBES_EC2_FILES="src/im_mad/remotes/ec2.d/poll"
 IM_PROBES_AZ_FILES="src/im_mad/remotes/az.d/poll"
 
 IM_PROBES_ONE_FILES="src/im_mad/remotes/one.d/poll"
+
+IM_PROBES_PACKET_FILES="src/im_mad/remotes/packet.d/poll"
 
 IM_PROBES_VERSION="src/im_mad/remotes/VERSION"
 
@@ -1037,6 +1175,9 @@ TM_FS_LVM_FILES="src/tm_mad/fs_lvm/activate \
                  src/tm_mad/fs_lvm/delete \
                  src/tm_mad/fs_lvm/resize"
 
+TM_FS_LVM_ETC_FILES="src/tm_mad/fs_lvm/fs_lvm.conf"
+
+
 TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/delete \
                  src/tm_mad/qcow2/ln \
@@ -1171,6 +1312,7 @@ TM_ISCSI_FILES="src/tm_mad/iscsi_libvirt/clone \
 
 DATASTORE_DRIVER_COMMON_SCRIPTS="src/datastore_mad/remotes/xpath.rb \
                              src/datastore_mad/remotes/downloader.sh \
+                             src/datastore_mad/remotes/lxd_downloader.sh \
                              src/datastore_mad/remotes/vcenter_uploader.rb \
                              src/datastore_mad/remotes/vcenter_downloader.rb \
                              src/datastore_mad/remotes/url.rb \
@@ -1248,6 +1390,7 @@ DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi_libvirt/cp \
 #   - HTTP based marketplace, $REMOTES_LOCATION/market/http
 #   - OpenNebula public marketplace, $REMOTES_LOCATION/market/one
 #   - S3-obeject based marketplace, $REMOTES_LOCATION/market/s3
+#   - Linuxcontainers.org marketplace $REMOTE_LOCATION/market/linuxcontainers
 #-------------------------------------------------------------------------------
 
 MARKETPLACE_DRIVER_HTTP_SCRIPTS="src/market_mad/remotes/http/import \
@@ -1262,6 +1405,10 @@ MARKETPLACE_DRIVER_S3_SCRIPTS="src/market_mad/remotes/s3/import \
             src/market_mad/remotes/s3/delete \
             src/market_mad/remotes/s3/monitor \
             src/market_mad/remotes/s3/S3.rb"
+
+MARKETPLACE_DRIVER_LXC_SCRIPTS="src/market_mad/remotes/linuxcontainers/import \
+            src/market_mad/remotes/linuxcontainers/delete \
+            src/market_mad/remotes/linuxcontainers/monitor"
 
 #-------------------------------------------------------------------------------
 # Migration scripts for onedb command, to be installed under $LIB_LOCATION
@@ -1317,8 +1464,7 @@ ONEDB_SHARED_MIGRATOR_FILES="src/onedb/shared/2.0_to_2.9.80.rb \
                              src/onedb/shared/5.3.80_to_5.4.0.rb \
                              src/onedb/shared/5.4.0_to_5.4.1.rb \
                              src/onedb/shared/5.4.1_to_5.5.80.rb \
-                             src/onedb/shared/5.5.80_to_5.6.0.rb \
-                             src/onedb/shared/5.6.0_to_5.7.80.rb"
+                             src/onedb/shared/5.5.80_to_5.6.0.rb"
 
 ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
                             src/onedb/local/4.7.80_to_4.9.80.rb \
@@ -1332,7 +1478,8 @@ ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
                             src/onedb/local/5.4.0_to_5.4.1.rb \
                             src/onedb/local/5.4.1_to_5.5.80.rb \
                             src/onedb/local/5.5.80_to_5.6.0.rb \
-                            src/onedb/local/5.6.0_to_5.7.80.rb"
+                            src/onedb/local/5.6.0_to_5.7.80.rb \
+                            src/onedb/local/5.7.80_to_5.8.0.rb"
 
 ONEDB_PATCH_FILES="src/onedb/patches/4.14_monitoring.rb \
                    src/onedb/patches/history_times.rb"
@@ -1352,8 +1499,9 @@ EC2_ETC_FILES="src/vmm_mad/remotes/ec2/ec2_driver.conf \
 AZ_ETC_FILES="src/vmm_mad/remotes/az/az_driver.conf \
               src/vmm_mad/remotes/az/az_driver.default"
 
-VCENTER_ETC_FILES="src/vmm_mad/remotes/lib/vcenter_driver/vcenter_driver.default \
-                   src/vmm_mad/remotes/lib/vcenter_driver/vcenter_driver.conf"
+PACKET_ETC_FILES="src/vmm_mad/remotes/packet/packet_driver.default"
+
+VCENTER_ETC_FILES="src/vmm_mad/remotes/lib/vcenter_driver/vcenter_driver.default"
 
 #-------------------------------------------------------------------------------
 # Virtualization drivers config. files, to be installed under $ETC_LOCATION
@@ -1390,9 +1538,12 @@ EXAMPLE_SHARE_FILES="share/examples/vm.template \
 # Files required to interact with the websockify server
 #-------------------------------------------------------------------------------
 
-WEBSOCKIFY_SHARE_FILES="share/websockify/websocketproxy.py \
-                        share/websockify/websocket.py \
-                        share/websockify/websockify"
+WEBSOCKIFY_SHARE_RUN_FILES="share/websockify/run"
+WEBSOCKIFY_SHARE_MODULE_FILES="share/websockify/websockify/__init__.py \
+                               share/websockify/websockify/auth_plugins.py \
+                               share/websockify/websockify/token_plugins.py \
+                               share/websockify/websockify/websocket.py \
+                               share/websockify/websockify/websocketproxy.py"
 
 #-------------------------------------------------------------------------------
 # Installation packages for ESX hosts to enable VNC ports
@@ -1484,7 +1635,9 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/marketplace.rb \
                             src/oca/ruby/opennebula/marketplaceapp_pool.rb \
                             src/oca/ruby/opennebula/marketplaceapp.rb \
-                            src/oca/ruby/opennebula/utils.rb"
+                            src/oca/ruby/opennebula/utils.rb \
+                            src/oca/ruby/opennebula/vntemplate_pool.rb \
+                            src/oca/ruby/opennebula/vntemplate.rb"
 
 #-------------------------------------------------------------------------------
 # Common Cloud Files
@@ -1627,7 +1780,8 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onevrouter_helper.rb \
                    src/cli/one_helper/onemarketapp_helper.rb \
                    src/cli/one_helper/onevcenter_helper.rb \
-                   src/cli/one_helper/onemarket_helper.rb"
+                   src/cli/one_helper/onemarket_helper.rb \
+                   src/cli/one_helper/onevntemplate_helper.rb"
 
 CLI_BIN_FILES="src/cli/onevm \
                src/cli/onehost \
@@ -1649,7 +1803,8 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/onevdc \
                src/cli/onevrouter \
                src/cli/onemarketapp \
-               src/cli/onemarket"
+               src/cli/onemarket \
+               src/cli/onevntemplate"
 
 CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onehost.yaml \
@@ -1669,7 +1824,33 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onevdc.yaml \
                 src/cli/etc/onevrouter.yaml \
                 src/cli/etc/onemarketapp.yaml \
-                src/cli/etc/onemarket.yaml"
+                src/cli/etc/onemarket.yaml \
+                src/cli/etc/onevntemplate.yaml"
+
+#-----------------------------------------------------------------------------
+# Provision files
+#-----------------------------------------------------------------------------
+
+ONEPROVISION_BIN_FILES="src/cli/oneprovision"
+
+ONEPROVISION_ONE_LIB_FILES="src/cli/one_helper/oneprovision_helper.rb"
+
+ONEPROVISION_CONF_FILES="src/cli/etc/oneprovision.yaml"
+
+ONEPROVISION_ANSIBLE_FILES="share/oneprovision/ansible"
+
+ONEPROVISION_TEMPLATES_FILES="share/oneprovision/templates"
+
+ONEPROVISION_LIB_FILES="src/oneprovision/lib/ansible.rb \
+                        src/oneprovision/lib/oneprovision.rb \
+                        src/oneprovision/lib/cluster.rb \
+                        src/oneprovision/lib/datastore.rb \
+                        src/oneprovision/lib/driver.rb \
+                        src/oneprovision/lib/host.rb \
+                        src/oneprovision/lib/provision.rb \
+                        src/oneprovision/lib/resource.rb \
+                        src/oneprovision/lib/utils.rb \
+                        src/oneprovision/lib/vnet.rb"
 
 #-----------------------------------------------------------------------------
 # Sunstone files
@@ -1717,6 +1898,7 @@ SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/ClusterJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/DatastoreJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VirtualNetworkJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/VirtualNetworkTemplateJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/ZoneJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/SecurityGroupJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VdcJSON.rb \
@@ -1814,10 +1996,6 @@ src/sunstone/public/locale/languages/de_datatable.txt"
 SUNSTONE_PUBLIC_LOCALE_DA="\
 src/sunstone/public/locale/languages/da.js \
 src/sunstone/public/locale/languages/da_datatable.txt"
-
-SUNSTONE_PUBLIC_LOCALE_EL_GR="\
-src/sunstone/public/locale/languages/el_GR.js \
-src/sunstone/public/locale/languages/el_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_EN_US="\
 src/sunstone/public/locale/languages/en_US.js \
@@ -1944,12 +2122,14 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/onevcenter.1.gz \
         share/man/oneflow.1.gz \
         share/man/oneflow-template.1.gz \
+        share/man/oneprovision.1.gz \
         share/man/onesecgroup.1.gz \
         share/man/onevdc.1.gz \
         share/man/onevrouter.1.gz \
         share/man/onemarket.1.gz \
         share/man/onemarketapp.1.gz \
         share/man/onevmgroup.1.gz \
+        share/man/onevntemplate.1.gz \
         share/man/econe-allocate-address.1.gz \
         share/man/econe-associate-address.1.gz \
         share/man/econe-attach-volume.1.gz \
@@ -1983,7 +2163,8 @@ DOCS_FILES="LICENSE LICENSE.addons NOTICE README.md"
 # Ruby VENDOR files
 #-----------------------------------------------------------------------------
 
-VENDOR_DIRS="share/vendor/ruby/gems/rbvmomi"
+VENDOR_DIRS="share/vendor/ruby/gems/rbvmomi \
+             share/vendor/ruby/gems/packethost"
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -2036,12 +2217,14 @@ elif [ "$SUNSTONE_DEV" = "no" ]; then
     INSTALL_SET="${INSTALL_FILES[@]} \
                  ${INSTALL_SUNSTONE_FILES[@]} ${INSTALL_SUNSTONE_PUBLIC_MINIFIED_FILES[@]}\
                  ${INSTALL_ONEGATE_FILES[@]} \
-                 ${INSTALL_ONEFLOW_FILES[@]}"
+                 ${INSTALL_ONEFLOW_FILES[@]} \
+                 ${INSTALL_ONEPROVISION_FILES[@]}"
 else
     INSTALL_SET="${INSTALL_FILES[@]} \
                  ${INSTALL_SUNSTONE_FILES[@]} ${INSTALL_SUNSTONE_PUBLIC_DEV_DIR[@]}\
                  ${INSTALL_ONEGATE_FILES[@]} \
-                 ${INSTALL_ONEFLOW_FILES[@]}"
+                 ${INSTALL_ONEFLOW_FILES[@]} \
+                 ${INSTALL_ONEPROVISION_FILES[@]}"
 fi
 
 for i in ${INSTALL_SET[@]}; do

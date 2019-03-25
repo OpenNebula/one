@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -79,6 +79,10 @@ public:
      */
     bool limit_support();
 
+    bool fts_available()
+    {
+        return false;
+    }
 protected:
     /**
      *  Wraps the sqlite3_exec function call, and locks the DB mutex.
@@ -88,7 +92,7 @@ protected:
      *    @param arg to pass to the callback function
      *    @return 0 on success
      */
-    int exec(ostringstream& cmd, Callbackable* obj, bool quiet);
+    virtual int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet);
 
 private:
     /**
@@ -144,7 +148,7 @@ public:
     bool limit_support(){return true;};
 
 protected:
-    int exec(ostringstream& cmd, Callbackable* obj, bool quiet){return -1;};
+    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet){return -1;};
 };
 #endif
 

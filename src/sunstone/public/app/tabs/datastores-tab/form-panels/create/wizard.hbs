@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -252,7 +252,10 @@
     </div>
     <div class="medium-6 columns">
       <label class="only_img_ds" for="compatible_sys_ds">
-        {{tr "Compatible system datastores"}}
+        {{tr "Compatible system datastores"}} 
+        <span class="tip">
+          {{tr "Specifies which system datastores are compatible with this image datastore"}}
+        </span>
       </label>
       <input class="only_img_ds" type="text" name="compatible_sys_ds" id="compatible_sys_ds" placeholder="0,100" />
     </div>

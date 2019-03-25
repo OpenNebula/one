@@ -1,17 +1,34 @@
 source 'https://rubygems.org'
 
-if RUBY_VERSION < '1.9.0'
-    gem 'nokogiri', '< 1.6.0'
-    gem 'net-ldap', '< 0.9'
-    gem 'zendesk_api', '< 1.5'
+if RUBY_VERSION < '2.1.0'
+    gem 'nokogiri', '< 1.7'
+elsif RUBY_VERSION < '2.3.0'
+    gem 'nokogiri', '< 1.10'
 else
     gem 'nokogiri'
-    gem 'net-ldap'
-    gem 'zendesk_api'
 end
 
-if RUBY_VERSION >= '2.0.0' and RUBY_VERSION < '2.1.0'
+if RUBY_VERSION < '2.0.0'
+    gem 'net-ldap', '< 0.13'              # auth
+    gem 'mysql2', '< 0.5.0'               # onedb
+    gem 'mime-types', '< 3.0'             # hybrid (azure)
+else
+    gem 'net-ldap'                        # auth
+    gem 'mysql2'                          # onedb
+end
+
+if RUBY_VERSION < '2.0.0'
+    gem 'public_suffix', '< 1.5.0'
+elsif RUBY_VERSION < '2.1.0'
     gem 'public_suffix', '< 3.0.0'
+else
+    gem 'public_suffix'
+end
+
+if RUBY_VERSION < '2.2.0'
+    gem 'rack', '< 2.0.0'                 # sunstone, cloud, oneflow
+else
+    gem 'rack'                            # sunstone, cloud, oneflow
 end
 
 if RUBY_VERSION >= '2.4.0'
@@ -22,21 +39,25 @@ if RUBY_VERSION < '2.1'
     gem 'scrub_rb'
 end
 
-gem 'sqlite3'               # quota, onedb
-gem 'treetop', '>= 1.6.3'   # oneflow
-gem 'sequel'                # quota, oneb
-gem 'sinatra'               # sunstone, cloud, oneflow
-gem 'thin'                  # sunstone, cloud
-gem 'rack', '< 2.0.0'       # sunstone, cloud, oneflow
-gem 'memcache-client'       # sunstone
-gem 'amazon-ec2'            # cloud
-gem 'uuidtools'             # cloud
-gem 'curb'                  # cloud
-gem 'configparser'          # hybrid
-gem 'azure'                 # hybrid
-gem 'builder'               # vmware
-gem 'trollop'               # vmware
-gem 'parse-cron'            # oneflow
-gem 'aws-sdk', '~> 2.5'     # ec2_hybrid
-gem 'ox'                    # oca
-gem 'mysql2'                # onedb
+gem 'sqlite3'                             # quota, onedb
+gem 'treetop', '>= 1.6.3'                 # oneflow
+gem 'sequel'                              # quota, oneb
+gem 'sinatra'                             # sunstone, cloud, oneflow
+gem 'thin'                                # sunstone, cloud
+gem 'memcache-client'                     # sunstone
+gem 'zendesk_api'                         # sunstone
+gem 'amazon-ec2'                          # cloud
+gem 'uuidtools'                           # cloud
+gem 'curb'                                # cloud
+gem 'configparser'                        # hybrid
+gem 'azure'                               # hybrid
+gem 'builder'                             # vmware
+gem 'trollop'                             # vmware
+gem 'parse-cron'                          # oneflow
+gem 'aws-sdk', '~> 2.5'                   # ec2_hybrid
+gem 'ox'                                  # oca
+gem 'highline', '~> 1.7'                  # oneprovision
+gem 'faraday', '~> 0.15'                  # packethost
+gem 'faraday_middleware', '~> 0.12'       # packethost
+gem 'activesupport', '~> 4.2'             # packethost
+gem 'i18n', '~> 0.9'                      # packethost

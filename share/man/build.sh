@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -43,6 +43,8 @@ COMMANDS=(
     'onemarket'         'manages internal and external Marketplaces'
     'onemarketapp'      'manages appliances from Marketplaces'
     'onevmgroup'        'manages VM groups'
+    'onevntemplate'     'manages Virtual Network Templates'
+    'oneprovision'      'manages OpenNebula provisions'
 
     'oneflow'           'Manage oneFlow Services'
     'oneflow-template'  'Manage oneFlow Templates'

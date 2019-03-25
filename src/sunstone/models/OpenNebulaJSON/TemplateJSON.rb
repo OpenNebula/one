@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -110,7 +110,7 @@ module OpenNebulaJSON
 
                 template = template_to_str(params['template'])
 
-                ['NIC', 'SCHED_ACTION', 'SCHED_REQUIREMENTS', 'SCHED_DS_REQUIREMENTS'].each { |i|
+                ['NIC', 'NIC_ALIAS', 'SCHED_ACTION', 'SCHED_REQUIREMENTS', 'SCHED_DS_REQUIREMENTS'].each { |i|
                     if params['template'][i] && params['template'][i].empty?
                         template << "\n#{i} = []"
                     end

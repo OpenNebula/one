@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -96,33 +96,33 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 #        :description => "Number of addresses to reserve"
 #    }
 
-    GATEWAY = [
+    GATEWAY = {
         :name       => "gateway",
         :large      => "--gateway ip",
         :format     => String,
         :description=> "IP of the gateway"
-    ]
+    }
 
-    NETMASK = [
+    NETMASK = {
         :name       => "netmask",
         :large      => "--netmask mask",
         :format     => String,
         :description=> "Netmask in dot notation"
-    ]
+    }
 
-    VN_MAD = [
+    VN_MAD = {
         :name       => "vn_mad",
         :large      => "--vn_mad mad",
         :format     => String,
         :description=> "Use this driver for the network"
-    ]
+    }
 
-    VLAN_ID = [
+    VLAN_ID = {
         :name       => "vlanid",
         :large      => "--vlanid id",
         :format     => String,
         :description=> "VLAN ID assigned"
-    ]
+    }
 
     ADDAR_OPTIONS = [
         SIZE, MAC, IP, IP6, IP6_GLOBAL, IP6_ULA, GATEWAY, NETMASK, VN_MAD,
@@ -360,5 +360,17 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                 show_ar(vn, ar_id)
             end
         end
+    end
+
+    def self.add_ar_options_used?(options)
+        # Get the template options names as symbols. options hash
+        # uses symbols
+        add_ar_options=OneVNetHelper::ADDAR_OPTIONS.map do |o|
+            o[:name].to_sym
+        end
+
+        # Check if one at least one of the template options is
+        # in options hash
+        (add_ar_options-options.keys)!=add_ar_options
     end
 end

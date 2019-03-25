@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -19,6 +19,7 @@
 #include "Nebula.h"
 #include "VirtualMachine.h"
 #include "Request.h"
+#include "VirtualMachineTemplate.h"
 /* -------------------------------------------------------------------------- */
 
 static void vrouter_prefix(VectorAttribute* nic, const string& attr)
@@ -46,8 +47,17 @@ static void prepare_nic_vm(VectorAttribute * nic)
         vrouter_prefix(nic, "IP6_LINK");
         vrouter_prefix(nic, "IP6_ULA");
         vrouter_prefix(nic, "IP6_GLOBAL");
+        vrouter_prefix(nic, "VLAN_ID");
 
-        // TODO: remove all other attrs, such as AR, BRIDGE, etc?
+        std::set<std::string> restricted;
+        std::set<std::string>::iterator it;
+
+        VirtualMachineTemplate::restricted_nic(restricted);
+
+        for (it = restricted.begin(); it != restricted.end(); ++it)
+        {
+            nic->remove(*it);
+        }
     }
 }
 
@@ -603,6 +613,12 @@ VectorAttribute * VirtualRouter::attach_nic(
     // -------------------------------------------------------------------------
 
     nics.clear();
+
+    if ( tmpl->get("NIC_ALIAS") != 0 )
+    {
+        error_str = "Alias can't be attached to virtual router.";
+        return 0;
+    }
 
     if ( tmpl->get("NIC", nics) != 1 )
     {

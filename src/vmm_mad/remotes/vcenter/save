@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -30,6 +30,7 @@ $LOAD_PATH << File.dirname(__FILE__)
 require 'vcenter_driver'
 
 vm_ref          = ARGV[0]
+vm_id           = ARGV[3]
 vc_cluster_name = ARGV[-1]
 
 host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
@@ -45,7 +46,7 @@ check_valid(lcm_state, 'lcm_state')
 lcm_state_str = OpenNebula::VirtualMachine::LCM_STATE[lcm_state.to_i]
 
 if !(%{'SAVE_SUSPEND', 'SAVE_STOP', 'SAVE_MIGRATE'}).include?(lcm_state_str)
-    STDERR.puts "Wrong lcm state #{lcm_state_str} }when saving VM"
+    STDERR.puts "Wrong lcm state #{lcm_state_str} when saving VM"
     exit(-1)
 end
 
@@ -55,15 +56,13 @@ begin
     vm = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm_ref)
 
     vm.suspend
-
 rescue StandardError => e
     message = "Save of VM #{vm_ref} on vCenter cluster "\
               "#{vc_cluster_name} failed due to "\
               "\"#{e.message}\"\n#{e.backtrace.join("\n")}"
     OpenNebula.log_error(message)
-    if vi_client.get_property_vcenter_conf(:debug_information)
-        STDERR.puts "#{message} #{e.backtrace}"
-    end
+    STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
+
     exit(-1)
 ensure
     vi_client.close_connection if vi_client

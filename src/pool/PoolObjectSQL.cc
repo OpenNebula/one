@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -30,7 +30,8 @@ const long int PoolObjectSQL::LockableObject = PoolObjectSQL::ObjectType::VM
                                 | PoolObjectSQL::ObjectType::MARKETPLACEAPP
                                 | PoolObjectSQL::ObjectType::NET
                                 | PoolObjectSQL::ObjectType::VROUTER
-                                | PoolObjectSQL::ObjectType::VMGROUP;
+                                | PoolObjectSQL::ObjectType::VMGROUP
+                                | PoolObjectSQL::ObjectType::VNTEMPLATE;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -592,6 +593,11 @@ bool PoolObjectSQL::name_is_valid(const string& obj_name,
 
 int PoolObjectSQL::lock_db(const int owner, const int req_id, const int level)
 {
+    if ( level < ST_NONE || level > ST_ADMIN )
+    {
+        return -1;
+    }
+
     locked      = static_cast<LockStates>(level);
     lock_time   = time(0);
     lock_owner  = owner;
@@ -625,18 +631,23 @@ int PoolObjectSQL::unlock_db(const int owner, const int req_id)
 
 string& PoolObjectSQL::lock_db_to_xml(string& xml) const
 {
-    ostringstream   oss;
-    if (locked  != LockStates::ST_NONE)
+    if (locked == LockStates::ST_NONE)
     {
-        oss << "<LOCK>"
-                << "<LOCKED>"  << static_cast<int>(locked)   << "</LOCKED>"
-                << "<OWNER>"   << lock_owner << "</OWNER>"
-                << "<TIME>" << lock_time << "</TIME>"
-                << "<REQ_ID>" << lock_req_id << "</REQ_ID>"
-            << "</LOCK>";
+        xml.clear();
+        return xml;
     }
 
+    ostringstream oss;
+
+    oss << "<LOCK>"
+            << "<LOCKED>" << static_cast<int>(locked)   << "</LOCKED>"
+            << "<OWNER>"  << lock_owner << "</OWNER>"
+            << "<TIME>"   << lock_time << "</TIME>"
+            << "<REQ_ID>" << lock_req_id << "</REQ_ID>"
+        << "</LOCK>";
+
     xml = oss.str();
+
     return xml;
 }
 
@@ -647,17 +658,25 @@ int PoolObjectSQL::lock_db_from_xml()
 {
     int rc = 0;
     int locked_int;
+
     vector<xmlNodePtr> content;
 
-    if (ObjectXML::get_nodes("/*/LOCK/LOCKED", content) > 0)
-    {
-        rc += xpath(locked_int,   "/*/LOCK/LOCKED", 0);
-        rc += xpath(lock_req_id,   "/*/LOCK/REQ_ID", -1);
-        rc += xpath(lock_owner,   "/*/LOCK/OWNER", -1);
-        xpath<time_t>(lock_time, "/*/LOCK/TIME", time(0));
+    ObjectXML::get_nodes("/*/LOCK/LOCKED", content);
 
-        locked = static_cast<LockStates>(locked_int);
+    if ( content.empty() )
+    {
+        return 0;
     }
+
+    rc += xpath(locked_int,  "/*/LOCK/LOCKED", 0);
+    rc += xpath(lock_req_id, "/*/LOCK/REQ_ID", -1);
+    rc += xpath(lock_owner,  "/*/LOCK/OWNER", -1);
+
+    xpath<time_t>(lock_time, "/*/LOCK/TIME", time(0));
+
+    locked = static_cast<LockStates>(locked_int);
+
+    ObjectXML::free_nodes(content);
 
     return rc;
 }

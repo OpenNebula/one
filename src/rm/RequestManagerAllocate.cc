@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -255,8 +255,6 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
             failure_response(INTERNAL, att);
             return;
         }
-
-        clpool->update(cluster);
 
         cluster->unlock();
     }
@@ -685,6 +683,66 @@ bool TemplateAllocate::allocate_authorization(
     string      aname;
 
     VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
+
+    // ------------ Check template for restricted attributes -------------------
+    if (!att.is_admin())
+    {
+        if (ttmpl->check_restricted(aname))
+        {
+            att.resp_msg = "VM Template includes a restricted attribute "+aname;
+
+            failure_response(AUTHORIZATION, att);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+
+Request::ErrorCode VirtualNetworkTemplateAllocate::pool_allocate(
+        xmlrpc_c::paramList const&  paramList,
+        Template *                  tmpl,
+        int&                        id,
+        RequestAttributes&          att)
+{
+    VNTemplatePool * vnpool = static_cast<VNTemplatePool *>(pool);
+
+    VirtualNetworkTemplate * ttmpl=static_cast<VirtualNetworkTemplate *>(tmpl);
+
+    int rc = vnpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
+        ttmpl, &id, att.resp_msg);
+
+    if (rc < 0)
+    {
+        return Request::INTERNAL;
+    }
+
+    return Request::SUCCESS;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualNetworkTemplateAllocate::allocate_authorization(
+		xmlrpc_c::paramList const&  paramList,
+        Template *          tmpl,
+        RequestAttributes&  att,
+        PoolObjectAuth *    cluster_perms)
+{
+    AuthRequest ar(att.uid, att.group_ids);
+    string      t64;
+    string      aname;
+
+    if (!RequestManagerAllocate::allocate_authorization(paramList, tmpl, att, cluster_perms))
+    {
+        return false;
+    }
+
+    VirtualNetworkTemplate * ttmpl = static_cast<VirtualNetworkTemplate *>(tmpl);
 
     // ------------ Check template for restricted attributes -------------------
     if (!att.is_admin())

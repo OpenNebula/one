@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -19,7 +19,7 @@
 require 'fileutils'
 require 'tmpdir'
 
-VERSION = "5.7.80"
+VERSION = "5.9.80"
 
 def version
     v = VERSION
@@ -95,7 +95,7 @@ GEM_DESCRIPTION={
     :cli => {
         :name => 'opennebula-cli',
         :files => [
-            ['src/cli/one[a-z]*', '/bin'],
+            ['src/cli/one[a-z]*', '/bin', 'oneprovision'],
             ['src/cli/*.rb', '/lib'],
             ['src/cli/one_helper/*.rb', '/lib/one_helper'],
             ['NOTICE', ''],
@@ -123,11 +123,11 @@ end
 def file_list(description)
     files=Array.new
 
-    description[:files].each do |f, prefix|
-        source=Dir.glob(f)
+    description[:files].each do |f, prefix, exclude|
+        Dir.glob(f).each do |source|
+            next if (! exclude.nil?) and (source.match(exclude))
 
-        files+=source.map do |source|
-            [source, sane_prefix(prefix)+File.basename(source)]
+            files << [source, sane_prefix(prefix)+File.basename(source)]
         end
     end
 

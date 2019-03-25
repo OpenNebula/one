@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -77,7 +77,11 @@ public:
         RECOVER_ACTION         = 42,        // "one.vm.recover"
         RETRY_ACTION           = 43,        // "one.vm.recover"
         MONITOR_ACTION         = 44,        // internal, monitoring process
-        DISK_SNAPSHOT_RENAME_ACTION = 45    // "one.vm.disksnapshotrename"
+        DISK_SNAPSHOT_RENAME_ACTION = 45,   // "one.vm.disksnapshotrename"
+        ALIAS_ATTACH_ACTION      = 46,      // "one.vm.attachnic"
+        ALIAS_DETACH_ACTION      = 47,      // "one.vm.detachnic"
+        POFF_MIGRATE_ACTION      = 48,      // "one.vm.migrate"
+        POFF_HARD_MIGRATE_ACTION = 49       // "one.vm.migrate"
     };
 
     static string action_to_str(VMAction action);
@@ -253,6 +257,10 @@ private:
      *  @return a reference to the generated string
      */
     string& to_xml(string& xml, bool database) const;
+
+    string& to_json(string& json) const;
+
+    string& to_token(string& text) const;
 
     /**
      *  Rebuilds the object from an xml node

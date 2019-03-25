@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -96,7 +96,7 @@ void ReplicaThread::do_replication()
 
             if ( pthread_cond_timedwait(&cond, &mutex, &timeout) == ETIMEDOUT )
             {
-                _pending_requests = retry_request;
+                _pending_requests = retry_request || _pending_requests;
             }
 
             if ( _finalize )

@@ -1,0 +1,110 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
+<br>
+<div class="template-row" element-id="{{element.ID}}">
+  <fieldset>
+    <legend>{{tr "Network Template"}}</legend>
+    <div class="row">
+      <div class="medium-5 small-12 columns">
+        <h5>
+          {{element.NAME}}<br>
+        </h5>
+        <h6>
+          {{element.TEMPLATE.DESCRIPTION}}<br>
+        </h6>
+      </div>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>{{tr "Address Ranges"}}</legend>
+    <div class="row">
+      {{{arHTML}}}
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>{{tr "Network Configuration"}}</legend>
+    {{#advancedImportationSection "<i class=\"fas fa-code-branch\"></i>" (tr "Context") }}
+    {{#isFeatureEnabled "show_context_instantiate_vnet"}}
+    <div class="row" id="instantiateContext">
+      <div class="row">
+        <div class="medium-6 columns">
+          <label for="net_address">
+            {{tr "Network address"}}
+          </label>
+          <input type="text" wizard_field="NETWORK_ADDRESS" name="net_address" id="net_address" />
+        </div>
+        <div class="medium-6 columns">
+          <label for="net_mask">
+            {{tr "Network mask"}}
+          </label>
+          <input type="text" wizard_field="NETWORK_MASK" name="net_mask" id="net_mask" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="medium-6 columns">
+          <label for="net_gateway">
+            {{tr "Gateway"}}
+          </label>
+          <input type="text" wizard_field="GATEWAY" name="net_gateway" id="net_gateway" />
+        </div>
+        <div class="medium-6 columns">
+          <label for="net_gateway6">
+            {{tr "IPv6 Gateway"}}
+          </label>
+          <input type="text" wizard_field="GATEWAY6" name="net_gateway6" id="net_gateway6" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="medium-6 columns">
+          <label for="net_dns">
+            {{tr "DNS"}}
+          </label>
+          <input type="text" wizard_field="DNS" name="net_dns" id="net_dns" />
+        </div>
+        <div class="medium-6 columns">
+          <label for="net_mtu">
+            {{tr "MTU of the Guest interfaces"}}
+          </label>
+          <input type="text" wizard_field="GUEST_MTU" name="net_mtu" id="net_mtu" />
+        </div>
+      </div>
+      <fieldset>
+        <legend>{{tr "Custom attributes"}}</legend>
+        {{{customTagsHTML}}}
+      </fieldset>
+    </div>
+    {{/isFeatureEnabled}}
+    {{/advancedImportationSection}}
+    {{#advancedImportationSection "<i class=\"fas fa-code-branch\"></i>" (tr "Security") }}
+    {{#isFeatureEnabled "show_security_instantiate_vnet"}}
+    <div class="row" id="instantiateSecurity">
+      <div class="provision_sg_selector">
+      </div>
+      {{{securityGroupsTableHTML}}}
+      <div class="row" id="default_sg_warning">
+        <div class="large-12 columns">
+          <span class="radius warning label">
+            <i class="fas fa-exclamation-triangle"/> {{tr "The default Security Group 0 is automatically added to new Virtual Networks"}}
+          </span>
+        </div>
+      </div>
+    </div>
+    {{/isFeatureEnabled}}
+    {{/advancedImportationSection}}
+  </fieldset>
+</div>
+<br>

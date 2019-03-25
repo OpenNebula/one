@@ -1,0 +1,12 @@
+{
+    "id": "228dd4a2-70d7-42d2-8bb1-e5ba3b2631ff",
+    "label": "my key",
+    "key": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCwAKuNRggzc7crhTEeHTQMJ7lTIe3NtbdE/xvSPZBIxfLq8XXDP22Xt0FySMoPR9TyyrwijRysFIrCyE4Zp4EBCH3R7yQrfS+XwR2nSfxdjOpAok9pFK2RftQpMoc0Z8hKl2OgzWkktXfq4gHM8xc1jkCFxgP1qEoxZKuAs1Zjd0Gnwl1Lz36+6y7BbYw61ptQ9S41zjLWG9g6g9IyfoSODtCDiEItcl6IecDPxO/8XgfGmiRuwXUdZ2oN32UNY59f3pV56ozRCfWe0x3Cq55JdWTD9FIUFBgHfuKHPcWZMbZlCRBcjiCOM2S52XGgzlXnRaYdOYE2b6VutDkrea7z user@packet.net",
+    "fingerprint": "b0:31:aa:bf:b9:67:dd:10:31:82:8f:51:73:3d:47:7c",
+    "created_at": "2015-03-05T17:44:17Z",
+    "updated_at": "2015-03-05T17:44:17Z",
+    "user": {
+        "href": "/users/687f8ab4-f227-42ba-ab3a-a6c08f2fbded"
+    },
+    "href": "/ssh-keys/228dd4a2-70d7-42d2-8bb1-e5ba3b2631ff"
+}

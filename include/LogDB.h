@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -79,10 +79,10 @@ private:
  *  This class implements a generic DB interface with replication. The associated
  *  DB stores a log to replicate on followers.
  */
-class LogDB : public SqlDB, Callbackable
+class LogDB : public SqlDB
 {
 public:
-    LogDB(SqlDB * _db, bool solo, unsigned int log_retention,
+    LogDB(SqlDB * _db, bool solo, bool cache, unsigned int log_retention,
             unsigned int limit_purge);
 
     virtual ~LogDB();
@@ -104,7 +104,7 @@ public:
      *  timestamp of the record is updated.
      *    @param index of the log record
      */
-	int apply_log_records(unsigned int commit_index);
+    int apply_log_records(unsigned int commit_index);
 
     /**
      *  Deletes the record in start_index and all that follow it
@@ -218,6 +218,10 @@ public:
         return db->limit_support();
     }
 
+    bool fts_available()
+    {
+        return db->fts_available();
+    }
     // -------------------------------------------------------------------------
     // Database methods
     // -------------------------------------------------------------------------
@@ -252,10 +256,10 @@ public:
     int next_federated(int index);
 
 protected:
-    int exec(std::ostringstream& cmd, Callbackable* obj, bool quiet)
+    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
     {
-        return -1;
-    }
+        return SqlDB::INTERNAL;
+    };
 
 private:
     pthread_mutex_t mutex;
@@ -264,6 +268,11 @@ private:
      *  The Database was started in solo mode (no server_id defined)
      */
     bool solo;
+
+    /**
+     * True for cache servers
+     */
+    bool cache;
 
     /**
      *  Pointer to the underlying DB store
@@ -332,11 +341,6 @@ private:
      *  (fed_index = index), > 0 set (fed_index = federated)
      */
     int _exec_wr(ostringstream& cmd, int federated);
-
-    /**
-     *  Callback to store the IDs of federated records in the federated log.
-     */
-    int index_cb(void *null, int num, char **values, char **names);
 
     /**
      *  Applies the SQL command of the given record to the database. The
@@ -416,11 +420,16 @@ public:
         return _logdb->limit_support();
     }
 
-protected:
-    int exec(std::ostringstream& cmd, Callbackable* obj, bool quiet)
+    bool fts_available()
     {
-        return -1;
+        return _logdb->fts_available();
     }
+
+protected:
+    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
+    {
+        return SqlDB::INTERNAL;
+    };
 
 private:
 

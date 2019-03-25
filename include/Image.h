@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -191,18 +191,13 @@ public:
         return (persistent_img == 1);
     };
 
-    bool is_managed() const
+    /**
+     *  @return true if the image is in a locked state
+     */
+    bool is_locked() const
     {
-        bool one_managed;
-
-        if (get_template_attribute("OPENNEBULA_MANAGED", one_managed) == false)
-        {
-            one_managed = true;
-        }
-
-        return one_managed;
-    }
-
+        return state == LOCKED || state == LOCKED_USED || state == LOCKED_USED_PERS;
+    };
     /**
      *  Check the PERSISTENT attribute in an image Template, if not set the
      *  DEFAULT_IMAGE_PERSISTENT and DEFAULT_IMAGE_PERSISTENT_NEW are check in
@@ -561,7 +556,7 @@ public:
 
     void revert_snapshot(int snap_id)
     {
-        snapshots.active_snapshot(snap_id);
+        snapshots.active_snapshot(snap_id, true);
     };
 
     void set_target_snapshot(int snap_id)
@@ -712,11 +707,11 @@ private:
     };
 
     /**
-     *  "Encrypts" the password with SHA1 digest
+     *  "Encrypts" the password with SHA256 digest
      *  @param password
-     *  @return sha1 encrypted password
+     *  @return sha256 encrypted password
      */
-    static string sha1_digest(const string& pass);
+    static string sha256_digest(const string& pass);
 
 protected:
 

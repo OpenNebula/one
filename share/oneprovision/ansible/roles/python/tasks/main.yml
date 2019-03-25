@@ -1,0 +1,4 @@
+---
+
+- name: Install Python 2 (Debian/Ubuntu)
+  raw: python2 --version >/dev/null 2>&1 || (apt-get --version >/dev/null 2>&1 && sudo -n apt-get install -y python-minimal)

@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/*--------------------------------------------------------------------------- */
+
 package goca
 
 import (
@@ -5,7 +21,7 @@ import (
 )
 
 // Helper to create a template
-func createTemplate(t *testing.T) *Template {
+func createTemplate(t *testing.T) (*Template, uint) {
 	templateName := GenName("template")
 
 	// Create template
@@ -28,30 +44,24 @@ func createTemplate(t *testing.T) *Template {
 		t.Error(err)
 	}
 
-	return template
+	return template, id
 }
 
 func TestTemplateCreateAndDelete(t *testing.T) {
-	template := createTemplate(t)
+	var err error
 
-	idParse, err := GetID(t, template, "VMTEMPLATE")
-	if err != nil {
-		t.Error(err)
-	}
+	template, idOrig := createTemplate(t)
 
-	if idParse != template.ID {
+	idParse := template.ID
+	if idParse != idOrig {
 		t.Errorf("Template ID does not match")
 	}
 
 	// Get template by Name
-	templateName, ok := template.XPath("/VMTEMPLATE/NAME")
-	if !ok {
-		t.Errorf("Could not get name")
-	}
-
-	template, err = NewTemplateFromName(templateName)
+	name := template.Name
+	template, err = NewTemplateFromName(name)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	err = template.Info()
@@ -59,9 +69,8 @@ func TestTemplateCreateAndDelete(t *testing.T) {
 		t.Error(err)
 	}
 
-	idParse, err = GetID(t, template, "VMTEMPLATE")
-
-	if idParse != template.ID {
+	idParse = template.ID
+	if idParse != idOrig {
 		t.Errorf("Template ID does not match")
 	}
 
@@ -107,7 +116,7 @@ func TestTemplateInstantiate(t *testing.T) {
 }
 
 func TestTemplateUpdate(t *testing.T) {
-	template := createTemplate(t)
+	template, _ := createTemplate(t)
 
 	tpl := NewTemplateBuilder()
 	tpl.AddValue("A", "B")
@@ -120,8 +129,13 @@ func TestTemplateUpdate(t *testing.T) {
 		t.Error(err)
 	}
 
-	if val, ok := template.XPath("/VMTEMPLATE/TEMPLATE/A"); !ok || val != "B" {
-		t.Errorf("Expecting A=B")
+	val, err := template.Template.Dynamic.GetContentByName("A")
+	if err != nil {
+		t.Errorf("Test failed, can't retrieve '%s', error: %s", "A", err.Error())
+	} else {
+		if val != "B" {
+			t.Errorf("Expecting A=B")
+		}
 	}
 
 	// Delete template

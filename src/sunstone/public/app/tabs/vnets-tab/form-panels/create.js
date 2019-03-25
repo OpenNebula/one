@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -98,7 +98,13 @@ define(function(require) {
     return TemplateWizardHTML({
       "formPanelId": this.formPanelId,
       "customTagsHTML": CustomTagsTable.html(),
-      "securityGroupsTableHTML": this.securityGroupsTable.dataTableHTML
+      "securityGroupsTableHTML": this.securityGroupsTable.dataTableHTML,
+      "createGeneralTab": "vnetCreateGeneralTab",
+      "createBridgeTab": "vnetCreateBridgeTab",
+      "createARTab": "vnetCreateARTab",
+      "createSecurityTab": "vnetCreateSecurityTab",
+      "createQoSTab": "vnetCreateQoSTab",
+      "createContextTab": "vnetCreateContextTab"
     });
   }
 
@@ -351,7 +357,7 @@ define(function(require) {
       network_json["SECURITY_GROUPS"] = secgroups.join(",");
     }
 
-    var cluster_id = $(".resource_list_select", $('#vnet_cluster_id', context)).val();
+    var cluster_id = $(".resource_list_select", $("#vnet_cluster_id", context)).val();
 
     $.extend(network_json, CustomTagsTable.retrieve($("#vnetCreateContextTab", context)));
 
@@ -372,7 +378,6 @@ define(function(require) {
         "vnet" : network_json,
         "cluster_id": cluster_id
       };
-
       Sunstone.runAction("Network.create", network_json);
       return false;
     } else if (this.action == "update") {
@@ -411,8 +416,8 @@ define(function(require) {
       if (!cluster_id) cluster_id = "0";
 
       ResourceSelect.insert({
-        context: $('#vnet_cluster_id', context),
-        resourceName: 'Cluster',
+        context: $("#vnet_cluster_id", context),
+        resourceName: "Cluster",
         initValue: cluster_id
       });
     } else {

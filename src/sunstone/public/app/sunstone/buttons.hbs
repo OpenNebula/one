@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -31,7 +31,13 @@
       </span>
     </span>
 
-    <span id="{{customId}}create_buttons" class=" only-sunstone-list"></span>
+    <span id="{{customId}}create_buttons" class="only-sunstone-list"></span>
+
+    <button type='button' data-toggle='{{customId}}create_buttons_flatten' class='only-sunstone-info only-sunstone-list top_button button secondary dropdown success alwaysActive'>
+      <i class='fas fa-plus'/>
+    </button>
+    <ul id='{{customId}}create_buttons_flatten' class='dropdown-pane menu vertical' data-dropdown></ul>
+
     <span id="{{customId}}refresh_buttons" class=" only-sunstone-info only-sunstone-list"></span>
   </span>
   <span>
@@ -64,6 +70,11 @@
       <i class='fas fa-th-list'/>
     </button>
     <ul id='{{customId}}vmsplanification_buttons' class='only-sunstone-info only-sunstone-list dropdown-pane menu vertical' data-dropdown></ul>
+
+    <button type='button' data-toggle='{{customId}}vmsmigration_buttons' class='only-sunstone-info only-sunstone-list top_button  button secondary dropdown'>
+      <i class='fas fa-share-square'/>
+    </button>
+    <ul id='{{customId}}vmsmigration_buttons' class='only-sunstone-info only-sunstone-list dropdown-pane menu vertical' data-dropdown></ul>
 
   </span>
   <span>

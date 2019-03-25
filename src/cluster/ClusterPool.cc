@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -63,11 +63,12 @@ ClusterPool::ClusterPool(SqlDB * db, const VectorAttribute * _vnc_conf):
             goto error_bootstrap;
         }
 
-        cluster->add_datastore(DatastorePool::SYSTEM_DS_ID, error_str);
-        cluster->add_datastore(DatastorePool::DEFAULT_DS_ID, error_str);
-        cluster->add_datastore(DatastorePool::FILE_DS_ID, error_str);
-
-        update(cluster);
+        add_to_cluster(PoolObjectSQL::DATASTORE, cluster, DatastorePool::SYSTEM_DS_ID,
+                error_str);
+        add_to_cluster(PoolObjectSQL::DATASTORE, cluster, DatastorePool::DEFAULT_DS_ID,
+                error_str);
+        add_to_cluster(PoolObjectSQL::DATASTORE, cluster, DatastorePool::FILE_DS_ID,
+                error_str);
 
         cluster->unlock();
 
@@ -264,3 +265,115 @@ int ClusterPool::query_vnet_clusters(int oid, set<int> &cluster_ids)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int ClusterPool::add_to_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster,
+                                          int resource_id, string& error_msg)
+{
+    string table, names;
+
+    switch (type)
+    {
+        case PoolObjectSQL::DATASTORE:
+            table = cluster->datastore_table;
+            names = cluster->datastore_db_names;
+            break;
+        case PoolObjectSQL::NET:
+            table = cluster->network_table;
+            names = cluster->network_db_names;
+            break;
+        case PoolObjectSQL::HOST:
+            break;
+        default:
+            error_msg = "Invalid resource type: " + PoolObjectSQL::type_to_str(type);
+            return -1;
+    }
+
+    int rc = cluster->add_resource(type, resource_id, error_msg);
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    if (!table.empty())
+    {
+        ostringstream oss;
+
+        oss << "INSERT INTO " << table <<" ("
+            << names << ") VALUES (" << cluster->get_oid()
+            << "," << resource_id << ")";
+
+        rc = db->exec_wr(oss);
+
+        if (rc != 0)
+        {
+            cluster->del_resource(type, resource_id, error_msg);
+
+            error_msg =  "Error updating cluster elemnts table";
+
+            return -1;
+        }
+    }
+
+    update(cluster);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ClusterPool::del_from_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster,
+                                          int resource_id, string& error_msg)
+{
+    string table;
+
+    switch (type)
+    {
+        case PoolObjectSQL::DATASTORE:
+            table = cluster->datastore_table;
+            break;
+        case PoolObjectSQL::NET:
+            table = cluster->network_table;
+            break;
+        case PoolObjectSQL::HOST:
+            break;
+        default:
+            error_msg = "Invalid resource type: " + PoolObjectSQL::type_to_str(type);
+            return -1;
+    }
+
+    int rc = cluster->del_resource(type, resource_id, error_msg);
+
+    if ( rc != 0 )
+    {
+        return -1;
+    }
+
+    if (!table.empty())
+    {
+        ostringstream oss;
+
+        oss << "DELETE FROM " << table << " WHERE cid = "
+            << cluster->get_oid() << " AND oid = " << resource_id;
+
+        int rc = db->exec_wr(oss);
+
+        if (rc != 0)
+        {
+            cluster->add_resource(type, resource_id, error_msg);
+
+            error_msg =  "Error updating cluster elements table";
+
+            return -1;
+        }
+    }
+
+    update(cluster);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+

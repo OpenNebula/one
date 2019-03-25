@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -52,7 +52,7 @@ class VirtualNetworkDriver
             :parameters => nil
         }.merge(ops)
 
-        cmd_params =  "#{@vm_encoded}"
+        cmd_params =  ''
         cmd_params << " #{options[:parameters]}" if options[:parameters]
 
         result = RESULT[:success]
@@ -62,15 +62,10 @@ class VirtualNetworkDriver
             cmd = action_command_line(aname, cmd_params, nil, subdirectory)
 
             if action_is_local?(aname)
-                execution = LocalCommand.run(cmd, log_method(id))
+                execution = LocalCommand.run(cmd, log_method(id), "#{@vm_encoded}")
             elsif @ssh_stream != nil
-                if options[:stdin]
-                    cmdin = "cat << EOT | #{cmd}"
-                    stdin = "#{options[:stdin]}\nEOT\n"
-                else
-                    cmdin = cmd
-                    stdin = nil
-                end
+                cmdin = "cat << EOT | #{cmd}"
+                stdin = "#{@vm_encoded}\nEOT\n"
 
                 execution = @ssh_stream.run(cmdin, stdin, cmd)
             else

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -45,7 +45,60 @@ class VectorAttribute;
 class Snapshots
 {
 public:
-    Snapshots(int _disk_id, bool orphans);
+
+    /**
+     *  ALLOW_ORPHANS: Define how child snapshots are handled.
+     *    - ALLOW: Children can be orphan (no parent snapshot)
+     *      |- snap_1
+     *      |- snap_2
+     *      |- snap_3
+     *
+     *    - DENY: New snapshots are set active and child of the previous one
+     *      |- snap_1
+     *         |- snap_2
+     *            |- snap_3
+     *
+     *    - MIXED: Snapshots are children of last snapshot reverted to
+     *      |- snap_1 (<--- revert)
+     *         |- snap_2
+     *         |- snap_3
+     */
+    enum AllowOrphansMode
+    {
+        ALLOW = 0,
+        DENY  = 1,
+        MIXED = 2
+    };
+
+    static string allow_orphans_mode_to_str(AllowOrphansMode aom)
+    {
+        switch (aom)
+        {
+            case ALLOW: return "YES";
+            case DENY:  return "NO";
+            case MIXED: return "MIXED";
+        }
+
+        return "NO";
+    };
+
+    static AllowOrphansMode str_to_allow_orphans_mode(const string& aom)
+    {
+        if (aom == "YES")
+        {
+            return ALLOW;
+        }
+        else if (aom == "MIXED")
+        {
+            return MIXED;
+        }
+        else
+        {
+            return DENY;
+        }
+    };
+
+    Snapshots(int _disk_id, AllowOrphansMode orphans);
 
     Snapshots(const Snapshots& s);
 
@@ -98,8 +151,12 @@ public:
     /**
      *  Set the given snapshot as active. Updates the values of the current
      *  snapshot
+     *
+     *    @param id id of the snapshot
+     *    @param revert true if the cause of changing the active snapshot
+     *                  is because a revert
      */
-    int active_snapshot(int id);
+    int active_snapshot(int id, bool revert);
 
     /**
      * Rename the given snapshot by the given name
@@ -225,6 +282,19 @@ private:
     void init();
 
     /**
+     *  Updates children list for the current base snapshot in the tree
+     *    @param snapshot new child to be added
+     */
+    void add_child_mixed(VectorAttribute *snapshot);
+
+    /**
+     *  Updates children list of the active snapshot
+     *    @param snapshot new child to be added
+     *    @return -1 in case of error (current active does not exist)
+     */
+    int add_child_deny(VectorAttribute *snapshot);
+
+    /**
      *  Text representation of the snapshot pool. To be stored as part of the
      *  VM or Image Templates
      */
@@ -248,12 +318,17 @@ private:
     /**
      * Allow to remove parent snapshots and active one
      */
-    bool orphans;
+    AllowOrphansMode orphans;
 
     /**
      * Snapshot pointer map
      */
     map<int, VectorAttribute *> snapshot_pool;
+
+    /**
+     * Current snaphsot base for mixed mode
+     */
+    int current_base;
 };
 
 #endif /*SNAPSHOTS_H_*/

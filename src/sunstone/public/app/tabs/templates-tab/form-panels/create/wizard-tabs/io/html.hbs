@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -24,9 +24,9 @@
           <label for="radioNoneType{{uniqueId}}">{{tr "None"}}</label>
           <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioVncType{{uniqueId}}" value="VNC" checked>
           <label for="radioVncType{{uniqueId}}">VNC</label>
-          <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioSdlType{{uniqueId}}" value="SDL" class="hypervisor only_kvm" >
+          <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioSdlType{{uniqueId}}" value="SDL" class="hypervisor only_kvm not_lxd" >
           <label class="hypervisor only_kvm"  for="radioSdlType{{uniqueId}}">SDL</label>
-          <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioSpiceType{{uniqueId}}" value="SPICE" class="hypervisor only_kvm" >
+          <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioSpiceType{{uniqueId}}" value="SPICE" class="hypervisor only_kvm not_lxd" >
           <label  class="hypervisor only_kvm" for="radioSpiceType{{uniqueId}}">SPICE</label>
         </div>
       </div>

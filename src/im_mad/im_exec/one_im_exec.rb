@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -73,8 +73,19 @@ class InformationManagerDriver < OpenNebulaDriver
 
         if !action_is_local?(:MONITOR)
             if do_update == "1" || @options[:force_copy]
+                # Recreate dir for remote scripts
+                mkdir_cmd = "mkdir -p #{@remote_scripts_base_path}"
+
+                cmd = SSHCommand.run(mkdir_cmd, host, log_method(number))
+
+                if cmd.code!=0
+                    send_message('MONITOR', RESULT[:failure], number,
+                        'Could not update remotes')
+                    return
+                end
+
                 # Use SCP to sync:
-                sync_cmd = "scp -r #{@local_scripts_base_path}/. " \
+                sync_cmd = "scp -r #{@local_scripts_base_path}/* " \
                     "#{host}:#{@remote_scripts_base_path}"
 
                 # Use rsync to sync:

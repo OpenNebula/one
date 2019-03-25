@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -36,19 +36,30 @@ dsid = ARGV[3]
 
 begin
     dst_path  = OpenNebula.arg_path(dst)
-
     host_orig = OpenNebula.arg_host(src)
     host_dest = OpenNebula.arg_host(dst)
 
     exit 0 if OpenNebula.is_disk?(dst_path)
     exit 0 if src == dst
 
-    VCenterDriver::VirtualMachine.migrate_routine(vmid, host_orig,  host_dest)
+    one_client = OpenNebula::Client.new
+    vm = OpenNebula::VirtualMachine.new_with_id(vmid, one_client)
+    vm.info
+
+    src_ds = vm.retrieve_elements("HISTORY_RECORDS/HISTORY/DS_ID")[-2]
+
+    if src_ds == dsid
+        VCenterDriver::VirtualMachine.migrate_routine(vmid, host_orig,  host_dest)
+    else
+        VCenterDriver::VirtualMachine.migrate_routine(vmid, host_orig,  host_dest, false, dsid)
+    end
 
 rescue StandardError => e
-    message = "Cannot migrate for VM #{vmid}"\
-              'failed due to '\
+    message = "Cannot migrate for VM #{vmid}. "\
+              'Failed due to '\
               "\"#{e.message}\"\n"
     OpenNebula.log_error(message)
+    STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
+
     exit(-1)
 end

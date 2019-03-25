@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -229,11 +229,19 @@ define(function(require) {
     var that = this;
 
     var nics = []
+    var nics_names = []
+    var alias = []
 
     if ($.isArray(that.element.TEMPLATE.NIC)){
       nics = that.element.TEMPLATE.NIC;
     } else if (!$.isEmptyObject(that.element.TEMPLATE.NIC)){
       nics = [that.element.TEMPLATE.NIC];
+    }
+
+    if ($.isArray(that.element.TEMPLATE.NIC_ALIAS)){
+      alias = that.element.TEMPLATE.NIC_ALIAS;
+    } else if (!$.isEmptyObject(that.element.TEMPLATE.NIC_ALIAS)){
+      alias = [that.element.TEMPLATE.NIC_ALIAS];
     }
 
     var pcis = [];
@@ -257,19 +265,20 @@ define(function(require) {
       for (var i = 0; i < nics.length; i++) {
         var nic = nics[i];
 
+        nics_names.push({ NAME: nic.NAME, IP: nic.IP, NET: nic.NETWORK, ID: nic.NIC_ID });
+
         var is_pci = (nic.PCI_ID != undefined);
 
         var actions = '';
         // Attach / Detach
         if (!is_pci){
           if ( (that.element.STATE == OpenNebulaVM.STATES.ACTIVE) &&
-               (that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_NIC) &&
-               (nic.ATTACH == "YES") ) {
+               (that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_NIC)) {
             actions = Locale.tr("attach/detach in progress")
           } else {
             if ( (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) &&
                  (StateActions.enabledStateAction("VM.detachnic", that.element.STATE, that.element.LCM_STATE))) {
-              actions += '<a href="VM.detachnic" class="detachnic" ><i class="fas fa-times"/>' + Locale.tr("Detach") + '</a>'
+              actions += '<a href="VM.detachnic" class="detachnic" ><i class="fas fa-times"/></a>'
             }
           }
         }
@@ -304,10 +313,26 @@ define(function(require) {
           ipStr = "IP6"
         }
 
+        var nic_alias = [];
+        var alias_ids = [];
+
+        if (nic.ALIAS_IDS) {
+            alias_ids = nic.ALIAS_IDS.split(",");
+        }
+
+        for(var j = 0; j < alias.length; j++) {
+            if (alias_ids.length > 0 && alias_ids.includes(alias[j].NIC_ID)) {
+                alias[j].ACTIONS = actions;
+
+                nic_alias.push(alias[j]);
+            }
+        }
+
         nic_dt_data.push({
           NIC_ID : nic.NIC_ID,
           NETWORK : Navigation.link(nic.NETWORK, "vnets-tab", nic.NETWORK_ID),
           IP : _ipTr(nic, ipStr),
+          NIC_ALIAS : nic_alias,
           MAC : nic.MAC,
           PCI_ADDRESS: pci_address,
           IP6_ULA : _ipTr(nic, "IP6_ULA"),
@@ -335,7 +360,7 @@ define(function(require) {
         {"data": "PCI_ADDRESS","defaultContent": ""},
         {"data": "IP6_ULA",    "defaultContent": "", "class": "nowrap"},
         {"data": "IP6_GLOBAL", "defaultContent": "", "class": "nowrap"},
-        {"data": "ACTIONS",    "defaultContent": "", "orderable": false},
+        {"data": "ACTIONS",    "defaultContent": "", "orderable": false, "className": "text-center"},
         {"defaultContent": "", "orderable": false}
       ],
 
@@ -363,7 +388,28 @@ define(function(require) {
         $(this).children("span").addClass('fa-chevron-down');
         $(this).children("span").removeClass('fa-chevron-up');
       } else {
-        var html = '<div style="padding-left: 30px;">\
+        if(row.data().NIC_ALIAS.length > 0) {
+            var html = '';
+
+            $.each(row.data().NIC_ALIAS, function(index, elem) {
+                var new_div = '<div id=alias_' + this.NIC_ID + ' style="margin-left: 40px; margin-bottom: 5px">' +
+                              '<b>' + "- Alias-" + this.ALIAS_ID + ":" + '</b>' +
+                              "&nbsp;&nbsp;&nbsp;" + this.IP  +
+                              "&nbsp;&nbsp;&nbsp;" + this.MAC +
+                              "&nbsp;&nbsp;&nbsp;" + this.ACTIONS + '</div>';
+
+                html += new_div;
+
+                if (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) {
+                    context.off('click', '.detachnic');
+                    context.on('click', '.detachnic', {element_id: that.element.ID}, detach_alias);
+                }
+            });
+          } else {
+              html = '';
+          }
+
+        html += '<div style="padding-left: 30px;">\
               <table class="dataTable">\
                 <thead>\
                   <tr>\
@@ -396,6 +442,9 @@ define(function(require) {
         row.child(html).show();
         $(this).children("span").removeClass('fa-chevron-down');
         $(this).children("span").addClass('fa-chevron-up');
+        $.each(row.data().NIC_ALIAS, function(index, elem) {
+            $("#alias_" + this.NIC_ID).attr("nic_id", this.NIC_ID);
+        });
       }
     });
 
@@ -404,6 +453,7 @@ define(function(require) {
       context.on('click', '#attach_nic', function() {
         var dialog = Sunstone.getDialog(ATTACH_NIC_DIALOG_ID);
         dialog.setElement(that.element);
+        dialog.setNicsNames(nics_names);
         dialog.show();
         return false;
       });
@@ -431,6 +481,27 @@ define(function(require) {
         return false;
       });
     }
+  }
+
+  function detach_alias(event) {
+    var nic_id = $(this).parent().attr("nic_id");
+    var element_id = event.data.element_id;
+
+    Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
+      //header :
+      headerTabId: TAB_ID,
+      body : Locale.tr("This will detach the alias immediately"),
+      //question :
+      submit : function(){
+        Sunstone.runAction('VM.detachnic', element_id, nic_id);
+        return false;
+      }
+    });
+
+    Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
+    Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
+
+    return false;
   }
 
   function _onShow(context) {

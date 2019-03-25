@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -346,7 +346,7 @@ int User::set_password(const string& passwd, string& error_str)
     {
         if (auth_driver == UserPool::CORE_AUTH)
         {
-            password = one_util::sha1_digest(passwd);
+            password = one_util::sha256_digest(passwd);
         }
         else
         {

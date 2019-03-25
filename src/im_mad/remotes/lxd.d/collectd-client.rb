@@ -1,0 +1,1 @@
+../common.d/collectd-client.rb

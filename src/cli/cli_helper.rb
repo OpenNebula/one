@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -55,6 +55,14 @@ module CLIHelper
         :description => "Filter data. An array is specified with\n"<<
                         " "*31<<"column=value pairs."
     }
+    OPERATOR = {
+        :name  => "operator",
+        :large => "--operator operator",
+        :format => String,
+        :description => "Logical operator used on filters: AND, OR."<<
+                        " Default: AND."
+    }
+ 
     #
     #HEADER = {
     #    :name  => "header",
@@ -71,8 +79,18 @@ module CLIHelper
         :description => "Sets the delay in seconds for top command"
     }
 
+    NO_PAGER = {
+        :name  => "no_pager",
+        :large => "--no-pager",
+        :format => String,
+        :description => "Disable pagination",
+        :proc => lambda { |o, options|
+            ENV['ONE_PAGER'] = 'cat' if File.exists?('/bin/cat')
+        }
+    }
+
     #OPTIONS = [LIST, ORDER, FILTER, HEADER, DELAY]
-    OPTIONS = [LIST, LISTCONF, DELAY, FILTER, CSV_OPT]
+    OPTIONS = [LIST, LISTCONF, DELAY, FILTER, OPERATOR, CSV_OPT, NO_PAGER]
 
     # Sets bold font
     def CLIHelper.scr_bold
@@ -293,7 +311,7 @@ module CLIHelper
 
             begin
                 if options[:csv]
-                    puts CSV.generate_line(@default_columns)
+                    puts CSV.generate_line(@default_columns) if !options[:noheader]
                     res_data.each {|l| puts CSV.generate_line(l) }
                 else
                     res_data.each{|l|
@@ -320,7 +338,7 @@ module CLIHelper
             }
 
             if options
-                filter_data!(res_data, options[:filter]) if options[:filter]
+                filter_data!(res_data, options) if options[:filter]
                 sort_data!(res_data, options[:order]) if options[:order]
             end
 
@@ -383,10 +401,16 @@ module CLIHelper
             }.compact.join(' ')
         end
 
-        def filter_data!(data, filter)
+        def filter_data!(data, options)
             # TBD: add more operators
             # operators=/(==|=|!=|<|<=|>|>=)/
             operators=/(=|!=)/
+            filter = options[:filter]
+            if options.key?(:operator)
+              log_operator = options[:operator].upcase
+            else
+                log_operator = "AND"
+            end
 
             stems=filter.map do |s|
                 m=s.match(/^(.*?)#{operators}(.*?)$/)
@@ -417,12 +441,19 @@ module CLIHelper
                 stems.each do |s|
 
                     if d[s[:index]].public_send(s[:operator] == "=" ? "==" : s[:operator], s[:right])
-                        pass=false
-                        break
+                        if log_operator == "OR"
+                            pass = true
+                            break
+                        end
+                    else
+                        pass = false
+                        if log_operator == "AND"
+                            break
+                        end
                     end
                 end
 
-                !pass
+                pass
             end
         end
 

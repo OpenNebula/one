@@ -1,0 +1,31 @@
+---
+
+- name: Enable LXD/LXC from backports on Ubuntu 16.04
+  copy:
+    dest: /etc/apt/preferences.d/backports-lxd
+    content: |
+      Package: /lx[cd]/
+      Pin: release a={{ ansible_distribution_release }}-backports
+      Pin-Priority: 500
+  when:
+    - ansible_distribution == 'Ubuntu'
+    - ansible_distribution_version == '16.04'
+
+- name: Install OpenNebula node LXD package
+  apt:
+    name: opennebula-node-lxd
+    state: latest
+  register: apt_result
+  until: apt_result is succeeded
+  retries: 3
+  delay: 10
+
+# Test profile
+- name: Check for profile test
+  command: lxc profile show test
+  register: lxc_profile_check
+  ignore_errors: yes
+
+- name: Create test profile
+  command: lxc profile copy default test
+  when: lxc_profile_check is failed

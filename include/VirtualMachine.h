@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -985,6 +985,14 @@ public:
     // Timers & Requirements
     // ------------------------------------------------------------------------
     /**
+     *   @return time when the VM was created (in epoch)
+     */
+    time_t get_stime() const
+    {
+        return stime;
+    };
+
+    /**
      *  Gets time from last information polling.
      *    @return time of last poll (epoch) or 0 if never polled
      */
@@ -1274,8 +1282,7 @@ public:
      *    @param  uid for template owner
      *    @param  ar the AuthRequest object
      *    @param  tmpl the virtual machine template
-     *    @param  
-     * lock for check if the resource is lock or not
+     *    @param  check_lock for check if the resource is lock or not
      */
     static void set_auth_request(int uid, AuthRequest& ar,
             VirtualMachineTemplate *tmpl, bool check_lock);
@@ -1440,6 +1447,26 @@ public:
         return nic;
     }
 
+    /**
+     * Deletes the alias of the NIC that was in the process of being attached/detached
+     */
+    void delete_attach_alias(VirtualMachineNic *nic)
+    {
+        std::set<int> a_ids;
+
+        one_util::split_unique(nic->vector_value("ALIAS_IDS"), ',', a_ids);
+
+        for(std::set<int>::iterator it = a_ids.begin(); it != a_ids.end(); it++)
+        {
+            VirtualMachineNic * nic_a = nics.delete_nic(*it);
+
+            if ( nic_a != 0)
+            {
+                obj_template->remove(nic_a->vector_attribute());
+            }
+        }
+    }
+
     // ------------------------------------------------------------------------
     // Disk Snapshot related functions
     // ------------------------------------------------------------------------
@@ -1471,11 +1498,13 @@ public:
      *    @param disk_id of the disk
      *    @param snap_id of the snapshot
      *    @param error if any
+     *    @param revert true if the cause of changing the active snapshot
+     *                  is because a revert
      *    @return -1 if error
      */
-    int revert_disk_snapshot(int disk_id, int snap_id)
+    int revert_disk_snapshot(int disk_id, int snap_id, bool revert)
     {
-        return disks.revert_snapshot(disk_id, snap_id);
+        return disks.revert_snapshot(disk_id, snap_id, revert);
     }
 
     /**
@@ -1862,6 +1891,10 @@ private:
      */
     string& to_xml_extended(string& xml, int n_history) const;
 
+    string& to_json(string& json) const;
+
+    string& to_token(string& text) const;
+
     // -------------------------------------------------------------------------
     // Attribute Parser
     // -------------------------------------------------------------------------
@@ -1993,6 +2026,14 @@ private:
      *    @param nicid the id of the NIC
      */
     void clear_nic_context(int nicid);
+
+    /**
+     *  Deletes the NETWORK ALIAS related CONTEXT section for the given nic, i.e.
+     *  ETH_<id>_ALIAS<aliasid>
+     *    @param nicid the id of the NIC
+     *    @param aliasid the idx of the ALIAS
+     */
+    void clear_nic_alias_context(int nicid, int aliasidx);
 
     /**
      *  Generate the PCI related CONTEXT setions, i.e. PCI_*. This function

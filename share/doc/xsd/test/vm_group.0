@@ -1,3 +1,0 @@
-NAME = host-vm
-ROLE = [ NAME="aff", HOST_AFFINED="0,4" ]
-ROLE = [ NAME="anti", HOST_ANTI_AFFINED="2,3" ]

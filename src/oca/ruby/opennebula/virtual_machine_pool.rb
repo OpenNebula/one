@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -113,6 +113,23 @@ module OpenNebula
                                -1,
                                -1,
                                INFO_NOT_DONE)
+        end
+
+        def info_search(args = {})
+            default_args = {
+                :who      => INFO_ALL,
+                :start_id => -1,
+                :end_id   => -1,
+                :state    => INFO_NOT_DONE,
+                :query    => ""
+            }.merge!(args)
+
+            return info_filter(VM_POOL_METHODS[:info],
+                               default_args[:who],
+                               default_args[:start_id],
+                               default_args[:end_id],
+                               default_args[:state],
+                               default_args[:query])
         end
 
         alias_method :info!, :info
@@ -458,8 +475,8 @@ module OpenNebula
             data_hash
         end
 
-        def info_filter(xml_method, who, start_id, end_id, state)
-            return xmlrpc_info(xml_method, who, start_id, end_id, state)
+        def info_filter(xml_method, who, start_id, end_id, state, query="")
+            return xmlrpc_info(xml_method, who, start_id, end_id, state, query)
         end
     end
 end

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -451,6 +451,33 @@ function check_restricted {
 }
 
 #-------------------------------------------------------------------------------
+# Filter out hosts which are OFF, ERROR or DISABLED
+#   @param $1 - space separated list of hosts
+#   @return   - space separated list of hosts which are not in OFF, ERROR or
+#               DISABLED sate
+#-------------------------------------------------------------------------------
+function remove_off_hosts {
+    ALL_HOSTS_ARRAY=($1)
+    OFF_HOSTS_STR=$(onehost list --no-pager --csv \
+		--filter="STAT=off,STAT=err,STAT=dsbl" --list=NAME,STAT 2>/dev/null)
+
+    if [ $? -eq 0 ]; then
+        OFF_HOSTS_ARRAY=($( echo "$OFF_HOSTS_STR" | awk -F, '{ if (NR>1) print $1 }'))
+        for HOST in "${ALL_HOSTS_ARRAY[@]}"; do
+            OFF=false
+            for OFF_HOST in "${OFF_HOSTS_ARRAY[@]}"; do
+                [ $HOST = $OFF_HOST ] && { OFF=true; break; }
+            done
+            $OFF || echo -ne "$HOST "
+        done
+    else
+        # onehost cmd failed, can't filter anything, better return unchanged
+        echo $1
+        return 1
+    fi
+}
+
+#-------------------------------------------------------------------------------
 # Gets the host to be used as bridge to talk to the storage system
 # Implements a round robin for the bridges
 #   @param $1 - ID to be used to round-robin between host bridges. Random if
@@ -458,7 +485,14 @@ function check_restricted {
 #   @return host to be used as bridge
 #-------------------------------------------------------------------------------
 function get_destination_host {
-    HOSTS_ARRAY=($BRIDGE_LIST)
+    REDUCED_LIST=$(remove_off_hosts "$BRIDGE_LIST")
+
+    if [ -z "$REDUCED_LIST" -a -n "$BRIDGE_LIST" ]; then
+        error_message "All hosts from 'BRIDGE_LIST' are offline, error or disabled"
+        exit -1
+    fi
+
+    HOSTS_ARRAY=($REDUCED_LIST)
     N_HOSTS=${#HOSTS_ARRAY[@]}
 
     if [ -n "$1" ]; then

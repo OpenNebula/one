@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,29 +19,29 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var Config = require('sunstone-config');
-  var ScheduleActions = require('utils/schedule_action');
-  var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
-  var WizardFields = require('utils/wizard-fields');
-  var UniqueId = require('utils/unique-id');
-  var Humanize = require('utils/humanize');
-  var TemplateUtils = require('utils/template-utils');
-  var Actions = require('utils/actions');
+  var Config = require("sunstone-config");
+  var ScheduleActions = require("utils/schedule_action");
+  var Locale = require("utils/locale");
+  var Tips = require("utils/tips");
+  var WizardFields = require("utils/wizard-fields");
+  var UniqueId = require("utils/unique-id");
+  var Humanize = require("utils/humanize");
+  var TemplateUtils = require("utils/template-utils");
+  var Actions = require("utils/actions");
 
-  var TemplateHTML = require('hbs!./actions/html');
+  var TemplateHTML = require("hbs!./actions/html");
   /*
     CONSTANTS
    */
 
-  var WIZARD_TAB_ID = require('./actions/wizardTabId');
+  var WIZARD_TAB_ID = require("./actions/wizardTabId");
 
   /*
     CONSTRUCTOR
    */
 
   function WizardTab(opts) {
-    if (!Config.isTemplateCreationTabEnabled(opts.tabId, 'actions')) {
+    if (!Config.isTemplateCreationTabEnabled(opts.tabId, "actions")) {
       throw "Wizard Tab not enabled";
     }
 
@@ -61,7 +61,7 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
-      'table_sched_actions': ScheduleActions.htmlTable("temp")
+      "table_sched_actions": ScheduleActions.htmlTable("temp")
     });
   }
 
@@ -72,16 +72,17 @@ define(function(require) {
     var that = this;
 		var actions = ["terminate", "terminate-hard", "hold", "release", "stop", "suspend", "resume", "reboot", "reboot-hard", "poweroff", "poweroff-hard", "undeploy", "undeploy-hard", "snapshot-create"];
 
-    context.off('click', '#add_scheduling_temp_action');
-    context.on('click', '#add_scheduling_temp_action', function() {
+    context.off("click", "#add_scheduling_temp_action");
+    context.on("click", "#add_scheduling_temp_action", function() {
       $("#add_scheduling_temp_action", context).attr("disabled", "disabled");
       ScheduleActions.htmlNewAction(actions, context, "temp");
-      ScheduleActions.setup(context)
+      ScheduleActions.setup(context);
       return false;
     });
 
     context.off("click", "#add_temp_action_json");
     context.on("click" , "#add_temp_action_json", function(){
+      $(".wickedpicker").hide();
       var sched_action = ScheduleActions.retrieveNewAction(context);
       if (sched_action != false) {
         $("#sched_temp_actions_body").append(ScheduleActions.fromJSONtoActionsTable(sched_action));
@@ -91,20 +92,20 @@ define(function(require) {
 
     context.off("click", ".remove_action_x");
     context.on("click", ".remove_action_x", function () {
-        $(this).parents('tr').remove();
+        $(this).parents("tr").remove();
     });
 
   }
 
   function _retrieve(context) {
     var templateJSON = {};
-    templateJSON['SCHED_ACTION'] = ScheduleActions.retrieve(context);
+    templateJSON["SCHED_ACTION"] = ScheduleActions.retrieve(context);
     return templateJSON;
   }
 
   function _fill(context, templateJSON) {
     var actions = ScheduleActions.fromJSONtoActionsTable(templateJSON.SCHED_ACTION);
     $("#sched_temp_actions_body").append(actions);
-    delete templateJSON['SCHED_ACTION'];
+    delete templateJSON["SCHED_ACTION"];
   }
 });

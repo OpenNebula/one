@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -50,30 +50,30 @@ CommandParser::CmdParser.new(ARGV) do
     set :option, cmd_options + OpenNebulaHelper::CLIENT_OPTIONS
 
     IM = {
-        :name   => 'im',
-        :short  => '-i im_mad',
-        :large  => '--im im_mad',
+        :name => 'im',
+        :short => '-i im_mad',
+        :large => '--im im_mad',
         :description => 'Set the information driver for the host',
         :format => String
     }
 
     VMM = {
-        :name   => 'vm',
-        :short  => '-v vmm_mad',
-        :large  => '--vm vmm_mad',
+        :name => 'vm',
+        :short => '-v vmm_mad',
+        :large => '--vm vmm_mad',
         :description => 'Set the virtualization driver for the host',
         :format => String
     }
 
     FORCE = {
-        :name   => 'force',
-        :large  => '--force',
+        :name => 'force',
+        :large => '--force',
         :description => 'Force probe upgrade in onehost sync'
     }
 
     RSYNC = {
-        :name   => 'rsync',
-        :large  => '--rsync',
+        :name => 'rsync',
+        :large => '--rsync',
         :description => 'Use rsync to synchronize remotes. In case some '\
                         'probes are no longer in the fronted ithey will be '\
                         'deleted in the hosts. rsync command must be '\
@@ -81,7 +81,7 @@ CommandParser::CmdParser.new(ARGV) do
     }
 
     TYPE = {
-        :name  => 'type',
+        :name => 'type',
         :short => '-t remote_provider',
         :large => '--type remote_provider',
         :description => 'Use type to create a host using Cloud Bursting',
@@ -284,5 +284,18 @@ CommandParser::CmdParser.new(ARGV) do
 
             o.import_wild(args[1])
         end
+    end
+
+    forceupdate_desc = <<-EOT.unindent
+        Forces host monitoring update
+        Examples:
+            onehost forceupdate host01
+            onehost forceupdate host01,host02,host03
+            onehost forceupdate -c myCluster
+    EOT
+
+    command :forceupdate, forceupdate_desc, [:range, :hostid_list, nil],
+            :options => [OneClusterHelper::CLUSTER] do
+        helper.forceupdate(args[0], options)
     end
 end

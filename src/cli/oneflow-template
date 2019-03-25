@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -185,9 +185,9 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :list, list_desc, :options => Service::JSON_FORMAT do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -207,9 +207,9 @@ CommandParser::CmdParser.new(ARGV) do
                          Service::TOP,
                          CLIHelper::DELAY] do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -244,9 +244,9 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :create, create_desc, :file, :options => Service::JSON_FORMAT do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -275,9 +275,9 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :show, show_desc, :templateid, :options => Service::JSON_FORMAT do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -294,9 +294,9 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :delete, delete_desc, [:range, :templateid_list] do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -316,9 +316,9 @@ CommandParser::CmdParser.new(ARGV) do
     command :instantiate, instantiate_desc, :templateid, [:file, nil],
             :options => [Service::JSON_FORMAT, Service::TOP] do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -351,9 +351,9 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :chgrp, chgrp_desc, [:range, :templateid_list], :groupid do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -374,9 +374,9 @@ CommandParser::CmdParser.new(ARGV) do
     command :chown, chown_desc, [:range, :templateid_list],
             :userid, [:groupid, nil] do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -397,9 +397,9 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :chmod, chmod_desc, [:range, :templateid_list], :octet do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -419,9 +419,9 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :clone, clone_desc, :templateid, :name do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -452,9 +452,9 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :rename, rename_desc, :templateid, :name do
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 
@@ -481,9 +481,9 @@ CommandParser::CmdParser.new(ARGV) do
     command :update, update_desc, :templateid, [:file, nil] do
         template_id = args[0]
         client = Service::Client.new(
-            :username   => options[:username],
-            :password   => options[:password],
-            :url        => options[:server],
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
             :user_agent => USER_AGENT
         )
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -19,9 +19,9 @@
 ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' unless defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' unless defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -33,17 +33,30 @@ vm_id    = ARGV[-2]
 src_host = ARGV[-3]
 dst_host = ARGV[-4]
 
+drv_action = OpenNebula::XMLElement.new
+drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VMM_DRIVER_ACTION_DATA')
+
+dst_ds = drv_action['VM/HISTORY_RECORDS/HISTORY/DS_ID']
+src_ds = drv_action['DATASTORE/ID']
+
 begin
-    VCenterDriver::VirtualMachine.migrate_routine(vm_id,
-                                                  src_host,
-                                                  dst_host)
+    new_ds = dst_ds != src_ds
+
+    if new_ds
+        VCenterDriver::VirtualMachine
+            .migrate_routine(vm_id, src_host, dst_host, true, dst_ds)
+    else
+        VCenterDriver::VirtualMachine.migrate_routine(vm_id, src_host, dst_host)
+    end
 rescue StandardError => e
-    message = "Cannot migrate for VM #{vm_id}"\
-              'failed due to '\
+    message = "Cannot migrate for VM #{vm_id}. "\
+              'Failed due to '\
               "\"#{e.message}\"."
     OpenNebula.log_error(message)
-    if vi_client.get_property_vcenter_conf(:debug_information)
+
+    if VCenterDriver::CONFIG[:debug_information]
         STDERR.puts "#{message} #{e.backtrace}"
     end
+
     exit(-1)
 end

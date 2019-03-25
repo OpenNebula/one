@@ -1,15 +1,59 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/*--------------------------------------------------------------------------- */
+
 package goca
 
-// User represents an OpenNebula User
-type User struct {
-	XMLResource
-	ID   uint
-	Name string
-}
+import (
+	"encoding/xml"
+	"errors"
+)
 
 // UserPool represents an OpenNebula UserPool
 type UserPool struct {
-	XMLResource
+	Users             []User     `xml:"USER"`
+	Quotas            []quotas   `xml:"QUOTAS"`
+	DefaultUserQuotas quotasList `xml:"DEFAULT_USER_QUOTAS"`
+}
+
+// User represents an OpenNebula user
+type User struct {
+	ID          uint         `xml:"ID"`
+	GID         int          `xml:"GID"`
+	GroupsID    []int        `xml:"GROUPS>ID"`
+	GName       string       `xml:"GNAME"`
+	Name        string       `xml:"NAME"`
+	Password    string       `xml:"PASSWORD"`
+	AuthDriver  string       `xml:"AUTH_DRIVER"`
+	Enabled     int          `xml:"ENABLED"`
+	LoginTokens []loginToken `xml:"LOGIN_TOKEN"`
+	Template    userTemplate `xml:"TEMPLATE"`
+
+	// Variable part between one.userpool.info and one.user.info
+	quotasList
+	DefaultUserQuotas quotasList `xml:"DEFAULT_USER_QUOTAS"`
+}
+
+type userTemplate struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
+}
+
+type loginToken struct {
+	Token          string `xml:"TOKEN"`
+	ExpirationTime int    `xml:"EXPIRATION_TIME"`
+	EGID           int    `xml:"EGID"`
 }
 
 // NewUserPool returns a user pool. A connection to OpenNebula is
@@ -20,9 +64,13 @@ func NewUserPool() (*UserPool, error) {
 		return nil, err
 	}
 
-	userpool := &UserPool{XMLResource{body: response.Body()}}
+	userpool := &UserPool{}
+	err = xml.Unmarshal([]byte(response.Body()), userpool)
+	if err != nil {
+		return nil, err
+	}
 
-	return userpool, err
+	return userpool, nil
 }
 
 // NewUser finds a user object by ID. No connection to OpenNebula.
@@ -34,14 +82,26 @@ func NewUser(id uint) *User {
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the user.
 func NewUserFromName(name string) (*User, error) {
+	var id uint
+
 	userPool, err := NewUserPool()
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := userPool.GetIDFromName(name, "/USER_POOL/USER")
-	if err != nil {
-		return nil, err
+	match := false
+	for i := 0; i < len(userPool.Users); i++ {
+		if userPool.Users[i].Name != name {
+			continue
+		}
+		if match {
+			return nil, errors.New("multiple resources with that name")
+		}
+		id = userPool.Users[i].ID
+		match = true
+	}
+	if !match {
+		return nil, errors.New("resource not found")
 	}
 
 	return NewUser(id), nil
@@ -78,8 +138,8 @@ func (user *User) Passwd(password string) error {
 // * token: The token
 // * timeSeconds: Valid period in seconds; 0 reset the token and -1 for a non-expiring token.
 // * effectiveGID: Effective GID to use with this token. To use the current GID and user groups set it to -1
-func (user *User) Login(token string, timeSeconds int, effectiveGID uint) error {
-	_, err := client.Call("one.user.login", user.ID, token, timeSeconds, int(effectiveGID))
+func (user *User) Login(token string, timeSeconds int, effectiveGID int) error {
+	_, err := client.Call("one.user.login", user.ID, token, timeSeconds, effectiveGID)
 	return err
 }
 
@@ -129,6 +189,10 @@ func (user *User) DelGroup(groupID uint) error {
 
 // Info retrieves information for the user.
 func (user *User) Info() error {
-	_, err := client.Call("one.user.info", user.ID)
-	return err
+	response, err := client.Call("one.user.info", user.ID)
+	if err != nil {
+		return err
+	}
+	*user = User{}
+	return xml.Unmarshal([]byte(response.Body()), user)
 }

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -73,7 +73,7 @@ public:
         {
           rc = cluster->get_vnc_port(vm_id, port);
 
-          update(cluster);
+          update_vnc_bitmap(cluster);
 
           cluster->unlock();
         }
@@ -94,7 +94,7 @@ public:
         {
             cluster->release_vnc_port(port);
 
-            update(cluster);
+            update_vnc_bitmap(cluster);
 
             cluster->unlock();
         }
@@ -117,7 +117,7 @@ public:
         {
             rc = cluster->set_vnc_port(port);
 
-            update(cluster);
+            update_vnc_bitmap(cluster);
 
             cluster->unlock();
         }
@@ -203,7 +203,7 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(string& oss, const string& where, const string& limit, 
+    int dump(string& oss, const string& where, const string& limit,
         bool desc)
     {
         return PoolSQL::dump(oss, "CLUSTER_POOL", "body", Cluster::table, where,
@@ -235,6 +235,38 @@ public:
      * @return 0 on success
      */
     int query_vnet_clusters(int oid, set<int> &cluster_ids);
+
+    /**
+     * Adds a resource to the specifyed cluster and update the clusters body.
+     * @param type Resource type
+     * @param cluster Cluster in which the resource will be included
+     * @param resource_id Id of the resource
+     * @param error_msg error message
+     * @return 0 on success
+     */
+    int add_to_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster,
+                       int resource_id, string& error_msg);
+
+    /**
+     * Removes a resource from the specifyed cluster and update the clusters body.
+     * @param type Resource type
+     * @param cluster Cluster from which the resource will be removed
+     * @param resource_id Id of the resource
+     * @param error_msg error message
+     * @return 0 on success
+     */
+    int del_from_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster,
+                         int resource_id, string& error_msg);
+
+    /**
+     * Updates the cluster vnc bitmap.
+     * @cluster the cluster to be updated.
+     * @return 0 on success
+     */
+    int update_vnc_bitmap(Cluster* cluster)
+    {
+        return cluster->update_vnc_bitmap(db);
+    }
 
 private:
     /**

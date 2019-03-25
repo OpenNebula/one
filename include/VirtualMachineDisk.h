@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,6 +22,7 @@
 
 #include "VirtualMachineAttribute.h"
 #include "Snapshots.h"
+#include "NebulaUtil.h"
 
 class AuthRequest;
 
@@ -54,28 +55,16 @@ public:
         return is_flag("PERSISTENT");
     }
 
-    bool is_managed() const
+    Snapshots::AllowOrphansMode allow_orphans() const
     {
-        bool one_managed;
-
-        if (vector_value("OPENNEBULA_MANAGED", one_managed) == -1)
-        {
-            one_managed = true;
-        }
-
-        return one_managed;
-    }
-
-    bool allow_orphans() const
-    {
-        bool orphans;
+        string orphans;
 
         if (vector_value("ALLOW_ORPHANS", orphans) == -1)
         {
-            orphans = false;
+            orphans = Snapshots::DENY;
         }
 
-        return orphans;
+        return Snapshots::str_to_allow_orphans_mode(one_util::toupper(orphans));
     }
 
     void set_attach()
@@ -285,9 +274,11 @@ public:
     /**
      *  Sets the snap_id as active, the VM will boot from it next time
      *    @param snap_id of the snapshot
+     *    @param revert true if the cause of changing the active snapshot
+     *                  is because a revert
      *    @return -1 if error
      */
-    int revert_snapshot(int snap_id);
+    int revert_snapshot(int snap_id, bool revert);
 
     /**
      *  Deletes the snap_id from the list
@@ -742,9 +733,11 @@ public:
      *  Sets the snap_id as active, the VM will boot from it next time
      *    @param disk_id of the disk
      *    @param snap_id of the snapshot
+     *    @param revert true if the cause of changing the active snapshot
+     *                  is because a revert
      *    @return -1 if error
      */
-    int revert_snapshot(int disk_id, int snap_id);
+    int revert_snapshot(int disk_id, int snap_id, bool revert);
 
     /**
      *  Deletes the snap_id from the list

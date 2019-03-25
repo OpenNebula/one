@@ -1,0 +1,13 @@
+# rcov generated
+coverage
+coverage.data
+
+# rdoc generated
+rdoc
+
+# bundler
+.bundle
+Gemfile.lock
+
+# jeweler generated
+pkg

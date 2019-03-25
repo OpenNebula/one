@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -44,6 +44,7 @@ drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VM')
 
 deploy_id    = drv_action['DEPLOY_ID']
 host_id      = drv_action['HISTORY_RECORDS/HISTORY/HID']
+deploy       = {}
 
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
@@ -53,17 +54,15 @@ begin
         # VM is not new, we just need to reconfigure it and to power it on
         vm = VCenterDriver::VirtualMachine.new_one(vi_client, deploy_id, one_vm)
     else
-        # VM is new, clone the VM from template
+        deploy[:boot] = drv_action['TEMPLATE/OS']
         vm = VCenterDriver::VirtualMachine.new_from_clone(vi_client,
                                                           drv_action,
                                                           vm_id)
     end
 
     if vm.is_powered_off?
-        vm.nresize_unmanaged_disks
-        vm.sync
+        vm.sync(deploy)
         vm.poweron
-        vm.set_running(true)
     end
 
     puts vm['_ref']
@@ -71,9 +70,8 @@ rescue StandardError => e
     message =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " \
                "with #{dfile} failed due to \"#{e.message}\"."
     OpenNebula.log_error(message)
-    if vi_client.get_property_vcenter_conf(:debug_information)
-        STDERR.puts "#{message} #{e.backtrace}"
-    end
+    STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
+
     exit(-1)
 ensure
     vi_client.close_connection if vi_client

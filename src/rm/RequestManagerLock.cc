@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -54,7 +54,15 @@ void RequestManagerLock::request_execute(xmlrpc_c::paramList const& paramList,
 
         object->unlock();
 
-        success_response((rc == 0), att);
+        if (rc != 0)
+        {
+            att.resp_msg = "Error trying to lock the resource.";
+            failure_response(ACTION, att);
+        }
+        else
+        {
+            success_response(oid, att);
+        }
     }
     else
     {

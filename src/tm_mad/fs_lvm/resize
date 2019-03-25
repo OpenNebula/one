@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -32,6 +32,7 @@ DRIVER_PATH=$(dirname $0)
 
 source $TMCOMMON
 source ${DRIVER_PATH}/../../datastore/libfs.sh
+source ${DRIVER_PATH}/../../etc/tm/fs_lvm/fs_lvm.conf
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
@@ -58,6 +59,8 @@ VG_NAME="vg-one-$DS_SYS_ID"
 DEV="/dev/${VG_NAME}/${LV_NAME}"
 
 # Get current LV size
+if [ "${ZERO_LVM_ON_CREATE}" = "yes" ]; then
+
 LVSIZE_CMD=$(cat <<EOF
     set -e -o pipefail
     ${SUDO} ${LVS} --nosuffix --noheadings --units B -o lv_size "${DEV}" | \
@@ -65,12 +68,13 @@ LVSIZE_CMD=$(cat <<EOF
 EOF
 )
 
-LVSIZE_OLD=$(ssh_monitor_and_log "$SRC_HOST" "$LVSIZE_CMD" \
-        "Failed to get current LV size")
+    LVSIZE_OLD=$(ssh_monitor_and_log "$SRC_HOST" "$LVSIZE_CMD" \
+            "Failed to get current LV size")
 
-if [ $? -ne 0 ] || [ -z "${LVSIZE_OLD}" ]; then
-    error_message "$script_name: Could not detect current size of LV ${LV_NAME}"
-    exit 1
+    if [ $? -ne 0 ] || [ -z "${LVSIZE_OLD}" ]; then
+        error_message "$script_name: Could not detect current size of LV ${LV_NAME}"
+        exit 1
+    fi
 fi
 
 # Execute lvextend with a lock in the frontend
@@ -87,6 +91,7 @@ exclusive "${LOCK}" 120 ssh_exec_and_log "$SRC_HOST" "$RESIZE_CMD" \
         "Error resizing LV named $LV_NAME"
 
 # Zero additional space
+if [ "${ZERO_LVM_ON_CREATE}" = "yes" ]; then
 ZERO_CMD=$(cat <<EOF
     set -e -o pipefail
 
@@ -101,5 +106,6 @@ EOF
 
 ssh_exec_and_log "$SRC_HOST" "$ZERO_CMD" \
         "Error preparing additional space on LV $LV_NAME"
+fi
 
 exit 0

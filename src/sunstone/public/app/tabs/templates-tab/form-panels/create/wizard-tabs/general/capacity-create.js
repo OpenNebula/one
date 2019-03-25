@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -106,47 +106,58 @@ define(function(require) {
     }
   }
 
-  function _calculatedRealMemory(){
+  function _calculatedRealMemory(context){
     var memory_cost = $("#MEMORY_COST").val();
-    var type_cost = $("#MEMORY_UNIT_COST").val();
+    var type_cost   = $("#MEMORY_UNIT_COST").val();
+
     var memory = $("#MEMORY").val();
-    var type = $("#memory_unit").val();
+    var type   = $("#memory_unit").val();
+
     if (type_cost == "GB"){
       memory = (memory / 1024) * memory_cost * 24 * 30;
     } else {
       memory = memory * memory_cost * 24 * 30;
     }
-    document.getElementById('real_memory_cost').textContent = "Cost: " + convertCostNumber(memory);
+
     document.getElementById('real_memory_cost').value = memory;
-    document.getElementById('total_value_memory').textContent = memory;
+    document.getElementById('total_value_memory').textContent = convertCostNumber(memory);
+
+    if (memory_cost != "")
+      $(".total_memory_cost", context).show();
+
     _totalCost();
   }
 
-  function _calculatedRealCpu(){
+  function _calculatedRealCpu(context){
     var cpu_cost = $("#CPU_COST").val();
-    var cpu = $("#CPU").val();
+    var cpu      = $("#CPU").val();
+
     cpu = cpu * cpu_cost * 24 * 30;
-    document.getElementById('real_cpu_cost').textContent = "Cost: " + convertCostNumber(cpu);
+
     document.getElementById('real_cpu_cost').value = cpu;
-    document.getElementById('total_value_cpu').textContent = cpu;
+    document.getElementById('total_value_cpu').textContent = convertCostNumber(cpu);
+
+    if (cpu_cost != "")
+      $(".total_cpu_cost", context).show();
+
     _totalCost();
   }
 
   function _setup(context) {
     context.on("change", "#MEMORY", function() {
-      _calculatedRealMemory();
+      _calculatedRealMemory(context);
     });
 
     context.on("change", "#MEMORY_GB", function() {
-      _calculatedRealMemory();
+      _calculatedRealMemory(context);
     });
 
     context.on("change", "#memory_unit", function() {
-      _calculatedRealMemory();
+      _calculatedRealMemory(context);
     });
 
     context.on("change", "#CPU", function() {
-      _calculatedRealCpu();
+      _calculatedRealCpu(context);
     });
 
     // MB to GB

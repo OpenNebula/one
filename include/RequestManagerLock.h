@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -160,6 +160,7 @@ public:
 
     ~VMTemplateLock(){};
 };
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -175,6 +176,40 @@ public:
     };
 
     ~VMTemplateUnlock(){};
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VNTemplateLock: public RequestManagerLock
+{
+public:
+    VNTemplateLock():
+        RequestManagerLock("one.vntemplate.lock",
+                           "Lock a VN Template"){
+        Nebula& nd  = Nebula::instance();
+        auth_object = PoolObjectSQL::VNTEMPLATE;
+        pool        =  nd.get_vntpool();
+    };
+
+    ~VNTemplateLock(){};
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VNTemplateUnlock: public RequestManagerUnlock
+{
+public:
+    VNTemplateUnlock():
+        RequestManagerUnlock("one.vntemplate.unlock",
+                           "Unlock a VN Template"){
+        Nebula& nd  = Nebula::instance();
+        auth_object = PoolObjectSQL::VNTEMPLATE;
+        pool        =  nd.get_vntpool();
+    };
+
+    ~VNTemplateUnlock(){};
 };
 
 /* -------------------------------------------------------------------------- */

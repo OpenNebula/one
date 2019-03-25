@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -457,13 +457,13 @@ const char * VirtualMachine::table = "vm_pool";
 
 const char * VirtualMachine::db_names =
     "oid, name, body, uid, gid, last_poll, state, lcm_state, "
-    "owner_u, group_u, other_u, short_body";
+    "owner_u, group_u, other_u, short_body, search_token";
 
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-    "vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
-    "gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, "
-    "owner_u INTEGER, group_u INTEGER, other_u INTEGER, short_body MEDIUMTEXT)";
-
+    "vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, "
+    "uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, "
+    "lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
+    "short_body MEDIUMTEXT, search_token MEDIUMTEXT";
 
 const char * VirtualMachine::monit_table = "vm_monitoring";
 
@@ -489,12 +489,24 @@ int VirtualMachine::bootstrap(SqlDB * db)
 {
     int rc;
 
-    ostringstream oss_vm(VirtualMachine::db_bootstrap);
+    ostringstream oss_vm;
+
+    oss_vm << VirtualMachine::db_bootstrap;
+
+    if (db->fts_available())
+    {
+        oss_vm << ", FULLTEXT ftidx(search_token))";
+    }
+    else
+    {
+        oss_vm << ")";
+    }
+
     ostringstream oss_monit(VirtualMachine::monit_db_bootstrap);
     ostringstream oss_hist(History::db_bootstrap);
     ostringstream oss_showback(VirtualMachine::showback_db_bootstrap);
 
-    ostringstream oss_index("CREATE INDEX state_idx on vm_pool (state);");
+    ostringstream oss_index("CREATE INDEX state_oid_idx on vm_pool (state, oid);");
 
     rc =  db->exec_local_wr(oss_vm);
     rc += db->exec_local_wr(oss_index);
@@ -1501,7 +1513,7 @@ static int get_datastore_requirements(Template *tmpl, set<int>& ds_ids,
     // Get cluster id from all DISK vector attributes (IMAGE Datastore)
     int num_vatts = tmpl->get("DISK",vatts);
 
-    for(int i=0; i<num_vatts; i++)
+    for(int i=0; i<num_vatts; i++, csystem_ds.clear())
     {
         int val;
 
@@ -1520,7 +1532,7 @@ static int get_datastore_requirements(Template *tmpl, set<int>& ds_ids,
 
             int rc = check_and_set_datastores_id(csystem_ds, ds_ids);
 
-            if ( rc != 0 )
+            if ( rc == -1 )
             {
                 incomp_id = i;
                 goto error_disk;
@@ -1563,6 +1575,11 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
     }
 
     rc = get_datastore_requirements(obj_template, datastore_ids, error_str);
+
+    if (rc == -1)
+    {
+        return -1;
+    }
 
     if ( !cluster_ids.empty() )
     {
@@ -1662,10 +1679,12 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
     ostringstream   oss;
     int             rc;
 
-    string xml_body, short_xml_body;
+    string xml_body, short_xml_body, text;
+
     char * sql_name;
     char * sql_xml;
     char * sql_short_xml;
+    char * sql_text;
 
     sql_name =  db->escape_str(name.c_str());
 
@@ -1698,6 +1717,13 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
         goto error_xml_short;
     }
 
+    sql_text = db->escape_str(to_token(text).c_str());
+
+    if ( sql_text == 0 )
+    {
+        goto error_text;
+    }
+
     if(replace)
     {
         oss << "REPLACE";
@@ -1719,17 +1745,21 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          owner_u         << ","
         <<          group_u         << ","
         <<          other_u         << ","
-        << "'" <<   sql_short_xml   << "'"
+        << "'" <<   sql_short_xml   << "',"
+        << "'" <<   sql_text        << "'"
         << ")";
 
     db->free_str(sql_name);
     db->free_str(sql_xml);
     db->free_str(sql_short_xml);
+    db->free_str(sql_text);
 
     rc = db->exec_wr(oss);
 
     return rc;
 
+error_text:
+    db->free_str(sql_text);
 error_xml_short:
     db->free_str(sql_short_xml);
 error_xml:
@@ -2145,7 +2175,7 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
     string snap_xml;
     string lock_str;
 
-    ostringstream   oss;
+    ostringstream oss;
 
     oss << "<VM>"
         << "<ID>"        << oid       << "</ID>"
@@ -2210,6 +2240,91 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
     xml = oss.str();
 
     return xml;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& VirtualMachine::to_json(string& json) const
+{
+    string template_json;
+    string user_template_json;
+    string history_json;
+
+    ostringstream oss;
+
+    oss << "{\"VM\":{"
+        << "\"ID\": \""<< oid << "\","
+        << "\"UID\": \""<< uid << "\","
+        << "\"GID\": \""<< gid << "\","
+        << "\"UNAME\": \""<< uname << "\","
+        << "\"GNAME\": \""<< gname << "\","
+        << "\"NAME\": \""<< name << "\","
+        << "\"LAST_POLL\": \""<< last_poll << "\","
+        << "\"STATE\": \""<< state << "\","
+        << "\"LCM_STATE\": \""<< lcm_state << "\","
+        << "\"PREV_STATE\": \""<< prev_state << "\","
+        << "\"PREV_LCM_STATE\": \""<< prev_lcm_state << "\","
+        << "\"RESCHED\": \""<< resched << "\","
+        << "\"STIME\": \""<< stime << "\","
+        << "\"ETIME\": \""<< etime << "\","
+        << "\"DEPLOY_ID\": \""<< deploy_id << "\","
+        << obj_template->to_json(template_json) << ","
+        << user_obj_template->to_json(user_template_json);
+
+    if ( hasHistory() )
+    {
+        oss << ",\"HISTORY_RECORDS\": [";
+
+        oss << history->to_json(history_json);
+
+        oss << "]";
+    }
+
+    oss << "}}";
+
+
+    json = oss.str();
+
+    return json;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& VirtualMachine::to_token(string& text) const
+{
+    string template_text;
+    string user_template_text;
+    string history_text;
+
+    ostringstream oss;
+
+    oss << "UNAME="<< uname << "\n"
+        << "GNAME="<< gname << "\n";
+
+    oss << "NAME=";
+    one_util::escape_token(name, oss);
+    oss << "\n";
+
+    oss << "LAST_POLL="<< last_poll << "\n"
+        << "PREV_STATE="<< prev_state << "\n"
+        << "PREV_LCM_STATE="<< prev_lcm_state << "\n"
+        << "RESCHED="<< resched << "\n"
+        << "STIME="<< stime << "\n"
+        << "ETIME="<< etime << "\n"
+        << "DEPLOY_ID="<< deploy_id << "\n"
+        << obj_template->to_token(template_text) << "\n"
+        << user_obj_template->to_token(user_template_text);
+
+    if ( hasHistory() )
+    {
+        oss << "\n" << history->to_token(history_text);
+    }
+
+    text = oss.str();
+
+    return text;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2374,7 +2489,7 @@ int VirtualMachine::from_xml(const string &xml_str)
     }
     rc += obj_template->from_xml_node(content[0]);
 
-    vector<VectorAttribute *> vdisks, vnics, pcis;
+    vector<VectorAttribute *> vdisks, vnics, alias, pcis;
     vector<VectorAttribute *>::iterator it;
 
     obj_template->get("DISK", vdisks);
@@ -2382,6 +2497,8 @@ int VirtualMachine::from_xml(const string &xml_str)
     disks.init(vdisks, true);
 
     obj_template->get("NIC", vnics);
+
+    obj_template->get("NIC_ALIAS", alias);
 
     obj_template->get("PCI", pcis);
 
@@ -2391,6 +2508,11 @@ int VirtualMachine::from_xml(const string &xml_str)
         {
             vnics.push_back(*it);
         }
+    }
+
+    for (it =alias.begin(); it != alias.end(); ++it)
+    {
+        vnics.push_back(*it);
     }
 
     nics.init(vnics, true);
@@ -2455,7 +2577,7 @@ int VirtualMachine::from_xml(const string &xml_str)
 
     for (vector<xmlNodePtr>::iterator it=content.begin();it!=content.end();it++)
     {
-        Snapshots * snap = new Snapshots(-1, false);
+        Snapshots * snap = new Snapshots(-1, Snapshots::DENY);
 
         rc += snap->from_xml_node(*it);
 
@@ -2731,13 +2853,13 @@ void VirtualMachine::get_public_clouds(const string& pname, set<string> &clouds)
 /* -------------------------------------------------------------------------- */
 
 static std::map<std::string,std::vector<std::string>> UPDATECONF_ATTRS = {
-		{"OS", {"ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER",
-           "BOOT", "KERNEL_CMD", "ROOT"} },
-		{"FEATURES", {"PAE", "ACPI", "APIC", "LOCALTIME", "HYPERV",
-		   "GUEST_AGENT"} },
-		{"INPUT", {"TYPE", "BUS"} },
-		{"GRAPHICS", {"TYPE", "LISTEN", "PASSWD", "KEYMAP"} },
-		{"RAW", {"TYPE", "DATA", "DATA_VMX"} }
+    {"OS", {"ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT", "KERNEL_CMD", "ROOT"} },
+    {"FEATURES", {"PAE", "ACPI", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT",
+         "VIRTIO_SCSI_QUEUES"} },
+    {"INPUT", {"TYPE", "BUS"} },
+    {"GRAPHICS", {"TYPE", "LISTEN", "PASSWD", "KEYMAP", "COMMAND"} },
+    {"RAW", {"TYPE", "DATA", "DATA_VMX"} },
+    {"CPU_MODEL", {"MODEL"} }
 	};
 
 /**
@@ -2877,7 +2999,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     }
 
     // -------------------------------------------------------------------------
-    // Update OS, FEATURES, INPUT, GRAPHICS, RAW
+    // Update OS, FEATURES, INPUT, GRAPHICS, RAW, CPU_MODEL
     // -------------------------------------------------------------------------
     replace_vector_values(obj_template, &tmpl, "OS");
 
@@ -2893,6 +3015,8 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     replace_vector_values(obj_template, &tmpl, "GRAPHICS");
 
     replace_vector_values(obj_template, &tmpl, "RAW");
+
+    replace_vector_values(obj_template, &tmpl, "CPU_MODEL");
 
     // -------------------------------------------------------------------------
     // Update CONTEXT: any value
@@ -3265,9 +3389,11 @@ int VirtualMachine::get_network_leases(string& estr)
     /* ---------------------------------------------------------------------- */
     /* Get the NIC attributes:                                                */
     /*   * NIC                                                                */
+    /*   * NIC_ALIAS                                                          */
     /*   * PCI + TYPE = NIC                                                   */
     /* ---------------------------------------------------------------------- */
     vector<Attribute *> anics;
+    vector<Attribute *> alias;
 
     user_obj_template->remove("NIC", anics);
 
@@ -3281,6 +3407,23 @@ int VirtualMachine::get_network_leases(string& estr)
         else
         {
             obj_template->set(*it);
+            ++it;
+        }
+    }
+
+    user_obj_template->remove("NIC_ALIAS", alias);
+
+    for (vector<Attribute*>::iterator it = alias.begin(); it != alias.end(); )
+    {
+        if ( (*it)->type() != Attribute::VECTOR )
+        {
+            delete *it;
+            it = alias.erase(it);
+        }
+        else
+        {
+            obj_template->set(*it);
+            anics.push_back(*it);
             ++it;
         }
     }
@@ -3331,8 +3474,13 @@ int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err
 
     if ( new_nic == 0 )
     {
-        err = "Wrong format or missing NIC attribute";
-        return -1;
+        new_nic = tmpl->get("NIC_ALIAS");
+
+        if ( new_nic == 0 )
+        {
+            err = "Wrong format or missing NIC/NIC_ALIAS attribute";
+            return -1;
+        }
     }
 
     new_nic = new_nic->clone();
@@ -3373,6 +3521,10 @@ int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err
 
 int VirtualMachine::set_detach_nic(int nic_id)
 {
+    std::set<int> a_ids;
+
+    int parent_id, alias_id;
+
     VirtualMachineNic * nic = nics.get_nic(nic_id);
 
     if ( nic == 0 )
@@ -3382,7 +3534,72 @@ int VirtualMachine::set_detach_nic(int nic_id)
 
     nic->set_attach();
 
-    clear_nic_context(nic_id);
+    /*------------------------------------------------------------------------*/
+    /* Clear context of the NIC or NIC_ALIAS                                  */
+    /* 1. NIC with alias will also clear context for the NIC_ALIAS            */
+    /* 2. NIC_ALIAS will update the ALIAS_IDs list                            */
+    /*------------------------------------------------------------------------*/
+    if ( !nic->is_alias() )
+    {
+        clear_nic_context(nic_id);
+
+        one_util::split_unique(nic->vector_value("ALIAS_IDS"), ',', a_ids);
+
+        for(std::set<int>::iterator it = a_ids.begin(); it != a_ids.end(); ++it)
+        {
+            VirtualMachineNic *alias = nics.get_nic(*it);
+
+            if ( alias == 0 )
+            {
+                continue;
+            }
+
+            if ( alias->vector_value("ALIAS_ID", alias_id) != 0 )
+            {
+                continue;
+            }
+
+            clear_nic_alias_context(nic_id, alias_id);
+        }
+    }
+    else
+    {
+        std::ostringstream oss;
+
+        if ( nic->vector_value("ALIAS_ID", alias_id) != 0 ||
+                nic->vector_value("PARENT_ID", parent_id) != 0 )
+        {
+            return -1;
+        }
+
+        clear_nic_alias_context(parent_id, alias_id);
+
+        nic = nics.get_nic(parent_id);
+
+        if ( nic == 0 )
+        {
+            return -1;
+        }
+
+        one_util::split_unique(nic->vector_value("ALIAS_IDS"), ',', a_ids);
+
+        for(std::set<int>::iterator it = a_ids.begin(); it != a_ids.end(); ++it)
+        {
+            if ( *it == nic_id )
+            {
+                continue;
+            }
+
+            if ( !oss.str().empty() )
+            {
+                oss << ",";
+            }
+
+            oss << *it;
+        }
+
+        nic->replace("ALIAS_IDS", oss.str());
+    }
 
     return 0;
 }

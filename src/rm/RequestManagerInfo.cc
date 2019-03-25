@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -147,6 +147,67 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     vm_tmpl->unlock();
+
+    success_response(str, att);
+
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void VirtualNetworkTemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
+                                         RequestAttributes& att)
+{
+    VNTemplatePool *         tpool   = static_cast<VNTemplatePool *>(pool);
+    VirtualNetworkTemplate * extended_tmpl = 0;
+    VNTemplate *             vn_tmpl;
+
+    PoolObjectAuth perms;
+
+    int             oid = xmlrpc_c::value_int(paramList.getInt(1));
+    string          str;
+
+    vn_tmpl = tpool->get_ro(oid);
+
+    if ( vn_tmpl == 0 )
+    {
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
+        return;
+    }
+
+    vn_tmpl->get_permissions(perms);
+
+    vn_tmpl->unlock();
+
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(auth_op, perms); //USE TEMPLATE
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+
+        delete extended_tmpl;
+        return;
+    }
+
+    vn_tmpl = tpool->get_ro(oid);
+
+    if ( vn_tmpl == 0 )
+    {
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
+
+        delete extended_tmpl;
+        return;
+    }
+
+    vn_tmpl->to_xml(str);
+    
+    vn_tmpl->unlock();
 
     success_response(str, att);
 
