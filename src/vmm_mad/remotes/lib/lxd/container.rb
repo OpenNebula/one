@@ -392,7 +392,7 @@ class Container
 
     # Deletes the switch port. Unlike libvirt, LXD doesn't handle this.
     def del_bridge_port(nic)
-        return true unless nic['VN_MAD'] == 'ovswitch'
+        return true unless /ovswitch/ =~ nic['VN_MAD'] 
 
         cmd = 'sudo ovs-vsctl --if-exists del-port '\
         "#{nic['BRIDGE']} #{nic['TARGET']}"
