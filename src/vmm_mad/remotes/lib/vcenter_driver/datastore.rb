@@ -371,7 +371,7 @@ class Datastore < Storage
             end
         else
             copy_params[:destinationName] = "[#{target_ds_name}] #{target_path}"
-            get_fm.CopyDatastoreFile_Task(copy_params)
+            get_fm.CopyDatastoreFile_Task(copy_params).wait_for_completion
         end
 
         target_path

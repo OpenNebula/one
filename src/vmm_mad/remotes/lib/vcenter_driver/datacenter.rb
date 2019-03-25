@@ -804,13 +804,13 @@ class Datacenter
             case nr[:action]
                 when :update_dpg
                     begin
-                        nr[:dpg].ReconfigureDVPortgroup_Task(:spec => nr[:spec])
+                        nr[:dpg].ReconfigureDVPortgroup_Task(:spec => nr[:spec]).wait_for_completion
                     rescue Exception => e
                         raise "A rollback operation for distributed port group #{nr[:name]} could not be performed. Reason: #{e.message}"
                     end
                 when :update_dvs
                     begin
-                        nr[:dvs].ReconfigureDvs_Task(:spec => nr[:spec])
+                        nr[:dvs].ReconfigureDvs_Task(:spec => nr[:spec]).wait_for_completion
                     rescue Exception => e
                         raise "A rollback operation for distributed standard switch #{nr[:name]} could not be performed. Reason: #{e.message}"
                     end
