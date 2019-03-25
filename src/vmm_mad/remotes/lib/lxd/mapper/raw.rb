@@ -27,6 +27,9 @@ class FSRawMapper < Mapper
 
     def do_map(one_vm, disk, _directory)
         dsrc = one_vm.disk_source(disk)
+
+        File.chmod(0o646, dsrc) if File.symlink?(one_vm.sysds_path)
+
         cmd = "#{COMMANDS[:losetup]} -f --show #{dsrc}"
 
         rc, out, err = Command.execute(cmd, true)

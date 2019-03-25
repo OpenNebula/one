@@ -481,7 +481,6 @@ class Mapper
 
             if o.empty?
                 OpenNebula.log_error("#{err}#{e}")
-                return false
             else
                 cmd = "#{COMMANDS[:resize2fs]} #{device}"
                 rc, _o, e = Command.execute(cmd, false)
@@ -511,7 +510,11 @@ class Mapper
         when /xfs/
             cmd = "#{COMMANDS[:xfs_admin]} -U generate #{device}"
         when /ext/
-            Command.execute("#{COMMANDS[:e2fsck]} -f -y #{device}", false)
+            cmd = "#{COMMANDS[:e2fsck]} -f -y #{device}"
+            _rc, o, e = Command.execute(cmd, false)
+
+            OpenNebula.log e if o.empty?
+
             cmd = "#{COMMANDS[:tune2fs]} -U random #{device}"
         else
             return true
