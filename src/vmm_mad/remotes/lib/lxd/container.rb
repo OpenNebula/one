@@ -175,6 +175,11 @@ class Container
 
     def stop(options = { :timeout => 120 })
         change_state(__method__, options)
+
+        # Remove nic from ovs-switch if needed
+        @one.get_nics.each do |nic|
+            del_bridge_port(nic) # network driver matching implemented here
+        end
     end
 
     def restart(options = {})
@@ -211,7 +216,8 @@ class Container
             device.include?('eth') && config['hwaddr'] == mac
         end
 
-        update
+        # Removes nic from ovs-switch if needed
+        update if del_bridge_port(@one.get_nic_by_mac(mac))
     end
 
     #---------------------------------------------------------------------------
@@ -381,6 +387,21 @@ class Container
     end
 
     private
+
+    # Deletes the switch port. Unlike libvirt, LXD doesn't handle this.
+    def del_bridge_port(nic)
+        return true unless /ovswitch/ =~ nic['VN_MAD'] 
+
+        cmd = 'sudo ovs-vsctl --if-exists del-port '\
+        "#{nic['BRIDGE']} #{nic['TARGET']}"
+
+        rc, _o, e = Command.execute(cmd, false)
+
+        return true if rc.zero?
+
+        OpenNebula.log_error "#{__method__}: #{e}"
+        false
+    end
 
     # Waits or no for response depending on wait value
     def wait?(response, wait, timeout)
