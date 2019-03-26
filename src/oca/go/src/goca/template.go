@@ -54,7 +54,7 @@ type templateTemplate struct {
 }
 
 type templateContext struct {
-	Dynamic unmatchedTagsSlice `xml:",any"`
+	Dynamic unmatchedTagsMap `xml:",any"`
 }
 
 type templateDisk struct {
