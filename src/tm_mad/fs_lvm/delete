@@ -31,9 +31,11 @@ else
 fi
 
 DRIVER_PATH=$(dirname $0)
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb"
 
 source $TMCOMMON
 source ${DRIVER_PATH}/../../etc/tm/fs_lvm/fs_lvm.conf
+source ${DRIVER_PATH}/../../datastore/libfs.sh
 
 #-------------------------------------------------------------------------------
 # Return if deleting a disk, we will delete them when removing the
@@ -77,6 +79,19 @@ EOF
 )
 
 if [ -n "${DS_SYS_ID}" ]; then
+
+    while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+    done < <(onedatastore show -x $DS_SYS_ID | $XPATH \
+        /DATASTORE/TEMPLATE/BRIDGE_LIST)
+    unset i
+    BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
+
+    # Change DST_HOST to one of the BRIDGE_LIST to prevent
+    # running on frontend for undeployed VMs
+    if [ -n "$BRIDGE_LIST" ]; then
+        DST_HOST=$(get_destination_host)
+    fi
 
     if [ "${ZERO_LVM_ON_DELETE}" = "yes" ]; then
         ssh_exec_and_log "$DST_HOST" "$ZERO_CMD" "Error cleaning $DST_PATH"
