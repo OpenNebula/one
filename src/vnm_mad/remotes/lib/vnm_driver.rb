@@ -189,11 +189,11 @@ module VNMMAD
             options
         end
 
-        # Returns true if the driver is executing action pre
-        def self.pre_action?
-            File.basename($PROGRAM_NAME) == 'pre'
-        end
+    end
 
+    # Returns true if the driver is executing action pre
+    def self.pre_action?
+        File.basename($PROGRAM_NAME) == 'pre'
     end
 
 end
