@@ -91,6 +91,28 @@ void VirtualMachinePoolInfo::request_execute(
         xmlrpc_c::paramList const& paramList,
         RequestAttributes& att)
 {
+
+    pool_filter(paramList, att, pool);
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void VirtualMachinePoolInfoExtended::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    pool_filter(paramList, att, pool);
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void VirtualMachinePoolInfo::pool_filter(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att,
+        PoolSQL* pool)
+{
     int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
     int start_id    = xmlrpc_c::value_int(paramList.getInt(2));
     int end_id      = xmlrpc_c::value_int(paramList.getInt(3));
@@ -514,8 +536,20 @@ void RequestManagerPoolInfoFilter::dump(
     Nebula::instance().get_configuration_attribute(att.uid, att.gid,
             "API_LIST_ORDER", desc);
 
-    rc = pool->dump(str, where_string, limit_clause,
-            one_util::toupper(desc) == "DESC");
+    if ( extended )
+    {
+        rc = pool->dump_extended(str,
+                                 where_string,
+                                 limit_clause,
+                                 one_util::toupper(desc) == "DESC");
+    }
+    else
+    {
+        rc = pool->dump(str,
+                        where_string,
+                        limit_clause,
+                        one_util::toupper(desc) == "DESC");
+    }
 
     if ( rc != 0 )
     {
@@ -580,7 +614,7 @@ void VirtualNetworkPoolInfo::request_execute(
     std::string pool_oss;
     std::string desc;
 
-    Nebula::instance().get_configuration_attribute(att.uid, att.gid, 
+    Nebula::instance().get_configuration_attribute(att.uid, att.gid,
             "API_LIST_ORDER", desc);
 
     int rc = pool->dump(pool_oss, where_string.str(), limit_clause.str(),
@@ -617,4 +651,3 @@ void MarketPlacePoolInfo::request_execute(
 {
     dump(att, ALL, -1, -1, "", "");
 }
-

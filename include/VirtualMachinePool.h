@@ -289,6 +289,25 @@ public:
     };
 
     /**
+     *  Dumps the VM pool in extended XML format
+     *  A filter can be also added to the query
+     *  Also the hostname where the VirtualMachine is running is added to the
+     *  pool
+     *  @param oss the output stream to dump the pool contents
+     *  @param where filter for the objects, defaults to all
+     *  @param limit parameters used for pagination
+     *  @param desc descending order of pool elements
+     *
+     *  @return 0 on success
+     */
+    int dump_extended(string& oss, const string& where, const string& limit,
+            bool desc)
+    {
+        return PoolSQL::dump(oss, "VM_POOL", "body", VirtualMachine::table, where,
+                             limit, desc);
+    };
+
+    /**
      *  Dumps the VM accounting information in XML format. A filter can be also
      *  added to the query as well as a time frame.
      *  @param oss the output stream to dump the pool contents

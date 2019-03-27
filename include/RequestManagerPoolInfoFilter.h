@@ -59,12 +59,18 @@ public:
           string& where_str);
 
 protected:
+    /*
+    *  True to gather full info
+    */
+    bool extended;
+
     RequestManagerPoolInfoFilter(const string& method_name,
                                  const string& help,
                                  const string& signature)
         :Request(method_name,signature,help)
     {
         leader_only = false;
+        extended    = false;
     };
 
     ~RequestManagerPoolInfoFilter(){};
@@ -120,7 +126,50 @@ public:
         auth_object = PoolObjectSQL::VM;
     };
 
+    VirtualMachinePoolInfo(const string& method_name,
+                           const string& help,
+                           const string& signature)
+        :RequestManagerPoolInfoFilter(method_name, help, signature)
+    {
+
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vmpool();
+        auth_object = PoolObjectSQL::VM;
+    };
+
     ~VirtualMachinePoolInfo(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+
+    /* -------------------------------------------------------------------- */
+
+    void pool_filter(xmlrpc_c::paramList const& paramList,
+                     RequestAttributes& att,
+                     PoolSQL* pool);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachinePoolInfoExtended : public VirtualMachinePoolInfo
+{
+public:
+
+    VirtualMachinePoolInfoExtended():
+        VirtualMachinePoolInfo("one.vmpool.infoextended",
+                               "Returns the virtual machine instances pool",
+                               "A:siiiis")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vmpool();
+        auth_object = PoolObjectSQL::VM;
+        extended    = true;
+    };
+
+    ~VirtualMachinePoolInfoExtended(){};
 
     /* -------------------------------------------------------------------- */
 

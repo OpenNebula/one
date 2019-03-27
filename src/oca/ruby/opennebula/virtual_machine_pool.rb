@@ -26,6 +26,7 @@ module OpenNebula
 
         VM_POOL_METHODS = {
             :info               => "vmpool.info",
+            :info_extended      => "vmpool.infoextended",
             :monitoring         => "vmpool.monitoring",
             :accounting         => "vmpool.accounting",
             :showback           => "vmpool.showback",
@@ -91,6 +92,14 @@ module OpenNebula
             end
         end
 
+        def info_extended()
+            return info_filter(VM_POOL_METHODS[:info_extended],
+                        @user_id,
+                        -1,
+                        -1,
+                        INFO_NOT_DONE)
+        end
+
         def info_all()
             return info_filter(VM_POOL_METHODS[:info],
                                INFO_ALL,
@@ -121,10 +130,17 @@ module OpenNebula
                 :start_id => -1,
                 :end_id   => -1,
                 :state    => INFO_NOT_DONE,
-                :query    => ""
+                :query    => "",
+                :extended => false
             }.merge!(args)
 
-            return info_filter(VM_POOL_METHODS[:info],
+            if args[:extended]
+                method = VM_POOL_METHODS[:info_extended]
+            else
+                method = VM_POOL_METHODS[:info]
+            end
+
+            return info_filter(method,
                                default_args[:who],
                                default_args[:start_id],
                                default_args[:end_id],
