@@ -517,7 +517,7 @@ class Mapper
 
             cmd = "#{COMMANDS[:tune2fs]} -U random #{device}"
         else
-            return true
+            return
         end
 
         rc, o, e = Command.execute(cmd, false)
