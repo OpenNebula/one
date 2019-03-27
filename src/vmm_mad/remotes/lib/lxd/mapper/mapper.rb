@@ -139,7 +139,7 @@ class Mapper
 
         fstype = get_fstype(device)
 
-        return unless reset_fs_uuid(fstype, device)
+        reset_fs_uuid(fstype, device)
 
         mount_resize_fs(device, directory, fstype, disk)
     end
@@ -521,10 +521,9 @@ class Mapper
         end
 
         rc, o, e = Command.execute(cmd, false)
-        return true if rc.zero?
+        return if rc.zero?
 
         OpenNebula.log_error "#{__method__}: error changing UUID: #{o}\n#{e}\n"
-        false
     end
 
     def get_fstype(device)
