@@ -93,12 +93,12 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         provision.configure(force)
     end
 
-    def delete(provision_id, cleanup)
+    def delete(provision_id, cleanup, timeout)
         provision = OneProvision::Provision.new(provision_id)
 
         provision.refresh
 
-        provision.delete(cleanup)
+        provision.delete(cleanup, timeout)
     end
 
     #######################################################################

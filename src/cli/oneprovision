@@ -162,6 +162,12 @@ CommandParser::CmdParser.new(ARGV) do
                         'then delete the resources.'
     }
 
+    CLEANUP_TIMEOUT = {
+        :name => 'cleanup_timeout',
+        :large => '--cleanup-timeout timeout',
+        :description => 'Change the default timeout when deleting VMs.'
+    }
+
     INCREMENTAL = {
         :name => 'incremental',
         :large => '--incremental',
@@ -266,10 +272,16 @@ CommandParser::CmdParser.new(ARGV) do
     command :delete,
             provision_delete_desc,
             :provisionid,
-            :options => [MODES, THREADS, CLEANUP] do
+            :options => [MODES, THREADS, CLEANUP, CLEANUP_TIMEOUT] do
         helper.parse_options(options)
 
-        helper.delete(args[0], (options.key? :cleanup))
+        if options[:cleanup_timeout].nil?
+            timeout = 20
+        else
+            timeout = options[:cleanup_timeout]
+        end
+
+        helper.delete(args[0], (options.key? :cleanup), timeout)
     end
 
     ########################################################################
