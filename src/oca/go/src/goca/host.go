@@ -240,9 +240,14 @@ func (host *Host) Info() error {
 }
 
 // Monitoring returns the host monitoring records.
-func (host *Host) Monitoring() error {
-	_, err := client.Call("one.host.monitoring", host.ID)
-	return err
+func (host *Host) Monitoring() (string, error) {
+	monitor_data, err := client.Call("one.host.monitoring", host.ID)
+
+	if err != nil{
+		return "", err
+	}else {
+		return monitor_data.Body(), err
+	}
 }
 
 // State looks up the state of the image and returns the ImageState
