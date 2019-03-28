@@ -69,7 +69,7 @@ class Container
         @lxc = lxc
         @one = one
         @lxc_command = 'lxc'
-        @lxc_command.prepend 'sudo' if client.snap
+        @lxc_command.prepend 'sudo ' if client.snap
 
         @containers = "#{@client.lxd_path}/storage-pools/default/containers"
         @rootfs_dir = "#{@containers}/#{name}/rootfs"
@@ -190,6 +190,16 @@ class Container
         # Remove nic from ovs-switch if needed
         @one.get_nics.each do |nic|
             del_bridge_port(nic) # network driver matching implemented here
+        end
+    end
+
+    def check_stop
+        return if status != 'Running'
+
+        if ARGV[-1] == '-f'
+            stop(:force => true)
+        else
+            stop
         end
     end
 
@@ -401,7 +411,7 @@ class Container
 
     # Deletes the switch port. Unlike libvirt, LXD doesn't handle this.
     def del_bridge_port(nic)
-        return true unless /ovswitch/ =~ nic['VN_MAD'] 
+        return true unless /ovswitch/ =~ nic['VN_MAD']
 
         cmd = 'sudo ovs-vsctl --if-exists del-port '\
         "#{nic['BRIDGE']} #{nic['TARGET']}"
