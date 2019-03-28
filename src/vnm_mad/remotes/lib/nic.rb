@@ -116,9 +116,9 @@ module VNMMAD
 
                     config, e, s = Open3.capture3(cmd)
 
-                    if s.exitstatus != 0 && e.include?('cannot create'\
+                    if s.exitstatus != 0 && e.include?('cannot create '\
                         'user data directory')
-                        cmd.prepend('sudo')
+                        cmd.prepend('sudo ')
                         config, _e, _s = Open3.capture3(cmd)
                     end
 
