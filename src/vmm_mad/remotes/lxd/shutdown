@@ -37,11 +37,7 @@ container = Container.get(vm_name, xml, client)
 # Stop the container & unmap devices if not a wild container
 # ------------------------------------------------------------------------------
 begin
-    if ARGV[-1] == '-f'
-        container.stop(:force => true)
-    else
-        container.stop
-    end
+    container.check_stop
 rescue => exception
     OpenNebula.log_error exception
 end
