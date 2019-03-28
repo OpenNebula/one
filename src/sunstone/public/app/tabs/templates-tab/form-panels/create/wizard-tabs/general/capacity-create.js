@@ -20,29 +20,29 @@ define(function(require) {
    */
 
 //  require('foundation.slider');
-  var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
-  var WizardFields = require('utils/wizard-fields');
-  var UserInputs = require('utils/user-inputs');
+  var Locale = require("utils/locale");
+  var Tips = require("utils/tips");
+  var WizardFields = require("utils/wizard-fields");
+  var UserInputs = require("utils/user-inputs");
 
   /*
     TEMPLATES
    */
 
-  var TemplateHTML = require('hbs!./capacity-create/html');
+  var TemplateHTML = require("hbs!./capacity-create/html");
 
   /*
     CONSTRUCTOR
    */
 
   return {
-    'html': _html,
-    'setup': _setup,
-    'fill': _fill,
-    'retrieve': _retrieve,
-    'calculatedRealMemory': _calculatedRealMemory,
-    'calculatedRealCpu': _calculatedRealCpu,
-    'totalCost': _totalCost
+    "html": _html,
+    "setup": _setup,
+    "fill": _fill,
+    "retrieve": _retrieve,
+    "calculatedRealMemory": _calculatedRealMemory,
+    "calculatedRealCpu": _calculatedRealCpu,
+    "totalCost": _totalCost
   };
 
   /*
@@ -65,19 +65,19 @@ define(function(require) {
     if(isNaN(val) || val == ""){
       return "";
     }
-
     return Math.floor(val * 1024);
   }
   function convertCostNumber(number){
     if(number >= 1000000){
-      number = (number / 1000000).toFixed(2)
+      number = (number / 1000000).toFixed(2);
       return number.toString() + "M";
     }
     else if (number >= 1000){
-      number = (number / 1000).toFixed(2)
+      number = (number / 1000).toFixed(2);
       return number.toString() + "K";
     }
     else if (number >= 0 && number < 1000){
+      number = (typeof number === "string"? parseFloat(number) : number);
       return number.toFixed(2);
     }
     else {
@@ -89,38 +89,41 @@ define(function(require) {
     var memory = $("#real_memory_cost").val();
     var cpu = $("#real_cpu_cost").val();
     var disk_cost = $("#total_value_disk").text();
+    var elementTotalCost = document.getElementById("total_cost");
     if (disk_cost === "") {
       disk_cost = 0;
     } else {
       disk_cost = parseFloat(disk_cost);
     }
-
-    if ((memory === undefined || memory === "") && (cpu === undefined || cpu === "")){
-      document.getElementById('total_cost').textContent = "Total: " + disk_cost;
-    } else if(memory === undefined || memory === ""){
-      document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(cpu + disk_cost);
-    } else if(cpu === undefined || cpu === ""){
-      document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(memory + disk_cost);
-    } else {
-      document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(memory + cpu + disk_cost);
+    if(elementTotalCost){
+      if ((memory === undefined || memory === "") && (cpu === undefined || cpu === "")){
+        elementTotalCost.textContent = "Total: " + disk_cost;
+      } else if(memory === undefined || memory === ""){
+        elementTotalCost.textContent = "Total: " + convertCostNumber(cpu + disk_cost);
+      } else if(cpu === undefined || cpu === ""){
+        elementTotalCost.textContent = "Total: " + convertCostNumber(memory + disk_cost);
+      } else {
+        elementTotalCost.textContent = "Total: " + convertCostNumber(memory + cpu + disk_cost);
+      }
     }
   }
 
   function _calculatedRealMemory(context){
-    var memory_cost = $("#MEMORY_COST").val();
-    var type_cost   = $("#MEMORY_UNIT_COST").val();
-
+    var memory_cost = $("#MEMORY_COST").val() || 0;
+    var type_cost   = $("#MEMORY_UNIT_COST").val() || 0;
     var memory = $("#MEMORY").val();
     var type   = $("#memory_unit").val();
-
     if (type_cost == "GB"){
       memory = (memory / 1024) * memory_cost * 24 * 30;
     } else {
       memory = memory * memory_cost * 24 * 30;
     }
-
-    document.getElementById('real_memory_cost').value = memory;
-    document.getElementById('total_value_memory').textContent = convertCostNumber(memory);
+    var realMemory = document.getElementById("real_memory_cost");
+    var totalMemory = document.getElementById("total_value_memory");
+    if(realMemory && totalMemory){
+      realMemory.value = memory;
+      totalMemory.textContent = convertCostNumber(memory);
+    }
 
     if (memory_cost != "")
       $(".total_memory_cost", context).show();
@@ -129,17 +132,16 @@ define(function(require) {
   }
 
   function _calculatedRealCpu(context){
-    var cpu_cost = $("#CPU_COST").val();
-    var cpu      = $("#CPU").val();
-
+    var cpu_cost = $("#CPU_COST").val() || 0;
+    var cpu      = $("#CPU").val() || 0;
+    var totalValueCpu = document.getElementById("real_cpu_cost");
     cpu = cpu * cpu_cost * 24 * 30;
-
-    document.getElementById('real_cpu_cost').value = cpu;
-    document.getElementById('total_value_cpu').textContent = convertCostNumber(cpu);
-
+    document.getElementById("real_cpu_cost").value = cpu;
+    if(totalValueCpu){
+      totalValueCpu.textContent = convertCostNumber(cpu);
+    }
     if (cpu_cost != "")
       $(".total_cpu_cost", context).show();
-
     _totalCost();
   }
 
@@ -203,10 +205,10 @@ define(function(require) {
     });
 
     // Unit select
-    $("#memory_unit", context).on('change', function() {
-      var memory_unit_val = $('#memory_unit :selected', context).val();
+    $("#memory_unit", context).on("change", function() {
+      var memory_unit_val = $("#memory_unit :selected", context).val();
 
-      if (memory_unit_val == 'GB') {
+      if (memory_unit_val == "GB") {
         $(".mb_unit", context).hide();
         $(".gb_unit", context).show();
       } else {
@@ -241,10 +243,10 @@ define(function(require) {
    */
   function _fill(context, element) {
 
-    var fields = $('[wizard_field]', context);
+    var fields = $("[wizard_field]", context);
 
     fields.each(function() {
-      var field_name = $(this).attr('wizard_field');
+      var field_name = $(this).attr("wizard_field");
       $(this).data("original_value", element[field_name]);
     });
 
@@ -259,7 +261,7 @@ define(function(require) {
       $("#memory_unit", context).val("GB").change();
     }
 
-    var userInputsJSON = element['USER_INPUTS'];
+    var userInputsJSON = element["USER_INPUTS"];
 
     if (userInputsJSON) {
       $.each(["memory","cpu","vcpu"], function(i,classname){
@@ -281,7 +283,7 @@ define(function(require) {
               $("input.user_input_params_min", param_context).val(values[0]).trigger("input");
               $("input.user_input_params_max", param_context).val(values[1]).trigger("input");
             } else {
-              console.error('Wrong user input parameters for "'+name+'". Expected "MIN..MAX", received "'+attr.params+'"');
+              console.error("Wrong user input parameters for \""+name+"\". Expected \"MIN..MAX\", received \""+attr.params+"\"");
             }
           } else if (attr.type == "list"){
             $("input."+classname+"_modify_opt."+attr.type, context).val(attr.params).trigger("input");
@@ -325,7 +327,7 @@ define(function(require) {
         attr.mandatory = false;
       }
 
-      attr.initial = $('input[wizard_field="'+attr.name+'"]', context).val();
+      attr.initial = $("input[wizard_field=\""+attr.name+"\"]", context).val();
 
       if (attr.type == "range" ||
           attr.type == "range-float"){
@@ -344,7 +346,7 @@ define(function(require) {
     });
 
     if (!$.isEmptyObject(userInputsJSON)) {
-      templateJSON['USER_INPUTS'] = userInputsJSON;
+      templateJSON["USER_INPUTS"] = userInputsJSON;
     }
 
     return templateJSON;
