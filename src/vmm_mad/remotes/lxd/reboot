@@ -34,10 +34,5 @@ container = Container.get(vm_name, container.config['user.xml'], client)
 # ------------------------------------------------------------------------------
 # Stop the container, start it
 # ------------------------------------------------------------------------------
-if ARGV[-1] == '-f'
-    container.stop(:force => true)
-else
-    container.stop
-end
-
+container.check_stop
 container.start
