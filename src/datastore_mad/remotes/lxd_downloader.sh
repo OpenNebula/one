@@ -155,7 +155,7 @@ rm -f /etc/resolv.conf > /dev/null 2>&1
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
 apt-get update > /dev/null
-apt-get install curl -y > /dev/null 2>&1
+apt-get install curl openssh-server -y > /dev/null 2>&1
 
 $CURL $CONTEXT_URL/v$selected_tag/one-context_$selected_tag-1.deb -Lsfo /root/context.deb
 apt-get install /root/context.deb -y > /dev/null 2>&1
@@ -169,6 +169,10 @@ export PATH=\$PATH:/bin:/sbin
 
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
+yum install epel-release openssh-server -y > /dev/null 2>&1
+/usr/bin/echo "centos6" >> /root/version
+systemctl enable sshd
+
 $CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el6.noarch.rpm -Lsfo /root/context.rpm
 yum install /root/context.rpm -y > /dev/null 2>&1
 EOC
@@ -179,6 +183,14 @@ EOC
     commands=$(cat <<EOC
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
+## New yum version requires random bits to initialize GnuTLS, but chroot
+## prevents access to /dev/urandom (as desgined).
+mknod -m 666 /dev/random c 1 8
+mknod -m 666 /dev/urandom c 1 9
+yum install epel-release openssh-server -y > /root/epel-log 2>&1
+systemctl enable sshd
+
+/usr/bin/echo "centos7" >> /root/version
 $CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lsfo /root/context.rpm
 yum install /root/context.rpm -y > /dev/null 2>&1
 EOC
