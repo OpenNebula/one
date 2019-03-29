@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+require 'curb'
+require 'base64'
 
 UNSUPPORTED_RUBY = (RUBY_VERSION =~ /^1.8/) != nil
 
@@ -184,6 +186,44 @@ post '/support/request' do
     else
         [403, Error.new(zrequest.errors["base"][0]["description"]).to_json]
     end
+end
+
+get '/support/check' do
+  if(!OpenNebula::VERSION.empty? &&
+    !$conf[:check_remote_support].nil? &&
+    !$conf[:check_remote_support].empty? &&
+    !$conf[:token_remote_support].nil? &&
+    !$conf[:token_remote_support].empty?)
+    !$conf[:opennebula_support] = !$conf[:opennebula_support].nil? ? $conf[:opennebula_support] : 0 
+    now = Time.now.to_i
+    validateTime = now - $conf[:opennebula_support]
+    if(validateTime > 86400)
+      version =  OpenNebula::VERSION.slice(0..OpenNebula::VERSION.rindex('.')-1)
+      minorVersion = version.slice(version.rindex('.')+1..-1).to_i
+      majorVersion = version.slice(0..version.rindex('.')-1)
+      minorVersion = minorVersion%2 === 0 ? minorVersion : minorVersion-1
+      url = $conf[:check_remote_support].sub '<VERSION>', majorVersion.to_s+"."+minorVersion.to_s
+      begin
+        http = Curl.get(url) do |http|
+          http.headers['Authorization'] = 'Basic ' + Base64.strict_encode64($conf[:token_remote_support])
+        end
+      rescue Exception => e
+        raise e
+      end
+      if !http.nil? && http.response_code < 400
+        $conf[:opennebula_support] = now
+        [200, JSON.pretty_generate({:pass => true})]
+      else
+        session["opennebula_support"] = 0
+        [400, JSON.pretty_generate({:pass => false})]
+      end
+    else
+      [200, JSON.pretty_generate({:pass => true})]
+    end
+  else
+    session["opennebula_support"] = 0
+    [400, JSON.pretty_generate({:pass => false})]
+  end
 end
 
 post '/support/request/:id/action' do

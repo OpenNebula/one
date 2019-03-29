@@ -19,31 +19,44 @@ define(function(require) {
     Common functions for the support tab
    */
 
-  var Sunstone = require('sunstone');
+  var Sunstone = require("sunstone");
 
-  var TAB_ID = require('../tabId');
+  var TAB_ID = require("../tabId");
 
   var support_interval_function;
 
   function _show_support_connect() {
     $(".support_info").hide();
     $("#"+Sunstone.getDataTable(TAB_ID).dataTableId+"Container", "#"+TAB_ID).hide();
-    $(".support_connect").show();
     $(".actions_row", "#"+TAB_ID).hide();
+    $(".support_not_connected").hide();
+    $(".support_connect").show();
+  }
+
+  function _hide_support_connect() {
+    $(".support_info").hide();
+    $("#"+Sunstone.getDataTable(TAB_ID).dataTableId+"Container", "#"+TAB_ID).hide();
+    $(".support_connect").hide();
+    $(".actions_row", "#"+TAB_ID).hide();
+    $(".support_not_connected").show();
+  }
+
+  function _check_validate_official_support(){
+    Sunstone.runAction("Support.check");
   }
 
   function _show_support_list() {
     $(".support_info").show();
     $(".support_connect").hide();
+    $(".support_not_connected").hide();
     $(".actions_row", "#"+TAB_ID).show();
     $("#"+Sunstone.getDataTable(TAB_ID).dataTableId+"Container", "#"+TAB_ID).show();
   }
 
   function _startIntervalRefresh() {
-    Sunstone.runAction('Support.list');
-
+    //Sunstone.runAction("Support.list"); //esto no se que pinta!!!
     support_interval_function = setInterval(function(){
-      Sunstone.runAction('Support.list');
+      Sunstone.runAction("Support.list");
     }, Sunstone.TOP_INTERVAL);
   }
 
@@ -52,9 +65,11 @@ define(function(require) {
   }
 
   return {
-    'showSupportConnect': _show_support_connect,
-    'showSupportList': _show_support_list,
-    'startIntervalRefresh': _startIntervalRefresh,
-    'stopIntervalRefresh': _stopIntervalRefresh,
+    "showSupportConnect": _show_support_connect,
+    "showSupportList": _show_support_list,
+    "hideSupportConnect": _hide_support_connect,
+    "startIntervalRefresh": _startIntervalRefresh,
+    "stopIntervalRefresh": _stopIntervalRefresh,
+    "checkValidateOfficialSupport": _check_validate_official_support
   };
 });

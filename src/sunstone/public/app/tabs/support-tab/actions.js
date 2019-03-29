@@ -15,17 +15,30 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Sunstone = require('sunstone');
-  var Notifier = require('utils/notifier');
-  var OpenNebulaSupport = require('opennebula/support');
-  var SupportUtils = require('./utils/common');
+  var Sunstone = require("sunstone");
+  var Notifier = require("utils/notifier");
+  var OpenNebulaSupport = require("opennebula/support");
+  var SupportUtils = require("./utils/common");
 
   var RESOURCE = "Support";
-  var TAB_ID = require('./tabId');
-  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
-  var UPLOAD_DIALOG_ID = require('./dialogs/upload/dialogId');
+  var TAB_ID = require("./tabId");
+  var CREATE_DIALOG_ID = require("./form-panels/create/formPanelId");
+  var UPLOAD_DIALOG_ID = require("./dialogs/upload/dialogId");
 
   var _actions = {
+    "Support.check":{
+      type: "list",
+      call: OpenNebulaSupport.check,
+      callback: function(req, lst, res){
+        SupportUtils.showSupportConnect();
+      },
+      error: function(request){
+        if (request && request.status && request.status >= 400) {
+          SupportUtils.stopIntervalRefresh();
+        }
+        SupportUtils.hideSupportConnect();
+      }
+    },
     "Support.list" : {
       type: "list",
       call: OpenNebulaSupport.list,
@@ -33,26 +46,23 @@ define(function(require) {
         SupportUtils.showSupportList();
         $(".support_open_value").text(res.open_requests);
         $(".support_pending_value").text(res.pending_requests);
-
         var elements = [];
         if(res.REQUEST_POOL.REQUEST){
           elements = res.REQUEST_POOL.REQUEST;
         }
-
         Sunstone.getDataTable(TAB_ID).updateView(req, elements);
       },
       error: function(request, error_json) {
         if (error_json.error.http_status=="401") {
           SupportUtils.stopIntervalRefresh();
         }
-
         SupportUtils.showSupportConnect();
       }
     },
     "Support.refresh" : {
       type: "custom",
       call: function() {
-        var tab = $('#' + TAB_ID);
+        var tab = $("#" + TAB_ID);
         if (Sunstone.rightInfoVisible(tab)) {
           Sunstone.runAction(RESOURCE+".show", Sunstone.rightInfoResourceId(tab));
         } else {
@@ -69,7 +79,7 @@ define(function(require) {
       call: OpenNebulaSupport.show,
       callback: function(request, response) {
         //Sunstone.getDataTable(TAB_ID).updateElement(request, response);
-        if (Sunstone.rightInfoVisible($('#'+TAB_ID))) {
+        if (Sunstone.rightInfoVisible($("#"+TAB_ID))) {
           Sunstone.insertPanels(TAB_ID, response);
         }
       },
@@ -118,7 +128,7 @@ define(function(require) {
       type: "single",
       call: function() {
         $.ajax({
-          url: 'support/credentials',
+          url: "support/credentials",
           type: "DELETE",
           dataType: "text",
           success: function(){
