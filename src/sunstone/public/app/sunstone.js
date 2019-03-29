@@ -79,42 +79,40 @@ define(function(require) {
     "tabs" : {}
   };
 
+  var _addMainTab = function(tabName){
+    var name = "./tabs/" + tabName;
+    if (DefaultTabsArr.indexOf(tabName) == -1){
+      name = "./addons/tabs/" + tabName;
+    }
+    var tabObj = require(name);
+    var _tabId = tabObj.tabId;
+    SunstoneCfg["tabs"][_tabId] = tabObj;
+    var panels = tabObj.panels;
+    if (panels) {
+      _addPanels(_tabId, panels);
+    }
+    var panelsHooks = tabObj.panelsHooks;
+    if (panelsHooks) {
+      _addPanelsHooks(_tabId, panelsHooks);
+    }
+    var initHooks = tabObj.initHooks;
+    if (initHooks) {
+      _addInitHooks(_tabId, initHooks);
+    }
+    var dialogs = tabObj.dialogs;
+    if (dialogs) {
+      _addDialogs(dialogs);
+    }
+    var formPanels = tabObj.formPanels;
+    if (formPanels) {
+      _addFormPanels(_tabId, formPanels);
+    }
+  };
+
   var _addMainTabs = function() {
     _addActions();
-
     $.each(Config.enabledTabs, function(i, tabName){
-      var name = "./tabs/" + tabName;
-      if (DefaultTabsArr.indexOf(tabName) == -1){
-        name = "./addons/tabs/" + tabName;
-      }
-      var tabObj = require(name);
-      var _tabId = tabObj.tabId;
-      SunstoneCfg["tabs"][_tabId] = tabObj;
-
-      var panels = tabObj.panels;
-      if (panels) {
-        _addPanels(_tabId, panels);
-      }
-
-      var panelsHooks = tabObj.panelsHooks;
-      if (panelsHooks) {
-        _addPanelsHooks(_tabId, panelsHooks);
-      }
-
-      var initHooks = tabObj.initHooks;
-      if (initHooks) {
-        _addInitHooks(_tabId, initHooks);
-      }
-
-      var dialogs = tabObj.dialogs;
-      if (dialogs) {
-        _addDialogs(dialogs);
-      }
-
-      var formPanels = tabObj.formPanels;
-      if (formPanels) {
-        _addFormPanels(_tabId, formPanels);
-      }
+      _addMainTab(tabName);
     });
   };
 
@@ -185,20 +183,35 @@ define(function(require) {
           hook.init();
         });
       }
-
-      // TODO Add openenbula actions
-      /*if (config['view']['autorefresh']) {
-        var tabContext = $("#" + tabName);
-        var refreshButton = $(".fa-sync-alt", $(".action_blocks", tabContext).first());
-        setInterval(function() {
-          if (Sunstone.rightListVisible(tabContext)) {
-            refreshButton.click();
-          }
-        }, TOP_INTERVAL);
-      }*/
     }
-
+    if(SunstoneCfg &&
+      SunstoneCfg.tabs &&
+      config &&
+      config.user_config &&
+      config.user_config.default_view &&
+      config.user_config.default_view === "admin"
+    ){
+      var support_tab = "support-tab";
+      if(!SunstoneCfg.tabs[support_tab]){
+        SunstoneCfg.tabs[support_tab] = {
+          actions: {
+            "Support.create_dialog": true,
+            "Support.refresh": true
+          },
+          panels_tabs:{
+            "support_info_tab": true
+          },
+          table_columns: [1,2,3,4]
+        };
+        _addMainTab(support_tab);
+        _insertTab(support_tab);
+        _setupDataTable(support_tab);
+      }
+    }
     _setupTabs();
+    $().on("click",function(){
+      
+    })
   };
 
   var _setupDataTable = function(tabName) {
@@ -236,23 +249,14 @@ define(function(require) {
     title += tabInfo.title;
 
     if (parent !== "") {
-      liItem = "<li id=\"li_" + tabName + "\" class=\"" + tabClass + "\">" +
-              "<a href=\"#\">" + title + "</a>" +
-            "</li>";
-
+      liItem = "<li id=\"li_" + tabName + "\" class=\"" + tabClass + "\">" + "<a href=\"#\">" + title + "</a>" + "</li>";
       if ($("#menu ul#navigation #li_" + parent + " .menu").length > 0) {
         $("#menu ul#navigation #li_" + parent + " .menu").append(liItem);
       } else {
-        $("#menu ul#navigation #li_" + parent).append(
-            "<ul class=\"menu vertical nested\" data-submenu>" +
-              liItem +
-            "</ul>");
+        $("#menu ul#navigation #li_" + parent).append("<ul class=\"menu vertical nested\" data-submenu>" + liItem + "</ul>");
       }
     } else {
-      liItem = "<li id=\"li_" + tabName + "\" class=\"" + tabClass + "\">" +
-              "<a href=\"#\">" + title + "</a>" +
-            "</li>";
-
+      liItem = "<li id=\"li_" + tabName + "\" class=\"" + tabClass + "\">" + "<a href=\"#\">" + title + "</a>" + "</li>";
       $("div#menu ul#navigation").append(liItem);
     }
 
@@ -1281,6 +1285,7 @@ define(function(require) {
 
   var Sunstone = {
     "addMainTabs": _addMainTabs,
+    "addMainTab": _addMainTab,
     "addDialogs": _addDialogs,
 
     "insertTabs": _insertTabs,

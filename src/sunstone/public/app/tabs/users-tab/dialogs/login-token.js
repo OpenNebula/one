@@ -19,20 +19,20 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var BaseDialog = require('utils/dialogs/dialog');
-  var TemplateHTML = require('hbs!./login-token/html');
-  var Sunstone = require('sunstone');
-  var Notifier = require('utils/notifier');
-  var Locale = require('utils/locale');
-  var OpenNebula = require('opennebula');
-  var ResourceSelect = require('utils/resource-select');
+  var BaseDialog = require("utils/dialogs/dialog");
+  var TemplateHTML = require("hbs!./login-token/html");
+  var Sunstone = require("sunstone");
+  var Notifier = require("utils/notifier");
+  var Locale = require("utils/locale");
+  var OpenNebula = require("opennebula");
+  var ResourceSelect = require("utils/resource-select");
 
   /*
     CONSTANTS
    */
 
-  var DIALOG_ID = require('./login-token/dialogId');
-  var USERS_TAB_ID = require('../tabId');
+  var DIALOG_ID = require("./login-token/dialogId");
+  var USERS_TAB_ID = require("../tabId");
 
   /*
     CONSTRUCTOR
@@ -87,8 +87,8 @@ define(function(require) {
     });
 
     return TemplateHTML({
-      'dialogId': this.dialogId,
-      'tokens': tokens
+      "dialogId": this.dialogId,
+      "tokens": tokens
     });
   }
 
@@ -96,25 +96,25 @@ define(function(require) {
     var that = this;
 
     ResourceSelect.insert({
-      context: $('.token-group-selector', context),
-      resourceName: 'Group',
-      initValue: '-1',
-      extraOptions: '<option value="-1">' + Locale.tr("None") + '</option>'
+      context: $(".token-group-selector", context),
+      resourceName: "Group",
+      initValue: "-1",
+      extraOptions: "<option value=\"-1\">" + Locale.tr("None") + "</option>"
     });
 
     context.on("click", "i.remove-tab", function(){
-      var tr = $(this).closest('tr');
+      var tr = $(this).closest("tr");
 
-      $(this).closest('td').html('<i class="fas fa-spinner fa-spin"/>')
+      $(this).closest("td").html("<i class=\"fas fa-spinner fa-spin\"/>");
 
       var token = $(".token-text", tr).text();
 
       OpenNebula.User.login({
         data : {
           id: "-1",
-          'username': that.element.NAME,
-          'token': token,
-          'expire': 0
+          "username": that.element.NAME,
+          "token": token,
+          "expire": 0
         },
         success: function(req, response){
           OpenNebula.User.show({
@@ -136,7 +136,7 @@ define(function(require) {
     });
 
     $("#token_btn", context).click(function(){
-      $("#token_btn", context).html('<i class="fas fa-spinner fa-spin"/>')
+      $("#token_btn", context).html("<i class=\"fas fa-spinner fa-spin\"/>");
 
       var expire = $(".token-expiration", context).val();
       var egid   = $(".token-group-selector .resource_list_select").val();
@@ -144,9 +144,9 @@ define(function(require) {
       OpenNebula.User.login({
         data : {
           id: "-1",
-          'username': that.element.NAME,
-          'expire': expire,
-          'egid': egid
+          "username": that.element.NAME,
+          "expire": expire,
+          "egid": egid
         },
         success: function(req, response){
           OpenNebula.User.show({
@@ -172,7 +172,6 @@ define(function(require) {
 
   function _loginSuccess(req, response){
     var that = this;
-
     OpenNebula.User.show({
       data : {
         id: that.element.ID
@@ -184,9 +183,9 @@ define(function(require) {
         Sunstone.getDialog(DIALOG_ID).show();
 
         if (Sunstone.getTab() == USERS_TAB_ID){
-          Sunstone.runAction('User.refresh');
+          Sunstone.runAction("User.refresh");
         } else {
-          Sunstone.runAction('Settings.refresh');
+          Sunstone.runAction("Settings.refresh");
         }
       },
       error: function(request, error_json){
