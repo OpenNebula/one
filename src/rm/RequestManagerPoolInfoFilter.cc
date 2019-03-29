@@ -514,8 +514,20 @@ void RequestManagerPoolInfoFilter::dump(
     Nebula::instance().get_configuration_attribute(att.uid, att.gid,
             "API_LIST_ORDER", desc);
 
-    rc = pool->dump(str, where_string, limit_clause,
-            one_util::toupper(desc) == "DESC");
+    if ( extended )
+    {
+        rc = pool->dump_extended(str,
+                                 where_string,
+                                 limit_clause,
+                                 one_util::toupper(desc) == "DESC");
+    }
+    else
+    {
+        rc = pool->dump(str,
+                        where_string,
+                        limit_clause,
+                        one_util::toupper(desc) == "DESC");
+    }
 
     if ( rc != 0 )
     {
@@ -580,7 +592,7 @@ void VirtualNetworkPoolInfo::request_execute(
     std::string pool_oss;
     std::string desc;
 
-    Nebula::instance().get_configuration_attribute(att.uid, att.gid, 
+    Nebula::instance().get_configuration_attribute(att.uid, att.gid,
             "API_LIST_ORDER", desc);
 
     int rc = pool->dump(pool_oss, where_string.str(), limit_clause.str(),
@@ -617,4 +629,3 @@ void MarketPlacePoolInfo::request_execute(
 {
     dump(att, ALL, -1, -1, "", "");
 }
-

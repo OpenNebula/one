@@ -31,9 +31,10 @@ import org.w3c.dom.Node;
  */
 public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>{
 
-    private static final String ELEMENT_NAME = "VM";
-    private static final String INFO_METHOD  = "vmpool.info";
-    private static final String MONITORING   = "vmpool.monitoring";
+    private static final String ELEMENT_NAME          = "VM";
+    private static final String INFO_METHOD           = "vmpool.info";
+    private static final String INFO_EXTENDED_METHOD  = "vmpool.infoextended";
+    private static final String MONITORING            = "vmpool.monitoring";
 
     /**
      * Flag for Virtual Machines in any state.
@@ -109,6 +110,27 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
     public static OneResponse info(Client client, int filter)
     {
         return client.call(INFO_METHOD, filter, -1, -1, NOT_DONE);
+    }
+
+    /**
+     * Retrieves all of the Virtual Machines in the pool.
+     *
+     * @param client XML-RPC Client.
+     * @param filter Filter flag to use. Possible values:
+     * <ul>
+     * <li>{@link Pool#ALL}: All Virtual Machines</li>
+     * <li>{@link Pool#MINE}: Connected user's Virtual Machines</li>
+     * <li>{@link Pool#MINE_GROUP}: Connected user's Virtual Machines, and the ones in
+     * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Virtual Machines</li>
+     * <li>&gt;= 0 UID User's Virtual Machines</li>
+     * </ul>
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info_extended(Client client, int filter)
+    {
+        return client.call(INFO_EXTENDED_METHOD, filter, -1, -1, NOT_DONE);
     }
 
     /**
@@ -242,6 +264,23 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
     public OneResponse info()
     {
         OneResponse response = info(client, filter);
+        processInfo(response);
+        return response;
+    }
+
+    /**
+     * Loads the xml representation of all the
+     * Virtual Machines in the pool. The filter used is the one set in
+     * the constructor.
+     *
+     * @see VirtualMachinePool#info(Client, int)
+     *
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public OneResponse info_extended()
+    {
+        OneResponse response = info_extended(client, filter);
         processInfo(response);
         return response;
     }

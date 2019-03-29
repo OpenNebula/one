@@ -617,6 +617,17 @@ func NewVMPool(args ...int) (*VMPool, error) {
 	return vmPool, nil
 }
 
+// InfoExtended connects to OpenNebula and fetches the whole VM_POOL information
+func (vmpool *VMPool) InfoExtended(filter_flag, start_id, end_id, state int) error {
+	response, err := client.Call("one.vmpool.infoextended", filter_flag,
+	                             start_id, end_id,state)
+	if err != nil {
+		return err
+	}
+	*vmpool = VMPool{}
+	return xml.Unmarshal([]byte(response.Body()), vmpool)
+}
+
 // Monitoring returns all the virtual machine monitoring records
 // filter flag:
 // -4: Resources belonging to the user's primary group
