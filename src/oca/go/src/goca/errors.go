@@ -159,6 +159,10 @@ func (s OneErrCode) String() string {
 		return "XML_RPC_API"
 	case OneInternalError:
 		return "INTERNAL"
+	case OneAllocateError:
+		return "ALLOCATE"
+	case OneLockedError:
+		return "LOCKED"
 	default:
 		return ""
 	}
