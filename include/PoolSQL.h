@@ -197,9 +197,26 @@ public:
      *
      *  @return 0 on success
      */
-
     virtual int dump(string& oss, const string& where,
                      const string& limit, bool desc) = 0;
+
+    /**
+     *  Dumps the pool in extended XML format
+     *  A filter and limit can be also added to the query
+     *  @param oss the output stream to dump the pool contents
+     *  @param where filter for the objects, defaults to all
+     *  @param limit parameters used for pagination
+     *  @param desc descending order of pool elements
+     *
+     *  @return 0 on success
+     */
+    virtual int dump_extended(string& oss,
+                      const string& where,
+                      const string& limit,
+                      bool desc)
+    {
+        return dump(oss, where, limit, desc);
+    }
 
     // -------------------------------------------------------------------------
     // Function to generate dump filters

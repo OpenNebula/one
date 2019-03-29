@@ -64,6 +64,10 @@ module OpenNebula
 
         alias_method :info!, :info
 
+        def info_extended(xml_method)
+            return xmlrpc_info(xml_info)
+        end
+
         def info_all(xml_method, *args)
             return xmlrpc_info(xml_method, INFO_ALL, -1, -1, *args)
         end
@@ -232,13 +236,20 @@ module OpenNebula
         #        > 0 => page size    
         # current first element of the page
         # hash:: return page as a hash
-        def get_page(size, current)
+        def get_page(size, current, extended = false)
             rc = nil
 
-            if PAGINATED_POOLS.include?(@pool_name) 
+            if PAGINATED_POOLS.include?(@pool_name)
+                pool_name = @pool_name.delete('_').downcase
+
+                if extended && pool_name == "vmpool"
+                    method = "#{pool_name}.infoextended"
+                else
+                    method = "#{pool_name}.info"
+                end
+
                 size = OpenNebula.pool_page_size if (!size || size == 0)
-                rc   = @client.call("#{@pool_name.delete('_').downcase}.info",
-                            @user_id, current, -size, -1)
+                rc   = @client.call(method, @user_id, current, -size, -1)
 
                 initialize_xml(rc, @pool_name)
             else
