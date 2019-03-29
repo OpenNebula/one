@@ -43,7 +43,8 @@ module OpenNebula
                     Ox.sax_parse(self, StringIO.new(str),
                         :symbolize => false,
                         :convert_special => true,
-                        :skip => false)
+                        :skip => :skip_none,
+                        :nest_ok => false)
                 end
             end
         end
