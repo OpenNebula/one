@@ -253,13 +253,11 @@ func (hc *HostController) Rename(newName string) error {
 
 // Monitoring returns the host monitoring records.
 func (hc *HostController) Monitoring() (string, error) {
-	monitor_data, err := hc.c.Client.Call("one.host.monitoring", hc.ID)
-
+	monitorData, err := hc.c.Client.Call("one.host.monitoring", hc.ID)
 	if err != nil {
 		return "", err
-	} else {
-		return monitor_data.Body(), err
 	}
+	return monitorData.Body(), nil
 }
 
 // State looks up the state of the image and returns the ImageState
