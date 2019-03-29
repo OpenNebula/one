@@ -42,9 +42,7 @@ class Qcow2Mapper < Mapper
             return
         end
 
-        # TODO: improve wait condition
-        sleep 1 # wait for parts to come out
-
+        update_partable(device)
         show_parts(device) unless parts_on?(device)
 
         device

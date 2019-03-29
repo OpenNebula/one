@@ -41,11 +41,8 @@ class RBDMapper < Mapper
             return
         end
 
-        # TODO: improve wait condition
-        sleep 1 # wait for partition table
-
         device = out.chomp
-        try_mount(device)
+        update_partable(device)
         device
     end
 
@@ -58,15 +55,6 @@ class RBDMapper < Mapper
 
         OpenNebula.log_error("#{__method__}: #{err}")
         nil
-    end
-
-    private
-
-    # This function tries to mount mapped devices to force update of partition
-    # tables
-    def try_mount(dev)
-        cmd = "#{COMMANDS[:mount]} --fake #{dev} /mnt"
-        Command.execute(cmd, false)
     end
 
 end
