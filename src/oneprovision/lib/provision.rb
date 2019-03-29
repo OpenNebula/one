@@ -63,7 +63,8 @@ module OneProvision
         # Deletes the PROVISION
         #
         # @param cleanup [Boolean] True to delete running VMs and images
-        def delete(cleanup = false)
+        # @param timeout [Integer] Timeout for deleting running VMs
+        def delete(cleanup, timeout)
             Utils.fail('Provision not found.') unless exists
 
             if running_vms? && !cleanup
@@ -74,9 +75,9 @@ module OneProvision
                 Utils.fail('Provision with images can\'t be deleted')
             end
 
-            delete_vms if cleanup
+            delete_vms(timeout) if cleanup
 
-            delete_images if cleanup
+            delete_images(timeout) if cleanup
 
             OneProvisionLogger.info("Deleting provision #{@id}")
 
@@ -417,7 +418,9 @@ module OneProvision
         end
 
         # Deletes VMs from the PROVISION
-        def delete_vms
+        #
+        # @param timeout [Integer] Timeout for deleting running VMs
+        def delete_vms(timeout)
             Driver.retry_loop 'Failed to delete running_vms' do
                 hosts = []
 
@@ -431,7 +434,7 @@ module OneProvision
                     vm_ids = host.retrieve_elements('VMS/ID')
 
                     vm_ids.each do |id|
-                        delete_object('vm', id)
+                        delete_object('vm', id, timeout)
                     end
                 end
 
@@ -442,7 +445,9 @@ module OneProvision
         end
 
         # Deletes images from the PROVISION
-        def delete_images
+        #
+        # @param timeout [Integer] Timeout for deleting running VMs
+        def delete_images(timeout)
             Driver.retry_loop 'Failed to delete images' do
                 datastores = []
 
@@ -458,7 +463,7 @@ module OneProvision
                     image_ids = datastore.retrieve_elements('IMAGES/ID')
 
                     image_ids.each do |id|
-                        delete_object('image', id)
+                        delete_object('image', id, timeout)
                     end
                 end
 
@@ -470,9 +475,10 @@ module OneProvision
 
         # Deletes an object
         #
-        # @param type [String] Type of the object (vm, image)
-        # @param id   [String] ID of the object
-        def delete_object(type, id)
+        # @param type    [String] Type of the object (vm, image)
+        # @param id      [String] ID of the object
+        # @param timeout [Integer] Timeout for deleting running VMs
+        def delete_object(type, id, timeout)
             msg = "Deleting OpenNebula #{type} #{id}"
 
             OneProvision::OneProvisionLogger.debug(msg)
@@ -490,7 +496,28 @@ module OneProvision
 
             Utils.exception(object.delete)
 
-            Utils.exception(object.wait_state('DONE')) if type == 'vm'
+            if type == 'vm'
+                Utils.exception(object.wait_state('DONE', timeout))
+            else
+                Utils.exception(wait_image_delete(object, timeout))
+            end
+        end
+
+        # Waits until the image is deleted
+        #
+        # @param image   [OpenNebula::Image] Image to wait
+        # @param timeout [Integer ]          Timeout for delete
+        def wait_image_delete(image, timeout)
+            timeout.times do
+                rc = image.info
+
+                return true if OpenNebula.is_error?(rc)
+
+                sleep 1
+            end
+
+            raise OneProvisionLoopExeception, 'Timeout expired for deleting' /
+                                              " image #{image['ID']}"
         end
 
     end
