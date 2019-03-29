@@ -542,4 +542,10 @@ class Mapper
         fstype
     end
 
+    # Ensures the update of the partition table
+    def update_partable(dev)
+        cmd = "#{COMMANDS[:mount]} --fake #{dev} /mnt"
+        Command.execute(cmd, false)
+    end
+
 end
