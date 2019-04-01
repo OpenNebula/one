@@ -209,11 +209,8 @@ func (c *oneClient) endpointCall(url string, method string, args ...interface{})
 	if ok == false {
 		bodyInt, ok = result[1].(int64)
 		if ok == false {
-			bodyBool, ok = result[1].(bool)
-			if ok == false {
-				return nil,
-					&ClientError{ClientRespONeParse, "index 1: boolean expected", resp, nil}
-			}
+            return nil,
+                &ClientError{ClientRespONeParse, "index 1: int or string expected", resp, nil}
 		}
 	}
 
