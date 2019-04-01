@@ -77,13 +77,12 @@ if [ `is_disk $DST_PATH` -eq 1 ]; then
     while IFS= read -r -d '' element; do
         XPATH_ELEMENTS[i++]="$element"
     done < <(onevm show -x $VMID | $XPATH  \
-                        /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TYPE )
+                        /VM/LCM_STATE )
 
-    TYPE="${XPATH_ELEMENTS[j++]}"
+    LCM_STATE="${XPATH_ELEMENTS[j++]}"
 
-    ####
-
-    if [ "${TYPE}" != "BLOCK" ]; then
+    # Ignore EPILOG_UNDEPLOY
+    if [ "${LCM_STATE}" = "30" ]; then
         exit 0
     fi
 
