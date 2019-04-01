@@ -155,6 +155,7 @@ func (marketApp *MarketPlaceApp) Enable(enable bool) error {
 // Update replaces the marketplace app template contents.
 // * tpl: The new template contents. Syntax can be the usual attribute=value or XML.
 // * appendTemplate: Update type: 0: Replace the whole template. 1: Merge new template with the existing one.
+// *                              2: Delete the attributes.
 func (marketApp *MarketPlaceApp) Update(tpl string, appendTemplate int) error {
 	_, err := client.Call("one.marketapp.update", marketApp.ID, tpl, appendTemplate)
 	return err

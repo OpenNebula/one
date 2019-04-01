@@ -381,6 +381,45 @@ int PoolObjectSQL::append_template(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int PoolObjectSQL::delete_template(
+        const string& attributes, bool delete_restricted, string& error)
+{
+    std::vector<std::string> attrs = one_util::split(attributes, ',');
+    vector<std::string>::const_iterator it;
+    std::string attr;
+
+    /* ---------------------------------------------------------------------- */
+    /* Delete attributes from the current user_template                       */
+    /* ---------------------------------------------------------------------- */
+
+    if (obj_template != 0)
+    {
+        for (it = attrs.begin(); it != attrs.end(); it++)
+        {
+            attr = *it;
+
+            if (!delete_restricted && obj_template->is_restricted(attr))
+            {
+                error = "Restricted attribute " + attr +  " can't be deleted";
+                return -1;
+            }
+
+            int rc = obj_template->erase(*it);
+
+            if (rc == 0)
+            {
+                error = "Attribute " + attr + " not found";
+                return -1;
+            }
+        }
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 string& PoolObjectSQL::perms_to_xml(string& xml) const
 {
     ostringstream   oss;

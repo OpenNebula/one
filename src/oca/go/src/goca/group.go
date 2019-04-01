@@ -125,6 +125,7 @@ func (group *Group) Info() error {
 // Update replaces the group template contents.
 // * tpl: The new template contents. Syntax can be the usual attribute=value or XML.
 // * appendTemplate: Update type: 0: Replace the whole template. 1: Merge new template with the existing one.
+// *                              2: Delete the attibutes.
 func (group *Group) Update(tpl string, appendTemplate int) error {
 	_, err := client.Call("one.group.update", group.ID, tpl, appendTemplate)
 	return err

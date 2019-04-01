@@ -942,6 +942,16 @@ public:
             string& error);
 
     /**
+     *  Delete attributes from the *user template*.
+     *    @param attributes attributes to delete
+     *    @param delete_restricted If true, the restricted attributes of the
+     *    current template can be deleted
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    int delete_template(const string& attributes, bool delete_restricted, string& error);
+
+    /**
      *  This function gets an attribute from the user template
      *    @param name of the attribute
      *    @param value of the attribute

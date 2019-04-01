@@ -165,7 +165,7 @@ func (template *Template) Info() error {
 }
 
 // Update will modify the template. If appendTemplate is 0, it will
-// replace the whole template. If its 1, it will merge.
+// replace the whole template. If its 1, it will merge. If its 2, it will delete.
 func (template *Template) Update(tpl string, appendTemplate int) error {
 	_, err := client.Call("one.template.update", template.ID, tpl, appendTemplate)
 	return err

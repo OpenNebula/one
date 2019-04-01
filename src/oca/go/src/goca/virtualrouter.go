@@ -142,7 +142,7 @@ func (vr *VirtualRouter) Info() error {
 }
 
 // Update will modify the virtual router. If appendVirtualRouter is 0, it will
-// replace the whole virtual router. If its 1, it will merge.
+// replace the whole virtual router. If its 1, it will merge. If its 2, it will delete.
 func (vr *VirtualRouter) Update(tpl string, appendVirtualRouter int) error {
 	_, err := client.Call("one.vrouter.update", vr.ID, tpl, appendVirtualRouter)
 	return err

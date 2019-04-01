@@ -240,15 +240,14 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :update, update_desc, :vrouterid, [:file, nil],
-            :options => OpenNebulaHelper::APPEND do
+            :options => [OpenNebulaHelper::APPEND,
+                         OpenNebulaHelper::DELETE_TEMPLATE] do
         helper.perform_action(args[0], options, 'modified') do |obj|
-            if options[:append]
-                str = OpenNebulaHelper.append_template(args[0], obj, args[1])
-            else
-                str = OpenNebulaHelper.update_template(args[0], obj, args[1])
-            end
+            data = OpenNebulaHelper.get_update(args, obj, options)
+            str  = data[:data]
+            type = data[:type]
 
-            obj.update(str, options[:append])
+            obj.update(str, type)
         end
     end
 

@@ -115,7 +115,7 @@ func (cluster *Cluster) Delete() error {
 // * tpl: The new cluster contents. Syntax can be the usual attribute=value or
 //   	XML.
 // * appendCluster: Update type: 0: Replace the whole cluster. 1: Merge new
-//   	cluster with the existing one.
+//   	cluster with the existing one. 2: Delete the attributes.
 func (cluster *Cluster) Update(tpl string, appendCluster int) error {
 	_, err := client.Call("one.cluster.update", cluster.ID, tpl, appendCluster)
 	return err

@@ -780,7 +780,7 @@ func (vm *VM) Info() error {
 }
 
 // Update will modify the VM's template. If appendTemplate is 0, it will
-// replace the whole template. If its 1, it will merge.
+// replace the whole template. If its 1, it will merge. If its 2, it will delete.
 func (vm *VM) Update(tpl string, appendTemplate int) error {
 	_, err := client.Call("one.vm.update", vm.ID, tpl, appendTemplate)
 	return err

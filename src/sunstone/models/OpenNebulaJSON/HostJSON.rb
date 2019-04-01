@@ -36,7 +36,7 @@ module OpenNebulaJSON
             if !template_str.nil?
                 params=Hash.new
                 params['template_raw'] = template_str
-                params['append'] = true
+                params['type'] = 1
                 self.update(params)
             end
         end
@@ -70,8 +70,8 @@ module OpenNebulaJSON
         end
 
         def update(params=Hash.new)
-            if !params['append'].nil?
-                super(params['template_raw'], params['append'])
+            if !params['type'].nil?
+                super(params['template_raw'], params['type'])
             else
                 super(params['template_raw'])
             end

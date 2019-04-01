@@ -139,13 +139,15 @@ module OpenNebula
         # Replaces the template contents
         #
         # @param new_template [String] New template contents
-        # @param append [true, false] True to append new attributes instead of
-        #   replace the whole template
+        # @param type [Integer] Update type
+        #   - 0: Replace the whole template
+        #   - 1: Append the new attributes to the template
+        #   - 2: Delete the attributes from the template
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def update(new_template, append=false)
-            super(TEMPLATE_METHODS[:update], new_template, append ? 1 : 0)
+        def update(new_template, type = 0)
+            super(TEMPLATE_METHODS[:update], new_template, type)
         end
 
         # Publishes the Template, to be used by other users

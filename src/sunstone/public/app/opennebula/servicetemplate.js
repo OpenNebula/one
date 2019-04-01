@@ -67,7 +67,7 @@ define(function(require) {
     },
     "update_labels": function(params) {
       params.cache_name = CACHE_NAME;
-      var action_obj = {"template_raw" : params.data.extra_param, append : true};
+      var action_obj = {"template_raw" : params.data.extra_param, type : 1};
       OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj, PATH);
     },
     "del": function(params) {

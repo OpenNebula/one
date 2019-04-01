@@ -50,7 +50,7 @@ define(function(require) {
       OpenNebulaAction.simple_action(params, RESOURCE, "chmod", action_obj);
     },
     "append": function(params) {
-      var action_obj = {"template_raw" : params.data.extra_param, append : true};
+      var action_obj = {"template_raw" : params.data.extra_param, type : 1};
       OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj);
     },
     "update" : function(params) {

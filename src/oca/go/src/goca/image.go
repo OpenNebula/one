@@ -242,7 +242,7 @@ func (image *Image) Clone(cloneName string, dsid int) (uint, error) {
 }
 
 // Update will modify the image's template. If appendTemplate is 0, it will
-// replace the whole template. If its 1, it will merge.
+// replace the whole template. If its 1, it will merge. If its 2, it will delete.
 func (image *Image) Update(tpl string, appendTemplate int) error {
 	_, err := client.Call("one.image.update", image.ID, tpl, appendTemplate)
 	return err

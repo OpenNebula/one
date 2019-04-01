@@ -86,6 +86,14 @@ EOT
         :description => "Append new attributes to the current template"
     }
 
+    DELETE_TEMPLATE = {
+        :name => "delete_template",
+        :large => "--delete-template list",
+        :description => "Comma separated attributes to delete " \
+                        "from the current template.",
+        :format => String
+    }
+
     # Command line VM template options
     TEMPLATE_NAME_VM={
         :name   => 'name',
@@ -1180,6 +1188,19 @@ EOT
             end
 
             return editor_input(resource.template_like_str(xpath))
+        end
+    end
+
+    def OpenNebulaHelper.get_update(args, obj, options, xpath = 'TEMPLATE')
+        if options[:append]
+            { :type => 1,
+              :data => append_template(args[0], obj, args[1], xpath) }
+        elsif options[:delete_template]
+            { :type => 2,
+              :data => options[:delete_template] }
+        else
+            { :type => 0,
+              :data => update_template(args[0], obj, args[1], xpath) }
         end
     end
 

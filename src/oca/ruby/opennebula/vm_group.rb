@@ -82,13 +82,15 @@ module OpenNebula
         # Replaces the vm group contents
         #
         # @param new_vmgroup [String] New vmgroup contents
-        # @param append [true, false] True to append new attributes instead of
-        #   replace the whole securitygroup
+        # @param type [Integer] Update type
+        #   - 0: Replace the whole template
+        #   - 1: Append the new attributes to the template
+        #   - 2: Delete the attributes from the template
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def update(new_vmgroup, append=false)
-            super(VMGROUP_METHODS[:update], new_vmgroup, append ? 1 : 0)
+        def update(new_vmgroup, type = 0)
+            super(VMGROUP_METHODS[:update], new_vmgroup, type)
         end
 
         # Changes the owner/group

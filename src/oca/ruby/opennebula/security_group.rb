@@ -85,13 +85,15 @@ module OpenNebula
         # Replaces the securitygroup contents
         #
         # @param new_securitygroup [String] New securitygroup contents
-        # @param append [true, false] True to append new attributes instead of
-        #   replace the whole securitygroup
+        # @param type [Integer] Update type
+        #   - 0: Replace the whole template
+        #   - 1: Append the new attributes to the template
+        #   - 2: Delete the attributes from the template
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def update(new_securitygroup, append=false)
-            super(SECGROUP_METHODS[:update], new_securitygroup, append ? 1 : 0)
+        def update(new_securitygroup, type = 0)
+            super(SECGROUP_METHODS[:update], new_securitygroup, type)
         end
 
         # Changes the owner/group

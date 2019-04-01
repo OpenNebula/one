@@ -140,6 +140,7 @@ func (document *Document) Delete() error {
 // Update replaces the document template contents.
 // * tpl: The new document template contents. Syntax can be the usual attribute=value or XML.
 // * appendTemplate: Update type: 0: Replace the whole template. 1: Merge new template with the existing one.
+// *                              2: Delete the attributes.
 func (document *Document) Update(tpl string, appendTemplate int) error {
 	_, err := client.Call("one.document.update", document.ID, tpl, appendTemplate)
 	return err

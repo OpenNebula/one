@@ -1172,7 +1172,7 @@ error_common:
 /**
  * @return -1 for incompatible datastore IDs, -2 for missing datastore IDs
  */
-static int check_and_set_datastores_id(const set<int> &csystem_ds, 
+static int check_and_set_datastores_id(const set<int> &csystem_ds,
         set<int> &ds_ids)
 {
     if ( csystem_ds.empty() )
@@ -1498,7 +1498,7 @@ error_common:
  * @param error_str Returns the error reason, if any
  * @return 0 on success
  */
-static int get_datastore_requirements(Template *tmpl, set<int>& ds_ids, 
+static int get_datastore_requirements(Template *tmpl, set<int>& ds_ids,
         string& error_str)
 {
     ostringstream oss;
@@ -2779,6 +2779,46 @@ int VirtualMachine::append_template(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachine::delete_template(
+        const string&   attributes,
+        bool delete_restricted,
+        string&         error)
+{
+    std::vector<std::string> attrs = one_util::split(attributes, ',');
+    vector<std::string>::const_iterator it;
+    std::string attr;
+
+    /* ---------------------------------------------------------------------- */
+    /* Delete attributes from the current user_template                       */
+    /* ---------------------------------------------------------------------- */
+    if (user_obj_template != 0)
+    {
+        for (it = attrs.begin(); it != attrs.end(); it++)
+        {
+            attr = *it;
+
+            if (!delete_restricted && user_obj_template->is_restricted(attr))
+            {
+                error = "Restricted attribute " + attr +  " can't be deleted";
+                return -1;
+            }
+
+            int rc = user_obj_template->erase(*it);
+
+            if (rc == 0)
+            {
+                error = "Attribute " + attr + " not found";
+                return -1;
+            }
+        }
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachine::set_template_error_message(const string& message)
 {
     set_template_error_message("ERROR", message);
@@ -3178,7 +3218,7 @@ int VirtualMachine::get_disk_images(string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::release_disk_images(vector<Template *>& quotas, 
+void VirtualMachine::release_disk_images(vector<Template *>& quotas,
         bool set_state)
 {
     bool image_error;
@@ -3311,7 +3351,7 @@ int VirtualMachine::clear_saveas_state()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::get_auto_network_leases(VirtualMachineTemplate * tmpl, 
+int VirtualMachine::get_auto_network_leases(VirtualMachineTemplate * tmpl,
         string& estr)
 {
     vector<VectorAttribute *> vnics;
@@ -3691,7 +3731,7 @@ int VirtualMachine::parse_sched_action(string& error_str)
 int VirtualMachine::check_tm_mad_disks(const string& tm_mad, string& error)
 {
     string tm_mad_sys;
-    
+
     obj_template->get("TM_MAD_SYSTEM", tm_mad_sys);
 
     if ( !tm_mad_sys.empty() ) // VM has TM_MAD_SYSTEM already defined

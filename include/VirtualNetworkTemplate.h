@@ -46,6 +46,11 @@ public:
         return Template::check_restricted(rs_attr, restricted);
     }
 
+    virtual bool is_restricted(const string& attr)
+    {
+        return Template::is_restricted(attr, restricted);
+    }
+
     static void parse_restricted(vector<const SingleAttribute *>& ra)
     {
         Template::parse_restricted(ra, restricted);

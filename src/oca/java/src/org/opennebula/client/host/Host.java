@@ -175,13 +175,16 @@ public class Host extends PoolElement{
      * @param client XML-RPC Client.
      * @param id The image id of the target host we want to modify.
      * @param new_template New template contents
-     * @param append True to append new attributes instead of replace the whole template
+     * @param type Update type
+     *              - 0: Replace the whole template
+     *              - 1: Append the new attributes to the template
+     *              - 2: Delete the attributes from the template
      * @return If successful the message contains the host id.
      */
     public static OneResponse update(Client client, int id, String new_template,
-        boolean append)
+        int type)
     {
-        return client.call(UPDATE, id, new_template, append ? 1 : 0);
+        return client.call(UPDATE, id, new_template, type);
     }
 
     /**
@@ -275,19 +278,22 @@ public class Host extends PoolElement{
      */
     public OneResponse update(String new_template)
     {
-        return update(new_template, false);
+        return update(new_template, 0);
     }
 
     /**
      * Replaces the template contents.
      *
      * @param new_template New template contents
-     * @param append True to append new attributes instead of replace the whole template
+     * @param type Update type
+     *              - 0: Replace the whole template
+     *              - 1: Append the new attributes to the template
+     *              - 2: Delete the attributes from the template
      * @return If successful the message contains the host id.
      */
-    public OneResponse update(String new_template, boolean append)
+    public OneResponse update(String new_template, int type)
     {
-        return update(client, id, new_template, append);
+        return update(client, id, new_template, type);
     }
 
     /**

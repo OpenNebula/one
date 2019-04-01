@@ -59,6 +59,25 @@ int RequestManagerUpdateTemplate::append_template(
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+int RequestManagerUpdateTemplate::delete_template(
+        PoolObjectSQL * object,
+        const string & attributes,
+        const RequestAttributes &att,
+        string &error_str)
+{
+    if (!att.is_admin())
+    {
+        return object->delete_template(attributes, false, error_str);
+    }
+    else
+    {
+        return object->delete_template(attributes, true, error_str);
+    }
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 void RequestManagerUpdateTemplate::request_execute(
         xmlrpc_c::paramList const& paramList,
         RequestAttributes& att)
@@ -82,7 +101,7 @@ void RequestManagerUpdateTemplate::request_execute(
         return;
     }
 
-    if ( update_type < 0 || update_type > 1 )
+    if ( update_type < 0 || update_type > 2 )
     {
         att.resp_msg = "Wrong update type";
         failure_response(XML_RPC_API, att);
@@ -103,9 +122,13 @@ void RequestManagerUpdateTemplate::request_execute(
     {
         rc = replace_template(object, tmpl, att, att.resp_msg);
     }
-    else //if (update_type == 1)
+    else if (update_type == 1)
     {
         rc = append_template(object, tmpl, att, att.resp_msg);
+    }
+    else //if (update_type == 2)
+    {
+        rc = delete_template(object, tmpl, att, att.resp_msg);
     }
 
     if ( rc != 0 )

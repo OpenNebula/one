@@ -437,6 +437,17 @@ public:
     }
 
     /**
+    *  Check if an attribute is restricted
+    *  @param attr the attribute
+    *
+    *  @return true if the attribute is restricted
+    */
+    virtual bool is_restricted(const string& attr)
+    {
+        return false;
+    }
+
+    /**
      *  @return true if template is empty
      */
     bool empty()
@@ -498,6 +509,9 @@ protected:
 
     bool check_restricted(string& rs_attr,
            const std::map<std::string, std::set<std::string> >& ras);
+
+    bool is_restricted(const string& attr,
+            const std::map<std::string, std::set<std::string> >& ras);
     /**
      * Updates the xml root element name
      *

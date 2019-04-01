@@ -531,6 +531,17 @@ public:
     virtual int append_template(const string& tmpl_str, bool keep_restricted, string& error);
 
     /**
+     *  Delete attributes from this object's template. Object should be updated
+     *  after calling this method
+     *    @param attributes attributes to delete
+     *    @param delete_restricted If true, the restricted attributes of the
+     *    current template can be deleted
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    virtual int delete_template(const string& attributes, bool delete_restricted, string& error);
+
+    /**
      *  Fills a auth class to perform an authZ/authN request based on the object
      *  attributes
      *    @param auths to be filled

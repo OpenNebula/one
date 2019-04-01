@@ -889,3 +889,49 @@ bool Template::check_restricted(string& ra,
 
     return false;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool Template::is_restricted(const string& attr,
+        const std::map<std::string, std::set<std::string> >& ras)
+{
+    std::map<std::string, std::set<std::string> >::const_iterator rit;
+
+    for ( rit = ras.begin(); rit != ras.end(); ++rit )
+    {
+        const std::set<std::string>& sub = rit->second;
+
+        if (!sub.empty()) //Vector Attribute
+        {
+            // -----------------------------------------------------------------
+            // -----------------------------------------------------------------
+            std::set<std::string>::iterator jt;
+            std::vector<VectorAttribute *>::iterator va_it;
+
+            std::vector<VectorAttribute *> va;
+
+            get(rit->first, va);
+
+            for ( va_it = va.begin(); va_it != va.end() ; ++va_it )
+            {
+                for ( jt = sub.begin(); jt != sub.end(); ++jt )
+                {
+                    if (*jt == attr)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        else
+        {
+            if (rit->first == attr)
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}

@@ -299,13 +299,15 @@ module OpenNebula
         # Replaces the template contents
         #
         # @param new_template [String] New template contents
-        # @param append [true, false] True to append new attributes instead of
-        #   replace the whole template
+        # @param type [Integer] Update type
+        #   - 0: Replace the whole template
+        #   - 1: Append the new attributes to the template
+        #   - 2: Delete the attributes from the template
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def update(new_template=nil, append=false)
-            super(VM_METHODS[:update], new_template, append ? 1 : 0)
+        def update(new_template=nil, type = 0)
+            super(VM_METHODS[:update], new_template, type)
         end
 
         # Returns the <USER_TEMPLATE> element in text form
@@ -926,7 +928,7 @@ module OpenNebula
 
                 new_tmpl = OpenNebula::Template.new_with_id(new_tid, @client)
 
-                rc = new_tmpl.update(replace, true)
+                rc = new_tmpl.update(replace, 1)
                 raise if OpenNebula.is_error?(rc)
 
                 return new_tid

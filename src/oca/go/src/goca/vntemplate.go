@@ -135,7 +135,7 @@ func (vntemplate *VNTemplate) Info() error {
 }
 
 // Update will modify the vntemplate. If appendTemplate is 0, it will
-// replace the whole vntemplate. If its 1, it will merge.
+// replace the whole vntemplate. If its 1, it will merge. If its 2, it will delete.
 func (vntemplate *VNTemplate) Update(tpl string, appendTemplate int) error {
 	_, err := client.Call("one.vntemplate.update", vntemplate.ID, tpl, appendTemplate)
 	return err

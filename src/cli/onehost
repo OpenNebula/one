@@ -127,7 +127,7 @@ CommandParser::CmdParser.new(ARGV) do
             end
             rc = host.allocate(args[0], options[:im], options[:vm], cid)
             if !OpenNebula.is_error?(rc) && !options[:type].nil?
-                host.update(str, true)
+                host.update(str, 1)
             end
 
             rc
@@ -186,18 +186,17 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :update, update_desc, :hostid, [:file, nil],
-            :options => OpenNebulaHelper::APPEND do
+            :options => [OpenNebulaHelper::APPEND,
+                         OpenNebulaHelper::DELETE_TEMPLATE] do
         helper.perform_action(args[0], options, 'updated') do |obj|
-            if options[:append]
-                str = OpenNebulaHelper.append_template(args[0], obj, args[1])
-            else
-                str = OpenNebulaHelper.update_template(args[0], obj, args[1])
-            end
-
             helper.set_client(options)
-            obj = helper.retrieve_resource(obj.id)
 
-            obj.update(str, options[:append])
+            obj  = helper.retrieve_resource(obj.id)
+            data = OpenNebulaHelper.get_update(args, obj, options)
+            str  = data[:data]
+            type = data[:type]
+
+            obj.update(str, type)
         end
     end
 
