@@ -386,7 +386,7 @@ before do
     # Try with underscores
     if zone_name_header.nil?
         hpref        = "HTTP_"
-        head_zone    = "ZONE_NAME"
+        head_zone    = "ZONE-NAME"
 
         zone_name_header = reqenv[head_zone] ? reqenv[head_zone] : reqenv[hpref+head_zone]
     end
