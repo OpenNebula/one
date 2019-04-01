@@ -116,20 +116,24 @@ define(function(require) {
     });
   };
 
+  var _addAction = function(i=null, tabName){
+    var name = "./tabs/" + tabName;
+    if (DefaultTabsArr.indexOf(tabName) == -1){
+      name = "./addons/tabs/" + tabName;
+    }
+    var tabObj = require(name);
+
+    var actions = tabObj.actions;
+    if (actions) {
+      $.each(actions, function(actionName, action) {
+        SunstoneCfg["actions"][actionName] = action;
+      });
+    }
+  };
+
   var _addActions = function() {
     $.each(Config.allTabs(), function(i, tabName){
-      var name = "./tabs/" + tabName;
-      if (DefaultTabsArr.indexOf(tabName) == -1){
-        name = "./addons/tabs/" + tabName;
-      }
-      var tabObj = require(name);
-
-      var actions = tabObj.actions;
-      if (actions) {
-        $.each(actions, function(actionName, action) {
-          SunstoneCfg["actions"][actionName] = action;
-        });
-      }
+      _addAction(i, tabName);
     });
   };
 
@@ -184,34 +188,26 @@ define(function(require) {
         });
       }
     }
+    var support_tab = "support-tab";
     if(SunstoneCfg &&
       SunstoneCfg.tabs &&
-      config &&
-      config.user_config &&
-      config.user_config.default_view &&
-      config.user_config.default_view === "admin"
+      !SunstoneCfg.tabs[support_tab]
     ){
-      var support_tab = "support-tab";
-      if(!SunstoneCfg.tabs[support_tab]){
-        SunstoneCfg.tabs[support_tab] = {
-          actions: {
-            "Support.create_dialog": true,
-            "Support.refresh": true
-          },
-          panels_tabs:{
-            "support_info_tab": true
-          },
-          table_columns: [1,2,3,4]
-        };
-        _addMainTab(support_tab);
-        _insertTab(support_tab);
-        _setupDataTable(support_tab);
-      }
+      SunstoneCfg.tabs[support_tab] = {
+        actions: {
+          "Support.create_dialog": true,
+          "Support.refresh": true
+        },
+        panels_tabs:{
+          "support_info_tab": true
+        },
+        table_columns: [1,2,3,4]
+      };
+      _addMainTab(support_tab);
+      _insertTab(support_tab);
+      _setupDataTable(support_tab);
     }
     _setupTabs();
-    $().on("click",function(){
-      
-    })
   };
 
   var _setupDataTable = function(tabName) {
@@ -258,6 +254,16 @@ define(function(require) {
     } else {
       liItem = "<li id=\"li_" + tabName + "\" class=\"" + tabClass + "\">" + "<a href=\"#\">" + title + "</a>" + "</li>";
       $("div#menu ul#navigation").append(liItem);
+      if(config && config.user_config){
+        if(tabName === "support-tab" && config.user_config.default_view === "cloud"){
+          _addAction(null, "support-tab");
+          $(".sunstone-header").addClass("support_place").append(title);
+          $("#support-tab").remove();
+        }
+        if(config.user_config.default_view !== "admin"){
+          $("#support-tab").remove();
+        }
+      }
     }
 
     //if this is a submenu...
