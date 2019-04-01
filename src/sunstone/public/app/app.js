@@ -243,7 +243,7 @@ define(function(require) {
          url: 'config',
          type: "GET",
          headers: {
-           "ZONE_NAME" : this.id
+           "ZONE-NAME" : this.id
          },
          dataType: "json",
          success: function() {
