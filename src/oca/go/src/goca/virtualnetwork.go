@@ -59,7 +59,7 @@ type virtualNetworkTemplate struct {
 }
 
 type virtualNetworkAR struct {
-	ARID              string  `xml:"AR_ID"`
+	ID                string  `xml:"AR_ID"`
 	GlobalPrefix      string  `xml:"GLOBAL_PREFIX"` // minOccurs=0
 	IP                string  `xml:"IP"`            // minOccurs=0
 	MAC               string  `xml:"MAC"`

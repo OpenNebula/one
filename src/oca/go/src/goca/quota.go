@@ -47,8 +47,8 @@ type vmQuota struct {
 	CPUUsed            string `xml:"CPU_USED"`
 	Memory             string `xml:"MEMORY"`
 	MemoryUsed         string `xml:"MEMORY_USED"`
-	RunningCpu         string `xml:"RUNNING_CPU"`
-	RunningCpuUsed     string `xml:"RUNNING_CPU_USED"`
+	RunningCPU         string `xml:"RUNNING_CPU"`
+	RunningCPUUsed     string `xml:"RUNNING_CPU_USED"`
 	RunningMemory      string `xml:"RUNNING_MEMORY"`
 	RunningMemoryUsed  string `xml:"RUNNING_MEMORY_USED"`
 	RunningVMs         string `xml:"RUNNING_VMS"`

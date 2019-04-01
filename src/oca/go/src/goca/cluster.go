@@ -39,7 +39,7 @@ type Cluster struct {
 type clusterTemplate struct {
 	// Example of reservation: https://github.com/OpenNebula/addon-storpool/blob/ba9dd3462b369440cf618c4396c266f02e50f36f/misc/reserved.sh
 	ReservedMem string             `xml:"RESERVED_MEM"`
-	ReservedCpu string             `xml:"RESERVED_CPU"`
+	ReservedCPU string             `xml:"RESERVED_CPU"`
 	Dynamic     unmatchedTagsSlice `xml:",any"`
 }
 
