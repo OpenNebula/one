@@ -100,7 +100,7 @@ func TestTemplateInstantiate(t *testing.T) {
 	template := NewTemplate(id)
 
 	// Instantiate(name string, pending bool, extra string) (uint, error)
-	vmid, err := template.Instantiate("", false, "")
+	vmid, err := template.Instantiate("", false, "", false)
 	if err != nil {
 		t.Error(err)
 	}
