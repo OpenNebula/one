@@ -167,7 +167,7 @@ int LogDB::setup_index(int& _last_applied, int& _last_index)
 
     cb.set_callback(&_last_applied);
 
-    oss << "SELECT MAX(log_index) FROM logdb WHERE timestamp != 0";
+    oss << "SELECT MAX(log_index) FROM logdb WHERE applied = 1";
 
     rc += db->exec_rd(oss, &cb);
 

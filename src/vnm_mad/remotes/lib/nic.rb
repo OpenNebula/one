@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'open3'
+
 module VNMMAD
 
     module VNMNetwork
@@ -110,12 +112,17 @@ module VNMMAD
                 end
 
                 if deploy_id && vm.vm_info[:dumpxml].nil?
-                    cmd = "lxc config show #{deploy_id} 2>/dev/null"
+                    cmd = "lxc config show #{deploy_id}"
 
-                    config = YAML.safe_load(`#{cmd}`)
-                    config = YAML.safe_load(`sudo #{cmd}`) if config.nil?
+                    config, e, s = Open3.capture3(cmd)
 
-                    vm.vm_info[:dumpxml] = config
+                    if s.exitstatus != 0 && e.include?('cannot create '\
+                        'user data directory')
+                        cmd.prepend('sudo ')
+                        config, _e, _s = Open3.capture3(cmd)
+                    end
+
+                    vm.vm_info[:dumpxml] = YAML.safe_load(config)
 
                     vm.vm_info.each_key do |k|
                         vm.vm_info[k] = nil if vm.vm_info[k].to_s.strip.empty?

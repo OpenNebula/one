@@ -1054,7 +1054,8 @@ CommandParser::CmdParser.new(ARGV) do
             table = helper.format_pool(options)
             pool = OpenNebula::VirtualMachinePool.new(OneVMHelper.get_client)
 
-            rc = pool.info_search(:query => options[:search])
+            rc = pool.info_search(:query    => options[:search],
+                                  :extended => options[:extended])
 
             if !rc.nil?
                 puts rc.message

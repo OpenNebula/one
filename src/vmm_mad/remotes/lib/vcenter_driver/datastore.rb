@@ -31,14 +31,14 @@ class DatastoreFolder
     #   { ds_ref [Symbol] => Datastore object }
     ########################################################################
     def fetch!
-        VIClient.get_entities(@item, "Datastore").each do |item|
+        VIClient.get_entities(@item, 'Datastore').each do |item|
             item_name = item._ref
             @items[item_name.to_sym] = Datastore.new(item)
         end
 
-        VIClient.get_entities(@item, "StoragePod").each do |sp|
+        VIClient.get_entities(@item, 'StoragePod').each do |sp|
             @items[sp._ref.to_sym] = StoragePod.new(sp)
-            VIClient.get_entities(sp, "Datastore").each do |item|
+            VIClient.get_entities(sp, 'Datastore').each do |item|
                 item_name = item._ref
                 @items[item_name.to_sym] = Datastore.new(item)
             end
@@ -46,7 +46,7 @@ class DatastoreFolder
     end
 
     def monitor
-        monitor = ""
+        monitor = ''
         @items.values.each do |ds|
             monitor << "VCENTER_DS_REF=\"#{ds['_ref']}\"\n"
         end
@@ -327,7 +327,7 @@ class Datastore < Storage
             :name => "[#{ds_name}] #{img_name}",
             :datacenter => get_dc.item
             ).wait_for_completion
-        rescue Exception => e
+        rescue StandardError => e
             # Ignore if file not found
             if !e.message.start_with?('ManagedObjectNotFound') &&
                !e.message.start_with?('FileNotFound')
@@ -371,7 +371,7 @@ class Datastore < Storage
             end
         else
             copy_params[:destinationName] = "[#{target_ds_name}] #{target_path}"
-            get_fm.CopyDatastoreFile_Task(copy_params)
+            get_fm.CopyDatastoreFile_Task(copy_params).wait_for_completion
         end
 
         target_path
@@ -424,11 +424,11 @@ class Datastore < Storage
         begin
             search_task = self['browser'].SearchDatastoreSubFolders_Task(search_params)
             search_task.wait_for_completion
-            empty = !!search_task.info.result &&
-                    search_task.info.result.length == 1 &&
-                    search_task.info.result.first.file.length == 0
+            return !!search_task.info.result &&
+                   search_task.info.result.length == 1 &&
+                   search_task.info.result.first.file.length == 0
         rescue
-            empty = false
+            return false
         end
     end
 
@@ -681,7 +681,7 @@ class Datastore < Storage
                 end
             end
 
-        rescue Exception => e
+        rescue StandardError => e
             raise "Could not find images. Reason: #{e.message}/#{e.backtrace}"
         end
         vname = @vi_client.vc_name || ""
@@ -727,7 +727,7 @@ class Datastore < Storage
             ds.delete_virtual_disk(img_path)
             img_dir = File.dirname(img_path)
             ds.rm_directory(img_dir) if ds.dir_empty?(img_dir)
-        rescue Exception => e
+        rescue StandardError => e
             if !e.message.start_with?('FileNotFound')
                 raise e.message # Ignore FileNotFound
             end

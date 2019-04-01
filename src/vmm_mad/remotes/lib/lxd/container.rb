@@ -69,7 +69,7 @@ class Container
         @lxc = lxc
         @one = one
         @lxc_command = 'lxc'
-        @lxc_command.prepend 'sudo' if client.snap
+        @lxc_command.prepend 'sudo ' if client.snap
 
         @containers = "#{@client.lxd_path}/storage-pools/default/containers"
         @rootfs_dir = "#{@containers}/#{name}/rootfs"
@@ -166,6 +166,17 @@ class Container
         Command.execute(cmd, true)
     end
 
+    def show_log
+        cmd = "#{@lxc_command} info --show-log #{@lxc['name']}"
+        rc, o, e = Command.execute(cmd, false)
+
+        if rc.zero?
+            OpenNebula.log o
+        else
+            OpenNebula.log_error e
+        end
+    end
+
     #---------------------------------------------------------------------------
     # Contianer Status Control
     #---------------------------------------------------------------------------
@@ -175,6 +186,21 @@ class Container
 
     def stop(options = { :timeout => 120 })
         change_state(__method__, options)
+
+        # Remove nic from ovs-switch if needed
+        @one.get_nics.each do |nic|
+            del_bridge_port(nic) # network driver matching implemented here
+        end
+    end
+
+    def check_stop
+        return if status != 'Running'
+
+        if ARGV[-1] == '-f'
+            stop(:force => true)
+        else
+            stop
+        end
     end
 
     def restart(options = {})
@@ -211,7 +237,8 @@ class Container
             device.include?('eth') && config['hwaddr'] == mac
         end
 
-        update
+        # Removes nic from ovs-switch if needed
+        update if del_bridge_port(@one.get_nic_by_mac(mac))
     end
 
     #---------------------------------------------------------------------------
@@ -382,9 +409,27 @@ class Container
 
     private
 
+    # Deletes the switch port. Unlike libvirt, LXD doesn't handle this.
+    def del_bridge_port(nic)
+        return true unless /ovswitch/ =~ nic['VN_MAD']
+
+        cmd = 'sudo ovs-vsctl --if-exists del-port '\
+        "#{nic['BRIDGE']} #{nic['TARGET']}"
+
+        rc, _o, e = Command.execute(cmd, false)
+
+        return true if rc.zero?
+
+        OpenNebula.log_error "#{__method__}: #{e}"
+        false
+    end
+
     # Waits or no for response depending on wait value
     def wait?(response, wait, timeout)
         @client.wait(response, timeout) unless wait == false
+    rescue LXDError => e
+        show_log
+        raise e
     end
 
     # Performs an action on the container that changes the execution status.

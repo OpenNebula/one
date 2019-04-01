@@ -139,7 +139,7 @@ class Mapper
 
         fstype = get_fstype(device)
 
-        return unless reset_fs_uuid(fstype, device)
+        reset_fs_uuid(fstype, device)
 
         mount_resize_fs(device, directory, fstype, disk)
     end
@@ -481,7 +481,6 @@ class Mapper
 
             if o.empty?
                 OpenNebula.log_error("#{err}#{e}")
-                return false
             else
                 cmd = "#{COMMANDS[:resize2fs]} #{device}"
                 rc, _o, e = Command.execute(cmd, false)
@@ -511,17 +510,20 @@ class Mapper
         when /xfs/
             cmd = "#{COMMANDS[:xfs_admin]} -U generate #{device}"
         when /ext/
-            Command.execute("#{COMMANDS[:e2fsck]} -f -y #{device}", false)
+            cmd = "#{COMMANDS[:e2fsck]} -f -y #{device}"
+            _rc, o, e = Command.execute(cmd, false)
+
+            OpenNebula.log e if o.empty?
+
             cmd = "#{COMMANDS[:tune2fs]} -U random #{device}"
         else
-            return true
+            return
         end
 
         rc, o, e = Command.execute(cmd, false)
-        return true if rc.zero?
+        return if rc.zero?
 
         OpenNebula.log_error "#{__method__}: error changing UUID: #{o}\n#{e}\n"
-        false
     end
 
     def get_fstype(device)
@@ -538,6 +540,12 @@ class Mapper
         }
 
         fstype
+    end
+
+    # Ensures the update of the partition table
+    def update_partable(dev)
+        cmd = "#{COMMANDS[:mount]} --fake #{dev} /mnt"
+        Command.execute(cmd, false)
     end
 
 end

@@ -617,6 +617,17 @@ func NewVMPool(args ...int) (*VMPool, error) {
 	return vmPool, nil
 }
 
+// InfoExtended connects to OpenNebula and fetches the whole VM_POOL information
+func (vmpool *VMPool) InfoExtended(filter_flag, start_id, end_id, state int) error {
+	response, err := client.Call("one.vmpool.infoextended", filter_flag,
+	                             start_id, end_id,state)
+	if err != nil {
+		return err
+	}
+	*vmpool = VMPool{}
+	return xml.Unmarshal([]byte(response.Body()), vmpool)
+}
+
 // Monitoring returns all the virtual machine monitoring records
 // filter flag:
 // -4: Resources belonging to the user's primary group
@@ -624,9 +635,14 @@ func NewVMPool(args ...int) (*VMPool, error) {
 // -2: All resources
 // -1: Resources belonging to the user and any of his groups
 // >= 0: UID User's Resources
-func (vmpool *VMPool) Monitoring(filter int) error {
-	_, err := client.Call("one.vmpool.monitoring", filter)
-	return err
+func (vmpool *VMPool) Monitoring(filter int) (string, error) {
+	monitor_data, err := client.Call("one.vmpool.monitoring", filter)
+
+	if err != nil{
+		return "", err
+	}else {
+		return monitor_data.Body(), err
+	}
 }
 
 // Accounting returns the virtual machine history records
@@ -778,9 +794,14 @@ func (vm *VM) UpdateConf(tpl string) error {
 }
 
 // Monitoring Returns the virtual machine monitoring records
-func (vm *VM) Monitoring() error {
-	_, err := client.Call("one.vm.monitoring", vm.ID)
-	return err
+func (vm *VM) Monitoring() (string, error) {
+	monitor_data, err := client.Call("one.vm.monitoring", vm.ID)
+
+	if err != nil{
+		return "", err
+	}else {
+		return monitor_data.Body(), err
+	}
 }
 
 // Chown changes the owner/group of a VM. If uid or gid is -1 it will not

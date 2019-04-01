@@ -61,7 +61,7 @@ func (s *VMSuite) SetUpSuite(c *C) {
 func (s *VMSuite) SetUpTest(c *C) {
 	template := NewTemplate(s.templateID)
 
-	vmID, err := template.Instantiate("", true, "")
+	vmID, err := template.Instantiate("", true, "", false)
 	c.Assert(err, IsNil)
 	s.vmID = vmID
 }

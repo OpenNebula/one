@@ -198,8 +198,8 @@ func (template *Template) Delete() error {
 }
 
 // Instantiate will instantiate the template
-func (template *Template) Instantiate(name string, pending bool, extra string) (uint, error) {
-	response, err := client.Call("one.template.instantiate", template.ID, name, pending, extra)
+func (template *Template) Instantiate(name string, pending bool, extra string, clone bool) (uint, error) {
+	response, err := client.Call("one.template.instantiate", template.ID, name, pending, extra, clone)
 
 	if err != nil {
 		return 0, err

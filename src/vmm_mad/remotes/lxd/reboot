@@ -23,20 +23,16 @@ require 'container'
 require_relative '../../scripts_common'
 
 # ------------------------------------------------------------------------------
-# Action Arguments, STDIN includes XML description of the OpenNebula VM
+# Action Arguments, STDIN doesn't include XML description of the OpenNebula VM
 # ------------------------------------------------------------------------------
 vm_name = ARGV[0]
 
 client    = LXDClient.new
 container = Container.get(vm_name, nil, client)
+container = Container.get(vm_name, container.config['user.xml'], client)
 
 # ------------------------------------------------------------------------------
 # Stop the container, start it
 # ------------------------------------------------------------------------------
-if ARGV[-1] == '-f'
-    container.stop(:force => true)
-else
-    container.stop
-end
-
+container.check_stop
 container.start

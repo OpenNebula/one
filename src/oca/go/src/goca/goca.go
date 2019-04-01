@@ -177,7 +177,7 @@ func (c *oneClient) endpointCall(url string, method string, args ...interface{})
 	resp.Body.Close()
 	if err != nil {
 		return nil,
-			&ClientError{Code: ClientRespHTTP, msg: "read http response body", err: err}
+			&ClientError{ClientRespHTTP, "read http response body", resp, err}
 	}
 
 	// Server side XML-RPC library: xmlrpc-c
@@ -202,22 +202,25 @@ func (c *oneClient) endpointCall(url string, method string, args ...interface{})
 	status, ok = result[0].(bool)
 	if ok == false {
 		return nil,
-			&ClientError{ClientRespONeParse, "index 0: boolean expected", resp, err}
+			&ClientError{ClientRespONeParse, "index 0: boolean expected", resp, nil}
 	}
 
 	body, ok = result[1].(string)
 	if ok == false {
 		bodyInt, ok = result[1].(int64)
 		if ok == false {
-			return nil,
-				&ClientError{ClientRespONeParse, "index 1: int or string expected", resp, err}
+			bodyBool, ok = result[1].(bool)
+			if ok == false {
+				return nil,
+					&ClientError{ClientRespONeParse, "index 1: boolean expected", resp, nil}
+			}
 		}
 	}
 
 	errCode, ok = result[2].(int64)
 	if ok == false {
 		return nil,
-			&ClientError{ClientRespONeParse, "index 2: boolean expected", resp, err}
+			&ClientError{ClientRespONeParse, "index 2: boolean expected", resp, nil}
 	}
 
 	if status == false {
