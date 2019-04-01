@@ -135,6 +135,12 @@ const (
 
 	// OneInternalError code if there is an internal error, e.g. the resource could not be loaded from the DB
 	OneInternalError = 0x2000
+
+	// OneAllocateError code if a resource cannot be allocated
+	OneAllocateError = 0x4000
+
+	// OneLockedError code if the resource is locked
+	OneLockedError   = 0x8000
 )
 
 func (s OneErrCode) String() string {
@@ -153,6 +159,10 @@ func (s OneErrCode) String() string {
 		return "XML_RPC_API"
 	case OneInternalError:
 		return "INTERNAL"
+	case OneAllocateError:
+		return "ALLOCATE"
+	case OneLockedError:
+		return "LOCKED"
 	default:
 		return ""
 	}
