@@ -159,6 +159,7 @@ apt-get install curl -y > /dev/null 2>&1
 
 $CURL $CONTEXT_URL/v$selected_tag/one-context_$selected_tag-1.deb -Lsfo /root/context.deb
 apt-get install /root/context.deb -y > /dev/null 2>&1
+rm /root/context.deb
 EOC
 )
     ;;
@@ -168,9 +169,11 @@ EOC
 export PATH=\$PATH:/bin:/sbin
 
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+yum install epel-release -y > /root/epel-log 2>&1
 
 $CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el6.noarch.rpm -Lsfo /root/context.rpm
 yum install /root/context.rpm -y > /dev/null 2>&1
+rm /root/context.rpm
 EOC
 )
     ;;
@@ -179,8 +182,14 @@ EOC
     commands=$(cat <<EOC
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
+## New yum version requires random bits to initialize GnuTLS, but chroot
+## prevents access to /dev/urandom (as desgined).
+mknod -m 666 /dev/random c 1 8
+mknod -m 666 /dev/urandom c 1 9
+
 $CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lsfo /root/context.rpm
 yum install /root/context.rpm -y > /dev/null 2>&1
+rm /root/context.rpm
 EOC
 )
     ;;
@@ -188,9 +197,11 @@ EOC
     terminal="/bin/ash"
     commands=$(cat <<EOC
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+apk add curl > /dev/null 2>&1
 
 $CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-r1.apk -Lsfo /root/context.apk
 apk add --allow-untrusted /root/context.apk > /dev/null 2>&1
+rm /root/context.apk
 EOC
 )
     ;;
