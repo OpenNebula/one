@@ -484,7 +484,7 @@ func (d *Driver) Create() error {
 			vmtemplate = goca.NewTemplate(uint(templateID))
 		}
 
-		_, err = vmtemplate.Instantiate(d.MachineName, false, template.String())
+		_, err = vmtemplate.Instantiate(d.MachineName, false, template.String(), false)
 
 	} else {
 		_, err = goca.CreateVM(template.String(), false)
@@ -521,9 +521,9 @@ func (d *Driver) GetIP() (string, error) {
 		return "", err
 	}
 
-	if len(vm.Template.NIC) > 0 {
-		if vm.Template.NIC[0].IP != "" {
-			d.IPAddress = vm.Template.NIC[0].IP
+	if len(vm.Template.NICs) > 0 {
+		if vm.Template.NICs[0].IP != "" {
+			d.IPAddress = vm.Template.NICs[0].IP
 		}
 	}
 
