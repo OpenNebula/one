@@ -208,6 +208,8 @@ echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
 apk add $PKG_APK > /dev/null 2>&1
 
+rc-update add sshd
+
 $CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-r1.apk -Lsfo /root/context.apk
 apk add --allow-untrusted /root/context.apk > /dev/null 2>&1
 rm /root/context.apk
