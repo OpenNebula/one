@@ -174,12 +174,12 @@ void Nebula::start(bool bootstrap_only)
     zone_id            = 0;
     server_id          = -1;
     master_oned        = vatt->vector_value("MASTER_ONED");
+    string mode        = vatt->vector_value("MODE");
+
+    one_util::toupper(mode);
 
     if (vatt != 0)
     {
-        string mode = vatt->vector_value("MODE");
-        one_util::toupper(mode);
-
         if (mode == "STANDALONE")
         {
             federation_enabled = false;
@@ -337,6 +337,12 @@ void Nebula::start(bool bootstrap_only)
         if( rc == -1 )
         {
             throw runtime_error("Database version mismatch. Check oned.log.");
+        }
+
+        if ((local_bootstrap || shared_bootstrap) && (mode != "STANDALONE"))
+        {
+            throw runtime_error("Database has to be bootstraped to start"
+                    " oned in FEDERATION");
         }
 
         // ---------------------------------------------------------------------
