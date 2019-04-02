@@ -142,6 +142,28 @@ define(function(require) {
       }
     },
 
+    "checkversion": function(params, path){
+      if(params &&
+        params.success &&
+        typeof params.success === "function" &&
+        params &&
+        params.error &&
+        typeof params.error === "function"){
+        var reqPath = path.toLowerCase();
+        $.ajax({
+          url: reqPath,
+          type: "GET",
+          success: function(response) {
+            params.success(response);
+            return false;
+          },
+          error: function(response) {
+            params.error(response);
+            return false;
+          }
+        });
+      }
+    },
     "list": function(params, resource, path, process) {
       var callback = params.success;
       var callbackError = params.error;

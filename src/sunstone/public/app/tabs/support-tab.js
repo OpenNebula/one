@@ -66,6 +66,7 @@ define(function(require) {
   function _setup(context) {
     //SupportUtils.startIntervalRefresh(); //esto de debe de borrar porque me esta listando el login de un usuario
     SupportUtils.checkValidateOfficialSupport();
+    SupportUtils.checkLastVersionSupport();
     $("#li_support-tab > a").on("click", function(e){
       e.preventDefault();
     });

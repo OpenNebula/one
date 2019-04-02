@@ -94,6 +94,13 @@
   a {
     color: $dark-gray;
   }
+
+  #latest_version{
+    a{
+      color: map-get($foundation-palette, primary);
+      font-weight: bold;
+    }
+  }
 }
 
 .action_blocks {

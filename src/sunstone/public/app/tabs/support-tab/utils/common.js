@@ -45,6 +45,10 @@ define(function(require) {
     Sunstone.runAction("Support.check");
   }
 
+  function _check_last_version_support(){
+    Sunstone.runAction("Support.checkversion");
+  }
+
   function _show_support_list() {
     $(".support_info").show();
     $(".support_connect").hide();
@@ -70,6 +74,7 @@ define(function(require) {
     "hideSupportConnect": _hide_support_connect,
     "startIntervalRefresh": _startIntervalRefresh,
     "stopIntervalRefresh": _stopIntervalRefresh,
-    "checkValidateOfficialSupport": _check_validate_official_support
+    "checkValidateOfficialSupport": _check_validate_official_support,
+    "checkLastVersionSupport": _check_last_version_support
   };
 });
