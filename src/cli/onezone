@@ -114,6 +114,11 @@ CommandParser::CmdParser.new(ARGV) do
             exit(-1)
         end
 
+        if ! /^(http|https):\/\//.match(options[:server_rpc])
+            puts 'Wrong protocol specified. Only http or https allowed!'
+            exit(-1)
+        end
+
         template = <<-EOT
             SERVER = [
               NAME="#{options[:server_name]}",
