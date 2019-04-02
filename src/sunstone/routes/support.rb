@@ -188,30 +188,33 @@ post '/support/request' do
     end
 end
 
+# Returns whether this OpenNebula instance is supported or not
 get '/support/check' do
   if(!OpenNebula::VERSION.empty? &&
     !$conf[:check_remote_support].nil? &&
     !$conf[:check_remote_support].empty? &&
     !$conf[:token_remote_support].nil? &&
     !$conf[:token_remote_support].empty?)
-    $conf[:opennebula_support] = !$conf[:opennebula_support].nil? ? $conf[:opennebula_support] : 0
-    now = Time.now.to_i
-    validateTime = now - $conf[:opennebula_support]
+      
+    $conf[:opennebula_support_time] = !$conf[:opennebula_support_time].nil? ? $conf[:opennebula_support_time] : 0
+    validateTime = Time.now.to_i - $conf[:opennebula_support_time]
+      
     if(validateTime > 86400)
       version =  OpenNebula::VERSION.slice(0..OpenNebula::VERSION.rindex('.')-1)
       minorVersion = version.slice(version.rindex('.')+1..-1).to_i
       majorVersion = version.slice(0..version.rindex('.')-1)
-      minorVersion = minorVersion%2 === 0 ? minorVersion : minorVersion-1
-      url = $conf[:check_remote_support].sub '<VERSION>', majorVersion.to_s+"."+minorVersion.to_s
+      minorVersion = minorVersion%2 == 0 ? minorVersion : minorVersion-1
+      url = $conf[:check_remote_support].sub('<VERSION>', majorVersion.to_s+"."+minorVersion.to_s)
       begin
         http = Curl.get(url) do |http|
           http.headers['Authorization'] = 'Basic ' + Base64.strict_encode64($conf[:token_remote_support])
         end
-      rescue Exception => e
-        raise e
+      rescue StandardError
+        [400, JSON.pretty_generate({:pass => false})]
       end
+        
       if !http.nil? && http.response_code < 400
-        $conf[:opennebula_support] = now
+        $conf[:opennebula_support_time] = Time.now.to_i
         [200, JSON.pretty_generate({:pass => true})]
       else
         [400, JSON.pretty_generate({:pass => false})]
@@ -224,35 +227,36 @@ get '/support/check' do
   end
 end
 
+# Returns latest available version
 get '/support/check/version' do
-  if(!$conf[:url_check_last_release].nil? && !$conf[:url_check_last_release].empty?)
-    $conf[:opennebula_support_date_version] = !$conf[:opennebula_support_date_version].nil? ? $conf[:opennebula_support_date_version] : 0
-    $conf[:opennebula_last_version] = !$conf[:opennebula_last_version].nil? ? $conf[:opennebula_last_version] : 0;
+    $conf[:opennebula_version_time] = !$conf[:opennebula_version_time].nil? ? $conf[:opennebula_version_time] : 0
+    $conf[:opennebula_last_version] = !$conf[:opennebula_last_version].nil? ? $conf[:opennebula_last_version] : 0
     find = 'release-'
-    now = Time.now.to_i
-    validateTime = now - $conf[:opennebula_support_date_version]
+    validateTime = Time.now.to_i - $conf[:opennebula_version_time]
+      
     if(validateTime > 86400)
       begin
-        http = Curl.get($conf[:url_check_last_release]) do |http|
+        http = Curl.get("https://api.github.com/repos/opennebula/one/tags") do |http|
           http.headers['User-Agent'] = 'One'
         end
-      rescue Exception => e
-        raise e
+      rescue StandardError
+        [400, JSON.pretty_generate({:version => 0})]
       end
-      if !http.nil? && http.response_code === 200
+      if !http.nil? && http.response_code == 200
         JSON.parse(http.body_str).each  do |tag|
           if(tag && tag['name'] && !tag['name'].nil? && !tag['name'].empty? && tag['name'].start_with?(find))
             version = tag['name'].tr(find,'')
             memoryVersion = $conf[:opennebula_last_version]
             if(version.to_f > memoryVersion.to_f)
-              $conf[:opennebula_last_version]=version
+              $conf[:opennebula_last_version] = version
             end
-            if(version.to_f === memoryVersion.to_f && version.slice(version.rindex('.')+1..-1).to_i >= memoryVersion.slice(memoryVersion.rindex('.')+1..-1).to_i)
-              $conf[:opennebula_last_version]=version
+            if(version.to_f == memoryVersion.to_f && 
+               version.slice(version.rindex('.')+1..-1).to_i >= memoryVersion.slice(memoryVersion.rindex('.')+1..-1).to_i)
+              $conf[:opennebula_last_version] = version
             end
           end
         end
-        $conf[:opennebula_support_date_version] = now
+        $conf[:opennebula_version_time] = Time.now.to_i
         [200, JSON.pretty_generate({:version => $conf[:opennebula_last_version]})]
       else
         [400, JSON.pretty_generate({:version => 0})]
@@ -260,9 +264,6 @@ get '/support/check/version' do
     else
       [200, JSON.pretty_generate({:version => $conf[:opennebula_last_version]})]
     end
-  else
-    [400, JSON.pretty_generate({:version => 0})]
-  end
 end
 
 post '/support/request/:id/action' do
