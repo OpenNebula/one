@@ -36,6 +36,11 @@ MARKET_URL=$1
 CONTEXT_API="https://api.github.com/repos/OpenNebula/addon-context-linux/releases"
 CONTEXT_URL="https://github.com/OpenNebula/addon-context-linux/releases/download"
 
+PKG_DEB="curl dbus openssh-server"
+PKG_RPM="openssh-server"
+PKG_CENTOS6="epel-release $PKG_RPM"
+PKG_APK="curl openssh"
+
 #Default DNS server to download the packages
 DNS_SERVER="8.8.8.8"
 
@@ -155,10 +160,11 @@ rm -f /etc/resolv.conf > /dev/null 2>&1
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
 apt-get update > /dev/null
-apt-get install curl -y > /dev/null 2>&1
+apt-get install $PKG_DEB -y > /dev/null 2>&1
 
 $CURL $CONTEXT_URL/v$selected_tag/one-context_$selected_tag-1.deb -Lsfo /root/context.deb
 apt-get install /root/context.deb -y > /dev/null 2>&1
+rm /root/context.deb
 EOC
 )
     ;;
@@ -169,8 +175,11 @@ export PATH=\$PATH:/bin:/sbin
 
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
+yum install $PKG_CENTOS6 -y > /dev/null 2>&1
+
 $CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el6.noarch.rpm -Lsfo /root/context.rpm
 yum install /root/context.rpm -y > /dev/null 2>&1
+rm /root/context.rpm
 EOC
 )
     ;;
@@ -179,8 +188,16 @@ EOC
     commands=$(cat <<EOC
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
+## New yum version requires random bits to initialize GnuTLS, but chroot
+## prevents access to /dev/urandom (as desgined).
+mknod -m 666 /dev/random c 1 8
+mknod -m 666 /dev/urandom c 1 9
+
+yum install $PKG_RPM -y > /dev/null 2>&1
+
 $CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lsfo /root/context.rpm
 yum install /root/context.rpm -y > /dev/null 2>&1
+rm /root/context.rpm
 EOC
 )
     ;;
@@ -189,8 +206,13 @@ EOC
     commands=$(cat <<EOC
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
+apk add $PKG_APK > /dev/null 2>&1
+
+rc-update add sshd
+
 $CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-r1.apk -Lsfo /root/context.apk
 apk add --allow-untrusted /root/context.apk > /dev/null 2>&1
+rm /root/context.apk
 EOC
 )
     ;;
