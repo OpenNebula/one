@@ -24,7 +24,26 @@ define(function(require) {
   var TAB_ID = require("./tabId");
   var CREATE_DIALOG_ID = require("./form-panels/create/formPanelId");
   var UPLOAD_DIALOG_ID = require("./dialogs/upload/dialogId");
-
+  var majorVersion = function(version){
+    var r = 0;
+    if(version && version.length){
+      var major = version.substring(0, version.lastIndexOf("."));
+      if(major && major.length){
+        r = parseFloat(major);
+      }
+    }
+    return r;
+  };
+  var minorVersion = function(version){
+    var r = 0;
+    if(version && version.length){
+      var minor = version.substring(version.lastIndexOf(".")+1);
+      if(minor && minor.length){
+        r = parseFloat(minor);
+      }
+    }
+    return r;
+  };
   var _actions = {
     "Support.check":{
       type: "list",
@@ -37,6 +56,40 @@ define(function(require) {
           SupportUtils.stopIntervalRefresh();
         }
         SupportUtils.hideSupportConnect();
+      }
+    },
+    "Support.checkversion":{
+      type: "list",
+      call: OpenNebulaSupport.checkversion,
+      callback: function(req, lst, res){
+        if($("#footer>a").length){
+          var localVersion = $("#footer>a").text().replace("OpenNebula ", "");
+          if(req && req.version && req.version!=="0" && localVersion.length){
+            var version = req.version;
+            var remoteMajorVersion = majorVersion(version);
+            var remoteMinorVersion = minorVersion(version);
+            var localMajorVersion = majorVersion(localVersion);
+            var localMinorVersion = minorVersion(localVersion);
+            var link = $("<a/>", {href:"https://opennebula.org/software/"}).text(
+              "(new version available: " + version + ")"
+            );
+            if(remoteMajorVersion > localMajorVersion){
+              $("#latest_version").show().empty().append(link);
+              return;
+            }
+            if(remoteMajorVersion === localMajorVersion && remoteMinorVersion > localMinorVersion){
+              $("#latest_version").show().empty().append(link);
+              return;
+            }
+          }
+        }
+        $("#latest_version").hide().empty();
+      },
+      error: function(request){
+        if (request && request.status && request.status >= 400) {
+          SupportUtils.stopIntervalRefresh();
+        }
+        $("#latest_version").hide().empty();
       }
     },
     "Support.list" : {

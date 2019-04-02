@@ -20,6 +20,7 @@ define(function(require) {
   var RESOURCE = "REQUEST";
   var PATH = "support/request";
   var PATH_CHECK_SUPPORT = "support/check";
+  var PATH_CHECK_VERSION = "support/check/version";
   var CACHE_NAME = "REQUEST";
 
   var Support = {
@@ -32,6 +33,9 @@ define(function(require) {
     },
     "check": function(params){
       OpenNebulaAction.check(params, PATH_CHECK_SUPPORT);
+    },
+    "checkversion": function(params){
+      OpenNebulaAction.checkversion(params, PATH_CHECK_VERSION);
     },
     "list" : function(params) {
       params.cache_name = CACHE_NAME;
