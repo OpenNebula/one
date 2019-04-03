@@ -162,11 +162,11 @@ define(function(require){
 
         if (persistent){
           $("label", diskContext).append("<i class=\"disk-resize-icon has-tip left fas fa-lg fa-floppy-o\" title=\"" +
-              Locale.tr("Persistent image. The changes will be saved back to the datastore after the VM is shut down") + "\"></i>");
+              Locale.tr("Persistent image. The changes will be saved back to the datastore after the VM is terminated (ie goes into DONE state)") + "\"></i>");
 
         }else{
           $("label", diskContext).append("<i class=\"disk-resize-icon has-tip left fas fa-lg fa-recycle\" title=\"" +
-              Locale.tr("Non-persistent disk. The changes will be lost once the VM is shut down") + "\"></i>");
+              Locale.tr("Non-persistent disk. The changes will be lost once the VM is terminated (ie goes into DONE state)") + "\"></i>");
 
         }
 
