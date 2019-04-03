@@ -197,10 +197,25 @@ class Container
     def check_stop
         return if status != 'Running'
 
-        if ARGV[-1] == '-f'
-            stop(:force => true)
-        else
-            stop
+        begin
+            if ARGV[-1] == '-f'
+                stop(:force => true)
+            else
+                stop
+            end
+        rescue => exception
+            OpenNebula.log_error exception
+
+            2.times do
+                # This call may return an operation output instead of a
+                # container data in case of timeout. The call breaks
+                # the container attributes. It needs to be read again
+                container = Container.get(vm_name, xml, client)
+
+                break if %w[Running Stopped].include? container.status
+            end
+
+            container.stop(:force => true) if container.status == 'Running'
         end
     end
 
