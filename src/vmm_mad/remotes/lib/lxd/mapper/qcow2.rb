@@ -65,6 +65,21 @@ class Qcow2Mapper < Mapper
 
     private
 
+    # Detects Max number of block devices
+    def load_nbds_max
+        cmd = '/sbin/modprobe -c'
+        rc, mods_conf, e = Command.execute(cmd, false)
+
+        if !rc.zero?
+            OpenNebula.log_error("Cannot load max number of nbd devices\n#{e}")
+            return 0
+        end
+
+        param = mods_conf[/(nbds_max=)(\d+)/]
+        param.split('=').last.to_i
+    end
+
+    # Returns the first non-used nbd device
     def nbd_device
         sys_parts = lsblk('')
         nbds      = []
@@ -76,7 +91,7 @@ class Qcow2Mapper < Mapper
             nbds << m[1].to_i
         end
 
-        NBDS_MAX.times do |i|
+        load_nbds_max.times do |i|
             return "/dev/nbd#{i}" unless nbds.include?(i)
         end
 
