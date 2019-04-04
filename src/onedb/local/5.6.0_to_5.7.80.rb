@@ -196,6 +196,7 @@ module Migrator
         @db.run 'ALTER TABLE vm_pool RENAME TO old_vm_pool;'
 
         create_table(:vm_pool)
+        @db.run 'ALTER TABLE vm_pool CONVERT TO CHARACTER SET utf8;'
 
         @db.transaction do
             @db.fetch('SELECT * FROM old_vm_pool') do |row|
