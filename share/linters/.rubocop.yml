@@ -717,6 +717,10 @@ Style/MutableConstant:
 Style/SymbolProc:
     Enabled: false
 
+# TODO: Remove this whenever there is strenght to do so
+Style/StderrPuts:
+    Enabled: false
+
 ######
 # LINT
 ######
@@ -797,6 +801,9 @@ Naming/ConstantName:
     Enabled: true
 
 Naming/HeredocDelimiterNaming:
+    Enabled: false
+
+Naming/RescuedExceptionsVariableName:
     Enabled: false
 
 ###
