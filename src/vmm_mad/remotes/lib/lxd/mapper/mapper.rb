@@ -162,7 +162,7 @@ class Mapper
 
         real_path = directory
 
-        is_rootfs = real_path.match?(%r{containers(/)one-(\d+)(/)rootfs})
+        is_rootfs = real_path =~ %r{.*/rootfs}
         is_shared_ds = File.symlink?(one_vm.sysds_path)
 
         real_path = File.realpath(directory) if !is_rootfs && is_shared_ds
