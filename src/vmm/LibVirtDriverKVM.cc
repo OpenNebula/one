@@ -505,6 +505,10 @@ int LibVirtDriver::deployment_description_kvm(
         {
             cpu_mode = "host-passthrough";
         }
+        else if ( cpu_model == "host-model" )
+        {
+            cpu_mode = "host-model";
+        }
         else
         {
             cpu_mode = "custom";
