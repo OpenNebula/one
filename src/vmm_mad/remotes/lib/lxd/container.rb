@@ -155,6 +155,10 @@ class Container
         @client.get("#{CONTAINERS}/#{name}/state")
     end
 
+    def check_status
+        monitor['metadata']['status'] if Container.exist?(name, @client)
+    end
+
     # Retreive metadata for the container
     def get_metadata
         @lxc = @client.get("#{CONTAINERS}/#{name}")['metadata']
@@ -206,15 +210,18 @@ class Container
         rescue => exception
             OpenNebula.log_error exception
 
+            real_status = 'Unknown'
+
             2.times do
                 # This call may return an operation output instead of a
                 # container data in case of timeout. The call breaks
                 # the container info. It needs to be read again
 
-                break if %w[Running Stopped].include? container.status
+                real_status = check_status
+                break if %w[Running Stopped].include? real_status
             end
 
-            container.stop(:force => true) if container.status == 'Running'
+            container.stop(:force => true) if real_status == 'Running'
         end
     end
 
