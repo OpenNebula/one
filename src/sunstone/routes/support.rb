@@ -20,7 +20,8 @@ require 'base64'
 # rubocop:disable Style/GlobalVars
 
 UNSUPPORTED_RUBY = !(RUBY_VERSION =~ /^1.8/).nil?
-GITHUB_TAGS_URL='https://api.github.com/repos/opennebula/one/tags'
+GITHUB_TAGS_URL = 'https://api.github.com/repos/opennebula/one/tags'
+ENTREPRISE_REPO_URL = 'https://downloads.opennebula.systems/repo/<VERSION>/'
 
 begin
     require 'zendesk_api'
@@ -35,7 +36,7 @@ if RUBY_VERSION < '2.1'
     require 'scrub_rb'
 end
 
-def valid_user_with_id(client)
+def invalid_user_with_id(client)
     client.current_user.nil? || client.current_user.id.nil?
 end
 
@@ -74,7 +75,9 @@ helpers do
             # use the API at https://yoursubdomain.zendesk.com/api/v2
         end
 
-        error 401, 'Incorrect Zendesk account credentials' if valid_user_with_id
+        if invalid_user_with_id(client)
+            error 401, 'Incorrect Zendesk account credentials'
+        end
 
         client
     end
@@ -175,20 +178,20 @@ post '/support/request' do
 
     body_hash = JSON.parse(@request_body)
 
-    zen_api = ZendesAPI::Request
+    zen_api = ZendeskAPI::Request
 
     zrequest = zen_api.new(
-                           zendesk_client,
-                           :subject => body_hash['subject'],
-                           :comment => { :value => body_hash['description'] },
-                           :custom_fields => [
-                               { :id => SUPPORT[:custom_field_severity],
-                                 :value => body_hash['severity'] },
-                               { :id => SUPPORT[:custom_field_version],
-                                 :value => body_hash['opennebula_version'] }
-                           ],
-                           :tags => [body_hash['severity']]
-                       )
+        zendesk_client,
+        :subject => body_hash['subject'],
+        :comment => { :value => body_hash['description'] },
+        :custom_fields => [
+            { :id => SUPPORT[:custom_field_severity],
+              :value => body_hash['severity'] },
+            { :id => SUPPORT[:custom_field_version],
+              :value => body_hash['opennebula_version'] }
+        ],
+        :tags => [body_hash['severity']]
+    )
 
     if zrequest.save
         [201, JSON.pretty_generate(zrequest_to_one(zrequest))]
@@ -201,8 +204,6 @@ end
 get '/support/check' do
     one_version = OpenNebula::VERSION
     if !one_version.empty? &&
-       !$conf[:check_remote_support].nil? &&
-       !$conf[:check_remote_support].empty? &&
        !$conf[:token_remote_support].nil? &&
        !$conf[:token_remote_support].empty?
 
@@ -219,7 +220,7 @@ get '/support/check' do
         major_version = version.slice(0..version.rindex('.') - 1)
 
         full_version = "#{major_version}.#{minor_version}"
-        url = $conf[:check_remote_support].sub('<VERSION>', full_version)
+        url = ENTREPRISE_REPO_URL.sub('<VERSION>', full_version)
         begin
             http = Curl.get(url) do |http_options|
                 token_enc = Base64.strict_encode64($conf[:token_remote_support])
@@ -243,7 +244,7 @@ end
 # Returns latest available version
 get '/support/check/version' do
     $conf[:one_version_time] = 0 if $conf[:one_version_time].nil?
-    $conf[:one_last_version] = 0 if $conf[:one_last_version].nil?
+    $conf[:one_last_version] = '0' if $conf[:one_last_version].nil?
     find = 'release-'
     validate_time = Time.now.to_i - $conf[:one_version_time]
 
@@ -273,9 +274,10 @@ get '/support/check/version' do
                 $conf[:one_last_version] = version
             end
 
-            minor_version = version.slice(version.rindex('.') + 1..-1).to_i
+            minor_version = version.slice(version.rindex('.').to_i + 1..-1).to_i
+            memory_version_index = memory_version.rindex('.').to_i
             minor_memory_version =
-                memory_version.slice(memory_version.rindex('.') + 1..-1).to_i
+                memory_version.slice(memory_version_index.to_i + 1..-1).to_i
 
             if version.to_f == memory_version.to_f &&
                minor_version >= minor_memory_version
