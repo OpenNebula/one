@@ -225,6 +225,8 @@ get '/support/check' do
             http = Curl.get(url) do |http_options|
                 token_enc = Base64.strict_encode64($conf[:token_remote_support])
                 http_options.headers['Authorization'] = 'Basic ' + token_enc
+                http_options.headers['User-Agent'] =
+                    'OpenNebula Subscription Validation'
             end
         rescue StandardError
             [400, JSON.pretty_generate(:pass => false)]
@@ -254,7 +256,7 @@ get '/support/check/version' do
 
     begin
         http = Curl.get(GITHUB_TAGS_URL) do |http_options|
-            http_options.headers['User-Agent'] = 'One'
+            http_options.headers['User-Agent'] = 'OpenNebula Version Validation'
         end
     rescue StandardError
         return [400, JSON.pretty_generate(:version => 0)]
