@@ -672,11 +672,12 @@ EOT
         # List pool in XML format, pagination is used in interactive output
         #-----------------------------------------------------------------------
         def list_pool_xml(pool, options, filter_flag)
+            extended = options.include?(:extended) && options[:extended]
+
             if $stdout.isatty
                 size = $stdout.winsize[0] - 1
 
                 # ----------- First page, check if pager is needed -------------
-                extended = options.include?(:extended) && options[:extended]
                 rc = pool.get_page(size, 0, extended)
                 ps = ""
 
@@ -724,7 +725,11 @@ EOT
 
                 stop_pager(ppid)
             else
-                rc = pool.info
+                if pool.pool_name == "VM_POOL" && extended
+                    rc = pool.info_all_extended
+                else
+                    rc = pool.info
+                end
 
                 return -1, rc.message if OpenNebula.is_error?(rc)
 
