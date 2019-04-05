@@ -46,7 +46,7 @@ source ${DRIVER_PATH}/../../datastore/libfs.sh
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VM_ID | $XPATH \
-    /VM/HISTORY_RECORDS/HISTORY/HOSTNAME)
+    '/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME')
 unset i
 DST_HOST="${XPATH_ELEMENTS[i++]}"
 
