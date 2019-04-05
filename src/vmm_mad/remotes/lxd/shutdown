@@ -34,7 +34,7 @@ client    = LXDClient.new
 container = Container.get(vm_name, xml, client)
 
 # ------------------------------------------------------------------------------
-# Stop the container & unmap devices if not a wild container
+# Stop vnc connection and container & unmap devices if not a wild container
 # ------------------------------------------------------------------------------
 container.vnc('stop')
 container.check_stop

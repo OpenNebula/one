@@ -150,7 +150,7 @@ class Container
         wait?(@client.put("#{CONTAINERS}/#{name}", @lxc), wait, timeout)
     end
 
-    # Returns the container current state
+    # Returns the container live state
     def monitor
         @client.get("#{CONTAINERS}/#{name}/state")
     end
@@ -209,8 +209,7 @@ class Container
             2.times do
                 # This call may return an operation output instead of a
                 # container data in case of timeout. The call breaks
-                # the container attributes. It needs to be read again
-                container = Container.get(vm_name, xml, client)
+                # the container info. It needs to be read again
 
                 break if %w[Running Stopped].include? container.status
             end
