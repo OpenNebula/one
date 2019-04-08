@@ -33,7 +33,6 @@ fi
 
 DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../libfs.sh
-source ${DRIVER_PATH}/../../etc/datastore/fs/fs.conf
 
 # -------- Get mkfs and datastore arguments from OpenNebula core ------------
 

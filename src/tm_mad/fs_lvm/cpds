@@ -35,7 +35,10 @@ else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
 fi
 
+DRIVER_PATH=$(dirname $0)
+
 source $TMCOMMON
+source ${DRIVER_PATH}/../../etc/tm/fs_lvm/fs_lvm.conf
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
