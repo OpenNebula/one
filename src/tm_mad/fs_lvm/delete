@@ -50,38 +50,49 @@ else
     DS_SYS_ID=$(echo $DST_PATH | grep -E '\/disk\.[[:digit:]]+$' | $AWK -F '/' '{print $(NF-2)}')
 fi
 
+# Activate device
+ACTIVATE_CMD=$(cat <<EOF
+    set -ex -o pipefail
+    if [ -L "$DST_PATH" ]; then
+        DEV=\$(readlink $DST_PATH)
+        if echo "\$DEV" | grep "^/dev/" &>/dev/null; then
+            ${SUDO} ${SYNC}
+            ${SUDO} ${LVSCAN}
+            ${SUDO} ${LVCHANGE} -ay "\${DEV}"
+        fi
+    fi
+EOF
+)
+
 # Zero space
 ZERO_CMD=$(cat <<EOF
     set -ex -o pipefail
-    DEV=\$(readlink $DST_PATH)
-
-    if echo "\$DEV" | grep "^/dev/" &>/dev/null; then
-        ${SUDO} ${SYNC}
-        ${SUDO} ${LVSCAN}
-        ${SUDO} ${LVCHANGE} -ay "\${DEV}"
-        ${DD} if=/dev/zero of="\${DEV}" bs=64k || :
+    if [ -L "$DST_PATH" ]; then
+        DEV=\$(readlink $DST_PATH)
+        if echo "\$DEV" | grep "^/dev/" &>/dev/null; then
+            ${DD} if=/dev/zero of="\${DEV}" bs=64k || :
+        fi
     fi
 EOF
 )
 
 # Delete the device if it's a clone (LVM snapshot)
 DELETE_CMD=$(cat <<EOF
-    set -x
-    DEV=\$(readlink $DST_PATH)
+    set -ex -o pipefail
 
     if [ -d "$DST_PATH" ]; then
         rm -rf "$DST_PATH"
-    else
-        rm -f $DST_PATH
+        exit 0
+    fi
 
-        if [ -z "\$DEV" ]; then
-            exit 0
-        fi
-
+    if [ -L "$DST_PATH" ]; then
+        DEV=\$(readlink $DST_PATH)
         if echo "\$DEV" | grep "^/dev/" &>/dev/null; then
-            $SUDO $LVREMOVE -f \$DEV
+            $SUDO $LVREMOVE -f "\$DEV"
         fi
     fi
+
+    rm -f "$DST_PATH"
 EOF
 )
 
@@ -101,6 +112,10 @@ if [ -n "${DS_SYS_ID}" ]; then
     fi
 
     if [ "${ZERO_LVM_ON_DELETE}" = "yes" ]; then
+        LOCK="tm-fs_lvm-${DS_SYS_ID}.lock"
+        exclusive "${LOCK}" 120 ssh_exec_and_log "$DST_HOST" "$ACTIVATE_CMD" \
+            "Error activating disk $SRC_PATH"
+
         ssh_exec_and_log "$DST_HOST" "$ZERO_CMD" "Error cleaning $DST_PATH"
     fi
 

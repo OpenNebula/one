@@ -89,7 +89,7 @@ if [ `is_disk $DST_PATH` -eq 1 ]; then
     DST_DEV="/dev/${DST_VG_NAME}/${LV_NAME}"
 
     # undeploy operation
-    if [ "${LCM_STATE}" = "30" ]; then
+    if [ "${LCM_STATE}" = "30" ] || [ "${LCM_STATE}" = "42" ]; then
       # deactivate
       CMD=$(cat <<EOF
           set -ex -o pipefail
@@ -102,8 +102,9 @@ if [ `is_disk $DST_PATH` -eq 1 ]; then
           rm -f "${SRC_DIR}/.host" || :
 EOF
 )
-      ssh_exec_and_log "$SRC_HOST" "$CMD" \
-          "Error deactivating disk $SRC_PATH"
+      LOCK="tm-fs_lvm-${SRC_DS_SYS_ID}.lock"
+      exclusive "${LOCK}" 120 ssh_exec_and_log "${SRC_HOST}" "${CMD}" \
+          "Error deactivating disk ${SRC_PATH}"
 
       exit 0
     fi
