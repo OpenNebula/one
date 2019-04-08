@@ -44,7 +44,11 @@ source ${DRIVER_PATH}/../../datastore/libfs.sh
 DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
 
-DS_SYS_ID=$(echo $DST_PATH | grep -E '\/disk\.[[:digit:]]+$' | $AWK -F '/' '{print $(NF-2)}')
+if [ "${DST_PATH##*/}" = "$VM_ID" ]; then
+    DS_SYS_ID=$(echo $DST_PATH | $AWK -F '/' '{print $(NF-1)}')
+else
+    DS_SYS_ID=$(echo $DST_PATH | grep -E '\/disk\.[[:digit:]]+$' | $AWK -F '/' '{print $(NF-2)}')
+fi
 
 # Zero space
 ZERO_CMD=$(cat <<EOF
