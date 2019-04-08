@@ -52,10 +52,13 @@ fi
 
 # Zero space
 ZERO_CMD=$(cat <<EOF
-    set -x
+    set -ex -o pipefail
     DEV=\$(readlink $DST_PATH)
 
     if echo "\$DEV" | grep "^/dev/" &>/dev/null; then
+        ${SUDO} ${SYNC}
+        ${SUDO} ${LVSCAN}
+        ${SUDO} ${LVCHANGE} -ay "\${DEV}"
         ${DD} if=/dev/zero of="\${DEV}" bs=64k || :
     fi
 EOF
