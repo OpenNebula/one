@@ -189,6 +189,24 @@ module VNMMAD
             options
         end
 
+        # Runs hooks in action.d directory inside the particular vnm driver
+        # Params:
+        # +args+::  +array+  Arguments passed to each script
+        # +stdin+:: +string+ Variable passed as Standard Input to each script
+        def run_hooks(args, stdin)
+            dir = "#{$PROGRAM_NAME}.d"
+            return 0 unless Dir.exist? dir
+
+            Dir["#{dir}/*"].each do |file|
+                OpenNebula.log "Running #{file}"
+
+                success = system("echo #{stdin} | #{file} #{args.join(' ')}")
+                raise "Error running #{file}" unless success
+            end
+
+            0
+        end
+
     end
 
     # Returns true if the driver is executing action pre

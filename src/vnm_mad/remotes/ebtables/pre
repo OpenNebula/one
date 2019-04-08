@@ -27,3 +27,5 @@ xpath_filter = EbtablesVLAN::XPATH_FILTER
 
 onevlan = EbtablesVLAN.from_base64(template64, xpath_filter, deploy_id)
 onevlan.activate
+
+onevlan.run_hooks(ARGV, template64)

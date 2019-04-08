@@ -28,3 +28,5 @@ xpath_filter = OpenvSwitchVXLAN::XPATH_FILTER
 ovs = OpenvSwitchVXLAN.from_base64(template64, xpath_filter, deploy_id)
 
 ovs.activate
+
+ovs.run_hooks(ARGV, template64)
