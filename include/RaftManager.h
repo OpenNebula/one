@@ -95,7 +95,7 @@ public:
      *  Allocate a replica request fot the given index.
      *    @param rindex of the record for the request
      */
-	void replicate_allocate(uint64_t rindex)
+	void replicate_allocate(int rindex)
 	{
 		requests.allocate(rindex);
 	}
@@ -145,9 +145,9 @@ public:
         return _term;
     }
 
-    uint64_t get_commit()
+    unsigned int get_commit()
     {
-        uint64_t _commit;
+        unsigned int _commit;
 
         pthread_mutex_lock(&mutex);
 
@@ -164,7 +164,7 @@ public:
 	 *  @param index of the last record inserted in the database
 	 *  @return the updated commit index
 	 */
-	uint64_t update_commit(uint64_t leader_commit, uint64_t index);
+	unsigned int update_commit(unsigned int leader_commit, unsigned int index);
 
     /**
      *  Evaluates a vote request. It is granted if no vote has been granted in
@@ -224,10 +224,10 @@ public:
      *    @param follower server id
      *    @return -1 on failure, the next index if success
      */
-    uint64_t get_next_index(int follower_id)
+    int get_next_index(int follower_id)
     {
-        std::map<int, uint64_t>::iterator it;
-        uint64_t _index = -1;
+        std::map<int, unsigned int>::iterator it;
+        unsigned int _index = -1;
 
         pthread_mutex_lock(&mutex);
 
@@ -275,7 +275,7 @@ public:
 	 *    @param error describing error if any
      *    @return -1 if a XMl-RPC (network) error occurs, 0 otherwise
      */
-    int xmlrpc_request_vote(int follower_id, uint64_t lindex,
+    int xmlrpc_request_vote(int follower_id, unsigned int lindex,
             unsigned int lterm, bool& success, unsigned int& fterm,
             std::string& error);
 
@@ -370,11 +370,6 @@ private:
     Template raft_state;
 
     /**
-     * Value for name column in system_attributes table for raft state.
-     */
-    static const string raft_state_name;
-
-    /**
      *  After becoming a leader it is replicating and applying any pending
      *  log entry.
      */
@@ -413,11 +408,11 @@ private:
 
     HeartBeatManager   heartbeat_manager;
 
-    uint64_t commit;
+    unsigned int commit;
 
-    std::map<int, uint64_t> next;
+    std::map<int, unsigned int> next;
 
-    std::map<int, uint64_t> match;
+    std::map<int, unsigned int> match;
 
     std::map<int, std::string>  servers;
 
@@ -470,11 +465,6 @@ private:
      *  Makes this server leader, and start replica threads
      */
     void leader();
-
-    /**
-     * Init the raft state status row.
-     */
-    int init_raft_state(const std::string& raft_xml);
 };
 
 #endif /*RAFT_MANAGER_H_*/
