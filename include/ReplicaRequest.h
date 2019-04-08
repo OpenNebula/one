@@ -27,7 +27,7 @@
 class ReplicaRequest : public SyncRequest
 {
 public:
-    ReplicaRequest(unsigned int i):_index(i), _to_commit(-1), _replicas(1){};
+    ReplicaRequest(uint64_t i):_index(i), _to_commit(-1), _replicas(1){};
 
     ~ReplicaRequest(){};
 
@@ -64,7 +64,7 @@ public:
     /* ---------------------------------------------------------------------- */
     /* Class access methods                                                   */
     /* ---------------------------------------------------------------------- */
-    int index()
+    uint64_t index()
     {
         return _index;
     }
@@ -88,7 +88,7 @@ private:
     /**
      *  Index for this log entry
      */
-    unsigned int _index;
+    uint64_t _index;
 
     /**
      *  Remaining number of servers that need to replicate this record to commit
@@ -127,13 +127,13 @@ public:
      *
      *    @return the number of replicas to commit, if 0 it can be committed
      */
-    int add_replica(int rindex)
+    int add_replica(uint64_t rindex)
     {
         int to_commit = -1;
 
         pthread_mutex_lock(&mutex);
 
-        std::map<int, ReplicaRequest *>::iterator it = requests.find(rindex);
+        std::map<uint64_t, ReplicaRequest *>::iterator it = requests.find(rindex);
 
         if ( it != requests.end() && it->second != 0 )
         {
@@ -157,7 +157,7 @@ public:
      *  on this request.
      *    @param rindex of the request
      */
-    void allocate(int rindex)
+    void allocate(uint64_t rindex)
     {
         pthread_mutex_lock(&mutex);
 
@@ -172,11 +172,11 @@ public:
      *   @param rindex of the request
      *   @param rr replica request pointer
      */
-    void set(int rindex, ReplicaRequest * rr)
+    void set(uint64_t rindex, ReplicaRequest * rr)
     {
         pthread_mutex_lock(&mutex);
 
-        std::map<int, ReplicaRequest *>::iterator it = requests.find(rindex);
+        std::map<uint64_t, ReplicaRequest *>::iterator it = requests.find(rindex);
 
         if ( it == requests.end() )
         {
@@ -194,11 +194,11 @@ public:
      *  Remove a replication request associated to this index
      *   @param rindex of the request
      */
-    void remove(int rindex)
+    void remove(uint64_t rindex)
     {
         pthread_mutex_lock(&mutex);
 
-        std::map<int, ReplicaRequest *>::iterator it = requests.find(rindex);
+        std::map<uint64_t, ReplicaRequest *>::iterator it = requests.find(rindex);
 
         if ( it != requests.end() )
         {
@@ -215,7 +215,7 @@ public:
     {
         pthread_mutex_lock(&mutex);
 
-        std::map<int, ReplicaRequest *>::iterator it;
+        std::map<uint64_t, ReplicaRequest *>::iterator it;
 
         for ( it = requests.begin() ; it != requests.end() ; ++it )
         {
@@ -239,13 +239,13 @@ public:
     /**
      *  @return true if a replica request is set for this index
      */
-    bool is_replicable(int rindex)
+    bool is_replicable(uint64_t rindex)
     {
         pthread_mutex_lock(&mutex);
 
-        std::map<int, ReplicaRequest *>::iterator it = requests.find(rindex);
+        std::map<uint64_t, ReplicaRequest *>::iterator it = requests.find(rindex);
 
-        bool rc = it == requests.end() || 
+        bool rc = it == requests.end() ||
             (it != requests.end() && it->second != 0);
 
         pthread_mutex_unlock(&mutex);
@@ -260,7 +260,7 @@ private:
     /**
      * Clients waiting for a log replication
      */
-    std::map<int, ReplicaRequest *> requests;
+    std::map<uint64_t, ReplicaRequest *> requests;
 };
 
 #endif /*REPLICA_REQUEST_H_*/

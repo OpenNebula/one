@@ -56,7 +56,7 @@ public:
      *    @param sql command to apply to DB
      *    @return 0 on success, last_index if missing records, -1 on DB error
      */
-    int apply_log_record(int index, int prev, const std::string& sql);
+    uint64_t apply_log_record(uint64_t index, uint64_t prev, const std::string& sql);
 
     /**
      *  Record was successfully replicated on zone, increase next index and
@@ -70,7 +70,7 @@ public:
      *  send any pending records.
      *    @param zone_id
      */
-    void replicate_failure(int zone_id, int zone_last);
+    void replicate_failure(int zone_id, uint64_t zone_last);
 
     /**
      *  XML-RPC API call to replicate a log entry on slaves
@@ -80,7 +80,7 @@ public:
      *     @param error description if any
      *     @return 0 on success -1 if a xml-rpc/network error occurred
      */
-    int xmlrpc_replicate_log(int zone_id, bool& success, int& last,
+    int xmlrpc_replicate_log(int zone_id, bool& success, uint64_t& last,
             std::string& err);
 
     /**
@@ -167,8 +167,8 @@ private:
 
     struct ZoneServers
     {
-        ZoneServers(int z, unsigned int l, const std::string& s):
-            zone_id(z), endpoint(s), next(l), last(-1){};
+        ZoneServers(int z, uint64_t l, const std::string& s):
+            zone_id(z), endpoint(s), next(l), last(UINT64_MAX){};
 
         ~ZoneServers(){};
 
@@ -176,9 +176,9 @@ private:
 
         std::string  endpoint;
 
-        int next;
+        uint64_t next;
 
-        int last;
+        uint64_t last;
     };
 
     std::map<int, ZoneServers *> zones;

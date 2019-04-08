@@ -104,10 +104,14 @@ class OneDBBacKEnd
 
             index_sqlite: ["CREATE INDEX state_oid_idx ON vm_pool (state, oid);",
                            "CREATE INDEX applied_idx ON logdb (applied);"]
+        },
+        "5.9.80" => {
+            logdb: "log_index BIGINT UNSIGNED PRIMARY KEY, term INTEGER, sqlcmd MEDIUMTEXT, " <<
+                "timestamp INTEGER, fed_index BIGINT UNSIGNED, applied BOOLEAN"
         }
     }
 
-    LATEST_DB_VERSION = "5.7.80"
+    LATEST_DB_VERSION = "5.9.80"
 
     def get_schema(type, version = nil)
         if !version
