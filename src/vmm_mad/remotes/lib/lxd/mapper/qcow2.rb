@@ -20,11 +20,8 @@ $LOAD_PATH.unshift File.dirname(__FILE__)
 
 require 'mapper'
 
+# Block device mapping for qcow2 disks, backed by nbd kernel module
 class Qcow2Mapper < Mapper
-
-    # Max number of block devices. This should be set to the parameter used
-    # to load the nbd kernel module (default in kernel is 16)
-    NBDS_MAX = 256 # TODO: Read system config file
 
     def do_map(one_vm, disk, _directory)
         device = nbd_device
@@ -49,10 +46,11 @@ class Qcow2Mapper < Mapper
     end
 
     def do_unmap(device, _one_vm, _disk, _directory)
-        #After mapping and unmapping a qcow2 disk the next mapped qcow2 may collide with the previous one. 
-        #The use of kpartx before unmapping seems to prevent this behavior on the nbd module used with 
-        #the kernel versions in ubuntu 16.04
-        #
+        # After mapping and unmapping a qcow2 disk the next mapped qcow2
+        # may collide with the previous one. The use of kpartx
+        # before unmapping seems to prevent this behavior on the nbd module
+        # used with the kernel versions in ubuntu 16.04
+
         # TODO: avoid using if kpartx was not used
         hide_parts(device)
         cmd = "#{COMMANDS[:nbd]} -d #{device}"
@@ -67,6 +65,15 @@ class Qcow2Mapper < Mapper
 
     private
 
+    # Detects Max number of block devices
+    def nbds_max
+        File.read('/sys/module/nbd/parameters/nbds_max').chomp.to_i
+    rescue => e
+        OpenNebula.log_error("Cannot load kernel module parameter\n#{e}")
+        0
+    end
+
+    # Returns the first non-used nbd device
     def nbd_device
         sys_parts = lsblk('')
         nbds      = []
@@ -78,7 +85,7 @@ class Qcow2Mapper < Mapper
             nbds << m[1].to_i
         end
 
-        NBDS_MAX.times do |i|
+        nbds_max.times do |i| # if nbds_max returns 0 block is skipped
             return "/dev/nbd#{i}" unless nbds.include?(i)
         end
 
