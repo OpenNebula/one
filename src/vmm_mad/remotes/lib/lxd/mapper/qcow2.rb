@@ -23,8 +23,6 @@ require 'mapper'
 # Block device mapping for qcow2 disks, backed by nbd kernel module
 class Qcow2Mapper < Mapper
 
-    NBDS_MAX = 256 # Default nbd module param config provided by opennebula
-
     def do_map(one_vm, disk, _directory)
         device = nbd_device
 
@@ -69,16 +67,10 @@ class Qcow2Mapper < Mapper
 
     # Detects Max number of block devices
     def nbds_max
-        cmd = '/sbin/modprobe -c'
-        rc, mods_conf, e = Command.execute(cmd, false)
-
-        if !rc.zero?
-            OpenNebula.log_error("Cannot load max number of nbd devices\n#{e}"\
-                "Falling back to default #{NBDS_MAX}")
-            return NBDS_MAX
-        end
-
-        mods_conf.match(/(nbds_max=)(\d+)/)[-1].to_i
+        File.read('/sys/module/nbd/parameters/nbds_max').chomp.to_i
+    rescue => e
+        OpenNebula.log_error("Cannot load kernel module parameter\n#{e}")
+        0
     end
 
     # Returns the first non-used nbd device
@@ -93,7 +85,7 @@ class Qcow2Mapper < Mapper
             nbds << m[1].to_i
         end
 
-        nbds_max.times do |i|
+        nbds_max.times do |i| # if nbds_max returns 0 block is skipped
             return "/dev/nbd#{i}" unless nbds.include?(i)
         end
 
