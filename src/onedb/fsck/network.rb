@@ -391,6 +391,8 @@ module OneDBFsck
                 end
 
                 counter_ar.each do |mac, counter_lease|
+                    next if mac.nil?
+
                     index = ((mac & 0xFFFFFFFF) - (first_mac & 0xFFFFFFFF) ) % 0x100000000
 
                     new_lease_obj = ""
