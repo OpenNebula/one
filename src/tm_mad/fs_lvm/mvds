@@ -33,6 +33,10 @@ else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
 fi
 
+DRIVER_PATH=$(dirname $0)
+
+source ${DRIVER_PATH}/../../etc/tm/fs_lvm/fs_lvm.conf
+
 source $TMCOMMON
 
 #-------------------------------------------------------------------------------
@@ -54,7 +58,7 @@ DEV="/dev/${VG_NAME}/${LV_NAME}"
 
 DUMP_CMD=$(cat <<EOF
     set -e -o pipefail
-    $DD if=$DEV of=$DST_PATH bs=64k
+    $DD if=$DEV of=$DST_PATH bs=${DD_BLOCK_SIZE:-64k}
 EOF
 )
 
