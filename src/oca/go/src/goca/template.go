@@ -178,10 +178,12 @@ func (tc *TemplatesController) Create(template string) (uint, error) {
 	return uint(response.BodyInt()), nil
 }
 
-// Update will modify the template. If appendTemplate is 0, it will
-// replace the whole template. If its 1, it will merge.
-func (tc *TemplateController) Update(tpl string, appendTemplate int) error {
-	_, err := tc.c.Client.Call("one.template.update", tc.ID, tpl, appendTemplate)
+// Update replaces the cluster cluster contents.
+// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// * uType: Update type: Replace: Replace the whole template.
+//   Merge: Merge new template with the existing one.
+func (tc *TemplateController) Update(tpl string, uType UpdateType) error {
+	_, err := tc.c.Client.Call("one.template.update", tc.ID, tpl, uType)
 	return err
 }
 

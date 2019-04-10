@@ -260,10 +260,12 @@ func (ic *ImageController) Clone(cloneName string, dsid int) (uint, error) {
 	return uint(response.BodyInt()), nil
 }
 
-// Update will modify the image's template. If appendTemplate is 0, it will
-// replace the whole template. If its 1, it will merge.
-func (ic *ImageController) Update(tpl string, appendTemplate int) error {
-	_, err := ic.c.Client.Call("one.image.update", ic.ID, tpl, appendTemplate)
+// Update replaces the cluster cluster contents.
+// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// * uType: Update type: Replace: Replace the whole template.
+//   Merge: Merge new template with the existing one.
+func (ic *ImageController) Update(tpl string, uType UpdateType) error {
+	_, err := ic.c.Client.Call("one.image.update", ic.ID, tpl, uType)
 	return err
 }
 

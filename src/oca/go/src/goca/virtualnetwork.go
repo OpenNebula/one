@@ -254,11 +254,12 @@ func (vc *VirtualNetworkController) Release(tpl string) error {
 	return err
 }
 
-// Update replaces the virtual network template contents.
-// * tpl: The new template contents. Syntax can be the usual attribute=value or XML.
-// * appendTemplate: Update type: 0: Replace the whole template. 1: Merge new template with the existing one.
-func (vc *VirtualNetworkController) Update(tpl string, appendTemplate int) error {
-	_, err := vc.c.Client.Call("one.vn.update", vc.ID, tpl, appendTemplate)
+// Update replaces the cluster cluster contents.
+// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// * uType: Update type: Replace: Replace the whole template.
+//   Merge: Merge new template with the existing one.
+func (vc *VirtualNetworkController) Update(tpl string, uType UpdateType) error {
+	_, err := vc.c.Client.Call("one.vn.update", vc.ID, tpl, uType)
 	return err
 }
 

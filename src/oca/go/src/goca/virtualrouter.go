@@ -155,10 +155,12 @@ func (vc *VirtualRoutersController) Create(tpl string) (uint, error) {
 	return uint(response.BodyInt()), nil
 }
 
-// Update will modify the virtual router. If appendVirtualRouter is 0, it will
-// replace the whole virtual router. If its 1, it will merge.
-func (vc *VirtualRouterController) Update(tpl string, appendVirtualRouter int) error {
-	_, err := vc.c.Client.Call("one.vrouter.update", vc.ID, tpl, appendVirtualRouter)
+// Update replaces the cluster cluster contents.
+// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// * uType: Update type: Replace: Replace the whole template.
+//   Merge: Merge new template with the existing one.
+func (vc *VirtualRouterController) Update(tpl string, uType UpdateType) error {
+	_, err := vc.c.Client.Call("one.vrouter.update", vc.ID, tpl, uType)
 	return err
 }
 

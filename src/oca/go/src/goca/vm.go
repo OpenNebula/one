@@ -801,10 +801,12 @@ func (vc *VMController) Action(action string) error {
 	return err
 }
 
-// Update will modify the VM's template. If appendTemplate is 0, it will
-// replace the whole template. If its 1, it will merge.
-func (vc *VMController) Update(tpl string, appendTemplate int) error {
-	_, err := vc.c.Client.Call("one.vm.update", vc.ID, tpl, appendTemplate)
+// Update replaces the cluster cluster contents.
+// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// * uType: Update type: Replace: Replace the whole template.
+//   Merge: Merge new template with the existing one.
+func (vc *VMController) Update(tpl string, uType UpdateType) error {
+	_, err := vc.c.Client.Call("one.vm.update", vc.ID, tpl, uType)
 	return err
 }
 

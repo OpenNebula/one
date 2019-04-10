@@ -134,12 +134,11 @@ func (cc *ClusterController) Delete() error {
 }
 
 // Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or
-//   	XML.
-// * appendCluster: Update type: 0: Replace the whole cluster. 1: Merge new
-//   	cluster with the existing one.
-func (cc *ClusterController) Update(tpl string, appendCluster int) error {
-	_, err := cc.c.Client.Call("one.cluster.update", cc.ID, tpl, appendCluster)
+// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// * uType: Update type: Replace: Replace the whole template.
+//   Merge: Merge new template with the existing one.
+func (cc *ClusterController) Update(tpl string, uType UpdateType) error {
+	_, err := cc.c.Client.Call("one.cluster.update", cc.ID, tpl, uType)
 	return err
 }
 
