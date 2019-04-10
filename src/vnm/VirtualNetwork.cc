@@ -577,6 +577,8 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
 {
     ostringstream   os;
 
+    vector<int>::const_iterator it;
+
     string clusters_xml;
     string vrouters_xml;
     string template_xml;
@@ -654,7 +656,21 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
 
     os << "<USED_LEASES>"<< ar_pool.get_used_addr() << "</USED_LEASES>";
 
-    os << vrouters.to_xml(vrouters_xml);
+    if ((vrs.size() > 0) && vrs[0] == -1)
+    {
+        os << vrouters.to_xml(vrouters_xml);
+    }
+    else
+    {
+        os << "<VROUTERS>";
+
+        for (it = vrs.begin(); it != vrs.end(); it++)
+        {
+            os << "<ID>" << *it << "</ID>";
+        }
+
+        os << "</VROUTERS>";
+    }
 
     os << obj_template->to_xml(template_xml);
 
