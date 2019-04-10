@@ -656,7 +656,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
 
     os << "<USED_LEASES>"<< ar_pool.get_used_addr() << "</USED_LEASES>";
 
-    if ((vrs.size() > 0) && vrs[0] == -1)
+    if ((vrs.size() == 1) && vrs[0] == -1)
     {
         os << vrouters.to_xml(vrouters_xml);
     }
@@ -666,7 +666,10 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
 
         for (it = vrs.begin(); it != vrs.end(); it++)
         {
-            os << "<ID>" << *it << "</ID>";
+            if (vrouters.contains(*it))
+            {
+                os << "<ID>" << *it << "</ID>";
+            }
         }
 
         os << "</VROUTERS>";
