@@ -44,10 +44,10 @@ source ${DRIVER_PATH}/../../datastore/libfs.sh
 DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
 
-if [ "${DST_PATH##*/}" = "$VM_ID" ]; then
-    DS_SYS_ID=$(echo $DST_PATH | $AWK -F '/' '{print $(NF-1)}')
+if [ `is_disk $DST_PATH` -eq 1 ]; then
+    DS_SYS_ID=$(echo $DST_PATH | $AWK -F '/' '{print $(NF-2)}')
 else
-    DS_SYS_ID=$(echo $DST_PATH | grep -E '\/disk\.[[:digit:]]+$' | $AWK -F '/' '{print $(NF-2)}')
+    DS_SYS_ID=$(echo $DST_PATH | $AWK -F '/' '{print $(NF-1)}')
 fi
 
 # Activate device
@@ -96,34 +96,29 @@ DELETE_CMD=$(cat <<EOF
 EOF
 )
 
-if [ -n "${DS_SYS_ID}" ]; then
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onedatastore show -x $DS_SYS_ID | $XPATH \
+    /DATASTORE/TEMPLATE/BRIDGE_LIST)
+unset i
+BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
 
-    while IFS= read -r -d '' element; do
-        XPATH_ELEMENTS[i++]="$element"
-    done < <(onedatastore show -x $DS_SYS_ID | $XPATH \
-        /DATASTORE/TEMPLATE/BRIDGE_LIST)
-    unset i
-    BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
-
-    # Change DST_HOST to one of the BRIDGE_LIST to prevent
-    # running on frontend for undeployed VMs
-    if [ -n "$BRIDGE_LIST" ]; then
-        DST_HOST=$(get_destination_host)
-    fi
-
-    if [ "${ZERO_LVM_ON_DELETE}" = "yes" ]; then
-        LOCK="tm-fs_lvm-${DS_SYS_ID}.lock"
-        exclusive "${LOCK}" 120 ssh_exec_and_log "$DST_HOST" "$ACTIVATE_CMD" \
-            "Error activating disk $SRC_PATH"
-
-        ssh_exec_and_log "$DST_HOST" "$ZERO_CMD" "Error cleaning $DST_PATH"
-    fi
-
-    LOCK="tm-fs_lvm-${DS_SYS_ID}.lock"
-    exclusive "${LOCK}" 120 ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" \
-        "Error deleting $DST_PATH"
-else
-    ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" "Error deleting $DST_PATH"
+# Change DST_HOST to one of the BRIDGE_LIST to prevent
+# running on frontend for undeployed VMs
+if [ -n "$BRIDGE_LIST" ]; then
+    DST_HOST=$(get_destination_host)
 fi
+
+if [ "${ZERO_LVM_ON_DELETE}" = "yes" ]; then
+    LOCK="tm-fs_lvm-${DS_SYS_ID}.lock"
+    exclusive "${LOCK}" 120 ssh_exec_and_log "$DST_HOST" "$ACTIVATE_CMD" \
+        "Error activating disk $SRC_PATH"
+
+    ssh_exec_and_log "$DST_HOST" "$ZERO_CMD" "Error cleaning $DST_PATH"
+fi
+
+LOCK="tm-fs_lvm-${DS_SYS_ID}.lock"
+exclusive "${LOCK}" 120 ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" \
+    "Error deleting $DST_PATH"
 
 hup_collectd $DST_HOST
