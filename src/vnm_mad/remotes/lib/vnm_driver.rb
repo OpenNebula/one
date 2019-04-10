@@ -199,7 +199,7 @@ module VNMMAD
             dir = "#{$PROGRAM_NAME}.d"
             return 0 unless Dir.exist? dir
 
-            Dir["#{dir}/*"].each do |file|
+            programs(dir).each do |file|
                 OpenNebula.log "Running #{file}"
 
                 cmd = "#{file} #{args.join(' ')}"
@@ -210,6 +210,18 @@ module VNMMAD
             end
 
             0
+        end
+
+        # returns files sorted alphabetically
+        # if executable by the user running this method
+        def programs(dir)
+            files = []
+
+            Dir["#{dir}/*"].each do |file|
+                files << file if File.executable?(file)
+            end
+
+            files.sort
         end
 
     end
