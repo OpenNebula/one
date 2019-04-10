@@ -2012,7 +2012,8 @@ class VirtualMachine < VCenterDriver::Template
         begin
             @item.ReconfigVM_Task(:spec => spec_hash).wait_for_completion
         rescue Exception => e
-            raise "Cannot detach DISK from VM: #{e.message}\n#{e.backtrace}"
+            raise "Cannot detach DISK from VM: #{e.message}\n#{e.backtrace}"\
+                "Probably an existing VM snapshot includes that disk"
         end
     end
 
@@ -2020,9 +2021,9 @@ class VirtualMachine < VCenterDriver::Template
         one_vm = one_item
 
         detachable= !(one_vm["LCM_STATE"].to_i == 11 && !disk.managed?)
-        detachable = detachable && !has_snapshots? && disk.exists?
+        detachable = detachable && disk.exists?
 
-        return unless detachable
+        raise "Can not detach disk. Not supported on current configuration" unless detachable
 
         detach_disk(disk)
         disk.destroy()

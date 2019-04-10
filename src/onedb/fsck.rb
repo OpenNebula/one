@@ -527,7 +527,7 @@ EOT
     end
 
     def mac_s_to_i(mac)
-        return nil if mac.empty?
+        return nil if mac.nil? || mac.empty?
         return mac.split(":").map {|e|
             e.to_i(16).to_s(16).rjust(2,"0")}.join("").to_i(16)
     end

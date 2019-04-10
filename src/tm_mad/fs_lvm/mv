@@ -41,6 +41,8 @@ fi
 
 DRIVER_PATH=$(dirname $0)
 
+source ${DRIVER_PATH}/../../etc/tm/fs_lvm/fs_lvm.conf
+
 . $TMCOMMON
 
 #--------------------------------------------------------------------------------
@@ -127,7 +129,7 @@ EOF
 
         # copy volume data
         ssh_exec_and_log "$SRC_HOST" \
-            "${DD} if=${SRC_DEV} of=${DST_DEV} bs=64k" \
+            "${DD} if=${SRC_DEV} of=${DST_DEV} bs=${DD_BLOCK_SIZE:-64k}" \
             "Error copying ${SRC} to ${DST}"
 
         # delete old volume and update device symlinks

@@ -161,7 +161,11 @@ class Mapper
         device = ''
 
         real_path = directory
-        real_path = File.realpath(directory) if File.symlink?(one_vm.sysds_path)
+
+        is_rootfs = real_path =~ %r{.*/rootfs}
+        is_shared_ds = File.symlink?(one_vm.sysds_path)
+
+        real_path = File.realpath(directory) if !is_rootfs && is_shared_ds
 
         sys_parts.each {|d|
             if d['mountpoint'] == real_path

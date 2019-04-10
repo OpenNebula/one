@@ -68,11 +68,12 @@ class Container
 
         @lxc = lxc
         @one = one
+
         @lxc_command = 'lxc'
         @lxc_command.prepend 'sudo ' if client.snap
 
-        @containers = "#{@client.lxd_path}/storage-pools/default/containers"
-        @rootfs_dir = "#{@containers}/#{name}/rootfs"
+        @rootfs_dir = "#{@client.lxd_path}/storage-pools/default/containers/"\
+        "#{name}/rootfs"
         @context_path = "#{@rootfs_dir}/context"
     end
 
@@ -149,9 +150,13 @@ class Container
         wait?(@client.put("#{CONTAINERS}/#{name}", @lxc), wait, timeout)
     end
 
-    # Returns the container current state
+    # Returns the container live state
     def monitor
         @client.get("#{CONTAINERS}/#{name}/state")
+    end
+
+    def check_status
+        monitor['metadata']['status'] if Container.exist?(name, @client)
     end
 
     # Retreive metadata for the container
@@ -196,10 +201,27 @@ class Container
     def check_stop
         return if status != 'Running'
 
-        if ARGV[-1] == '-f'
-            stop(:force => true)
-        else
-            stop
+        begin
+            if ARGV[-1] == '-f'
+                stop(:force => true)
+            else
+                stop
+            end
+        rescue => exception
+            OpenNebula.log_error exception
+
+            real_status = 'Unknown'
+
+            2.times do
+                # This call may return an operation output instead of a
+                # container data in case of timeout. The call breaks
+                # the container info. It needs to be read again
+
+                real_status = check_status
+                break if %w[Running Stopped].include? real_status
+            end
+
+            container.stop(:force => true) if real_status == 'Running'
         end
     end
 
