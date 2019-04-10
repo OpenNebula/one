@@ -233,7 +233,7 @@ get '/support/check' do
         end
 
         if !http.nil? && http.response_code < 400
-            $conf[:opennebula_support_time] = Time.now.to_i
+            $conf[:one_support_time] = Time.now.to_i
             [200, JSON.pretty_generate(:pass => true)]
         else
             [400, JSON.pretty_generate(:pass => false)]
