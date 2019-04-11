@@ -90,8 +90,8 @@ if [ `is_disk $DST_PATH` -eq 1 ]; then
     DST_VG_NAME="vg-one-${DST_DS_SYS_ID}"
     DST_DEV="/dev/${DST_VG_NAME}/${LV_NAME}"
 
-    # undeploy operation
-    if [ "${LCM_STATE}" = "30" ] || [ "${LCM_STATE}" = "42" ]; then
+    # for stop + undeploy operation just deactivate the LV
+    if [[ "$LCM_STATE" =~ ^(10|30|41|42)$ ]]; then
       # deactivate
       CMD=$(cat <<EOF
           set -ex -o pipefail
