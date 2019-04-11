@@ -197,7 +197,9 @@ module VNMMAD
         # +stdin+:: +string+ Variable passed as Standard Input to each script
         def run_hooks(args, stdin)
             dir = "#{$PROGRAM_NAME}.d"
+
             return 0 unless Dir.exist? dir
+            return 0 if Dir.empty? dir
 
             programs(dir).each do |file|
                 OpenNebula.log "Running #{file}"
@@ -211,6 +213,8 @@ module VNMMAD
 
             0
         end
+
+        private
 
         # returns files sorted alphabetically
         # if executable by the user running this method
