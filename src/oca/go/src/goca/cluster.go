@@ -38,9 +38,9 @@ type Cluster struct {
 
 type clusterTemplate struct {
 	// Example of reservation: https://github.com/OpenNebula/addon-storpool/blob/ba9dd3462b369440cf618c4396c266f02e50f36f/misc/reserved.sh
-	ReservedMem string             `xml:"RESERVED_MEM"`
-	ReservedCPU string             `xml:"RESERVED_CPU"`
-	Dynamic     unmatchedTagsSlice `xml:",any"`
+	ReservedMem string      `xml:"RESERVED_MEM"`
+	ReservedCPU string      `xml:"RESERVED_CPU"`
+	Dynamic     DynTemplate `xml:",any"`
 }
 
 // NewClusterPool returns a cluster pool. A connection to OpenNebula is

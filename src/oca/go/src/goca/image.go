@@ -60,7 +60,7 @@ type Image struct {
 }
 
 type imageTemplate struct {
-	Dynamic unmatchedTagsSlice `xml:",any"`
+	Dynamic DynTemplate `xml:",any"`
 }
 
 // ImageState is the state of the Image

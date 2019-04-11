@@ -17,48 +17,54 @@
 package goca
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 )
 
-// TemplateBuilder represents an OpenNebula syntax template
-type TemplateBuilder struct {
-	elements []TemplateBuilderElement
+// DynTemplate represents an OpenNebula syntax template
+type DynTemplate struct {
+	elements []DynTemplateElement
 }
 
-// TemplateBuilderElement is an interface that must implement the String
+// DynTemplateElement is an interface that must implement the String
 // function
-type TemplateBuilderElement interface {
+type DynTemplateElement interface {
 	String() string
+	Key() string
 }
 
-// TemplateBuilderPair is a key / value pair
-type TemplateBuilderPair struct {
+// DynTemplatePair is a key / value pair
+type DynTemplatePair struct {
 	key   string
-	value string
+	Value string
 }
 
-// TemplateBuilderVector contains an array of keyvalue pairs
-type TemplateBuilderVector struct {
+// DynTemplateVector contains an array of keyvalue pairs
+type DynTemplateVector struct {
 	key   string
-	pairs []TemplateBuilderPair
+	pairs []DynTemplatePair
 }
 
-// NewTemplateBuilder returns a new TemplateBuilder object
-func NewTemplateBuilder() *TemplateBuilder {
-	return &TemplateBuilder{}
+// Key return the pair key
+func (t *DynTemplatePair) Key() string { return t.key }
+
+// Key return the vector key
+func (t *DynTemplateVector) Key() string { return t.key }
+
+// NewDynTemplate returns a new DynTemplate object
+func NewDynTemplate() *DynTemplate {
+	return &DynTemplate{}
 }
 
 // NewVector creates a new vector in the template
-func (t *TemplateBuilder) NewVector(key string) *TemplateBuilderVector {
-	vector := &TemplateBuilderVector{key: key}
+func (t *DynTemplate) NewVector(key string) *DynTemplateVector {
+	vector := &DynTemplateVector{key: key}
 	t.elements = append(t.elements, vector)
 	return vector
 }
 
-// String prints the TemplateBuilder in OpenNebula syntax
-func (t *TemplateBuilder) String() string {
+// String prints the DynTemplate in OpenNebula syntax
+func (t *DynTemplate) String() string {
 	s := ""
 	endToken := "\n"
 
@@ -72,12 +78,12 @@ func (t *TemplateBuilder) String() string {
 	return s
 }
 
-// String prints a TemplateBuilderPair in OpenNebula syntax
-func (t *TemplateBuilderPair) String() string {
-	return fmt.Sprintf("%s=\"%s\"", t.key, t.value)
+// String prints a DynTemplatePair in OpenNebula syntax
+func (t *DynTemplatePair) String() string {
+	return fmt.Sprintf("%s=\"%s\"", t.key, t.Value)
 }
 
-func (t *TemplateBuilderVector) String() string {
+func (t *DynTemplateVector) String() string {
 	s := fmt.Sprintf("%s=[\n", strings.ToUpper(t.key))
 
 	endToken := ",\n"
@@ -94,40 +100,70 @@ func (t *TemplateBuilderVector) String() string {
 	return s
 }
 
-// AddValue adds a new pair to a TemplateBuilder objects
-func (t *TemplateBuilder) AddValue(key string, v interface{}) error {
+// AddPair adds a new pair to a DynTemplate objects
+func (t *DynTemplate) AddPair(key string, v interface{}) error {
 	var val string
 
 	switch v := v.(type) {
 	default:
-		return errors.New("Unexpected type")
+		return fmt.Errorf("Unexpected type")
 	case int, uint:
 		val = fmt.Sprintf("%d", v)
 	case string:
 		val = v
 	}
 
-	pair := &TemplateBuilderPair{strings.ToUpper(key), val}
+	pair := &DynTemplatePair{strings.ToUpper(key), val}
 	t.elements = append(t.elements, pair)
 
 	return nil
 }
 
-// AddValue adds a new pair to a TemplateBuilderVector
-func (t *TemplateBuilderVector) AddValue(key string, v interface{}) error {
+// AddPair adds a new pair to a DynTemplateVector
+func (t *DynTemplateVector) AddPair(key string, v interface{}) error {
 	var val string
 
 	switch v := v.(type) {
 	default:
-		return errors.New("Unexpected type")
+		return fmt.Errorf("Unexpected type")
 	case int, uint:
 		val = fmt.Sprintf("%d", v)
 	case string:
 		val = v
 	}
 
-	pair := TemplateBuilderPair{strings.ToUpper(key), val}
+	pair := DynTemplatePair{strings.ToUpper(key), val}
 	t.pairs = append(t.pairs, pair)
 
 	return nil
+}
+
+// AppendTemplate append the src vector content, the pairs
+func (t *DynTemplate) AppendTemplate(src *DynTemplate) {
+	t.elements = append(t.elements, src.elements...)
+}
+
+// AppendPairs append the src vector content, the pairs
+func (t *DynTemplateVector) AppendPairs(src *DynTemplateVector) {
+	t.pairs = append(t.pairs, src.pairs...)
+}
+
+// Delete remove an element from DynTemplate objects
+func (t *DynTemplate) DelElement(key string) {
+	for i := 0; i < len(t.elements); i++ {
+		if t.elements[i].Key() != key {
+			continue
+		}
+		t.elements = append(t.elements[:i], t.elements[i+1:]...)
+	}
+}
+
+// Delete remove a pair from DynTemplateVector
+func (t *DynTemplateVector) DelValue(key string) {
+	for i := 0; i < len(t.pairs); i++ {
+		if t.pairs[i].Key() != key {
+			continue
+		}
+		t.pairs = append(t.pairs[:i], t.pairs[i+1:]...)
+	}
 }

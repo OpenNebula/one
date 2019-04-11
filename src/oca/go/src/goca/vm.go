@@ -57,7 +57,7 @@ type VM struct {
 type vmMonitoring struct {
 	DiskSize     []vmMonitoringDiskSize     `xml:"DISK_SIZE"`
 	SnapshotSize []vmMonitoringSnapshotSize `xml:"SNAPSHOT_SIZE"`
-	Dynamic      unmatchedTagsSlice         `xml:",any"`
+	Dynamic      DynTemplate                `xml:",any"`
 }
 
 type vmMonitoringDiskSize struct {
@@ -92,64 +92,40 @@ type vmHistoryRecord struct {
 
 // VMUserTemplate contain custom attributes
 type vmUserTemplate struct {
-	Error        string           `xml:"ERROR"`
-	SchedMessage string           `xml:"SCHED_MESSAGE"`
-	Dynamic      unmatchedTagsMap `xml:",any"`
+	Error        string      `xml:"ERROR"`
+	SchedMessage string      `xml:"SCHED_MESSAGE"`
+	Dynamic      DynTemplate `xml:",any"`
 }
 
 type vmTemplate struct {
 	CPU                float64               `xml:"CPU"`
 	Memory             int                   `xml:"MEMORY"`
 	NICs               []vmNic               `xml:"NIC"`
-	NICAliases         []vmNicAlias          `xml:"NIC_ALIAS"`
-	Context            *vmContext            `xml:"CONTEXT"`
+	Context            *DynTemplateVector    `xml:"CONTEXT"`
 	Disks              []vmDisk              `xml:"DISK"`
-	Graphics           *vmGraphics           `xml:"GRAPHICS"`
-	OS                 *vmOS                 `xml:"OS"`
 	Snapshots          []VMSnapshot          `xml:"SNAPSHOT"`
 	SecurityGroupRules []vmSecurityGroupRule `xml:"SECURITY_GROUP_RULE"`
-	Dynamic            unmatchedTagsSlice    `xml:",any"`
-}
-
-type vmContext struct {
-	Dynamic unmatchedTagsMap `xml:",any"`
+	Dynamic            DynTemplate           `xml:",any"`
 }
 
 type vmNic struct {
-	ID      int                `xml:"NIC_ID"`
-	Network string             `xml:"NETWORK"`
-	IP      string             `xml:"IP"`
-	MAC     string             `xml:"MAC"`
-	PhyDev  string             `xml:"PHYDEV"`
-	Dynamic unmatchedTagsSlice `xml:",any"`
-}
-
-type vmNicAlias struct {
-	ID       int    `xml:"NIC_ID"`    // minOccurs=1
-	Parent   string `xml:"PARENT"`    // minOccurs=1
-	ParentID string `xml:"PARENT_ID"` // minOccurs=1
-}
-
-type vmGraphics struct {
-	Listen string `xml:"LISTEN"`
-	Port   string `xml:"PORT"`
-	Type   string `xml:"TYPE"`
+	ID      int               `xml:"NIC_ID"`
+	Network string            `xml:"NETWORK"`
+	IP      string            `xml:"IP"`
+	MAC     string            `xml:"MAC"`
+	PhyDev  string            `xml:"PHYDEV"`
+	Dynamic DynTemplateVector `xml:",any"`
 }
 
 type vmDisk struct {
-	ID           int                `xml:"DISK_ID"`
-	Datastore    string             `xml:"DATASTORE"`
-	DiskType     string             `xml:"DISK_TYPE"`
-	Image        string             `xml:"IMAGE"`
-	Driver       string             `xml:"DRIVER"`
-	OriginalSize int                `xml:"ORIGINAL_SIZE"`
-	Size         int                `xml:"SIZE"`
-	Dynamic      unmatchedTagsSlice `xml:",any"`
-}
-
-type vmOS struct {
-	Arch string `xml:"ARCH"`
-	Boot string `xml:"BOOT"`
+	ID           int               `xml:"DISK_ID"`
+	Datastore    string            `xml:"DATASTORE"`
+	DiskType     string            `xml:"DISK_TYPE"`
+	Image        string            `xml:"IMAGE"`
+	Driver       string            `xml:"DRIVER"`
+	OriginalSize int               `xml:"ORIGINAL_SIZE"`
+	Size         int               `xml:"SIZE"`
+	Dynamic      DynTemplateVector `xml:",any"`
 }
 
 type vmSecurityGroupRule struct {

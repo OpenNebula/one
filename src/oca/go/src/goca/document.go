@@ -41,7 +41,7 @@ type Document struct {
 }
 
 type documentTemplate struct {
-	Dynamic unmatchedTagsSlice `xml:",any"`
+	Dynamic DynTemplate `xml:",any"`
 }
 
 // NewDocumentPool returns a document pool. A connection to OpenNebula is

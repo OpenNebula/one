@@ -46,7 +46,7 @@ type MarketPlace struct {
 
 // MarketPlaceTemplate represent the template part of the MarketPlace
 type marketPlaceTemplate struct {
-	Dynamic unmatchedTagsSlice `xml:",any"`
+	Dynamic DynTemplate `xml:",any"`
 }
 
 // NewMarketPlacePool returns a marketplace pool. A connection to OpenNebula is

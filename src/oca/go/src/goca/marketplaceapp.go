@@ -54,7 +54,7 @@ type MarketPlaceApp struct {
 }
 
 type marketPlaceAppTemplate struct {
-	Dynamic unmatchedTagsSlice `xml:,any`
+	Dynamic DynTemplate `xml:,any`
 }
 
 // NewMarketPlaceAppPool returns a marketplace app pool. A connection to OpenNebula is

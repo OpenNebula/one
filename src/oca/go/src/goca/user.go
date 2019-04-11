@@ -47,7 +47,7 @@ type User struct {
 }
 
 type userTemplate struct {
-	Dynamic unmatchedTagsSlice `xml:",any"`
+	Dynamic DynTemplate `xml:",any"`
 }
 
 type loginToken struct {

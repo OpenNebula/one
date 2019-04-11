@@ -51,7 +51,7 @@ type Datastore struct {
 }
 
 type datastoreTemplate struct {
-	Dynamic unmatchedTagsSlice `xml:",any"`
+	Dynamic DynTemplate `xml:",any"`
 }
 
 // DatastoreState is the state of an OpenNebula datastore

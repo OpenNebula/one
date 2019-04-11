@@ -42,7 +42,7 @@ type Group struct {
 }
 
 type groupTemplate struct {
-	Dynamic unmatchedTagsSlice `xml:",any"`
+	Dynamic DynTemplate `xml:",any"`
 }
 
 // NewGroupPool returns a group pool. A connection to OpenNebula is

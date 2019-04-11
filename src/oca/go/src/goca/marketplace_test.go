@@ -58,12 +58,12 @@ func TestMarketplace(t *testing.T){
 	market.Info()
 
 	actual_mm := market.MarketMad
-	actual_1, err := market.Template.Dynamic.GetContentByName("ATT1")
+	actual_1, err := market.Template.Dynamic.GetPair("ATT1")
 	if err != nil {
 		t.Errorf("Test failed, can't retrieve '%s', error: %s", "ATT1", err.Error())
 	} else {
-		if actual_1 != "VAL1" {
-			t.Errorf("Test failed, expected: '%s', got:  '%s'", "VAL1", actual_1)
+		if actual_1.Value != "VAL1" {
+			t.Errorf("Test failed, expected: '%s', got:  '%s'", "VAL1", actual_1.Value)
 		}
 	}
 

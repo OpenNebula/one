@@ -79,9 +79,9 @@ type hostDS struct {
 
 type hostTemplate struct {
 	// Example of reservation: https://github.com/OpenNebula/addon-storpool/blob/ba9dd3462b369440cf618c4396c266f02e50f36f/misc/reserved.sh
-	ReservedMem int                `xml:"RESERVED_MEM"`
-	ReservedCPU int                `xml:"RESERVED_CPU"`
-	Dynamic     unmatchedTagsSlice `xml:",any"`
+	ReservedMem int         `xml:"RESERVED_MEM"`
+	ReservedCPU int         `xml:"RESERVED_CPU"`
+	Dynamic     DynTemplate `xml:",any"`
 }
 
 // HostState is the state of an OpenNebula Host

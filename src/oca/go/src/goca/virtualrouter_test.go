@@ -57,20 +57,20 @@ func TestVirtualRouter(t *testing.T){
 
 	vr.Info()
 
-	actual_1, err := vr.Template.Dynamic.GetContentByName("ATT1")
+	actual_1, err := vr.Template.Dynamic.GetPair("ATT1")
 	if err != nil {
 		t.Errorf("Test failed, can't retrieve '%s', error: %s", "ATT1", err.Error())
 	} else {
-		if actual_1 != "VAL1" {
+		if actual_1.Value != "VAL1" {
 			t.Errorf("Test failed, expected: '%s', got:  '%s'", "VAL1", actual_1)
 		}
 	}
 
-	actual_3, err := vr.Template.Dynamic.GetContentByName("ATT3")
+	actual_3, err := vr.Template.Dynamic.GetPair("ATT3")
 	if err != nil {
 		t.Errorf("Test failed, can't retrieve '%s', error: %s", "ATT3", err.Error())
 	} else {
-		if actual_3 != "VAL3" {
+		if actual_3.Value != "VAL3" {
 			t.Errorf("Test failed, expected: '%s', got:  '%s'", "VAL3", actual_3)
 		}
 	}
@@ -172,13 +172,16 @@ func TestVirtualRouter(t *testing.T){
 
 	vr.Info()
 
-	if len(vr.Template.NIC) == 0{
-		t.Errorf("Test failed, can't retrieve '%s', error: %s", "NIC", err.Error())
+	actualNICs := vr.Template.Dynamic.GetVectors("NIC")
+	if len(actualNICs) != 1 {
+		t.Errorf("Test failed, does not retrieve the exact number of NICs '%s', count: %d", "NIC", len(actualNICs))
 	} else {
-		actualNetName, _ :=  vr.Template.NIC[0].Dynamic.GetContentByName("NETWORK")
-
-		if actualNetName != "go-net" {
-			t.Errorf("Test failed, expected: '%s', got:  '%s'", "go-net", actualNetName)
+		actualNetName, err := actualNICs[0].GetPair("NETWORK")
+		if err != nil {
+			t.Errorf("Test failed, can't retrieve '%s', error: %s", "NETWORK", err)
+		}
+		if actualNetName.Value != "go-net" {
+			t.Errorf("Test failed, expected: '%s', got:  '%s'", "go-net", actualNetName.Value)
 		}
 	}
 

@@ -45,13 +45,7 @@ type VirtualRouter struct {
 
 // VirtualRouterTemplate represent the template part of the OpenNebula VirtualRouter
 type virtualRouterTemplate struct {
-	NIC     []virtualRouterNIC `xml:"NIC"`
-	Dynamic unmatchedTagsSlice `xml:",any"`
-}
-
-type virtualRouterNIC struct {
-	NICID   int                `xml:"NIC_ID"`
-	Dynamic unmatchedTagsSlice `xml:",any"`
+	Dynamic DynTemplate `xml:",any"`
 }
 
 // NewVirtualRouterPool returns a virtual router pool. A connection to OpenNebula is

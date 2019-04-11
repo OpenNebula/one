@@ -43,8 +43,8 @@ type VNTemplate struct {
 }
 
 type vnTemplateTemplate struct {
-	VNMad   string             `xml:"VN_MAD"`
-	Dynamic unmatchedTagsSlice `xml:",any"`
+	VNMad   string      `xml:"VN_MAD"`
+	Dynamic DynTemplate `xml:",any"`
 }
 
 // NewVNTemplatePool returns a vntemplate pool. A connection to OpenNebula is
