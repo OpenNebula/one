@@ -23,6 +23,5 @@ require 'vnmmad'
 
 template64 = STDIN.read
 
-hm = VLANTagDriver.from_base64(template64)
-
+hm = VNMMAD::VNMDriver.from_base64(template64)
 exit hm.run_hooks(ARGV, template64)
