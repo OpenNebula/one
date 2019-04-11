@@ -26,11 +26,13 @@
 class ConnectionManager
 {
 public:
-    ConnectionManager(RequestManager *_rm, int mc):rm(_rm), max_connections(mc)
+    ConnectionManager(RequestManager *_rm, int mc):rm(_rm), connections(0),
+    max_connections(mc)
     {
         pthread_mutex_init(&mutex,0);
 
         pthread_cond_init(&cond,0);
+
     };
 
     ~ConnectionManager()
@@ -46,12 +48,12 @@ public:
     int add()
     {
         pthread_mutex_lock(&mutex);
-        
-        ++connections;
+
+        int temp_connections = ++connections;
 
         pthread_mutex_unlock(&mutex);
 
-        return connections;
+        return temp_connections;
     };
 
     /**
@@ -60,7 +62,7 @@ public:
     void del()
     {
         pthread_mutex_lock(&mutex);
-        
+
         --connections;
 
         pthread_cond_signal(&cond);
