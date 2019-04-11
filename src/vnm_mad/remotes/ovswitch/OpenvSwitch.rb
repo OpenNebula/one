@@ -162,6 +162,8 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         end
 
         unlock
+
+        0
     end
 
     def vlan

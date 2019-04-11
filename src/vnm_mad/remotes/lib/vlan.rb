@@ -116,6 +116,8 @@ module VNMMAD
             end if @bridges
 
             unlock
+
+            0
         end
 
     private
