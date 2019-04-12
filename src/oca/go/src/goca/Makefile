@@ -27,8 +27,5 @@ help:
 	@echo
 
 test:
-	go test $(glide nv)
-	golint $(glide nv)
-
-get-deps:
-	glide install
+	go test ./...
+	golint ./...
