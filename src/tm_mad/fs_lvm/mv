@@ -59,14 +59,14 @@ DST_HOST=`arg_host $DST`
 SRC_DIR=`dirname $SRC_PATH`
 DST_DIR=`dirname $DST_PATH`
 
-SRC_DS_SYS_ID=$(echo $SRC_DIR | $AWK -F '/' '{print $(NF-1)}')
-DST_DS_SYS_ID=$(echo $DST_DIR | $AWK -F '/' '{print $(NF-1)}')
-
 # Activate the disk in the target host
 if [ `is_disk $SRC_PATH` -eq 1 ]; then
     #---------------------------------------------------------------------------
     # Get Image information
     #---------------------------------------------------------------------------
+
+    SRC_DS_SYS_ID=$(echo $SRC_DIR | $AWK -F '/' '{print $(NF-1)}')
+    DST_DS_SYS_ID=$(echo $DST_DIR | $AWK -F '/' '{print $(NF-1)}')
 
     DISK_ID=${SRC_PATH##*.}
 
@@ -89,23 +89,23 @@ if [ `is_disk $SRC_PATH` -eq 1 ]; then
 
     # for stop + undeploy operation just deactivate the LV
     if [[ "$LCM_STATE" =~ ^(10|30|41|42)$ ]]; then
-      # deactivate
-      CMD=$(cat <<EOF
-          set -ex -o pipefail
-          if [ -b "${SRC_DEV}" ]; then
-            ${SUDO} ${SYNC}
-            ${SUDO} ${LVSCAN}
-            ${SUDO} ${LVCHANGE} -an "${SRC_DEV}"
-          fi
+        # deactivate
+        CMD=$(cat <<EOF
+            set -ex -o pipefail
+            if [ -b "${SRC_DEV}" ]; then
+              ${SUDO} ${SYNC}
+              ${SUDO} ${LVSCAN}
+              ${SUDO} ${LVCHANGE} -an "${SRC_DEV}"
+            fi
 
-          rm -f "${SRC_DIR}/.host" || :
+            rm -f "${SRC_DIR}/.host" || :
 EOF
 )
-      LOCK="tm-fs_lvm-${SRC_DS_SYS_ID}.lock"
-      exclusive "${LOCK}" 120 ssh_exec_and_log "${SRC_HOST}" "${CMD}" \
-          "Error deactivating disk ${SRC_PATH}"
+        LOCK="tm-fs_lvm-${SRC_DS_SYS_ID}.lock"
+        exclusive "${LOCK}" 120 ssh_exec_and_log "${SRC_HOST}" "${CMD}" \
+            "Error deactivating disk ${SRC_PATH}"
 
-      exit 0
+        exit 0
     fi
 
     # copy volume between datastores
