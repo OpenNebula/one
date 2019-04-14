@@ -59,19 +59,16 @@ DST_HOST=`arg_host $DST`
 SRC_DIR=`dirname $SRC_PATH`
 DST_DIR=`dirname $DST_PATH`
 
-SRC_DS_DIR=`dirname  $SRC_PATH`
-SRC_VM_DIR=`basename $SRC_PATH`
-
-SRC_DS_SYS_ID=$(echo $SRC_DS_DIR | $AWK -F '/' '{print $(NF-1)}')
+SRC_DS_SYS_ID=$(echo $SRC_DIR | $AWK -F '/' '{print $(NF-1)}')
 DST_DS_SYS_ID=$(echo $DST_DIR | $AWK -F '/' '{print $(NF-1)}')
 
 # Activate the disk in the target host
-if [ `is_disk $DST_PATH` -eq 1 ]; then
+if [ `is_disk $SRC_PATH` -eq 1 ]; then
     #---------------------------------------------------------------------------
     # Get Image information
     #---------------------------------------------------------------------------
 
-    DISK_ID=${SRC_VM_DIR##*.}
+    DISK_ID=${SRC_PATH##*.}
 
     XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
 
