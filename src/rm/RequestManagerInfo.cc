@@ -206,7 +206,7 @@ void VirtualNetworkTemplateInfo::request_execute(xmlrpc_c::paramList const& para
     }
 
     vn_tmpl->to_xml(str);
-    
+
     vn_tmpl->unlock();
 
     success_response(str, att);
