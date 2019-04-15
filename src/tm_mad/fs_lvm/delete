@@ -50,6 +50,31 @@ else
     DS_SYS_ID=$(echo $DST_PATH | $AWK -F '/' '{print $(NF-1)}')
 fi
 
+unset i j XPATH_ELEMENTS
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VM_ID | $XPATH \
+    '/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME')
+
+LAST_HOST="${XPATH_ELEMENTS[j++]}"
+
+
+# Change DST_HOST to one of the BRIDGE_LIST to prevent
+# running on frontend for undeployed VMs
+if [ "$LAST_HOST" != "$DST_HOST" ]; then
+    unset i j XPATH_ELEMENTS
+    while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+    done < <(onedatastore show -x $DS_SYS_ID | $XPATH \
+        /DATASTORE/TEMPLATE/BRIDGE_LIST)
+
+    BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
+
+    if [ -n "$BRIDGE_LIST" ]; then
+        DST_HOST=$(get_destination_host)
+    fi
+fi
+
 # Activate device
 ACTIVATE_CMD=$(cat <<EOF
     set -ex -o pipefail
@@ -95,19 +120,6 @@ DELETE_CMD=$(cat <<EOF
     rm -f "$DST_PATH"
 EOF
 )
-
-while IFS= read -r -d '' element; do
-    XPATH_ELEMENTS[i++]="$element"
-done < <(onedatastore show -x $DS_SYS_ID | $XPATH \
-    /DATASTORE/TEMPLATE/BRIDGE_LIST)
-unset i
-BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
-
-# Change DST_HOST to one of the BRIDGE_LIST to prevent
-# running on frontend for undeployed VMs
-if [ -n "$BRIDGE_LIST" ]; then
-    DST_HOST=$(get_destination_host)
-fi
 
 if [ "${ZERO_LVM_ON_DELETE}" = "yes" ]; then
     LOCK="tm-fs_lvm-${DS_SYS_ID}.lock"
