@@ -186,6 +186,18 @@ int RaftReplicaThread::replicate()
 
     uint64_t next_index = raftm->get_next_index(follower_id);
 
+    if ( next_index == UINT64_MAX )
+    {
+        ostringstream ess;
+
+        ess << "Failed to get next replica index for follower: " << follower_id;
+
+        NebulaLog::log("RCM", Log::ERROR, ess);
+
+        return -1;
+    }
+
+
     if ( logdb->get_log_record(next_index, lr) != 0 )
     {
         ostringstream ess;

@@ -314,14 +314,6 @@ protected:
     void failure_response(ErrorCode ec, RequestAttributes& ra);
 
     /**
-     *  Builds an XML-RPC response updating retval. After calling this function
-     *  the xml-rpc excute method should return. A descriptive error message
-     *  is constructed for DB replications erros.
-     *    @param att the specific request attributes
-     */
-    void failure_response_replication(RequestAttributes& att);
-
-    /**
      *  Builds an error response. A descriptive error message
      *  is constructed using att.resp_obj, att.resp_id and/or att.resp_msg and
      *  the ErrorCode

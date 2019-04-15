@@ -222,12 +222,12 @@ public:
     /**
      *  Get next index to send to the follower
      *    @param follower server id
-     *    @return -1 on failure, the next index if success
+     *    @return UINT64_MAX on failure, the next index if success
      */
     uint64_t get_next_index(int follower_id)
     {
         std::map<int, uint64_t>::iterator it;
-        uint64_t _index = -1;
+        uint64_t _index = UINT64_MAX;
 
         pthread_mutex_lock(&mutex);
 

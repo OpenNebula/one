@@ -74,10 +74,15 @@ int LogDBRecord::select_cb(void *nil, int num, char **values, char **names)
     iss >> index;
     iss.clear();
 
-    term  = static_cast<unsigned int>(atoi(values[1]));
-    zsql  = values[2];
+    iss.str(string(values[1]));
+    iss >> term;
+    iss.clear();
 
-    timestamp  = static_cast<unsigned int>(atoi(values[3]));
+    zsql = values[2];
+
+    iss.str(string(values[3]));
+    iss >> timestamp;
+    iss.clear();
 
     iss.str(string(values[4]));
     iss >> fed_index;
@@ -115,8 +120,8 @@ int LogDBRecord::select_cb(void *nil, int num, char **values, char **names)
 /* -------------------------------------------------------------------------- */
 
 LogDB::LogDB(SqlDB * _db, bool _solo, bool _cache, uint64_t _lret, uint64_t _lp):
-    solo(_solo), cache(_cache), db(_db), next_index(0), last_applied(-1), last_index(-1),
-    last_term(-1), log_retention(_lret), limit_purge(_lp)
+    solo(_solo), cache(_cache), db(_db), next_index(0), last_applied(-1),
+    last_index(-1), last_term(-1), log_retention(_lret), limit_purge(_lp)
 {
     uint64_t r, i;
 
@@ -130,7 +135,7 @@ LogDB::LogDB(SqlDB * _db, bool _solo, bool _cache, uint64_t _lret, uint64_t _lp)
 
         oss << time(0);
 
-        insert_log_record(0, 0, oss, time(0), -1, false);
+        insert_log_record(0, 0, oss, time(0), UINT64_MAX, false);
     }
 
     setup_index(r, i);
@@ -287,7 +292,8 @@ int LogDB::update_raft_state(std::string name, std::string& raft_xml)
         return -1;
     }
 
-    oss << "UPDATE system_attributes SET body ='" << sql_db << "' WHERE name = '" << name << "'";
+    oss << "UPDATE system_attributes SET body ='" << sql_db
+        << "' WHERE name = '" << name << "'";
 
     db->free_str(sql_db);
 
@@ -297,8 +303,8 @@ int LogDB::update_raft_state(std::string name, std::string& raft_xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int LogDB::insert(uint64_t index, int term, const std::string& sql, time_t tstamp,
-        uint64_t fed_index, bool replace)
+int LogDB::insert(uint64_t index, unsigned int term, const std::string& sql,
+    time_t tstamp, uint64_t fed_index, bool replace)
 {
     std::ostringstream oss;
 
@@ -371,8 +377,8 @@ int LogDB::apply_log_record(LogDBRecord * lr)
     {
         std::ostringstream oss;
 
-        oss << "UPDATE logdb SET timestamp = " << time(0) << ", applied = 1" << " WHERE "
-            << "log_index = " << lr->index << " AND timestamp = 0";
+        oss << "UPDATE logdb SET timestamp = " << time(0) << ", applied = 1"
+            << " WHERE log_index = " << lr->index << " AND timestamp = 0";
 
         if ( db->exec_wr(oss) != 0 )
         {
@@ -394,7 +400,7 @@ int LogDB::apply_log_record(LogDBRecord * lr)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-uint64_t LogDB::insert_log_record(uint64_t term, std::ostringstream& sql,
+uint64_t LogDB::insert_log_record(unsigned int term, std::ostringstream& sql,
         time_t timestamp, uint64_t fed_index)
 {
     pthread_mutex_lock(&mutex);
@@ -418,7 +424,7 @@ uint64_t LogDB::insert_log_record(uint64_t term, std::ostringstream& sql,
 
         pthread_mutex_unlock(&mutex);
 
-        return -1;
+        return UINT64_MAX;
     }
 
     //allocate a replication request if log record is going to be replicated
@@ -433,7 +439,7 @@ uint64_t LogDB::insert_log_record(uint64_t term, std::ostringstream& sql,
 
     next_index++;
 
-    if ( fed_index != UINT64_MAX )
+    if ( _fed_index != UINT64_MAX )
     {
         fed_log.insert(_fed_index);
     }

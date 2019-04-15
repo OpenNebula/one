@@ -119,10 +119,10 @@ public:
      *    @param term for the record
      *    @param sql command of the record
      *    @param timestamp associated to this record
-     *    @param fed_index index in the federation -1 if not federated
+     *    @param fed_index index in the federation UINT64_MAX if not federated
      *    @param replace if true will replace the record if it exists
      *
-     *    @return -1 on failure, index of the inserted record on success
+     *    @return 0 on sucess, -1 on failure
      */
     int insert_log_record(uint64_t index, unsigned int term,
             std::ostringstream& sql, time_t timestamp, uint64_t fed_index,
@@ -337,8 +337,8 @@ private:
      *  Replicates writes in the followers and apply changes to DB state once
      *  it is safe to do so.
      *
-     *  @param federated -1 not federated (fed_index = -1), 0 generate fed index
-     *  (fed_index = index), > 0 set (fed_index = federated)
+     *  @param federated UINT64_MAX not federated (fed_index = UINT64_MAX), 0
+     *  generate fed index (fed_index = index), > 0 set (fed_index = federated)
      */
     int _exec_wr(ostringstream& cmd, uint64_t federated);
 
@@ -360,8 +360,8 @@ private:
      *
      *    @return 0 on success
      */
-    int insert(uint64_t index, int term, const std::string& sql, time_t ts,
-               uint64_t fi, bool replace);
+    int insert(uint64_t index, unsigned int term, const std::string& sql,
+               time_t ts, uint64_t fi, bool replace);
 
     /**
      *  Inserts a new log record in the database. If the record is successfully
@@ -373,7 +373,7 @@ private:
      *
      *    @return -1 on failure, index of the inserted record on success
      */
-    uint64_t insert_log_record(uint64_t term, std::ostringstream& sql,
+    uint64_t insert_log_record(unsigned int term, std::ostringstream& sql,
             time_t timestamp, uint64_t fed_index);
 };
 

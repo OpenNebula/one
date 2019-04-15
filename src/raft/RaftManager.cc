@@ -598,9 +598,7 @@ void RaftManager::replicate_log(ReplicaRequest * request)
 
     for (it = next.begin(); it != next.end() ; ++it)
     {
-        uint64_t rindex = request->index();
-
-        if ( rindex < (uint64_t) it->second )
+        if ( request->index() < it->second )
         {
             to_commit--;
         }
@@ -1059,7 +1057,7 @@ int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
 {
 	int _server_id;
 	uint64_t _commit;
-    int _term;
+    unsigned int _term;
     std::string xmlrpc_secret;
 
     static const std::string replica_method = "one.zone.replicate";
@@ -1156,7 +1154,7 @@ int RaftManager::xmlrpc_request_vote(int follower_id, uint64_t lindex,
         std::string& error)
 {
 	int _server_id;
-    int _term;
+    unsigned int _term;
     std::string xmlrpc_secret;
 
     static const std::string replica_method = "one.zone.voterequest";

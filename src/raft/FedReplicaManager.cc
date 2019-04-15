@@ -442,7 +442,7 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
         else
         {
             error = xmlrpc_c::value_string(values[1]);
-            last  = xmlrpc_c::value_i8(values[3]);
+            last  = xmlrpc_c::value_i8(values[4]);
         }
     }
     else
@@ -459,3 +459,4 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
 
     return xml_rc;
 }
+

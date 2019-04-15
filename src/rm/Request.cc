@@ -738,20 +738,6 @@ void Request::failure_response(ErrorCode ec, const string& str_val,
     *(att.retval) = arrayresult;
 }
 
-void Request::failure_response_replication(RequestAttributes& att)
-{
-    vector<xmlrpc_c::value> arrayData;
-
-    arrayData.push_back(xmlrpc_c::value_boolean(false));
-    arrayData.push_back(xmlrpc_c::value_string(att.resp_msg));
-    arrayData.push_back(xmlrpc_c::value_int(REPLICATION));
-    arrayData.push_back(xmlrpc_c::value_i8(att.replication_idx));
-
-    xmlrpc_c::value_array arrayresult(arrayData);
-
-    *(att.retval) = arrayresult;
-}
-
 /* -------------------------------------------------------------------------- */
 
 string Request::failure_message(ErrorCode ec, RequestAttributes& att)
@@ -828,7 +814,16 @@ string Request::failure_message(ErrorCode ec, RequestAttributes& att)
             }
             break;
         case REPLICATION:
-            oss << "Error replicating log entry " << att.replication_idx << ".";
+            oss << "Error replicating log entry " << att.replication_idx;
+
+            if (att.resp_msg.empty())
+            {
+                oss << ".";
+            }
+            else
+            {
+                oss << ": " << att.resp_msg << ".";
+            }
             break;
     }
 

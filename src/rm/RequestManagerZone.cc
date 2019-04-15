@@ -600,7 +600,7 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
         att.resp_msg = oss.str();
         att.replication_idx  = UINT64_MAX;
 
-        failure_response_replication(att);
+        failure_response(REPLICATION, att);
         return;
     }
 
@@ -613,7 +613,7 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
         att.resp_msg = oss.str();
         att.replication_idx  = UINT64_MAX;
 
-        failure_response_replication(att);
+        failure_response(REPLICATION, att);
         return;
     }
 
@@ -632,7 +632,7 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
         att.resp_msg = oss.str();
         att.replication_idx  = index;
 
-        failure_response_replication(att);
+        failure_response(REPLICATION, att);
     }
     else // rc == last_index in log
     {
@@ -643,7 +643,7 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
         att.resp_msg = oss.str();
         att.replication_idx  = rc;
 
-        failure_response_replication(att);
+        failure_response(REPLICATION, att);
     }
 
     return;
