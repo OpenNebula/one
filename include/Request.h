@@ -55,11 +55,14 @@ public:
     int                       resp_id;  /**< Id of the object */
     string                    resp_msg; /**< Additional response message */
 
+    uint64_t replication_idx;
+
     RequestAttributes()
     {
-        resp_obj = PoolObjectSQL::NONE;
-        resp_id  = -1;
-        resp_msg = "";
+        resp_obj        = PoolObjectSQL::NONE;
+        resp_id         = -1;
+        resp_msg        = "";
+        replication_idx = UINT64_MAX;
     };
 
     RequestAttributes(const RequestAttributes& ra)
@@ -84,6 +87,8 @@ public:
         resp_obj = ra.resp_obj;
         resp_id  = ra.resp_id;
         resp_msg = ra.resp_msg;
+
+        replication_idx = ra.replication_idx;
     };
 
     RequestAttributes(int _uid, int _gid, const RequestAttributes& ra)
@@ -110,6 +115,8 @@ public:
         resp_obj = PoolObjectSQL::NONE;
         resp_id  = -1;
         resp_msg = "";
+
+        replication_idx = UINT64_MAX;
     };
 
     bool is_admin() const
@@ -140,15 +147,16 @@ public:
      *  Error codes for the XML-RPC API
      */
     enum ErrorCode {
-        SUCCESS        = 0x0000,
-        AUTHENTICATION = 0x0100,
-        AUTHORIZATION  = 0x0200,
-        NO_EXISTS      = 0x0400,
-        ACTION         = 0x0800,
-        XML_RPC_API    = 0x1000,
-        INTERNAL       = 0x2000,
-        ALLOCATE       = 0x4000,
-        LOCKED         = 0x8000
+        SUCCESS        = 0x00000,
+        AUTHENTICATION = 0x00100,
+        AUTHORIZATION  = 0x00200,
+        NO_EXISTS      = 0x00400,
+        ACTION         = 0x00800,
+        XML_RPC_API    = 0x01000,
+        INTERNAL       = 0x02000,
+        ALLOCATE       = 0x04000,
+        LOCKED         = 0x08000,
+        REPLICATION    = 0x10000
     };
 
     /**
@@ -286,6 +294,14 @@ protected:
      *    @param att the specific request attributes
      */
     void success_response(bool val, RequestAttributes& att);
+
+    /**
+     *  Builds an XML-RPC response updating retval. After calling this function
+     *  the xml-rpc excute method should return
+     *    @param val to be returned to the client
+     *    @param att the specific request attributes
+     */
+    void success_response(uint64_t val, RequestAttributes& att);
 
     /**
      *  Builds an XML-RPC response updating retval. After calling this function

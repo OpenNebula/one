@@ -330,6 +330,9 @@ void Request::log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss
             oss << ", "
                 << static_cast<double>(xmlrpc_c::value_double(v));
             break;
+        case xmlrpc_c::value::TYPE_I8:
+            oss << ", " << static_cast<uint64_t>(xmlrpc_c::value_i8(v));
+            break;
         default:
             oss  << ", unknown param type";
             break;
@@ -728,6 +731,7 @@ void Request::failure_response(ErrorCode ec, const string& str_val,
     arrayData.push_back(xmlrpc_c::value_string(str_val));
     arrayData.push_back(xmlrpc_c::value_int(ec));
     arrayData.push_back(xmlrpc_c::value_int(att.resp_id));
+    arrayData.push_back(xmlrpc_c::value_i8(att.replication_idx));
 
     xmlrpc_c::value_array arrayresult(arrayData);
 
@@ -809,6 +813,18 @@ string Request::failure_message(ErrorCode ec, RequestAttributes& att)
                oss << " [" << att.resp_id << "].";
             }
             break;
+        case REPLICATION:
+            oss << "Error replicating log entry " << att.replication_idx;
+
+            if (att.resp_msg.empty())
+            {
+                oss << ".";
+            }
+            else
+            {
+                oss << ": " << att.resp_msg << ".";
+            }
+            break;
     }
 
     return oss.str();
@@ -863,6 +879,23 @@ void Request::success_response(bool val, RequestAttributes& att)
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
     arrayData.push_back(xmlrpc_c::value_boolean(val));
+    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
+
+
+    xmlrpc_c::value_array arrayresult(arrayData);
+
+    *(att.retval) = arrayresult;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Request::success_response(uint64_t val, RequestAttributes& att)
+{
+    vector<xmlrpc_c::value> arrayData;
+
+    arrayData.push_back(xmlrpc_c::value_boolean(true));
+    arrayData.push_back(xmlrpc_c::value_i8(val));
     arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
 
 

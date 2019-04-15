@@ -32,9 +32,9 @@ public:
    /**
     *  Index for this log entry (and previous)
     */
-    unsigned int index;
+    uint64_t index;
 
-    unsigned int prev_index;
+    uint64_t prev_index;
 
     /**
      *  Term where this log (and previous) entry was generated
@@ -57,7 +57,7 @@ public:
      *  The index in the federation, -1 if the log entry is not federated.
      *  At master fed_index is equal to index.
      */
-    int fed_index;
+    uint64_t fed_index;
 
     /**
      *  Sets callback to load register from DB
@@ -82,8 +82,8 @@ private:
 class LogDB : public SqlDB
 {
 public:
-    LogDB(SqlDB * _db, bool solo, bool cache, unsigned int log_retention,
-            unsigned int limit_purge);
+    LogDB(SqlDB * _db, bool solo, bool cache, uint64_t log_retention,
+            uint64_t limit_purge);
 
     virtual ~LogDB();
 
@@ -97,20 +97,20 @@ public:
      *    @param lr logDBrecored to load from the DB
      *    @return 0 on success -1 otherwise
      */
-    int get_log_record(unsigned int index, LogDBRecord& lr);
+    int get_log_record(uint64_t index, LogDBRecord& lr);
 
     /**
      *  Applies the SQL command of the given record to the database. The
      *  timestamp of the record is updated.
      *    @param index of the log record
      */
-    int apply_log_records(unsigned int commit_index);
+    int apply_log_records(uint64_t commit_index);
 
     /**
      *  Deletes the record in start_index and all that follow it
      *    @param start_index first log record to delete
      */
-    int delete_log_records(unsigned int start_index);
+    int delete_log_records(uint64_t start_index);
 
     /**
      *  Inserts a new log record in the database. This method should be used
@@ -119,13 +119,13 @@ public:
      *    @param term for the record
      *    @param sql command of the record
      *    @param timestamp associated to this record
-     *    @param fed_index index in the federation -1 if not federated
+     *    @param fed_index index in the federation UINT64_MAX if not federated
      *    @param replace if true will replace the record if it exists
      *
-     *    @return -1 on failure, index of the inserted record on success
+     *    @return 0 on sucess, -1 on failure
      */
-    int insert_log_record(unsigned int index, unsigned int term,
-            std::ostringstream& sql, time_t timestamp, int fed_index,
+    int insert_log_record(uint64_t index, unsigned int term,
+            std::ostringstream& sql, time_t timestamp, uint64_t fed_index,
             bool replace);
 
     /**
@@ -135,7 +135,7 @@ public:
      *
      *    @return 0 on success, -1 in case of failure
      */
-    int replicate(int rindex);
+    int replicate(uint64_t rindex);
 
     //--------------------------------------------------------------------------
     // Functions to manage the Raft state. Log record 0, term -1
@@ -145,14 +145,14 @@ public:
      *    @param raft attributes in XML format
      *    @return 0 on success
      */
-    int update_raft_state(std::string& raft_xml);
+    int update_raft_state(std::string name, std::string& raft_xml);
 
     /**
      *  Returns the raft state attributes as stored in the log
      *    @param raft_xml attributes in xml
      *    @return 0 on success
      */
-    int get_raft_state(std::string &raft_xml);
+    int get_raft_state(std::string name, std::string &raft_xml);
 
     /**
      *  Purge log records. Delete old records applied to database upto the
@@ -170,7 +170,7 @@ public:
      */
     int exec_wr(ostringstream& cmd)
     {
-        return _exec_wr(cmd, -1);
+        return _exec_wr(cmd, UINT64_MAX);
     }
 
     int exec_wr(ostringstream& cmd, Callbackable* obj)
@@ -183,7 +183,7 @@ public:
         return _exec_wr(cmd, 0);
     }
 
-    int exec_federated_wr(ostringstream& cmd, int index)
+    int exec_federated_wr(ostringstream& cmd, uint64_t index)
     {
         return _exec_wr(cmd, index);
     }
@@ -234,14 +234,14 @@ public:
      *
      *    @return 0 on success
      */
-    int setup_index(int& last_applied, int& last_index);
+    int setup_index(uint64_t& last_applied, uint64_t& last_index);
 
     /**
      *  Gets the index & term of the last record in the log
      *    @param _i the index
      *    @param _t the term
      */
-    void get_last_record_index(unsigned int& _i, unsigned int& _t);
+    void get_last_record_index(uint64_t& _i, unsigned int& _t);
 
     // -------------------------------------------------------------------------
     // Federate log methods
@@ -249,11 +249,11 @@ public:
     /**
      *  Get last federated index, and previous
      */
-    int last_federated();
+    uint64_t last_federated();
 
-    int previous_federated(int index);
+    uint64_t previous_federated(uint64_t index);
 
-    int next_federated(int index);
+    uint64_t next_federated(uint64_t index);
 
 protected:
     int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
@@ -282,17 +282,17 @@ private:
     /**
      *  Index to be used by the next logDB record
      */
-    unsigned int next_index;
+    uint64_t next_index;
 
     /**
      *  Index of the last log entry applied to the DB state
      */
-    unsigned int last_applied;
+    uint64_t last_applied;
 
     /**
      *  Index of the last (highest) log entry
      */
-    unsigned int last_index;
+    uint64_t last_index;
 
     /**
      *  term of the last (highest) log entry
@@ -302,12 +302,12 @@ private:
     /**
      *  Max number of records to keep in the database
      */
-    unsigned int log_retention;
+    uint64_t log_retention;
 
     /**
      *  Max number of logs purged on each call.
      */
-    unsigned int limit_purge;
+    uint64_t limit_purge;
 
     // -------------------------------------------------------------------------
     // Federated Log
@@ -316,7 +316,7 @@ private:
      *  The federated log stores a map with the federated log index and its
      *  corresponding local index. For the master both are the same
      */
-    std::set<int> fed_log;
+    std::set<uint64_t> fed_log;
 
     /**
      *  Generates the federated index, it should be called whenever a server
@@ -337,10 +337,10 @@ private:
      *  Replicates writes in the followers and apply changes to DB state once
      *  it is safe to do so.
      *
-     *  @param federated -1 not federated (fed_index = -1), 0 generate fed index
-     *  (fed_index = index), > 0 set (fed_index = federated)
+     *  @param federated UINT64_MAX not federated (fed_index = UINT64_MAX), 0
+     *  generate fed index (fed_index = index), > 0 set (fed_index = federated)
      */
-    int _exec_wr(ostringstream& cmd, int federated);
+    int _exec_wr(ostringstream& cmd, uint64_t federated);
 
     /**
      *  Applies the SQL command of the given record to the database. The
@@ -360,8 +360,8 @@ private:
      *
      *    @return 0 on success
      */
-    int insert(int index, int term, const std::string& sql, time_t ts, int fi,
-            bool replace);
+    int insert(uint64_t index, unsigned int term, const std::string& sql,
+               time_t ts, uint64_t fi, bool replace);
 
     /**
      *  Inserts a new log record in the database. If the record is successfully
@@ -373,8 +373,8 @@ private:
      *
      *    @return -1 on failure, index of the inserted record on success
      */
-    int insert_log_record(unsigned int term, std::ostringstream& sql,
-            time_t timestamp, int federated);
+    uint64_t insert_log_record(unsigned int term, std::ostringstream& sql,
+            time_t timestamp, uint64_t fed_index);
 };
 
 // -----------------------------------------------------------------------------

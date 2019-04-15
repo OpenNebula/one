@@ -297,15 +297,15 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     RaftManager * raftm = nd.get_raftm();
 
-    int leader_id     = xmlrpc_c::value_int(paramList.getInt(1));
-    int leader_commit = xmlrpc_c::value_int(paramList.getInt(2));
+    int leader_id            = xmlrpc_c::value_int(paramList.getInt(1));
+    uint64_t leader_commit   = xmlrpc_c::value_i8(paramList.getI8(2));
     unsigned int leader_term = xmlrpc_c::value_int(paramList.getInt(3));
 
-    unsigned int index      = xmlrpc_c::value_int(paramList.getInt(4));
+    uint64_t index          = xmlrpc_c::value_i8(paramList.getI8(4));
     unsigned int term       = xmlrpc_c::value_int(paramList.getInt(5));
-    unsigned int prev_index = xmlrpc_c::value_int(paramList.getInt(6));
+    uint64_t prev_index     = xmlrpc_c::value_i8(paramList.getI8(6));
     unsigned int prev_term  = xmlrpc_c::value_int(paramList.getInt(7));
-    unsigned int fed_index  = xmlrpc_c::value_int(paramList.getInt(8));
+    uint64_t fed_index      = xmlrpc_c::value_i8(paramList.getI8(8));
 
     string sql = xmlrpc_c::value_string(paramList.getString(9));
 
@@ -370,11 +370,12 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
     if ( index == 0 && prev_index == 0 && term == 0 && prev_term == 0 &&
          sql.empty() )
     {
-        unsigned int lindex, lterm;
+        unsigned int lterm;
+        uint64_t lindex;
 
         logdb->get_last_record_index(lindex, lterm);
 
-        unsigned int new_commit = raftm->update_commit(leader_commit, lindex);
+        uint64_t new_commit = raftm->update_commit(leader_commit, lindex);
 
         logdb->apply_log_records(new_commit);
 
@@ -443,7 +444,7 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    unsigned int new_commit = raftm->update_commit(leader_commit, index);
+    uint64_t new_commit = raftm->update_commit(leader_commit, index);
 
     logdb->apply_log_records(new_commit);
 
@@ -464,12 +465,13 @@ void ZoneVoteRequest::request_execute(xmlrpc_c::paramList const& paramList,
     unsigned int candidate_term  = xmlrpc_c::value_int(paramList.getInt(1));
     unsigned int candidate_id    = xmlrpc_c::value_int(paramList.getInt(2));
 
-    unsigned int candidate_log_index = xmlrpc_c::value_int(paramList.getInt(3));
+    uint64_t candidate_log_index = xmlrpc_c::value_i8(paramList.getI8(3));
     unsigned int candidate_log_term  = xmlrpc_c::value_int(paramList.getInt(4));
 
     unsigned int current_term = raftm->get_term();
 
-    unsigned int log_index, log_term;
+    unsigned int log_term;
+    uint64_t log_index;
 
     logdb->get_last_record_index(log_index, log_term);
 
@@ -568,13 +570,13 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     FedReplicaManager * frm = nd.get_frm();
 
-    int index  = xmlrpc_c::value_int(paramList.getInt(1));
-    int prev   = xmlrpc_c::value_int(paramList.getInt(2));
+    uint64_t index  = xmlrpc_c::value_i8(paramList.getI8(1));
+    uint64_t prev   = xmlrpc_c::value_i8(paramList.getI8(2));
     string sql = xmlrpc_c::value_string(paramList.getString(3));
 
     if (!att.is_oneadmin())
     {
-        att.resp_id  = -1;
+        att.replication_idx  = UINT64_MAX;
 
         failure_response(AUTHORIZATION, att);
         return;
@@ -583,7 +585,7 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
     if ( nd.is_cache() )
     {
         att.resp_msg = "Server is in cache mode.";
-        att.resp_id  = -1;
+        att.replication_idx  = UINT64_MAX;
 
         failure_response(ACTION, att);
         return;
@@ -596,9 +598,9 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
         NebulaLog::log("ReM", Log::ERROR, oss);
 
         att.resp_msg = oss.str();
-        att.resp_id  = -1;
+        att.replication_idx  = UINT64_MAX;
 
-        failure_response(ACTION, att);
+        failure_response(REPLICATION, att);
         return;
     }
 
@@ -609,28 +611,28 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
         NebulaLog::log("ReM", Log::INFO, oss);
 
         att.resp_msg = oss.str();
-        att.resp_id  = - 1;
+        att.replication_idx  = UINT64_MAX;
 
-        failure_response(ACTION, att);
+        failure_response(REPLICATION, att);
         return;
     }
 
-    int rc = frm->apply_log_record(index, prev, sql);
+    uint64_t rc = frm->apply_log_record(index, prev, sql);
 
     if ( rc == 0 )
     {
         success_response(index, att);
     }
-    else if ( rc < 0 )
+    else if ( rc == UINT64_MAX )
     {
         oss << "Error replicating log entry " << index << " in zone";
 
         NebulaLog::log("ReM", Log::INFO, oss);
 
         att.resp_msg = oss.str();
-        att.resp_id  = index;
+        att.replication_idx  = index;
 
-        failure_response(ACTION, att);
+        failure_response(REPLICATION, att);
     }
     else // rc == last_index in log
     {
@@ -639,9 +641,9 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
         NebulaLog::log("ReM", Log::INFO, oss);
 
         att.resp_msg = oss.str();
-        att.resp_id  = rc;
+        att.replication_idx  = rc;
 
-        failure_response(ACTION, att);
+        failure_response(REPLICATION, att);
     }
 
     return;

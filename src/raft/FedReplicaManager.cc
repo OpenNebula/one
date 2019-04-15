@@ -58,14 +58,14 @@ FedReplicaManager::~FedReplicaManager()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int FedReplicaManager::apply_log_record(int index, int prev, 
+uint64_t FedReplicaManager::apply_log_record(uint64_t index, uint64_t prev,
         const std::string& sql)
 {
-    int rc;
+    uint64_t rc;
 
     pthread_mutex_lock(&mutex);
 
-    int last_index = logdb->last_federated();
+    uint64_t last_index = logdb->last_federated();
 
     if ( prev != last_index )
     {
@@ -80,7 +80,7 @@ int FedReplicaManager::apply_log_record(int index, int prev,
     if ( logdb->exec_federated_wr(oss, index) != 0 )
     {
         pthread_mutex_unlock(&mutex);
-        return -1;
+        return UINT64_MAX;
     }
 
     pthread_mutex_unlock(&mutex);
@@ -154,7 +154,7 @@ void FedReplicaManager::update_zones(std::vector<int>& zone_ids)
 
     pthread_mutex_lock(&mutex);
 
-    int last_index = logdb->last_federated();
+    uint64_t last_index = logdb->last_federated();
 
     zones.clear();
 
@@ -291,7 +291,7 @@ int FedReplicaManager::get_next_record(int zone_id, std::string& zedp,
     zedp  = zs->endpoint;
 
     //Initialize next index for the zone
-    if ( zs->next == -1 )
+    if ( zs->next == UINT64_MAX )
     {
         zs->next= logdb->last_federated();
     }
@@ -301,10 +301,10 @@ int FedReplicaManager::get_next_record(int zone_id, std::string& zedp,
     {
         zs->next = logdb->next_federated(zs->next);
 
-        if ( zs->last == zs->next ) //no new records
+        if ( zs->next == UINT64_MAX ) //no new records
         {
             pthread_mutex_unlock(&mutex);
-            return -1;
+            return -2;
         }
     }
 
@@ -346,7 +346,7 @@ void FedReplicaManager::replicate_success(int zone_id)
 
     zs->next = logdb->next_federated(zs->next);
 
-    if ( zs->next != -1 )
+    if ( zs->next != UINT64_MAX )
     {
         ReplicaManager::replicate(zone_id);
     }
@@ -356,7 +356,7 @@ void FedReplicaManager::replicate_success(int zone_id)
 
 /* -------------------------------------------------------------------------- */
 
-void FedReplicaManager::replicate_failure(int zone_id, int last_zone)
+void FedReplicaManager::replicate_failure(int zone_id, uint64_t last_zone)
 {
     pthread_mutex_lock(&mutex);
 
@@ -366,14 +366,14 @@ void FedReplicaManager::replicate_failure(int zone_id, int last_zone)
     {
         ZoneServers * zs = it->second;
 
-        if ( last_zone >= 0 )
+        if ( last_zone != UINT64_MAX )
         {
             zs->last = last_zone;
 
             zs->next = logdb->next_federated(zs->last);
         }
 
-        if ( zs->next != -1 )
+        if ( zs->next != UINT64_MAX )
         {
             ReplicaManager::replicate(zone_id);
         }
@@ -387,7 +387,7 @@ void FedReplicaManager::replicate_failure(int zone_id, int last_zone)
 /* -------------------------------------------------------------------------- */
 
 int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
-        int& last, std::string& error)
+        uint64_t& last, std::string& error)
 {
     static const std::string replica_method = "one.zone.fedreplicate";
 
@@ -397,12 +397,14 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
 
     LogDBRecord lr;
 
-    if ( get_next_record(zone_id, zedp, lr, error) != 0 )
+    int rc = get_next_record(zone_id, zedp, lr, error);
+
+    if ( rc != 0 )
     {
-        return -1;
+        return rc;
     }
 
-    int prev_index = logdb->previous_federated(lr.index);
+    uint64_t prev_index = logdb->previous_federated(lr.index);
 
     // -------------------------------------------------------------------------
     // Get parameters to call append entries on follower
@@ -416,8 +418,8 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
     }
 
     replica_params.add(xmlrpc_c::value_string(xmlrpc_secret));
-    replica_params.add(xmlrpc_c::value_int(lr.index));
-    replica_params.add(xmlrpc_c::value_int(prev_index));
+    replica_params.add(xmlrpc_c::value_i8(lr.index));
+    replica_params.add(xmlrpc_c::value_i8(prev_index));
     replica_params.add(xmlrpc_c::value_string(lr.sql));
 
     // -------------------------------------------------------------------------
@@ -435,12 +437,12 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
 
         if ( success ) //values[2] = error code (string)
         {
-            last = xmlrpc_c::value_int(values[1]);
+            last = xmlrpc_c::value_i8(values[1]);
         }
         else
         {
             error = xmlrpc_c::value_string(values[1]);
-            last  = xmlrpc_c::value_int(values[3]);
+            last  = xmlrpc_c::value_i8(values[4]);
         }
     }
     else
@@ -457,3 +459,4 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
 
     return xml_rc;
 }
+
