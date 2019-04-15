@@ -926,7 +926,7 @@ func (vm *VM) AttachNic(tpl string) error {
 }
 
 // DetachNic detaches a network interface from the virtual machine
-func (vm *VM) DetachNic(nicID string) error {
+func (vm *VM) DetachNic(nicID int) error {
 	_, err := client.Call("one.vm.detachnic", vm.ID, nicID)
 	return err
 }
