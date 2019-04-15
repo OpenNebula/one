@@ -556,7 +556,7 @@ string& VirtualNetwork::to_xml(string& xml) const
 {
     const vector<int> empty;
 
-    return to_xml_extended(xml,false, empty, empty, empty);
+    return to_xml_extended(xml, false, empty, empty, empty);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -565,17 +565,19 @@ string& VirtualNetwork::to_xml(string& xml) const
 string& VirtualNetwork::to_xml_extended(string& xml, const vector<int>& vms,
         const vector<int>& vnets, const vector<int>& vrs) const
 {
-    return to_xml_extended(xml,true, vms, vnets, vrs);
+    return to_xml_extended(xml, true, vms, vnets, vrs);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
+string& VirtualNetwork::to_xml_extended(string& xml, bool extended_and_check,
     const vector<int>& vms, const vector<int>& vnets,
     const vector<int>& vrs) const
 {
     ostringstream   os;
+
+    vector<int>::const_iterator it;
 
     string clusters_xml;
     string vrouters_xml;
@@ -654,11 +656,28 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
 
     os << "<USED_LEASES>"<< ar_pool.get_used_addr() << "</USED_LEASES>";
 
-    os << vrouters.to_xml(vrouters_xml);
+    if (((vrs.size() == 1) && vrs[0] == -1) || !extended_and_check)
+    {
+        os << vrouters.to_xml(vrouters_xml);
+    }
+    else
+    {
+        os << "<VROUTERS>";
+
+        for (it = vrs.begin(); it != vrs.end(); it++)
+        {
+            if (vrouters.contains(*it))
+            {
+                os << "<ID>" << *it << "</ID>";
+            }
+        }
+
+        os << "</VROUTERS>";
+    }
 
     os << obj_template->to_xml(template_xml);
 
-    os << ar_pool.to_xml(leases_xml, extended, vms, vnets, vrs);
+    os << ar_pool.to_xml(leases_xml, extended_and_check, vms, vnets, vrs);
 
     os << "</VNET>";
 

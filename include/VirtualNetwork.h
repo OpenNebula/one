@@ -739,10 +739,10 @@ private:
      * Function to print the VirtualNetwork object into a string in
      * XML format
      *  @param xml the resulting XML string
-     *  @param extended If true, leases are included
+     *  @param extended_and_check If true, leases are included and permissions are checked
      *  @return a reference to the generated string
      */
-    string& to_xml_extended(string& xml, bool extended,
+    string& to_xml_extended(string& xml, bool extended_and_check,
         const vector<int>& vm_ids, const vector<int>& vnet_oids,
         const vector<int>& vr_ids) const;
 
