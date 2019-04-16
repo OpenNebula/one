@@ -39,7 +39,7 @@ container = Container.get(vm_name, xml, client)
 container.vnc('stop')
 container.check_stop
 
-return if container.wild?
+exit 0 if container.wild?
 
 raise 'Failed to dismantle container storage' unless \
 container.setup_storage('unmap')
