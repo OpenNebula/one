@@ -165,8 +165,10 @@ module OneProvision
 
         # Creates a new PROVISION
         #
-        # @param config [String] Path to the configuration file
-        def create(config)
+        # @param config  [String]  Path to the configuration file
+        # @param cleanup [Boolean] True to delete running VMs and images
+        # @param timeout [Integer] Timeout for deleting running VMs
+        def create(config, cleanup, timeout)
             Ansible.check_ansible_version
 
             begin
@@ -223,7 +225,7 @@ module OneProvision
 
                 0
             rescue OneProvisionCleanupException
-                delete
+                delete(cleanup, timeout)
 
                 -1
             end
