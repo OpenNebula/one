@@ -577,6 +577,7 @@ AllCops:
     - src/onedb/local/4.9.80_to_4.10.3.rb
     - src/onedb/local/5.5.80_to_5.6.0.rb
     - src/onedb/local/4.7.80_to_4.9.80.rb
+    - src/onedb/local/5.8.0_to_5.9.80.rb
     - src/onedb/onedb_live.rb
     - src/onedb/onedb_backend.rb
     - src/onedb/sqlite2mysql.rb
