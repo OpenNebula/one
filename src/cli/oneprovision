@@ -165,7 +165,7 @@ CommandParser::CmdParser.new(ARGV) do
     CLEANUP_TIMEOUT = {
         :name => 'cleanup_timeout',
         :large => '--cleanup-timeout timeout',
-        :description => 'Change the default timeout when deleting VMs.'
+        :description => 'Change the default timeout when deleting VMs/Images.'
     }
 
     INCREMENTAL = {
@@ -190,7 +190,12 @@ CommandParser::CmdParser.new(ARGV) do
              FAIL_SKIP,
              FAIL_QUIT]
 
-    CREATE_OPTIONS = [THREADS, MODES, PING_TIMEOUT, PING_RETRIES]
+    CREATE_OPTIONS = [THREADS,
+                      MODES,
+                      PING_TIMEOUT,
+                      PING_RETRIES,
+                      CLEANUP,
+                      CLEANUP_TIMEOUT]
 
     ONE_OPTIONS = CommandParser::OPTIONS +
                   CLIHelper::OPTIONS +
@@ -207,7 +212,13 @@ CommandParser::CmdParser.new(ARGV) do
     command :create, create_desc, :config, :options => CREATE_OPTIONS do
         helper.parse_options(options)
 
-        helper.create(args[0])
+        if options[:cleanup_timeout].nil?
+            timeout = 20
+        else
+            timeout = options[:cleanup_timeout]
+        end
+
+        helper.create(args[0], (options.key? :cleanup), timeout)
     end
 
     ###
