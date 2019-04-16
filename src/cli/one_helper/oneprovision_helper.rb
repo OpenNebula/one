@@ -75,14 +75,14 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     # Helper provision functions
     #######################################################################
 
-    def create(config)
+    def create(config, cleanup, timeout)
         msg = 'OpenNebula is not running'
 
         OneProvision::Utils.fail(msg) if OneProvision::Utils.one_running?
 
         provision = OneProvision::Provision.new(SecureRandom.uuid)
 
-        provision.create(config)
+        provision.create(config, cleanup, timeout)
     end
 
     def configure(provision_id, force)
