@@ -462,17 +462,20 @@ EOT
         # USER QUOTAS
         ########################################################################
 
-        check_fix_user_quotas
+        check_fix_quotas('user')
+
+        check_fix_quotas('user', 'running')
 
         log_time
-
         ########################################################################
         # Groups
         #
         # GROUP QUOTAS
         ########################################################################
 
-        check_fix_group_quotas
+        check_fix_quotas('group')
+
+        check_fix_quotas('group', 'running')
 
         log_time
 
@@ -483,9 +486,8 @@ EOT
         ########################################################################
 
         check_template
-        fix_template
 
-        log_time
+        fix_template
 
         log_total_errors
 
