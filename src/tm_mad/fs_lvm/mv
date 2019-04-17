@@ -87,8 +87,10 @@ if [ `is_disk $SRC_PATH` -eq 1 ]; then
     DST_VG_NAME="vg-one-${DST_DS_SYS_ID}"
     DST_DEV="/dev/${DST_VG_NAME}/${LV_NAME}"
 
-    # for prolog operation skip deactivate
-    if ! [[ "$LCM_STATE" =~ ^(31|50)$ ]]; then
+    # skip deactivate for `onevm resume` (after stop or undeploy)
+    # 9(49) = PROLOG_RESUME(+FAILURE)
+    # 31(50) = PROLOG_UNDEPLOY(+FAILURE)
+    if ! [[ "$LCM_STATE" =~ ^(9|31|49|50)$ ]]; then
         # deactivate
         CMD=$(cat <<EOF
             set -ex -o pipefail
@@ -106,7 +108,9 @@ EOF
             "Error deactivating disk ${SRC_PATH}"
     fi
 
-    # for stop + undeploy operation we got nothing to do
+    # for `onevm stop` or `onevm undeploy` nothing to do
+    # 10(41) = EPILOG_STOP(+FAILURE)
+    # 30(42) = EPILOG_UNDEPLOY(+FAILURE)
     if [[ "$LCM_STATE" =~ ^(10|30|41|42)$ ]]; then
         exit 0
     fi
