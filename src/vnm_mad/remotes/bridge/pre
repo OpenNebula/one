@@ -26,4 +26,4 @@ deploy_id    = ARGV[0]
 xpath_filter = "TEMPLATE/NIC[VN_MAD='bridge']"
 
 hm = VNMMAD::NoVLANDriver.from_base64(template64, xpath_filter, deploy_id)
-exit hm.run_hooks(ARGV, template64) if hm.activate.zero?
+exit hm.run_hooks(ARGV, template64) if hm.activate == 0
