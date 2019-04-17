@@ -42,10 +42,6 @@ begin
 
     vm = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm_ref)
 
-    if vm.has_snapshots?
-        raise 'vCenter doesn\'t allow to remove a virtual disk if it\'s part ' \
-              'of a snapshot of the virtual machine.'
-    end
 rescue StandardError => e
     message = "Detach DISK for VM #{vm_ref} on vCenter cluster " \
               "#{vc_cluster_name} failed due to \"#{e.message}\"."
