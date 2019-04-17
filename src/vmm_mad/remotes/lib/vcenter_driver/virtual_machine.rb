@@ -2023,7 +2023,7 @@ class VirtualMachine < VCenterDriver::Template
         detachable= !(one_vm["LCM_STATE"].to_i == 11 && !disk.managed?)
         detachable = detachable && disk.exists?
 
-        raise "Can not detach disk. Not supported on current configuration" unless detachable
+        return unless detachable
 
         detach_disk(disk)
         disk.destroy()
