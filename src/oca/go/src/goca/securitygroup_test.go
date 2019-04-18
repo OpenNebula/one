@@ -102,7 +102,7 @@ func TestSGAllocate(t *testing.T){
 	testCtrl.SecurityGroup(clone_id).Delete()
 
 	//Change permission of SG
-	err = sgC.Chmod(1,1,1,1,1,1,1,1,1)
+	err = sgC.Chmod(&Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1})
 
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())

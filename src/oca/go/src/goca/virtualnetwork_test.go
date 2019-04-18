@@ -17,8 +17,8 @@
 package goca
 
 import (
-    "testing"
-    "strings"
+	"strings"
+	"testing"
 )
 
 var vnTpl = `
@@ -75,13 +75,13 @@ func TestVirtualNetwork(t *testing.T) {
 		t.Errorf("Virtual Network ID does not match")
 	}
 
-    // Change Owner to user call
-    err = vnetC.Chown(-1, -1)
+	// Change Owner to user call
+	err = vnetC.Chown(-1, -1)
 	if err != nil {
 		t.Error(err)
 	}
-	
-    vnet, err = vnetC.Info()
+
+	vnet, err = vnetC.Info()
 	if err != nil {
 		t.Error(err)
 	}
@@ -92,29 +92,29 @@ func TestVirtualNetwork(t *testing.T) {
 	// Get Image owner group Name
 	gname := vnet.GName
 
-    // Compare with caller username
-    caller := strings.Split(testClient.token, ":")[0]
-    if caller != uname {
-        t.Error("Caller user and virtual network owner user mismatch")
-    }
-
-    group, err := GetUserGroup(t, caller)
-	if err != nil {
-        t.Error("Cannot retreive caller group")
+	// Compare with caller username
+	caller := strings.Split(testClient.token, ":")[0]
+	if caller != uname {
+		t.Error("Caller user and virtual network owner user mismatch")
 	}
 
-    // Compare with caller group
-    if group != gname {
-        t.Error("Caller group and security group owner group mismatch")
-    }
+	group, err := GetUserGroup(t, caller)
+	if err != nil {
+		t.Error("Cannot retreive caller group")
+	}
 
-    // Change Owner to oneadmin call
-    err = vnetC.Chown(1, 1)
+	// Compare with caller group
+	if group != gname {
+		t.Error("Caller group and security group owner group mismatch")
+	}
+
+	// Change Owner to oneadmin call
+	err = vnetC.Chown(1, 1)
 	if err != nil {
 		t.Error(err)
 	}
 
-    vnet, err = vnetC.Info()
+	vnet, err = vnetC.Info()
 	if err != nil {
 		t.Error(err)
 	}
@@ -125,14 +125,14 @@ func TestVirtualNetwork(t *testing.T) {
 	// Get Image owner group Name
 	gname = vnet.GName
 
-    if "serveradmin" != uname {
+	if "serveradmin" != uname {
 		t.Error("Virtual network owner is not oenadmin")
 	}
 
-    // Compare with caller group
-    if "users" != gname {
-        t.Error("Virtual network owner group is not oneadmin")
-    }
+	// Compare with caller group
+	if "users" != gname {
+		t.Error("Virtual network owner group is not oneadmin")
+	}
 
 	// Delete template
 	err = vnetC.Delete()

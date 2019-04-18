@@ -81,7 +81,7 @@ func TestMarketplace(t *testing.T){
 	}
 
 	//Change permissions for Marketpkace
-	err = marketCtrl.Chmod(1,1,1,1,1,1,1,1,1)
+	err = marketCtrl.Chmod(&Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1})
 
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())

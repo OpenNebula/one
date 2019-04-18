@@ -192,17 +192,8 @@ func (sc *SecurityGroupController) Commit(recovery bool) error {
 }
 
 // Chmod changes the permission bits of a security group
-// * uu: USER USE bit. If set to -1, it will not change.
-// * um: USER MANAGE bit. If set to -1, it will not change.
-// * ua: USER ADMIN bit. If set to -1, it will not change.
-// * gu: GROUP USE bit. If set to -1, it will not change.
-// * gm: GROUP MANAGE bit. If set to -1, it will not change.
-// * ga: GROUP ADMIN bit. If set to -1, it will not change.
-// * ou: OTHER USE bit. If set to -1, it will not change.
-// * om: OTHER MANAGE bit. If set to -1, it will not change.
-// * oa: OTHER ADMIN bit. If set to -1, it will not change.
-func (sc *SecurityGroupController) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
-	_, err := sc.c.Client.Call("one.secgroup.chmod", sc.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+func (sc *SecurityGroupController) Chmod(perm *Permissions) error {
+	_, err := sc.c.Client.Call("one.secgroup.chmod", perm.ToArgs(sc.ID)...)
 	return err
 }
 

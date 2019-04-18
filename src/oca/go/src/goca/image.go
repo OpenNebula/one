@@ -284,8 +284,8 @@ func (ic *ImageController) Chown(uid, gid int) error {
 
 // Chmod changes the permissions of the image. If any perm is -1 it will not
 // change
-func (ic *ImageController) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
-	_, err := ic.c.Client.Call("one.image.chmod", ic.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+func (ic *ImageController) Chmod(perm *Permissions) error {
+	_, err := ic.c.Client.Call("one.image.chmod", perm.ToArgs(ic.ID)...)
 	return err
 }
 

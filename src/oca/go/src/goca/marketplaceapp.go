@@ -186,17 +186,8 @@ func (mc *MarketPlaceAppController) Update(tpl string, uType UpdateType) error {
 }
 
 // Chmod changes the permission bits of a marketplace app
-// * uu: USER USE bit. If set to -1, it will not change.
-// * um: USER MANAGE bit. If set to -1, it will not change.
-// * ua: USER ADMIN bit. If set to -1, it will not change.
-// * gu: GROUP USE bit. If set to -1, it will not change.
-// * gm: GROUP MANAGE bit. If set to -1, it will not change.
-// * ga: GROUP ADMIN bit. If set to -1, it will not change.
-// * ou: OTHER USE bit. If set to -1, it will not change.
-// * om: OTHER MANAGE bit. If set to -1, it will not change.
-// * oa: OTHER ADMIN bit. If set to -1, it will not change.
-func (mc *MarketPlaceAppController) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
-	_, err := mc.c.Client.Call("one.marketapp.chmod", mc.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+func (mc *MarketPlaceAppController) Chmod(perm *Permissions) error {
+	_, err := mc.c.Client.Call("one.marketapp.chmod", perm.ToArgs(mc.ID)...)
 	return err
 }
 

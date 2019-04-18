@@ -182,17 +182,8 @@ func (dc *DatastoreController) Update(tpl string, uType UpdateType) error {
 }
 
 // Chmod changes the permission bits of a datastore.
-// * uu: USER USE bit. If set to -1, it will not change.
-// * um: USER MANAGE bit. If set to -1, it will not change.
-// * ua: USER ADMIN bit. If set to -1, it will not change.
-// * gu: GROUP USE bit. If set to -1, it will not change.
-// * gm: GROUP MANAGE bit. If set to -1, it will not change.
-// * ga: GROUP ADMIN bit. If set to -1, it will not change.
-// * ou: OTHER USE bit. If set to -1, it will not change.
-// * om: OTHER MANAGE bit. If set to -1, it will not change.
-// * oa: OTHER ADMIN bit. If set to -1, it will not change.
-func (dc *DatastoreController) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
-	_, err := dc.c.Client.Call("one.datastore.chmod", dc.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+func (dc *DatastoreController) Chmod(perm *Permissions) error {
+	_, err := dc.c.Client.Call("one.datastore.chmod", perm.ToArgs(dc.ID)...)
 	return err
 }
 

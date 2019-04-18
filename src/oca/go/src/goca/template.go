@@ -196,8 +196,8 @@ func (tc *TemplateController) Chown(uid, gid int) error {
 
 // Chmod changes the permissions of a template. If any perm is -1 it will not
 // change
-func (tc *TemplateController) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
-	_, err := tc.c.Client.Call("one.template.chmod", tc.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+func (tc *TemplateController) Chmod(perm *Permissions) error {
+	_, err := tc.c.Client.Call("one.template.chmod", perm.ToArgs(tc.ID)...)
 	return err
 }
 

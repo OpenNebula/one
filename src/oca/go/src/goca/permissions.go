@@ -17,6 +17,15 @@
 package goca
 
 // Permissions is associated to OpenNebula resources
+// * uu: USER USE bit.
+// * um: USER MANAGE bit.
+// * ua: USER ADMIN bit.
+// * gu: GROUP USE bit.
+// * gm: GROUP MANAGE bit.
+// * ga: GROUP ADMIN bit.
+// * ou: OTHER USE bit.
+// * om: OTHER MANAGE bit.
+// * oa: OTHER ADMIN bit.
 type Permissions struct {
 	OwnerU int `xml:"OWNER_U"`
 	OwnerM int `xml:"OWNER_M"`
@@ -29,8 +38,19 @@ type Permissions struct {
 	OtherA int `xml:"OTHER_A"`
 }
 
+var permStr = [8]string{"---", "--a", "-m-", "-ma", "u--", "u-a", "um-", "uma"}
+
+// If a bit is set to -1, it will not change when calling Chmod
+func (p *Permissions) ToArgs(id uint) []interface{} {
+	return []interface{}{
+		id,
+		p.OwnerU, p.OwnerM, p.OwnerA,
+		p.GroupU, p.GroupM, p.GroupA,
+		p.OtherU, p.OtherM, p.OtherA,
+	}
+}
+
 func (p *Permissions) String() string {
-	permStr := [8]string{"---", "--a", "-m-", "-ma", "u--", "u-a", "um-", "uma"}
 	owner := permStr[p.OwnerU<<2|p.OwnerM<<1|p.OwnerA]
 	group := permStr[p.GroupU<<2|p.GroupM<<1|p.GroupA]
 	other := permStr[p.OtherU<<2|p.OtherM<<1|p.OtherA]

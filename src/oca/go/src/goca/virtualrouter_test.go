@@ -83,7 +83,7 @@ func TestVirtualRouter(t *testing.T){
 	}
 
 	//Change permissions of VirtualRouter
-	err = vrC.Chmod(1,1,1,1,1,1,1,1,1)
+	err = vrC.Chmod(&Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1})
 
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())

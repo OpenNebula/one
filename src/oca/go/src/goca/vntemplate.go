@@ -166,8 +166,8 @@ func (vc *VNTemplateController) Chown(uid, gid int) error {
 
 // Chmod changes the permissions of a vntemplate. If any perm is -1 it will not
 // change
-func (vc *VNTemplateController) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
-	_, err := vc.c.Client.Call("one.vntemplate.chmod", vc.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+func (vc *VNTemplateController) Chmod(perm *Permissions) error {
+	_, err := vc.c.Client.Call("one.vntemplate.chmod", perm.ToArgs(vc.ID)...)
 	return err
 }
 
