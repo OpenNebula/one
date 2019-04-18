@@ -199,7 +199,7 @@ module VNMMAD
             dir = "#{$PROGRAM_NAME}.d"
 
             return 0 unless Dir.exist? dir
-            return 0 if Dir.empty? dir
+            return 0 if Dir["#{dir}/*"].empty?
 
             programs(dir).each do |file|
                 OpenNebula.log "Running #{file}"
