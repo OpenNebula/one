@@ -1057,14 +1057,20 @@ NETWORK_FILES="src/vnm_mad/remotes/lib/vnm_driver.rb \
                src/vnm_mad/remotes/lib/nic.rb"
 
 NETWORK_8021Q_FILES="src/vnm_mad/remotes/802.1Q/clean \
+                    src/vnm_mad/remotes/802.1Q/clean.d/.readme \
                     src/vnm_mad/remotes/802.1Q/post \
+                    src/vnm_mad/remotes/802.1Q/post.d/.readme \
                     src/vnm_mad/remotes/802.1Q/pre \
+                    src/vnm_mad/remotes/802.1Q/pre.d/.readme \
                     src/vnm_mad/remotes/802.1Q/update_sg \
                     src/vnm_mad/remotes/802.1Q/vlan_tag_driver.rb"
 
 NETWORK_VXLAN_FILES="src/vnm_mad/remotes/vxlan/clean \
+                    src/vnm_mad/remotes/vxlan/clean.d/.readme \
                     src/vnm_mad/remotes/vxlan/post \
+                    src/vnm_mad/remotes/vxlan/post.d/.readme \
                     src/vnm_mad/remotes/vxlan/pre \
+                    src/vnm_mad/remotes/vxlan/pre.d/.readme \
                     src/vnm_mad/remotes/vxlan/update_sg \
                     src/vnm_mad/remotes/vxlan/vxlan.rb \
                     src/vnm_mad/remotes/vxlan/vxlan_driver.rb"
@@ -1076,30 +1082,45 @@ NETWORK_DUMMY_FILES="src/vnm_mad/remotes/dummy/clean \
                     src/vnm_mad/remotes/dummy/pre"
 
 NETWORK_BRIDGE_FILES="src/vnm_mad/remotes/bridge/clean \
+                    src/vnm_mad/remotes/bridge/clean.d/.readme \
                     src/vnm_mad/remotes/bridge/post \
+                    src/vnm_mad/remotes/bridge/post.d/.readme \
                     src/vnm_mad/remotes/bridge/update_sg \
-                    src/vnm_mad/remotes/bridge/pre"
+                    src/vnm_mad/remotes/bridge/pre \
+                    src/vnm_mad/remotes/bridge/pre.d/.readme"
 
 NETWORK_EBTABLES_FILES="src/vnm_mad/remotes/ebtables/clean \
+                    src/vnm_mad/remotes/ebtables/clean.d/.readme \
                     src/vnm_mad/remotes/ebtables/post \
+                    src/vnm_mad/remotes/ebtables/post.d/.readme \
                     src/vnm_mad/remotes/ebtables/pre \
+                    src/vnm_mad/remotes/ebtables/pre.d/.readme \
                     src/vnm_mad/remotes/ebtables/update_sg \
                     src/vnm_mad/remotes/ebtables/Ebtables.rb"
 
 NETWORK_FW_FILES="src/vnm_mad/remotes/fw/post \
+                          src/vnm_mad/remotes/fw/post.d/.readme \
                           src/vnm_mad/remotes/fw/pre \
+                          src/vnm_mad/remotes/fw/pre.d/.readme \
                           src/vnm_mad/remotes/fw/update_sg \
-                          src/vnm_mad/remotes/fw/clean"
+                          src/vnm_mad/remotes/fw/clean \
+                          src/vnm_mad/remotes/fw/clean.d/.readme"
 
 NETWORK_OVSWITCH_FILES="src/vnm_mad/remotes/ovswitch/clean \
+                    src/vnm_mad/remotes/ovswitch/clean.d/.readme \
                     src/vnm_mad/remotes/ovswitch/post \
+                    src/vnm_mad/remotes/ovswitch/post.d/.readme \
                     src/vnm_mad/remotes/ovswitch/pre \
+                    src/vnm_mad/remotes/ovswitch/pre.d/.readme \
                     src/vnm_mad/remotes/ovswitch/update_sg \
                     src/vnm_mad/remotes/ovswitch/OpenvSwitch.rb"
 
 NETWORK_OVSWITCH_VXLAN_FILES="src/vnm_mad/remotes/ovswitch_vxlan/clean \
+                    src/vnm_mad/remotes/ovswitch_vxlan/clean.d/.readme \
                     src/vnm_mad/remotes/ovswitch_vxlan/post \
+                    src/vnm_mad/remotes/ovswitch_vxlan/post.d/.readme \
                     src/vnm_mad/remotes/ovswitch_vxlan/pre \
+                    src/vnm_mad/remotes/ovswitch_vxlan/pre.d/.readme \
                     src/vnm_mad/remotes/ovswitch_vxlan/update_sg \
                     src/vnm_mad/remotes/ovswitch_vxlan/OpenvSwitchVXLAN.rb"
 
