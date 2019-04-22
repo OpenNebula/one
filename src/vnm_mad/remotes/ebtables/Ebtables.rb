@@ -95,7 +95,7 @@ class EbtablesVLAN < VNMMAD::NoVLANDriver
 
         super
 
-        return 0
+        0
     end
 
     def rules

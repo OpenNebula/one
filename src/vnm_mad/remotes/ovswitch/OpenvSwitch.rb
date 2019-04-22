@@ -116,7 +116,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
         unlock
 
-        return 0
+        0
     end
 
     def deactivate
@@ -162,6 +162,8 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         end
 
         unlock
+
+        0
     end
 
     def vlan

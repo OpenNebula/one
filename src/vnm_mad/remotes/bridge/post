@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
@@ -16,4 +16,12 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-exit 0
+$LOAD_PATH << File.dirname(__FILE__)
+$LOAD_PATH << File.join(File.dirname(__FILE__), '..')
+
+require 'vnmmad'
+
+template64 = STDIN.read
+
+hm = VNMMAD::VNMDriver.from_base64(template64)
+exit hm.run_hooks(ARGV, template64)

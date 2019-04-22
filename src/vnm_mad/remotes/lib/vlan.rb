@@ -64,7 +64,7 @@ module VNMMAD
 
             unlock
 
-            return 0
+            0
         end
 
         # This function needs to be implemented by any VLAN driver to
@@ -116,6 +116,8 @@ module VNMMAD
             end if @bridges
 
             unlock
+
+            0
         end
 
     private

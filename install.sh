@@ -289,14 +289,41 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vmm/packet \
           $VAR_LOCATION/remotes/vnm \
           $VAR_LOCATION/remotes/vnm/802.1Q \
+          $VAR_LOCATION/remotes/vnm/802.1Q/pre.d \
+          $VAR_LOCATION/remotes/vnm/802.1Q/post.d \
+          $VAR_LOCATION/remotes/vnm/802.1Q/clean.d \
           $VAR_LOCATION/remotes/vnm/vxlan \
+          $VAR_LOCATION/remotes/vnm/vxlan/pre.d \
+          $VAR_LOCATION/remotes/vnm/vxlan/post.d \
+          $VAR_LOCATION/remotes/vnm/vxlan/clean.d \
           $VAR_LOCATION/remotes/vnm/dummy \
+          $VAR_LOCATION/remotes/vnm/dummy/pre.d \
+          $VAR_LOCATION/remotes/vnm/dummy/post.d \
+          $VAR_LOCATION/remotes/vnm/dummy/clean.d \
           $VAR_LOCATION/remotes/vnm/bridge \
+          $VAR_LOCATION/remotes/vnm/bridge/pre.d \
+          $VAR_LOCATION/remotes/vnm/bridge/post.d \
+          $VAR_LOCATION/remotes/vnm/bridge/clean.d \
           $VAR_LOCATION/remotes/vnm/ebtables \
+          $VAR_LOCATION/remotes/vnm/ebtables/pre.d \
+          $VAR_LOCATION/remotes/vnm/ebtables/post.d \
+          $VAR_LOCATION/remotes/vnm/ebtables/clean.d \
           $VAR_LOCATION/remotes/vnm/fw \
+          $VAR_LOCATION/remotes/vnm/fw/pre.d \
+          $VAR_LOCATION/remotes/vnm/fw/post.d \
+          $VAR_LOCATION/remotes/vnm/fw/clean.d \
           $VAR_LOCATION/remotes/vnm/ovswitch \
+          $VAR_LOCATION/remotes/vnm/ovswitch/pre.d \
+          $VAR_LOCATION/remotes/vnm/ovswitch/post.d \
+          $VAR_LOCATION/remotes/vnm/ovswitch/clean.d \
           $VAR_LOCATION/remotes/vnm/ovswitch_vxlan \
+          $VAR_LOCATION/remotes/vnm/ovswitch_vxlan/pre.d \
+          $VAR_LOCATION/remotes/vnm/ovswitch_vxlan/post.d \
+          $VAR_LOCATION/remotes/vnm/ovswitch_vxlan/clean.d \
           $VAR_LOCATION/remotes/vnm/vcenter \
+          $VAR_LOCATION/remotes/vnm/vcenter/pre.d \
+          $VAR_LOCATION/remotes/vnm/vcenter/post.d \
+          $VAR_LOCATION/remotes/vnm/vcenter/clean.d \
           $VAR_LOCATION/remotes/tm/ \
           $VAR_LOCATION/remotes/tm/dummy \
           $VAR_LOCATION/remotes/tm/shared \
@@ -1091,9 +1118,9 @@ NETWORK_EBTABLES_FILES="src/vnm_mad/remotes/ebtables/clean \
                     src/vnm_mad/remotes/ebtables/Ebtables.rb"
 
 NETWORK_FW_FILES="src/vnm_mad/remotes/fw/post \
-                          src/vnm_mad/remotes/fw/pre \
-                          src/vnm_mad/remotes/fw/update_sg \
-                          src/vnm_mad/remotes/fw/clean"
+                  src/vnm_mad/remotes/fw/pre \
+                  src/vnm_mad/remotes/fw/update_sg \
+                  src/vnm_mad/remotes/fw/clean"
 
 NETWORK_OVSWITCH_FILES="src/vnm_mad/remotes/ovswitch/clean \
                     src/vnm_mad/remotes/ovswitch/post \
