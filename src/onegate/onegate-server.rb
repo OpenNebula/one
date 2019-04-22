@@ -165,7 +165,7 @@ helpers do
         end
     end
 
-    # Perform the action provided in the body of the request on the 
+    # Perform the action provided in the body of the request on the
     # given VM. If error trigger a halt
     def perform_action(vm, body)
         action_hash = parse_json(body, 'action')
@@ -249,13 +249,11 @@ helpers do
     end
 
     # Attrs that cannot be modified when updating a VM template
-    def check_restricted_attrs(request)
-        body = request.body.read
-
-        body.split("\n").each{ |key_value| 
+    def check_restricted_attrs(data, error)
+        data.split("\n").each{ |key_value|
             parts = key_value.split('=')
             if parts[0] && get_restricted_attrs.include?(parts[0].upcase)
-                error_msg = "Attribute (#{parts[0]}) cannot be modified"
+                error_msg = "Attribute (#{parts[0]}) #{error}"
                 logger.error {error_msg}
                 halt 403, error_msg
             end
@@ -264,7 +262,7 @@ helpers do
     end
 
     def get_restricted_attrs
-        $conf[':restricted_attrs'] || RESTRICTED_ATTRS
+        $conf[:restricted_attrs] || RESTRICTED_ATTRS
     end
 
     # Actions that cannot be performed on a VM
@@ -277,7 +275,7 @@ helpers do
     end
 
     def get_restricted_actions
-        $conf[':restricted_actions'] || RESTRICTED_ACTIONS
+        $conf[:restricted_actions] || RESTRICTED_ACTIONS
     end
 
     def check_permissions(resource, action)
@@ -291,10 +289,10 @@ helpers do
 
     # Check if the source VM is part of a service and if the requested
     # VM is part of the same Service as the source VM.
-    # 
+    #
     # If true the service hash is returned
-    # If false a halt is triggered 
-    # 
+    # If false a halt is triggered
+    #
     def check_vm_in_service(requested_vm_id, service_id, client)
         service = get_service(service_id, client)
 
@@ -319,6 +317,56 @@ helpers do
         end
 
         return response
+    end
+
+    # Update VM user template
+    #
+    # @param object [OpenNebula::VirtualMachine] VM to update
+    # @param params [Object]                     HTTP request parameters
+    def update(object, params)
+        attr = params[:data]
+        type = params[:type].to_i
+
+        type = 1 if type.nil?
+
+        if type == 1
+            error = "cannot be modified"
+        else
+            error = "cannot be deleted"
+        end
+
+        check_restricted_attrs(attr, error)
+
+        rc = object.info
+
+        if OpenNebula.is_error?(rc)
+            logger.error {"VMID:#{object['ID']} vm.update error: #{rc.message}"}
+            halt 500, rc.message
+        end
+
+        if type == 1
+            rc = object.update(attr, true)
+        else
+            rc = object.delete_element("USER_TEMPLATE/#{attr}")
+        end
+
+        if OpenNebula.is_error?(rc)
+            logger.error {"VMID:#{object['ID']} vm.update error: #{rc.message}"}
+            halt 500, rc.message
+        end
+
+        if rc && rc.empty? && type == 2
+            logger.error {"VMID:#{object['ID']} vm.update error: " \
+                        'attribute not found'}
+            halt 500, 'attribute not found'
+        end
+
+        rc = object.update(object.user_template_str) if type == 2
+
+        if OpenNebula.is_error?(rc)
+            logger.error {"VMID:#{object['ID']} vm.update error: #{rc.message}"}
+            halt 500, rc.message
+        end
     end
 end
 
@@ -427,12 +475,7 @@ put '/vm' do
 
     source_vm = get_source_vm(request.env, client)
 
-    check_restricted_attrs(request)
-    rc = source_vm.update(request.body.read, true)
-    if OpenNebula.is_error?(rc)
-        logger.error {"VMID:#{source_vm['ID']} vm.update error: #{rc.message}"}
-        halt 500, rc.message
-    end
+    update(source_vm, params)
 
     [200, ""]
 end
@@ -506,12 +549,7 @@ put '/vms/:id' do
 
     requested_vm = get_requested_vm(params[:id].to_i, request.env, client)
 
-    check_restricted_attrs(request)
-    rc = requested_vm.update(request.body.read, true)
-    if OpenNebula.is_error?(rc)
-        logger.error {"VMID:#{params[:id]} vm.update error: #{rc.message}"}
-        halt 500, rc.message
-    end
+    update(requested_vm, params)
 
     [200, ""]
 end
