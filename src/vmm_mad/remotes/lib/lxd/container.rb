@@ -139,7 +139,6 @@ class Container
         cmd = "#{Mapper::COMMANDS[:lsblk]} -J"
         _rc, o, _e = Command.execute(cmd, false)
 
-        # TODO: Add extra mounts to raise
         raise "Container rootfs still mounted \n#{o}" if o.include?(@rootfs_dir)
 
         wait?(@client.delete("#{CONTAINERS}/#{name}"), wait, timeout)
