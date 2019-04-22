@@ -165,7 +165,7 @@ EOT
         `gem install rubygems-update --version '= 1.3.6'`
 
         if $?.exitstatus!=0
-            puts "Error updating rubygems"
+            STDERR.puts "Error updating rubygems"
             exit(-1)
         end
 
@@ -182,7 +182,7 @@ EOT
                 `#{path}`
 
                 if $?.exitstatus!=0
-                    puts "Error executing update_rubygems"
+                    STDERR.puts "Error executing update_rubygems"
                     exit(-1)
                 end
 
@@ -192,7 +192,7 @@ EOT
         end
 
         if !installed
-            puts "Could not find update_rubygems executable"
+            STDERR.puts "Could not find update_rubygems executable"
             exit(-1)
         end
     end
@@ -317,8 +317,8 @@ def get_dependencies(gems, dependencies, check_command)
                 if alt_pkg
                     deps << alt_pkg
                 else
-                    puts "Could not find any suitable package from candidates:"
-                    puts pkg.join(", ")
+                    STDERR.puts "Could not find any suitable package from candidates:"
+                    STDERR.puts pkg.join(", ")
                     exit(-1)
                 end
             else
@@ -381,7 +381,7 @@ def run_command(cmd)
     #system "true"
 
     if $?!=0
-        puts "Error executing #{cmd}"
+        STDERR.puts "Error executing #{cmd}"
         exit(-1)
     end
 end
@@ -538,9 +538,9 @@ def check_gems(packages, bundler = false)
         puts "All ruby libraries installed"
         exit(0)
     else
-        puts "These ruby libraries are not installed:"
-        puts ""
-        puts "* "+not_installed.join("\n* ")
+        STDERR.puts "These ruby libraries are not installed:"
+        STDERR.puts ""
+        STDERR.puts "* "+not_installed.join("\n* ")
         exit(-1)
     end
 end
