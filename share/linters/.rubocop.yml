@@ -502,7 +502,6 @@ AllCops:
     - src/onedb/fsck/vrouter.rb
     - src/onedb/fsck/pool_control.rb
     - src/onedb/fsck/marketplace.rb
-    - src/onedb/fsck/network.rb
     - src/onedb/fsck/template.rb
     - src/onedb/fsck/group.rb
     - src/onedb/fsck/cluster.rb
