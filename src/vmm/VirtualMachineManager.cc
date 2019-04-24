@@ -507,6 +507,8 @@ void VirtualMachineManager::save_action(
         ds_id           = vm->get_ds_id();
     }
 
+    Nebula::instance().get_tm()->save_transfer_command(vm, os);
+
     // Invoke driver method
     drv_msg = format_message(
         hostname,
@@ -1286,6 +1288,8 @@ void VirtualMachineManager::restore_action(
     {
         goto error_no_tm_command;
     }
+
+    Nebula::instance().get_tm()->restore_transfer_command(vm, os);
 
     // Invoke driver method
     drv_msg = format_message(
