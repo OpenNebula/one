@@ -498,6 +498,8 @@ Available commands
 
     $ onegate vm update [VMID] --data KEY=VALUE[\\nKEY2=VALUE2]
 
+    $ onegate vm update [VMID] --erase KEY
+
     $ onegate vm ACTION VMID
         $ onegate resume [VMID]
         $ onegate stop [VMID]
@@ -524,6 +526,10 @@ options = {}
 OptionParser.new do |opts|
   opts.on("-d", "--data DATA", "Data to be included in the VM") do |data|
     options[:data] = data
+  end
+
+  opts.on("-e", "--erase DATA", "Data to be removed from the VM") do |data|
+    options[:erase] = data
   end
 
   opts.on("-r", "--role ROLE", "Service role") do |role|
@@ -567,15 +573,27 @@ when "vm"
             OneGate::VirtualMachine.print(json_hash)
         end
     when "update"
-        if !options[:data]
-            puts "You have to provide the data as a param (--data)"
+        if !options[:data] && !options[:erase]
+            puts "You have to provide the data as a param (--data, --erase)"
             exit -1
         end
 
-        if ARGV[2]
-            response = client.put("/vms/"+ARGV[2], options[:data])
+        data = {}
+
+        if options[:data]
+            data[:data] = options[:data]
+            data[:type] = 1
         else
-            response = client.put("/vm", options[:data])
+            data[:data] = options[:erase]
+            data[:type] = 2
+        end
+
+        data = URI.encode_www_form(data)
+
+        if ARGV[2]
+            response = client.put("/vms/" + ARGV[2], data)
+        else
+            response = client.put("/vm", data)
         end
 
         if CloudClient::is_error?(response)
