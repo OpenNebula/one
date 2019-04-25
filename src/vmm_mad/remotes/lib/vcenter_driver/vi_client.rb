@@ -164,8 +164,25 @@ class VIClient
             if OpenNebula.is_error?(rc)
                 raise "Could not get datastore info for ID: #{datastore_id} - #{rc.message}"
             end
+            vcenter_id = datastore["TEMPLATE/VCENTER_INSTANCE_ID"]
 
-            password = datastore["TEMPLATE/VCENTER_PASSWORD"]
+            host_pool = OpenNebula::HostPool.new(client)
+            rc = host_pool.info
+            if OpenNebula.is_error?(rc)
+                raise "Could not get hosts information - #{rc.message}"
+            end
+
+            user = ""
+            password = ""
+            host_pool.each do |host|
+              if host["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_id
+                user = host["TEMPLATE/VCENTER_USER"]
+                password = host["TEMPLATE/VCENTER_PASSWORD"]
+              end
+            end
+            if password.empty? or user.empty?
+              raise "Error getting credentials for datastore #{datastore_id}"
+            end
 
             system = OpenNebula::System.new(client)
             config = system.get_configuration
@@ -179,7 +196,7 @@ class VIClient
 
             connection = {
                 :host     => datastore["TEMPLATE/VCENTER_HOST"],
-                :user     => datastore["TEMPLATE/VCENTER_USER"],
+                :user     => user,
                 :password => password
             }
 
