@@ -778,8 +778,6 @@ class DsImporter < VCenterDriver::VcImporter
         inner = ->(object, auth) {
                 one = ""
                 one << "VCENTER_HOST=\"#{auth[:host]}\"\n"
-                one << "VCENTER_USER=\"#{auth[:user]}\"\n"
-                one << "VCENTER_PASSWORD=\"#{auth[:pass]}\"\n"
 
                 rc = object.update(one, true)
         }
