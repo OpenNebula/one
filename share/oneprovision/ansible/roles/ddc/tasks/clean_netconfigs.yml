@@ -8,7 +8,7 @@
     CHANGED=''
     for FILE in ifcfg-*; do
       # skip interfaces disabled "on boot"
-      if grep -q -i '^ONBOOT=["'\'']no'; then
+      if grep -q -i '^ONBOOT=["'\'']no' ${FILE}; then
         continue
       fi
 
