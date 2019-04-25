@@ -2526,17 +2526,19 @@ class VirtualMachine < VCenterDriver::Template
     ############################################################################
 
     def shutdown
-        begin
-            if vm_tools?
-                @item.ShutdownGuest
-            else
-                poweroff_hard
+        if !is_powered_off?
+            begin
+                if vm_tools?
+                    @item.ShutdownGuest
+                else
+                    poweroff_hard
+                end
+            rescue RbVmomi::Fault => e
+                error = e.message.split(':').first
+                raise e.message if error != 'InvalidPowerState'
             end
-        rescue RbVmomi::Fault => e
-            error = e.message.split(':').first
-            raise e.message if error != 'InvalidPowerState'
+            wait_timeout(:is_powered_off?)
         end
-        wait_timeout(:is_powered_off?)
     end
 
     def destroy
