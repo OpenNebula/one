@@ -1152,6 +1152,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     // - VM States are right and there is at least a history record
     // - New host is not the current one
     // - Host capacity if required
+    // - Compatibility with PCI devices
     // - New host and current one are in the same cluster
     // - New or old host are not public cloud
     // ------------------------------------------------------------------------
@@ -1234,6 +1235,26 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
         att.resp_msg = error_str;
         failure_response(ACTION, att);
+        return;
+    }
+
+    //Check PCI devices are compatible with migration type
+    int    cpu, mem, disk;
+    vector<VectorAttribute *> pci;
+
+    vm->get_requirements(cpu, mem, disk, pci);
+
+    if ((pci.size() > 0) && !poffmgr)
+    {
+        ostringstream oss;
+
+        oss << "Cannot migrate VM [" << id << "], for migrating a VM with PCI devices attached it's necessary either the poweroff or poweroff-hard flag";
+
+        att.resp_msg = oss.str();
+        failure_response(ACTION, att);
+
+        vm->unlock();
+
         return;
     }
 
