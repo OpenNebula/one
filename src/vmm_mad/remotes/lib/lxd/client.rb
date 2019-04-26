@@ -119,19 +119,24 @@ class LXDClient
     def get_response(request, data)
         request.body = JSON.dump(data) unless data.nil?
 
-        request.exec(@socket, '1.1', request.path)
-
         response = nil
 
-        loop do
-            response = Net::HTTPResponse.read_new(@socket)
-            break unless response.is_a?(Net::HTTPContinue)
+        5.times do
+            request.exec(@socket, '1.1', request.path)
+            response = nil
+
+            loop do
+                response = Net::HTTPResponse.read_new(@socket)
+                break unless response.is_a?(Net::HTTPContinue)
+            end
+
+            response.reading_body(@socket, request.response_body_permitted?) {}
+            next unless response.body.length >= 2
+
+            response = JSON.parse(response.body)
         end
 
-        response.reading_body(@socket, request.response_body_permitted?) {}
-
-        response = JSON.parse(response.body)
-
+        raise 'Failed to read Response from LXD' if response.nil?
         raise LXDError, response if response['type'] == 'error'
 
         response
