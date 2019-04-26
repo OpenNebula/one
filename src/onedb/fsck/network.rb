@@ -530,7 +530,7 @@ module OneDBFsck
                 end
 
                 # Things that can't be fixed
-                %i[ip ip6_global ip6_link ip6_ula].each do |key|
+                [:ip, :ip6_global, :ip6_link, :ip6_ula].each do |key|
                     next if counter_lease[key] == lease[key]
 
                     log_error("VNet #{ids[:o]} AR #{ids[:ar]} has a wrong " \
