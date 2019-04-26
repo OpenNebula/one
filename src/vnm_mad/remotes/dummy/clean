@@ -16,4 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-exit 0
+stdin="$(</dev/stdin)"
+
+for f in "$0".d/* ; do
+  [ -x "$f" ] || exit 0 && echo "$stdin" | ./"$f" "$@"  || exit 1
+done
