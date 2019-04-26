@@ -121,13 +121,16 @@ void HostSharePCI::add(vector<VectorAttribute *> &devs, int vmid)
     map<string, PCIDevice *>::const_iterator jt;
 
     unsigned int vendor_id, device_id, class_id;
-    int vendor_rc, device_rc, class_rc;
+    string address;
+    int vendor_rc, device_rc, class_rc, addr_rc;
 
     for ( it=devs.begin(); it!= devs.end(); it++)
     {
         vendor_rc = get_pci_value("VENDOR", *it, vendor_id);
         device_rc = get_pci_value("DEVICE", *it, device_id);
         class_rc  = get_pci_value("CLASS" , *it, class_id);
+
+        addr_rc = (*it)->vector_value("ADDRESS", address);
 
         for (jt=pci_devices.begin(); jt!=pci_devices.end(); jt++)
         {
@@ -148,6 +151,11 @@ void HostSharePCI::add(vector<VectorAttribute *> &devs, int vmid)
 
                 (*it)->replace("ADDRESS",dev->attrs->vector_value("ADDRESS"));
 
+                if (addr_rc != -1 && !address.empty())
+                {
+                    (*it)->replace("PREV_ADDRESS", address);
+                }
+
                 break;
             }
         }
@@ -164,6 +172,18 @@ void HostSharePCI::del(const vector<VectorAttribute *> &devs)
 
     for ( it=devs.begin(); it!= devs.end(); it++)
     {
+        pci_it = pci_devices.find((*it)->vector_value("PREV_ADDRESS"));
+
+        if (pci_it != pci_devices.end())
+        {
+            pci_it->second->vmid = -1;
+            pci_it->second->attrs->replace("VMID",-1);
+
+            (*it)->remove("PREV_ADDRESS");
+
+            continue;
+        }
+
         pci_it = pci_devices.find((*it)->vector_value("ADDRESS"));
 
         if (pci_it != pci_devices.end())

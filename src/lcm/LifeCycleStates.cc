@@ -52,8 +52,6 @@ void LifeCycleManager::start_prolog_migrate(VirtualMachine* vm)
 
     vmpool->update_history(vm);
 
-    vmpool->update(vm);
-
     vm->get_requirements(cpu, mem, disk, pci);
 
     if ( vm->get_hid() != vm->get_previous_hid() )
@@ -61,6 +59,8 @@ void LifeCycleManager::start_prolog_migrate(VirtualMachine* vm)
         hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem,
             disk, pci);
     }
+
+    vmpool->update(vm);
 
     //----------------------------------------------------
 
