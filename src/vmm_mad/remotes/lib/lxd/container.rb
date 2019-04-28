@@ -185,10 +185,12 @@ class Container
     # Contianer Status Control
     #---------------------------------------------------------------------------
     def start(options = {})
+        OpenNebula.log '--- Starting container ---'
         change_state(__method__, options)
     end
-
+    
     def stop(options = { :timeout => 120 })
+        OpenNebula.log '--- Stopping container ---'
         change_state(__method__, options)
 
         # Remove nic from ovs-switch if needed
