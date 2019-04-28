@@ -20,7 +20,7 @@ $LOAD_PATH.unshift File.dirname(__FILE__)
 
 require 'container'
 
-require_relative '../../scripts_common' 
+require_relative '../../scripts_common'
 
 # ------------------------------------------------------------------------------
 # Action Arguments, STDIN includes XML description of the OpenNebula VM
@@ -36,4 +36,3 @@ client    = LXDClient.new
 container = Container.get(vm_name, xml, client)
 
 container.detach_nic(mac)
-
