@@ -186,6 +186,11 @@ class Container
     # Contianer Status Control
     #---------------------------------------------------------------------------
     def start(options = {})
+        # Remove veth pair from host if needed
+        @one.get_nics.each do |nic|
+            del_veth_pair(nic['TARGET'])
+        end
+
         change_state(__method__, options)
     end
 
@@ -250,6 +255,8 @@ class Container
         nic_config = @one.nic(nic_xml)
 
         @lxc['devices'].update(nic_config)
+
+        del_veth_pair(nic_xml['TARGET'])
 
         update
     end
@@ -443,6 +450,22 @@ class Container
         return true if rc.zero?
 
         OpenNebula.log_error "#{__method__}: #{e}"
+        false
+    end
+
+    # Removes lxd host side nic if LXD hasn't removed it
+    def del_veth_pair(host_nic)
+        cmd = "ip link show #{host_nic}"
+        rc, _o, _e = Command.execute(cmd, false)
+
+        return true unless rc.zero?
+
+        cmd = "sudo ip link delete #{host_nic}"
+        rc, _o, e = Command.execute(cmd, false)
+
+        return true if rc.zero?
+
+        OpenNebula.log "#{__method__}: #{e}"
         false
     end
 
