@@ -30,6 +30,7 @@ class LXDClient
 
     API    = '/1.0'.freeze
     HEADER = { 'Host' => 'localhost' }.freeze
+    API_RETRY = 5 # Attempts, in case a response is failed to read from LXD
 
     attr_reader :lxd_path, :snap
 
@@ -119,18 +120,26 @@ class LXDClient
     def get_response(request, data)
         request.body = JSON.dump(data) unless data.nil?
 
-        request.exec(@socket, '1.1', request.path)
-
         response = nil
 
-        loop do
-            response = Net::HTTPResponse.read_new(@socket)
-            break unless response.is_a?(Net::HTTPContinue)
+        API_RETRY.times do
+            request.exec(@socket, '1.1', request.path)
+            response = nil
+
+            loop do
+                response = Net::HTTPResponse.read_new(@socket)
+                break unless response.is_a?(Net::HTTPContinue)
+            end
+
+            response.reading_body(@socket, request.response_body_permitted?) {}
+            next unless response.body.length >= 2
+
+            response = JSON.parse(response.body)
+
+            break
         end
 
-        response.reading_body(@socket, request.response_body_permitted?) {}
-
-        response = JSON.parse(response.body)
+        raise LXDError, 'error' => 'Failed to read response from LXD' if response.nil?
 
         raise LXDError, response if response['type'] == 'error'
 

@@ -19,7 +19,6 @@ require 'yaml'
 # This class reads and holds configuration attributes for the LXD driver
 class LXDConfiguration < Hash
 
-    # TODO: Create lxdrc file from this hash to avoid duplicated config
     DEFAULT_CONFIGURATION = {
         :vnc => {
             :command => '/bin/login',
