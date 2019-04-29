@@ -139,8 +139,7 @@ class LXDClient
             break
         end
 
-        raise LXDError, :err => 'Failed to read Response from LXD' \
-        if response.nil?
+        raise LXDError, 'error' => 'Failed to read response from LXD' if response.nil?
 
         raise LXDError, response if response['type'] == 'error'
 
