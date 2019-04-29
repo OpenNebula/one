@@ -2335,6 +2335,7 @@ string& VirtualMachine::to_xml_short(string& xml)
     string disks_xml, monitoring_xml, user_template_xml, history_xml, nics_xml;
     ostringstream   oss;
     string cpu_tmpl, mem_tmpl, auto_reqs, auto_ds_reqs, auto_nic_reqs;
+    string lock_str;
 
     obj_template->get("CPU", cpu_tmpl);
     obj_template->get("MEMORY", mem_tmpl);
@@ -2355,7 +2356,8 @@ string& VirtualMachine::to_xml_short(string& xml)
         << "<RESCHED>"   << resched   << "</RESCHED>"
         << "<STIME>"     << stime     << "</STIME>"
         << "<ETIME>"     << etime     << "</ETIME>"
-        << "<DEPLOY_ID>" << deploy_id << "</DEPLOY_ID>";
+        << "<DEPLOY_ID>" << deploy_id << "</DEPLOY_ID>"
+        << lock_db_to_xml(lock_str);
 
     oss << "<TEMPLATE>"
         << "<CPU>"       << cpu_tmpl  << "</CPU>"
