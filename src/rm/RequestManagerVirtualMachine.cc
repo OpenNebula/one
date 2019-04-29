@@ -1244,7 +1244,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     vm->get_requirements(cpu, mem, disk, pci);
 
-    if ((pci.size() > 0) && !poffmgr)
+    if ((pci.size() > 0) && (!poffmgr && vm->get_state() != VirtualMachine::POWEROFF))
     {
         ostringstream oss;
 
