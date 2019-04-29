@@ -614,10 +614,10 @@ Layout/SpaceInsideBlockBraces:
     SpaceBeforeBlockParameters: false
 
 # X indentation raw & method call
-Layout/IndentArray:
+Layout/IndentFirstArrayElement:
     EnforcedStyle: consistent
 
-Layout/IndentHash:
+Layout/IndentFirstHashElement:
     EnforcedStyle: consistent
 ###
 
