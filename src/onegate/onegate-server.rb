@@ -325,9 +325,15 @@ helpers do
     # @param params [Object]                     HTTP request parameters
     def update(object, params)
         attr = params[:data]
-        type = params[:type].to_i
+        type = params[:type]
 
-        type = 1 if type.nil?
+        if type.nil?
+            type = 1
+        else
+            type = type.to_i
+        end
+
+        attr = request.body.read if attr.nil?
 
         if type == 1
             error = "cannot be modified"
