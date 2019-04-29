@@ -2,34 +2,36 @@
 :ID:
   :desc: ONE identifier for the Datastore
   :size: 4
+  :adjust: true
 
 :USER:
   :desc: Username of the Datastore owner
-  :size: 10
+  :size: 8
   :left: true
 
 :GROUP:
   :desc: Group of the Datastore
-  :size: 10
+  :size: 8
   :left: true
 
 :NAME:
   :desc: Name of the Datastore
-  :size: 13
+  :size: 10
   :left: true
+  :expand: true
 
 :SIZE:
   :desc: Total Datastore size
-  :size: 10
+  :size: 6
 
 :AVAIL:
   :desc: Free Datastore size (%)
-  :size: 5
+  :size: 3
   :left: true
 
 :CLUSTERS:
   :desc: Cluster IDs
-  :size: 12
+  :size: 8
   :left: true
 
 :IMAGES:
@@ -67,4 +69,3 @@
 - :DS
 - :TM
 - :STAT
-

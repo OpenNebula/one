@@ -1,20 +1,22 @@
 ---
 :ID:
   :desc: ONE identifier for the Cluster
-  :size: 5
+  :size: 4
+  :adjust: true
 
 :NAME:
   :desc: Name of the Cluster
-  :size: 25
+  :size: 15
   :left: true
+  :expand: true
 
 :HOSTS:
   :desc: Number of Hosts
-  :size: 5
+  :size: 10
 
 :VNETS:
   :desc: Number of Networks
-  :size: 5
+  :size: 10
 
 :DATASTORES:
   :desc: Number of Datastores
