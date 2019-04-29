@@ -376,12 +376,6 @@ module OneDBFsck
 
             vm_elem.add_child(doc.create_element(vms)).content           = '-1'
             vm_elem.add_child(doc.create_element("#{vms}_USED")).content = '0'
-
-            system_disk_e      = doc.create_element('SYSTEM_DISK_SIZE')
-            system_disk_used_e = doc.create_element('SYSTEM_DISK_SIZE_USED')
-
-            vm_elem.add_child(system_disk_e).content      = '-1'
-            vm_elem.add_child(system_disk_used_e).content = '0'
         end
 
         vm_elem.xpath("#{cpu}_USED").each do |e|
