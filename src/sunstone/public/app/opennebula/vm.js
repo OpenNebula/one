@@ -15,13 +15,13 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var OpenNebulaAction = require('./action'),
-      OpenNebulaHelper = require('./helper'),
-      OpenNebulaError  = require('./error');
-      Locale = require('utils/locale'),
-      Navigation = require('utils/navigation');
+  var OpenNebulaAction = require("./action"),
+      OpenNebulaHelper = require("./helper"),
+      OpenNebulaError  = require("./error");
+      Locale = require("utils/locale"),
+      Navigation = require("utils/navigation");
 
-  var OpenNebulaCluster = require('./cluster');
+  var OpenNebulaCluster = require("./cluster");
 
   var RESOURCE = "VM";
 
@@ -279,13 +279,13 @@ define(function(require) {
   ];
 
   var EXTERNAL_IP_ATTRS = [
-    'GUEST_IP',
-    'GUEST_IP_ADDRESSES',
-    'AWS_IP_ADDRESS',
-    'AWS_PUBLIC_IP_ADDRESS',
-    'AWS_PRIVATE_IP_ADDRESS',
-    'AZ_IPADDRESS',
-    'SL_PRIMARYIPADDRESS'
+    "GUEST_IP",
+    "GUEST_IP_ADDRESSES",
+    "AWS_IP_ADDRESS",
+    "AWS_PUBLIC_IP_ADDRESS",
+    "AWS_PRIVATE_IP_ADDRESS",
+    "AZ_IPADDRESS",
+    "SL_PRIMARYIPADDRESS"
   ];
 
   var NIC_IP_ATTRS = [
@@ -309,17 +309,17 @@ define(function(require) {
   ];
 
   var EXTERNAL_NETWORK_ATTRIBUTES = [
-    'GUEST_IP',
-    'GUEST_IP_ADDRESSES',
-    'AWS_IP_ADDRESS',
-    'AWS_DNS_NAME',
-    'AWS_PUBLIC_IP_ADDRESS',
-    'AWS_PUBLIC_DNS_NAME',
-    'AWS_PRIVATE_IP_ADDRESS',
-    'AWS_PRIVATE_DNS_NAME',
-    'AWS_SECURITY_GROUPS',
-    'AZ_IPADDRESS',
-    'SL_PRIMARYIPADDRESS'
+    "GUEST_IP",
+    "GUEST_IP_ADDRESSES",
+    "AWS_IP_ADDRESS",
+    "AWS_DNS_NAME",
+    "AWS_PUBLIC_IP_ADDRESS",
+    "AWS_PUBLIC_DNS_NAME",
+    "AWS_PRIVATE_IP_ADDRESS",
+    "AWS_PRIVATE_DNS_NAME",
+    "AWS_SECURITY_GROUPS",
+    "AZ_IPADDRESS",
+    "SL_PRIMARYIPADDRESS"
   ];
 
   var MIGRATE_ACTION_STR = [
@@ -628,7 +628,7 @@ define(function(require) {
       var state = element.STATE;
       var hostname = "--";
       if (state == STATES.ACTIVE || state == STATES.SUSPENDED || state == STATES.POWEROFF) {
-        var history = retrieveLastHistoryRecord(element)
+        var history = retrieveLastHistoryRecord(element);
         if (history) {
           hostname = history.HOSTNAME;
         };
@@ -640,7 +640,7 @@ define(function(require) {
       var state = element.STATE;
       var hostname = "--";
       if (state == STATES.ACTIVE || state == STATES.SUSPENDED || state == STATES.POWEROFF) {
-        var history = retrieveLastHistoryRecord(element)
+        var history = retrieveLastHistoryRecord(element);
         if (history) {
           hostname = Navigation.link(history.HOSTNAME, "hosts-tab", history.HID);
         };
@@ -652,7 +652,7 @@ define(function(require) {
       var state = element.STATE;
       var cluster = "--";
       if (state == STATES.ACTIVE || state == STATES.SUSPENDED || state == STATES.POWEROFF) {
-        var history = retrieveLastHistoryRecord(element)
+        var history = retrieveLastHistoryRecord(element);
         if (history) {
           cluster = history.CID;
         };
@@ -675,7 +675,7 @@ define(function(require) {
     "getName": function(id){
       return OpenNebulaAction.getName(id, RESOURCE);
     }
-  }
+  };
 
   function retrieveLastHistoryRecord(element) {
     if (element.HISTORY_RECORDS && element.HISTORY_RECORDS.HISTORY) {
@@ -692,27 +692,27 @@ define(function(require) {
 
   // Return true if the VM has a hybrid section
   function isNICGraphsSupported(element) {
-    var history = retrieveLastHistoryRecord(element)
+    var history = retrieveLastHistoryRecord(element);
     if (history) {
-      return $.inArray(history.VM_MAD, ['az']) == -1;
+      return $.inArray(history.VM_MAD, ["az"]) == -1;
     } else {
       return false;
     }
   }
 
    function isDiskGraphsSupported(element) {
-    var history = retrieveLastHistoryRecord(element)
+    var history = retrieveLastHistoryRecord(element);
     if (history) {
-      return $.inArray(history.VM_MAD, ['ec2','az']) == -1;
+      return $.inArray(history.VM_MAD, ["ec2","az"]) == -1;
     } else {
       return false;
     }
   }
 
   function isNICAttachSupported(element) {
-    var history = retrieveLastHistoryRecord(element)
+    var history = retrieveLastHistoryRecord(element);
     if (history) {
-      return $.inArray(history.VM_MAD, ['ec2', 'az']) == -1;
+      return $.inArray(history.VM_MAD, ["ec2", "az"]) == -1;
     } else {
       return false;
     }
@@ -752,7 +752,7 @@ define(function(require) {
 
   // Return the IP or several IPs of a VM
   function ipsStr(element, divider) {
-    var divider = divider || "<br>"
+    var divider = divider || "<br>";
     var nic = element.TEMPLATE.NIC;
     var pci = element.TEMPLATE.PCI;
     var ips = [];
@@ -764,7 +764,7 @@ define(function(require) {
         externalIP = monitoring[IPAttr];
 
         if (externalIP) {
-          var splitArr = externalIP.split(',');
+          var splitArr = externalIP.split(",");
 
           $.each(splitArr, function(i,ip){
             if (ip && ($.inArray(ip, ips) == -1)) {
@@ -772,7 +772,7 @@ define(function(require) {
             }
           });
         }
-      })
+      });
     }
 
     if (nic == undefined){
@@ -809,13 +809,13 @@ define(function(require) {
     if (ips.length > 0) {
       return ips.join(divider);
     } else {
-      return '--';
+      return "--";
     }
   };
 
   // Return the Alias or several Aliases of a VM
   function aliasStr(element, divider) {
-    var divider = divider || "<br>"
+    var divider = divider || "<br>";
     var nic_alias = element.TEMPLATE.NIC_ALIAS;
     var ips = [];
 
@@ -841,12 +841,13 @@ define(function(require) {
     if (ips.length > 0) {
       return ips.join(divider);
     } else {
-      return '--';
+      return "--";
     }
   };
 
   // returns true if the vnc button should be enabled
   function isVNCSupported(element) {
+    console.log("inVNCSupport_function -> ",element);
     var graphics = element.TEMPLATE.GRAPHICS;
     var state = parseInt(element.LCM_STATE);
 
@@ -867,4 +868,4 @@ define(function(require) {
   }
 
   return VM;
-})
+});
