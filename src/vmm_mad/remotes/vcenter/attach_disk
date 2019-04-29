@@ -30,10 +30,10 @@ $LOAD_PATH << File.dirname(__FILE__)
 require 'vcenter_driver'
 
 vm_ref         = ARGV[0]
-drv_action_enc = ARGV[4]
 
 drv_action = OpenNebula::XMLElement.new
 
+# Read from STDIN instead of ARGV[4] to avoid broken pipe error
 drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VMM_DRIVER_ACTION_DATA')
 
 host_id = drv_action['/VMM_DRIVER_ACTION_DATA/VM/HISTORY_RECORDS/HISTORY/HID']
