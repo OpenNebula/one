@@ -467,6 +467,7 @@ class ExecDriver < VirtualMachineDriver
     # SAVE action, stops the VM and saves its state, network is cleaned up
     #
     def save(id, drv_message)
+        xml_data = decode(drv_message)
         action = VmmAction.new(self, id, :save, drv_message)
 
         steps=[
@@ -609,33 +610,39 @@ class ExecDriver < VirtualMachineDriver
     # POLL action, gets information of a VM
     #
     def poll(id, drv_message)
+        xml_data = decode(drv_message)
+
         data      = decode(drv_message)
         host      = data.elements['HOST'].text
         deploy_id = data.elements['DEPLOY_ID'].text
 
-        do_action("#{deploy_id} #{host}", id, host, ACTION[:poll])
+        do_action("#{deploy_id} #{host}", id, host, ACTION[:poll], {:stdin => xml_data})
     end
 
     #
     # REBOOT action, reboots a running VM
     #
     def reboot(id, drv_message)
+        xml_data = decode(drv_message)
+
         data      = decode(drv_message)
         host      = data.elements['HOST'].text
         deploy_id = data.elements['DEPLOY_ID'].text
 
-        do_action("#{deploy_id} #{host}", id, host, ACTION[:reboot])
+        do_action("#{deploy_id} #{host}", id, host, ACTION[:reboot], {:stdin => xml_data})
     end
 
     #
     # RESET action, resets a running VM
     #
     def reset(id, drv_message)
+        xml_data = decode(drv_message)
+
         data      = decode(drv_message)
         host      = data.elements['HOST'].text
         deploy_id = data.elements['DEPLOY_ID'].text
 
-        do_action("#{deploy_id} #{host}", id, host, ACTION[:reset])
+        do_action("#{deploy_id} #{host}", id, host, ACTION[:reset], {:stdin => xml_data})
     end
 
     #
@@ -761,7 +768,8 @@ class ExecDriver < VirtualMachineDriver
                     id,
                     host,
                     ACTION[:snapshot_revert],
-                    :script_name => "snapshot_revert")
+                    :script_name => "snapshot_revert",
+                    :stdin => xml_data)
     end
 
     #
@@ -780,7 +788,8 @@ class ExecDriver < VirtualMachineDriver
                     id,
                     host,
                     ACTION[:snapshot_delete],
-                    :script_name => "snapshot_delete")
+                    :script_name => "snapshot_delete",
+                    :stdin => xml_data)
     end
 
     #
