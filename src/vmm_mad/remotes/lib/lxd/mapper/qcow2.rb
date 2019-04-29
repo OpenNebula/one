@@ -51,7 +51,6 @@ class Qcow2Mapper < Mapper
         # before unmapping seems to prevent this behavior on the nbd module
         # used with the kernel versions in ubuntu 16.04
 
-        # TODO: avoid using if kpartx was not used
         hide_parts(device)
         cmd = "#{COMMANDS[:nbd]} -d #{device}"
 
