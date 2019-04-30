@@ -2357,6 +2357,11 @@ string& VirtualMachine::to_xml_short(string& xml)
         << "<ETIME>"     << etime     << "</ETIME>"
         << "<DEPLOY_ID>" << deploy_id << "</DEPLOY_ID>";
 
+    if (locked != PoolObjectSQL::ST_NONE)
+    {
+        oss << "<LOCK><LOCKED>" << static_cast<int>(locked) << "</LOCKED></LOCK>";
+    }
+
     oss << "<TEMPLATE>"
         << "<CPU>"       << cpu_tmpl  << "</CPU>"
         << "<MEMORY>"    << mem_tmpl  << "</MEMORY>"
