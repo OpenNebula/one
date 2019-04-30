@@ -313,6 +313,11 @@ module Migrator
                 xml.STIME body.root.xpath('STIME').text
                 xml.ETIME body.root.xpath('ETIME').text
                 xml.DEPLOY_ID body.root.xpath('DEPLOY_ID').text
+                
+                xml.LOCK {
+                    xml.LOCKED body.root.xpath('LOCK/LOCKED').text unless body.root.xpath('LOCK/LOCKED').text.empty?
+                } unless body.root.xpath('LOCK').text.empty?
+
                 xml.TEMPLATE {
                     xml.AUTOMATIC_REQUIREMENTS body.root.xpath('TEMPLATE/AUTOMATIC_REQUIREMENTS').text
                     xml.AUTOMATIC_DS_REQUIREMENTS body.root.xpath('TEMPLATE/AUTOMATIC_DS_REQUIREMENTS').text unless body.root.xpath('TEMPLATE/AUTOMATIC_DS_REQUIREMENTS').text.empty?
