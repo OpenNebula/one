@@ -9,7 +9,9 @@ It is extremely important to be able to link changes in the code to specific iss
 
 First line of commit messages must have the following structure:
 
-  %{type} #%{issue_number}: %{description}
+```
+  % {type} #%{issue_number}: %{description}
+```
 
 Where type must be one of the following:
 
