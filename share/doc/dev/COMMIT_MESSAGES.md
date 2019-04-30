@@ -5,7 +5,7 @@ It is extremely important to be able to link changes in the code to specific iss
 
 ## Commit messages format
 
-**First line**
+### First line
 
 First line of commit messages must have the following structure:
 
@@ -25,6 +25,6 @@ Description needs to be a succinct explanation of the code.
 
 Overall length should be equal or less than 50 characters (this is not enforced)
 
-**Following lines**
+### Following lines
 
 Remaining text should be wrapped at 72 characters.
