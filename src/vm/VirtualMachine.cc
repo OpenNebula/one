@@ -2356,8 +2356,14 @@ string& VirtualMachine::to_xml_short(string& xml)
         << "<RESCHED>"   << resched   << "</RESCHED>"
         << "<STIME>"     << stime     << "</STIME>"
         << "<ETIME>"     << etime     << "</ETIME>"
-        << "<DEPLOY_ID>" << deploy_id << "</DEPLOY_ID>"
-        << lock_db_to_xml(lock_str);
+        << "<DEPLOY_ID>" << deploy_id << "</DEPLOY_ID>";
+
+    if (static_cast<int>(locked) != 0)
+    {
+        oss << "<LOCK>"
+                << "<LOCKED>" << static_cast<int>(locked) << "</LOCKED>"
+            << "</LOCK>";
+    }
 
     oss << "<TEMPLATE>"
         << "<CPU>"       << cpu_tmpl  << "</CPU>"
