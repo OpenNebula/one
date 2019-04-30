@@ -314,14 +314,11 @@ module Migrator
                 xml.ETIME body.root.xpath('ETIME').text
                 xml.DEPLOY_ID body.root.xpath('DEPLOY_ID').text
 
-                if !body.root.xpath('LOCK').text.empty?
-                    xml.LOCK {
-                        xml.LOCKED body.root.xpath('LOCK/LOCKED').text unless body.root.xpath('LOCK/LOCKED').text.empty?
-                        xml.LOCKED body.root.xpath('LOCK/OWNER').text unless body.root.xpath('LOCK/OWNER').text.empty?
-                        xml.LOCKED body.root.xpath('LOCK/TIME').text unless body.root.xpath('LOCK/TIME').text.empty?
-                        xml.LOCKED body.root.xpath('LOCK/REQ_ID').text unless body.root.xpath('LOCK/REQ_ID').text.empty?
-                    }
-                end
+                
+                xml.LOCK {
+                    xml.LOCKED body.root.xpath('LOCK/LOCKED').text unless body.root.xpath('LOCK/LOCKED').text.empty?
+                } unless body.root.xpath('LOCK').text.empty?
+                
 
                 xml.TEMPLATE {
                     xml.AUTOMATIC_REQUIREMENTS body.root.xpath('TEMPLATE/AUTOMATIC_REQUIREMENTS').text
