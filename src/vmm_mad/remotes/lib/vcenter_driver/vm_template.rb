@@ -438,14 +438,18 @@ class Template
                                     ips.each do |ip_config|
                                         ip = IPAddr.new(ip_config.ipAddress)
                                         network_found.info
-                                        network_found.to_hash['VNET']['AR_POOL']['AR'].each do |ar|
-                                            if ar.key?('IP') and ar.key?('IP_END')
-                                                start_ip = IPAddr.new(ar['IP'])
-                                                end_ip = IPAddr.new(ar['IP_END'])
-                                                if ip.family == start_ip.family and ip.family == end_ip.family
-                                                    if ip > start_ip and ip < end_ip
-                                                        ipv4 = ip.to_s if ip.ipv4?
-                                                        ipv6 = ip.to_s if ip.ipv6?
+                                        ar_array = network_found.to_hash['VNET']['AR_POOL']['AR']
+                                        ar_array = [ar_array] if ar_array.is_a?(Hash)
+                                        if ar_array
+                                            ar_array.each do |ar|
+                                                if ar.key?('IP') and ar.key?('IP_END')
+                                                    start_ip = IPAddr.new(ar['IP'])
+                                                    end_ip = IPAddr.new(ar['IP_END'])
+                                                    if ip.family == start_ip.family and ip.family == end_ip.family
+                                                        if ip > start_ip and ip < end_ip
+                                                            ipv4 = ip.to_s if ip.ipv4?
+                                                            ipv6 = ip.to_s if ip.ipv6?
+                                                        end
                                                     end
                                                 end
                                             end
