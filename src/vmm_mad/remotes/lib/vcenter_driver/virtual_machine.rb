@@ -3113,7 +3113,7 @@ class VmmImporter < VCenterDriver::VcImporter
     end
 
     def list(key, list)
-        @list = {"" => list}
+        @list = {key => list}
     end
 
     def request_vnc(vc_vm)
