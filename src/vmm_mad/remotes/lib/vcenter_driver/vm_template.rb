@@ -388,6 +388,47 @@ class Template
         last_id
     end
 
+    def find_ips_in_network(network, vm_object)
+        if vm?
+            ipv4 = ipv6 = String.new
+            return if !vm_object.is_a?(VCenterDriver::VirtualMachine)
+            network.info
+
+            # Iterate over Retrieve vCenter VM NICs
+            vm_object.item.guest.net.each do |net|
+                mac = net.macAddress
+                if nic[:mac] == mac
+                    net.ipConfig.ipAddress.each do |ip_config|
+                        ip = IPAddr.new(ip_config.ipAddress)
+                        ar_array = network_found.to_hash['VNET']['AR_POOL']['AR']
+                        ar_array = [ar_array] if ar_array.is_a?(Hash)
+                        ipv4, ipv6 = find_ip_in_ar(ip, ar_array) if ar_array
+                    end
+                    break
+                end
+            end
+        end
+        return ipv4, ipv6
+    end
+        
+    def find_ip_in_ar(ip, ar_array)
+        ipv4 = ipv6 = ""
+        ar_array.each do |ar|
+            if ar.key?('IP') && ar.key?('IP_END')
+                start_ip = IPAddr.new(ar['IP'])
+                end_ip = IPAddr.new(ar['IP_END'])
+                if ip.family == start_ip.family && 
+                   ip.family == end_ip.family
+                    if ip > start_ip && ip < end_ip
+                        ipv4 = ip.to_s if ip.ipv4?
+                        ipv6 = ip.to_s if ip.ipv6?
+                    end
+                end
+            end
+        end
+        return ipv4, ipv6
+    end
+
     def import_vcenter_nics(vc_uuid, npool, hpool, vcenter_instance_name,
                             template_ref, vm_object, vm_id=nil, dc_name=nil)
         nic_info = ""
@@ -426,57 +467,23 @@ class Template
                     nic_tmp = "NIC=[\n"
                     nic_tmp << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
 
-                    if vm?
-                        ipv4 = String.new
-                        ipv6 = String.new
-                        if vm_object.is_a?(VCenterDriver::VirtualMachine)
-                            nets = vm_object.item.guest.net
-                            nets.each do |net|
-                                mac = net.macAddress
-                                if nic[:mac] == mac
-                                    ips = net.ipConfig.ipAddress
-                                    ips.each do |ip_config|
-                                        ip = IPAddr.new(ip_config.ipAddress)
-                                        network_found.info
-                                        ar_array = network_found.to_hash['VNET']['AR_POOL']['AR']
-                                        ar_array = [ar_array] if ar_array.is_a?(Hash)
-                                        if ar_array
-                                            ar_array.each do |ar|
-                                                if ar.key?('IP') and ar.key?('IP_END')
-                                                    start_ip = IPAddr.new(ar['IP'])
-                                                    end_ip = IPAddr.new(ar['IP_END'])
-                                                    if ip.family == start_ip.family and ip.family == end_ip.family
-                                                        if ip > start_ip and ip < end_ip
-                                                            ipv4 = ip.to_s if ip.ipv4?
-                                                            ipv6 = ip.to_s if ip.ipv6?
-                                                        end
-                                                    end
-                                                end
-                                            end
-                                        end
-                                    end
-                                    break
-                                end
-                            end
-                        end
+                    ipv4, ipv6 = find_ips_in_network(network_found, vm_object) if vm?
 
-                        ar_tmp = create_ar(nic)
-                        network_found.add_ar(ar_tmp)
-                        network_found.info
-                        last_id = save_ar_ids(network_found, nic, ar_ids)
+                    ar_tmp = create_ar(nic)
+                    network_found.add_ar(ar_tmp)
+                    network_found.info
+                    last_id = save_ar_ids(network_found, nic, ar_ids)
 
-                        # This is the existing nic info
-                        nic_tmp << "AR_ID=\"#{last_id}\",\n"
-                        nic_tmp << "MAC=\"#{nic[:mac]}\",\n" if nic[:mac] and ipv4.empty? and ipv6.empty? 
-                        nic_tmp << "IP=\"#{ipv4}\"," if !ipv4.empty?
-                        nic_tmp << "IP=\"#{ipv6}\"," if !ipv6.empty?
-                        nic_tmp << "VCENTER_ADDITIONALS_IP4=\"#{nic[:ipv4_additionals]}\",\n" if nic[:ipv4_additionals]
-                        nic_tmp << "VCENTER_IP6=\"#{nic[:ipv6]}\",\n" if nic[:ipv6]
-                        nic_tmp << "IP6_GLOBAL=\"#{nic[:ipv6_global]}\",\n" if nic[:ipv6_global]
-                        nic_tmp << "IP6_ULA=\"#{nic[:ipv6_ula]}\",\n" if nic[:ipv6_ula]
-                        nic_tmp << "VCENTER_ADDITIONALS_IP6=\"#{nic[:ipv6_additionals]}\",\n" if nic[:ipv6_additionals]
-                    end
-
+                    # This is the existing nic info
+                    nic_tmp << "AR_ID=\"#{last_id}\",\n"
+                    nic_tmp << "MAC=\"#{nic[:mac]}\",\n" if nic[:mac] and ipv4.empty? and ipv6.empty? 
+                    nic_tmp << "IP=\"#{ipv4}\"," if !ipv4.empty?
+                    nic_tmp << "IP=\"#{ipv6}\"," if !ipv6.empty?
+                    nic_tmp << "VCENTER_ADDITIONALS_IP4=\"#{nic[:ipv4_additionals]}\",\n" if nic[:ipv4_additionals]
+                    nic_tmp << "VCENTER_IP6=\"#{nic[:ipv6]}\",\n" if nic[:ipv6]
+                    nic_tmp << "IP6_GLOBAL=\"#{nic[:ipv6_global]}\",\n" if nic[:ipv6_global]
+                    nic_tmp << "IP6_ULA=\"#{nic[:ipv6_ula]}\",\n" if nic[:ipv6_ula]
+                    nic_tmp << "VCENTER_ADDITIONALS_IP6=\"#{nic[:ipv6_additionals]}\",\n" if nic[:ipv6_additionals]
                     nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
                     nic_tmp << "]\n"
 
