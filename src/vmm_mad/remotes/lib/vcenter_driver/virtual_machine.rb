@@ -3168,7 +3168,8 @@ class VmmImporter < VCenterDriver::VcImporter
                                                             npool,
                                                             hpool,
                                                             vc_name,
-                                                            vm_ref)
+                                                            vm_ref,
+                                                            vc_vm)
         opts = {uuid: vc_uuid, npool: npool, error: error }
         Raction.delete_ars(ar_ids, opts) if !error.empty?
 
