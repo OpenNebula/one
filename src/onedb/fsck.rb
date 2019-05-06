@@ -99,7 +99,7 @@ EOT
         "marketplaceapp_pool"].freeze
 
     FEDERATED_TABLES = ["group_pool", "user_pool", "acl", "zone_pool",
-        "vdc_pool", "marketplace_pool", "marketplaceapp_pool"].freeze
+        "vdc_pool", "marketplace_pool", "marketplaceapp_pool", "db_versioning"].freeze
 
     def tables
         TABLES
