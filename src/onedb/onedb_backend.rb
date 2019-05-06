@@ -30,7 +30,7 @@ end
 
 class OneDBBacKEnd
     FEDERATED_TABLES = %w(group_pool user_pool acl zone_pool vdc_pool
-                          marketplace_pool marketplaceapp_pool)
+                          marketplace_pool marketplaceapp_pool db_versioning)
 
     def read_db_version
         connect_db
