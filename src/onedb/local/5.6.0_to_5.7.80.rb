@@ -313,7 +313,7 @@ module Migrator
                 xml.STIME body.root.xpath('STIME').text
                 xml.ETIME body.root.xpath('ETIME').text
                 xml.DEPLOY_ID body.root.xpath('DEPLOY_ID').text
-                
+
                 xml.LOCK {
                     xml.LOCKED body.root.xpath('LOCK/LOCKED').text unless body.root.xpath('LOCK/LOCKED').text.empty?
                 } unless body.root.xpath('LOCK').text.empty?
@@ -355,6 +355,8 @@ module Migrator
                             xml.IP nic.xpath('IP').text unless nic.xpath('IP').text.empty?
                             xml.IP6 nic.xpath('IP6').text unless nic.xpath('IP6').text.empty?
                             xml.IP6_ULA nic.xpath('IP6_ULA').text unless nic.xpath('IP6_ULA').text.empty?
+                            xml.IP6_LINK nic.xpath('IP6_LINK').text unless nic.xpath('IP6_LINK').text.empty?
+                            xml.IP6_GLOBAL nic.xpath('IP6_GLOBAL').text unless nic.xpath('IP6_GLOBAL').text.empty?
                             xml.MAC nic.xpath('MAC').text unless nic.xpath('MAC').text.empty?
                             xml.NETWORK nic.xpath('NETWORK').text unless nic.xpath('NETWORK').text.empty?
                             xml.NETWORK_ID nic.xpath('NETWORK_ID').text unless nic.xpath('NETWORK_ID').text.empty?
