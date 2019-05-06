@@ -172,13 +172,16 @@ void VirtualMachineNic::authorize(PoolObjectSQL::ObjectType ot, int uid,
 /* -------------------------------------------------------------------------- */
 
 #define XML_NIC_ATTR(Y,X) ( Y << "<" << X << ">" << \
-        one_util::escape_xml(vector_value(X)) << "</" << X << ">") 
+        one_util::escape_xml(vector_value(X)) << "</" << X << ">")
 
 void VirtualMachineNic::to_xml_short(std::ostringstream& oss) const
 {
     std::string ip      = vector_value("IP");
     std::string ip6     = vector_value("IP6");
     std::string ip6_ula = vector_value("IP6_ULA");
+    std::string ip6_link   = vector_value("IP6_LINK");
+    std::string ip6_global = vector_value("IP6_GLOBAL");
+
 
     std::string reqs = vector_value("SCHED_REQUIREMENTS");
     std::string rank = vector_value("SCHED_RANK");
@@ -201,6 +204,16 @@ void VirtualMachineNic::to_xml_short(std::ostringstream& oss) const
         oss << "<IP6_ULA>" << one_util::escape_xml(ip6_ula) << "</IP6_ULA>";
     }
 
+    if (!ip6_link.empty())
+    {
+        oss << "<IP6_LINK>" << one_util::escape_xml(ip6_link) << "</IP6_LINK>";
+    }
+
+    if (!ip6_global.empty())
+    {
+        oss << "<IP6_GLOBAL>" << one_util::escape_xml(ip6_global) << "</IP6_GLOBAL>";
+    }
+
     if (!mode.empty())
     {
         oss << "<NETWORK_MODE>" << one_util::escape_xml(mode) << "</NETWORK_MODE>";
@@ -208,7 +221,7 @@ void VirtualMachineNic::to_xml_short(std::ostringstream& oss) const
 
     if (!reqs.empty())
     {
-        oss << "<SCHED_REQUIREMENTS>" << one_util::escape_xml(reqs) 
+        oss << "<SCHED_REQUIREMENTS>" << one_util::escape_xml(reqs)
             << "</SCHED_REQUIREMENTS>";
     }
 
