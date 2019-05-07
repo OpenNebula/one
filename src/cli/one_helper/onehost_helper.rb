@@ -369,9 +369,20 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                                    " #{host['NAME']}:#{remote_dir} 2> /dev/null"
                     end
 
-                    `#{sync_cmd} 2>/dev/null`
+                    retries = 3
 
-                    if !$CHILD_STATUS.success?
+                    begin
+                        `#{sync_cmd} 2>/dev/null`
+                    rescue IOError
+                        # Workaround for broken Ruby 2.5
+                        # https://github.com/OpenNebula/one/issues/3229
+                        if (retries -= 1) > 0
+                            sleep 1
+                            retry
+                        end
+                    end
+
+                    if $CHILD_STATUS.nil? || !$CHILD_STATUS.success?
                         error_lock.synchronize do
                             host_errors << host['NAME']
                         end
