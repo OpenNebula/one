@@ -1,8 +1,9 @@
 ---
 :ID:
   :desc: To which resource owner the rule applies to
-  :size: 5
+  :size: 4
   :right: true
+  :adjust: true
 
 :USER:
   :desc: To which resource owner the rule applies to

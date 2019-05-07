@@ -2,10 +2,11 @@
 :UID:
   :desc: User ID
   :size: 4
+  :adjust: true
 
 :USER_NAME:
   :desc: User name
-  :size: 12
+  :size: 8
 
 :GID:
   :desc: Group ID
@@ -13,7 +14,7 @@
 
 :GROUP_NAME:
   :desc: Group name
-  :size: 12
+  :size: 8
 
 :VM_ID:
   :desc: Virtual Machine ID
@@ -21,7 +22,7 @@
 
 :VM_NAME:
   :desc: Virtual Machine name
-  :size: 12
+  :size: 15
 
 :MONTH:
   :desc: Month

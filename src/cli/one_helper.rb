@@ -624,7 +624,7 @@ EOT
                 # ------- Rest of the pages in the pool, piped to pager --------
                 current = size
 
-                options[:noheader] = true
+                options[:no_header] = true
 
                 loop do
                     rc = pool.get_page(size, current, false)

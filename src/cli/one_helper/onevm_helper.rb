@@ -371,7 +371,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.period_to_str(dtime, false)
             end
 
-            column :IP, "VM IP addresses", :left, :donottruncate, :size=>15 do |d|
+            column :IP, "VM IP addresses", :left, :adjust, :size=>15 do |d|
                 OneVMHelper.ip_str(d)
             end
 
@@ -952,7 +952,7 @@ in the frontend machine.
                         end
                     end
 
-                    column :IP, "",:left, :donottruncate, :size=>15 do |d|
+                    column :IP, "",:left, :adjust, :size=>15 do |d|
                         d["IP"]
                     end
 
@@ -1037,7 +1037,7 @@ in the frontend machine.
                     d["NETWORK_ID"]
                 end
 
-                column :START, "", :left, :donottruncate, :size=>17 do |d|
+                column :START, "", :left, :adjust, :size=>17 do |d|
                     network = ""
 
                     if(!d["IP"].nil? && d["IP"] != "")
@@ -1049,11 +1049,11 @@ in the frontend machine.
                     network
                 end
 
-                column :SIZE, "", :left, :donottruncate, :size=>6 do |d|
+                column :SIZE, "", :left, :adjust, :size=>6 do |d|
                     d["SIZE"]
                 end
 
-                column :"   ", "", :left, :donottruncate, :size=>15 do |d|
+                column :"   ", "", :left, :adjust, :size=>15 do |d|
                     d["RANGE"]
                 end
 
@@ -1153,7 +1153,7 @@ in the frontend machine.
                     OpenNebulaHelper.time_to_str(d["DONE"], false) if !d.nil?
                 end
 
-                column :"MESSAGE", "", :left, :donottruncate, :size=>35 do |d|
+                column :"MESSAGE", "", :left, :adjust, :size=>35 do |d|
                     d["MESSAGE"] if !d.nil?
                 end
             end.show([vm_hash['VM']['USER_TEMPLATE']['SCHED_ACTION']].flatten, {})
