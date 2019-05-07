@@ -389,8 +389,8 @@ class Template
     end
 
     def find_ips_in_network(network, vm_object)
+        ipv4 = ipv6 = ""
         if vm?
-            ipv4 = ipv6 = String.new
             return if !vm_object.is_a?(VCenterDriver::VirtualMachine)
             network.info
 
@@ -400,7 +400,7 @@ class Template
                 if nic[:mac] == mac
                     net.ipConfig.ipAddress.each do |ip_config|
                         ip = IPAddr.new(ip_config.ipAddress)
-                        ar_array = network_found.to_hash['VNET']['AR_POOL']['AR']
+                        ar_array = network.to_hash['VNET']['AR_POOL']['AR']
                         ar_array = [ar_array] if ar_array.is_a?(Hash)
                         ipv4, ipv6 = find_ip_in_ar(ip, ar_array) if ar_array
                     end
@@ -467,7 +467,7 @@ class Template
                     nic_tmp = "NIC=[\n"
                     nic_tmp << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
 
-                    ipv4, ipv6 = find_ips_in_network(network_found, vm_object) if vm?
+                    ipv4, ipv6 = find_ips_in_network(network_found, vm_object, nic)
 
                     ar_tmp = create_ar(nic)
                     network_found.add_ar(ar_tmp)
