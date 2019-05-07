@@ -223,23 +223,26 @@ get '/support/check' do
         url = ENTREPRISE_REPO_URL.sub('<VERSION>', full_version)
         begin
             http = Curl.get(url) do |http_options|
-                token_enc = Base64.strict_encode64($conf[:token_remote_support])
+                token_enc = Base64.strict_encode64($conf[:token_remote_support]0)
+                
                 http_options.headers['Authorization'] = 'Basic ' + token_enc
                 http_options.headers['User-Agent'] =
                     'OpenNebula Subscription Validation'
             end
         rescue StandardError
-            [400, JSON.pretty_generate({:pass => false, :error=> 'error curl'})]
+            [400, JSON.pretty_generate(:pass => false, :error => 'error curl')]
         end
 
         if !http.nil? && http.response_code < 400
             $conf[:one_support_time] = Time.now.to_i
             [200, JSON.pretty_generate(:pass => true)]
         else
-            [400, JSON.pretty_generate({:pass => false, :error=> 'http code' + http})]
+            [400, JSON.pretty_generate(:pass => false, :error => "http code \
+                  #{http}")]
         end
     else
-        [400, JSON.pretty_generate({:pass => false, :error=> 'empty or nil version or token'})]
+        [400, JSON.pretty_generate(:pass => false, :error => 'empty/nil \
+              version or token')]
     end
 end
 
