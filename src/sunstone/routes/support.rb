@@ -223,7 +223,7 @@ get '/support/check' do
         url = ENTREPRISE_REPO_URL.sub('<VERSION>', full_version)
         begin
             http = Curl.get(url) do |http_options|
-                token_enc = Base64.strict_encode64($conf[:token_remote_support]0)
+                token_enc = Base64.strict_encode64($conf[:token_remote_support])
                 
                 http_options.headers['Authorization'] = 'Basic ' + token_enc
                 http_options.headers['User-Agent'] =
