@@ -203,7 +203,7 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
                 end
 
 
-                column :IP, "",:left, :donottruncate, :size=>15 do |d|
+                column :IP, "",:left, :adjust, :size=>15 do |d|
                     d["IP"]
                 end
             end.show(vm_nics,{})

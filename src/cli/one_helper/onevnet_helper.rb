@@ -296,7 +296,6 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 
         puts
         CLIHelper.print_header(str_h1 % ["LEASES"], false)
-
         ar_list = []
 
         if !vn_hash['VNET']['AR_POOL']['AR'].nil?
@@ -342,7 +341,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                     d["IP"]||"-"
             end
 
-            column :IP6, "", :donottruncate, :size=>26 do |d|
+            column :IP6, "", :adjust, :size=>26 do |d|
                     d["IP6"]||d["IP6_GLOBAL"]||"-"
             end
         end.show(leases, {})

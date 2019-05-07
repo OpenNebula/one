@@ -2,11 +2,13 @@
 :ID:
   :desc: ONE identifier for the VM Group
   :size: 4
+  :adjust: true
 
 :NAME:
   :desc: Name of the VM Group
   :size: 15
   :left: true
+  :expand: true
 
 :USER:
   :desc: Username of the VM Group owner
