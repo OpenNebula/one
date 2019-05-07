@@ -38,8 +38,6 @@ module OpenNebulaJSON
                    self.allocate(cluster_hash['name'])
                 end
             end
-
-            self.allocate(cluster_hash['name'])
         end
 
         def perform_action(template_json)
