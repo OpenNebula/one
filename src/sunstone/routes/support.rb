@@ -229,17 +229,17 @@ get '/support/check' do
                     'OpenNebula Subscription Validation'
             end
         rescue StandardError
-            [400, JSON.pretty_generate(:pass => false)]
+            [400, JSON.pretty_generate({:pass => false, :error=> 'error curl'})]
         end
 
         if !http.nil? && http.response_code < 400
             $conf[:one_support_time] = Time.now.to_i
             [200, JSON.pretty_generate(:pass => true)]
         else
-            [400, JSON.pretty_generate(:pass => false)]
+            [400, JSON.pretty_generate({:pass => false, :error=> 'http code' + http})]
         end
     else
-        [400, JSON.pretty_generate(:pass => false)]
+        [400, JSON.pretty_generate({:pass => false, :error=> 'empty or nil version or token'})]
     end
 end
 
