@@ -756,7 +756,6 @@ define(function(require) {
     var nic = element.TEMPLATE.NIC;
     var pci = element.TEMPLATE.PCI;
     var ips = [];
-
     var monitoring = element.MONITORING;
     if (monitoring) {
       var externalIP;
@@ -805,12 +804,13 @@ define(function(require) {
         });
       });
     }
-
+    r=null;
     if (ips.length > 0) {
-      return ips.join(divider);
+      r = ips.join(divider);
     } else {
-      return "--";
+      r = "--";
     }
+    return r;
   };
 
   // Return the Alias or several Aliases of a VM
