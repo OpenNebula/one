@@ -222,7 +222,7 @@ class Container
                 break if %w[Running Stopped].include? real_status
             end
 
-            container.stop(:force => true) if real_status == 'Running'
+            stop(:force => true) if real_status == 'Running'
         end
     end
 
