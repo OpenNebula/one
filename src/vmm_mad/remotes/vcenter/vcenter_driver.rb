@@ -85,6 +85,7 @@ require 'vm_template'
 require 'virtual_machine'
 require 'network'
 require 'file_helper'
+require 'vm_folder'
 
 CHECK_REFS = true
 
