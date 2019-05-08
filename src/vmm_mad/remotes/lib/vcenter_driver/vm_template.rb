@@ -388,7 +388,7 @@ class Template
         last_id
     end
 
-    def find_ips_in_network(network, vm_object)
+    def find_ips_in_network(network, vm_object, nic)
         ipv4 = ipv6 = ""
         if vm?
             return if !vm_object.is_a?(VCenterDriver::VirtualMachine)
