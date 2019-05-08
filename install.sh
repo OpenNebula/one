@@ -815,7 +815,8 @@ VMM_EXEC_LIB_VCENTER_FILES="src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb
                     src/vmm_mad/remotes/lib/vcenter_driver/memoize.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/datacenter.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/vm_template.rb \
-                    src/vmm_mad/remotes/lib/vcenter_driver/network.rb"
+                    src/vmm_mad/remotes/lib/vcenter_driver/network.rb \
+                    src/vmm_mad/remotes/lib/vcenter_driver/vm_folder.rb"
 
 #-------------------------------------------------------------------------------
 # VMM SH Driver LXD scripts, to be installed under $REMOTES_LOCATION/vmm/lxd
