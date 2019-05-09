@@ -388,7 +388,7 @@ class Template
         last_id
     end
 
-    def find_ips_in_network(network, vm_object)
+    def find_ips_in_network(network, vm_object, nic)
         ipv4 = ipv6 = ""
         if vm?
             return if !vm_object.is_a?(VCenterDriver::VirtualMachine)
@@ -403,6 +403,7 @@ class Template
                         ar_array = network.to_hash['VNET']['AR_POOL']['AR']
                         ar_array = [ar_array] if ar_array.is_a?(Hash)
                         ipv4, ipv6 = find_ip_in_ar(ip, ar_array) if ar_array
+                        break if ipv4 !="" or ipv6 != ""
                     end
                     break
                 end

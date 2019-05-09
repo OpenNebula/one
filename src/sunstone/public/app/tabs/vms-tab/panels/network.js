@@ -19,29 +19,29 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var Locale = require('utils/locale');
-  var Config = require('sunstone-config');
-  var Sunstone = require('sunstone');
-  var Humanize = require('utils/humanize');
-  var Notifier = require('utils/notifier');
-  var Graphs = require('utils/graphs');
-  require('flot.navigate');
-  require('flot.canvas');
-  var StateActions = require('../utils/state-actions');
-  var OpenNebulaVM = require('opennebula/vm');
-  var SecGroupsCommon = require('tabs/secgroups-tab/utils/common');
-  var Navigation = require('utils/navigation');
+  var Locale = require("utils/locale");
+  var Config = require("sunstone-config");
+  var Sunstone = require("sunstone");
+  var Humanize = require("utils/humanize");
+  var Notifier = require("utils/notifier");
+  var Graphs = require("utils/graphs");
+  require("flot.navigate");
+  require("flot.canvas");
+  var StateActions = require("../utils/state-actions");
+  var OpenNebulaVM = require("opennebula/vm");
+  var SecGroupsCommon = require("tabs/secgroups-tab/utils/common");
+  var Navigation = require("utils/navigation");
 
   /*
     CONSTANTS
    */
 
-  var TAB_ID = require('../tabId');
-  var PANEL_ID = require('./network/panelId');
-  var ATTACH_NIC_DIALOG_ID = require('../dialogs/attach-nic/dialogId');
-  var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
-  var RESOURCE = "VM"
-  var XML_ROOT = "VM"
+  var TAB_ID = require("../tabId");
+  var PANEL_ID = require("./network/panelId");
+  var ATTACH_NIC_DIALOG_ID = require("../dialogs/attach-nic/dialogId");
+  var CONFIRM_DIALOG_ID = require("utils/dialogs/generic-confirm/dialogId");
+  var RESOURCE = "VM";
+  var XML_ROOT = "VM";
 
   /*
     CONSTRUCTOR
@@ -72,140 +72,140 @@ define(function(require) {
 
   function _html() {
     var that = this;
-    var html = '<form id="tab_network_form" vmid="' + that.element.ID + '" >\
-        <div class="row">\
-        <div class="large-12 columns">\
-           <table class="nics_table no-hover info_table dataTable">\
+    var html = "<form id=\"tab_network_form\" vmid=\"" + that.element.ID + "\" >\
+        <div class=\"row\">\
+        <div class=\"large-12 columns\">\
+           <table class=\"nics_table no-hover info_table dataTable\">\
              <thead>\
                <tr>\
                   <th></th>\
-                  <th>' + Locale.tr("ID") + '</th>\
-                  <th>' + Locale.tr("Network") + '</th>\
-                  <th>' + Locale.tr("IP") + '</th>\
-                  <th>' + Locale.tr("MAC") + '</th>\
-                  <th>' + Locale.tr("PCI address") + '</th>\
-                  <th>' + Locale.tr("IPv6 ULA") + '</th>\
-                  <th>' + Locale.tr("IPv6 Global") + '</th>\
-                  <th colspan="">' + Locale.tr("Actions") + '</th>\
-                  <th>'                 ;
+                  <th>" + Locale.tr("ID") + "</th>\
+                  <th>" + Locale.tr("Network") + "</th>\
+                  <th>" + Locale.tr("IP") + "</th>\
+                  <th>" + Locale.tr("MAC") + "</th>\
+                  <th>" + Locale.tr("PCI address") + "</th>\
+                  <th>" + Locale.tr("IPv6 ULA") + "</th>\
+                  <th>" + Locale.tr("IPv6 Global") + "</th>\
+                  <th colspan=\"\">" + Locale.tr("Actions") + "</th>\
+                  <th>"                 ;
 
     if (Config.isTabActionEnabled("vms-tab", "VM.attachnic")) {
       if (StateActions.enabledStateAction("VM.attachnic",
             that.element.STATE,
             that.element.LCM_STATE) &&
           OpenNebulaVM.isNICAttachSupported(that.element)) {
-        html += '\
-             <button id="attach_nic" class="button small success right radius" >' + Locale.tr("Attach nic") + '</button>'
+        html += "\
+             <button id=\"attach_nic\" class=\"button small success right radius\" >" + Locale.tr("Attach nic") + "</button>";
       } else {
-        html += '\
-             <button id="attach_nic" class="button small success right radius" disabled="disabled">' + Locale.tr("Attach nic") + '</button>'
+        html += "\
+             <button id=\"attach_nic\" class=\"button small success right radius\" disabled=\"disabled\">" + Locale.tr("Attach nic") + "</button>";
       }
     }
 
-    html += '</th>\
+    html += "</th>\
                 </tr>\
              </thead>\
              <tbody>\
              </tbody>\
             </table>\
           </div>\
-        </div>'      ;
+        </div>"      ;
 
     var externalNetworkAttrs = OpenNebulaVM.retrieveExternalNetworkAttrs(that.element);
     if (!$.isEmptyObject(externalNetworkAttrs)) {
-      html += '<div class="row">' +
-        '<div class="large-12 columns">' +
-         '<table class="dataTable">' +
-            '<thead>' +
-              '<tr>' +
-                 '<th colspan=2>' + Locale.tr("Network Monitoring Attributes") + '</th>' +
-              '</tr>' +
-            '</thead>' +
-            '<tbody>';
+      html += "<div class=\"row\">" +
+        "<div class=\"large-12 columns\">" +
+         "<table class=\"dataTable\">" +
+            "<thead>" +
+              "<tr>" +
+                 "<th colspan=2>" + Locale.tr("Network Monitoring Attributes") + "</th>" +
+              "</tr>" +
+            "</thead>" +
+            "<tbody>";
 
       $.each(externalNetworkAttrs, function(key, value) {
-        html += '<tr>' +
-           '<td>' + key + '</td>' +
-           '<td>' + value + '</td>' +
-          '</tr>';
+        html += "<tr>" +
+           "<td>" + key + "</td>" +
+           "<td>" + value + "</td>" +
+          "</tr>";
       });
 
-      html += '</tbody>' +
-            '</table>' +
-          '</div>' +
-        '</div>';
+      html += "</tbody>" +
+            "</table>" +
+          "</div>" +
+        "</div>";
     }
 
     // Do not show statistics for not hypervisors that do not gather net data
     if (OpenNebulaVM.isNICGraphsSupported(that.element)) {
-      html += '\
-          <div class="row">\
-              <div class="medium-6 columns">\
-                <div class="row">\
-                  <span>' + Locale.tr("NET RX") + '</span3>\
+      html += "\
+          <div class=\"row\">\
+              <div class=\"medium-6 columns\">\
+                <div class=\"row\">\
+                  <span>" + Locale.tr("NET RX") + "</span3>\
                 </div>\
-                <div class="row">\
-                  <div class="large-12 columns centered graph" id="vm_net_rx_graph" style="height: 100px;">\
-                    <span  id="provision_dashboard_total" style="font-size:80px">\
-                      <i class="fas fa-spinner fa-spin"></i>\
+                <div class=\"row\">\
+                  <div class=\"large-12 columns centered graph\" id=\"vm_net_rx_graph\" style=\"height: 100px;\">\
+                    <span  id=\"provision_dashboard_total\" style=\"font-size:80px\">\
+                      <i class=\"fas fa-spinner fa-spin\"></i>\
                     </span>\
                   </div>\
                 </div>\
-                <div class="row graph_legend">\
-                  <div class="large-12 columns centered" id="vm_net_rx_legend">\
+                <div class=\"row graph_legend\">\
+                  <div class=\"large-12 columns centered\" id=\"vm_net_rx_legend\">\
                   </div>\
                 </div>\
               </div>\
-              <div class="medium-6 columns">\
-                <div class="row">\
-                  <span>' + Locale.tr("NET TX") + '</span3>\
+              <div class=\"medium-6 columns\">\
+                <div class=\"row\">\
+                  <span>" + Locale.tr("NET TX") + "</span3>\
                 </div>\
-                <div class="row">\
-                  <div class="large-12 columns centered graph" id="vm_net_tx_graph" style="height: 100px;">\
-                    <span  id="provision_dashboard_total" style="font-size:80px">\
-                      <i class="fas fa-spinner fa-spin"></i>\
+                <div class=\"row\">\
+                  <div class=\"large-12 columns centered graph\" id=\"vm_net_tx_graph\" style=\"height: 100px;\">\
+                    <span  id=\"provision_dashboard_total\" style=\"font-size:80px\">\
+                      <i class=\"fas fa-spinner fa-spin\"></i>\
                     </span>\
                   </div>\
                 </div>\
-                <div class="row graph_legend">\
-                  <div class="large-12 columns centered" id="vm_net_tx_legend">\
+                <div class=\"row graph_legend\">\
+                  <div class=\"large-12 columns centered\" id=\"vm_net_tx_legend\">\
                   </div>\
                 </div>\
               </div>\
-              <div class="medium-6 columns">\
-                <div class="row">\
-                  <span>' + Locale.tr("NET DOWNLOAD SPEED") + '</span3>\
+              <div class=\"medium-6 columns\">\
+                <div class=\"row\">\
+                  <span>" + Locale.tr("NET DOWNLOAD SPEED") + "</span3>\
                 </div>\
-                <div class="row">\
-                  <div class="large-12 columns centered graph" id="vm_net_rx_speed_graph" style="height: 100px;">\
-                    <span  id="provision_dashboard_total" style="font-size:80px">\
-                      <i class="fas fa-spinner fa-spin"></i>\
+                <div class=\"row\">\
+                  <div class=\"large-12 columns centered graph\" id=\"vm_net_rx_speed_graph\" style=\"height: 100px;\">\
+                    <span  id=\"provision_dashboard_total\" style=\"font-size:80px\">\
+                      <i class=\"fas fa-spinner fa-spin\"></i>\
                     </span>\
                   </div>\
                 </div>\
-                <div class="row graph_legend">\
-                  <div class="large-12 columns centered" id="vm_net_rx_speed_legend">\
+                <div class=\"row graph_legend\">\
+                  <div class=\"large-12 columns centered\" id=\"vm_net_rx_speed_legend\">\
                   </div>\
                 </div>\
               </div>\
-              <div class="medium-6 columns">\
-                <div class="row">\
-                  <span>' + Locale.tr("NET UPLOAD SPEED") + '</span3>\
+              <div class=\"medium-6 columns\">\
+                <div class=\"row\">\
+                  <span>" + Locale.tr("NET UPLOAD SPEED") + "</span3>\
                 </div>\
-                <div class="row">\
-                  <div class="large-12 columns centered graph" id="vm_net_tx_speed_graph" style="height: 100px;">\
-                    <span  id="provision_dashboard_total" style="font-size:80px">\
-                      <i class="fas fa-spinner fa-spin"></i>\
+                <div class=\"row\">\
+                  <div class=\"large-12 columns centered graph\" id=\"vm_net_tx_speed_graph\" style=\"height: 100px;\">\
+                    <span  id=\"provision_dashboard_total\" style=\"font-size:80px\">\
+                      <i class=\"fas fa-spinner fa-spin\"></i>\
                     </span>\
                   </div>\
                 </div>\
-                <div class="row graph_legend">\
-                  <div class="large-12 columns centered" id="vm_net_tx_speed_legend">\
+                <div class=\"row graph_legend\">\
+                  <div class=\"large-12 columns centered\" id=\"vm_net_tx_speed_legend\">\
                   </div>\
                 </div>\
               </div>\
           </div>\
-        </form>';
+        </form>";
     }
 
     return html;
@@ -228,15 +228,19 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
-    var nics = []
-    var nics_names = []
-    var alias = []
+    var nics = [];
+    var nics_names = [];
+    var alias = [];
+    var distinct = function(value, index, self){
+      return self.indexOf(value)===index;
+    };
 
     if ($.isArray(that.element.TEMPLATE.NIC)){
       nics = that.element.TEMPLATE.NIC;
     } else if (!$.isEmptyObject(that.element.TEMPLATE.NIC)){
       nics = [that.element.TEMPLATE.NIC];
     }
+
 
     if ($.isArray(that.element.TEMPLATE.NIC_ALIAS)){
       alias = that.element.TEMPLATE.NIC_ALIAS;
@@ -259,9 +263,8 @@ define(function(require) {
     });
 
     var nic_dt_data = [];
+    nics = nics.filter(distinct);
     if (nics.length) {
-      var nic_dt_data = [];
-
       for (var i = 0; i < nics.length; i++) {
         var nic = nics[i];
 
@@ -269,16 +272,16 @@ define(function(require) {
 
         var is_pci = (nic.PCI_ID != undefined);
 
-        var actions = '';
+        var actions = "";
         // Attach / Detach
         if (!is_pci){
           if ( (that.element.STATE == OpenNebulaVM.STATES.ACTIVE) &&
                (that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_NIC)) {
-            actions = Locale.tr("attach/detach in progress")
+            actions = Locale.tr("attach/detach in progress");
           } else {
             if ( (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) &&
                  (StateActions.enabledStateAction("VM.detachnic", that.element.STATE, that.element.LCM_STATE))) {
-              actions += '<a href="VM.detachnic" class="detachnic" ><i class="fas fa-times"/></a>'
+              actions += "<a href=\"VM.detachnic\" class=\"detachnic\" ><i class=\"fas fa-times\"/></a>";
             }
           }
         }
@@ -306,11 +309,11 @@ define(function(require) {
           });
         }
 
-        var pci_address = is_pci ? nic.ADDRESS : '';
+        var pci_address = is_pci ? nic.ADDRESS : "";
 
         var ipStr = "IP";
         if (nic.IP6 !== undefined){
-          ipStr = "IP6"
+          ipStr = "IP6";
         }
 
         var nic_alias = [];
@@ -348,10 +351,10 @@ define(function(require) {
       "data": nic_dt_data,
       "columns": [
         {
-          "class":          'open-control',
+          "class":          "open-control",
           "orderable":      false,
           "data":           null,
-          "defaultContent": '<span class="fas fa-fw fa-chevron-down"></span>'
+          "defaultContent": "<span class=\"fas fa-fw fa-chevron-down\"></span>"
         },
         {"data": "NIC_ID",     "defaultContent": ""},
         {"data": "NETWORK",    "defaultContent": ""},
@@ -369,79 +372,79 @@ define(function(require) {
         if (aData.SECURITY_GROUP_RULES == undefined ||
             aData.SECURITY_GROUP_RULES.length == 0) {
 
-          $("td.open-control", nRow).html("").removeClass('open-control');
+          $("td.open-control", nRow).html("").removeClass("open-control");
         }
 
         $(nRow).attr("nic_id", aData.NIC_ID);
       }
     });
 
-    $("#tab_network_form .nics_table", context).dataTable().fnSort([[1, 'asc']]);
+    $("#tab_network_form .nics_table", context).dataTable().fnSort([[1, "asc"]]);
 
     // Add event listener for opening and closing each NIC row details
-    context.off('click', '#tab_network_form .nics_table td.open-control')
-    context.on('click', '#tab_network_form .nics_table td.open-control', function () {
-      var row = $(this).closest('table').DataTable().row($(this).closest('tr'));
+    context.off("click", "#tab_network_form .nics_table td.open-control");
+    context.on("click", "#tab_network_form .nics_table td.open-control", function () {
+      var row = $(this).closest("table").DataTable().row($(this).closest("tr"));
 
       if (row.child.isShown()) {
         row.child.hide();
-        $(this).children("span").addClass('fa-chevron-down');
-        $(this).children("span").removeClass('fa-chevron-up');
+        $(this).children("span").addClass("fa-chevron-down");
+        $(this).children("span").removeClass("fa-chevron-up");
       } else {
         if(row.data().NIC_ALIAS.length > 0) {
-            var html = '';
+            var html = "";
 
             $.each(row.data().NIC_ALIAS, function(index, elem) {
-                var new_div = '<div id=alias_' + this.NIC_ID + ' style="margin-left: 40px; margin-bottom: 5px">' +
-                              '<b>' + "- Alias-" + this.ALIAS_ID + ":" + '</b>' +
+                var new_div = "<div id=alias_" + this.NIC_ID + " style=\"margin-left: 40px; margin-bottom: 5px\">" +
+                              "<b>" + "- Alias-" + this.ALIAS_ID + ":" + "</b>" +
                               "&nbsp;&nbsp;&nbsp;" + this.IP  +
                               "&nbsp;&nbsp;&nbsp;" + this.MAC +
-                              "&nbsp;&nbsp;&nbsp;" + this.ACTIONS + '</div>';
+                              "&nbsp;&nbsp;&nbsp;" + this.ACTIONS + "</div>";
 
                 html += new_div;
 
                 if (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) {
-                    context.off('click', '.detachnic');
-                    context.on('click', '.detachnic', {element_id: that.element.ID}, detach_alias);
+                    context.off("click", ".detachnic");
+                    context.on("click", ".detachnic", {element_id: that.element.ID}, detach_alias);
                 }
             });
           } else {
-              html = '';
+              html = "";
           }
 
-        html += '<div style="padding-left: 30px;">\
-              <table class="dataTable">\
+        html += "<div style=\"padding-left: 30px;\">\
+              <table class=\"dataTable\">\
                 <thead>\
                   <tr>\
-                    <th colspan="2">' + Locale.tr("Security Group") + '</th>\
-                    <th>' + Locale.tr("Protocol") + '</th>\
-                    <th>' + Locale.tr("Type") + '</th>\
-                    <th>' + Locale.tr("Range") + '</th>\
-                    <th>' + Locale.tr("Network") + '</th>\
-                    <th>' + Locale.tr("ICMP Type") + '</th>\
+                    <th colspan=\"2\">" + Locale.tr("Security Group") + "</th>\
+                    <th>" + Locale.tr("Protocol") + "</th>\
+                    <th>" + Locale.tr("Type") + "</th>\
+                    <th>" + Locale.tr("Range") + "</th>\
+                    <th>" + Locale.tr("Network") + "</th>\
+                    <th>" + Locale.tr("ICMP Type") + "</th>\
                   </tr>\
                 <thead>\
-                <tbody>'            ;
+                <tbody>"            ;
 
         $.each(row.data().SECURITY_GROUP_RULES, function(index, elem) {
           var rule_st = SecGroupsCommon.sgRuleToSt(this);
 
-          var new_tr = '<tr>\
-                  <td>' + this.SECURITY_GROUP_ID + '</td>\
-                  <td>' + Navigation.link(this.SECURITY_GROUP_NAME, "secgroups-tab", this.SECURITY_GROUP_ID) + '</td>\
-                  <td>' + rule_st.PROTOCOL + '</td>\
-                  <td>' + rule_st.RULE_TYPE + '</td>\
-                  <td>' + rule_st.RANGE + '</td>\
-                  <td>' + rule_st.NETWORK + '</td>\
-                  <td>' + rule_st.ICMP_TYPE + '</td>\
-                </tr>'
+          var new_tr = "<tr>\
+                  <td>" + this.SECURITY_GROUP_ID + "</td>\
+                  <td>" + Navigation.link(this.SECURITY_GROUP_NAME, "secgroups-tab", this.SECURITY_GROUP_ID) + "</td>\
+                  <td>" + rule_st.PROTOCOL + "</td>\
+                  <td>" + rule_st.RULE_TYPE + "</td>\
+                  <td>" + rule_st.RANGE + "</td>\
+                  <td>" + rule_st.NETWORK + "</td>\
+                  <td>" + rule_st.ICMP_TYPE + "</td>\
+                </tr>";
 
           html += new_tr;
         });
 
         row.child(html).show();
-        $(this).children("span").removeClass('fa-chevron-down');
-        $(this).children("span").addClass('fa-chevron-up');
+        $(this).children("span").removeClass("fa-chevron-down");
+        $(this).children("span").addClass("fa-chevron-up");
         $.each(row.data().NIC_ALIAS, function(index, elem) {
             $("#alias_" + this.NIC_ID).attr("nic_id", this.NIC_ID);
         });
@@ -449,8 +452,8 @@ define(function(require) {
     });
 
     if (Config.isTabActionEnabled("vms-tab", "VM.attachnic")) {
-      context.off('click', '#attach_nic');
-      context.on('click', '#attach_nic', function() {
+      context.off("click", "#attach_nic");
+      context.on("click", "#attach_nic", function() {
         var dialog = Sunstone.getDialog(ATTACH_NIC_DIALOG_ID);
         dialog.setElement(that.element);
         dialog.setNicsNames(nics_names);
@@ -460,9 +463,9 @@ define(function(require) {
     }
 
     if (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) {
-      context.off('click', '.detachnic');
-      context.on('click', '.detachnic', function() {
-        var nic_id = $(this).parents('tr').attr('nic_id');
+      context.off("click", ".detachnic");
+      context.on("click", ".detachnic", function() {
+        var nic_id = $(this).parents("tr").attr("nic_id");
 
         Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
           //header :
@@ -470,7 +473,7 @@ define(function(require) {
           body : Locale.tr("This will detach the nic immediately"),
           //question :
           submit : function(){
-            Sunstone.runAction('VM.detachnic', that.element.ID, nic_id);
+            Sunstone.runAction("VM.detachnic", that.element.ID, nic_id);
             return false;
           }
         });
@@ -493,7 +496,7 @@ define(function(require) {
       body : Locale.tr("This will detach the alias immediately"),
       //question :
       submit : function(){
-        Sunstone.runAction('VM.detachnic', element_id, nic_id);
+        Sunstone.runAction("VM.detachnic", element_id, nic_id);
         return false;
       }
     });
@@ -575,7 +578,7 @@ define(function(require) {
     var that = this;
 
     $.each(state["openNicsDetails"], function(){
-      $('#tab_network_form .nics_table tr[nic_id="'+this+'"] td.open-control', context).click();
+      $("#tab_network_form .nics_table tr[nic_id=\""+this+"\"] td.open-control", context).click();
     });
   }
 });

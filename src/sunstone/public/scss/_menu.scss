@@ -61,10 +61,6 @@
 
   .nested {
     margin-left: 0;
-
-    & > li:last-child {
-      padding-bottom: 1rem;
-    }
   }
 
   #li_support-tab {
