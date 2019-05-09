@@ -70,7 +70,7 @@ class Container
         @one = one
 
         @lxc_command = 'lxc'
-        @lxc_command.prepend 'sudo ' if client.snap
+        @lxc_command.prepend 'sudo /snap/bin/' if client.snap
 
         @rootfs_dir = "#{@client.lxd_path}/storage-pools/default/containers/"\
         "#{name}/rootfs"
