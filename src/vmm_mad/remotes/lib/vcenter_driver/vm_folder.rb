@@ -16,49 +16,54 @@
 
 module VCenterDriver
 
-class VirtualMachineFolder
-  attr_accessor :item, :items
+    # VirtualMachineFolder class
+    class VirtualMachineFolder
 
-  def initialize(item)
-      @item = item
-      check_item(@item, nil)
-      @items = {}
-  end
+        attr_accessor :item, :items
 
-  ########################################################################
-  # Builds a hash with Datastore-Ref / Datastore to be used as a cache
-  # @return [Hash] in the form
-  #   { ds_ref [Symbol] => Datastore object }
-  ########################################################################
-  def fetch!
-      VIClient.get_entities(@item, "VirtualMachine").each do |item|
-          item_name = item._ref
-          @items[item_name.to_sym] = VirtualMachine.new_with_item(item)
-      end
-  end
+        def initialize(item)
+            @item = item
+            check_item(@item, nil)
+            @items = {}
+        end
 
-  def fetch_templates!
-      VIClient.get_entities(@item, "VirtualMachine").each do |item|
-          if item.config.template
-              item_name = item._ref
-              @items[item_name.to_sym] = Template.new(item)
-          end
-      end
-  end
+        ########################################################################
+        # Builds a hash with Datastore-Ref / Datastore to be used as a cache
+        # @return [Hash] in the form
+        #   { ds_ref [Symbol] => Datastore object }
+        ########################################################################
 
-  ########################################################################
-  # Returns a Datastore. Uses the cache if available.
-  # @param ref [Symbol] the vcenter ref
-  # @return Datastore
-  ########################################################################
-  def get(ref)
-      if !@items[ref.to_sym]
-          rbvmomi_dc = RbVmomi::VIM::Datastore.new(@item._connection, ref)
-          @items[ref.to_sym] = Datastore.new(rbvmomi_dc)
-      end
+        def fetch!
+            VIClient.get_entities(@item, 'VirtualMachine').each do |item|
+                item_name = item._ref
+                @items[item_name.to_sym] = VirtualMachine.new_with_item(item)
+            end
+        end
 
-      @items[ref.to_sym]
-  end
-end # class VirtualMachineFolder
+        def fetch_templates!
+            VIClient.get_entities(@item, 'VirtualMachine').each do |item|
+                if item.config.template
+                    item_name = item._ref
+                    @items[item_name.to_sym] = Template.new(item)
+                end
+            end
+        end
 
-end # module VCenterDriver
+        ########################################################################
+        # Returns a Datastore. Uses the cache if available.
+        # @param ref [Symbol] the vcenter ref
+        # @return Datastore
+        ########################################################################
+
+        def get(ref)
+            if !@items[ref.to_sym]
+                rbvmomi_dc = RbVmomi::VIM::Datastore.new(@item._connection, ref)
+                @items[ref.to_sym] = Datastore.new(rbvmomi_dc)
+            end
+
+            @items[ref.to_sym]
+        end
+
+    end
+
+end
