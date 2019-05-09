@@ -282,12 +282,12 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
         # searching for flow just by MAC address is legacy,
         # we preferably look for a flow port with our note
-        ["note:#{port_note}", @nic[:mac]].each do |m|
+        ["note:#{port_note}", @nic[:mac]].each do |flow_matching|
             out_flows.lines do |flow|
-                next unless flow.match(m)
+                next unless flow.match(flow_matching)
 
-                if (m = flow.match(/in_port=(\d+)/))
-                    in_port_tmp = m[1]
+                if (port_match = flow.match(/in_port=(\d+)/))
+                    in_port_tmp = port_match[1]
 
                     if !the_ports.include?(in_port_tmp)
                         in_port = in_port_tmp
