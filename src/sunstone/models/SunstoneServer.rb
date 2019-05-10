@@ -65,8 +65,13 @@ class SunstoneServer < CloudServer
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
         end
-
-        rc = pool.get_hash
+        
+        if kind == "vm"
+          rc = pool.get_hash(nil,true);
+          File.open("/tmp/test", 'w') { |file| file.write(rc) }
+        else
+          rc = pool.get_hash
+        end
 
         if OpenNebula.is_error?(rc)
             return [500, rc.to_json]
