@@ -128,7 +128,7 @@ int VirtualNetworkPool::allocate (
     vn = new VirtualNetwork(uid, gid, uname, gname, umask, pvid,
                             cluster_ids, vn_template);
 
-
+    vn_template->get("NAME", name);
 
     // Check for duplicates
     db_oid = exist(name, uid);
@@ -169,7 +169,7 @@ int VirtualNetworkPool::allocate (
 error_duplicated:
     oss << "NAME is already taken by NET " << db_oid << ".";
     error_str = oss.str();
-    
+
     delete vn;
 
 error_common:
