@@ -182,11 +182,11 @@ module OpenNebula
         # The default page size can be changed with the environment variable
         # ONE_POOL_PAGE_SIZE. Any value > 2 will set a page size, a non
         # numeric value disables pagination.
-        def get_hash(size=nil, extended=nil)
+        def get_hash(size=nil)
             allow_paginated = PAGINATED_POOLS.include?(@pool_name)
 
             if OpenNebula.pool_page_size && allow_paginated &&
-                    ( ( size && size >= 2 ) || !size ) && !extended
+                    ( ( size && size >= 2 ) || !size )
 
                 size = OpenNebula.pool_page_size if !size
                 hash = info_paginated(size)
@@ -195,11 +195,7 @@ module OpenNebula
 
                 { @pool_name => { @element_name => hash } }
             else
-                if extended
-                    rc = info_search(:extended => true)
-                else
-                    rc = info
-                end
+                rc = info
                 return rc if OpenNebula.is_error?(rc)
 
                 to_hash

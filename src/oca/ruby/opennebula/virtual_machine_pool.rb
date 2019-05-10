@@ -50,6 +50,14 @@ module OpenNebula
             @user_id  = user_id
         end
 
+        def get_hash_extended
+              rc = info_search(:extended => true)
+              return rc if OpenNebula.is_error?(rc)
+
+              to_hash
+          end
+      end
+
         # Default Factory Method for the Pools
         def factory(element_xml)
             OpenNebula::VirtualMachine.new(element_xml,@client)
