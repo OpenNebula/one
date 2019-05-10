@@ -2236,6 +2236,7 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     def has_snapshots?
+        self.clear('rootSnapshot')
         self['rootSnapshot'] && !self['rootSnapshot'].empty?
     end
 

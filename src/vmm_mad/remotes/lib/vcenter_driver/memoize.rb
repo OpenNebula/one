@@ -53,6 +53,15 @@ module Memoize
         @memoize[property] = current_item
     end
 
+    def clear(property)
+        @memoize = {} if !defined?(@memoize)
+        @memoize.clear[property] if @memoize[property]
+    end
+
+    def clear_all
+        @memoize = {}
+    end
+
     def []=(property, value)
         @memoize = {} if !defined?(@memoize)
 
