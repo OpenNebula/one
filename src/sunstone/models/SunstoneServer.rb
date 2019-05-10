@@ -67,8 +67,7 @@ class SunstoneServer < CloudServer
         end
         
         if kind == "vm"
-          rc = pool.get_hash(nil,true);
-          File.open("/tmp/test", 'w') { |file| file.write(rc) }
+          rc = pool.get_hash(nil,$conf[:get_extended_vm_info];
         else
           rc = pool.get_hash
         end

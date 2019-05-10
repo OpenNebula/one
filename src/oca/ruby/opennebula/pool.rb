@@ -186,7 +186,7 @@ module OpenNebula
             allow_paginated = PAGINATED_POOLS.include?(@pool_name)
 
             if OpenNebula.pool_page_size && allow_paginated &&
-                    ( ( size && size >= 2 ) || !size )
+                    ( ( size && size >= 2 ) || !size ) && !extended
 
                 size = OpenNebula.pool_page_size if !size
                 hash = info_paginated(size)
@@ -197,7 +197,6 @@ module OpenNebula
             else
                 if extended
                     rc = info_search(:extended => true)
-                    File.open('/tmp/test', 'w') { |file| file.write(rc) }
                 else
                     rc = info
                 end
