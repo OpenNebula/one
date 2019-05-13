@@ -91,6 +91,7 @@ MONITOR_STATUS=$?
 if [ "$MONITOR_STATUS" = "0" ]; then
     XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
     echo -e "$(rbd_df_monitor ${MONITOR_DATA} ${POOL_NAME})"
+    echo -e "$(rbd_df_monitor ${MONITOR_DATA} ec)"
 else
     echo "$MONITOR_DATA"
     exit $MONITOR_STATUS
