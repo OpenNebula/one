@@ -50,6 +50,7 @@ if !(%{'SAVE_MIGRATE', 'SHUTDOWN', 'SHUTDOWN_POWEROFF', 'SHUTDOWN_UNDEPLOY'}).in
 end
 
 begin
+    retries ||= 0
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
     if vm_ref.empty?
@@ -63,11 +64,18 @@ begin
 
     vm.shutdown # Undeploy, Poweroff or Terminate
 rescue StandardError => e
-    message = "Shutdown of VM #{vm_ref} on vCenter cluster "\
-              "#{vc_cluster_name} failed due to "\
-              "\"#{e.message}\"\n#{e.backtrace.join("\n")}"
+    if (retries += 1) < 3
+        message = "Shutdown of VM #{vm_ref} on vCenter cluster "\
+                  "#{vc_cluster_name} failed due to "\
+                  "\"#{e.message}\" on the attempt \##{retries}\n#{e.backtrace.join("\n")}"
+    else
+        message = "Shutdown of VM #{vm_ref} on vCenter cluster "\
+                  "#{vc_cluster_name} failed due to "\
+                  "\"#{e.message}\" on the final attempt\n#{e.backtrace.join("\n")}"
+    end
     OpenNebula.log_error(message)
     STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
+    retry if retries < 3
 
     exit(-1)
 ensure
