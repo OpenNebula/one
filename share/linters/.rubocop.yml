@@ -726,6 +726,16 @@ Style/StderrPuts:
 Style/SymbolArray:
     Enabled: false
 
+Style/FrozenStringLiteralComment:
+    Enabled: false
+
+Style/NumericPredicate:
+    Enabled: false
+
+
+Style/SafeNavigation:
+    Enabled: false
+
 ######
 # LINT
 ######
