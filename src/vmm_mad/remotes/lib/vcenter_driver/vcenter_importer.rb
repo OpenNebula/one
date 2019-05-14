@@ -476,6 +476,11 @@ module VCenterDriver
                                 answer = STDIN.gets.strip
                                 if !answer.empty?
                                     one_cluster_id = answer
+                                else
+                                    # Check if the Cluster exists 
+                                    cluster_list.each do |key, value|
+                                        one_cluster_id = key if value == "#{cluster[:cluster_name]}"
+                                    end
                                 end
                             end
 

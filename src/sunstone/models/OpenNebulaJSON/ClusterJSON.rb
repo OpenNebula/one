@@ -26,7 +26,18 @@ module OpenNebulaJSON
                 return cluster_hash
             end
 
-            self.allocate(cluster_hash['name'])
+            # Check if cluster exists
+            cluster_pool = OpenNebula::ClusterPool.new(@client)
+            cluster_pool.info
+            cluster_pool.each do |cluster|
+                if cluster.name == cluster_hash['name']
+                    # Use existing cluster
+                    @pe_id = cluster.id
+                else
+                    # Create cluster
+                   self.allocate(cluster_hash['name'])
+                end
+            end
         end
 
         def perform_action(template_json)
