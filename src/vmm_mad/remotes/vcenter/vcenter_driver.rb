@@ -44,7 +44,8 @@ class VCenterConf < Hash
     DEFAULT_CONFIGURATION = {
         :delete_images => false,
         :vm_poweron_wait_default => 300,
-        :debug_information => false
+        :debug_information => false,
+        :retries => 3
     }
 
     def initialize
