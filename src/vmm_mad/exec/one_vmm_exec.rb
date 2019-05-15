@@ -1155,7 +1155,7 @@ class ExecDriver < VirtualMachineDriver
             # Shutdown the Virtual Machine
             {
                 :driver     => :vmm,
-                :action     => :shutdown,
+                :action     => signal,
                 :parameters => %i[deploy_id host]
             },
             # Execute networking clean up operations
