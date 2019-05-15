@@ -420,47 +420,14 @@ class ExecDriver < VirtualMachineDriver
     # SHUTDOWN action, graceful shutdown and network clean up
     #
     def shutdown(id, drv_message)
-
-        action = VmmAction.new(self, id, :shutdown, drv_message)
-
-        steps=[
-            # Shutdown the Virtual Machine
-            {
-                :driver     => :vmm,
-                :action     => :shutdown,
-                :parameters => [:deploy_id, :host]
-            },
-            # Execute networking clean up operations
-            {
-                :driver   => :vnm,
-                :action   => :clean
-            }
-        ]
-
-        action.run(steps)
+        stop(id, drv_message, :shutdown)
     end
 
     #
     # CANCEL action, destroys a VM and network clean up
     #
     def cancel(id, drv_message)
-        action = VmmAction.new(self, id, :cancel, drv_message)
-
-        steps=[
-            # Cancel the Virtual Machine
-            {
-                :driver     => :vmm,
-                :action     => :cancel,
-                :parameters => [:deploy_id, :host]
-            },
-            # Execute networking clean up operations
-            {
-                :driver   => :vnm,
-                :action   => :clean
-            }
-        ]
-
-        action.run(steps)
+        stop(id, drv_message, :cancel)
     end
 
     #
@@ -623,26 +590,14 @@ class ExecDriver < VirtualMachineDriver
     # REBOOT action, reboots a running VM
     #
     def reboot(id, drv_message)
-        xml_data = decode(drv_message)
-
-        data      = decode(drv_message)
-        host      = data.elements['HOST'].text
-        deploy_id = data.elements['DEPLOY_ID'].text
-
-        do_action("#{deploy_id} #{host}", id, host, ACTION[:reboot], {:stdin => xml_data})
+        restart(id, drv_message, :reboot)
     end
 
     #
     # RESET action, resets a running VM
     #
     def reset(id, drv_message)
-        xml_data = decode(drv_message)
-
-        data      = decode(drv_message)
-        host      = data.elements['HOST'].text
-        deploy_id = data.elements['DEPLOY_ID'].text
-
-        do_action("#{deploy_id} #{host}", id, host, ACTION[:reset], {:stdin => xml_data})
+        restart(id, drv_message, :reboot)
     end
 
     #
@@ -1178,6 +1133,36 @@ private
             nil
         end
     end
+
+    def restart(id, drv_message, signal)
+        data      = decode(drv_message)
+        host      = data.elements['HOST'].text
+        deploy_id = data.elements['DEPLOY_ID'].text
+
+        do_action("#{deploy_id} #{host}", id, host, ACTION[signal],
+                  :stdin => data)
+    end
+
+    def stop(id, drv_message, signal)
+        action = VmmAction.new(self, id, signal, drv_message)
+
+        steps = [
+            # Shutdown the Virtual Machine
+            {
+                :driver     => :vmm,
+                :action     => :shutdown,
+                :parameters => %i[deploy_id host]
+            },
+            # Execute networking clean up operations
+            {
+                :driver   => :vnm,
+                :action   => :clean
+            }
+        ]
+
+        action.run(steps)
+    end
+
 end
 
 ################################################################################
