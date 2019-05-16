@@ -16,11 +16,11 @@
 
 define(function(require) {
   var RFB = require("vnc-rfb").default;
-  console.log("utils");
   var Config = require("sunstone-config");
-
   var _lock = false;
   var _rfb;
+  var _message = "";
+  var _status = "Loading";
 
   return {
     "lockStatus": lockStatus,
@@ -43,6 +43,26 @@ define(function(require) {
     _lock = false;
   }
 
+  function connected(){
+    status("","Loaded");
+  }
+
+  function status(message="", status=""){
+    console.log("test ", message);
+    _message = message;
+    _status = status;
+    $(".NOVNC_message").text(_message);
+    $("#VNC_status").text(_status);
+  }
+
+  function disconnectedFromServer(e){
+    if (e.detail.clean) {
+      status("", "Loaded");
+    } else {
+      status("Something went wrong, connection is closed", "Failed");
+    }
+  }
+
   function vncCallback(response) {
     var URL = "";
     var proxy_host = window.location.hostname;
@@ -58,8 +78,8 @@ define(function(require) {
     }
     URL += "://" + window.location.hostname;
     URL += ":" + proxy_port;
-    URL += "?host=" + proxy_host; //se podra borrar porque ya esta!
-    URL += "&port=" + proxy_port; //se podra borrar porque ya esta!
+    URL += "?host=" + proxy_host;
+    URL += "&port=" + proxy_port;
     URL += "&token=" + token;
     URL += "&encrypt=" + Config.vncWSS;
     URL += "&title=" + vm_name;
@@ -69,7 +89,13 @@ define(function(require) {
     }
     _rfb = new RFB(document.querySelector("#VNC_canvas"), URL);
 
-    console.log("test-> ", _rfb);
+    try{
+      _rfb = new RFB(document.querySelector("#VNC_canvas"), URL);
+      _rfb.addEventListener("connect",  connected);
+      _rfb.addEventListener("disconnect", disconnectedFromServer);
+    }catch(err){
+      console.log("error start NOVNC ", err);
+    }
 
     $("#open_in_a_new_window").attr("href", URL);
   }
@@ -80,32 +106,5 @@ define(function(require) {
 
   function sendCtrlAltDel() {
     if (_rfb) { _rfb.sendCtrlAltDel(); }
-  }
-
-  //This is taken from noVNC examples
-  function updateVNCState(rfb, state, oldstate, msg) {
-    var s, sb, cad, klass;
-    s = document.querySelector("#VNC_status");
-    sb = document.querySelector("#VNC_status_bar");
-    cad = document.querySelector("#sendCtrlAltDelButton");
-    switch (state) {
-      case "failed":       level = "error";  break;
-      case "fatal":        level = "error";  break;
-      case "normal":       level = "normal"; break;
-      case "disconnected": level = "normal"; break;
-      case "loaded":       level = "normal"; break;
-      default:             level = "warn";   break;
-    }
-
-    if (state === "normal") {
-      cad.disabled = false;
-    } else {
-      cad.disabled = true;
-    }
-
-    if (typeof(msg) !== "undefined") {
-      sb.setAttribute("class", "noVNC_status_" + level);
-      s.innerHTML = msg;
-    }
   }
 });

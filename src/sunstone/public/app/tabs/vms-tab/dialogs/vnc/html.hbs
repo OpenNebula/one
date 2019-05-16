@@ -19,7 +19,7 @@
     <div class="large-12 columns">
       <h5 class="subheader" id="vnc_dialog">
         {{tr "VNC"}}
-        <span id="VNC_status">{{tr "Loading"}}</span>
+        <span id="VNC_status"></span>
         <span id="VNC_buttons" class="right">
           <button class="button alert" value="Send CtrlAltDel" id="sendCtrlAltDelButton">{{tr "Send CtrlAltDel"}}</button>
           <a class="button" id="open_in_a_new_window" href="" target="_blank" title="{{tr "Open in a new window"}}">
@@ -33,7 +33,9 @@
     </div>
   </div>
   <div class="reveal-body text-center" style="width:100%; overflow-x:auto">
-    <div id="VNC_canvas" width="640px">{{tr "Canvas not supported."}}</div>
+    <div id="VNC_canvas" width="640px">
+      <div class="NOVNC_message"></div>
+    </div>
     <div id="VNC_status_bar" class="VNC_status_bar"></div>
   </div>
 </div>

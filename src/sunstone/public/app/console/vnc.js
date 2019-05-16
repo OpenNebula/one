@@ -16,8 +16,6 @@
 
 define(function(require) {
   var RFB = require("vnc-rfb").default;
-  console.log("console");
-
   var rfb;
 
   function passwordRequired(rfb) {
