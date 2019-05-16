@@ -24,6 +24,3 @@
 
 # Show stacktraces on every exception
 :debug_information: false
-
-# Number of retries if a soported driver action is unsuccessful
-:retries: 3
