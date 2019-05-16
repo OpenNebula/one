@@ -87,13 +87,13 @@ define(function(require) {
     if (!Config.requestVNCPassword) {
       URL += "&password=" + pw;
     }
-    _rfb = new RFB(document.querySelector("#VNC_canvas"), URL);
 
     try{
       _rfb = new RFB(document.querySelector("#VNC_canvas"), URL);
       _rfb.addEventListener("connect",  connected);
       _rfb.addEventListener("disconnect", disconnectedFromServer);
     }catch(err){
+      status("Something went wrong, connection is closed", "Failed");
       console.log("error start NOVNC ", err);
     }
 
