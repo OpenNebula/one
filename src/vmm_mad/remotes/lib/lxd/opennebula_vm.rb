@@ -26,6 +26,7 @@ class LXDConfiguration < Hash
             :height  => '600',
             :timeout => '300'
         },
+        :filesystem => 'ext4',
         :datastore_location => '/var/lib/one/datastores'
     }
 

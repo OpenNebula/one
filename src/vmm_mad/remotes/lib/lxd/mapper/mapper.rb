@@ -122,7 +122,7 @@ class Mapper
         OpenNebula.log_info "Mapping disk at #{directory} on #{device}"
 
         if one_vm.volatile?(disk)
-            return unless mkfs(device, 'xfs')
+            return unless mkfs(device, one_vm.lxdrc[:filesystem])
         end
 
         partitions = lsblk(device)
@@ -557,7 +557,7 @@ class Mapper
         Command.execute(cmd, false)
     end
 
-    def mkfs(device, format = 'ext4')
+    def mkfs(device, format)
         cmd = "#{COMMANDS[:mkfs]} -t #{format} #{device}"
         rc, o, e = Command.execute(cmd, false)
 
