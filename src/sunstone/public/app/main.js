@@ -69,18 +69,7 @@ require.config({
     "flot.tooltip": "../bower_components/flot.tooltip/js/jquery.flot.tooltip",
 
     /* VNC */
-    "vnc-util": "../bower_components/no-vnc/include/util",
-    "vnc-webutil": "../bower_components/no-vnc/include/webutil",
-    "vnc-base64": "../bower_components/no-vnc/include/base64",
-    "vnc-websock": "../bower_components/no-vnc/include/websock",
-    "vnc-des": "../bower_components/no-vnc/include/des",
-    "vnc-keysymdef": "../bower_components/no-vnc/include/keysymdef",
-    "vnc-keyboard": "../bower_components/no-vnc/include/keyboard",
-    "vnc-input": "../bower_components/no-vnc/include/input",
-    "vnc-display": "../bower_components/no-vnc/include/display",
-    "vnc-jsunzip": "../bower_components/no-vnc/include/jsunzip",
-    "vnc-rfb": "../bower_components/no-vnc/include/rfb",
-    "vnc-keysym": "../bower_components/no-vnc/include/keysym",
+    "vnc-rfb": "../bower_components/no-vnc/lib/rfb",
 
     /* Spice */
     "spice-main": "../bower_components/spice-html5/main",
@@ -262,44 +251,6 @@ require.config({
     },
     "flot.tooltip": {
       deps: ["flot"]
-    },
-
-    /* VNC */
-    "vnc-util": {
-      exports: "Util"
-    },
-    "vnc-webutil": {
-      deps: ["vnc-util"]
-    },
-    "vnc-base64": {
-      deps: ["vnc-util"]
-    },
-    "vnc-websock": {
-      deps: ["vnc-util"]
-    },
-    "vnc-des": {
-      deps: ["vnc-util"]
-    },
-    "vnc-keysymdef": {
-      deps: ["vnc-util"]
-    },
-    "vnc-keyboard": {
-      deps: ["vnc-util"]
-    },
-    "vnc-input": {
-      deps: ["vnc-util"]
-    },
-    "vnc-display": {
-      deps: ["vnc-util"]
-    },
-    "vnc-jsunzip": {
-      deps: ["vnc-util"]
-    },
-    "vnc-rfb": {
-      deps: ["vnc-util"]
-    },
-    "vnc-keysym": {
-      deps: ["vnc-util"]
     },
 
     "spice-main": {
