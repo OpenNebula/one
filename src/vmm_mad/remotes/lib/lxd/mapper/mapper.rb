@@ -70,7 +70,8 @@ class Mapper
         :xfs_growfs => 'sudo xfs_growfs',
         :rbd        => 'sudo rbd-nbd --id',
         :xfs_admin  => 'sudo xfs_admin',
-        :tune2fs    => 'sudo tune2fs'
+        :tune2fs    => 'sudo tune2fs',
+        :mkfs       => 'sudo mkfs'
     }
 
     #---------------------------------------------------------------------------
@@ -116,9 +117,13 @@ class Mapper
 
         device = do_map(one_vm, disk, directory)
 
-        OpenNebula.log_info "Mapping disk at #{directory} using device #{device}"
-
         return false unless device
+
+        OpenNebula.log_info "Mapping disk at #{directory} on #{device}"
+
+        if one_vm.volatile?(disk)
+            return unless mkfs(device, 'xfs')
+        end
 
         partitions = lsblk(device)
 
@@ -550,6 +555,15 @@ class Mapper
     def update_partable(dev)
         cmd = "#{COMMANDS[:mount]} --fake #{dev} /mnt"
         Command.execute(cmd, false)
+    end
+
+    def mkfs(device, format = 'ext4')
+        cmd = "#{COMMANDS[:mkfs]} -t #{format} #{device}"
+        rc, o, e = Command.execute(cmd, false)
+
+        return true if rc.zero?
+
+        OpenNebula.log_error "Failed to format #{device}\n#{o}\n#{e}"
     end
 
 end

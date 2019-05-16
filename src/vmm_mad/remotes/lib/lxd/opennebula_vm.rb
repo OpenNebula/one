@@ -196,7 +196,7 @@ class OpenNebulaVM
         disks = @xml.elements('//TEMPLATE/DISK')
 
         disks.each do |n|
-            next if volatile?(n)
+            next if swap?(n)
 
             hash.update(disk(n, nil, nil))
         end
@@ -229,7 +229,7 @@ class OpenNebulaVM
     def disk_source(disk)
         disk_id = disk['DISK_ID']
 
-        if disk['TYPE'] == 'RBD'
+        if disk['DISK_TYPE'] == 'RBD'
             src = disk['SOURCE']
             return "#{src}-#{vm_id}-#{disk['DISK_ID']}" if disk['CLONE'] == 'YES'
 
@@ -307,9 +307,17 @@ class OpenNebulaVM
         { disk_name => disk }
     end
 
-    # Return true if disk if volatile
+    def swap?(disk)
+        return false unless disk['TYPE'] == 'swap'
+
+        e = "disk #{disk['DISK_ID']} type #{disk['TYPE']} not supported"
+        OpenNebula.log_error e
+
+        true
+    end
+
     def volatile?(disk)
-        return true if %w[fs swap].include? disk['TYPE']
+        return true if disk['TYPE'] == 'fs'
 
         false
     end

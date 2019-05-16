@@ -188,7 +188,7 @@ class Container
         OpenNebula.log '--- Starting container ---'
         change_state(__method__, options)
     end
-    
+
     def stop(options = { :timeout => 120 })
         OpenNebula.log '--- Stopping container ---'
         change_state(__method__, options)
@@ -272,14 +272,8 @@ class Container
         return unless @one
 
         @one.get_disks.each do |disk|
-            if @one.volatile?(disk)
-                e = "disk #{disk['DISK_ID']} type #{disk['TYPE']} not supported"
-                OpenNebula.log_error e
-                next
-            end
-
-            status = setup_disk(disk, operation)
-            return nil unless status
+            next if @one.swap?(disk)
+            return nil unless setup_disk(disk, operation)
         end
 
         return true unless @one.has_context?
@@ -288,7 +282,7 @@ class Container
 
         mapper = FSRawMapper.new
         mapper.public_send(operation, @one, @one.context_disk, context_source)
-        end
+    end
 
     # Generate the context devices and maps the context the device
     def attach_context
@@ -444,7 +438,7 @@ class Container
     #  TODO This maps should be built dynamically or based on a DISK attribute
     #  so new mappers does not need to modified source code
     def new_disk_mapper(disk)
-        case disk['TYPE']
+        case disk['DISK_TYPE']
         when 'FILE', 'BLOCK'
 
             ds = @one.disk_source(disk)
