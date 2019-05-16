@@ -284,33 +284,18 @@ class Container
 
         return true unless @one.has_context?
 
-        csrc = @lxc['devices']['context']['source'].clone
+        return unless mkdir_context
 
-        context = @one.get_context_disk
-        mapper  = FSRawMapper.new
-
-        create_context_dir = "#{Mapper::COMMANDS[:su_mkdir]} #{@context_path}"
-
-        rc, _o, e = Command.execute(create_context_dir, false)
-
-        if rc != 0
-            OpenNebula.log_error("#{__method__}: #{e}")
-            return
+        mapper = FSRawMapper.new
+        mapper.public_send(operation, @one, @one.context_disk, context_source)
         end
-
-        mapper.public_send(operation, @one, context, csrc)
-    end
 
     # Generate the context devices and maps the context the device
     def attach_context
         @one.context(@lxc['devices'])
 
-        csrc = @lxc['devices']['context']['source'].clone
-
-        context = @one.get_context_disk
-        mapper  = FSRawMapper.new
-
-        return unless mapper.map(@one, context, csrc)
+        mapper = FSRawMapper.new
+        return unless mapper.map(@one, @one.context_disk, context_source)
 
         update
         true
@@ -321,16 +306,13 @@ class Container
     def detach_context
         return true unless @one.has_context?
 
-        csrc = @lxc['devices']['context']['source'].clone
+        context_src = context_source
 
         @lxc['devices'].delete('context')['source']
-
         update
 
-        context = @one.get_context_disk
-        mapper  = FSRawMapper.new
-
-        mapper.unmap(@one, context, csrc)
+        mapper = FSRawMapper.new
+        mapper.unmap(@one, @one.context_disk, context_src)
     end
 
     # Attach disk to container (ATTACH = YES) in VM description
@@ -338,27 +320,15 @@ class Container
         disk_element = hotplug_disk
 
         raise 'Missing hotplug info' unless disk_element
+        return if @one.swap?(disk_element)
 
-        status = setup_disk(disk_element, 'map')
-        return unless status
+        return unless setup_disk(disk_element, 'map')
 
         disk_hash = @one.disk(disk_element, nil, nil)
-
         @lxc['devices'].update(disk_hash)
 
         update
         true
-    end
-
-    # Detects disk being hotplugged
-    def hotplug_disk
-        return unless @one
-
-        disk_a = @one.get_disks.select do |disk|
-            disk['ATTACH'].casecmp('YES').zero?
-        end
-
-        disk_a.first
     end
 
     # Detach disk to container (ATTACH = YES) in VM description
@@ -373,14 +343,14 @@ class Container
             container devices\n#{@lxc['devices']}"
         end
 
-        csrc = @lxc['devices'][disk_name]['source'].clone
+        disk_src = disk_source(disk_name)
 
         @lxc['devices'].delete(disk_name)['source']
 
         update
 
         mapper = new_disk_mapper(disk_element)
-        mapper.unmap(@one, disk_element, csrc)
+        mapper.unmap(@one, disk_element, disk_src)
     end
 
     # Setup the disk by mapping/unmapping the disk device
@@ -505,6 +475,37 @@ class Container
             OpenNebula.log "Using rbd disk mapper for #{ds}"
             RBDMapper.new(disk)
         end
+    end
+
+    def mkdir_context
+        cmd = "#{Mapper::COMMANDS[:su_mkdir]} #{@context_path}"
+        rc, _o, e = Command.execute(cmd, false)
+
+        return true if rc.zero?
+
+        OpenNebula.log_error("#{__method__}: #{e}")
+        nil
+    end
+
+    def context_source
+        return unless @one.has_context?
+
+        disk_source('context')
+    end
+
+    def disk_source(disk_name)
+        @lxc['devices'][disk_name]['source'].clone
+    end
+
+    # Detects disk being hotplugged
+    def hotplug_disk
+        return unless @one
+
+        disk_a = @one.get_disks.select do |disk|
+            disk['ATTACH'].casecmp('YES').zero?
+        end
+
+        disk_a.first
     end
 
 end
