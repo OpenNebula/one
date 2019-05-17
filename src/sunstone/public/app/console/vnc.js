@@ -88,9 +88,22 @@ define(function(require) {
     }
   }
 
+  function getQueryVariable(variable)
+  {
+         var query = window.location.search.substring(1);
+         var vars = query.split("&");
+         for (var i=0;i<vars.length;i++) {
+                 var pair = vars[i].split("=");
+                 if(pair[0] == variable){return pair[1];}
+         }
+         return(false);
+  }
+
+  token = window.token;
   var URL = "";
   var proxy_host = window.location.hostname;
   var proxy_port = Config.vncProxyPort;
+  var token = getQueryVariable("token");
 
   if (window.location.protocol === "https:") {
     URL = "wss";
@@ -101,6 +114,9 @@ define(function(require) {
   URL += ":" + proxy_port;
   URL += "?host=" + proxy_host;
   URL += "&port=" + proxy_port;
+  if(token){
+    URL += "&token=" + token;
+  }
   URL += "&encrypt=" + Config.vncWSS;
 
   document.querySelector("#sendCtrlAltDelButton").style.display = "inline";
@@ -114,7 +130,9 @@ define(function(require) {
         "Must specify host and port in URL");
     return;
   }
-
-  rfb = new RFB(document.querySelector("#VNC_canvas"), URL);
-
+  try{
+    rfb = new RFB(document.querySelector("#VNC_canvas"), URL);
+  }catch(err){
+    console.log("error start NOVNC ", err);
+  }
 });
