@@ -81,7 +81,7 @@ rescue StandardError => e
     end
     OpenNebula.log_error(message)
     STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
-    sleep 3
+    sleep CONFIG[:retry_interval].to_i
     retry if retries < CONFIG[:retries]
 
     exit(-1)

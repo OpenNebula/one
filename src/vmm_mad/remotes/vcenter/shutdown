@@ -64,7 +64,7 @@ begin
 
     vm = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm_ref)
 
-    vm.shutdown # Undeploy, Poweroff or Terminate
+    vm.shutdowna # Undeploy, Poweroff or Terminate
 rescue StandardError => e
     if (retries += 1) < CONFIG[:retries]
         message = "Shutdown of VM #{vm_ref} on vCenter cluster "\
@@ -77,7 +77,7 @@ rescue StandardError => e
     end
     OpenNebula.log_error(message)
     STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
-    sleep 3
+    sleep CONFIG[:retry_interval].to_i
     retry if retries < CONFIG[:retries]
 
     exit(-1)
