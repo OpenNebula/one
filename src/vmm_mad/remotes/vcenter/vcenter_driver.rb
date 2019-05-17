@@ -90,6 +90,7 @@ require 'vmm_importer'
 require 'vm_device'
 require 'vm_disk'
 require 'vm_nic'
+require 'vm_helper'
 
 CHECK_REFS = true
 

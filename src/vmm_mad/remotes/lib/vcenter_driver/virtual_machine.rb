@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-
 module VCenterDriver
 
     class VirtualMachine < VCenterDriver::Template
@@ -34,7 +33,6 @@ module VCenterDriver
 
         DNET_CARD         = RbVmomi::VIM::VirtualEthernetCardDistributedVirtualPortBackingInfo
         NET_CARD          = RbVmomi::VIM::VirtualEthernetCardNetworkBackingInfo
-
 
         VM_SHUTDOWN_TIMEOUT = 600 #10 minutes til poweroff hard
 
@@ -819,27 +817,6 @@ module VCenterDriver
             end
         end
 
-        def nic_model_class(nicmodel)
-            case nicmodel
-            when 'virtuale1000', 'e1000'
-                return RbVmomi::VIM::VirtualE1000
-            when 'virtuale1000e', 'e1000e'
-                return RbVmomi::VIM::VirtualE1000e
-            when 'virtualpcnet32', 'pcnet32'
-                return RbVmomi::VIM::VirtualPCNet32
-            when 'virtualsriovethernetcard', 'sriovethernetcard'
-                return RbVmomi::VIM::VirtualSriovEthernetCard
-            when 'virtualvmxnetm', 'vmxnetm'
-                return RbVmomi::VIM::VirtualVmxnetm
-            when 'virtualvmxnet2', 'vmnet2'
-                return RbVmomi::VIM::VirtualVmxnet2
-            when 'virtualvmxnet3', 'vmxnet3'
-                return RbVmomi::VIM::VirtualVmxnet3
-            else # If none matches, use vmxnet3
-                return RbVmomi::VIM::VirtualVmxnet3
-            end
-        end
-
         def reference_unmanaged_devices(template_ref, execute = true)
             extraconfig   = []
             device_change = []
@@ -912,7 +889,7 @@ module VCenterDriver
                     unmanaged_nics.each do |unic|
                         vnic      = select_net.call(unic['VCENTER_NET_REF'])
                         nic_class = vnic.class
-                        new_model = nic_model_class(unic['MODEL']) if unic['MODEL']
+                        new_model = Nic.nic_model_class(unic['MODEL']) if unic['MODEL']
 
                         # delete actual nic and update the new one.
                         if new_model && new_model != nic_class
@@ -1252,7 +1229,7 @@ module VCenterDriver
                 card_num += 1 if is_nic?(dv)
             end
 
-            nic_card = nic_model_class(model)
+            nic_card = Nic.nic_model_class(model)
 
             if network.class == RbVmomi::VIM::Network
                 backing = RbVmomi::VIM.VirtualEthernetCardNetworkBackingInfo(
@@ -1347,7 +1324,7 @@ module VCenterDriver
                 card_num += 1 if is_nic?(dv)
             end
 
-            nic_card = nic_model_class(model)
+            nic_card = Nic.nic_model_class(model)
 
             if network.class == RbVmomi::VIM::Network
                 backing = RbVmomi::VIM.VirtualEthernetCardNetworkBackingInfo(
@@ -2601,24 +2578,6 @@ module VCenterDriver
                 :diskrdiops  => 0,
                 :diskwriops  => 0
             }
-        end
-
-        # Converts the VI string state to OpenNebula state convention
-        # Guest states are:
-        # - poweredOff   The virtual machine is currently powered off.
-        # - poweredOn    The virtual machine is currently powered on.
-        # - suspended    The virtual machine is currently suspended.
-        def state_to_c(state)
-            case state
-                when 'poweredOn'
-                    VM_STATE[:active]
-                when 'suspended'
-                    VM_STATE[:paused]
-                when 'poweredOff'
-                    VM_STATE[:deleted]
-                else
-                    VM_STATE[:unknown]
-            end
         end
 
         # STATIC MEMBERS, ROUTINES AND CONSTRUCTORS
