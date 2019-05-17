@@ -1454,6 +1454,15 @@ class VirtualMachine < VCenterDriver::Template
         # get token and context
         extraconfig += extraconfig_context
 
+        # get file_ds
+        if (files = one_item["TEMPLATE/CONTEXT/FILES_DS"])
+            file_id = 0
+            files.split(' ').each do |file|
+                extraconfig += extraconfig_file(file, file_id)
+                file_id += 1
+            end
+        end
+
         # vnc configuration (for config_array hash)
         extraconfig += extraconfig_vnc
 
@@ -1476,6 +1485,18 @@ class VirtualMachine < VCenterDriver::Template
         spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
 
         @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+    end
+
+    def extraconfig_file(file, id)
+        path, name = file.split(':')
+        name = name.gsub('\'', '')
+        file_content = Base64.encode64(File.read(path))
+        file_content.prepend("#{name}\n")
+
+        [
+            { :key => "guestinfo.opennebula.file.#{id}",
+              :value => file_content }
+        ]
     end
 
     def extraconfig_context
