@@ -222,10 +222,13 @@ get '/support/check' do
         full_version = "#{major_version}.#{minor_version}"
         url = ENTREPRISE_REPO_URL.sub('<VERSION>', full_version)
         begin
-            http = Curl.get(url) do |http_options|
+            http = Curl.get(url) do |request|
+                if !$conf[:proxy].nil? && !$conf[:proxy].empty?
+                    request.proxy_url = $conf[:proxy]
+                end
                 token_enc = Base64.strict_encode64($conf[:token_remote_support])
-                http_options.headers['Authorization'] = 'Basic ' + token_enc
-                http_options.headers['User-Agent'] =
+                request.headers['Authorization'] = 'Basic ' + token_enc
+                request.headers['User-Agent'] =
                     'OpenNebula Subscription Validation'
             end
         rescue StandardError
@@ -257,8 +260,11 @@ get '/support/check/version' do
     end
 
     begin
-        http = Curl.get(GITHUB_TAGS_URL) do |http_options|
-            http_options.headers['User-Agent'] = 'OpenNebula Version Validation'
+        http = Curl.get(GITHUB_TAGS_URL) do |request|
+            if !$conf[:proxy].nil? && !$conf[:proxy].empty?
+                request.proxy_url = $conf[:proxy]
+            end
+            request.headers['User-Agent'] = 'OpenNebula Version Validation'
         end
     rescue StandardError
         return [400, JSON.pretty_generate(:version => 0)]
