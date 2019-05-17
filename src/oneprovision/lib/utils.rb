@@ -209,6 +209,42 @@ module OneProvision
                 yaml
             end
 
+            # Merge attributes
+            #
+            # @param yaml_a [Yaml] First yaml to merge
+            # @param yaml_b [Yaml] Second yaml to merge
+            #
+            # @return       [Yaml] Merged yaml
+            def merge_attrs(yaml_a, yaml_b)
+                return if yaml_b.nil?
+
+                if yaml_a['defaults'] && yaml_b['defaults']
+                    merge_defaults(yaml_a, yaml_b)
+                end
+
+                yaml_a.each do |key, _|
+                    if (yaml_a[key].is_a? Array) && !yaml_b[key].nil?
+                        yaml_a[key].concat(yaml_b[key])
+                    end
+                end
+
+                yaml_a
+            end
+
+            # Merge default section
+            #
+            # @param yaml_a [Yaml] First yaml to merge
+            # @param yaml_b [Yaml] Second yaml to merge
+            def merge_defaults(yaml_a, yaml_b)
+                %w[connection provision configuration].each do |section|
+                    yaml_a['defaults'][section] ||= {}
+                    yaml_b['defaults'][section] ||= {}
+                    defaults = yaml_b['defaults'][section]
+
+                    yaml_a['defaults'][section].merge!(defaults) if defaults
+                end
+            end
+
             # Reads configuration content
             #
             # @param name [String] Path to the configuration file
@@ -223,9 +259,20 @@ module OneProvision
 
                 return yaml unless yaml['extends']
 
-                base = read_config(yaml['extends'])
+                extends = yaml['extends']
+
+                extends = [extends] unless extends.is_a? Array
 
                 yaml.delete('extends')
+
+                extends.reverse!
+
+                base = {}
+
+                extends.each do |file|
+                    base = merge_attrs(read_config(file), base)
+                end
+
                 base['defaults'] ||= {}
                 yaml['defaults'] ||= {}
 
@@ -241,13 +288,7 @@ module OneProvision
                 end
 
                 # merge each defaults section separately
-                %w[connection provision configuration].each do |section|
-                    base['defaults'][section] ||= {}
-                    yaml['defaults'][section] ||= {}
-                    defaults = yaml['defaults'][section]
-
-                    base['defaults'][section].merge!(defaults)
-                end
+                merge_defaults(base, yaml)
 
                 base
             end
