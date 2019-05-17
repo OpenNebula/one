@@ -1,115 +1,6 @@
 module VirtualMachineDevice
 
-    ############################################################################
-    # Device Classes
-    ############################################################################
-    # Device base class
-    #
-    # @param id [Integer] The OpenNebula resource id
-    # @param one_res [XMLElement] The OpenNebula representation of the object
-    # @param vc_res [vCenter_class_specific] vCenter object representation
-    ############################################################################
-    class Device
-
-        def initialize(id, one_res, vc_res)
-            @id      = id
-            @one_res = one_res
-            @vc_res  = vc_res
-        end
-
-        def id
-            raise_if_no_exists_in_one
-            @id
-        end
-
-        def one_item
-            raise_if_no_exists_in_one
-            @one_res
-        end
-
-        def vc_item
-            raise_if_no_exists_in_vcenter
-            @vc_res
-        end
-
-        def one?
-            !@one_res.nil?
-        end
-
-        def exists?
-            !@vc_res.nil?
-        end
-
-        # Fails if the device is not present in OpenNebula
-        def raise_if_no_exists_in_one
-            raise 'OpenNebula device does not exist at the moment' unless one?
-        end
-
-        # Fails if the device is not present in vCenter
-        def raise_if_no_exists_in_vcenter
-            raise 'vCenter device does not exist at the moment' unless exists?
-        end
-
-        def no_exists?
-            !exists?
-        end
-
-        def synced?
-            one? && exists?
-        end
-
-        def unsynced?
-            !synced?
-        end
-
-        def detached?
-            !one?
-        end
-
-        def managed?
-            raise_if_no_exists_in_one
-            if @one_res
-                !(@one_res['OPENNEBULA_MANAGED'] &&
-                  @one_res['OPENNEBULA_MANAGED'].downcase == 'no')
-            end
-        end
-
-    end
-
-    # Nic class
-    class Nic < Device
-
-        def initialize(id, one_res, vc_res)
-            super(id, one_res, vc_res)
-        end
-
-        # Create the OpenNebula nic representation
-        # Allow as to create the class without vCenter representation
-        # example: attached nics not synced with vCenter
-        def self.one_nic(id, one_res)
-            self.new(id, one_res, nil)
-        end
-
-        # Create the vCenter nic representation
-        # Allow as to create the class without OpenNebula representation
-        # example: detached nics that not exists in OpenNebula
-        def self.vc_nic(vc_res)
-            self.new(nil, nil, vc_res)
-        end
-
-        def key
-            raise_if_no_exists_in_vcenter
-            @vc_res.key
-        end
-
-        def boot_dev
-            RbVmomi::VIM
-                .VirtualMachineBootOptionsBootableEthernetDevice(
-                    deviceKey => key
-                )
-        end
-
-    end
+    require_relative 'vm_device'
 
     # Disk class
     class Disk < Device
@@ -252,7 +143,7 @@ module VirtualMachineDevice
             size = size.to_i
 
             if @one_res['ORIGINAL_SIZE'] &&
-               @one_res['ORIGINAL_SIZE'].to_i >= size
+              @one_res['ORIGINAL_SIZE'].to_i >= size
                 raise "'disk-resize' cannot decrease the disk's size"
             end
 
