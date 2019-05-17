@@ -27,3 +27,6 @@
 
 # Number of retries if a soported driver action is unsuccessful
 :retries: 3
+
+# Amount of time to wait between retry attempts (seconds)
+:retry_interval: 1
