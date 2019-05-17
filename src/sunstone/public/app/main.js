@@ -16,6 +16,9 @@
 
 require.config({
   paths: {
+    /* Config */
+    "sunstone-config": "sunstone-config",
+
     /* Almond */
     "almond": "../bower_components/almond/almond",
 
@@ -252,7 +255,9 @@ require.config({
     "flot.tooltip": {
       deps: ["flot"]
     },
-
+    "vnc-rfb": {
+      deps: ["sunstone-config"]
+    },
     "spice-main": {
       exports: "SpiceMainConn",
       deps: [

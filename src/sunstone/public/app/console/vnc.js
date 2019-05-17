@@ -16,6 +16,7 @@
 
 define(function(require) {
   var RFB = require("vnc-rfb").default;
+  var Config = require("sunstone-config");
   var rfb;
 
   function passwordRequired(rfb) {
@@ -26,11 +27,11 @@ define(function(require) {
     msg += "<input type=password size=10 id=\"password_input\" class=\"noVNC_status\">";
     msg += "<\/form>";
     document.querySelector("#noVNC_status_bar").setAttribute("class", "noVNC_status_warn");
-    $D("noVNC_status").innerHTML = msg;
-    document.getElementById("setPasswordForm").addEventListener("submit", setPassword);
+    document.querySelector("#noVNC_status").innerHTML = msg;
+    document.querySelector("#setPasswordForm").addEventListener("submit", setPassword);
   }
   function setPassword(event) {
-    rfb.sendPassword($D("password_input").value);
+    rfb.sendPassword(document.querySelector("#password_input").value);
     event.preventDefault();
     return false;
   }
@@ -52,9 +53,9 @@ define(function(require) {
   }
   function updateState(rfb, state, oldstate, msg) {
     var s, sb, cad, level;
-    s = document.querySelector("noVNC_status");
-    sb = document.querySelector("noVNC_status_bar");
-    cad = document.querySelector("sendCtrlAltDelButton");
+    s = document.querySelector("#noVNC_status");
+    sb = document.querySelector("#noVNC_status_bar");
+    cad = document.querySelector("#sendCtrlAltDelButton");
     switch (state) {
       case "failed":       level = "error";  break;
       case "fatal":        level = "error";  break;
@@ -79,7 +80,7 @@ define(function(require) {
 
   function xvpInit(ver) {
     var xvpbuttons;
-    xvpbuttons = document.querySelector("noVNC_xvp_buttons");
+    xvpbuttons = document.querySelector("#noVNC_xvp_buttons");
     if (ver >= 1) {
       xvpbuttons.style.display = "inline";
     } else {
@@ -98,15 +99,15 @@ define(function(require) {
   }
   URL += "://" + window.location.hostname;
   URL += ":" + proxy_port;
-  URL += "?host=" + proxy_host; //se podra borrar porque ya esta!
-  URL += "&port=" + proxy_port; //se podra borrar porque ya esta!
+  URL += "?host=" + proxy_host;
+  URL += "&port=" + proxy_port;
   URL += "&encrypt=" + Config.vncWSS;
 
-  document.querySelector("sendCtrlAltDelButton").style.display = "inline";
-  document.querySelector("sendCtrlAltDelButton").onclick = sendCtrlAltDel;
-  document.querySelector("xvpShutdownButton").onclick = xvpShutdown;
-  document.querySelector("xvpRebootButton").onclick = xvpReboot;
-  document.querySelector("xvpResetButton").onclick = xvpReset;
+  document.querySelector("#sendCtrlAltDelButton").style.display = "inline";
+  document.querySelector("#sendCtrlAltDelButton").onclick = sendCtrlAltDel;
+  document.querySelector("#xvpShutdownButton").onclick = xvpShutdown;
+  document.querySelector("#xvpRebootButton").onclick = xvpReboot;
+  document.querySelector("#xvpResetButton").onclick = xvpReset;
 
   if ((!proxy_host) || (!proxy_port)) {
     updateState("failed",

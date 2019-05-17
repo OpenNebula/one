@@ -48,7 +48,6 @@ define(function(require) {
   }
 
   function status(message="", status=""){
-    console.log("test ", message);
     _message = message;
     _status = status;
     $(".NOVNC_message").text(_message);
@@ -70,13 +69,15 @@ define(function(require) {
     var pw = response["password"];
     var token = response["token"];
     var vm_name = response["vm_name"];
-
-    if (window.location.protocol === "https:") {
+    var protocol = window.location.protocol;
+    var hostname = window.location.hostname;
+    var port = window.location.port;
+    if (protocol === "https:") {
       URL = "wss";
     } else {
       URL = "ws";
     }
-    URL += "://" + window.location.hostname;
+    URL += "://" + hostname;
     URL += ":" + proxy_port;
     URL += "?host=" + proxy_host;
     URL += "&port=" + proxy_port;
@@ -87,6 +88,8 @@ define(function(require) {
     if (!Config.requestVNCPassword) {
       URL += "&password=" + pw;
     }
+    var re = new RegExp("^(ws|wss):\\/\\/[\\w\\D]*?\\?", "gi");
+    var link = URL.replace(re, protocol + "//" + hostname + ":" + port + "/vnc?");
 
     try{
       _rfb = new RFB(document.querySelector("#VNC_canvas"), URL);
@@ -97,7 +100,7 @@ define(function(require) {
       console.log("error start NOVNC ", err);
     }
 
-    $("#open_in_a_new_window").attr("href", URL);
+    $("#open_in_a_new_window").attr("href", link);
   }
 
   function disconnect() {

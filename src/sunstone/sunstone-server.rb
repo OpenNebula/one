@@ -250,6 +250,46 @@ helpers do
         session[:ip] && session[:ip] == request.ip
     end
 
+    def build_conf_locals
+        logos_conf = nil
+        begin
+            logos_conf = YAML.load_file(LOGOS_CONFIGURATION_FILE)
+        rescue Exception => e
+            logger.error { "Error parsing config file #{LOGOS_CONFIGURATION_FILE}: #{e.message}" }
+            error 500, ""
+        end
+        serveradmin_client = $cloud_auth.client(nil, session[:active_zone_endpoint])
+        rc = OpenNebula::System.new(serveradmin_client).get_configuration
+        if OpenNebula.is_error?(rc)
+            logger.error { rc.message }
+            error 500, ""
+        end
+        oned_conf_template = rc.to_hash()['TEMPLATE']
+        oned_conf = {}
+        ONED_CONF_OPTS['ALLOWED_KEYS'].each do |key|
+            value = oned_conf_template[key]
+            if key == 'DEFAULT_COST'
+                if value
+                    oned_conf[key] = value
+                else
+                    oned_conf[key] = ONED_CONF_OPTS['DEFAULT_COST']
+                end
+            else
+                if ONED_CONF_OPTS['ARRAY_KEYS'].include?(key) && !value.is_a?(Array)
+                    oned_conf[key] = [value]
+                else
+                    oned_conf[key] = value
+                end
+            end
+        end
+        $conf[:locals] = { 
+            :logos_conf => logos_conf,
+            :oned_conf  => oned_conf,
+            :support    => SUPPORT,
+            :upgrade    => UPGRADE
+        }
+    end
+
     def build_session
         begin
             result = $cloud_auth.auth(request.env, params)
@@ -466,51 +506,16 @@ get '/' do
         return erb :login
     end
 
-    logos_conf = nil
-
-    begin
-        logos_conf = YAML.load_file(LOGOS_CONFIGURATION_FILE)
-    rescue Exception => e
-        logger.error { "Error parsing config file #{LOGOS_CONFIGURATION_FILE}: #{e.message}" }
-        error 500, ""
-    end
-
-    serveradmin_client = $cloud_auth.client(nil, session[:active_zone_endpoint])
-
-    rc = OpenNebula::System.new(serveradmin_client).get_configuration
-
-    if OpenNebula.is_error?(rc)
-        logger.error { rc.message }
-        error 500, ""
-    end
-
-    oned_conf_template = rc.to_hash()['TEMPLATE']
-
-    oned_conf = {}
-    ONED_CONF_OPTS['ALLOWED_KEYS'].each do |key|
-        value = oned_conf_template[key]
-        if key == 'DEFAULT_COST'
-            if value
-                oned_conf[key] = value
-            else
-                oned_conf[key] = ONED_CONF_OPTS['DEFAULT_COST']
-            end
-        else
-            if ONED_CONF_OPTS['ARRAY_KEYS'].include?(key) && !value.is_a?(Array)
-                oned_conf[key] = [value]
-            else
-                oned_conf[key] = value
-            end
-        end
+    if $conf[:locals].nil?
+      build_conf_locals
     end
 
     response.set_cookie("one-user", :value=>"#{session[:user]}")
-
-    erb :index, :locals => {
-        :logos_conf => logos_conf,
-        :oned_conf  => oned_conf,
-        :support    => SUPPORT,
-        :upgrade    => UPGRADE
+    erb :index, :locals =>  {
+            :logos_conf => $conf[:locals][:logos_conf],
+            :oned_conf  => $conf[:locals][:oned_conf],
+            :support    => $conf[:locals][:support],
+            :upgrade    => $conf[:locals][:upgrade]
     }
 end
 
@@ -528,7 +533,12 @@ get '/vnc' do
     if !authorized?
         erb :login
     else
-        erb :vnc
+        erb :vnc, :locals =>  {
+          :logos_conf => $conf[:locals][:logos_conf],
+          :oned_conf  => $conf[:locals][:oned_conf],
+          :support    => $conf[:locals][:support],
+          :upgrade    => $conf[:locals][:upgrade]
+        }
     end
 end
 
