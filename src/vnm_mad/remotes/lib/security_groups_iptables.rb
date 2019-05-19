@@ -429,6 +429,14 @@ module SGIPTables
                 ipv4s << nic[key] if !nic[key].nil? && !nic[key].empty?
             end
 
+            if !nic[:aliases].nil? && !nic[:aliases].empty?
+                nic[:aliases].each do |nicalias|
+                    [:ip, :vrouter_ip].each do |key|
+                        ipv4s << nicalias[key] if !nicalias[key].nil? && !nicalias[key].empty?
+                    end
+                end
+            end
+
             if !ipv4s.empty?
                 #bootp
                 commands.add :iptables, "-A #{chain_out} -p udp "\
@@ -454,6 +462,14 @@ module SGIPTables
 
             [:ip6, :ip6_global, :ip6_link, :ip6_ula].each do |key|
                 ipv6s << nic[key] if !nic[key].nil? && !nic[key].empty?
+            end
+
+            if !nic[:aliases].nil? && !nic[:aliases].empty?
+                nic[:aliases].each do |nicalias|
+                    [:ip6, :ip6_global, :ip6_link, :ip6_ula].each do |key|
+                        ipv6s << nicalias[key] if !nicalias[key].nil? && !nicalias[key].empty?
+                    end
+                end
             end
 
             if !ipv6s.empty?

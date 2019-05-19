@@ -50,6 +50,15 @@ module VNMMAD
                         nic.get_tap(self)
                     end
 
+                    if !nic[:alias_ids].nil?
+                        nic[:aliases] = []
+                        @vm_root.elements.each("TEMPLATE/NIC_ALIAS[PARENT_ID=\"#{nic[:nic_id]}\"]") do |nicalias_element|
+                            nicalias = nics.new_nic
+                            nic_build_hash(nicalias_element, nicalias)
+                            nic[:aliases] << nicalias
+                        end
+                    end
+
                     nics << nic
                 end
 
