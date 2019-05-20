@@ -29,6 +29,8 @@ $LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
+CONFIG = VCenterConf.new
+
 vm_ref    = ARGV[0]
 host      = ARGV[1]
 vm_id     = ARGV[-2]
@@ -43,16 +45,26 @@ check_valid(lcm_state, 'lcm_state')
 lcm_state_str = OpenNebula::VirtualMachine::LCM_STATE[lcm_state.to_i]
 
 begin
+    retries ||= 0
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
     vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vm_id)
 
     vm.poweroff_hard
 rescue StandardError => e
-    message = "Cancel VM #{vm_ref} failed due to "\
-              "\"#{e.message}\"\n#{e.backtrace.join("\n")}"
+    if (retries += 1) < CONFIG[:retries]
+        message = "Cancel VM #{vm_ref} failed due to "\
+                  "\"#{e.message}\"\n#{e.backtrace.join("\n")} "\
+                  "on the attempt \##{retries}\n#{e.backtrace.join("\n")}"
+    else
+        message = "Cancel VM #{vm_ref} failed due to "\
+                  "\"#{e.message}\"\n#{e.backtrace.join("\n")} "\
+                  "on the final attempt\n#{e.backtrace.join("\n")}"
+    end
     OpenNebula.log_error(message)
     STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
+    sleep CONFIG[:retry_interval].to_i
+    retry if retries < CONFIG[:retries]
 
     exit(-1)
 ensure

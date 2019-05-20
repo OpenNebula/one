@@ -29,6 +29,8 @@ $LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
+CONFIG = VCenterConf.new
+
 vm_ref          = ARGV[0]
 vc_cluster_name = ARGV[1]
 vm_id           = ARGV[2]
@@ -50,6 +52,7 @@ if !(%{'SAVE_MIGRATE', 'SHUTDOWN', 'SHUTDOWN_POWEROFF', 'SHUTDOWN_UNDEPLOY'}).in
 end
 
 begin
+    retries ||= 0
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
     if vm_ref.empty?
@@ -63,11 +66,19 @@ begin
 
     vm.shutdown # Undeploy, Poweroff or Terminate
 rescue StandardError => e
-    message = "Shutdown of VM #{vm_ref} on vCenter cluster "\
-              "#{vc_cluster_name} failed due to "\
-              "\"#{e.message}\"\n#{e.backtrace.join("\n")}"
+    if (retries += 1) < CONFIG[:retries]
+        message = "Shutdown of VM #{vm_ref} on vCenter cluster "\
+                  "#{vc_cluster_name} failed due to "\
+                  "\"#{e.message}\" on the attempt \##{retries}\n#{e.backtrace.join("\n")}"
+    else
+        message = "Shutdown of VM #{vm_ref} on vCenter cluster "\
+                  "#{vc_cluster_name} failed due to "\
+                  "\"#{e.message}\" on the final attempt\n#{e.backtrace.join("\n")}"
+    end
     OpenNebula.log_error(message)
     STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
+    sleep CONFIG[:retry_interval].to_i
+    retry if retries < CONFIG[:retries]
 
     exit(-1)
 ensure
