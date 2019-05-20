@@ -23,14 +23,26 @@ module VirtualMachineHelper
     def state_to_c(state)
         case state
         when 'poweredOn'
-            VM_STATE[:active]
+            OpenNebula::VirtualMachine::Driver::VM_STATE[:active]
         when 'suspended'
-            VM_STATE[:paused]
+            OpenNebula::VirtualMachine::Driver::VM_STATE[:paused]
         when 'poweredOff'
-            VM_STATE[:deleted]
+            OpenNebula::VirtualMachine::Driver::VM_STATE[:deleted]
         else
-            VM_STATE[:unknown]
+            OpenNebula::VirtualMachine::Driver::VM_STATE[:unknown]
         end
+    end
+
+    # This method raises an exception if the timeout is reached
+    # The exception needs to be handled in the VMM drivers and any
+    # process that uses this method
+    def wait_timeout(action, timeout = 300)
+        time_start = Time.now
+        begin
+            sleep(1)
+            condition = (Time.now-time_start).to_i >= timeout
+            raise 'Reached deploy timeout' if condition
+        end until send(action)
     end
 
 end
