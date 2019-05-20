@@ -470,8 +470,19 @@ class ExecDriver < VirtualMachineDriver
     def save(id, drv_message)
         xml_data = decode(drv_message)
         action = VmmAction.new(self, id, :save, drv_message)
+        pre    = "PRE"
+        post   = "POST"
+
+        pre  << action.data[:tm_command] << " " << action.data[:vm]
+        post << action.data[:tm_command] << " " << action.data[:vm]
 
         steps=[
+            # Execute a pre-save TM setup
+            {
+                :driver     => :tm,
+                :action     => :tm_presave,
+                :parameters => pre.split
+            },
             # Save the Virtual Machine state
             {
                 :driver     => :vmm,
@@ -482,6 +493,13 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver   => :vnm,
                 :action   => :clean
+            },
+            # Execute a post-save TM setup
+            {
+                :driver     => :tm,
+                :action     => :tm_postsave,
+                :parameters => post.split,
+                :no_fail    => true
             }
         ]
 
@@ -508,8 +526,19 @@ class ExecDriver < VirtualMachineDriver
         end
 
         action=VmmAction.new(self, id, :restore, drv_message)
+        pre    = "PRE"
+        post   = "POST"
+
+        pre  << action.data[:tm_command] << " " << action.data[:vm]
+        post << action.data[:tm_command] << " " << action.data[:vm]
 
         steps.concat([
+            # Execute a pre-restore TM setup
+            {
+                :driver     => :tm,
+                :action     => :tm_prerestore,
+                :parameters => pre.split
+            },
             # Execute pre-boot networking setup
             {
                 :driver     => :vnm,
@@ -533,6 +562,13 @@ class ExecDriver < VirtualMachineDriver
                         :parameters => [:deploy_id, :host]
                     }
                 ],
+            },
+            # Execute a post-restore TM setup
+            {
+                :driver     => :tm,
+                :action     => :tm_postrestore,
+                :parameters => post.split,
+                :no_fail    => true
             }
         ])
 

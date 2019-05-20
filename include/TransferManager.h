@@ -210,6 +210,26 @@ public:
         ostream&                xfr);
 
     /**
+     * Inserts a transfer command in the xfs stream, for save
+     *
+     * @param vm The VM
+     * @param xfr Stream where the transfer command will be written
+     */
+    void save_transfer_command(
+        VirtualMachine *        vm,
+        ostream&                xfr);
+
+    /**
+     * Inserts a transfer command in the xfs stream, for restore
+     *
+     * @param vm The VM
+     * @param xfr Stream where the transfer command will be written
+     */
+    void restore_transfer_command(
+        VirtualMachine *        vm,
+        ostream&                xfr);
+
+    /**
      *  This function generates the epilog_delete sequence for current,
      *  front-end and previous hosts.
      *    @param vm pointer to VM, locked

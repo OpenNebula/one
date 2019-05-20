@@ -2008,6 +2008,47 @@ void TransferManager::migrate_transfer_command(
         << endl;
 }
 
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void TransferManager::save_transfer_command(
+        VirtualMachine *        vm,
+        ostream&                xfr)
+{
+    // <PRESAVE/POSTSAVE> tm_mad SOURCE DST remote_system_dir vmid dsid
+
+    xfr << "SAVE " //TM action PRE or POST to be completed by VMM driver
+        << vm->get_tm_mad() << " "
+        << vm->get_previous_hostname() << " "
+        << vm->get_hostname() << " "
+        << vm->get_system_dir() << " "
+        << vm->get_oid() << " "
+        << vm->get_ds_id()
+        << endl;
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void TransferManager::restore_transfer_command(
+        VirtualMachine *        vm,
+        ostream&                xfr)
+{
+    // <PRERESTORE/POSTRESTORE> tm_mad SOURCE DST remote_system_dir vmid dsid
+
+    xfr << "RESTORE " //TM action PRE or POST to be completed by VMM driver
+        << vm->get_tm_mad() << " "
+        << vm->get_previous_hostname() << " "
+        << vm->get_hostname() << " "
+        << vm->get_system_dir() << " "
+        << vm->get_oid() << " "
+        << vm->get_ds_id()
+        << endl;
+}
+
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
