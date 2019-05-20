@@ -64,7 +64,7 @@ begin
 
     vm = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm_ref)
 
-    vm.shutdowna # Undeploy, Poweroff or Terminate
+    vm.shutdown # Undeploy, Poweroff or Terminate
 rescue StandardError => e
     if (retries += 1) < CONFIG[:retries]
         message = "Shutdown of VM #{vm_ref} on vCenter cluster "\
