@@ -29,6 +29,8 @@ $LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
+CONFIG = VCenterConf.new
+
 dfile        = ARGV[0]
 cluster_name = ARGV[1]
 vm_id        = ARGV[2]
@@ -47,6 +49,7 @@ host_id      = drv_action['HISTORY_RECORDS/HISTORY/HID']
 deploy       = {}
 
 begin
+    retries ||= 0
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
     one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
 
@@ -67,10 +70,19 @@ begin
 
     puts vm['_ref']
 rescue StandardError => e
-    message =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " \
-               "with #{dfile} failed due to \"#{e.message}\"."
+    if (retries += 1) < CONFIG[:retries]
+        message =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " \
+                   "with #{dfile} failed due to \"#{e.message}\"" \
+                   "on the attempt \##{retries}."
+    else
+        message =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " \
+                   "with #{dfile} failed due to \"#{e.message}\"" \
+                   "on the final attempt."
+    end
     OpenNebula.log_error(message)
     STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
+    sleep CONFIG[:retry_interval].to_i
+    retry if retries < CONFIG[:retries]
 
     exit(-1)
 ensure
