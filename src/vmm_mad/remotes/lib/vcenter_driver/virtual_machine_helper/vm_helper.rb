@@ -15,24 +15,6 @@
 #--------------------------------------------------------------------------- #
 module VirtualMachineHelper
 
-    # Converts the VI string state to OpenNebula state convention
-    # Guest states are:
-    # - poweredOff   The virtual machine is currently powered off.
-    # - poweredOn    The virtual machine is currently powered on.
-    # - suspended    The virtual machine is currently suspended.
-    def state_to_c(state)
-        case state
-        when 'poweredOn'
-            OpenNebula::VirtualMachine::Driver::VM_STATE[:active]
-        when 'suspended'
-            OpenNebula::VirtualMachine::Driver::VM_STATE[:paused]
-        when 'poweredOff'
-            OpenNebula::VirtualMachine::Driver::VM_STATE[:deleted]
-        else
-            OpenNebula::VirtualMachine::Driver::VM_STATE[:unknown]
-        end
-    end
-
     # This method raises an exception if the timeout is reached
     # The exception needs to be handled in the VMM drivers and any
     # process that uses this method
