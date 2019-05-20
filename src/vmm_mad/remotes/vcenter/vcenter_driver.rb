@@ -91,6 +91,7 @@ require 'vm_device'
 require 'vm_disk'
 require 'vm_nic'
 require 'vm_helper'
+require 'vm_monitor'
 
 CHECK_REFS = true
 
