@@ -48,12 +48,14 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/EC_POOL_NAME \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_KEY \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_CONF)
 
 BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
 POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
+EC_POOL_NAME="${XPATH_ELEMENTS[j++]}"
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
 CEPH_KEY="${XPATH_ELEMENTS[j++]}"
 CEPH_CONF="${XPATH_ELEMENTS[j++]}"
@@ -77,6 +79,8 @@ if [ -n "$CEPH_CONF" ]; then
     CEPH="$CEPH --conf ${CEPH_CONF}"
     RADOS="$RADOS --conf ${CEPH_CONF}"
 fi
+
+[ -n "$EC_POOL_NAME" ] && POOL_NAME="$EC_POOL_NAME"
 
 # ------------ Compute datastore usage -------------
 
