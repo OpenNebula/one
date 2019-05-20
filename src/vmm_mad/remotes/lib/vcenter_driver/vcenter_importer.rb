@@ -455,6 +455,8 @@ module VCenterDriver
                     clusters.each{ |cluster|
                         one_cluster_id = nil
                         rpool = nil
+
+                        # Handle OpenNebula cluster creation or reuse
                         if !use_defaults
                             STDOUT.print "\n  * vCenter cluster found:\n"\
                                          "      - Name       : \e[92m#{cluster[:simple_name]}\e[39m\n"\
@@ -474,27 +476,18 @@ module VCenterDriver
                                 STDOUT.print "\n    Specify the ID of the cluster or press Enter if you want OpenNebula to create a new cluster for you: "
 
                                 answer = STDIN.gets.strip
+
                                 if !answer.empty?
                                     one_cluster_id = answer
-                                else
-                                    # Check if the Cluster exists 
-                                    cluster_list.each do |key, value|
-                                        one_cluster_id = key if value == "#{cluster[:cluster_name]}"
-                                    end
                                 end
                             end
+                        end
 
-                            if !one_cluster_id
-                                one_cluster = VCenterDriver::VIHelper.new_one_item(OpenNebula::Cluster)
-                                rc = one_cluster.allocate("#{cluster[:cluster_name]}")
-                                if ::OpenNebula.is_error?(rc)
-                                    STDOUT.puts "    Error creating OpenNebula cluster: #{rc.message}\n"
-                                    next
-                                end
-                                one_cluster_id = one_cluster.id
-                            end
-                        else
-                            # Defaults, add host to new cluster
+                        # Check if the OpenNebula Cluster exists, and reuse it
+                        one_cluster_id = cluster_list.key(cluster[:cluster_name]) if !one_cluster_id
+
+
+                        if !one_cluster_id
                             one_cluster = VCenterDriver::VIHelper.new_one_item(OpenNebula::Cluster)
                             rc = one_cluster.allocate("#{cluster[:cluster_name]}")
                             if ::OpenNebula.is_error?(rc)
@@ -504,9 +497,7 @@ module VCenterDriver
                             one_cluster_id = one_cluster.id
                         end
 
-
-
-                        # Generate the template and create the host in the pool
+                        # Generate host template and allocate new host
                         one_host = VCenterDriver::ClusterComputeResource.to_one(cluster,
                                                                                 con_ops,
                                                                                 rpool,
