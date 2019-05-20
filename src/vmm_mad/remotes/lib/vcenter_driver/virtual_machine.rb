@@ -18,9 +18,14 @@ module VCenterDriver
     class VirtualMachine < VCenterDriver::Template
 
         # Supported access to VirtualMachineDevice classes:
-        # Example: VirtualMachineDevice::Disk or VCenterDriver::VirtualMachine::Disk
+        # Example: 
+        #           Disk
+        #           VirtualMachineDevice::Disk
+        #           VCenterDriver::VirtualMachine::Disk
         require_relative 'vm_device'
         include VirtualMachineDevice
+        require_relative 'vm_helper'
+        include VirtualMachineHelper
 
         ############################################################################
         # Virtual Machine main Class
@@ -421,22 +426,6 @@ module VCenterDriver
             reference_unmanaged_devices(vc_template_ref)
 
             return self['_ref']
-        end
-
-        # This method raises an exception if the timeout is reached
-        # The exception needs to be handled in the VMM drivers and any
-        # process that uses this method
-        def wait_timeout(action, timeout = 300)
-            conf = CONFIG[:vm_poweron_wait_default]
-
-            timeout    = conf || timeout
-            time_start = Time.now
-
-            begin
-                sleep(1)
-                condition = (Time.now-time_start).to_i >= timeout
-                raise 'Reached deploy timeout' if condition
-            end until send(action)
         end
 
         # TODO: review
@@ -2193,7 +2182,8 @@ module VCenterDriver
                     error = e.message.split(':').first
                     raise e.message if error != 'InvalidPowerState'
                 end
-                wait_timeout(:is_powered_off?)
+                timeout = CONFIG[:vm_poweron_wait_default]
+                wait_timeout(:is_powered_off?, timeout)
             end
         end
 
@@ -2224,8 +2214,8 @@ module VCenterDriver
                 error = e.message.split(':').first
                 raise e.message if error != 'InvalidPowerState'
             end
-
-            wait_timeout(:is_powered_on?)
+            timeout = CONFIG[:vm_poweron_wait_default]
+            wait_timeout(:is_powered_on?, timeout)
         end
 
         def is_powered_on?
