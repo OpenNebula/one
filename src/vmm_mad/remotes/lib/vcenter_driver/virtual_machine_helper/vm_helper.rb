@@ -16,15 +16,15 @@
 module VirtualMachineHelper
 
     # This method raises an exception if the timeout is reached
-    # The exception needs to be handled in the VMM drivers and any
-    # process that uses this method
+    # The exception needs to be handled in the VMM drivers and any
+    # process that uses this method
     def wait_timeout(action, timeout = 300)
         time_start = Time.now
-        begin
+        until send(action)
             sleep(1)
-            condition = (Time.now-time_start).to_i >= timeout
+            condition = (Time.now - time_start).to_i >= timeout
             raise 'Reached deploy timeout' if condition
-        end until send(action)
+        end
     end
 
 end
