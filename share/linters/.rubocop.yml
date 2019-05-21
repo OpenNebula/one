@@ -720,7 +720,7 @@ Style/StderrPuts:
 
 #This breaks Ruby 1.9
 Style/SymbolArray:
-    Enabled: false
+    EnforcedStyle: brackets
 
 Style/FrozenStringLiteralComment:
     Enabled: false

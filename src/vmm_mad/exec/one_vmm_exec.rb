@@ -408,7 +408,7 @@ class ExecDriver < VirtualMachineDriver
                     {
                         :driver     => :vmm,
                         :action     => :cancel,
-                        :parameters => %i[deploy_info host]
+                        :parameters => [:deploy_info, :host]
                     }
                 ]
             }
@@ -442,7 +442,7 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver     => :vmm,
                 :action     => :save,
-                :parameters => %i[deploy_id checkpoint_file host]
+                :parameters => [:deploy_id, :checkpoint_file, :host]
             },
             # Execute networking clean up operations
             {
@@ -485,7 +485,7 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver     => :vmm,
                 :action     => :restore,
-                :parameters => %i[checkpoint_file host deploy_id]
+                :parameters => [:checkpoint_file, :host, :deploy_id]
             },
             # Execute post-boot networking setup
             {
@@ -496,7 +496,7 @@ class ExecDriver < VirtualMachineDriver
                     {
                         :driver     => :vmm,
                         :action     => :cancel,
-                        :parameters => %i[deploy_id host]
+                        :parameters => [:deploy_id, :host]
                     }
                 ]
             }
@@ -535,7 +535,7 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver     => :vmm,
                 :action     => :migrate,
-                :parameters => %i[deploy_id dest_host host],
+                :parameters => [:deploy_id, :dest_host, :host],
                 :fail_actions => [
                     {
                         :driver     => :tm,
@@ -808,7 +808,7 @@ class ExecDriver < VirtualMachineDriver
                 {
                     :driver     => :vmm,
                     :action     => :cancel,
-                    :parameters => %i[deploy_id host],
+                    :parameters => [:deploy_id, :host],
                     :no_fail    => true
                 }
             steps <<
@@ -825,7 +825,7 @@ class ExecDriver < VirtualMachineDriver
                 {
                     :driver      => :vmm,
                     :action      => :cancel,
-                    :parameters  => %i[deploy_id dest_host],
+                    :parameters  => [:deploy_id, :dest_host],
                     :destination => true,
                     :no_fail     => true
                 }
@@ -1156,7 +1156,7 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver     => :vmm,
                 :action     => signal,
-                :parameters => %i[deploy_id host]
+                :parameters => [:deploy_id, :host]
             },
             # Execute networking clean up operations
             {
