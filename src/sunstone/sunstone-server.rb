@@ -55,6 +55,7 @@ DEFAULT_VIEW_XPATH = 'TEMPLATE/SUNSTONE/DEFAULT_VIEW'
 GROUP_ADMIN_DEFAULT_VIEW_XPATH = 'TEMPLATE/SUNSTONE/GROUP_ADMIN_DEFAULT_VIEW'
 TABLE_DEFAULT_PAGE_LENGTH_XPATH = 'TEMPLATE/SUNSTONE/TABLE_DEFAULT_PAGE_LENGTH'
 LANG_XPATH = 'TEMPLATE/SUNSTONE/LANG'
+DEFAULT_ZONE_ENDPOINT_XPATH = 'TEMPLATE/SUNSTONE/DEFAULT_ZONE_ENDPOINT'
 
 ONED_CONF_OPTS = {
     # If no costs are defined in oned.conf these values will be used
@@ -306,6 +307,13 @@ helpers do
                 session[:page_length] = user[TABLE_DEFAULT_PAGE_LENGTH_XPATH]
             else
                 session[:page_length] = DEFAULT_PAGE_LENGTH
+            end
+
+            # If active zone endpoint is not defined, pull it
+            # from user template if exists
+            unless user[DEFAULT_ZONE_ENDPOINT_XPATH].nil?
+                session[:active_zone_endpoint] ||=
+                    user[DEFAULT_ZONE_ENDPOINT_XPATH]
             end
 
             wss = $conf[:vnc_proxy_support_wss]
@@ -730,7 +738,7 @@ get '/:pool' do
     if params[:zone_id] && session[:federation_mode] != "STANDALONE"
         zone = OpenNebula::Zone.new_with_id(params[:zone_id].to_i,
                                             $cloud_auth.client(session[:user],
-                                                session[:active_zone_endpoint]))
+                                            session[:active_zone_endpoint]))
 
         rc   = zone.info
         return [500, rc.message] if OpenNebula.is_error?(rc)
