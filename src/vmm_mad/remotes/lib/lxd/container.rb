@@ -438,10 +438,10 @@ class Container
     #  TODO This maps should be built dynamically or based on a DISK attribute
     #  so new mappers does not need to modified source code
     def new_disk_mapper(disk)
+        ds = @one.disk_source(disk)
+
         case disk['DISK_TYPE']
         when 'FILE', 'BLOCK'
-
-            ds = @one.disk_source(disk)
 
             rc, out, err = Command.execute("#{Mapper::COMMANDS[:file]} #{ds}", false)
 
