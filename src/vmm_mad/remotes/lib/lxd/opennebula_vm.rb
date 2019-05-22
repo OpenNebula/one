@@ -220,6 +220,7 @@ class OpenNebulaVM
         }
     end
 
+    # Returns the disk mountpoint on the LXD node fs
     def disk_mountpoint(disk_id)
         datastore = @sysds_path
         datastore = File.readlink(@sysds_path) if File.symlink?(@sysds_path)
@@ -232,7 +233,14 @@ class OpenNebulaVM
 
         if disk['DISK_TYPE'] == 'RBD'
             src = disk['SOURCE']
-            return "#{src}-#{vm_id}-#{disk['DISK_ID']}" if disk['CLONE'] == 'YES'
+
+            return "#{src}-#{vm_id}-#{disk_id}" if disk['CLONE'] == 'YES'
+
+            if volatile?(disk)
+                pool = disk['POOL_NAME']
+
+                return "#{pool}/#{pool}-sys-#{vm_id}-#{disk_id}"
+            end
 
             return src
         end
