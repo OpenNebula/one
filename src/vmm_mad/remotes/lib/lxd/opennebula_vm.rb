@@ -236,11 +236,8 @@ class OpenNebulaVM
 
             return "#{src}-#{vm_id}-#{disk_id}" if disk['CLONE'] == 'YES'
 
-            if volatile?(disk)
-                pool = disk['POOL_NAME']
-
-                return "#{pool}/#{pool}-sys-#{vm_id}-#{disk_id}"
-            end
+            return "#{disk['POOL_NAME']}/one-sys-#{vm_id}-#{disk_id}" if
+            volatile?(disk)
 
             return src
         end
