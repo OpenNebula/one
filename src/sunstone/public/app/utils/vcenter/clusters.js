@@ -180,84 +180,82 @@ define(function(require) {
         var vcenter_version = $(this).data("cluster").vcenter_version;
         var cluster_name = $(this).data("cluster").cluster_name;
 
-        if (cluster_id == 0) {
 
-          var cluster_json = {
-            "cluster": {
-              "name": cluster_name
+        var host_json = {
+          "host": {
+            "name": cluster_name,
+            "vm_mad": "vcenter",
+            "vnm_mad": "dummy",
+            "im_mad": "vcenter",
+            "cluster_id": null
+          }
+        };
+
+        function createHost(){
+          OpenNebulaHost.create({
+            timeout: true,
+            data: host_json,
+            success: function(request, response) {
+              VCenterCommon.importSuccess({
+                context : row_context,
+                message : Locale.tr("Host created successfully. ID: %1$s", response.HOST.ID)
+              });
+              var template_raw =
+                "VCENTER_USER=\"" + that.opts.vcenter_user + "\"\n" +
+                "VCENTER_PASSWORD=\"" + that.opts.vcenter_password + "\"\n" +
+                "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n" +
+                "VCENTER_INSTANCE_ID=\"" + vcenter_uuid + "\"\n" +
+                "VCENTER_CCR_REF=\"" + cluster_ref + "\"\n" +
+                "VCENTER_VERSION=\"" + vcenter_version + "\"\n";
+              Sunstone.runAction("Host.update_template", response.HOST.ID, template_raw);
+            },
+            error: function (request, error_json) {
+              VCenterCommon.importFailure({
+                context : row_context,
+                message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
+              });
             }
-          };
+          });
+        }
 
-          var host_json = {
-            "host": {
-              "name": cluster_name,
-              "vm_mad": "vcenter",
-              "vnm_mad": "dummy",
-              "im_mad": "vcenter",
-              "cluster_id": null
-            }
-          };
-
-          function createHost(){
-            OpenNebulaHost.create({
-              timeout: true,
-              data: host_json,
-              success: function(request, response) {
-                VCenterCommon.importSuccess({
-                  context : row_context,
-                  message : Locale.tr("Host created successfully. ID: %1$s", response.HOST.ID)
-                });
-
-                var template_raw =
-                  "VCENTER_USER=\"" + that.opts.vcenter_user + "\"\n" +
-                  "VCENTER_PASSWORD=\"" + that.opts.vcenter_password + "\"\n" +
-                  "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n" +
-                  "VCENTER_INSTANCE_ID=\"" + vcenter_uuid + "\"\n" +
-                  "VCENTER_CCR_REF=\"" + cluster_ref + "\"\n" +
-                  "VCENTER_VERSION=\"" + vcenter_version + "\"\n";
-
-                Sunstone.runAction("Host.update_template", response.HOST.ID, template_raw);
-              },
-              error: function (request, error_json) {
-                VCenterCommon.importFailure({
-                  context : row_context,
-                  message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
-                });
+        function successClusterList(request, obj_list){
+          if (cluster_name && obj_list) {
+            let r = null;
+            obj_list.map(cluster => {
+              if (cluster && cluster.CLUSTER && cluster.CLUSTER.NAME) {
+                if (cluster.CLUSTER.NAME === cluster_name){
+                  r = cluster.CLUSTER;
+                }
               }
             });
-          }
-
-          function successClusterList(request, obj_list){
-            if (cluster_name && obj_list) {
-              let r = null;
-              obj_list.map(cluster => {
-                if (cluster && cluster.CLUSTER && cluster.CLUSTER.NAME) {
-                  if (cluster.CLUSTER.NAME === cluster_name){
-                    r = cluster.CLUSTER;
-                  }
+            if(r && r.ID){
+              host_json.host.cluster_id = r.ID;
+              createHost();
+            }else{
+              var cluster_json = {
+                "cluster": {
+                  "name": cluster_name
+                }
+              };
+              OpenNebulaCluster.create({
+                timeout: true,
+                data: cluster_json,
+                success: function(request, response) {
+                  host_json.host.cluster_id = response.CLUSTER.ID;
+                  createHost();
+                },
+                error: function (request, error_json) {
+                  VCenterCommon.importFailure({
+                    context : row_context,
+                    message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
+                  });
                 }
               });
-              if(r && r.ID){
-                host_json.host.cluster_id = r.ID;
-                createHost();
-              }else{
-                OpenNebulaCluster.create({
-                  timeout: true,
-                  data: cluster_json,
-                  success: function(request, response) {
-                    createHost();
-                  },
-                  error: function (request, error_json) {
-                    VCenterCommon.importFailure({
-                      context : row_context,
-                      message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
-                    });
-                  }
-                });
-              }
             }
           }
+        }
 
+        if (cluster_id == 0) {
           OpenNebulaCluster.list({
             timeout: true,
             success: successClusterList,
@@ -265,46 +263,10 @@ define(function(require) {
               console.log("ERROR", error);
             }
           });
-
         } else {
-          var host_json = {
-              "host": {
-                "name": cluster_name,
-                "vm_mad": "vcenter",
-                "vnm_mad": "dummy",
-                "im_mad": "vcenter",
-                "cluster_id": cluster_id
-              }
-            };
-
-            OpenNebulaHost.create({
-              timeout: true,
-              data: host_json,
-              success: function(request, response) {
-                VCenterCommon.importSuccess({
-                  context : row_context,
-                  message : Locale.tr("Host created successfully. ID: %1$s", response.HOST.ID)
-                });
-
-                var template_raw =
-                  "VCENTER_USER=\"" + that.opts.vcenter_user + "\"\n" +
-                  "VCENTER_PASSWORD=\"" + that.opts.vcenter_password + "\"\n" +
-                  "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n" +
-                  "VCENTER_INSTANCE_ID=\"" + vcenter_uuid + "\"\n" +
-                  "VCENTER_CCR_REF=\"" + cluster_ref + "\"\n" +
-                  "VCENTER_VERSION=\"" + vcenter_version + "\"\n";
-
-                Sunstone.runAction("Host.update_template", response.HOST.ID, template_raw);
-              },
-              error: function (request, error_json) {
-                VCenterCommon.importFailure({
-                  context : row_context,
-                  message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
-                });
-              }
-            });
+          host_json.host.cluster_id = cluster_id;
+          createHost();
         }
-
       });
     });
   }
