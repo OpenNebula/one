@@ -847,7 +847,6 @@ define(function(require) {
 
   // returns true if the vnc button should be enabled
   function isVNCSupported(element) {
-    console.log("inVNCSupport_function -> ",element);
     var graphics = element.TEMPLATE.GRAPHICS;
     var state = parseInt(element.LCM_STATE);
 
