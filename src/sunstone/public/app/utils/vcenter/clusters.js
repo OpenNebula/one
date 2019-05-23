@@ -191,33 +191,6 @@ define(function(require) {
           }
         };
 
-        function createHost(){
-          OpenNebulaHost.create({
-            timeout: true,
-            data: host_json,
-            success: function(request, response) {
-              VCenterCommon.importSuccess({
-                context : row_context,
-                message : Locale.tr("Host created successfully. ID: %1$s", response.HOST.ID)
-              });
-              var template_raw =
-                "VCENTER_USER=\"" + that.opts.vcenter_user + "\"\n" +
-                "VCENTER_PASSWORD=\"" + that.opts.vcenter_password + "\"\n" +
-                "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n" +
-                "VCENTER_INSTANCE_ID=\"" + vcenter_uuid + "\"\n" +
-                "VCENTER_CCR_REF=\"" + cluster_ref + "\"\n" +
-                "VCENTER_VERSION=\"" + vcenter_version + "\"\n";
-              Sunstone.runAction("Host.update_template", response.HOST.ID, template_raw);
-            },
-            error: function (request, error_json) {
-              VCenterCommon.importFailure({
-                context : row_context,
-                message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
-              });
-            }
-          });
-        }
-
         function successClusterList(request, obj_list){
           if (cluster_name && obj_list) {
             let r = null;
@@ -253,6 +226,33 @@ define(function(require) {
               });
             }
           }
+        }
+        
+        function createHost(){
+          OpenNebulaHost.create({
+            timeout: true,
+            data: host_json,
+            success: function(request, response) {
+              VCenterCommon.importSuccess({
+                context : row_context,
+                message : Locale.tr("Host created successfully. ID: %1$s", response.HOST.ID)
+              });
+              var template_raw =
+                "VCENTER_USER=\"" + that.opts.vcenter_user + "\"\n" +
+                "VCENTER_PASSWORD=\"" + that.opts.vcenter_password + "\"\n" +
+                "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n" +
+                "VCENTER_INSTANCE_ID=\"" + vcenter_uuid + "\"\n" +
+                "VCENTER_CCR_REF=\"" + cluster_ref + "\"\n" +
+                "VCENTER_VERSION=\"" + vcenter_version + "\"\n";
+              Sunstone.runAction("Host.update_template", response.HOST.ID, template_raw);
+            },
+            error: function (request, error_json) {
+              VCenterCommon.importFailure({
+                context : row_context,
+                message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
+              });
+            }
+          });
         }
 
         if (cluster_id == 0) {
