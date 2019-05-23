@@ -423,8 +423,8 @@ int VirtualMachineNics::get_network_leases(int vm_id, int uid,
     return 0;
 }
 
-int VirtualMachineNics::get_auto_network_leases(int vm_id, int uid, 
-        VectorAttribute * nic_default, vector<VectorAttribute*>& sgs, 
+int VirtualMachineNics::get_auto_network_leases(int vm_id, int uid,
+        VectorAttribute * nic_default, vector<VectorAttribute*>& sgs,
         std::string& error_str)
 {
     Nebula& nd = Nebula::instance();
@@ -510,9 +510,10 @@ int VirtualMachineNics::set_up_attach_nic(int vmid, int uid, int cluster_id,
     SecurityGroupPool*  sgpool = nd.get_secgrouppool();
 
     // -------------------------------------------------------------------------
-    // Get the highest NIC_ID
+    // Get the highest NIC_ID and ALIAS_ID
     // -------------------------------------------------------------------------
-    int max_nic_id = -1;
+    int max_nic_id   = -1;
+    int max_alias_id = -1;
 
     for(nic_iterator it = begin(); it != end() ; ++it)
     {
@@ -521,6 +522,18 @@ int VirtualMachineNics::set_up_attach_nic(int vmid, int uid, int cluster_id,
         if ( nic_id > max_nic_id )
         {
             max_nic_id = nic_id;
+        }
+
+        if ( (*it)->is_alias() )
+        {
+            int alias_id;
+
+            (*it)->vector_value("ALIAS_ID", alias_id);
+
+            if ( alias_id > max_alias_id )
+            {
+                max_alias_id = alias_id;
+            }
         }
     }
 
@@ -551,9 +564,7 @@ int VirtualMachineNics::set_up_attach_nic(int vmid, int uid, int cluster_id,
                 }
                 else
                 {
-                    one_util::split_unique(alias_ids, ',', a_ids);
-
-                    alias_id = *(a_ids.rbegin()) + 1;
+                    alias_id = max_alias_id + 1;
 
                     alias_ids += ",";
                 }
