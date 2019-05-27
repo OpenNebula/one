@@ -57,8 +57,6 @@
               <xs:element name="VCENTER_DS_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="VCENTER_HOST" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_PASSWORD" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_USER" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax"/>
             </xs:sequence>
           </xs:complexType>
