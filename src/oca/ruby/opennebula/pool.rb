@@ -233,10 +233,12 @@ module OpenNebula
 
         # Gets a hash from a info page from pool
         # size:: nil => default page size
-        #        > 0 => page size    
+        #        > 0 => page size
         # current first element of the page
+        # extended true to get extended information
+        # state state of the objects
         # hash:: return page as a hash
-        def get_page(size, current, extended = false)
+        def get_page(size, current, extended = false, state = -1)
             rc = nil
 
             if PAGINATED_POOLS.include?(@pool_name)
@@ -249,19 +251,43 @@ module OpenNebula
                 end
 
                 size = OpenNebula.pool_page_size if (!size || size == 0)
-                rc   = @client.call(method, @user_id, current, -size, -1)
+                rc   = @client.call(method, @user_id, current, -size, state)
 
                 initialize_xml(rc, @pool_name)
             else
                 rc = info
             end
 
-            return rc 
+            return rc
+        end
+
+        # Iterates over pool pages
+        # size:: nil => default page size
+        #        > 0 => page size
+        # state state of objects
+        # delete true to take always the first page
+        def each_page(size, state = -1, extended = false, delete = false)
+            current = 0
+            element = @pool_name.split('_')[0]
+            page    = OpenNebula::XMLElement.new
+
+            loop do
+                page.initialize_xml(get_page(size, current, extended, state),
+                                             @pool_name)
+
+                break if page["//#{element}"].nil?
+
+                page.each("//#{element}") do |obj|
+                    yield(obj)
+                end
+
+                current += size unless delete
+            end
         end
 
         # Return true if pool is paginated
         def is_paginated?
-            PAGINATED_POOLS.include?(@pool_name) 
+            PAGINATED_POOLS.include?(@pool_name)
         end
     end
 end
