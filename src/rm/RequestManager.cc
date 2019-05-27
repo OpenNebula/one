@@ -146,9 +146,9 @@ extern "C" void * rm_do_connection(void *arg)
 
     close(rc->conn_fd);
 
-    pthread_exit(0);
-
     delete rc;
+
+    pthread_exit(0);
 
     return 0;
 };
