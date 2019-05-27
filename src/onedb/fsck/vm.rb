@@ -43,7 +43,12 @@ module OneDBFsck
             end
 
             # DATA: VNets used by this VM
-            vm_doc.root.xpath("TEMPLATE/NIC").each do |nic|
+            nics = vm_doc.root.xpath("TEMPLATE/NIC")
+            vm_doc.root.xpath("TEMPLATE/NIC_ALIAS").each do |nic|
+                nics << nic
+            end
+
+            nics.each do |nic|
                 net_id = nil
                 nic.xpath("NETWORK_ID").each do |nid|
                     net_id = nid.text.to_i
