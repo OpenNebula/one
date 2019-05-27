@@ -32,7 +32,16 @@ DST_PATH=$3
 VMID=$4
 DSID=$5
 
-TEMPLATE_64=$6
+if [ ! -t 0 ]; then
+    tmpxml="$(mktemp -t postmigrate-${VMID}-XXXXXXXX)"
+    cat >"$tmpxml"
+    TEMPLATE_64="$tmpxml"
+    SYSTEM_MAD="$6"
+    trap "rm -rf \"$tmpxml\"" EXIT TERM INT HUP QUIT 
+else
+    TEMPLATE_64="$6"
+    SYSTEM_MAD="$7"
+fi
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh

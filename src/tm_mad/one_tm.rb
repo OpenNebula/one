@@ -99,7 +99,13 @@ class TransferManagerDriver < OpenNebulaDriver
     def do_transfer_action(id, command)
         cmd  = command[0].downcase
         tm   = command[1]
-        args = command[2..-1].map{|e| Shellwords.escape(e)}.join(" ")
+        stdin = nil
+        if cmd.match(/(pre|post|fail)migrate/).nil?
+            args = command[2..-1].map{|e| Shellwords.escape(e)}.join(" ")
+        else
+            args = command[2..-2].map{|e| Shellwords.escape(e)}.join(" ")
+            stdin = command[-1]
+        end
 
         if not @types.include?(tm)
             return RESULT[:failure], "Transfer Driver '#{tm}' not available"
@@ -107,7 +113,7 @@ class TransferManagerDriver < OpenNebulaDriver
 
         path = File.join(@local_scripts_path, tm, cmd)
         path << " " << args
-        rc = LocalCommand.run(path, log_method(id))
+        rc = LocalCommand.run(path, log_method(id), stdin)
 
         result, info = get_info_from_execution(rc)
 

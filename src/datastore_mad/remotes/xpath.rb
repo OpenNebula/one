@@ -26,7 +26,8 @@ require 'pp'
 
 opts = opts = GetoptLong.new(
     [ '--stdin',   '-s', GetoptLong::NO_ARGUMENT ],
-    [ '--base64',  '-b', GetoptLong::REQUIRED_ARGUMENT ]
+    [ '--base64',  '-b', GetoptLong::REQUIRED_ARGUMENT ],
+    [ '--file',  '-f', GetoptLong::REQUIRED_ARGUMENT ]
 )
 
 source = :stdin
@@ -40,6 +41,9 @@ begin
             when '--base64'
                 source = :b64
                 tmp64  = arg
+            when '--file'
+                tmp = File.read(arg)
+                tmp64 = tmp
         end
     end
 rescue Exception => e
