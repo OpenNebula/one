@@ -149,7 +149,7 @@ module VirtualMachineDevice
                 RbVmomi::VIM.VirtualMachineBootOptionsBootableCdromDevice()
             else
                 RbVmomi::VIM.VirtualMachineBootOptionsBootableDiskDevice(
-                    deviceKey => device.key
+                    deviceKey: device.key
                 )
             end
         end

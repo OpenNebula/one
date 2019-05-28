@@ -46,7 +46,7 @@ module VirtualMachineDevice
         def boot_dev
             RbVmomi::VIM
                 .VirtualMachineBootOptionsBootableEthernetDevice(
-                    deviceKey => key
+                    deviceKey: key
                 )
         end
 
