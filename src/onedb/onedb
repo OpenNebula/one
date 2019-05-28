@@ -291,6 +291,14 @@ DELETE= {
     :description => "Delete all matched xpaths"
 }
 
+PAGES = {
+    :name => 'pages',
+    :short => '-p pages',
+    :large => '--pages pages',
+    :description => 'Nummber of pages to purge VMs',
+    :format => Integer
+}
+
 cmd=CommandParser::CmdParser.new(ARGV) do
     description <<-EOT.unindent
         This command enables the user to manage the OpenNebula database. It
@@ -500,7 +508,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :'purge-done', purge_done_desc,
-            :options => [START_TIME, END_TIME] do
+            :options => [START_TIME, END_TIME, PAGES] do
         begin
             action = OneDBLive.new
             action.purge_done_vm(options)
