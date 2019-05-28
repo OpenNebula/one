@@ -39,6 +39,7 @@ class OpenNebula::LdapAuth
             :user               => nil,
             :password           => nil,
             :base               => nil,
+            :group_base         => nil,
             :auth_method        => :simple,
             :user_field         => 'cn',
             :user_group_field   => 'dn',
@@ -198,9 +199,10 @@ class OpenNebula::LdapAuth
                 end
             end
         else
+            group_base = @options[:group_base] ? @options[:group_base] : @options[:base]
             filter = Net::LDAP::Filter.equals(@options[:group_field], @user[@options[:user_group_field]].first)
             @ldap.search(
-                :base       => @options[:base],
+                :base       => group_base,
                 :attributes => [ "dn" ],
                 :filter     => filter
             ) do |entry|
