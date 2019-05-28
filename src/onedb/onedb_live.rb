@@ -4,7 +4,8 @@ require 'base64'
 
 class OneDBLive
 
-    EDITOR_PATH='/bin/vi'
+    EDITOR_PATH = '/bin/vi'
+    PAGES       = 0
 
     def initialize
         @client = nil
@@ -206,30 +207,23 @@ class OneDBLive
     end
 
     def purge_done_vm(options = {})
-        vmpool = OpenNebula::VirtualMachinePool.new(client)
-        vmpool.info(OpenNebula::Pool::INFO_ALL,
-                    -1,
-                    -1,
-                    OpenNebula::VirtualMachine::VM_STATE.index('DONE'))
-
-        ops = {
-            start_time: 0,
-            end_time: Time.now
-        }.merge(options)
-
+        ops         = { :start_time => 0,
+                        :end_time   => Time.now,
+                        :pages      => PAGES }.merge(options)
+        vmpool      = OpenNebula::VirtualMachinePool.new(client)
         start_time  = ops[:start_time].to_i
         end_time    = ops[:end_time].to_i
+        done        = OpenNebula::VirtualMachine::VM_STATE.index('DONE')
 
-        last_id = vmpool["/VM_POOL/VM[last()]/ID"]
+        vmpool.each_page(ops[:pages], done, false, true) do |obj|
+            print "VM with ID: #{obj['ID']} purged \r"
 
-        vmpool.each do |vm|
-            print percentage_line(vm.id, last_id, true)
+            time = obj['ETIME'].to_i
 
-            time = vm["ETIME"].to_i
             next unless time >= start_time && time < end_time
 
-            delete("vm_pool", "oid = #{vm.id}", false)
-            delete("history", "vid = #{vm.id}", false)
+            delete('vm_pool', "oid = #{obj['ID']}", false)
+            delete('history', "vid = #{obj['ID']}", false)
         end
     end
 
