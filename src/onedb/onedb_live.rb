@@ -5,7 +5,7 @@ require 'base64'
 class OneDBLive
 
     EDITOR_PATH = '/bin/vi'
-    PAGES       = 100
+    PAGES       = 0
 
     def initialize
         @client = nil
