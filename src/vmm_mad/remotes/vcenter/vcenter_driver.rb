@@ -85,6 +85,13 @@ require 'vm_template'
 require 'virtual_machine'
 require 'network'
 require 'file_helper'
+require 'vm_folder'
+require 'vmm_importer'
+require 'vm_device'
+require 'vm_disk'
+require 'vm_nic'
+require 'vm_helper'
+require 'vm_monitor'
 
 CHECK_REFS = true
 
