@@ -37,8 +37,11 @@ module VirtualMachineMonitor
     end
 
     # monitor function used when VMM poll action is called
+    # rubocop:disable Naming/VariableName
     def monitor_poll_vm
         reset_monitor
+
+        return unless get_vm_id
 
         @state = state_to_c(self['summary.runtime.powerState'])
 
@@ -79,146 +82,144 @@ module VirtualMachineMonitor
 
         refresh_rate = provider.refreshRate
 
-        if get_vm_id
-            stats = {}
+        stats = {}
 
-            if one_item['MONITORING/LAST_MON'] &&
-               one_item['MONITORING/LAST_MON'].to_i != 0
-                # Real time data stores max 1 hour. 1 minute has 3 samples
-                interval = (Time.now.to_i -
-                           one_item['MONITORING/LAST_MON'].to_i)
+        if one_item['MONITORING/LAST_MON'] &&
+           one_item['MONITORING/LAST_MON'].to_i != 0
+            # Real time data stores max 1 hour. 1 minute has 3 samples
+            interval = (Time.now.to_i -
+                       one_item['MONITORING/LAST_MON'].to_i)
 
-                # If last poll was more than hour ago get 3 minutes,
-                # else calculate how many samples since last poll
-                if interval > 3600
-                    samples = 9
-                else
-                    samples = (interval / refresh_rate) + 1
-                end
-                samples > 0 ? max_samples = samples : max_samples = 1
-
-                stats = pm.retrieve_stats(
-                    [@item],
-                    ['net.transmitted', 'net.bytesRx', 'net.bytesTx',
-                     'net.received', 'virtualDisk.numberReadAveraged',
-                     'virtualDisk.numberWriteAveraged', 'virtualDisk.read',
-                     'virtualDisk.write'],
-                    interval => refresh_rate, max_samples => max_samples
-                ) rescue {}
+            # If last poll was more than hour ago get 3 minutes,
+            # else calculate how many samples since last poll
+            if interval > 3600
+                samples = 9
             else
-                # First poll, get at least latest 3 minutes = 9 samples
-                stats = pm.retrieve_stats(
-                    [@item],
-                    ['net.transmitted', 'net.bytesRx', 'net.bytesTx',
-                     'net.received', 'virtualDisk.numberReadAveraged',
-                     'virtualDisk.numberWriteAveraged', 'virtualDisk.read',
-                     'virtualDisk.write'],
-                    interval => refresh_rate, max_samples => 9
-                ) rescue {}
+                samples = (interval / refresh_rate) + 1
             end
+            samples > 0 ? max_samples = samples : max_samples = 1
 
-            if !stats.empty? && !stats.first[1][:metrics].empty?
-                metrics = stats.first[1][:metrics]
-
-                nettx_kbpersec = 0
-                if metrics['net.transmitted']
-                    metrics['net.transmitted'].each do |sample|
-                        nettx_kbpersec += sample if sample > 0
-                    end
-                end
-
-                netrx_kbpersec = 0
-                if metrics['net.bytesRx']
-                    metrics['net.bytesRx'].each do |sample|
-                        netrx_kbpersec += sample if sample > 0
-                    end
-                end
-
-                read_kbpersec = 0
-                if metrics['virtualDisk.read']
-                    metrics['virtualDisk.read'].each do |sample|
-                        read_kbpersec += sample if sample > 0
-                    end
-                end
-
-                read_iops = 0
-                if metrics['virtualDisk.numberReadAveraged']
-                    metrics['virtualDisk.numberReadAveraged'].each do |sample|
-                        read_iops += sample if sample > 0
-                    end
-                end
-
-                write_kbpersec = 0
-                if metrics['virtualDisk.write']
-                    metrics['virtualDisk.write'].each do |sample|
-                        write_kbpersec += sample if sample > 0
-                    end
-                end
-
-                write_iops = 0
-                if metrics['virtualDisk.numberWriteAveraged']
-                    metrics['virtualDisk.numberWriteAveraged'].each do |sample|
-                        write_iops += sample if sample > 0
-                    end
-                end
-            else
-                nettx_kbpersec = 0
-                netrx_kbpersec = 0
-                read_kbpersec  = 0
-                read_iops      = 0
-                write_kbpersec = 0
-                write_iops     = 0
-            end
-
-            # Accumulate values if present
-            if @one_item && @one_item['MONITORING/NETTX']
-                previous_nettx = @one_item['MONITORING/NETTX'].to_i
-            else
-                previous_nettx = 0
-            end
-
-            if @one_item && @one_item['MONITORING/NETRX']
-                previous_netrx = @one_item['MONITORING/NETRX'].to_i
-            else
-                previous_netrx = 0
-            end
-
-            if @one_item && @one_item['MONITORING/DISKRDIOPS']
-                previous_diskrdiops = @one_item['MONITORING/DISKRDIOPS'].to_i
-            else
-                previous_diskrdiops = 0
-            end
-
-            if @one_item && @one_item['MONITORING/DISKWRIOPS']
-                previous_diskwriops = @one_item['MONITORING/DISKWRIOPS'].to_i
-            else
-                previous_diskwriops = 0
-            end
-
-            if @one_item && @one_item['MONITORING/DISKRDBYTES']
-                previous_diskrdbytes = @one_item['MONITORING/DISKRDBYTES'].to_i
-            else
-                previous_diskrdbytes = 0
-            end
-
-            if @one_item && @one_item['MONITORING/DISKWRBYTES']
-                previous_diskwrbytes = @one_item['MONITORING/DISKWRBYTES'].to_i
-            else
-                previous_diskwrbytes = 0
-            end
-
-            @monitor[:nettx] = previous_nettx +
-                               (nettx_kbpersec * 1024 * refresh_rate).to_i
-            @monitor[:netrx] = previous_netrx +
-                               (netrx_kbpersec * 1024 * refresh_rate).to_i
-
-            @monitor[:diskrdiops]  = previous_diskrdiops + read_iops
-            @monitor[:diskwriops]  = previous_diskwriops + write_iops
-            @monitor[:diskrdbytes] = previous_diskrdbytes +
-                                     (read_kbpersec * 1024 * refresh_rate).to_i
-            @monitor[:diskwrbytes] = previous_diskwrbytes +
-                                     (write_kbpersec * 1024 * refresh_rate).to_i
+            stats = pm.retrieve_stats(
+                [@item],
+                ['net.transmitted', 'net.bytesRx', 'net.bytesTx',
+                 'net.received', 'virtualDisk.numberReadAveraged',
+                 'virtualDisk.numberWriteAveraged', 'virtualDisk.read',
+                 'virtualDisk.write'],
+                interval => refresh_rate, max_samples => max_samples
+            ) rescue {}
+        else
+            # First poll, get at least latest 3 minutes = 9 samples
+            stats = pm.retrieve_stats(
+                [@item],
+                ['net.transmitted', 'net.bytesRx', 'net.bytesTx',
+                 'net.received', 'virtualDisk.numberReadAveraged',
+                 'virtualDisk.numberWriteAveraged', 'virtualDisk.read',
+                 'virtualDisk.write'],
+                interval => refresh_rate, max_samples => 9
+            ) rescue {}
         end
+
+        if !stats.empty? && !stats.first[1][:metrics].empty?
+            metrics = stats.first[1][:metrics]
+
+            nettx_kbpersec = 0
+            if metrics['net.transmitted']
+                metrics['net.transmitted'].each do |sample|
+                    nettx_kbpersec += sample if sample > 0
+                end
+            end
+
+            netrx_kbpersec = 0
+            if metrics['net.bytesRx']
+                metrics['net.bytesRx'].each do |sample|
+                    netrx_kbpersec += sample if sample > 0
+                end
+            end
+
+            read_kbpersec = 0
+            if metrics['virtualDisk.read']
+                metrics['virtualDisk.read'].each do |sample|
+                    read_kbpersec += sample if sample > 0
+                end
+            end
+
+            read_iops = 0
+            if metrics['virtualDisk.numberReadAveraged']
+                metrics['virtualDisk.numberReadAveraged'].each do |sample|
+                    read_iops += sample if sample > 0
+                end
+            end
+
+            write_kbpersec = 0
+            if metrics['virtualDisk.write']
+                metrics['virtualDisk.write'].each do |sample|
+                    write_kbpersec += sample if sample > 0
+                end
+            end
+
+            write_iops = 0
+            if metrics['virtualDisk.numberWriteAveraged']
+                metrics['virtualDisk.numberWriteAveraged'].each do |sample|
+                    write_iops += sample if sample > 0
+                end
+            end
+        else
+            nettx_kbpersec = 0
+            netrx_kbpersec = 0
+            read_kbpersec  = 0
+            read_iops      = 0
+            write_kbpersec = 0
+            write_iops     = 0
+        end
+
+        # Accumulate values if present
+        if @one_item && @one_item['MONITORING/NETTX']
+            previous_nettx = @one_item['MONITORING/NETTX'].to_i
+        else
+            previous_nettx = 0
+        end
+
+        if @one_item && @one_item['MONITORING/NETRX']
+            previous_netrx = @one_item['MONITORING/NETRX'].to_i
+        else
+            previous_netrx = 0
+        end
+
+        if @one_item && @one_item['MONITORING/DISKRDIOPS']
+            previous_diskrdiops = @one_item['MONITORING/DISKRDIOPS'].to_i
+        else
+            previous_diskrdiops = 0
+        end
+
+        if @one_item && @one_item['MONITORING/DISKWRIOPS']
+            previous_diskwriops = @one_item['MONITORING/DISKWRIOPS'].to_i
+        else
+            previous_diskwriops = 0
+        end
+
+        if @one_item && @one_item['MONITORING/DISKRDBYTES']
+            previous_diskrdbytes = @one_item['MONITORING/DISKRDBYTES'].to_i
+        else
+            previous_diskrdbytes = 0
+        end
+
+        if @one_item && @one_item['MONITORING/DISKWRBYTES']
+            previous_diskwrbytes = @one_item['MONITORING/DISKWRBYTES'].to_i
+        else
+            previous_diskwrbytes = 0
+        end
+
+        @monitor[:nettx] = previous_nettx +
+                           (nettx_kbpersec * 1024 * refresh_rate).to_i
+        @monitor[:netrx] = previous_netrx +
+                           (netrx_kbpersec * 1024 * refresh_rate).to_i
+
+        @monitor[:diskrdiops]  = previous_diskrdiops + read_iops
+        @monitor[:diskwriops]  = previous_diskwriops + write_iops
+        @monitor[:diskrdbytes] = previous_diskrdbytes +
+                                 (read_kbpersec * 1024 * refresh_rate).to_i
+        @monitor[:diskwrbytes] = previous_diskwrbytes +
+                                 (write_kbpersec * 1024 * refresh_rate).to_i
     end
 
     # monitor function used when poll action is called for all vms
@@ -359,6 +360,7 @@ module VirtualMachineMonitor
         @monitor[:diskwrbytes] = previous_diskwrbytes +
                                  (write_kbpersec * 1024 * refresh_rate).to_i
     end
+    # rubocop:enable Naming/VariableName
 
     #  Generates a OpenNebula IM Driver valid string with the monitor info
     def info

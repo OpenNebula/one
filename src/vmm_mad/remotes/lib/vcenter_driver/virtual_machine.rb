@@ -18,7 +18,7 @@ module VCenterDriver
     class VirtualMachine < VCenterDriver::Template
 
         # Supported access to VirtualMachineDevice classes:
-        # Example: 
+        # Example:
         #           Disk
         #           VirtualMachineDevice::Disk
         #           VCenterDriver::VirtualMachine::Disk
@@ -1117,7 +1117,7 @@ module VCenterDriver
             name = name.gsub('\'', '')
             file_content = Base64.encode64(File.read(path))
             file_content.prepend("#{name}\n")
-    
+
             [
                 { :key => "guestinfo.opennebula.file.#{id}",
                   :value => file_content }
@@ -1870,10 +1870,10 @@ module VCenterDriver
 
         def resize_disk(disk)
             if !disk.exists?
-                size = disk.get_size
+                size = disk.size
                 sync_disks
                 disk = disk(disk.id)
-                disk.set_size(size)
+                disk.change_size(size)
             end
 
             spec = {deviceChange: [disk.config(:resize)]}

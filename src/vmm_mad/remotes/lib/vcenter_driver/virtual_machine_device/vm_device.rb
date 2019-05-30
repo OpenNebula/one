@@ -68,10 +68,11 @@ module VirtualMachineDevice
 
         def managed?
             raise_if_no_exists_in_one
-            if @one_res
-                !(@one_res['OPENNEBULA_MANAGED'] &&
-                  @one_res['OPENNEBULA_MANAGED'].downcase == 'no')
-            end
+
+            return unless @one_res
+
+            !(@one_res['OPENNEBULA_MANAGED'] &&
+              @one_res['OPENNEBULA_MANAGED'].downcase == 'no')
         end
 
     end

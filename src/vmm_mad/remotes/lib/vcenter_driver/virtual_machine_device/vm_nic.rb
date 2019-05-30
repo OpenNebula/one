@@ -28,14 +28,14 @@ module VirtualMachineDevice
         # Allow as to create the class without vCenter representation
         # example: attached nics not synced with vCenter
         def self.one_nic(id, one_res)
-            self.new(id, one_res, nil)
+            new(id, one_res, nil)
         end
 
         # Create the vCenter nic representation
         # Allow as to create the class without OpenNebula representation
         # example: detached nics that not exists in OpenNebula
         def self.vc_nic(vc_res)
-            self.new(nil, nil, vc_res)
+            new(nil, nil, vc_res)
         end
 
         def key
@@ -46,7 +46,7 @@ module VirtualMachineDevice
         def boot_dev
             RbVmomi::VIM
                 .VirtualMachineBootOptionsBootableEthernetDevice(
-                    deviceKey: key
+                    :deviceKey => key
                 )
         end
 

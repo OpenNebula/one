@@ -65,7 +65,7 @@ begin
     end
 
     disk = vm.disk(disk_id)
-    disk.set_size(new_size)
+    disk.change_size(new_size)
 
     vm.resize_disk(disk)
 
