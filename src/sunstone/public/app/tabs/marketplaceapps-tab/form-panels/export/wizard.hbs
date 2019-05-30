@@ -36,10 +36,8 @@
       <input id="VMNAME" type="text" wizard_field="VMNAME"/>
     </div>
   </div>
-  {{#unless template}}
-    <fieldset id="placeDatatableDatastore">
-      <legend>{{tr "Select the Datastore to store the resource"}}</legend>
-      {{{datastoresTableHTML}}}
-    </fieldset>
-  {{/unless}}
+  <fieldset id="placeDatatableDatastore">
+    <legend>{{tr "Select the Datastore to store the resource"}}</legend>
+    {{{datastoresTableHTML}}}
+  </fieldset>
 </form>

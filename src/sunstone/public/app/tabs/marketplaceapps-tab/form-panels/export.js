@@ -46,7 +46,22 @@ define(function(require) {
 
   /*
     CONSTRUCTOR
-   */
+  */
+
+  function getDataStore(formPanelId){
+    var r = null;
+    if(formPanelId){
+      r = new DataStoresTable(
+        formPanelId + "datastoresTable", {
+          "select": true,
+          "selectOptions": {
+            "filter_fn": function(ds) { return ds.TYPE == DataStore.TYPES.IMAGE_DS; }
+          }
+        }
+      );
+    }
+    return r;
+  }
 
   function FormPanel() {
     this.formPanelId = FORM_PANEL_ID;
@@ -59,13 +74,7 @@ define(function(require) {
       }
     };
 
-    this.datastoresTable = new DataStoresTable(
-      FORM_PANEL_ID + "datastoresTable", {
-        "select": true,
-        "selectOptions": {
-          "filter_fn": function(ds) { return ds.TYPE == DataStore.TYPES.IMAGE_DS; } // Show system DS only
-        }
-      });
+    this.datastoresTable = getDataStore(FORM_PANEL_ID);
 
     BaseFormPanel.call(this);
   }
@@ -88,16 +97,21 @@ define(function(require) {
   function _htmlWizard() {
     return TemplateWizardHTML({
       "formPanelId": this.formPanelId,
-      "template": this.type == "VMTEMPLATE",
       "datastoresTableHTML": this.datastoresTable.dataTableHTML
     });
   }
 
   function _onShow(context) {
+    var placeDataStore = "#placeDatatableDatastore";
     Sunstone.disableFormPanelSubmit(TAB_ID);
-    if(this.type === "VMTEMPLATE"){
-      this.datastoresTable.dataTable.parents("#placeDatatableDatastore").remove();
+    if(this.type === "VMTEMPLATE" ){
+      this.datastoresTable.dataTable.parents(placeDataStore).remove();
     }else{
+      if(!($(placeDataStore).length)){
+        $("#exportMarketPlaceAppFormWizard").append(this.datastoresTable.dataTableHTML);
+        this.datastoresTable = getDataStore(FORM_PANEL_ID);
+        this.datastoresTable.initialize();
+      }
       this.datastoresTable.resetResourceTableSelect();
     }
     $("#NAME", context).focus();
