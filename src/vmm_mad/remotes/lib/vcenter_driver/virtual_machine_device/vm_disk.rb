@@ -20,22 +20,24 @@ module VirtualMachineDevice
     # Disk class
     class Disk < Device
 
+        attr_reader :size
+
         def initialize(id, one_res, vc_res)
             super(id, one_res, vc_res)
         end
 
         # Create the OpenNebula disk representation
-        # Allow as to create the class without vCenter representation
+        # Allow us to create the class without vCenter representation
         # example: attached disks not synced with vCenter
         def self.one_disk(id, one_res)
-            self.new(id, one_res, nil)
+            new(id, one_res, nil)
         end
 
         # Create the vCenter disk representation
-        # Allow as to create the class without OpenNebula representation
+        # Allow us to create the class without OpenNebula representation
         # example: detached disks that not exists in OpenNebula
         def self.vc_disk(vc_res)
-            self.new(nil, nil, vc_res)
+            new(nil, nil, vc_res)
         end
 
         def storpod?
@@ -87,7 +89,7 @@ module VirtualMachineDevice
             path.split('/').last
         end
 
-        def is_cd?
+        def cd?
             raise_if_no_exists_in_vcenter
             @vc_res[:type] == 'CDROM'
         end
@@ -140,25 +142,21 @@ module VirtualMachineDevice
             @vc_res[:device].connectable.connected
         end
 
-        def get_size
-            @size if @size
-        end
-
         def boot_dev
-            if is_cd?
+            if cd?
                 RbVmomi::VIM.VirtualMachineBootOptionsBootableCdromDevice()
             else
                 RbVmomi::VIM.VirtualMachineBootOptionsBootableDiskDevice(
-                    deviceKey: device.key
+                    :deviceKey => device.key
                 )
             end
         end
 
-        def set_size(size)
+        def change_size(size)
             size = size.to_i
 
             if @one_res['ORIGINAL_SIZE'] &&
-              @one_res['ORIGINAL_SIZE'].to_i >= size
+               @one_res['ORIGINAL_SIZE'].to_i >= size
                 raise "'disk-resize' cannot decrease the disk's size"
             end
 
@@ -169,11 +167,11 @@ module VirtualMachineDevice
         def new_size
             return @size * 1024 if @size
 
-            if @one_res['ORIGINAL_SIZE']
-                osize = @one_res['ORIGINAL_SIZE'].to_i
-                nsize = @one_res['SIZE'].to_i
-                new_size = nsize > osize ? nsize * 1024 : nil
-            end
+            return unless @one_res['ORIGINAL_SIZE']
+
+            osize = @one_res['ORIGINAL_SIZE'].to_i
+            nsize = @one_res['SIZE'].to_i
+            nsize > osize ? nsize * 1024 : nil
         end
 
         def destroy
@@ -182,7 +180,7 @@ module VirtualMachineDevice
             raise_if_no_exists_in_vcenter
 
             ds = VCenterDriver::Datastore.new(self.ds)
-            img_path = self.path
+            img_path = path
 
             begin
                 img_dir = File.dirname(img_path)
@@ -196,7 +194,7 @@ module VirtualMachineDevice
                 search_task.wait_for_completion
                 ds.delete_virtual_disk(img_path)
                 ds.rm_directory(img_dir) if ds.dir_empty?(img_dir)
-            rescue Exception => e
+            rescue StandardError => e
                 if !e.message.start_with?('FileNotFound')
                     # Ignore FileNotFound
                     raise e.message
