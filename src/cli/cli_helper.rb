@@ -15,7 +15,6 @@
 #--------------------------------------------------------------------------- #
 
 require 'csv'
-require 'highline'
 
 # CLI Helper
 module CLIHelper
@@ -620,7 +619,7 @@ module CLIHelper
             return if expand_columns.empty?
 
             if $stdout.tty?
-                terminal_size = HighLine::SystemExtensions.terminal_size[0]
+                terminal_size = IO.console.winsize[1]
             else
                 terminal_size = nil
             end
