@@ -36,7 +36,7 @@ type VNTemplatePool struct {
 
 // VNTemplate represents an OpenNebula Virtual Network Template
 type VNTemplate struct {
-	ID          uint               `xml:"ID"`
+	ID          int                `xml:"ID"`
 	UID         int                `xml:"UID"`
 	GID         int                `xml:"GID"`
 	UName       string             `xml:"UNAME"`
@@ -59,13 +59,13 @@ func (c *Controller) VNTemplates() *VNTemplatesController {
 }
 
 // VNTemplate return an VNTemplate controller.
-func (c *Controller) VNTemplate(id uint) *VNTemplateController {
+func (c *Controller) VNTemplate(id int) *VNTemplateController {
 	return &VNTemplateController{c, id}
 }
 
 // ByName returns a VNTemplate id from name
-func (c *VNTemplatesController) ByName(name string) (uint, error) {
-	var id uint
+func (c *VNTemplatesController) ByName(name string) (int, error) {
+	var id int
 
 	vnTemplatePool, err := c.Info()
 	if err != nil {
@@ -139,20 +139,20 @@ func (vc *VNTemplateController) Info() (*VNTemplate, error) {
 }
 
 // Create allocates a new vntemplate. It returns the new vntemplate ID.
-func (vc *VNTemplateController) Create(vntemplate string) (uint, error) {
+func (vc *VNTemplateController) Create(vntemplate string) (int, error) {
 	response, err := vc.c.Client.Call("one.vntemplate.allocate", vntemplate)
 	if err != nil {
 		return 0, err
 	}
 
-	return uint(response.BodyInt()), nil
+	return response.BodyInt(), nil
 }
 
 // Update replaces the cluster cluster contents.
 // * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
-func (vc *VNTemplateController) Update(tpl *string, uType int) error {
+func (vc *VNTemplateController) Update(tpl string, uType int) error {
 	_, err := vc.c.Client.Call("one.vntemplate.update", vc.ID, tpl, uType)
 	return err
 }
@@ -184,14 +184,14 @@ func (vc *VNTemplateController) Delete() error {
 }
 
 // Instantiate will instantiate the template
-func (vc *VNTemplateController) Instantiate(name string, extra string) (uint, error) {
+func (vc *VNTemplateController) Instantiate(name string, extra string) (int, error) {
 	response, err := vc.c.Client.Call("one.vntemplate.instantiate", vc.ID, name, extra)
 
 	if err != nil {
 		return 0, err
 	}
 
-	return uint(response.BodyInt()), nil
+	return response.BodyInt(), nil
 }
 
 // Clone an existing vntemplate.

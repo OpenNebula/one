@@ -34,7 +34,7 @@ type entitiesController struct {
 // entityController is a controller for an entity
 type entityController struct {
 	c  *Controller
-	ID uint
+	ID int
 }
 
 // entityControllerName is a controller for an entity
@@ -46,8 +46,8 @@ type entityNameController struct {
 // subEntityController is a controller for a sub entity
 type subEntityController struct {
 	c        *Controller
-	entityID uint
-	ID       uint
+	entityID int
+	ID       int
 }
 
 // NewController return a new one controller

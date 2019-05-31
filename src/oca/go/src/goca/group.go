@@ -36,7 +36,7 @@ type GroupPool struct {
 
 // Group represents an OpenNebula Group
 type Group struct {
-	ID       uint          `xml:"ID"`
+	ID       int           `xml:"ID"`
 	Name     string        `xml:"NAME"`
 	UsersID  []int         `xml:"USERS>ID"`
 	AdminsID []int         `xml:"ADMINS>ID"`
@@ -57,13 +57,13 @@ func (c *Controller) Groups() *GroupsController {
 }
 
 // Group returns a Group Controller
-func (c *Controller) Group(id uint) *GroupController {
+func (c *Controller) Group(id int) *GroupController {
 	return &GroupController{c, id}
 }
 
 // ByName returns a Group ID from name
-func (c *GroupsController) ByName(name string) (uint, error) {
-	var id uint
+func (c *GroupsController) ByName(name string) (int, error) {
+	var id int
 
 	groupPool, err := c.Info()
 	if err != nil {
@@ -120,13 +120,13 @@ func (gc *GroupController) Info() (*Group, error) {
 }
 
 // Create allocates a new group. It returns the new group ID.
-func (gc *GroupsController) Create(name string) (uint, error) {
+func (gc *GroupsController) Create(name string) (int, error) {
 	response, err := gc.c.Client.Call("one.group.allocate", name)
 	if err != nil {
 		return 0, err
 	}
 
-	return uint(response.BodyInt()), nil
+	return response.BodyInt(), nil
 }
 
 // Delete deletes the given group from the pool.
@@ -146,14 +146,14 @@ func (gc *GroupController) Update(tpl string, uType UpdateType) error {
 
 // AddAdmin adds a User to the Group administrators set
 // * userID: The user ID.
-func (gc *GroupController) AddAdmin(userID uint) error {
+func (gc *GroupController) AddAdmin(userID int) error {
 	_, err := gc.c.Client.Call("one.group.addadmin", gc.ID, int(userID))
 	return err
 }
 
 // DelAdmin removes a User from the Group administrators set
 // * userID: The user ID.
-func (gc *GroupController) DelAdmin(userID uint) error {
+func (gc *GroupController) DelAdmin(userID int) error {
 	_, err := gc.c.Client.Call("one.group.deladmin", gc.ID, int(userID))
 	return err
 }

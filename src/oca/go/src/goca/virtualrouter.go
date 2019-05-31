@@ -34,7 +34,7 @@ type VirtualRouterPool struct {
 
 // VirtualRouter represents an OpenNebula VirtualRouter
 type VirtualRouter struct {
-	ID          uint                  `xml:"ID"`
+	ID          int                   `xml:"ID"`
 	UID         int                   `xml:"UID"`
 	GID         int                   `xml:"GID"`
 	UName       string                `xml:"UNAME"`
@@ -66,13 +66,13 @@ func (c *Controller) VirtualRouters() *VirtualRoutersController {
 }
 
 // VirtualRouter returns a VirtualRouter controller.
-func (c *Controller) VirtualRouter(id uint) *VirtualRouterController {
+func (c *Controller) VirtualRouter(id int) *VirtualRouterController {
 	return &VirtualRouterController{c, id}
 }
 
 // VirtualRouterByName returns a VirtualRouter By name
-func (c *Controller) VirtualRouterByName(name string, args ...int) (uint, error) {
-	var id uint
+func (c *Controller) VirtualRouterByName(name string, args ...int) (int, error) {
+	var id int
 
 	vrouterPool, err := (&VirtualRoutersController{c}).Info(args...)
 	if err != nil {
@@ -146,13 +146,13 @@ func (vc *VirtualRouterController) Info() (*VirtualRouter, error) {
 
 // Create allocates a new virtual router. It returns the new Virtual Router ID
 // * tpl: template of the marketplace
-func (vc *VirtualRoutersController) Create(tpl string) (uint, error) {
+func (vc *VirtualRoutersController) Create(tpl string) (int, error) {
 	response, err := vc.c.Client.Call("one.vrouter.allocate", tpl)
 	if err != nil {
 		return 0, err
 	}
 
-	return uint(response.BodyInt()), nil
+	return response.BodyInt(), nil
 }
 
 // Update replaces the cluster cluster contents.
@@ -196,14 +196,14 @@ func (vc *VirtualRouterController) Delete() error {
 // * name: Name for the VM instances. If it is an empty string OpenNebula will set a default name. Wildcard %i can be used.
 // * hold: False to create the VM on pending (default), True to create it on hold.
 // * extra: A string containing an extra template to be merged with the one being instantiated. It can be empty. Syntax can be the usual attribute=value or XML.
-func (vc *VirtualRouterController) Instantiate(number, tplid int, name string, hold bool, extra string) (uint, error) {
+func (vc *VirtualRouterController) Instantiate(number, tplid int, name string, hold bool, extra string) (int, error) {
 	response, err := vc.c.Client.Call("one.vrouter.instantiate", vc.ID, number, tplid, name, hold, extra)
 
 	if err != nil {
 		return 0, err
 	}
 
-	return uint(response.BodyInt()), nil
+	return response.BodyInt(), nil
 }
 
 // AttachNic attaches a new network interface to the virtual router and the virtual machines.
@@ -215,7 +215,7 @@ func (vc *VirtualRouterController) AttachNic(tpl string) error {
 
 // DetachNic detaches a network interface from the virtual router and the virtual machines
 // * nicid: NIC ID to detach
-func (vc *VirtualRouterController) DetachNic(nicid uint) error {
+func (vc *VirtualRouterController) DetachNic(nicid int) error {
 	_, err := vc.c.Client.Call("one.vrouter.detachnic", vc.ID, nicid)
 	return err
 }

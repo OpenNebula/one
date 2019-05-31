@@ -17,29 +17,29 @@
 package goca
 
 import (
-	"testing"
 	"strconv"
+	"testing"
 )
 
-func TestMarketplaceApp(t *testing.T){
+func TestMarketplaceApp(t *testing.T) {
 	var mkt_app_name string = "new_mkt_app"
 	var mkt_app *MarketPlaceApp
 	var mkt_app_tmpl string
-	var mkt_img_id uint
-	var market_id  uint
+	var mkt_img_id int
+	var market_id int
 	var err error
 
 	mkt_app_tmpl = "NAME= \"" + mkt_app_name + "\"\n" +
-					"TYPE=image\n"
+		"TYPE=image\n"
 
 	//Create an image
 	img_tmpl := "NAME = \"test_img_go" + "\"\n" +
-	"TYPE = DATABLOCK\n" +
-	"SIZE = 1\n"
+		"TYPE = DATABLOCK\n" +
+		"SIZE = 1\n"
 
 	mkt_img_id, err = testCtrl.Images().Create(img_tmpl, 1)
 	if err != nil {
-	    t.Fatalf("Test failed:\n" + err.Error())
+		t.Fatalf("Test failed:\n" + err.Error())
 	}
 
 	WaitResource(func() bool {
@@ -52,21 +52,21 @@ func TestMarketplaceApp(t *testing.T){
 	})
 
 	if err != nil {
-	    t.Errorf("Test failed:\n" + err.Error())
+		t.Errorf("Test failed:\n" + err.Error())
 	}
 
 	mkt_app_tmpl += "ORIGIN_ID=" + strconv.Itoa(int(mkt_img_id)) + "\n"
 
 	//Create a marketplace
 	mkt_tmpl := "NAME = \"mkt-app-test\"\n" +
-	"MARKET_MAD = \"http\"\n" +
-	"BASE_URL = \"http://url/\"\n" +
-	"PUBLIC_DIR = \"/var/loca/market-http\"\n"
+		"MARKET_MAD = \"http\"\n" +
+		"BASE_URL = \"http://url/\"\n" +
+		"PUBLIC_DIR = \"/var/loca/market-http\"\n"
 
 	market_id, err = testCtrl.MarketPlaces().Create(mkt_tmpl)
 
 	if err != nil {
-	    t.Errorf("Test failed:\n" + err.Error())
+		t.Errorf("Test failed:\n" + err.Error())
 	}
 
 	mkt_app_tmpl += "MARKETPLACE_ID=\"" + strconv.Itoa(int(market_id)) + "\"\n"
@@ -75,7 +75,7 @@ func TestMarketplaceApp(t *testing.T){
 	app_id, err := testCtrl.MarketPlaceApps().Create(mkt_app_tmpl, int(market_id))
 
 	if err != nil {
-	    t.Errorf("Test failed:\n" + err.Error())
+		t.Errorf("Test failed:\n" + err.Error())
 	}
 
 	mkt_app, err = testCtrl.MarketPlaceApp(app_id).Info()

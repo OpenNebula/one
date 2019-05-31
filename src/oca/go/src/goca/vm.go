@@ -37,7 +37,7 @@ type VMPool struct {
 
 // VM represents an OpenNebula Virtual Machine
 type VM struct {
-	ID              uint              `xml:"ID"`
+	ID              int               `xml:"ID"`
 	UID             int               `xml:"UID"`
 	GID             int               `xml:"GID"`
 	UName           string            `xml:"UNAME"`
@@ -171,18 +171,18 @@ func (c *Controller) VMs() *VMsController {
 }
 
 // VM returns a new vm controller.
-func (c *Controller) VM(id uint) *VMController {
+func (c *Controller) VM(id int) *VMController {
 	return &VMController{c, id}
 }
 
 // Disk returns a new vm disk controller.
-func (vc *VMController) Disk(id uint) *VMDiskController {
+func (vc *VMController) Disk(id int) *VMDiskController {
 	return &VMDiskController{vc.c, vc.ID, id}
 }
 
 // ByName returns VM ID from name
-func (c *VMsController) ByName(name string, args ...int) (uint, error) {
-	var id uint
+func (c *VMsController) ByName(name string, args ...int) (int, error) {
+	var id int
 
 	vmPool, err := c.Info(args...)
 	if err != nil {
@@ -342,13 +342,13 @@ func (vc *VMsController) CalculateShowback(firstMonth, firstYear, lastMonth, las
 
 // Create allocates a new VM based on the template string provided. It
 // returns the image ID
-func (vc *VMsController) Create(template string, pending bool) (uint, error) {
+func (vc *VMsController) Create(template string, pending bool) (int, error) {
 	response, err := vc.c.Client.Call("one.vm.allocate", template, pending)
 	if err != nil {
 		return 0, err
 	}
 
-	return uint(response.BodyInt()), nil
+	return response.BodyInt(), nil
 }
 
 // Action is the generic method to run any action on the VM
@@ -411,7 +411,7 @@ func (vc *VMController) Delete() error {
 // Deploy in the selected hostID and/or dsID. Enforce to return error in case of
 // overcommitment. Enforce is automatically enabled for non-oneadmin users.
 // Set dsID to -1 to let OpenNebula choose the datastore.
-func (vc *VMController) Deploy(hostID uint, enforce bool, dsID int) error {
+func (vc *VMController) Deploy(hostID int, enforce bool, dsID int) error {
 	_, err := vc.c.Client.Call("one.vm.deploy", vc.ID, int(hostID), enforce, dsID)
 	return err
 }
@@ -492,7 +492,7 @@ func (vc *VMController) SnapshotRevert(snapID int) error {
 }
 
 // Migrate a VM to a target host and/or to another ds
-func (vc *VMController) Migrate(hostID uint, live, enforce bool, dsID uint, migrationType int) error {
+func (vc *VMController) Migrate(hostID int, live, enforce bool, dsID int, migrationType int) error {
 	_, err := vc.c.Client.Call("one.vm.migrate", int(hostID), live, enforce, int(dsID), migrationType)
 	return err
 }

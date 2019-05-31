@@ -34,7 +34,7 @@ type MarketPlaceAppPool struct {
 
 // MarketPlaceApp represents an OpenNebula MarketPlaceApp
 type MarketPlaceApp struct {
-	ID            uint                   `xml:"ID"`
+	ID            int                    `xml:"ID"`
 	UID           int                    `xml:"UID"`
 	GID           int                    `xml:"GID"`
 	UName         string                 `xml:"UNAME"`
@@ -69,13 +69,13 @@ func (c *Controller) MarketPlaceApps() *MarketPlaceAppsController {
 }
 
 // MarketPlaceApp returns a MarketPlaceApp controller
-func (c *Controller) MarketPlaceApp(id uint) *MarketPlaceAppController {
+func (c *Controller) MarketPlaceApp(id int) *MarketPlaceAppController {
 	return &MarketPlaceAppController{c, id}
 }
 
 // ByName returns a MarketPlace ID from name
-func (c *MarketPlaceAppsController) ByName(name string, args ...int) (uint, error) {
-	var id uint
+func (c *MarketPlaceAppsController) ByName(name string, args ...int) (int, error) {
+	var id int
 
 	marketAppPool, err := c.Info(args...)
 	if err != nil {
@@ -154,13 +154,13 @@ func (mc *MarketPlaceAppController) Info() (*MarketPlaceApp, error) {
 // Create allocates a new marketplace app. It returns the new marketplace app ID.
 // * tpl: template of the marketplace app
 // * market: market place ID
-func (mc *MarketPlaceAppsController) Create(tpl string, market int) (uint, error) {
+func (mc *MarketPlaceAppsController) Create(tpl string, market int) (int, error) {
 	response, err := mc.c.Client.Call("one.marketapp.allocate", tpl, market)
 	if err != nil {
 		return 0, err
 	}
 
-	return uint(response.BodyInt()), nil
+	return response.BodyInt(), nil
 }
 
 // Delete deletes the given marketplace app from the pool.

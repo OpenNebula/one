@@ -21,7 +21,7 @@ import (
 )
 
 // Helper to create a template
-func createTemplate(t *testing.T) (*Template, uint) {
+func createTemplate(t *testing.T) (*Template, int) {
 	templateName := GenName("template")
 
 	// Create template

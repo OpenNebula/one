@@ -34,7 +34,7 @@ type SecurityGroupPool struct {
 
 // SecurityGroup represents an OpenNebula SecurityGroup
 type SecurityGroup struct {
-	ID          uint                  `xml:"ID"`
+	ID          int                   `xml:"ID"`
 	UID         int                   `xml:"UID"`
 	GID         int                   `xml:"GID"`
 	UName       string                `xml:"UNAME"`
@@ -66,13 +66,13 @@ func (c *Controller) SecurityGroups() *SecurityGroupsController {
 }
 
 // SecurityGroup returns a SecurityGroup controller
-func (c *Controller) SecurityGroup(id uint) *SecurityGroupController {
+func (c *Controller) SecurityGroup(id int) *SecurityGroupController {
 	return &SecurityGroupController{c, id}
 }
 
 // ByName returns a SecurityGroup by Name
-func (c *SecurityGroupsController) ByName(name string, args ...int) (uint, error) {
-	var id uint
+func (c *SecurityGroupsController) ByName(name string, args ...int) (int, error) {
+	var id int
 
 	secgroupPool, err := c.Info(args...)
 	if err != nil {
@@ -150,23 +150,23 @@ func (sc *SecurityGroupController) Info() (*SecurityGroup, error) {
 
 // Create allocates a new security group. It returns the new security group ID.
 // * tpl: template of the security group
-func (sc *SecurityGroupsController) Create(tpl string) (uint, error) {
+func (sc *SecurityGroupsController) Create(tpl string) (int, error) {
 	response, err := sc.c.Client.Call("one.secgroup.allocate", tpl)
 	if err != nil {
 		return 0, err
 	}
 
-	return uint(response.BodyInt()), nil
+	return response.BodyInt(), nil
 }
 
 // Clone clones an existing security group. It returns the clone ID
-func (sc *SecurityGroupController) Clone(cloneName string) (uint, error) {
+func (sc *SecurityGroupController) Clone(cloneName string) (int, error) {
 	response, err := sc.c.Client.Call("one.secgroup.clone", sc.ID, cloneName)
 	if err != nil {
 		return 0, err
 	}
 
-	return uint(response.BodyInt()), nil
+	return response.BodyInt(), nil
 }
 
 // Delete deletes the given security group from the pool.

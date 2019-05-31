@@ -34,7 +34,7 @@ type VDCPool struct {
 
 // VDC represents an OpenNebula VDC
 type VDC struct {
-	ID         uint           `xml:"ID"`
+	ID         int            `xml:"ID"`
 	Name       string         `xml:"NAME"`
 	GroupsID   []int          `xml:"GROUPS>ID"`
 	Clusters   []VDCCluster   `xml:"CLUSTERS>CLUSTER"`
@@ -74,13 +74,13 @@ func (c *Controller) VDCs() *VDCsController {
 }
 
 // VDC returns a VDC controller
-func (c *Controller) VDC(id uint) *VDCController {
+func (c *Controller) VDC(id int) *VDCController {
 	return &VDCController{c, id}
 }
 
-// ByName returns a VDC ID from name
-func (c *VDCsController) ByName(name string) (uint, error) {
-	var id uint
+// ByName returns a Vdc ID from name
+func (c *VDCsController) ByName(name string) (int, error) {
+	var id int
 
 	vdcPool, err := c.Info()
 	if err != nil {
@@ -142,13 +142,13 @@ func (vc *VDCController) Info() (*VDC, error) {
 //     attribute=value or XML.
 // * clusterID: The cluster ID. If it is -1, this virtual network won’t be added
 //     to any cluster
-func (vc *VDCsController) Create(tpl string, clusterID int) (uint, error) {
+func (vc *VDCsController) Create(tpl string, clusterID int) (int, error) {
 	response, err := vc.c.Client.Call("one.vdc.allocate", tpl, clusterID)
 	if err != nil {
 		return 0, err
 	}
 
-	return uint(response.BodyInt()), nil
+	return response.BodyInt(), nil
 }
 
 // Delete deletes the given VDC from the pool.
@@ -175,14 +175,14 @@ func (vc *VDCController) Rename(newName string) error {
 
 // AddGroup adds a group to the VDC
 // * groupID: The group ID.
-func (vc *VDCController) AddGroup(groupID uint) error {
+func (vc *VDCController) AddGroup(groupID int) error {
 	_, err := vc.c.Client.Call("one.vdc.addgroup", vc.ID, int(groupID))
 	return err
 }
 
 // DelGroup deletes a group from the VDC
 // * groupID: The group ID.
-func (vc *VDCController) DelGroup(groupID uint) error {
+func (vc *VDCController) DelGroup(groupID int) error {
 	_, err := vc.c.Client.Call("one.vdc.delgroup", vc.ID, int(groupID))
 	return err
 }
@@ -190,7 +190,7 @@ func (vc *VDCController) DelGroup(groupID uint) error {
 // AddCluster adds a cluster to the VDC
 // * zoneID: The Zone ID.
 // * clusterID: The Cluster ID.
-func (vc *VDCController) AddCluster(zoneID, clusterID uint) error {
+func (vc *VDCController) AddCluster(zoneID, clusterID int) error {
 	_, err := vc.c.Client.Call("one.vdc.addcluster", vc.ID, int(zoneID), int(clusterID))
 	return err
 }
@@ -198,7 +198,7 @@ func (vc *VDCController) AddCluster(zoneID, clusterID uint) error {
 // DelCluster deletes a cluster from the VDC
 // * zoneID: The Zone ID.
 // * clusterID: The Cluster ID.
-func (vc *VDCController) DelCluster(zoneID, clusterID uint) error {
+func (vc *VDCController) DelCluster(zoneID, clusterID int) error {
 	_, err := vc.c.Client.Call("one.vdc.delcluster", vc.ID, int(zoneID), int(clusterID))
 	return err
 }
@@ -206,7 +206,7 @@ func (vc *VDCController) DelCluster(zoneID, clusterID uint) error {
 // AddHost adds a host to the VDC
 // * zoneID: The Zone ID.
 // * hostID: The Host ID.
-func (vc *VDCController) AddHost(zoneID, hostID uint) error {
+func (vc *VDCController) AddHost(zoneID, hostID int) error {
 	_, err := vc.c.Client.Call("one.vdc.addhost", vc.ID, int(zoneID), int(hostID))
 	return err
 }
@@ -214,7 +214,7 @@ func (vc *VDCController) AddHost(zoneID, hostID uint) error {
 // DelHost deletes a host from the VDC
 // * zoneID: The Zone ID.
 // * hostID: The Host ID.
-func (vc *VDCController) DelHost(zoneID, hostID uint) error {
+func (vc *VDCController) DelHost(zoneID, hostID int) error {
 	_, err := vc.c.Client.Call("one.vdc.delhost", vc.ID, int(zoneID), int(hostID))
 	return err
 }
@@ -222,7 +222,7 @@ func (vc *VDCController) DelHost(zoneID, hostID uint) error {
 // AddDatastore adds a datastore to the VDC
 // * zoneID: The Zone ID.
 // * dsID: The Datastore ID.
-func (vc *VDCController) AddDatastore(zoneID, dsID uint) error {
+func (vc *VDCController) AddDatastore(zoneID, dsID int) error {
 	_, err := vc.c.Client.Call("one.vdc.adddatastore", vc.ID, int(zoneID), int(dsID))
 	return err
 }
@@ -230,7 +230,7 @@ func (vc *VDCController) AddDatastore(zoneID, dsID uint) error {
 // DelDatastore deletes a datastore from the VDC
 // * zoneID: The Zone ID.
 // * dsID: The Datastore ID.
-func (vc *VDCController) DelDatastore(zoneID, dsID uint) error {
+func (vc *VDCController) DelDatastore(zoneID, dsID int) error {
 	_, err := vc.c.Client.Call("one.vdc.deldatastore", vc.ID, int(zoneID), int(dsID))
 	return err
 }
@@ -238,7 +238,7 @@ func (vc *VDCController) DelDatastore(zoneID, dsID uint) error {
 // AddVnet adds a vnet to the VDC
 // * zoneID: The Zone ID.
 // * vnetID: The Vnet ID.
-func (vc *VDCController) AddVnet(zoneID, vnetID uint) error {
+func (vc *VDCController) AddVnet(zoneID, vnetID int) error {
 	_, err := vc.c.Client.Call("one.vdc.addvnet", vc.ID, int(zoneID), int(vnetID))
 	return err
 }
@@ -246,7 +246,7 @@ func (vc *VDCController) AddVnet(zoneID, vnetID uint) error {
 // DelVnet deletes a vnet from the VDC
 // * zoneID: The Zone ID.
 // * vnetID: The Vnet ID.
-func (vc *VDCController) DelVnet(zoneID, vnetID uint) error {
+func (vc *VDCController) DelVnet(zoneID, vnetID int) error {
 	_, err := vc.c.Client.Call("one.vdc.delvnet", vc.ID, int(zoneID), int(vnetID))
 	return err
 }

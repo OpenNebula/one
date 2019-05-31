@@ -26,9 +26,9 @@ import (
 func Test(t *testing.T) { TestingT(t) }
 
 type VMSuite struct {
-	templateID uint
-	vmID       uint
-	hostID     uint
+	templateID int
+	vmID       int
+	hostID     int
 }
 
 var _ = Suite(&VMSuite{})

@@ -31,7 +31,7 @@ VN_MAD = "vxlan"
 `
 
 // Helper to create a Virtual Network
-func createVirtualNetwork(t *testing.T) (*VirtualNetwork, uint) {
+func createVirtualNetwork(t *testing.T) (*VirtualNetwork, int) {
 	id, err := testCtrl.VirtualNetworks().Create(vnTpl, -1)
 	if err != nil {
 		t.Fatal(err)

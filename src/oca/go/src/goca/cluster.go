@@ -34,7 +34,7 @@ type ClusterPool struct {
 
 // Cluster represents an OpenNebula Cluster
 type Cluster struct {
-	ID           uint            `xml:"ID"`
+	ID           int             `xml:"ID"`
 	Name         string          `xml:"NAME"`
 	HostsID      []int           `xml:"HOSTS>ID"`
 	DatastoresID []int           `xml:"DATASTORES>ID"`
@@ -55,13 +55,13 @@ func (c *Controller) Clusters() *ClustersController {
 }
 
 // Cluster returns a Cluster controller.
-func (c *Controller) Cluster(id uint) *ClusterController {
+func (c *Controller) Cluster(id int) *ClusterController {
 	return &ClusterController{c, id}
 }
 
 // ByName returns a Cluster ID from name
-func (c *ClustersController) ByName(name string) (uint, error) {
-	var id uint
+func (c *ClustersController) ByName(name string) (int, error) {
+	var id int
 
 	clusterPool, err := c.Info()
 	if err != nil {
@@ -118,13 +118,13 @@ func (cc *ClusterController) Info() (*Cluster, error) {
 }
 
 // Create allocates a new cluster. It returns the new cluster ID.
-func (cc *ClustersController) Create(name string) (uint, error) {
+func (cc *ClustersController) Create(name string) (int, error) {
 	response, err := cc.c.Client.Call("one.cluster.allocate", name)
 	if err != nil {
 		return 0, err
 	}
 
-	return uint(response.BodyInt()), nil
+	return response.BodyInt(), nil
 }
 
 // Delete deletes the given cluster from the pool.
@@ -144,42 +144,42 @@ func (cc *ClusterController) Update(tpl string, uType UpdateType) error {
 
 // AddHost adds a host to the given cluster.
 // * hostID: The host ID.
-func (cc *ClusterController) AddHost(hostID uint) error {
+func (cc *ClusterController) AddHost(hostID int) error {
 	_, err := cc.c.Client.Call("one.cluster.addhost", cc.ID, int(hostID))
 	return err
 }
 
 // DelHost removes a host from the given cluster.
 // * hostID: The host ID.
-func (cc *ClusterController) DelHost(hostID uint) error {
+func (cc *ClusterController) DelHost(hostID int) error {
 	_, err := cc.c.Client.Call("one.cluster.delhost", cc.ID, int(hostID))
 	return err
 }
 
 // AddDatastore adds a datastore to the given cluster.
 // * dsID: The datastore ID.
-func (cc *ClusterController) AddDatastore(dsID uint) error {
+func (cc *ClusterController) AddDatastore(dsID int) error {
 	_, err := cc.c.Client.Call("one.cluster.adddatastore", cc.ID, int(dsID))
 	return err
 }
 
 // DelDatastore removes a datastore from the given cluster.
 // * dsID: The datastore ID.
-func (cc *ClusterController) DelDatastore(dsID uint) error {
+func (cc *ClusterController) DelDatastore(dsID int) error {
 	_, err := cc.c.Client.Call("one.cluster.deldatastore", cc.ID, int(dsID))
 	return err
 }
 
 // AddVnet adds a vnet to the given cluster.
 // * vnetID: The vnet ID.
-func (cc *ClusterController) AddVnet(vnetID uint) error {
+func (cc *ClusterController) AddVnet(vnetID int) error {
 	_, err := cc.c.Client.Call("one.cluster.addvnet", cc.ID, int(vnetID))
 	return err
 }
 
 // DelVnet removes a vnet from the given cluster.
 // * vnetID: The vnet ID.
-func (cc *ClusterController) DelVnet(vnetID uint) error {
+func (cc *ClusterController) DelVnet(vnetID int) error {
 	_, err := cc.c.Client.Call("one.cluster.delvnet", cc.ID, int(vnetID))
 	return err
 }

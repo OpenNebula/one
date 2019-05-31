@@ -36,7 +36,7 @@ type UserPool struct {
 
 // User represents an OpenNebula user
 type User struct {
-	ID          uint         `xml:"ID"`
+	ID          int          `xml:"ID"`
 	GID         int          `xml:"GID"`
 	GroupsID    []int        `xml:"GROUPS>ID"`
 	GName       string       `xml:"GNAME"`
@@ -68,13 +68,13 @@ func (c *Controller) Users() *UsersController {
 }
 
 // User returns a User controller.
-func (c *Controller) User(id uint) *UserController {
+func (c *Controller) User(id int) *UserController {
 	return &UserController{c, id}
 }
 
 // ByName returns a User by Name
-func (c *UsersController) ByName(name string) (uint, error) {
-	var id uint
+func (c *UsersController) ByName(name string) (int, error) {
+	var id int
 
 	userPool, err := c.Info()
 	if err != nil {
@@ -136,13 +136,13 @@ func (uc *UserController) Info() (*User, error) {
 // * password: password of the user
 // * authDriver: auth driver
 // * groupIDs: array of groupIDs to add to the user
-func (uc *UsersController) Create(name, password, authDriver string, groupIDs []uint) (uint, error) {
+func (uc *UsersController) Create(name, password, authDriver string, groupIDs []int) (int, error) {
 	response, err := uc.c.Client.Call("one.user.allocate", name, password, authDriver, groupIDs)
 	if err != nil {
 		return 0, err
 	}
 
-	return uint(response.BodyInt()), nil
+	return response.BodyInt(), nil
 }
 
 // Delete deletes the given user from the pool.
@@ -193,21 +193,21 @@ func (uc *UserController) Quota(tpl string) error {
 
 // Chgrp changes the group of the given user.
 // * groupID: The Group ID of the new group.
-func (uc *UserController) Chgrp(groupID uint) error {
+func (uc *UserController) Chgrp(groupID int) error {
 	_, err := uc.c.Client.Call("one.user.chgrp", uc.ID, int(groupID))
 	return err
 }
 
 // AddGroup adds the User to a secondary group.
 // * groupID: The Group ID of the new group.
-func (uc *UserController) AddGroup(groupID uint) error {
+func (uc *UserController) AddGroup(groupID int) error {
 	_, err := uc.c.Client.Call("one.user.addgroup", uc.ID, int(groupID))
 	return err
 }
 
 // DelGroup removes the User from a secondary group
 // * groupID: The Group ID.
-func (uc *UserController) DelGroup(groupID uint) error {
+func (uc *UserController) DelGroup(groupID int) error {
 	_, err := uc.c.Client.Call("one.user.delgroup", uc.ID, int(groupID))
 	return err
 }

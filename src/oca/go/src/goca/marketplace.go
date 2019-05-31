@@ -34,7 +34,7 @@ type MarketPlacePool struct {
 
 // MarketPlace represents an OpenNebula MarketPlace
 type MarketPlace struct {
-	ID                 uint                `xml:"ID"`
+	ID                 int                 `xml:"ID"`
 	UID                int                 `xml:"UID"`
 	GID                int                 `xml:"GID"`
 	UName              string              `xml:"UNAME"`
@@ -61,13 +61,13 @@ func (c *Controller) MarketPlaces() *MarketPlacesController {
 }
 
 // MarketPlace return MarketPlace controller
-func (c *Controller) MarketPlace(id uint) *MarketPlaceController {
+func (c *Controller) MarketPlace(id int) *MarketPlaceController {
 	return &MarketPlaceController{c, id}
 }
 
 // ByName return MarketPlace ID from name
-func (c *MarketPlacesController) ByName(name string) (uint, error) {
-	var id uint
+func (c *MarketPlacesController) ByName(name string) (int, error) {
+	var id int
 
 	marketPool, err := c.Info()
 	if err != nil {
@@ -145,13 +145,13 @@ func (mc *MarketPlaceController) Info() (*MarketPlace, error) {
 
 // Create allocates a new marketplace. It returns the new marketplace ID.
 // * tpl: template of the marketplace
-func (mc *MarketPlacesController) Create(tpl string) (uint, error) {
+func (mc *MarketPlacesController) Create(tpl string) (int, error) {
 	response, err := mc.c.Client.Call("one.market.allocate", tpl)
 	if err != nil {
 		return 0, err
 	}
 
-	return uint(response.BodyInt()), nil
+	return response.BodyInt(), nil
 }
 
 // Delete deletes the given marketplace from the pool.

@@ -34,25 +34,25 @@ type VirtualNetworkPool struct {
 
 // VirtualNetwork represents an OpenNebula VirtualNetwork
 type VirtualNetwork struct {
-	ID                   uint            `xml:"ID"`
-	UID                  int             `xml:"UID"`
-	GID                  int             `xml:"GID"`
-	UName                string          `xml:"UNAME"`
-	GName                string          `xml:"GNAME"`
-	Name                 string          `xml:"NAME"`
-	Permissions          *Permissions    `xml:"PERMISSIONS"`
-	ClustersID           []int           `xml:"CLUSTERS>ID"`
-	Bridge               string          `xml:"BRIDGE"`
-	BridgeType           string          `xml:"BRIDGE_TYPE"` // minOccurs=0
-	ParentNetworkID      string          `xml:"PARENT_NETWORK_ID"`
-	VNMad                string          `xml:"VN_MAD"`
-	PhyDev               string          `xml:"PHYDEV"`
-	VlanID               string          `xml:"VLAN_ID"`       // minOccurs=0
-	OuterVlanID          string          `xml:"OUTER_VLAN_ID"` // minOccurs=0
-	VlanIDAutomatic      string          `xml:"VLAN_ID_AUTOMATIC"`
-	OuterVlanIDAutomatic string          `xml:"OUTER_VLAN_ID_AUTOMATIC"`
-	UsedLeases           int             `xml:"USED_LEASES"`
-	VRoutersID           []int           `xml:"VROUTERS>ID"`
+	ID                   int                    `xml:"ID"`
+	UID                  int                    `xml:"UID"`
+	GID                  int                    `xml:"GID"`
+	UName                string                 `xml:"UNAME"`
+	GName                string                 `xml:"GNAME"`
+	Name                 string                 `xml:"NAME"`
+	Permissions          *Permissions           `xml:"PERMISSIONS"`
+	ClustersID           []int                  `xml:"CLUSTERS>ID"`
+	Bridge               string                 `xml:"BRIDGE"`
+	BridgeType           string                 `xml:"BRIDGE_TYPE"` // minOccurs=0
+	ParentNetworkID      string                 `xml:"PARENT_NETWORK_ID"`
+	VNMad                string                 `xml:"VN_MAD"`
+	PhyDev               string                 `xml:"PHYDEV"`
+	VlanID               string                 `xml:"VLAN_ID"`       // minOccurs=0
+	OuterVlanID          string                 `xml:"OUTER_VLAN_ID"` // minOccurs=0
+	VlanIDAutomatic      string                 `xml:"VLAN_ID_AUTOMATIC"`
+	OuterVlanIDAutomatic string                 `xml:"OUTER_VLAN_ID_AUTOMATIC"`
+	UsedLeases           int                    `xml:"USED_LEASES"`
+	VRoutersID           []int                  `xml:"VROUTERS>ID"`
 	Template             virtualNetworkTemplate `xml:"TEMPLATE"`
 
 	// Variable parts between one.vnpool.info and one.vn.info
@@ -107,13 +107,13 @@ func (c *Controller) VirtualNetworks() *VirtualNetworksController {
 }
 
 // VirtualNetwork returns a VirtualNetwork controller
-func (c *Controller) VirtualNetwork(id uint) *VirtualNetworkController {
+func (c *Controller) VirtualNetwork(id int) *VirtualNetworkController {
 	return &VirtualNetworkController{c, id}
 }
 
 // ByName returns a VirtualNetwork ID from name
-func (c *VirtualNetworksController) ByName(name string, args ...int) (uint, error) {
-	var id uint
+func (c *VirtualNetworksController) ByName(name string, args ...int) (int, error) {
+	var id int
 
 	virtualNetworkPool, err := c.Info(args...)
 	if err != nil {
@@ -190,13 +190,13 @@ func (vc *VirtualNetworkController) Info() (*VirtualNetwork, error) {
 // Create allocates a new virtualnetwork. It returns the new virtualnetwork ID.
 // * tpl: template of the virtualnetwork
 // * clusterID: The cluster ID. If it is -1, the default one will be used.
-func (vc *VirtualNetworksController) Create(tpl string, clusterID int) (uint, error) {
+func (vc *VirtualNetworksController) Create(tpl string, clusterID int) (int, error) {
 	response, err := vc.c.Client.Call("one.vn.allocate", tpl, clusterID)
 	if err != nil {
 		return 0, err
 	}
 
-	return uint(response.BodyInt()), nil
+	return response.BodyInt(), nil
 }
 
 // Delete deletes the given virtual network from the pool.

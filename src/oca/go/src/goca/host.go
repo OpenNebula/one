@@ -35,7 +35,7 @@ type HostPool struct {
 
 // Host represents an OpenNebula Host
 type Host struct {
-	ID          uint         `xml:"ID"`
+	ID          int          `xml:"ID"`
 	Name        string       `xml:"NAME"`
 	StateRaw    int          `xml:"STATE"`
 	IMMAD       string       `xml:"IM_MAD"`
@@ -149,13 +149,13 @@ func (c *Controller) Hosts() *HostsController {
 }
 
 // Host return an host controller with an ID.
-func (c *Controller) Host(id uint) *HostController {
+func (c *Controller) Host(id int) *HostController {
 	return &HostController{c, id}
 }
 
 // ByName finds a Host ID from name
-func (c *HostsController) ByName(name string) (uint, error) {
-	var id uint
+func (c *HostsController) ByName(name string) (int, error) {
+	var id int
 
 	hostPool, err := c.Info()
 	if err != nil {
@@ -214,13 +214,13 @@ func (hc *HostController) Info() (*Host, error) {
 // * im: information driver for the host
 // * vm: virtualization driver for the host
 // * clusterID: The cluster ID. If it is -1, the default one will be used.
-func (hc *HostsController) Create(name, im, vm string, clusterID int) (uint, error) {
+func (hc *HostsController) Create(name, im, vm string, clusterID int) (int, error) {
 	response, err := hc.c.Client.Call("one.host.allocate", name, im, vm, clusterID)
 	if err != nil {
 		return 0, err
 	}
 
-	return uint(response.BodyInt()), nil
+	return response.BodyInt(), nil
 }
 
 // Delete deletes the given host from the pool
