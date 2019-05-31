@@ -670,7 +670,7 @@ void TransferManager::prolog_action(int vid)
         {
             vm->unlock();
 
-            vm = vmpool->get(vid);                                                                                                                                                                
+            vm = vmpool->get(vid);
             if (vm == 0)
             {
                 goto error_attributes;

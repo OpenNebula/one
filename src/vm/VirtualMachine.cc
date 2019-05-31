@@ -459,6 +459,10 @@ const char * VirtualMachine::db_names =
     "oid, name, body, uid, gid, last_poll, state, lcm_state, "
     "owner_u, group_u, other_u, short_body, search_token";
 
+const char * VirtualMachine::db_names_without_search =
+    "oid, name, body, uid, gid, last_poll, state, lcm_state, "
+    "owner_u, group_u, other_u, short_body";
+
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
     "vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, "
     "uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, "
@@ -1685,6 +1689,8 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
     char * sql_xml;
     char * sql_short_xml;
     char * sql_text;
+    const char * db_values;
+    ostringstream search_row;
 
     sql_name =  db->escape_str(name.c_str());
 
@@ -1727,26 +1733,30 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
     if(replace)
     {
         oss << "REPLACE";
+        db_values = db_names;
+        search_row << "";
     }
     else
     {
         oss << "INSERT";
+        db_values = db_names_without_search;
+        search_row << ", '" << sql_text << "'";
     }
 
-    oss << " INTO " << table << " ("<< db_names <<") VALUES ("
-        <<          oid             << ","
-        << "'" <<   sql_name        << "',"
-        << "'" <<   sql_xml         << "',"
-        <<          uid             << ","
-        <<          gid             << ","
-        <<          last_poll       << ","
-        <<          state           << ","
-        <<          lcm_state       << ","
-        <<          owner_u         << ","
-        <<          group_u         << ","
-        <<          other_u         << ","
-        << "'" <<   sql_short_xml   << "',"
-        << "'" <<   sql_text        << "'"
+    oss << " INTO " << table << " ("<< db_values <<") VALUES ("
+        <<          oid              << ","
+        << "'" <<   sql_name         << "',"
+        << "'" <<   sql_xml          << "',"
+        <<          uid              << ","
+        <<          gid              << ","
+        <<          last_poll        << ","
+        <<          state            << ","
+        <<          lcm_state        << ","
+        <<          owner_u          << ","
+        <<          group_u          << ","
+        <<          other_u          << ","
+        << "'" <<   sql_short_xml    << "'"
+        << search_row.str()
         << ")";
 
     db->free_str(sql_name);
@@ -1779,6 +1789,44 @@ error_body:
 error_generic:
     error_str = "Error inserting VM in DB.";
 error_common:
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::update_search(SqlDB * db)
+{
+    ostringstream oss;
+    int           rc;
+    char *        sql_text;
+    string        text;
+
+    sql_text = db->escape_str(to_token(text).c_str());
+
+    if ( sql_text == 0 )
+    {
+        goto error_text;
+    }
+
+    oss << "REPLACE INTO " << table << " (search_token) VALUES ("
+        << "'" <<   sql_text   << "'"
+        << ")";
+
+    db->free_str(sql_text);
+
+    rc = db->exec_local_wr(oss);
+
+    return rc;
+
+error_text:
+    db->free_str(sql_text);
+
+    oss.str("");
+    oss << "Error updating VM search information";
+
+    NebulaLog::log("ONE",Log::ERROR, oss);
+
     return -1;
 }
 
@@ -2307,14 +2355,7 @@ string& VirtualMachine::to_token(string& text) const
     one_util::escape_token(name, oss);
     oss << "\n";
 
-    oss << "LAST_POLL="<< last_poll << "\n"
-        << "PREV_STATE="<< prev_state << "\n"
-        << "PREV_LCM_STATE="<< prev_lcm_state << "\n"
-        << "RESCHED="<< resched << "\n"
-        << "STIME="<< stime << "\n"
-        << "ETIME="<< etime << "\n"
-        << "DEPLOY_ID="<< deploy_id << "\n"
-        << obj_template->to_token(template_text) << "\n"
+    oss << obj_template->to_token(template_text) << "\n"
         << user_obj_template->to_token(user_template_text);
 
     if ( hasHistory() )

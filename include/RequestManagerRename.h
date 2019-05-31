@@ -121,6 +121,23 @@ public:
     {
         return -1;
     }
+
+
+    int extra_updates(PoolObjectSQL * obj)
+    {
+        VirtualMachine * vm;
+
+        VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
+
+        if (obj == 0)
+        {
+            return -1;
+        }
+
+        vm = static_cast<VirtualMachine *>(obj);
+
+        return vmpool->update_search(vm);
+    };
 };
 
 /* ------------------------------------------------------------------------- */

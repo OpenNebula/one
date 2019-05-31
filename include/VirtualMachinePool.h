@@ -242,6 +242,17 @@ public:
     };
 
     /**
+     *  Updates the VM's search information
+     *    @param vm pointer to the virtual machine object
+     *    @return 0 on success
+     */
+    int update_search(
+        VirtualMachine * vm)
+    {
+        return vm->update_search(db);
+    }
+
+    /**
      * Deletes the expired monitoring entries for all VMs
      *
      * @return 0 on success

@@ -169,6 +169,7 @@ void  DispatchManager::undeploy_success_action(int vid)
         }
 
         vmpool->update(vm);
+        vmpool->update_search(vm);
     }
     else
     {

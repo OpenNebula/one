@@ -1383,6 +1383,10 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         vm->unlock();
         return;
     }
+    else
+    {
+        vmpool->update_search(vm);
+    }
 
     // ------------------------------------------------------------------------
     // Migrate the VM
@@ -2207,6 +2211,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
             }
 
             vmpool->update(vm);
+            vmpool->update_search(vm);
         break;
 
         case VirtualMachine::STOPPED:
@@ -3074,14 +3079,14 @@ void VirtualMachineDiskSnapshotRename::request_execute(xmlrpc_c::paramList const
     if ( rc != 0 )
     {
         failure_response(ACTION, att);
-	
+
 	vm->unlock();
-	    
+
 	return;
     }
-    
+
     success_response(id, att);
-        
+
     pool->update(vm);
 
     vm->unlock();
@@ -3189,6 +3194,7 @@ void VirtualMachineUpdateConf::request_execute(
     }
 
     static_cast<VirtualMachinePool *>(pool)->update(vm);
+    static_cast<VirtualMachinePool *>(pool)->update_search(vm);
 
     vm->unlock();
 

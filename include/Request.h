@@ -246,6 +246,18 @@ protected:
      */
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                                  RequestAttributes& att) = 0;
+
+    /**
+     *  Method por updating custom values not included in PoolSQL::update(PoolObjectSQL * obj)
+     *  mainly used for updating search information in the VMs.
+     *    @param object to be updated
+     *    @return 0 on success
+     */
+    virtual int extra_updates(PoolObjectSQL * obj)
+    {
+        return 0;
+    };
+
     /**
      * Locks the requested object, gets information, and unlocks it
      *

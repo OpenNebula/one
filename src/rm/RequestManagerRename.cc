@@ -118,6 +118,8 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
 
     pool->update(object);
 
+    extra_updates(object);
+
     object->unlock();
 
     batch_rename(oid);
@@ -240,6 +242,7 @@ void HostRename::batch_rename(int oid)
             {
                 vm->set_hostname(host_name);
                 vmpool->update_history(vm);
+                vmpool->update_search(vm);
             }
 
             vm->unlock();

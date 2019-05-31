@@ -1413,6 +1413,7 @@ int DispatchManager::attach(int vid, VirtualMachineTemplate * tmpl,
     }
 
     vmpool->update(vm);
+    vmpool->update_search(vm);
 
     vm->unlock();
 
@@ -1508,6 +1509,7 @@ int DispatchManager::detach(int vid, int disk_id, const RequestAttributes& ra,
     }
 
     vmpool->update(vm);
+    vmpool->update_search(vm);
 
     vm->unlock();
 
@@ -1648,14 +1650,14 @@ int DispatchManager::snapshot_delete(int vid, int snap_id,
 
         return -1;
     }
-    
+
     bool is_keep_snapshots = false;
-    
+
     if ( vm->hasHistory() )
     {
         is_keep_snapshots = vmm->is_keep_snapshots(vm->get_vmm_mad());
     }
-    
+
     if ( (vm->get_state() != VirtualMachine::ACTIVE ||
                 vm->get_lcm_state() != VirtualMachine::RUNNING) &&
          (!is_keep_snapshots ||
@@ -1800,6 +1802,7 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
     }
 
     vmpool->update(vm);
+    vmpool->update_search(vm);
 
     vm->unlock();
 
@@ -1892,6 +1895,8 @@ int DispatchManager::detach_nic(int vid, int nic_id,const RequestAttributes& ra,
 
         vmpool->update(vm);
 
+        vmpool->update_search(vm);
+
         vm->unlock();
 
         //---------------------------------------------------
@@ -1903,6 +1908,8 @@ int DispatchManager::detach_nic(int vid, int nic_id,const RequestAttributes& ra,
         vm->log("DiM", Log::INFO, "VM NIC Successfully detached.");
 
         vmpool->update(vm);
+
+        vmpool->update_search(vm);
 
         vm->unlock();
 
@@ -2332,6 +2339,7 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
     }
 
     vmpool->update(vm);
+    vmpool->update_search(vm);
 
     vm->unlock();
 

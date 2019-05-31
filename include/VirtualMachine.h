@@ -1880,6 +1880,14 @@ private:
     int update_monitoring(SqlDB * db);
 
     /**
+     * Updates the VM search information.
+     *
+     * @param db pointer to the db
+     * @return 0 on success
+     */
+    int update_search(SqlDB * db);
+
+    /**
      *  Function that renders the VM in XML format optinally including
      *  extended information (all history records)
      *  @param xml the resulting XML string
@@ -2184,6 +2192,8 @@ protected:
     static const char * table;
 
     static const char * db_names;
+
+    static const char * db_names_without_search;
 
     static const char * db_bootstrap;
 
