@@ -15,6 +15,20 @@
 #--------------------------------------------------------------------------- #
 module VCenterDriver
 
+    ONE_LOCATION = ENV['ONE_LOCATION']
+
+    if !ONE_LOCATION
+        RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    else
+        RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    end
+    
+    $LOAD_PATH << RUBY_LIB_LOCATION
+
+    require 'vm_device'
+    require 'vm_helper'
+    require 'vm_monitor'
+
     class VirtualMachine < VCenterDriver::Template
 
         # Supported access to VirtualMachineDevice classes:
@@ -22,11 +36,8 @@ module VCenterDriver
         #           Disk
         #           VirtualMachineDevice::Disk
         #           VCenterDriver::VirtualMachine::Disk
-        require_relative 'vm_device'
         include VirtualMachineDevice
-        require_relative 'vm_helper'
         include VirtualMachineHelper
-        require_relative 'vm_monitor'
         include VirtualMachineMonitor
 
         ############################################################################

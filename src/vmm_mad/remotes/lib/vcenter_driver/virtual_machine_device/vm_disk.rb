@@ -175,7 +175,7 @@ module VirtualMachineDevice
         end
 
         def destroy
-            return if is_cd?
+            return if cd?
 
             raise_if_no_exists_in_vcenter
 
