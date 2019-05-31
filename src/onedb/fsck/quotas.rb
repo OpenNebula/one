@@ -71,6 +71,7 @@ module OneDBFsck
 
         queries << "SELECT body FROM vm_pool WHERE #{filter} AND state<>6"
         queries << "SELECT body FROM vrouter_pool WHERE #{filter}"
+        queries << "SELECT body FROM network_pool WHERE #{filter}"
 
         calculate_vnet_quotas(doc, queries, resource)
 
@@ -462,6 +463,22 @@ module OneDBFsck
                 if !net_id.nil? && floating
                     vnet_usage[net_id] = 0 if vnet_usage[net_id].nil?
                     vnet_usage[net_id] += 1
+                end
+            end
+        end
+
+        # Calculate quotas for reserved networks
+        @db.fetch(queries[2]) do |vnet_row|
+            vnet_doc = nokogiri_doc(vnet_row[:body])
+
+            vnet_doc.xpath('VNET/AR_POOL').each do |ar|
+                parent_id = ar.xpath('AR/PARENT_NETWORK_AR_ID')
+                parent_id = parent_id.text unless parent_id.nil?
+                size      = ar.xpath('AR/SIZE').text.to_i
+
+                if !parent_id.nil?
+                    vnet_usage[parent_id] = 0 if vnet_usage[parent_id].nil?
+                    vnet_usage[parent_id] += size
                 end
             end
         end
