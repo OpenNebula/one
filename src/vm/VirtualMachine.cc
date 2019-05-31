@@ -1733,13 +1733,13 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
     if(replace)
     {
         oss << "REPLACE";
-        db_values = db_names;
+        db_values = db_names_without_search;
         search_row << "";
     }
     else
     {
         oss << "INSERT";
-        db_values = db_names_without_search;
+        db_values = db_names;
         search_row << ", '" << sql_text << "'";
     }
 
