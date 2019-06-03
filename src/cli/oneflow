@@ -717,7 +717,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :action, action_desc, :service_id, :role_name, :vm_action,
             :options => [Service::PERIOD, Service::NUMBER] do
-
         client = Service::Client.new(
             :username => options[:username],
             :password => options[:password],

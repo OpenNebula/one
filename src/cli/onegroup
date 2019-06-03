@@ -86,7 +86,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :create, create_desc, [:group_name, nil], :options =>
             OpenNebulaHelper::GROUP_OPTIONS do
-
         if options && options[:admin_user]
             if !options[:admin_password]
                 STDERR.puts 'Admin user needs password'

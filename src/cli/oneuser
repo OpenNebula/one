@@ -387,7 +387,6 @@ CommandParser::CmdParser.new(ARGV) do
     command :umask, umask_desc, [:range, :userid_list], [:mask, nil] do
         helper.perform_actions(args[0], options,
                                'umask changed') do |user|
-
             rc = user.info
 
             if OpenNebula.is_error?(rc)
@@ -583,7 +582,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :passwdsearch, passwdsearch_desc, :driver, :password,
             :options => [CLIHelper::CSV_OPT, OpenNebulaHelper::XML] do
-
         options[:list] = %w[ID NAME AUTH PASSWORD]
         options[:filter] = ["AUTH=#{args[0]}", "PASSWORD=#{args[1]}"]
 
@@ -619,7 +617,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :"token-create", token_add_desc, [:username, nil],
             :options => login_options do
-
         helper.token_create(args, options)
     end
 
@@ -649,7 +646,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :"token-set", token_set_desc, [:username, nil],
             :options => login_options + set_options do
-
         username = args[0]
 
         if username
@@ -732,7 +728,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :"token-delete", token_delete_desc, [:username, nil], :token,
             :options => login_options do
-
         if args.length == 1
             token_hint = args[0]
         else
@@ -794,7 +789,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :"token-delete-all", token_delete_all, :username,
             :options => login_options do
-
         username = args[0]
 
         if username =~ /^\d+$/

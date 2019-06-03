@@ -106,7 +106,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :"server-add", addserver_desc, :zoneid, :options =>
         [OneZoneHelper::SERVER_NAME, OneZoneHelper::SERVER_ENDPOINT] do
-
         if options[:server_name].nil? || options[:server_rpc].nil?
             STDERR.puts 'To add a server set:'
             STDERR.puts "\t-n <server name>"
