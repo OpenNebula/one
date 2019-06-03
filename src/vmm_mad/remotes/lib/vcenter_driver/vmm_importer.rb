@@ -42,7 +42,7 @@ module VCenterDriver
 
         def import(selected)
             import_tmplt = selected['IMPORT_TEMPLATE']
-            import_tmplt = Base64.decode64(import_template) if import_tmplt
+            import_tmplt = Base64.decode64(import_tmplt) if import_tmplt
             vm_ref     = selected['DEPLOY_ID'] || selected[:wild]['DEPLOY_ID']
             vm         = selected[:one_item]   || build
             template   = selected[:template]   || import_tmplt
