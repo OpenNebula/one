@@ -146,7 +146,6 @@ CommandParser::CmdParser.new(ARGV) do
             :vrouterid, :templateid, [:file, nil],
             :options => instantiate_options +
                         OpenNebulaHelper::TEMPLATE_OPTIONS do
-
         if args[2] && OpenNebulaHelper.create_template_options_used?(options)
             STDERR.puts 'You cannot use both template file and template' \
                         ' creation options.'
@@ -275,7 +274,6 @@ CommandParser::CmdParser.new(ARGV) do
                          OneVMHelper::NETWORK,
                          OneVMHelper::IP,
                          OneVirtualRouterHelper::FLOAT] do
-
         if options[:file].nil? && options[:network].nil?
             STDERR.puts 'Provide a template file or a network:'
             STDERR.puts "\t--file    <file>"

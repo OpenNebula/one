@@ -85,7 +85,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :create, create_desc, :file,
             :options => [OneClusterHelper::CLUSTER] do
-
         cid = options[:cluster] || ClusterPool::NONE_CLUSTER_ID
 
         helper.create_resource(options) do |datastore|

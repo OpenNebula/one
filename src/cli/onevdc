@@ -72,7 +72,6 @@ CommandParser::CmdParser.new(ARGV) do
     set :format, :clusterid,
         "#{OpenNebulaHelper.rname_to_id_desc('CLUSTER')}. "\
         'Can be set to ALL' do |arg|
-
         if !arg.nil? &&
            arg.class != Integer &&
            arg.casecmp('ALL').zero?
@@ -85,7 +84,6 @@ CommandParser::CmdParser.new(ARGV) do
     set :format, :hostid,
         "#{OpenNebulaHelper.rname_to_id_desc('HOST')}. "\
         'Can be set to ALL' do |arg|
-
         if !arg.nil? &&
            arg.class != Integer &&
            arg.casecmp('ALL').zero?
@@ -98,7 +96,6 @@ CommandParser::CmdParser.new(ARGV) do
     set :format, :datastoreid,
         "#{OpenNebulaHelper.rname_to_id_desc('DATASTORE')}. "\
         'Can be set to ALL' do |arg|
-
         if !arg.nil? &&
            arg.class != Integer &&
            arg.casecmp('ALL').zero?
@@ -111,7 +108,6 @@ CommandParser::CmdParser.new(ARGV) do
     set :format, :vnetid,
         "#{OpenNebulaHelper.rname_to_id_desc('VNET')}. "\
         'Can be set to ALL' do |arg|
-
         if !arg.nil? &&
            arg.class != Integer &&
            arg.casecmp('ALL').zero?

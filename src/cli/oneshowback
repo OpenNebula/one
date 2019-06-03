@@ -50,7 +50,6 @@ CommandParser::CmdParser.new(ARGV) do
         AcctHelper::SHOWBACK_OPTIONS + CommandParser::OPTIONS +
         [OpenNebulaHelper::DESCRIBE, CLIHelper::LIST, CLIHelper::CSV_OPT] +
         OpenNebulaHelper::CLIENT_OPTIONS do
-
         if options[:describe]
             AcctHelper::SHOWBACK_TABLE.describe_columns
             exit(0)
@@ -142,7 +141,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :calculate, 'Calculates the showback records', :options =>
             [AcctHelper::START_TIME_SHOWBACK, AcctHelper::END_TIME_SHOWBACK] do
-
         start_month = -1
         start_year  = -1
 

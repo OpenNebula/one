@@ -133,7 +133,6 @@ CommandParser::CmdParser.new(ARGV) do
     command :create, create_desc, [:file, nil], :options =>
             [OneTemplateHelper::VM_NAME] + OpenNebulaHelper::TEMPLATE_OPTIONS +
             [OpenNebulaHelper::DRY] do
-
         if args[0] && OpenNebulaHelper.create_template_options_used?(options)
             STDERR.puts 'You can not use both template file and template' \
                         ' creation options.'
@@ -174,7 +173,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :clone, clone_desc, :templateid, :name,
             :options => OneTemplateHelper::RECURSIVE do
-
         recursive = (options[:recursive] == true)
 
         helper.perform_action(args[0], options, 'cloned') do |t|
@@ -194,7 +192,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :delete, delete_desc, [:range, :templateid_list],
             :options => OneTemplateHelper::RECURSIVE do
-
         recursive = (options[:recursive] == true)
 
         helper.perform_actions(args[0], options, 'deleted') do |t|
@@ -306,7 +303,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :chmod, chmod_desc, [:range, :templateid_list], :octet,
             :options => OneTemplateHelper::RECURSIVE do
-
         recursive = (options[:recursive] == true)
 
         helper.perform_actions(args[0], options, 'Permissions changed') do |t|
@@ -359,7 +355,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :show, show_desc, :templateid,
             :options => [OpenNebulaHelper::XML, OneTemplateHelper::EXTENDED] do
-
         helper.show_resource(args[0], options)
     end
 

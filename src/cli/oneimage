@@ -142,7 +142,6 @@ CommandParser::CmdParser.new(ARGV) do
             create_desc,
             [:file, nil],
             :options => CREATE_OPTIONS + OneImageHelper::TEMPLATE_OPTIONS do
-
         if options[:datastore].nil? && !options[:dry]
             STDERR.puts 'Datastore to save the image is mandatory: '
             STDERR.puts '\t -d datastore_id'

@@ -117,7 +117,6 @@ CommandParser::CmdParser.new(ARGV) do
     command :create, create_desc, [:file, nil],
             :options => CREATE_OPTIONS +
                         OneMarketPlaceAppHelper::TEMPLATE_OPTIONS do
-
         if options[:marketplace].nil?
             STDERR.puts 'Marketplace to save the app is mandatory: '
             STDERR.puts '\t -m marketplace_id'
@@ -216,7 +215,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :update, update_desc, :appid, [:file, nil],
             :options => OpenNebulaHelper::APPEND do
-
         helper.perform_action(args[0], options, 'modified') do |obj|
             if options[:append]
                 str = OpenNebulaHelper.append_template(args[0], obj, args[1])
