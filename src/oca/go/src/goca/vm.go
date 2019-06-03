@@ -54,28 +54,28 @@ type VM struct {
 	STime           int               `xml:"STIME"`
 	ETime           int               `xml:"ETIME"`
 	DeployID        string            `xml:"DEPLOY_ID"`
-	MonitoringInfos vmMonitoring      `xml:"MONITORING"`
-	Template        vmTemplate        `xml:"TEMPLATE"`
-	UserTemplate    *vmUserTemplate   `xml:"USER_TEMPLATE"`
-	HistoryRecords  []vmHistoryRecord `xml:"HISTORY_RECORDS>HISTORY"`
+	MonitoringInfos VMMonitoring      `xml:"MONITORING"`
+	Template        VMTemplate        `xml:"TEMPLATE"`
+	UserTemplate    *VMUserTemplate   `xml:"USER_TEMPLATE"`
+	HistoryRecords  []VMHistoryRecord `xml:"HISTORY_RECORDS>HISTORY"`
 
 	// Not filled with NewUserPool call
 	LockInfos *Lock `xml:"LOCK"`
 }
 
-type vmMonitoring struct {
-	DiskSize     []vmMonitoringDiskSize     `xml:"DISK_SIZE"`
-	SnapshotSize []vmMonitoringSnapshotSize `xml:"SNAPSHOT_SIZE"`
+type VMMonitoring struct {
+	DiskSize     []VMMonitoringDiskSize     `xml:"DISK_SIZE"`
+	SnapshotSize []VMMonitoringSnapshotSize `xml:"SNAPSHOT_SIZE"`
 	Dynamic      unmatchedTagsSlice         `xml:",any"`
 }
 
-type vmMonitoringDiskSize struct {
+type VMMonitoringDiskSize struct {
 	ID   int `xml:"ID"`
 	Size int `xml:"SIZE"`
 }
 
 // History records
-type vmHistoryRecord struct {
+type VMHistoryRecord struct {
 	OID       int                       `xml:"OID"`
 	SEQ       int                       `xml:"SEQ"`
 	Hostname  string                    `xml:"HOSTNAME"`
@@ -96,35 +96,35 @@ type vmHistoryRecord struct {
 	ETime     int                       `xml:"ETIME"`
 	VMMad     string                    `xml:"VM_MAD"`
 	TMMad     string                    `xml:"TM_MAD"`
-	Snapshots []vmHistoryRecordSnapshot `xml:"SNAPSHOTS"`
+	Snapshots []VMHistoryRecordSnapshot `xml:"SNAPSHOTS"`
 }
 
 // VMUserTemplate contain custom attributes
-type vmUserTemplate struct {
+type VMUserTemplate struct {
 	Error        string           `xml:"ERROR"`
 	SchedMessage string           `xml:"SCHED_MESSAGE"`
 	Dynamic      unmatchedTagsMap `xml:",any"`
 }
 
-type vmTemplate struct {
+type VMTemplate struct {
 	CPU                float64               `xml:"CPU"`
 	Memory             int                   `xml:"MEMORY"`
-	NICs               []vmNic               `xml:"NIC"`
-	NICAliases         []vmNicAlias          `xml:"NIC_ALIAS"`
-	Context            *vmContext            `xml:"CONTEXT"`
-	Disks              []vmDisk              `xml:"DISK"`
-	Graphics           *vmGraphics           `xml:"GRAPHICS"`
-	OS                 *vmOS                 `xml:"OS"`
+	NICs               []VMNic               `xml:"NIC"`
+	NICAliases         []VMNicAlias          `xml:"NIC_ALIAS"`
+	Context            *VMContext            `xml:"CONTEXT"`
+	Disks              []VMDisk              `xml:"DISK"`
+	Graphics           *VMGraphics           `xml:"GRAPHICS"`
+	OS                 *VMOS                 `xml:"OS"`
 	Snapshots          []VMSnapshot          `xml:"SNAPSHOT"`
-	SecurityGroupRules []vmSecurityGroupRule `xml:"SECURITY_GROUP_RULE"`
+	SecurityGroupRules []VMSecurityGroupRule `xml:"SECURITY_GROUP_RULE"`
 	Dynamic            unmatchedTagsSlice    `xml:",any"`
 }
 
-type vmContext struct {
+type VMContext struct {
 	Dynamic unmatchedTagsMap `xml:",any"`
 }
 
-type vmNic struct {
+type VMNic struct {
 	ID      int                `xml:"NIC_ID"`
 	Network string             `xml:"NETWORK"`
 	IP      string             `xml:"IP"`
@@ -133,19 +133,19 @@ type vmNic struct {
 	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
-type vmNicAlias struct {
+type VMNicAlias struct {
 	ID       int    `xml:"NIC_ID"`    // minOccurs=1
 	Parent   string `xml:"PARENT"`    // minOccurs=1
 	ParentID string `xml:"PARENT_ID"` // minOccurs=1
 }
 
-type vmGraphics struct {
+type VMGraphics struct {
 	Listen string `xml:"LISTEN"`
 	Port   string `xml:"PORT"`
 	Type   string `xml:"TYPE"`
 }
 
-type vmDisk struct {
+type VMDisk struct {
 	ID           int                `xml:"DISK_ID"`
 	Datastore    string             `xml:"DATASTORE"`
 	DiskType     string             `xml:"DISK_TYPE"`
@@ -156,13 +156,13 @@ type vmDisk struct {
 	Dynamic      unmatchedTagsSlice `xml:",any"`
 }
 
-type vmOS struct {
+type VMOS struct {
 	Arch string `xml:"ARCH"`
 	Boot string `xml:"BOOT"`
 }
 
-type vmSecurityGroupRule struct {
-	securityGroupRule
+type VMSecurityGroupRule struct {
+	SecurityGroupRule
 	SecurityGroup string `xml:"SECURITY_GROUP_NAME"`
 }
 

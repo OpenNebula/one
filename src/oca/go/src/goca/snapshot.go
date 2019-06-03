@@ -19,7 +19,7 @@ package goca
 // An user can take snapshot on VM, or on VM disks
 
 // Common part
-type snapshot struct {
+type Snapshot struct {
 	Children string `xml:"CHILDREN"` //minOccur=0
 	Active   string `xml:"ACTIVE"`   //minOccur=0
 	Date     int    `xml:"DATE"`
@@ -34,7 +34,7 @@ type ImageSnapshot struct {
 	AllowOrphans string     `xml:"ALLOW_ORPHANS"`
 	CurrentBase  int        `xml:"CURRENT_BASE"`
 	NextSnapshot int        `xml:"NEXT_SNAPSHOT"`
-	Snapshots    []snapshot `xml:"SNAPSHOT"`
+	Snapshots    []Snapshot `xml:"SNAPSHOT"`
 }
 
 // VMSnapshot entity related
@@ -45,12 +45,12 @@ type VMSnapshot struct {
 	Time         string `xml:"TIME"`
 }
 
-type vmHistoryRecordSnapshot struct {
+type VMHistoryRecordSnapshot struct {
 	ImageSnapshot
 	DiskID int `xml:"DISK_ID"`
 }
 
-type vmMonitoringSnapshotSize struct {
+type VMMonitoringSnapshotSize struct {
 	DiskID int `xml:"DISK_ID"`
 	Size   int `xml:"SIZE"`
 }

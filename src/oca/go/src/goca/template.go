@@ -50,36 +50,36 @@ type Template struct {
 type templateTemplate struct {
 	CPU        float64             `xml:"CPU"`
 	Memory     int                 `xml:"MEMORY"`
-	Context    *templateContext    `xml:"CONTEXT"`
-	Disk       []templateDisk      `xml:"DISK"`
-	Graphics   *templateGraphics   `xml:"GRAPHICS"`
-	NICDefault *templateNicDefault `xml:"NIC_DEFAULT"`
-	OS         *templateOS         `xml:"OS"`
-	UserInputs templateUserInputs  `xml:"USER_INPUTS"`
+	Context    *TemplateContext    `xml:"CONTEXT"`
+	Disk       []TemplateDisk      `xml:"DISK"`
+	Graphics   *TemplateGraphics   `xml:"GRAPHICS"`
+	NICDefault *TemplateNicDefault `xml:"NIC_DEFAULT"`
+	OS         *TemplateOS         `xml:"OS"`
+	UserInputs TemplateUserInputs  `xml:"USER_INPUTS"`
 	Dynamic    unmatchedTagsSlice  `xml:",any"`
 }
 
-type templateContext struct {
+type TemplateContext struct {
 	Dynamic unmatchedTagsMap `xml:",any"`
 }
 
-type templateDisk struct {
+type TemplateDisk struct {
 	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
-type templateGraphics struct {
+type TemplateGraphics struct {
 	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
-type templateUserInputs struct {
+type TemplateUserInputs struct {
 	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
-type templateNicDefault struct {
+type TemplateNicDefault struct {
 	Model string `xml:"MODEL"`
 }
 
-type templateOS struct {
+type TemplateOS struct {
 	Arch string `xml:"ARCH"`
 	Boot string `xml:"BOOT"`
 }

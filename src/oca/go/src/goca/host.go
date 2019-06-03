@@ -43,12 +43,12 @@ type Host struct {
 	LastMonTime int          `xml:"LAST_MON_TIME"`
 	ClusterID   int          `xml:"CLUSTER_ID"`
 	Cluster     string       `xml:"CLUSTER"`
-	Share       hostShare    `xml:"HOST_SHARE"`
+	Share       HostShare    `xml:"HOST_SHARE"`
 	VMsID       []int        `xml:"VMS>ID"`
 	Template    hostTemplate `xml:"TEMPLATE"`
 }
 
-type hostShare struct {
+type HostShare struct {
 	DiskUsage int `xml:"DISK_USAGE"`
 	MemUsage  int `xml:"MEM_USAGE"`
 	CPUUsage  int `xml:"CPU_USAGE"`
@@ -68,15 +68,15 @@ type hostShare struct {
 	UsedCPU  int `xml:"USED_CPU"`
 
 	RunningVMs int            `xml:"RUNNING_VMS"`
-	Stores     hostDataStores `xml:"DATASTORES"`
+	Stores     HostDataStores `xml:"DATASTORES"`
 	PCIDevices interface{}    `xml:"PCI_DEVICES>PCI"`
 }
 
-type hostDataStores struct {
-	DSs []hostDS `xml:"DS"`
+type HostDataStores struct {
+	DSs []HostDS `xml:"DS"`
 }
 
-type hostDS struct {
+type HostDS struct {
 	ID      int `xml:"ID"`
 	UsedMB  int `xml:"USED_MB"`
 	FreeMB  int `xml:"FREE_MB"`

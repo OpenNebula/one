@@ -30,21 +30,21 @@ type GroupController entityController
 // GroupPool represents an OpenNebula GroupPool
 type GroupPool struct {
 	Groups            []Group    `xml:"GROUP"`
-	Quotas            []quotas   `xml:"QUOTAS"`
-	DefaultUserQuotas quotasList `xml:"DEFAULT_USER_QUOTAS"`
+	Quotas            []Quotas   `xml:"QUOTAS"`
+	DefaultUserQuotas QuotasList `xml:"DEFAULT_USER_QUOTAS"`
 }
 
 // Group represents an OpenNebula Group
 type Group struct {
 	ID       uint          `xml:"ID"`
 	Name     string        `xml:"NAME"`
-	Users    []int         `xml:"USERS>ID"`
-	Admins   []int         `xml:"ADMINS>ID"`
+	UsersID  []int         `xml:"USERS>ID"`
+	AdminsID []int         `xml:"ADMINS>ID"`
 	Template groupTemplate `xml:"TEMPLATE"`
 
 	// Variable part between one.grouppool.info and one.group.info
-	quotasList
-	DefaultUserQuotas quotasList `xml:"DEFAULT_USER_QUOTAS"`
+	QuotasList
+	DefaultUserQuotas QuotasList `xml:"DEFAULT_USER_QUOTAS"`
 }
 
 type groupTemplate struct {

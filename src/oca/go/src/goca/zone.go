@@ -33,7 +33,7 @@ type ZonePool struct {
 	ID         uint         `xml:"ZONE>ID"`
 	Name       string       `xml:"ZONE>NAME"`
 	Template   zoneTemplate `xml:"ZONE>TEMPLATE"`
-	ServerPool []zoneServer `xml:"ZONE>SERVER_POOL>SERVER"`
+	ServerPool []ZoneServer `xml:"ZONE>SERVER_POOL>SERVER"`
 }
 
 // Zone represents an OpenNebula Zone
@@ -41,10 +41,10 @@ type Zone struct {
 	ID         uint         `xml:"ID"`
 	Name       string       `xml:"NAME"`
 	Template   zoneTemplate `xml:"TEMPLATE"`
-	ServerPool []zoneServer `xml:"SERVER_POOL>SERVER"`
+	ServerPool []ZoneServer `xml:"SERVER_POOL>SERVER"`
 }
 
-type zoneServer struct {
+type ZoneServer struct {
 	ID       int    `xml:"ID"`
 	Name     string `xml:"NAME"`
 	Endpoint string `xml:"ENDPOINT"`

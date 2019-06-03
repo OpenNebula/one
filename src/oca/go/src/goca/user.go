@@ -30,8 +30,8 @@ type UserController entityController
 // UserPool represents an OpenNebula UserPool
 type UserPool struct {
 	Users             []User     `xml:"USER"`
-	Quotas            []quotas   `xml:"QUOTAS"`
-	DefaultUserQuotas quotasList `xml:"DEFAULT_USER_QUOTAS"`
+	Quotas            []Quotas   `xml:"QUOTAS"`
+	DefaultUserQuotas QuotasList `xml:"DEFAULT_USER_QUOTAS"`
 }
 
 // User represents an OpenNebula user
@@ -44,19 +44,19 @@ type User struct {
 	Password    string       `xml:"PASSWORD"`
 	AuthDriver  string       `xml:"AUTH_DRIVER"`
 	Enabled     int          `xml:"ENABLED"`
-	LoginTokens []loginToken `xml:"LOGIN_TOKEN"`
+	LoginTokens []LoginToken `xml:"LOGIN_TOKEN"`
 	Template    userTemplate `xml:"TEMPLATE"`
 
 	// Variable part between one.userpool.info and one.user.info
-	quotasList
-	DefaultUserQuotas quotasList `xml:"DEFAULT_USER_QUOTAS"`
+	QuotasList
+	DefaultUserQuotas QuotasList `xml:"DEFAULT_USER_QUOTAS"`
 }
 
 type userTemplate struct {
 	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
-type loginToken struct {
+type LoginToken struct {
 	Token          string `xml:"TOKEN"`
 	ExpirationTime int    `xml:"EXPIRATION_TIME"`
 	EGID           int    `xml:"EGID"`

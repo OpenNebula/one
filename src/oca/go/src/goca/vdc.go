@@ -37,10 +37,10 @@ type Vdc struct {
 	ID         uint           `xml:"ID"`
 	Name       string         `xml:"NAME"`
 	GroupsID   []int          `xml:"GROUPS>ID"`
-	Clusters   []vdcCluster   `xml:"CLUSTERS>CLUSTER"`
-	Hosts      []vdcHost      `xml:"HOSTS>HOST"`
-	Datastores []vdcDatastore `xml:"DATASTORES>DATASTORE"`
-	VNets      []vdcVNet      `xml:"VNETS>VNET"`
+	Clusters   []VDCCluster   `xml:"CLUSTERS>CLUSTER"`
+	Hosts      []VDCHost      `xml:"HOSTS>HOST"`
+	Datastores []VDCDatastore `xml:"DATASTORES>DATASTORE"`
+	VNets      []VDCVNet      `xml:"VNETS>VNET"`
 	Template   vdcTemplate    `xml:"TEMPLATE"`
 }
 
@@ -48,22 +48,22 @@ type vdcTemplate struct {
 	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
-type vdcCluster struct {
+type VDCCluster struct {
 	ZoneID    int `xml:"ZONE_ID"`
 	ClusterID int `xml:"CLUSTER_ID"`
 }
 
-type vdcHost struct {
+type VDCHost struct {
 	ZoneID int `xml:"ZONE_ID"`
 	HostID int `xml:"HOST_ID"`
 }
 
-type vdcDatastore struct {
+type VDCDatastore struct {
 	ZoneID      int `xml:"ZONE_ID"`
 	DatastoreID int `xml:"DATASTORE_ID"`
 }
 
-type vdcVNet struct {
+type VDCVNet struct {
 	ZoneID int `xml:"ZONE_ID"`
 	VnetID int `xml:"VNET_ID"`
 }

@@ -16,19 +16,19 @@
 
 package goca
 
-type quotas struct {
+type Quotas struct {
 	ID uint `xml:"ID"`
-	quotasList
+	QuotasList
 }
 
-type quotasList struct {
-	DatastoreQuotas []datastoreQuota `xml:"DATASTORE_QUOTA>DATASTORE"`
-	NetworkQuotas   []networkQuota   `xml:"NETWORK_QUOTA>NETWORK"`
-	VMQuotas        []vmQuota        `xml:"VM_QUOTA>VM"`
-	ImageQuotas     []imageQuota     `xml:"IMAGE_QUOTA>IMAGE"`
+type QuotasList struct {
+	DatastoreQuotas []DatastoreQuota `xml:"DATASTORE_QUOTA>DATASTORE"`
+	NetworkQuotas   []NetworkQuota   `xml:"NETWORK_QUOTA>NETWORK"`
+	VMQuotas        []VMQuota        `xml:"VM_QUOTA>VM"`
+	ImageQuotas     []ImageQuota     `xml:"IMAGE_QUOTA>IMAGE"`
 }
 
-type datastoreQuota struct {
+type DatastoreQuota struct {
 	ID         string `xml:"ID"`
 	Images     string `xml:"IMAGES"`
 	ImagesUsed string `xml:"IMAGES_USED"`
@@ -36,13 +36,13 @@ type datastoreQuota struct {
 	SizeUsed   string `xml:"SIZE_USED"`
 }
 
-type networkQuota struct {
+type NetworkQuota struct {
 	ID         string `xml:"ID"`
 	Leases     string `xml:"LEASES"`
 	LeasesUsed string `xml:"LEASES_USED"`
 }
 
-type vmQuota struct {
+type VMQuota struct {
 	CPU                string `xml:"CPU"`
 	CPUUsed            string `xml:"CPU_USED"`
 	Memory             string `xml:"MEMORY"`
@@ -59,7 +59,7 @@ type vmQuota struct {
 	VMsUsed            string `xml:"VMS_USED"`
 }
 
-type imageQuota struct {
+type ImageQuota struct {
 	ID       string `xml:"ID"`
 	RVMs     string `xml:"RVMS"`
 	RVMsUsed string `xml:"RVMS_USED"`

@@ -51,11 +51,11 @@ type SecurityGroup struct {
 // VirtualRouterTemplate represent the template part of the OpenNebula VirtualRouter
 type securityGroupTemplate struct {
 	Description string              `xml:"DESCRIPTION"`
-	Rules       []securityGroupRule `xml:"RULE"`
+	Rules       []SecurityGroupRule `xml:"RULE"`
 	Dynamic     unmatchedTagsSlice  `xml:",any"`
 }
 
-type securityGroupRule struct {
+type SecurityGroupRule struct {
 	Protocol string `xml:"PROTOCOL"`
 	RuleType string `xml:"RULE_TYPE"`
 }

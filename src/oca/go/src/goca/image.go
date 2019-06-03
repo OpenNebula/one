@@ -46,7 +46,7 @@ type Image struct {
 	Name            string        `xml:"NAME"`
 	LockInfos       *Lock         `xml:"LOCK"`
 	Permissions     *Permissions  `xml:"PERMISSIONS"`
-	Type            int           `xml:"TYPE"`
+	Type            string        `xml:"TYPE"`
 	DiskType        int           `xml:"DISK_TYPE"`
 	PersistentValue int           `xml:"PERSISTENT"`
 	RegTime         int           `xml:"REGTIME"`

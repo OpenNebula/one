@@ -51,11 +51,11 @@ type VirtualRouter struct {
 
 // VirtualRouterTemplate represent the template part of the OpenNebula VirtualRouter
 type virtualRouterTemplate struct {
-	NIC     []virtualRouterNIC `xml:"NIC"`
+	NIC     []VirtualRouterNIC `xml:"NIC"`
 	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
-type virtualRouterNIC struct {
+type VirtualRouterNIC struct {
 	NICID   int                `xml:"NIC_ID"`
 	Dynamic unmatchedTagsSlice `xml:",any"`
 }
