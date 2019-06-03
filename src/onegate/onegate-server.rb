@@ -155,7 +155,7 @@ helpers do
 
     def get_requested_vm(requested_vm_id, request_env, client)
         source_vm = get_source_vm(request_env, client)
-        if source_vm['ID'] != requested_vm_id
+        if source_vm['ID'].to_i != requested_vm_id
             service_id = source_vm['USER_TEMPLATE/SERVICE_ID']
             check_vm_in_service(requested_vm_id, service_id, client)
 
