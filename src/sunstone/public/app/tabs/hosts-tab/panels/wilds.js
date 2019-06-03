@@ -19,28 +19,28 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('datatables.net');
-  require('datatables.foundation');
-  var Locale = require('utils/locale');
-  var CanImportWilds = require('../utils/can-import-wilds');
-  var OpenNebulaHost = require('opennebula/host');
-  var OpenNebulaAction = require('opennebula/action');
-  var Notifier = require('utils/notifier');
-  var Navigation = require('utils/navigation');
-  var VCenterCommon = require('utils/vcenter/vcenter-common');
+  require("datatables.net");
+  require("datatables.foundation");
+  var Locale = require("utils/locale");
+  var CanImportWilds = require("../utils/can-import-wilds");
+  var OpenNebulaHost = require("opennebula/host");
+  var OpenNebulaAction = require("opennebula/action");
+  var Notifier = require("utils/notifier");
+  var Navigation = require("utils/navigation");
+  var VCenterCommon = require("utils/vcenter/vcenter-common");
 
   /*
     TEMPLATES
    */
 
-  var TemplateWilds = require('hbs!./wilds/html');
+  var TemplateWilds = require("hbs!./wilds/html");
 
   /*
     CONSTANTS
    */
 
-  var PANEL_ID = require('./wilds/panelId');
-  var RESOURCE = "Host"
+  var PANEL_ID = require("./wilds/panelId");
+  var RESOURCE = "Host";
 
   /*
     CONSTRUCTOR
@@ -72,7 +72,6 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-
     // Hide the import button if the Wilds cannot be imported
     if (!CanImportWilds(this.element)) {
       $("#import_wilds").hide();
@@ -90,25 +89,22 @@ define(function(require) {
 
     if (that.element.TEMPLATE.VM) {
       var wilds = that.element.TEMPLATE.VM;
-
       if (!$.isArray(wilds)) { // If only 1 VM convert to array
         wilds = [wilds];
       }
 
-      $.each(wilds, function(index, elem) {
-        var name      = elem.VM_NAME;
-        var deploy_id = elem.DEPLOY_ID;
-        var template = elem.IMPORT_TEMPLATE;
-
+      wilds.map(function(elem,index){
+        var name      = elem && elem.VM_NAME;
+        var deploy_id = elem && elem.DEPLOY_ID;
+        var template = elem && elem.IMPORT_TEMPLATE;
         if (name && deploy_id && template) {
           var wilds_list_array = [
             [
-              '<input type="checkbox" class="import_wild_checker import_' + index + '" unchecked/>',
+              "<input type=\"checkbox\" class=\"import_wild_checker import_" + index + "\" unchecked/>",
               name,
               deploy_id
             ]
           ];
-
           that.dataTableWildHosts.fnAddData(wilds_list_array);
           $(".import_wild_checker.import_" + index, context).data("import_data", elem);
         }
@@ -131,10 +127,10 @@ define(function(require) {
     });
 
     // Add event listener for importing WILDS
-    context.off("click", '#import_wilds');
-    context.on("click", '#import_wilds', function () {
+    context.off("click", "#import_wilds");
+    context.on("click", "#import_wilds", function () {
       $("#import_wilds", context).attr("disabled", "disabled").on("click.disable", function(e) { return false; });
-      $("#import_wilds", context).html('<i class="fas fa-spinner fa-spin"></i>');
+      $("#import_wilds", context).html("<i class=\"fas fa-spinner fa-spin\"></i>");
 
       if (that.element.TEMPLATE.HYPERVISOR === "vcenter"){
         var path = "/vcenter/wild";
@@ -143,9 +139,11 @@ define(function(require) {
         var opts = {};
         $(".import_wild_checker:checked", "#datatable_host_wilds").each(function() {
           var wild_obj = $(this).data("import_data");
-          var ref = wild_obj.DEPLOY_ID;
-          vcenter_refs.push(ref);
-          opts[ref] = wild_obj;
+          if(wild_obj && wild_obj.DEPLOY_ID){
+            var ref = wild_obj.DEPLOY_ID;
+            vcenter_refs.push(ref);
+            opts[ref] = wild_obj;
+          }
         });
 
         $.ajax({
@@ -179,13 +177,13 @@ define(function(require) {
         });
       } else {
         $(".import_wild_checker:checked", "#datatable_host_wilds").each(function() {
-          var wild_row = $(this).closest('tr');
+          var wild_row = $(this).closest("tr");
           var aData = that.dataTableWildHosts.fnGetData(wild_row);
 
           var dataJSON = {
-            'id': that.element.ID,
-            'extra_param': {
-              'name': aData[1]
+            "id": that.element.ID,
+            "extra_param": {
+              "name": aData[1]
             }
           };
 
