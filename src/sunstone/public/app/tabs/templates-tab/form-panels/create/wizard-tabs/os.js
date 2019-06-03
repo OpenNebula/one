@@ -146,7 +146,7 @@ define(function(require) {
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = "fa-power-off";
     this.title = Locale.tr("OS & CPU");
-    this.classes = "hypervisor"
+    this.classes = "hypervisor";
 
     this.kernelFilesTable = new FilesTable(
       this.wizardTabId + UniqueId.id(),
@@ -447,16 +447,19 @@ define(function(require) {
         nics = [nics];
       }
       $.each(nics, function(i, nic){
+      var distinct = function(value, index, self){
+        return self.indexOf(value)===index;
+      };
+      nics = nics.filter(distinct);
+      nics.map(function(nic,i){
         var label = "<i class=\"fas fa-fw fa-lg fa-globe\"></i> ";
-
-        if (nic.NETWORK !== undefined){
+        if (nic && nic.NETWORK && nic.NETWORK !== undefined){
           label += nic.NETWORK;
         } else if (nic.NETWORK_ID !== undefined){
           label += Locale.tr("Network ID") + " " + nic.NETWORK_ID;
         } else {
           label += Locale.tr("Manual settings");
         }
-
         _addBootRow(context, "nic"+i, label);
       });
     }
