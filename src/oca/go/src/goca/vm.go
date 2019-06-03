@@ -939,14 +939,14 @@ func (vc *VMController) Migrate(hostID uint, live, enforce bool, dsID uint, migr
 	return err
 }
 
-// AttachNic attaches new network interface to the virtual machine
-func (vc *VMController) AttachNic(tpl string) error {
+// AttachNIC attaches new network interface to the virtual machine
+func (vc *VMController) AttachNIC(tpl string) error {
 	_, err := vc.c.Client.Call("one.vm.attachnic", vc.ID, tpl)
 	return err
 }
 
-// DetachNic detaches a network interface from the virtual machine
-func (vc *VMController) DetachNic(nicID int) error {
+// DetachNIC detaches a network interface from the virtual machine
+func (vc *VMController) DetachNIC(nicID int) error {
 	_, err := vc.c.Client.Call("one.vm.detachnic", vc.ID, nicID)
 	return err
 }

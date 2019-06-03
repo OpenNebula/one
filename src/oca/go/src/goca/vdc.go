@@ -21,19 +21,19 @@ import (
 	"errors"
 )
 
-// VDCsController is a controller for a pool of Vdcs
+// VDCsController is a controller for a pool of VDCs
 type VDCsController entitiesController
 
-// VDCController is a controller for Vdc entities
+// VDCController is a controller for VDC entities
 type VDCController entityController
 
-// VdcPool represents an OpenNebula VdcPool
-type VdcPool struct {
-	Vdcs []Vdc `xml:"VDC"`
+// VDCPool represents an OpenNebula VDCPool
+type VDCPool struct {
+	VDCs []VDC `xml:"VDC"`
 }
 
-// Vdc represents an OpenNebula Vdc
-type Vdc struct {
+// VDC represents an OpenNebula VDC
+type VDC struct {
 	ID         uint           `xml:"ID"`
 	Name       string         `xml:"NAME"`
 	GroupsID   []int          `xml:"GROUPS>ID"`
@@ -68,17 +68,17 @@ type VDCVNet struct {
 	VnetID int `xml:"VNET_ID"`
 }
 
-// Vdcs returns a Vdcs controller.
-func (c *Controller) Vdcs() *VDCsController {
+// VDCs returns a VDCs controller.
+func (c *Controller) VDCs() *VDCsController {
 	return &VDCsController{c}
 }
 
-// Vdc returns a Vdc controller
-func (c *Controller) Vdc(id uint) *VDCController {
+// VDC returns a VDC controller
+func (c *Controller) VDC(id uint) *VDCController {
 	return &VDCController{c, id}
 }
 
-// ByName returns a Vdc ID from name
+// ByName returns a VDC ID from name
 func (c *VDCsController) ByName(name string) (uint, error) {
 	var id uint
 
@@ -88,14 +88,14 @@ func (c *VDCsController) ByName(name string) (uint, error) {
 	}
 
 	match := false
-	for i := 0; i < len(vdcPool.Vdcs); i++ {
-		if vdcPool.Vdcs[i].Name != name {
+	for i := 0; i < len(vdcPool.VDCs); i++ {
+		if vdcPool.VDCs[i].Name != name {
 			continue
 		}
 		if match {
 			return 0, errors.New("multiple resources with that name")
 		}
-		id = vdcPool.Vdcs[i].ID
+		id = vdcPool.VDCs[i].ID
 		match = true
 	}
 	if !match {
@@ -107,13 +107,13 @@ func (c *VDCsController) ByName(name string) (uint, error) {
 
 // Info returns a vdc pool. A connection to OpenNebula is
 // performed.
-func (vc *VDCsController) Info() (*VdcPool, error) {
+func (vc *VDCsController) Info() (*VDCPool, error) {
 	response, err := vc.c.Client.Call("one.vdcpool.info")
 	if err != nil {
 		return nil, err
 	}
 
-	vdcPool := &VdcPool{}
+	vdcPool := &VDCPool{}
 	err = xml.Unmarshal([]byte(response.Body()), vdcPool)
 	if err != nil {
 		return nil, err
@@ -123,12 +123,12 @@ func (vc *VDCsController) Info() (*VdcPool, error) {
 }
 
 // Info retrieves information for the VDC.
-func (vc *VDCController) Info() (*Vdc, error) {
+func (vc *VDCController) Info() (*VDC, error) {
 	response, err := vc.c.Client.Call("one.vdc.info", vc.ID)
 	if err != nil {
 		return nil, err
 	}
-	vdc := &Vdc{}
+	vdc := &VDC{}
 	err = xml.Unmarshal([]byte(response.Body()), vdc)
 	if err != nil {
 		return nil, err

@@ -205,23 +205,23 @@ func (vc *VirtualNetworkController) Delete() error {
 	return err
 }
 
-// AddAr adds address ranges to a virtual network.
+// AddAR adds address ranges to a virtual network.
 // * tpl: template of the address ranges to add. Syntax can be the usual attribute=value or XML
-func (vc *VirtualNetworkController) AddAr(tpl string) error {
+func (vc *VirtualNetworkController) AddAR(tpl string) error {
 	_, err := vc.c.Client.Call("one.vn.add_ar", vc.ID, tpl)
 	return err
 }
 
-// RmAr removes an address range from a virtual network.
+// RmAR removes an address range from a virtual network.
 // * arID: ID of the address range to remove.
-func (vc *VirtualNetworkController) RmAr(arID int) error {
+func (vc *VirtualNetworkController) RmAR(arID int) error {
 	_, err := vc.c.Client.Call("one.vn.rm_ar", vc.ID, arID)
 	return err
 }
 
-// UpdateAr updates the attributes of an address range.
+// UpdateAR updates the attributes of an address range.
 // * tpl: template of the address ranges to update. Syntax can be the usual attribute=value or XML
-func (vc *VirtualNetworkController) UpdateAr(tpl string) error {
+func (vc *VirtualNetworkController) UpdateAR(tpl string) error {
 	_, err := vc.c.Client.Call("one.vn.update_ar", vc.ID, tpl)
 	return err
 }
@@ -233,9 +233,9 @@ func (vc *VirtualNetworkController) Reserve(tpl string) error {
 	return err
 }
 
-// FreeAr frees a reserved address range from a virtual network.
+// FreeAR frees a reserved address range from a virtual network.
 // * arID: ID of the address range to free.
-func (vc *VirtualNetworkController) FreeAr(arID int) error {
+func (vc *VirtualNetworkController) FreeAR(arID int) error {
 	_, err := vc.c.Client.Call("one.vn.free_ar", vc.ID, arID)
 	return err
 }
