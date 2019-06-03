@@ -446,7 +446,6 @@ define(function(require) {
       if (!$.isArray(nics)){
         nics = [nics];
       }
-      $.each(nics, function(i, nic){
       var distinct = function(value, index, self){
         return self.indexOf(value)===index;
       };
