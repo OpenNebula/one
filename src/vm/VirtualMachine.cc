@@ -1809,9 +1809,9 @@ int VirtualMachine::update_search(SqlDB * db)
         goto error_text;
     }
 
-    oss << "REPLACE INTO " << table << " (search_token) VALUES ("
-        << "'" <<   sql_text   << "'"
-        << ")";
+    oss << "UPDATE " << table << " SET search_token = "
+        << "'" << sql_text << "'"
+        << " WHERE oid = " << oid;
 
     db->free_str(sql_text);
 
