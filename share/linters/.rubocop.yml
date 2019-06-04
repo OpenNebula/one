@@ -504,8 +504,6 @@ AllCops:
     - src/onedb/fsck/marketplace.rb
     - src/onedb/fsck/template.rb
     - src/onedb/fsck/group.rb
-    - src/onedb/fsck/cluster.rb
-    - src/onedb/fsck/cluster_vnc_bitmap.rb
     - src/onedb/fsck/host.rb
     - src/onedb/fsck/vm.rb
     - src/onedb/fsck/marketplaceapp.rb
