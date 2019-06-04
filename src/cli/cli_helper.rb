@@ -329,10 +329,11 @@ module CLIHelper
 
         # Show resource
         #
-        # @param data [Hash/Object] Data to show
+        # @param data    [Hash/Object] Data to show
         # @param options [Hash] Object with CLI user options
-        def show(data, options = {})
-            update_columns(options)
+        # @param top     [Boolean]     True to not update columns again
+        def show(data, options = {}, top = false)
+            update_columns(options) unless top
 
             if data.is_a? Hash
                 @data = data
@@ -374,7 +375,7 @@ module CLIHelper
                     CLIHelper.scr_cls
                     CLIHelper.scr_move(0, 0)
 
-                    show(data, options)
+                    show(data, options, true)
 
                     sleep delay
                 end
