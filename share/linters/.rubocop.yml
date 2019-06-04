@@ -497,7 +497,6 @@ AllCops:
     - src/cloud/ec2/lib/econe_application.rb
     - src/onedb/database_schema.rb
     - src/onedb/fsck/image.rb
-    - src/onedb/fsck/datastore.rb
     - src/onedb/fsck/history.rb
     - src/onedb/fsck/vrouter.rb
     - src/onedb/fsck/pool_control.rb
