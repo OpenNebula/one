@@ -238,7 +238,7 @@ module OneDBFsck
         address_range.at_xpath('SIZE').text.to_i.times do |index|
             lease = get_lease(oid, addrs[:mac], addrs[:ip], addrs[:ipv6], index)
 
-            counters[:vnet][p_vnet][:ar_leases][p_ar][mac] = lease
+            counters[:vnet][p_vnet][:ar_leases][p_ar][lease[:mac_index]] = lease
         end
     end
 
