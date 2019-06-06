@@ -15,13 +15,21 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var OpenNebulaAction = require('./action');
-  var Config = require('sunstone-config');
+  var OpenNebulaAction = require("./action");
+  var Config = require("sunstone-config");
 
   var RESOURCE = "VMTEMPLATE";
+  window.lastInfoVmTemplate = {};
 
   var Template = {
     "resource": RESOURCE,
+    "setLastResource": function(info={}){
+      var data = {};
+      if(info && info.data){
+        data.data = info.data;
+        window.lastInfoVmTemplate = data;
+      }
+    },
     "create" : function(params) {
       OpenNebulaAction.create(params, RESOURCE);
     },
@@ -37,6 +45,7 @@ define(function(require) {
       OpenNebulaAction.list(params, RESOURCE);
     },
     "show" : function(params) {
+      Template.setLastResource(params);
       OpenNebulaAction.show(params, RESOURCE);
     },
     "chown" : function(params) {
@@ -91,7 +100,7 @@ define(function(require) {
     },
     "isNetworkChangeEnabled": function(template) {
       if (template.VMTEMPLATE.TEMPLATE.SUNSTONE &&
-          template.VMTEMPLATE.TEMPLATE.SUNSTONE.NETWORK_SELECT == 'NO') {
+          template.VMTEMPLATE.TEMPLATE.SUNSTONE.NETWORK_SELECT == "NO") {
         return false;
       } else {
         return true;
@@ -158,7 +167,7 @@ define(function(require) {
 
       return cost;
     }
-  }
+  };
 
   return Template;
-})
+});
