@@ -59,8 +59,7 @@ static void set_lastOID(SqlDB * db, int lastOID)
 {
     ostringstream oss;
 
-    oss << "REPLACE INTO pool_control (tablename, last_oid) VALUES ('acl',"
-        << lastOID << ")";
+    oss << "UPDATE pool_control SET last_oid = " << lastOID << " WHERE tablename = 'acl'";
 
     db->exec_wr(oss);
 }

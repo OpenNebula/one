@@ -459,10 +459,6 @@ const char * VirtualMachine::db_names =
     "oid, name, body, uid, gid, last_poll, state, lcm_state, "
     "owner_u, group_u, other_u, short_body, search_token";
 
-const char * VirtualMachine::db_names_without_search =
-    "oid, name, body, uid, gid, last_poll, state, lcm_state, "
-    "owner_u, group_u, other_u, short_body";
-
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
     "vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, "
     "uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, "
@@ -1689,7 +1685,7 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
     char * sql_xml;
     char * sql_short_xml;
     char * sql_text;
-    const char * db_values;
+
     ostringstream search_row;
 
     sql_name =  db->escape_str(name.c_str());
@@ -1732,32 +1728,38 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if(replace)
     {
-        oss << "REPLACE";
-        db_values = db_names_without_search;
-        search_row << "";
+        oss << "UPDATE " << table << " SET "
+            << "name = '"         <<  sql_name      << "', "
+            << "body = '"         <<  sql_xml       << "', "
+            << "uid = "           <<  uid           << ", "
+            << "gid = "           <<  gid           << ", "
+            << "last_poll = "     <<  last_poll     << ", "
+            << "state = "         <<  state         << ", "
+            << "lcm_state = "     <<  lcm_state     << ", "
+            << "owner_u = "       <<  owner_u       << ", "
+            << "group_u = "       <<  group_u       << ", "
+            << "other_u = "       <<  other_u       << ", "
+            << "short_body = '"   <<  sql_short_xml << "',"
+            << "WHERE oid = "    << oid;
     }
     else
     {
-        oss << "INSERT";
-        db_values = db_names;
-        search_row << ", '" << sql_text << "'";
+        oss << "INSERT INTO " << table << " ("<< db_names <<") VALUES ("
+            <<        oid           << ","
+            << "'" << sql_name      << "',"
+            << "'" << sql_xml       << "',"
+            <<        uid           << ","
+            <<        gid           << ","
+            <<        last_poll     << ","
+            <<        state         << ","
+            <<        lcm_state     << ","
+            <<        owner_u       << ","
+            <<        group_u       << ","
+            <<        other_u       << ","
+            << "'" << sql_short_xml << "',"
+            << "'" << sql_text      << "'"
+            << ")";
     }
-
-    oss << " INTO " << table << " ("<< db_values <<") VALUES ("
-        <<          oid              << ","
-        << "'" <<   sql_name         << "',"
-        << "'" <<   sql_xml          << "',"
-        <<          uid              << ","
-        <<          gid              << ","
-        <<          last_poll        << ","
-        <<          state            << ","
-        <<          lcm_state        << ","
-        <<          owner_u          << ","
-        <<          group_u          << ","
-        <<          other_u          << ","
-        << "'" <<   sql_short_xml    << "'"
-        << search_row.str()
-        << ")";
 
     db->free_str(sql_name);
     db->free_str(sql_xml);
@@ -1809,9 +1811,9 @@ int VirtualMachine::update_search(SqlDB * db)
         goto error_text;
     }
 
-    oss << "UPDATE " << table << " SET search_token = "
-        << "'" << sql_text << "'"
-        << " WHERE oid = " << oid;
+    oss << "UPDATE " << table << " SET "
+        << "search_token = '" << sql_text << "' "
+        << "WHERE oid = " << oid;
 
     db->free_str(sql_text);
 

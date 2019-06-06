@@ -2193,8 +2193,6 @@ protected:
 
     static const char * db_names;
 
-    static const char * db_names_without_search;
-
     static const char * db_bootstrap;
 
     static const char * monit_table;

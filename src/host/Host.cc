@@ -115,27 +115,35 @@ int Host::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if(replace)
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << table << " SET "
+            << "name = '"         << sql_hostname   << "', "
+            << "body = '"         << sql_xml        << "', "
+            << "state = "         << state          << ", "
+            << "last_mon_time = " << last_monitored << ", "
+            << "uid = "           << uid            << ", "
+            << "gid = "           << gid            << ", "
+            << "owner_u = "       << owner_u        << ", "
+            << "group_u = "       << group_u        << ", "
+            << "other_u = "       << other_u        << ", "
+            << "cid = "           << cluster_id
+            << " WHERE oid = " << oid;
     }
     else
     {
-        oss << "INSERT";
+        // Construct the SQL statement to Insert or Replace
+        oss << "INSERT INTO "<< table <<" ("<< db_names <<") VALUES ("
+            <<          oid                 << ","
+            << "'" <<   sql_hostname        << "',"
+            << "'" <<   sql_xml             << "',"
+            <<          state               << ","
+            <<          last_monitored      << ","
+            <<          uid                 << ","
+            <<          gid                 << ","
+            <<          owner_u             << ","
+            <<          group_u             << ","
+            <<          other_u             << ","
+            <<          cluster_id          << ")";
     }
-
-    // Construct the SQL statement to Insert or Replace
-
-    oss <<" INTO "<<table <<" ("<< db_names <<") VALUES ("
-        <<          oid                 << ","
-        << "'" <<   sql_hostname        << "',"
-        << "'" <<   sql_xml             << "',"
-        <<          state               << ","
-        <<          last_monitored      << ","
-        <<          uid                 << ","
-        <<          gid                 << ","
-        <<          owner_u             << ","
-        <<          group_u             << ","
-        <<          other_u             << ","
-        <<          cluster_id          << ")";
 
     rc = db->exec_wr(oss);
 
@@ -543,10 +551,10 @@ int Host::update_monitoring(SqlDB * db)
         goto error_xml;
     }
 
-    oss << "REPLACE INTO " << monit_table << " ("<< monit_db_names <<") VALUES ("
-        <<          oid             << ","
-        <<          last_monitored       << ","
-        << "'" <<   sql_xml         << "')";
+    oss << "UPDATE " << monit_table << " SET "
+        << "last_mon_time = " << last_monitored << ","
+        << "body = '"         << sql_xml        << "'"
+        << "WHERE hid = " << oid;
 
     db->free_str(sql_xml);
 

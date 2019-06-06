@@ -177,19 +177,22 @@ int History::insert_replace(SqlDB *db, bool replace)
 
     if(replace)
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << table << " SET "
+            << "seq = "    <<  seq      << ", "
+            << "body = '"  <<  sql_xml  << "', "
+            << "stime = "  <<  stime    << ", "
+            << "etime = "  <<  etime
+            << " WHERE vid = " << oid;
     }
     else
     {
-        oss << "INSERT";
+        oss << "INSERT INTO " << table << " (" << db_names << ") VALUES ("
+            <<          oid             << ","
+            <<          seq             << ","
+            << "'" <<   sql_xml         << "',"
+            <<          stime           << ","
+            <<          etime           << ")";
     }
-
-    oss << " INTO " << table << " ("<< db_names <<") VALUES ("
-        <<          oid             << ","
-        <<          seq             << ","
-        << "'" <<   sql_xml         << "',"
-        <<          stime           << ","
-        <<          etime           << ")";
 
     rc = db->exec_wr(oss);
 
