@@ -206,7 +206,51 @@ define(function(require) {
       Sunstone.runAction(this.resource+".create", {"vmtemplate": templateJSON});
       return false;
     } else if (this.action == "update") {
-      Sunstone.runAction(this.resource+".update", this.resourceId, TemplateUtils.templateToString(templateJSON));
+      var actionUpdate = this.resource + ".update";
+      var resourceId = this.resourceId;
+      if(
+        window &&
+        window.lastInfoVmTemplate &&
+        window.lastInfoVmTemplate.data &&
+        templateJSON &&
+        templateJSON.DISK &&
+        templateJSON.HYPERVISOR &&
+        templateJSON.HYPERVISOR === "vcenter"
+      ){
+        params = {
+          data: window.lastInfoVmTemplate.data,
+          success: function(request, response){
+            if(response){
+              var template = response.VMTEMPLATE && response.VMTEMPLATE.TEMPLATE;
+              if(template && template.DISK){
+                var lastDisk = template.DISK;
+                var newDisk = templateJSON.DISK[0];
+                var setNewdisk = function(){
+                  if(lastDisk.OPENNEBULA_MANAGED && lastDisk.OPENNEBULA_MANAGED === "NO" ){
+                    newDisk.LAST_IMAGE_DISK = (lastDisk && lastDisk.IMAGE_ID) || (lastDisk && lastDisk.IMAGE);
+                    delete newDisk.OPENNEBULA_MANAGED;
+                  }
+                };
+                if(lastDisk && lastDisk.LAST_IMAGE_DISK){
+                  if(lastDisk.LAST_IMAGE_DISK === newDisk.IMAGE || lastDisk.LAST_IMAGE_DISK === newDisk.IMAGE_ID){
+                    newDisk.OPENNEBULA_MANAGED = "NO";
+                    delete newDisk.LAST_IMAGE_DISK;
+                  }else{
+                    setNewdisk();
+                  }
+                }else{
+                  setNewdisk();
+                }
+                templateJSON.DISK = [newDisk];
+                Sunstone.runAction(actionUpdate, resourceId, TemplateUtils.templateToString(templateJSON));
+              }
+            }
+          }
+        };
+        OpenNebulaAction.show(params,OpenNebulaTemplate.resource);
+      }else{
+        Sunstone.runAction(actionUpdate, resourceId, TemplateUtils.templateToString(templateJSON));
+      }
       return false;
     }
   }
