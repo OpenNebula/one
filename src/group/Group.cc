@@ -48,7 +48,7 @@ int Group::select(SqlDB * db)
         return rc;
     }
 
-    return quota.select(oid, db);
+    return quota.select(oid, db->get_local_db());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -64,7 +64,7 @@ int Group::select(SqlDB * db, const string& name, int uid)
         return rc;
     }
 
-    return quota.select(oid, db);
+    return quota.select(oid, db->get_local_db());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -78,7 +78,7 @@ int Group::drop(SqlDB * db)
 
     if ( rc == 0 )
     {
-        rc += quota.drop(db);
+        rc += quota.drop(db->get_local_db());
     }
 
     return rc;
@@ -93,7 +93,7 @@ int Group::insert(SqlDB *db, string& error_str)
 
     if (rc == 0)
     {
-        rc = quota.insert(oid, db, error_str);
+        rc = quota.insert(oid, db->get_local_db(), error_str);
     }
 
     return rc;

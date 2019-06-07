@@ -255,6 +255,18 @@ public:
 
     uint64_t next_federated(uint64_t index);
 
+    /**
+     *  Returns a pointer to the non-federated version this database. This
+     *  is need for objects that stores its data in both federated and
+     *  non-federated tables: user, group.
+     *
+     *  @return pointer to the non-federated logDB
+     */
+    virtual SqlDB * get_local_db()
+    {
+        return this;
+    }
+
 protected:
     int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
     {
@@ -423,6 +435,18 @@ public:
     bool fts_available()
     {
         return _logdb->fts_available();
+    }
+
+    /**
+     *  Returns a pointer to the non-federated version of this database. This
+     *  is need for objects that stores its data in both federated and
+     *  non-federated tables: user, group.
+     *
+     *  @return pointer to the non-federated logDB
+     */
+    virtual SqlDB * get_local_db()
+    {
+        return _logdb->get_local_db();
     }
 
 protected:

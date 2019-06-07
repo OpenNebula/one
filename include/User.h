@@ -240,7 +240,7 @@ public:
      */
     int update_quotas(SqlDB *db)
     {
-        return quota.update(oid, db);
+        return quota.update(oid, db->get_local_db());
     };
 
     // *************************************************************************
