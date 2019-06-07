@@ -120,6 +120,15 @@ public:
      */
     virtual bool fts_available() = 0;
 
+
+    /**
+     *  @return pointer to a non-federated version of this database
+     */
+    virtual SqlDB * get_local_db()
+    {
+        return this;
+    }
+
 protected:
     /**
      *  Performs a DB transaction
