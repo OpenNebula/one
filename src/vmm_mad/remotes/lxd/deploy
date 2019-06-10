@@ -58,8 +58,11 @@ end
 if container.wild?
     container.start
 else
-    mapped = container.setup_storage('map')
-    raise 'failed to setup container storage' unless mapped
+    if !container.setup_storage('map')
+        container.clean
+
+        raise 'failed to setup container storage'
+    end
 
     begin
         operation = container.start
@@ -67,13 +70,8 @@ else
     rescue StandardError => exception
         # TODO: Improve wait condition
         sleep 5 # Wait for LXD to revert non-rootfs disks mountpoint
-        storage_deleted = container.setup_storage('unmap')
 
-        if storage_deleted
-            container.delete
-        else
-            OpenNebula.log_error 'failed to dismantle container storage'
-        end
+        container.clean
 
         raise exception
     end

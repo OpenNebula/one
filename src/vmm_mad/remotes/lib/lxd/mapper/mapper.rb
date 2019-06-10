@@ -195,7 +195,7 @@ class Mapper
 
         if device.empty?
             OpenNebula.log_error("Failed to detect block device from #{directory}")
-            return
+            return true
         end
 
         return unless umount(partitions)
