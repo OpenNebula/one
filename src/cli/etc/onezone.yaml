@@ -18,8 +18,13 @@
   :desc: Endpoint of the Zone
   :size: 45
 
+:FED_INDEX:
+  :desc: Federation index
+  :size: 10
+
 :default:
 - :CURRENT
 - :ID
 - :NAME
 - :ENDPOINT
+- :FED_INDEX
