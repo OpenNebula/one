@@ -257,10 +257,16 @@ int FedReplicaThread::replicate()
 
     int last;
 
-    if ( frm->xmlrpc_replicate_log(follower_id, success, last, error) != 0 )
+    int rc = frm->xmlrpc_replicate_log(follower_id, success, last, error);
+
+    if ( rc == -1 )
     {
         NebulaLog::log("FRM", Log::ERROR, error);
         return -1;
+    }
+    else if ( rc == -2 ) //no new records to replicate
+    {
+        return 0;
     }
 
     if ( success )

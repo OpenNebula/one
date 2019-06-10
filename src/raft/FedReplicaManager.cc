@@ -300,12 +300,12 @@ int FedReplicaManager::get_next_record(int zone_id, std::string& zedp,
     if ( zs->last == zs->next )
     {
         zs->next = logdb->next_federated(zs->next);
+    }
 
-        if ( zs->last == zs->next ) //no new records
-        {
-            pthread_mutex_unlock(&mutex);
-            return -1;
-        }
+    if ( zs->next == -1 ) //no new records
+    {
+        pthread_mutex_unlock(&mutex);
+        return -2;
     }
 
     int rc = logdb->get_log_record(zs->next, lr);
@@ -397,9 +397,11 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
 
     LogDBRecord lr;
 
-    if ( get_next_record(zone_id, zedp, lr, error) != 0 )
+    int rc = get_next_record(zone_id, zedp, lr, error);
+
+    if ( rc != 0 )
     {
-        return -1;
+        return rc;
     }
 
     int prev_index = logdb->previous_federated(lr.index);
