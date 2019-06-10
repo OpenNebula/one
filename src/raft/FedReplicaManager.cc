@@ -300,12 +300,12 @@ int FedReplicaManager::get_next_record(int zone_id, std::string& zedp,
     if ( zs->last == zs->next )
     {
         zs->next = logdb->next_federated(zs->next);
+    }
 
-        if ( zs->next == UINT64_MAX ) //no new records
-        {
-            pthread_mutex_unlock(&mutex);
-            return -2;
-        }
+    if ( zs->next == UINT64_MAX ) //no new records
+    {
+        pthread_mutex_unlock(&mutex);
+        return -2;
     }
 
     int rc = logdb->get_log_record(zs->next, lr);
