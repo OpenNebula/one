@@ -196,7 +196,7 @@ class OpenNebulaVM
         disks = @xml.elements('//TEMPLATE/DISK')
 
         disks.each do |n|
-            next if volatile?(n)
+            next unless valid_disk?(n)
 
             hash.update(disk(n, nil, nil))
         end
@@ -307,9 +307,8 @@ class OpenNebulaVM
         { disk_name => disk }
     end
 
-    # Return true if disk if volatile
-    def volatile?(disk)
-        return true if %w[fs swap].include? disk['TYPE']
+    def valid_disk?(disk)
+        return true if %w[FILE BLOCK RBD].include? disk['TYPE']
 
         false
     end
