@@ -77,10 +77,29 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
                 d["TEMPLATE"]['ENDPOINT']
             end
 
-            default :CURRENT, :ID, :NAME, :ENDPOINT
+            column :FED_INDEX, "Federation index", :left, :size=>10 do |d|
+                helper.get_fed_index(d["TEMPLATE"]['ENDPOINT'])
+            end
+
+            default :CURRENT, :ID, :NAME, :ENDPOINT, :FED_INDEX
         end
 
         table
+    end
+
+    def get_fed_index(endpoint)
+        client = OpenNebula::Client.new(nil, endpoint, :timeout => 5)
+        xml    = client.call('zone.raftstatus')
+
+        return '-' if OpenNebula.is_error?(xml)
+
+        xml    = Nokogiri::XML(xml)
+
+        if xml.xpath('RAFT/FEDLOG_INDEX')
+            xml.xpath('RAFT/FEDLOG_INDEX').text
+        else
+            '-'
+        end
     end
 
     def set_zone(zone_id, temporary_zone)
