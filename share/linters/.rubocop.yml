@@ -500,7 +500,6 @@ AllCops:
     - src/onedb/fsck/pool_control.rb
     - src/onedb/fsck/marketplace.rb
     - src/onedb/fsck/template.rb
-    - src/onedb/fsck/host.rb
     - src/onedb/fsck/vm.rb
     - src/onedb/fsck/marketplaceapp.rb
     - src/onedb/fsck.rb
