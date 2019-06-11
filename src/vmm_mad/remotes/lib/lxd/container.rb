@@ -325,7 +325,7 @@ class Container
 
         csrc = @lxc['devices']['context']['source'].clone
 
-        @lxc['devices'].delete('context')['source']
+        @lxc['devices'].delete('context')
 
         update
 
@@ -374,7 +374,7 @@ class Container
             container devices\n#{@lxc['devices']}"
         end
 
-        @lxc['devices'].delete(disk_name)['source']
+        @lxc['devices'].delete(disk_name)
 
         update
 
