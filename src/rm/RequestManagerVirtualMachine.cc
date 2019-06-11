@@ -465,7 +465,7 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
 
     vm->add_history(hid, cid, hostname, vmm_mad, tm_mad, ds_id);
 
-    if ( vmpool->update_history(vm) != 0 )
+    if ( vmpool->insert_history(vm) != 0 )
     {
         att.resp_msg = "Cannot update virtual machine history";
         failure_response(INTERNAL, att);

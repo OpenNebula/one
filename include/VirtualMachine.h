@@ -1857,6 +1857,23 @@ private:
     };
 
     /**
+     *  Insert a new VM history record
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int insert_history(SqlDB * db)
+    {
+        string error;
+
+        if ( history != 0 )
+        {
+            return history->insert(db, error);
+        }
+        else
+            return -1;
+    }
+
+    /**
      *  Updates the previous history record
      *    @param db pointer to the db
      *    @return 0 on success

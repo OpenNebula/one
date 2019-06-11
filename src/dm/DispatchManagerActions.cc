@@ -1401,7 +1401,7 @@ int DispatchManager::attach(int vid, VirtualMachineTemplate * tmpl,
 
         vm->set_running_stime(the_time);
 
-        vmpool->update_history(vm);
+        vmpool->insert_history(vm);
 
         //-----------------------------------------------
 
@@ -1413,7 +1413,6 @@ int DispatchManager::attach(int vid, VirtualMachineTemplate * tmpl,
     }
 
     vmpool->update(vm);
-    vmpool->update_search(vm);
 
     vm->unlock();
 
@@ -1492,7 +1491,7 @@ int DispatchManager::detach(int vid, int disk_id, const RequestAttributes& ra,
 
         vm->set_running_stime(the_time);
 
-        vmpool->update_history(vm);
+        vmpool->insert_history(vm);
 
         //---------------------------------------------------
 
@@ -1509,7 +1508,6 @@ int DispatchManager::detach(int vid, int disk_id, const RequestAttributes& ra,
     }
 
     vmpool->update(vm);
-    vmpool->update_search(vm);
 
     vm->unlock();
 
@@ -1788,7 +1786,7 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
 
         vm->set_running_stime(the_time);
 
-        vmpool->update_history(vm);
+        vmpool->insert_history(vm);
 
         //-----------------------------------------------
 
@@ -1797,12 +1795,11 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
     else
     {
         vm->log("DiM", Log::INFO, "VM NIC Successfully attached.");
-
         vm->clear_attach_nic();
+        vmpool->update_search(vm);
     }
 
     vmpool->update(vm);
-    vmpool->update_search(vm);
 
     vm->unlock();
 
@@ -1887,15 +1884,13 @@ int DispatchManager::detach_nic(int vid, int nic_id,const RequestAttributes& ra,
 
         vm->set_running_stime(the_time);
 
-        vmpool->update_history(vm);
+        vmpool->insert_history(vm);
 
         vm->set_state(VirtualMachine::HOTPLUG_NIC);
 
         vm->set_resched(false);
 
         vmpool->update(vm);
-
-        vmpool->update_search(vm);
 
         vm->unlock();
 
@@ -2019,7 +2014,7 @@ int DispatchManager::disk_snapshot_create(int vid, int did, const string& name,
 
             vm->set_running_stime(the_time);
 
-            vmpool->update_history(vm);
+            vmpool->insert_history(vm);
 
             vmm->trigger(VMMAction::DISK_SNAPSHOT_CREATE, vid);
             break;
@@ -2215,7 +2210,7 @@ int DispatchManager::disk_snapshot_delete(int vid, int did, int snap_id,
 
             vm->set_running_stime(the_time);
 
-            vmpool->update_history(vm);
+            vmpool->insert_history(vm);
 
         case VirtualMachine::POWEROFF:
         case VirtualMachine::SUSPENDED:
@@ -2330,7 +2325,7 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
 
             vm->set_running_stime(the_time);
 
-            vmpool->update_history(vm);
+            vmpool->insert_history(vm);
 
             vmm->trigger(VMMAction::DISK_RESIZE, vid);
             break;

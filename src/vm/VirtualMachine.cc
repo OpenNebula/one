@@ -1739,7 +1739,7 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
             << "owner_u = "       <<  owner_u       << ", "
             << "group_u = "       <<  group_u       << ", "
             << "other_u = "       <<  other_u       << ", "
-            << "short_body = '"   <<  sql_short_xml << "',"
+            << "short_body = '"   <<  sql_short_xml << "' "
             << "WHERE oid = "    << oid;
     }
     else

@@ -178,11 +178,10 @@ int History::insert_replace(SqlDB *db, bool replace)
     if(replace)
     {
         oss << "UPDATE " << table << " SET "
-            << "seq = "    <<  seq      << ", "
             << "body = '"  <<  sql_xml  << "', "
             << "stime = "  <<  stime    << ", "
             << "etime = "  <<  etime
-            << " WHERE vid = " << oid;
+            << " WHERE vid = " << oid << " AND seq = " << seq;
     }
     else
     {

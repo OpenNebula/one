@@ -202,6 +202,17 @@ public:
     //--------------------------------------------------------------------------
 
     /**
+     *  Insert a new history record of a VM, the vm's mutex SHOULD be locked
+     *    @param vm pointer to the virtual machine object
+     *    @return 0 on success
+     */
+    int insert_history(
+        VirtualMachine * vm)
+    {
+        return vm->insert_history(db);
+    }
+
+    /**
      *  Updates the history record of a VM, the vm's mutex SHOULD be locked
      *    @param vm pointer to the virtual machine object
      *    @return 0 on success

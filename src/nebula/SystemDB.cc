@@ -287,7 +287,7 @@ int SystemDB::insert_replace(
 
     if ( replace )
     {
-        oss << "UPDATE" << sys_table << " SET "
+        oss << "UPDATE " << sys_table << " SET "
             << "body = '" << sql_xml << "' "
             << "WHERE name = " << attr_name;
     }

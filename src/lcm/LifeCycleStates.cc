@@ -111,7 +111,7 @@ void LifeCycleManager::revert_migrate_after_failure(VirtualMachine* vm)
 
         vm->set_last_poll(0);
 
-        vmpool->update_history(vm);
+        vmpool->insert_history(vm);
 
         vmpool->update(vm);
 
@@ -394,7 +394,7 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vm->set_last_poll(0);
 
-        vmpool->update_history(vm);
+        vmpool->insert_history(vm);
 
         vmpool->update(vm);
 
@@ -859,7 +859,7 @@ void  LifeCycleManager::prolog_failure_action(int vid)
 
             hpool->add_capacity(vm->get_hid(),vm->get_oid(),cpu,mem,disk,pci);
 
-            vmpool->update_history(vm);
+            vmpool->insert_history(vm);
 
             vmpool->update(vm);
 
@@ -1256,7 +1256,7 @@ void  LifeCycleManager::monitor_poweron_action(int vid)
 
             vm->set_last_poll(the_time);
 
-            vmpool->update_history(vm);
+            vmpool->insert_history(vm);
 
             vmpool->update(vm);
     }
@@ -1315,6 +1315,7 @@ void LifeCycleManager::attach_success_action(int vid)
         vm->set_state(VirtualMachine::RUNNING);
 
         vmpool->update(vm);
+        vmpool->update_search(vm);
     }
     else if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_PROLOG_POWEROFF )
     {
@@ -1322,6 +1323,7 @@ void LifeCycleManager::attach_success_action(int vid)
 
         vm->clear_attach_disk();
         vmpool->update(vm);
+        vmpool->update_search(vm);
 
         dm->trigger(DMAction::POWEROFF_SUCCESS,vid);
     }
@@ -1423,6 +1425,7 @@ void LifeCycleManager::detach_success_action(int vid)
         }
 
         vmpool->update(vm);
+        vmpool->update_search(vm);
 
         vm->unlock();
     }
@@ -1654,6 +1657,7 @@ void LifeCycleManager::attach_nic_success_action(int vid)
         vm->set_state(VirtualMachine::RUNNING);
 
         vmpool->update(vm);
+        vmpool->update_search(vm);
     }
     else
     {
@@ -1733,6 +1737,7 @@ void LifeCycleManager::detach_nic_success_action(int vid)
         vm->set_state(VirtualMachine::RUNNING);
 
         vmpool->update(vm);
+        vmpool->update_search(vm);
 
         vm->unlock();
     }

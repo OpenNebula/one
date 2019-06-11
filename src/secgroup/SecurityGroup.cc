@@ -144,7 +144,7 @@ int SecurityGroup::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if ( replace )
     {
-        oss << "UPDATE" << table << " SET "
+        oss << "UPDATE " << table << " SET "
             << "name = '"    << sql_name << "', "
             << "body = '"    << sql_xml  << "', "
             << "uid = "      <<  uid     << ", "
