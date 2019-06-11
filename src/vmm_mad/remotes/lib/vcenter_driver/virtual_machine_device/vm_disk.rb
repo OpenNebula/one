@@ -15,7 +15,17 @@
 #--------------------------------------------------------------------------- #
 module VirtualMachineDevice
 
-    require_relative 'vm_device'
+    ONE_LOCATION = ENV['ONE_LOCATION']
+
+    if !ONE_LOCATION
+        RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    else
+        RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    end
+    
+    $LOAD_PATH << RUBY_LIB_LOCATION
+
+    require 'vm_device'
 
     # Disk class
     class Disk < Device
