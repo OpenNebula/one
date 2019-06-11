@@ -40,6 +40,4 @@ container = Container.get(vm_name, xml, client)
 
 raise 'Failed to attach context' unless container.attach_context
 
-rc, _out, err = container.exec('service one-context-reconfigure restart')
-
-OpenNebula.log_error "Failed to run recontextualization service \n#{err}" unless rc.zero?
+container.exec_rest('service one-context-reconfigure restart')

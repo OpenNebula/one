@@ -170,11 +170,22 @@ class Container
         @lxc = @client.get("#{CONTAINERS}/#{name}")['metadata']
     end
 
-    # Runs command inside container
+    # Runs command inside container using the LXD CLI
     # @param command [String] to execute through lxc exec
     def exec(command)
         cmd = "#{@lxc_command} exec #{@one.vm_name} -- #{command}"
         Command.execute(cmd, true)
+    end
+
+    # Runs command inside container using REST. Execution isn't managed.
+    # @param full command [String] to execute
+    def exec_rest(command)
+        body = { 'command'              => command.split(' '),
+                 'wait-for-websocket'   => false,
+                 'record-output'        => false,
+                 'interactive'          => false }
+
+        @client.post("#{CONTAINERS}/#{name}/exec", body)
     end
 
     def show_log
