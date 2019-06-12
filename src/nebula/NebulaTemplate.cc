@@ -417,6 +417,7 @@ void OpenNebulaTemplate::set_conf_default()
 #  MONITORING_INTERVAL_VM
 #  MONITORING_INTERVAL_MARKET
 #  MONITORING_INTERVAL_DATASTORE
+#  MONITORING_INTERVAL_DB_UPDATE
 #  MONITORING_THREADS
 #  HOST_PER_INTERVAL
 #  HOST_MONITORING_EXPIRATION_TIME
@@ -437,6 +438,7 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("MONITORING_INTERVAL_VM", "180");
     set_conf_single("MONITORING_INTERVAL_MARKET", "600");
     set_conf_single("MONITORING_INTERVAL_DATASTORE", "300");
+    set_conf_single("MONITORING_INTERVAL_DB_UPDATE", "0");
     set_conf_single("MONITORING_THREADS", "50");
     set_conf_single("HOST_PER_INTERVAL", "15");
     set_conf_single("HOST_MONITORING_EXPIRATION_TIME", "43200");
