@@ -1848,13 +1848,30 @@ private:
      */
     int update_history(SqlDB * db)
     {
-        if ( history != 0 )
+        if ( history == 0 )
         {
-            return history->update(db);
-        }
-        else
             return -1;
+        }
+
+        return history->update(db);
     };
+
+    /**
+     *  Insert a new VM history record
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int insert_history(SqlDB * db)
+    {
+        std::string error;
+
+        if ( history == 0 )
+        {
+            return -1;
+        }
+
+        return history->insert(db, error);
+    }
 
     /**
      *  Updates the previous history record
@@ -1863,12 +1880,12 @@ private:
      */
     int update_previous_history(SqlDB * db)
     {
-        if ( previous_history != 0 )
+        if ( previous_history == 0 )
         {
-            return previous_history->update(db);
-        }
-        else
             return -1;
+        }
+
+        return previous_history->update(db);
     };
 
     /**
@@ -1878,6 +1895,14 @@ private:
      * @return 0 on success
      */
     int update_monitoring(SqlDB * db);
+
+    /**
+     * Updates the VM search information.
+     *
+     * @param db pointer to the db
+     * @return 0 on success
+     */
+    int update_search(SqlDB * db);
 
     /**
      *  Function that renders the VM in XML format optinally including

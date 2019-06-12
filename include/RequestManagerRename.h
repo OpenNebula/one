@@ -86,6 +86,17 @@ protected:
         pthread_mutex_unlock(&mutex);
     }
 
+    /**
+     *  Method por updating custom values not included in PoolSQL::update
+     *  mainly used for updating search information in the VMs.
+     *    @param object to be updated
+     *    @return 0 on success
+     */
+    virtual int extra_updates(PoolObjectSQL * obj)
+    {
+        return 0;
+    };
+
 private:
     /**
      *  Mutex to control concurrent access to the ongoing rename operations
@@ -121,6 +132,23 @@ public:
     {
         return -1;
     }
+
+
+    int extra_updates(PoolObjectSQL * obj)
+    {
+        VirtualMachine * vm;
+
+        VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
+
+        if (obj == 0)
+        {
+            return -1;
+        }
+
+        vm = static_cast<VirtualMachine *>(obj);
+
+        return vmpool->update_search(vm);
+    };
 };
 
 /* ------------------------------------------------------------------------- */

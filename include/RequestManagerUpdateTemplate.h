@@ -48,6 +48,17 @@ protected:
 
     virtual int append_template(PoolObjectSQL * object, const string & tmpl,
             const RequestAttributes &att, string &error_str);
+
+    /**
+     *  Method por updating custom values not included in PoolSQL::update
+     *  mainly used for updating search information in the VMs.
+     *    @param object to be updated
+     *    @return 0 on success
+     */
+    virtual int extra_updates(PoolObjectSQL * obj)
+    {
+        return 0;
+    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -104,6 +115,22 @@ public:
     };
 
     ~VirtualMachineUpdateTemplate(){};
+
+    int extra_updates(PoolObjectSQL * obj)
+    {
+        VirtualMachine * vm;
+
+        VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
+
+        if (obj == 0)
+        {
+            return -1;
+        }
+
+        vm = static_cast<VirtualMachine *>(obj);
+
+        return vmpool->update_search(vm);
+    };
 };
 
 /* ------------------------------------------------------------------------- */

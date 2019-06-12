@@ -326,20 +326,28 @@ int LogDB::insert(uint64_t index, unsigned int term, const std::string& sql,
         return -1;
     }
 
+    bool applied = tstamp != 0;
+
     if (replace)
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << table << " SET "
+            << "term = "      << term       << ", "
+            << "sqlcmd = '"   << sql_db     << "', "
+            << "timestamp = " <<  tstamp    << ", "
+            << "fed_index = " <<  fed_index << ", "
+            << "applied = "   <<  applied
+            << " WHERE log_index = " << index;
     }
     else
     {
-        oss << "INSERT";
+        oss << "INSERT INTO " << table << " ("<< db_names <<") VALUES ("
+            <<        index     << ","
+            <<        term      << ","
+            << "'" << sql_db    << "',"
+            <<        tstamp    << ","
+            <<        fed_index << ","
+            <<        applied   << ")";
     }
-
-    bool applied = tstamp != 0;
-
-    oss << " INTO " << table << " ("<< db_names <<") VALUES ("
-        << index << "," << term << "," << "'" << sql_db << "'," << tstamp
-        << "," << fed_index << "," << applied << ")";
 
     int rc = db->exec_wr(oss);
 

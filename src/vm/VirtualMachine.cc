@@ -1726,28 +1726,38 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if(replace)
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << table << " SET "
+            << "name = '"         <<  sql_name      << "', "
+            << "body = '"         <<  sql_xml       << "', "
+            << "uid = "           <<  uid           << ", "
+            << "gid = "           <<  gid           << ", "
+            << "last_poll = "     <<  last_poll     << ", "
+            << "state = "         <<  state         << ", "
+            << "lcm_state = "     <<  lcm_state     << ", "
+            << "owner_u = "       <<  owner_u       << ", "
+            << "group_u = "       <<  group_u       << ", "
+            << "other_u = "       <<  other_u       << ", "
+            << "short_body = '"   <<  sql_short_xml << "' "
+            << "WHERE oid = "    << oid;
     }
     else
     {
-        oss << "INSERT";
+        oss << "INSERT INTO " << table << " ("<< db_names <<") VALUES ("
+            <<        oid           << ","
+            << "'" << sql_name      << "',"
+            << "'" << sql_xml       << "',"
+            <<        uid           << ","
+            <<        gid           << ","
+            <<        last_poll     << ","
+            <<        state         << ","
+            <<        lcm_state     << ","
+            <<        owner_u       << ","
+            <<        group_u       << ","
+            <<        other_u       << ","
+            << "'" << sql_short_xml << "',"
+            << "'" << sql_text      << "'"
+            << ")";
     }
-
-    oss << " INTO " << table << " ("<< db_names <<") VALUES ("
-        <<          oid             << ","
-        << "'" <<   sql_name        << "',"
-        << "'" <<   sql_xml         << "',"
-        <<          uid             << ","
-        <<          gid             << ","
-        <<          last_poll       << ","
-        <<          state           << ","
-        <<          lcm_state       << ","
-        <<          owner_u         << ","
-        <<          group_u         << ","
-        <<          other_u         << ","
-        << "'" <<   sql_short_xml   << "',"
-        << "'" <<   sql_text        << "'"
-        << ")";
 
     db->free_str(sql_name);
     db->free_str(sql_xml);
@@ -1780,6 +1790,31 @@ error_generic:
     error_str = "Error inserting VM in DB.";
 error_common:
     return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::update_search(SqlDB * db)
+{
+    std::ostringstream oss;
+    std::string text;
+
+    char * sql_text = db->escape_str(to_token(text).c_str());
+
+    if ( sql_text == 0 )
+    {
+        NebulaLog::log("ONE", Log::ERROR, "Error updating VM search token");
+        return -1;
+    }
+
+    oss << "UPDATE " << table << " SET "
+        << "search_token = '" << sql_text << "' "
+        << "WHERE oid = " << oid;
+
+    db->free_str(sql_text);
+
+    return db->exec_local_wr(oss);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2301,21 +2336,14 @@ string& VirtualMachine::to_token(string& text) const
     ostringstream oss;
 
     oss << "UNAME="<< uname << "\n"
-        << "GNAME="<< gname << "\n";
-
-    oss << "NAME=";
-    one_util::escape_token(name, oss);
-    oss << "\n";
-
-    oss << "LAST_POLL="<< last_poll << "\n"
-        << "PREV_STATE="<< prev_state << "\n"
-        << "PREV_LCM_STATE="<< prev_lcm_state << "\n"
-        << "RESCHED="<< resched << "\n"
-        << "STIME="<< stime << "\n"
-        << "ETIME="<< etime << "\n"
-        << "DEPLOY_ID="<< deploy_id << "\n"
+        << "GNAME="<< gname << "\n"
         << obj_template->to_token(template_text) << "\n"
-        << user_obj_template->to_token(user_template_text);
+        << user_obj_template->to_token(user_template_text)
+        << "NAME=";
+
+    one_util::escape_token(name, oss);
+
+    oss << "\n";
 
     if ( hasHistory() )
     {

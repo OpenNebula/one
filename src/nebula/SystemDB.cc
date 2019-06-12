@@ -287,20 +287,16 @@ int SystemDB::insert_replace(
 
     if ( replace )
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << sys_table << " SET "
+            << "body = '" << sql_xml << "' "
+            << "WHERE name = '" << attr_name << "'";
     }
     else
     {
-        oss << "INSERT";
+        oss << "INSERT INTO " << sys_table << " (" << sys_names << ") VALUES ("
+            << "'" << attr_name << "',"
+            << "'" << sql_xml   << "')";
     }
-
-    // Construct the SQL statement to Insert or Replace
-
-    oss <<" INTO "<< sys_table <<
-    " ("<< sys_names <<") VALUES ("
-        << "'" << attr_name << "',"
-        << "'" << sql_xml   << "')";
-
     rc = db->exec_wr(oss);
 
     db->free_str(sql_xml);
