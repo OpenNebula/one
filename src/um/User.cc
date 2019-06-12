@@ -151,23 +151,28 @@ int User::insert_replace(SqlDB *db, bool replace, string& error_str)
     // Construct the SQL statement to Insert or Replace
     if(replace)
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << table << " SET "
+            << "name = '"    <<   sql_username    << "', "
+            << "body = '"    <<   sql_xml         << "', "
+            << "uid = "      <<   uid             << ", "
+            << "gid = "      <<   gid             << ", "
+            << "owner_u = "  <<   owner_u         << ", "
+            << "group_u = "  <<   group_u         << ", "
+            << "other_u = "  <<   other_u
+            << " WHERE oid = " << oid;
     }
     else
     {
-        oss << "INSERT";
+        oss << "INSERT INTO " << table << " (" << db_names << ") VALUES ("
+            <<          oid             << ","
+            << "'" <<   sql_username    << "',"
+            << "'" <<   sql_xml         << "',"
+            <<          uid             << ","
+            <<          gid             << ","
+            <<          owner_u         << ","
+            <<          group_u         << ","
+            <<          other_u         << ")";
     }
-
-    oss << " INTO " << table << " ("<< db_names <<") VALUES ("
-        <<          oid             << ","
-        << "'" <<   sql_username    << "',"
-        << "'" <<   sql_xml         << "',"
-        <<          uid             << ","
-        <<          gid             << ","
-        <<          owner_u         << ","
-        <<          group_u         << ","
-        <<          other_u         << ")";
-
 
     rc = db->exec_wr(oss);
 

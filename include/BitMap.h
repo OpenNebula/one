@@ -297,15 +297,6 @@ private:
     {
         std::ostringstream oss;
 
-        if (replace)
-        {
-            oss << "REPLACE ";
-        }
-        else
-        {
-            oss << "INSERT ";
-        }
-
         std::string * zipped = one_util::zlib_compress(bs->to_string(), true);
 
         if (zipped == 0)
@@ -315,8 +306,18 @@ private:
 
         char * ezipped64 = db->escape_str(zipped->c_str());
 
-        oss << "INTO " << db_table << " (id, map) VALUES ("
+
+        if (replace)
+        {
+            oss << "UPDATE "  << db_table << " SET "
+                << "map = '" << ezipped64 << "' "
+                << "WHERE id = " << id;
+        }
+        else
+        {
+            oss << "INSERT INTO " << db_table << " (id, map) VALUES ("
             << id << ",'" << ezipped64 << "')";
+        }
 
         int rc = db->exec_wr(oss);
 

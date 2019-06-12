@@ -119,6 +119,8 @@ void RequestManagerUpdateTemplate::request_execute(
 
     pool->update(object);
 
+    extra_updates(object);
+
     object->unlock();
 
     success_response(oid, att);

@@ -746,7 +746,7 @@ void  LifeCycleManager::restore_action(const LCMAction& la)
 
         vm->set_action(History::RESUME_ACTION, la.uid(), la.gid(), la.req_id());
 
-        vmpool->update_history(vm);
+        vmpool->insert_history(vm);
 
         vmpool->update(vm);
 
@@ -805,7 +805,7 @@ void  LifeCycleManager::restart_action(const LCMAction& la)
 
         vm->set_action(History::RESUME_ACTION, la.uid(), la.gid(), la.req_id());
 
-        vmpool->update_history(vm);
+        vmpool->insert_history(vm);
 
         vmpool->update(vm);
 

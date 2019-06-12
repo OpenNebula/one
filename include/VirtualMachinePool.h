@@ -202,6 +202,17 @@ public:
     //--------------------------------------------------------------------------
 
     /**
+     *  Insert a new history record of a VM, the vm's mutex SHOULD be locked
+     *    @param vm pointer to the virtual machine object
+     *    @return 0 on success
+     */
+    int insert_history(
+        VirtualMachine * vm)
+    {
+        return vm->insert_history(db);
+    }
+
+    /**
      *  Updates the history record of a VM, the vm's mutex SHOULD be locked
      *    @param vm pointer to the virtual machine object
      *    @return 0 on success
@@ -240,6 +251,17 @@ public:
 
         return vm->update_monitoring(db);
     };
+
+    /**
+     *  Updates the VM's search information
+     *    @param vm pointer to the virtual machine object
+     *    @return 0 on success
+     */
+    int update_search(
+        VirtualMachine * vm)
+    {
+        return vm->update_search(db);
+    }
 
     /**
      * Deletes the expired monitoring entries for all VMs
