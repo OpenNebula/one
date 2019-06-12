@@ -711,6 +711,7 @@ void VirtualMachineManagerDriver::process_poll(VirtualMachine* vm,
     const string& monitor_str)
 {
     char state;
+    time_t update_time;
 
     Nebula &ne = Nebula::instance();
 
@@ -721,7 +722,9 @@ void VirtualMachineManagerDriver::process_poll(VirtualMachine* vm,
     /* Update VM info only for VMs in ACTIVE                                  */
     /* ---------------------------------------------------------------------- */
 
-    if (vm->get_state() == VirtualMachine::ACTIVE)
+    ne.get_configuration_attribute("MONITORING_INTERVAL_HOST_UPDATE", update_time);
+
+    if (vm->get_state() == VirtualMachine::ACTIVE && (time(0) - vm->get_last_poll() > update_time))
     {
         if (vm->update_info(monitor_str) == 0)
         {
