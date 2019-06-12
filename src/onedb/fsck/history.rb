@@ -10,6 +10,7 @@ module OneDBFsck
         check_history_opened
     end
 
+    # Check that etime from non last seq is 0
     def check_history_etime
         # DATA: check history etime
 
@@ -31,6 +32,7 @@ module OneDBFsck
         end
     end
 
+    # Check that etime is not 0 in DONE vms
     def check_history_opened
         history_fix = @fixes_history = []
 
@@ -73,6 +75,7 @@ module OneDBFsck
         end
     end
 
+    # Fix the broken history records
     def fix_history
         # DATA: FIX: update history records with fixed data
         # DATA: TODO: check all fixes to always do the same (update vs rewrite)
