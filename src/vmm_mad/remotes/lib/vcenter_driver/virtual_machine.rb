@@ -1910,50 +1910,44 @@ module VCenterDriver
         end
 
         def find_free_ide_controller(position=0)
-            free_ide_controllers = []
+            free_ide_controller = nil
             ide_schema           = {}
-
-            used_numbers      = []
-            available_numbers = []
             devices           = @item.config.hardware.device
+            ideDeviceList = []
 
+            # Iteration to initialize IDE Controllers
             devices.each do |dev|
                 if dev.is_a? RbVmomi::VIM::VirtualIDEController
                     if ide_schema[dev.key].nil?
                         ide_schema[dev.key] = {}
                     end
-
                     ide_schema[dev.key][:device] = dev
+                    ide_schema[dev.key][:freeUnitNumber] = [0,1]
                 end
-
-                next if dev.class != RbVmomi::VIM::VirtualCdrom
-                used_numbers << dev.unitNumber
             end
 
-            2.times do |ide_id|
-                available_numbers << ide_id if used_numbers.grep(ide_id).length <= 0
+            # Iteration to match Disks and Cdroms with its controllers
+            devices.each do |dev|
+                if (dev.is_a? RbVmomi::VIM::VirtualDisk) || (dev.is_a? RbVmomi::VIM::VirtualCdrom)
+                    if ide_schema.key?(dev.controllerKey)
+                        ide_schema[dev.controllerKey][:freeUnitNumber].delete(dev.unitNumber)
+                    end
+                end
             end
 
             ide_schema.keys.each do |controller|
-                free_ide_controllers << ide_schema[controller][:device].deviceInfo.label
-            end
-
-            if free_ide_controllers.empty?
-                raise "There are no free IDE controllers to connect this CDROM device"
-            end
-
-            available_controller_label = free_ide_controllers[0]
-
-            controller = nil
-
-            devices.each do |device|
-                if device.deviceInfo.label == available_controller_label
-                    controller = device
+                if ide_schema[controller][:freeUnitNumber].length > 0
+                    free_ide_controller = ide_schema[controller]
                     break
                 end
             end
 
-            new_unit_number = available_numbers.sort[position]
+            if !free_ide_controller
+                raise "There are no free IDE controllers to connect this CDROM device"
+            end
+
+            controller = free_ide_controller[:device]
+            new_unit_number = free_ide_controller[:freeUnitNumber][0]
 
             return controller, new_unit_number
         end

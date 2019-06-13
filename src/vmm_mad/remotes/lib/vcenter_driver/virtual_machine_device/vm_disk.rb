@@ -15,8 +15,6 @@
 #--------------------------------------------------------------------------- #
 module VirtualMachineDevice
 
-    require_relative 'vm_device'
-
     # Disk class
     class Disk < Device
 

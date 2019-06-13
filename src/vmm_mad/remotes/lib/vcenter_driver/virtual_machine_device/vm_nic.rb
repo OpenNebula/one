@@ -15,8 +15,6 @@
 #--------------------------------------------------------------------------- #
 module VirtualMachineDevice
 
-    require_relative 'vm_device'
-
     # Nic class
     class Nic < Device
 
