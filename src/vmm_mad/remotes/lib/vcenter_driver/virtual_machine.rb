@@ -1917,7 +1917,7 @@ module VCenterDriver
 
             # Iteration to initialize IDE Controllers
             devices.each do |dev|
-                if dev.is_a? RbVmomi::VIM::VirtualIDEController                  
+                if dev.is_a? RbVmomi::VIM::VirtualIDEController
                     if ide_schema[dev.key].nil?
                         ide_schema[dev.key] = {}
                     end
