@@ -44,6 +44,7 @@
             'vnc_request_password' : <%= $conf[:vnc_request_password] || false %>,
             'vnc_proxy_port' : '<%= $vnc.proxy_port %>',
             'vnc_client_port' : '<%= $conf[:vnc_client_port] %>',
+            'allow_vnc_federation' : '<%= (!$conf[:allow_vnc_federation].nil?)? $conf[:allow_vnc_federation] : "no" %>',
             'max_upload_file_size' : <%= $conf[:max_upload_file_size] ? $conf[:max_upload_file_size] : "undefined" %>
         },
         'view' : view,
@@ -56,7 +57,8 @@
         'zone_name' : '<%= session[:zone_name] %>',
         'zone_id' : '<%= session[:zone_id] %>',
         'federation_mode' : '<%= session[:federation_mode] %>',
-        'vm_logos' : <%= logos_conf.to_json %>,
+        'id_own_federation' : '<%= session[:id_own_federation] %>',
+	      'vm_logos' : <%= logos_conf.to_json %>,
         'oned_conf' : <%= oned_conf.to_json %>,
         'support' : <%= support.to_json %>,
         'upgrade' : <%= upgrade.to_json %>,
