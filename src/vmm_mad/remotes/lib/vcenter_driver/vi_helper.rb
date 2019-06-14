@@ -130,7 +130,7 @@ class VIHelper
         one_name(the_class, name, key, pool, bytes+2)
     end
 
-    def self.get_ref_key(element, attribute)
+    def self.get_ref_key(element, attribute, vcenter_uuid = nil)
         key = element[attribute]
 
         tvid = element["TEMPLATE/VCENTER_INSTANCE_ID"]
@@ -140,16 +140,18 @@ class VIHelper
             key += tvid
         elsif uvid
             key += uvid
+        elsif vcenter_uuid
+            key += vcenter_uuid
         end
 
         return key
     end
 
-    def self.create_ref_hash(attribute, pool)
+    def self.create_ref_hash(attribute, pool, vcenter_uuid = nil)
         hash = {}
 
         pool.each_element(Proc.new do |e|
-            refkey = get_ref_key(e, attribute)
+            refkey = get_ref_key(e, attribute, vcenter_uuid)
             hash[refkey] =  e
         end)
 
@@ -185,7 +187,9 @@ class VIHelper
         @ref_hash ||= {}
 
         if @ref_hash[attribute].nil? || @ref_hash[attribute] == {}
-            @ref_hash[attribute] = create_ref_hash(attribute, pool)
+            @ref_hash[attribute] = create_ref_hash(attribute,
+                                                   pool,
+                                                   vcenter_uuid)
         end
 
         refkey = ""
