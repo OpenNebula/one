@@ -70,7 +70,7 @@ define(function(require) {
     } else {
       vncIcon = '';
     }
-    if (config["federation_mode"] == "SLAVE") {
+    if(config && config["id_own_federation"] && config["zone_id"] && config["id_own_federation"] !== config["zone_id"]){
       vncIcon = '';
     }
 

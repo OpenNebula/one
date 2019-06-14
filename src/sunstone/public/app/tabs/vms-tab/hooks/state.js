@@ -54,7 +54,7 @@ define(function(require) {
       $(".spice-sunstone-info").hide();
     }
 
-    if (config["federation_mode"] == "SLAVE") {
+    if(config && config["id_own_federation"] && config["zone_id"] && config["id_own_federation"] !== config["zone_id"]){
       $(".vnc-sunstone-info").hide();
     }
   }

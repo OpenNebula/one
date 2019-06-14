@@ -392,9 +392,9 @@ helpers do
             zone.info
             session[:zone_name] = zone.name
             session[:zone_id]   = zone.id
-
+		puts rc
             session[:federation_mode] = rc['FEDERATION/MODE'].upcase
-
+            session[:id_own_federation] = rc['FEDERATION/ZONE_ID']
             session[:mode] = $conf[:mode]
 
             return [204, ""]
