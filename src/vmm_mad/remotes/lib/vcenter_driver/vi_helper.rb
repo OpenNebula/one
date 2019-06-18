@@ -133,6 +133,8 @@ class VIHelper
     def self.get_ref_key(element, attribute, vcenter_uuid = nil)
         key = element[attribute]
 
+        return nil if key.nil?
+
         tvid = element["TEMPLATE/VCENTER_INSTANCE_ID"]
         uvid = element["USER_TEMPLATE/VCENTER_INSTANCE_ID"]
 
