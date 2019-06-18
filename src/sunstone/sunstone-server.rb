@@ -421,7 +421,7 @@ helpers do
             env['rack.session.options'][:secure] = true
         end
         # end secure cookies
-
+        
         if params[:remember] == 'true'
             env['rack.session.options'][:expire_after] = 30*60*60*24-1
         end
