@@ -283,7 +283,7 @@ helpers do
                 end
             end
         end
-        $conf[:locals] = { 
+        $conf[:locals] = {
             :logos_conf => logos_conf,
             :oned_conf  => oned_conf,
             :support    => SUPPORT,
@@ -294,115 +294,122 @@ helpers do
     def build_session
         begin
             result = $cloud_auth.auth(request.env, params)
-        rescue Exception => e
+        rescue StandardError => e
             logger.error { e.message }
-            return [500, ""]
+            return [500, '']
         end
 
         if result.nil?
-            logger.info { "Unauthorized login attempt" }
-            return [401, ""]
-        else
-            client  = $cloud_auth.client(result, session[:active_zone_endpoint])
-            user_id = OpenNebula::User::SELF
-
-            user    = OpenNebula::User.new_with_id(user_id, client)
-            rc = user.info
-            if OpenNebula.is_error?(rc)
-                logger.error { rc.message }
-                return [500, ""]
-            end
-
-            session[:user]         = user['NAME']
-            session[:user_id]      = user['ID']
-            session[:user_gid]     = user['GID']
-            session[:user_gname]   = user['GNAME']
-            session[:ip]           = request.ip
-            session[:remember]     = params[:remember]
-            session[:display_name] = user[DISPLAY_NAME_XPATH] || user['NAME']
-
-            csrftoken_plain = Time.now.to_f.to_s + SecureRandom.base64
-            session[:csrftoken] = Digest::SHA256.hexdigest(csrftoken_plain)
-
-            group = OpenNebula::Group.new_with_id(OpenNebula::Group::SELF, client)
-            rc = group.info
-            if OpenNebula.is_error?(rc)
-                logger.error { rc.message }
-                return [500, ""]
-            end
-
-            #User IU options initialization
-            #Load options either from user settings or default config.
-            # - LANG
-            # - WSS CONECTION
-            # - TABLE ORDER
-
-            if user[LANG_XPATH]
-                session[:lang] = user[LANG_XPATH]
-            else
-                session[:lang] = $conf[:lang]
-            end
-
-            if user[TABLE_DEFAULT_PAGE_LENGTH_XPATH]
-                session[:page_length] = user[TABLE_DEFAULT_PAGE_LENGTH_XPATH]
-            else
-                session[:page_length] = DEFAULT_PAGE_LENGTH
-            end
-
-            # If active zone endpoint is not defined, pull it
-            # from user template if exists
-            unless user[DEFAULT_ZONE_ENDPOINT_XPATH].nil?
-                session[:active_zone_endpoint] ||=
-                    user[DEFAULT_ZONE_ENDPOINT_XPATH]
-            end
-
-            wss = $conf[:vnc_proxy_support_wss]
-            #limit to yes,no options
-            session[:vnc_wss] = (wss == true || wss == "yes" || wss == "only" ?
-                             "yes" : "no")
-
-            if user[TABLE_ORDER_XPATH]
-                session[:table_order] = user[TABLE_ORDER_XPATH]
-            else
-                session[:table_order] = $conf[:table_order] || DEFAULT_TABLE_ORDER
-            end
-
-            if user[DEFAULT_VIEW_XPATH]
-                session[:default_view] = user[DEFAULT_VIEW_XPATH]
-            elsif group.contains_admin(user.id) && group[GROUP_ADMIN_DEFAULT_VIEW_XPATH]
-                session[:default_view] = group[GROUP_ADMIN_DEFAULT_VIEW_XPATH]
-            elsif group[DEFAULT_VIEW_XPATH]
-                session[:default_view] = group[DEFAULT_VIEW_XPATH]
-            else
-                session[:default_view] = $views_config.available_views(session[:user], session[:user_gname]).first
-            end
-
-            #end user options
-
-            if params[:remember] == "true"
-                env['rack.session.options'][:expire_after] = 30*60*60*24-1
-            end
-
-            serveradmin_client = $cloud_auth.client(nil, session[:active_zone_endpoint])
-            rc = OpenNebula::System.new(serveradmin_client).get_configuration
-            return [500, rc.message] if OpenNebula.is_error?(rc)
-            return [500, "Couldn't find out zone identifier"] if !rc['FEDERATION/ZONE_ID']
-
-            zone = OpenNebula::Zone.new_with_id(rc['FEDERATION/ZONE_ID'].to_i, client)
-            zone.info
-            session[:zone_name] = zone.name
-            session[:zone_id]   = zone.id
-            session[:federation_mode] = rc['FEDERATION/MODE'].upcase
-            session[:id_own_federation] = rc['FEDERATION/ZONE_ID']
-            session[:mode] = $conf[:mode]
-
-            return [204, ""]
+            logger.info { 'Unauthorized login attempt' }
+            return [401, '']
         end
+
+        client  = $cloud_auth.client(result)
+	    user_id = OpenNebula::User::SELF
+
+        user    = OpenNebula::User.new_with_id(user_id, client)
+        rc = user.info
+        if OpenNebula.is_error?(rc)
+            logger.error { rc.message }
+            return [500, '']
+        end
+
+        # If active zone endpoint is not defined, pull it
+        # from user template if exists
+	    unless user[DEFAULT_ZONE_ENDPOINT_XPATH].nil? or user[DEFAULT_ZONE_ENDPOINT_XPATH].empty?
+            session[:active_zone_endpoint] ||=
+                   user[DEFAULT_ZONE_ENDPOINT_XPATH]
+        end
+        client_active_endpoint = $cloud_auth.client(result, session[:active_zone_endpoint])
+
+        session[:user]         = user['NAME']
+        session[:user_id]      = user['ID']
+        session[:user_gid]     = user['GID']
+        session[:user_gname]   = user['GNAME']
+        session[:ip]           = request.ip
+        session[:remember]     = params[:remember]
+        session[:display_name] = user[DISPLAY_NAME_XPATH] || user['NAME']
+
+        csrftoken_plain = Time.now.to_f.to_s + SecureRandom.base64
+        session[:csrftoken] = Digest::SHA256.hexdigest(csrftoken_plain)
+
+        group = OpenNebula::Group.new_with_id(OpenNebula::Group::SELF, client_active_endpoint)
+        rc = group.info
+        if OpenNebula.is_error?(rc)
+            logger.error { rc.message }
+            return [500, '']
+        end
+
+        # User IU options initialization
+        # Load options either from user settings or default config.
+        # - LANG
+        # - WSS CONECTION
+        # - TABLE ORDER
+
+        if user[LANG_XPATH]
+            session[:lang] = user[LANG_XPATH]
+        else
+            session[:lang] = $conf[:lang]
+        end
+
+        if user[TABLE_DEFAULT_PAGE_LENGTH_XPATH]
+            session[:page_length] = user[TABLE_DEFAULT_PAGE_LENGTH_XPATH]
+        else
+            session[:page_length] = DEFAULT_PAGE_LENGTH
+        end
+
+        wss = $conf[:vnc_proxy_support_wss]
+        # limit to yes,no options
+        session[:vnc_wss] = (wss == true || wss == 'yes' || wss == 'only' ?
+                         'yes' : 'no')
+
+        if user[TABLE_ORDER_XPATH]
+            session[:table_order] = user[TABLE_ORDER_XPATH]
+        else
+            session[:table_order] = $conf[:table_order] || DEFAULT_TABLE_ORDER
+        end
+
+        if user[DEFAULT_VIEW_XPATH]
+            session[:default_view] = user[DEFAULT_VIEW_XPATH]
+        elsif group.contains_admin(user.id) && group[GROUP_ADMIN_DEFAULT_VIEW_XPATH]
+            session[:default_view] = group[GROUP_ADMIN_DEFAULT_VIEW_XPATH]
+        elsif group[DEFAULT_VIEW_XPATH]
+            session[:default_view] = group[DEFAULT_VIEW_XPATH]
+        else
+            session[:default_view] = $views_config.available_views(session[:user], session[:user_gname]).first
+        end
+
+        # end user options
+
+        if params[:remember] == 'true'
+            env['rack.session.options'][:expire_after] = 30*60*60*24-1
+        end
+
+        serveradmin_client = $cloud_auth.client()
+        local_configuration = OpenNebula::System.new(serveradmin_client).get_configuration
+        return [500, local_configuration.message] if OpenNebula.is_error?(local_configuration)
+
+        session[:id_own_federation] = local_configuration['FEDERATION/ZONE_ID']
+
+        serveradmin_client_active_endpoint = $cloud_auth.client(nil, session[:active_zone_endpoint])
+        active_zone_configuration = OpenNebula::System.new(serveradmin_client_active_endpoint).get_configuration
+        return [500, active_zone_configuration.message] if OpenNebula.is_error?(active_zone_configuration)
+
+        return [500, "Couldn't find out zone identifier"] if !active_zone_configuration['FEDERATION/ZONE_ID']
+
+        zone = OpenNebula::Zone.new_with_id(active_zone_configuration['FEDERATION/ZONE_ID'].to_i, client_active_endpoint)
+        zone.info
+        session[:zone_name] = zone.name
+        session[:zone_id]   = zone.id
+        session[:federation_mode] = active_zone_configuration['FEDERATION/MODE'].upcase
+        session[:mode] = $conf[:mode]
+
+        [204, ""]
     end
 
     def destroy_session
         session.clear
-        return [204, ""]
+        [204, ""]
     end
 end
 
