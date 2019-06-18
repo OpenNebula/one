@@ -203,9 +203,7 @@ define(function(require) {
     context.off("change", "#"+default_zone_input);
     context.on("change", "#"+default_zone_input, function() {
       var sunstone_setting = {DEFAULT_ZONE_ENDPOINT : $(this).val()};
-      //if (sunstone_setting.DEFAULT_ZONE_ENDPOINT !== ""){
         Sunstone.runAction("User.append_sunstone_setting", that.element.ID, sunstone_setting);
-      //}
     });
 
     return false;
