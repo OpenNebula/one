@@ -70,9 +70,11 @@ define(function(require) {
       type: "single",
       call: that.openNebulaResource.show,
       callback: function(request, response) {
-        Sunstone.getDataTable(that.tabId).updateElement(request, response);
-        if (Sunstone.rightInfoVisible($('#' + that.tabId))) {
-          Sunstone.insertPanels(that.tabId, response);
+        if(that && that.tabId && Sunstone && Sunstone.getDataTable && Sunstone.getDataTable(that.tabId)){
+          Sunstone.getDataTable(that.tabId).updateElement(request, response);
+          if (Sunstone.rightInfoVisible($('#' + that.tabId))) {
+            Sunstone.insertPanels(that.tabId, response);
+          }
         }
       },
       error: Notifier.onError

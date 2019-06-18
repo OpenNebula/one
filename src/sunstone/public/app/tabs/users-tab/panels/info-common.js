@@ -26,6 +26,8 @@ define(function(require) {
   var OpenNebulaUser = require("opennebula/user");
   var Sunstone = require("sunstone");
   var UserCreation = require("tabs/users-tab/utils/user-creation");
+  var OpenNebula = require('opennebula');
+  var Notifier = require('utils/notifier');
 
   /*
     TEMPLATES
@@ -171,6 +173,37 @@ define(function(require) {
       if (sunstone_setting.DEFAULT_VIEW !== ""){
         Sunstone.runAction("User.append_sunstone_setting_refresh", that.element.ID, sunstone_setting);
       }
+    });
+
+    // Change default zone
+    var default_zone_input = "default_zone_input";
+    context.off("click", "#div_edit_zone");
+    context.on("click", "#div_edit_zone", function() {
+      var options = "<option value=''> - </option>";
+      OpenNebula.Zone.list({
+        timeout: true,
+        success: function (request, obj_list) {
+          $.each(obj_list, function() {
+            if(this && this.ZONE && this.ZONE.TEMPLATE && this.ZONE.TEMPLATE.ENDPOINT && this.ZONE.NAME){
+              options += "<option value=\""+this.ZONE.TEMPLATE.ENDPOINT+"\">"+this.ZONE.NAME+"</option>";
+            }
+          });
+         $(".value_td_zone", context).html("<select id='"+default_zone_input+"'>" +
+           options +
+         "</select>");
+
+         if (that.element.TEMPLATE.SUNSTONE && that.element.TEMPLATE.SUNSTONE.DEFAULT_ZONE_ENDPOINT) {
+           $("#"+default_zone_input, context).val(that.element.TEMPLATE.SUNSTONE.DEFAULT_ZONE_ENDPOINT)
+         }
+        },
+        error: Notifier.onError
+      });
+    });
+
+    context.off("change", "#"+default_zone_input);
+    context.on("change", "#"+default_zone_input, function() {
+      var sunstone_setting = {DEFAULT_ZONE_ENDPOINT : $(this).val()};
+        Sunstone.runAction("User.append_sunstone_setting", that.element.ID, sunstone_setting);
     });
 
     return false;
