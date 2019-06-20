@@ -25,7 +25,8 @@ define(function(require) {
   var Tips = require("utils/tips");
   var TemplateUtils = require("utils/template-utils");
   var WizardFields = require("utils/wizard-fields");
-
+  var OpenNebulaAction = require("opennebula/action");
+  var OpenNebulaTemplate = require("opennebula/template");
   /*
     TEMPLATES
    */
@@ -225,6 +226,7 @@ define(function(require) {
               if(template && template.DISK){
                 var lastDisk = template.DISK;
                 var newDisk = templateJSON.DISK[0];
+                console.log("test", newDisk);
                 var setNewdisk = function(){
                   if(lastDisk.OPENNEBULA_MANAGED && lastDisk.OPENNEBULA_MANAGED === "NO" ){
                     newDisk.LAST_IMAGE_DISK = (lastDisk && lastDisk.IMAGE_ID) || (lastDisk && lastDisk.IMAGE);
