@@ -131,6 +131,9 @@ class Container
         @lxc['source'] = { 'type' => 'none' }
         wait?(@client.post(CONTAINERS, @lxc), wait, timeout)
 
+        @lxc['config']['user.one_status'] = '0'
+        update
+
         @lxc = @client.get("#{CONTAINERS}/#{name}")['metadata']
     end
 
@@ -204,6 +207,10 @@ class Container
     #---------------------------------------------------------------------------
     def start(options = {})
         OpenNebula.log '--- Starting container ---'
+
+        @lxc['config'].delete('user.one_status')
+        update
+
         change_state(__method__, options)
     end
 
