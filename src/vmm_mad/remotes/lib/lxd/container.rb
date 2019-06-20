@@ -207,10 +207,12 @@ class Container
     def start(options = {})
         OpenNebula.log '--- Starting container ---'
 
+        operation = change_state(__method__, options)
+
         @lxc['config'].delete('user.one_status')
         update
 
-        change_state(__method__, options)
+        operation
     end
 
     def stop(options = { :timeout => 120 })
