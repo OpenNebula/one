@@ -129,10 +129,9 @@ class Container
     # Create a container without a base image
     def create(wait: true, timeout: '')
         @lxc['source'] = { 'type' => 'none' }
-        wait?(@client.post(CONTAINERS, @lxc), wait, timeout)
-
         @lxc['config']['user.one_status'] = '0'
-        update
+
+        wait?(@client.post(CONTAINERS, @lxc), wait, timeout)
 
         @lxc = @client.get("#{CONTAINERS}/#{name}")['metadata']
     end
