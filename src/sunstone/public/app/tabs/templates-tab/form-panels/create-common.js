@@ -226,7 +226,6 @@ define(function(require) {
               if(template && template.DISK){
                 var lastDisk = template.DISK;
                 var newDisk = templateJSON.DISK[0];
-                console.log("test", newDisk);
                 var setNewdisk = function(){
                   if(lastDisk.OPENNEBULA_MANAGED && lastDisk.OPENNEBULA_MANAGED === "NO" ){
                     newDisk.LAST_IMAGE_DISK = (lastDisk && lastDisk.IMAGE_ID) || (lastDisk && lastDisk.IMAGE);
