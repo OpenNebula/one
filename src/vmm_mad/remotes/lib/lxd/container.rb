@@ -129,6 +129,8 @@ class Container
     # Create a container without a base image
     def create(wait: true, timeout: '')
         @lxc['source'] = { 'type' => 'none' }
+        @lxc['config']['user.one_status'] = '0'
+
         wait?(@client.post(CONTAINERS, @lxc), wait, timeout)
 
         @lxc = @client.get("#{CONTAINERS}/#{name}")['metadata']
@@ -204,7 +206,13 @@ class Container
     #---------------------------------------------------------------------------
     def start(options = {})
         OpenNebula.log '--- Starting container ---'
-        change_state(__method__, options)
+
+        operation = change_state(__method__, options)
+
+        @lxc['config'].delete('user.one_status')
+        update
+
+        operation
     end
 
     def stop(options = { :timeout => 120 })

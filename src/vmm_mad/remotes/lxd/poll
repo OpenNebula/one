@@ -121,6 +121,8 @@ module LXD
                 state = 'p'
             when 'stopped'
                 state = 'd'
+
+                state = '-' if container.config['user.one_status'] == '0'
             when 'failure'
                 state = 'e'
             else
