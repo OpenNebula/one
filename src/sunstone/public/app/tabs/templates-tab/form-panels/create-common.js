@@ -25,7 +25,8 @@ define(function(require) {
   var Tips = require("utils/tips");
   var TemplateUtils = require("utils/template-utils");
   var WizardFields = require("utils/wizard-fields");
-
+  var OpenNebulaAction = require("opennebula/action");
+  var OpenNebulaTemplate = require("opennebula/template");
   /*
     TEMPLATES
    */
