@@ -19,6 +19,10 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+	vr "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/virtualrouter"
 )
 
 // VirtualRoutersController is a controller for a pool of VirtualRouters
@@ -26,39 +30,6 @@ type VirtualRoutersController entitiesController
 
 // VirtualRouterController is a controller for VirtualRouter entities
 type VirtualRouterController entityController
-
-// VirtualRouterPool represents an OpenNebula VirtualRouterPool
-type VirtualRouterPool struct {
-	VirtualRouters []VirtualRouter `xml:"VROUTER"`
-}
-
-// VirtualRouter represents an OpenNebula VirtualRouter
-type VirtualRouter struct {
-	ID          int                   `xml:"ID"`
-	UID         int                   `xml:"UID"`
-	GID         int                   `xml:"GID"`
-	UName       string                `xml:"UNAME"`
-	GName       string                `xml:"GNAME"`
-	Name        string                `xml:"NAME"`
-	LockInfos   *Lock                 `xml:"LOCK"`
-	Permissions *Permissions          `xml:"PERMISSIONS"`
-	Type        int                   `xml:"TYPE"`
-	DiskType    int                   `xml:"DISK_TYPE"`
-	Persistent  int                   `xml:"PERSISTENT"`
-	VMsID       []int                 `xml:"VMS>ID"`
-	Template    virtualRouterTemplate `xml:"TEMPLATE"`
-}
-
-// VirtualRouterTemplate represent the template part of the OpenNebula VirtualRouter
-type virtualRouterTemplate struct {
-	NIC     []VirtualRouterNIC `xml:"NIC"`
-	Dynamic unmatchedTagsSlice `xml:",any"`
-}
-
-type VirtualRouterNIC struct {
-	NICID   int                `xml:"NIC_ID"`
-	Dynamic unmatchedTagsSlice `xml:",any"`
-}
 
 // VirtualRouters returns a VirtualRouters controller.
 func (c *Controller) VirtualRouters() *VirtualRoutersController {
@@ -98,12 +69,12 @@ func (c *Controller) VirtualRouterByName(name string, args ...int) (int, error) 
 
 // Info returns a virtual router pool. A connection to OpenNebula is
 // performed.
-func (vc *VirtualRoutersController) Info(args ...int) (*VirtualRouterPool, error) {
+func (vc *VirtualRoutersController) Info(args ...int) (*vr.Pool, error) {
 	var who, start, end int
 
 	switch len(args) {
 	case 0:
-		who = PoolWhoMine
+		who = parameters.PoolWhoMine
 		start = -1
 		end = -1
 	case 3:
@@ -119,7 +90,7 @@ func (vc *VirtualRoutersController) Info(args ...int) (*VirtualRouterPool, error
 		return nil, err
 	}
 
-	vrouterPool := &VirtualRouterPool{}
+	vrouterPool := &vr.Pool{}
 
 	err = xml.Unmarshal([]byte(response.Body()), vrouterPool)
 	if err != nil {
@@ -130,12 +101,12 @@ func (vc *VirtualRoutersController) Info(args ...int) (*VirtualRouterPool, error
 }
 
 // Info connects to OpenNebula and fetches the information of the VirtualRouter
-func (vc *VirtualRouterController) Info() (*VirtualRouter, error) {
+func (vc *VirtualRouterController) Info() (*vr.VirtualRouter, error) {
 	response, err := vc.c.Client.Call("one.vrouter.info", vc.ID)
 	if err != nil {
 		return nil, err
 	}
-	vr := &VirtualRouter{}
+	vr := &vr.VirtualRouter{}
 	err = xml.Unmarshal([]byte(response.Body()), vr)
 	if err != nil {
 		return nil, err
@@ -159,7 +130,7 @@ func (vc *VirtualRoutersController) Create(tpl string) (int, error) {
 // * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
-func (vc *VirtualRouterController) Update(tpl string, uType UpdateType) error {
+func (vc *VirtualRouterController) Update(tpl string, uType parameters.UpdateType) error {
 	_, err := vc.c.Client.Call("one.vrouter.update", vc.ID, tpl, uType)
 	return err
 }
@@ -173,7 +144,7 @@ func (vc *VirtualRouterController) Chown(uid, gid int) error {
 
 // Chmod changes the permissions of a virtual router. If any perm is -1 it will not
 // change
-func (vc *VirtualRouterController) Chmod(perm *Permissions) error {
+func (vc *VirtualRouterController) Chmod(perm *shared.Permissions) error {
 	_, err := vc.c.Client.Call("one.vrouter.chmod", perm.ToArgs(vc.ID)...)
 	return err
 }
@@ -221,7 +192,7 @@ func (vc *VirtualRouterController) DetachNic(nicid int) error {
 }
 
 // Lock locks the virtual router depending on blocking level. See levels in locks.go.
-func (vc *VirtualRouterController) Lock(level LockLevel) error {
+func (vc *VirtualRouterController) Lock(level shared.LockLevel) error {
 	_, err := vc.c.Client.Call("one.vrouter.lock", vc.ID, level)
 	return err
 }

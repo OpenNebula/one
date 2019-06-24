@@ -14,39 +14,49 @@
 /* limitations under the License.                                             */
 /*--------------------------------------------------------------------------- */
 
-package goca
+package vdc
 
 import (
-	"fmt"
+	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
 )
 
-func Example() {
-	template := NewTemplateBuilder()
+// Pool represents an OpenNebula Vdc pool
+type Pool struct {
+	VDCs []VDC `xml:"VDC"`
+}
 
-	// Main
-	template.AddValue("cpu", 1)
-	template.AddValue("memory", "64")
-	template.AddValue("vcpu", "2")
+// VDC represents an OpenNebula Vdc
+type VDC struct {
+	ID         int         `xml:"ID"`
+	Name       string      `xml:"NAME"`
+	GroupsID   []int       `xml:"GROUPS>ID"`
+	Clusters   []Cluster   `xml:"CLUSTERS>CLUSTER"`
+	Hosts      []Host      `xml:"HOSTS>HOST"`
+	Datastores []Datastore `xml:"DATASTORES>DATASTORE"`
+	VNets      []VNet      `xml:"VNETS>VNET"`
+	Template   Template    `xml:"TEMPLATE"`
+}
 
-	// Disk
-	vector := template.NewVector("disk")
-	vector.AddValue("image_id", "119")
-	vector.AddValue("dev_prefix", "vd")
+type Template struct {
+	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
+}
 
-	// NIC
-	vector = template.NewVector("nic")
-	vector.AddValue("network_id", "3")
-	vector.AddValue("model", "virtio")
+type Cluster struct {
+	ZoneID    int `xml:"ZONE_ID"`
+	ClusterID int `xml:"CLUSTER_ID"`
+}
 
-	fmt.Println(template)
-	// Output:
-	// CPU="1"
-	// MEMORY="64"
-	// VCPU="2"
-	// DISK=[
-	//     IMAGE_ID="119",
-	//     DEV_PREFIX="vd" ]
-	// NIC=[
-	//     NETWORK_ID="3",
-	//     MODEL="virtio" ]
+type Host struct {
+	ZoneID int `xml:"ZONE_ID"`
+	HostID int `xml:"HOST_ID"`
+}
+
+type Datastore struct {
+	ZoneID      int `xml:"ZONE_ID"`
+	DatastoreID int `xml:"DATASTORE_ID"`
+}
+
+type VNet struct {
+	ZoneID int `xml:"ZONE_ID"`
+	VnetID int `xml:"VNET_ID"`
 }

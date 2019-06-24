@@ -19,7 +19,10 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
-	"fmt"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/datastore"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
 // DatastoresController is a controller for Datastore entities
@@ -27,63 +30,6 @@ type DatastoresController entitiesController
 
 // DatastoreController is a controller for Datastore entity
 type DatastoreController entityController
-
-// DatastorePool represents an OpenNebula DatastorePool
-type DatastorePool struct {
-	Datastores []Datastore `xml:"DATASTORE"`
-}
-
-// Datastore represents an OpenNebula Datastore
-type Datastore struct {
-	ID          int               `xml:"ID"`
-	UID         int               `xml:"UID"`
-	GID         int               `xml:"GID"`
-	UName       string            `xml:"UNAME"`
-	GName       string            `xml:"GNAME"`
-	Name        string            `xml:"NAME"`
-	Permissions *Permissions      `xml:"PERMISSIONS"`
-	DSMad       string            `xml:"DS_MAD"`
-	TMMad       string            `xml:"TM_MAD"`
-	BasePath    string            `xml:"BASE_PATH"`
-	Type        string            `xml:"TYPE"`
-	DiskType    string            `xml:"DISK_TYPE"`
-	StateRaw    int               `xml:"STATE"`
-	ClustersID  []int             `xml:"CLUSTERS>ID"`
-	TotalMB     int               `xml:"TOTAL_MB"`
-	FreeMB      int               `xml:"FREE_MB"`
-	UsedMB      int               `xml:"USED_MB"`
-	ImagesID    []int             `xml:"IMAGES>ID"`
-	Template    datastoreTemplate `xml:"TEMPLATE"`
-}
-
-type datastoreTemplate struct {
-	Dynamic unmatchedTagsSlice `xml:",any"`
-}
-
-// DatastoreState is the state of an OpenNebula datastore
-type DatastoreState int
-
-const (
-	// DatastoreReady datastore is ready
-	DatastoreReady = iota
-
-	// DatastoreDisable datastore is disabled
-	DatastoreDisable
-)
-
-func (s DatastoreState) isValid() bool {
-	if s >= DatastoreReady && s <= DatastoreDisable {
-		return true
-	}
-	return false
-}
-
-func (s DatastoreState) String() string {
-	return [...]string{
-		"READY",
-		"DISABLE",
-	}[s]
-}
 
 // Datastores returns a Datastores controller
 func (c *Controller) Datastores() *DatastoresController {
@@ -124,13 +70,13 @@ func (c *Controller) ByName(name string) (int, error) {
 
 // Info returns a datastore pool. A connection to OpenNebula is
 // performed.
-func (dc *DatastoresController) Info() (*DatastorePool, error) {
+func (dc *DatastoresController) Info() (*datastore.Pool, error) {
 	response, err := dc.c.Client.Call("one.datastorepool.info")
 	if err != nil {
 		return nil, err
 	}
 
-	datastorePool := &DatastorePool{}
+	datastorePool := &datastore.Pool{}
 	err = xml.Unmarshal([]byte(response.Body()), datastorePool)
 	if err != nil {
 		return nil, err
@@ -140,12 +86,12 @@ func (dc *DatastoresController) Info() (*DatastorePool, error) {
 }
 
 // Info retrieves information for the datastore.
-func (dc *DatastoreController) Info() (*Datastore, error) {
+func (dc *DatastoreController) Info() (*datastore.Datastore, error) {
 	response, err := dc.c.Client.Call("one.datastore.info", dc.ID)
 	if err != nil {
 		return nil, err
 	}
-	datastore := &Datastore{}
+	datastore := &datastore.Datastore{}
 	err = xml.Unmarshal([]byte(response.Body()), datastore)
 	if err != nil {
 		return nil, err
@@ -176,13 +122,13 @@ func (dc *DatastoreController) Delete() error {
 // * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
-func (dc *DatastoreController) Update(tpl string, uType UpdateType) error {
+func (dc *DatastoreController) Update(tpl string, uType parameters.UpdateType) error {
 	_, err := dc.c.Client.Call("one.datastore.update", dc.ID, tpl, uType)
 	return err
 }
 
 // Chmod changes the permission bits of a datastore.
-func (dc *DatastoreController) Chmod(perm *Permissions) error {
+func (dc *DatastoreController) Chmod(perm *shared.Permissions) error {
 	_, err := dc.c.Client.Call("one.datastore.chmod", perm.ToArgs(dc.ID)...)
 	return err
 }
@@ -207,22 +153,4 @@ func (dc *DatastoreController) Rename(newName string) error {
 func (dc *DatastoreController) Enable(enable bool) error {
 	_, err := dc.c.Client.Call("one.datastore.enable", dc.ID, enable)
 	return err
-}
-
-// State looks up the state of the image and returns the DatastoreState
-func (datastore *Datastore) State() (DatastoreState, error) {
-	state := DatastoreState(datastore.StateRaw)
-	if !state.isValid() {
-		return -1, fmt.Errorf("Datastore State: this state value is not currently handled: %d\n", datastore.StateRaw)
-	}
-	return state, nil
-}
-
-// StateString returns the state in string format
-func (datastore *Datastore) StateString() (string, error) {
-	state := DatastoreState(datastore.StateRaw)
-	if !state.isValid() {
-		return "", fmt.Errorf("Datastore StateString: this state value is not currently handled: %d\n", datastore.StateRaw)
-	}
-	return state.String(), nil
 }

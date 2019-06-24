@@ -19,6 +19,9 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/user"
 )
 
 // UsersController is a controller for a pool of Users
@@ -26,41 +29,6 @@ type UsersController entitiesController
 
 // UserController is a controller for User entities
 type UserController entityController
-
-// UserPool represents an OpenNebula UserPool
-type UserPool struct {
-	Users             []User     `xml:"USER"`
-	Quotas            []Quotas   `xml:"QUOTAS"`
-	DefaultUserQuotas QuotasList `xml:"DEFAULT_USER_QUOTAS"`
-}
-
-// User represents an OpenNebula user
-type User struct {
-	ID          int          `xml:"ID"`
-	GID         int          `xml:"GID"`
-	GroupsID    []int        `xml:"GROUPS>ID"`
-	GName       string       `xml:"GNAME"`
-	Name        string       `xml:"NAME"`
-	Password    string       `xml:"PASSWORD"`
-	AuthDriver  string       `xml:"AUTH_DRIVER"`
-	Enabled     int          `xml:"ENABLED"`
-	LoginTokens []LoginToken `xml:"LOGIN_TOKEN"`
-	Template    userTemplate `xml:"TEMPLATE"`
-
-	// Variable part between one.userpool.info and one.user.info
-	QuotasList
-	DefaultUserQuotas QuotasList `xml:"DEFAULT_USER_QUOTAS"`
-}
-
-type userTemplate struct {
-	Dynamic unmatchedTagsSlice `xml:",any"`
-}
-
-type LoginToken struct {
-	Token          string `xml:"TOKEN"`
-	ExpirationTime int    `xml:"EXPIRATION_TIME"`
-	EGID           int    `xml:"EGID"`
-}
 
 // Users returns a Users controller.
 func (c *Controller) Users() *UsersController {
@@ -101,13 +69,13 @@ func (c *UsersController) ByName(name string) (int, error) {
 
 // Info returns a user pool. A connection to OpenNebula is
 // performed.
-func (uc *UsersController) Info() (*UserPool, error) {
+func (uc *UsersController) Info() (*user.Pool, error) {
 	response, err := uc.c.Client.Call("one.userpool.info")
 	if err != nil {
 		return nil, err
 	}
 
-	userpool := &UserPool{}
+	userpool := &user.Pool{}
 	err = xml.Unmarshal([]byte(response.Body()), userpool)
 	if err != nil {
 		return nil, err
@@ -117,12 +85,12 @@ func (uc *UsersController) Info() (*UserPool, error) {
 }
 
 // Info retrieves information for the user from ID
-func (uc *UserController) Info() (*User, error) {
+func (uc *UserController) Info() (*user.User, error) {
 	response, err := uc.c.Client.Call("one.user.info", uc.ID)
 	if err != nil {
 		return nil, err
 	}
-	user := &User{}
+	user := &user.User{}
 	err = xml.Unmarshal([]byte(response.Body()), user)
 	if err != nil {
 		return nil, err
@@ -171,7 +139,7 @@ func (uc *UserController) Login(token string, timeSeconds int, effectiveGID int)
 // * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
-func (uc *UserController) Update(tpl string, uType UpdateType) error {
+func (uc *UserController) Update(tpl string, uType parameters.UpdateType) error {
 	_, err := uc.c.Client.Call("one.user.update", uc.ID, tpl, uType)
 	return err
 }

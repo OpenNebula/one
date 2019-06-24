@@ -18,27 +18,30 @@ package goca
 
 import (
 	"testing"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/securitygroup"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
-func TestSGAllocate(t *testing.T){
+func TestSGAllocate(t *testing.T) {
 	var sg_name string = "new_test_sg"
-	var sg *SecurityGroup
-	var sg_template string =  "NAME = \"" + sg_name + "\"\n" +
-							"DESCRIPTION  = \"test security group\"\n"+
-							"ATT1 = \"VAL1\"\n" +
-							"ATT2 = \"VAL2\""
+	var sg *securitygroup.SecurityGroup
+	var sg_template string = "NAME = \"" + sg_name + "\"\n" +
+		"DESCRIPTION  = \"test security group\"\n" +
+		"ATT1 = \"VAL1\"\n" +
+		"ATT2 = \"VAL2\""
 
 	//Create SG
 	sg_id, err := testCtrl.SecurityGroups().Create(sg_template)
 
 	if err != nil {
-	    t.Fatalf("Test failed:\n" + err.Error())
+		t.Fatalf("Test failed:\n" + err.Error())
 	}
 
 	sgC := testCtrl.SecurityGroup(sg_id)
 	sg, err = sgC.Info()
 	if err != nil {
-	    t.Errorf("Test failed:\n" + err.Error())
+		t.Errorf("Test failed:\n" + err.Error())
 	}
 
 	actual := sg.Name
@@ -53,12 +56,12 @@ func TestSGAllocate(t *testing.T){
 	err = sgC.Update(tmpl, 1)
 
 	if err != nil {
-	    t.Errorf("Test failed:\n" + err.Error())
+		t.Errorf("Test failed:\n" + err.Error())
 	}
 
 	sg, err = sgC.Info()
 	if err != nil {
-	    t.Errorf("Test failed:\n" + err.Error())
+		t.Errorf("Test failed:\n" + err.Error())
 	}
 
 	actual_1, err := sg.Template.Dynamic.GetContentByName("ATT1")
@@ -85,12 +88,12 @@ func TestSGAllocate(t *testing.T){
 	clone_id, err := sgC.Clone(clone_name)
 
 	if err != nil {
-	    t.Errorf("Test failed:\n" + err.Error())
+		t.Errorf("Test failed:\n" + err.Error())
 	}
 
 	clone, err := testCtrl.SecurityGroup(clone_id).Info()
 	if err != nil {
-	    t.Errorf("Test failed:\n" + err.Error())
+		t.Errorf("Test failed:\n" + err.Error())
 	}
 
 	actual = clone.Name
@@ -102,18 +105,18 @@ func TestSGAllocate(t *testing.T){
 	testCtrl.SecurityGroup(clone_id).Delete()
 
 	//Change permission of SG
-	err = sgC.Chmod(&Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1})
+	err = sgC.Chmod(&shared.Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1})
 
 	if err != nil {
-	    t.Errorf("Test failed:\n" + err.Error())
+		t.Errorf("Test failed:\n" + err.Error())
 	}
 
 	sg, err = sgC.Info()
 	if err != nil {
-	    t.Errorf("Test failed:\n" + err.Error())
+		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	expected_perm := Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1}
+	expected_perm := shared.Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1}
 	actual_perm := sg.Permissions
 
 	if actual_perm == nil || *actual_perm != expected_perm {
@@ -121,15 +124,15 @@ func TestSGAllocate(t *testing.T){
 	}
 
 	//Change owner of SG
-	err = sgC.Chown(1,1)
+	err = sgC.Chown(1, 1)
 
 	if err != nil {
-	    t.Errorf("Test failed:\n" + err.Error())
+		t.Errorf("Test failed:\n" + err.Error())
 	}
 
 	sg, err = sgC.Info()
 	if err != nil {
-	    t.Errorf("Test failed:\n" + err.Error())
+		t.Errorf("Test failed:\n" + err.Error())
 	}
 
 	expected_usr := 1
@@ -150,12 +153,12 @@ func TestSGAllocate(t *testing.T){
 	err = sgC.Rename(rename)
 
 	if err != nil {
-	    t.Errorf("Test failed:\n" + err.Error())
+		t.Errorf("Test failed:\n" + err.Error())
 	}
 
 	sg, err = sgC.Info()
 	if err != nil {
-	    t.Errorf("Test failed:\n" + err.Error())
+		t.Errorf("Test failed:\n" + err.Error())
 	}
 
 	actual = sg.Name

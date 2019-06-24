@@ -19,6 +19,10 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/securitygroup"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
 // SecurityGroupsController is a controller for a pool of Security
@@ -26,39 +30,6 @@ type SecurityGroupsController entitiesController
 
 // SecurityGroupController is a controller for Security entities
 type SecurityGroupController entityController
-
-// SecurityGroupPool represents an OpenNebula SecurityGroupPool
-type SecurityGroupPool struct {
-	SecurityGroups []SecurityGroup `xml:"SECURITY_GROUP"`
-}
-
-// SecurityGroup represents an OpenNebula SecurityGroup
-type SecurityGroup struct {
-	ID          int                   `xml:"ID"`
-	UID         int                   `xml:"UID"`
-	GID         int                   `xml:"GID"`
-	UName       string                `xml:"UNAME"`
-	GName       string                `xml:"GNAME"`
-	Name        string                `xml:"NAME"`
-	Permissions *Permissions          `xml:"PERMISSIONS"`
-	UpdatedVMs  []int                 `xml:"UPDATED_VMS>ID"`
-	OutdatedVMs []int                 `xml:"OUTDATED_VMS>ID"`
-	UpdatingVMs []int                 `xml:"UPDATING_VMS>ID"`
-	ErrorVMs    []int                 `xml:"ERROR_VMS>ID"`
-	Template    securityGroupTemplate `xml:"TEMPLATE"`
-}
-
-// VirtualRouterTemplate represent the template part of the OpenNebula VirtualRouter
-type securityGroupTemplate struct {
-	Description string              `xml:"DESCRIPTION"`
-	Rules       []SecurityGroupRule `xml:"RULE"`
-	Dynamic     unmatchedTagsSlice  `xml:",any"`
-}
-
-type SecurityGroupRule struct {
-	Protocol string `xml:"PROTOCOL"`
-	RuleType string `xml:"RULE_TYPE"`
-}
 
 // SecurityGroups returns a SecurityGroups controller.
 func (c *Controller) SecurityGroups() *SecurityGroupsController {
@@ -99,12 +70,12 @@ func (c *SecurityGroupsController) ByName(name string, args ...int) (int, error)
 
 // Info returns a security group pool. A connection to OpenNebula is
 // performed.
-func (sc *SecurityGroupsController) Info(args ...int) (*SecurityGroupPool, error) {
+func (sc *SecurityGroupsController) Info(args ...int) (*securitygroup.Pool, error) {
 	var who, start, end int
 
 	switch len(args) {
 	case 0:
-		who = PoolWhoMine
+		who = parameters.PoolWhoMine
 		start = -1
 		end = -1
 	case 1:
@@ -124,7 +95,7 @@ func (sc *SecurityGroupsController) Info(args ...int) (*SecurityGroupPool, error
 		return nil, err
 	}
 
-	secgroupPool := &SecurityGroupPool{}
+	secgroupPool := &securitygroup.Pool{}
 	err = xml.Unmarshal([]byte(response.Body()), secgroupPool)
 	if err != nil {
 		return nil, err
@@ -134,12 +105,12 @@ func (sc *SecurityGroupsController) Info(args ...int) (*SecurityGroupPool, error
 }
 
 // Info retrieves information for the security group.
-func (sc *SecurityGroupController) Info() (*SecurityGroup, error) {
+func (sc *SecurityGroupController) Info() (*securitygroup.SecurityGroup, error) {
 	response, err := sc.c.Client.Call("one.secgroup.info", sc.ID)
 	if err != nil {
 		return nil, err
 	}
-	sg := &SecurityGroup{}
+	sg := &securitygroup.SecurityGroup{}
 	err = xml.Unmarshal([]byte(response.Body()), sg)
 	if err != nil {
 		return nil, err
@@ -179,7 +150,7 @@ func (sc *SecurityGroupController) Delete() error {
 // * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
-func (sc *SecurityGroupController) Update(tpl string, uType UpdateType) error {
+func (sc *SecurityGroupController) Update(tpl string, uType parameters.UpdateType) error {
 	_, err := sc.c.Client.Call("one.secgroup.update", sc.ID, tpl, uType)
 	return err
 }
@@ -192,7 +163,7 @@ func (sc *SecurityGroupController) Commit(recovery bool) error {
 }
 
 // Chmod changes the permission bits of a security group
-func (sc *SecurityGroupController) Chmod(perm *Permissions) error {
+func (sc *SecurityGroupController) Chmod(perm *shared.Permissions) error {
 	_, err := sc.c.Client.Call("one.secgroup.chmod", perm.ToArgs(sc.ID)...)
 	return err
 }

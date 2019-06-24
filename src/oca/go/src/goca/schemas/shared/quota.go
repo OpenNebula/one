@@ -14,7 +14,7 @@
 /* limitations under the License.                                             */
 /*--------------------------------------------------------------------------- */
 
-package goca
+package shared
 
 type Quotas struct {
 	ID int `xml:"ID"`

@@ -14,45 +14,17 @@
 /* limitations under the License.                                             */
 /*--------------------------------------------------------------------------- */
 
-package goca
+package shared
 
-// Permissions is associated to OpenNebula resources
-// * uu: USER USE bit.
-// * um: USER MANAGE bit.
-// * ua: USER ADMIN bit.
-// * gu: GROUP USE bit.
-// * gm: GROUP MANAGE bit.
-// * ga: GROUP ADMIN bit.
-// * ou: OTHER USE bit.
-// * om: OTHER MANAGE bit.
-// * oa: OTHER ADMIN bit.
-type Permissions struct {
-	OwnerU int `xml:"OWNER_U"`
-	OwnerM int `xml:"OWNER_M"`
-	OwnerA int `xml:"OWNER_A"`
-	GroupU int `xml:"GROUP_U"`
-	GroupM int `xml:"GROUP_M"`
-	GroupA int `xml:"GROUP_A"`
-	OtherU int `xml:"OTHER_U"`
-	OtherM int `xml:"OTHER_M"`
-	OtherA int `xml:"OTHER_A"`
-}
+// There is two types of snapshots, an user can take snapshot on VM, or on VM disks
 
-var permStr = [8]string{"---", "--a", "-m-", "-ma", "u--", "u-a", "um-", "uma"}
-
-// If a bit is set to -1, it will not change when calling Chmod
-func (p *Permissions) ToArgs(id int) []interface{} {
-	return []interface{}{
-		id,
-		p.OwnerU, p.OwnerM, p.OwnerA,
-		p.GroupU, p.GroupM, p.GroupA,
-		p.OtherU, p.OtherM, p.OtherA,
-	}
-}
-
-func (p *Permissions) String() string {
-	owner := permStr[p.OwnerU<<2|p.OwnerM<<1|p.OwnerA]
-	group := permStr[p.GroupU<<2|p.GroupM<<1|p.GroupA]
-	other := permStr[p.OtherU<<2|p.OtherM<<1|p.OtherA]
-	return owner + group + other
+// Snapshot is a common part for external snapshot structures
+type Snapshot struct {
+	Children string `xml:"CHILDREN"` //minOccur=0
+	Active   string `xml:"ACTIVE"`   //minOccur=0
+	Date     int    `xml:"DATE"`
+	ID       int    `xml:"ID"`
+	Name     string `xml:"NAME"` //minOccur=0
+	Parent   int    `xml:"PARENT"`
+	Size     int    `xml:"SIZE"`
 }

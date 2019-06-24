@@ -19,11 +19,14 @@ package goca
 import (
 	"strconv"
 	"testing"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/image"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/marketplaceapp"
 )
 
 func TestMarketplaceApp(t *testing.T) {
 	var mkt_app_name string = "new_mkt_app"
-	var mkt_app *MarketPlaceApp
+	var mkt_app *marketplaceapp.MarketPlaceApp
 	var mkt_app_tmpl string
 	var mkt_img_id int
 	var market_id int
@@ -48,7 +51,7 @@ func TestMarketplaceApp(t *testing.T) {
 
 		state, _ := img.State()
 
-		return state == ImageReady
+		return state == image.Ready
 	})
 
 	if err != nil {

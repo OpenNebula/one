@@ -14,7 +14,7 @@
 /* limitations under the License.                                             */
 /*--------------------------------------------------------------------------- */
 
-package goca
+package parameters
 
 // UpdateType is a parameter to update methods indicating how to replace the template
 type UpdateType int

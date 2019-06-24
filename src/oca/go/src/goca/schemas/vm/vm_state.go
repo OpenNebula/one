@@ -1,49 +1,49 @@
-package goca
+package vm
 
 import "fmt"
 
-// VMState is the state of the Virtual Machine
-type VMState int
+// State is the state of the Virtual Machine
+type State int
 
 const (
 	// Init state
-	Init VMState = 0
+	Init State = 0
 
 	// Pending state
-	Pending VMState = 1
+	Pending State = 1
 
 	// Hold state
-	Hold VMState = 2
+	Hold State = 2
 
 	// Active state
-	Active VMState = 3
+	Active State = 3
 
 	// Stopped state
-	Stopped VMState = 4
+	Stopped State = 4
 
 	// Suspended state
-	Suspended VMState = 5
+	Suspended State = 5
 
 	// Done state
-	Done VMState = 6
+	Done State = 6
 
 	// Deprecated
-	// Failed VMState = 7
+	// Failed State = 7
 
 	// Poweroff state
-	Poweroff VMState = 8
+	Poweroff State = 8
 
 	// Undeployed state
-	Undeployed VMState = 9
+	Undeployed State = 9
 
 	// Cloning state
-	Cloning VMState = 10
+	Cloning State = 10
 
 	// CloningFailure state
-	CloningFailure VMState = 11
+	CloningFailure State = 11
 )
 
-func (s VMState) isValid() bool {
+func (s State) isValid() bool {
 	if (s >= Init && s <= Done) ||
 		(s >= Poweroff && s <= CloningFailure) {
 		return true
@@ -51,7 +51,7 @@ func (s VMState) isValid() bool {
 	return false
 }
 
-func (s VMState) String() string {
+func (s State) String() string {
 	switch s {
 	case Init:
 		return "INIT"
@@ -419,9 +419,9 @@ func (s LCMState) String() string {
 	}
 }
 
-// State returns the VMState and LCMState
-func (vm *VM) State() (VMState, LCMState, error) {
-	state := VMState(vm.StateRaw)
+// State returns the State and LCMState
+func (vm *VM) State() (State, LCMState, error) {
+	state := State(vm.StateRaw)
 	if !state.isValid() {
 		return -1, -1, fmt.Errorf("VM State: this state value is not currently handled: %d\n", vm.StateRaw)
 	}
@@ -432,9 +432,9 @@ func (vm *VM) State() (VMState, LCMState, error) {
 	return state, lcmState, nil
 }
 
-// StateString returns the VMState and LCMState as strings
+// StateString returns the State and LCMState as strings
 func (vm *VM) StateString() (string, string, error) {
-	state := VMState(vm.StateRaw)
+	state := State(vm.StateRaw)
 	if !state.isValid() {
 		return "", "", fmt.Errorf("VM State: this state value is not currently handled: %d\n", vm.StateRaw)
 	}

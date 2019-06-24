@@ -19,6 +19,10 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/marketplaceapp"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
 // MarketPlaceAppsController is a controller for a pool of MarketPlaceApps
@@ -26,42 +30,6 @@ type MarketPlaceAppsController entitiesController
 
 // MarketPlaceAppController is a controller for MarketPlaceApp entities
 type MarketPlaceAppController entityController
-
-// MarketPlaceAppPool represents an OpenNebula MarketPlaceAppPool
-type MarketPlaceAppPool struct {
-	MarketPlaceApps []MarketPlaceApp `xml:"MARKETPLACEAPP"`
-}
-
-// MarketPlaceApp represents an OpenNebula MarketPlaceApp
-type MarketPlaceApp struct {
-	ID            int                    `xml:"ID"`
-	UID           int                    `xml:"UID"`
-	GID           int                    `xml:"GID"`
-	UName         string                 `xml:"UNAME"`
-	GName         string                 `xml:"GNAME"`
-	LockInfos     *Lock                  `xml:"LOCK"`
-	Permissions   *Permissions           `xml:"PERMISSIONS"`
-	RegTime       int                    `xml:"REGTIME"`
-	Name          string                 `xml:"NAME"`
-	ZoneID        string                 `xml:"ZONE_ID"`
-	OriginID      string                 `xml:"ORIGIN_ID"`
-	Source        string                 `xml:"SOURCE"`
-	MD5           string                 `xml:"MD5"`
-	Size          int                    `xml:"SIZE"`
-	Description   string                 `xml:"DESCRIPTION"`
-	Version       string                 `xml:"VERSION"`
-	Format        string                 `xml:"FORMAT"`
-	AppTemplate64 string                 `xml:"APPTEMPLATE64"`
-	MarketPlaceID int                    `xml:"MARKETPLACEID"`
-	MarketPlace   string                 `xml:"MARKETPLACE"`
-	State         int                    `xml:"STATE"`
-	Type          int                    `xml:"TYPE"`
-	Template      marketPlaceAppTemplate `xml:"TEMPLATE"`
-}
-
-type marketPlaceAppTemplate struct {
-	Dynamic unmatchedTagsSlice `xml:,any`
-}
 
 // MarketPlaceApps returns a MarketPlaceApps controller
 func (c *Controller) MarketPlaceApps() *MarketPlaceAppsController {
@@ -102,12 +70,12 @@ func (c *MarketPlaceAppsController) ByName(name string, args ...int) (int, error
 
 // Info returns a marketplace app pool. A connection to OpenNebula is
 // performed.
-func (mc *MarketPlaceAppsController) Info(args ...int) (*MarketPlaceAppPool, error) {
+func (mc *MarketPlaceAppsController) Info(args ...int) (*marketplaceapp.Pool, error) {
 	var who, start, end int
 
 	switch len(args) {
 	case 0:
-		who = PoolWhoMine
+		who = parameters.PoolWhoMine
 		start = -1
 		end = -1
 	case 1:
@@ -127,7 +95,7 @@ func (mc *MarketPlaceAppsController) Info(args ...int) (*MarketPlaceAppPool, err
 		return nil, err
 	}
 
-	marketappPool := &MarketPlaceAppPool{}
+	marketappPool := &marketplaceapp.Pool{}
 	err = xml.Unmarshal([]byte(response.Body()), marketappPool)
 	if err != nil {
 		return nil, err
@@ -137,12 +105,12 @@ func (mc *MarketPlaceAppsController) Info(args ...int) (*MarketPlaceAppPool, err
 }
 
 // Info retrieves information for the marketplace app.
-func (mc *MarketPlaceAppController) Info() (*MarketPlaceApp, error) {
+func (mc *MarketPlaceAppController) Info() (*marketplaceapp.MarketPlaceApp, error) {
 	response, err := mc.c.Client.Call("one.marketapp.info", mc.ID)
 	if err != nil {
 		return nil, err
 	}
-	marketApp := &MarketPlaceApp{}
+	marketApp := &marketplaceapp.MarketPlaceApp{}
 	err = xml.Unmarshal([]byte(response.Body()), marketApp)
 	if err != nil {
 		return nil, err
@@ -180,13 +148,13 @@ func (mc *MarketPlaceAppController) Enable(enable bool) error {
 // * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
-func (mc *MarketPlaceAppController) Update(tpl string, uType UpdateType) error {
+func (mc *MarketPlaceAppController) Update(tpl string, uType parameters.UpdateType) error {
 	_, err := mc.c.Client.Call("one.marketapp.update", mc.ID, tpl, uType)
 	return err
 }
 
 // Chmod changes the permission bits of a marketplace app
-func (mc *MarketPlaceAppController) Chmod(perm *Permissions) error {
+func (mc *MarketPlaceAppController) Chmod(perm *shared.Permissions) error {
 	_, err := mc.c.Client.Call("one.marketapp.chmod", perm.ToArgs(mc.ID)...)
 	return err
 }
@@ -207,7 +175,7 @@ func (mc *MarketPlaceAppController) Rename(newName string) error {
 }
 
 // Lock locks the marketplace app depending on blocking level. See levels in locks.go.
-func (mc *MarketPlaceAppController) Lock(level LockLevel) error {
+func (mc *MarketPlaceAppController) Lock(level shared.LockLevel) error {
 	_, err := mc.c.Client.Call("one.marketapp.lock", mc.ID, level)
 	return err
 }

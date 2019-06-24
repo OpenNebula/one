@@ -19,6 +19,10 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/template"
 )
 
 // TemplatesController is a controller for a pool of template
@@ -26,63 +30,6 @@ type TemplatesController entitiesController
 
 // TemplateController is a controller for Template entities
 type TemplateController entityController
-
-// TemplatePool represents an OpenNebula TemplatePool
-type TemplatePool struct {
-	Templates []Template `xml:"VMTEMPLATE"`
-}
-
-// Template represents an OpenNebula Template
-type Template struct {
-	ID          int              `xml:"ID"`
-	UID         int              `xml:"UID"`
-	GID         int              `xml:"GID"`
-	UName       string           `xml:"UNAME"`
-	GName       string           `xml:"GNAME"`
-	Name        string           `xml:"NAME"`
-	LockInfos   *Lock            `xml:"LOCK"`
-	Permissions *Permissions     `xml:"PERMISSIONS"`
-	RegTime     int              `xml:"REGTIME"`
-	Template    templateTemplate `xml:"TEMPLATE"`
-}
-
-// templateTemplate represent the template part of the OpenNebula Template
-type templateTemplate struct {
-	CPU        float64             `xml:"CPU"`
-	Memory     int                 `xml:"MEMORY"`
-	Context    *TemplateContext    `xml:"CONTEXT"`
-	Disk       []TemplateDisk      `xml:"DISK"`
-	Graphics   *TemplateGraphics   `xml:"GRAPHICS"`
-	NICDefault *TemplateNicDefault `xml:"NIC_DEFAULT"`
-	OS         *TemplateOS         `xml:"OS"`
-	UserInputs TemplateUserInputs  `xml:"USER_INPUTS"`
-	Dynamic    unmatchedTagsSlice  `xml:",any"`
-}
-
-type TemplateContext struct {
-	Dynamic unmatchedTagsMap `xml:",any"`
-}
-
-type TemplateDisk struct {
-	Dynamic unmatchedTagsSlice `xml:",any"`
-}
-
-type TemplateGraphics struct {
-	Dynamic unmatchedTagsSlice `xml:",any"`
-}
-
-type TemplateUserInputs struct {
-	Dynamic unmatchedTagsSlice `xml:",any"`
-}
-
-type TemplateNicDefault struct {
-	Model string `xml:"MODEL"`
-}
-
-type TemplateOS struct {
-	Arch string `xml:"ARCH"`
-	Boot string `xml:"BOOT"`
-}
 
 // Templates returns a Templates controller.
 func (c *Controller) Templates() *TemplatesController {
@@ -123,12 +70,12 @@ func (c *TemplatesController) ByName(name string, args ...int) (int, error) {
 
 // Info returns a template pool. A connection to OpenNebula is
 // performed.
-func (tc *TemplatesController) Info(args ...int) (*TemplatePool, error) {
+func (tc *TemplatesController) Info(args ...int) (*template.Pool, error) {
 	var who, start, end int
 
 	switch len(args) {
 	case 0:
-		who = PoolWhoMine
+		who = parameters.PoolWhoMine
 		start = -1
 		end = -1
 	case 3:
@@ -144,7 +91,7 @@ func (tc *TemplatesController) Info(args ...int) (*TemplatePool, error) {
 		return nil, err
 	}
 
-	templatePool := &TemplatePool{}
+	templatePool := &template.Pool{}
 	err = xml.Unmarshal([]byte(response.Body()), templatePool)
 	if err != nil {
 		return nil, err
@@ -154,12 +101,12 @@ func (tc *TemplatesController) Info(args ...int) (*TemplatePool, error) {
 }
 
 // Info connects to OpenNebula and fetches the information of the Template
-func (tc *TemplateController) Info() (*Template, error) {
+func (tc *TemplateController) Info() (*template.Template, error) {
 	response, err := tc.c.Client.Call("one.template.info", tc.ID)
 	if err != nil {
 		return nil, err
 	}
-	template := &Template{}
+	template := &template.Template{}
 	err = xml.Unmarshal([]byte(response.Body()), template)
 	if err != nil {
 		return nil, err
@@ -182,7 +129,7 @@ func (tc *TemplatesController) Create(template string) (int, error) {
 // * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
-func (tc *TemplateController) Update(tpl string, uType UpdateType) error {
+func (tc *TemplateController) Update(tpl string, uType parameters.UpdateType) error {
 	_, err := tc.c.Client.Call("one.template.update", tc.ID, tpl, uType)
 	return err
 }
@@ -196,7 +143,7 @@ func (tc *TemplateController) Chown(uid, gid int) error {
 
 // Chmod changes the permissions of a template. If any perm is -1 it will not
 // change
-func (tc *TemplateController) Chmod(perm *Permissions) error {
+func (tc *TemplateController) Chmod(perm *shared.Permissions) error {
 	_, err := tc.c.Client.Call("one.template.chmod", perm.ToArgs(tc.ID)...)
 	return err
 }
@@ -232,7 +179,7 @@ func (tc *TemplateController) Clone(name string, recursive bool) error {
 }
 
 // Lock locks the template following block level. See levels in locks.go.
-func (tc *TemplateController) Lock(level LockLevel) error {
+func (tc *TemplateController) Lock(level shared.LockLevel) error {
 	_, err := tc.c.Client.Call("one.template.lock", tc.ID, level)
 	return err
 }

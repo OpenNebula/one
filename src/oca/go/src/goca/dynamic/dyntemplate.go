@@ -14,7 +14,7 @@
 /* limitations under the License.                                             */
 /*--------------------------------------------------------------------------- */
 
-package goca
+package dynamic
 
 import (
 	"errors"

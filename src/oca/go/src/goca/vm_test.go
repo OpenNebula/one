@@ -20,6 +20,8 @@ import (
 	"testing"
 
 	. "gopkg.in/check.v1"
+
+	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
 )
 
 // Hook up gocheck into the "go test" runner.
@@ -35,7 +37,7 @@ var _ = Suite(&VMSuite{})
 
 func (s *VMSuite) SetUpSuite(c *C) {
 	// Create template
-	tpl := NewTemplateBuilder()
+	tpl := dyn.NewTemplateBuilder()
 
 	tpl.AddValue("NAME", GenName("VMSuite-template"))
 	tpl.AddValue("CPU", 1)
@@ -79,7 +81,7 @@ func (s *VMSuite) TearDownSuite(c *C) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-func VMExpectState(c *C, vmID uint, state, lcmState string) func() bool {
+func VMExpectState(c *C, vmID int, state, lcmState string) func() bool {
 	return func() bool {
 		vm, err := testCtrl.VM(vmID).Info()
 		if err != nil {
@@ -201,7 +203,7 @@ func (s *VMSuite) TestVMResume(c *C) {
 }
 
 func (s *VMSuite) TestVMResize(c *C) {
-	expectHostState := func(hostID uint) func() bool {
+	expectHostState := func(hostID int) func() bool {
 		return func() bool {
 			hostC := testCtrl.Host(hostID)
 			host, err := hostC.Info()

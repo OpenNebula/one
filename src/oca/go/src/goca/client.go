@@ -24,6 +24,8 @@ import (
 	"os"
 	"strings"
 
+	errs "github.com/OpenNebula/one/src/oca/go/src/goca/errors"
+
 	cleanhttp "github.com/hashicorp/go-cleanhttp"
 	"github.com/kolo/xmlrpc"
 )
@@ -118,26 +120,26 @@ func (c *Client) Call(method string, args ...interface{}) (*Response, error) {
 	buf, err := xmlrpc.EncodeMethodCall(method, xmlArgs...)
 	if err != nil {
 		return nil,
-			&ClientError{Code: ClientReqBuild, msg: "xmlrpc request encoding", err: err}
+			&errs.ClientError{Code: errs.ClientReqBuild, Msg: "xmlrpc request encoding", Err: err}
 	}
 
 	req, err := http.NewRequest("POST", c.url, bytes.NewBuffer(buf))
 	if err != nil {
 		return nil,
-			&ClientError{Code: ClientReqBuild, msg: "http request build", err: err}
+			&errs.ClientError{Code: errs.ClientReqBuild, Msg: "http request build", Err: err}
 	}
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil,
-			&ClientError{Code: ClientReqHTTP, msg: "http make request", err: err}
+			&errs.ClientError{Code: errs.ClientReqHTTP, Msg: "http make request", Err: err}
 	}
 
 	if resp.StatusCode/100 != 2 {
-		return nil, &ClientError{
-			Code:     ClientRespHTTP,
-			msg:      fmt.Sprintf("http status code: %d", resp.StatusCode),
-			httpResp: resp,
+		return nil, &errs.ClientError{
+			Code:     errs.ClientRespHTTP,
+			Msg:      fmt.Sprintf("http status code: %d", resp.StatusCode),
+			HttpResp: resp,
 		}
 	}
 
@@ -145,7 +147,7 @@ func (c *Client) Call(method string, args ...interface{}) (*Response, error) {
 	resp.Body.Close()
 	if err != nil {
 		return nil,
-			&ClientError{ClientRespHTTP, "read http response body", resp, err}
+			&errs.ClientError{errs.ClientRespHTTP, "read http response body", resp, err}
 	}
 
 	// Server side XML-RPC library: xmlrpc-c
@@ -155,7 +157,7 @@ func (c *Client) Call(method string, args ...interface{}) (*Response, error) {
 	if xmlrpcResp.Failed() {
 		err = xmlrpcResp.Err()
 		return nil,
-			&ClientError{ClientRespXMLRPCFault, "server response", resp, err}
+			&errs.ClientError{errs.ClientRespXMLRPCFault, "server response", resp, err}
 	}
 
 	result := []interface{}{}
@@ -163,14 +165,14 @@ func (c *Client) Call(method string, args ...interface{}) (*Response, error) {
 	// Unmarshall the XML-RPC response
 	if err := xmlrpcResp.Unmarshal(&result); err != nil {
 		return nil,
-			&ClientError{ClientRespXMLRPCParse, "unmarshal xmlrpc", resp, err}
+			&errs.ClientError{errs.ClientRespXMLRPCParse, "unmarshal xmlrpc", resp, err}
 	}
 
 	// Parse according the XML-RPC OpenNebula API documentation
 	status, ok = result[0].(bool)
 	if ok == false {
 		return nil,
-			&ClientError{ClientRespONeParse, "index 0: boolean expected", resp, nil}
+			&errs.ClientError{errs.ClientRespONeParse, "index 0: boolean expected", resp, nil}
 	}
 
 	body, ok = result[1].(string)
@@ -178,20 +180,20 @@ func (c *Client) Call(method string, args ...interface{}) (*Response, error) {
 		bodyInt, ok = result[1].(int64)
 		if ok == false {
 			return nil,
-				&ClientError{ClientRespONeParse, "index 1: int or string expected", resp, nil}
+				&errs.ClientError{errs.ClientRespONeParse, "index 1: int or string expected", resp, nil}
 		}
 	}
 
 	errCode, ok = result[2].(int64)
 	if ok == false {
 		return nil,
-			&ClientError{ClientRespONeParse, "index 2: boolean expected", resp, nil}
+			&errs.ClientError{errs.ClientRespONeParse, "index 2: boolean expected", resp, nil}
 	}
 
 	if status == false {
-		return nil, &ResponseError{
-			Code: OneErrCode(errCode),
-			msg:  body,
+		return nil, &errs.ResponseError{
+			Code: errs.OneErrCode(errCode),
+			Msg:  body,
 		}
 	}
 

@@ -19,7 +19,9 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
-	"fmt"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/zone"
 )
 
 // ZonesController is a controller for a pool of Zones
@@ -27,76 +29,6 @@ type ZonesController entitiesController
 
 // ZoneController is a controller for Zone entities
 type ZoneController entityController
-
-// ZonePool represents an OpenNebula ZonePool
-type ZonePool struct {
-	ID         int          `xml:"ZONE>ID"`
-	Name       string       `xml:"ZONE>NAME"`
-	Template   zoneTemplate `xml:"ZONE>TEMPLATE"`
-	ServerPool []ZoneServer `xml:"ZONE>SERVER_POOL>SERVER"`
-}
-
-// Zone represents an OpenNebula Zone
-type Zone struct {
-	ID         int          `xml:"ID"`
-	Name       string       `xml:"NAME"`
-	Template   zoneTemplate `xml:"TEMPLATE"`
-	ServerPool []ZoneServer `xml:"SERVER_POOL>SERVER"`
-}
-
-type ZoneServer struct {
-	ID       int    `xml:"ID"`
-	Name     string `xml:"NAME"`
-	Endpoint string `xml:"ENDPOINT"`
-}
-
-type zoneTemplate struct {
-	Endpoint string `xml:"ENDPOINT"`
-}
-
-// ZoneServerRaftStatus contains the raft status datas of a server
-type ZoneServerRaftStatus struct {
-	ID          int `xml:"SERVER_ID"`
-	StateRaw    int `xml:"STATE"`
-	Term        int `xml:"TERM"`
-	Votedfor    int `xml:"VOTEDFOR"`
-	Commit      int `xml:"COMMIT"`
-	LogIndex    int `xml:"LOG_INDEX"`
-	FedlogIndex int `xml:"FEDLOG_INDEX"`
-}
-
-// ZoneServerRaftState is the state of an OpenNebula server from a zone (See HA and Raft)
-type ZoneServerRaftState int
-
-const (
-	// ZoneServerRaftSolo is the initial leader
-	ZoneServerRaftSolo ZoneServerRaftState = 0
-
-	// ZoneServerRaftCandidate when the server is candidate to election
-	ZoneServerRaftCandidate = 1
-
-	// ZoneServerRaftFollower when the server is a follower
-	ZoneServerRaftFollower = 2
-
-	// ZoneServerRaftLeader when the server is the leader
-	ZoneServerRaftLeader = 3
-)
-
-func (s ZoneServerRaftState) isValid() bool {
-	if s >= ZoneServerRaftSolo && s <= ZoneServerRaftLeader {
-		return true
-	}
-	return false
-}
-
-func (s ZoneServerRaftState) String() string {
-	return [...]string{
-		"SOLO",
-		"CANDIDATE",
-		"FOLLOWER",
-		"LEADER",
-	}[s]
-}
 
 // Zones returns a Zones controller.
 func (c *Controller) Zones() *ZonesController {
@@ -124,13 +56,13 @@ func (c *ZonesController) ByName(name string) (int, error) {
 
 // Info returns a zone pool. A connection to OpenNebula is
 // performed.
-func (zc *ZonesController) Info() (*ZonePool, error) {
+func (zc *ZonesController) Info() (*zone.Pool, error) {
 	response, err := zc.c.Client.Call("one.zonepool.info")
 	if err != nil {
 		return nil, err
 	}
 
-	zonePool := &ZonePool{}
+	zonePool := &zone.Pool{}
 	err = xml.Unmarshal([]byte(response.Body()), zonePool)
 	if err != nil {
 		return nil, err
@@ -140,12 +72,12 @@ func (zc *ZonesController) Info() (*ZonePool, error) {
 }
 
 // Info retrieves information for the zone.
-func (zc *ZoneController) Info() (*Zone, error) {
+func (zc *ZoneController) Info() (*zone.Zone, error) {
 	response, err := zc.c.Client.Call("one.zone.info", zc.ID)
 	if err != nil {
 		return nil, err
 	}
-	zone := &Zone{}
+	zone := &zone.Zone{}
 	err = xml.Unmarshal([]byte(response.Body()), zone)
 	if err != nil {
 		return nil, err
@@ -176,7 +108,7 @@ func (zc *ZoneController) Delete() error {
 // * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
-func (zc *ZoneController) Update(tpl string, uType UpdateType) error {
+func (zc *ZoneController) Update(tpl string, uType parameters.UpdateType) error {
 	_, err := zc.c.Client.Call("one.zone.update", zc.ID, tpl, uType)
 	return err
 }
@@ -189,33 +121,15 @@ func (zc *ZoneController) Rename(newName string) error {
 }
 
 // ServerRaftStatus give the raft status of the server behind the current RPC endpoint. To get endpoints make an info call.
-func (zc *ZonesController) ServerRaftStatus() (*ZoneServerRaftStatus, error) {
+func (zc *ZonesController) ServerRaftStatus() (*zone.ServerRaftStatus, error) {
 	response, err := zc.c.Client.Call("one.zone.raftstatus")
 	if err != nil {
 		return nil, err
 	}
-	s := &ZoneServerRaftStatus{}
+	s := &zone.ServerRaftStatus{}
 	err = xml.Unmarshal([]byte(response.Body()), s)
 	if err != nil {
 		return nil, err
 	}
 	return s, nil
-}
-
-// State looks up the state of the zone server and returns the ZoneServerRaftState
-func (server *ZoneServerRaftStatus) State() (ZoneServerRaftState, error) {
-	state := ZoneServerRaftState(server.StateRaw)
-	if !state.isValid() {
-		return -1, fmt.Errorf("Zone server State: this state value is not currently handled: %d\n", server.StateRaw)
-	}
-	return state, nil
-}
-
-// StateString returns the state in string format
-func (server *ZoneServerRaftStatus) StateString() (string, error) {
-	state := ZoneServerRaftState(server.StateRaw)
-	if !state.isValid() {
-		return "", fmt.Errorf("Zone server StateString: this state value is not currently handled: %d\n", server.StateRaw)
-	}
-	return state.String(), nil
 }

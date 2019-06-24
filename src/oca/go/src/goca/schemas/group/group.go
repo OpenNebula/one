@@ -14,29 +14,33 @@
 /* limitations under the License.                                             */
 /*--------------------------------------------------------------------------- */
 
-package goca
+package group
 
-// Lock actions on a resources
-type Lock struct {
-	Locked int `xml:"LOCKED"`
-	Owner  int `xml:"OWNER"`
-	Time   int `xml:"TIME"`
-	ReqID  int `xml:"REQ_ID"`
+import (
+	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+)
+
+// Pool represents an OpenNebula GroupPool
+type Pool struct {
+	Groups            []Group           `xml:"GROUP"`
+	Quotas            []shared.Quotas   `xml:"QUOTAS"`
+	DefaultUserQuotas shared.QuotasList `xml:"DEFAULT_USER_QUOTAS"`
 }
 
-// LockLevel is the level of locking of an OpenNebula entity
-type LockLevel int
+// Group represents an OpenNebula Group
+type Group struct {
+	ID       int      `xml:"ID"`
+	Name     string   `xml:"NAME"`
+	UsersID  []int    `xml:"USERS>ID"`
+	AdminsID []int    `xml:"ADMINS>ID"`
+	Template Template `xml:"TEMPLATE"`
 
-const (
-	// LockUse locks all possible actions
-	LockUse LockLevel = 1
+	// Variable part between one.grouppool.info and one.group.info
+	shared.QuotasList
+	DefaultUserQuotas shared.QuotasList `xml:"DEFAULT_USER_QUOTAS"`
+}
 
-	// LockManage locks manage and admin actions
-	LockManage LockLevel = 2
-
-	// LockAdmin locks admin actions
-	LockAdmin LockLevel = 3
-
-	// LockAll locks all actions
-	LockAll LockLevel = 4
-)
+type Template struct {
+	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
+}

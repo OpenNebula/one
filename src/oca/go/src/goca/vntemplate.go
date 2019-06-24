@@ -21,6 +21,10 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vntemplate"
 )
 
 // VNTemplatesController is a controller for a pool of VNTemplate
@@ -28,30 +32,6 @@ type VNTemplatesController entitiesController
 
 // VNTemplateController is a controller for VNTemplate entities
 type VNTemplateController entityController
-
-// VNTemplatePool represents an OpenNebula Virtual Network TemplatePool
-type VNTemplatePool struct {
-	VNTemplates []VNTemplate `xml:"VNTEMPLATE"`
-}
-
-// VNTemplate represents an OpenNebula Virtual Network Template
-type VNTemplate struct {
-	ID          int                `xml:"ID"`
-	UID         int                `xml:"UID"`
-	GID         int                `xml:"GID"`
-	UName       string             `xml:"UNAME"`
-	GName       string             `xml:"GNAME"`
-	Name        string             `xml:"NAME"`
-	LockInfos   *Lock              `xml:"LOCK"`
-	Permissions Permissions        `xml:"PERMISSIONS"`
-	RegTime     string             `xml:"REGTIME"`
-	Template    vnTemplateTemplate `xml:"TEMPLATE"`
-}
-
-type vnTemplateTemplate struct {
-	VNMad   string             `xml:"VN_MAD"`
-	Dynamic unmatchedTagsSlice `xml:",any"`
-}
 
 // VNTemplates returns a VNTemplates controller.
 func (c *Controller) VNTemplates() *VNTemplatesController {
@@ -92,12 +72,12 @@ func (c *VNTemplatesController) ByName(name string) (int, error) {
 
 // Info returns a vntemplate pool. A connection to OpenNebula is
 // performed.
-func (vc *VNTemplatesController) Info(args ...int) (*VNTemplatePool, error) {
+func (vc *VNTemplatesController) Info(args ...int) (*vntemplate.Pool, error) {
 	var who, start, end int
 
 	switch len(args) {
 	case 0:
-		who = PoolWhoMine
+		who = parameters.PoolWhoMine
 		start = -1
 		end = -1
 	case 3:
@@ -113,7 +93,7 @@ func (vc *VNTemplatesController) Info(args ...int) (*VNTemplatePool, error) {
 		return nil, err
 	}
 
-	vnTemplatePool := &VNTemplatePool{}
+	vnTemplatePool := &vntemplate.Pool{}
 	err = xml.Unmarshal([]byte(response.Body()), vnTemplatePool)
 	if err != nil {
 		return nil, err
@@ -124,12 +104,12 @@ func (vc *VNTemplatesController) Info(args ...int) (*VNTemplatePool, error) {
 }
 
 // Info connects to OpenNebula and fetches the information of the VNTemplate
-func (vc *VNTemplateController) Info() (*VNTemplate, error) {
+func (vc *VNTemplateController) Info() (*vntemplate.VNTemplate, error) {
 	response, err := vc.c.Client.Call("one.vntemplate.info", vc.ID)
 	if err != nil {
 		return nil, err
 	}
-	vntemplate := &VNTemplate{}
+	vntemplate := &vntemplate.VNTemplate{}
 	err = xml.Unmarshal([]byte(response.Body()), vntemplate)
 	if err != nil {
 		return nil, err
@@ -152,7 +132,7 @@ func (vc *VNTemplateController) Create(vntemplate string) (int, error) {
 // * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
-func (vc *VNTemplateController) Update(tpl string, uType int) error {
+func (vc *VNTemplateController) Update(tpl string, uType parameters.UpdateType) error {
 	_, err := vc.c.Client.Call("one.vntemplate.update", vc.ID, tpl, uType)
 	return err
 }
@@ -166,7 +146,7 @@ func (vc *VNTemplateController) Chown(uid, gid int) error {
 
 // Chmod changes the permissions of a vntemplate. If any perm is -1 it will not
 // change
-func (vc *VNTemplateController) Chmod(perm *Permissions) error {
+func (vc *VNTemplateController) Chmod(perm *shared.Permissions) error {
 	_, err := vc.c.Client.Call("one.vntemplate.chmod", perm.ToArgs(vc.ID)...)
 	return err
 }
@@ -201,7 +181,7 @@ func (vc *VNTemplateController) Clone(name string) error {
 }
 
 //Lock an existing vntemplate. See levels in locks.go.
-func (vc *VNTemplateController) Lock(level LockLevel) error {
+func (vc *VNTemplateController) Lock(level shared.LockLevel) error {
 	_, err := vc.c.Client.Call("one.vntemplate.lock", vc.ID, level)
 	return err
 }

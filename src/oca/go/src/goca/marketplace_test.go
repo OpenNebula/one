@@ -18,17 +18,20 @@ package goca
 
 import (
 	"testing"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/marketplace"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
-func TestMarketplace(t *testing.T){
+func TestMarketplace(t *testing.T) {
 	var mkt_name string = "marketplace_test_go"
 
-	var market *MarketPlace
+	var market *marketplace.MarketPlace
 
-	var mkt_template string =  "NAME = \"" + mkt_name + "\"\n" +
-							"MARKET_MAD = \"http\"\n" +
-							"BASE_URL = \"http://url/\"\n" +
-							"PUBLIC_DIR = \"/var/loca/market-http\""
+	var mkt_template string = "NAME = \"" + mkt_name + "\"\n" +
+		"MARKET_MAD = \"http\"\n" +
+		"BASE_URL = \"http://url/\"\n" +
+		"PUBLIC_DIR = \"/var/loca/market-http\""
 
 	//Create Marketpkace
 	market_id, err := testCtrl.MarketPlaces().Create(mkt_template)
@@ -81,7 +84,7 @@ func TestMarketplace(t *testing.T){
 	}
 
 	//Change permissions for Marketpkace
-	err = marketCtrl.Chmod(&Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1})
+	err = marketCtrl.Chmod(&shared.Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1})
 
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
@@ -92,7 +95,7 @@ func TestMarketplace(t *testing.T){
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	expected_perm := Permissions{ 1, 1, 1, 1, 1, 1, 1, 1, 1 }
+	expected_perm := shared.Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1}
 	actual_perm := *market.Permissions
 
 	if actual_perm != expected_perm {
@@ -100,7 +103,7 @@ func TestMarketplace(t *testing.T){
 	}
 
 	//Change owner of Marketpkace
-	err = marketCtrl.Chown(1,1)
+	err = marketCtrl.Chown(1, 1)
 
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())

@@ -19,6 +19,9 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/group"
 )
 
 // GroupsController is a controller for a Groups
@@ -26,30 +29,6 @@ type GroupsController entitiesController
 
 // GroupController is a controller for Group entity
 type GroupController entityController
-
-// GroupPool represents an OpenNebula GroupPool
-type GroupPool struct {
-	Groups            []Group    `xml:"GROUP"`
-	Quotas            []Quotas   `xml:"QUOTAS"`
-	DefaultUserQuotas QuotasList `xml:"DEFAULT_USER_QUOTAS"`
-}
-
-// Group represents an OpenNebula Group
-type Group struct {
-	ID       int           `xml:"ID"`
-	Name     string        `xml:"NAME"`
-	UsersID  []int         `xml:"USERS>ID"`
-	AdminsID []int         `xml:"ADMINS>ID"`
-	Template groupTemplate `xml:"TEMPLATE"`
-
-	// Variable part between one.grouppool.info and one.group.info
-	QuotasList
-	DefaultUserQuotas QuotasList `xml:"DEFAULT_USER_QUOTAS"`
-}
-
-type groupTemplate struct {
-	Dynamic unmatchedTagsSlice `xml:",any"`
-}
 
 // Groups returns a Groups controller.
 func (c *Controller) Groups() *GroupsController {
@@ -90,13 +69,13 @@ func (c *GroupsController) ByName(name string) (int, error) {
 
 // Info returns a group pool. A connection to OpenNebula is
 // performed.
-func (gc *GroupsController) Info() (*GroupPool, error) {
+func (gc *GroupsController) Info() (*group.Pool, error) {
 	response, err := gc.c.Client.Call("one.grouppool.info")
 	if err != nil {
 		return nil, err
 	}
 
-	groupPool := &GroupPool{}
+	groupPool := &group.Pool{}
 	err = xml.Unmarshal([]byte(response.Body()), groupPool)
 	if err != nil {
 		return nil, err
@@ -106,12 +85,12 @@ func (gc *GroupsController) Info() (*GroupPool, error) {
 }
 
 // Info retrieves information for the group.
-func (gc *GroupController) Info() (*Group, error) {
+func (gc *GroupController) Info() (*group.Group, error) {
 	response, err := gc.c.Client.Call("one.group.info", gc.ID)
 	if err != nil {
 		return nil, err
 	}
-	group := &Group{}
+	group := &group.Group{}
 	err = xml.Unmarshal([]byte(response.Body()), group)
 	if err != nil {
 		return nil, err
@@ -139,7 +118,7 @@ func (gc *GroupController) Delete() error {
 // * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
-func (gc *GroupController) Update(tpl string, uType UpdateType) error {
+func (gc *GroupController) Update(tpl string, uType parameters.UpdateType) error {
 	_, err := gc.c.Client.Call("one.group.update", gc.ID, tpl, uType)
 	return err
 }

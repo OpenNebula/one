@@ -19,6 +19,9 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/cluster"
 )
 
 // ClustersController is a controller for Clusters
@@ -26,28 +29,6 @@ type ClustersController entitiesController
 
 // ClusterController is a controller for Cluster entity
 type ClusterController entityController
-
-// ClusterPool represents an OpenNebula ClusterPool
-type ClusterPool struct {
-	Clusters []Cluster `xml:"CLUSTER"`
-}
-
-// Cluster represents an OpenNebula Cluster
-type Cluster struct {
-	ID           int             `xml:"ID"`
-	Name         string          `xml:"NAME"`
-	HostsID      []int           `xml:"HOSTS>ID"`
-	DatastoresID []int           `xml:"DATASTORES>ID"`
-	VnetsID      []int           `xml:"VNETS>ID"`
-	Template     clusterTemplate `xml:"TEMPLATE"`
-}
-
-type clusterTemplate struct {
-	// Example of reservation: https://github.com/OpenNebula/addon-storpool/blob/ba9dd3462b369440cf618c4396c266f02e50f36f/misc/reserved.sh
-	ReservedMem string             `xml:"RESERVED_MEM"`
-	ReservedCPU string             `xml:"RESERVED_CPU"`
-	Dynamic     unmatchedTagsSlice `xml:",any"`
-}
 
 // Clusters returns a Clusters controller.
 func (c *Controller) Clusters() *ClustersController {
@@ -88,13 +69,13 @@ func (c *ClustersController) ByName(name string) (int, error) {
 
 // Info returns a cluster pool. A connection to OpenNebula is
 // performed.
-func (cc *ClustersController) Info() (*ClusterPool, error) {
+func (cc *ClustersController) Info() (*cluster.Pool, error) {
 	response, err := cc.c.Client.Call("one.clusterpool.info")
 	if err != nil {
 		return nil, err
 	}
 
-	clusterPool := &ClusterPool{}
+	clusterPool := &cluster.Pool{}
 	err = xml.Unmarshal([]byte(response.Body()), clusterPool)
 	if err != nil {
 		return nil, err
@@ -104,12 +85,12 @@ func (cc *ClustersController) Info() (*ClusterPool, error) {
 }
 
 // Info retrieves information for the cluster.
-func (cc *ClusterController) Info() (*Cluster, error) {
+func (cc *ClusterController) Info() (*cluster.Cluster, error) {
 	response, err := cc.c.Client.Call("one.cluster.info", cc.ID)
 	if err != nil {
 		return nil, err
 	}
-	cluster := &Cluster{}
+	cluster := &cluster.Cluster{}
 	err = xml.Unmarshal([]byte(response.Body()), cluster)
 	if err != nil {
 		return nil, err
@@ -137,7 +118,7 @@ func (cc *ClusterController) Delete() error {
 // * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
-func (cc *ClusterController) Update(tpl string, uType UpdateType) error {
+func (cc *ClusterController) Update(tpl string, uType parameters.UpdateType) error {
 	_, err := cc.c.Client.Call("one.cluster.update", cc.ID, tpl, uType)
 	return err
 }

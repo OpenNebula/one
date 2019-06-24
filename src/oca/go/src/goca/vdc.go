@@ -19,6 +19,9 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vdc"
 )
 
 // VDCsController is a controller for a pool of VDCs
@@ -27,53 +30,12 @@ type VDCsController entitiesController
 // VDCController is a controller for VDC entities
 type VDCController entityController
 
-// VDCPool represents an OpenNebula VDCPool
-type VDCPool struct {
-	VDCs []VDC `xml:"VDC"`
-}
-
-// VDC represents an OpenNebula VDC
-type VDC struct {
-	ID         int            `xml:"ID"`
-	Name       string         `xml:"NAME"`
-	GroupsID   []int          `xml:"GROUPS>ID"`
-	Clusters   []VDCCluster   `xml:"CLUSTERS>CLUSTER"`
-	Hosts      []VDCHost      `xml:"HOSTS>HOST"`
-	Datastores []VDCDatastore `xml:"DATASTORES>DATASTORE"`
-	VNets      []VDCVNet      `xml:"VNETS>VNET"`
-	Template   vdcTemplate    `xml:"TEMPLATE"`
-}
-
-type vdcTemplate struct {
-	Dynamic unmatchedTagsSlice `xml:",any"`
-}
-
-type VDCCluster struct {
-	ZoneID    int `xml:"ZONE_ID"`
-	ClusterID int `xml:"CLUSTER_ID"`
-}
-
-type VDCHost struct {
-	ZoneID int `xml:"ZONE_ID"`
-	HostID int `xml:"HOST_ID"`
-}
-
-type VDCDatastore struct {
-	ZoneID      int `xml:"ZONE_ID"`
-	DatastoreID int `xml:"DATASTORE_ID"`
-}
-
-type VDCVNet struct {
-	ZoneID int `xml:"ZONE_ID"`
-	VnetID int `xml:"VNET_ID"`
-}
-
 // VDCs returns a VDCs controller.
 func (c *Controller) VDCs() *VDCsController {
 	return &VDCsController{c}
 }
 
-// VDC returns a VDC controller
+// Vdc returns a Vdc controller
 func (c *Controller) VDC(id int) *VDCController {
 	return &VDCController{c, id}
 }
@@ -107,13 +69,13 @@ func (c *VDCsController) ByName(name string) (int, error) {
 
 // Info returns a vdc pool. A connection to OpenNebula is
 // performed.
-func (vc *VDCsController) Info() (*VDCPool, error) {
+func (vc *VDCsController) Info() (*vdc.Pool, error) {
 	response, err := vc.c.Client.Call("one.vdcpool.info")
 	if err != nil {
 		return nil, err
 	}
 
-	vdcPool := &VDCPool{}
+	vdcPool := &vdc.Pool{}
 	err = xml.Unmarshal([]byte(response.Body()), vdcPool)
 	if err != nil {
 		return nil, err
@@ -123,12 +85,12 @@ func (vc *VDCsController) Info() (*VDCPool, error) {
 }
 
 // Info retrieves information for the VDC.
-func (vc *VDCController) Info() (*VDC, error) {
+func (vc *VDCController) Info() (*vdc.VDC, error) {
 	response, err := vc.c.Client.Call("one.vdc.info", vc.ID)
 	if err != nil {
 		return nil, err
 	}
-	vdc := &VDC{}
+	vdc := &vdc.VDC{}
 	err = xml.Unmarshal([]byte(response.Body()), vdc)
 	if err != nil {
 		return nil, err
@@ -161,7 +123,7 @@ func (vc *VDCController) Delete() error {
 // * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
-func (vc *VDCController) Update(tpl string, uType UpdateType) error {
+func (vc *VDCController) Update(tpl string, uType parameters.UpdateType) error {
 	_, err := vc.c.Client.Call("one.vdc.update", vc.ID, tpl, uType)
 	return err
 }

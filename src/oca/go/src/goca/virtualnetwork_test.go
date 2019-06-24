@@ -19,6 +19,8 @@ package goca
 import (
 	"strings"
 	"testing"
+
+	vn "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/virtualnetwork"
 )
 
 var vnTpl = `
@@ -31,7 +33,7 @@ VN_MAD = "vxlan"
 `
 
 // Helper to create a Virtual Network
-func createVirtualNetwork(t *testing.T) (*VirtualNetwork, int) {
+func createVirtualNetwork(t *testing.T) (*vn.VirtualNetwork, int) {
 	id, err := testCtrl.VirtualNetworks().Create(vnTpl, -1)
 	if err != nil {
 		t.Fatal(err)

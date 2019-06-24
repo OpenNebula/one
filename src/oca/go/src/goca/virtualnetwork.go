@@ -19,6 +19,10 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+	vn "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/virtualnetwork"
 )
 
 // VirtualNetworksController is a controller for a pool of VirtualNetworks
@@ -26,80 +30,6 @@ type VirtualNetworksController entitiesController
 
 // VirtualNetworkController is a controller for VirtualNetwork entities
 type VirtualNetworkController entityController
-
-// VirtualNetworkPool represents an OpenNebula VirtualNetworkPool
-type VirtualNetworkPool struct {
-	VirtualNetworks []VirtualNetwork `xml:"VNET"`
-}
-
-// VirtualNetwork represents an OpenNebula VirtualNetwork
-type VirtualNetwork struct {
-	ID                   int                    `xml:"ID"`
-	UID                  int                    `xml:"UID"`
-	GID                  int                    `xml:"GID"`
-	UName                string                 `xml:"UNAME"`
-	GName                string                 `xml:"GNAME"`
-	Name                 string                 `xml:"NAME"`
-	Permissions          *Permissions           `xml:"PERMISSIONS"`
-	ClustersID           []int                  `xml:"CLUSTERS>ID"`
-	Bridge               string                 `xml:"BRIDGE"`
-	BridgeType           string                 `xml:"BRIDGE_TYPE"` // minOccurs=0
-	ParentNetworkID      string                 `xml:"PARENT_NETWORK_ID"`
-	VNMad                string                 `xml:"VN_MAD"`
-	PhyDev               string                 `xml:"PHYDEV"`
-	VlanID               string                 `xml:"VLAN_ID"`       // minOccurs=0
-	OuterVlanID          string                 `xml:"OUTER_VLAN_ID"` // minOccurs=0
-	VlanIDAutomatic      string                 `xml:"VLAN_ID_AUTOMATIC"`
-	OuterVlanIDAutomatic string                 `xml:"OUTER_VLAN_ID_AUTOMATIC"`
-	UsedLeases           int                    `xml:"USED_LEASES"`
-	VRoutersID           []int                  `xml:"VROUTERS>ID"`
-	Template             virtualNetworkTemplate `xml:"TEMPLATE"`
-
-	// Variable parts between one.vnpool.info and one.vn.info
-	ARs  []VirtualNetworkAR `xml:"AR_POOL>AR"`
-	Lock *Lock              `xml:"LOCK"`
-}
-
-type virtualNetworkTemplate struct {
-	Dynamic unmatchedTagsSlice `xml:",any"`
-}
-
-type VirtualNetworkAR struct {
-	ID                string  `xml:"AR_ID"`
-	GlobalPrefix      string  `xml:"GLOBAL_PREFIX"` // minOccurs=0
-	IP                string  `xml:"IP"`            // minOccurs=0
-	MAC               string  `xml:"MAC"`
-	ParentNetworkARID string  `xml:"PARENT_NETWORK_AR_ID"` // minOccurs=0
-	Size              int     `xml:"SIZE"`
-	Type              string  `xml:"TYPE"`
-	ULAPrefix         string  `xml:"ULA_PREFIX"` // minOccurs=0
-	VNMAD             string  `xml:"VN_MAD"`     // minOccurs=0
-	MACEnd            string  `xml:"MAC_END"`
-	IPEnd             string  `xml:"IP_END"`
-	IP6ULA            string  `xml:"IP6_ULA"`
-	IP6ULAEnd         string  `xml:"IP6_ULA_END"`
-	IP6Global         string  `xml:"IP6_GLOBAL"`
-	IP6GlobalEnd      string  `xml:"IP6_GLOBAL_END"`
-	IP6               string  `xml:"IP6"`
-	IP6End            string  `xml:"IP6_END"`
-	UsedLeases        string  `xml:"USED_LEASES"`
-	Leases            []Lease `xml:"LEASES>LEASE"`
-
-	// Not filled with Info
-	Allocated string `xml:ALLOCATED`
-}
-
-type Lease struct {
-	IP        string `xml:"IP"`
-	IP6       string `xml:"IP6"`
-	IP6Global string `xml:"IP6GLOBAL"`
-	IP6Link   string `xml:"IP6LINK"`
-	IP6ULA    string `xml:"IP6ULA"`
-	MAC       string `xml:"MAC"`
-	VM        int    `xml:"VM"`
-	VNet      int    `xml:"VNET"`
-	VRouter   int    `xml:"VROUTER"`
-}
 
 // VirtualNetworks returns a VirtualNetworks controller
 func (c *Controller) VirtualNetworks() *VirtualNetworksController {
@@ -139,12 +69,12 @@ func (c *VirtualNetworksController) ByName(name string, args ...int) (int, error
 }
 
 // Info returns a virtualnetwork pool.
-func (vc *VirtualNetworksController) Info(args ...int) (*VirtualNetworkPool, error) {
+func (vc *VirtualNetworksController) Info(args ...int) (*vn.Pool, error) {
 	var who, start, end int
 
 	switch len(args) {
 	case 0:
-		who = PoolWhoMine
+		who = parameters.PoolWhoMine
 		start = -1
 		end = -1
 	case 1:
@@ -164,7 +94,7 @@ func (vc *VirtualNetworksController) Info(args ...int) (*VirtualNetworkPool, err
 		return nil, err
 	}
 
-	vnPool := &VirtualNetworkPool{}
+	vnPool := &vn.Pool{}
 	err = xml.Unmarshal([]byte(response.Body()), &vnPool)
 	if err != nil {
 		return nil, err
@@ -174,12 +104,12 @@ func (vc *VirtualNetworksController) Info(args ...int) (*VirtualNetworkPool, err
 }
 
 // Info retrieves information for the virtual network.
-func (vc *VirtualNetworkController) Info() (*VirtualNetwork, error) {
+func (vc *VirtualNetworkController) Info() (*vn.VirtualNetwork, error) {
 	response, err := vc.c.Client.Call("one.vn.info", vc.ID)
 	if err != nil {
 		return nil, err
 	}
-	vn := &VirtualNetwork{}
+	vn := &vn.VirtualNetwork{}
 	err = xml.Unmarshal([]byte(response.Body()), vn)
 	if err != nil {
 		return nil, err
@@ -258,13 +188,13 @@ func (vc *VirtualNetworkController) Release(tpl string) error {
 // * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
-func (vc *VirtualNetworkController) Update(tpl string, uType UpdateType) error {
+func (vc *VirtualNetworkController) Update(tpl string, uType parameters.UpdateType) error {
 	_, err := vc.c.Client.Call("one.vn.update", vc.ID, tpl, uType)
 	return err
 }
 
 // Chmod changes the permission bits of a virtual network.
-func (vc *VirtualNetworkController) Chmod(perm *Permissions) error {
+func (vc *VirtualNetworkController) Chmod(perm *shared.Permissions) error {
 	_, err := vc.c.Client.Call("one.vn.chmod", perm.ToArgs(vc.ID)...)
 	return err
 }
@@ -285,7 +215,7 @@ func (vc *VirtualNetworkController) Rename(newName string) error {
 }
 
 // Lock locks the vn following lock level. See levels in locks.go.
-func (vc *VirtualNetworkController) Lock(level LockLevel) error {
+func (vc *VirtualNetworkController) Lock(level shared.LockLevel) error {
 	_, err := vc.c.Client.Call("one.vn.lock", vc.ID, level)
 	return err
 }

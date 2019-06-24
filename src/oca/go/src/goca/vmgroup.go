@@ -19,6 +19,10 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vmgroup"
 )
 
 // VMGroupsController is a controller for vm groups entities
@@ -26,37 +30,6 @@ type VMGroupsController entitiesController
 
 // VMGroupController is a controller for vm group entity
 type VMGroupController entityController
-
-// VMGroupPool represents an OpenNebula VM group pool
-type VMGroupPool struct {
-	VMGroups []VMGroup `xml:"VM_GROUP"`
-}
-
-// VMGroup represents an OpenNebula VM group
-type VMGroup struct {
-	ID          int             `xml:"ID"`
-	UID         int             `xml:"UID"`
-	GID         int             `xml:"GID"`
-	UName       string          `xml:"UNAME"`
-	GName       string          `xml:"GNAME"`
-	Name        string          `xml:"NAME"`
-	Permissions *Permissions    `xml:"PERMISSIONS"`
-	LockInfos   *Lock           `xml:"LOCK"`
-	Roles       []vmGroupRole   `xml:"ROLES>ROLE"`
-	Template    vmGroupTemplate `xml:"TEMPLATE"`
-}
-
-type vmGroupRole struct {
-	ID              int    `xml:"ID"`
-	Name            string `xml:"NAME"`
-	HostAffined     string `xml:"HOST_AFFINED"`      // minOccurs=0
-	HostAntiAffined string `xml:"HOST_ANTI_AFFINED"` // minOccurs=0
-	Policy          string `xml:"POLICY"`            // minOccurs=0
-}
-
-type vmGroupTemplate struct {
-	Dynamic unmatchedTagsSlice `xml:",any"`
-}
 
 // VMGroups returns a VMGroups controller
 func (c *Controller) VMGroups() *VMGroupsController {
@@ -97,12 +70,12 @@ func (c *VMGroupsController) ByName(name string, args ...int) (int, error) {
 
 // Info returns a vm group pool. A connection to OpenNebula is
 // performed.
-func (vc *VMGroupsController) Info(args ...int) (*VMGroupPool, error) {
+func (vc *VMGroupsController) Info(args ...int) (*vmgroup.Pool, error) {
 	var who, start, end int
 
 	switch len(args) {
 	case 0:
-		who = PoolWhoMine
+		who = parameters.PoolWhoMine
 		start = -1
 		end = -1
 	case 1:
@@ -122,7 +95,7 @@ func (vc *VMGroupsController) Info(args ...int) (*VMGroupPool, error) {
 		return nil, err
 	}
 
-	vmGroupPool := &VMGroupPool{}
+	vmGroupPool := &vmgroup.Pool{}
 	err = xml.Unmarshal([]byte(response.Body()), vmGroupPool)
 	if err != nil {
 		return nil, err
@@ -132,12 +105,12 @@ func (vc *VMGroupsController) Info(args ...int) (*VMGroupPool, error) {
 }
 
 // Info retrieves information for the vm group.
-func (vc *VMGroupController) Info() (*VMGroup, error) {
+func (vc *VMGroupController) Info() (*vmgroup.VMGroup, error) {
 	response, err := vc.c.Client.Call("one.vmgroup.info", vc.ID)
 	if err != nil {
 		return nil, err
 	}
-	vmGroup := &VMGroup{}
+	vmGroup := &vmgroup.VMGroup{}
 	err = xml.Unmarshal([]byte(response.Body()), vmGroup)
 	if err != nil {
 		return nil, err
@@ -208,7 +181,7 @@ func (vc *VMGroupController) Rename(newName string) error {
 }
 
 // Lock locks the vmGroup following lock level. See levels in locks.go.
-func (vc *VMGroupController) Lock(level LockLevel) error {
+func (vc *VMGroupController) Lock(level shared.LockLevel) error {
 	_, err := vc.c.Client.Call("one.vmgroup.lock", vc.ID, level)
 	return err
 }

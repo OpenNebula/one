@@ -19,6 +19,10 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm"
 )
 
 // VMsController is a controller for a pool of VMs
@@ -29,141 +33,6 @@ type VMController entityController
 
 // VMDiskController is a controller for VM entities
 type VMDiskController subEntityController
-
-// VMPool represents an OpenNebula Virtual Machine pool
-type VMPool struct {
-	VMs []VM `xml:"VM"`
-}
-
-// VM represents an OpenNebula Virtual Machine
-type VM struct {
-	ID              int               `xml:"ID"`
-	UID             int               `xml:"UID"`
-	GID             int               `xml:"GID"`
-	UName           string            `xml:"UNAME"`
-	GName           string            `xml:"GNAME"`
-	Name            string            `xml:"NAME"`
-	Permissions     *Permissions      `xml:"PERMISSIONS"`
-	LastPoll        int               `xml:"LAST_POLL"`
-	StateRaw        int               `xml:"STATE"`
-	LCMStateRaw     int               `xml:"LCM_STATE"`
-	PrevStateRaw    int               `xml:"PREV_STATE"`
-	PrevLCMStateRaw int               `xml:"PREV_LCM_STATE"`
-	ReschedValue    int               `xml:"RESCHED"`
-	STime           int               `xml:"STIME"`
-	ETime           int               `xml:"ETIME"`
-	DeployID        string            `xml:"DEPLOY_ID"`
-	MonitoringInfos VMMonitoring      `xml:"MONITORING"`
-	Template        VMTemplate        `xml:"TEMPLATE"`
-	UserTemplate    *VMUserTemplate   `xml:"USER_TEMPLATE"`
-	HistoryRecords  []VMHistoryRecord `xml:"HISTORY_RECORDS>HISTORY"`
-
-	// Not filled with NewUserPool call
-	LockInfos *Lock `xml:"LOCK"`
-}
-
-type VMMonitoring struct {
-	DiskSize     []VMMonitoringDiskSize     `xml:"DISK_SIZE"`
-	SnapshotSize []VMMonitoringSnapshotSize `xml:"SNAPSHOT_SIZE"`
-	Dynamic      unmatchedTagsSlice         `xml:",any"`
-}
-
-type VMMonitoringDiskSize struct {
-	ID   int `xml:"ID"`
-	Size int `xml:"SIZE"`
-}
-
-// History records
-type VMHistoryRecord struct {
-	OID       int                       `xml:"OID"`
-	SEQ       int                       `xml:"SEQ"`
-	Hostname  string                    `xml:"HOSTNAME"`
-	HID       int                       `xml:"HID"`
-	CID       int                       `xml:"CID"`
-	DSID      int                       `xml:"DS_ID"`
-	Action    int                       `xml:"ACTION"`
-	UID       int                       `xml:"UID"`
-	GID       int                       `xml:"GID"`
-	RequestID string                    `xml:"REQUEST_ID"`
-	PSTime    int                       `xml:"PSTIME"`
-	PETime    int                       `xml:"PETIME"`
-	RSTime    int                       `xml:"RSTIME"`
-	RETime    int                       `xml:"RETIME"`
-	ESTime    int                       `xml:"ESTIME"`
-	EETime    int                       `xml:"EETIME"`
-	STime     int                       `xml:"STIME"`
-	ETime     int                       `xml:"ETIME"`
-	VMMad     string                    `xml:"VM_MAD"`
-	TMMad     string                    `xml:"TM_MAD"`
-	Snapshots []VMHistoryRecordSnapshot `xml:"SNAPSHOTS"`
-}
-
-// VMUserTemplate contain custom attributes
-type VMUserTemplate struct {
-	Error        string           `xml:"ERROR"`
-	SchedMessage string           `xml:"SCHED_MESSAGE"`
-	Dynamic      unmatchedTagsMap `xml:",any"`
-}
-
-type VMTemplate struct {
-	CPU                float64               `xml:"CPU"`
-	Memory             int                   `xml:"MEMORY"`
-	NICs               []VMNic               `xml:"NIC"`
-	NICAliases         []VMNicAlias          `xml:"NIC_ALIAS"`
-	Context            *VMContext            `xml:"CONTEXT"`
-	Disks              []VMDisk              `xml:"DISK"`
-	Graphics           *VMGraphics           `xml:"GRAPHICS"`
-	OS                 *VMOS                 `xml:"OS"`
-	Snapshots          []VMSnapshot          `xml:"SNAPSHOT"`
-	SecurityGroupRules []VMSecurityGroupRule `xml:"SECURITY_GROUP_RULE"`
-	Dynamic            unmatchedTagsSlice    `xml:",any"`
-}
-
-type VMContext struct {
-	Dynamic unmatchedTagsMap `xml:",any"`
-}
-
-type VMNic struct {
-	ID      int                `xml:"NIC_ID"`
-	Network string             `xml:"NETWORK"`
-	IP      string             `xml:"IP"`
-	MAC     string             `xml:"MAC"`
-	PhyDev  string             `xml:"PHYDEV"`
-	Dynamic unmatchedTagsSlice `xml:",any"`
-}
-
-type VMNicAlias struct {
-	ID       int    `xml:"NIC_ID"`    // minOccurs=1
-	Parent   string `xml:"PARENT"`    // minOccurs=1
-	ParentID string `xml:"PARENT_ID"` // minOccurs=1
-}
-
-type VMGraphics struct {
-	Listen string `xml:"LISTEN"`
-	Port   string `xml:"PORT"`
-	Type   string `xml:"TYPE"`
-}
-
-type VMDisk struct {
-	ID           int                `xml:"DISK_ID"`
-	Datastore    string             `xml:"DATASTORE"`
-	DiskType     string             `xml:"DISK_TYPE"`
-	Image        string             `xml:"IMAGE"`
-	Driver       string             `xml:"DRIVER"`
-	OriginalSize int                `xml:"ORIGINAL_SIZE"`
-	Size         int                `xml:"SIZE"`
-	Dynamic      unmatchedTagsSlice `xml:",any"`
-}
-
-type VMOS struct {
-	Arch string `xml:"ARCH"`
-	Boot string `xml:"BOOT"`
-}
-
-type VMSecurityGroupRule struct {
-	SecurityGroupRule
-	SecurityGroup string `xml:"SECURITY_GROUP_NAME"`
-}
 
 // VMs returns a new vm pool controller.
 func (c *Controller) VMs() *VMsController {
@@ -208,12 +77,12 @@ func (c *VMsController) ByName(name string, args ...int) (int, error) {
 }
 
 // Info returns a new VM pool. It accepts the scope of the query.
-func (vc *VMsController) Info(args ...int) (*VMPool, error) {
+func (vc *VMsController) Info(args ...int) (*vm.Pool, error) {
 	var who, start, end, state int
 
 	switch len(args) {
 	case 0:
-		who = PoolWhoMine
+		who = parameters.PoolWhoMine
 		start = -1
 		end = -1
 		state = -1
@@ -241,7 +110,7 @@ func (vc *VMsController) Info(args ...int) (*VMPool, error) {
 		return nil, err
 	}
 
-	vmPool := &VMPool{}
+	vmPool := &vm.Pool{}
 	err = xml.Unmarshal([]byte(response.Body()), vmPool)
 	if err != nil {
 		return nil, err
@@ -251,13 +120,13 @@ func (vc *VMsController) Info(args ...int) (*VMPool, error) {
 }
 
 // InfoExtended connects to OpenNebula and fetches the whole VM_POOL information
-func (vc *VMsController) InfoExtended(filterFlag, startID, endID, state int) (*VMPool, error) {
+func (vc *VMsController) InfoExtended(filterFlag, startID, endID, state int) (*vm.Pool, error) {
 	response, err := vc.c.Client.Call("one.vmpool.infoextended", filterFlag,
 		startID, endID, state)
 	if err != nil {
 		return nil, err
 	}
-	vmPool := &VMPool{}
+	vmPool := &vm.Pool{}
 	err = xml.Unmarshal([]byte(response.Body()), vmPool)
 	if err != nil {
 		return nil, err
@@ -266,12 +135,12 @@ func (vc *VMsController) InfoExtended(filterFlag, startID, endID, state int) (*V
 }
 
 // Info connects to OpenNebula and fetches the information of the VM
-func (vc *VMController) Info() (*VM, error) {
+func (vc *VMController) Info() (*vm.VM, error) {
 	response, err := vc.c.Client.Call("one.vm.info", vc.ID)
 	if err != nil {
 		return nil, err
 	}
-	vm := &VM{}
+	vm := &vm.VM{}
 	err = xml.Unmarshal([]byte(response.Body()), vm)
 	if err != nil {
 		return nil, err
@@ -361,7 +230,7 @@ func (vc *VMController) Action(action string) error {
 // * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
-func (vc *VMController) Update(tpl string, uType UpdateType) error {
+func (vc *VMController) Update(tpl string, uType parameters.UpdateType) error {
 	_, err := vc.c.Client.Call("one.vm.update", vc.ID, tpl, uType)
 	return err
 }
@@ -391,7 +260,7 @@ func (vc *VMController) Chown(uid, gid int) error {
 
 // Chmod changes the permissions of a VM. If any perm is -1 it will not
 // change
-func (vc *VMController) Chmod(perm *Permissions) error {
+func (vc *VMController) Chmod(perm *shared.Permissions) error {
 	_, err := vc.c.Client.Call("one.vm.chmod", perm.ToArgs(vc.ID)...)
 	return err
 }
@@ -620,7 +489,7 @@ func (vc *VMController) RecoverDeleteRecreate() error {
 }
 
 // Lock locks the vm following lock level. See levels in locks.go.
-func (vc *VMController) Lock(level LockLevel) error {
+func (vc *VMController) Lock(level shared.LockLevel) error {
 	_, err := vc.c.Client.Call("one.vm.lock", vc.ID, level)
 	return err
 }

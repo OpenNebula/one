@@ -19,6 +19,10 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/document"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
 // DocumentsController is a controller for documents entities
@@ -29,29 +33,6 @@ type DocumentsController struct {
 
 // DocumentController is a controller for document entity
 type DocumentController entityController
-
-// DocumentPool represents an OpenNebula DocumentPool
-type DocumentPool struct {
-	Documents []Document `xml:"DOCUMENT"`
-}
-
-// Document represents an OpenNebula Document
-type Document struct {
-	ID          int              `xml:"ID"`
-	UID         int              `xml:"UID"`
-	GID         int              `xml:"GID"`
-	UName       string           `xml:"UNAME"`
-	GName       string           `xml:"GNAME"`
-	Name        string           `xml:"NAME"`
-	Type        string           `xml:"TYPE"`
-	Permissions *Permissions     `xml:"PERMISSIONS"`
-	LockInfos   *Lock            `xml:"LOCK"`
-	Template    documentTemplate `xml:"TEMPLATE"`
-}
-
-type documentTemplate struct {
-	Dynamic unmatchedTagsSlice `xml:",any"`
-}
 
 // Documents returns a Documents controller
 func (c *Controller) Documents(dType int) *DocumentsController {
@@ -92,12 +73,12 @@ func (dc *DocumentsController) ByName(name string, args ...int) (int, error) {
 
 // Info returns a document pool. A connection to OpenNebula is
 // performed.
-func (dc *DocumentsController) Info(args ...int) (*DocumentPool, error) {
+func (dc *DocumentsController) Info(args ...int) (*document.Pool, error) {
 	var who, start, end int
 
 	switch len(args) {
 	case 0:
-		who = PoolWhoMine
+		who = parameters.PoolWhoMine
 		start = -1
 		end = -1
 	case 1:
@@ -117,7 +98,7 @@ func (dc *DocumentsController) Info(args ...int) (*DocumentPool, error) {
 		return nil, err
 	}
 
-	documentPool := &DocumentPool{}
+	documentPool := &document.Pool{}
 	err = xml.Unmarshal([]byte(response.Body()), documentPool)
 	if err != nil {
 		return nil, err
@@ -127,12 +108,12 @@ func (dc *DocumentsController) Info(args ...int) (*DocumentPool, error) {
 }
 
 // Info retrieves information for the document.
-func (dc *DocumentController) Info() (*Document, error) {
+func (dc *DocumentController) Info() (*document.Document, error) {
 	response, err := dc.c.Client.Call("one.document.info", dc.ID)
 	if err != nil {
 		return nil, err
 	}
-	document := &Document{}
+	document := &document.Document{}
 	err = xml.Unmarshal([]byte(response.Body()), document)
 	if err != nil {
 		return nil, err
@@ -168,13 +149,13 @@ func (dc *DocumentController) Delete() error {
 // * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
-func (dc *DocumentController) Update(tpl string, uType UpdateType) error {
+func (dc *DocumentController) Update(tpl string, uType parameters.UpdateType) error {
 	_, err := dc.c.Client.Call("one.document.update", dc.ID, tpl, uType)
 	return err
 }
 
 // Chmod changes the permission bits of a document.
-func (dc *DocumentController) Chmod(perm *Permissions) error {
+func (dc *DocumentController) Chmod(perm *shared.Permissions) error {
 	_, err := dc.c.Client.Call("one.document.chmod", perm.ToArgs(dc.ID)...)
 	return err
 }
@@ -195,7 +176,7 @@ func (dc *DocumentController) Rename(newName string) error {
 }
 
 // Lock locks the document following lock level. See levels in locks.go.
-func (dc *DocumentController) Lock(level LockLevel) error {
+func (dc *DocumentController) Lock(level shared.LockLevel) error {
 	_, err := dc.c.Client.Call("one.document.lock", dc.ID, level)
 	return err
 }

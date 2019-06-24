@@ -18,14 +18,17 @@ package goca
 
 import (
 	"testing"
+
+	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/template"
 )
 
 // Helper to create a template
-func createTemplate(t *testing.T) (*Template, int) {
+func createTemplate(t *testing.T) (*template.Template, int) {
 	templateName := GenName("template")
 
 	// Create template
-	tpl := NewTemplateBuilder()
+	tpl := dyn.NewTemplateBuilder()
 
 	tpl.AddValue("name", templateName)
 	tpl.AddValue("cpu", 1)
@@ -84,7 +87,7 @@ func TestTemplateInstantiate(t *testing.T) {
 	templateName := GenName("template")
 
 	// Create template
-	tpl := NewTemplateBuilder()
+	tpl := dyn.NewTemplateBuilder()
 
 	tpl.AddValue("name", templateName)
 	tpl.AddValue("cpu", 1)
@@ -121,7 +124,7 @@ func TestTemplateUpdate(t *testing.T) {
 	template, _ := createTemplate(t)
 	templateCtrl := testCtrl.Template(template.ID)
 
-	tpl := NewTemplateBuilder()
+	tpl := dyn.NewTemplateBuilder()
 	tpl.AddValue("A", "B")
 
 	// Update

@@ -14,43 +14,44 @@
 /* limitations under the License.                                             */
 /*--------------------------------------------------------------------------- */
 
-package goca
+package user
 
-// An user can take snapshot on VM, or on VM disks
+import (
+	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+)
 
-// Common part
-type Snapshot struct {
-	Children string `xml:"CHILDREN"` //minOccur=0
-	Active   string `xml:"ACTIVE"`   //minOccur=0
-	Date     int    `xml:"DATE"`
-	ID       int    `xml:"ID"`
-	Name     string `xml:"NAME"` //minOccur=0
-	Parent   int    `xml:"PARENT"`
-	Size     int    `xml:"SIZE"`
+// Pool represents an OpenNebula User pool
+type Pool struct {
+	Users             []User            `xml:"USER"`
+	Quotas            []shared.Quotas   `xml:"QUOTAS"`
+	DefaultUserQuotas shared.QuotasList `xml:"DEFAULT_USER_QUOTAS"`
 }
 
-// ImageSnapshot entity related
-type ImageSnapshot struct {
-	AllowOrphans string     `xml:"ALLOW_ORPHANS"`
-	CurrentBase  int        `xml:"CURRENT_BASE"`
-	NextSnapshot int        `xml:"NEXT_SNAPSHOT"`
-	Snapshots    []Snapshot `xml:"SNAPSHOT"`
+// User represents an OpenNebula user
+type User struct {
+	ID          int          `xml:"ID"`
+	GID         int          `xml:"GID"`
+	GroupsID    []int        `xml:"GROUPS>ID"`
+	GName       string       `xml:"GNAME"`
+	Name        string       `xml:"NAME"`
+	Password    string       `xml:"PASSWORD"`
+	AuthDriver  string       `xml:"AUTH_DRIVER"`
+	Enabled     int          `xml:"ENABLED"`
+	LoginTokens []LoginToken `xml:"LOGIN_TOKEN"`
+	Template    Template     `xml:"TEMPLATE"`
+
+	// Variable part between one.userpool.info and one.user.info
+	shared.QuotasList
+	DefaultUserQuotas shared.QuotasList `xml:"DEFAULT_USER_QUOTAS"`
 }
 
-// VMSnapshot entity related
-type VMSnapshot struct {
-	HypervisorID string `xml:"HYPERVISOR_ID"`
-	Name         string `xml:"NAME"`
-	ID           int    `xml:"SNAPSHOT_ID"`
-	Time         string `xml:"TIME"`
+type Template struct {
+	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
 }
 
-type VMHistoryRecordSnapshot struct {
-	ImageSnapshot
-	DiskID int `xml:"DISK_ID"`
-}
-
-type VMMonitoringSnapshotSize struct {
-	DiskID int `xml:"DISK_ID"`
-	Size   int `xml:"SIZE"`
+type LoginToken struct {
+	Token          string `xml:"TOKEN"`
+	ExpirationTime int    `xml:"EXPIRATION_TIME"`
+	EGID           int    `xml:"EGID"`
 }

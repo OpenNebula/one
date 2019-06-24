@@ -19,6 +19,10 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/marketplace"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
 // MarketPlacesController is a controller for a pool of MarketPlaces
@@ -26,34 +30,6 @@ type MarketPlacesController entitiesController
 
 // MarketPlaceController is a controller for MarketPlace entities
 type MarketPlaceController entityController
-
-// MarketPlacePool represents an OpenNebula MarketPlacePool
-type MarketPlacePool struct {
-	MarketPlaces []MarketPlace `xml:"MARKETPLACE"`
-}
-
-// MarketPlace represents an OpenNebula MarketPlace
-type MarketPlace struct {
-	ID                 int                 `xml:"ID"`
-	UID                int                 `xml:"UID"`
-	GID                int                 `xml:"GID"`
-	UName              string              `xml:"UNAME"`
-	GName              string              `xml:"GNAME"`
-	Name               string              `xml:"NAME"`
-	MarketMad          string              `xml:"MARKET_MAD"`
-	ZoneID             string              `xml:"ZONE_ID"`
-	TotalMB            int                 `xml:"TOTAL_MB"`
-	FreeMB             int                 `xml:"FREE_MB"`
-	UsedMB             int                 `xml:"USED_MB"`
-	MarketPlaceAppsIDs []int               `xml:"MARKETPLACEAPPS>ID"`
-	Permissions        *Permissions        `xml:"PERMISSIONS"`
-	Template           marketPlaceTemplate `xml:"TEMPLATE"`
-}
-
-// MarketPlaceTemplate represent the template part of the MarketPlace
-type marketPlaceTemplate struct {
-	Dynamic unmatchedTagsSlice `xml:",any"`
-}
 
 // MarketPlaces returns a MarketPlaces controller
 func (c *Controller) MarketPlaces() *MarketPlacesController {
@@ -95,12 +71,12 @@ func (c *MarketPlacesController) ByName(name string) (int, error) {
 
 // Info returns a marketplace pool. A connection to OpenNebula is
 // performed.
-func (mc *MarketPlacesController) Info(args ...int) (*MarketPlacePool, error) {
+func (mc *MarketPlacesController) Info(args ...int) (*marketplace.Pool, error) {
 	var who, start, end int
 
 	switch len(args) {
 	case 0:
-		who = PoolWhoMine
+		who = parameters.PoolWhoMine
 		start = -1
 		end = -1
 	case 1:
@@ -120,7 +96,7 @@ func (mc *MarketPlacesController) Info(args ...int) (*MarketPlacePool, error) {
 		return nil, err
 	}
 
-	marketPool := &MarketPlacePool{}
+	marketPool := &marketplace.Pool{}
 	err = xml.Unmarshal([]byte(response.Body()), marketPool)
 	if err != nil {
 		return nil, err
@@ -130,12 +106,12 @@ func (mc *MarketPlacesController) Info(args ...int) (*MarketPlacePool, error) {
 }
 
 // Info retrieves information for the marketplace.
-func (mc *MarketPlaceController) Info() (*MarketPlace, error) {
+func (mc *MarketPlaceController) Info() (*marketplace.MarketPlace, error) {
 	response, err := mc.c.Client.Call("one.market.info", mc.ID)
 	if err != nil {
 		return nil, err
 	}
-	market := &MarketPlace{}
+	market := &marketplace.MarketPlace{}
 	err = xml.Unmarshal([]byte(response.Body()), market)
 	if err != nil {
 		return nil, err
@@ -164,13 +140,13 @@ func (mc *MarketPlaceController) Delete() error {
 // * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
-func (mc *MarketPlaceController) Update(tpl string, uType UpdateType) error {
+func (mc *MarketPlaceController) Update(tpl string, uType parameters.UpdateType) error {
 	_, err := mc.c.Client.Call("one.market.update", mc.ID, tpl, uType)
 	return err
 }
 
 // Chmod changes the permission bits of a marketplace
-func (mc *MarketPlaceController) Chmod(perm *Permissions) error {
+func (mc *MarketPlaceController) Chmod(perm *shared.Permissions) error {
 	_, err := mc.c.Client.Call("one.market.chmod", perm.ToArgs(mc.ID)...)
 	return err
 }
