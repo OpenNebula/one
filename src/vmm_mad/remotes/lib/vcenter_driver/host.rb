@@ -102,14 +102,16 @@ class ClusterComputeResource
         effective_mem,
         num_hosts,
         num_eff_hosts,
-        overall_status = @item.collect("summary.totalCpu",
+        overall_status,
+        drs_enabled = @item.collect("summary.totalCpu",
                                       "summary.numCpuCores",
                                       "summary.effectiveCpu",
                                       "summary.totalMemory",
                                       "summary.effectiveMemory",
                                       "summary.numHosts",
                                       "summary.numEffectiveHosts",
-                                      "summary.overallStatus"
+                                      "summary.overallStatus",
+                                      "configuration.drsConfig.enabled"
         )
 
         mhz_core = total_cpu.to_f / num_cpu_cores.to_f
@@ -143,6 +145,9 @@ class ClusterComputeResource
         str_info << "TOTALMEMORY=" << total_mem.to_s << "\n"
         str_info << "FREEMEMORY="  << free_mem.to_s << "\n"
         str_info << "USEDMEMORY="  << (total_mem - free_mem).to_s << "\n"
+
+        # DRS enabled
+        str_info << "VCENTER_DRS="  << drs_enabled.to_s << "\n"
 
         str_info << monitor_resource_pools(mhz_core)
     end
