@@ -124,7 +124,7 @@ void VirtualNetwork::parse_vlan_id(const char * id_name, const char * auto_name,
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
-/* 
+/*
 LIST OF MANDATORY ARGUMENTS FOR NETWORK DEFINITION
 
 +----------------+---------+--------+--------------------------+----------------+
@@ -141,8 +141,8 @@ LIST OF MANDATORY ARGUMENTS FOR NETWORK DEFINITION
 | ovswitch_vxlan | yes     | no     | OUTER or AUTOMATIC_OUTER |                |
 +----------------+---------+--------+--------------------------+----------------+
 */
-int VirtualNetwork::parse_phydev_vlans(const Template* tmpl, const string& vn_mad, const string& phydev, 
-                                       const string& bridge, const bool auto_id, const string& vlan_id, 
+int VirtualNetwork::parse_phydev_vlans(const Template* tmpl, const string& vn_mad, const string& phydev,
+                                       const string& bridge, const bool auto_id, const string& vlan_id,
                                        const bool auto_outer, const string& outer_id, string& estr)
 {
     bool check_phydev = false;
@@ -190,7 +190,7 @@ int VirtualNetwork::parse_phydev_vlans(const Template* tmpl, const string& vn_ma
 
     if ( check_vlan && !auto_id && vlan_id.empty() )
     {
-        estr = "VLAN_ID (or AUTOMATIC) is mandatory for driver " + vn_mad;
+        estr = "VLAN_ID (or AUTOMATIC_VLAN_ID) is mandatory for driver " + vn_mad;
         return -1;
     }
 
@@ -212,12 +212,12 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     ostringstream       ose;
 
     string sg_str, vis;
-    
+
     string value;
     string name;
     string prefix;
 
-    
+
     int rc, num_ars;
 
     ostringstream oss;
@@ -233,7 +233,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     {
         obj_template->add("TEMPLATE_ID", value);
     }
-    
+
     obj_template->get("NAME",name);
     obj_template->erase("NAME");
 
@@ -294,7 +294,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     // -------------------------------------------------------------------------
     // Check consistency for PHYDEV, BRIDGE and VLAN_IDs based on the driver
     // -------------------------------------------------------------------------
-    rc = parse_phydev_vlans(obj_template, vn_mad, phydev, bridge, vlan_id_automatic, vlan_id, 
+    rc = parse_phydev_vlans(obj_template, vn_mad, phydev, bridge, vlan_id_automatic, vlan_id,
                             outer_vlan_id_automatic, outer_vlan_id, error_str);
 
     if (rc != 0)
