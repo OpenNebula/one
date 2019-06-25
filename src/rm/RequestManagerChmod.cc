@@ -133,7 +133,7 @@ Request::ErrorCode RequestManagerChmod::chmod(
         Nebula::instance().get_configuration_attribute(
                 "ENABLE_OTHER_PERMISSIONS", enable_other);
 
-        if ( !enable_other )
+        if ( !enable_other && !att.is_admin())
         {
             att.resp_msg = "'other' permissions is disabled in oned.conf";
             return AUTHORIZATION;
