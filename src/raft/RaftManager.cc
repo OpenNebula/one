@@ -913,6 +913,8 @@ void RaftManager::request_vote()
 
     unsigned int _num_servers = get_zone_servers(_servers);
 
+    srand(time(0) + _server_id + 1);
+
     do
     {
         /* ------------------------------------------------------------------ */
@@ -1030,10 +1032,9 @@ void RaftManager::request_vote()
 
         logdb->update_raft_state(raft_state_xml);
 
-        srand(_server_id+1);
 
-        ms = rand() % 1000 + election_timeout.tv_sec * 1000
-            + election_timeout.tv_nsec / 1000000;
+        ms = ( (float) rand() / RAND_MAX ) * (election_timeout.tv_sec * 1000
+            + election_timeout.tv_nsec / 1000000);
 
         oss.str("");
 
