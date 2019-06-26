@@ -258,7 +258,8 @@ int TemplateDelete::drop(PoolObjectSQL * object, bool recursive,
 int HostDelete::drop(PoolObjectSQL * object, bool recursive,
 		RequestAttributes& att)
 {
-    InformationManager * im = Nebula::instance().get_im();
+    Nebula& nd = Nebula::instance();
+    InformationManager * im = nd.get_im();
 
     Host* host = static_cast<Host *>(object);
 
@@ -275,11 +276,41 @@ int HostDelete::drop(PoolObjectSQL * object, bool recursive,
     string name   = host->get_name();
 	int    oid    = host->get_oid();
 
-    RequestManagerDelete::drop(object, false, att);
+    int rc = RequestManagerDelete::drop(object, false, att);
 
     im->stop_monitor(oid, name, im_mad);
 
-    return 0;
+    if (rc != 0)
+    {
+        return rc;
+    }
+
+    // Remove host from VDC
+    int zone_id = nd.get_zone_id();
+    VdcPool * vdcpool = nd.get_vdcpool();
+    std::vector<int> vdcs;
+    vdcpool->list(vdcs);
+
+    std::string error;
+
+    for (int vdcId : vdcs)
+    {
+        Vdc * vdc = vdcpool->get(vdcId);
+
+        if ( vdc == 0 )
+        {
+            continue;
+        }
+
+        if ( vdc->del_host(zone_id, oid, error) == 0 )
+        {
+            vdcpool->update(vdc);
+        }
+
+        vdc->unlock();
+    }
+
+    return rc;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -304,27 +335,28 @@ int ImageDelete::drop(PoolObjectSQL * object, bool recursive,
 int GroupDelete::drop(PoolObjectSQL * object, bool recursive,
 		RequestAttributes& att)
 {
-	int oid= object->get_oid();
+	int oid = object->get_oid();
     int rc = RequestManagerDelete::drop(object, false, att);
 
-    if ( rc == 0 )
+    if ( rc != 0 )
     {
-        aclm->del_gid_rules(oid);
+        return rc;
     }
+
+    aclm->del_gid_rules(oid);
 
     Nebula&        nd = Nebula::instance();
     VdcPool * vdcpool = nd.get_vdcpool();
 
     std::vector<int> vdcs;
-    std::vector<int>::iterator it;
 
     std::string error;
 
     vdcpool->list(vdcs);
 
-    for (it = vdcs.begin() ; it != vdcs.end() ; ++it)
+    for (int vdcId : vdcs)
     {
-        Vdc * vdc = vdcpool->get(*it);
+        Vdc * vdc = vdcpool->get(vdcId);
 
         if ( vdc == 0 )
         {
@@ -345,15 +377,88 @@ int GroupDelete::drop(PoolObjectSQL * object, bool recursive,
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+int DatastoreDelete::drop(PoolObjectSQL * object, bool recursive,
+        RequestAttributes& att)
+{
+    int oid = object->get_oid();
+
+    int rc = RequestManagerDelete::drop(object, recursive, att);
+
+    if (rc != 0)
+    {
+        return rc;
+    }
+
+    // Remove datastore from vdc
+    Nebula& nd = Nebula::instance();
+    int zone_id = nd.get_zone_id();
+
+    VdcPool * vdcpool = nd.get_vdcpool();
+    std::vector<int> vdcs;
+    vdcpool->list(vdcs);
+
+    std::string error;
+
+    for (int vdcId : vdcs)
+    {
+        Vdc * vdc = vdcpool->get(vdcId);
+
+        if ( vdc == 0 )
+        {
+            continue;
+        }
+
+        if ( vdc->del_datastore(zone_id, oid, error) == 0 )
+        {
+            vdcpool->update(vdc);
+        }
+
+        vdc->unlock();
+    }
+
+    return rc;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 int ClusterDelete::drop(PoolObjectSQL * object, bool recursive,
 		RequestAttributes& att)
 {
-	int oid= object->get_oid();
+	int oid = object->get_oid();
     int rc = RequestManagerDelete::drop(object, false, att);
 
-    if ( rc == 0 )
+    if (rc != 0)
     {
-        aclm->del_cid_rules(oid);
+        return rc;
+    }
+
+    aclm->del_cid_rules(oid);
+
+    // Remove cluster from VDC
+    Nebula& nd = Nebula::instance();
+    int zone_id = nd.get_zone_id();
+    VdcPool * vdcpool = nd.get_vdcpool();
+    std::vector<int> vdcs;
+    vdcpool->list(vdcs);
+
+    std::string error;
+
+    for (int vdcId : vdcs)
+    {
+        Vdc * vdc = vdcpool->get(vdcId);
+
+        if ( vdc == 0 )
+        {
+            continue;
+        }
+
+        if ( vdc->del_cluster(zone_id, oid, error) == 0 )
+        {
+            vdcpool->update(vdc);
+        }
+
+        vdc->unlock();
     }
 
     return rc;
@@ -434,7 +539,7 @@ int ZoneDelete::drop(PoolObjectSQL * object, bool recursive,
 int VirtualNetworkDelete::drop(PoolObjectSQL * object, bool recursive,
 		RequestAttributes& att)
 {
-	int oid= object->get_oid();
+    int oid = object->get_oid();
     VirtualNetwork * vnet = static_cast<VirtualNetwork *>(object);
 
     if ( vnet->get_used() > 0 )
@@ -481,6 +586,37 @@ int VirtualNetworkDelete::drop(PoolObjectSQL * object, bool recursive,
 
             Quotas::quota_del(Quotas::NETWORK, uid, gid, &tmpl);
         }
+    }
+
+    if (rc != 0)
+    {
+        return rc;
+    }
+
+    // Remove virtual network from VDC
+    Nebula& nd = Nebula::instance();
+    int zone_id = nd.get_zone_id();
+    VdcPool * vdcpool = nd.get_vdcpool();
+    std::vector<int> vdcs;
+    vdcpool->list(vdcs);
+
+    std::string error;
+
+    for (int vdcId : vdcs)
+    {
+        Vdc * vdc = vdcpool->get(vdcId);
+
+        if ( vdc == 0 )
+        {
+            continue;
+        }
+
+        if ( vdc->del_vnet(zone_id, oid, error) == 0 )
+        {
+            vdcpool->update(vdc);
+        }
+
+        vdc->unlock();
     }
 
     return rc;

@@ -312,6 +312,8 @@ public:
     {
         return clpool->del_from_cluster(PoolObjectSQL::DATASTORE, cluster, id, error_msg);
     };
+
+    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
