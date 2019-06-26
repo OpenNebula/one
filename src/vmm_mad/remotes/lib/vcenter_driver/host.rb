@@ -103,7 +103,8 @@ class ClusterComputeResource
         num_hosts,
         num_eff_hosts,
         overall_status,
-        drs_enabled = @item.collect("summary.totalCpu",
+        drs_enabled,
+        ha_enabled= @item.collect("summary.totalCpu",
                                       "summary.numCpuCores",
                                       "summary.effectiveCpu",
                                       "summary.totalMemory",
@@ -111,7 +112,8 @@ class ClusterComputeResource
                                       "summary.numHosts",
                                       "summary.numEffectiveHosts",
                                       "summary.overallStatus",
-                                      "configuration.drsConfig.enabled"
+                                      "configuration.drsConfig.enabled",
+                                      "configuration.dasConfig.enabled"
         )
 
         mhz_core = total_cpu.to_f / num_cpu_cores.to_f
@@ -148,6 +150,9 @@ class ClusterComputeResource
 
         # DRS enabled
         str_info << "VCENTER_DRS="  << drs_enabled.to_s << "\n"
+
+        # HA enabled
+        str_info << "VCENTER_HA="  << ha_enabled.to_s << "\n"
 
         str_info << monitor_resource_pools(mhz_core)
     end
