@@ -64,7 +64,7 @@ public:
     ~VirtualRouterInstantiate(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 
 };
 
@@ -84,7 +84,7 @@ public:
     ~VirtualRouterAttachNic(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 
 };
 
@@ -103,7 +103,7 @@ public:
     ~VirtualRouterDetachNic(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 
 };
 

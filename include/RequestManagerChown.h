@@ -50,8 +50,8 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
-                                 RequestAttributes& att);
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att) override;
 
     PoolObjectSQL * get_and_quota(int                       oid,
                                   int                       new_uid,
@@ -98,7 +98,7 @@ public:
 
     ~VirtualMachineChown(){};
 
-    int check_name_unique(int oid, int noid, RequestAttributes& att)
+    int check_name_unique(int oid, int noid, RequestAttributes& att) override
     {
         return 0;
     };
@@ -198,10 +198,10 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
-                                 RequestAttributes& att);
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att)  override;
 
-    int check_name_unique(int oid, int noid, RequestAttributes& att)
+    int check_name_unique(int oid, int noid, RequestAttributes& att) override
     {
         return 0;
     };
@@ -224,7 +224,7 @@ public:
 
     ~DatastoreChown(){};
 
-    int check_name_unique(int oid, int noid, RequestAttributes& att)
+    int check_name_unique(int oid, int noid, RequestAttributes& att) override
     {
         return 0;
     };
@@ -247,7 +247,7 @@ public:
 
     ~DocumentChown(){};
 
-    int check_name_unique(int oid, int noid, RequestAttributes& att)
+    int check_name_unique(int oid, int noid, RequestAttributes& att) override
     {
         return 0;
     };
@@ -306,7 +306,7 @@ public:
 
     ~MarketPlaceChown(){};
 
-    int check_name_unique(int oid, int noid, RequestAttributes& att)
+    int check_name_unique(int oid, int noid, RequestAttributes& att) override
     {
         return 0;
     };

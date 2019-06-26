@@ -38,7 +38,7 @@ protected:
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-        RequestAttributes& att);
+        RequestAttributes& att) override;
 
     virtual ErrorCode chmod(PoolSQL * pool, int oid, int owner_u, int owner_m,
         int owner_a, int group_u, int group_m, int group_a, int other_u,
@@ -237,8 +237,8 @@ public:
 
     ~VirtualRouterChmod(){};
 
-    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
-        RequestAttributes& att);
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+        RequestAttributes& att) override;
 
 private:
 

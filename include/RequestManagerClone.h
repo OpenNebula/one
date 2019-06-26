@@ -39,7 +39,7 @@ protected:
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 
     /* -------------------------------------------------------------------- */
     /* Especialization Functions for specific Clone actions                 */
@@ -100,14 +100,14 @@ public:
 protected:
 
     ErrorCode clone(int source_id, const string &name, int &new_id,
-            bool recursive, const string& s_a, RequestAttributes& att);
+            bool recursive, const string& s_a, RequestAttributes& att) override;
 
-    Template * clone_template(PoolObjectSQL* obj)
+    Template * clone_template(PoolObjectSQL* obj) override
     {
         return static_cast<VMTemplate*>(obj)->clone_template();
     };
 
-    int pool_allocate(int sid, Template * tmpl, int& id, RequestAttributes& att)
+    int pool_allocate(int sid, Template * tmpl, int& id, RequestAttributes& att) override
     {
         VMTemplatePool * tpool     = static_cast<VMTemplatePool *>(pool);
         VirtualMachineTemplate * t = static_cast<VirtualMachineTemplate*>(tmpl);
@@ -116,7 +116,7 @@ protected:
                 t, &id, att.resp_msg);
     };
 
-    ErrorCode merge(Template * tmpl, const string &s_a, RequestAttributes& att)
+    ErrorCode merge(Template * tmpl, const string &s_a, RequestAttributes& att) override
 	{
 		VMTemplateInstantiate vm_instantiate;
 
@@ -151,12 +151,12 @@ public:
 
 protected:
 
-    Template * clone_template(PoolObjectSQL* obj)
+    Template * clone_template(PoolObjectSQL* obj) override
     {
         return static_cast<VNTemplate*>(obj)->clone_template();
     };
 
-    int pool_allocate(int sid, Template * tmpl, int& id, RequestAttributes& att)
+    int pool_allocate(int sid, Template * tmpl, int& id, RequestAttributes& att) override
     {
         VNTemplatePool * tpool     = static_cast<VNTemplatePool *>(pool);
         VirtualNetworkTemplate * t = static_cast<VirtualNetworkTemplate*>(tmpl);
@@ -187,12 +187,12 @@ public:
 
 protected:
 
-    Template * clone_template(PoolObjectSQL* obj)
+    Template * clone_template(PoolObjectSQL* obj) override
     {
         return static_cast<Document*>(obj)->clone_template();
     };
 
-    int pool_allocate(int sid, Template * tmpl, int& id, RequestAttributes& att)
+    int pool_allocate(int sid, Template * tmpl, int& id, RequestAttributes& att) override
     {
         DocumentPool * docpool = static_cast<DocumentPool *>(pool);
         Document * doc         = docpool->get_ro(sid);
@@ -231,12 +231,12 @@ public:
 
 protected:
 
-    Template * clone_template(PoolObjectSQL* obj)
+    Template * clone_template(PoolObjectSQL* obj) override
     {
         return static_cast<SecurityGroup*>(obj)->clone_template();
     };
 
-    int pool_allocate(int sid, Template * tmpl, int& id, RequestAttributes& att)
+    int pool_allocate(int sid, Template * tmpl, int& id, RequestAttributes& att) override
     {
         SecurityGroupPool * sg = static_cast<SecurityGroupPool *>(pool);
 

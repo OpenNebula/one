@@ -235,8 +235,8 @@ protected:
      *    @param _paramlist list of XML parameters
      *    @param _retval value to be returned to the client
      */
-    virtual void execute(xmlrpc_c::paramList const& _paramList,
-        const xmlrpc_c::callInfo * _callInfoP, xmlrpc_c::value * const _retval);
+    void execute(xmlrpc_c::paramList const& _paramList,
+        const xmlrpc_c::callInfo * _callInfoP, xmlrpc_c::value * const _retval) override;
 
     /**
      *  Actual Execution method for the request. Must be implemented by the

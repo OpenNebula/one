@@ -40,7 +40,7 @@ protected:
         auth_object = PoolObjectSQL::GROUP;
     };
 
-    virtual ~RequestManagerGroup(){};
+    ~RequestManagerGroup(){};
 
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) = 0;
@@ -63,7 +63,7 @@ public:
     ~GroupSetQuota(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -73,7 +73,7 @@ class GroupEditAdmin : public Request
 {
 public:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 
 protected:
     GroupEditAdmin( const string& method_name,
@@ -107,7 +107,7 @@ public:
 
     ~GroupAddAdmin(){};
 
-    int edit_admin(Group* group, int user_id, string& error_msg);
+    int edit_admin(Group* group, int user_id, string& error_msg) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -123,7 +123,7 @@ public:
 
     ~GroupDelAdmin(){};
 
-    int edit_admin(Group* group, int user_id, string& error_msg);
+    int edit_admin(Group* group, int user_id, string& error_msg) override;
 };
 
 /* -------------------------------------------------------------------------- */

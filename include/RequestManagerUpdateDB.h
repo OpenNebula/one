@@ -31,12 +31,12 @@ protected:
         auth_op = AuthRequest::MANAGE;
     };
 
-    virtual ~RequestManagerUpdateDB(){};
+    ~RequestManagerUpdateDB(){};
 
     /* ---------------------------------------------------------------------- */
 
     virtual void request_execute(xmlrpc_c::paramList const& pl,
-            RequestAttributes& att)
+            RequestAttributes& att) override
     {
         int oid = xmlrpc_c::value_int(pl.getInt(1));
         std::string xml = xmlrpc_c::value_string(pl.getString(2));
@@ -145,8 +145,8 @@ public:
 
     ~ZoneUpdateDB(){};
 
-    virtual void request_execute(xmlrpc_c::paramList const& pl,
-            RequestAttributes& att)
+    void request_execute(xmlrpc_c::paramList const& pl,
+            RequestAttributes& att) override
     {
         int oid = xmlrpc_c::value_int(pl.getInt(1));
         std::string xml = xmlrpc_c::value_string(pl.getString(2));

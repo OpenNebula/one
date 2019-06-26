@@ -77,8 +77,8 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    virtual void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
 
     /* -------------------------------------------------------------------- */
 
@@ -142,7 +142,7 @@ public:
     /* -------------------------------------------------------------------- */
 
     void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -185,7 +185,7 @@ public:
     /* -------------------------------------------------------------------- */
 
     void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -210,7 +210,7 @@ public:
     /* -------------------------------------------------------------------- */
 
     void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -235,7 +235,7 @@ public:
     /* -------------------------------------------------------------------- */
 
     void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -276,7 +276,7 @@ public:
     ~VirtualNetworkPoolInfo(){};
 
     void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -339,7 +339,7 @@ public:
     /* -------------------------------------------------------------------- */
 
     void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -364,7 +364,7 @@ public:
     /* -------------------------------------------------------------------- */
 
     void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -388,7 +388,7 @@ public:
     /* -------------------------------------------------------------------- */
 
     void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -412,7 +412,7 @@ public:
     /* -------------------------------------------------------------------- */
 
     void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -436,7 +436,7 @@ public:
     /* -------------------------------------------------------------------- */
 
     void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -460,7 +460,7 @@ public:
     /* -------------------------------------------------------------------- */
 
     void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -484,7 +484,7 @@ public:
     /* -------------------------------------------------------------------- */
 
     void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -508,7 +508,7 @@ public:
     /* -------------------------------------------------------------------- */
 
     void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -548,7 +548,7 @@ public:
 
     ~VdcPoolInfo(){};
 
-    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att);
+    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -588,7 +588,7 @@ public:
 
     ~MarketPlacePoolInfo(){};
 
-    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att);
+    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */

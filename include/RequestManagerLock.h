@@ -41,7 +41,7 @@ protected:
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 
     int lock_db(PoolObjectSQL * object, const int owner, const int req_id, const int level)
     {
@@ -67,7 +67,7 @@ protected:
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 
     int unlock_db(PoolObjectSQL * object, const int owner, const int req_id)
     {
