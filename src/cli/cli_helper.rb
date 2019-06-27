@@ -367,6 +367,7 @@ module CLIHelper
         # @param options [Hash] Object with CLI user options
         def top(options = {})
             delay = options[:delay] || 1
+            top   = false
 
             begin
                 loop do
@@ -375,9 +376,11 @@ module CLIHelper
                     CLIHelper.scr_cls
                     CLIHelper.scr_move(0, 0)
 
-                    show(data, options, true)
+                    show(data, options, top)
 
                     sleep delay
+
+                    top = true
                 end
             rescue SystemExit, Interrupt, StandardError => e
                 CLIHelper.fail(e.message)
