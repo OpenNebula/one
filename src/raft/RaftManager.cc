@@ -913,7 +913,7 @@ void RaftManager::request_vote()
 
     unsigned int _num_servers = get_zone_servers(_servers);
 
-    srand(time(0) + _server_id + 1);
+    srand(time(0) + server_id + 1);
 
     do
     {
