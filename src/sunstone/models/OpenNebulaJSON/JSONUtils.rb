@@ -61,6 +61,15 @@ module OpenNebulaJSON
             end
         end
 
+        def template_to_str_sunstone_with_explicite_empty_value(attributes)
+            result = template_to_str(attributes, indent=true)
+            if result == ""
+                "SUNSTONE=[]\n"
+            else
+                result
+            end
+        end
+
         def template_to_str(attributes, indent=true)
              if indent
                  ind_enter="\n"

@@ -55,6 +55,7 @@ DEFAULT_VIEW_XPATH = 'TEMPLATE/SUNSTONE/DEFAULT_VIEW'
 GROUP_ADMIN_DEFAULT_VIEW_XPATH = 'TEMPLATE/SUNSTONE/GROUP_ADMIN_DEFAULT_VIEW'
 TABLE_DEFAULT_PAGE_LENGTH_XPATH = 'TEMPLATE/SUNSTONE/TABLE_DEFAULT_PAGE_LENGTH'
 LANG_XPATH = 'TEMPLATE/SUNSTONE/LANG'
+TWO_FACTOR_AUTH_SECRET_XPATH = 'TEMPLATE/SUNSTONE/TWO_FACTOR_AUTH_SECRET'
 DEFAULT_ZONE_ENDPOINT_XPATH = 'TEMPLATE/SUNSTONE/DEFAULT_ZONE_ENDPOINT'
 
 ONED_CONF_OPTS = {
@@ -97,6 +98,9 @@ require 'rexml/document'
 require 'uri'
 require 'open3'
 
+require "my_qr_code"
+require "my_totp"
+require "two_factor_auth"
 require 'CloudAuth'
 require 'SunstoneServer'
 require 'SunstoneViews'
@@ -205,6 +209,7 @@ $addons = OpenNebulaAddons.new(logger)
 
 DEFAULT_TABLE_ORDER = "desc"
 DEFAULT_PAGE_LENGTH = 10
+DEFAULT_TWO_FACTOR_AUTH = false
 
 SUPPORT = {
     :zendesk_url => "https://opennebula.zendesk.com/api/v2",
@@ -321,6 +326,26 @@ helpers do
                    user[DEFAULT_ZONE_ENDPOINT_XPATH]
         end
         client_active_endpoint = $cloud_auth.client(result, session[:active_zone_endpoint])
+
+        # two factor_auth
+        two_factor_auth =
+            if user[TWO_FACTOR_AUTH_SECRET_XPATH]
+                user[TWO_FACTOR_AUTH_SECRET_XPATH] != ""
+            else
+                DEFAULT_TWO_FACTOR_AUTH
+            end
+
+        if two_factor_auth
+            two_factor_auth_token = params[:two_factor_auth_token]
+            if !two_factor_auth_token || two_factor_auth_token == ""
+                return [202, { code: "two_factor_auth" }.to_json]
+            else
+                unless TwoFactorAuth.authenticate(user[TWO_FACTOR_AUTH_SECRET_XPATH], two_factor_auth_token)
+                    logger.info { "Unauthorized two factor authentication login attempt" }
+                    return [401, ""]
+                end
+            end
+        end
 
         session[:user]         = user['NAME']
         session[:user_id]      = user['ID']
@@ -540,6 +565,15 @@ get '/login' do
     else
         redirect to('/')
     end
+end
+
+get '/two_factor_auth_hotp_qr_code' do
+    content_type 'image/svg+xml'
+
+    totp = MyTotp.build(params[:secret], $conf[:two_factor_auth_issuer])
+    totp_uri = totp.provisioning_uri(session[:user])
+    qr_code = MyQrCode.build(totp_uri)
+    [200, qr_code.as_svg]
 end
 
 get '/vnc' do

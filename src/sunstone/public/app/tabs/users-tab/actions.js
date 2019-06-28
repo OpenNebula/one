@@ -166,6 +166,34 @@ define(function(require) {
       error: Notifier.onError
     },
 
+    "User.enable_sunstone_two_factor_auth" : {
+      type: "single",
+      call: OpenNebulaResource.enable_sunstone_two_factor_auth,
+      callback: function(request) {
+        var reqId = request.request.data[0];
+        if (reqId == config['user_id'] || reqId == "-1") {
+            window.location.href = ".";
+        } else {
+          Sunstone.runAction(RESOURCE+'.show',reqId);
+        }
+      },
+      error: Notifier.onError
+    },
+
+    "User.disable_sunstone_two_factor_auth" : {
+      type: "single",
+      call: OpenNebulaResource.disable_sunstone_two_factor_auth,
+      callback: function(request) {
+        var reqId = request.request.data[0];
+        if (reqId == config['user_id'] || reqId == "-1") {
+            window.location.href = ".";
+        } else {
+          Sunstone.runAction(RESOURCE+'.show',reqId);
+        }
+      },
+      error: Notifier.onError
+    },
+
     "User.append_sunstone_setting_refresh" : {
       type: "single",
       call: function(params){

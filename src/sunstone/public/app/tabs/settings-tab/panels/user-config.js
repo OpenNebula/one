@@ -43,6 +43,7 @@ define(function(require) {
   var RESOURCE = "User";
   var XML_ROOT = "USER";
   var LOGIN_TOKEN_DIALOG_ID = require("tabs/users-tab/dialogs/login-token/dialogId");
+  var TWO_FACTOR_AUTH_DIALOG_ID = require('tabs/users-tab/dialogs/two-factor-auth/dialogId');
 
   /*
     CONSTRUCTOR
@@ -93,13 +94,40 @@ define(function(require) {
 
     $("#provision_user_views_select option[value=\"" + config["user_config"]["default_view"] + "\"]", context).attr("selected", "selected");
 
+    if (that.element.TEMPLATE.SUNSTONE && that.element.TEMPLATE.SUNSTONE.TWO_FACTOR_AUTH_SECRET) {
+      $(".provision_two_factor_auth_button", context).html(Locale.tr("Disable"));
+    } else {
+      $(".provision_two_factor_auth_button", context).html(Locale.tr("Manage two factor authentication"));
+    }
+
     // Login token button
     context.off("click", ".provision_login_token_button");
     context.on("click", ".provision_login_token_button", function(){
-      Sunstone.getDialog(LOGIN_TOKEN_DIALOG_ID).setParams({element: that.element});
-      Sunstone.getDialog(LOGIN_TOKEN_DIALOG_ID).reset();
+      //Sunstone.getDialog(LOGIN_TOKEN_DIALOG_ID).setParams({element: that.element});
+      //Sunstone.getDialog(LOGIN_TOKEN_DIALOG_ID).reset();
       Sunstone.getDialog(LOGIN_TOKEN_DIALOG_ID).show();
     });
+
+    // Two factor auth button
+    context.off("click", ".provision_two_factor_auth_button");
+    context.on("click", ".provision_two_factor_auth_button", function(){
+      var sunstone_setting = that.element.TEMPLATE.SUNSTONE || {};
+      if (sunstone_setting.TWO_FACTOR_AUTH_SECRET) {
+        Sunstone.runAction(
+          "User.disable_sunstone_two_factor_auth",
+          that.element.ID,
+          {current_sunstone_setting: sunstone_setting}
+        );
+      } else {
+        Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).setParams({
+          element: that.element, 
+          sunstone_setting: sunstone_setting
+        });
+        Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).reset();
+        Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).show();
+      }
+    });
+  
 
     $("#provision_change_password_form").submit(function() {
       var pw = $("#provision_new_password", this).val();

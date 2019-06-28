@@ -21,11 +21,33 @@
 
   <body>
 
-    <% if (settings.config[:auth] == "x509") || (settings.config[:auth] == "remote") %>
-    <%= erb :_login_x509 %>
-    <% else %>
-    <%= erb :_login_standard %>
-    <% end %>
+    <div id="wrapper">
+      <div id="logo_sunstone" style="
+        background: url(<%=$views_config.logo%>) no-repeat center;
+        background-size: 355px;">
+      </div>
+
+      <% if (settings.config[:auth] == "x509") || (settings.config[:auth] == "remote") %>
+        <%= erb :_login_x509 %>
+      <% else %>
+        <%= erb :_login_standard %>
+      <% end %>
+
+      <div id="two_factor_auth" class="border" style="display: none;">
+        <div class="border" id="login">
+          <div class="content">
+            Two Factor Token
+            <input value="" type="text" size="15" name="two_factor_auth_token" id="two_factor_auth_token" class="box"/>
+            <button id="two_factor_auth_login" type="button"></button>
+	  </div>
+        </div>
+      </div>
+      <div id="error_box" class="hidden alert-box alert" style="display: none">
+        <span id="error_message"></span>
+        <span id="auth_error"></span>
+        <span id="one_error"></span>
+      </div>
+    </div>
 
     <div id="footer" style="overflow:visible;">
       <a href="http://opennebula.org" target="_blank">OpenNebula <%= OpenNebula::VERSION %></a>

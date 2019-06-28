@@ -19,7 +19,13 @@ define(function(require) {
   var OpenNebulaAuth = require('opennebula/auth');
 
   function auth_success(req, response) {
-    window.location.href = ".";
+    if (response.code === "two_factor_auth") {
+      $("#login_form").fadeOut("slow");
+      $("#login_spinner").hide();
+      $("#two_factor_auth").fadeIn("slow");
+    } else {
+      window.location.href = ".";
+    }
   }
 
   function auth_error(req, error) {
@@ -47,6 +53,7 @@ define(function(require) {
     var username = $("#username").val();
     var password = $("#password").val();
     var remember = $("#check_remember").is(":checked");
+    var two_factor_auth_token = $("#two_factor_auth_token").val();
 
     $("#error_box").fadeOut("slow");
     $("#login_spinner").show();
@@ -58,6 +65,7 @@ define(function(require) {
       },
       remember: remember,
       success: auth_success,
+      two_factor_auth_token: two_factor_auth_token,
       error: auth_error
     });
   }
@@ -91,6 +99,10 @@ define(function(require) {
     $("#login_form").submit(function () {
       authenticate();
       return false;
+    });
+
+    $("#two_factor_auth_login").click(function() {
+      authenticate();
     });
 
     //compact login elements according to screen height

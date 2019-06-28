@@ -149,11 +149,23 @@ div#login input#login_btn:hover {
   background:  url(../images/login_over.png) no-repeat center ;
 }
 
+div#two_factor_auth button {
+  width: 130px;
+  height: 45px;
+  cursor: pointer;
+  margin-left: auto;
+  margin-right: 43px;
+  margin-top: 20px;
+  background-color: transparent;
+  border: 0;
+  float: right;
+  background:  url(../images/login_over.png) no-repeat center ;
+}
 
 #login_spinner {
-    left: 22px;
-    position: relative;
-    top: 2px;
+  left: 22px;
+  position: relative;
+  top: 2px;
 }
 
 #label_remember {
