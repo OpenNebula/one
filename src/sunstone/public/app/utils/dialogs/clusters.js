@@ -121,7 +121,6 @@ define(function(require) {
    * @param {object} params
    *        - params.element : user object, or empty object {}
    *        - params.resource : one of datastore, vnet
-   *        - params.submit : action for add vnet to cluster
    */
   function _setParams(params) {
     this.element = params.element;
