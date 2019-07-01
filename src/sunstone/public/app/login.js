@@ -19,7 +19,7 @@ define(function(require) {
   var OpenNebulaAuth = require('opennebula/auth');
 
   function auth_success(req, response) {
-    if (response.code === "two_factor_auth") {
+    if (response && response.code && response.code === "two_factor_auth") {
       $("#login_form").fadeOut("slow");
       $("#login_spinner").hide();
       $("#two_factor_auth").fadeIn("slow");

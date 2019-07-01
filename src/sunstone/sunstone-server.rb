@@ -105,6 +105,7 @@ require 'CloudAuth'
 require 'SunstoneServer'
 require 'SunstoneViews'
 
+
 ##############################################################################
 # Configuration
 ##############################################################################
@@ -310,7 +311,7 @@ helpers do
         end
 
         client  = $cloud_auth.client(result)
-	    user_id = OpenNebula::User::SELF
+        user_id = OpenNebula::User::SELF
 
         user    = OpenNebula::User.new_with_id(user_id, client)
         rc = user.info
@@ -321,31 +322,11 @@ helpers do
 
         # If active zone endpoint is not defined, pull it
         # from user template if exists
-	    unless user[DEFAULT_ZONE_ENDPOINT_XPATH].nil? or user[DEFAULT_ZONE_ENDPOINT_XPATH].empty?
+        unless user[DEFAULT_ZONE_ENDPOINT_XPATH].nil? or user[DEFAULT_ZONE_ENDPOINT_XPATH].empty?
             session[:active_zone_endpoint] ||=
                    user[DEFAULT_ZONE_ENDPOINT_XPATH]
         end
         client_active_endpoint = $cloud_auth.client(result, session[:active_zone_endpoint])
-
-        # two factor_auth
-        two_factor_auth =
-            if user[TWO_FACTOR_AUTH_SECRET_XPATH]
-                user[TWO_FACTOR_AUTH_SECRET_XPATH] != ""
-            else
-                DEFAULT_TWO_FACTOR_AUTH
-            end
-
-        if two_factor_auth
-            two_factor_auth_token = params[:two_factor_auth_token]
-            if !two_factor_auth_token || two_factor_auth_token == ""
-                return [202, { code: "two_factor_auth" }.to_json]
-            else
-                unless TwoFactorAuth.authenticate(user[TWO_FACTOR_AUTH_SECRET_XPATH], two_factor_auth_token)
-                    logger.info { "Unauthorized two factor authentication login attempt" }
-                    return [401, ""]
-                end
-            end
-        end
 
         session[:user]         = user['NAME']
         session[:user_id]      = user['ID']
@@ -428,6 +409,26 @@ helpers do
         session[:zone_id]   = zone.id
         session[:federation_mode] = active_zone_configuration['FEDERATION/MODE'].upcase
         session[:mode] = $conf[:mode]
+
+        # two factor_auth
+        two_factor_auth =
+            if user[TWO_FACTOR_AUTH_SECRET_XPATH]
+                user[TWO_FACTOR_AUTH_SECRET_XPATH] != ""
+            else
+                DEFAULT_TWO_FACTOR_AUTH
+            end
+        binding.pry
+        if two_factor_auth
+            two_factor_auth_token = params[:two_factor_auth_token]
+            if !two_factor_auth_token || two_factor_auth_token == ""
+                return [202, { code: "two_factor_auth" }.to_json]
+            else
+                unless TwoFactorAuth.authenticate(user[TWO_FACTOR_AUTH_SECRET_XPATH], two_factor_auth_token)
+                    logger.info { "Unauthorized two factor authentication login attempt" }
+                    return [401, ""]
+                end
+            end
+        end
 
         [204, ""]
     end
@@ -569,7 +570,6 @@ end
 
 get '/two_factor_auth_hotp_qr_code' do
     content_type 'image/svg+xml'
-
     totp = MyTotp.build(params[:secret], $conf[:two_factor_auth_issuer])
     totp_uri = totp.provisioning_uri(session[:user])
     qr_code = MyQrCode.build(totp_uri)
