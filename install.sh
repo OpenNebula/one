@@ -1983,8 +1983,7 @@ SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb \
 SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/app.min.css \
                 src/sunstone/public/css/opensans/opensans.woff \
                 src/sunstone/public/css/novnc-custom.css \
-                src/sunstone/public/css/spice-custom.css \
-                src/sunstone/public/css/login.css"
+                src/sunstone/public/css/spice-custom.css"
 
 SUNSTONE_PUBLIC_FONT_AWSOME="src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-brands-400.eot \
                 src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-brands-400.svg \
@@ -2004,8 +2003,6 @@ SUNSTONE_PUBLIC_FONT_AWSOME="src/sunstone/public/bower_components/fontawesome/we
 
 SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/favicon.ico \
-                        src/sunstone/public/images/login_over.png \
-                        src/sunstone/public/images/login.png \
                         src/sunstone/public/images/advanced_layout.png \
                         src/sunstone/public/images/cloud_layout.png \
                         src/sunstone/public/images/vcenter_layout.png \

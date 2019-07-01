@@ -17,13 +17,26 @@
 define(function(require) {
   require('../bower_components/jquery/dist/jquery.min');
   var OpenNebulaAuth = require('opennebula/auth');
+  var showErrorAuth = false;
+  var textOpenNebulaNotRunning = "OpenNebula is not running or there was a server exception. Please check the server logs.";
+  var textInvalidUserorPassword = "Invalid username or password"; 
+  var textNoAnswerFromServer = "No answer from server. Is it running?";
+  var textTwoFactorTokenInvalid = "Two factor Token Invalid";
 
   function auth_success(req, response) {
     if (response && response.code && response.code === "two_factor_auth") {
-      $("#login_form").fadeOut("slow");
+      $("#login_form").hide();
       $("#login_spinner").hide();
       $("#two_factor_auth").fadeIn("slow");
+      if(!showErrorAuth){
+        showErrorAuth = true;
+      } else {
+        $("#error_message").text(textTwoFactorTokenInvalid);
+        $("#error_box").fadeIn("slow");
+        $("#login_spinner").hide();
+      }
     } else {
+      showErrorAuth = false;
       window.location.href = ".";
     }
   }
@@ -34,13 +47,13 @@ define(function(require) {
 
     switch (status){
     case 401:
-      $("#error_message").text("Invalid username or password");
+      $("#error_message").text(textInvalidUserorPassword);
       break;
     case 500:
-      $("#error_message").text("OpenNebula is not running or there was a server exception. Please check the server logs.");
+      $("#error_message").text(textOpenNebulaNotRunning);
       break;
     case 0:
-      $("#error_message").text("No answer from server. Is it running?");
+      $("#error_message").text(textNoAnswerFromServer);
       break;
     default:
       $("#error_message").text("Unexpected error. Status " + status + ". Check the server logs.");

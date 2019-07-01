@@ -1,10 +1,18 @@
 body#login{
+  display: inline-flex;
+  width: 100%;
 
   #wrapper{
     margin-left: auto;
     margin-right: auto;
     width: 900px;
     text-align: center;
+    display: inline-flex;
+    align-items: center;
+
+    &>div{
+      width: 100%;
+    }
 
     div#logo_sunstone {
       height: 200px;
@@ -32,8 +40,8 @@ body#login{
           -moz-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
           box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
           padding: .5rem 1rem;
-          border: 1px solid rgba(0, 0, 0, 0.2);
           background-color: #F6F6F6;
+          background-image: linear-gradient(180deg, #F6F6F6 0%, rgba(0,0,0,0.2) 51%, rgba(0,0,0,0.3) 100%);
 
           &:after{
             content: "Login";
@@ -52,6 +60,16 @@ body#login{
     #login_spinner {
       display: inline-block;
       padding-right: 10px;
+    }
+    .error-place{
+      position: relative;
+      margin-top: 1rem;
+
+      #error_box{
+        display: block;
+        position: absolute;
+        width: 100%;
+      }
     }
   }
 
