@@ -318,12 +318,12 @@ int VirtualMachine::parse_vrouter(string& error_str, Template * tmpl)
 /* -------------------------------------------------------------------------- */
 
 static int check_pci_attributes(VectorAttribute * pci, const string& default_bus,
-		string& error_str)
+    string& error_str)
 {
     static string attrs[] = {"VENDOR", "DEVICE", "CLASS"};
     static int num_attrs  = 3;
 
-	string bus;
+    string bus;
     bool   found = false;
 
     for (int i = 0; i < num_attrs; i++)
@@ -348,11 +348,11 @@ static int check_pci_attributes(VectorAttribute * pci, const string& default_bus
         return -1;
     }
 
-	if ( HostSharePCI::set_pci_address(pci, default_bus) != 0 )
-	{
-		error_str = "Wrong BUS in PCI attribute";
-		return -1;
-	}
+    if ( HostSharePCI::set_pci_address(pci, default_bus) != 0 )
+    {
+        error_str = "Wrong BUS in PCI attribute";
+        return -1;
+    }
 
     return 0;
 }
@@ -373,10 +373,10 @@ int VirtualMachine::parse_pci(string& error_str, Template * tmpl)
         obj_template->set(*it);
     }
 
-	Nebula& nd = Nebula::instance();
-	string  default_bus;
+    Nebula& nd = Nebula::instance();
+    string  default_bus;
 
-	nd.get_configuration_attribute("PCI_PASSTHROUGH_BUS", default_bus);
+    nd.get_configuration_attribute("PCI_PASSTHROUGH_BUS", default_bus);
 
     for (it = array_pci.begin(); it !=array_pci.end(); ++it)
     {
@@ -519,22 +519,21 @@ void VirtualMachine::parse_well_known_attributes()
      * FEATURES
      * RAW
      * CLONING_TEMPLATE_ID
+     * TOPOLOGY
+     * NUMA_NODE
      */
+    std::vector<std::string> names = {"INPUT", "FEATURES", "RAW", 
+        "CLONING_TEMPLATE_ID", "TOPOLOGY", "NUMA_NODE"};
 
-    vector<Attribute *>             v_attr;
-    vector<Attribute *>::iterator   it;
-
-    string names[] = {"INPUT", "FEATURES", "RAW", "CLONING_TEMPLATE_ID"};
-
-    for (int i=0; i<4; i++)
+    for (auto it = names.begin(); it != names.end() ; ++it)
     {
-        v_attr.clear();
+        vector<Attribute *> v_attr;
 
-        user_obj_template->remove(names[i], v_attr);
+        user_obj_template->remove(*it, v_attr);
 
-        for (it=v_attr.begin(); it != v_attr.end(); it++)
+        for (auto jt=v_attr.begin(); jt != v_attr.end(); jt++)
         {
-            obj_template->set(*it);
+            obj_template->set(*jt);
         }
     }
 }
@@ -732,3 +731,280 @@ int VirtualMachine::parse_cpu_model(Template * tmpl)
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
+{
+/**
+ *   TOPOLOGY
+ *      - NUMA_NODES: number of numa nodes
+ *      - PIN_POLICY: CORE, THREAD, SHARED, NONE
+ *      - THREADS
+ *      - CORES
+ *      - SOCKETS
+ */
+    std::vector<VectorAttribute *> numa_nodes;
+    std::vector<VectorAttribute *> vtopol_a;
+
+    VectorAttribute * vtopol = 0;
+
+    tmpl->remove("TOPOLOGY", vtopol_a);
+
+    if ( !vtopol_a.empty() )
+    {
+        auto it = vtopol_a.begin();
+        vtopol  = *it;
+
+        for ( ++it; it != vtopol_a.end(); ++it)
+        {
+            delete *it;
+        }
+    }
+
+    tmpl->get("NUMA_NODE", numa_nodes);
+
+    if ( vtopol == 0 && numa_nodes.empty() )
+    {
+        return 0;
+    }
+
+    if ( vtopol == 0 )
+    {
+        vtopol = new VectorAttribute("TOPOLOGY");
+    }
+
+    tmpl->set(vtopol);
+
+    std::string pp_s = vtopol->vector_value("PIN_POLICY");
+
+    HostShare::PinPolicy pp = HostShare::str_to_pin_policy(pp_s);
+
+    /* ---------------------------------------------------------------------- */
+    /* Set MEMORY, HUGEPAGE_SIZE, vCPU & update CPU for pinned VMS            */
+    /* ---------------------------------------------------------------------- */
+    long long memory;
+
+    unsigned int      vcpu    = 0;
+    unsigned long int hpsz_mb = 0;
+
+    if (!tmpl->get("MEMORY", memory))
+    {
+        error = "VM has not MEMORY set";
+        return -1;
+    }
+
+    if (!tmpl->get("VCPU", vcpu))
+    {
+        vcpu = 1;
+        tmpl->replace("VCPU", 1);
+    }
+
+    if ( pp != HostShare::PP_NONE )
+    {
+        tmpl->replace("CPU", vcpu);
+    }
+
+    if ( vtopol->vector_value("HUGEPAGE_SIZE", hpsz_mb) == 0 )
+    {
+        vtopol->replace("HUGEPAGE_SIZE", hpsz_mb * 1024);
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Check topology for non pinned & pinned VMs                             */
+    /*  - non-pinned VM needs to set SOCKETS, CORES and THREADS               */
+    /*  - pinned VM                                                           */
+    /*    1. Set sockets to number of NUMA_NODE or 1 if not given             */
+    /*    2. core and thread given. Check consistency                         */
+    /*    3. core given. Compute threads & check power of 2                   */
+    /*    4. other combinations are set by the scheduler                      */
+    /* ---------------------------------------------------------------------- */
+    unsigned int s, c, t;
+
+    s = c = t = 0;
+
+    vtopol->vector_value("SOCKETS", s);
+    vtopol->vector_value("CORES", c);
+    vtopol->vector_value("THREADS", t);
+
+    if ( pp == HostShare::PP_NONE )
+    {
+        if ( c == 0 || t == 0 || s == 0 )
+        {
+            error = "Non-pinned VMs with a virtual topology needs to set "
+                " SOCKETS, CORES and THREADS numbers.";
+            return -1;
+        }
+        else if ((s * c * t) != vcpu)
+        {
+            error = "Total threads per core and socket needs to match VCPU";
+            return -1;
+        }
+
+        vtopol->replace("PIN_POLICY", "NONE");
+
+        tmpl->erase("NUMA_NODE");
+
+        return 0;
+    }
+
+    if ( s == 0 )
+    {
+        if ( numa_nodes.empty() )
+        {
+            s = 1;
+        }
+        else
+        {
+            s = numa_nodes.size();
+        }
+
+        vtopol->replace("SOCKETS", s);
+    }
+
+    if ( c != 0 && t != 0 && (s * c * t) != vcpu)
+    {
+        error = "Total threads per core and socket needs to match VCPU";
+        return -1;
+    }
+
+    if ( t == 0 && c != 0 )
+    {
+        if ( vcpu%(c * s) != 0 )
+        {
+            error = "VCPU is not multiple of the total number of cores";
+            return -1;
+        }
+
+        t = vcpu/(c * s);
+
+        if ((t & (t - 1)) != 0 )
+        {
+            error = "Computed number of threads is not power of 2";
+            return -1;
+        }
+
+        vtopol->replace("THREADS", t);
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Build NUMA_NODE stanzas for the given topology                         */
+    /* ---------------------------------------------------------------------- */
+    if (numa_nodes.empty()) // Automatic Homogenous Topology
+    {
+        if ( vcpu % s != 0 )
+        {
+            error = "VCPU is not multiple of the number of NUMA nodes";
+            return -1;
+        }
+
+        if ( memory % s != 0 )
+        {
+            error = "MEMORY is not multiple of the number of NUMA nodes";
+            return -1;
+        }
+
+        long long mem_node = memory / s;
+
+        unsigned int cpu_node = vcpu / s;
+
+        for (unsigned int i = 0 ; i < s ; ++i)
+        {
+            VectorAttribute * node = new VectorAttribute("NUMA_NODE");
+
+            node->replace("TOTAL_CPUS", cpu_node);
+            node->replace("MEMORY", mem_node * 1024);
+
+            tmpl->set(node);
+        }
+    }
+    else // Manual/Asymmetric Topology, NUMA_NODE array
+    {
+        long long    node_mem = 0;
+        unsigned int node_cpu = 0;
+
+        std::vector<VectorAttribute *> new_nodes;
+
+        for (auto it = numa_nodes.begin() ; it != numa_nodes.end() ; ++it)
+        {
+            long long nmem = 0;
+            unsigned int ncpu = 0;
+
+            (*it)->vector_value("TOTAL_CPUS", ncpu);
+            (*it)->vector_value("MEMORY", nmem);
+
+            if ( ncpu == 0 || nmem == 0)
+            {
+                break;
+            }
+
+            VectorAttribute * node = new VectorAttribute("NUMA_NODE");
+
+            node->replace("TOTAL_CPUS", ncpu);
+            node->replace("MEMORY", nmem * 1024);
+
+            new_nodes.push_back(node);
+
+            node_cpu += ncpu;
+            node_mem += nmem;
+        }
+
+        tmpl->erase("NUMA_NODE");
+
+        if (node_cpu != vcpu || node_mem != memory ||
+                node_cpu == 0 || node_mem == 0)
+        {
+            for (auto it = new_nodes.begin(); it != new_nodes.end(); ++it)
+            {
+                delete *it;
+            }
+        }
+
+        if (node_cpu == 0)
+        {
+            error = "NUMA_NODES cannot have 0 CPUs";
+            return -1;
+        }
+
+        if (node_mem == 0)
+        {
+            error = "NUMA_NODES cannot have 0 MEMORY";
+            return -1;
+        }
+
+        if (node_cpu != vcpu)
+        {
+            error = "Total CPUS of NUMA nodes is different from VM VCPU";
+            return -1;
+        }
+
+        if (node_mem != memory)
+        {
+            error = "Total MEMORY of NUMA nodes is different from VM MEMORY";
+            return -1;
+        }
+
+        tmpl->set(new_nodes);
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachine::is_pinned()
+{
+    VectorAttribute * topology = obj_template->get("TOPOLOGY");
+
+    if ( topology == 0 )
+    {
+        return false;
+    }
+
+    std::string pp_s = topology->vector_value("PIN_POLICY");
+
+    HostShare::PinPolicy pp = HostShare::str_to_pin_policy(pp_s);
+
+    return pp != HostShare::PP_NONE;
+}

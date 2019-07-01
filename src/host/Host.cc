@@ -460,6 +460,8 @@ int Host::update_info(Template        &tmpl,
 
     host_share.set_pci_monitorization(pci_att);
 
+    host_share.set_numa_monitorization(*obj_template);
+
     return 0;
 }
 

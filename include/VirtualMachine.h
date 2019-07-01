@@ -37,6 +37,7 @@ using namespace std;
 
 class AuthRequest;
 class Snapshots;
+class HostShareCapacity;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -1011,14 +1012,10 @@ public:
     };
 
     /**
-     *  Get the VM physical requirements for the host.
-     *    @param cpu
-     *    @param memory
-     *    @param disk
-     *    @param pci_dev
+     *  Get the VM physical capacity requirements for the host.
+     *    @param sr the HostShareCapacity to store the capacity request.
      */
-    void get_requirements(int& cpu, int& memory, int& disk,
-            vector<VectorAttribute *>& pci_dev);
+    void get_capacity(HostShareCapacity &sr);
 
     /**
      * Adds automatic placement requirements: Datastore and Cluster
@@ -1034,26 +1031,26 @@ public:
     }
 
     /**
-     *  Checks if the resize parameters are valid
-     *    @param cpu New CPU. 0 means unchanged.
-     *    @param memory New MEMORY. 0 means unchanged.
-     *    @param vcpu New VCPU. 0 means unchanged.
-     *    @param error_str Error reason, if any
-     *
-     *    @return 0 on success
-     */
-     int check_resize(float cpu, long int memory, int vcpu, string& error_str);
-
-    /**
      *  Resize the VM capacity
      *    @param cpu
      *    @param memory
      *    @param vcpu
-     *    @param error_str Error reason, if any
-     *
-     *    @return 0 on success
      */
-     int resize(float cpu, long int memory, int vcpu, string& error_str);
+     int resize(float cpu, long int memory, unsigned int vcpu, string& error);
+
+    /**
+     *  Parse TOPOLOGY and NUMA_NODE
+     *    @param tmpl template of the virtual machine
+     *    @param error if any
+     *
+     *    @return 0 on sucess
+     */
+    static int parse_topology(Template * tmpl, std::string &error);
+
+    /**
+     *  @return true if the VM is being deployed with a pinned policy
+     */
+    bool is_pinned();
 
     // ------------------------------------------------------------------------
     // Virtual Machine Disks

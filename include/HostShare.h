@@ -21,9 +21,50 @@
 #include "Template.h"
 #include <time.h>
 #include <set>
+#include <map>
+
+//Forward declarations
+class Host;
+class HostShareNUMA;
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
+
+/**
+ *   This class represents a HostShare capacity allocation from a VM. The following
+ *   attributes are updated with the final allocation in the Host:
+ *     - topology, number of sockets, cores and threads
+ *     - pci, with device address
+ *     - nodes with the numa nodes configured for the VM
+ *
+ *    NUMA node requests are described by an attribute:
+ *
+ *    NUMA_NODE = [ TOTAL_CPUS=, MEMORY="...", CPUS="...", NODE_ID="...",
+ *      MEMORY_NODE_ID="..." ]
+ *
+ *    CPUS: list of CPU IDs to pin the vCPUs in this host
+ *    NODE_ID: the ID of the numa node in the host to pin this virtual node
+ *    MEMORY_NODE_ID: the ID of the node to allocate memory for this virtual node
+ */
+struct HostShareCapacity
+{
+    int vmid;
+
+    unsigned int vcpu;
+
+    long long cpu;
+    long long mem;
+    long long disk;
+
+    vector<VectorAttribute *> pci;
+
+    VectorAttribute * topology;
+
+    vector<VectorAttribute *> nodes;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 class HostShareDatastore : public Template
 {
@@ -32,6 +73,9 @@ public:
 
     virtual ~HostShareDatastore(){};
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /**
  *  This class represents a PCI DEVICE list for the host. The list is in the
@@ -161,7 +205,391 @@ private:
     map <string, PCIDevice *> pci_devices;
 };
 
-class Host;
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+/**
+ *  This class represents the NUMA nodes in a hypervisor for the following attr:
+ *    NODE_ID = 0
+ *    HUGEPAGE = [ SIZE = "2048", PAGES = "0", FREE = "0"]
+ *    HUGEPAGE = [ SIZE = "1048576", PAGES = "0", FREE = "0"]
+ *    CORE = [ ID = "3", CPUS = "3:-1,7:-1", FREE = 2]
+ *    CORE = [ ID = "1", CPUS = "1:23,5:-1", FREE = 0 ]
+ *    CORE = [ ID = "2", CPUS = "2:47,6:-1", FREE = 1]
+ *    CORE = [ ID = "0", CPUS = "0:23,4:-1", FREE = 0]
+ *    MEMORY = [ TOTAL = "66806708", FREE = "390568", USED = "66416140",
+ *               DISTANCE = "0 1", USAGE = "8388608" ]
+ *
+ *  - NODE_ID
+ *  - HUGEPAGE is the total PAGES and FREE hugepages of a given SIZE in the node
+ *  - CORE is a CPU core with its ID and sibling CPUs for HT architectures
+ */
+class HostShareNode : public Template
+{
+public:
+    HostShareNode() : Template(false, '=', "NODE"){};
+
+    HostShareNode(unsigned int i) : Template(false, '=', "NODE"), node_id(i)
+    {
+        replace("NODE_ID", i);
+    };
+
+    virtual ~HostShareNode(){};
+
+    /**
+     *  Builds the node from its XML representation. This function is used when
+     *  loading the host from the DB.
+     *    @param node xmlNode for the template
+     *    @return 0 on success
+     */
+    int from_xml_node(const xmlNodePtr &node);
+
+    /**
+     *  Get free capacity of the node
+     *    @param fcpus number of free virtual cores
+     *    @param memory free in the node
+     *    @param threads_core per virtual core
+     */
+    void free_capacity(unsigned int &fcpus, long long &memory, unsigned int tc);
+
+    void free_dedicated_capacity(unsigned int &fcpus, long long &memory);
+
+    /**
+     *  Allocate tcpus with a dedicated policy
+     *    @param id of the VM allocating the CPUs
+     *    @param tcpus total number of cpus
+     *    @param c_s the resulting allocation string CPUS="0,4,2,6"
+     *
+     *    @return 0 on success
+     */
+    int allocate_dedicated_cpus(int id, unsigned int tcpus, std::string &c_s);
+
+    /**
+     *  Allocate tcpus with a HT policy
+     *    @param id of the VM allocating the CPUs
+     *    @param tcpus total number of cpus
+     *    @param tc allocate cpus in tc (threads/core) chunks
+     *    @param c_s the resulting allocation string CPUS="0,4,2,6"
+     *
+     *    @return 0 on success
+     */
+    int allocate_ht_cpus(int id, unsigned int tcpus, unsigned int tc,
+            std::string &c_s);
+
+    /**
+     *  Remove allocation for the given CPUs
+     *    @param cpu_ids list of cpu ids to free, comma separated
+     */
+    void del_cpu(const std::string &cpu_ids);
+
+    /**
+     *  Remove memory allocation
+     *    @param memory to free
+     */
+    void del_memory(long long memory)
+    {
+        mem_usage -= memory;
+    }
+
+    /**
+     *  Prints the NUMA node to an output stream.
+     */
+    friend ostream& operator<<(ostream& o, const HostShareNode& n);
+
+private:
+    friend class HostShareNUMA;
+
+    //This stuct represents a core and its allocation status
+    struct Core
+    {
+        /**
+         *  Initializes the structure from the CORE attributes:
+         *    @param _i ID of core
+         *    @param _c CPUS list <cpu_id>:<vm_id>
+         *    @param _f FREE cpus in core. If -1 it will be derived from CPUS
+         */
+        Core(unsigned int _i, const std::string& _c, int _f);
+
+        /**
+         *  ID of this CPU CORE
+         */
+        unsigned int id;
+
+        /**
+         *  Number of free cpus in the core. A VM can use one thread but
+         *  reserve all the cpus in the core when using the dedicated policy.
+         */
+        unsigned int free_cpus;
+
+        /**
+         *  cpu_id - vm_id map. represents assigment status of the
+         *  cpu thread, (-1) means the VM is free.
+         */
+        std::map<unsigned int, int> cpus;
+
+        /**
+         *  @return a VectorAttribute representing this core in the form:
+         *    CORE = [ ID = "3", CPUS = "3:-1,7:-1", FREE = 2]
+         */
+        VectorAttribute * to_attribute();
+    };
+
+    //This stuct represents the hugepages available in the node
+    struct HugePage
+    {
+        unsigned long size_kb;
+
+        unsigned int  nr;
+        unsigned int  free;
+
+        unsigned long  usage;
+        unsigned long  allocated;
+
+        /**
+         *  @return a VectorAttribute representing this core in the form:
+         *    HUGEPAGE = [ SIZE = "1048576", PAGES = "200", FREE = "100",
+         *          USAGE = "100"]
+         */
+        VectorAttribute * to_attribute();
+    };
+
+    /**
+     *  ID of this node as reported by the Host
+     */
+    unsigned int node_id;
+
+    /**
+     *  Threads per core in this node
+     */
+    unsigned int threads_core = 1;
+
+    /**
+     *  CPU Cores in this node
+     */
+    std::map<unsigned int, struct Core> cores;
+
+    /**
+     *  Huge pages configured in this node
+     */
+    std::map<unsigned long, struct HugePage> pages;
+
+    /**
+     *  Memory information for this node:
+     *    - total, free and used memory as reported by IM (meminfo file)
+     *    - mem_used memory allocated to VMs by oned in this node
+     *    - distance sorted list of nodes, first is the closest (this one)
+     */
+    long long total_mem = 0;
+    long long free_mem  = 0;
+    long long used_mem  = 0;
+
+    long long mem_usage = 0;
+
+    std::vector<unsigned int> distance;
+
+    /**
+     *  Temporal allocation on the node. This is used by the scheduling
+     */
+    unsigned int allocated_cpus   = 0;
+    long long    allocated_memory = 0;
+
+    //--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+
+    /**
+     *  Creates a new Core element and associates it to this node. If the
+     *  core already exists this function does nothing
+     *    @param id of core
+     *    @param cpus string representing the cpu_id and allocation
+     *    @param free cpus in core -1 to derive them from cpus string
+     *    @param update if true also adds the core to the object Template
+     */
+    void set_core(unsigned int id, std::string& cpus, int free, bool update);
+
+    /**
+     *  Regenerate the template representation of the CORES for this node.
+     */
+    void update_cores();
+
+    /**
+     *  Regenerate the template representation of the HUGEPAGES for this node.
+     */
+    void update_hugepages();
+
+    /**
+     *  Creates a new HugePage element and associates it to this node. If a
+     *  hugepage of the same size already exists this function does nothing
+     *    @param size in kb of the page
+     *    @param nr number of pages
+     *    @param free pages
+     *    @param update if true also adds the page to the object Template
+     */
+    void set_hugepage(unsigned long size, unsigned int nr, unsigned int fr,
+            unsigned long usage, bool update);
+
+    void update_hugepage(unsigned long size);
+
+    /**
+     *  Adds a new memory attribute based on the moniroting attributes and
+     *  current mem usage.
+     */
+    void set_memory();
+
+    /**
+     *  Updates the memory usage for the node in the template representation
+     */
+    void update_memory();
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+/**
+ *  This class includes a list of all NUMA nodes in the host. And structure as
+ *  follows:
+ *
+ *    <NUMA_NODES>
+ *    <NODE>
+ *      <ID>0</ID>
+ *      <HUGEPAGE>
+ *        <SIZE>2048</SIZE>
+ *        <PAGES>0</PAGES>
+ *        <FREE>0</FREE>
+ *      </HUGEPAGE>
+ *      ...
+ *      <CORE>
+ *        <ID>3</ID>
+ *        <CPUS>3,7</CPUS>
+ *      </CORE>
+ *      ...
+ *    </NODE>
+ *    <NODE>
+ *      <ID>1</ID>
+ *      ...
+ *    </NODE>
+ *    </NUMA_NODES>
+ */
+class HostShareNUMA
+{
+public:
+    HostShareNUMA():threads_core(1){};
+
+    virtual ~HostShareNUMA()
+    {
+        for (auto it = nodes.begin(); it != nodes.end(); ++it)
+        {
+            delete it->second;
+        }
+    };
+
+    /**
+     *  Builds the NUMA nodes from its XML representation. This function is used
+     *  when loading the host from the DB.
+     *    @param node xmlNode for the template
+     *    @return 0 on success
+     */
+    int from_xml_node(const vector<xmlNodePtr> &ns);
+
+    /**
+     *  Updates the NUMA node information with monitor data
+     *    @param ht template with the information returned by monitor probes.
+     */
+    void set_monitorization(Template &ht);
+
+    /**
+     *  @param idx of the node
+     *  @return the NUMA node for the the fiven index. If the node does not
+     *  exit it is created
+     */
+    HostShareNode& get_node(unsigned int idx);
+
+    /**
+     * Function to print the HostShare object into a string in
+     * XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    string& to_xml(string& xml) const;
+
+    /**
+     *  Test if the virtual nodes and topology request fits in the host.
+     *    @param sr the share request with the node/topology
+     *    @return true if the nodes fit in the host, false otherwise
+     */
+    bool test(HostShareCapacity &sr)
+    {
+        return make_topology(sr, -1, false) == 0;
+    }
+
+    /**
+     *  Assign the requested nodes to the host.
+     *    @param sr the share request with the node/topology
+     *    @param vmid of the VM
+     */
+    void add(HostShareCapacity &sr)
+    {
+        make_topology(sr, sr.vmid, true);
+    }
+
+    /**
+     *  Remove the VM assignment from the NUMA nodes
+     */
+    void del(HostShareCapacity &sr);
+
+    /**
+     *  Prints the NUMA nodes to an output stream.
+     */
+    friend ostream& operator<<(ostream& o, const HostShareNUMA& n);
+
+private:
+    /**
+     *  Number of threads per core of the host
+     */
+    unsigned int threads_core;
+
+    std::map<unsigned int, HostShareNode *> nodes;
+
+    /* ---------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------- */
+    /**
+     * Computes the virtual topology for this VM in this host based on:
+     *   - user preferences TOPOLOGY/[SOCKETS, CORES, THREADS].
+     *   - Architecture of the Host core_threads
+     *   - allocation policy
+     *
+     *   @param sr the resource allocation request
+     *   @param vm_id of the VM making the request
+     *   @param do_alloc actually allocate the nodes (true) or just test (false)
+     *   @return 0 success (vm was allocated) -1 otherwise
+     */
+    int make_topology(HostShareCapacity &sr, int vm_id, bool do_alloc);
+
+    /**
+     *  This is an internal structure to represent a virtual node allocation
+     *  request and the resulting schedule
+     */
+    struct NUMANodeRequest
+    {
+        VectorAttribute * attr;
+
+        unsigned int total_cpus;
+        long long    memory;
+
+        //NUMA node to allocate CPU cores from
+        int node_id;
+        std::string cpu_ids;
+
+        //NUMA node to allocate memory from
+        int mem_node_id;
+    };
+
+    bool schedule_nodes(NUMANodeRequest &nr, unsigned int thr, bool dedicated,
+        unsigned long hpsz_kb, std::set<unsigned int> &pci, bool do_alloc);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /**
  *  The HostShare class. It represents a logical partition of a host...
@@ -170,12 +598,22 @@ class HostShare : public ObjectXML
 {
 public:
 
-    HostShare(
-        long long  _max_disk=0,
-        long long  _max_mem=0,
-        long long  _max_cpu=0);
+    HostShare();
 
     ~HostShare(){};
+
+    /**
+     *  Pin policy for the host
+     */
+    enum PinPolicy
+    {
+        PP_NONE   = 0, /**< No pin. Default. */
+        PP_CORE   = 1, /**< vCPUs are assigned to host cores exclusively */
+        PP_THREAD = 2, /**< vCPUS are assigned to host threads */
+        PP_SHARED = 3  /**< vCPUs are assigned to a set of host threads */
+    };
+
+    static PinPolicy str_to_pin_policy(std::string& pp_s);
 
     /**
      *  Rebuilds the object from an xml node
@@ -186,53 +624,35 @@ public:
     int from_xml_node(const xmlNodePtr node);
 
     /**
-     *  Add a new VM to this share
-     *    @param vmid of the VM
-     *    @param cpu requested by the VM, in percentage
-     *    @param mem requested by the VM, in KB
-     *    @param disk requested by the VM
-     *    @param pci_devs requested by the VM
+     *  Add a VM capacity to this share
+     *    @param sr requested capacity by the VM
      */
-    void add(int vmid, long long cpu, long long mem, long long disk,
-        vector<VectorAttribute *> pci_devs)
+    void add(HostShareCapacity &sr)
     {
-        cpu_usage  += cpu;
-        mem_usage  += mem;
-        disk_usage += disk;
+        cpu_usage  += sr.cpu;
+        mem_usage  += sr.mem;
+        disk_usage += sr.disk;
 
-        pci.add(pci_devs, vmid);
+        pci.add(sr.pci, sr.vmid);
+
+        numa.add(sr);
 
         running_vms++;
     }
 
     /**
-     *  Updates the capacity of VM in this share
-     *    @param cpu increment
-     *    @param mem increment
-     *    @param disk increment
+     *  Delete VM capacity from this share
+     *    @param sr requested capacity by the VM
      */
-    void update(int cpu, int mem, int disk)
+    void del(HostShareCapacity &sr)
     {
-        cpu_usage  += cpu;
-        mem_usage  += mem;
-        disk_usage += disk;
-    }
+        cpu_usage  -= sr.cpu;
+        mem_usage  -= sr.mem;
+        disk_usage -= sr.disk;
 
-    /**
-     *  Delete a VM from this share
-     *    @param cpu requested by the VM
-     *    @param mem requested by the VM
-     *    @param disk requested by the VM
-     *    @param pci_devs requested by the VM
-     */
-    void del(long long cpu, long long mem, long long disk,
-            const vector<VectorAttribute *>& pci_devs)
-    {
-        cpu_usage  -= cpu;
-        mem_usage  -= mem;
-        disk_usage -= disk;
+        pci.del(sr.pci);
 
-        pci.del(pci_devs);
+        numa.del(sr);
 
         running_vms--;
     }
@@ -248,49 +668,24 @@ public:
      *    @return true if the share can host the VM or it is the only one
      *    configured
      */
-    bool test(long long cpu, long long mem, long long disk,
-              vector<VectorAttribute *>& pci_devs, string& error) const
+    bool test(HostShareCapacity& sr, string& error)
     {
-        bool pci_fits = pci.test(pci_devs);
-
-        bool fits = (((max_cpu  - cpu_usage ) >= cpu) &&
-                     ((max_mem  - mem_usage ) >= mem) &&
-                     ((max_disk - disk_usage) >= disk)&&
-                     pci_fits);
-
-        if (!fits)
+        if ( !test_compute(sr.cpu, sr.mem, error) )
         {
-            if ( pci_fits )
-            {
-                error = "Not enough capacity.";
-            }
-            else
-            {
-                error = "Unavailable PCI device.";
-            }
+            return false;
         }
 
-        return fits;
-    }
-
-    /**
-     *  Check if this share can host a VM, testing only the PCI devices.
-     *    @param pci_devs requested by the VM
-     *    @param error Returns the error reason, if any
-     *
-     *    @return true if the share can host the VM or it is the only one
-     *    configured
-     */
-    bool test(vector<VectorAttribute *>& pci_devs, string& error) const
-    {
-        bool fits = pci.test(pci_devs);
-
-        if (!fits)
+        if ( !test_pci(sr.pci, error) )
         {
-            error = "Unavailable PCI device.";
+            return false;
         }
 
-        return fits;
+        if ( !test_numa(sr, error) )
+        {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -306,11 +701,20 @@ public:
      */
     string& to_xml(string& xml) const;
 
+    /**
+     *  Set host information based on the monitorinzation attributes
+     *  sent by the probes.
+     */
     void set_ds_monitorization(const vector<VectorAttribute*> &ds_att);
 
     void set_pci_monitorization(vector<VectorAttribute*> &pci_att)
     {
         pci.set_monitorization(pci_att);
+    }
+
+    void set_numa_monitorization(Template &ht)
+    {
+        numa.set_monitorization(ht);
     }
 
     /**
@@ -385,6 +789,61 @@ private:
 
     HostShareDatastore ds;
     HostSharePCI       pci;
+    HostShareNUMA      numa;
+
+    /**
+     *  Check if this share can host a VM, testing only the PCI devices.
+     *    @param pci_devs requested by the VM
+     *    @param error Returns the error reason, if any
+     *
+     *    @return true if the share can host the VM or it is the only one
+     *    configured
+     */
+    bool test_compute(int cpu, long long mem, std::string &error) const
+    {
+        bool cpu_fit  = (max_cpu  - cpu_usage ) >= cpu;
+        bool mem_fit  = (max_mem  - mem_usage ) >= mem;
+
+        bool fits = cpu_fit && mem_fit;
+
+        if ( fits )
+        {
+            return true;
+        }
+
+        ostringstream oss;
+
+        if (!cpu_fit)
+        {
+            oss << "Not enough CPU: " << cpu << "/" << max_cpu - cpu_usage;
+        }
+        else if (!mem_fit)
+        {
+            oss << "Not enough memory: " << mem << "/" << max_mem - mem_usage;
+        }
+
+        error = oss.str();
+
+        return false;
+    }
+
+    bool test_pci(vector<VectorAttribute *>& pci_devs, string& error) const
+    {
+        bool fits = pci.test(pci_devs);
+
+        error = "Unavailable PCI device.";
+
+        return fits;
+    }
+
+    bool test_numa(HostShareCapacity &sr, string& error)
+    {
+        bool fits = numa.test(sr);
+
+        error = "Cannot allocate NUMA topology";
+
+        return fits;
+    }
 };
 
 #endif /*HOST_SHARE_H_*/

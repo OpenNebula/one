@@ -330,10 +330,7 @@ static void schecule_affined_set(const std::set<int>& vms,
 
         for ( ++it ; it != vms.end() ; ++it )
         {
-            float cpu;
-            int   memory;
-
-            long long disk;
+            HostShareCapacity sr;
 
             VirtualMachineXML * tmp = vmpool->get(*it);
 
@@ -342,9 +339,9 @@ static void schecule_affined_set(const std::set<int>& vms,
                 continue;
             }
 
-            tmp->reset_requirements(cpu, memory, disk);
+            tmp->reset_capacity(sr);
 
-            vm->add_requirements(cpu, memory, disk);
+            vm->add_capacity(sr);
             vm->add_requirements(tmp->get_requirements());
             vm->add_affined(*it);
 

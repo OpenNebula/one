@@ -21,6 +21,8 @@
 #include <stdexcept>
 #include <iomanip>
 
+#include <math.h>
+
 #include "HostShare.h"
 #include "Host.h"
 
@@ -141,6 +143,8 @@ void HostSharePCI::add(vector<VectorAttribute *> &devs, int vmid)
                 (device_rc == 0 || dev->device_id == device_id) &&
                 dev->vmid  == -1 )
             {
+                int node = -1;
+
                 dev->vmid = vmid;
                 dev->attrs->replace("VMID", vmid);
 
@@ -154,6 +158,11 @@ void HostSharePCI::add(vector<VectorAttribute *> &devs, int vmid)
                 if (addr_rc != -1 && !address.empty())
                 {
                     (*it)->replace("PREV_ADDRESS", address);
+                }
+
+                if (dev->attrs->vector_value("NUMA_NODE", node)==0 && node !=-1)
+                {
+                    (*it)->replace("NUMA_NODE", node);
                 }
 
                 break;
@@ -241,14 +250,15 @@ void HostSharePCI::set_monitorization(vector<VectorAttribute*> &pci_att)
         set(pci);
     }
 
+    //Remove missing devices from the share if there are no VMs using them
     for ( jt = missing.begin() ; jt != missing.end(); jt ++ )
     {
         pci_it = pci_devices.find(*jt);
 
-		if ( pci_it->second->vmid != -1 )
-		{
-			continue;
-		}
+        if ( pci_it->second->vmid != -1 )
+        {
+            continue;
+        }
 
         remove(pci_it->second->attrs);
 
@@ -301,8 +311,8 @@ int HostSharePCI::set_pci_address(VectorAttribute * pci_device,
     unsigned int ibus, slot;
 
     // ------------------- DOMAIN & FUNCTION -------------------------
-	pci_device->replace("VM_DOMAIN", "0x0000");
-	pci_device->replace("VM_FUNCTION", "0");
+    pci_device->replace("VM_DOMAIN", "0x0000");
+    pci_device->replace("VM_FUNCTION", "0");
 
     // --------------------------- BUS -------------------------------
     bus = pci_device->vector_value("VM_BUS");
@@ -362,9 +372,9 @@ HostSharePCI::PCIDevice::PCIDevice(VectorAttribute * _attrs)
     get_pci_value("CLASS" , attrs, class_id);
 
     if (attrs->vector_value("VMID", vmid) == -1)
-	{
-		attrs->replace("VMID", -1);
-	}
+    {
+        attrs->replace("VMID", -1);
+    }
 
     attrs->vector_value("ADDRESS", address);
 };
@@ -374,43 +384,1212 @@ HostSharePCI::PCIDevice::PCIDevice(VectorAttribute * _attrs)
 
 ostream& operator<<(ostream& os, const HostSharePCI& pci)
 {
-    map<string, HostSharePCI::PCIDevice *>::const_iterator it;
+    os  << right << setw(15)<< "PCI ADDRESS"<< " "
+        << right << setw(8) << "CLASS"  << " "
+        << right << setw(8) << "VENDOR" << " "
+        << right << setw(8) << "DEVICE" << " "
+        << right << setw(8) << "VMID"   << " "
+        << endl << setw(55) << setfill('-') << "-" << setfill(' ') << endl;
 
-	os  << right << setw(15)<< "PCI ADDRESS"<< " "
-		<< right << setw(8) << "CLASS"  << " "
-		<< right << setw(8) << "VENDOR" << " "
-		<< right << setw(8) << "DEVICE" << " "
-		<< right << setw(8) << "VMID"   << " "
-		<< endl << setw(55) << setfill('-') << "-" << setfill(' ') << endl;
-
-    for (it=pci.pci_devices.begin(); it!=pci.pci_devices.end(); it++)
+    for (auto it=pci.pci_devices.begin(); it!=pci.pci_devices.end(); ++it)
     {
         HostSharePCI::PCIDevice * dev = it->second;
 
-		os << right << setw(15)<< dev->address   << " "
-		   << right << setw(8) << dev->class_id  << " "
-		   << right << setw(8) << dev->vendor_id << " "
-		   << right << setw(8) << dev->device_id << " "
-		   << right << setw(8) << dev->vmid      << " " << endl;
+        os << right << setw(15)<< dev->address   << " "
+           << right << setw(8) << dev->class_id  << " "
+           << right << setw(8) << dev->vendor_id << " "
+           << right << setw(8) << dev->device_id << " "
+           << right << setw(8) << dev->vmid      << " " << endl;
     }
 
-	return os;
+    return os;
 }
+
+/* ************************************************************************** */
+/* ************************************************************************** */
+/* HostShareNode                                                              */
+/* ************************************************************************** */
+/* ************************************************************************** */
+ostream& operator<<(ostream& o, const HostShareNode& n)
+{
+    o << setw(75) << setfill('-') << "-" << setfill(' ') << std::endl;
+    o << "Node: " << n.node_id  << "\tMemory: " << n.mem_usage / (1024*1024)
+      << "/" << n.total_mem / (1024*1024) << "G\n";
+    o << setw(75) << setfill('-') << "-" << setfill(' ') << std::endl;
+
+    for (auto it = n.cores.begin(); it!= n.cores.end(); ++it)
+    {
+        const HostShareNode::Core &c = it->second;
+
+        o <<"(";
+
+        for (auto jt = c.cpus.begin(); jt != c.cpus.end(); ++jt)
+        {
+            if ( jt != c.cpus.begin() )
+            {
+                o << " ";
+            }
+
+            o << std::setw(2) << jt->first;
+        }
+
+        o << ")" ;
+    }
+
+    o << std::endl;
+
+    for (auto it = n.cores.begin(); it!= n.cores.end(); ++it)
+    {
+        const HostShareNode::Core &c = it->second;
+
+        o <<"(";
+
+        for (auto jt = c.cpus.begin(); jt != c.cpus.end(); ++jt)
+        {
+            if ( jt != c.cpus.begin() )
+            {
+                o << " ";
+            }
+
+            if ( jt->second == -1 )
+            {
+                o << std::setw(2) << "-";
+            }
+            else
+            {
+                o << std::setw(2) << "X";
+            }
+        }
+
+        o <<")";
+    }
+
+    o << std::endl;
+
+    return o;
+}
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+HostShareNode::Core::Core(unsigned int _i, const std::string& _c, int fc):id(_i)
+{
+    std::stringstream cpu_s(_c);
+
+    std::string thread;
+
+    free_cpus = 0;
+
+    while (getline(cpu_s, thread, ','))
+    {
+        unsigned int cpu_id;
+        int vm_id = -1;
+
+        if (thread.empty())
+        {
+            continue;
+        }
+
+        std::replace(thread.begin(), thread.end(), ':', ' ');
+        std::stringstream thread_s(thread);
+
+        if (!(thread_s >> cpu_id))
+        {
+            continue;
+        }
+
+        if (!(thread_s >> vm_id) || vm_id < -1)
+        {
+            vm_id = -1;
+        }
+
+        cpus.insert(std::make_pair(cpu_id, vm_id));
+
+        if ( vm_id == -1 )
+        {
+            free_cpus++;
+        }
+    }
+
+    if ( fc != -1 ) //free_cpus is set in CORE attribute
+    {
+        free_cpus = fc;
+    }
+}
+
+// -----------------------------------------------------------------------------
+
+VectorAttribute * HostShareNode::Core::to_attribute()
+{
+    ostringstream oss;
+
+    for (auto cit = cpus.begin(); cit != cpus.end(); ++cit)
+    {
+        if (cit != cpus.begin())
+        {
+            oss << ",";
+        }
+
+        oss << cit->first << ":" << cit->second;
+    }
+
+    VectorAttribute * vcore = new VectorAttribute("CORE");
+
+    vcore->replace("ID", id);
+    vcore->replace("CPUS", oss.str());
+    vcore->replace("FREE", free_cpus);
+
+    return vcore;
+}
+
+// -----------------------------------------------------------------------------
+
+VectorAttribute * HostShareNode::HugePage::to_attribute()
+{
+    VectorAttribute * vpage = new VectorAttribute("HUGEPAGE");
+
+    vpage->replace("SIZE", size_kb);
+    vpage->replace("PAGES", nr);
+    vpage->replace("FREE", free);
+    vpage->replace("USAGE", usage);
+
+    return vpage;
+}
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+int HostShareNode::from_xml_node(const xmlNodePtr &node)
+{
+    int rc = Template::from_xml_node(node);
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    //General node information & status
+    if ( get("NODE_ID", node_id) == false )
+    {
+        return -1;
+    }
+
+    //Build the node CPU cores topology
+    vector<VectorAttribute *> vcores;
+
+    get("CORE", vcores);
+
+    for (auto vc_it = vcores.begin(); vc_it != vcores.end(); ++vc_it)
+    {
+        unsigned int core_id;
+        int free_cpus = -1;
+        std::string  cpus;
+
+        (*vc_it)->vector_value("ID", core_id);
+        (*vc_it)->vector_value("CPUS", cpus);
+        (*vc_it)->vector_value("FREE", free_cpus);
+
+        set_core(core_id, cpus, free_cpus, false);
+    }
+
+    vector<VectorAttribute *> vpages;
+
+    get("HUGEPAGE", vpages);
+
+    for (auto vp_it = vpages.begin(); vp_it != vpages.end(); ++vp_it)
+    {
+        unsigned long size_kb, usage_kb;
+
+        unsigned int  nr;
+        unsigned int  free;
+
+        (*vp_it)->vector_value("SIZE", size_kb);
+        (*vp_it)->vector_value("PAGES",nr);
+        (*vp_it)->vector_value("FREE", free);
+
+        (*vp_it)->vector_value("USAGE", usage_kb);
+
+        set_hugepage(size_kb, nr, free, usage_kb, false);
+    }
+
+    std::string distance_s;
+    VectorAttribute * memory = get("MEMORY");
+
+    if (memory != 0)
+    {
+        memory->vector_value("TOTAL", total_mem);
+        memory->vector_value("FREE", free_mem);
+        memory->vector_value("USED", used_mem);
+
+        memory->vector_value("USAGE", mem_usage);
+
+        memory->vector_value("DISTANCE", distance_s);
+
+        one_util::split(distance_s, ' ', distance);
+    }
+
+    return 0;
+};
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+int HostShareNode::allocate_dedicated_cpus(int id, unsigned int tcpus,
+        std::string &c_s)
+{
+    std::ostringstream oss;
+
+    for (auto vc_it = cores.begin(); vc_it != cores.end(); ++vc_it)
+    {
+        HostShareNode::Core &core = vc_it->second;
+
+        if ( core.free_cpus != threads_core )
+        {
+            continue;
+        }
+
+        core.cpus.begin()->second = id;
+
+        core.free_cpus = 0;
+
+        oss << core.cpus.begin()->first;
+
+        if ( --tcpus == 0 )
+        {
+            c_s = oss.str();
+            break;
+        }
+
+        oss << ",";
+    }
+
+    if ( tcpus != 0 )
+    {
+        return -1;
+    }
+
+    update_cores();
+
+    c_s = oss.str();
+
+    return 0;
+}
+
+// -----------------------------------------------------------------------------
+
+int HostShareNode::allocate_ht_cpus(int id, unsigned int tcpus, unsigned int tc,
+        std::string &c_s)
+{
+    std::ostringstream oss;
+
+    for (auto vc_it = cores.begin(); vc_it != cores.end() && tcpus > 0; ++vc_it)
+    {
+        HostShareNode::Core &core = vc_it->second;
+
+        unsigned int c_to_alloc = ( core.free_cpus/tc ) * tc;
+
+        for (auto vit = core.cpus.begin(); vit != core.cpus.end() &&
+                c_to_alloc > 0; ++vit)
+        {
+            if (vit->second != -1)
+            {
+                continue;
+            }
+
+            vit->second = id;
+
+            core.free_cpus--;
+
+            c_to_alloc--;
+
+            oss << vit->first;
+
+            if ( --tcpus == 0 )
+            {
+                break;
+            }
+
+            oss << ",";
+        }
+    }
+
+    if ( tcpus != 0 )
+    {
+        return -1;
+    }
+
+    update_cores();
+
+    c_s = oss.str();
+
+    return 0;
+}
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+void HostShareNode::del_cpu(const std::string &cpu_ids)
+{
+    std::vector<unsigned int> ids;
+    std::set<unsigned int> core_ids;
+
+    one_util::split(cpu_ids, ',', ids);
+
+    //--------------------------------------------------------------------------
+    //  Set used cpus to -1 in the node cores
+    //--------------------------------------------------------------------------
+    for (auto it = ids.begin() ; it != ids.end(); ++it)
+    {
+        for (auto jt = cores.begin(); jt != cores.end(); ++jt)
+        {
+            bool updated = false;
+
+            struct Core &c = jt->second;
+
+            for (auto kt = c.cpus.begin(); kt != c.cpus.end(); ++kt)
+            {
+                if ( kt->first == *it )
+                {
+                    kt->second = -1;
+                    updated = true;
+
+                    break;
+                }
+            }
+
+            if (updated)
+            {
+                core_ids.insert(jt->first);
+                break;
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    //  Recompute free cpus for the cores that have been updated
+    //--------------------------------------------------------------------------
+    for (auto it = core_ids.begin(); it != core_ids.end(); ++it)
+    {
+        auto jt = cores.find(*it);
+
+        if ( jt == cores.end() )
+        {
+            continue;
+        }
+
+        struct Core &c = jt->second;
+
+        c.free_cpus = 0;
+
+        for (auto kt = c.cpus.begin(); kt != c.cpus.end(); ++kt)
+        {
+            if ( kt->second == -1 )
+            {
+                c.free_cpus++;
+            }
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+void HostShareNode::update_cores()
+{
+    erase("CORE");
+
+    for (auto vc_it = cores.begin(); vc_it != cores.end(); ++vc_it)
+    {
+        set(vc_it->second.to_attribute());
+    }
+}
+
+void HostShareNode::update_hugepages()
+{
+    erase("HUGEPAGE");
+
+    for (auto hp_it = pages.begin(); hp_it != pages.end(); ++hp_it)
+    {
+        set(hp_it->second.to_attribute());
+    }
+}
+
+void HostShareNode::update_memory()
+{
+    VectorAttribute * mem = get("MEMORY");
+
+    if ( mem == 0 )
+    {
+        return;
+    }
+
+    mem->replace("USAGE", mem_usage);
+}
+
+void HostShareNode::set_memory()
+{
+    erase("MEMORY");
+
+    VectorAttribute * mem = new VectorAttribute("MEMORY");
+
+    mem->replace("TOTAL", total_mem);
+    mem->replace("USED", used_mem);
+    mem->replace("FREE", free_mem);
+
+    mem->replace("USAGE", mem_usage);
+
+    std::ostringstream oss;
+
+    for (auto it = distance.begin(); it != distance.end(); ++it)
+    {
+        if (it!= distance.begin())
+        {
+            oss << " ";
+        }
+
+        oss << *it;
+    }
+
+    mem->replace("DISTANCE", oss.str());
+
+    set(mem);
+}
+
+// -----------------------------------------------------------------------------
+
+void HostShareNode::set_core(unsigned int id, std::string& cpus, int free,
+        bool update)
+{
+    if ( cores.find(id) != cores.end() )
+    {
+        return;
+    }
+
+    Core c(id, cpus, free);
+
+    cores.insert(make_pair(c.id, c));
+
+    if (update)
+    {
+        set(c.to_attribute());
+    }
+
+    //update threads/core it assumes an homogenous architecture
+    threads_core = c.cpus.size();
+}
+
+// -----------------------------------------------------------------------------
+
+void HostShareNode::set_hugepage(unsigned long size, unsigned int nr,
+        unsigned int fr, unsigned long usage, bool update)
+{
+    auto pt = pages.find(size);
+
+    if ( pt != pages.end() )
+    {
+        if ( nr != pt->second.nr || fr != pt->second.free )
+        {
+            pt->second.nr   = nr;
+            pt->second.free = fr;
+
+            update_hugepages();
+        }
+
+        return;
+    }
+
+    HugePage h = {size, nr, fr, usage};
+
+    pages.insert(make_pair(h.size_kb, h));
+
+    if (update)
+    {
+        set(h.to_attribute());
+    }
+}
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+void HostShareNode::free_capacity(unsigned int &fcpus, long long &memory,
+        unsigned int tc)
+{
+    fcpus  = 0;
+    memory = total_mem - mem_usage;
+
+    for (auto it = cores.begin(); it != cores.end(); ++it)
+    {
+        fcpus = fcpus + it->second.free_cpus / tc;
+    }
+}
+
+void HostShareNode::free_dedicated_capacity(unsigned int &fcpus,
+        long long &memory)
+{
+    fcpus  = 0;
+    memory = total_mem - mem_usage;
+
+    for (auto it = cores.begin(); it != cores.end(); ++it)
+    {
+        if ( it->second.free_cpus == threads_core )
+        {
+            fcpus = fcpus + 1;
+        }
+    }
+}
+
+/* ************************************************************************** */
+/* ************************************************************************** */
+/* HostShareNUMA                                                              */
+/* ************************************************************************** */
+/* ************************************************************************** */
+
+ostream& operator<<(ostream& o, const HostShareNUMA& n)
+{
+    for (auto it = n.nodes.begin(); it != n.nodes.end(); ++it)
+    {
+        o << *(it->second);
+    }
+
+    o << setw(75) << setfill('-') << "-" << setfill(' ') << std::endl;
+
+    return o;
+}
+
+int HostShareNUMA::from_xml_node(const vector<xmlNodePtr> &ns)
+{
+    for (auto it = ns.begin() ; it != ns.end(); ++it)
+    {
+        HostShareNode * n = new HostShareNode;
+
+        if ( n->from_xml_node(*it) != 0 )
+        {
+            return -1;
+        }
+
+        nodes.insert(make_pair(n->node_id, n));
+    }
+
+    if ( nodes.empty() )
+    {
+        return 0;
+    }
+
+    // Get threads per core from the first NUMA node, assumes an homogenous
+    // architecture
+    threads_core = nodes.begin()->second->threads_core;
+
+    return 0;
+}
+
+// -----------------------------------------------------------------------------
+
+void HostShareNUMA::set_monitorization(Template &ht)
+{
+    int node_id;
+
+    std::vector<VectorAttribute *> cores;
+
+    ht.remove("CORE", cores);
+
+    for (auto it = cores.begin(); it != cores.end(); ++it)
+    {
+        int core_id;
+        std::string cpus;
+
+        if ( (*it)->vector_value("NODE_ID", node_id) == -1 )
+        {
+            continue;
+        }
+
+        (*it)->vector_value("ID", core_id);
+        (*it)->vector_value("CPUS", cpus);
+
+        HostShareNode& node = get_node(node_id);
+
+        node.set_core(core_id, cpus, -1, true);
+    }
+
+    std::vector<VectorAttribute *> pages;
+
+    ht.remove("HUGEPAGE", pages);
+
+    for (auto it = pages.begin(); it != pages.end(); ++it)
+    {
+        unsigned int pages;
+        unsigned int free;
+
+        unsigned long size;
+
+        if ( (*it)->vector_value("NODE_ID", node_id) == -1 )
+        {
+            continue;
+        }
+
+        (*it)->vector_value("SIZE", size);
+        (*it)->vector_value("FREE", free);
+        (*it)->vector_value("PAGES",pages);
+
+        HostShareNode& node = get_node(node_id);
+
+        node.set_hugepage(size, free, pages, 0, true);
+    }
+
+    std::vector<VectorAttribute *> memory;
+
+    ht.remove("MEMORY_NODE", memory);
+
+    for (auto it = memory.begin(); it != memory.end(); ++it)
+    {
+        std::string distance_s;
+
+        if ( (*it)->vector_value("NODE_ID", node_id) == -1 )
+        {
+            continue;
+        }
+
+        HostShareNode& node = get_node(node_id);
+
+        (*it)->vector_value("TOTAL", node.total_mem);
+        (*it)->vector_value("FREE", node.free_mem);
+        (*it)->vector_value("USED", node.used_mem);
+
+        (*it)->vector_value("DISTANCE", distance_s);
+
+        node.distance.clear();
+
+        one_util::split(distance_s, ' ', node.distance);
+
+        node.set_memory();
+    }
+}
+
+// -----------------------------------------------------------------------------
+
+HostShareNode& HostShareNUMA::get_node(unsigned int idx)
+{
+    auto it = nodes.find(idx);
+
+    if ( it != nodes.end() )
+    {
+        return *(it->second);
+    }
+
+    HostShareNode * n = new HostShareNode(idx);
+
+    nodes.insert(make_pair(idx, n));
+
+    return *(n);
+}
+
+// -----------------------------------------------------------------------------
+
+std::string& HostShareNUMA::to_xml(std::string& xml) const
+{
+    ostringstream oss;
+
+    oss << "<NUMA_NODES>";
+
+    for (auto it = nodes.begin(); it != nodes.end(); ++it)
+    {
+        std::string node_xml;
+
+        oss << it->second->to_xml(node_xml);
+    }
+
+    oss << "</NUMA_NODES>";
+
+    xml = oss.str();
+
+    return xml;
+}
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+/*
+static bool sort_node_mem(VectorAttribute *i, VectorAttribute *j)
+{
+    std::sort(sr.nodes.begin(), sr.nodes.end(), sort_node_mem);
+
+    long long mem_i, mem_j;
+
+    i->vector_value("MEMORY", mem_i);
+    j->vector_value("MEMORY", mem_j);
+
+    return mem_i < mem_j;
+}
+*/
+
+
+// -----------------------------------------------------------------------------
+
+bool HostShareNUMA::schedule_nodes(NUMANodeRequest &nr, unsigned int threads,
+        bool dedicated, unsigned long hpsz_kb, std::set<unsigned int> &pci,
+        bool do_alloc)
+{
+    std::vector<std::tuple<float,int> > cpu_fits;
+    std::set<unsigned int> mem_fits;
+
+    for (auto it = nodes.begin(); it != nodes.end(); ++it)
+    {
+        long long    n_fmem;
+        unsigned int n_fcpu;
+
+        unsigned long n_hp, n_fhp;
+
+        // --------------------------------------------------------------------
+        // Compute free capacity in this node: memory, cpu and hugepages
+        // --------------------------------------------------------------------
+        if ( dedicated )
+        {
+            it->second->free_dedicated_capacity(n_fcpu, n_fmem);
+        }
+        else
+        {
+            it->second->free_capacity(n_fcpu, n_fmem, threads);
+        }
+
+        n_fhp = 0;
+
+        if (hpsz_kb != 0)
+        {
+            auto pt = it->second->pages.find(hpsz_kb);
+
+            if ( pt != it->second->pages.end())
+            {
+                const HostShareNode::HugePage &thp = pt->second;
+
+                n_hp  = nr.memory / hpsz_kb;
+                n_fhp = thp.nr - thp.usage - thp.allocated;
+            }
+        }
+
+        n_fcpu -= (it->second->allocated_cpus / threads);
+        n_fmem -= it->second->allocated_memory;
+
+        // --------------------------------------------------------------------
+        // Check that the virtual node fits in the hypervisor node
+        // --------------------------------------------------------------------
+        if ( n_fcpu * threads >= nr.total_cpus )
+        {
+            float fcpu_after = 1 - ((float) nr.total_cpus / (threads * n_fcpu));
+
+            if ( pci.count(it->second->node_id) != 0 )
+            {
+                fcpu_after += 1;
+            }
+
+            cpu_fits.push_back(std::make_tuple(fcpu_after, it->first));
+        }
+
+        bool hp_fit = (hpsz_kb == 0 || (n_fhp > 0 && n_fhp >= n_hp));
+
+        if ( n_fmem >= nr.memory && hp_fit )
+        {
+            mem_fits.insert(it->first);
+        }
+    }
+
+    if ( cpu_fits.empty() || mem_fits.empty() )
+    {
+        return false;
+    }
+
+    if ( do_alloc == false )
+    {
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+    // Allocate nodes using a best-fit heuristic weighted with PCI proximity for
+    // the CPU nodes. Closer memory allocations are prioritized.
+    //--------------------------------------------------------------------------
+    std::sort(cpu_fits.begin(), cpu_fits.end());
+
+    for (unsigned int hop = 0 ; hop < nodes.size() ; ++hop)
+    {
+        for (auto it = cpu_fits.rbegin(); it != cpu_fits.rend() ; ++it)
+        {
+            unsigned int snode = std::get<1>(*it);
+
+            HostShareNode &n = get_node(snode);
+
+            unsigned int mem_snode = n.distance[hop];
+
+            if ( mem_fits.find(mem_snode) != mem_fits.end() )
+            {
+                HostShareNode &mem_n = get_node(snode);
+
+                nr.node_id     = snode;
+                nr.mem_node_id = mem_snode;
+
+                n.allocated_cpus += nr.total_cpus;
+                mem_n.allocated_memory += nr.memory;
+
+                if ( hpsz_kb != 0 )
+                {
+                    auto pit = mem_n.pages.find(hpsz_kb);
+
+                    if (pit != mem_n.pages.end())
+                    {
+                        pit->second.allocated += (nr.memory / hpsz_kb);
+                    }
+                }
+
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int HostShareNUMA::make_topology(HostShareCapacity &sr, int vm_id, bool do_alloc)
+{
+    unsigned int t_max; //Max threads per core for this topology
+    std::set<int> t_valid; //Viable threads per core combinations for all nodes
+
+    // -------------------------------------------------------------------------
+    // User preferences will be used if possible if not they fix an upperbound
+    // for the topology parameter.
+    // -------------------------------------------------------------------------
+    int v_t = 0;
+    int c_t = 0;
+    int s_t = 0;
+
+    unsigned long hpsz_kb = 0;
+
+    if ( sr.topology == 0 || sr.nodes.empty() )
+    {
+        return 0;
+    }
+
+    sr.topology->vector_value("THREADS", v_t);
+    sr.topology->vector_value("CORES", c_t);
+    sr.topology->vector_value("SOCKETS", s_t);
+
+    sr.topology->vector_value("HUGEPAGE_SIZE", hpsz_kb);
+
+    std::string policy      = sr.topology->vector_value("PIN_POLICY");
+    HostShare::PinPolicy pp = HostShare::str_to_pin_policy(policy);
+
+    bool dedicated = pp == HostShare::PP_CORE;
+
+    // -------------------------------------------------------------------------
+    // Build NUMA NODE topology request vector
+    // -------------------------------------------------------------------------
+    std::vector<NUMANodeRequest> vm_nodes;
+
+    for (auto vn_it = sr.nodes.begin(); vn_it != sr.nodes.end(); ++vn_it)
+    {
+        VectorAttribute *a_node = *vn_it;
+        unsigned int total_cpus = 0;
+        long long memory        = 0;
+
+        a_node->vector_value("TOTAL_CPUS", total_cpus);
+        a_node->vector_value("MEMORY", memory);
+
+        NUMANodeRequest nr = {a_node, total_cpus, memory, -1, "", -1};
+
+        vm_nodes.push_back(nr);
+    }
+
+    //--------------------------------------------------------------------------
+    // Compute threads per core (tc) in this host:
+    //   - Prefer as close as possible to HW configuration, power of 2 (*).
+    //   - t_max = min(tc_vm, tc_host). Do not exceed host threads/core
+    //   - Possible thread number = 1, 2, 4, 8... t_max
+    //   - Prefer higher number of threads and closer to user request
+    //   - It should be the same for each virtual numa node
+    //
+    // (*) Typically processores are 2-way or 4-way SMT
+    //--------------------------------------------------------------------------
+    if ( dedicated )
+    {
+        t_max = 1;
+
+        t_valid.insert(1);
+    }
+    else
+    {
+        t_max = v_t;
+
+        if ( t_max > threads_core || t_max == 0 )
+        {
+            t_max = threads_core;
+        }
+
+        t_max = 1 << (int) floor(log2((double) t_max));
+
+        // Map <threads/core, virtual nodes>. This is only relevant for
+        // asymmetric configurations, different TOTAL_CPUS per NUMA_NODE stanza
+        //
+        // Example, for 2 numa nodes and 1,2,4 threads/per core
+        // 1 - 2 <---- valid in all nodes
+        // 2 - 2 <---- valid in all nodes
+        // 4 - 1
+        // We'll use 2 thread/core topology
+        std::map<unsigned int, int> tc_node;
+
+        for (auto vn_it = vm_nodes.begin(); vn_it != vm_nodes.end(); ++vn_it)
+        {
+            unsigned int tcpus = (*vn_it).total_cpus;
+
+            for (unsigned int i = t_max; i >= 1 ; i = i / 2 )
+            {
+                if ( tcpus != 0 && tcpus%i != 0 )
+                {
+                    continue;
+                }
+
+                tc_node[i] = tc_node[i] + 1;
+            }
+        }
+
+        int t_nodes = static_cast<int>(vm_nodes.size());
+
+        for (int i = t_max; i >= 1 ; i = i / 2 )
+        {
+            if (tc_node.find(i) != tc_node.end() && tc_node[i] == t_nodes)
+            {
+                t_valid.insert(i);
+            }
+        }
+
+        // If the user requested an specific threads/core config, check that
+        // we can fulfill it in this host for all the VM nodes.
+        if ( v_t != 0 )
+        {
+            if (t_valid.count(v_t) == 0 )
+            {
+                return -1;
+            }
+
+            t_valid.clear();
+
+            t_valid.insert(v_t);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    // Schedule NUMA_NODES in the host exploring t_valid threads/core confs
+    // and using a best-fit heuristic (cpu-guided). Valid nodes needs to:
+    //   - Have enough free memory
+    //   - Have enough free CPUS groups of a given number of threads/core.
+    //
+    // Example. TOTAL_CPUS = 4, threads/core = 2 ( - = free, X = used )
+    //   - (-XXX),(--XX), (X-XX) ---> Not valid 1 group of 2 threads (4 CPUS)
+    //   - (----),(--XX), (X---) ---> Valid 4 group of 2 threads (8 CPUS)
+    //
+    // NOTE: We want to pin CPUS in the same core in the VM to CPUS in the same
+    // core in the host as well.
+    //--------------------------------------------------------------------------
+    unsigned int na = 0;
+    std::set<unsigned int> pci_nodes;
+
+    for (auto it = sr.pci.begin(); it != sr.pci.end(); ++it)
+    {
+        int pnode = -1;
+
+        if ((*it)->vector_value("NUMA_NODE", pnode) == 0 && pnode != -1)
+        {
+            pci_nodes.insert(pnode);
+        }
+    }
+
+    for (auto tc_it = t_valid.rbegin(); tc_it != t_valid.rend(); ++tc_it, na = 0)
+    {
+        for(auto it = nodes.begin(); it != nodes.end(); ++it)
+        {
+            HostShareNode * thn = it->second;
+
+            thn->allocated_cpus   = 0;
+            thn->allocated_memory = 0;
+
+            for (auto pt = thn->pages.begin(); pt != thn->pages.end(); ++pt)
+            {
+                pt->second.allocated = 0;
+            }
+        }
+
+        for (auto vn_it = vm_nodes.begin(); vn_it != vm_nodes.end(); ++vn_it)
+        {
+            if (!schedule_nodes(*vn_it, *tc_it, dedicated, hpsz_kb, pci_nodes,
+                        do_alloc))
+            {
+                break; //Node cannot be allocated with *tc_it threads/core
+            }
+
+            na++;
+        }
+
+        if (na == vm_nodes.size())
+        {
+            v_t = (*tc_it);
+            break;
+        }
+    }
+
+    if (na != vm_nodes.size())
+    {
+        return -1;
+    }
+
+    if ( do_alloc == false )
+    {
+        return 0;
+    }
+
+    //--------------------------------------------------------------------------
+    // Allocation of NUMA_NODES. Get CPU_IDs for each node
+    //--------------------------------------------------------------------------
+    for (auto vn_it = vm_nodes.begin(); vn_it != vm_nodes.end(); ++vn_it)
+    {
+        auto it = nodes.find((*vn_it).node_id);
+
+        if ( it == nodes.end() ) //Consistency check
+        {
+            return -1;
+        }
+
+        if ( dedicated )
+        {
+            it->second->allocate_dedicated_cpus(vm_id, (*vn_it).total_cpus,
+                    (*vn_it).cpu_ids);
+        }
+        else
+        {
+            it->second->allocate_ht_cpus(vm_id, (*vn_it).total_cpus, v_t,
+                    (*vn_it).cpu_ids);
+        }
+
+        it = nodes.find((*vn_it).mem_node_id);
+
+        if ( it == nodes.end() ) //Consistency check
+        {
+            return -1;
+        }
+
+        it->second->mem_usage += (*vn_it).memory;
+
+        if ( hpsz_kb != 0 )
+        {
+            auto pt = it->second->pages.find(hpsz_kb);
+
+            if ( pt == it->second->pages.end() )
+            {
+                return -1;
+            }
+
+            pt->second.usage += ((*vn_it).memory / hpsz_kb);
+
+            it->second->update_hugepages();
+        }
+
+        it->second->update_memory();
+
+        VectorAttribute * a_node = (*vn_it).attr;
+
+        a_node->replace("NODE_ID", (*vn_it).node_id);
+        a_node->replace("CPUS", (*vn_it).cpu_ids);
+        a_node->replace("MEMORY_NODE_ID", (*vn_it).mem_node_id);
+    }
+
+    //--------------------------------------------------------------------------
+    // Update VM topology
+    //--------------------------------------------------------------------------
+    c_t = sr.vcpu / ( v_t * s_t);
+
+    sr.topology->replace("THREADS", v_t);
+    sr.topology->replace("CORES", c_t);
+
+    return 0;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void HostShareNUMA::del(HostShareCapacity &sr)
+{
+    unsigned long hpsz_kb = 0;
+
+    if ( sr.topology != 0 )
+    {
+        sr.topology->vector_value("HUGEPAGE_SIZE", hpsz_kb);
+    }
+
+    for (auto it = sr.nodes.begin() ; it != sr.nodes.end(); ++it)
+    {
+        unsigned int node_id;
+        unsigned int mem_node_id;
+
+        std::string cpu_ids;
+        long long   memory;
+
+        int rc = 0;
+
+        rc =  (*it)->vector_value("NODE_ID", node_id);
+        rc += (*it)->vector_value("MEMORY_NODE_ID", mem_node_id);
+        rc += (*it)->vector_value("CPUS", cpu_ids);
+        rc += (*it)->vector_value("MEMORY", memory);
+
+        if (rc != 0)
+        {
+            continue;
+        }
+
+        HostShareNode &cpu_node = get_node(node_id);
+
+        HostShareNode &mem_node = get_node(mem_node_id);
+
+        cpu_node.del_cpu(cpu_ids);
+
+        mem_node.del_memory(memory);
+
+        if ( hpsz_kb != 0 )
+        {
+            unsigned long num_hp = memory / hpsz_kb;
+
+            auto pt = mem_node.pages.find(hpsz_kb);
+
+            if ( pt != mem_node.pages.end()  )
+            {
+                pt->second.usage -= num_hp;
+
+                if ( pt->second.usage < 0 )
+                {
+                    pt->second.usage = 0;
+                }
+
+                mem_node.update_hugepages();
+            }
+        }
+
+        cpu_node.update_cores();
+
+        mem_node.update_memory();
+    }
+}
+
+
 
 /* ************************************************************************ */
 /* HostShare :: Constructor/Destructor                                      */
 /* ************************************************************************ */
-
-HostShare::HostShare(long long _max_disk,long long _max_mem,long long _max_cpu):
+HostShare::HostShare():
         ObjectXML(),
         disk_usage(0),
         mem_usage(0),
         cpu_usage(0),
-        total_mem(_max_mem),
-        total_cpu(_max_cpu),
-        max_disk(_max_disk),
-        max_mem(_max_mem),
-        max_cpu(_max_cpu),
+        total_mem(0),
+        total_cpu(0),
+        max_disk(0),
+        max_mem(0),
+        max_cpu(0),
         free_disk(0),
         free_mem(0),
         free_cpu(0),
@@ -433,7 +1612,7 @@ ostream& operator<<(ostream& os, HostShare& hs)
 
 string& HostShare::to_xml(string& xml) const
 {
-    string ds_xml, pci_xml;
+    string ds_xml, pci_xml, numa_xml;
     ostringstream   oss;
 
     oss << "<HOST_SHARE>"
@@ -454,6 +1633,7 @@ string& HostShare::to_xml(string& xml) const
           << "<RUNNING_VMS>"<<running_vms <<"</RUNNING_VMS>"
           << ds.to_xml(ds_xml)
           << pci.to_xml(pci_xml)
+          << numa.to_xml(numa_xml)
         << "</HOST_SHARE>";
 
     xml = oss.str();
@@ -531,6 +1711,24 @@ int HostShare::from_xml_node(const xmlNodePtr node)
     if (rc != 0)
     {
         return -1;
+    }
+
+    // ------------ NUMA Nodes ---------------
+
+    ObjectXML::get_nodes("/HOST_SHARE/NUMA_NODES/NODE", content);
+
+    if(!content.empty())
+    {
+        rc += numa.from_xml_node(content);
+
+        ObjectXML::free_nodes(content);
+
+        content.clear();
+
+        if (rc != 0)
+        {
+            return -1;
+        }
     }
 
     return 0;
@@ -666,4 +1864,28 @@ void HostShare::update_capacity(Host *host)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+HostShare::PinPolicy HostShare::str_to_pin_policy(std::string& pp_s)
+{
+    one_util::toupper(pp_s);
+
+    if ( pp_s == "NONE" )
+    {
+        return PP_NONE;
+    }
+    else if ( pp_s == "CORE" )
+    {
+        return PP_CORE;
+    }
+    else if ( pp_s == "THREAD" )
+    {
+        return PP_THREAD;
+    }
+    else if ( pp_s == "SHARED" )
+    {
+        return PP_SHARED;
+    }
+
+    return PP_NONE;
+}
 

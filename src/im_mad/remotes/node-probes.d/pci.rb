@@ -56,6 +56,16 @@ def parse_pci(pci)
         "pci_0000_#{card[:short_address].gsub(/[:.]/, '_')}"
     card[:address] = "0000:#{card[:short_address].gsub(/[:.]/, ':')}"
 
+    begin
+        numa_node = File.read("/sys/bus/pci/devices/0000:#{pci[0]}/numa_node").chomp
+    rescue
+        numa_node = '-'
+    end
+
+    numa_node = '-' if numa_node.to_i < 0
+
+    card[:numa_node] = numa_node
+
     card[:class_name], card[:class] = get_name_and_id(pci[1])
     card[:vendor_name], card[:vendor] = get_name_and_id(pci[2])
     card[:device_name], card[:device] = get_name_and_id(pci[3])
@@ -112,7 +122,8 @@ devices.each do |dev|
         pval('DOMAIN', '0000'),
         pval('BUS', dev[:bus]),
         pval('SLOT', dev[:slot]),
-        pval('FUNCTION', dev[:function])
+        pval('FUNCTION', dev[:function]),
+        pval('NUMA_NODE', dev[:numa_node])
     ]
 
     puts values.join(",\n")

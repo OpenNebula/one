@@ -82,7 +82,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         }
 
         ErrorCode ec = tmpl_clone.request_execute(id, tmpl_name, new_id, true,
-			str_uattrs, att);
+            str_uattrs, att);
 
         if (ec != SUCCESS)
         {
@@ -197,6 +197,12 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
     if (!name.empty())
     {
         tmpl->set(new SingleAttribute("NAME",name));
+    }
+
+    if (VirtualMachine::parse_topology(tmpl, att.resp_msg) != 0)
+    {
+        delete tmpl;
+        return ALLOCATE;
     }
 
     //--------------------------------------------------------------------------

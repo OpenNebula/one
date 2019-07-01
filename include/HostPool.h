@@ -211,15 +211,14 @@ public:
      *
      *   @return 0 on success -1 in case of failure
      */
-    int add_capacity(int oid, int vm_id, int cpu, int mem, int disk,
-            vector<VectorAttribute *> pci)
+    int add_capacity(int oid, HostShareCapacity &sr)
     {
         int rc = 0;
         Host * host = get(oid);
 
         if ( host != 0 )
         {
-          host->add_capacity(vm_id, cpu, mem, disk, pci);
+          host->add_capacity(sr);
 
           update(host);
 
@@ -242,14 +241,13 @@ public:
      *   @param disk amount of disk
      *   @param pci devices requested by the VM
      */
-    void del_capacity(int oid, int vm_id, int cpu, int mem, int disk,
-            vector<VectorAttribute *> pci)
+    void del_capacity(int oid, HostShareCapacity &sr)
     {
         Host *  host = get(oid);
 
         if ( host != 0 )
         {
-            host->del_capacity(vm_id, cpu, mem, disk, pci);
+            host->del_capacity(sr);
 
             update(host);
 

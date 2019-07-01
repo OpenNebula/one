@@ -1,3 +1,4 @@
+require 'pry'
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -1170,9 +1171,77 @@ in the frontend machine.
             puts vm.template_like_str('USER_TEMPLATE')
         end
 
+        if vm.has_elements?('/VM/TEMPLATE/NUMA_NODE')
+            print_numa_nodes(vm.to_hash['VM']['TEMPLATE']['NUMA_NODE'])
+        end
+
+        if vm.has_elements?('/VM/TEMPLATE/TOPOLOGY')
+            print_topology([vm.to_hash['VM']['TEMPLATE']['TOPOLOGY']])
+        end
+
+        while vm.has_elements?('/VM/TEMPLATE/NUMA_NODE')
+            vm.delete_element('/VM/TEMPLATE/NUMA_NODE')
+        end if !options[:all]
+
+        while vm.has_elements?('/VM/TEMPLATE/TOPOLOGY')
+            vm.delete_element('/VM/TEMPLATE/TOPOLOGY')
+        end if !options[:all]
+
         puts
         CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE TEMPLATE",false)
         puts vm.template_str
+    end
+
+    def print_numa_nodes(numa_nodes)
+        puts
+        CLIHelper.print_header('NUMA NODES', false)
+        puts
+
+        table = CLIHelper::ShowTable.new(nil, self) do
+            column :ID, 'Node ID', :size => 4, :left => false do |d|
+                d['NODE_ID']
+            end
+
+            column :CPUS, 'Cpus used', :size => 6, :left => false do |d|
+                d['CPUS']
+            end
+
+            column :MEMORY, 'Memory used', :size => 10, :left => false do |d|
+                OpenNebulaHelper.unit_to_str(d['MEMORY'].to_i, {})
+            end
+
+            column :TOTAL_CPUS, 'Total CPUs', :size => 10, :left => false do |d|
+                d['TOTAL_CPUS']
+            end
+
+            default :ID, :CPUS, :MEMORY, :TOTAL_CPUS
+        end
+
+        table.show(numa_nodes)
+    end
+
+    def print_topology(topology)
+        puts
+        CLIHelper.print_header('TOPOLOGY', false)
+        puts
+
+        table = CLIHelper::ShowTable.new(nil, self) do
+            column :CORES, 'Cores', :size => 6, :left => false do |d|
+                d['CORES']
+            end
+
+            column :SOCKETS, 'Sockets', :size => 8, :left => false do |d|
+                d['SOCKETS']
+            end
+
+            column :THREADS, 'Threads', :size => 8, :left => false do |d|
+                d['THREADS']
+            end
+
+            default :CORES, :SOCKETS, :THREADS
+        end
+
+        table.show(topology)
     end
 
     def format_history(vm)

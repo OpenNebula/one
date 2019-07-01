@@ -240,15 +240,15 @@ public:
         oss << value;
 
         set(new SingleAttribute(name, oss.str()));
-	}
+    }
 
-	void add(const string& name, const string& value)
-	{
-		set(new SingleAttribute(name, value));
-	}
+    void add(const string& name, const string& value)
+    {
+        set(new SingleAttribute(name, value));
+    }
 
-	void add(const string& name, bool value)
-	{
+    void add(const string& name, bool value)
+    {
         if ( value )
         {
             set(new SingleAttribute(name, "YES"));
@@ -257,7 +257,7 @@ public:
         {
             set(new SingleAttribute(name, "NO"));
         }
-	}
+    }
 
     /**
      *  Removes an attribute from the template. The attributes are returned. The

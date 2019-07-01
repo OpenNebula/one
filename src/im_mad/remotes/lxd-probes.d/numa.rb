@@ -1,0 +1,1 @@
+../node-probes.d/numa.rb

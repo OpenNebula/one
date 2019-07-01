@@ -82,7 +82,8 @@ class DummyInformationManager < OpenNebulaDriver
                 SLOT = \"00\",\n
                 TYPE = \"10de:0863:0300\",\n
                 VENDOR = \"10de\",\n
-                VENDOR_NAME = \"NVIDIA Corporation\"\n
+                VENDOR_NAME = \"NVIDIA Corporation\",\n
+                NUMA_NODE=\"1\"
             ]\n
             PCI = [
                 ADDRESS = \"0000:00:06:0\",\n
@@ -97,7 +98,8 @@ class DummyInformationManager < OpenNebulaDriver
                 SLOT = \"06\",\n
                 TYPE = \"10de:0aa7:0c03\",\n
                 VENDOR = \"10de\",\n
-                VENDOR_NAME = \"NVIDIA Corporation\"\n
+                VENDOR_NAME = \"NVIDIA Corporation\",\n
+                NUMA_NODE=\"1\"
             ]\n
             PCI = [
                 ADDRESS = \"0000:00:06:1\",\n
@@ -112,8 +114,11 @@ class DummyInformationManager < OpenNebulaDriver
                 SLOT = \"06\",\n
                 TYPE = \"10de:0aa9:0c03\",\n
                 VENDOR = \"10de\",\n
-                VENDOR_NAME = \"NVIDIA Corporation\"\n
+                VENDOR_NAME = \"NVIDIA Corporation\"\n,
+                NUMA_NODE=\"0\"
             ]\n"
+
+        make_topology(results, 2, 8, [2048, 1048576], 4, 16777216)
 
         results = Base64::encode64(results).strip.delete("\n")
 
@@ -122,6 +127,45 @@ class DummyInformationManager < OpenNebulaDriver
 
     def stop_monitor(number, host)
         send_message("STOPMONITOR", RESULT[:success], number, nil)
+    end
+
+    def make_topology(result, nodes, cores, pages, threads, mem)
+        nodes.times do |i|
+            cores.times do |j|
+                core_id  = j + ( i * cores)
+
+                core_str = "CORE = [ NODE_ID=\"#{i}\", ID=\"#{core_id}\", "\
+                    "CPUS=\""
+
+                threads.times do |k|
+                    cpu_id = core_id + k * ( cores * nodes )
+
+                    core_str << "," if k != 0
+                    core_str << "#{cpu_id}"
+                end
+
+                core_str << "\"]\n"
+
+                result << core_str
+            end
+
+            pages.each do |p|
+                result << "HUGEPAGE = [ SIZE = \"#{p}\", FREE = \"1024\", "\
+                    "PAGES = \"1024\", NODE_ID = \"#{i}\" ] "
+            end
+
+            memn = mem.to_i/nodes
+
+            result << "MEMORY_NODE = [ NODE_ID = \"#{i}\", TOTAL = \"#{memn}\"" \
+                ", FREE = \"#{rand(memn)}\", USED = \"#{rand(memn)}\", " \
+                "DISTANCE = \"#{i} "
+
+            nodes.times do |l|
+                result << "#{l} " if l != i
+            end
+
+            result << "\" ]\n"
+        end
     end
 end
 

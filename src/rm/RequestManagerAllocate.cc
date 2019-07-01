@@ -26,7 +26,7 @@
 /* -------------------------------------------------------------------------- */
 
 bool RequestManagerAllocate::allocate_authorization(
-		xmlrpc_c::paramList const&  paramList,
+        xmlrpc_c::paramList const&  paramList,
         Template *          tmpl,
         RequestAttributes&  att,
         PoolObjectAuth *    cluster_perms)
@@ -62,7 +62,7 @@ bool RequestManagerAllocate::allocate_authorization(
 /* -------------------------------------------------------------------------- */
 
 bool VirtualMachineAllocate::allocate_authorization(
-		xmlrpc_c::paramList const&  paramList,
+        xmlrpc_c::paramList const&  paramList,
         Template *          tmpl,
         RequestAttributes&  att,
         PoolObjectAuth *    cluster_perms)
@@ -102,7 +102,13 @@ bool VirtualMachineAllocate::allocate_authorization(
         return false;
     }
 
-    // -------------------------- Check Quotas  ----------------------------
+    // ---------------------- Check Quotas & Topology --------------------------
+
+    if (VirtualMachine::parse_topology(ttmpl, att.resp_msg) != 0)
+    {
+        failure_response(ALLOCATE, att);
+        return false;
+    }
 
     VirtualMachineTemplate aux_tmpl(*ttmpl);
 

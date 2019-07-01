@@ -99,9 +99,35 @@ namespace one_util
      *
      * @return a vector containing the resulting substrings
      */
-    std::vector<std::string> split(
-            const std::string& st,
-            char delim,
+    template <class T>
+    void split(const std::string &st, char delim, std::vector<T> &parts)
+    {
+        std::string part;
+
+        std::stringstream ss(st);
+
+        while (getline(ss, part, delim))
+        {
+            if (part.empty())
+            {
+                continue;
+            }
+
+            std::istringstream iss(part);
+            T part_t;
+
+            iss >> part_t;
+
+            if ( iss.fail() )
+            {
+                continue;
+            }
+
+            parts.push_back(part_t);
+        }
+    }
+
+    std::vector<std::string> split(const std::string& st, char delim,
             bool clean_empty=true);
 
     /**

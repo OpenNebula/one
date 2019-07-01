@@ -22,8 +22,7 @@
 
 void LifeCycleManager::start_prolog_migrate(VirtualMachine* vm)
 {
-    int    cpu, mem, disk;
-    vector<VectorAttribute *> pci;
+    HostShareCapacity sr;
 
     time_t the_time = time(0);
 
@@ -52,12 +51,13 @@ void LifeCycleManager::start_prolog_migrate(VirtualMachine* vm)
 
     vmpool->update_history(vm);
 
-    vm->get_requirements(cpu, mem, disk, pci);
+    vmpool->update(vm);
+
+    vm->get_capacity(sr);
 
     if ( vm->get_hid() != vm->get_previous_hid() )
     {
-        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem,
-            disk, pci);
+        hpool->del_capacity(vm->get_previous_hid(), sr);
     }
 
     vmpool->update(vm);
@@ -69,58 +69,57 @@ void LifeCycleManager::start_prolog_migrate(VirtualMachine* vm)
 
 void LifeCycleManager::revert_migrate_after_failure(VirtualMachine* vm)
 {
-        int    cpu, mem, disk;
-        vector<VectorAttribute *> pci;
+    HostShareCapacity sr;
 
-        time_t the_time = time(0);
+    time_t the_time = time(0);
 
-        //----------------------------------------------------
-        //           RUNNING STATE FROM SAVE_MIGRATE
-        //----------------------------------------------------
+    //----------------------------------------------------
+    //           RUNNING STATE FROM SAVE_MIGRATE
+    //----------------------------------------------------
 
-        vm->set_state(VirtualMachine::RUNNING);
+    vm->set_state(VirtualMachine::RUNNING);
 
-        vm->set_etime(the_time);
+    vm->set_etime(the_time);
 
-        vm->set_vm_info();
+    vm->set_vm_info();
 
-        vmpool->update_history(vm);
+    vmpool->update_history(vm);
 
-        vm->get_requirements(cpu, mem, disk, pci);
+    vm->get_capacity(sr);
 
-        if ( vm->get_hid() != vm->get_previous_hid() )
-        {
-            hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
-        }
+    if ( vm->get_hid() != vm->get_previous_hid() )
+    {
+        hpool->del_capacity(vm->get_hid(), sr);
+    }
 
-        vm->set_previous_etime(the_time);
+    vm->set_previous_etime(the_time);
 
-        vm->set_previous_vm_info();
+    vm->set_previous_vm_info();
 
-        vm->set_previous_running_etime(the_time);
+    vm->set_previous_running_etime(the_time);
 
-        vmpool->update_previous_history(vm);
+    vmpool->update_previous_history(vm);
 
-        // --- Add new record by copying the previous one
+    // --- Add new record by copying the previous one
 
-        vm->cp_previous_history();
+    vm->cp_previous_history();
 
-        vm->set_stime(the_time);
+    vm->set_stime(the_time);
 
-        vm->set_running_stime(the_time);
+    vm->set_running_stime(the_time);
 
-        vm->set_last_poll(0);
+    vm->set_last_poll(0);
 
-        vmpool->insert_history(vm);
+    vmpool->insert_history(vm);
 
-        vmpool->update(vm);
+    vmpool->update(vm);
 
-        vm->log("LCM", Log::INFO, "Fail to save VM state while migrating."
-                " Assuming that the VM is still RUNNING (will poll VM).");
+    vm->log("LCM", Log::INFO, "Fail to save VM state while migrating."
+            " Assuming that the VM is still RUNNING (will poll VM).");
 
-        //----------------------------------------------------
+    //----------------------------------------------------
 
-        vmm->trigger(VMMAction::POLL,vm->get_oid());
+    vmm->trigger(VMMAction::POLL,vm->get_oid());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -276,8 +275,7 @@ void  LifeCycleManager::deploy_success_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::MIGRATE )
     {
-        int    cpu,mem,disk;
-        vector<VectorAttribute *> pci;
+        HostShareCapacity sr;
 
         time_t the_time = time(0);
 
@@ -295,9 +293,9 @@ void  LifeCycleManager::deploy_success_action(int vid)
 
         vmpool->update_previous_history(vm);
 
-        vm->get_requirements(cpu, mem, disk, pci);
+        vm->get_capacity(sr);
 
-        hpool->del_capacity(vm->get_previous_hid(),vm->get_oid(),cpu,mem,disk,pci);
+        hpool->del_capacity(vm->get_previous_hid(), sr);
 
         vm->set_state(VirtualMachine::RUNNING);
 
@@ -355,8 +353,7 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::MIGRATE )
     {
-        int    cpu, mem, disk;
-        vector<VectorAttribute *> pci;
+        HostShareCapacity sr;
 
         time_t the_time = time(0);
 
@@ -380,9 +377,9 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vmpool->update_previous_history(vm);
 
-        vm->get_requirements(cpu, mem, disk, pci);
+        vm->get_capacity(sr);
 
-        hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
+        hpool->del_capacity(vm->get_hid(), sr);
 
         // --- Add new record by copying the previous one
 
@@ -765,8 +762,7 @@ void LifeCycleManager::prolog_success_action(int vid)
 
 void  LifeCycleManager::prolog_failure_action(int vid)
 {
-    int cpu, mem, disk;
-    vector<VectorAttribute *> pci;
+    HostShareCapacity sr;
 
     time_t t = time(0);
 
@@ -846,9 +842,9 @@ void  LifeCycleManager::prolog_failure_action(int vid)
                     break;
             }
 
-            vm->get_requirements(cpu, mem, disk, pci);
+            vm->get_capacity(sr);
 
-            hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu,mem,disk,pci);
+            hpool->del_capacity(vm->get_hid(), sr);
 
             // Clone previous history record into a new one
             vm->cp_previous_history();
@@ -857,7 +853,7 @@ void  LifeCycleManager::prolog_failure_action(int vid)
             vm->set_prolog_stime(t);
             vm->set_last_poll(0);
 
-            hpool->add_capacity(vm->get_hid(),vm->get_oid(),cpu,mem,disk,pci);
+            hpool->add_capacity(vm->get_hid(), sr);
 
             vmpool->insert_history(vm);
 
@@ -886,11 +882,11 @@ void  LifeCycleManager::prolog_failure_action(int vid)
 
 void  LifeCycleManager::epilog_success_action(int vid)
 {
-    VirtualMachine *    vm;
-    vector<VectorAttribute *> pci;
+    VirtualMachine * vm;
+
+    HostShareCapacity sr;
 
     time_t the_time = time(0);
-    int    cpu,mem,disk;
     unsigned int port;
 
     VirtualMachine::LcmState state;
@@ -971,9 +967,9 @@ void  LifeCycleManager::epilog_success_action(int vid)
 
     vmpool->update(vm);
 
-    vm->get_requirements(cpu, mem, disk, pci);
+    vm->get_capacity(sr);
 
-    hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
+    hpool->del_capacity(vm->get_hid(), sr);
 
     //----------------------------------------------------
 

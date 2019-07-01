@@ -124,12 +124,11 @@ int DispatchManager::import(VirtualMachine * vm, const RequestAttributes& ra)
     }
 
     time_t the_time = time(0);
-    int    cpu, mem, disk;
-    vector<VectorAttribute *> pci;
+    HostShareCapacity sr;
 
-    vm->get_requirements(cpu, mem, disk, pci);
+    vm->get_capacity(sr);
 
-    hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
+    hpool->add_capacity(vm->get_hid(), sr);
 
     import_state = vm->get_import_state();
 
@@ -1078,8 +1077,7 @@ int DispatchManager::delete_vm(VirtualMachine * vm, const RequestAttributes& ra,
 {
     ostringstream oss;
 
-    int cpu, mem, disk;
-    vector<VectorAttribute *> pci;
+    HostShareCapacity sr;
 
     bool is_public_host = false;
     int  host_id = -1;
@@ -1117,9 +1115,9 @@ int DispatchManager::delete_vm(VirtualMachine * vm, const RequestAttributes& ra,
     {
         case VirtualMachine::SUSPENDED:
         case VirtualMachine::POWEROFF:
-            vm->get_requirements(cpu, mem, disk, pci);
+            vm->get_capacity(sr);
 
-            hpool->del_capacity(vm->get_hid(), vid, cpu, mem, disk, pci);
+            hpool->del_capacity(vm->get_hid(), sr);
 
             if (is_public_host)
             {
@@ -1277,14 +1275,11 @@ int DispatchManager::delete_recreate(VirtualMachine * vm,
 int DispatchManager::delete_vm_db(VirtualMachine * vm,
             const RequestAttributes& ra, string& error_str)
 {
+    HostShareCapacity sr;
+
     ostringstream oss;
-
-    int cpu, mem, disk;
-    vector<VectorAttribute *> pci;
-
-    int vid = vm->get_oid();
-
     oss << "Deleting VM from DB " << vm->get_oid();
+
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
     switch (vm->get_state())
@@ -1292,9 +1287,9 @@ int DispatchManager::delete_vm_db(VirtualMachine * vm,
         case VirtualMachine::SUSPENDED:
         case VirtualMachine::POWEROFF:
         case VirtualMachine::ACTIVE:
-            vm->get_requirements(cpu, mem, disk, pci);
+            vm->get_capacity(sr);
 
-            hpool->del_capacity(vm->get_hid(), vid, cpu, mem, disk, pci);
+            hpool->del_capacity(vm->get_hid(), sr);
 
         case VirtualMachine::STOPPED:
         case VirtualMachine::UNDEPLOYED:

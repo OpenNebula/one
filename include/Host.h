@@ -280,97 +280,55 @@ public:
     }
 
     /**
-     *  Adds a new VM to the given share by incrementing the cpu, mem and disk
-     *  counters
-     *    @param vm_id id of the vm to add to the host
-     *    @param cpu needed by the VM (percentage)
-     *    @param mem needed by the VM (in KB)
-     *    @param disk needed by the VM
-     *    @param pci devices needed by th VM
+     *  Adds a new VM to the host share by incrementing usage counters
+     *    @param sr the capacity request of the VM
      *    @return 0 on success
      */
-    void add_capacity(int vm_id, long long cpu, long long mem, long long disk,
-            vector<VectorAttribute *> pci)
+    void add_capacity(HostShareCapacity &sr)
     {
-        if ( vm_collection.add(vm_id) == 0 )
+        if ( vm_collection.add(sr.vmid) == 0 )
         {
-            host_share.add(vm_id, cpu, mem, disk, pci);
+            host_share.add(sr);
         }
         else
         {
             ostringstream oss;
-            oss << "Trying to add VM " << vm_id
-                << ", that it is already associated to host " << oid << ".";
+            oss << "VM " << sr.vmid << " is already in host " << oid << ".";
 
             NebulaLog::log("ONE", Log::ERROR, oss);
         }
     };
 
     /**
-     *  Deletes a new VM from the given share by decrementing the cpu,mem and
-     *  disk counters
-     *    @param vm_id id of the vm to delete from the host
-     *    @param cpu used by the VM (percentage)
-     *    @param mem used by the VM (in KB)
-     *    @param disk used by the VM
-     *    @param pci devices needed by th VM
+     *  Deletes a new VM to the host share by incrementing usage counters
+     *    @param sr the capacity request of the VM
      *    @return 0 on success
      */
-    void del_capacity(int vm_id, long long cpu, long long mem, long long disk,
-            const vector<VectorAttribute *>& pci)
+    void del_capacity(HostShareCapacity& sr)
     {
-        if ( vm_collection.del(vm_id) == 0 )
+        if ( vm_collection.del(sr.vmid) == 0 )
         {
-            host_share.del(cpu, mem, disk, pci);
+            host_share.del(sr);
         }
         else
         {
             ostringstream oss;
-            oss << "Trying to remove VM " << vm_id
-                << ", that it is not associated to host " << oid << ".";
+            oss << "VM " << sr.vmid << " is not in host " << oid << ".";
 
             NebulaLog::log("ONE", Log::ERROR, oss);
         }
     };
 
     /**
-     *  Updates the capacity used in a host when a VM is resized
-     *  counters
-     *    @param cpu increment of cpu requested by the VM
-     *    @param mem increment of memory requested by the VM
-     *    @param disk not used
-     *    @return 0 on success
-     */
-    void update_capacity(int cpu, long int mem, int disk)
-    {
-        host_share.update(cpu,mem,disk);
-    };
-
-    /**
-     *  Tests whether a new VM can be hosted by the host or not
-     *    @param cpu needed by the VM (percentage)
-     *    @param mem needed by the VM (in Kb)
-     *    @param disk needed by the VM
-     *    @param pci devices needed by the VM
-     *    @param error Returns the error reason, if any
+     *  Tests whether a VM device capacity can be allocated in the host
+     *    @param sr capacity requested by the VM
+     *    @param error returns the error reason, if any
+     *
      *    @return true if the share can host the VM
      */
-    bool test_capacity(long long cpu, long long mem, long long disk,
-                       vector<VectorAttribute *> &pci, string& error) const
+    bool test_capacity(HostShareCapacity &sr, string& error)
     {
-        return host_share.test(cpu, mem, disk, pci, error);
-    }
-
-    /**
-     *  Tests whether a new VM can be hosted by the host or not, checking the
-     *  PCI devices only.
-     *    @param pci devices needed by the VM
-     *    @param error Returns the error reason, if any
-     *    @return true if the share can host the VM
-     */
-    bool test_capacity(vector<VectorAttribute *> &pci, string& error) const
-    {
-        return host_share.test(pci, error);
+        return host_share.test(sr, error);
     }
 
     /**

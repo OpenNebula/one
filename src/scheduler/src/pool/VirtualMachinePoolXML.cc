@@ -56,9 +56,7 @@ int VirtualMachinePoolXML::set_up()
 
             for (it = objects.begin() ; it != objects.end() ; ++it)
             {
-                int cpu, mem;
-                long long disk;
-                vector<VectorAttribute *> pci;
+                HostShareCapacity sr;
 
                 string action = "DEPLOY";
 
@@ -66,7 +64,7 @@ int VirtualMachinePoolXML::set_up()
 
                 vm = static_cast<VirtualMachineXML *>(it->second);
 
-                vm->get_requirements(cpu, mem, disk, pci);
+                vm->get_capacity(sr);
 
                 if (vm->is_resched())
                 {
@@ -79,10 +77,10 @@ int VirtualMachinePoolXML::set_up()
 
                 oss << right << setw(8)  << action      << " "
                     << right << setw(8)  << it->first   << " "
-                    << right << setw(4)  << cpu         << " "
-                    << right << setw(11) << mem         << " "
-                    << right << setw(3)  << pci.size()  << " "
-                    << right << setw(11) << disk        << " ";
+                    << right << setw(4)  << sr.cpu        << " "
+                    << right << setw(11) << sr.mem        << " "
+                    << right << setw(3)  << sr.pci.size() << " "
+                    << right << setw(11) << sr.disk       << " ";
 
                 map<int,long long> ds_usage = vm->get_storage_usage();
                 map<int,long long>::const_iterator ds_it;
@@ -120,7 +118,7 @@ void VirtualMachinePoolXML::add_object(xmlNodePtr node)
 
     VirtualMachineXML* vm = new VirtualMachineXML(node);
 
-    objects.insert(pair<int,ObjectXML*>(vm->get_oid(),vm));
+    objects.insert(pair<int,ObjectXML*>(vm->get_oid(), vm));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -130,7 +128,7 @@ int VirtualMachinePoolXML::load_info(xmlrpc_c::value &result)
 {
     try
     {
-        client->call("one.vmpool.info", "iiii", &result, -2, -1, -1, -1);
+        client->call("one.vmpool.infoextended", "iiii", &result, -2, -1, -1, -1);
 
         return 0;
     }

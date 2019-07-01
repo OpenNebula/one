@@ -367,19 +367,16 @@ int RequestManagerVirtualMachine::get_host_information(
 bool RequestManagerVirtualMachine::check_host(
         int hid, bool enforce, VirtualMachine* vm, string& error)
 {
-    Nebula&    nd    = Nebula::instance();
-    HostPool * hpool = nd.get_hpool();
+    HostPool * hpool = Nebula::instance().get_hpool();
 
-    Host * host;
-    bool   test;
+    bool   test = true;
     string capacity_error;
 
-    int cpu, mem, disk;
-    vector<VectorAttribute *> pci;
+    HostShareCapacity sr;
 
-    vm->get_requirements(cpu, mem, disk, pci);
+    vm->get_capacity(sr);
 
-    host = hpool->get_ro(hid);
+    Host * host = hpool->get_ro(hid);
 
     if (host == 0)
     {
@@ -387,16 +384,14 @@ bool RequestManagerVirtualMachine::check_host(
         return false;
     }
 
-    if (enforce)
+    if ( enforce )
     {
-        test = host->test_capacity(cpu, mem, disk, pci, capacity_error);
-    }
-    else
-    {
-        test = host->test_capacity(pci, capacity_error);
+        test = host->test_capacity(sr, capacity_error);
     }
 
-    if (!test)
+    host->unlock();
+
+    if (enforce && !test)
     {
         ostringstream oss;
 
@@ -406,8 +401,6 @@ bool RequestManagerVirtualMachine::check_host(
 
         error = oss.str();
     }
-
-    host->unlock();
 
     return test;
 }
@@ -834,6 +827,8 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     int uid = vm->get_uid();
     int gid = vm->get_gid();
 
+    enforce = enforce || vm->is_pinned();
+
     vm->unlock();
 
     if (is_public_cloud) // Set ds_id to -1 and tm_mad empty(). This is used by
@@ -967,7 +962,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if (check_host(hid, enforce, vm, att.resp_msg) == false)
+    if (check_host(hid, enforce || vm->is_pinned(), vm, att.resp_msg) == false)
     {
         vm->unlock();
 
@@ -1180,6 +1175,15 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     if (live)
     {
         action = History::LIVE_MIGRATE_ACTION;
+
+        if ( vm->is_pinned() )
+        {
+            att.resp_msg = "VM with a pinned NUMA topology cannot be live-migrated";
+            failure_response(ACTION, att);
+
+            vm->unlock();
+            return;
+        }
     }
     else
     {
@@ -1239,16 +1243,17 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     }
 
     //Check PCI devices are compatible with migration type
-    int    cpu, mem, disk;
-    vector<VectorAttribute *> pci;
+    HostShareCapacity sr;
 
-    vm->get_requirements(cpu, mem, disk, pci);
+    vm->get_capacity(sr);
 
-    if ((pci.size() > 0) && (!poffmgr && vm->get_state() != VirtualMachine::POWEROFF))
+    if ((sr.pci.size() > 0) && (!poffmgr &&
+                vm->get_state() != VirtualMachine::POWEROFF))
     {
         ostringstream oss;
 
-        oss << "Cannot migrate VM [" << id << "], for migrating a VM with PCI devices attached it's necessary either the poweroff or poweroff-hard flag";
+        oss << "Cannot migrate VM [" << id << "], use poweroff or poweroff-hard"
+            " flag for migrating a VM with PCI devices";
 
         att.resp_msg = oss.str();
         failure_response(ACTION, att);
@@ -1948,43 +1953,81 @@ void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static int test_set_capacity(VirtualMachine * vm, float cpu, long mem, int vcpu,
+        string& error)
+{
+    HostPool * hpool = Nebula::instance().get_hpool();
+
+    int rc;
+
+    if ( vm->get_state() == VirtualMachine::POWEROFF )
+    {
+        HostShareCapacity sr;
+
+        Host * host = hpool->get(vm->get_hid());
+
+        if ( host == 0 )
+        {
+            error = "Could not update host";
+            return -1;
+        }
+
+        vm->get_capacity(sr);
+
+        host->del_capacity(sr);
+
+        rc = vm->resize(cpu, mem, vcpu, error);
+
+        if ( rc == -1 )
+        {
+            host->unlock();
+            return -1;
+        }
+
+        vm->get_capacity(sr);
+
+        if (!host->test_capacity(sr, error))
+        {
+            host->unlock();
+            return -1;
+        }
+
+        host->add_capacity(sr);
+
+        hpool->update(host);
+
+        host->unlock();
+    }
+    else
+    {
+        rc = vm->resize(cpu, mem, vcpu, error);
+    }
+
+    return rc;
+}
+
 void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
                                            RequestAttributes& att)
 {
-    int     id              = xmlrpc_c::value_int(paramList.getInt(1));
-    string  str_tmpl        = xmlrpc_c::value_string(paramList.getString(2));
-    bool    enforce_param   = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+    int id = xmlrpc_c::value_int(paramList.getInt(1));
+    std::string str_tmpl = xmlrpc_c::value_string(paramList.getString(2));
+    //Argument 3 enforce deprecated to check/re-evaluate NUMA topology
 
     float ncpu, ocpu, dcpu;
-    int   nmemory, omemory, dmemory;
+    long  nmemory, omemory, dmemory;
     int   nvcpu, ovcpu;
 
-    Nebula&    nd    = Nebula::instance();
-    HostPool * hpool = nd.get_hpool();
-    Host *     host;
-
     Template deltas;
-    bool     rc;
-    int      ret;
-    int      hid = -1;
 
     PoolObjectAuth vm_perms;
 
     VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
-    VirtualMachine * vm;
     VirtualMachineTemplate tmpl;
-
-    bool enforce = true;
-
-    if (att.is_admin())
-    {
-        enforce = enforce_param;
-    }
 
     // -------------------------------------------------------------------------
     // Parse template
     // -------------------------------------------------------------------------
-    rc = tmpl.parse_str_or_xml(str_tmpl, att.resp_msg);
+    int rc = tmpl.parse_str_or_xml(str_tmpl, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -2016,12 +2059,40 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     /* ---------------------------------------------------------------------- */
     /*  Get the resize values                                                 */
     /* ---------------------------------------------------------------------- */
+    ncpu = nvcpu = nmemory = 0;
 
     tmpl.get("CPU", ncpu);
     tmpl.get("VCPU", nvcpu);
     tmpl.get("MEMORY", nmemory);
 
-    vm = vmpool->get_ro(id);
+    if (ncpu < 0)
+    {
+        att.resp_msg = "CPU must be a positive float or integer value.";
+
+        failure_response(INTERNAL, att);
+        return;
+    }
+
+    if (nmemory < 0)
+    {
+        att.resp_msg = "MEMORY must be a positive integer value.";
+
+        failure_response(INTERNAL, att);
+        return;
+    }
+
+    if (nvcpu < 0)
+    {
+        att.resp_msg = "VCPU must be a positive integer value.";
+
+        failure_response(INTERNAL, att);
+        return;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Compute deltas and check quotas                                       */
+    /* ---------------------------------------------------------------------- */
+    VirtualMachine * vm = vmpool->get_ro(id);
 
     if (vm == 0)
     {
@@ -2035,6 +2106,13 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     vm->get_template_attribute("MEMORY", omemory);
     vm->get_template_attribute("CPU", ocpu);
     vm->get_template_attribute("VCPU", ovcpu);
+
+    if (vm->is_pinned())
+    {
+        ncpu = nvcpu;
+    }
+
+    vm->unlock();
 
     if (nmemory == 0)
     {
@@ -2058,50 +2136,6 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     deltas.add("CPU", dcpu);
     deltas.add("VMS", 0);
 
-    switch (vm->get_state())
-    {
-        case VirtualMachine::POWEROFF: //Only check host capacity in POWEROFF
-            if (vm->hasHistory() == true)
-            {
-                hid = vm->get_hid();
-            }
-        break;
-
-        case VirtualMachine::INIT:
-        case VirtualMachine::PENDING:
-        case VirtualMachine::HOLD:
-        case VirtualMachine::UNDEPLOYED:
-        case VirtualMachine::CLONING:
-        case VirtualMachine::CLONING_FAILURE:
-        break;
-
-        case VirtualMachine::STOPPED:
-        case VirtualMachine::DONE:
-        case VirtualMachine::SUSPENDED:
-        case VirtualMachine::ACTIVE:
-            att.resp_msg="Resize action is not available for state " +
-                vm->state_str();
-
-            failure_response(ACTION, att);
-
-            vm->unlock();
-            return;
-    }
-
-    ret = vm->check_resize(ncpu, nmemory, nvcpu, att.resp_msg);
-
-    vm->unlock();
-
-    if (ret != 0)
-    {
-        failure_response(INTERNAL, att);
-        return;
-    }
-
-    /* ---------------------------------------------------------------------- */
-    /*  Check quotas                                                          */
-    /* ---------------------------------------------------------------------- */
-
     if (quota_resize_authorization(&deltas, att, vm_perms) == false)
     {
         return;
@@ -2110,58 +2144,8 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     RequestAttributes att_rollback(vm_perms.uid, vm_perms.gid, att);
 
     /* ---------------------------------------------------------------------- */
-    /*  Check & update host capacity                                          */
+    /*  Check & update VM & host capacity                                     */
     /* ---------------------------------------------------------------------- */
-
-    if (hid != -1)
-    {
-        int dcpu_host = (int) (dcpu * 100);//now in 100%
-        int dmem_host = dmemory * 1024;    //now in Kilobytes
-
-        vector<VectorAttribute *> empty_pci;
-
-        host = hpool->get(hid);
-
-        if (host == 0)
-        {
-            att.resp_obj = PoolObjectSQL::HOST;
-            att.resp_id  = hid;
-            failure_response(NO_EXISTS, att);
-
-            quota_rollback(&deltas, Quotas::VM, att_rollback);
-
-            return;
-        }
-
-        if ( enforce && host->test_capacity(dcpu_host, dmem_host, 0,
-                    empty_pci, att.resp_msg) == false)
-        {
-            ostringstream oss;
-
-            oss << object_name(PoolObjectSQL::HOST) << " " << hid
-                << " does not have enough capacity.";
-
-            att.resp_msg = oss.str();
-            failure_response(ACTION, att);
-
-            host->unlock();
-
-            quota_rollback(&deltas, Quotas::VM, att_rollback);
-
-            return;
-        }
-
-        host->update_capacity(dcpu_host, dmem_host, 0);
-
-        hpool->update(host);
-
-        host->unlock();
-    }
-
-    /* ---------------------------------------------------------------------- */
-    /*  Resize the VM                                                         */
-    /* ---------------------------------------------------------------------- */
-
     vm = vmpool->get(id);
 
     if (vm == 0)
@@ -2170,77 +2154,48 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         failure_response(NO_EXISTS, att);
 
         quota_rollback(&deltas, Quotas::VM, att_rollback);
-
-        if (hid != -1)
-        {
-            host = hpool->get(hid);
-
-            if (host != 0)
-            {
-                host->update_capacity(-dcpu, -dmemory, 0);
-                hpool->update(host);
-
-                host->unlock();
-            }
-        }
         return;
     }
 
-    //Check again state as the VM may transit to active (e.g. scheduled)
     switch (vm->get_state())
     {
+        case VirtualMachine::POWEROFF: //Only check host capacity in POWEROFF
         case VirtualMachine::INIT:
         case VirtualMachine::PENDING:
         case VirtualMachine::HOLD:
-        case VirtualMachine::POWEROFF:
         case VirtualMachine::UNDEPLOYED:
         case VirtualMachine::CLONING:
         case VirtualMachine::CLONING_FAILURE:
-            ret = vm->resize(ncpu, nmemory, nvcpu, att.resp_msg);
-
-            if (ret != 0)
-            {
-                vm->unlock();
-
-                failure_response(INTERNAL, att);
-                return;
-            }
-
-            vmpool->update(vm);
-            vmpool->update_search(vm);
+            rc = test_set_capacity(vm, ncpu, nmemory, nvcpu, att.resp_msg);
         break;
 
         case VirtualMachine::STOPPED:
         case VirtualMachine::DONE:
         case VirtualMachine::SUSPENDED:
         case VirtualMachine::ACTIVE:
-            att.resp_msg = "Resize action is not available for state " +
-                vm->state_str();
-
-            failure_response(ACTION, att);
-
-            vm->unlock();
-
-            quota_rollback(&deltas, Quotas::VM, att_rollback);
-
-            if (hid != -1)
-            {
-                host = hpool->get(hid);
-
-                if (host != 0)
-                {
-                    host->update_capacity(ocpu - ncpu, omemory - nmemory, 0);
-                    hpool->update(host);
-
-                    host->unlock();
-                }
-            }
-            return;
+            rc = -1;
+            att.resp_msg = "Cannot resize a VM in state " + vm->state_str();
+        break;
     }
 
-    vm->unlock();
+    if ( rc == -1 )
+    {
+        vm->unlock();
 
-    success_response(id, att);
+        quota_rollback(&deltas, Quotas::VM, att_rollback);
+
+        failure_response(ACTION, att);
+    }
+    else
+    {
+        vmpool->update(vm);
+
+        vm->unlock();
+
+        success_response(id, att);
+    }
+
+    return;
 }
 
 /* -------------------------------------------------------------------------- */

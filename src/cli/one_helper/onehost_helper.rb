@@ -636,6 +636,16 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             print_pcis(pcis)
         end
 
+        begin
+            numa_nodes = host.to_hash['HOST']['HOST_SHARE']['NUMA_NODES']['NODE']
+        rescue StandardError
+            numa_nodes = nil
+        end
+
+        if numa_nodes && !numa_nodes.empty?
+            print_numa_nodes(numa_nodes, str, str_h1)
+        end
+
         puts
         CLIHelper.print_header('WILD VIRTUAL MACHINES', false)
         puts
@@ -716,6 +726,182 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         end
 
         table.show(pcis)
+    end
+
+    def print_numa_nodes(numa_nodes, str, str_h1)
+        numa_nodes = get_numa_data(numa_nodes)
+
+        print_numa_cores(numa_nodes)
+        print_numa_memory(numa_nodes)
+        print_numa_hugepages(numa_nodes)
+    end
+
+    def get_numa_data(numa_nodes)
+        numa_nodes = [numa_nodes] if numa_nodes.class == Hash
+
+        numa_nodes.map! do |core|
+            cores     = core['CORE']
+
+            free, used, cores_str = get_numa_cores(cores)
+
+            core['CORE']         = {}
+            core['CORE']['CORES'] = cores_str
+            core['CORE']['FREE']  = free
+            core['CORE']['USED']  = used
+
+            core
+        end
+
+        numa_nodes
+    end
+
+    def get_numa_cores(cores)
+        ret  = ''
+        free = 0
+        used = 0
+
+        cores.each do |info|
+            core = info['CPUS'].split(',')
+
+            core.each do |c|
+                c = c.split(':')
+
+                if c[1] == '-1'
+                    ret  += '-'
+                    free += 1
+                elsif c[1] != '-1' && info['FREE'] == '0'
+                    ret  += 'X'
+                    used += 1
+                else
+                    ret  += 'x'
+                    used += 1
+                end
+            end
+
+            ret += ' '
+        end
+
+        [free, used, ret]
+    end
+
+    def print_numa_cores(numa_nodes)
+        puts
+        CLIHelper.print_header('NUMA NODES', false)
+        puts
+
+        table = CLIHelper::ShowTable.new(nil, self) do
+            column :ID, 'Node ID', :size => 4, :left => false do |d|
+                d['NODE_ID']
+            end
+
+            column :CORES, 'Cores usage', :size => 50, :left => true do |d|
+                d['CORE']['CORES']
+            end
+
+            column :USED, 'Used CPUs', :size => 4, :left => true do |d|
+                d['CORE']['USED']
+            end
+
+            column :FREE, 'Free CPUs', :size => 4, :left => true do |d|
+                d['CORE']['FREE']
+            end
+
+            default :ID, :CORES, :USED, :FREE
+        end
+
+        table.show(numa_nodes)
+    end
+
+    def print_numa_memory(numa_nodes)
+        nodes = numa_nodes.clone
+
+        nodes.reject! do |node|
+            node['MEMORY'].nil? || node['MEMORY'].empty?
+        end
+
+        return if nodes.empty?
+
+        puts
+        CLIHelper.print_header('NUMA MEMORY', false)
+        puts
+
+        table = CLIHelper::ShowTable.new(nil, self) do
+            column :NODE_ID, 'Node ID', :size => 8, :left => false do |d|
+                d['NODE_ID']
+            end
+
+            column :TOTAL, 'Total memory', :size => 8, :left => true do |d|
+                OpenNebulaHelper.unit_to_str(d['MEMORY']['TOTAL'].to_i, {})
+            end
+
+            column :USED_REAL, 'Used memory', :size => 20, :left => true do |d|
+                OpenNebulaHelper.unit_to_str(d['MEMORY']['USED'].to_i, {})
+            end
+
+            column :USED_ALLOCATED, 'U memory', :size => 20, :left => true do |d|
+                OpenNebulaHelper.unit_to_str(d['MEMORY']['USAGE'].to_i, {})
+            end
+
+            column :FREE, 'Free memory', :size => 8, :left => true do |d|
+                OpenNebulaHelper.unit_to_str(d['MEMORY']['FREE'].to_i, {})
+            end
+
+            default :NODE_ID, :TOTAL, :USED_REAL, :USED_ALLOCATED, :FREE
+        end
+
+        table.show(nodes)
+    end
+
+    def print_numa_hugepages(numa_nodes)
+        nodes = numa_nodes.clone
+
+        nodes.reject! do |node|
+            node['HUGEPAGE'].nil? || node['HUGEPAGE'].empty?
+        end
+
+        return if nodes.empty?
+
+        puts
+        CLIHelper.print_header('NUMA HUGEPAGES', false)
+        puts
+
+        table = CLIHelper::ShowTable.new(nil, self) do
+            column :NODE_ID, 'Node ID', :size => 8, :left => false do |d|
+                d['NODE_ID']
+            end
+
+            column :TOTAL, 'Total pages', :size => 8, :left => true do |d|
+                d['HUGEPAGE']['PAGES']
+            end
+
+            column :SIZE, 'Pages size', :size => 8, :left => true do |d|
+                OpenNebulaHelper.unit_to_str(d['HUGEPAGE']['SIZE'].to_i/1024, {}, "M")
+            end
+
+            column :FREE, 'Free pages', :size => 8, :left => true do |d|
+                d['HUGEPAGE']['FREE']
+            end
+
+            column :USED, 'allocated pages', :size => 8, :left => true do |d|
+                d['HUGEPAGE']['USAGE']
+            end
+
+            default :NODE_ID, :SIZE, :TOTAL, :FREE, :USED
+        end
+
+        hugepages = []
+
+        nodes.each do |node|
+            node['HUGEPAGE'].each do |hugepage|
+                h             = {}
+                h['NODE_ID']  = node['NODE_ID']
+                h['HUGEPAGE'] = hugepage
+
+                hugepages << h
+            end
+        end
+
+        table.show(hugepages)
     end
 
 end
