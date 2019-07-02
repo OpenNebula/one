@@ -923,17 +923,19 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
         long long    node_mem = 0;
         unsigned int node_cpu = 0;
 
+        long long    nmem = 0;
+        unsigned int ncpu = 0;
+
         std::vector<VectorAttribute *> new_nodes;
 
         for (auto it = numa_nodes.begin() ; it != numa_nodes.end() ; ++it)
         {
-            long long nmem = 0;
-            unsigned int ncpu = 0;
+            ncpu = nmem = 0;
 
             (*it)->vector_value("TOTAL_CPUS", ncpu);
             (*it)->vector_value("MEMORY", nmem);
 
-            if ( ncpu == 0 || nmem == 0)
+            if ( ncpu <= 0 || nmem <= 0)
             {
                 break;
             }
@@ -952,7 +954,7 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
         tmpl->erase("NUMA_NODE");
 
         if (node_cpu != vcpu || node_mem != memory ||
-                node_cpu == 0 || node_mem == 0)
+                ncpu <= 0 || nmem <= 0)
         {
             for (auto it = new_nodes.begin(); it != new_nodes.end(); ++it)
             {
@@ -960,15 +962,15 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
             }
         }
 
-        if (node_cpu == 0)
+        if (ncpu <= 0)
         {
-            error = "NUMA_NODES cannot have 0 CPUs";
+            error = "A NUMA_NODE must have TOTAL_CPUS greater than 0";
             return -1;
         }
 
-        if (node_mem == 0)
+        if (nmem <= 0)
         {
-            error = "NUMA_NODES cannot have 0 MEMORY";
+            error = " A NUMA_NODE must have MEMORY greater than 0";
             return -1;
         }
 
