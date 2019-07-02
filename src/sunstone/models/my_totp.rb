@@ -16,9 +16,11 @@
 
 require 'rotp'
 
+# 2F Token
 class MyTotp
+
     def self.build(secret, issuer)
-        totp = ROTP::TOTP.new(secret, issuer: issuer)
+        totp = ROTP::TOTP.new(secret, :issuer => issuer)
         new(totp)
     end
 
@@ -28,14 +30,15 @@ class MyTotp
     end
 
     def verify(token)
-        begin
-          @totp.verify(token, drift_ahead: @five_minutes, drift_behind: @five_minutes)
-        rescue Exception => e
-          raise e
-        end
+        @totp.verify(token,
+                     :drift_ahead => @five_minutes,
+                     :drift_behind => @five_minutes)
+    rescue StandardError => e
+        raise e
     end
 
     def provisioning_uri(account_name)
         @totp.provisioning_uri(account_name)
     end
+
 end

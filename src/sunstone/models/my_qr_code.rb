@@ -16,7 +16,9 @@
 
 require 'rqrcode'
 
+# Generate Qr Code
 class MyQrCode
+
     def self.build(code)
         qr_code = RQRCode::QRCode.new(code)
         new(qr_code)
@@ -29,4 +31,5 @@ class MyQrCode
     def as_svg
         @qr_code.as_svg
     end
+
 end
