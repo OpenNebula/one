@@ -1202,7 +1202,7 @@ in the frontend machine.
                 d['NODE_ID']
             end
 
-            column :CPUS, 'Cpus used', :size => 6, :left => false do |d|
+            column :CPUS_IDS, 'Cpus used', :adjust => true, :left => false do |d|
                 d['CPUS']
             end
 
@@ -1214,7 +1214,7 @@ in the frontend machine.
                 d['TOTAL_CPUS']
             end
 
-            default :ID, :CPUS, :MEMORY, :TOTAL_CPUS
+            default :ID, :CPUS_IDS, :MEMORY, :TOTAL_CPUS
         end
 
         table.show(numa_nodes)

@@ -794,7 +794,9 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 d['NODE_ID']
             end
 
-            column :CORES, 'Cores usage', :size => 50, :left => true do |d|
+            column :CORES, 'Cores usage',
+                   :left => true,
+                   :adjust => true do |d|
                 d['CORE']['CORES']
             end
 
