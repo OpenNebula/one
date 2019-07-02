@@ -15,7 +15,6 @@
 #--------------------------------------------------------------------------- #
 
 require 'rotp'
-require 'pry-byebug'
 
 class MyTotp
     def self.build(secret, issuer)
@@ -24,12 +23,11 @@ class MyTotp
     end
 
     def initialize(totp)
-        @five_minutes = 5 * 60
         @totp = totp
+        @five_minutes = 5 * 60
     end
 
     def verify(token)
-        #binding.pry
         begin
           @totp.verify(token, drift_ahead: @five_minutes, drift_behind: @five_minutes)
         rescue Exception => e

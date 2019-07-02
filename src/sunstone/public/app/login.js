@@ -22,6 +22,7 @@ define(function(require) {
   var textInvalidUserorPassword = "Invalid username or password"; 
   var textNoAnswerFromServer = "No answer from server. Is it running?";
   var textTwoFactorTokenInvalid = "Two factor Token Invalid";
+  var idElementTwoFactor = "#two_factor_auth_token";
 
   function auth_success(req, response) {
     if (response && response.code && response.code === "two_factor_auth") {
@@ -108,14 +109,32 @@ define(function(require) {
     }
   }
 
+  function limitToken(){
+    $(idElementTwoFactor).off('input').on('input', function() {
+      var element = $(this);
+      if(element.attr("maxlength") && element.attr("maxlength") > 0){
+        var value = element.val().replace(/[^0-9.]/g, '')
+        if (value.length > element.attr("maxlength")){
+          element.val(value.substr(0,15))
+        }else{
+          element.val(value)
+        }
+      }
+    });
+  }
+
   $(document).ready(function() {
     $("#login_form").submit(function () {
+      limitToken();
       authenticate();
       return false;
     });
 
     $("#two_factor_auth_login").click(function() {
-      authenticate();
+      if($(idElementTwoFactor) && $(idElementTwoFactor).val().length){
+        authenticate();
+      }
+      return false;
     });
 
     //compact login elements according to screen height

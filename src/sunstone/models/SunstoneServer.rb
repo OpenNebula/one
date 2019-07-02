@@ -205,11 +205,11 @@ class SunstoneServer < CloudServer
     #
     ############################################################################
     def perform_action(kind, id, action_json)
+
         resource = retrieve_resource(kind, id)
         if OpenNebula.is_error?(resource)
             return [404, resource.to_json]
         end
-
         rc = resource.perform_action(action_json)
         if OpenNebula.is_error?(rc)
             return [500, rc.to_json]

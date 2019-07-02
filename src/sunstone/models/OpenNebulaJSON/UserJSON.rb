@@ -94,7 +94,7 @@ module OpenNebulaJSON
             sunstone_setting = params["current_sunstone_setting"]
             sunstone_setting.delete("TWO_FACTOR_AUTH_SECRET")
             sunstone_setting = { "sunstone" => sunstone_setting }
-	          template_raw = template_to_str_sunstone_with_explicite_empty_value(sunstone_setting)
+            template_raw = template_to_str_sunstone_with_explicite_empty_value(sunstone_setting)
             update_params = { "template_raw" => template_raw, "append" => true }
             update(update_params)
         end

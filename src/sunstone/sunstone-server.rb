@@ -568,7 +568,8 @@ end
 
 get '/two_factor_auth_hotp_qr_code' do
     content_type 'image/svg+xml'
-    totp = MyTotp.build(params[:secret], $conf[:two_factor_auth_issuer])
+    issuer = $conf[:two_factor_auth_issuer].nil?? "sunstone-opennebula" : $conf[:two_factor_auth_issuer]
+    totp = MyTotp.build(params[:secret], issuer)
     totp_uri = totp.provisioning_uri(session[:user])
     qr_code = MyQrCode.build(totp_uri)
     [200, qr_code.as_svg]
