@@ -637,7 +637,8 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         end
 
         begin
-            numa_nodes = host.to_hash['HOST']['HOST_SHARE']['NUMA_NODES']['NODE']
+            numa_nodes =
+                host.to_hash['HOST']['HOST_SHARE']['NUMA_NODES']['NODE']
         rescue StandardError
             numa_nodes = nil
         end
@@ -728,7 +729,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         table.show(pcis)
     end
 
-    def print_numa_nodes(numa_nodes, str, str_h1)
+    def print_numa_nodes(numa_nodes)
         numa_nodes = get_numa_data(numa_nodes)
 
         print_numa_cores(numa_nodes)
@@ -740,11 +741,11 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         numa_nodes = [numa_nodes] if numa_nodes.class == Hash
 
         numa_nodes.map! do |core|
-            cores     = core['CORE']
+            cores = core['CORE']
 
             free, used, cores_str = get_numa_cores(cores)
 
-            core['CORE']         = {}
+            core['CORE'] = {}
             core['CORE']['CORES'] = cores_str
             core['CORE']['FREE']  = free
             core['CORE']['USED']  = used
@@ -838,7 +839,8 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.unit_to_str(d['MEMORY']['USED'].to_i, {})
             end
 
-            column :USED_ALLOCATED, 'U memory', :size => 20, :left => true do |d|
+            column :USED_ALLOCATED, 'U memory',
+                   :size => 20, :left => true do |d|
                 OpenNebulaHelper.unit_to_str(d['MEMORY']['USAGE'].to_i, {})
             end
 
@@ -875,7 +877,9 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             end
 
             column :SIZE, 'Pages size', :size => 8, :left => true do |d|
-                OpenNebulaHelper.unit_to_str(d['HUGEPAGE']['SIZE'].to_i/1024, {}, "M")
+                OpenNebulaHelper.unit_to_str(d['HUGEPAGE']['SIZE'].to_i / 1024,
+                                             {},
+                                             'M')
             end
 
             column :FREE, 'Free pages', :size => 8, :left => true do |d|

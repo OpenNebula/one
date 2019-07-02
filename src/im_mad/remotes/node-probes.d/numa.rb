@@ -176,9 +176,9 @@ def memory(nodes, node_id)
     end
 
     nodes[node_id]['memory'] = {
-        'total' => bind.eval("#{:memtotal}"),
-        'free'  => bind.eval("#{:memfree}"),
-        'used'  => bind.eval("#{:memused}")
+        'total' => bind.eval(:memtotal.to_s),
+        'free'  => bind.eval(:memfree.to_s),
+        'used'  => bind.eval(:memused.to_s)
     }
 
     # Node distance to priotitize memory allocation
@@ -192,7 +192,7 @@ def memory(nodes, node_id)
     distance_h = {}
     distance_a.each_with_index {|d, i| distance_h[d.to_i] = i }
 
-    distance_h = Hash[distance_h.sort_by {|k| k }]
+    distance_h = Hash[distance_h.sort]
 
     closer = ''
     distance_h.each {|_, v| closer << v.to_s << ' ' }
