@@ -76,10 +76,52 @@ begin
 
         if img_type != CDROM
             # delete the disk
-            ds.delete_virtual_disk(img_src)
+            begin
+              retries ||= 0
+              ds.delete_virtual_disk(img_src)
+            rescue StandardError => e
+
+              if (retries += 1) < VCenterDriver::CONFIG[:retries]
+                message = "Delete DISK #{vm_ref} failed due to "\
+                        "\"#{e.message}\"\n#{e.backtrace.join("\n")} "\
+                        "on the attempt \##{retries}\n#{e.backtrace.join("\n")}"
+              else
+                message = "Delete DISK #{vm_ref} failed due to "\
+                        "\"#{e.message}\"\n#{e.backtrace.join("\n")} "\
+                        "on the final attempt\n#{e.backtrace.join("\n")}"
+              end
+              OpenNebula.log_error(message)
+              STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
+              sleep VCenterDriver::CONFIG[:retry_interval].to_i
+              retry if retries < VCenterDriver::CONFIG[:retries]
+
+              exit(-1)
+
+            end
         else
             # delete the CDROM iso
-            ds.delete_file(img_src)
+            begin
+              retries ||= 0
+              ds.delete_file(img_src)
+            rescue StandardError => e
+
+              if (retries += 1) < VCenterDriver::CONFIG[:retries]
+                message = "Delete CDROM #{vm_ref} failed due to "\
+                        "\"#{e.message}\"\n#{e.backtrace.join("\n")} "\
+                        "on the attempt \##{retries}\n#{e.backtrace.join("\n")}"
+              else
+                message = "Delete CDROM #{vm_ref} failed due to "\
+                        "\"#{e.message}\"\n#{e.backtrace.join("\n")} "\
+                        "on the final attempt\n#{e.backtrace.join("\n")}"
+              end
+              OpenNebula.log_error(message)
+              STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
+              sleep VCenterDriver::CONFIG[:retry_interval].to_i
+              retry if retries < VCenterDriver::CONFIG[:retries]
+
+              exit(-1)
+
+            end
         end
 
         ds.rm_directory(img_dir) if ds.dir_empty?(img_dir)
