@@ -498,7 +498,7 @@ void RaftManager::leader()
         pthread_attr_init (&pattr);
         pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_DETACHED);
 
-        int * _index = (int *) malloc(sizeof(int));
+        uint64_t * _index = (uint64_t *) malloc(sizeof(uint64_t));
 
         *_index = _next_index;
 
