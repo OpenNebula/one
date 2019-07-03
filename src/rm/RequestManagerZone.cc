@@ -529,8 +529,6 @@ void ZoneVoteRequest::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    raftm->update_last_heartbeat(-1);
-
     success_response(static_cast<int>(current_term), att);
 }
 

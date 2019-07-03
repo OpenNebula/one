@@ -474,6 +474,10 @@ void RaftManager::leader()
     replica_manager.start_replica_threads(_follower_ids);
     heartbeat_manager.start_replica_threads(_follower_ids);
 
+    heartbeat_manager.replicate();
+
+    clock_gettime(CLOCK_REALTIME, &last_heartbeat);
+
     pthread_mutex_unlock(&mutex);
 
     aclm->reload_rules();
@@ -551,12 +555,6 @@ void RaftManager::follower(unsigned int _term)
     match.clear();
 
     requests.clear();
-
-    //Reset heartbeat when turning into follower when a higher term is found:
-    // 1. On vote request
-    // 2. On heartbeat response
-    // 3. On log replicate request
-	clock_gettime(CLOCK_REALTIME, &last_heartbeat);
 
     pthread_mutex_unlock(&mutex);
 
@@ -833,7 +831,6 @@ void RaftManager::timer_action(const ActionRequest& ar)
         time_t sec  = last_heartbeat.tv_sec + broadcast_timeout.tv_sec;
         long   nsec = last_heartbeat.tv_nsec + broadcast_timeout.tv_nsec;
 
-
         if ((sec < the_time.tv_sec) || (sec == the_time.tv_sec &&
                 nsec <= the_time.tv_nsec))
         {
@@ -1022,6 +1019,12 @@ void RaftManager::request_vote()
         /* ------------------------------------------------------------------ */
         pthread_mutex_lock(&mutex);
 
+        if ( state != CANDIDATE )
+        {
+            pthread_mutex_unlock(&mutex);
+            break;
+        }
+
         votedfor = -1;
 
         raft_state.replace("VOTEDFOR", votedfor);
@@ -1031,7 +1034,6 @@ void RaftManager::request_vote()
         pthread_mutex_unlock(&mutex);
 
         logdb->update_raft_state(raft_state_xml);
-
 
         ms = ( (float) rand() / RAND_MAX ) * (election_timeout.tv_sec * 1000
             + election_timeout.tv_nsec / 1000000);
