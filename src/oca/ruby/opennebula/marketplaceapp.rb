@@ -213,7 +213,13 @@ module OpenNebula
                 type   = ds[xpath]
 
                 if !image_error && !ds_error
-                    if type == 'vcenter' && format != 'iso' && format != 'vmdk'
+                    if type == 'vcenter' && format == 'qcow2'
+                        image.replace('DEV_PREFIX' => 'sd')
+                        image.delete_element('TEMPLATE/FORMAT')
+                        image.delete_element('TEMPLATE/DRIVER')
+
+                        image.update(image.template_like_str("TEMPLATE"))
+                    elsif type == 'vcenter' && format != 'iso' && format != 'vmdk'
                         image.replace('FORMAT' => 'vmdk')
                     elsif type && type != 'vcenter' && format == 'vmdk'
                         image.replace('FORMAT' => type)
