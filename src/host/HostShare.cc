@@ -1273,6 +1273,7 @@ int HostShareNUMA::make_topology(HostShareCapacity &sr, int vm_id, bool do_alloc
     sr.topology->vector_value("SOCKETS", s_t);
 
     sr.topology->vector_value("HUGEPAGE_SIZE", hpsz_kb);
+    hpsz_kb = hpsz_kb * 1024;
 
     std::string policy      = sr.topology->vector_value("PIN_POLICY");
     HostShare::PinPolicy pp = HostShare::str_to_pin_policy(policy);
@@ -1520,6 +1521,7 @@ void HostShareNUMA::del(HostShareCapacity &sr)
     if ( sr.topology != 0 )
     {
         sr.topology->vector_value("HUGEPAGE_SIZE", hpsz_kb);
+        hpsz_kb = hpsz_kb * 1024;
     }
 
     for (auto it = sr.nodes.begin() ; it != sr.nodes.end(); ++it)

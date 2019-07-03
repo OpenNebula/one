@@ -237,7 +237,9 @@ static void vtopol(ofstream& file, const VectorAttribute * topology,
         topology->vector_value("SOCKETS", s);
         topology->vector_value("CORES", c);
         topology->vector_value("THREADS", t);
+
         topology->vector_value("HUGEPAGE_SIZE", hpsz_kb);
+        hpsz_kb = hpsz_kb * 1024;
 
         ma = topology->vector_value("MEMORY_ACCESS");
 

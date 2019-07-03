@@ -898,7 +898,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         hugepages = []
 
         nodes.each do |node|
-            node['HUGEPAGE'].each do |hugepage|
+            [node['HUGEPAGE']].flatten.each do |hugepage|
                 h             = {}
                 h['NODE_ID']  = node['NODE_ID']
                 h['HUGEPAGE'] = hugepage

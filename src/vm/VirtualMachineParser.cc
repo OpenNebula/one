@@ -783,10 +783,8 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
     /* ---------------------------------------------------------------------- */
     /* Set MEMORY, HUGEPAGE_SIZE, vCPU & update CPU for pinned VMS            */
     /* ---------------------------------------------------------------------- */
-    long long memory;
-
-    unsigned int      vcpu    = 0;
-    unsigned long int hpsz_mb = 0;
+    long long    memory;
+    unsigned int vcpu = 0;
 
     if (!tmpl->get("MEMORY", memory))
     {
@@ -803,11 +801,6 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
     if ( pp != HostShare::PP_NONE )
     {
         tmpl->replace("CPU", vcpu);
-    }
-
-    if ( vtopol->vector_value("HUGEPAGE_SIZE", hpsz_mb) == 0 )
-    {
-        vtopol->replace("HUGEPAGE_SIZE", hpsz_mb * 1024);
     }
 
     /* ---------------------------------------------------------------------- */
