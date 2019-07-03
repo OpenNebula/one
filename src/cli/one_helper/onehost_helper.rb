@@ -644,7 +644,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         end
 
         if numa_nodes && !numa_nodes.empty?
-            print_numa_nodes(numa_nodes, str, str_h1)
+            print_numa_nodes(numa_nodes)
         end
 
         puts
