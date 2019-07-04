@@ -56,14 +56,15 @@ class PacketDriver
     VM_STATE        = VirtualMachineDriver::VM_STATE
 
     DEPLOY_ATTRIBUTES = {
-        project_id:         'PROJECT',
-        facility:           'FACILITY',
-        plan:               'PLAN',
-        hostname:           'HOSTNAME',
-        operating_system:   'OS',
-        userdata:           'USERDATA',
-        tags:               'TAGS',
-        billing_cycle:      'BILLING_CYCLE',
+        project_id:               'PROJECT',
+        facility:                 'FACILITY',
+        plan:                     'PLAN',
+        hostname:                 'HOSTNAME',
+        operating_system:         'OS',
+        userdata:                 'USERDATA',
+        tags:                     'TAGS',
+        hardware_reservation_id:  'HARDWARE_RESERVATION',
+        billing_cycle:            'BILLING_CYCLE',
     }
 
     def initialize(host, one=OpenNebula::Client.new)
@@ -369,7 +370,7 @@ SCHED_REQUIREMENTS = "NAME=\\"#{@host.name}\\""
 
                 info
             end
-        rescue
+        rescue StandardError => e
             "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:unknown]} "
         end
     end
@@ -468,21 +469,6 @@ SCHED_REQUIREMENTS = "NAME=\\"#{@host.name}\\""
     end
 
 private
-
-    def deploy(project, facility, plan, os, hostname)
-        device = Packet::Device.new
-
-        device.client = @packet
-        device.project_id = project
-        device.facility = facility
-        device.plan = plan
-        device.hostname = hostname
-        device.operating_system = os
-
-        @packet.create_device(device)
-
-        device
-    end
 
     def delete(deploy_id)
         device = Packet::Device.new('id' => deploy_id)
