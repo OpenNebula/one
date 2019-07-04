@@ -3,7 +3,7 @@ require 'faraday_middleware'
 
 require 'packet/entity'
 
-%w(device facility operating_system plan project ssh_key user ip_range).each do |f|
+%w(device facility operating_system plan project ssh_key user ip ip_range).each do |f|
   require "packet/#{f}"
   require "packet/client/#{f.pluralize}"
 end
@@ -66,6 +66,7 @@ module Packet
     include Packet::Client::Projects
     include Packet::Client::SshKeys
     include Packet::Client::Users
+    include Packet::Client::Ips
     include Packet::Client::IpRanges
   end
 end
