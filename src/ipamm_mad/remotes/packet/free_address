@@ -37,17 +37,21 @@ ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 if !ONE_LOCATION
     PACKET_LOCATION = '/usr/lib/one/ruby/vendors/packethost/lib'
     IPAM_STATE_LOCATION = '/var/lib/one/ipam_state'
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
 else
     PACKET_LOCATION = ONE_LOCATION + '/lib/ruby/vendors/packethost/lib'
     IPAM_STATE_LOCATION = ONE_LOCATION + '/var/ipam_state'
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
 end
 
 $LOAD_PATH << PACKET_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'packet'
 require 'base64'
 require 'nokogiri'
 require 'fileutils'
+require 'opennebula'
 
 def find_packet_ip_assignment(packet_client, id, cidr)
     packet_client.get_ip(id).assignments.each do |a|
@@ -55,10 +59,10 @@ def find_packet_ip_assignment(packet_client, id, cidr)
 
         begin
             packet_ip = packet_client.get_ip(assignment_id)
-        rescue StandardError => e
+        rescue StandardError
             next
         end
-    
+
         packet_cidr = "#{packet_ip.network}/#{packet_ip.cidr}"
 
         if packet_cidr == cidr
@@ -66,9 +70,8 @@ def find_packet_ip_assignment(packet_client, id, cidr)
         end
     end
 
-    return nil
+    nil
 end
-
 
 ###
 
@@ -84,6 +87,17 @@ if ar_size.to_i != 1
     exit(-1)
 end
 
+system = OpenNebula::System.new(OpenNebula::Client.new)
+config = system.get_configuration
+
+if OpenNebula.is_error?(config)
+    STDERR.puts("Error getting oned configuration : #{config.message}")
+    exit(-1)
+end
+
+token = config['ONE_KEY']
+ar_token = OpenNebula.decrypt({ :value => ar_token }, token)[:value]
+
 packet = Packet::Client.new
 packet.auth_token = ar_token
 
@@ -91,7 +105,7 @@ begin
     ipam_state_dir = IPAM_STATE_LOCATION + "/packet/#{ar_deploy_id}"
     ipam_state_f = ipam_state_dir + '/' + ar_ip
 
-    if File.exists? ipam_state_f
+    if File.exist? ipam_state_f
         File.unlink(ipam_state_f)
     end
 
@@ -99,7 +113,6 @@ begin
     cidr = ar_ip + '/32'
     packet_ip = find_packet_ip_assignment(packet, ar_deploy_id, cidr)
     packet.delete_ip(packet_ip) if packet_ip
-
 rescue StandardError => e
     error_str = "ERROR MESSAGE --8<------\n"
     error_str << e.to_s

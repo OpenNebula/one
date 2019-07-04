@@ -36,26 +36,41 @@ ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
     PACKET_LOCATION = '/usr/lib/one/ruby/vendors/packethost/lib'
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
 else
     PACKET_LOCATION = ONE_LOCATION + '/lib/ruby/vendors/packethost/lib'
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
 end
 
 $LOAD_PATH << PACKET_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION
 
 # gem 'packethost', '> 0.0.8'
 
 require 'packet'
 require 'base64'
 require 'nokogiri'
+require 'opennebula'
 
 data = Nokogiri::XML(Base64.decode64(ARGV[0]))
 
-token = data.xpath('//AR/PACKET_TOKEN').text
+ar_token = data.xpath('//AR/PACKET_TOKEN').text
 deploy_id = data.xpath('//AR/DEPLOY_ID').text.to_s
+
+system = OpenNebula::System.new(OpenNebula::Client.new)
+config = system.get_configuration
+
+if OpenNebula.is_error?(config)
+    STDERR.puts("Error getting oned configuration : #{config.message}")
+    exit(-1)
+end
+
+token = config['ONE_KEY']
+ar_token = OpenNebula.decrypt({ :value => ar_token }, token)[:value]
 
 begin
     packet = Packet::Client.new
-    packet.auth_token = token
+    packet.auth_token = ar_token
     packet.delete_ip(deploy_id)
 rescue StandardError => e
     error_str = "ERROR MESSAGE --8<------\n"
