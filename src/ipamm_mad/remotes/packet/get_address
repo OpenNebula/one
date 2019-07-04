@@ -50,12 +50,15 @@ ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 if !ONE_LOCATION
     PACKET_LOCATION = '/usr/lib/one/ruby/vendors/packethost/lib'
     IPAM_STATE_LOCATION = '/var/lib/one/ipam_state'
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
 else
     PACKET_LOCATION = ONE_LOCATION + '/lib/ruby/vendors/packethost/lib'
     IPAM_STATE_LOCATION = ONE_LOCATION + '/var/ipam_state'
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
 end
 
 $LOAD_PATH << PACKET_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION
 
 # gem 'packethost', '> 0.0.8'
 
@@ -63,6 +66,7 @@ require 'packet'
 require 'base64'
 require 'nokogiri'
 require 'fileutils'
+require 'opennebula'
 
 data = Nokogiri::XML(Base64.decode64(ARGV[0]))
 
@@ -76,6 +80,17 @@ if ar_size.to_i != 1
     STDERR.puts 'Only reservations of size 1 are supported'
     exit(-1)
 end
+
+system = OpenNebula::System.new(OpenNebula::Client.new)
+config = system.get_configuration
+
+if OpenNebula.is_error?(config)
+    STDERR.puts("Error getting oned configuration : #{config.message}")
+    exit(-1)
+end
+
+token = config['ONE_KEY']
+ar_token = OpenNebula.decrypt({ :value => ar_token }, token)[:value]
 
 packet = Packet::Client.new
 packet.auth_token = ar_token
@@ -94,15 +109,16 @@ begin
 
         # check and create state file
         ipam_state_f = ipam_state_dir + '/' + ip_start
-        next if File.exists? ipam_state_f
+        next if File.exist? ipam_state_f
+
         File.new(ipam_state_f, 'w')
 
-        puts <<-EOT
-ADDRESS = [
-    IP   = "#{ip_start}",
-    SIZE = "#{ar_size}"
-]
-EOT
+        puts <<-EOF
+            ADDRESS = [
+                IP   = "#{ip_start}",
+                SIZE = "#{ar_size}"
+            ]
+        EOF
 
         exit(0)
     end
@@ -112,16 +128,15 @@ EOT
 #    if cidrs.size
 #        ip_start = cidrs[0].split('/')[0]
 #
-#        puts <<-EOT
-#ADDRESS = [
+#        puts <<-EOF
+# ADDRESS = [
 #    IP   = "#{ip_start}",
 #    SIZE = "#{ar_size}"
-#]
-#EOT
+# ]
+# EOF
 #    else
 #        exit(-1)
 #    end
-
 rescue StandardError => e
     error_str = "ERROR MESSAGE --8<------\n"
     error_str << e.to_s

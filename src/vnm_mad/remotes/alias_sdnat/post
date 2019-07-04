@@ -16,8 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-$: << File.dirname(__FILE__)
-$: << File.join(File.dirname(__FILE__), "..")
+$LOAD_PATH << File.dirname(__FILE__)
+$LOAD_PATH << File.join(File.dirname(__FILE__), '..')
 
 require 'AliasSDNAT'
 
@@ -28,7 +28,7 @@ xpath_filter = AliasSDNATDriver::XPATH_FILTER
 begin
     drv = AliasSDNATDriver.from_base64(template64, xpath_filter, deploy_id)
     drv.activate
-rescue Exception => e
+rescue StandardError => e
     OpenNebula.log_error(e.message)
     OpenNebula.log_error(e.backtrace)
     exit 1
