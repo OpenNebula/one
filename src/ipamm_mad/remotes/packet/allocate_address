@@ -81,6 +81,17 @@ if ar_size.to_i != 1
     exit(-1)
 end
 
+system = OpenNebula::System.new(OpenNebula::Client.new)
+config = system.get_configuration
+
+if OpenNebula.is_error?(config)
+    STDERR.puts("Error getting oned configuration : #{config.message}")
+    exit(-1)
+end
+
+token = config['ONE_KEY']
+ar_token = OpenNebula.decrypt({ :value => ar_token }, token)[:value]
+
 packet = Packet::Client.new
 packet.auth_token = ar_token
 
