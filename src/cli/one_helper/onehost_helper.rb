@@ -761,7 +761,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         free = 0
         used = 0
 
-        cores.each do |info|
+        [cores].flatten.each do |info|
             core = info['CPUS'].split(',')
 
             core.each do |c|
