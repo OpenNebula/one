@@ -274,7 +274,9 @@ AllCops:
     - share/vendor/ruby/gems/packethost/lib/packet/client/ssh_keys.rb
     - share/vendor/ruby/gems/packethost/lib/packet/client/users.rb
     - share/vendor/ruby/gems/packethost/lib/packet/client/operating_systems.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/client/ips.rb
     - share/vendor/ruby/gems/packethost/lib/packet/ssh_key.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/ip.rb
     - share/vendor/ruby/gems/packethost/lib/packet/plan.rb
     - share/vendor/ruby/gems/packethost/lib/packet/user.rb
     - share/vendor/ruby/gems/packethost/lib/packethost.rb

@@ -295,6 +295,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/ovswitch \
           $VAR_LOCATION/remotes/vnm/ovswitch_vxlan \
           $VAR_LOCATION/remotes/vnm/vcenter \
+          $VAR_LOCATION/remotes/vnm/alias_sdnat \
           $VAR_LOCATION/remotes/tm/ \
           $VAR_LOCATION/remotes/tm/dummy \
           $VAR_LOCATION/remotes/tm/shared \
@@ -309,6 +310,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/hooks/ft \
           $VAR_LOCATION/remotes/hooks/vcenter \
           $VAR_LOCATION/remotes/hooks/raft \
+          $VAR_LOCATION/remotes/hooks/alias_ip \
           $VAR_LOCATION/remotes/datastore \
           $VAR_LOCATION/remotes/datastore/dummy \
           $VAR_LOCATION/remotes/datastore/fs \
@@ -329,7 +331,8 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/auth/server_x509 \
           $VAR_LOCATION/remotes/auth/server_cipher \
           $VAR_LOCATION/remotes/auth/dummy \
-          $VAR_LOCATION/remotes/ipam/dummy"
+          $VAR_LOCATION/remotes/ipam/dummy \
+          $VAR_LOCATION/remotes/ipam/packet"
 
 SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/models \
@@ -468,6 +471,7 @@ INSTALL_FILES=(
     MARKETPLACE_DRIVER_S3_SCRIPTS:$VAR_LOCATION/remotes/market/s3
     MARKETPLACE_DRIVER_LXC_SCRIPTS:$VAR_LOCATION/remotes/market/linuxcontainers
     IPAM_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/ipam/dummy
+    IPAM_DRIVER_PACKET_SCRIPTS:$VAR_LOCATION/remotes/ipam/packet
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_ETC_FILES:$VAR_LOCATION/remotes/etc/vnm
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
@@ -479,6 +483,7 @@ INSTALL_FILES=(
     NETWORK_OVSWITCH_FILES:$VAR_LOCATION/remotes/vnm/ovswitch
     NETWORK_OVSWITCH_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/ovswitch_vxlan
     NETWORK_VCENTER_FILES:$VAR_LOCATION/remotes/vnm/vcenter
+    NETWORK_ALIAS_SDNAT_FILES:$VAR_LOCATION/remotes/vnm/alias_sdnat
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     WEBSOCKIFY_SHARE_RUN_FILES:$SHARE_LOCATION/websockify
     WEBSOCKIFY_SHARE_MODULE_FILES:$SHARE_LOCATION/websockify/websockify
@@ -489,6 +494,7 @@ INSTALL_FILES=(
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
     HOOK_VCENTER_FILES:$VAR_LOCATION/remotes/hooks/vcenter
     HOOK_RAFT_FILES:$VAR_LOCATION/remotes/hooks/raft
+    HOOK_ALIAS_IP_FILES:$VAR_LOCATION/remotes/hooks/alias_ip
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
     CLOUD_AUTH_LIB_FILES:$LIB_LOCATION/ruby/cloud/CloudAuth
     ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe
@@ -1114,6 +1120,12 @@ NETWORK_VCENTER_FILES="src/vnm_mad/remotes/vcenter/pre \
                        src/vnm_mad/remotes/vcenter/post \
                        src/vnm_mad/remotes/vcenter/clean"
 
+NETWORK_ALIAS_SDNAT_FILES="src/vnm_mad/remotes/alias_sdnat/AliasSDNAT.rb \
+                           src/vnm_mad/remotes/alias_sdnat/clean \
+                           src/vnm_mad/remotes/alias_sdnat/post \
+                           src/vnm_mad/remotes/alias_sdnat/pre \
+                           src/vnm_mad/remotes/alias_sdnat/update_sg "
+
 #-------------------------------------------------------------------------------
 # Virtual Network Manager drivers configuration to be installed under $REMOTES_LOCATION/etc/vnm
 #-------------------------------------------------------------------------------
@@ -1121,13 +1133,22 @@ NETWORK_VCENTER_FILES="src/vnm_mad/remotes/vcenter/pre \
 NETWORK_ETC_FILES="src/vnm_mad/remotes/OpenNebulaNetwork.conf"
 
 #-------------------------------------------------------------------------------
-# IPAM drivers to be installed under $REMOTES_LOCATION/ipam
+# IPAM dummy drivers to be installed under $REMOTES_LOCATION/ipam
 #-------------------------------------------------------------------------------
 IPAM_DRIVER_DUMMY_SCRIPTS="src/ipamm_mad/remotes/dummy/register_address_range \
                src/ipamm_mad/remotes/dummy/unregister_address_range \
                src/ipamm_mad/remotes/dummy/allocate_address \
                src/ipamm_mad/remotes/dummy/get_address \
                src/ipamm_mad/remotes/dummy/free_address"
+
+#-------------------------------------------------------------------------------
+# IPAM Packet drivers to be installed under $REMOTES_LOCATION/ipam
+#-------------------------------------------------------------------------------
+IPAM_DRIVER_PACKET_SCRIPTS="src/ipamm_mad/remotes/packet/register_address_range \
+               src/ipamm_mad/remotes/packet/unregister_address_range \
+               src/ipamm_mad/remotes/packet/allocate_address \
+               src/ipamm_mad/remotes/packet/get_address \
+               src/ipamm_mad/remotes/packet/free_address"
 
 #-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands
@@ -1578,6 +1599,12 @@ HOOK_VCENTER_FILES="share/hooks/vcenter/create_vcenter_net.rb \
 #-------------------------------------------------------------------------------
 
 HOOK_RAFT_FILES="share/hooks/raft/vip.sh"
+
+#-------------------------------------------------------------------------------
+# HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks/alias_ip
+#-------------------------------------------------------------------------------
+
+HOOK_ALIAS_IP_FILES="share/hooks/alias_ip/alias_ip.rb"
 
 #-------------------------------------------------------------------------------
 # Installation scripts, to be installed under $SHARE_LOCATION

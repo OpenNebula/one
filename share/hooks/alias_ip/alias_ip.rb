@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
@@ -28,11 +28,13 @@ else
     LOG_FILE = ONE_LOCATION + '/var/hook-alias_ip.log'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << PACKET_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << PACKET_LOCATION
 
+# rubocop:disable Style/MixinUsage
 require 'opennebula'
 include OpenNebula
+# rubocop:enable Style/MixinUsage
 
 require 'base64'
 require 'open3'
@@ -43,15 +45,15 @@ require 'packet'
 VM_ID  = ARGV[0]
 VM_XML = Base64.decode64(ARGV[1])
 
-if VM_ID.nil? or VM_ID.empty? or VM_XML.nil? or VM_XML.empty?
-    STDERR.puts "USAGE: <VM ID> <VM XML>"
+if VM_ID.nil? || VM_ID.empty? || VM_XML.nil? || VM_XML.empty?
+    STDERR.puts 'USAGE: <VM ID> <VM XML>'
     exit(-1)
 end
 
 ##########
 # Helpers
 
-def log(msg, level='I')
+def log(msg, level = 'I')
     File.open(LOG_FILE, 'a') do |f|
         msg.lines do |l|
             f.puts "[#{Time.now}][VM #{VM_ID}][#{level}] #{l}"
@@ -81,10 +83,10 @@ def find_packet_ip_assignment(packet_client, id, cidr)
 
         begin
             packet_ip = packet_client.get_ip(assignment_id)
-        rescue StandardError => e
+        rescue StandardError
             next
         end
-    
+
         packet_cidr = "#{packet_ip.network}/#{packet_ip.cidr}"
 
         if packet_cidr == cidr
@@ -92,7 +94,7 @@ def find_packet_ip_assignment(packet_client, id, cidr)
         end
     end
 
-    return nil
+    nil
 end
 
 def device_has_ip?(packet_client, device_id, ip_id)
@@ -100,14 +102,24 @@ def device_has_ip?(packet_client, device_id, ip_id)
         return true if ip_address['id'] == ip_id
     end
 
-    return false
+    false
 end
 
-def manage_packet(assign=true, host, ip, ar)
+def manage_packet(host, ip, address_range, assign = true)
     cidr = "#{ip}/32"
 
-    ar_token = ar['PACKET_TOKEN']
-    ar_deploy_id = ar['DEPLOY_ID']
+    system = OpenNebula::System.new(OpenNebula::Client.new)
+    config = system.get_configuration
+
+    if OpenNebula.is_error?(config)
+        STDERR.puts("Error getting oned configuration : #{config.message}")
+        exit(-1)
+    end
+
+    token = config['ONE_KEY']
+    ar_token = OpenNebula.decrypt({ :value => address_range['PACKET_TOKEN'] },
+                                  token)[:value]
+    ar_deploy_id = address_range['DEPLOY_ID']
 
     packet_client = Packet::Client.new(ar_token)
     packet_ip = find_packet_ip_assignment(packet_client, ar_deploy_id, cidr)
@@ -120,13 +132,13 @@ def manage_packet(assign=true, host, ip, ar)
 
         device_id = host['/HOST/TEMPLATE/PROVISION/DEPLOY_ID']
 
-        if packet_ip 
+        if packet_ip
             if device_has_ip?(packet_client, device_id, packet_ip.id)
                 log("Packet: Already assigned IP #{ip}")
                 return
             else
                 log("Packet: Unassign IP #{ip}")
-                packet_client.delete_ip(packet_ip) 
+                packet_client.delete_ip(packet_ip)
             end
         end
 
@@ -135,16 +147,15 @@ def manage_packet(assign=true, host, ip, ar)
 
     elsif packet_ip
         log("Packet: Unassign IP #{ip}")
-        packet_client.delete_ip(packet_ip) 
+        packet_client.delete_ip(packet_ip)
     end
 end
-
 
 ##########
 # Main
 
 begin
-    client = Client.new()
+    client = Client.new
 rescue StandardError => e
     STDERR.puts(e.to_s)
     exit(-1)
@@ -160,9 +171,9 @@ vm_state_str = OpenNebula::VirtualMachine::VM_STATE[xml_vm['/VM/STATE'].to_i]
 log("Alias hook triggered for state=#{vm_state_str}")
 
 # if VM is associated with particular host, get the
-# metadata and force the operation to assign 
+# metadata and force the operation to assign
 # the aliased IPs to the host
-if %w{ACTIVE SUSPENDED POWEROFF}.include? vm_state_str
+if %w[ACTIVE SUSPENDED POWEROFF].include? vm_state_str
     assign  = true
     host_id = xml_vm['/VM/HISTORY_RECORDS/HISTORY[last()]/HID']
     host    = one_fetch(client, OpenNebula::Host, host_id)
@@ -170,7 +181,7 @@ end
 
 # process each NIC_ALIAS and check each address host assignment
 xml_vm.each('/VM/TEMPLATE/NIC_ALIAS') do |nic|
-    next unless nic['IP'] #or nic['IP6']
+    next unless nic['IP'] # or nic['IP6']
 
     nic_ip  = nic['IP']
     vnet_id = nic['NETWORK_ID']
@@ -186,8 +197,9 @@ xml_vm.each('/VM/TEMPLATE/NIC_ALIAS') do |nic|
 
         last_seq = xml_vm['/VM/HISTORY_RECORDS/HISTORY[last()]/SEQ'].to_i
 
-        [last_seq, last_seq-1].each do |seq|
-            action_id = vm["/VM/HISTORY_RECORDS/HISTORY[SEQ=#{seq}]/ACTION"].to_i
+        [last_seq, last_seq - 1].each do |seq|
+            action_id = vm["/VM/HISTORY_RECORDS/HISTORY[SEQ=#{seq}]/ACTION"]
+            action_id = action_id.to_i
 
             case OpenNebula::VirtualMachine::HISTORY_ACTION[action_id]
             when 'none'
@@ -204,7 +216,7 @@ xml_vm.each('/VM/TEMPLATE/NIC_ALIAS') do |nic|
     vnet.each("/VNET/AR_POOL/AR[AR_ID=#{ar_id}]") do |ar|
         case ar['IPAM_MAD']
         when 'packet'
-            manage_packet(nic_assign, host, nic_ip, ar)
+            manage_packet(host, nic_ip, ar, nic_assign)
         end
     end
 end

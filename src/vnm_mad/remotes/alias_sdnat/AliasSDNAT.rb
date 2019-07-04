@@ -1,3 +1,4 @@
+# rubocop:disable Naming/FileName
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -16,18 +17,21 @@
 
 require 'vnmmad'
 
+# Alias SDnat Driver
 class AliasSDNATDriver < VNMMAD::VNMDriver
-    DRIVER = 'alias_sdnat'
-    XPATH_FILTER = "TEMPLATE/NIC_ALIAS[VN_MAD='alias_sdnat'] | TEMPLATE/NIC[ALIAS_IDS=*]"
 
-    def initialize(vm, xpath_filter = nil, deploy_id = nil)
+    DRIVER = 'alias_sdnat'
+    XPATH_FILTER = "TEMPLATE/NIC_ALIAS[VN_MAD='alias_sdnat'] | " \
+                   'TEMPLATE/NIC[ALIAS_IDS=*]'
+
+    def initialize(virtual_machine, xpath_filter = nil, deploy_id = nil)
         @locking = true
 
         xpath_filter ||= XPATH_FILTER
-        super(vm, xpath_filter, deploy_id)
+        super(virtual_machine, xpath_filter, deploy_id)
     end
 
-    def iptables(params, stdout=false)
+    def iptables(params, stdout = false)
         if stdout
             commands = VNMMAD::VNMNetwork::Commands.new
             commands.add :iptables, params
@@ -45,7 +49,7 @@ class AliasSDNATDriver < VNMMAD::VNMDriver
                  "-j DNAT --to-destination #{parent_ip}")
     end
 
-    def nat_drop(parent_ip, alias_ip, strict=false)
+    def nat_drop(parent_ip, alias_ip, strict = false)
         iptables_s = iptables('-t nat -S', true)
 
         # drop any line related to PRE/POSTROUTING of parent/alias IPs
@@ -53,28 +57,28 @@ class AliasSDNATDriver < VNMMAD::VNMDriver
             line.chomp!
 
             # matches for various rule parts
-            pre1  = line.match(/^-A PREROUTING -d #{alias_ip}\//i)
+            pre1  = line.match(%r{^-A PREROUTING -d #{alias_ip}/}i)
             pre2  = line.match(/--to-destination #{parent_ip}$/i)
-            post1 = line.match(/^-A POSTROUTING -s #{parent_ip}\//i)
+            post1 = line.match(%r{^-A POSTROUTING -s #{parent_ip}/}i)
             post2 = line.match(/--to-source #{alias_ip}$/i)
 
             drop_rule = "-t nat #{line.sub('-A ', '-D ')}"
 
             if strict && ((pre1 && pre2) || (post1 && post2))
                 iptables(drop_rule)
-            elsif ! strict && (pre1 || pre2 || post1 || post2)
+            elsif !strict && (pre1 || pre2 || post1 || post2)
                 iptables(drop_rule)
             end
 
-#            iptables("-t nat #{line.sub('-A ', '-D ')}") if
-#               line =~ /^-A PREROUTING -d #{alias_ip}\//i or
-#               line =~ /--to-destination #{parent_ip}$/i or
-#               line =~ /^-A POSTROUTING -s #{parent_ip}\//i or
-#               line =~ /--to-source #{alias_ip}$/i
+            #            iptables("-t nat #{line.sub('-A ', '-D ')}") if
+            #               line =~ /^-A PREROUTING -d #{alias_ip}\//i or
+            #               line =~ /--to-destination #{parent_ip}$/i or
+            #               line =~ /^-A POSTROUTING -s #{parent_ip}\//i or
+            #               line =~ /--to-source #{alias_ip}$/i
         end
     end
 
-    def process_nat(activate=true, attach_nic_alias_id=nil)
+    def process_nat(activate = true, attach_nic_alias_id = nil)
         lock
 
         # create Alias IP <-> NIC IP mapping tables
@@ -82,12 +86,13 @@ class AliasSDNATDriver < VNMMAD::VNMDriver
         nic_aliases = {}
 
         process do |nic|
-            if nic[:alias_id] and nic[:parent_id] and nic[:ip]
-                next if attach_nic_alias_id && attach_nic_alias_id != nic[:nic_id]
+            if nic[:alias_id] && nic[:parent_id] && nic[:ip]
+                next if attach_nic_alias_id &&
+                        attach_nic_alias_id != nic[:nic_id]
 
-                nic_aliases[ nic[:ip] ] = nic[:parent_id] 
-            elsif nic[:alias_ids] and nic[:ip]
-                nic_parents[ nic[:nic_id] ] = nic[:ip]
+                nic_aliases[nic[:ip]] = nic[:parent_id]
+            elsif nic[:alias_ids] && nic[:ip]
+                nic_parents[nic[:nic_id]] = nic[:ip]
             else
                 STDERR.puts "Problem with NIC #{nic}"
                 exit 1
@@ -96,12 +101,12 @@ class AliasSDNATDriver < VNMMAD::VNMDriver
 
         # cleanup any related mapping rules
         nic_aliases.each do |alias_ip, parent_id|
-            parent_ip = nic_parents[ parent_id ]
+            parent_ip = nic_parents[parent_id]
 
             if parent_ip
-                strict = ! attach_nic_alias_id.nil?
+                strict = !attach_nic_alias_id.nil?
 
-                nat_drop(parent_ip, alias_ip, strict) 
+                nat_drop(parent_ip, alias_ip, strict)
             else
                 STDERR.puts "Parent NIC/IP with NIC_ID #{parent_id}"
                 exit 1
@@ -110,10 +115,12 @@ class AliasSDNATDriver < VNMMAD::VNMDriver
 
         if activate
             # create mapping rules
+            # rubocop:disable Metrics/LineLength
             # iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -j SNAT --to-source 10.0.0.41
             # iptables -t nat -A PREROUTING -d 10.0.0.41 -j DNAT --to-destination 192.168.0.250
+            # rubocop:enable Metrics/LineLength
             nic_aliases.each do |alias_ip, parent_id|
-                parent_ip = nic_parents[ parent_id ]
+                parent_ip = nic_parents[parent_id]
 
                 nat_add(parent_ip, alias_ip) if parent_ip
             end
@@ -125,7 +132,7 @@ class AliasSDNATDriver < VNMMAD::VNMDriver
     def activate
         process_nat
 
-        return 0
+        0
     end
 
     def deactivate
@@ -133,7 +140,8 @@ class AliasSDNATDriver < VNMMAD::VNMDriver
 
         process_nat(false, attach_nic_alias_id)
 
-        return 0
+        0
     end
 
 end
+# rubocop:enable Naming/FileName

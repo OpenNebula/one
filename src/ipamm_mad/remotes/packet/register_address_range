@@ -72,20 +72,36 @@ ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
     PACKET_LOCATION = '/usr/lib/one/ruby/vendors/packethost/lib'
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
 else
     PACKET_LOCATION = ONE_LOCATION + '/lib/ruby/vendors/packethost/lib'
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
 end
 
 $LOAD_PATH << PACKET_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'packet'
 require 'base64'
 require 'nokogiri'
+require 'opennebula'
 
 data = Nokogiri::XML(Base64.decode64(ARGV[0]))
 
+ar_token = data.xpath('//AR/PACKET_TOKEN').text
+
+system = OpenNebula::System.new(OpenNebula::Client.new)
+config = system.get_configuration
+
+if OpenNebula.is_error?(config)
+    STDERR.puts("Error getting oned configuration : #{config.message}")
+    exit(-1)
+end
+
+token = config['ONE_KEY']
+
 packet = Packet::Client.new
-packet.auth_token = data.xpath('//AR/PACKET_TOKEN').text
+packet.auth_token = OpenNebula.decrypt({ :value => ar_token }, token)[:value]
 
 ip = Packet::Ip.new
 ip.project_id = data.xpath('//AR/PACKET_PROJECT').text
@@ -96,17 +112,16 @@ ip.quantity   = data.xpath('//AR/SIZE').text.to_i
 begin
     packet.create_ip(ip)
 
-    puts <<-EOT
-AR = [
-    TYPE         = "IP4",
-    IP           = "#{ip.network}",
-    SIZE         = "#{ip.quantity}",
-    IPAM_MAD     = "packet",
-    DEPLOY_ID    = "#{ip.id}",
-    PACKET_TOKEN = "#{packet.auth_token}"
-]
-EOT
-
+    puts <<-EOF
+        AR = [
+            TYPE         = "IP4",
+            IP           = "#{ip.network}",
+            SIZE         = "#{ip.quantity}",
+            IPAM_MAD     = "packet",
+            DEPLOY_ID    = "#{ip.id}",
+            PACKET_TOKEN = "#{ar_token}"
+        ]
+    EOF
 rescue StandardError => e
     error_str = "ERROR MESSAGE --8<------\n"
     error_str << e.to_s
