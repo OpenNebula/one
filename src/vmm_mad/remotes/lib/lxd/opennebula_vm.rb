@@ -118,7 +118,18 @@ class OpenNebulaVM
         hash['limits.cpu.allowance'] = "#{(cpu.to_f * 100).to_i}%"
 
         vcpu = @xml['//TEMPLATE/VCPU']
-        hash['limits.cpu'] = vcpu unless vcpu.empty?
+        return if vcpu.empty?
+
+        numa = @xml.element('//TEMPLATE//NUMA_NODE')
+
+        if numa.nil?
+            hash['limits.cpu'] = vcpu
+        else # pin CPU
+            cores = numa['CPUS']
+            cores += "-#{cores}" if cores.length == 1
+
+            hash['limits.cpu'] = cores
+        end
     end
 
     #---------------------------------------------------------------------------
