@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'SunstoneOPTP'
+require 'sunstone_optp'
 
 # 2F Auth
 module Suntone2FAuth

@@ -99,9 +99,9 @@ require 'rexml/document'
 require 'uri'
 require 'open3'
 
-require "SunstoneQRCode"
-require "SunstoneOPTP"
-require "Suntone2FAuth"
+require "sunstone_qr_code"
+require "sunstone_optp"
+require "suntone_2f_auth"
 require 'CloudAuth'
 require 'SunstoneServer'
 require 'SunstoneViews'

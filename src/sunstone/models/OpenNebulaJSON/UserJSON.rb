@@ -15,7 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'OpenNebulaJSON/JSONUtils'
-require 'Suntone2FAuth'
+require 'suntone_2f_auth'
 
 module OpenNebulaJSON
     class UserJSON < OpenNebula::User
