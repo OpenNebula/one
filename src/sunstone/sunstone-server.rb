@@ -48,6 +48,7 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << RUBY_LIB_LOCATION + '/cloud'
 $LOAD_PATH << SUNSTONE_ROOT_DIR
 $LOAD_PATH << SUNSTONE_ROOT_DIR + '/models'
+$LOAD_PATH << SUNSTONE_ROOT_DIR + '/models/OpenNebula2FA'
 
 DISPLAY_NAME_XPATH = 'TEMPLATE/SUNSTONE/DISPLAY_NAME'
 TABLE_ORDER_XPATH = 'TEMPLATE/SUNSTONE/TABLE_ORDER'
@@ -98,9 +99,9 @@ require 'rexml/document'
 require 'uri'
 require 'open3'
 
-require "my_qr_code"
-require "my_totp"
-require "two_factor_auth"
+require "SunstoneQRCode"
+require "SunstoneOPTP"
+require "Suntone2FAuth"
 require 'CloudAuth'
 require 'SunstoneServer'
 require 'SunstoneViews'

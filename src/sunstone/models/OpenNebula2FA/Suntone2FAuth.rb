@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'my_totp'
+require 'SunstoneOPTP'
 
 # 2F Auth
 module TwoFactorAuth

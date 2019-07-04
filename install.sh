@@ -1930,9 +1930,9 @@ SUNSTONE_ETC_VIEW_MIXED="src/sunstone/etc/sunstone-views/mixed/admin.yaml \
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                        src/sunstone/models/SunstoneServer.rb \
                        src/sunstone/models/SunstoneViews.rb \
-                       src/sunstone/models/my_qr_code.rb \
-                       src/sunstone/models/my_totp.rb \
-                       src/sunstone/models/two_factor_auth.rb "
+                       src/sunstone/models/OpenNebula2FA/SunstoneQRCode.rb \
+                       src/sunstone/models/OpenNebula2FA/SunstoneOPTP.rb \
+                       src/sunstone/models/OpenNebula2FA/Suntone2FAuth.rb "
 
 SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/ImageJSON.rb \
