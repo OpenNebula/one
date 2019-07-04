@@ -332,7 +332,7 @@ helpers do
             if !two_factor_auth_token || two_factor_auth_token == ""
                 return [202, { code: "two_factor_auth" }.to_json]
             else
-                unless TwoFactorAuth.authenticate(user[TWO_FACTOR_AUTH_SECRET_XPATH], two_factor_auth_token)
+                unless Suntone2FAuth.authenticate(user[TWO_FACTOR_AUTH_SECRET_XPATH], two_factor_auth_token)
                     logger.info { "Unauthorized two factor authentication login attempt" }
                     return [401, ""]
                 end
@@ -570,9 +570,9 @@ end
 get '/two_factor_auth_hotp_qr_code' do
     content_type 'image/svg+xml'
     issuer = $conf[:two_factor_auth_issuer].nil?? "sunstone-opennebula" : $conf[:two_factor_auth_issuer]
-    totp = MyTotp.build(params[:secret], issuer)
+    totp = SunstoneOPTP.build(params[:secret], issuer)
     totp_uri = totp.provisioning_uri(session[:user])
-    qr_code = MyQrCode.build(totp_uri)
+    qr_code = SunstoneQRCode.build(totp_uri)
     [200, qr_code.as_svg]
 end
 

@@ -17,7 +17,7 @@
 require 'rqrcode'
 
 # Generate Qr Code
-class MyQrCode
+class SunstoneQRCode
 
     def self.build(code)
         qr_code = RQRCode::QRCode.new(code)

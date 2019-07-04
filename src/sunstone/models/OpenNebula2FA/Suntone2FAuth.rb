@@ -17,10 +17,10 @@
 require 'SunstoneOPTP'
 
 # 2F Auth
-module TwoFactorAuth
+module Suntone2FAuth
 
     def self.authenticate(secret, token)
-        totp = MyTotp.build(secret, nil)
+        totp = SunstoneOPTP.build(secret, nil)
         totp.verify(token)
     end
 

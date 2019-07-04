@@ -17,7 +17,7 @@
 require 'rotp'
 
 # 2F Token
-class MyTotp
+class SunstoneOPTP
 
     def self.build(secret, issuer)
         totp = ROTP::TOTP.new(secret, :issuer => issuer)
