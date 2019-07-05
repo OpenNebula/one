@@ -50,8 +50,8 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att) override;
 
     virtual bool allocate_authorization(xmlrpc_c::paramList const& _paramList,
             Template *obj_template, RequestAttributes&  att,
@@ -140,7 +140,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template()
+    Template * get_object_template() override
     {
         return new VirtualMachineTemplate;
     };
@@ -148,11 +148,11 @@ public:
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
                                      Template *                  tmpl,
                                      int&                        id,
-                                     RequestAttributes&          att);
+                                     RequestAttributes&          att) override;
 
     bool allocate_authorization(xmlrpc_c::paramList const&  paramList,
             Template *obj_template, RequestAttributes&  att,
-            PoolObjectAuth *cluster_perms);
+            PoolObjectAuth *cluster_perms) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -176,7 +176,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template()
+    Template * get_object_template() override
     {
         return new VirtualNetworkTemplate;
     };
@@ -186,9 +186,9 @@ public:
                       int& id,
                       RequestAttributes& att,
                       int cluster_id,
-                      const string& cluster_name);
+                      const string& cluster_name) override;
 
-    int get_cluster_id(xmlrpc_c::paramList const& paramList)
+    int get_cluster_id(xmlrpc_c::paramList const& paramList) override
     {
         return RequestManagerAllocate::get_cluster_id(paramList, 2);
     };
@@ -196,7 +196,7 @@ public:
     int add_to_cluster(
             Cluster* cluster,
             int id,
-            string& error_msg)
+            string& error_msg) override
     {
         return clpool->add_to_cluster(PoolObjectSQL::NET, cluster, id, error_msg);
     };
@@ -224,7 +224,7 @@ public:
     /* --------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -248,7 +248,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template()
+    Template * get_object_template() override
     {
         return new VirtualMachineTemplate;
     };
@@ -256,11 +256,11 @@ public:
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
                                      Template *                  tmpl,
                                      int&                        id,
-                                     RequestAttributes&          att);
+                                     RequestAttributes&          att) override;
 
     bool allocate_authorization(xmlrpc_c::paramList const&  paramList,
             Template *obj_template, RequestAttributes&  att,
-            PoolObjectAuth *cluster_perms);
+            PoolObjectAuth *cluster_perms) override;
 };
 
 class VirtualNetworkTemplateAllocate : public RequestManagerAllocate
@@ -281,7 +281,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template()
+    Template * get_object_template() override
     {
         return new VirtualMachineTemplate;
     };
@@ -289,11 +289,11 @@ public:
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
                                      Template *                  tmpl,
                                      int&                        id,
-                                     RequestAttributes&          att);
+                                     RequestAttributes&          att) override;
 
     bool allocate_authorization(xmlrpc_c::paramList const&  paramList,
             Template *obj_template, RequestAttributes&  att,
-            PoolObjectAuth *cluster_perms);
+            PoolObjectAuth *cluster_perms) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -322,9 +322,9 @@ public:
                       int& id,
                       RequestAttributes& att,
                       int cluster_id,
-                      const string& cluster_name);
+                      const string& cluster_name) override;
 
-    int get_cluster_id(xmlrpc_c::paramList const& paramList)
+    int get_cluster_id(xmlrpc_c::paramList const& paramList) override
     {
         return RequestManagerAllocate::get_cluster_id(paramList, 4);
     };
@@ -332,7 +332,7 @@ public:
     int add_to_cluster(
             Cluster* cluster,
             int id,
-            string& error_msg)
+            string& error_msg) override
     {
         return clpool->add_to_cluster(PoolObjectSQL::HOST, cluster, id, error_msg);;
     };
@@ -363,11 +363,11 @@ public:
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
                                      Template *                  tmpl,
                                      int&                        id,
-                                     RequestAttributes&          att);
+                                     RequestAttributes&          att) override;
 
     bool allocate_authorization(xmlrpc_c::paramList const&  paramList,
             Template *obj_template, RequestAttributes&  att,
-            PoolObjectAuth *cluster_perms);
+            PoolObjectAuth *cluster_perms) override;
 private:
     GroupPool * gpool;
 };
@@ -396,7 +396,7 @@ public:
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
                                      Template *                  tmpl,
                                      int&                        id,
-                                     RequestAttributes&          att);
+                                     RequestAttributes&          att) override;
 
 private:
     VdcPool * vdcpool;
@@ -423,7 +423,7 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    Template * get_object_template()
+    Template * get_object_template() override
     {
         return new DatastoreTemplate;
     };
@@ -433,9 +433,9 @@ public:
                       int& id,
                       RequestAttributes& att,
                       int cluster_id,
-                      const string& cluster_name);
+                      const string& cluster_name) override;
 
-    int get_cluster_id(xmlrpc_c::paramList const& paramList)
+    int get_cluster_id(xmlrpc_c::paramList const& paramList) override
     {
         return RequestManagerAllocate::get_cluster_id(paramList, 2);
     };
@@ -443,7 +443,7 @@ public:
     int add_to_cluster(
             Cluster* cluster,
             int id,
-            string& error_msg)
+            string& error_msg) override
     {
         return clpool->add_to_cluster(PoolObjectSQL::DATASTORE, cluster, id, error_msg);
     };
@@ -471,7 +471,7 @@ public:
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
                                      Template *                  tmpl,
                                      int&                        id,
-                                     RequestAttributes&          att);
+                                     RequestAttributes&          att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -495,7 +495,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template()
+    Template * get_object_template() override
     {
         return new Template;
     };
@@ -503,7 +503,7 @@ public:
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
                                      Template *                  tmpl,
                                      int&                        id,
-                                     RequestAttributes&          att);
+                                     RequestAttributes&          att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -528,9 +528,9 @@ public:
     /* --------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 
-    Template * get_object_template()
+    Template * get_object_template() override
     {
         return new Template;
     };
@@ -538,7 +538,7 @@ public:
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
                                      Template *                  tmpl,
                                      int&                        id,
-                                     RequestAttributes&          att);
+                                     RequestAttributes&          att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -562,7 +562,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template()
+    Template * get_object_template() override
     {
         return new Template;
     };
@@ -594,7 +594,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template()
+    Template * get_object_template() override
     {
         return new Template;
     };
@@ -602,7 +602,7 @@ public:
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
                                      Template *                  tmpl,
                                      int&                        id,
-                                     RequestAttributes&          att);
+                                     RequestAttributes&          att) override;
 };
 
 
@@ -627,7 +627,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template()
+    Template * get_object_template() override
     {
         return new Template;
     };
@@ -635,11 +635,11 @@ public:
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
                                      Template *                  tmpl,
                                      int&                        id,
-                                     RequestAttributes&          att);
+                                     RequestAttributes&          att) override;
 
     bool allocate_authorization(xmlrpc_c::paramList const&  paramList,
             Template *obj_template, RequestAttributes&  att,
-            PoolObjectAuth *cluster_perms);
+            PoolObjectAuth *cluster_perms) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -663,7 +663,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template()
+    Template * get_object_template() override
     {
         return new MarketPlaceTemplate;
     };
@@ -671,7 +671,7 @@ public:
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const& _paramList,
                       Template *                 tmpl,
                       int&                       id,
-                      RequestAttributes&         att);
+                      RequestAttributes&         att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -696,7 +696,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template()
+    Template * get_object_template() override
     {
         return new MarketPlaceAppTemplate;
     };
@@ -704,7 +704,7 @@ public:
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const& _paramList,
                       Template *                 tmpl,
                       int&                       id,
-                      RequestAttributes&         att);
+                      RequestAttributes&         att) override;
 private:
     MarketPlacePool * mppool;
 };
@@ -730,7 +730,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template()
+    Template * get_object_template() override
     {
         return new Template;
     };
@@ -738,7 +738,7 @@ public:
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
                                      Template *                  tmpl,
                                      int&                        id,
-                                     RequestAttributes&          att);
+                                     RequestAttributes&          att) override;
 };
 
 #endif

@@ -41,7 +41,7 @@ protected:
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 
     virtual int replace_template(PoolObjectSQL * object, const string & tmpl,
             const RequestAttributes &att, string &error_str);
@@ -116,7 +116,7 @@ public:
 
     ~VirtualMachineUpdateTemplate(){};
 
-    int extra_updates(PoolObjectSQL * obj)
+    int extra_updates(PoolObjectSQL * obj) override
     {
         VirtualMachine * vm;
 

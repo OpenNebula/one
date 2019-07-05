@@ -35,7 +35,7 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att)
+    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att) override
     {
         std::string error;
         int oid = xmlrpc_c::value_int(pl.getInt(1));

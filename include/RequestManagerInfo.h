@@ -42,8 +42,8 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att) override;
 
     /* -------------------------------------------------------------------- */
 
@@ -73,7 +73,7 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str)
+    void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str) override
     {
         static_cast<VirtualMachine *>(object)->to_xml_extended(str);
     };
@@ -99,7 +99,7 @@ public:
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -122,7 +122,7 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str);
+    void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -146,7 +146,7 @@ public:
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 
@@ -166,7 +166,6 @@ public:
     };
 
     ~ImageInfo(){};
-
 };
 
 /* ------------------------------------------------------------------------- */
@@ -206,7 +205,7 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str)
+    void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str) override
     {
         static_cast<Group*>(object)->to_xml_extended(str);
     };
@@ -231,7 +230,7 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str)
+    void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str) override
     {
         static_cast<User*>(object)->to_xml_extended(str);
     };

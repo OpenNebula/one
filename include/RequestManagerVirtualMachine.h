@@ -123,7 +123,7 @@ public:
     ~VirtualMachineAction(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -143,7 +143,7 @@ public:
     ~VirtualMachineDeploy(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -162,7 +162,7 @@ public:
     ~VirtualMachineMigrate(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -181,7 +181,7 @@ public:
     ~VirtualMachineDiskSaveas(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -200,8 +200,8 @@ public:
 
     ~VirtualMachineMonitoring(){};
 
-    void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+    void request_execute(xmlrpc_c::paramList const& paramList,
+            RequestAttributes& att) override;
 
     virtual bool is_locked(xmlrpc_c::paramList const& paramList, RequestAttributes& att){
         return false;
@@ -236,7 +236,7 @@ public:
 protected:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -256,7 +256,7 @@ public:
     ~VirtualMachineDetach(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -286,7 +286,8 @@ public:
 
 protected:
 
-    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& ra);
+    void request_execute(xmlrpc_c::paramList const& pl,
+            RequestAttributes& ra) override;
 
 };
 
@@ -316,7 +317,8 @@ public:
     ErrorCode request_execute(int id, int nic_id, RequestAttributes& att);
 
 protected:
-    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& ra);
+    void request_execute(xmlrpc_c::paramList const& pl,
+            RequestAttributes& ra) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -335,7 +337,7 @@ public:
     ~VirtualMachineResize(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -357,7 +359,7 @@ public:
     ~VirtualMachineSnapshotCreate(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -379,7 +381,7 @@ public:
     ~VirtualMachineSnapshotRevert(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -401,7 +403,7 @@ public:
     ~VirtualMachineSnapshotDelete(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -417,7 +419,7 @@ public:
     ~VirtualMachineRecover(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -442,8 +444,8 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+    void request_execute(xmlrpc_c::paramList const& paramList,
+            RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -466,7 +468,7 @@ public:
     ~VirtualMachineDiskSnapshotCreate(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 
 private:
     ImagePool* ipool;
@@ -491,7 +493,7 @@ public:
     ~VirtualMachineDiskSnapshotRevert(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -514,7 +516,7 @@ public:
     ~VirtualMachineDiskSnapshotDelete(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 
 private:
     ImagePool* ipool;
@@ -539,7 +541,7 @@ public:
     ~VirtualMachineDiskSnapshotRename(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -558,7 +560,7 @@ public:
     ~VirtualMachineUpdateConf(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 class VirtualMachineDiskResize : public RequestManagerVirtualMachine
@@ -577,7 +579,7 @@ public:
     ~VirtualMachineDiskResize(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 private:
     ImagePool* ipool;
 };

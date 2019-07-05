@@ -62,7 +62,7 @@ public:
     ~ZoneAddServer(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -78,7 +78,7 @@ public:
     ~ZoneDeleteServer(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -94,7 +94,7 @@ public:
     ~ZoneResetServer(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -114,7 +114,7 @@ public:
     ~ZoneReplicateLog(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -132,7 +132,7 @@ public:
     ~ZoneVoteRequest(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -150,7 +150,7 @@ public:
     ~ZoneRaftStatus(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -169,7 +169,7 @@ public:
     ~ZoneReplicateFedLog(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 #endif

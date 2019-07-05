@@ -45,7 +45,7 @@ protected:
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 
     virtual int leases_action(VirtualNetwork * vn,
                               VirtualNetworkTemplate * tmpl,
@@ -74,7 +74,7 @@ public:
     int leases_action(VirtualNetwork * vn,
                       VirtualNetworkTemplate * tmpl,
                       RequestAttributes& att,
-                      string& error_str)
+                      string& error_str) override
     {
         return vn->add_ar(tmpl, error_str);
     }
@@ -101,10 +101,10 @@ public:
         auth_op     = AuthRequest::ADMIN;
     };
 
-    virtual ~VirtualNetworkRmAddressRange(){};
+    ~VirtualNetworkRmAddressRange(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -128,7 +128,7 @@ public:
     ~VirtualNetworkFreeAddressRange(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att)
+            RequestAttributes& att) override
     {
         VirtualNetworkRmAddressRange::request_execute(_paramList, att);
     }
@@ -152,7 +152,7 @@ public:
     int leases_action(VirtualNetwork * vn,
                       VirtualNetworkTemplate * tmpl,
                       RequestAttributes& att,
-                      string& error_str)
+                      string& error_str) override
     {
         if (!att.is_admin())
         {
@@ -179,7 +179,7 @@ public:
     int leases_action(VirtualNetwork * vn,
                       VirtualNetworkTemplate * tmpl,
                       RequestAttributes& att,
-                      string& error_str)
+                      string& error_str) override
     {
         return vn->hold_leases(tmpl, error_str);
     }
@@ -199,7 +199,7 @@ public:
     int leases_action(VirtualNetwork * vn,
                       VirtualNetworkTemplate * tmpl,
                       RequestAttributes& att,
-                      string& error_str)
+                      string& error_str) override
     {
         return vn->free_leases(tmpl, error_str);
     }
@@ -224,7 +224,7 @@ public:
     ~VirtualNetworkReserve(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-        RequestAttributes& att);
+        RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */

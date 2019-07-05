@@ -31,13 +31,13 @@ protected:
         auth_op = AuthRequest::MANAGE;
     };
 
-    virtual ~RequestManagerAllocateDB(){};
+    ~RequestManagerAllocateDB(){};
 
     virtual PoolObjectSQL * create(const std::string& xml) = 0;
 
     /* -------------------------------------------------------------------- */
 
-    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att)
+    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att) override
     {
         std::string xml = xmlrpc_c::value_string(pl.getString(1));
 
@@ -75,11 +75,11 @@ public:
         pool        =  Nebula::instance().get_apppool();
     };
 
-    virtual ~MarketPlaceAppAllocateDB(){};
+    ~MarketPlaceAppAllocateDB(){};
 
     /* -------------------------------------------------------------------- */
 
-    PoolObjectSQL * create(const std::string& xml)
+    PoolObjectSQL * create(const std::string& xml) override
     {
         PoolObjectSQL * app = static_cast<MarketPlaceAppPool *>(pool)->create();
 
@@ -101,11 +101,11 @@ public:
         pool        =  Nebula::instance().get_marketpool();
     };
 
-    virtual ~MarketPlaceAllocateDB(){};
+    ~MarketPlaceAllocateDB(){};
 
     /* -------------------------------------------------------------------- */
 
-    PoolObjectSQL * create(const std::string& xml)
+    PoolObjectSQL * create(const std::string& xml) override
     {
         PoolObjectSQL * mp = static_cast<MarketPlacePool *>(pool)->create();
 

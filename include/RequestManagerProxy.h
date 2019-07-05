@@ -37,7 +37,7 @@ public:
     ~RequestManagerProxy(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 
     void hide_argument(int arg)
     {

@@ -55,7 +55,7 @@ public:
     ~SystemVersion(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -73,7 +73,7 @@ public:
     ~SystemConfig(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -91,7 +91,7 @@ public:
     ~SystemSql(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -109,7 +109,7 @@ public:
     ~SystemSqlQuery(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 private:
 
     class select_cb : public Callbackable
@@ -152,7 +152,7 @@ public:
     ~UserQuotaInfo(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -172,7 +172,7 @@ public:
     ~GroupQuotaInfo(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -193,7 +193,7 @@ protected:
     ~QuotaUpdate(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 
     virtual int set_default_quota(Template *tmpl, string& error) = 0;
 
@@ -213,9 +213,9 @@ public:
         auth_op = AuthRequest::ADMIN;
     };
 
-    int set_default_quota(Template *tmpl, string& error);
+    int set_default_quota(Template *tmpl, string& error) override;
 
-    const DefaultQuotas* get_default_quota();
+    const DefaultQuotas* get_default_quota() override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -231,9 +231,9 @@ public:
         auth_op = AuthRequest::ADMIN;
     };
 
-    int set_default_quota(Template *tmpl, string& error);
+    int set_default_quota(Template *tmpl, string& error) override;
 
-    const DefaultQuotas* get_default_quota();
+    const DefaultQuotas* get_default_quota() override;
 };
 
 /* -------------------------------------------------------------------------- */

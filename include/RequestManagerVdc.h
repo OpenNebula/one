@@ -70,7 +70,7 @@ public:
     ~VdcAddGroup(){};
 
     int edit_group(
-            Vdc* vdc, int group_id, string& error_msg);
+            Vdc* vdc, int group_id, string& error_msg) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -85,7 +85,7 @@ public:
     ~VdcDelGroup(){};
 
     int edit_group(
-            Vdc* vdc, int group_id, string& error_msg);
+            Vdc* vdc, int group_id, string& error_msg) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -143,7 +143,7 @@ public:
 
     ~VdcAddCluster(){};
 
-    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg);
+    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -158,7 +158,7 @@ public:
 
     ~VdcDelCluster(){};
 
-    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg);
+    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -172,7 +172,7 @@ public:
 
     ~VdcAddHost(){};
 
-    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg);
+    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -186,7 +186,7 @@ public:
 
     ~VdcDelHost(){};
 
-    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg);
+    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -201,7 +201,7 @@ public:
 
     ~VdcAddDatastore(){};
 
-    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg);
+    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -216,7 +216,7 @@ public:
 
     ~VdcDelDatastore(){};
 
-    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg);
+    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -231,7 +231,7 @@ public:
 
     ~VdcAddVNet(){};
 
-    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg);
+    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -246,7 +246,7 @@ public:
 
     ~VdcDelVNet(){};
 
-    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg);
+    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
 };
 
 /* -------------------------------------------------------------------------- */

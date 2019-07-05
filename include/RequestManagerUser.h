@@ -46,7 +46,7 @@ protected:
 
     void request_execute(
             xmlrpc_c::paramList const&  _paramList,
-            RequestAttributes&          att);
+            RequestAttributes&          att) override;
 
     virtual int user_action(int                        user_id,
                             xmlrpc_c::paramList const& _paramList,
@@ -76,7 +76,7 @@ public:
     int user_action(int                        user_id,
                     xmlrpc_c::paramList const& _paramList,
                     RequestAttributes&         att,
-                    string&                    err);
+                    string&                    err) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -99,7 +99,7 @@ public:
     int user_action(int                        user_id,
                     xmlrpc_c::paramList const& _paramList,
                     RequestAttributes&         att,
-                    string&                    err);
+                    string&                    err) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -121,7 +121,7 @@ public:
     int user_action(int                        user_id,
                     xmlrpc_c::paramList const& _paramList,
                     RequestAttributes&         att,
-                    string&                    err);
+                    string&                    err) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -146,7 +146,7 @@ public:
 
     void request_execute(
             xmlrpc_c::paramList const&  _paramList,
-            RequestAttributes&          att);
+            RequestAttributes&          att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -173,7 +173,7 @@ public:
 
     void request_execute(
             xmlrpc_c::paramList const&  _paramList,
-            RequestAttributes&          att);
+            RequestAttributes&          att) override;
 
 protected:
 
@@ -205,7 +205,7 @@ public:
                 int                        user_id,
                 int                        group_id,
                 xmlrpc_c::paramList const& _paramList,
-                string&                    error_str);
+                string&                    error_str) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -225,7 +225,7 @@ public:
             int                        user_id,
             int                        group_id,
             xmlrpc_c::paramList const& _paramList,
-            string&                    error_str);
+            string&                    error_str) override;
 };
 
 /* -------------------------------------------------------------------------- */

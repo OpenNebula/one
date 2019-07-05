@@ -151,7 +151,7 @@ public:
     ~ClusterAddHost(){};
 
     void request_execute(xmlrpc_c::paramList const& paramList,
-                         RequestAttributes& att)
+                         RequestAttributes& att) override
     {
         int cluster_id  = xmlrpc_c::value_int(paramList.getInt(1));
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
@@ -174,7 +174,7 @@ public:
     ~ClusterDelHost(){};
 
     void request_execute(xmlrpc_c::paramList const& paramList,
-                         RequestAttributes& att)
+                         RequestAttributes& att) override
     {
         // First param is ignored, as objects can be assigned to only
         // one cluster
@@ -202,17 +202,17 @@ public:
     virtual int add_object(
             Cluster* cluster,
             int id,
-            string& error_msg)
+            string& error_msg) override
     {
         return clpool->add_to_cluster(PoolObjectSQL::DATASTORE, cluster, id, error_msg);
     };
 
-    virtual int del_object(Cluster* cluster, int id, string& error_msg)
+    virtual int del_object(Cluster* cluster, int id, string& error_msg) override
     {
         return clpool->del_from_cluster(PoolObjectSQL::DATASTORE, cluster, id, error_msg);
     };
 
-    virtual void get(int oid, PoolObjectSQL ** object, Clusterable ** cluster_obj)
+    virtual void get(int oid, PoolObjectSQL ** object, Clusterable ** cluster_obj) override
     {
         Datastore * ds = dspool->get(oid);
 
@@ -235,7 +235,7 @@ public:
     ~ClusterAddDatastore(){};
 
     void request_execute(xmlrpc_c::paramList const& paramList,
-                         RequestAttributes& att)
+                         RequestAttributes& att) override
     {
         int cluster_id  = xmlrpc_c::value_int(paramList.getInt(1));
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
@@ -259,7 +259,7 @@ public:
     ~ClusterDelDatastore(){};
 
     void request_execute(xmlrpc_c::paramList const& paramList,
-                         RequestAttributes& att)
+                         RequestAttributes& att) override
     {
         int cluster_id  = xmlrpc_c::value_int(paramList.getInt(1));
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
@@ -287,17 +287,17 @@ public:
     virtual int add_object(
             Cluster* cluster,
             int id,
-            string& error_msg)
+            string& error_msg) override
     {
         return clpool->add_to_cluster(PoolObjectSQL::NET, cluster, id, error_msg);
     };
 
-    virtual int del_object(Cluster* cluster, int id, string& error_msg)
+    virtual int del_object(Cluster* cluster, int id, string& error_msg) override
     {
         return clpool->del_from_cluster(PoolObjectSQL::NET, cluster, id, error_msg);
     };
 
-    virtual void get(int oid, PoolObjectSQL ** object, Clusterable ** cluster_obj)
+    virtual void get(int oid, PoolObjectSQL ** object, Clusterable ** cluster_obj) override
     {
         VirtualNetwork * vnet = vnpool->get(oid);
 
@@ -320,7 +320,7 @@ public:
     ~ClusterAddVNet(){};
 
     void request_execute(xmlrpc_c::paramList const& paramList,
-                         RequestAttributes& att)
+                         RequestAttributes& att) override
     {
         int cluster_id  = xmlrpc_c::value_int(paramList.getInt(1));
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
@@ -344,7 +344,7 @@ public:
     ~ClusterDelVNet(){};
 
     void request_execute(xmlrpc_c::paramList const& paramList,
-                         RequestAttributes& att)
+                         RequestAttributes& att) override
     {
         int cluster_id  = xmlrpc_c::value_int(paramList.getInt(1));
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
