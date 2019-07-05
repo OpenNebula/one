@@ -51,6 +51,7 @@ module VCenterDriver
 
         DNET_CARD         = RbVmomi::VIM::VirtualEthernetCardDistributedVirtualPortBackingInfo
         NET_CARD          = RbVmomi::VIM::VirtualEthernetCardNetworkBackingInfo
+        OPAQUE_CARD       = RbVmomi::VIM::VirtualEthernetCardOpaqueNetworkBackingInfo
 
         VM_SHUTDOWN_TIMEOUT = 600 #10 minutes til poweroff hard
 
@@ -718,8 +719,17 @@ module VCenterDriver
 
                 if backing.class == NET_CARD
                     key = backing.network._ref
-                else
+                elsif backing.class == DNET_CARD
                     key = backing.port.portgroupKey
+                elsif backing.class == OPAQUE_CARD
+                    # Select only Opaque Networks
+                    opaqueNetworks = @item.network.select{|net| 
+                        RbVmomi::VIM::OpaqueNetwork == net.class}
+                    opaqueNetwork = opaqueNetworks.find{|opn| 
+                        backing.opaqueNetworkId == opn.summary.opaqueNetworkId}
+                    key = opaqueNetwork._ref
+                else
+                    raise "Unsupported network card type: #{backing.class}"
                 end
 
                 @nics["#{key}#{d.key}"] = Nic.vc_nic(d)
@@ -866,7 +876,7 @@ module VCenterDriver
 
             begin
                 if !unmanaged_nics.empty?
-                    nics  = get_vcenter_nics
+                    nics = get_vcenter_nics
 
                     select_net =->(ref){
                         device = nil
@@ -874,8 +884,17 @@ module VCenterDriver
                             type = nic.backing.class
                             if type == NET_CARD
                                 nref = nic.backing.network._ref
-                            else
+                            elsif type == DNET_CARD
                                 nref = nic.backing.port.portgroupKey
+                            elsif type == OPAQUE_CARD
+                                # Select only Opaque Networks
+                                opaqueNetworks = @item.network.select{|net|
+                                    RbVmomi::VIM::OpaqueNetwork == net.class}
+                                opaqueNetwork = opaqueNetworks.find{|opn|
+                                    nic.backing.opaqueNetworkId == opn.summary.opaqueNetworkId}
+                                nref = opaqueNetwork._ref
+                            else
+                                raise "Unsupported network card type: #{nic.backing.class}"
                             end
 
                             next unless nref == ref
@@ -1237,7 +1256,7 @@ module VCenterDriver
                 backing = RbVmomi::VIM.VirtualEthernetCardNetworkBackingInfo(
                             :deviceName => pg_name,
                             :network    => network)
-            else
+            elsif network.class == RbVmomi::VIM::DistributedVirtualPortgroup
                 port    = RbVmomi::VIM::DistributedVirtualSwitchPortConnection(
                             :switchUuid =>
                                     network.config.distributedVirtualSwitch.uuid,
@@ -1245,6 +1264,12 @@ module VCenterDriver
                 backing =
                   RbVmomi::VIM.VirtualEthernetCardDistributedVirtualPortBackingInfo(
                     :port => port)
+            elsif network.class == RbVmomi::VIM::OpaqueNetwork
+                backing = RbVmomi::VIM.VirtualEthernetCardOpaqueNetworkBackingInfo(
+                            :opaqueNetworkId => network.summary.opaqueNetworkId,
+                            :opaqueNetworkType => "nsx.LogicalSwitch")
+            else
+                raise "Unknown network class"
             end
 
             # grab the last unitNumber to ensure the nic to be added at the end
