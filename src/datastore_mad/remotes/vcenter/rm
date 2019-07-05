@@ -82,11 +82,11 @@ begin
             rescue StandardError => e
 
               if (retries += 1) < VCenterDriver::CONFIG[:retries]
-                message = "Delete DISK #{vm_ref} failed due to "\
+                message = "Delete DISK #{img_name} failed due to "\
                         "\"#{e.message}\"\n#{e.backtrace.join("\n")} "\
                         "on the attempt \##{retries}\n#{e.backtrace.join("\n")}"
               else
-                message = "Delete DISK #{vm_ref} failed due to "\
+                message = "Delete DISK #{img_name} failed due to "\
                         "\"#{e.message}\"\n#{e.backtrace.join("\n")} "\
                         "on the final attempt\n#{e.backtrace.join("\n")}"
               end
@@ -106,11 +106,11 @@ begin
             rescue StandardError => e
 
               if (retries += 1) < VCenterDriver::CONFIG[:retries]
-                message = "Delete CDROM #{vm_ref} failed due to "\
+                message = "Delete CDROM #{img_name} failed due to "\
                         "\"#{e.message}\"\n#{e.backtrace.join("\n")} "\
                         "on the attempt \##{retries}\n#{e.backtrace.join("\n")}"
               else
-                message = "Delete CDROM #{vm_ref} failed due to "\
+                message = "Delete CDROM #{img_name} failed due to "\
                         "\"#{e.message}\"\n#{e.backtrace.join("\n")} "\
                         "on the final attempt\n#{e.backtrace.join("\n")}"
               end
