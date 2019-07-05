@@ -181,6 +181,12 @@ CommandParser::CmdParser.new(ARGV) do
             importer.retrieve_resources(helper.parse_opts(options))
             indexes = importer.get_indexes(args.first)
 
+            if indexes.nil?
+                raise "Could not get any unimported #{options[:object]}"\
+                    " resources info in host: #{options[:host]} with"\
+                    " this input: #{args.first}"
+            end
+
             importer.process_import(indexes) do |object_info|
                 helper.cli_dialogue(object_info)
             end
