@@ -211,7 +211,7 @@ class Network
         when "DistributedVirtualPortgroup"
             return "Distributed Port Group"
         when "Network"
-            return "Standard Port Group"
+            return "Port Group"
         when "OpaqueNetwork"
             return "Opaque Network"
         else 

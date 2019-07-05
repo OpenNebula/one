@@ -332,8 +332,6 @@ class DatacenterFolder
     end
 
     def get_unimported_networks(npool,vcenter_instance_name, hpool)
-      require 'pry-byebug'
-      binding.pry
         vcenter_uuid = get_vcenter_instance_uuid
         pc = @vi_client.vim.serviceContent.propertyCollector
 
