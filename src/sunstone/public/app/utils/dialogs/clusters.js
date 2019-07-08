@@ -82,9 +82,7 @@ define(function(require) {
 
     $("#" + DIALOG_ID + "Form", dialog).submit(function() {
       var selectedClustersList = that.clustersTable.retrieveResourceTableSelect();
-
       if ( that.only_update_template != undefined && that.only_update_template != true) {
-
         $.each(selectedClustersList, function(index, clusterId) {
           if ($.inArray(clusterId, that.originalClusterIds) === -1) {
             if(that.resource == "datastore"){
@@ -94,7 +92,6 @@ define(function(require) {
             }
           }
         });
-
         $.each(that.originalClusterIds, function(index, clusterId) {
           if ($.inArray(clusterId, selectedClustersList) === -1) {
             if(that.resource == "datastore"){
@@ -111,9 +108,7 @@ define(function(require) {
 
       Sunstone.getDialog(DIALOG_ID).hide();
       Sunstone.getDialog(DIALOG_ID).reset();
-
       setTimeout(function() {
-        console.log("n");
         Sunstone.runAction(that.resource_name+".refresh");
       }, 1500);
 

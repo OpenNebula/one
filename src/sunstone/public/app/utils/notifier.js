@@ -41,8 +41,22 @@ define(function(require) {
   //Notification on error
   var _notifyError = function(msg, target=undefined, context=undefined) {
     if(target && context){
-      var tab = $(target).find($(".is-invalid-input",context)).closest(".tabs-panel",context);
-      tab.parent().siblings($(".tabs",context)).find($("a[href$=\"#"+tab.attr("id")+"\"]",context)).click();
+      var tab = $(target).find($(".is-invalid-input",context));
+      tab.parents().each(
+        function(id,element){
+          var parent = $(element); 
+          if(parent.hasClass("tabs-panel")){
+            var tabs = parent.parent().siblings($(".tabs",context));
+            if(tabs && tabs.length){
+              var find = tabs.find($("a[href$=\"#"+parent.attr("id")+"\"]",context))
+              if(find && find.length){
+                find.click();
+                return false;
+              }
+            }
+          }
+        }
+      );
     }
     $.jGrowl(msg, {theme: "jGrowl-notify-error", position: "bottom-right", sticky: true});
   };

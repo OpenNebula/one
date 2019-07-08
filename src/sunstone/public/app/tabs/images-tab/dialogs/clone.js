@@ -104,7 +104,6 @@ define(function(require) {
       Sunstone.getDialog(DIALOG_ID).hide();
       Sunstone.getDialog(DIALOG_ID).reset();
       setTimeout(function() {
-        console.log("d");
         Sunstone.runAction("Image.refresh");
       }, 1500);
       return false;
