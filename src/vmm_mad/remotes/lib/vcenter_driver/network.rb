@@ -205,11 +205,17 @@ class Network
         one_vn
     end
 
-    def self.get_network_type(device)
-        if device.backing.is_a? RbVmomi::VIM::VirtualEthernetCardDistributedVirtualPortBackingInfo
+    def self.get_network_type(network)
+        netString = network.class.to_s
+        case netString
+        when "DistributedVirtualPortgroup"
             return "Distributed Port Group"
-        else
+        when "Network"
             return "Port Group"
+        when "OpaqueNetwork"
+            return "Opaque Network"
+        else 
+            return "Network not defined" 
         end
     end
 
@@ -268,6 +274,8 @@ class DistributedPortGroup < Network
 
     def clusters
         net_clusters = {}
+        # should have to work
+        # host_members =@item['host']
         host_members = self['config.distributedVirtualSwitch.summary.hostMember']
         host_members.each do |h|
             if !net_clusters.key?(h.parent._ref.to_s)
@@ -281,6 +289,32 @@ class DistributedPortGroup < Network
         "Distributed Port Group"
     end
 end # class DistributedPortGroup
+
+class OpaqueNetwork < Network
+
+    def initialize(item, vi_client=nil)
+
+        check_item(item, RbVmomi::VIM::OpaqueNetwork)
+
+        @vi_client = vi_client
+        @item = item
+    end
+
+    def clusters
+        net_clusters = {}
+        host_members =@item['host']
+        host_members.each do |h|
+            if !net_clusters.key?(h.parent._ref.to_s)
+              net_clusters[h.parent._ref.to_s] = h.parent.name.to_s
+            end
+        end
+        net_clusters
+    end
+
+    def network_type
+        "Opaque Network"
+    end
+end # class OpaqueNetwork
 
 class DistributedVirtualSwitch < Network
 

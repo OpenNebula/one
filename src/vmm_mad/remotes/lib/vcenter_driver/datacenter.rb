@@ -332,14 +332,13 @@ class DatacenterFolder
     end
 
     def get_unimported_networks(npool,vcenter_instance_name, hpool)
-
         vcenter_uuid = get_vcenter_instance_uuid
         pc = @vi_client.vim.serviceContent.propertyCollector
 
         #Get all port groups and distributed port groups in vcenter instance
         view = @vi_client.vim.serviceContent.viewManager.CreateContainerView({
                 container: @vi_client.vim.rootFolder,
-                type:      ['Network','DistributedVirtualPortgroup'],
+                type:      ['Network','DistributedVirtualPortgroup','OpaqueNetwork'],
                 recursive: true
         })
 
@@ -358,7 +357,8 @@ class DatacenterFolder
             ],
             :propSet => [
                 { :type => 'Network', :pathSet => ['name'] },
-                { :type => 'DistributedVirtualPortgroup', :pathSet => ['name'] }
+                { :type => 'DistributedVirtualPortgroup', :pathSet => ['name'] },
+                { :type => 'OpaqueNetwork', :pathSet => ['name'] }
             ]
         )
         result = pc.RetrieveProperties(:specSet => [filterSpec])
@@ -372,8 +372,19 @@ class DatacenterFolder
                     npool)
 
             next if exist
-            networks[r.obj._ref] = r.to_hash if r.obj.is_a?(RbVmomi::VIM::DistributedVirtualPortgroup) || r.obj.is_a?(RbVmomi::VIM::Network)
-            networks[r.obj._ref][:network_type] = r.obj.is_a?(RbVmomi::VIM::DistributedVirtualPortgroup) ? "Distributed Port Group" : "Port Group"
+
+            networks[r.obj._ref] = r.to_hash if r.obj.is_a?(RbVmomi::VIM::DistributedVirtualPortgroup) || r.obj.is_a?(RbVmomi::VIM::Network) || r.obj.is_a?(RbVmomi::VIM::OpaqueNetwork)
+
+            if r.obj.is_a?(RbVmomi::VIM::DistributedVirtualPortgroup)
+                networks[r.obj._ref][:network_type] = "Distributed Port Group"
+            elsif r.obj.is_a?(RbVmomi::VIM::Network)
+                networks[r.obj._ref][:network_type] = "Port Group"
+            elsif r.obj.is_a?(RbVmomi::VIM::OpaqueNetwork)
+                networks[r.obj._ref][:network_type] = "Opaque Network"
+            else
+                networks[r.obj._ref][:network_type] = "Unknown Network"
+            end
+            # networks[r.obj._ref][:network_type] = r.obj.is_a?(RbVmomi::VIM::DistributedVirtualPortgroup) ? "Distributed Port Group" : "Port Group"
             networks[r.obj._ref][:uplink] = false
             networks[r.obj._ref][:processed] = false
 
