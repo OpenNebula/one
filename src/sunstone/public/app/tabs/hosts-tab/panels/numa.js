@@ -136,9 +136,7 @@ define(function(require) {
           //MEMORY
           if(infoNode.MEMORY){
             var infoMemory = infoNode.MEMORY;
-            console.log("MEMORY ->", infoMemory);
             memory.append($("<h4/>").text("Memory"));
-
             var total = infoMemory && infoMemory.TOTAL? parseInt(infoMemory.TOTAL): 0;
             var used = infoMemory && infoMemory.TOTAL? parseInt(infoMemory.USED) : 0;
             var parser = Humanize.sizeFromKB;
