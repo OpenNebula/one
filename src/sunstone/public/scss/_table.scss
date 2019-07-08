@@ -32,6 +32,34 @@ table {
     border-bottom: 1px solid smart-scale($table-background, $table-hover-scale);
     border-left: 0;
     border-right: 0;
+    td{
+      .cpu{
+        margin: -1px;
+        padding: 0px;
+        a,.no-vm{
+          color: $white;
+          font-weight: bold;
+          padding: 5px;
+          display: inline-block;
+          width: 100%;
+          box-sizing: border-box;
+        }
+      }
+
+      .busy{
+        background-color: $busy;
+        color: $white;
+        font-weight: bold;
+        border: 1px solid;
+      }
+
+      .free{
+        background-color: $free;
+        font-weight: bold;
+        color: $white;
+        border: 1px solid;
+      }
+    }
   }
 
   tfoot {

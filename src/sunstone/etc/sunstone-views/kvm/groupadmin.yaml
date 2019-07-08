@@ -531,6 +531,7 @@ tabs:
             host_zombies_tab: true
             host_esx_tab: true
             host_pci_tab: true
+            host_numa_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
