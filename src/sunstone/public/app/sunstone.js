@@ -1247,11 +1247,10 @@ define(function(require) {
     var dialogInstance = SunstoneCfg["dialogInstances"][dialogId];
     if (dialogInstance == undefined) {
       var Dialog = SunstoneCfg["dialogs"][dialogId];
-      var dialogInstance = new Dialog();
+      dialogInstance = new Dialog();
       dialogInstance.insert();
       SunstoneCfg["dialogInstances"][dialogId] = dialogInstance;
     }
-
     return dialogInstance;
   };
 
