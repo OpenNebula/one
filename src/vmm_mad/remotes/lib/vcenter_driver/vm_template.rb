@@ -445,7 +445,7 @@ class Template
             ccr_ref  = self["runtime.host.parent._ref"]
             ccr_name = self["runtime.host.parent.name"]
 
-            #Get disks and info required
+            #Get nics and info required
             vc_nics = get_vcenter_nics_hash
 
             # Track allocated networks for rollback
@@ -665,38 +665,73 @@ class Template
         nics
     end
 
-    def retrieve_from_device(device)
-        res = {}
-
-        # Lets find out if it is a standard or distributed network
-        # If distributed, it needs to be instantiated from the ref
-        vim_eth_dist_class =
-            RbVmomi::VIM::VirtualEthernetCardDistributedVirtualPortBackingInfo
-
-        if device.backing.is_a? vim_eth_dist_class
-            if device.backing.port.portKey &&
-               device.backing.port.portKey.match(/^[a-z]+-\d+$/)
-                ref = device.backing.port.portKey
-            elsif device.backing.port.portgroupKey &&
-                  device.backing.port.portgroupKey.match(/^[a-z]+-\d+$/)
-                ref = device.backing.port.portgroupKey
+    def identify_network(identifier, network)
+        if network.class == RbVmomi::VIM::DistributedVirtualPortgroup
+            if identifier == network.key
+                return network
             else
-                raise "Cannot get hold of Network for device #{device}"
+                return nil
             end
-
-            network = RbVmomi::VIM::Network.new(@vi_client.vim, ref)
-        else
-            network = device.backing.network
         end
 
-        res[:refs] = network.host.map do |h|
+        if network.class == RbVmomi::VIM::Network
+            if identifier == network
+                return network
+            else
+                return nil
+            end
+        end
+
+        if network.class == RbVmomi::VIM::OpaqueNetwork
+            if identifier == network.summary.opaqueNetworkId
+                return network
+            else
+                return nil
+            end
+        end
+    end
+
+    def retrieve_from_device(device)
+        deviceNetwork = nil
+        deviceNetworkId = nil
+        # First search network corresponding this device
+        # Distributed Networks and NSX-V Networks
+        if device.backing[:port] != nil
+            deviceNetworkId = device.backing.port.portgroupKey
+        # Standard Networks
+        elsif device.backing[:network] != nil
+            deviceNetworkId = device.backing[:network]
+        # NSX-T Opaque Networks
+        elsif device.backing[:opaqueNetworkId] != nil
+            deviceNetworkId = device.backing[:opaqueNetworkId]
+        end
+
+        # Check if networkId exists
+        if deviceNetworkId == nil
+            raise "Invalid or not supported network #{device.backing}"
+        end
+
+        # Matching between device and network objects
+        @item.network.each do |net|
+            deviceNetwork = identify_network(deviceNetworkId, net)
+            break unless deviceNetwork.nil?
+        end
+
+        # Check network matching
+        if deviceNetwork.nil?
+            raise "\"#{device.deviceInfo.label}\" not match any known network"
+        end
+
+        res = {}
+
+        res[:refs] = deviceNetwork.host.map do |h|
             h.parent._ref if h.parent
         end
 
-        res[:net_name]  = network.name
-        res[:net_ref]   = network._ref
-        res[:pg_type]   = VCenterDriver::Network.get_network_type(device)
-        res[:network]   = network
+        res[:net_name]  = deviceNetwork.name
+        res[:net_ref]   = deviceNetwork._ref
+        res[:pg_type]   = VCenterDriver::Network.get_network_type(deviceNetwork)
+        res[:network]   = deviceNetwork
 
         res
     end
@@ -719,6 +754,7 @@ class Template
         nics = []
         inets_raw = nil
         inets = {}
+
         @item["config.hardware.device"].each do |device|
             next unless is_nic?(device)
 
