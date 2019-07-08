@@ -107,12 +107,27 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
         return 0;
     }
 
-    //Generate dynamic context attributes
-    int rc = generate_network_context(context, error_str, false); //no AUTO mode
+    History::VMAction action;
+    int rc = 0;
 
-    if ( rc == 0 )
+    if ( hasPreviousHistory() )
     {
-        rc = generate_network_context(context, error_str, true); //AUTO mode
+        action = previous_history->action;
+    }
+
+    if ( !hasPreviousHistory() ||
+        ( action != History::ALIAS_DETACH_ACTION &&
+          action != History::NIC_DETACH_ACTION ) )
+    {
+        //Generate dynamic context attributes
+        // no AUTO mode
+        rc = generate_network_context(context, error_str, false);
+
+        if ( rc == 0 )
+        {
+            //AUTO mode
+            rc = generate_network_context(context, error_str, true);
+        }
     }
 
     if ( rc != 0 )
