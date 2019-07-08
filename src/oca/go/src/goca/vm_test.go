@@ -204,6 +204,15 @@ func (s *VMSuite) TestVMResume(c *C) {
 }
 
 func (s *VMSuite) TestVMResize(c *C) {
+	expectHostState := func(host *Host) func() bool {
+		return func() bool {
+			host.Info()
+			state, _ := host.StateString()
+
+			return state == "MONITORED"
+		}
+	}
+
 	vm := NewVM(s.vmID)
 	err := vm.Deploy(s.hostID, false, -1)
 	c.Assert(err, IsNil)
@@ -212,6 +221,8 @@ func (s *VMSuite) TestVMResize(c *C) {
 	err = vm.Poweroff()
 	c.Assert(err, IsNil)
 	c.Assert(WaitResource(VMExpectState(c, vm, "POWEROFF", "")), Equals, true)
+
+	c.Assert(WaitResource(expectHostState(NewHost(s.hostID))), Equals, true)
 
 	err = vm.Resize("CPU=2.5\nMEMORY=512", false)
 	c.Assert(err, IsNil)
