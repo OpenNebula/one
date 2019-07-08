@@ -153,7 +153,7 @@ module OneDBFsck
                 # IP
                 unless ar.at_xpath('IP').nil?
                     first_ip = IPAddr.new(ar.at_xpath('IP').text.strip,
-                                          Socket::AF_INET)
+                                          Socket::AF_INET).to_s
                 end
 
                 # IP6
@@ -292,7 +292,7 @@ module OneDBFsck
             net_ar.at_xpath('IP').content = ip
         end
 
-        [error, IPAddr.new(ip, Socket::AF_INET)]
+        [error, IPAddr.new(ip, Socket::AF_INET).to_s]
     end
 
     # Check VNet VN_MAD
