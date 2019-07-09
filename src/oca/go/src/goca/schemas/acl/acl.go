@@ -18,11 +18,16 @@ package acl
 
 // Pool represents an OpenNebula ACL pool
 type Pool struct {
+	ACLs []ACL `xml:"ACL"`
+}
+
+// ACL represents an OpenNebula ACL
+type ACL struct {
 	ID       int    `xml:"ID"`
-	User     int    `xml:"USER"`
-	Resource int    `xml:"RESOURCE"`
-	Rights   int    `xml:"RIGHTS"`
-	Zone     int    `xml:"ZONE"`
+	User     string `xml:"USER"`
+	Resource string `xml:"RESOURCE"`
+	Rights   string `xml:"RIGHTS"`
+	Zone     string `xml:"ZONE"`
 	String   string `xml:"STRING"`
 }
 

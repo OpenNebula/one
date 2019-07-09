@@ -42,16 +42,29 @@ func (c *Controller) Zone(id int) *ZoneController {
 
 // ByName returns a zone id from name
 func (c *ZonesController) ByName(name string) (int, error) {
+	var id int
+
 	zonePool, err := c.Info()
 	if err != nil {
 		return 0, err
 	}
 
-	if zonePool.Name != name {
+	match := false
+	for i := 0; i < len(zonePool.Zones); i++ {
+		if zonePool.Zones[i].Name != name {
+			continue
+		}
+		if match {
+			return 0, errors.New("multiple resources with that name")
+		}
+		id = zonePool.Zones[i].ID
+		match = true
+	}
+	if !match {
 		return 0, errors.New("resource not found")
 	}
 
-	return zonePool.ID, nil
+	return id, err
 }
 
 // Info returns a zone pool. A connection to OpenNebula is

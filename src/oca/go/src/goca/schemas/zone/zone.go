@@ -22,10 +22,7 @@ import (
 
 // Pool represents an OpenNebula Zone pool
 type Pool struct {
-	ID         int      `xml:"ZONE>ID"`
-	Name       string   `xml:"ZONE>NAME"`
-	Template   Template `xml:"ZONE>TEMPLATE"`
-	ServerPool []Server `xml:"ZONE>SERVER_POOL>SERVER"`
+	Zones []Zone `xml:"ZONE"`
 }
 
 // Zone represents an OpenNebula Zone
