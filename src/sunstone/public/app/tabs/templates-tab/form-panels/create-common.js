@@ -49,7 +49,8 @@ define(function(require) {
     require("./create/wizard-tabs/scheduling"),
     require("./create/wizard-tabs/hybrid"),
     require("./create/wizard-tabs/vmgroup"),
-    require("./create/wizard-tabs/other")
+    require("./create/wizard-tabs/other"),
+    require("./create/wizard-tabs/numa")
   ];
 
   var TEMPLATES_TAB_ID = require("tabs/templates-tab/tabId");

@@ -19,7 +19,9 @@ define(function(require) {
     DEPENDENCIES
    */
   var ProgressBar = require('utils/progress-bar');
-  var Humanize = require('utils/humanize')
+  var Humanize = require('utils/humanize');
+  var Sunstone = require('sunstone');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     TEMPLATES
@@ -32,7 +34,8 @@ define(function(require) {
    */
 
   var PANEL_ID = require('./numa/panelId');
-  var RESOURCE = "Host"
+  var RESOURCE = "Host";
+  var SELECT_ID = "numa-pinned-host";
 
   /*
     CONSTRUCTOR
@@ -41,20 +44,14 @@ define(function(require) {
   function Panel(info) {
     this.title = Locale.tr("Numa");
     this.icon = "fa-chart-pie";
-
     this.element = info[RESOURCE.toUpperCase()];
-
-    // Do not create an instance of this panel if no vcenter hypervisor
-    /*if (this.element.TEMPLATE.HYPERVISOR === "vcenter") {
-      throw "Panel not available for this element";
-    }*/
-
     return this;
   };
 
   Panel.PANEL_ID = PANEL_ID;
   Panel.prototype.html = _html;
   Panel.prototype.setup = _setup;
+  Panel.prototype.onShow = _onShow;
 
   return Panel;
 
@@ -66,16 +63,24 @@ define(function(require) {
     return TemplateNUMA();
   }
 
+  function _onShow(context){
+    var that = this;
+    $("#"+SELECT_ID).change(function(e){
+      if(that.element && that.element.ID && that.element.TEMPLATE){
+        var template = $.extend({}, that.element.TEMPLATE);
+        template.PIN_POLICY = $(this).val();
+        template_str  = TemplateUtils.templateToString(template);
+        Sunstone.runAction(RESOURCE + ".update_template", that.element.ID, template_str);
+      }
+    });
+  }
+
   function capitalize(string){
-    if (typeof string !== 'string'){ 
-      return '';
-    }
-    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+    return typeof string !== 'string'? "" : string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   }
 
   function _setup(context) {
     var that = this;
-
     if (that && that.element && that.element.HOST_SHARE && that.element.HOST_SHARE.NUMA_NODES) {
       var numaNodes = that.element.HOST_SHARE.NUMA_NODES;
       if (!(numaNodes instanceof Array)) {
@@ -83,10 +88,24 @@ define(function(require) {
       }
       
       numaNodes.map(function(node,i){
-        var title = $("<h3/>");
+        
+        var title = $("<h5/>");
         var coreTable = $("<table/>");
         var memory = $("<div/>",{'class':'memory'});
         var hugepage = $("<div/>",{'class':'hugepage'});
+        var selectTable = coreTable.clone();
+        selectTable.append($("<thead/>").append($("<tr>").append($("<th/>").text("Pin Policy"))));
+        selectTable.append($("<tbody>").append($("<tr>").append($("<td/>"))));
+        var options = [{'value':'NONE'},{'value':'PINNED'}]
+        var select = $("<select/>",{'id': SELECT_ID});
+        options.map(function(element){
+          if(element && element.value){
+            var selected = that && that.element && that.element.TEMPLATE && that.element.TEMPLATE.PIN_POLICY && that.element.TEMPLATE.PIN_POLICY === element.value
+            select.append($("<option/>",{'value':element.value}).text(capitalize(element.value)).prop('selected', selected));
+          }
+        });
+        selectTable.find("td").append(select);
+
         if(node && node.NODE){
           var infoNode = node.NODE
           title.text(infoNode.NODE_ID? "Node #"+infoNode.NODE_ID : "")
@@ -107,7 +126,7 @@ define(function(require) {
               }
               placeBody.append(
                 $("<td/>",{"colspan":2,"class":"text-center"}).append(
-                  $("<h5/>").text(core.ID? "Core #"+core.ID : "")
+                  $("<h6/>").text(core.ID? "Core #"+core.ID : "")
                 )
               );
               if(core.CPUS){
@@ -136,7 +155,7 @@ define(function(require) {
           //MEMORY
           if(infoNode.MEMORY){
             var infoMemory = infoNode.MEMORY;
-            memory.append($("<h4/>").text("Memory"));
+            memory.append($("<h6/>").text("Memory"));
             var total = infoMemory && infoMemory.TOTAL? parseInt(infoMemory.TOTAL): 0;
             var used = infoMemory && infoMemory.TOTAL? parseInt(infoMemory.USED) : 0;
             var parser = Humanize.sizeFromKB;
@@ -155,11 +174,11 @@ define(function(require) {
           //HUGEPAGE
           if(infoNode.HUGEPAGE){
             var infoHugepages = infoNode.HUGEPAGE;
-            hugepage.append($("<h4/>").text("Hugepage"));
+            hugepage.append($("<h6/>").text("Hugepage"));
             var row = $("<div/>",{'class':'row'});
             infoHugepages.map(function(element,index){
               hugePlace = $("<div/>",{"class":"small-6 columns"});
-              hugeTitle = hugePlace.append($("<h5/>").text("#"+index));
+              hugeTitle = hugePlace.append($("<h6/>").text("#"+index));
               hugepageTable = $("<table/>");
               for (var info in element){
                 hugepageTable.append(
@@ -177,7 +196,7 @@ define(function(require) {
             hugepage.append(row);
           }
         }
-        $("#placeNumaInfo").append(title.add(coreTable).add(memory).add(hugepage));
+        $("#placeNumaInfo").append(selectTable.add(title).add(coreTable).add(memory).add(hugepage));
       });
     }
   }
