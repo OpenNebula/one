@@ -41,6 +41,55 @@ managed  = template["TEMPLATE/OPENNEBULA_MANAGED"] != "NO"
 imported = template["TEMPLATE/VCENTER_IMPORTED"]
 error    = template["TEMPLATE/VCENTER_NET_STATE"] == "ERROR"
 
+@usernsx = template["TEMPLATE/NSX_USER"]
+@passnsx = template["TEMPLATE/NSX_PASS"]
+
+def checkResponse(response, code)
+    # return 0, response.body if response.is_a? Net::HTTPSuccess
+    if response.code.to_i == code
+        puts "Expected response #{code}"
+        return true
+    else
+        puts "Unexpected response #{response.code.to_i}.. correct was #{code}"
+        puts response.body
+        return false
+    end
+end
+
+def logicalSwitch?(nsxmgr, pgType, logicalSwitchId)
+    if pgType == "NSX-V"
+        header = {'Content-Type': 'application/xml'}
+        uri = URI.parse("https://#{nsxmgr}/api/2.0/vdn/virtualwires/#{logicalSwitchId}")
+    elsif pgType == "Opaque Network"
+        header = {'Content-Type': 'application/json'}
+        uri = URI.parse("https://#{nsxmgr}/api/v1/logical-switches/#{logicalSwitchId}")
+    else
+        raise "Unknow pgType #{pgType}"
+    end
+    request = Net::HTTP::Get.new(uri.path)
+    request.basic_auth(@usernsx, @passnsx)
+    response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
+      :verify_mode => OpenSSL::SSL::VERIFY_NONE) {|https| https.request(request) }
+    return checkResponse(response, 200)
+  end
+
+def deleteLogicalSwitch(nsxmgr, pgType, logicalSwitchId)
+    if pgType == "NSX-V"
+        header = {'Content-Type': 'application/xml'}
+        uri = URI.parse("https://#{nsxmgr}/api/2.0/vdn/virtualwires/#{logicalSwitchId}")
+    elsif pgType == "Opaque Network"
+        header = {'Content-Type': 'application/json'}
+        uri = URI.parse("https://#{nsxmgr}/api/v1/logical-switches/#{logicalSwitchId}")
+    else
+        raise "Unknow pgType #{pgType}"
+    end
+    request = Net::HTTP::Delete.new(uri.request_uri, header)
+    request.basic_auth(@usernsx, @passnsx)
+    response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
+      :verify_mode => OpenSSL::SSL::VERIFY_NONE) {|https| https.request(request) }
+    checkResponse(response, 200)
+end
+
 begin
     # Step 0. Only execute for vcenter network driver
     if template["VN_MAD"] == "vcenter" && managed && !error && imported.nil?
@@ -119,6 +168,17 @@ begin
                 ensure
                     esx_host.unlock if esx_host # Remove host lock
                 end
+            end
+        end
+
+        if pg_type == "NSX-V" || pg_type == "Opaque Network"
+            require 'net/http'
+            nsxmgr = template["TEMPLATE/NSX_MANAGER"]
+            # Check network exists
+            if logicalSwitch?(nsxmgr, pg_type, pg_name)
+                deleteLogicalSwitch(nsxmgr, pg_type, pg_name)
+            else
+                raise "Logical Switch #{pg_name} not found"
             end
         end
     end
