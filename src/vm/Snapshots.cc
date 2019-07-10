@@ -319,8 +319,13 @@ int Snapshots::active_snapshot(int id, bool revert)
         return -1;
     }
 
-    if (revert && (orphans == MIXED))
+    if (orphans == MIXED)
     {
+        if (!revert)
+        {
+            return 0;
+        }
+
         current_base = id;
         snapshot_template.replace("CURRENT_BASE", id);
     }
