@@ -17,9 +17,29 @@
 define(function(require) {
   require('../bower_components/jquery/dist/jquery.min');
   var OpenNebulaAuth = require('opennebula/auth');
+  var showErrorAuth = false;
+  var textOpenNebulaNotRunning = "OpenNebula is not running or there was a server exception. Please check the server logs.";
+  var textInvalidUserorPassword = "Invalid username or password"; 
+  var textNoAnswerFromServer = "No answer from server. Is it running?";
+  var textTwoFactorTokenInvalid = "Two factor Token Invalid";
+  var idElementTwoFactor = "#two_factor_auth_token";
 
   function auth_success(req, response) {
-    window.location.href = ".";
+    if (response && response.code && response.code === "two_factor_auth") {
+      $("#login_form").hide();
+      $("#login_spinner").hide();
+      $("#two_factor_auth").fadeIn("slow");
+      if(!showErrorAuth){
+        showErrorAuth = true;
+      } else {
+        $("#error_message").text(textTwoFactorTokenInvalid);
+        $("#error_box").fadeIn("slow");
+        $("#login_spinner").hide();
+      }
+    } else {
+      showErrorAuth = false;
+      window.location.href = ".";
+    }
   }
 
   function auth_error(req, error) {
@@ -28,13 +48,13 @@ define(function(require) {
 
     switch (status){
     case 401:
-      $("#error_message").text("Invalid username or password");
+      $("#error_message").text(textInvalidUserorPassword);
       break;
     case 500:
-      $("#error_message").text("OpenNebula is not running or there was a server exception. Please check the server logs.");
+      $("#error_message").text(textOpenNebulaNotRunning);
       break;
     case 0:
-      $("#error_message").text("No answer from server. Is it running?");
+      $("#error_message").text(textNoAnswerFromServer);
       break;
     default:
       $("#error_message").text("Unexpected error. Status " + status + ". Check the server logs.");
@@ -47,6 +67,7 @@ define(function(require) {
     var username = $("#username").val();
     var password = $("#password").val();
     var remember = $("#check_remember").is(":checked");
+    var two_factor_auth_token = $("#two_factor_auth_token").val();
 
     $("#error_box").fadeOut("slow");
     $("#login_spinner").show();
@@ -58,6 +79,7 @@ define(function(require) {
       },
       remember: remember,
       success: auth_success,
+      two_factor_auth_token: two_factor_auth_token,
       error: auth_error
     });
   }
@@ -87,9 +109,31 @@ define(function(require) {
     }
   }
 
+  function limitToken(){
+    $(idElementTwoFactor).off('input').on('input', function() {
+      var element = $(this);
+      if(element.attr("maxlength") && element.attr("maxlength") > 0){
+        var value = element.val().replace(/[^0-9.]/g, '')
+        if (value.length > element.attr("maxlength")){
+          element.val(value.substr(0,15))
+        }else{
+          element.val(value)
+        }
+      }
+    });
+  }
+
   $(document).ready(function() {
     $("#login_form").submit(function () {
+      limitToken();
       authenticate();
+      return false;
+    });
+
+    $("#two_factor_auth_login").click(function() {
+      if($(idElementTwoFactor) && $(idElementTwoFactor).val().length){
+        authenticate();
+      }
       return false;
     });
 

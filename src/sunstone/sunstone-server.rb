@@ -48,6 +48,7 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << RUBY_LIB_LOCATION + '/cloud'
 $LOAD_PATH << SUNSTONE_ROOT_DIR
 $LOAD_PATH << SUNSTONE_ROOT_DIR + '/models'
+$LOAD_PATH << SUNSTONE_ROOT_DIR + '/models/OpenNebula2FA'
 
 DISPLAY_NAME_XPATH = 'TEMPLATE/SUNSTONE/DISPLAY_NAME'
 TABLE_ORDER_XPATH = 'TEMPLATE/SUNSTONE/TABLE_ORDER'
@@ -55,6 +56,7 @@ DEFAULT_VIEW_XPATH = 'TEMPLATE/SUNSTONE/DEFAULT_VIEW'
 GROUP_ADMIN_DEFAULT_VIEW_XPATH = 'TEMPLATE/SUNSTONE/GROUP_ADMIN_DEFAULT_VIEW'
 TABLE_DEFAULT_PAGE_LENGTH_XPATH = 'TEMPLATE/SUNSTONE/TABLE_DEFAULT_PAGE_LENGTH'
 LANG_XPATH = 'TEMPLATE/SUNSTONE/LANG'
+TWO_FACTOR_AUTH_SECRET_XPATH = 'TEMPLATE/SUNSTONE/TWO_FACTOR_AUTH_SECRET'
 DEFAULT_ZONE_ENDPOINT_XPATH = 'TEMPLATE/SUNSTONE/DEFAULT_ZONE_ENDPOINT'
 
 ONED_CONF_OPTS = {
@@ -97,6 +99,9 @@ require 'rexml/document'
 require 'uri'
 require 'open3'
 
+require "sunstone_qr_code"
+require "sunstone_optp"
+require "suntone_2f_auth"
 require 'CloudAuth'
 require 'SunstoneServer'
 require 'SunstoneViews'
@@ -205,6 +210,7 @@ $addons = OpenNebulaAddons.new(logger)
 
 DEFAULT_TABLE_ORDER = "desc"
 DEFAULT_PAGE_LENGTH = 10
+DEFAULT_TWO_FACTOR_AUTH = false
 
 SUPPORT = {
     :zendesk_url => "https://opennebula.zendesk.com/api/v2",
@@ -305,7 +311,7 @@ helpers do
         end
 
         client  = $cloud_auth.client(result)
-	    user_id = OpenNebula::User::SELF
+        user_id = OpenNebula::User::SELF
 
         user    = OpenNebula::User.new_with_id(user_id, client)
         rc = user.info
@@ -314,9 +320,28 @@ helpers do
             return [500, '']
         end
 
+        # two factor_auth
+        two_factor_auth =
+            if user[TWO_FACTOR_AUTH_SECRET_XPATH]
+                user[TWO_FACTOR_AUTH_SECRET_XPATH] != ""
+            else
+                DEFAULT_TWO_FACTOR_AUTH
+            end
+        if two_factor_auth
+            two_factor_auth_token = params[:two_factor_auth_token]
+            if !two_factor_auth_token || two_factor_auth_token == ""
+                return [202, { code: "two_factor_auth" }.to_json]
+            else
+                unless Suntone2FAuth.authenticate(user[TWO_FACTOR_AUTH_SECRET_XPATH], two_factor_auth_token)
+                    logger.info { "Unauthorized two factor authentication login attempt" }
+                    return [401, ""]
+                end
+            end
+        end
+
         # If active zone endpoint is not defined, pull it
         # from user template if exists
-	    unless user[DEFAULT_ZONE_ENDPOINT_XPATH].nil? or user[DEFAULT_ZONE_ENDPOINT_XPATH].empty?
+        unless user[DEFAULT_ZONE_ENDPOINT_XPATH].nil? or user[DEFAULT_ZONE_ENDPOINT_XPATH].empty?
             session[:active_zone_endpoint] ||=
                    user[DEFAULT_ZONE_ENDPOINT_XPATH]
         end
@@ -540,6 +565,15 @@ get '/login' do
     else
         redirect to('/')
     end
+end
+
+get '/two_factor_auth_hotp_qr_code' do
+    content_type 'image/svg+xml'
+    issuer = $conf[:two_factor_auth_issuer].nil?? "sunstone-opennebula" : $conf[:two_factor_auth_issuer]
+    totp = SunstoneOPTP.build(params[:secret], issuer)
+    totp_uri = totp.provisioning_uri(session[:user])
+    qr_code = SunstoneQRCode.build(totp_uri)
+    [200, qr_code.as_svg]
 end
 
 get '/vnc' do
