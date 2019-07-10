@@ -71,8 +71,6 @@ Snapshots& Snapshots::operator= (const Snapshots& s)
     return *this;
 }
 
-Snapshots::~Snapshots(){};
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -194,7 +192,7 @@ void Snapshots::add_child_mixed(VectorAttribute *snapshot)
     {
         VectorAttribute * parent = get_snapshot(current_base);
 
-        if (parent != 0)
+        if (parent != nullptr)
         {
             string children = parent->vector_value("CHILDREN");
 
@@ -225,7 +223,7 @@ int Snapshots::add_child_deny(VectorAttribute *snapshot)
     {
         VectorAttribute * parent = get_snapshot(active);
 
-        if (parent == 0)
+        if (parent == nullptr)
         {
             delete snapshot;
             return -1;
@@ -259,7 +257,7 @@ void Snapshots::delete_snapshot(int id)
 
     VectorAttribute * snapshot = get_snapshot(id);
 
-    if (snapshot == 0)
+    if (snapshot == nullptr)
     {
         return;
     }
@@ -275,7 +273,7 @@ void Snapshots::delete_snapshot(int id)
 
             VectorAttribute * parent = get_snapshot(parent_id);
 
-            if (parent != 0)
+            if (parent != nullptr)
             {
                 string children = parent->vector_value("CHILDREN");
 
@@ -309,20 +307,25 @@ void Snapshots::delete_snapshot(int id)
 
 int Snapshots::active_snapshot(int id, bool revert)
 {
-    if (static_cast<int>(id) == active)
+    if (id == active)
     {
         return 0;
     }
 
     VectorAttribute * snapshot = get_snapshot(id);
 
-    if (snapshot == 0)
+    if (snapshot == nullptr)
     {
         return -1;
     }
 
-    if (revert && (orphans == MIXED))
+    if (orphans == MIXED)
     {
+        if (!revert)
+        {
+            return 0;
+        }
+
         current_base = id;
         snapshot_template.replace("CURRENT_BASE", id);
     }
@@ -331,7 +334,7 @@ int Snapshots::active_snapshot(int id, bool revert)
 
     snapshot = get_snapshot(active);
 
-    if (snapshot != 0)
+    if (snapshot != nullptr)
     {
         snapshot->remove("ACTIVE");
     }
@@ -348,7 +351,7 @@ int Snapshots::rename_snapshot(int id, const string& name, string& str_error)
 {
     VectorAttribute * snapshot = get_snapshot(id);
 
-    if (snapshot == 0)
+    if (snapshot == nullptr)
     {
         str_error = "Snapshot does not exist";
         return -1;
@@ -370,7 +373,7 @@ const VectorAttribute * Snapshots::get_snapshot(int id) const
 
     if (it == snapshot_pool.end())
     {
-        return 0;
+        return nullptr;
     }
 
     return it->second;
@@ -383,7 +386,7 @@ string Snapshots::get_snapshot_attribute(int id, const char * name) const
 {
     const VectorAttribute * snapshot = get_snapshot(id);
 
-    if (snapshot == 0)
+    if (snapshot == nullptr)
     {
         return "";
     }
@@ -399,7 +402,7 @@ long long Snapshots::get_snapshot_size(int id) const
 
     const VectorAttribute * snapshot = get_snapshot(id);
 
-    if (snapshot != 0)
+    if (snapshot != nullptr)
     {
         snapshot->vector_value("SIZE", snap_size);
     }
@@ -417,7 +420,7 @@ bool Snapshots::test_delete(int id, string& error) const
 
     const VectorAttribute * snapshot = get_snapshot(id);
 
-    if (snapshot == 0)
+    if (snapshot == nullptr)
     {
         error = "Snapshot does not exist";
         return false;

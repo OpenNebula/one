@@ -104,7 +104,7 @@ public:
 
     Snapshots& operator= (const Snapshots& s);
 
-    virtual ~Snapshots();
+    ~Snapshots() = default;
 
     // *************************************************************************
     // Inititalization functions
