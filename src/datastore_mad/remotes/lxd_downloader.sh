@@ -199,6 +199,8 @@ yum install $PKG_RPM -y > /dev/null 2>&1
 $CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lsfo /root/context.rpm
 yum install /root/context.rpm -y > /dev/null 2>&1
 rm /root/context.rpm
+
+rm /dev/random /dev/urandom
 EOC
 )
     ;;
@@ -231,6 +233,8 @@ yum install $PKG_FEDORA -y > /dev/null 2>&1
 $CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lsfo /root/context.rpm
 yum install /root/context.rpm -y > /dev/null 2>&1
 rm /root/context.rpm
+
+rm /dev/random /dev/urandom
 EOC
 )
     ;;
