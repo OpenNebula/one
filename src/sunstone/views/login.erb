@@ -7,10 +7,11 @@
     <!--[if IE]><link rel="shortcut icon" href="images/favicon.ico"><![endif]-->
     <link rel="apple-touch-icon-precomposed" href="images/apple-touch-icon-precomposed.png">
     <link rel="icon" href="images/favicon.png">
-    <link rel="stylesheet" type="text/css" href="css/app.css" />
     <% if $conf[:env] == 'dev' %>
+      <link href="css/app.css?v=<%= OpenNebula::VERSION %>" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
       <script src="bower_components/requirejs/require.js" data-main="app/login"></script>
     <% else %>
+      <link href="css/app.min.css?v=<%= OpenNebula::VERSION %>" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
       <script src="dist/login.js"></script>
     <% end %>
   </head>
