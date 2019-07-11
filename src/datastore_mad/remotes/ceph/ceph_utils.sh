@@ -119,33 +119,50 @@ rbd_check_2() {
 }
 
 #--------------------------------------------------------------------------------
+# Remove snapshot suffixes (if exists)
+#   @param the volume
+#     example: one-2-39-0-0:1:2 or one/one-2-39-0-0:1:2
+#   @return volume without snapshot suffixes
+#     example: one-2-39-0 or one/one-2-39-0
+#--------------------------------------------------------------------------------
+trim_snapshot_suffix() {
+    echo $1 | sed  's/\([^-]*-[0-9]*-[0-9]*-[0-9]*\).*/\1/'
+}
+
+#--------------------------------------------------------------------------------
+# Get volume parent volume (if exists)
+#   @param the volume including pool in format pool/volume
+#   @return parent volume in same format
+#--------------------------------------------------------------------------------
+rbd_get_parent() {
+    parent_snap=$($RBD info $1 | grep parent: | awk '{print $2}')
+    echo $parent_snap | sed 's/@.*//' # remove @snap string
+}
+
+#--------------------------------------------------------------------------------
 # Get top parent of a snapshot hierarchy if the volume has snapshots.
 #   @param $1 the volume
 #   @return the top parent or volume in no snapshots found
 #--------------------------------------------------------------------------------
 rbd_top_parent() {
-    local pool volume vsnaps
+    local volume
+    volume=$1 # format: pool/volume; such as one/one-2-38-0
+    volume_no_snapshots=$(trim_snapshot_suffix $1)
 
-    pool=$(echo $1 | cut -f1 -d'/')
-    volume=$(echo $1 | cut -f2 -d'/')
+    while true; do
+        parent=$(rbd_get_parent $volume)
 
-    vsnaps=$($RBD ls -p $pool | grep $volume)
-    volume=""
-
-    for vol in $vsnaps; do
-       $RBD snap ls -p $pool --format json $vol | grep -Eq '"name":"0"'
-
-       if [ $? -eq 0 ]; then
-           volume=$pool/$vol
-           break
-       fi
+        # until there is no parent or the parent is the original image
+        # like `one-0` which is not matching the `one-x-y-z` volume pattern
+        if echo $parent | grep -q $volume_no_snapshots > /dev/null 2>&1; then
+            volume=$parent
+        else
+            echo $volume
+            return 0
+        fi
     done
 
-    if [ -z "$volume" ]; then
-        volume=$1
-    fi
-
-    echo $volume
+    echo $1
 }
 
 #--------------------------------------------------------------------------------
