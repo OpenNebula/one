@@ -49,7 +49,10 @@ define(function(require) {
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = "fa-chart-pie";
     this.title = Locale.tr("NUMA");
-    this.classes = "hypervisor";
+    this.numa = false;
+    if(opts && opts.listener && opts.listener.action){
+      this.action = opts.listener.action;
+    }
   }
 
   WizardTab.prototype.constructor = WizardTab;
@@ -66,23 +69,36 @@ define(function(require) {
    */
 
   function _html() {
+    var that = this;
     return TemplateHTML();
   }
 
   function _onShow(context, panelForm) {
-    $("#numa-topology", context).change(function(){
-      var value = $(this).val();
-      console.log("--->", value);
+    var that = this;
+    $('#numa-topology', context).on( 'click', function() {
+      var form = $(".numa-form",context)
+      if( $(this).is(':checked') ){
+        form.removeClass("hide");
+        //aca se tiene que llamar a los hugepages
+        that.numa = true;
+      }else{
+        form.addClass("hide");
+        that.numa = false;
+      }
     });
   }
 
   function _setup(context) {
+    console.log("3", this)
     var that = this;
     Foundation.reflow(context, "tabs");
+    if(that && that.action){
+      
+    }
   }
 
   function _retrieve(context) {
-    console.log("retrieve")
+    console.log("4")
     var templateJSON = {};
 
     //if (!$.isEmptyObject(osJSON)) { templateJSON["OS"] = osJSON; };
@@ -101,10 +117,10 @@ define(function(require) {
       $(String(id), context).attr("value", value);
     }
   }
-ç
+
   function _fill(context, templateJSON) {
-    console.log("fill", templateJSON);
-    var topology = templateJSON["TOPOLOGY"];
+    console.log("5", templateJSON);
+    /*var topology = templateJSON["TOPOLOGY"];
     if (topology) {
       WizardFields.fill(context, pinPolicy);
 
@@ -117,6 +133,6 @@ define(function(require) {
     if (topologyJSON) {
       WizardFields.fill(context, topologyJSON);
       delete topologyJSON["TOPOLOGY"];
-    }
+    }*/
   }
 });

@@ -86,9 +86,7 @@ define(function(require) {
       if (!(numaNodes instanceof Array)) {
         numaNodes = [numaNodes];
       }
-      
       numaNodes.map(function(node,i){
-        
         var title = $("<h5/>");
         var coreTable = $("<table/>");
         var memory = $("<div/>",{'class':'memory'});
@@ -105,7 +103,6 @@ define(function(require) {
           }
         });
         selectTable.find("td").append(select);
-
         if(node && node.NODE){
           var infoNode = node.NODE
           title.text(infoNode.NODE_ID? "Node #"+infoNode.NODE_ID : "")
@@ -118,7 +115,6 @@ define(function(require) {
             }
             var limit = 3; //start in 0 is index of array
             var count = 0;
-
             numaCores.map(function(core,i){
               var placeBody = tBody.find("tr:last");
               if(count === 0){

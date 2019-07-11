@@ -17,17 +17,14 @@
   <div class="small-12 columns">
     <div class="row">
       <div class="small-12 columns">
+        <input type="checkbox" id="numa-topology">
         <label for="numa-topology">
           {{tr "NUMA Topology"}}
-          {{{tip (tr "Allow users to modify this template's default memory on instantiate")}}}
-        </label>  
-        <select id="numa-topology">
-          <option value="no">{{tr "no"}}</option>
-          <option value="yes">{{tr "yes"}}</option>
-        </select>
+          {{{tip (tr "These settings will help you to fine tune the performance of VMs")}}}
+        </label>
       </div>
     </div>
-    <div class="row numa-form">
+    <div class="row numa-form hide">
       <div class="small-6 columns">
         <label for="numa-pin-policy">
           {{tr "Pin Policy"}}
@@ -60,7 +57,8 @@
           {{tr "Hugepages Size"}}
           {{{tip (tr "Size of the hugepages (MB). If not defined no hugepages will be used")}}}
         </label>
-        <input type="number" id="numa-hugepages">
+        <select id="numa-hugepages">
+        </select>
         <label for="numa-memory">
           {{tr "Memory Access"}}
           {{{tip (tr "Control if the memory is to be mapped shared or private")}}}
