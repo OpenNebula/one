@@ -84,6 +84,15 @@ module VNMMAD
                 @vm_root.root.elements[xpath].text
             end
 
+            def system_dir(ds_location)
+                ds_id_p = 'HISTORY_RECORDS/HISTORY/DS_ID'
+
+                ds_id = @vm_root.root.elements[ds_id_p].text
+                vm_id = @vm_root.root.elements['ID'].text
+
+                "#{ds_location}/#{ds_id}/#{vm_id}"
+            end
+
             private
 
             # Method to build the associated Hash from a NIC

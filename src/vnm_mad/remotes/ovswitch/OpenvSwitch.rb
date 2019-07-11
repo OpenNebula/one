@@ -26,12 +26,6 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
         xpath_filter ||= XPATH_FILTER
         super(vm, xpath_filter, deploy_id)
-
-        @vm.nics.each do |nic|
-            if nic[:bridge_ovs] && !nic[:bridge_ovs].empty?
-                nic[:bridge] = nic[:bridge_ovs]
-            end
-        end
     end
 
     def activate
@@ -386,6 +380,10 @@ private
         nil
     end
 
+    def dpdk?
+        @nic[:bridge_type] == 'openvswitch_dpdk'
+    end
+
     # Creates an OvS bridge if it does not exists, and brings it up.
     # This function IS FINAL, exits if action cannot be completed
     def create_bridge
@@ -411,7 +409,17 @@ private
     def add_bridge_port(port)
         return if @bridges[@nic[:bridge]].include? port
 
-        OpenNebula.exec_and_log("#{command(:ovs_vsctl)} add-port #{@nic[:bridge]} #{port}")
+        ovs_cmd = "#{command(:ovs_vsctl)} add-port #{@nic[:bridge]} #{port}"
+
+        if dpdk?
+            vmdir = @vm.system_dir(@nic[:conf][:datastore_location])
+            spath = "#{vmdir}/#{@nic[:nic_id]}"
+
+            ovs_cmd << "-- set Interface #{port} type=dpdkvhostuserclient"\
+                "options:vhost-server-path=#{spath}"
+        end
+
+        OpenNebula.exec_and_log("ovs_cmd")
 
         @bridges[@nic[:bridge]] << port
     end
