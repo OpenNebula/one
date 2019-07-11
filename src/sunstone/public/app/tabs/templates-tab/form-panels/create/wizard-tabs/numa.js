@@ -25,6 +25,7 @@ define(function(require) {
   var WizardFields = require("utils/wizard-fields");
   var FilesTable = require("tabs/files-tab/datatable");
   var UniqueId = require("utils/unique-id");
+  var OpenNebulaAction = require('opennebula/action');
 
   /*
     TEMPLATES
@@ -37,6 +38,7 @@ define(function(require) {
    */
 
   var WIZARD_TAB_ID = require("./numa/wizardTabId");
+  var RESOURCE = "Host";
 
   /*
     CONSTRUCTOR
@@ -73,6 +75,14 @@ define(function(require) {
     return TemplateHTML();
   }
 
+  function successCallback(data, data1){
+    console.log("pass->", data, data1);
+  }
+
+  function errorCallback(error, error1){
+    console.log("error->", error, error1);
+  }
+
   function _onShow(context, panelForm) {
     var that = this;
     $('#numa-topology', context).on( 'click', function() {
@@ -80,6 +90,13 @@ define(function(require) {
       if( $(this).is(':checked') ){
         form.removeClass("hide");
         //aca se tiene que llamar a los hugepages
+        OpenNebulaAction.list(
+          {
+            success: successCallback, 
+            error: errorCallback
+          }, 
+          RESOURCE
+        );
         that.numa = true;
       }else{
         form.addClass("hide");
