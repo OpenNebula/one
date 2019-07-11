@@ -198,8 +198,12 @@ module OneDBFsck
         lease[:mac_index] = mac
 
         # IP
-        unless ip.nil?
-            lease[:ip] = IPAddr.new(ip.to_i + index, Socket::AF_INET).to_s
+        begin
+            unless ip.nil?
+                lease[:ip] = IPAddr.new(ip.to_i + index, Socket::AF_INET).to_s
+            end
+        rescue StandardError
+            lease[:ip] = [ip.to_i + index].pack('N').unpack('CCCC').join('.')
         end
 
         # IP6
