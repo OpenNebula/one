@@ -166,6 +166,10 @@ define(function(require) {
       var a = templateJSON;
     });
 
+    if(templateJSON["TOPOLOGY"] === null){
+      delete templateJSON["TOPOLOGY"]
+    }
+
     // vCenter PUBLIC_CLOUD is not defined in the hybrid tab. Because it is
     // part of an array, and it is filled in different tabs, the $.extend deep
     // merge can't work. We define an auxiliary attribute for it.
@@ -197,7 +201,7 @@ define(function(require) {
 
       delete templateJSON["NIC_PCI"];
     }
-
+    console.log("templateJSON!", templateJSON);
     return templateJSON;
   }
 

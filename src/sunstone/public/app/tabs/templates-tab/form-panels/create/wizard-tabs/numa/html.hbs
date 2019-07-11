@@ -16,7 +16,7 @@
 <div id="tabs-numa" class="row collapse">
   <div class="small-12 columns">
     <div class="row">
-      <div class="small-12 columns">
+      <div class="small-12 columns numa-topology-display">
         <input type="checkbox" id="numa-topology">
         <label for="numa-topology">
           {{tr "NUMA Topology"}}
@@ -57,8 +57,7 @@
           {{tr "Hugepages Size"}}
           {{{tip (tr "Size of the hugepages (MB). If not defined no hugepages will be used")}}}
         </label>
-        <select id="numa-hugepages">
-        </select>
+        <select id="numa-hugepages"></select>
         <label for="numa-memory">
           {{tr "Memory Access"}}
           {{{tip (tr "Control if the memory is to be mapped shared or private")}}}

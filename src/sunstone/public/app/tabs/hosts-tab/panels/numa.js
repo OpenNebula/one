@@ -82,29 +82,30 @@ define(function(require) {
   function _setup(context) {
     var that = this;
     if (that && that.element && that.element.HOST_SHARE && that.element.HOST_SHARE.NUMA_NODES) {
-      var numaNodes = that.element.HOST_SHARE.NUMA_NODES;
+      var numaNodes = that.element.HOST_SHARE.NUMA_NODES.NODE;
       if (!(numaNodes instanceof Array)) {
         numaNodes = [numaNodes];
       }
+      var options = [{'value':'NONE'},{'value':'PINNED'}]
+      var select = $("<select/>",{'id': SELECT_ID});
+      options.map(function(element){
+        if(element && element.value){
+          var selected = that && that.element && that.element.TEMPLATE && that.element.TEMPLATE.PIN_POLICY && that.element.TEMPLATE.PIN_POLICY === element.value
+          select.append($("<option/>",{'value':element.value}).text(capitalize(element.value)).prop('selected', selected));
+        }
+      });
+      var selectTable = $("<table/>");
+      selectTable.append($("<thead/>").append($("<tr>").append($("<th/>").text("Pin Policy"))));
+      selectTable.append($("<tbody>").append($("<tr>").append($("<td/>"))));
+      selectTable.find("td").append(select);
+      $("#placeNumaInfo").append(selectTable);
       numaNodes.map(function(node,i){
         var title = $("<h5/>");
         var coreTable = $("<table/>");
         var memory = $("<div/>",{'class':'memory'});
         var hugepage = $("<div/>",{'class':'hugepage'});
-        var selectTable = coreTable.clone();
-        selectTable.append($("<thead/>").append($("<tr>").append($("<th/>").text("Pin Policy"))));
-        selectTable.append($("<tbody>").append($("<tr>").append($("<td/>"))));
-        var options = [{'value':'NONE'},{'value':'PINNED'}]
-        var select = $("<select/>",{'id': SELECT_ID});
-        options.map(function(element){
-          if(element && element.value){
-            var selected = that && that.element && that.element.TEMPLATE && that.element.TEMPLATE.PIN_POLICY && that.element.TEMPLATE.PIN_POLICY === element.value
-            select.append($("<option/>",{'value':element.value}).text(capitalize(element.value)).prop('selected', selected));
-          }
-        });
-        selectTable.find("td").append(select);
-        if(node && node.NODE){
-          var infoNode = node.NODE
+        if(node){
+          var infoNode = node
           title.text(infoNode.NODE_ID? "Node #"+infoNode.NODE_ID : "")
           //CORES
           if(infoNode.CORE){
@@ -192,7 +193,7 @@ define(function(require) {
             hugepage.append(row);
           }
         }
-        $("#placeNumaInfo").append(selectTable.add(title).add(coreTable).add(memory).add(hugepage));
+        $("#placeNumaInfo").append(title.add(coreTable).add(memory).add(hugepage));
       });
     }
   }

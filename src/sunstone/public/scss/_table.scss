@@ -34,7 +34,7 @@ table {
     border-right: 0;
     td{
       .cpu{
-        margin: -1px;
+        margin: 0px;
         padding: 0px;
         a,.no-vm{
           color: $white;
@@ -48,16 +48,16 @@ table {
 
       .busy{
         background-color: $busy;
-        color: $black;
+        color: $white;
         font-weight: bold;
-        border: 1px solid;
+        border: 1px solid $white;
       }
 
       .free{
         background-color: $free;
         font-weight: bold;
-        color: $black;
-        border: 1px solid;
+        color: $white;
+        border: 1px solid $white;
       }
     }
   }

@@ -38,8 +38,9 @@ define(function(require) {
    */
 
   var WIZARD_TAB_ID = require("./numa/wizardTabId");
-  var RESOURCE = "Host";
-
+  var RESOURCE = "HOST";
+  var SELECTOR_HUGEPAGE = "#numa-hugepages";
+  var numaStatus = null;
   /*
     CONSTRUCTOR
    */
@@ -51,10 +52,6 @@ define(function(require) {
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = "fa-chart-pie";
     this.title = Locale.tr("NUMA");
-    this.numa = false;
-    if(opts && opts.listener && opts.listener.action){
-      this.action = opts.listener.action;
-    }
   }
 
   WizardTab.prototype.constructor = WizardTab;
@@ -75,8 +72,32 @@ define(function(require) {
     return TemplateHTML();
   }
 
-  function successCallback(data, data1){
-    console.log("pass->", data, data1);
+  function successCallback(request, opts, infohost){
+    //console.log("CACHE ", OpenNebulaAction.get_all_cache());
+    var selector = $(SELECTOR_HUGEPAGE);
+    selector.empty();
+    if(infohost && infohost.HOST_POOL && infohost.HOST_POOL.HOST){
+      infohost.HOST_POOL.HOST.map(function(host){
+        if(host && host.HOST_SHARE && host.NAME && host.HOST_SHARE.NUMA_NODES && host.HOST_SHARE.NUMA_NODES.NODE){
+          var name = host.NAME
+          var numaNodes = host.HOST_SHARE.NUMA_NODES.NODE;
+          if (!(numaNodes instanceof Array)) {
+            numaNodes = [numaNodes];
+          }
+          numaNodes.map(function(node){
+            if(node && node.HUGEPAGE && node.NODE_ID){
+              node.HUGEPAGE.map(function(hugepage){
+                selector.append($("<option/>",{"value": hugepage.SIZE}).text(name+" ("+node.NODE_ID+") - "+hugepage.SIZE));
+              });
+            }
+          });
+        }
+      });
+    }
+  }
+
+  function getStatusNuma(){
+    return numaStatus;
   }
 
   function errorCallback(error, error1){
@@ -85,22 +106,25 @@ define(function(require) {
 
   function _onShow(context, panelForm) {
     var that = this;
+    console.log(that);
     $('#numa-topology', context).on( 'click', function() {
-      var form = $(".numa-form",context)
+      var form = $(".numa-form",context);
       if( $(this).is(':checked') ){
         form.removeClass("hide");
         //aca se tiene que llamar a los hugepages
+        OpenNebulaAction.clear_cache("HOST");
         OpenNebulaAction.list(
           {
+            data: {pool_filter: -2},
             success: successCallback, 
             error: errorCallback
           }, 
           RESOURCE
         );
-        that.numa = true;
+        numaStatus = true;
       }else{
         form.addClass("hide");
-        that.numa = false;
+        numaStatus = false;
       }
     });
   }
@@ -115,18 +139,45 @@ define(function(require) {
   }
 
   function _retrieve(context) {
-    console.log("4")
     var templateJSON = {};
-
-    //if (!$.isEmptyObject(osJSON)) { templateJSON["OS"] = osJSON; };
-
-    /*var featuresJSON = WizardFields.retrieve(".featuresTab", context);
-    if (!$.isEmptyObject(featuresJSON)) { templateJSON["FEATURES"] = featuresJSON; };
-
-    var cpuModelJSON = WizardFields.retrieve(".cpuTab", context);
-    if (!$.isEmptyObject(cpuModelJSON)) { templateJSON["CPU_MODEL"] = cpuModelJSON; };*/
-
+    if(getStatusNuma()){
+      var temp = {}
+      var policy = _getValue("#numa-pin-policy", context);
+      if(policy && policy.length){
+        temp.PIN_POLICY = policy;
+      }
+      var sockets = _getValue("#numa-sockets", context);
+      if(sockets && sockets.length){
+        temp.SOCKETS = sockets;
+      }
+      var cores = _getValue("#numa-cores", context);
+      if(cores && cores.length){
+        temp.CORES = cores;
+      }
+      var threads = _getValue("#numa-threads", context);
+      if(threads && threads.length){
+        temp.THREADS = threads;
+      }
+      var hugepage = _getValue("#numa-hugepages", context);
+      if(hugepage && hugepage.length){
+        temp.HUGEPAGE_SIZE = sockets;
+      }
+      var memory = _getValue("#numa-memory", context);
+      if(memory && memory.length){
+        temp.MEMORY_ACCESS = memory;
+      }
+      templateJSON.TOPOLOGY = temp;
+    }
+    console.log("-->", templateJSON);
     return templateJSON;
+  }
+
+  function _getValue(id="", context=null){
+    rtn = null;
+    if(id.length && context){
+      rtn = $(String(id), context).val();
+    }
+    return rtn;
   }
 
   function _fillBootValue(id="", context=null, value="") {
