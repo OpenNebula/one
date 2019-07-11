@@ -154,7 +154,7 @@ rbd_top_parent() {
 
         # until there is no parent or the parent is the original image
         # like `one-0` which is not matching the `one-x-y-z` volume pattern
-        if echo $parent | grep -q $volume_no_snapshots; then
+        if echo $parent | grep -q $volume_no_snapshots > /dev/null 2>&1; then
             volume=$parent
         else
             echo $volume
