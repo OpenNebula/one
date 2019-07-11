@@ -249,7 +249,7 @@ int VirtualMachine::get_created_by_uid() const
 /* -------------------------------------------------------------------------- */
 
 static void parse_context_network(const std::vector<ContextVariable>& cvars,
-        VectorAttribute * context, VectorAttribute * nic)
+        VectorAttribute * context, VectorAttribute * nic, bool alias_detach)
 {
     string nic_id = nic->vector_value("NIC_ID");
 
@@ -291,6 +291,13 @@ static void parse_context_network(const std::vector<ContextVariable>& cvars,
         }
 
         context->replace(cvar.str(), cval);
+    }
+
+    if ( alias_detach )
+    {
+        string cvar = "ETH" + parent_id + "_ALIAS" + alias_id + "_DETACH";
+
+        context->replace(cvar, "YES");
     }
 }
 
@@ -342,8 +349,11 @@ int VirtualMachine::generate_network_context(VectorAttribute* context,
             continue;
         }
 
-        parse_context_network(NETWORK_CONTEXT, &tmp_context, vatts[i]);
-        parse_context_network(NETWORK6_CONTEXT, &tmp_context, vatts[i]);
+        bool alias_detach = hasPreviousHistory() &&
+	                            previous_history->action == History::ALIAS_DETACH_ACTION;
+
+        parse_context_network(NETWORK_CONTEXT, &tmp_context, vatts[i], alias_detach);
+        parse_context_network(NETWORK6_CONTEXT, &tmp_context, vatts[i], alias_detach);
 
         parse_vnets = true;
     }

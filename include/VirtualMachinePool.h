@@ -430,7 +430,7 @@ public:
      */
     void attach_nic_failure(int vid)
     {
-        delete_hotplug_nic(vid, true);
+        delete_hotplug_nic(vid);
     }
 
     /**
@@ -440,7 +440,7 @@ public:
      */
     void detach_nic_success(int vid)
     {
-        delete_hotplug_nic(vid, false);
+        delete_hotplug_nic(vid);
     }
 
     /**
@@ -505,9 +505,8 @@ private:
     /**
      * Helper method for delete attach/detach
      * @param vid VM id
-     * @param attach true for an attach action, false for detach
      */
-    void delete_hotplug_nic(int vid, bool attach);
+    void delete_hotplug_nic(int vid);
 };
 
 #endif /*VIRTUAL_MACHINE_POOL_H_*/
