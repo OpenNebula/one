@@ -384,7 +384,6 @@ class DatacenterFolder
             else
                 networks[r.obj._ref][:network_type] = "Unknown Network"
             end
-            # networks[r.obj._ref][:network_type] = r.obj.is_a?(RbVmomi::VIM::DistributedVirtualPortgroup) ? "Distributed Port Group" : "Port Group"
             networks[r.obj._ref][:uplink] = false
             networks[r.obj._ref][:processed] = false
 
@@ -681,11 +680,22 @@ class Datacenter
     # Check if distributed port group exists in datacenter
     ########################################################################
     def dpg_exists(pg_name, net_folder)
-
         return net_folder.items.values.select{ |dpg|
             dpg.instance_of?(VCenterDriver::DistributedPortGroup) &&
             dpg['name'] == pg_name
         }.first rescue nil
+    end
+
+    ########################################################################
+    # Check if Opaque Network exists in datacenter
+    ########################################################################
+    def nsxt_network_created?(pg_name, net_folder)
+        net_folder.items.values.each{ |net|
+            if net.instance_of?(VCenterDriver::OpaqueNetwork) &&
+               net.item.summary.opaqueNetworkId == pg_name
+                return net.item._ref
+            end
+        }
     end
 
     ########################################################################

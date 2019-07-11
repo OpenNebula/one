@@ -46,7 +46,14 @@ class NetworkFolder
             item_name = item._ref
             @items[item_name.to_sym] = DistributedVirtualSwitch.new(item)
         end
+
+        VIClient.get_entities(@item, "OpaqueNetwork").each do |item|
+            item_name = item._ref
+            @items[item_name.to_sym] = OpaqueNetwork.new(item)
+        end
     end
+
+    
 
     ########################################################################
     # Returns a Network. Uses the cache if available.
