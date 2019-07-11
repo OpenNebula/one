@@ -24,11 +24,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/kolo/xmlrpc"
-)
+	errs "github.com/OpenNebula/one/src/oca/go/src/goca/errors"
 
-var (
-	client *oneClient
+	cleanhttp "github.com/hashicorp/go-cleanhttp"
+	"github.com/kolo/xmlrpc"
 )
 
 // OneConfig contains the information to communicate with OpenNebula
@@ -36,35 +35,31 @@ type OneConfig struct {
 	// Token is the authentication string. In the format of <user>:<password>
 	Token string
 
-	// XmlrpcURL contains OpenNebula's XML-RPC API endpoint. Defaults to
+	// Endpoint contains OpenNebula's XML-RPC API endpoint. Defaults to
 	// http://localhost:2633/RPC2
-	XmlrpcURL string
+	Endpoint string
 }
 
-type oneClient struct {
-	url               string
-	token             string
-	httpClient        *http.Client
+// Client is a basic XML-RPC client implementing RPCCaller
+type Client struct {
+	url        string
+	token      string
+	httpClient *http.Client
 }
 
-type response struct {
+type Response struct {
 	status  bool
 	body    string
 	bodyInt int
 }
 
-// Initializes the client variable, used as a singleton
-func init() {
-	SetClient(NewConfig("", "", ""))
-}
-
 // NewConfig returns a new OneConfig object with the specified user, password,
-// and xmlrpcURL
-func NewConfig(user string, password string, xmlrpcURL string) OneConfig {
+// and endpoint
+func NewConfig(user string, password string, endpoint string) OneConfig {
 	var authToken string
 	var oneAuthPath string
 
-	oneXmlrpc := xmlrpcURL
+	oneXmlrpc := endpoint
 
 	if user == "" && password == "" {
 		oneAuthPath = os.Getenv("ONE_AUTH")
@@ -90,49 +85,24 @@ func NewConfig(user string, password string, xmlrpcURL string) OneConfig {
 	}
 
 	config := OneConfig{
-		Token:     authToken,
-		XmlrpcURL: oneXmlrpc,
+		Token:    authToken,
+		Endpoint: oneXmlrpc,
 	}
 
 	return config
 }
 
-// SetClient assigns a value to the client variable
-func SetClient(conf OneConfig) {
-
-	client = &oneClient{
-		url:               conf.XmlrpcURL,
-		token:             conf.Token,
-		httpClient:        &http.Client{},
+// NewClient return a new basic one client
+func NewClient(conf OneConfig) *Client {
+	return &Client{
+		url:        conf.Endpoint,
+		token:      conf.Token,
+		httpClient: cleanhttp.DefaultPooledClient(),
 	}
-}
-
-// SystemVersion returns the current OpenNebula Version
-func SystemVersion() (string, error) {
-	response, err := client.Call("one.system.version")
-	if err != nil {
-		return "", err
-	}
-
-	return response.Body(), nil
-}
-
-// SystemConfig returns the current OpenNebula config
-func SystemConfig() (string, error) {
-	response, err := client.Call("one.system.config")
-	if err != nil {
-		return "", err
-	}
-
-	return response.Body(), nil
 }
 
 // Call is an XML-RPC wrapper. It returns a pointer to response and an error.
-func (c *oneClient) Call(method string, args ...interface{}) (*response, error) {
-	return c.endpointCall(c.url, method, args...)
-}
-
-func (c *oneClient) endpointCall(url string, method string, args ...interface{}) (*response, error) {
+func (c *Client) Call(method string, args ...interface{}) (*Response, error) {
 	var (
 		ok bool
 
@@ -150,26 +120,26 @@ func (c *oneClient) endpointCall(url string, method string, args ...interface{})
 	buf, err := xmlrpc.EncodeMethodCall(method, xmlArgs...)
 	if err != nil {
 		return nil,
-			&ClientError{Code: ClientReqBuild, msg: "xmlrpc request encoding", err: err}
+			&errs.ClientError{Code: errs.ClientReqBuild, Msg: "xmlrpc request encoding", Err: err}
 	}
 
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(buf))
+	req, err := http.NewRequest("POST", c.url, bytes.NewBuffer(buf))
 	if err != nil {
 		return nil,
-			&ClientError{Code: ClientReqBuild, msg: "http request build", err: err}
+			&errs.ClientError{Code: errs.ClientReqBuild, Msg: "http request build", Err: err}
 	}
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil,
-			&ClientError{Code: ClientReqHTTP, msg: "http make request", err: err}
+			&errs.ClientError{Code: errs.ClientReqHTTP, Msg: "http make request", Err: err}
 	}
 
 	if resp.StatusCode/100 != 2 {
-		return nil, &ClientError{
-			Code:     ClientRespHTTP,
-			msg:      fmt.Sprintf("http status code: %d", resp.StatusCode),
-			httpResp: resp,
+		return nil, &errs.ClientError{
+			Code:     errs.ClientRespHTTP,
+			Msg:      fmt.Sprintf("http status code: %d", resp.StatusCode),
+			HttpResp: resp,
 		}
 	}
 
@@ -177,7 +147,7 @@ func (c *oneClient) endpointCall(url string, method string, args ...interface{})
 	resp.Body.Close()
 	if err != nil {
 		return nil,
-			&ClientError{ClientRespHTTP, "read http response body", resp, err}
+			&errs.ClientError{errs.ClientRespHTTP, "read http response body", resp, err}
 	}
 
 	// Server side XML-RPC library: xmlrpc-c
@@ -187,7 +157,7 @@ func (c *oneClient) endpointCall(url string, method string, args ...interface{})
 	if xmlrpcResp.Failed() {
 		err = xmlrpcResp.Err()
 		return nil,
-			&ClientError{ClientRespXMLRPCFault, "server response", resp, err}
+			&errs.ClientError{errs.ClientRespXMLRPCFault, "server response", resp, err}
 	}
 
 	result := []interface{}{}
@@ -195,49 +165,49 @@ func (c *oneClient) endpointCall(url string, method string, args ...interface{})
 	// Unmarshall the XML-RPC response
 	if err := xmlrpcResp.Unmarshal(&result); err != nil {
 		return nil,
-			&ClientError{ClientRespXMLRPCParse, "unmarshal xmlrpc", resp, err}
+			&errs.ClientError{errs.ClientRespXMLRPCParse, "unmarshal xmlrpc", resp, err}
 	}
 
 	// Parse according the XML-RPC OpenNebula API documentation
 	status, ok = result[0].(bool)
 	if ok == false {
 		return nil,
-			&ClientError{ClientRespONeParse, "index 0: boolean expected", resp, nil}
+			&errs.ClientError{errs.ClientRespONeParse, "index 0: boolean expected", resp, nil}
 	}
 
 	body, ok = result[1].(string)
 	if ok == false {
 		bodyInt, ok = result[1].(int64)
 		if ok == false {
-            return nil,
-                &ClientError{ClientRespONeParse, "index 1: int or string expected", resp, nil}
+			return nil,
+				&errs.ClientError{errs.ClientRespONeParse, "index 1: int or string expected", resp, nil}
 		}
 	}
 
 	errCode, ok = result[2].(int64)
 	if ok == false {
 		return nil,
-			&ClientError{ClientRespONeParse, "index 2: boolean expected", resp, nil}
+			&errs.ClientError{errs.ClientRespONeParse, "index 2: boolean expected", resp, nil}
 	}
 
 	if status == false {
-		return nil, &ResponseError{
-			Code: OneErrCode(errCode),
-			msg:  body,
+		return nil, &errs.ResponseError{
+			Code: errs.OneErrCode(errCode),
+			Msg:  body,
 		}
 	}
 
-	r := &response{status, body, int(bodyInt)}
+	r := &Response{status, body, int(bodyInt)}
 
 	return r, nil
 }
 
 // Body accesses the body of the response
-func (r *response) Body() string {
+func (r *Response) Body() string {
 	return r.body
 }
 
 // BodyInt accesses the body of the response, if it's an int.
-func (r *response) BodyInt() int {
+func (r *Response) BodyInt() int {
 	return r.bodyInt
 }

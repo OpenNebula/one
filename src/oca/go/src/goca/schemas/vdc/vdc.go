@@ -14,21 +14,49 @@
 /* limitations under the License.                                             */
 /*--------------------------------------------------------------------------- */
 
-package goca
+package vdc
 
-const (
-	// PoolWhoPrimaryGroup resources belonging to the user’s primary group.
-	PoolWhoPrimaryGroup = -4
-
-	// PoolWhoMine to list resources that belong to the user that performs the
-	// query.
-	PoolWhoMine = -3
-
-	// PoolWhoAll to list all the resources seen by the user that performs the
-	// query.
-	PoolWhoAll = -2
-
-	// PoolWhoGroup to list all the resources that belong to the group that performs
-	// the query.
-	PoolWhoGroup = -1
+import (
+	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
 )
+
+// Pool represents an OpenNebula Vdc pool
+type Pool struct {
+	VDCs []VDC `xml:"VDC"`
+}
+
+// VDC represents an OpenNebula Vdc
+type VDC struct {
+	ID         int         `xml:"ID"`
+	Name       string      `xml:"NAME"`
+	GroupsID   []int       `xml:"GROUPS>ID"`
+	Clusters   []Cluster   `xml:"CLUSTERS>CLUSTER"`
+	Hosts      []Host      `xml:"HOSTS>HOST"`
+	Datastores []Datastore `xml:"DATASTORES>DATASTORE"`
+	VNets      []VNet      `xml:"VNETS>VNET"`
+	Template   Template    `xml:"TEMPLATE"`
+}
+
+type Template struct {
+	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
+}
+
+type Cluster struct {
+	ZoneID    int `xml:"ZONE_ID"`
+	ClusterID int `xml:"CLUSTER_ID"`
+}
+
+type Host struct {
+	ZoneID int `xml:"ZONE_ID"`
+	HostID int `xml:"HOST_ID"`
+}
+
+type Datastore struct {
+	ZoneID      int `xml:"ZONE_ID"`
+	DatastoreID int `xml:"DATASTORE_ID"`
+}
+
+type VNet struct {
+	ZoneID int `xml:"ZONE_ID"`
+	VnetID int `xml:"VNET_ID"`
+}

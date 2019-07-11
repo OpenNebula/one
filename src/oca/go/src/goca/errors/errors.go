@@ -14,7 +14,7 @@
 /* limitations under the License.                                             */
 /*--------------------------------------------------------------------------- */
 
-package goca
+package errors
 
 import (
 	"fmt"
@@ -85,28 +85,28 @@ func (s ClientErrCode) String() string {
 // ClientError is returned when we can't have a complete and well formed response from the client
 type ClientError struct {
 	Code ClientErrCode
-	msg  string
+	Msg  string
 
 	// Provide more informations to the user
-	httpResp *http.Response
-	err      error
+	HttpResp *http.Response
+	Err      error
 }
 
 // Cause allow to get the underlying error
 func (e *ClientError) Cause() error {
-	return e.err
+	return e.Err
 }
 
 // GetHTTPResponse return the http response for the codes ClientRespXMLRPCFault, ClientRespXMLRPCParse, ClientRespONeParse
 func (e *ClientError) GetHTTPResponse() *http.Response {
-	return e.httpResp
+	return e.HttpResp
 }
 
 func (e *ClientError) Error() string {
-	if e.err != nil {
-		return fmt.Sprintf("GOCA client error [%s]: %s: %s", e.Code.String(), e.msg, e.Cause())
+	if e.Err != nil {
+		return fmt.Sprintf("GOCA client error [%s]: %s: %s", e.Code.String(), e.Msg, e.Cause())
 	}
-	return fmt.Sprintf("GOCA client error [%s]: %s", e.Code.String(), e.msg)
+	return fmt.Sprintf("GOCA client error [%s]: %s", e.Code.String(), e.Msg)
 }
 
 // OpenNebula errors
@@ -140,7 +140,7 @@ const (
 	OneAllocateError = 0x4000
 
 	// OneLockedError code if the resource is locked
-	OneLockedError   = 0x8000
+	OneLockedError = 0x8000
 )
 
 func (s OneErrCode) String() string {
@@ -171,9 +171,9 @@ func (s OneErrCode) String() string {
 // ResponseError is a complete well formed OpenNebula response error
 type ResponseError struct {
 	Code OneErrCode
-	msg  string
+	Msg  string
 }
 
 func (e *ResponseError) Error() string {
-	return fmt.Sprintf("OpenNebula error [%s]: %s", e.Code.String(), e.msg)
+	return fmt.Sprintf("OpenNebula error [%s]: %s", e.Code.String(), e.Msg)
 }

@@ -14,39 +14,44 @@
 /* limitations under the License.                                             */
 /*--------------------------------------------------------------------------- */
 
-package goca
+package user
 
 import (
-	"fmt"
+	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
-func Example() {
-	template := NewTemplateBuilder()
+// Pool represents an OpenNebula User pool
+type Pool struct {
+	Users             []User            `xml:"USER"`
+	Quotas            []shared.Quotas   `xml:"QUOTAS"`
+	DefaultUserQuotas shared.QuotasList `xml:"DEFAULT_USER_QUOTAS"`
+}
 
-	// Main
-	template.AddValue("cpu", 1)
-	template.AddValue("memory", "64")
-	template.AddValue("vcpu", "2")
+// User represents an OpenNebula user
+type User struct {
+	ID          int          `xml:"ID"`
+	GID         int          `xml:"GID"`
+	GroupsID    []int        `xml:"GROUPS>ID"`
+	GName       string       `xml:"GNAME"`
+	Name        string       `xml:"NAME"`
+	Password    string       `xml:"PASSWORD"`
+	AuthDriver  string       `xml:"AUTH_DRIVER"`
+	Enabled     int          `xml:"ENABLED"`
+	LoginTokens []LoginToken `xml:"LOGIN_TOKEN"`
+	Template    Template     `xml:"TEMPLATE"`
 
-	// Disk
-	vector := template.NewVector("disk")
-	vector.AddValue("image_id", "119")
-	vector.AddValue("dev_prefix", "vd")
+	// Variable part between one.userpool.info and one.user.info
+	shared.QuotasList
+	DefaultUserQuotas shared.QuotasList `xml:"DEFAULT_USER_QUOTAS"`
+}
 
-	// NIC
-	vector = template.NewVector("nic")
-	vector.AddValue("network_id", "3")
-	vector.AddValue("model", "virtio")
+type Template struct {
+	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
+}
 
-	fmt.Println(template)
-	// Output:
-	// CPU="1"
-	// MEMORY="64"
-	// VCPU="2"
-	// DISK=[
-	//     IMAGE_ID="119",
-	//     DEV_PREFIX="vd" ]
-	// NIC=[
-	//     NETWORK_ID="3",
-	//     MODEL="virtio" ]
+type LoginToken struct {
+	Token          string `xml:"TOKEN"`
+	ExpirationTime int    `xml:"EXPIRATION_TIME"`
+	EGID           int    `xml:"EGID"`
 }

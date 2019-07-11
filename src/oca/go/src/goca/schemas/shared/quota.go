@@ -14,35 +14,35 @@
 /* limitations under the License.                                             */
 /*--------------------------------------------------------------------------- */
 
-package goca
+package shared
 
-type quotas struct {
-	ID uint `xml:"ID"`
-	quotasList
+type Quotas struct {
+	ID int `xml:"ID"`
+	QuotasList
 }
 
-type quotasList struct {
-	DatastoreQuotas []datastoreQuota `xml:"DATASTORE_QUOTA>DATASTORE"`
-	NetworkQuotas   []networkQuota   `xml:"NETWORK_QUOTA>NETWORK"`
-	VMQuotas        []vmQuota        `xml:"VM_QUOTA>VM"`
-	ImageQuotas     []imageQuota     `xml:"IMAGE_QUOTA>IMAGE"`
+type QuotasList struct {
+	DatastoreQuotas []DatastoreQuota `xml:"DATASTORE_QUOTA>DATASTORE"`
+	NetworkQuotas   []NetworkQuota   `xml:"NETWORK_QUOTA>NETWORK"`
+	VMQuotas        []VMQuota        `xml:"VM_QUOTA>VM"`
+	ImageQuotas     []ImageQuota     `xml:"IMAGE_QUOTA>IMAGE"`
 }
 
-type datastoreQuota struct {
-	ID         string `xml:"ID"`
+type DatastoreQuota struct {
+	ID         int    `xml:"ID"`
 	Images     string `xml:"IMAGES"`
 	ImagesUsed string `xml:"IMAGES_USED"`
 	Size       string `xml:"SIZE"`
 	SizeUsed   string `xml:"SIZE_USED"`
 }
 
-type networkQuota struct {
-	ID         string `xml:"ID"`
+type NetworkQuota struct {
+	ID         int    `xml:"ID"`
 	Leases     string `xml:"LEASES"`
 	LeasesUsed string `xml:"LEASES_USED"`
 }
 
-type vmQuota struct {
+type VMQuota struct {
 	CPU                string `xml:"CPU"`
 	CPUUsed            string `xml:"CPU_USED"`
 	Memory             string `xml:"MEMORY"`
@@ -59,8 +59,8 @@ type vmQuota struct {
 	VMsUsed            string `xml:"VMS_USED"`
 }
 
-type imageQuota struct {
-	ID       string `xml:"ID"`
+type ImageQuota struct {
+	ID       int    `xml:"ID"`
 	RVMs     string `xml:"RVMS"`
 	RVMsUsed string `xml:"RVMS_USED"`
 }

@@ -14,7 +14,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-package: github.com/OpenNebula/goca
+package: github.com/OpenNebula/one/src/oca/go/src/goca
 import:
+- package: github.com/hashicorp/go-cleanhttp
 - package: github.com/kolo/xmlrpc
-- package: gopkg.in/xmlpath.v2
+testImport:
+- package: gopkg.in/check.v1

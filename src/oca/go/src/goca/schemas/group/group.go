@@ -14,43 +14,33 @@
 /* limitations under the License.                                             */
 /*--------------------------------------------------------------------------- */
 
-package goca
+package group
 
-// An user can take snapshot on VM, or on VM disks
+import (
+	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+)
 
-// Common part
-type snapshot struct {
-	Children string `xml:"CHILDREN"` //minOccur=0
-	Active   string `xml:"ACTIVE"`   //minOccur=0
-	Date     int    `xml:"DATE"`
-	ID       int    `xml:"ID"`
-	Name     string `xml:"NAME"` //minOccur=0
-	Parent   int    `xml:"PARENT"`
-	Size     int    `xml:"SIZE"`
+// Pool represents an OpenNebula GroupPool
+type Pool struct {
+	Groups            []Group           `xml:"GROUP"`
+	Quotas            []shared.Quotas   `xml:"QUOTAS"`
+	DefaultUserQuotas shared.QuotasList `xml:"DEFAULT_USER_QUOTAS"`
 }
 
-// Image entity related
-type ImageSnapshot struct {
-	AllowOrphans string     `xml:"ALLOW_ORPHANS"`
-	CurrentBase  int        `xml:"CURRENT_BASE"`
-	NextSnapshot int        `xml:"NEXT_SNAPSHOT"`
-	Snapshots    []snapshot `xml:"SNAPSHOT"`
+// Group represents an OpenNebula Group
+type Group struct {
+	ID       int      `xml:"ID"`
+	Name     string   `xml:"NAME"`
+	UsersID  []int    `xml:"USERS>ID"`
+	AdminsID []int    `xml:"ADMINS>ID"`
+	Template Template `xml:"TEMPLATE"`
+
+	// Variable part between one.grouppool.info and one.group.info
+	shared.QuotasList
+	DefaultUserQuotas shared.QuotasList `xml:"DEFAULT_USER_QUOTAS"`
 }
 
-// VM entity related
-type VMSnapshot struct {
-	HypervisorID string `xml:"HYPERVISOR_ID"`
-	Name         string `xml:"NAME"`
-	ID           int    `xml:"SNAPSHOT_ID"`
-	Time         string `xml:"TIME"`
-}
-
-type vmHistoryRecordSnapshot struct {
-	ImageSnapshot
-	DiskID int `xml:"DISK_ID"`
-}
-
-type vmMonitoringSnapshotSize struct {
-	DiskID int `xml:"DISK_ID"`
-	Size   int `xml:"SIZE"`
+type Template struct {
+	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
 }

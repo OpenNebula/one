@@ -17,8 +17,10 @@
 package goca
 
 import (
-    "testing"
-    "strings"
+	"strings"
+	"testing"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/image"
 )
 
 var imageTpl = `
@@ -27,9 +29,12 @@ SIZE = 1
 TYPE = "DATABLOCK"
 `
 
-func ImageExpectState(image *Image, state string) func() bool {
+func ImageExpectState(imageC *ImageController, state string) func() bool {
 	return func() bool {
-		image.Info()
+		image, err := imageC.Info()
+		if err != nil {
+			return false
+		}
 
 		s, err := image.StateString()
 		if err != nil {
@@ -45,17 +50,15 @@ func ImageExpectState(image *Image, state string) func() bool {
 }
 
 // Helper to create a Image
-func createImage(t *testing.T) (*Image, uint) {
-    // Datastore ID 1 means default for image
-	id, err := CreateImage(imageTpl, 1)
+func createImage(t *testing.T) (*image.Image, int) {
+	// Datastore ID 1 means default for image
+	id, err := testCtrl.Images().Create(imageTpl, 1)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	// Get Image by ID
-	image := NewImage(id)
-
-	err = image.Info()
+	image, err := testCtrl.Image(id).Info()
 	if err != nil {
 		t.Error(err)
 	}
@@ -76,12 +79,13 @@ func TestImage(t *testing.T) {
 	// Get image by Name
 	name := image.Name
 
-	image, err = NewImageFromName(name)
+	id, err := testCtrl.Images().ByName(name)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = image.Info()
+	imageCtrl := testCtrl.Image(id)
+	image, err = imageCtrl.Info()
 	if err != nil {
 		t.Error(err)
 	}
@@ -91,20 +95,19 @@ func TestImage(t *testing.T) {
 		t.Errorf("Image ID does not match")
 	}
 
+	// Wait image is ready
+	wait := WaitResource(ImageExpectState(imageCtrl, "READY"))
+	if wait == false {
+		t.Error("Image not READY")
+	}
 
-    // Wait image is ready
-    wait := WaitResource(ImageExpectState(image, "READY"))
-    if wait == false {
-        t.Error("Image not READY")
-    }
-
-    // Change Owner to user call
-    err = image.Chown(-1, -1)
+	// Change Owner to user call
+	err = imageCtrl.Chown(-1, -1)
 	if err != nil {
 		t.Error(err)
 	}
 
-    err = image.Info()
+	image, err = imageCtrl.Info()
 	if err != nil {
 		t.Error(err)
 	}
@@ -115,29 +118,29 @@ func TestImage(t *testing.T) {
 	// Get Image owner group Name
 	gname := image.GName
 
-    // Compare with caller username
-    caller := strings.Split(client.token, ":")[0]
-    if caller != uname {
-        t.Error("Caller user and image owner user mismatch")
-    }
-
-    group, err := GetUserGroup(t, caller)
-	if err != nil {
-        t.Error("Cannot retreive caller group")
+	// Compare with caller username
+	caller := strings.Split(testClient.token, ":")[0]
+	if caller != uname {
+		t.Error("Caller user and image owner user mismatch")
 	}
 
-    // Compare with caller group
-    if group != gname {
-        t.Error("Caller group and image owner group mismatch")
-    }
+	group, err := GetUserGroup(t, caller)
+	if err != nil {
+		t.Error("Cannot retreive caller group")
+	}
 
-    // Change Owner to oneadmin call
-    err = image.Chown(1, 1)
+	// Compare with caller group
+	if group != gname {
+		t.Error("Caller group and image owner group mismatch")
+	}
+
+	// Change Owner to oneadmin call
+	err = imageCtrl.Chown(1, 1)
 	if err != nil {
 		t.Error(err)
 	}
 
-    err = image.Info()
+	image, err = imageCtrl.Info()
 	if err != nil {
 		t.Error(err)
 	}
@@ -148,17 +151,17 @@ func TestImage(t *testing.T) {
 	// Get Image owner group Name
 	gname = image.GName
 
-    if "serveradmin" != uname {
+	if "serveradmin" != uname {
 		t.Error("Image owner is not oneadmin")
 	}
 
-    // Compare with caller group
-    if "users" != gname {
-        t.Error("Image owner group is not oneadmin")
-    }
+	// Compare with caller group
+	if "users" != gname {
+		t.Error("Image owner group is not oneadmin")
+	}
 
 	// Delete template
-	err = image.Delete()
+	err = imageCtrl.Delete()
 	if err != nil {
 		t.Error(err)
 	}

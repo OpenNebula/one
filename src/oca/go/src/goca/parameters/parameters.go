@@ -14,11 +14,35 @@
 /* limitations under the License.                                             */
 /*--------------------------------------------------------------------------- */
 
-package goca
+package parameters
 
-type Lock struct {
-	Locked int `xml:"LOCKED"`
-	Owner  int `xml:"OWNER"`
-	Time   int `xml:"TIME"`
-	ReqID  int `xml:"REQ_ID"`
-}
+// UpdateType is a parameter to update methods indicating how to replace the template
+type UpdateType int
+
+const (
+	// Replace to replace the whole template
+	Replace UpdateType = 0
+
+	// Merge to merge new template with existing one
+	Merge UpdateType = 1
+)
+
+// WhoPool is a parameter to pool info methods allowing to so some filtering
+//type WhoPool int
+
+const (
+	// PoolWhoPrimaryGroup resources belonging to the user’s primary group.
+	PoolWhoPrimaryGroup = -4
+
+	// PoolWhoMine to list resources that belong to the user that performs the
+	// query.
+	PoolWhoMine = -3
+
+	// PoolWhoAll to list all the resources seen by the user that performs the
+	// query.
+	PoolWhoAll = -2
+
+	// PoolWhoGroup to list all the resources that belong to the group that performs
+	// the query.
+	PoolWhoGroup = -1
+)

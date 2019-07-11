@@ -1,0 +1,78 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/*--------------------------------------------------------------------------- */
+
+package goca
+
+// RPCCaller is the interface to satisfy in order to be usable by the controller
+type RPCCaller interface {
+	Call(method string, args ...interface{}) (*Response, error)
+}
+
+// Controller is the controller used to make requets on various entities
+type Controller struct {
+	Client RPCCaller
+}
+
+// entitiesController is a controller for entitites
+type entitiesController struct {
+	c *Controller
+}
+
+// entityController is a controller for an entity
+type entityController struct {
+	c  *Controller
+	ID int
+}
+
+// entityControllerName is a controller for an entity
+type entityNameController struct {
+	c    *Controller
+	Name string
+}
+
+// subEntityController is a controller for a sub entity
+type subEntityController struct {
+	c        *Controller
+	entityID int
+	ID       int
+}
+
+// NewController return a new one controller
+func NewController(c RPCCaller) *Controller {
+	return &Controller{
+		Client: c,
+	}
+}
+
+// SystemVersion returns the current OpenNebula Version
+func (c *Controller) SystemVersion() (string, error) {
+	response, err := c.Client.Call("one.system.version")
+	if err != nil {
+		return "", err
+	}
+
+	return response.Body(), nil
+}
+
+// SystemConfig returns the current OpenNebula config
+func (c *Controller) SystemConfig() (string, error) {
+	response, err := c.Client.Call("one.system.config")
+	if err != nil {
+		return "", err
+	}
+
+	return response.Body(), nil
+}

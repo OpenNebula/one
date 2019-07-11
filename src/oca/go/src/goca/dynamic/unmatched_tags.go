@@ -14,7 +14,7 @@
 /* limitations under the License.                                             */
 /*--------------------------------------------------------------------------- */
 
-package goca
+package dynamic
 
 import (
 	"encoding/xml"
@@ -38,11 +38,11 @@ type UnmatchedTag struct {
 // If there is several tags with the same name : only the last value will be stored
 
 // UnmatchedTagsMap store tags not handled by Unmarshal in a map, it should be labelled with `xml",any"`
-type unmatchedTagsMap map[string]string
+type UnmatchedTagsMap map[string]string
 
-func (m *unmatchedTagsMap) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
-	if *m == nil {
-		*m = unmatchedTagsMap{}
+func (u *UnmatchedTagsMap) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	if *u == nil {
+		*u = UnmatchedTagsMap{}
 	}
 
 	e := UnmatchedTag{}
@@ -52,15 +52,15 @@ func (m *unmatchedTagsMap) UnmarshalXML(d *xml.Decoder, start xml.StartElement) 
 	}
 
 	// Fail the parsing of the whole xml
-	//if _, ok := (*m)[e.XMLName.Local]; ok {
+	//if _, ok := (*u)[e.XMLName.Local]; ok {
 	//	return fmt.Errorf("UnmatchedTagsMap: UnmarshalXML: Tag %s:  multiple entries with the same name", e.XMLName.Local)
 	//}
-	(*m)[e.XMLName.Local] = e.Content
+	(*u)[e.XMLName.Local] = e.Content
 
 	return nil
 }
 
-func (u *unmatchedTagsMap) GetContentByName(name string) string {
+func (u *UnmatchedTagsMap) GetContentByName(name string) string {
 	return ((map[string]string)(*u))[name]
 }
 
@@ -69,11 +69,11 @@ func (u *unmatchedTagsMap) GetContentByName(name string) string {
 // NOTE: to be used in flat xml part
 
 // UnmatchedTagsSlice store tags not handled by Unmarshal in a slice, it should be labelled with `xml",any"`
-type unmatchedTagsSlice struct {
+type UnmatchedTagsSlice struct {
 	Tags []UnmatchedTag
 }
 
-func (u *unmatchedTagsSlice) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+func (u *UnmatchedTagsSlice) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	var e UnmatchedTag
 	err := d.DecodeElement(&e, &start)
 	if err != nil {
@@ -85,7 +85,7 @@ func (u *unmatchedTagsSlice) UnmarshalXML(d *xml.Decoder, start xml.StartElement
 }
 
 // Retrieve slice of tags with given name
-func (u *unmatchedTagsSlice) GetContentSliceByName(name string) []string {
+func (u *UnmatchedTagsSlice) GetContentSliceByName(name string) []string {
 	content := make([]string, 0, 1)
 	for _, t := range u.Tags {
 		if t.XMLName.Local != name {
@@ -97,7 +97,7 @@ func (u *unmatchedTagsSlice) GetContentSliceByName(name string) []string {
 }
 
 // Retrieve a tag with given name, fail if not present or present more than once
-func (u *unmatchedTagsSlice) GetContentByName(name string) (string, error) {
+func (u *UnmatchedTagsSlice) GetContentByName(name string) (string, error) {
 	var content string
 	match := false
 	for _, t := range u.Tags {

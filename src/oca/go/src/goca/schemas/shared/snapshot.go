@@ -14,26 +14,17 @@
 /* limitations under the License.                                             */
 /*--------------------------------------------------------------------------- */
 
-package goca
+package shared
 
-//import "fmt"
+// There is two types of snapshots, an user can take snapshot on VM, or on VM disks
 
-type Permissions struct {
-	OwnerU int `xml:"OWNER_U"`
-	OwnerM int `xml:"OWNER_M"`
-	OwnerA int `xml:"OWNER_A"`
-	GroupU int `xml:"GROUP_U"`
-	GroupM int `xml:"GROUP_M"`
-	GroupA int `xml:"GROUP_A"`
-	OtherU int `xml:"OTHER_U"`
-	OtherM int `xml:"OTHER_M"`
-	OtherA int `xml:"OTHER_A"`
-}
-
-func (p *Permissions) String() string {
-	permStr := [8]string{"---", "--a", "-m-", "-ma", "u--", "u-a", "um-", "uma"}
-	owner := permStr[p.OwnerU<<2|p.OwnerM<<1|p.OwnerA]
-	group := permStr[p.GroupU<<2|p.GroupM<<1|p.GroupA]
-	other := permStr[p.OtherU<<2|p.OtherM<<1|p.OtherA]
-	return owner + group + other
+// Snapshot is a common part for external snapshot structures
+type Snapshot struct {
+	Children string `xml:"CHILDREN"` //minOccur=0
+	Active   string `xml:"ACTIVE"`   //minOccur=0
+	Date     int    `xml:"DATE"`
+	ID       int    `xml:"ID"`
+	Name     string `xml:"NAME"` //minOccur=0
+	Parent   int    `xml:"PARENT"`
+	Size     int    `xml:"SIZE"`
 }

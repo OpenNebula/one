@@ -17,8 +17,10 @@
 package goca
 
 import (
-    "testing"
-    "strings"
+	"strings"
+	"testing"
+
+	vn "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/virtualnetwork"
 )
 
 var vnTpl = `
@@ -31,16 +33,14 @@ VN_MAD = "vxlan"
 `
 
 // Helper to create a Virtual Network
-func createVirtualNetwork(t *testing.T) (*VirtualNetwork, uint) {
-	id, err := CreateVirtualNetwork(vnTpl, -1)
+func createVirtualNetwork(t *testing.T) (*vn.VirtualNetwork, int) {
+	id, err := testCtrl.VirtualNetworks().Create(vnTpl, -1)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	// Get Virtual Network by ID
-	vnet := NewVirtualNetwork(id)
-
-	err = vnet.Info()
+	vnet, err := testCtrl.VirtualNetwork(id).Info()
 	if err != nil {
 		t.Error(err)
 	}
@@ -61,12 +61,13 @@ func TestVirtualNetwork(t *testing.T) {
 	// Get virtual network by Name
 	name := vnet.Name
 
-	vnet, err = NewVirtualNetworkFromName(name)
+	id, err := testCtrl.VirtualNetworks().ByName(name)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = vnet.Info()
+	vnetC := testCtrl.VirtualNetwork(id)
+	vnet, err = vnetC.Info()
 	if err != nil {
 		t.Error(err)
 	}
@@ -76,13 +77,13 @@ func TestVirtualNetwork(t *testing.T) {
 		t.Errorf("Virtual Network ID does not match")
 	}
 
-    // Change Owner to user call
-    err = vnet.Chown(-1, -1)
+	// Change Owner to user call
+	err = vnetC.Chown(-1, -1)
 	if err != nil {
 		t.Error(err)
 	}
-	
-    err = vnet.Info()
+
+	vnet, err = vnetC.Info()
 	if err != nil {
 		t.Error(err)
 	}
@@ -93,29 +94,29 @@ func TestVirtualNetwork(t *testing.T) {
 	// Get Image owner group Name
 	gname := vnet.GName
 
-    // Compare with caller username
-    caller := strings.Split(client.token, ":")[0]
-    if caller != uname {
-        t.Error("Caller user and virtual network owner user mismatch")
-    }
-
-    group, err := GetUserGroup(t, caller)
-	if err != nil {
-        t.Error("Cannot retreive caller group")
+	// Compare with caller username
+	caller := strings.Split(testClient.token, ":")[0]
+	if caller != uname {
+		t.Error("Caller user and virtual network owner user mismatch")
 	}
 
-    // Compare with caller group
-    if group != gname {
-        t.Error("Caller group and security group owner group mismatch")
-    }
+	group, err := GetUserGroup(t, caller)
+	if err != nil {
+		t.Error("Cannot retreive caller group")
+	}
 
-    // Change Owner to oneadmin call
-    err = vnet.Chown(1, 1)
+	// Compare with caller group
+	if group != gname {
+		t.Error("Caller group and security group owner group mismatch")
+	}
+
+	// Change Owner to oneadmin call
+	err = vnetC.Chown(1, 1)
 	if err != nil {
 		t.Error(err)
 	}
 
-    err = vnet.Info()
+	vnet, err = vnetC.Info()
 	if err != nil {
 		t.Error(err)
 	}
@@ -126,17 +127,17 @@ func TestVirtualNetwork(t *testing.T) {
 	// Get Image owner group Name
 	gname = vnet.GName
 
-    if "serveradmin" != uname {
+	if "serveradmin" != uname {
 		t.Error("Virtual network owner is not oenadmin")
 	}
 
-    // Compare with caller group
-    if "users" != gname {
-        t.Error("Virtual network owner group is not oneadmin")
-    }
+	// Compare with caller group
+	if "users" != gname {
+		t.Error("Virtual network owner group is not oneadmin")
+	}
 
 	// Delete template
-	err = vnet.Delete()
+	err = vnetC.Delete()
 	if err != nil {
 		t.Error(err)
 	}
