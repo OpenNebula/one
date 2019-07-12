@@ -39,7 +39,17 @@ define(function(require) {
 
   var WIZARD_TAB_ID = require("./numa/wizardTabId");
   var RESOURCE = "HOST";
-  var SELECTOR_HUGEPAGE = "#numa-hugepages";
+  var BUTTON_NUMA_TOPOLOGY = "#numa-topology";
+  var HUGEPAGE_SELECTED_VALUE = "";
+  var idsElements = {
+    cores: "#numa-cores",
+    threads: "#numa-threads",
+    hugepages: "#numa-hugepages",
+    sockets: "#numa-sockets",
+    memory: "#numa-memory",
+    pin: "#numa-pin-policy"
+  }
+
   var numaStatus = null;
   /*
     CONSTRUCTOR
@@ -74,7 +84,7 @@ define(function(require) {
 
   function successCallback(request, opts, infohost){
     //console.log("CACHE ", OpenNebulaAction.get_all_cache());
-    var selector = $(SELECTOR_HUGEPAGE);
+    var selector = $(idsElements.hugepages);
     selector.empty();
     if(infohost && infohost.HOST_POOL && infohost.HOST_POOL.HOST){
       infohost.HOST_POOL.HOST.map(function(host){
@@ -87,7 +97,8 @@ define(function(require) {
           numaNodes.map(function(node){
             if(node && node.HUGEPAGE && node.NODE_ID){
               node.HUGEPAGE.map(function(hugepage){
-                selector.append($("<option/>",{"value": hugepage.SIZE}).text(name+" ("+node.NODE_ID+") - "+hugepage.SIZE));
+                var selected = hugepage.SIZE === HUGEPAGE_SELECTED_VALUE;
+                selector.append($("<option/>",{"value": hugepage.SIZE}).text(name+" ("+node.NODE_ID+") - "+hugepage.SIZE).prop('selected', selected));
               });
             }
           });
@@ -106,13 +117,11 @@ define(function(require) {
 
   function _onShow(context, panelForm) {
     var that = this;
-    console.log(that);
-    $('#numa-topology', context).on( 'click', function() {
+    $(BUTTON_NUMA_TOPOLOGY, context).on( 'click', function() {
       var form = $(".numa-form",context);
       if( $(this).is(':checked') ){
         form.removeClass("hide");
-        //aca se tiene que llamar a los hugepages
-        OpenNebulaAction.clear_cache("HOST");
+        OpenNebulaAction.clear_cache(RESOURCE);
         OpenNebulaAction.list(
           {
             data: {pool_filter: -2},
@@ -130,45 +139,42 @@ define(function(require) {
   }
 
   function _setup(context) {
-    console.log("3", this)
     var that = this;
     Foundation.reflow(context, "tabs");
-    if(that && that.action){
-      
-    }
   }
 
   function _retrieve(context) {
-    var templateJSON = {};
+    var templateJSON = { TOPOLOGY : {BORRAR:"BORRAR"} };
     if(getStatusNuma()){
-      var temp = {}
-      var policy = _getValue("#numa-pin-policy", context);
+      delete templateJSON["TOPOLOGY"]["BORRAR"];
+
+      var temp = {};
+      var policy = _getValue(idsElements.pin, context);
       if(policy && policy.length){
         temp.PIN_POLICY = policy;
       }
-      var sockets = _getValue("#numa-sockets", context);
+      var sockets = _getValue(idsElements.sockets, context);
       if(sockets && sockets.length){
         temp.SOCKETS = sockets;
       }
-      var cores = _getValue("#numa-cores", context);
+      var cores = _getValue(idsElements.cores, context);
       if(cores && cores.length){
         temp.CORES = cores;
       }
-      var threads = _getValue("#numa-threads", context);
+      var threads = _getValue(idsElements.threads, context);
       if(threads && threads.length){
         temp.THREADS = threads;
       }
-      var hugepage = _getValue("#numa-hugepages", context);
+      var hugepage = _getValue(idsElements.hugepages, context) || HUGEPAGE_SELECTED_VALUE;
       if(hugepage && hugepage.length){
-        temp.HUGEPAGE_SIZE = sockets;
+        temp.HUGEPAGE_SIZE = hugepage;
       }
-      var memory = _getValue("#numa-memory", context);
+      var memory = _getValue(idsElements.memory, context);
       if(memory && memory.length){
         temp.MEMORY_ACCESS = memory;
       }
       templateJSON.TOPOLOGY = temp;
     }
-    console.log("-->", templateJSON);
     return templateJSON;
   }
 
@@ -182,25 +188,32 @@ define(function(require) {
 
   function _fillBootValue(id="", context=null, value="") {
     if(id.length && context && value.length){
-      $(String(id), context).attr("value", value);
+      $(String(id), context).val(value);
     }
   }
 
   function _fill(context, templateJSON) {
-    console.log("5", templateJSON);
-    /*var topology = templateJSON["TOPOLOGY"];
-    if (topology) {
-      WizardFields.fill(context, pinPolicy);
-
-      if (pinPolicy && pinPolicy["PIN_POLICY"]) {
-        _fillBootValue("", context, pinPolicy["BOOT"]);
+    if(templateJSON && templateJSON.TOPOLOGY){
+      var topology = templateJSON.TOPOLOGY;
+      $(BUTTON_NUMA_TOPOLOGY).click();
+      if(topology && topology.CORES){
+        _fillBootValue(idsElements.cores, context, topology.CORES);
+      }
+      if(topology && topology.HUGEPAGE_SIZE){
+        HUGEPAGE_SELECTED_VALUE = topology.HUGEPAGE_SIZE;
+      }
+      if(topology && topology.MEMORY_ACCESS){
+        _fillBootValue(idsElements.memory, context, topology.MEMORY_ACCESS);
+      }
+      if(topology && topology.PIN_POLICY){
+        _fillBootValue(idsElements.pin, context, topology.PIN_POLICY);
+      }
+      if(topology && topology.SOCKETS){
+        _fillBootValue(idsElements.sockets, context, topology.SOCKETS);
+      }
+      if(topology && topology.THREADS){
+        _fillBootValue(idsElements.threads, context, topology.THREADS);
       }
     }
-
-    var topologyJSON = templateJSON["TOPOLOGY"];
-    if (topologyJSON) {
-      WizardFields.fill(context, topologyJSON);
-      delete topologyJSON["TOPOLOGY"];
-    }*/
   }
 });

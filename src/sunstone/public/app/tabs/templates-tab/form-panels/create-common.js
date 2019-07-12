@@ -166,8 +166,9 @@ define(function(require) {
       var a = templateJSON;
     });
 
-    if(templateJSON["TOPOLOGY"] === null){
-      delete templateJSON["TOPOLOGY"]
+
+    if(templateJSON["TOPOLOGY"] && templateJSON["TOPOLOGY"]["BORRAR"]){
+      delete templateJSON["TOPOLOGY"];
     }
 
     // vCenter PUBLIC_CLOUD is not defined in the hybrid tab. Because it is
@@ -201,7 +202,6 @@ define(function(require) {
 
       delete templateJSON["NIC_PCI"];
     }
-    console.log("templateJSON!", templateJSON);
     return templateJSON;
   }
 
