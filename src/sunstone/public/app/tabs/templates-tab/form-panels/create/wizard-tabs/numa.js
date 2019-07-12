@@ -87,9 +87,13 @@ define(function(require) {
     var selector = $(idsElements.hugepages);
     selector.empty();
     if(infohost && infohost.HOST_POOL && infohost.HOST_POOL.HOST){
-      infohost.HOST_POOL.HOST.map(function(host){
+      var hosts = infohost.HOST_POOL.HOST;
+      if (!(hosts instanceof Array)) {
+        hosts = [hosts];
+      }
+      hosts.map(function(host){
         if(host && host.HOST_SHARE && host.NAME && host.HOST_SHARE.NUMA_NODES && host.HOST_SHARE.NUMA_NODES.NODE){
-          var name = host.NAME
+          var name = host.NAME;
           var numaNodes = host.HOST_SHARE.NUMA_NODES.NODE;
           if (!(numaNodes instanceof Array)) {
             numaNodes = [numaNodes];
