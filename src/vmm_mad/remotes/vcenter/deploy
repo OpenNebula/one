@@ -78,6 +78,23 @@ rescue StandardError => e
         message =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " \
                    "with #{dfile} failed due to \"#{e.message}\"" \
                    "on the final attempt."
+        if e.message.include?('ManagedObjectNotFound')
+            template_id = drv_action['TEMPLATE/TEMPLATE_ID'].to_i
+
+            client = OpenNebula::Client.new
+            resource = OpenNebula::Template.new_with_id(template_id, client)
+            rc = resource.info
+
+            if OpenNebula.is_error?(rc)
+                message << "\n#{rc.message}"
+            else
+                template_name = resource.name
+
+                message << "\nVerify inside vCenter cluster #{cluster_name} " \
+                           "that the template #{template_name} currently " \
+                           'exists and has not been deleted'
+            end
+        end
     end
     OpenNebula.log_error(message)
     STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
