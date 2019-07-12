@@ -512,7 +512,9 @@ module VCenterDriver
                 puts "\n"
                 exit 0 #Ctrl+C
             rescue Exception => e
-                STDOUT.puts "    Error: #{e.message}/\n#{e.backtrace}"
+                error_msg = "\nError: #{e.message}\n"
+                error_msg << "#{e.backtrace}\n" if VCenterDriver::CONFIG[:debug_information]
+                STDOUT.puts error_msg
             ensure
                 vi_client.close_connection if vi_client
             end
