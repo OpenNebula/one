@@ -19,9 +19,13 @@
 ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' unless defined?(RUBY_LIB_LOCATION)
+    unless defined?(RUBY_LIB_LOCATION)
+        RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    end
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' unless defined?(RUBY_LIB_LOCATION)
+    unless defined?(RUBY_LIB_LOCATION)
+        RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    end
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -77,7 +81,7 @@ rescue StandardError => e
     else
         message =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " \
                    "with #{dfile} failed due to \"#{e.message}\"" \
-                   "on the final attempt."
+                   'on the final attempt.'
         if e.message.include?('ManagedObjectNotFound')
             template_id = drv_action['TEMPLATE/TEMPLATE_ID'].to_i
 
@@ -97,7 +101,9 @@ rescue StandardError => e
         end
     end
     OpenNebula.log_error(message)
-    STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
+    if VCenterDriver::CONFIG[:debug_information]
+        STDERR.puts "#{message} #{e.backtrace}"
+    end
     sleep CONFIG[:retry_interval].to_i
     retry if retries < CONFIG[:retries]
 
