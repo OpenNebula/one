@@ -3,67 +3,163 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:6da51e5ec493ad2b44cb04129e2d0a068c8fb9bd6cb5739d199573558696bb94"
   name = "github.com/Azure/go-ansiterm"
-  packages = [".","winterm"]
+  packages = [
+    ".",
+    "winterm",
+  ]
+  pruneopts = "UT"
   revision = "d6e3b3328b783f23731bc4d058875b0371ff8109"
 
 [[projects]]
   branch = "master"
+  digest = "1:c3bbfd49386bd298f3467474e44469163c9cf6900b037a203b0388634ab1bf41"
   name = "github.com/OpenNebula/one"
-  packages = ["src/oca/go/src/goca"]
+  packages = [
+    "src/oca/go/src/goca",
+    "src/oca/go/src/goca/dynamic",
+    "src/oca/go/src/goca/errors",
+    "src/oca/go/src/goca/parameters",
+    "src/oca/go/src/goca/schemas/acl",
+    "src/oca/go/src/goca/schemas/cluster",
+    "src/oca/go/src/goca/schemas/datastore",
+    "src/oca/go/src/goca/schemas/document",
+    "src/oca/go/src/goca/schemas/group",
+    "src/oca/go/src/goca/schemas/host",
+    "src/oca/go/src/goca/schemas/image",
+    "src/oca/go/src/goca/schemas/marketplace",
+    "src/oca/go/src/goca/schemas/marketplaceapp",
+    "src/oca/go/src/goca/schemas/securitygroup",
+    "src/oca/go/src/goca/schemas/shared",
+    "src/oca/go/src/goca/schemas/template",
+    "src/oca/go/src/goca/schemas/user",
+    "src/oca/go/src/goca/schemas/vdc",
+    "src/oca/go/src/goca/schemas/virtualnetwork",
+    "src/oca/go/src/goca/schemas/virtualrouter",
+    "src/oca/go/src/goca/schemas/vm",
+    "src/oca/go/src/goca/schemas/vmgroup",
+    "src/oca/go/src/goca/schemas/vntemplate",
+    "src/oca/go/src/goca/schemas/zone",
+  ]
+  pruneopts = "UT"
   revision = "master"
 
 [[projects]]
   branch = "master"
+  digest = "1:5a9464d972454e9bb1ed81f6742dfdb3ad834ba816c4783fd4e5c975b669f01c"
   name = "github.com/docker/docker"
-  packages = ["pkg/term","pkg/term/windows"]
+  packages = [
+    "pkg/term",
+    "pkg/term/windows",
+  ]
+  pruneopts = "UT"
   revision = "0c1006f1abc1af7aa6b9847754370d054dfa6c68"
 
 [[projects]]
+  digest = "1:6dc4a88e0b8ecdff1d25e37fbc680f467261c18469be8a5559a5754fb895c5c0"
   name = "github.com/docker/machine"
-  packages = ["libmachine/drivers","libmachine/drivers/plugin","libmachine/drivers/plugin/localbinary","libmachine/drivers/rpc","libmachine/log","libmachine/mcnflag","libmachine/mcnutils","libmachine/ssh","libmachine/state","libmachine/version","version"]
+  packages = [
+    "libmachine/drivers",
+    "libmachine/drivers/plugin",
+    "libmachine/drivers/plugin/localbinary",
+    "libmachine/drivers/rpc",
+    "libmachine/log",
+    "libmachine/mcnflag",
+    "libmachine/mcnutils",
+    "libmachine/ssh",
+    "libmachine/state",
+    "libmachine/version",
+    "version",
+  ]
+  pruneopts = "UT"
   revision = "89b833253d9412716a0291cbdccc94454c33d1b5"
   version = "v0.14.0"
 
 [[projects]]
+  digest = "1:af105c7c5dc0b4ae41991f122cae860b9600f7d226072c2a83127048c991660c"
+  name = "github.com/hashicorp/go-cleanhttp"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "eda1e5db218aad1db63ca4642c8906b26bcf2744"
+  version = "v0.5.1"
+
+[[projects]]
   branch = "master"
+  digest = "1:82993553515c494e149cbbb73a63899e8f1c6a5b4c456e60baf170ad6c347033"
   name = "github.com/kolo/xmlrpc"
   packages = ["."]
+  pruneopts = "UT"
   revision = "0826b98aaa29c0766956cb40d45cf7482a597671"
 
 [[projects]]
+  digest = "1:9e9193aa51197513b3abcb108970d831fbcf40ef96aa845c4f03276e1fa316d2"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
+  pruneopts = "UT"
   revision = "c155da19408a8799da419ed3eeb0cb5db0ad5dbc"
   version = "v1.0.5"
 
 [[projects]]
   branch = "master"
+  digest = "1:ae38a56e386a576a45ca89870c379224062f1cc9a9763f7b165567f3f317f4a1"
   name = "golang.org/x/crypto"
-  packages = ["curve25519","ed25519","ed25519/internal/edwards25519","internal/chacha20","poly1305","ssh","ssh/terminal"]
+  packages = [
+    "curve25519",
+    "ed25519",
+    "ed25519/internal/edwards25519",
+    "internal/chacha20",
+    "poly1305",
+    "ssh",
+    "ssh/terminal",
+  ]
+  pruneopts = "UT"
   revision = "c3a3ad6d03f7a915c0f7e194b7152974bb73d287"
 
 [[projects]]
   branch = "master"
+  digest = "1:d610e483f9d284959f3bb01d8917ad0e4efd393a8587123b1e3406fdf37199f0"
   name = "golang.org/x/net"
-  packages = ["html","html/atom"]
+  packages = [
+    "html",
+    "html/atom",
+  ]
+  pruneopts = "UT"
   revision = "6078986fec03a1dcc236c34816c71b0e05018fda"
 
 [[projects]]
   branch = "master"
+  digest = "1:1edb3ae84490dc42a1ca99adbb957b2f66a3b79fa23ddc9e53b1f9b2a872601f"
   name = "golang.org/x/sys"
-  packages = ["unix","windows"]
+  packages = [
+    "unix",
+    "windows",
+  ]
+  pruneopts = "UT"
   revision = "7ceb54c8418b8f9cdf0177b511d5cbb06e9fae39"
 
 [[projects]]
   branch = "v2"
+  digest = "1:c78e25c1cf10b1d9d1dd866f3f246f239b66d4648a16e3da1c098444e288c0e9"
   name = "gopkg.in/xmlpath.v2"
   packages = ["."]
+  pruneopts = "UT"
   revision = "860cbeca3ebcc600db0b213c0e83ad6ce91f5739"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "6ef5dc5036a75692652fb575393bee64c35bf61c3c8362fa2817dffa01b46173"
+  input-imports = [
+    "github.com/OpenNebula/one/src/oca/go/src/goca",
+    "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic",
+    "github.com/docker/machine/libmachine/drivers",
+    "github.com/docker/machine/libmachine/drivers/plugin",
+    "github.com/docker/machine/libmachine/log",
+    "github.com/docker/machine/libmachine/mcnflag",
+    "github.com/docker/machine/libmachine/ssh",
+    "github.com/docker/machine/libmachine/state",
+    "github.com/kolo/xmlrpc",
+    "gopkg.in/xmlpath.v2",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1

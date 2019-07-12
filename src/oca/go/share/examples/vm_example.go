@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca"
-	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dyntemplate"
+	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
 )
 
 func main() {
