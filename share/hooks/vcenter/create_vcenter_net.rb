@@ -167,7 +167,7 @@ begin
         mtu       =  one_vnet["TEMPLATE/MTU"]
         vlan_id   =  one_vnet["VLAN_ID"] || 0
 
-        # NSX-V parameters
+        # NSX parameters
         ls_name = one_vnet["NAME"]
         ls_description = one_vnet["TEMPLATE/DESCRIPTION"]
         vdnscope_id = one_vnet["TEMPLATE/NSX_TZ_ID"]
@@ -177,6 +177,8 @@ begin
         nsxmgr = one_vnet["TEMPLATE/NSX_MANAGER"]
         @usernsx = one_vnet["TEMPLATE/NSX_USER"]
         @passnsx = one_vnet["TEMPLATE/NSX_PASS"]
+        nsx_id = one_vnet["TEMPLATE/NSX_ID"]
+
 
         if one_vnet["TEMPLATE/VCENTER_SWITCH_NPORTS"]
             nports  =  one_vnet["TEMPLATE/VCENTER_SWITCH_NPORTS"]
@@ -211,12 +213,13 @@ begin
                                   <controlPlaneMode>UNICAST_MODE</controlPlaneMode>\
                                   <guestVlanAllowed>false</guestVlanAllowed>\
                               </virtualWireCreateSpec>"
-            pg_name = createLogicalSwitch(nsxmgr, pg_type, vdnscope_id, virtualWireSpec)
-            vnet_ref,ls_vni = logicalSwitchData(nsxmgr, pg_type, pg_name)
+
+            nsx_id = createLogicalSwitch(nsxmgr, pg_type, vdnscope_id, virtualWireSpec)
+            # Get reference will have in vcenter and vni
+            vnet_ref,ls_vni = logicalSwitchData(nsxmgr, pg_type, nsx_id)
         end
 
         if pg_type == "Opaque Network"
-
             require 'net/http'
             require 'json'
 
@@ -230,15 +233,16 @@ begin
               }
             }
             
-            pg_name = createLogicalSwitch(nsxmgr, pg_type, vdnscope_id, virtualWireSpec.to_s)
+            nsx_id = createLogicalSwitch(nsxmgr, pg_type, vdnscope_id, virtualWireSpec.to_s)
             # Get NSX_VNI
-            ls_vni = logicalSwitchData(nsxmgr, pg_type, pg_name)
-            # dc.lock
-            sleep 60
-            net_folder = dc.network_folder
-            net_folder.fetch!
+            ls_vni = logicalSwitchData(nsxmgr, pg_type, nsx_id)
+           
+            # Wait until nsx network is created on vcenter
+            # sleep 60
+            # net_folder = dc.network_folder
+            # net_folder.fetch!
             # Get reference of the created network in vcenter.
-            vnet_ref = dc.nsxt_network_created?(pg_name, net_folder)
+            vnet_ref = dc.nsx_network(nsx_id, pg_type)
         end
 
         # With DVS we have to work at datacenter level and then for each host
@@ -340,9 +344,9 @@ begin
         # We must update XML so the VCENTER_NET_REF and VCENTER_INSTANCE_ID are added
 
         if blocked
-            update_net(one_vnet,"BRIDGE=\"#{pg_name}\"\nNSX_VNI=\"#{ls_vni}\"\nVCENTER_NET_REF=\"#{vnet_ref}\"\nVCENTER_INSTANCE_ID=\"#{vc_uuid}\"\nVCENTER_NET_STATE=\"ERROR\"\nVCENTER_NET_ERROR=\"vnet already exist in vcenter\"\n")
+            update_net(one_vnet,"NSX_ID=\"#{nsx_id}\"\nNSX_VNI=\"#{ls_vni}\"\nVCENTER_NET_REF=\"#{vnet_ref}\"\nVCENTER_INSTANCE_ID=\"#{vc_uuid}\"\nVCENTER_NET_STATE=\"ERROR\"\nVCENTER_NET_ERROR=\"vnet already exist in vcenter\"\n")
         else
-            update_net(one_vnet,"BRIDGE=\"#{pg_name}\"\nNSX_VNI=\"#{ls_vni}\"\nVCENTER_NET_REF=\"#{vnet_ref}\"\nVCENTER_INSTANCE_ID=\"#{vc_uuid}\"\nVCENTER_NET_STATE=\"READY\"\nVCENTER_NET_ERROR=\"\"\n")
+            update_net(one_vnet,"NSX_ID=\"#{nsx_id}\"\nNSX_VNI=\"#{ls_vni}\"\nVCENTER_NET_REF=\"#{vnet_ref}\"\nVCENTER_INSTANCE_ID=\"#{vc_uuid}\"\nVCENTER_NET_STATE=\"READY\"\nVCENTER_NET_ERROR=\"\"\n")
         end
 
         # Assign vnet to OpenNebula cluster

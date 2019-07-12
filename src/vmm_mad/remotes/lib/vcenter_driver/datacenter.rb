@@ -689,13 +689,36 @@ class Datacenter
     ########################################################################
     # Check if Opaque Network exists in datacenter
     ########################################################################
-    def nsxt_network_created?(pg_name, net_folder)
-        net_folder.items.values.each{ |net|
-            if net.instance_of?(VCenterDriver::OpaqueNetwork) &&
-               net.item.summary.opaqueNetworkId == pg_name
-                return net.item._ref
+    def nsx_network(nsx_id, pgType)
+        timeout = 180
+        if pgType == "Opaque Network"
+            while timeout > 0
+                netFolder = self.network_folder
+                netFolder.fetch!
+                netFolder.items.values.each{ |net|
+                    if net.instance_of?(VCenterDriver::OpaqueNetwork) &&
+                      net.item.summary.opaqueNetworkId == nsx_id
+                        return net.item._ref
+                    end
+                }
+                timeout -= 1
             end
-        }
+        # Not used right now, but maybe neccesary in the future.
+        elsif pgType == "NSX-V"
+            while timeout > 0
+                netFolder = self.network_folder
+                netFolder.fetch!
+                netFolder.items.values.each{ |net|
+                    if net.instance_of?(VCenterDriver::DistributedPortGroup) &&
+                      net.item.key == nsx_id
+                        return net.item._ref
+                    end
+                }
+                timeout -= 1
+            end
+        else
+            raise "Unknown network Port Group type: #{pgType}"
+        end
     end
 
     ########################################################################

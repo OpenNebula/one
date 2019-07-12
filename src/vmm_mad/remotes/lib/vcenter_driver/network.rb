@@ -222,7 +222,7 @@ class Network
         when "OpaqueNetwork"
             return "Opaque Network"
         else 
-            return "Network not defined" 
+            return "Network not defined"
         end
     end
 

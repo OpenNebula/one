@@ -174,11 +174,12 @@ begin
         if pg_type == "NSX-V" || pg_type == "Opaque Network"
             require 'net/http'
             nsxmgr = template["TEMPLATE/NSX_MANAGER"]
+            nsx_id = template["TEMPLATE/NSX_ID"]
             # Check network exists
-            if logicalSwitch?(nsxmgr, pg_type, pg_name)
-                deleteLogicalSwitch(nsxmgr, pg_type, pg_name)
+            if logicalSwitch?(nsxmgr, pg_type, nsx_id)
+                deleteLogicalSwitch(nsxmgr, pg_type, nsx_id)
             else
-                raise "Logical Switch #{pg_name} not found"
+                raise "Logical Switch with name #{pg_name} and ID #{nsx_id} not found"
             end
         end
     end
