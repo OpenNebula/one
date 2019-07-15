@@ -88,6 +88,7 @@ define(function(require) {
     selector.empty();
     if(infohost && infohost.HOST_POOL && infohost.HOST_POOL.HOST){
       var hosts = infohost.HOST_POOL.HOST;
+      var hugepages = [];
       if (!(hosts instanceof Array)) {
         hosts = [hosts];
       }
@@ -101,12 +102,17 @@ define(function(require) {
           numaNodes.map(function(node){
             if(node && node.HUGEPAGE && node.NODE_ID){
               node.HUGEPAGE.map(function(hugepage){
-                var selected = hugepage.SIZE === HUGEPAGE_SELECTED_VALUE;
-                selector.append($("<option/>",{"value": hugepage.SIZE}).text(name+" ("+node.NODE_ID+") - "+hugepage.SIZE).prop('selected', selected));
+                if(!hugepages.includes(hugepage.SIZE)){
+                  hugepages.push(hugepage.SIZE);
+                }
               });
             }
           });
         }
+      });
+      hugepages.map(function(hugepage){
+        var selected = hugepage === HUGEPAGE_SELECTED_VALUE;
+        selector.append($("<option/>",{"value": hugepage}).text(hugepage).prop('selected', selected));
       });
     }
   }

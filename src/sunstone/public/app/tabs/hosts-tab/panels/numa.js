@@ -86,11 +86,11 @@ define(function(require) {
       if (!(numaNodes instanceof Array)) {
         numaNodes = [numaNodes];
       }
-      var options = [{'value':'NONE'},{'value':'PINNED'}]
+      var options = [{'value':'NONE'},{'value':'PINNED'}];
       var select = $("<select/>",{'id': SELECT_ID});
       options.map(function(element){
         if(element && element.value){
-          var selected = that && that.element && that.element.TEMPLATE && that.element.TEMPLATE.PIN_POLICY && that.element.TEMPLATE.PIN_POLICY === element.value
+          var selected = that && that.element && that.element.TEMPLATE && that.element.TEMPLATE.PIN_POLICY && that.element.TEMPLATE.PIN_POLICY === element.value;
           select.append($("<option/>",{'value':element.value}).text(capitalize(element.value)).prop('selected', selected));
         }
       });
@@ -100,30 +100,37 @@ define(function(require) {
       selectTable.find("td").append(select);
       $("#placeNumaInfo").append(selectTable);
       numaNodes.map(function(node,i){
-        var title = $("<h5/>");
+        var displaySubtitle = true;
+        var title = $("<h4/>");
+        var subtitle = $("<h6/>");
         var coreTable = $("<table/>");
-        var memory = $("<div/>",{'class':'memory'});
-        var hugepage = $("<div/>",{'class':'hugepage'});
+        var memory = $("<div/>",{'class':'memory small-12 large-6 columns'});
+        var hugepage = $("<div/>",{'class':'hugepage small-12 large-6 columns'});
         if(node){
-          var infoNode = node
-          title.text(infoNode.NODE_ID? "Node #"+infoNode.NODE_ID : "")
+          var infoNode = node;
+          title.text(infoNode.NODE_ID? "Node #"+infoNode.NODE_ID : "");
           //CORES
           if(infoNode.CORE){
+            if(displaySubtitle){
+              subtitle.text("Cores & CPUS");
+              displaySubtitle = false;
+            }
             var tBody = $("<tbody/>");
-            var numaCores = infoNode.CORE
+            var numaCores = infoNode.CORE;
             if (!(infoNode.CORE instanceof Array)) {
               numaCores = [numaCores];
             }
             var limit = 3; //start in 0 is index of array
             var count = 0;
             numaCores.map(function(core,i){
+
               var placeBody = tBody.find("tr:last");
               if(count === 0){
                 placeBody = tBody.append($("<tr/>")).find("tr:last");
               }
               placeBody.append(
                 $("<td/>",{"colspan":2,"class":"text-center"}).append(
-                  $("<h6/>").text(core.ID? "Core #"+core.ID : "")
+                  $("<h6/>").text(core.ID? "Core "+core.ID : "")
                 )
               );
               if(core.CPUS){
@@ -147,7 +154,7 @@ define(function(require) {
               }
               count = count >= limit ? 0 : count+1;
             });
-            coreTable.append(tBody)
+            coreTable.append(tBody);
           }
           //MEMORY
           if(infoNode.MEMORY){
@@ -172,28 +179,37 @@ define(function(require) {
           if(infoNode.HUGEPAGE){
             var infoHugepages = infoNode.HUGEPAGE;
             hugepage.append($("<h6/>").text("Hugepage"));
-            var row = $("<div/>",{'class':'row'});
+            var hugepageTable = $("<table/>");
+            hugepageTable.append(
+              $("<thead/>").append(
+                $("<tr/>").append(
+                  $("<th/>").text("SIZE")
+                  .add($("<th/>").text("FREE"))
+                  .add($("<th/>").text("PAGES"))
+                  .add($("<th/>").text("USAGE"))
+                )
+              )
+            );
+            var body = $("<tbody/>");
             infoHugepages.map(function(element,index){
-              hugePlace = $("<div/>",{"class":"small-6 columns"});
-              hugeTitle = hugePlace.append($("<h6/>").text("#"+index));
-              hugepageTable = $("<table/>");
-              for (var info in element){
-                hugepageTable.append(
-                  $("<tr/>").append(
-                    $("<td/>").text(
-                      capitalize(info)
-                    ).add(
-                      $("<td/>").text(element[info])
-                    )
+              body.append(
+                $("<tr/>").append(
+                  $("<td/>").text(
+                    element["SIZE"]
+                  ).add(
+                    $("<td/>").text(element["FREE"])
+                  ).add(
+                    $("<td/>").text(element["PAGES"])
+                  ).add(
+                    $("<td/>").text(element["USAGE"])
                   )
                 )
-              }
-              row.append(hugePlace.append(hugepageTable));
+              )
             });
-            hugepage.append(row);
+            hugepage.append(hugepageTable.append(body));
           }
         }
-        $("#placeNumaInfo").append(title.add(coreTable).add(memory).add(hugepage));
+        $("#placeNumaInfo").append(title.add(subtitle).add(coreTable).add($("<div/>",{"class":"row"}).append(memory.add(hugepage))));
       });
     }
   }
