@@ -103,14 +103,17 @@ CONTEXT = [
         return rc, body if rc != 0
 
         distros = body.scan(%r{a href="([a-z].*/)">})
-        tree    = {}
+        distros.map! {|d| d.join.chomp('/') }
+
+        if @options[:skip_untested] == 'yes'
+            distros.delete_if {|d| !@options[:tested_apps].include?(d) }
+        end
+
+        tree = {}
 
         distros.each do |distro|
-            if @options[:skip_untested] == 'yes'
-                next unless @options[:tested_apps].include? distro.join.chomp('/')
-            end
-
-            rc, body = get(first_level + distro[0])
+            d_suf = "#{distro}/"
+            rc, body = get(first_level + d_suf)
 
             next if rc != 0
 
@@ -119,7 +122,7 @@ CONTEXT = [
 
             version_path = {}
             versions.each do |version|
-                path = "#{first_level}#{distro[0]}#{version[0]}amd64/default/"
+                path = "#{first_level}#{d_suf}#{version[0]}amd64/default/"
                 rc, body = get(path)
 
                 next if rc != 0
@@ -131,7 +134,7 @@ CONTEXT = [
                 version_path[version[0]] = "#{path}#{release_date}rootfs.tar.xz"
             end
 
-            tree[distro[0]] = version_path
+            tree[d_suf] = version_path
         end
 
         appstr = ''
