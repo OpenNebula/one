@@ -434,7 +434,9 @@ define(function(require) {
 
       return ""+id;
     },
-
+    "get_all_cache": function() {
+      return listCache;
+    },
     "clear_cache": _clearCache
   };
 

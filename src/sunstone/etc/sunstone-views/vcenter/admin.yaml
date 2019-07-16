@@ -257,6 +257,7 @@ tabs:
             Template.unlock: false
             Template.edit_labels: true
             Template.menu_labels: true
+            Template.numa: true
         template_creation_tabs:
             general: true
             storage: true
@@ -270,6 +271,7 @@ tabs:
             hybrid: true
             vmgroup: true
             other: true
+            numa: true
     oneflow-templates-tab:
         panel_tabs:
             service_template_info_tab: true
@@ -530,6 +532,7 @@ tabs:
             host_zombies_tab: true
             host_esx_tab: true
             host_pci_tab: true
+            host_numa_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID

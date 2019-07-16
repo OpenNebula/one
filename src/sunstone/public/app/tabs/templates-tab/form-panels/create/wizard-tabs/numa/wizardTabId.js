@@ -14,29 +14,6 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-define(function(require) {
-  var _quotaBarHtml = function(usage, limit, info_str, className="" ) {
-    info_str = info_str || (usage + ' / ' + ((limit >= 0) ? limit : '-'));
-
-    var value = "0";
-    var max = "0";
-
-    if (limit > 0 || (limit == 0 && usage > 0)){
-      value = usage;
-      max = limit;
-    }
-
-    html = $("<span/>",{'class':'progress-text right', 'style':'font-size: 12px'}).text(
-      info_str
-    ).add(
-      $("<br/>")
-    ).add(
-      $("<progress/>",{'class':className, 'value':value,'max':limit})
-    );
-    return $("<div/>").append(html).html();
-  }
-
-  return {
-    'html': _quotaBarHtml
-  }
-})
+define(function(require){
+  return 'numaTab';
+});
