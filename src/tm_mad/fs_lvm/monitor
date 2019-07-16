@@ -45,12 +45,14 @@ unset i XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE_LOCATION \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST)
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
+                    /DS_DRIVER_ACTION_DATA/MONITOR_VM_DISKS)
 
 unset i
 
 BASE_PATH="${XPATH_ELEMENTS[i++]}/$2"
 BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
+MONITOR_VM_DISKS="${XPATH_ELEMENTS[i++]}"
 
 # ------------ Compute datastore usage -------------
 
@@ -99,32 +101,34 @@ echo "USED_MB=\$USED_MB"
 echo "FREE_MB=\$FREE_MB"
 echo "TOTAL_MB=\$TOTAL_MB"
 
-lvdata=\$($SUDO $LVS --noheadings --nosuffix --units m -o lv_name,lv_size --separator : "${LVM_VG_PREFIX}${DS_ID}" | sed -e 's/^[[:space:]]*//' | grep '^lv-one-' | sed 's/^lv-one-//' | tr '-' ':' | sort -n)
-[ -z "\$lvdata" ] && exit 0
+if [ $MONITOR_VM_DISKS -eq 1 ]; then
+    lvdata=\$($SUDO $LVS --noheadings --nosuffix --units m -o lv_name,lv_size --separator : "${LVM_VG_PREFIX}${DS_ID}" | sed -e 's/^[[:space:]]*//' | grep '^lv-one-' | sed 's/^lv-one-//' | tr '-' ':' | sort -n)
+    [ -z "\$lvdata" ] && exit 0
 
-vm_previous='n'
+    vm_previous='n'
 
-while IFS="\n" read -r line; do
-    vm=\$(echo "\$line" | cut -d':' -f1)
-    [ -n "\$vm" ] || continue
+    while IFS="\n" read -r line; do
+        vm=\$(echo "\$line" | cut -d':' -f1)
+        [ -n "\$vm" ] || continue
 
-    disk=\$(echo "\$line" | cut -d':' -f2)
-    size=\$(echo "\$line" | cut -d':' -f3 | cut -d'.' -f1)
+        disk=\$(echo "\$line" | cut -d':' -f2)
+        size=\$(echo "\$line" | cut -d':' -f3 | cut -d'.' -f1)
 
-    if [ "\$vm" != "\$vm_previous" ]; then
-        [ "\$vm_previous" != "n" ] && echo "\"]"
+        if [ "\$vm" != "\$vm_previous" ]; then
+            [ "\$vm_previous" != "n" ] && echo "\"]"
 
-        vm_previous="\$vm"
-        echo -n "VM=[ID=\$vm,POLL=\""
-    else
-        echo -n " "
-    fi
+            vm_previous="\$vm"
+            echo -n "VM=[ID=\$vm,POLL=\""
+        else
+            echo -n " "
+        fi
 
-    echo -n "DISK_SIZE=[ID=\$disk,SIZE=\$size]"
+        echo -n "DISK_SIZE=[ID=\$disk,SIZE=\$size]"
 
-done <<< "\$( echo "\$lvdata" )"
+    done <<< "\$( echo "\$lvdata" )"
 
-[ "\$vm_previous" != "n" ] && echo "\"]"
+    [ "\$vm_previous" != "n" ] && echo "\"]"
+fi
 
 EOF
 )

@@ -169,6 +169,7 @@ void ImageManager::timer_action(const ActionRequest& ar)
 
 void ImageManager::monitor_datastore(int ds_id)
 {
+    static map<int,int> monitor_vm_disk_counter;
     string  ds_data, ds_location, ds_name;
     string* drv_msg;
 
@@ -217,10 +218,22 @@ void ImageManager::monitor_datastore(int ds_id)
             }
 
             nd.get_ds_location(ds_location);
-
             oss << "<DATASTORE_LOCATION>"
                 << ds_location
                 << "</DATASTORE_LOCATION>";
+
+            if ( monitor_vm_disk > 0)
+            {
+                bool vm_monitor = --monitor_vm_disk_counter[ds_id] <= 0;
+                oss << "<MONITOR_VM_DISKS>"
+                    << vm_monitor
+                    << "</MONITOR_VM_DISKS>";
+                if (vm_monitor)
+                {
+                    monitor_vm_disk_counter[ds_id] = monitor_vm_disk;
+                }
+            }
+
             ds_location = oss.str();
 
             break;

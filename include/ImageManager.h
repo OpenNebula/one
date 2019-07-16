@@ -38,10 +38,12 @@ public:
                  time_t                    _monitor_period,
                  ImagePool *               _ipool,
                  DatastorePool *           _dspool,
-                 vector<const VectorAttribute*>& _mads):
+                 vector<const VectorAttribute*>& _mads,
+                 int                       _monitor_vm_disk):
             MadManager(_mads),
             timer_period(_timer_period),
             monitor_period(_monitor_period),
+            monitor_vm_disk(_monitor_vm_disk),
             ipool(_ipool),
             dspool(_dspool)
     {
@@ -322,6 +324,12 @@ private:
      *  Datastore Monitor Interval
      */
     time_t                monitor_period;
+
+    /**
+     *  Monitor Virtual Machine disk usage every X datastore monitoring.
+     *  0 to disable
+     */
+    int                   monitor_vm_disk;
 
     /**
      *  Pointer to the Image Pool to access VMs
