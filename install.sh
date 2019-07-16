@@ -1932,7 +1932,7 @@ SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                        src/sunstone/models/SunstoneViews.rb \
                        src/sunstone/models/OpenNebula2FA/sunstone_qr_code.rb \
                        src/sunstone/models/OpenNebula2FA/sunstone_optp.rb \
-                       src/sunstone/models/OpenNebula2FA/suntone_2f_auth.rb "
+                       src/sunstone/models/OpenNebula2FA/sunstone_2f_auth.rb "
 
 SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/ImageJSON.rb \
