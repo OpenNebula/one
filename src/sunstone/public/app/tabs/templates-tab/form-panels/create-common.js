@@ -49,7 +49,8 @@ define(function(require) {
     require("./create/wizard-tabs/scheduling"),
     require("./create/wizard-tabs/hybrid"),
     require("./create/wizard-tabs/vmgroup"),
-    require("./create/wizard-tabs/other")
+    require("./create/wizard-tabs/other"),
+    require("./create/wizard-tabs/numa")
   ];
 
   var TEMPLATES_TAB_ID = require("tabs/templates-tab/tabId");
@@ -161,9 +162,31 @@ define(function(require) {
     var templateJSON = {};
     $.each(this.wizardTabs, function(index, wizardTab) {
       $.extend(true, templateJSON, wizardTab.retrieve($("#" + wizardTab.wizardTabId, context)));
-
       var a = templateJSON;
     });
+
+
+    if(templateJSON["TOPOLOGY"] && templateJSON["TOPOLOGY"]["BORRAR"]){
+      delete templateJSON["TOPOLOGY"];
+    }
+
+    if(
+      templateJSON["TOPOLOGY"] && 
+      templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"] !== undefined && 
+      templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"] !== null &&
+      templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"].length<=0
+    ){
+      delete templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"];
+    }
+
+    if(
+      templateJSON["TOPOLOGY"] && 
+      templateJSON["TOPOLOGY"]["MEMORY_ACCESS"] !== undefined && 
+      templateJSON["TOPOLOGY"]["MEMORY_ACCESS"] !== null &&
+      templateJSON["TOPOLOGY"]["MEMORY_ACCESS"].length<=0
+    ){
+      delete templateJSON["TOPOLOGY"]["MEMORY_ACCESS"];
+    }
 
     // vCenter PUBLIC_CLOUD is not defined in the hybrid tab. Because it is
     // part of an array, and it is filled in different tabs, the $.extend deep
@@ -196,7 +219,6 @@ define(function(require) {
 
       delete templateJSON["NIC_PCI"];
     }
-
     return templateJSON;
   }
 

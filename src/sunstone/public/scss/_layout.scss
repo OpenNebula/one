@@ -135,3 +135,28 @@
   overflow-y: auto;
   max-height: 6em;
 }
+
+#numa-topology-display{
+  margin-bottom: 2rem;
+}
+
+progress{
+  &.memory-used{
+    height: 1rem;
+    color: $busy;
+    margin-bottom: 2rem;
+    background-color: $free;
+    &::-webkit-progress-value{
+      background-color: $busy;
+    }
+    &::-webkit-progress-bar{
+      background-color: $free;
+    }
+    &::-moz-progress-bar{
+      background-color: $busy;
+    }
+    &::-ms-fill{
+      background-color: $busy;
+    }
+  }
+}
