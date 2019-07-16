@@ -164,7 +164,7 @@ define(function(require) {
       var limit = 3; //start in 0 is index of array
       var count = 0;
       var subtitle = $("<h6/>");
-      var description = $("<small>").css({'margin-left':'1rem'});
+      var description = $("<small>").css({'margin-left':'1rem','font-size': '0.9rem'});
       var descriptionText = [];
       var space = false;
       var tBody = $("<tbody/>");
