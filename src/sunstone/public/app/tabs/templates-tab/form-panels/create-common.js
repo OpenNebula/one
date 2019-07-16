@@ -162,13 +162,30 @@ define(function(require) {
     var templateJSON = {};
     $.each(this.wizardTabs, function(index, wizardTab) {
       $.extend(true, templateJSON, wizardTab.retrieve($("#" + wizardTab.wizardTabId, context)));
-
       var a = templateJSON;
     });
 
 
     if(templateJSON["TOPOLOGY"] && templateJSON["TOPOLOGY"]["BORRAR"]){
       delete templateJSON["TOPOLOGY"];
+    }
+
+    if(
+      templateJSON["TOPOLOGY"] && 
+      templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"] !== undefined && 
+      templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"] !== null &&
+      templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"].length<=0
+    ){
+      delete templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"];
+    }
+
+    if(
+      templateJSON["TOPOLOGY"] && 
+      templateJSON["TOPOLOGY"]["MEMORY_ACCESS"] !== undefined && 
+      templateJSON["TOPOLOGY"]["MEMORY_ACCESS"] !== null &&
+      templateJSON["TOPOLOGY"]["MEMORY_ACCESS"].length<=0
+    ){
+      delete templateJSON["TOPOLOGY"]["MEMORY_ACCESS"];
     }
 
     // vCenter PUBLIC_CLOUD is not defined in the hybrid tab. Because it is

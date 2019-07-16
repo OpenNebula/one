@@ -62,7 +62,11 @@
           {{tr "Memory Access"}}
           {{{tip (tr "Control if the memory is to be mapped shared or private")}}}
         </label>
-        <input type="number" id="numa-memory">
+	<select id="numa-memory">
+	  <option value="">{{tr "-"}}</option>
+          <option value="SHARED">{{tr "Shared"}}</option>
+          <option value="PRIVATE">{{tr "Private"}}</option>
+        </select>
       </div>
     </div>
   </div>

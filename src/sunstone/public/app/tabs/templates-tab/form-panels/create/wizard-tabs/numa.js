@@ -110,6 +110,7 @@ define(function(require) {
           });
         }
       });
+      selector.append($("<option/>",{"value":""}).text("-"));
       hugepages.map(function(hugepage){
         var selected = hugepage === HUGEPAGE_SELECTED_VALUE;
         selector.append($("<option/>",{"value": hugepage}).text(hugepage).prop('selected', selected));
@@ -175,14 +176,10 @@ define(function(require) {
       if(threads && threads.length){
         temp.THREADS = threads;
       }
-      var hugepage = _getValue(idsElements.hugepages, context) || HUGEPAGE_SELECTED_VALUE;
-      if(hugepage && hugepage.length){
-        temp.HUGEPAGE_SIZE = hugepage;
-      }
-      var memory = _getValue(idsElements.memory, context);
-      if(memory && memory.length){
-        temp.MEMORY_ACCESS = memory;
-      }
+      temp.HUGEPAGE_SIZE = _getValue(idsElements.hugepages, context);
+      
+      temp.MEMORY_ACCESS = _getValue(idsElements.memory, context);
+      
       templateJSON.TOPOLOGY = temp;
     }
     return templateJSON;
@@ -209,6 +206,7 @@ define(function(require) {
       if(topology && topology.CORES){
         _fillBootValue(idsElements.cores, context, topology.CORES);
       }
+      HUGEPAGE_SELECTED_VALUE = "";
       if(topology && topology.HUGEPAGE_SIZE){
         HUGEPAGE_SELECTED_VALUE = topology.HUGEPAGE_SIZE;
       }

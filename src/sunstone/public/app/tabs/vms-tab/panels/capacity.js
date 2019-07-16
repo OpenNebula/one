@@ -164,8 +164,23 @@ define(function(require) {
       var limit = 3; //start in 0 is index of array
       var count = 0;
       var subtitle = $("<h6/>");
+      var description = $("<small>").css({'margin-left':'1rem'});
+      var descriptionText = [];
+      var space = false;
       var tBody = $("<tbody/>");
       var progress = "";
+      //description info
+      if(element.TEMPLATE && element.TEMPLATE.TOPOLOGY ){
+        for (var prop in  element.TEMPLATE.TOPOLOGY){
+          var styles = 'display: inline-block;font-weight: bold;color: #5f5d5d;';
+          if(space){
+            styles += 'margin-left: 0.3rem;';
+          }
+          space = true;
+          descriptionText.push("<div style='"+styles+"'>"+prop.toLocaleLowerCase()+":</div> "+element.TEMPLATE.TOPOLOGY[prop]);
+        }
+        description.append("("+descriptionText.join("  ").trim()+")");
+      }
       info.map(function(core, index){
         if(displaySubtitle){
           subtitle.text("Cores & CPUS");
@@ -178,7 +193,7 @@ define(function(require) {
         }
         placeBody.append(
           $("<td/>",{"colspan":2,"class":"text-center"}).append(
-            $("<h6/>").text("Core "+index)
+            $("<h6/>").text("Node "+index)
           )
         );
         if(core.CPUS){
@@ -217,7 +232,7 @@ define(function(require) {
         count = count >= limit ? 0 : count+1;
       });
       coreTable.append(tBody);
-      $("#numaPlaceVM").empty().append(subtitle.add(coreTable));
+      $("#numaPlaceVM").empty().append(subtitle.append(description).add(coreTable));
     }
   }
 });
