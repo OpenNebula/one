@@ -176,12 +176,12 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
                                options,
                                operation[:message]) do |obj|
             case type
-            when 'HOST'      then host_operation(obj,
-                                                 operation,
-                                                 options,
-                                                 args[1])
-            when 'DATASTORE' then datastore_operation(obj, operation)
-            when 'VNET'      then vnet_operation(obj, operation)
+            when 'HOST'
+                host_operation(obj, operation, options, args[1])
+            when 'DATASTORE'
+                datastore_operation(obj, operation)
+            when 'VNET'
+                vnet_operation(obj, operation)
             end
         end
     end
