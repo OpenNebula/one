@@ -334,7 +334,7 @@ void Nebula::start(bool bootstrap_only)
         rc = sysdb.check_db_version(is_federation_slave(), local_bootstrap,
                 shared_bootstrap);
 
-        if( rc == -1 )
+        if ( rc == -1 )
         {
             throw runtime_error("Database version mismatch. Check oned.log.");
         }
@@ -976,11 +976,15 @@ void Nebula::start(bool bootstrap_only)
 
             nebula_configuration->get("DATASTORE_MAD", image_mads);
 
+            int monitor_vm_disk;
+            nebula_configuration->get("DS_MONITOR_VM_DISK", monitor_vm_disk);
+
             imagem = new ImageManager(timer_period,
                                       monitor_interval_datastore,
                                       ipool,
                                       dspool,
-                                      image_mads);
+                                      image_mads,
+                                      monitor_vm_disk);
         }
         catch (bad_alloc&)
         {
@@ -1000,7 +1004,7 @@ void Nebula::start(bool bootstrap_only)
     {
         try
         {
-            vector<const VectorAttribute *> mmads ;
+            vector<const VectorAttribute *> mmads;
 
             nebula_configuration->get("MARKET_MAD", mmads);
 
@@ -1024,7 +1028,7 @@ void Nebula::start(bool bootstrap_only)
     {
         try
         {
-            vector<const VectorAttribute *> ipam_mads ;
+            vector<const VectorAttribute *> ipam_mads;
 
             nebula_configuration->get("IPAM_MAD", ipam_mads);
 
@@ -1215,7 +1219,7 @@ void Nebula::start(bool bootstrap_only)
     pthread_join(authm->get_thread_id(),0);
     pthread_join(raftm->get_thread_id(),0);
 
-    if(is_federation_slave())
+    if (is_federation_slave())
     {
         pthread_join(aclm->get_thread_id(),0);
     }
