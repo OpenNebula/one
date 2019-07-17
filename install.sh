@@ -1230,8 +1230,10 @@ TM_FS_LVM_ETC_FILES="src/tm_mad/fs_lvm/fs_lvm.conf"
 
 
 TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
+                 src/tm_mad/qcow2/clone.ssh \
                  src/tm_mad/qcow2/delete \
                  src/tm_mad/qcow2/ln \
+                 src/tm_mad/qcow2/ln.ssh \
                  src/tm_mad/qcow2/monitor \
                  src/tm_mad/qcow2/mkswap \
                  src/tm_mad/qcow2/mkimage \
@@ -1241,11 +1243,13 @@ TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/postmigrate \
                  src/tm_mad/qcow2/failmigrate \
                  src/tm_mad/qcow2/mvds \
+                 src/tm_mad/qcow2/mvds.ssh \
                  src/tm_mad/qcow2/snap_create \
                  src/tm_mad/qcow2/snap_create_live \
                  src/tm_mad/qcow2/snap_delete \
                  src/tm_mad/qcow2/snap_revert \
                  src/tm_mad/qcow2/cpds \
+                 src/tm_mad/qcow2/cpds.ssh \
                  src/tm_mad/qcow2/resize"
 
 TM_SSH_FILES="src/tm_mad/ssh/clone \
@@ -1288,10 +1292,14 @@ TM_DUMMY_FILES="src/tm_mad/dummy/clone \
               src/tm_mad/dummy/resize"
 
 TM_CEPH_FILES="src/tm_mad/ceph/clone \
+                 src/tm_mad/ceph/clone.ssh \
                  src/tm_mad/ceph/ln \
+                 src/tm_mad/ceph/ln.ssh \
                  src/tm_mad/ceph/mv \
                  src/tm_mad/ceph/mvds \
+                 src/tm_mad/ceph/mvds.ssh \
                  src/tm_mad/ceph/cpds \
+                 src/tm_mad/ceph/cpds.ssh \
                  src/tm_mad/ceph/premigrate \
                  src/tm_mad/ceph/postmigrate \
                  src/tm_mad/ceph/snap_create \
@@ -1300,11 +1308,13 @@ TM_CEPH_FILES="src/tm_mad/ceph/clone \
                  src/tm_mad/ceph/snap_revert \
                  src/tm_mad/ceph/failmigrate \
                  src/tm_mad/ceph/delete \
+                 src/tm_mad/ceph/delete.ssh \
                  src/tm_mad/ceph/context \
                  src/tm_mad/ceph/mkimage \
                  src/tm_mad/ceph/monitor \
                  src/tm_mad/ceph/mkswap \
-                 src/tm_mad/ceph/resize"
+                 src/tm_mad/ceph/resize \
+                 src/tm_mad/ceph/resize.ssh"
 
 TM_DEV_FILES="src/tm_mad/dev/clone \
                  src/tm_mad/dev/ln \

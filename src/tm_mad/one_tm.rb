@@ -106,6 +106,21 @@ class TransferManagerDriver < OpenNebulaDriver
         end
 
         path = File.join(@local_scripts_path, tm, cmd)
+
+        if !File.exists?(path)
+            md  = cmd.match(/(.*)\.(.*)/)
+            if md && md[1]
+                path_shortened = File.join(@local_scripts_path, tm, md[1])
+                if !File.exists?(path_shortened)
+                    return RESULT[:failure],
+                        "Driver path '#{path}' nor '#{path_shortened}' does not exists"
+                end
+                path = path_shortened
+            else
+                return RESULT[:failure], "Driver path '#{path}' does not exists"
+            end
+        end
+
         path << " " << args
         rc = LocalCommand.run(path, log_method(id))
 

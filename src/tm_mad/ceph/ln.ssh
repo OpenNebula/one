@@ -16,89 +16,94 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# ln fe:SOURCE host:remote_system_ds/disk.i vmid dsid
+# clone fe:SOURCE host:remote_system_ds/disk.i size
 #   - fe is the front-end hostname
 #   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
 #   - host is the target host to deploy the VM
 #   - remote_system_ds is the path for the system datastore in the host
-#   - vmid is the id of the VM
-#   - dsid is the target datastore (0 is the system datastore)
 
 SRC=$1
 DST=$2
+VM_ID=$3
+DS_ID=$4
 
-VMID=$3
-DSID=$4
+#--------------------------------------------------------------------------------
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+    LIB_LOCATION=/usr/lib/one
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+    LIB_LOCATION=$ONE_LOCATION/lib
 fi
-
-. $TMCOMMON
 
 DRIVER_PATH=$(dirname $0)
 
+source $TMCOMMON
+source ${DRIVER_PATH}/../../etc/datastore/ceph/ceph.conf
+
+CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
+
 #-------------------------------------------------------------------------------
-# Set dst path and dir
+# Process destination
 #-------------------------------------------------------------------------------
-DST_PATH=`arg_path $DST`
+
 DST_HOST=`arg_host $DST`
+DISK_ID=$(echo $DST|awk -F. '{print $NF}')
+
+#-------------------------------------------------------------------------------
+# Get Image information & destination image
+#-------------------------------------------------------------------------------
+
+SRC_PATH=`arg_path $SRC`
+DST_PATH=`arg_path $DST`
+
 DST_DIR=`dirname $DST_PATH`
 
-SRC_ARG_PATH=`arg_path $SRC`
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
 
-DST_DS_PATH="$(dirname $(dirname $(dirname $DST_PATH)))"
-SRC_DS_PATH="$(dirname $(dirname $SRC_ARG_PATH))"
+unset i j XPATH_ELEMENTS
 
-SRC_PATH="${DST_DS_PATH}${SRC_ARG_PATH##$SRC_DS_PATH}"
-SNAP_DIR="${SRC_PATH}.snap"
-SNAP_NAME="$(basename $SNAP_DIR)"
+while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VM_ID| $XPATH  \
+                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER \
+                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_KEY \
+                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF)
+
+CEPH_USER="${XPATH_ELEMENTS[j++]}"
+CEPH_KEY="${XPATH_ELEMENTS[j++]}"
+CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
-# Create DST path
+# Remove any @snap in image (non persistent -> persistnet)
 #-------------------------------------------------------------------------------
 
-ssh_make_path $DST_HOST $DST_DIR
-
-#-------------------------------------------------------------------------------
-# Link (ln) SRC into DST
-#-------------------------------------------------------------------------------
-log "Linking $SRC_PATH in $DST"
-
-type="$(file -b --mime-type $SRC_PATH)"
-
-if [ "$type" == "application/x-iso9660-image" ]; then
-    CMD="ln -sf ${SRC_PATH} ${DST_PATH}"
-else
-    CMD=$(cat <<EOT
-set -ex -o pipefail
-
-mkdir -p "${SNAP_DIR}"
-
-if [ ! -L "${SNAP_DIR}/${SNAP_NAME}" ]; then
-    ln -s "${SNAP_DIR}" "${SNAP_DIR}/${SNAP_NAME}"
+if [ -n "$CEPH_USER" ]; then
+    RBD="$RBD --id ${CEPH_USER}"
 fi
 
-SNAP="\$(ls ${SNAP_DIR} | grep '^[[:digit:]]*$' | sort -n | tail -n 1 || :)"
-
-if [ -z "\${SNAP}" ]; then
-    SNAP=0
-    ln -sf "$SRC_PATH" "$SNAP_DIR/0"
+if [ -n "$CEPH_KEY" ]; then
+    RBD="$RBD --keyfile ${CEPH_KEY}"
 fi
 
-rm -f "${DST_PATH}"
+if [ -n "$CEPH_CONF" ]; then
+    RBD="$RBD --conf ${CEPH_CONF}"
+fi
 
-ln -sf "$SNAP_DIR/\$SNAP" "$DST_PATH"
+ssh_make_path $DST_HOST $DST_DIR 'ssh'
 
-rm -rf "${DST_PATH}.snap"
+LN_CMD=$(cat <<EOF
+    RBD="${RBD}"
 
-ln -sf "$SNAP_DIR" "${DST_PATH}.snap"
-EOT
+    rbd_rm_snap $SRC_PATH
+
+    set -e -o pipefail
+
+    $RBD export $SRC_PATH $DST_PATH
+EOF
 )
-fi
 
-ssh_exec_and_log $DST_HOST "$CMD" "Error linking $SRC to $DST"
-
+ssh_exec_and_log_stdin "$DST_HOST" "$LN_CMD" "$CEPH_UTILS" \
+                 "Error cloning $SRC_PATH to $RBD_DST in $DST_HOST"
 exit 0
