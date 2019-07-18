@@ -60,7 +60,7 @@ define(function(require) {
       throw "Wizard Tab not enabled";
     }
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
-    this.icon = "fa-chart-pie";
+    this.icon = "fa-microchip";
     this.title = Locale.tr("NUMA");
   }
 
