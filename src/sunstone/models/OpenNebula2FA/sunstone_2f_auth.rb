@@ -17,7 +17,7 @@
 require 'sunstone_optp'
 
 # 2F Auth
-module Suntone2FAuth
+module Sunstone2FAuth
 
     def self.authenticate(secret, token)
         totp = SunstoneOPTP.build(secret, nil)
