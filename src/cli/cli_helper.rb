@@ -777,7 +777,7 @@ module CLIHelper
 
             return unless options[:list]
 
-            @default_columns = options[:list].collect {|o| o.to_sym }
+            @default_columns = options[:list].collect {|o| o.upcase.to_sym }
         end
 
         # Filter data
