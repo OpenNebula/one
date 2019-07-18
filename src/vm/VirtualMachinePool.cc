@@ -1092,7 +1092,7 @@ void VirtualMachinePool::delete_attach_disk(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachinePool::delete_hotplug_nic(int vid)
+void VirtualMachinePool::delete_attach_nic(int vid)
 {
     VirtualMachine *  vm;
     VirtualMachineNic * nic;

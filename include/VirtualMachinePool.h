@@ -424,24 +424,11 @@ public:
     void delete_attach_disk(int vid);
 
     /**
-     * Deletes the NIC that was in the process of being attached
+     * Deletes the NIC that was in the process of being attached/detached
      *
      * @param vid VM id
      */
-    void attach_nic_failure(int vid)
-    {
-        delete_hotplug_nic(vid);
-    }
-
-    /**
-     * Deletes the NIC that was in the process of being detached
-     *
-     * @param vid VM id
-     */
-    void detach_nic_success(int vid)
-    {
-        delete_hotplug_nic(vid);
-    }
+    void delete_attach_nic(int vid);
 
     /**
      * Deletes an entry in the HV-2-vmid mapping table for imported VMs
@@ -499,14 +486,6 @@ private:
      *   @return 0 on success
      */
     int insert_index(const string& deploy_id, int vm_id, bool replace);
-
-    // -------------------------------------------------------------------------
-
-    /**
-     * Helper method for delete attach/detach
-     * @param vid VM id
-     */
-    void delete_hotplug_nic(int vid);
 };
 
 #endif /*VIRTUAL_MACHINE_POOL_H_*/

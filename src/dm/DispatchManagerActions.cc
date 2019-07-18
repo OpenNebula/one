@@ -1908,7 +1908,7 @@ int DispatchManager::detach_nic(int vid, int nic_id,const RequestAttributes& ra,
 
         vm->unlock();
 
-        vmpool->detach_nic_success(vid);
+        vmpool->delete_attach_nic(vid);
     }
 
     return 0;

@@ -1685,7 +1685,7 @@ void LifeCycleManager::attach_nic_failure_action(int vid)
     {
         vm->unlock();
 
-        vmpool->attach_nic_failure(vid);
+        vmpool->delete_attach_nic(vid);
 
         vm = vmpool->get(vid);
 
@@ -1725,7 +1725,7 @@ void LifeCycleManager::detach_nic_success_action(int vid)
     {
         vm->unlock();
 
-        vmpool->detach_nic_success(vid);
+        vmpool->delete_attach_nic(vid);
 
         vm = vmpool->get(vid);
 
