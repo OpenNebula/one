@@ -101,7 +101,7 @@ require 'open3'
 
 require "sunstone_qr_code"
 require "sunstone_optp"
-require "suntone_2f_auth"
+require "sunstone_2f_auth"
 require 'CloudAuth'
 require 'SunstoneServer'
 require 'SunstoneViews'
@@ -332,7 +332,7 @@ helpers do
             if !two_factor_auth_token || two_factor_auth_token == ""
                 return [202, { code: "two_factor_auth" }.to_json]
             else
-                unless Suntone2FAuth.authenticate(user[TWO_FACTOR_AUTH_SECRET_XPATH], two_factor_auth_token)
+                unless Sunstone2FAuth.authenticate(user[TWO_FACTOR_AUTH_SECRET_XPATH], two_factor_auth_token)
                     logger.info { "Unauthorized two factor authentication login attempt" }
                     return [401, ""]
                 end

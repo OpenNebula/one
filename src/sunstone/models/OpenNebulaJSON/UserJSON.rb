@@ -15,7 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'OpenNebulaJSON/JSONUtils'
-require 'suntone_2f_auth'
+require 'sunstone_2f_auth'
 
 module OpenNebulaJSON
     class UserJSON < OpenNebula::User
@@ -78,7 +78,7 @@ module OpenNebulaJSON
         end
 
         def enable_two_factor_auth(params=Hash.new)
-            unless Suntone2FAuth.authenticate(params["secret"], params["token"])
+            unless Sunstone2FAuth.authenticate(params["secret"], params["token"])
               return OpenNebula::Error.new("Invalid token.")
             end
 
