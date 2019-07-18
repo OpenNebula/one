@@ -73,7 +73,7 @@ def checkResponse(response, code)
 end
 
 def logicalSwitchData(nsxmgr, pgType, logicalSwitchId)
-    if pgType == "NSX-V"
+    if pgType == VCenterDriver::Network::NETWORK_TYPE_NSXV
         header = {'Content-Type': 'application/xml'}
         uri = URI.parse("https://#{nsxmgr}/api/2.0/vdn/virtualwires/#{logicalSwitchId}")
         request = Net::HTTP::Get.new(uri.request_uri, header)
@@ -90,7 +90,7 @@ def logicalSwitchData(nsxmgr, pgType, logicalSwitchId)
         # "vxw-#{vcenter_dvs_ref}-#{virtualWireID}-sid-#{vni}-#{lsName}"
         # return vcenter_net_ref, "vxw-#{vcenter_dvs_ref}-#{virtualWireID}-sid-#{vni}-#{lsName}"
         return vcenter_net_ref, vni
-    elsif pgType == "Opaque Network"
+    elsif pgType == VCenterDriver::Network::NETWORK_TYPE_NSXT
         header = {'Content-Type': 'application/json'}
         uri = URI.parse("https://#{nsxmgr}/api/v1/logical-switches/#{logicalSwitchId}")
         request = Net::HTTP::Get.new(uri.request_uri, header)
@@ -107,9 +107,7 @@ def logicalSwitchData(nsxmgr, pgType, logicalSwitchId)
 end
 
 def createLogicalSwitch(nsxmgr, pgType, vdnscopeID, virtualWire)
-    # NSX-V = "Distributed Port Group"
-    # NSX-T = "Opaque Network"
-    if pgType == "NSX-V"
+    if pgType == VCenterDriver::Network::NETWORK_TYPE_NSXV
         header = {'Content-Type': 'application/xml'}
         uri = URI.parse("https://#{nsxmgr}/api/2.0/vdn/scopes/#{vdnscopeID}/virtualwires")
         request = Net::HTTP::Post.new(uri.request_uri, header)
@@ -122,7 +120,7 @@ def createLogicalSwitch(nsxmgr, pgType, vdnscopeID, virtualWire)
         checkResponse(response, 201)
         # response.body => 'virtualwire-xx' for NSX-V
         return response.body
-    elsif pgType == "Opaque Network"
+    elsif pgType == VCenterDriver::Network::NETWORK_TYPE_NSXT
         header = {'Content-Type': 'application/json'}
         uri = URI.parse("https://#{nsxmgr}/api/v1/logical-switches")
         request = Net::HTTP::Post.new(uri.request_uri, header)
@@ -202,7 +200,7 @@ begin
 
         ls_vni = nil
 
-        if pg_type == "NSX-V"
+        if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXV
             require 'net/http'
             require 'nokogiri'
           
@@ -219,7 +217,7 @@ begin
             vnet_ref,ls_vni = logicalSwitchData(nsxmgr, pg_type, nsx_id)
         end
 
-        if pg_type == "Opaque Network"
+        if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXT
             require 'net/http'
             require 'json'
 
@@ -246,7 +244,7 @@ begin
         end
 
         # With DVS we have to work at datacenter level and then for each host
-        if pg_type == "Distributed Port Group"
+        if pg_type == VCenterDriver::Network::NETWORK_TYPE_DPG
             begin
                 dc.lock
                 net_folder = dc.network_folder
@@ -285,7 +283,7 @@ begin
             # Step 3. Loop through hosts in clusters
             esx_host = VCenterDriver::ESXHost.new_from_ref(host._ref, vi_client)
 
-            if pg_type == "Port Group"
+            if pg_type == VCenterDriver::Network::NETWORK_TYPE_PG
                 begin
                     esx_host.lock # Exclusive lock for ESX host operation
 
@@ -324,7 +322,7 @@ begin
                 end
             end
 
-            if pg_type == "Distributed Port Group"
+            if pg_type == VCenterDriver::Network::NETWORK_TYPE_DPG
                 begin
                     esx_host.lock
                     if dvs
@@ -392,7 +390,7 @@ rescue Exception => e
         end
     end
 
-    if dc && pg_type == "Distributed Port Group"
+    if dc && pg_type == VCenterDriver::Network::NETWORK_TYPE_DPG
         begin
             dc.lock
             dc.network_rollback

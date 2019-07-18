@@ -75,6 +75,12 @@ class Network
 
     include Memoize
 
+    NETWORK_TYPE_PG = "Port Group"
+    NETWORK_TYPE_DPG = "Distributed Port Group"
+    NETWORK_TYPE_NSXV = "NSX-V" #"Virtual Wire"
+    NETWORK_TYPE_NSXT = "Opaque Network"
+    NETWORK_TYPE_UNKNOWN = "Unknown Network"
+
     def initialize(item, vi_client=nil)
         begin
             check_item(item, RbVmomi::VIM::Network)
@@ -216,11 +222,12 @@ class Network
         netString = network.class.to_s
         case netString
         when "DistributedVirtualPortgroup"
-            return "Distributed Port Group"
-        when "Network"
-            return "Port Group"
+            return VCenterDriver::Network::NETWORK_TYPE_DPG
         when "OpaqueNetwork"
-            return "Opaque Network"
+            return VCenterDriver::Network::NETWORK_TYPE_NSXT
+        when "Network"
+            return VCenterDriver::Network::NETWORK_TYPE_PG
+
         else 
             return "Network not defined"
         end
@@ -265,7 +272,7 @@ class PortGroup < Network
     end
 
     def network_type
-        "Port Group"
+        VCenterDriver::Network::NETWORK_TYPE_PG
     end
 end # class PortGroup
 
@@ -293,7 +300,7 @@ class DistributedPortGroup < Network
     end
 
     def network_type
-        "Distributed Port Group"
+        VCenterDriver::Network::NETWORK_TYPE_DPG
     end
 end # class DistributedPortGroup
 
@@ -319,7 +326,7 @@ class OpaqueNetwork < Network
     end
 
     def network_type
-        "Opaque Network"
+        VCenterDriver::Network::NETWORK_TYPE_NSXT
     end
 end # class OpaqueNetwork
 

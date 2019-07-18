@@ -57,10 +57,10 @@ def checkResponse(response, code)
 end
 
 def logicalSwitch?(nsxmgr, pgType, logicalSwitchId)
-    if pgType == "NSX-V"
+    if pgType == VCenterDriver::Network::NETWORK_TYPE_NSXV
         header = {'Content-Type': 'application/xml'}
         uri = URI.parse("https://#{nsxmgr}/api/2.0/vdn/virtualwires/#{logicalSwitchId}")
-    elsif pgType == "Opaque Network"
+    elsif pgType == VCenterDriver::Network::NETWORK_TYPE_NSXT
         header = {'Content-Type': 'application/json'}
         uri = URI.parse("https://#{nsxmgr}/api/v1/logical-switches/#{logicalSwitchId}")
     else
@@ -74,10 +74,10 @@ def logicalSwitch?(nsxmgr, pgType, logicalSwitchId)
   end
 
 def deleteLogicalSwitch(nsxmgr, pgType, logicalSwitchId)
-    if pgType == "NSX-V"
+    if pgType == VCenterDriver::Network::NETWORK_TYPE_NSXV
         header = {'Content-Type': 'application/xml'}
         uri = URI.parse("https://#{nsxmgr}/api/2.0/vdn/virtualwires/#{logicalSwitchId}")
-    elsif pgType == "Opaque Network"
+    elsif pgType == VCenterDriver::Network::NETWORK_TYPE_NSXT
         header = {'Content-Type': 'application/json'}
         uri = URI.parse("https://#{nsxmgr}/api/v1/logical-switches/#{logicalSwitchId}")
     else
@@ -113,7 +113,7 @@ begin
         dc = cluster.get_dc
 
         # With DVS we have to work at datacenter level and then for each host
-        if pg_type == "Distributed Port Group"
+        if pg_type == VCenterDriver::Network::NETWORK_TYPE_DPG
             begin
                 dc.lock
 
@@ -141,7 +141,7 @@ begin
             end
         end
 
-        if pg_type == "Port Group"
+        if pg_type == VCenterDriver::Network::NETWORK_TYPE_PG
             cluster["host"].each do |host|
                 # Step 3. Loop through hosts in clusters
                 esx_host = VCenterDriver::ESXHost.new_from_ref(host._ref, vi_client)
@@ -171,7 +171,7 @@ begin
             end
         end
 
-        if pg_type == "NSX-V" || pg_type == "Opaque Network"
+        if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXV || pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXT
             require 'net/http'
             nsxmgr = template["TEMPLATE/NSX_MANAGER"]
             nsx_id = template["TEMPLATE/NSX_ID"]

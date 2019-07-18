@@ -376,13 +376,13 @@ class DatacenterFolder
             networks[r.obj._ref] = r.to_hash if r.obj.is_a?(RbVmomi::VIM::DistributedVirtualPortgroup) || r.obj.is_a?(RbVmomi::VIM::Network) || r.obj.is_a?(RbVmomi::VIM::OpaqueNetwork)
 
             if r.obj.is_a?(RbVmomi::VIM::DistributedVirtualPortgroup)
-                networks[r.obj._ref][:network_type] = "Distributed Port Group"
-            elsif r.obj.is_a?(RbVmomi::VIM::Network)
-                networks[r.obj._ref][:network_type] = "Port Group"
+                networks[r.obj._ref][:network_type] = VCenterDriver::Network::NETWORK_TYPE_DPG
             elsif r.obj.is_a?(RbVmomi::VIM::OpaqueNetwork)
-                networks[r.obj._ref][:network_type] = "Opaque Network"
+                networks[r.obj._ref][:network_type] = VCenterDriver::Network::NETWORK_TYPE_NSXT
+            elsif r.obj.is_a?(RbVmomi::VIM::Network)
+                networks[r.obj._ref][:network_type] = VCenterDriver::Network::NETWORK_TYPE_PG
             else
-                networks[r.obj._ref][:network_type] = "Unknown Network"
+                networks[r.obj._ref][:network_type] = VCenterDriver::Network::NETWORK_TYPE_UNKNOWN
             end
             networks[r.obj._ref][:uplink] = false
             networks[r.obj._ref][:processed] = false
@@ -691,7 +691,7 @@ class Datacenter
     ########################################################################
     def nsx_network(nsx_id, pgType)
         timeout = 180
-        if pgType == "Opaque Network"
+        if pgType == VCenterDriver::Network::NETWORK_TYPE_NSXT
             while timeout > 0
                 netFolder = self.network_folder
                 netFolder.fetch!
@@ -704,7 +704,7 @@ class Datacenter
                 timeout -= 1
             end
         # Not used right now, but maybe neccesary in the future.
-        elsif pgType == "NSX-V"
+        elsif pgType == VCenterDriver::Network::NETWORK_TYPE_NSXV
             while timeout > 0
                 netFolder = self.network_folder
                 netFolder.fetch!
