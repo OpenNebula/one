@@ -1092,7 +1092,7 @@ void VirtualMachinePool::delete_attach_disk(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachinePool::delete_hotplug_nic(int vid, bool attach)
+void VirtualMachinePool::delete_hotplug_nic(int vid)
 {
     VirtualMachine *  vm;
     VirtualMachineNic * nic;
@@ -1125,9 +1125,20 @@ void VirtualMachinePool::delete_hotplug_nic(int vid, bool attach)
         return;
     }
 
-    if (attach)
+    int nic_id = nic->get_nic_id();
+
+    if (!nic->is_alias())
     {
-        vm->clear_nic_context(nic->get_nic_id());
+        vm->clear_nic_context(nic_id);
+    }
+    else
+    {
+        int parent_id, alias_id;
+
+        nic->vector_value("PARENT_ID", parent_id);
+        nic->vector_value("ALIAS_ID", alias_id);
+
+        vm->clear_nic_alias_context(parent_id, alias_id);
     }
 
     uid  = vm->get_uid();
@@ -1150,9 +1161,15 @@ void VirtualMachinePool::delete_hotplug_nic(int vid, bool attach)
 
     for(std::set<int>::iterator it = a_ids.begin(); it != a_ids.end(); ++it)
     {
+        int alias_id;
+
+        vm->get_nic(*it)->vector_value("ALIAS_ID", alias_id);
+
         tmpl.set(vm->get_nic(*it)->vector_attribute()->clone());
 
         vm->get_nic(*it)->release_network_leases(oid);
+
+        vm->clear_nic_alias_context(nic_id, alias_id);
     }
 
     nic->release_network_leases(oid);

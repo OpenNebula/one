@@ -3567,35 +3567,7 @@ int VirtualMachine::set_detach_nic(int nic_id)
 
     nic->set_attach();
 
-    /*------------------------------------------------------------------------*/
-    /* Clear context of the NIC or NIC_ALIAS                                  */
-    /* 1. NIC with alias will also clear context for the NIC_ALIAS            */
-    /* 2. NIC_ALIAS will update the ALIAS_IDs list                            */
-    /*------------------------------------------------------------------------*/
-    if ( !nic->is_alias() )
-    {
-        clear_nic_context(nic_id);
-
-        one_util::split_unique(nic->vector_value("ALIAS_IDS"), ',', a_ids);
-
-        for(std::set<int>::iterator it = a_ids.begin(); it != a_ids.end(); ++it)
-        {
-            VirtualMachineNic *alias = nics.get_nic(*it);
-
-            if ( alias == 0 )
-            {
-                continue;
-            }
-
-            if ( alias->vector_value("ALIAS_ID", alias_id) != 0 )
-            {
-                continue;
-            }
-
-            clear_nic_alias_context(nic_id, alias_id);
-        }
-    }
-    else
+    if ( nic->is_alias() )
     {
         std::ostringstream oss;
 
@@ -3604,8 +3576,6 @@ int VirtualMachine::set_detach_nic(int nic_id)
         {
             return -1;
         }
-
-        clear_nic_alias_context(parent_id, alias_id);
 
         nic = nics.get_nic(parent_id);
 
