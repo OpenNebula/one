@@ -45,7 +45,7 @@
 # @return 0 on success. Make sure this script does not return 0 if it fails.
 
 # To enable remove this line
-exit 1
+echo ""Fence host not configured, please edit ft/fence_host.sh"" && exit 1
 
 #-------------------------------------------------------------------------------
 # Get host parameters with XPATH
