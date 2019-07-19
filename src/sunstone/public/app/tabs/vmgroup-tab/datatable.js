@@ -113,7 +113,7 @@ define(function(require) {
     }
 
     for(role_index in element.ROLES.ROLE){
-      if(element.ROLES.ROLE[role_index].VMS){
+      if(element && element.ROLES && element.ROLES.ROLE && element.ROLES.ROLE[role_index] && element.ROLES.ROLE[role_index].VMS){
         var vms = element.ROLES.ROLE[role_index].VMS;
         var vms = vms.split(",");
         numVms += vms.length;
