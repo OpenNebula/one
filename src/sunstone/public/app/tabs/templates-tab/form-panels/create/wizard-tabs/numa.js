@@ -194,7 +194,7 @@ define(function(require) {
 
   function _fillBootValue(id="", context=null, value="") {
     if(id.length && context && value.length){
-      $(String(id), context).val(value.toUpperCase());
+      $(String(id), context).val(value);
     }
   }
 
