@@ -43,7 +43,7 @@ define(function(require) {
 
   function Panel(info) {
     this.title = Locale.tr("Numa");
-    this.icon = "fa-chart-pie";
+    this.icon = "fa-microchip";
     this.element = info[RESOURCE.toUpperCase()];
     return this;
   };

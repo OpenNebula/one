@@ -60,7 +60,7 @@ define(function(require) {
       throw "Wizard Tab not enabled";
     }
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
-    this.icon = "fa-chart-pie";
+    this.icon = "fa-microchip";
     this.title = Locale.tr("NUMA");
   }
 
@@ -158,7 +158,6 @@ define(function(require) {
     var templateJSON = { TOPOLOGY : {BORRAR:"BORRAR"} };
     if(getStatusNuma()){
       delete templateJSON["TOPOLOGY"]["BORRAR"];
-
       var temp = {};
       var policy = _getValue(idsElements.pin, context);
       if(policy && policy.length){
