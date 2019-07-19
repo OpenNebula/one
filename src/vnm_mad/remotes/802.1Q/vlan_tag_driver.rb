@@ -64,6 +64,11 @@ class VLANTagDriver < VNMMAD::VLANDriver
 
         OpenNebula.exec_and_log("#{command(:ip)} link set #{@nic[:vlan_dev]} up")
     end
+    
+    def delete_vlan_dev
+		OpenNebula.exec_and_log("#{command(:ip)} link delete"\
+            " #{@nic[:vlan_dev]}") if @nic[:vlan_dev] != @nic[:phydev]
+	end
 
     def get_interface_vlan(name)
         text = %x(#{command(:ip)} -d link show #{name})
