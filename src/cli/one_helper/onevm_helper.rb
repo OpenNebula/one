@@ -1171,7 +1171,7 @@ in the frontend machine.
         end
 
         if vm.has_elements?('/VM/TEMPLATE/NUMA_NODE')
-            print_numa_nodes(vm.to_hash['VM']['TEMPLATE']['NUMA_NODE'])
+            print_numa_nodes([vm.to_hash['VM']['TEMPLATE']['NUMA_NODE']].flatten)
         end
 
         if vm.has_elements?('/VM/TEMPLATE/TOPOLOGY')
