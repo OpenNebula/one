@@ -158,7 +158,6 @@ define(function(require) {
     var templateJSON = { TOPOLOGY : {BORRAR:"BORRAR"} };
     if(getStatusNuma()){
       delete templateJSON["TOPOLOGY"]["BORRAR"];
-
       var temp = {};
       var policy = _getValue(idsElements.pin, context);
       if(policy && policy.length){
@@ -195,7 +194,7 @@ define(function(require) {
 
   function _fillBootValue(id="", context=null, value="") {
     if(id.length && context && value.length){
-      $(String(id), context).val(value);
+      $(String(id), context).val(value.toUpperCase());
     }
   }
 
