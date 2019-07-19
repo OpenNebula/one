@@ -94,6 +94,40 @@ class ClusterComputeResource
         rp_array
     end
 
+    def get_nsx
+        nsx_info = ""
+        nsx_obj = {}
+        extensionList = []
+        extensionList = @vi_client.vim.serviceContent.extensionManager.extensionList
+        extensionList.each do |extList|
+            if extList.key == "com.vmware.vShieldManager"
+              nsx_obj['type'] = "NSX-V"
+              nsx_obj['version'] = extList.version
+              nsx_obj['label'] = extList.description.label
+                urlFull = extList.client[0].url
+                urlSplit = urlFull.split("/")
+                # protocol = "https://"
+                protocol = urlSplit[0] + "//"
+                # ipPort = ip:port
+                ipPort = urlSplit[2]
+                nsx_obj['url'] = protocol + ipPort
+            elsif extList.key == "com.vmware.nsx.management.nsxt"
+              nsx_obj['type'] = "NSX-T"
+              nsx_obj['version'] = extList.version
+              nsx_obj['label'] = extList.description.label
+              nsx_obj['url'] = extList.server[0].url
+            else
+            end
+        end
+        unless nsx_obj.nil?
+            nsx_info << "NSX_MANAGER=\"#{nsx_obj['label']}\"\n"
+            nsx_info << "NSX_TYPE=\"#{nsx_obj['type']}\"\n"
+            nsx_info << "NSX_VERSION=\"#{nsx_obj['version']}\"\n"
+            nsx_info << "NSX_URL=\"#{nsx_obj['url']}\"\n"
+        end
+        return nsx_info
+    end
+
     def monitor
         total_cpu,
         num_cpu_cores,
@@ -153,8 +187,13 @@ class ClusterComputeResource
 
         # HA enabled
         str_info << "VCENTER_HA="  << ha_enabled.to_s << "\n"
+        
+        # NSX info
+        str_info << get_nsx
 
         str_info << monitor_resource_pools(mhz_core)
+
+
     end
 
     def monitor_resource_pools(mhz_core)
