@@ -74,6 +74,14 @@ module VNMMAD
 
             exit -1
         end
+        
+        # This function needs to be implemented by any VLAN driver to
+        # delete the VLAN device. The device MUST be deleted by this function
+        def delete_vlan_dev
+            OpenNebula.log_error("delete_vlan_dev function not implemented.")
+
+            exit -1
+        end
 
         # Deactivate the driver and delete bridges and tags devices as needed.
         def deactivate
@@ -104,9 +112,8 @@ module VNMMAD
                 next if @bridges[@nic[:bridge]].length > 1 or !@bridges[@nic[:bridge]].include? @nic[:vlan_dev]
 
                 # Delete the vlan device.
-                OpenNebula.exec_and_log("#{command(:ip)} link delete"\
-                    " #{@nic[:vlan_dev]}") if @nic[:vlan_dev] != @nic[:phydev]
-
+                delete_vlan_dev
+                
                 @bridges[@nic[:bridge]].delete(@nic[:vlan_dev])
 
                 # Delete the bridge.
