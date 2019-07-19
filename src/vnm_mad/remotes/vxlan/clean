@@ -22,6 +22,7 @@ $: << File.join(File.dirname(__FILE__), "..")
 require 'vxlan_driver'
 
 template64   = ARGV[0]
+host         = ARGV[1]
 deploy_id    = nil
 xpath_filter = VXLANDriver::XPATH_FILTER
 

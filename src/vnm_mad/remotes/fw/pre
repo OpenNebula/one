@@ -22,7 +22,8 @@ $: << File.join(File.dirname(__FILE__), "..")
 require 'vnmmad'
 
 template64   = ARGV[0]
-deploy_id    = ARGV[1]
+host         = ARGV[1]
+deploy_id    = nil
 xpath_filter = "TEMPLATE/NIC[VN_MAD='fw']"
 
 hm = VNMMAD::NoVLANDriver.from_base64(template64, xpath_filter, deploy_id)

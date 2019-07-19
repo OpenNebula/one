@@ -389,8 +389,9 @@ class ExecDriver < VirtualMachineDriver
         steps.concat([
             # Execute pre-boot networking setup
             {
-                :driver   => :vnm,
-                :action   => :pre
+                :driver     => :vnm,
+                :action     => :pre,
+                :parameters => [:host]
             },
             # Boot the Virtual Machine
             {
@@ -446,8 +447,9 @@ class ExecDriver < VirtualMachineDriver
             },
             # Execute networking clean up operations
             {
-                :driver   => :vnm,
-                :action   => :clean
+                :driver     => :vnm,
+                :action     => :clean,
+                :parameters => [:host]
             }
         ]
 
@@ -479,7 +481,8 @@ class ExecDriver < VirtualMachineDriver
             # Execute pre-boot networking setup
             {
                 :driver     => :vnm,
-                :action     => :pre
+                :action     => :pre,
+                :parameters => [:host]
             },
             # Restore the Virtual Machine from checkpoint
             {
@@ -529,6 +532,7 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver      => :vnm,
                 :action      => :pre,
+                :parameters  => [:dest_host],
                 :destination => true
             },
             # Migrate the Virtual Machine
@@ -552,6 +556,7 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver       => :vnm,
                 :action       => :clean,
+                :parameters   => [:host],
                 :no_fail      => true
             },
             # Execute post-boot networking setup on migrating host
@@ -813,9 +818,10 @@ class ExecDriver < VirtualMachineDriver
                 }
             steps <<
                 {
-                    :driver  => :vnm,
-                    :action  => :clean,
-                    :no_fail => true
+                    :driver     => :vnm,
+                    :action     => :clean,
+                    :parameters => [:host],
+                    :no_fail    => true
                 }
         end
 
@@ -831,10 +837,11 @@ class ExecDriver < VirtualMachineDriver
                 }
             steps <<
                 {
-                    :driver  => :vnm,
-                    :action  => :clean,
+                    :driver      => :vnm,
+                    :action      => :clean,
+                    :parameters  => [:dest_host],
                     :destination => true,
-                    :no_fail => true
+                    :no_fail     => true
                 }
         end
 
@@ -914,8 +921,9 @@ class ExecDriver < VirtualMachineDriver
             steps = [
                 # Execute pre-attach networking setup
                 {
-                    :driver   => :vnm,
-                    :action   => :pre
+                    :driver     => :vnm,
+                    :action     => :pre,
+                    :parameters => [:host]
                 },
                 # Attach the new NIC
                 {
@@ -941,8 +949,9 @@ class ExecDriver < VirtualMachineDriver
             steps = [
                 # Execute pre-attach networking setup
                 {
-                    :driver   => :vnm,
-                    :action   => :pre
+                    :driver     => :vnm,
+                    :action     => :pre,
+                    :parameters => [:host]
                 },
                 # Execute post-boot networking setup
                 {
@@ -1028,7 +1037,8 @@ class ExecDriver < VirtualMachineDriver
                 # Clean networking setup
                 {
                     :driver       => :vnm,
-                    :action       => :clean
+                    :action       => :clean,
+                    :parameters   => [:host]
                 }
             ]
         elsif nic_alias && external
@@ -1036,7 +1046,8 @@ class ExecDriver < VirtualMachineDriver
                 # Clean networking setup
                 {
                     :driver       => :vnm,
-                    :action       => :clean
+                    :action       => :clean,
+                    :parameters   => [:host]
                 }
             ]
         else
@@ -1160,8 +1171,9 @@ class ExecDriver < VirtualMachineDriver
             },
             # Execute networking clean up operations
             {
-                :driver   => :vnm,
-                :action   => :clean
+                :driver     => :vnm,
+                :action     => :clean,
+                :parameters => [:host]
             }
         ]
 
