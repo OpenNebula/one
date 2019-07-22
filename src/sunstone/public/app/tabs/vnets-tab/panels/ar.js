@@ -120,7 +120,7 @@ define(function(require) {
       'tab': "vnets-tab",
       'action_add': "Network.add_ar",
       'action_update': "Network.update_ar",
-      'action_rm': "Network.rm_ar"
+      'action_rm': "Network.remove_ar"
     });
   }
 
