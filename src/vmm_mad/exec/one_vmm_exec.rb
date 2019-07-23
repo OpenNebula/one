@@ -559,7 +559,7 @@ class ExecDriver < VirtualMachineDriver
                 :driver       => :vnm,
                 :action       => :post,
                 :parameters   => [:deploy_id],
-                :destination  => :true,
+                :destination  => true,
                 :no_fail      => true
             },
             {
