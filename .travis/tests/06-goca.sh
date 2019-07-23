@@ -14,9 +14,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# temporary disabling goca tests until modules are set up
-exit 0
-
 # walk to goca path
 cd src/oca/go/src/goca
 
