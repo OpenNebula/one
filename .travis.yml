@@ -23,5 +23,6 @@ before_install:
   - sudo npm install -g grunt
   - sudo npm install -g grunt-cli
   - (cd src/sunstone/public && npm install && bower install)
+  - eval "$(curl -sL https://raw.githubusercontent.com/travis-ci/gimme/master/gimme | GIMME_GO_VERSION=1.12 bash)"
 script:
   - set -o errexit; source .travis/smoke_tests.sh
