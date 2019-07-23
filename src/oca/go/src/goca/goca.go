@@ -181,11 +181,10 @@ func (c *oneClient) endpointCall(url string, method string, args ...interface{})
 	}
 
 	// Server side XML-RPC library: xmlrpc-c
-	xmlrpcResp := xmlrpc.NewResponse(respData)
+	xmlrpcResp := xmlrpc.Response(respData)
 
 	// Handle the <fault> tag in the xml server response
-	if xmlrpcResp.Failed() {
-		err = xmlrpcResp.Err()
+	if err := xmlrpcResp.Err(); err != nil {
 		return nil,
 			&ClientError{ClientRespXMLRPCFault, "server response", resp, err}
 	}
