@@ -525,7 +525,44 @@ require 'optparse'
 options = {}
 OptionParser.new do |opts|
   opts.on("-d", "--data DATA", "Data to be included in the VM") do |data|
-    options[:data] = data
+    options[:data] = ''
+
+    data.split("\\n").each do |d|
+      data   = d.split('=', 2)
+      key    = data[0]
+      values = data[1]
+
+      values = values.split(',') # value can be multiple
+
+      values.map! do |value|
+        value = value.split('=')
+
+        if value.size > 1
+          # value is multiple
+          k = value[0]
+          v = value[1]
+
+          if v.include?(' ') && !v.include?('"')
+            if v[-1] == ']' # value is the last in the list
+              v = "\"#{v[0..-2]}\"#{v[-1]}"
+            else
+              v = "\"#{v}\""
+            end
+          end
+
+          "#{k}=#{v}"
+        else
+          # value is single
+          v = value[0]
+
+          v = "\"#{v}\"" if v.include?(' ') && !v.include?('"')
+
+          v
+        end
+      end
+
+      options[:data] += "#{key}=#{values.join(',')}\n"
+    end
   end
 
   opts.on("-e", "--erase DATA", "Data to be removed from the VM") do |data|
