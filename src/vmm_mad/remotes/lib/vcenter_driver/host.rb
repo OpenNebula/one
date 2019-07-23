@@ -16,6 +16,8 @@
 
 module VCenterDriver
 
+    require 'json'
+
 class HostFolder
     attr_accessor :item, :items
 
@@ -120,12 +122,80 @@ class ClusterComputeResource
             end
         end
         unless nsx_obj.nil?
-            nsx_info << "NSX_MANAGER=\"#{nsx_obj['label']}\"\n"
+            nsx_info << "NSX_MANAGER=\"#{nsx_obj['url']}\"\n"
             nsx_info << "NSX_TYPE=\"#{nsx_obj['type']}\"\n"
             nsx_info << "NSX_VERSION=\"#{nsx_obj['version']}\"\n"
-            nsx_info << "NSX_URL=\"#{nsx_obj['url']}\"\n"
+            nsx_info << "NSX_LABEL=\"#{nsx_obj['label']}\"\n"
         end
         return nsx_info
+    end
+
+    def nsx_ready?
+        @one_item = VCenterDriver::VIHelper.one_item(OpenNebula::Host, @vi_client.instance_variable_get(:@host_id).to_i)
+        # Check if credentials is into the host template
+        if [nil, ""].include?(@one_item["TEMPLATE/NSX_USER"])
+            return false
+        else
+            if [nil, ""].include?(@one_item["TEMPLATE/NSX_PASSWORD"])
+                return false
+            else
+              return true
+            end
+        end
+    end
+
+    def get_tz
+        tz_info="NSX_TRANSPORT_ZONES = ["
+        if !nsx_ready?
+            tz_info = "MSG=\"Missing NSX configuration\""
+        else
+            # Decrypt password
+            client = OpenNebula::Client.new
+            system = OpenNebula::System.new(client)
+            config = system.get_configuration
+
+            if OpenNebula.is_error?(config)
+                raise "Error getting oned configuration : #{config.message}"
+            end
+
+            nsx_password = @one_item["TEMPLATE/NSX_PASSWORD"]
+            token = config["ONE_KEY"]
+            nsx_password = VIClient::decrypt(nsx_password, token)
+            # NSX request to get Transport Zones
+            if @one_item["TEMPLATE/NSX_TYPE"] == "NSX-V"
+                header = {'Content-Type': 'application/xml'}
+                uri = URI.parse("#{@one_item["TEMPLATE/NSX_MANAGER"]}/api/2.0/vdn/scopes")
+                request = Net::HTTP::Get.new(uri.request_uri, header)
+                request.basic_auth(@one_item["TEMPLATE/NSX_USER"], nsx_password)
+                response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
+                  :verify_mode => OpenSSL::SSL::VERIFY_NONE) {|https| https.request(request) }
+                # checkResponse(response, 200)
+                bodyXML = Nokogiri::XML response.body
+                tzs = bodyXML.xpath("//vdnScope")
+                tzs.each do |tz|
+                    tz_info << tz.xpath("name").text << "=\"" << tz.xpath("objectId").text << "\","
+                end
+                tz_info.chomp!(',')
+            elsif @one_item["TEMPLATE/NSX_TYPE"] == "NSX-T"
+                header = {'Content-Type': 'application/json'}
+                uri = URI.parse("#{@one_item["TEMPLATE/NSX_MANAGER"]}/api/v1/transport-zones")
+                request = Net::HTTP::Get.new(uri.request_uri, header)
+                request.basic_auth(@one_item["TEMPLATE/NSX_USER"], nsx_password)
+                response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
+                  :verify_mode => OpenSSL::SSL::VERIFY_NONE) {|https| https.request(request) }
+                # checkResponse(response, 200)
+                r = JSON.parse(response.body)
+                r["results"].each do |tz|
+                    tz_info << tz["display_name"] << "=\"" << tz["id"] << "\","
+                end
+                tz_info.chomp!(',')
+            else
+                raise "Unknown Port Group type #{@one_item["TEMPLATE/NSX_TYPE"]}"
+            end
+            tz_info << "]"
+            return tz_info
+        end
+        return tz_info
     end
 
     def monitor
@@ -190,6 +260,7 @@ class ClusterComputeResource
         
         # NSX info
         str_info << get_nsx
+        str_info << get_tz
 
         str_info << monitor_resource_pools(mhz_core)
 
