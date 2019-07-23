@@ -15,7 +15,6 @@
 #--------------------------------------------------------------------------- #
 
 # temporary disabling goca tests until modules are set up
-m
 exit 0
 
 # walk to goca path
