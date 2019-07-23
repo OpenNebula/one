@@ -7,6 +7,7 @@
   :desc: Name of the Provision
   :size: 15
   :left: true
+  :expand: true
 
 :CLUSTERS:
   :desc: Number of Clusters
