@@ -33,6 +33,9 @@ $: << RUBY_LIB_LOCATION
 require 'opennebula'
 require 'vcenter_driver'
 require 'base64'
+require 'net/http'
+require 'json'
+require 'nokogiri'
 
 network_id   = ARGV[0]
 #base64_temp  = ARGV[1]
@@ -75,9 +78,9 @@ end
 def logicalSwitchData(nsxmgr, pgType, logicalSwitchId)
     if pgType == VCenterDriver::Network::NETWORK_TYPE_NSXV
         header = {'Content-Type': 'application/xml'}
-        uri = URI.parse("https://#{nsxmgr}/api/2.0/vdn/virtualwires/#{logicalSwitchId}")
+        uri = URI.parse("#{nsxmgr}/api/2.0/vdn/virtualwires/#{logicalSwitchId}")
         request = Net::HTTP::Get.new(uri.request_uri, header)
-        request.basic_auth(@usernsx, @passnsx)
+        request.basic_auth(@nsx_user, @nsx_password)
         response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
           :verify_mode => OpenSSL::SSL::VERIFY_NONE) {|https| https.request(request) }
         checkResponse(response, 200)
@@ -92,9 +95,9 @@ def logicalSwitchData(nsxmgr, pgType, logicalSwitchId)
         return vcenter_net_ref, vni
     elsif pgType == VCenterDriver::Network::NETWORK_TYPE_NSXT
         header = {'Content-Type': 'application/json'}
-        uri = URI.parse("https://#{nsxmgr}/api/v1/logical-switches/#{logicalSwitchId}")
+        uri = URI.parse("#{nsxmgr}/api/v1/logical-switches/#{logicalSwitchId}")
         request = Net::HTTP::Get.new(uri.request_uri, header)
-        request.basic_auth(@usernsx, @passnsx)
+        request.basic_auth(@nsx_user, @nsx_password)
         response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
           :verify_mode => OpenSSL::SSL::VERIFY_NONE) {|https| https.request(request) }
         checkResponse(response, 200)
@@ -109,12 +112,12 @@ end
 def createLogicalSwitch(nsxmgr, pgType, vdnscopeID, virtualWire)
     if pgType == VCenterDriver::Network::NETWORK_TYPE_NSXV
         header = {'Content-Type': 'application/xml'}
-        uri = URI.parse("https://#{nsxmgr}/api/2.0/vdn/scopes/#{vdnscopeID}/virtualwires")
+        uri = URI.parse("#{nsxmgr}/api/2.0/vdn/scopes/#{vdnscopeID}/virtualwires")
         request = Net::HTTP::Post.new(uri.request_uri, header)
         # virtualWire -> XML for NSX-V
         # virtualWire -> JSON for NSX-T
         request.body = virtualWire
-        request.basic_auth(@usernsx, @passnsx)
+        request.basic_auth(@nsx_user, @nsx_password)
         response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
           :verify_mode => OpenSSL::SSL::VERIFY_NONE) {|https| https.request(request) }
         checkResponse(response, 201)
@@ -122,12 +125,12 @@ def createLogicalSwitch(nsxmgr, pgType, vdnscopeID, virtualWire)
         return response.body
     elsif pgType == VCenterDriver::Network::NETWORK_TYPE_NSXT
         header = {'Content-Type': 'application/json'}
-        uri = URI.parse("https://#{nsxmgr}/api/v1/logical-switches")
+        uri = URI.parse("#{nsxmgr}/api/v1/logical-switches")
         request = Net::HTTP::Post.new(uri.request_uri, header)
         # virtualWire -> XML for NSX-V
         # virtualWire -> JSON for NSX-T
         request.body = virtualWire
-        request.basic_auth(@usernsx, @passnsx)
+        request.basic_auth(@nsx_user, @nsx_password)
         response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
           :verify_mode => OpenSSL::SSL::VERIFY_NONE) {|https| https.request(request) }
         checkResponse(response, 201)
@@ -168,15 +171,7 @@ begin
         # NSX parameters
         ls_name = one_vnet["NAME"]
         ls_description = one_vnet["TEMPLATE/DESCRIPTION"]
-        vdnscope_id = one_vnet["TEMPLATE/NSX_TZ_ID"]
-        vc = one_vnet["TEMPLATE/NSX_VC"]
-        @uservc = one_vnet["TEMPLATE/NSX_VCUSER"]
-        @passvc = one_vnet["TEMPLATE/NSX_VCPASS"]
-        nsxmgr = one_vnet["TEMPLATE/NSX_MANAGER"]
-        @usernsx = one_vnet["TEMPLATE/NSX_USER"]
-        @passnsx = one_vnet["TEMPLATE/NSX_PASS"]
-        nsx_id = one_vnet["TEMPLATE/NSX_ID"]
-
+        tz_id = one_vnet["TEMPLATE/NSX_TZ_ID"]
 
         if one_vnet["TEMPLATE/VCENTER_SWITCH_NPORTS"]
             nports  =  one_vnet["TEMPLATE/VCENTER_SWITCH_NPORTS"]
@@ -200,10 +195,24 @@ begin
 
         ls_vni = nil
 
+        # NSX parameters
+        nsxmgr = one_host["TEMPLATE/NSX_MANAGER"]
+        @nsx_user = one_host["TEMPLATE/NSX_USER"]
+        # Decrypt password
+        client = OpenNebula::Client.new
+        system = OpenNebula::System.new(client)
+        config = system.get_configuration
+
+        if OpenNebula.is_error?(config)
+            raise "Error getting oned configuration : #{config.message}"
+        end
+
+        nsx_password_enc = one_host["TEMPLATE/NSX_PASSWORD"]
+        token = config["ONE_KEY"]
+        @nsx_password = VCenterDriver::VIClient::decrypt(nsx_password_enc, token)
+        # NSX parameters
+
         if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXV
-            require 'net/http'
-            require 'nokogiri'
-          
             virtualWireSpec = "<virtualWireCreateSpec>\
                                   <name>#{ls_name}</name>\
                                   <description>#{ls_description}</description>\
@@ -212,18 +221,15 @@ begin
                                   <guestVlanAllowed>false</guestVlanAllowed>\
                               </virtualWireCreateSpec>"
 
-            nsx_id = createLogicalSwitch(nsxmgr, pg_type, vdnscope_id, virtualWireSpec)
+            nsx_id = createLogicalSwitch(nsxmgr, pg_type, tz_id, virtualWireSpec)
             # Get reference will have in vcenter and vni
             vnet_ref,ls_vni = logicalSwitchData(nsxmgr, pg_type, nsx_id)
         end
 
         if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXT
-            require 'net/http'
-            require 'json'
-
             virtualWireSpec = %{
               {
-                "transport_zone_id": "#{vdnscope_id}",
+                "transport_zone_id": "#{tz_id}",
                 "replication_mode": "MTEP",
                 "admin_state": "UP",
                 "display_name": "#{ls_name}",
@@ -231,7 +237,7 @@ begin
               }
             }
             
-            nsx_id = createLogicalSwitch(nsxmgr, pg_type, vdnscope_id, virtualWireSpec.to_s)
+            nsx_id = createLogicalSwitch(nsxmgr, pg_type, tz_id, virtualWireSpec.to_s)
             # Get NSX_VNI
             ls_vni = logicalSwitchData(nsxmgr, pg_type, nsx_id)
            

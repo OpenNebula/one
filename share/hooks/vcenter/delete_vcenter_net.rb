@@ -33,6 +33,7 @@ $: << RUBY_LIB_LOCATION
 require 'opennebula'
 require 'vcenter_driver'
 require 'base64'
+require 'net/http'
 
 base64_temp = ARGV[1]
 template    = OpenNebula::XMLElement.new
@@ -40,9 +41,6 @@ template.initialize_xml(Base64.decode64(base64_temp), 'VNET')
 managed  = template["TEMPLATE/OPENNEBULA_MANAGED"] != "NO"
 imported = template["TEMPLATE/VCENTER_IMPORTED"]
 error    = template["TEMPLATE/VCENTER_NET_STATE"] == "ERROR"
-
-@usernsx = template["TEMPLATE/NSX_USER"]
-@passnsx = template["TEMPLATE/NSX_PASS"]
 
 def checkResponse(response, code)
     # return 0, response.body if response.is_a? Net::HTTPSuccess
@@ -59,15 +57,15 @@ end
 def logicalSwitch?(nsxmgr, pgType, logicalSwitchId)
     if pgType == VCenterDriver::Network::NETWORK_TYPE_NSXV
         header = {'Content-Type': 'application/xml'}
-        uri = URI.parse("https://#{nsxmgr}/api/2.0/vdn/virtualwires/#{logicalSwitchId}")
+        uri = URI.parse("#{nsxmgr}/api/2.0/vdn/virtualwires/#{logicalSwitchId}")
     elsif pgType == VCenterDriver::Network::NETWORK_TYPE_NSXT
         header = {'Content-Type': 'application/json'}
-        uri = URI.parse("https://#{nsxmgr}/api/v1/logical-switches/#{logicalSwitchId}")
+        uri = URI.parse("#{nsxmgr}/api/v1/logical-switches/#{logicalSwitchId}")
     else
         raise "Unknow pgType #{pgType}"
     end
     request = Net::HTTP::Get.new(uri.path)
-    request.basic_auth(@usernsx, @passnsx)
+    request.basic_auth(@nsx_user, @nsx_password)
     response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
       :verify_mode => OpenSSL::SSL::VERIFY_NONE) {|https| https.request(request) }
     return checkResponse(response, 200)
@@ -76,15 +74,15 @@ def logicalSwitch?(nsxmgr, pgType, logicalSwitchId)
 def deleteLogicalSwitch(nsxmgr, pgType, logicalSwitchId)
     if pgType == VCenterDriver::Network::NETWORK_TYPE_NSXV
         header = {'Content-Type': 'application/xml'}
-        uri = URI.parse("https://#{nsxmgr}/api/2.0/vdn/virtualwires/#{logicalSwitchId}")
+        uri = URI.parse("#{nsxmgr}/api/2.0/vdn/virtualwires/#{logicalSwitchId}")
     elsif pgType == VCenterDriver::Network::NETWORK_TYPE_NSXT
         header = {'Content-Type': 'application/json'}
-        uri = URI.parse("https://#{nsxmgr}/api/v1/logical-switches/#{logicalSwitchId}")
+        uri = URI.parse("#{nsxmgr}/api/v1/logical-switches/#{logicalSwitchId}")
     else
         raise "Unknow pgType #{pgType}"
     end
     request = Net::HTTP::Delete.new(uri.request_uri, header)
-    request.basic_auth(@usernsx, @passnsx)
+    request.basic_auth(@nsx_user, @nsx_password)
     response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
       :verify_mode => OpenSSL::SSL::VERIFY_NONE) {|https| https.request(request) }
     checkResponse(response, 200)
@@ -111,6 +109,23 @@ begin
         ccr_ref = one_host["TEMPLATE/VCENTER_CCR_REF"]
         cluster = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref, vi_client)
         dc = cluster.get_dc
+
+        # NSX parameters
+        nsxmgr = one_host["TEMPLATE/NSX_MANAGER"]
+        @nsx_user = one_host["TEMPLATE/NSX_USER"]
+        # Decrypt password
+        client = OpenNebula::Client.new
+        system = OpenNebula::System.new(client)
+        config = system.get_configuration
+
+        if OpenNebula.is_error?(config)
+            raise "Error getting oned configuration : #{config.message}"
+        end
+
+        nsx_password_enc = one_host["TEMPLATE/NSX_PASSWORD"]
+        token = config["ONE_KEY"]
+        @nsx_password = VCenterDriver::VIClient::decrypt(nsx_password_enc, token)
+        # NSX parameters
 
         # With DVS we have to work at datacenter level and then for each host
         if pg_type == VCenterDriver::Network::NETWORK_TYPE_DPG
@@ -172,8 +187,6 @@ begin
         end
 
         if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXV || pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXT
-            require 'net/http'
-            nsxmgr = template["TEMPLATE/NSX_MANAGER"]
             nsx_id = template["TEMPLATE/NSX_ID"]
             # Check network exists
             if logicalSwitch?(nsxmgr, pg_type, nsx_id)
