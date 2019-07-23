@@ -151,11 +151,10 @@ func (c *Client) Call(method string, args ...interface{}) (*Response, error) {
 	}
 
 	// Server side XML-RPC library: xmlrpc-c
-	xmlrpcResp := xmlrpc.NewResponse(respData)
+	xmlrpcResp := xmlrpc.Response(respData)
 
 	// Handle the <fault> tag in the xml server response
-	if xmlrpcResp.Failed() {
-		err = xmlrpcResp.Err()
+	if err := xmlrpcResp.Err(); err != nil {
 		return nil,
 			&errs.ClientError{errs.ClientRespXMLRPCFault, "server response", resp, err}
 	}
