@@ -291,11 +291,16 @@ func (vc *VMController) Resize(template string, enforce bool) error {
 	return err
 }
 
-// Saveas exports a disk to an image. If imageType is empty the default one
-// will be used. If snapID is -1 the current image state will be exported
-func (vc *VMDiskController) Saveas(imageName, imageType string, snapID int) error {
-	_, err := vc.c.Client.Call("one.vm.disksaveas", vc.entityID, vc.ID, imageName, imageType, snapID)
-	return err
+// Saveas exports a disk to an image and returns the image ID.
+// If imageType is empty the default one will be used.
+// If snapID is -1 the current image state will be exported
+func (vc *VMDiskController) Saveas(imageName, imageType string, snapID int) (int, error) {
+	response, err := vc.c.Client.Call("one.vm.disksaveas", vc.entityID, vc.ID, imageName, imageType, snapID)
+	if err != nil {
+		return 0, err
+	}
+
+	return response.BodyInt(), nil
 }
 
 // SnapshotCreate will create a snapshot of the disk image
