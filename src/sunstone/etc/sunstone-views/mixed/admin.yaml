@@ -10,11 +10,11 @@ enabled_tabs:
     - instances-top-tab
     - vms-tab
     - oneflow-services-tab
-    - vrouters-tab
+      # - vrouters-tab
     - templates-top-tab
     - templates-tab
     - oneflow-templates-tab
-    - vrouter-templates-tab
+      # - vrouter-templates-tab
     - storage-top-tab
     - datastores-tab
     - images-tab
@@ -23,7 +23,7 @@ enabled_tabs:
     - marketplaceapps-tab
     - network-top-tab
     - vnets-tab
-    - vnets-templates-tab
+      # - vnets-templates-tab
     - vnets-topology-tab
     - secgroups-tab
     - infrastructure-top-tab
@@ -76,7 +76,7 @@ features:
 
     # True to show an input to specify the the VMs and Template path/folder where a vCenter VM will
     # deployed to
-    vcenter_vm_folder: true
+    vcenter_vm_folder: false
 
     # True to show the monitoring info (VM & VRouters)
     show_monitoring_info: true
@@ -244,7 +244,7 @@ tabs:
         actions:
             Template.refresh: true
             Template.create_dialog: true
-            Template.import_dialog: true
+            Template.import_dialog: false
             Template.update_dialog: true
             Template.instantiate_vms: true
             Template.rename: true
@@ -607,7 +607,7 @@ tabs:
         actions:
             Datastore.refresh: true
             Datastore.create_dialog: true
-            Datastore.import_dialog: true
+            Datastore.import_dialog: false
             Datastore.addtocluster: true
             Datastore.rename: true
             Datastore.chown: true
@@ -642,7 +642,7 @@ tabs:
         actions:
             Image.refresh: true
             Image.create_dialog: true
-            Image.import_dialog: true
+            Image.import_dialog: false
             Image.upload_marketplace_dialog: true
             Image.rename: true
             Image.chown: true
@@ -781,8 +781,8 @@ tabs:
         actions:
             Network.refresh: true
             Network.create_dialog: true
-            Network.instantiate_dialog: true
-            Network.import_dialog: true
+            Network.instantiate_dialog: false
+            Network.import_dialog: false
             Network.update_dialog: true
             Network.reserve_dialog: true
             Network.addtocluster: true
