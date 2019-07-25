@@ -22,6 +22,7 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var Sunstone = require('sunstone');
   var TemplateUtils = require('utils/template-utils');
+  var Tips = require('utils/tips');
 
   /*
     TEMPLATES
@@ -82,7 +83,6 @@ define(function(require) {
         template_str  = TemplateUtils.templateToString(template);
         Sunstone.runAction(RESOURCE + ".update_template", that.element.ID, template_str);
       }
-      console.log("PASS");
     });
   }
 
@@ -111,7 +111,15 @@ define(function(require) {
       selectTable.find("td").append(select);
 
       var isolcpusTable = $("<table/>");
-      isolcpusTable.append($("<thead/>").append($("<tr>").append($("<th/>").text("Isolated CPUS"))));
+      isolcpusTable.append(
+        $("<thead/>").append(
+          $("<tr>").append(
+            $("<th/>").text("Isolated CPUS").append(
+              $("<span>",{"class":"tip"}).text("Comma separated list of CPU IDs that will be isolated from the NUMA scheduler").css({"margin-left":".5rem"})
+            )
+          )
+        )
+      );
       isolcpusTable.append($("<tbody>").append($("<tr>").append($("<td/>"))));
       var valueIsolCpus = (that && that.element && that.element.TEMPLATE && that.element.TEMPLATE.ISOLCPUS) || "";
       var isolcpusInfo = $("<div>",{"class":"row"}).append(
@@ -119,7 +127,7 @@ define(function(require) {
           $("<input/>",{'id': ISOLCPUS, 'type': 'text'}).val(valueIsolCpus)
         )
         .add(
-          $("<div/>",{"class":'columns small-2'}).append(
+          $("<div/>",{"class":'columns small-2 text-center'}).append(
             $("<button/>",{"class": "button", "id": ISOLCPUSINPUT }).text("Send")
           )
         )
@@ -168,17 +176,13 @@ define(function(require) {
                   cpus.map(function(cpu){
                     var cpuInfo = cpu.split(":");
                     var state = (cpuInfo && cpuInfo[1] && Number(cpuInfo[1])>=0? "busy" : (Number(cpuInfo[1]) === -1? "free" : "isolated"));
-                    console.log("info", cpuInfo);
                     placeBody.find("td:last").append(
                       $("<div/>",{"class":"small-6 columns cpu "+state}).append(
                         $("<div/>",{"class":""}).text("CPU #"+cpuInfo[0]).add(
                           cpuInfo && cpuInfo[1] && cpuInfo[1] >= 0? 
                             $("<a/>",{"class":"","href":"/#vms-tab/"+cpuInfo[1]}).text("VM #"+cpuInfo[1]) 
                               :
-                            (
-                              Number(cpuInfo[1]) === -1 ?
-                              $("<div/>",{"class":"no-vm"}).text("FREE") : $("<div/>",{"class":"isolated"}).text("ISOLATED")
-                            )
+                            $("<div/>",{"class":"no-vm"}).text(Number(cpuInfo[1]) === -1?"FREE":"ISOLATED")
                         )
                       )
                     );
@@ -243,6 +247,7 @@ define(function(require) {
           }
         }
         $("#placeNumaInfo").append(title.add(subtitle).add(coreTable).add($("<div/>",{"class":"row"}).append(memory.add(hugepage))));
+        Tips.setup();
       });
     }
   }
