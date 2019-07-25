@@ -178,6 +178,9 @@ define(function(require) {
           //HUGEPAGE
           if(infoNode.HUGEPAGE){
             var infoHugepages = infoNode.HUGEPAGE;
+            if (!(infoHugepages instanceof Array)) {
+              infoHugepages = [infoHugepages];
+            }
             hugepage.append($("<h6/>").text("Hugepage"));
             var hugepageTable = $("<table/>");
             hugepageTable.append(
