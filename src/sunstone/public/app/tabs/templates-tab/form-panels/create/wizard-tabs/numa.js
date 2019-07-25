@@ -47,8 +47,7 @@ define(function(require) {
     hugepages: "#numa-hugepages",
     sockets: "#numa-sockets",
     memory: "#numa-memory",
-    pin: "#numa-pin-policy",
-    isolcpus: "#numa-isolcpus"
+    pin: "#numa-pin-policy"
   }
 
   var numaStatus = null;
@@ -164,10 +163,6 @@ define(function(require) {
       if(policy && policy.length){
         temp.PIN_POLICY = policy;
       }
-      var isolcpus = _getValue(idsElements.isolcpus, context);
-      if(isolcpus && isolcpus.length){
-        temp.ISOLCPUS = isolcpus;
-      }
       var sockets = _getValue(idsElements.sockets, context);
       if(sockets && sockets.length){
         temp.SOCKETS = sockets;
@@ -213,9 +208,6 @@ define(function(require) {
       HUGEPAGE_SELECTED_VALUE = "";
       if(topology && topology.HUGEPAGE_SIZE){
         HUGEPAGE_SELECTED_VALUE = topology.HUGEPAGE_SIZE;
-      }
-      if(topology && topology.ISOLCPUS){
-        _fillBootValue(idsElements.isolcpus, context, topology.ISOLCPUS);
       }
       if(topology && topology.MEMORY_ACCESS){
         _fillBootValue(idsElements.memory, context, topology.MEMORY_ACCESS);

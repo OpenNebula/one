@@ -36,6 +36,8 @@ define(function(require) {
   var PANEL_ID = require('./numa/panelId');
   var RESOURCE = "Host";
   var SELECT_ID = "numa-pinned-host";
+  var ISOLCPUSINPUT = "numa-isolcpus";
+  var ISOLCPUS = "isolcpus";
 
   /*
     CONSTRUCTOR
@@ -73,6 +75,15 @@ define(function(require) {
         Sunstone.runAction(RESOURCE + ".update_template", that.element.ID, template_str);
       }
     });
+    $("#"+ISOLCPUSINPUT).click(function(e){
+      if(that.element && that.element.ID && that.element.TEMPLATE){
+        var template = $.extend({}, that.element.TEMPLATE);
+        template.ISOLCPUS = $("#"+ISOLCPUS).val();
+        template_str  = TemplateUtils.templateToString(template);
+        Sunstone.runAction(RESOURCE + ".update_template", that.element.ID, template_str);
+      }
+      console.log("PASS");
+    });
   }
 
   function capitalize(string){
@@ -98,7 +109,25 @@ define(function(require) {
       selectTable.append($("<thead/>").append($("<tr>").append($("<th/>").text("Pin Policy"))));
       selectTable.append($("<tbody>").append($("<tr>").append($("<td/>"))));
       selectTable.find("td").append(select);
+
+      var isolcpusTable = $("<table/>");
+      isolcpusTable.append($("<thead/>").append($("<tr>").append($("<th/>").text("Isolated CPUS"))));
+      isolcpusTable.append($("<tbody>").append($("<tr>").append($("<td/>"))));
+      var valueIsolCpus = (that && that.element && that.element.TEMPLATE && that.element.TEMPLATE.ISOLCPUS) || "";
+      var isolcpusInfo = $("<div>",{"class":"row"}).append(
+        $("<div/>",{"class":'columns small-10'}).append(
+          $("<input/>",{'id': ISOLCPUS, 'type': 'text'}).val(valueIsolCpus)
+        )
+        .add(
+          $("<div/>",{"class":'columns small-2'}).append(
+            $("<button/>",{"class": "button", "id": ISOLCPUSINPUT }).text("Send")
+          )
+        )
+      );
+      isolcpusTable.find("td").append(isolcpusInfo);
+
       $("#placeNumaInfo").append(selectTable);
+      $("#placeNumaInfo").append(isolcpusTable);
       numaNodes.map(function(node,i){
         var displaySubtitle = true;
         var title = $("<h4/>");
