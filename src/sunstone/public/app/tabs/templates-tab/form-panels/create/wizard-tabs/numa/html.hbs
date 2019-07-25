@@ -36,6 +36,11 @@
           <option value="SHARED">{{tr "shared"}}</option>
           <option value="CORE">{{tr "core"}}</option>
         </select>
+        <label for="numa-isolcpus">
+          {{tr "ISOLCPUS"}}
+          {{{tip (tr "Comma separated list of CPU IDs that will be isolated from the NUMA scheduler")}}}
+        </label>
+        <input type="text" id="numa-isolcpus">
         <label for="numa-sockets">
           {{tr "Sockets"}}
           {{{tip (tr "Number of sockets or NUMA nodes")}}}
@@ -62,8 +67,8 @@
           {{tr "Memory Access"}}
           {{{tip (tr "Control if the memory is to be mapped shared or private")}}}
         </label>
-	<select id="numa-memory">
-	  <option value="">{{tr "-"}}</option>
+        <select id="numa-memory">
+          <option value="">{{tr "-"}}</option>
           <option value="shared">{{tr "Shared"}}</option>
           <option value="private">{{tr "Private"}}</option>
         </select>

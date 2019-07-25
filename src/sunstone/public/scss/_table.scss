@@ -59,6 +59,12 @@ table {
         color: $white;
         border: 1px solid $white;
       }
+      .isolated{
+        background-color: $isolated;
+        font-weight: bold;
+        color: $white;
+        border: 1px solid $white;
+      }
     }
   }
 

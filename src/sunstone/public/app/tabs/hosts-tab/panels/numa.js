@@ -129,7 +129,7 @@ define(function(require) {
                 placeBody = tBody.append($("<tr/>")).find("tr:last");
               }
               placeBody.append(
-                $("<td/>",{"colspan":2,"class":"text-center"}).append(
+                $("<td/>",{"colspan":2,"class":"text-center"}).append(  
                   $("<h6/>").text(core.ID? "Core "+core.ID : "")
                 )
               );
@@ -138,14 +138,18 @@ define(function(require) {
                 if(cpus instanceof Array){
                   cpus.map(function(cpu){
                     var cpuInfo = cpu.split(":");
-                    var state = cpuInfo && cpuInfo[1] && cpuInfo[1]>=0? "busy" : "free";
+                    var state = (cpuInfo && cpuInfo[1] && Number(cpuInfo[1])>=0? "busy" : (Number(cpuInfo[1]) === -1? "free" : "isolated"));
+                    console.log("info", cpuInfo);
                     placeBody.find("td:last").append(
                       $("<div/>",{"class":"small-6 columns cpu "+state}).append(
                         $("<div/>",{"class":""}).text("CPU #"+cpuInfo[0]).add(
                           cpuInfo && cpuInfo[1] && cpuInfo[1] >= 0? 
                             $("<a/>",{"class":"","href":"/#vms-tab/"+cpuInfo[1]}).text("VM #"+cpuInfo[1]) 
                               :
-                            $("<div/>",{"class":"no-vm"}).text("FREE")
+                            (
+                              Number(cpuInfo[1]) === -1 ?
+                              $("<div/>",{"class":"no-vm"}).text("FREE") : $("<div/>",{"class":"isolated"}).text("ISOLATED")
+                            )
                         )
                       )
                     );
