@@ -1,0 +1,176 @@
+#!/usr/bin/env ruby
+
+require 'net/http'
+require 'uri'
+require 'yaml'
+require 'base64'
+require 'rexml/document'
+
+#-------------------------------------------------------------------------------
+#
+#-------------------------------------------------------------------------------
+class TurnkeyLinux
+    #---------------------------------------------------------------------------
+    # Default Configuration parameters for the Driver
+    #---------------------------------------------------------------------------
+    DEFAULTS = {
+        :url    => 'http://mirror.turnkeylinux.org',
+        :sizemb => 5120,
+        :fs     => 'ext4',
+        :format => 'raw',
+        :agent  => 'OpenNebula'
+    }
+
+    #---------------------------------------------------------------------------
+    # Configuration varibales
+    #   :url of linuxcontainers market place
+    #   :sizemb default size for container images
+    #   :fs filesystem for the image file
+    #   :format for the image file, qcow2, raw
+    #   :agent for HTTP client
+    #---------------------------------------------------------------------------
+
+    #ONE_MARKET_URL = 'http://mirror.turnkeylinux.org'
+    #AGENT          = 'Market Driver'
+    #VERSION        = File.dirname(__FILE__) + '/../../VERSION'
+    ##VERSION     = "5.6.1"
+
+    def initialize(options = {})
+        @options = DEFAULTS
+        @options.merge!(options)
+ 
+        version_path = File.dirname(__FILE__) + '/../../VERSION'
+ 
+        if File.exists? version_path
+            @options[:agent] = "OpenNebula #{File.read(version_path)}"
+        end
+        #@url   = url || ONE_MARKET_URL
+        #@agent = "OpenNebula #{File.read(VERSION)} (#{AGENT})"
+        ##@agent = "OpenNebula 5.6.1"
+    end
+
+    def get(path)
+
+        # Get proxy params (needed for ruby 1.9.3)
+        http_proxy = ENV['http_proxy'] || ENV['HTTP_PROXY']
+
+        if http_proxy
+            p_uri   = URI(http_proxy)
+            p_host  = p_uri.host
+            p_port  = p_uri.port
+        else
+            p_host  = nil
+            p_port  = nil
+        end
+
+        uri = URI(@options[:url] + path)
+        req = Net::HTTP::Get.new(uri.request_uri)
+        req['User-Agent'] = @agent
+
+        response = Net::HTTP.start(uri.hostname, uri.port, p_host, p_port) {|http|
+            http.request(req)
+        }
+
+        if response.is_a? Net::HTTPSuccess
+            return 0, response.body
+        else
+            puts response.code.to_i
+            puts response.msg
+            return response.code.to_i, response.msg
+            exit -1
+        end
+    end
+
+    def get_appliances()
+        first_level = '/appliances/'
+        rc, body = get(first_level)
+        if rc != 0
+            return rc, body
+        end
+
+        appliances = body.scan(%r{a href="([a-z].*/)">})
+
+        appstr  = ""
+
+        appliances.each { |appliance| 
+
+            folder=appliance[0]
+            id     = "-1"
+
+            rc, body = get("#{first_level}#{folder}metadata.yaml")
+            metadata = YAML.load(body)
+            rc, body = get("#{first_level}#{folder}template")
+            template = body
+            template << "DESCRIPTION = \"#{metadata["description"]}\""
+
+            name = metadata["name"]
+            source = "#{@options[:url]}/images/#{metadata['image_name']}"
+
+            tmpl = ""
+
+            print_var(tmpl, "NAME",        "#{name}")
+            print_var(tmpl, "SOURCE",      source)
+            print_var(tmpl, "IMPORT_ID",   metadata["app_id"])
+            print_var(tmpl, "ORIGIN_ID",   "-1")
+            print_var(tmpl, "TYPE",        "IMAGE")
+            print_var(tmpl, "PUBLISHER",   metadata["publisher"])
+            print_var(tmpl, "FORMAT",      metadata["format"])
+            print_var(tmpl, "DESCRIPTION", metadata["description"])
+            print_var(tmpl, "VERSION",     metadata["version"])
+            print_var(tmpl, "REGTIME",     metadata["creation_time"])
+            print_var(tmpl, 'SIZE',        metadata["size"])
+
+            tmpl64 = ""
+            print_var(tmpl64, 'DEV_PREFIX', metadata['dev_prefix'])
+            print_var(tmpl64, 'DRIVER',     metadata['driver'])
+            print_var(tmpl64, 'TYPE',       metadata['type'])
+
+            print_var(tmpl, 'APPTEMPLATE64', Base64.strict_encode64(tmpl64))
+
+            print_var(tmpl, 'VMTEMPLATE64', Base64.strict_encode64(template))
+
+            appstr << "APP=\"#{Base64::strict_encode64(tmpl)}\"\n"
+        }
+
+        appstr
+    end
+
+    def app_url(path)
+        "\\\"lxd://#{@options[:url]}#{path}?size=#{@options[:sizemb]}&filesystem=" \
+            "#{@options[:fs]}&format=#{@options[:format]}\\\""
+    end
+
+    def print_var(str, name, val)
+        return if val.nil?
+        return if val.class == String && val.empty?
+
+        str << "#{name}=\"#{val}\"\n"
+    end
+
+end
+
+################################################################################
+# Main Program. Outpust the list of marketplace appliances
+################################################################################
+def set_option(o, d, name, path)
+    o[name] = d.elements[path].text if d.elements[path]
+end
+
+begin
+    options     = {}
+    #drv_message = Base64::decode64(ARGV[0])
+ 
+    #doc = REXML::Document.new(drv_message).root
+ 
+    #set_option(options, doc, :url, 'MARKETPLACE/TEMPLATE/ENDPOINT')
+    options[:url] = "http://market.virtalus.com"
+ 
+    puts TurnkeyLinux.new(options).get_appliances
+
+
+    #drv_message = Base64::decode64(ARGV[0])
+    #doc = REXML::Document.new(drv_message).root
+    #url = doc.elements['MARKETPLACE/TEMPLATE/ENDPOINT'].text rescue nil
+    ##url = "http://mirror.turnkeylinux.org"
+#rescue Exception
+end

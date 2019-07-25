@@ -119,8 +119,11 @@ class OneMarket
 
             begin
                 if !app['opennebula_template'].nil?
+                    parsed_template = JSON.parse(app['opennebula_template'])
+                    parsed_template["CONTEXT"]["SET_HOSTNAME"] = "$NAME"
+                    parsed_template["SCHED_REQUIREMENTS"] = 'CLUSTER=\"KVM\"'
                     vmtmpl64 = template_to_str(
-                        JSON.parse(app['opennebula_template'])
+                        parsed_template
                     )
                     print_var(tmpl,
                               'VMTEMPLATE64',

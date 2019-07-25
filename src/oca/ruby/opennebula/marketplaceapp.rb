@@ -177,7 +177,8 @@ module OpenNebula
             return Error.new('App is not READY') if state_str != 'READY'
 
             if options[:dsid].nil? && type_str != 'VMTEMPLATE'
-                return Error.new('Missing datastore id')
+                options[:dsid] = 1.to_i
+                #return Error.new('Missing datastore id')
             end
 
             return Error.new('Missing name to export app') if options[:name].nil?

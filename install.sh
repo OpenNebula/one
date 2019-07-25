@@ -360,6 +360,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/market/one \
           $VAR_LOCATION/remotes/market/s3 \
           $VAR_LOCATION/remotes/market/linuxcontainers \
+          $VAR_LOCATION/remotes/market/virtalus \
           $VAR_LOCATION/remotes/datastore/iscsi_libvirt \
           $VAR_LOCATION/remotes/auth \
           $VAR_LOCATION/remotes/auth/plain \
@@ -511,6 +512,7 @@ INSTALL_FILES=(
     MARKETPLACE_DRIVER_ONE_SCRIPTS:$VAR_LOCATION/remotes/market/one
     MARKETPLACE_DRIVER_S3_SCRIPTS:$VAR_LOCATION/remotes/market/s3
     MARKETPLACE_DRIVER_LXC_SCRIPTS:$VAR_LOCATION/remotes/market/linuxcontainers
+    MARKETPLACE_DRIVER_VIRTALUS_SCRIPTS:$VAR_LOCATION/remotes/market/virtalus
     IPAM_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/ipam/dummy
     IPAM_DRIVER_PACKET_SCRIPTS:$VAR_LOCATION/remotes/ipam/packet
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
@@ -1530,6 +1532,11 @@ MARKETPLACE_DRIVER_S3_SCRIPTS="src/market_mad/remotes/s3/import \
 MARKETPLACE_DRIVER_LXC_SCRIPTS="src/market_mad/remotes/linuxcontainers/import \
             src/market_mad/remotes/linuxcontainers/delete \
             src/market_mad/remotes/linuxcontainers/monitor"
+
+MARKETPLACE_DRIVER_VIRTALUS_SCRIPTS="src/market_mad/remotes/virtalus/import \
+            src/market_mad/remotes/virtalus/delete \
+            src/market_mad/remotes/virtalus/monitor"
+
 
 #-------------------------------------------------------------------------------
 # Migration scripts for onedb command, to be installed under $LIB_LOCATION
