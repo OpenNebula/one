@@ -22,6 +22,7 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var Sunstone = require('sunstone');
   var TemplateUtils = require('utils/template-utils');
+  var Tips = require('utils/tips');
 
   /*
     TEMPLATES
@@ -36,6 +37,8 @@ define(function(require) {
   var PANEL_ID = require('./numa/panelId');
   var RESOURCE = "Host";
   var SELECT_ID = "numa-pinned-host";
+  var ISOLCPUSINPUT = "numa-isolcpus";
+  var ISOLCPUS = "isolcpus";
 
   /*
     CONSTRUCTOR
@@ -73,6 +76,14 @@ define(function(require) {
         Sunstone.runAction(RESOURCE + ".update_template", that.element.ID, template_str);
       }
     });
+    $("#"+ISOLCPUSINPUT).click(function(e){
+      if(that.element && that.element.ID && that.element.TEMPLATE){
+        var template = $.extend({}, that.element.TEMPLATE);
+        template.ISOLCPUS = $("#"+ISOLCPUS).val();
+        template_str  = TemplateUtils.templateToString(template);
+        Sunstone.runAction(RESOURCE + ".update_template", that.element.ID, template_str);
+      }
+    });
   }
 
   function capitalize(string){
@@ -98,7 +109,33 @@ define(function(require) {
       selectTable.append($("<thead/>").append($("<tr>").append($("<th/>").text("Pin Policy"))));
       selectTable.append($("<tbody>").append($("<tr>").append($("<td/>"))));
       selectTable.find("td").append(select);
+
+      var isolcpusTable = $("<table/>");
+      isolcpusTable.append(
+        $("<thead/>").append(
+          $("<tr>").append(
+            $("<th/>").text("Isolated CPUS").append(
+              $("<span>",{"class":"tip"}).text("Comma separated list of CPU IDs that will be isolated from the NUMA scheduler").css({"margin-left":".5rem"})
+            )
+          )
+        )
+      );
+      isolcpusTable.append($("<tbody>").append($("<tr>").append($("<td/>"))));
+      var valueIsolCpus = (that && that.element && that.element.TEMPLATE && that.element.TEMPLATE.ISOLCPUS) || "";
+      var isolcpusInfo = $("<div>",{"class":"row"}).append(
+        $("<div/>",{"class":'columns small-10'}).append(
+          $("<input/>",{'id': ISOLCPUS, 'type': 'text'}).val(valueIsolCpus)
+        )
+        .add(
+          $("<div/>",{"class":'columns small-2 text-center'}).append(
+            $("<button/>",{"class": "button", "id": ISOLCPUSINPUT }).text("Send")
+          )
+        )
+      );
+      isolcpusTable.find("td").append(isolcpusInfo);
+
       $("#placeNumaInfo").append(selectTable);
+      $("#placeNumaInfo").append(isolcpusTable);
       numaNodes.map(function(node,i){
         var displaySubtitle = true;
         var title = $("<h4/>");
@@ -129,7 +166,7 @@ define(function(require) {
                 placeBody = tBody.append($("<tr/>")).find("tr:last");
               }
               placeBody.append(
-                $("<td/>",{"colspan":2,"class":"text-center"}).append(
+                $("<td/>",{"colspan":2,"class":"text-center"}).append(  
                   $("<h6/>").text(core.ID? "Core "+core.ID : "")
                 )
               );
@@ -138,14 +175,14 @@ define(function(require) {
                 if(cpus instanceof Array){
                   cpus.map(function(cpu){
                     var cpuInfo = cpu.split(":");
-                    var state = cpuInfo && cpuInfo[1] && cpuInfo[1]>=0? "busy" : "free";
+                    var state = (cpuInfo && cpuInfo[1] && Number(cpuInfo[1])>=0? "busy" : (Number(cpuInfo[1]) === -1? "free" : "isolated"));
                     placeBody.find("td:last").append(
                       $("<div/>",{"class":"small-6 columns cpu "+state}).append(
                         $("<div/>",{"class":""}).text("CPU #"+cpuInfo[0]).add(
                           cpuInfo && cpuInfo[1] && cpuInfo[1] >= 0? 
                             $("<a/>",{"class":"","href":"/#vms-tab/"+cpuInfo[1]}).text("VM #"+cpuInfo[1]) 
                               :
-                            $("<div/>",{"class":"no-vm"}).text("FREE")
+                            $("<div/>",{"class":"no-vm"}).text(Number(cpuInfo[1]) === -1?"FREE":"ISOLATED")
                         )
                       )
                     );
@@ -213,6 +250,7 @@ define(function(require) {
           }
         }
         $("#placeNumaInfo").append(title.add(subtitle).add(coreTable).add($("<div/>",{"class":"row"}).append(memory.add(hugepage))));
+        Tips.setup();
       });
     }
   }
