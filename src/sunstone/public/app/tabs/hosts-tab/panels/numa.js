@@ -76,6 +76,7 @@ define(function(require) {
         Sunstone.runAction(RESOURCE + ".update_template", that.element.ID, template_str);
       }
     });
+
     $("#"+ISOLCPUSINPUT).click(function(e){
       if(that.element && that.element.ID && that.element.TEMPLATE){
         var template = $.extend({}, that.element.TEMPLATE);
@@ -128,7 +129,7 @@ define(function(require) {
         )
         .add(
           $("<div/>",{"class":'columns small-2 text-center'}).append(
-            $("<button/>",{"class": "button", "id": ISOLCPUSINPUT }).text("Send")
+            $("<button/>",{"class": "button", "id": ISOLCPUSINPUT }).text("Update")
           )
         )
       );
@@ -136,6 +137,7 @@ define(function(require) {
 
       $("#placeNumaInfo").append(selectTable);
       $("#placeNumaInfo").append(isolcpusTable);
+
       numaNodes.map(function(node,i){
         var displaySubtitle = true;
         var title = $("<h4/>");
@@ -166,7 +168,8 @@ define(function(require) {
                 placeBody = tBody.append($("<tr/>")).find("tr:last");
               }
               placeBody.append(
-                $("<td/>",{"colspan":2,"class":"text-center"}).append(  
+
+                $("<td/>",{"colspan":2,"class":"text-center"}).append(
                   $("<h6/>").text(core.ID? "Core "+core.ID : "")
                 )
               );
@@ -175,13 +178,16 @@ define(function(require) {
                 if(cpus instanceof Array){
                   cpus.map(function(cpu){
                     var cpuInfo = cpu.split(":");
+
                     var state = (cpuInfo && cpuInfo[1] && Number(cpuInfo[1])>=0? "busy" : (Number(cpuInfo[1]) === -1? "free" : "isolated"));
+
                     placeBody.find("td:last").append(
                       $("<div/>",{"class":"small-6 columns cpu "+state}).append(
                         $("<div/>",{"class":""}).text("CPU #"+cpuInfo[0]).add(
                           cpuInfo && cpuInfo[1] && cpuInfo[1] >= 0? 
                             $("<a/>",{"class":"","href":"/#vms-tab/"+cpuInfo[1]}).text("VM #"+cpuInfo[1]) 
                               :
+
                             $("<div/>",{"class":"no-vm"}).text(Number(cpuInfo[1]) === -1?"FREE":"ISOLATED")
                         )
                       )
@@ -215,9 +221,11 @@ define(function(require) {
           //HUGEPAGE
           if(infoNode.HUGEPAGE){
             var infoHugepages = infoNode.HUGEPAGE;
+
             if (!(infoHugepages instanceof Array)) {
               infoHugepages = [infoHugepages];
             }
+
             hugepage.append($("<h6/>").text("Hugepage"));
             var hugepageTable = $("<table/>");
             hugepageTable.append(
@@ -250,6 +258,7 @@ define(function(require) {
           }
         }
         $("#placeNumaInfo").append(title.add(subtitle).add(coreTable).add($("<div/>",{"class":"row"}).append(memory.add(hugepage))));
+
         Tips.setup();
       });
     }

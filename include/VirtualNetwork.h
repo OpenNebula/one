@@ -68,8 +68,9 @@ public:
         UNDEFINED           = 0,
         LINUX               = 1,
         OPENVSWITCH         = 2,
-        VCENTER_PORT_GROUPS = 3,
-        BRNONE              = 4
+        OPENVSWITCH_DPDK    = 3,
+        VCENTER_PORT_GROUPS = 4,
+        BRNONE              = 5
     };
 
     static string driver_to_str(VirtualNetworkDriver ob)
@@ -142,6 +143,8 @@ public:
                 return "linux";
             case OPENVSWITCH:
                 return "openvswitch";
+            case OPENVSWITCH_DPDK:
+                return "openvswitch_dpdk";
             case VCENTER_PORT_GROUPS:
                 return "vcenter_port_groups";
             case BRNONE:
@@ -159,6 +162,10 @@ public:
         else if ( ob == "openvswitch" )
         {
             return OPENVSWITCH;
+        }
+        else if ( ob == "openvswitch_dpdk" )
+        {
+            return OPENVSWITCH_DPDK;
         }
         else if ( ob == "vcenter_port_groups" )
         {

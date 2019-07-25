@@ -1403,6 +1403,7 @@ int VirtualNetwork::parse_bridge_type(const string &vn_mad, string &error_str)
         {
             goto error;
         }
+
         bridge_type = br_type;
     }
 

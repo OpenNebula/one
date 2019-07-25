@@ -742,6 +742,7 @@ int Host::post_update_template(string& error)
 {
     string new_im_mad;
     string new_vm_mad;
+    string cpu_ids;
 
     map<std::string, unsigned int>::const_iterator it;
 
@@ -774,7 +775,11 @@ int Host::post_update_template(string& error)
     replace_template_attribute("IM_MAD", im_mad_name);
     replace_template_attribute("VM_MAD", vmm_mad_name);
 
+    get_template_attribute("ISOLCPUS", cpu_ids);
+
     host_share.update_capacity(this);
+
+    host_share.reserve_cpus(cpu_ids);
 
     return 0;
 };

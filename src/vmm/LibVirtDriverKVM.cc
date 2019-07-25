@@ -326,14 +326,7 @@ static void vtopol(ofstream& file, const VectorAttribute * topology,
         mboss << "\t<memoryBacking>\n";
         mboss << "\t\t<hugepages>\n";
 
-        mboss << "\t\t\t<page size=" << one_util::escape_xml_attr(hpsz_kb);
-
-        if (!mnodes.str().empty())
-        {
-            mboss << " nodeset='" << mnodes.str() << "'";
-        }
-
-        mboss << "/>\n";
+        mboss << "\t\t\t<page size=" << one_util::escape_xml_attr(hpsz_kb) << "/>\n";
 
         mboss << "\t\t</hugepages>\n";
         mboss << "\t</memoryBacking>\n";
@@ -460,6 +453,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  filter = "";
     string  virtio_queues = "";
     string  bridge_type = "";
+    string  nic_id = "";
 
     string  i_avg_bw = "";
     string  i_peak_bw = "";
@@ -1256,6 +1250,7 @@ int LibVirtDriver::deployment_description_kvm(
 
     for(int i=0; i<num; i++)
     {
+        nic_id        = nic[i]->vector_value("NIC_ID");
         bridge        = nic[i]->vector_value("BRIDGE");
         vn_mad        = nic[i]->vector_value("VN_MAD");
         mac           = nic[i]->vector_value("MAC");
@@ -1283,15 +1278,30 @@ int LibVirtDriver::deployment_description_kvm(
         }
         else
         {
-            file << "\t\t<interface type='bridge'>" << endl;
-
-            if (VirtualNetwork::str_to_bridge_type(bridge_type) == VirtualNetwork::OPENVSWITCH)
+            switch(VirtualNetwork::str_to_bridge_type(bridge_type))
             {
-                file << "\t\t\t<virtualport type='openvswitch'/>" << endl;
-            }
+                case VirtualNetwork::UNDEFINED:
+                case VirtualNetwork::LINUX:
+                case VirtualNetwork::VCENTER_PORT_GROUPS:
+                case VirtualNetwork::BRNONE:
+                    file << "\t\t<interface type='bridge'>\n"
+                         << "\t\t\t<source bridge="
+                         << one_util::escape_xml_attr(bridge) << "/>\n";
+                    break;
 
-            file << "\t\t\t<source bridge="
-                 << one_util::escape_xml_attr(bridge) << "/>\n";
+                case VirtualNetwork::OPENVSWITCH:
+                    file << "\t\t<interface type='bridge'>\n"
+                         << "\t\t\t<virtualport type='openvswitch'/>\n"
+                         << "\t\t\t<source bridge="
+                         << one_util::escape_xml_attr(bridge) << "/>\n";
+                    break;
+
+                case VirtualNetwork::OPENVSWITCH_DPDK:
+                    file << "\t\t<interface type='vhostuser'>\n"
+                         << "\t\t\t<source type='unix' mode='server' path='"
+                         << vm->get_system_dir() << "/" << target << "' />\n";
+                    break;
+            }
         }
 
         if( !mac.empty() )

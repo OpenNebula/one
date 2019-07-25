@@ -498,7 +498,7 @@ HostShareNode::Core::Core(unsigned int _i, const std::string& _c, int fc):id(_i)
             continue;
         }
 
-        if (!(thread_s >> vm_id) || vm_id < -1)
+        if (!(thread_s >> vm_id) || vm_id < -2)
         {
             vm_id = -1;
         }
@@ -555,6 +555,86 @@ VectorAttribute * HostShareNode::HugePage::to_attribute()
 
     return vpage;
 }
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+void HostShareNode::reserve_cpus(const std::string& cpu_ids)
+{
+    std::vector<unsigned int> ids;
+    std::set<unsigned int> core_ids;
+
+    one_util::split(cpu_ids, ',', ids);
+
+    //--------------------------------------------------------------------------
+    //  Reserve / free CPUS based on the cpu list
+    //--------------------------------------------------------------------------
+    for (auto it = cores.begin(); it != cores.end(); ++it)
+    {
+        struct Core &c = it->second;
+
+        for (auto jt = c.cpus.begin(); jt != c.cpus.end(); ++jt)
+        {
+            bool update = false;
+
+            for (auto kt = ids.begin() ; kt != ids.end(); ++kt)
+            {
+                if ( *kt == jt->first )
+                {
+                    update = true;
+                    break;
+                }
+            }
+
+            if ( update )
+            {
+                if ( jt->second == -1 ) //reserve
+                {
+                    jt->second = -2;
+                    core_ids.insert(it->first);
+                }
+            }
+            else if ( jt->second == -2 ) //free
+            {
+                jt->second = -1;
+                core_ids.insert(it->first);
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    //  Recompute free cpus for the cores that have been updated
+    //--------------------------------------------------------------------------
+    for (auto it = core_ids.begin(); it != core_ids.end(); ++it)
+    {
+        auto jt = cores.find(*it);
+
+        if ( jt == cores.end() )
+        {
+            continue;
+        }
+
+        struct Core &c = jt->second;
+
+        unsigned int fcpus = 0;
+
+        for (auto kt = c.cpus.begin(); kt != c.cpus.end(); ++kt)
+        {
+            if ( kt->second == -1 )
+            {
+                fcpus++;
+            }
+        }
+
+        if ( c.free_cpus == 0 && fcpus != 0) //CORE policy
+        {
+            continue;
+        }
+
+        c.free_cpus = fcpus;
+    }
+}
+
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -1032,7 +1112,7 @@ void HostShareNUMA::set_monitorization(Template &ht)
 
         HostShareNode& node = get_node(node_id);
 
-        node.set_hugepage(size, free, pages, 0, true);
+        node.set_hugepage(size, pages, free, 0, true);
     }
 
     std::vector<VectorAttribute *> memory;

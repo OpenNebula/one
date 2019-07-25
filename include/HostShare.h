@@ -293,6 +293,12 @@ public:
     }
 
     /**
+     *  Reserve CPU IDs
+     *    @param rcpus list of reserved cpu ids (comma separated)
+     */
+    void reserve_cpus(const std::string& rcpus);
+
+    /**
      *  Prints the NUMA node to an output stream.
      */
     friend ostream& operator<<(ostream& o, const HostShareNode& n);
@@ -538,6 +544,19 @@ public:
     void del(HostShareCapacity &sr);
 
     /**
+     *
+     */
+    void reserve_cpus(const std::string &cpu_ids)
+    {
+        for (auto it = nodes.begin(); it != nodes.end(); ++it)
+        {
+            it->second->reserve_cpus(cpu_ids);
+
+            it->second->update_cores();
+        }
+    };
+
+    /**
      *  Prints the NUMA nodes to an output stream.
      */
     friend ostream& operator<<(ostream& o, const HostShareNUMA& n);
@@ -755,6 +774,15 @@ public:
      *   @param host for this share
      */
     void update_capacity(Host *host);
+
+
+    /**
+     *  Reserve CPUs in the numa nodes
+     */
+    void reserve_cpus(const std::string &cpu_ids)
+    {
+        numa.reserve_cpus(cpu_ids);
+    }
 
     /**
      *  Return the number of running VMs in this host

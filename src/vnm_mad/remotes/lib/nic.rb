@@ -80,7 +80,7 @@ module VNMMAD
                 if dumpxml
                     dumpxml_root = REXML::Document.new(dumpxml).root
 
-                    xpath = "devices/interface[@type='bridge']/" \
+                    xpath = "devices/interface[@type='bridge' or @type='vhostuser']/" \
                             "mac[@address='#{self[:mac]}']/../target"
 
                     tap = dumpxml_root.elements[xpath]

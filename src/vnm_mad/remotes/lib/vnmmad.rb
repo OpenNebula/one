@@ -51,6 +51,7 @@ rescue
         :vlan_mtu            => "1500",
         :ipset_maxelem       => "65536",
         :keep_empty_bridge   => false,
+        :datastore_location  => '/var/lib/one/datastores'
     }
 end
 

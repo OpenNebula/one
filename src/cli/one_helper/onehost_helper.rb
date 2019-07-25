@@ -770,6 +770,9 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 if c[1] == '-1'
                     ret  += '-'
                     free += 1
+                elsif c[1] == '-2'
+                    ret  += 'I'
+                    used += 1
                 elsif c[1] != '-1' && info['FREE'] == '0'
                     ret  += 'X'
                     used += 1
