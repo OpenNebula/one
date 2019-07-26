@@ -272,10 +272,13 @@ define(function(require) {
                 });
                 templateJSON.DISK = disks;
                 Sunstone.runAction(actionUpdate, resourceId, TemplateUtils.templateToString(templateJSON));
+              }else{
+                Sunstone.runAction(actionUpdate, resourceId, TemplateUtils.templateToString(templateJSON));
               }
             }
           }
         };
+
         OpenNebulaAction.show(params,OpenNebulaTemplate.resource);
       }else{
         Sunstone.runAction(actionUpdate, resourceId, TemplateUtils.templateToString(templateJSON));
