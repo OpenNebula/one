@@ -136,7 +136,6 @@ define(function(require) {
     $("#network_mode", context).change(function() {
       $("div.mode_param", context).hide();
       $("div.mode_param [wizard_field]", context).prop("wizard_field_disabled", true);
-
       $("input#vn_mad", context).removeAttr("required");
       $("input#vn_mad", context).removeAttr("value");
       $("#vcenter_switch_name", context).removeAttr("required");

@@ -99,8 +99,49 @@
             <option value="ovswitch">{{tr "Open vSwitch"}}</option>
             <option value="ovswitch_vxlan">{{tr "Open vSwitch - VXLAN"}}</option>
             <option value="vcenter">{{tr "vCenter"}}</option>
+            <option value="nsx">{{tr "NSX"}}</option>
             <option value="custom">{{tr "Custom"}}</option>
           </select>
+        </div>
+        <div class="mode_param nsx medium-6 columns">
+          <div class="selector">
+            <label for="nsx-type">
+              {{tr "Type"}}
+            </label>
+            <select id="nsx-type">
+              <option value="nsx-v">{{tr "NSX-V"}}</option>
+              <option value="nsx-t">{{tr "NSX-T"}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="row columns">
+          <div class="mode_param nsx large-12 columns nsx-form">
+            <div class="row">
+              <div class="small-12 columns">
+                <label for="">
+                  {{tr "Name"}}
+                </label>
+                <input type="text"name="nsx-name" id="nsx-name"/>
+              </div>
+            </div>
+            <div class="row">
+              <div class="small-12 columns">
+                <label for="">
+                  {{tr "Description"}}
+                </label>
+                <textarea name="nsx-description" id="nsx-description" ></textarea>
+              </div>
+            </div>
+            <div class="row">
+              <div class="small-12 columns">
+                <label for="">
+                  {{tr "Transport"}}
+                </label>
+                <select name="nsx-transport" id="nsx-transport">
+                </select>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="large-3 medium-6 columns mode_param vcenter custom" id="div_vn_mad">
           <label for="vn_mad">
