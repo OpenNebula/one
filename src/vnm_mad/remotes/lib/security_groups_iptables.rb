@@ -363,7 +363,6 @@ module SGIPTables
 
         vars = SGIPTables.vars(vm, nic)
 
-        chain     = vars[:chain]
         chain_in  = vars[:chain_in]
         chain_out = vars[:chain_out]
 
