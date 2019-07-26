@@ -119,7 +119,7 @@ define(function(require) {
         var parsedHugepage = parseToMB(hugepage);
         var selected = parseInt(parsedHugepage,10) === parseInt(HUGEPAGE_SELECTED_VALUE,10);
         selector.append(
-          $("<option/>",{"value": parsedHugepage}).text(parsedHugepage).prop('selected', selected)
+          $("<option/>",{"value": parsedHugepage}).text(parsedHugepage+"M").prop('selected', selected)
         );
         if(selected){
           selector.val(parsedHugepage);
