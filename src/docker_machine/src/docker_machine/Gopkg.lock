@@ -29,7 +29,7 @@
   branch = "master"
   name = "github.com/kolo/xmlrpc"
   packages = ["."]
-  revision = "0826b98aaa29c0766956cb40d45cf7482a597671"
+  revision = "07c4ee3fd1817e1a90254d5b80f215b36b78f800"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
