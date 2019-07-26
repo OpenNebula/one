@@ -182,7 +182,7 @@ private:
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
-    void deploy (
+    void deploy(
         const int     oid,
         const string& drv_msg) const
     {
@@ -194,7 +194,7 @@ private:
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
-    void shutdown (
+    void shutdown(
         const int     oid,
         const string& drv_msg) const
     {
@@ -206,7 +206,7 @@ private:
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
-    void reset (
+    void reset(
         const int     oid,
         const string& drv_msg) const
     {
@@ -218,7 +218,7 @@ private:
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
-    void reboot (
+    void reboot(
         const int     oid,
         const string& drv_msg) const
     {
@@ -230,7 +230,7 @@ private:
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
-    void cancel (
+    void cancel(
         const int     oid,
         const string& drv_msg) const
     {
@@ -242,7 +242,7 @@ private:
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
-    void cleanup (
+    void cleanup(
         const int     oid,
         const string& drv_msg) const
     {
@@ -254,7 +254,7 @@ private:
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
-    void checkpoint (
+    void checkpoint(
         const int     oid,
         const string& drv_msg) const
     {
@@ -266,7 +266,7 @@ private:
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
-    void save (
+    void save(
         const int     oid,
         const string& drv_msg) const
     {
@@ -279,7 +279,7 @@ private:
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
-    void restore (
+    void restore(
         const int     oid,
         const string& drv_msg) const
     {
@@ -292,7 +292,7 @@ private:
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
-    void migrate (
+    void migrate(
         const int     oid,
         const string& drv_msg) const
     {
@@ -304,7 +304,7 @@ private:
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
-    void poll (
+    void poll(
         const int     oid,
         const string& drv_msg) const
     {
@@ -316,7 +316,7 @@ private:
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
-    void attach (
+    void attach(
         const int     oid,
         const string& drv_msg) const
     {
@@ -328,7 +328,7 @@ private:
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
-    void detach (
+    void detach(
         const int     oid,
         const string& drv_msg) const
     {
@@ -340,7 +340,7 @@ private:
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
-    void attach_nic (
+    void attach_nic(
         const int     oid,
         const string& drv_msg) const
     {
@@ -352,7 +352,7 @@ private:
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
-    void detach_nic (
+    void detach_nic(
         const int     oid,
         const string& drv_msg) const
     {
@@ -365,7 +365,7 @@ private:
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
-    void snapshot_create (
+    void snapshot_create(
         const int     oid,
         const string& drv_msg) const
     {
@@ -378,7 +378,7 @@ private:
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
-    void snapshot_revert (
+    void snapshot_revert(
         const int     oid,
         const string& drv_msg) const
     {
@@ -391,7 +391,7 @@ private:
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
-    void snapshot_delete (
+    void snapshot_delete(
         const int     oid,
         const string& drv_msg) const
     {
@@ -404,7 +404,7 @@ private:
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
-    void disk_snapshot_create (
+    void disk_snapshot_create(
         const int     oid,
         const string& drv_msg) const
     {
@@ -417,11 +417,23 @@ private:
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
-    void disk_resize (
+    void disk_resize(
         const int     oid,
         const string& drv_msg) const
     {
         write_drv("RESIZEDISK", oid, drv_msg);
+    }
+
+    /**
+     *  Sends an updateconf request to the MAD: "UPDATECONF ID XML_DRV_MSG"
+     *    @param oid the virtual machine id.
+     *    @param drv_msg xml data for the mad operation
+     */
+    void update_conf(
+        const int     oid,
+        const string& drv_msg) const
+    {
+        write_drv("UPDATECONF", oid, drv_msg);
     }
 
     /**
@@ -430,7 +442,7 @@ private:
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
-    void updatesg (
+    void updatesg(
         const int     oid,
         const string& drv_msg) const
     {

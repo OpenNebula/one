@@ -59,7 +59,8 @@ public:
         SNAPSHOT_REVERT,
         SNAPSHOT_DELETE,
         DISK_SNAPSHOT_CREATE,
-        DISK_RESIZE
+        DISK_RESIZE,
+        UPDATE_CONF
     };
 
     VMMAction(Actions a, int v):ActionRequest(ActionRequest::USER),
@@ -500,6 +501,14 @@ private:
      * @param vid the id of the VM.
      */
     void disk_resize_action(
+        int vid);
+
+    /**
+     * Update VM context
+     *
+     * @param vid the id of the VM.
+     */
+    void update_conf_action(
         int vid);
 };
 

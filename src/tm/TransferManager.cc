@@ -33,7 +33,7 @@ extern "C" void * tm_action_loop(void *arg)
 {
     TransferManager *  tm;
 
-    if ( arg == 0 )
+    if ( arg == nullptr )
     {
         return 0;
     }
@@ -65,8 +65,8 @@ int TransferManager::start()
 
     NebulaLog::log("TrM",Log::INFO,"Starting Transfer Manager...");
 
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
+    pthread_attr_init(&pattr);
+    pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
 
     rc = pthread_create(&tm_thread,&pattr,tm_action_loop,(void *) this);
 
@@ -88,7 +88,7 @@ void TransferManager::user_action(const ActionRequest& ar)
 
     VirtualMachine * vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -104,7 +104,7 @@ void TransferManager::user_action(const ActionRequest& ar)
 
     vm->unlock();
 
-    switch(tm_ar.action())
+    switch (tm_ar.action())
     {
         case TMAction::PROLOG:
             if (host_is_cloud)
@@ -576,7 +576,7 @@ void TransferManager::prolog_action(int vid)
     // -------------------------------------------------------------------------
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -596,7 +596,7 @@ void TransferManager::prolog_action(int vid)
     vm_tm_mad = vm->get_tm_mad();
     tm_md     = get();
 
-    if ( tm_md == 0 || vm_tm_mad.empty() )
+    if ( tm_md == nullptr || vm_tm_mad.empty() )
     {
         goto error_drivers;
     }
@@ -631,7 +631,7 @@ void TransferManager::prolog_action(int vid)
     // -------------------------------------------------------------------------
     os_attr = vm->get_template_attribute("OS");
 
-    if ( os_attr != 0 )
+    if ( os_attr != nullptr )
     {
         string kernel;
         string initrd;
@@ -671,7 +671,7 @@ void TransferManager::prolog_action(int vid)
             vm->unlock();
 
             vm = vmpool->get(vid);
-            if (vm == 0)
+            if (vm == nullptr)
             {
                 goto error_attributes;
             }
@@ -739,7 +739,7 @@ void TransferManager::prolog_migr_action(int vid)
     // -------------------------------------------------------------------------
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -754,7 +754,7 @@ void TransferManager::prolog_migr_action(int vid)
     vm_tm_mad = vm->get_tm_mad();
     tm_md     = get();
 
-    if ( tm_md == 0 || vm_tm_mad.empty())
+    if ( tm_md == nullptr || vm_tm_mad.empty())
     {
         goto error_drivers;
     }
@@ -870,7 +870,7 @@ void TransferManager::prolog_resume_action(int vid)
     // -------------------------------------------------------------------------
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -890,7 +890,7 @@ void TransferManager::prolog_resume_action(int vid)
     vm_tm_mad = vm->get_tm_mad();
     tm_md     = get();
 
-    if ( tm_md == 0 || vm_tm_mad.empty())
+    if ( tm_md == nullptr || vm_tm_mad.empty())
     {
         goto error_drivers;
     }
@@ -1004,7 +1004,7 @@ void TransferManager::prolog_attach_action(int vid)
 
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1017,7 +1017,7 @@ void TransferManager::prolog_attach_action(int vid)
     vm_tm_mad = vm->get_tm_mad();
     tm_md     = get();
 
-    if ( tm_md == 0 || vm_tm_mad.empty() )
+    if ( tm_md == nullptr || vm_tm_mad.empty() )
     {
         goto error_drivers;
     }
@@ -1037,7 +1037,7 @@ void TransferManager::prolog_attach_action(int vid)
     // -------------------------------------------------------------------------
     disk = vm->get_attach_disk();
 
-    if ( disk == 0 )
+    if ( disk == nullptr )
     {
         goto error_disk;
     }
@@ -1140,7 +1140,7 @@ void TransferManager::epilog_transfer_command(
         if ( disk->is_volatile() == true )
         {
             tm_mad = vm->get_tm_mad();
-            ds_id_i= vm->get_ds_id();
+            ds_id_i = vm->get_ds_id();
         }
         else
         {
@@ -1186,7 +1186,7 @@ void TransferManager::epilog_action(bool local, int vid)
     // ------------------------------------------------------------------------
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1201,7 +1201,7 @@ void TransferManager::epilog_action(bool local, int vid)
     vm_tm_mad = vm->get_tm_mad();
     tm_md     = get();
 
-    if ( tm_md == 0 || vm_tm_mad.empty())
+    if ( tm_md == nullptr || vm_tm_mad.empty())
     {
         goto error_drivers;
     }
@@ -1295,7 +1295,7 @@ void TransferManager::epilog_stop_action(int vid)
     // ------------------------------------------------------------------------
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1310,7 +1310,7 @@ void TransferManager::epilog_stop_action(int vid)
     vm_tm_mad = vm->get_tm_mad();
     tm_md     = get();
 
-    if (tm_md == 0 || vm_tm_mad.empty())
+    if (tm_md == nullptr || vm_tm_mad.empty())
     {
         goto error_drivers;
     }
@@ -1544,14 +1544,14 @@ void TransferManager::epilog_delete_action(bool local, int vid)
     // ------------------------------------------------------------------------
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
 
     tm_md = get();
 
-    if ( tm_md == 0 )
+    if ( tm_md == nullptr )
     {
         goto error_driver;
     }
@@ -1617,14 +1617,14 @@ void TransferManager::epilog_delete_previous_action(int vid)
     // ------------------------------------------------------------------------
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
 
     tm_md = get();
 
-    if (tm_md == 0)
+    if (tm_md == nullptr)
     {
         goto error_driver;
     }
@@ -1690,14 +1690,14 @@ void TransferManager::epilog_delete_both_action(int vid)
     // ------------------------------------------------------------------------
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
 
     tm_md = get();
 
-    if (tm_md == 0)
+    if (tm_md == nullptr)
     {
         goto error_driver;
     }
@@ -1765,7 +1765,7 @@ void TransferManager::epilog_detach_action(int vid)
     // ------------------------------------------------------------------------
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1778,7 +1778,7 @@ void TransferManager::epilog_detach_action(int vid)
     vm_tm_mad = vm->get_tm_mad();
     tm_md     = get();
 
-    if ( tm_md == 0 || vm_tm_mad.empty())
+    if ( tm_md == nullptr || vm_tm_mad.empty())
     {
         goto error_drivers;
     }
@@ -1797,7 +1797,7 @@ void TransferManager::epilog_detach_action(int vid)
 
     disk = vm->get_attach_disk();
 
-    if ( disk == 0 )
+    if ( disk == nullptr )
     {
         goto error_disk;
     }
@@ -1857,14 +1857,14 @@ void TransferManager::driver_cancel_action(int vid)
     // ------------------------------------------------------------------------
     tm_md = get();
 
-    if ( tm_md == 0 )
+    if ( tm_md == nullptr )
     {
         return;
     }
 
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1914,7 +1914,7 @@ void TransferManager::saveas_hot_action(int vid)
     // ------------------------------------------------------------------------
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1931,7 +1931,7 @@ void TransferManager::saveas_hot_action(int vid)
 
     tm_md = get();
 
-    if (tm_md == 0)
+    if (tm_md == nullptr)
     {
         goto error_driver;
     }
@@ -2058,14 +2058,14 @@ void TransferManager::do_snapshot_action(int vid, const char * snap_action)
 
     tm_md = get();
 
-    if (tm_md == 0)
+    if (tm_md == nullptr)
     {
         goto error_driver;
     }
 
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -2182,14 +2182,14 @@ void TransferManager::resize_action(int vid)
 
     const TransferManagerDriver * tm_md = get();
 
-    if (tm_md == 0)
+    if (tm_md == nullptr)
     {
         goto error_driver;
     }
 
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -2209,7 +2209,7 @@ void TransferManager::resize_action(int vid)
 
     disk = vm->get_resize_disk();
 
-    if ( disk == 0 )
+    if ( disk == nullptr )
     {
         goto error_disk;
     }
@@ -2260,8 +2260,8 @@ int TransferManager::load_mads(int uid)
     int    rc;
     string name;
 
-    const VectorAttribute * vattr = 0;
-    TransferManagerDriver * tm_driver = 0;
+    const VectorAttribute * vattr = nullptr;
+    TransferManagerDriver * tm_driver = nullptr;
 
     oss << "Loading Transfer Manager driver.";
 
@@ -2272,7 +2272,7 @@ int TransferManager::load_mads(int uid)
         vattr = mad_conf[0];
     }
 
-    if ( vattr == 0 )
+    if ( vattr == nullptr )
     {
         NebulaLog::log("TM",Log::ERROR,"Failed to load Transfer Manager driver.");
         return -1;

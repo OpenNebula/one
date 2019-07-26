@@ -51,7 +51,8 @@ class VirtualMachineDriver < OpenNebulaDriver
         :detach_nic  => "DETACHNIC",
         :disk_snapshot_create => "DISKSNAPSHOTCREATE",
         :resize_disk => "RESIZEDISK",
-        :update_sg   => "UPDATESG"
+        :update_sg   => "UPDATESG",
+        :update_conf => "UPDATECONF"
     }
 
     POLL_ATTRIBUTE = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
@@ -96,6 +97,7 @@ class VirtualMachineDriver < OpenNebulaDriver
         register_action(ACTION[:disk_snapshot_create].to_sym, method("disk_snapshot_create"))
         register_action(ACTION[:resize_disk].to_sym, method("resize_disk"))
         register_action(ACTION[:update_sg].to_sym, method("update_sg"))
+        register_action(ACTION[:update_conf].to_sym, method("update_conf"))
     end
 
     # Decodes the encoded XML driver message received from the core
@@ -218,6 +220,11 @@ class VirtualMachineDriver < OpenNebulaDriver
     def cleanup(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:cleanup],RESULT[:failure],id,error)
+    end
+
+    def update_conf(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:update_conf],RESULT[:failure],id,error)
     end
 
 private

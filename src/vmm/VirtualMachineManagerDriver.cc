@@ -42,7 +42,7 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
         ds_live_migration(false), vmpool(pool)
 {
     map<string,string>::const_iterator  it;
-    char *          error_msg = 0;
+    char *          error_msg = nullptr;
     const char *    cfile;
     string          file;
     int             rc;
@@ -70,7 +70,7 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
         {
             ostringstream   oss;
 
-            if ( error_msg != 0 )
+            if ( error_msg != nullptr )
             {
                 oss << "Error loading driver configuration file " << cfile <<
                     " : " << error_msg;
@@ -291,7 +291,7 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
         SecurityGroupPool* sgpool = ne.get_secgrouppool();
         SecurityGroup*     sg     = sgpool->get(sgid);
 
-        if ( sg != 0 )
+        if ( sg != nullptr )
         {
             sg->del_updating(id);
 
@@ -311,7 +311,7 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
 
         vm = vmpool->get(id);
 
-        if ( vm != 0 )
+        if ( vm != nullptr )
         {
             if ( result == "SUCCESS" )
             {
@@ -336,7 +336,7 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     // -------------------------------------------------------------------------
     vm = vmpool->get(id);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         return;
     }
@@ -643,6 +643,22 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
             lcm->trigger(LCMAction::DISK_RESIZE_FAILURE, id);
         }
     }
+    else if ( action == "UPDATECONF" )
+    {
+        if ( result == "SUCCESS" )
+        {
+            vm->log("VMM", Log::INFO, "VM update conf succesfull.");
+
+            lcm->trigger(LCMAction::UPDATE_CONF_SUCCESS, id);
+        }
+        else
+        {
+            log_error(vm, os, is, "Error updating conf for VM");
+            vmpool->update(vm);
+
+            lcm->trigger(LCMAction::UPDATE_CONF_FAILURE, id);
+        }
+    }
     else if ( action == "CLEANUP" )
     {
         if ( result == "SUCCESS" )
@@ -694,7 +710,7 @@ void VirtualMachineManagerDriver::process_poll(int id,const string& monitor_str)
     // Get the VM from the pool
     VirtualMachine* vm = Nebula::instance().get_vmpool()->get(id);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         return;
     }

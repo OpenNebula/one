@@ -164,6 +164,12 @@ class DummyDriver < VirtualMachineDriver
         send_message(ACTION[:disk_snapshot_create], result, id, "dummy-snap")
     end
 
+    def update_conf(id, drv_message)
+        result = retrieve_result("update_conf")
+
+        send_message(ACTION[:update_conf], result, id)
+    end
+
     def cleanup(id, drv_message)
         result = retrieve_result("cleanup")
 

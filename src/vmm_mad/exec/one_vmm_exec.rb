@@ -1110,6 +1110,48 @@ class ExecDriver < VirtualMachineDriver
     end
 
     #
+    #  UPDATECONF action to update context for running machine
+    #
+    def update_conf(id, drv_message)
+        xml_data = decode(drv_message)
+
+        tm_command = xml_data.elements['TM_COMMAND']
+        tm_command = tm_command.text if tm_command
+
+        target_path = xml_data.elements['DISK_TARGET_PATH']
+        target_path = target_path.text if target_path
+
+        target_device = xml_data.elements['VM/TEMPLATE/CONTEXT/TARGET']
+        target_device = target_device.text if target_device
+
+        action = VmmAction.new(self, id, :update_conf, drv_message)
+
+        steps = []
+
+        steps << {
+            :driver     => :vmm,
+            :action     => :prereconfigure,
+            :parameters => [:deploy_id, target_device]
+        }
+
+        if tm_command && !tm_command.empty?
+            steps << {
+                :driver     => :tm,
+                :action     => :tm_context,
+                :parameters => tm_command.strip.split(' ')
+            }
+        end
+
+        steps << {
+            :driver     => :vmm,
+            :action     => :reconfigure,
+            :parameters => [:deploy_id, target_device, target_path]
+        }
+
+        action.run(steps)
+    end
+
+    #
     # UPDATESG action, deletes iptables rules and regenerate them
     #
     def update_sg(id, drv_message)

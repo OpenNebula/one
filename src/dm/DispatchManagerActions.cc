@@ -27,7 +27,7 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DispatchManager::deploy (VirtualMachine * vm, const RequestAttributes& ra)
+int DispatchManager::deploy(VirtualMachine * vm, const RequestAttributes& ra)
 {
     ostringstream oss;
     int vid;
@@ -39,7 +39,7 @@ int DispatchManager::deploy (VirtualMachine * vm, const RequestAttributes& ra)
     VirtualMachineTemplate quota_tmpl;
     bool do_quotas = false;
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         return -1;
     }
@@ -112,7 +112,7 @@ int DispatchManager::import(VirtualMachine * vm, const RequestAttributes& ra)
 
     string error;
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         return -1;
     }
@@ -132,7 +132,7 @@ int DispatchManager::import(VirtualMachine * vm, const RequestAttributes& ra)
 
     import_state = vm->get_import_state();
 
-    if(import_state == "POWEROFF")
+    if (import_state == "POWEROFF")
     {
         vm->set_state(VirtualMachine::POWEROFF);
         vm->set_state(VirtualMachine::LCM_INIT);
@@ -186,7 +186,7 @@ int DispatchManager::migrate(VirtualMachine * vm, int poff_migrate,
     ostringstream oss;
     int           vid;
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         return -1;
     }
@@ -243,7 +243,7 @@ int DispatchManager::live_migrate(VirtualMachine * vm,
     ostringstream oss;
     int           vid;
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         return -1;
     }
@@ -290,7 +290,7 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm, bool check_images)
     int vrid = -1;
     unsigned int port;
 
-    quota_tmpl = vm->clone_template(); 
+    quota_tmpl = vm->clone_template();
 
     if ( (vm->get_state() == VirtualMachine::ACTIVE) ||
          (vm->get_state() == VirtualMachine::PENDING) ||
@@ -322,7 +322,7 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm, bool check_images)
 
     VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
 
-    if ( graphics != 0 && graphics->vector_value("PORT", port) == 0 
+    if ( graphics != nullptr && graphics->vector_value("PORT", port) == 0
             && vm->hasHistory())
     {
         graphics->remove("PORT");
@@ -365,7 +365,7 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm, bool check_images)
     {
         VirtualRouter* vr = vrouterpool->get(vrid);
 
-        if (vr != 0)
+        if (vr != nullptr)
         {
             vr->del_vmid(vmid);
 
@@ -387,7 +387,7 @@ int DispatchManager::terminate(int vid, bool hard, const RequestAttributes& ra,
 
     VirtualMachine * vm = vmpool->get(vid);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         return -1;
     }
@@ -478,7 +478,7 @@ int DispatchManager::undeploy(int vid, bool hard, const RequestAttributes& ra,
 
     VirtualMachine * vm = vmpool->get_ro(vid);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         return -1;
     }
@@ -526,14 +526,14 @@ error:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DispatchManager::poweroff (int vid, bool hard, const RequestAttributes& ra,
+int DispatchManager::poweroff(int vid, bool hard, const RequestAttributes& ra,
         string& error_str)
 {
     ostringstream oss;
 
     VirtualMachine * vm = vmpool->get_ro(vid);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         return -1;
     }
@@ -588,7 +588,7 @@ int DispatchManager::hold(int vid, const RequestAttributes& ra,
 
     VirtualMachine * vm = vmpool->get(vid);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         return -1;
     }
@@ -636,7 +636,7 @@ int DispatchManager::release(int vid, const RequestAttributes& ra,
 
     VirtualMachine * vm = vmpool->get(vid);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         return -1;
     }
@@ -704,7 +704,7 @@ int DispatchManager::stop(int vid, const RequestAttributes& ra,
 
     VirtualMachine * vm = vmpool->get_ro(vid);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         return -1;
     }
@@ -751,7 +751,7 @@ int DispatchManager::suspend(int vid, const RequestAttributes& ra,
 
     VirtualMachine * vm = vmpool->get_ro(vid);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         return -1;
     }
@@ -797,7 +797,7 @@ int DispatchManager::resume(int vid, const RequestAttributes& ra,
 
     VirtualMachine * vm = vmpool->get(vid);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         return -1;
     }
@@ -876,7 +876,7 @@ int DispatchManager::reboot(int vid, bool hard, const RequestAttributes& ra,
 
     VirtualMachine * vm = vmpool->get(vid);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         return -1;
     }
@@ -934,7 +934,7 @@ int DispatchManager::resched(int vid, bool do_resched,
 
     VirtualMachine * vm = vmpool->get(vid);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         return -1;
     }
@@ -1082,18 +1082,18 @@ int DispatchManager::delete_vm(VirtualMachine * vm, const RequestAttributes& ra,
     bool is_public_host = false;
     int  host_id = -1;
 
-    if(vm->hasHistory())
+    if (vm->hasHistory())
     {
         host_id = vm->get_hid();
     }
 
     int vid = vm->get_oid();
 
-    if(host_id != -1)
+    if (host_id != -1)
     {
         Host * host = hpool->get_ro(host_id);
 
-        if ( host == 0 )
+        if ( host == nullptr )
         {
             oss << "Error getting host " << host_id;
             error = oss.str();
@@ -1176,7 +1176,7 @@ int DispatchManager::delete_recreate(VirtualMachine * vm,
 
     int rc = 0;
 
-    Template * vm_quotas_snp = 0;
+    Template * vm_quotas_snp = nullptr;
 
     VirtualMachineTemplate quota_tmpl;
     bool do_quotas = false;
@@ -1254,7 +1254,7 @@ int DispatchManager::delete_recreate(VirtualMachine * vm,
         Quotas::ds_del_recreate(vm_uid, vm_gid, ds_quotas_snp);
     }
 
-    if ( vm_quotas_snp != 0 )
+    if ( vm_quotas_snp != nullptr )
     {
         Quotas::vm_del(vm_uid, vm_gid, vm_quotas_snp);
 
@@ -1319,10 +1319,10 @@ int DispatchManager::attach(int vid, VirtualMachineTemplate * tmpl,
 
     VirtualMachine * vm = vmpool->get(vid);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         oss << "Could not attach a new disk to VM " << vid
-            << ", VM does not exist" ;
+            << ", VM does not exist";
         err = oss.str();
 
         NebulaLog::log("DiM", Log::ERROR, err);
@@ -1424,7 +1424,7 @@ int DispatchManager::detach(int vid, int disk_id, const RequestAttributes& ra,
 
     VirtualMachine * vm = vmpool->get(vid);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         oss << "VirtualMachine " << vid << " no longer exists";
         error_str = oss.str();
@@ -1519,10 +1519,10 @@ int DispatchManager::snapshot_create(int vid, string& name, int& snap_id,
 
     VirtualMachine * vm = vmpool->get(vid);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         oss << "Could not create a new snapshot for VM " << vid
-            << ", VM does not exist" ;
+            << ", VM does not exist";
         error_str = oss.str();
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
@@ -1570,10 +1570,10 @@ int DispatchManager::snapshot_revert(int vid, int snap_id,
 
     VirtualMachine * vm = vmpool->get(vid);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         oss << "Could not revert VM " << vid << " to snapshot " << snap_id
-            << ", VM does not exist" ;
+            << ", VM does not exist";
         error_str = oss.str();
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
@@ -1633,10 +1633,10 @@ int DispatchManager::snapshot_delete(int vid, int snap_id,
 
     VirtualMachine * vm = vmpool->get(vid);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         oss << "Could not delete snapshot " << snap_id << " for VM " << vid
-            << ", VM does not exist" ;
+            << ", VM does not exist";
         error_str = oss.str();
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
@@ -1703,10 +1703,10 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
 
     VirtualMachine * vm = vmpool->get(vid);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         oss << "Could not add a new NIC to VM " << vid
-            << ", VM does not exist" ;
+            << ", VM does not exist";
         error_str = oss.str();
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
@@ -1812,7 +1812,7 @@ int DispatchManager::detach_nic(int vid, int nic_id,const RequestAttributes& ra,
 
     VirtualMachine * vm = vmpool->get(vid);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         oss << "VirtualMachine " << vid << " no longer exists";
         error_str = oss.str();
@@ -1920,10 +1920,10 @@ int DispatchManager::disk_snapshot_create(int vid, int did, const string& name,
 
     VirtualMachine * vm = vmpool->get(vid);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         oss << "Could not create a new disk snapshot for VM " << vid
-            << ", VM does not exist" ;
+            << ", VM does not exist";
         error_str = oss.str();
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
@@ -1960,7 +1960,7 @@ int DispatchManager::disk_snapshot_create(int vid, int did, const string& name,
         return -1;
     }
 
-    switch(state)
+    switch (state)
     {
         case VirtualMachine::POWEROFF:
             vm->set_state(VirtualMachine::ACTIVE);
@@ -1980,7 +1980,7 @@ int DispatchManager::disk_snapshot_create(int vid, int did, const string& name,
         default: break;
     }
 
-    switch(state)
+    switch (state)
     {
         case VirtualMachine::POWEROFF:
         case VirtualMachine::SUSPENDED:
@@ -2034,10 +2034,10 @@ int DispatchManager::disk_snapshot_revert(int vid, int did, int snap_id,
 
     VirtualMachine * vm = vmpool->get(vid);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         oss << "Could not revert to disk snapshot for VM " << vid
-            << ", VM does not exist" ;
+            << ", VM does not exist";
         error_str = oss.str();
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
@@ -2063,7 +2063,7 @@ int DispatchManager::disk_snapshot_revert(int vid, int did, int snap_id,
 
     const Snapshots * snaps = vm->get_disk_snapshots(did, error_str);
 
-    if (snaps == 0)
+    if (snaps == nullptr)
     {
         vm->unlock();
         return -1;
@@ -2075,7 +2075,7 @@ int DispatchManager::disk_snapshot_revert(int vid, int did, int snap_id,
         return -1;
     }
 
-    switch(state)
+    switch (state)
     {
         case VirtualMachine::POWEROFF:
             vm->set_state(VirtualMachine::ACTIVE);
@@ -2110,10 +2110,10 @@ int DispatchManager::disk_snapshot_delete(int vid, int did, int snap_id,
 
     VirtualMachine * vm = vmpool->get(vid);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
         oss << "Could not delete disk snapshot from VM " << vid
-            << ", VM does not exist" ;
+            << ", VM does not exist";
         error_str = oss.str();
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
@@ -2140,7 +2140,7 @@ int DispatchManager::disk_snapshot_delete(int vid, int did, int snap_id,
 
     const Snapshots * snaps = vm->get_disk_snapshots(did, error_str);
 
-    if (snaps == 0)
+    if (snaps == nullptr)
     {
         vm->unlock();
         return -1;
@@ -2161,7 +2161,7 @@ int DispatchManager::disk_snapshot_delete(int vid, int did, int snap_id,
     // Set the VM info in the history before the snapshot is removed from the VM
     vm->set_vm_info();
 
-    switch(state)
+    switch (state)
     {
         case VirtualMachine::POWEROFF:
             vm->set_state(VirtualMachine::ACTIVE);
@@ -2181,7 +2181,7 @@ int DispatchManager::disk_snapshot_delete(int vid, int did, int snap_id,
         default: break;
     }
 
-    switch(state)
+    switch (state)
     {
         case VirtualMachine::ACTIVE:
             the_time = time(0);
@@ -2233,9 +2233,9 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
 
     VirtualMachine * vm = vmpool->get(vid);
 
-    if ( vm == 0 )
+    if ( vm == nullptr )
     {
-        oss << "Could not resize disk for VM " << vid << ", VM does not exist" ;
+        oss << "Could not resize disk for VM " << vid << ", VM does not exist";
         error_str = oss.str();
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
@@ -2271,7 +2271,7 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
         return -1;
     }
 
-    switch(state)
+    switch (state)
     {
         case VirtualMachine::POWEROFF:
             vm->set_state(VirtualMachine::ACTIVE);
@@ -2291,7 +2291,7 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
         default: break;
     }
 
-    switch(state)
+    switch (state)
     {
         case VirtualMachine::POWEROFF:
         case VirtualMachine::UNDEPLOYED:
@@ -2327,6 +2327,47 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
 
         default: break;
     }
+
+    vmpool->update(vm);
+    vmpool->update_search(vm);
+
+    vm->unlock();
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::live_updateconf(int vid, const RequestAttributes& ra, string& error_str)
+{
+    ostringstream oss;
+
+    VirtualMachine * vm = vmpool->get(vid);
+
+    VirtualMachine::VmState  state  = vm->get_state();
+    VirtualMachine::LcmState lstate = vm->get_lcm_state();
+
+    // Allowed only for state ACTIVE and RUNNING
+    if (state != VirtualMachine::ACTIVE || lstate != VirtualMachine::RUNNING)
+    {
+        oss << "Could not perform live updateconf for " << vid << ", wrong state "
+            << vm->state_str() << ".";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+
+        return -1;
+    }
+
+    // Set VM state
+    vm->set_state(VirtualMachine::HOTPLUG);
+    vm->set_resched(false);
+
+    // Trigger UPDATE CONF action
+    vmm->trigger(VMMAction::UPDATE_CONF, vid);
 
     vmpool->update(vm);
     vmpool->update_search(vm);

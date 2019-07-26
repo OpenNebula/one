@@ -294,7 +294,7 @@ public:
      *  Updates VM dynamic information (id).
      *   @param _deploy_id the VMM driver specific id
      */
-    void set_deploy_id (const string& _deploy_id)
+    void set_deploy_id(const string& _deploy_id)
     {
         deploy_id = _deploy_id;
     };
@@ -709,7 +709,7 @@ public:
      */
     void set_stime(time_t _stime)
     {
-        history->stime=_stime;
+        history->stime = _stime;
     };
 
     /**
@@ -734,7 +734,7 @@ public:
      */
     void set_etime(time_t _etime)
     {
-        history->etime=_etime;
+        history->etime = _etime;
     };
 
     /**
@@ -743,7 +743,7 @@ public:
      */
     void set_previous_etime(time_t _etime)
     {
-        previous_history->etime=_etime;
+        previous_history->etime = _etime;
     };
 
     /**
@@ -752,7 +752,7 @@ public:
      */
     void set_prolog_stime(time_t _stime)
     {
-        history->prolog_stime=_stime;
+        history->prolog_stime = _stime;
     };
 
     /**
@@ -761,7 +761,7 @@ public:
      */
     void set_prolog_etime(time_t _etime)
     {
-        history->prolog_etime=_etime;
+        history->prolog_etime = _etime;
     };
 
     /**
@@ -770,7 +770,7 @@ public:
      */
     void set_running_stime(time_t _stime)
     {
-        history->running_stime=_stime;
+        history->running_stime = _stime;
     };
 
     /**
@@ -787,7 +787,7 @@ public:
      */
     void set_running_etime(time_t _etime)
     {
-        history->running_etime=_etime;
+        history->running_etime = _etime;
     };
 
     /**
@@ -796,7 +796,7 @@ public:
      */
     void set_previous_running_etime(time_t _etime)
     {
-        previous_history->running_etime=_etime;
+        previous_history->running_etime = _etime;
     };
 
     /**
@@ -805,7 +805,7 @@ public:
      */
     void set_epilog_stime(time_t _stime)
     {
-        history->epilog_stime=_stime;
+        history->epilog_stime = _stime;
     };
 
     /**
@@ -814,7 +814,7 @@ public:
      */
     void set_epilog_etime(time_t _etime)
     {
-        history->epilog_etime=_etime;
+        history->epilog_etime = _etime;
     };
 
     /**
@@ -1453,7 +1453,7 @@ public:
 
         one_util::split_unique(nic->vector_value("ALIAS_IDS"), ',', a_ids);
 
-        for(std::set<int>::iterator it = a_ids.begin(); it != a_ids.end(); it++)
+        for (std::set<int>::iterator it = a_ids.begin(); it != a_ids.end(); it++)
         {
             VirtualMachineNic * nic_a = nics.delete_nic(*it);
 
@@ -2035,11 +2035,11 @@ private:
      *  netowrking updates.
      *    @param context attribute of the VM
      *    @param error string if any
-     *    @param  only_auto boolean to generate context only for vnets 
+     *    @param  only_auto boolean to generate context only for vnets
      *            with NETWORK_MODE = auto
      *    @return 0 on success
      */
-    int generate_network_context(VectorAttribute * context, string& error, 
+    int generate_network_context(VectorAttribute * context, string& error,
             bool only_auto);
 
     /**
