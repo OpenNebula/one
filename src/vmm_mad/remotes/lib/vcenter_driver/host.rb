@@ -132,23 +132,92 @@ class ClusterComputeResource
 
     def nsx_ready?
         @one_item = VCenterDriver::VIHelper.one_item(OpenNebula::Host, @vi_client.instance_variable_get(:@host_id).to_i)
-        # Check if credentials is into the host template
+
+        # Check if credentials are into the host template
         if [nil, ""].include?(@one_item["TEMPLATE/NSX_USER"])
+            @nsx_status = "NSX_STATUS = \"Missing NSX_USER\"\n"
             return false
-        else
-            if [nil, ""].include?(@one_item["TEMPLATE/NSX_PASSWORD"])
+        end
+
+        if [nil, ""].include?(@one_item["TEMPLATE/NSX_PASSWORD"])
+            @nsx_status = "NSX_STATUS = \"Missing NSX_PASSWORD\"\n"
+            return false
+        end
+
+        # Decrypt password
+        client = OpenNebula::Client.new
+        system = OpenNebula::System.new(client)
+        config = system.get_configuration
+
+        if OpenNebula.is_error?(config)
+            raise "Error getting oned configuration : #{config.message}"
+        end
+
+        nsx_password = @one_item["TEMPLATE/NSX_PASSWORD"]
+        token = config["ONE_KEY"]
+        nsx_password = VIClient::decrypt(nsx_password, token)
+
+        # Check if NSX_TYPE is into the host template
+        if [nil, ""].include?(@one_item["TEMPLATE/NSX_TYPE"])
+            @nsx_status = "NSX_STATUS = \"Missing NSX_TYPE\"\n"
+            return false
+        end
+
+        # Check if NSX_MANAGER is into the host template
+        if [nil, ""].include?(@one_item["TEMPLATE/NSX_MANAGER"])
+            @nsx_status = "NSX_STATUS = \"Missing NSX_MANAGER\"\n"
+            return false
+        end
+
+        # Try a connection as part of NSX_STATUS
+        if @one_item["TEMPLATE/NSX_TYPE"] == "NSX-V"
+            header = {'Content-Type': 'application/xml'}
+            uri = URI.parse("#{@one_item["TEMPLATE/NSX_MANAGER"]}/api/2.0/vdn/scopes")
+            request = Net::HTTP::Get.new(uri.request_uri, header)
+            request.basic_auth(@one_item["TEMPLATE/NSX_USER"], nsx_password)
+            begin
+                response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
+                  :verify_mode => OpenSSL::SSL::VERIFY_NONE) {|https| https.request(request) }
+                if response.code.to_i == 200
+                    return true
+                else
+                    @nsx_status = "NSX_STATUS = \"Response code incorrect\"\n"
+                    return false
+                end
+            rescue 
+                @nsx_status = "NSX_STATUS = \"Error connecting to NSX_MANAGER\"\n"
                 return false
-            else
-              return true
+            end
+        end
+
+        if @one_item["TEMPLATE/NSX_TYPE"] == "NSX-T"
+            header = {'Content-Type': 'application/json'}
+            uri = URI.parse("#{@one_item["TEMPLATE/NSX_MANAGER"]}/api/v1/transport-zones")
+            request = Net::HTTP::Get.new(uri.request_uri, header)
+            request.basic_auth(@one_item["TEMPLATE/NSX_USER"], nsx_password)
+            begin
+                response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
+                  :verify_mode => OpenSSL::SSL::VERIFY_NONE) {|https| https.request(request) }
+                if response.code.to_i == 200
+                    return true
+                else
+                    @nsx_status = "NSX_STATUS = \"Response code incorrect\"\n"
+                    return false
+                end
+            rescue
+                @nsx_status = "NSX_STATUS = \"Error connecting to NSX_MANAGER\"\n"
+                return false
             end
         end
     end
 
     def get_tz
-        tz_info="NSX_TRANSPORT_ZONES = ["
+        @nsx_status = ""
         if !nsx_ready?
-            tz_info = "MSG=\"Missing NSX configuration\""
+            tz_info = @nsx_status
         else
+            tz_info = "NSX_STATUS = OK\n"
+            tz_info << "NSX_TRANSPORT_ZONES = ["
             # Decrypt password
             client = OpenNebula::Client.new
             system = OpenNebula::System.new(client)
