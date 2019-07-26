@@ -134,9 +134,7 @@ define(function(require) {
     $("#network_mode", context).change(function() {
       $("div.mode_param", context).hide();
       $("div.mode_param [wizard_field]", context).prop("wizard_field_disabled", true);
-
-      $("input#vn_mad", context).removeAttr("required");
-      $("input#vn_mad", context).removeAttr("value");
+      $("input#vn_mad", context).removeAttr("required").removeAttr("value");
       $("#vcenter_switch_name", context).removeAttr("required");
       $("#vcenter_cluster_id", context).removeAttr("required");
       $("#phydev", context).removeAttr("required");
@@ -144,7 +142,9 @@ define(function(require) {
       $("#vnetCreateSecurityTab-label").show();
       $("#automatic_vlan_id option[value='NO']", context).show();
       $("input[wizard_field=\"VLAN_ID\"]", context).removeAttr("required");
-
+      //NSX
+      $("input#nsx-name", context).removeAttr("required").removeAttr("value");
+      $("select#nsx-transport", context).removeAttr("required").removeAttr("value");
       switch ($(this).val()) {
       case "bridge":
         $("div.mode_param.bridge", context).show();
@@ -219,6 +219,11 @@ define(function(require) {
         $("input#vn_mad", context).attr("value", "vcenter");
 
         $("#div_vn_mad", context).hide();
+        break;
+      case "nsx":
+        $("div.mode_param.nsx", context).show();
+        $("input#nsx-name", context).attr("required", "");
+        $("select#nsx-transport", context).attr("required", "");
         break;
       case "custom":
         $("div.mode_param.custom", context).show();
