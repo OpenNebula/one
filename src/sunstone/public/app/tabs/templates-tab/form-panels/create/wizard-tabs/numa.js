@@ -82,6 +82,10 @@ define(function(require) {
     return TemplateHTML();
   }
 
+  function parseToMB(bytes=0){
+    return bytes / 1024;
+  }
+
   function successCallback(request, opts, infohost){
     //console.log("CACHE ", OpenNebulaAction.get_all_cache());
     var selector = $(idsElements.hugepages);
@@ -112,8 +116,14 @@ define(function(require) {
       });
       selector.append($("<option/>",{"value":""}).text("-"));
       hugepages.map(function(hugepage){
-        var selected = hugepage === HUGEPAGE_SELECTED_VALUE;
-        selector.append($("<option/>",{"value": hugepage}).text(hugepage).prop('selected', selected));
+        var parsedHugepage = parseToMB(hugepage);
+        var selected = parseInt(parsedHugepage,10) === parseInt(HUGEPAGE_SELECTED_VALUE,10);
+        selector.append(
+          $("<option/>",{"value": parsedHugepage}).text(parsedHugepage+"M").prop('selected', selected)
+        );
+        if(selected){
+          selector.val(parsedHugepage);
+        }
       });
     }
   }
