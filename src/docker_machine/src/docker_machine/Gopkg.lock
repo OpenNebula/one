@@ -88,9 +88,7 @@
   branch = "master"
   digest = "1:82993553515c494e149cbbb73a63899e8f1c6a5b4c456e60baf170ad6c347033"
   name = "github.com/kolo/xmlrpc"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "0826b98aaa29c0766956cb40d45cf7482a597671"
+  revision = "07c4ee3fd1817e1a90254d5b80f215b36b78f800"
 
 [[projects]]
   digest = "1:9e9193aa51197513b3abcb108970d831fbcf40ef96aa845c4f03276e1fa316d2"
