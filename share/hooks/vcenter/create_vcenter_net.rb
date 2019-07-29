@@ -33,9 +33,7 @@ $: << RUBY_LIB_LOCATION
 require 'opennebula'
 require 'vcenter_driver'
 require 'base64'
-require 'net/http'
-require 'json'
-require 'nokogiri'
+require 'nsx_driver'
 
 network_id   = ARGV[0]
 #base64_temp  = ARGV[1]
@@ -63,82 +61,6 @@ def update_net(vnet, content)
 
     if OpenNebula.is_error?(rc)
         raise "Could not update the virtual network"
-    end
-end
-
-def checkResponse(response, code)
-  if response.code.to_i == code
-      puts "Expected response #{code}"
-  else
-      puts "Unexpected response #{response.code.to_i}.. correct was #{code}"
-      puts response.body
-  end
-end
-
-def logicalSwitchData(nsxmgr, pgType, logicalSwitchId)
-    if pgType == VCenterDriver::Network::NETWORK_TYPE_NSXV
-        header = {'Content-Type': 'application/xml'}
-        uri = URI.parse("#{nsxmgr}/api/2.0/vdn/virtualwires/#{logicalSwitchId}")
-        request = Net::HTTP::Get.new(uri.request_uri, header)
-        request.basic_auth(@nsx_user, @nsx_password)
-        response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
-          :verify_mode => OpenSSL::SSL::VERIFY_NONE) {|https| https.request(request) }
-        checkResponse(response, 200)
-        bodyXML = Nokogiri::XML response.body
-        lsName = bodyXML.xpath("//virtualWire/name").text
-        vni = bodyXML.xpath('//virtualWire/vdnId').text
-        vcenter_net_ref = bodyXML.xpath('//virtualWire/vdsContextWithBacking/backingValue').text
-        vcenter_dvs_ref = bodyXML.xpath('//virtualWire/vdsContextWithBacking/switch/objectId').text
-        # To generate manually logical switch name on vds.    
-        # "vxw-#{vcenter_dvs_ref}-#{virtualWireID}-sid-#{vni}-#{lsName}"
-        # return vcenter_net_ref, "vxw-#{vcenter_dvs_ref}-#{virtualWireID}-sid-#{vni}-#{lsName}"
-        return vcenter_net_ref, vni
-    elsif pgType == VCenterDriver::Network::NETWORK_TYPE_NSXT
-        header = {'Content-Type': 'application/json'}
-        uri = URI.parse("#{nsxmgr}/api/v1/logical-switches/#{logicalSwitchId}")
-        request = Net::HTTP::Get.new(uri.request_uri, header)
-        request.basic_auth(@nsx_user, @nsx_password)
-        response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
-          :verify_mode => OpenSSL::SSL::VERIFY_NONE) {|https| https.request(request) }
-        checkResponse(response, 200)
-        r = JSON.parse(response.body)
-        vcenter_net_ref = nil
-        return r["vni"]
-    else
-        raise "Unknown Port Group type #{pg_type}"
-    end
-end
-
-def createLogicalSwitch(nsxmgr, pgType, vdnscopeID, virtualWire)
-    if pgType == VCenterDriver::Network::NETWORK_TYPE_NSXV
-        header = {'Content-Type': 'application/xml'}
-        uri = URI.parse("#{nsxmgr}/api/2.0/vdn/scopes/#{vdnscopeID}/virtualwires")
-        request = Net::HTTP::Post.new(uri.request_uri, header)
-        # virtualWire -> XML for NSX-V
-        # virtualWire -> JSON for NSX-T
-        request.body = virtualWire
-        request.basic_auth(@nsx_user, @nsx_password)
-        response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
-          :verify_mode => OpenSSL::SSL::VERIFY_NONE) {|https| https.request(request) }
-        checkResponse(response, 201)
-        # response.body => 'virtualwire-xx' for NSX-V
-        return response.body
-    elsif pgType == VCenterDriver::Network::NETWORK_TYPE_NSXT
-        header = {'Content-Type': 'application/json'}
-        uri = URI.parse("#{nsxmgr}/api/v1/logical-switches")
-        request = Net::HTTP::Post.new(uri.request_uri, header)
-        # virtualWire -> XML for NSX-V
-        # virtualWire -> JSON for NSX-T
-        request.body = virtualWire
-        request.basic_auth(@nsx_user, @nsx_password)
-        response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
-          :verify_mode => OpenSSL::SSL::VERIFY_NONE) {|https| https.request(request) }
-        checkResponse(response, 201)
-        r = JSON.parse(response.body)
-        # r.id => logical switch id "d7bba9f7-d65e-488e-95d7-20b25e2b957e"
-        return r["id"]
-    else
-        raise "Unknow pgType #{pgType}"
     end
 end
 
@@ -195,24 +117,14 @@ begin
 
         ls_vni = nil
 
-        # NSX parameters
+        # NSX
         nsxmgr = one_host["TEMPLATE/NSX_MANAGER"]
-        @nsx_user = one_host["TEMPLATE/NSX_USER"]
-        # Decrypt password
-        client = OpenNebula::Client.new
-        system = OpenNebula::System.new(client)
-        config = system.get_configuration
-
-        if OpenNebula.is_error?(config)
-            raise "Error getting oned configuration : #{config.message}"
-        end
-
-        nsx_password_enc = one_host["TEMPLATE/NSX_PASSWORD"]
-        token = config["ONE_KEY"]
-        @nsx_password = VCenterDriver::VIClient::decrypt(nsx_password_enc, token)
-        # NSX parameters
+        nsx_user = one_host["TEMPLATE/NSX_USER"]
+        nsx_pass_enc = one_host["TEMPLATE/NSX_MANAGER"]
+        # NSX
 
         if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXV
+            nsx_client = NSXDriver::NSXClient.new(host_id)
             virtualWireSpec = "<virtualWireCreateSpec>\
                                   <name>#{ls_name}</name>\
                                   <description>#{ls_description}</description>\
@@ -220,14 +132,15 @@ begin
                                   <controlPlaneMode>UNICAST_MODE</controlPlaneMode>\
                                   <guestVlanAllowed>false</guestVlanAllowed>\
                               </virtualWireCreateSpec>"
-
-            nsx_id = createLogicalSwitch(nsxmgr, pg_type, tz_id, virtualWireSpec)
+            logical_switch = NSXDriver::VirtualWire.new(nsx_client, nil, tz_id, virtualWireSpec)
             # Get reference will have in vcenter and vni
-            vnet_ref,ls_vni = logicalSwitchData(nsxmgr, pg_type, nsx_id)
+            vnet_ref = logical_switch.ls_vcenter_ref
+            ls_vni = logical_switch.ls_vni
         end
 
         if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXT
-            virtualWireSpec = %{
+          nsx_client = NSXDriver::NSXClient.new(host_id)
+            opaqueNetworkSpec = %{
               {
                 "transport_zone_id": "#{tz_id}",
                 "replication_mode": "MTEP",
@@ -237,16 +150,10 @@ begin
               }
             }
             
-            nsx_id = createLogicalSwitch(nsxmgr, pg_type, tz_id, virtualWireSpec.to_s)
+            logical_switch = NSXDriver::OpaqueNetwork.new(nsx_client, nil, nil, opaqueNetworkSpec)
             # Get NSX_VNI
-            ls_vni = logicalSwitchData(nsxmgr, pg_type, nsx_id)
-           
-            # Wait until nsx network is created on vcenter
-            # sleep 60
-            # net_folder = dc.network_folder
-            # net_folder.fetch!
-            # Get reference of the created network in vcenter.
-            vnet_ref = dc.nsx_network(nsx_id, pg_type)
+            vnet_ref = dc.nsx_network(logical_switch.ls_id, pg_type)
+            ls_vni = logical_switch.ls_vni
         end
 
         # With DVS we have to work at datacenter level and then for each host
@@ -348,9 +255,9 @@ begin
         # We must update XML so the VCENTER_NET_REF and VCENTER_INSTANCE_ID are added
 
         if blocked
-            update_net(one_vnet,"NSX_ID=\"#{nsx_id}\"\nNSX_VNI=\"#{ls_vni}\"\nVCENTER_NET_REF=\"#{vnet_ref}\"\nVCENTER_INSTANCE_ID=\"#{vc_uuid}\"\nVCENTER_NET_STATE=\"ERROR\"\nVCENTER_NET_ERROR=\"vnet already exist in vcenter\"\n")
+            update_net(one_vnet,"NSX_ID=\"#{logical_switch.ls_id}\"\nNSX_VNI=\"#{ls_vni}\"\nVCENTER_NET_REF=\"#{vnet_ref}\"\nVCENTER_INSTANCE_ID=\"#{vc_uuid}\"\nVCENTER_NET_STATE=\"ERROR\"\nVCENTER_NET_ERROR=\"vnet already exist in vcenter\"\n")
         else
-            update_net(one_vnet,"NSX_ID=\"#{nsx_id}\"\nNSX_VNI=\"#{ls_vni}\"\nVCENTER_NET_REF=\"#{vnet_ref}\"\nVCENTER_INSTANCE_ID=\"#{vc_uuid}\"\nVCENTER_NET_STATE=\"READY\"\nVCENTER_NET_ERROR=\"\"\n")
+            update_net(one_vnet,"NSX_ID=\"#{logical_switch.ls_id}\"\nNSX_VNI=\"#{ls_vni}\"\nVCENTER_NET_REF=\"#{vnet_ref}\"\nVCENTER_INSTANCE_ID=\"#{vc_uuid}\"\nVCENTER_NET_STATE=\"READY\"\nVCENTER_NET_ERROR=\"\"\n")
         end
 
         # Assign vnet to OpenNebula cluster
