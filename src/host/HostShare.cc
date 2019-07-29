@@ -617,6 +617,7 @@ void HostShareNode::reserve_cpus(const std::string& cpu_ids)
         struct Core &c = jt->second;
 
         unsigned int fcpus = 0;
+        unsigned int ucpus = 0;
 
         for (auto kt = c.cpus.begin(); kt != c.cpus.end(); ++kt)
         {
@@ -624,9 +625,13 @@ void HostShareNode::reserve_cpus(const std::string& cpu_ids)
             {
                 fcpus++;
             }
+            else if ( kt->second >= 0 )
+            {
+                ucpus++;
+            }
         }
 
-        if ( c.free_cpus == 0 && fcpus != 0) //CORE policy
+        if ( c.free_cpus == 0 && ucpus == 1) //CORE policy
         {
             continue;
         }
