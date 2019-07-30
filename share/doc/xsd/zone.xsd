@@ -22,12 +22,12 @@
                     <xs:element name="ENDPOINT" type="xs:string"/>
                     <xs:element name="ID" type="xs:integer"/>
                     <xs:element name="NAME" type="xs:string"/>
-                    <xs:element name="STATE" type="xs:integer"/>
-                    <xs:element name="TERM" type="xs:integer"/>
-                    <xs:element name="VOTEDFOR" type="xs:integer"/>
-                    <xs:element name="COMMIT" type="xs:integer"/>
-                    <xs:element name="LOG_INDEX" type="xs:integer"/>
-                    <xs:element name="FEDLOG_INDEX" type="xs:integer"/>
+                    <xs:element name="STATE" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="TERM" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="VOTEDFOR" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="COMMIT" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="LOG_INDEX" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="FEDLOG_INDEX" type="xs:integer" minOccurs="0" maxOccurs="1"/>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
