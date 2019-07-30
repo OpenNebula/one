@@ -119,7 +119,7 @@ begin
 
                     # Only remove switch if the port group being removed is
                     # the last and only port group in the switch
-                    if vswitch.portgroup.size.empty?
+                    if vswitch.portgroup.empty?
                         esx_host.remove_vss(sw_name)
                     end
                 rescue StandardError => e
@@ -144,7 +144,7 @@ begin
             logical_switch.delete_logical_switch
         end
     end
-rescue StandardError? => e
+rescue StandardError => e
     STDERR.puts("#{e.message}/#{e.backtrace}")
     exit(-1)
 ensure
