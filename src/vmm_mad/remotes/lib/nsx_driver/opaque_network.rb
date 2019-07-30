@@ -21,6 +21,7 @@ module NSXDriver
         # ATTRIBUTES
         # attr_reader :ls_id, :admin_display
         HEADER = { :'Content-Type' => 'application/json' }
+        SECTION_LS = '/logical-switches/'
 
         # CONSTRUCTOR
         def initialize(nsx_client, ls_id = nil, _tz_id = nil, ls_data = nil)
@@ -37,6 +38,10 @@ module NSXDriver
                 end
                 raise 'Missing logical switch data' unless ls_data
             end
+            @base_url = "#{@nsx_client.nsxmgr}/api/v1"
+            @base_url_ls = @BASE_URL + SECTION_LS
+            @url_ls = @BASE_URL + SECTION_LS + @ls_id
+            @base_url_tz = @BASE_URL + SECTION_TZ
         end
 
         # Creates a NSXDriver::OpaqueNetwork from its id
@@ -54,38 +59,32 @@ module NSXDriver
         # METHODS
         # Check if logical switch exists
         def ls?
-            url = "#{@nsx_client.nsxmgr}/api/v1/logical-switches/#{@ls_id}"
-            @nsx_client.get_json(url) ? true : false
+            @nsx_client.get_json(@url_ls) ? true : false
         end
 
         # Get logical switch's name
         def ls_name
-            url = "#{@nsx_client.nsxmgr}/api/v1/logical-switches/#{@ls_id}"
-            @nsx_client.get_json(url)['display_name']
+            @nsx_client.get_json(@url_ls)['display_name']
         end
 
         # Get logical switch's vni
         def ls_vni
-            url = "#{@nsx_client.nsxmgr}/api/v1/logical-switches/#{@ls_id}"
-            @nsx_client.get_json(url)['vni']
+            @nsx_client.get_json(@url_ls)['vni']
         end
 
         # Get the Transport Zone of the logical switch
         def ls_tz
-            url = "#{@nsx_client.nsxmgr}/api/v1/logical-switches/#{@ls_id}"
-            @nsx_client.get_json(url)['transport_zone_id']
+            @nsx_client.get_json(@url_ls)['transport_zone_id']
         end
 
         # Create a new logical switch (NSX-T: opaque network)
         def new_logical_switch(ls_data)
-            url = "#{@nsx_client.nsxmgr}/api/v1/logical-switches"
-            @nsx_client.post_json(url, ls_data)
+            @nsx_client.post_json(@base_url_ls, ls_data)
         end
 
         # Delete a logical switch
         def delete_logical_switch
-            url = "#{@nsx_client.nsxmgr}/api/v1/logical-switches/#{@ls_id}"
-            @nsx_client.delete(url, HEADER)
+            @nsx_client.delete(@url_ls, HEADER)
         end
 
     end
