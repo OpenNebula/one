@@ -704,6 +704,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/sunstone/OpenNebulaVNC.rb \
                 src/sunstone/OpenNebulaAddons.rb \
                 src/vmm_mad/remotes/vcenter/vcenter_driver.rb \
+                src/vmm_mad/remotes/nsx/nsx_driver.rb \
                 src/vmm_mad/remotes/az/az_driver.rb \
                 src/vmm_mad/remotes/ec2/ec2_driver.rb \
                 src/vmm_mad/remotes/one/opennebula_driver.rb \
@@ -805,7 +806,7 @@ VMM_EXEC_LIB_FILES="src/vmm_mad/remotes/lib/poll_common.rb"
 # $REMOTES_LOCATION/vmm/lib/vcenter
 #-------------------------------------------------------------------------------
 
-VMM_EXEC_LIB_VCENTER_FILES="src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb
+VMM_EXEC_LIB_VCENTER_FILES="src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/vi_client.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/vcenter_importer.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/file_helper.rb \
@@ -823,6 +824,16 @@ VMM_EXEC_LIB_VCENTER_FILES="src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb
                     src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine_device/vm_nic.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine_helper/vm_helper.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine_monitor/vm_monitor.rb"
+
+#-------------------------------------------------------------------------------
+# VMM Lib nsx files, used by the NSX Driver to be installed in
+# $REMOTES_LOCATION/vmm/lib/nsx
+#-------------------------------------------------------------------------------
+
+VMM_EXEC_LIB_NSX_FILES="src/vmm_mad/remotes/lib/nsx_driver/logical_switch.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/nsx_client.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/opaque_network.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/virtual_wire.rb"
 
 #-------------------------------------------------------------------------------
 # VMM SH Driver LXD scripts, to be installed under $REMOTES_LOCATION/vmm/lxd
