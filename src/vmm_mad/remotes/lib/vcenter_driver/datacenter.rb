@@ -701,6 +701,7 @@ class Datacenter
                         return net.item._ref
                     end
                 }
+                sleep(1)
                 timeout -= 1
             end
         # Not used right now, but maybe neccesary in the future.

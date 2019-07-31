@@ -104,8 +104,6 @@ class ClusterComputeResource
         extensionList.each do |extList|
             if extList.key == "com.vmware.vShieldManager"
               nsx_obj['type'] = "NSX-V"
-              nsx_obj['version'] = extList.version
-              nsx_obj['label'] = extList.description.label
                 urlFull = extList.client[0].url
                 urlSplit = urlFull.split("/")
                 # protocol = "https://"
@@ -115,11 +113,11 @@ class ClusterComputeResource
                 nsx_obj['url'] = protocol + ipPort
             elsif extList.key == "com.vmware.nsx.management.nsxt"
               nsx_obj['type'] = "NSX-T"
-              nsx_obj['version'] = extList.version
-              nsx_obj['label'] = extList.description.label
               nsx_obj['url'] = extList.server[0].url
             else
             end
+            nsx_obj['version'] = extList.version
+            nsx_obj['label'] = extList.description.label
         end
         unless nsx_obj.nil?
             nsx_info << "NSX_MANAGER=\"#{nsx_obj['url']}\"\n"
