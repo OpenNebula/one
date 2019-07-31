@@ -191,7 +191,8 @@ define(function(require) {
     var support_tab = "support-tab";
     if(SunstoneCfg &&
       SunstoneCfg.tabs &&
-      !SunstoneCfg.tabs[support_tab]
+      !SunstoneCfg.tabs[support_tab] &&
+      Config.isTabEnabled(support_tab)
     ){
       SunstoneCfg.tabs[support_tab] = {
         actions: {
