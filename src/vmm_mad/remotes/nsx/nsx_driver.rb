@@ -45,5 +45,6 @@ require 'nsx_client'
 require 'opaque_network'
 require 'virtual_wire'
 
+# NSX Driver module
 module NSXDriver
 end
