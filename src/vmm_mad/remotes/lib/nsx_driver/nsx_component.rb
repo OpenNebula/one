@@ -15,38 +15,13 @@
 #--------------------------------------------------------------------------- #
 module NSXDriver
 
-    # Class Logical Switch
-    class LogicalSwitch < NSXDriver::NsxComponent
-
-        # ATTRIBUTES
-        attr_reader :ls_id
-        attr_reader :tz_id
-        attr_reader :replication_mode
-        attr_reader :display_name
-        attr_reader :description
+    # Class Transport Zone
+    class NsxComponent
 
         # CONSTRUCTOR
-
         def initialize(nsx_client)
-            super(nsx_client)
+            @nsx_client = nsx_client
         end
-
-        def ls?; end
-
-        # Get logical switch's name
-        def ls_name; end
-
-        # Get logical switch's vni
-        def ls_vni; end
-
-        # Get the Transport Zone of the logical switch
-        def ls_tz; end
-
-        # Create a new logical switch
-        def new_logical_switch(ls_data); end
-
-        # Delete a logical switch
-        def delete_logical_switch; end
 
     end
 

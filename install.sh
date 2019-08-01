@@ -250,6 +250,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/cli \
           $LIB_LOCATION/ruby/cli/one_helper \
           $LIB_LOCATION/ruby/vcenter_driver \
+          $LIB_LOCATION/ruby/nsx_driver \
           $LIB_LOCATION/oneprovision/lib"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
@@ -462,6 +463,7 @@ INSTALL_FILES=(
     PM_EXEC_PACKET_SCRIPTS:$VAR_LOCATION/remotes/pm/packet
     VMM_EXEC_LIB_FILES:$VAR_LOCATION/remotes/vmm/lib
     VMM_EXEC_LIB_VCENTER_FILES:$LIB_LOCATION/ruby/vcenter_driver
+    VMM_EXEC_LIB_NSX_FILES:$LIB_LOCATION/ruby/nsx_driver
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_LXD_SCRIPTS:$VAR_LOCATION/remotes/vmm/lxd
     VMM_EXEC_LXD_LIB:$VAR_LOCATION/remotes/vmm/lxd
@@ -832,7 +834,9 @@ VMM_EXEC_LIB_VCENTER_FILES="src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb 
 
 VMM_EXEC_LIB_NSX_FILES="src/vmm_mad/remotes/lib/nsx_driver/logical_switch.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/nsx_client.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/nsx_component.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/opaque_network.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/transport_zone.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/virtual_wire.rb"
 
 #-------------------------------------------------------------------------------

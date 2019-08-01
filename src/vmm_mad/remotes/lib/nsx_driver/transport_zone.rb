@@ -16,17 +16,35 @@
 module NSXDriver
 
     # Class Transport Zone
-    class TransportZone
+    class TransportZone < NSXDriver::NsxComponent
 
         # ATTRIBUTES
         attr_reader :tz_id
+        HEADER_XML = { :'Content-Type' => 'application/xml' }
+        HEADER_JSON = { :'Content-Type' => 'application/json' }
+        NSXV_TZ = '/vdn/scopes'
+        NSXT_TZ = '/trasnport-zones'
+        VDNSCOPE_XPATH = '//vdnScope'
 
         # CONSTRUCTOR
         def initialize(nsx_client)
-            # In the future could create TZs
+            super(nsx_client)
+            # Construct base URLs
+            @base_url_nsxv = "#{@nsx_client.nsxmgr}/api/2.0"
+            @base_url_nsxt = "#{@nsx_client.nsxmgr}/api/v1"
+            @url_tz_nsxv = @base_url_nsxv + NSXV_TZ
+            @url_tz_nsxt = @base_url_nsxt + NSXT_TZ
         end
 
         # METHODS
+        # Return the transport zones list
+        def tzs_nsxv
+            @nsx_client.get_xml(@url_tz_nsxv).xpath(VDNSCOPE_XPATH)
+        end
+
+        def tzs_nsxt
+            @nsx_client.get_json(@url_tz_nsxt)
+        end
 
     end
 

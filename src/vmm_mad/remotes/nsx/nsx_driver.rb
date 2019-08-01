@@ -42,7 +42,9 @@ $LOAD_PATH << LIB_LOCATION + '/ruby/nsx_driver'
 # ---------------------------------------------------------------------------- #
 require 'logical_switch'
 require 'nsx_client'
+require 'nsx_component'
 require 'opaque_network'
+require 'transport_zone'
 require 'virtual_wire'
 
 # NSX Driver module
