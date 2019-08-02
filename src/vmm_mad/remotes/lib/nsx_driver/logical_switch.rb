@@ -15,7 +15,6 @@
 #--------------------------------------------------------------------------- #
 module NSXDriver
 
-    require 'nsx_component'
     # Class Logical Switch
     class LogicalSwitch < NSXDriver::NsxComponent
 
