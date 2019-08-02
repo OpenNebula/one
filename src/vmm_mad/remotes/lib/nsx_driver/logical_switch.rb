@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 module NSXDriver
 
+    require 'nsx_component'
     # Class Logical Switch
     class LogicalSwitch < NSXDriver::NsxComponent
 
@@ -28,7 +29,7 @@ module NSXDriver
         # CONSTRUCTOR
 
         def initialize(nsx_client)
-            super(nsx_client)
+            @nsx_client = nsx_client
         end
 
         def ls?; end

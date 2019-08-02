@@ -116,6 +116,7 @@ class ClusterComputeResource
               nsx_obj['type'] = "NSX-T"
               nsx_obj['url'] = extList.server[0].url
             else
+                next
             end
             nsx_obj['version'] = extList.version
             nsx_obj['label'] = extList.description.label
@@ -218,8 +219,8 @@ class ClusterComputeResource
                 end
                 tz_info.chomp!(',')
             elsif @one_item["TEMPLATE/NSX_TYPE"] == "NSX-T"
-                tzs = tz_object.tzs_nsxt
-                tzs["results"].each do |tz|
+                r = tz_object.tzs_nsxt
+                r["results"].each do |tz|
                     tz_info << tz["display_name"] << "=\"" 
                     tz_info << tz["id"] << "\","
                 end

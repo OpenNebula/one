@@ -23,7 +23,7 @@ module NSXDriver
         HEADER_XML = { :'Content-Type' => 'application/xml' }
         HEADER_JSON = { :'Content-Type' => 'application/json' }
         NSXV_TZ = '/vdn/scopes'
-        NSXT_TZ = '/trasnport-zones'
+        NSXT_TZ = '/transport-zones'
         VDNSCOPE_XPATH = '//vdnScope'
 
         # CONSTRUCTOR
