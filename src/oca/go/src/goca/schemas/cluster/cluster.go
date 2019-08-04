@@ -16,26 +16,25 @@
 
 package cluster
 
-import dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
+import (
+	"encoding/xml"
+
+	shared "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+)
 
 // Pool represents an OpenNebula Cluster pool
 type Pool struct {
+	XMLName  xml.Name  `xml:"CLUSTER_POOL"`
 	Clusters []Cluster `xml:"CLUSTER"`
 }
 
 // Cluster represents an OpenNebula Cluster
 type Cluster struct {
-	ID           int      `xml:"ID"`
-	Name         string   `xml:"NAME"`
-	HostsID      []int    `xml:"HOSTS>ID"`
-	DatastoresID []int    `xml:"DATASTORES>ID"`
-	VnetsID      []int    `xml:"VNETS>ID"`
-	Template     Template `xml:"TEMPLATE"`
-}
-
-type Template struct {
-	// Example of reservation: https://github.com/OpenNebula/addon-storpool/blob/ba9dd3462b369440cf618c4396c266f02e50f36f/misc/reserved.sh
-	ReservedMem string                 `xml:"RESERVED_MEM"`
-	ReservedCPU string                 `xml:"RESERVED_CPU"`
-	Dynamic     dyn.UnmatchedTagsSlice `xml:",any"`
+	XMLName    xml.Name          `xml:"CLUSTER"`
+	ID         int               `xml:"ID,omitempty"`
+	Name       string            `xml:"NAME"`
+	Hosts      shared.EntitiesID `xml:"HOSTS,omitempty"`
+	Datastores shared.EntitiesID `xml:"DATASTORES,omitempty"`
+	Vnets      shared.EntitiesID `xml:"VNETS,omitempty"`
+	Template   Template          `xml:"TEMPLATE,omitempty"`
 }

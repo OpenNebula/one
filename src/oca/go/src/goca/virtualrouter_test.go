@@ -20,19 +20,25 @@ import (
 	"testing"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
-	vr "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/virtualrouter"
+	vn "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/virtualnetwork"
+	vnkeys "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/virtualnetwork/keys"
+	vrouter "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/virtualrouter"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/virtualrouter/keys"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm"
+	vmkeys "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm/keys"
 )
 
 func TestVirtualRouter(t *testing.T) {
 	var vr_name string = "new_vr"
-	var vr *vr.VirtualRouter
-	var vr_template string = "NAME = \"" + vr_name + "\"\n" +
-		"VROUTER = YES\n" +
-		"ATT1 = \"VAL1\"\n" +
-		"ATT2 = \"VAL2\""
+	var vr *vrouter.VirtualRouter
+
+	vr_template := vrouter.NewTemplate()
+	vr_template.Add(keys.Name, vr_name)
+	vr_template.AddPair("ATT1", "VAL1")
+	vr_template.AddPair("ATT2", "VAL2")
 
 	//Create VirtualRouter
-	vr_id, err := testCtrl.VirtualRouters().Create(vr_template)
+	vr_id, err := testCtrl.VirtualRouters().Create(vr_template.String())
 
 	if err != nil {
 		t.Fatalf("Test failed:\n" + err.Error())
@@ -64,7 +70,7 @@ func TestVirtualRouter(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	actual_1, err := vr.Template.Dynamic.GetContentByName("ATT1")
+	actual_1, err := vr.Template.GetStr("ATT1")
 	if err != nil {
 		t.Errorf("Test failed, can't retrieve '%s', error: %s", "ATT1", err.Error())
 	} else {
@@ -73,7 +79,7 @@ func TestVirtualRouter(t *testing.T) {
 		}
 	}
 
-	actual_3, err := vr.Template.Dynamic.GetContentByName("ATT3")
+	actual_3, err := vr.Template.GetStr("ATT3")
 	if err != nil {
 		t.Errorf("Test failed, can't retrieve '%s', error: %s", "ATT3", err.Error())
 	} else {
@@ -146,12 +152,12 @@ func TestVirtualRouter(t *testing.T) {
 		t.Errorf("Test failed, expected: '%s', got:  '%s'", rename, actual)
 	}
 
-	tmpl = "NAME = vrtemplate\n" +
-		"CPU = 0.1\n" +
-		"VROUTER = YES\n" +
-		"MEMORY = 64\n"
+	vrTmpl := vm.NewTemplate()
+	vrTmpl.Add(vmkeys.Name, "vrtemplate")
+	vrTmpl.Add(vmkeys.VRouter, "YES")
+	vrTmpl.CPU(0.1).Memory(64)
 
-	tmpl_id, err := testCtrl.Templates().Create(tmpl)
+	tmpl_id, err := testCtrl.Templates().Create(vrTmpl.String())
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
@@ -173,16 +179,18 @@ func TestVirtualRouter(t *testing.T) {
 
 	template.Delete()
 
-	vn_tmpl := "NAME = \"go-net\"\n" +
-		"BRIDGE = vbr0\n" +
-		"VN_MAD = dummy\n"
+	vn_tmpl := vn.NewTemplate()
+	vn_tmpl.Add(vnkeys.Name, "go-net")
+	vn_tmpl.Add(vnkeys.Bridge, "vbr0")
+	vn_tmpl.Add(vnkeys.VNMad, "dummy")
 
-	vnet_id, _ := testCtrl.VirtualNetworks().Create(vn_tmpl, 0)
+	vnet_id, _ := testCtrl.VirtualNetworks().Create(vn_tmpl.String(), 0)
 
-	nic_tmpl := "NIC = [ NETWORK=\"go-net\" ]"
+	nic_tmpl := shared.NewNIC()
+	nic_tmpl.Add(shared.Network, "go-net")
 
 	//Attach nic to VirtualRouter
-	err = vrC.AttachNic(nic_tmpl)
+	err = vrC.AttachNic(nic_tmpl.String())
 
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
@@ -193,10 +201,11 @@ func TestVirtualRouter(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	if len(vr.Template.NIC) == 0 {
+	nics := vr.Template.GetVectors(string(shared.NICVec))
+	if len(nics) == 0 {
 		t.Errorf("Test failed, can't retrieve '%s', error: %s", "NIC", err.Error())
 	} else {
-		actualNetName, _ := vr.Template.NIC[0].Dynamic.GetContentByName("NETWORK")
+		actualNetName, _ := nics[0].GetStr("NETWORK")
 
 		if actualNetName != "go-net" {
 			t.Errorf("Test failed, expected: '%s', got:  '%s'", "go-net", actualNetName)

@@ -17,28 +17,33 @@
 package vdc
 
 import (
+	"encoding/xml"
+
 	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
 // Pool represents an OpenNebula Vdc pool
 type Pool struct {
-	VDCs []VDC `xml:"VDC"`
+	XMLName xml.Name `xml:"VDC_POOL"`
+	VDCs    []VDC    `xml:"VDC"`
 }
 
 // VDC represents an OpenNebula Vdc
 type VDC struct {
-	ID         int         `xml:"ID"`
-	Name       string      `xml:"NAME"`
-	GroupsID   []int       `xml:"GROUPS>ID"`
-	Clusters   []Cluster   `xml:"CLUSTERS>CLUSTER"`
-	Hosts      []Host      `xml:"HOSTS>HOST"`
-	Datastores []Datastore `xml:"DATASTORES>DATASTORE"`
-	VNets      []VNet      `xml:"VNETS>VNET"`
-	Template   Template    `xml:"TEMPLATE"`
+	XMLName    xml.Name          `xml:"VDC"`
+	ID         int               `xml:"ID,omitempty"`
+	Name       string            `xml:"NAME"`
+	Groups     shared.EntitiesID `xml:"GROUPS,omitempty"`
+	Clusters   []Cluster         `xml:"CLUSTERS>CLUSTER,omitempty"`
+	Hosts      []Host            `xml:"HOSTS>HOST,omitempty"`
+	Datastores []Datastore       `xml:"DATASTORES>DATASTORE,omitempty"`
+	VNets      []VNet            `xml:"VNETS>VNET,omitempty"`
+	Template   Template          `xml:"TEMPLATE"`
 }
 
 type Template struct {
-	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
+	dyn.Template
 }
 
 type Cluster struct {

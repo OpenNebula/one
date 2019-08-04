@@ -17,29 +17,29 @@
 package document
 
 import (
+	"encoding/xml"
+
 	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
 // Pool represents an OpenNebula Document pool
 type Pool struct {
+	XMLName   xml.Name   `xml:"DOCUMENT_POOL"`
 	Documents []Document `xml:"DOCUMENT"`
 }
 
 // Document represents an OpenNebula Document
 type Document struct {
-	ID          int                 `xml:"ID"`
-	UID         int                 `xml:"UID"`
-	GID         int                 `xml:"GID"`
-	UName       string              `xml:"UNAME"`
-	GName       string              `xml:"GNAME"`
+	XMLName     xml.Name            `xml:"DOCUMENT"`
+	ID          int                 `xml:"ID,omitempty"`
+	UID         int                 `xml:"UID,omitempty"`
+	GID         int                 `xml:"GID,omitempty"`
+	UName       string              `xml:"UNAME,omitempty"`
+	GName       string              `xml:"GNAME,omitempty"`
 	Name        string              `xml:"NAME"`
 	Type        string              `xml:"TYPE"`
-	Permissions *shared.Permissions `xml:"PERMISSIONS"`
-	LockInfos   *shared.Lock        `xml:"LOCK"`
-	Template    Template            `xml:"TEMPLATE"`
-}
-
-type Template struct {
-	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
+	Permissions *shared.Permissions `xml:"PERMISSIONS,omitempty"`
+	LockInfos   *shared.Lock        `xml:"LOCK,omitempty"`
+	Template    dyn.Template        `xml:"TEMPLATE"`
 }

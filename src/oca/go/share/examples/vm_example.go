@@ -5,7 +5,9 @@ import (
 	"log"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca"
-	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm/keys"
 )
 
 func main() {
@@ -17,16 +19,19 @@ func main() {
 	// Build a string template. (No XML-RPC call done)
 	// To make a VM from an existing OpenNebula template,
 	// use template "Instantiate" method instead
-	tpl := dyn.NewTemplateBuilder()
-	tpl.AddValue("name", "this-is-a-vm")
-	tpl.AddValue("cpu", 1)
-	tpl.AddValue("vcpu", "2")
-	tpl.AddValue("memory", "64")
+	tpl := vm.NewTemplate()
+	tpl.Add(keys.Name, "this-is-a-vm")
+	tpl.CPU(1).Memory(64).VCPU(2)
 
 	// The image ID should exist to make this example work
-	vec := tpl.NewVector("disk")
-	vec.AddValue("image_id", "119")
-	vec.AddValue("dev_prefix", "vd")
+	disk := tpl.AddDisk()
+	disk.Add(shared.ImageID, "119")
+	disk.Add(shared.DevPrefix, "vd")
+
+	// The network ID should exist to make this example work
+	nic := tpl.AddNIC()
+	nic.Add(shared.NetworkID, "3")
+	nic.Add(shared.Model, "virtio")
 
 	// Create VM from template
 	vmID, err := controller.VMs().Create(tpl.String(), false)
@@ -37,7 +42,7 @@ func main() {
 	vmCtrl := controller.VM(vmID)
 
 	// Fetch informations of the created VM
-	vm, err := vmCtrl.Info()
+	vm, err := vmCtrl.Info(false)
 	if err != nil {
 		log.Fatal(err)
 	}

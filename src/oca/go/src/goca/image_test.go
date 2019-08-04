@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/image"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/image/keys"
 )
 
 var imageTpl = `
@@ -51,6 +52,12 @@ func ImageExpectState(imageC *ImageController, state string) func() bool {
 
 // Helper to create a Image
 func createImage(t *testing.T) (*image.Image, int) {
+
+	tpl := image.NewTemplate()
+	tpl.Add(keys.Name, "test-image")
+	tpl.Add(keys.Size, "1")
+	tpl.SetType(image.Datablock)
+
 	// Datastore ID 1 means default for image
 	id, err := testCtrl.Images().Create(imageTpl, 1)
 	if err != nil {

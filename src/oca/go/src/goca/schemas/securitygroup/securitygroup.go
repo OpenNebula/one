@@ -17,39 +17,30 @@
 package securitygroup
 
 import (
-	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
+	"encoding/xml"
+
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
 // Pool represents an OpenNebula SecurityGroup pool
 type Pool struct {
+	XMLName        xml.Name        `xml:"SECURITY_GROUP_POOL"`
 	SecurityGroups []SecurityGroup `xml:"SECURITY_GROUP"`
 }
 
 // SecurityGroup represents an OpenNebula SecurityGroup
 type SecurityGroup struct {
-	ID          int                 `xml:"ID"`
-	UID         int                 `xml:"UID"`
-	GID         int                 `xml:"GID"`
-	UName       string              `xml:"UNAME"`
-	GName       string              `xml:"GNAME"`
+	XMLName     xml.Name            `xml:"SECURITY_GROUP"`
+	ID          int                 `xml:"ID,omitempty"`
+	UID         int                 `xml:"UID,omitempty"`
+	GID         int                 `xml:"GID,omitempty"`
+	UName       string              `xml:"UNAME,omitempty"`
+	GName       string              `xml:"GNAME,omitempty"`
 	Name        string              `xml:"NAME"`
-	Permissions *shared.Permissions `xml:"PERMISSIONS"`
-	UpdatedVMs  []int               `xml:"UPDATED_VMS>ID"`
-	OutdatedVMs []int               `xml:"OUTDATED_VMS>ID"`
-	UpdatingVMs []int               `xml:"UPDATING_VMS>ID"`
-	ErrorVMs    []int               `xml:"ERROR_VMS>ID"`
+	Permissions *shared.Permissions `xml:"PERMISSIONS,omitempty"`
+	UpdatedVMs  shared.EntitiesID   `xml:"UPDATED_VMS,omitempty"`
+	OutdatedVMs shared.EntitiesID   `xml:"OUTDATED_VMS,omitempty"`
+	UpdatingVMs shared.EntitiesID   `xml:"UPDATING_VMS,omitempty"`
+	ErrorVMs    shared.EntitiesID   `xml:"ERROR_VMS,omitempty"`
 	Template    Template            `xml:"TEMPLATE"`
-}
-
-// Template represent the template part of the OpenNebula SecurityGroup
-type Template struct {
-	Description string                 `xml:"DESCRIPTION"`
-	Rules       []SecurityGroupRule    `xml:"RULE"`
-	Dynamic     dyn.UnmatchedTagsSlice `xml:",any"`
-}
-
-type SecurityGroupRule struct {
-	Protocol string `xml:"PROTOCOL"`
-	RuleType string `xml:"RULE_TYPE"`
 }

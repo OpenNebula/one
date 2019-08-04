@@ -17,12 +17,15 @@
 package group
 
 import (
+	"encoding/xml"
+
 	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
 // Pool represents an OpenNebula GroupPool
 type Pool struct {
+	XMLName           xml.Name          `xml:"GROUP_POOL"`
 	Groups            []Group           `xml:"GROUP"`
 	Quotas            []shared.Quotas   `xml:"QUOTAS"`
 	DefaultUserQuotas shared.QuotasList `xml:"DEFAULT_USER_QUOTAS"`
@@ -30,17 +33,15 @@ type Pool struct {
 
 // Group represents an OpenNebula Group
 type Group struct {
-	ID       int      `xml:"ID"`
-	Name     string   `xml:"NAME"`
-	UsersID  []int    `xml:"USERS>ID"`
-	AdminsID []int    `xml:"ADMINS>ID"`
-	Template Template `xml:"TEMPLATE"`
+	XMLName  xml.Name     `xml:"GROUP"`
+	ID       int          `xml:"ID,omitempty"`
+	Name     string       `xml:"NAME"`
+	Template dyn.Template `xml:"TEMPLATE"`
+
+	Users  shared.EntitiesID `xml:"USERS,omitempty"`
+	Admins shared.EntitiesID `xml:"ADMINS,omitempty"`
 
 	// Variable part between one.grouppool.info and one.group.info
 	shared.QuotasList
-	DefaultUserQuotas shared.QuotasList `xml:"DEFAULT_USER_QUOTAS"`
-}
-
-type Template struct {
-	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
+	DefaultUserQuotas shared.QuotasList `xml:"DEFAULT_USER_QUOTAS,omitempty"`
 }

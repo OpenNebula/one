@@ -22,7 +22,7 @@ func main() {
 	for i := 0; i < len(vms.VMs); i++ {
 		// This Info method, per VM instance, give us detailed informations on the instance
 		// Check xsd files to see the difference
-		vm, err := controller.VM(vms.VMs[i].ID).Info()
+		vm, err := controller.VM(vms.VMs[i].ID).Info(false)
 		if err != nil {
 			log.Fatal(err)
 		}

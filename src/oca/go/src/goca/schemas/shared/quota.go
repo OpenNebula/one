@@ -22,45 +22,45 @@ type Quotas struct {
 }
 
 type QuotasList struct {
-	DatastoreQuotas []DatastoreQuota `xml:"DATASTORE_QUOTA>DATASTORE"`
-	NetworkQuotas   []NetworkQuota   `xml:"NETWORK_QUOTA>NETWORK"`
-	VMQuotas        []VMQuota        `xml:"VM_QUOTA>VM"`
-	ImageQuotas     []ImageQuota     `xml:"IMAGE_QUOTA>IMAGE"`
+	Datastore []DatastoreQuota `xml:"DATASTORE_QUOTA>DATASTORE"`
+	Network   []NetworkQuota   `xml:"NETWORK_QUOTA>NETWORK"`
+	VM        *VMQuota         `xml:"VM_QUOTA>VM"`
+	Image     []ImageQuota     `xml:"IMAGE_QUOTA>IMAGE"`
 }
 
 type DatastoreQuota struct {
 	ID         int    `xml:"ID"`
 	Images     string `xml:"IMAGES"`
-	ImagesUsed string `xml:"IMAGES_USED"`
+	ImagesUsed string `xml:"IMAGES_USED,omitempty"`
 	Size       string `xml:"SIZE"`
-	SizeUsed   string `xml:"SIZE_USED"`
+	SizeUsed   string `xml:"SIZE_USED,omitempty"`
 }
 
 type NetworkQuota struct {
 	ID         int    `xml:"ID"`
 	Leases     string `xml:"LEASES"`
-	LeasesUsed string `xml:"LEASES_USED"`
+	LeasesUsed string `xml:"LEASES_USED,omitempty"`
 }
 
 type VMQuota struct {
 	CPU                string `xml:"CPU"`
-	CPUUsed            string `xml:"CPU_USED"`
+	CPUUsed            string `xml:"CPU_USED,omitempty"`
 	Memory             string `xml:"MEMORY"`
-	MemoryUsed         string `xml:"MEMORY_USED"`
+	MemoryUsed         string `xml:"MEMORY_USED,omitempty"`
 	RunningCPU         string `xml:"RUNNING_CPU"`
-	RunningCPUUsed     string `xml:"RUNNING_CPU_USED"`
+	RunningCPUUsed     string `xml:"RUNNING_CPU_USED,omitempty"`
 	RunningMemory      string `xml:"RUNNING_MEMORY"`
-	RunningMemoryUsed  string `xml:"RUNNING_MEMORY_USED"`
+	RunningMemoryUsed  string `xml:"RUNNING_MEMORY_USED,omitempty"`
 	RunningVMs         string `xml:"RUNNING_VMS"`
-	RunningVMsUsed     string `xml:"RUNNING_VMS_USED"`
+	RunningVMsUsed     string `xml:"RUNNING_VMS_USED,omitempty"`
 	SystemDiskSize     string `xml:"SYSTEM_DISK_SIZE"`
-	SystemDiskSizeUsed string `xml:"SYSTEM_DISK_SIZE_USED"`
+	SystemDiskSizeUsed string `xml:"SYSTEM_DISK_SIZE_USED,omitempty"`
 	VMs                string `xml:"VMS"`
-	VMsUsed            string `xml:"VMS_USED"`
+	VMsUsed            string `xml:"VMS_USED,omitempty"`
 }
 
 type ImageQuota struct {
 	ID       int    `xml:"ID"`
 	RVMs     string `xml:"RVMS"`
-	RVMsUsed string `xml:"RVMS_USED"`
+	RVMsUsed string `xml:"RVMS_USED,omitempty"`
 }

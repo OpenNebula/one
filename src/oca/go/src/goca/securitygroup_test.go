@@ -20,19 +20,23 @@ import (
 	"testing"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/securitygroup"
+	secgroup "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/securitygroup"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/securitygroup/keys"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
 func TestSGAllocate(t *testing.T) {
 	var sg_name string = "new_test_sg"
 	var sg *securitygroup.SecurityGroup
-	var sg_template string = "NAME = \"" + sg_name + "\"\n" +
-		"DESCRIPTION  = \"test security group\"\n" +
-		"ATT1 = \"VAL1\"\n" +
-		"ATT2 = \"VAL2\""
+
+	sg_template := secgroup.NewTemplate()
+	sg_template.Add(keys.Name, sg_name)
+	sg_template.Add(keys.Description, "test security group")
+	sg_template.AddPair("ATT1", "VAL1")
+	sg_template.AddPair("ATT2", "VAL2")
 
 	//Create SG
-	sg_id, err := testCtrl.SecurityGroups().Create(sg_template)
+	sg_id, err := testCtrl.SecurityGroups().Create(sg_template.String())
 
 	if err != nil {
 		t.Fatalf("Test failed:\n" + err.Error())
@@ -64,7 +68,7 @@ func TestSGAllocate(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	actual_1, err := sg.Template.Dynamic.GetContentByName("ATT1")
+	actual_1, err := sg.Template.GetStr("ATT1")
 	if err != nil {
 		t.Errorf("Test failed, can't retrieve '%s', error: %s", "ATT1", err.Error())
 	} else {
@@ -73,7 +77,7 @@ func TestSGAllocate(t *testing.T) {
 		}
 	}
 
-	actual_3, err := sg.Template.Dynamic.GetContentByName("ATT3")
+	actual_3, err := sg.Template.GetStr("ATT3")
 	if err != nil {
 		t.Errorf("Test failed, can't retrieve '%s', error: %s", "ATT3", err.Error())
 	} else {

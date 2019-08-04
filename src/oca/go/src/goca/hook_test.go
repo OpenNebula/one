@@ -21,20 +21,21 @@ import (
 	"time"
 
 	hk "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/hook"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/hook/keys"
 )
 
 var call = "one.zone.info"
 
-var HkTpl = `
-NAME = hook-goca
-TYPE = api
-COMMAND = "/usr/bin/ls -l"
-CALL = "` + call + `"
-`
-
 // Helper to create a Hook Network
 func createHook(t *testing.T) (*hk.Hook, int) {
-	id, err := testCtrl.Hooks().Create(HkTpl)
+
+	tpl := hk.NewTemplate()
+	tpl.Add(keys.Name, "hook-goca")
+	tpl.Add(keys.Type, "api")
+	tpl.Add(keys.Command, "/usr/bin/ls -l")
+	tpl.AddPair("CALL", call)
+
+	id, err := testCtrl.Hooks().Create(tpl.String())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -87,7 +88,7 @@ func TestHook(t *testing.T) {
 
 	hook, err = hookC.Info(false)
 
-	if (len(hook.Log.ExecutionRecords) <= currentExecs) {
+	if len(hook.Log.ExecutionRecords) <= currentExecs {
 		t.Errorf("Hook have not been triggered")
 	}
 
@@ -100,11 +101,11 @@ func TestHook(t *testing.T) {
 
 	hook, err = hookC.Info(false)
 
-	if (len(hook.Log.ExecutionRecords) <= currentExecs) {
+	if len(hook.Log.ExecutionRecords) <= currentExecs {
 		t.Errorf("Hook execution have not been retried")
 	}
 
-	if (hook.Log.ExecutionRecords[len(hook.Log.ExecutionRecords) -1].Retry != "yes") {
+	if hook.Log.ExecutionRecords[len(hook.Log.ExecutionRecords)-1].Retry != "yes" {
 		t.Errorf("Hook execution have not been retried")
 	}
 

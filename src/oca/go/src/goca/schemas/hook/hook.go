@@ -16,35 +16,26 @@
 
 package hook
 
-import (
-	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
-)
+import "encoding/xml"
 
-// Pool represents an OpenNebula Host pool
+// Pool represents an OpenNebula Hook pool
 type Pool struct {
-	Hooks []Hook `xml:"HOOK"`
+	XMLName xml.Name `xml:"HOOK_POOL"`
+	Hooks   []Hook   `xml:"HOOK"`
 }
 
-// Host represents an OpenNebula Host
+// Hook represents an OpenNebula Hook
 type Hook struct {
-	ID          int                `xml:"ID"`
-	Name        string             `xml:"NAME"`
-	Type        string             `xml:"TYPE"`
-	Template    Template           `xml:"TEMPLATE"`
-	Log         HookLog            `xml:"HOOKLOG"`
-}
-
-type Template struct {
-	// Example of reservation: https://github.com/OpenNebula/addon-storpool/blob/ba9dd3462b369440cf618c4396c266f02e50f36f/misc/reserved.sh
-	Arguments      string   `xml:"ARGUMENTS"`
-	ArgumentsSTDIN string   `xml:"ARGUMENTS_STDIN"`
-	Command        string   `xml:"COMMAND"`
-	Remote         string   `xml:"REMOTE"`
-	Dynamic        dyn.UnmatchedTagsSlice `xml:",any"`
+	XMLName  xml.Name `xml:"HOOK"`
+	ID       int      `xml:"ID"`
+	Name     string   `xml:"NAME"`
+	Type     string   `xml:"TYPE"`
+	Template Template `xml:"TEMPLATE"`
+	Log      HookLog  `xml:"HOOKLOG"`
 }
 
 type HookLog struct {
-	ExecutionRecords []ExecutionRecord  `xml:"HOOK_EXECUTION_RECORD"`
+	ExecutionRecords []ExecutionRecord `xml:"HOOK_EXECUTION_RECORD"`
 }
 
 type ExecutionRecord struct {

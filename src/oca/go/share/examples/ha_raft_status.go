@@ -26,7 +26,7 @@ func main() {
 	}
 
 	// Retrieve zone informations
-	zone, err := controller.Zone(id).Info()
+	zone, err := controller.Zone(id).Info(false)
 	if err != nil {
 		log.Fatalf("Zone id %d: %s", id, err)
 	}
