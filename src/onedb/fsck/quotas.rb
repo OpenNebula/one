@@ -475,7 +475,7 @@ module OneDBFsck
                 parent_id = ar.xpath('AR/PARENT_NETWORK_AR_ID')
                 parent_id = parent_id.text unless parent_id.nil?
 
-                next if parent_id.nil? || parent_id.empty?
+                next if !parent_id.nil? || !parent_id.empty?
 
                 vnet_usage[parent_id] = 0 if vnet_usage[parent_id].nil?
 
