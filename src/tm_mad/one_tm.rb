@@ -113,7 +113,7 @@ class TransferManagerDriver < OpenNebulaDriver
                 path_shortened = File.join(@local_scripts_path, tm, md[1])
                 if !File.exists?(path_shortened)
                     return RESULT[:failure],
-                        "Driver path '#{path}' nor '#{path_shortened}' does not exists"
+                        "Driver path '#{path}' nor '#{path_shortened}' exists"
                 end
                 path = path_shortened
             else
