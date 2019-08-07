@@ -32,7 +32,7 @@ DST_PATH=$3
 VMID=$4
 DSID=$5
 
-TEMPLATE_64=$6
+TEMPLATE_64=$(cat)
 
 #--------------------------------------------------------------------------------
 
@@ -53,8 +53,8 @@ fi
 
 #--------------------------------------------------------------------------------
 
-if [ -n "$7" ]; then
-    log "Called from tm/$7 but I've nothing to do"
+if [ -n "$6" ]; then
+    log "Called from tm/$6 but I've nothing to do"
     exit 0
 fi
 
