@@ -799,7 +799,6 @@ void TransferManager::prolog_migr_action(int vid)
             }
         }
 
-		(*disk)->vector_value("TM_MAD");
         string tsys = (*disk)->vector_value("TM_MAD_SYSTEM");
         if (!tsys.empty())
         {
@@ -943,7 +942,6 @@ void TransferManager::prolog_resume_action(int vid)
             }
         }
 
-		(*disk)->vector_value("TM_MAD");
         string tsys = (*disk)->vector_value("TM_MAD_SYSTEM");
         if (!tsys.empty())
         {
@@ -1152,6 +1150,7 @@ void TransferManager::epilog_transfer_command(
         {
             tm_mad_system = "." + tsys;
         }
+	    
         //MVDS(.tm_mad_system) tm_mad hostname:remote_system_dir/disk.0 <fe:SOURCE|SOURCE> vmid dsid
         xfr << "MVDS" << tm_mad_system
             << " " << tm_mad << " "
@@ -2001,7 +2000,8 @@ void TransferManager::saveas_hot_action(int vid)
     }
 
     disk = vm->get_disk(disk_id);
-    if (disk != 0)
+
+    if (disk != nullptr)
     {
         tsys = disk->vector_value("TM_MAD_SYSTEM");
         if (!tsys.empty())
@@ -2096,7 +2096,8 @@ int TransferManager::snapshot_transfer_command(
     }
 
     disk = vm->get_disk(disk_id);
-    if (disk != 0)
+
+    if (disk != nullptr)
     {
         tsys = disk->vector_value("TM_MAD_SYSTEM");
         if (!tsys.empty())
