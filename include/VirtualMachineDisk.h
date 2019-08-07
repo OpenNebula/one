@@ -154,7 +154,7 @@ public:
     /**
      *  Return the TM_MAD_SYSTEM attribute
      */
-    std::string get_tm_mad_system();
+    std::string get_tm_mad_system() const;
 
     /* ---------------------------------------------------------------------- */
     /* Image Manager Interface                                                */

@@ -60,7 +60,7 @@ SNAP_NAME="$(basename $SNAP_DIR)"
 # Create DST path
 #-------------------------------------------------------------------------------
 
-ssh_make_path $DST_HOST $DST_DIR
+ssh_make_path $DST_HOST $DST_DIR 'ssh'
 
 #-------------------------------------------------------------------------------
 # Link (ln) SRC into DST

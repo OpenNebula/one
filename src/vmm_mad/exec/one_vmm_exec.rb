@@ -1094,7 +1094,7 @@ class ExecDriver < VirtualMachineDriver
         tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
 
         tm_command_split     = tm_command.split
-        tm_command_split[0] += '_LIVE'
+        tm_command_split[0].sub!('.', '_LIVE.') or tm_command_split[0] += '_LIVE'
 
         action = VmmAction.new(self, id, :disk_snapshot_create, drv_message)
 
