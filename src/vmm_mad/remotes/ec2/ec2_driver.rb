@@ -15,22 +15,30 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION = ENV['ONE_LOCATION'] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = "/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
-    ETC_LOCATION      = "/etc/one/" if !defined?(ETC_LOCATION)
-    VAR_LOCATION      = "/var/lib/one/" if !defined?(VAR_LOCATION)
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' if !defined?(RUBY_LIB_LOCATION)
+    GEMS_LOCATION     = '/usr/share/one/gems' if !defined?(GEMS_LOCATION)
+    ETC_LOCATION      = '/etc/one/' if !defined?(ETC_LOCATION)
+    VAR_LOCATION      = '/var/lib/one/' if !defined?(VAR_LOCATION)
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
-    ETC_LOCATION      = ONE_LOCATION + "/etc/" if !defined?(ETC_LOCATION)
-    VAR_LOCATION      = ONE_LOCATION + "/var/" if !defined?(VAR_LOCATION)
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' if !defined?(RUBY_LIB_LOCATION)
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' if !defined?(GEMS_LOCATION)
+    ETC_LOCATION      = ONE_LOCATION + '/etc/' if !defined?(ETC_LOCATION)
+    VAR_LOCATION      = ONE_LOCATION + '/var/' if !defined?(VAR_LOCATION)
 end
 
 EC2_DRIVER_CONF = "#{ETC_LOCATION}/ec2_driver.conf"
 EC2_DRIVER_DEFAULT = "#{ETC_LOCATION}/ec2_driver.default"
 
 STATE_WAIT_PM_TIMEOUT_SECONDS = 1500
+
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
 
 gem 'aws-sdk', '>= 2.0'
 
@@ -40,8 +48,6 @@ require 'rubygems'
 require 'aws-sdk'
 require 'uri'
 require 'resolv'
-
-$: << RUBY_LIB_LOCATION
 
 require 'CommandManager'
 require 'scripts_common'

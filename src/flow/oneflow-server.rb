@@ -14,34 +14,39 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    LOG_LOCATION      = '/var/log/one'
+    VAR_LOCATION      = '/var/lib/one'
+    ETC_LOCATION      = '/etc/one'
+    LIB_LOCATION      = '/usr/lib/one'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VAR_LOCATION      = ONE_LOCATION + '/var'
+    LOG_LOCATION      = ONE_LOCATION + '/var'
+    ETC_LOCATION      = ONE_LOCATION + '/etc'
+    LIB_LOCATION      = ONE_LOCATION + '/lib'
+end
+
+ONEFLOW_AUTH       = VAR_LOCATION + '/.one/oneflow_auth'
+ONEFLOW_LOG        = LOG_LOCATION + '/oneflow.log'
+CONFIGURATION_FILE = ETC_LOCATION + '/oneflow-server.conf'
+
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cloud'
+$LOAD_PATH << LIB_LOCATION + '/oneflow/lib'
+
 require 'rubygems'
 require 'sinatra'
 require 'yaml'
-
-ONE_LOCATION = ENV["ONE_LOCATION"]
-
-if !ONE_LOCATION
-    LOG_LOCATION = "/var/log/one"
-    VAR_LOCATION = "/var/lib/one"
-    ETC_LOCATION = "/etc/one"
-    LIB_LOCATION = "/usr/lib/one"
-    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
-else
-    VAR_LOCATION = ONE_LOCATION + "/var"
-    LOG_LOCATION = ONE_LOCATION + "/var"
-    ETC_LOCATION = ONE_LOCATION + "/etc"
-    LIB_LOCATION = ONE_LOCATION+"/lib"
-    RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
-end
-
-ONEFLOW_AUTH    = VAR_LOCATION + "/.one/oneflow_auth"
-
-ONEFLOW_LOG        = LOG_LOCATION + "/oneflow.log"
-CONFIGURATION_FILE = ETC_LOCATION + "/oneflow-server.conf"
-
-$: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+'/cloud'
-$: << LIB_LOCATION+'/oneflow/lib'
 
 require 'CloudAuth'
 require 'CloudServer'

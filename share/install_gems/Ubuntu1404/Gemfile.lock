@@ -1,7 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (4.2.11)
+    activesupport (4.2.11.1)
       i18n (~> 0.7)
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
@@ -9,14 +9,16 @@ GEM
     addressable (2.4.0)
     amazon-ec2 (0.9.17)
       xml-simple (>= 1.0.12)
-    aws-sdk (2.11.212)
-      aws-sdk-resources (= 2.11.212)
-    aws-sdk-core (2.11.212)
+    aws-eventstream (1.0.3)
+    aws-sdk (2.11.330)
+      aws-sdk-resources (= 2.11.330)
+    aws-sdk-core (2.11.330)
       aws-sigv4 (~> 1.0)
       jmespath (~> 1.0)
-    aws-sdk-resources (2.11.212)
-      aws-sdk-core (= 2.11.212)
-    aws-sigv4 (1.0.3)
+    aws-sdk-resources (2.11.330)
+      aws-sdk-core (= 2.11.330)
+    aws-sigv4 (1.1.0)
+      aws-eventstream (~> 1.0, >= 1.0.2)
     azure (0.7.10)
       addressable (~> 2.3)
       azure-core (~> 0.1)
@@ -31,14 +33,15 @@ GEM
       faraday_middleware (~> 0.10)
       nokogiri (~> 1.6)
     builder (3.2.3)
-    concurrent-ruby (1.1.4)
+    chunky_png (1.3.11)
+    concurrent-ruby (1.1.5)
     configparser (0.1.7)
-    curb (0.9.8)
+    curb (0.9.10)
     daemons (1.3.1)
     eventmachine (1.2.7)
     faraday (0.15.4)
       multipart-post (>= 1.2, < 3)
-    faraday_middleware (0.13.0)
+    faraday_middleware (0.13.1)
       faraday (>= 0.7.4, < 1.0)
     hashie (3.6.0)
     highline (1.7.10)
@@ -50,25 +53,28 @@ GEM
     mime-types (2.99.3)
     mini_portile2 (2.1.0)
     minitest (5.11.3)
-    multipart-post (2.0.0)
+    multipart-post (2.1.1)
     mysql2 (0.4.10)
     net-ldap (0.12.1)
     nokogiri (1.6.8.1)
       mini_portile2 (~> 2.1.0)
-    ox (2.10.0)
+    ox (2.11.0)
     parse-cron (0.1.4)
     polyglot (0.3.5)
     public_suffix (1.4.6)
     rack (1.6.11)
     rack-protection (1.5.5)
       rack
+    rotp (4.0.0)
+    rqrcode (0.10.1)
+      chunky_png (~> 1.0)
     scrub_rb (1.0.1)
-    sequel (5.17.0)
+    sequel (5.23.0)
     sinatra (1.4.8)
       rack (~> 1.5)
       rack-protection (~> 1.4)
       tilt (>= 1.3, < 3)
-    sqlite3 (1.3.13)
+    sqlite3 (1.4.1)
     systemu (2.6.5)
     thin (1.7.2)
       daemons (~> 1.0, >= 1.0.9)
@@ -115,6 +121,8 @@ DEPENDENCIES
   parse-cron
   public_suffix (< 1.5.0)
   rack (< 2.0.0)
+  rotp
+  rqrcode
   scrub_rb
   sequel
   sinatra
@@ -123,7 +131,7 @@ DEPENDENCIES
   treetop (>= 1.6.3)
   trollop
   uuidtools
-  zendesk_api
+  zendesk_api (< 1.17.0)
 
 BUNDLED WITH
-   1.11.2
+   1.17.3
