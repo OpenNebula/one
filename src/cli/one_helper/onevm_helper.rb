@@ -279,6 +279,15 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         else
             return [0, id.to_i]
         end
+    def retrieve_disk_snapshot_id(vm_id, id)
+        return [0, id.to_i] if id =~ /\A\d+\z/
+
+        vm = retrieve_resource(vm_id)
+        vm.info
+        ids = vm.retrieve_elements("/VM/SNAPSHOTS/SNAPSHOT[NAME='#{id}']/ID")
+
+        return [-1, "#{id} not found or duplicated"] \
+                if ids.nil? || ids.size > 1
 
         [0, ids[0].to_i]
     end
