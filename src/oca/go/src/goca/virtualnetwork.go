@@ -156,11 +156,11 @@ func (vc *VirtualNetworkController) UpdateAR(tpl string) error {
 	return err
 }
 
-// Reserve reserve network addresses.
+// Reserve reserve network addresses. It returns the Reserved Virtual Network ID
 // * tpl: Template
-func (vc *VirtualNetworkController) Reserve(tpl string) error {
-	_, err := vc.c.Client.Call("one.vn.reserve", vc.ID, tpl)
-	return err
+func (vc *VirtualNetworkController) Reserve(tpl string) (int, error) {
+	response, err := vc.c.Client.Call("one.vn.reserve", vc.ID, tpl)
+	return response.BodyInt(), err
 }
 
 // FreeAR frees a reserved address range from a virtual network.
