@@ -169,7 +169,7 @@ class ClusterComputeResource
 
         # Try a connection as part of NSX_STATUS
         if @one_item["TEMPLATE/NSX_TYPE"] == "NSX-V"
-            header = {'Content-Type': 'application/xml'}
+            header = {'Content-Type' => 'application/xml'}
             uri = URI.parse("#{@one_item["TEMPLATE/NSX_MANAGER"]}/api/2.0/vdn/scopes")
             request = Net::HTTP::Get.new(uri.request_uri, header)
             request.basic_auth(@one_item["TEMPLATE/NSX_USER"], nsx_password)
@@ -189,7 +189,7 @@ class ClusterComputeResource
         end
 
         if @one_item["TEMPLATE/NSX_TYPE"] == "NSX-T"
-            header = {'Content-Type': 'application/json'}
+            header = {'Content-Type' => 'application/json'}
             uri = URI.parse("#{@one_item["TEMPLATE/NSX_MANAGER"]}/api/v1/transport-zones")
             request = Net::HTTP::Get.new(uri.request_uri, header)
             request.basic_auth(@one_item["TEMPLATE/NSX_USER"], nsx_password)
@@ -230,7 +230,7 @@ class ClusterComputeResource
             nsx_password = VIClient::decrypt(nsx_password, token)
             # NSX request to get Transport Zones
             if @one_item["TEMPLATE/NSX_TYPE"] == "NSX-V"
-                header = {'Content-Type': 'application/xml'}
+                header = {'Content-Type' => 'application/xml'}
                 uri = URI.parse("#{@one_item["TEMPLATE/NSX_MANAGER"]}/api/2.0/vdn/scopes")
                 request = Net::HTTP::Get.new(uri.request_uri, header)
                 request.basic_auth(@one_item["TEMPLATE/NSX_USER"], nsx_password)
@@ -244,7 +244,7 @@ class ClusterComputeResource
                 end
                 tz_info.chomp!(',')
             elsif @one_item["TEMPLATE/NSX_TYPE"] == "NSX-T"
-                header = {'Content-Type': 'application/json'}
+                header = {'Content-Type' => 'application/json'}
                 uri = URI.parse("#{@one_item["TEMPLATE/NSX_MANAGER"]}/api/v1/transport-zones")
                 request = Net::HTTP::Get.new(uri.request_uri, header)
                 request.basic_auth(@one_item["TEMPLATE/NSX_USER"], nsx_password)
