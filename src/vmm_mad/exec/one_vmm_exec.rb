@@ -227,7 +227,7 @@ class VmmAction
                 result, info = vnm.do_action(@id, step[:action],
                                              :parameters => params)
             when :tm
-                result, info = @tm.do_transfer_action(@id, step[:parameters])
+                result, info = @tm.do_transfer_action(@id, step[:parameters], stdin=step[:stdin])
 
             else
                 result = DriverExecHelper.const_get(:RESULT)[:failure]
@@ -517,16 +517,17 @@ class ExecDriver < VirtualMachineDriver
         post   = 'POST'
         failed = 'FAIL'
 
-        pre  << action.data[:tm_command] << ' ' << action.data[:vm]
-        post << action.data[:tm_command] << ' ' << action.data[:vm]
-        failed << action.data[:tm_command] << ' ' << action.data[:vm]
+        pre  << action.data[:tm_command]
+        post << action.data[:tm_command]
+        failed << action.data[:tm_command]
 
         steps = [
             # Execute a pre-migrate TM setup
             {
                 :driver     => :tm,
                 :action     => :tm_premigrate,
-                :parameters => pre.split
+                :parameters => pre.split,
+                :stdin      => action.data[:vm]
             },
             # Execute pre-boot networking setup on migrating host
             {
@@ -544,6 +545,7 @@ class ExecDriver < VirtualMachineDriver
                         :driver     => :tm,
                         :action     => :tm_failmigrate,
                         :parameters => failed.split,
+                        :stdin      => action.data[:vm],
                         :no_fail    => true
                     }
                 ]
@@ -569,6 +571,7 @@ class ExecDriver < VirtualMachineDriver
                 :driver     => :tm,
                 :action     => :tm_postmigrate,
                 :parameters => post.split,
+                :stdin      => action.data[:vm],
                 :no_fail    => true
             }
         ]

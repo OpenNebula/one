@@ -96,7 +96,8 @@ class TransferManagerDriver < OpenNebulaDriver
     # method
     # @param id [String] with the OpenNebula ID for the TRANSFER action
     # @param command [Array]
-    def do_transfer_action(id, command)
+    # @param stdin [String]
+    def do_transfer_action(id, command, stdin=nil)
         cmd  = command[0].downcase
         tm   = command[1]
         args = command[2..-1].map{|e| Shellwords.escape(e)}.join(" ")
@@ -122,7 +123,7 @@ class TransferManagerDriver < OpenNebulaDriver
         end
 
         path << " " << args
-        rc = LocalCommand.run(path, log_method(id))
+        rc = LocalCommand.run(path, log_method(id), stdin)
 
         result, info = get_info_from_execution(rc)
 
