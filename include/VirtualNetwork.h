@@ -523,13 +523,13 @@ public:
      *    not a single attribute
      *    @param ar_id of the address attribute.
      */
-    void get_template_attribute(const char * name, string& value, int ar_id) const;
+    void get_template_attribute(const string& name, string& value, int ar_id) const;
 
     /**
      *  int version of get_template_attribute
      *    @return 0 on success
      */
-    int get_template_attribute(const char * name, int& value, int ar_id) const;
+    int get_template_attribute(const string& name, int& value, int ar_id) const;
 
     /**
      *  Adds the security group of the VNet and its ARs to the given set

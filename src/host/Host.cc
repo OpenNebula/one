@@ -92,14 +92,14 @@ int Host::insert_replace(SqlDB *db, bool replace, string& error_str)
 
    // Update the Host
 
-    sql_hostname = db->escape_str(name.c_str());
+    sql_hostname = db->escape_str(name);
 
     if ( sql_hostname == 0 )
     {
         goto error_hostname;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -539,7 +539,7 @@ int Host::update_monitoring(SqlDB * db)
     string error_str;
     char * sql_xml;
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -749,7 +749,7 @@ int Host::post_update_template(string& error)
         string att;
         string crypted;
 
-        get_template_attribute(it->first.c_str(), att);
+        get_template_attribute(it->first, att);
 
         if (!att.empty() && att.size() <= it->second)
         {

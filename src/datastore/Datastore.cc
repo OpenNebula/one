@@ -162,8 +162,8 @@ void Datastore::disk_attribute(
 
     for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
     {
-        current_val = disk->vector_value((*it).c_str());
-        get_template_attribute((*it).c_str(), inherit_val);
+        current_val = disk->vector_value(*it);
+        get_template_attribute(*it, inherit_val);
 
         if ( current_val.empty() && !inherit_val.empty() )
         {
@@ -191,7 +191,7 @@ void Datastore::disk_attribute(
     {
         get_template_attribute("DRIVER", st);
 
-        if(!st.empty() && disk->vector_value("DRIVER").empty())
+        if (!st.empty() && disk->vector_value("DRIVER").empty())
         {
             disk->replace("DRIVER", st);
         }
@@ -290,7 +290,7 @@ int Datastore::set_ds_mad(std::string &mad, std::string &error_str)
         required_attr = one_util::trim(required_attr);
         one_util::toupper(required_attr);
 
-        get_template_attribute(required_attr.c_str(), value);
+        get_template_attribute(required_attr, value);
 
         if ( value.empty() )
         {
@@ -678,14 +678,14 @@ int Datastore::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     // Update the Datastore
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {

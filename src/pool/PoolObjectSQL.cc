@@ -86,7 +86,7 @@ int PoolObjectSQL::select(SqlDB *db)
 int PoolObjectSQL::select_oid(SqlDB *db, const char * _table,
         const string& _name, int _uid)
 {
-    char * sql_name = db->escape_str(_name.c_str());
+    char * sql_name = db->escape_str(_name);
 
     if ( sql_name == 0 )
     {
@@ -164,7 +164,7 @@ int PoolObjectSQL::select(SqlDB *db, const string& _name, int _uid)
     int rc;
     char * sql_name;
 
-    sql_name = db->escape_str(_name.c_str());
+    sql_name = db->escape_str(_name);
 
     if ( sql_name == 0 )
     {

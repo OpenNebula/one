@@ -268,14 +268,14 @@ int Image::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     // Update the Image
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -661,7 +661,7 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
 
     for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
     {
-        get_template_attribute((*it).c_str(), inherit_val);
+        get_template_attribute(*it, inherit_val);
 
         if (!inherit_val.empty())
         {

@@ -476,7 +476,7 @@ static string prolog_os_transfer_commands(
 {
     string base_ds = base + "_DS";
 
-    string name_ds = os_attr->vector_value(base_ds.c_str());
+    string name_ds = os_attr->vector_value(base_ds);
 
     if ( name_ds.empty() )
     {
@@ -487,9 +487,9 @@ static string prolog_os_transfer_commands(
     string base_ds_id  = base + "_DS_DSID";
     string base_tm     = base + "_DS_TM";
 
-    string source = os_attr->vector_value(base_source.c_str());
-    string ds_id  = os_attr->vector_value(base_ds_id.c_str());
-    string tm_mad = os_attr->vector_value(base_tm.c_str());
+    string source = os_attr->vector_value(base_source);
+    string ds_id  = os_attr->vector_value(base_ds_id);
+    string tm_mad = os_attr->vector_value(base_tm);
 
     if ( source.empty() || ds_id.empty() || tm_mad.empty() )
     {
@@ -1150,7 +1150,7 @@ void TransferManager::epilog_transfer_command(
         {
             tm_mad_system = "." + tsys;
         }
-	    
+
         //MVDS(.tm_mad_system) tm_mad hostname:remote_system_dir/disk.0 <fe:SOURCE|SOURCE> vmid dsid
         xfr << "MVDS" << tm_mad_system
             << " " << tm_mad << " "

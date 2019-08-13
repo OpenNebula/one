@@ -285,7 +285,7 @@ int LogDB::update_raft_state(std::string name, std::string& raft_xml)
 {
     std::ostringstream oss;
 
-    char * sql_db = db->escape_str(raft_xml.c_str());
+    char * sql_db = db->escape_str(raft_xml);
 
     if ( sql_db == 0 )
     {
@@ -317,7 +317,7 @@ int LogDB::insert(uint64_t index, unsigned int term, const std::string& sql,
         return -1;
     }
 
-    char * sql_db = db->escape_str(zsql->c_str());
+    char * sql_db = db->escape_str(*zsql);
 
     delete zsql;
 

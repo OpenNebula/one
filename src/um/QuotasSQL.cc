@@ -108,7 +108,7 @@ int QuotasSQL::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     // Quota fields
 
-    sql_quota_xml = db->escape_str(to_xml_db(xml_quota).c_str());
+    sql_quota_xml = db->escape_str(to_xml_db(xml_quota));
 
     if ( sql_quota_xml == 0 )
     {

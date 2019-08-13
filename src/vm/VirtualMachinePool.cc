@@ -217,7 +217,7 @@ int VirtualMachinePool::insert_index(const string& deploy_id, int vmid,
     bool replace)
 {
     ostringstream oss;
-    char *        deploy_name = db->escape_str(deploy_id.c_str());
+    char *        deploy_name = db->escape_str(deploy_id);
 
     if (deploy_name == 0)
     {
@@ -246,7 +246,7 @@ int VirtualMachinePool::insert_index(const string& deploy_id, int vmid,
 void VirtualMachinePool::drop_index(const string& deploy_id)
 {
     ostringstream oss;
-    char *        deploy_name = db->escape_str(deploy_id.c_str());
+    char *        deploy_name = db->escape_str(deploy_id);
 
     if (deploy_name == 0)
     {
@@ -525,7 +525,7 @@ int VirtualMachinePool::get_vmid (const string& deploy_id)
     cb.set_callback(&vmid);
 
     oss << "SELECT vmid FROM " << import_table
-        << " WHERE deploy_id = '" << db->escape_str(deploy_id.c_str()) << "'";
+        << " WHERE deploy_id = '" << db->escape_str(deploy_id) << "'";
 
     rc = db->exec_rd(oss, &cb);
 
@@ -926,7 +926,7 @@ int VirtualMachinePool::calculate_showback(
 
             vm_month_it->second.to_xml(body) << "</SHOWBACK>";
 
-            sql_body =  db->escape_str(body.str().c_str());
+            sql_body =  db->escape_str(body.str());
 
             if ( sql_body == 0 )
             {

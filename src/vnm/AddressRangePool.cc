@@ -514,7 +514,7 @@ int AddressRangePool::free_addr_by_range(unsigned int arid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AddressRangePool::get_attribute(const char * name, string& value,
+void AddressRangePool::get_attribute(const string& name, string& value,
     int ar_id) const
 {
     map<unsigned int, AddressRange *>::const_iterator it = ar_pool.find(ar_id);
@@ -530,7 +530,7 @@ void AddressRangePool::get_attribute(const char * name, string& value,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRangePool::get_attribute(const char * name, int& value,
+int AddressRangePool::get_attribute(const string& name, int& value,
     int ar_id) const
 {
     map<unsigned int, AddressRange *>::const_iterator it = ar_pool.find(ar_id);

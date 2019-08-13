@@ -291,7 +291,7 @@ public:
      *    @param value of the attribute
      *    @param ar_id to get the attribute from
      */
-    void get_attribute(const char * name, string& value, int ar_id) const;
+    void get_attribute(const string& name, string& value, int ar_id) const;
 
     /**
      *  Gets an attribute from the Address Range, int version
@@ -300,7 +300,7 @@ public:
      *    @param ar_id to get the attribute from
      *    @return 0 on success
      */
-    int get_attribute(const char * name, int& value, int ar_id) const;
+    int get_attribute(const string& name, int& value, int ar_id) const;
 
     /**
      *  Gets a reference to a the security group set of an AR

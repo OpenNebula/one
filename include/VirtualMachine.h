@@ -947,9 +947,9 @@ public:
      *    @param name of the attribute
      *    @param value of the attribute
      */
-    void get_user_template_attribute(const char * name, string& value) const
+    void get_user_template_attribute(const string& name, string& value) const
     {
-        user_obj_template->get(name,value);
+        user_obj_template->get(name, value);
     }
 
     /**

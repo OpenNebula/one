@@ -1265,7 +1265,7 @@ void AddressRange::set_vnet(VectorAttribute *nic, const vector<string> &inherit)
 
     for (it = inherit.begin(); it != inherit.end(); it++)
     {
-        string inherit_val = attr->vector_value((*it).c_str());
+        string inherit_val = attr->vector_value(*it);
 
         if (!inherit_val.empty())
         {

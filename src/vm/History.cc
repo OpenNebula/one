@@ -168,7 +168,7 @@ int History::insert_replace(SqlDB *db, bool replace)
         return 0;
     }
 
-    sql_xml = db->escape_str(to_db_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_db_xml(xml_body));
 
     if ( sql_xml == 0 )
     {

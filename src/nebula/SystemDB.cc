@@ -273,7 +273,7 @@ int SystemDB::insert_replace(
     int    rc;
     char * sql_xml;
 
-    sql_xml = db->escape_str(xml_attr.c_str());
+    sql_xml = db->escape_str(xml_attr);
 
     if ( sql_xml == 0 )
     {

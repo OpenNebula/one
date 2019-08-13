@@ -379,15 +379,15 @@ public:
      *    @return the number of values
      */
 	template<typename T>
-    int get_template_attribute(const char * name, vector<const T*>& values) const
+    int get_template_attribute(const string& name, vector<const T*>& values) const
     {
-        return obj_template->get(name,values);
+        return obj_template->get(name, values);
     };
 
 	template<typename T>
-    int get_template_attribute(const char * name, vector<T*>& values) const
+    int get_template_attribute(const string& name, vector<T*>& values) const
     {
-        return obj_template->get(name,values);
+        return obj_template->get(name, values);
     };
 
     /**
@@ -401,15 +401,9 @@ public:
 	 *    target value
      */
 	template<typename T>
-    bool get_template_attribute(const char * name, T& value) const
-    {
-        return obj_template->get(name,value);
-    }
-
-	template<typename T>
     bool get_template_attribute(const string& name, T& value) const
     {
-        return obj_template->get(name,value);
+        return obj_template->get(name, value);
     }
 
     /**
@@ -420,9 +414,9 @@ public:
      *    @return the number of attributes erased
      */
 	template<typename T>
-    int erase_template_attribute(const char * name, T& value)
+    int erase_template_attribute(const string& name, T& value)
     {
-        obj_template->get(name,value);
+        obj_template->get(name, value);
         return obj_template->erase(name);
     }
 
