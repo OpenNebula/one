@@ -56,14 +56,14 @@ public:
      *   @param xml the resulting XML string
      *   @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    string& to_xml(string& xml) const override;
 
     /**
      *  Rebuilds the object from an xml formatted string
      *    @param xml_str The xml-formatted string
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const string &xml_str) override;
 
     /**
      *  Returns a copy of the Template
@@ -113,7 +113,7 @@ private:
     VMGroup(int _uid, int _gid, const string& _uname, const string& _gname,
             int _umask, Template * group_template);
 
-    ~VMGroup();
+    virtual ~VMGroup() = default;
 
     // -------------------------------------------------------------------------
     // Role Management
@@ -174,14 +174,14 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, string& error_str) override;
 
     /**
      *  Writes/updates the VMGroup's data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
         string error_str;
         return insert_replace(db, true, error_str);
@@ -192,12 +192,12 @@ private:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int post_update_template(string& error);
+    int post_update_template(string& error) override;
 
     /**
      *  Factory method for VMGroup templates
      */
-    Template * get_new_template() const
+    Template * get_new_template() const override
     {
         return new Template;
     }

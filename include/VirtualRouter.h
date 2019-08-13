@@ -41,7 +41,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    string& to_xml(string& xml) const override;
 
     int add_vmid(int vmid)
     {
@@ -72,7 +72,7 @@ public:
     /**
      *  Factory method for VirtualRouter templates
      */
-    Template * get_new_template() const
+    Template * get_new_template() const override
     {
         return new Template;
     }
@@ -97,7 +97,7 @@ public:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int replace_template(const string& tmpl_str, bool keep_restricted, string& error);
+    int replace_template(const string& tmpl_str, bool keep_restricted, string& error) override;
 
     /**
      *  Append new attributes to this object's template. Object should be updated
@@ -108,7 +108,7 @@ public:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int append_template(const string& tmpl_str, bool keep_restricted, string& error);
+    int append_template(const string& tmpl_str, bool keep_restricted, string& error) override;
 
     /**
      * Set the template ID to instantiate new VMs
@@ -228,7 +228,7 @@ private:
                   int umask,
                   Template * _template_contents);
 
-    ~VirtualRouter();
+    virtual ~VirtualRouter() = default;
 
     // *************************************************************************
     // DataBase implementation
@@ -246,21 +246,21 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, string& error_str) override;
 
     /**
      *  Drops object from the database
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int drop(SqlDB *db);
+    virtual int drop(SqlDB *db) override;
 
     /**
      *  Writes/updates the VirtualRouter data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
         string err;
         return insert_replace(db, true, err);

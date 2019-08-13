@@ -69,8 +69,6 @@ MarketPlaceApp::MarketPlaceApp(
     set_umask(umask);
 };
 
-MarketPlaceApp::~MarketPlaceApp(){};
-
 /* ************************************************************************ */
 /* MartketPlaceApp:: Database Access Functions                              */
 /* ************************************************************************ */
@@ -392,7 +390,7 @@ MarketPlaceApp::Type MarketPlaceApp::str_to_type(string& str_type)
 
 int MarketPlaceApp::enable(bool enable, string& error_str)
 {
-    switch(state)
+    switch (state)
     {
         case INIT:
         case LOCKED:

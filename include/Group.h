@@ -37,7 +37,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    string& to_xml(string& xml) const override;
 
     /**
      * Function to print the Group object into a string in
@@ -53,7 +53,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const string &xml_str) override;
 
     /**
      *  Adds this user's ID to the set.
@@ -120,7 +120,7 @@ public:
     /**
      *  Factory method for Group templates
      */
-    Template * get_new_template() const
+    Template * get_new_template() const override
     {
         return new Template;
     }
@@ -161,7 +161,7 @@ private:
         obj_template = new Template;
     };
 
-    virtual ~Group(){};
+    virtual ~Group() = default;
 
     // *************************************************************************
     // Administrators
@@ -215,7 +215,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int select(SqlDB * db);
+    int select(SqlDB * db) override;
 
     /**
      *  Reads the Group (identified with its OID) from the database.
@@ -225,7 +225,7 @@ private:
      *
      *    @return 0 on success
      */
-    int select(SqlDB * db, const string& name, int uid);
+    int select(SqlDB * db, const string& name, int uid) override;
 
     /**
      *  Reads the Group quotas from the database.
@@ -239,14 +239,14 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int drop(SqlDB *db);
+    int drop(SqlDB *db) override;
 
     /**
      *  Writes the Group in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, string& error_str) override;
 
     /**
      *  Writes/updates the Group's data fields in the database. This method does
@@ -254,7 +254,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
         string error_str;
         return insert_replace(db, true, error_str);

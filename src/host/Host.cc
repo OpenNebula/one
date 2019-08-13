@@ -51,8 +51,6 @@ Host::Host(
     replace_template_attribute("VM_MAD", vmm_mad_name);
 }
 
-Host::~Host(){};
-
 /* ************************************************************************ */
 /* Host :: Database Access Functions                                        */
 /* ************************************************************************ */
@@ -113,7 +111,7 @@ int Host::insert_replace(SqlDB *db, bool replace, string& error_str)
         goto error_xml;
     }
 
-    if(replace)
+    if (replace)
     {
         oss << "UPDATE " << table << " SET "
             << "name = '"         << sql_hostname   << "', "
@@ -390,7 +388,7 @@ int Host::update_info(Template        &tmpl,
         }
     }
 
-    for(map_it = found.begin(); map_it != found.end(); )
+    for (map_it = found.begin(); map_it != found.end(); )
     {
         if ( one_util::regex_match("STATE=.",map_it->second.c_str()) != 0 )
         {
@@ -403,7 +401,7 @@ int Host::update_info(Template        &tmpl,
         }
     }
 
-    for(set_it = tmp_lost_vms->begin(); set_it != tmp_lost_vms->end(); set_it++)
+    for (set_it = tmp_lost_vms->begin(); set_it != tmp_lost_vms->end(); set_it++)
     {
         // Reported as lost at least 2 times?
         if (prev_tmp_lost.count(*set_it) == 1)
@@ -669,7 +667,7 @@ int Host::from_xml(const string& xml)
         return -1;
     }
 
-    rc += host_share.from_xml_node( content[0] );
+    rc += host_share.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
 
@@ -679,12 +677,12 @@ int Host::from_xml(const string& xml)
 
     ObjectXML::get_nodes("/HOST/TEMPLATE", content);
 
-    if( content.empty())
+    if (content.empty())
     {
         return -1;
     }
 
-    rc += obj_template->from_xml_node( content[0] );
+    rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
 

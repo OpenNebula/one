@@ -30,9 +30,9 @@ class ObjectSQL : public Callbackable
 {
 public:
 
-    ObjectSQL(){};
+    ObjectSQL() = default;
 
-    virtual ~ObjectSQL(){};
+    virtual ~ObjectSQL() = default;
 
 protected:
     /**

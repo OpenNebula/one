@@ -65,8 +65,6 @@ MarketPlace::MarketPlace(
     set_umask(umask);
 };
 
-MarketPlace::~MarketPlace(){};
-
 /* *************************************************************************** */
 /* MartketPlace :: Database Access Functions                                   */
 /* *************************************************************************** */

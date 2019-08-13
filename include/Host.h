@@ -64,7 +64,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    string& to_xml(string& xml) const override;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -72,7 +72,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const string &xml_str) override;
 
      /**
       *  Checks if the host is a remote public cloud
@@ -342,7 +342,7 @@ public:
     /**
      *  Factory method for host templates
      */
-    Template * get_new_template() const
+    Template * get_new_template() const override
     {
         return new HostTemplate;
     }
@@ -351,7 +351,7 @@ public:
      *  Executed after an update operation to process the new template
      *    - encrypt VCENTER_PASSWORD attribute.
      */
-    int post_update_template(string& error);
+    int post_update_template(string& error) override;
 
     /**
      * Returns the rediscovered VMs (from poff to running) in the previous
@@ -452,7 +452,7 @@ private:
          int           cluster_id,
          const string& cluster_name);
 
-    virtual ~Host();
+    virtual ~Host() = default;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -501,7 +501,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str)
+    int insert(SqlDB *db, string& error_str) override
     {
         return insert_replace(db, false, error_str);
     };
@@ -511,7 +511,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
         string error_str;
         return insert_replace(db, true, error_str);

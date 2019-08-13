@@ -43,11 +43,6 @@ VNTemplate::VNTemplate(int id,
     set_umask(umask);
 }
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-VNTemplate::~VNTemplate(){};
-
 /* ************************************************************************ */
 /* VNTemplate :: Database Access Functions                                  */
 /* ************************************************************************ */
@@ -154,7 +149,7 @@ int VNTemplate::insert_replace(SqlDB *db, bool replace, string& error_str)
         goto error_xml;
     }
 
-    if(replace)
+    if (replace)
     {
         oss << "UPDATE " << table << " SET "
             << "name = '"    << sql_name   << "', "
