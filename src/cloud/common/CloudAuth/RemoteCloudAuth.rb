@@ -27,7 +27,7 @@ module RemoteCloudAuth
 
     def do_auth(env, params={})
         # For Kerberos, the web service should be set to include the remote_user in the environment.
-        remote_user   = env['REMOTE_USER']
+        remote_user   = env['REMOTE_USER'] || env['HTTP_X_AUTH_USERNAME']
         remote_user   = nil if remote_user == '(null)'
 
         # Use the https credentials for authentication
