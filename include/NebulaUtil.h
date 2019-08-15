@@ -61,7 +61,7 @@ namespace one_util
     /**
     *  Base 64 encoding
     *    @param in the string to encoded
-    *    @return a pointer to the encoded string (must be freed) or 0 in case of
+    *    @return a pointer to the encoded string (must be freed) or nullptr in case of
     *    error
     */
     std::string * base64_encode(const std::string& in);
@@ -69,7 +69,7 @@ namespace one_util
    /**
     *  Base 64 decoding
     *    @param in the string to decode
-    *    @return a pointer to the decoded string (must be freed) or 0 in case of
+    *    @return a pointer to the decoded string (must be freed) or nullptr in case of
     *    error
     */
     std::string * base64_decode(const std::string& in);
@@ -78,10 +78,19 @@ namespace one_util
     *  AES256 encryption
     *    @param in the string to encrypt
     *    @param password to encrypt data
-    *    @return a pointer to the encrypted string (must be freed) or 0 in case of
+    *    @return a pointer to the encrypted string (must be freed) or nullptr in case of
     *    error
     */
-    std::string * aes256cbc_encrypt(const std::string& in, const std::string password);
+    std::string * aes256cbc_encrypt(const std::string& in, const std::string& password);
+
+   /**
+    *  AES256 decryption
+    *    @param in the base64 string to decrypt
+    *    @param password to decrypt data
+    *    @return a pointer to the decrypted string (must be freed) or nullptr in case of
+    *    error
+    */
+    std::string * aes256cbc_decrypt(const std::string& in, const std::string& password);
 
     /**
      *  Creates a random number, using time(0) as seed, and performs an sha1 hash

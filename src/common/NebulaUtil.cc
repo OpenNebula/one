@@ -228,7 +228,7 @@ string one_util::sha256_digest(const string& in)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string * one_util::aes256cbc_encrypt(const string& in, const string password)
+string * one_util::aes256cbc_encrypt(const string& in, const string& password)
 {
     EVP_CIPHER_CTX *ctx;
 
@@ -260,6 +260,57 @@ string * one_util::aes256cbc_encrypt(const string& in, const string password)
     string encrypt((char*) out, (size_t)(outlen1+outlen2));
 
     return base64_encode(encrypt);;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string * one_util::aes256cbc_decrypt(const string& in, const string& password)
+{
+    unique_ptr<string> crypted(base64_decode(in));
+
+    if (!crypted || crypted->empty())
+    {
+        return nullptr;
+    }
+
+    bool success = true;
+    EVP_CIPHER_CTX *ctx;
+
+    const unsigned char *key     = (unsigned char*) password.c_str();
+    const unsigned char *in_data = (unsigned char*) crypted->c_str();
+
+    unsigned char out[in.length() + AES_BLOCK_SIZE];
+
+    int outlen1, outlen2;
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+    ctx = (EVP_CIPHER_CTX*) malloc(sizeof(EVP_CIPHER_CTX));
+    EVP_CIPHER_CTX_init(ctx);
+#else
+    ctx = EVP_CIPHER_CTX_new();
+#endif
+
+    EVP_DecryptInit(ctx, EVP_aes_256_cbc(), key, NULL);
+    EVP_DecryptUpdate(ctx, out, &outlen1, in_data, crypted->length());
+    if (1 != EVP_DecryptFinal(ctx, out + outlen1, &outlen2))
+    {
+        success = false;
+    }
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+    EVP_CIPHER_CTX_cleanup(ctx);
+    free(ctx);
+#else
+    EVP_CIPHER_CTX_free(ctx);
+#endif
+
+    if (!success)
+    {
+        return nullptr;
+    }
+
+    return new string((char*)out, (size_t)(outlen1 + outlen2));
 }
 
 /* -------------------------------------------------------------------------- */
