@@ -122,7 +122,7 @@ void VirtualMachinePoolInfo::request_execute(
         return;
     }
 
-    switch(state)
+    switch (state)
     {
         case VirtualMachinePoolInfo::ALL_VM:
             break;
@@ -428,7 +428,7 @@ void RequestManagerPoolInfoFilter::where_filter(
 
     if (!oid_str.empty())
     {
-        filter << "(" << oid_str << ")" ;
+        filter << "(" << oid_str << ")";
         empty = false;
     }
 

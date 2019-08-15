@@ -180,7 +180,7 @@ namespace one_util
     }
 
     std::vector<std::string> split(const std::string& st, char delim,
-            bool clean_empty=true);
+            bool clean_empty = true);
 
     /**
      * Splits a string, using the given delimiter
@@ -231,7 +231,7 @@ namespace one_util
     {
         std::ostringstream oss;
 
-        for(Iterator it = first; it != last; it++)
+        for (Iterator it = first; it != last; it++)
         {
             if (it != first)
             {
@@ -380,6 +380,6 @@ namespace one_util
 
         static std::vector<pthread_mutex_t *> vmutex;
     };
-};
+} // namespace one_util
 
 #endif /* _NEBULA_UTIL_H_ */
