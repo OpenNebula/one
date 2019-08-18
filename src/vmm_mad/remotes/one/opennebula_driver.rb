@@ -14,20 +14,26 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
-ONE_LOCATION = ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION = ENV['ONE_LOCATION'] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-  RUBY_LIB_LOCATION = "/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
-  ETC_LOCATION      = "/etc/one/" if !defined?(ETC_LOCATION)
+  RUBY_LIB_LOCATION = '/usr/lib/one/ruby' if !defined?(RUBY_LIB_LOCATION)
+  GEMS_LOCATION     = '/usr/share/one/gems' if !defined?(GEMS_LOCATION)
+  ETC_LOCATION      = '/etc/one/' if !defined?(ETC_LOCATION)
 else
-  RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
-  ETC_LOCATION      = ONE_LOCATION + "/etc/" if !defined?(ETC_LOCATION)
+  RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' if !defined?(RUBY_LIB_LOCATION)
+  GEMS_LOCATION     = ONE_LOCATION + '/share/gems' if !defined?(GEMS_LOCATION)
+  ETC_LOCATION      = ONE_LOCATION + '/etc/' if !defined?(ETC_LOCATION)
 end
 
 # Load credentials and environment
 require 'yaml'
 
-$: << RUBY_LIB_LOCATION
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'CommandManager'
 require 'scripts_common'

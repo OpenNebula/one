@@ -17,30 +17,36 @@
 ##############################################################################
 # Environment Configuration for the Cloud Server
 ##############################################################################
-ONE_LOCATION=ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    LOG_LOCATION = "/var/log/one"
-    VAR_LOCATION = "/var/lib/one"
-    ETC_LOCATION = "/etc/one"
-    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
+    LOG_LOCATION      = '/var/log/one'
+    VAR_LOCATION      = '/var/lib/one'
+    ETC_LOCATION      = '/etc/one'
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
 else
-    VAR_LOCATION = ONE_LOCATION + "/var"
-    LOG_LOCATION = ONE_LOCATION + "/var"
-    ETC_LOCATION = ONE_LOCATION + "/etc"
-    RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
+    VAR_LOCATION      = ONE_LOCATION + '/var'
+    LOG_LOCATION      = ONE_LOCATION + '/var'
+    ETC_LOCATION      = ONE_LOCATION + '/etc'
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
 end
 
-EC2_AUTH           = VAR_LOCATION + "/.one/ec2_auth"
-EC2_LOG            = LOG_LOCATION + "/econe-server.log"
-CONFIGURATION_FILE = ETC_LOCATION + "/econe.conf"
+EC2_AUTH           = VAR_LOCATION + '/.one/ec2_auth'
+EC2_LOG            = LOG_LOCATION + '/econe-server.log'
+CONFIGURATION_FILE = ETC_LOCATION + '/econe.conf'
 
-TEMPLATE_LOCATION  = ETC_LOCATION + "/ec2query_templates"
-VIEWS_LOCATION     = RUBY_LIB_LOCATION + "/cloud/econe/views"
+TEMPLATE_LOCATION  = ETC_LOCATION + '/ec2query_templates'
+VIEWS_LOCATION     = RUBY_LIB_LOCATION + '/cloud/econe/views'
 
-$: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/cloud"
-$: << RUBY_LIB_LOCATION+"/cloud/econe"
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cloud'
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cloud/econe'
 
 ###############################################################################
 # Libraries

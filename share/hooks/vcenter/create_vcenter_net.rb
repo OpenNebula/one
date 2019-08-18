@@ -20,12 +20,18 @@ ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
-    VMDIR = '/var/lib/one'
-    CONFIG_FILE = '/var/lib/one/config'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
 else
     RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
-    VMDIR = ONE_LOCATION + '/var'
-    CONFIG_FILE = ONE_LOCATION + '/var/config'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+end
+
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION

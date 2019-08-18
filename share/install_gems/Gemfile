@@ -39,13 +39,18 @@ if RUBY_VERSION < '2.1'
     gem 'scrub_rb'
 end
 
+if RUBY_VERSION < '2.3'
+    gem 'zendesk_api', '< 1.17.0'         # sunstone
+else
+    gem 'zendesk_api'                     # sunstone
+end
+
 gem 'sqlite3'                             # quota, onedb
 gem 'treetop', '>= 1.6.3'                 # oneflow
 gem 'sequel'                              # quota, oneb
 gem 'sinatra'                             # sunstone, cloud, oneflow
 gem 'thin'                                # sunstone, cloud
 gem 'memcache-client'                     # sunstone
-gem 'zendesk_api'                         # sunstone
 gem 'rotp'                                # sunstone
 gem 'rqrcode'                             # sunstone
 gem 'amazon-ec2'                          # cloud

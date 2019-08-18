@@ -19,17 +19,23 @@
 # Set up the environment for the driver
 # ----------------------------------------------------------------------------
 
-ONE_LOCATION = ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
-    VAR_LOCATION      = "/var/lib/one"
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VAR_LOCATION      = '/var/lib/one'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby"
-    VAR_LOCATION      = ONE_LOCATION + "/var"
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VAR_LOCATION      = ONE_LOCATION + '/var'
 end
 
-$: << RUBY_LIB_LOCATION
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
 
 require "OpenNebulaDriver"
 require 'getoptlong'

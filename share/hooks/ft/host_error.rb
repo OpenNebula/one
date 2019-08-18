@@ -31,23 +31,29 @@
 #                 unless you are very sure about what you're doing
 ##############################################################################
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
-    VMDIR="/var/lib/one"
-    CONFIG_FILE="/var/lib/one/config"
-    LOG_FILE="/var/log/one/host_error.log"
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
+    LOG_FILE          = '/var/log/one/host_error.log'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
-    VMDIR=ONE_LOCATION+"/var"
-    CONFIG_FILE=ONE_LOCATION+"/var/config"
-    LOG_FILE=ONE_LOCATION+"/var/host_error.log"
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+    LOG_FILE          = ONE_LOCATION + '/var/host_error.log'
 end
 
 FENCE_HOST = File.dirname(__FILE__) + '/fence_host.sh'
 
-$: << RUBY_LIB_LOCATION
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'opennebula'
 include OpenNebula
