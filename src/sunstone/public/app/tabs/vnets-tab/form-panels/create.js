@@ -30,6 +30,7 @@ define(function(require) {
   var TemplateUtils = require("utils/template-utils");
   var WizardFields = require("utils/wizard-fields");
   var ResourceSelect = require("utils/resource-select");
+  var OpenNebulaAction = require('opennebula/action');
 
   /*
     TEMPLATES
@@ -44,6 +45,11 @@ define(function(require) {
 
   var FORM_PANEL_ID = require("./create/formPanelId");
   var TAB_ID = require("../tabId");
+  var idsElements = {
+    name: "#nsx-name",
+    description: "#nsx-description",
+    transport: "#nsx-transport"
+  }
 
   /*
     CONSTRUCTOR
@@ -406,8 +412,21 @@ define(function(require) {
   }
 
   function _onShow(context) {
+    console.log("PEPE");
     var that = this;
+    var storage = OpenNebulaAction.get_all_cache();
+    if(storage && storage.HOST && storage.HOST.data){
+      var hosts = storage.HOST.data;
+      if (!(hosts instanceof Array)) {
+        hosts = [hosts];
+      }
+      var hostSelected = $("#vnet_cluster_id").find("select option:selected")
+      var transport = [];
+      var pepe;
+      hosts.map(function(host){
 
+      });
+    }
     this.securityGroupsTable.refreshResourceTableSelect();
 
     $(".ar_tab", context).each(function() {
