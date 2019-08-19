@@ -20,16 +20,22 @@
 # This script is used to export a VMDK from a vCenter DS to a Marketplace
 ###############################################################################
 
-ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' unless defined?(RUBY_LIB_LOCATION)
+    GEMS_LOCATION     = '/usr/share/one/gems' unless defined?(GEMS_LOCATION)
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' unless defined?(RUBY_LIB_LOCATION)
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' unless defined?(GEMS_LOCATION)
 end
 
-$: << RUBY_LIB_LOCATION
-$: << File.dirname(__FILE__)
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << File.dirname(__FILE__)
 
 require 'opennebula'
 
