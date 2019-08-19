@@ -49,7 +49,7 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     object = pool->get_ro(oid);
 
-    if ( object == 0 )
+    if ( object == nullptr )
     {
         att.resp_id = oid;
         failure_response(NO_EXISTS, att);
@@ -72,7 +72,7 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
                                          RequestAttributes& att)
 {
     VMTemplatePool *         tpool   = static_cast<VMTemplatePool *>(pool);
-    VirtualMachineTemplate * extended_tmpl = 0;
+    unique_ptr<VirtualMachineTemplate> extended_tmpl(nullptr);
     VMTemplate *             vm_tmpl;
 
     PoolObjectAuth perms;
@@ -88,7 +88,7 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     vm_tmpl = tpool->get_ro(oid);
 
-    if ( vm_tmpl == 0 )
+    if ( vm_tmpl == nullptr )
     {
         att.resp_id = oid;
         failure_response(NO_EXISTS, att);
@@ -97,7 +97,7 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (extended)
     {
-        extended_tmpl = vm_tmpl->clone_template();
+        extended_tmpl.reset(vm_tmpl->clone_template());
     }
 
     vm_tmpl->get_permissions(perms);
@@ -110,9 +110,9 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (extended)
     {
-        VirtualMachine::set_auth_request(att.uid, ar, extended_tmpl, false);
+        VirtualMachine::set_auth_request(att.uid, ar, extended_tmpl.get(), false);
 
-        VirtualMachineDisks::extended_info(att.uid, extended_tmpl);
+        VirtualMachineDisks::extended_info(att.uid, extended_tmpl.get());
     }
 
     if (UserPool::authorize(ar) == -1)
@@ -120,26 +120,22 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
         att.resp_msg = ar.message;
         failure_response(AUTHORIZATION, att);
 
-        delete extended_tmpl;
         return;
     }
 
     vm_tmpl = tpool->get_ro(oid);
 
-    if ( vm_tmpl == 0 )
+    if ( vm_tmpl == nullptr )
     {
         att.resp_id = oid;
         failure_response(NO_EXISTS, att);
 
-        delete extended_tmpl;
         return;
     }
 
     if (extended)
     {
-        vm_tmpl->to_xml(str, extended_tmpl);
-
-        delete extended_tmpl;
+        vm_tmpl->to_xml(str, extended_tmpl.get());
     }
     else
     {
@@ -160,7 +156,6 @@ void VirtualNetworkTemplateInfo::request_execute(xmlrpc_c::paramList const& para
                                          RequestAttributes& att)
 {
     VNTemplatePool *         tpool   = static_cast<VNTemplatePool *>(pool);
-    VirtualNetworkTemplate * extended_tmpl = 0;
     VNTemplate *             vn_tmpl;
 
     PoolObjectAuth perms;
@@ -170,7 +165,7 @@ void VirtualNetworkTemplateInfo::request_execute(xmlrpc_c::paramList const& para
 
     vn_tmpl = tpool->get_ro(oid);
 
-    if ( vn_tmpl == 0 )
+    if ( vn_tmpl == nullptr )
     {
         att.resp_id = oid;
         failure_response(NO_EXISTS, att);
@@ -190,18 +185,16 @@ void VirtualNetworkTemplateInfo::request_execute(xmlrpc_c::paramList const& para
         att.resp_msg = ar.message;
         failure_response(AUTHORIZATION, att);
 
-        delete extended_tmpl;
         return;
     }
 
     vn_tmpl = tpool->get_ro(oid);
 
-    if ( vn_tmpl == 0 )
+    if ( vn_tmpl == nullptr )
     {
         att.resp_id = oid;
         failure_response(NO_EXISTS, att);
 
-        delete extended_tmpl;
         return;
     }
 
