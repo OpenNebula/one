@@ -715,6 +715,28 @@ protected:
     int lock_db_from_xml();
 
     /**
+     *  Crypt string using aes256cbc, use ONE_KEY as key
+     *  If key doesn't exists out = in
+     *    @param in plain text
+     *    @param out crypted text encoded as base64
+     */
+    static void crypt(const std::string& in, std::string& out);
+
+    /**
+     *  Decrypt input text encoded as base64, using ONE_KEY as key
+     *  If key doesn't exists,
+     *    @param in base64 text crypted by aes256cbc
+     *    @param out plain text, if decryption succesfull.
+     *    @return true, if text was decrypted, false otherwise
+     */
+    static bool decrypt(const std::string& in, std::string& out);
+
+    /**
+     *  Encrypt all secret attributes
+     */
+    void encrypt_all_secrets();
+
+    /**
      *  The object's unique ID
      */
     int     oid;

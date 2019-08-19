@@ -680,3 +680,92 @@ int PoolObjectSQL::lock_db_from_xml()
 
     return rc;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void PoolObjectSQL::crypt(const std::string& in, std::string& out)
+{
+    Nebula& nd = Nebula::instance();
+    string  one_key;
+
+    nd.get_configuration_attribute("ONE_KEY", one_key);
+
+    if (!one_key.empty())
+    {
+        unique_ptr<string> encrypted{one_util::aes256cbc_encrypt(in, one_key)};
+
+        out = *encrypted;
+    }
+    else
+    {
+        out = in;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool PoolObjectSQL::decrypt(const std::string& in, std::string& out)
+{
+    Nebula& nd = Nebula::instance();
+    string  one_key;
+
+    nd.get_configuration_attribute("ONE_KEY", one_key);
+
+    if (one_key.empty())
+    {
+        out = in;
+        return true;
+    }
+
+    unique_ptr<string> plain{one_util::aes256cbc_decrypt(in, one_key)};
+
+    if (!plain)
+    {
+        return false;
+    }
+
+    out = *plain;
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static const set<std::string> CRYPTED_ATTRIBUTES = {
+    {"EC2_ACCESS"},
+    {"EC2_SECRET"},
+    {"AZ_ID"},
+    {"AZ_CERT"},
+    {"VCENTER_PASSWORD"},
+    {"NSX_PASSWORD"},
+    {"ONE_PASSWORD"}
+};
+
+void PoolObjectSQL::encrypt_all_secrets()
+{
+    for (const string& attName : CRYPTED_ATTRIBUTES)
+    {
+        string att;
+        string crypted;
+        string tmp;
+
+        get_template_attribute(attName, att);
+
+        NebulaLog::log("CRYPT", Log::INFO, "-----" + attName + " : " + att);
+
+        if (!att.empty() && !decrypt(att, tmp))
+        {
+            // Attribute present, but not crypted, crypt it
+            crypt(att, crypted);
+
+            replace_template_attribute(attName, crypted);
+
+            NebulaLog::log("CRYPT", Log::INFO, "Encrypted: " + crypted);
+        }
+    }
+
+
+}

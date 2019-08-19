@@ -429,7 +429,7 @@ private:
      * append_template with this method
      *    @param error string describing the error if any
      *    @return 0 on success
-     * - encrypt VCENTER_PASSWORD attribute.
+     * - encrypt secret attributes.
      */
     int post_update_template(string& error) override;
 };

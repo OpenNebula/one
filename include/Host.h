@@ -349,7 +349,7 @@ public:
 
     /**
      *  Executed after an update operation to process the new template
-     *    - encrypt VCENTER_PASSWORD attribute.
+     *    - encrypt secret attributes.
      */
     int post_update_template(string& error) override;
 

@@ -702,62 +702,13 @@ int Host::from_xml(const string& xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void nebula_crypt(const std::string in, std::string& out)
-{
-    Nebula& nd = Nebula::instance();
-    string  one_key;
-    string  * encrypted;
-
-    nd.get_configuration_attribute("ONE_KEY", one_key);
-
-    if (!one_key.empty())
-    {
-        encrypted = one_util::aes256cbc_encrypt(in, one_key);
-
-        out = *encrypted;
-
-        delete encrypted;
-    }
-    else
-    {
-        out = in;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
-static const map<std::string, unsigned int> MAX_HOST_VAR_SIZES = {
-    {"EC2_ACCESS", 21},
-    {"EC2_SECRET", 41},
-    {"AZ_ID", 41},
-    {"AZ_CERT", 3130},
-    {"VCENTER_PASSWORD", 22},
-    {"NSX_PASSWORD", 22},
-    {"ONE_PASSWORD", 22}
-};
-
 int Host::post_update_template(string& error)
 {
     string new_im_mad;
     string new_vm_mad;
     string cpu_ids;
 
-    map<std::string, unsigned int>::const_iterator it;
-
-    for (it = MAX_HOST_VAR_SIZES.begin(); it != MAX_HOST_VAR_SIZES.end() ; ++it)
-    {
-        string att;
-        string crypted;
-
-        get_template_attribute(it->first, att);
-
-        if (!att.empty() && att.size() <= it->second)
-        {
-            nebula_crypt(att, crypted);
-
-            replace_template_attribute(it->first, crypted);
-        }
-    }
+    encrypt_all_secrets();
 
     get_template_attribute("IM_MAD", new_im_mad);
     get_template_attribute("VM_MAD", new_vm_mad);
