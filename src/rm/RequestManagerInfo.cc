@@ -56,6 +56,18 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    // Check optional parameter - decrypt
+    bool decrypt = false;
+    if (att.is_admin() && paramList.size() > 2)
+    {
+        decrypt = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+    }
+
+    if (decrypt)
+    {
+        object->decrypt_all_secrets();
+    }
+
     to_xml(att, object, str);
 
     object->unlock();
@@ -133,6 +145,18 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    // Check optional parameter - decrypt
+    bool decrypt = false;
+    if (att.is_admin() && paramList.size() > 3)
+    {
+        decrypt = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+    }
+
+    if (decrypt)
+    {
+        vm_tmpl->decrypt_all_secrets();
+    }
+
     if (extended)
     {
         vm_tmpl->to_xml(str, extended_tmpl.get());
@@ -196,6 +220,18 @@ void VirtualNetworkTemplateInfo::request_execute(xmlrpc_c::paramList const& para
         failure_response(NO_EXISTS, att);
 
         return;
+    }
+
+    // Check optional parameter - decrypt
+    bool decrypt = false;
+    if (att.is_admin() && paramList.size() > 2)
+    {
+        decrypt = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+    }
+
+    if (decrypt)
+    {
+        vn_tmpl->decrypt_all_secrets();
     }
 
     vn_tmpl->to_xml(str);

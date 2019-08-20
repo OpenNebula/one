@@ -451,7 +451,7 @@ void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
 
     Clusterable* cl = dynamic_cast<Clusterable*>(this);
 
-    if(cl != 0)
+    if (cl != 0)
     {
         auth.cids = cl->get_cluster_ids();
     }
@@ -459,7 +459,7 @@ void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
     {
         ClusterableSingle* cls = dynamic_cast<ClusterableSingle*>(this);
 
-        if(cls != 0)
+        if (cls != 0)
         {
             auth.cids.insert(cls->get_cluster_id());
         }
@@ -469,16 +469,16 @@ void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int PoolObjectSQL::set_permissions( int _owner_u,
-                                    int _owner_m,
-                                    int _owner_a,
-                                    int _group_u,
-                                    int _group_m,
-                                    int _group_a,
-                                    int _other_u,
-                                    int _other_m,
-                                    int _other_a,
-                                    string& error_str)
+int PoolObjectSQL::set_permissions(int _owner_u,
+                                   int _owner_m,
+                                   int _owner_a,
+                                   int _group_u,
+                                   int _group_m,
+                                   int _group_a,
+                                   int _other_u,
+                                   int _other_m,
+                                   int _other_a,
+                                   string& error_str)
 {
     if ( _owner_u < -1 || _owner_u > 1 ) goto error_value;
     if ( _owner_m < -1 || _owner_m > 1 ) goto error_value;
@@ -746,26 +746,39 @@ static const set<std::string> CRYPTED_ATTRIBUTES = {
 
 void PoolObjectSQL::encrypt_all_secrets()
 {
-    for (const string& attName : CRYPTED_ATTRIBUTES)
+    for (const string& att_name : CRYPTED_ATTRIBUTES)
     {
         string att;
         string crypted;
         string tmp;
 
-        get_template_attribute(attName, att);
-
-        NebulaLog::log("CRYPT", Log::INFO, "-----" + attName + " : " + att);
+        get_template_attribute(att_name, att);
 
         if (!att.empty() && !decrypt(att, tmp))
         {
             // Attribute present, but not crypted, crypt it
             crypt(att, crypted);
 
-            replace_template_attribute(attName, crypted);
-
-            NebulaLog::log("CRYPT", Log::INFO, "Encrypted: " + crypted);
+            replace_template_attribute(att_name, crypted);
         }
     }
+}
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
+void PoolObjectSQL::decrypt_all_secrets()
+{
+    for (const string& att_name : CRYPTED_ATTRIBUTES)
+    {
+        string att;
+        string crypted;
+
+        get_template_attribute(att_name, att);
+
+        if (!att.empty() && decrypt(att, crypted))
+        {
+            replace_template_attribute(att_name, crypted);
+        }
+    }
 }

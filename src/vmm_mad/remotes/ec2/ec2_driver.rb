@@ -239,7 +239,7 @@ class EC2Driver
 
         @instance_types = PUBLIC_CLOUD_EC2_CONF['instance_types']
 
-        conn_opts = get_connect_info(host)
+        conn_opts = get_connect_info(host, host_id)
         access_key = conn_opts[:access]
         secret_key = conn_opts[:secret]
         region_name = conn_opts[:region]
@@ -275,16 +275,21 @@ class EC2Driver
     # Check the current template of host
     # to retrieve connection information
     # needed for Amazon
-    def get_connect_info(host)
+    def get_connect_info(host, host_id)
         conn_opts={}
 
         client   = OpenNebula::Client.new
 
         if host.is_a?(String)
-            pool = OpenNebula::HostPool.new(client)
-            pool.info
-            objects=pool.select {|object| object.name==host }
-            xmlhost = objects.first
+            if !host_id
+                pool = OpenNebula::HostPool.new(client)
+                pool.info
+                objects = pool.select {|object| object.name==host }
+                host_id = objects.first.id
+                @host_id = host_id
+            end
+            xmlhost = OpenNebula::Host.new_with_id(host_id, client)
+            xmlhost.info(true)
         else
             xmlhost = host
         end
@@ -292,8 +297,6 @@ class EC2Driver
         system = OpenNebula::System.new(client)
         config = system.get_configuration
         raise "Error getting oned configuration : #{config.message}" if OpenNebula.is_error?(config)
-
-        token = config["ONE_KEY"]
 
         if xmlhost["TEMPLATE/PROVISION"]
             @tmplBase = 'TEMPLATE/PROVISION'
@@ -309,16 +312,9 @@ class EC2Driver
 
         conn_opts = {
             :access => xmlhost["#{@tmplBase}/EC2_ACCESS"],
-            :secret => xmlhost["#{@tmplBase}/EC2_SECRET"]
+            :secret => xmlhost["#{@tmplBase}/EC2_SECRET"],
+            :region => xmlhost["#{@tmplBase}/REGION_NAME"]
         }
-
-        begin
-            conn_opts = OpenNebula.decrypt(conn_opts, token)
-
-            conn_opts[:region] = xmlhost["#{@tmplBase}/REGION_NAME"]
-        rescue
-            raise "HOST: #{host} must have ec2 credentials and region in order to work properly"
-        end
 
         return conn_opts
     end
@@ -340,7 +336,6 @@ class EC2Driver
 
     # DEPLOY action, also sets ports and ip if needed
     def deploy(id, host, xml_text, lcm_state, deploy_id)
-
         # Restore if we need to
         if lcm_state != "BOOT" && lcm_state != "BOOT_FAILURE"
             restore(deploy_id)

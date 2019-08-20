@@ -562,6 +562,11 @@ public:
         return locked;
     }
 
+    /**
+     *  Decrypt all secret attributes
+     */
+    void decrypt_all_secrets();
+
 protected:
 
     /**
