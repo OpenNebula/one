@@ -43,6 +43,8 @@ public:
     /* Class Constructors & Constants                                         */
     /* ---------------------------------------------------------------------- */
 
+    static set<std::string> CRYPTED_ATTRIBUTES;
+
     /**
      *  OpenNebula objects. This definitions are used by other core components
      *  like the AuthZ/AuthN module

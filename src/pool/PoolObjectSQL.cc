@@ -20,6 +20,8 @@
 #include "Nebula.h"
 #include "Clusterable.h"
 
+set<std::string> PoolObjectSQL::CRYPTED_ATTRIBUTES{};
+
 const string PoolObjectSQL::INVALID_NAME_CHARS = "&|:\\\";/'#{}$<>";
 
 const int PoolObjectSQL::LOCK_DB_EXPIRATION = 120;
@@ -733,16 +735,6 @@ bool PoolObjectSQL::decrypt(const std::string& in, std::string& out)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-static const set<std::string> CRYPTED_ATTRIBUTES = {
-    {"EC2_ACCESS"},
-    {"EC2_SECRET"},
-    {"AZ_ID"},
-    {"AZ_CERT"},
-    {"VCENTER_PASSWORD"},
-    {"NSX_PASSWORD"},
-    {"ONE_PASSWORD"}
-};
 
 void PoolObjectSQL::encrypt_all_secrets()
 {

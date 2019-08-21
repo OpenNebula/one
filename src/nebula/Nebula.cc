@@ -528,6 +528,14 @@ void Nebula::start(bool bootstrap_only)
        throw runtime_error("Could not start the ACL Manager");
     }
 
+    string crypted_attributes;
+    nebula_configuration->get("CRYPTED_ATTRIBUTES", crypted_attributes);
+    for (const auto& att_name : one_util::split(crypted_attributes, ','))
+    {
+        PoolObjectSQL::CRYPTED_ATTRIBUTES.insert(one_util::trim(att_name));
+    }
+
+
     // -------------------------------------------------------------------------
     // Pools
     // -------------------------------------------------------------------------
