@@ -104,6 +104,10 @@ module VNMMAD
 
             def initialize
                 super(nil)
+
+                _o, _e, snap = run('snap list lxd;') # avoid cmd not found with;
+                @lxc_cmd = 'lxc'
+                @lxc_cmd.prepend('sudo ') if snap.zero?
             end
 
             # Get the VM information with lxc config show
@@ -116,18 +120,8 @@ module VNMMAD
 
                 return unless deploy_id && vm.vm_info[:dumpxml].nil?
 
-                cmd = "lxc config show #{deploy_id}"
-
-                config, e, s = Open3.capture3(cmd)
-
-                OpenNebula.log "#{config}\n#{e}"
-
-                if s.exitstatus != 0 && e.include?('cannot create '\
-                    'user data directory')
-                    cmd.prepend('sudo ')
-                    config, e, _s = Open3.capture3(cmd)
-                    OpenNebula.log "#{config}\n#{e}"
-                end
+                cmd = "#{@lxc_cmd} config show #{deploy_id}"
+                config, _e, _s = run(cmd)
 
                 vm.vm_info[:dumpxml] = YAML.safe_load(config)
 
@@ -152,6 +146,8 @@ module VNMMAD
                 self
             end
 
+            private
+
             def find_path(hash, text)
                 path = '' unless path.is_a?(String)
                 hash.each do |k, v|
@@ -166,6 +162,12 @@ module VNMMAD
                     return path unless tmp.nil?
                 end
                 nil
+            end
+
+            # Runs command with open3
+            def run(cmd)
+                stdout, stderr, process = Open3.capture3(cmd)
+                [stdout, stderr, process.exitstatus]
             end
 
         end
