@@ -63,12 +63,15 @@ module VNMMAD
                     deploy_id = vm['DEPLOY_ID']
                 end
 
-                if deploy_id && vm.vm_info[:dumpxml].nil?
-                    vm.vm_info[:dumpxml] = `#{VNMNetwork::COMMANDS[:virsh]} dumpxml #{deploy_id} 2>/dev/null`
+                return unless deploy_id && vm.vm_info[:dumpxml].nil?
 
-                    vm.vm_info.each_key do |k|
-                        vm.vm_info[k] = nil if vm.vm_info[k].to_s.strip.empty?
-                    end
+                virsh = (VNMNetwork::COMMANDS[:virsh]).to_s
+                cmd = "#{virsh} dumpxml #{deploy_id} 2>/dev/null"
+
+                vm.vm_info[:dumpxml] = `#{cmd}`
+
+                vm.vm_info.each_key do |k|
+                    vm.vm_info[k] = nil if vm.vm_info[k].to_s.strip.empty?
                 end
             end
 
@@ -111,22 +114,25 @@ module VNMMAD
                     deploy_id = vm['DEPLOY_ID']
                 end
 
-                if deploy_id && vm.vm_info[:dumpxml].nil?
-                    cmd = "lxc config show #{deploy_id}"
+                return unless deploy_id && vm.vm_info[:dumpxml].nil?
 
-                    config, e, s = Open3.capture3(cmd)
+                cmd = "lxc config show #{deploy_id}"
 
-                    if s.exitstatus != 0 && e.include?('cannot create '\
-                        'user data directory')
-                        cmd.prepend('sudo ')
-                        config, _e, _s = Open3.capture3(cmd)
-                    end
+                config, e, s = Open3.capture3(cmd)
 
-                    vm.vm_info[:dumpxml] = YAML.safe_load(config)
+                OpenNebula.log "#{config}\n#{e}"
 
-                    vm.vm_info.each_key do |k|
-                        vm.vm_info[k] = nil if vm.vm_info[k].to_s.strip.empty?
-                    end
+                if s.exitstatus != 0 && e.include?('cannot create '\
+                    'user data directory')
+                    cmd.prepend('sudo ')
+                    config, e, _s = Open3.capture3(cmd)
+                    OpenNebula.log "#{config}\n#{e}"
+                end
+
+                vm.vm_info[:dumpxml] = YAML.safe_load(config)
+
+                vm.vm_info.each_key do |k|
+                    vm.vm_info[k] = nil if vm.vm_info[k].to_s.strip.empty?
                 end
             end
 
