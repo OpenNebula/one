@@ -38,12 +38,12 @@ module VNMMAD
 
         end
 
-        ############################################################################
+        ########################################################################
         # Hypervisor specific implementation of network interfaces. Each class
         # implements the following interface:
         #   - get_info to populste the VM.vm_info Hash
         #   - get_tap to set the [:tap] attribute with the associated NIC
-        ############################################################################
+        ########################################################################
 
         # A NIC using KVM. This class implements functions to get the physical
         # interface that the NIC is using, based on the MAC address
@@ -63,17 +63,20 @@ module VNMMAD
                     deploy_id = vm['DEPLOY_ID']
                 end
 
-                if deploy_id && vm.vm_info[:dumpxml].nil?
-                    vm.vm_info[:dumpxml] = `#{VNMNetwork::COMMANDS[:virsh]} dumpxml #{deploy_id} 2>/dev/null`
+                return if !deploy_id || !vm.vm_info[:dumpxml].nil?
 
-                    vm.vm_info.each_key do |k|
-                        vm.vm_info[k] = nil if vm.vm_info[k].to_s.strip.empty?
-                    end
+                virsh = (VNMNetwork::COMMANDS[:virsh]).to_s
+                cmd = "#{virsh} dumpxml #{deploy_id} 2>/dev/null"
+
+                vm.vm_info[:dumpxml] = `#{cmd}`
+
+                vm.vm_info.each_key do |k|
+                    vm.vm_info[k] = nil if vm.vm_info[k].to_s.strip.empty?
                 end
             end
 
             # Look for the tap in
-            #   devices/interface[@type='bridge']/mac[@address='<mac>']/../target"
+            # devices/interface[@type='bridge']/mac[@address='<mac>']/../target"
             def get_tap(vm)
                 dumpxml = vm.vm_info[:dumpxml]
 
@@ -101,6 +104,10 @@ module VNMMAD
 
             def initialize
                 super(nil)
+
+                _o, _e, snap = Open3.capture3('snap list lxd;') # avoid cmd not found with;
+                @lxc_cmd = 'lxc'
+                @lxc_cmd.prepend('sudo ') if snap.exitstatus.zero?
             end
 
             # Get the VM information with lxc config show
@@ -111,22 +118,15 @@ module VNMMAD
                     deploy_id = vm['DEPLOY_ID']
                 end
 
-                if deploy_id && vm.vm_info[:dumpxml].nil?
-                    cmd = "lxc config show #{deploy_id}"
+                return if !deploy_id || !vm.vm_info[:dumpxml].nil?
 
-                    config, e, s = Open3.capture3(cmd)
+                cmd = "#{@lxc_cmd} config show #{deploy_id}"
+                config, _e, _s = Open3.capture3(cmd)
 
-                    if s.exitstatus != 0 && e.include?('cannot create '\
-                        'user data directory')
-                        cmd.prepend('sudo ')
-                        config, _e, _s = Open3.capture3(cmd)
-                    end
+                vm.vm_info[:dumpxml] = YAML.safe_load(config)
 
-                    vm.vm_info[:dumpxml] = YAML.safe_load(config)
-
-                    vm.vm_info.each_key do |k|
-                        vm.vm_info[k] = nil if vm.vm_info[k].to_s.strip.empty?
-                    end
+                vm.vm_info.each_key do |k|
+                    vm.vm_info[k] = nil if vm.vm_info[k].to_s.strip.empty?
                 end
             end
 
@@ -145,6 +145,8 @@ module VNMMAD
 
                 self
             end
+
+            private
 
             def find_path(hash, text)
                 path = '' unless path.is_a?(String)
