@@ -38,12 +38,12 @@ module VNMMAD
 
         end
 
-        ############################################################################
+        ########################################################################
         # Hypervisor specific implementation of network interfaces. Each class
         # implements the following interface:
         #   - get_info to populste the VM.vm_info Hash
         #   - get_tap to set the [:tap] attribute with the associated NIC
-        ############################################################################
+        ########################################################################
 
         # A NIC using KVM. This class implements functions to get the physical
         # interface that the NIC is using, based on the MAC address
@@ -63,7 +63,7 @@ module VNMMAD
                     deploy_id = vm['DEPLOY_ID']
                 end
 
-                return unless deploy_id && vm.vm_info[:dumpxml].nil?
+                return if !deploy_id || !vm.vm_info[:dumpxml].nil?
 
                 virsh = (VNMNetwork::COMMANDS[:virsh]).to_s
                 cmd = "#{virsh} dumpxml #{deploy_id} 2>/dev/null"
@@ -76,7 +76,7 @@ module VNMMAD
             end
 
             # Look for the tap in
-            #   devices/interface[@type='bridge']/mac[@address='<mac>']/../target"
+            # devices/interface[@type='bridge']/mac[@address='<mac>']/../target"
             def get_tap(vm)
                 dumpxml = vm.vm_info[:dumpxml]
 
@@ -118,7 +118,7 @@ module VNMMAD
                     deploy_id = vm['DEPLOY_ID']
                 end
 
-                return unless deploy_id && vm.vm_info[:dumpxml].nil?
+                return if !deploy_id || !vm.vm_info[:dumpxml].nil?
 
                 cmd = "#{@lxc_cmd} config show #{deploy_id}"
                 config, _e, _s = run(cmd)
