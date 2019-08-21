@@ -105,9 +105,9 @@ module VNMMAD
             def initialize
                 super(nil)
 
-                _o, _e, snap = run('snap list lxd;') # avoid cmd not found with;
+                _o, _e, snap = Open3.capture3('snap list lxd;') # avoid cmd not found with;
                 @lxc_cmd = 'lxc'
-                @lxc_cmd.prepend('sudo ') if snap.zero?
+                @lxc_cmd.prepend('sudo ') if snap.exitstatus.zero?
             end
 
             # Get the VM information with lxc config show
@@ -121,7 +121,7 @@ module VNMMAD
                 return if !deploy_id || !vm.vm_info[:dumpxml].nil?
 
                 cmd = "#{@lxc_cmd} config show #{deploy_id}"
-                config, _e, _s = run(cmd)
+                config, _e, _s = Open3.capture3(cmd)
 
                 vm.vm_info[:dumpxml] = YAML.safe_load(config)
 
@@ -162,12 +162,6 @@ module VNMMAD
                     return path unless tmp.nil?
                 end
                 nil
-            end
-
-            # Runs command with open3
-            def run(cmd)
-                stdout, stderr, process = Open3.capture3(cmd)
-                [stdout, stderr, process.exitstatus]
             end
 
         end
