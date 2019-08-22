@@ -626,6 +626,9 @@ Layout/EmptyLineAfterGuardClause:
 Layout/AlignHash:
     Enabled: false
 
+Layout/SpaceAroundOperators:
+    Enabled: false
+
 ###
 
 #######
