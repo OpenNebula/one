@@ -140,7 +140,7 @@ int VirtualMachineDisk::get_image_id(int &id, int uid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string VirtualMachineDisk::get_tm_mad_system()
+string VirtualMachineDisk::get_tm_mad_system() const
 {
     std::string tm_mad_system;
 

@@ -22,12 +22,18 @@ ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
     MAD_LOCATION      = '/usr/lib/one/mads'
     ETC_LOCATION      = '/etc/one/'
 else
     RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
     MAD_LOCATION      = ONE_LOCATION + '/lib/mads'
     ETC_LOCATION      = ONE_LOCATION + '/etc/'
+end
+
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -227,7 +233,7 @@ class VmmAction
                 result, info = vnm.do_action(@id, step[:action],
                                              :parameters => params)
             when :tm
-                result, info = @tm.do_transfer_action(@id, step[:parameters])
+                result, info = @tm.do_transfer_action(@id, step[:parameters], stdin=step[:stdin])
 
             else
                 result = DriverExecHelper.const_get(:RESULT)[:failure]
@@ -517,16 +523,17 @@ class ExecDriver < VirtualMachineDriver
         post   = 'POST'
         failed = 'FAIL'
 
-        pre  << action.data[:tm_command] << ' ' << action.data[:vm]
-        post << action.data[:tm_command] << ' ' << action.data[:vm]
-        failed << action.data[:tm_command] << ' ' << action.data[:vm]
+        pre  << action.data[:tm_command]
+        post << action.data[:tm_command]
+        failed << action.data[:tm_command]
 
         steps = [
             # Execute a pre-migrate TM setup
             {
                 :driver     => :tm,
                 :action     => :tm_premigrate,
-                :parameters => pre.split
+                :parameters => pre.split,
+                :stdin      => action.data[:vm]
             },
             # Execute pre-boot networking setup on migrating host
             {
@@ -544,6 +551,7 @@ class ExecDriver < VirtualMachineDriver
                         :driver     => :tm,
                         :action     => :tm_failmigrate,
                         :parameters => failed.split,
+                        :stdin      => action.data[:vm],
                         :no_fail    => true
                     }
                 ]
@@ -569,6 +577,7 @@ class ExecDriver < VirtualMachineDriver
                 :driver     => :tm,
                 :action     => :tm_postmigrate,
                 :parameters => post.split,
+                :stdin      => action.data[:vm],
                 :no_fail    => true
             }
         ]
@@ -1094,7 +1103,7 @@ class ExecDriver < VirtualMachineDriver
         tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
 
         tm_command_split     = tm_command.split
-        tm_command_split[0] += '_LIVE'
+        tm_command_split[0].sub!('.', '_LIVE.') or tm_command_split[0] += '_LIVE'
 
         action = VmmAction.new(self, id, :disk_snapshot_create, drv_message)
 

@@ -17,18 +17,24 @@
 #--------------------------------------------------------------------------- #
 
 if !defined? ONE_LOCATION
-    ONE_LOCATION=ENV["ONE_LOCATION"]
+    ONE_LOCATION = ENV['ONE_LOCATION']
 
     if !ONE_LOCATION
-        RUBY_LIB_LOCATION="/usr/lib/one/ruby"
-        ETC_LOCATION="/etc/one/"
+        RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+        GEMS_LOCATION     = '/usr/share/one/gems'
+        ETC_LOCATION      = '/etc/one/'
     else
-        RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
-        ETC_LOCATION=ONE_LOCATION+"/etc/"
+        RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+        GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+        ETC_LOCATION      = ONE_LOCATION + '/etc/'
     end
 end
 
-$: << RUBY_LIB_LOCATION
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'pp'
 require 'shellwords'
@@ -96,7 +102,8 @@ class TransferManagerDriver < OpenNebulaDriver
     # method
     # @param id [String] with the OpenNebula ID for the TRANSFER action
     # @param command [Array]
-    def do_transfer_action(id, command)
+    # @param stdin [String]
+    def do_transfer_action(id, command, stdin=nil)
         cmd  = command[0].downcase
         tm   = command[1]
         args = command[2..-1].map{|e| Shellwords.escape(e)}.join(" ")
@@ -106,8 +113,23 @@ class TransferManagerDriver < OpenNebulaDriver
         end
 
         path = File.join(@local_scripts_path, tm, cmd)
+
+        if !File.exists?(path)
+            md  = cmd.match(/(.*)\.(.*)/)
+            if md && md[1]
+                path_shortened = File.join(@local_scripts_path, tm, md[1])
+                if !File.exists?(path_shortened)
+                    return RESULT[:failure],
+                        "Driver path '#{path}' nor '#{path_shortened}' exists"
+                end
+                path = path_shortened
+            else
+                return RESULT[:failure], "Driver path '#{path}' does not exists"
+            end
+        end
+
         path << " " << args
-        rc = LocalCommand.run(path, log_method(id))
+        rc = LocalCommand.run(path, log_method(id), stdin)
 
         result, info = get_info_from_execution(rc)
 
