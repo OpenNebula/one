@@ -66,7 +66,7 @@ module VirtualMachineMonitor
         guest_ip_addresses = []
         unless self['guest.net'].empty?
             self['guest.net'].each do |net|
-                next unless net.ipConfig 
+                next unless net.ipConfig
                 next if net.ipConfig.ipAddress.empty?
 
                 net.ipConfig.ipAddress.each do |ip|
