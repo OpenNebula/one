@@ -394,17 +394,21 @@ class Template
         network.info
 
         # Iterate over Retrieve vCenter VM NICs
-        vm_object.item.guest.net.each do |net|
-            mac = net.macAddress
-            if nic[:mac] == mac
-                net.ipConfig.ipAddress.each do |ip_config|
-                    ip = IPAddr.new(ip_config.ipAddress)
-                    ar_array = network.to_hash['VNET']['AR_POOL']['AR']
-                    ar_array = [ar_array] if ar_array.is_a?(Hash)
-                    ipv4, ipv6 = find_ip_in_ar(ip, ar_array) if ar_array
-                    break if ipv4 !="" or ipv6 != ""
+        unless vm_object.item.guest.net.empty?
+            vm_object.item.guest.net.each do |net|
+                mac = net.macAddress
+                if nic[:mac] == mac
+                    next unless net.ipConfig
+                    next if net.ipConfig.ipAddress.empty?
+                    net.ipConfig.ipAddress.each do |ip_config|
+                        ip = IPAddr.new(ip_config.ipAddress)
+                        ar_array = network.to_hash['VNET']['AR_POOL']['AR']
+                        ar_array = [ar_array] if ar_array.is_a?(Hash)
+                        ipv4, ipv6 = find_ip_in_ar(ip, ar_array) if ar_array
+                        break if ipv4 !="" or ipv6 != ""
+                    end
+                    break
                 end
-                break
             end
         end
         return ipv4, ipv6
