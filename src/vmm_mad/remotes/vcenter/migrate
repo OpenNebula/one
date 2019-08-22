@@ -20,10 +20,10 @@ ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
-    GEMS_LOCATION     = '/usr/share/one/gems' unless defined?(GEMS_LOCATION)
+    GEMS_LOCATION = '/usr/share/one/gems' unless defined?(GEMS_LOCATION)
 else
     RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' unless defined?(GEMS_LOCATION)
+    GEMS_LOCATION = ONE_LOCATION + '/share/gems' unless defined?(GEMS_LOCATION)
 end
 
 if File.directory?(GEMS_LOCATION)
