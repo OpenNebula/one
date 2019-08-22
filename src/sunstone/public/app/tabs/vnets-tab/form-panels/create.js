@@ -412,7 +412,7 @@ define(function(require) {
   }
 
   function _onShow(context) {
-    console.log("PEPE");
+    console.log("PEPE!");
     var that = this;
     var storage = OpenNebulaAction.get_all_cache();
     if(storage && storage.HOST && storage.HOST.data){

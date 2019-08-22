@@ -533,6 +533,7 @@ tabs:
             host_esx_tab: true
             host_pci_tab: true
             host_numa_tab: true
+            host_nsx_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
