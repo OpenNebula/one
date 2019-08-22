@@ -31,12 +31,17 @@ module NSXDriver
         # CONSTRUCTOR
         def initialize(nsx_client, ls_id = nil, tz_id = nil, ls_data = nil)
             super(nsx_client)
+            # Construct base URLs
+            @base_url = "#{@nsx_client.nsxmgr}/api/2.0"
+            @base_url_tz = @base_url + SECTION_TZ
             if ls_id
                 initialize_with_id(ls_id)
             else
                 if tz_id
                     if ls_data
                         @ls_id = new_logical_switch(ls_data, tz_id)
+                        # Construct URL of the created logical switch
+                        @url_ls = @base_url + SECTION_LS + @ls_id
                         @ls_vni = ls_vni
                         @ls_name = ls_name
                         @tz_id = ls_tz
@@ -46,15 +51,13 @@ module NSXDriver
                     raise 'Missing logical switch data' unless ls?
                 end
             end
-            # Construct base URLs
-            @base_url = "#{@nsx_client.nsxmgr}/api/2.0"
-            @url_ls = @BASE_URL + SECTION_LS + @ls_id
-            @base_url_tz = @BASE_URL + SECTION_TZ
         end
 
         # Creates a NSXDriver::VirtualWire from its id
         def initialize_with_id(ls_id)
             @ls_id = ls_id
+            # Construct URL of the created logical switch
+            @url_ls = @base_url + SECTION_LS + @ls_id
             if ls?
                 @ls_vni =  ls_vni
                 @ls_name = ls_name
@@ -99,7 +102,7 @@ module NSXDriver
 
         # Create a new logical switch (NSX-V: virtualwire)
         def new_logical_switch(ls_data, tz_id)
-            url = "#{@base_url_tz}/#{tz_id}/virtualwires"
+            url = "#{@base_url_tz}#{tz_id}/virtualwires"
             @nsx_client.post_xml(url, ls_data)
         end
 

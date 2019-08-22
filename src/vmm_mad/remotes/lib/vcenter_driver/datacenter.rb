@@ -715,6 +715,7 @@ class Datacenter
                         return net.item._ref
                     end
                 }
+                sleep(1)
                 timeout -= 1
             end
         else

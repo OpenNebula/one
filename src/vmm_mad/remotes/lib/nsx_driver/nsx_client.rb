@@ -93,10 +93,18 @@ module NSXDriver
             uri = URI.parse(url)
             request = Net::HTTP::Get.new(uri.request_uri, HEADER_XML)
             request.basic_auth(@nsx_user, @nsx_password)
-            response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
-              :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-                  https.request(request)
-              end
+            begin
+                response = Net::HTTP
+                           .start(uri.host,
+                                  uri.port,
+                                  :use_ssl => true,
+                                  :verify_mode => OpenSSL::SSL::VERIFY_NONE)\
+                                  do |https|
+                                      https.request(request)
+                                  end
+            rescue StandtardError => e
+                raise e
+            end
             return Nokogiri::XML response.body if check_response(response, 200)
         end
 
@@ -117,10 +125,18 @@ module NSXDriver
             uri = URI.parse(url)
             request = Net::HTTP::Get.new(uri.request_uri, HEADER_JSON)
             request.basic_auth(@nsx_user, @nsx_password)
-            response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
-              :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-                  https.request(request)
-              end
+            begin
+                response = Net::HTTP
+                           .start(uri.host,
+                                  uri.port,
+                                  :use_ssl => true,
+                                  :verify_mode => OpenSSL::SSL::VERIFY_NONE)\
+                                  do |https|
+                                      https.request(request)
+                                  end
+            rescue StandardError => e
+                raise e
+            end
             return JSON.parse(response.body) \
                 if check_response(response, 200)
         end
