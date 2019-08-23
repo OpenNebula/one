@@ -104,6 +104,7 @@ define(function(require) {
   var proxy_host = window.location.hostname;
   var proxy_port = Config.vncProxyPort;
   var token = getQueryVariable("token");
+  var pw = getQueryVariable("password");
 
   if (window.location.protocol === "https:") {
     URL = "wss";
@@ -131,7 +132,7 @@ define(function(require) {
     return;
   }
   try{
-    rfb = new RFB(document.querySelector("#VNC_canvas"), URL);
+    rfb = new RFB(document.querySelector("#VNC_canvas"), URL, { "credentials": { "password": pw } });
   }catch(err){
     console.log("error start NOVNC ", err);
   }

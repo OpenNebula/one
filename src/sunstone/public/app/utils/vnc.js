@@ -92,7 +92,7 @@ define(function(require) {
     var link = URL.replace(re, protocol + "//" + hostname + ":" + port + "/vnc?");
 
     try{
-      _rfb = new RFB(document.querySelector("#VNC_canvas"), URL);
+      _rfb = new RFB(document.querySelector("#VNC_canvas"), URL, { "credentials": { "password": pw } });
       _rfb.addEventListener("connect",  connected);
       _rfb.addEventListener("disconnect", disconnectedFromServer);
     }catch(err){
