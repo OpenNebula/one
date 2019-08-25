@@ -277,3 +277,10 @@ int VNTemplate::from_xml(const string& xml)
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
+
+int VNTemplate::post_update_template(string& error_str)
+{
+    encrypt_all_secrets(obj_template);
+
+    return 0;
+}

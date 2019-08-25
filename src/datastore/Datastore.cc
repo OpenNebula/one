@@ -936,7 +936,7 @@ int Datastore::post_update_template(string& error_str)
     /* ---------------------------------------------------------------------- */
     /* Encrypt VCENTER_PASSWORD attribute                                     */
     /* ---------------------------------------------------------------------- */
-    encrypt_all_secrets();
+    encrypt_all_secrets(obj_template);
 
     /* ---------------------------------------------------------------------- */
     /* Set the TM_MAD of the Datastore (class & template)                     */

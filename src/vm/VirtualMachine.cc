@@ -2706,9 +2706,20 @@ int VirtualMachine::replace_template(
         return -1;
     }
 
-    delete user_obj_template;
+    auto old_user_tmpl = user_obj_template;
 
     user_obj_template = new_tmpl;
+
+    if (post_update_template(error) == -1)
+    {
+        delete user_obj_template;
+
+        user_obj_template = old_user_tmpl;
+
+        return -1;
+    }
+
+    delete old_user_tmpl;
 
     return 0;
 }
@@ -2752,6 +2763,7 @@ int VirtualMachine::append_template(
     /* ---------------------------------------------------------------------- */
     /* Append new_tmpl to the current user_template                           */
     /* ---------------------------------------------------------------------- */
+    auto old_user_tmpl = new VirtualMachineTemplate(*user_obj_template);;
     if (user_obj_template != 0)
     {
         if (keep_restricted && new_tmpl->check_restricted(rname, user_obj_template))
@@ -2773,6 +2785,15 @@ int VirtualMachine::append_template(
             return -1;
         }
         user_obj_template = new_tmpl;
+    }
+
+    if (post_update_template(error) == -1)
+    {
+        delete user_obj_template;
+
+        user_obj_template = old_user_tmpl;
+
+        return -1;
     }
 
     return 0;
@@ -3657,6 +3678,17 @@ int VirtualMachine::parse_sched_action(string& error_str)
     SchedActions sactions(user_obj_template);
 
     return sactions.parse(error_str, false);
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VirtualMachine::post_update_template(string& error_str)
+{
+    encrypt_all_secrets(obj_template);
+    encrypt_all_secrets(user_obj_template);
+
+    return 0;
 }
 
 /* ------------------------------------------------------------------------ */

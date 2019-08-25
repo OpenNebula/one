@@ -458,6 +458,8 @@ int VirtualNetwork::post_update_template(string& error)
 
     one_util::split_unique(sg_str, ',', security_groups);
 
+    encrypt_all_secrets(obj_template);
+
     return 0;
 }
 

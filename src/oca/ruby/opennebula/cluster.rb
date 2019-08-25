@@ -64,8 +64,8 @@ module OpenNebula
         #######################################################################
 
         # Retrieves the information of the given Cluster.
-        def info()
-            super(CLUSTER_METHODS[:info], 'CLUSTER')
+        def info(decrypt = false)
+            super(CLUSTER_METHODS[:info], 'CLUSTER', decrypt)
         end
 
         alias_method :info!, :info

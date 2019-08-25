@@ -686,7 +686,7 @@ int PoolObjectSQL::lock_db_from_xml()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void PoolObjectSQL::crypt(const std::string& in, std::string& out)
+void PoolObjectSQL::encrypt(const std::string& in, std::string& out)
 {
     Nebula& nd = Nebula::instance();
     string  one_key;
@@ -736,22 +736,41 @@ bool PoolObjectSQL::decrypt(const std::string& in, std::string& out)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void PoolObjectSQL::encrypt_all_secrets()
+void PoolObjectSQL::encrypt_all_secrets(Template *tmpl)
 {
     for (const string& att_name : CRYPTED_ATTRIBUTES)
     {
         string att;
-        string crypted;
+        string encrypted;
         string tmp;
 
-        get_template_attribute(att_name, att);
-
-        if (!att.empty() && !decrypt(att, tmp))
+        auto path = one_util::split(att_name, '/');
+        if (path.size() > 1)
         {
-            // Attribute present, but not crypted, crypt it
-            crypt(att, crypted);
+            auto vatt = tmpl->get(path[0]);
+            if (vatt != nullptr)
+            {
+                att = vatt->vector_value(path[1]);
+                if (!att.empty() && !decrypt(att, tmp))
+                {
+                    // Nested attribute present, but not crypted, crypt it
+                    encrypt(att, encrypted);
 
-            replace_template_attribute(att_name, crypted);
+                    vatt->replace(path[1], encrypted);
+                }
+            }
+        }
+        else
+        {
+            tmpl->get(att_name, att);
+
+            if (!att.empty() && !decrypt(att, tmp))
+            {
+                // Simple attribute present, but not crypted, crypt it
+                encrypt(att, encrypted);
+
+                tmpl->replace(att_name, encrypted);
+            }
         }
     }
 }
@@ -759,18 +778,36 @@ void PoolObjectSQL::encrypt_all_secrets()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void PoolObjectSQL::decrypt_all_secrets()
+void PoolObjectSQL::decrypt_all_secrets(Template *tmpl)
 {
     for (const string& att_name : CRYPTED_ATTRIBUTES)
     {
         string att;
-        string crypted;
+        string plain;
 
-        get_template_attribute(att_name, att);
-
-        if (!att.empty() && decrypt(att, crypted))
+        auto path = one_util::split(att_name, '/');
+        if (path.size() > 1)
         {
-            replace_template_attribute(att_name, crypted);
+            auto vatt = tmpl->get(path[0]);
+            if (vatt != nullptr)
+            {
+                ostringstream oss;
+                vatt->to_json(oss);
+                att = vatt->vector_value(path[1]);
+                if (!att.empty() && decrypt(att, plain))
+                {
+                    vatt->replace(path[1], plain);
+                }
+            }
+        }
+        else
+        {
+            tmpl->get(att_name, att);
+
+            if (!att.empty() && decrypt(att, plain))
+            {
+                tmpl->replace(att_name, plain);
+            }
         }
     }
 }

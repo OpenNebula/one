@@ -1674,6 +1674,15 @@ public:
      */
     int check_tm_mad_disks(const string& tm_mad, string& error);
 
+    /**
+     *  Decrypt all secret attributes
+     */
+    void decrypt_all_secrets() override
+    {
+        PoolObjectSQL::decrypt_all_secrets(obj_template);
+        PoolObjectSQL::decrypt_all_secrets(user_obj_template);
+    }
+
 private:
 
     // -------------------------------------------------------------------------
@@ -2182,6 +2191,15 @@ private:
      *    @return -1 in case of error 0 otherwise
      */
     int parse_sched_action(string& error_str);
+
+    /**
+     * Child classes can process the new template set with replace_template or
+     * append_template with this method
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     * - encrypt secret attributes.
+     */
+    int post_update_template(string& error) override;
 
 protected:
 

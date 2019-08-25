@@ -708,7 +708,7 @@ int Host::post_update_template(string& error)
     string new_vm_mad;
     string cpu_ids;
 
-    encrypt_all_secrets();
+    encrypt_all_secrets(obj_template);
 
     get_template_attribute("IM_MAD", new_im_mad);
     get_template_attribute("VM_MAD", new_vm_mad);

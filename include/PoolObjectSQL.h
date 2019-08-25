@@ -567,7 +567,10 @@ public:
     /**
      *  Decrypt all secret attributes
      */
-    void decrypt_all_secrets();
+    virtual void decrypt_all_secrets()
+    {
+        decrypt_all_secrets(obj_template);
+    }
 
 protected:
 
@@ -727,7 +730,7 @@ protected:
      *    @param in plain text
      *    @param out crypted text encoded as base64
      */
-    static void crypt(const std::string& in, std::string& out);
+    static void encrypt(const std::string& in, std::string& out);
 
     /**
      *  Decrypt input text encoded as base64, using ONE_KEY as key
@@ -741,7 +744,12 @@ protected:
     /**
      *  Encrypt all secret attributes
      */
-    void encrypt_all_secrets();
+    void encrypt_all_secrets(Template *tmpl);
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    void decrypt_all_secrets(Template *tmpl);
 
     /**
      *  The object's unique ID

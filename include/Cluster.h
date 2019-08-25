@@ -104,6 +104,15 @@ public:
      */
     int from_xml(const string &xml_str) override;
 
+    /**
+     * Child classes can process the new template set with replace_template or
+     * append_template with this method
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     * - encrypt secret attributes.
+     */
+    int post_update_template(string& error) override;
+
 private:
 
     // -------------------------------------------------------------------------
