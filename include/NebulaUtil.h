@@ -23,7 +23,6 @@
 #include <set>
 #include <algorithm>
 #include <random>
-#include <mutex>
 
 #include <openssl/crypto.h>
 

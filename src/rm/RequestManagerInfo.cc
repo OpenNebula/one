@@ -17,6 +17,7 @@
 #include "RequestManagerInfo.h"
 #include "RequestManagerPoolInfoFilter.h"
 #include "VirtualMachineDisk.h"
+#include <memory>
 
 using namespace std;
 

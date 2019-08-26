@@ -19,6 +19,7 @@
 #include "NebulaUtil.h"
 #include "Nebula.h"
 #include "Clusterable.h"
+#include <memory>
 
 set<std::string> PoolObjectSQL::ENCRYPTED_ATTRIBUTES{};
 
