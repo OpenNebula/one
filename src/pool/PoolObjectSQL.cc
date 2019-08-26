@@ -20,7 +20,7 @@
 #include "Nebula.h"
 #include "Clusterable.h"
 
-set<std::string> PoolObjectSQL::CRYPTED_ATTRIBUTES{};
+set<std::string> PoolObjectSQL::ENCRYPTED_ATTRIBUTES{};
 
 const string PoolObjectSQL::INVALID_NAME_CHARS = "&|:\\\";/'#{}$<>";
 
@@ -738,7 +738,7 @@ bool PoolObjectSQL::decrypt(const std::string& in, std::string& out)
 
 void PoolObjectSQL::encrypt_all_secrets(Template *tmpl)
 {
-    for (const string& att_name : CRYPTED_ATTRIBUTES)
+    for (const string& att_name : ENCRYPTED_ATTRIBUTES)
     {
         string att;
         string encrypted;
@@ -753,7 +753,7 @@ void PoolObjectSQL::encrypt_all_secrets(Template *tmpl)
                 att = vatt->vector_value(path[1]);
                 if (!att.empty() && !decrypt(att, tmp))
                 {
-                    // Nested attribute present, but not crypted, crypt it
+                    // Nested attribute present, but not encrypted, crypt it
                     encrypt(att, encrypted);
 
                     vatt->replace(path[1], encrypted);
@@ -766,7 +766,7 @@ void PoolObjectSQL::encrypt_all_secrets(Template *tmpl)
 
             if (!att.empty() && !decrypt(att, tmp))
             {
-                // Simple attribute present, but not crypted, crypt it
+                // Simple attribute present, but not encrypted, crypt it
                 encrypt(att, encrypted);
 
                 tmpl->replace(att_name, encrypted);
@@ -780,7 +780,7 @@ void PoolObjectSQL::encrypt_all_secrets(Template *tmpl)
 
 void PoolObjectSQL::decrypt_all_secrets(Template *tmpl)
 {
-    for (const string& att_name : CRYPTED_ATTRIBUTES)
+    for (const string& att_name : ENCRYPTED_ATTRIBUTES)
     {
         string att;
         string plain;

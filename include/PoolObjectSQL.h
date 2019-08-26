@@ -43,7 +43,7 @@ public:
     /* Class Constructors & Constants                                         */
     /* ---------------------------------------------------------------------- */
 
-    static set<std::string> CRYPTED_ATTRIBUTES;
+    static set<std::string> ENCRYPTED_ATTRIBUTES;
 
     /**
      *  OpenNebula objects. This definitions are used by other core components

@@ -452,7 +452,7 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("SCRIPTS_REMOTE_DIR", "/var/tmp/one");
     set_conf_single("VM_SUBMIT_ON_HOLD", "NO");
     set_conf_single("API_LIST_ORDER", "DESC");
-    set_conf_single("CRYPTED_ATTRIBUTES", "EC2_ACCESS, EC2_SECRET, AZ_ID, AZ_CERT,"
+    set_conf_single("ENCRYPTED_ATTRIBUTES", "EC2_ACCESS, EC2_SECRET, AZ_ID, AZ_CERT,"
         "VCENTER_PASSWORD, NSX_PASSWORD, ONE_PASSWORD");
 
     //DB CONFIGURATION
