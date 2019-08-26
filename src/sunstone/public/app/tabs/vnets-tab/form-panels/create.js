@@ -492,18 +492,18 @@ define(function(require) {
                         )
                       );
                       var universalSync = full.clone().append(
-                        label.clone().text(Locale.tr("Universal Synchronization")).add(
-                          input.clone().attr({type: 'checkbox', name: idInputs.universalsync, id: idInputs.universalsync})
+                        input.clone().attr({type: 'checkbox', name: idInputs.universalsync, id: idInputs.universalsync}).add(
+                          label.clone().text(Locale.tr("Universal Synchronization"))
                         )
                       );
                       var ipDiscover = full.clone().append(
-                        label.clone().text(Locale.tr("IP Discovery")).add(
-                          input.clone().attr({type: 'checkbox', name: idInputs.ipdiscovery, id: idInputs.ipdiscovery, checked: ""})
+                        input.clone().attr({type: 'checkbox', name: idInputs.ipdiscovery, id: idInputs.ipdiscovery, checked: ""}).add(
+                          label.clone().text(Locale.tr("IP Discovery"))
                         )
                       );
                       var macLearning = full.clone().append(
-                        label.clone().text(Locale.tr("MAC Learning")).add(
-                          input.clone().attr({type: 'checkbox', name: idInputs.maclearning, id: idInputs.maclearning})
+                        input.clone().attr({type: 'checkbox', name: idInputs.maclearning, id: idInputs.maclearning}).add(
+                          label.clone().text(Locale.tr("MAC Learning"))
                         )
                       );
                       nsx_fields.empty().append(replication.add(universalSync).add(ipDiscover).add(macLearning));
