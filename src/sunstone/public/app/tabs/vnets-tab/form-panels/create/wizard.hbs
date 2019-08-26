@@ -108,6 +108,14 @@
             <div class="row">
               <div class="small-12 columns">
                 <label for="">
+                  {{tr "Host"}}
+                </label>
+                <select name="nsx-type" id="nsx-type"></select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="small-12 columns">
+                <label for="">
                   {{tr "Name"}}
                 </label>
                 <input type="text"name="nsx-name" id="nsx-name"/>
@@ -127,9 +135,11 @@
                   {{tr "Transport"}}
                 </label>
                 <select name="nsx-transport" id="nsx-transport">
+                  <option value="">--</option>
                 </select>
               </div>
             </div>
+            <div class="row" id="nsx-fields"></div>
           </div>
         </div>
         <div class="large-3 medium-6 columns mode_param vcenter custom" id="div_vn_mad">

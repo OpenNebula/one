@@ -98,7 +98,7 @@ define(function(require) {
          }
          return(false);
   }
-
+  console.log("JORGE");
   token = window.token;
   var URL = "";
   var proxy_host = window.location.hostname;
