@@ -446,6 +446,7 @@ define(function(require) {
               var selectId = $(this).find("option:selected").attr("data-id");
               var type = $(this).val();
               nsx_transport.empty().append($("<option/>").text("--"));
+              nsx_fields.empty();
               if(selectId){
                 var template = hosts.find(function(host) {
                   if(host && host.ID && host.ID == selectId && host.TEMPLATE && host.TEMPLATE.NSX_TRANSPORT_ZONES){
@@ -506,7 +507,7 @@ define(function(require) {
                           label.clone().text(Locale.tr("MAC Learning"))
                         )
                       );
-                      nsx_fields.empty().append(replication.add(universalSync).add(ipDiscover).add(macLearning));
+                      nsx_fields.append(replication.add(universalSync).add(ipDiscover).add(macLearning));
                     break;
                     case 'nsx-t':
                       //NSX-T
@@ -516,16 +517,13 @@ define(function(require) {
                       var replicationMode = full.clone().append(
                         label.clone().text(Locale.tr("Replication Mode"))
                       );
-                      nsx_fields.empty().append(adminStatus.add(replicationMode));
+                      nsx_fields.append(adminStatus.add(replicationMode));
                     break;
                     default:
                       //NOTHING
-                      nsx_fields.empty();
                     break;
                   }
                 }
-              }else{
-                nsx_fields.empty();
               }
             });
           }
