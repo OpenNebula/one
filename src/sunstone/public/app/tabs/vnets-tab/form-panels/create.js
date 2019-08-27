@@ -425,7 +425,8 @@ define(function(require) {
           var full = $("<div/>",{'class': 'small-12 columns'});
           var label = $("<label/>");
           var input = $("<input/>");
-          nsx_type.empty().append($("<option/>").text("--"));
+          var element = $("<option/>");
+          nsx_type.empty().append(element.clone().text("--"));
           if (!(hosts instanceof Array)) {
             hosts = [hosts];
           }
@@ -435,17 +436,17 @@ define(function(require) {
               var type_nsx = host && host.TEMPLATE && host.TEMPLATE.NSX_TYPE || "";
               var id = (host && host.ID) || 0;
               if(type_nsx){
-                var element = $("<option/>");
-                element.val(type_nsx);
-                element.attr("data-id",id);
-                element.text(name);
-                nsx_type.append(element);
+                var option = element.clone();
+                option.val(type_nsx);
+                option.attr("data-id",id);
+                option.text(name);
+                nsx_type.append(option);
               }
             });
             nsx_type.off().on('change', function(){
               var selectId = $(this).find("option:selected").attr("data-id");
               var type = $(this).val();
-              nsx_transport.empty().append($("<option/>").text("--"));
+              nsx_transport.empty().append(element.clone().text("--"));
               nsx_fields.empty();
               if(selectId){
                 var template = hosts.find(function(host) {
@@ -453,23 +454,24 @@ define(function(require) {
                     return true;
                   }
                 });
-                console.log("--> ",template);
                 if(template && template.TEMPLATE && template.TEMPLATE.NSX_TRANSPORT_ZONES){
                   var zones = template.TEMPLATE.NSX_TRANSPORT_ZONES;
                   var keys = Object.keys(template.TEMPLATE.NSX_TRANSPORT_ZONES);
                   keys.map(function(key){
-                    var element = $("<option/>");
-                    nsx_transport.append(element.val(zones[key]).text(key));
+                    var option = element.clone();
+                    nsx_transport.append(option.val(zones[key]).text(key));
                   });
                   var idInputs = {
                     replication: 'nsx-replication',
                     universalsync: 'nsx-universalsync',
                     ipdiscovery: 'nsx-ipdiscovery',
-                    maclearning: 'nsx-maclearning'
+                    maclearning: 'nsx-maclearning',
+                    adminstatus: 'nsx-adminstatus'
                   };
 
                   switch (type.toLowerCase()) {
                     case 'nsx-v':
+                      console.log("PASS!!")
                       //NSX-V
                       var mode = {
                         unicast: 'UNICAST_MODE',
@@ -510,12 +512,39 @@ define(function(require) {
                       nsx_fields.append(replication.add(universalSync).add(ipDiscover).add(macLearning));
                     break;
                     case 'nsx-t':
+                      console.log("PASS!")
                       //NSX-T
+                      var adminStatusInput = input.clone().attr({type:'radio', name: idInputs.adminstatus, id: idInputs.adminstatus});
+                      var inputRep = input.clone().attr({type:'radio', name: idInputs.replication, id: idInputs.replication});
+                      var adminStatusOptions = {
+                        up: 'UP',
+                        down: 'DOWN'
+                      };
+                      var replicationModeIOptions = {
+                        mtep: 'MTEP',
+                        source: 'SOURCE'
+                      };
                       var adminStatus = full.clone().append(
-                        label.clone().text(Locale.tr("Admin Status"))
+                        label.clone().text(Locale.tr("Admin Status")).add(
+                          adminStatusInput.clone().val(adminStatusOptions.up).attr({id: adminStatusOptions.up, checked: ""})
+                        ).add(
+                          label.clone().text(Locale.tr(adminStatusOptions.up)).attr({for: adminStatusOptions.up})
+                        ).add(
+                          adminStatusInput.clone().val(adminStatusOptions.down).attr({id: adminStatusOptions.down})
+                        ).add(
+                          label.clone().text(Locale.tr(adminStatusOptions.down)).attr({for: adminStatusOptions.down})
+                        )
                       );
                       var replicationMode = full.clone().append(
-                        label.clone().text(Locale.tr("Replication Mode"))
+                        label.clone().text(Locale.tr("Replication Mode")).add(
+                          inputRep.clone().val(replicationModeIOptions.mtep).attr({id: replicationModeIOptions.mtep, checked: ""})
+                        ).add(
+                          label.clone().text(Locale.tr(replicationModeIOptions.mtep)).attr({for: replicationModeIOptions.mtep})
+                        ).add(
+                          inputRep.clone().val(replicationModeIOptions.source).attr({id: replicationModeIOptions.source})
+                        ).add(
+                          label.clone().text(Locale.tr(replicationModeIOptions.source)).attr({for: replicationModeIOptions.source})
+                        )
                       );
                       nsx_fields.append(adminStatus.add(replicationMode));
                     break;
