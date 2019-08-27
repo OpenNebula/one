@@ -100,6 +100,11 @@ GEM
       inflection
       mime-types
       multipart-post (~> 2.0)
+    ffi-rzmq (2.0.7)
+      ffi-rzmq-core (>= 1.0.7)
+    ffi-rzmq-core (1.0.7)
+      ffi (>= 0)
+    ffi (1.11.1)
 
 PLATFORMS
   ruby
