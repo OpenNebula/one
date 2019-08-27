@@ -96,6 +96,10 @@ GEM
       inflection
       mime-types
       multipart-post (~> 2.0)
+    ffi-rzmq (2.0.7)
+      ffi-rzmq-core (>= 1.0.7)
+    ffi-rzmq-core (1.0.7)
+      ffi (>= 0)
 
 PLATFORMS
   ruby
@@ -132,6 +136,7 @@ DEPENDENCIES
   trollop
   uuidtools
   zendesk_api (< 1.17.0)
+  ffi-rzmq
 
 BUNDLED WITH
    1.17.3

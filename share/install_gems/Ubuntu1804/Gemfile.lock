@@ -135,6 +135,7 @@ DEPENDENCIES
   uuidtools
   xmlrpc
   zendesk_api
+  ffi-rzmq
 
 BUNDLED WITH
    1.17.3
