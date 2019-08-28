@@ -30,6 +30,7 @@ define(function(require) {
   var TemplateUtils = require("utils/template-utils");
   var WizardFields = require("utils/wizard-fields");
   var ResourceSelect = require("utils/resource-select");
+  var OpenNebulaAction = require('opennebula/action');
 
   /*
     TEMPLATES
@@ -44,6 +45,12 @@ define(function(require) {
 
   var FORM_PANEL_ID = require("./create/formPanelId");
   var TAB_ID = require("../tabId");
+  var actionHost = "Host";
+  var idsElements = {
+    name: "#nsx-name",
+    description: "#nsx-description",
+    transport: "#nsx-transport"
+  }
 
   /*
     CONSTRUCTOR
@@ -134,9 +141,7 @@ define(function(require) {
     $("#network_mode", context).change(function() {
       $("div.mode_param", context).hide();
       $("div.mode_param [wizard_field]", context).prop("wizard_field_disabled", true);
-
-      $("input#vn_mad", context).removeAttr("required");
-      $("input#vn_mad", context).removeAttr("value");
+      $("input#vn_mad", context).removeAttr("required").removeAttr("value");
       $("#vcenter_switch_name", context).removeAttr("required");
       $("#vcenter_cluster_id", context).removeAttr("required");
       $("#phydev", context).removeAttr("required");
@@ -144,8 +149,11 @@ define(function(require) {
       $("#vnetCreateSecurityTab-label").show();
       $("#automatic_vlan_id option[value='NO']", context).show();
       $("input[wizard_field=\"VLAN_ID\"]", context).removeAttr("required");
-
-      switch ($(this).val()) {
+      //NSX
+      $("select#nsx-transport", context).removeAttr("required").removeAttr("value");
+      $("select#nsx-instance-id", context).removeAttr("required").removeAttr("value");
+      $("select#nsx-host-id", context).removeAttr("required").removeAttr("value");
+      switch ($(this).find("option:selected").attr("data-form")) {
       case "bridge":
         $("div.mode_param.bridge", context).show();
         $("div.mode_param.bridge [wizard_field]", context).prop("wizard_field_disabled", false);
@@ -219,6 +227,15 @@ define(function(require) {
         $("input#vn_mad", context).attr("value", "vcenter");
 
         $("#div_vn_mad", context).hide();
+        break;
+      case "nsx":
+        $("div.network_mode_description").hide();
+        $("div.mode_param.nsx", context).show();
+        $("select#nsx-type", context).attr("required", "");
+        $("select#nsx-instance-id", context).attr({required: "", value: ""});
+        $("select#nsx-host-id", context).attr({required: "", value: ""});
+        $("select#nsx-transport", context).attr("required", "");
+        $("div.mode_param.nsx [wizard_field]", context).prop("wizard_field_disabled", false);
         break;
       case "custom":
         $("div.mode_param.custom", context).show();
@@ -402,6 +419,160 @@ define(function(require) {
 
   function _onShow(context) {
     var that = this;
+    var hostActions = {
+      success: function(req,params,response){
+        if(response && response.HOST_POOL && response.HOST_POOL.HOST){
+          var hosts = response.HOST_POOL.HOST;
+          var nsx_type = $("select#nsx-type", context);
+          var nsx_transport = $("select#nsx-transport", context);
+          var nsx_fields = $("#nsx-fields", context);
+          var nsx_host_id = $("#nsx-host-id", context);
+          var nsx_instance_id = $("#nsx-instance-id",context);
+          var full = $("<div/>",{'class': 'small-12 columns'});
+          var label = $("<label/>");
+          var input = $("<input/>");
+          var element = $("<option/>");
+          nsx_type.empty().append(element.clone().text("--"));
+          if (!(hosts instanceof Array)) {
+            hosts = [hosts];
+          }
+          if(hosts && nsx_type){
+            hosts.map(function(host){
+              var name = (host && host.NAME) || "";
+              var type_nsx = host && host.TEMPLATE && host.TEMPLATE.NSX_TYPE || "";
+              var instanciate_id = host && host.TEMPLATE && host.TEMPLATE.VCENTER_INSTANCE_ID || "";
+              var id = (host && host.ID) || 0;
+              if(type_nsx && instanciate_id){
+                type_nsx = type_nsx.toLowerCase() === "nsx-t"? "Opaque Network" : type_nsx;
+                var option = element.clone();
+                option.val(type_nsx);
+                option.attr({"data-id":id, "data-instance": instanciate_id});
+                option.text(name);
+                nsx_type.append(option);
+              }
+            });
+            nsx_type.off().on('change', function(){
+              var optionSelected = $(this).find("option:selected");
+              var selectId = optionSelected.attr("data-id");
+              var instanceId = optionSelected.attr("data-instance");
+              nsx_host_id.val(selectId);
+              nsx_instance_id.val(instanceId);
+              var type = $(this).val();
+              nsx_transport.empty().append(element.clone().text("--"));
+              nsx_fields.empty();
+              if(selectId){
+                var template = hosts.find(function(host) {
+                  if(host && host.ID && host.ID == selectId && host.TEMPLATE && host.TEMPLATE.NSX_TRANSPORT_ZONES){
+                    return true;
+                  }
+                });
+                if(template && template.TEMPLATE && template.TEMPLATE.NSX_TRANSPORT_ZONES){
+                  var zones = template.TEMPLATE.NSX_TRANSPORT_ZONES;
+                  var keys = Object.keys(template.TEMPLATE.NSX_TRANSPORT_ZONES);
+                  keys.map(function(key){
+                    var option = element.clone();
+                    nsx_transport.append(option.val(zones[key]).text(key));
+                  });
+                  var idInputs = {
+                    replication: 'nsx-replication',
+                    universalsync: 'nsx-universalsync',
+                    ipdiscovery: 'nsx-ipdiscovery',
+                    maclearning: 'nsx-maclearning',
+                    adminstatus: 'nsx-adminstatus'
+                  };
+
+                  switch (type.toLowerCase()) {
+                    case 'nsx-v':
+                      //NSX-V
+                      var mode = {
+                        unicast: 'UNICAST_MODE',
+                        hybrid: 'HYBRID_MODE',
+                        multicast: 'MULTICAST_MODE'
+                      };
+                      var inputReplication = input.clone().attr({type:'radio', name: idInputs.replication, id: idInputs.replication});
+                      var replication =  full.clone().append(
+                        label.clone().text(Locale.tr("Replication Mode")).add(
+                          inputReplication.clone().val(mode.unicast).attr({id: mode.unicast, checked: ""})
+                        ).add(
+                          label.clone().text(mode.unicast).attr({for: mode.unicast})
+                        ).add(
+                          inputReplication.clone().val(mode.hybrid).attr({id: mode.hybrid})
+                        ).add(
+                          label.clone().text(mode.hybrid).attr({for: mode.hybrid})
+                        ).add(
+                          inputReplication.clone().val(mode.multicast).attr({id: mode.multicast})
+                        ).add(
+                          label.clone().text(mode.multicast).attr({for: mode.multicast})
+                        )
+                      );
+                      var universalSync = full.clone().append(
+                        input.clone().attr({type: 'checkbox', name: idInputs.universalsync, id: idInputs.universalsync}).add(
+                          label.clone().text(Locale.tr("Universal Synchronization"))
+                        )
+                      );
+                      var ipDiscover = full.clone().append(
+                        input.clone().attr({type: 'checkbox', name: idInputs.ipdiscovery, id: idInputs.ipdiscovery, checked: ""}).add(
+                          label.clone().text(Locale.tr("IP Discovery"))
+                        )
+                      );
+                      var macLearning = full.clone().append(
+                        input.clone().attr({type: 'checkbox', name: idInputs.maclearning, id: idInputs.maclearning}).add(
+                          label.clone().text(Locale.tr("MAC Learning"))
+                        )
+                      );
+                      nsx_fields.append(replication.add(universalSync).add(ipDiscover).add(macLearning));
+                    break;
+                    case 'nsx-t':
+                      //NSX-T
+                      var adminStatusInput = input.clone().attr({type:'radio', name: idInputs.adminstatus, id: idInputs.adminstatus});
+                      var inputRep = input.clone().attr({type:'radio', name: idInputs.replication, id: idInputs.replication});
+                      var adminStatusOptions = {
+                        up: 'UP',
+                        down: 'DOWN'
+                      };
+                      var replicationModeIOptions = {
+                        mtep: 'MTEP',
+                        source: 'SOURCE'
+                      };
+                      var adminStatus = full.clone().append(
+                        label.clone().text(Locale.tr("Admin Status")).add(
+                          adminStatusInput.clone().val(adminStatusOptions.up).attr({id: adminStatusOptions.up, checked: ""})
+                        ).add(
+                          label.clone().text(Locale.tr(adminStatusOptions.up)).attr({for: adminStatusOptions.up})
+                        ).add(
+                          adminStatusInput.clone().val(adminStatusOptions.down).attr({id: adminStatusOptions.down})
+                        ).add(
+                          label.clone().text(Locale.tr(adminStatusOptions.down)).attr({for: adminStatusOptions.down})
+                        )
+                      );
+                      var replicationMode = full.clone().append(
+                        label.clone().text(Locale.tr("Replication Mode")).add(
+                          inputRep.clone().val(replicationModeIOptions.mtep).attr({id: replicationModeIOptions.mtep, checked: ""})
+                        ).add(
+                          label.clone().text(Locale.tr(replicationModeIOptions.mtep)).attr({for: replicationModeIOptions.mtep})
+                        ).add(
+                          inputRep.clone().val(replicationModeIOptions.source).attr({id: replicationModeIOptions.source})
+                        ).add(
+                          label.clone().text(Locale.tr(replicationModeIOptions.source)).attr({for: replicationModeIOptions.source})
+                        )
+                      );
+                      nsx_fields.append(adminStatus.add(replicationMode));
+                    break;
+                    default:
+                      //NOTHING
+                    break;
+                  }
+                }
+              }
+            });
+          }
+        }
+      },
+      error: function(){
+        console.log("ERRROR");
+      }
+    };
+    OpenNebulaAction.list(hostActions,actionHost);
 
     this.securityGroupsTable.refreshResourceTableSelect();
 
