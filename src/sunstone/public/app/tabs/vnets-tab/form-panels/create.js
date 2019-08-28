@@ -150,9 +150,10 @@ define(function(require) {
       $("#automatic_vlan_id option[value='NO']", context).show();
       $("input[wizard_field=\"VLAN_ID\"]", context).removeAttr("required");
       //NSX
-      $("input#nsx-name", context).removeAttr("required").removeAttr("value");
       $("select#nsx-transport", context).removeAttr("required").removeAttr("value");
-      switch ($(this).val()) {
+      $("select#nsx-instance-id", context).removeAttr("required").removeAttr("value");
+      $("select#nsx-host-id", context).removeAttr("required").removeAttr("value");
+      switch ($(this).find("option:selected").attr("data-form")) {
       case "bridge":
         $("div.mode_param.bridge", context).show();
         $("div.mode_param.bridge [wizard_field]", context).prop("wizard_field_disabled", false);
@@ -228,10 +229,13 @@ define(function(require) {
         $("#div_vn_mad", context).hide();
         break;
       case "nsx":
+        $("div.network_mode_description").hide();
         $("div.mode_param.nsx", context).show();
-        $("input#nsx-name", context).attr("required", "");
         $("select#nsx-type", context).attr("required", "");
+        $("select#nsx-instance-id", context).attr({required: "", value: ""});
+        $("select#nsx-host-id", context).attr({required: "", value: ""});
         $("select#nsx-transport", context).attr("required", "");
+        $("div.mode_param.nsx [wizard_field]", context).prop("wizard_field_disabled", false);
         break;
       case "custom":
         $("div.mode_param.custom", context).show();
@@ -422,6 +426,8 @@ define(function(require) {
           var nsx_type = $("select#nsx-type", context);
           var nsx_transport = $("select#nsx-transport", context);
           var nsx_fields = $("#nsx-fields", context);
+          var nsx_host_id = $("#nsx-host-id", context);
+          var nsx_instance_id = $("#nsx-instance-id",context);
           var full = $("<div/>",{'class': 'small-12 columns'});
           var label = $("<label/>");
           var input = $("<input/>");
@@ -434,17 +440,23 @@ define(function(require) {
             hosts.map(function(host){
               var name = (host && host.NAME) || "";
               var type_nsx = host && host.TEMPLATE && host.TEMPLATE.NSX_TYPE || "";
+              var instanciate_id = host && host.TEMPLATE && host.TEMPLATE.VCENTER_INSTANCE_ID || "";
               var id = (host && host.ID) || 0;
-              if(type_nsx){
+              if(type_nsx && instanciate_id){
+                type_nsx = type_nsx.toLowerCase() === "nsx-t"? "Opaque Network" : type_nsx;
                 var option = element.clone();
                 option.val(type_nsx);
-                option.attr("data-id",id);
+                option.attr({"data-id":id, "data-instance": instanciate_id});
                 option.text(name);
                 nsx_type.append(option);
               }
             });
             nsx_type.off().on('change', function(){
-              var selectId = $(this).find("option:selected").attr("data-id");
+              var optionSelected = $(this).find("option:selected");
+              var selectId = optionSelected.attr("data-id");
+              var instanceId = optionSelected.attr("data-instance");
+              nsx_host_id.val(selectId);
+              nsx_instance_id.val(instanceId);
               var type = $(this).val();
               nsx_transport.empty().append(element.clone().text("--"));
               nsx_fields.empty();
@@ -471,7 +483,6 @@ define(function(require) {
 
                   switch (type.toLowerCase()) {
                     case 'nsx-v':
-                      console.log("PASS!!")
                       //NSX-V
                       var mode = {
                         unicast: 'UNICAST_MODE',
@@ -481,7 +492,7 @@ define(function(require) {
                       var inputReplication = input.clone().attr({type:'radio', name: idInputs.replication, id: idInputs.replication});
                       var replication =  full.clone().append(
                         label.clone().text(Locale.tr("Replication Mode")).add(
-                          inputReplication.clone().val(mode.unicast).attr({id: mode.unicast})
+                          inputReplication.clone().val(mode.unicast).attr({id: mode.unicast, checked: ""})
                         ).add(
                           label.clone().text(mode.unicast).attr({for: mode.unicast})
                         ).add(
@@ -512,7 +523,6 @@ define(function(require) {
                       nsx_fields.append(replication.add(universalSync).add(ipDiscover).add(macLearning));
                     break;
                     case 'nsx-t':
-                      console.log("PASS!")
                       //NSX-T
                       var adminStatusInput = input.clone().attr({type:'radio', name: idInputs.adminstatus, id: idInputs.adminstatus});
                       var inputRep = input.clone().attr({type:'radio', name: idInputs.replication, id: idInputs.replication});
