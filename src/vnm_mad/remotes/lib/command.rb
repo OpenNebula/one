@@ -23,8 +23,8 @@ module VNMNetwork
     # onehost sync command.
     COMMANDS = {
       :ebtables => "sudo ebtables",
-      :iptables => "sudo iptables",
-      :ip6tables=> "sudo ip6tables",
+      :iptables => "sudo iptables -w 3 -W 20000",
+      :ip6tables=> "sudo ip6tables -w 3 -W 20000",
       :brctl    => "sudo brctl",
       :ip       => "sudo ip",
       :virsh    => "virsh -c qemu:///system",
