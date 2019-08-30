@@ -309,6 +309,9 @@ int User::from_xml(const string& xml)
     ObjectXML::free_nodes(content);
     content.clear();
 
+    string error;
+    rc += read_vm_operations(error);
+
     rc += groups.from_xml(this, "/USER/");
 
     if (rc != 0)
@@ -317,6 +320,29 @@ int User::from_xml(const string& xml)
     }
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+AuthRequest::Operation User::get_vm_auth_op(History::VMAction action) const
+{
+    if (vm_admin_actions.is_set(action))
+    {
+        return AuthRequest::ADMIN;
+    }
+    else if (vm_manage_actions.is_set(action))
+    {
+        return AuthRequest::MANAGE;
+    }
+    else if (vm_use_actions.is_set(action))
+    {
+        return AuthRequest::USE;
+    }
+    else
+    {
+        return AuthRequest::NONE;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -437,3 +463,36 @@ int User::get_default_umask()
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int User::read_vm_operations(string& error)
+{
+    std::string admin, manage, use;
+
+    get_template_attribute("VM_ADMIN_OPERATIONS", admin);
+    if (OpenNebulaTemplate::set_vm_auth_ops(admin, vm_admin_actions, error) != 0)
+    {
+        return -1;
+    }
+
+    get_template_attribute("VM_MANAGE_OPERATIONS", manage);
+    if (OpenNebulaTemplate::set_vm_auth_ops(manage, vm_manage_actions, error) != 0)
+    {
+        return -1;
+    }
+
+    get_template_attribute("VM_USE_OPERATIONS", use);
+    if (OpenNebulaTemplate::set_vm_auth_ops(use, vm_use_actions, error) != 0)
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int User::post_update_template(string& error)
+{
+    return read_vm_operations(error);
+}

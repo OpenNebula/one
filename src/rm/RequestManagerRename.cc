@@ -134,6 +134,17 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualMachineRename::request_execute(xmlrpc_c::paramList const& paramList,
+                                          RequestAttributes& att)
+{
+    auth_op = get_vm_auth_op(History::RENAME_ACTION, att);
+
+    RequestManagerRename::request_execute(paramList, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void ClusterRename::batch_rename(int oid)
 {
     Cluster * cluster = static_cast<ClusterPool *>(pool)->get_ro(oid);

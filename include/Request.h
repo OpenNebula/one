@@ -24,6 +24,7 @@
 #include "AuthRequest.h"
 #include "PoolObjectSQL.h"
 #include "Quotas.h"
+#include "History.h"
 
 using namespace std;
 
@@ -421,6 +422,8 @@ protected:
      */
     ErrorCode as_uid_gid(Template * tmpl, RequestAttributes& att);
 
+    AuthRequest::Operation get_vm_auth_op(History::VMAction action,
+        const RequestAttributes& att) const;
 private:
     /* ---------------------------------------------------------------------- */
     /* Functions to manage user and group quotas                              */

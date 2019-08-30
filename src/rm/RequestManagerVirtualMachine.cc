@@ -496,7 +496,6 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     ostringstream oss;
     string error;
 
-    AuthRequest::Operation op;
     History::VMAction action;
 
     VirtualMachineTemplate quota_tmpl;
@@ -515,9 +514,8 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     History::action_from_str(action_st, action);
 
-    op = nd.get_vm_auth_op(action);
-
-    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, op) == false )
+    auth_op = get_vm_auth_op(action, att);
+    if (vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false)
     {
         return;
     }
@@ -761,6 +759,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     bool auth = false;
     bool check_nic_auto = false;
 
+
     // ------------------------------------------------------------------------
     // Get request parameters and information about the target host
     // ------------------------------------------------------------------------
@@ -901,6 +900,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     // ------------------------------------------------------------------------
     // Authorize request
     // ------------------------------------------------------------------------
+    auth_op = get_vm_auth_op(History::DEPLOY_ACTION, att);
     if ( check_nic_auto ) //Authorize network schedule and quotas
     {
         RequestAttributes att_quota(uid, gid, att);
@@ -1135,6 +1135,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     // Authorize request
     // ------------------------------------------------------------------------
 
+    auth_op = get_vm_auth_op(History::MIGRATE_ACTION, att);
     auth = vm_authorization(id, 0, 0, att, &host_perms, auth_ds_perms, 0, auth_op);
 
     if (auth == false)
@@ -1589,6 +1590,7 @@ void VirtualMachineDiskSaveas::request_execute(
     // -------------------------------------------------------------------------
     // Authorize the operation & check quotas
     // -------------------------------------------------------------------------
+    auth_op = get_vm_auth_op(History::DISK_SAVEAS_ACTION, att);
     rc_auth = vm_authorization(id, itemplate, 0, att, 0,&ds_perms,0,auth_op);
 
     if ( rc_auth == true )
@@ -1829,7 +1831,7 @@ Request::ErrorCode VirtualMachineAttach::request_execute(int id,
     // -------------------------------------------------------------------------
     // Authorize the operation & check quotas
     // -------------------------------------------------------------------------
-
+    auth_op = get_vm_auth_op(History::DISK_ATTACH_ACTION, att);
     if ( vm_authorization(id, 0, &tmpl, att, 0, 0, 0, auth_op) == false )
     {
         return AUTHORIZATION;
@@ -1914,7 +1916,7 @@ void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
     // -------------------------------------------------------------------------
     // Authorize the operation
     // -------------------------------------------------------------------------
-
+    auth_op = get_vm_auth_op(History::DISK_DETACH_ACTION, att);
     if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
         return;
@@ -2038,6 +2040,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     /* ---------------------------------------------------------------------- */
     /*  Authorize the operation & restricted attributes                       */
     /* ---------------------------------------------------------------------- */
+    auth_op = get_vm_auth_op(History::RESIZE_ACTION, att);
     if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
         return;
@@ -2217,7 +2220,7 @@ void VirtualMachineSnapshotCreate::request_execute(
     // -------------------------------------------------------------------------
     // Authorize the operation
     // -------------------------------------------------------------------------
-
+    auth_op = get_vm_auth_op(History::SNAPSHOT_CREATE_ACTION, att);
     if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
         return;
@@ -2255,7 +2258,7 @@ void VirtualMachineSnapshotRevert::request_execute(
     // -------------------------------------------------------------------------
     // Authorize the operation
     // -------------------------------------------------------------------------
-
+    auth_op = get_vm_auth_op(History::SNAPSHOT_REVERT_ACTION, att);
     if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
         return;
@@ -2293,7 +2296,7 @@ void VirtualMachineSnapshotDelete::request_execute(
     // -------------------------------------------------------------------------
     // Authorize the operation
     // -------------------------------------------------------------------------
-
+    auth_op = get_vm_auth_op(History::SNAPSHOT_DELETE_ACTION, att);
     if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
         return;
@@ -2404,6 +2407,8 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
     vm->get_permissions(vm_perms);
 
     vm->unlock();
+
+    auth_op = get_vm_auth_op(History::NIC_ATTACH_ACTION, att);
 
     AuthRequest ar(att.uid, att.group_ids);
 
@@ -2524,6 +2529,8 @@ Request::ErrorCode VirtualMachineDetachNic::request_execute(int id, int nic_id,
 
     vm->unlock();
 
+    auth_op = get_vm_auth_op(History::NIC_DETACH_ACTION, att);
+
     AuthRequest ar(att.uid, att.group_ids);
 
     ar.add_auth(AuthRequest::MANAGE, vm_perms);
@@ -2566,17 +2573,17 @@ void VirtualMachineRecover::request_execute(
     {
         case 0: //recover-failure
         case 1: //recover-success
-            aop = nd.get_vm_auth_op(History::RECOVER_ACTION);
+            aop = get_vm_auth_op(History::RECOVER_ACTION, att);
             break;
 
         case 2: //retry
-            aop = nd.get_vm_auth_op(History::RETRY_ACTION);
+            aop = get_vm_auth_op(History::RETRY_ACTION, att);
             break;
 
         case 3: //delete
         case 4: //delete-recreate set same as delete in OpenNebulaTemplate
         case 5: //delete-db
-            aop = nd.get_vm_auth_op(History::DELETE_ACTION);
+            aop = get_vm_auth_op(History::DELETE_ACTION, att);
             break;
 
         default:
@@ -2754,6 +2761,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 
     RequestAttributes img_att_quota;
     RequestAttributes vm_att_quota;
+    auth_op = get_vm_auth_op(History::DISK_SNAPSHOT_CREATE_ACTION, att);
 
     if (img_ds_quota)
     {
@@ -2874,6 +2882,7 @@ void VirtualMachineDiskSnapshotRevert::request_execute(
     int did     = xmlrpc_c::value_int(paramList.getInt(2));
     int snap_id = xmlrpc_c::value_int(paramList.getInt(3));
 
+    auth_op = get_vm_auth_op(History::DISK_SNAPSHOT_REVERT_ACTION, att);
     if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
         return;
@@ -2936,6 +2945,7 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
 
     vm->unlock();
 
+    auth_op = get_vm_auth_op(History::DISK_SNAPSHOT_DELETE_ACTION, att);
     if (persistent)
     {
         PoolObjectAuth img_perms;
@@ -2998,6 +3008,7 @@ void VirtualMachineDiskSnapshotRename::request_execute(xmlrpc_c::paramList const
     int snap_id          = xmlrpc_c::value_int(paramList.getInt(3));
     string new_snap_name = xmlrpc_c::value_string(paramList.getString(4));
 
+    auth_op = get_vm_auth_op(History::DISK_SNAPSHOT_RENAME_ACTION, att);
     if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
         return;
@@ -3072,6 +3083,7 @@ void VirtualMachineUpdateConf::request_execute(
     /* ---------------------------------------------------------------------- */
     /*  Authorize the operation & restricted attributes                       */
     /* ---------------------------------------------------------------------- */
+    auth_op = get_vm_auth_op(History::UPDATECONF_ACTION, att);
     if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
         return;
@@ -3262,6 +3274,7 @@ void VirtualMachineDiskResize::request_execute(
     /* ---------------------------------------------------------------------- */
     RequestAttributes img_att_quota;
     RequestAttributes vm_att_quota;
+    auth_op = get_vm_auth_op(History::DISK_RESIZE_ACTION, att);
 
     if ( img_ds_quota )
     {

@@ -128,3 +128,11 @@ void RequestManagerUpdateTemplate::request_execute(
     return;
 }
 
+void VirtualMachineUpdateTemplate::request_execute(xmlrpc_c::paramList const& _paramList,
+    RequestAttributes& att)
+{
+    auth_op = get_vm_auth_op(History::UPDATE_ACTION, att);
+
+    RequestManagerUpdateTemplate::request_execute(_paramList, att);
+}
+

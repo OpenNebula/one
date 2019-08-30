@@ -707,17 +707,16 @@ int OpenNebulaTemplate::load_key()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static int _set_vm_auth_ops(const std::string& ops_str,
-        ActionSet<History::VMAction>& ops_set, std::string& error_op)
+int OpenNebulaTemplate::set_vm_auth_ops(const string& ops_str,
+        ActionSet<History::VMAction>& ops_set, string& error)
 {
     std::set<std::string> ops;
-    std::set<std::string>::iterator it;
 
     one_util::split_unique(ops_str, ',', ops);
 
-    for ( it = ops.begin() ; it != ops.end() ; ++it )
+    for (const string& op : ops)
     {
-        std::string the_op = one_util::trim(*it);
+        std::string the_op = one_util::trim(op);
 
         one_util::tolower(the_op);
 
@@ -837,7 +836,7 @@ static int _set_vm_auth_ops(const std::string& ops_str,
         }
         else
         {
-            error_op = the_op;
+            error = "Unknown vm operation: " + the_op;
             return -1;
         }
     }
@@ -846,39 +845,31 @@ static int _set_vm_auth_ops(const std::string& ops_str,
 }
 
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int OpenNebulaTemplate::set_vm_auth_ops(std::string& error)
 {
-    std::string error_op;
-
     std::string admin, manage, use;
 
     get("VM_ADMIN_OPERATIONS", admin);
-
-    if ( _set_vm_auth_ops(admin, vm_admin_actions, error_op) != 0 )
+    if (set_vm_auth_ops(admin, vm_admin_actions, error) != 0)
     {
-        goto error_op;
+        return -1;
     }
 
     get("VM_MANAGE_OPERATIONS", manage);
-
-    if ( _set_vm_auth_ops(manage, vm_manage_actions, error_op) != 0 )
+    if (set_vm_auth_ops(manage, vm_manage_actions, error) != 0)
     {
-        goto error_op;
+        return -1;
     }
 
     get("VM_USE_OPERATIONS", use);
-
-    if ( _set_vm_auth_ops(use, vm_use_actions, error_op) != 0 )
+    if (set_vm_auth_ops(use, vm_use_actions, error) != 0)
     {
-        goto error_op;
+        return -1;
     }
 
     return 0;
-
-error_op:
-    error = "Unknown vm operation: " + error_op;
-    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -902,5 +893,4 @@ AuthRequest::Operation OpenNebulaTemplate::get_vm_auth_op(History::VMAction ac)
     {
         return AuthRequest::MANAGE;
     }
-
 }

@@ -22,6 +22,9 @@
 #include "ObjectCollection.h"
 #include "QuotasSQL.h"
 #include "LoginToken.h"
+#include "ActionSet.h"
+#include "History.h"
+#include "AuthRequest.h"
 
 class UserQuotas;
 
@@ -224,6 +227,8 @@ public:
         return groups.contains(_group_id);
     }
 
+    AuthRequest::Operation get_vm_auth_op(History::VMAction action) const;
+
     // *************************************************************************
     // Quotas
     // *************************************************************************
@@ -241,7 +246,7 @@ public:
     int update_quotas(SqlDB *db)
     {
         return quota.update(oid, db->get_local_db());
-    };
+    }
 
     // *************************************************************************
     // Login tokens
@@ -283,6 +288,21 @@ private:
      */
     ObjectCollection groups;
 
+    /**
+     *  Set of VM actions that require USE permission
+     */
+    ActionSet<History::VMAction> vm_use_actions;
+
+    /**
+     *  Set of VM actions that require MANAGE permission
+     */
+    ActionSet<History::VMAction> vm_manage_actions;
+
+    /**
+     *  Set of VM actions that require ADMIN permission
+     */
+    ActionSet<History::VMAction> vm_admin_actions;
+
     // *************************************************************************
     // Authentication session used to cache authentication calls
     // *************************************************************************
@@ -310,7 +330,7 @@ private:
         ostringstream oss_user(User::db_bootstrap);
 
         return db->exec_local_wr(oss_user);
-    };
+    }
 
     /**
      *  Reads the User (identified with its OID) from the database.
@@ -375,9 +395,9 @@ protected:
         session(0)
     {
         obj_template = new UserTemplate;
-    };
+    }
 
-    virtual ~User(){};
+    virtual ~User() = default;
 
     // *************************************************************************
     // DataBase implementation
@@ -406,7 +426,11 @@ protected:
     {
         string error_str;
         return insert_replace(db, true, error_str);
-    };
+    }
+
+    int read_vm_operations(string& error);
+
+    int post_update_template(string& error) override;
 };
 
 #endif /*USER_H_*/

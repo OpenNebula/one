@@ -90,6 +90,12 @@ public:
     virtual int load_configuration();
 
     /**
+     *  Returns action set from a string of actions seperated by commas
+     */
+    static int set_vm_auth_ops(const std::string& ops_str,
+       ActionSet<History::VMAction>& ops_set, std::string& error);
+
+    /**
      *  @param  action
      *  @return authorization operation configured for the given VM action
      */

@@ -110,11 +110,12 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
         auth_object = PoolObjectSQL::VM;
+    }
 
-        auth_op     = nd.get_vm_auth_op(History::UPDATE_ACTION);
-    };
+    ~VirtualMachineUpdateTemplate() = default;
 
-    ~VirtualMachineUpdateTemplate(){};
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att) override;
 
     int extra_updates(PoolObjectSQL * obj) override
     {
