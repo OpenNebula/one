@@ -1037,18 +1037,30 @@ AuthRequest::Operation Request::get_vm_auth_op(History::VMAction action,
 {
     AuthRequest::Operation result = AuthRequest::NONE;
     auto& nd = Nebula::instance();
-    auto user = nd.get_upool()->get_ro(att.uid);
 
+    auto user = nd.get_upool()->get_ro(att.uid);
     if (user != nullptr)
     {
         result = user->get_vm_auth_op(action);
     }
     user->unlock();
 
-    if (result == AuthRequest::NONE)
+    if (result != AuthRequest::NONE)
     {
-        result = nd.get_vm_auth_op(action);
+        return result;
     }
 
-    return result;
+    auto group = nd.get_gpool()->get_ro(att.gid);
+    if (group != nullptr)
+    {
+        result = group->get_vm_auth_op(action);
+    }
+    group->unlock();
+
+    if (result != AuthRequest::NONE)
+    {
+        return result;
+    }
+
+    return nd.get_vm_auth_op(action);
 }

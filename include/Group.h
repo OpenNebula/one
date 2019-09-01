@@ -115,7 +115,7 @@ public:
     int update_quotas(SqlDB *db)
     {
         return quota.update(oid, db->get_local_db());
-    };
+    }
 
     /**
      *  Factory method for Group templates
@@ -136,6 +136,8 @@ public:
      */
     void sunstone_views(const string& user_default, const string& user_views,
             const string& admin_default, const string& admin_views);
+
+    AuthRequest::Operation get_vm_auth_op(History::VMAction action) const;
 
 private:
 
@@ -159,9 +161,9 @@ private:
         group_u = 1;
 
         obj_template = new Template;
-    };
+    }
 
-    virtual ~Group(){};
+    virtual ~Group() = default;
 
     // *************************************************************************
     // Administrators
@@ -179,6 +181,21 @@ private:
 
     void add_admin_rules(int user_id);
     void del_admin_rules(int user_id);
+
+    /**
+     *  Set of VM actions that require USE permission
+     */
+    ActionSet<History::VMAction> vm_use_actions;
+
+    /**
+     *  Set of VM actions that require MANAGE permission
+     */
+    ActionSet<History::VMAction> vm_manage_actions;
+
+    /**
+     *  Set of VM actions that require ADMIN permission
+     */
+    ActionSet<History::VMAction> vm_admin_actions;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -208,7 +225,7 @@ private:
         ostringstream oss_group(Group::db_bootstrap);
 
         return db->exec_local_wr(oss_group);
-    };
+    }
 
     /**
      *  Reads the Group (identified with its OID) from the database.
@@ -258,7 +275,7 @@ private:
     {
         string error_str;
         return insert_replace(db, true, error_str);
-    };
+    }
 
     /**
      * Function to print the Group object into a string in
@@ -268,6 +285,10 @@ private:
      *  @return a reference to the generated string
      */
     string& to_xml_extended(string& xml, bool extended) const;
+
+    int read_vm_operations(string& error);
+
+    int post_update_template(string& error) override;
 };
 
 #endif /*GROUP_H_*/
