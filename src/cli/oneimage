@@ -182,7 +182,7 @@ CommandParser::CmdParser.new(ARGV) do
 
                 image.allocate(template, options[:datastore], check_capacity)
             rescue StandardError => e
-                STDERR.puts e.messsage
+                STDERR.puts e.message
                 exit(-1)
             end
         end

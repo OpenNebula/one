@@ -92,7 +92,7 @@ CommandParser::CmdParser.new(ARGV) do
 
                 obj.allocate(template)
             rescue StandardError => e
-                STDERR.puts e.messsage
+                STDERR.puts e.message
                 exit(-1)
             end
         end

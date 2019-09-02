@@ -161,7 +161,7 @@ CommandParser::CmdParser.new(ARGV) do
                     tmpl.allocate(template)
                 end
             rescue StandardError => e
-                STDERR.puts e.messsage
+                STDERR.puts e.message
                 exit(-1)
             end
         end
