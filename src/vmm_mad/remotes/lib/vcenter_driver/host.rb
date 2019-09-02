@@ -104,7 +104,7 @@ class ClusterComputeResource
         extensionList = @vi_client.vim.serviceContent.extensionManager.extensionList
         extensionList.each do |extList|
             if extList.key == "com.vmware.vShieldManager"
-              nsx_obj['type'] = "NSX-V"
+                nsx_obj['type'] = "NSX-V"
                 urlFull = extList.client[0].url
                 urlSplit = urlFull.split("/")
                 # protocol = "https://"
@@ -113,8 +113,8 @@ class ClusterComputeResource
                 ipPort = urlSplit[2]
                 nsx_obj['url'] = protocol + ipPort
             elsif extList.key == "com.vmware.nsx.management.nsxt"
-              nsx_obj['type'] = "NSX-T"
-              nsx_obj['url'] = extList.server[0].url
+                nsx_obj['type'] = "NSX-T"
+                nsx_obj['url'] = extList.server[0].url
             else
                 next
             end
@@ -175,7 +175,7 @@ class ClusterComputeResource
                 end
             rescue StandardError => e
                 @nsx_status = "NSX_STATUS = \"Error connecting to " \
-                              "NSX_MANAGER\": #{e.message}\n"
+                              "NSX_MANAGER\"\n"
                 return false
             end
         end
@@ -184,7 +184,7 @@ class ClusterComputeResource
             # URL to test a connection
             url = "#{@one_item["TEMPLATE/NSX_MANAGER"]}/api/v1/transport-zones"
             begin
-                if nsx_client.get_json(url)  
+                if nsx_client.get_json(url)
                     return true
                 else
                     @nsx_status = "NSX_STATUS = \"Response code incorrect\"\n"
@@ -192,7 +192,7 @@ class ClusterComputeResource
                 end
             rescue StandardError => e
                 @nsx_status = "NSX_STATUS = \"Error connecting to "\
-                              "NSX_MANAGER\": #{e.message}\n"
+                              "NSX_MANAGER\"\n"
                 return false
             end
         end
@@ -221,7 +221,7 @@ class ClusterComputeResource
             elsif @one_item["TEMPLATE/NSX_TYPE"] == "NSX-T"
                 r = tz_object.tzs_nsxt
                 r["results"].each do |tz|
-                    tz_info << tz["display_name"] << "=\"" 
+                    tz_info << tz["display_name"] << "=\""
                     tz_info << tz["id"] << "\","
                 end
                 tz_info.chomp!(',')
@@ -293,7 +293,7 @@ class ClusterComputeResource
 
         # HA enabled
         str_info << "VCENTER_HA="  << ha_enabled.to_s << "\n"
-        
+
         # NSX info
         str_info << get_nsx
         str_info << get_tz
