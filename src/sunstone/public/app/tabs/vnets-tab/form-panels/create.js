@@ -432,6 +432,7 @@ define(function(require) {
           var label = $("<label/>");
           var input = $("<input/>");
           var element = $("<option/>");
+          var type_nsxt = "Opaque Network";
           nsx_type.empty().append(element.clone().text("--"));
           if (!(hosts instanceof Array)) {
             hosts = [hosts];
@@ -443,7 +444,7 @@ define(function(require) {
               var instanciate_id = host && host.TEMPLATE && host.TEMPLATE.VCENTER_INSTANCE_ID || "";
               var id = (host && host.ID) || 0;
               if(type_nsx && instanciate_id){
-                type_nsx = type_nsx.toLowerCase() === "nsx-t"? "Opaque Network" : type_nsx;
+                type_nsx = type_nsx.toLowerCase() === "nsx-t"? type_nsxt : type_nsx;
                 var option = element.clone();
                 option.val(type_nsx);
                 option.attr({"data-id":id, "data-instance": instanciate_id});
@@ -452,6 +453,7 @@ define(function(require) {
               }
             });
             nsx_type.off().on('change', function(){
+              $("div.network_mode_description").hide();
               var optionSelected = $(this).find("option:selected");
               var selectId = optionSelected.attr("data-id");
               var instanceId = optionSelected.attr("data-instance");
@@ -480,7 +482,7 @@ define(function(require) {
                     maclearning: 'nsx-maclearning',
                     adminstatus: 'nsx-adminstatus'
                   };
-
+                  console.log("TEST", type);
                   switch (type.toLowerCase()) {
                     case 'nsx-v':
                       //NSX-V
@@ -522,7 +524,7 @@ define(function(require) {
                       );
                       nsx_fields.append(replication.add(universalSync).add(ipDiscover).add(macLearning));
                     break;
-                    case 'nsx-t':
+                    case type_nsxt.toLowerCase():
                       //NSX-T
                       var adminStatusInput = input.clone().attr({type:'radio', name: idInputs.adminstatus, id: idInputs.adminstatus});
                       var inputRep = input.clone().attr({type:'radio', name: idInputs.replication, id: idInputs.replication});
