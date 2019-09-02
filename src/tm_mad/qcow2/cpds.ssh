@@ -1,0 +1,135 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# mvds host:remote_system_ds/disk.i fe:SOURCE snapid vmid dsid
+#   - fe is the front-end hostname
+#   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
+#   - vmid is the id of the VM
+#   - dsid is the target datastore (0 is the system datastore)
+#   - snapid is the snapshot id. "-1" for none
+
+SRC=$1
+DST=$2
+SNAP_ID=$3
+VMID=$4
+DSID=$5
+
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+else
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+fi
+
+DRIVER_PATH=$(dirname $0)
+
+. $TMCOMMON
+. ${DRIVER_PATH}/../../etc/vmm/kvm/kvmrc
+
+#-------------------------------------------------------------------------------
+# Get Image information
+#-------------------------------------------------------------------------------
+
+DISK_ID=$(basename ${SRC} | cut -d. -f2)
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VMID| $XPATH \
+                    /VM/DEPLOY_ID \
+                    /VM/LCM_STATE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TARGET \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE)
+
+DEPLOY_ID="${XPATH_ELEMENTS[j++]}"
+LCM_STATE="${XPATH_ELEMENTS[j++]}"
+DISK_TARGET="${XPATH_ELEMENTS[j++]}"
+DISK_SRC="${XPATH_ELEMENTS[j++]}"
+CLONE="${XPATH_ELEMENTS[j++]}"
+
+#-------------------------------------------------------------------------------
+# Set dst path and dir
+#-------------------------------------------------------------------------------
+SRC_PATH=`arg_path $SRC`
+SRC_HOST=`arg_host $SRC`
+SRC_DIR=`dirname $SRC_PATH`
+
+DST_ARG_PATH=`arg_path $DST`
+
+SRC_DS_PATH="$(dirname $(dirname $(dirname $SRC_PATH)))"
+DST_DS_PATH="$(dirname $(dirname $DST_ARG_PATH))"
+
+DST_PATH="${SRC_DS_PATH}${DST_ARG_PATH##$DST_DS_PATH}"
+
+if [ "$SNAP_ID" != "-1" ]; then
+    [ "$CLONE" != "YES" ] && SRC_PATH="$DISK_SRC"
+    SRC_PATH="$SRC_PATH.snap/$SNAP_ID"
+fi
+
+#-------------------------------------------------------------------------------
+# Move the image back to the datastore
+#-------------------------------------------------------------------------------
+
+# For current image of the running VMs, don't touch the image directly,
+# but export the content via blockcopy. If that's not possible (old QEMU),
+# domfsfreeze or suspend the domain before.
+if [ "${LCM_STATE}" = '26' ] && [ "${SNAP_ID}" = '-1' ]; then
+    CPDS_CMD_EXPORT=$(cat <<EOF
+touch ${DST_PATH}
+if ! virsh -c ${LIBVIRT_URI} blockcopy ${DEPLOY_ID} ${DISK_TARGET} ${DST_PATH} --wait --finish; then
+    if virsh -c ${LIBVIRT_URI} domfsfreeze ${DEPLOY_ID}; then
+        trap "virsh -c ${LIBVIRT_URI} domfsthaw ${DEPLOY_ID}" EXIT TERM INT HUP
+    elif virsh -c ${LIBVIRT_URI} suspend ${DEPLOY_ID}; then
+        trap "virsh -c ${LIBVIRT_URI} resume ${DEPLOY_ID}" EXIT TERM INT HUP
+    else
+        echo "Could not domfsfreeze or suspend domain" >&2
+        exit 1
+    fi
+
+    ${QEMU_IMG} convert ${SRC_PATH} -O qcow2 ${DST_PATH}
+fi
+EOF
+)
+else
+    CPDS_CMD_EXPORT="${QEMU_IMG} convert ${SRC_PATH} -O qcow2 ${DST_PATH}"
+fi
+
+CPDS_CMD=$(cat <<EOF
+set -e -o pipefail
+
+SRC_READLN=\$($READLINK -f $SRC_PATH)
+DST_READLN=\$($READLINK -f $DST_PATH)
+
+if [ \( -L $SRC_PATH \) -a \( "\$SRC_READLN" = "\$DST_READLN" \) ] ; then
+    echo "Not moving files to image repo, they are the same"
+else
+    ${CPDS_CMD_EXPORT}
+fi
+EOF
+)
+
+log "Copying $SRC_PATH to datastore as $DST_PATH"
+
+ssh_exec_and_log $SRC_HOST "$CPDS_CMD" "Could not move image $DST_PATH"
+
+exit 0

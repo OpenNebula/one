@@ -359,9 +359,9 @@ void Request::execute(
     RequestAttributes att;
 
     att.retval  = _retval;
-    att.session = xmlrpc_c::value_string (_paramList.getString(0));
+    att.session = xmlrpc_c::value_string(_paramList.getString(0));
 
-    att.req_id  = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;
+    att.req_id  = (reinterpret_cast<uintptr_t>(this) * one_util::random<int>()) % 10000;
 
     Nebula& nd  = Nebula::instance();
 

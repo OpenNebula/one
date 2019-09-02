@@ -350,7 +350,8 @@ int VirtualMachine::generate_network_context(VectorAttribute* context,
         }
 
         bool alias_detach = hasPreviousHistory() &&
-	                            previous_history->action == History::ALIAS_DETACH_ACTION;
+                            previous_history->action == History::ALIAS_DETACH_ACTION &&
+                            vatts[i]->vector_value("ATTACH") == "YES";
 
         parse_context_network(NETWORK_CONTEXT, &tmp_context, vatts[i], alias_detach);
         parse_context_network(NETWORK6_CONTEXT, &tmp_context, vatts[i], alias_detach);

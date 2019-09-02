@@ -64,9 +64,10 @@ module VirtualMachineMonitor
         @monitor[:used_cpu]    = 0 if @monitor[:used_cpu].to_i < 0
 
         guest_ip_addresses = []
-        if self['guest.net']
+        unless self['guest.net'].empty?
             self['guest.net'].each do |net|
-                next unless net.ipConfig && net.ipConfig.ipAddress
+                next unless net.ipConfig
+                next if net.ipConfig.ipAddress.empty?
 
                 net.ipConfig.ipAddress.each do |ip|
                     guest_ip_addresses << ip.ipAddress
@@ -246,9 +247,10 @@ module VirtualMachineMonitor
         @monitor[:used_cpu]    = 0 if @monitor[:used_cpu].to_i < 0
 
         guest_ip_addresses = []
-        if self['guest.net']
+        unless self['guest.net'].empty?
             @vm_info['guest.net'].each do |net|
-                next unless net.ipConfig && net.ipConfig.ipAddress
+                next unless net.ipConfig
+                next if net.ipConfig.ipAddress.empty?
 
                 net.ipConfig.ipAddress.each do |ip|
                     guest_ip_addresses << ip.ipAddress

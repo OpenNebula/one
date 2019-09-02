@@ -22,6 +22,8 @@
 #include <vector>
 #include <set>
 #include <algorithm>
+#include <random>
+#include <mutex>
 
 #include <openssl/crypto.h>
 
@@ -86,6 +88,56 @@ namespace one_util
      *    @return a new random password
      */
     std::string random_password();
+
+    /**
+     *  Returns random number, default range is <0, Type Max Value>, specialization for integer types
+     *    @param min - minimal potentially generated number, defaults to 0
+     *    @param max - maximal potentially generated number, defaults to type max value
+     *    @return number between min, max
+     */
+    template<typename Integer, typename std::enable_if<std::is_integral<Integer>::value>::type* = nullptr>
+    Integer random(Integer min = 0, Integer max = std::numeric_limits<Integer>::max())
+    {
+        static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+        static std::random_device rd;
+        static std::mt19937_64    rng(rd());
+
+        std::uniform_int_distribution<Integer> distribution(min, max);
+
+        pthread_mutex_lock(&mutex);
+
+        Integer i = distribution(rng);
+
+        pthread_mutex_unlock(&mutex);
+
+        return i;
+    }
+
+    /**
+     *  Returns random number, default range is <0, Type Max Value>, specialization for floating types
+     *    @param min - minimal potentially generated number, defaults to 0
+     *    @param max - maximal potentially generated number, defaults to type max value
+     *    @return number between min, max
+     */
+    template<typename Floating, typename std::enable_if<std::is_floating_point<Floating>::value>::type* = nullptr>
+    Floating random(Floating min = 0, Floating max = std::numeric_limits<Floating>::max())
+    {
+        static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+        static std::random_device rd;
+        static std::mt19937_64    rng(rd());
+
+        std::uniform_real_distribution<Floating> distribution(min, max);
+
+        pthread_mutex_lock(&mutex);
+
+        Floating f = distribution(rng);
+
+        pthread_mutex_unlock(&mutex);
+
+        return f;
+    }
 
     /**
      * Splits a string, using the given delimiter

@@ -433,6 +433,7 @@ define(function(require) {
           var input = $("<input/>");
           var element = $("<option/>");
           var type_nsxt = "Opaque Network";
+
           nsx_type.empty().append(element.clone().text("--"));
           if (!(hosts instanceof Array)) {
             hosts = [hosts];
@@ -482,7 +483,6 @@ define(function(require) {
                     maclearning: 'nsx-maclearning',
                     adminstatus: 'nsx-adminstatus'
                   };
-                  console.log("TEST", type);
                   switch (type.toLowerCase()) {
                     case 'nsx-v':
                       //NSX-V
@@ -570,8 +570,8 @@ define(function(require) {
           }
         }
       },
-      error: function(){
-        console.log("ERRROR");
+      error: function(error){
+        console.log("ERROR", error);
       }
     };
     OpenNebulaAction.list(hostActions,actionHost);

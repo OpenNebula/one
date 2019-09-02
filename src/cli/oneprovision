@@ -21,13 +21,19 @@ ONE_LOCATION = ENV['ONE_LOCATION']
 if !ONE_LOCATION
     LIB_LOCATION      = '/usr/lib/one'
     RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
     REMOTES_LOCATION  = '/var/lib/one/remotes'
     ANSIBLE_LOCATION  = '/usr/share/one/oneprovision/ansible'
 else
     LIB_LOCATION      = ONE_LOCATION + '/usr/lib/one'
     RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
     REMOTES_LOCATION  = ONE_LOCATION + '/var/remotes'
     ANSIBLE_LOCATION  = ONE_LOCATION + '/usr/share/oneprovision/ansible'
+end
+
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION

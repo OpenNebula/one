@@ -17,32 +17,37 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    LOG_LOCATION = "/var/log/one"
-    VAR_LOCATION = "/var/lib/one"
-    ETC_LOCATION = "/etc/one"
-    SHARE_LOCATION = "/usr/share/one"
-    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
-    SUNSTONE_LOCATION = "/usr/lib/one/sunstone"
+    LOG_LOCATION      = '/var/log/one'
+    VAR_LOCATION      = '/var/lib/one'
+    ETC_LOCATION      = '/etc/one'
+    SHARE_LOCATION    = '/usr/share/one'
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    SUNSTONE_LOCATION = '/usr/lib/one/sunstone'
 else
-    VAR_LOCATION = ONE_LOCATION + "/var"
-    LOG_LOCATION = ONE_LOCATION + "/var"
-    ETC_LOCATION = ONE_LOCATION + "/etc"
-    SHARE_LOCATION = ONE_LOCATION + "/share"
-    RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby"
-    SUNSTONE_LOCATION = ONE_LOCATION + "/lib/sunstone"
+    VAR_LOCATION      = ONE_LOCATION + '/var'
+    LOG_LOCATION      = ONE_LOCATION + '/var'
+    ETC_LOCATION      = ONE_LOCATION + '/etc'
+    SHARE_LOCATION    = ONE_LOCATION + '/share'
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    SUNSTONE_LOCATION = ONE_LOCATION + '/lib/sunstone'
 end
 
-SUNSTONE_AUTH             = VAR_LOCATION + "/.one/sunstone_auth"
-SUNSTONE_LOG              = LOG_LOCATION + "/sunstone.log"
-CONFIGURATION_FILE        = ETC_LOCATION + "/sunstone-server.conf"
-
-PLUGIN_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-plugins.yaml"
-LOGOS_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-logos.yaml"
+SUNSTONE_AUTH             = VAR_LOCATION + '/.one/sunstone_auth'
+SUNSTONE_LOG              = LOG_LOCATION + '/sunstone.log'
+CONFIGURATION_FILE        = ETC_LOCATION + '/sunstone-server.conf'
+PLUGIN_CONFIGURATION_FILE = ETC_LOCATION + '/sunstone-plugins.yaml'
+LOGOS_CONFIGURATION_FILE  = ETC_LOCATION + '/sunstone-logos.yaml'
 
 SUNSTONE_ROOT_DIR = File.dirname(__FILE__)
+
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << RUBY_LIB_LOCATION + '/cloud'
