@@ -102,7 +102,7 @@ module NSXDriver
                                   do |https|
                                       https.request(request)
                                   end
-            rescue StandtardError => e
+            rescue StandardError => e
                 raise e
             end
             return Nokogiri::XML response.body if check_response(response, 200)
