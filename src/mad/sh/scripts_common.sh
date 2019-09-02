@@ -762,6 +762,7 @@ function get_disk_information {
                         $DISK_XPATH/POOL_NAME \
                         $DISK_XPATH/SIZE \
                         $DISK_XPATH/TARGET \
+                        $DISK_XPATH/TM_MAD \
                         $DISK_XPATH/IO \
                         $DISK_XPATH/ORDER \
                         $DISK_XPATH/TOTAL_BYTES_SEC \
@@ -803,6 +804,7 @@ function get_disk_information {
     POOL_NAME="${XPATH_ELEMENTS[j++]}"
     SIZE="${XPATH_ELEMENTS[j++]}"
     DISK_TARGET="${XPATH_ELEMENTS[j++]}"
+    DISK_TM_MAD="${XPATH_ELEMENTS[j++]}"
     DISK_IO="${XPATH_ELEMENTS[j++]}"
     ORDER="${XPATH_ELEMENTS[j++]}"
     TOTAL_BYTES_SEC="${XPATH_ELEMENTS[j++]}"
@@ -907,13 +909,23 @@ function get_disk_information {
             fi
             ;;
         *)
-            TYPE_SOURCE="file"
-            TYPE_XML="file"
-            DEVICE="disk"
+            case "$DISK_TM_MAD" in
+            fs_lvm)
+                TYPE_SOURCE="dev"
+                TYPE_XML="block"
+                DEVICE="disk"
+                ;;
+            *)
+                TYPE_SOURCE="file"
+                TYPE_XML="file"
+                DEVICE="disk"
+                ;;
+            esac
             ;;
-        esac
 
+        esac
         ;;
+
     esac
 }
 
