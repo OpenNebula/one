@@ -191,9 +191,37 @@ void get_network_attribute(VirtualMachine * vm,
         }
     }
 
-    if (vnet_id == -1)
+    vector<const VectorAttribute *> alias;
+    int alias_num = vm->get_template_attribute("NIC_ALIAS", alias);
+
+    if (vnet_id == -1 && alias_num == 0)
     {
         return;
+    }
+    else
+    {
+        for (int i=0; i < alias_num ;i++)
+        {
+            if ( alias[i]->vector_value(net_name.c_str()) == net_value )
+            {
+                if (alias[i]->vector_value("NETWORK_ID", vnet_id) != 0)
+                {
+                    vnet_id = -1;
+                }
+
+                if (alias[i]->vector_value("AR_ID", ar_id) != 0)
+                {
+                    vnet_id = -1;
+                }
+
+                break;
+            }
+        }
+
+        if (vnet_id == -1)
+        {
+            return;
+        }
     }
 
     // ----------------------------------------------
