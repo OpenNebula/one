@@ -10,7 +10,7 @@ if [[ $TRAVIS_BRANCH =~ (^one-) ]]; then
     export CURRENT_ONE_INSTALL=~/current.install
 
     # Checkout previous code base
-    git clone https://github.com/tinova/one $PREVIOUS_ONE
+    git clone https://github.com/OpenNebula/one $PREVIOUS_ONE
     (cd $PREVIOUS_ONE ; git checkout $TRAVIS_BRANCH)
     # In a PR we compare with the head of $TRAVIS_BRANCH
     # Otherwise, we want to check with the previous commit
