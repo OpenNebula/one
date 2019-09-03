@@ -55,13 +55,13 @@ public:
      *    @param str the string to be escaped
      *    @return a valid SQL string or NULL in case of failure
      */
-    char * escape_str(const string& str);
+    char * escape_str(const string& str) override;
 
     /**
      *  Frees a previously scaped string
      *    @param str pointer to the str
      */
-    void free_str(char * str);
+    void free_str(char * str) override;
 
     /**
      * Returns true if the syntax INSERT VALUES (data), (data), (data)
@@ -69,7 +69,7 @@ public:
      *
      * @return true if supported
      */
-    bool multiple_values_support();
+    bool multiple_values_support() override;
 
     /**
      * Returns true if this Database can use LIMIT in queries with DELETE
@@ -77,9 +77,9 @@ public:
      *
      * @return true if supported
      */
-    bool limit_support();
+    bool limit_support() override;
 
-    bool fts_available()
+    bool fts_available() override
     {
         return false;
     }
@@ -92,7 +92,7 @@ protected:
      *    @param arg to pass to the callback function
      *    @return 0 on success
      */
-    virtual int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet);
+    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet) override;
 
 private:
     /**
@@ -135,20 +135,25 @@ public:
     SqliteDB(const string& db_name)
     {
         throw runtime_error("Aborting oned, Sqlite support not compiled!");
-    };
+    }
 
-    ~SqliteDB(){};
+    ~SqliteDB() = default;
 
-    char * escape_str(const string& str){return 0;};
+    char * escape_str(const string& str) override { return 0; }
 
-    void free_str(char * str){};
+    void free_str(char * str) override {}
 
-    bool multiple_values_support(){return true;};
+    bool multiple_values_support() override { return true; }
 
-    bool limit_support(){return true;};
+    bool limit_support() override { return true; }
+
+    bool fts_available() override { return false; }
 
 protected:
-    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet){return -1;};
+    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet) override
+    {
+        return -1;
+    }
 };
 #endif
 
