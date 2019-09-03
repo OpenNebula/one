@@ -56,8 +56,8 @@ module VNMMAD
                 create_vlan_dev
 
                 # Add vlan device to the bridge.
-                OpenNebula.exec_and_log("#{command(:brctl)} addif"\
-                    " #{@nic[:bridge]} #{@nic[:vlan_dev]}")
+                OpenNebula.exec_and_log("#{command(:ip)} link set " \
+                    "#{@nic[:vlan_dev]} master #{@nic[:bridge]}")
 
                 @bridges[@nic[:bridge]] << @nic[:vlan_dev]
             end
@@ -74,7 +74,7 @@ module VNMMAD
 
             exit -1
         end
-        
+
         # This function needs to be implemented by any VLAN driver to
         # delete the VLAN device. The device MUST be deleted by this function
         def delete_vlan_dev
@@ -113,7 +113,7 @@ module VNMMAD
 
                 # Delete the vlan device.
                 delete_vlan_dev
-                
+
                 @bridges[@nic[:bridge]].delete(@nic[:vlan_dev])
 
                 # Delete the bridge.
@@ -138,50 +138,51 @@ module VNMMAD
         def create_bridge
             return if @bridges.keys.include? @nic[:bridge]
 
-            OpenNebula.exec_and_log("#{command(:brctl)} addbr #{@nic[:bridge]}")
-
-            set_bridge_options
+            OpenNebula.exec_and_log("#{command(:ip)} link add name " \
+                                    "#{@nic[:bridge]} type bridge " \
+                                    "#{get_bridge_options}")
 
             @bridges[@nic[:bridge]] = Array.new
 
             OpenNebula.exec_and_log("#{command(:ip)} link set #{@nic[:bridge]} up")
         end
 
-        # Calls brctl to set options stored in bridge_conf
-        def set_bridge_options
+        # reads bridge_conf and return str with switches
+        def get_bridge_options
+            bridge_options = ""
             @nic[:bridge_conf].each do |option, value|
                 case value
                 when true
-                    value = "on"
+                    value = "1"
                 when false
-                    value = "off"
+                    value = "0"
                 end
 
-                cmd = "#{command(:brctl)} #{option} " <<
-                        "#{@nic[:bridge]} #{value}"
-
-                OpenNebula.exec_and_log(cmd)
+                bridge_options << "#{option} #{value} "
             end
+            bridge_options.strip
         end
 
         # Get hypervisor bridges
         #   @return [Hash<String>] with the bridge names
         def get_bridges
-            bridges    = Hash.new
-            brctl_exit =`#{VNMNetwork::COMMANDS[:brctl]} show`
+            bridges = Hash.new
 
-            cur_bridge = ""
+            ip_show_bridge =`#{VNMNetwork::COMMANDS[:ip]} link show type bridge`
 
-            brctl_exit.split("\n")[1..-1].each do |l|
-                l = l.split
+            ip_show_bridge.split("\n").each do |line|
+                next if line !~ /^[0-9]*:/
 
-                if l.length > 1
-                    cur_bridge = l[0]
+                br_name = line.split(': ')[1]
+                bridges[br_name] = Array.new
 
-                    bridges[cur_bridge] = Array.new
-                    bridges[cur_bridge] << l[3] if l[3]
-                else
-                    bridges[cur_bridge] << l[0]
+                ip_show_master =
+                    `#{VNMNetwork::COMMANDS[:ip]} link show master #{br_name}`
+
+                ip_show_master.split("\n").each do |l|
+                    next if l !~ /^[0-9]*:/
+
+                    bridges[br_name] << l.split(': ')[1]
                 end
             end
 
