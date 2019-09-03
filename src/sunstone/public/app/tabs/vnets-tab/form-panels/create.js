@@ -491,7 +491,7 @@ define(function(require) {
                         hybrid: 'HYBRID_MODE',
                         multicast: 'MULTICAST_MODE'
                       };
-                      var inputReplication = input.clone().attr({type:'radio', name: idInputs.replication, id: idInputs.replication});
+                      var inputReplication = input.clone().attr({type:'radio', name: idInputs.replication, wizard_field: "NSX_REP_MODE", id: idInputs.replication});
                       var replication =  full.clone().append(
                         label.clone().text(Locale.tr("Replication Mode")).add(
                           inputReplication.clone().val(mode.unicast).attr({id: mode.unicast, checked: ""})
@@ -508,26 +508,42 @@ define(function(require) {
                         )
                       );
                       var universalSync = full.clone().append(
-                        input.clone().attr({type: 'checkbox', name: idInputs.universalsync, id: idInputs.universalsync}).add(
+                        input.clone().attr({type: 'checkbox', 'class': 'checkboxChangeValue', for: idInputs.universalsync}).add(
+                          input.clone().attr({type: 'checkbox', 'class': 'hide', name: idInputs.universalsync, value: "false", wizard_field: "NSX_UNIVERSAL", id: idInputs.universalsync, checked: ""})
+                        ).add(
                           label.clone().text(Locale.tr("Universal Synchronization"))
                         )
                       );
                       var ipDiscover = full.clone().append(
-                        input.clone().attr({type: 'checkbox', name: idInputs.ipdiscovery, id: idInputs.ipdiscovery, checked: ""}).add(
+                        input.clone().attr({type: 'checkbox', 'class': 'checkboxChangeValue', for: idInputs.ipdiscovery, checked: ""}).add(
+                          input.clone().attr({type: 'checkbox', 'class': 'hide', name: idInputs.ipdiscovery, value: "true", wizard_field: "NSX_IP_DISCOVERY", id: idInputs.ipdiscovery, checked: ""})
+                        ).add(
                           label.clone().text(Locale.tr("IP Discovery"))
                         )
                       );
                       var macLearning = full.clone().append(
-                        input.clone().attr({type: 'checkbox', name: idInputs.maclearning, id: idInputs.maclearning}).add(
+                        input.clone().attr({type: 'checkbox', 'class': 'checkboxChangeValue', for: idInputs.maclearning}).add(
+                          input.clone().attr({type: 'checkbox', 'class': 'hide', name: idInputs.maclearning, value: "false", wizard_field: "NSX_MAC_LEARNING", id: idInputs.maclearning, checked: ""})
+                        ).add(
                           label.clone().text(Locale.tr("MAC Learning"))
                         )
                       );
                       nsx_fields.append(replication.add(universalSync).add(ipDiscover).add(macLearning));
+                      //aca los ajustadores de los values de los checkbox
+                      $('.checkboxChangeValue').change(function() {
+                        var t = $(this);
+                        var select = t.attr("for");
+                        var selectBack = $("#"+select);
+                        selectBack.val("false");
+                        if(t.is(":checked")) {
+                          selectBack.val("true");
+                        }
+                      });
                     break;
                     case type_nsxt.toLowerCase():
                       //NSX-T
-                      var adminStatusInput = input.clone().attr({type:'radio', name: idInputs.adminstatus, id: idInputs.adminstatus});
-                      var inputRep = input.clone().attr({type:'radio', name: idInputs.replication, id: idInputs.replication});
+                      var adminStatusInput = input.clone().attr({type:'radio', wizard_field: "NSX_ADMIN_STATUS", name: idInputs.adminstatus, id: idInputs.adminstatus});
+                      var inputRep = input.clone().attr({type:'radio', wizard_field: "NSX_REP_MODE", name: idInputs.replication, id: idInputs.replication});
                       var adminStatusOptions = {
                         up: 'UP',
                         down: 'DOWN'
