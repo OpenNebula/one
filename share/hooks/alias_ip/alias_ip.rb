@@ -20,12 +20,18 @@ ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
-    PACKET_LOCATION = '/usr/lib/one/ruby/vendors/packethost/lib'
-    LOG_FILE = '/var/log/one/hook-alias_ip.log'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    PACKET_LOCATION   = '/usr/lib/one/ruby/vendors/packethost/lib'
+    LOG_FILE          = '/var/log/one/hook-alias_ip.log'
 else
     RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
-    PACKET_LOCATION = '/usr/lib/one/ruby/vendors/packethost/lib'
-    LOG_FILE = ONE_LOCATION + '/var/hook-alias_ip.log'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    PACKET_LOCATION   = ONE_LOCATION + '/ruby/vendors/packethost/lib'
+    LOG_FILE          = ONE_LOCATION + '/var/hook-alias_ip.log'
+end
+
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
