@@ -732,7 +732,7 @@ bool PoolObjectSQL::decrypt(const std::string& in, std::string& out)
 
     out = *plain;
 
-    delete plain
+    delete plain;
 
     return true;
 }
