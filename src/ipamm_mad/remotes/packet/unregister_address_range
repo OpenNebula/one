@@ -35,11 +35,17 @@
 ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-    PACKET_LOCATION = '/usr/lib/one/ruby/vendors/packethost/lib'
+    PACKET_LOCATION   = '/usr/lib/one/ruby/vendors/packethost/lib'
     RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
 else
-    PACKET_LOCATION = ONE_LOCATION + '/lib/ruby/vendors/packethost/lib'
+    PACKET_LOCATION   = ONE_LOCATION + '/lib/ruby/vendors/packethost/lib'
     RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+end
+
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
 end
 
 $LOAD_PATH << PACKET_LOCATION
