@@ -37,7 +37,7 @@ type Driver struct {
 	User           string
 	Password       string
 	Xmlrpcurl      string
-	Controller     *goca.Controller
+	Config         goca.OneConfig
 	DisableVNC     bool
 	StartRetries   string
 }
@@ -101,11 +101,15 @@ func NewDriver(hostName, storePath string) *Driver {
 	}
 }
 
-func (d *Driver) setController() {
-	client := goca.NewClient(
-		goca.NewConfig(d.User, d.Password, d.Xmlrpcurl),
-	)
-	d.Controller = goca.NewController(client)
+func (d *Driver) buildConfig() {
+	d.Config = goca.NewConfig(d.User, d.Password, d.Xmlrpcurl)
+}
+
+func (d *Driver) getController() *goca.Controller {
+	d.buildConfig()
+	client := goca.NewClient(d.Config)
+
+	return goca.NewController(client)
 }
 
 // GetCreateFlags registers the flags this driver adds to
@@ -364,7 +368,7 @@ func (d *Driver) Create() error {
 	)
 
 	// build config and set the xmlrpc client
-	d.setController()
+	controller := d.getController()
 
 	log.Infof("Creating SSH key..")
 	if err := ssh.GenerateSSHKey(d.GetSSHKeyPath()); err != nil {
@@ -471,7 +475,7 @@ func (d *Driver) Create() error {
 		var templateID int
 
 		if d.TemplateName != "" {
-			templateID, err = d.Controller.Templates().ByName(d.TemplateName)
+			templateID, err = controller.Templates().ByName(d.TemplateName)
 			if err != nil {
 				return err
 			}
@@ -482,12 +486,12 @@ func (d *Driver) Create() error {
 			}
 		}
 
-		vmtemplate := d.Controller.Template(templateID)
+		vmtemplate := controller.Template(templateID)
 
 		_, err = vmtemplate.Instantiate(d.MachineName, false, template.String(), false)
 
 	} else {
-		_, err = d.Controller.VMs().Create(template.String(), false)
+		_, err = controller.VMs().Create(template.String(), false)
 	}
 
 	if err != nil {
@@ -510,14 +514,14 @@ func (d *Driver) GetURL() (string, error) {
 }
 
 func (d *Driver) GetIP() (string, error) {
-	d.setController()
+	controller := d.getController()
 
-	vm_id, err := d.Controller.VMs().ByName(d.MachineName)
+	vm_id, err := controller.VMs().ByName(d.MachineName)
 	if err != nil {
 		return "", err
 	}
 
-	vm, err := d.Controller.VM(vm_id).Info()
+	vm, err := controller.VM(vm_id).Info()
 	if err != nil {
 		return "", err
 	}
@@ -536,14 +540,14 @@ func (d *Driver) GetIP() (string, error) {
 }
 
 func (d *Driver) GetState() (state.State, error) {
-	d.setController()
+	controller := d.getController()
 
-	vm_id, err := d.Controller.VMs().ByName(d.MachineName)
+	vm_id, err := controller.VMs().ByName(d.MachineName)
 	if err != nil {
 		return state.None, err
 	}
 
-	vm, err := d.Controller.VM(vm_id).Info()
+	vm, err := controller.VM(vm_id).Info()
 	if err != nil {
 		return state.None, err
 	}
@@ -651,14 +655,14 @@ func (d *Driver) GetState() (state.State, error) {
 }
 
 func (d *Driver) Start() error {
-	d.setController()
+	controller := d.getController()
 
-	vm_id, err := d.Controller.VMs().ByName(d.MachineName)
+	vm_id, err := controller.VMs().ByName(d.MachineName)
 	if err != nil {
 		return err
 	}
 
-	vm := d.Controller.VM(vm_id)
+	vm := controller.VM(vm_id)
 	vm.Resume()
 
 	s := state.None
@@ -690,14 +694,14 @@ func (d *Driver) Start() error {
 }
 
 func (d *Driver) Stop() error {
-	d.setController()
+	controller := d.getController()
 
-	vm_id, err := d.Controller.VMs().ByName(d.MachineName)
+	vm_id, err := controller.VMs().ByName(d.MachineName)
 	if err != nil {
 		return err
 	}
 
-	vm := d.Controller.VM(vm_id)
+	vm := controller.VM(vm_id)
 	err = vm.Poweroff()
 	if err != nil {
 		return err
@@ -707,14 +711,14 @@ func (d *Driver) Stop() error {
 }
 
 func (d *Driver) Remove() error {
-	d.setController()
+	controller := d.getController()
 
-	vm_id, err := d.Controller.VMs().ByName(d.MachineName)
+	vm_id, err := controller.VMs().ByName(d.MachineName)
 	if err != nil {
 		return err
 	}
 
-	vm := d.Controller.VM(vm_id)
+	vm := controller.VM(vm_id)
 	err = vm.TerminateHard()
 	if err != nil {
 		return err
@@ -724,14 +728,14 @@ func (d *Driver) Remove() error {
 }
 
 func (d *Driver) Restart() error {
-	d.setController()
+	controller := d.getController()
 
-	vm_id, err := d.Controller.VMs().ByName(d.MachineName)
+	vm_id, err := controller.VMs().ByName(d.MachineName)
 	if err != nil {
 		return err
 	}
 
-	vm := d.Controller.VM(vm_id)
+	vm := controller.VM(vm_id)
 	err = vm.Reboot()
 	if err != nil {
 		return err
@@ -741,14 +745,14 @@ func (d *Driver) Restart() error {
 }
 
 func (d *Driver) Kill() error {
-	d.setController()
+	controller := d.getController()
 
-	vm_id, err := d.Controller.VMs().ByName(d.MachineName)
+	vm_id, err := controller.VMs().ByName(d.MachineName)
 	if err != nil {
 		return err
 	}
 
-	vm := d.Controller.VM(vm_id)
+	vm := controller.VM(vm_id)
 
 	return vm.PoweroffHard()
 }
