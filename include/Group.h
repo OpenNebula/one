@@ -18,6 +18,7 @@
 #define GROUP_H_
 
 #include "PoolSQL.h"
+#include "GroupTemplate.h"
 #include "ObjectCollection.h"
 #include "User.h"
 #include "QuotasSQL.h"
@@ -122,7 +123,7 @@ public:
      */
     Template * get_new_template() const
     {
-        return new Template;
+        return new GroupTemplate;
     }
 
     /**
@@ -160,7 +161,7 @@ private:
         // Allow users in this group to see it
         group_u = 1;
 
-        obj_template = new Template;
+        obj_template = new GroupTemplate;
     }
 
     virtual ~Group() = default;

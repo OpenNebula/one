@@ -27,9 +27,10 @@ class GroupPool : public PoolSQL
 {
 public:
     GroupPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
-          const string& remotes_location, bool is_federation_slave);
+          const string& remotes_location, bool is_federation_slave,
+          vector<const SingleAttribute *>& restricted_attrs);
 
-    ~GroupPool(){};
+    ~GroupPool() = default;
 
     /* ---------------------------------------------------------------------- */
     /* Constants for DB management                                            */

@@ -635,20 +635,23 @@ void Nebula::start(bool bootstrap_only)
         /* ----------------------- Group/User Pool -------------------------- */
         vector<const VectorAttribute *> user_hooks;
         vector<const VectorAttribute *> group_hooks;
+        vector<const SingleAttribute *> user_restricted_attrs;
+        vector<const SingleAttribute *> group_restricted_attrs;
 
         time_t  expiration_time;
 
         nebula_configuration->get("GROUP_HOOK", group_hooks);
+        nebula_configuration->get("GROUP_RESTRICTED_ATTR", group_restricted_attrs);
 
         gpool = new GroupPool(db_ptr, group_hooks, remotes_location,
-                is_federation_slave());
+                is_federation_slave(), group_restricted_attrs);
 
         nebula_configuration->get("SESSION_EXPIRATION_TIME", expiration_time);
-
         nebula_configuration->get("USER_HOOK", user_hooks);
+        nebula_configuration->get("USER_RESTRICTED_ATTR", user_restricted_attrs);
 
         upool = new UserPool(db_ptr, expiration_time, user_hooks,
-                remotes_location, is_federation_slave());
+                remotes_location, is_federation_slave(), user_restricted_attrs);
 
         /* -------------------- Image/Datastore Pool ------------------------ */
         string  image_type;

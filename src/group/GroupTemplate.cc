@@ -14,47 +14,9 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef USER_TEMPLATE_H_
-#define USER_TEMPLATE_H_
-
-#include "Template.h"
-
-/**
- *  User Template class, it represents the attributes of an user
- */
-class UserTemplate : public Template
-{
-public:
-    UserTemplate() : Template(true,'=',"TEMPLATE") {}
-
-    ~UserTemplate() = default;
-
-    // -------------------------------------------------------------------------
-    // Restricted attributes interface implementation
-    // -------------------------------------------------------------------------
-    bool check_restricted(string& rs_attr, const Template* base) override
-    {
-        return Template::check_restricted(rs_attr, base, restricted);
-    }
-
-    bool check_restricted(string& rs_attr) override
-    {
-        return Template::check_restricted(rs_attr, restricted);
-    }
-
-    static void parse_restricted(vector<const SingleAttribute *>& ra)
-    {
-        Template::parse_restricted(ra, restricted);
-    }
-
-private:
-    /**
-     *  Restricted attribute list for UserTemplate
-     */
-    static std::map<std::string, std::set<std::string>> restricted;
-};
+#include "GroupTemplate.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-#endif /*USER_TEMPLATE_H_*/
+std::map<std::string, std::set<std::string>> GroupTemplate::restricted;
