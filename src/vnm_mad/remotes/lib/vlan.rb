@@ -16,11 +16,11 @@
 
 module VNMMAD
 
-    ############################################################################
+    ###########################################################################
     # Module to use as mixin for implementing  VLAN drivers based on special
     # link devices though the Linux kernel features and bridges. It provides
     # common functionality to handle bridges
-    ############################################################################
+    ###########################################################################
     class VLANDriver < VNMMAD::VNMDriver
 
         def initialize(vm_tpl, xpath_filter, deploy_id = nil)
@@ -33,15 +33,15 @@ module VNMMAD
         def activate
             lock
 
-            @bridges = get_bridges
+            @bridges = list_bridges
 
             process do |nic|
                 @nic = nic
 
                 next if @nic[:phydev].nil?
 
-                # Get the name of the vlan device.
-                get_vlan_dev_name
+                # generate the name of the vlan device.
+                gen_vlan_dev_name
 
                 # Create the bridge.
                 create_bridge
@@ -70,92 +70,101 @@ module VNMMAD
         # This function needs to be implemented by any VLAN driver to
         # create the VLAN device. The device MUST be set up by this function
         def create_vlan_dev
-            OpenNebula.log_error("create_vlan_dev function not implemented.")
+            OpenNebula.log_error('create_vlan_dev function not implemented.')
 
-            exit -1
+            exit(-1)
         end
 
         # This function needs to be implemented by any VLAN driver to
         # delete the VLAN device. The device MUST be deleted by this function
         def delete_vlan_dev
-            OpenNebula.log_error("delete_vlan_dev function not implemented.")
+            OpenNebula.log_error('delete_vlan_dev function not implemented.')
 
-            exit -1
+            exit(-1)
         end
 
         # Deactivate the driver and delete bridges and tags devices as needed.
         def deactivate
             lock
 
-            @bridges = get_bridges
+            @bridges = list_bridges
 
             attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
 
-            process do |nic|
-                next if attach_nic_id && attach_nic_id != nic[:nic_id]
+            if @bridges
+                process do |nic|
+                    next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
-                @nic = nic
+                    @nic = nic
 
-                next if @nic[:phydev].nil?
-                next if @bridges[@nic[:bridge]].nil?
+                    next if @nic[:phydev].nil?
+                    next if @bridges[@nic[:bridge]].nil?
 
-                # Get the name of the vlan device.
-                get_vlan_dev_name
+                    # Get the name of the vlan device.
+                    gen_vlan_dev_name
 
-                # Return if the bridge doesn't exist because it was already deleted (handles last vm with multiple nics on the same vlan)
-                next if !@bridges.include? @nic[:bridge]
+                    # Return if the bridge doesn't exist because it was already
+                    # deleted (handles last vm with multiple nics on the same
+                    # vlan)
+                    next unless @bridges.include? @nic[:bridge]
 
-                # Return if we want to keep the empty bridge
-                next if @nic[:conf][:keep_empty_bridge]
+                    # Return if we want to keep the empty bridge
+                    next if @nic[:conf][:keep_empty_bridge]
 
-                # Return if the vlan device is not the only left device in the bridge.
-                next if @bridges[@nic[:bridge]].length > 1 or !@bridges[@nic[:bridge]].include? @nic[:vlan_dev]
+                    # Return if the vlan device is not the only left device in
+                    # the bridge.
+                    next if (@bridges[@nic[:bridge]].length > 1) || \
+                            !@bridges[@nic[:bridge]].include?(@nic[:vlan_dev])
 
-                # Delete the vlan device.
-                delete_vlan_dev
+                    # Delete the vlan device.
+                    delete_vlan_dev
 
-                @bridges[@nic[:bridge]].delete(@nic[:vlan_dev])
+                    @bridges[@nic[:bridge]].delete(@nic[:vlan_dev])
 
-                # Delete the bridge.
-                OpenNebula.exec_and_log("#{command(:ip)} link delete"\
-                    " #{@nic[:bridge]}")
-                @bridges.delete(@nic[:bridge])
-            end if @bridges
+                    # Delete the bridge.
+                    OpenNebula.exec_and_log("#{command(:ip)} link delete"\
+                        " #{@nic[:bridge]}")
+                    @bridges.delete(@nic[:bridge])
+                end
+            end
 
             unlock
 
             0
         end
 
-    private
-        # Generate the name of the vlan device which will be added to the bridge.
-        def get_vlan_dev_name
+        private
+
+        # Generate the name of the vlan device which will be added
+        # to the bridge.
+        def gen_vlan_dev_name
             @nic[:vlan_dev] = "#{@nic[:phydev]}.#{@nic[:vlan_id]}"
         end
 
         # Creates a bridge if it does not exists, and brings it up.
         # This function IS FINAL, exits if action cannot be completed
         def create_bridge
-            return if @bridges.keys.include? @nic[:bridge]
+            return if @bridges.key?(@nic[:bridge])
 
             OpenNebula.exec_and_log("#{command(:ip)} link add name " \
                                     "#{@nic[:bridge]} type bridge " \
-                                    "#{get_bridge_options}")
+                                    "#{list_bridge_options}")
 
-            @bridges[@nic[:bridge]] = Array.new
+            @bridges[@nic[:bridge]] = []
 
-            OpenNebula.exec_and_log("#{command(:ip)} link set #{@nic[:bridge]} up")
+            OpenNebula.exec_and_log("#{command(:ip)} " \
+                                    "link set #{@nic[:bridge]} up")
         end
 
         # reads bridge_conf and return str with switches
-        def get_bridge_options
-            bridge_options = ""
+        def list_bridge_options
+            bridge_options = ''
             @nic[:bridge_conf].each do |option, value|
                 case value
                 when true
-                    value = "1"
+                    value = '1'
                 when false
-                    value = "0"
+                    value = '0'
                 end
 
                 bridge_options << "#{option} #{value} "
@@ -165,16 +174,17 @@ module VNMMAD
 
         # Get hypervisor bridges
         #   @return [Hash<String>] with the bridge names
-        def get_bridges
-            bridges = Hash.new
+        def list_bridges
+            bridges = {}
 
-            ip_show_bridge =`#{VNMNetwork::COMMANDS[:ip]} link show type bridge`
+            ip_show_bridge =
+                `#{VNMNetwork::COMMANDS[:ip]} link show type bridge`
 
             ip_show_bridge.split("\n").each do |line|
                 next if line !~ /^[0-9]*:/
 
                 br_name = line.split(': ')[1]
-                bridges[br_name] = Array.new
+                bridges[br_name] = []
 
                 ip_show_master =
                     `#{VNMNetwork::COMMANDS[:ip]} link show master #{br_name}`
@@ -189,26 +199,28 @@ module VNMMAD
             bridges
         end
 
-        def get_interface_vlan(name)
+        def list_interface_vlan(_name)
             nil
         end
 
         def validate_vlan_id
             @bridges[@nic[:bridge]].each do |interface|
-                vlan = get_interface_vlan(interface)
+                vlan = list_interface_vlan(interface)
 
-                if vlan && vlan.to_s != @nic[:vlan_id]
-                    OpenNebula.log_error("The interface #{interface} has "\
-                        "vlan_id = #{vlan} but the network is configured "\
-                        "with vlan_id = #{@nic[:vlan_id]}")
+                next unless vlan && vlan.to_s != @nic[:vlan_id]
 
-                    msg = "Interface with an incorrect vlan_id is already in "\
-                          "the bridge"
-                    OpenNebula.error_message(msg)
+                OpenNebula.log_error("The interface #{interface} has "\
+                    "vlan_id = #{vlan} but the network is configured "\
+                    "with vlan_id = #{@nic[:vlan_id]}")
 
-                    exit(-1)
-                end
+                msg = 'Interface with an incorrect vlan_id is already in '\
+                      'the bridge'
+                OpenNebula.error_message(msg)
+
+                exit(-1)
             end
         end
+
     end
+
 end
