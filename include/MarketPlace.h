@@ -35,7 +35,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    string& to_xml(string& xml) const override;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -43,7 +43,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const string &xml_str) override;
 
     /**
      *  Adds this marketplace app's ID to the set.
@@ -184,7 +184,7 @@ private:
             int                  umask,
             MarketPlaceTemplate* mp_template);
 
-    virtual ~MarketPlace();
+    virtual ~MarketPlace() = default;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -229,14 +229,14 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, string& error_str) override;
 
     /**
      *  Writes/updates the MarketPlace's data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
         string error_str;
         return insert_replace(db, true, error_str);
@@ -245,7 +245,7 @@ private:
     /**
      *  Factory method for marketplace templates
      */
-    Template * get_new_template() const
+    Template * get_new_template() const override
     {
         return new MarketPlaceTemplate;
     }
@@ -262,7 +262,7 @@ private:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int post_update_template(string& error);
+    int post_update_template(string& error) override;
 };
 
 #endif /*MARKETPLACE_H*/

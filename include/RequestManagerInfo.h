@@ -38,8 +38,6 @@ protected:
         leader_only = false;
     };
 
-    ~RequestManagerInfo(){};
-
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
@@ -69,8 +67,6 @@ public:
         auth_object = PoolObjectSQL::VM;
     };
 
-    ~VirtualMachineInfo(){};
-
     /* -------------------------------------------------------------------- */
 
     void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str) override
@@ -94,8 +90,6 @@ public:
         auth_object = PoolObjectSQL::TEMPLATE;
     };
 
-    ~TemplateInfo(){};
-
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
@@ -118,8 +112,6 @@ public:
         auth_object = PoolObjectSQL::NET;
     };
 
-    ~VirtualNetworkInfo(){};
-
     /* -------------------------------------------------------------------- */
 
     void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str) override;
@@ -140,8 +132,6 @@ public:
         pool        = nd.get_vntpool();
         auth_object = PoolObjectSQL::VNTEMPLATE;
     };
-
-    ~VirtualNetworkTemplateInfo(){};
 
     /* -------------------------------------------------------------------- */
 
@@ -165,7 +155,6 @@ public:
         auth_object = PoolObjectSQL::IMAGE;
     };
 
-    ~ImageInfo(){};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -182,8 +171,6 @@ public:
         pool        = nd.get_hpool();
         auth_object = PoolObjectSQL::HOST;
     };
-
-    ~HostInfo(){};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -200,8 +187,6 @@ public:
         pool       = nd.get_gpool();
         auth_object = PoolObjectSQL::GROUP;
     };
-
-    ~GroupInfo(){};
 
     /* -------------------------------------------------------------------- */
 
@@ -226,8 +211,6 @@ public:
         auth_object = PoolObjectSQL::USER;
     };
 
-    ~UserInfo(){};
-
     /* -------------------------------------------------------------------- */
 
     void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str) override
@@ -250,8 +233,6 @@ public:
         pool        = nd.get_dspool();
         auth_object = PoolObjectSQL::DATASTORE;
     };
-
-    ~DatastoreInfo(){};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -268,8 +249,6 @@ public:
         pool       = nd.get_clpool();
         auth_object = PoolObjectSQL::CLUSTER;
     };
-
-    ~ClusterInfo(){};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -286,8 +265,6 @@ public:
         pool        = nd.get_docpool();
         auth_object = PoolObjectSQL::DOCUMENT;
     };
-
-    ~DocumentInfo(){};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -304,8 +281,6 @@ public:
         pool       = nd.get_zonepool();
         auth_object = PoolObjectSQL::ZONE;
     };
-
-    ~ZoneInfo(){};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -322,8 +297,6 @@ public:
         pool        = nd.get_secgrouppool();
         auth_object = PoolObjectSQL::SECGROUP;
     };
-
-    ~SecurityGroupInfo(){};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -340,8 +313,6 @@ public:
         pool       = nd.get_vdcpool();
         auth_object = PoolObjectSQL::VDC;
     };
-
-    ~VdcInfo(){};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -358,8 +329,6 @@ public:
         pool        = nd.get_vrouterpool();
         auth_object = PoolObjectSQL::VROUTER;
     };
-
-    ~VirtualRouterInfo(){};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -376,8 +345,6 @@ public:
         pool        = nd.get_marketpool();
         auth_object = PoolObjectSQL::MARKETPLACE;
     };
-
-    ~MarketPlaceInfo(){};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -394,8 +361,6 @@ public:
         pool        = nd.get_apppool();
         auth_object = PoolObjectSQL::MARKETPLACEAPP;
     };
-
-    ~MarketPlaceAppInfo(){};
 };
 
 /* -------------------------------------------------------------------------- */
@@ -412,8 +377,6 @@ public:
         pool        = nd.get_vmgrouppool();
         auth_object = PoolObjectSQL::VMGROUP;
     };
-
-    ~VMGroupInfo(){};
 };
 
 #endif

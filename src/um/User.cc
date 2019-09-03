@@ -129,14 +129,14 @@ int User::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     // Update the User
 
-    sql_username = db->escape_str(name.c_str());
+    sql_username = db->escape_str(name);
 
     if ( sql_username == 0 )
     {
         goto error_username;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -149,7 +149,7 @@ int User::insert_replace(SqlDB *db, bool replace, string& error_str)
     }
 
     // Construct the SQL statement to Insert or Replace
-    if(replace)
+    if (replace)
     {
         oss << "UPDATE " << table << " SET "
             << "name = '"    <<   sql_username    << "', "
@@ -327,7 +327,7 @@ int User::split_secret(const string secret, string& user, string& pass)
     size_t pos;
     int    rc = -1;
 
-    pos=secret.find(":");
+    pos = secret.find(":");
 
     if (pos != string::npos)
     {
@@ -407,7 +407,7 @@ int User::get_umask() const
 
     get_template_attribute("UMASK", umask_st);
 
-    if(umask_st.empty())
+    if (umask_st.empty())
     {
         Nebula::instance().get_configuration_attribute("DEFAULT_UMASK",umask_st);
     }

@@ -47,7 +47,7 @@ public:
              const char * _xml_root     = "TEMPLATE"):
                  replace_mode(_replace_mode),
                  separator(_separator),
-                 xml_root(_xml_root){};
+                 xml_root(_xml_root){}
 
     Template(const Template& t)
     {
@@ -152,7 +152,7 @@ public:
      *    @param str_tempalte string that hold the template
      *    @param delim to separate attributes
      */
-    void marshall(string &str, const char delim='\n');
+    void marshall(string &str, const char delim = '\n');
 
     /**
      *  Writes the template in a simple xml string:
@@ -321,7 +321,7 @@ public:
         return __get<VectorAttribute>(n, v);
     }
 
-    inline virtual int get( const string& n, vector<VectorAttribute*>& v)
+    inline virtual int get(const string& n, vector<VectorAttribute*>& v)
     {
         return __get<VectorAttribute>(n, v);
     }
@@ -331,7 +331,7 @@ public:
         return __get<SingleAttribute>(n, s);
     }
 
-    inline virtual int get( const string& n, vector<SingleAttribute*>& s)
+    inline virtual int get(const string& n, vector<SingleAttribute*>& s)
     {
         return __get<SingleAttribute>(n, s);
     }
@@ -624,7 +624,7 @@ private:
     {
         typename vector<T *>::iterator it;
 
-        for(it = values.begin(); it != values.end(); it++ )
+        for (it = values.begin(); it != values.end(); it++ )
         {
             set(*it);
         }

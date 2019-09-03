@@ -20,6 +20,8 @@
 #include "Nebula.h"
 #include "Clusterable.h"
 
+const set<std::string> PoolObjectSQL::ENCRYPTED_ATTRIBUTES{};
+
 const string PoolObjectSQL::INVALID_NAME_CHARS = "&|:\\\";/'#{}$<>";
 
 const int PoolObjectSQL::LOCK_DB_EXPIRATION = 120;
@@ -86,7 +88,7 @@ int PoolObjectSQL::select(SqlDB *db)
 int PoolObjectSQL::select_oid(SqlDB *db, const char * _table,
         const string& _name, int _uid)
 {
-    char * sql_name = db->escape_str(_name.c_str());
+    char * sql_name = db->escape_str(_name);
 
     if ( sql_name == 0 )
     {
@@ -164,7 +166,7 @@ int PoolObjectSQL::select(SqlDB *db, const string& _name, int _uid)
     int rc;
     char * sql_name;
 
-    sql_name = db->escape_str(_name.c_str());
+    sql_name = db->escape_str(_name);
 
     if ( sql_name == 0 )
     {
@@ -451,7 +453,7 @@ void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
 
     Clusterable* cl = dynamic_cast<Clusterable*>(this);
 
-    if(cl != 0)
+    if (cl != 0)
     {
         auth.cids = cl->get_cluster_ids();
     }
@@ -459,7 +461,7 @@ void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
     {
         ClusterableSingle* cls = dynamic_cast<ClusterableSingle*>(this);
 
-        if(cls != 0)
+        if (cls != 0)
         {
             auth.cids.insert(cls->get_cluster_id());
         }
@@ -469,16 +471,16 @@ void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int PoolObjectSQL::set_permissions( int _owner_u,
-                                    int _owner_m,
-                                    int _owner_a,
-                                    int _group_u,
-                                    int _group_m,
-                                    int _group_a,
-                                    int _other_u,
-                                    int _other_m,
-                                    int _other_a,
-                                    string& error_str)
+int PoolObjectSQL::set_permissions(int _owner_u,
+                                   int _owner_m,
+                                   int _owner_a,
+                                   int _group_u,
+                                   int _group_m,
+                                   int _group_a,
+                                   int _other_u,
+                                   int _other_m,
+                                   int _other_a,
+                                   string& error_str)
 {
     if ( _owner_u < -1 || _owner_u > 1 ) goto error_value;
     if ( _owner_m < -1 || _owner_m > 1 ) goto error_value;
@@ -679,4 +681,149 @@ int PoolObjectSQL::lock_db_from_xml()
     ObjectXML::free_nodes(content);
 
     return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void PoolObjectSQL::encrypt(const std::string& in, std::string& out)
+{
+    Nebula& nd = Nebula::instance();
+    string  one_key;
+
+    nd.get_configuration_attribute("ONE_KEY", one_key);
+
+    if (!one_key.empty())
+    {
+        string * encrypted = one_util::aes256cbc_encrypt(in, one_key);
+
+        out = *encrypted;
+
+        delete encrypted;
+    }
+    else
+    {
+        out = in;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool PoolObjectSQL::decrypt(const std::string& in, std::string& out)
+{
+    Nebula& nd = Nebula::instance();
+    string  one_key;
+
+    nd.get_configuration_attribute("ONE_KEY", one_key);
+
+    if (one_key.empty())
+    {
+        out = in;
+        return true;
+    }
+
+    string * plain = one_util::aes256cbc_decrypt(in, one_key);
+
+    if (plain == nullptr)
+    {
+        return false;
+    }
+
+    out = *plain;
+
+    delete plain
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void PoolObjectSQL::encrypt_all_secrets(Template *tmpl)
+{
+    for (const string& att_name : ENCRYPTED_ATTRIBUTES)
+    {
+        string att;
+        string encrypted;
+        string tmp;
+
+        auto path = one_util::split(att_name, '/');
+
+        if (path.size() > 1)
+        {
+            auto vatt = tmpl->get(path[0]);
+
+            if (vatt == nullptr)
+            {
+                continue;
+            }
+
+            att = vatt->vector_value(path[1]);
+
+            if (!att.empty() && !decrypt(att, tmp))
+            {
+                // Nested attribute present, but not encrypted, crypt it
+                encrypt(att, encrypted);
+
+                vatt->replace(path[1], encrypted);
+            }
+        }
+        else
+        {
+            tmpl->get(att_name, att);
+
+            if (!att.empty() && !decrypt(att, tmp))
+            {
+                // Simple attribute present, but not encrypted, crypt it
+                encrypt(att, encrypted);
+
+                tmpl->replace(att_name, encrypted);
+            }
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void PoolObjectSQL::decrypt_all_secrets(Template *tmpl)
+{
+    for (const string& att_name : ENCRYPTED_ATTRIBUTES)
+    {
+        string att;
+        string plain;
+
+        auto path = one_util::split(att_name, '/');
+
+        if (path.size() > 1)
+        {
+            auto vatt = tmpl->get(path[0]);
+
+            if (vatt == nullptr)
+            {
+                continue;
+            }
+
+            ostringstream oss;
+
+            vatt->to_json(oss);
+
+            att = vatt->vector_value(path[1]);
+
+            if (!att.empty() && decrypt(att, plain))
+            {
+                vatt->replace(path[1], plain);
+            }
+        }
+        else
+        {
+            tmpl->get(att_name, att);
+
+            if (!att.empty() && decrypt(att, plain))
+            {
+                tmpl->replace(att_name, plain);
+            }
+        }
+    }
 }

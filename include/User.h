@@ -52,7 +52,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    string& to_xml(string& xml) const override;
 
     /**
      * Function to print the User object into a string in
@@ -154,7 +154,7 @@ public:
     /**
      *  Factory method for image templates
      */
-    Template * get_new_template() const
+    Template * get_new_template() const override
     {
         return new UserTemplate;
     }
@@ -207,7 +207,7 @@ public:
      */
     int del_group(int group_id)
     {
-        if( group_id == gid )
+        if (group_id == gid)
         {
             return -2;
         }
@@ -317,7 +317,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int select(SqlDB * db);
+    int select(SqlDB * db) override;
 
     /**
      *  Reads the User (identified with its OID) from the database.
@@ -327,14 +327,14 @@ private:
      *
      *    @return 0 on success
      */
-    int select(SqlDB * db, const string& name, int uid);
+    int select(SqlDB * db, const string& name, int uid) override;
 
     /**
      *  Drops the user from the database
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int drop(SqlDB *db);
+    int drop(SqlDB *db) override;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -342,7 +342,7 @@ private:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const string &xml_str) override;
 
     /**
      * Function to print the User object into a string in
@@ -377,7 +377,7 @@ protected:
         obj_template = new UserTemplate;
     };
 
-    virtual ~User(){};
+    virtual ~User() = default;
 
     // *************************************************************************
     // DataBase implementation
@@ -394,7 +394,7 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, string& error_str) override;
 
     /**
      *  Writes/updates the User data fields in the database. This method does
@@ -402,7 +402,7 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
         string error_str;
         return insert_replace(db, true, error_str);

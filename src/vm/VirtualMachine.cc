@@ -1681,14 +1681,14 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
     char * sql_short_xml;
     char * sql_text;
 
-    sql_name =  db->escape_str(name.c_str());
+    sql_name =  db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_generic;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -1700,7 +1700,7 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
         goto error_xml;
     }
 
-    sql_short_xml = db->escape_str(to_xml_short(short_xml_body).c_str());
+    sql_short_xml = db->escape_str(to_xml_short(short_xml_body));
 
     if ( sql_short_xml == 0 )
     {
@@ -1712,7 +1712,7 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
         goto error_xml_short;
     }
 
-    sql_text = db->escape_str(to_token(text).c_str());
+    sql_text = db->escape_str(to_token(text));
 
     if ( sql_text == 0 )
     {
@@ -1795,7 +1795,7 @@ int VirtualMachine::update_search(SqlDB * db)
     std::ostringstream oss;
     std::string text;
 
-    char * sql_text = db->escape_str(to_token(text).c_str());
+    char * sql_text = db->escape_str(to_token(text));
 
     if ( sql_text == 0 )
     {
@@ -1840,7 +1840,7 @@ int VirtualMachine::update_monitoring(SqlDB * db)
         << "</TEMPLATE>"
         << "</VM>";
 
-    sql_xml = db->escape_str(oss.str().c_str());
+    sql_xml = db->escape_str(oss.str());
 
     if ( sql_xml == 0 )
     {
@@ -2706,9 +2706,19 @@ int VirtualMachine::replace_template(
         return -1;
     }
 
-    delete user_obj_template;
+    auto old_user_tmpl = user_obj_template;
+    user_obj_template  = new_tmpl;
 
-    user_obj_template = new_tmpl;
+    if (post_update_template(error) == -1)
+    {
+        delete user_obj_template;
+
+        user_obj_template = old_user_tmpl;
+
+        return -1;
+    }
+
+    delete old_user_tmpl;
 
     return 0;
 }
@@ -2752,14 +2762,20 @@ int VirtualMachine::append_template(
     /* ---------------------------------------------------------------------- */
     /* Append new_tmpl to the current user_template                           */
     /* ---------------------------------------------------------------------- */
+    auto old_user_tmpl = new VirtualMachineTemplate(*user_obj_template);
+
     if (user_obj_template != 0)
     {
         if (keep_restricted && new_tmpl->check_restricted(rname, user_obj_template))
         {
             error ="User Template includes a restricted attribute " + rname;
+
             delete new_tmpl;
+            delete old_user_tmpl;
+
             return -1;
         }
+
         user_obj_template->merge(new_tmpl);
 
         delete new_tmpl;
@@ -2769,11 +2785,26 @@ int VirtualMachine::append_template(
         if (keep_restricted && new_tmpl->check_restricted(rname))
         {
             error ="User Template includes a restricted attribute " + rname;
+
             delete new_tmpl;
+            delete old_user_tmpl;
+
             return -1;
         }
+
         user_obj_template = new_tmpl;
     }
+
+    if (post_update_template(error) == -1)
+    {
+        delete user_obj_template;
+
+        user_obj_template = old_user_tmpl;
+
+        return -1;
+    }
+
+    delete old_user_tmpl;
 
     return 0;
 }
@@ -3657,6 +3688,17 @@ int VirtualMachine::parse_sched_action(string& error_str)
     SchedActions sactions(user_obj_template);
 
     return sactions.parse(error_str, false);
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VirtualMachine::post_update_template(string& error_str)
+{
+    encrypt_all_secrets(obj_template);
+    encrypt_all_secrets(user_obj_template);
+
+    return 0;
 }
 
 /* ------------------------------------------------------------------------ */

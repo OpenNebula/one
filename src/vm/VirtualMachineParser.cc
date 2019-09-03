@@ -92,7 +92,7 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
 
     string type_str;
 
-    attr = os->vector_value(base_name_ds.c_str());
+    attr = os->vector_value(base_name_ds);
 
     if ( attr.empty() )
     {
@@ -522,7 +522,7 @@ void VirtualMachine::parse_well_known_attributes()
      * TOPOLOGY
      * NUMA_NODE
      */
-    std::vector<std::string> names = {"INPUT", "FEATURES", "RAW", 
+    std::vector<std::string> names = {"INPUT", "FEATURES", "RAW",
         "CLONING_TEMPLATE_ID", "TOPOLOGY", "NUMA_NODE"};
 
     for (auto it = names.begin(); it != names.end() ; ++it)

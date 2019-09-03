@@ -26,7 +26,7 @@ static void vrouter_prefix(VectorAttribute* nic, const string& attr)
 {
     string val;
 
-    if (nic->vector_value(attr.c_str(), val) == 0)
+    if (nic->vector_value(attr, val) == 0)
     {
         nic->remove(attr);
         nic->replace("VROUTER_"+attr, val);
@@ -88,11 +88,6 @@ VirtualRouter::VirtualRouter(   int             id,
 
     set_umask(_umask);
 }
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-VirtualRouter::~VirtualRouter(){};
 
 /* ************************************************************************ */
 /* VirtualRouter :: Database Access Functions                                    */
@@ -220,7 +215,7 @@ int VirtualRouter::get_network_leases(string& estr)
 
     int num_nics = obj_template->get("NIC",nics);
 
-    for(int i=0; i<num_nics; i++)
+    for (int i=0; i<num_nics; i++)
     {
         VirtualMachineNic nic(nics[i], i);
 
@@ -252,14 +247,14 @@ int VirtualRouter::insert_replace(SqlDB *db, bool replace, string& error_str)
 
    // Update the Object
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -271,7 +266,7 @@ int VirtualRouter::insert_replace(SqlDB *db, bool replace, string& error_str)
         goto error_xml;
     }
 
-    if(replace)
+    if (replace)
     {
         oss << "UPDATE " << table << " SET "
             << "name = '"    << sql_name   << "', "
@@ -412,7 +407,7 @@ void VirtualRouter::release_network_leases()
 
     int num_nics = get_template_attribute("NIC",nics);
 
-    for(int i=0; i<num_nics; i++)
+    for (int i=0; i<num_nics; i++)
     {
         release_network_leases(nics[i]);
     }
@@ -480,7 +475,7 @@ Template * VirtualRouter::get_vm_template() const
 
     int num_nics = obj_template->get("NIC",nics);
 
-    for(int i=0; i<num_nics; i++)
+    for (int i=0; i<num_nics; i++)
     {
         nic = nics[i]->clone();
 
@@ -600,7 +595,7 @@ VectorAttribute * VirtualRouter::attach_nic(
 
     obj_template->get("NIC", nics);
 
-    for(it = nics.begin(); it != nics.end(); it++)
+    for (it = nics.begin(); it != nics.end(); it++)
     {
         (*it)->vector_value("NIC_ID", nic_id);
 
@@ -687,7 +682,7 @@ VectorAttribute* VirtualRouter::get_nic(int nic_id) const
 
     obj_template->get("NIC", nics);
 
-    for(nic_it = nics.begin(); nic_it != nics.end(); nic_it++)
+    for (nic_it = nics.begin(); nic_it != nics.end(); nic_it++)
     {
         (*nic_it)->vector_value("NIC_ID", tnic_id);
 
@@ -709,7 +704,7 @@ void VirtualRouter::set_auth_request(int uid, AuthRequest& ar, Template *tmpl,
     VirtualMachineNics::nic_iterator nic;
     VirtualMachineNics tnics(tmpl);
 
-    for( nic = tnics.begin(); nic != tnics.end(); ++nic)
+    for (nic = tnics.begin(); nic != tnics.end(); ++nic)
     {
         (*nic)->authorize_vrouter(uid, &ar, check_lock);
     }

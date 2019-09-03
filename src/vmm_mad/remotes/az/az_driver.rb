@@ -196,7 +196,10 @@ class AzureDriver
         pool.info
         objects=pool.select {|object| object.name==@host }
 
-        objects.first
+        host_id = objects.first.id
+        xmlhost = OpenNebula::Host.new_with_id(host_id, client)
+        xmlhost.info(true)
+        xmlhost
     end
 
     # Check the current template to retrieve
@@ -206,22 +209,13 @@ class AzureDriver
         client   = OpenNebula::Client.new
         xmlhost = get_host_info(client)
 
-        system = OpenNebula::System.new(client)
-        config = system.get_configuration
-        raise "Error getting oned configuration : #{config.message}" if OpenNebula.is_error?(config)
-
-        token = config["ONE_KEY"]
-
         conn_opts = {
             :cert => xmlhost["TEMPLATE/AZ_CERT"],
             :id   => xmlhost["TEMPLATE/AZ_ID"]
         }
-        #conn_opts = OpenNebula.encrypt(conn_opts, token)
-        conn_opts = OpenNebula.decrypt(conn_opts, token)
 
         conn_opts[:region] = xmlhost["TEMPLATE/REGION_NAME"]
         conn_opts[:endpoint] = xmlhost["TEMPLATE/AZ_ENDPOINT"]
-
 
         return conn_opts
     end

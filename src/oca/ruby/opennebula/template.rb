@@ -69,10 +69,10 @@ module OpenNebula
         # Retrieves the information of the given Template.
         # @param extended [true,false] optional flag to process the template and
         # include extended information, such as the SIZE for each DISK
-        def info(extended=false)
+        def info(extended=false, decrypt=false)
             return Error.new('ID not defined') if !@pe_id
 
-            rc = @client.call(TEMPLATE_METHODS[:info], @pe_id, extended)
+            rc = @client.call(TEMPLATE_METHODS[:info], @pe_id, extended, decrypt)
 
             if !OpenNebula.is_error?(rc)
                 initialize_xml(rc, 'VMTEMPLATE')
@@ -98,10 +98,10 @@ module OpenNebula
         end
 
         # Deletes the Template
-        # 
+        #
         # @param recursive [true,false] optional, deletes the template plus
         # any image defined in DISK.
-        # 
+        #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def delete(recursive=false)

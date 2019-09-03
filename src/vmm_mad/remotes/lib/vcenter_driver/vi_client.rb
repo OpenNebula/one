@@ -124,29 +124,17 @@ class VIClient
         begin
             client = OpenNebula::Client.new
             host = OpenNebula::Host.new_with_id(host_id, client)
-            rc = host.info
+            rc = host.info(true)
             if OpenNebula.is_error?(rc)
                 raise "Could not get host info for ID: #{host_id} - #{rc.message}"
             end
-
-            password = host["TEMPLATE/VCENTER_PASSWORD"]
-
-            system = OpenNebula::System.new(client)
-            config = system.get_configuration
-            if OpenNebula.is_error?(config)
-                raise "Error getting oned configuration : #{config.message}"
-            end
-
-            token = config["ONE_KEY"]
-
-            password = VIClient::decrypt(password, token)
 
             connection = {
                 :host     => host["TEMPLATE/VCENTER_HOST"],
                 :user     => host["TEMPLATE/VCENTER_USER"],
                 :rp       => host["TEMPLATE/VCENTER_RESOURCE_POOL"],
                 :ccr      => host["TEMPLATE/VCENTER_CCR_REF"],
-                :password => password
+                :password => host["TEMPLATE/VCENTER_PASSWORD"]
             }
 
             self.new(connection, host_id)
@@ -176,23 +164,15 @@ class VIClient
             password = ""
             host_pool.each do |host|
               if host["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_id
-                user = host["TEMPLATE/VCENTER_USER"]
-                password = host["TEMPLATE/VCENTER_PASSWORD"]
+                host_decrypted = OpenNebula::Host.new_with_id(host["ID"], client)
+                host_decrypted.info(true)
+                user = host_decrypted["TEMPLATE/VCENTER_USER"]
+                password = host_decrypted["TEMPLATE/VCENTER_PASSWORD"]
               end
             end
             if password.empty? or user.empty?
               raise "Error getting credentials for datastore #{datastore_id}"
             end
-
-            system = OpenNebula::System.new(client)
-            config = system.get_configuration
-            if OpenNebula.is_error?(config)
-                raise "Error getting oned configuration : #{config.message}"
-            end
-
-            token = config["ONE_KEY"]
-
-            password = VIClient::decrypt(password, token)
 
             connection = {
                 :host     => datastore["TEMPLATE/VCENTER_HOST"],

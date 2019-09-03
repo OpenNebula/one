@@ -76,8 +76,8 @@ module OpenNebula
         #######################################################################
 
         # Retrieves the information of the given Datastore.
-        def info()
-            super(DATASTORE_METHODS[:info], 'DATASTORE')
+        def info(decrypt = false)
+            super(DATASTORE_METHODS[:info], 'DATASTORE', decrypt)
         end
 
         alias_method :info!, :info

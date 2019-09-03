@@ -80,9 +80,9 @@ string one_util::log_time()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-std::string one_util::xml_escape(const std::string& in)
+string one_util::xml_escape(const string& in)
 {
-    std::string result = in;
+    string result = in;
 
     result = one_util::gsub(result, "&",  "&amp;");
     result = one_util::gsub(result, "<",  "&lt;");
@@ -116,7 +116,7 @@ string * one_util::base64_encode(const string& in)
 
     if (BIO_flush(bio_64) != 1)
     {
-        return 0;
+        return nullptr;
     }
 
     size = BIO_get_mem_data(bio_mem,&encoded_c);
@@ -154,7 +154,7 @@ string * one_util::base64_decode(const string& in)
 
     BIO_write(bio_mem_in, in.c_str(), in.length());
 
-    while((inlen = BIO_read(bio_64, inbuf, 512)) > 0)
+    while ((inlen = BIO_read(bio_64, inbuf, 512)) > 0)
     {
         BIO_write(bio_mem_out, inbuf, inlen);
     }
@@ -199,7 +199,7 @@ string one_util::sha1_digest(const string& in)
     EVP_MD_CTX_free(mdctx);
 #endif
 
-    for(unsigned int i = 0; i<md_len; i++)
+    for (unsigned int i = 0; i<md_len; i++)
     {
         oss << setfill('0') << setw(2) << hex << nouppercase
             << (unsigned short) md_value[i];
@@ -218,7 +218,7 @@ string one_util::sha256_digest(const string& in)
 
     SHA256((unsigned char*) in.c_str(), in.length(), digest);
 
-    for(int i = 0; i < SHA256_DIGEST_LENGTH; i++)
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++)
          oss << setfill('0') << setw(2) << hex << nouppercase
              << (unsigned int) digest[i];
 
@@ -228,7 +228,7 @@ string one_util::sha256_digest(const string& in)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string * one_util::aes256cbc_encrypt(const string& in, const string password)
+string * one_util::aes256cbc_encrypt(const string& in, const string& password)
 {
     EVP_CIPHER_CTX *ctx;
 
@@ -260,6 +260,57 @@ string * one_util::aes256cbc_encrypt(const string& in, const string password)
     string encrypt((char*) out, (size_t)(outlen1+outlen2));
 
     return base64_encode(encrypt);;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string * one_util::aes256cbc_decrypt(const string& in, const string& password)
+{
+    unique_ptr<string> crypted(base64_decode(in));
+
+    if (!crypted || crypted->empty())
+    {
+        return nullptr;
+    }
+
+    bool success = true;
+    EVP_CIPHER_CTX *ctx;
+
+    const unsigned char *key     = (unsigned char*) password.c_str();
+    const unsigned char *in_data = (unsigned char*) crypted->c_str();
+
+    unsigned char out[in.length() + AES_BLOCK_SIZE];
+
+    int outlen1, outlen2;
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+    ctx = (EVP_CIPHER_CTX*) malloc(sizeof(EVP_CIPHER_CTX));
+    EVP_CIPHER_CTX_init(ctx);
+#else
+    ctx = EVP_CIPHER_CTX_new();
+#endif
+
+    EVP_DecryptInit(ctx, EVP_aes_256_cbc(), key, NULL);
+    EVP_DecryptUpdate(ctx, out, &outlen1, in_data, crypted->length());
+    if (1 != EVP_DecryptFinal(ctx, out + outlen1, &outlen2))
+    {
+        success = false;
+    }
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+    EVP_CIPHER_CTX_cleanup(ctx);
+    free(ctx);
+#else
+    EVP_CIPHER_CTX_free(ctx);
+#endif
+
+    if (!success)
+    {
+        return nullptr;
+    }
+
+    return new string((char*)out, (size_t)(outlen1 + outlen2));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -341,17 +392,17 @@ static bool not_space(int c)
     return std::isspace(c) == 0;
 };
 
-std::string one_util::trim(const std::string& str)
+string one_util::trim(const string& str)
 {
-    std::string::const_iterator        wfirst;
-    std::string::const_reverse_iterator rwlast;
+    string::const_iterator        wfirst;
+    string::const_reverse_iterator rwlast;
 
     wfirst = find_if(str.begin(), str.end(), not_space);
     rwlast = find_if(str.rbegin(),str.rend(),not_space);
 
-    std::string::const_iterator wlast(rwlast.base());
+    string::const_iterator wlast(rwlast.base());
 
-    std::string tstr(wfirst, wlast);
+    string tstr(wfirst, wlast);
 
     return tstr;
 }
@@ -359,19 +410,19 @@ std::string one_util::trim(const std::string& str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-std::string one_util::gsub(const std::string& st, const std::string& sfind,
-    const std::string& srepl)
+string one_util::gsub(const string& st, const string& sfind,
+    const string& srepl)
 {
-    std::string result = st;
+    string result = st;
 
-    std::string::size_type pos = 0;
+    string::size_type pos = 0;
 
     size_t srepl_len = srepl.length();
     size_t sfind_len = sfind.length();
 
     pos = result.find(sfind, pos);
 
-    while(pos != std::string::npos)
+    while (pos != string::npos)
     {
         result.replace(pos, sfind_len , srepl);
         pos += srepl_len;
@@ -385,9 +436,9 @@ std::string one_util::gsub(const std::string& st, const std::string& sfind,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void one_util::escape_json(const std::string& str, std::ostringstream& s)
+void one_util::escape_json(const string& str, ostringstream& s)
 {
-    std::string::const_iterator it;
+    string::const_iterator it;
 
     s << "\"";
 
@@ -413,9 +464,9 @@ void one_util::escape_json(const std::string& str, std::ostringstream& s)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void one_util::escape_token(const std::string& str, std::ostringstream& s)
+void one_util::escape_token(const string& str, ostringstream& s)
 {
-    std::string::const_iterator it;
+    string::const_iterator it;
 
     for (it = str.begin(); it != str.end(); ++it)
     {
@@ -436,20 +487,17 @@ void one_util::escape_token(const std::string& str, std::ostringstream& s)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-namespace one_util
-{
 template<>
-void split_unique(const std::string& st, char delim, std::set<std::string>& res)
+void one_util::split_unique(const string& st, char delim, set<string>& res)
 {
-    std::vector<std::string>::const_iterator it;
+    vector<string>::const_iterator it;
 
-    std::vector<std::string> strings = split(st, delim, true);
+    vector<string> strings = split(st, delim, true);
 
     for (it = strings.begin(); it != strings.end(); it++)
     {
         res.insert(*it);
     }
-}
 }
 
 /* -------------------------------------------------------------------------- */
@@ -460,18 +508,18 @@ void split_unique(const std::string& st, char delim, std::set<std::string>& res)
  */
 #define ZBUFFER 16384
 
-std::string * one_util::zlib_compress(const std::string& in, bool base64)
+string * one_util::zlib_compress(const string& in, bool base64)
 {
     z_stream zs;
 
-    std::ostringstream oss;
+    ostringstream oss;
     unsigned char      out[ZBUFFER];
 
-    std::string * zstr;
+    string * zstr;
 
     if ( in.empty() )
     {
-        return 0;
+        return nullptr;
     }
 
     zs.zalloc = Z_NULL;
@@ -480,7 +528,7 @@ std::string * one_util::zlib_compress(const std::string& in, bool base64)
 
     if ( deflateInit(&zs, Z_DEFAULT_COMPRESSION) != Z_OK )
     {
-        return 0;
+        return nullptr;
     }
 
     zs.avail_in = in.size();
@@ -494,7 +542,7 @@ std::string * one_util::zlib_compress(const std::string& in, bool base64)
         if ( deflate(&zs, Z_FINISH) == Z_STREAM_ERROR )
         {
             deflateEnd(&zs);
-            return 0;
+            return nullptr;
         }
 
         oss.write((const char *)out, ZBUFFER - zs.avail_out);
@@ -508,7 +556,7 @@ std::string * one_util::zlib_compress(const std::string& in, bool base64)
     }
     else
     {
-        zstr = new std::string(oss.str());
+        zstr = new string(oss.str());
     }
 
     return zstr;
@@ -517,20 +565,20 @@ std::string * one_util::zlib_compress(const std::string& in, bool base64)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-std::string * one_util::zlib_decompress(const std::string& in, bool base64)
+string * one_util::zlib_decompress(const string& in, bool base64)
 {
     int rc;
 
     z_stream zs;
 
-    std::ostringstream oss;
+    ostringstream oss;
     unsigned char      out[ZBUFFER];
 
-    std::string * in64;
+    string * in64;
 
     if ( in.empty() )
     {
-        return 0;
+        return nullptr;
     }
 
     zs.zalloc = Z_NULL;
@@ -542,7 +590,7 @@ std::string * one_util::zlib_decompress(const std::string& in, bool base64)
 
     if ( inflateInit(&zs) != Z_OK)
     {
-        return 0;
+        return nullptr;
     }
 
     if ( base64 )
@@ -553,7 +601,7 @@ std::string * one_util::zlib_decompress(const std::string& in, bool base64)
         {
             inflateEnd(&zs);
 
-            return 0;
+            return nullptr;
         }
 
         zs.avail_in = in64->size();
@@ -574,7 +622,7 @@ std::string * one_util::zlib_decompress(const std::string& in, bool base64)
             delete in64;
         }
 
-        return 0;
+        return nullptr;
     }
 
     do
@@ -593,7 +641,7 @@ std::string * one_util::zlib_decompress(const std::string& in, bool base64)
                 delete in64;
             }
 
-            return 0;
+            return nullptr;
         }
 
         oss.write((const char *)out, ZBUFFER - zs.avail_out);
@@ -606,7 +654,7 @@ std::string * one_util::zlib_decompress(const std::string& in, bool base64)
         delete in64;
     }
 
-    return new std::string(oss.str());
+    return new string(oss.str());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -634,11 +682,11 @@ extern "C" unsigned long one_util::sslmutex_id_callback()
 
 one_util::SSLMutex * one_util::SSLMutex::ssl_mutex;
 
-std::vector<pthread_mutex_t *> one_util::SSLMutex::vmutex;
+vector<pthread_mutex_t *> one_util::SSLMutex::vmutex;
 
 void one_util::SSLMutex::initialize()
 {
-    if ( ssl_mutex == 0 )
+    if ( ssl_mutex == nullptr )
     {
         ssl_mutex = new SSLMutex();
     }

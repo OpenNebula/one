@@ -44,7 +44,7 @@ int vm_var_parse (VirtualMachine * vm, ostringstream * parsed, char ** errmsg,
 
 #define YYERROR_VERBOSE
 
-void vm_var_error(YYLTYPE * llocp, mem_collector *  mc, VirtualMachine * vm, 
+void vm_var_error(YYLTYPE * llocp, mem_collector *  mc, VirtualMachine * vm,
     ostringstream * parsed, char ** errmsg, yyscan_t scanner, const char * str);
 
 int vm_var_lex(YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc,
@@ -98,7 +98,7 @@ void get_image_attribute(VirtualMachine * vm,
 
     for (int i=0; i < num ;i++)
     {
-        if ( disks[i]->vector_value(img_name.c_str()) == img_value )
+        if ( disks[i]->vector_value(img_name) == img_value )
         {
             string        iid_str = disks[i]->vector_value("IMAGE_ID");
             istringstream iss(iid_str);
@@ -135,7 +135,7 @@ void get_image_attribute(VirtualMachine * vm,
     }
     else
     {
-        img->get_template_attribute(attr_name.c_str(), attr_value);
+        img->get_template_attribute(attr_name, attr_value);
     }
 
     img->unlock();
@@ -175,7 +175,7 @@ void get_network_attribute(VirtualMachine * vm,
 
     for (int i=0; i < num ;i++)
     {
-        if ( nets[i]->vector_value(net_name.c_str()) == net_value )
+        if ( nets[i]->vector_value(net_name) == net_value )
         {
             if (nets[i]->vector_value("NETWORK_ID", vnet_id) != 0)
             {
@@ -240,7 +240,7 @@ void get_network_attribute(VirtualMachine * vm,
     }
     else
     {
-        vn->get_template_attribute(attr_name.c_str(), attr_value, ar_id);
+        vn->get_template_attribute(attr_name, attr_value, ar_id);
     }
 
     vn->unlock();
@@ -273,7 +273,7 @@ void get_user_attribute(VirtualMachine * vm,
     }
     else
     {
-        user->get_template_attribute(attr_name.c_str(),attr_value);
+        user->get_template_attribute(attr_name, attr_value);
     }
 
     user->unlock();
@@ -316,11 +316,11 @@ void insert_single(VirtualMachine * vm,
     else
     {
 
-        vm->get_template_attribute(name.c_str(),value);
+        vm->get_template_attribute(name, value);
 
         if (value.empty())
         {
-            vm->get_user_template_attribute(name.c_str(),value);
+            vm->get_user_template_attribute(name, value);
         }
     }
 
@@ -387,7 +387,7 @@ void insert_vector(VirtualMachine * vm,
     }
     else
     {
-        if ( ( num = vm->get_template_attribute(name.c_str(), values) ) <= 0 )
+        if ( ( num = vm->get_template_attribute(name, values) ) <= 0 )
         {
             return;
         }
@@ -400,7 +400,7 @@ void insert_vector(VirtualMachine * vm,
         {
             for (int i=0 ; i < num ; i++)
             {
-                if (values[i]->vector_value(vvar.c_str()) == vval)
+                if (values[i]->vector_value(vvar) == vval)
                 {
                     vattr = values[i];
                     break;
@@ -410,7 +410,7 @@ void insert_vector(VirtualMachine * vm,
 
         if ( vattr != 0 )
         {
-            parsed << vattr->vector_value(vname.c_str());
+            parsed << vattr->vector_value(vname);
         }
     }
 }

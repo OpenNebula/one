@@ -67,11 +67,6 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VirtualNetwork::~VirtualNetwork(){};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void VirtualNetwork::get_permissions(PoolObjectAuth& auths)
 {
     PoolObjectSQL::get_permissions(auths);
@@ -463,6 +458,8 @@ int VirtualNetwork::post_update_template(string& error)
 
     one_util::split_unique(sg_str, ',', security_groups);
 
+    encrypt_all_secrets(obj_template);
+
     return 0;
 }
 
@@ -480,14 +477,14 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace, string& error_str)
     char * sql_xml;
 
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -855,7 +852,7 @@ int VirtualNetwork::nic_attribute(
 
     for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
     {
-        PoolObjectSQL::get_template_attribute((*it).c_str(), inherit_val);
+        PoolObjectSQL::get_template_attribute(*it, inherit_val);
 
         if (!inherit_val.empty())
         {
@@ -1225,7 +1222,7 @@ int VirtualNetwork::free_leases(VirtualNetworkTemplate * leases_template,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualNetwork::get_template_attribute(const char * name,
+void VirtualNetwork::get_template_attribute(const string& name,
     string& value, int ar_id) const
 {
     ar_pool.get_attribute(name, value, ar_id);
@@ -1239,7 +1236,7 @@ void VirtualNetwork::get_template_attribute(const char * name,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::get_template_attribute(const char * name, int& value,
+int VirtualNetwork::get_template_attribute(const string& name, int& value,
     int ar_id) const
 {
     int rc = ar_pool.get_attribute(name, value, ar_id);

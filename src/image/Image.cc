@@ -75,8 +75,6 @@ Image::Image(int             _uid,
         set_umask(_umask);
     }
 
-Image::~Image(){};
-
 /* ************************************************************************ */
 /* Image :: Database Access Functions                                       */
 /* ************************************************************************ */
@@ -143,7 +141,7 @@ int Image::insert(SqlDB *db, string& error_str)
 
             get_template_attribute("DEV_PREFIX", dev_prefix);
 
-            if( dev_prefix.empty() )
+            if (dev_prefix.empty())
             {
                 if (type == CDROM)
                 {
@@ -270,14 +268,14 @@ int Image::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     // Update the Image
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -289,7 +287,7 @@ int Image::insert_replace(SqlDB *db, bool replace, string& error_str)
         goto error_xml;
     }
 
-    if(replace)
+    if (replace)
     {
         oss << "UPDATE " << table << " SET "
             << "name = '"    << sql_name << "', "
@@ -602,7 +600,7 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
     }
 
     //Image is being copied/cloned
-    if ( state == Image::LOCKED_USED || state == Image::LOCKED_USED_PERS 
+    if ( state == Image::LOCKED_USED || state == Image::LOCKED_USED_PERS
             || state == Image::LOCKED )
     {
         disk->replace("CLONING", "YES");
@@ -615,7 +613,7 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
     //--------------------------------------------------------------------------
     //   TYPE attribute
     //--------------------------------------------------------------------------
-    switch(type)
+    switch (type)
     {
         case OS:
         case DATABLOCK:
@@ -625,7 +623,7 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
         case CDROM: //Always use CDROM type for these ones
             DiskType new_disk_type;
 
-            switch(disk_type)
+            switch (disk_type)
             {
                 case RBD:
                     new_disk_type = RBD_CDROM;
@@ -663,7 +661,7 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
 
     for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
     {
-        get_template_attribute((*it).c_str(), inherit_val);
+        get_template_attribute(*it, inherit_val);
 
         if (!inherit_val.empty())
         {
@@ -841,11 +839,12 @@ void Image::set_state(ImageState _state)
         LifeCycleManager* lcm = Nebula::instance().get_lcm();
         const set<int>& vms   = vm_collection.get_collection();
 
-        for(set<int>::iterator i = vms.begin(); i != vms.end(); i++)
+        for (set<int>::iterator i = vms.begin(); i != vms.end(); i++)
         {
             lcm->trigger(LCMAction::DISK_LOCK_FAILURE, *i);
         }
-    } else if( _state == LOCKED)
+    }
+    else if (state == LOCKED)
     {
         lock_db(-1,-1, PoolObjectSQL::LockStates::ST_USE);
     }
@@ -889,7 +888,7 @@ void Image::set_state_unlock()
             }
             else
             {
-                if(is_persistent())
+                if (is_persistent())
                 {
                     set_state(USED_PERS);
                 }
@@ -910,7 +909,7 @@ void Image::set_state_unlock()
     {
         const set<int>& vms = vm_collection.get_collection();
 
-        for(set<int>::iterator i = vms.begin(); i != vms.end(); i++)
+        for (set<int>::iterator i = vms.begin(); i != vms.end(); i++)
         {
             lcm->trigger(LCMAction::DISK_LOCK_SUCCESS, *i);
         }

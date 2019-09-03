@@ -73,7 +73,7 @@ void Quota::add_to_quota(VectorAttribute * attr, const string& va_name, float nu
     istringstream iss;
     float         total;
 
-    iss.str(attr->vector_value(va_name.c_str()));
+    iss.str(attr->vector_value(va_name));
 
     iss >> total;
 
@@ -216,7 +216,7 @@ bool Quota::check_quota(const string& qid,
         }
 
         q->vector_value(metrics[i],   limit);
-        q->vector_value(metrics_used.c_str(), usage);
+        q->vector_value(metrics_used, usage);
 
         if ( limit == DEFAULT )
         {
@@ -345,7 +345,7 @@ void Quota::cleanup_quota(const string& qid)
         metrics_used += "_USED";
 
         q->vector_value(metrics[i], limit);
-        q->vector_value(metrics_used.c_str(), usage);
+        q->vector_value(metrics_used, usage);
 
         if ( usage != 0 || limit != implicit_limit )
         {

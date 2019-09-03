@@ -51,8 +51,6 @@ Host::Host(
     replace_template_attribute("VM_MAD", vmm_mad_name);
 }
 
-Host::~Host(){};
-
 /* ************************************************************************ */
 /* Host :: Database Access Functions                                        */
 /* ************************************************************************ */
@@ -94,14 +92,14 @@ int Host::insert_replace(SqlDB *db, bool replace, string& error_str)
 
    // Update the Host
 
-    sql_hostname = db->escape_str(name.c_str());
+    sql_hostname = db->escape_str(name);
 
     if ( sql_hostname == 0 )
     {
         goto error_hostname;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -113,7 +111,7 @@ int Host::insert_replace(SqlDB *db, bool replace, string& error_str)
         goto error_xml;
     }
 
-    if(replace)
+    if (replace)
     {
         oss << "UPDATE " << table << " SET "
             << "name = '"         << sql_hostname   << "', "
@@ -390,7 +388,7 @@ int Host::update_info(Template        &tmpl,
         }
     }
 
-    for(map_it = found.begin(); map_it != found.end(); )
+    for (map_it = found.begin(); map_it != found.end(); )
     {
         if ( one_util::regex_match("STATE=.",map_it->second.c_str()) != 0 )
         {
@@ -403,7 +401,7 @@ int Host::update_info(Template        &tmpl,
         }
     }
 
-    for(set_it = tmp_lost_vms->begin(); set_it != tmp_lost_vms->end(); set_it++)
+    for (set_it = tmp_lost_vms->begin(); set_it != tmp_lost_vms->end(); set_it++)
     {
         // Reported as lost at least 2 times?
         if (prev_tmp_lost.count(*set_it) == 1)
@@ -541,7 +539,7 @@ int Host::update_monitoring(SqlDB * db)
     string error_str;
     char * sql_xml;
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -669,7 +667,7 @@ int Host::from_xml(const string& xml)
         return -1;
     }
 
-    rc += host_share.from_xml_node( content[0] );
+    rc += host_share.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
 
@@ -679,12 +677,12 @@ int Host::from_xml(const string& xml)
 
     ObjectXML::get_nodes("/HOST/TEMPLATE", content);
 
-    if( content.empty())
+    if (content.empty())
     {
         return -1;
     }
 
-    rc += obj_template->from_xml_node( content[0] );
+    rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
 
@@ -704,62 +702,13 @@ int Host::from_xml(const string& xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void nebula_crypt(const std::string in, std::string& out)
-{
-    Nebula& nd = Nebula::instance();
-    string  one_key;
-    string  * encrypted;
-
-    nd.get_configuration_attribute("ONE_KEY", one_key);
-
-    if (!one_key.empty())
-    {
-        encrypted = one_util::aes256cbc_encrypt(in, one_key);
-
-        out = *encrypted;
-
-        delete encrypted;
-    }
-    else
-    {
-        out = in;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
-static const map<std::string, unsigned int> MAX_HOST_VAR_SIZES = {
-    {"EC2_ACCESS", 21},
-    {"EC2_SECRET", 41},
-    {"AZ_ID", 41},
-    {"AZ_CERT", 3130},
-    {"VCENTER_PASSWORD", 22},
-    {"NSX_PASSWORD", 22},
-    {"ONE_PASSWORD", 22}
-};
-
 int Host::post_update_template(string& error)
 {
     string new_im_mad;
     string new_vm_mad;
     string cpu_ids;
 
-    map<std::string, unsigned int>::const_iterator it;
-
-    for (it = MAX_HOST_VAR_SIZES.begin(); it != MAX_HOST_VAR_SIZES.end() ; ++it)
-    {
-        string att;
-        string crypted;
-
-        get_template_attribute(it->first.c_str(), att);
-
-        if (!att.empty() && att.size() <= it->second)
-        {
-            nebula_crypt(att, crypted);
-
-            replace_template_attribute(it->first, crypted);
-        }
-    }
+    encrypt_all_secrets(obj_template);
 
     get_template_attribute("IM_MAD", new_im_mad);
     get_template_attribute("VM_MAD", new_vm_mad);

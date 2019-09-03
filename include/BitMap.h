@@ -304,7 +304,7 @@ private:
             return -1;
         }
 
-        char * ezipped64 = db->escape_str(zipped->c_str());
+        char * ezipped64 = db->escape_str(*zipped);
 
 
         if (replace)

@@ -870,7 +870,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const
+    string& to_xml(string& xml) const override
     {
         return to_xml_extended(xml, 1);
     }
@@ -900,12 +900,12 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const string &xml_str) override;
 
     /**
      *  Factory method for virtual machine templates
      */
-    Template * get_new_template() const
+    Template * get_new_template() const override
     {
         return new VirtualMachineTemplate;
     }
@@ -929,7 +929,7 @@ public:
      *    @return 0 on success
      */
     int replace_template(const string& tmpl_str, bool keep_restricted,
-            string& error);
+            string& error) override;
 
     /**
      *  Append new attributes to the *user template*.
@@ -940,23 +940,23 @@ public:
      *    @return 0 on success
      */
     int append_template(const string& tmpl_str, bool keep_restricted,
-            string& error);
+            string& error) override;
 
     /**
      *  This function gets an attribute from the user template
      *    @param name of the attribute
      *    @param value of the attribute
      */
-    void get_user_template_attribute(const char * name, string& value) const
+    void get_user_template_attribute(const string& name, string& value) const
     {
-        user_obj_template->get(name,value);
+        user_obj_template->get(name, value);
     }
 
     /**
      *  Sets an error message with timestamp in the template
      *    @param message Message string
      */
-    void set_template_error_message(const string& message);
+    void set_template_error_message(const string& message) override;
 
     /**
      *  Sets an error message with timestamp in the template
@@ -968,7 +968,7 @@ public:
     /**
      *  Deletes the error message from the template
      */
-    void clear_template_error_message();
+    void clear_template_error_message() override;
 
     /**
      *  Sets an error message with timestamp in the template (ERROR_MONITOR)
@@ -1674,6 +1674,15 @@ public:
      */
     int check_tm_mad_disks(const string& tm_mad, string& error);
 
+    /**
+     *  Decrypt all secret attributes
+     */
+    void decrypt_all_secrets() override
+    {
+        PoolObjectSQL::decrypt_all_secrets(obj_template);
+        PoolObjectSQL::decrypt_all_secrets(user_obj_template);
+    }
+
 private:
 
     // -------------------------------------------------------------------------
@@ -2183,6 +2192,15 @@ private:
      */
     int parse_sched_action(string& error_str);
 
+    /**
+     * Child classes can process the new template set with replace_template or
+     * append_template with this method
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     * - encrypt secret attributes.
+     */
+    int post_update_template(string& error) override;
+
 protected:
 
     //**************************************************************************
@@ -2226,21 +2244,21 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int select(SqlDB * db);
+    int select(SqlDB * db) override;
 
     /**
      *  Writes the Virtual Machine and its associated template in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB * db, string& error_str);
+    int insert(SqlDB * db, string& error_str) override;
 
     /**
      *  Writes/updates the Virtual Machine data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB * db)
+    int update(SqlDB * db) override
     {
         string error_str;
         return insert_replace(db, true, error_str);
@@ -2251,7 +2269,7 @@ protected:
      *   @param db pointer to the db
      *   @return -1
      */
-    int drop(SqlDB * db)
+    int drop(SqlDB * db) override
     {
         NebulaLog::log("ONE",Log::ERROR, "VM Drop not implemented!");
         return -1;

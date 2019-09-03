@@ -224,7 +224,7 @@ protected:
         leader_only     = true;
     };
 
-    virtual ~Request(){};
+    virtual ~Request() = default;
 
     /* ---------------------------------------------------------------------- */
     /* Methods to execute the request when received at the server             */

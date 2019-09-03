@@ -277,8 +277,8 @@ module OpenNebula
         #######################################################################
 
         # Retrieves the information of the given VirtualMachine.
-        def info()
-            super(VM_METHODS[:info], 'VM')
+        def info(decrypt = false)
+            super(VM_METHODS[:info], 'VM', decrypt)
         end
 
         alias_method :info!, :info
@@ -468,7 +468,7 @@ module OpenNebula
         #   overcommited. Defaults to false
         # @param ds_id [Integer] The System Datastore where to migrate the VM.
         #   To use the current one, set it to -1
-        # @param mtype [Integer] How to perform the cold migration: 
+        # @param mtype [Integer] How to perform the cold migration:
         #     - 0: save - restore,
         #     - 1: power off - boot
         #     - 2: power off hard - boot
