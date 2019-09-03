@@ -267,7 +267,7 @@ string * one_util::aes256cbc_encrypt(const string& in, const string& password)
 
 string * one_util::aes256cbc_decrypt(const string& in, const string& password)
 {
-    unique_ptr<string> crypted(base64_decode(in));
+    string *crypted = base64_decode(in);
 
     if (!crypted || crypted->empty())
     {
@@ -724,4 +724,3 @@ one_util::SSLMutex::~SSLMutex()
 
     CRYPTO_set_locking_callback(NULL);
 }
-
