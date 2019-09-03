@@ -191,7 +191,7 @@ EOT
             :format => Integer,
             :description => 'The Group ID to instantiate the VM'
     }
-    
+
     #NOTE: Other options defined using this array, add new options at the end
     TEMPLATE_OPTIONS=[
         {
@@ -674,7 +674,7 @@ EOT
         def list_pool_xml(pool, options, filter_flag)
             extended = options.include?(:extended) && options[:extended]
 
-            if $stdout.isatty
+            if $stdout.isatty and (!options.key?:no_pager)
                 size = $stdout.winsize[0] - 1
 
                 # ----------- First page, check if pager is needed -------------
@@ -702,6 +702,13 @@ EOT
                     return 0
                 end
 
+                if elements < size
+                    return 0
+                elsif !pool.is_paginated?
+                    stop_pager(ppid)
+                    return 0
+                end
+
                 # ------- Rest of the pages in the pool, piped to pager --------
                 current = size
 
@@ -711,6 +718,12 @@ EOT
                     return -1, rc.message if OpenNebula.is_error?(rc)
 
                     current += size
+
+                    begin
+                        Process.waitpid(ppid, Process::WNOHANG)
+                    rescue Errno::ECHILD
+                        break
+                    end
 
                     elements, page = print_page(pool, options)
 
@@ -1061,7 +1074,7 @@ EOT
         end
     end
 
-    def OpenNebulaHelper.time_to_str(time, print_seconds=true, 
+    def OpenNebulaHelper.time_to_str(time, print_seconds=true,
         print_hours=true, print_years=false)
 
         value = time.to_i
