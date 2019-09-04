@@ -21,9 +21,11 @@
 #
 # The IPAM driver must return 0 if no errors.
 #
-# Input Arguments:
-#  $1 - Base64 encoded XML with AR request
-#  $2 - Request ID
+# STDIN Input:
+#   - Base64 encoded XML with AR request
+#
+# Input arguments:
+#   $1 - Request ID
 #
 # XML format
 #  <IPAM_DRIVER_ACTION_DATA>

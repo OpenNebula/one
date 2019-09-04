@@ -23,8 +23,8 @@
 #
 # This scripts MUST exit 0 if the address is free.
 #
-# Input Arguments:
-#  $1 - Base64 encoded XML with the AR description and the address request
+# STDIN input:
+#   - Base64 encoded XML with the AR description and the address request
 #
 # XML format
 #  <IPAM_DRIVER_ACTION_DATA>
@@ -67,7 +67,7 @@ require 'nokogiri'
 require 'fileutils'
 require 'opennebula'
 
-data = Nokogiri::XML(Base64.decode64(ARGV[0]))
+data = Nokogiri::XML(Base64.decode64(STDIN.read))
 
 ###
 
