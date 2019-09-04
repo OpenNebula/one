@@ -248,6 +248,9 @@ string& Group::to_xml_extended(string& xml, bool extended) const
 int Group::from_xml(const string& xml)
 {
     int rc = 0;
+
+    string error;
+
     vector<xmlNodePtr> content;
     vector<xmlNodePtr>::iterator it;
 
@@ -283,8 +286,7 @@ int Group::from_xml(const string& xml)
     ObjectXML::free_nodes(content);
     content.clear();
 
-    string error;
-    rc += read_vm_operations(error);
+    rc += vm_actions.set_auth_ops(*obj_template, error);
 
     if (rc != 0)
     {
@@ -543,100 +545,41 @@ void Group::sunstone_views(const string& user_default, const string& user_views,
             const string& admin_default, const string& admin_views)
 {
 
-	VectorAttribute * sunstone = obj_template->get("SUNSTONE");
+    VectorAttribute * sunstone = obj_template->get("SUNSTONE");
 
-	if ( sunstone == 0 )
-	{
-		map<string,string>  vvalue;
-
-		vvalue.insert(make_pair("DEFAULT_VIEW", user_default));
-		vvalue.insert(make_pair("VIEWS", user_views));
-		vvalue.insert(make_pair("GROUP_ADMIN_DEFAULT_VIEW", admin_default));
-		vvalue.insert(make_pair("GROUP_ADMIN_VIEWS", admin_views));
-
-		sunstone = new VectorAttribute("SUNSTONE", vvalue);
-
-		obj_template->set(sunstone);
-	}
- 	else
-	{
-		if ( sunstone->vector_value("DEFAULT_VIEW").empty() )
-		{
-			sunstone->replace("DEFAULT_VIEW", user_default);
-		}
-
-		if ( sunstone->vector_value("VIEWS").empty() )
-		{
-			sunstone->replace("VIEWS", user_views);
-		}
-
-		if ( sunstone->vector_value("GROUP_ADMIN_DEFAULT_VIEW").empty() )
-		{
-			sunstone->replace("GROUP_ADMIN_DEFAULT_VIEW", admin_default);
-		}
-
-		if ( sunstone->vector_value("GROUP_ADMIN_VIEWS").empty() )
-		{
-			sunstone->replace("GROUP_ADMIN_VIEWS", admin_views);
-		}
-	}
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-AuthRequest::Operation Group::get_vm_auth_op(History::VMAction action) const
-{
-    if (vm_admin_actions.is_set(action))
+    if ( sunstone == 0 )
     {
-        return AuthRequest::ADMIN;
-    }
-    else if (vm_manage_actions.is_set(action))
-    {
-        return AuthRequest::MANAGE;
-    }
-    else if (vm_use_actions.is_set(action))
-    {
-        return AuthRequest::USE;
+        map<string,string>  vvalue;
+
+        vvalue.insert(make_pair("DEFAULT_VIEW", user_default));
+        vvalue.insert(make_pair("VIEWS", user_views));
+        vvalue.insert(make_pair("GROUP_ADMIN_DEFAULT_VIEW", admin_default));
+        vvalue.insert(make_pair("GROUP_ADMIN_VIEWS", admin_views));
+
+        sunstone = new VectorAttribute("SUNSTONE", vvalue);
+
+        obj_template->set(sunstone);
     }
     else
     {
-        return AuthRequest::NONE;
+        if ( sunstone->vector_value("DEFAULT_VIEW").empty() )
+        {
+            sunstone->replace("DEFAULT_VIEW", user_default);
+        }
+
+        if ( sunstone->vector_value("VIEWS").empty() )
+        {
+            sunstone->replace("VIEWS", user_views);
+        }
+
+        if ( sunstone->vector_value("GROUP_ADMIN_DEFAULT_VIEW").empty() )
+        {
+            sunstone->replace("GROUP_ADMIN_DEFAULT_VIEW", admin_default);
+        }
+
+        if ( sunstone->vector_value("GROUP_ADMIN_VIEWS").empty() )
+        {
+            sunstone->replace("GROUP_ADMIN_VIEWS", admin_views);
+        }
     }
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int Group::read_vm_operations(string& error)
-{
-    std::string admin, manage, use;
-
-    get_template_attribute("VM_ADMIN_OPERATIONS", admin);
-    if (OpenNebulaTemplate::set_vm_auth_ops(admin, vm_admin_actions, error) != 0)
-    {
-        return -1;
-    }
-
-    get_template_attribute("VM_MANAGE_OPERATIONS", manage);
-    if (OpenNebulaTemplate::set_vm_auth_ops(manage, vm_manage_actions, error) != 0)
-    {
-        return -1;
-    }
-
-    get_template_attribute("VM_USE_OPERATIONS", use);
-    if (OpenNebulaTemplate::set_vm_auth_ops(use, vm_use_actions, error) != 0)
-    {
-        return -1;
-    }
-
-    return 0;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int Group::post_update_template(string& error)
-{
-    return read_vm_operations(error);
 }

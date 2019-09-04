@@ -110,6 +110,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
         auth_object = PoolObjectSQL::VM;
+        vm_action   = History::UPDATE_ACTION;
     }
 
     ~VirtualMachineUpdateTemplate() = default;
@@ -130,11 +131,6 @@ protected:
 
         return vmpool->update_search(vm);
     };
-
-    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
-    {
-        return Request::get_vm_auth_op(History::UPDATE_ACTION, att);
-    }
 };
 
 /* ------------------------------------------------------------------------- */

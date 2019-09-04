@@ -122,15 +122,10 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
         auth_object = PoolObjectSQL::VM;
+        vm_action   = History::RENAME_ACTION;
     }
 
     ~VirtualMachineRename() = default;
-
-
-    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
-    {
-        return Request::get_vm_auth_op(History::RENAME_ACTION, att);
-    }
 
     int exist(const string& name, int uid) override
     {

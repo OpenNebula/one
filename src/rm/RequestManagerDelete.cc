@@ -20,8 +20,8 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static Request::ErrorCode delete_authorization(PoolSQL* pool,
-        int oid, AuthRequest::Operation auth_op, RequestAttributes& att)
+static Request::ErrorCode delete_authorization(PoolSQL* pool, int oid,
+        RequestAttributes& att)
 {
     PoolObjectAuth  perms;
 
@@ -39,7 +39,7 @@ static Request::ErrorCode delete_authorization(PoolSQL* pool,
 
     AuthRequest ar(att.uid, att.group_ids);
 
-    ar.add_auth(auth_op, perms); // <MANAGE|ADMIN> OBJECT
+    ar.add_auth(att.auth_op, perms); // <MANAGE|ADMIN> OBJECT
 
     if (UserPool::authorize(ar) == -1)
     {
@@ -64,7 +64,7 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList,
         recursive = xmlrpc_c::value_boolean(paramList.getBoolean(2));
     }
 
-    ErrorCode ec = delete_object(oid, recursive, att, att.auth_op);
+    ErrorCode ec = delete_object(oid, recursive, att);
 
     if ( ec == SUCCESS )
     {
@@ -79,10 +79,8 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList,
 void ImageDelete::request_execute(xmlrpc_c::paramList const& paramList,
         RequestAttributes& att)
 {
-    int  oid                    = xmlrpc_c::value_int(paramList.getInt(1));
-    AuthRequest::Operation auth = att.auth_op;
+    int  oid = xmlrpc_c::value_int(paramList.getInt(1));
 
-    //get the image
     Image* img = static_cast<ImagePool *>(pool)->get_ro(oid);
 
     if (img == 0)
@@ -94,12 +92,12 @@ void ImageDelete::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (img->is_locked())
     {
-        auth = AuthRequest::ADMIN;
+        att.auth_op = AuthRequest::ADMIN;
     }
 
     img->unlock();
 
-    ErrorCode ec = delete_object(oid, false, att, auth);
+    ErrorCode ec = delete_object(oid, false, att);
 
     if ( ec == SUCCESS )
     {
@@ -115,13 +113,13 @@ void ImageDelete::request_execute(xmlrpc_c::paramList const& paramList,
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-Request::ErrorCode RequestManagerDelete::delete_object(int oid,
-    bool recursive, RequestAttributes& att, AuthRequest::Operation auth)
+Request::ErrorCode RequestManagerDelete::delete_object(int oid, bool recursive,
+        RequestAttributes& att)
 {
     string    err;
     ErrorCode ec;
 
-    ec = delete_authorization(pool, oid, auth, att);
+    ec = delete_authorization(pool, oid, att);
 
     if ( ec != SUCCESS )
     {

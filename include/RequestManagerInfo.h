@@ -33,7 +33,8 @@ protected:
                        const string& help)
         :Request(method_name, "A:si", help)
     {
-        auth_op = AuthRequest::USE_NO_LCK;
+        auth_op   = AuthRequest::USE_NO_LCK;
+        vm_action = History::NONE_ACTION;
 
         leader_only = false;
     };
@@ -73,7 +74,8 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str) override
+    void to_xml(RequestAttributes& att, PoolObjectSQL * object,
+            string& str) override
     {
         static_cast<VirtualMachine *>(object)->to_xml_extended(str);
     };

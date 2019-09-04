@@ -58,15 +58,15 @@ public:
 
     uint64_t replication_idx;
 
-    AuthRequest::Operation    auth_op;    /**< Auth operation for the request */
+    AuthRequest::Operation auth_op;   /**< Auth operation for the request */
 
-    RequestAttributes()
+    RequestAttributes(AuthRequest::Operation api_auth_op)
     {
         resp_obj        = PoolObjectSQL::NONE;
         resp_id         = -1;
         resp_msg        = "";
         replication_idx = UINT64_MAX;
-        auth_op         = AuthRequest::ADMIN;
+        auth_op         = api_auth_op;
     };
 
     RequestAttributes(const RequestAttributes& ra)
@@ -141,6 +141,14 @@ public:
     {
         return gid == GroupPool::ONEADMIN_ID;
     }
+
+    /**
+     *  Set the operation level (admin, manage or use) associated to this
+     *  request. Precedence is: user > group > system.
+     *
+     *  @param action perfomed on the VM object
+     */
+    void set_auth_op(History::VMAction action);
 };
 
 /**
@@ -197,38 +205,48 @@ public:
 
 protected:
     /* ---------------------------------------------------------------------- */
+    /* Global configuration attributes por API calls                          */
+    /* ---------------------------------------------------------------------- */
+    static string format_str;
+    static const long long xmlrpc_timeout; //Timeout (ms) for request forwarding
+
+    /* ---------------------------------------------------------------------- */
     /* Static Request Attributes: shared among request of the same method     */
     /* ---------------------------------------------------------------------- */
-    PoolSQL * pool;           /**< Pool of objects */
-    string    method_name;    /**< The name of the XML-RPC method */
+    PoolSQL * pool;
+    string    method_name;
 
-    PoolObjectSQL::ObjectType auth_object;/**< Auth object for the request */
-    AuthRequest::Operation    auth_op;    /**< Auth operation for the request */
+    // Configuration for authentication level of the API call
+    PoolObjectSQL::ObjectType auth_object;
+    AuthRequest::Operation    auth_op;
 
+    History::VMAction vm_action;
+
+    // Logging configuration fot the API call
     set<int> hidden_params;
+    bool     log_method_call;
 
-    static string format_str;
-
-    bool log_method_call; //Write method call and result to the log
-
-    bool leader_only; //Method can be only execute by leaders or solo servers
-
-    static const long long xmlrpc_timeout; //Timeout (ms) for request forwarding
+    //Method can be only execute by leaders or solo servers
+    bool leader_only;
 
     /* ---------------------------------------------------------------------- */
     /* Class Constructors                                                     */
     /* ---------------------------------------------------------------------- */
-    Request(const string& mn, const string& signature, const string& help):
-        pool(0),method_name(mn)
+    Request(const string& mn, const string& signature, const string& help)
     {
+        pool = nullptr;
+
+        method_name = mn;
+
         _signature = signature;
         _help      = help;
 
         hidden_params.clear();
 
         log_method_call = true;
-
         leader_only     = true;
+
+        vm_action       = History::NONE_ACTION;
     };
 
     virtual ~Request(){};
@@ -343,25 +361,7 @@ protected:
      *
      *    @return true if the user is authorized.
      */
-    bool basic_authorization(int oid, RequestAttributes& att)
-    {
-        return basic_authorization(oid, att.auth_op, att);
-    };
-
-    /**
-     *  Performs a basic authorization for this request using the uid/gid
-     *  from the request. The function gets the object from the pool to get
-     *  the public attribute and its owner. The authorization is based on
-     *  object and type of operation for the request.
-     *    @param oid of the object, can be -1 for objects to be created, or
-     *    pools.
-     *    @param op operation of the request.
-     *    @param att the specific request attributes
-     *
-     *    @return true if the user is authorized.
-     */
-    bool basic_authorization(int oid, AuthRequest::Operation op,
-        RequestAttributes& att);
+    bool basic_authorization(int oid, RequestAttributes& att);
 
     /**
      *  Performs a basic authorization for this request using the uid/gid
@@ -371,7 +371,6 @@ protected:
      *    @param pool object pool
      *    @param oid of the object, can be -1 for objects to be created, or
      *    pools.
-     *    @param op operation of the request.
      *    @param att the specific request attributes
      *
      *    @return SUCCESS if the user is authorized.
@@ -379,7 +378,6 @@ protected:
     static ErrorCode basic_authorization(
             PoolSQL*                pool,
             int                     oid,
-            AuthRequest::Operation  op,
             PoolObjectSQL::ObjectType auth_object,
             RequestAttributes&      att);
 
@@ -428,13 +426,6 @@ protected:
      */
     ErrorCode as_uid_gid(Template * tmpl, RequestAttributes& att);
 
-    virtual AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const
-    {
-        return auth_op;
-    }
-
-    static AuthRequest::Operation get_vm_auth_op(History::VMAction action,
-        const RequestAttributes& att);
 private:
     /* ---------------------------------------------------------------------- */
     /* Functions to manage user and group quotas                              */

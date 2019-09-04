@@ -99,8 +99,7 @@ Request::ErrorCode ImagePersistent::request_execute(
 
     ErrorCode ec;
 
-    ec = basic_authorization(ipool, id,
-            AuthRequest::MANAGE, PoolObjectSQL::IMAGE, att);
+    ec = basic_authorization(ipool, id, PoolObjectSQL::IMAGE, att);
 
     if ( ec != SUCCESS)
     {

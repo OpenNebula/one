@@ -33,6 +33,7 @@ source_files=[
     'VirtualMachineSystemSnapshot.cc',
     'VirtualMachineParser.cc',
     'VirtualMachineContext.cc',
+    'VMActionSet.cc',
     'Snapshots.cc'
 ]
 

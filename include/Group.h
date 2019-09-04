@@ -23,6 +23,7 @@
 #include "User.h"
 #include "QuotasSQL.h"
 #include "Template.h"
+#include "VMActionSet.h"
 
 using namespace std;
 
@@ -138,7 +139,14 @@ public:
     void sunstone_views(const string& user_default, const string& user_views,
             const string& admin_default, const string& admin_views);
 
-    AuthRequest::Operation get_vm_auth_op(History::VMAction action) const;
+    /**
+     *  @return the operation level (admin, manage or use) associated to the
+     *  given action for this group
+     */
+    AuthRequest::Operation get_vm_auth_op(History::VMAction action) const
+    {
+        return vm_actions.get_auth_op(action);
+    }
 
 private:
 
@@ -184,19 +192,9 @@ private:
     void del_admin_rules(int user_id);
 
     /**
-     *  Set of VM actions that require USE permission
+     *  List of VM actions and rights for this group
      */
-    ActionSet<History::VMAction> vm_use_actions;
-
-    /**
-     *  Set of VM actions that require MANAGE permission
-     */
-    ActionSet<History::VMAction> vm_manage_actions;
-
-    /**
-     *  Set of VM actions that require ADMIN permission
-     */
-    ActionSet<History::VMAction> vm_admin_actions;
+    VMActionSet vm_actions;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -286,10 +284,6 @@ private:
      *  @return a reference to the generated string
      */
     string& to_xml_extended(string& xml, bool extended) const;
-
-    int read_vm_operations(string& error);
-
-    int post_update_template(string& error) override;
 };
 
 #endif /*GROUP_H_*/

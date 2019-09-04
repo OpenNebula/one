@@ -59,8 +59,7 @@ protected:
     void request_execute(xmlrpc_c::paramList const& paramList,
         RequestAttributes& att) override;
 
-    ErrorCode delete_object(int oid, bool recursive,
-        RequestAttributes& att, AuthRequest::Operation auth);
+    ErrorCode delete_object(int oid, bool recursive, RequestAttributes& att);
 
     /* -------------------------------------------------------------------- */
 
@@ -105,7 +104,7 @@ public:
 
     ErrorCode request_execute(int oid, bool recursive, RequestAttributes& att)
     {
-        return delete_object(oid, recursive, att, att.auth_op);
+        return delete_object(oid, recursive, att);
     }
 
 protected:
@@ -133,7 +132,7 @@ public:
 
     ErrorCode request_execute(int oid, bool recursive, RequestAttributes& att)
     {
-        return delete_object(oid, false, att, att.auth_op);
+        return delete_object(oid, false, att);
     }
 
 };
@@ -188,7 +187,7 @@ public:
 
     ErrorCode request_execute(int oid, RequestAttributes& att)
     {
-        return delete_object(oid, false, att, att.auth_op);
+        return delete_object(oid, false, att);
     };
 
     void request_execute(xmlrpc_c::paramList const& paramList,
@@ -327,6 +326,7 @@ public:
     {
         Nebula& nd = Nebula::instance();
         pool       = nd.get_clpool();
+
         auth_object = PoolObjectSQL::CLUSTER;
         auth_op     = AuthRequest::ADMIN;
     };

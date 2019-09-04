@@ -38,6 +38,7 @@ protected:
         pool        = nd.get_vrouterpool();
 
         auth_object = PoolObjectSQL::VROUTER;
+        auth_op     = AuthRequest::MANAGE;
     };
 
     ~RequestManagerVirtualRouter(){};
@@ -56,10 +57,7 @@ class VirtualRouterInstantiate : public RequestManagerVirtualRouter
 public:
     VirtualRouterInstantiate() : RequestManagerVirtualRouter(
         "one.vrouter.instantiate", "Instantiates a new virtual machine "
-        "associated to a virtual router", "A:siiisbs")
-    {
-        auth_op = AuthRequest::MANAGE;
-    };
+        "associated to a virtual router", "A:siiisbs") { }
 
     ~VirtualRouterInstantiate(){};
 
@@ -76,10 +74,7 @@ class VirtualRouterAttachNic : public RequestManagerVirtualRouter
 public:
     VirtualRouterAttachNic():RequestManagerVirtualRouter("one.vrouter.attachnic",
          "Attaches a new NIC to the virtual router, and its virtual machines",
-         "A:sis")
-    {
-        auth_op = AuthRequest::MANAGE;
-    };
+         "A:sis") { }
 
     ~VirtualRouterAttachNic(){};
 
@@ -95,10 +90,7 @@ class VirtualRouterDetachNic : public RequestManagerVirtualRouter
 {
 public:
     VirtualRouterDetachNic():RequestManagerVirtualRouter("one.vrouter.detachnic",
-        "Detaches a NIC from a virtual router, and its virtual machines","A:sii")
-    {
-        auth_op = AuthRequest::MANAGE;
-    };
+        "Detaches a NIC from a virtual router, and its virtual machines","A:sii") { }
 
     ~VirtualRouterDetachNic(){};
 

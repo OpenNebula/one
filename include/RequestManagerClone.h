@@ -117,11 +117,11 @@ protected:
     };
 
     ErrorCode merge(Template * tmpl, const string &s_a, RequestAttributes& att) override
-	{
-		VMTemplateInstantiate vm_instantiate;
+    {
+        VMTemplateInstantiate vm_instantiate;
 
-		return vm_instantiate.merge(tmpl, s_a, att);
-	};
+        return vm_instantiate.merge(tmpl, s_a, att);
+    };
 };
 
 /* ------------------------------------------------------------------------- */

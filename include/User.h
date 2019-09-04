@@ -22,7 +22,7 @@
 #include "ObjectCollection.h"
 #include "QuotasSQL.h"
 #include "LoginToken.h"
-#include "ActionSet.h"
+#include "VMActionSet.h"
 #include "History.h"
 #include "AuthRequest.h"
 
@@ -227,7 +227,14 @@ public:
         return groups.contains(_group_id);
     }
 
-    AuthRequest::Operation get_vm_auth_op(History::VMAction action) const;
+    /**
+     *  @return the operation level (admin, manage or use) associated to the
+     *  given action for this group
+     */
+    AuthRequest::Operation get_vm_auth_op(History::VMAction action) const
+    {
+        return vm_actions.get_auth_op(action);
+    }
 
     // *************************************************************************
     // Quotas
@@ -289,19 +296,9 @@ private:
     ObjectCollection groups;
 
     /**
-     *  Set of VM actions that require USE permission
+     *  List of VM actions and rights for this user
      */
-    ActionSet<History::VMAction> vm_use_actions;
-
-    /**
-     *  Set of VM actions that require MANAGE permission
-     */
-    ActionSet<History::VMAction> vm_manage_actions;
-
-    /**
-     *  Set of VM actions that require ADMIN permission
-     */
-    ActionSet<History::VMAction> vm_admin_actions;
+    VMActionSet vm_actions;
 
     // *************************************************************************
     // Authentication session used to cache authentication calls
@@ -427,10 +424,6 @@ protected:
         string error_str;
         return insert_replace(db, true, error_str);
     }
-
-    int read_vm_operations(string& error);
-
-    int post_update_template(string& error) override;
 };
 
 #endif /*USER_H_*/

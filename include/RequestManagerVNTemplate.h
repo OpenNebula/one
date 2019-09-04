@@ -81,7 +81,7 @@ public:
         const string& s_uattr, Template* extra_attrs, int& vid,
         RequestAttributes& att);
 
-	/**
+    /**
      * Parse & merge user attributes (check if the request user is not oneadmin)
      *  @param tmpl to merge the attributes to
      *  @param s_uattr Template supplied by user to merge with the original
