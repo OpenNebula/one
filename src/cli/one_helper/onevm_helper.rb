@@ -457,7 +457,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
             tmp_str << "\nSCHED_ACTION = "
             tmp_str << "[ID = #{id}, ACTION = #{action}, "
-            tmp str << "TIME = #{options[:schedule].to_i}"
+            tmp_str << "TIME = #{options[:schedule].to_i}"
             tmp_str << str_periodic << ']'
 
             vm.update(tmp_str)
