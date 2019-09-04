@@ -271,6 +271,7 @@ string * one_util::aes256cbc_decrypt(const string& in, const string& password)
 
     if (!crypted || crypted->empty())
     {
+        delete crypted;
         return nullptr;
     }
 
@@ -304,6 +305,8 @@ string * one_util::aes256cbc_decrypt(const string& in, const string& password)
 #else
     EVP_CIPHER_CTX_free(ctx);
 #endif
+
+    delete crypted;
 
     if (!success)
     {
