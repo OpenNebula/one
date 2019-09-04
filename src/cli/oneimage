@@ -187,32 +187,6 @@ CommandParser::CmdParser.new(ARGV) do
                 end
 
                 image.allocate(template, options[:datastore], check_capacity)
-
-                ds = OpenNebula::Datastore.new_with_id(options[:datastore], helper.client)
-
-                rc_image = image.info
-                rc_ds    = ds.info
-
-                image_error = OpenNebula.is_error?(rc_image)
-                ds_error    = OpenNebula.is_error?(rc_ds)
-
-                xpath  = 'TEMPLATE/DRIVER'
-                format = options[:driver]
-                type   = ds[xpath]
-
-                if !image_error && !ds_error
-                    if type == 'vcenter' && format == 'qcow2'
-                        image.replace('DEV_PREFIX' => 'sd')
-                        image.delete_element('TEMPLATE/FORMAT')
-                        image.delete_element('TEMPLATE/DRIVER')
-
-                        image.update(image.template_like_str("TEMPLATE"))
-                    elsif type == 'vcenter' && format != 'iso' && format != 'vmdk'
-                        image.replace('FORMAT' => 'vmdk')
-                    elsif type && type != 'vcenter' && format == 'vmdk'
-                        image.replace('FORMAT' => type)
-                    end
-                end
             rescue StandardError => e
                 STDERR.puts e.messsage
                 exit(-1)
