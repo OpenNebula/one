@@ -72,6 +72,8 @@ define(function(require) {
     var protocol = window.location.protocol;
     var hostname = window.location.hostname;
     var port = window.location.port;
+    var rfbConfig = pw? { "credentials": { "password": pw } } : {};
+
     if (protocol === "https:") {
       URL = "wss";
     } else {
@@ -92,7 +94,7 @@ define(function(require) {
     var link = URL.replace(re, protocol + "//" + hostname + ":" + port + "/vnc?");
 
     try{
-      _rfb = new RFB(document.querySelector("#VNC_canvas"), URL);
+      _rfb = new RFB(document.querySelector("#VNC_canvas"), URL, rfbConfig);
       _rfb.addEventListener("connect",  connected);
       _rfb.addEventListener("disconnect", disconnectedFromServer);
     }catch(err){
