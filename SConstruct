@@ -13,18 +13,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
-#--------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------- #
 
 import os
 import sys
 import shutil
+from subprocess import Popen, PIPE
+
+import SCons
+from SCons.Environment import Environment
+from SCons.Script import ARGUMENTS, SConscript
+
 sys.path.append("./share/scons")
 from lex_bison import *
-from subprocess import Popen,PIPE,STDOUT
 
-# Get git version
+
+# Get git version
 try:
-    out = Popen(["git", "describe", "--dirty", "--always", "--abbrev=8"],stdout=PIPE)
+    out = Popen(["git", "describe", "--dirty", "--always", "--abbrev=8"],
+                stdout=PIPE)
     git_version = out.communicate()[0].rstrip().decode('utf-8')
 except OSError:
     git_version = "not known"
@@ -121,7 +128,7 @@ main_env.Append(LIBS=['z'])
 #######################
 
 # SQLITE
-sqlite_dir = ARGUMENTS.get('sqlite_dir', 'none')
+sqlite_dir = ARGUMENTS.get('sqlite_dir', "none")
 if sqlite_dir != 'none':
     main_env.Append(LIBPATH=[sqlite_dir+"/lib", sqlite_dir+"/lib64"])
     main_env.Append(CPPPATH=[sqlite_dir+"/include"])
@@ -186,15 +193,15 @@ if not main_env.GetOption('clean'):
     try:
         if mysql == 'yes':
             main_env.ParseConfig('mysql_config --cflags --libs')
-    except Exception as e:
-        print ("")
-        print ("mysql_config was not found in the path")
-        print ("")
-        print ("Check that mysql development package is installed and")
-        print ("mysql_config is in the path. If your mysql config tool")
-        print ("is called mysql5_config make a symlink as mysql_config")
-        print ("to a directory in the path.")
-        print ("")
+    except Exception:
+        print("")
+        print("mysql_config was not found in the path")
+        print("")
+        print("Check that mysql development package is installed and")
+        print("mysql_config is in the path. If your mysql config tool")
+        print("is called mysql5_config make a symlink as mysql_config")
+        print("to a directory in the path.")
+        print("")
         exit(-1)
 
     try:
@@ -203,24 +210,24 @@ if not main_env.GetOption('clean'):
         main_env.ParseConfig(("LDFLAGS='%s' share/scons/get_xmlrpc_config" +
                               " client") % (os.environ['LDFLAGS'],))
 
-    except Exception as e:
-        print ("")
-        print ("Error searching for xmlrpc-c libraries. Please check this") +\
-            (" things:")
-        print ("")
-        print (" * You have installed development libraries for xmlrpc-c. One") +\
-            (" way to check")
-        print ("   this is calling xmlrpc-c-config that is provided with the") +\
-            (" development")
-        print ("   package.")
-        print (" * Check that the version of xmlrpc-c is at least 1.06. You") +\
-            (" can do this also")
-        print ("   calling:")
-        print ("   $ xmlrpc-c-config --version")
-        print (" * If all this requirements are already met please send log") +\
+    except Exception:
+        print("")
+        print("Error searching for xmlrpc-c libraries. Please check this "
+              "things:")
+        print("")
+        print(" * You have installed development libraries for xmlrpc-c."
+              "One way to check")
+        print("   this is calling xmlrpc-c-config that is provided with the "
+              "development")
+        print("   package.")
+        print(" * Check that the version of xmlrpc-c is at least 1.06. You "
+              "can do this also")
+        print("   calling:")
+        print("   $ xmlrpc-c-config --version")
+        print(" * If all this requirements are already met please send log") +\
             (" files located in")
-        print ("   .xmlrpc_test to the mailing list.")
-        print ("")
+        print("   .xmlrpc_test to the mailing list.")
+        print("")
         exit(-1)
 else:
     main_env.Replace(mysql='yes')
@@ -235,7 +242,7 @@ main_env.ParseConfig('xml2-config --libs --cflags')
 svncterm_path = 'src/vmm_mad/remotes/lib/lxd/svncterm_server/SConstruct'
 
 # SCONS scripts to build
-build_scripts=[
+build_scripts = [
     'src/parsers/SConstruct',
     'src/sql/SConstruct',
     'src/log/SConstruct',
