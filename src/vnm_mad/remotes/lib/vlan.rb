@@ -147,8 +147,7 @@ module VNMMAD
             return if @bridges.key?(@nic[:bridge])
 
             OpenNebula.exec_and_log("#{command(:ip)} link add name " \
-                                    "#{@nic[:bridge]} type bridge " \
-                                    "#{list_bridge_options}")
+                "#{@nic[:bridge]} type bridge #{list_bridge_options}")
 
             @bridges[@nic[:bridge]] = []
 
@@ -169,6 +168,7 @@ module VNMMAD
 
                 bridge_options << "#{option} #{value} "
             end
+            
             bridge_options.strip
         end
 
@@ -207,7 +207,7 @@ module VNMMAD
             @bridges[@nic[:bridge]].each do |interface|
                 vlan = list_interface_vlan(interface)
 
-                next unless vlan && vlan.to_s != @nic[:vlan_id]
+                next if !vlan || vlan.to_s == @nic[:vlan_id]
 
                 OpenNebula.log_error("The interface #{interface} has "\
                     "vlan_id = #{vlan} but the network is configured "\
