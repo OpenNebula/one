@@ -531,15 +531,9 @@ void Nebula::start(bool bootstrap_only)
     // -------------------------------------------------------------------------
     // Pools
     // -------------------------------------------------------------------------
-    string encrypted_attributes;
-    set<string> * po_ea = const_cast<set<string> *>(&PoolObjectSQL::ENCRYPTED_ATTRIBUTES);
+    auto ea = const_cast<vector<const SingleAttribute *> *>(&PoolObjectSQL::ENCRYPTED_ATTRIBUTES);
 
-    nebula_configuration->get("ENCRYPTED_ATTRIBUTES", encrypted_attributes);
-
-    for (const auto& att_name : one_util::split(encrypted_attributes, ','))
-    {
-        po_ea->insert(one_util::trim(att_name));
-    }
+    nebula_configuration->get("ENCRYPTED_ATTRIBUTE", *ea);
 
     try
     {

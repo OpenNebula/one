@@ -20,7 +20,7 @@
 #include "Nebula.h"
 #include "Clusterable.h"
 
-const set<std::string> PoolObjectSQL::ENCRYPTED_ATTRIBUTES{};
+const vector<const SingleAttribute *> PoolObjectSQL::ENCRYPTED_ATTRIBUTES{};
 
 const string PoolObjectSQL::INVALID_NAME_CHARS = "&|:\\\";/'#{}$<>";
 
@@ -742,12 +742,13 @@ bool PoolObjectSQL::decrypt(const std::string& in, std::string& out)
 
 void PoolObjectSQL::encrypt_all_secrets(Template *tmpl)
 {
-    for (const string& att_name : ENCRYPTED_ATTRIBUTES)
+    for (const auto& attribute : ENCRYPTED_ATTRIBUTES)
     {
         string att;
         string encrypted;
         string tmp;
 
+        auto att_name = attribute->value();
         auto path = one_util::split(att_name, '/');
 
         if (path.size() > 1)
@@ -789,11 +790,12 @@ void PoolObjectSQL::encrypt_all_secrets(Template *tmpl)
 
 void PoolObjectSQL::decrypt_all_secrets(Template *tmpl)
 {
-    for (const string& att_name : ENCRYPTED_ATTRIBUTES)
+    for (const auto& attribute : ENCRYPTED_ATTRIBUTES)
     {
         string att;
         string plain;
 
+        auto att_name = attribute->value();
         auto path = one_util::split(att_name, '/');
 
         if (path.size() > 1)

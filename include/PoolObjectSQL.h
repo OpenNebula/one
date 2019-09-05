@@ -44,7 +44,7 @@ public:
     /* Initialized during the startup phase by Nebula::start()                */
     /* ---------------------------------------------------------------------- */
 
-    static const set<std::string> ENCRYPTED_ATTRIBUTES;
+    static const vector<const SingleAttribute *> ENCRYPTED_ATTRIBUTES;
 
     /**
      *  OpenNebula objects. This definitions are used by other core components
