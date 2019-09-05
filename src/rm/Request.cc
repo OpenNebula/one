@@ -371,6 +371,8 @@ void Request::execute(
     bool authenticated = upool->authenticate(att.session, att.password,
         att.uid, att.gid, att.uname, att.gname, att.group_ids, att.umask);
 
+    att.auth_op = get_vm_auth_op(att);
+
     if ( log_method_call )
     {
         log_method_invoked(att, _paramList, format_str, method_name,
@@ -1033,7 +1035,7 @@ Request::ErrorCode Request::as_uid_gid(Template *         tmpl,
 /* -------------------------------------------------------------------------- */
 
 AuthRequest::Operation Request::get_vm_auth_op(History::VMAction action,
-        const RequestAttributes& att) const
+        const RequestAttributes& att)
 {
     AuthRequest::Operation result = AuthRequest::NONE;
     auto& nd = Nebula::instance();

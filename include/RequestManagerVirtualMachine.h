@@ -114,14 +114,16 @@ protected:
 class VirtualMachineAction : public RequestManagerVirtualMachine
 {
 public:
-    //auth_op is MANAGE for all actions but "resched" and "unresched"
-    //this is dynamically set for each request in the execute method
+    // auth_op is dynamically set according to VMAction and user or group
+    // VM_*_OPERATIONS settings
+    // Some actions (shutdown, terminate) handle auth_op in request_execute
     VirtualMachineAction():
         RequestManagerVirtualMachine("one.vm.action",
                                      "Performs an action on a virtual machine",
                                      "A:ssi") {}
     ~VirtualMachineAction() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att) override;
 };
@@ -139,8 +141,14 @@ public:
 
     ~VirtualMachineDeploy() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att) override;
+
+    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
+    {
+        return Request::get_vm_auth_op(History::DEPLOY_ACTION, att);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -156,8 +164,14 @@ public:
 
     ~VirtualMachineMigrate() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att) override;
+
+    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
+    {
+        return Request::get_vm_auth_op(History::MIGRATE_ACTION, att);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -173,8 +187,14 @@ public:
 
     ~VirtualMachineDiskSaveas() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att) override;
+
+    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
+    {
+        return Request::get_vm_auth_op(History::DISK_SAVEAS_ACTION, att);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -183,7 +203,6 @@ public:
 class VirtualMachineMonitoring : public RequestManagerVirtualMachine
 {
 public:
-
     VirtualMachineMonitoring():
         RequestManagerVirtualMachine("one.vm.monitoring",
                 "Returns the virtual machine monitoring records",
@@ -193,8 +212,14 @@ public:
 
     ~VirtualMachineMonitoring() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& paramList,
             RequestAttributes& att) override;
+
+    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
+    {
+        return Request::get_vm_auth_op(History::MONITOR_ACTION, att);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -224,6 +249,11 @@ protected:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att) override;
+
+    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
+    {
+        return Request::get_vm_auth_op(History::DISK_ATTACH_ACTION, att);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -239,8 +269,14 @@ public:
 
     ~VirtualMachineDetach() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att) override;
+
+    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
+    {
+        return Request::get_vm_auth_op(History::DISK_DETACH_ACTION, att);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -267,9 +303,13 @@ public:
         RequestAttributes& att);
 
 protected:
-
     void request_execute(xmlrpc_c::paramList const& pl,
             RequestAttributes& ra) override;
+
+    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
+    {
+        return Request::get_vm_auth_op(History::NIC_ATTACH_ACTION, att);
+    }
 };
 
 /* -------------------------------------------------------------------------- */
@@ -297,6 +337,11 @@ public:
 protected:
     void request_execute(xmlrpc_c::paramList const& pl,
             RequestAttributes& ra) override;
+
+    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
+    {
+        return Request::get_vm_auth_op(History::NIC_DETACH_ACTION, att);
+    }
 };
 
 /* -------------------------------------------------------------------------- */
@@ -312,8 +357,14 @@ public:
 
     ~VirtualMachineResize() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att) override;
+
+    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
+    {
+        return Request::get_vm_auth_op(History::RESIZE_ACTION, att);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -329,8 +380,14 @@ public:
 
     ~VirtualMachineSnapshotCreate() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att) override;
+
+    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
+    {
+        return Request::get_vm_auth_op(History::SNAPSHOT_CREATE_ACTION, att);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -346,8 +403,14 @@ public:
 
     ~VirtualMachineSnapshotRevert() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att) override;
+
+    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
+    {
+        return Request::get_vm_auth_op(History::SNAPSHOT_REVERT_ACTION, att);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -363,8 +426,14 @@ public:
 
     ~VirtualMachineSnapshotDelete() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att) override;
+
+    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
+    {
+        return Request::get_vm_auth_op(History::SNAPSHOT_DELETE_ACTION, att);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -379,8 +448,14 @@ public:
                                      "A:sii") {}
     ~VirtualMachineRecover() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att) override;
+
+    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
+    {
+        return Request::get_vm_auth_op(History::RECOVER_ACTION, att);
+    }
 };
 
 /* -------------------------------------------------------------------------- */
@@ -389,7 +464,6 @@ public:
 class VirtualMachinePoolCalculateShowback : public RequestManagerVirtualMachine
 {
 public:
-
     VirtualMachinePoolCalculateShowback():
         RequestManagerVirtualMachine("one.vmpool.calculateshowback",
             "Processes all the history records, and stores the monthly cost"
@@ -400,8 +474,7 @@ public:
 
     ~VirtualMachinePoolCalculateShowback() = default;
 
-    /* -------------------------------------------------------------------- */
-
+protected:
     void request_execute(xmlrpc_c::paramList const& paramList,
             RequestAttributes& att) override;
 };
@@ -423,8 +496,14 @@ public:
 
     ~VirtualMachineDiskSnapshotCreate() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att) override;
+
+    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
+    {
+        return Request::get_vm_auth_op(History::DISK_SNAPSHOT_CREATE_ACTION, att);
+    }
 
 private:
     ImagePool* ipool;
@@ -443,8 +522,14 @@ public:
 
     ~VirtualMachineDiskSnapshotRevert() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att) override;
+
+    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
+    {
+        return Request::get_vm_auth_op(History::DISK_SNAPSHOT_REVERT_ACTION, att);
+    }
 };
 
 /* -------------------------------------------------------------------------- */
@@ -464,8 +549,14 @@ public:
 
     ~VirtualMachineDiskSnapshotDelete() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att) override;
+
+    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
+    {
+        return Request::get_vm_auth_op(History::DISK_SNAPSHOT_DELETE_ACTION, att);
+    }
 
 private:
     ImagePool* ipool;
@@ -484,8 +575,14 @@ public:
 
     ~VirtualMachineDiskSnapshotRename() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att) override;
+
+    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
+    {
+        return Request::get_vm_auth_op(History::DISK_SNAPSHOT_RENAME_ACTION, att);
+    }
 };
 
 /* -------------------------------------------------------------------------- */
@@ -501,8 +598,14 @@ public:
 
     ~VirtualMachineUpdateConf() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att) override;
+
+    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
+    {
+        return Request::get_vm_auth_op(History::UPDATECONF_ACTION, att);
+    }
 };
 
 /* -------------------------------------------------------------------------- */
@@ -522,8 +625,15 @@ public:
 
     ~VirtualMachineDiskResize() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att) override;
+
+    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
+    {
+        return Request::get_vm_auth_op(History::DISK_RESIZE_ACTION, att);
+    }
+
 private:
     ImagePool* ipool;
 };

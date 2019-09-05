@@ -58,12 +58,15 @@ public:
 
     uint64_t replication_idx;
 
+    AuthRequest::Operation    auth_op;    /**< Auth operation for the request */
+
     RequestAttributes()
     {
         resp_obj        = PoolObjectSQL::NONE;
         resp_id         = -1;
         resp_msg        = "";
         replication_idx = UINT64_MAX;
+        auth_op         = AuthRequest::ADMIN;
     };
 
     RequestAttributes(const RequestAttributes& ra)
@@ -90,6 +93,8 @@ public:
         resp_msg = ra.resp_msg;
 
         replication_idx = ra.replication_idx;
+
+        auth_op  = ra.auth_op;
     };
 
     RequestAttributes(int _uid, int _gid, const RequestAttributes& ra)
@@ -118,6 +123,7 @@ public:
         resp_msg = "";
 
         replication_idx = UINT64_MAX;
+        auth_op  = ra.auth_op;
     };
 
     bool is_admin() const
@@ -339,7 +345,7 @@ protected:
      */
     bool basic_authorization(int oid, RequestAttributes& att)
     {
-        return basic_authorization(oid, auth_op, att);
+        return basic_authorization(oid, att.auth_op, att);
     };
 
     /**
@@ -422,8 +428,13 @@ protected:
      */
     ErrorCode as_uid_gid(Template * tmpl, RequestAttributes& att);
 
-    AuthRequest::Operation get_vm_auth_op(History::VMAction action,
-        const RequestAttributes& att) const;
+    virtual AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const
+    {
+        return auth_op;
+    }
+
+    static AuthRequest::Operation get_vm_auth_op(History::VMAction action,
+        const RequestAttributes& att);
 private:
     /* ---------------------------------------------------------------------- */
     /* Functions to manage user and group quotas                              */

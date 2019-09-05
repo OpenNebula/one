@@ -126,8 +126,11 @@ public:
 
     ~VirtualMachineRename() = default;
 
-    void request_execute(xmlrpc_c::paramList const& _paramList,
-                        RequestAttributes& att) override;
+
+    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
+    {
+        return Request::get_vm_auth_op(History::RENAME_ACTION, att);
+    }
 
     int exist(const string& name, int uid) override
     {

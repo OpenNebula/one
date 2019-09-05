@@ -64,7 +64,7 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList,
         recursive = xmlrpc_c::value_boolean(paramList.getBoolean(2));
     }
 
-    ErrorCode ec = delete_object(oid, recursive, att, auth_op);
+    ErrorCode ec = delete_object(oid, recursive, att, att.auth_op);
 
     if ( ec == SUCCESS )
     {
@@ -80,7 +80,7 @@ void ImageDelete::request_execute(xmlrpc_c::paramList const& paramList,
         RequestAttributes& att)
 {
     int  oid                    = xmlrpc_c::value_int(paramList.getInt(1));
-    AuthRequest::Operation auth = auth_op;
+    AuthRequest::Operation auth = att.auth_op;
 
     //get the image
     Image* img = static_cast<ImagePool *>(pool)->get_ro(oid);

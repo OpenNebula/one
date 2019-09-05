@@ -114,9 +114,7 @@ public:
 
     ~VirtualMachineUpdateTemplate() = default;
 
-    void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att) override;
-
+protected:
     int extra_updates(PoolObjectSQL * obj) override
     {
         VirtualMachine * vm;
@@ -132,6 +130,11 @@ public:
 
         return vmpool->update_search(vm);
     };
+
+    AuthRequest::Operation get_vm_auth_op(const RequestAttributes& att) const override
+    {
+        return Request::get_vm_auth_op(History::UPDATE_ACTION, att);
+    }
 };
 
 /* ------------------------------------------------------------------------- */

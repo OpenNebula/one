@@ -63,7 +63,7 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
 
     AuthRequest ar(att.uid, att.group_ids);
 
-    ar.add_auth(auth_op, operms); // MANAGE OBJECT
+    ar.add_auth(att.auth_op, operms); // MANAGE OBJECT
 
     if (UserPool::authorize(ar) == -1)
     {
@@ -129,17 +129,6 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
     clear_rename(oid);
 
     return;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineRename::request_execute(xmlrpc_c::paramList const& paramList,
-                                          RequestAttributes& att)
-{
-    auth_op = get_vm_auth_op(History::RENAME_ACTION, att);
-
-    RequestManagerRename::request_execute(paramList, att);
 }
 
 /* -------------------------------------------------------------------------- */
