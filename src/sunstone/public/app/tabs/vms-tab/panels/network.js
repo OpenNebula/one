@@ -211,17 +211,25 @@ define(function(require) {
     return html;
   }
 
-  function _ipTr(nic, attr){
+  function _ipTr(nic, attr, attr2){
     var v = "--";
-
-    if (nic[attr] != undefined){
-      v = nic[attr];
-
-      if (nic["VROUTER_"+attr] != undefined){
-        v += ("<br/>" + nic["VROUTER_"+attr] + Locale.tr(" (VRouter)"));
+    var attribute
+    if(nic && attr){
+      var pass = true;
+      if(nic[attr]){
+        attribute = attr;
+        pass = false;
+      }
+      if(attr2 && pass && nic[attr2]){
+        attribute = attr2;
+      }
+      if(attribute){
+        v = nic[attribute];
+        if (nic["VROUTER_"+attribute] != undefined){
+          v += ("<br/>" + nic["VROUTER_"+attribute] + Locale.tr(" (VRouter)"));
+        }
       }
     }
-
     return v;
   }
 
@@ -267,8 +275,14 @@ define(function(require) {
     if (nics.length) {
       for (var i = 0; i < nics.length; i++) {
         var nic = nics[i];
-
-        nics_names.push({ NAME: nic.NAME, IP: nic.IP, NET: nic.NETWORK, ID: nic.NIC_ID });
+        nics_names.push(
+          { 
+            NAME: nic.NAME, 
+            IP: nic.IP, 
+            NET: nic.NETWORK, 
+            ID: nic.NIC_ID 
+          }
+        );
 
         var is_pci = (nic.PCI_ID != undefined);
 
@@ -330,11 +344,10 @@ define(function(require) {
                 nic_alias.push(alias[j]);
             }
         }
-
         nic_dt_data.push({
           NIC_ID : nic.NIC_ID,
           NETWORK : Navigation.link(nic.NETWORK, "vnets-tab", nic.NETWORK_ID),
-          IP : _ipTr(nic, ipStr),
+          IP : _ipTr(nic, ipStr, "IP6_LINK"),
           NIC_ALIAS : nic_alias,
           MAC : nic.MAC,
           PCI_ADDRESS: pci_address,
