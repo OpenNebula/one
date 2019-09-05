@@ -330,11 +330,26 @@ define(function(require) {
           timeout: true,
           success: function (request, item_list){
             var total = 0;
-            var totalGroup = 0;
             var running = 0;
             var off = 0;
             var error = 0;
             var deploying = 0;
+            var groups = [];
+            var diferentsGroups = function (item_list = []){
+              var groups = [];
+              var rtn = groups.length;
+              if(Array.isArray(item_list)){
+                var finderElements = function (element, index){
+                  if(element && element.VM && element.VM.GNAME && !groups.includes(element.VM.GNAME)){
+                    groups.push(element.VM.GNAME);
+                  }
+                }
+                item_list.map(finderElements);
+                rtn = groups.length;
+              }
+              return rtn;
+            }
+
             $.each(item_list, function(index, vm){
               if (vm.VM.UID == config["user_id"]) {
                 var state = ProvisionVmsList.state(vm.VM);
@@ -357,13 +372,10 @@ define(function(require) {
                     break;
                 }
               }
-              else{
-                totalGroup += 1;
-              }
             });
             var context = $("#provision_vms_dashboard");
             $("#provision_dashboard_owner", context).html(total);
-            $("#provision_dashboard_group", context).html(totalGroup);
+            $("#provision_dashboard_group", context).html(diferentsGroups(item_list));
             $("#provision_dashboard_running", context).html(running);
             $("#provision_dashboard_off", context).html(off);
             $("#provision_dashboard_error", context).html(error);
