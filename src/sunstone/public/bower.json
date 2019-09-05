@@ -5,7 +5,7 @@
     "jgrowl": "1.4.2",
     "fontawesome": "5.0.7",
     "flot.tooltip": "0.8.4",
-    "no-vnc": "1.1.0",
+    "no-vnc": "https://github.com/novnc/noVNC.git#9886d5951d",
     "resumablejs": "https://github.com/23/resumable.js.git#420cd351c5",
     "spice-html5": "https://gitlab.freedesktop.org/spice/spice-html5.git#spice-html5-0.1.6",
     "require-handlebars-plugin": "0.11.2",
