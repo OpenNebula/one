@@ -111,6 +111,7 @@ class IPAMDriver < OpenNebulaDriver
     def free_address(id, drv_message)
         do_ipam_action(id, :free_address, drv_message)
     end
+
     private
 
     def do_ipam_action(id, action, arguments)
@@ -131,9 +132,9 @@ class IPAMDriver < OpenNebulaDriver
 
         path = File.join(@local_scripts_path, ipam)
         cmd  = File.join(path, ACTION[action].downcase)
-        cmd << " " << arguments
+        cmd << " " << id
 
-        rc = LocalCommand.run(cmd, log_method(id))
+        rc = LocalCommand.run(cmd, log_method(id), arguments)
 
         result, info = get_info_from_execution(rc)
 

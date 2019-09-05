@@ -25,8 +25,8 @@
 # augmented with network specific variables to be used by VMs (e.g. GATEWAYS,
 # MASK...)
 #
-# Input Arguments:
-#  $1 - Base64 encoded XML with AR request
+# STDIN Input:
+#   - Base64 encoded XML with AR request
 #
 # XML format
 #  <IPAM_DRIVER_ACTION_DATA>
@@ -92,7 +92,7 @@ require 'base64'
 require 'nokogiri'
 require 'opennebula'
 
-data = Nokogiri::XML(Base64.decode64(ARGV[0]))
+data = Nokogiri::XML(Base64.decode64(STDIN.read))
 
 ar_token = data.xpath('//AR/PACKET_TOKEN').text
 

@@ -21,8 +21,8 @@
 # used by OpenNebula VMs and should not be allocated to any other host in the
 # network.
 #
-# Input Arguments:
-#  $1 - Base64 encoded XML with the AR description and the address request
+# STDIN Input:
+#  - Base64 encoded XML with the AR description and the address request
 #
 # XML format
 #  <IPAM_DRIVER_ACTION_DATA>
@@ -74,7 +74,7 @@ require 'nokogiri'
 require 'fileutils'
 require 'opennebula'
 
-data = Nokogiri::XML(Base64.decode64(ARGV[0]))
+data = Nokogiri::XML(Base64.decode64(STDIN.read))
 
 ###
 
