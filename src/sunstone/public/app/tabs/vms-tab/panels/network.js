@@ -211,24 +211,20 @@ define(function(require) {
     return html;
   }
 
-  function _ipTr(nic, attr, attr2){
+  function _ipTr(nic, attr){
     var v = "--";
-    var attribute
     if(nic && attr){
-      var pass = true;
-      if(nic[attr]){
-        attribute = attr;
-        pass = false;
+      if(!Array.isArray(attr)){
+        attr = [attr];
       }
-      if(attr2 && pass && nic[attr2]){
-        attribute = attr2;
-      }
-      if(attribute){
-        v = nic[attribute];
-        if (nic["VROUTER_"+attribute] != undefined){
-          v += ("<br/>" + nic["VROUTER_"+attribute] + Locale.tr(" (VRouter)"));
+      attr.map(function(attr){
+        if(nic[attr]){
+          v = nic[attr];
+          if (nic["VROUTER_"+attr] != undefined){
+            v += ("<br/>" + nic["VROUTER_"+attr] + Locale.tr(" (VRouter)"));
+          }
         }
-      }
+      });
     }
     return v;
   }
@@ -347,7 +343,7 @@ define(function(require) {
         nic_dt_data.push({
           NIC_ID : nic.NIC_ID,
           NETWORK : Navigation.link(nic.NETWORK, "vnets-tab", nic.NETWORK_ID),
-          IP : _ipTr(nic, ipStr, "IP6_LINK"),
+          IP : _ipTr(nic, [ipStr, "IP6_LINK"]),
           NIC_ALIAS : nic_alias,
           MAC : nic.MAC,
           PCI_ADDRESS: pci_address,
