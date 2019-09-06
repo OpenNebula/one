@@ -42,11 +42,12 @@ class LinuxContainersMarket
         :skip_untested => 'yes'
     }
 
+    # TODO: Make configurable
     TEMPLATE = "
 HYPERVISOR = \"lxd\"
 CPU = \"1\"
 MEMORY = \"768\"
-LXD_SECURITY_PRIVILEGED = \"true\"
+LXD_SECURITY_PRIVILEGED = \"yes\"
 GRAPHICS = [
     LISTEN  =\"0.0.0.0\",
     TYPE  =\"vnc\"
