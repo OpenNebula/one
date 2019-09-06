@@ -21,9 +21,9 @@ import os
 Import('env')
 
 if env['docker_machine']=='yes':
-    print "Generating docker-machine-driver-opennebula\n"
+    print ("Generating docker-machine-driver-opennebula\n")
     exit_code=os.system("make -C src/docker_machine build")
 
     if exit_code != 0:
-        print "Error generating docker-machine-driver-opennebula\n"
+        print ("Error generating docker-machine-driver-opennebula\n")
         exit(-1)
