@@ -211,7 +211,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     string value;
     string name;
     string prefix;
-
+    string one_key;
 
     int rc, num_ars;
 
@@ -368,6 +368,10 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     add_template_attribute("SECURITY_GROUPS", sg_str);
 
+    // Encrypt all the secrets
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+    encrypt(one_key);
+
     //--------------------------------------------------------------------------
     // Insert the Virtual Network
     //--------------------------------------------------------------------------
@@ -458,8 +462,6 @@ int VirtualNetwork::post_update_template(string& error)
 
     one_util::split_unique(sg_str, ',', security_groups);
 
-    encrypt_all_secrets(obj_template);
-
     return 0;
 }
 
@@ -472,6 +474,7 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace, string& error_str)
     int             rc;
 
     string xml_body;
+    string one_key;
 
     char * sql_name;
     char * sql_xml;
@@ -523,6 +526,9 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace, string& error_str)
             <<          other_u     << ","
             <<          parent_vid  << ")";
     }
+
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+    encrypt(one_key);
 
     rc = db->exec_wr(oss);
 

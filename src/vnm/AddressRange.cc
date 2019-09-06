@@ -2051,3 +2051,59 @@ void AddressRange::remove_all_except_restricted(VectorAttribute* va)
         }
     }
 }
+
+/******************************************************************************/
+/******************************************************************************/
+
+set<string> AddressRange::encrypted_attributes;
+
+void AddressRange::set_encrypted_attributes(vector<const SingleAttribute *>& eattrs)
+{
+    for (unsigned int i = 0 ; i < eattrs.size() ; i++ )
+    {
+        string attr_s = eattrs[i]->value();
+
+        encrypted_attributes.insert(one_util::toupper(attr_s));
+    }
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AddressRange::encrypt(const std::string& one_key)
+{
+    string att;
+    string encrypted;
+    string tmp;
+
+    for (auto ea : encrypted_attributes)
+    {
+        att = attr->vector_value(ea);
+
+        if (!att.empty() && !Template::decrypt_attr(one_key, att, tmp))
+        {
+            Template::encrypt_attr(one_key, att, encrypted);
+
+            attr->replace(ea, encrypted);
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AddressRange::decrypt(const std::string& one_key)
+{
+    string att;
+    string plain;
+
+    for (auto ea : encrypted_attributes)
+    {
+        att = attr->vector_value(ea);
+
+        if (!att.empty() && Template::decrypt_attr(one_key, att, plain))
+        {
+            attr->replace(ea, plain);
+        }
+    }
+}

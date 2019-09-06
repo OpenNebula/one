@@ -20,8 +20,6 @@
 #include "Nebula.h"
 #include "Clusterable.h"
 
-const vector<const SingleAttribute *> PoolObjectSQL::ENCRYPTED_ATTRIBUTES{};
-
 const string PoolObjectSQL::INVALID_NAME_CHARS = "&|:\\\";/'#{}$<>";
 
 const int PoolObjectSQL::LOCK_DB_EXPIRATION = 120;
@@ -311,6 +309,11 @@ int PoolObjectSQL::replace_template(
 
     delete old_tmpl;
 
+    std::string one_key;
+
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+    encrypt(one_key);
+
     return 0;
 }
 
@@ -376,6 +379,11 @@ int PoolObjectSQL::append_template(
     }
 
     delete old_tmpl;
+
+    std::string one_key;
+
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+    encrypt(one_key);
 
     return 0;
 }
@@ -681,151 +689,4 @@ int PoolObjectSQL::lock_db_from_xml()
     ObjectXML::free_nodes(content);
 
     return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void PoolObjectSQL::encrypt(const std::string& in, std::string& out)
-{
-    Nebula& nd = Nebula::instance();
-    string  one_key;
-
-    nd.get_configuration_attribute("ONE_KEY", one_key);
-
-    if (!one_key.empty())
-    {
-        string * encrypted = one_util::aes256cbc_encrypt(in, one_key);
-
-        out = *encrypted;
-
-        delete encrypted;
-    }
-    else
-    {
-        out = in;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-bool PoolObjectSQL::decrypt(const std::string& in, std::string& out)
-{
-    Nebula& nd = Nebula::instance();
-    string  one_key;
-
-    nd.get_configuration_attribute("ONE_KEY", one_key);
-
-    if (one_key.empty())
-    {
-        out = in;
-        return true;
-    }
-
-    string * plain = one_util::aes256cbc_decrypt(in, one_key);
-
-    if (plain == nullptr)
-    {
-        return false;
-    }
-
-    out = *plain;
-
-    delete plain;
-
-    return true;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void PoolObjectSQL::encrypt_all_secrets(Template *tmpl)
-{
-    for (const auto& attribute : ENCRYPTED_ATTRIBUTES)
-    {
-        string att;
-        string encrypted;
-        string tmp;
-
-        auto att_name = attribute->value();
-        auto path = one_util::split(att_name, '/');
-
-        if (path.size() > 1)
-        {
-            auto vatt = tmpl->get(path[0]);
-
-            if (vatt == nullptr)
-            {
-                continue;
-            }
-
-            att = vatt->vector_value(path[1]);
-
-            if (!att.empty() && !decrypt(att, tmp))
-            {
-                // Nested attribute present, but not encrypted, crypt it
-                encrypt(att, encrypted);
-
-                vatt->replace(path[1], encrypted);
-            }
-        }
-        else
-        {
-            tmpl->get(att_name, att);
-
-            if (!att.empty() && !decrypt(att, tmp))
-            {
-                // Simple attribute present, but not encrypted, crypt it
-                encrypt(att, encrypted);
-
-                tmpl->replace(att_name, encrypted);
-            }
-        }
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void PoolObjectSQL::decrypt_all_secrets(Template *tmpl)
-{
-    for (const auto& attribute : ENCRYPTED_ATTRIBUTES)
-    {
-        string att;
-        string plain;
-
-        auto att_name = attribute->value();
-        auto path = one_util::split(att_name, '/');
-
-        if (path.size() > 1)
-        {
-            auto vatt = tmpl->get(path[0]);
-
-            if (vatt == nullptr)
-            {
-                continue;
-            }
-
-            ostringstream oss;
-
-            vatt->to_json(oss);
-
-            att = vatt->vector_value(path[1]);
-
-            if (!att.empty() && decrypt(att, plain))
-            {
-                vatt->replace(path[1], plain);
-            }
-        }
-        else
-        {
-            tmpl->get(att_name, att);
-
-            if (!att.empty() && decrypt(att, plain))
-            {
-                tmpl->replace(att_name, plain);
-            }
-        }
-    }
 }

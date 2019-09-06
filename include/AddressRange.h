@@ -369,6 +369,11 @@ public:
     static void set_restricted_attributes(vector<const SingleAttribute *>& ras);
 
     /**
+     *  Helper function to initialize encrypted attributes of an AddressRange
+     */
+    static void set_encrypted_attributes(vector<const SingleAttribute *>& eas);
+
+    /**
      *  Get the security groups for this AR.
      *    @return a reference to the security group set
      */
@@ -395,6 +400,16 @@ public:
      *  of the AR to include it in the ARPool template.
      */
     friend int AddressRangePool::add_ar(AddressRange * ar);
+
+    /**
+     *  Encrypt all secret attributes
+     */
+    void encrypt(const std::string& one_key);
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    void decrypt(const std::string& one_key);
 
 protected:
     /**
@@ -785,6 +800,15 @@ private:
      *  The restricted attributes from oned.conf
      */
     static set<string> restricted_attributes;
+
+    /* ---------------------------------------------------------------------- */
+    /* Encrypted Attributes                                                   */
+    /* ---------------------------------------------------------------------- */
+
+    /**
+     *  The encrypted attributes from oned.conf
+     */
+    static set<string> encrypted_attributes;
 
     /**
      *  Attributes to be process for Security Group rules

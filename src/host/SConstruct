@@ -25,7 +25,8 @@ source_files=[
     'Host.cc',
     'HostShare.cc',
     'HostPool.cc',
-    'HostHook.cc'
+    'HostHook.cc',
+    'HostTemplate.cc'
 ]
 
 # Build library

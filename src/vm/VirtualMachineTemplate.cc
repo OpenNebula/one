@@ -20,6 +20,7 @@
 /* -------------------------------------------------------------------------- */
 
 std::map<std::string, std::set<std::string> > VirtualMachineTemplate::restricted;
+std::map<std::string, std::set<std::string> > VirtualMachineTemplate::encrypted;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -124,31 +125,31 @@ string& VirtualMachineTemplate::to_xml_short(string& xml) const
         /* ------------------------------------------------------------------ */
         if (get("SCHED_RANK", schd_rank))
         {
-            oss << "<SCHED_RANK>" << one_util::escape_xml(schd_rank) 
+            oss << "<SCHED_RANK>" << one_util::escape_xml(schd_rank)
                 << "</SCHED_RANK>";
         }
 
         if (get("SCHED_DS_RANK", schd_ds_rank))
         {
-            oss << "<SCHED_DS_RANK>" << one_util::escape_xml(schd_ds_rank) 
+            oss << "<SCHED_DS_RANK>" << one_util::escape_xml(schd_ds_rank)
                 << "</SCHED_DS_RANK>";
         }
 
         if (get("SCHED_REQUIREMENTS", schd_req))
         {
-            oss << "<SCHED_REQUIREMENTS>" << one_util::escape_xml(schd_req) 
+            oss << "<SCHED_REQUIREMENTS>" << one_util::escape_xml(schd_req)
                 << "</SCHED_REQUIREMENTS>";
         }
 
         if (get("SCHED_DS_REQUIREMENTS", schd_ds_req))
         {
-            oss << "<SCHED_DS_REQUIREMENTS>" << one_util::escape_xml(schd_ds_req) 
+            oss << "<SCHED_DS_REQUIREMENTS>" << one_util::escape_xml(schd_ds_req)
                 << "</SCHED_DS_REQUIREMENTS>";
         }
 
         if (get("USER_PRIORITY", user_prio))
         {
-            oss << "<USER_PRIORITY>" << one_util::escape_xml(user_prio) 
+            oss << "<USER_PRIORITY>" << one_util::escape_xml(user_prio)
                 << "</USER_PRIORITY>";
         }
 

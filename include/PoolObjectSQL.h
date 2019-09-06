@@ -41,10 +41,7 @@ class PoolObjectSQL : public ObjectSQL, public ObjectXML
 public:
     /* ---------------------------------------------------------------------- */
     /* Class Constructors & Constants                                         */
-    /* Initialized during the startup phase by Nebula::start()                */
     /* ---------------------------------------------------------------------- */
-
-    static const vector<const SingleAttribute *> ENCRYPTED_ATTRIBUTES;
 
     /**
      *  OpenNebula objects. This definitions are used by other core components
@@ -566,12 +563,20 @@ public:
     }
 
     /**
+     *  Encrypt all secret attributes
+     */
+    virtual void encrypt(const std::string& one_key)
+    {
+        obj_template->encrypt(one_key);
+    };
+
+    /**
      *  Decrypt all secret attributes
      */
-    virtual void decrypt_all_secrets()
+    virtual void decrypt(const std::string& one_key)
     {
-        decrypt_all_secrets(obj_template);
-    }
+        obj_template->decrypt(one_key);
+    };
 
 protected:
 
@@ -725,32 +730,6 @@ protected:
      */
     int lock_db_from_xml();
 
-    /**
-     *  Crypt string using aes256cbc, use ONE_KEY as key
-     *  If key doesn't exists out = in
-     *    @param in plain text
-     *    @param out crypted text encoded as base64
-     */
-    static void encrypt(const std::string& in, std::string& out);
-
-    /**
-     *  Decrypt input text encoded as base64, using ONE_KEY as key
-     *  If key doesn't exists,
-     *    @param in base64 text crypted by aes256cbc
-     *    @param out plain text, if decryption succesfull.
-     *    @return true, if text was decrypted, false otherwise
-     */
-    static bool decrypt(const std::string& in, std::string& out);
-
-    /**
-     *  Encrypt all secret attributes
-     */
-    void encrypt_all_secrets(Template *tmpl);
-
-    /**
-     *  Decrypt all secret attributes
-     */
-    void decrypt_all_secrets(Template *tmpl);
 
     /**
      *  The object's unique ID

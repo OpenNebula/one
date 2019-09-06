@@ -569,6 +569,24 @@ public:
         return new_vn;
     };
 
+    /**
+     *  Encrypt all secret attributes
+     */
+    virtual void encrypt(const std::string& one_key)
+    {
+        obj_template->encrypt(one_key);
+        ar_pool.encrypt(one_key);
+    };
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    virtual void decrypt(const std::string& one_key)
+    {
+        obj_template->decrypt(one_key);
+        ar_pool.decrypt(one_key);
+    };
+
 private:
 
     // -------------------------------------------------------------------------

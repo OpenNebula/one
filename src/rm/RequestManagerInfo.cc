@@ -17,6 +17,7 @@
 #include "RequestManagerInfo.h"
 #include "RequestManagerPoolInfoFilter.h"
 #include "VirtualMachineDisk.h"
+#include "Nebula.h"
 
 using namespace std;
 
@@ -65,7 +66,10 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (decrypt)
     {
-        object->decrypt_all_secrets();
+        std::string one_key;
+
+        Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+        object->decrypt(one_key);
     }
 
     to_xml(att, object, str);
@@ -159,7 +163,10 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (decrypt)
     {
-        vm_tmpl->decrypt_all_secrets();
+        std::string one_key;
+
+        Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+        vm_tmpl->decrypt(one_key);
     }
 
     if (extended)
@@ -239,7 +246,10 @@ void VirtualNetworkTemplateInfo::request_execute(xmlrpc_c::paramList const& para
 
     if (decrypt)
     {
-        vn_tmpl->decrypt_all_secrets();
+        std::string one_key;
+
+        Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+        vn_tmpl->decrypt(one_key);
     }
 
     vn_tmpl->to_xml(str);

@@ -38,7 +38,7 @@ class HostPool : public PoolSQL
 public:
     HostPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
         const string& hook_location, const string& remotes_location,
-        time_t expire_time);
+        time_t expire_time, vector<const SingleAttribute *>& encrypted_attrs);
 
     ~HostPool(){};
 

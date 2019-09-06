@@ -310,13 +310,3 @@ int Cluster::from_xml(const string& xml)
 
     return 0;
 }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int Cluster::post_update_template(string& error_str)
-{
-    encrypt_all_secrets(obj_template);
-
-    return 0;
-}

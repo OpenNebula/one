@@ -528,13 +528,6 @@ void Nebula::start(bool bootstrap_only)
        throw runtime_error("Could not start the ACL Manager");
     }
 
-    // -------------------------------------------------------------------------
-    // Pools
-    // -------------------------------------------------------------------------
-    auto ea = const_cast<vector<const SingleAttribute *> *>(&PoolObjectSQL::ENCRYPTED_ATTRIBUTES);
-
-    nebula_configuration->get("ENCRYPTED_ATTRIBUTE", *ea);
-
     try
     {
         /* -------------------------- Cluster Pool -------------------------- */
@@ -547,6 +540,7 @@ void Nebula::start(bool bootstrap_only)
         /* --------------------- VirtualMachine Pool ------------------------ */
         vector<const VectorAttribute *> vm_hooks;
         vector<const SingleAttribute *> vm_restricted_attrs;
+        vector<const SingleAttribute *> vm_encrypted_attrs;
 
         time_t vm_expiration;
         bool   vm_submit_on_hold;
@@ -560,6 +554,8 @@ void Nebula::start(bool bootstrap_only)
         nebula_configuration->get("VM_HOOK", vm_hooks);
 
         nebula_configuration->get("VM_RESTRICTED_ATTR", vm_restricted_attrs);
+
+        nebula_configuration->get("VM_ENCRYPTED_ATTR", vm_encrypted_attrs);
 
         nebula_configuration->get("VM_MONITORING_EXPIRATION_TIME",vm_expiration);
 
@@ -583,21 +579,24 @@ void Nebula::start(bool bootstrap_only)
         }
 
         vmpool = new VirtualMachinePool(logdb, vm_hooks, hook_location,
-            remotes_location, vm_restricted_attrs, vm_expiration,
-            vm_submit_on_hold, cpu_cost, mem_cost, disk_cost);
+            remotes_location, vm_restricted_attrs, vm_encrypted_attrs,
+            vm_expiration, vm_submit_on_hold, cpu_cost, mem_cost, disk_cost);
 
         /* ---------------------------- Host Pool --------------------------- */
         vector<const VectorAttribute *> host_hooks;
+        vector<const SingleAttribute *> host_encrypted_attrs;
 
         time_t host_expiration;
 
         nebula_configuration->get("HOST_HOOK", host_hooks);
 
+        nebula_configuration->get("HOST_ENCRYPTED_ATTR", host_encrypted_attrs);
+
         nebula_configuration->get("HOST_MONITORING_EXPIRATION_TIME",
                 host_expiration);
 
         hpool  = new HostPool(logdb, host_hooks, hook_location, remotes_location,
-            host_expiration);
+            host_expiration, host_encrypted_attrs);
 
         /* --------------------- VirtualRouter Pool ------------------------- */
         vector<const VectorAttribute *> vrouter_hooks;
@@ -613,6 +612,7 @@ void Nebula::start(bool bootstrap_only)
 
         vector<const SingleAttribute *> inherit_vnet_attrs;
         vector<const SingleAttribute *> vnet_restricted_attrs;
+        vector<const SingleAttribute *> vnet_encrypted_attrs;
         vector<const VectorAttribute *> vnet_hooks;
 
         const VectorAttribute * vlan_id;
@@ -624,6 +624,8 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("VNET_RESTRICTED_ATTR", vnet_restricted_attrs);
 
+        nebula_configuration->get("VNET_ENCRYPTED_ATTR", vnet_encrypted_attrs);
+
         nebula_configuration->get("VNET_HOOK", vnet_hooks);
 
         nebula_configuration->get("INHERIT_VNET_ATTR", inherit_vnet_attrs);
@@ -633,8 +635,9 @@ void Nebula::start(bool bootstrap_only)
         vxlan_id = nebula_configuration->get("VXLAN_IDS");
 
         vnpool = new VirtualNetworkPool(logdb, mac_prefix, size,
-                vnet_restricted_attrs, vnet_hooks, remotes_location,
-                inherit_vnet_attrs, vlan_id, vxlan_id);
+                vnet_restricted_attrs, vnet_encrypted_attrs,
+                vnet_hooks, remotes_location, inherit_vnet_attrs,
+                vlan_id, vxlan_id);
 
         /* ----------------------- Group/User Pool -------------------------- */
         vector<const VectorAttribute *> user_hooks;

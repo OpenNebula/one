@@ -14,51 +14,12 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef HOST_TEMPLATE_H_
-#define HOST_TEMPLATE_H_
-
-#include "Template.h"
-
-using namespace std;
-
-/**
- *  Host Template class, it represents the attributes of a Host
- */
-class HostTemplate : public Template
-{
-public:
-    HostTemplate() : Template(false,'=',"TEMPLATE"){};
-
-    ~HostTemplate(){};
-
-    HostTemplate(HostTemplate& ht):Template(ht){};
-
-    // -------------------------------------------------------------------------
-    // Encrypted attributes interface implementation
-    // -------------------------------------------------------------------------
-    virtual void encrypt(const std::string& one_key)
-    {
-        Template::encrypt(one_key, encrypted);
-    }
-
-    virtual void decrypt(const std::string& one_key)
-    {
-        Template::decrypt(one_key, encrypted);
-    }
-
-    static void parse_encrypted(vector<const SingleAttribute *>& ea)
-    {
-        Template::parse_encrypted(ea, encrypted);
-    }
-
-private:
-    /**
-     *  Encrypted attribute list for HostTemplates
-     */
-    static std::map<std::string, std::set<std::string> > encrypted;
-};
+#include "HostTemplate.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-#endif /*HOST_TEMPLATE_H_*/
+std::map<std::string, std::set<std::string> > HostTemplate::encrypted;
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

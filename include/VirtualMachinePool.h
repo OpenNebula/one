@@ -36,6 +36,7 @@ public:
                        const string&                hook_location,
                        const string&                remotes_location,
                        vector<const SingleAttribute *>& restricted_attrs,
+                       vector<const SingleAttribute *>& encrypted_attrs,
                        time_t                       expire_time,
                        bool                         on_hold,
                        float                        default_cpu_cost,

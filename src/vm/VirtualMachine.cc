@@ -770,6 +770,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     int    rc;
     string name;
     string prefix;
+    string one_key;
 
     string value;
     long int ivalue;
@@ -1069,6 +1070,10 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     {
         goto error_rollback;
     }
+
+    // Encrypt all the secrets
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+    encrypt(one_key);
 
     // ------------------------------------------------------------------------
     // Insert the VM
@@ -2656,6 +2661,7 @@ int VirtualMachine::replace_template(
         string&         error)
 {
     string ra;
+    string one_key;
 
     VirtualMachineTemplate * new_tmpl =
             new VirtualMachineTemplate(false,'=',"USER_TEMPLATE");
@@ -2719,6 +2725,9 @@ int VirtualMachine::replace_template(
     }
 
     delete old_user_tmpl;
+
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+    encrypt(one_key);
 
     return 0;
 }
@@ -2805,6 +2814,11 @@ int VirtualMachine::append_template(
     }
 
     delete old_user_tmpl;
+
+    std::string one_key;
+
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+    encrypt(one_key);
 
     return 0;
 }
@@ -3688,17 +3702,6 @@ int VirtualMachine::parse_sched_action(string& error_str)
     SchedActions sactions(user_obj_template);
 
     return sactions.parse(error_str, false);
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int VirtualMachine::post_update_template(string& error_str)
-{
-    encrypt_all_secrets(obj_template);
-    encrypt_all_secrets(user_obj_template);
-
-    return 0;
 }
 
 /* ------------------------------------------------------------------------ */

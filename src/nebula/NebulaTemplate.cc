@@ -452,14 +452,7 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("SCRIPTS_REMOTE_DIR", "/var/tmp/one");
     set_conf_single("VM_SUBMIT_ON_HOLD", "NO");
     set_conf_single("API_LIST_ORDER", "DESC");
-    set_conf_single("ENCRYPTED_ATTRIBUTES", "EC2_ACCESS");
-    set_conf_single("ENCRYPTED_ATTRIBUTES", "EC2_SECRET");
-    set_conf_single("ENCRYPTED_ATTRIBUTES", "AZ_ID");
-    set_conf_single("ENCRYPTED_ATTRIBUTES", "AZ_CERT");
-    set_conf_single("ENCRYPTED_ATTRIBUTES", "VCENTER_PASSWORD");
-    set_conf_single("ENCRYPTED_ATTRIBUTES", "NSX_PASSWORD");
-    set_conf_single("ENCRYPTED_ATTRIBUTES", "ONE_PASSWORD");
-    
+
     //DB CONFIGURATION
     vvalue.insert(make_pair("BACKEND","sqlite"));
 

@@ -86,6 +86,8 @@ int Host::insert_replace(SqlDB *db, bool replace, string& error_str)
     char * sql_hostname;
     char * sql_xml;
 
+    string one_key;
+
     // Set the owner and group to oneadmin
     set_user(0, "");
     set_group(GroupPool::ONEADMIN_ID, GroupPool::ONEADMIN_NAME);
@@ -142,6 +144,10 @@ int Host::insert_replace(SqlDB *db, bool replace, string& error_str)
             <<          other_u             << ","
             <<          cluster_id          << ")";
     }
+
+    // Encrypt all template secrets
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+    encrypt(one_key);
 
     rc = db->exec_wr(oss);
 
@@ -707,8 +713,6 @@ int Host::post_update_template(string& error)
     string new_im_mad;
     string new_vm_mad;
     string cpu_ids;
-
-    encrypt_all_secrets(obj_template);
 
     get_template_attribute("IM_MAD", new_im_mad);
     get_template_attribute("VM_MAD", new_vm_mad);

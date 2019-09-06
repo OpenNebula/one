@@ -41,7 +41,8 @@ VirtualMachinePool::VirtualMachinePool(
         vector<const VectorAttribute *>   hook_mads,
         const string&               hook_location,
         const string&               remotes_location,
-        vector<const SingleAttribute *>&  restricted_attrs,
+        vector<const SingleAttribute *>& restricted_attrs,
+        vector<const SingleAttribute *>& encrypted_attrs,
         time_t                      expire_time,
         bool                        on_hold,
         float                       default_cpu_cost,
@@ -208,6 +209,9 @@ VirtualMachinePool::VirtualMachinePool(
 
     // Set restricted attributes
     VirtualMachineTemplate::parse_restricted(restricted_attrs);
+
+    // Set encrypted attributes
+    VirtualMachineTemplate::parse_encrypted(encrypted_attrs);
 }
 
 /* -------------------------------------------------------------------------- */

@@ -15,8 +15,10 @@
 /* -------------------------------------------------------------------------- */
 
 #include "Template.h"
+
 #include "template_syntax.h"
 #include "template_parser.h"
+
 #include "NebulaUtil.h"
 
 #include <iostream>
@@ -722,12 +724,12 @@ void Template::merge(const Template * from)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void Template::parse_restricted(const vector<const SingleAttribute *>& ras,
-        std::map<std::string, std::set<std::string> >& ras_m)
+static void parse_attributes(const vector<const SingleAttribute *>& as,
+        std::map<std::string, std::set<std::string> >& as_m)
 {
     vector<const SingleAttribute *>::const_iterator it;
 
-    for (it = ras.begin(); it != ras.end(); ++it)
+    for (it = as.begin(); it != as.end(); ++it)
     {
         string va  = (*it)->value();
         size_t pos = va.find("/");
@@ -739,15 +741,15 @@ void Template::parse_restricted(const vector<const SingleAttribute *>& ras,
 
             map<std::string, std::set<string> >::iterator jt;
 
-            jt = ras_m.find(avector);
+            jt = as_m.find(avector);
 
-            if ( jt == ras_m.end() )
+            if ( jt == as_m.end() )
             {
                 std::set<std::string> aset;
 
                 aset.insert(vattr);
 
-                ras_m.insert(make_pair(avector, aset));
+                as_m.insert(make_pair(avector, aset));
             }
             else
             {
@@ -758,9 +760,27 @@ void Template::parse_restricted(const vector<const SingleAttribute *>& ras,
         {
             std::set<std::string> eset;
 
-            ras_m.insert(make_pair(va, eset));
+            as_m.insert(make_pair(va, eset));
         }
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Template::parse_restricted(const vector<const SingleAttribute *>& ras,
+    std::map<std::string, std::set<std::string> >& rattr_m)
+{
+    parse_attributes(ras, rattr_m);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Template::parse_encrypted(const vector<const SingleAttribute *>& eas,
+    std::map<std::string, std::set<std::string> >& eattr_m)
+{
+    parse_attributes(eas, eattr_m);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -888,4 +908,155 @@ bool Template::check_restricted(string& ra,
     }
 
     return false;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Template::encrypt_attr(const std::string& one_key,
+                            const std::string& in,
+                            std::string& out)
+{
+    if (!one_key.empty())
+    {
+        std::string * encrypted = one_util::aes256cbc_encrypt(in, one_key);
+
+        out = *encrypted;
+
+        delete encrypted;
+    }
+    else
+    {
+        out = in;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool Template::decrypt_attr(const std::string& one_key,
+                            const std::string& in,
+                            std::string& out)
+{
+    if (one_key.empty())
+    {
+        out = in;
+        return true;
+    }
+
+    std::string * plain = one_util::aes256cbc_decrypt(in, one_key);
+
+    if (plain == nullptr)
+    {
+        return false;
+    }
+
+    out = *plain;
+
+    delete plain;
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Template::encrypt(const std::string& one_key,
+                       const std::map<std::string, std::set<std::string> >& eas)
+{
+    std::map<std::string, std::set<std::string> >::const_iterator eit;
+
+    for ( eit = eas.begin(); eit != eas.end(); ++eit )
+    {
+        const std::set<std::string>& sub = eit->second;
+
+        std::string tmp;
+        std::string encrypted;
+        std::string att;
+
+        if (!sub.empty()) //Vector Attribute
+        {
+            auto vatt = get(eit->first);
+
+            if (vatt == nullptr)
+            {
+                continue;
+            }
+
+            std::set<std::string>::iterator subit;
+
+            for ( subit = sub.begin(); subit != sub.end(); ++subit)
+            {
+                att = vatt->vector_value(*subit);
+
+                if (!att.empty() && !decrypt_attr(one_key, att, tmp))
+                {
+                    // Nested attribute present, but not encrypted, crypt it
+                    encrypt_attr(one_key, att, encrypted);
+
+                    vatt->replace(*subit, encrypted);
+                }
+            }
+        }
+        else
+        {
+            get(eit->first, att);
+
+            if (!att.empty() && !decrypt_attr(one_key, att, tmp))
+            {
+                // Simple attribute present, but not encrypted, crypt it
+                encrypt_attr(one_key, att, encrypted);
+
+                replace(eit->first, encrypted);
+            }
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Template::decrypt(const std::string& one_key,
+                       const std::map<std::string, std::set<std::string> >& eas)
+{
+    std::map<std::string, std::set<std::string> >::const_iterator eit;
+
+    for ( eit = eas.begin(); eit != eas.end(); ++eit )
+    {
+        const std::set<std::string>& sub = eit->second;
+
+        std::string att;
+        std::string plain;
+
+        if (!sub.empty()) //Vector Attribute
+        {
+            auto vatt = get(eit->first);
+
+            if (vatt == nullptr)
+            {
+                continue;
+            }
+
+            std::set<std::string>::iterator subit;
+
+            for ( subit = sub.begin(); subit != sub.end(); ++subit)
+            {
+                att = vatt->vector_value(*subit);
+
+                if (!att.empty() && decrypt_attr(one_key, att, plain))
+                {
+                    vatt->replace(*subit, plain);
+                }
+            }
+        }
+        else
+        {
+            get(eit->first, att);
+
+            if (!att.empty() && decrypt_attr(one_key, att, plain))
+            {
+                replace(eit->first, plain);
+            }
+        }
+    }
 }
