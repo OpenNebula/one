@@ -221,7 +221,7 @@ module VNMMAD
                 ip_show_master.split("\n").each do |l|
                     next if l !~ /^[0-9]*:/
 
-                    bridges[br_name] << l.split(': ')[1]
+                    bridges[br_name] << l.scan(/^\d+:\s([^:@]+)/)[0][0]
                 end
             end
 
