@@ -529,7 +529,8 @@ OptionParser.new do |opts|
   end
 
   opts.on("-e", "--erase DATA", "Data to be removed from the VM") do |data|
-    options[:erase] = data
+    options[:data] = data
+    options[:type] = 2
   end
 
   opts.on("-r", "--role ROLE", "Service role") do |role|
@@ -578,17 +579,11 @@ when "vm"
             exit -1
         end
 
-        data = {}
-
-        if options[:data]
-            data[:data] = options[:data]
-            data[:type] = 1
+        if options[:type]
+            data = URI.encode_www_form(options)
         else
-            data[:data] = options[:erase]
-            data[:type] = 2
+            data = options[:data]
         end
-
-        data = URI.encode_www_form(data)
 
         if ARGV[2]
             response = client.put("/vms/" + ARGV[2], data)
