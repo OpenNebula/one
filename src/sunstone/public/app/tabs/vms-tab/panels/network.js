@@ -213,15 +213,19 @@ define(function(require) {
 
   function _ipTr(nic, attr){
     var v = "--";
-
-    if (nic[attr] != undefined){
-      v = nic[attr];
-
-      if (nic["VROUTER_"+attr] != undefined){
-        v += ("<br/>" + nic["VROUTER_"+attr] + Locale.tr(" (VRouter)"));
+    if(nic && attr){
+      if(!Array.isArray(attr)){
+        attr = [attr];
       }
+      attr.map(function(attr){
+        if(nic[attr]){
+          v = nic[attr];
+          if (nic["VROUTER_"+attr] != undefined){
+            v += ("<br/>" + nic["VROUTER_"+attr] + Locale.tr(" (VRouter)"));
+          }
+        }
+      });
     }
-
     return v;
   }
 
@@ -267,8 +271,14 @@ define(function(require) {
     if (nics.length) {
       for (var i = 0; i < nics.length; i++) {
         var nic = nics[i];
-
-        nics_names.push({ NAME: nic.NAME, IP: nic.IP, NET: nic.NETWORK, ID: nic.NIC_ID });
+        nics_names.push(
+          { 
+            NAME: nic.NAME, 
+            IP: nic.IP, 
+            NET: nic.NETWORK, 
+            ID: nic.NIC_ID 
+          }
+        );
 
         var is_pci = (nic.PCI_ID != undefined);
 
@@ -330,11 +340,10 @@ define(function(require) {
                 nic_alias.push(alias[j]);
             }
         }
-
         nic_dt_data.push({
           NIC_ID : nic.NIC_ID,
           NETWORK : Navigation.link(nic.NETWORK, "vnets-tab", nic.NETWORK_ID),
-          IP : _ipTr(nic, ipStr),
+          IP : _ipTr(nic, [ipStr, "IP6_LINK"]),
           NIC_ALIAS : nic_alias,
           MAC : nic.MAC,
           PCI_ADDRESS: pci_address,
