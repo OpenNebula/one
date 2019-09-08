@@ -110,7 +110,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
         auth_object = PoolObjectSQL::VM;
-        vm_action   = History::UPDATE_ACTION;
+        vm_action   = VMActions::UPDATE_ACTION;
     }
 
     ~VirtualMachineUpdateTemplate() = default;

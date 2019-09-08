@@ -23,7 +23,7 @@
 #include "User.h"
 #include "QuotasSQL.h"
 #include "Template.h"
-#include "VMActionSet.h"
+#include "VMActions.h"
 
 using namespace std;
 
@@ -143,7 +143,7 @@ public:
      *  @return the operation level (admin, manage or use) associated to the
      *  given action for this group
      */
-    AuthRequest::Operation get_vm_auth_op(History::VMAction action) const
+    AuthRequest::Operation get_vm_auth_op(VMActions::Action action) const
     {
         return vm_actions.get_auth_op(action);
     }
@@ -194,7 +194,7 @@ private:
     /**
      *  List of VM actions and rights for this group
      */
-    VMActionSet vm_actions;
+    VMActions vm_actions;
 
     // *************************************************************************
     // DataBase implementation (Private)

@@ -1037,9 +1037,9 @@ Request::ErrorCode Request::as_uid_gid(Template * tmpl, RequestAttributes& att)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RequestAttributes::set_auth_op(History::VMAction action)
+void RequestAttributes::set_auth_op(VMActions::Action action)
 {
-    if (action == History::NONE_ACTION)
+    if (action == VMActions::NONE_ACTION)
     {
         return;
     }

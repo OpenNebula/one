@@ -2107,7 +2107,7 @@ string VirtualMachine::get_import_state()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachine::is_imported_action_supported(History::VMAction action) const
+bool VirtualMachine::is_imported_action_supported(VMActions::Action action) const
 {
     if (!hasHistory())
     {

@@ -22,8 +22,7 @@
 #include "ObjectCollection.h"
 #include "QuotasSQL.h"
 #include "LoginToken.h"
-#include "VMActionSet.h"
-#include "History.h"
+#include "VMActions.h"
 #include "AuthRequest.h"
 
 class UserQuotas;
@@ -231,7 +230,7 @@ public:
      *  @return the operation level (admin, manage or use) associated to the
      *  given action for this group
      */
-    AuthRequest::Operation get_vm_auth_op(History::VMAction action) const
+    AuthRequest::Operation get_vm_auth_op(VMActions::Action action) const
     {
         return vm_actions.get_auth_op(action);
     }
@@ -298,7 +297,7 @@ private:
     /**
      *  List of VM actions and rights for this user
      */
-    VMActionSet vm_actions;
+    VMActions vm_actions;
 
     // *************************************************************************
     // Authentication session used to cache authentication calls

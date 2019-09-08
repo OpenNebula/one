@@ -19,6 +19,7 @@
 
 #include "ObjectSQL.h"
 #include "ObjectXML.h"
+#include "VMActions.h"
 
 using namespace std;
 
@@ -29,65 +30,6 @@ using namespace std;
 class History:public ObjectSQL, public ObjectXML
 {
 public:
-
-    enum VMAction
-    {                                       //Associated XML-RPC API call
-        NONE_ACTION            = 0,         // "one.vm.migrate"
-        MIGRATE_ACTION         = 1,         // "one.vm.migrate"
-        LIVE_MIGRATE_ACTION    = 2,
-        //SHUTDOWN_ACTION        = 3,
-        //SHUTDOWN_HARD_ACTION   = 4,
-        UNDEPLOY_ACTION        = 5,         // "one.vm.action"
-        UNDEPLOY_HARD_ACTION   = 6,         // "one.vm.action"
-        HOLD_ACTION            = 7,         // "one.vm.action"
-        RELEASE_ACTION         = 8,         // "one.vm.action"
-        STOP_ACTION            = 9,         // "one.vm.action"
-        SUSPEND_ACTION         = 10,        // "one.vm.action"
-        RESUME_ACTION          = 11,        // "one.vm.action"
-        //BOOT_ACTION            = 12,
-        DELETE_ACTION          = 13,        // "one.vm.recover"
-        DELETE_RECREATE_ACTION = 14,        // "one.vm.recover"
-        REBOOT_ACTION          = 15,        // "one.vm.action"
-        REBOOT_HARD_ACTION     = 16,        // "one.vm.action"
-        RESCHED_ACTION         = 17,        // "one.vm.action"
-        UNRESCHED_ACTION       = 18,        // "one.vm.action"
-        POWEROFF_ACTION        = 19,        // "one.vm.action"
-        POWEROFF_HARD_ACTION   = 20,        // "one.vm.action"
-        DISK_ATTACH_ACTION     = 21,        // "one.vm.attach"
-        DISK_DETACH_ACTION     = 22,        // "one.vm.detach"
-        NIC_ATTACH_ACTION      = 23,        // "one.vm.attachnic"
-        NIC_DETACH_ACTION      = 24,        // "one.vm.detachnic"
-        DISK_SNAPSHOT_CREATE_ACTION = 25,   // "one.vm.disksnapshotcreate"
-        DISK_SNAPSHOT_DELETE_ACTION = 26,   // "one.vm.disksnapshotdelete"
-        TERMINATE_ACTION       = 27,        // "one.vm.action"
-        TERMINATE_HARD_ACTION  = 28,        // "one.vm.action"
-        DISK_RESIZE_ACTION     = 29,        // "one.vm.diskresize"
-        DEPLOY_ACTION          = 30,        // "one.vm.deploy"
-        CHOWN_ACTION           = 31,        // "one.vm.chown"
-        CHMOD_ACTION           = 32,        // "one.vm.chmod"
-        UPDATECONF_ACTION      = 33,        // "one.vm.updateconf"
-        RENAME_ACTION          = 34,        // "one.vm.rename"
-        RESIZE_ACTION          = 35,        // "one.vm.resize"
-        UPDATE_ACTION          = 36,        // "one.vm.update"
-        SNAPSHOT_CREATE_ACTION = 37,        // "one.vm.snapshotcreate"
-        SNAPSHOT_DELETE_ACTION = 38,        // "one.vm.snapshotdelete"
-        SNAPSHOT_REVERT_ACTION = 39,        // "one.vm.snapshotrevert"
-        DISK_SAVEAS_ACTION     = 40,        // "one.vm.disksaveas"
-        DISK_SNAPSHOT_REVERT_ACTION = 41,   // "one.vm.disksnapshotrevert"
-        RECOVER_ACTION         = 42,        // "one.vm.recover"
-        RETRY_ACTION           = 43,        // "one.vm.recover"
-        MONITOR_ACTION         = 44,        // internal, monitoring process
-        DISK_SNAPSHOT_RENAME_ACTION = 45,   // "one.vm.disksnapshotrename"
-        ALIAS_ATTACH_ACTION      = 46,      // "one.vm.attachnic"
-        ALIAS_DETACH_ACTION      = 47,      // "one.vm.detachnic"
-        POFF_MIGRATE_ACTION      = 48,      // "one.vm.migrate"
-        POFF_HARD_MIGRATE_ACTION = 49       // "one.vm.migrate"
-    };
-
-    static string action_to_str(VMAction action);
-
-    static int action_from_str(const string& st, VMAction& action);
-
     History(int oid, int _seq = -1);
 
     History(
@@ -170,7 +112,7 @@ private:
     time_t  epilog_stime;
     time_t  epilog_etime;
 
-    VMAction action;
+    VMActions::Action action;
 
     string  vm_info;
 

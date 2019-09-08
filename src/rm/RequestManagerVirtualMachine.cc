@@ -495,7 +495,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     ostringstream oss;
     string error;
 
-    History::VMAction action;
+    VMActions::Action action;
 
     VirtualMachineTemplate quota_tmpl;
 
@@ -511,7 +511,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
         action_st = "terminate";
     }
 
-    History::action_from_str(action_st, action);
+    VMActions::action_from_str(action_st, action);
 
     // Update the authorization level for the action
     att.set_auth_op(action);
@@ -541,7 +541,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     // Generate quota information for resume action
     RequestAttributes& att_aux(att);
 
-    if (action == History::RESUME_ACTION)
+    if (action == VMActions::RESUME_ACTION)
     {
         vm->get_template_attribute("MEMORY", memory);
         vm->get_template_attribute("CPU", cpu);
@@ -560,7 +560,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     vm->unlock();
 
-     if (action == History::RESUME_ACTION && !quota_authorization(&quota_tmpl,
+     if (action == VMActions::RESUME_ACTION && !quota_authorization(&quota_tmpl,
              Quotas::VIRTUALMACHINE, att_aux, att.resp_msg))
     {
         failure_response(ACTION, att);
@@ -569,49 +569,49 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     switch (action)
     {
-        case History::TERMINATE_ACTION:
+        case VMActions::TERMINATE_ACTION:
             rc = dm->terminate(id, false, att, error);
             break;
-        case History::TERMINATE_HARD_ACTION:
+        case VMActions::TERMINATE_HARD_ACTION:
             rc = dm->terminate(id, true, att, error);
             break;
-        case History::HOLD_ACTION:
+        case VMActions::HOLD_ACTION:
             rc = dm->hold(id, att, error);
             break;
-        case History::RELEASE_ACTION:
+        case VMActions::RELEASE_ACTION:
             rc = dm->release(id, att, error);
             break;
-        case History::STOP_ACTION:
+        case VMActions::STOP_ACTION:
             rc = dm->stop(id, att, error);
             break;
-        case History::SUSPEND_ACTION:
+        case VMActions::SUSPEND_ACTION:
             rc = dm->suspend(id, att, error);
             break;
-        case History::RESUME_ACTION:
+        case VMActions::RESUME_ACTION:
             rc = dm->resume(id, att, error);
             break;
-        case History::REBOOT_ACTION:
+        case VMActions::REBOOT_ACTION:
             rc = dm->reboot(id, false, att, error);
             break;
-        case History::REBOOT_HARD_ACTION:
+        case VMActions::REBOOT_HARD_ACTION:
             rc = dm->reboot(id, true, att, error);
             break;
-        case History::RESCHED_ACTION:
+        case VMActions::RESCHED_ACTION:
             rc = dm->resched(id, true, att, error);
             break;
-        case History::UNRESCHED_ACTION:
+        case VMActions::UNRESCHED_ACTION:
             rc = dm->resched(id, false, att, error);
             break;
-        case History::POWEROFF_ACTION:
+        case VMActions::POWEROFF_ACTION:
             rc = dm->poweroff(id, false, att, error);
             break;
-        case History::POWEROFF_HARD_ACTION:
+        case VMActions::POWEROFF_HARD_ACTION:
             rc = dm->poweroff(id, true, att, error);
             break;
-        case History::UNDEPLOY_ACTION:
+        case VMActions::UNDEPLOY_ACTION:
             rc = dm->undeploy(id, false, att, error);
             break;
-        case History::UNDEPLOY_HARD_ACTION:
+        case VMActions::UNDEPLOY_HARD_ACTION:
             rc = dm->undeploy(id, true, att, error);
             break;
         default:
@@ -706,7 +706,7 @@ int set_vnc_port(VirtualMachine *vm, int cluster_id, RequestAttributes& att)
     {
         return 0;
     }
-    else if (vm->hasHistory() && vm->get_action()==History::STOP_ACTION)
+    else if (vm->hasHistory() && vm->get_action()==VMActions::STOP_ACTION)
     {
         return 0;
     }
@@ -820,9 +820,9 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     if (vm->hasHistory() &&
-        (vm->get_action() == History::STOP_ACTION ||
-         vm->get_action() == History::UNDEPLOY_ACTION ||
-         vm->get_action() == History::UNDEPLOY_HARD_ACTION))
+        (vm->get_action() == VMActions::STOP_ACTION ||
+         vm->get_action() == VMActions::UNDEPLOY_ACTION ||
+         vm->get_action() == VMActions::UNDEPLOY_HARD_ACTION))
     {
         ds_id = vm->get_ds_id();
 
@@ -1071,7 +1071,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     string error;
 
-    History::VMAction action;
+    VMActions::Action action;
 
     // ------------------------------------------------------------------------
     // Get request parameters and information about the target host
@@ -1176,7 +1176,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     if (live)
     {
-        action = History::LIVE_MIGRATE_ACTION;
+        action = VMActions::LIVE_MIGRATE_ACTION;
 
         if ( vm->is_pinned() )
         {
@@ -1189,7 +1189,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     }
     else
     {
-        action = History::MIGRATE_ACTION;
+        action = VMActions::MIGRATE_ACTION;
     }
 
     if (vm->is_imported() && !vm->is_imported_action_supported(action))
@@ -2561,17 +2561,17 @@ void VirtualMachineRecover::request_execute(
     {
         case 0: //recover-failure
         case 1: //recover-success
-            att.set_auth_op(History::RECOVER_ACTION);
+            att.set_auth_op(VMActions::RECOVER_ACTION);
             break;
 
         case 2: //retry
-            att.set_auth_op(History::RETRY_ACTION);
+            att.set_auth_op(VMActions::RETRY_ACTION);
             break;
 
         case 3: //delete
         case 4: //delete-recreate set same as delete in OpenNebulaTemplate
         case 5: //delete-db
-            att.set_auth_op(History::DELETE_ACTION);
+            att.set_auth_op(VMActions::DELETE_ACTION);
             break;
 
         default:

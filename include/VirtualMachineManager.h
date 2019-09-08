@@ -153,7 +153,7 @@ public:
      *    @param action
      *    @return True if it is supported
      */
-    bool is_imported_action_supported(const string& mad,History::VMAction action)
+    bool is_imported_action_supported(const string& mad, VMActions::Action action)
     {
         const VirtualMachineManagerDriver * vmd = get(mad);
 

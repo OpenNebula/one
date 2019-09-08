@@ -653,7 +653,7 @@ public:
      *  function MUST be called before this one.
      *    @return the action that closed the current history record
      */
-    const History::VMAction get_action() const
+    const VMActions::Action get_action() const
     {
         return history->action;
     };
@@ -662,7 +662,7 @@ public:
      *  Returns the action that closed the history record in the previous host
      *    @return the action that closed the history record in the previous host
      */
-    const History::VMAction get_previous_action() const
+    const VMActions::Action get_previous_action() const
     {
         return previous_history->action;
     };
@@ -821,7 +821,7 @@ public:
      *  Sets the action that closed the history record
      *    @param action that closed the history record
      */
-    void set_action(History::VMAction action, int uid, int gid, int req_id)
+    void set_action(VMActions::Action action, int uid, int gid, int req_id)
     {
         history->action = action;
 
@@ -831,7 +831,7 @@ public:
         history->req_id = req_id;
     };
 
-    void set_internal_action(History::VMAction action)
+    void set_internal_action(VMActions::Action action)
     {
         history->action = action;
 
@@ -843,7 +843,7 @@ public:
 
     void clear_action()
     {
-        history->action = History::NONE_ACTION;
+        history->action = VMActions::NONE_ACTION;
 
         history->uid = -1;
         history->gid = -1;
@@ -851,7 +851,7 @@ public:
         history->req_id = -1;
     }
 
-    void set_previous_action(History::VMAction action, int uid, int gid,int rid)
+    void set_previous_action(VMActions::Action action, int uid, int gid,int rid)
     {
         previous_history->action = action;
 
@@ -1139,7 +1139,7 @@ public:
      * @param action VM action to check
      * @return true if the current VM MAD supports the given action for imported VMs
      */
-    bool is_imported_action_supported(History::VMAction action) const;
+    bool is_imported_action_supported(VMActions::Action action) const;
 
     // ------------------------------------------------------------------------
     // Virtual Router related functions

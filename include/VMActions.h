@@ -14,20 +14,19 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef VMACTION_SET_H
-#define VMACTION_SET_H
+#ifndef VMACTIONS_H
+#define VMACTIONS_H
 
-#include "History.h"
 #include "ActionSet.h"
 #include "AuthRequest.h"
 
 class Template;
 
-class VMActionSet
+class VMActions
 {
 public:
 
-    enum VMAction
+    enum Action
     {                                       //Associated XML-RPC API call
         NONE_ACTION            = 0,         // "one.vm.migrate"
         MIGRATE_ACTION         = 1,         // "one.vm.migrate"
@@ -81,10 +80,14 @@ public:
         POFF_HARD_MIGRATE_ACTION = 49       // "one.vm.migrate"
     };
 
+    static string action_to_str(Action action);
+
+    static int action_from_str(const string& st, Action& action);
+
     /**
      * @return true if action requires ADMIN right
      */
-    bool is_admin(History::VMAction action) const
+    bool is_admin(Action action) const
     {
         return admin_actions.is_set(action);
     }
@@ -92,7 +95,7 @@ public:
     /**
      * @return true if action requires ADMIN right
      */
-    bool is_use(History::VMAction action) const
+    bool is_use(Action action) const
     {
         return use_actions.is_set(action);
     }
@@ -100,7 +103,7 @@ public:
     /**
      * @return true if action requires ADMIN right
      */
-    bool is_manage(History::VMAction action) const
+    bool is_manage(Action action) const
     {
         return manage_actions.is_set(action);
     }
@@ -108,7 +111,7 @@ public:
     /**
      * @return the auth type for the given action
      */
-    AuthRequest::Operation get_auth_op(History::VMAction action) const;
+    AuthRequest::Operation get_auth_op(Action action) const;
 
     /**
      *  Sets the auth operations based on the provided template
@@ -119,23 +122,23 @@ private:
     /**
      *  Set of VM actions that require USE permission
      */
-    ActionSet<History::VMAction> use_actions;
+    ActionSet<Action> use_actions;
 
     /**
      *  Set of VM actions that require MANAGE permission
      */
-    ActionSet<History::VMAction> manage_actions;
+    ActionSet<Action> manage_actions;
 
     /**
      *  Set of VM actions that require ADMIN permission
      */
-    ActionSet<History::VMAction> admin_actions;
+    ActionSet<Action> admin_actions;
 
     /**
      *  Returns action set from a string of actions seperated by commas
      */
     int set_auth_ops(const std::string& ops_str,
-       ActionSet<History::VMAction>& ops_set, std::string& error);
+       ActionSet<Action>& ops_set, std::string& error);
 };
 
-#endif /*VMACTION_SET_H*/
+#endif /*VMACTIONS_H*/

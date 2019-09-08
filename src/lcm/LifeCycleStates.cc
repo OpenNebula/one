@@ -673,8 +673,8 @@ void LifeCycleManager::prolog_success_action(int vid)
 
                 case VirtualMachine::PROLOG_MIGRATE:
                 case VirtualMachine::PROLOG_MIGRATE_FAILURE: //recover success
-                    if (vm->get_action() == History::POFF_MIGRATE_ACTION ||
-                          vm->get_action() == History::POFF_HARD_MIGRATE_ACTION)
+                    if (vm->get_action() == VMActions::POFF_MIGRATE_ACTION ||
+                          vm->get_action() == VMActions::POFF_HARD_MIGRATE_ACTION)
                     {
                         action = VMMAction::DEPLOY;
                         vm->set_state(VirtualMachine::BOOT);
@@ -1105,7 +1105,7 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_internal_action(History::MONITOR_ACTION);
+        vm->set_internal_action(VMActions::MONITOR_ACTION);
 
         vmpool->update_history(vm);
 
@@ -1198,7 +1198,7 @@ void  LifeCycleManager::monitor_poweroff_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_internal_action(History::MONITOR_ACTION);
+        vm->set_internal_action(VMActions::MONITOR_ACTION);
 
         vmpool->update_history(vm);
 

@@ -135,7 +135,7 @@ public:
                                      "Deploys a virtual machine",
                                      "A:siibis")
     {
-        vm_action = History::DEPLOY_ACTION;
+        vm_action = VMActions::DEPLOY_ACTION;
     }
 
     ~VirtualMachineDeploy() = default;
@@ -156,7 +156,7 @@ public:
                                      "Migrates a virtual machine",
                                      "A:siibbii")
     {
-        vm_action = History::MIGRATE_ACTION;
+        vm_action = VMActions::MIGRATE_ACTION;
     }
 
     ~VirtualMachineMigrate() = default;
@@ -177,7 +177,7 @@ public:
                            "Save a disk from virtual machine as a new image",
                            "A:siissi")
     {
-        vm_action = History::DISK_SAVEAS_ACTION;
+        vm_action = VMActions::DISK_SAVEAS_ACTION;
     }
 
     ~VirtualMachineDiskSaveas() = default;
@@ -199,7 +199,7 @@ public:
                 "A:si")
     {
         auth_op   = AuthRequest::USE_NO_LCK;
-        vm_action = History::MONITOR_ACTION;
+        vm_action = VMActions::MONITOR_ACTION;
     }
 
     ~VirtualMachineMonitoring() = default;
@@ -221,7 +221,7 @@ public:
                            "A:sis")
     {
         auth_op   = AuthRequest::USE_NO_LCK;
-        vm_action = History::DISK_ATTACH_ACTION;
+        vm_action = VMActions::DISK_ATTACH_ACTION;
     }
 
     ~VirtualMachineAttach() = default;
@@ -254,7 +254,7 @@ public:
                            "A:sii")
     {
         auth_op   = AuthRequest::USE_NO_LCK;
-        vm_action = History::DISK_DETACH_ACTION;
+        vm_action = VMActions::DISK_DETACH_ACTION;
     }
 
     ~VirtualMachineDetach() = default;
@@ -275,7 +275,7 @@ public:
                            "Attaches a new NIC to the virtual machine",
                            "A:sis")
     {
-        vm_action = History::NIC_ATTACH_ACTION;
+        vm_action = VMActions::NIC_ATTACH_ACTION;
     }
 
     ~VirtualMachineAttachNic() = default;
@@ -306,7 +306,7 @@ public:
                            "Detaches a NIC from a virtual machine",
                            "A:sii")
     {
-        vm_action = History::NIC_DETACH_ACTION;
+        vm_action = VMActions::NIC_DETACH_ACTION;
     }
 
     ~VirtualMachineDetachNic() = default;
@@ -336,7 +336,7 @@ public:
                            "Changes the capacity of the virtual machine",
                            "A:sisb")
     {
-        vm_action = History::RESIZE_ACTION;
+        vm_action = VMActions::RESIZE_ACTION;
     }
 
     ~VirtualMachineResize() = default;
@@ -357,7 +357,7 @@ public:
                            "Creates a new virtual machine snapshot",
                            "A:sis")
     {
-        vm_action = History::SNAPSHOT_CREATE_ACTION;
+        vm_action = VMActions::SNAPSHOT_CREATE_ACTION;
     }
 
     ~VirtualMachineSnapshotCreate() = default;
@@ -378,7 +378,7 @@ public:
                            "Reverts a virtual machine to a snapshot",
                            "A:sii")
     {
-        vm_action = History::SNAPSHOT_REVERT_ACTION;
+        vm_action = VMActions::SNAPSHOT_REVERT_ACTION;
     }
 
     ~VirtualMachineSnapshotRevert() = default;
@@ -399,7 +399,7 @@ public:
                            "Deletes a virtual machine snapshot",
                            "A:sii")
     {
-        vm_action = History::SNAPSHOT_DELETE_ACTION;
+        vm_action = VMActions::SNAPSHOT_DELETE_ACTION;
     }
 
     ~VirtualMachineSnapshotDelete() = default;
@@ -420,7 +420,7 @@ public:
                                      "Recovers a virtual machine",
                                      "A:sii")
     {
-        vm_action = History::RECOVER_ACTION;
+        vm_action = VMActions::RECOVER_ACTION;
     }
 
     ~VirtualMachineRecover() = default;
@@ -465,7 +465,7 @@ public:
         Nebula& nd  = Nebula::instance();
         ipool       = nd.get_ipool();
 
-        vm_action   = History::DISK_SNAPSHOT_CREATE_ACTION;
+        vm_action   = VMActions::DISK_SNAPSHOT_CREATE_ACTION;
     }
 
     ~VirtualMachineDiskSnapshotCreate() = default;
@@ -489,7 +489,7 @@ public:
                            "Reverts disk state to a snapshot",
                            "A:siii")
     {
-        vm_action = History::DISK_SNAPSHOT_REVERT_ACTION;
+        vm_action = VMActions::DISK_SNAPSHOT_REVERT_ACTION;
     }
 
     ~VirtualMachineDiskSnapshotRevert() = default;
@@ -513,7 +513,7 @@ public:
         Nebula& nd  = Nebula::instance();
         ipool       = nd.get_ipool();
 
-        vm_action = History::DISK_SNAPSHOT_DELETE_ACTION;
+        vm_action = VMActions::DISK_SNAPSHOT_DELETE_ACTION;
     }
 
     ~VirtualMachineDiskSnapshotDelete() = default;
@@ -537,7 +537,7 @@ public:
                            "Rename a disk snapshot",
                            "A:siiis") 
     {
-        vm_action = History::DISK_SNAPSHOT_RENAME_ACTION;
+        vm_action = VMActions::DISK_SNAPSHOT_RENAME_ACTION;
     }
 
     ~VirtualMachineDiskSnapshotRename() = default;
@@ -558,7 +558,7 @@ public:
                            "Updates several configuration attributes of a VM",
                            "A:sis")
     {
-        vm_action = History::UPDATECONF_ACTION;
+        vm_action = VMActions::UPDATECONF_ACTION;
     }
 
     ~VirtualMachineUpdateConf() = default;
@@ -582,7 +582,7 @@ public:
         Nebula& nd = Nebula::instance();
         ipool      = nd.get_ipool();
 
-        vm_action  = History::DISK_RESIZE_ACTION;
+        vm_action  = VMActions::DISK_RESIZE_ACTION;
     }
 
     ~VirtualMachineDiskResize() = default;

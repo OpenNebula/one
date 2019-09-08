@@ -20,8 +20,7 @@
 #include "Template.h"
 #include "ActionSet.h"
 #include "AuthRequest.h"
-#include "History.h"
-#include "VMActionSet.h"
+#include "VMActions.h"
 
 #include <map>
 
@@ -94,13 +93,13 @@ public:
      *  Returns action set from a string of actions seperated by commas
      */
     static int set_vm_auth_ops(const std::string& ops_str,
-       ActionSet<History::VMAction>& ops_set, std::string& error);
+       ActionSet<VMActions::Action>& ops_set, std::string& error);
 
     /**
      *  @param  action
      *  @return authorization operation configured for the given VM action
      */
-    AuthRequest::Operation get_vm_auth_op(History::VMAction action)
+    AuthRequest::Operation get_vm_auth_op(VMActions::Action action)
     {
         AuthRequest::Operation aop = vm_actions.get_auth_op(action);
 
@@ -126,7 +125,7 @@ private:
     /**
      *  Default set of VM action permissions
      */
-    VMActionSet vm_actions;
+    VMActions vm_actions;
 
     /**
      *  Sets the defaults value for the template

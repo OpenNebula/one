@@ -148,7 +148,7 @@ public:
      *
      *  @param action perfomed on the VM object
      */
-    void set_auth_op(History::VMAction action);
+    void set_auth_op(VMActions::Action action);
 };
 
 /**
@@ -220,7 +220,7 @@ protected:
     PoolObjectSQL::ObjectType auth_object;
     AuthRequest::Operation    auth_op;
 
-    History::VMAction vm_action;
+    VMActions::Action vm_action;
 
     // Logging configuration fot the API call
     set<int> hidden_params;
@@ -246,7 +246,7 @@ protected:
         log_method_call = true;
         leader_only     = true;
 
-        vm_action       = History::NONE_ACTION;
+        vm_action = VMActions::NONE_ACTION;
     };
 
     virtual ~Request(){};

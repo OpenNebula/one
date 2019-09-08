@@ -33,8 +33,7 @@ protected:
                        const string& help)
         :Request(method_name, "A:si", help)
     {
-        auth_op   = AuthRequest::USE_NO_LCK;
-        vm_action = History::NONE_ACTION;
+        auth_op = AuthRequest::USE_NO_LCK;
 
         leader_only = false;
     };

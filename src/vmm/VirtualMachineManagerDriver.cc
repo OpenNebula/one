@@ -115,29 +115,29 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
     }
     else
     {
-		NebulaLog::log("VMM", Log::INFO, "Using default imported VMs actions");
+        NebulaLog::log("VMM", Log::INFO, "Using default imported VMs actions");
 
-		it = attrs.find("NAME");
+        it = attrs.find("NAME");
 
-		if (it != attrs.end())
-		{
-			if ( it->second == "kvm" || it->second == "xen" )
-			{
-				action_defaults = imported_actions_default;
-			}
-			else if ( it->second == "sl" || it->second == "ec2" ||
-			          it->second == "az" || it->second == "vcenter" )
-			{
+        if (it != attrs.end())
+        {
+            if ( it->second == "kvm" || it->second == "xen" )
+            {
+                action_defaults = imported_actions_default;
+            }
+            else if ( it->second == "sl" || it->second == "ec2" ||
+                      it->second == "az" || it->second == "vcenter" )
+            {
                 action_defaults = imported_actions_default_public;
-			}
-		}
+            }
+        }
     }
 
     vector<string> actions;
     vector<string>::iterator vit;
 
     string action;
-    History::VMAction id;
+    VMActions::Action id;
 
     actions = one_util::split(action_defaults, ',');
 
@@ -145,7 +145,7 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
     {
         action = one_util::trim(*vit);
 
-        if ( History::action_from_str(action, id) != 0 )
+        if ( VMActions::action_from_str(action, id) != 0 )
         {
             NebulaLog::log("VMM", Log::ERROR, "Wrong action: " + action);
             continue;
