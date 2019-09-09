@@ -53,6 +53,9 @@ require 'opennebula'
 require 'CommandManager'
 require 'ActionManager'
 
+# Number of retries for loading hook information
+RETRIES = 300
+
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 # This module includes basic functions to deal with Hooks
@@ -231,20 +234,29 @@ class HookMap
     def load
         @logger.info('Loading Hooks...')
 
-        hook_pool = OpenNebula::HookPool.new(@client)
-
-        rc = hook_pool.info
-
-        if OpenNebula.is_error?(rc)
-            @logger.error("Cannot get hook information: #{rc.message}")
-            return
-        end
-
         @hooks   = {}
         @filters = {}
 
         HEMHook::HOOK_TYPES.each do |type|
             @hooks[type] = {}
+        end
+
+        hook_pool = OpenNebula::HookPool.new(@client)
+
+        rc = hook_pool.info
+
+        retries = 0
+        while OpenNebula.is_error?(rc) && retries < RETRIES
+            rc = hook_pool.info
+
+            retries += 1
+
+            sleep 0.25
+        end
+
+        if OpenNebula.is_error?(rc)
+            @logger.error("Cannot get hook information: #{rc.message}")
+            return
         end
 
         hook_pool.each do |hook|
@@ -447,6 +459,8 @@ class HookExecutionManager
 
             @subscriber.recv_string(key)
             @subscriber.recv_string(content)
+
+            @logger.debug("New event receive\nkey: #{key}\ncontent: #{content}")
 
             # get action
             action = key.split(' ').shift.to_sym
