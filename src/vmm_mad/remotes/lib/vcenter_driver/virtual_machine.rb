@@ -731,7 +731,7 @@ module VCenterDriver
                     # Select only Opaque Networks
                     opaqueNetworks = @item.network.select{|net|
                         RbVmomi::VIM::OpaqueNetwork == net.class}
-                    opaqueNetwork = opaqueNetworks.find{|opn| 
+                    opaqueNetwork = opaqueNetworks.find{|opn|
                         backing.opaqueNetworkId == opn.summary.opaqueNetworkId}
                     key = opaqueNetwork._ref
                 else
@@ -1121,8 +1121,8 @@ module VCenterDriver
                 end
             end
 
-      # vnc configuration (for config_array hash)
-      extraconfig += extraconfig_vnc
+            # vnc configuration (for config_array hash)
+            extraconfig += extraconfig_vnc
 
             # vnc configuration (for config_array hash)
             extraconfig += extraconfig_vnc
