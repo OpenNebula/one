@@ -1,4 +1,3 @@
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -40,8 +39,7 @@ module NSXDriver
         # section already exists
         def init_section
             one_section = section_by_name(@one_section_name)
-            one_section = create_section(@one_section_name) \
-                              unless one_section
+            one_section ||= create_section(@one_section_name)
             @one_section_id = one_section['id']
         end
 
@@ -86,7 +84,8 @@ module NSXDriver
             )
             section_id = @nsx_client.post_json(@url_sections, section_spec)
             result = section_by_id(section_id)
-            raise "Error creating section in DFW" unless result
+            raise 'Error creating section in DFW' unless result
+
             result
         end
 
@@ -135,7 +134,7 @@ module NSXDriver
             url = @url_sections + '/' + section_id + '/rules/' + rule_id
             @nsx_client.delete(url, HEADER_JSON)
             result = section_by_id(section_id)
-            raise "Error deleting section in DFW" if result
+            raise 'Error deleting section in DFW' if result
         end
 
     end
