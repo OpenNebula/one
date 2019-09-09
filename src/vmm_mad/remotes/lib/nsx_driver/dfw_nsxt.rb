@@ -19,7 +19,7 @@ module NSXDriver
     class DfwNsxt < NSXDriver::DistributedFirewall
 
         # ATTRIBUTES
-        attr_reader :dfw_id
+        attr_reader :one_section_id
         HEADER_JSON = { :'Content-Type' => 'application/json' }
         SECTIONS = '/sections'
 
@@ -29,45 +29,112 @@ module NSXDriver
             super(nsx_client)
             # Construct base URLs
             @base_url = "#{@nsx_client.nsxmgr}/api/v1/firewall"
-            @url_sections = @base_url_nsxt + SECTIONS
+            @url_sections = @base_url + SECTIONS
+            @one_section_id = init_section
         end
 
         # Sections
+        # Creates OpenNebula section if not exists and returns
+        # its section_id. Returns its section_id if OpenNebula
+        # section already exists
+        def init_section
+            one_section = section_by_name(@one_section_name)
+            one_section = create_section(@one_section_name) \
+                              unless one_section
+            @one_section_id = one_section['id']
+        end
+
         # Get all sections
         def sections
-            @nsx_client.get_json(@url_sections)
+            sections = @nsx_client.get_json(@url_sections)
+            sections['results']
         end
 
         # Get section by id
-        def section_by_id(section_id)
+        # Params:
+        # - section_id: specified section_id or @one_section_id
+        # Return:
+        #
+        def section_by_id(section_id = @one_section_id)
             url = @url_sections + '/' + section_id
             @nsx_client.get_json(url)
         end
 
         # Get section by name
+        # Params:
+        # - section_name: Name of the section
+        # Return
+        # - nil | section
         def section_by_name(section_name)
+            result = nil
             all_sections = sections
-            all_sections[:results].each do |section|
-                section if section[:display_name] == section_name
+            all_sections.each do |section|
+                result = section if section['display_name'] == section_name
             end
+            result
         end
 
-        # Create new section
+        # Create new section and return the section
         def create_section(section_name)
             section_spec = %(
               {
                   "display_name": "#{section_name}",
                   "section_type": "LAYER3",
-                  "stateful": false
+                  "stateful": true
               }
             )
-            @nsx_client.post_json(@url_sections, section_spec)
+            section_id = @nsx_client.post_json(@url_sections, section_spec)
+            result = section_by_id(section_id)
+            raise "Error creating section in DFW" unless result
         end
 
         # Delete section
-        def delete_section(section_id)
+        def delete_section(section_id = @one_section_id)
             url = @url_sections + '/' + section_id
             @nsx_client.delete(url, HEADER_JSON)
+        end
+
+        # Rules
+        # Get all rules of a Section, OpenNebula section if it's not defined
+        def rules(section_id = @one_section_id)
+            url = @url_sections + '/' + section_id + 'rules'
+            @nsx_client.get_json(url)
+        end
+
+        # Get rule by id
+        def rules_by_id(rule_id)
+            url = @base_url + '/rules/' + rule_id
+            @nsx_client.get_json(url)
+        end
+
+        # Get rule by name
+        def rules_by_name(rule_name, section_id = @one_section_id)
+            return unless section_id
+
+            result = nil
+            all_rules = rules(section_id)
+            all_rules['results'].each do |rule|
+                result = rule if rule['display_name'] == rule_name
+            end
+            result
+        end
+
+        # Create new rule
+        def create_rule(rule_spec, section_id = @one_section_id)
+            url = @url_sections + '/' + section_id + '/rules'
+            @nsx_client.post_json(url, rule_spec)
+        end
+
+        # Update rule
+        def update_rule; end
+
+        # Delete rule
+        def delete_rule(rule_id, section_id = @one_section_id)
+            url = @url_sections + '/' + section_id + '/rules/' + rule_id
+            @nsx_client.delete(url, HEADER_JSON)
+            result = section_by_id(section_id)
+            raise "Error deleting section in DFW" if result
+
         end
 
     end

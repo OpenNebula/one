@@ -19,36 +19,49 @@ module NSXDriver
     class DfwNsxv < NSXDriver::DistributedFirewall
 
         # ATTRIBUTES
-        attr_reader :dfw_id
+        attr_reader :one_section_id
         HEADER_XML = { :'Content-Type' => 'application/xml' }
         SECTIONS = '/layer3sections'
-        SECTIONS_XPATH = '//sections'
+        SECTION_XPATH = '//section'
+        RULE_XPATH = '//rule'
 
         # CONSTRUCTOR
 
         def initialize(nsx_client)
             super(nsx_client)
             # Construct base URLs
-            @base_url = "#{@nsx_client.nsxmgr}/api/4.0/firewall/globalroot-0/config"
+            @base_url = @nsx_client.nsxmgr
+            @base_url << '/api/4.0/firewall/globalroot-0/config'
             @url_sections = @base_url + SECTIONS
+            @one_section_id = init_section
         end
 
         # Sections
         # Get all sections
+        # Creates OpenNebula section if not exists and returns
+        # its section_id. Returns its section_id if OpenNebula
+        # section already exists
+        def init_section
+            one_section = section_by_name(@one_section_name)
+            one_section = create_section(@one_section_name) \
+                              unless one_section
+            one_section[:id]
+        end
+
         def sections
-            @nsx_client.get_xml(@base_url).xpath(SECTIONS_XPATH)
+            @nsx_client.get_xml(@base_url).xpath(SECTION_XPATH)
         end
 
         # Get section by id
-        def section_by_id(section_id)
+        def section_by_id(section_id = @one_section_id)
             url = @url_sections + '/' + section_id
-            @nsx_client.get_xml(url).xpath(SECTIONS_XPATH)
+            @nsx_client.get_xml(url).xpath(SECTION_XPATH)
         end
 
         # Get section by name
         def section_by_name(section_name)
             url = @url_sections + '?name=' + section_name
-            @nsx_client.get_xml(url).xpath(SECTIONS_XPATH)
+            @nsx_client.get_xml(url).xpath(SECTION_XPATH)
         end
 
         # Create new section
@@ -61,10 +74,32 @@ module NSXDriver
         end
 
         # Delete section
-        def delete_section(section_id)
+        def delete_section(section_id = @one_section_id)
             url = @url_sections + '/' + section_id
             @nsx_client.delete(url, HEADER_XML)
         end
+
+        # Rules
+        # Get all rules
+        def rules(section_id = @one_section_id)
+            url = @url_sections + '/' + section_id
+            @nsx_client.get_xml(url).xpath(RULE_XPATH)
+        end
+
+        # Get rule by id
+        def rules_by_id(rule_id, section_id = @one_section_id); end
+
+        # Get rule by name
+        def rules_by_name; end
+
+        # Create new rule
+        def create_rule; end
+
+        # Update rule
+        def update_rule; end
+
+        # Delete rule
+        def delete_rule; end
 
     end
 

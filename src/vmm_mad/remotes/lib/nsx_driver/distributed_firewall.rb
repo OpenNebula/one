@@ -19,13 +19,20 @@ module NSXDriver
     class DistributedFirewall < NSXDriver::NsxComponent
 
         # ATTRIBUTES
+        ONE_SECTION_NAME = 'OpenNebula'
 
         # CONSTRUCTOR
         def initialize(nsx_client)
             @nsx_client = nsx_client
+            @one_section_name = ONE_SECTION_NAME
         end
 
         # Sections
+        # Creates OpenNebula section if not exists and returns
+        # its section_id. Returns its section_id if OpenNebula
+        # section already exists
+        def init_section; end
+
         # Get all sections
         def sections; end
 

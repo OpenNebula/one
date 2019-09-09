@@ -58,6 +58,9 @@ require 'transport_zone'
 require 'nsxt_tz'
 require 'nsxv_tz'
 require 'virtual_wire'
+require 'distributed_firewall'
+require 'dfw_nsxt'
+require 'dfw_nsxv'
 
 # NSX Driver module
 module NSXDriver
