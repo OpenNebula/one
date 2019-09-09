@@ -1,3 +1,4 @@
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -86,6 +87,7 @@ module NSXDriver
             section_id = @nsx_client.post_json(@url_sections, section_spec)
             result = section_by_id(section_id)
             raise "Error creating section in DFW" unless result
+            result
         end
 
         # Delete section
@@ -134,7 +136,6 @@ module NSXDriver
             @nsx_client.delete(url, HEADER_JSON)
             result = section_by_id(section_id)
             raise "Error deleting section in DFW" if result
-
         end
 
     end
