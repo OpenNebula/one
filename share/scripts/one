@@ -19,7 +19,6 @@
 if [ -z "$ONE_LOCATION" ]; then
     ONE_PID=/var/run/one/oned.pid
     ONE_SCHEDPID=/var/run/one/sched.pid
-    ONE_HEMPID=/var/run/one/hem.pid
     ONE_CONF=/etc/one/oned.conf
     ONE_DB=/var/lib/one/one.db
     ONE_LOG=/var/log/one/oned.log
@@ -29,13 +28,11 @@ if [ -z "$ONE_LOCATION" ]; then
 
     ONED=/usr/bin/oned
     ONE_SCHEDULER=/usr/bin/mm_sched
-    ONE_HEM=/usr/bin/onehem-server
 
     LOCK_FILE=/var/lock/one/one
 else
     ONE_PID=$ONE_LOCATION/var/oned.pid
     ONE_SCHEDPID=$ONE_LOCATION/var/sched.pid
-    ONE_HEMPID=$ONE_LOCATION/var/hem.pid
     ONE_CONF=$ONE_LOCATION/etc/oned.conf
     ONE_DB=$ONE_LOCATION/var/one.db
     ONE_LOG=$ONE_LOCATION/var/oned.log
@@ -45,7 +42,6 @@ else
 
     ONED=$ONE_LOCATION/bin/oned
     ONE_SCHEDULER=$ONE_LOCATION/bin/mm_sched
-    ONE_HEM=$ONE_LOCATION/bin/onehem-server
 
     LOCK_FILE=$ONE_LOCATION/var/.lock
 fi
@@ -84,14 +80,7 @@ setup()
                 exit 1
             fi
         fi
-        if [ -f  $ONE_HEMPID ]; then
-            ONEHEMPID=`cat $ONE_HEMPID`
-            ps $ONEHEMPID > /dev/null 2>&1
-            if [ $? -eq 0 ]; then
-                echo "The hem is still running (PID:$ONEHEMPID). Please try 'one stop' first."
-                exit 1
-            fi
-        fi
+
         echo "Stale .lock detected. Erasing it."
         rm $LOCK_FILE
     fi
@@ -139,10 +128,7 @@ stop_sched()
 
 stop_hem()
 {
-    if [ -f $ONE_HEMPID ]; then
-        kill `cat $ONE_HEMPID` > /dev/null 2>&1
-        rm -f $ONE_HEMPID > /dev/null 2>&1
-    fi
+    onehem-server stop
 }
 
 #------------------------------------------------------------------------------
@@ -157,11 +143,6 @@ start()
 
     if [ ! -x "$ONE_SCHEDULER" ]; then
         echo "Can not find $ONE_SCHEDULER."
-        exit 1
-    fi
-
-    if [ ! -x "$ONE_HEM" ]; then
-        echo "Can not find $ONE_HEM."
         exit 1
     fi
 
@@ -252,16 +233,14 @@ start_hem()
     if [ "$BACKUP" = "true" ];then
         [ -f "$ONE_HEM_LOG" ] && mv $ONE_HEM_LOG{,.$(date '+%Y%m%d%H%M%S')}
     fi
-    $ONE_HEM&
+
+    onehem-server start
 
     LASTRC=$?
-    LASTPID=$!
 
     if [ $LASTRC -ne 0 ]; then
-        echo "Error executing $ONE_HEM"
+        echo "Error starting onehem-server"
         exit 1
-    else
-        echo $LASTPID > $ONE_HEMPID
     fi
 }
 
@@ -298,17 +277,6 @@ case "$1" in
         stop_sched
         sleep 1
         start_sched
-        ;;
-    start-hem)
-        start_hem
-        ;;
-    stop-hem)
-        stop_hem
-        ;;
-    restart-hem)
-        stop_hem
-        sleep 1
-        start_hem
         ;;
     *)
         echo "Usage: one [-f] {start|stop|restart|start-sched|stop-sched|restart-sched|start-hem|stop-hem|restart-hem}" >&2
