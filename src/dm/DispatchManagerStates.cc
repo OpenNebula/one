@@ -101,9 +101,9 @@ void  DispatchManager::stop_success_action(int vid)
         vm->set_state(VirtualMachine::LCM_INIT);
 
         //Set history action field to perform the right TM command on resume
-        if (vm->get_action() == History::NONE_ACTION)
+        if (vm->get_action() == VMActions::NONE_ACTION)
         {
-            vm->set_internal_action(History::STOP_ACTION);
+            vm->set_internal_action(VMActions::STOP_ACTION);
 
             vmpool->update_history(vm);
         }
@@ -161,9 +161,9 @@ void  DispatchManager::undeploy_success_action(int vid)
         vm->set_state(VirtualMachine::LCM_INIT);
 
         //Set history action field to perform the right TM command on resume
-        if (vm->get_action() == History::NONE_ACTION)
+        if (vm->get_action() == VMActions::NONE_ACTION)
         {
-            vm->set_internal_action(History::UNDEPLOY_ACTION);
+            vm->set_internal_action(VMActions::UNDEPLOY_ACTION);
 
             vmpool->update_history(vm);
         }

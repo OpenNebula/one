@@ -14,20 +14,20 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef USER_TEMPLATE_H_
-#define USER_TEMPLATE_H_
+#ifndef GROUP_TEMPLATE_H_
+#define GROUP_TEMPLATE_H_
 
 #include "Template.h"
 
 /**
  *  User Template class, it represents the attributes of an user
  */
-class UserTemplate : public Template
+class GroupTemplate : public Template
 {
 public:
-    UserTemplate() : Template(true,'=',"TEMPLATE") {}
+    GroupTemplate() : Template(false, '=', "TEMPLATE") {}
 
-    ~UserTemplate() = default;
+    ~GroupTemplate() = default;
 
     // -------------------------------------------------------------------------
     // Restricted attributes interface implementation
@@ -49,7 +49,7 @@ public:
 
 private:
     /**
-     *  Restricted attribute list for UserTemplate
+     *  Restricted attribute list for GroupTemplate
      */
     static std::map<std::string, std::set<std::string>> restricted;
 };
@@ -57,4 +57,4 @@ private:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-#endif /*USER_TEMPLATE_H_*/
+#endif /*GROUP_TEMPLATE_H_*/

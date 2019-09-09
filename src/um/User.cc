@@ -267,7 +267,11 @@ string& User::to_xml_extended(string& xml, bool extended) const
 int User::from_xml(const string& xml)
 {
     int rc = 0;
+
     int int_enabled;
+
+    string error;
+
     vector<xmlNodePtr> content;
 
     // Initialize the internal XML object
@@ -308,6 +312,8 @@ int User::from_xml(const string& xml)
 
     ObjectXML::free_nodes(content);
     content.clear();
+
+    rc += vm_actions.set_auth_ops(*obj_template, error);
 
     rc += groups.from_xml(this, "/USER/");
 
@@ -435,5 +441,3 @@ int User::get_default_umask()
     return (umask & 0777);
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */

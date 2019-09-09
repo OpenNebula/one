@@ -356,7 +356,7 @@ void Request::execute(
         const xmlrpc_c::callInfo * _callInfoP,
         xmlrpc_c::value *   const  _retval)
 {
-    RequestAttributes att;
+    RequestAttributes att(auth_op);
 
     att.retval  = _retval;
     att.session = xmlrpc_c::value_string(_paramList.getString(0));
@@ -370,6 +370,8 @@ void Request::execute(
 
     bool authenticated = upool->authenticate(att.session, att.password,
         att.uid, att.gid, att.uname, att.gname, att.group_ids, att.umask);
+
+    att.set_auth_op(vm_action);
 
     if ( log_method_call )
     {
@@ -440,11 +442,9 @@ void Request::execute(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool Request::basic_authorization(int oid,
-                                  AuthRequest::Operation op,
-                                  RequestAttributes& att)
+bool Request::basic_authorization(int oid, RequestAttributes& att)
 {
-    ErrorCode ec = basic_authorization(pool, oid, op, auth_object, att);
+    ErrorCode ec = basic_authorization(pool, oid, auth_object, att);
 
     if (ec == SUCCESS)
     {
@@ -463,7 +463,6 @@ bool Request::basic_authorization(int oid,
 Request::ErrorCode Request::basic_authorization(
         PoolSQL*                pool,
         int                     oid,
-        AuthRequest::Operation  op,
         PoolObjectSQL::ObjectType auth_object,
         RequestAttributes&      att)
 {
@@ -493,7 +492,7 @@ Request::ErrorCode Request::basic_authorization(
 
     AuthRequest ar(att.uid, att.group_ids);
 
-    ar.add_auth(op, perms);
+    ar.add_auth(att.auth_op, perms);
 
     if (UserPool::authorize(ar) == -1)
     {
@@ -942,25 +941,29 @@ int Request::get_info(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Request::ErrorCode Request::as_uid_gid(Template *         tmpl,
-                             RequestAttributes& att)
+Request::ErrorCode Request::as_uid_gid(Template * tmpl, RequestAttributes& att)
 {
     string gname;
     string uname;
 
     PoolObjectAuth uperms;
     PoolObjectAuth gperms;
+
     int uid = att.uid, as_uid = -1, as_gid = -1;
+
     set<int> gids = att.group_ids;
+
     int rc;
 
-    UserPool * upool = Nebula::instance().get_upool();
+    UserPool * upool  = Nebula::instance().get_upool();
     GroupPool * gpool = Nebula::instance().get_gpool();
 
     if ( tmpl->get("AS_UID", as_uid) )
     {
         tmpl->erase("AS_UID");
-        rc = get_info(upool, as_uid, PoolObjectSQL::USER, att, uperms, uname,true);
+
+        rc = get_info(upool, as_uid, PoolObjectSQL::USER, att, uperms, uname,
+                true);
 
         if ( rc == -1 )
         {
@@ -975,7 +978,9 @@ Request::ErrorCode Request::as_uid_gid(Template *         tmpl,
     if ( tmpl->get("AS_GID", as_gid) )
     {
         tmpl->erase("AS_GID");
-        rc = get_info(gpool, as_gid, PoolObjectSQL::GROUP, att, gperms, gname,true);
+
+        rc = get_info(gpool, as_gid, PoolObjectSQL::GROUP, att, gperms, gname,
+                true);
 
         if ( rc == -1 )
         {
@@ -1031,3 +1036,52 @@ Request::ErrorCode Request::as_uid_gid(Template *         tmpl,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void RequestAttributes::set_auth_op(VMActions::Action action)
+{
+    if (action == VMActions::NONE_ACTION)
+    {
+        return;
+    }
+
+    AuthRequest::Operation result = AuthRequest::NONE;
+
+    auto& nd  = Nebula::instance();
+    auto user = nd.get_upool()->get_ro(uid);
+
+    if (user != nullptr)
+    {
+        result = user->get_vm_auth_op(action);
+    }
+
+    user->unlock();
+
+    if (result != AuthRequest::NONE)
+    {
+        auth_op = result;
+        return;
+    }
+
+    auto group = nd.get_gpool()->get_ro(gid);
+
+    if (group != nullptr)
+    {
+        result = group->get_vm_auth_op(action);
+    }
+
+    group->unlock();
+
+    if (result != AuthRequest::NONE)
+    {
+        auth_op = result;
+        return;
+    }
+
+    result = nd.get_vm_auth_op(action);
+
+    if (result != AuthRequest::NONE)
+    {
+        auth_op = result;
+    }
+}
+

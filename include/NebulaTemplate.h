@@ -20,7 +20,7 @@
 #include "Template.h"
 #include "ActionSet.h"
 #include "AuthRequest.h"
-#include "History.h"
+#include "VMActions.h"
 
 #include <map>
 
@@ -90,10 +90,26 @@ public:
     virtual int load_configuration();
 
     /**
+     *  Returns action set from a string of actions seperated by commas
+     */
+    static int set_vm_auth_ops(const std::string& ops_str,
+       ActionSet<VMActions::Action>& ops_set, std::string& error);
+
+    /**
      *  @param  action
      *  @return authorization operation configured for the given VM action
      */
-    AuthRequest::Operation get_vm_auth_op(History::VMAction action);
+    AuthRequest::Operation get_vm_auth_op(VMActions::Action action)
+    {
+        AuthRequest::Operation aop = vm_actions.get_auth_op(action);
+
+        if (aop == AuthRequest::NONE)
+        {
+            aop = AuthRequest::MANAGE;
+        }
+
+        return aop;
+    }
 
 private:
     /**
@@ -107,19 +123,9 @@ private:
     string var_location;
 
     /**
-     *  Set of VM actions that require USE permission
+     *  Default set of VM action permissions
      */
-    ActionSet<History::VMAction> vm_use_actions;
-
-    /**
-     *  Set of VM actions that require MANAGE permission
-     */
-    ActionSet<History::VMAction> vm_manage_actions;
-
-    /**
-     *  Set of VM actions that require ADMIN permission
-     */
-    ActionSet<History::VMAction> vm_admin_actions;
+    VMActions vm_actions;
 
     /**
      *  Sets the defaults value for the template
@@ -177,12 +183,6 @@ private:
      */
     void set_conf_vn(const std::string& name,
                      const std::string& bridge_type);
-
-    /**
-     *  Sets auth permissions for vm operations
-     */
-    int set_vm_auth_ops(std::string& error);
 };
-
 
 #endif /*NEBULA_TEMPLATE_H_*/

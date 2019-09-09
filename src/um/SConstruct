@@ -24,6 +24,7 @@ lib_name='nebula_um'
 source_files=[
     'User.cc',
     'UserPool.cc',
+    'UserTemplate.cc',
     'Quota.cc',
     'QuotaDatastore.cc',
     'QuotaNetwork.cc',

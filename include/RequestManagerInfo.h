@@ -69,7 +69,8 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str) override
+    void to_xml(RequestAttributes& att, PoolObjectSQL * object,
+            string& str) override
     {
         static_cast<VirtualMachine *>(object)->to_xml_extended(str);
     };

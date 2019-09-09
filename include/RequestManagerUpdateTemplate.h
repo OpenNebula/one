@@ -110,12 +110,12 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
         auth_object = PoolObjectSQL::VM;
+        vm_action   = VMActions::UPDATE_ACTION;
+    }
 
-        auth_op     = nd.get_vm_auth_op(History::UPDATE_ACTION);
-    };
+    ~VirtualMachineUpdateTemplate() = default;
 
-    ~VirtualMachineUpdateTemplate(){};
-
+protected:
     int extra_updates(PoolObjectSQL * obj) override
     {
         VirtualMachine * vm;

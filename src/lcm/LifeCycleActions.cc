@@ -55,13 +55,13 @@ void  LifeCycleManager::deploy_action(const LCMAction& la)
 
         if (vm->hasPreviousHistory())
         {
-            if (vm->get_previous_action() == History::STOP_ACTION)
+            if (vm->get_previous_action() == VMActions::STOP_ACTION)
             {
                 vm_state  = VirtualMachine::PROLOG_RESUME;
                 tm_action = TMAction::PROLOG_RESUME;
             }
-            else if (vm->get_previous_action() == History::UNDEPLOY_ACTION ||
-                     vm->get_previous_action() == History::UNDEPLOY_HARD_ACTION)
+            else if (vm->get_previous_action() == VMActions::UNDEPLOY_ACTION ||
+                     vm->get_previous_action() == VMActions::UNDEPLOY_HARD_ACTION)
             {
                 vm_state  = VirtualMachine::PROLOG_UNDEPLOY;
                 tm_action = TMAction::PROLOG_RESUME;
@@ -125,7 +125,7 @@ void  LifeCycleManager::suspend_action(const LCMAction& la)
 
         vm->set_resched(false);
 
-        vm->set_action(History::SUSPEND_ACTION, la.uid(), la.gid(), la.req_id());
+        vm->set_action(VMActions::SUSPEND_ACTION, la.uid(), la.gid(), la.req_id());
 
         vmpool->update_history(vm);
 
@@ -170,7 +170,7 @@ void  LifeCycleManager::stop_action(const LCMAction& la)
 
         vm->set_resched(false);
 
-        vm->set_action(History::STOP_ACTION, la.uid(), la.gid(), la.req_id());
+        vm->set_action(VMActions::STOP_ACTION, la.uid(), la.gid(), la.req_id());
 
         vmpool->update_history(vm);
 
@@ -188,7 +188,7 @@ void  LifeCycleManager::stop_action(const LCMAction& la)
         vm->set_state(VirtualMachine::ACTIVE);
         vm->set_state(VirtualMachine::EPILOG_STOP);
 
-        vm->set_action(History::STOP_ACTION, la.uid(), la.gid(), la.req_id());
+        vm->set_action(VMActions::STOP_ACTION, la.uid(), la.gid(), la.req_id());
 
         vm->set_epilog_stime(time(0));
 
@@ -235,18 +235,18 @@ void  LifeCycleManager::migrate_action(const LCMAction& la)
         //                SAVE_MIGRATE STATE
         //----------------------------------------------------
 
-        History::VMAction action;
+        VMActions::Action action;
 
         switch (la.action())
         {
             case LCMAction::POFF_MIGRATE :
-                action = History::POFF_MIGRATE_ACTION;
+                action = VMActions::POFF_MIGRATE_ACTION;
                 break;
             case LCMAction::POFF_HARD_MIGRATE :
-                action = History::POFF_HARD_MIGRATE_ACTION;
+                action = VMActions::POFF_HARD_MIGRATE_ACTION;
                 break;
             default :
-                action = History::MIGRATE_ACTION;
+                action = VMActions::MIGRATE_ACTION;
                 break;
         }
 
@@ -297,14 +297,14 @@ void  LifeCycleManager::migrate_action(const LCMAction& la)
         if (vm->get_state() == VirtualMachine::POWEROFF)
         {
             vm->set_state(VirtualMachine::PROLOG_MIGRATE_POWEROFF);
-            vm->set_action(History::MIGRATE_ACTION, la.uid(), la.gid(),
+            vm->set_action(VMActions::MIGRATE_ACTION, la.uid(), la.gid(),
                     la.req_id());
 
         }
         else if (vm->get_state() == VirtualMachine::SUSPENDED)
         {
             vm->set_state(VirtualMachine::PROLOG_MIGRATE_SUSPEND);
-            vm->set_action(History::MIGRATE_ACTION, la.uid(), la.gid(),
+            vm->set_action(VMActions::MIGRATE_ACTION, la.uid(), la.gid(),
                     la.req_id());
         }
         else //VirtualMachine::UNKNOWN
@@ -315,7 +315,7 @@ void  LifeCycleManager::migrate_action(const LCMAction& la)
 
             vm->set_previous_etime(the_time);
 
-            vm->set_previous_action(History::MIGRATE_ACTION, la.uid(), la.gid(),
+            vm->set_previous_action(VMActions::MIGRATE_ACTION, la.uid(), la.gid(),
                     la.req_id());
 
             vm->set_previous_vm_info();
@@ -400,12 +400,12 @@ void  LifeCycleManager::live_migrate_action(const LCMAction& la)
 
         vm->set_stime(time(0));
 
-        vm->set_action(History::LIVE_MIGRATE_ACTION, la.uid(), la.gid(),
+        vm->set_action(VMActions::LIVE_MIGRATE_ACTION, la.uid(), la.gid(),
                     la.req_id());
 
         vmpool->update_history(vm);
 
-        vm->set_previous_action(History::LIVE_MIGRATE_ACTION, la.uid(),la.gid(),
+        vm->set_previous_action(VMActions::LIVE_MIGRATE_ACTION, la.uid(),la.gid(),
                     la.req_id());
 
         vmpool->update_previous_history(vm);
@@ -475,14 +475,14 @@ void  LifeCycleManager::shutdown_action(const LCMAction& la, bool hard)
 
         if (hard)
         {
-            vm->set_action(History::TERMINATE_HARD_ACTION, la.uid(), la.gid(),
+            vm->set_action(VMActions::TERMINATE_HARD_ACTION, la.uid(), la.gid(),
                     la.req_id());
 
             vmm->trigger(VMMAction::CANCEL,vid);
         }
         else
         {
-            vm->set_action(History::TERMINATE_ACTION, la.uid(), la.gid(),
+            vm->set_action(VMActions::TERMINATE_ACTION, la.uid(), la.gid(),
                     la.req_id());
 
             vmm->trigger(VMMAction::SHUTDOWN,vid);
@@ -502,7 +502,7 @@ void  LifeCycleManager::shutdown_action(const LCMAction& la, bool hard)
 
         Quotas::vm_check(uid, gid, &quota_tmpl, error);
 
-        vm->set_action(History::TERMINATE_ACTION, la.uid(), la.gid(),
+        vm->set_action(VMActions::TERMINATE_ACTION, la.uid(), la.gid(),
                     la.req_id());
 
         vm->set_epilog_stime(time(0));
@@ -523,7 +523,7 @@ void  LifeCycleManager::shutdown_action(const LCMAction& la, bool hard)
 
         Quotas::vm_check(uid, gid, &quota_tmpl, error);
 
-        vm->set_action(History::TERMINATE_ACTION, la.uid(), la.gid(),
+        vm->set_action(VMActions::TERMINATE_ACTION, la.uid(), la.gid(),
                     la.req_id());
 
         vm->set_epilog_stime(time(0));
@@ -574,14 +574,14 @@ void  LifeCycleManager::undeploy_action(const LCMAction& la, bool hard)
 
         if (hard)
         {
-            vm->set_action(History::UNDEPLOY_HARD_ACTION, la.uid(), la.gid(),
+            vm->set_action(VMActions::UNDEPLOY_HARD_ACTION, la.uid(), la.gid(),
                     la.req_id());
 
             vmm->trigger(VMMAction::CANCEL,vid);
         }
         else
         {
-            vm->set_action(History::UNDEPLOY_ACTION, la.uid(), la.gid(),
+            vm->set_action(VMActions::UNDEPLOY_ACTION, la.uid(), la.gid(),
                     la.req_id());
 
             vmm->trigger(VMMAction::SHUTDOWN,vid);
@@ -608,7 +608,7 @@ void  LifeCycleManager::undeploy_action(const LCMAction& la, bool hard)
         vm->set_state(VirtualMachine::ACTIVE);
         vm->set_state(VirtualMachine::EPILOG_UNDEPLOY);
 
-        vm->set_action(History::UNDEPLOY_ACTION, la.uid(), la.gid(),
+        vm->set_action(VMActions::UNDEPLOY_ACTION, la.uid(), la.gid(),
                     la.req_id());
 
         vm->set_epilog_stime(time(0));
@@ -678,14 +678,14 @@ void  LifeCycleManager::poweroff_action(int vid, bool hard, const LCMAction& la)
 
         if (hard)
         {
-            vm->set_action(History::POWEROFF_HARD_ACTION, la.uid(), la.gid(),
+            vm->set_action(VMActions::POWEROFF_HARD_ACTION, la.uid(), la.gid(),
                     la.req_id());
 
             vmm->trigger(VMMAction::CANCEL,vid);
         }
         else
         {
-            vm->set_action(History::POWEROFF_ACTION, la.uid(), la.gid(),
+            vm->set_action(VMActions::POWEROFF_ACTION, la.uid(), la.gid(),
                     la.req_id());
 
             vmm->trigger(VMMAction::SHUTDOWN,vid);
@@ -742,7 +742,7 @@ void  LifeCycleManager::restore_action(const LCMAction& la)
 
         vm->set_running_stime(the_time);
 
-        vm->set_action(History::RESUME_ACTION, la.uid(), la.gid(), la.req_id());
+        vm->set_action(VMActions::RESUME_ACTION, la.uid(), la.gid(), la.req_id());
 
         vmpool->insert_history(vm);
 
@@ -801,7 +801,7 @@ void  LifeCycleManager::restart_action(const LCMAction& la)
 
         vm->set_running_stime(the_time);
 
-        vm->set_action(History::RESUME_ACTION, la.uid(), la.gid(), la.req_id());
+        vm->set_action(VMActions::RESUME_ACTION, la.uid(), la.gid(), la.req_id());
 
         vmpool->insert_history(vm);
 
@@ -977,12 +977,12 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
     if (dispose)
     {
         vm->set_state(VirtualMachine::CLEANUP_DELETE);
-        vm->set_action(History::DELETE_ACTION, la.uid(), la.gid(), la.req_id());
+        vm->set_action(VMActions::DELETE_ACTION, la.uid(), la.gid(), la.req_id());
     }
     else
     {
         vm->set_state(VirtualMachine::CLEANUP_RESUBMIT);
-        vm->set_action(History::DELETE_RECREATE_ACTION, la.uid(), la.gid(),
+        vm->set_action(VMActions::DELETE_RECREATE_ACTION, la.uid(), la.gid(),
                     la.req_id());
     }
 
@@ -1617,7 +1617,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
         case VirtualMachine::SHUTDOWN:
         case VirtualMachine::SHUTDOWN_POWEROFF:
         case VirtualMachine::SHUTDOWN_UNDEPLOY:
-            if (vm->get_action() == History::TERMINATE_ACTION)
+            if (vm->get_action() == VMActions::TERMINATE_ACTION)
             {
                 vmm->trigger(VMMAction::SHUTDOWN,vid);
             }

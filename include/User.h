@@ -22,6 +22,8 @@
 #include "ObjectCollection.h"
 #include "QuotasSQL.h"
 #include "LoginToken.h"
+#include "VMActions.h"
+#include "AuthRequest.h"
 
 class UserQuotas;
 
@@ -224,6 +226,15 @@ public:
         return groups.contains(_group_id);
     }
 
+    /**
+     *  @return the operation level (admin, manage or use) associated to the
+     *  given action for this group
+     */
+    AuthRequest::Operation get_vm_auth_op(VMActions::Action action) const
+    {
+        return vm_actions.get_auth_op(action);
+    }
+
     // *************************************************************************
     // Quotas
     // *************************************************************************
@@ -241,7 +252,7 @@ public:
     int update_quotas(SqlDB *db)
     {
         return quota.update(oid, db->get_local_db());
-    };
+    }
 
     // *************************************************************************
     // Login tokens
@@ -283,6 +294,11 @@ private:
      */
     ObjectCollection groups;
 
+    /**
+     *  List of VM actions and rights for this user
+     */
+    VMActions vm_actions;
+
     // *************************************************************************
     // Authentication session used to cache authentication calls
     // *************************************************************************
@@ -310,7 +326,7 @@ private:
         ostringstream oss_user(User::db_bootstrap);
 
         return db->exec_local_wr(oss_user);
-    };
+    }
 
     /**
      *  Reads the User (identified with its OID) from the database.
@@ -375,7 +391,7 @@ protected:
         session(0)
     {
         obj_template = new UserTemplate;
-    };
+    }
 
     virtual ~User() = default;
 
@@ -406,7 +422,7 @@ protected:
     {
         string error_str;
         return insert_replace(db, true, error_str);
-    };
+    }
 };
 
 #endif /*USER_H_*/

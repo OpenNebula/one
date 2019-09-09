@@ -572,7 +572,7 @@ public:
      *  Return the Authorization operation for a VM action
      *
      */
-    AuthRequest::Operation get_vm_auth_op(History::VMAction action)
+    AuthRequest::Operation get_vm_auth_op(VMActions::Action action)
     {
         return nebula_configuration->get_vm_auth_op(action);
     }

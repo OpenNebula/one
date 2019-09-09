@@ -30,7 +30,10 @@ class RequestManagerSystem: public Request
 {
 protected:
     RequestManagerSystem(const string& method_name, const string& help,
-            const string& params) :Request(method_name,params,help) {};
+            const string& params) :Request(method_name,params,help) 
+    {
+        auth_op = AuthRequest::ADMIN;
+    };
 
     ~RequestManagerSystem(){};
 
@@ -49,8 +52,7 @@ public:
     SystemVersion():
         RequestManagerSystem("one.system.version",
                           "Returns the OpenNebula version",
-                          "A:s")
-    {};
+                          "A:s") {}
 
     ~SystemVersion(){};
 
@@ -67,8 +69,7 @@ public:
     SystemConfig():
         RequestManagerSystem("one.system.config",
                           "Returns the OpenNebula configuration",
-                          "A:s")
-    {};
+                          "A:s") {}
 
     ~SystemConfig(){};
 
@@ -83,10 +84,7 @@ class SystemSql: public RequestManagerSystem
 {
 public:
     SystemSql():RequestManagerSystem("one.system.sql",
-            "Executes and replicates SQL commands on the DB backend","A:ssb")
-    {
-        auth_op = AuthRequest::ADMIN;
-    };
+            "Executes and replicates SQL commands on the DB backend","A:ssb") {}
 
     ~SystemSql(){};
 
@@ -101,10 +99,7 @@ class SystemSqlQuery: public RequestManagerSystem
 {
 public:
     SystemSqlQuery():RequestManagerSystem("one.system.sqlquery",
-            "Executes SQL queries on the DB backend","A:ss")
-    {
-        auth_op = AuthRequest::ADMIN;
-    };
+            "Executes SQL queries on the DB backend","A:ss") { }
 
     ~SystemSqlQuery(){};
 
@@ -144,10 +139,7 @@ public:
     UserQuotaInfo():
         RequestManagerSystem("one.userquota.info",
                            "Returns the default user quota limits",
-                           "A:s")
-    {
-        auth_op = AuthRequest::ADMIN;
-    };
+                           "A:s") { }
 
     ~UserQuotaInfo(){};
 
@@ -164,10 +156,7 @@ public:
     GroupQuotaInfo():
         RequestManagerSystem("one.groupquota.info",
                            "Returns the default group quota limits",
-                           "A:s")
-    {
-        auth_op = AuthRequest::ADMIN;
-    };
+                           "A:s") { }
 
     ~GroupQuotaInfo(){};
 
@@ -185,10 +174,7 @@ protected:
             const string& help):
         RequestManagerSystem(method_name,
                             help,
-                           "A:ss")
-    {
-        auth_op = AuthRequest::ADMIN;
-    };
+                           "A:ss") { }
 
     ~QuotaUpdate(){};
 
@@ -208,10 +194,7 @@ class UserQuotaUpdate : public QuotaUpdate
 public:
     UserQuotaUpdate():
         QuotaUpdate("one.userquota.update",
-                   "Updates the default user quota limits")
-    {
-        auth_op = AuthRequest::ADMIN;
-    };
+                   "Updates the default user quota limits") { }
 
     int set_default_quota(Template *tmpl, string& error) override;
 
@@ -226,10 +209,7 @@ class GroupQuotaUpdate : public QuotaUpdate
 public:
     GroupQuotaUpdate():
         QuotaUpdate("one.groupquota.update",
-                   "Updates the default group quota limits")
-    {
-        auth_op = AuthRequest::ADMIN;
-    };
+                   "Updates the default group quota limits") { }
 
     int set_default_quota(Template *tmpl, string& error) override;
 

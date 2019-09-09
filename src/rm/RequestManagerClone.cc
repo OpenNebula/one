@@ -89,7 +89,7 @@ Request::ErrorCode RequestManagerClone::clone(int source_id, const string &name,
 
     AuthRequest ar(att.uid, att.group_ids);
 
-    ar.add_auth(auth_op, perms); //USE OBJECT
+    ar.add_auth(att.auth_op, perms); //USE OBJECT
 
     tmpl->to_xml(tmpl_str);
 

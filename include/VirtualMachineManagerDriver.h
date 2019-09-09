@@ -24,7 +24,7 @@
 #include "Mad.h"
 #include "ActionSet.h"
 #include "VirtualMachinePool.h"
-#include "History.h"
+#include "VMActions.h"
 
 using namespace std;
 
@@ -90,7 +90,7 @@ public:
      *    @param action
      *    @return True if it is supported
      */
-    bool is_imported_action_supported(History::VMAction action) const
+    bool is_imported_action_supported(VMActions::Action action) const
     {
         return imported_actions.is_set(action);
     }
@@ -159,7 +159,7 @@ private:
      *  List of available actions for imported VMs. Each bit is an action
      *  as defined in History.h, 1=supported and 0=not supported
      */
-    ActionSet<History::VMAction> imported_actions;
+    ActionSet<VMActions::Action> imported_actions;
 
     /**
      * Set to true if the hypervisor can keep system snapshots across

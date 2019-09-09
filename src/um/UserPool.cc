@@ -51,11 +51,12 @@ string UserPool::oneadmin_name;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-UserPool::UserPool(SqlDB * db,
-                   time_t  __session_expiration_time,
-                   vector<const VectorAttribute *> hook_mads,
-                   const string&             remotes_location,
-                   bool                      is_federation_slave):
+UserPool::UserPool(SqlDB *                          db,
+                   time_t                           __session_expiration_time,
+                   vector<const VectorAttribute *>  hook_mads,
+                   const string&                    remotes_location,
+                   bool                             is_federation_slave,
+                   vector<const SingleAttribute *>& restricted_attrs):
                        PoolSQL(db, User::table)
 {
     int           one_uid    = -1;
@@ -186,6 +187,9 @@ UserPool::UserPool(SqlDB * db,
 
     register_hooks(hook_mads, remotes_location);
 
+    // Set restricted attributes
+    UserTemplate::parse_restricted(restricted_attrs);
+
     return;
 
 error_readoneauth:
@@ -305,7 +309,7 @@ static int master_chgrp(int user_id, int group_id, string& error_str)
 
 /* -------------------------------------------------------------------------- */
 
-int UserPool::allocate (
+int UserPool::allocate(
     int * oid,
     const string& uname,
     int   gid,
