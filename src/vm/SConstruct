@@ -25,7 +25,6 @@ source_files=[
     'History.cc',
     'VirtualMachine.cc',
     'VirtualMachinePool.cc',
-    'VirtualMachineHook.cc',
     'VirtualMachineTemplate.cc',
     'VirtualMachineAttribute.cc',
     'VirtualMachineDisk.cc',

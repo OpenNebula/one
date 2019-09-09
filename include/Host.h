@@ -60,6 +60,80 @@ public:
     };
 
     /**
+     *  Functions to convert to/from string the Host states
+     */
+    static int str_to_state(std::string& st, HostState& state)
+    {
+        one_util::toupper(st);
+
+        state = INIT;
+
+        if ( st == "INIT" ) {
+            state = INIT;
+        } else if ( st == "MONITORING_MONITORED" ) {
+            state = MONITORING_MONITORED;
+        } else if ( st == "MONITORED" ) {
+            state = MONITORED;
+        } else if ( st == "ERROR" ) {
+            state = ERROR;
+        } else if ( st == "DISABLED" ) {
+            state = DISABLED;
+        } else if ( st == "MONITORING_ERROR" ) {
+            state = MONITORING_ERROR;
+        } else if ( st == "MONITORING_INIT" ) {
+            state = MONITORING_INIT;
+        } else if ( st == "MONITORING_DISABLED" ) {
+            state = MONITORING_DISABLED;
+        } else if ( st == "OFFLINE" ) {
+            state = OFFLINE;
+        }
+        else
+        {
+            return -1;
+        }
+
+        return 0;
+    }
+
+    static string& state_to_str(std::string& st, HostState state)
+    {
+        st = "";
+
+        switch (state)
+        {
+            case INIT:
+                st = "INIT";
+                break;
+            case MONITORING_MONITORED:
+                st = "MONITORING_MONITORED";
+                break;
+            case MONITORED:
+                st = "MONITORED";
+                break;
+            case ERROR:
+                st = "ERROR";
+                break;
+            case DISABLED:
+                st = "DISABLED";
+                break;
+            case MONITORING_ERROR:
+                st = "MONITORING_ERROR";
+                break;
+            case MONITORING_INIT:
+                st = "MONITORING_INIT";
+                break;
+            case MONITORING_DISABLED:
+                st = "MONITORING_DISABLED";
+                break;
+            case OFFLINE:
+                st = "OFFLINE";
+                break;
+        }
+
+        return st;
+    }
+
+    /**
      * Function to print the Host object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
@@ -106,6 +180,20 @@ public:
      {
         state = ERROR;
      }
+
+    /**
+     *  Test if the Host has changed state since last time prev state was set
+     *    @return true if Host changed state
+     */
+    bool has_changed_state();
+
+    /**
+     *  Sets the previous state to the current one
+     */
+    void set_prev_state()
+    {
+        prev_state = state;
+    };
 
      /**
       *  Updates the Host's last_monitored time stamp.
@@ -388,6 +476,7 @@ private:
      *  The state of the Host
      */
     HostState   state;
+    HostState   prev_state;
 
     /**
      *  Name of the IM driver used to monitor this host

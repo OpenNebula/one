@@ -380,4 +380,29 @@ public:
     };
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class HookInfo : public RequestManagerInfo
+{
+public:
+    HookInfo():
+        RequestManagerInfo("one.hook.info",
+                           "Returns hook information")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_hkpool();
+        auth_object = PoolObjectSQL::HOOK;
+    };
+
+    ~HookInfo(){};
+
+    void to_xml(RequestAttributes& att, PoolObjectSQL * object,
+        string& str)
+    {
+        (static_cast<Hook *>(object))->to_xml_extended(str);
+    };
+};
+
+
 #endif

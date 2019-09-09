@@ -501,5 +501,23 @@ public:
     ~VMGroupDelete(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class HookDelete : public RequestManagerDelete
+{
+public:
+    HookDelete():
+        RequestManagerDelete("one.hook.delete",
+                             "Deletes a hook")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_hkpool();
+        auth_object = PoolObjectSQL::HOOK;
+    };
+
+    ~HookDelete(){};
+};
+
 #endif
 

@@ -46,8 +46,6 @@ public:
             const string&                    __default_dev_prefix,
             const string&                    __default_cdrom_dev_prefix,
             vector<const SingleAttribute *>& restricted_attrs,
-            vector<const VectorAttribute *>& hook_mads,
-            const string&                    remotes_location,
             const vector<const SingleAttribute *>& _inherit_image_attrs);
 
     ~ImagePool(){};

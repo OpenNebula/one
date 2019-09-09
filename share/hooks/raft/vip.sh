@@ -42,6 +42,10 @@ leader)
         if systemctl is-enabled opennebula-gate >/dev/null 2>&1; then
             sudo -n systemctl start opennebula-gate
         fi
+
+        if systemctl is-enabled opennebula-hem >/dev/null 2>&1; then
+            sudo -n systemctl start opennebula-hem
+        fi
     else
         if [ -e /usr/lib/one/oneflow/oneflow-server.rb ]; then
             sudo -n service opennebula-flow start
@@ -49,6 +53,10 @@ leader)
 
         if [ -e /usr/lib/one/onegate/onegate-server.rb ]; then
             sudo -n service opennebula-gate start
+        fi
+
+        if [ -e /usr/lib/one/onehem/onehem-server.rb ]; then
+            sudo -n service opennebula-hem start
         fi
     fi
     ;;
@@ -70,6 +78,12 @@ follower)
         then
             sudo -n systemctl stop opennebula-gate
         fi
+
+         if systemctl is-enabled opennebula-hem >/dev/null 2>&1 ||
+           systemctl is-active  opennebula-hem >/dev/null 2>&1;
+        then
+            sudo -n systemctl stop opennebula-hem
+        fi
     else
         if [ -e /usr/lib/one/oneflow/oneflow-server.rb ]; then
             sudo -n service opennebula-flow stop
@@ -77,6 +91,10 @@ follower)
 
         if [ -e /usr/lib/one/onegate/onegate-server.rb ]; then
             sudo -n service opennebula-gate stop
+        fi
+
+        if [ -e /usr/lib/one/onehem/onehem-server.rb ]; then
+            sudo -n service opennebula-hem stop
         fi
     fi
     ;;

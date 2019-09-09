@@ -101,14 +101,14 @@ int MarketPlaceManager::import_app(
             goto error_type;
     }
 
-    msg = format_message(app_data, market_data, image_data + ds_data);
-
     mpmd = get();
 
     if ( mpmd == 0 )
     {
         goto error_driver;
     }
+
+    msg = format_message(app_data, market_data, image_data + ds_data);
 
     mpmd->importapp(appid, *msg);
 

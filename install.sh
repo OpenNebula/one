@@ -104,6 +104,7 @@ if [ -z "$ROOT" ] ; then
     ONEGATE_LOCATION="$LIB_LOCATION/onegate"
     SUNSTONE_LOCATION="$LIB_LOCATION/sunstone"
     ONEFLOW_LOCATION="$LIB_LOCATION/oneflow"
+    ONEHEM_LOCATION="$LIB_LOCATION/onehem"
     SYSTEM_DS_LOCATION="$VAR_LOCATION/datastores/0"
     DEFAULT_DS_LOCATION="$VAR_LOCATION/datastores/1"
     RUN_LOCATION="/var/run/one"
@@ -154,7 +155,8 @@ if [ -z "$ROOT" ] ; then
                    $INCLUDE_LOCATION $SHARE_LOCATION $DOCS_LOCATION \
                    $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION \
                    $SYSTEM_DS_LOCATION $DEFAULT_DS_LOCATION $MAN_LOCATION \
-                   $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION $MAIN_JS_LOCATION"
+                   $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION \
+                   $MAIN_JS_LOCATION $ONEHEM_LOCATION"
 
         DELETE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION $VAR_LOCATION \
                      $RUN_LOCATION $SHARE_DIRS"
@@ -170,6 +172,7 @@ else
     ONEGATE_LOCATION="$LIB_LOCATION/onegate"
     SUNSTONE_LOCATION="$LIB_LOCATION/sunstone"
     ONEFLOW_LOCATION="$LIB_LOCATION/oneflow"
+    ONEHEM_LOCATION="$LIB_LOCATION/onehem"
     SYSTEM_DS_LOCATION="$VAR_LOCATION/datastores/0"
     DEFAULT_DS_LOCATION="$VAR_LOCATION/datastores/1"
     INCLUDE_LOCATION="$ROOT/include"
@@ -207,7 +210,8 @@ else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $SYSTEM_DS_LOCATION \
                    $DEFAULT_DS_LOCATION $MAN_LOCATION $DOCS_LOCATION \
-                   $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION $MAIN_JS_LOCATION"
+                   $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION \
+                   $MAIN_JS_LOCATION $ONEHEM_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
 
@@ -637,6 +641,15 @@ INSTALL_ONEFLOW_ETC_FILES=(
     ONEFLOW_ETC_FILES:$ETC_LOCATION
 )
 
+INSTALL_ONEHEM_FILES=(
+    ONEHEM_FILES:$ONEHEM_LOCATION
+    ONEHEM_BIN_FILES:$BIN_LOCATION
+)
+
+INSTALL_ONEHEM_ETC_FILES=(
+    ONEHEM_ETC_FILES:$ETC_LOCATION
+)
+
 INSTALL_DOCKER_MACHINE_FILES=(
     DOCKER_MACHINE_BIN_FILES:$BIN_LOCATION
 )
@@ -684,6 +697,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/onemarketapp \
            src/cli/onevcenter \
            src/cli/onevntemplate \
+           src/cli/onehook \
            src/onedb/onedb \
            share/scripts/one"
 
@@ -1735,7 +1749,9 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/marketplaceapp.rb \
                             src/oca/ruby/opennebula/utils.rb \
                             src/oca/ruby/opennebula/vntemplate_pool.rb \
-                            src/oca/ruby/opennebula/vntemplate.rb"
+                            src/oca/ruby/opennebula/vntemplate.rb \
+                            src/oca/ruby/opennebula/hook_pool.rb \
+                            src/oca/ruby/opennebula/hook.rb"
 
 #-------------------------------------------------------------------------------
 # Common Cloud Files
@@ -1879,7 +1895,8 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onemarketapp_helper.rb \
                    src/cli/one_helper/onevcenter_helper.rb \
                    src/cli/one_helper/onemarket_helper.rb \
-                   src/cli/one_helper/onevntemplate_helper.rb"
+                   src/cli/one_helper/onevntemplate_helper.rb \
+                   src/cli/one_helper/onehook_helper.rb"
 
 CLI_BIN_FILES="src/cli/onevm \
                src/cli/onehost \
@@ -1902,7 +1919,8 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/onevrouter \
                src/cli/onemarketapp \
                src/cli/onemarket \
-               src/cli/onevntemplate"
+               src/cli/onevntemplate \
+               src/cli/onehook"
 
 CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onehost.yaml \
@@ -1923,7 +1941,8 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onevrouter.yaml \
                 src/cli/etc/onemarketapp.yaml \
                 src/cli/etc/onemarket.yaml \
-                src/cli/etc/onevntemplate.yaml"
+                src/cli/etc/onevntemplate.yaml \
+                src/cli/etc/onehook.yaml"
 
 #-----------------------------------------------------------------------------
 # Provision files
@@ -2030,7 +2049,6 @@ SUNSTONE_PUBLIC_DEV_DIR="src/sunstone/public"
 SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb \
   src/sunstone/routes/vcenter.rb \
   src/sunstone/routes/support.rb"
-
 
 SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/app.min.css \
                 src/sunstone/public/css/opensans/opensans.woff \
@@ -2169,7 +2187,6 @@ ONEGATE_ETC_FILES="src/onegate/etc/onegate-server.conf"
 # OneFlow files
 #-----------------------------------------------------------------------------
 
-
 ONEFLOW_FILES="src/flow/oneflow-server.rb \
                 src/flow/config.ru"
 
@@ -2192,6 +2209,15 @@ ONEFLOW_LIB_MODELS_FILES="src/flow/lib/models/role.rb \
                           src/flow/lib/models/service.rb \
                           src/flow/lib/models/service_template_pool.rb \
                           src/flow/lib/models/service_template.rb"
+
+#-----------------------------------------------------------------------------
+# OneHem files
+#-----------------------------------------------------------------------------
+ONEHEM_FILES="src/hem/onehem-server.rb"
+
+ONEHEM_BIN_FILES="src/hem/bin/onehem-server"
+
+ONEHEM_ETC_FILES="src/hem/etc/onehem-server.conf"
 
 #-----------------------------------------------------------------------------
 # Docker Machine files
@@ -2316,12 +2342,14 @@ elif [ "$SUNSTONE_DEV" = "no" ]; then
                  ${INSTALL_SUNSTONE_FILES[@]} ${INSTALL_SUNSTONE_PUBLIC_MINIFIED_FILES[@]}\
                  ${INSTALL_ONEGATE_FILES[@]} \
                  ${INSTALL_ONEFLOW_FILES[@]} \
+                 ${INSTALL_ONEHEM_FILES[@]} \
                  ${INSTALL_ONEPROVISION_FILES[@]}"
 else
     INSTALL_SET="${INSTALL_FILES[@]} \
                  ${INSTALL_SUNSTONE_FILES[@]} ${INSTALL_SUNSTONE_PUBLIC_DEV_DIR[@]}\
                  ${INSTALL_ONEGATE_FILES[@]} \
                  ${INSTALL_ONEFLOW_FILES[@]} \
+                 ${INSTALL_ONEHEM_FILES[@]} \
                  ${INSTALL_ONEPROVISION_FILES[@]}"
 fi
 
@@ -2347,6 +2375,7 @@ if [ "$INSTALL_ETC" = "yes" ] ; then
         INSTALL_ETC_SET="${INSTALL_ETC_FILES[@]} \
                          ${INSTALL_SUNSTONE_ETC_FILES[@]} \
                          ${INSTALL_ONEGATE_ETC_FILES[@]} \
+                         ${INSTALL_ONEHEM_ETC_FILES[@]} \
                          ${INSTALL_ONEFLOW_ETC_FILES[@]}"
     fi
 

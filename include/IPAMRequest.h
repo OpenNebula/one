@@ -82,7 +82,7 @@ public:
         aux_str     = one_util::base64_encode(oss.str());
         action_data = *aux_str;
 
-        free(aux_str);
+        delete aux_str;
 
         return action_data;
     }

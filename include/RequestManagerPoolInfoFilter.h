@@ -581,4 +581,23 @@ public:
     };
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class HookPoolInfo : public RequestManagerPoolInfoFilter
+{
+public:
+    HookPoolInfo():
+        RequestManagerPoolInfoFilter("one.hookpool.info",
+                                     "Returns the hook pool",
+                                     "A:siii")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_hkpool();
+        auth_object = PoolObjectSQL::HOOK;
+    };
+
+    ~HookPoolInfo(){};
+};
+
 #endif

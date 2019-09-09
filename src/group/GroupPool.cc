@@ -37,16 +37,14 @@ const int    GroupPool::USERS_ID      = 1;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-GroupPool::GroupPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
-    const string& remotes_location, bool is_federation_slave,
-    vector<const SingleAttribute *>& restricted_attrs) :
-        PoolSQL(db, Group::table)
+GroupPool::GroupPool(SqlDB * db, bool is_slave,
+        vector<const SingleAttribute *>& restricted_attrs):PoolSQL(db, Group::table)
 {
     ostringstream oss;
     string        error_str;
 
     //Federation slaves do not need to init the pool
-    if (is_federation_slave)
+    if (is_slave)
     {
         return;
     }
@@ -80,8 +78,6 @@ GroupPool::GroupPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
 
         set_lastOID(99);
     }
-
-    register_hooks(hook_mads, remotes_location);
 
     // Set restricted attributes
     GroupTemplate::parse_restricted(restricted_attrs);
@@ -214,10 +210,6 @@ int GroupPool::drop(PoolObjectSQL * objsql, string& error_msg)
     {
         error_msg = "SQL DB error";
         rc = -1;
-    }
-    else
-    {
-        do_hooks(objsql, Hook::REMOVE);
     }
 
     return rc;

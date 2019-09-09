@@ -86,7 +86,29 @@ public:
      */
     xmlrpc_c::serverAbyss * create_abyss();
 
+    bool exist_method(const string& call)
+    {
+        return RequestManagerRegistry.exist(call);
+    }
+
 private:
+
+    struct NebulaRegistry
+    {
+        std::set<std::string> registered_methods;
+        xmlrpc_c::registry registry;
+
+        void addMethod(std::string const name, xmlrpc_c::methodPtr const methodP)
+        {
+            registered_methods.insert(name);
+            registry.addMethod(name, methodP);
+        };
+
+        bool exist(const string& call)
+        {
+            return registered_methods.find(call) != registered_methods.end();
+        }
+    };
 
     //--------------------------------------------------------------------------
     // Friends, thread functions require C-linkage
@@ -159,7 +181,7 @@ private:
     /**
      *  To register XML-RPC methods
      */
-    xmlrpc_c::registry RequestManagerRegistry;
+    NebulaRegistry RequestManagerRegistry;
 
     /**
      *  Register the XML-RPC API Calls

@@ -492,4 +492,26 @@ public:
     }
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class HookRename: public RequestManagerRename
+{
+public:
+    HookRename():
+        RequestManagerRename("one.hook.rename", "Renames a hook")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_hkpool();
+        auth_object = PoolObjectSQL::HOOK;
+    };
+
+    ~HookRename(){};
+
+    int exist(const string& name, int uid)
+    {
+        return pool->exist(name, uid);
+    }
+};
+
 #endif

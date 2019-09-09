@@ -21,6 +21,7 @@
 #include "MarketPlacePool.h"
 #include "MarketPlaceAppPool.h"
 #include "VirtualMachineDisk.h"
+#include "HookPool.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -265,6 +266,7 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
         cluster->unlock();
     }
 
+    att.resp_id = id;
     success_response(id, att);
 }
 
@@ -648,6 +650,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
         ds->unlock();
     }
 
+    att.resp_id = id;
     success_response(id, att);
 }
 
@@ -1331,3 +1334,37 @@ Request::ErrorCode VMGroupAllocate::pool_allocate(
     return Request::SUCCESS;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode HookAllocate::pool_allocate(
+        xmlrpc_c::paramList const&  paramList,
+        Template *                  tmpl,
+        int&                        id,
+        RequestAttributes&          att)
+{
+    std::string hk_type;
+
+    HookPool * hkpool = static_cast<HookPool *>(pool);
+
+    tmpl->get("TYPE", hk_type);
+
+    if (Hook::str_to_hook_type(hk_type) == Hook::UNDEFINED)
+    {
+        ostringstream oss;
+
+        oss << "Invalid Hook type: " << hk_type;
+        att.resp_msg = oss.str();
+
+        return Request::INTERNAL;
+    }
+
+    id = hkpool->allocate(tmpl, att.resp_msg);
+
+    if (id < 0)
+    {
+        return Request::INTERNAL;
+    }
+
+    return Request::SUCCESS;
+}

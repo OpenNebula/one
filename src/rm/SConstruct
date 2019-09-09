@@ -51,7 +51,8 @@ source_files=[
     'RequestManagerMarketPlaceApp.cc',
     'RequestManagerVirtualRouter.cc',
     'RequestManagerSecurityGroup.cc',
-    'RequestManagerVNTemplate.cc'
+    'RequestManagerVNTemplate.cc',
+    'RequestManagerHook.cc'
 ]
 
 # Build library

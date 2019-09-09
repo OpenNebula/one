@@ -405,4 +405,22 @@ public:
     ~VMGroupUpdateTemplate(){};
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class HookUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    HookUpdateTemplate():
+        RequestManagerUpdateTemplate("one.hook.update",
+                                     "Updates a hook template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_hkpool();
+        auth_object = PoolObjectSQL::HOOK;
+    };
+
+    ~HookUpdateTemplate(){};
+};
+
 #endif

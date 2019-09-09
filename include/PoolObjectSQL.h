@@ -71,7 +71,8 @@ public:
         MARKETPLACE    = 0x0008000000000000LL,
         MARKETPLACEAPP = 0x0010000000000000LL,
         VMGROUP        = 0x0020000000000000LL,
-        VNTEMPLATE     = 0x0040000000000000LL
+        VNTEMPLATE     = 0x0040000000000000LL,
+        HOOK           = 0x0080000000000000LL
     };
 
     /**
@@ -110,6 +111,7 @@ public:
             case MARKETPLACEAPP: return "MARKETPLACEAPP"; break;
             case VMGROUP:        return "VMGROUP"; break;
             case VNTEMPLATE:     return "VNTEMPLATE"; break;
+            case HOOK:           return "HOOK"; break;
             default:             return "";
         }
     };
@@ -135,6 +137,7 @@ public:
         else if ( type == "MARKETPLACEAPP" ) return MARKETPLACEAPP;
         else if ( type == "VMGROUP" )        return VMGROUP;
         else if ( type == "VNTEMPLATE" )     return VNTEMPLATE;
+        else if ( type == "HOOK" )           return HOOK;
         else                                 return NONE;
     };
 

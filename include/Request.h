@@ -51,6 +51,7 @@ public:
     int umask;                /**< User umask for new objects */
 
     xmlrpc_c::value * retval; /**< Return value from libxmlrpc-c */
+    string retval_xml;        /**< Return value in XML format */
 
     PoolObjectSQL::ObjectType resp_obj; /**< object type */
     int                       resp_id;  /**< Id of the object */
@@ -59,6 +60,8 @@ public:
     uint64_t replication_idx;
 
     AuthRequest::Operation auth_op;   /**< Auth operation for the request */
+
+    bool success; /**< True if the call was successfull false otherwise */
 
     RequestAttributes(AuthRequest::Operation api_auth_op)
     {
@@ -86,7 +89,8 @@ public:
 
         umask    = ra.umask;
 
-        retval   = ra.retval;
+        retval     = ra.retval;
+        retval_xml = ra.retval_xml;
 
         resp_obj = ra.resp_obj;
         resp_id  = ra.resp_id;
@@ -116,7 +120,8 @@ public:
 
         umask    = ra.umask;
 
-        retval   = ra.retval;
+        retval     = ra.retval;
+        retval_xml = ra.retval_xml;
 
         resp_obj = PoolObjectSQL::NONE;
         resp_id  = -1;
@@ -149,6 +154,71 @@ public:
      *  @param action perfomed on the VM object
      */
     void set_auth_op(VMActions::Action action);
+};
+
+class ParamList
+{
+public:
+
+    ParamList(const xmlrpc_c::paramList * paramList):_paramList(paramList){};
+
+    string& to_string(string& str) const
+    {
+        ostringstream oss;
+
+        oss << get_value_as_string(0);
+
+        for (unsigned int i = 1; i < _paramList->size(); i++)
+        {
+            oss << " " << get_value_as_string(i);
+        }
+
+        str = oss.str();
+
+        return str;
+    };
+
+    string get_value_as_string(int index) const
+    {
+        ostringstream oss;
+        xmlrpc_c::value::type_t type((*_paramList)[index].type());
+
+        if( type == xmlrpc_c::value::TYPE_INT)
+        {
+            oss << _paramList->getInt(index);
+            return oss.str();
+        }
+        else if( type == xmlrpc_c::value::TYPE_I8 )
+        {
+            oss << _paramList->getI8(index);
+            return oss.str();
+        }
+        else if( type == xmlrpc_c::value::TYPE_BOOLEAN )
+        {
+            oss << _paramList->getBoolean(index);
+            return oss.str();
+        }
+        else if( type == xmlrpc_c::value::TYPE_STRING )
+        {
+            oss << _paramList->getString(index);
+            return oss.str();
+        }
+        else if( type == xmlrpc_c::value::TYPE_DOUBLE )
+        {
+            oss << _paramList->getDouble(index);
+            return oss.str();
+        }
+
+        return oss.str();
+    };
+
+    int size() const
+    {
+        return _paramList->size();
+    };
+
+private:
+    const xmlrpc_c::paramList * _paramList;
 };
 
 /**

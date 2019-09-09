@@ -401,7 +401,6 @@ void OpenNebulaTemplate::set_conf_vn(const std::string& name,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-
 void OpenNebulaTemplate::set_conf_default()
 {
     VectorAttribute *   vattribute;
@@ -642,6 +641,19 @@ void OpenNebulaTemplate::set_conf_default()
             "rename, resize, update, disk-saveas");
 
     set_conf_single("VM_USE_OPERATIONS", "");
+/*/
+#*******************************************************************************
+# Hook Log Configuration
+#*******************************************************************************
+*/
+
+    vvalue.clear();
+
+    vvalue.insert(make_pair("LOG_RETENTION","10"));
+    vattribute = new VectorAttribute("HOOK_LOG_CONF", vvalue);
+
+    conf_default.insert(make_pair(vattribute->name(),vattribute));
+
 }
 
 /* -------------------------------------------------------------------------- */

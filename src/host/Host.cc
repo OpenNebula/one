@@ -37,6 +37,7 @@ Host::Host(
         PoolObjectSQL(id,HOST,_hostname,-1,-1,"","",table),
         ClusterableSingle(_cluster_id, _cluster_name),
         state(INIT),
+        prev_state(INIT),
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),
         last_monitored(0),
@@ -511,6 +512,39 @@ void Host::offline()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static Host::HostState trigger_state(Host::HostState state)
+{
+    switch(state)
+    {
+        case Host::INIT:
+        case Host::MONITORED:
+        case Host::ERROR:
+        case Host::DISABLED:
+        case Host::OFFLINE:
+            return state;
+        case Host::MONITORING_ERROR:
+            return Host::ERROR;
+        case Host::MONITORING_DISABLED:
+            return Host::DISABLED;
+        case Host::MONITORING_MONITORED:
+            return Host::MONITORED;
+        case Host::MONITORING_INIT:
+            return Host::INIT;
+    }
+
+    return state;
+}
+
+// -----------------------------------------------------------------------------
+
+bool Host::has_changed_state()
+{
+    return trigger_state(prev_state) != trigger_state(state);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void Host::error_info(const string& message, set<int> &vm_ids)
 {
     ostringstream oss;
@@ -611,6 +645,7 @@ string& Host::to_xml(string& xml) const
        "<ID>"            << oid              << "</ID>"              <<
        "<NAME>"          << name             << "</NAME>"            <<
        "<STATE>"         << state            << "</STATE>"           <<
+       "<PREV_STATE>"    << prev_state       << "</PREV_STATE>"      <<
        "<IM_MAD>"        << one_util::escape_xml(im_mad_name)  << "</IM_MAD>" <<
        "<VM_MAD>"        << one_util::escape_xml(vmm_mad_name) << "</VM_MAD>" <<
        "<LAST_MON_TIME>" << last_monitored   << "</LAST_MON_TIME>"   <<
@@ -634,6 +669,7 @@ int Host::from_xml(const string& xml)
     vector<xmlNodePtr> content;
 
     int int_state;
+    int int_prev_state;
     int rc = 0;
 
     // Initialize the internal XML object
@@ -643,6 +679,7 @@ int Host::from_xml(const string& xml)
     rc += xpath(oid, "/HOST/ID", -1);
     rc += xpath(name, "/HOST/NAME", "not_found");
     rc += xpath(int_state, "/HOST/STATE", 0);
+    rc += xpath(int_prev_state, "/HOST/PREV_STATE", 0);
 
     rc += xpath(im_mad_name, "/HOST/IM_MAD", "not_found");
     rc += xpath(vmm_mad_name, "/HOST/VM_MAD", "not_found");
@@ -653,6 +690,7 @@ int Host::from_xml(const string& xml)
     rc += xpath(cluster,    "/HOST/CLUSTER",    "not_found");
 
     state = static_cast<HostState>( int_state );
+    prev_state = static_cast<HostState>( int_prev_state );
 
     // Set the owner and group to oneadmin
     set_user(0, "");

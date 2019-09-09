@@ -31,16 +31,13 @@ class VirtualMachinePool : public PoolSQL
 {
 public:
 
-    VirtualMachinePool(SqlDB *                      db,
-                       vector<const VectorAttribute *> hook_mads,
-                       const string&                hook_location,
-                       const string&                remotes_location,
+    VirtualMachinePool(SqlDB * db,
                        vector<const SingleAttribute *>& restricted_attrs,
-                       time_t                       expire_time,
-                       bool                         on_hold,
-                       float                        default_cpu_cost,
-                       float                        default_mem_cost,
-                       float                        default_disk_cost);
+                       time_t  expire_time,
+                       bool    on_hold,
+                       float   default_cpu_cost,
+                       float   default_mem_cost,
+                       float   default_disk_cost);
 
     ~VirtualMachinePool(){};
 
@@ -140,21 +137,7 @@ public:
      *
      *    @return 0 on success.
      */
-    virtual int update(PoolObjectSQL * objsql)
-    {
-        VirtualMachine * vm = dynamic_cast<VirtualMachine *>(objsql);
-
-        if ( vm == 0 )
-        {
-            return -1;
-        }
-
-        do_hooks(objsql, Hook::UPDATE);
-
-        vm->set_prev_state();
-
-        return vm->update(db);
-    };
+    virtual int update(PoolObjectSQL * objsql);
 
     /**
      *  Gets a VM ID by its deploy_id, the dedploy_id - VM id mapping is keep

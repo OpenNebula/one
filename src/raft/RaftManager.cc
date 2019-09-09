@@ -145,14 +145,8 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
         }
         else
         {
-            if (cmd[0] != '/')
-            {
-                ostringstream cmd_os;
-                cmd_os << remotes_location << "/hooks/" << cmd;
-                cmd = cmd_os.str();
-            }
-
-            leader_hook = new RaftLeaderHook(cmd, arg);
+            leader_hook = new ExecuteHook("RAFT_LEADER_HOOK", cmd, arg,
+                    remotes_location);
         }
     }
 
@@ -172,20 +166,14 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
         }
         else
         {
-            if (cmd[0] != '/')
-            {
-                ostringstream cmd_os;
-                cmd_os << remotes_location << "/hooks/" << cmd;
-                cmd = cmd_os.str();
-            }
-
-            follower_hook = new RaftFollowerHook(cmd, arg);
+            follower_hook = new ExecuteHook("RAFT_FOLLOWER_HOOK", cmd, arg,
+                    remotes_location);
         }
     }
 
     if ( state == FOLLOWER && follower_hook != 0 )
     {
-        follower_hook->do_hook(0);
+        follower_hook->execute();
     }
 };
 
@@ -441,7 +429,7 @@ void RaftManager::leader()
 
     if ( leader_hook != 0 )
     {
-        leader_hook->do_hook(0);
+        leader_hook->execute();
     }
 
     state  = LEADER;
@@ -530,7 +518,7 @@ void RaftManager::follower(unsigned int _term)
 
     if ( state == LEADER && follower_hook != 0 )
     {
-        follower_hook->do_hook(0);
+        follower_hook->execute();
     }
 
     replica_manager.stop_replica_threads();

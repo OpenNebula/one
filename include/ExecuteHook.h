@@ -14,20 +14,53 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "RaftHook.h"
-#include "Nebula.h"
+#ifndef EXECUTE_HOOK_H_
+#define EXECUTE_HOOK_H_
 
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
+#define EXECUTE_HOOK_MAX_ARG 50
 
-void RaftHook::do_hook(void *arg)
+#include <string>
+#include <sstream>
+#include <iostream>
+
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <pthread.h>
+
+extern "C" void * execute_thread(void *arg);
+
+class ExecuteHook
 {
-    Nebula& ne                    = Nebula::instance();
-    HookManager * hm              = ne.get_hm();
-    const HookManagerDriver * hmd = hm->get();
+public:
+    ExecuteHook(const std::string& _name, const std::string& _cmd,
+        const std::string& _arg, const std::string& rl);
 
-    if ( hmd != 0 )
-    {
-        hmd->execute(-1, name, cmd, args);
-    }
-}
+    virtual ~ExecuteHook() = default;
+
+    void execute();
+
+private:
+    friend void * execute_thread(void *arg);
+
+    /**
+     *  Name of the Hook
+     */
+    std::string name;
+
+    /**
+     *  The command to be executed
+     */
+    std::string cmd;
+
+    /**
+     *  The arguments for the command
+     */
+    const char * c_args[EXECUTE_HOOK_MAX_ARG];
+
+    std::string args[EXECUTE_HOOK_MAX_ARG];
+};
+
+#endif

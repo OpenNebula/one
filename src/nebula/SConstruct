@@ -57,6 +57,7 @@ env.Prepend(LIBS=[
     'nebula_vmtemplate',
     'nebula_document',
     'nebula_zone',
+    'nebula_raft',
     'nebula_hm',
     'nebula_common',
     'nebula_sql',
@@ -70,7 +71,6 @@ env.Prepend(LIBS=[
     'nebula_marketplace',
     'nebula_ipamm',
     'nebula_vmgroup',
-    'nebula_raft',
     'crypto',
     'xml2'
 ])

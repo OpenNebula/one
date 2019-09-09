@@ -741,4 +741,39 @@ public:
                                      RequestAttributes&          att) override;
 };
 
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class HookAllocate : public RequestManagerAllocate
+{
+public:
+    HookAllocate():
+        RequestManagerAllocate("one.hook.allocate",
+                               "Allocates a new hook",
+                               "A:ss",
+                               true)
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_hkpool();
+        auth_object = PoolObjectSQL::HOOK;
+    };
+
+    ~HookAllocate(){};
+
+    /* --------------------------------------------------------------------- */
+
+    Template * get_object_template()
+    {
+        return new Template;
+    };
+
+    Request::ErrorCode pool_allocate(xmlrpc_c::paramList const& _paramList,
+                      Template * tmpl,
+                      int& id,
+                      RequestAttributes& att);
+
+
+};
+
 #endif

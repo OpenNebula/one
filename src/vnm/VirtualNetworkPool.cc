@@ -43,8 +43,6 @@ VirtualNetworkPool::VirtualNetworkPool(
     const string&                       prefix,
     int                                 __default_size,
     vector<const SingleAttribute *>&    restricted_attrs,
-    vector<const VectorAttribute *>&    hook_mads,
-    const string&                       remotes_location,
     const vector<const SingleAttribute *>& _inherit_attrs,
     const VectorAttribute *             _vlan_conf,
     const VectorAttribute *             _vxlan_conf):
@@ -94,8 +92,6 @@ VirtualNetworkPool::VirtualNetworkPool(
     VirtualNetworkTemplate::parse_restricted(restricted_attrs);
 
     AddressRange::set_restricted_attributes(restricted_attrs);
-
-    register_hooks(hook_mads, remotes_location);
 
     for (it = _inherit_attrs.begin(); it != _inherit_attrs.end(); it++)
     {

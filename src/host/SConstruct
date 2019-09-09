@@ -24,8 +24,7 @@ lib_name='nebula_host'
 source_files=[
     'Host.cc',
     'HostShare.cc',
-    'HostPool.cc',
-    'HostHook.cc'
+    'HostPool.cc'
 ]
 
 # Build library

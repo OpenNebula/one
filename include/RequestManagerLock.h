@@ -381,4 +381,39 @@ public:
 
     ~VMGroupUnlock(){};
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class HookLock: public RequestManagerLock
+{
+public:
+    HookLock():
+        RequestManagerLock("one.hook.lock",
+                           "Lock a Hook"){
+        Nebula& nd  = Nebula::instance();
+        auth_object = PoolObjectSQL::HOOK;
+        pool        =  nd.get_hkpool();
+    };
+
+    ~HookLock(){};
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class HookUnlock: public RequestManagerUnlock
+{
+public:
+    HookUnlock():
+        RequestManagerUnlock("one.hook.unlock",
+                           "Unlock a Hook"){
+        Nebula& nd  = Nebula::instance();
+        auth_object = PoolObjectSQL::HOOK;
+        pool        =  nd.get_hkpool();
+    };
+
+    ~HookUnlock(){};
+};
+
 #endif

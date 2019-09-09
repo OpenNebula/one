@@ -14,42 +14,51 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef RAFT_HOOK_H_
-#define RAFT_HOOK_H_
-
-#include <string>
-
 #include "Hook.h"
+#include "HookAPI.h"
+#include "HookPool.h"
 
-class RaftHook : public Hook
+int HookPool::allocate (Template * tmpl, string& error_str)
 {
-public:
-    RaftHook(const std::string& name,
-             const std::string& command,
-             const std::string& arg):
-        Hook(name, command, arg, Hook::UPDATE, false){};
+    Hook * hook;
+    int db_oid;
+    string name;
 
-    ~RaftHook(){};
+    ostringstream oss;
 
-    void do_hook(void *arg);
-};
+    int oid = -1;
 
-class RaftLeaderHook : public RaftHook
-{
-public:
-    RaftLeaderHook(const std::string& command, const std::string& arg):
-        RaftHook("RAFT_LEADER_HOOK", command, arg){};
+    tmpl->get("NAME", name);
 
-    ~RaftLeaderHook(){};
-};
+    if (!PoolObjectSQL::name_is_valid(name, error_str))
+    {
+        goto error_name;
+    }
 
-class RaftFollowerHook : public RaftHook
-{
-public:
-    RaftFollowerHook(const std::string& command, const std::string& arg):
-        RaftHook("RAFT_FOLLOWER_HOOK", command, arg){};
+    db_oid = exist(name);
 
-    ~RaftFollowerHook(){};
-};
+    if ( db_oid != -1 )
+    {
+        goto error_duplicated;
+    }
 
-#endif
+    hook = new Hook(tmpl);
+
+    oid = PoolSQL::allocate(hook, error_str);
+
+    return oid;
+
+error_duplicated:
+    oss << "NAME is already taken by Hook " << db_oid << ".";
+    error_str = oss.str();
+
+    goto error_common;
+error_name:
+    oss << "Invalid name.";
+    error_str = oss.str();
+
+error_common:
+    oid = -1;
+
+    return oid;
+}
