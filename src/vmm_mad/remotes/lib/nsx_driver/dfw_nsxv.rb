@@ -43,8 +43,7 @@ module NSXDriver
         # section already exists
         def init_section
             one_section = section_by_name(@one_section_name)
-            one_section = create_section(@one_section_name) \
-                              unless one_section
+            one_section ||= create_section(@one_section_name)
             one_section[:id]
         end
 
