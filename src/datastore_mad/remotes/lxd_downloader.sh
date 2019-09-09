@@ -167,8 +167,8 @@ export PATH=\$PATH:/bin:/sbin
 rm -f /etc/resolv.conf >> /var/log/chroot.log 2>&1
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
-mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
-mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
 
 apt-get update >> /var/log/chroot.log 2>&1
 apt-get install $PKG_DEB -y >> /var/log/chroot.log 2>&1
@@ -188,8 +188,8 @@ export PATH=\$PATH:/bin:/sbin
 
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
-mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
-mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
 
 yum install $PKG_CENTOS6 -y  >> /var/log/chroot.log 2>&1
 
@@ -206,8 +206,8 @@ EOC
     commands=$(cat <<EOC
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
-mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
-mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
 
 yum install $PKG_RPM -y >> /var/log/chroot.log 2>&1
 
@@ -224,8 +224,8 @@ EOC
     commands=$(cat <<EOC
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
-mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
-mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
 
 yum install $PKG_RPM -y >> /var/log/chroot.log 2>&1
 
@@ -243,8 +243,8 @@ EOC
 rm /etc/resolv.conf
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
-mknod -m 666 /dev/random c 1 8
-mknod -m 666 /dev/urandom c 1 9
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9
 
 yum install $PKG_FEDORA -y >> /var/log/chroot.log 2>&1
 
@@ -261,8 +261,8 @@ EOC
     commands=$(cat <<EOC
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
-mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
-mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
 
 apk add $PKG_APK >> /var/log/chroot.log 2>&1
 
