@@ -114,11 +114,97 @@ module NSXDriver
         def get(url); end
 
         # Return: id of the created object
+<<<<<<< HEAD
         def post(url, ls_data); end
+=======
+        def post_xml(url, data)
+            uri = URI.parse(url)
+            request = Net::HTTP::Post.new(uri.request_uri, HEADER_XML)
+            request.body = data
+            request.basic_auth(@nsx_user, @nsx_password)
+            response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
+              :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
+                  https.request(request)
+              end
+            return response.body if check_response(response, [200, 201])
+        end
+
+        def put_xml(url, data)
+            uri = URI.parse(url)
+            request = Net::HTTP::Put.new(uri.request_uri, HEADER_XML)
+            request.body = data
+            request.basic_auth(@nsx_user, @nsx_password)
+            response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
+              :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
+                  https.request(request)
+              end
+            return response.body if check_response(response, [200, 201])
+        end
+>>>>>>> F #3440: Added put_json and put_xml methods
 
         def delete(url); end
 
+<<<<<<< HEAD
         def get_token(url); end
+=======
+        # Return: id of the created object
+        def post_json(url, data)
+            uri = URI.parse(url)
+            request = Net::HTTP::Post.new(uri.request_uri, HEADER_JSON)
+            request.body = data
+            request.basic_auth(@nsx_user, @nsx_password)
+            response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
+              :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
+                  https.request(request)
+              end
+            return JSON.parse(response.body)['id'] \
+                if check_response(response, [200, 201])
+        end
+
+        def put_json(url, data)
+            uri = URI.parse(url)
+            request = Net::HTTP::Put.new(uri.request_uri, HEADER_JSON)
+            request.body = data
+            request.basic_auth(@nsx_user, @nsx_password)
+            response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
+              :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
+                  https.request(request)
+              end
+            return JSON.parse(response.body)['id'] \
+                if check_response(response, [200, 201])
+        end
+
+        def delete(url, header)
+            uri = URI.parse(url)
+            request = Net::HTTP::Delete.new(uri.request_uri, header)
+            request.basic_auth(@nsx_user, @nsx_password)
+            response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
+              :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
+                  https.request(request)
+              end
+            check_response(response, [200])
+        end
+
+        def get_token(url, header)
+            uri = URI.parse(url)
+            request = Net::HTTP::Post.new(uri.request_uri, header)
+            request.basic_auth(@nsx_user, @nsx_password)
+            response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
+              :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
+                  https.request(request)
+              end
+            if header[:'Content-Type'] == 'application/json'
+                response.body if check_response(response, 200)
+            elsif header[:'Content-Type'] == 'application/xml'
+                response_xml = Nokogiri::XML response.body \
+                                  if check_response(response, 200)
+                token = response_xml.xpath('//authToken/value').text
+                { 'token' => token }.to_json
+            else
+                nil
+            end
+        end
+>>>>>>> F #3440: Added put_json and put_xml methods
 
     end
 
