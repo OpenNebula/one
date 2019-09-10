@@ -141,8 +141,9 @@ module NSXDriver
         # Delete rule
         def delete_rule(rule_id, section_id = @one_section_id)
             url = @url_sections + '/' + section_id + '/rules/' + rule_id
+            # Delete receive a 200 OK also if the rule doesn't exist
             @nsx_client.delete(url, HEADER_JSON)
-            result = section_by_id(section_id)
+            result = rules_by_id(rule_id)
             raise 'Error deleting section in DFW' if result
         end
 
