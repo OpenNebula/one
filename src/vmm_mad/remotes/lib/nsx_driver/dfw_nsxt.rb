@@ -127,11 +127,9 @@ module NSXDriver
         # Create new rule
         def create_rule(rule_spec, section_id = @one_section_id)
             # Get revision from section
-            # require 'pry-byebug'
-            # binding.pry
-            # revision_id = section_by_id(section_id)['_revision']
-            # rule_spec['_revision'] = revision_id
-            # rule_spec = rule_spec
+            revision_id = section_by_id(section_id)['_revision']
+            rule_spec['_revision'] = revision_id
+            rule_spec = rule_spec.to_json
             url = @url_sections + '/' + section_id + '/rules'
             @nsx_client.post_json(url, rule_spec)
         end
