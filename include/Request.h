@@ -160,7 +160,8 @@ class ParamList
 {
 public:
 
-    ParamList(const xmlrpc_c::paramList * paramList):_paramList(paramList){};
+    ParamList(const xmlrpc_c::paramList * paramList, const set<int>& hidden):
+        _paramList(paramList), _hidden(hidden){};
 
     string& to_string(string& str) const
     {
@@ -180,6 +181,11 @@ public:
 
     string get_value_as_string(int index) const
     {
+        if ( index == 0 || _hidden.count(index) == 1 )
+        {
+            return "****";
+        }
+
         ostringstream oss;
         xmlrpc_c::value::type_t type((*_paramList)[index].type());
 
@@ -219,6 +225,8 @@ public:
 
 private:
     const xmlrpc_c::paramList * _paramList;
+
+    const set<int>& _hidden;
 };
 
 /**

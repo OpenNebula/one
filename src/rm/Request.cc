@@ -440,7 +440,7 @@ void Request::execute(
     //--------------------------------------------------------------------------
     // Register API hook event & log call
     //--------------------------------------------------------------------------
-    ParamList pl(&_paramList);
+    ParamList pl(&_paramList, hidden_params);
 
     std::string * event = HookAPI::format_message(method_name, pl, att);
 
