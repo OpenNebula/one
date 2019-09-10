@@ -67,6 +67,8 @@ module NSXDriver
         def section_by_name(section_name)
             result = nil
             all_sections = sections
+            return result unless all_sections
+
             all_sections.each do |section|
                 result = section if section['display_name'] == section_name
             end
@@ -98,7 +100,7 @@ module NSXDriver
         # Rules
         # Get all rules of a Section, OpenNebula section if it's not defined
         def rules(section_id = @one_section_id)
-            url = @url_sections + '/' + section_id + 'rules'
+            url = @url_sections + '/' + section_id + '/rules'
             @nsx_client.get_json(url)
         end
 
@@ -110,10 +112,12 @@ module NSXDriver
 
         # Get rule by name
         def rules_by_name(rule_name, section_id = @one_section_id)
-            return unless section_id
-
             result = nil
+            return result unless section_id
+
             all_rules = rules(section_id)
+            return result unless all_rules
+
             all_rules['results'].each do |rule|
                 result = rule if rule['display_name'] == rule_name
             end
@@ -122,6 +126,12 @@ module NSXDriver
 
         # Create new rule
         def create_rule(rule_spec, section_id = @one_section_id)
+            # Get revision from section
+            # require 'pry-byebug'
+            # binding.pry
+            # revision_id = section_by_id(section_id)['_revision']
+            # rule_spec['_revision'] = revision_id
+            # rule_spec = rule_spec
             url = @url_sections + '/' + section_id + '/rules'
             @nsx_client.post_json(url, rule_spec)
         end
