@@ -131,7 +131,8 @@ module NSXDriver
             rule_spec['_revision'] = revision_id
             rule_spec = rule_spec.to_json
             url = @url_sections + '/' + section_id + '/rules'
-            @nsx_client.post_json(url, rule_spec)
+            result = @nsx_client.post_json(url, rule_spec)
+            raise 'Error creating DFW rule' unless result
         end
 
         # Update rule
