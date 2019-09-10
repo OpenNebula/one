@@ -132,7 +132,7 @@ stop_sched()
 
 stop_hem()
 {
-    onehem-server stop
+    onehem-server stop > /dev/null 2>&1
 }
 
 #------------------------------------------------------------------------------
@@ -243,7 +243,7 @@ start_hem()
         [ -f "$ONE_HEM_LOG" ] && mv $ONE_HEM_LOG{,.$(date '+%Y%m%d%H%M%S')}
     fi
 
-    onehem-server start
+    onehem-server start > /dev/null 2>&1 
 
     LASTRC=$?
 
@@ -268,13 +268,11 @@ case "$1" in
         ;;
     stop)
         stop
-        echo "oned, scheduler and hem stopped"
         ;;
     restart)
         stop
         setup
         start
-        echo "oned, scheduler and hem restarted"
         ;;
     start-sched)
         start_sched
