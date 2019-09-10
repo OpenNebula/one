@@ -90,8 +90,11 @@ module NSXDriver
 
         # METHODS
 
-        def check_response(response, code)
-            response.code.to_i == code
+        def check_response(response, codes_array)
+            codes_array.each do |code|
+                return true if response.code.to_i == code
+            end
+            false
         end
 
         def self.nsx_pass(nsx_pass_enc)
