@@ -274,7 +274,7 @@ class HookMap
     def load_hook(hook_id)
         # get new hook info
         hook = OpenNebula::Hook.new_with_id(hook_id, @client)
-        rc = hook.info
+        rc   = hook.info
 
         if !rc.nil?
             @logger.error("Error getting hook #{hook_id}.")
@@ -283,12 +283,13 @@ class HookMap
 
         # Generates key and filter for the new hook info
         hook.extend(HEMHook)
+        
         key    = hook.key
         filter = hook.filter(key)
 
-        @hooks[hook['TYPE'].to_sym][key] = hook
+        @hooks[hook.to_type][key] = hook
         @hooks_id[hook_id] = hook
-        @filters[hook_id] = filter
+        @filters[hook_id]  = filter
 
         @logger.info("Hook (#{hook_id}) successfully reloaded")
 
@@ -297,8 +298,8 @@ class HookMap
 
     def delete(hook_id)
         hook = @hooks_id[hook_id]
-        key = hook.key
-
+        
+        @hooks[hook.type].delete(hook.key)
         @filters.delete(hook_id)
         @hooks_id.delete(hook_id)
     end
@@ -474,6 +475,9 @@ class HookExecutionManager
         return if call == 'one.hook.delete'
 
         hook = @hooks.load_hook(id)
+        
+        return unless hook
+        
         key = hook.key
         subscribe(hook.filter(key))
     end
