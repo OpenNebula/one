@@ -243,6 +243,8 @@ start_hem()
         [ -f "$ONE_HEM_LOG" ] && mv $ONE_HEM_LOG{,.$(date '+%Y%m%d%H%M%S')}
     fi
 
+    onehem-server start
+
     LASTRC=$?
 
     if [ $LASTRC -ne 0 ]; then
