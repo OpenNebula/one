@@ -234,9 +234,6 @@ class HookMap
     def load
         @logger.info('Loading Hooks...')
 
-        @hooks   = {}
-        @filters = {}
-
         HEMHook::HOOK_TYPES.each do |type|
             @hooks[type] = {}
         end
@@ -268,11 +265,42 @@ class HookMap
 
             @hooks[hook.type][key] = hook
             @hooks_id[hook.id]     = hook
-
-            @filters[hook['ID'].to_i] = hook.filter(key)
+            @filters[hook.id]      = hook.filter(key)
         end
 
         @logger.info('Hooks successfully loaded')
+    end
+
+    def load_hook(hook_id)
+        # get new hook info
+        hook = OpenNebula::Hook.new_with_id(hook_id, @client)
+        rc = hook.info
+
+        if !rc.nil?
+            @logger.error("Error getting hook #{hook_id}.")
+            return
+        end
+
+        # Generates key and filter for the new hook info
+        hook.extend(HEMHook)
+        key    = hook.key
+        filter = hook.filter(key)
+
+        @hooks[hook['TYPE'].to_sym][key] = hook
+        @hooks_id[hook_id] = hook
+        @filters[hook_id] = filter
+
+        @logger.info("Hook (#{hook_id}) successfully reloaded")
+
+        hook
+    end
+
+    def delete(hook_id)
+        hook = @hooks_id[hook_id]
+        key = hook.key
+
+        @filters.delete(hook_id)
+        @hooks_id.delete(hook_id)
     end
 
     # Execute the given lambda on each event filter in the map
@@ -426,16 +454,28 @@ class HookExecutionManager
         subscribe('RETRY')
     end
 
-    def reload_hooks
-        # TODO, recover the reload_hooks
-        @hooks.each_filter {|filter| unsubscribe(filter) }
+    def reload_hooks(call, info_xml)
+        id = -1
 
-        @hooks.load
+        # TODO, what happens if not int?
+        if call == 'one.hook.allocate'
+            id = info_xml.xpath('//RESPONSE/OUT2')[0].text.to_i
+        else
+            id = info_xml.xpath('//PARAMETERS/PARAMETER2')[0].text.to_i
+        end
 
-        @hooks.each_filter {|filter| subscribe(filter) }
+        if call != 'one.hook.allocate'
+            hook = @hooks.get_hook_by_id(id)
 
-        # subscribe to RETRY actions
-        subscribe('RETRY')
+            @hooks.delete(id)
+            unsubscribe(hook.filter(hook.key))
+        end
+
+        return if call == 'one.hook.delete'
+
+        hook = @hooks.load_hook(id)
+        key = hook.key
+        subscribe(hook.filter(key))
     end
 
     ############################################################################
@@ -476,7 +516,7 @@ class HookExecutionManager
 
                 @am.trigger_action(ACTIONS[0], 0, hook, body_xml) unless hook.nil?
 
-                reload_hooks if UPDATE_CALLS.include? key
+                reload_hooks(key, body_xml) if UPDATE_CALLS.include? key
             when :RETRY
                 body     = Base64.decode64(content.split(' ')[0])
                 body_xml = Nokogiri::XML(body)
