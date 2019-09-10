@@ -136,7 +136,16 @@ module NSXDriver
         end
 
         # Update rule
-        def update_rule; end
+        def update_rule(rule_id, rule_spec, section_id = @one_section_id)
+            url = @url_sections + '/' + section_id + '/rules/' + rule_id
+            rule = rules_by_id(rule_id)
+            raise "Rule id #{rule_id} not found" unless rule
+
+            rule_spec['_revision'] = rule['_revision']
+            rule_spec = rule_spec.to_json
+            result = @nsx_client.put_json(url, rule_spec)
+            raise 'Error updating DFW rule' unless result
+        end
 
         # Delete rule
         def delete_rule(rule_id, section_id = @one_section_id)
