@@ -1616,11 +1616,6 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
 
     oss.str("");
 
-    if ( obj_template->get("TM_MAD_SYSTEM", tm_mad_system) )
-    {
-        oss << "(TM_MAD = \"" << one_util::trim(tm_mad_system) << "\") & ";
-    }
-
     // Set automatic System DS requirements
 
     if ( !cluster_ids.empty() || !datastore_ids.empty() )
@@ -1658,6 +1653,12 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
             }
 
             oss << ")";
+
+        }
+
+        if ( obj_template->get("TM_MAD_SYSTEM", tm_mad_system) )
+        {
+            oss << " & (TM_MAD = \"" << one_util::trim(tm_mad_system) << "\")";
         }
 
         obj_template->add("AUTOMATIC_DS_REQUIREMENTS", oss.str());

@@ -1174,6 +1174,7 @@ VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
     // -------------------------------------------------------------------------
 
     disk->set_attach();
+
     if ( !tsys.empty() )
     {
         disk->replace("TM_MAD_SYSTEM", tsys);
