@@ -79,7 +79,7 @@ public:
      *    @param cpu reserved cpu (percentage, or absolute)
      *    @param mem reserved mem (in KB)
      */
-    void get_reserved_capacity(string& cpu, string& mem)
+    void get_reserved_capacity(string& cpu, string& mem) const
     {
         get_template_attribute("RESERVED_CPU", cpu);
 

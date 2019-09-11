@@ -129,11 +129,9 @@ void MonitorThread::do_message()
 
     int rc  = host->extract_ds_info(*hinfo, tmpl, datastores);
 
-    int cid = host->get_cluster_id();
-
     string reserved_cpu = "";
-
     string reserved_mem = "";
+    host->get_cluster_capacity(reserved_cpu, reserved_mem);
 
     delete hinfo;
 
@@ -142,18 +140,6 @@ void MonitorThread::do_message()
     if (rc != 0)
     {
         return;
-    }
-
-    if (cid != -1)
-    {
-        Cluster * cluster = cpool->get_ro(cid);
-
-        if (cluster != 0)
-        {
-            cluster->get_reserved_capacity(reserved_cpu, reserved_mem);
-
-            cluster->unlock();
-        }
     }
 
     for (itm = datastores.begin(); itm != datastores.end(); itm++)

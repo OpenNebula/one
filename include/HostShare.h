@@ -763,18 +763,21 @@ public:
      * probes. The values are removed from the template.
      *
      *   @param host for this share, capacity values are removed from the template
-     *   @para cr_cpu, reserved cpu default cluster value
+     *   @para cluster_rcpu, reserved cpu default cluster value
      *   @para cluster_rmem, reserved mem default cluster value
      */
-    void set_capacity(Host *host, const string& crcpu, const string& crmem);
+    void set_capacity(Host *host, const string& cluster_rcpu,
+            const string& cluster_rmem);
 
     /**
      * Update the capacity attributes when the RESERVED_CPU and RESERVED_MEM
      * are updated.
      *   @param host for this share
+     *   @para cluster_rcpu, reserved cpu default cluster value
+     *   @para cluster_rmem, reserved mem default cluster value
      */
-    void update_capacity(Host *host);
-
+    void update_capacity(Host *host, const string& cluster_rcpu,
+            const string& cluster_rmem);
 
     /**
      *  Reserve CPUs in the numa nodes

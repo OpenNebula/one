@@ -352,11 +352,13 @@ public:
      *    @param cpu reserved cpu (in percentage)
      *    @param mem reserved mem (in KB)
      */
-    void get_reserved_capacity(string& cpu, string& mem)
+    void get_reserved_capacity(string& cpu, string& mem) const
     {
         get_template_attribute("RESERVED_CPU", cpu);
         get_template_attribute("RESERVED_MEM", mem);
     }
+
+    void get_cluster_capacity(string& cluster_rcpu, string& cluster_rmem) const;
 
     // -------------------------------------------------------------------------
     // Share functions.
