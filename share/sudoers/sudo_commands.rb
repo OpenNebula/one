@@ -32,7 +32,6 @@ CMDS = {
     :LVM    => %w(lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend),
     :ISCSI  => %w(iscsiadm tgt-admin tgtadm),
     :OVS    => %w(ovs-ofctl ovs-vsctl),
-    :XEN    => %w(xentop xl xm),
     :CEPH   => %w(rbd),
     :MARKET => %W{#{LIB_LOCATION}/sh/create_container_image.sh},
     :HA     => [
