@@ -702,6 +702,24 @@ int Host::from_xml(const string& xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void Host::get_cluster_capacity(string& cluster_rcpu, string& cluster_rmem) const
+{
+    if (cluster_id != -1)
+    {
+        auto cpool = Nebula::instance().get_clpool();
+        Cluster * cluster = cpool->get_ro(cluster_id);
+
+        if (cluster != nullptr)
+        {
+            cluster->get_reserved_capacity(cluster_rcpu, cluster_rmem);
+            cluster->unlock();
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int Host::post_update_template(string& error)
 {
     string new_im_mad;
@@ -726,7 +744,11 @@ int Host::post_update_template(string& error)
 
     get_template_attribute("ISOLCPUS", cpu_ids);
 
-    host_share.update_capacity(this);
+    string cluster_rcpu = "";
+    string cluster_rmem = "";
+    get_cluster_capacity(cluster_rcpu, cluster_rmem);
+
+    host_share.update_capacity(this, cluster_rcpu, cluster_rmem);
 
     host_share.reserve_cpus(cpu_ids);
 

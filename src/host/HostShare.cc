@@ -1937,15 +1937,25 @@ void HostShare::set_capacity(Host *host, const string& cluster_rcpu,
 
 /* -------------------------------------------------------------------------- */
 
-void HostShare::update_capacity(Host *host)
+void HostShare::update_capacity(Host *host, const string& cluster_rcpu,
+        const string& cluster_rmem)
 {
     string host_rcpu;
     string host_rmem;
 
     host->get_reserved_capacity(host_rcpu, host_rmem);
 
-    set_reserved_metric(max_cpu, total_cpu, host_rcpu);
+    if (host_rcpu.empty())
+    {
+        host_rcpu = cluster_rcpu;
+    }
 
+    if (host_rmem.empty())
+    {
+        host_rmem = cluster_rmem;
+    }
+
+    set_reserved_metric(max_cpu, total_cpu, host_rcpu);
     set_reserved_metric(max_mem, total_mem, host_rmem);
 }
 
