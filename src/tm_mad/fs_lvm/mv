@@ -95,7 +95,7 @@ if [ `is_disk $SRC_PATH` -eq 1 ]; then
         CMD=$(cat <<EOF
             set -ex -o pipefail
             if [ -b "${SRC_DEV}" ]; then
-              ${SUDO} ${SYNC}
+              ${SYNC}
               ${SUDO} ${LVSCAN}
               ${SUDO} ${LVCHANGE} -an "${SRC_DEV}"
             fi
@@ -120,7 +120,7 @@ EOF
         # create new volume
         CREATE_CMD=$(cat <<EOF
             set -e -o pipefail
-            ${SUDO} ${SYNC}
+            ${SYNC}
             ${SUDO} ${LVSCAN}
             SIZE=\$(${SUDO} ${LVS} --noheadings --units B -o lv_size "${SRC_DEV}" | tr -d '[:blank:]')
             ${SUDO} ${LVCREATE} --wipesignatures n -L"\${SIZE}" -n "${LV_NAME}" "${DST_VG_NAME}"
@@ -140,7 +140,7 @@ EOF
         DELETE_CMD=$(cat <<EOF
             set -e -o pipefail
             ${SUDO} ${LVREMOVE} -f ${SRC_DEV}
-            ${SUDO} ${SYNC}
+            ${SYNC}
 
             rm -f "${SRC_PATH}"
             ln -s "${DST_DEV}" "${SRC_PATH}"
@@ -155,7 +155,7 @@ EOF
     # activate
     CMD=$(cat <<EOF
         set -ex -o pipefail
-        ${SUDO} ${SYNC}
+        ${SYNC}
         ${SUDO} ${LVSCAN}
         ${SUDO} ${LVCHANGE} -ay "${DST_DEV}"
 

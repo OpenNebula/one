@@ -44,7 +44,7 @@ fi
 
 CMD=$(cat <<EOF
     set -ex -o pipefail
-    $SUDO $SYNC
+    $SYNC
     $SUDO $LVSCAN
 
     for disk in \$(ls ${DST_PATH}/disk.*); do

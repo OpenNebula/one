@@ -1,0 +1,1 @@
+oneadmin ALL=(ALL:ALL) NOPASSWD: ONE_LXD
