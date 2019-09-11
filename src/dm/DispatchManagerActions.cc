@@ -942,9 +942,10 @@ int DispatchManager::resched(int vid, bool do_resched,
     oss << "Setting rescheduling flag on VM " << vid;
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
+    if (vm->get_state()     == VirtualMachine::POWEROFF ||
+        (vm->get_state()     == VirtualMachine::ACTIVE &&
+         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
+          vm->get_lcm_state() == VirtualMachine::UNKNOWN)))
     {
         if (do_resched)
         {

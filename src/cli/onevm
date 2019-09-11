@@ -879,7 +879,7 @@ CommandParser::CmdParser.new(ARGV) do
     resched_desc = <<-EOT.unindent
         Sets the rescheduling flag for the VM.
 
-        States: RUNNING
+        States: RUNNING, POWEROFF
     EOT
 
     command :resched, resched_desc, [:range, :vmid_list] do
@@ -891,7 +891,7 @@ CommandParser::CmdParser.new(ARGV) do
     unresched_desc = <<-EOT.unindent
         Clears the rescheduling flag for the VM.
 
-        States: RUNNING
+        States: RUNNING, POWEROFF
     EOT
 
     command :unresched, unresched_desc, [:range, :vmid_list] do
