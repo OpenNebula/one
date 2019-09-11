@@ -16,13 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'rubygems'
-require 'ffi-rzmq'
-require 'nokogiri'
-require 'yaml'
-require 'logger'
-require 'base64'
-
 ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
@@ -48,6 +41,12 @@ if File.directory?(GEMS_LOCATION)
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
+
+require 'ffi-rzmq'
+require 'nokogiri'
+require 'yaml'
+require 'logger'
+require 'base64'
 
 require 'opennebula'
 require 'CommandManager'
@@ -285,7 +284,7 @@ class HookMap
 
         # Generates key and filter for the new hook info
         hook.extend(HEMHook)
-        
+
         key    = hook.key
         filter = hook.filter(key)
 
@@ -300,7 +299,7 @@ class HookMap
 
     def delete(hook_id)
         hook = @hooks_id[hook_id]
-        
+
         @hooks[hook.type].delete(hook.key)
         @filters.delete(hook_id)
         @hooks_id.delete(hook_id)
@@ -477,9 +476,9 @@ class HookExecutionManager
         return if call == 'one.hook.delete'
 
         hook = @hooks.load_hook(id)
-        
+
         return unless hook
-        
+
         key = hook.key
         subscribe(hook.filter(key))
     end
