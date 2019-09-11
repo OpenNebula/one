@@ -59,20 +59,20 @@ not_found_cmds = []
 KEYS.each do |label|
     cmds = sudo_cmds[label]
 
-    _abs_cmds = []
+    loop_abs_cmds = []
     cmds.each do |cmd|
         cmd_parts = cmd.split
         abs_cmd = `which #{cmd_parts[0]} 2>/dev/null`
 
         if !abs_cmd.empty?
             cmd_parts[0] = abs_cmd.strip
-            _abs_cmds << cmd_parts.join(' ')
+            loop_abs_cmds << cmd_parts.join(' ')
         else
             not_found_cmds << cmd
         end
     end
 
-    abs_cmds["ONE_#{label}"] = _abs_cmds
+    abs_cmds["ONE_#{label}"] = loop_abs_cmds
 end
 
 abs_cmds.reject! {|_k, v| v.empty? }
