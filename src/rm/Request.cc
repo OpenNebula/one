@@ -736,29 +736,35 @@ void Request::quota_rollback(Template *         tmpl,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+template <typename T>
+static void make_parameter(std::ostringstream& oss, int pos, const T& val)
+{
+    oss << "<PARAMETER>"
+        << "<POSITION>" << pos << "</POSITION>"
+        << "<TYPE>OUT</TYPE>"
+        << "<VALUE>" << val << "</VALUE>"
+        << "</PARAMETER>";
+}
+
 void Request::failure_response(ErrorCode ec, const string& str_val,
                                RequestAttributes& att)
 {
     vector<xmlrpc_c::value> arrayData;
     ostringstream oss;
 
-    oss << "<RESPONSE>";
-
     arrayData.push_back(xmlrpc_c::value_boolean(false));
-    oss << "<OUT1>false</OUT1>";
+    make_parameter(oss, 1, "false");
 
     arrayData.push_back(xmlrpc_c::value_string(str_val));
-    oss << "<OUT2>" << one_util::escape_xml(str_val) << "</OUT2>";
+    make_parameter(oss, 2, one_util::escape_xml(str_val));
 
     arrayData.push_back(xmlrpc_c::value_int(ec));
-    oss << "<OUT3>" << ec << "</OUT3>";
+    make_parameter(oss, 3, ec);
 
     arrayData.push_back(xmlrpc_c::value_int(att.resp_id));
-    oss << "<OUT4>" << att.resp_id << "</OUT4>";
+    make_parameter(oss, 4, att.resp_id);
 
     arrayData.push_back(xmlrpc_c::value_i8(att.replication_idx));
-
-    oss << "</RESPONSE>";
 
     xmlrpc_c::value_array arrayresult(arrayData);
 
@@ -875,16 +881,14 @@ void Request::success_response(int id, RequestAttributes& att)
     vector<xmlrpc_c::value> arrayData;
     ostringstream oss;
 
-    oss << "<RESPONSE>";
-
     arrayData.push_back(xmlrpc_c::value_boolean(true));
-    oss << "<OUT1>true</OUT1>";
-    arrayData.push_back(xmlrpc_c::value_int(id));
-    oss << "<OUT2>" << id << "</OUT2>";
-    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
-    oss << "<OUT3>" << SUCCESS << "</OUT3>";
+    make_parameter(oss, 1, "true");
 
-    oss << "</RESPONSE>";
+    arrayData.push_back(xmlrpc_c::value_int(id));
+    make_parameter(oss, 2, id);
+
+    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
+    make_parameter(oss, 3, SUCCESS);
 
     xmlrpc_c::value_array arrayresult(arrayData);
 
@@ -900,16 +904,14 @@ void Request::success_response(const string& val, RequestAttributes& att)
     vector<xmlrpc_c::value> arrayData;
     ostringstream oss;
 
-    oss << "<RESPONSE>";
-
     arrayData.push_back(xmlrpc_c::value_boolean(true));
-    oss << "<OUT1>true</OUT1>";
-    arrayData.push_back(static_cast<xmlrpc_c::value_string>(val));
-    oss << "<OUT2>" << one_util::escape_xml(val.substr(0, 50)) << "</OUT2>";
-    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
-    oss << "<OUT3>" << SUCCESS << "</OUT3>";
+    make_parameter(oss, 1, "true");
 
-    oss << "</RESPONSE>";
+    arrayData.push_back(static_cast<xmlrpc_c::value_string>(val));
+    make_parameter(oss, 2, one_util::escape_xml(val));
+
+    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
+    make_parameter(oss, 3, SUCCESS);
 
     xmlrpc_c::value_array arrayresult(arrayData);
 
@@ -926,16 +928,14 @@ void Request::success_response(bool val, RequestAttributes& att)
     vector<xmlrpc_c::value> arrayData;
     ostringstream oss;
 
-    oss << "<RESPONSE>";
-
     arrayData.push_back(xmlrpc_c::value_boolean(true));
-    oss << "<OUT1>true</OUT1>";
-    arrayData.push_back(xmlrpc_c::value_boolean(val));
-    oss << "<OUT2>" << val << "</OUT2>";
-    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
-    oss << "<OUT3>" << SUCCESS << "</OUT3>";
+    make_parameter(oss, 1, "true");
 
-    oss << "</RESPONSE>";
+    arrayData.push_back(xmlrpc_c::value_boolean(val));
+    make_parameter(oss, 2, val? "true": "false");
+
+    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
+    make_parameter(oss, 3, SUCCESS);
 
     xmlrpc_c::value_array arrayresult(arrayData);
 
@@ -952,16 +952,14 @@ void Request::success_response(uint64_t val, RequestAttributes& att)
     vector<xmlrpc_c::value> arrayData;
     ostringstream oss;
 
-    oss << "<RESPONSE>";
-
     arrayData.push_back(xmlrpc_c::value_boolean(true));
-    oss << "<OUT1>true</OUT1>";
-    arrayData.push_back(xmlrpc_c::value_i8(val));
-    oss << "<OUT2>" << val << "</OUT2>";
-    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
-    oss << "<OUT3>" << SUCCESS << "</OUT3>";
+    make_parameter(oss, 1, "true");
 
-    oss << "</RESPONSE>";
+    arrayData.push_back(xmlrpc_c::value_i8(val));
+    make_parameter(oss, 2, val);
+
+    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
+    make_parameter(oss, 3, SUCCESS);
 
     xmlrpc_c::value_array arrayresult(arrayData);
 

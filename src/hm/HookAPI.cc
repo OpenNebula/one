@@ -35,13 +35,15 @@ std::string * HookAPI::format_message(std::string method, ParamList& paramList,
 
         for (int i = 0; i < paramList.size(); i++)
         {
-            oss << "<PARAMETER" << i + 1 << ">"
-                << paramList.get_value_as_string(i)
-                << "</PARAMETER" << i + 1 << ">";
+            oss << "<PARAMETER>"
+                << "<POSITION>" << i + 1 << "</POSITION>"
+                << "<TYPE>IN</TYPE>"
+                << "<VALUE>" << paramList.get_value_as_string(i) << "</VALUE>"
+                << "</PARAMETER>";
         }
 
-    oss << "</PARAMETERS>"
-        << att.retval_xml
+    oss << att.retval_xml
+        << "</PARAMETERS>"
         << "</CALL_INFO>"
         << "</HOOK_MESSAGE>";
 
