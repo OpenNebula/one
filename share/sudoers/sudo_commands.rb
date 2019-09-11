@@ -16,24 +16,24 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    LIB_LOCATION="/usr/lib/one"
+    LIB_LOCATION = '/usr/lib/one'
 else
-    LIB_LOCATION=ONE_LOCATION+"/lib"
+    LIB_LOCATION = ONE_LOCATION + '/lib'
 end
 
-require "erb"
+require 'erb'
 
 CMDS = {
-    :MISC   => %w(mkfs sync mkswap),
-    :NET    => %w(ebtables iptables ip6tables ip ipset arping),
-    :LVM    => %w(lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend),
-    :ISCSI  => %w(iscsiadm tgt-admin tgtadm),
-    :OVS    => %w(ovs-ofctl ovs-vsctl),
-    :CEPH   => %w(rbd),
-    :MARKET => %W{#{LIB_LOCATION}/sh/create_container_image.sh},
+    :MISC   => %w[mkfs sync mkswap],
+    :NET    => %w[ebtables iptables ip6tables ip ipset arping],
+    :LVM    => %w[lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend],
+    :ISCSI  => %w[iscsiadm tgt-admin tgtadm],
+    :OVS    => %w[ovs-ofctl ovs-vsctl],
+    :CEPH   => %w[rbd],
+    :MARKET => %W[#{LIB_LOCATION}/sh/create_container_image.sh],
     :HA     => [
         'systemctl start opennebula-flow',
         'systemctl stop opennebula-flow',
@@ -43,7 +43,7 @@ CMDS = {
         'service opennebula-flow stop',
         'service opennebula-gate start',
         'service opennebula-gate stop'
-    ],
+    ]
 }
 
 KEYS = CMDS.keys
@@ -70,13 +70,13 @@ KEYS.each do |label|
     abs_cmds["ONE_#{label}"] = _abs_cmds
 end
 
-abs_cmds.reject!{|k,v| v.empty?}
+abs_cmds.reject! {|_k, v| v.empty? }
 
-puts ERB.new(DATA.read,nil, "<>").result(binding)
+puts ERB.new(DATA.read, nil, '<>').result(binding)
 
 if !not_found_cmds.empty?
     STDERR.puts "\n---\n\nNot found:"
-    not_found_cmds.each{|cmd| STDERR.puts("- #{cmd}")}
+    not_found_cmds.each {|cmd| STDERR.puts("- #{cmd}") }
 end
 
 __END__
