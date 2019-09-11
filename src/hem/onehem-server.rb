@@ -72,7 +72,7 @@ module HEMHook
     # --------------------------------------------------------------------------
     # Parse hook arguments
     def arguments(event)
-        hook_args = self['//TEMPLATE/ARGUMENTS']
+        hook_args = self['TEMPLATE/ARGUMENTS']
 
         return '' unless hook_args
 
@@ -85,9 +85,7 @@ module HEMHook
             case event_type
             when 'API'
                 api  = event.xpath('//PARAMETERS')[0].to_s
-                api += event.xpath('//RESPONSE')[0].to_s
-
-                api = Base64.strict_encode64(api)
+                api  = Base64.strict_encode64(api)
             when 'STATE'
                 object   = event.xpath('//HOOK_OBJECT')[0].text.upcase
 
@@ -185,7 +183,7 @@ module HEMHook
             when :api
                 self['TEMPLATE/CALL']
             when :state
-                "#{self['//RESOURCE']}/#{self['//STATE']}/#{self['//LCM_STATE']}"
+                "#{self['TEMPLATE/RESOURCE']}/#{self['TEMPLATE/STATE']}/#{self['TEMPLATE/LCM_STATE']}"
             else
                 ''
             end
