@@ -26,7 +26,7 @@ end
 
 require 'erb'
 
-CMDS = {
+sudo_cmds = {
     :MISC   => %w[mkfs sync mkswap],
     :NET    => %w[ebtables iptables ip6tables ip ipset arping],
     :LVM    => %w[lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend],
@@ -46,13 +46,18 @@ CMDS = {
     ]
 }
 
-KEYS = CMDS.keys
+LXD = %w[lxc mount umount mkdir catfstab lsblk losetup kpartx qemu-nbd
+         blkid e2fsck resize2fs xfs_growfs rbd-nbd xfs_admin tune2fs]
+
+sudo_cmds[:LXD] = LXD if ARGV.include? '--lxd'
+
+KEYS = sudo_cmds.keys
 
 abs_cmds = {}
 not_found_cmds = []
 
 KEYS.each do |label|
-    cmds = CMDS[label]
+    cmds = sudo_cmds[label]
 
     _abs_cmds = []
     cmds.each do |cmd|
