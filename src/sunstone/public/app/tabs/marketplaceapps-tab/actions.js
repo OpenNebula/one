@@ -59,7 +59,6 @@ define(function(require) {
           EXPORT_DIALOG_ID, 
           "export",
           function(formPanelInstance, context) {
-            console.log("-> ",resourceId, type);
             formPanelInstance.setResourceId(context, resourceId, type);
           }
         );
