@@ -1270,6 +1270,11 @@ int VirtualMachineDisks::set_active_snapshot(int id, int snap_id)
         return -1;
     }
 
+    if (!disk->has_snapshot(snap_id))
+    {
+        return -1;
+    }
+
     disk->set_active_snapshot();
     disk->replace("DISK_SNAPSHOT_ID", snap_id);
 
