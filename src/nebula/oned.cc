@@ -77,7 +77,7 @@ static void oned_init()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void oned_main()
+static int oned_main()
 {
     try
     {
@@ -88,8 +88,9 @@ static void oned_main()
     {
         cerr << e.what() << endl;
 
-        return;
+        return -1;
     }
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -103,7 +104,7 @@ int main(int argc, char **argv)
     int             fd;
     pid_t           pid,sid;
     string          wd;
-    int             rc;
+    int             rc = 0;
 
     static struct option long_options[] = {
         {"version",    no_argument, 0, 'v'},
@@ -215,7 +216,7 @@ int main(int argc, char **argv)
                 }
             }
 
-            oned_main();
+            rc = oned_main();
 
             unlink(lockfile.c_str());
             break;
@@ -224,7 +225,7 @@ int main(int argc, char **argv)
             break;
     }
 
-    _exit(0);
+    _exit(rc);
 
 error_chdir:
     cerr << "Error: cannot change to dir " << wd << "\n";
