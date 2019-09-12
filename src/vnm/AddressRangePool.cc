@@ -56,12 +56,12 @@ int AddressRangePool::from_vattr(VectorAttribute* va, string& error_msg)
         return -1;
     }
 
-    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
-    ar->encrypt(one_key);
-
     ar_pool.insert(make_pair(ar->ar_id(), ar));
 
     ar_template.set(va);
+
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+    ar_template.encrypt(one_key);
 
     return 0;
 }
@@ -94,6 +94,7 @@ AddressRange * AddressRangePool::allocate_ar(const string& ipam_mad,
 int AddressRangePool::add_ar(AddressRange * ar)
 {
     pair<map<unsigned int, AddressRange *>::iterator, bool> rc;
+    string one_key;
 
     rc = ar_pool.insert(make_pair(ar->ar_id(), ar));
 
@@ -103,6 +104,9 @@ int AddressRangePool::add_ar(AddressRange * ar)
     }
 
     ar_template.set(ar->attr);
+
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+    ar_template.encrypt(one_key);
 
     return 0;
 }
@@ -875,31 +879,5 @@ void AddressRangePool::process_security_rule(
         it->second->process_security_rule(new_rule);
 
         new_rules.push_back(new_rule);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void AddressRangePool::encrypt(const std::string& one_key)
-{
-    map<unsigned int, AddressRange *>::iterator it;
-
-    for (it = ar_pool.begin(); it != ar_pool.end(); it++)
-    {
-        it->second->encrypt(one_key);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void AddressRangePool::decrypt(const std::string& one_key)
-{
-    map<unsigned int, AddressRange *>::iterator it;
-
-    for (it = ar_pool.begin(); it != ar_pool.end(); it++)
-    {
-        it->second->decrypt(one_key);
     }
 }
