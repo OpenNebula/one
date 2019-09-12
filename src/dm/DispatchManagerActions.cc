@@ -2071,8 +2071,8 @@ int DispatchManager::disk_snapshot_revert(int vid, int did, int snap_id,
 
     if (vm->set_snapshot_disk(did, snap_id) == -1)
     {
-        oss << "Either disk id (" << did << ") or snapshot id ("
-            << snap_id << ") are invalid.";
+        oss << "Disk id (" << did << ") or snapshot id ("
+            << snap_id << ") is not invalid.";
 
         error_str = oss.str();
 
