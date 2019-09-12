@@ -369,7 +369,6 @@ AllCops:
     - src/cli/one_helper/onemarketapp_helper.rb
     - src/cli/one_helper/onegroup_helper.rb
     - src/cli/one_helper/onevnet_helper.rb
-    - src/cli/one_helper/oneacl_helper.rb
     - src/cli/one_helper/onevcenter_helper.rb
     - src/cli/one_helper/onecluster_helper.rb
     - src/cli/one_helper/onevntemplate_helper.rb
