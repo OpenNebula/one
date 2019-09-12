@@ -77,7 +77,8 @@ class OneDBBacKEnd
             elsif !db_exists?
                 # If the DB doesn't have db_version table, it means it is empty or a 2.x
                 raise "Database schema does not look to be created by " <<
-                      "OpenNebula: table user_pool is missing or empty."
+                      "OpenNebula: table user_pool is missing or empty, " <<
+                      "oneadmin user must always exist."
             end
 
             begin
@@ -184,10 +185,11 @@ class OneDBBacKEnd
             @db.fetch("SELECT * FROM user_pool WHERE oid=0") { |row|
                 found = true
             }
-        rescue
+        rescue StandardError
+            found = false
         end
 
-        return found
+        found
     end
 
     def init_log_time()
