@@ -39,6 +39,7 @@ public:
             const string& str_mac_prefix,
             int default_size,
             vector<const SingleAttribute *>& restricted_attrs,
+            vector<const SingleAttribute *>& encrypted_attrs,
             const vector<const SingleAttribute *>& _inherit_attrs,
             const VectorAttribute * vlan_conf,
             const VectorAttribute * vxlan_conf);

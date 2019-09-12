@@ -36,7 +36,8 @@ time_t HostPool::_monitor_expiration;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-HostPool::HostPool(SqlDB * db, time_t expire_time) : PoolSQL(db, Host::table)
+HostPool::HostPool(SqlDB * db, time_t expire_time,
+        vector<const SingleAttribute *>& encrypted_attrs) : PoolSQL(db, Host::table)
 {
     _monitor_expiration = expire_time;
 
@@ -44,6 +45,9 @@ HostPool::HostPool(SqlDB * db, time_t expire_time) : PoolSQL(db, Host::table)
     {
         clean_all_monitoring();
     }
+
+    // Parse encrypted attributes
+    HostTemplate::parse_encrypted(encrypted_attrs);
 }
 
 /* -------------------------------------------------------------------------- */

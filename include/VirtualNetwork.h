@@ -569,6 +569,16 @@ public:
         return new_vn;
     };
 
+    /**
+     *  Encrypt all secret attributes
+     */
+    virtual void encrypt() override;
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    virtual void decrypt() override;
+
 private:
 
     // -------------------------------------------------------------------------

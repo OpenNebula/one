@@ -33,11 +33,12 @@ public:
 
     VirtualMachinePool(SqlDB * db,
                        vector<const SingleAttribute *>& restricted_attrs,
-                       time_t  expire_time,
-                       bool    on_hold,
-                       float   default_cpu_cost,
-                       float   default_mem_cost,
-                       float   default_disk_cost);
+                       vector<const SingleAttribute *>& encrypted_attrs,
+                       time_t                       expire_time,
+                       bool                         on_hold,
+                       float                        default_cpu_cost,
+                       float                        default_mem_cost,
+                       float                        default_disk_cost);
 
     ~VirtualMachinePool(){};
 

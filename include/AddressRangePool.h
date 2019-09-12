@@ -329,6 +329,16 @@ public:
     string& to_xml(string& sstream, bool extended, const vector<int>& vms,
         const vector<int>& vnets, const vector<int>& vrs) const;
 
+    /**
+     *  Encrypt all secret attributes
+     */
+    void encrypt(const std::string& one_key);
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    void decrypt(const std::string& one_key);
+
 private:
     /**
      *  Stores the Address Ranges in a template form. This template is used

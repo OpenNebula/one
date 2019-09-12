@@ -43,6 +43,7 @@ VirtualNetworkPool::VirtualNetworkPool(
     const string&                       prefix,
     int                                 __default_size,
     vector<const SingleAttribute *>&    restricted_attrs,
+    vector<const SingleAttribute *>&    encrypted_attrs,
     const vector<const SingleAttribute *>& _inherit_attrs,
     const VectorAttribute *             _vlan_conf,
     const VectorAttribute *             _vxlan_conf):
@@ -89,9 +90,15 @@ VirtualNetworkPool::VirtualNetworkPool(
     _mac_prefix <<= 8;
     _mac_prefix += tmp;
 
+    // Parse restricted attributes
     VirtualNetworkTemplate::parse_restricted(restricted_attrs);
 
     AddressRange::set_restricted_attributes(restricted_attrs);
+
+    // Parse encrypted attributes
+    VirtualNetworkTemplate::parse_encrypted(encrypted_attrs);
+
+    AddressRange::set_encrypted_attributes(encrypted_attrs);
 
     for (it = _inherit_attrs.begin(); it != _inherit_attrs.end(); it++)
     {

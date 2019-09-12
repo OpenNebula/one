@@ -248,7 +248,7 @@ string * one_util::aes256cbc_encrypt(const string& in, const string& password)
 
     EVP_EncryptInit(ctx, EVP_aes_256_cbc(), key, NULL);
     EVP_EncryptUpdate(ctx, out, &outlen1, in_data, in.length());
-    EVP_EncryptFinal(ctx, out + outlen1, &outlen2);
+    EVP_EncryptFinal_ex(ctx, out + outlen1, &outlen2);
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
     EVP_CIPHER_CTX_cleanup(ctx);
@@ -294,7 +294,7 @@ string * one_util::aes256cbc_decrypt(const string& in, const string& password)
 
     EVP_DecryptInit(ctx, EVP_aes_256_cbc(), key, NULL);
     EVP_DecryptUpdate(ctx, out, &outlen1, in_data, crypted->length());
-    if (1 != EVP_DecryptFinal(ctx, out + outlen1, &outlen2))
+    if (1 != EVP_DecryptFinal_ex(ctx, out + outlen1, &outlen2))
     {
         success = false;
     }

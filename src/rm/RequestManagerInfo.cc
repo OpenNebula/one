@@ -17,6 +17,7 @@
 #include "RequestManagerInfo.h"
 #include "RequestManagerPoolInfoFilter.h"
 #include "VirtualMachineDisk.h"
+#include "Nebula.h"
 
 using namespace std;
 
@@ -65,7 +66,7 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (decrypt)
     {
-        object->decrypt_all_secrets();
+        object->decrypt();
     }
 
     to_xml(att, object, str);
@@ -159,7 +160,7 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (decrypt)
     {
-        vm_tmpl->decrypt_all_secrets();
+        vm_tmpl->decrypt();
     }
 
     if (extended)
@@ -239,7 +240,7 @@ void VirtualNetworkTemplateInfo::request_execute(xmlrpc_c::paramList const& para
 
     if (decrypt)
     {
-        vn_tmpl->decrypt_all_secrets();
+        vn_tmpl->decrypt();
     }
 
     vn_tmpl->to_xml(str);

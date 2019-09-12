@@ -188,8 +188,6 @@ int VMTemplate::post_update_template(string& error)
         return rc;
     }
 
-    encrypt_all_secrets(obj_template);
-
     return 0;
 }
 

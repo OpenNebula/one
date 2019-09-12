@@ -36,7 +36,8 @@ using namespace std;
 class HostPool : public PoolSQL
 {
 public:
-    HostPool(SqlDB * db, time_t expire_time);
+    HostPool(SqlDB * db, time_t expire_time,
+        vector<const SingleAttribute *>& encrypted_attrs);
 
     ~HostPool(){};
 

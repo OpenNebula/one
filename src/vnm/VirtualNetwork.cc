@@ -212,7 +212,6 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     string name;
     string prefix;
 
-
     int rc, num_ars;
 
     ostringstream oss;
@@ -368,6 +367,9 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     add_template_attribute("SECURITY_GROUPS", sg_str);
 
+    // Encrypt all the secrets
+    encrypt();
+
     //--------------------------------------------------------------------------
     // Insert the Virtual Network
     //--------------------------------------------------------------------------
@@ -457,8 +459,6 @@ int VirtualNetwork::post_update_template(string& error)
     obj_template->get("SECURITY_GROUPS", sg_str);
 
     one_util::split_unique(sg_str, ',', security_groups);
-
-    encrypt_all_secrets(obj_template);
 
     return 0;
 }
@@ -1418,3 +1418,27 @@ error_common:
     error_str = oss.str();
     return -1;
 }
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetwork::encrypt()
+{
+    std::string one_key;
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+
+    obj_template->encrypt(one_key);
+    ar_pool.encrypt(one_key);
+}
+
+void VirtualNetwork::decrypt()
+{
+    std::string one_key;
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+
+    obj_template->decrypt(one_key);
+    ar_pool.decrypt(one_key);
+}
+
+

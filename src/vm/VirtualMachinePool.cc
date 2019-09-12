@@ -38,7 +38,8 @@ const char * VirtualMachinePool::import_db_bootstrap =
 
 VirtualMachinePool::VirtualMachinePool(
         SqlDB * db,
-        vector<const SingleAttribute *>&  restricted_attrs,
+        vector<const SingleAttribute *>& restricted_attrs,
+        vector<const SingleAttribute *>& encrypted_attrs,
         time_t  expire_time,
         bool    on_hold,
         float   default_cpu_cost,
@@ -54,7 +55,11 @@ VirtualMachinePool::VirtualMachinePool(
         clean_all_monitoring();
     }
 
+    // Set restricted attributes
     VirtualMachineTemplate::parse_restricted(restricted_attrs);
+
+    // Set encrypted attributes
+    VirtualMachineTemplate::parse_encrypted(encrypted_attrs);
 }
 
 /* -------------------------------------------------------------------------- */
