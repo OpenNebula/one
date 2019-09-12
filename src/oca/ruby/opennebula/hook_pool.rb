@@ -43,7 +43,7 @@ module OpenNebula
 
         # Factory method to create Template objects
         def factory(element_xml)
-            OpenNebula::Hook.new(element_xml,@client)
+            OpenNebula::Hook.new(element_xml, @client)
         end
 
         #######################################################################
@@ -54,9 +54,9 @@ module OpenNebula
         def info(*args)
             case args.size
             when 0
-                info_filter(HOOK_POOL_METHODS[:info],@user_id,-1,-1)
+                info_filter(HOOK_POOL_METHODS[:info], @user_id, -1, -1)
             when 3
-                info_filter(HOOK_POOL_METHODS[:info],args[0],args[1],args[2])
+                info_filter(HOOK_POOL_METHODS[:info], args[0], args[1], args[2])
             end
         end
 

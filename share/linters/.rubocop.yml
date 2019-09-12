@@ -729,6 +729,9 @@ Style/SafeNavigation:
 Style/FloatDivision:
     Enabled: false
 
+Style/RedundantBegin:
+    Enabled: false
+
 ######
 # LINT
 ######

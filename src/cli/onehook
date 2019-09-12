@@ -99,7 +99,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :create, create_desc, :file, :options =>
             [OpenNebulaHelper::DRY] do
-
         helper.create_resource(options) do |tmpl|
             begin
                 if args[0]
@@ -235,5 +234,4 @@ CommandParser::CmdParser.new(ARGV) do
             t.retry args[1].to_i
         end
     end
-
 end

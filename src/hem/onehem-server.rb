@@ -183,7 +183,9 @@ module HEMHook
             when :api
                 self['TEMPLATE/CALL']
             when :state
-                "#{self['TEMPLATE/RESOURCE']}/#{self['TEMPLATE/STATE']}/#{self['TEMPLATE/LCM_STATE']}"
+                "#{self['TEMPLATE/RESOURCE']}/"\
+                "#{self['TEMPLATE/STATE']}/"\
+                "#{self['TEMPLATE/LCM_STATE']}"
             else
                 ''
             end
@@ -455,19 +457,22 @@ class HookExecutionManager
     end
 
     def reload_hooks(call, info_xml)
-        id = -1
+        hook_xpath = '/HOOK_MESSAGE/CALL_INFO/PARAMETERS/'
 
         if call == 'one.hook.allocate'
-            id = info_xml.xpath('/HOOK_MESSAGE/CALL_INFO/PARAMETERS/PARAMETER[TYPE="OUT" and POSITION=2]/VALUE').text.to_i
+            hook_xpath += 'PARAMETER[TYPE="OUT" and POSITION=2]/VALUE'
         else
-            id = info_xml.xpath('/HOOK_MESSAGE/CALL_INFO/PARAMETERS/PARAMETER[TYPE="IN" and POSITION=2]/VALUE').text.to_i
+            hook_xpath += 'PARAMETER[TYPE="IN" and POSITION=2]/VALUE'
         end
+
+        id = info_xml.xpath(hook_xpath).text.to_i
 
         if call != 'one.hook.allocate'
             hook = @hooks.get_hook_by_id(id)
 
             @hooks.delete(id)
-            unsubscribe(hook.filter(hook.key)) if !STATIC_FILTERS.include? hook.key
+            is_static = STATIC_FILTERS.include? hook.key
+            unsubscribe(hook.filter(hook.key)) unless is_static
         end
 
         return if call == 'one.hook.delete'
@@ -514,29 +519,31 @@ class HookExecutionManager
                 content   = Base64.decode64(content)
                 hook      = @hooks.get_hook(type, key)
 
-                body_xml = Nokogiri::XML(content)
+                body = Nokogiri::XML(content)
 
-                @am.trigger_action(ACTIONS[0], 0, hook, body_xml) unless hook.nil?
+                @am.trigger_action(ACTIONS[0], 0, hook, body) unless hook.nil?
 
                 reload_hooks(key, body_xml) if UPDATE_CALLS.include? key
             when :RETRY
                 body     = Base64.decode64(content.split(' ')[0])
-                body_xml = Nokogiri::XML(body)
+                body     = Nokogiri::XML(body)
 
                 # Get Hook
-                hk_id = body_xml.xpath('//HOOK_ID')[0].text.to_i
+                hk_id = body.xpath('//HOOK_ID')[0].text.to_i
                 hook  = @hooks.get_hook_by_id(hk_id)
 
-                @am.trigger_action(ACTIONS[1], 0, hook, body_xml)
+                @am.trigger_action(ACTIONS[1], 0, hook, body)
             end
         end
     end
 
-    def build_response_body(args, as_stdin, rc, remote_host, remote, is_retry)
+    def build_response_body(args, return_code, remote_host, remote, is_retry)
         xml_response = "<ARGUMENTS>#{args}</ARGUMENTS>" \
-                       "#{rc.to_xml}"
+                       "#{return_code.to_xml}"
 
-        xml_response.concat("<REMOTE_HOST>#{remote_host}</REMOTE_HOST>") if !remote_host.empty? && remote
+        if !remote_host.empty? && remote
+            xml_response.concat("<REMOTE_HOST>#{remote_host}</REMOTE_HOST>")
+        end
 
         xml_response.concat('<RETRY>yes</RETRY>') if is_retry
 
@@ -562,12 +569,12 @@ class HookExecutionManager
             @logger.error("Failure executing hook for #{hook.key}")
         end
 
-        xml_response = build_response_body(params, hook.as_stdin?, rc, host, hook.remote?, false)
+        xml_out = build_response_body(params, rc, host, hook.remote?, false)
 
-        @requester_lock.synchronize {
-            @requester.send_string("#{rc.code} #{hook.id} #{xml_response}")
+        @requester_lock.synchronize do
+            @requester.send_string("#{rc.code} #{hook.id} #{xml_out}")
             @requester.recv_string(ack)
-        }
+        end
 
         @logger.error("Wrong ACK message: #{ack}.") if ack != 'ACK'
     end
@@ -578,16 +585,17 @@ class HookExecutionManager
         args = Base64.decode64(body.xpath('//ARGUMENTS')[0].text)
         host = ''
 
-        host = body.xpath('//REMOTE_HOST')[0].text unless body.xpath('//REMOTE_HOST')[0].nil?
+        remote_host = body.xpath('//REMOTE_HOST')[0]
+        host = remote_host.text unless remote_host.nil?
 
         rc = hook.execute(@conf[:hook_base_path], args, host)
 
-        xml_response = build_response_body(args, hook.as_stdin?, rc, host, !host.empty?, true)
+        xml_response = build_response_body(args, rc, host, !host.empty?, true)
 
-        @requester_lock.synchronize {
+        @requester_lock.synchronize do
             @requester.send_string("#{rc.code} #{hook.id} #{xml_response}")
             @requester.recv_string(ack)
-        }
+        end
 
         @logger.error("Wrong ACK message: #{ack}.") if ack != 'ACK'
     end

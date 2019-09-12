@@ -113,11 +113,13 @@ class OneHookHelper < OpenNebulaHelper::OneHelper
         str = '%-18s: %-20s'
         str_h1 = '%-80s'
 
+        level_lock = OpenNebulaHelper.level_lock_to_str(hook['LOCK/LOCKED'])
+
         CLIHelper.print_header(str_h1 % "HOOK #{hook['ID']} INFORMATION")
         puts format str, 'ID',   hook.id.to_s
         puts format str, 'NAME', hook.name
         puts format str, 'TYPE', hook['TYPE']
-        puts format str, 'LOCK', OpenNebulaHelper.level_lock_to_str(hook['LOCK/LOCKED'])
+        puts format str, 'LOCK', level_lock
         puts
 
         if options[:execution]
@@ -138,8 +140,9 @@ class OneHookHelper < OpenNebulaHelper::OneHelper
 
             arguments = er['ARGUMENTS'] if er['ARGUMENTS'].class == String
 
+            timestamp = OpenNebulaHelper.time_to_str(er['TIMESTAMP'])
             puts format str, 'EXECUTION ID', er['EXECUTION_ID']
-            puts format str, 'TIMESTAMP', OpenNebulaHelper.time_to_str(er['TIMESTAMP'])
+            puts format str, 'TIMESTAMP', timestamp
             puts format str, 'COMMAND', er['EXECUTION_RESULT']['COMMAND']
             puts format str, 'ARGUMENTS', arguments
             puts format str, 'EXIT CODE', er['EXECUTION_RESULT']['CODE']
@@ -149,11 +152,11 @@ class OneHookHelper < OpenNebulaHelper::OneHelper
 
             puts
             CLIHelper.print_header(str_h1 % 'EXECUTION STDOUT')
-            puts Base64.decode64(stdout) if stdout.class == String && !stdout.empty?
+            puts Base64.decode64(stdout.to_s) unless stdout.to_s.empty?
 
             puts
             CLIHelper.print_header(str_h1 % 'EXECUTION STDERR')
-            puts Base64.decode64(stderr) if stderr.class == String && !stderr.empty?
+            puts Base64.decode64(stderr.to_s) unless stderr.to_s.empty?
 
             puts
             return
