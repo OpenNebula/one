@@ -447,25 +447,6 @@ public:
     virtual void decrypt(const std::string& one_key){};
 
     /**
-     *  Crypt string using aes256cbc, use ONE_KEY as key
-     *  If key doesn't exists out = in
-     *    @param in plain text
-     *    @param out crypted text encoded as base64
-     */
-    static void encrypt_attr(const std::string& one_key,
-                             const std::string& in,
-                             std::string& out);
-   /**
-     *  Decrypt input text encoded as base64, using ONE_KEY as key
-     *  If key doesn't exists,
-     *    @param in base64 text crypted by aes256cbc
-     *    @param out plain text, if decryption succesfull.
-     *    @return true, if text was decrypted, false otherwise
-     */
-    static bool decrypt_attr(const std::string& one_key,
-                             const std::string& in,
-                             std::string& out);
-    /**
      *  @return true if template is empty
      */
     bool empty()

@@ -98,8 +98,6 @@ VirtualNetworkPool::VirtualNetworkPool(
     // Parse encrypted attributes
     VirtualNetworkTemplate::parse_encrypted(encrypted_attrs);
 
-    AddressRange::set_encrypted_attributes(encrypted_attrs);
-
     for (it = _inherit_attrs.begin(); it != _inherit_attrs.end(); it++)
     {
         inherit_attrs.push_back((*it)->value());
