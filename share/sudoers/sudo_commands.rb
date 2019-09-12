@@ -26,7 +26,7 @@ end
 
 require 'erb'
 
-sudo_cmds = {
+SUDO_CMDS = {
     :MISC   => %w[mkfs sync mkswap],
     :NET    => %w[ebtables iptables ip6tables ip ipset arping],
     :LVM    => %w[lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend],
@@ -34,7 +34,11 @@ sudo_cmds = {
     :OVS    => %w[ovs-ofctl ovs-vsctl],
     :CEPH   => %w[rbd],
     :MARKET => %W[#{LIB_LOCATION}/sh/create_container_image.sh],
-    :HA     => [
+    :LXD    => %w[
+        lxc mount umount mkdir catfstab lsblk losetup kpartx qemu-nbd
+        blkid e2fsck resize2fs xfs_growfs rbd-nbd xfs_admin tune2fs
+    ],
+    :HA => [
         'systemctl start opennebula-flow',
         'systemctl stop opennebula-flow',
         'systemctl start opennebula-gate',
@@ -46,18 +50,12 @@ sudo_cmds = {
     ]
 }
 
-LXD = %w[lxc mount umount mkdir catfstab lsblk losetup kpartx qemu-nbd
-         blkid e2fsck resize2fs xfs_growfs rbd-nbd xfs_admin tune2fs]
-
-sudo_cmds[:LXD] = LXD if ARGV.include? '--lxd'
-
-KEYS = sudo_cmds.keys
-
 abs_cmds = {}
 not_found_cmds = []
+cmd_sets = SUDO_CMDS.keys
 
-KEYS.each do |label|
-    cmds = sudo_cmds[label]
+cmd_sets.each do |label|
+    cmds = SUDO_CMDS[label]
 
     loop_abs_cmds = []
     cmds.each do |cmd|
@@ -84,14 +82,20 @@ if !not_found_cmds.empty?
     not_found_cmds.each {|cmd| STDERR.puts("- #{cmd}") }
 end
 
+
 __END__
+
 Defaults !requiretty
 Defaults secure_path = /sbin:/bin:/usr/sbin:/usr/bin
 
-<% KEYS.each do |k|; l = "ONE_#{k}"; v = abs_cmds[l]  %>
+<% cmd_sets.each do |k|; l = "ONE_#{k}"; v = abs_cmds[l]  %>
 <% if !v.nil? %>
 Cmnd_Alias <%= l %> = <%= v.join(", ") %>
 <% end %>
 <% end %>
 
-oneadmin ALL=(ALL) NOPASSWD: <%= KEYS.select{|k| !abs_cmds["ONE_#{k}"].nil?}.collect{|k| "ONE_#{k}"}.join(", ") %>
+<% cmd_sets.delete(:LXD) unless ARGV.include? '--lxd' %>
+
+oneadmin ALL=(ALL) NOPASSWD: <%= cmd_sets.select{|k| !abs_cmds["ONE_#{k}"].nil?}.collect{|k| "ONE_#{k}"}.join(", ") %>
+
+
