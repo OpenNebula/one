@@ -134,6 +134,10 @@ define(function(require) {
     "winXPProGues"
   ];
 
+  var distinct = function(value, index, self){
+    return self.indexOf(value)===index;
+  };
+
   /*
     CONSTRUCTOR
    */
@@ -417,6 +421,7 @@ define(function(require) {
       if (!$.isArray(disks)){
         disks = [disks];
       }
+      disks = disks.filter(distinct);
 
       $.each(disks, function(i,disk){
         var label = "<i class=\"fas fa-fw fa-lg fa-server\"></i> ";
@@ -446,9 +451,6 @@ define(function(require) {
       if (!$.isArray(nics)){
         nics = [nics];
       }
-      var distinct = function(value, index, self){
-        return self.indexOf(value)===index;
-      };
       nics = nics.filter(distinct);
       nics.map(function(nic,i){
         var label = "<i class=\"fas fa-fw fa-lg fa-globe\"></i> ";
