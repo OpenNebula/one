@@ -457,7 +457,6 @@ class HookExecutionManager
     def reload_hooks(call, info_xml)
         id = -1
 
-        # TODO, what happens if not int?
         if call == 'one.hook.allocate'
             id = info_xml.xpath('/HOOK_MESSAGE/CALL_INFO/PARAMETERS/PARAMETER[TYPE="OUT" and POSITION=2]/VALUE').text.to_i
         else
