@@ -16,6 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+STDIN=`cat -`
+
 script_name=$(basename $0)
 
 source $(dirname $0)/../../scripts_common.sh
@@ -23,4 +25,3 @@ source $(dirname $0)/../../scripts_common.sh
 error_message "$script_name: Operation not supported"
 
 exit 1
-

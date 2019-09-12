@@ -57,7 +57,7 @@ drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VM')
 
 deploy_id    = drv_action['DEPLOY_ID']
-host_id      = drv_action['HISTORY_RECORDS/HISTORY/HID']
+host_id      = drv_action['HISTORY_RECORDS/HISTORY[last()]/HID']
 deploy       = {}
 
 begin

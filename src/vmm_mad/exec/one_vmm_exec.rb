@@ -985,7 +985,8 @@ class ExecDriver < VirtualMachineDriver
         steps << {
             :driver     => :vmm,
             :action     => :reconfigure,
-            :parameters => [:deploy_id, target_device, target_path]
+            :parameters => [:deploy_id, target_device, target_path],
+            :stdin      => xml_data
         }
 
         action.run(steps)
@@ -1073,7 +1074,8 @@ class ExecDriver < VirtualMachineDriver
         steps << {
             :driver     => :vmm,
             :action     => :reconfigure,
-            :parameters => [:deploy_id, target_device, target_path]
+            :parameters => [:deploy_id, target_device, target_path],
+            :stdin      => xml_data
         }
 
         action.run(steps)
@@ -1154,7 +1156,8 @@ class ExecDriver < VirtualMachineDriver
         steps << {
             :driver     => :vmm,
             :action     => :reconfigure,
-            :parameters => [:deploy_id, target_device, target_path]
+            :parameters => [:deploy_id, target_device, target_path],
+            :stdin      => xml_data
         }
 
         action.run(steps)
@@ -1180,7 +1183,6 @@ class ExecDriver < VirtualMachineDriver
 
         action.run(steps, sg_id)
     end
-
     private
 
     def ensure_xpath(xml_data, id, action, xpath)
