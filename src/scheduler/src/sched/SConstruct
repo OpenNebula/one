@@ -48,6 +48,12 @@ sched_env.Prepend(LIBS=[
 ])
 
 if not sched_env.GetOption('clean'):
-    sched_env.ParseConfig(("LDFLAGS='%s' ../../../../share/scons/get_xmlrpc_config client") % (os.environ['LDFLAGS'],))
+    env_xmlrpc_flags = "LDFLAGS='%s' CXXFLAGS='%s' CPPFLAGS='%s'" % (
+                       os.environ.get('LDFLAGS', ''),
+                       os.environ.get('CXXFLAGS', ''),
+                       os.environ.get('CPPFLAGS', ''))
+
+    sched_env.ParseConfig("%s ../../../../share/scons/get_xmlrpc_config client" % (
+                          env_xmlrpc_flags,))
 
 sched_env.Program('mm_sched.cc')

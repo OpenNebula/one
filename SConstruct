@@ -205,10 +205,15 @@ if not main_env.GetOption('clean'):
         exit(-1)
 
     try:
-        main_env.ParseConfig(("LDFLAGS='%s' share/scons/get_xmlrpc_config" +
-                              " server") % (os.environ['LDFLAGS'],))
-        main_env.ParseConfig(("LDFLAGS='%s' share/scons/get_xmlrpc_config" +
-                              " client") % (os.environ['LDFLAGS'],))
+        env_xmlrpc_flags = "LDFLAGS='%s' CXXFLAGS='%s' CPPFLAGS='%s'" % (
+                           os.environ.get('LDFLAGS', ''),
+                           os.environ.get('CXXFLAGS', ''),
+                           os.environ.get('CPPFLAGS', ''))
+
+        main_env.ParseConfig("%s share/scons/get_xmlrpc_config server" % (
+                             env_xmlrpc_flags,))
+        main_env.ParseConfig("%s share/scons/get_xmlrpc_config client" % (
+                             env_xmlrpc_flags,))
 
     except Exception:
         print("")
