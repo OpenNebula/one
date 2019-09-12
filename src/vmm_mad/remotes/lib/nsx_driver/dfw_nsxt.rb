@@ -24,7 +24,7 @@ module NSXDriver
         SECTIONS = '/sections'
 
         # CONSTRUCTOR
-
+        # Creates OpenNebula section if not exists
         def initialize(nsx_client)
             super(nsx_client)
             # Construct base URLs
@@ -44,6 +44,10 @@ module NSXDriver
         end
 
         # Get all sections
+        # Params:
+        # - None
+        # Return
+        # - nil | sections
         def sections
             sections = @nsx_client.get_json(@url_sections)
             sections['results']
@@ -51,9 +55,9 @@ module NSXDriver
 
         # Get section by id
         # Params:
-        # - section_id: specified section_id or @one_section_id
-        # Return:
-        #
+        # - section_id: [String] ID of the section or @one_section_id
+        # Return
+        # - nil | section
         def section_by_id(section_id = @one_section_id)
             url = @url_sections + '/' + section_id
             @nsx_client.get_json(url)
@@ -92,6 +96,8 @@ module NSXDriver
         end
 
         # Delete section
+        # Params:
+        # - section_id: [String] ID of the section or @one_section_id
         def delete_section(section_id = @one_section_id)
             url = @url_sections + '/' + section_id
             @nsx_client.delete(url, HEADER_JSON)

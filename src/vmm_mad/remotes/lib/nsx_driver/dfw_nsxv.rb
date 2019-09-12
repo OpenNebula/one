@@ -26,7 +26,7 @@ module NSXDriver
         RULE_XPATH = '//rule'
 
         # CONSTRUCTOR
-
+        # Creates OpenNebula section if not exists
         def initialize(nsx_client)
             super(nsx_client)
             # Construct base URLs
@@ -44,35 +44,78 @@ module NSXDriver
         def init_section
             one_section = section_by_name(@one_section_name)
             one_section ||= create_section(@one_section_name)
-            one_section[:id]
+            return one_section.xpath('@id').text if one_section
         end
 
+        # Get all sections
+        # Params:
+        # - None
+        # Return:
+        # - nil | [Nokogiri::XML::NodeSet] sections
         def sections
-            @nsx_client.get_xml(@base_url).xpath(SECTION_XPATH)
+            result = @nsx_client.get_xml(@base_url)
+            return result.xpath(SECTION_XPATH) if result
         end
 
         # Get section by id
+        # Params:
+        # - section_id: [String] ID of the section or @one_section_id
+        # Return:
+        # - nil | [Nokogiri::XML::NodeSet] section
         def section_by_id(section_id = @one_section_id)
             url = @url_sections + '/' + section_id
-            @nsx_client.get_xml(url).xpath(SECTION_XPATH)
+            result = @nsx_client.get_xml(url)
+            return result.xpath(SECTION_XPATH) if result
+        end
+
+        # Get section etag needed to manage FW rules
+        # Params:
+        # - section_id: [String] ID of the section or @one_section_id
+        # Return:
+        # - nil | etag [String] ID of the etag header
+        def section_etag(section_id = @one_section_id)
+            url = @url_sections + '/' + section_id
+            response = @nsx_client.get_full_response(url, HEADER_XML)
+            return unless response
+
+            etag = response['etag']
+            return etag.delete('\"') if etag
         end
 
         # Get section by name
+        # Params:
+        # - section_name: [String] Name of the section
+        # Return:
+        # - nil | [Nokogiri::XML::NodeSet] section
         def section_by_name(section_name)
             url = @url_sections + '?name=' + section_name
-            @nsx_client.get_xml(url).xpath(SECTION_XPATH)
+            result = @nsx_client.get_xml(url)
+            return result.xpath(SECTION_XPATH) if result
         end
 
         # Create new section
+        # Params:
+        # - section_name [String] Name of the section
+        # Return:
+        # - [Nokogiri::XML::NodeSet]
         def create_section(section_name)
             section_spec =
                 "<section name=\"#{section_name}\"\
                 stateless=\"false\" tcpStrict=\"true\" useSid=\"false\">\
                 </section>"
-            @nsx_client.post_xml(@url_sections, section_spec)
+            section = @nsx_client.post_xml(@url_sections, section_spec)
+            raise 'Error creating section in NSX' unless section
+
+            section_id = section.xpath('//section/@id').text
+            result = section_by_id(section_id)
+            raise 'Section was not created in NSX' unless result
+
+            result
         end
 
         # Delete section
+        # Params:
+        # - section_id: [String] ID of the section or @one_section_id
         def delete_section(section_id = @one_section_id)
             url = @url_sections + '/' + section_id
             @nsx_client.delete(url, HEADER_XML)
@@ -80,25 +123,81 @@ module NSXDriver
 
         # Rules
         # Get all rules
+        # Params:
+        # - section_id: [String] ID of the section or @one_section_id
+        # Return:
+        # - [Nokogiri::XML::NodeSet]
         def rules(section_id = @one_section_id)
             url = @url_sections + '/' + section_id
-            @nsx_client.get_xml(url).xpath(RULE_XPATH)
+            result = @nsx_client.get_xml(url)
+            return result.xpath(RULE_XPATH) if result
         end
 
         # Get rule by id
-        def rules_by_id(rule_id, section_id = @one_section_id); end
+        def rules_by_id(rule_id, section_id = @one_section_id)
+            url = @url_sections + '/' + section_id + '/rules/' + rule_id
+            result = @nsx_client.get_xml(url)
+            return result.xpath(RULE_XPATH) if result
+        end
 
         # Get rule by name
-        def rules_by_name; end
+        def rules_by_name(rule_name, section_id = @one_section_id)
+            result = nil
+            return result unless section_id
+
+            all_rules = rules(section_id)
+            return result unless all_rules
+
+            all_rules.each do |rule|
+                result = rule if rule.xpath("//rule/name=\"#{rule_name}\"")
+            end
+            result
+        end
 
         # Create new rule
-        def create_rule; end
+        def create_rule(rule_spec, section_id = @one_section_id)
+            # etag is needed to add a new header If-Match
+            etag = section_etag(section_id)
+            raise "Cannot get etag from section: #{section_id}" unless etag
+
+            header = HEADER_XML
+            header['If-Match'] = etag
+            url = @url_sections + '/' + section_id + '/rules'
+            result = @nsx_client.post_xml(url, rule_spec, header)
+            raise 'Error creating DFW rule' unless result
+        end
 
         # Update rule
-        def update_rule; end
+        def update_rule(rule_id, rule_spec, section_id = @one_section_id)
+            url = @url_sections + '/' + section_id + '/rules/' + rule_id
+            rule = rules_by_id(rule_id)
+            raise "Rule id #{rule_id} not found" unless rule
+
+            # etag is needed to add a new header If-Match
+            etag = section_etag(section_id)
+            raise "Cannot get etag from section: #{section_id}" unless etag
+
+            header = HEADER_XML
+            header['If-Match'] = etag
+            result = @nsx_client.put_xml(url, rule_spec, header)
+            raise 'Error creating DFW rule' unless result
+        end
 
         # Delete rule
-        def delete_rule; end
+        def delete_rule(rule_id, section_id = @one_section_id)
+            url = @url_sections + '/' + section_id + '/rules/' + rule_id
+            # etag is needed to add a new header If-Match
+            etag = section_etag(section_id)
+            raise "Cannot get etag from section: #{section_id}" unless etag
+
+            header = HEADER_XML
+            header['If-Match'] = etag
+            result = @nsx_client.delete(url, header)
+            raise 'Invalid http code deleting rule in DFW' unless result
+
+            result = rules_by_id(rule_id)
+            raise 'Error deleting rule in DFW' if result
+        end
 
     end
 
