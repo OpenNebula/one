@@ -913,9 +913,9 @@ bool Template::check_restricted(string& ra,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Template::encrypt_attr(const std::string& one_key,
-                            const std::string& in,
-                            std::string& out)
+static void encrypt_attr(const std::string& one_key,
+                         const std::string& in,
+                         std::string& out)
 {
     if (!one_key.empty())
     {
@@ -934,9 +934,9 @@ void Template::encrypt_attr(const std::string& one_key,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool Template::decrypt_attr(const std::string& one_key,
-                            const std::string& in,
-                            std::string& out)
+static bool decrypt_attr(const std::string& one_key,
+                         const std::string& in,
+                         std::string& out)
 {
     if (one_key.empty())
     {
@@ -964,11 +964,9 @@ bool Template::decrypt_attr(const std::string& one_key,
 void Template::encrypt(const std::string& one_key,
                        const std::map<std::string, std::set<std::string> >& eas)
 {
-    std::map<std::string, std::set<std::string> >::const_iterator eit;
-
-    for ( eit = eas.begin(); eit != eas.end(); ++eit )
+    for ( auto eit : eas )
     {
-        const std::set<std::string>& sub = eit->second;
+        const std::set<std::string>& sub = eit.second;
 
         std::string tmp;
         std::string encrypted;
@@ -976,38 +974,48 @@ void Template::encrypt(const std::string& one_key,
 
         if (!sub.empty()) //Vector Attribute
         {
-            auto vatt = get(eit->first);
+            vector<VectorAttribute *> vatt;
 
-            if (vatt == nullptr)
+            get(eit.first, vatt);
+
+            if (vatt.empty())
             {
                 continue;
             }
 
-            std::set<std::string>::iterator subit;
-
-            for ( subit = sub.begin(); subit != sub.end(); ++subit)
+            for ( auto vattit : vatt )
             {
-                att = vatt->vector_value(*subit);
-
-                if (!att.empty() && !decrypt_attr(one_key, att, tmp))
+                for ( auto subit : sub )
                 {
-                    // Nested attribute present, but not encrypted, crypt it
-                    encrypt_attr(one_key, att, encrypted);
+                    att = vattit->vector_value(subit);
 
-                    vatt->replace(*subit, encrypted);
+                    if (!att.empty() && !decrypt_attr(one_key, att, tmp))
+                    {
+                        // Nested attribute present, but not encrypted, crypt it
+                        encrypt_attr(one_key, att, encrypted);
+
+                        vattit->replace(subit, encrypted);
+                    }
                 }
             }
         }
         else
         {
-            get(eit->first, att);
+            vector<SingleAttribute *> vatt;
 
-            if (!att.empty() && !decrypt_attr(one_key, att, tmp))
+            get(eit.first, vatt);
+
+            for ( auto attit : vatt )
             {
-                // Simple attribute present, but not encrypted, crypt it
-                encrypt_attr(one_key, att, encrypted);
+                string aval = attit->value();
 
-                replace(eit->first, encrypted);
+                // Simple attribute present, but not encrypted, crypt it
+                if (!aval.empty() && !decrypt_attr(one_key, aval, tmp))
+                {
+                    encrypt_attr(one_key, aval, encrypted);
+
+                    attit->replace(encrypted);
+                }
             }
         }
     }
@@ -1019,43 +1027,46 @@ void Template::encrypt(const std::string& one_key,
 void Template::decrypt(const std::string& one_key,
                        const std::map<std::string, std::set<std::string> >& eas)
 {
-    std::map<std::string, std::set<std::string> >::const_iterator eit;
-
-    for ( eit = eas.begin(); eit != eas.end(); ++eit )
+    for ( auto eit : eas )
     {
-        const std::set<std::string>& sub = eit->second;
+        const std::set<std::string>& sub = eit.second;
 
         std::string att;
         std::string plain;
 
         if (!sub.empty()) //Vector Attribute
         {
-            auto vatt = get(eit->first);
+            vector<VectorAttribute *> vatt;
 
-            if (vatt == nullptr)
+            get(eit.first, vatt);
+
+            for ( auto vattit : vatt )
             {
-                continue;
-            }
-
-            std::set<std::string>::iterator subit;
-
-            for ( subit = sub.begin(); subit != sub.end(); ++subit)
-            {
-                att = vatt->vector_value(*subit);
-
-                if (!att.empty() && decrypt_attr(one_key, att, plain))
+                for ( auto subit : sub )
                 {
-                    vatt->replace(*subit, plain);
+                    att = vattit->vector_value(subit);
+
+                    if (!att.empty() && decrypt_attr(one_key, att, plain))
+                    {
+                        vattit->replace(subit, plain);
+                    }
                 }
             }
         }
         else
         {
-            get(eit->first, att);
+            vector<SingleAttribute *> vatt;
 
-            if (!att.empty() && decrypt_attr(one_key, att, plain))
+            get(eit.first, vatt);
+
+            for ( auto attit : vatt )
             {
-                replace(eit->first, plain);
+                string aval = attit->value();
+
+                if (!aval.empty() && decrypt_attr(one_key, aval, plain))
+                {
+                    attit->replace(plain);
+                }
             }
         }
     }

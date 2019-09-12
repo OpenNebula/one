@@ -29,6 +29,12 @@ class VirtualNetworkTemplate : public Template
 public:
     VirtualNetworkTemplate():Template(false,'=',"TEMPLATE"){};
 
+    VirtualNetworkTemplate(bool replace_mode,
+                           const char   separator,
+                           const char * xml_root):Template(replace_mode,
+                                                           separator,
+                                                           xml_root){};
+
     ~VirtualNetworkTemplate(){};
 
     VirtualNetworkTemplate(VirtualNetworkTemplate& vnt):Template(vnt){};

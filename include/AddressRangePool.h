@@ -24,7 +24,7 @@
 
 #include <libxml/parser.h>
 
-#include "Template.h"
+#include "VirtualNetworkTemplate.h"
 #include "PoolObjectSQL.h"
 
 class VectorAttribute;
@@ -332,19 +332,25 @@ public:
     /**
      *  Encrypt all secret attributes
      */
-    void encrypt(const std::string& one_key);
+    void encrypt(const std::string& one_key)
+    {
+        ar_template.encrypt(one_key);
+    };
 
     /**
      *  Decrypt all secret attributes
      */
-    void decrypt(const std::string& one_key);
+    void decrypt(const std::string& one_key)
+    {
+        ar_template.decrypt(one_key);
+    };
 
 private:
     /**
      *  Stores the Address Ranges in a template form. This template is used
      *  to store the pool in the DB
      */
-    Template ar_template;
+    VirtualNetworkTemplate ar_template;
 
     /**
      *  ID for the next Address Range
