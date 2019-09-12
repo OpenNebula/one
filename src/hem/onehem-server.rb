@@ -335,8 +335,8 @@ class HookExecutionManager
     # --------------------------------------------------------------------------
     DEFAULT_CONF = {
         :hook_base_path      => HOOK_LOCATION,
-        :subscriber_endpoint => 'tcp://localhost:5556',
-        :replier_endpoint    => 'tcp://localhost:5557',
+        :subscriber_endpoint => 'tcp://localhost:2101',
+        :replier_endpoint    => 'tcp://localhost:2102',
         :debug_level         => 2,
         :concurrency         => 10
     }

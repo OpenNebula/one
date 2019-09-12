@@ -51,8 +51,8 @@ class HookManagerDriver < OpenNebulaDriver
         :concurrency => 15,
         :threaded    => false,
         :retries     => 0,
-        :publisher_port => 5556,
-        :logger_port    => 5557,
+        :publisher_port => 2101,
+        :logger_port    => 2102,
         :hwm  => nil, # http://zguide.zeromq.org/page:all#High-Water-Marks
         :bind => '127.0.0.1'
     }
