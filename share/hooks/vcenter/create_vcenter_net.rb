@@ -41,7 +41,24 @@ require 'vcenter_driver'
 require 'base64'
 require 'nsx_driver'
 
-network_id = ARGV[0]
+SUCCESS_XPATH = '//PARAMETER[TYPE="OUT" and POSITION="1"]/VALUE'
+ERROR_XPATH = '//PARAMETER[TYPE="OUT" and POSITION="2"]/VALUE'
+NETWORK_ID_XPATH = '//PARAMETER[TYPE="OUT" and POSITION="2"]/VALUE'
+
+# Changes due to new hooks
+arguments_raw = Base64.decode64(STDIN.read)
+arguments_xml = Nokogiri::XML(arguments_raw)
+success = arguments_xml.xpath(SUCCESS_XPATH).text
+if success == 'false'
+    error = arguments_xml.xpath(ERROR_XPATH).text
+    STDERR.puts error
+    exit(-1)
+end
+
+response_id = arguments_xml.xpath(NETWORK_ID_XPATH).text
+network_id = response_id.to_i
+
+# network_id = ARGV[0]
 # base64_temp  = ARGV[1]
 
 # template     = OpenNebula::XMLElement.new
