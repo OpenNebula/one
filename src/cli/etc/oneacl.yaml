@@ -29,6 +29,11 @@
   :size: 8
   :right: true
 
+:STRING:
+  :desc: ACL rule in string format
+  :adjust: true
+  :left: true
+
 :default:
 - :ID
 - :USER

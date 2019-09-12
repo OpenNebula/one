@@ -141,6 +141,13 @@ private
                 OneAclHelper::right_mask d['STRING'].split(" ")[2]
             end
 
+            column :STRING,
+                   "ACL rule in string format",
+                   :adjust => true,
+                   :left => true do |d|
+                d['STRING']
+            end
+
             default :ID, :USER, :RES_VHNIUTGDCOZSvRMAPt, :RID, :OPE_UMAC, :ZONE
         end
 
