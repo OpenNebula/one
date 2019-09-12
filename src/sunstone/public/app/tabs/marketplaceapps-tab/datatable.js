@@ -152,23 +152,20 @@ define(function(require) {
     var color_html = Status.state_lock_to_color("MARKETPLACEAPP",state, element_json[XML_ROOT]["LOCK"]);
 
     return [
-      '<input class="check_item" type="checkbox" '+
-                          'style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' +
-                           element.ID + '" name="selected_items" value="' +
-                           element.ID + '"/>'+color_html,
-        element.ID,
-        element.NAME,
-        element.UNAME,
-        element.GNAME,
-        element.VERSION,
-        Humanize.sizeFromMB(element.SIZE),
-        state,
-        OpenNebulaMarketPlaceApp.typeStr(element.TYPE),
-        Humanize.prettyTimeDatatable(element.REGTIME),
-        element.MARKETPLACE,
-        zone,
-        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
-        btoa(unescape(encodeURIComponent(JSON.stringify(search))))
+      '<input class="check_item" type="checkbox" style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' + element.ID + '" name="selected_items" value="' + element.ID + '"/>'+color_html,
+      element.ID,
+      element.NAME,
+      element.UNAME,
+      element.GNAME,
+      element.VERSION,
+      Humanize.sizeFromMB(element.SIZE),
+      state,
+      OpenNebulaMarketPlaceApp.typeStr(element.TYPE),
+      Humanize.prettyTimeDatatable(element.REGTIME),
+      element.MARKETPLACE,
+      zone,
+      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+      btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
   }
 

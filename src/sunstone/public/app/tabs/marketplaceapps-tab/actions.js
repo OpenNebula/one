@@ -51,13 +51,17 @@ define(function(require) {
         }
 
         var resourceId = "" + selected_nodes[0];
-        var type       = Sunstone.getDataTable(TAB_ID).type;
+        var type       = "IMAGE"; //Sunstone.getDataTable(TAB_ID).type;
 
         Sunstone.resetFormPanel(TAB_ID, EXPORT_DIALOG_ID);
-        Sunstone.showFormPanel(TAB_ID, EXPORT_DIALOG_ID, "export",
+        Sunstone.showFormPanel(
+          TAB_ID, 
+          EXPORT_DIALOG_ID, 
+          "export",
           function(formPanelInstance, context) {
             formPanelInstance.setResourceId(context, resourceId, type);
-          });
+          }
+        );
       }
     },
     "MarketPlaceApp.export" : {
