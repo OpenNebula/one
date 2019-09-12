@@ -18,7 +18,6 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-
   var Locale = require("utils/locale");
   var Config = require("sunstone-config");
   var Sunstone = require("sunstone");
@@ -387,14 +386,13 @@ define(function(require) {
         $(nRow).attr("nic_id", aData.NIC_ID);
       }
     });
-
+    
     $("#tab_network_form .nics_table", context).dataTable().fnSort([[1, "asc"]]);
 
     // Add event listener for opening and closing each NIC row details
     context.off("click", "#tab_network_form .nics_table td.open-control");
     context.on("click", "#tab_network_form .nics_table td.open-control", function () {
       var row = $(this).closest("table").DataTable().row($(this).closest("tr"));
-
       if (row.child.isShown()) {
         row.child.hide();
         $(this).children("span").addClass("fa-chevron-down");
@@ -404,18 +402,29 @@ define(function(require) {
             var html = "";
 
             $.each(row.data().NIC_ALIAS, function(index, elem) {
-                var new_div = "<div id=alias_" + this.NIC_ID + " style=\"margin-left: 40px; margin-bottom: 5px\">" +
-                              "<b>" + "- Alias-" + this.ALIAS_ID + ":" + "</b>" +
-                              "&nbsp;&nbsp;&nbsp;" + this.IP  +
-                              "&nbsp;&nbsp;&nbsp;" + this.MAC +
-                              "&nbsp;&nbsp;&nbsp;" + this.ACTIONS + "</div>";
+              var new_div = "<div id=alias_" + this.NIC_ID + " style=\"margin-left: 40px; margin-bottom: 5px\"><b> - Alias-" + this.ALIAS_ID + ":</b>";
 
-                html += new_div;
+              if(!!this.IP) {
+                new_div += "&nbsp;&nbsp;&nbsp;" + this.IP;
+              }
+              if(!!this.IP6) {
+                new_div += "&nbsp;&nbsp;&nbsp;" + this.IP6;
+              }
+              new_div += "&nbsp;&nbsp;&nbsp;" + this.MAC;
+              if(!!this.IP6_ULA) {
+                new_div += "&nbsp;&nbsp;&nbsp;<b>ULA:</b>&nbsp;" + this.IP6_ULA;
+              }
+              if(!!this.IP6_GLOBAL) {
+                new_div += "&nbsp;&nbsp;&nbsp;<b>Global:</b>&nbsp;" + this.IP6_GLOBAL;
+              }
+              new_div += "&nbsp;&nbsp;&nbsp;" + this.ACTIONS + "</div>";
 
-                if (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) {
-                    context.off("click", ".detachnic");
-                    context.on("click", ".detachnic", {element_id: that.element.ID}, detach_alias);
-                }
+              html += new_div;
+
+              if (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) {
+                context.off("click", ".detachnic");
+                context.on("click", ".detachnic", {element_id: that.element.ID}, detach_alias);
+              }
             });
           } else {
               html = "";
@@ -582,7 +591,6 @@ define(function(require) {
 
     return state;
   }
-
   function _setState(state, context) {
     var that = this;
 
