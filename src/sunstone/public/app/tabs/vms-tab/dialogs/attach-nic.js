@@ -129,9 +129,11 @@ define(function(require) {
     var that = this;
 
     nicsNames.forEach(function(element) {
-        var alias_str = element.ID + " " + element.NET + " " + element.IP;
-
-        $("#parent", that.context).append(new Option(alias_str, element.NAME));
+      var nicID = element && element.ID? element.ID : "";
+      var nicNET = element && element.NET? element.NET : "";
+      var nicIP = element && element.IP? element.IP : "";
+      var alias_str = nicID + " - " + nicNET + " " + nicIP;
+      $("#parent", that.context).append(new Option(alias_str, element.NAME));
     });
   }
 });
