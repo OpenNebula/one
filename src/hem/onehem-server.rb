@@ -286,7 +286,7 @@ class HookMap
         key    = hook.key
         filter = hook.filter(key)
 
-        @hooks[hook.to_type][key] = hook
+        @hooks[hook.type][key] = hook
         @hooks_id[hook_id] = hook
         @filters[hook_id]  = filter
 
@@ -457,18 +457,17 @@ class HookExecutionManager
     def reload_hooks(call, info_xml)
         id = -1
 
-        # TODO, what happens if not int?
         if call == 'one.hook.allocate'
-            id = info_xml.xpath('//RESPONSE/OUT2')[0].text.to_i
+            id = info_xml.xpath('/HOOK_MESSAGE/CALL_INFO/PARAMETERS/PARAMETER[TYPE="OUT" and POSITION=2]/VALUE').text.to_i
         else
-            id = info_xml.xpath('//PARAMETERS/PARAMETER2')[0].text.to_i
+            id = info_xml.xpath('/HOOK_MESSAGE/CALL_INFO/PARAMETERS/PARAMETER[TYPE="IN" and POSITION=2]/VALUE').text.to_i
         end
 
         if call != 'one.hook.allocate'
             hook = @hooks.get_hook_by_id(id)
 
             @hooks.delete(id)
-            unsubscribe(hook.filter(hook.key))
+            unsubscribe(hook.filter(hook.key)) if !STATIC_FILTERS.include? hook.key
         end
 
         return if call == 'one.hook.delete'
