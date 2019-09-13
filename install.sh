@@ -1835,7 +1835,10 @@ HOOK_FT_FILES="share/hooks/ft/host_error.rb \
 #-------------------------------------------------------------------------------
 
 HOOK_VCENTER_FILES="share/hooks/vcenter/create_vcenter_net.rb \
-                    share/hooks/vcenter/delete_vcenter_net.rb"
+                    share/hooks/vcenter/delete_vcenter_net.rb \
+                    share/hooks/vcenter/create_nsx_secgroup.rb \
+                    share/hooks/vcenter/delete_nsx_secgroup.rb \
+                    share/hooks/vcenter/update_nsx_secgroup.rb"
 
 #-------------------------------------------------------------------------------
 # HOOK templates, to be installed under
