@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -xv
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
@@ -243,7 +243,7 @@ start_hem()
         [ -f "$ONE_HEM_LOG" ] && mv $ONE_HEM_LOG{,.$(date '+%Y%m%d%H%M%S')}
     fi
 
-    onehem-server start > /dev/null 2>&1 
+    onehem-server start > /dev/null 2>&1
 
     LASTRC=$?
 
