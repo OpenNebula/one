@@ -36,5 +36,9 @@ echo 'VM_MAD = [ NAME="dummy", SUNSTONE_NAME="Testing", EXECUTABLE="one_vmm_dumm
 # start oned
 one start
 
+cat /var/log/one/onehem.log
+echo "----------------------------------------"
+cat /var/log/one/onehem.error
+
 # check it's up
 timeout 60 sh -c 'until nc -z $0 $1; do sleep 1; done' localhost 2633
