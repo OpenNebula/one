@@ -69,7 +69,7 @@ DISTRIBUTIONS={
             'xmlparser' => ['gcc', 'libexpat1-dev'],
             'thin'      => ['g++'],
             'json'      => ['gcc'],
-            'onehem'    => ['libzmq3-dev']
+            'ffi-rzmq-core'    => ['libzmq3-dev']
         },
         :install_command_interactive => 'apt-get install',
         :install_command => 'apt-get -y install',
