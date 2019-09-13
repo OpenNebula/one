@@ -1,1 +1,1 @@
-oneadmin ALL=(ALL) NOPASSWD: ONE_LXD
+oneadmin ALL=(ALL:ALL) NOPASSWD: ONE_LXD
