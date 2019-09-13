@@ -1079,7 +1079,9 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :show, show_desc, :vmid,
-            :options => [OpenNebulaHelper::XML, OneVMHelper::ALL_TEMPLATE] do
+            :options => [OpenNebulaHelper::XML,
+                         OpenNebulaHelper::DECRYPT,
+                         OneVMHelper::ALL_TEMPLATE] do
         helper.show_resource(args[0], options)
     end
 

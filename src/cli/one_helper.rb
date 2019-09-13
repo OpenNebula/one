@@ -397,6 +397,12 @@ EOT
         :description => 'Show info extended (it only works with xml output)'
     }
 
+    DECRYPT = {
+        :name => 'decrypt',
+        :large => '--decrypt',
+        :description => 'Get decrypted attributes'
+    }
+
     TEMPLATE_OPTIONS_VM   = [TEMPLATE_NAME_VM] + TEMPLATE_OPTIONS + [DRY]
 
     CAPACITY_OPTIONS_VM   = [TEMPLATE_OPTIONS[0], TEMPLATE_OPTIONS[1],
@@ -795,7 +801,12 @@ EOT
         def show_resource(id, options)
             resource = retrieve_resource(id)
 
-            rc = resource.info
+            if !options.key? :decrypt
+                rc = resource.info
+            else
+                rc = resource.info(true)
+            end
+
             return -1, rc.message if OpenNebula.is_error?(rc)
 
             if options[:xml]
