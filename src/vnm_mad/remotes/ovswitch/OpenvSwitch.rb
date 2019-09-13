@@ -31,13 +31,13 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     def activate
         lock
 
-        @bridges = get_bridges
+        @bridges = list_bridges
 
         process do |nic|
             @nic = nic
 
             # Get the name of the link vlan device.
-            get_vlan_dev_name
+            gen_vlan_dev_name
 
             # Create the bridge.
             create_bridge
@@ -118,7 +118,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     def deactivate
         lock
 
-        @bridges = get_bridges
+        @bridges = list_bridges
 
         attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
 
@@ -139,7 +139,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
             next if @bridges[@nic[:bridge]].nil?
 
             # Get the name of the vlan device.
-            get_vlan_dev_name
+            gen_vlan_dev_name
 
             # Return if the bridge doesn't exist because it was already deleted
             # (handles last vm with multiple nics on the same vlan)
@@ -370,7 +370,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
 private
     # Generate the name of the vlan device which will be added to the bridge.
-    def get_vlan_dev_name
+    def gen_vlan_dev_name
         nil
     end
 
@@ -457,7 +457,7 @@ private
 
     # Get hypervisor bridges
     #   @return [Hash<String>] with the bridge names
-    def get_bridges
+    def list_bridges
         bridges = Hash.new
 
         list_br =`#{command(:ovs_vsctl)} list-br`

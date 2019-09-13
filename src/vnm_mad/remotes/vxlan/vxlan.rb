@@ -78,7 +78,7 @@ module VXLAN
         OpenNebula.exec_and_log("#{command(:ip)} link delete #{@nic[@attr_vlan_dev]}")
     end
 
-    def get_interface_vlan(name)
+    def list_interface_vlan(name)
         text = %x(#{command(:ip)} -d link show #{name})
         return nil if $?.exitstatus != 0
 
