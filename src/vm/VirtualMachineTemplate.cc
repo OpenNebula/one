@@ -20,7 +20,7 @@
 /* -------------------------------------------------------------------------- */
 
 std::map<std::string, std::set<std::string> > VirtualMachineTemplate::restricted;
-std::map<std::string, std::set<std::string> > VirtualMachineTemplate::encrypted;
+const std::map<std::string, std::set<std::string> > VirtualMachineTemplate::encrypted;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

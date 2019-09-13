@@ -104,7 +104,18 @@ public:
      */
     virtual Attribute* clone() const = 0;
 
+    /**
+     *  Encrypt all secret attributes
+     */
+    virtual void encrypt(const string& one_key, const set<string>& eas) {};
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    virtual void decrypt(const string& one_key, const set<string>& eas) {};
+
 protected:
+
     /**
      *  The attribute name.
      */
@@ -173,7 +184,7 @@ public:
 
     void to_json(std::ostringstream& s) const
     {
-        one_util::escape_json(attribute_value, s); 
+        one_util::escape_json(attribute_value, s);
     }
 
     void to_token(std::ostringstream& s) const
@@ -220,6 +231,16 @@ public:
     {
         return new SingleAttribute(*this);
     };
+
+    /**
+     *  Encrypt all secret attributes
+     */
+    virtual void encrypt(const string& one_key, const set<string>& eas) override;
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    virtual void decrypt(const string& one_key, const set<string>& eas) override;
 
 private:
 
@@ -457,6 +478,16 @@ public:
     {
         return attribute_value.empty();
     }
+
+    /**
+     *  Encrypt all secret attributes
+     */
+    virtual void encrypt(const string& one_key, const set<string>& eas) override;
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    virtual void decrypt(const string& one_key, const set<string>& eas) override;
 
 private:
 

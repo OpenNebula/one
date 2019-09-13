@@ -23,7 +23,8 @@ lib_name='nebula_ipamm'
 # Sources to generate the library
 source_files=[
     'IPAMManager.cc',
-    'IPAMManagerDriver.cc'
+    'IPAMManagerDriver.cc',
+    'IPAMRequest.cc'
 ]
 
 # Build library
