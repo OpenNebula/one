@@ -91,10 +91,10 @@ Defaults secure_path = /sbin:/bin:/usr/sbin:/usr/bin
 <% cmd_sets.each do |k|; l = "ONE_#{k}"; v = abs_cmds[l]  %>
 <% if !v.nil? %>
 Cmnd_Alias <%= l %> = <%= v.join(", ") %>
-<% end %>
+<%   end %>
 <% end %>
 
-<% cmd_sets.delete(:LXD) unless ARGV.include? '--lxd' %>
+<% lxd = cmd_sets.delete(:LXD) %>
 
 oneadmin ALL=(ALL) NOPASSWD: <%= cmd_sets.select{|k| !abs_cmds["ONE_#{k}"].nil?}.collect{|k| "ONE_#{k}"}.join(", ") %>
 
