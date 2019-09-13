@@ -30,7 +30,6 @@ SUDO_CMDS = {
     :MISC   => %w[sync],
     :NET    => %w[ebtables iptables ip6tables ip ipset arping],
     :LVM    => %w[lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend],
-    :ISCSI  => %w[iscsiadm tgt-admin tgtadm],
     :OVS    => %w[ovs-ofctl ovs-vsctl],
     :CEPH   => %w[rbd],
     :MARKET => %W[#{LIB_LOCATION}/sh/create_container_image.sh],
