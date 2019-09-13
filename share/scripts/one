@@ -249,8 +249,12 @@ start_hem()
 
     if [ $LASTRC -ne 0 ]; then
         echo "Error starting onehem-server"
+    cat /var/log/one/onehem.log
+    cat /var/log/one/onehem.error
+
         exit 1
     fi
+
 }
 
 #------------------------------------------------------------------------------
