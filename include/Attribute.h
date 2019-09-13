@@ -104,7 +104,18 @@ public:
      */
     virtual Attribute* clone() const = 0;
 
+    /**
+     *  Encrypt all secret attributes
+     */
+    virtual void encrypt(const string& one_key, const set<string>& eas) = 0;
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    virtual void decrypt(const string& one_key, const set<string>& eas) = 0;
+
 protected:
+
     /**
      *  The attribute name.
      */
@@ -173,7 +184,7 @@ public:
 
     void to_json(std::ostringstream& s) const
     {
-        one_util::escape_json(attribute_value, s); 
+        one_util::escape_json(attribute_value, s);
     }
 
     void to_token(std::ostringstream& s) const
@@ -220,6 +231,36 @@ public:
     {
         return new SingleAttribute(*this);
     };
+
+    /**
+     *  Encrypt all secret attributes
+     */
+    virtual void encrypt(const string& one_key, const set<string>& eas) override
+    {
+        string encrypted;
+        string tmp;
+
+        // Simple attribute present, but not encrypted, crypt it
+        if (!value() && !decrypt_attr(one_key, value(), tmp))
+        {
+            encrypt_attr(one_key, value(), encrypted);
+
+            replace(encrypted);
+        }
+    }
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    virtual void decrypt(const string& one_key, const set<string>& eas) override
+    {
+        string plain;
+
+        if (!value().empty() && decrypt_attr(one_key, value(), plain))
+        {
+            replace(plain);
+        }
+    }
 
 private:
 
@@ -456,6 +497,49 @@ public:
     bool empty()
     {
         return attribute_value.empty();
+    }
+
+    /**
+     *  Encrypt all secret attributes
+     */
+    virtual void encrypt(const std::string& one_key,
+        const std::set<std::string>& eas) override
+    {
+        std::string att;
+        std::string encrypted;
+        std::string tmp;
+
+        for ( auto ea : eas )
+        {
+            att = vector_value(ea);
+
+            if (!att.empty() && !decrypt_attr(one_key, att, tmp))
+            {
+                // Nested attribute present, but not encrypted, crypt it
+                encrypt_attr(one_key, att, encrypted);
+
+                replace(ea, encrypted);
+            }
+        }
+    }
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    virtual void decrypt(const std::string& one_key,
+        const std::set<std::string>& eas) override
+    {
+        std::string att;
+
+        for ( auto ea : eas )
+        {
+            att = vector_value(ea);
+
+            if (!att.empty() && decrypt_attr(one_key, att, plain))
+            {
+                replace(ea, plain);
+            }
+        }
     }
 
 private:
