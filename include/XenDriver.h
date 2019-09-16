@@ -51,7 +51,7 @@ private:
      */
     int deployment_description(
         const VirtualMachine *  vm,
-        const string&           file_name) const;
+        const string&           file_name) const override;
 };
 
 #endif /*XEN_DRIVER_H_*/
