@@ -49,6 +49,9 @@ SUDO_CMDS = {
     ]
 }
 
+# TODO: Add node specific commands here, like networking
+NODECMDS = [:LXD]
+
 abs_cmds = {}
 not_found_cmds = []
 cmd_sets = SUDO_CMDS.keys
@@ -93,7 +96,7 @@ Cmnd_Alias <%= l %> = <%= v.join(", ") %>
 <%   end %>
 <% end %>
 
-<% lxd = cmd_sets.delete(:LXD) %>
+<% NODECMDS.each {|set| cmd_sets.delete(set)}  %>
 
 oneadmin ALL=(ALL) NOPASSWD: <%= cmd_sets.select{|k| !abs_cmds["ONE_#{k}"].nil?}.collect{|k| "ONE_#{k}"}.join(", ") %>
 
