@@ -52,6 +52,7 @@ public:
 
     xmlrpc_c::value * retval; /**< Return value from libxmlrpc-c */
     string retval_xml;        /**< Return value in XML format */
+    string extra_xml;         /**< Extra information returned for API Hooks */
 
     PoolObjectSQL::ObjectType resp_obj; /**< object type */
     int                       resp_id;  /**< Id of the object */

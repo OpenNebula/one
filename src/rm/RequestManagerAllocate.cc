@@ -266,6 +266,16 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
         cluster->unlock();
     }
 
+    //Take object body for hooks.
+    PoolObjectSQL * obj = pool->get(id);
+
+    if (obj != nullptr)
+    {
+        obj->to_xml(att.extra_xml);
+
+        obj->unlock();
+    }
+
     att.resp_id = id;
     success_response(id, att);
 }
@@ -648,6 +658,16 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
         dspool->update(ds);
 
         ds->unlock();
+    }
+
+    // Take image body for Hooks
+    Image * img = ipool->get(id);
+
+    if (img != nullptr)
+    {
+        img->to_xml(att.extra_xml);
+
+        img->unlock();
     }
 
     att.resp_id = id;
