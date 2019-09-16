@@ -29,7 +29,7 @@ rvm repair wrappers
 echo "Before install gems*******"
 sudo apt-cache show default-libmysqlclient-dev
 echo "Package list*******"
-sudo pkg -l
+sudo dpkg -l
 echo "****@^_^@******"
 
 rvmsudo /usr/share/one/install_gems --yes
