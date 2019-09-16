@@ -1118,10 +1118,12 @@ int LibVirtDriver::deployment_description_kvm(
         file << "\t\t\t<target dev=" << one_util::escape_xml_attr(target);
 
         disk_bus = get_disk_bus(machine, target, sd_bus);
+
         if (!disk_bus.empty())
         {
              file << " bus="<< one_util::escape_xml_attr(disk_bus);
         }
+
         file <<"/>\n";
 
 
@@ -1279,6 +1281,7 @@ int LibVirtDriver::deployment_description_kvm(
                  << "\t\t\t<target dev=" << one_util::escape_xml_attr(target);
 
             disk_bus = get_disk_bus(machine, target, sd_bus);
+
             if (!disk_bus.empty())
             {
                  file << " bus="<< one_util::escape_xml_attr(disk_bus);
