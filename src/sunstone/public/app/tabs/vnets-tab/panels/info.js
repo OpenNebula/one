@@ -91,13 +91,20 @@ define(function(require) {
         }
       }
     });
-    var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
-                                              Locale.tr("Attributes"));
-    var templateTableVcenterHTML = TemplateTableVcenter.html(strippedTemplateVcenter, RESOURCE,
-                                              Locale.tr("vCenter information"), false);
-    //====
 
-    // TODO: move to util?
+    var templateTableHTML = TemplateTable.html(
+      strippedTemplate,
+      RESOURCE,
+      Locale.tr("Attributes")
+    );
+
+    var templateTableVcenterHTML = TemplateTableVcenter.html(
+      strippedTemplateVcenter, 
+      RESOURCE,
+      Locale.tr("vCenter information"),
+      false
+    );
+
     var reservationTrHTML = '';
 
     if(this.element.PARENT_NETWORK_ID.length > 0){
@@ -116,7 +123,7 @@ define(function(require) {
       $(".reserve-sunstone-info").removeClass("has-tip");
       $(".reserve-sunstone-info").removeAttr("title");
     }
-    //====
+ 
     var auto_vlan_id = Locale.tr("NO");
     var auto_outer_vlan_id = Locale.tr("NO");
 
@@ -127,6 +134,11 @@ define(function(require) {
     if (this.element.OUTER_VLAN_ID_AUTOMATIC == "1") {
       auto_outer_vlan_id = Locale.tr("YES");
     }
+    this.element.VLAN_ID = jQuery.isEmptyObject(this.element.VLAN_ID) && 
+                           this.element.TEMPLATE && 
+                           this.element.TEMPLATE.VCENTER_VLAN_ID? 
+                           this.element.TEMPLATE.VCENTER_VLAN_ID : 
+                           this.element.VLAN_ID;
 
     return TemplateInfo({
       'element': this.element,
