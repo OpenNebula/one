@@ -26,6 +26,12 @@ echo "oneadmin:opennebula" > $HOME/.one/one_auth
 source /home/travis/.rvm/scripts/rvm
 rvm repair wrappers
 
+echo "Before install gems*******"
+sudo apt-cache show default-libmysqlclient-dev
+echo "Package list*******"
+sudo pkg -l
+echo "****@^_^@******"
+
 rvmsudo /usr/share/one/install_gems --yes
 
 # Enable dummy drivers
