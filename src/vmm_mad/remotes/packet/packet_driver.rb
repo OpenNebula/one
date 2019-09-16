@@ -78,15 +78,11 @@ class PacketDriver
         @one = one
         @packet = Packet::Client.new
 
-        if host.is_a?(String)
-            @host = get_xhost_by_name(host)
+        host = host['NAME'] unless host.is_a?(String)
 
-            unless @host
-                raise "Host not found #{host}"
-            end
-        else
-            @host = host
-        end
+        @host = get_xhost_by_name(host)
+
+        raise "Host not found #{host}" unless @host
 
         @globals = get_globals(@host)
         @packet.auth_token = @globals['PACKET_TOKEN']
@@ -397,32 +393,22 @@ SCHED_REQUIREMENTS = "NAME=\\"#{@host.name}\\""
     end
 
     def get_globals(xhost)
-        # get token
-        system = OpenNebula::System.new(@one)
-        config = system.get_configuration
-        raise "Error getting oned configuration : #{config.message}" if OpenNebula.is_error?(config)
-        token = config["ONE_KEY"]
-
         if xhost["TEMPLATE/PROVISION"]
             tmplBase = 'TEMPLATE/PROVISION'
         else
             tmplBase = 'TEMPLATE'
         end
 
-        conn_opts = {
-            'PACKET_TOKEN' => xhost["#{tmplBase}/PACKET_TOKEN"],
-        }
-
-        conn_opts = OpenNebula.decrypt(conn_opts, token)
+        conn_opts = {}
 
         begin
-            #conn_opts = OpenNebula.decrypt(conn_opts, token)
-            conn_opts['PROJECT'] = xhost["#{tmplBase}/PACKET_PROJECT"]
+            conn_opts['PACKET_TOKEN'] = xhost["#{tmplBase}/PACKET_TOKEN"]
+            conn_opts['PROJECT']      = xhost["#{tmplBase}/PACKET_PROJECT"]
         rescue
             raise "HOST: #{xhost['NAME']} must have Packet credentials"
         end
 
-        return conn_opts
+        conn_opts
     end
 
     def get_xhost_by_name(host)
@@ -430,7 +416,11 @@ SCHED_REQUIREMENTS = "NAME=\\"#{@host.name}\\""
         pool.info
 
         objects = pool.select {|object| object.name == host }
-        objects.first
+        host    = objects.first
+
+        host.info(true)
+
+        host
     end
 
     # Create a Packet::Device object with parameters
