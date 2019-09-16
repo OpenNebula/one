@@ -14,13 +14,28 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+#include "IPAMRequest.h"
 #include "VirtualNetworkTemplate.h"
+#include "Nebula.h"
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+using namespace std;
 
-std::map<std::string, std::set<std::string> > VirtualNetworkTemplate::restricted;
-const std::map<std::string, std::set<std::string> > VirtualNetworkTemplate::encrypted;
+IPAMRequest::IPAMRequest(VectorAttribute * _ar_vattr,
+        const std::string& _address_xml)
+{
+    string one_key;
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+
+    for ( auto ea : VirtualNetworkTemplate::encrypted )
+    {
+        _ar_vattr->encrypt(one_key, ea.second);
+    }
+
+    std::ostringstream oss;
+
+    _ar_vattr->to_xml(oss);
+
+    ar_xml      = oss.str();
+    address_xml = _address_xml;
+}

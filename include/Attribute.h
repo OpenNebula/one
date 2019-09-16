@@ -107,12 +107,12 @@ public:
     /**
      *  Encrypt all secret attributes
      */
-    virtual void encrypt(const string& one_key, const set<string>& eas) = 0;
+    virtual void encrypt(const string& one_key, const set<string>& eas) {};
 
     /**
      *  Decrypt all secret attributes
      */
-    virtual void decrypt(const string& one_key, const set<string>& eas) = 0;
+    virtual void decrypt(const string& one_key, const set<string>& eas) {};
 
 protected:
 
@@ -235,32 +235,12 @@ public:
     /**
      *  Encrypt all secret attributes
      */
-    virtual void encrypt(const string& one_key, const set<string>& eas) override
-    {
-        string encrypted;
-        string tmp;
-
-        // Simple attribute present, but not encrypted, crypt it
-        if (!value() && !decrypt_attr(one_key, value(), tmp))
-        {
-            encrypt_attr(one_key, value(), encrypted);
-
-            replace(encrypted);
-        }
-    }
+    virtual void encrypt(const string& one_key, const set<string>& eas) override;
 
     /**
      *  Decrypt all secret attributes
      */
-    virtual void decrypt(const string& one_key, const set<string>& eas) override
-    {
-        string plain;
-
-        if (!value().empty() && decrypt_attr(one_key, value(), plain))
-        {
-            replace(plain);
-        }
-    }
+    virtual void decrypt(const string& one_key, const set<string>& eas) override;
 
 private:
 
@@ -502,45 +482,12 @@ public:
     /**
      *  Encrypt all secret attributes
      */
-    virtual void encrypt(const std::string& one_key,
-        const std::set<std::string>& eas) override
-    {
-        std::string att;
-        std::string encrypted;
-        std::string tmp;
-
-        for ( auto ea : eas )
-        {
-            att = vector_value(ea);
-
-            if (!att.empty() && !decrypt_attr(one_key, att, tmp))
-            {
-                // Nested attribute present, but not encrypted, crypt it
-                encrypt_attr(one_key, att, encrypted);
-
-                replace(ea, encrypted);
-            }
-        }
-    }
+    virtual void encrypt(const string& one_key, const set<string>& eas) override;
 
     /**
      *  Decrypt all secret attributes
      */
-    virtual void decrypt(const std::string& one_key,
-        const std::set<std::string>& eas) override
-    {
-        std::string att;
-
-        for ( auto ea : eas )
-        {
-            att = vector_value(ea);
-
-            if (!att.empty() && decrypt_attr(one_key, att, plain))
-            {
-                replace(ea, plain);
-            }
-        }
-    }
+    virtual void decrypt(const string& one_key, const set<string>& eas) override;
 
 private:
 

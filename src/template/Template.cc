@@ -913,64 +913,12 @@ bool Template::check_restricted(string& ra,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void encrypt_attr(const std::string& one_key,
-                         const std::string& in,
-                         std::string& out)
-{
-    if (!one_key.empty())
-    {
-        std::string * encrypted = one_util::aes256cbc_encrypt(in, one_key);
-
-        out = *encrypted;
-
-        delete encrypted;
-    }
-    else
-    {
-        out = in;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-static bool decrypt_attr(const std::string& one_key,
-                         const std::string& in,
-                         std::string& out)
-{
-    if (one_key.empty())
-    {
-        out = in;
-        return true;
-    }
-
-    std::string * plain = one_util::aes256cbc_decrypt(in, one_key);
-
-    if (plain == nullptr)
-    {
-        return false;
-    }
-
-    out = *plain;
-
-    delete plain;
-
-    return true;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void Template::encrypt(const std::string& one_key,
                        const std::map<std::string, std::set<std::string> >& eas)
 {
     for ( auto eit : eas )
     {
         const std::set<std::string>& sub = eit.second;
-
-        std::string tmp;
-        std::string encrypted;
-        std::string att;
 
         if (!sub.empty()) //Vector Attribute
         {
@@ -1011,9 +959,6 @@ void Template::decrypt(const std::string& one_key,
     for ( auto eit : eas )
     {
         const std::set<std::string>& sub = eit.second;
-
-        std::string att;
-        std::string plain;
 
         if (!sub.empty()) //Vector Attribute
         {
