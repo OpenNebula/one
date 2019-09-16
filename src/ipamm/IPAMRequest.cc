@@ -29,7 +29,7 @@ IPAMRequest::IPAMRequest(VectorAttribute * _ar_vattr,
 
     for ( auto ea : VirtualNetworkTemplate::encrypted )
     {
-        _ar_vattr->encrypt(one_key, ea.second);
+        _ar_vattr->decrypt(one_key, ea.second);
     }
 
     std::ostringstream oss;
