@@ -27,7 +27,7 @@ module VNMMAD
         end
 
     private
-        def get_vlan_dev_name
+        def gen_vlan_dev_name
             @nic[:vlan_dev] = @nic[:phydev] if @nic[:phydev]
         end
 
