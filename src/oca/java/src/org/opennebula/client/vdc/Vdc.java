@@ -96,6 +96,20 @@ public class Vdc extends PoolElement{
     }
 
     /**
+     * Retrieves the information of the given VDC.
+     *
+     * @param client XML-RPC Client.
+     * @param id The VDC id for the VDC to retrieve the information from
+     * @param decrypt If true decrypt sensitive attributes
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info(Client client, int id, boolean decrypt)
+    {
+        return client.call(INFO, id, decrypt);
+    }
+
+    /**
      * Deletes a vdc from OpenNebula.
      *
      * @param client XML-RPC Client.

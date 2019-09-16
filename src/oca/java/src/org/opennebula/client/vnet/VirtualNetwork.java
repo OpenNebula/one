@@ -119,6 +119,20 @@ public class VirtualNetwork extends PoolElement{
         return client.call(INFO, id);
     }
 
+       /**
+     * Retrieves the information of the given Virtual Network.
+     *
+     * @param client XML-RPC Client.
+     * @param id The Virtual Network id for the Virtual Network to retrieve the information from
+     * @param decrypt If true decrypt sensitive attributes
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info(Client client, int id, boolean decrypt)
+    {
+        return client.call(INFO, id, decrypt);
+    }
+
     /**
      * Deletes a network from OpenNebula.
      *

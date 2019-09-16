@@ -91,6 +91,20 @@ public class VirtualRouter extends PoolElement
     }
 
     /**
+     * Retrieves the information of the given VRouter.
+     *
+     * @param client XML-RPC Client.
+     * @param id The VRouter id for the VRouter to retrieve the information from
+     * @param decrypt If true decrypt sensitive attributes
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info(Client client, int id, boolean decrypt)
+    {
+        return client.call(INFO, id, decrypt);
+    }
+
+    /**
      * Creates VM instances from a VM Template. New VMs will be associated
      * to this Virtual Router, and its Virtual Networks
      *

@@ -105,6 +105,20 @@ public class Template extends PoolElement
     }
 
     /**
+     * Retrieves the information of the given Template.
+     *
+     * @param client XML-RPC Client.
+     * @param id The template id for the template to retrieve the information from
+     * @param decrypt If true decrypt sensitive attributes
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info(Client client, int id, boolean extended, boolean decrypt)
+    {
+        return client.call(INFO, id, extended, decrypt);
+    }
+
+    /**
      * Deletes a template from OpenNebula.
      *
      * @param client XML-RPC Client.

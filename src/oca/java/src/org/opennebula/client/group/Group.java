@@ -87,6 +87,20 @@ public class Group extends PoolElement{
     }
 
     /**
+     * Retrieves the information of the given Group.
+     *
+     * @param client XML-RPC Client.
+     * @param id The Group id for the Group to retrieve the information from
+     * @param decrypt If true decrypt sensitive attributes
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info(Client client, int id, boolean decrypt)
+    {
+        return client.call(INFO, id, decrypt);
+    }
+
+    /**
      * Deletes a group from OpenNebula.
      *
      * @param client XML-RPC Client.

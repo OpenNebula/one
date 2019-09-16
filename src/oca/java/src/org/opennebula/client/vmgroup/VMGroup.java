@@ -93,6 +93,20 @@ public class VMGroup extends PoolElement{
     }
 
     /**
+     * Retrieves the information of the given VMGroup.
+     *
+     * @param client XML-RPC Client.
+     * @param id The VMGroup id for the VMGroup to retrieve the information from
+     * @param decrypt If true decrypt sensitive attributes
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info(Client client, int id, boolean decrypt)
+    {
+        return client.call(INFO, id, decrypt);
+    }
+
+    /**
      * Deletes a vmgroup from OpenNebula.
      *
      * @param client XML-RPC Client.

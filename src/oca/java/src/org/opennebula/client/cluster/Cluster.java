@@ -90,6 +90,20 @@ public class Cluster extends PoolElement{
     }
 
     /**
+     * Retrieves the information of the given cluster.
+     *
+     * @param client XML-RPC Client.
+     * @param id The Cluster id for the Cluster to retrieve the information from
+     * @param decrypt If true decrypt sensitive attributes
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info(Client client, int id, boolean decrypt)
+    {
+        return client.call(INFO, id, decrypt);
+    }
+
+    /**
      * Deletes a cluster from OpenNebula.
      *
      * @param client XML-RPC Client.
