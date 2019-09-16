@@ -54,7 +54,7 @@ define(function(require) {
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-server';
     this.title = Locale.tr("Storage");
-    this.classes = "hypervisor"
+    this.classes = "hypervisor";
 
     if(opts.listener != undefined){
       this.listener = opts.listener;
@@ -143,6 +143,13 @@ define(function(require) {
     $.each(this.diskTabObjects, function(id, diskTab) {
       diskJSON = diskTab.retrieve($("#" + diskTab.diskTabId, context));
       if (!$.isEmptyObject(diskJSON)) { disksJSON.push(diskJSON); };
+    });
+
+    $('select#TM_MAD_SYSTEM', context).each(function(index, element){
+      var value = $(element).val();
+      if(value){
+        templateJSON["TM_MAD_SYSTEM"] = value;
+      }
     });
 
     if (disksJSON.length > 0) {
