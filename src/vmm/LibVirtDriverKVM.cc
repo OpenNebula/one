@@ -335,6 +335,39 @@ static void vtopol(ofstream& file, const VectorAttribute * topology,
     }
 }
 
+/**
+ *  Returns disk bus based on this table:
+ *         \ prefix   hd     sd             vd
+ *  chipset \
+ *  pc-q35-*          sata   [sd_default]   virtio
+ *  (other)           ide    [sd_default]   virtio
+ *
+ *  sd_default - SD_DISK_BUS value from vmm_exec_kvm.conf/template
+ *               'sata' or 'scsi'
+ */
+static string get_disk_bus(std::string &machine, std::string &target,
+        std::string &sd_default)
+{
+    switch(target[0])
+    {
+        case 's': // sd_ disk
+            return sd_default;
+        case 'v': // vd_ disk
+            return "virtio";
+        default:
+        {
+            std::size_t found = machine.find("q35");
+            
+            if (found != std::string::npos)
+            {
+                return "sata";
+            }      
+        }
+    }
+
+    return "ide";
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -517,6 +550,9 @@ int LibVirtDriver::deployment_description_kvm(
     std::string numa_tune = "";
     std::string mbacking  = "";
 
+    std::string sd_bus;
+    std::string disk_bus;
+
     string  vm_xml;
 
     // ------------------------------------------------------------------------
@@ -605,6 +641,7 @@ int LibVirtDriver::deployment_description_kvm(
         bootloader = os->vector_value("BOOTLOADER");
         arch       = os->vector_value("ARCH");
         machine    = os->vector_value("MACHINE");
+        sd_bus     = os->vector_value("SD_DISK_BUS");
     }
 
     if ( arch.empty() )
@@ -654,6 +691,11 @@ int LibVirtDriver::deployment_description_kvm(
     if ( kernel_cmd.empty() )
     {
         get_default("OS","KERNEL_CMD",kernel_cmd);
+    }
+
+    if ( sd_bus.empty() )
+    {
+        get_default("OS", "SD_DISK_BUS", sd_bus);
     }
 
     // Start writing to the file with the info we got
@@ -1073,7 +1115,17 @@ int LibVirtDriver::deployment_description_kvm(
 
         // ---- target device to map the disk ----
 
-        file << "\t\t\t<target dev=" << one_util::escape_xml_attr(target) << "/>\n";
+        file << "\t\t\t<target dev=" << one_util::escape_xml_attr(target);
+
+        disk_bus = get_disk_bus(machine, target, sd_bus);
+
+        if (!disk_bus.empty())
+        {
+             file << " bus="<< one_util::escape_xml_attr(disk_bus);
+        }
+
+        file <<"/>\n";
+
 
         // ---- boot order for this device ----
 
@@ -1226,8 +1278,16 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t<disk type='file' device='cdrom'>\n"
                  << "\t\t\t<source file="
                      << one_util::escape_xml_attr(fname.str())  << "/>\n"
-                 << "\t\t\t<target dev="
-                     << one_util::escape_xml_attr(target) << "/>\n"
+                 << "\t\t\t<target dev=" << one_util::escape_xml_attr(target);
+
+            disk_bus = get_disk_bus(machine, target, sd_bus);
+
+            if (!disk_bus.empty())
+            {
+                 file << " bus="<< one_util::escape_xml_attr(disk_bus);
+            }
+
+            file <<"/>\n"
                  << "\t\t\t<readonly/>\n"
                  << "\t\t\t<driver name='qemu' type='raw'/>\n"
                  << "\t\t</disk>\n";
