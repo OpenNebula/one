@@ -559,11 +559,26 @@ int VirtualNetworkDelete::drop(PoolObjectSQL * object, bool r, RequestAttributes
         return -1;
     }
 
+    Nebula& nd  = Nebula::instance();
+    VirtualNetworkPool * vnpool = nd.get_vnpool();
+
     int pvid = vnet->get_parent();
     int uid  = vnet->get_uid();
     int gid  = vnet->get_gid();
 
-    int rc  = RequestManagerDelete::drop(object, false, att);
+    // Delete all address ranges to call IPAM if needed
+    string error_msg;
+
+    int rc = vnet->rm_ars(error_msg);
+
+    if (rc != 0)
+    {
+        vnpool->update(vnet);
+
+        return rc;
+    }
+
+    rc  = RequestManagerDelete::drop(object, false, att);
 
     if (pvid != -1)
     {
@@ -571,6 +586,16 @@ int VirtualNetworkDelete::drop(PoolObjectSQL * object, bool r, RequestAttributes
 
         if (vnet == 0)
         {
+            return rc;
+        }
+
+        // Delete all address ranges to call IPAM if needed
+        rc = vnet->rm_ars(error_msg);
+
+        if (rc != 0)
+        {
+            vnpool->update(vnet);
+
             return rc;
         }
 
@@ -602,7 +627,6 @@ int VirtualNetworkDelete::drop(PoolObjectSQL * object, bool r, RequestAttributes
     }
 
     // Remove virtual network from VDC
-    Nebula& nd  = Nebula::instance();
     int zone_id = nd.get_zone_id();
 
     VdcPool * vdcpool = nd.get_vdcpool();

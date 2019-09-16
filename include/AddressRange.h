@@ -390,6 +390,9 @@ public:
         }
     }
 
+    /*
+     * Get address range vector attribute representation
+     */
     VectorAttribute * get_attr()
     {
         return attr;
@@ -400,6 +403,18 @@ public:
      *  of the AR to include it in the ARPool template.
      */
     friend int AddressRangePool::add_ar(AddressRange * ar);
+
+    /*
+     *  rm_ar from AddressRangePool needs to access the internal representation
+     *  of the AR to remove it from the ARPool template.
+     */
+    friend int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg);
+
+    /*
+     *  rm_ars from AddressRangePool needs to access the internal representation
+     *  of the AR to remove it from the ARPool template.
+     */
+    friend int AddressRangePool::rm_ars(string& error_msg);
 
 protected:
     /**

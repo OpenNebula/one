@@ -240,6 +240,13 @@ public:
     int rm_ar(unsigned int ar_id, string& error_msg);
 
     /**
+     * Removes all address ranges from the VNET
+     *  @param error_msg If the action fails, this message contains the reason.
+     *  @return 0 on success
+     */
+    int rm_ars(string& error_msg);
+
+    /**
      *  Allocates a new (and empty) address range. It is not added to the
      *  ar_pool
      *    @return pointer to the new address range

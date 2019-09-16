@@ -1073,6 +1073,14 @@ int VirtualNetwork::rm_ar(unsigned int ar_id, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualNetwork::rm_ars(string& error_msg)
+{
+    return ar_pool.rm_ars(error_msg);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualNetwork::hold_leases(VirtualNetworkTemplate * leases_template,
                                 string&                  error_msg)
 {

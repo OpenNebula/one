@@ -209,6 +209,7 @@ int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg)
     }
 
     AddressRange * ar_ptr = it->second;
+    VectorAttribute * the_ar = ar_ptr->attr;
 
     if(ar_ptr->is_ipam())
     {
@@ -231,27 +232,46 @@ int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg)
 
     delete ar_ptr;
 
-    vector<VectorAttribute *> ars;
-    vector<VectorAttribute *>::iterator it_ar;
-
-    VectorAttribute * the_ar = 0;
-
-    unsigned int ar_id_tpl;
-
-    ar_template.get("AR", ars);
-
-    for (it_ar=ars.begin(); it_ar!=ars.end(); it_ar++)
-    {
-        if (((*it_ar)->vector_value("AR_ID",ar_id_tpl)==0) && (ar_id_tpl==ar_id))
-        {
-            the_ar = *it_ar;
-            break;
-        }
-    }
-
     if (the_ar != 0)
     {
         delete ar_template.remove(the_ar);
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRangePool::rm_ars(string& error_msg)
+{
+    map<unsigned int, AddressRange *>::iterator it;
+
+    for ( it = ar_pool.begin(); it != ar_pool.end(); )
+    {
+        if(it->second->is_ipam())
+        {
+            IPAMManager * ipamm = Nebula::instance().get_ipamm();
+
+            IPAMRequest ir(it->second->attr);
+
+            ipamm->trigger(IPMAction::UNREGISTER_ADDRESS_RANGE, &ir);
+
+            ir.wait();
+
+            if (ir.result != true)
+            {
+                error_msg = ir.message;
+                return -1;
+            }
+        }
+
+        if (it->second->attr != 0)
+        {
+            delete ar_template.remove(it->second->attr);
+        }
+
+        it = ar_pool.erase(it);
     }
 
     return 0;
