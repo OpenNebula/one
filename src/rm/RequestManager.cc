@@ -1218,7 +1218,6 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.hook.allocate", hook_allocate);
     RequestManagerRegistry.addMethod("one.hook.delete", hook_delete);
     RequestManagerRegistry.addMethod("one.hook.update", hook_update);
-    //RequestManagerRegistry.addMethod("one.hook.run", );
     RequestManagerRegistry.addMethod("one.hook.rename", hook_rename);
     RequestManagerRegistry.addMethod("one.hook.info", hook_info);
     RequestManagerRegistry.addMethod("one.hook.lock", hook_lock);
