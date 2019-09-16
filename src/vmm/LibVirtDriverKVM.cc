@@ -354,13 +354,17 @@ static string get_disk_bus(std::string &machine, std::string &target,
             return sd_default;
         case 'v': // vd_ disk
             return "virtio";
+        default:
+        {
+            std::size_t found = machine.find("q35");
+            
+            if (found != std::string::npos)
+            {
+                return "sata";
+            }      
+        }
     }
 
-    std::size_t found = machine.find("q35");
-    if (found != std::string::npos)
-    {
-        return "sata";
-    }
     return "ide";
 }
 
