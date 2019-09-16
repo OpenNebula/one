@@ -70,21 +70,24 @@ public:
         Template::decrypt(one_key, encrypted);
     }
 
+    // One-time execution
     static void parse_encrypted(vector<const SingleAttribute *>& ea)
     {
-        Template::parse_encrypted(ea, encrypted);
+        auto eas = const_cast<std::map<std::string, std::set<std::string>> *>(&encrypted);
+
+        Template::parse_encrypted(ea, *eas);
     }
+
+    /**
+     *  Encrypted attribute list for VirtualNetworkTemplates
+     */
+    static const std::map<std::string, std::set<std::string> > encrypted;
 
 private:
     /**
      *  Restricted attribute list for VirtualNetworkTemplates
      */
     static std::map<std::string, std::set<std::string> > restricted;
-
-    /**
-     *  Encrypted attribute list for VirtualNetworkTemplates
-     */
-    static std::map<std::string, std::set<std::string> > encrypted;
 };
 
 /* -------------------------------------------------------------------------- */

@@ -19,6 +19,8 @@
 
 #include "SyncRequest.h"
 #include "NebulaUtil.h"
+#include "Attribute.h"
+#include "Template.h"
 
 /**
  *  The IPAMRequest class represents a request for the IPAM driver. The request
@@ -32,12 +34,10 @@ public:
     /* ---------------------------------------------------------------------- */
     /* IPAM Request constructors                                              */
     /* ---------------------------------------------------------------------- */
-    IPAMRequest(const std::string& _ar_xml) :
-        ar_xml(_ar_xml), address_xml("<ADDRESS><MAC/><IP/><IP6_GLOBAL/>"
-                "<IP6_ULA/><IP6/><SIZE/></ADDRESS>"){};
+    IPAMRequest(VectorAttribute * _ar_vattr) : IPAMRequest(_ar_vattr,
+            "<ADDRESS><MAC/><IP/><IP6_GLOBAL/><IP6_ULA/><IP6/><SIZE/></ADDRESS>"){};
 
-    IPAMRequest(const std::string& _ar_xml, const std::string& _address_xml) :
-        ar_xml(_ar_xml), address_xml(_address_xml){};
+    IPAMRequest(VectorAttribute * _ar_vattr, const std::string& _address_xml);
 
     virtual ~IPAMRequest(){};
 

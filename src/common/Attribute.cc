@@ -338,3 +338,113 @@ int VectorAttribute::vector_value(const string& name, bool& value) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static void encrypt_attr(const std::string& one_key,
+                         const std::string& in,
+                         std::string& out)
+{
+    if (!one_key.empty())
+    {
+        std::string * encrypted = one_util::aes256cbc_encrypt(in, one_key);
+
+        out = *encrypted;
+
+        delete encrypted;
+    }
+    else
+    {
+        out = in;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static bool decrypt_attr(const std::string& one_key,
+                         const std::string& in,
+                         std::string& out)
+{
+    if (one_key.empty())
+    {
+        out = in;
+        return true;
+    }
+
+    std::string * plain = one_util::aes256cbc_decrypt(in, one_key);
+
+    if (plain == nullptr)
+    {
+        return false;
+    }
+
+    out = *plain;
+
+    delete plain;
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void SingleAttribute::encrypt(const string& one_key, const set<string>& eas)
+{
+    string encrypted;
+    string tmp;
+
+    // Simple attribute present, but not encrypted, crypt it
+    if (!value().empty() && !decrypt_attr(one_key, value(), tmp))
+    {
+        encrypt_attr(one_key, value(), encrypted);
+
+        replace(encrypted);
+    }
+}
+
+void SingleAttribute::decrypt(const string& one_key, const set<string>& eas)
+{
+    string plain;
+
+    if (!value().empty() && decrypt_attr(one_key, value(), plain))
+    {
+        replace(plain);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VectorAttribute::encrypt(const string& one_key, const set<string>& eas)
+{
+    string att;
+    string encrypted;
+    string tmp;
+
+    for ( auto ea : eas )
+    {
+        att = vector_value(ea);
+
+        if (!att.empty() && !decrypt_attr(one_key, att, tmp))
+        {
+            // Nested attribute present, but not encrypted, crypt it
+            encrypt_attr(one_key, att, encrypted);
+
+            replace(ea, encrypted);
+        }
+    }
+}
+
+void VectorAttribute::decrypt(const string& one_key, const set<string>& eas)
+{
+    string att;
+    string plain;
+
+    for ( auto ea : eas )
+    {
+        att = vector_value(ea);
+
+        if (!att.empty() && decrypt_attr(one_key, att, plain))
+        {
+            replace(ea, plain);
+        }
+    }
+}

@@ -214,11 +214,7 @@ int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg)
     {
         IPAMManager * ipamm = Nebula::instance().get_ipamm();
 
-        std::ostringstream ar_xml;
-
-        ar_ptr->to_xml(ar_xml);
-
-        IPAMRequest ir(ar_xml.str());
+        IPAMRequest ir(ar_ptr->get_attr());
 
         ipamm->trigger(IPMAction::UNREGISTER_ADDRESS_RANGE, &ir);
 

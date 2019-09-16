@@ -913,64 +913,12 @@ bool Template::check_restricted(string& ra,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void encrypt_attr(const std::string& one_key,
-                         const std::string& in,
-                         std::string& out)
-{
-    if (!one_key.empty())
-    {
-        std::string * encrypted = one_util::aes256cbc_encrypt(in, one_key);
-
-        out = *encrypted;
-
-        delete encrypted;
-    }
-    else
-    {
-        out = in;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-static bool decrypt_attr(const std::string& one_key,
-                         const std::string& in,
-                         std::string& out)
-{
-    if (one_key.empty())
-    {
-        out = in;
-        return true;
-    }
-
-    std::string * plain = one_util::aes256cbc_decrypt(in, one_key);
-
-    if (plain == nullptr)
-    {
-        return false;
-    }
-
-    out = *plain;
-
-    delete plain;
-
-    return true;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void Template::encrypt(const std::string& one_key,
                        const std::map<std::string, std::set<std::string> >& eas)
 {
     for ( auto eit : eas )
     {
         const std::set<std::string>& sub = eit.second;
-
-        std::string tmp;
-        std::string encrypted;
-        std::string att;
 
         if (!sub.empty()) //Vector Attribute
         {
@@ -985,18 +933,7 @@ void Template::encrypt(const std::string& one_key,
 
             for ( auto vattit : vatt )
             {
-                for ( auto subit : sub )
-                {
-                    att = vattit->vector_value(subit);
-
-                    if (!att.empty() && !decrypt_attr(one_key, att, tmp))
-                    {
-                        // Nested attribute present, but not encrypted, crypt it
-                        encrypt_attr(one_key, att, encrypted);
-
-                        vattit->replace(subit, encrypted);
-                    }
-                }
+                vattit->encrypt(one_key, sub);
             }
         }
         else
@@ -1007,15 +944,7 @@ void Template::encrypt(const std::string& one_key,
 
             for ( auto attit : vatt )
             {
-                string aval = attit->value();
-
-                // Simple attribute present, but not encrypted, crypt it
-                if (!aval.empty() && !decrypt_attr(one_key, aval, tmp))
-                {
-                    encrypt_attr(one_key, aval, encrypted);
-
-                    attit->replace(encrypted);
-                }
+                attit->encrypt(one_key, sub);
             }
         }
     }
@@ -1031,9 +960,6 @@ void Template::decrypt(const std::string& one_key,
     {
         const std::set<std::string>& sub = eit.second;
 
-        std::string att;
-        std::string plain;
-
         if (!sub.empty()) //Vector Attribute
         {
             vector<VectorAttribute *> vatt;
@@ -1042,15 +968,8 @@ void Template::decrypt(const std::string& one_key,
 
             for ( auto vattit : vatt )
             {
-                for ( auto subit : sub )
-                {
-                    att = vattit->vector_value(subit);
+                vattit->decrypt(one_key, sub);
 
-                    if (!att.empty() && decrypt_attr(one_key, att, plain))
-                    {
-                        vattit->replace(subit, plain);
-                    }
-                }
             }
         }
         else
@@ -1061,12 +980,7 @@ void Template::decrypt(const std::string& one_key,
 
             for ( auto attit : vatt )
             {
-                string aval = attit->value();
-
-                if (!aval.empty() && decrypt_attr(one_key, aval, plain))
-                {
-                    attit->replace(plain);
-                }
+                attit->decrypt(one_key, sub);
             }
         }
     }

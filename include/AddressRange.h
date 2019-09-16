@@ -390,6 +390,11 @@ public:
         }
     }
 
+    VectorAttribute * get_attr()
+    {
+        return attr;
+    }
+
     /*
      *  add_ar from AddressRangePool needs to access the internal representation
      *  of the AR to include it in the ARPool template.
