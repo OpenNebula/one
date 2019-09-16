@@ -691,7 +691,6 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     cpu_model_v = vm->get_template_attribute("CPU_MODEL");
 
-
     if( cpu_model_v != 0 )
     {
         cpu_model = cpu_model_v->vector_value("MODEL");
