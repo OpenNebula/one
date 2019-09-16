@@ -696,21 +696,26 @@ int LibVirtDriver::deployment_description_kvm(
     {
         cpu_model = cpu_model_v->vector_value("MODEL");
 
-        if ( cpu_model == "host-passthrough" )
-        {
-            cpu_mode = "host-passthrough";
-        }
-        else
-        {
-            cpu_mode = "custom";
-        }
-
         //TODO #756 cache, feature
+    }
+
+    if (cpu_model.empty())
+    {
+        get_default("CPU_MODEL", "MODEL", cpu_model);
+    }
+
+    if (cpu_model == "host-passthrough")
+    {
+        cpu_mode = "host-passthrough";
+    }
+    else
+    {
+        cpu_mode = "custom";
     }
 
     if ( !cpu_model.empty() || topology != 0 )
     {
-        file << "\t<cpu" ;
+        file << "\t<cpu";
 
         if (!cpu_model.empty())
         {

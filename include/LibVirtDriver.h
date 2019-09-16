@@ -43,7 +43,7 @@ private:
 
     static const int   ISCSI_DEFAULT_PORT;
 
-    int deployment_description(const VirtualMachine * vm, const string& fn) const
+    int deployment_description(const VirtualMachine * vm, const string& fn) const override
     {
         int   rc = -1;
 
