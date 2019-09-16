@@ -305,7 +305,6 @@ DELETE= {
 
 PAGES = {
     :name => 'pages',
-    :short => '-p pages',
     :large => '--pages pages',
     :description => 'Nummber of pages to purge VMs',
     :format => Integer
