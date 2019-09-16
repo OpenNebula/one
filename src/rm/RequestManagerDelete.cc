@@ -64,6 +64,16 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList,
         recursive = xmlrpc_c::value_boolean(paramList.getBoolean(2));
     }
 
+    // Save body before deleting it for hooks
+    PoolObjectSQL * obj = pool->get(oid);
+
+    if (obj != nullptr)
+    {
+        obj->to_xml(att.extra_xml);
+
+        obj->unlock();
+    }
+
     ErrorCode ec = delete_object(oid, recursive, att);
 
     if ( ec == SUCCESS )
@@ -94,6 +104,10 @@ void ImageDelete::request_execute(xmlrpc_c::paramList const& paramList,
     {
         att.auth_op = AuthRequest::ADMIN;
     }
+
+    //Save body before deleting for hooks.
+    img->to_xml(att.extra_xml);
+
 
     img->unlock();
 

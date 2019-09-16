@@ -523,7 +523,7 @@ class HookExecutionManager
 
                 @am.trigger_action(ACTIONS[0], 0, hook, body) unless hook.nil?
 
-                reload_hooks(key, body_xml) if UPDATE_CALLS.include? key
+                reload_hooks(key, body) if UPDATE_CALLS.include? key
             when :RETRY
                 body     = Base64.decode64(content.split(' ')[0])
                 body     = Nokogiri::XML(body)

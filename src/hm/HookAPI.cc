@@ -44,6 +44,9 @@ std::string * HookAPI::format_message(std::string method, ParamList& paramList,
 
     oss << att.retval_xml
         << "</PARAMETERS>"
+        << "<EXTRA>"
+        << att.extra_xml
+        << "</EXTRA>"
         << "</CALL_INFO>"
         << "</HOOK_MESSAGE>";
 
