@@ -84,7 +84,7 @@ module HEMHook
 
             case event_type
             when 'API'
-                api  = event.xpath('//PARAMETERS')[0].to_s
+                api  = event.xpath('//CALL_INFO')[0].to_s
                 api  = Base64.strict_encode64(api)
             when 'STATE'
                 object   = event.xpath('//HOOK_OBJECT')[0].text.upcase
