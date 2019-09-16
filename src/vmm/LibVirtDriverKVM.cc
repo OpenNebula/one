@@ -496,6 +496,7 @@ int LibVirtDriver::deployment_description_kvm(
     bool localtime          = false;
     bool guest_agent        = false;
     int  virtio_scsi_queues = 0;
+    int  scsi_targets_num   = 0;
 
     int pae_found                   = -1;
     int acpi_found                  = -1;
@@ -1199,6 +1200,7 @@ int LibVirtDriver::deployment_description_kvm(
             {
                 file << "\t\t\t<address type='drive' controller='0' bus='0' " <<
                      "target='" << target_number << "' unit='0'/>" << endl;
+                scsi_targets_num++;
             }
         }
 
@@ -1669,13 +1671,16 @@ int LibVirtDriver::deployment_description_kvm(
              << "\t</devices>" << endl;
     }
 
-    if ( virtio_scsi_queues > 0 )
+    if ( virtio_scsi_queues > 0 || scsi_targets_num > 1)
     {
         file << "\t<devices>" << endl
              << "\t\t<controller type='scsi' index='0' model='virtio-scsi'>"
              << endl;
 
-        file << "\t\t\t<driver queues='" << virtio_scsi_queues << "'/>" << endl;
+        if ( virtio_scsi_queues > 0 )
+        {
+            file << "\t\t\t<driver queues='" << virtio_scsi_queues << "'/>" << endl;
+        }
 
         file << "\t\t</controller>" << endl
              << "\t</devices>" << endl;
