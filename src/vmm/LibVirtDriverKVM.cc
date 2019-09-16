@@ -1714,7 +1714,7 @@ int LibVirtDriver::deployment_description_kvm(
          << "\t\t\t<one:system_datastore>"
          << one_util::escape_xml(vm->get_system_dir())
          << "</one:system_datastore>\n"
-         << "<one:name>"
+         << "\t\t\t<one:name>"
          << one_util::escape_xml(vm->get_name())
          << "</one:name>\n"
          << "\t\t\t<one:uname>"
