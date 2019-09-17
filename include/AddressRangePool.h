@@ -73,6 +73,13 @@ public:
     int rm_ar(unsigned int ar_id, string& error_msg);
 
     /**
+     *  Removes all address ranges from the pool if it does not contain any used
+     *  leases
+     *    @return 0 on success, -1 if not exists or has used addresses
+     */
+    int rm_ars(string& error_msg);
+
+    /**
      *  Updates the given address ranges
      *    @param ars vector of address ranges as VectorAttributes obtained from
      *    template in the form AR = [...]. Only one AR is processed.
