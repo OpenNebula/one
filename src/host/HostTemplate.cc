@@ -20,4 +20,3 @@
 /* -------------------------------------------------------------------------- */
 
 std::map<std::string, std::set<std::string> > HostTemplate::encrypted;
-
