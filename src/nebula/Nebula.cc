@@ -663,7 +663,7 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("INHERIT_DATASTORE_ATTR", inherit_ds_attrs);
 
-        nebula_configuration->get("DS_ENCRYPTED_ATTR", ds_encrypted_attrs);
+        nebula_configuration->get("DATASTORE_ENCRYPTED_ATTR", ds_encrypted_attrs);
 
         dspool = new DatastorePool(logdb, inherit_ds_attrs, ds_encrypted_attrs);
 
