@@ -27,7 +27,6 @@ end
 require 'erb'
 
 SUDO_CMDS = {
-    :MISC   => %w[sync],
     :NET    => %w[ebtables iptables ip6tables ip ipset arping],
     :LVM    => %w[lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend],
     :OVS    => %w[ovs-ofctl ovs-vsctl],
