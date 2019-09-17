@@ -125,11 +125,6 @@ module OneProvision
                     msg = "#{section.chomp('s')} #{obj['ID']}"
 
                     Driver.retry_loop "Failed to delete #{msg}" do
-                        if section == 'vnets'
-                            vnet = Vnet.new(obj.id)
-                            vnet.delete_ars
-                        end
-
                         OneProvisionLogger.debug("Deleting OpenNebula #{msg}")
 
                         Utils.exception(obj.delete)
