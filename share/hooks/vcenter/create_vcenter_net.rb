@@ -45,7 +45,8 @@ SUCCESS_XPATH = '//PARAMETER[TYPE="OUT" and POSITION="1"]/VALUE'
 ERROR_XPATH = '//PARAMETER[TYPE="OUT" and POSITION="2"]/VALUE'
 NETWORK_ID_XPATH = '//PARAMETER[TYPE="OUT" and POSITION="2"]/VALUE'
 
-# Changes due to new hooks
+# Changes due to new hook subsystem
+#   https://github.com/OpenNebula/one/issues/3380
 arguments_raw = Base64.decode64(STDIN.read)
 arguments_xml = Nokogiri::XML(arguments_raw)
 success = arguments_xml.xpath(SUCCESS_XPATH).text
@@ -57,12 +58,6 @@ end
 
 response_id = arguments_xml.xpath(NETWORK_ID_XPATH).text
 network_id = response_id.to_i
-
-# network_id = ARGV[0]
-# base64_temp  = ARGV[1]
-
-# template     = OpenNebula::XMLElement.new
-# template.initialize_xml(Base64.decode64(base64_temp), 'VNET')
 
 # waits for a vlan_id attribute to be generated
 # only if automatic_vlan activated
@@ -91,8 +86,9 @@ one_vnet = OpenNebula::VirtualNetwork
 rc = one_vnet.info
 if OpenNebula.is_error?(rc)
     STDERR.puts rc.message
-    exit 1
+    exit(1)
 end
+
 one_vnet.lock(1)
 esx_rollback = [] # Track hosts that require a rollback
 managed = one_vnet['TEMPLATE/OPENNEBULA_MANAGED'] != 'NO'
@@ -102,6 +98,7 @@ begin
     # Step 0. Only execute for vcenter network driver && managed by one
     if one_vnet['VN_MAD'] == 'vcenter' && managed && imported.nil?
         wait_vlanid(one_vnet) if one_vnet['VLAN_ID_AUTOMATIC'] == '1'
+        
         # Step 1. Extract vnet settings
         host_id = one_vnet['TEMPLATE/VCENTER_ONE_HOST_ID']
         raise 'Missing VCENTER_ONE_HOST_ID' unless host_id
@@ -124,7 +121,7 @@ begin
             pg_type == 'Port Group' ? nports = 128 : nports = 8
         end
 
-        # Step 2. Contact cluster and extract cluster's info
+        # Step 2. Contact vCenter cluster and extract cluster's info
         vi_client = VCenterDriver::VIClient.new_from_host(host_id)
         vc_uuid = vi_client.vim.serviceContent.about.instanceUuid
         one_client = OpenNebula::Client.new
@@ -222,8 +219,8 @@ begin
             end
         end
 
+        # Step 3. Loop through hosts in clusters
         cluster['host'].each do |host|
-            # Step 3. Loop through hosts in clusters
             esx_host = VCenterDriver::ESXHost.new_from_ref(host._ref, vi_client)
 
             if pg_type == VCenterDriver::Network::NETWORK_TYPE_PG
@@ -243,7 +240,7 @@ begin
                               'this kind of hange is not supported.'
                     end
 
-                    # Pg does not exits
+                    # Pg does not exist
                     if !pg
                         # Get standard switch if it exists
                         vs = esx_host.vss_exists(sw_name)
