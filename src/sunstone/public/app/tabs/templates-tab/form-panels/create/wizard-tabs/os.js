@@ -292,6 +292,13 @@ define(function(require) {
           html += "</select>";
           $("#kvm-info", context).append(html);
 
+          var html = "<select id=\"sd-disk-bus\" wizard_field=\"SD_DISK_BUS\">";
+          html += "<option value=\"\">" + " " + "</option>";
+          html += "<option value='scsi'>SCSI</option>";
+          html += "<option value='sata'>SATA</option>";
+          html += "</select>";
+          $("#sd-disk-bus-info", context).append(html);
+
           var html = "<select id=\"model-cpu\" wizard_field=\"MODEL\">";
           html += "<option value=\"\">" + " " + "</option>";
           html += "<option value=\"host-passthrough\">host-passthrough</option>";
