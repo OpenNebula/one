@@ -42,35 +42,46 @@ require 'base64'
 require 'nsx_driver'
 
 # Changes due to new hooks
-arguments_raw = Base64.decode64(STDIN.read)
+#arguments_raw = Base64.decode64(STDIN.read)
+arg = "PFBBUkFNRVRFUlM+CiAgPFBBUkFNRVRFUj4KICAgIDxQT1NJVElPTj4xPC9QT1NJVElPTj4KICAgIDxUWVBFPklOPC9UWVBFPgogICAgPFZBTFVFPioqKio8L1ZBTFVFPgogIDwvUEFSQU1FVEVSPgogIDxQQVJBTUVURVI+CiAgICA8UE9TSVRJT04+MjwvUE9TSVRJT04+CiAgICA8VFlQRT5JTjwvVFlQRT4KICAgIDxWQUxVRT5OQU1FPSJhbGxfdHlwZXMiCkRFU0NSSVBUSU9OPSJhbGxfdHlwZXMgZGVzYyIKUlVMRT1bCiAgUFJPVE9DT0w9IlRDUCIsCiAgUlVMRV9UWVBFPSJpbmJvdW5kIiwKICBSQU5HRT0iNDQiCl0KUlVMRT1bCiAgUFJPVE9DT0w9IlVEUCIsCiAgUlVMRV9UWVBFPSJvdXRib3VuZCIsCiAgUkFOR0U9IjE6MiIsCiAgSVA9IjIuMi4yLjIiLAogIFNJWkU9IjEwIgpdClJVTEU9WwogIFBST1RPQ09MPSJJQ01QIiwKICBSVUxFX1RZUEU9ImluYm91bmQiLAogIE5FVFdPUktfSUQ9IjAiCl0KUlVMRT1bCiAgUFJPVE9DT0w9IklDTVB2NiIsCiAgUlVMRV9UWVBFPSJvdXRib3VuZCIKXQpSVUxFPVsKICBQUk9UT0NPTD0iSVBTRUMiLAogIFJVTEVfVFlQRT0iaW5ib3VuZCIKXQpSVUxFPVsKICBQUk9UT0NPTD0iQUxMIiwKICBSVUxFX1RZUEU9ImluYm91bmQiLAogIE5FVFdPUktfSUQ9IjEiCl0KPC9WQUxVRT4KICA8L1BBUkFNRVRFUj4KICA8UEFSQU1FVEVSPgogICAgPFBPU0lUSU9OPjE8L1BPU0lUSU9OPgogICAgPFRZUEU+T1VUPC9UWVBFPgogICAgPFZBTFVFPnRydWU8L1ZBTFVFPgogIDwvUEFSQU1FVEVSPgogIDxQQVJBTUVURVI+CiAgICA8UE9TSVRJT04+MjwvUE9TSVRJT04+CiAgICA8VFlQRT5PVVQ8L1RZUEU+CiAgICA8VkFMVUU+MTE2PC9WQUxVRT4KICA8L1BBUkFNRVRFUj4KICA8UEFSQU1FVEVSPgogICAgPFBPU0lUSU9OPjM8L1BPU0lUSU9OPgogICAgPFRZUEU+T1VUPC9UWVBFPgogICAgPFZBTFVFPjA8L1ZBTFVFPgogIDwvUEFSQU1FVEVSPgo8L1BBUkFNRVRFUlM+"
+arguments_raw = Base64.decode64(arg)
 arguments_xml = Nokogiri::XML(arguments_raw)
 
-rule = arguments_xml.xpath('//PARAMETER[TYPE="IN" and POSITION="2"]/VALUE').text
-
-
-# parameters = arguments_xml.xpath("//PARAMETER")
-# success = arguments_xml.xpath('//PARAMETER[TYPE="OUT" and POSITION="1"]/VALUE').text
+# Required to construct security group object
 id = arguments_xml.xpath('//PARAMETER[TYPE="OUT" and POSITION="2"]/VALUE').text
 
-File.open('/tmp/hook_sec_arg_raw', 'w'){|f| f.write(arguments_raw)}
-# File.open('/tmp/hook_sec_arg_xml', 'w'){|f| f.write(arguments_xml)}
-# File.open('/tmp/hook_sec_parameters', 'w'){|f| f.write(parameters)}
-# File.open('/tmp/hook_sec_success', 'w'){|f| f.write(success)}
-# File.open('/tmp/hook_sec_resp_id', 'w'){|f| f.write(response_id)}
-File.open('/tmp/hook_sec_rule', 'w'){|f| f.write(rule)}
-
+# Creates the object representing security group id
 one_sg = OpenNebula::SecurityGroup.new_with_id(id, OpenNebula::Client.new)
+rc = one_sg.info
+if OpenNebula.is_error?(rc)
+    STDERR.puts rc.message
+    exit 1
+end
 
-rule_name = one_sg['NAME']
-rule_desc = one_sg['TEMPLATE/DESCRIPTION']
-rule_proto = one_sg['TEMPLATE/RULE/PROTOCOL']
-rule_type = one_sg['TEMPLATE/RULE/RULE_TYPE']
-rule_net_id = one_sg['TEMPLATE/RULE/NETWORK_ID']
+require 'pry-byebug'
+binding.pry
 
-File.open('/tmp/hook_sec_sg', 'w'){|f| f.write(one_sg.inspect)}
-File.open('/tmp/hook_sec_rule_name', 'w'){|f| f.write(rule_name)}
-File.open('/tmp/hook_sec_rule_desc', 'w'){|f| f.write(rule_desc)}
-File.open('/tmp/hook_sec_rule_proto', 'w'){|f| f.write(rule_proto)}
-File.open('/tmp/hook_sec_rule_type', 'w'){|f| f.write(rule_type)}
-File.open('/tmp/hook_sec_rule_net_id', 'w'){|f| f.write(rule_net_id)}
-
+one_sg_xml = one_sg.instance_variable_get(:@xml)
+one_sg_xml.xpath('//NAME').text
+one_sg_xml.xpath('//DESCRIPTION').text
+# Secutiry group rules
+rules = one_sg_xml.xpath('//RULE')
+rules.each do |rule|
+    # TCP | UDP | ICMP | ICMPv6 | IPSEC | ALL
+    protocol = rule.xpath('PROTOCOL').text
+    # OpenNebula network ID
+    network_id = rule.xpath('NETWORK_ID').text
+    # Format from:to
+    range_port = rule.xpath('RANGE').text
+    range_port? = range_port.index(':')
+    if range_port?
+        port_from = range_port[0..range_port.index(':')-1]
+        port_to = range_port[range_port.index(':')+1,range_port.length]
+    else
+        port_from = port_to = range_port
+    end
+    # inbound | outbound
+    rule_type = rule.xpath('RULE_TYPE').text
+    rule_ip = rule.xpath('IP').text
+    rule_size = rule.xpath('SIZE').text
+end
