@@ -22,8 +22,6 @@ require 'tempfile'
 require 'highline'
 require 'highline/import'
 
-ENCRYPT_VALUES = %w[PACKET_TOKEN EC2_SECRET EC2_ACCESS]
-
 # Cleanup Exception
 class OneProvisionCleanupException < RuntimeError
 end
@@ -325,8 +323,7 @@ module OneProvision
                             xml.PROVISION do
                                 host['provision'].each do |key, value|
                                     if key != 'driver'
-                                        encrypt = encrypt(key.upcase, value)
-                                        xml.send(key.upcase, encrypt)
+                                        xml.send(key.upcase, value)
                                     end
                                 end
                                 xml.send('PROVISION_ID', provision_id)
@@ -417,8 +414,7 @@ module OneProvision
                                     str = ind_tab + key3.to_s.upcase + '='
 
                                     if value3
-                                        str += "\"#{encrypt(key3.to_s.upcase,
-                                                            value3.to_s)}\""
+                                        str += "\"#{value3}\""
                                     end
 
                                     str
@@ -434,8 +430,7 @@ module OneProvision
                             str = ind_tab + key3.to_s.upcase + '='
 
                             if value3
-                                str += "\"#{encrypt(key3.to_s.upcase,
-                                                    value3.to_s)}\""
+                                str += "\"#{value3}\""
                             end
 
                             str
@@ -444,31 +439,12 @@ module OneProvision
                         str_line << "\n]\n"
 
                     else
-                        str_line << key.to_s.upcase << '=' \
-                            "\"#{encrypt(key.to_s.upcase, value.to_s)}\""
+                        str_line << key.to_s.upcase << '=' << "\"#{value}\""
                     end
                     str_line
                 end.compact.join("\n")
 
                 str
-            end
-
-            # Encrypts a value
-            #
-            # @param key   [String] Key to encrypt
-            # @param value [String] Value to encrypt
-            #
-            # @return      [String] Encrypted value
-            def encrypt(key, value)
-                if ENCRYPT_VALUES.include? key
-                    system = OpenNebula::System.new(OpenNebula::Client.new)
-                    config = system.get_configuration
-                    token = config['ONE_KEY']
-
-                    OpenNebula.encrypt({ :value => value }, token)[:value]
-                else
-                    value
-                end
             end
 
         end

@@ -73,7 +73,7 @@ end
 
 def one_fetch(client, type, id)
     object = type.new_with_id(id, client)
-    rc = object.info
+    rc = object.info(true)
 
     if OpenNebula.is_error?(rc)
         STDERR.puts(rc.message)
@@ -112,22 +112,10 @@ def device_has_ip?(packet_client, device_id, ip_id)
 end
 
 def manage_packet(host, ip, address_range, assign = true)
-    cidr = "#{ip}/32"
-
-    system = OpenNebula::System.new(OpenNebula::Client.new)
-    config = system.get_configuration
-
-    if OpenNebula.is_error?(config)
-        STDERR.puts("Error getting oned configuration : #{config.message}")
-        exit(-1)
-    end
-
-    token = config['ONE_KEY']
-    ar_token = OpenNebula.decrypt({ :value => address_range['PACKET_TOKEN'] },
-                                  token)[:value]
+    cidr         = "#{ip}/32"
     ar_deploy_id = address_range['DEPLOY_ID']
 
-    packet_client = Packet::Client.new(ar_token)
+    packet_client = Packet::Client.new(address_range['PACKET_TOKEN'])
     packet_ip = find_packet_ip_assignment(packet_client, ar_deploy_id, cidr)
 
     if assign == true
