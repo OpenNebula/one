@@ -80,7 +80,7 @@ fi
 # Execute lvextend with a lock in the frontend
 RESIZE_CMD=$(cat <<EOF
     set -e -o pipefail
-    $SUDO $SYNC
+    $SYNC
     $SUDO $LVSCAN
     $SUDO $LVEXTEND -L${SIZE}M "$DEV"
 EOF
