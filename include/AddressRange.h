@@ -391,12 +391,9 @@ public:
     }
 
     /*
-     * Get address range vector attribute representation
+     *  Decrypts the address range attributes
      */
-    VectorAttribute * get_attr()
-    {
-        return attr;
-    }
+    void decrypt();
 
     /*
      *  add_ar from AddressRangePool needs to access the internal representation

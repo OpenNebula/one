@@ -67,7 +67,7 @@ int AddressRangeIPAM::allocate_addr(unsigned int index, unsigned int rsize,
 
     address_xml = oss.str();
 
-    IPAMRequest ir(get_attr(), address_xml);
+    IPAMRequest ir(this, address_xml);
 
     ipamm->trigger(IPMAction::ALLOCATE_ADDRESS, &ir);
 
@@ -101,7 +101,7 @@ int AddressRangeIPAM::get_addr(unsigned int& index, unsigned int rsize,
 
     address_xml = oss.str();
 
-    IPAMRequest ir(get_attr(), address_xml);
+    IPAMRequest ir(this, address_xml);
 
     ipamm->trigger(IPMAction::GET_ADDRESS, &ir);
 
@@ -158,7 +158,7 @@ int AddressRangeIPAM::free_addr(unsigned int index, std::string& error_msg)
 
     address_xml = oss.str();
 
-    IPAMRequest ir(get_attr(), address_xml);
+    IPAMRequest ir(this, address_xml);
 
     ipamm->trigger(IPMAction::FREE_ADDRESS, &ir);
 

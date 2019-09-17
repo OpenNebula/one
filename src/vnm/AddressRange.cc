@@ -19,6 +19,7 @@
 #include "VirtualNetworkPool.h"
 #include "NebulaLog.h"
 #include "NebulaUtil.h"
+#include "Nebula.h"
 
 #include <arpa/inet.h>
 #include <algorithm>
@@ -221,25 +222,25 @@ int AddressRange::from_attr(VectorAttribute *vattr, string& error_msg)
 
     /* ---------------------- L3 & L2 start addresses ---------------------- */
 
-	if ( init_ipv4(error_msg) != 0 )
-	{
-		return -1;
-	}
+    if ( init_ipv4(error_msg) != 0 )
+    {
+        return -1;
+    }
 
-	if ( init_ipv6(error_msg) != 0 )
-	{
-		return -1;
-	}
+    if ( init_ipv6(error_msg) != 0 )
+    {
+        return -1;
+    }
 
-	if ( init_ipv6_static(error_msg) != 0 )
-	{
-		return -1;
-	}
+    if ( init_ipv6_static(error_msg) != 0 )
+    {
+        return -1;
+    }
 
-	if ( init_mac(error_msg) != 0 )
-	{
-		return -1;
-	}
+    if ( init_mac(error_msg) != 0 )
+    {
+        return -1;
+    }
 
     /* ------------------------- Security Groups ---------------------------- */
 
@@ -523,17 +524,17 @@ void AddressRange::addr_to_xml(unsigned int index, unsigned int rsize,
             << "</IP6_GLOBAL>";
     }
 
-	if ( ip6[0] != 0 || ip6[1] != 0 || ip6[2] != 0 || ip6[3] != 0 )
-	{
-		unsigned int ip_low[4];
+    if ( ip6[0] != 0 || ip6[1] != 0 || ip6[2] != 0 || ip6[3] != 0 )
+    {
+        unsigned int ip_low[4];
 
-		ip_low[3] = ip6[3];
-		ip_low[2] = ip6[2];
-		ip_low[1] = ip6[1];
-		ip_low[0] = ip6[0] + index;
+        ip_low[3] = ip6[3];
+        ip_low[2] = ip6[2];
+        ip_low[1] = ip6[1];
+        ip_low[0] = ip6[0] + index;
 
         oss << "<IP6>" << ip6_to_s(ip_low, ip6_s) << "</IP6>";
-	}
+    }
 
     oss << "<SIZE>" << rsize << "</SIZE>"
         << "</ADDRESS>";
@@ -570,10 +571,10 @@ void AddressRange::to_xml(ostringstream &oss) const
 
     if (is_ipv4())
     {
-		string       aux_st;
+        string       aux_st;
         unsigned int ip_i;
 
-		aux_st = attr->vector_value("IP");
+        aux_st = attr->vector_value("IP");
 
         if (ip_to_i(aux_st, ip_i) == 0)
         {
@@ -608,19 +609,19 @@ void AddressRange::to_xml(ostringstream &oss) const
         }
     }
 
-	if (is_ipv6_static())
-	{
+    if (is_ipv6_static())
+    {
         string ip6_s;
-		unsigned int ip_low[4];
+        unsigned int ip_low[4];
 
-		ip_low[3] = ip6[3];
-		ip_low[2] = ip6[2];
-		ip_low[1] = ip6[1];
-		ip_low[0] = ip6[0] +  size - 1;
+        ip_low[3] = ip6[3];
+        ip_low[2] = ip6[2];
+        ip_low[1] = ip6[1];
+        ip_low[0] = ip6[0] +  size - 1;
 
-		ip6_to_s(ip_low, ip6_s);
-		oss << "<IP6_END>" << one_util::escape_xml(ip6_s) << "</IP6_END>";
-	}
+        ip6_to_s(ip_low, ip6_s);
+        oss << "<IP6_END>" << one_util::escape_xml(ip6_s) << "</IP6_END>";
+    }
 
     oss << "<USED_LEASES>" << get_used_addr() << "</USED_LEASES>";
     oss << "</AR>";
@@ -665,7 +666,7 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
     if (is_ipv4())
     {
         unsigned int ip_i;
-		string aux_st = attr->vector_value("IP");
+        string aux_st = attr->vector_value("IP");
 
         rc = ip_to_i(aux_st, ip_i);
 
@@ -687,7 +688,7 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 
             ip6_to_s(ula6, mac_end, ip6_s);
             oss << "<IP6_ULA_END>" << one_util::escape_xml(ip6_s)
-				<< "</IP6_ULA_END>";
+                << "</IP6_ULA_END>";
         }
 
         if (global6[1] != 0 || global6[0] != 0 ) /* Glocal Unicast */
@@ -698,23 +699,23 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 
             ip6_to_s(global6, mac_end, ip6_s);
             oss << "<IP6_GLOBAL_END>" << one_util::escape_xml(ip6_s)
-				<< "</IP6_GLOBAL_END>";
+                << "</IP6_GLOBAL_END>";
         }
     }
 
-	if (is_ipv6_static())
-	{
+    if (is_ipv6_static())
+    {
         string ip6_s;
-		unsigned int ip_low[4];
+        unsigned int ip_low[4];
 
-		ip_low[3] = ip6[3];
-		ip_low[2] = ip6[2];
-		ip_low[1] = ip6[1];
-		ip_low[0] = ip6[0] +  size - 1;
+        ip_low[3] = ip6[3];
+        ip_low[2] = ip6[2];
+        ip_low[1] = ip6[1];
+        ip_low[0] = ip6[0] +  size - 1;
 
-		ip6_to_s(ip_low, ip6_s);
-		oss << "<IP6_END>" << one_util::escape_xml(ip6_s) << "</IP6_END>";
-	}
+        ip6_to_s(ip_low, ip6_s);
+        oss << "<IP6_END>" << one_util::escape_xml(ip6_s) << "</IP6_END>";
+    }
 
     oss << "<USED_LEASES>" << get_used_addr() << "</USED_LEASES>";
 
@@ -2051,3 +2052,19 @@ void AddressRange::remove_all_except_restricted(VectorAttribute* va)
         }
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AddressRange::decrypt()
+{
+    string one_key;
+
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+
+    for ( auto ea : VirtualNetworkTemplate::encrypted )
+    {
+        attr->decrypt(one_key, ea.second);
+    }
+}
+

@@ -208,14 +208,14 @@ int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg)
         return -1;
     }
 
-    AddressRange * ar_ptr = it->second;
+    AddressRange * ar_ptr    = it->second;
     VectorAttribute * the_ar = ar_ptr->attr;
 
     if(ar_ptr->is_ipam())
     {
         IPAMManager * ipamm = Nebula::instance().get_ipamm();
 
-        IPAMRequest ir(ar_ptr->get_attr());
+        IPAMRequest ir(ar_ptr);
 
         ipamm->trigger(IPMAction::UNREGISTER_ADDRESS_RANGE, &ir);
 

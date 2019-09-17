@@ -22,6 +22,8 @@
 #include "Attribute.h"
 #include "Template.h"
 
+class AddressRange;
+
 /**
  *  The IPAMRequest class represents a request for the IPAM driver. The request
  *  is in the form
@@ -38,6 +40,11 @@ public:
             "<ADDRESS><MAC/><IP/><IP6_GLOBAL/><IP6_ULA/><IP6/><SIZE/></ADDRESS>"){};
 
     IPAMRequest(VectorAttribute * _ar_vattr, const std::string& _address_xml);
+
+    IPAMRequest(AddressRange * _ar) : IPAMRequest(_ar,
+            "<ADDRESS><MAC/><IP/><IP6_GLOBAL/><IP6_ULA/><IP6/><SIZE/></ADDRESS>"){};
+
+    IPAMRequest(AddressRange * _ar, const std::string& _address_xml);
 
     virtual ~IPAMRequest(){};
 
