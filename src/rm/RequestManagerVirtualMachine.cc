@@ -2716,7 +2716,7 @@ void VirtualMachinePoolCalculateShowback::request_execute(
         return;
     }
 
-    success_response("", att);
+    success_response(string(""), att);
 
     return;
 }
