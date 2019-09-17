@@ -41,9 +41,25 @@ require 'vcenter_driver'
 require 'base64'
 require 'nsx_driver'
 
-base64_temp = ARGV[1]
+SUCCESS_XPATH = '//PARAMETER[TYPE="OUT" and POSITION="1"]/VALUE'
+ERROR_XPATH = '//PARAMETER[TYPE="OUT" and POSITION="2"]/VALUE'
+VNET_XPATH = '//EXTRA/VNET'
+
+# Changes due to new hooks
+arguments_raw = Base64.decode64(STDIN.read)
+arguments_xml = Nokogiri::XML(arguments_raw)
+success = arguments_xml.xpath(SUCCESS_XPATH).text
+
+if success == 'false'
+    error = arguments_xml.xpath(ERROR_XPATH).text
+    STDERR.puts error
+    exit(-1)
+end
+
+vnet_xml = arguments_xml.xpath(VNET_XPATH).to_s
+
 template    = OpenNebula::XMLElement.new
-template.initialize_xml(Base64.decode64(base64_temp), 'VNET')
+template.initialize_xml(vnet_xml, 'VNET')
 managed  = template['TEMPLATE/OPENNEBULA_MANAGED'] != 'NO'
 imported = template['TEMPLATE/VCENTER_IMPORTED']
 error    = template['TEMPLATE/VCENTER_NET_STATE'] == 'ERROR'
@@ -72,9 +88,6 @@ begin
         dc = cluster.get_dc
 
         # NSX
-        # nsxmgr = one_host['TEMPLATE/NSX_MANAGER']
-        # nsx_user = one_host['TEMPLATE/NSX_USER']
-        # nsx_pass_enc = one_host['TEMPLATE/NSX_MANAGER']
         ls_id = template['TEMPLATE/NSX_ID']
         # NSX
 
