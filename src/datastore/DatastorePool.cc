@@ -17,6 +17,7 @@
 #include "DatastorePool.h"
 #include "Nebula.h"
 #include "NebulaLog.h"
+#include "DatastoreTemplate.h"
 
 #include <stdexcept>
 
@@ -40,7 +41,8 @@ const int    DatastorePool::FILE_DS_ID   = 2;
 
 DatastorePool::DatastorePool(
         SqlDB * db,
-        const vector<const SingleAttribute *>& _inherit_attrs) :
+        const vector<const SingleAttribute *>& _inherit_attrs,
+        vector<const SingleAttribute *>& encrypted_attrs) :
     PoolSQL(db, Datastore::table)
 
 {
@@ -162,6 +164,9 @@ DatastorePool::DatastorePool(
         // User created datastores will start from ID 100
         set_lastOID(99);
     }
+
+    // Parse encrypted attributes
+    DatastoreTemplate::parse_encrypted(encrypted_attrs);
 
     return;
 

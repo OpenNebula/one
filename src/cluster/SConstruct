@@ -23,7 +23,8 @@ lib_name='nebula_cluster'
 # Sources to generate the library
 source_files=[
     'ClusterPool.cc',
-    'Cluster.cc'
+    'Cluster.cc',
+    'ClusterTemplate.cc'
 ]
 
 # Build library

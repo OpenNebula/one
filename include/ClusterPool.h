@@ -26,7 +26,9 @@ using namespace std;
 class ClusterPool : public PoolSQL
 {
 public:
-    ClusterPool(SqlDB * db, const VectorAttribute * vnc_conf);
+    ClusterPool(SqlDB * db,
+                const VectorAttribute * vnc_conf,
+                vector<const SingleAttribute *>& encrypted_attrs);
 
     ~ClusterPool(){};
 

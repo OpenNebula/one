@@ -532,10 +532,13 @@ void Nebula::start(bool bootstrap_only)
     {
         /* -------------------------- Cluster Pool -------------------------- */
         const VectorAttribute * vnc_conf;
+        vector<const SingleAttribute *> cluster_encrypted_attrs;
+
+        nebula_configuration->get("CLUSTER_ENCRYPTED_ATTR", cluster_encrypted_attrs);
 
         vnc_conf = nebula_configuration->get("VNC_PORTS");
 
-        clpool = new ClusterPool(logdb, vnc_conf);
+        clpool = new ClusterPool(logdb, vnc_conf, cluster_encrypted_attrs);
 
         /* --------------------- VirtualMachine Pool ------------------------ */
         vector<const SingleAttribute *> vm_restricted_attrs;
@@ -645,6 +648,7 @@ void Nebula::start(bool bootstrap_only)
         vector<const SingleAttribute *> img_restricted_attrs;
         vector<const SingleAttribute *> inherit_image_attrs;
         vector<const SingleAttribute *> inherit_ds_attrs;
+        vector<const SingleAttribute *> ds_encrypted_attrs;
 
         nebula_configuration->get("DEFAULT_IMAGE_TYPE", image_type);
         nebula_configuration->get("DEFAULT_DEVICE_PREFIX", device_prefix);
@@ -659,7 +663,9 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("INHERIT_DATASTORE_ATTR", inherit_ds_attrs);
 
-        dspool = new DatastorePool(logdb, inherit_ds_attrs);
+        nebula_configuration->get("DS_ENCRYPTED_ATTR", ds_encrypted_attrs);
+
+        dspool = new DatastorePool(logdb, inherit_ds_attrs, ds_encrypted_attrs);
 
         /* ----- Document, Zone, VDC, VMTemplate, SG and Makerket Pools ----- */
         docpool  = new DocumentPool(logdb);
