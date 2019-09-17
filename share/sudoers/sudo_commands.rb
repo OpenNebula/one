@@ -27,15 +27,9 @@ end
 require 'erb'
 
 SUDO_CMDS = {
-    :NET    => %w[ebtables iptables ip6tables ip ipset arping],
-    :LVM    => %w[lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend],
-    :OVS    => %w[ovs-ofctl ovs-vsctl],
     :CEPH   => %w[rbd],
+    :LVM    => %w[lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend],
     :MARKET => %W[#{LIB_LOCATION}/sh/create_container_image.sh],
-    :LXD    => %w[
-        lxc mount umount mkdir catfstab lsblk losetup kpartx qemu-nbd
-        blkid e2fsck resize2fs xfs_growfs rbd-nbd xfs_admin tune2fs
-    ],
     :HA => [
         'systemctl start opennebula-flow',
         'systemctl stop opennebula-flow',
@@ -45,11 +39,16 @@ SUDO_CMDS = {
         'service opennebula-flow stop',
         'service opennebula-gate start',
         'service opennebula-gate stop'
+    ],
+    :NET    => %w[ebtables iptables ip6tables ip ipset arping],
+    :OVS    => %w[ovs-ofctl ovs-vsctl],
+    :LXD    => %w[
+        lxc mount umount mkdir catfstab lsblk losetup kpartx qemu-nbd
+        blkid e2fsck resize2fs xfs_growfs rbd-nbd xfs_admin tune2fs
     ]
 }
 
-# TODO: Add node specific commands here, like networking
-NODECMDS = [:LXD]
+NODECMDS = [:NET, :OVS, :LXD]
 
 abs_cmds = {}
 not_found_cmds = []
