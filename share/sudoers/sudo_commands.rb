@@ -37,9 +37,10 @@ SUDO_CMDS = {
         'service opennebula-flow start',
         'service opennebula-flow stop',
         'service opennebula-gate start',
-        'service opennebula-gate stop'
+        'service opennebula-gate stop',
+        'arping'
     ],
-    :NET    => %w[ebtables iptables ip6tables ip ipset arping],
+    :NET    => %w[ebtables iptables ip6tables ip ipset],
     :OVS    => %w[ovs-ofctl ovs-vsctl],
     :LVM    => %w[lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend],
     :LXD    => %w[
