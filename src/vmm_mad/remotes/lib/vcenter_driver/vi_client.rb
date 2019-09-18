@@ -181,7 +181,7 @@ class VIClient
             connection = {
                 :host     => datastore["TEMPLATE/VCENTER_HOST"],
                 :user     => user,
-                :password => password,
+                :password => password
             }
 
             connection[:port] = port unless port.nil?

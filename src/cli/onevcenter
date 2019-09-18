@@ -108,7 +108,8 @@ CommandParser::CmdParser.new(ARGV) do
         :short => '-p port',
         :large => '--port port',
         :format => String,
-        :description => 'The port to interact with vCenter'
+        :description => 'The port to interact with vCenter API port, '\
+                        'defaults to 443 (SSL) or 80'
     }
 
     USE_DEFAULTS = {
