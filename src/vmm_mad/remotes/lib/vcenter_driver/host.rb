@@ -765,6 +765,8 @@ class ClusterComputeResource
 
         template << "VCENTER_RESOURCE_POOL=\"#{rp}\"" if rp
 
+        template << "VCENTER_PORT=\"#{con_ops[:port]}\"" if con_ops[:port]
+
         rc = one_host.update(template, false)
 
         if OpenNebula.is_error?(rc)
