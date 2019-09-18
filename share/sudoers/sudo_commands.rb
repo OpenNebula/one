@@ -28,7 +28,6 @@ require 'erb'
 
 SUDO_CMDS = {
     :CEPH   => %w[rbd],
-    :LVM    => %w[lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend],
     :MARKET => %W[#{LIB_LOCATION}/sh/create_container_image.sh],
     :HA => [
         'systemctl start opennebula-flow',
@@ -42,13 +41,14 @@ SUDO_CMDS = {
     ],
     :NET    => %w[ebtables iptables ip6tables ip ipset arping],
     :OVS    => %w[ovs-ofctl ovs-vsctl],
+    :LVM    => %w[lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend],
     :LXD    => %w[
         lxc mount umount mkdir catfstab lsblk losetup kpartx qemu-nbd
         blkid e2fsck resize2fs xfs_growfs rbd-nbd xfs_admin tune2fs
     ]
 }
 
-NODECMDS = [:NET, :OVS, :LXD]
+NODECMDS = [:NET, :OVS, :LVM, :LXD]
 
 abs_cmds = {}
 not_found_cmds = []
