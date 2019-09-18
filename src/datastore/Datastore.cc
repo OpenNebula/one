@@ -641,6 +641,9 @@ int Datastore::insert(SqlDB *db, string& error_str)
         replace_template_attribute("RESTRICTED_DIRS", "/");
     }
 
+    // Encrypt all the secrets
+    encrypt();
+
     //--------------------------------------------------------------------------
     // Insert the Datastore
     //--------------------------------------------------------------------------
