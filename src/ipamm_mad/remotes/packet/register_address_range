@@ -94,8 +94,10 @@ require 'opennebula'
 
 data = Nokogiri::XML(Base64.decode64(STDIN.read))
 
-packet = Packet::Client.new
-packet.auth_token = data.xpath('//AR/PACKET_TOKEN').text
+ar_token = data.xpath('//AR/PACKET_TOKEN').text
+
+packet            = Packet::Client.new
+packet.auth_token = ar_token
 
 ip = Packet::Ip.new
 ip.project_id = data.xpath('//AR/PACKET_PROJECT').text
