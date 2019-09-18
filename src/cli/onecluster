@@ -116,7 +116,8 @@ CommandParser::CmdParser.new(ARGV) do
         Shows information for the given Cluster
     EOT
 
-    command :show, show_desc, :clusterid, :options => OpenNebulaHelper::XML do
+    command :show, show_desc, :clusterid,
+            :options => [OpenNebulaHelper::XML, OpenNebulaHelper::DECRYPT] do
         helper.show_resource(args[0], options)
     end
 
