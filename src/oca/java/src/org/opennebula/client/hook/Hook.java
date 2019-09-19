@@ -176,7 +176,9 @@ public class Hook extends PoolElement
      */
     public OneResponse info()
     {
-        return info();
+        OneResponse response = info(client, id);
+        super.processInfo(response);
+        return response;
     }
 
     /**
@@ -244,6 +246,12 @@ public class Hook extends PoolElement
         return unlock(client, id);
     }
 
+    /**
+     * Retry this Hook
+     *
+     * @param exec_id the hook execution id.
+     * @return If an error occurs the error message contains the reason.
+     */
     public OneResponse retry(int exec_id)
     {
         return retry(client, id, exec_id);
