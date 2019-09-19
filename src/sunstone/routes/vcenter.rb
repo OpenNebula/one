@@ -76,10 +76,18 @@ helpers do
             end
         end
 
-        return VCenterDriver::VIClient.new({
+        connection = {
             :user     => vuser,
             :password => vpass,
-            :host     => vhost})
+            :host     => vhost
+        }
+
+        if !vhost.nil? && vhost.split(":").length == 2
+            connection[:host] = vhost.split(":")[0]
+            connection[:port] = vhost.split(":")[1]
+        end
+
+        return VCenterDriver::VIClient.new(connection)
     end
 
     def return_error(code, msg)
