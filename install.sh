@@ -1761,7 +1761,8 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/vntemplate_pool.rb \
                             src/oca/ruby/opennebula/vntemplate.rb \
                             src/oca/ruby/opennebula/hook_pool.rb \
-                            src/oca/ruby/opennebula/hook.rb"
+                            src/oca/ruby/opennebula/hook.rb \
+                            src/oca/ruby/opennebula/hook_log.rb"
 
 #-------------------------------------------------------------------------------
 # Common Cloud Files

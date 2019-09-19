@@ -600,4 +600,26 @@ public:
     ~HookPoolInfo(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class HookLogInfo : public RequestManagerPoolInfoFilter
+{
+public:
+    HookLogInfo():
+        RequestManagerPoolInfoFilter("one.hooklog.info",
+                                     "Returns the hook pool log info",
+                                     "A:siiii")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_hkpool();
+        auth_object = PoolObjectSQL::HOOK;
+    };
+
+    ~HookLogInfo(){};
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
+};
+
 #endif
