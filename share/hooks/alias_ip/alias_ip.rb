@@ -43,18 +43,17 @@ include OpenNebula
 # rubocop:enable Style/MixinUsage
 
 require 'base64'
+require 'nokogiri'
 require 'open3'
 require 'packet'
 
 ###
 
-VM_ID  = ARGV[0]
-VM_XML = Base64.decode64(ARGV[1])
+raw_vm_template = Base64.decode64(STDIN.read)
+xml_vm_template = Nokogiri::XML(raw_vm_template)
 
-if VM_ID.nil? || VM_ID.empty? || VM_XML.nil? || VM_XML.empty?
-    STDERR.puts 'USAGE: <VM ID> <VM XML>'
-    exit(-1)
-end
+VM_ID  = xml_vm_template.xpath('VM/ID').text
+VM_XML = raw_vm_template
 
 ##########
 # Helpers

@@ -222,6 +222,7 @@ else
 fi
 
 SHARE_DIRS="$SHARE_LOCATION/examples \
+            $SHARE_LOCATION/examples/alias_ip \
             $SHARE_LOCATION/websockify \
             $SHARE_LOCATION/websockify/websockify \
             $SHARE_LOCATION/esx-fw-vnc \
@@ -522,6 +523,9 @@ INSTALL_FILES=(
     NETWORK_VCENTER_FILES:$VAR_LOCATION/remotes/vnm/vcenter
     NETWORK_ALIAS_SDNAT_FILES:$VAR_LOCATION/remotes/vnm/alias_sdnat
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
+    EXAMPLE_DDC_SHARE_FILES:$SHARE_LOCATION/examples/alias_ip
+    WEBSOCKIFY_SHARE_RUN_FILES:$SHARE_LOCATION/websockify
+    WEBSOCKIFY_SHARE_MODULE_FILES:$SHARE_LOCATION/websockify/websockify
     WEBSOCKIFY_SHARE_RUN_FILES:$SHARE_LOCATION/websockify
     WEBSOCKIFY_SHARE_MODULE_FILES:$SHARE_LOCATION/websockify/websockify
     ESX_FW_VNC_SHARE_FILES:$SHARE_LOCATION/esx-fw-vnc
@@ -1639,6 +1643,14 @@ AUTH_ETC_FILES="src/authm_mad/remotes/server_x509/server_x509_auth.conf \
 EXAMPLE_SHARE_FILES="share/examples/vm.template \
                      share/examples/private.net \
                      share/examples/public.net"
+
+#-------------------------------------------------------------------------------
+# Sample files, to be installed under $SHARE_LOCATION/examples/alias_ip
+#-------------------------------------------------------------------------------
+
+EXAMPLE_DDC_SHARE_FILES="share/examples/alias_ip/running_hook \
+                         share/examples/alias_ip/hotplug_hook \
+                         share/examples/alias_ip/done_hook"
 
 #-------------------------------------------------------------------------------
 # Files required to interact with the websockify server
