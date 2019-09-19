@@ -108,6 +108,11 @@ func TestHook(t *testing.T) {
 		t.Errorf("Hook execution have not been retried")
 	}
 
+	hookLog, err := testCtrl.HookLog().Info(-1, -1, -1, 0)
+
+	if err != nil {
+	    t.Errorf("Error getting Hook log.")
+	}
 	// Delete template
 	err = hookC.Delete()
 	if err != nil {
