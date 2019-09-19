@@ -32,7 +32,7 @@ class OneHookHelper < OpenNebulaHelper::OneHelper
     #
     # @param options [Object] CLI user options
     def hook_logs(options)
-        hook_id = options[:hook_id].nil? ? -1 : options[:hook_id]
+        options[:hook_id].nil? ? hook_id = -1 : hook_id = options[:hook_id]
 
         if options.key? :success
             rc = 1
@@ -162,7 +162,7 @@ class OneHookHelper < OpenNebulaHelper::OneHelper
             default :HOOK, :ID, :TIMESTAMP, :RC, :EXECUTION
         end
 
-        table.show(execs, { :stat_column => :EXECUTION })
+        table.show(execs, :stat_column => :EXECUTION)
     end
 
     def format_resource(hook, options = {})

@@ -99,24 +99,24 @@ CommandParser::CmdParser.new(ARGV) do
         :name => 'hook_id',
         :large => '--hook-id id',
         :description => 'Hook ID to check logs',
-		:format => Integer
+        :format => Integer
     }
 
     SINCE = {
         :name => 'since',
         :large => '--since date',
         :description => 'First date to take logs',
-		:format => String
+        :format => String
     }
 
     UNTIL = {
         :name => 'until',
         :large => '--until date',
         :description => 'Last date to take logs',
-		:format => String
+        :format => String
     }
 
-	LOG_OPTIONS = [ERROR, SUCCESS, HOOK_ID, SINCE, UNTIL]
+    LOG_OPTIONS = [ERROR, SUCCESS, HOOK_ID, SINCE, UNTIL]
 
     ########################################################################
     # Global Options
