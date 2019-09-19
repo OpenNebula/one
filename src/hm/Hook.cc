@@ -19,6 +19,7 @@
 #include "HookImplementation.h"
 #include "HookStateHost.h"
 #include "HookStateVM.h"
+#include "HookLog.h"
 
 #include <string>
 
@@ -405,3 +406,28 @@ int Hook::set_hook(HookType hook_type, string& error)
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Hook::drop(SqlDB *db)
+{
+    ostringstream oss;
+    int rc;
+
+    oss << "DELETE FROM " << table << " WHERE oid=" << oid;
+
+    rc = db->exec_wr(oss);
+
+    if (rc != 0)
+    {
+        return rc;
+    }
+
+    oss.str("");
+
+    oss << "DELETE FROM " << HookLog::table << " WHERE hkid =" << oid;
+
+    rc = db->exec_wr(oss);
+
+    return rc;
+}

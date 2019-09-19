@@ -204,7 +204,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
         string error_str;
         return insert_replace(db, true, error_str);
@@ -215,7 +215,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, string& error_str) override;
 
     /**
      *  Execute an INSERT or REPLACE Sql query.
@@ -225,6 +225,13 @@ private:
      *    @return 0 one success
      */
     int insert_replace(SqlDB *db, bool replace, string& error_str);
+
+    /**
+     *  Drops object from the database
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int drop(SqlDB *db) override;
 };
 
 #endif /*HOOK_H_*/

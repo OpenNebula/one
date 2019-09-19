@@ -22,6 +22,7 @@
 #include "ActionManager.h"
 #include "Attribute.h"
 
+class Hook;
 class SqlDB;
 
 /**
@@ -94,6 +95,8 @@ public:
     static int bootstrap(SqlDB *_db);
 
 private:
+
+    friend Hook;
 
     // ----------------------------------------
     // DataBase implementation variables
