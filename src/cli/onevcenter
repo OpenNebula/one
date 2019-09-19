@@ -103,6 +103,14 @@ CommandParser::CmdParser.new(ARGV) do
         :format => String
     }
 
+    PORT = {
+        :name => 'port',
+        :short => '-p port',
+        :large => '--port port',
+        :format => String,
+        :description => 'vCenter API port, defaults to 443 (SSL) or 80'
+    }
+
     USE_DEFAULTS = {
         :name => 'defaults',
         :large => '--use-defaults',
@@ -240,7 +248,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
     command :hosts,
             host_desc,
-            :options => [VCENTER, USER, PASS, USE_DEFAULTS] do
+            :options => [VCENTER, USER, PASS, USE_DEFAULTS, PORT] do
         con_ops = helper.connection_options('Hosts', options)
 
         VCenterDriver::VcImporter.import_clusters(con_ops, options)

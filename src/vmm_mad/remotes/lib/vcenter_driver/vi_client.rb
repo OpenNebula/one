@@ -137,6 +137,8 @@ class VIClient
                 :password => host["TEMPLATE/VCENTER_PASSWORD"]
             }
 
+            connection[:port] = host["TEMPLATE/VCENTER_PORT"] unless host["TEMPLATE/VCENTER_PASSWORD"].nil?
+
             self.new(connection, host_id)
 
         rescue Exception => e
@@ -162,12 +164,14 @@ class VIClient
 
             user = ""
             password = ""
+            port = 0
             host_pool.each do |host|
               if host["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_id
                 host_decrypted = OpenNebula::Host.new_with_id(host["ID"], client)
                 host_decrypted.info(true)
                 user = host_decrypted["TEMPLATE/VCENTER_USER"]
                 password = host_decrypted["TEMPLATE/VCENTER_PASSWORD"]
+                port = host_decrypted["TEMPLATE/VCENTER_PORT"]
               end
             end
             if password.empty? or user.empty?
@@ -179,6 +183,8 @@ class VIClient
                 :user     => user,
                 :password => password
             }
+
+            connection[:port] = port unless port.nil?
 
             self.new(connection)
 
