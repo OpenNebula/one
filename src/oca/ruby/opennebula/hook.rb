@@ -97,7 +97,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def delete
-            call(HOOK_METHODS[:delete], @pe_id, false)
+            call(HOOK_METHODS[:delete], @pe_id)
         end
 
         # Replaces the Hook contents
