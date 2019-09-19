@@ -34,7 +34,7 @@ try:
                 stdout=PIPE)
     git_version = out.communicate()[0].rstrip().decode('utf-8')
 except OSError:
-    git_version = "not known"
+    git_version = ARGUMENTS.get('gitversion', 'not known')
 
 # This is the absolute path where the project is located
 cwd = os.getcwd()
