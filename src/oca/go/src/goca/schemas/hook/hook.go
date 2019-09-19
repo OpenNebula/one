@@ -31,7 +31,7 @@ type Hook struct {
 	Name        string             `xml:"NAME"`
 	Type        string             `xml:"TYPE"`
 	Template    Template           `xml:"TEMPLATE"`
-	HookLog     []ExecutionRecord  `xml:"HOOKLOG>HOOK_EXECUTION_RECORD"`
+	Log         HookLog            `xml:"HOOKLOG"`
 }
 
 type Template struct {
@@ -41,6 +41,10 @@ type Template struct {
 	Command        string   `xml:"COMMAND"`
 	Remote         string   `xml:"REMOTE"`
 	Dynamic        dyn.UnmatchedTagsSlice `xml:",any"`
+}
+
+type HookLog struct {
+	ExecutionRecords []ExecutionRecord  `xml:"HOOK_EXECUTION_RECORD"`
 }
 
 type ExecutionRecord struct {
