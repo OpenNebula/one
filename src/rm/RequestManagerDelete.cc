@@ -589,16 +589,6 @@ int VirtualNetworkDelete::drop(PoolObjectSQL * object, bool r, RequestAttributes
             return rc;
         }
 
-        // Delete all address ranges to call IPAM if needed
-        rc = vnet->rm_ars(error_msg);
-
-        if (rc != 0)
-        {
-            vnpool->update(vnet);
-
-            return rc;
-        }
-
         int freed = vnet->free_addr_by_owner(PoolObjectSQL::NET, oid);
 
         pool->update(vnet);
