@@ -813,6 +813,9 @@ Naming/ConstantName:
 Naming/HeredocDelimiterNaming:
     Enabled: false
 
+Naming/UncommunicativeMethodParamName:
+    Enabled: false
+
 ###
 # Bundler
 ####

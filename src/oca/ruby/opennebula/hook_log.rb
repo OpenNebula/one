@@ -52,7 +52,11 @@ module OpenNebula
         #######################################################################
 
         def info(min_ts, max_ts, hook_id, rc)
-            rc = @client.call(HOOK_LOG_METHODS[:info], min_ts, max_ts, hook_id, rc)
+            rc = @client.call(HOOK_LOG_METHODS[:info],
+                              min_ts,
+                              max_ts,
+                              hook_id,
+                              rc)
 
             if !OpenNebula.is_error?(rc)
                 initialize_xml(rc, ROOT_NAME)
@@ -60,7 +64,7 @@ module OpenNebula
                 rc = nil
             end
 
-            return rc
+            rc
         end
 
         alias :info! info
