@@ -25,78 +25,31 @@ else
 end
 
 require 'erb'
+require_relative 'sudoers'
 
-SUDO_CMDS = {
-    :CEPH   => %w[rbd],
-    :MARKET => %W[#{LIB_LOCATION}/sh/create_container_image.sh],
-    :HA => [
-        'systemctl start opennebula-flow',
-        'systemctl stop opennebula-flow',
-        'systemctl start opennebula-gate',
-        'systemctl stop opennebula-gate',
-        'service opennebula-flow start',
-        'service opennebula-flow stop',
-        'service opennebula-gate start',
-        'service opennebula-gate stop',
-        'arping'
-    ],
-    :NET    => %w[ebtables iptables ip6tables ip ipset],
-    :OVS    => %w[ovs-ofctl ovs-vsctl],
-    :LVM    => %w[lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend],
-    :LXD    => %w[
-        lxc mount umount mkdir catfstab lsblk losetup kpartx qemu-nbd
-        blkid e2fsck resize2fs xfs_growfs rbd-nbd xfs_admin tune2fs
-    ]
-}
-
-NODECMDS = [:NET, :OVS, :LVM, :LXD]
-
-abs_cmds = {}
-not_found_cmds = []
-cmd_sets = SUDO_CMDS.keys
-
-cmd_sets.each do |label|
-    cmds = SUDO_CMDS[label]
-
-    loop_abs_cmds = []
-    cmds.each do |cmd|
-        cmd_parts = cmd.split
-        abs_cmd = `which #{cmd_parts[0]} 2>/dev/null`
-
-        if !abs_cmd.empty?
-            cmd_parts[0] = abs_cmd.strip
-            loop_abs_cmds << cmd_parts.join(' ')
-        else
-            not_found_cmds << cmd
-        end
-    end
-
-    abs_cmds["ONE_#{label}"] = loop_abs_cmds
-end
-
-abs_cmds.reject! {|_k, v| v.empty? }
+sudoer = Sudoers.new LIB_LOCATION
+aliases = sudoer.aliases
+aliases.reject! {|_k, v| v.empty? }
 
 puts ERB.new(DATA.read, nil, '<>').result(binding)
 
-if !not_found_cmds.empty?
-    STDERR.puts "\n---\n\nNot found:"
-    not_found_cmds.each {|cmd| STDERR.puts("- #{cmd}") }
-end
-
-
 __END__
+
+###### opennebula sudoers ###### 
 
 Defaults !requiretty
 Defaults secure_path = /sbin:/bin:/usr/sbin:/usr/bin
 
-<% cmd_sets.each do |k|; l = "ONE_#{k}"; v = abs_cmds[l]  %>
+<% cmd_sets = sudoer.cmds.keys %>
+<% cmd_sets.each do |k|; l = "ONE_#{k}"; v = aliases[l]  %>
 <% if !v.nil? %>
 Cmnd_Alias <%= l %> = <%= v.join(", ") %>
 <%   end %>
 <% end %>
 
-<% NODECMDS.each {|set| cmd_sets.delete(set)}  %>
+<% Sudoers::NODECMDS.each {|set| cmd_sets.delete(set)}  %>
 
-oneadmin ALL=(ALL) NOPASSWD: <%= cmd_sets.select{|k| !abs_cmds["ONE_#{k}"].nil?}.collect{|k| "ONE_#{k}"}.join(", ") %>
+oneadmin ALL=(ALL) NOPASSWD: <%= cmd_sets.each.collect{|k| "ONE_#{k}"}.join(", ") %>
 
-
+###### opennebula-node sudoers ######
+oneadmin ALL=(ALL) NOPASSWD: <%= Sudoers::NODECMDS.reject! {|e| e == :LXD }.each.collect{|k| "ONE_#{k}"}.join(", ") %>
