@@ -78,7 +78,7 @@ func TestHook(t *testing.T) {
 	}
 
 	// Check execution records
-	currentExecs := len(hook.HookLog)
+	currentExecs := len(hook.Log.ExecutionRecords)
 
 	//triger the hook
 	testCtrl.Zone(0).Info()
@@ -87,32 +87,27 @@ func TestHook(t *testing.T) {
 
 	hook, err = hookC.Info()
 
-	if (len(hook.HookLog) <= currentExecs) {
+	if (len(hook.Log.ExecutionRecords) <= currentExecs) {
 		t.Errorf("Hook have not been triggered")
 	}
 
 	// Check retry functionality
-	currentExecs = len(hook.HookLog)
+	currentExecs = len(hook.Log.ExecutionRecords)
 
-	hookC.Retry(hook.HookLog[0].ExecId)
+	hookC.Retry(hook.Log.ExecutionRecords[0].ExecId)
 
 	time.Sleep(2 * time.Second)
 
 	hook, err = hookC.Info()
 
-	if (len(hook.HookLog) <= currentExecs) {
+	if (len(hook.Log.ExecutionRecords) <= currentExecs) {
 		t.Errorf("Hook execution have not been retried")
 	}
 
-	if (hook.HookLog[len(hook.HookLog) -1].Retry != "yes") {
+	if (hook.Log.ExecutionRecords[len(hook.Log.ExecutionRecords) -1].Retry != "yes") {
 		t.Errorf("Hook execution have not been retried")
 	}
 
-	hookLog, err := testCtrl.HookLog().Info(-1, -1, -1, 0)
-
-	if err != nil {
-	    t.Errorf("Error getting Hook log.")
-	}
 	// Delete template
 	err = hookC.Delete()
 	if err != nil {
