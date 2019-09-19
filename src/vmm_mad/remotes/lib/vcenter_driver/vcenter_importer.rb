@@ -15,6 +15,18 @@
 #--------------------------------------------------------------------------- #
 
 module VCenterDriver
+
+    ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+
+    if !ONE_LOCATION
+        RUBY_LIB_LOCATION = '/usr/lib/one/ruby' unless defined?(RUBY_LIB_LOCATION)
+        GEMS_LOCATION     = '/usr/share/one/gems' unless defined?(GEMS_LOCATION)
+        HOOK_LOCATION     = '/var/lib/one/remotes/hooks' unless defined?(HOOK_LOCATION)
+    else
+        RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' unless defined?(RUBY_LIB_LOCATION)
+        GEMS_LOCATION     = ONE_LOCATION + '/share/gems' unless defined?(GEMS_LOCATION)
+        HOOK_LOCATION     = ONE_LOCATION + '/remotes/hooks' unless defined?(HOOK_LOCATION)
+    end
     class VcImporter
         attr_accessor :list
 
@@ -508,6 +520,8 @@ module VCenterDriver
                         STDOUT.puts
                     }
                 }
+                VCenterDriver::VcImporter.register_hooks
+
             rescue Interrupt => e
                 puts "\n"
                 exit 0 #Ctrl+C
@@ -519,6 +533,22 @@ module VCenterDriver
                 vi_client.close_connection if vi_client
             end
 
+        end
+
+        def self.register_hooks
+            hooks_path = HOOK_LOCATION + '/vcenter/templates'
+            client = OpenNebula::Client.new
+            hook = OpenNebula::Hook.new(OpenNebula::Hook.build_xml, client)
+            hook_pool = OpenNebula::HookPool.new(client)
+            rc = hook_pool.info
+            if OpenNebula.is_error?(rc)
+                STDERR.puts rc.message
+                exit 1
+            end
+            hook_files = Dir["#{hooks_path}/*.tmpl"]
+            hook_files.each do |hook_file|
+                hook.allocate(File.open(hook_file).read)
+            end
         end
 
     end

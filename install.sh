@@ -344,6 +344,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/ft \
           $VAR_LOCATION/remotes/hooks/vcenter \
+          $VAR_LOCATION/remotes/hooks/vcenter/templates \
           $VAR_LOCATION/remotes/hooks/raft \
           $VAR_LOCATION/remotes/hooks/alias_ip \
           $VAR_LOCATION/remotes/datastore \
@@ -532,6 +533,7 @@ INSTALL_FILES=(
     FOLLOWER_CLEANUP_SHARE_FILE:$SHARE_LOCATION
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
     HOOK_VCENTER_FILES:$VAR_LOCATION/remotes/hooks/vcenter
+    HOOK_VCENTER_TMPLS:$VAR_LOCATION/remotes/hooks/vcenter/templates
     HOOK_RAFT_FILES:$VAR_LOCATION/remotes/hooks/raft
     HOOK_ALIAS_IP_FILES:$VAR_LOCATION/remotes/hooks/alias_ip
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
@@ -1681,6 +1683,14 @@ HOOK_FT_FILES="share/hooks/ft/host_error.rb \
 
 HOOK_VCENTER_FILES="share/hooks/vcenter/create_vcenter_net.rb \
                     share/hooks/vcenter/delete_vcenter_net.rb"
+
+#-------------------------------------------------------------------------------
+# HOOK templates, to be installed under
+# $VAR_LOCATION/remotes/hooks/vcenter/templates
+#-------------------------------------------------------------------------------
+
+HOOK_VCENTER_TMPLS="share/hooks/vcenter/templates/create_vcenter_net.tmpl \
+                    share/hooks/vcenter/templates/delete_vcenter_net.tmpl"
 
 #-------------------------------------------------------------------------------
 # HOOK RAFT scripts, to be installed under $VAR_LOCATION/remotes/hooks/raft
