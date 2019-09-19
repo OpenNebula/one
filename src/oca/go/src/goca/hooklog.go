@@ -35,8 +35,8 @@ func (c *Controller) HookLog() *HookLogController {
 // * maxTs: Max timestamp to filter for
 // * hookId: Hook ID to filer for.
 // * rc: return code of the hook execution to filer for. (-1 error, 0 all, 1 success)
-func (hc *HookLogController) Info(minTs, maxTs, hookId, rc int) (*hook.HookLog, error) {
-	response, err := hc.c.Client.Call("one.hooklog.info", minTs, maxTs, hookId, rc)
+func (hc *HookLogController) Info(minTs, maxTs, hookId, hook_rc int) (*hook.HookLog, error) {
+	response, err := hc.c.Client.Call("one.hooklog.info", minTs, maxTs, hookId, hook_rc)
 	if err != nil {
 		return nil, err
 	}
