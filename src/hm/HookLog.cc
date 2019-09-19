@@ -93,6 +93,34 @@ int HookLog::_dump_log(int hkid, int exec_id, std::string &xml_log)
     return rc;
 }
 
+int HookLog::dump_log(const std::string &where_clause, std::string &xml_log)
+{
+    std::ostringstream cmd;
+
+    string_cb cb(1);
+
+    cmd << "SELECT body FROM "<< table;
+
+    if (!where_clause.empty())
+    {
+        cmd << " WHERE " << where_clause;
+    }
+
+    cmd << " ORDER BY hkid DESC";
+
+    xml_log.append("<HOOKLOG>");
+
+    cb.set_callback(&xml_log);
+
+    int rc = db->exec_rd(cmd, &cb);
+
+    cb.unset_callback();
+
+    xml_log.append("</HOOKLOG>");
+
+    return rc;
+}
+
 /* -------------------------------------------------------------------------- */
 
 int HookLog::dump_log(int hkid, std::string &xml_log)

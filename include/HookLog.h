@@ -59,6 +59,15 @@ public:
     int dump_log(std::string &xml_log);
 
     /**
+     *  Get the execution log using a given where clause
+     *    @param where_clause where cluase of the SQL query
+     *    @param xml_log execution records in XML format
+     *
+     *    @return 0 on success
+     */
+    int dump_log(const std::string &where_clause, std::string &xml_log);
+
+    /**
      *  Adds a new execution record to the hook
      *    @param hkid the ID of the hook
      *    @param rc return code of the execution

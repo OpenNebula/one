@@ -35,7 +35,7 @@ protected:
         :Request(method_name,params,help)
     {
         Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vrouterpool();
+        pool        = nd.get_hkpool();
 
         auth_object = PoolObjectSQL::HOOK;
     };

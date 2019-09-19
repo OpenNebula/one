@@ -583,6 +583,9 @@ void RequestManager::register_xml_methods()
     // Hook methods
     xmlrpc_c::methodPtr hook_retry(new HookRetry());
 
+    //HookLog methods
+    xmlrpc_c::methodPtr hooklog_info(new HookLogInfo());
+
     /* VM related methods  */
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
     RequestManagerRegistry.addMethod("one.vm.action", vm_action);
@@ -1225,6 +1228,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.hook.retry", hook_retry);
     RequestManagerRegistry.addMethod("one.hookpool.info", hookpool_info);
 
+    /* Hook Log related methods */
+    RequestManagerRegistry.addMethod("one.hooklog.info", hooklog_info);
 
     /* System related methods */
     RequestManagerRegistry.addMethod("one.system.version", system_version);
