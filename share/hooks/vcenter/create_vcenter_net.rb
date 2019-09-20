@@ -16,6 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+# Define libraries location
 ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
@@ -36,11 +37,13 @@ end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 
+# Hook dependencies
 require 'opennebula'
 require 'vcenter_driver'
 require 'base64'
 require 'nsx_driver'
 
+# Constants
 SUCCESS_XPATH = '//PARAMETER[TYPE="OUT" and POSITION="1"]/VALUE'
 ERROR_XPATH = '//PARAMETER[TYPE="OUT" and POSITION="2"]/VALUE'
 NETWORK_ID_XPATH = '//PARAMETER[TYPE="OUT" and POSITION="2"]/VALUE'
@@ -49,53 +52,33 @@ NETWORK_ID_XPATH = '//PARAMETER[TYPE="OUT" and POSITION="2"]/VALUE'
 #   https://github.com/OpenNebula/one/issues/3380
 arguments_raw = Base64.decode64(STDIN.read)
 arguments_xml = Nokogiri::XML(arguments_raw)
-success = arguments_xml.xpath(SUCCESS_XPATH).text
-if success == 'false'
-    error = arguments_xml.xpath(ERROR_XPATH).text
-    STDERR.puts error
-    exit(-1)
-end
+network_id    = arguments_xml.xpath(NETWORK_ID_XPATH).text.to_i
+success       = arguments_xml.xpath(SUCCESS_XPATH).text != 'false'
 
-response_id = arguments_xml.xpath(NETWORK_ID_XPATH).text
-network_id = response_id.to_i
+# Check if the API call (one.vn.allocate) has been successful
+# and exit otherwise
+err_and_exit(arguments_xml.xpath(ERROR_XPATH).text) unless success
 
-# waits for a vlan_id attribute to be generated
-# only if automatic_vlan activated
-def wait_vlanid(vnet)
-    retries = 5
-    i = 0
-    while vnet['VLAN_ID'].nil?
-        raise 'cannot get vlan_id' if i >= retries
+# Create client to communicate with OpenNebula
+one_client = OpenNebula::Client.new
 
-        sleep 1
-        i += 1
-        vnet.info
-    end
-end
+# Get the network XML from OpenNebula
+# This is potentially different from the Netowrk Template
+# provided as the API call argument
+one_vnet = OpenNebula::VirtualNetwork.new_with_id(network_id, one_client)
+err_and_exit(rc.message) if OpenNebula.is_error?(one_vnet.info)
 
-def update_net(vnet, content)
-    vnet.unlock
-    rc = vnet.update(content, true)
-    vnet.lock(1)
-
-    raise 'Could not update the virtual network' if OpenNebula.is_error?(rc)
-end
-
-one_vnet = OpenNebula::VirtualNetwork
-           .new_with_id(network_id, OpenNebula::Client.new)
-rc = one_vnet.info
-if OpenNebula.is_error?(rc)
-    STDERR.puts rc.message
-    exit(1)
-end
-
-esx_rollback = [] # Track hosts that require a rollback
-managed = one_vnet['TEMPLATE/OPENNEBULA_MANAGED'] != 'NO'
+managed  = one_vnet['TEMPLATE/OPENNEBULA_MANAGED'] != 'NO'
 imported = one_vnet['TEMPLATE/VCENTER_IMPORTED']
 
-return unless one_vnet['VN_MAD'] == 'vcenter' && managed && imported.nil?
+if one_vnet['VN_MAD'] == 'vcenter' && managed && imported.nil?
+    STDOUT.puts 'Network present in vCenter, no actions taken. Exiting'
+    exit(0)
+end
 
 begin
+    esx_rollback = [] # Track hosts that require a rollback
+
     # Step 0. Only execute for vcenter network driver && managed by one
     one_vnet.lock(1)
     wait_vlanid(one_vnet) if one_vnet['VLAN_ID_AUTOMATIC'] == '1'
@@ -104,17 +87,17 @@ begin
     host_id = one_vnet['TEMPLATE/VCENTER_ONE_HOST_ID']
     raise 'Missing VCENTER_ONE_HOST_ID' unless host_id
 
-    pnics = one_vnet['TEMPLATE/PHYDEV']
+    pnics   = one_vnet['TEMPLATE/PHYDEV']
     pg_name = one_vnet['TEMPLATE/BRIDGE']
     pg_type = one_vnet['TEMPLATE/VCENTER_PORTGROUP_TYPE']
     sw_name = one_vnet['TEMPLATE/VCENTER_SWITCH_NAME']
-    mtu = one_vnet['TEMPLATE/MTU']
+    mtu     = one_vnet['TEMPLATE/MTU']
     vlan_id = one_vnet['VLAN_ID'] || 0
 
-    # NSX parameters
-    ls_name = one_vnet['NAME']
+    #   NSX parameters
+    ls_name        = one_vnet['NAME']
     ls_description = one_vnet['TEMPLATE/DESCRIPTION']
-    tz_id = one_vnet['TEMPLATE/NSX_TZ_ID']
+    tz_id          = one_vnet['TEMPLATE/NSX_TZ_ID']
 
     if one_vnet['TEMPLATE/VCENTER_SWITCH_NPORTS']
         nports = one_vnet['TEMPLATE/VCENTER_SWITCH_NPORTS']
@@ -124,21 +107,16 @@ begin
 
     # Step 2. Contact vCenter cluster and extract cluster's info
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-    vc_uuid = vi_client.vim.serviceContent.about.instanceUuid
-    one_client = OpenNebula::Client.new
-    one_host = OpenNebula::Host.new_with_id(host_id, one_client)
-    rc = one_host.info
-    raise rc.message if OpenNebula.is_error? rc
+    vc_uuid   = vi_client.vim.serviceContent.about.instanceUuid
+    one_host  = OpenNebula::Host.new_with_id(host_id, one_client)
+    raise rc.message if OpenNebula.is_error?(one_host.info)
 
     vnet_ref = nil
-    blocked = false
-    ccr_ref = one_host['TEMPLATE/VCENTER_CCR_REF']
-    cluster = VCenterDriver::ClusterComputeResource
-              .new_from_ref(ccr_ref, vi_client)
-    dc = cluster.get_dc
-
-    ls_vni = nil
-    net_info = ''
+    blocked  = false
+    ccr_ref  = one_host['TEMPLATE/VCENTER_CCR_REF']
+    cluster  = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref,
+                                                                  vi_client)
+    dc       = cluster.get_dc
 
     if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXV
         nsx_client = NSXDriver::NSXClient.new(host_id)
@@ -154,9 +132,8 @@ begin
                           .new(nsx_client, nil, tz_id, virtual_wire_spec)
         # Get reference will have in vcenter and vni
         vnet_ref = logical_switch.ls_vcenter_ref
-        ls_vni = logical_switch.ls_vni
-        net_info << "NSX_ID=\"#{logical_switch.ls_id}\"\n"
-        net_info << "NSX_VNI=\"#{ls_vni}\"\n"
+        ls_vni   = logical_switch.ls_vni
+        net_info = "NSX_ID=\"#{logical_switch.ls_id}\"\nNSX_VNI=\"#{ls_vni}\"\n"
     end
 
     if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXT
@@ -372,4 +349,31 @@ rescue StandardError => e
 ensure
     one_vnet.unlock
     vi_client.close_connection if vi_client
+end
+
+# waits for a vlan_id attribute to be generated
+# only if automatic_vlan activated
+def wait_vlanid(vnet)
+    retries = 5
+    i = 0
+    while vnet['VLAN_ID'].nil?
+        raise 'cannot get vlan_id' if i >= retries
+
+        sleep 1
+        i += 1
+        vnet.info
+    end
+end
+
+def update_net(vnet, content)
+    vnet.unlock
+    rc = vnet.update(content, true)
+    vnet.lock(1)
+
+    raise 'Could not update the virtual network' if OpenNebula.is_error?(rc)
+end
+
+def err_and_exit(error_message)
+    STDERR.puts error_message
+    exit(-1)
 end
