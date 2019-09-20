@@ -291,7 +291,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     EOT
 
-    command :log, log_desc, :options => LOG_OPTIONS do
+    command :log, log_desc, :options => [LOG_OPTIONS, OpenNebulaHelper::XML] do
         helper.hook_logs(options)
 
         0

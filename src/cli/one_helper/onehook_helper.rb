@@ -69,7 +69,11 @@ class OneHookHelper < OpenNebulaHelper::OneHelper
             exerc = nil
         end
 
-        print_execution(exerc, false) if !exerc.nil? && !exerc.empty?
+        if !exerc.nil? && !exerc.empty? && (!options.key? :xml)
+            print_execution(exerc, false)
+        elsif options.key? :xml
+            puts hook_log.to_xml
+        end
     end
 
     private
