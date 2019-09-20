@@ -93,6 +93,14 @@ public:
      */
     static int bootstrap(SqlDB *_db);
 
+    /**
+     *  Drops object from the database
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+
+    int drop(SqlDB *db, const int hook_id);
+
 private:
 
     // ----------------------------------------
