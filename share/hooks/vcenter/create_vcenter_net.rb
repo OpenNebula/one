@@ -89,255 +89,250 @@ if OpenNebula.is_error?(rc)
     exit(1)
 end
 
-one_vnet.lock(1)
 esx_rollback = [] # Track hosts that require a rollback
 managed = one_vnet['TEMPLATE/OPENNEBULA_MANAGED'] != 'NO'
 imported = one_vnet['TEMPLATE/VCENTER_IMPORTED']
 
+return unless one_vnet['VN_MAD'] == 'vcenter' && managed && imported.nil?
+
 begin
     # Step 0. Only execute for vcenter network driver && managed by one
-    if one_vnet['VN_MAD'] == 'vcenter' && managed && imported.nil?
-        wait_vlanid(one_vnet) if one_vnet['VLAN_ID_AUTOMATIC'] == '1'
-        
-        # Step 1. Extract vnet settings
-        host_id = one_vnet['TEMPLATE/VCENTER_ONE_HOST_ID']
-        raise 'Missing VCENTER_ONE_HOST_ID' unless host_id
+    one_vnet.lock(1)
+    wait_vlanid(one_vnet) if one_vnet['VLAN_ID_AUTOMATIC'] == '1'
 
-        pnics = one_vnet['TEMPLATE/PHYDEV']
-        pg_name = one_vnet['TEMPLATE/BRIDGE']
-        pg_type = one_vnet['TEMPLATE/VCENTER_PORTGROUP_TYPE']
-        sw_name = one_vnet['TEMPLATE/VCENTER_SWITCH_NAME']
-        mtu = one_vnet['TEMPLATE/MTU']
-        vlan_id = one_vnet['VLAN_ID'] || 0
+    # Step 1. Extract vnet settings
+    host_id = one_vnet['TEMPLATE/VCENTER_ONE_HOST_ID']
+    raise 'Missing VCENTER_ONE_HOST_ID' unless host_id
 
-        # NSX parameters
-        ls_name = one_vnet['NAME']
-        ls_description = one_vnet['TEMPLATE/DESCRIPTION']
-        tz_id = one_vnet['TEMPLATE/NSX_TZ_ID']
+    pnics = one_vnet['TEMPLATE/PHYDEV']
+    pg_name = one_vnet['TEMPLATE/BRIDGE']
+    pg_type = one_vnet['TEMPLATE/VCENTER_PORTGROUP_TYPE']
+    sw_name = one_vnet['TEMPLATE/VCENTER_SWITCH_NAME']
+    mtu = one_vnet['TEMPLATE/MTU']
+    vlan_id = one_vnet['VLAN_ID'] || 0
 
-        if one_vnet['TEMPLATE/VCENTER_SWITCH_NPORTS']
-            nports = one_vnet['TEMPLATE/VCENTER_SWITCH_NPORTS']
-        else
-            pg_type == 'Port Group' ? nports = 128 : nports = 8
-        end
+    # NSX parameters
+    ls_name = one_vnet['NAME']
+    ls_description = one_vnet['TEMPLATE/DESCRIPTION']
+    tz_id = one_vnet['TEMPLATE/NSX_TZ_ID']
 
-        # Step 2. Contact vCenter cluster and extract cluster's info
-        vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-        vc_uuid = vi_client.vim.serviceContent.about.instanceUuid
-        one_client = OpenNebula::Client.new
-        one_host = OpenNebula::Host.new_with_id(host_id, one_client)
-        rc = one_host.info
-        raise rc.message if OpenNebula.is_error? rc
+    if one_vnet['TEMPLATE/VCENTER_SWITCH_NPORTS']
+        nports = one_vnet['TEMPLATE/VCENTER_SWITCH_NPORTS']
+    else
+        pg_type == 'Port Group' ? nports = 128 : nports = 8
+    end
 
-        vnet_ref = nil
-        blocked = false
-        ccr_ref = one_host['TEMPLATE/VCENTER_CCR_REF']
-        cluster = VCenterDriver::ClusterComputeResource
-                  .new_from_ref(ccr_ref, vi_client)
-        dc = cluster.get_dc
+    # Step 2. Contact vCenter cluster and extract cluster's info
+    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+    vc_uuid = vi_client.vim.serviceContent.about.instanceUuid
+    one_client = OpenNebula::Client.new
+    one_host = OpenNebula::Host.new_with_id(host_id, one_client)
+    rc = one_host.info
+    raise rc.message if OpenNebula.is_error? rc
 
-        ls_vni = nil
-        net_info = ''
+    vnet_ref = nil
+    blocked = false
+    ccr_ref = one_host['TEMPLATE/VCENTER_CCR_REF']
+    cluster = VCenterDriver::ClusterComputeResource
+              .new_from_ref(ccr_ref, vi_client)
+    dc = cluster.get_dc
 
-        # NSX
-        # nsxmgr = one_host['TEMPLATE/NSX_MANAGER']
-        # nsx_user = one_host['TEMPLATE/NSX_USER']
-        # nsx_pass_enc = one_host['TEMPLATE/NSX_MANAGER']
-        # NSX
+    ls_vni = nil
+    net_info = ''
 
-        if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXV
-            nsx_client = NSXDriver::NSXClient.new(host_id)
-            virtual_wire_spec =
-                "<virtualWireCreateSpec>\
-                    <name>#{ls_name}</name>\
-                    <description>#{ls_description}</description>\
-                    <tenantId>virtual wire tenant</tenantId>\
-                    <controlPlaneMode>UNICAST_MODE</controlPlaneMode>\
-                    <guestVlanAllowed>false</guestVlanAllowed>\
-                </virtualWireCreateSpec>"
-            logical_switch = NSXDriver::VirtualWire
-                             .new(nsx_client, nil, tz_id, virtual_wire_spec)
-            # Get reference will have in vcenter and vni
-            vnet_ref = logical_switch.ls_vcenter_ref
-            ls_vni = logical_switch.ls_vni
-            net_info << "NSX_ID=\"#{logical_switch.ls_id}\"\n"
-            net_info << "NSX_VNI=\"#{ls_vni}\"\n"
-        end
+    if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXV
+        nsx_client = NSXDriver::NSXClient.new(host_id)
+        virtual_wire_spec =
+            "<virtualWireCreateSpec>\
+                <name>#{ls_name}</name>\
+                <description>#{ls_description}</description>\
+                <tenantId>virtual wire tenant</tenantId>\
+                <controlPlaneMode>UNICAST_MODE</controlPlaneMode>\
+                <guestVlanAllowed>false</guestVlanAllowed>\
+            </virtualWireCreateSpec>"
+        logical_switch = NSXDriver::VirtualWire
+                          .new(nsx_client, nil, tz_id, virtual_wire_spec)
+        # Get reference will have in vcenter and vni
+        vnet_ref = logical_switch.ls_vcenter_ref
+        ls_vni = logical_switch.ls_vni
+        net_info << "NSX_ID=\"#{logical_switch.ls_id}\"\n"
+        net_info << "NSX_VNI=\"#{ls_vni}\"\n"
+    end
 
-        if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXT
-            nsx_client = NSXDriver::NSXClient.new(host_id)
-            opaque_network_spec = %(
-                {
-                    "transport_zone_id": "#{tz_id}",
-                    "replication_mode": "MTEP",
-                    "admin_state": "UP",
-                    "display_name": "#{ls_name}",
-                    "description": "#{ls_description}"
-                }
-            )
-            logical_switch = NSXDriver::OpaqueNetwork
-                             .new(nsx_client, nil, nil, opaque_network_spec)
-            # Get NSX_VNI
-            vnet_ref = dc.nsx_network(logical_switch.ls_id, pg_type)
-            ls_vni = logical_switch.ls_vni
-            net_info << "NSX_ID=\"#{logical_switch.ls_id}\"\n"
-            net_info << "NSX_VNI=\"#{ls_vni}\"\n"
-        end
+    if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXT
+        nsx_client = NSXDriver::NSXClient.new(host_id)
+        opaque_network_spec = %(
+            {
+                "transport_zone_id": "#{tz_id}",
+                "replication_mode": "MTEP",
+                "admin_state": "UP",
+                "display_name": "#{ls_name}",
+                "description": "#{ls_description}"
+            }
+        )
+        logical_switch = NSXDriver::OpaqueNetwork
+                          .new(nsx_client, nil, nil, opaque_network_spec)
+        # Get NSX_VNI
+        vnet_ref = dc.nsx_network(logical_switch.ls_id, pg_type)
+        ls_vni = logical_switch.ls_vni
+        net_info << "NSX_ID=\"#{logical_switch.ls_id}\"\n"
+        net_info << "NSX_VNI=\"#{ls_vni}\"\n"
+    end
 
-        # With DVS we have to work at datacenter level and then for each host
-        if pg_type == VCenterDriver::Network::NETWORK_TYPE_DPG
-            begin
-                dc.lock
-                net_folder = dc.network_folder
-                net_folder.fetch!
+    # With DVS we have to work at datacenter level and then for each host
+    if pg_type == VCenterDriver::Network::NETWORK_TYPE_DPG
+        begin
+            dc.lock
+            net_folder = dc.network_folder
+            net_folder.fetch!
 
-                # Get distributed port group if it exists
-                dpg = dc.dpg_exists(pg_name, net_folder)
+            # Get distributed port group if it exists
+            dpg = dc.dpg_exists(pg_name, net_folder)
 
-                # Disallow changes of switch name for existing pg
-                if dpg && dc.pg_changes_sw?(dpg, sw_name)
-                    raise "The port group's switch name can not be modified"\
-                          " for OpenNebula's virtual network."
+            # Disallow changes of switch name for existing pg
+            if dpg && dc.pg_changes_sw?(dpg, sw_name)
+                raise "The port group's switch name can not be modified"\
+                      " for OpenNebula's virtual network."
+            end
+
+            if !dpg
+                # Get distributed virtual switch if it exists
+                dvs = dc.dvs_exists(sw_name, net_folder)
+
+                if !dvs
+                    dvs = dc.create_dvs(sw_name, pnics, mtu)
                 end
 
-                if !dpg
-                    # Get distributed virtual switch if it exists
-                    dvs = dc.dvs_exists(sw_name, net_folder)
+                vnet_ref = dc.create_dpg(dvs, pg_name, vlan_id, nports)
+            else
+                blocked = true
+            end
+        rescue StandardError => e
+            raise e
+        ensure
+            dc.unlock if dc
+        end
+    end
 
-                    if !dvs
-                        dvs = dc.create_dvs(sw_name, pnics, mtu)
+    # Step 3. Loop through hosts in clusters
+    cluster['host'].each do |host|
+        esx_host = VCenterDriver::ESXHost.new_from_ref(host._ref, vi_client)
+
+        if pg_type == VCenterDriver::Network::NETWORK_TYPE_PG
+            begin
+                esx_host.lock # Exclusive lock for ESX host operation
+
+                pnics_available = nil
+                pnics_available = esx_host.get_available_pnics if pnics
+
+                # Get port group if it exists
+                pg = esx_host.pg_exists(pg_name)
+
+                # Disallow changes of switch name for existing pg
+                if pg && esx_host.pg_changes_sw?(pg, sw_name)
+                    raise 'The port group already exists in this host '\
+                          'for a different vCenter standard switch and '\
+                          'this kind of hange is not supported.'
+                end
+
+                # Pg does not exist
+                if !pg
+                    # Get standard switch if it exists
+                    vs = esx_host.vss_exists(sw_name)
+
+                    if !vs
+                        sw_name = esx_host.create_vss(sw_name,
+                                                      pnics,
+                                                      nports,
+                                                      mtu,
+                                                      pnics_available)
                     end
 
-                    vnet_ref = dc.create_dpg(dvs, pg_name, vlan_id, nports)
+                    vnet_ref = esx_host.create_pg(pg_name, sw_name, vlan_id)
                 else
                     blocked = true
                 end
             rescue StandardError => e
                 raise e
             ensure
-                dc.unlock if dc
+                esx_rollback << esx_host
+                esx_host.unlock if esx_host # Remove lock
             end
         end
 
-        # Step 3. Loop through hosts in clusters
-        cluster['host'].each do |host|
-            esx_host = VCenterDriver::ESXHost.new_from_ref(host._ref, vi_client)
+        next unless pg_type == VCenterDriver::Network::NETWORK_TYPE_DPG
 
-            if pg_type == VCenterDriver::Network::NETWORK_TYPE_PG
-                begin
-                    esx_host.lock # Exclusive lock for ESX host operation
-
-                    pnics_available = nil
-                    pnics_available = esx_host.get_available_pnics if pnics
-
-                    # Get port group if it exists
-                    pg = esx_host.pg_exists(pg_name)
-
-                    # Disallow changes of switch name for existing pg
-                    if pg && esx_host.pg_changes_sw?(pg, sw_name)
-                        raise 'The port group already exists in this host '\
-                              'for a different vCenter standard switch and '\
-                              'this kind of hange is not supported.'
-                    end
-
-                    # Pg does not exist
-                    if !pg
-                        # Get standard switch if it exists
-                        vs = esx_host.vss_exists(sw_name)
-
-                        if !vs
-                            sw_name = esx_host.create_vss(sw_name,
-                                                          pnics,
-                                                          nports,
-                                                          mtu,
-                                                          pnics_available)
-                        end
-
-                        vnet_ref = esx_host.create_pg(pg_name, sw_name, vlan_id)
-                    else
-                        blocked = true
-                    end
-                rescue StandardError => e
-                    raise e
-                ensure
-                    esx_rollback << esx_host
-                    esx_host.unlock if esx_host # Remove lock
+        begin
+            esx_host.lock
+            if dvs
+                pnics_available = nil
+                if pnics && !pnics.empty?
+                    pnics_available = esx_host.get_available_pnics
                 end
+                esx_host.assign_proxy_switch(dvs,
+                                              sw_name,
+                                              pnics,
+                                              pnics_available)
             end
-
-            next unless pg_type == VCenterDriver::Network::NETWORK_TYPE_DPG
-
-            begin
-                esx_host.lock
-                if dvs
-                    pnics_available = nil
-                    if pnics && !pnics.empty?
-                        pnics_available = esx_host.get_available_pnics
-                    end
-                    esx_host.assign_proxy_switch(dvs,
-                                                 sw_name,
-                                                 pnics,
-                                                 pnics_available)
-                end
-            rescue StandardError => e
-                raise e
-            ensure
-                esx_host.unlock if esx_host
-            end
-        end
-
-        # Update network XML
-        net_info << "VCENTER_NET_REF=\"#{vnet_ref}\"\n"
-        net_info << "VCENTER_INSTANCE_ID=\"#{vc_uuid}\"\n"
-
-        if blocked
-            net_info << "VCENTER_NET_STATE=\"ERROR\"\n"
-            net_info << "VCENTER_NET_ERROR=\"vnet already exist in vcenter\"\n"
-        else
-            net_info << "VCENTER_NET_STATE=\"READY\"\n"
-            net_info << "VCENTER_NET_ERROR=\"\"\n"
-        end
-        update_net(one_vnet, net_info)
-
-        # Assign vnet to OpenNebula cluster
-        cluster_id = one_host['CLUSTER_ID']
-        if cluster_id
-            one_cluster = VCenterDriver::VIHelper
-                          .one_item(OpenNebula::Cluster, cluster_id, false)
-            if OpenNebula.is_error?(one_cluster)
-                err_msg = "Error retrieving cluster #{cluster_id}: "\
-                          "#{rc.message}. You may have to place this vnet "\
-                          'in the right cluster by hand'
-                STDOUT.puts(err_msg)
-            end
-
-            one_vnet.unlock
-
-            rc = one_cluster.addvnet(network_id.to_i)
-            if OpenNebula.is_error?(rc)
-                err_msg = "Error adding vnet #{network_id} to OpenNebula "\
-                          "cluster #{cluster_id}: #{rc.message}. "\
-                          'You may have to place this vnet in the '\
-                          'right cluster by hand'
-                STDOUT.puts(err_msg)
-            end
-
-            default_cluster = VCenterDriver::VIHelper
-                              .one_item(OpenNebula::Cluster, '0', false)
-            if OpenNebula.is_error?(default_cluster)
-                STDOUT.puts "Error retrieving default cluster: #{rc.message}."
-            end
-
-            rc = default_cluster.delvnet(network_id.to_i)
-            if OpenNebula.is_error?(rc)
-                err_msg = "Error removing vnet #{network_id} from default "\
-                          "OpenNebula cluster: #{rc.message}."
-                STDOUT.puts(err_msg)
-            end
-
-            one_vnet.lock(1)
+        rescue StandardError => e
+            raise e
+        ensure
+            esx_host.unlock if esx_host
         end
     end
+
+    # Update network XML
+    net_info << "VCENTER_NET_REF=\"#{vnet_ref}\"\n"
+    net_info << "VCENTER_INSTANCE_ID=\"#{vc_uuid}\"\n"
+
+    if blocked
+        net_info << "VCENTER_NET_STATE=\"ERROR\"\n"
+        net_info << "VCENTER_NET_ERROR=\"vnet already exist in vcenter\"\n"
+    else
+        net_info << "VCENTER_NET_STATE=\"READY\"\n"
+        net_info << "VCENTER_NET_ERROR=\"\"\n"
+    end
+    update_net(one_vnet, net_info)
+
+    # Assign vnet to OpenNebula cluster
+    cluster_id = one_host['CLUSTER_ID']
+    if cluster_id
+        one_cluster = VCenterDriver::VIHelper
+                      .one_item(OpenNebula::Cluster, cluster_id, false)
+        if OpenNebula.is_error?(one_cluster)
+            err_msg = "Error retrieving cluster #{cluster_id}: "\
+                      "#{rc.message}. You may have to place this vnet "\
+                      'in the right cluster by hand'
+            STDOUT.puts(err_msg)
+        end
+
+        one_vnet.unlock
+
+        rc = one_cluster.addvnet(network_id.to_i)
+        if OpenNebula.is_error?(rc)
+            err_msg = "Error adding vnet #{network_id} to OpenNebula "\
+                      "cluster #{cluster_id}: #{rc.message}. "\
+                      'You may have to place this vnet in the '\
+                      'right cluster by hand'
+            STDOUT.puts(err_msg)
+        end
+
+        default_cluster = VCenterDriver::VIHelper
+                          .one_item(OpenNebula::Cluster, '0', false)
+        if OpenNebula.is_error?(default_cluster)
+            STDOUT.puts "Error retrieving default cluster: #{rc.message}."
+        end
+
+        rc = default_cluster.delvnet(network_id.to_i)
+        if OpenNebula.is_error?(rc)
+            err_msg = "Error removing vnet #{network_id} from default "\
+                      "OpenNebula cluster: #{rc.message}."
+            STDOUT.puts(err_msg)
+        end
+
+        one_vnet.lock(1)
+    end
+
 rescue StandardError => e
     STDERR.puts("#{e.message}/#{e.backtrace}")
 
