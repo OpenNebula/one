@@ -21,6 +21,11 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+const string HookAPI::unsupported_calls[] =  {"one.hook.info", "one.hookpool.info"};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 std::string * HookAPI::format_message(std::string method, ParamList& paramList,
             const RequestAttributes& att)
 {
@@ -63,7 +68,7 @@ int HookAPI::parse_template(Template * tmpl, string& error_str)
 
     if (!call_exist(call))
     {
-        error_str = "API call does not exist: " + call;
+        error_str = "API call does not exist or is not supported: " + call;
         return -1;
     }
 
@@ -81,7 +86,7 @@ int HookAPI::from_template(const Template * tmpl, string& error_str)
 
     if (!call_exist(call))
     {
-        error_str = "API call does not exist: " + call;
+        error_str = "API call does not exist or is not supported: " + call;
         return -1;
     }
 
@@ -119,5 +124,18 @@ bool HookAPI::call_exist(const string& api_call)
 {
     RequestManager * rm = Nebula::instance().get_rm();
 
-    return rm->exist_method(api_call);
+    if (!rm->exist_method(api_call))
+    {
+        return false;
+    }
+
+    for (auto call : unsupported_calls)
+    {
+        if (api_call == call)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
