@@ -138,6 +138,20 @@ int HookLog::dump_log(std::string &xml_log)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int HookLog::drop(SqlDB *db, const int hook_id){
+        ostringstream oss;
+        int rc;
+
+        oss << "DELETE FROM " << table << " WHERE hkid =" << hook_id;
+
+        rc = db->exec_wr(oss);
+
+        return rc;
+    }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int HookLog::add(int hkid, int hkrc, std::string &xml_result)
 {
     std::ostringstream oss;

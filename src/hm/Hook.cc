@@ -423,11 +423,8 @@ int Hook::drop(SqlDB *db)
         return rc;
     }
 
-    oss.str("");
+    Nebula& nd  = Nebula::instance();
+    HookLog* hl = nd.get_hl();
 
-    oss << "DELETE FROM " << HookLog::table << " WHERE hkid =" << oid;
-
-    rc = db->exec_wr(oss);
-
-    return rc;
+    return hl->drop(db, oid);
 }

@@ -22,7 +22,6 @@
 #include "ActionManager.h"
 #include "Attribute.h"
 
-class Hook;
 class SqlDB;
 
 /**
@@ -94,9 +93,15 @@ public:
      */
     static int bootstrap(SqlDB *_db);
 
-private:
+    /**
+     *  Drops object from the database
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
 
-    friend Hook;
+    int drop(SqlDB *db, const int hook_id);
+
+private:
 
     // ----------------------------------------
     // DataBase implementation variables
