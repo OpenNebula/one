@@ -15,14 +15,18 @@
 #--------------------------------------------------------------------------- #
 module NSXDriver
 
-    ONE_LOCATION = ENV['ONE_LOCATION']
+    ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
     if !ONE_LOCATION
-        RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
-        GEMS_LOCATION     = '/usr/share/one/gems'
+        RUBY_LIB_LOCATION = '/usr/lib/one/ruby' \
+            unless defined?(RUBY_LIB_LOCATION)
+        GEMS_LOCATION     = '/usr/share/one/gems' \
+            unless defined?(GEMS_LOCATION)
     else
-        RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
-        GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+        RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' \
+            unless defined?(RUBY_LIB_LOCATION)
+        GEMS_LOCATION     = ONE_LOCATION + '/share/gems' \
+            unless defined?(GEMS_LOCATION)
     end
 
     if File.directory?(GEMS_LOCATION)
@@ -158,6 +162,17 @@ module NSXDriver
         def delete(url, header)
             uri = URI.parse(url)
             request = Net::HTTP::Delete.new(uri.request_uri, header)
+            request.basic_auth(@nsx_user, @nsx_password)
+            response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
+              :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
+                  https.request(request)
+              end
+            check_response(response, 200)
+        end
+
+        def get_token(url, header)
+            uri = URI.parse(url)
+            request = Net::HTTP::Post.new(uri.request_uri, header)
             request.basic_auth(@nsx_user, @nsx_password)
             response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
               :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
