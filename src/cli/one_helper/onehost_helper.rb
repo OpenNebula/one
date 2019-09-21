@@ -764,6 +764,11 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         [cores].flatten.each do |info|
             core = info['CPUS'].split(',')
 
+            core.uniq! do |c|
+                c.split(':')
+                c[0]
+            end
+
             core.each do |c|
                 c = c.split(':')
 

@@ -2062,7 +2062,7 @@ void AddressRange::decrypt()
 
     Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
 
-    for ( auto ea : VirtualNetworkTemplate::encrypted )
+    for ( const auto& ea : VirtualNetworkTemplate::encrypted )
     {
         attr->decrypt(one_key, ea.second);
     }

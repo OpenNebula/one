@@ -764,6 +764,8 @@ int Host::post_update_template(string& error)
     string new_vm_mad;
     string cpu_ids;
 
+    unsigned int vms_thread;
+
     get_template_attribute("IM_MAD", new_im_mad);
     get_template_attribute("VM_MAD", new_vm_mad);
 
@@ -787,6 +789,18 @@ int Host::post_update_template(string& error)
     host_share.update_capacity(this, cluster_rcpu, cluster_rmem);
 
     host_share.reserve_cpus(cpu_ids);
+
+    if ( get_template_attribute("VMS_THREAD", vms_thread) )
+    {
+        if ( vms_thread <= 0 )
+        {
+            vms_thread = 1;
+
+            replace_template_attribute("VMS_THREAD", 1);
+        }
+
+        host_share.set_vms_thread(vms_thread);
+    }
 
     return 0;
 };

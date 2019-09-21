@@ -392,7 +392,7 @@ void VectorAttribute::encrypt(const string& one_key, const set<string>& eas)
         return;
     }
 
-    for ( auto ea : eas )
+    for ( const auto& ea : eas )
     {
         string att = vector_value(ea);
 
@@ -429,7 +429,7 @@ void VectorAttribute::decrypt(const string& one_key, const set<string>& eas)
         return;
     }
 
-    for ( auto ea : eas )
+    for ( const auto& ea : eas )
     {
         string att = vector_value(ea);
 

@@ -451,13 +451,17 @@ ostream& operator<<(ostream& o, const HostShareNode& n)
                 o << " ";
             }
 
-            if ( jt->second == -1 )
+            if ( c.reserved_cpus.count(jt->first) == 1 )
+            {
+                o << std::setw(2) << "r";
+            }
+            else if ( jt->second.size() == 0 )
             {
                 o << std::setw(2) << "-";
             }
             else
             {
-                o << std::setw(2) << "X";
+                o << std::setw(2) << "x";
             }
         }
 
@@ -472,7 +476,8 @@ ostream& operator<<(ostream& o, const HostShareNode& n)
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-HostShareNode::Core::Core(unsigned int _i, const std::string& _c, int fc):id(_i)
+HostShareNode::Core::Core(unsigned int _i, const std::string& _c,
+        unsigned int _vt, bool _d):id(_i), vms_thread(_vt), dedicated(_d)
 {
     std::stringstream cpu_s(_c);
 
@@ -498,22 +503,58 @@ HostShareNode::Core::Core(unsigned int _i, const std::string& _c, int fc):id(_i)
             continue;
         }
 
-        if (!(thread_s >> vm_id) || vm_id < -2)
+        if (!(thread_s >> vm_id))
         {
             vm_id = -1;
         }
 
-        cpus.insert(std::make_pair(cpu_id, vm_id));
-
-        if ( vm_id == -1 )
+        if ( vm_id >= 0 )
         {
-            free_cpus++;
+            cpus[cpu_id].insert(vm_id);
+        }
+        else if (vm_id == -2)
+        {
+            cpus[cpu_id];
+
+            reserved_cpus.insert(cpu_id);
+        }
+        else
+        {
+            cpus[cpu_id];
         }
     }
 
-    if ( fc != -1 ) //free_cpus is set in CORE attribute
+    set_cpu_usage();
+}
+
+// -----------------------------------------------------------------------------
+
+void HostShareNode::Core::set_cpu_usage()
+{
+    used_cpus = 0;
+
+    if ( dedicated )
     {
-        free_cpus = fc;
+        free_cpus = 0;
+        used_cpus = 1;
+    }
+    else
+    {
+        for (const auto& cpu : cpus)
+        {
+            used_cpus += cpu.second.size();
+        }
+
+        free_cpus = ((cpus.size() - reserved_cpus.size()) * vms_thread);
+
+        if ( used_cpus > free_cpus )
+        {
+            free_cpus = 0;
+        }
+        else
+        {
+            free_cpus -= used_cpus;
+        }
     }
 }
 
@@ -525,12 +566,35 @@ VectorAttribute * HostShareNode::Core::to_attribute()
 
     for (auto cit = cpus.begin(); cit != cpus.end(); ++cit)
     {
+        unsigned int cpu_id = cit->first;
+
         if (cit != cpus.begin())
         {
             oss << ",";
         }
 
-        oss << cit->first << ":" << cit->second;
+        if ( reserved_cpus.count(cpu_id) == 1 )
+        {
+            oss << cpu_id << ":-2";
+        }
+        else if (cit->second.empty())
+        {
+            oss << cpu_id << ":-1";
+        }
+        else
+        {
+            const std::multiset<unsigned int>& vmids = cit->second;
+
+            for (auto vm = vmids.begin() ; vm != vmids.end() ; ++vm)
+            {
+                if ( vm != cit->second.begin() )
+                {
+                    oss << ",";
+                }
+
+                oss << cpu_id << ":" << *vm;
+            }
+        }
     }
 
     VectorAttribute * vcore = new VectorAttribute("CORE");
@@ -538,6 +602,7 @@ VectorAttribute * HostShareNode::Core::to_attribute()
     vcore->replace("ID", id);
     vcore->replace("CPUS", oss.str());
     vcore->replace("FREE", free_cpus);
+    vcore->replace("DEDICATED", dedicated);
 
     return vcore;
 }
@@ -562,89 +627,56 @@ VectorAttribute * HostShareNode::HugePage::to_attribute()
 void HostShareNode::reserve_cpus(const std::string& cpu_ids)
 {
     std::vector<unsigned int> ids;
-    std::set<unsigned int> core_ids;
 
     one_util::split(cpu_ids, ',', ids);
 
-    //--------------------------------------------------------------------------
-    //  Reserve / free CPUS based on the cpu list
-    //--------------------------------------------------------------------------
-    for (auto it = cores.begin(); it != cores.end(); ++it)
+    for ( auto& core_it : cores )
     {
-        struct Core &c = it->second;
+        struct Core &c = core_it.second;
 
-        for (auto jt = c.cpus.begin(); jt != c.cpus.end(); ++jt)
+        bool update_core = false;
+
+        for  ( auto& cpu_it : c.cpus )
         {
-            bool update = false;
+            unsigned int cpu_id = cpu_it.first;
 
-            for (auto kt = ids.begin() ; kt != ids.end(); ++kt)
+            bool found = false;
+
+            for ( const auto& id : ids )
             {
-                if ( *kt == jt->first )
+                if ( id == cpu_id )
                 {
-                    update = true;
+                    found = true;
                     break;
                 }
             }
 
-            if ( update )
+            if ( found )
             {
-                if ( jt->second == -1 ) //reserve
+                if ( cpu_it.second.empty() ) //reserve
                 {
-                    jt->second = -2;
-                    core_ids.insert(it->first);
+                    c.reserved_cpus.insert(cpu_id);
+                    update_core = true;
                 }
             }
-            else if ( jt->second == -2 ) //free
+            else if ( c.reserved_cpus.count(cpu_id) == 1 ) //free
             {
-                jt->second = -1;
-                core_ids.insert(it->first);
-            }
-        }
-    }
-
-    //--------------------------------------------------------------------------
-    //  Recompute free cpus for the cores that have been updated
-    //--------------------------------------------------------------------------
-    for (auto it = core_ids.begin(); it != core_ids.end(); ++it)
-    {
-        auto jt = cores.find(*it);
-
-        if ( jt == cores.end() )
-        {
-            continue;
-        }
-
-        struct Core &c = jt->second;
-
-        unsigned int fcpus = 0;
-        unsigned int ucpus = 0;
-
-        for (auto kt = c.cpus.begin(); kt != c.cpus.end(); ++kt)
-        {
-            if ( kt->second == -1 )
-            {
-                fcpus++;
-            }
-            else if ( kt->second >= 0 )
-            {
-                ucpus++;
+                c.reserved_cpus.erase(cpu_id);
+                update_core = true;
             }
         }
 
-        if ( c.free_cpus == 0 && ucpus == 1) //CORE policy
+        if ( update_core )
         {
-            continue;
+            c.set_cpu_usage();
         }
-
-        c.free_cpus = fcpus;
     }
 }
 
-
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-int HostShareNode::from_xml_node(const xmlNodePtr &node)
+int HostShareNode::from_xml_node(const xmlNodePtr &node, unsigned int _vt)
 {
     int rc = Template::from_xml_node(node);
 
@@ -667,14 +699,15 @@ int HostShareNode::from_xml_node(const xmlNodePtr &node)
     for (auto vc_it = vcores.begin(); vc_it != vcores.end(); ++vc_it)
     {
         unsigned int core_id;
-        int free_cpus = -1;
         std::string  cpus;
+
+        bool dedicated = false;
 
         (*vc_it)->vector_value("ID", core_id);
         (*vc_it)->vector_value("CPUS", cpus);
-        (*vc_it)->vector_value("FREE", free_cpus);
+        (*vc_it)->vector_value("DEDICATED", dedicated);
 
-        set_core(core_id, cpus, free_cpus, false);
+        set_core(core_id, cpus, _vt, dedicated, false);
     }
 
     vector<VectorAttribute *> vpages;
@@ -726,18 +759,34 @@ int HostShareNode::allocate_dedicated_cpus(int id, unsigned int tcpus,
 
     for (auto vc_it = cores.begin(); vc_it != cores.end(); ++vc_it)
     {
+        // ---------------------------------------------------------------------
+        // Check this core can allocate a dedicated VM:
+        //   2. Not all CPUs are reserved
+        //   3. No other VM running in the core
+        // ---------------------------------------------------------------------
         HostShareNode::Core &core = vc_it->second;
 
-        if ( core.free_cpus != threads_core )
+        if ( core.reserved_cpus.size() >= core.cpus.size() )
         {
             continue;
         }
 
-        core.cpus.begin()->second = id;
+        if ( core.used_cpus != 0 )
+        {
+            continue;
+        }
 
-        core.free_cpus = 0;
+        // ---------------------------------------------------------------------
+        // Allocate the core and setup allocation string
+        // ---------------------------------------------------------------------
+        core.cpus.begin()->second.insert(id);
 
         oss << core.cpus.begin()->first;
+
+        core.dedicated = true;
+
+        core.used_cpus = 1;
+        core.free_cpus = 0;
 
         if ( --tcpus == 0 )
         {
@@ -761,7 +810,14 @@ int HostShareNode::allocate_dedicated_cpus(int id, unsigned int tcpus,
 }
 
 // -----------------------------------------------------------------------------
-
+// hyperthread allocation algorithm
+//
+// 1. Follow the virtual threads per core value to assign the same number of
+// virtual threads to the same physical core (c_to_alloc).
+//
+// 2. The virtual threads are evenly distributed among the physical threads
+// within each core.
+// -----------------------------------------------------------------------------
 int HostShareNode::allocate_ht_cpus(int id, unsigned int tcpus, unsigned int tc,
         std::string &c_s)
 {
@@ -773,21 +829,27 @@ int HostShareNode::allocate_ht_cpus(int id, unsigned int tcpus, unsigned int tc,
 
         unsigned int c_to_alloc = ( core.free_cpus/tc ) * tc;
 
-        for (auto vit = core.cpus.begin(); vit != core.cpus.end() &&
-                c_to_alloc > 0; ++vit)
+        for ( auto cpu = core.cpus.begin(); cpu != core.cpus.end() &&
+                c_to_alloc > 0 ; ++cpu )
         {
-            if (vit->second != -1)
+            if ( cpu->second.size() >= core.vms_thread )
             {
                 continue;
             }
 
-            vit->second = id;
+            if ( core.reserved_cpus.count(cpu->first) == 1)
+            {
+                continue;
+            }
+
+            cpu->second.insert(id);
 
             core.free_cpus--;
+            core.used_cpus++;
 
             c_to_alloc--;
 
-            oss << vit->first;
+            oss << cpu->first;
 
             if ( --tcpus == 0 )
             {
@@ -813,65 +875,42 @@ int HostShareNode::allocate_ht_cpus(int id, unsigned int tcpus, unsigned int tc,
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-void HostShareNode::del_cpu(const std::string &cpu_ids)
+void HostShareNode::del_cpu(const std::string &cpu_ids, unsigned int vmid)
 {
     std::vector<unsigned int> ids;
     std::set<unsigned int> core_ids;
 
     one_util::split(cpu_ids, ',', ids);
 
-    //--------------------------------------------------------------------------
-    //  Set used cpus to -1 in the node cores
-    //--------------------------------------------------------------------------
-    for (auto it = ids.begin() ; it != ids.end(); ++it)
+    for (auto& core_it : cores)
     {
-        for (auto jt = cores.begin(); jt != cores.end(); ++jt)
+        bool updated = false;
+        Core& c      = core_it.second;
+
+        map<unsigned int, std::multiset<unsigned int> >& cpus = c.cpus;
+
+        for ( auto id = ids.begin(); id != ids.end(); )
         {
-            bool updated = false;
+            auto cpu_it = cpus.find(*id);
 
-            struct Core &c = jt->second;
-
-            for (auto kt = c.cpus.begin(); kt != c.cpus.end(); ++kt)
+            if ( cpu_it == cpus.end() )
             {
-                if ( kt->first == *it )
-                {
-                    kt->second = -1;
-                    updated = true;
-
-                    break;
-                }
+                ++id;
+                continue;
             }
 
-            if (updated)
-            {
-                core_ids.insert(jt->first);
-                break;
-            }
-        }
-    }
+            cpu_it->second.erase(vmid);
 
-    //--------------------------------------------------------------------------
-    //  Recompute free cpus for the cores that have been updated
-    //--------------------------------------------------------------------------
-    for (auto it = core_ids.begin(); it != core_ids.end(); ++it)
-    {
-        auto jt = cores.find(*it);
+            updated = true;
 
-        if ( jt == cores.end() )
-        {
-            continue;
+            id = ids.erase(id);
         }
 
-        struct Core &c = jt->second;
-
-        c.free_cpus = 0;
-
-        for (auto kt = c.cpus.begin(); kt != c.cpus.end(); ++kt)
+        if (updated)
         {
-            if ( kt->second == -1 )
-            {
-                c.free_cpus++;
-            }
+            core_it.second.dedicated = false;
+
+            core_it.second.set_cpu_usage();
         }
     }
 }
@@ -942,15 +981,15 @@ void HostShareNode::set_memory()
 
 // -----------------------------------------------------------------------------
 
-void HostShareNode::set_core(unsigned int id, std::string& cpus, int free,
-        bool update)
+void HostShareNode::set_core(unsigned int id, std::string& cpus,
+        unsigned int vms_thread, bool dedicated, bool update)
 {
     if ( cores.find(id) != cores.end() )
     {
         return;
     }
 
-    Core c(id, cpus, free);
+    Core c(id, cpus, vms_thread, dedicated);
 
     cores.insert(make_pair(c.id, c));
 
@@ -958,9 +997,6 @@ void HostShareNode::set_core(unsigned int id, std::string& cpus, int free,
     {
         set(c.to_attribute());
     }
-
-    //update threads/core it assumes an homogenous architecture
-    threads_core = c.cpus.size();
 }
 
 // -----------------------------------------------------------------------------
@@ -1016,7 +1052,9 @@ void HostShareNode::free_dedicated_capacity(unsigned int &fcpus,
 
     for (auto it = cores.begin(); it != cores.end(); ++it)
     {
-        if ( it->second.free_cpus == threads_core )
+        HostShareNode::Core &c = it->second;
+
+        if ( c.used_cpus == 0 && (c.reserved_cpus.size() < c.cpus.size()))
         {
             fcpus = fcpus + 1;
         }
@@ -1041,13 +1079,13 @@ ostream& operator<<(ostream& o, const HostShareNUMA& n)
     return o;
 }
 
-int HostShareNUMA::from_xml_node(const vector<xmlNodePtr> &ns)
+int HostShareNUMA::from_xml_node(const vector<xmlNodePtr> &ns, unsigned int vt)
 {
     for (auto it = ns.begin() ; it != ns.end(); ++it)
     {
         HostShareNode * n = new HostShareNode;
 
-        if ( n->from_xml_node(*it) != 0 )
+        if ( n->from_xml_node(*it, vt) != 0 )
         {
             return -1;
         }
@@ -1062,14 +1100,18 @@ int HostShareNUMA::from_xml_node(const vector<xmlNodePtr> &ns)
 
     // Get threads per core from the first NUMA node, assumes an homogenous
     // architecture
-    threads_core = nodes.begin()->second->threads_core;
+    auto numa_node = nodes.begin()->second;
+    auto core      = numa_node->cores.begin();
+    auto cpus      = core->second.cpus;
+
+    threads_core = cpus.size();
 
     return 0;
 }
 
 // -----------------------------------------------------------------------------
 
-void HostShareNUMA::set_monitorization(Template &ht)
+void HostShareNUMA::set_monitorization(Template &ht, unsigned int _vt)
 {
     int node_id;
 
@@ -1092,7 +1134,7 @@ void HostShareNUMA::set_monitorization(Template &ht)
 
         HostShareNode& node = get_node(node_id);
 
-        node.set_core(core_id, cpus, -1, true);
+        node.set_core(core_id, cpus, _vt, false, true);
     }
 
     std::vector<VectorAttribute *> pages;
@@ -1633,7 +1675,7 @@ void HostShareNUMA::del(HostShareCapacity &sr)
 
         HostShareNode &mem_node = get_node(mem_node_id);
 
-        cpu_node.del_cpu(cpu_ids);
+        cpu_node.del_cpu(cpu_ids, sr.vmid);
 
         mem_node.del_memory(memory);
 
@@ -1662,7 +1704,23 @@ void HostShareNUMA::del(HostShareCapacity &sr)
     }
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
+void HostShareNUMA::update_cpu_usage(unsigned int vms_thread)
+{
+    for ( auto& node : nodes )
+    {
+        for ( auto& core : node.second->cores )
+        {
+            core.second.vms_thread = vms_thread;
+
+            core.second.set_cpu_usage();
+        }
+
+        node.second->update_cores();
+    }
+}
 
 /* ************************************************************************ */
 /* HostShare :: Constructor/Destructor                                      */
@@ -1683,7 +1741,8 @@ HostShare::HostShare():
         used_disk(0),
         used_mem(0),
         used_cpu(0),
-        running_vms(0){};
+        running_vms(0),
+        vms_thread(1){};
 
 ostream& operator<<(ostream& os, HostShare& hs)
 {
@@ -1718,6 +1777,7 @@ string& HostShare::to_xml(string& xml) const
           << "<USED_MEM>"   << used_mem   << "</USED_MEM>"
           << "<USED_CPU>"   << used_cpu   << "</USED_CPU>"
           << "<RUNNING_VMS>"<<running_vms <<"</RUNNING_VMS>"
+          << "<VMS_THREAD>" << vms_thread <<"</VMS_THREAD>"
           << ds.to_xml(ds_xml)
           << pci.to_xml(pci_xml)
           << numa.to_xml(numa_xml)
@@ -1759,6 +1819,8 @@ int HostShare::from_xml_node(const xmlNodePtr node)
     rc += xpath<long long>(used_cpu ,  "/HOST_SHARE/USED_CPU",   -1);
 
     rc += xpath<long long>(running_vms,"/HOST_SHARE/RUNNING_VMS",-1);
+
+    xpath<unsigned int>(vms_thread, "/HOST_SHARE/VMS_THREAD", 1);
 
     // ------------ Datastores ---------------
 
@@ -1806,7 +1868,7 @@ int HostShare::from_xml_node(const xmlNodePtr node)
 
     if(!content.empty())
     {
-        rc += numa.from_xml_node(content);
+        rc += numa.from_xml_node(content, vms_thread);
 
         ObjectXML::free_nodes(content);
 

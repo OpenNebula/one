@@ -77,11 +77,15 @@ void HostShareXML::init_attributes(ObjectXML * host)
     }
 
     //---------------------- HostShare NUMA Nodes ------------------------------
+    unsigned int vms_thread;
+
+    host->xpath<unsigned int>(vms_thread, "/HOST/HOST_SHARE/VMS_THREAD", 1);
+
     host->get_nodes("/HOST/HOST_SHARE/NUMA_NODES/NODE", content);
 
     if(!content.empty())
     {
-        numa.from_xml_node(content);
+        numa.from_xml_node(content, vms_thread);
 
         host->free_nodes(content);
 

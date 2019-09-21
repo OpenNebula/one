@@ -916,7 +916,7 @@ bool Template::check_restricted(string& ra,
 void Template::encrypt(const std::string& one_key,
                        const std::map<std::string, std::set<std::string> >& eas)
 {
-    for ( auto eit : eas )
+    for (const auto& eit : eas )
     {
         const std::set<std::string>& sub = eit.second;
 
@@ -931,7 +931,7 @@ void Template::encrypt(const std::string& one_key,
                 continue;
             }
 
-            for ( auto vattit : vatt )
+            for ( const auto& vattit : vatt )
             {
                 vattit->encrypt(one_key, sub);
             }
@@ -942,7 +942,7 @@ void Template::encrypt(const std::string& one_key,
 
             get(eit.first, vatt);
 
-            for ( auto attit : vatt )
+            for ( const auto& attit : vatt )
             {
                 attit->encrypt(one_key, sub);
             }
@@ -956,7 +956,7 @@ void Template::encrypt(const std::string& one_key,
 void Template::decrypt(const std::string& one_key,
                        const std::map<std::string, std::set<std::string> >& eas)
 {
-    for ( auto eit : eas )
+    for ( const auto& eit : eas )
     {
         const std::set<std::string>& sub = eit.second;
 
@@ -966,7 +966,7 @@ void Template::decrypt(const std::string& one_key,
 
             get(eit.first, vatt);
 
-            for ( auto vattit : vatt )
+            for ( const auto& vattit : vatt )
             {
                 vattit->decrypt(one_key, sub);
 
@@ -978,7 +978,7 @@ void Template::decrypt(const std::string& one_key,
 
             get(eit.first, vatt);
 
-            for ( auto attit : vatt )
+            for ( const auto& attit : vatt )
             {
                 attit->decrypt(one_key, sub);
             }

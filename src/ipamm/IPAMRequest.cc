@@ -30,7 +30,7 @@ IPAMRequest::IPAMRequest(VectorAttribute * _ar_vattr, const std::string& _axml)
 
     Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
 
-    for ( auto ea : VirtualNetworkTemplate::encrypted )
+    for ( const auto& ea : VirtualNetworkTemplate::encrypted )
     {
         _ar_vattr->decrypt(one_key, ea.second);
     }
