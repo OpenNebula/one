@@ -35,8 +35,6 @@ puts ERB.new(DATA.read, nil, '<>').result(binding)
 
 __END__
 
-###### opennebula sudoers ###### 
-
 Defaults !requiretty
 Defaults secure_path = /sbin:/bin:/usr/sbin:/usr/bin
 
@@ -50,6 +48,3 @@ Cmnd_Alias <%= l %> = <%= v.join(", ") %>
 <% Sudoers::NODECMDS.each {|set| cmd_sets.delete(set)}  %>
 
 oneadmin ALL=(ALL) NOPASSWD: <%= cmd_sets.each.collect{|k| "ONE_#{k}"}.join(", ") %>
-
-###### opennebula-node sudoers ######
-oneadmin ALL=(ALL) NOPASSWD: <%= Sudoers::NODECMDS.reject! {|e| e == :LXD }.each.collect{|k| "ONE_#{k}"}.join(", ") %>

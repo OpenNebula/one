@@ -24,8 +24,8 @@ class Sudoers
     LVM    = %w[lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend]
     OVS    = %w[ovs-ofctl ovs-vsctl]
     LXD    = %w[
-        lxc mount umount mkdir catfstab lsblk losetup kpartx qemu-nbd
-        blkid e2fsck resize2fs xfs_growfs rbd-nbd xfs_admin tune2fs
+        /snap/bin/lxc mount umount mkdir catfstab lsblk losetup kpartx
+        qemu-nbd blkid e2fsck resize2fs xfs_growfs rbd-nbd xfs_admin tune2fs
     ]
 
     CEPH = %w[rbd]
@@ -54,24 +54,6 @@ class Sudoers
             :HA     => HA,
             :MARKET => %W[#{lib_location}/sh/create_container_image.sh]
         }
-
-        @default_cmds = nil
-
-        case distro
-        when 'ubuntu'
-            @distro = Ubuntu.new
-        when 'debian'
-            @distro = Debian.new
-        when 'centos'
-            @distro = Centos.new
-        when 'manjaro'
-            @distro = Manjaro.new
-        end
-    end
-
-    # find cmd location for distro
-    def command_path(cmd)
-        @distro.which(cmd)
     end
 
     # Return a list of commands full path
@@ -88,7 +70,12 @@ class Sudoers
                 end
 
                 cmd_parts = cmd.split
-                cmd_parts[0] = command_path(cmd_parts[0])
+                cmd_parts[0] = which(cmd_parts[0])
+
+                if cmd_parts[0].empty?
+                    puts "command not found: #{cmd}"
+                    exit 1
+                end
 
                 cmd_path << cmd_parts.join(' ')
             end
@@ -97,6 +84,10 @@ class Sudoers
         end
 
         cmnd_aliases
+    end
+
+    def which(cmd)
+        `which #{cmd} 2>/dev/null`.strip
     end
 
     private
@@ -110,63 +101,3 @@ class Sudoers
     end
 
 end
-
-# Read which
-# TODO: Hardcoded locations, ideally use package manager
-class Distro
-
-    def initialize
-        @cmds = %w[
-            /sbin/ebtables /sbin/iptables /sbin/ip6tables /sbin/ip
-            /sbin/lvcreate /sbin/lvremove /sbin/lvs /sbin/vgdisplay
-            /sbin/lvchange /sbin/lvscan /sbin/lvextend
-            /usr/bin/ovs-ofctl /usr/bin/ovs-vsctl
-            /usr/bin/rbd
-            /bin/systemctl /usr/sbin/service
-            /usr/sbin/arping
-        ]
-    end
-
-    # What `which $cmd` should return if ran on the particular distro
-    def which(cmd)
-        location = `which #{cmd} 2>/dev/null`.strip
-        return location unless location.empty?
-
-        location = @cmds.select {|e| e.split('/').last == cmd }
-        location[0]
-    end
-
-end
-
-class Ubuntu < Distro
-
-    CMDS = %w[
-        /sbin/ipset
-
-        /snap/bin/lxc /bin/lsblk /sbin/losetup /bin/mount /bin/umount
-        /sbin/kpartx /usr/bin/qemu-nbd /bin/mkdir /usr/bin/catfstab /sbin/blkid
-        /sbin/e2fsck /sbin/resize2fs /usr/sbin/xfs_growfs /usr/bin/rbd-nbd
-        /usr/sbin/xfs_admin /sbin/tune2fs
-
-    ]
-    def initialize
-        super
-        @cmds += CMDS
-    end
-
-end
-
-class Centos < Distro
-
-    CMDS = %w[
-        /usr/sbin/ipset
-    ]
-
-    def initialize
-        super
-        @cmds += CMDS
-    end
-
-end
-
-Debian = Ubuntu
