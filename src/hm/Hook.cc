@@ -47,30 +47,6 @@ Hook::~Hook()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Hook::parse_hook_arguments(PoolObjectSQL *obj, std::string& parsed)
-{
-    size_t found = parsed.find("$ID");
-
-    if ( found != string::npos )
-    {
-        ostringstream oss;
-        oss << obj->get_oid();
-
-        parsed.replace(found, 3, oss.str());
-    }
-
-    found = parsed.find("$TEMPLATE");
-
-    if ( found != string::npos )
-    {
-        string templ;
-        parsed.replace(found, 9, obj->to_xml64(templ));
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 string& Hook::_to_xml(string& xml, bool log) const
 {
     std::string template_xml, lock_str, log_xml;
