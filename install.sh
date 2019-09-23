@@ -2077,7 +2077,8 @@ SUNSTONE_PUBLIC_DEV_DIR="src/sunstone/public"
 
 SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb \
   src/sunstone/routes/vcenter.rb \
-  src/sunstone/routes/support.rb"
+  src/sunstone/routes/support.rb \
+  src/sunstone/routes/nsx.rb"
 
 SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/app.min.css \
                 src/sunstone/public/css/opensans/opensans.woff \

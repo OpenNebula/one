@@ -161,7 +161,7 @@ class ClusterComputeResource
 
         # Try a connection as part of NSX_STATUS
         nsx_client = NSXDriver::NSXClient
-                     .new(@vi_client.instance_variable_get(:@host_id).to_i)
+                     .new_from_id(@vi_client.instance_variable_get(:@host_id).to_i)
 
         if @one_item["TEMPLATE/NSX_TYPE"] == "NSX-V"
             # URL to test a connection
@@ -207,7 +207,7 @@ class ClusterComputeResource
             tz_info << "NSX_TRANSPORT_ZONES = ["
 
             nsx_client = NSXDriver::NSXClient
-                         .new(@vi_client.instance_variable_get(:@host_id).to_i)
+                         .new_from_id(@vi_client.instance_variable_get(:@host_id).to_i)
             tz_object = NSXDriver::TransportZone.new(nsx_client)
 
             # NSX request to get Transport Zones

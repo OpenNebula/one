@@ -119,7 +119,7 @@ begin
     dc       = cluster.get_dc
 
     if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXV
-        nsx_client = NSXDriver::NSXClient.new(host_id)
+        nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
         virtual_wire_spec =
             "<virtualWireCreateSpec>\
                 <name>#{ls_name}</name>\
@@ -137,7 +137,7 @@ begin
     end
 
     if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXT
-        nsx_client = NSXDriver::NSXClient.new(host_id)
+        nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
         opaque_network_spec = %(
             {
                 "transport_zone_id": "#{tz_id}",
