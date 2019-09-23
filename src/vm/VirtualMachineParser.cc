@@ -988,7 +988,7 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachine::is_pinned()
+bool VirtualMachine::is_pinned() const
 {
     VectorAttribute * topology = obj_template->get("TOPOLOGY");
 

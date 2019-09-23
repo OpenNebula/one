@@ -102,7 +102,7 @@ public:
         clear_flag("DISK_SNAPSHOT_ACTIVE");
     };
 
-    bool is_active_snapshot()
+    bool is_active_snapshot() const
     {
         return is_flag("DISK_SNAPSHOT_ACTIVE");
     }
@@ -141,7 +141,7 @@ public:
     /**
      *  Get the effective uid to get an image. Used in VM parsers
      */
-    int get_uid(int _uid);
+    int get_uid(int _uid) const;
 
     /**
      *  Gets the ID of the image associated to the disks
@@ -149,7 +149,7 @@ public:
      *    @param uid effective user id making the call
      *    @return 0 if the disk uses an image, -1 otherwise
      */
-    int get_image_id(int &id, int uid);
+    int get_image_id(int &id, int uid) const;
 
     /**
      *  Return the TM_MAD_SYSTEM attribute
@@ -240,12 +240,12 @@ public:
     /**
      *  @return true if the disk has snapshots
      */
-    bool has_snapshots()
+    bool has_snapshots() const
     {
         return (snapshots != 0);
     }
 
-    bool has_snapshot(int snap_id)
+    bool has_snapshot(int snap_id) const
     {
         if (!has_snapshots())
         {
@@ -330,12 +330,12 @@ public:
     /**
      *  @return the space required by this disk in the system datastore
      */
-    long long system_ds_size();
+    long long system_ds_size() const;
 
     /**
      *  @return the space required by this disk in the image datastore
      */
-    long long image_ds_size();
+    long long image_ds_size() const;
 
     /**
      *  Compute the storage needed by the disk in the system and/or image
@@ -344,7 +344,7 @@ public:
      *    @param img_sz size in image datastore needed
      *    @param sys_sz size in system datastore needed
      */
-    void datastore_sizes(int& ds_id, long long& img_sz, long long& sys_sz);
+    void datastore_sizes(int& ds_id, long long& img_sz, long long& sys_sz) const;
 
     /**
      *  Update the TYPE and DISK_TYPE attributes based on the system DS
@@ -570,7 +570,7 @@ public:
     /**
      *  Get the attach disk (ATTACH=YES)
      */
-    VirtualMachineDisk * get_attach()
+    VirtualMachineDisk * get_attach() const
     {
         return static_cast<VirtualMachineDisk *>(get_attribute("ATTACH"));
     }
@@ -612,7 +612,7 @@ public:
     /**
      *  Get the saveas disk (HOTPLUG_SAVE_AS_ACTIVE = YES)
      */
-    VirtualMachineDisk * get_saveas()
+    VirtualMachineDisk * get_saveas() const
     {
         return static_cast<VirtualMachineDisk *>(
                 get_attribute("HOTPLUG_SAVE_AS_ACTIVE"));
@@ -657,12 +657,12 @@ public:
      *    @return -1 if failure
      */
     int get_saveas_info(int& disk_id, string& source, int& image_id,
-            string& snap_id, string& tm_mad, string& ds_id);
+            string& snap_id, string& tm_mad, string& ds_id) const;
 
     /* ---------------------------------------------------------------------- */
     /* Resize disk Interface                                                  */
     /* ---------------------------------------------------------------------- */
-    VirtualMachineDisk * get_resize()
+    VirtualMachineDisk * get_resize() const
     {
         return static_cast<VirtualMachineDisk *>(get_attribute("RESIZE"));
     }
@@ -692,7 +692,7 @@ public:
     /* ---------------------------------------------------------------------- */
     /* SNAPSHOT interface                                                     */
     /* ---------------------------------------------------------------------- */
-    VirtualMachineDisk * get_active_snapshot()
+    VirtualMachineDisk * get_active_snapshot() const
     {
         return static_cast<VirtualMachineDisk *>(
                 get_attribute("DISK_SNAPSHOT_ACTIVE"));
@@ -730,7 +730,7 @@ public:
      *    @param snap_id of the snapshot
      */
     int get_active_snapshot(int& ds_id, string& tm_mad, int& disk_id,
-            int& snap_id);
+            int& snap_id) const;
     /**
      *  Creates a new snapshot of the given disk
      *    @param disk_id of the disk

@@ -72,7 +72,7 @@ int VirtualMachine::new_snapshot(string& name, int& snap_id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int set_active_snapshot(int snap_id, const string& action, 
+int set_active_snapshot(int snap_id, const string& action,
         vector<VectorAttribute *>& snaps)
 {
     int s_id;
@@ -153,7 +153,7 @@ void VirtualMachine::update_snapshot_id()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string VirtualMachine::get_snapshot_action()
+string VirtualMachine::get_snapshot_action() const
 {
     string action;
 
