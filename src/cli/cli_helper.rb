@@ -241,7 +241,7 @@ module CLIHelper
     def self.base64?(value)
         re = %r(^([A-Za-z0-9+\/]{4})*([A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{2}==)?$)
 
-        !value.match(re)[2].nil?
+        !value.match(re).nil?
     end
 
     # Hash with search
