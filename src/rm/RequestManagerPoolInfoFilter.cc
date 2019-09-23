@@ -658,7 +658,13 @@ void HookLogInfo::request_execute(xmlrpc_c::paramList const& _paramList,
     /* Check permissions                                                      */
     /* ---------------------------------------------------------------------- */
 
-    // TODO
+    if (!att.is_oneadmin_group())
+    {
+        att.resp_id  = -1;
+
+        failure_response(AUTHORIZATION, att);
+        return;
+    }
 
     /* ---------------------------------------------------------------------- */
     /* Build where clause                                                     */
