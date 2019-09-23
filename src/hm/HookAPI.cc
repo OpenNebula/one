@@ -129,7 +129,7 @@ bool HookAPI::call_exist(const string& api_call)
         return false;
     }
 
-    for (auto call : unsupported_calls)
+    for (const auto& call : unsupported_calls)
     {
         if (api_call == call)
         {
