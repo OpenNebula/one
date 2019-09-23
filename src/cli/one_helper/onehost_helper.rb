@@ -765,7 +765,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             core = info['CPUS'].split(',')
 
             core.uniq! do |c|
-                c.split(':')
+                c = c.split(':')
                 c[0]
             end
 
