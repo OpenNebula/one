@@ -150,14 +150,14 @@ begin
         end
 
         if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXV
-            nsx_client = NSXDriver::NSXClient.new(host_id)
+            nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
             logical_switch = NSXDriver::VirtualWire
                              .new(nsx_client, ls_id, nil, nil)
             logical_switch.delete_logical_switch
         end
 
         if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXT
-            nsx_client = NSXDriver::NSXClient.new(host_id)
+            nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
             logical_switch = NSXDriver::OpaqueNetwork
                              .new(nsx_client, ls_id, nil, nil)
             logical_switch.delete_logical_switch

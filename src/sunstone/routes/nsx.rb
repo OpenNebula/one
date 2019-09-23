@@ -37,17 +37,40 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 require 'vcenter_driver'
 require 'nsx_driver'
 
-helpers do
-    def vcenter_client
-        reqenv = request.env
+URL_AUTH_NSXT = '/api/v1/aaa/registration-token'
+URL_AUTH_NSXV = '/api/2.0/services/auth/token'
+HEADER_JSON = { :'Content-Type' => 'application/json' }
+HEADER_XML = { :'Content-Type' => 'application/xml' }
+MSG_INCOMPLETE_REQ = 'Incomplete request, NSX_MANAGER, NSX_USER, NSX_PASSWORD \
+                      and NSX_TYPE are needed'
+MSG_INVALID_REQ = 'Invalid request, check that NSX_MANAGER, NSX_USER, \
+                   NSX_PASSWORD and NSX_TYPE are correct'
+MSG_INVALID_NSXTYPE = 'Invalid NSX-TYPE: Only NSX-T and NSX-V are supported'
 
-        # nsxuser = reqenv[head_user] ? reqenv[head_user] : reqenv[hpref+head_user]
-        # vpass = reqenv[head_pwd] ? reqenv[head_pwd] : reqenv[hpref+head_pwd]
-        # vhost = reqenv[head_vhost] ? reqenv[head_vhost] : reqenv[hpref+head_vhost]
-    end
+helpers do
 end
 
 # Return token if auth was successfully
 post '/nsx/auth' do
+    # Get params
+    nsxmgr = params['NSX_MANAGER']
+    nsxuser = params['nsxuser']
+    nsxpassword = params['nsxpassword']
+    nsx_type = params['NSX_TYPE']
+    # Check all params have data
+    return [400, { 'error' => MSG_INCOMPLETE_REQ }] \
+        unless nsxmgr && nsxuser && nsxpassword && nsx_type
 
+    nsx_client = NSXDriver::NSXClient.new(nsxmgr, nsxuser, nsxpassword)
+    if nsx_type == 'NSX-T'
+        url = nsxmgr + URL_AUTH_NSXT
+        response = nsx_client.get_token(url, HEADER_JSON)
+    elsif nsx_type == 'NSX-V'
+        url = nsxmgr + URL_AUTH_NSXV
+        response = nsx_client.get_token(url, HEADER_XML)
+    else
+        return [400, { 'error' => MSG_INVALID_NSXTYPE }]
+    end
+    return [200, response] if response
+    return [400, { 'error' => MSG_INVALID_REQ }] unless response
 end

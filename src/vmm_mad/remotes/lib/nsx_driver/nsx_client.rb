@@ -52,7 +52,13 @@ module NSXDriver
         HEADER_XML = { :'Content-Type' => 'application/xml' }
 
         # CONSTRUCTORS
-        def initialize(host_id)
+        def initialize(nsxmgr, nsx_user, nsx_password)
+            @nsxmgr = nsxmgr
+            @nsx_user = nsx_user
+            @nsx_password = nsx_password
+        end
+
+        def self.new_from_id(host_id)
             client = OpenNebula::Client.new
             host = OpenNebula::Host.new_with_id(host_id, client)
             rc = host.info
@@ -62,15 +68,12 @@ module NSXDriver
                         #{host_id} - #{rc.message}"
             end
 
-            @nsxmgr = host['TEMPLATE/NSX_MANAGER']
-            @nsx_user = host['TEMPLATE/NSX_USER']
-            @nsx_password = nsx_pass(host['TEMPLATE/NSX_PASSWORD'])
-        end
+            nsxmgr = host['TEMPLATE/NSX_MANAGER']
+            nsx_user = host['TEMPLATE/NSX_USER']
+            nsx_password = NSXDriver::NSXClient
+                           .nsx_pass(host['TEMPLATE/NSX_PASSWORD'])
 
-        def self.new_nsxmgr(nsxmgr, nsx_user, nsx_password)
-            @nsxmgr = nsxmgr
-            @nsx_user = nsx_user
-            @nsx_password = nsx_pass(nsx_password)
+            new(nsxmgr, nsx_user, nsx_password)
         end
 
         # METHODS
@@ -79,7 +82,7 @@ module NSXDriver
             response.code.to_i == code
         end
 
-        def nsx_pass(nsx_pass_enc)
+        def self.nsx_pass(nsx_pass_enc)
             client = OpenNebula::Client.new
             system = OpenNebula::System.new(client)
             config = system.get_configuration
@@ -178,7 +181,7 @@ module NSXDriver
               :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
                   https.request(request)
               end
-            check_response(response, 200)
+            response.body if check_response(response, 200)
         end
 
     end
