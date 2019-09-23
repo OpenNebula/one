@@ -276,9 +276,8 @@ class EC2Driver
     # to retrieve connection information
     # needed for Amazon
     def get_connect_info(host, host_id)
-        conn_opts={}
-
-        client   = OpenNebula::Client.new
+        conn_opts = {}
+        client    = OpenNebula::Client.new
 
         if host.is_a?(String)
             if !host_id
@@ -288,15 +287,12 @@ class EC2Driver
                 host_id = objects.first.id
                 @host_id = host_id
             end
-            xmlhost = OpenNebula::Host.new_with_id(host_id, client)
-            xmlhost.info(true)
         else
-            xmlhost = host
+            host_id = host['ID']
         end
 
-        system = OpenNebula::System.new(client)
-        config = system.get_configuration
-        raise "Error getting oned configuration : #{config.message}" if OpenNebula.is_error?(config)
+        xmlhost = OpenNebula::Host.new_with_id(host_id, client)
+        xmlhost.info(true)
 
         if xmlhost["TEMPLATE/PROVISION"]
             @tmplBase = 'TEMPLATE/PROVISION'
