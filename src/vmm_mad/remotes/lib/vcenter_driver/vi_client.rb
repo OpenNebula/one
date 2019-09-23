@@ -137,7 +137,7 @@ class VIClient
                 :password => host["TEMPLATE/VCENTER_PASSWORD"]
             }
 
-            connection[:port] = host["TEMPLATE/VCENTER_PORT"] unless host["TEMPLATE/VCENTER_PASSWORD"].nil?
+            connection[:port] = host["TEMPLATE/VCENTER_PORT"] unless host["TEMPLATE/VCENTER_PORT"].nil?
 
             self.new(connection, host_id)
 
