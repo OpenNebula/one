@@ -79,6 +79,10 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'execution ID'
     }
 
+    set :format, :hookid, OpenNebulaHelper.rname_to_id_desc('HOOK') do |arg|
+        OpenNebulaHelper.rname_to_id(arg, 'HOOK')
+    end
+
     ########################################################################
     # Hook log Options
     ########################################################################
