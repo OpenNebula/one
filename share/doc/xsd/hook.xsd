@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://opennebula.org/XMLSchema" elementFormDefault="qualified" targetNamespace="http://opennebula.org/XMLSchema">
+  <xs:element name="HOOK">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="ID" type="xs:integer"/>
+        <xs:element name="NAME" type="xs:string"/>
+        <xs:element name="TYPE" type="xs:string"/>
+        <xs:element name="TEMPLATE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+              <xs:element name="ARGUMENTS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="ARGUMENTS_STDIN" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="CALL" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="COMMAND" type="xs:string"/>
+              <xs:element name="REMOTE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="RESOURCE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="STATE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="LCM_STATE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <!-- This info is not included in one.hookpool.info it's only include in one.hook.info   -->
+        <xs:element name="HOOKLOG" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="HOOK_EXECUTION_RECORD" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+                    <xs:element name="HOOK_ID" type="xs:integer"/>
+                    <xs:element name="EXECUTION_ID" type="xs:integer"/>
+                    <xs:element name="TIMESTAMP" type="xs:integer"/>
+                    <xs:element name="ARGUMENTS" type="xs:string"/>
+                    <xs:element name="EXECUTION_RESULT">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="COMMAND" type="xs:string"/>
+                          <xs:element name="STDOUT" type="xs:string"/>
+                          <xs:element name="STDERR" type="xs:string"/>
+                          <xs:element name="CODE" type="xs:string"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="REMOTE_HOST" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="RETRY" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
