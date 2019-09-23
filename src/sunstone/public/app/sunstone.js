@@ -456,7 +456,14 @@ define(function(require) {
           buttonContext = $("#" + customId + "main_buttons", buttonsRow);
           text = button.text;
           strClass.push("button");
-          buttonCode = "<button class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\">" + text + "</button>";
+          options = {
+            class: strClass.join(" "),
+            href: buttonName,
+          }
+          if(button && button.tip){
+            options.title = button.tip;
+          }
+          buttonCode = $("<button>",options).append(text);
         }
 
         buttonContext.append(buttonCode);
