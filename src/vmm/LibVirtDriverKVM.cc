@@ -348,7 +348,7 @@ static void vtopol(ofstream& file, const VectorAttribute * topology,
 static string get_disk_bus(std::string &machine, std::string &target,
         std::string &sd_default)
 {
-    switch(target[0])
+    switch (target[0])
     {
         case 's': // sd_ disk
             return sd_default;
@@ -357,11 +357,11 @@ static string get_disk_bus(std::string &machine, std::string &target,
         default:
         {
             std::size_t found = machine.find("q35");
-            
+
             if (found != std::string::npos)
             {
                 return "sata";
-            }      
+            }
         }
     }
 
@@ -385,8 +385,6 @@ int LibVirtDriver::deployment_description_kvm(
 
     string  emulator_path = "";
 
-    const VectorAttribute * os;
-
     string  kernel     = "";
     string  initrd     = "";
     string  root       = "";
@@ -396,8 +394,6 @@ int LibVirtDriver::deployment_description_kvm(
     string  machine    = "";
 
     vector<string> boots;
-
-    const VectorAttribute * cpu_model_v;
 
     string  cpu_model = "";
     string  cpu_mode  = "";
@@ -520,8 +516,6 @@ int LibVirtDriver::deployment_description_kvm(
     string vm_slot   = "";
     string vm_func   = "";
 
-    const VectorAttribute * features;
-
     bool pae                = false;
     bool acpi               = false;
     bool apic               = false;
@@ -530,14 +524,6 @@ int LibVirtDriver::deployment_description_kvm(
     bool guest_agent        = false;
     int  virtio_scsi_queues = 0;
     int  scsi_targets_num   = 0;
-
-    int pae_found                   = -1;
-    int acpi_found                  = -1;
-    int apic_found                  = -1;
-    int hyperv_found                = -1;
-    int localtime_found             = -1;
-    int guest_agent_found           = -1;
-    int virtio_scsi_queues_found    = -1;
 
     string hyperv_options = "";
 
@@ -555,6 +541,10 @@ int LibVirtDriver::deployment_description_kvm(
     std::string disk_bus;
 
     string  vm_xml;
+
+    Nebula& nd = Nebula::instance();
+    Host* host = nd.get_hpool()->get_ro(vm->get_hid());
+    Cluster* cluster = nd.get_clpool()->get_ro(vm->get_cid());
 
     // ------------------------------------------------------------------------
 
@@ -589,12 +579,7 @@ int LibVirtDriver::deployment_description_kvm(
     // CPU & Memory
     // ------------------------------------------------------------------------
 
-    vm->get_template_attribute("VCPU", vcpu);
-
-    if(vcpu.empty())
-    {
-        get_default("VCPU", vcpu);
-    }
+    get_attribute(vm, host, cluster, "VCPU", vcpu);
 
     if (!vcpu.empty())
     {
@@ -631,73 +616,28 @@ int LibVirtDriver::deployment_description_kvm(
 
     file << "\t<os>" << endl;
 
-    os = vm->get_template_attribute("OS");
+    get_attribute(vm, host, cluster, "OS", "ARCH", arch);
+    get_attribute(vm, host, cluster, "OS", "MACHINE", machine);
+    get_attribute(vm, host, cluster, "OS", "KERNEL", kernel);
+    get_attribute(vm, host, cluster, "OS", "INITRD", initrd);
+    get_attribute(vm, host, cluster, "OS", "BOOTLOADER", bootloader);
+    get_attribute(vm, host, cluster, "OS", "ROOT", root);
+    get_attribute(vm, host, cluster, "OS", "KERNEL_CMD", kernel_cmd);
+    get_attribute(vm, host, cluster, "OS", "SD_DISK_BUS", sd_bus);
 
-    if( os != 0 )
+    if (arch.empty())
     {
-        kernel     = os->vector_value("KERNEL");
-        initrd     = os->vector_value("INITRD");
-        root       = os->vector_value("ROOT");
-        kernel_cmd = os->vector_value("KERNEL_CMD");
-        bootloader = os->vector_value("BOOTLOADER");
-        arch       = os->vector_value("ARCH");
-        machine    = os->vector_value("MACHINE");
-        sd_bus     = os->vector_value("SD_DISK_BUS");
-    }
-
-    if ( arch.empty() )
-    {
-        get_default("OS","ARCH",arch);
-
-        if ( arch.empty() )
-        {
-            goto error_arch;
-        }
-    }
-
-    if ( machine.empty() )
-    {
-        get_default("OS", "MACHINE", machine);
+        goto error_arch;
     }
 
     file << "\t\t<type arch=" << one_util::escape_xml_attr(arch);
 
-    if ( !machine.empty() )
+    if (!machine.empty())
     {
         file << " machine=" << one_util::escape_xml_attr(machine);
     }
 
     file << ">hvm</type>" << endl;
-
-    if ( kernel.empty() )
-    {
-        get_default("OS","KERNEL",kernel);
-    }
-
-    if ( initrd.empty() )
-    {
-        get_default("OS","INITRD",initrd);
-    }
-
-    if ( bootloader.empty() )
-    {
-        get_default("OS","BOOTLOADER",bootloader);
-    }
-
-    if ( root.empty() )
-    {
-        get_default("OS","ROOT",root);
-    }
-
-    if ( kernel_cmd.empty() )
-    {
-        get_default("OS","KERNEL_CMD",kernel_cmd);
-    }
-
-    if ( sd_bus.empty() )
-    {
-        get_default("OS", "SD_DISK_BUS", sd_bus);
-    }
 
     // Start writing to the file with the info we got
 
@@ -732,19 +672,7 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     // CPU SECTION
     // ------------------------------------------------------------------------
-    cpu_model_v = vm->get_template_attribute("CPU_MODEL");
-
-    if( cpu_model_v != 0 )
-    {
-        cpu_model = cpu_model_v->vector_value("MODEL");
-
-        //TODO #756 cache, feature
-    }
-
-    if (cpu_model.empty())
-    {
-        get_default("CPU_MODEL", "MODEL", cpu_model);
-    }
+    get_attribute(vm, host, cluster, "CPU_MODEL", "MODEL", cpu_model);
 
     if (cpu_model == "host-passthrough")
     {
@@ -794,15 +722,10 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     file << "\t<devices>" << endl;
 
-    vm->get_template_attribute("EMULATOR", emulator_path);
-    if(emulator_path.empty())
+    get_attribute(vm, host, cluster, "EMULATOR", emulator_path);
+    if (emulator_path.empty())
     {
-        get_default("EMULATOR",emulator_path);
-
-        if(emulator_path.empty())
-        {
-            emulator_path = "/usr/bin/kvm";
-        }
+        emulator_path = "/usr/bin/kvm";
     }
 
     file << "\t\t<emulator>" << one_util::escape_xml(emulator_path)
@@ -811,46 +734,46 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     // Disks
     // ------------------------------------------------------------------------
-    get_default("DISK", "DRIVER", default_driver);
+    get_attribute(nullptr, host, cluster, "DISK", "DRIVER", default_driver);
 
     if (default_driver.empty())
     {
         default_driver = "raw";
     }
 
-    get_default("DISK", "CACHE", default_driver_cache);
+    get_attribute(nullptr, host, cluster, "DISK", "CACHE", default_driver_cache);
 
     if (default_driver_cache.empty())
     {
        default_driver_cache = "default";
     }
 
-    get_default("DISK", "IO", default_driver_disk_io);
-    get_default("DISK", "DISCARD", default_driver_discard);
+    get_attribute(nullptr, host, cluster, "DISK", "IO", default_driver_disk_io);
+    get_attribute(nullptr, host, cluster, "DISK", "DISCARD", default_driver_discard);
 
-    get_default("DISK", "TOTAL_BYTES_SEC", default_total_bytes_sec);
-    get_default("DISK", "TOTAL_BYTES_SEC_MAX", default_total_bytes_sec_max);
-    get_default("DISK", "TOTAL_BYTES_SEC_MAX_LENGTH", default_total_bytes_sec_max_length);
+    get_attribute(nullptr, host, cluster, "DISK", "TOTAL_BYTES_SEC", default_total_bytes_sec);
+    get_attribute(nullptr, host, cluster, "DISK", "TOTAL_BYTES_SEC_MAX", default_total_bytes_sec_max);
+    get_attribute(nullptr, host, cluster, "DISK", "TOTAL_BYTES_SEC_MAX_LENGTH", default_total_bytes_sec_max_length);
 
-    get_default("DISK", "READ_BYTES_SEC", default_read_bytes_sec);
-    get_default("DISK", "READ_BYTES_SEC_MAX", default_read_bytes_sec_max);
-    get_default("DISK", "READ_BYTES_SEC_MAX_LENGTH", default_read_bytes_sec_max_length);
+    get_attribute(nullptr, host, cluster, "DISK", "READ_BYTES_SEC", default_read_bytes_sec);
+    get_attribute(nullptr, host, cluster, "DISK", "READ_BYTES_SEC_MAX", default_read_bytes_sec_max);
+    get_attribute(nullptr, host, cluster, "DISK", "READ_BYTES_SEC_MAX_LENGTH", default_read_bytes_sec_max_length);
 
-    get_default("DISK", "WRITE_BYTES_SEC", default_write_bytes_sec);
-    get_default("DISK", "WRITE_BYTES_SEC_MAX", default_write_bytes_sec_max);
-    get_default("DISK", "WRITE_BYTES_SEC_MAX_LENGTH", default_write_bytes_sec_max_length);
+    get_attribute(nullptr, host, cluster, "DISK", "WRITE_BYTES_SEC", default_write_bytes_sec);
+    get_attribute(nullptr, host, cluster, "DISK", "WRITE_BYTES_SEC_MAX", default_write_bytes_sec_max);
+    get_attribute(nullptr, host, cluster, "DISK", "WRITE_BYTES_SEC_MAX_LENGTH", default_write_bytes_sec_max_length);
 
-    get_default("DISK", "TOTAL_IOPS_SEC", default_total_iops_sec);
-    get_default("DISK", "TOTAL_IOPS_SEC_MAX", default_total_iops_sec_max);
-    get_default("DISK", "TOTAL_IOPS_SEC_MAX_LENGTH", default_total_iops_sec_max_length);
+    get_attribute(nullptr, host, cluster, "DISK", "TOTAL_IOPS_SEC", default_total_iops_sec);
+    get_attribute(nullptr, host, cluster, "DISK", "TOTAL_IOPS_SEC_MAX", default_total_iops_sec_max);
+    get_attribute(nullptr, host, cluster, "DISK", "TOTAL_IOPS_SEC_MAX_LENGTH", default_total_iops_sec_max_length);
 
-    get_default("DISK", "READ_IOPS_SEC", default_read_iops_sec);
-    get_default("DISK", "READ_IOPS_SEC_MAX", default_read_iops_sec_max);
-    get_default("DISK", "READ_IOPS_SEC_MAX_LENGTH", default_read_iops_sec_max_length);
+    get_attribute(nullptr, host, cluster, "DISK", "READ_IOPS_SEC", default_read_iops_sec);
+    get_attribute(nullptr, host, cluster, "DISK", "READ_IOPS_SEC_MAX", default_read_iops_sec_max);
+    get_attribute(nullptr, host, cluster, "DISK", "READ_IOPS_SEC_MAX_LENGTH", default_read_iops_sec_max_length);
 
-    get_default("DISK", "WRITE_IOPS_SEC", default_write_iops_sec);
-    get_default("DISK", "WRITE_IOPS_SEC_MAX", default_write_iops_sec_max);
-    get_default("DISK", "WRITE_IOPS_SEC_MAX_LENGTH", default_write_iops_sec_max_length);
+    get_attribute(nullptr, host, cluster, "DISK", "WRITE_IOPS_SEC", default_write_iops_sec);
+    get_attribute(nullptr, host, cluster, "DISK", "WRITE_IOPS_SEC_MAX", default_write_iops_sec_max);
+    get_attribute(nullptr, host, cluster, "DISK", "WRITE_IOPS_SEC_MAX_LENGTH", default_write_iops_sec_max_length);
 
     // ------------------------------------------------------------------------
 
@@ -1308,13 +1231,13 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     // Network interfaces
     // ------------------------------------------------------------------------
-    get_default("NIC", "FILTER", default_filter);
+    get_attribute(nullptr, host, cluster, "NIC", "FILTER", default_filter);
 
-    get_default("NIC", "MODEL", default_model);
+    get_attribute(nullptr, host, cluster, "NIC", "MODEL", default_model);
 
     num = vm->get_template_attribute("NIC", nic);
 
-    for(int i=0; i<num; i++)
+    for (int i=0; i<num; i++)
     {
         nic_id        = nic[i]->vector_value("NIC_ID");
         bridge        = nic[i]->vector_value("BRIDGE");
@@ -1344,7 +1267,7 @@ int LibVirtDriver::deployment_description_kvm(
         }
         else
         {
-            switch(VirtualNetwork::str_to_bridge_type(bridge_type))
+            switch (VirtualNetwork::str_to_bridge_type(bridge_type))
             {
                 case VirtualNetwork::UNDEFINED:
                 case VirtualNetwork::LINUX:
@@ -1370,25 +1293,25 @@ int LibVirtDriver::deployment_description_kvm(
             }
         }
 
-        if( !mac.empty() )
+        if (!mac.empty())
         {
             file << "\t\t\t<mac address=" << one_util::escape_xml_attr(mac)
                  << "/>\n";
         }
 
-        if( !target.empty() )
+        if (!target.empty())
         {
             file << "\t\t\t<target dev=" << one_util::escape_xml_attr(target)
                  << "/>\n";
         }
 
-        if ( nic[i]->vector_value("ORDER", order) == 0 )
+        if (nic[i]->vector_value("ORDER", order) == 0)
         {
             file << "\t\t\t<boot order=" << one_util::escape_xml_attr(order)
                  << "/>\n";
         }
 
-        if( !script.empty() )
+        if (!script.empty())
         {
             file << "\t\t\t<script path=" << one_util::escape_xml_attr(script)
                  << "/>\n";
@@ -1410,7 +1333,7 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t\t<model type="
                  << one_util::escape_xml_attr(*the_model) << "/>\n";
 
-            if(!virtio_queues.empty() && *the_model == "virtio")
+            if (!virtio_queues.empty() && *the_model == "virtio")
             {
                 file << "\t\t\t<driver name='vhost' queues="
                      << one_util::escape_xml_attr(virtio_queues)
@@ -1546,7 +1469,7 @@ int LibVirtDriver::deployment_description_kvm(
 
             if ( type == "spice" )
             {
-                get_default("SPICE_OPTIONS", spice_options);
+                get_attribute(vm, host, cluster, "SPICE_OPTIONS", spice_options);
 
                 if (!spice_options.empty())
                 {
@@ -1640,54 +1563,13 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     // Features
     // ------------------------------------------------------------------------
-    features = vm->get_template_attribute("FEATURES");
-
-    if ( features != 0 )
-    {
-        pae_found         = features->vector_value("PAE", pae);
-        acpi_found        = features->vector_value("ACPI", acpi);
-        apic_found        = features->vector_value("APIC", apic);
-        hyperv_found      = features->vector_value("HYPERV", hyperv);
-        localtime_found   = features->vector_value("LOCALTIME", localtime);
-        guest_agent_found = features->vector_value("GUEST_AGENT", guest_agent);
-        virtio_scsi_queues_found =
-            features->vector_value("VIRTIO_SCSI_QUEUES", virtio_scsi_queues);
-    }
-
-    if ( pae_found != 0 )
-    {
-        get_default("FEATURES", "PAE", pae);
-    }
-
-    if ( acpi_found != 0 )
-    {
-        get_default("FEATURES", "ACPI", acpi);
-    }
-
-    if ( apic_found != 0 )
-    {
-        get_default("FEATURES", "APIC", apic);
-    }
-
-    if ( hyperv_found != 0 )
-    {
-        get_default("FEATURES", "HYPERV", hyperv);
-    }
-
-    if ( localtime_found != 0 )
-    {
-        get_default("FEATURES", "LOCALTIME", localtime);
-    }
-
-    if ( guest_agent_found != 0 )
-    {
-        get_default("FEATURES", "GUEST_AGENT", guest_agent);
-    }
-
-    if ( virtio_scsi_queues_found != 0 )
-    {
-        get_default("FEATURES", "VIRTIO_SCSI_QUEUES", virtio_scsi_queues);
-    }
+    get_attribute(vm, host, cluster, "FEATURES", "PAE", pae);
+    get_attribute(vm, host, cluster, "FEATURES", "ACPI", acpi);
+    get_attribute(vm, host, cluster, "FEATURES", "APIC", apic);
+    get_attribute(vm, host, cluster, "FEATURES", "HYPERV", hyperv);
+    get_attribute(vm, host, cluster, "FEATURES", "LOCALTIME", localtime);
+    get_attribute(vm, host, cluster, "FEATURES", "GUEST_AGENT", guest_agent);
+    get_attribute(vm, host, cluster, "FEATURES", "VIRTIO_SCSI_QUEUES", virtio_scsi_queues);
 
     if ( acpi || pae || apic || hyperv )
     {
@@ -1710,7 +1592,7 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( hyperv )
         {
-            get_default("HYPERV_OPTIONS", hyperv_options);
+            get_attribute(vm, host, cluster, "HYPERV_OPTIONS", hyperv_options);
 
             file << "\t\t<hyperv>" << endl;
             file << hyperv_options << endl;
@@ -1755,7 +1637,7 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     num = vm->get_template_attribute("RAW", raw);
 
-    for(int i=0; i<num;i++)
+    for (int i=0; i<num; i++)
     {
         type = raw[i]->vector_value("TYPE");
 
@@ -1768,7 +1650,7 @@ int LibVirtDriver::deployment_description_kvm(
         }
     }
 
-    get_default("RAW", default_raw);
+    get_attribute(nullptr, host, cluster, "RAW", default_raw);
 
     if ( !default_raw.empty() )
     {
@@ -1813,26 +1695,28 @@ int LibVirtDriver::deployment_description_kvm(
 
     file << "</domain>" << endl;
 
-    file.close();
+    if (host) host->unlock();
+    if (cluster) cluster->unlock();
 
     return 0;
 
 error_file:
     vm->log("VMM", Log::ERROR, "Could not open KVM deployment file.");
-    return -1;
+    goto error_common;
 
 error_memory:
     vm->log("VMM", Log::ERROR, "No MEMORY defined and no default provided.");
-    file.close();
-    return -1;
+    goto error_common;
 
 error_arch:
     vm->log("VMM", Log::ERROR, "No ARCH defined and no default provided.");
-    file.close();
-    return -1;
+    goto error_common;
 
 error_disk:
     vm->log("VMM", Log::ERROR, "Wrong target value in DISK.");
-    file.close();
+
+error_common:
+    if (host) host->unlock();
+    if (cluster) cluster->unlock();
     return -1;
 }
