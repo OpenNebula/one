@@ -210,7 +210,7 @@ class OneDBLive
         ops         = { :start_time => 0,
                         :end_time   => Time.now,
                         :pages      => PAGES }.merge(options)
-        vmpool      = OpenNebula::VirtualMachinePool.new(client)
+        vmpool      = OpenNebula::VirtualMachinePool.new(client, Pool::INFO_ALL)
         start_time  = ops[:start_time].to_i
         end_time    = ops[:end_time].to_i
         done        = OpenNebula::VirtualMachine::VM_STATE.index('DONE')
