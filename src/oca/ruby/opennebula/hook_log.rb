@@ -19,7 +19,7 @@ require 'opennebula/xml_utils'
 module OpenNebula
 
     # Class representing the HookLog
-    class HookLog < XMLPool
+    class HookLog < XMLElement
 
         #######################################################################
         # Constants and Class attribute accessors
@@ -40,11 +40,6 @@ module OpenNebula
             super(nil)
 
             @client = client
-        end
-
-        # Factory method to create HookLog objects
-        def factory(element_xml)
-            OpenNebula::HookLog.new(element_xml, @client)
         end
 
         #######################################################################

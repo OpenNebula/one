@@ -80,6 +80,45 @@ CommandParser::CmdParser.new(ARGV) do
     }
 
     ########################################################################
+    # Hook log Options
+    ########################################################################
+
+    ERROR = {
+        :name => 'error',
+        :large => '--error',
+        :description => 'Show only fail executions'
+    }
+
+    SUCCESS = {
+        :name => 'success',
+        :large => '--success',
+        :description => 'Show only success executions'
+    }
+
+    HOOK_ID = {
+        :name => 'hook_id',
+        :large => '--hook-id id',
+        :description => 'Hook ID to check logs',
+        :format => Integer
+    }
+
+    SINCE = {
+        :name => 'since',
+        :large => '--since date',
+        :description => 'First date to take logs',
+        :format => String
+    }
+
+    UNTIL = {
+        :name => 'until',
+        :large => '--until date',
+        :description => 'Last date to take logs',
+        :format => String
+    }
+
+    LOG_OPTIONS = [ERROR, SUCCESS, HOOK_ID, SINCE, UNTIL]
+
+    ########################################################################
     # Global Options
     ########################################################################
     set :option, CommandParser::OPTIONS + OpenNebulaHelper::CLIENT_OPTIONS
@@ -239,5 +278,22 @@ CommandParser::CmdParser.new(ARGV) do
         helper.perform_action(args[0], options, 'Retry executed') do |t|
             t.retry args[1].to_i
         end
+    end
+
+    log_desc = <<-EOT.unindent
+        Get logs about hook executions
+
+		Examples:
+
+			~ $ onehook log --since 09/19/19 # returns all logs since that date
+			~ $ onehook log --error          # returns all failing execs logs
+			~ $ onehook log --hook-id 0      # returns all logs from hook 0
+
+    EOT
+
+    command :log, log_desc, :options => [LOG_OPTIONS, OpenNebulaHelper::XML] do
+        helper.hook_logs(options)
+
+        0
     end
 end

@@ -175,8 +175,8 @@ module CLIHelper
     ANSI_YELLOW = "\33[33m"
 
     # CLI states
-    OK_STATES      = %w[runn rdy on configured]
-    BAD_STATES     = %w[fail err err error]
+    OK_STATES      = %w[runn rdy on configured SUCCESS]
+    BAD_STATES     = %w[fail err error ERROR]
     REGULAR_STATES = %w[pending]
 
     # Set state color
@@ -231,6 +231,17 @@ module CLIHelper
         STDERR.puts message
 
         exit(-1)
+    end
+
+    # Check if value is in base64
+    #
+    # @param value [String] Value to check
+    #
+    # @return [Boolean] True if it's base64
+    def self.base64?(value)
+        re = %r(^([A-Za-z0-9+\/]{4})*([A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{2}==)?$)
+
+        !value.match(re)[2].nil?
     end
 
     # Hash with search

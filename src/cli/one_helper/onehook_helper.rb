@@ -28,6 +28,54 @@ class OneHookHelper < OpenNebulaHelper::OneHelper
         'onehook.yaml'
     end
 
+    # Get hook logs
+    #
+    # @param options [Object] CLI user options
+    def hook_logs(options)
+        options[:hook_id].nil? ? hook_id = -1 : hook_id = options[:hook_id]
+
+        if options.key? :success
+            rc = 1
+        elsif options.key? :error
+            rc = -1
+        else
+            rc = 0
+        end
+
+        if options[:since]
+            since_date = DateTime.parse(options[:since]).to_time.to_i
+        else
+            since_date = -1
+        end
+
+        if options[:until]
+            until_date = DateTime.parse(options[:until]).to_time.to_i
+        else
+            until_date = -1
+        end
+
+        hook_log = OpenNebula::HookLog.new(@client)
+        log_info = hook_log.info(since_date, until_date, hook_id, rc)
+
+        if OpenNebula.is_error?(log_info)
+            STDERR.puts(log_info.message)
+            exit(-1)
+        end
+
+        begin
+            exerc = [hook_log.to_hash['HOOKLOG']['HOOK_EXECUTION_RECORD']]
+            exerc = exerc.flatten.compact
+        rescue StandardError
+            exerc = nil
+        end
+
+        if !exerc.nil? && !exerc.empty? && (!options.key? :xml)
+            print_execution(exerc, false)
+        elsif options.key? :xml
+            puts hook_log.to_xml
+        end
+    end
+
     private
 
     def factory(id = nil)
@@ -80,12 +128,20 @@ class OneHookHelper < OpenNebulaHelper::OneHelper
     #    </EXECUTION_RESULT>
     #   </HOOK_EXECUTION_RECORD>
     #
-    def print_execution(execs)
-        puts
-        CLIHelper.print_header('EXECUTION LOG', false)
+    def print_execution(execs, header = true)
+        if header
+            puts
+            CLIHelper.print_header('EXECUTION LOG', false)
+        end
 
         table = CLIHelper::ShowTable.new(nil, self) do
-            column :ID, 'Execution ID', :size => 6, :left => false do |d|
+            unless header
+                column :HOOK, 'Hook ID', :adjust => true do |d|
+                    d['HOOK_ID']
+                end
+            end
+
+            column :ID, 'Execution ID', :adjust => true do |d|
                 d['EXECUTION_ID']
             end
 
@@ -93,20 +149,24 @@ class OneHookHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.time_to_str(d['TIMESTAMP'], false, true, false)
             end
 
-            column :EXECUTION, 'Return code', :size => 12 do |d|
+            column :RC, 'Return code', :adjust => true do |d|
+                d['EXECUTION_RESULT']['CODE']
+            end
+
+            column :EXECUTION, 'Return code', :adjust => true do |d|
                 rc = d['EXECUTION_RESULT']['CODE'].to_i
 
                 if rc.zero?
-                    'SUCESS'
+                    'SUCCESS'
                 else
-                    "ERROR (#{rc})"
+                    'ERROR'
                 end
             end
 
-            default :ID, :TIMESTAMP, :EXECUTION
+            default :HOOK, :ID, :TIMESTAMP, :RC, :EXECUTION
         end
 
-        table.show(execs)
+        table.show(execs, :stat_column => :EXECUTION)
     end
 
     def format_resource(hook, options = {})
@@ -138,7 +198,17 @@ class OneHookHelper < OpenNebulaHelper::OneHelper
 
             arguments = ''
 
-            arguments = er['ARGUMENTS'] if er['ARGUMENTS'].class == String
+            if er['ARGUMENTS'].is_a? String
+                er['ARGUMENTS'].split.each do |arg|
+                    if CLIHelper.base64?(arg)
+                        arguments += Base64.decode64(arg)
+                    else
+                        arguments += arg
+                    end
+
+                    arguments += ' '
+                end
+            end
 
             timestamp = OpenNebulaHelper.time_to_str(er['TIMESTAMP'])
             puts format str, 'EXECUTION ID', er['EXECUTION_ID']
