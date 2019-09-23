@@ -30,11 +30,13 @@ define(function(require) {
     },
     "MarketPlaceApp.download_opennebula_dialog" : {
       type: "action",
-      text: '<i class="fas fa-lg fa-cloud-download-alt"/>'
+      text: '<i class="fas fa-lg fa-cloud-download-alt"/>',
+      tip: Locale.tr('Import')
     },
     "MarketPlaceApp.download_local" : {
       type: "action",
-      text: '<i class="fas fa-lg fa-download"/>'
+      text: '<i class="fas fa-lg fa-download"/>',
+      tip: Locale.tr('Download')
     },
     "MarketPlaceApp.chown" : {
       type: "confirm_with_select",
