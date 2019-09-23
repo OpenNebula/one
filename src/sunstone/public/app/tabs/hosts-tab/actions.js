@@ -23,6 +23,7 @@ define(function(require) {
   var OpenNebulaCluster = require('opennebula/cluster');
   var OpenNebulaAction = require('opennebula/action');
   var CommonActions = require('utils/common-actions');
+  var OpenNebulaError  = require('../../opennebula/error');
 
   var TAB_ID = require('./tabId');
   var XML_ROOT = "HOST"
@@ -45,7 +46,24 @@ define(function(require) {
     "Host.disable": _commonActions.multipleAction('disable'),
     "Host.offline": _commonActions.multipleAction('offline'),
     "Host.rename" : _commonActions.singleAction('rename'),
+    "Host.validateCredentials": {
+      call: function(params, extra_param){
+        var defaultSuccess = function(response){
+          Notifier.onError({}, OpenNebulaError(response));
+        };
+        var success = extra_param && extra_param.success && typeof extra_param.success === "function"? extra_param.success : defaultSuccess;
 
+        $.ajax({
+          url: "/nsx/auth",
+          type: "POST",
+          data: {NSX_MANAGER: params.nsxmngr, nsxuser: params.user, nsxpassword: params.pass, NSX_TYPE: params.nsxtype},
+          success: success,
+          error: function(response){
+            Notifier.onError({}, {error:{message: Locale.tr("Error NSX data credentials, check and try again")}});
+          }
+        });
+      }
+    },
     "Host.addtocluster" : {
       type: "multiple",
       call: function(params){
