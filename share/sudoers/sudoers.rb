@@ -24,7 +24,7 @@ class Sudoers
     LVM    = %w[lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend]
     OVS    = %w[ovs-ofctl ovs-vsctl]
     LXD    = %w[
-        /snap/bin/lxc mount umount mkdir catfstab lsblk losetup kpartx
+        /snap/bin/lxc /usr/bin/catfstab mount umount mkdir lsblk losetup kpartx
         qemu-nbd blkid e2fsck resize2fs xfs_growfs rbd-nbd xfs_admin tune2fs
     ]
 
