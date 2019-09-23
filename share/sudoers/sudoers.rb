@@ -20,7 +20,7 @@
 class Sudoers
 
     # Commands required to be used as root, without password, by oneadmin
-    NET    = %w[ebtables iptables ip6tables ip ipset arping]
+    NET    = %w[ebtables iptables ip6tables ip ipset]
     LVM    = %w[lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend]
     OVS    = %w[ovs-ofctl ovs-vsctl]
     LXD    = %w[
@@ -37,7 +37,8 @@ class Sudoers
         'service opennebula-flow start',
         'service opennebula-flow stop',
         'service opennebula-gate start',
-        'service opennebula-gate stop'
+        'service opennebula-gate stop',
+        'arping'
     ]
 
     NODECMDS = [:NET, :OVS, :LVM, :LXD]
