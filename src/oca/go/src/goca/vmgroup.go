@@ -120,7 +120,7 @@ func (vc *VMGroupController) Info() (*vmgroup.VMGroup, error) {
 }
 
 // Create allocates a new vmGroup. It returns the new vmGroup ID.
-func (vc *VMGroupController) Create(tpl string) (int, error) {
+func (vc *VMGroupsController) Create(tpl string) (int, error) {
 	response, err := vc.c.Client.Call("one.vmgroup.allocate", tpl)
 	if err != nil {
 		return 0, err
