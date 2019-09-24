@@ -46,6 +46,7 @@ type TemplateTpl struct {
 	Memory     int                    `xml:"MEMORY"`
 	Context    *Context               `xml:"CONTEXT"`
 	Disk       []Disk                 `xml:"DISK"`
+	NIC        []NIC                  `xml:"NIC"`
 	Graphics   *Graphics              `xml:"GRAPHICS"`
 	NICDefault *NicDefault            `xml:"NIC_DEFAULT"`
 	OS         *OS                    `xml:"OS"`
@@ -58,6 +59,10 @@ type Context struct {
 }
 
 type Disk struct {
+	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
+}
+
+type NIC struct {
 	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
 }
 
