@@ -19,40 +19,35 @@
 # Holds configuration about sudoers requirements for OpeNebula
 class Sudoers
 
-    # Commands required to be used as root, without password, by oneadmin
-    NET    = %w[ebtables iptables ip6tables ip ipset]
-    LVM    = %w[lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend]
-    OVS    = %w[ovs-ofctl ovs-vsctl]
-    LXD    = %w[
-        /snap/bin/lxc /usr/bin/catfstab mount umount mkdir lsblk losetup kpartx
-        qemu-nbd blkid e2fsck resize2fs xfs_growfs rbd-nbd xfs_admin tune2fs
-    ]
-
-    CEPH = %w[rbd]
-    HA = [
-        'systemctl start opennebula-flow',
-        'systemctl stop opennebula-flow',
-        'systemctl start opennebula-gate',
-        'systemctl stop opennebula-gate',
-        'service opennebula-flow start',
-        'service opennebula-flow stop',
-        'service opennebula-gate start',
-        'service opennebula-gate stop',
-        'arping'
-    ]
-
     NODECMDS = [:NET, :OVS, :LVM, :LXD]
 
     attr_accessor :cmds
 
     def initialize(lib_location)
+        # Commands required to be used as root, without password, by oneadmin
         @cmds = {
-            :NET    => NET,
-            :LVM    => LVM,
-            :OVS    => OVS,
-            :LXD    => LXD,
-            :CEPH   => CEPH,
-            :HA     => HA,
+            :NET    => %w[ebtables iptables ip6tables ip ipset],
+            :LVM    => %w[
+                lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend
+            ],
+            :OVS    => %w[ovs-ofctl ovs-vsctl],
+            :CEPH   => %w[rbd],
+            :LXD    => %w[
+                /snap/bin/lxc /usr/bin/catfstab mount umount mkdir lsblk losetup
+                kpartx qemu-nbd blkid e2fsck resize2fs xfs_growfs rbd-nbd
+                xfs_admin tune2fs
+            ],
+            :HA => [
+                'systemctl start opennebula-flow',
+                'systemctl stop opennebula-flow',
+                'systemctl start opennebula-gate',
+                'systemctl stop opennebula-gate',
+                'service opennebula-flow start',
+                'service opennebula-flow stop',
+                'service opennebula-gate start',
+                'service opennebula-gate stop',
+                'arping'
+            ],
             :MARKET => %W[#{lib_location}/sh/create_container_image.sh]
         }
     end
