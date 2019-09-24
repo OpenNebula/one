@@ -87,6 +87,8 @@ tabs:
             VM.disk_snapshot_rename: true
             VM.disk_snapshot_delete: true
             VM.save_as_template: true
+            VM.migrate_poff: false
+            VM.migrate_poff_hard: false
             VM.lockU: true
             VM.unlock: true
         dashboard:

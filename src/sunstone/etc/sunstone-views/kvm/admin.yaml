@@ -380,6 +380,8 @@ tabs:
             VM.deploy: true
             VM.migrate: true
             VM.migrate_live: true
+            VM.migrate_poff: false
+            VM.migrate_poff_hard: false
             VM.hold: true
             VM.release: true
             VM.suspend: true
