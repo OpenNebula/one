@@ -113,15 +113,6 @@ private:
      */
     int set_hook(HookType hook_type, std::string& error);
 
-     /**
-     *  Parses the arguments of the hook using a generic $ID identifier, and
-     *  the target object.  $TEMPLATE will be the base64 encoding of the
-     *  template and $ID the oid of the object.
-     *    @param obj pointer to the object executing the hook for
-     *    @param the resulting parser arguments
-     */
-    void parse_hook_arguments(PoolObjectSQL * obj, std::string& parsed);
-
     /**
      *  Factory method for Hook templates
      */
