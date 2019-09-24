@@ -176,7 +176,7 @@ begin
         when '--hwm'
             arguments[:hwm] = arg.to_i
         when '--bind'
-            arguments[:bind] = arg.to_i
+            arguments[:bind] = arg
         end
     end
 rescue StandardError
