@@ -127,11 +127,11 @@ func (uc *UserController) Passwd(password string) error {
 }
 
 // Login generates or sets a login token.
-// * token: The token
+// * token: The token, if empty oned will generate one
 // * timeSeconds: Valid period in seconds; 0 reset the token and -1 for a non-expiring token.
 // * effectiveGID: Effective GID to use with this token. To use the current GID and user groups set it to -1
 func (uc *UserController) Login(token string, timeSeconds int, effectiveGID int) error {
-	_, err := uc.c.Client.Call("one.user.login", uc.ID, token, timeSeconds, effectiveGID)
+	_, err := uc.c.Client.Call("one.user.login", uc.Name, token, timeSeconds, effectiveGID)
 	return err
 }
 
