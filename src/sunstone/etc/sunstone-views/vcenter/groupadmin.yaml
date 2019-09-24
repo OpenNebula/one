@@ -153,6 +153,7 @@ tabs:
             User.create_dialog: true
             User.update_password: true
             User.login_token: true
+            User.two_factor_auth: true
             User.quotas_dialog: true
             User.groups_dialog: false
             User.chgrp: false
@@ -257,6 +258,7 @@ tabs:
             Template.unlock: true
             Template.edit_labels: true
             Template.menu_labels: true
+            Template.numa: true
         template_creation_tabs:
             general: true
             storage: true
@@ -270,6 +272,7 @@ tabs:
             hybrid: true
             vmgroup: true
             other: true
+            numa: true
     oneflow-templates-tab:
         panel_tabs:
             service_template_info_tab: true
@@ -530,6 +533,8 @@ tabs:
             host_zombies_tab: true
             host_esx_tab: true
             host_pci_tab: true
+            host_numa_tab: true
+            host_nsx_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
@@ -884,12 +889,14 @@ tabs:
             # Buttons for settings_info_tab
             User.update_password: true
             User.login_token: true
+            User.two_factor_auth: true
             # Buttons for settings_config_tab
             Settings.change_language: true
             Settings.change_password: true
             Settings.change_view: true
             Settings.ssh_key: true
             Settings.login_token: true
+            Settings.two_factor_auth: true
             # Edit button in settings_quotas_tab
             User.quotas_dialog: false
     upgrade-top-tab:

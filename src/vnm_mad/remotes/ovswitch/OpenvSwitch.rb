@@ -26,24 +26,18 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
         xpath_filter ||= XPATH_FILTER
         super(vm, xpath_filter, deploy_id)
-
-        @vm.nics.each do |nic|
-            if nic[:bridge_ovs] && !nic[:bridge_ovs].empty?
-                nic[:bridge] = nic[:bridge_ovs]
-            end
-        end
     end
 
     def activate
         lock
 
-        @bridges = get_bridges
+        @bridges = list_bridges
 
         process do |nic|
             @nic = nic
 
             # Get the name of the link vlan device.
-            get_vlan_dev_name
+            gen_vlan_dev_name
 
             # Create the bridge.
             create_bridge
@@ -55,11 +49,13 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
                 unless @bridges[@nic[:bridge]].include? @nic[:vlan_dev]
                     create_vlan_dev
 
-                    add_bridge_port(@nic[:vlan_dev])
+                    add_bridge_port(@nic[:vlan_dev], nil)
                 end
             elsif @nic[:phydev]
-                add_bridge_port(@nic[:phydev])
+                add_bridge_port(@nic[:phydev], nil)
             end
+
+            add_bridge_port(nic[:target], dpdk_vm(@nic[:target])) if dpdk?
 
             if @nic[:tap].nil?
                 # In net/pre action, we just need to ensure the bridge is
@@ -122,7 +118,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     def deactivate
         lock
 
-        @bridges = get_bridges
+        @bridges = list_bridges
 
         attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
 
@@ -136,13 +132,17 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
             # Remove flows
             del_flows
 
+            # delete port from bridge in case of dpdk
+            del_bridge_port(@nic[:target]) if dpdk?
+
             next if @nic[:phydev].nil?
             next if @bridges[@nic[:bridge]].nil?
 
             # Get the name of the vlan device.
-            get_vlan_dev_name
+            gen_vlan_dev_name
 
-            # Return if the bridge doesn't exist because it was already deleted (handles last vm with multiple nics on the same vlan)
+            # Return if the bridge doesn't exist because it was already deleted
+            # (handles last vm with multiple nics on the same vlan)
             next if !@bridges.include? @nic[:bridge]
 
             # Return if we want to keep the empty bridge
@@ -370,7 +370,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
 private
     # Generate the name of the vlan device which will be added to the bridge.
-    def get_vlan_dev_name
+    def gen_vlan_dev_name
         nil
     end
 
@@ -384,6 +384,21 @@ private
     # NEEDS to be implemented by the subclass.
     def delete_vlan_dev
         nil
+    end
+
+    # Return true when usgin dpdk
+    def dpdk?
+        @nic[:bridge_type] == 'openvswitch_dpdk'
+    end
+
+    # Path to the vm port socket /var/lib/one/datastores/0/23/one-23-0
+    def dpdk_vm(port)
+        "#{@vm.system_dir(@nic[:conf][:datastore_location])}/#{port}"
+    end
+
+    # Path to  bridge folder for non VM links
+    def dpdk_br
+        "#{@nic[:conf][:datastore_location]}/ovs-#{@nic[:bridge]}"
     end
 
     # Creates an OvS bridge if it does not exists, and brings it up.
@@ -408,12 +423,26 @@ private
     end
 
     # Add port into OvS bridge
-    def add_bridge_port(port)
+    def add_bridge_port(port, dpdk_path = nil)
         return if @bridges[@nic[:bridge]].include? port
 
-        OpenNebula.exec_and_log("#{command(:ovs_vsctl)} add-port #{@nic[:bridge]} #{port}")
+        ovs_cmd = "#{command(:ovs_vsctl)} add-port #{@nic[:bridge]} #{port}"
+
+        if dpdk_path && dpdk?
+            ovs_cmd << " -- set Interface #{port} type=dpdkvhostuserclient"\
+                       " options:vhost-server-path=#{dpdk_path}"
+        end
+
+        OpenNebula.exec_and_log(ovs_cmd)
 
         @bridges[@nic[:bridge]] << port
+    end
+
+    # Delete port from OvS bridge
+    def del_bridge_port(port)
+        OpenNebula.exec_and_log("#{command(:ovs_vsctl)} del-port #{@nic[:bridge]} #{port}")
+
+        @bridges[@nic[:bridge]].delete(port)
     end
 
     # Calls ovs-vsctl set bridge to set options stored in ovs_bridge_conf
@@ -428,7 +457,7 @@ private
 
     # Get hypervisor bridges
     #   @return [Hash<String>] with the bridge names
-    def get_bridges
+    def list_bridges
         bridges = Hash.new
 
         list_br =`#{command(:ovs_vsctl)} list-br`

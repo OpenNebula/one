@@ -58,7 +58,7 @@ extern "C" void * vmm_action_loop(void *arg)
 {
     VirtualMachineManager *  vmm;
 
-    if ( arg == 0 )
+    if ( arg == nullptr )
     {
         return 0;
     }
@@ -90,8 +90,8 @@ int VirtualMachineManager::start()
 
     NebulaLog::log("VMM",Log::INFO,"Starting Virtual Machine Manager...");
 
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
+    pthread_attr_init(&pattr);
+    pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
 
     rc = pthread_create(&vmm_thread,&pattr,vmm_action_loop,(void *) this);
 
@@ -178,6 +178,9 @@ void VirtualMachineManager::user_action(const ActionRequest& ar)
         case VMMAction::DISK_RESIZE:
             disk_resize_action(vid);
         break;
+        case VMMAction::UPDATE_CONF:
+            update_conf_action(vid);
+        break;
     }
 }
 
@@ -204,7 +207,7 @@ string * VirtualMachineManager::format_message(
     string ds_tmpl = "";
     Datastore * ds = ds_pool->get_ro(ds_id);
 
-    if ( ds != 0 )
+    if ( ds != nullptr )
     {
         ds->to_xml(ds_tmpl);
         ds->unlock();
@@ -348,7 +351,7 @@ void VirtualMachineManager::deploy_action(int vid)
 
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -362,7 +365,7 @@ void VirtualMachineManager::deploy_action(int vid)
 
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -375,7 +378,7 @@ void VirtualMachineManager::deploy_action(int vid)
     // Get the driver for this VM
     vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
@@ -470,7 +473,7 @@ void VirtualMachineManager::save_action(
     // Get the VM from the pool
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -483,7 +486,7 @@ void VirtualMachineManager::save_action(
     // Get the driver for this VM
     vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
@@ -571,7 +574,7 @@ void VirtualMachineManager::shutdown_action(
     // Get the VM from the pool
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -584,7 +587,7 @@ void VirtualMachineManager::shutdown_action(
     // Get the driver for this VM
     vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
@@ -667,7 +670,7 @@ void VirtualMachineManager::reboot_action(
     // Get the VM from the pool
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -680,7 +683,7 @@ void VirtualMachineManager::reboot_action(
     // Get the driver for this VM
     vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
@@ -737,7 +740,7 @@ void VirtualMachineManager::reset_action(
     // Get the VM from the pool
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -750,7 +753,7 @@ void VirtualMachineManager::reset_action(
     // Get the driver for this VM
     vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
@@ -810,7 +813,7 @@ void VirtualMachineManager::cancel_action(
     // Get the VM from the pool
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -823,7 +826,7 @@ void VirtualMachineManager::cancel_action(
     // Get the driver for this VM
     vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
@@ -907,7 +910,7 @@ void VirtualMachineManager::cancel_previous_action(
     // Get the VM from the pool
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -920,7 +923,7 @@ void VirtualMachineManager::cancel_previous_action(
     // Get the driver for this VM
     vmd = get(vm->get_previous_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
@@ -983,7 +986,7 @@ void VirtualMachineManager::cleanup_action(
     // Get the VM from the pool
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -996,7 +999,7 @@ void VirtualMachineManager::cleanup_action(
     // Get the driver for this VM
     vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
@@ -1077,7 +1080,7 @@ void VirtualMachineManager::cleanup_previous_action(int vid)
     // Get the VM from the pool
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1090,7 +1093,7 @@ void VirtualMachineManager::cleanup_previous_action(int vid)
     // Get the driver for this VM
     vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
@@ -1160,7 +1163,7 @@ void VirtualMachineManager::migrate_action(
     // Get the VM from the pool
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1173,7 +1176,7 @@ void VirtualMachineManager::migrate_action(
     // Get the driver for this VM
     vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
@@ -1251,7 +1254,7 @@ void VirtualMachineManager::restore_action(
 
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1265,7 +1268,7 @@ void VirtualMachineManager::restore_action(
 
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1277,7 +1280,7 @@ void VirtualMachineManager::restore_action(
 
     vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
@@ -1351,7 +1354,7 @@ void VirtualMachineManager::poll_action(
     // Get the VM from the pool
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1364,7 +1367,7 @@ void VirtualMachineManager::poll_action(
     // Get the driver for this VM
     vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
@@ -1419,7 +1422,7 @@ void VirtualMachineManager::driver_cancel_action(
     // Get the VM from the pool
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1432,7 +1435,7 @@ void VirtualMachineManager::driver_cancel_action(
     // Get the driver for this VM
     vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
@@ -1507,7 +1510,7 @@ void VirtualMachineManager::timer_action(const ActionRequest& ar)
     {
         vm = vmpool->get(*it);
 
-        if ( vm == 0 )
+        if ( vm == nullptr )
         {
             continue;
         }
@@ -1537,7 +1540,7 @@ void VirtualMachineManager::timer_action(const ActionRequest& ar)
 
         vmd = get(vm->get_vmm_mad());
 
-        if ( vmd == 0 )
+        if ( vmd == nullptr )
         {
             vm->unlock();
             continue;
@@ -1599,7 +1602,7 @@ void VirtualMachineManager::attach_action(
     // Get the VM from the pool
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1613,14 +1616,14 @@ void VirtualMachineManager::attach_action(
 
     vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
 
     disk = vm->get_attach_disk();
 
-    if ( disk == 0 )
+    if ( disk == nullptr )
     {
         goto error_disk;
     }
@@ -1740,7 +1743,7 @@ void VirtualMachineManager::detach_action(
     // Get the VM from the pool
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1753,14 +1756,14 @@ void VirtualMachineManager::detach_action(
     // Get the driver for this VM
     vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
 
     disk = vm->get_attach_disk();
 
-    if ( disk == 0 )
+    if ( disk == nullptr )
     {
         goto error_disk;
     }
@@ -1844,7 +1847,7 @@ void VirtualMachineManager::snapshot_create_action(int vid)
     // Get the VM from the pool
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1857,7 +1860,7 @@ void VirtualMachineManager::snapshot_create_action(int vid)
     // Get the driver for this VM
     vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
@@ -1922,7 +1925,7 @@ void VirtualMachineManager::snapshot_revert_action(int vid)
     // Get the VM from the pool
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1935,7 +1938,7 @@ void VirtualMachineManager::snapshot_revert_action(int vid)
     // Get the driver for this VM
     vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
@@ -2000,7 +2003,7 @@ void VirtualMachineManager::snapshot_delete_action(int vid)
     // Get the VM from the pool
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -2013,7 +2016,7 @@ void VirtualMachineManager::snapshot_delete_action(int vid)
     // Get the driver for this VM
     vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
@@ -2089,7 +2092,7 @@ void VirtualMachineManager::disk_snapshot_create_action(int vid)
 
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -2101,7 +2104,7 @@ void VirtualMachineManager::disk_snapshot_create_action(int vid)
 
     vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
@@ -2111,7 +2114,7 @@ void VirtualMachineManager::disk_snapshot_create_action(int vid)
         goto error_disk;
     }
 
-    rc = tm->snapshot_transfer_command( vm, "SNAP_CREATE", os);
+    rc = tm->snapshot_transfer_command(vm, "SNAP_CREATE", os);
 
     snap_cmd = os.str();
 
@@ -2199,7 +2202,7 @@ void VirtualMachineManager::disk_resize_action(int vid)
 
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -2211,14 +2214,14 @@ void VirtualMachineManager::disk_resize_action(int vid)
 
     vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
 
     disk = vm->get_resize_disk();
 
-    if ( disk == 0 )
+    if ( disk == nullptr )
     {
         goto error_disk;
     }
@@ -2287,6 +2290,90 @@ error_common:
     vm->unlock();
     return;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManager::update_conf_action(int vid)
+{
+    ostringstream os;
+
+    string  vm_tmpl;
+    string* drv_msg;
+
+    string  password;
+    string  prolog_cmd;
+    string  resize_cmd;
+    string  disk_path;
+
+    VirtualMachine *vm = vmpool->get(vid);
+    const VirtualMachineManagerDriver * vmd;
+
+    int uid, owner_id;
+
+    if (vm == nullptr)
+    {
+        return;
+    }
+
+    if (!vm->hasHistory())
+    {
+        os << "update_conf_action, VM has no history";
+        goto error;
+    }
+
+    vmd = get(vm->get_vmm_mad());
+
+    if ( vmd == nullptr )
+    {
+        os << "update_conf_action, error getting driver " << vm->get_vmm_mad();
+        goto error;
+    }
+
+    uid = vm->get_created_by_uid();
+    owner_id = vm->get_uid();
+
+    password = Nebula::instance().get_upool()->get_token_password(uid, owner_id);
+    if ( do_context_command(vm, password, prolog_cmd, disk_path) == -1 )
+    {
+        os << "Cannot set context disk to update it for VM " << vm->get_oid();
+        goto error;
+    }
+
+    // Invoke driver method
+    drv_msg = format_message(
+        vm->get_hostname(),
+        "",
+        vm->get_deploy_id(),
+        "",
+        "",
+        "",
+        prolog_cmd,
+        "",
+        disk_path,
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id(),
+        -1);
+
+    vmd->update_conf(vid, *drv_msg);
+
+    vm->unlock();
+
+    delete drv_msg;
+
+    return;
+
+error:
+    Nebula              &ne = Nebula::instance();
+    LifeCycleManager *  lcm = ne.get_lcm();
+
+    lcm->trigger(LCMAction::UPDATE_CONF_FAILURE, vid);
+
+    vm->log("VMM", Log::ERROR, os);
+    vm->unlock();
+    return;
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -2308,7 +2395,7 @@ void VirtualMachineManager::attach_nic_action(
     // Get the VM from the pool
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -2321,7 +2408,7 @@ void VirtualMachineManager::attach_nic_action(
 
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -2334,7 +2421,7 @@ void VirtualMachineManager::attach_nic_action(
     // Get the driver for this VM
     vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
@@ -2415,7 +2502,7 @@ void VirtualMachineManager::detach_nic_action(
     // Get the VM from the pool
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -2428,7 +2515,7 @@ void VirtualMachineManager::detach_nic_action(
 
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -2441,7 +2528,7 @@ void VirtualMachineManager::detach_nic_action(
     // Get the driver for this VM
     vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         goto error_driver;
     }
@@ -2518,7 +2605,7 @@ int VirtualMachineManager::updatesg(VirtualMachine * vm, int sgid)
     // Get the driver for this VM
     const VirtualMachineManagerDriver * vmd = get(vm->get_vmm_mad());
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         return -1;
     }
@@ -2557,20 +2644,20 @@ int VirtualMachineManager::load_mads(int uid)
     int                             rc;
     string                          name;
     string                          type;
-    VirtualMachineManagerDriver *   vmm_driver = 0;
+    VirtualMachineManagerDriver *   vmm_driver = nullptr;
 
     oss << "Loading Virtual Machine Manager drivers.";
 
     NebulaLog::log("VMM",Log::INFO,oss);
 
-    for(i=0,oss.str("");i<mad_conf.size();i++,oss.str(""),vmm_driver=0)
+    for (i=0, oss.str(""); i<mad_conf.size(); i++, oss.str(""), vmm_driver=0)
     {
         vattr = static_cast<const VectorAttribute *>(mad_conf[i]);
 
         name  = vattr->vector_value("NAME");
         type  = vattr->vector_value("TYPE");
 
-        transform (type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
+        transform(type.begin(), type.end(), type.begin(), (int(*)(int))toupper);
 
         oss << "\tLoading driver: " << name << " (" << type << ")";
 

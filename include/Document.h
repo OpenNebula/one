@@ -35,7 +35,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    string& to_xml(string& xml) const override;
 
     // ------------------------------------------------------------------------
     // Template Contents
@@ -44,7 +44,7 @@ public:
     /**
      *  Factory method for document templates
      */
-    Template * get_new_template() const
+    Template * get_new_template() const override
     {
         return new Template;
     }
@@ -116,7 +116,7 @@ private:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const string &xml_str) override;
 
 protected:
 
@@ -132,7 +132,7 @@ protected:
                 int type,
                 Template * _template_contents);
 
-    ~Document();
+    virtual ~Document() = default;
 
     // *************************************************************************
     // DataBase implementation
@@ -150,14 +150,14 @@ protected:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, string& error_str) override;
 
     /**
      *  Writes/updates the Document data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
         string err;
         return insert_replace(db, true, err);

@@ -21,7 +21,7 @@
 #include "ReplicaManager.h"
 #include "ReplicaRequest.h"
 #include "Template.h"
-#include "RaftHook.h"
+#include "ExecuteHook.h"
 
 extern "C" void * raft_manager_loop(void *arg);
 
@@ -425,8 +425,8 @@ private:
     // Hooks
     // -------------------------------------------------------------------------
 
-    RaftLeaderHook   * leader_hook;
-    RaftFollowerHook * follower_hook;
+    ExecuteHook * leader_hook;
+    ExecuteHook * follower_hook;
 
     // -------------------------------------------------------------------------
     // Action Listener interface

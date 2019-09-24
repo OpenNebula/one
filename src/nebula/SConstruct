@@ -57,6 +57,7 @@ env.Prepend(LIBS=[
     'nebula_vmtemplate',
     'nebula_document',
     'nebula_zone',
+    'nebula_raft',
     'nebula_hm',
     'nebula_common',
     'nebula_sql',
@@ -70,13 +71,17 @@ env.Prepend(LIBS=[
     'nebula_marketplace',
     'nebula_ipamm',
     'nebula_vmgroup',
-    'nebula_raft',
     'crypto',
     'xml2'
 ])
 
 if not env.GetOption('clean'):
-    env.ParseConfig(("LDFLAGS='%s' ../../share/scons/get_xmlrpc_config"+
-        " server") % (os.environ['LDFLAGS'],))
+    env_xmlrpc_flags = "LDFLAGS='%s' CXXFLAGS='%s' CPPFLAGS='%s'" % (
+                       os.environ.get('LDFLAGS', ''),
+                       os.environ.get('CXXFLAGS', ''),
+                       os.environ.get('CPPFLAGS', ''))
+
+    env.ParseConfig("%s ../../share/scons/get_xmlrpc_config server" % (
+                    env_xmlrpc_flags,))
 
 env.Program('oned.cc')

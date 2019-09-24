@@ -53,10 +53,10 @@ public:
     };
 
     DMAction(Actions a, int v):ActionRequest(ActionRequest::USER),
-        _action(a), _vm_id(v){};
+        _action(a), _vm_id(v){}
 
     DMAction(const DMAction& o):ActionRequest(o._type), _action(o._action),
-        _vm_id(o._vm_id){};
+        _vm_id(o._vm_id){}
 
     Actions action() const
     {
@@ -89,7 +89,7 @@ public:
         am.addListener(this);
     };
 
-    ~DispatchManager(){};
+    ~DispatchManager() = default;
 
      /**
       * Initializes internal pointers to other managers. Must be called when
@@ -202,7 +202,7 @@ public:
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
-    int undeploy (int vid, bool hard, const RequestAttributes& ra,
+    int undeploy(int vid, bool hard, const RequestAttributes& ra,
             string& error_str);
 
     /**
@@ -213,7 +213,7 @@ public:
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
-    int poweroff (int vid, bool hard, const RequestAttributes& ra,
+    int poweroff(int vid, bool hard, const RequestAttributes& ra,
             string& error_str);
 
     /**
@@ -492,6 +492,18 @@ public:
      */
     int disk_resize(int vid, int did, long long new_size,
             const RequestAttributes& ra, string& error_str);
+
+    /**
+     * Update virtual machine context
+     *
+     * @param vid VirtualMachine identification
+     * @param ra information about the API call request
+     * @param error_str Error reason, if any
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int live_updateconf(int vid, const RequestAttributes& ra, string& error_str);
+
 private:
     /**
      *  Thread id for the Dispatch Manager
@@ -591,7 +603,7 @@ private:
     *   @param template that will be filled
     *   @param only_running true to not add CPU, MEMORY and VMS counters
     */
-    void get_quota_template(VirtualMachine * vm, 
+    void get_quota_template(VirtualMachine * vm,
             VirtualMachineTemplate& quota_tmpl, bool only_running);
 };
 

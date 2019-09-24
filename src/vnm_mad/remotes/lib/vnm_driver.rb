@@ -206,9 +206,11 @@ module VNMMAD
 
                 cmd = "#{file} #{args.join(' ')}"
 
-                _o, e, s = Open3.capture3(cmd, :stdin_data => stdin.to_s)
+                o, e, s = Open3.capture3(cmd, :stdin_data => stdin.to_s)
 
                 raise "Error running #{file}\n#{e}" unless s.exitstatus.zero?
+
+                OpenNebula.log o
             end
 
             0

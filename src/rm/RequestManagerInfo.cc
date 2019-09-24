@@ -17,6 +17,7 @@
 #include "RequestManagerInfo.h"
 #include "RequestManagerPoolInfoFilter.h"
 #include "VirtualMachineDisk.h"
+#include "Nebula.h"
 
 using namespace std;
 
@@ -49,11 +50,23 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     object = pool->get_ro(oid);
 
-    if ( object == 0 )
+    if ( object == nullptr )
     {
         att.resp_id = oid;
         failure_response(NO_EXISTS, att);
         return;
+    }
+
+    // Check optional parameter - decrypt
+    bool decrypt = false;
+    if (att.is_admin() && paramList.size() > 2)
+    {
+        decrypt = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+    }
+
+    if (decrypt)
+    {
+        object->decrypt();
     }
 
     to_xml(att, object, str);
@@ -71,15 +84,17 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
 void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
                                          RequestAttributes& att)
 {
-    VMTemplatePool *         tpool   = static_cast<VMTemplatePool *>(pool);
-    VirtualMachineTemplate * extended_tmpl = 0;
-    VMTemplate *             vm_tmpl;
+    VMTemplatePool * tpool   = static_cast<VMTemplatePool *>(pool);
+    VMTemplate *     vm_tmpl;
+
+    VirtualMachineTemplate * extended_tmpl = nullptr;
 
     PoolObjectAuth perms;
 
-    int             oid = xmlrpc_c::value_int(paramList.getInt(1));
-    bool            extended = false;
-    string          str;
+    int  oid = xmlrpc_c::value_int(paramList.getInt(1));
+    bool extended = false;
+
+    string str;
 
     if ( paramList.size() > 2 )
     {
@@ -88,7 +103,7 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     vm_tmpl = tpool->get_ro(oid);
 
-    if ( vm_tmpl == 0 )
+    if ( vm_tmpl == nullptr )
     {
         att.resp_id = oid;
         failure_response(NO_EXISTS, att);
@@ -106,7 +121,7 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     AuthRequest ar(att.uid, att.group_ids);
 
-    ar.add_auth(auth_op, perms); //USE TEMPLATE
+    ar.add_auth(att.auth_op, perms); //USE TEMPLATE
 
     if (extended)
     {
@@ -126,7 +141,7 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     vm_tmpl = tpool->get_ro(oid);
 
-    if ( vm_tmpl == 0 )
+    if ( vm_tmpl == nullptr )
     {
         att.resp_id = oid;
         failure_response(NO_EXISTS, att);
@@ -135,16 +150,29 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    // Check optional parameter - decrypt
+    bool decrypt = false;
+
+    if (att.is_admin() && paramList.size() > 3)
+    {
+        decrypt = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+    }
+
+    if (decrypt)
+    {
+        vm_tmpl->decrypt();
+    }
+
     if (extended)
     {
         vm_tmpl->to_xml(str, extended_tmpl);
-
-        delete extended_tmpl;
     }
     else
     {
         vm_tmpl->to_xml(str);
     }
+
+    delete extended_tmpl;
 
     vm_tmpl->unlock();
 
@@ -159,18 +187,17 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
 void VirtualNetworkTemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
                                          RequestAttributes& att)
 {
-    VNTemplatePool *         tpool   = static_cast<VNTemplatePool *>(pool);
-    VirtualNetworkTemplate * extended_tmpl = 0;
-    VNTemplate *             vn_tmpl;
+    VNTemplatePool * tpool   = static_cast<VNTemplatePool *>(pool);
+    VNTemplate *     vn_tmpl;
 
     PoolObjectAuth perms;
 
-    int             oid = xmlrpc_c::value_int(paramList.getInt(1));
-    string          str;
+    int    oid = xmlrpc_c::value_int(paramList.getInt(1));
+    string str;
 
     vn_tmpl = tpool->get_ro(oid);
 
-    if ( vn_tmpl == 0 )
+    if ( vn_tmpl == nullptr )
     {
         att.resp_id = oid;
         failure_response(NO_EXISTS, att);
@@ -183,26 +210,37 @@ void VirtualNetworkTemplateInfo::request_execute(xmlrpc_c::paramList const& para
 
     AuthRequest ar(att.uid, att.group_ids);
 
-    ar.add_auth(auth_op, perms); //USE TEMPLATE
+    ar.add_auth(att.auth_op, perms); //USE TEMPLATE
 
     if (UserPool::authorize(ar) == -1)
     {
         att.resp_msg = ar.message;
         failure_response(AUTHORIZATION, att);
 
-        delete extended_tmpl;
         return;
     }
 
     vn_tmpl = tpool->get_ro(oid);
 
-    if ( vn_tmpl == 0 )
+    if ( vn_tmpl == nullptr )
     {
         att.resp_id = oid;
         failure_response(NO_EXISTS, att);
 
-        delete extended_tmpl;
         return;
+    }
+
+    // Check optional parameter - decrypt
+    bool decrypt = false;
+
+    if (att.is_admin() && paramList.size() > 2)
+    {
+        decrypt = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+    }
+
+    if (decrypt)
+    {
+        vn_tmpl->decrypt();
     }
 
     vn_tmpl->to_xml(str);

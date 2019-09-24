@@ -70,8 +70,8 @@ module OpenNebula
         #######################################################################
 
         # Retrieves the information of the given VirtualNetwork.
-        def info()
-            super(VN_METHODS[:info], 'VNET')
+        def info(decrypt = false)
+            super(VN_METHODS[:info], 'VNET', decrypt)
         end
 
         alias_method :info!, :info

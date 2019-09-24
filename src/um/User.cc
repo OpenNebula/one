@@ -129,14 +129,14 @@ int User::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     // Update the User
 
-    sql_username = db->escape_str(name.c_str());
+    sql_username = db->escape_str(name);
 
     if ( sql_username == 0 )
     {
         goto error_username;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -149,7 +149,7 @@ int User::insert_replace(SqlDB *db, bool replace, string& error_str)
     }
 
     // Construct the SQL statement to Insert or Replace
-    if(replace)
+    if (replace)
     {
         oss << "UPDATE " << table << " SET "
             << "name = '"    <<   sql_username    << "', "
@@ -267,7 +267,11 @@ string& User::to_xml_extended(string& xml, bool extended) const
 int User::from_xml(const string& xml)
 {
     int rc = 0;
+
     int int_enabled;
+
+    string error;
+
     vector<xmlNodePtr> content;
 
     // Initialize the internal XML object
@@ -309,6 +313,8 @@ int User::from_xml(const string& xml)
     ObjectXML::free_nodes(content);
     content.clear();
 
+    rc += vm_actions.set_auth_ops(*obj_template, error);
+
     rc += groups.from_xml(this, "/USER/");
 
     if (rc != 0)
@@ -327,7 +333,7 @@ int User::split_secret(const string secret, string& user, string& pass)
     size_t pos;
     int    rc = -1;
 
-    pos=secret.find(":");
+    pos = secret.find(":");
 
     if (pos != string::npos)
     {
@@ -407,7 +413,7 @@ int User::get_umask() const
 
     get_template_attribute("UMASK", umask_st);
 
-    if(umask_st.empty())
+    if (umask_st.empty())
     {
         Nebula::instance().get_configuration_attribute("DEFAULT_UMASK",umask_st);
     }
@@ -435,5 +441,3 @@ int User::get_default_umask()
     return (umask & 0777);
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */

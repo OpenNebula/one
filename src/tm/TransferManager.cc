@@ -33,7 +33,7 @@ extern "C" void * tm_action_loop(void *arg)
 {
     TransferManager *  tm;
 
-    if ( arg == 0 )
+    if ( arg == nullptr )
     {
         return 0;
     }
@@ -65,8 +65,8 @@ int TransferManager::start()
 
     NebulaLog::log("TrM",Log::INFO,"Starting Transfer Manager...");
 
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
+    pthread_attr_init(&pattr);
+    pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
 
     rc = pthread_create(&tm_thread,&pattr,tm_action_loop,(void *) this);
 
@@ -88,7 +88,7 @@ void TransferManager::user_action(const ActionRequest& ar)
 
     VirtualMachine * vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -104,7 +104,7 @@ void TransferManager::user_action(const ActionRequest& ar)
 
     vm->unlock();
 
-    switch(tm_ar.action())
+    switch (tm_ar.action())
     {
         case TMAction::PROLOG:
             if (host_is_cloud)
@@ -333,6 +333,7 @@ int TransferManager::prolog_transfer_command(
     string size;
     string format;
     string tm_mad;
+    string tm_mad_system;
     string ds_id;
 
     int disk_id = disk->get_disk_id();
@@ -416,21 +417,27 @@ int TransferManager::prolog_transfer_command(
 
         one_util::toupper(clon);
 
+        std::string tsys = disk->get_tm_mad_system();
+        if (!tsys.empty())
+        {
+            tm_mad_system = "." + tsys;
+        }
+
         // -----------------------------------------------------------------
         // CLONE or LINK disk images
         // -----------------------------------------------------------------
 
-        // <CLONE|LN> tm_mad fe:SOURCE host:remote_system_ds/disk.i vmid dsid
+        // <CLONE|LN>(.tm_mad_system) tm_mad fe:SOURCE host:remote_system_ds/disk.i vmid dsid"
         if (clon == "YES")
         {
-            xfr << "CLONE ";
+            xfr << "CLONE";
         }
         else
         {
-            xfr << "LN ";
+            xfr << "LN";
         }
 
-        xfr << tm_mad << " ";
+        xfr << tm_mad_system << " " << tm_mad << " ";
 
         if ( source.find(":") == string::npos ) //Regular file
         {
@@ -469,7 +476,7 @@ static string prolog_os_transfer_commands(
 {
     string base_ds = base + "_DS";
 
-    string name_ds = os_attr->vector_value(base_ds.c_str());
+    string name_ds = os_attr->vector_value(base_ds);
 
     if ( name_ds.empty() )
     {
@@ -480,9 +487,9 @@ static string prolog_os_transfer_commands(
     string base_ds_id  = base + "_DS_DSID";
     string base_tm     = base + "_DS_TM";
 
-    string source = os_attr->vector_value(base_source.c_str());
-    string ds_id  = os_attr->vector_value(base_ds_id.c_str());
-    string tm_mad = os_attr->vector_value(base_tm.c_str());
+    string source = os_attr->vector_value(base_source);
+    string ds_id  = os_attr->vector_value(base_ds_id);
+    string tm_mad = os_attr->vector_value(base_tm);
 
     if ( source.empty() || ds_id.empty() || tm_mad.empty() )
     {
@@ -576,7 +583,7 @@ void TransferManager::prolog_action(int vid)
     // -------------------------------------------------------------------------
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -596,7 +603,7 @@ void TransferManager::prolog_action(int vid)
     vm_tm_mad = vm->get_tm_mad();
     tm_md     = get();
 
-    if ( tm_md == 0 || vm_tm_mad.empty() )
+    if ( tm_md == nullptr || vm_tm_mad.empty() )
     {
         goto error_drivers;
     }
@@ -631,7 +638,7 @@ void TransferManager::prolog_action(int vid)
     // -------------------------------------------------------------------------
     os_attr = vm->get_template_attribute("OS");
 
-    if ( os_attr != 0 )
+    if ( os_attr != nullptr )
     {
         string kernel;
         string initrd;
@@ -671,7 +678,7 @@ void TransferManager::prolog_action(int vid)
             vm->unlock();
 
             vm = vmpool->get(vid);
-            if (vm == 0)
+            if (vm == nullptr)
             {
                 goto error_attributes;
             }
@@ -722,6 +729,7 @@ void TransferManager::prolog_migr_action(int vid)
     string          xfr_name;
 
     string tm_mad;
+    string tm_mad_system;
     string vm_tm_mad;
 
     int ds_id;
@@ -739,7 +747,7 @@ void TransferManager::prolog_migr_action(int vid)
     // -------------------------------------------------------------------------
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -754,7 +762,7 @@ void TransferManager::prolog_migr_action(int vid)
     vm_tm_mad = vm->get_tm_mad();
     tm_md     = get();
 
-    if ( tm_md == 0 || vm_tm_mad.empty())
+    if ( tm_md == nullptr || vm_tm_mad.empty())
     {
         goto error_drivers;
     }
@@ -791,9 +799,16 @@ void TransferManager::prolog_migr_action(int vid)
             }
         }
 
-        //MV tm_mad prev_host:remote_system_dir/disk.i host:remote_system_dir/disk.i vmid dsid(image)
-        xfr << "MV "
-            << tm_mad << " "
+        string tsys = (*disk)->vector_value("TM_MAD_SYSTEM");
+        if (!tsys.empty())
+        {
+            tm_mad_system = "." + tsys;
+        }
+
+        //MV(.tm_mad_system) tm_mad prev_host:remote_system_dir/disk.i host:remote_system_dir/disk.i vmid dsid(image)
+        xfr << "MV"
+			<< tm_mad_system
+            << " " << tm_mad << " "
             << vm->get_previous_hostname() << ":"
             << vm->get_previous_system_dir() << "/disk." << disk_id << " "
             << vm->get_hostname() << ":"
@@ -852,6 +867,7 @@ void TransferManager::prolog_resume_action(int vid)
     string          xfr_name;
 
     string tm_mad;
+    string tm_mad_system;
     string vm_tm_mad;
     string token_password;
 
@@ -870,7 +886,7 @@ void TransferManager::prolog_resume_action(int vid)
     // -------------------------------------------------------------------------
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -890,7 +906,7 @@ void TransferManager::prolog_resume_action(int vid)
     vm_tm_mad = vm->get_tm_mad();
     tm_md     = get();
 
-    if ( tm_md == 0 || vm_tm_mad.empty())
+    if ( tm_md == nullptr || vm_tm_mad.empty())
     {
         goto error_drivers;
     }
@@ -926,9 +942,16 @@ void TransferManager::prolog_resume_action(int vid)
             }
         }
 
-        //MV tm_mad fe:system_dir/disk.i host:remote_system_dir/disk.i vmid dsid(image)
-        xfr << "MV "
-            << tm_mad << " "
+        string tsys = (*disk)->vector_value("TM_MAD_SYSTEM");
+        if (!tsys.empty())
+        {
+            tm_mad_system = "." + tsys;
+        }
+
+        //MV(.tm_mad_system) tm_mad fe:system_dir/disk.i host:remote_system_dir/disk.i vmid dsid(image)
+        xfr << "MV"
+			<< tm_mad_system
+            << " " << tm_mad << " "
             << nd.get_nebula_hostname() << ":"
             << vm->get_system_dir() << "/disk." << disk_id << " "
             << vm->get_hostname() << ":"
@@ -1004,7 +1027,7 @@ void TransferManager::prolog_attach_action(int vid)
 
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1017,7 +1040,7 @@ void TransferManager::prolog_attach_action(int vid)
     vm_tm_mad = vm->get_tm_mad();
     tm_md     = get();
 
-    if ( tm_md == 0 || vm_tm_mad.empty() )
+    if ( tm_md == nullptr || vm_tm_mad.empty() )
     {
         goto error_drivers;
     }
@@ -1037,7 +1060,7 @@ void TransferManager::prolog_attach_action(int vid)
     // -------------------------------------------------------------------------
     disk = vm->get_attach_disk();
 
-    if ( disk == 0 )
+    if ( disk == nullptr )
     {
         goto error_disk;
     }
@@ -1102,6 +1125,7 @@ void TransferManager::epilog_transfer_command(
 {
     string save = disk->vector_value("SAVE");
     int    disk_id = disk->get_disk_id();
+	string tm_mad_system;
 
     if ( one_util::toupper(save) == "YES" )
     {
@@ -1121,9 +1145,15 @@ void TransferManager::epilog_transfer_command(
             return;
         }
 
-        //MVDS tm_mad hostname:remote_system_dir/disk.0 <fe:SOURCE|SOURCE> vmid dsid
-        xfr << "MVDS "
-            << tm_mad << " "
+        string tsys = disk->vector_value("TM_MAD_SYSTEM");
+        if (!tsys.empty())
+        {
+            tm_mad_system = "." + tsys;
+        }
+
+        //MVDS(.tm_mad_system) tm_mad hostname:remote_system_dir/disk.0 <fe:SOURCE|SOURCE> vmid dsid
+        xfr << "MVDS" << tm_mad_system
+            << " " << tm_mad << " "
             << host << ":" << vm->get_system_dir() << "/disk." << disk_id << " "
             << source << " "
             << vm->get_oid() << " "
@@ -1140,7 +1170,7 @@ void TransferManager::epilog_transfer_command(
         if ( disk->is_volatile() == true )
         {
             tm_mad = vm->get_tm_mad();
-            ds_id_i= vm->get_ds_id();
+            ds_id_i = vm->get_ds_id();
         }
         else
         {
@@ -1148,10 +1178,17 @@ void TransferManager::epilog_transfer_command(
             vv_rc  = disk->vector_value("DATASTORE_ID", ds_id_i);
         }
 
+        string tsys = disk->vector_value("TM_MAD_SYSTEM");
+        if (!tsys.empty())
+        {
+            tm_mad_system = "." + tsys;
+        }
+
         if ( !tm_mad.empty() && vv_rc == 0)
         {
-            //DELETE tm_mad hostname:remote_system_dir/disk.i vmid ds_id
-            xfr << "DELETE "
+            //DELETE(.tm_mad_system) tm_mad hostname:remote_system_dir/disk.i vmid ds_id
+            xfr << "DELETE"
+                << tm_mad_system << " "
                 << tm_mad << " "
                 << host << ":" << vm->get_system_dir() << "/disk." << disk_id << " "
                 << vm->get_oid() << " "
@@ -1186,7 +1223,7 @@ void TransferManager::epilog_action(bool local, int vid)
     // ------------------------------------------------------------------------
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1201,7 +1238,7 @@ void TransferManager::epilog_action(bool local, int vid)
     vm_tm_mad = vm->get_tm_mad();
     tm_md     = get();
 
-    if ( tm_md == 0 || vm_tm_mad.empty())
+    if ( tm_md == nullptr || vm_tm_mad.empty())
     {
         goto error_drivers;
     }
@@ -1278,6 +1315,7 @@ void TransferManager::epilog_stop_action(int vid)
 
     string xfr_name;
     string tm_mad;
+    string tm_mad_system;
     string vm_tm_mad;
 
     int ds_id;
@@ -1295,7 +1333,7 @@ void TransferManager::epilog_stop_action(int vid)
     // ------------------------------------------------------------------------
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1310,7 +1348,7 @@ void TransferManager::epilog_stop_action(int vid)
     vm_tm_mad = vm->get_tm_mad();
     tm_md     = get();
 
-    if (tm_md == 0 || vm_tm_mad.empty())
+    if (tm_md == nullptr || vm_tm_mad.empty())
     {
         goto error_drivers;
     }
@@ -1346,9 +1384,16 @@ void TransferManager::epilog_stop_action(int vid)
             }
         }
 
+        string tsys = (*disk)->vector_value("TM_MAD_SYSTEM");
+        if (!tsys.empty())
+        {
+            tm_mad_system = "." + tsys;
+        }
+
         //MV tm_mad host:remote_system_dir/disk.i fe:system_dir/disk.i vmid dsid(image)
-        xfr << "MV "
-            << tm_mad << " "
+        xfr << "MV"
+			<< tm_mad_system
+            << " " << tm_mad << " "
             << vm->get_hostname() << ":"
             << vm->get_system_dir() << "/disk." << disk_id << " "
             << nd.get_nebula_hostname() << ":"
@@ -1409,6 +1454,7 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
 
     string vm_tm_mad;
     string tm_mad;
+    string tm_mad_system;
     string host;
     string system_dir;
 
@@ -1487,11 +1533,17 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
             }
         }
 
-        //DELETE tm_mad host:remote_system_dir/disk.i vmid dsid(image)
+        string tsys = (*disk)->vector_value("TM_MAD_SYSTEM");
+        if (!tsys.empty())
+        {
+           tm_mad_system = "." + tsys;
+        }
+
+        //DELETE tm_mad(.tm_mad_system) host:remote_system_dir/disk.i vmid dsid(image)
         // *local* DELETE tm_mad fe:system_dir/disk.i vmid dsid(image)
         // *prev*  DELETE tm_mad prev_host:remote_system_dir/disk.i vmid ds_id(image)
-        xfr << "DELETE "
-            << tm_mad << " "
+        xfr << "DELETE" << tm_mad_system
+            << " " << tm_mad << " "
             << host << ":"
             << system_dir << "/disk." << disk_id << " "
             << vm->get_oid() << " "
@@ -1544,14 +1596,14 @@ void TransferManager::epilog_delete_action(bool local, int vid)
     // ------------------------------------------------------------------------
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
 
     tm_md = get();
 
-    if ( tm_md == 0 )
+    if ( tm_md == nullptr )
     {
         goto error_driver;
     }
@@ -1617,14 +1669,14 @@ void TransferManager::epilog_delete_previous_action(int vid)
     // ------------------------------------------------------------------------
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
 
     tm_md = get();
 
-    if (tm_md == 0)
+    if (tm_md == nullptr)
     {
         goto error_driver;
     }
@@ -1690,14 +1742,14 @@ void TransferManager::epilog_delete_both_action(int vid)
     // ------------------------------------------------------------------------
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
 
     tm_md = get();
 
-    if (tm_md == 0)
+    if (tm_md == nullptr)
     {
         goto error_driver;
     }
@@ -1765,7 +1817,7 @@ void TransferManager::epilog_detach_action(int vid)
     // ------------------------------------------------------------------------
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1778,7 +1830,7 @@ void TransferManager::epilog_detach_action(int vid)
     vm_tm_mad = vm->get_tm_mad();
     tm_md     = get();
 
-    if ( tm_md == 0 || vm_tm_mad.empty())
+    if ( tm_md == nullptr || vm_tm_mad.empty())
     {
         goto error_drivers;
     }
@@ -1797,7 +1849,7 @@ void TransferManager::epilog_detach_action(int vid)
 
     disk = vm->get_attach_disk();
 
-    if ( disk == 0 )
+    if ( disk == nullptr )
     {
         goto error_disk;
     }
@@ -1857,14 +1909,14 @@ void TransferManager::driver_cancel_action(int vid)
     // ------------------------------------------------------------------------
     tm_md = get();
 
-    if ( tm_md == 0 )
+    if ( tm_md == nullptr )
     {
         return;
     }
 
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1898,6 +1950,8 @@ void TransferManager::saveas_hot_action(int vid)
     string snap_id;
     string tm_mad;
     string ds_id;
+    string tsys;
+    string tm_mad_system;
 
     ostringstream os;
 
@@ -1906,6 +1960,7 @@ void TransferManager::saveas_hot_action(int vid)
 
     VirtualMachine * vm;
     const TransferManagerDriver * tm_md;
+    VirtualMachineDisk * disk;
 
     Nebula& nd = Nebula::instance();
 
@@ -1914,7 +1969,7 @@ void TransferManager::saveas_hot_action(int vid)
     // ------------------------------------------------------------------------
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -1931,7 +1986,7 @@ void TransferManager::saveas_hot_action(int vid)
 
     tm_md = get();
 
-    if (tm_md == 0)
+    if (tm_md == nullptr)
     {
         goto error_driver;
     }
@@ -1944,9 +1999,20 @@ void TransferManager::saveas_hot_action(int vid)
         goto error_file;
     }
 
+    disk = vm->get_disk(disk_id);
+
+    if (disk != nullptr)
+    {
+        tsys = disk->vector_value("TM_MAD_SYSTEM");
+        if (!tsys.empty())
+        {
+            tm_mad_system = "." + tsys;
+        }
+    }
+
     //CPDS tm_mad hostname:remote_system_dir/disk.0 source snapid vmid dsid
-    xfr << "CPDS "
-        << tm_mad << " "
+    xfr << "CPDS" << tm_mad_system
+        << " " << tm_mad << " "
         << vm->get_hostname() << ":"
         << vm->get_system_dir() << "/disk." << disk_id << " "
         << src << " "
@@ -2015,9 +2081,12 @@ int TransferManager::snapshot_transfer_command(
         VirtualMachine * vm, const char * snap_action, ostream& xfr)
 {
     string tm_mad;
+    string tsys;
+    string tm_mad_system;
     int    ds_id;
     int    disk_id;
     int    snap_id;
+    VirtualMachineDisk * disk;
 
     if (vm->get_snapshot_disk(ds_id, tm_mad, disk_id, snap_id) == -1)
     {
@@ -2026,8 +2095,19 @@ int TransferManager::snapshot_transfer_command(
         return -1;
     }
 
-    //SNAP_CREATE tm_mad host:remote_system_dir/disk.0 snapid vmid dsid
-    xfr << snap_action << " "
+    disk = vm->get_disk(disk_id);
+
+    if (disk != nullptr)
+    {
+        tsys = disk->vector_value("TM_MAD_SYSTEM");
+        if (!tsys.empty())
+        {
+            tm_mad_system = "." + tsys;
+        }
+    }
+
+    //SNAP_CREATE(.tm_mad_system) tm_mad host:remote_system_dir/disk.0 snapid vmid dsid
+    xfr << snap_action << tm_mad_system << " "
         << tm_mad << " "
         << vm->get_hostname() << ":"
         << vm->get_system_dir() << "/disk." << disk_id << " "
@@ -2058,14 +2138,14 @@ void TransferManager::do_snapshot_action(int vid, const char * snap_action)
 
     tm_md = get();
 
-    if (tm_md == 0)
+    if (tm_md == nullptr)
     {
         goto error_driver;
     }
 
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -2141,6 +2221,7 @@ void TransferManager::resize_command(VirtualMachine * vm,
         const VirtualMachineDisk * disk, ostream& xfr)
 {
     string tm_mad;
+    string tm_mad_system;
     string ds_id;
 
     if ( disk->is_volatile() )
@@ -2154,9 +2235,15 @@ void TransferManager::resize_command(VirtualMachine * vm,
         ds_id  = disk->vector_value("DATASTORE_ID");
     }
 
-    //RESIZE tm_mad host:remote_system_dir/disk.i size vmid dsid
-    xfr << "RESIZE "
-        << tm_mad << " "
+    string tsys = disk->vector_value("TM_MAD_SYSTEM");
+    if (!tsys.empty())
+    {
+        tm_mad_system = "." + tsys;
+    }
+
+    //RESIZE.(tm_mad_system) tm_mad host:remote_system_dir/disk.i size vmid dsid
+    xfr << "RESIZE" << tm_mad_system
+        << " " << tm_mad << " "
         << vm->get_hostname() << ":"
         << vm->get_system_dir()<< "/disk."<< disk->vector_value("DISK_ID")<< " "
         << disk->vector_value("SIZE") << " "
@@ -2182,14 +2269,14 @@ void TransferManager::resize_action(int vid)
 
     const TransferManagerDriver * tm_md = get();
 
-    if (tm_md == 0)
+    if (tm_md == nullptr)
     {
         goto error_driver;
     }
 
     vm = vmpool->get(vid);
 
-    if (vm == 0)
+    if (vm == nullptr)
     {
         return;
     }
@@ -2209,7 +2296,7 @@ void TransferManager::resize_action(int vid)
 
     disk = vm->get_resize_disk();
 
-    if ( disk == 0 )
+    if ( disk == nullptr )
     {
         goto error_disk;
     }
@@ -2260,8 +2347,8 @@ int TransferManager::load_mads(int uid)
     int    rc;
     string name;
 
-    const VectorAttribute * vattr = 0;
-    TransferManagerDriver * tm_driver = 0;
+    const VectorAttribute * vattr = nullptr;
+    TransferManagerDriver * tm_driver = nullptr;
 
     oss << "Loading Transfer Manager driver.";
 
@@ -2272,7 +2359,7 @@ int TransferManager::load_mads(int uid)
         vattr = mad_conf[0];
     }
 
-    if ( vattr == 0 )
+    if ( vattr == nullptr )
     {
         NebulaLog::log("TM",Log::ERROR,"Failed to load Transfer Manager driver.");
         return -1;

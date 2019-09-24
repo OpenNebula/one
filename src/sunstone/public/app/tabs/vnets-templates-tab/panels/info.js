@@ -94,16 +94,19 @@ define(function(require) {
         }
       }
     });
-    var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
-                                              Locale.tr("Attributes"));
-    var templateTableVcenterHTML = TemplateTableVcenter.html(strippedTemplateVcenter, RESOURCE,
-                                              Locale.tr("vCenter information"), false);
-    //====
+    var templateTableHTML = TemplateTable.html(
+      strippedTemplate,
+      RESOURCE,
+      Locale.tr("Attributes")
+    );
+    var templateTableVcenterHTML = TemplateTableVcenter.html(
+      strippedTemplateVcenter,
+      RESOURCE,
+      Locale.tr("vCenter information"),
+      false
+    );
 
-    // TODO: move to util?
     var reservationTrHTML = '';
-
-    //====
     var auto_vlan_id = Locale.tr("NO");
     var auto_outer_vlan_id = Locale.tr("NO");
 
@@ -114,7 +117,6 @@ define(function(require) {
     if (this.element.OUTER_VLAN_ID_AUTOMATIC == "1") {
       auto_outer_vlan_id = Locale.tr("YES");
     }
-
     return TemplateInfo({
       'element': this.element,
       'renameTrHTML': renameTrHTML,

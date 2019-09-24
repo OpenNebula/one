@@ -41,20 +41,17 @@ class UserPool : public PoolSQL
 {
 public:
 
-    UserPool(SqlDB * db,
-             time_t  __session_expiration_time,
-             vector<const VectorAttribute *> hook_mads,
-             const string&             remotes_location,
-             bool                      is_federation_slave);
+    UserPool(SqlDB * db, time_t  __session_expiration_time, bool is_slave,
+        vector<const SingleAttribute *>& restricted_attrs);
 
-    ~UserPool(){};
+    ~UserPool() = default;
 
     /**
      *  Function to allocate a new User object
      *    @param oid the id assigned to the User
      *    @return the oid assigned to the object or -1 in case of failure
      */
-    int allocate (
+    int allocate(
         int *   oid,
         const string& uname,
         int     gid,

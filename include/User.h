@@ -22,6 +22,8 @@
 #include "ObjectCollection.h"
 #include "QuotasSQL.h"
 #include "LoginToken.h"
+#include "VMActions.h"
+#include "AuthRequest.h"
 
 class UserQuotas;
 
@@ -52,7 +54,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    string& to_xml(string& xml) const override;
 
     /**
      * Function to print the User object into a string in
@@ -154,7 +156,7 @@ public:
     /**
      *  Factory method for image templates
      */
-    Template * get_new_template() const
+    Template * get_new_template() const override
     {
         return new UserTemplate;
     }
@@ -207,7 +209,7 @@ public:
      */
     int del_group(int group_id)
     {
-        if( group_id == gid )
+        if (group_id == gid)
         {
             return -2;
         }
@@ -222,6 +224,15 @@ public:
     bool is_in_group(int _group_id) const
     {
         return groups.contains(_group_id);
+    }
+
+    /**
+     *  @return the operation level (admin, manage or use) associated to the
+     *  given action for this group
+     */
+    AuthRequest::Operation get_vm_auth_op(VMActions::Action action) const
+    {
+        return vm_actions.get_auth_op(action);
     }
 
     // *************************************************************************
@@ -241,7 +252,7 @@ public:
     int update_quotas(SqlDB *db)
     {
         return quota.update(oid, db->get_local_db());
-    };
+    }
 
     // *************************************************************************
     // Login tokens
@@ -283,6 +294,11 @@ private:
      */
     ObjectCollection groups;
 
+    /**
+     *  List of VM actions and rights for this user
+     */
+    VMActions vm_actions;
+
     // *************************************************************************
     // Authentication session used to cache authentication calls
     // *************************************************************************
@@ -310,14 +326,14 @@ private:
         ostringstream oss_user(User::db_bootstrap);
 
         return db->exec_local_wr(oss_user);
-    };
+    }
 
     /**
      *  Reads the User (identified with its OID) from the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int select(SqlDB * db);
+    int select(SqlDB * db) override;
 
     /**
      *  Reads the User (identified with its OID) from the database.
@@ -327,14 +343,14 @@ private:
      *
      *    @return 0 on success
      */
-    int select(SqlDB * db, const string& name, int uid);
+    int select(SqlDB * db, const string& name, int uid) override;
 
     /**
      *  Drops the user from the database
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int drop(SqlDB *db);
+    int drop(SqlDB *db) override;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -342,7 +358,7 @@ private:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const string &xml_str) override;
 
     /**
      * Function to print the User object into a string in
@@ -375,9 +391,9 @@ protected:
         session(0)
     {
         obj_template = new UserTemplate;
-    };
+    }
 
-    virtual ~User(){};
+    virtual ~User() = default;
 
     // *************************************************************************
     // DataBase implementation
@@ -394,7 +410,7 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, string& error_str) override;
 
     /**
      *  Writes/updates the User data fields in the database. This method does
@@ -402,11 +418,11 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
         string error_str;
         return insert_replace(db, true, error_str);
-    };
+    }
 };
 
 #endif /*USER_H_*/

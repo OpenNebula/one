@@ -104,6 +104,7 @@ if [ -z "$ROOT" ] ; then
     ONEGATE_LOCATION="$LIB_LOCATION/onegate"
     SUNSTONE_LOCATION="$LIB_LOCATION/sunstone"
     ONEFLOW_LOCATION="$LIB_LOCATION/oneflow"
+    ONEHEM_LOCATION="$LIB_LOCATION/onehem"
     SYSTEM_DS_LOCATION="$VAR_LOCATION/datastores/0"
     DEFAULT_DS_LOCATION="$VAR_LOCATION/datastores/1"
     RUN_LOCATION="/var/run/one"
@@ -154,7 +155,8 @@ if [ -z "$ROOT" ] ; then
                    $INCLUDE_LOCATION $SHARE_LOCATION $DOCS_LOCATION \
                    $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION \
                    $SYSTEM_DS_LOCATION $DEFAULT_DS_LOCATION $MAN_LOCATION \
-                   $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION $MAIN_JS_LOCATION"
+                   $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION \
+                   $MAIN_JS_LOCATION $ONEHEM_LOCATION"
 
         DELETE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION $VAR_LOCATION \
                      $RUN_LOCATION $SHARE_DIRS"
@@ -170,6 +172,7 @@ else
     ONEGATE_LOCATION="$LIB_LOCATION/onegate"
     SUNSTONE_LOCATION="$LIB_LOCATION/sunstone"
     ONEFLOW_LOCATION="$LIB_LOCATION/oneflow"
+    ONEHEM_LOCATION="$LIB_LOCATION/onehem"
     SYSTEM_DS_LOCATION="$VAR_LOCATION/datastores/0"
     DEFAULT_DS_LOCATION="$VAR_LOCATION/datastores/1"
     INCLUDE_LOCATION="$ROOT/include"
@@ -207,7 +210,8 @@ else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $SYSTEM_DS_LOCATION \
                    $DEFAULT_DS_LOCATION $MAN_LOCATION $DOCS_LOCATION \
-                   $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION $MAIN_JS_LOCATION"
+                   $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION \
+                   $MAIN_JS_LOCATION $ONEHEM_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
 
@@ -218,6 +222,8 @@ else
 fi
 
 SHARE_DIRS="$SHARE_LOCATION/examples \
+            $SHARE_LOCATION/examples/alias_ip \
+            $SHARE_LOCATION/examples/host_hooks \
             $SHARE_LOCATION/websockify \
             $SHARE_LOCATION/websockify/websockify \
             $SHARE_LOCATION/esx-fw-vnc \
@@ -250,6 +256,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/cli \
           $LIB_LOCATION/ruby/cli/one_helper \
           $LIB_LOCATION/ruby/vcenter_driver \
+          $LIB_LOCATION/ruby/nsx_driver \
           $LIB_LOCATION/oneprovision/lib"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
@@ -324,6 +331,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/vcenter/pre.d \
           $VAR_LOCATION/remotes/vnm/vcenter/post.d \
           $VAR_LOCATION/remotes/vnm/vcenter/clean.d \
+          $VAR_LOCATION/remotes/vnm/alias_sdnat \
           $VAR_LOCATION/remotes/tm/ \
           $VAR_LOCATION/remotes/tm/dummy \
           $VAR_LOCATION/remotes/tm/shared \
@@ -337,7 +345,9 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/ft \
           $VAR_LOCATION/remotes/hooks/vcenter \
+          $VAR_LOCATION/remotes/hooks/vcenter/templates \
           $VAR_LOCATION/remotes/hooks/raft \
+          $VAR_LOCATION/remotes/hooks/alias_ip \
           $VAR_LOCATION/remotes/datastore \
           $VAR_LOCATION/remotes/datastore/dummy \
           $VAR_LOCATION/remotes/datastore/fs \
@@ -358,7 +368,8 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/auth/server_x509 \
           $VAR_LOCATION/remotes/auth/server_cipher \
           $VAR_LOCATION/remotes/auth/dummy \
-          $VAR_LOCATION/remotes/ipam/dummy"
+          $VAR_LOCATION/remotes/ipam/dummy \
+          $VAR_LOCATION/remotes/ipam/packet"
 
 SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/models \
@@ -462,6 +473,7 @@ INSTALL_FILES=(
     PM_EXEC_PACKET_SCRIPTS:$VAR_LOCATION/remotes/pm/packet
     VMM_EXEC_LIB_FILES:$VAR_LOCATION/remotes/vmm/lib
     VMM_EXEC_LIB_VCENTER_FILES:$LIB_LOCATION/ruby/vcenter_driver
+    VMM_EXEC_LIB_NSX_FILES:$LIB_LOCATION/ruby/nsx_driver
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_LXD_SCRIPTS:$VAR_LOCATION/remotes/vmm/lxd
     VMM_EXEC_LXD_LIB:$VAR_LOCATION/remotes/vmm/lxd
@@ -499,6 +511,7 @@ INSTALL_FILES=(
     MARKETPLACE_DRIVER_S3_SCRIPTS:$VAR_LOCATION/remotes/market/s3
     MARKETPLACE_DRIVER_LXC_SCRIPTS:$VAR_LOCATION/remotes/market/linuxcontainers
     IPAM_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/ipam/dummy
+    IPAM_DRIVER_PACKET_SCRIPTS:$VAR_LOCATION/remotes/ipam/packet
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_ETC_FILES:$VAR_LOCATION/remotes/etc/vnm
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
@@ -510,7 +523,10 @@ INSTALL_FILES=(
     NETWORK_OVSWITCH_FILES:$VAR_LOCATION/remotes/vnm/ovswitch
     NETWORK_OVSWITCH_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/ovswitch_vxlan
     NETWORK_VCENTER_FILES:$VAR_LOCATION/remotes/vnm/vcenter
+    NETWORK_ALIAS_SDNAT_FILES:$VAR_LOCATION/remotes/vnm/alias_sdnat
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
+    EXAMPLE_DDC_SHARE_FILES:$SHARE_LOCATION/examples/alias_ip
+    EXAMPLE_HOST_HOOKS_SHARE_FILES:$SHARE_LOCATION/examples/host_hooks
     WEBSOCKIFY_SHARE_RUN_FILES:$SHARE_LOCATION/websockify
     WEBSOCKIFY_SHARE_MODULE_FILES:$SHARE_LOCATION/websockify/websockify
     ESX_FW_VNC_SHARE_FILES:$SHARE_LOCATION/esx-fw-vnc
@@ -519,7 +535,9 @@ INSTALL_FILES=(
     FOLLOWER_CLEANUP_SHARE_FILE:$SHARE_LOCATION
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
     HOOK_VCENTER_FILES:$VAR_LOCATION/remotes/hooks/vcenter
+    HOOK_VCENTER_TMPLS:$VAR_LOCATION/remotes/hooks/vcenter/templates
     HOOK_RAFT_FILES:$VAR_LOCATION/remotes/hooks/raft
+    HOOK_ALIAS_IP_FILES:$VAR_LOCATION/remotes/hooks/alias_ip
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
     CLOUD_AUTH_LIB_FILES:$LIB_LOCATION/ruby/cloud/CloudAuth
     ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe
@@ -629,6 +647,15 @@ INSTALL_ONEFLOW_ETC_FILES=(
     ONEFLOW_ETC_FILES:$ETC_LOCATION
 )
 
+INSTALL_ONEHEM_FILES=(
+    ONEHEM_FILES:$ONEHEM_LOCATION
+    ONEHEM_BIN_FILES:$BIN_LOCATION
+)
+
+INSTALL_ONEHEM_ETC_FILES=(
+    ONEHEM_ETC_FILES:$ETC_LOCATION
+)
+
 INSTALL_DOCKER_MACHINE_FILES=(
     DOCKER_MACHINE_BIN_FILES:$BIN_LOCATION
 )
@@ -676,6 +703,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/onemarketapp \
            src/cli/onevcenter \
            src/cli/onevntemplate \
+           src/cli/onehook \
            src/onedb/onedb \
            share/scripts/one"
 
@@ -704,6 +732,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/sunstone/OpenNebulaVNC.rb \
                 src/sunstone/OpenNebulaAddons.rb \
                 src/vmm_mad/remotes/vcenter/vcenter_driver.rb \
+                src/vmm_mad/remotes/nsx/nsx_driver.rb \
                 src/vmm_mad/remotes/az/az_driver.rb \
                 src/vmm_mad/remotes/ec2/ec2_driver.rb \
                 src/vmm_mad/remotes/one/opennebula_driver.rb \
@@ -805,7 +834,7 @@ VMM_EXEC_LIB_FILES="src/vmm_mad/remotes/lib/poll_common.rb"
 # $REMOTES_LOCATION/vmm/lib/vcenter
 #-------------------------------------------------------------------------------
 
-VMM_EXEC_LIB_VCENTER_FILES="src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb
+VMM_EXEC_LIB_VCENTER_FILES="src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/vi_client.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/vcenter_importer.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/file_helper.rb \
@@ -823,6 +852,18 @@ VMM_EXEC_LIB_VCENTER_FILES="src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb
                     src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine_device/vm_nic.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine_helper/vm_helper.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine_monitor/vm_monitor.rb"
+
+#-------------------------------------------------------------------------------
+# VMM Lib nsx files, used by the NSX Driver to be installed in
+# $REMOTES_LOCATION/vmm/lib/nsx
+#-------------------------------------------------------------------------------
+
+VMM_EXEC_LIB_NSX_FILES="src/vmm_mad/remotes/lib/nsx_driver/logical_switch.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/nsx_client.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/nsx_component.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/opaque_network.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/transport_zone.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/virtual_wire.rb"
 
 #-------------------------------------------------------------------------------
 # VMM SH Driver LXD scripts, to be installed under $REMOTES_LOCATION/vmm/lxd
@@ -1147,6 +1188,12 @@ NETWORK_VCENTER_FILES="src/vnm_mad/remotes/vcenter/pre \
                        src/vnm_mad/remotes/vcenter/post \
                        src/vnm_mad/remotes/vcenter/clean"
 
+NETWORK_ALIAS_SDNAT_FILES="src/vnm_mad/remotes/alias_sdnat/AliasSDNAT.rb \
+                           src/vnm_mad/remotes/alias_sdnat/clean \
+                           src/vnm_mad/remotes/alias_sdnat/post \
+                           src/vnm_mad/remotes/alias_sdnat/pre \
+                           src/vnm_mad/remotes/alias_sdnat/update_sg "
+
 #-------------------------------------------------------------------------------
 # Virtual Network Manager drivers configuration to be installed under $REMOTES_LOCATION/etc/vnm
 #-------------------------------------------------------------------------------
@@ -1154,13 +1201,22 @@ NETWORK_VCENTER_FILES="src/vnm_mad/remotes/vcenter/pre \
 NETWORK_ETC_FILES="src/vnm_mad/remotes/OpenNebulaNetwork.conf"
 
 #-------------------------------------------------------------------------------
-# IPAM drivers to be installed under $REMOTES_LOCATION/ipam
+# IPAM dummy drivers to be installed under $REMOTES_LOCATION/ipam
 #-------------------------------------------------------------------------------
 IPAM_DRIVER_DUMMY_SCRIPTS="src/ipamm_mad/remotes/dummy/register_address_range \
                src/ipamm_mad/remotes/dummy/unregister_address_range \
                src/ipamm_mad/remotes/dummy/allocate_address \
                src/ipamm_mad/remotes/dummy/get_address \
                src/ipamm_mad/remotes/dummy/free_address"
+
+#-------------------------------------------------------------------------------
+# IPAM Packet drivers to be installed under $REMOTES_LOCATION/ipam
+#-------------------------------------------------------------------------------
+IPAM_DRIVER_PACKET_SCRIPTS="src/ipamm_mad/remotes/packet/register_address_range \
+               src/ipamm_mad/remotes/packet/unregister_address_range \
+               src/ipamm_mad/remotes/packet/allocate_address \
+               src/ipamm_mad/remotes/packet/get_address \
+               src/ipamm_mad/remotes/packet/free_address"
 
 #-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands
@@ -1219,8 +1275,10 @@ TM_FS_LVM_ETC_FILES="src/tm_mad/fs_lvm/fs_lvm.conf"
 
 
 TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
+                 src/tm_mad/qcow2/clone.ssh \
                  src/tm_mad/qcow2/delete \
                  src/tm_mad/qcow2/ln \
+                 src/tm_mad/qcow2/ln.ssh \
                  src/tm_mad/qcow2/monitor \
                  src/tm_mad/qcow2/mkswap \
                  src/tm_mad/qcow2/mkimage \
@@ -1230,11 +1288,13 @@ TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/postmigrate \
                  src/tm_mad/qcow2/failmigrate \
                  src/tm_mad/qcow2/mvds \
+                 src/tm_mad/qcow2/mvds.ssh \
                  src/tm_mad/qcow2/snap_create \
                  src/tm_mad/qcow2/snap_create_live \
                  src/tm_mad/qcow2/snap_delete \
                  src/tm_mad/qcow2/snap_revert \
                  src/tm_mad/qcow2/cpds \
+                 src/tm_mad/qcow2/cpds.ssh \
                  src/tm_mad/qcow2/resize"
 
 TM_SSH_FILES="src/tm_mad/ssh/clone \
@@ -1277,10 +1337,14 @@ TM_DUMMY_FILES="src/tm_mad/dummy/clone \
               src/tm_mad/dummy/resize"
 
 TM_CEPH_FILES="src/tm_mad/ceph/clone \
+                 src/tm_mad/ceph/clone.ssh \
                  src/tm_mad/ceph/ln \
+                 src/tm_mad/ceph/ln.ssh \
                  src/tm_mad/ceph/mv \
                  src/tm_mad/ceph/mvds \
+                 src/tm_mad/ceph/mvds.ssh \
                  src/tm_mad/ceph/cpds \
+                 src/tm_mad/ceph/cpds.ssh \
                  src/tm_mad/ceph/premigrate \
                  src/tm_mad/ceph/postmigrate \
                  src/tm_mad/ceph/snap_create \
@@ -1289,11 +1353,13 @@ TM_CEPH_FILES="src/tm_mad/ceph/clone \
                  src/tm_mad/ceph/snap_revert \
                  src/tm_mad/ceph/failmigrate \
                  src/tm_mad/ceph/delete \
+                 src/tm_mad/ceph/delete.ssh \
                  src/tm_mad/ceph/context \
                  src/tm_mad/ceph/mkimage \
                  src/tm_mad/ceph/monitor \
                  src/tm_mad/ceph/mkswap \
-                 src/tm_mad/ceph/resize"
+                 src/tm_mad/ceph/resize \
+                 src/tm_mad/ceph/resize.ssh"
 
 TM_DEV_FILES="src/tm_mad/dev/clone \
                  src/tm_mad/dev/ln \
@@ -1581,6 +1647,20 @@ EXAMPLE_SHARE_FILES="share/examples/vm.template \
                      share/examples/public.net"
 
 #-------------------------------------------------------------------------------
+# Sample files, to be installed under $SHARE_LOCATION/examples/alias_ip
+#-------------------------------------------------------------------------------
+
+EXAMPLE_DDC_SHARE_FILES="share/examples/alias_ip/running_hook \
+                         share/examples/alias_ip/hotplug_hook \
+                         share/examples/alias_ip/done_hook"
+
+#-------------------------------------------------------------------------------
+# Sample files, to be installed under $SHARE_LOCATION/examples/host_hooks
+#-------------------------------------------------------------------------------
+
+EXAMPLE_HOST_HOOKS_SHARE_FILES="share/examples/host_hooks/error_hook"
+
+#-------------------------------------------------------------------------------
 # Files required to interact with the websockify server
 #-------------------------------------------------------------------------------
 
@@ -1613,10 +1693,24 @@ HOOK_VCENTER_FILES="share/hooks/vcenter/create_vcenter_net.rb \
                     share/hooks/vcenter/delete_vcenter_net.rb"
 
 #-------------------------------------------------------------------------------
+# HOOK templates, to be installed under
+# $VAR_LOCATION/remotes/hooks/vcenter/templates
+#-------------------------------------------------------------------------------
+
+HOOK_VCENTER_TMPLS="share/hooks/vcenter/templates/create_vcenter_net.tmpl \
+                    share/hooks/vcenter/templates/delete_vcenter_net.tmpl"
+
+#-------------------------------------------------------------------------------
 # HOOK RAFT scripts, to be installed under $VAR_LOCATION/remotes/hooks/raft
 #-------------------------------------------------------------------------------
 
 HOOK_RAFT_FILES="share/hooks/raft/vip.sh"
+
+#-------------------------------------------------------------------------------
+# HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks/alias_ip
+#-------------------------------------------------------------------------------
+
+HOOK_ALIAS_IP_FILES="share/hooks/alias_ip/alias_ip.rb"
 
 #-------------------------------------------------------------------------------
 # Installation scripts, to be installed under $SHARE_LOCATION
@@ -1683,7 +1777,10 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/marketplaceapp.rb \
                             src/oca/ruby/opennebula/utils.rb \
                             src/oca/ruby/opennebula/vntemplate_pool.rb \
-                            src/oca/ruby/opennebula/vntemplate.rb"
+                            src/oca/ruby/opennebula/vntemplate.rb \
+                            src/oca/ruby/opennebula/hook_pool.rb \
+                            src/oca/ruby/opennebula/hook.rb \
+                            src/oca/ruby/opennebula/hook_log.rb"
 
 #-------------------------------------------------------------------------------
 # Common Cloud Files
@@ -1827,7 +1924,8 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onemarketapp_helper.rb \
                    src/cli/one_helper/onevcenter_helper.rb \
                    src/cli/one_helper/onemarket_helper.rb \
-                   src/cli/one_helper/onevntemplate_helper.rb"
+                   src/cli/one_helper/onevntemplate_helper.rb \
+                   src/cli/one_helper/onehook_helper.rb"
 
 CLI_BIN_FILES="src/cli/onevm \
                src/cli/onehost \
@@ -1850,7 +1948,8 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/onevrouter \
                src/cli/onemarketapp \
                src/cli/onemarket \
-               src/cli/onevntemplate"
+               src/cli/onevntemplate \
+               src/cli/onehook"
 
 CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onehost.yaml \
@@ -1871,7 +1970,8 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onevrouter.yaml \
                 src/cli/etc/onemarketapp.yaml \
                 src/cli/etc/onemarket.yaml \
-                src/cli/etc/onevntemplate.yaml"
+                src/cli/etc/onevntemplate.yaml \
+                src/cli/etc/onehook.yaml"
 
 #-----------------------------------------------------------------------------
 # Provision files
@@ -1929,7 +2029,10 @@ SUNSTONE_ETC_VIEW_MIXED="src/sunstone/etc/sunstone-views/mixed/admin.yaml \
 
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                        src/sunstone/models/SunstoneServer.rb \
-                       src/sunstone/models/SunstoneViews.rb"
+                       src/sunstone/models/SunstoneViews.rb \
+                       src/sunstone/models/OpenNebula2FA/sunstone_qr_code.rb \
+                       src/sunstone/models/OpenNebula2FA/sunstone_optp.rb \
+                       src/sunstone/models/OpenNebula2FA/sunstone_2f_auth.rb "
 
 SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/ImageJSON.rb \
@@ -1974,14 +2077,13 @@ SUNSTONE_PUBLIC_DEV_DIR="src/sunstone/public"
 
 SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb \
   src/sunstone/routes/vcenter.rb \
-  src/sunstone/routes/support.rb"
-
+  src/sunstone/routes/support.rb \
+  src/sunstone/routes/nsx.rb"
 
 SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/app.min.css \
                 src/sunstone/public/css/opensans/opensans.woff \
                 src/sunstone/public/css/novnc-custom.css \
-                src/sunstone/public/css/spice-custom.css \
-                src/sunstone/public/css/login.css"
+                src/sunstone/public/css/spice-custom.css"
 
 SUNSTONE_PUBLIC_FONT_AWSOME="src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-brands-400.eot \
                 src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-brands-400.svg \
@@ -2001,8 +2103,6 @@ SUNSTONE_PUBLIC_FONT_AWSOME="src/sunstone/public/bower_components/fontawesome/we
 
 SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/favicon.ico \
-                        src/sunstone/public/images/login_over.png \
-                        src/sunstone/public/images/login.png \
                         src/sunstone/public/images/advanced_layout.png \
                         src/sunstone/public/images/cloud_layout.png \
                         src/sunstone/public/images/vcenter_layout.png \
@@ -2117,7 +2217,6 @@ ONEGATE_ETC_FILES="src/onegate/etc/onegate-server.conf"
 # OneFlow files
 #-----------------------------------------------------------------------------
 
-
 ONEFLOW_FILES="src/flow/oneflow-server.rb \
                 src/flow/config.ru"
 
@@ -2140,6 +2239,15 @@ ONEFLOW_LIB_MODELS_FILES="src/flow/lib/models/role.rb \
                           src/flow/lib/models/service.rb \
                           src/flow/lib/models/service_template_pool.rb \
                           src/flow/lib/models/service_template.rb"
+
+#-----------------------------------------------------------------------------
+# OneHem files
+#-----------------------------------------------------------------------------
+ONEHEM_FILES="src/hem/onehem-server.rb"
+
+ONEHEM_BIN_FILES="src/hem/bin/onehem-server"
+
+ONEHEM_ETC_FILES="src/hem/etc/onehem-server.conf"
 
 #-----------------------------------------------------------------------------
 # Docker Machine files
@@ -2264,12 +2372,14 @@ elif [ "$SUNSTONE_DEV" = "no" ]; then
                  ${INSTALL_SUNSTONE_FILES[@]} ${INSTALL_SUNSTONE_PUBLIC_MINIFIED_FILES[@]}\
                  ${INSTALL_ONEGATE_FILES[@]} \
                  ${INSTALL_ONEFLOW_FILES[@]} \
+                 ${INSTALL_ONEHEM_FILES[@]} \
                  ${INSTALL_ONEPROVISION_FILES[@]}"
 else
     INSTALL_SET="${INSTALL_FILES[@]} \
                  ${INSTALL_SUNSTONE_FILES[@]} ${INSTALL_SUNSTONE_PUBLIC_DEV_DIR[@]}\
                  ${INSTALL_ONEGATE_FILES[@]} \
                  ${INSTALL_ONEFLOW_FILES[@]} \
+                 ${INSTALL_ONEHEM_FILES[@]} \
                  ${INSTALL_ONEPROVISION_FILES[@]}"
 fi
 
@@ -2295,6 +2405,7 @@ if [ "$INSTALL_ETC" = "yes" ] ; then
         INSTALL_ETC_SET="${INSTALL_ETC_FILES[@]} \
                          ${INSTALL_SUNSTONE_ETC_FILES[@]} \
                          ${INSTALL_ONEGATE_ETC_FILES[@]} \
+                         ${INSTALL_ONEHEM_ETC_FILES[@]} \
                          ${INSTALL_ONEFLOW_ETC_FILES[@]}"
     fi
 

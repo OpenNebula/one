@@ -1,0 +1,142 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+###############################################################################
+# This script is used to get a free IP address (or set of IPs). The IP will be
+# used by OpenNebula VMs and should not be allocated to any other host in the
+# network.
+#
+# STDIN Input:
+#  - Base64 encoded XML with the AR description and the address request
+#
+# XML format
+#  <IPAM_DRIVER_ACTION_DATA>
+#    <AR>
+#      <DEPLOY_ID>Packet AR ID</DEPLOY_ID>
+#      <PACKET_TOKEN>Packet auth token</PACKET_TOKEN>
+#    </AR>
+#    <ADDRESS>
+#      <IP>
+#        <SIZE> Number of IPs to allocate</SIZE>
+#      </IP>
+#    </ADDRESS>
+#  </IPAM_DRIVER_ACTION_DATA>
+#
+# This scrit MUST output the leased IP range, if the "size" IPs cannot be
+# assgined the sript must return -1, otherwise it must exit 0. The answer to
+# OpenNebula needs to include the ADDRESS spec:
+#
+#  ADDRESS = [ IP = "10.0.0.2", SIZE=34 ]
+#
+################################################################################
+
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    PACKET_LOCATION     = '/usr/lib/one/ruby/vendors/packethost/lib'
+    IPAM_STATE_LOCATION = '/var/lib/one/ipam_state'
+    RUBY_LIB_LOCATION   = '/usr/lib/one/ruby'
+    GEMS_LOCATION       = '/usr/share/one/gems'
+else
+    PACKET_LOCATION     = ONE_LOCATION + '/lib/ruby/vendors/packethost/lib'
+    IPAM_STATE_LOCATION = ONE_LOCATION + '/var/ipam_state'
+    RUBY_LIB_LOCATION   = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION       = ONE_LOCATION + '/share/gems'
+end
+
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+end
+
+$LOAD_PATH << PACKET_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+# gem 'packethost', '> 0.0.8'
+
+require 'packet'
+require 'base64'
+require 'nokogiri'
+require 'fileutils'
+require 'opennebula'
+
+data = Nokogiri::XML(Base64.decode64(STDIN.read))
+
+###
+
+ar_token = data.xpath('//AR/PACKET_TOKEN').text
+ar_deploy_id = data.xpath('//AR/DEPLOY_ID').text.to_s
+ar_size = data.xpath('//ADDRESS/SIZE').text
+
+if ar_size.to_i != 1
+    STDERR.puts 'Only reservations of size 1 are supported'
+    exit(-1)
+end
+
+packet = Packet::Client.new
+packet.auth_token = ar_token
+
+# initialize IPAM state dirs
+ipam_state_dir = IPAM_STATE_LOCATION + "/packet/#{ar_deploy_id}"
+FileUtils.mkdir_p(ipam_state_dir)
+
+begin
+    packet_ip = packet.get_ip(ar_deploy_id)
+
+    cidrs = packet.available_cidr(packet_ip, '32')
+
+    cidrs.each do |cidr|
+        ip_start = cidr.split('/')[0]
+
+        # check and create state file
+        ipam_state_f = ipam_state_dir + '/' + ip_start
+        next if File.exist? ipam_state_f
+
+        File.new(ipam_state_f, 'w')
+
+        puts <<-EOF
+            ADDRESS = [
+                IP   = "#{ip_start}",
+                SIZE = "#{ar_size}"
+            ]
+        EOF
+
+        exit(0)
+    end
+
+    exit(-1)
+
+#    if cidrs.size
+#        ip_start = cidrs[0].split('/')[0]
+#
+#        puts <<-EOF
+# ADDRESS = [
+#    IP   = "#{ip_start}",
+#    SIZE = "#{ar_size}"
+# ]
+# EOF
+#    else
+#        exit(-1)
+#    end
+rescue StandardError => e
+    error_str = "ERROR MESSAGE --8<------\n"
+    error_str << e.to_s
+    error_str << "\nERROR MESSAGE ------>8--"
+
+    STDERR.puts error_str
+    exit(-1)
+end

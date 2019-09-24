@@ -141,7 +141,6 @@ int PoolSQL::allocate(PoolObjectSQL *objsql, string& error_str)
     else
     {
         rc = lastOID;
-        do_hooks(objsql, Hook::ALLOCATE);
     }
 
     delete objsql;
@@ -526,67 +525,6 @@ void PoolSQL::oid_filter(int     start_id,
     }
 
     filter = idfilter.str();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void PoolSQL::register_hooks(vector<const VectorAttribute *> hook_mads,
-                             const string&                   remotes_location)
-{
-    string name;
-    string on;
-    string cmd;
-    string arg;
-
-    for (unsigned int i = 0 ; i < hook_mads.size() ; i++ )
-    {
-        name = hook_mads[i]->vector_value("NAME");
-        on   = hook_mads[i]->vector_value("ON");
-        cmd  = hook_mads[i]->vector_value("COMMAND");
-        arg  = hook_mads[i]->vector_value("ARGUMENTS");
-
-        one_util::toupper(on);
-
-        if ( on.empty() || cmd.empty() )
-        {
-            NebulaLog::log("VM", Log::WARNING, "Empty ON or COMMAND attribute"
-                " in Hook, not registered!");
-
-            continue;
-        }
-
-        if ( name.empty() )
-        {
-            name = cmd;
-        }
-
-        if (cmd[0] != '/')
-        {
-            ostringstream cmd_os;
-
-            cmd_os << remotes_location << "/hooks/" << cmd;
-
-            cmd = cmd_os.str();
-        }
-
-        if ( on == "CREATE" )
-        {
-            AllocateHook * hook;
-
-            hook = new AllocateHook(name, cmd, arg, false);
-
-            add_hook(hook);
-        }
-        else if ( on == "REMOVE" )
-        {
-            RemoveHook * hook;
-
-            hook = new RemoveHook(name, cmd, arg, false);
-
-            add_hook(hook);
-        }
-    }
 }
 
 /* -------------------------------------------------------------------------- */

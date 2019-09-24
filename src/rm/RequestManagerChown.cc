@@ -332,7 +332,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    ar.add_auth(auth_op, operms); // MANAGE OBJECT
+    ar.add_auth(att.auth_op, operms); // MANAGE OBJECT
 
     if ( noid > -1  )
     {
@@ -411,7 +411,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     // --------------- Recursive change associated VM objects ------------------
-    // IMPORTANT!: pool/auth_object members are redirected to the VM pool to 
+    // IMPORTANT!: pool/auth_object members are redirected to the VM pool to
     // chown VMs
     // -------------------------------------------------------------------------
     bool error_vm_quotas = false;
@@ -546,7 +546,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     AuthRequest ar(att.uid, att.group_ids);
 
-    ar.add_auth(auth_op, uperms);           // MANAGE USER
+    ar.add_auth(att.auth_op, uperms);       // MANAGE USER
     ar.add_auth(AuthRequest::USE, ngperms); // USE GROUP
 
     if (UserPool::authorize(ar) == -1)

@@ -68,7 +68,8 @@ public:
         MARKETPLACE    = 0x0008000000000000LL,
         MARKETPLACEAPP = 0x0010000000000000LL,
         VMGROUP        = 0x0020000000000000LL,
-        VNTEMPLATE     = 0x0040000000000000LL
+        VNTEMPLATE     = 0x0040000000000000LL,
+        HOOK           = 0x0080000000000000LL
     };
 
     /**
@@ -88,50 +89,52 @@ public:
     {
         switch (ob)
         {
-            case VM:             return "VM" ; break;
-            case HOST:           return "HOST" ; break;
-            case NET:            return "NET" ; break;
-            case IMAGE:          return "IMAGE" ; break;
-            case USER:           return "USER" ; break;
-            case TEMPLATE:       return "TEMPLATE" ; break;
-            case GROUP:          return "GROUP" ; break;
-            case ACL:            return "ACL" ; break;
-            case DATASTORE:      return "DATASTORE" ; break;
-            case CLUSTER:        return "CLUSTER" ; break;
-            case DOCUMENT:       return "DOCUMENT" ; break;
-            case ZONE:           return "ZONE" ; break;
-            case SECGROUP:       return "SECGROUP" ; break;
-            case VDC:            return "VDC" ; break;
-            case VROUTER:        return "VROUTER" ; break;
-            case MARKETPLACE:    return "MARKETPLACE" ; break;
-            case MARKETPLACEAPP: return "MARKETPLACEAPP" ; break;
-            case VMGROUP:        return "VMGROUP" ; break;
+            case VM:             return "VM"; break;
+            case HOST:           return "HOST"; break;
+            case NET:            return "NET"; break;
+            case IMAGE:          return "IMAGE"; break;
+            case USER:           return "USER"; break;
+            case TEMPLATE:       return "TEMPLATE"; break;
+            case GROUP:          return "GROUP"; break;
+            case ACL:            return "ACL"; break;
+            case DATASTORE:      return "DATASTORE"; break;
+            case CLUSTER:        return "CLUSTER"; break;
+            case DOCUMENT:       return "DOCUMENT"; break;
+            case ZONE:           return "ZONE"; break;
+            case SECGROUP:       return "SECGROUP"; break;
+            case VDC:            return "VDC"; break;
+            case VROUTER:        return "VROUTER"; break;
+            case MARKETPLACE:    return "MARKETPLACE"; break;
+            case MARKETPLACEAPP: return "MARKETPLACEAPP"; break;
+            case VMGROUP:        return "VMGROUP"; break;
             case VNTEMPLATE:     return "VNTEMPLATE"; break;
+            case HOOK:           return "HOOK"; break;
             default:             return "";
         }
     };
 
-    static ObjectType str_to_type(string type)
+    static ObjectType str_to_type(const string& type)
     {
-        if ( type == "VM" )                  return VM ;
-        else if ( type == "HOST" )           return HOST ;
-        else if ( type == "NET" )            return NET ;
-        else if ( type == "IMAGE" )          return IMAGE ;
-        else if ( type == "USER" )           return USER ;
-        else if ( type == "TEMPLATE" )       return TEMPLATE ;
-        else if ( type == "GROUP" )          return GROUP ;
-        else if ( type == "ACL" )            return ACL ;
-        else if ( type == "DATASTORE" )      return DATASTORE ;
-        else if ( type == "CLUSTER" )        return CLUSTER ;
-        else if ( type == "DOCUMENT" )       return DOCUMENT ;
-        else if ( type == "ZONE" )           return ZONE ;
-        else if ( type == "SECGROUP" )       return SECGROUP ;
-        else if ( type == "VDC" )            return VDC ;
-        else if ( type == "VROUTER" )        return VROUTER ;
-        else if ( type == "MARKETPLACE" )    return MARKETPLACE ;
-        else if ( type == "MARKETPLACEAPP" ) return MARKETPLACEAPP ;
-        else if ( type == "VMGROUP" )        return VMGROUP ;
-        else if ( type == "VNTEMPLATE" )     return VNTEMPLATE ;
+        if ( type == "VM" )                  return VM;
+        else if ( type == "HOST" )           return HOST;
+        else if ( type == "NET" )            return NET;
+        else if ( type == "IMAGE" )          return IMAGE;
+        else if ( type == "USER" )           return USER;
+        else if ( type == "TEMPLATE" )       return TEMPLATE;
+        else if ( type == "GROUP" )          return GROUP;
+        else if ( type == "ACL" )            return ACL;
+        else if ( type == "DATASTORE" )      return DATASTORE;
+        else if ( type == "CLUSTER" )        return CLUSTER;
+        else if ( type == "DOCUMENT" )       return DOCUMENT;
+        else if ( type == "ZONE" )           return ZONE;
+        else if ( type == "SECGROUP" )       return SECGROUP;
+        else if ( type == "VDC" )            return VDC;
+        else if ( type == "VROUTER" )        return VROUTER;
+        else if ( type == "MARKETPLACE" )    return MARKETPLACE;
+        else if ( type == "MARKETPLACEAPP" ) return MARKETPLACEAPP;
+        else if ( type == "VMGROUP" )        return VMGROUP;
+        else if ( type == "VNTEMPLATE" )     return VNTEMPLATE;
+        else if ( type == "HOOK" )           return HOOK;
         else                                 return NONE;
     };
 
@@ -139,10 +142,10 @@ public:
     {
         switch (ob)
         {
-            case ST_NONE:        return "NONE" ; break;
-            case ST_USE:         return "USE" ; break;
-            case ST_MANAGE:      return "MANAGE" ; break;
-            case ST_ADMIN:       return "ADMIN" ; break;
+            case ST_NONE:        return "NONE"; break;
+            case ST_USE:         return "USE"; break;
+            case ST_MANAGE:      return "MANAGE"; break;
+            case ST_ADMIN:       return "ADMIN"; break;
             default:             return "";
         }
     };
@@ -379,15 +382,15 @@ public:
      *    @return the number of values
      */
 	template<typename T>
-    int get_template_attribute(const char * name, vector<const T*>& values) const
+    int get_template_attribute(const string& name, vector<const T*>& values) const
     {
-        return obj_template->get(name,values);
+        return obj_template->get(name, values);
     };
 
 	template<typename T>
-    int get_template_attribute(const char * name, vector<T*>& values) const
+    int get_template_attribute(const string& name, vector<T*>& values) const
     {
-        return obj_template->get(name,values);
+        return obj_template->get(name, values);
     };
 
     /**
@@ -401,15 +404,9 @@ public:
 	 *    target value
      */
 	template<typename T>
-    bool get_template_attribute(const char * name, T& value) const
-    {
-        return obj_template->get(name,value);
-    }
-
-	template<typename T>
     bool get_template_attribute(const string& name, T& value) const
     {
-        return obj_template->get(name,value);
+        return obj_template->get(name, value);
     }
 
     /**
@@ -420,9 +417,9 @@ public:
      *    @return the number of attributes erased
      */
 	template<typename T>
-    int erase_template_attribute(const char * name, T& value)
+    int erase_template_attribute(const string& name, T& value)
     {
-        obj_template->get(name,value);
+        obj_template->get(name, value);
         return obj_template->erase(name);
     }
 
@@ -568,6 +565,16 @@ public:
         return locked;
     }
 
+    /**
+     *  Encrypt all secret attributes
+     */
+    virtual void encrypt();
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    virtual void decrypt();
+
 protected:
 
     /**
@@ -592,7 +599,7 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int select(SqlDB *db);
+    int select(SqlDB *db) override;
 
     /**
      *  Reads the PoolObjectSQL (identified by its OID) from the database.
@@ -627,7 +634,7 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int drop(SqlDB *db);
+    int drop(SqlDB *db) override;
 
     /**
      *  Function to output a pool object into a stream in XML format
@@ -719,6 +726,7 @@ protected:
      *    @return 0 on success, -1 otherwise
      */
     int lock_db_from_xml();
+
 
     /**
      *  The object's unique ID

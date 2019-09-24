@@ -15,10 +15,10 @@
 /* -------------------------------------------------------------------------- */
 
 #include "VirtualMachinePool.h"
-#include "VirtualMachineHook.h"
 
 #include "NebulaLog.h"
 #include "Nebula.h"
+#include "HookStateVM.h"
 
 #include <sstream>
 
@@ -37,178 +37,56 @@ const char * VirtualMachinePool::import_db_bootstrap =
 /* -------------------------------------------------------------------------- */
 
 VirtualMachinePool::VirtualMachinePool(
-        SqlDB *                     db,
-        vector<const VectorAttribute *>   hook_mads,
-        const string&               hook_location,
-        const string&               remotes_location,
-        vector<const SingleAttribute *>&  restricted_attrs,
-        time_t                      expire_time,
-        bool                        on_hold,
-        float                       default_cpu_cost,
-        float                       default_mem_cost,
-        float                       default_disk_cost)
+        SqlDB * db,
+        vector<const SingleAttribute *>& restricted_attrs,
+        vector<const SingleAttribute *>& encrypted_attrs,
+        time_t  expire_time,
+        bool    on_hold,
+        float   default_cpu_cost,
+        float   default_mem_cost,
+        float   default_disk_cost)
     : PoolSQL(db, VirtualMachine::table),
     _monitor_expiration(expire_time), _submit_on_hold(on_hold),
     _default_cpu_cost(default_cpu_cost), _default_mem_cost(default_mem_cost),
     _default_disk_cost(default_disk_cost)
 {
-
-    string name;
-    string on;
-    string cmd;
-    string arg;
-    bool   remote;
-
     if ( _monitor_expiration == 0 )
     {
         clean_all_monitoring();
     }
 
-    for (unsigned int i = 0 ; i < hook_mads.size() ; i++ )
-    {
-        const VectorAttribute * vattr = hook_mads[i];
-
-        name = hook_mads[i]->vector_value("NAME");
-        on   = hook_mads[i]->vector_value("ON");
-        cmd  = hook_mads[i]->vector_value("COMMAND");
-        arg  = hook_mads[i]->vector_value("ARGUMENTS");
-        hook_mads[i]->vector_value("REMOTE", remote);
-
-        one_util::toupper(on);
-
-        if ( on.empty() || cmd.empty() )
-        {
-            ostringstream oss;
-
-            oss << "Empty ON or COMMAND attribute in VM_HOOK. Hook "
-                << "not registered!";
-            NebulaLog::log("VM",Log::WARNING,oss);
-
-            continue;
-        }
-
-        if ( name.empty() )
-        {
-            name = cmd;
-        }
-
-        if (cmd[0] != '/')
-        {
-            ostringstream cmd_os;
-
-            if ( remote )
-            {
-                cmd_os << hook_location << "/" << cmd;
-            }
-            else
-            {
-                cmd_os << remotes_location << "/hooks/" << cmd;
-            }
-
-            cmd = cmd_os.str();
-        }
-
-        if ( on == "CREATE" )
-        {
-            AllocateHook * hook;
-
-            hook = new AllocateHook(name, cmd, arg, false);
-
-            add_hook(hook);
-        }
-        else if ( on == "PROLOG" )
-        {
-            VirtualMachineStateHook * hook;
-
-            hook = new VirtualMachineStateHook(name, cmd, arg, remote,
-                           VirtualMachine::PROLOG, VirtualMachine::ACTIVE);
-            add_hook(hook);
-        }
-        else if ( on == "RUNNING" )
-        {
-            VirtualMachineStateHook * hook;
-
-            hook = new VirtualMachineStateHook(name, cmd, arg, remote,
-                           VirtualMachine::RUNNING, VirtualMachine::ACTIVE);
-            add_hook(hook);
-        }
-        else if ( on == "SHUTDOWN" )
-        {
-            VirtualMachineStateHook * hook;
-
-            hook = new VirtualMachineStateHook(name, cmd, arg, remote,
-                            VirtualMachine::EPILOG, VirtualMachine::ACTIVE);
-            add_hook(hook);
-        }
-        else if ( on == "STOP" )
-        {
-            VirtualMachineStateHook * hook;
-
-            hook = new VirtualMachineStateHook(name, cmd, arg, remote,
-                            VirtualMachine::LCM_INIT, VirtualMachine::STOPPED);
-            add_hook(hook);
-        }
-        else if ( on == "DONE" )
-        {
-            VirtualMachineStateHook * hook;
-
-            hook = new VirtualMachineStateHook(name, cmd, arg, remote,
-                            VirtualMachine::LCM_INIT, VirtualMachine::DONE);
-            add_hook(hook);
-        }
-        else if ( on == "UNKNOWN" )
-        {
-            VirtualMachineStateHook * hook;
-
-            hook = new VirtualMachineStateHook(name, cmd, arg, remote,
-                            VirtualMachine::UNKNOWN, VirtualMachine::ACTIVE);
-            add_hook(hook);
-        }
-        else if ( on == "CUSTOM" )
-        {
-            VirtualMachineStateHook * hook;
-
-            string lcm_str = vattr->vector_value("LCM_STATE");
-            string vm_str  = vattr->vector_value("STATE");
-
-            VirtualMachine::LcmState lcm_state;
-            VirtualMachine::VmState vm_state;
-
-            if ( VirtualMachine::lcm_state_from_str(lcm_str, lcm_state) != 0 )
-            {
-                ostringstream oss;
-                oss << "Wrong LCM_STATE: "<< lcm_str <<". Hook not registered!";
-
-                NebulaLog::log("VM",Log::WARNING,oss);
-                continue;
-            }
-
-            if ( VirtualMachine::vm_state_from_str(vm_str, vm_state) != 0 )
-            {
-                ostringstream oss;
-                oss << "Wrong STATE: "<< vm_str <<". Hook not registered!";
-
-                NebulaLog::log("VM",Log::WARNING,oss);
-                continue;
-            }
-
-            hook = new VirtualMachineStateHook(name, cmd, arg, remote,
-                    lcm_state, vm_state);
-
-            add_hook(hook);
-        }
-        else
-        {
-            ostringstream oss;
-
-            oss << "Unknown VM_HOOK " << on << ". Hook not registered!";
-            NebulaLog::log("VM",Log::WARNING,oss);
-        }
-    }
-
     // Set restricted attributes
     VirtualMachineTemplate::parse_restricted(restricted_attrs);
+
+    // Set encrypted attributes
+    VirtualMachineTemplate::parse_encrypted(encrypted_attrs);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachinePool::update(PoolObjectSQL * objsql)
+{
+    VirtualMachine * vm = dynamic_cast<VirtualMachine *>(objsql);
+
+    if ( vm == 0 )
+    {
+        return -1;
+    }
+
+    if ( HookStateVM::trigger(vm) )
+    {
+        std::string * event = HookStateVM::format_message(vm);
+
+        Nebula::instance().get_hm()->trigger(HMAction::SEND_EVENT, *event);
+
+        delete event;
+    }
+
+    vm->set_prev_state();
+
+    return vm->update(db);
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -217,7 +95,7 @@ int VirtualMachinePool::insert_index(const string& deploy_id, int vmid,
     bool replace)
 {
     ostringstream oss;
-    char *        deploy_name = db->escape_str(deploy_id.c_str());
+    char *        deploy_name = db->escape_str(deploy_id);
 
     if (deploy_name == 0)
     {
@@ -246,7 +124,7 @@ int VirtualMachinePool::insert_index(const string& deploy_id, int vmid,
 void VirtualMachinePool::drop_index(const string& deploy_id)
 {
     ostringstream oss;
-    char *        deploy_name = db->escape_str(deploy_id.c_str());
+    char *        deploy_name = db->escape_str(deploy_id);
 
     if (deploy_name == 0)
     {
@@ -292,6 +170,8 @@ int VirtualMachinePool::allocate (
         vm->state = VirtualMachine::PENDING;
     }
 
+    vm->prev_state = vm->state;
+
     vm->user_obj_template->get("IMPORT_VM_ID", deploy_id);
 
     if (!deploy_id.empty())
@@ -326,6 +206,22 @@ int VirtualMachinePool::allocate (
         else
         {
             drop_index(deploy_id);
+        }
+    }
+
+    if (*oid >= 0)
+    {
+        vm = get_ro(*oid);
+
+        if ( vm != nullptr)
+        {
+            std::string * event = HookStateVM::format_message(vm);
+
+            Nebula::instance().get_hm()->trigger(HMAction::SEND_EVENT, *event);
+
+            delete event;
+
+            vm->unlock();
         }
     }
 
@@ -525,7 +421,7 @@ int VirtualMachinePool::get_vmid (const string& deploy_id)
     cb.set_callback(&vmid);
 
     oss << "SELECT vmid FROM " << import_table
-        << " WHERE deploy_id = '" << db->escape_str(deploy_id.c_str()) << "'";
+        << " WHERE deploy_id = '" << db->escape_str(deploy_id) << "'";
 
     rc = db->exec_rd(oss, &cb);
 
@@ -926,7 +822,7 @@ int VirtualMachinePool::calculate_showback(
 
             vm_month_it->second.to_xml(body) << "</SHOWBACK>";
 
-            sql_body =  db->escape_str(body.str().c_str());
+            sql_body =  db->escape_str(body.str());
 
             if ( sql_body == 0 )
             {
@@ -1092,7 +988,7 @@ void VirtualMachinePool::delete_attach_disk(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachinePool::delete_hotplug_nic(int vid, bool attach)
+void VirtualMachinePool::delete_attach_nic(int vid)
 {
     VirtualMachine *  vm;
     VirtualMachineNic * nic;
@@ -1125,9 +1021,20 @@ void VirtualMachinePool::delete_hotplug_nic(int vid, bool attach)
         return;
     }
 
-    if (attach)
+    int nic_id = nic->get_nic_id();
+
+    if (!nic->is_alias())
     {
-        vm->clear_nic_context(nic->get_nic_id());
+        vm->clear_nic_context(nic_id);
+    }
+    else
+    {
+        int parent_id, alias_id;
+
+        nic->vector_value("PARENT_ID", parent_id);
+        nic->vector_value("ALIAS_ID", alias_id);
+
+        vm->clear_nic_alias_context(parent_id, alias_id);
     }
 
     uid  = vm->get_uid();
@@ -1150,9 +1057,15 @@ void VirtualMachinePool::delete_hotplug_nic(int vid, bool attach)
 
     for(std::set<int>::iterator it = a_ids.begin(); it != a_ids.end(); ++it)
     {
+        int alias_id;
+
+        vm->get_nic(*it)->vector_value("ALIAS_ID", alias_id);
+
         tmpl.set(vm->get_nic(*it)->vector_attribute()->clone());
 
         vm->get_nic(*it)->release_network_leases(oid);
+
+        vm->clear_nic_alias_context(nic_id, alias_id);
     }
 
     nic->release_network_leases(oid);

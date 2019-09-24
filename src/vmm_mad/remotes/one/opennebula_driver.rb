@@ -14,20 +14,26 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
-ONE_LOCATION = ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION = ENV['ONE_LOCATION'] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-  RUBY_LIB_LOCATION = "/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
-  ETC_LOCATION      = "/etc/one/" if !defined?(ETC_LOCATION)
+  RUBY_LIB_LOCATION = '/usr/lib/one/ruby' if !defined?(RUBY_LIB_LOCATION)
+  GEMS_LOCATION     = '/usr/share/one/gems' if !defined?(GEMS_LOCATION)
+  ETC_LOCATION      = '/etc/one/' if !defined?(ETC_LOCATION)
 else
-  RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
-  ETC_LOCATION      = ONE_LOCATION + "/etc/" if !defined?(ETC_LOCATION)
+  RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' if !defined?(RUBY_LIB_LOCATION)
+  GEMS_LOCATION     = ONE_LOCATION + '/share/gems' if !defined?(GEMS_LOCATION)
+  ETC_LOCATION      = ONE_LOCATION + '/etc/' if !defined?(ETC_LOCATION)
 end
 
 # Load credentials and environment
 require 'yaml'
 
-$: << RUBY_LIB_LOCATION
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'CommandManager'
 require 'scripts_common'
@@ -64,13 +70,12 @@ class OpenNebulaDriver
       host_pool = OpenNebula::HostPool.new(client)
       host_pool.info
       objects=host_pool.select {|object| object.name==host_name }
-      xmlhost = objects.first
-      host_id = xmlhost["ID"].to_i
+      host_id = objects.first.id
     end
 
     host = OpenNebula::Host.new_with_id(host_id, client)
-    host.info
-    
+    host.info(true)
+
     region = {}
 
     ["user", "password", "endpoint", "capacity"].each do |key|
@@ -92,21 +97,7 @@ class OpenNebulaDriver
       end
     end
 
-    system = OpenNebula::System.new(client)
-    config = system.get_configuration
-    raise "Error getting oned configuration : #{config.message}" if OpenNebula.is_error?(config)
-
-    token = config["ONE_KEY"]
-    conn_opts = {
-      :password => host["/HOST/TEMPLATE/ONE_PASSWORD"],
-    }
-
-    begin
-        conn_opts = OpenNebula.decrypt(conn_opts, token)
-        region["password"] = conn_opts[:password]
-    rescue
-        raise "HOST: #{host} must have remote host password to work properly"
-    end
+    region["password"] = host["/HOST/TEMPLATE/ONE_PASSWORD"],
 
     secret = "#{region['user']}:#{region['password']}"
 
@@ -393,22 +384,22 @@ class OpenNebulaDriver
 
       vms_info << "VM=[\n"
       vms_info << "  ID=\"#{vmid}\",\n"
-        vms_info << "  DEPLOY_ID=\"#{deploy_id}\",\n"
-        vms_info << "  VM_NAME=#{vm.name},\n"
-        vms_info << "  IMPORT_TEMPLATE=\"#{vm_template_to_one}\",\n"
-        vms_info << "  POLL=\"#{poll_data}\" ]\n"
-      end
-
-      host_info << "USEDMEMORY=#{usedmemory}\n"
-      host_info << "USEDCPU=#{usedcpu}\n"
-      host_info << "FREEMEMORY=#{(totalmemory - usedmemory)}\n"
-      host_info << "FREECPU=#{(totalcpu - usedcpu)}\n"
-
-      puts host_info
-      puts vms_info
+      vms_info << "  DEPLOY_ID=\"#{deploy_id}\",\n"
+      vms_info << "  VM_NAME=#{vm.name},\n"
+      vms_info << "  IMPORT_TEMPLATE=\"#{vm_template_to_one}\",\n"
+      vms_info << "  POLL=\"#{poll_data}\" ]\n"
     end
 
-    private
+    host_info << "USEDMEMORY=#{usedmemory}\n"
+    host_info << "USEDCPU=#{usedcpu}\n"
+    host_info << "FREEMEMORY=#{(totalmemory - usedmemory)}\n"
+    host_info << "FREECPU=#{(totalcpu - usedcpu)}\n"
+
+    puts host_info
+    puts vms_info
+  end
+
+  private
 
   # Get the OpenNebula hybrid section of the template. With more than one section
   # the HOST element is used and matched with the host

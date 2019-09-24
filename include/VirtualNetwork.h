@@ -68,8 +68,9 @@ public:
         UNDEFINED           = 0,
         LINUX               = 1,
         OPENVSWITCH         = 2,
-        VCENTER_PORT_GROUPS = 3,
-        BRNONE              = 4
+        OPENVSWITCH_DPDK    = 3,
+        VCENTER_PORT_GROUPS = 4,
+        BRNONE              = 5
     };
 
     static string driver_to_str(VirtualNetworkDriver ob)
@@ -142,6 +143,8 @@ public:
                 return "linux";
             case OPENVSWITCH:
                 return "openvswitch";
+            case OPENVSWITCH_DPDK:
+                return "openvswitch_dpdk";
             case VCENTER_PORT_GROUPS:
                 return "vcenter_port_groups";
             case BRNONE:
@@ -159,6 +162,10 @@ public:
         else if ( ob == "openvswitch" )
         {
             return OPENVSWITCH;
+        }
+        else if ( ob == "openvswitch_dpdk" )
+        {
+            return OPENVSWITCH_DPDK;
         }
         else if ( ob == "vcenter_port_groups" )
         {
@@ -180,8 +187,8 @@ public:
      *    @param error_str describing the error
      *    @return 0 on success -1 otherwise
      */
-    static int parse_phydev_vlans(const Template* tmpl, const string& vn_mad, const string& phydev, 
-                                  const string& bridge, const bool auto_id, const string& vlan_id, 
+    static int parse_phydev_vlans(const Template* tmpl, const string& vn_mad, const string& phydev,
+                                  const string& bridge, const bool auto_id, const string& vlan_id,
                                   const bool auto_outer, const string& outer_id, string& estr);
 
     // *************************************************************************
@@ -191,7 +198,7 @@ public:
     /**
      *  Factory method for virtual network templates
      */
-    Template * get_new_template() const
+    Template * get_new_template() const override
     {
         return new VirtualNetworkTemplate;
     }
@@ -202,7 +209,7 @@ public:
      *  reservations.
      *    @param auths to be filled
      */
-    void get_permissions(PoolObjectAuth& auths);
+    void get_permissions(PoolObjectAuth& auths) override;
 
     // *************************************************************************
     // Address Range management interface
@@ -231,6 +238,13 @@ public:
      *  @return 0 on success
      */
     int rm_ar(unsigned int ar_id, string& error_msg);
+
+    /**
+     * Removes all address ranges from the VNET
+     *  @param error_msg If the action fails, this message contains the reason.
+     *  @return 0 on success
+     */
+    int rm_ars(string& error_msg);
 
     /**
      *  Allocates a new (and empty) address range. It is not added to the
@@ -490,7 +504,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    string& to_xml(string& xml) const override;
 
     /**
      * Function to print the VirtualNetwork object into a string in
@@ -516,13 +530,13 @@ public:
      *    not a single attribute
      *    @param ar_id of the address attribute.
      */
-    void get_template_attribute(const char * name, string& value, int ar_id) const;
+    void get_template_attribute(const string& name, string& value, int ar_id) const;
 
     /**
      *  int version of get_template_attribute
      *    @return 0 on success
      */
-    int get_template_attribute(const char * name, int& value, int ar_id) const;
+    int get_template_attribute(const string& name, int& value, int ar_id) const;
 
     /**
      *  Adds the security group of the VNet and its ARs to the given set
@@ -561,6 +575,16 @@ public:
 
         return new_vn;
     };
+
+    /**
+     *  Encrypt all secret attributes
+     */
+    virtual void encrypt() override;
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    virtual void decrypt() override;
 
 private:
 
@@ -752,14 +776,14 @@ private:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const string &xml_str) override;
 
     /**
      * Updates the BRIDGE, PHYDEV, and VLAN_ID attributes.
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int post_update_template(string& error);
+    int post_update_template(string& error) override;
 
     //**************************************************************************
     // Constructor
@@ -774,7 +798,7 @@ private:
                    const set<int>           &_cluster_ids,
                    VirtualNetworkTemplate * _vn_template = 0);
 
-    ~VirtualNetwork();
+    virtual ~VirtualNetwork() = default;
 
     // *************************************************************************
     // DataBase implementation
@@ -791,14 +815,14 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB * db, string& error_str);
+    int insert(SqlDB * db, string& error_str) override;
 
     /**
      *  Writes/updates the Virtual Network data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB * db)
+    int update(SqlDB * db) override
     {
         string error_str;
         return insert_replace(db, true, error_str);

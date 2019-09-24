@@ -24,6 +24,7 @@
 #include "AuthRequest.h"
 #include "PoolObjectSQL.h"
 #include "Quotas.h"
+#include "History.h"
 
 using namespace std;
 
@@ -50,6 +51,8 @@ public:
     int umask;                /**< User umask for new objects */
 
     xmlrpc_c::value * retval; /**< Return value from libxmlrpc-c */
+    string retval_xml;        /**< Return value in XML format */
+    string extra_xml;         /**< Extra information returned for API Hooks */
 
     PoolObjectSQL::ObjectType resp_obj; /**< object type */
     int                       resp_id;  /**< Id of the object */
@@ -57,12 +60,17 @@ public:
 
     uint64_t replication_idx;
 
-    RequestAttributes()
+    AuthRequest::Operation auth_op;   /**< Auth operation for the request */
+
+    bool success; /**< True if the call was successfull false otherwise */
+
+    RequestAttributes(AuthRequest::Operation api_auth_op)
     {
         resp_obj        = PoolObjectSQL::NONE;
         resp_id         = -1;
         resp_msg        = "";
         replication_idx = UINT64_MAX;
+        auth_op         = api_auth_op;
     };
 
     RequestAttributes(const RequestAttributes& ra)
@@ -82,13 +90,16 @@ public:
 
         umask    = ra.umask;
 
-        retval   = ra.retval;
+        retval     = ra.retval;
+        retval_xml = ra.retval_xml;
 
         resp_obj = ra.resp_obj;
         resp_id  = ra.resp_id;
         resp_msg = ra.resp_msg;
 
         replication_idx = ra.replication_idx;
+
+        auth_op  = ra.auth_op;
     };
 
     RequestAttributes(int _uid, int _gid, const RequestAttributes& ra)
@@ -110,13 +121,15 @@ public:
 
         umask    = ra.umask;
 
-        retval   = ra.retval;
+        retval     = ra.retval;
+        retval_xml = ra.retval_xml;
 
         resp_obj = PoolObjectSQL::NONE;
         resp_id  = -1;
         resp_msg = "";
 
         replication_idx = UINT64_MAX;
+        auth_op  = ra.auth_op;
     };
 
     bool is_admin() const
@@ -134,6 +147,87 @@ public:
     {
         return gid == GroupPool::ONEADMIN_ID;
     }
+
+    /**
+     *  Set the operation level (admin, manage or use) associated to this
+     *  request. Precedence is: user > group > system.
+     *
+     *  @param action perfomed on the VM object
+     */
+    void set_auth_op(VMActions::Action action);
+};
+
+class ParamList
+{
+public:
+
+    ParamList(const xmlrpc_c::paramList * paramList, const set<int>& hidden):
+        _paramList(paramList), _hidden(hidden){};
+
+    string& to_string(string& str) const
+    {
+        ostringstream oss;
+
+        oss << get_value_as_string(0);
+
+        for (unsigned int i = 1; i < _paramList->size(); i++)
+        {
+            oss << " " << get_value_as_string(i);
+        }
+
+        str = oss.str();
+
+        return str;
+    };
+
+    string get_value_as_string(int index) const
+    {
+        if ( index == 0 || _hidden.count(index) == 1 )
+        {
+            return "****";
+        }
+
+        ostringstream oss;
+        xmlrpc_c::value::type_t type((*_paramList)[index].type());
+
+        if( type == xmlrpc_c::value::TYPE_INT)
+        {
+            oss << _paramList->getInt(index);
+            return oss.str();
+        }
+        else if( type == xmlrpc_c::value::TYPE_I8 )
+        {
+            oss << _paramList->getI8(index);
+            return oss.str();
+        }
+        else if( type == xmlrpc_c::value::TYPE_BOOLEAN )
+        {
+            oss << _paramList->getBoolean(index);
+            return oss.str();
+        }
+        else if( type == xmlrpc_c::value::TYPE_STRING )
+        {
+            oss << _paramList->getString(index);
+            return oss.str();
+        }
+        else if( type == xmlrpc_c::value::TYPE_DOUBLE )
+        {
+            oss << _paramList->getDouble(index);
+            return oss.str();
+        }
+
+        return oss.str();
+    };
+
+    int size() const
+    {
+        return _paramList->size();
+    };
+
+private:
+    const xmlrpc_c::paramList * _paramList;
+
+    const set<int>& _hidden;
 };
 
 /**
@@ -190,41 +284,51 @@ public:
 
 protected:
     /* ---------------------------------------------------------------------- */
+    /* Global configuration attributes por API calls                          */
+    /* ---------------------------------------------------------------------- */
+    static string format_str;
+    static const long long xmlrpc_timeout; //Timeout (ms) for request forwarding
+
+    /* ---------------------------------------------------------------------- */
     /* Static Request Attributes: shared among request of the same method     */
     /* ---------------------------------------------------------------------- */
-    PoolSQL * pool;           /**< Pool of objects */
-    string    method_name;    /**< The name of the XML-RPC method */
+    PoolSQL * pool;
+    string    method_name;
 
-    PoolObjectSQL::ObjectType auth_object;/**< Auth object for the request */
-    AuthRequest::Operation    auth_op;    /**< Auth operation for the request */
+    // Configuration for authentication level of the API call
+    PoolObjectSQL::ObjectType auth_object;
+    AuthRequest::Operation    auth_op;
 
+    VMActions::Action vm_action;
+
+    // Logging configuration fot the API call
     set<int> hidden_params;
+    bool     log_method_call;
 
-    static string format_str;
-
-    bool log_method_call; //Write method call and result to the log
-
-    bool leader_only; //Method can be only execute by leaders or solo servers
-
-    static const long long xmlrpc_timeout; //Timeout (ms) for request forwarding
+    //Method can be only execute by leaders or solo servers
+    bool leader_only;
 
     /* ---------------------------------------------------------------------- */
     /* Class Constructors                                                     */
     /* ---------------------------------------------------------------------- */
-    Request(const string& mn, const string& signature, const string& help):
-        pool(0),method_name(mn)
+    Request(const string& mn, const string& signature, const string& help)
     {
+        pool = nullptr;
+
+        method_name = mn;
+
         _signature = signature;
         _help      = help;
 
         hidden_params.clear();
 
         log_method_call = true;
-
         leader_only     = true;
+
+        vm_action = VMActions::NONE_ACTION;
     };
 
-    virtual ~Request(){};
+    virtual ~Request() = default;
 
     /* ---------------------------------------------------------------------- */
     /* Methods to execute the request when received at the server             */
@@ -336,25 +440,7 @@ protected:
      *
      *    @return true if the user is authorized.
      */
-    bool basic_authorization(int oid, RequestAttributes& att)
-    {
-        return basic_authorization(oid, auth_op, att);
-    };
-
-    /**
-     *  Performs a basic authorization for this request using the uid/gid
-     *  from the request. The function gets the object from the pool to get
-     *  the public attribute and its owner. The authorization is based on
-     *  object and type of operation for the request.
-     *    @param oid of the object, can be -1 for objects to be created, or
-     *    pools.
-     *    @param op operation of the request.
-     *    @param att the specific request attributes
-     *
-     *    @return true if the user is authorized.
-     */
-    bool basic_authorization(int oid, AuthRequest::Operation op,
-        RequestAttributes& att);
+    bool basic_authorization(int oid, RequestAttributes& att);
 
     /**
      *  Performs a basic authorization for this request using the uid/gid
@@ -364,7 +450,6 @@ protected:
      *    @param pool object pool
      *    @param oid of the object, can be -1 for objects to be created, or
      *    pools.
-     *    @param op operation of the request.
      *    @param att the specific request attributes
      *
      *    @return SUCCESS if the user is authorized.
@@ -372,7 +457,6 @@ protected:
     static ErrorCode basic_authorization(
             PoolSQL*                pool,
             int                     oid,
-            AuthRequest::Operation  op,
             PoolObjectSQL::ObjectType auth_object,
             RequestAttributes&      att);
 

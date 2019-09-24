@@ -37,6 +37,7 @@ Host::Host(
         PoolObjectSQL(id,HOST,_hostname,-1,-1,"","",table),
         ClusterableSingle(_cluster_id, _cluster_name),
         state(INIT),
+        prev_state(INIT),
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),
         last_monitored(0),
@@ -50,8 +51,6 @@ Host::Host(
     replace_template_attribute("IM_MAD", im_mad_name);
     replace_template_attribute("VM_MAD", vmm_mad_name);
 }
-
-Host::~Host(){};
 
 /* ************************************************************************ */
 /* Host :: Database Access Functions                                        */
@@ -94,14 +93,14 @@ int Host::insert_replace(SqlDB *db, bool replace, string& error_str)
 
    // Update the Host
 
-    sql_hostname = db->escape_str(name.c_str());
+    sql_hostname = db->escape_str(name);
 
     if ( sql_hostname == 0 )
     {
         goto error_hostname;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -113,7 +112,7 @@ int Host::insert_replace(SqlDB *db, bool replace, string& error_str)
         goto error_xml;
     }
 
-    if(replace)
+    if (replace)
     {
         oss << "UPDATE " << table << " SET "
             << "name = '"         << sql_hostname   << "', "
@@ -390,7 +389,7 @@ int Host::update_info(Template        &tmpl,
         }
     }
 
-    for(map_it = found.begin(); map_it != found.end(); )
+    for (map_it = found.begin(); map_it != found.end(); )
     {
         if ( one_util::regex_match("STATE=.",map_it->second.c_str()) != 0 )
         {
@@ -403,7 +402,7 @@ int Host::update_info(Template        &tmpl,
         }
     }
 
-    for(set_it = tmp_lost_vms->begin(); set_it != tmp_lost_vms->end(); set_it++)
+    for (set_it = tmp_lost_vms->begin(); set_it != tmp_lost_vms->end(); set_it++)
     {
         // Reported as lost at least 2 times?
         if (prev_tmp_lost.count(*set_it) == 1)
@@ -513,6 +512,39 @@ void Host::offline()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static Host::HostState trigger_state(Host::HostState state)
+{
+    switch(state)
+    {
+        case Host::INIT:
+        case Host::MONITORED:
+        case Host::ERROR:
+        case Host::DISABLED:
+        case Host::OFFLINE:
+            return state;
+        case Host::MONITORING_ERROR:
+            return Host::ERROR;
+        case Host::MONITORING_DISABLED:
+            return Host::DISABLED;
+        case Host::MONITORING_MONITORED:
+            return Host::MONITORED;
+        case Host::MONITORING_INIT:
+            return Host::INIT;
+    }
+
+    return state;
+}
+
+// -----------------------------------------------------------------------------
+
+bool Host::has_changed_state()
+{
+    return trigger_state(prev_state) != trigger_state(state);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void Host::error_info(const string& message, set<int> &vm_ids)
 {
     ostringstream oss;
@@ -541,7 +573,7 @@ int Host::update_monitoring(SqlDB * db)
     string error_str;
     char * sql_xml;
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -613,6 +645,7 @@ string& Host::to_xml(string& xml) const
        "<ID>"            << oid              << "</ID>"              <<
        "<NAME>"          << name             << "</NAME>"            <<
        "<STATE>"         << state            << "</STATE>"           <<
+       "<PREV_STATE>"    << prev_state       << "</PREV_STATE>"      <<
        "<IM_MAD>"        << one_util::escape_xml(im_mad_name)  << "</IM_MAD>" <<
        "<VM_MAD>"        << one_util::escape_xml(vmm_mad_name) << "</VM_MAD>" <<
        "<LAST_MON_TIME>" << last_monitored   << "</LAST_MON_TIME>"   <<
@@ -636,6 +669,7 @@ int Host::from_xml(const string& xml)
     vector<xmlNodePtr> content;
 
     int int_state;
+    int int_prev_state;
     int rc = 0;
 
     // Initialize the internal XML object
@@ -645,6 +679,7 @@ int Host::from_xml(const string& xml)
     rc += xpath(oid, "/HOST/ID", -1);
     rc += xpath(name, "/HOST/NAME", "not_found");
     rc += xpath(int_state, "/HOST/STATE", 0);
+    rc += xpath(int_prev_state, "/HOST/PREV_STATE", 0);
 
     rc += xpath(im_mad_name, "/HOST/IM_MAD", "not_found");
     rc += xpath(vmm_mad_name, "/HOST/VM_MAD", "not_found");
@@ -655,6 +690,7 @@ int Host::from_xml(const string& xml)
     rc += xpath(cluster,    "/HOST/CLUSTER",    "not_found");
 
     state = static_cast<HostState>( int_state );
+    prev_state = static_cast<HostState>( int_prev_state );
 
     // Set the owner and group to oneadmin
     set_user(0, "");
@@ -669,7 +705,7 @@ int Host::from_xml(const string& xml)
         return -1;
     }
 
-    rc += host_share.from_xml_node( content[0] );
+    rc += host_share.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
 
@@ -679,12 +715,12 @@ int Host::from_xml(const string& xml)
 
     ObjectXML::get_nodes("/HOST/TEMPLATE", content);
 
-    if( content.empty())
+    if (content.empty())
     {
         return -1;
     }
 
-    rc += obj_template->from_xml_node( content[0] );
+    rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
 
@@ -704,60 +740,31 @@ int Host::from_xml(const string& xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void nebula_crypt(const std::string in, std::string& out)
+void Host::get_cluster_capacity(string& cluster_rcpu, string& cluster_rmem) const
 {
-    Nebula& nd = Nebula::instance();
-    string  one_key;
-    string  * encrypted;
-
-    nd.get_configuration_attribute("ONE_KEY", one_key);
-
-    if (!one_key.empty())
+    if (cluster_id != -1)
     {
-        encrypted = one_util::aes256cbc_encrypt(in, one_key);
+        auto cpool = Nebula::instance().get_clpool();
+        Cluster * cluster = cpool->get_ro(cluster_id);
 
-        out = *encrypted;
-
-        delete encrypted;
-    }
-    else
-    {
-        out = in;
+        if (cluster != nullptr)
+        {
+            cluster->get_reserved_capacity(cluster_rcpu, cluster_rmem);
+            cluster->unlock();
+        }
     }
 }
 
 /* -------------------------------------------------------------------------- */
-
-static const map<std::string, unsigned int> MAX_HOST_VAR_SIZES = {
-    {"EC2_ACCESS", 21},
-    {"EC2_SECRET", 41},
-    {"AZ_ID", 41},
-    {"AZ_CERT", 3130},
-    {"VCENTER_PASSWORD", 22},
-    {"ONE_PASSWORD", 22}
-};
+/* -------------------------------------------------------------------------- */
 
 int Host::post_update_template(string& error)
 {
     string new_im_mad;
     string new_vm_mad;
+    string cpu_ids;
 
-    map<std::string, unsigned int>::const_iterator it;
-
-    for (it = MAX_HOST_VAR_SIZES.begin(); it != MAX_HOST_VAR_SIZES.end() ; ++it)
-    {
-        string att;
-        string crypted;
-
-        get_template_attribute(it->first.c_str(), att);
-
-        if (!att.empty() && att.size() <= it->second)
-        {
-            nebula_crypt(att, crypted);
-
-            replace_template_attribute(it->first, crypted);
-        }
-    }
+    unsigned int vms_thread;
 
     get_template_attribute("IM_MAD", new_im_mad);
     get_template_attribute("VM_MAD", new_vm_mad);
@@ -773,7 +780,27 @@ int Host::post_update_template(string& error)
     replace_template_attribute("IM_MAD", im_mad_name);
     replace_template_attribute("VM_MAD", vmm_mad_name);
 
-    host_share.update_capacity(this);
+    get_template_attribute("ISOLCPUS", cpu_ids);
+
+    string cluster_rcpu = "";
+    string cluster_rmem = "";
+    get_cluster_capacity(cluster_rcpu, cluster_rmem);
+
+    host_share.update_capacity(this, cluster_rcpu, cluster_rmem);
+
+    host_share.reserve_cpus(cpu_ids);
+
+    if ( get_template_attribute("VMS_THREAD", vms_thread) )
+    {
+        if ( vms_thread <= 0 )
+        {
+            vms_thread = 1;
+
+            replace_template_attribute("VMS_THREAD", 1);
+        }
+
+        host_share.set_vms_thread(vms_thread);
+    }
 
     return 0;
 };

@@ -16,6 +16,9 @@
 
 module VCenterDriver
 
+    require 'json'
+    require 'nsx_driver'
+
 class HostFolder
     attr_accessor :item, :items
 
@@ -94,6 +97,143 @@ class ClusterComputeResource
         rp_array
     end
 
+    def get_nsx
+        nsx_info = ""
+        nsx_obj = {}
+        extensionList = []
+        extensionList = @vi_client.vim.serviceContent.extensionManager.extensionList
+        extensionList.each do |extList|
+            if extList.key == "com.vmware.vShieldManager"
+                nsx_obj['type'] = "NSX-V"
+                urlFull = extList.client[0].url
+                urlSplit = urlFull.split("/")
+                # protocol = "https://"
+                protocol = urlSplit[0] + "//"
+                # ipPort = ip:port
+                ipPort = urlSplit[2]
+                nsx_obj['url'] = protocol + ipPort
+            elsif extList.key == "com.vmware.nsx.management.nsxt"
+                nsx_obj['type'] = "NSX-T"
+                nsx_obj['url'] = extList.server[0].url
+            else
+                next
+            end
+            nsx_obj['version'] = extList.version
+            nsx_obj['label'] = extList.description.label
+        end
+        unless nsx_obj.nil?
+            nsx_info << "NSX_MANAGER=\"#{nsx_obj['url']}\"\n"
+            nsx_info << "NSX_TYPE=\"#{nsx_obj['type']}\"\n"
+            nsx_info << "NSX_VERSION=\"#{nsx_obj['version']}\"\n"
+            nsx_info << "NSX_LABEL=\"#{nsx_obj['label']}\"\n"
+        end
+        return nsx_info
+    end
+
+    def nsx_ready?
+        @one_item = VCenterDriver::VIHelper
+                    .one_item(OpenNebula::Host,
+                              @vi_client.instance_variable_get(:@host_id).to_i)
+
+        # Check if NSX_USER is into the host template
+        if [nil, ""].include?(@one_item["TEMPLATE/NSX_USER"])
+            @nsx_status = "NSX_STATUS = \"Missing NSX_USER\"\n"
+            return false
+        end
+
+        # Check if NSX_PASSWORD is into the host template
+        if [nil, ""].include?(@one_item["TEMPLATE/NSX_PASSWORD"])
+            @nsx_status = "NSX_STATUS = \"Missing NSX_PASSWORD\"\n"
+            return false
+        end
+
+        # Check if NSX_TYPE is into the host template
+        if [nil, ""].include?(@one_item["TEMPLATE/NSX_TYPE"])
+            @nsx_status = "NSX_STATUS = \"Missing NSX_TYPE\"\n"
+            return false
+        end
+
+        # Check if NSX_MANAGER is into the host template
+        if [nil, ""].include?(@one_item["TEMPLATE/NSX_MANAGER"])
+            @nsx_status = "NSX_STATUS = \"Missing NSX_MANAGER\"\n"
+            return false
+        end
+
+        # Try a connection as part of NSX_STATUS
+        nsx_client = NSXDriver::NSXClient
+                     .new_from_id(@vi_client.instance_variable_get(:@host_id).to_i)
+
+        if @one_item["TEMPLATE/NSX_TYPE"] == "NSX-V"
+            # URL to test a connection
+            url = "#{@one_item["TEMPLATE/NSX_MANAGER"]}/api/2.0/vdn/scopes"
+            begin
+                if nsx_client.get_xml(url)
+                    return true
+                else
+                    @nsx_status = "NSX_STATUS = \"Response code incorrect\"\n"
+                    return false
+                end
+            rescue StandardError => e
+                @nsx_status = "NSX_STATUS = \"Error connecting to " \
+                              "NSX_MANAGER\"\n"
+                return false
+            end
+        end
+
+        if @one_item["TEMPLATE/NSX_TYPE"] == "NSX-T"
+            # URL to test a connection
+            url = "#{@one_item["TEMPLATE/NSX_MANAGER"]}/api/v1/transport-zones"
+            begin
+                if nsx_client.get_json(url)
+                    return true
+                else
+                    @nsx_status = "NSX_STATUS = \"Response code incorrect\"\n"
+                    return false
+                end
+            rescue StandardError => e
+                @nsx_status = "NSX_STATUS = \"Error connecting to "\
+                              "NSX_MANAGER\"\n"
+                return false
+            end
+        end
+    end
+
+    def get_tz
+        @nsx_status = ""
+        if !nsx_ready?
+            tz_info = @nsx_status
+        else
+            tz_info = "NSX_STATUS = OK\n"
+            tz_info << "NSX_TRANSPORT_ZONES = ["
+
+            nsx_client = NSXDriver::NSXClient
+                         .new_from_id(@vi_client.instance_variable_get(:@host_id).to_i)
+            tz_object = NSXDriver::TransportZone.new(nsx_client)
+
+            # NSX request to get Transport Zones
+            if @one_item["TEMPLATE/NSX_TYPE"] == "NSX-V"
+                tzs = tz_object.tzs_nsxv
+                tzs.each do |tz|
+                    tz_info << tz.xpath("name").text << "=\""
+                    tz_info << tz.xpath("objectId").text << "\","
+                end
+                tz_info.chomp!(',')
+            elsif @one_item["TEMPLATE/NSX_TYPE"] == "NSX-T"
+                r = tz_object.tzs_nsxt
+                r["results"].each do |tz|
+                    tz_info << tz["display_name"] << "=\""
+                    tz_info << tz["id"] << "\","
+                end
+                tz_info.chomp!(',')
+            else
+                raise "Unknown Port Group type #{@one_item["TEMPLATE/NSX_TYPE"]}"
+            end
+            tz_info << "]"
+            return tz_info
+        end
+        return tz_info
+    end
+
     def monitor
         total_cpu,
         num_cpu_cores,
@@ -154,7 +294,13 @@ class ClusterComputeResource
         # HA enabled
         str_info << "VCENTER_HA="  << ha_enabled.to_s << "\n"
 
+        # NSX info
+        str_info << get_nsx
+        str_info << get_tz
+
         str_info << monitor_resource_pools(mhz_core)
+
+
     end
 
     def monitor_resource_pools(mhz_core)
@@ -618,6 +764,8 @@ class ClusterComputeResource
                    "VCENTER_VERSION=\"#{cluster[:vcenter_version]}\"\n"\
 
         template << "VCENTER_RESOURCE_POOL=\"#{rp}\"" if rp
+
+        template << "VCENTER_PORT=\"#{con_ops[:port]}\"" if con_ops[:port]
 
         rc = one_host.update(template, false)
 

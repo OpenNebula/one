@@ -37,15 +37,14 @@ const int    GroupPool::USERS_ID      = 1;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-GroupPool::GroupPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
-    const string& remotes_location, bool is_federation_slave) :
-        PoolSQL(db, Group::table)
+GroupPool::GroupPool(SqlDB * db, bool is_slave,
+        vector<const SingleAttribute *>& restricted_attrs):PoolSQL(db, Group::table)
 {
     ostringstream oss;
     string        error_str;
 
     //Federation slaves do not need to init the pool
-    if (is_federation_slave)
+    if (is_slave)
     {
         return;
     }
@@ -61,7 +60,7 @@ GroupPool::GroupPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
 
         rc = PoolSQL::allocate(group, error_str);
 
-        if( rc < 0 )
+        if (rc < 0)
         {
             goto error_groups;
         }
@@ -72,7 +71,7 @@ GroupPool::GroupPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
 
         rc = PoolSQL::allocate(group, error_str);
 
-        if(rc < 0)
+        if (rc < 0)
         {
             goto error_groups;
         }
@@ -80,7 +79,8 @@ GroupPool::GroupPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
         set_lastOID(99);
     }
 
-    register_hooks(hook_mads, remotes_location);
+    // Set restricted attributes
+    GroupTemplate::parse_restricted(restricted_attrs);
 
     return;
 
@@ -211,10 +211,6 @@ int GroupPool::drop(PoolObjectSQL * objsql, string& error_msg)
         error_msg = "SQL DB error";
         rc = -1;
     }
-    else
-    {
-        do_hooks(objsql, Hook::REMOVE);
-    }
 
     return rc;
 }
@@ -222,7 +218,7 @@ int GroupPool::drop(PoolObjectSQL * objsql, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int GroupPool::dump(string& oss, const string& where, 
+int GroupPool::dump(string& oss, const string& where,
     const string& limit, bool desc)
 {
     int     rc;

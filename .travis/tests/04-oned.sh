@@ -23,7 +23,10 @@ mkdir $HOME/.one
 echo "oneadmin:opennebula" > $HOME/.one/one_auth
 
 # Install gems
-sudo /usr/share/one/install_gems --yes
+source /home/travis/.rvm/scripts/rvm
+rvm repair wrappers
+
+rvmsudo /usr/share/one/install_gems --yes
 
 # Enable dummy drivers
 sudo chmod o+w /etc/one/oned.conf

@@ -120,14 +120,14 @@ int Group::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     // Update the Group
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -248,6 +248,9 @@ string& Group::to_xml_extended(string& xml, bool extended) const
 int Group::from_xml(const string& xml)
 {
     int rc = 0;
+
+    string error;
+
     vector<xmlNodePtr> content;
     vector<xmlNodePtr>::iterator it;
 
@@ -282,6 +285,8 @@ int Group::from_xml(const string& xml)
 
     ObjectXML::free_nodes(content);
     content.clear();
+
+    rc += vm_actions.set_auth_ops(*obj_template, error);
 
     if (rc != 0)
     {
@@ -540,42 +545,41 @@ void Group::sunstone_views(const string& user_default, const string& user_views,
             const string& admin_default, const string& admin_views)
 {
 
-	VectorAttribute * sunstone = obj_template->get("SUNSTONE");
+    VectorAttribute * sunstone = obj_template->get("SUNSTONE");
 
-	if ( sunstone == 0 )
-	{
-		map<string,string>  vvalue;
+    if ( sunstone == 0 )
+    {
+        map<string,string>  vvalue;
 
-		vvalue.insert(make_pair("DEFAULT_VIEW", user_default));
-		vvalue.insert(make_pair("VIEWS", user_views));
-		vvalue.insert(make_pair("GROUP_ADMIN_DEFAULT_VIEW", admin_default));
-		vvalue.insert(make_pair("GROUP_ADMIN_VIEWS", admin_views));
+        vvalue.insert(make_pair("DEFAULT_VIEW", user_default));
+        vvalue.insert(make_pair("VIEWS", user_views));
+        vvalue.insert(make_pair("GROUP_ADMIN_DEFAULT_VIEW", admin_default));
+        vvalue.insert(make_pair("GROUP_ADMIN_VIEWS", admin_views));
 
-		sunstone = new VectorAttribute("SUNSTONE", vvalue);
+        sunstone = new VectorAttribute("SUNSTONE", vvalue);
 
-		obj_template->set(sunstone);
-	}
- 	else
-	{
-		if ( sunstone->vector_value("DEFAULT_VIEW").empty() )
-		{
-			sunstone->replace("DEFAULT_VIEW", user_default);
-		}
+        obj_template->set(sunstone);
+    }
+    else
+    {
+        if ( sunstone->vector_value("DEFAULT_VIEW").empty() )
+        {
+            sunstone->replace("DEFAULT_VIEW", user_default);
+        }
 
-		if ( sunstone->vector_value("VIEWS").empty() )
-		{
-			sunstone->replace("VIEWS", user_views);
-		}
+        if ( sunstone->vector_value("VIEWS").empty() )
+        {
+            sunstone->replace("VIEWS", user_views);
+        }
 
-		if ( sunstone->vector_value("GROUP_ADMIN_DEFAULT_VIEW").empty() )
-		{
-			sunstone->replace("GROUP_ADMIN_DEFAULT_VIEW", admin_default);
-		}
+        if ( sunstone->vector_value("GROUP_ADMIN_DEFAULT_VIEW").empty() )
+        {
+            sunstone->replace("GROUP_ADMIN_DEFAULT_VIEW", admin_default);
+        }
 
-		if ( sunstone->vector_value("GROUP_ADMIN_VIEWS").empty() )
-		{
-			sunstone->replace("GROUP_ADMIN_VIEWS", admin_views);
-		}
-	}
+        if ( sunstone->vector_value("GROUP_ADMIN_VIEWS").empty() )
+        {
+            sunstone->replace("GROUP_ADMIN_VIEWS", admin_views);
+        }
+    }
 }
-

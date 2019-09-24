@@ -326,20 +326,46 @@ static void vtopol(ofstream& file, const VectorAttribute * topology,
         mboss << "\t<memoryBacking>\n";
         mboss << "\t\t<hugepages>\n";
 
-        mboss << "\t\t\t<page size=" << one_util::escape_xml_attr(hpsz_kb);
-
-        if (!mnodes.str().empty())
-        {
-            mboss << " nodeset='" << mnodes.str() << "'";
-        }
-
-        mboss << "/>\n";
+        mboss << "\t\t\t<page size=" << one_util::escape_xml_attr(hpsz_kb) << "/>\n";
 
         mboss << "\t\t</hugepages>\n";
         mboss << "\t</memoryBacking>\n";
 
         membacking = mboss.str();
     }
+}
+
+/**
+ *  Returns disk bus based on this table:
+ *         \ prefix   hd     sd             vd
+ *  chipset \
+ *  pc-q35-*          sata   [sd_default]   virtio
+ *  (other)           ide    [sd_default]   virtio
+ *
+ *  sd_default - SD_DISK_BUS value from vmm_exec_kvm.conf/template
+ *               'sata' or 'scsi'
+ */
+static string get_disk_bus(std::string &machine, std::string &target,
+        std::string &sd_default)
+{
+    switch(target[0])
+    {
+        case 's': // sd_ disk
+            return sd_default;
+        case 'v': // vd_ disk
+            return "virtio";
+        default:
+        {
+            std::size_t found = machine.find("q35");
+            
+            if (found != std::string::npos)
+            {
+                return "sata";
+            }      
+        }
+    }
+
+    return "ide";
 }
 
 /* -------------------------------------------------------------------------- */
@@ -460,6 +486,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  filter = "";
     string  virtio_queues = "";
     string  bridge_type = "";
+    string  nic_id = "";
 
     string  i_avg_bw = "";
     string  i_peak_bw = "";
@@ -502,6 +529,7 @@ int LibVirtDriver::deployment_description_kvm(
     bool localtime          = false;
     bool guest_agent        = false;
     int  virtio_scsi_queues = 0;
+    int  scsi_targets_num   = 0;
 
     int pae_found                   = -1;
     int acpi_found                  = -1;
@@ -522,6 +550,9 @@ int LibVirtDriver::deployment_description_kvm(
 
     std::string numa_tune = "";
     std::string mbacking  = "";
+
+    std::string sd_bus;
+    std::string disk_bus;
 
     string  vm_xml;
 
@@ -611,6 +642,7 @@ int LibVirtDriver::deployment_description_kvm(
         bootloader = os->vector_value("BOOTLOADER");
         arch       = os->vector_value("ARCH");
         machine    = os->vector_value("MACHINE");
+        sd_bus     = os->vector_value("SD_DISK_BUS");
     }
 
     if ( arch.empty() )
@@ -662,6 +694,11 @@ int LibVirtDriver::deployment_description_kvm(
         get_default("OS","KERNEL_CMD",kernel_cmd);
     }
 
+    if ( sd_bus.empty() )
+    {
+        get_default("OS", "SD_DISK_BUS", sd_bus);
+    }
+
     // Start writing to the file with the info we got
 
     if ( !kernel.empty() )
@@ -697,26 +734,30 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     cpu_model_v = vm->get_template_attribute("CPU_MODEL");
 
-
     if( cpu_model_v != 0 )
     {
         cpu_model = cpu_model_v->vector_value("MODEL");
 
-        if ( cpu_model == "host-passthrough" )
-        {
-            cpu_mode = "host-passthrough";
-        }
-        else
-        {
-            cpu_mode = "custom";
-        }
-
         //TODO #756 cache, feature
+    }
+
+    if (cpu_model.empty())
+    {
+        get_default("CPU_MODEL", "MODEL", cpu_model);
+    }
+
+    if (cpu_model == "host-passthrough")
+    {
+        cpu_mode = "host-passthrough";
+    }
+    else
+    {
+        cpu_mode = "custom";
     }
 
     if ( !cpu_model.empty() || topology != 0 )
     {
-        file << "\t<cpu" ;
+        file << "\t<cpu";
 
         if (!cpu_model.empty())
         {
@@ -1079,7 +1120,17 @@ int LibVirtDriver::deployment_description_kvm(
 
         // ---- target device to map the disk ----
 
-        file << "\t\t\t<target dev=" << one_util::escape_xml_attr(target) << "/>\n";
+        file << "\t\t\t<target dev=" << one_util::escape_xml_attr(target);
+
+        disk_bus = get_disk_bus(machine, target, sd_bus);
+
+        if (!disk_bus.empty())
+        {
+             file << " bus="<< one_util::escape_xml_attr(disk_bus);
+        }
+
+        file <<"/>\n";
+
 
         // ---- boot order for this device ----
 
@@ -1205,6 +1256,7 @@ int LibVirtDriver::deployment_description_kvm(
             {
                 file << "\t\t\t<address type='drive' controller='0' bus='0' " <<
                      "target='" << target_number << "' unit='0'/>" << endl;
+                scsi_targets_num++;
             }
         }
 
@@ -1232,8 +1284,16 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t<disk type='file' device='cdrom'>\n"
                  << "\t\t\t<source file="
                      << one_util::escape_xml_attr(fname.str())  << "/>\n"
-                 << "\t\t\t<target dev="
-                     << one_util::escape_xml_attr(target) << "/>\n"
+                 << "\t\t\t<target dev=" << one_util::escape_xml_attr(target);
+
+            disk_bus = get_disk_bus(machine, target, sd_bus);
+
+            if (!disk_bus.empty())
+            {
+                 file << " bus="<< one_util::escape_xml_attr(disk_bus);
+            }
+
+            file <<"/>\n"
                  << "\t\t\t<readonly/>\n"
                  << "\t\t\t<driver name='qemu' type='raw'/>\n"
                  << "\t\t</disk>\n";
@@ -1256,6 +1316,7 @@ int LibVirtDriver::deployment_description_kvm(
 
     for(int i=0; i<num; i++)
     {
+        nic_id        = nic[i]->vector_value("NIC_ID");
         bridge        = nic[i]->vector_value("BRIDGE");
         vn_mad        = nic[i]->vector_value("VN_MAD");
         mac           = nic[i]->vector_value("MAC");
@@ -1283,15 +1344,30 @@ int LibVirtDriver::deployment_description_kvm(
         }
         else
         {
-            file << "\t\t<interface type='bridge'>" << endl;
-
-            if (VirtualNetwork::str_to_bridge_type(bridge_type) == VirtualNetwork::OPENVSWITCH)
+            switch(VirtualNetwork::str_to_bridge_type(bridge_type))
             {
-                file << "\t\t\t<virtualport type='openvswitch'/>" << endl;
-            }
+                case VirtualNetwork::UNDEFINED:
+                case VirtualNetwork::LINUX:
+                case VirtualNetwork::VCENTER_PORT_GROUPS:
+                case VirtualNetwork::BRNONE:
+                    file << "\t\t<interface type='bridge'>\n"
+                         << "\t\t\t<source bridge="
+                         << one_util::escape_xml_attr(bridge) << "/>\n";
+                    break;
 
-            file << "\t\t\t<source bridge="
-                 << one_util::escape_xml_attr(bridge) << "/>\n";
+                case VirtualNetwork::OPENVSWITCH:
+                    file << "\t\t<interface type='bridge'>\n"
+                         << "\t\t\t<virtualport type='openvswitch'/>\n"
+                         << "\t\t\t<source bridge="
+                         << one_util::escape_xml_attr(bridge) << "/>\n";
+                    break;
+
+                case VirtualNetwork::OPENVSWITCH_DPDK:
+                    file << "\t\t<interface type='vhostuser'>\n"
+                         << "\t\t\t<source type='unix' mode='server' path='"
+                         << vm->get_system_dir() << "/" << target << "' />\n";
+                    break;
+            }
         }
 
         if( !mac.empty() )
@@ -1659,13 +1735,16 @@ int LibVirtDriver::deployment_description_kvm(
              << "\t</devices>" << endl;
     }
 
-    if ( virtio_scsi_queues > 0 )
+    if ( virtio_scsi_queues > 0 || scsi_targets_num > 1)
     {
         file << "\t<devices>" << endl
              << "\t\t<controller type='scsi' index='0' model='virtio-scsi'>"
              << endl;
 
-        file << "\t\t\t<driver queues='" << virtio_scsi_queues << "'/>" << endl;
+        if ( virtio_scsi_queues > 0 )
+        {
+            file << "\t\t\t<driver queues='" << virtio_scsi_queues << "'/>" << endl;
+        }
 
         file << "\t\t</controller>" << endl
              << "\t</devices>" << endl;
@@ -1704,7 +1783,7 @@ int LibVirtDriver::deployment_description_kvm(
          << "\t\t\t<one:system_datastore>"
          << one_util::escape_xml(vm->get_system_dir())
          << "</one:system_datastore>\n"
-         << "<one:name>"
+         << "\t\t\t<one:name>"
          << one_util::escape_xml(vm->get_name())
          << "</one:name>\n"
          << "\t\t\t<one:uname>"

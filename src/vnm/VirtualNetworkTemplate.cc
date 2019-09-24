@@ -20,6 +20,7 @@
 /* -------------------------------------------------------------------------- */
 
 std::map<std::string, std::set<std::string> > VirtualNetworkTemplate::restricted;
+const std::map<std::string, std::set<std::string> > VirtualNetworkTemplate::encrypted;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

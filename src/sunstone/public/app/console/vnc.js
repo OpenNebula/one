@@ -98,12 +98,14 @@ define(function(require) {
          }
          return(false);
   }
-
   token = window.token;
   var URL = "";
   var proxy_host = window.location.hostname;
   var proxy_port = Config.vncProxyPort;
   var token = getQueryVariable("token");
+  var password = getQueryVariable("password");
+
+  var rfbConfig = password? { "credentials": { "password": password } } : {};
 
   if (window.location.protocol === "https:") {
     URL = "wss";
@@ -131,7 +133,7 @@ define(function(require) {
     return;
   }
   try{
-    rfb = new RFB(document.querySelector("#VNC_canvas"), URL);
+    rfb = new RFB(document.querySelector("#VNC_canvas"), URL, rfbConfig);
   }catch(err){
     console.log("error start NOVNC ", err);
   }

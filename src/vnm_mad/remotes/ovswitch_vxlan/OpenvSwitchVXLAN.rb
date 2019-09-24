@@ -38,7 +38,7 @@ class OpenvSwitchVXLAN < OpenvSwitchVLAN
 
 private
     # Generate the name of the vlan device which will be added to the bridge.
-    def get_vlan_dev_name
+    def gen_vlan_dev_name
         @nic[:vlan_dev] = "#{@nic[:phydev]}.#{@nic[@attr_vlan_id]}"
     end
 end

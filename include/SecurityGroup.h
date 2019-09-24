@@ -34,7 +34,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    string& to_xml(string& xml) const override;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -42,7 +42,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const string &xml_str) override;
 
     /**
      *  Returns a copy of the Template
@@ -173,7 +173,7 @@ private:
                     int             _umask,
                     Template*       sgroup_template);
 
-    ~SecurityGroup();
+    virtual ~SecurityGroup() = default;
 
     /**
      *  Check that a rule is valid
@@ -188,7 +188,7 @@ private:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int post_update_template(string& error);
+    int post_update_template(string& error) override;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -225,14 +225,14 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, string& error_str) override;
 
     /**
      *  Writes/updates the SecurityGroup's data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
         string error_str;
         return insert_replace(db, true, error_str);
@@ -241,7 +241,7 @@ private:
     /**
      *  Factory method for SecurityGroup templates
      */
-    Template * get_new_template() const
+    Template * get_new_template() const override
     {
         return new Template;
     }

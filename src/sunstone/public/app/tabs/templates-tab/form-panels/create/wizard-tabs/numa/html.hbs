@@ -1,0 +1,73 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+<div id="tabs-numa" class="row collapse">
+  <div class="small-12 columns">
+    <div class="row">
+      <div class="small-12 columns numa-topology-display">
+        <input type="checkbox" id="numa-topology">
+        <label for="numa-topology">
+          {{tr "NUMA Topology"}}
+          {{{tip (tr "These settings will help you to fine tune the performance of VMs")}}}
+        </label>
+      </div>
+    </div>
+    <div class="row numa-form hide">
+      <div class="small-6 columns">
+        <label for="numa-pin-policy">
+          {{tr "Pin Policy"}}
+          {{{tip (tr "vCPU pinning preference: CORE, THREAD, SHARED, NONE")}}}
+        </label>
+        <select id="numa-pin-policy">
+          <option value="NONE">{{tr "none"}}</option>
+          <option value="THREAD">{{tr "thread"}}</option>
+          <option value="SHARED">{{tr "shared"}}</option>
+          <option value="CORE">{{tr "core"}}</option>
+        </select>
+        <label for="numa-sockets">
+          {{tr "Sockets"}}
+          {{{tip (tr "Number of sockets or NUMA nodes")}}}
+        </label>
+        <input type="number" id="numa-sockets">
+        <label for="numa-cores">
+          {{tr "Cores"}}
+          {{{tip (tr "Number of cores per node")}}}
+        </label>
+        <input type="number" id="numa-cores">
+      </div>
+      <div class="small-6 columns">
+        <label for="numa-threads">
+          {{tr "Threads"}}
+          {{{tip (tr "Number of threads per core")}}}
+        </label>
+        <input type="number" id="numa-threads">
+        <label for="numa-hugepages">
+          {{tr "Hugepages Size"}}
+          {{{tip (tr "Size of the hugepages (MB). If not defined no hugepages will be used")}}}
+        </label>
+        <select id="numa-hugepages"></select>
+        <label for="numa-memory">
+          {{tr "Memory Access"}}
+          {{{tip (tr "Control if the memory is to be mapped shared or private")}}}
+        </label>
+        <select id="numa-memory">
+          <option value="">{{tr "-"}}</option>
+          <option value="shared">{{tr "Shared"}}</option>
+          <option value="private">{{tr "Private"}}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>

@@ -21,18 +21,24 @@
 ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-    BIN_LOCATION = '/usr/bin'     unless defined?(BIN_LOCATION)
-    LIB_LOCATION = '/usr/lib/one' unless defined?(LIB_LOCATION)
-    ETC_LOCATION = '/etc/one/'    unless defined?(ETC_LOCATION)
-    VAR_LOCATION = '/var/lib/one' unless defined?(VAR_LOCATION)
+    BIN_LOCATION  = '/usr/bin'     unless defined?(BIN_LOCATION)
+    LIB_LOCATION  = '/usr/lib/one' unless defined?(LIB_LOCATION)
+    ETC_LOCATION  = '/etc/one/'    unless defined?(ETC_LOCATION)
+    VAR_LOCATION  = '/var/lib/one' unless defined?(VAR_LOCATION)
+    GEMS_LOCATION = '/usr/share/one/gems' unless defined?(GEMS_LOCATION)
 else
-    BIN_LOCATION = ONE_LOCATION + '/bin' unless defined?(BIN_LOCATION)
-    LIB_LOCATION = ONE_LOCATION + '/lib'  unless defined?(LIB_LOCATION)
-    ETC_LOCATION = ONE_LOCATION + '/etc/' unless defined?(ETC_LOCATION)
-    VAR_LOCATION = ONE_LOCATION + '/var/' unless defined?(VAR_LOCATION)
+    BIN_LOCATION  = ONE_LOCATION + '/bin' unless defined?(BIN_LOCATION)
+    LIB_LOCATION  = ONE_LOCATION + '/lib'  unless defined?(LIB_LOCATION)
+    ETC_LOCATION  = ONE_LOCATION + '/etc/' unless defined?(ETC_LOCATION)
+    VAR_LOCATION  = ONE_LOCATION + '/var/' unless defined?(VAR_LOCATION)
+    GEMS_LOCATION = ONE_LOCATION + '/share/gems' unless defined?(GEMS_LOCATION)
 end
 
 ENV['LANG'] = 'C'
+
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+end
 
 $LOAD_PATH << LIB_LOCATION + '/ruby/vendors/rbvmomi/lib'
 $LOAD_PATH << LIB_LOCATION + '/ruby'

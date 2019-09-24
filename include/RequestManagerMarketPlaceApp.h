@@ -27,8 +27,8 @@ class RequestManagerMarketPlaceApp: public Request
 {
 protected:
     RequestManagerMarketPlaceApp(const std::string& method_name,
-		const std::string& help, const std::string& params) :
-		Request(method_name, params, help)
+        const std::string& help, const std::string& params) :
+        Request(method_name, params, help)
     {
         Nebula& nd = Nebula::instance();
         pool       = nd.get_apppool();
@@ -42,7 +42,7 @@ protected:
     /* --------------------------------------------------------------------- */
 
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
-		RequestAttributes& att) = 0;
+        RequestAttributes& att) = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -52,12 +52,12 @@ class MarketPlaceAppEnable : public RequestManagerMarketPlaceApp
 {
 public:
     MarketPlaceAppEnable(): RequestManagerMarketPlaceApp("one.marketapp.enable",
-		"Enables or disables a marketplace app", "A:sib"){};
+        "Enables or disables a marketplace app", "A:sib"){};
 
     ~MarketPlaceAppEnable(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-		RequestAttributes& att) override;
+        RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */

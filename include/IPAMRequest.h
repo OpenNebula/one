@@ -19,6 +19,10 @@
 
 #include "SyncRequest.h"
 #include "NebulaUtil.h"
+#include "Attribute.h"
+#include "Template.h"
+
+class AddressRange;
 
 /**
  *  The IPAMRequest class represents a request for the IPAM driver. The request
@@ -32,12 +36,15 @@ public:
     /* ---------------------------------------------------------------------- */
     /* IPAM Request constructors                                              */
     /* ---------------------------------------------------------------------- */
-    IPAMRequest(const std::string& _ar_xml) :
-        ar_xml(_ar_xml), address_xml("<ADDRESS><MAC/><IP/><IP6_GLOBAL/>"
-                "<IP6_ULA/><IP6/><SIZE/></ADDRESS>"){};
+    IPAMRequest(VectorAttribute * _ar_vattr) : IPAMRequest(_ar_vattr,
+            "<ADDRESS><MAC/><IP/><IP6_GLOBAL/><IP6_ULA/><IP6/><SIZE/></ADDRESS>"){};
 
-    IPAMRequest(const std::string& _ar_xml, const std::string& _address_xml) :
-        ar_xml(_ar_xml), address_xml(_address_xml){};
+    IPAMRequest(VectorAttribute * _ar_vattr, const std::string& _address_xml);
+
+    IPAMRequest(AddressRange * _ar) : IPAMRequest(_ar,
+            "<ADDRESS><MAC/><IP/><IP6_GLOBAL/><IP6_ULA/><IP6/><SIZE/></ADDRESS>"){};
+
+    IPAMRequest(AddressRange * _ar, const std::string& _address_xml);
 
     virtual ~IPAMRequest(){};
 
@@ -82,7 +89,7 @@ public:
         aux_str     = one_util::base64_encode(oss.str());
         action_data = *aux_str;
 
-        free(aux_str);
+        delete aux_str;
 
         return action_data;
     }

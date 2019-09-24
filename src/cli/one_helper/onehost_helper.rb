@@ -764,12 +764,20 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         [cores].flatten.each do |info|
             core = info['CPUS'].split(',')
 
+            core.uniq! do |c|
+                c = c.split(':')
+                c[0]
+            end
+
             core.each do |c|
                 c = c.split(':')
 
                 if c[1] == '-1'
                     ret  += '-'
                     free += 1
+                elsif c[1] == '-2'
+                    ret  += 'I'
+                    used += 1
                 elsif c[1] != '-1' && info['FREE'] == '0'
                     ret  += 'X'
                     used += 1

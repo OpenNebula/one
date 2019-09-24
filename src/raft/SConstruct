@@ -25,8 +25,7 @@ source_files=[
     'RaftManager.cc',
     'ReplicaManager.cc',
     'ReplicaThread.cc',
-    'FedReplicaManager.cc',
-    'RaftHook.cc'
+    'FedReplicaManager.cc'
 ]
 
 # Build library

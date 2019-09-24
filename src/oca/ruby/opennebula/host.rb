@@ -86,8 +86,8 @@ module OpenNebula
         #######################################################################
 
         # Retrieves the information of the given Host.
-        def info()
-            super(HOST_METHODS[:info], 'HOST')
+        def info(decrypt = false)
+            super(HOST_METHODS[:info], 'HOST', decrypt)
         end
 
         alias_method :info!, :info

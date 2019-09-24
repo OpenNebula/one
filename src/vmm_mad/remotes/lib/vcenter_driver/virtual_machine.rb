@@ -19,10 +19,16 @@ module VCenterDriver
 
     if !ONE_LOCATION
         RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+        GEMS_LOCATION     = '/usr/share/one/gems'
     else
         RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+        GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
     end
-    
+
+    if File.directory?(GEMS_LOCATION)
+        Gem.use_paths(GEMS_LOCATION)
+    end
+
     $LOAD_PATH << RUBY_LIB_LOCATION
 
     require 'vm_device'
@@ -723,9 +729,9 @@ module VCenterDriver
                     key = backing.port.portgroupKey
                 elsif backing.class == OPAQUE_CARD
                     # Select only Opaque Networks
-                    opaqueNetworks = @item.network.select{|net| 
+                    opaqueNetworks = @item.network.select{|net|
                         RbVmomi::VIM::OpaqueNetwork == net.class}
-                    opaqueNetwork = opaqueNetworks.find{|opn| 
+                    opaqueNetwork = opaqueNetworks.find{|opn|
                         backing.opaqueNetworkId == opn.summary.opaqueNetworkId}
                     key = opaqueNetwork._ref
                 else
@@ -1115,8 +1121,8 @@ module VCenterDriver
                 end
             end
 
-      # vnc configuration (for config_array hash)
-      extraconfig += extraconfig_vnc
+            # vnc configuration (for config_array hash)
+            extraconfig += extraconfig_vnc
 
             # vnc configuration (for config_array hash)
             extraconfig += extraconfig_vnc
@@ -1357,7 +1363,7 @@ module VCenterDriver
                 backing = RbVmomi::VIM.VirtualEthernetCardNetworkBackingInfo(
                             :deviceName => pg_name,
                             :network    => network)
-            else
+            elsif network.class == RbVmomi::VIM::DistributedVirtualPortgroup
                 port    = RbVmomi::VIM::DistributedVirtualSwitchPortConnection(
                             :switchUuid =>
                                     network.config.distributedVirtualSwitch.uuid,
@@ -1365,6 +1371,12 @@ module VCenterDriver
                 backing =
                   RbVmomi::VIM.VirtualEthernetCardDistributedVirtualPortBackingInfo(
                     :port => port)
+            elsif network.class == RbVmomi::VIM::OpaqueNetwork
+                backing = RbVmomi::VIM.VirtualEthernetCardOpaqueNetworkBackingInfo(
+                            :opaqueNetworkId => network.summary.opaqueNetworkId,
+                            :opaqueNetworkType => "nsx.LogicalSwitch")
+            else
+                raise "Unknown network class"
             end
 
             card_spec = {

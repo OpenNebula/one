@@ -23,7 +23,7 @@
 
 #include "Nebula.h"
 #include "HostPool.h"
-#include "HostHook.h"
+#include "HookStateHost.h"
 #include "NebulaLog.h"
 #include "GroupPool.h"
 #include "ClusterPool.h"
@@ -36,14 +36,9 @@ time_t HostPool::_monitor_expiration;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-HostPool::HostPool(SqlDB*                    db,
-                   vector<const VectorAttribute *> hook_mads,
-                   const string&             hook_location,
-                   const string&             remotes_location,
-                   time_t                    expire_time)
-                        : PoolSQL(db, Host::table)
+HostPool::HostPool(SqlDB * db, time_t expire_time,
+        vector<const SingleAttribute *>& encrypted_attrs) : PoolSQL(db, Host::table)
 {
-
     _monitor_expiration = expire_time;
 
     if ( _monitor_expiration == 0 )
@@ -51,115 +46,8 @@ HostPool::HostPool(SqlDB*                    db,
         clean_all_monitoring();
     }
 
-    // ------------------ Initialize Hooks for the pool ----------------------
-    string name;
-    string on;
-    string cmd;
-    string arg;
-    bool   remote;
-
-    bool state_hook = false;
-
-    for (unsigned int i = 0 ; i < hook_mads.size() ; i++ )
-    {
-        name = hook_mads[i]->vector_value("NAME");
-        on   = hook_mads[i]->vector_value("ON");
-        cmd  = hook_mads[i]->vector_value("COMMAND");
-        arg  = hook_mads[i]->vector_value("ARGUMENTS");
-        hook_mads[i]->vector_value("REMOTE", remote);
-
-        one_util::toupper(on);
-
-        if ( on.empty() || cmd.empty() )
-        {
-            ostringstream oss;
-
-            oss << "Empty ON or COMMAND attribute in HOST_HOOK. Hook "
-                << "not registered!";
-            NebulaLog::log("ONE",Log::WARNING,oss);
-
-            continue;
-        }
-
-        if ( name.empty() )
-        {
-            name = cmd;
-        }
-
-        if (cmd[0] != '/')
-        {
-            ostringstream cmd_os;
-
-            if ( remote )
-            {
-                cmd_os << hook_location << "/" << cmd;
-            }
-            else
-            {
-                cmd_os << remotes_location << "/hooks/" << cmd;
-            }
-
-            cmd = cmd_os.str();
-        }
-
-        if ( on == "CREATE" )
-        {
-            HostAllocateHook * hook;
-
-            hook = new HostAllocateHook(name,cmd,arg,remote);
-
-            add_hook(hook);
-        }
-        else if ( on == "DISABLE" )
-        {
-            HostStateHook * hook;
-
-            hook = new HostStateHook(name, cmd, arg, remote, Host::DISABLED);
-
-            add_hook(hook);
-
-            state_hook = true;
-        }
-        else if ( on == "ERROR" )
-        {
-            HostStateHook * hook;
-
-            hook = new HostStateHook(name, cmd, arg, remote, Host::ERROR);
-
-            add_hook(hook);
-
-            state_hook = true;
-        }
-        else if ( on == "OFFLINE" )
-        {
-            HostStateHook * hook;
-
-            hook = new HostStateHook(name, cmd, arg, remote, Host::OFFLINE);
-
-            add_hook(hook);
-
-            state_hook = true;
-        }
-        else if ( on == "ENABLE" )
-        {
-            HostStateHook * hook;
-
-            hook = new HostStateHook(name, cmd, arg, remote, Host::INIT);
-
-            add_hook(hook);
-
-            state_hook = true;
-        }
-    }
-
-    if ( state_hook )
-    {
-        HostUpdateStateHook * hook;
-
-        hook = new HostUpdateStateHook();
-
-        add_hook(hook);
-    }
+    // Parse encrypted attributes
+    HostTemplate::parse_encrypted(encrypted_attrs);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -215,6 +103,22 @@ int HostPool::allocate (
 
     *oid = PoolSQL::allocate(host, error_str);
 
+    if (*oid >= 0)
+    {
+        host = get(*oid);
+
+        if (host != nullptr)
+        {
+            std::string * event = HookStateHost::format_message(host);
+
+            Nebula::instance().get_hm()->trigger(HMAction::SEND_EVENT, *event);
+
+            delete event;
+
+            host->unlock();
+        }
+    }
+
     return *oid;
 
 error_im:
@@ -234,6 +138,32 @@ error_common:
     *oid = -1;
 
     return *oid;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int HostPool::update(PoolObjectSQL * objsql)
+{
+    Host * host = dynamic_cast<Host *>(objsql);
+
+    if ( host == 0 )
+    {
+        return -1;
+    }
+
+    if ( HookStateHost::trigger(host) )
+    {
+        std::string * event = HookStateHost::format_message(host);
+
+        Nebula::instance().get_hm()->trigger(HMAction::SEND_EVENT, *event);
+
+        delete event;
+    }
+
+    host->set_prev_state();
+
+    return host->update(db);
 }
 
 /* -------------------------------------------------------------------------- */

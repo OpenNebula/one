@@ -73,8 +73,6 @@ protected:
         extended    = false;
     };
 
-    ~RequestManagerPoolInfoFilter(){};
-
     /* -------------------------------------------------------------------- */
 
     void request_execute(
@@ -137,8 +135,6 @@ public:
         auth_object = PoolObjectSQL::VM;
     };
 
-    ~VirtualMachinePoolInfo(){};
-
     /* -------------------------------------------------------------------- */
 
     void request_execute(
@@ -160,7 +156,6 @@ public:
         extended    = true;
     };
 
-    ~VirtualMachinePoolInfoExtended(){};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -179,8 +174,6 @@ public:
         pool        = nd.get_vmpool();
         auth_object = PoolObjectSQL::VM;
     };
-
-    ~VirtualMachinePoolAccounting(){};
 
     /* -------------------------------------------------------------------- */
 
@@ -205,8 +198,6 @@ public:
         auth_object = PoolObjectSQL::VM;
     };
 
-    ~VirtualMachinePoolShowback(){};
-
     /* -------------------------------------------------------------------- */
 
     void request_execute(
@@ -230,8 +221,6 @@ public:
         auth_object = PoolObjectSQL::VM;
     };
 
-    ~VirtualMachinePoolMonitoring(){};
-
     /* -------------------------------------------------------------------- */
 
     void request_execute(
@@ -253,8 +242,6 @@ public:
         pool        = nd.get_tpool();
         auth_object = PoolObjectSQL::TEMPLATE;
     };
-
-    ~TemplatePoolInfo(){};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -272,8 +259,6 @@ public:
         pool        = nd.get_vnpool();
         auth_object = PoolObjectSQL::NET;
     };
-
-    ~VirtualNetworkPoolInfo(){};
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
@@ -294,9 +279,6 @@ public:
         pool        = nd.get_vntpool();
         auth_object = PoolObjectSQL::VNTEMPLATE;
     };
-
-    ~VirtualNetworkTemplatePoolInfo(){};
-
 };
 
 /* ------------------------------------------------------------------------- */
@@ -314,8 +296,6 @@ public:
         pool        = nd.get_ipool();
         auth_object = PoolObjectSQL::IMAGE;
     };
-
-    ~ImagePoolInfo(){};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -333,8 +313,6 @@ public:
         pool        = nd.get_hpool();
         auth_object = PoolObjectSQL::HOST;
     };
-
-    ~HostPoolInfo(){};
 
     /* -------------------------------------------------------------------- */
 
@@ -359,8 +337,6 @@ public:
         auth_object = PoolObjectSQL::HOST;
     };
 
-    ~HostPoolMonitoring(){};
-
     /* -------------------------------------------------------------------- */
 
     void request_execute(
@@ -382,8 +358,6 @@ public:
         pool       = nd.get_gpool();
         auth_object = PoolObjectSQL::GROUP;
     };
-
-    ~GroupPoolInfo(){};
 
     /* -------------------------------------------------------------------- */
 
@@ -407,8 +381,6 @@ public:
         auth_object = PoolObjectSQL::USER;
     };
 
-    ~UserPoolInfo(){};
-
     /* -------------------------------------------------------------------- */
 
     void request_execute(
@@ -430,8 +402,6 @@ public:
         pool        = nd.get_dspool();
         auth_object = PoolObjectSQL::DATASTORE;
     };
-
-    ~DatastorePoolInfo(){};
 
     /* -------------------------------------------------------------------- */
 
@@ -455,8 +425,6 @@ public:
         auth_object = PoolObjectSQL::CLUSTER;
     };
 
-    ~ClusterPoolInfo(){};
-
     /* -------------------------------------------------------------------- */
 
     void request_execute(
@@ -478,8 +446,6 @@ public:
         pool        = nd.get_docpool();
         auth_object = PoolObjectSQL::DOCUMENT;
     };
-
-    ~DocumentPoolInfo(){};
 
     /* -------------------------------------------------------------------- */
 
@@ -503,8 +469,6 @@ public:
         auth_object = PoolObjectSQL::ZONE;
     };
 
-    ~ZonePoolInfo(){};
-
     /* -------------------------------------------------------------------- */
 
     void request_execute(
@@ -526,8 +490,6 @@ public:
         pool        = nd.get_secgrouppool();
         auth_object = PoolObjectSQL::SECGROUP;
     };
-
-    ~SecurityGroupPoolInfo(){};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -545,8 +507,6 @@ public:
         pool        = nd.get_vdcpool();
         auth_object = PoolObjectSQL::VDC;
     };
-
-    ~VdcPoolInfo(){};
 
     void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att) override;
 };
@@ -566,8 +526,6 @@ public:
         pool        = nd.get_vrouterpool();
         auth_object = PoolObjectSQL::VROUTER;
     };
-
-    ~VirtualRouterPoolInfo(){};
 };
 
 /* -------------------------------------------------------------------------- */
@@ -585,8 +543,6 @@ public:
         pool        = nd.get_marketpool();
         auth_object = PoolObjectSQL::MARKETPLACE;
     };
-
-    ~MarketPlacePoolInfo(){};
 
     void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att) override;
 };
@@ -606,8 +562,6 @@ public:
         pool        = nd.get_apppool();
         auth_object = PoolObjectSQL::MARKETPLACEAPP;
     };
-
-    ~MarketPlaceAppPoolInfo(){};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -625,8 +579,47 @@ public:
         pool        = nd.get_vmgrouppool();
         auth_object = PoolObjectSQL::VMGROUP;
     };
+};
 
-    ~VMGroupPoolInfo(){};
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class HookPoolInfo : public RequestManagerPoolInfoFilter
+{
+public:
+    HookPoolInfo():
+        RequestManagerPoolInfoFilter("one.hookpool.info",
+                                     "Returns the hook pool",
+                                     "A:siii")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_hkpool();
+        auth_object = PoolObjectSQL::HOOK;
+    };
+
+    ~HookPoolInfo(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class HookLogInfo : public RequestManagerPoolInfoFilter
+{
+public:
+    HookLogInfo():
+        RequestManagerPoolInfoFilter("one.hooklog.info",
+                                     "Returns the hook pool log info",
+                                     "A:siiii")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_hkpool();
+        auth_object = PoolObjectSQL::HOOK;
+    };
+
+    ~HookLogInfo(){};
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
 };
 
 #endif

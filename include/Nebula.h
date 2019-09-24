@@ -39,6 +39,7 @@
 #include "MarketPlaceAppPool.h"
 #include "VMGroupPool.h"
 #include "VNTemplatePool.h"
+#include "HookPool.h"
 
 #include "VirtualMachineManager.h"
 #include "LifeCycleManager.h"
@@ -47,6 +48,7 @@
 #include "DispatchManager.h"
 #include "RequestManager.h"
 #include "HookManager.h"
+#include "HookLog.h"
 #include "AuthManager.h"
 #include "AclManager.h"
 #include "ImageManager.h"
@@ -169,10 +171,15 @@ public:
         return vmgrouppool;
     };
 
-    VNTemplatePool * get_vntpool(){
+    VNTemplatePool * get_vntpool()
+    {
         return vntpool;
     }
 
+    HookPool * get_hkpool()
+    {
+        return hkpool;
+    }
     // --------------------------------------------------------------
     // Manager Accessors
     // --------------------------------------------------------------
@@ -205,6 +212,11 @@ public:
     HookManager * get_hm()
     {
         return hm;
+    };
+
+    HookLog * get_hl()
+    {
+        return hl;
     };
 
     AuthManager * get_authm()
@@ -240,6 +252,11 @@ public:
     FedReplicaManager * get_frm()
     {
         return frm;
+    };
+
+    RequestManager * get_rm()
+    {
+        return rm;
     };
 
     // --------------------------------------------------------------
@@ -572,7 +589,7 @@ public:
      *  Return the Authorization operation for a VM action
      *
      */
-    AuthRequest::Operation get_vm_auth_op(History::VMAction action)
+    AuthRequest::Operation get_vm_auth_op(VMActions::Action action)
     {
         return nebula_configuration->get_vm_auth_op(action);
     }
@@ -717,8 +734,8 @@ private:
         vmpool(0), hpool(0), vnpool(0), upool(0), ipool(0), gpool(0), tpool(0),
         dspool(0), clpool(0), docpool(0), zonepool(0), secgrouppool(0),
         vdcpool(0), vrouterpool(0), marketpool(0), apppool(0), vmgrouppool(0),
-        vntpool(0), lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0), authm(0), aclm(0),
-        imagem(0), marketm(0), ipamm(0), raftm(0), frm(0)
+        vntpool(0), hkpool(0), lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0),
+        hl(0), authm(0), aclm(0), imagem(0), marketm(0), ipamm(0), raftm(0), frm(0)
     {
         const char * nl = getenv("ONE_LOCATION");
 
@@ -777,6 +794,7 @@ private:
         delete dm;
         delete rm;
         delete hm;
+        delete hl;
         delete authm;
         delete aclm;
         delete imagem;
@@ -789,6 +807,7 @@ private:
         delete fed_logdb;
         delete system_db;
         delete vntpool;
+        delete hkpool;
     };
 
     Nebula& operator=(Nebula const&){return *this;};
@@ -803,7 +822,6 @@ private:
     string  etc_location;
     string  log_location;
     string  var_location;
-    string  hook_location;
     string  remotes_location;
     string  vms_location;
 
@@ -864,6 +882,7 @@ private:
     MarketPlaceAppPool * apppool;
     VMGroupPool        * vmgrouppool;
     VNTemplatePool     * vntpool;
+    HookPool           * hkpool;
     // ---------------------------------------------------------------
     // Nebula Managers
     // ---------------------------------------------------------------
@@ -875,6 +894,7 @@ private:
     DispatchManager *       dm;
     RequestManager *        rm;
     HookManager *           hm;
+    HookLog *               hl;
     AuthManager *           authm;
     AclManager *            aclm;
     ImageManager *          imagem;

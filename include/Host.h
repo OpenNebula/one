@@ -60,11 +60,85 @@ public:
     };
 
     /**
+     *  Functions to convert to/from string the Host states
+     */
+    static int str_to_state(std::string& st, HostState& state)
+    {
+        one_util::toupper(st);
+
+        state = INIT;
+
+        if ( st == "INIT" ) {
+            state = INIT;
+        } else if ( st == "MONITORING_MONITORED" ) {
+            state = MONITORING_MONITORED;
+        } else if ( st == "MONITORED" ) {
+            state = MONITORED;
+        } else if ( st == "ERROR" ) {
+            state = ERROR;
+        } else if ( st == "DISABLED" ) {
+            state = DISABLED;
+        } else if ( st == "MONITORING_ERROR" ) {
+            state = MONITORING_ERROR;
+        } else if ( st == "MONITORING_INIT" ) {
+            state = MONITORING_INIT;
+        } else if ( st == "MONITORING_DISABLED" ) {
+            state = MONITORING_DISABLED;
+        } else if ( st == "OFFLINE" ) {
+            state = OFFLINE;
+        }
+        else
+        {
+            return -1;
+        }
+
+        return 0;
+    }
+
+    static string& state_to_str(std::string& st, HostState state)
+    {
+        st = "";
+
+        switch (state)
+        {
+            case INIT:
+                st = "INIT";
+                break;
+            case MONITORING_MONITORED:
+                st = "MONITORING_MONITORED";
+                break;
+            case MONITORED:
+                st = "MONITORED";
+                break;
+            case ERROR:
+                st = "ERROR";
+                break;
+            case DISABLED:
+                st = "DISABLED";
+                break;
+            case MONITORING_ERROR:
+                st = "MONITORING_ERROR";
+                break;
+            case MONITORING_INIT:
+                st = "MONITORING_INIT";
+                break;
+            case MONITORING_DISABLED:
+                st = "MONITORING_DISABLED";
+                break;
+            case OFFLINE:
+                st = "OFFLINE";
+                break;
+        }
+
+        return st;
+    }
+
+    /**
      * Function to print the Host object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    string& to_xml(string& xml) const override;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -72,7 +146,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const string &xml_str) override;
 
      /**
       *  Checks if the host is a remote public cloud
@@ -106,6 +180,20 @@ public:
      {
         state = ERROR;
      }
+
+    /**
+     *  Test if the Host has changed state since last time prev state was set
+     *    @return true if Host changed state
+     */
+    bool has_changed_state();
+
+    /**
+     *  Sets the previous state to the current one
+     */
+    void set_prev_state()
+    {
+        prev_state = state;
+    };
 
      /**
       *  Updates the Host's last_monitored time stamp.
@@ -264,11 +352,13 @@ public:
      *    @param cpu reserved cpu (in percentage)
      *    @param mem reserved mem (in KB)
      */
-    void get_reserved_capacity(string& cpu, string& mem)
+    void get_reserved_capacity(string& cpu, string& mem) const
     {
         get_template_attribute("RESERVED_CPU", cpu);
         get_template_attribute("RESERVED_MEM", mem);
     }
+
+    void get_cluster_capacity(string& cluster_rcpu, string& cluster_rmem) const;
 
     // -------------------------------------------------------------------------
     // Share functions.
@@ -342,16 +432,16 @@ public:
     /**
      *  Factory method for host templates
      */
-    Template * get_new_template() const
+    Template * get_new_template() const override
     {
         return new HostTemplate;
     }
 
     /**
      *  Executed after an update operation to process the new template
-     *    - encrypt VCENTER_PASSWORD attribute.
+     *    - encrypt secret attributes.
      */
-    int post_update_template(string& error);
+    int post_update_template(string& error) override;
 
     /**
      * Returns the rediscovered VMs (from poff to running) in the previous
@@ -388,6 +478,7 @@ private:
      *  The state of the Host
      */
     HostState   state;
+    HostState   prev_state;
 
     /**
      *  Name of the IM driver used to monitor this host
@@ -452,7 +543,7 @@ private:
          int           cluster_id,
          const string& cluster_name);
 
-    virtual ~Host();
+    virtual ~Host() = default;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -501,7 +592,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str)
+    int insert(SqlDB *db, string& error_str) override
     {
         return insert_replace(db, false, error_str);
     };
@@ -511,7 +602,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
         string error_str;
         return insert_replace(db, true, error_str);

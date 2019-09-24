@@ -20,8 +20,14 @@ ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
 else
     RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+end
+
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -91,10 +97,10 @@ def show_service_template(client, args, options)
                 "SERVICE TEMPLATE #{document_hash['DOCUMENT']['ID']} "\
                 'INFORMATION')
 
-            puts format(str, ['ID',   document_hash['DOCUMENT']['ID']])
-            puts format(str, ['NAME', document_hash['DOCUMENT']['NAME']])
-            puts format(str, ['USER', document_hash['DOCUMENT']['UNAME']])
-            puts format(str, ['GROUP', document_hash['DOCUMENT']['GNAME']])
+            puts Kernel.format str, 'ID',   document_hash['DOCUMENT']['ID']
+            puts Kernel.format str, 'NAME', document_hash['DOCUMENT']['NAME']
+            puts Kernel.format str, 'USER', document_hash['DOCUMENT']['UNAME']
+            puts Kernel.format str, 'GROUP', document_hash['DOCUMENT']['GNAME']
 
             puts
 
@@ -107,7 +113,7 @@ def show_service_template(client, args, options)
                 mask[1] = 'm' if permissions_hash["#{e}_M"] == '1'
                 mask[2] = 'a' if permissions_hash["#{e}_A"] == '1'
 
-                puts format(str, [e, mask])
+                puts Kernel.format str, e, mask
             end
 
             puts

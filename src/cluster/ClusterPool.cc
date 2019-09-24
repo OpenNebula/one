@@ -17,6 +17,7 @@
 #include "ClusterPool.h"
 #include "Nebula.h"
 #include "NebulaLog.h"
+#include "ClusterTemplate.h"
 
 #include <stdexcept>
 
@@ -35,7 +36,9 @@ const int    ClusterPool::DEFAULT_CLUSTER_ID   = 0;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-ClusterPool::ClusterPool(SqlDB * db, const VectorAttribute * _vnc_conf):
+ClusterPool::ClusterPool(SqlDB * db,
+                         const VectorAttribute * _vnc_conf,
+                         vector<const SingleAttribute *>& encrypted_attrs):
     PoolSQL(db, Cluster::table), vnc_conf(_vnc_conf)
 {
     ostringstream oss;
@@ -75,6 +78,9 @@ ClusterPool::ClusterPool(SqlDB * db, const VectorAttribute * _vnc_conf):
         // User created clusters will start from ID 100
         set_lastOID(99);
     }
+
+    // Parse encrypted attributes
+    ClusterTemplate::parse_encrypted(encrypted_attrs);
 
     return;
 

@@ -26,7 +26,9 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Graphs = require('utils/graphs');
   var StateActions = require('tabs/vms-tab/utils/state-actions');
-
+  var OpenNebulaAction = require('opennebula/action');
+  var Humanize = require('utils/humanize');
+  var ProgressBar = require('utils/progress-bar');
   /*
     TEMPLATES
    */
@@ -149,5 +151,88 @@ define(function(require) {
       },
       error: Notifier.onError
     });
+
+    //NUMA DATA
+    var element = this.element;
+    var displaySubtitle = true;
+    var coreTable = $("<table/>");
+    if(element && element.TEMPLATE && element.TEMPLATE.NUMA_NODE){
+      var info = element.TEMPLATE.NUMA_NODE;
+      if (!(info instanceof Array)) {
+        info = [info];
+      }
+      var limit = 3; //start in 0 is index of array
+      var count = 0;
+      var subtitle = $("<h6/>");
+      var description = $("<small>").css({'margin-left':'1rem','font-size': '0.9rem'});
+      var descriptionText = [];
+      var space = false;
+      var tBody = $("<tbody/>");
+      var progress = "";
+      //description info
+      if(element.TEMPLATE && element.TEMPLATE.TOPOLOGY ){
+        for (var prop in  element.TEMPLATE.TOPOLOGY){
+          var styles = 'display: inline-block;font-weight: bold;color: #5f5d5d;';
+          if(space){
+            styles += 'margin-left: 0.3rem;';
+          }
+          space = true;
+          descriptionText.push("<div style='"+styles+"'>"+prop.toLocaleLowerCase()+":</div> "+element.TEMPLATE.TOPOLOGY[prop]);
+        }
+        description.append("("+descriptionText.join("  ").trim()+")");
+      }
+      info.map(function(core, index){
+        if(displaySubtitle){
+          subtitle.text("Cores & CPUS");
+          displaySubtitle = false;
+        }
+        
+        var placeBody = tBody.find("tr:last");
+        if(count === 0){
+          placeBody = tBody.append($("<tr/>")).find("tr:last");
+        }
+        placeBody.append(
+          $("<td/>",{"colspan":2,"class":"text-center"}).append(
+            $("<h6/>").text("Node "+index)
+          )
+        );
+        if(core.CPUS){
+          var cpus = core.CPUS.split(",");
+          if(cpus instanceof Array){
+            cpus.map(function(cpu){
+              if(core.MEMORY){
+                var infoMemory = core.MEMORY;
+                var total = infoMemory ? parseInt(infoMemory): 0;
+                var used = infoMemory ? parseInt(infoMemory) : 0;
+                var parser = Humanize.sizeFromKB;
+                if (total > 0) {
+                  var ratio = Math.round((used / total) * 100);
+                  info_str = parser(used) + ' / ' + parser(total) + ' (' + ratio + '%)';
+                } else {
+                  if (info.TYPE == 1) {
+                    info_str = '- / -';
+                  } else {
+                    info_str = Humanize.size(used) + ' / -';
+                  }
+                }
+                progress = ProgressBar.html(used, total, info_str, 'memory-used');
+              }
+
+              placeBody.find("td:last").append(
+                $("<div/>",{"class":"small-6 columns cpu busy"}).append(
+                  $("<div/>",{"class":""}).text("CPU #"+cpu)
+                )
+              );
+
+            });
+          }
+          placeBody.find("td:last").append($("<div/>",{'class':'small-12 columns'}).css({"padding": "0px",
+            "margin-top": "2rem"}).append($("<h6/>",{'class':'text-left'}).text("Memory").css({'padding-bottom':'0px'}).add(progress)));
+        }
+        count = count >= limit ? 0 : count+1;
+      });
+      coreTable.append(tBody);
+      $("#numaPlaceVM").empty().append(subtitle.append(description).add(coreTable));
+    }
   }
 });

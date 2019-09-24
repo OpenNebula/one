@@ -294,7 +294,7 @@ public:
      *  Updates VM dynamic information (id).
      *   @param _deploy_id the VMM driver specific id
      */
-    void set_deploy_id (const string& _deploy_id)
+    void set_deploy_id(const string& _deploy_id)
     {
         deploy_id = _deploy_id;
     };
@@ -653,7 +653,7 @@ public:
      *  function MUST be called before this one.
      *    @return the action that closed the current history record
      */
-    const History::VMAction get_action() const
+    const VMActions::Action get_action() const
     {
         return history->action;
     };
@@ -662,7 +662,7 @@ public:
      *  Returns the action that closed the history record in the previous host
      *    @return the action that closed the history record in the previous host
      */
-    const History::VMAction get_previous_action() const
+    const VMActions::Action get_previous_action() const
     {
         return previous_history->action;
     };
@@ -709,7 +709,7 @@ public:
      */
     void set_stime(time_t _stime)
     {
-        history->stime=_stime;
+        history->stime = _stime;
     };
 
     /**
@@ -734,7 +734,7 @@ public:
      */
     void set_etime(time_t _etime)
     {
-        history->etime=_etime;
+        history->etime = _etime;
     };
 
     /**
@@ -743,7 +743,7 @@ public:
      */
     void set_previous_etime(time_t _etime)
     {
-        previous_history->etime=_etime;
+        previous_history->etime = _etime;
     };
 
     /**
@@ -752,7 +752,7 @@ public:
      */
     void set_prolog_stime(time_t _stime)
     {
-        history->prolog_stime=_stime;
+        history->prolog_stime = _stime;
     };
 
     /**
@@ -761,7 +761,7 @@ public:
      */
     void set_prolog_etime(time_t _etime)
     {
-        history->prolog_etime=_etime;
+        history->prolog_etime = _etime;
     };
 
     /**
@@ -770,7 +770,7 @@ public:
      */
     void set_running_stime(time_t _stime)
     {
-        history->running_stime=_stime;
+        history->running_stime = _stime;
     };
 
     /**
@@ -787,7 +787,7 @@ public:
      */
     void set_running_etime(time_t _etime)
     {
-        history->running_etime=_etime;
+        history->running_etime = _etime;
     };
 
     /**
@@ -796,7 +796,7 @@ public:
      */
     void set_previous_running_etime(time_t _etime)
     {
-        previous_history->running_etime=_etime;
+        previous_history->running_etime = _etime;
     };
 
     /**
@@ -805,7 +805,7 @@ public:
      */
     void set_epilog_stime(time_t _stime)
     {
-        history->epilog_stime=_stime;
+        history->epilog_stime = _stime;
     };
 
     /**
@@ -814,14 +814,14 @@ public:
      */
     void set_epilog_etime(time_t _etime)
     {
-        history->epilog_etime=_etime;
+        history->epilog_etime = _etime;
     };
 
     /**
      *  Sets the action that closed the history record
      *    @param action that closed the history record
      */
-    void set_action(History::VMAction action, int uid, int gid, int req_id)
+    void set_action(VMActions::Action action, int uid, int gid, int req_id)
     {
         history->action = action;
 
@@ -831,7 +831,7 @@ public:
         history->req_id = req_id;
     };
 
-    void set_internal_action(History::VMAction action)
+    void set_internal_action(VMActions::Action action)
     {
         history->action = action;
 
@@ -843,7 +843,7 @@ public:
 
     void clear_action()
     {
-        history->action = History::NONE_ACTION;
+        history->action = VMActions::NONE_ACTION;
 
         history->uid = -1;
         history->gid = -1;
@@ -851,7 +851,7 @@ public:
         history->req_id = -1;
     }
 
-    void set_previous_action(History::VMAction action, int uid, int gid,int rid)
+    void set_previous_action(VMActions::Action action, int uid, int gid,int rid)
     {
         previous_history->action = action;
 
@@ -870,7 +870,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const
+    string& to_xml(string& xml) const override
     {
         return to_xml_extended(xml, 1);
     }
@@ -900,12 +900,12 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const string &xml_str) override;
 
     /**
      *  Factory method for virtual machine templates
      */
-    Template * get_new_template() const
+    Template * get_new_template() const override
     {
         return new VirtualMachineTemplate;
     }
@@ -929,7 +929,7 @@ public:
      *    @return 0 on success
      */
     int replace_template(const string& tmpl_str, bool keep_restricted,
-            string& error);
+            string& error) override;
 
     /**
      *  Append new attributes to the *user template*.
@@ -940,23 +940,23 @@ public:
      *    @return 0 on success
      */
     int append_template(const string& tmpl_str, bool keep_restricted,
-            string& error);
+            string& error) override;
 
     /**
      *  This function gets an attribute from the user template
      *    @param name of the attribute
      *    @param value of the attribute
      */
-    void get_user_template_attribute(const char * name, string& value) const
+    void get_user_template_attribute(const string& name, string& value) const
     {
-        user_obj_template->get(name,value);
+        user_obj_template->get(name, value);
     }
 
     /**
      *  Sets an error message with timestamp in the template
      *    @param message Message string
      */
-    void set_template_error_message(const string& message);
+    void set_template_error_message(const string& message) override;
 
     /**
      *  Sets an error message with timestamp in the template
@@ -968,7 +968,7 @@ public:
     /**
      *  Deletes the error message from the template
      */
-    void clear_template_error_message();
+    void clear_template_error_message() override;
 
     /**
      *  Sets an error message with timestamp in the template (ERROR_MONITOR)
@@ -1139,7 +1139,7 @@ public:
      * @param action VM action to check
      * @return true if the current VM MAD supports the given action for imported VMs
      */
-    bool is_imported_action_supported(History::VMAction action) const;
+    bool is_imported_action_supported(VMActions::Action action) const;
 
     // ------------------------------------------------------------------------
     // Virtual Router related functions
@@ -1453,7 +1453,7 @@ public:
 
         one_util::split_unique(nic->vector_value("ALIAS_IDS"), ',', a_ids);
 
-        for(std::set<int>::iterator it = a_ids.begin(); it != a_ids.end(); it++)
+        for (std::set<int>::iterator it = a_ids.begin(); it != a_ids.end(); it++)
         {
             VirtualMachineNic * nic_a = nics.delete_nic(*it);
 
@@ -2035,11 +2035,11 @@ private:
      *  netowrking updates.
      *    @param context attribute of the VM
      *    @param error string if any
-     *    @param  only_auto boolean to generate context only for vnets 
+     *    @param  only_auto boolean to generate context only for vnets
      *            with NETWORK_MODE = auto
      *    @return 0 on success
      */
-    int generate_network_context(VectorAttribute * context, string& error, 
+    int generate_network_context(VectorAttribute * context, string& error,
             bool only_auto);
 
     /**
@@ -2183,6 +2183,16 @@ private:
      */
     int parse_sched_action(string& error_str);
 
+    /**
+     *  Encrypt all secret attributes
+     */
+    virtual void encrypt() override;
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    virtual void decrypt() override;
+
 protected:
 
     //**************************************************************************
@@ -2226,21 +2236,21 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int select(SqlDB * db);
+    int select(SqlDB * db) override;
 
     /**
      *  Writes the Virtual Machine and its associated template in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB * db, string& error_str);
+    int insert(SqlDB * db, string& error_str) override;
 
     /**
      *  Writes/updates the Virtual Machine data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB * db)
+    int update(SqlDB * db) override
     {
         string error_str;
         return insert_replace(db, true, error_str);
@@ -2251,7 +2261,7 @@ protected:
      *   @param db pointer to the db
      *   @return -1
      */
-    int drop(SqlDB * db)
+    int drop(SqlDB * db) override
     {
         NebulaLog::log("ONE",Log::ERROR, "VM Drop not implemented!");
         return -1;

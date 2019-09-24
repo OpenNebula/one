@@ -145,14 +145,8 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
         }
         else
         {
-            if (cmd[0] != '/')
-            {
-                ostringstream cmd_os;
-                cmd_os << remotes_location << "/hooks/" << cmd;
-                cmd = cmd_os.str();
-            }
-
-            leader_hook = new RaftLeaderHook(cmd, arg);
+            leader_hook = new ExecuteHook("RAFT_LEADER_HOOK", cmd, arg,
+                    remotes_location);
         }
     }
 
@@ -172,20 +166,14 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
         }
         else
         {
-            if (cmd[0] != '/')
-            {
-                ostringstream cmd_os;
-                cmd_os << remotes_location << "/hooks/" << cmd;
-                cmd = cmd_os.str();
-            }
-
-            follower_hook = new RaftFollowerHook(cmd, arg);
+            follower_hook = new ExecuteHook("RAFT_FOLLOWER_HOOK", cmd, arg,
+                    remotes_location);
         }
     }
 
     if ( state == FOLLOWER && follower_hook != 0 )
     {
-        follower_hook->do_hook(0);
+        follower_hook->execute();
     }
 };
 
@@ -441,7 +429,7 @@ void RaftManager::leader()
 
     if ( leader_hook != 0 )
     {
-        leader_hook->do_hook(0);
+        leader_hook->execute();
     }
 
     state  = LEADER;
@@ -530,7 +518,7 @@ void RaftManager::follower(unsigned int _term)
 
     if ( state == LEADER && follower_hook != 0 )
     {
-        follower_hook->do_hook(0);
+        follower_hook->execute();
     }
 
     replica_manager.stop_replica_threads();
@@ -814,7 +802,7 @@ void RaftManager::timer_action(const ActionRequest& ar)
 
         purge_tics = 0;
 
-        if (rc > 0 && purge_period_ms > 60000) //logs removed, wakeup in 60s 
+        if (rc > 0 && purge_period_ms > 60000) //logs removed, wakeup in 60s
         {
             purge_tics = (int) ((purge_period_ms - 60000)/timer_period_ms);
         }
@@ -911,8 +899,6 @@ void RaftManager::request_vote()
     bool success;
 
     unsigned int _num_servers = get_zone_servers(_servers);
-
-    srand(time(0) + server_id + 1);
 
     do
     {
@@ -1037,7 +1023,7 @@ void RaftManager::request_vote()
 
         logdb->update_raft_state(raft_state_name, raft_state_xml);
 
-        ms = ( (float) rand() / RAND_MAX ) * (election_timeout.tv_sec * 1000
+        ms = one_util::random<float>(0, 1) * (election_timeout.tv_sec * 1000
             + election_timeout.tv_nsec / 1000000);
 
         oss.str("");

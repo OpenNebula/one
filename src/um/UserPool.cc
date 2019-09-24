@@ -51,16 +51,12 @@ string UserPool::oneadmin_name;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-UserPool::UserPool(SqlDB * db,
-                   time_t  __session_expiration_time,
-                   vector<const VectorAttribute *> hook_mads,
-                   const string&             remotes_location,
-                   bool                      is_federation_slave):
-                       PoolSQL(db, User::table)
+UserPool::UserPool(SqlDB * db, time_t __session_expiration_time, bool is_slave,
+        vector<const SingleAttribute *>& restricted_attrs):PoolSQL(db, User::table)
 {
-    int           one_uid    = -1;
-    int           server_uid = -1;
-    int           i;
+    int one_uid    = -1;
+    int server_uid = -1;
+    int i;
 
     ostringstream oss;
     string   one_token;
@@ -79,7 +75,7 @@ UserPool::UserPool(SqlDB * db,
     User * oneadmin_user = get_ro(0);
 
     //Slaves do not need to init the pool, just the oneadmin username
-    if (is_federation_slave)
+    if (is_slave)
     {
         if (oneadmin_user == 0)
         {
@@ -96,8 +92,6 @@ UserPool::UserPool(SqlDB * db,
     {
         oneadmin_name = oneadmin_user->get_name();
         oneadmin_user->unlock();
-
-        register_hooks(hook_mads, remotes_location);
 
         return;
     }
@@ -184,7 +178,8 @@ UserPool::UserPool(SqlDB * db,
         goto error_serveradmin;
     }
 
-    register_hooks(hook_mads, remotes_location);
+    // Set restricted attributes
+    UserTemplate::parse_restricted(restricted_attrs);
 
     return;
 
@@ -305,7 +300,7 @@ static int master_chgrp(int user_id, int group_id, string& error_str)
 
 /* -------------------------------------------------------------------------- */
 
-int UserPool::allocate (
+int UserPool::allocate(
     int * oid,
     const string& uname,
     int   gid,

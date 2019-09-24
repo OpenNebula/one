@@ -191,7 +191,7 @@ EOT
             :format => Integer,
             :description => 'The Group ID to instantiate the VM'
     }
-    
+
     #NOTE: Other options defined using this array, add new options at the end
     TEMPLATE_OPTIONS=[
         {
@@ -395,6 +395,12 @@ EOT
         :name => 'extended',
         :large => '--extended',
         :description => 'Show info extended (it only works with xml output)'
+    }
+
+    DECRYPT = {
+        :name => 'decrypt',
+        :large => '--decrypt',
+        :description => 'Get decrypted attributes'
     }
 
     TEMPLATE_OPTIONS_VM   = [TEMPLATE_NAME_VM] + TEMPLATE_OPTIONS + [DRY]
@@ -674,7 +680,7 @@ EOT
         def list_pool_xml(pool, options, filter_flag)
             extended = options.include?(:extended) && options[:extended]
 
-            if $stdout.isatty
+            if $stdout.isatty and (!options.key?:no_pager)
                 size = $stdout.winsize[0] - 1
 
                 # ----------- First page, check if pager is needed -------------
@@ -702,6 +708,13 @@ EOT
                     return 0
                 end
 
+                if elements < size
+                    return 0
+                elsif !pool.is_paginated?
+                    stop_pager(ppid)
+                    return 0
+                end
+
                 # ------- Rest of the pages in the pool, piped to pager --------
                 current = size
 
@@ -711,6 +724,12 @@ EOT
                     return -1, rc.message if OpenNebula.is_error?(rc)
 
                     current += size
+
+                    begin
+                        Process.waitpid(ppid, Process::WNOHANG)
+                    rescue Errno::ECHILD
+                        break
+                    end
 
                     elements, page = print_page(pool, options)
 
@@ -782,7 +801,12 @@ EOT
         def show_resource(id, options)
             resource = retrieve_resource(id)
 
-            rc = resource.info
+            if !options.key? :decrypt
+                rc = resource.info
+            else
+                rc = resource.info(true)
+            end
+
             return -1, rc.message if OpenNebula.is_error?(rc)
 
             if options[:xml]
@@ -1005,6 +1029,7 @@ EOT
 
         pool = case poolname
         when "HOST"        then OpenNebula::HostPool.new(client)
+        when "HOOK"        then OpenNebula::HookPool.new(client)
         when "GROUP"       then OpenNebula::GroupPool.new(client)
         when "USER"        then OpenNebula::UserPool.new(client)
         when "DATASTORE"   then OpenNebula::DatastorePool.new(client)
@@ -1061,7 +1086,7 @@ EOT
         end
     end
 
-    def OpenNebulaHelper.time_to_str(time, print_seconds=true, 
+    def OpenNebulaHelper.time_to_str(time, print_seconds=true,
         print_hours=true, print_years=false)
 
         value = time.to_i

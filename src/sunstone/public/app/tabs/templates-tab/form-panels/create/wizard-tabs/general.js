@@ -236,14 +236,23 @@ define(function(require) {
       });
     }
 
+    function removeByMode(mode=""){
+      if(mode && mode.length){
+        var selectHypervisor = $("#template_hypervisor_form", context);
+        var id = mode+"Radio";
+        var option = selectHypervisor.find("#"+id).remove();
+        var label = selectHypervisor.find('label[for="'+id+'"]').remove();
+      }
+    }
+
     if (config["mode"] === "kvm"){
       $("#kvmRadio", context).click();
-      $("#template_hypervisor_form", context).hide();
+      removeByMode("vcenter");
       $('.only_kvm').show();
       $('.only_vcenter').hide();
     } else if (config["mode"] === "vcenter"){
       $("#vcenterRadio", context).click();
-      $("#template_hypervisor_form", context).hide();
+      removeByMode("kvm");
       $('.only_kvm').hide();
       $('.only_vcenter').show();
     }

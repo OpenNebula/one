@@ -15,8 +15,10 @@
 /* -------------------------------------------------------------------------- */
 
 #include "Template.h"
+
 #include "template_syntax.h"
 #include "template_parser.h"
+
 #include "NebulaUtil.h"
 
 #include <iostream>
@@ -722,12 +724,12 @@ void Template::merge(const Template * from)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void Template::parse_restricted(const vector<const SingleAttribute *>& ras,
-        std::map<std::string, std::set<std::string> >& ras_m)
+static void parse_attributes(const vector<const SingleAttribute *>& as,
+        std::map<std::string, std::set<std::string> >& as_m)
 {
     vector<const SingleAttribute *>::const_iterator it;
 
-    for (it = ras.begin(); it != ras.end(); ++it)
+    for (it = as.begin(); it != as.end(); ++it)
     {
         string va  = (*it)->value();
         size_t pos = va.find("/");
@@ -739,15 +741,15 @@ void Template::parse_restricted(const vector<const SingleAttribute *>& ras,
 
             map<std::string, std::set<string> >::iterator jt;
 
-            jt = ras_m.find(avector);
+            jt = as_m.find(avector);
 
-            if ( jt == ras_m.end() )
+            if ( jt == as_m.end() )
             {
                 std::set<std::string> aset;
 
                 aset.insert(vattr);
 
-                ras_m.insert(make_pair(avector, aset));
+                as_m.insert(make_pair(avector, aset));
             }
             else
             {
@@ -758,9 +760,27 @@ void Template::parse_restricted(const vector<const SingleAttribute *>& ras,
         {
             std::set<std::string> eset;
 
-            ras_m.insert(make_pair(va, eset));
+            as_m.insert(make_pair(va, eset));
         }
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Template::parse_restricted(const vector<const SingleAttribute *>& ras,
+    std::map<std::string, std::set<std::string> >& rattr_m)
+{
+    parse_attributes(ras, rattr_m);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Template::parse_encrypted(const vector<const SingleAttribute *>& eas,
+    std::map<std::string, std::set<std::string> >& eattr_m)
+{
+    parse_attributes(eas, eattr_m);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -888,4 +908,80 @@ bool Template::check_restricted(string& ra,
     }
 
     return false;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Template::encrypt(const std::string& one_key,
+                       const std::map<std::string, std::set<std::string> >& eas)
+{
+    for (const auto& eit : eas )
+    {
+        const std::set<std::string>& sub = eit.second;
+
+        if (!sub.empty()) //Vector Attribute
+        {
+            vector<VectorAttribute *> vatt;
+
+            get(eit.first, vatt);
+
+            if (vatt.empty())
+            {
+                continue;
+            }
+
+            for ( const auto& vattit : vatt )
+            {
+                vattit->encrypt(one_key, sub);
+            }
+        }
+        else
+        {
+            vector<SingleAttribute *> vatt;
+
+            get(eit.first, vatt);
+
+            for ( const auto& attit : vatt )
+            {
+                attit->encrypt(one_key, sub);
+            }
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Template::decrypt(const std::string& one_key,
+                       const std::map<std::string, std::set<std::string> >& eas)
+{
+    for ( const auto& eit : eas )
+    {
+        const std::set<std::string>& sub = eit.second;
+
+        if (!sub.empty()) //Vector Attribute
+        {
+            vector<VectorAttribute *> vatt;
+
+            get(eit.first, vatt);
+
+            for ( const auto& vattit : vatt )
+            {
+                vattit->decrypt(one_key, sub);
+
+            }
+        }
+        else
+        {
+            vector<SingleAttribute *> vatt;
+
+            get(eit.first, vatt);
+
+            for ( const auto& attit : vatt )
+            {
+                attit->decrypt(one_key, sub);
+            }
+        }
+    }
 }

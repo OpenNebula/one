@@ -23,6 +23,7 @@
 
 #include "Mad.h"
 #include "VirtualMachinePool.h"
+#include "HookLog.h"
 
 using namespace std;
 
@@ -39,9 +40,8 @@ public:
     HookManagerDriver(
         int                       userid,
         const map<string,string>& attrs,
-        bool                      sudo,
-        VirtualMachinePool *      _vmpool)
-            : Mad(userid,attrs,sudo), vmpool(_vmpool){};
+        bool                      sudo)
+            : Mad(userid,attrs,sudo) {};
 
     virtual ~HookManagerDriver(){};
 
@@ -84,11 +84,15 @@ public:
         const string&   command,
         const string&   arguments ) const;
 
+    void execute(
+        const string&   message ) const;
+
+    void retry(
+        const string&   message ) const;
+
 private:
 
     friend class            HookManager;
-
-    VirtualMachinePool *    vmpool;
 };
 
 /* -------------------------------------------------------------------------- */

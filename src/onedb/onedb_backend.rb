@@ -77,7 +77,8 @@ class OneDBBacKEnd
             elsif !db_exists?
                 # If the DB doesn't have db_version table, it means it is empty or a 2.x
                 raise "Database schema does not look to be created by " <<
-                      "OpenNebula: table user_pool is missing or empty."
+                      "OpenNebula: table user_pool is missing or empty, " <<
+                      "oneadmin user must always exist."
             end
 
             begin
@@ -184,10 +185,11 @@ class OneDBBacKEnd
             @db.fetch("SELECT * FROM user_pool WHERE oid=0") { |row|
                 found = true
             }
-        rescue
+        rescue StandardError
+            found = false
         end
 
-        return found
+        found
     end
 
     def init_log_time()
@@ -294,6 +296,23 @@ class BackEndMySQL < OneDBBacKEnd
         end
 
         puts "MySQL DB #{@db_name} at #{@server} restored."
+    end
+
+    # Create or recreate FTS index on vm_pool search_token column
+    #
+    # @param recreate [Boolean] True to delete the index and create it again
+    def fts_index(recreate = false)
+        connect_db
+
+        if recreate
+            @db.alter_table(:vm_pool) do
+                drop_index :search_token, name: 'ftidx'
+            end
+        end
+
+        @db.alter_table(:vm_pool) do
+            add_full_text_index :search_token, name: 'ftidx'
+        end
     end
 
     private

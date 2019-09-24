@@ -1,0 +1,93 @@
+body#login{
+  display: inline-flex;
+  width: 100%;
+
+  #wrapper{
+    margin-left: auto;
+    margin-right: auto;
+    width: 900px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+
+    &>div{
+      width: 100%;
+      flex-grow: 1;
+      margin-top: -10rem;
+    }
+
+    div#logo_sunstone {
+      height: 200px;
+      width: 100%;
+      display: inline-block;
+    }
+
+    div#login {
+      background-color: #F5F5F5;
+      border-radius: 1rem;
+      padding: 2rem;
+      -webkit-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);
+      -moz-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);
+      box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);
+
+      .buttons{
+        display: inline-flex;
+        width: 100%;
+        margin: 0;
+        align-items: center;
+        margin-top: 1rem;
+
+        button{
+          -webkit-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+          -moz-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+          box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+          padding: .5rem 1rem;
+          background-color: #F6F6F6;
+          background-image: linear-gradient(180deg, #F6F6F6 0%, rgba(0,0,0,0.2) 51%, rgba(0,0,0,0.3) 100%);
+
+          &:after{
+            content: "Login";
+            font-weight: bold;
+          }
+        }
+      }
+
+      .box {
+        background: #FFFFFF;
+        border-radius: 0.5rem;
+        border: 1px solid grey;
+      }
+    }
+
+    #login_spinner {
+      display: inline-block;
+      padding-right: 10px;
+    }
+    .error-place{
+      position: relative;
+      margin-top: 1rem;
+
+      #error_box{
+        display: block;
+        position: absolute;
+        width: 100%;
+      }
+    }
+  }
+
+  #footer {
+    padding: 9px 10px 10px 10px;
+    text-align: center;
+    width: 100%;
+    position: fixed;
+    margin: 0px;
+    bottom: 0;
+
+    a {
+      color: #2ba6cb;
+      text-decoration: none;
+      line-height: inherit;
+      font-size:      13px;
+    }
+  }
+}

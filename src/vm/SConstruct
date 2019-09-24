@@ -25,7 +25,6 @@ source_files=[
     'History.cc',
     'VirtualMachine.cc',
     'VirtualMachinePool.cc',
-    'VirtualMachineHook.cc',
     'VirtualMachineTemplate.cc',
     'VirtualMachineAttribute.cc',
     'VirtualMachineDisk.cc',
@@ -33,6 +32,7 @@ source_files=[
     'VirtualMachineSystemSnapshot.cc',
     'VirtualMachineParser.cc',
     'VirtualMachineContext.cc',
+    'VMActions.cc',
     'Snapshots.cc'
 ]
 

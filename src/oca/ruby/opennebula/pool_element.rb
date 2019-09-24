@@ -65,10 +65,10 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def info(xml_method, root_element)
+        def info(xml_method, root_element, decrypt = false)
             return Error.new('ID not defined') if !@pe_id
 
-            rc = @client.call(xml_method, @pe_id)
+            rc = @client.call(xml_method, @pe_id, decrypt)
 
             if !OpenNebula.is_error?(rc)
                 initialize_xml(rc, root_element)

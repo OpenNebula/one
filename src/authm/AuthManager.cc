@@ -45,7 +45,7 @@ void AuthRequest::add_auth(Operation             op,
         if (encoded_id != 0)
         {
             oss << *encoded_id << ":";
-            delete (encoded_id);
+            delete encoded_id;
         }
         else
         {

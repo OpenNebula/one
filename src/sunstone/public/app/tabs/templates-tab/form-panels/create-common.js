@@ -49,7 +49,8 @@ define(function(require) {
     require("./create/wizard-tabs/scheduling"),
     require("./create/wizard-tabs/hybrid"),
     require("./create/wizard-tabs/vmgroup"),
-    require("./create/wizard-tabs/other")
+    require("./create/wizard-tabs/other"),
+    require("./create/wizard-tabs/numa")
   ];
 
   var TEMPLATES_TAB_ID = require("tabs/templates-tab/tabId");
@@ -161,9 +162,31 @@ define(function(require) {
     var templateJSON = {};
     $.each(this.wizardTabs, function(index, wizardTab) {
       $.extend(true, templateJSON, wizardTab.retrieve($("#" + wizardTab.wizardTabId, context)));
-
       var a = templateJSON;
     });
+
+
+    if(templateJSON["TOPOLOGY"] && templateJSON["TOPOLOGY"]["BORRAR"]){
+      delete templateJSON["TOPOLOGY"];
+    }
+
+    if(
+      templateJSON["TOPOLOGY"] && 
+      templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"] !== undefined && 
+      templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"] !== null &&
+      templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"].length<=0
+    ){
+      delete templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"];
+    }
+
+    if(
+      templateJSON["TOPOLOGY"] && 
+      templateJSON["TOPOLOGY"]["MEMORY_ACCESS"] !== undefined && 
+      templateJSON["TOPOLOGY"]["MEMORY_ACCESS"] !== null &&
+      templateJSON["TOPOLOGY"]["MEMORY_ACCESS"].length<=0
+    ){
+      delete templateJSON["TOPOLOGY"]["MEMORY_ACCESS"];
+    }
 
     // vCenter PUBLIC_CLOUD is not defined in the hybrid tab. Because it is
     // part of an array, and it is filled in different tabs, the $.extend deep
@@ -196,7 +219,6 @@ define(function(require) {
 
       delete templateJSON["NIC_PCI"];
     }
-
     return templateJSON;
   }
 
@@ -223,31 +245,40 @@ define(function(require) {
           success: function(request, response){
             if(response){
               var template = response.VMTEMPLATE && response.VMTEMPLATE.TEMPLATE;
-              if(template && template.DISK){
-                var lastDisk = template.DISK;
-                var newDisk = templateJSON.DISK[0];
-                var setNewdisk = function(){
-                  if(lastDisk.OPENNEBULA_MANAGED && lastDisk.OPENNEBULA_MANAGED === "NO" ){
-                    newDisk.LAST_IMAGE_DISK = (lastDisk && lastDisk.IMAGE_ID) || (lastDisk && lastDisk.IMAGE);
-                    delete newDisk.OPENNEBULA_MANAGED;
+              if(
+                template &&
+                template.DISK &&
+                template.DISK instanceof Array &&
+                templateJSON &&
+                templateJSON.DISK &&
+                templateJSON.DISK instanceof Array
+              ){
+                var disks = [];
+                var lastDisks = template.DISK;
+                var lengthLastDisks = lastDisks.length;
+                var lengthNewDisks = templateJSON.DISK.length;
+                var diffPositions = lengthLastDisks - lengthNewDisks;
+                templateJSON.DISK.map(function(element,id){
+                  var disk = element;
+                  var position = diffPositions>0? id+diffPositions : id;
+                  if(lastDisks && lastDisks[position] && JSON.stringify(lastDisks[position]) !== JSON.stringify(element)){
+                    if(element.OPENNEBULA_MANAGED && element.OPENNEBULA_MANAGED === "NO"){
+                      disk.LAST_IMAGE_DISK = (lastDisks[position] && lastDisks[position].IMAGE_ID) || (lastDisks[position] && lastDisks[position].IMAGE);
+                      delete disk.OPENNEBULA_MANAGED;
+                    }
                   }
-                };
-                if(lastDisk && lastDisk.LAST_IMAGE_DISK){
-                  if(lastDisk.LAST_IMAGE_DISK === newDisk.IMAGE || lastDisk.LAST_IMAGE_DISK === newDisk.IMAGE_ID){
-                    newDisk.OPENNEBULA_MANAGED = "NO";
-                    delete newDisk.LAST_IMAGE_DISK;
-                  }else{
-                    setNewdisk();
-                  }
-                }else{
-                  setNewdisk();
-                }
-                templateJSON.DISK = [newDisk];
+                  
+                  disks.push(disk);
+                });
+                templateJSON.DISK = disks;
+                Sunstone.runAction(actionUpdate, resourceId, TemplateUtils.templateToString(templateJSON));
+              }else{
                 Sunstone.runAction(actionUpdate, resourceId, TemplateUtils.templateToString(templateJSON));
               }
             }
           }
         };
+
         OpenNebulaAction.show(params,OpenNebulaTemplate.resource);
       }else{
         Sunstone.runAction(actionUpdate, resourceId, TemplateUtils.templateToString(templateJSON));

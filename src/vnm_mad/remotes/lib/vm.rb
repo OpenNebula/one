@@ -50,15 +50,6 @@ module VNMMAD
                         nic.get_tap(self)
                     end
 
-                    if !nic[:alias_ids].nil?
-                        nic[:aliases] = []
-                        @vm_root.elements.each("TEMPLATE/NIC_ALIAS[PARENT_ID=\"#{nic[:nic_id]}\"]") do |nicalias_element|
-                            nicalias = nics.new_nic
-                            nic_build_hash(nicalias_element, nicalias)
-                            nic[:aliases] << nicalias
-                        end
-                    end
-
                     nics << nic
                 end
 
@@ -91,6 +82,15 @@ module VNMMAD
             def hypervisor
                 xpath = 'HISTORY_RECORDS/HISTORY/VM_MAD'
                 @vm_root.root.elements[xpath].text
+            end
+
+            def system_dir(ds_location)
+                ds_id_p = 'HISTORY_RECORDS/HISTORY/DS_ID'
+
+                ds_id = @vm_root.root.elements[ds_id_p].text
+                vm_id = @vm_root.root.elements['ID'].text
+
+                "#{ds_location}/#{ds_id}/#{vm_id}"
             end
 
             private

@@ -31,6 +31,32 @@ public:
         Template(false,'=',"TEMPLATE"){};
 
     ~DatastoreTemplate(){};
+
+    DatastoreTemplate(DatastoreTemplate& dt):Template(dt){};
+
+    // -------------------------------------------------------------------------
+    // Encrypted attributes interface implementation
+    // -------------------------------------------------------------------------
+    virtual void encrypt(const std::string& one_key)
+    {
+        Template::encrypt(one_key, encrypted);
+    }
+
+    virtual void decrypt(const std::string& one_key)
+    {
+        Template::decrypt(one_key, encrypted);
+    }
+
+    static void parse_encrypted(vector<const SingleAttribute *>& ea)
+    {
+        Template::parse_encrypted(ea, encrypted);
+    }
+
+private:
+    /**
+     *  Encrypted attribute list for DatastoreTemlpates
+     */
+    static std::map<std::string, std::set<std::string> > encrypted;
 };
 
 /* -------------------------------------------------------------------------- */

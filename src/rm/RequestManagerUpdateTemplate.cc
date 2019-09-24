@@ -127,4 +127,3 @@ void RequestManagerUpdateTemplate::request_execute(
 
     return;
 }
-

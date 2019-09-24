@@ -241,9 +241,10 @@ public:
      *  Builds the node from its XML representation. This function is used when
      *  loading the host from the DB.
      *    @param node xmlNode for the template
+     *    @param _vt vms_thread
      *    @return 0 on success
      */
-    int from_xml_node(const xmlNodePtr &node);
+    int from_xml_node(const xmlNodePtr &node, unsigned int _vt);
 
     /**
      *  Get free capacity of the node
@@ -280,8 +281,9 @@ public:
     /**
      *  Remove allocation for the given CPUs
      *    @param cpu_ids list of cpu ids to free, comma separated
+     *    @param vmid of the VM using the threads
      */
-    void del_cpu(const std::string &cpu_ids);
+    void del_cpu(const std::string &cpu_ids, unsigned int vmid);
 
     /**
      *  Remove memory allocation
@@ -291,6 +293,12 @@ public:
     {
         mem_usage -= memory;
     }
+
+    /**
+     *  Reserve CPU IDs
+     *    @param rcpus list of reserved cpu ids (comma separated)
+     */
+    void reserve_cpus(const std::string& rcpus);
 
     /**
      *  Prints the NUMA node to an output stream.
@@ -307,9 +315,10 @@ private:
          *  Initializes the structure from the CORE attributes:
          *    @param _i ID of core
          *    @param _c CPUS list <cpu_id>:<vm_id>
-         *    @param _f FREE cpus in core. If -1 it will be derived from CPUS
+         *    @param _vt VMS per thread
+         *    @param _d true if the core is dedicated to a VM
          */
-        Core(unsigned int _i, const std::string& _c, int _f);
+        Core(unsigned int _i, const std::string& _c, unsigned int _vt, bool _d);
 
         /**
          *  ID of this CPU CORE
@@ -317,22 +326,48 @@ private:
         unsigned int id;
 
         /**
-         *  Number of free cpus in the core. A VM can use one thread but
-         *  reserve all the cpus in the core when using the dedicated policy.
+         *  Number of free & used cpus in the core.
          */
         unsigned int free_cpus;
 
+        unsigned int used_cpus;
+
         /**
-         *  cpu_id - vm_id map. represents assigment status of the
-         *  cpu thread, (-1) means the VM is free.
+         *  Number of VMs that can be allocated per physical thread.
          */
-        std::map<unsigned int, int> cpus;
+        unsigned int vms_thread;
+
+        /**
+         *  This core is dedicated to one VM
+         */
+        bool dedicated;
+
+        /**
+         *  CPU threads usage map
+         *    t0 -> [vm1, vm1]
+         *    t1 -> [vm2]
+         *    t3 -> [vm3]
+         *    t4 -> []
+         *
+         *  When no over commitment is used only 1 VM is assigned ot a thread
+         */
+        std::map<unsigned int, std::multiset<unsigned int> > cpus;
+
+        /**
+         *  Set of reserved threads in this core
+         */
+        std::set<unsigned int> reserved_cpus;
 
         /**
          *  @return a VectorAttribute representing this core in the form:
-         *    CORE = [ ID = "3", CPUS = "3:-1,7:-1", FREE = 2]
+         *    CORE = [ ID = "3", CPUS = "3:-1,7:-1", FREE = 2, DEDICATED=no]
          */
         VectorAttribute * to_attribute();
+
+        /**
+         *  Compute and set the free/used cpus of the core
+         */
+        void set_cpu_usage();
     };
 
     //This stuct represents the hugepages available in the node
@@ -358,11 +393,6 @@ private:
      *  ID of this node as reported by the Host
      */
     unsigned int node_id;
-
-    /**
-     *  Threads per core in this node
-     */
-    unsigned int threads_core = 1;
 
     /**
      *  CPU Cores in this node
@@ -402,10 +432,11 @@ private:
      *  core already exists this function does nothing
      *    @param id of core
      *    @param cpus string representing the cpu_id and allocation
-     *    @param free cpus in core -1 to derive them from cpus string
+     *    @param vms_thread VMs per thread
      *    @param update if true also adds the core to the object Template
      */
-    void set_core(unsigned int id, std::string& cpus, int free, bool update);
+    void set_core(unsigned int id, std::string& cpus, unsigned int vms_thread,
+            bool dedicated, bool update);
 
     /**
      *  Regenerate the template representation of the CORES for this node.
@@ -487,15 +518,16 @@ public:
      *  Builds the NUMA nodes from its XML representation. This function is used
      *  when loading the host from the DB.
      *    @param node xmlNode for the template
+     *    @param _vt vms_thread
      *    @return 0 on success
      */
-    int from_xml_node(const vector<xmlNodePtr> &ns);
+    int from_xml_node(const vector<xmlNodePtr> &ns, unsigned int _vt);
 
     /**
      *  Updates the NUMA node information with monitor data
      *    @param ht template with the information returned by monitor probes.
      */
-    void set_monitorization(Template &ht);
+    void set_monitorization(Template &ht, unsigned int vms_thread);
 
     /**
      *  @param idx of the node
@@ -536,6 +568,27 @@ public:
      *  Remove the VM assignment from the NUMA nodes
      */
     void del(HostShareCapacity &sr);
+
+    /**
+     *  Reserves the provided CPUs and frees any CPUS not included in the list
+     *    @param cpu_ids list of cpus to reserve "0,3,5"
+     */
+    void reserve_cpus(const std::string &cpu_ids)
+    {
+        for (auto it = nodes.begin(); it != nodes.end(); ++it)
+        {
+            it->second->reserve_cpus(cpu_ids);
+
+            it->second->update_cores();
+        }
+    };
+
+    /**
+     *  Update the vms_thread in the cores and recomputes the cpu_usage based
+     *  on the new value;
+     *    @param vms_thread value
+     */
+    void update_cpu_usage(unsigned int vms_thread);
 
     /**
      *  Prints the NUMA nodes to an output stream.
@@ -714,7 +767,7 @@ public:
 
     void set_numa_monitorization(Template &ht)
     {
-        numa.set_monitorization(ht);
+        numa.set_monitorization(ht, vms_thread);
     }
 
     /**
@@ -744,17 +797,39 @@ public:
      * probes. The values are removed from the template.
      *
      *   @param host for this share, capacity values are removed from the template
-     *   @para cr_cpu, reserved cpu default cluster value
+     *   @para cluster_rcpu, reserved cpu default cluster value
      *   @para cluster_rmem, reserved mem default cluster value
      */
-    void set_capacity(Host *host, const string& crcpu, const string& crmem);
+    void set_capacity(Host *host, const string& cluster_rcpu,
+            const string& cluster_rmem);
 
     /**
      * Update the capacity attributes when the RESERVED_CPU and RESERVED_MEM
      * are updated.
      *   @param host for this share
+     *   @para cluster_rcpu, reserved cpu default cluster value
+     *   @para cluster_rmem, reserved mem default cluster value
      */
-    void update_capacity(Host *host);
+    void update_capacity(Host *host, const string& cluster_rcpu,
+            const string& cluster_rmem);
+
+    /**
+     *  Reserve CPUs in the numa nodes
+     */
+    void reserve_cpus(const std::string &cpu_ids)
+    {
+        numa.reserve_cpus(cpu_ids);
+    }
+
+    /**
+     *  Set vms_thread overcommitment and updates core usage
+     */
+    void set_vms_thread(unsigned int vt)
+    {
+        vms_thread = vt;
+
+        numa.update_cpu_usage(vms_thread);
+    }
 
     /**
      *  Return the number of running VMs in this host
@@ -786,6 +861,8 @@ private:
     long long used_cpu;   /**< Used cpu from the IM monitor          */
 
     long long running_vms;/**< Number of running VMs in this Host   */
+
+    unsigned int vms_thread; /**< VMs that can be allocated to a thread */
 
     HostShareDatastore ds;
     HostSharePCI       pci;

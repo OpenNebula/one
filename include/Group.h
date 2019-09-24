@@ -18,10 +18,12 @@
 #define GROUP_H_
 
 #include "PoolSQL.h"
+#include "GroupTemplate.h"
 #include "ObjectCollection.h"
 #include "User.h"
 #include "QuotasSQL.h"
 #include "Template.h"
+#include "VMActions.h"
 
 using namespace std;
 
@@ -37,7 +39,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    string& to_xml(string& xml) const override;
 
     /**
      * Function to print the Group object into a string in
@@ -53,7 +55,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const string &xml_str) override;
 
     /**
      *  Adds this user's ID to the set.
@@ -115,14 +117,14 @@ public:
     int update_quotas(SqlDB *db)
     {
         return quota.update(oid, db->get_local_db());
-    };
+    }
 
     /**
      *  Factory method for Group templates
      */
-    Template * get_new_template() const
+    Template * get_new_template() const override
     {
-        return new Template;
+        return new GroupTemplate;
     }
 
     /**
@@ -136,6 +138,15 @@ public:
      */
     void sunstone_views(const string& user_default, const string& user_views,
             const string& admin_default, const string& admin_views);
+
+    /**
+     *  @return the operation level (admin, manage or use) associated to the
+     *  given action for this group
+     */
+    AuthRequest::Operation get_vm_auth_op(VMActions::Action action) const
+    {
+        return vm_actions.get_auth_op(action);
+    }
 
 private:
 
@@ -158,10 +169,10 @@ private:
         // Allow users in this group to see it
         group_u = 1;
 
-        obj_template = new Template;
-    };
+        obj_template = new GroupTemplate;
+    }
 
-    virtual ~Group(){};
+    virtual ~Group() = default;
 
     // *************************************************************************
     // Administrators
@@ -179,6 +190,11 @@ private:
 
     void add_admin_rules(int user_id);
     void del_admin_rules(int user_id);
+
+    /**
+     *  List of VM actions and rights for this group
+     */
+    VMActions vm_actions;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -208,14 +224,14 @@ private:
         ostringstream oss_group(Group::db_bootstrap);
 
         return db->exec_local_wr(oss_group);
-    };
+    }
 
     /**
      *  Reads the Group (identified with its OID) from the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int select(SqlDB * db);
+    int select(SqlDB * db) override;
 
     /**
      *  Reads the Group (identified with its OID) from the database.
@@ -225,7 +241,7 @@ private:
      *
      *    @return 0 on success
      */
-    int select(SqlDB * db, const string& name, int uid);
+    int select(SqlDB * db, const string& name, int uid) override;
 
     /**
      *  Reads the Group quotas from the database.
@@ -239,14 +255,14 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int drop(SqlDB *db);
+    int drop(SqlDB *db) override;
 
     /**
      *  Writes the Group in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, string& error_str) override;
 
     /**
      *  Writes/updates the Group's data fields in the database. This method does
@@ -254,11 +270,11 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
         string error_str;
         return insert_replace(db, true, error_str);
-    };
+    }
 
     /**
      * Function to print the Group object into a string in

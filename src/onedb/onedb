@@ -26,25 +26,31 @@ end
 
 NOKOGIRI_ENCODING = nk_encoding
 
-ONE_LOCATION = ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    LIB_LOCATION      = "/usr/lib/one"
-    RUBY_LIB_LOCATION = LIB_LOCATION + "/ruby"
-    VAR_LOCATION      = "/var/lib/one"
-    ETC_LOCATION      = "/etc/one"
-    LOCK_FILE         = "/var/lock/one/one"
+    LIB_LOCATION      = '/usr/lib/one'
+    RUBY_LIB_LOCATION = LIB_LOCATION + '/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VAR_LOCATION      = '/var/lib/one'
+    ETC_LOCATION      = '/etc/one'
+    LOCK_FILE         = '/var/lock/one/one'
 else
-    LIB_LOCATION      = ONE_LOCATION + "/lib"
-    RUBY_LIB_LOCATION = LIB_LOCATION + "/ruby"
-    VAR_LOCATION      = ONE_LOCATION + "/var"
-    ETC_LOCATION      = ONE_LOCATION + "/etc"
-    LOCK_FILE         = VAR_LOCATION + "/.lock"
+    LIB_LOCATION      = ONE_LOCATION + '/lib'
+    RUBY_LIB_LOCATION = LIB_LOCATION + '/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VAR_LOCATION      = ONE_LOCATION + '/var'
+    ETC_LOCATION      = ONE_LOCATION + '/etc'
+    LOCK_FILE         = VAR_LOCATION + '/.lock'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+'/onedb'
-$: << RUBY_LIB_LOCATION+'/cli'
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/onedb'
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 
 require 'cli/command_parser'
 require 'optparse/time'
@@ -71,6 +77,12 @@ FEDERATED = {
     :name        => "federated",
     :large       => "--federated",
     :description => "Limit backup/restore to federated tables"
+}
+
+RECREATE = {
+    :name => 'recreate',
+    :large => '--recreate',
+    :description => 'Delete FTS index and create a new one'
 }
 
 ###############################################################################
@@ -293,7 +305,6 @@ DELETE= {
 
 PAGES = {
     :name => 'pages',
-    :short => '-p pages',
     :large => '--pages pages',
     :description => 'Nummber of pages to purge VMs',
     :format => Integer
@@ -738,5 +749,24 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
 
         0 # exit code
+    end
+
+    ###########################################################################
+    # Create and recreate FTS index in vmpool
+    ###########################################################################
+    fts_desc = <<-EOT.unindent
+        Create or recreate FTS index in vm pool to be able to search VMs
+    EOT
+
+    command :'create-index', fts_desc, :options => [RECREATE] do
+        begin
+            helper = OneDB.new(options)
+            helper.fts_index(options.has_key? :recreate)
+        rescue StandardError => e
+            STDERR.puts e.message
+            [-1, e.message]
+        end
+
+        0
     end
 end

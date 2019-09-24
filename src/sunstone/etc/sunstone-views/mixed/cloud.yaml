@@ -120,12 +120,14 @@ tabs:
             # Buttons for settings_info_tab
             User.update_password: true
             User.login_token: true
+            User.two_factor_auth: true
             # Buttons for settings_config_tab
             Settings.change_language: true
             Settings.change_password: true
             Settings.change_view: true
             Settings.ssh_key: true
             Settings.login_token: true
+            Settings.two_factor_auth: true
             # Edit button in settings_quotas_tab
             User.quotas_dialog: false
     vms-tab:

@@ -44,4 +44,3 @@ required = ["github.com/kolo/xmlrpc", "gopkg.in/xmlpath.v2"]
 
 [prune]
   go-tests = true
-  unused-packages = true

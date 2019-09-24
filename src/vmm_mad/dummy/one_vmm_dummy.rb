@@ -16,17 +16,23 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
-    ETC_LOCATION      = "/etc/one/"
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    ETC_LOCATION      = '/etc/one/'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby"
-    ETC_LOCATION      = ONE_LOCATION + "/etc/"
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    ETC_LOCATION      = ONE_LOCATION + '/etc/'
 end
 
-$: << RUBY_LIB_LOCATION
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
 
 DUMMY_ACTIONS_DIR = "/tmp/opennebula_dummy_actions"
 
@@ -162,6 +168,12 @@ class DummyDriver < VirtualMachineDriver
         result = retrieve_result("disk_snapshot_create")
 
         send_message(ACTION[:disk_snapshot_create], result, id, "dummy-snap")
+    end
+
+    def update_conf(id, drv_message)
+        result = retrieve_result("update_conf")
+
+        send_message(ACTION[:update_conf], result, id)
     end
 
     def cleanup(id, drv_message)

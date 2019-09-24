@@ -38,6 +38,7 @@ module Migrator
 
     def up
         feature_2722
+        feature_3380
         true
     end
 
@@ -62,6 +63,35 @@ module Migrator
                 @db[:logdb].insert(row)
             end
         end
+
+        @db.run 'DROP TABLE IF EXISTS old_logdb;'
+    end
+
+    def feature_3380
+        @db.run 'DROP TABLE IF EXISTS old_host_pool;'
+        @db.run 'ALTER TABLE host_pool RENAME TO old_host_pool;'
+
+        create_table(:host_pool)
+
+        db.transaction do
+            # Add PREV_STATE to each host
+            @db.fetch('SELECT * FROM old_host_pool') do |row|
+                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) do |c|
+                    c.default_xml.noblanks
+                end
+
+                state = doc.xpath('//STATE').text
+
+                prev_state = doc.create_element('PREV_STATE', state)
+                doc.root.at_xpath('//HOST').add_child(prev_state)
+
+                row[:body] = doc.root.to_s
+
+                @db[:host_pool].insert(row)
+            end
+        end
+
+        @db.run 'DROP TABLE IF EXISTS old_host_pool;'
     end
 
 end

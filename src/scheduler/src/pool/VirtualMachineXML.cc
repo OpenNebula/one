@@ -57,8 +57,8 @@ void VirtualMachineXML::init_attributes()
     resched = tmp == 1;
 
     xpath(action, "/VM/HISTORY_RECORDS/HISTORY/ACTION", -1);
-    resume = (action == History::STOP_ACTION || action == History::UNDEPLOY_ACTION
-            || action == History::UNDEPLOY_HARD_ACTION );
+    resume = (action == VMActions::STOP_ACTION || action == VMActions::UNDEPLOY_ACTION
+            || action == VMActions::UNDEPLOY_HARD_ACTION );
 
     xpath(hid, "/VM/HISTORY_RECORDS/HISTORY/HID", -1);
     xpath(dsid, "/VM/HISTORY_RECORDS/HISTORY/DS_ID", -1);

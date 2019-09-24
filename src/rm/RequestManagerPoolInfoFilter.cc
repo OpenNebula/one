@@ -122,7 +122,7 @@ void VirtualMachinePoolInfo::request_execute(
         return;
     }
 
-    switch(state)
+    switch (state)
     {
         case VirtualMachinePoolInfo::ALL_VM:
             break;
@@ -428,7 +428,7 @@ void RequestManagerPoolInfoFilter::where_filter(
 
     if (!oid_str.empty())
     {
-        filter << "(" << oid_str << ")" ;
+        filter << "(" << oid_str << ")";
         empty = false;
     }
 
@@ -628,4 +628,106 @@ void MarketPlacePoolInfo::request_execute(
         RequestAttributes& att)
 {
     dump(att, ALL, -1, -1, "", "");
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void HookLogInfo::request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att)
+{
+    int min_ts  = xmlrpc_c::value_int(_paramList.getInt(1));
+    int max_ts  = xmlrpc_c::value_int(_paramList.getInt(2));
+    int hook_id = xmlrpc_c::value_int(_paramList.getInt(3));
+    int rc_hook = xmlrpc_c::value_int(_paramList.getInt(4));
+
+    Nebula& nd = Nebula::instance();
+
+    HookLog*     hklog  = nd.get_hl();
+
+    PoolObjectAuth hk_perms;
+
+    ostringstream oss;
+    bool empty = true;
+
+    int rc;
+
+    string dump_xml;
+
+    /* ---------------------------------------------------------------------- */
+    /* Check permissions                                                      */
+    /* ---------------------------------------------------------------------- */
+
+    if (!att.is_oneadmin_group())
+    {
+        att.resp_id  = -1;
+
+        failure_response(AUTHORIZATION, att);
+        return;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Build where clause                                                     */
+    /* ---------------------------------------------------------------------- */
+
+    if (min_ts >= 0)
+    {
+        if (!empty)
+        {
+            oss << " AND ";
+        }
+
+        oss << "timestamp > " << min_ts;
+        empty = false;
+    }
+    if (max_ts >= 0)
+    {
+        if (!empty)
+        {
+            oss << " AND ";
+        }
+
+        oss << "timestamp < " << max_ts;
+        empty = false;
+    }
+    if (hook_id >= 0)
+    {
+        if (!empty)
+        {
+            oss << " AND ";
+        }
+
+        oss << "hkid = " << hook_id;
+        empty = false;
+    }
+    if (rc_hook == -1 || rc_hook == 1)
+    {
+        if (!empty)
+        {
+            oss << " AND ";
+        }
+
+        if (rc_hook == -1)
+        {
+            oss << "rc <> 0";
+        }
+        else
+        {
+            oss << "rc = 0";
+        }
+    }
+
+
+
+    rc = hklog->dump_log(oss.str(), dump_xml);
+
+    if (rc != 0)
+    {
+        failure_response(INTERNAL, att);
+        return;
+    }
+
+    success_response(dump_xml, att);
+
+    return;
 }

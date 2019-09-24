@@ -74,9 +74,52 @@
                     <xs:element name="PCI" type="xs:anyType" minOccurs="0" maxOccurs="unbounded"/>
                   </xs:sequence>
                 </xs:complexType>
-              </xs:element>
-            </xs:sequence>
-          </xs:complexType>
+            </xs:element>
+            <xs:element name="NUMA_NODES">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="NODE" minOccurs="1" maxOccurs="unbounded">
+                    <xs:complexType>
+                     <xs:sequence>
+                       <xs:element name="CORE" minOccurs="0" maxOccurs="unbounded">
+                         <xs:complexType>
+                           <xs:all>
+                             <xs:element name="CPUS" type="xs:string"/>
+                             <xs:element name="FREE" type="xs:integer"/>
+                             <xs:element name="ID" type="xs:integer"/>
+                           </xs:all>
+                         </xs:complexType>
+                       </xs:element>
+                       <xs:element name="HUGEPAGE" minOccurs="0" maxOccurs="unbounded">
+                         <xs:complexType>
+                           <xs:all>
+                             <xs:element name="FREE" type="xs:integer"/>
+                             <xs:element name="PAGES" type="xs:integer"/>
+                             <xs:element name="SIZE" type="xs:integer"/>
+                             <xs:element name="USAGE" type="xs:integer"/>
+                           </xs:all>
+                         </xs:complexType>
+                       </xs:element>
+                       <xs:element name="MEMORY">
+                         <xs:complexType>
+                           <xs:all>
+                             <xs:element name="DISTANCE" type="xs:string"/>
+                             <xs:element name="FREE" type="xs:integer"/>
+                             <xs:element name="TOTAL" type="xs:integer"/>
+                             <xs:element name="USAGE" type="xs:integer"/>
+                             <xs:element name="USED" type="xs:integer"/>
+                           </xs:all>
+                         </xs:complexType>
+                       </xs:element>
+                       <xs:element name="NODE_ID" type="xs:integer"/>
+                     </xs:sequence>
+                   </xs:complexType>
+                 </xs:element>
+               </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+           </xs:sequence>
+         </xs:complexType>
         </xs:element>
         <xs:element name="VMS">
               <xs:complexType>

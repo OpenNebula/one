@@ -59,7 +59,7 @@ void RequestManagerCluster::action_generic(
 
     AuthRequest ar(att.uid, att.group_ids);
 
-    ar.add_auth(auth_op, c_perms);              // ADMIN  CLUSTER
+    ar.add_auth(att.auth_op, c_perms);          // ADMIN  CLUSTER
     ar.add_auth(AuthRequest::ADMIN, obj_perms); // ADMIN  OBJECT
 
     if (UserPool::authorize(ar) == -1)
@@ -218,7 +218,7 @@ void RequestManagerClusterHost::add_generic(
 
     AuthRequest ar(att.uid, att.group_ids);
 
-    ar.add_auth(auth_op, c_perms);              // ADMIN  CLUSTER
+    ar.add_auth(att.auth_op, c_perms);          // ADMIN  CLUSTER
     ar.add_auth(AuthRequest::ADMIN, obj_perms); // ADMIN  HOST
 
     if (UserPool::authorize(ar) == -1)

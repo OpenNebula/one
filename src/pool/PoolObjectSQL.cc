@@ -31,7 +31,8 @@ const long int PoolObjectSQL::LockableObject = PoolObjectSQL::ObjectType::VM
                                 | PoolObjectSQL::ObjectType::NET
                                 | PoolObjectSQL::ObjectType::VROUTER
                                 | PoolObjectSQL::ObjectType::VMGROUP
-                                | PoolObjectSQL::ObjectType::VNTEMPLATE;
+                                | PoolObjectSQL::ObjectType::VNTEMPLATE
+                                | PoolObjectSQL::ObjectType::HOOK;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -86,7 +87,7 @@ int PoolObjectSQL::select(SqlDB *db)
 int PoolObjectSQL::select_oid(SqlDB *db, const char * _table,
         const string& _name, int _uid)
 {
-    char * sql_name = db->escape_str(_name.c_str());
+    char * sql_name = db->escape_str(_name);
 
     if ( sql_name == 0 )
     {
@@ -164,7 +165,7 @@ int PoolObjectSQL::select(SqlDB *db, const string& _name, int _uid)
     int rc;
     char * sql_name;
 
-    sql_name = db->escape_str(_name.c_str());
+    sql_name = db->escape_str(_name);
 
     if ( sql_name == 0 )
     {
@@ -309,6 +310,8 @@ int PoolObjectSQL::replace_template(
 
     delete old_tmpl;
 
+    encrypt();
+
     return 0;
 }
 
@@ -374,6 +377,8 @@ int PoolObjectSQL::append_template(
     }
 
     delete old_tmpl;
+
+    encrypt();
 
     return 0;
 }
@@ -451,7 +456,7 @@ void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
 
     Clusterable* cl = dynamic_cast<Clusterable*>(this);
 
-    if(cl != 0)
+    if (cl != 0)
     {
         auth.cids = cl->get_cluster_ids();
     }
@@ -459,7 +464,7 @@ void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
     {
         ClusterableSingle* cls = dynamic_cast<ClusterableSingle*>(this);
 
-        if(cls != 0)
+        if (cls != 0)
         {
             auth.cids.insert(cls->get_cluster_id());
         }
@@ -469,16 +474,16 @@ void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int PoolObjectSQL::set_permissions( int _owner_u,
-                                    int _owner_m,
-                                    int _owner_a,
-                                    int _group_u,
-                                    int _group_m,
-                                    int _group_a,
-                                    int _other_u,
-                                    int _other_m,
-                                    int _other_a,
-                                    string& error_str)
+int PoolObjectSQL::set_permissions(int _owner_u,
+                                   int _owner_m,
+                                   int _owner_a,
+                                   int _group_u,
+                                   int _group_m,
+                                   int _group_a,
+                                   int _other_u,
+                                   int _other_m,
+                                   int _other_a,
+                                   string& error_str)
 {
     if ( _owner_u < -1 || _owner_u > 1 ) goto error_value;
     if ( _owner_m < -1 || _owner_m > 1 ) goto error_value;
@@ -680,3 +685,22 @@ int PoolObjectSQL::lock_db_from_xml()
 
     return rc;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void PoolObjectSQL::encrypt()
+{
+    std::string one_key;
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+
+    obj_template->encrypt(one_key);
+};
+
+void PoolObjectSQL::decrypt()
+{
+    std::string one_key;
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+
+    obj_template->decrypt(one_key);
+};

@@ -3,29 +3,60 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-
     <title>OpenNebula Sunstone Login</title>
-
     <!--[if IE]><link rel="shortcut icon" href="images/favicon.ico"><![endif]-->
     <link rel="apple-touch-icon-precomposed" href="images/apple-touch-icon-precomposed.png">
     <link rel="icon" href="images/favicon.png">
-
-    <link rel="stylesheet" type="text/css" href="css/login.css" />
-
     <% if $conf[:env] == 'dev' %>
+      <link href="css/app.css?v=<%= OpenNebula::VERSION %>" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
       <script src="bower_components/requirejs/require.js" data-main="app/login"></script>
     <% else %>
+      <link href="css/app.min.css?v=<%= OpenNebula::VERSION %>" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
       <script src="dist/login.js"></script>
     <% end %>
   </head>
 
-  <body>
-
-    <% if (settings.config[:auth] == "x509") || (settings.config[:auth] == "remote") %>
-    <%= erb :_login_x509 %>
-    <% else %>
-    <%= erb :_login_standard %>
-    <% end %>
+  <body id="login">
+    <div id="wrapper">
+      <div>
+        <div class="row">
+          <div class="columns small-6 small-centered small-offset-3 text-center">
+            <div id="logo_sunstone" style="
+              background: url(<%=$views_config.logo%>) no-repeat center;
+              background-size: 100%;"></div>
+          </div>
+        </div>
+        <form id="login_form" method="post" class="row">
+          <% if (settings.config[:auth] == "x509") || (settings.config[:auth] == "remote") %>
+            <%= erb :_login_x509 %>
+          <% else %>
+            <%= erb :_login_standard %>
+          <% end %>
+        </form>
+        <div id="two_factor_auth" class="border" style="display: none;">
+          <div class="border columns small-6 small-centered small-offset-3 text-center" id="login">
+            <div class="content">
+              <label class="text-left">
+                Two Factor Token
+                <input value="" type="number" maxlength="15" name="two_factor_auth_token" id="two_factor_auth_token" class="box"/>
+              </label>
+              <div class="row buttons small-collapse">
+                <div class="columns small-offset-6 small-6 text-right">
+                  <button id="two_factor_auth_login" type="button"></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="small-offset-3 small-6 error-place">
+          <div id="error_box" class="alert alert-box callout hidden secondary small" style="display: none">
+            <span id="error_message"></span>
+            <span id="auth_error"></span>
+            <span id="one_error"></span>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div id="footer" style="overflow:visible;">
       <a href="http://opennebula.org" target="_blank">OpenNebula <%= OpenNebula::VERSION %></a>

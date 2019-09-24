@@ -39,8 +39,6 @@ ImagePool::ImagePool(
         const string&                    __default_dev_prefix,
         const string&                    __default_cdrom_dev_prefix,
         vector<const SingleAttribute *>& restricted_attrs,
-        vector<const VectorAttribute *>& hook_mads,
-        const string&                    remotes_location,
         const vector<const SingleAttribute *>& _inherit_attrs)
     :PoolSQL(db, Image::table)
 {
@@ -68,8 +66,6 @@ ImagePool::ImagePool(
     }
 
     ImageTemplate::parse_restricted(restricted_attrs);
-
-    register_hooks(hook_mads, remotes_location);
 }
 
 /* -------------------------------------------------------------------------- */

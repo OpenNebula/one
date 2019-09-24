@@ -31,11 +31,9 @@ class VirtualMachinePool : public PoolSQL
 {
 public:
 
-    VirtualMachinePool(SqlDB *                      db,
-                       vector<const VectorAttribute *> hook_mads,
-                       const string&                hook_location,
-                       const string&                remotes_location,
+    VirtualMachinePool(SqlDB * db,
                        vector<const SingleAttribute *>& restricted_attrs,
+                       vector<const SingleAttribute *>& encrypted_attrs,
                        time_t                       expire_time,
                        bool                         on_hold,
                        float                        default_cpu_cost,
@@ -140,21 +138,7 @@ public:
      *
      *    @return 0 on success.
      */
-    virtual int update(PoolObjectSQL * objsql)
-    {
-        VirtualMachine * vm = dynamic_cast<VirtualMachine *>(objsql);
-
-        if ( vm == 0 )
-        {
-            return -1;
-        }
-
-        do_hooks(objsql, Hook::UPDATE);
-
-        vm->set_prev_state();
-
-        return vm->update(db);
-    };
+    virtual int update(PoolObjectSQL * objsql);
 
     /**
      *  Gets a VM ID by its deploy_id, the dedploy_id - VM id mapping is keep
@@ -424,24 +408,11 @@ public:
     void delete_attach_disk(int vid);
 
     /**
-     * Deletes the NIC that was in the process of being attached
+     * Deletes the NIC that was in the process of being attached/detached
      *
      * @param vid VM id
      */
-    void attach_nic_failure(int vid)
-    {
-        delete_hotplug_nic(vid, true);
-    }
-
-    /**
-     * Deletes the NIC that was in the process of being detached
-     *
-     * @param vid VM id
-     */
-    void detach_nic_success(int vid)
-    {
-        delete_hotplug_nic(vid, false);
-    }
+    void delete_attach_nic(int vid);
 
     /**
      * Deletes an entry in the HV-2-vmid mapping table for imported VMs
@@ -499,15 +470,6 @@ private:
      *   @return 0 on success
      */
     int insert_index(const string& deploy_id, int vm_id, bool replace);
-
-    // -------------------------------------------------------------------------
-
-    /**
-     * Helper method for delete attach/detach
-     * @param vid VM id
-     * @param attach true for an attach action, false for detach
-     */
-    void delete_hotplug_nic(int vid, bool attach);
 };
 
 #endif /*VIRTUAL_MACHINE_POOL_H_*/

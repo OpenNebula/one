@@ -15,18 +15,26 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION = ENV['ONE_LOCATION'] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = "/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
-    ETC_LOCATION      = "/etc/one/" if !defined?(ETC_LOCATION)
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' if !defined?(RUBY_LIB_LOCATION)
+    GEMS_LOCATION     = '/usr/share/one/gems' if !defined?(GEMS_LOCATION)
+    ETC_LOCATION      = '/etc/one/' if !defined?(ETC_LOCATION)
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
-    ETC_LOCATION      = ONE_LOCATION + "/etc/" if !defined?(ETC_LOCATION)
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' if !defined?(RUBY_LIB_LOCATION)
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' if !defined?(GEMS_LOCATION)
+    ETC_LOCATION      = ONE_LOCATION + '/etc/' if !defined?(ETC_LOCATION)
 end
 
 AZ_DRIVER_CONF = "#{ETC_LOCATION}/az_driver.conf"
 AZ_DRIVER_DEFAULT = "#{ETC_LOCATION}/az_driver.default"
+
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
 
 # Load Azure credentials and environment
 require 'yaml'
@@ -34,8 +42,6 @@ require 'rubygems'
 require 'azure'
 require 'uri'
 require 'tempfile'
-
-$: << RUBY_LIB_LOCATION
 
 require 'CommandManager'
 require 'scripts_common'
@@ -190,7 +196,10 @@ class AzureDriver
         pool.info
         objects=pool.select {|object| object.name==@host }
 
-        objects.first
+        host_id = objects.first.id
+        xmlhost = OpenNebula::Host.new_with_id(host_id, client)
+        xmlhost.info(true)
+        xmlhost
     end
 
     # Check the current template to retrieve
@@ -200,22 +209,13 @@ class AzureDriver
         client   = OpenNebula::Client.new
         xmlhost = get_host_info(client)
 
-        system = OpenNebula::System.new(client)
-        config = system.get_configuration
-        raise "Error getting oned configuration : #{config.message}" if OpenNebula.is_error?(config)
-
-        token = config["ONE_KEY"]
-
         conn_opts = {
             :cert => xmlhost["TEMPLATE/AZ_CERT"],
             :id   => xmlhost["TEMPLATE/AZ_ID"]
         }
-        #conn_opts = OpenNebula.encrypt(conn_opts, token)
-        conn_opts = OpenNebula.decrypt(conn_opts, token)
 
         conn_opts[:region] = xmlhost["TEMPLATE/REGION_NAME"]
         conn_opts[:endpoint] = xmlhost["TEMPLATE/AZ_ENDPOINT"]
-
 
         return conn_opts
     end

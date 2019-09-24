@@ -22,12 +22,18 @@ ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
     MAD_LOCATION      = '/usr/lib/one/mads'
     ETC_LOCATION      = '/etc/one/'
 else
     RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
     MAD_LOCATION      = ONE_LOCATION + '/lib/mads'
     ETC_LOCATION      = ONE_LOCATION + '/etc/'
+end
+
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -142,6 +148,7 @@ class VmmAction
         ID DEPLOY_ID TEMPLATE/CONTEXT USER_TEMPLATE
         TEMPLATE/SECURITY_GROUP_RULE
         HISTORY_RECORDS/HISTORY/HOSTNAME
+        HISTORY_RECORDS/HISTORY/DS_ID
         HISTORY_RECORDS/HISTORY/VM_MAD
     ]
 
@@ -226,7 +233,7 @@ class VmmAction
                 result, info = vnm.do_action(@id, step[:action],
                                              :parameters => params)
             when :tm
-                result, info = @tm.do_transfer_action(@id, step[:parameters])
+                result, info = @tm.do_transfer_action(@id, step[:parameters], stdin=step[:stdin])
 
             else
                 result = DriverExecHelper.const_get(:RESULT)[:failure]
@@ -516,16 +523,17 @@ class ExecDriver < VirtualMachineDriver
         post   = 'POST'
         failed = 'FAIL'
 
-        pre  << action.data[:tm_command] << ' ' << action.data[:vm]
-        post << action.data[:tm_command] << ' ' << action.data[:vm]
-        failed << action.data[:tm_command] << ' ' << action.data[:vm]
+        pre  << action.data[:tm_command]
+        post << action.data[:tm_command]
+        failed << action.data[:tm_command]
 
         steps = [
             # Execute a pre-migrate TM setup
             {
                 :driver     => :tm,
                 :action     => :tm_premigrate,
-                :parameters => pre.split
+                :parameters => pre.split,
+                :stdin      => action.data[:vm]
             },
             # Execute pre-boot networking setup on migrating host
             {
@@ -543,6 +551,7 @@ class ExecDriver < VirtualMachineDriver
                         :driver     => :tm,
                         :action     => :tm_failmigrate,
                         :parameters => failed.split,
+                        :stdin      => action.data[:vm],
                         :no_fail    => true
                     }
                 ]
@@ -561,13 +570,14 @@ class ExecDriver < VirtualMachineDriver
                 :driver       => :vnm,
                 :action       => :post,
                 :parameters   => [:deploy_id],
-                :destination  => :true,
+                :destination  => true,
                 :no_fail      => true
             },
             {
                 :driver     => :tm,
                 :action     => :tm_postmigrate,
                 :parameters => post.split,
+                :stdin      => action.data[:vm],
                 :no_fail    => true
             }
         ]
@@ -600,7 +610,7 @@ class ExecDriver < VirtualMachineDriver
     # RESET action, resets a running VM
     #
     def reset(id, drv_message)
-        restart(id, drv_message, :reboot)
+        restart(id, drv_message, :reset)
     end
 
     #
@@ -813,13 +823,14 @@ class ExecDriver < VirtualMachineDriver
                     :parameters => [:deploy_id, :host],
                     :no_fail    => true
                 }
-            steps <<
-                {
-                    :driver  => :vnm,
-                    :action  => :clean,
-                    :no_fail => true
-                }
         end
+
+        steps <<
+            {
+                :driver  => :vnm,
+                :action  => :clean,
+                :no_fail => true
+            }
 
         # Cancel the VM at the previous host (in case of migration)
         if mhost && !mhost.empty?
@@ -974,7 +985,8 @@ class ExecDriver < VirtualMachineDriver
         steps << {
             :driver     => :vmm,
             :action     => :reconfigure,
-            :parameters => [:deploy_id, target_device, target_path]
+            :parameters => [:deploy_id, target_device, target_path],
+            :stdin      => xml_data
         }
 
         action.run(steps)
@@ -1062,7 +1074,8 @@ class ExecDriver < VirtualMachineDriver
         steps << {
             :driver     => :vmm,
             :action     => :reconfigure,
-            :parameters => [:deploy_id, target_device, target_path]
+            :parameters => [:deploy_id, target_device, target_path],
+            :stdin      => xml_data
         }
 
         action.run(steps)
@@ -1092,7 +1105,7 @@ class ExecDriver < VirtualMachineDriver
         tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
 
         tm_command_split     = tm_command.split
-        tm_command_split[0] += '_LIVE'
+        tm_command_split[0].sub!('.', '_LIVE.') or tm_command_split[0] += '_LIVE'
 
         action = VmmAction.new(self, id, :disk_snapshot_create, drv_message)
 
@@ -1103,6 +1116,49 @@ class ExecDriver < VirtualMachineDriver
                 :parameters => tm_command_split
             }
         ]
+
+        action.run(steps)
+    end
+
+    #
+    #  UPDATECONF action to update context for running machine
+    #
+    def update_conf(id, drv_message)
+        xml_data = decode(drv_message)
+
+        tm_command = xml_data.elements['TM_COMMAND']
+        tm_command = tm_command.text if tm_command
+
+        target_path = xml_data.elements['DISK_TARGET_PATH']
+        target_path = target_path.text if target_path
+
+        target_device = xml_data.elements['VM/TEMPLATE/CONTEXT/TARGET']
+        target_device = target_device.text if target_device
+
+        action = VmmAction.new(self, id, :update_conf, drv_message)
+
+        steps = []
+
+        steps << {
+            :driver     => :vmm,
+            :action     => :prereconfigure,
+            :parameters => [:deploy_id, target_device]
+        }
+
+        if tm_command && !tm_command.empty?
+            steps << {
+                :driver     => :tm,
+                :action     => :tm_context,
+                :parameters => tm_command.strip.split(' ')
+            }
+        end
+
+        steps << {
+            :driver     => :vmm,
+            :action     => :reconfigure,
+            :parameters => [:deploy_id, target_device, target_path],
+            :stdin      => xml_data
+        }
 
         action.run(steps)
     end
@@ -1127,7 +1183,6 @@ class ExecDriver < VirtualMachineDriver
 
         action.run(steps, sg_id)
     end
-
     private
 
     def ensure_xpath(xml_data, id, action, xpath)

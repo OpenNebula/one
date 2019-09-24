@@ -6,6 +6,7 @@ module Packet
 
     attr_accessor :hostname, :iqn, :ip_addresses, :state, :tags, :userdata, :project_id, :root_password
     attr_accessor :userdata
+    attr_accessor :hardware_reservation_id
     has_one :operating_system
     has_one :plan
     has_one :facility

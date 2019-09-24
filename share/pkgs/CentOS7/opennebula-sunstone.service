@@ -11,6 +11,10 @@ Group=oneadmin
 User=oneadmin
 ExecStartPre=-/usr/sbin/logrotate -f /etc/logrotate.d/opennebula-sunstone -s /var/lib/one/.logrotate.status
 ExecStart=/usr/bin/ruby /usr/lib/one/sunstone/sunstone-server.rb
+StartLimitInterval=60
+StartLimitBurst=3
+Restart=on-failure
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target

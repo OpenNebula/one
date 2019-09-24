@@ -49,8 +49,8 @@ int LifeCycleManager::start()
     int               rc;
     pthread_attr_t    pattr;
 
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
+    pthread_attr_init(&pattr);
+    pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
 
     NebulaLog::log("LCM",Log::INFO,"Starting Life-cycle Manager...");
 
@@ -228,6 +228,12 @@ void LifeCycleManager::user_action(const ActionRequest& ar)
         break;
     case LCMAction::DISK_RESIZE_FAILURE:
         disk_resize_failure(vid);
+        break;
+    case LCMAction::UPDATE_CONF_SUCCESS:
+        update_conf_success(vid);
+        break;
+    case LCMAction::UPDATE_CONF_FAILURE:
+        update_conf_failure(vid);
         break;
     // -------------------------------------------------------------------------
     // External Actions, triggered by user requests

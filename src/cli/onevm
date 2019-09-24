@@ -20,8 +20,14 @@ ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
 else
     RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+end
+
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -218,6 +224,10 @@ CommandParser::CmdParser.new(ARGV) do
 
     format :snapshot_id, 'Snapshot identifier' do |arg|
         helper.retrieve_snapshot_id(@current_vm, arg)
+    end
+
+    format :disk_snapshot_id, 'Disk_snapshot identifier' do |arg|
+        helper.retrieve_disk_snapshot_id(@current_vm, arg)
     end
 
     ########################################################################
@@ -869,7 +879,7 @@ CommandParser::CmdParser.new(ARGV) do
     resched_desc = <<-EOT.unindent
         Sets the rescheduling flag for the VM.
 
-        States: RUNNING
+        States: RUNNING, POWEROFF
     EOT
 
     command :resched, resched_desc, [:range, :vmid_list] do
@@ -881,7 +891,7 @@ CommandParser::CmdParser.new(ARGV) do
     unresched_desc = <<-EOT.unindent
         Clears the rescheduling flag for the VM.
 
-        States: RUNNING
+        States: RUNNING, POWEROFF
     EOT
 
     command :unresched, unresched_desc, [:range, :vmid_list] do
@@ -1045,8 +1055,9 @@ CommandParser::CmdParser.new(ARGV) do
             table = helper.format_pool(options)
             pool = OpenNebula::VirtualMachinePool.new(OneVMHelper.get_client)
 
-            rc = pool.info_search(:query    => options[:search],
-                                  :extended => options[:extended])
+            rc = pool.info_search(
+                :extended => options[:extended], :query => options[:search]
+            )
 
             if !rc.nil?
                 puts rc.message
@@ -1068,7 +1079,9 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :show, show_desc, :vmid,
-            :options => [OpenNebulaHelper::XML, OneVMHelper::ALL_TEMPLATE] do
+            :options => [OpenNebulaHelper::XML,
+                         OpenNebulaHelper::DECRYPT,
+                         OneVMHelper::ALL_TEMPLATE] do
         helper.show_resource(args[0], options)
     end
 

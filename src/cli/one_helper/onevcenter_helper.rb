@@ -159,7 +159,8 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
         {
            :user     => options[:vuser],
            :password => password,
-           :host     => options[:vcenter]
+           :host     => options[:vcenter],
+           :port     => options[:port]
         }
     end
 

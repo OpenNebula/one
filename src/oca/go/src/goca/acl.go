@@ -16,27 +16,29 @@
 
 package goca
 
-import "encoding/xml"
+import (
+	"encoding/xml"
 
-// ACLPool represents an OpenNebula ACL list pool
-type ACLPool struct {
-	ID       uint   `xml:"ID"`
-	User     int    `xml:"USER"`
-	Resource int    `xml:"RESOURCE"`
-	Rights   int    `xml:"RIGHTS"`
-	Zone     int    `xml:"ZONE"`
-	String   string `xml:"STRING"`
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/acl"
+)
+
+// ACLsController is a controller for a pool of ACL
+type ACLsController entitiesController
+
+// ACLs returns a hosts controller.
+func (c *Controller) ACLs() *ACLsController {
+	return &ACLsController{c}
 }
 
-// NewACLPool returns an acl pool. A connection to OpenNebula is
+// Info returns an acl pool. A connection to OpenNebula is
 // performed.
-func NewACLPool() (*ACLPool, error) {
-	response, err := client.Call("one.acl.info")
+func (ac *ACLsController) Info() (*acl.Pool, error) {
+	response, err := ac.c.Client.Call("one.acl.info")
 	if err != nil {
 		return nil, err
 	}
 
-	aclPool := &ACLPool{}
+	aclPool := &acl.Pool{}
 	err = xml.Unmarshal([]byte(response.Body()), aclPool)
 	if err != nil {
 		return nil, err
@@ -45,21 +47,21 @@ func NewACLPool() (*ACLPool, error) {
 	return aclPool, nil
 }
 
-// CreateACLRule adds a new ACL rule.
+// CreateRule adds a new ACL rule.
 // * user: User component of the new rule. A string containing a hex number.
 // * resource: Resource component of the new rule. A string containing a hex number.
 // * rights: Rights component of the new rule. A string containing a hex number.
-func CreateACLRule(user, resource, rights string) (uint, error) {
-	response, err := client.Call("one.acl.addrule", user, resource, rights)
+func (ac *ACLsController) CreateRule(user acl.Users, resource acl.Resources, rights acl.Rights) (int, error) {
+	response, err := ac.c.Client.Call("one.acl.addrule", user, resource, rights)
 	if err != nil {
 		return 0, err
 	}
 
-	return uint(response.BodyInt()), nil
+	return response.BodyInt(), nil
 }
 
-// DeleteACLRule deletes an ACL rule.
-func DeleteACLRule(aclID uint) error {
-	_, err := client.Call("one.acl.delrule", int(aclID))
+// DeleteRule deletes an ACL rule.
+func (ac *ACLsController) DeleteRule(aclID int) error {
+	_, err := ac.c.Client.Call("one.acl.delrule", aclID)
 	return err
 }

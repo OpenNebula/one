@@ -94,7 +94,7 @@ int OpenNebulaTemplate::load_configuration()
         return -1;
     }
 
-    if ( set_vm_auth_ops(error) != 0 )
+    if ( vm_actions.set_auth_ops(*this, error) != 0 )
     {
         cout << "\nError while parsing configuration file:\n" << error << endl;
         return -1;
@@ -401,7 +401,6 @@ void OpenNebulaTemplate::set_conf_vn(const std::string& name,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-
 void OpenNebulaTemplate::set_conf_default()
 {
     VectorAttribute *   vattribute;
@@ -419,6 +418,7 @@ void OpenNebulaTemplate::set_conf_default()
 #  MONITORING_INTERVAL_DATASTORE
 #  MONITORING_INTERVAL_DB_UPDATE
 #  MONITORING_THREADS
+#  DS_MONITOR_VM_DISK
 #  HOST_PER_INTERVAL
 #  HOST_MONITORING_EXPIRATION_TIME
 #  VM_INDIVIDUAL_MONITORING
@@ -440,6 +440,7 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("MONITORING_INTERVAL_DATASTORE", "300");
     set_conf_single("MONITORING_INTERVAL_DB_UPDATE", "0");
     set_conf_single("MONITORING_THREADS", "50");
+    set_conf_single("DS_MONITOR_VM_DISK", "10");
     set_conf_single("HOST_PER_INTERVAL", "15");
     set_conf_single("HOST_MONITORING_EXPIRATION_TIME", "43200");
     set_conf_single("VM_INDIVIDUAL_MONITORING", "no");
@@ -450,6 +451,14 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("SCRIPTS_REMOTE_DIR", "/var/tmp/one");
     set_conf_single("VM_SUBMIT_ON_HOLD", "NO");
     set_conf_single("API_LIST_ORDER", "DESC");
+    set_conf_single("HOST_ENCRYPTED_ATTR", "EC2_ACCESS");
+    set_conf_single("HOST_ENCRYPTED_ATTR", "EC2_SECRET");
+    set_conf_single("HOST_ENCRYPTED_ATTR", "AZ_ID");
+    set_conf_single("HOST_ENCRYPTED_ATTR", "AZ_CERT");
+    set_conf_single("HOST_ENCRYPTED_ATTR", "VCENTER_PASSWORD");
+    set_conf_single("HOST_ENCRYPTED_ATTR", "NSX_PASSWORD");
+    set_conf_single("HOST_ENCRYPTED_ATTR", "ONE_PASSWORD");
+
 
     //DB CONFIGURATION
     vvalue.insert(make_pair("BACKEND","sqlite"));
@@ -633,6 +642,19 @@ void OpenNebulaTemplate::set_conf_default()
             "rename, resize, update, disk-saveas");
 
     set_conf_single("VM_USE_OPERATIONS", "");
+/*/
+#*******************************************************************************
+# Hook Log Configuration
+#*******************************************************************************
+*/
+
+    vvalue.clear();
+
+    vvalue.insert(make_pair("LOG_RETENTION","10"));
+    vattribute = new VectorAttribute("HOOK_LOG_CONF", vvalue);
+
+    conf_default.insert(make_pair(vattribute->name(),vattribute));
+
 }
 
 /* -------------------------------------------------------------------------- */
@@ -702,203 +724,3 @@ int OpenNebulaTemplate::load_key()
     return 0;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-static int _set_vm_auth_ops(const std::string& ops_str,
-        ActionSet<History::VMAction>& ops_set, std::string& error_op)
-{
-    std::set<std::string> ops;
-    std::set<std::string>::iterator it;
-
-    one_util::split_unique(ops_str, ',', ops);
-
-    for ( it = ops.begin() ; it != ops.end() ; ++it )
-    {
-        std::string the_op = one_util::trim(*it);
-
-        one_util::tolower(the_op);
-
-        if ( the_op == "migrate" )
-        {
-            ops_set.set(History::MIGRATE_ACTION);
-            ops_set.set(History::LIVE_MIGRATE_ACTION);
-        }
-        else if ( the_op == "delete" )
-        {
-            ops_set.set(History::DELETE_ACTION);
-            ops_set.set(History::DELETE_RECREATE_ACTION);
-        }
-        else if ( the_op == "recover" )
-        {
-            ops_set.set(History::RECOVER_ACTION);
-        }
-        else if ( the_op == "retry" )
-        {
-            ops_set.set(History::RETRY_ACTION);
-        }
-        else if ( the_op == "deploy" )
-        {
-            ops_set.set(History::DEPLOY_ACTION);
-        }
-        else if ( the_op == "resched" )
-        {
-            ops_set.set(History::RESCHED_ACTION);
-            ops_set.set(History::UNRESCHED_ACTION);
-        }
-        else if ( the_op == "undeploy" )
-        {
-            ops_set.set(History::UNDEPLOY_ACTION);
-            ops_set.set(History::UNDEPLOY_HARD_ACTION);
-        }
-        else if ( the_op == "hold" )
-        {
-            ops_set.set(History::HOLD_ACTION);
-        }
-        else if ( the_op == "release" )
-        {
-            ops_set.set(History::RELEASE_ACTION);
-        }
-        else if ( the_op == "stop" )
-        {
-            ops_set.set(History::STOP_ACTION);
-        }
-        else if ( the_op == "suspend" )
-        {
-            ops_set.set(History::SUSPEND_ACTION);
-        }
-        else if ( the_op == "resume" )
-        {
-            ops_set.set(History::RESUME_ACTION);
-        }
-        else if ( the_op == "reboot" )
-        {
-            ops_set.set(History::REBOOT_ACTION);
-            ops_set.set(History::REBOOT_HARD_ACTION);
-        }
-        else if ( the_op == "poweroff" )
-        {
-            ops_set.set(History::POWEROFF_ACTION);
-            ops_set.set(History::POWEROFF_HARD_ACTION);
-        }
-        else if ( the_op == "disk-attach" )
-        {
-            ops_set.set(History::DISK_ATTACH_ACTION);
-            ops_set.set(History::DISK_DETACH_ACTION);
-        }
-        else if ( the_op == "nic-attach" )
-        {
-            ops_set.set(History::NIC_ATTACH_ACTION);
-            ops_set.set(History::NIC_DETACH_ACTION);
-        }
-        else if ( the_op == "disk-snapshot" )
-        {
-            ops_set.set(History::DISK_SNAPSHOT_CREATE_ACTION);
-            ops_set.set(History::DISK_SNAPSHOT_DELETE_ACTION);
-            ops_set.set(History::DISK_SNAPSHOT_REVERT_ACTION);
-            ops_set.set(History::DISK_SNAPSHOT_RENAME_ACTION);
-        }
-        else if ( the_op == "terminate" )
-        {
-            ops_set.set(History::TERMINATE_ACTION);
-            ops_set.set(History::TERMINATE_HARD_ACTION);
-        }
-        else if ( the_op == "disk-resize" )
-        {
-            ops_set.set(History::DISK_RESIZE_ACTION);
-        }
-        else if ( the_op == "snapshot" )
-        {
-            ops_set.set(History::SNAPSHOT_CREATE_ACTION);
-            ops_set.set(History::SNAPSHOT_DELETE_ACTION);
-            ops_set.set(History::SNAPSHOT_REVERT_ACTION);
-        }
-        else if ( the_op == "updateconf" )
-        {
-            ops_set.set(History::UPDATECONF_ACTION);
-        }
-        else if ( the_op == "rename" )
-        {
-            ops_set.set(History::RENAME_ACTION);
-        }
-        else if ( the_op == "resize" )
-        {
-            ops_set.set(History::RESIZE_ACTION);
-        }
-        else if ( the_op == "update" )
-        {
-            ops_set.set(History::UPDATE_ACTION);
-        }
-        else if ( the_op == "disk-saveas" )
-        {
-            ops_set.set(History::DISK_SAVEAS_ACTION);
-        }
-        else
-        {
-            error_op = the_op;
-            return -1;
-        }
-    }
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-
-int OpenNebulaTemplate::set_vm_auth_ops(std::string& error)
-{
-    std::string error_op;
-
-    std::string admin, manage, use;
-
-    get("VM_ADMIN_OPERATIONS", admin);
-
-    if ( _set_vm_auth_ops(admin, vm_admin_actions, error_op) != 0 )
-    {
-        goto error_op;
-    }
-
-    get("VM_MANAGE_OPERATIONS", manage);
-
-    if ( _set_vm_auth_ops(manage, vm_manage_actions, error_op) != 0 )
-    {
-        goto error_op;
-    }
-
-    get("VM_USE_OPERATIONS", use);
-
-    if ( _set_vm_auth_ops(use, vm_use_actions, error_op) != 0 )
-    {
-        goto error_op;
-    }
-
-    return 0;
-
-error_op:
-    error = "Unknown vm operation: " + error_op;
-    return -1;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-AuthRequest::Operation OpenNebulaTemplate::get_vm_auth_op(History::VMAction ac)
-{
-    if ( vm_admin_actions.is_set(ac) )
-    {
-        return AuthRequest::ADMIN;
-    }
-    else if ( vm_manage_actions.is_set(ac) )
-    {
-        return AuthRequest::MANAGE;
-    }
-    else if ( vm_use_actions.is_set(ac) )
-    {
-        return AuthRequest::USE;
-    }
-    else
-    {
-        return AuthRequest::MANAGE;
-    }
-
-}

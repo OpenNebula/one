@@ -102,15 +102,17 @@ public:
         DISK_LOCK_SUCCESS,  /**< Sent by IM, image moves from locked to ready */
         DISK_LOCK_FAILURE,  /**< Sent by IM, image moves from locked to error */
         DISK_RESIZE_SUCCESS,/**< Sent by TM/VMM when a disk resize succeeds   */
-        DISK_RESIZE_FAILURE /**< Sent by TM/VMM when a disk resize fails      */
+        DISK_RESIZE_FAILURE,/**< Sent by TM/VMM when a disk resize fails      */
+        UPDATE_CONF_SUCCESS,/**< Sent by TM/VMM when a update conf succeeds   */
+        UPDATE_CONF_FAILURE /**< Sent by TM/VMM when a update conf fails      */
     };
 
     LCMAction(Actions a, int v, int u, int g, int r):
         ActionRequest(ActionRequest::USER), _action(a), _vm_id(v), _uid(u),
-        _gid(g), _req_id(r){};
+        _gid(g), _req_id(r){}
 
     LCMAction(const LCMAction& o):ActionRequest(o._type), _action(o._action),
-        _vm_id(o._vm_id), _uid(o._uid), _gid(o._gid), _req_id(o._req_id){};
+        _vm_id(o._vm_id), _uid(o._uid), _gid(o._gid), _req_id(o._req_id){}
 
     Actions action() const
     {
@@ -168,7 +170,7 @@ public:
         am.addListener(this);
     };
 
-    ~LifeCycleManager(){};
+    ~LifeCycleManager() = default;
 
     /**
      *  Triggers specific actions to the Life-cycle Manager. This function
@@ -304,7 +306,7 @@ private:
      * @param image_id If the VM is in the middle of a save as operation, an
      * image may need to be set to error state.
      */
-    void clean_up_vm (VirtualMachine *vm, bool dispose, int& image_id,
+    void clean_up_vm(VirtualMachine *vm, bool dispose, int& image_id,
             const LCMAction& la);
 
     // -------------------------------------------------------------------------
@@ -368,6 +370,9 @@ private:
 
     void disk_resize_success(int vid);
     void disk_resize_failure(int vid);
+
+    void update_conf_success(int vid);
+    void update_conf_failure(int vid);
 
     // -------------------------------------------------------------------------
     // External Actions, triggered by user requests

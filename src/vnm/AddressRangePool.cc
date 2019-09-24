@@ -46,6 +46,7 @@ AddressRangePool::~AddressRangePool()
 int AddressRangePool::from_vattr(VectorAttribute* va, string& error_msg)
 {
     AddressRange * ar = allocate_ar(va->vector_value("IPAM_MAD"));
+    string one_key;
 
     if (ar->from_vattr(va, error_msg) != 0)
     {
@@ -58,6 +59,9 @@ int AddressRangePool::from_vattr(VectorAttribute* va, string& error_msg)
     ar_pool.insert(make_pair(ar->ar_id(), ar));
 
     ar_template.set(va);
+
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+    ar_template.encrypt(one_key);
 
     return 0;
 }
@@ -90,6 +94,7 @@ AddressRange * AddressRangePool::allocate_ar(const string& ipam_mad,
 int AddressRangePool::add_ar(AddressRange * ar)
 {
     pair<map<unsigned int, AddressRange *>::iterator, bool> rc;
+    string one_key;
 
     rc = ar_pool.insert(make_pair(ar->ar_id(), ar));
 
@@ -99,6 +104,9 @@ int AddressRangePool::add_ar(AddressRange * ar)
     }
 
     ar_template.set(ar->attr);
+
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+    ar_template.encrypt(one_key);
 
     return 0;
 }
@@ -200,17 +208,14 @@ int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg)
         return -1;
     }
 
-    AddressRange * ar_ptr = it->second;
+    AddressRange * ar_ptr    = it->second;
+    VectorAttribute * the_ar = ar_ptr->attr;
 
     if(ar_ptr->is_ipam())
     {
         IPAMManager * ipamm = Nebula::instance().get_ipamm();
 
-        std::ostringstream ar_xml;
-
-        ar_ptr->to_xml(ar_xml);
-
-        IPAMRequest ir(ar_xml.str());
+        IPAMRequest ir(ar_ptr);
 
         ipamm->trigger(IPMAction::UNREGISTER_ADDRESS_RANGE, &ir);
 
@@ -227,27 +232,46 @@ int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg)
 
     delete ar_ptr;
 
-    vector<VectorAttribute *> ars;
-    vector<VectorAttribute *>::iterator it_ar;
-
-    VectorAttribute * the_ar = 0;
-
-    unsigned int ar_id_tpl;
-
-    ar_template.get("AR", ars);
-
-    for (it_ar=ars.begin(); it_ar!=ars.end(); it_ar++)
-    {
-        if (((*it_ar)->vector_value("AR_ID",ar_id_tpl)==0) && (ar_id_tpl==ar_id))
-        {
-            the_ar = *it_ar;
-            break;
-        }
-    }
-
     if (the_ar != 0)
     {
         delete ar_template.remove(the_ar);
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRangePool::rm_ars(string& error_msg)
+{
+    map<unsigned int, AddressRange *>::iterator it;
+
+    for ( it = ar_pool.begin(); it != ar_pool.end(); )
+    {
+        if(it->second->is_ipam())
+        {
+            IPAMManager * ipamm = Nebula::instance().get_ipamm();
+
+            IPAMRequest ir(it->second->attr);
+
+            ipamm->trigger(IPMAction::UNREGISTER_ADDRESS_RANGE, &ir);
+
+            ir.wait();
+
+            if (ir.result != true)
+            {
+                error_msg = ir.message;
+                return -1;
+            }
+        }
+
+        if (it->second->attr != 0)
+        {
+            delete ar_template.remove(it->second->attr);
+        }
+
+        it = ar_pool.erase(it);
     }
 
     return 0;
@@ -514,7 +538,7 @@ int AddressRangePool::free_addr_by_range(unsigned int arid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AddressRangePool::get_attribute(const char * name, string& value,
+void AddressRangePool::get_attribute(const string& name, string& value,
     int ar_id) const
 {
     map<unsigned int, AddressRange *>::const_iterator it = ar_pool.find(ar_id);
@@ -530,7 +554,7 @@ void AddressRangePool::get_attribute(const char * name, string& value,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRangePool::get_attribute(const char * name, int& value,
+int AddressRangePool::get_attribute(const string& name, int& value,
     int ar_id) const
 {
     map<unsigned int, AddressRange *>::const_iterator it = ar_pool.find(ar_id);
@@ -873,6 +897,3 @@ void AddressRangePool::process_security_rule(
         new_rules.push_back(new_rule);
     }
 }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */

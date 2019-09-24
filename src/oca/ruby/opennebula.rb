@@ -67,6 +67,9 @@ require 'opennebula/vm_group'
 require 'opennebula/vm_group_pool'
 require 'opennebula/vntemplate'
 require 'opennebula/vntemplate_pool'
+require 'opennebula/hook'
+require 'opennebula/hook_pool'
+require 'opennebula/hook_log'
 
 module OpenNebula
 

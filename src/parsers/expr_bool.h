@@ -1,8 +1,9 @@
-/* A Bison parser, made by GNU Bison 3.1.  */
+/* A Bison parser, made by GNU Bison 3.4.1.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015, 2018 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2019 Free Software Foundation,
+   Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -30,6 +31,9 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
+/* Undocumented macros, especially those whose name start with YY_,
+   are private implementation details.  Do not rely on them.  */
+
 #ifndef YY_EXPR_BOOL_EXPR_BOOL_HH_INCLUDED
 # define YY_EXPR_BOOL_EXPR_BOOL_HH_INCLUDED
 /* Debug traces.  */
@@ -40,7 +44,7 @@
 extern int expr_bool_debug;
 #endif
 /* "%code requires" blocks.  */
-#line 48 "expr_bool.y" /* yacc.c:1913  */
+#line 48 "expr_bool.y"
 
 #include <iostream>
 #include <sstream>
@@ -62,7 +66,7 @@ typedef void * yyscan_t;
 int expr_bool_parse(ObjectXML *oxml, bool& result, char ** errmsg,
     yyscan_t scanner);
 
-#line 66 "expr_bool.hh" /* yacc.c:1913  */
+#line 70 "expr_bool.hh"
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -77,18 +81,17 @@ int expr_bool_parse(ObjectXML *oxml, bool& result, char ** errmsg,
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-
 union YYSTYPE
 {
-#line 79 "expr_bool.y" /* yacc.c:1913  */
+#line 79 "expr_bool.y"
 
     char *  val_str;
     int     val_int;
     float   val_float;
 
-#line 90 "expr_bool.hh" /* yacc.c:1913  */
-};
+#line 93 "expr_bool.hh"
 
+};
 typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

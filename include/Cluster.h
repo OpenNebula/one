@@ -79,7 +79,7 @@ public:
      *    @param cpu reserved cpu (percentage, or absolute)
      *    @param mem reserved mem (in KB)
      */
-    void get_reserved_capacity(string& cpu, string& mem)
+    void get_reserved_capacity(string& cpu, string& mem) const
     {
         get_template_attribute("RESERVED_CPU", cpu);
 
@@ -94,7 +94,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    string& to_xml(string& xml) const override;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -102,7 +102,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const string &xml_str) override;
 
 private:
 
@@ -147,7 +147,7 @@ private:
     Cluster(int id, const string& name, ClusterTemplate*  cl_template,
             const VectorAttribute& vnc_conf);
 
-    virtual ~Cluster(){};
+    virtual ~Cluster() = default;
 
     // *************************************************************************
     // Attributes (Private)
@@ -209,7 +209,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str)
+    int insert(SqlDB *db, string& error_str) override
     {
         int rc;
 
@@ -228,7 +228,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
         string error_str;
 
@@ -250,7 +250,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int select(SqlDB *db)
+    int select(SqlDB *db) override
     {
         int rc = PoolObjectSQL::select(db);
 
@@ -267,7 +267,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-     int select(SqlDB *db, const string& _name, int _uid)
+     int select(SqlDB *db, const string& _name, int _uid) override
      {
          int rc = PoolObjectSQL::select(db, _name, _uid);
 
@@ -291,7 +291,7 @@ private:
     /**
      *  Factory method for cluster templates
      */
-    Template * get_new_template() const
+    Template * get_new_template() const override
     {
         return new ClusterTemplate;
     }

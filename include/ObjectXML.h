@@ -37,7 +37,7 @@ public:
 
     // ---------------------- Constructors ------------------------------------
 
-    ObjectXML():xml(0),ctx(0){};
+    ObjectXML():xml(0), ctx(0) {}
 
     /**
      *  Constructs an object using a XML document
@@ -65,7 +65,7 @@ public:
         xmlNodePtr cur;
         xmlChar *  str_ptr;
 
-        obj=xmlXPathEvalExpression(reinterpret_cast<const xmlChar *>(expr),ctx);
+        obj = xmlXPathEvalExpression(reinterpret_cast<const xmlChar *>(expr),ctx);
 
         if (obj == 0)
         {
@@ -79,7 +79,7 @@ public:
                 break;
 
             case XPATH_NODESET:
-                for(int i = 0; i < obj->nodesetval->nodeNr ; ++i)
+                for (int i = 0; i < obj->nodesetval->nodeNr ; ++i)
                 {
                     cur = obj->nodesetval->nodeTab[i];
 

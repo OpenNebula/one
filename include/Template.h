@@ -47,7 +47,7 @@ public:
              const char * _xml_root     = "TEMPLATE"):
                  replace_mode(_replace_mode),
                  separator(_separator),
-                 xml_root(_xml_root){};
+                 xml_root(_xml_root){}
 
     Template(const Template& t)
     {
@@ -152,7 +152,7 @@ public:
      *    @param str_tempalte string that hold the template
      *    @param delim to separate attributes
      */
-    void marshall(string &str, const char delim='\n');
+    void marshall(string &str, const char delim = '\n');
 
     /**
      *  Writes the template in a simple xml string:
@@ -321,7 +321,7 @@ public:
         return __get<VectorAttribute>(n, v);
     }
 
-    inline virtual int get( const string& n, vector<VectorAttribute*>& v)
+    inline virtual int get(const string& n, vector<VectorAttribute*>& v)
     {
         return __get<VectorAttribute>(n, v);
     }
@@ -331,7 +331,7 @@ public:
         return __get<SingleAttribute>(n, s);
     }
 
-    inline virtual int get( const string& n, vector<SingleAttribute*>& s)
+    inline virtual int get(const string& n, vector<SingleAttribute*>& s)
     {
         return __get<SingleAttribute>(n, s);
     }
@@ -437,6 +437,16 @@ public:
     }
 
     /**
+     *  Encrypt all secret attributes
+     */
+    virtual void encrypt(const std::string& one_key){};
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    virtual void decrypt(const std::string& one_key){};
+
+    /**
      *  @return true if template is empty
      */
     bool empty()
@@ -498,6 +508,34 @@ protected:
 
     bool check_restricted(string& rs_attr,
            const std::map<std::string, std::set<std::string> >& ras);
+
+    /**
+     *  Parses a list of encrypted attributes in the form ATTRIBUTE_NAME or
+     *  ATTRIBUTE_NAME/SUBATTRIBUTE.
+     *    @param eas list of encrypted attributes
+     *    @param eattr_m result list of attributes indexed by ATTRIBUTE_NAME.
+     *    EAs are stored:
+     *      {
+     *        ENCRYPTED_ATTR_NAME => [ ENCRYPTED_SUB_ATTRIBUTES ],
+     *        ...
+     *      }
+     *    If the EA is Single the sub attribute list will be empty.
+     */
+    static void parse_encrypted(const vector<const SingleAttribute *>& eas,
+        std::map<std::string, std::set<std::string> >& eattr_m);
+
+    /**
+     *  Encrypt all secret attributes
+     */
+    void encrypt(const std::string& one_key,
+                 const std::map<std::string, std::set<std::string> >& eas);
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    void decrypt(const std::string& one_key,
+                 const std::map<std::string, std::set<std::string> >& eas);
+
     /**
      * Updates the xml root element name
      *
@@ -624,7 +662,7 @@ private:
     {
         typename vector<T *>::iterator it;
 
-        for(it = values.begin(); it != values.end(); it++ )
+        for (it = values.begin(); it != values.end(); it++ )
         {
             set(*it);
         }

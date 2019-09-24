@@ -1,0 +1,77 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+###############################################################################
+# This script is used to unregister a new IP network in the IPAM.
+#
+# STDIN Input:
+#   - Base64 encoded XML with AR request
+#
+# XML format
+#  <IPAM_DRIVER_ACTION_DATA>
+#    <AR>
+#      <DEPLOY_ID>Packet AR ID</DEPLOY_ID>
+#      <PACKET_TOKEN>Packet auth token</PACKET_TOKEN>
+#    </AR>
+#  </IPAM_DRIVER_ACTION_DATA>
+#
+################################################################################
+
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    PACKET_LOCATION   = '/usr/lib/one/ruby/vendors/packethost/lib'
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+else
+    PACKET_LOCATION   = ONE_LOCATION + '/lib/ruby/vendors/packethost/lib'
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+end
+
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+end
+
+$LOAD_PATH << PACKET_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+# gem 'packethost', '> 0.0.8'
+
+require 'packet'
+require 'base64'
+require 'nokogiri'
+require 'opennebula'
+
+data = Nokogiri::XML(Base64.decode64(STDIN.read))
+
+ar_token = data.xpath('//AR/PACKET_TOKEN').text
+deploy_id = data.xpath('//AR/DEPLOY_ID').text.to_s
+
+begin
+    packet = Packet::Client.new
+    packet.auth_token = ar_token
+    packet.delete_ip(deploy_id)
+rescue StandardError => e
+    error_str = "ERROR MESSAGE --8<------\n"
+    error_str << e.to_s
+    error_str << "\nERROR MESSAGE ------>8--"
+
+    STDERR.puts error_str
+    exit(-1)
+end

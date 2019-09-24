@@ -43,11 +43,6 @@ VNTemplate::VNTemplate(int id,
     set_umask(umask);
 }
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-VNTemplate::~VNTemplate(){};
-
 /* ************************************************************************ */
 /* VNTemplate :: Database Access Functions                                  */
 /* ************************************************************************ */
@@ -135,14 +130,14 @@ int VNTemplate::insert_replace(SqlDB *db, bool replace, string& error_str)
 
    // Update the Object
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -154,7 +149,7 @@ int VNTemplate::insert_replace(SqlDB *db, bool replace, string& error_str)
         goto error_xml;
     }
 
-    if(replace)
+    if (replace)
     {
         oss << "UPDATE " << table << " SET "
             << "name = '"    << sql_name   << "', "
@@ -279,6 +274,3 @@ int VNTemplate::from_xml(const string& xml)
 
     return 0;
 }
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */

@@ -32,7 +32,7 @@ DST_PATH=$3
 VMID=$4
 DSID=$5
 
-TEMPLATE_64=$6
+TEMPLATE_64=$(cat)
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh

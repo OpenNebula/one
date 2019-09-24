@@ -59,10 +59,10 @@ public:
     };
 
     TMAction(Actions a, int v):ActionRequest(ActionRequest::USER),
-        _action(a), _vm_id(v){};
+        _action(a), _vm_id(v){}
 
     TMAction(const TMAction& o):ActionRequest(o._type), _action(o._action),
-        _vm_id(o._vm_id){};
+        _vm_id(o._vm_id){}
 
     Actions action() const
     {
@@ -100,7 +100,7 @@ public:
         am.addListener(this);
     };
 
-    ~TransferManager(){};
+    ~TransferManager() = default;
 
     /**
      *  Triggers specific actions to the Information Manager. This function

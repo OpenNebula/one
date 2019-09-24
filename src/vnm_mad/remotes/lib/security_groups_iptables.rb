@@ -350,8 +350,8 @@ module SGIPTables
     #       --physdev-is-bridged -j one-3-0-i"
     #   iptables -I opennebula -m physdev --physdev-in  vnet0
     #       --physdev-is-bridged -j one-3-0-o"
-    #   iptables -A one-3-0-i -m state --state ESTABLISHED,RELATED -j ACCEPT
-    #   iptables -A one-3-0-o -m state --state ESTABLISHED,RELATED -j ACCEPT
+    #   iptables -A one-3-0-i -m state --state ESTABLISHED,RELATED -j RETURN
+    #   iptables -A one-3-0-o -m state --state ESTABLISHED,RELATED -j RETURN
     #
     #   Mac spoofing (no output traffic from a different MAC)
     #   iptables -A one-3-0-o -m mac ! --mac-source 02:00:00:00:00:01 -j DROP
@@ -363,7 +363,6 @@ module SGIPTables
 
         vars = SGIPTables.vars(vm, nic)
 
-        chain     = vars[:chain]
         chain_in  = vars[:chain_in]
         chain_out = vars[:chain_out]
 
@@ -387,31 +386,31 @@ module SGIPTables
         # ICMPv6 Neighbor Discovery Protocol (ARP replacement for IPv6)
         ## Allow routers to send router advertisements
         commands.add :ip6tables, "-A #{chain_in} -p icmpv6 --icmpv6-type 134 "\
-            "-j ACCEPT"
+            "-j RETURN"
 
         ## Allow neighbor solicitations to reach the host
         commands.add :ip6tables, "-A #{chain_in} -p icmpv6 --icmpv6-type 135 "\
-            "-j ACCEPT"
+            "-j RETURN"
 
         ## Allow neighbor solicitations replies to reach the host
         commands.add :ip6tables, "-A #{chain_in} -p icmpv6 --icmpv6-type 136 "\
-            "-j ACCEPT"
+            "-j RETURN"
 
         ## Allow routers to send Redirect messages
         commands.add :ip6tables, "-A #{chain_in} -p icmpv6 --icmpv6-type 137 "\
-            "-j ACCEPT"
+            "-j RETURN"
 
         ## Allow the host to send a router solicitation
         commands.add :ip6tables, "-A #{chain_out} -p icmpv6 --icmpv6-type 133 "\
-            "-j ACCEPT"
+            "-j RETURN"
 
         ## Allow the host to send neighbor solicitation requests
         commands.add :ip6tables, "-A #{chain_out} -p icmpv6 --icmpv6-type 135 "\
-            "-j ACCEPT"
+            "-j RETURN"
 
         ## Allow the host to send neighbor solicitation replies
         commands.add :ip6tables, "-A #{chain_out} -p icmpv6 --icmpv6-type 136 "\
-            "-j ACCEPT"
+            "-j RETURN"
 
         # Mac-spofing
         if nic[:filter_mac_spoofing] == "YES"
@@ -429,19 +428,11 @@ module SGIPTables
                 ipv4s << nic[key] if !nic[key].nil? && !nic[key].empty?
             end
 
-            if !nic[:aliases].nil? && !nic[:aliases].empty?
-                nic[:aliases].each do |nicalias|
-                    [:ip, :vrouter_ip].each do |key|
-                        ipv4s << nicalias[key] if !nicalias[key].nil? && !nicalias[key].empty?
-                    end
-                end
-            end
-
             if !ipv4s.empty?
                 #bootp
                 commands.add :iptables, "-A #{chain_out} -p udp "\
                     "--source 0.0.0.0/32 --sport 68 --destination "\
-                    "255.255.255.255/32 --dport 67 -j ACCEPT"
+                    "255.255.255.255/32 --dport 67 -j RETURN"
 
                 set = "#{vars[:chain]}-ip-spoofing"
 
@@ -464,14 +455,6 @@ module SGIPTables
                 ipv6s << nic[key] if !nic[key].nil? && !nic[key].empty?
             end
 
-            if !nic[:aliases].nil? && !nic[:aliases].empty?
-                nic[:aliases].each do |nicalias|
-                    [:ip6, :ip6_global, :ip6_link, :ip6_ula].each do |key|
-                        ipv6s << nicalias[key] if !nicalias[key].nil? && !nicalias[key].empty?
-                    end
-                end
-            end
-
             if !ipv6s.empty?
                 set = "#{vars[:chain]}-ip6-spoofing"
 
@@ -490,13 +473,13 @@ module SGIPTables
 
         # Related, Established
         commands.add :iptables, "-A #{chain_in} -m state"\
-            " --state ESTABLISHED,RELATED -j ACCEPT"
+            " --state ESTABLISHED,RELATED -j RETURN"
         commands.add :iptables, "-A #{chain_out} -m state"\
-            " --state ESTABLISHED,RELATED -j ACCEPT"
+            " --state ESTABLISHED,RELATED -j RETURN"
         commands.add :ip6tables, "-A #{chain_in} -m state"\
-            " --state ESTABLISHED,RELATED -j ACCEPT"
+            " --state ESTABLISHED,RELATED -j RETURN"
         commands.add :ip6tables, "-A #{chain_out} -m state"\
-            " --state ESTABLISHED,RELATED -j ACCEPT"
+            " --state ESTABLISHED,RELATED -j RETURN"
 
         commands.run!
     end

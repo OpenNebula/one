@@ -29,10 +29,16 @@ class VirtualNetworkTemplate : public Template
 public:
     VirtualNetworkTemplate():Template(false,'=',"TEMPLATE"){};
 
+    VirtualNetworkTemplate(bool replace_mode,
+                           const char   separator,
+                           const char * xml_root):Template(replace_mode,
+                                                           separator,
+                                                           xml_root){};
+
     ~VirtualNetworkTemplate(){};
 
     VirtualNetworkTemplate(VirtualNetworkTemplate& vnt):Template(vnt){};
-    
+
     // -------------------------------------------------------------------------
     // Restricted attributes interface implementation
     // -------------------------------------------------------------------------
@@ -50,6 +56,32 @@ public:
     {
         Template::parse_restricted(ra, restricted);
     }
+
+    // -------------------------------------------------------------------------
+    // Encrypted attributes interface implementation
+    // -------------------------------------------------------------------------
+    virtual void encrypt(const std::string& one_key)
+    {
+        Template::encrypt(one_key, encrypted);
+    }
+
+    virtual void decrypt(const std::string& one_key)
+    {
+        Template::decrypt(one_key, encrypted);
+    }
+
+    // One-time execution
+    static void parse_encrypted(vector<const SingleAttribute *>& ea)
+    {
+        auto eas = const_cast<std::map<std::string, std::set<std::string>> *>(&encrypted);
+
+        Template::parse_encrypted(ea, *eas);
+    }
+
+    /**
+     *  Encrypted attribute list for VirtualNetworkTemplates
+     */
+    static const std::map<std::string, std::set<std::string> > encrypted;
 
 private:
     /**

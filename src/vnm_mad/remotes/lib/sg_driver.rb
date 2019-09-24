@@ -113,6 +113,8 @@ module VNMMAD
             end
 
             unlock
+
+            0
         end
 
         # Clean iptables rules and chains
@@ -132,6 +134,8 @@ module VNMMAD
             ensure
                 unlock
             end
+
+            0
         end
     end
 end

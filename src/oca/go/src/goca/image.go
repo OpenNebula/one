@@ -19,131 +19,70 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
-	"fmt"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/image"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
-// ImagePool represents an OpenNebula Image pool
-type ImagePool struct {
-	Images []Image `xml:"IMAGE"`
+// ImagesController is a controller for Images
+type ImagesController entitiesController
+
+// ImageController is a controller for Image entities
+type ImageController entityController
+
+// ImageSnapshotController is a controller for an Image snapshot
+type ImageSnapshotController subEntityController
+
+// Images returns an Images controller
+func (c *Controller) Images() *ImagesController {
+	return &ImagesController{c}
 }
 
-// Image represents an OpenNebula Image
-type Image struct {
-	ID              uint          `xml:"ID"`
-	UID             int           `xml:"UID"`
-	GID             int           `xml:"GID"`
-	UName           string        `xml:"UNAME"`
-	GName           string        `xml:"GNAME"`
-	Name            string        `xml:"NAME"`
-	LockInfos       *Lock         `xml:"LOCK"`
-	Permissions     *Permissions  `xml:"PERMISSIONS"`
-	Type            int           `xml:"TYPE"`
-	DiskType        int           `xml:"DISK_TYPE"`
-	PersistentValue int           `xml:"PERSISTENT"`
-	RegTime         int           `xml:"REGTIME"`
-	Source          string        `xml:"SOURCE"`
-	Path            string        `xml:"PATH"`
-	FsType          string        `xml:"FSTYPE"`
-	Size            int           `xml:"SIZE"`
-	StateRaw        int           `xml:"STATE"`
-	RunningVMs      int           `xml:"RUNNING_VMS"`
-	CloningOps      int           `xml:"CLONING_OPS"`
-	CloningID       int           `xml:"CLONING_ID"`
-	TargetSnapshot  int           `xml:"TARGET_SNAPSHOT"`
-	DatastoreID     int           `xml:"DATASTORE_ID"`
-	Datastore       string        `xml:"DATASTORE"`
-	VMsID           []int         `xml:"VMS>ID"`
-	ClonesID        []int         `xml:"CLONES>ID"`
-	AppClonesID     []int         `xml:"APP_CLONES>ID"`
-	Snapshots       ImageSnapshot `xml:"SNAPSHOTS"`
-	Template        imageTemplate `xml:"TEMPLATE"`
+// Image returns an Image controller
+func (c *Controller) Image(id int) *ImageController {
+	return &ImageController{c, id}
 }
 
-type imageTemplate struct {
-	Dynamic unmatchedTagsSlice `xml:",any"`
+// Snapshot returns an Image snapshot controller
+func (ic *ImageController) Snapshot(id int) *ImageSnapshotController {
+	return &ImageSnapshotController{ic.c, ic.ID, id}
 }
 
-// ImageState is the state of the Image
-type ImageState int
+// ByName returns an Image ID from name
+func (c *ImagesController) ByName(name string, args ...int) (int, error) {
+	var id int
 
-const (
-	// ImageInit image is being initialized
-	ImageInit ImageState = iota
-
-	// ImageReady image is ready to be used
-	ImageReady
-
-	// ImageUsed image is in use
-	ImageUsed
-
-	// ImageDisabled image is in disabled
-	ImageDisabled
-
-	// ImageLocked image is locked
-	ImageLocked
-
-	// ImageError image is in error state
-	ImageError
-
-	// ImageClone image is in clone state
-	ImageClone
-
-	// ImageDelete image is in delete state
-	ImageDelete
-
-	// ImageUsedPers image is in use and persistent
-	ImageUsedPers
-
-	// ImageLockUsed image is in locked state (non-persistent)
-	ImageLockUsed
-
-	// ImageLockUsedPers image is in locked state (persistent)
-	ImageLockUsedPers
-)
-
-func (st ImageState) isValid() bool {
-	if st >= ImageInit && st <= ImageLockUsedPers {
-		return true
-	}
-	return false
-}
-
-// String returns the string version of the ImageState
-func (s ImageState) String() string {
-	return [...]string{
-		"INIT",
-		"READY",
-		"USED",
-		"DISABLED",
-		"LOCKED",
-		"ERROR",
-		"CLONE",
-		"DELETE",
-		"USED_PERS",
-		"LOCKED_USED",
-		"LOCKED_USED_PERS",
-	}[s]
-}
-
-// CreateImage allocates a new image based on the template string provided. It
-// returns the image ID.
-func CreateImage(template string, dsid uint) (uint, error) {
-	response, err := client.Call("one.image.allocate", template, dsid)
+	imagePool, err := c.Info(args...)
 	if err != nil {
 		return 0, err
 	}
 
-	return uint(response.BodyInt()), nil
+	match := false
+	for i := 0; i < len(imagePool.Images); i++ {
+		if imagePool.Images[i].Name != name {
+			continue
+		}
+		if match {
+			return 0, errors.New("multiple resources with that name")
+		}
+		id = imagePool.Images[i].ID
+		match = true
+	}
+	if !match {
+		return 0, errors.New("resource not found")
+	}
+
+	return id, nil
 }
 
-// NewImagePool returns a new image pool. It accepts the scope of the query. It
-// performs an OpenNebula connection to fetch the information.
-func NewImagePool(args ...int) (*ImagePool, error) {
+// Info returns a new image pool. It accepts the scope of the query.
+func (ic *ImagesController) Info(args ...int) (*image.Pool, error) {
 	var who, start, end int
 
 	switch len(args) {
 	case 0:
-		who = PoolWhoMine
+		who = parameters.PoolWhoMine
 		start = -1
 		end = -1
 	case 3:
@@ -154,12 +93,12 @@ func NewImagePool(args ...int) (*ImagePool, error) {
 		return nil, errors.New("Wrong number of arguments")
 	}
 
-	response, err := client.Call("one.imagepool.info", who, start, end)
+	response, err := ic.c.Client.Call("one.imagepool.info", who, start, end)
 	if err != nil {
 		return nil, err
 	}
 
-	imagePool := &ImagePool{}
+	imagePool := &image.Pool{}
 	err = xml.Unmarshal([]byte(response.Body()), imagePool)
 	if err != nil {
 		return nil, err
@@ -168,179 +107,121 @@ func NewImagePool(args ...int) (*ImagePool, error) {
 	return imagePool, nil
 }
 
-// NewImage finds an image by ID returns a new Image object. At this stage no
-// connection to OpenNebula is performed.
-func NewImage(id uint) *Image {
-	return &Image{ID: id}
-}
-
-// NewImageFromName finds an image by name and returns Image object. It connects
-// to OpenNebula to retrieve the pool, but doesn't perform the Info() call to
-// retrieve the attributes of the image.
-func NewImageFromName(name string) (*Image, error) {
-	var id uint
-
-	imagePool, err := NewImagePool()
+// Info connects to OpenNebula and fetches the information of the Image
+func (ic *ImageController) Info() (*image.Image, error) {
+	response, err := ic.c.Client.Call("one.image.info", ic.ID)
 	if err != nil {
 		return nil, err
 	}
-
-	match := false
-	for i := 0; i < len(imagePool.Images); i++ {
-		if imagePool.Images[i].Name != name {
-			continue
-		}
-		if match {
-			return nil, errors.New("multiple resources with that name")
-		}
-		id = imagePool.Images[i].ID
-		match = true
-	}
-	if !match {
-		return nil, errors.New("resource not found")
-	}
-
-	return NewImage(id), nil
-}
-
-// Info connects to OpenNebula and fetches the information of the Image
-func (image *Image) Info() error {
-	response, err := client.Call("one.image.info", image.ID)
+	image := &image.Image{}
+	err = xml.Unmarshal([]byte(response.Body()), image)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	*image = Image{}
-	return xml.Unmarshal([]byte(response.Body()), image)
+	return image, nil
 }
 
-// State looks up the state of the image and returns the ImageState
-func (image *Image) State() (ImageState, error) {
-	state := ImageState(image.StateRaw)
-	if !state.isValid() {
-		return -1, fmt.Errorf("Image State: this state value is not currently handled: %d\n", image.StateRaw)
-	}
-	return state, nil
-}
-
-// StateString returns the state in string format
-func (image *Image) StateString() (string, error) {
-	state := ImageState(image.StateRaw)
-	if !state.isValid() {
-		return "", fmt.Errorf("Image State: this state value is not currently handled: %d\n", image.StateRaw)
-	}
-	return state.String(), nil
-}
-
-// Clone clones an existing image. It returns the clone ID
-func (image *Image) Clone(cloneName string, dsid int) (uint, error) {
-	response, err := client.Call("one.image.clone", image.ID, cloneName, dsid)
+// Create allocates a new image based on the template string provided. It
+// returns the image ID.
+func (ic *ImagesController) Create(template string, dsid uint) (int, error) {
+	response, err := ic.c.Client.Call("one.image.allocate", template, dsid)
 	if err != nil {
 		return 0, err
 	}
 
-	return uint(response.BodyInt()), nil
+	return response.BodyInt(), nil
 }
 
-// Update will modify the image's template. If appendTemplate is 0, it will
-// replace the whole template. If its 1, it will merge.
-func (image *Image) Update(tpl string, appendTemplate int) error {
-	_, err := client.Call("one.image.update", image.ID, tpl, appendTemplate)
+// Clone clones an existing image. It returns the clone ID
+func (ic *ImageController) Clone(cloneName string, dsid int) (int, error) {
+	response, err := ic.c.Client.Call("one.image.clone", ic.ID, cloneName, dsid)
+	if err != nil {
+		return 0, err
+	}
+
+	return response.BodyInt(), nil
+}
+
+// Update replaces the cluster cluster contents.
+// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// * uType: Update type: Replace: Replace the whole template.
+//   Merge: Merge new template with the existing one.
+func (ic *ImageController) Update(tpl string, uType parameters.UpdateType) error {
+	_, err := ic.c.Client.Call("one.image.update", ic.ID, tpl, uType)
 	return err
 }
 
 // Chtype changes the type of the Image
-func (image *Image) Chtype(newType string) error {
-	_, err := client.Call("one.image.chtype", image.ID, newType)
+func (ic *ImageController) Chtype(newType string) error {
+	_, err := ic.c.Client.Call("one.image.chtype", ic.ID, newType)
 	return err
 }
 
 // Chown changes the owner/group of the image. If uid or gid is -1 it will not
 // change
-func (image *Image) Chown(uid, gid int) error {
-	_, err := client.Call("one.image.chown", image.ID, uid, gid)
+func (ic *ImageController) Chown(uid, gid int) error {
+	_, err := ic.c.Client.Call("one.image.chown", ic.ID, uid, gid)
 	return err
 }
 
 // Chmod changes the permissions of the image. If any perm is -1 it will not
 // change
-func (image *Image) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
-	_, err := client.Call("one.image.chmod", image.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+func (ic *ImageController) Chmod(perm *shared.Permissions) error {
+	_, err := ic.c.Client.Call("one.image.chmod", perm.ToArgs(ic.ID)...)
 	return err
 }
 
 // Rename changes the name of the image
-func (image *Image) Rename(newName string) error {
-	_, err := client.Call("one.image.rename", image.ID, newName)
+func (ic *ImageController) Rename(newName string) error {
+	_, err := ic.c.Client.Call("one.image.rename", ic.ID, newName)
 	return err
 }
 
-// SnapshotDelete will delete a snapshot from the image
-func (image *Image) SnapshotDelete(snapID int) error {
-	_, err := client.Call("one.image.snapshotdelete", image.ID, snapID)
+// Delete will delete a snapshot from the image
+func (ic *ImageSnapshotController) Delete() error {
+	_, err := ic.c.Client.Call("one.image.snapshotdelete", ic.entityID, ic.ID)
 	return err
 }
 
-// SnapshotRevert reverts image state to a previous snapshot
-func (image *Image) SnapshotRevert(snapID int) error {
-	_, err := client.Call("one.image.snapshotrevert", image.ID, snapID)
+// Revert reverts image state to a previous snapshot
+func (ic *ImageSnapshotController) Revert() error {
+	_, err := ic.c.Client.Call("one.image.snapshotrevert", ic.entityID, ic.ID)
 	return err
 }
 
-// SnapshotFlatten flattens the snapshot image and discards others
-func (image *Image) SnapshotFlatten(snapID int) error {
-	_, err := client.Call("one.image.snapshotflatten", image.ID, snapID)
+// Flatten flattens the snapshot image and discards others
+func (ic *ImageSnapshotController) Flatten() error {
+	_, err := ic.c.Client.Call("one.image.snapshotflatten", ic.entityID, ic.ID)
 	return err
 }
 
 // Enable enables (or disables) the image
-func (image *Image) Enable(enable bool) error {
-	_, err := client.Call("one.image.enable", image.ID, enable)
+func (ic *ImageController) Enable(enable bool) error {
+	_, err := ic.c.Client.Call("one.image.enable", ic.ID, enable)
 	return err
 }
 
 // Persistent sets the image as persistent (or not)
-func (image *Image) Persistent(persistent bool) error {
-	_, err := client.Call("one.image.persistent", image.ID, persistent)
+func (ic *ImageController) Persistent(persistent bool) error {
+	_, err := ic.c.Client.Call("one.image.persistent", ic.ID, persistent)
 	return err
 }
 
-// Lock locks the image following block level.
-func (image *Image) Lock(level uint) error {
-	_, err := client.Call("one.image.lock", image.ID, level)
+// Lock locks the image following lock level. See levels in locks.go.
+func (ic *ImageController) Lock(level shared.LockLevel) error {
+	_, err := ic.c.Client.Call("one.image.lock", ic.ID, level)
 	return err
 }
 
 // Unlock unlocks the image.
-func (image *Image) Unlock() error {
-	_, err := client.Call("one.image.unlock", image.ID)
+func (ic *ImageController) Unlock() error {
+	_, err := ic.c.Client.Call("one.image.unlock", ic.ID)
 	return err
 }
 
 // Delete will remove the image from OpenNebula, which will remove it from the
 // backend.
-func (image *Image) Delete() error {
-	_, err := client.Call("one.image.delete", image.ID)
+func (ic *ImageController) Delete() error {
+	_, err := ic.c.Client.Call("one.image.delete", ic.ID)
 	return err
-}
-
-// Lock actions
-
-// LockUse locks USE actions for the image
-func (image *Image) LockUse() error {
-    return image.Lock(1)
-}
-
-// LockManage locks MANAGE actions for the image
-func (image *Image) LockManage() error {
-    return image.Lock(2)
-}
-
-// LockAdmin locks ADMIN actions for the image
-func (image *Image) LockAdmin() error {
-    return image.Lock(3)
-}
-
-// LockAll locks all actions for the image
-func (image *Image) LockAll() error {
-    return image.Lock(4)
 }

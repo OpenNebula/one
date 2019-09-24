@@ -1,0 +1,128 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+###############################################################################
+# This script is used to register a new IP network in the IPAM. The network may
+# be selected by a pool of free networks or if an specific network is requested
+# its availability maybe checked by the IPAM driver.
+#
+# The IPAM driver must return an OpenNebula AddressRange definition, potentially
+# augmented with network specific variables to be used by VMs (e.g. GATEWAYS,
+# MASK...)
+#
+# STDIN Input:
+#   - Base64 encoded XML with AR request
+#
+# XML format
+#  <IPAM_DRIVER_ACTION_DATA>
+#    <AR>
+#      <TYPE>Type of the Ip (public/global)</TYPE>
+#      <SIZE>Number of IPs to allocate</SIZE>
+#      <FACILITY>Packet facility</FACILITY>
+#      <PACKET_PROJECT>Packet project id</PACKET_PROJECT>
+#      <PACKET_TOKEN>Packet auth token</PACKET_TOKEN>
+#    </AR>
+#  </IPAM_DRIVER_ACTION_DATA>
+#
+# The response MUST include IPAM_MAD, TYPE, IP and SIZE attributes, example:
+#   - A basic network definition
+#       AR = [
+#         IPAM_MAD = "packet",
+#         TYPE = "IP4",
+#         IP   = "10.0.0.1",
+#         SIZE = "255",
+#         DEPLOY_ID = "..",
+#         PACKET_TOKEN = ".." TODO REMOVE IT
+#       ]
+#
+#   - A complete network definition. Custom attributes (free form, key-value)
+#     can be added, named cannot be repeated.
+#       AR = [
+#         IPAM_MAD = "packet",
+#         TYPE = "IP4",
+#         IP   = "10.0.0.2",
+#         SIZE = "200",
+#         DEPLOY_ID = "..",
+#         PACKET_TOKEN = "..", TODO REMOVE IT
+#         NETWORK_ADDRESS   = "10.0.0.0",
+#         NETWORK_MASK      = "255.255.255.0",
+#         GATEWAY           = "10.0.0.1",
+#         DNS               = "10.0.0.1",
+#         IPAM_ATTR         = "10.0.0.240",
+#         OTHER_IPAM_ATTR   = ".mydoamin.com"
+#       ]
+################################################################################
+
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    PACKET_LOCATION   = '/usr/lib/one/ruby/vendors/packethost/lib'
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+else
+    PACKET_LOCATION   = ONE_LOCATION + '/lib/ruby/vendors/packethost/lib'
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+end
+
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+end
+
+$LOAD_PATH << PACKET_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+require 'packet'
+require 'base64'
+require 'nokogiri'
+require 'opennebula'
+
+data = Nokogiri::XML(Base64.decode64(STDIN.read))
+
+ar_token = data.xpath('//AR/PACKET_TOKEN').text
+
+packet            = Packet::Client.new
+packet.auth_token = ar_token
+
+ip = Packet::Ip.new
+ip.project_id = data.xpath('//AR/PACKET_PROJECT').text
+ip.type       = data.xpath('//AR/PACKET_IP_TYPE').text
+ip.facility   = data.xpath('//AR/FACILITY').text
+ip.quantity   = data.xpath('//AR/SIZE').text.to_i
+
+begin
+    packet.create_ip(ip)
+
+    puts <<-EOF
+        AR = [
+            TYPE         = "IP4",
+            IP           = "#{ip.network}",
+            SIZE         = "#{ip.quantity}",
+            IPAM_MAD     = "packet",
+            DEPLOY_ID    = "#{ip.id}",
+            PACKET_TOKEN = "#{ar_token}"
+        ]
+    EOF
+rescue StandardError => e
+    error_str = "ERROR MESSAGE --8<------\n"
+    error_str << e.to_s
+    error_str << "\nERROR MESSAGE ------>8--"
+
+    STDERR.puts error_str
+    exit(-1)
+end

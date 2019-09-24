@@ -21,10 +21,10 @@ import os
 Import('env')
 
 if env['rubygems']=='yes':
-    print "Generating rubygems packages\n"
+    print ("Generating rubygems packages\n")
     exit_code=os.system("./generate")
 
     if exit_code != 0:
-        print "Error generating rubygem packages\n"
+        print ("Error generating rubygem packages\n")
         exit(-1)
 

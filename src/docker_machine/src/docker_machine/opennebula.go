@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca"
+	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
 
 	"github.com/docker/machine/libmachine/drivers"
 	"github.com/docker/machine/libmachine/log"
@@ -104,9 +105,11 @@ func (d *Driver) buildConfig() {
 	d.Config = goca.NewConfig(d.User, d.Password, d.Xmlrpcurl)
 }
 
-func (d *Driver) setClient() {
+func (d *Driver) getController() *goca.Controller {
 	d.buildConfig()
-	goca.SetClient(d.Config)
+	client := goca.NewClient(d.Config)
+
+	return goca.NewController(client)
 }
 
 // GetCreateFlags registers the flags this driver adds to
@@ -360,14 +363,12 @@ func (d *Driver) PreCreateCheck() error {
 
 func (d *Driver) Create() error {
 	var (
-		vector     *goca.TemplateBuilderVector
-		vmtemplate *goca.Template
-
+		vector     *dyn.TemplateBuilderVector
 		err error
 	)
 
 	// build config and set the xmlrpc client
-	d.setClient()
+	controller := d.getController()
 
 	log.Infof("Creating SSH key..")
 	if err := ssh.GenerateSSHKey(d.GetSSHKeyPath()); err != nil {
@@ -380,7 +381,7 @@ func (d *Driver) Create() error {
 	}
 
 	// Create template
-	template := goca.NewTemplateBuilder()
+	template := dyn.NewTemplateBuilder()
 
 	if d.TemplateName != "" || d.TemplateID != "" {
 		// Template has been specified
@@ -469,25 +470,28 @@ func (d *Driver) Create() error {
 	// Instantiate
 	log.Infof("Starting	 VM..")
 
+	// Template has been specified
 	if d.TemplateName != "" || d.TemplateID != "" {
+		var templateID int
 
 		if d.TemplateName != "" {
-			vmtemplate, err = goca.NewTemplateFromName(d.TemplateName)
+			templateID, err = controller.Templates().ByName(d.TemplateName)
 			if err != nil {
 				return err
 			}
 		} else {
-			templateID, err := strconv.Atoi(d.TemplateID)
+			templateID, err = strconv.Atoi(d.TemplateID)
 			if err != nil {
 				return err
 			}
-			vmtemplate = goca.NewTemplate(uint(templateID))
 		}
+
+		vmtemplate := controller.Template(templateID)
 
 		_, err = vmtemplate.Instantiate(d.MachineName, false, template.String(), false)
 
 	} else {
-		_, err = goca.CreateVM(template.String(), false)
+		_, err = controller.VMs().Create(template.String(), false)
 	}
 
 	if err != nil {
@@ -510,13 +514,14 @@ func (d *Driver) GetURL() (string, error) {
 }
 
 func (d *Driver) GetIP() (string, error) {
-	d.setClient()
-	vm, err := goca.NewVMFromName(d.MachineName)
+	controller := d.getController()
+
+	vm_id, err := controller.VMs().ByName(d.MachineName)
 	if err != nil {
 		return "", err
 	}
 
-	err = vm.Info()
+	vm, err := controller.VM(vm_id).Info()
 	if err != nil {
 		return "", err
 	}
@@ -535,13 +540,14 @@ func (d *Driver) GetIP() (string, error) {
 }
 
 func (d *Driver) GetState() (state.State, error) {
-	d.setClient()
-	vm, err := goca.NewVMFromName(d.MachineName)
+	controller := d.getController()
+
+	vm_id, err := controller.VMs().ByName(d.MachineName)
 	if err != nil {
 		return state.None, err
 	}
 
-	err = vm.Info()
+	vm, err := controller.VM(vm_id).Info()
 	if err != nil {
 		return state.None, err
 	}
@@ -649,12 +655,14 @@ func (d *Driver) GetState() (state.State, error) {
 }
 
 func (d *Driver) Start() error {
-	d.setClient()
-	vm, err := goca.NewVMFromName(d.MachineName)
+	controller := d.getController()
+
+	vm_id, err := controller.VMs().ByName(d.MachineName)
 	if err != nil {
 		return err
 	}
 
+	vm := controller.VM(vm_id)
 	vm.Resume()
 
 	s := state.None
@@ -667,7 +675,7 @@ func (d *Driver) Start() error {
 
 		switch s {
 		case state.Error:
-			return errors.New("vM in error state")
+			return errors.New("VM in error state")
 		default:
 			time.Sleep(2 * time.Second)
 		}
@@ -686,12 +694,14 @@ func (d *Driver) Start() error {
 }
 
 func (d *Driver) Stop() error {
-	d.setClient()
-	vm, err := goca.NewVMFromName(d.MachineName)
+	controller := d.getController()
+
+	vm_id, err := controller.VMs().ByName(d.MachineName)
 	if err != nil {
 		return err
 	}
 
+	vm := controller.VM(vm_id)
 	err = vm.Poweroff()
 	if err != nil {
 		return err
@@ -701,12 +711,14 @@ func (d *Driver) Stop() error {
 }
 
 func (d *Driver) Remove() error {
-	d.setClient()
-	vm, err := goca.NewVMFromName(d.MachineName)
+	controller := d.getController()
+
+	vm_id, err := controller.VMs().ByName(d.MachineName)
 	if err != nil {
 		return err
 	}
 
+	vm := controller.VM(vm_id)
 	err = vm.TerminateHard()
 	if err != nil {
 		return err
@@ -716,12 +728,14 @@ func (d *Driver) Remove() error {
 }
 
 func (d *Driver) Restart() error {
-	d.setClient()
-	vm, err := goca.NewVMFromName(d.MachineName)
+	controller := d.getController()
+
+	vm_id, err := controller.VMs().ByName(d.MachineName)
 	if err != nil {
 		return err
 	}
 
+	vm := controller.VM(vm_id)
 	err = vm.Reboot()
 	if err != nil {
 		return err
@@ -731,11 +745,14 @@ func (d *Driver) Restart() error {
 }
 
 func (d *Driver) Kill() error {
-	d.setClient()
-	vm, err := goca.NewVMFromName(d.MachineName)
+	controller := d.getController()
+
+	vm_id, err := controller.VMs().ByName(d.MachineName)
 	if err != nil {
 		return err
 	}
+
+	vm := controller.VM(vm_id)
 
 	return vm.PoweroffHard()
 }

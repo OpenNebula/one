@@ -430,7 +430,7 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
 
     AuthRequest ar(att.uid, att.group_ids);
 
-    ar.add_auth(auth_op, perms);
+    ar.add_auth(att.auth_op, perms);
 
     if (UserPool::authorize(ar) == -1)
     {

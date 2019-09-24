@@ -154,7 +154,7 @@ public:
     /**
      *  Return the TM_MAD_SYSTEM attribute
      */
-    std::string get_tm_mad_system();
+    std::string get_tm_mad_system() const;
 
     /* ---------------------------------------------------------------------- */
     /* Image Manager Interface                                                */
@@ -244,6 +244,17 @@ public:
     {
         return (snapshots != 0);
     }
+
+    bool has_snapshot(int snap_id)
+    {
+        if (!has_snapshots())
+        {
+            return false;
+        }
+
+        return snapshots->exists(snap_id);
+    }
+
 
     /**
      * Renames a snapshot

@@ -333,7 +333,7 @@ public:
      *    @param name of the attribute
      *    @return the value of the attribute if found, empty otherwise
      */
-    string get_attribute(const char *name) const
+    string get_attribute(const string& name) const
     {
         return attr->vector_value(name);
     }
@@ -344,7 +344,7 @@ public:
      *    @param value of the attribute
      *    @return 0 on success
      */
-    int get_attribute(const char *name, int& value) const
+    int get_attribute(const string& name, int& value) const
     {
         return attr->vector_value(name, value);
     }
@@ -383,7 +383,7 @@ public:
     void get_security_groups(set<int>& sgs)
     {
         std::set<int>::const_iterator it;
-        
+
         for (it = security_groups.begin(); it != security_groups.end(); ++it)
         {
             sgs.insert(*it);
@@ -391,10 +391,27 @@ public:
     }
 
     /*
+     *  Decrypts the address range attributes
+     */
+    void decrypt();
+
+    /*
      *  add_ar from AddressRangePool needs to access the internal representation
      *  of the AR to include it in the ARPool template.
      */
     friend int AddressRangePool::add_ar(AddressRange * ar);
+
+    /*
+     *  rm_ar from AddressRangePool needs to access the internal representation
+     *  of the AR to remove it from the ARPool template.
+     */
+    friend int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg);
+
+    /*
+     *  rm_ars from AddressRangePool needs to access the internal representation
+     *  of the AR to remove it from the ARPool template.
+     */
+    friend int AddressRangePool::rm_ars(string& error_msg);
 
 protected:
     /**

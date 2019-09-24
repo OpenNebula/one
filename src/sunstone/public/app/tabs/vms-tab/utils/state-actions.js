@@ -29,7 +29,7 @@ define(function(require) {
     ["VM.release", "VM.deploy", "VM.updateconf", "VM.terminate_hard", "VM.recover", "VM.resize"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.ACTIVE] =
-    ["VM.recover"];
+    ["VM.recover","VM.updateconf"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.STOPPED] =
     ["VM.resume", "VM.deploy", "VM.terminate_hard", "VM.recover"];
@@ -44,7 +44,7 @@ define(function(require) {
     [];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.POWEROFF] =
-    ["VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_revert", "VM.disk_snapshot_delete", "VM.migrate", "VM.undeploy", "VM.undeploy_hard", "VM.save_as_template", "VM.updateconf", "VM.terminate_hard", "VM.recover", "VM.disk_resize", "VM.snapshot_delete"];
+    ["VM.resched", "VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_revert", "VM.disk_snapshot_delete", "VM.migrate", "VM.undeploy", "VM.undeploy_hard", "VM.save_as_template", "VM.updateconf", "VM.terminate_hard", "VM.recover", "VM.disk_resize", "VM.snapshot_delete"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.UNDEPLOYED] =
     ["VM.resume", "VM.resize", "VM.deploy", "VM.updateconf", "VM.terminate_hard", "VM.recover"];
@@ -174,7 +174,6 @@ define(function(require) {
   function enabledStateAction(action, state, lcm_state) {
     var state = parseInt(state);
     var lcm_state = parseInt(lcm_state);
-
     return (STATE_ACTIONS[state].indexOf(action) != -1 ||
              (state == OpenNebulaVM.STATES.ACTIVE &&
                 LCM_STATE_ACTIONS[lcm_state].indexOf(action) != -1));

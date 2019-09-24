@@ -23,7 +23,6 @@
 #include "PoolObjectSQL.h"
 #include "PoolSQLCache.h"
 #include "Log.h"
-#include "Hook.h"
 
 using namespace std;
 
@@ -33,7 +32,7 @@ using namespace std;
  * multithreaded applications. Any modification or access function to the pool
  * SHOULD block the mutex.
  */
-class PoolSQL: public Hookable
+class PoolSQL
 {
 public:
     /**
@@ -137,16 +136,7 @@ public:
     virtual int update(
         PoolObjectSQL * objsql)
     {
-        int rc;
-
-        rc = objsql->update(db);
-
-        if ( rc == 0 )
-        {
-            do_hooks(objsql, Hook::UPDATE);
-        }
-
-        return rc;
+        return objsql->update(db);;
     };
 
     /**
@@ -164,10 +154,6 @@ public:
         {
             error_msg = "SQL DB error";
             return -1;
-        }
-        else
-        {
-            do_hooks(objsql, Hook::REMOVE);
         }
 
         return 0;
@@ -298,17 +284,6 @@ public:
          return db->fts_available();
      }
 protected:
-
-    /**
-     *  Register on "CREATE" and on "REMOVE" hooks for the pool. The hooks are
-     *  meant to be executed locally by the generic AllocateHook and RemoveHook
-     *  classes.
-     *    @param hook_mads, array of HOOKs to be installed
-     *    @param remotes_location, path to remotes in the front-end where the
-     *    hooks are installed
-     */
-    void register_hooks(vector<const VectorAttribute *> hook_mads,
-                        const string&                   remotes_location);
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the

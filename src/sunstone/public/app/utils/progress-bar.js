@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var _quotaBarHtml = function(usage, limit, info_str) {
+  var _quotaBarHtml = function(usage, limit, info_str, className="" ) {
     info_str = info_str || (usage + ' / ' + ((limit >= 0) ? limit : '-'));
 
     var value = "0";
@@ -26,11 +26,14 @@ define(function(require) {
       max = limit;
     }
 
-    html = '<span class="progress-text right" style="font-size: 12px">' + info_str + '</span>' + 
-      '<br>' + 
-      '<progress value="' + value + '" max="' + limit + '"></progress>';
-
-    return html;
+    html = $("<span/>",{'class':'progress-text right', 'style':'font-size: 12px'}).text(
+      info_str
+    ).add(
+      $("<br/>")
+    ).add(
+      $("<progress/>",{'class':className, 'value':value,'max':limit})
+    );
+    return $("<div/>").append(html).html();
   }
 
   return {

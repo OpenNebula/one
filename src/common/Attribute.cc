@@ -338,3 +338,114 @@ int VectorAttribute::vector_value(const string& name, bool& value) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void SingleAttribute::encrypt(const string& one_key, const set<string>& eas)
+{
+    if ( one_key.empty() )
+    {
+        return;
+    }
+
+    std::string * plain = one_util::aes256cbc_decrypt(attribute_value, one_key);
+
+    if ( plain != nullptr )
+    {
+        delete plain;
+        return;
+    }
+
+    std::string * encrypted = one_util::aes256cbc_encrypt(attribute_value, one_key);
+
+    if ( encrypted == nullptr )
+    {
+        return;
+    }
+
+    attribute_value = *encrypted;
+
+    delete encrypted;
+}
+
+void SingleAttribute::decrypt(const string& one_key, const set<string>& eas)
+{
+    if ( one_key.empty() )
+    {
+        return;
+    }
+
+    std::string * plain = one_util::aes256cbc_decrypt(attribute_value, one_key);
+
+    if ( plain != nullptr )
+    {
+        attribute_value = *plain;
+
+        delete plain;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VectorAttribute::encrypt(const string& one_key, const set<string>& eas)
+{
+    if ( one_key.empty() )
+    {
+        return;
+    }
+
+    for ( const auto& ea : eas )
+    {
+        string att = vector_value(ea);
+
+        if (att.empty())
+        {
+            continue;
+        }
+
+        std::string * plain = one_util::aes256cbc_decrypt(att, one_key);
+
+        if ( plain != nullptr )
+        {
+            delete plain;
+            continue;
+        }
+
+        std::string * encrypted = one_util::aes256cbc_encrypt(att, one_key);
+
+        if ( encrypted == nullptr )
+        {
+            continue;
+        }
+
+        replace(ea, *encrypted);
+
+        delete encrypted;
+    }
+}
+
+void VectorAttribute::decrypt(const string& one_key, const set<string>& eas)
+{
+    if ( one_key.empty() )
+    {
+        return;
+    }
+
+    for ( const auto& ea : eas )
+    {
+        string att = vector_value(ea);
+
+        if (att.empty())
+        {
+            continue;
+        }
+
+        std::string * plain = one_util::aes256cbc_decrypt(att, one_key);
+
+        if ( plain != nullptr )
+        {
+            replace(ea, *plain);
+
+            delete plain;
+        }
+    }
+}
+
