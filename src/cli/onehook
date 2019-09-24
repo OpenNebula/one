@@ -285,13 +285,13 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     log_desc = <<-EOT.unindent
-        Get logs about hook executions
+    Get logs about hook executions
 
-		Examples:
+    Examples:
 
-			~ $ onehook log --since 09/19/19 # returns all logs since that date
-			~ $ onehook log --error          # returns all failing execs logs
-			~ $ onehook log --hook-id 0      # returns all logs from hook 0
+        ~ $ onehook log --since 09/19/19 # returns all logs since that date
+        ~ $ onehook log --error          # returns all failing execs logs
+        ~ $ onehook log --hook-id 0      # returns all logs from hook 0
 
     EOT
 
