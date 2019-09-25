@@ -244,9 +244,11 @@ define(function(require) {
                   "VCENTER_CCR_REF=\"" + cluster_ref + "\"\n" +
                   "VCENTER_VERSION=\"" + vcenter_version + "\"\n";
 
-              if (that.opts.vcenter_host.split(":").length === 2) {
-                template_raw += "VCENTER_HOST=\"" + that.opts.vcenter_host.split(":")[0] + "\"\n";
-                template_raw += "VCENTER_PORT=\"" + that.opts.vcenter_host.split(":")[1] + "\"\n";
+              var vcenterHost = that.opts.vcenter_host.split(":");
+
+              if (vcenterHost.length === 2) {
+                template_raw += "VCENTER_HOST=\"" + vcenterHost[0] + "\"\n";
+                template_raw += "VCENTER_PORT=\"" + vcenterHost[1] + "\"\n";
               } else {
                 template_raw += "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n";
               }
