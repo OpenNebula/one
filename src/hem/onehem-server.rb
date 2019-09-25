@@ -139,10 +139,12 @@ module HEMHook
             command.concat(" #{params}")
         end
 
+        _timeout = timeout
+
         if !remote?
-            LocalCommand.run(command, nil, stdin, nil)
+            LocalCommand.run(command, nil, stdin, _timeout)
         elsif !host.empty?
-            SSHCommand.run(command, host, nil, stdin, nil)
+            SSHCommand.run(command, host, nil, stdin, _timeout)
         else
             return -1
         end
@@ -174,6 +176,12 @@ module HEMHook
         return false if astdin.nil?
 
         astdin.zero?
+    end
+
+    def timeout
+        return self['TEMPLATE/TIMEOUT'].to_i if !self['TEMPLATE/TIMEOUT'].nil?
+
+        nil
     end
 
     # Generates a key for a given hook
