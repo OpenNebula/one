@@ -179,7 +179,7 @@ module HEMHook
     end
 
     def timeout
-        return self['TEMPLATE/TIMEOUT'].to_i if !self['TEMPLATE/TIMEOUT'].nil?
+        return self['TEMPLATE/TIMEOUT'].to_i unless self['TEMPLATE/TIMEOUT'].nil?
 
         nil
     end
