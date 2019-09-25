@@ -85,7 +85,7 @@ func (uc *UsersController) Info() (*user.Pool, error) {
 }
 
 // Info retrieves information for the user from ID
-func (uc *UserController) Info() (*user.User, error) {
+func (uc *UserController) Info(decrypt bool) (*user.User, error) {
 	response, err := uc.c.Client.Call("one.user.info", uc.ID)
 	if err != nil {
 		return nil, err
@@ -131,7 +131,7 @@ func (uc *UserController) Passwd(password string) error {
 // * timeSeconds: Valid period in seconds; 0 reset the token and -1 for a non-expiring token.
 // * effectiveGID: Effective GID to use with this token. To use the current GID and user groups set it to -1
 func (uc *UserController) Login(token string, timeSeconds int, effectiveGID int) error {
-	user, err := uc.Info()
+	user, err := uc.Info(false)
 
 	if err != nil {
 		return err

@@ -101,7 +101,7 @@ func (vc *VirtualRoutersController) Info(args ...int) (*vr.Pool, error) {
 }
 
 // Info connects to OpenNebula and fetches the information of the VirtualRouter
-func (vc *VirtualRouterController) Info() (*vr.VirtualRouter, error) {
+func (vc *VirtualRouterController) Info(decrypt bool) (*vr.VirtualRouter, error) {
 	response, err := vc.c.Client.Call("one.vrouter.info", vc.ID)
 	if err != nil {
 		return nil, err

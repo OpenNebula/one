@@ -104,7 +104,7 @@ func (vc *VirtualNetworksController) Info(args ...int) (*vn.Pool, error) {
 }
 
 // Info retrieves information for the virtual network.
-func (vc *VirtualNetworkController) Info() (*vn.VirtualNetwork, error) {
+func (vc *VirtualNetworkController) Info(decrypt bool) (*vn.VirtualNetwork, error) {
 	response, err := vc.c.Client.Call("one.vn.info", vc.ID)
 	if err != nil {
 		return nil, err

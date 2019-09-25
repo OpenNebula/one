@@ -105,7 +105,7 @@ func (vc *VMGroupsController) Info(args ...int) (*vmgroup.Pool, error) {
 }
 
 // Info retrieves information for the vm group.
-func (vc *VMGroupController) Info() (*vmgroup.VMGroup, error) {
+func (vc *VMGroupController) Info(decrypt bool) (*vmgroup.VMGroup, error) {
 	response, err := vc.c.Client.Call("one.vmgroup.info", vc.ID)
 	if err != nil {
 		return nil, err

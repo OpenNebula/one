@@ -104,7 +104,7 @@ func (vc *VNTemplatesController) Info(args ...int) (*vntemplate.Pool, error) {
 }
 
 // Info connects to OpenNebula and fetches the information of the VNTemplate
-func (vc *VNTemplateController) Info() (*vntemplate.VNTemplate, error) {
+func (vc *VNTemplateController) Info(decrypt bool) (*vntemplate.VNTemplate, error) {
 	response, err := vc.c.Client.Call("one.vntemplate.info", vc.ID)
 	if err != nil {
 		return nil, err

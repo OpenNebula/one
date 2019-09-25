@@ -108,7 +108,7 @@ func (ic *ImagesController) Info(args ...int) (*image.Pool, error) {
 }
 
 // Info connects to OpenNebula and fetches the information of the Image
-func (ic *ImageController) Info() (*image.Image, error) {
+func (ic *ImageController) Info(decrypt bool) (*image.Image, error) {
 	response, err := ic.c.Client.Call("one.image.info", ic.ID)
 	if err != nil {
 		return nil, err

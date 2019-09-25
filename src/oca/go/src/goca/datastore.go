@@ -86,7 +86,7 @@ func (dc *DatastoresController) Info() (*datastore.Pool, error) {
 }
 
 // Info retrieves information for the datastore.
-func (dc *DatastoreController) Info() (*datastore.Datastore, error) {
+func (dc *DatastoreController) Info(decrypt bool) (*datastore.Datastore, error) {
 	response, err := dc.c.Client.Call("one.datastore.info", dc.ID)
 	if err != nil {
 		return nil, err

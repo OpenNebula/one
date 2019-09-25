@@ -108,7 +108,7 @@ func (dc *DocumentsController) Info(args ...int) (*document.Pool, error) {
 }
 
 // Info retrieves information for the document.
-func (dc *DocumentController) Info() (*document.Document, error) {
+func (dc *DocumentController) Info(decrypt bool) (*document.Document, error) {
 	response, err := dc.c.Client.Call("one.document.info", dc.ID)
 	if err != nil {
 		return nil, err
