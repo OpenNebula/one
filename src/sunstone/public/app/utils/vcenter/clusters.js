@@ -238,12 +238,21 @@ define(function(require) {
                 message : Locale.tr("Host created successfully. ID: %1$s", response.HOST.ID)
               });
               var template_raw =
-                "VCENTER_USER=\"" + that.opts.vcenter_user + "\"\n" +
-                "VCENTER_PASSWORD=\"" + that.opts.vcenter_password + "\"\n" +
-                "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n" +
-                "VCENTER_INSTANCE_ID=\"" + vcenter_uuid + "\"\n" +
-                "VCENTER_CCR_REF=\"" + cluster_ref + "\"\n" +
-                "VCENTER_VERSION=\"" + vcenter_version + "\"\n";
+                  "VCENTER_USER=\"" + that.opts.vcenter_user + "\"\n" +
+                  "VCENTER_PASSWORD=\"" + that.opts.vcenter_password + "\"\n" +
+                  "VCENTER_INSTANCE_ID=\"" + vcenter_uuid + "\"\n" +
+                  "VCENTER_CCR_REF=\"" + cluster_ref + "\"\n" +
+                  "VCENTER_VERSION=\"" + vcenter_version + "\"\n";
+
+              var vcenterHost = that.opts.vcenter_host.split(":");
+
+              if (vcenterHost.length === 2) {
+                template_raw += "VCENTER_HOST=\"" + vcenterHost[0] + "\"\n";
+                template_raw += "VCENTER_PORT=\"" + vcenterHost[1] + "\"\n";
+              } else {
+                template_raw += "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n";
+              }
+
               Sunstone.runAction("Host.update_template", response.HOST.ID, template_raw);
             },
             error: function (request, error_json) {
