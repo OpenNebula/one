@@ -85,7 +85,7 @@ func (hc *HooksController) Info() (*hook.Pool, error) {
 
 // Info retrieves information for the hook from ID
 func (hc *HookController) Info(decrypt bool) (*hook.Hook, error) {
-	response, err := hc.c.Client.Call("one.hook.info", hc.ID)
+	response, err := hc.c.Client.Call("one.hook.info", hc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}

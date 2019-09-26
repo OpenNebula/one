@@ -106,7 +106,7 @@ func (mc *MarketPlaceAppsController) Info(args ...int) (*marketplaceapp.Pool, er
 
 // Info retrieves information for the marketplace app.
 func (mc *MarketPlaceAppController) Info(decrypt bool) (*marketplaceapp.MarketPlaceApp, error) {
-	response, err := mc.c.Client.Call("one.marketapp.info", mc.ID)
+	response, err := mc.c.Client.Call("one.marketapp.info", mc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}

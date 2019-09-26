@@ -69,8 +69,8 @@ func (c *ClustersController) ByName(name string) (int, error) {
 
 // Info returns a cluster pool. A connection to OpenNebula is
 // performed.
-func (cc *ClustersController) Info() (*cluster.Pool, error) {
-	response, err := cc.c.Client.Call("one.clusterpool.info")
+func (cc *ClustersController) Info(decrypt bool) (*cluster.Pool, error) {
+	response, err := cc.c.Client.Call("one.clusterpool.info", decrypt)
 	if err != nil {
 		return nil, err
 	}

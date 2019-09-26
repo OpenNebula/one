@@ -86,7 +86,7 @@ func (zc *ZonesController) Info() (*zone.Pool, error) {
 
 // Info retrieves information for the zone.
 func (zc *ZoneController) Info(decrypt bool) (*zone.Zone, error) {
-	response, err := zc.c.Client.Call("one.zone.info", zc.ID)
+	response, err := zc.c.Client.Call("one.zone.info", zc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}

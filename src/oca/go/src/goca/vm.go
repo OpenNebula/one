@@ -136,7 +136,7 @@ func (vc *VMsController) InfoExtended(filterFlag, startID, endID, state int) (*v
 
 // Info connects to OpenNebula and fetches the information of the VM
 func (vc *VMController) Info(decrypt bool) (*vm.VM, error) {
-	response, err := vc.c.Client.Call("one.vm.info", vc.ID)
+	response, err := vc.c.Client.Call("one.vm.info", vc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}

@@ -86,7 +86,7 @@ func (uc *UsersController) Info() (*user.Pool, error) {
 
 // Info retrieves information for the user from ID
 func (uc *UserController) Info(decrypt bool) (*user.User, error) {
-	response, err := uc.c.Client.Call("one.user.info", uc.ID)
+	response, err := uc.c.Client.Call("one.user.info", uc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}

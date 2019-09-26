@@ -102,7 +102,7 @@ func (tc *TemplatesController) Info(args ...int) (*template.Pool, error) {
 
 // Info connects to OpenNebula and fetches the information of the Template
 func (tc *TemplateController) Info(decrypt bool) (*template.Template, error) {
-	response, err := tc.c.Client.Call("one.template.info", tc.ID)
+	response, err := tc.c.Client.Call("one.template.info", tc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}

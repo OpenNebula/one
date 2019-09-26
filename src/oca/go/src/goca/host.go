@@ -84,7 +84,7 @@ func (hc *HostsController) Info() (*host.Pool, error) {
 
 // Info retrieves information for the host from ID
 func (hc *HostController) Info(decrypt bool) (*host.Host, error) {
-	response, err := hc.c.Client.Call("one.host.info", hc.ID)
+	response, err := hc.c.Client.Call("one.host.info", hc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
