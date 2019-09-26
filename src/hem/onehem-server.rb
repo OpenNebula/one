@@ -139,14 +139,14 @@ module HEMHook
             command.concat(" #{params}")
         end
 
-        _timeout = timeout
+        sec_timeout = timeout
 
         if !remote?
-            LocalCommand.run(command, nil, stdin, _timeout)
+            LocalCommand.run(command, nil, stdin, sec_timeout)
         elsif !host.empty?
-            SSHCommand.run(command, host, nil, stdin, _timeout)
+            SSHCommand.run(command, host, nil, stdin, sec_timeout)
         else
-            return -1
+            -1
         end
     end
 
@@ -179,7 +179,9 @@ module HEMHook
     end
 
     def timeout
-        return self['TEMPLATE/TIMEOUT'].to_i unless self['TEMPLATE/TIMEOUT'].nil?
+        sec_timeout = self['TEMPLATE/TIMEOUT']
+
+        return sec_timeout.to_i unless sec_timeout.nil?
 
         nil
     end
