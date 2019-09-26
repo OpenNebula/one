@@ -47,7 +47,7 @@ func TestMarketplaceApp(t *testing.T) {
 
 	WaitResource(func() bool {
 		id, _ := testCtrl.Images().ByName("test_img_go")
-		img, _ := testCtrl.Image(id).Info()
+		img, _ := testCtrl.Image(id).Info(false)
 
 		state, _ := img.State()
 
@@ -81,7 +81,7 @@ func TestMarketplaceApp(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	mkt_app, err = testCtrl.MarketPlaceApp(app_id).Info()
+	mkt_app, err = testCtrl.MarketPlaceApp(app_id).Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}

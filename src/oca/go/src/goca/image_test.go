@@ -31,7 +31,7 @@ TYPE = "DATABLOCK"
 
 func ImageExpectState(imageC *ImageController, state string) func() bool {
 	return func() bool {
-		image, err := imageC.Info()
+		image, err := imageC.Info(false)
 		if err != nil {
 			return false
 		}
@@ -58,7 +58,7 @@ func createImage(t *testing.T) (*image.Image, int) {
 	}
 
 	// Get Image by ID
-	image, err := testCtrl.Image(id).Info()
+	image, err := testCtrl.Image(id).Info(false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -85,7 +85,7 @@ func TestImage(t *testing.T) {
 	}
 
 	imageCtrl := testCtrl.Image(id)
-	image, err = imageCtrl.Info()
+	image, err = imageCtrl.Info(false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -107,7 +107,7 @@ func TestImage(t *testing.T) {
 		t.Error(err)
 	}
 
-	image, err = imageCtrl.Info()
+	image, err = imageCtrl.Info(false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -140,7 +140,7 @@ func TestImage(t *testing.T) {
 		t.Error(err)
 	}
 
-	image, err = imageCtrl.Info()
+	image, err = imageCtrl.Info(false)
 	if err != nil {
 		t.Error(err)
 	}

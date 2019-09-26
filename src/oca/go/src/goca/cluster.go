@@ -44,7 +44,7 @@ func (c *Controller) Cluster(id int) *ClusterController {
 func (c *ClustersController) ByName(name string) (int, error) {
 	var id int
 
-	clusterPool, err := c.Info()
+	clusterPool, err := c.Info(false)
 	if err != nil {
 		return 0, err
 	}

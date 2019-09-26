@@ -39,7 +39,7 @@ func TestSGAllocate(t *testing.T) {
 	}
 
 	sgC := testCtrl.SecurityGroup(sg_id)
-	sg, err = sgC.Info()
+	sg, err = sgC.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
@@ -59,7 +59,7 @@ func TestSGAllocate(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	sg, err = sgC.Info()
+	sg, err = sgC.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
@@ -91,7 +91,7 @@ func TestSGAllocate(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	clone, err := testCtrl.SecurityGroup(clone_id).Info()
+	clone, err := testCtrl.SecurityGroup(clone_id).Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
@@ -111,7 +111,7 @@ func TestSGAllocate(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	sg, err = sgC.Info()
+	sg, err = sgC.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
@@ -130,7 +130,7 @@ func TestSGAllocate(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	sg, err = sgC.Info()
+	sg, err = sgC.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
@@ -156,7 +156,7 @@ func TestSGAllocate(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	sg, err = sgC.Info()
+	sg, err = sgC.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}

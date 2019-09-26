@@ -83,7 +83,7 @@ func (s *VMSuite) TearDownSuite(c *C) {
 
 func VMExpectState(c *C, vmID int, state, lcmState string) func() bool {
 	return func() bool {
-		vm, err := testCtrl.VM(vmID).Info()
+		vm, err := testCtrl.VM(vmID).Info(false)
 		if err != nil {
 			return false
 		}
@@ -130,7 +130,7 @@ func (s *VMSuite) TestVMUpdate(c *C) {
 	err := vmC.Update("A=B", 1)
 	c.Assert(err, IsNil)
 
-	vm, err := vmC.Info()
+	vm, err := vmC.Info(false)
 	c.Assert(err, IsNil)
 
 	val := vm.UserTemplate.Dynamic.GetContentByName("A")
@@ -206,7 +206,7 @@ func (s *VMSuite) TestVMResize(c *C) {
 	expectHostState := func(hostID int) func() bool {
 		return func() bool {
 			hostC := testCtrl.Host(hostID)
-			host, err := hostC.Info()
+			host, err := hostC.Info(false)
 			c.Assert(err, IsNil)
 			state, err := host.StateString()
 			c.Assert(err, IsNil)
@@ -234,7 +234,7 @@ func (s *VMSuite) TestVMResize(c *C) {
 	c.Assert(err, IsNil)
 	c.Assert(WaitResource(VMExpectState(c, s.vmID, "ACTIVE", "RUNNING")), Equals, true)
 
-	vm, err := vmC.Info()
+	vm, err := vmC.Info(false)
 	c.Assert(err, IsNil)
 
 	c.Assert(vm.Template.CPU, Equals, 2.5)

@@ -40,7 +40,7 @@ func createVirtualNetwork(t *testing.T) (*vn.VirtualNetwork, int) {
 	}
 
 	// Get Virtual Network by ID
-	vnet, err := testCtrl.VirtualNetwork(id).Info()
+	vnet, err := testCtrl.VirtualNetwork(id).Info(false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -67,7 +67,7 @@ func TestVirtualNetwork(t *testing.T) {
 	}
 
 	vnetC := testCtrl.VirtualNetwork(id)
-	vnet, err = vnetC.Info()
+	vnet, err = vnetC.Info(false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -83,7 +83,7 @@ func TestVirtualNetwork(t *testing.T) {
 		t.Error(err)
 	}
 
-	vnet, err = vnetC.Info()
+	vnet, err = vnetC.Info(false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -116,7 +116,7 @@ func TestVirtualNetwork(t *testing.T) {
 		t.Error(err)
 	}
 
-	vnet, err = vnetC.Info()
+	vnet, err = vnetC.Info(false)
 	if err != nil {
 		t.Error(err)
 	}
