@@ -173,6 +173,7 @@ rbd_rm_r() {
     local rbd rbd_base children snaps
 
     rbd=$1
+    move_to_trash=$2
     rbd_base=${rbd%%@*}
 
     if [ "$rbd" != "$rbd_base" ]; then
@@ -185,13 +186,17 @@ rbd_rm_r() {
         $RBD snap unprotect $rbd
         $RBD snap rm $rbd
     else
-        snaps=$($RBD snap ls $rbd 2>/dev/null| awk 'NR > 1 {print $2}')
+        if [[ $move_to_trash =~ ^(yes|YES|true|TRUE)$ ]]; then
+            $RBD trash move $rbd
+        else
+            snaps=$($RBD snap ls $rbd 2>/dev/null| awk 'NR > 1 {print $2}')
 
-        for snap in $snaps; do
-            rbd_rm_r $rbd@$snap
-        done
+            for snap in $snaps; do
+                rbd_rm_r $rbd@$snap
+            done
 
-        $RBD rm $rbd
+            $RBD rm $rbd
+        fi
     fi
 }
 

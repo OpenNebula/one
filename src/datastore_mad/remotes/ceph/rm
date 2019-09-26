@@ -50,12 +50,14 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_KEY \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_TRASH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_CONF)
 
 RBD_SRC="${XPATH_ELEMENTS[j++]}"
 BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
 CEPH_KEY="${XPATH_ELEMENTS[j++]}"
+CEPH_MOVE_TO_TRASH="${XPATH_ELEMENTS[j++]:-$CEPH_TRASH}"
 CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 
 DST_HOST=`get_destination_host $ID`
@@ -77,6 +79,12 @@ if [ -n "$CEPH_CONF" ]; then
     RBD="$RBD --conf ${CEPH_CONF}"
 fi
 
+if [[ "$CEPH_MOVE_TO_TRASH" =~ ^(yes|YES|true|TRUE)$ ]]; then
+	RM_CMD="trash move"
+else
+	RM_CMD="rm"
+fi
+
 # -------- Remove Image from Datastore ------------
 
 log "Removing $RBD_SRC from the rbd image repository in $DST_HOST"
@@ -85,9 +93,9 @@ DELETE_CMD=$(cat <<EOF
     RBD="${RBD}"
 
     if [ "\$(rbd_format $RBD_SRC)" = "2" ]; then
-        rbd_rm_r \$(rbd_top_parent $RBD_SRC)
+        rbd_rm_r \$(rbd_top_parent $RBD_SRC) "$CEPH_MOVE_TO_TRASH"
     else
-        $RBD rm $RBD_SRC
+        $RBD $RM_CMD $RBD_SRC
     fi
 EOF
 )
