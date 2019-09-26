@@ -40,7 +40,7 @@ func createTemplate(t *testing.T) (*template.Template, int) {
 	}
 
 	// Get template by ID
-	template, err := testCtrl.Template(id).Info(false)
+	template, err := testCtrl.Template(id).Info(false, false)
 
 	if err != nil {
 		t.Error(err)
@@ -66,7 +66,7 @@ func TestTemplateCreateAndDelete(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	template, err = testCtrl.Template(id).Info(false)
+	template, err = testCtrl.Template(id).Info(false, false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -130,7 +130,7 @@ func TestTemplateUpdate(t *testing.T) {
 	// Update
 	templateCtrl.Update(tpl.String(), 1)
 
-	template, err := templateCtrl.Info(false)
+	template, err := templateCtrl.Info(false, false)
 	if err != nil {
 		t.Error(err)
 	}
