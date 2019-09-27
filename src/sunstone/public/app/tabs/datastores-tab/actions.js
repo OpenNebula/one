@@ -65,7 +65,8 @@ define(function(require) {
         Sunstone.getDialog(CLUSTERS_DIALOG_ID).setParams({
           element: response[XML_ROOT],
           resource:"datastore",
-          resource_name: RESOURCE
+          resource_name: RESOURCE,
+          only_update_template: false
         });
 
         Sunstone.getDialog(CLUSTERS_DIALOG_ID).reset();
