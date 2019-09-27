@@ -44,7 +44,7 @@ define(function(require) {
     } else {
       action = OpenNebulaHelper.action(method);
       request = OpenNebulaHelper.request(resource, method, id);
-    };
+    }
 
     var reqPath = path ? path : resource.toLowerCase();
     var cache_name = params.cache_name ? params.cache_name : resource;

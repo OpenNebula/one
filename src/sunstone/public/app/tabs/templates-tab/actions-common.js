@@ -158,9 +158,11 @@ define(function(require) {
           Sunstone.hideFormPanel();
           OpenNebulaAction.clear_cache("VM");
 
-          Notifier.notifyCustom(Locale.tr("VM created"),
+          Notifier.notifyCustom(
+            Locale.tr("VM created"),
             Navigation.link(" ID: " + response, "vms-tab", response),
-            false);
+            false
+          );
         },
         elements: function(opts) {
           return Sunstone.getDataTable(TAB_ID).elements(opts);
