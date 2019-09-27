@@ -608,7 +608,10 @@ define(function(require) {
 
     // Button to return to the list view from the detailed view
     $(document).on("click", "button[href='back']", function(e) {
-      window.history.back();
+      if(window.sunstoneNoMultipleRedirects){
+        window.history.back();
+        window.sunstoneNoMultipleRedirects = false;
+      }
       e.preventDefault();
     });
   };
@@ -1263,20 +1266,22 @@ define(function(require) {
 
   var _setupNavigoRoutes = function() {
     router =  new Navigo(null, true);
-
     for (var tabName in SunstoneCfg["tabs"]) {
       router.on(new RegExp("(?:#|/)"+tabName+"/form"), function(){
         if(_getTab() == undefined){
+          window.sunstoneNoMultipleRedirects = true;
           // This will happen if the user opens sunstone directly in a /form url
           _showTab(this);
         }
       }.bind(tabName));
 
       router.on(new RegExp("(?:#|/)"+tabName+"/(\\w+)"), function(id){
+        window.sunstoneNoMultipleRedirects = true;
         _routerShowElement(this, id);
       }.bind(tabName));
 
       router.on(new RegExp("(?:#|/)"+tabName), function(){
+        window.sunstoneNoMultipleRedirects = true;
         _routerShowTab(this);
       }.bind(tabName));
     }
