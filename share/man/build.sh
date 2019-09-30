@@ -27,6 +27,7 @@ COMMANDS=(
     'onedb'             'OpenNebula database migration tool'
     'onegroup'          'manages OpenNebula groups'
     'onehost'           'manages OpenNebula hosts'
+    'onehook'           'manages OpenNebula hooks'
     'oneimage'          'manages OpenNebula images'
     'onetemplate'       'manages OpenNebula templates'
     'oneuser'           'manages OpenNebula users'
