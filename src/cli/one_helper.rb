@@ -798,6 +798,29 @@ EOT
             return 0
         end
 
+        # Check if a resource defined by attributes is referenced in pool
+        #
+        # @param pool pool to search in
+        # @param xpath xpath to search in pool
+        # @param resource_name name of the resource to search (e.g IMAGE)
+        # @attributes hash with resource attributes, must contains :id, :name
+        # and :uname
+        #
+        # atributes {uname => ..., name => ..., id => ...}
+        def check_orphan(pool, xpath, resource_name, attributes)
+            return false if attributes.empty?
+
+            return false unless pool["#{xpath}[#{resource_name}_ID = "\
+                                     "#{attributes[:id]}]"].nil?
+
+            return false unless pool["#{xpath}[#{resource_name} = "\
+                                     "'#{attributes[:name]}' and "\
+                                     "#{resource_name}_UNAME = "\
+                                     "'#{attributes[:uname]}']"].nil?
+
+            true
+        end
+
         def show_resource(id, options)
             resource = retrieve_resource(id)
 

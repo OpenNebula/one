@@ -249,6 +249,29 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         table
     end
 
+    def check_orphans
+        orphans = []
+        xpath = '/VMTEMPLATE_POOL/VMTEMPLATE/TEMPLATE/DISK'
+
+        pool = factory_pool
+        tmpl_pool = OpenNebula::TemplatePool.new(@client, -2)
+
+        pool.info
+        tmpl_pool.info
+
+        pool.each do |img|
+            attrs = { :id    => img['ID'],
+                      :name  => img['NAME'],
+                      :uname => img['UNAME'] }
+
+            orphans << img['ID'] if check_orphan(tmpl_pool,
+                                                 xpath,
+                                                 'IMAGE', attrs)
+        end
+
+        orphans
+    end
+
     private
 
     def factory(id=nil)
