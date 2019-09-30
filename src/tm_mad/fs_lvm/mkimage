@@ -64,7 +64,7 @@ DEV="/dev/${VG_NAME}/${LV_NAME}"
 # Execute lvcreate with a lock in the frontend
 CREATE_CMD=$(cat <<EOF
     set -e -o pipefail
-    $SUDO $SYNC
+    $SYNC
     $SUDO $LVSCAN
     $SUDO $LVCREATE --wipesignatures n -L${SIZE}M -n $LV_NAME $VG_NAME
 EOF

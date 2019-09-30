@@ -1,2 +1,0 @@
-d /var/lock/one 0755 oneadmin cloud
-d /var/run/one 0755 oneadmin cloud

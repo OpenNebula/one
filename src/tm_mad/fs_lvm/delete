@@ -81,7 +81,7 @@ ACTIVATE_CMD=$(cat <<EOF
     if [ -L "$DST_PATH" ]; then
         DEV=\$(readlink $DST_PATH)
         if echo "\$DEV" | grep "^/dev/" &>/dev/null; then
-            ${SUDO} ${SYNC}
+            ${SYNC}
             ${SUDO} ${LVSCAN}
             ${SUDO} ${LVCHANGE} -ay "\${DEV}"
         fi
