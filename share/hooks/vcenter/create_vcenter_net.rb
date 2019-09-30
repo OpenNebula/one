@@ -43,6 +43,34 @@ require 'vcenter_driver'
 require 'base64'
 require 'nsx_driver'
 
+# FUNCTIONS
+def update_net(vnet, content)
+    vnet.unlock
+    rc = vnet.update(content, true)
+    vnet.lock(1)
+
+    raise 'Could not update the virtual network' if OpenNebula.is_error?(rc)
+end
+
+# waits for a vlan_id attribute to be generated
+# only if automatic_vlan activated
+def wait_vlanid(vnet)
+    retries = 5
+    i = 0
+    while vnet['VLAN_ID'].nil?
+        raise 'cannot get vlan_id' if i >= retries
+
+        sleep 1
+        i += 1
+        vnet.info
+    end
+end
+
+def err_and_exit(error_message)
+    STDERR.puts error_message
+    exit(-1)
+end
+
 # Constants
 SUCCESS_XPATH = '//PARAMETER[TYPE="OUT" and POSITION="1"]/VALUE'
 ERROR_XPATH = '//PARAMETER[TYPE="OUT" and POSITION="2"]/VALUE'
@@ -71,10 +99,12 @@ err_and_exit(rc.message) if OpenNebula.is_error?(one_vnet.info)
 managed  = one_vnet['TEMPLATE/OPENNEBULA_MANAGED'] != 'NO'
 imported = one_vnet['TEMPLATE/VCENTER_IMPORTED']
 
-if one_vnet['VN_MAD'] == 'vcenter' && managed && imported.nil?
+unless one_vnet['VN_MAD'] == 'vcenter' && managed && imported.nil?
     STDOUT.puts 'Network present in vCenter, no actions taken. Exiting'
     exit(0)
 end
+
+
 
 begin
     esx_rollback = [] # Track hosts that require a rollback
@@ -349,31 +379,4 @@ rescue StandardError => e
 ensure
     one_vnet.unlock
     vi_client.close_connection if vi_client
-end
-
-# waits for a vlan_id attribute to be generated
-# only if automatic_vlan activated
-def wait_vlanid(vnet)
-    retries = 5
-    i = 0
-    while vnet['VLAN_ID'].nil?
-        raise 'cannot get vlan_id' if i >= retries
-
-        sleep 1
-        i += 1
-        vnet.info
-    end
-end
-
-def update_net(vnet, content)
-    vnet.unlock
-    rc = vnet.update(content, true)
-    vnet.lock(1)
-
-    raise 'Could not update the virtual network' if OpenNebula.is_error?(rc)
-end
-
-def err_and_exit(error_message)
-    STDERR.puts error_message
-    exit(-1)
 end
