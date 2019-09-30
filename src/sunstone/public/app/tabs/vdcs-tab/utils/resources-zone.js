@@ -69,15 +69,18 @@ define(function(require) {
           window.VDCInfo[position][internalPosition]
         ){
           var info = window.VDCInfo[position][internalPosition];
+          var retn = {};
           if(Array.isArray(info) && 
             info.find(function(element){
               return element[internalPosition+"_ID"] === id;
             }))
           {
+            retn = info.filter(function(el) { return el[internalPosition+"_ID"] !== id});
             rtn = true;
-          }else if(info && info[internalPosition+"_ID"] && info[internalPosition+"_ID"] === id){
+          }else if(info && info[internalPosition] && info[internalPosition+"_ID"] === id){
             rtn = true;
           }
+          window.VDCInfo[position][internalPosition] = retn;
         }
         return rtn;
       };
@@ -143,9 +146,7 @@ define(function(require) {
           }
         };
 
-        if (!(that.resources[res_name].length == 1 &&
-              that.resources[res_name][0] == VDC_ALL_RESOURCES) ){
-
+        if (!(that.resources[res_name].length == 1 && that.resources[res_name][0] == VDC_ALL_RESOURCES)){
           opts[res_name].selectOptions.fixed_ids = that.resources[res_name];
         }
       } else {
