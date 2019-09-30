@@ -17,7 +17,6 @@ Steps to reproduce the behavior:
 **Version**
 Completed for affected components
  - Affected Component: [e.g. Sunstone, Scheduler or Storage]
- - Hypervisor: [e.g. KVM]
  - OpenNebula Version: [e.g. 5.4.12 or development]
  - Browser: [e.g. chrome, firefox]
 
