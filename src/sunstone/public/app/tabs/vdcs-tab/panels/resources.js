@@ -40,11 +40,10 @@ define(function(require) {
   function Panel(info) {
     this.title = Locale.tr("Resources");
     this.icon = "fa-th";
-
     this.element = info[XML_ROOT];
-
+    window.VDCId = this.element.ID;
+    window.VDCInfo = this.element;
     this.resourcesTab = new ResourcesTab("vdc_info_panel");
-
     return this;
   }
 
@@ -64,9 +63,7 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-
     var indexed_resources = Utils.indexedVdcResources(this.element);
-
     $.each(indexed_resources, function(zone_id,objects){
       that.resourcesTab.addResourcesZone(
         zone_id,

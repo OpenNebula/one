@@ -102,10 +102,7 @@ define(function(require) {
     var color_html = Status.state_lock_to_color("CLUSTER",false, element_json[XML_ROOT]["LOCK"]);
 
     return [
-      '<input class="check_item" type="checkbox" '+
-                          'style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' +
-                           element.ID + '" name="selected_items" value="' +
-                           element.ID + '"/>'+color_html,
+      '<input class="check_item" type="checkbox" style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' + element.ID + '" name="selected_items" value="' + element.ID + '"/>'+color_html,
       element.ID,
       element.NAME,
       _lengthOf(element.HOSTS.ID),

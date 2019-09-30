@@ -904,8 +904,14 @@ define(function(require) {
             $("td", row).addClass('markrowchecked');
             $('input.check_item', row).prop('checked', true);
           }
-
-          $('#selected_ids_row_' + that.dataTableId, section).append('<span row_id="' + row_id + '" class="radius label">' + row_name + '</span> ');
+          
+          var attr = {row_id:row_id, class:"radius label"};
+          var span = $("<span/>",attr).text(row_name);
+          $('#selected_ids_row_' + that.dataTableId, section).append(span);
+          if(that.selectOptions.click && typeof that.selectOptions.click === "function"){
+            span.attr("title",Locale.tr("just click if you want to delete the resource"));
+            span.off("click").on("click", that.selectOptions.click);
+          }
 
           that.selectOptions.select_callback(aData, that.selectOptions);
         }
@@ -1064,9 +1070,10 @@ define(function(require) {
    */
   function _selectResourceTableSelect(selectedResources) {
     var that = this;
+
     var section = $('#' + that.dataTableId + 'Container');
 
-    if (that.selectOptions.multiple_choice) {
+    if (that && that.selectOptions && that.selectOptions.multiple_choice) {
       that.refreshResourceTableSelect(section, that.dataTableId);
 
       var data_ids = {};
@@ -1089,8 +1096,15 @@ define(function(require) {
         var row_name = "" + row_id;
 
         row_name = OpenNebula[that.resource].getName(row_id);
+        var attr = {row_id:row_id, class:"radius label"};
+        var span = $("<span/>",attr).text(row_name);
 
-        $('#selected_ids_row_' + that.dataTableId, section).append('<span row_id="' + row_id + '" class="radius label">' + row_name + '</span> ');
+        if(that.selectOptions.click && typeof that.selectOptions.click === "function"){
+          span.attr("title",Locale.tr("just click if you want to delete the resource"));
+          span.off("click").on("click", that.selectOptions.click);
+        }
+
+        $('#selected_ids_row_' + that.dataTableId, section).append(span);
       });
 
       $('#selected_ids_row_' + that.dataTableId, section).data("ids", data_ids);
