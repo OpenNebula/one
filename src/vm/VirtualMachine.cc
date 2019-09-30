@@ -1987,7 +1987,7 @@ void VirtualMachine::cp_previous_history()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::get_capacity(HostShareCapacity& sr)
+void VirtualMachine::get_capacity(HostShareCapacity& sr) const
 {
     float fcpu;
 
@@ -2098,7 +2098,7 @@ bool VirtualMachine::is_imported() const
     return imported;
 }
 
-string VirtualMachine::get_import_state()
+string VirtualMachine::get_import_state() const
 {
     string import_state;
 
@@ -2150,7 +2150,7 @@ void VirtualMachine::remove_security_group(int sgid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::get_vrouter_id()
+int VirtualMachine::get_vrouter_id() const
 {
     int vrid;
 
@@ -2165,7 +2165,7 @@ int VirtualMachine::get_vrouter_id()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachine::is_vrouter()
+bool VirtualMachine::is_vrouter() const
 {
     return get_vrouter_id() != -1;
 }
@@ -3120,7 +3120,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VirtualMachineTemplate * VirtualMachine::get_updateconf_template()
+VirtualMachineTemplate * VirtualMachine::get_updateconf_template() const
 {
     VirtualMachineTemplate * conf_tmpl = new VirtualMachineTemplate();
 

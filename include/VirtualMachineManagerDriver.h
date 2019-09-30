@@ -25,6 +25,8 @@
 #include "ActionSet.h"
 #include "VirtualMachinePool.h"
 #include "VMActions.h"
+#include "Host.h"
+#include "Cluster.h"
 
 using namespace std;
 
@@ -45,7 +47,7 @@ public:
         bool                        sudo,
         VirtualMachinePool *        pool);
 
-    virtual ~VirtualMachineManagerDriver(){};
+    virtual ~VirtualMachineManagerDriver() = default;
 
     /**
      *  Implements the VM Manager driver protocol.
@@ -142,6 +144,104 @@ protected:
         }
 
         return vattr->vector_value(vname, value);
+    }
+
+    /**
+     *  Gets a configuration attribute (single version)
+     *  priority VM > host > cluster > config_file
+     *    @param vm pointer to Virtual Machine
+     *    @param host pointer to Host
+     *    @param cluster pointer Cluster
+     *    @param name of config attribute
+     *    @param value of the attribute
+     *    @return true if atribute was found, false otherwise
+     */
+    template<typename T>
+    bool get_attribute(const VirtualMachine * vm,
+                       const Host * host,
+                       const Cluster * cluster,
+                       const string& name,
+                       T& value) const
+    {
+        // Get value from VM
+        if (vm && vm->get_template_attribute(name, value))
+        {
+            return true;
+        }
+
+        // Get value from host
+        if (host && host->get_template_attribute(name, value))
+        {
+            return true;
+        }
+
+        // Get value from cluster
+        if (cluster && cluster->get_template_attribute(name, value))
+        {
+            return true;
+        }
+
+        return driver_conf.get(name, value);
+    }
+
+    /**
+     *  Gets a configuration attribute (vector version)
+     *  priority VM > host > cluster > config_file
+     *    @param vm pointer to Virtual Machine
+     *    @param host pointer to Host
+     *    @param cluster pointer Cluster
+     *    @param name of config vector attribute for the domain
+     *    @param vname of the attribute
+     *    @param value of the attribute
+     *    @return true if atribute was found, false otherwise
+     */
+    template<typename T>
+    bool get_attribute(const VirtualMachine * vm,
+                       const Host * host,
+                       const Cluster* cluster,
+                       const string& name,
+                       const string& vname,
+                       T& value) const
+    {
+        const VectorAttribute * vattr;
+
+        // Get value from VM
+        if (vm)
+        {
+            vattr = vm->get_template_attribute(name);
+            if (vattr && vattr->vector_value(vname, value) == 0)
+            {
+                return true;
+            }
+        }
+
+        // Get value from host
+        if (host)
+        {
+            vattr = host->get_template_attribute(name);
+            if (vattr && vattr->vector_value(vname, value) == 0)
+            {
+                return true;
+            }
+        }
+
+        // Get value from cluster
+        if (cluster)
+        {
+            vattr = cluster->get_template_attribute(name);
+            if (vattr && vattr->vector_value(vname, value) == 0)
+            {
+                return true;
+            }
+        }
+
+        vattr = driver_conf.get(name);
+        if (vattr && vattr->vector_value(vname, value) == 0)
+        {
+            return true;
+        }
+
+        return false;
     }
 
 private:

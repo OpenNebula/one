@@ -57,7 +57,7 @@ string VirtualMachineDisk::get_tm_target() const
 
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachineDisk::get_uid(int _uid)
+int VirtualMachineDisk::get_uid(int _uid) const
 {
     istringstream  is;
 
@@ -102,7 +102,7 @@ int VirtualMachineDisk::get_uid(int _uid)
 
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachineDisk::get_image_id(int &id, int uid)
+int VirtualMachineDisk::get_image_id(int &id, int uid) const
 {
     int    iid;
     string iname;
@@ -356,7 +356,7 @@ void VirtualMachineDisk::delete_snapshot(int snap_id, Template **ds_quotas,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-long long VirtualMachineDisk::system_ds_size()
+long long VirtualMachineDisk::system_ds_size() const
 {
 	long long disk_sz, snapshot_sz = 0;
 
@@ -382,7 +382,7 @@ long long VirtualMachineDisk::system_ds_size()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-long long VirtualMachineDisk::image_ds_size()
+long long VirtualMachineDisk::image_ds_size() const
 {
 	long long disk_sz, snapshot_sz = 0;
 
@@ -471,7 +471,7 @@ void VirtualMachineDisk::resize_quotas(long long new_size, Template& ds_deltas,
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineDisk::datastore_sizes(int& ds_id, long long& image_sz,
-        long long& system_sz)
+        long long& system_sz) const
 {
 	long long tmp_size, snapshot_size;
 
@@ -561,7 +561,7 @@ void VirtualMachineDisk::set_types(const string& ds_name)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 #define XML_DISK_ATTR(Y,X) ( Y << "<" << X << ">" << \
-        one_util::escape_xml(vector_value(X)) << "</" << X << ">") 
+        one_util::escape_xml(vector_value(X)) << "</" << X << ">")
 
 void VirtualMachineDisk::to_xml_short(std::ostringstream& oss) const
 {
@@ -1298,7 +1298,7 @@ void VirtualMachineDisks::clear_active_snapshot()
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachineDisks::get_active_snapshot(int& ds_id, string& tm_mad,
-        int& disk_id, int& snap_id)
+        int& disk_id, int& snap_id) const
 {
     int rc;
     VirtualMachineDisk * disk =
@@ -1582,7 +1582,7 @@ int VirtualMachineDisks::clear_saveas()
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachineDisks::get_saveas_info(int& disk_id, string& source,
-        int& image_id, string& snap_id, string& tm_mad, string& ds_id)
+        int& image_id, string& snap_id, string& tm_mad, string& ds_id) const
 {
     int rc;
 

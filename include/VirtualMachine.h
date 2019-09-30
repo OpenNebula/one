@@ -227,7 +227,7 @@ public:
      *  Test if the VM has changed state since last time prev state was set
      *    @return true if VM changed state
      */
-    bool has_changed_state()
+    bool has_changed_state() const
     {
         return (prev_lcm_state != lcm_state || prev_state != state);
     }
@@ -671,7 +671,7 @@ public:
      *  Get host id where the VM is or is going to execute. The hasHistory()
      *  function MUST be called before this one.
      */
-    int get_hid()
+    int get_hid() const
     {
         return history->hid;
     }
@@ -680,7 +680,7 @@ public:
      *  Get host id where the VM was executing. The hasPreviousHistory()
      *  function MUST be called before this one.
      */
-    int get_previous_hid()
+    int get_previous_hid() const
     {
         return previous_history->hid;
     }
@@ -689,7 +689,7 @@ public:
      *  Get cluster id where the VM is or is going to execute. The hasHistory()
      *  function MUST be called before this one.
      */
-    int get_cid()
+    int get_cid() const
     {
         return history->cid;
     }
@@ -698,7 +698,7 @@ public:
      *  Get cluster id where the VM was executing. The hasPreviousHistory()
      *  function MUST be called before this one.
      */
-    int get_previous_cid()
+    int get_previous_cid() const
     {
         return previous_history->cid;
     }
@@ -776,7 +776,7 @@ public:
     /**
      *  Gets the running start time for the VM
      */
-    time_t get_running_stime()
+    time_t get_running_stime() const
     {
         return history->running_stime;
     }
@@ -1015,7 +1015,7 @@ public:
      *  Get the VM physical capacity requirements for the host.
      *    @param sr the HostShareCapacity to store the capacity request.
      */
-    void get_capacity(HostShareCapacity &sr);
+    void get_capacity(HostShareCapacity &sr) const;
 
     /**
      * Adds automatic placement requirements: Datastore and Cluster
@@ -1050,7 +1050,7 @@ public:
     /**
      *  @return true if the VM is being deployed with a pinned policy
      */
-    bool is_pinned();
+    bool is_pinned() const;
 
     // ------------------------------------------------------------------------
     // Virtual Machine Disks
@@ -1132,7 +1132,7 @@ public:
     /**
      *  Return state of the VM right before import
      */
-    string get_import_state();
+    string get_import_state() const;
 
     /**
      * Checks if the current VM MAD supports the given action for imported VMs
@@ -1148,13 +1148,13 @@ public:
      * Returns the Virtual Router ID if this VM is a VR, or -1
      * @return VR ID or -1
      */
-    int get_vrouter_id();
+    int get_vrouter_id() const;
 
     /**
      * Returns true if this VM is a Virtual Router
      * @return true if this VM is a Virtual Router
      */
-    bool is_vrouter();
+    bool is_vrouter() const;
 
     // ------------------------------------------------------------------------
     // Context related functions
@@ -1193,7 +1193,7 @@ public:
      *    @param err description if any
      *    @return template with the attributes
      */
-    VirtualMachineTemplate * get_updateconf_template();
+    VirtualMachineTemplate * get_updateconf_template() const;
 
     // -------------------------------------------------------------------------
     // "Save as" Disk related functions (save_as hot)
@@ -1264,7 +1264,7 @@ public:
      *    @return -1 if failure
      */
     int get_saveas_disk(int& disk_id, string& source, int& image_id,
-            string& snap_id, string& tm_mad, string& ds_id)
+            string& snap_id, string& tm_mad, string& ds_id) const
     {
         return disks.get_saveas_info(disk_id, source, image_id, snap_id,
                 tm_mad, ds_id);
@@ -1303,7 +1303,7 @@ public:
      *
      * @return the disk waiting for an attachment action, or 0
      */
-    VirtualMachineDisk * get_attach_disk()
+    VirtualMachineDisk * get_attach_disk() const
     {
         return disks.get_attach();
     }
@@ -1353,7 +1353,7 @@ public:
      *
      * @return the disk or 0 if not found
      */
-    VirtualMachineDisk * get_resize_disk()
+    VirtualMachineDisk * get_resize_disk() const
     {
         return disks.get_resize();
     }
@@ -1552,7 +1552,7 @@ public:
      *    @param snap_id of the snapshot
      */
     int get_snapshot_disk(int& ds_id, string& tm_mad, int& disk_id,
-            int& snap_id)
+            int& snap_id) const
     {
         return disks.get_active_snapshot(ds_id, tm_mad, disk_id, snap_id);
     }
@@ -1603,7 +1603,7 @@ public:
     /**
      *  @return the on-going ACTION associated to the ACTIVE snapshot
      */
-    string get_snapshot_action();
+    string get_snapshot_action() const;
 
     /**
      * Replaces HYPERVISOR_ID for the active SNAPSHOT
