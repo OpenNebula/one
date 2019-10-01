@@ -196,7 +196,7 @@ define(function (require) {
         var actionJSON = {};
         if ($(this).attr("data")) {
           actionJSON = JSON.parse($(this).attr("data"));
-          actionJSON.ID = index;
+          actionJSON.ID = String(index);
         }
       }
       if (!$.isEmptyObject(actionJSON)) { actionsJSON.push(actionJSON); };
