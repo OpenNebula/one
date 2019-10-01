@@ -284,13 +284,20 @@ define(function(require) {
         var actions = "";
         // Attach / Detach
         if (!is_pci){
-          if ( (that.element.STATE == OpenNebulaVM.STATES.ACTIVE) &&
-               (that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_NIC)) {
+          if ( 
+            that.element.STATE == OpenNebulaVM.STATES.ACTIVE &&
+            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_NIC
+          ) {
             actions = Locale.tr("attach/detach in progress");
           } else {
-            if ( (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) &&
-                 (StateActions.enabledStateAction("VM.detachnic", that.element.STATE, that.element.LCM_STATE))) {
-              actions += "<a href=\"VM.detachnic\" class=\"detachnic\" ><i class=\"fas fa-times\"/></a>";
+            if ( 
+              Config.isTabActionEnabled("vms-tab", "VM.detachnic") &&
+              StateActions.enabledStateAction("VM.detachnic", that.element.STATE, that.element.LCM_STATE)
+            ) {
+              var icon = $("<i/>",{class:"fas fa-times"});
+              var anchorAttributes = {class: "detachnic"}
+              var anchor = $("<a/>",anchorAttributes).append(icon);
+              actions += anchor.get(0).outerHTML; //"<a href=\"VM.detachnic\" class=\"detachnic PEPE\" ><i class=\"fas fa-times\"/></a>";
             }
           }
         }
@@ -506,6 +513,9 @@ define(function(require) {
 
   function detach_alias(event) {
     var nic_id = $(this).parent().attr("nic_id");
+    if(!nic_id){
+      var nic_id = $(this).parents("tr").attr("nic_id");
+    }
     var element_id = event.data.element_id;
 
     Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
