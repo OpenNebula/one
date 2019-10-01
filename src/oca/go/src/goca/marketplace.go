@@ -106,8 +106,8 @@ func (mc *MarketPlacesController) Info(args ...int) (*marketplace.Pool, error) {
 }
 
 // Info retrieves information for the marketplace.
-func (mc *MarketPlaceController) Info() (*marketplace.MarketPlace, error) {
-	response, err := mc.c.Client.Call("one.market.info", mc.ID)
+func (mc *MarketPlaceController) Info(decrypt bool) (*marketplace.MarketPlace, error) {
+	response, err := mc.c.Client.Call("one.market.info", mc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}

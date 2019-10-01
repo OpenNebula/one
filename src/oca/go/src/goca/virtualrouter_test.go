@@ -39,7 +39,7 @@ func TestVirtualRouter(t *testing.T) {
 	}
 
 	vrC := testCtrl.VirtualRouter(vr_id)
-	vr, err = vrC.Info()
+	vr, err = vrC.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
@@ -59,7 +59,7 @@ func TestVirtualRouter(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	vr, err = vrC.Info()
+	vr, err = vrC.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
@@ -89,7 +89,7 @@ func TestVirtualRouter(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	vr, err = vrC.Info()
+	vr, err = vrC.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
@@ -108,7 +108,7 @@ func TestVirtualRouter(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	vr, err = vrC.Info()
+	vr, err = vrC.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
@@ -135,7 +135,7 @@ func TestVirtualRouter(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	vr, err = vrC.Info()
+	vr, err = vrC.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
@@ -188,7 +188,7 @@ func TestVirtualRouter(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	vr, err = vrC.Info()
+	vr, err = vrC.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
@@ -221,7 +221,7 @@ func TestVirtualRouter(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	vr, err = vrC.Info()
+	vr, err = vrC.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
@@ -241,7 +241,7 @@ func TestVirtualRouter(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	vr, err = vrC.Info()
+	vr, err = vrC.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}

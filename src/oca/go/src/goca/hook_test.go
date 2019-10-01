@@ -40,7 +40,7 @@ func createHook(t *testing.T) (*hk.Hook, int) {
 	}
 
 	// Get Hook Network by ID
-	hook, err := testCtrl.Hook(id).Info()
+	hook, err := testCtrl.Hook(id).Info(false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -67,7 +67,7 @@ func TestHook(t *testing.T) {
 	}
 
 	hookC := testCtrl.Hook(id)
-	hook, err = hookC.Info()
+	hook, err = hookC.Info(false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -81,11 +81,11 @@ func TestHook(t *testing.T) {
 	currentExecs := len(hook.Log.ExecutionRecords)
 
 	//triger the hook
-	testCtrl.Zone(0).Info()
+	testCtrl.Zone(0).Info(false)
 
 	time.Sleep(2 * time.Second)
 
-	hook, err = hookC.Info()
+	hook, err = hookC.Info(false)
 
 	if (len(hook.Log.ExecutionRecords) <= currentExecs) {
 		t.Errorf("Hook have not been triggered")
@@ -98,7 +98,7 @@ func TestHook(t *testing.T) {
 
 	time.Sleep(2 * time.Second)
 
-	hook, err = hookC.Info()
+	hook, err = hookC.Info(false)
 
 	if (len(hook.Log.ExecutionRecords) <= currentExecs) {
 		t.Errorf("Hook execution have not been retried")

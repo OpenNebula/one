@@ -54,7 +54,7 @@ func GetUserGroup(t *testing.T, user string) (string, error) {
 	}
 
     // Get User Info
-    u, err := testCtrl.User(uid).Info()
+    u, err := testCtrl.User(uid).Info(false)
 	if err != nil {
         t.Error("Cannot retreive caller user Info")
 	}

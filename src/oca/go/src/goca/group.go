@@ -85,8 +85,8 @@ func (gc *GroupsController) Info() (*group.Pool, error) {
 }
 
 // Info retrieves information for the group.
-func (gc *GroupController) Info() (*group.Group, error) {
-	response, err := gc.c.Client.Call("one.group.info", gc.ID)
+func (gc *GroupController) Info(decrypt bool) (*group.Group, error) {
+	response, err := gc.c.Client.Call("one.group.info", gc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}

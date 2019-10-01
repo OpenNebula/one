@@ -324,6 +324,20 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
+     * Retrieves the information of the given VM.
+     *
+     * @param client XML-RPC Client.
+     * @param id The VM id for the VM to retrieve the information from
+     * @param decrypt If true decrypt sensitive attributes
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info(Client client, int id, boolean decrypt)
+    {
+        return client.call(INFO, id, decrypt);
+    }
+
+    /**
      * Changes the owner/group
      *
      * @param client XML-RPC Client.

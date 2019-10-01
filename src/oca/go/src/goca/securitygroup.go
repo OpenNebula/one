@@ -105,8 +105,8 @@ func (sc *SecurityGroupsController) Info(args ...int) (*securitygroup.Pool, erro
 }
 
 // Info retrieves information for the security group.
-func (sc *SecurityGroupController) Info() (*securitygroup.SecurityGroup, error) {
-	response, err := sc.c.Client.Call("one.secgroup.info", sc.ID)
+func (sc *SecurityGroupController) Info(decrypt bool) (*securitygroup.SecurityGroup, error) {
+	response, err := sc.c.Client.Call("one.secgroup.info", sc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}

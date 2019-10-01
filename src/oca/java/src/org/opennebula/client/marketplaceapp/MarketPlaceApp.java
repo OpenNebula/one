@@ -105,6 +105,20 @@ public class MarketPlaceApp extends PoolElement
     }
 
     /**
+     * Retrieves the information of the given App.
+     *
+     * @param client XML-RPC Client.
+     * @param id The App id for the App to retrieve the information from
+     * @param decrypt If true decrypt sensitive attributes
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info(Client client, int id, boolean decrypt)
+    {
+        return client.call(INFO, id, decrypt);
+    }
+
+    /**
      * Deletes an MarketPlaceApp from OpenNebula.
      *
      * @param client XML-RPC Client.

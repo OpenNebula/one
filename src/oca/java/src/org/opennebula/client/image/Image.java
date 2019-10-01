@@ -134,6 +134,20 @@ public class Image extends PoolElement
     }
 
     /**
+     * Retrieves the information of the given Image.
+     *
+     * @param client XML-RPC Client.
+     * @param id The Image id for the Image to retrieve the information from
+     * @param decrypt If true decrypt sensitive attributes
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info(Client client, int id, boolean decrypt)
+    {
+        return client.call(INFO, id, decrypt);
+    }
+
+    /**
      * Deletes an image from OpenNebula.
      *
      * @param client XML-RPC Client.

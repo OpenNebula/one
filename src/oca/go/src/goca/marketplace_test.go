@@ -44,7 +44,7 @@ func TestMarketplace(t *testing.T) {
 	}
 
 	marketCtrl := testCtrl.MarketPlace(market_id)
-	market, err = marketCtrl.Info()
+	market, err = marketCtrl.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
@@ -64,7 +64,7 @@ func TestMarketplace(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	market, err = marketCtrl.Info()
+	market, err = marketCtrl.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
@@ -90,7 +90,7 @@ func TestMarketplace(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	market, err = marketCtrl.Info()
+	market, err = marketCtrl.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
@@ -109,7 +109,7 @@ func TestMarketplace(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	market, err = marketCtrl.Info()
+	market, err = marketCtrl.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
@@ -136,7 +136,7 @@ func TestMarketplace(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	market, err = marketCtrl.Info()
+	market, err = marketCtrl.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}

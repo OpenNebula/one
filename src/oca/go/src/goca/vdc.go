@@ -85,8 +85,8 @@ func (vc *VDCsController) Info() (*vdc.Pool, error) {
 }
 
 // Info retrieves information for the VDC.
-func (vc *VDCController) Info() (*vdc.VDC, error) {
-	response, err := vc.c.Client.Call("one.vdc.info", vc.ID)
+func (vc *VDCController) Info(decrypt bool) (*vdc.VDC, error) {
+	response, err := vc.c.Client.Call("one.vdc.info", vc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
