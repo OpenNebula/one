@@ -521,7 +521,7 @@ func (d *Driver) GetIP() (string, error) {
 		return "", err
 	}
 
-	vm, err := controller.VM(vm_id).Info()
+	vm, err := controller.VM(vm_id).Info(false)
 	if err != nil {
 		return "", err
 	}
@@ -547,7 +547,7 @@ func (d *Driver) GetState() (state.State, error) {
 		return state.None, err
 	}
 
-	vm, err := controller.VM(vm_id).Info()
+	vm, err := controller.VM(vm_id).Info(false)
 	if err != nil {
 		return state.None, err
 	}
