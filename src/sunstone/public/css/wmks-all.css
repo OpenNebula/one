@@ -1,0 +1,661 @@
+/******************************************************************************
+ * Copyright 2013 VMware, Inc.  All rights reserved.
+ *****************************************************************************/
+
+/*
+ * main-ui.css
+ *
+ *    Defines style for the wmks ui widgets.
+ *
+ *    Use CSS3 for touch devices as jquery effects break when browser handles
+ *    orientation changes, or page bouncing.
+ *
+ *    TODO: Need to handle Retina mode for iPad.
+ */
+
+/*
+ * jQuery UI Dialog 1.8.16
+ */
+.ui-dialog {
+   padding: 0;
+   box-shadow: 0px 5px 7px         rgba(0,0,0,.5);
+}
+
+.ui-dialog .ui-dialog-titlebar {
+   padding: .8em .8em;
+   border-bottom-left-radius: 0;
+   border-bottom-right-radius: 0;
+}
+
+.ui-dialog .ui-dialog-titlebar-close {
+   right: .4em;
+   margin-top: -11px;
+}
+
+.ui-widget-content {
+   border: 0;
+   background: #ffffff;
+   color: #333333;
+}
+
+.ui-widget-header a {
+   color: #333333;
+}
+
+
+/* Touch feedback indicator */
+.ui-touch-feedback-icon {
+   background-image: url('../img/touch_sprite_feedback.png');
+   width: 300px;
+   height: 120px;
+   position: absolute;
+   left: -9999px;
+   top: -9999px;
+   z-index: 2;
+}
+
+.feedback-container {
+   z-index: 2;
+   position: absolute;
+   display: none;
+}
+
+.feedback-container.cursor-icon {
+   background: url('../img/touch_sprite_feedback.png') -260px -15px no-repeat;
+   width: 17px;
+   height: 23px;
+}
+
+.feedback-container.tap-icon {
+   background: url('../img/touch_sprite_feedback.png') -300px -15px no-repeat;
+   width: 36px;
+   height: 36px;
+}
+
+.feedback-container.drag-icon {
+   background: url('../img/touch_sprite_feedback.png') -10px -10px no-repeat;
+   width: 100px;
+   height: 100px;
+}
+
+.feedback-container.pulse-icon {
+   background: url('../img/touch_sprite_feedback.png') -111px -10px no-repeat;
+   width: 100px;
+   height: 100px;
+}
+
+.feedback-container.scroll-icon {
+   background: url('../img/touch_sprite_feedback.png') -212px -10px no-repeat;
+   width: 27px;
+   height: 100px;
+}
+
+/* CSS3 feedback indicator animation. Keep it simple (uses lower cpu cycles)
+   as there may be multiple animation requests made in quick successions. */
+.animate-feedback-indicator {
+   display: block;
+   opacity: 0;
+   animation-name: showfadeout;
+   animation-duration: 350ms;
+   -webkit-animation-name: showfadeout;
+   -webkit-animation-duration: 350ms;
+   -moz-animation-name: showfadeout;
+   -moz-animation-duration: 350ms;
+   -ms-animation-name: showfadeout;
+   -ms-animation-duration: 350ms;
+}
+
+@-webkit-keyframes showfadeout {
+   0%    { opacity: 1; }
+   100%  { opacity: 0; }
+}
+
+@-moz-keyframes showfadeout {
+   0%    { opacity: 1; }
+   100%  { opacity: 0; }
+}
+
+@-ms-keyframes showfadeout {
+   0%    { opacity: 1; }
+   100%  { opacity: 0; }
+}
+
+.animate-double-feedback-indicator {
+   display: block;
+   opacity: 0;
+   animation-name: showdoublefadeout;
+   animation-duration: 400ms;
+   -webkit-animation-name: showdoublefadeout;
+   -webkit-animation-duration: 400ms;
+   -moz-animation-name: showdoublefadeout;
+   -moz-animation-duration: 400ms;
+   -ms-animation-name: showdoublefadeout;
+   -ms-animation-duration: 400ms;
+}
+
+@-webkit-keyframes showdoublefadeout {
+   0%    { opacity: 1; }
+   40%   { opacity: 0; }
+   70%   { opacity: 1; }
+   100%  { opacity: 0; }
+}
+
+@-moz-keyframes showdoublefadeout {
+   0%    { opacity: 1; }
+   40%   { opacity: 0; }
+   70%   { opacity: 1; }
+   100%  { opacity: 0; }
+}
+
+@-ms-keyframes showdoublefadeout {
+   0%    { opacity: 1; }
+   40%   { opacity: 0; }
+   70%   { opacity: 1; }
+   100%  { opacity: 0; }
+}
+/******************************************************************************
+ * Copyright 2013 VMware, Inc.  All rights reserved.
+ *****************************************************************************/
+
+/*
+ * trackpad.css
+ *
+ *     Defines style for the trackpad widget.
+ */
+
+/*
+ * jQuery UI Dialog 1.8.16
+ */
+.ui-dialog {
+   padding: 0;
+   box-shadow: 0px 5px 7px         rgba(0,0,0,.5);
+}
+
+.ui-dialog .ui-dialog-titlebar {
+   padding: .8em .8em;
+   border-bottom-left-radius: 0;
+   border-bottom-right-radius: 0;
+}
+
+.ui-dialog .ui-dialog-titlebar-close {
+   right: .4em;
+   margin-top: -11px;
+}
+
+.ui-widget-content {
+   border: 0;
+   background: #ffffff;
+   color: #333333;
+}
+
+.ui-widget-header a {
+   color: #333333;
+}
+
+/*
+ * Touch sprite is loaded in a single class (as we have disabled caching images).
+ * We do this for the iOS case, due to extreme limitations in terms of image size.
+ * This form of grouped declaration forces all these definitions to load the same
+ * sprite. (This is also loaded upfront for the navbar so its always visible).
+ * For details see PR - 978390.
+ */
+.trackpad-wrapper  .ui-dialog-titlebar-close .ui-icon,
+.trackpad-wrapper  .ui-dialog-titlebar .ui-dialog-title,
+.touch-sprite {
+   background-image: url('../img/touch_sprite.png');
+}
+
+/* Replace jquery ui title bar close icon. */
+.trackpad-wrapper .ui-dialog-titlebar-close {
+   margin-top: -9px;
+   border: 0 !important;
+   background: none !important;
+}
+
+.trackpad-wrapper .ui-dialog-titlebar-close {
+   margin-top: -11px;
+}
+
+/* Background-image is defined along with touch-sprite in 1 place. */
+.trackpad-wrapper .ui-dialog-titlebar-close .ui-icon {
+   background-position: -9px -239px;
+   background-repeat: no-repeat;
+}
+
+.trackpad-wrapper .ui-dialog-titlebar-close .ui-icon:active {
+   background-position-x: -24px;
+   background-repeat: no-repeat;
+}
+
+/* The grabber icon indicating the dialog could be moved around */
+.trackpad-wrapper .ui-dialog-titlebar .ui-dialog-title {
+   background-position: -10px -255px;
+   background-repeat: no-repeat;
+   width: 40px;
+   height: 14px;
+   margin: 0 0 0 42%;
+}
+.trackpad-wrapper .ui-dialog-titlebar .ui-dialog-title:active {
+   background-position-x: -52px;
+}
+
+.trackpad-wrapper {
+   width: 289px !important;   /* As this is less than the default value */
+   border: 1px solid #333 !important;
+   background: none !important;
+   border-radius: 6px;
+   box-shadow: 0px 4px 9px rgba(0,0,0,.6);
+}
+
+.trackpad-wrapper .ui-dialog-titlebar {
+   border-top: 1px solid #ccc;
+   border-left: 1px solid #aaa;
+   border-right: 1px solid #aaa;
+   border-bottom: 0;
+   padding: .5em .8em .4em .8em;
+   background: rgb(175,176,187); /* Old browsers */
+   background: -webkit-linear-gradient(top, rgba(175,176,187,.93) 0%,rgba(170,171,182,.93) 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, rgba(175,176,187,.93) 0%,rgba(170,171,182,.93) 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, rgba(175,176,187,.93) 0%,rgba(170,171,182,.93) 100%); /* IE10+ */
+   background: linear-gradient(top, rgba(175,176,187,.93) 0%,rgba(170,171,182,.93) 100%); /* W3C */
+   border-top-left-radius: 5px;
+   border-top-right-radius: 5px;
+}
+
+.trackpad-wrapper .trackpad-container {
+   padding: 0 !important;
+}
+
+.trackpad-wrapper .left-border {
+   background: rgb(170,171,182); /* Old browsers */
+   background: -webkit-linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* IE10+ */
+   background: linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* W3C */
+   margin-top: -1px;
+   float: left;
+   width: 12px;
+   height: 209px;
+   border: 0;
+}
+
+.trackpad-wrapper .touch-area {
+   background: rgba(255,255,255,0.8);
+   background: -webkit-linear-gradient(-70deg, rgba(255,255,255,0.8) 0%, rgba(238,238,240,0.8) 22%, rgba(210,210,216,0.8) 71%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(-70deg, rgba(255,255,255,0.8) 0%, rgba(238,238,240,0.8) 22%, rgba(210,210,216,0.8) 71%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(-70deg, rgba(255,255,255,0.8) 0%, rgba(238,238,240,0.8) 22%, rgba(210,210,216,0.8) 71%); /* IE10+ */
+   background: linear-gradient(110deg, rgba(255,255,255,0.8) 0%, rgba(238,238,240,0.8) 22%, rgba(210,210,216,0.8) 71%); /* W3C */
+   border: 1px solid #555;
+   box-shadow: 0 2px 6px 1px #888 inset;
+   float: left;
+   width: 263px;
+   height: 206px;
+}
+
+.trackpad-wrapper .right-border {
+   background: rgb(170,171,182); /* Old browsers */
+   background: -webkit-linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* IE10+ */
+   background: linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* W3C */
+   margin-top: -1px;
+   float: left;
+   width: 12px;
+   height: 209px;
+   border: 0;
+ }
+
+.trackpad-wrapper .bottom-border {
+   background: rgb(123,123,133); /* Old browsers */
+   background: -webkit-linear-gradient(top, rgba(123,123,133,.93) 0%,rgba(110,110,119,.93) 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, rgba(123,123,133,.93) 0%,rgba(110,110,119,.93) 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, rgba(123,123,133,.93) 0%,rgba(110,110,119,.93) 100%); /* IE10+ */
+   background: linear-gradient(top, rgba(123,123,133,.93) 0%,rgba(110,110,119,.93) 100%); /* W3C */
+   width: 289px;
+   height: 73px;
+   margin-top: 208px;
+   border: 0;
+}
+
+.trackpad-wrapper .button-left, .trackpad-wrapper .button-right {
+   background: rgb(255,255,255); /* Old browsers */
+   background: -webkit-linear-gradient(top, rgba(255,255,255,.7) 0%,rgba(225,225,227,.7) 3%,rgba(204,204,204,.7) 45%,rgba(190,190,195,.7) 96%,rgba(131,131,135,.7) 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, rgba(255,255,255,.7) 0%,rgba(225,225,227,.7) 3%,rgba(204,204,204,.7) 45%,rgba(190,190,195,.7) 96%,rgba(131,131,135,.7) 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, rgba(255,255,255,.7) 0%,rgba(225,225,227,.7) 3%,rgba(204,204,204,.7) 45%,rgba(190,190,195,.7) 96%,rgba(131,131,135,.7) 100%); /* IE10+ */
+   background: linear-gradient(top, rgba(255,255,255,.7) 0%,rgba(225,225,227,.7) 3%,rgba(204,204,204,.7) 45%,rgba(190,190,195,.7) 96%,rgba(131,131,135,.7) 100%); /* W3C */
+   border-radius: 6px;
+   box-shadow: 0 2px 5px #333;
+   float: left;
+   width: 126px;
+   height: 47px;
+}
+
+.trackpad-wrapper .button-left {
+   margin: 12px 0px auto 12px;
+}
+
+.trackpad-wrapper .button-right {
+   margin: 12px;
+}
+
+.trackpad-wrapper .button-left.button-highlight,
+.trackpad-wrapper .button-right.button-highlight {
+   background: -webkit-linear-gradient(top, rgba(170,171,182,.7) 0%,rgba(123,123,133,.7) 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, rgba(170,171,182,.7) 0%,rgba(123,123,133,.7) 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, rgba(170,171,182,.7) 0%,rgba(123,123,133,.7) 100%); /* IE10+ */
+   background: linear-gradient(top, rgba(170,171,182,.7) 0%,rgba(123,123,133,.7) 100%); /* W3C */
+}
+/******************************************************************************
+ * Copyright 2013 VMware, Inc.  All rights reserved.
+ *****************************************************************************/
+
+/*
+ * extended-keypad.css
+ *
+ *     Defines style for the virtual keys on the control pane.
+ */
+
+.ctrl-pane-wrapper {
+   width: 290px !important; /* Needed as the default is a bit larger than this */
+   border: 1px solid #333 !important;
+   -moz-border-radius: 6px; -webkit-border-radius: 6px; -khtml-border-radius: 6px; border-radius: 6px;
+   background: rgb(170,171,182); /* Old browsers */
+   background: -webkit-linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* IE10+ */
+   background: linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* W3C */
+}
+
+.fnKey-pane-wrapper {
+   width: 427px;
+   border: 1px solid #333;
+   -moz-border-radius: 6px; -webkit-border-radius: 6px; -khtml-border-radius: 6px; border-radius: 6px;
+   background: #c1c4d1; /* Old browsers */
+   background: -webkit-linear-gradient(top, #c1c4d1 0%,#b0b1bd 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, #c1c4d1 0%,#b0b1bd 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, #c1c4d1 0%,#b0b1bd 100%); /* IE10+ */
+   background: linear-gradient(top, #c1c4d1 0%, #b0b1bd 100%); /* W3C */
+   position: absolute;
+   padding: 0;
+   -moz-box-shadow: 0px 5px 7px    rgba(0,0,0,.5);
+   -webkit-box-shadow: 0px 5px 7px rgba(0,0,0,.5);
+   box-shadow: 0px 5px 7px         rgba(0,0,0,.5);
+}
+
+.fnKey-pane-wrapper-down {
+   width: 427px;
+   border: 1px solid #333;
+   -moz-border-radius: 6px; -webkit-border-radius: 6px; -khtml-border-radius: 6px; border-radius: 6px;
+   background: #6e6e77; /* Old browsers */
+   background: -webkit-linear-gradient(top,  #6e6e77 0%,#656565 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top,  #6e6e77 0%,#656565 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top,  #6e6e77 0%,#656565 100%); /* IE10+ */
+   background: linear-gradient(top, #6e6e77 0%, #656565 100%); /* W3C */
+   position: absolute;
+   padding: 0;
+   -moz-box-shadow: 0px 5px 7px    rgba(0,0,0,.5);
+   -webkit-box-shadow: 0px 5px 7px rgba(0,0,0,.5);
+   box-shadow: 0px 5px 7px         rgba(0,0,0,.5);
+}
+
+/* Hide jquery ui title bar. */
+.ctrl-pane-wrapper .ui-dialog-titlebar {
+   border-top: 1px solid #ccc;
+   border-left: 1px solid #aaa;
+   border-right: 1px solid #aaa;
+   border-bottom: 0;
+   padding: .6em .8em 0 .8em;
+   background: none !important;
+   -moz-border-radius-topleft: 5px; -webkit-border-top-left-radius: 5px; -khtml-border-top-left-radius: 5px; border-top-left-radius: 5px;
+   -moz-border-radius-topright: 5px; -webkit-border-top-right-radius: 5px; -khtml-border-top-right-radius: 5px; border-top-right-radius: 5px;
+}
+
+/* Replace jquery ui title bar close icon. */
+.ctrl-pane-wrapper .ui-dialog-titlebar-close {
+   margin-top: -9px;
+   border: 0 !important;
+   background: none !important;
+}
+
+/* Background-image is defined along with touch-sprite in 1 place. */
+.ctrl-pane-wrapper .ui-dialog-titlebar-close .ui-icon {
+   background-position: -9px -239px;
+   background-repeat: no-repeat;
+}
+
+.ctrl-pane-wrapper .ui-dialog-titlebar-close .ui-icon:active {
+   background-position-x: -24px;
+   background-repeat: no-repeat;
+}
+
+/* The grabber icon indicating the dialog could be moved around */
+.ctrl-pane-wrapper .ui-dialog-titlebar .ui-dialog-title {
+   background-position: -10px -255px;
+   background-repeat: no-repeat;
+   width: 40px;
+   height: 14px;
+   margin: 0 0 0 42%;
+}
+
+.ctrl-pane-wrapper .ui-dialog-titlebar .ui-dialog-title:active {
+   background-position-x: -52px;
+}
+
+.ctrl-pane-wrapper .ui-dialog-content {
+   background: none !important;
+   padding: 0 0;
+   border-style: solid;
+   border-color: #aaaaaa;
+   border-width: 0 1px 1px 1px;
+   -moz-border-radius-bottomleft: 5px; -webkit-border-bottom-left-radius: 5px; -khtml-border-bottom-left-radius: 5px; border-bottom-left-radius: 5px;
+   -moz-border-radius-bottomright: 5px; -webkit-border-bottom-right-radius: 5px; -khtml-border-bottom-right-radius: 5px; border-bottom-right-radius: 5px;
+}
+
+.fnKey-inner-border-helper {
+   position: relative;
+   background: none !important;
+   border-style: solid;
+   border-color: #d5d5d5;
+   border-width: 1px;
+   -moz-border-radius: 5px; -webkit-border-radius: 5px; -khtml-border-radius: 5px; border-radius: 5px;
+   pointer-events:none;
+}
+
+.ctrl-pane-wrapper .ctrl-pane {
+   padding: 3px 0 3px 6px;
+   height: 140px;
+   width: 280px;
+}
+
+.ctrl-pane .baseKey {
+   float: left;
+   border: 0;
+   padding: 0;
+   width: 57px;
+   height: 57px;
+   margin: 6px;
+   -moz-border-radius: 6px; -webkit-border-radius: 6px; -khtml-border-radius: 6px; border-radius: 6px;
+   font-family: "HelveticaNeue", "Helvetica Neue", "HelveticaNeue", "Helvetica Neue", 'TeXGyreHeros', "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
+   font-size: 18px;
+   text-shadow: 0 1px 1px #eeeeee;
+   -moz-box-shadow: 0px 1px 3px rgba(0, 0, 0, .7);
+   -webkit-box-shadow: 0px 1px 3px rgba(0,0,0,.7);
+   box-shadow: 0px 1px 3px         rgba(0,0,0,.7);
+}
+
+.ctrl-pane .ctrl-key-top-row {
+   background: -webkit-linear-gradient(top, #fff 0%,#f3f5fb 2%,#d2d2d8 98%,#999 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, #fff 0%,#f3f5fb 2%,#d2d2d8 98%,#999 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, #fff 0%,#f3f5fb 2%,#d2d2d8 98%,#999 100%); /* IE10+ */
+   background: linear-gradient(top, #fff 0%,#f3f5fb 2%,#d2d2d8 98%,#999 100%); /* W3C */
+}
+
+.ctrl-pane .ctrl-key-bottom-row {
+   background: -webkit-linear-gradient(top, #fff 0%,#e1e1e3 2%,#d1d1d4 50%,#bebec3 98%,#838387 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, #fff 0%,#e1e1e3 2%,#d1d1d4 50%,#bebec3 98%,#838387 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, #fff 0%,#e1e1e3 2%,#d1d1d4 50%,#bebec3 98%,#838387 100%); /* IE10+ */
+   background: linear-gradient(top, #fff 0%,#e1e1e3 2%,#d1d1d4 50%,#bebec3 98%,#838387 100%); /* W3C */
+}
+
+.ctrl-pane .up-position .fn-key-top-row {
+   color:#333;
+   background: #ffffff; /* Old browsers */
+   background: -webkit-linear-gradient(top, #ffffff 0%,#f7f7f7 2%,#dcdde3 96%,#999999 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, #ffffff 0%,#f7f7f7 2%,#dcdde3 96%,#999999 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, #ffffff 0%,#f7f7f7 2%,#dcdde3 96%,#999999 100%); /* IE10+ */
+   background: linear-gradient(top, #ffffff 0%,#f7f7f7 2%,#dcdde3 96%,#999999 100%); /* W3C */
+}
+
+.ctrl-pane .up-position .fn-key-bottom-row {
+   color:#333;
+   background: #ffffff; /* Old browsers */
+   background: -webkit-linear-gradient(top, #ffffff 0%,#f3f5fb 2%,#d2d2d8 98%,#999999 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, #ffffff 0%,#f3f5fb 2%,#d2d2d8 98%,#999999 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, #ffffff 0%,#f3f5fb 2%,#d2d2d8 98%,#999999 100%); /* IE10+ */
+   background: linear-gradient(top, #ffffff 0%,#f3f5fb 2%,#d2d2d8 98%,#999999 100%); /* W3C */
+}
+
+.ctrl-pane .down-position .fn-key-top-row {
+   color:#333;
+   background: #ffffff; /* Old browsers */
+   background: -webkit-linear-gradient(top, #ffffff 0%,#e1e1e3 4%,#d1d1d4 45%,#b7b8bd 98%,#838387 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, #ffffff 0%,#e1e1e3 4%,#d1d1d4 45%,#b7b8bd 98%,#838387 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, #ffffff 0%,#e1e1e3 4%,#d1d1d4 45%,#b7b8bd 98%,#838387 100%); /* IE10+ */
+   background: linear-gradient(top, #ffffff 0%,#e1e1e3 4%,#d1d1d4 45%,#b7b8bd 98%,#838387 100%); /* W3C */
+}
+
+.ctrl-pane .down-position .fn-key-bottom-row {
+   color:#333;
+   background: #ffffff; /* Old browsers */
+   background: -webkit-linear-gradient(top, #ffffff 0%,#d9dadd 4%,#c8c8cd 45%,#b0b0b7 98%,#838387 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, #ffffff 0%,#d9dadd 4%,#c8c8cd 45%,#b0b0b7 98%,#838387 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, #ffffff 0%,#d9dadd 4%,#c8c8cd 45%,#b0b0b7 98%,#838387 100%); /* IE10+ */
+   background: linear-gradient(top, #ffffff 0%,#d9dadd 4%,#c8c8cd 45%,#b0b0b7 98%,#838387 100%); /* W3C */
+}
+
+.ctrl-pane .fn-key-top-row {
+   margin: 12px 6px 6px 6px;
+}
+
+.ctrl-pane .border-key-top-left .fn-key-top-row {
+   margin: 12px 6px 6px 12px;
+}
+
+.ctrl-pane .border-key-top-right .fn-key-top-row {
+   margin: 12px 12px 6px 6px;
+}
+
+.ctrl-pane .fn-key-bottom-row {
+   margin: 5px 6px 12px 6px;
+}
+
+.ctrl-pane .border-key-bottom-left .fn-key-bottom-row {
+   margin: 5px 6px 12px 12px;
+}
+
+.ctrl-pane .border-key-bottom-right .fn-key-bottom-row {
+   margin: 5px 12px 12px 6px;
+}
+
+.ctrl-pane .ctrl-key-top-row:active, .ctrl-pane .fn-key-top-row:active,
+.ctrl-pane .ctrl-key-bottom-row:active, .ctrl-pane .fn-key-bottom-row:active {
+   background: #bbbbbb;
+   background: -webkit-linear-gradient(bottom, #888888 25%, #CCCCCC 68%);
+   background:     -ms-linear-gradient(bottom, #888888 25%, #CCCCCC 68%);
+   background:      -o-linear-gradient(bottom, #888888 25%, #CCCCCC 68%);
+   background:         linear-gradient(bottom, #888888 25%, #CCCCCC 68%);
+}
+
+.ctrl-pane .ctrl-key-top-row div, .ctrl-pane .ctrl-key-bottom-row div,
+.ctrl-pane .fn-key-top-row div, .ctrl-pane .fn-key-bottom-row div {
+   width: 100%;
+   text-align: center;
+   padding-top: 17px;
+   overflow-x: hidden;
+}
+
+/* Highlight selected modifier key */
+.ctrl-pane .ab-modifier-key-down {
+   color: #4D8DFF;
+}
+
+.ctrl-pane .baseKey img { /* use .touch-sprite for image */
+   background-repeat: no-repeat;
+   width: 57px;
+   height: 57px;
+   border: 0;
+   -moz-border-radius: 6px; -webkit-border-radius: 6px; -khtml-border-radius: 6px; border-radius: 6px;
+}
+
+.ctrl-pane .baseKey .right-arrow {
+   background-position: -242px -182px;
+}
+
+.ctrl-pane .baseKey .left-arrow {
+   background-position: -126px -182px;
+}
+
+.ctrl-pane .baseKey .up-arrow {
+   background-position: -299px -182px;
+}
+
+.ctrl-pane .baseKey .down-arrow {
+   background-position: -183px -182px;
+}
+
+.ctrl-pane .baseKey .more-keys {
+   background-position: -10px -182px;
+}
+
+/* Ctrl - pane flip transition. */
+.ctrl-pane.flip-container {
+   perspective: 1000;
+   -webkit-perspective: 1000;
+   -moz-perspective: 1000;
+   -ms-perspective: 1000;
+}
+
+  /* flip the ctrl-pane when this class toggles. */
+.flip-container.perform-flip .flipper {
+   transform: rotateY(180deg);
+   -webkit-transform: rotateY(180deg);
+   -moz-transform: rotateY(180deg);
+   -ms-transform: rotateY(180deg);
+}
+
+/* flip speed goes here */
+.flip-container .flipper {
+   transition: 0.6s;
+   transform-style: preserve-3d;
+   -webkit-transition: 0.6s;
+   -webkit-transform-style: preserve-3d;
+   -moz-transition: 0.6s;
+   -moz-transform-style: preserve-3d;
+   -ms-transition: 0.6s;
+   -ms-transform-style: preserve-3d;
+   position: relative;
+}
+
+/* hide back of pane during swap */
+.flip-container .front, .flip-container .back {
+   backface-visibility: hidden;
+   -webkit-backface-visibility: hidden;
+   -moz-backface-visibility: hidden;
+   -ms-backface-visibility: hidden;
+   position: absolute;
+   top: 0;
+   left: 0;
+}
+
+/* front pane, placed above back */
+.flip-container .front {
+   z-index: 200;
+}
+
+/* back, initially hidden pane */
+.flip-container .back {
+   transform: rotateY(180deg);
+   -webkit-transform: rotateY(180deg);
+   -moz-transform: rotateY(180deg);
+   -ms-transform: rotateY(180deg);
+}

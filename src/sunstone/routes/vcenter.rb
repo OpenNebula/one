@@ -255,3 +255,31 @@ post '/vcenter/wild' do
         error 403, error.to_json
     end
 end
+
+get '/vm/:id/openthtml5console' do
+    begin
+        content_type 'text/html', :charset => 'utf-8'
+
+        vm_id  = params[:id]
+        one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
+        vm_ref = one_vm['DEPLOY_ID']
+
+        host_id = one_vm['HISTORY_RECORDS/HISTORY/HID[last()]'].to_i
+
+        vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+
+        vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vm_id)
+
+        parameters = vm.get_html_console_parameters
+
+        erb :htmlconsole, :locals =>  {
+            :host       => parameters[:host],
+            :port       => parameters[:port],
+            :ticket     => parameters[:ticket]
+        }
+    rescue Exception => e
+        logger.error("[vCenter] " + e.message)
+        error = Error.new(e.message)
+        error 403, error.to_json
+    end
+end
