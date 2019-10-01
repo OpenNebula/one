@@ -32,17 +32,30 @@ module NSXDriver
             if ls_id
                 initialize_with_id(ls_id)
             else
-                if ls_data
-                    @ls_id = new_logical_switch(ls_data)
-                    # Construct URL of the created logical switch
-                    @url_ls = @base_url + SECTION_LS + @ls_id
-                    @ls_vni = ls_vni
-                    @ls_name = ls_name
-                    @tz_id = ls_tz
-                    @admin_display = 'UP'
+                if tz_id
+                    if ls_data
+                        @ls_id = new_logical_switch(ls_data)
+                        # Construct URL of the created logical switch
+                        @url_ls = @base_url + SECTION_LS + @ls_id
+                        @ls_vni = ls_vni
+                        @ls_name = ls_name
+                        @tz_id = ls_tz
+                        @admin_display = 'UP'
+                    end
+                    raise 'Missing logical switch data' unless ls_data
                 end
-                raise 'Missing logical switch data' unless ls_data
             end
+        end
+
+        # Creates a NSXDriver::VirtualWire from its name
+        def self.new_from_name(nsx_client, ls_name)
+            lswitch = new(nsx_client)
+            ls_id = lswitch.ls_id_from_name(nsx_client, ls_name)
+            raise "Logical Switch with name: #{ls_name} not found" unless ls_id
+
+            # initialize_with_id(@ls_id)
+            lswitch.initialize_with_id(ls_id)
+            lswitch
         end
 
         # Creates a NSXDriver::OpaqueNetwork from its id
@@ -53,9 +66,24 @@ module NSXDriver
             if ls?
                 @ls_vni = ls_vni
                 @ls_name = ls_name
+                @tz_id = ls_tz
                 @admin_display = 'UP'
             end
             raise "Logical switch with id: #{ls_id} not found" unless ls?
+        end
+
+        # Get the logical switch id from its name
+        def ls_id_from_name(nsx_client, name)
+            url = @base_url + SECTION_LS
+            lswitches = nsx_client.get_json(url)['results']
+            lswitches.each do |lswitch|
+                lsname = lswitch['display_name']
+                lsid = lswitch['id']
+                if lsname == name
+                    return lsid if lsid
+                end
+            end
+            nil
         end
 
         # METHODS

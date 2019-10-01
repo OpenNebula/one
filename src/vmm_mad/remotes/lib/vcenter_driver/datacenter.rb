@@ -376,7 +376,12 @@ class DatacenterFolder
             networks[r.obj._ref] = r.to_hash if r.obj.is_a?(RbVmomi::VIM::DistributedVirtualPortgroup) || r.obj.is_a?(RbVmomi::VIM::Network) || r.obj.is_a?(RbVmomi::VIM::OpaqueNetwork)
 
             if r.obj.is_a?(RbVmomi::VIM::DistributedVirtualPortgroup)
-                networks[r.obj._ref][:network_type] = VCenterDriver::Network::NETWORK_TYPE_DPG
+                # Here can be NETWORK_TYPE_DPG or NETWORK_TYPE_NSXV
+                if r['name'].match(/^vxw-dvs-(.*)-virtualwire-(.*)-sid-(.*)/)
+                    networks[r.obj._ref][:network_type] = VCenterDriver::Network::NETWORK_TYPE_NSXV
+                else
+                    networks[r.obj._ref][:network_type] = VCenterDriver::Network::NETWORK_TYPE_DPG
+                end
             elsif r.obj.is_a?(RbVmomi::VIM::OpaqueNetwork)
                 networks[r.obj._ref][:network_type] = VCenterDriver::Network::NETWORK_TYPE_NSXT
             elsif r.obj.is_a?(RbVmomi::VIM::Network)
