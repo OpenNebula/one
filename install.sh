@@ -1665,7 +1665,7 @@ EXAMPLE_HOST_HOOKS_SHARE_FILES="share/examples/host_hooks/error_hook"
 # LXD network issues vnm hook patches
 #-------------------------------------------------------------------------------
 
-LXD_NETWORK_HOOKS="share/examples/network_hooks/lxd_clean.rb"
+LXD_NETWORK_HOOKS="share/examples/network_hooks/99-lxd_clean.rb"
 
 #-------------------------------------------------------------------------------
 # Files required to interact with the websockify server
