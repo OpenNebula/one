@@ -16,4 +16,4 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-$(dirname $0)/reboot $1 '-f'
+$(dirname $0)/reboot "$@" '-f'

@@ -16,4 +16,4 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-$(dirname $0)/shutdown $@ '-f'
+$(dirname $0)/shutdown "$@" '-f'

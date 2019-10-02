@@ -225,11 +225,11 @@ class Container
         end
     end
 
-    def check_stop
+    def check_stop(force)
         return if status != 'Running'
 
         begin
-            if ARGV[-1] == '-f'
+            if force == '-f'
                 stop(:force => true)
             else
                 stop
