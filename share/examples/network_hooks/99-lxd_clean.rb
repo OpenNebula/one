@@ -24,7 +24,7 @@ vm.nics.each do |nic|
 
     next unless s == 0
 
-    cmd = "ip link delete #{veth}"
+    cmd = "sudo ip link delete #{veth}"
     OpenNebula.log "Found lingering nic #{veth}\n Running #{cmd}"
 
     o, e, _s = Open3.capture3(cmd)
