@@ -601,55 +601,14 @@ class ExecDriver < VirtualMachineDriver
 
     # REBOOT action, reboots a running VM
     def reboot(id, drv_message)
-        action = VmmAction.new(self, id, :reboot, drv_message)
-
-        reboot_step = {
-            :driver => :vmm,
-                :action       => :reboot,
-                :parameters   => [:deploy_id, :host]
-        }
-
-        steps = [reboot_step]
-
-        if @hypervisor == 'lxd'
-            steps += [
-                {
-                    :driver   => :vnm,
-                    :action   => :clean
-                },
-                {
-                    :driver   => :vnm,
-                    :action   => :pre
-                },
-                reboot_step,
-                {
-                    :driver       => :vnm,
-                    :action       => :post,
-                    :parameters   => [:deploy_info],
-                    :fail_actions => [
-                        {
-                            :driver     => :vmm,
-                            :action     => :cancel,
-                            :parameters => [:deploy_info, :host]
-                        }
-                    ]
-                }
-            ]
-        end
-
-        action.run(steps)
+        restart(id, drv_message, :reboot)
     end
 
     #
     # RESET action, resets a running VM
     #
     def reset(id, drv_message)
-        data      = decode(drv_message)
-        host      = data.elements['HOST'].text
-        deploy_id = data.elements['DEPLOY_ID'].text
-
-        do_action("#{deploy_id} #{host}", id, host, ACTION[:reset],
-                  :stdin => data)
+        restart(id, drv_message, :reset)
     end
 
     #
@@ -1234,6 +1193,46 @@ class ExecDriver < VirtualMachineDriver
         send_message(action, RESULT[:failure], id,
                      "Cannot perform #{action}, expecting #{xpath}")
         nil
+    end
+
+    def restart(id, drv_message, signal)
+        action = VmmAction.new(self, id, signal, drv_message)
+
+        reboot_step = {
+            :driver => :vmm,
+                :action       => signal,
+                :parameters   => [:deploy_id, :host]
+        }
+
+        steps = [reboot_step]
+
+        if @hypervisor == 'lxd'
+            steps += [
+                {
+                    :driver   => :vnm,
+                    :action   => :clean
+                },
+                {
+                    :driver   => :vnm,
+                    :action   => :pre
+                },
+                reboot_step,
+                {
+                    :driver       => :vnm,
+                    :action       => :post,
+                    :parameters   => [:deploy_info],
+                    :fail_actions => [
+                        {
+                            :driver     => :vmm,
+                            :action     => :cancel,
+                            :parameters => [:deploy_info, :host]
+                        }
+                    ]
+                }
+            ]
+        end
+
+        action.run(steps)
     end
 
     def destroy(id, drv_message, signal)
