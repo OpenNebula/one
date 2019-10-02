@@ -515,26 +515,19 @@ INSTALL_FILES=(
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_ETC_FILES:$VAR_LOCATION/remotes/etc/vnm
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
-    NETWORK_LXD_FILES:$VAR_LOCATION/remotes/vnm/802.1Q/clean.d
     NETWORK_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/vxlan
-    NETWORK_LXD_FILES:$VAR_LOCATION/remotes/vnm/vxlan/clean.d
     NETWORK_DUMMY_FILES:$VAR_LOCATION/remotes/vnm/dummy
-    NETWORK_LXD_FILES:$VAR_LOCATION/remotes/vnm/dummy/clean.d
     NETWORK_BRIDGE_FILES:$VAR_LOCATION/remotes/vnm/bridge
-    NETWORK_LXD_FILES:$VAR_LOCATION/remotes/vnm/bridge/clean.d
     NETWORK_EBTABLES_FILES:$VAR_LOCATION/remotes/vnm/ebtables
-    NETWORK_LXD_FILES:$VAR_LOCATION/remotes/vnm/ebtables/clean.d
     NETWORK_FW_FILES:$VAR_LOCATION/remotes/vnm/fw
-    NETWORK_LXD_FILES:$VAR_LOCATION/remotes/vnm/fw/clean.d
     NETWORK_OVSWITCH_FILES:$VAR_LOCATION/remotes/vnm/ovswitch
-    NETWORK_LXD_FILES:$VAR_LOCATION/remotes/vnm/ovswitch/clean.d
     NETWORK_OVSWITCH_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/ovswitch_vxlan
-    NETWORK_LXD_FILES:$VAR_LOCATION/remotes/vnm/ovswitch_vxlan/clean.d
     NETWORK_VCENTER_FILES:$VAR_LOCATION/remotes/vnm/vcenter
     NETWORK_ALIAS_SDNAT_FILES:$VAR_LOCATION/remotes/vnm/alias_sdnat
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     EXAMPLE_DDC_SHARE_FILES:$SHARE_LOCATION/examples/alias_ip
     EXAMPLE_HOST_HOOKS_SHARE_FILES:$SHARE_LOCATION/examples/host_hooks
+    LXD_NETWORK_HOOKS:$SHARE_LOCATION/examples/network_hooks
     WEBSOCKIFY_SHARE_RUN_FILES:$SHARE_LOCATION/websockify
     WEBSOCKIFY_SHARE_MODULE_FILES:$SHARE_LOCATION/websockify/websockify
     ESX_FW_VNC_SHARE_FILES:$SHARE_LOCATION/esx-fw-vnc
@@ -1202,8 +1195,6 @@ NETWORK_ALIAS_SDNAT_FILES="src/vnm_mad/remotes/alias_sdnat/AliasSDNAT.rb \
                            src/vnm_mad/remotes/alias_sdnat/pre \
                            src/vnm_mad/remotes/alias_sdnat/update_sg "
 
-NETWORK_LXD_FILES="src/vnm_mad/remotes/lib/lxd_clean.rb"
-
 #-------------------------------------------------------------------------------
 # Virtual Network Manager drivers configuration to be installed under $REMOTES_LOCATION/etc/vnm
 #-------------------------------------------------------------------------------
@@ -1669,6 +1660,12 @@ EXAMPLE_DDC_SHARE_FILES="share/examples/alias_ip/running_hook \
 #-------------------------------------------------------------------------------
 
 EXAMPLE_HOST_HOOKS_SHARE_FILES="share/examples/host_hooks/error_hook"
+
+#-------------------------------------------------------------------------------
+# LXD network issues vnm hook patches
+#-------------------------------------------------------------------------------
+
+LXD_NETWORK_HOOKS="share/examples/network_hooks/lxd_clean.rb"
 
 #-------------------------------------------------------------------------------
 # Files required to interact with the websockify server
