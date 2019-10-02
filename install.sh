@@ -2262,6 +2262,7 @@ DOCKER_MACHINE_BIN_FILES="src/docker_machine/src/docker_machine/bin/docker-machi
 MAN_FILES="share/man/oneacct.1.gz \
         share/man/oneshowback.1.gz \
         share/man/oneacl.1.gz \
+        share/man/onehook.1.gz \
         share/man/onehost.1.gz \
         share/man/oneimage.1.gz \
         share/man/oneuser.1.gz \
