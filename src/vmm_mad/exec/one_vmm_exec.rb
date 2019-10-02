@@ -233,7 +233,7 @@ class VmmAction
                 result, info = vnm.do_action(@id, step[:action],
                                              :parameters => params)
             when :tm
-                result, info = @tm.do_transfer_action(@id, step[:parameters], stdin=step[:stdin])
+                result, info = @tm.do_transfer_action(@id, step[:parameters], stdin = step[:stdin])
 
             else
                 result = DriverExecHelper.const_get(:RESULT)[:failure]
@@ -396,32 +396,32 @@ class ExecDriver < VirtualMachineDriver
         end
 
         steps.concat([
-            # Execute pre-boot networking setup
-            {
-                :driver   => :vnm,
-                :action   => :pre
-            },
-            # Boot the Virtual Machine
-            {
-                :driver       => :vmm,
-                :action       => :deploy,
-                :parameters   => [dfile, :host],
-                :stdin        => domain
-            },
-            # Execute post-boot networking setup
-            {
-                :driver       => :vnm,
-                :action       => :post,
-                :parameters   => [:deploy_info],
-                :fail_actions => [
-                    {
-                        :driver     => :vmm,
-                        :action     => :cancel,
-                        :parameters => [:deploy_info, :host]
-                    }
-                ]
-            }
-        ])
+                         # Execute pre-boot networking setup
+                         {
+                             :driver   => :vnm,
+                             :action   => :pre
+                         },
+                         # Boot the Virtual Machine
+                         {
+                             :driver       => :vmm,
+                             :action       => :deploy,
+                             :parameters   => [dfile, :host],
+                             :stdin        => domain
+                         },
+                         # Execute post-boot networking setup
+                         {
+                             :driver       => :vnm,
+                             :action       => :post,
+                             :parameters   => [:deploy_info],
+                             :fail_actions => [
+                                 {
+                                     :driver     => :vmm,
+                                     :action     => :cancel,
+                                     :parameters => [:deploy_info, :host]
+                                 }
+                             ]
+                         }
+                     ])
 
         action.run(steps)
     end
@@ -485,31 +485,31 @@ class ExecDriver < VirtualMachineDriver
         action = VmmAction.new(self, id, :restore, drv_message)
 
         steps.concat([
-            # Execute pre-boot networking setup
-            {
-                :driver     => :vnm,
-                :action     => :pre
-            },
-            # Restore the Virtual Machine from checkpoint
-            {
-                :driver     => :vmm,
-                :action     => :restore,
-                :parameters => [:checkpoint_file, :host, :deploy_id]
-            },
-            # Execute post-boot networking setup
-            {
-                :driver       => :vnm,
-                :action       => :post,
-                :parameters   => [:deploy_id],
-                :fail_actions => [
-                    {
-                        :driver     => :vmm,
-                        :action     => :cancel,
-                        :parameters => [:deploy_id, :host]
-                    }
-                ]
-            }
-        ])
+                         # Execute pre-boot networking setup
+                         {
+                             :driver     => :vnm,
+                             :action     => :pre
+                         },
+                         # Restore the Virtual Machine from checkpoint
+                         {
+                             :driver     => :vmm,
+                             :action     => :restore,
+                             :parameters => [:checkpoint_file, :host, :deploy_id]
+                         },
+                         # Execute post-boot networking setup
+                         {
+                             :driver       => :vnm,
+                             :action       => :post,
+                             :parameters   => [:deploy_id],
+                             :fail_actions => [
+                                 {
+                                     :driver     => :vmm,
+                                     :action     => :cancel,
+                                     :parameters => [:deploy_id, :host]
+                                 }
+                             ]
+                         }
+                     ])
 
         action.run(steps)
     end
@@ -599,9 +599,7 @@ class ExecDriver < VirtualMachineDriver
                   :stdin => xml_data)
     end
 
-    #
     # REBOOT action, reboots a running VM
-    #
     def reboot(id, drv_message)
         restart(id, drv_message, :reboot)
     end
@@ -1104,8 +1102,8 @@ class ExecDriver < VirtualMachineDriver
         # Get TM command
         tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
 
-        tm_command_split     = tm_command.split
-        tm_command_split[0].sub!('.', '_LIVE.') or tm_command_split[0] += '_LIVE'
+        tm_command_split = tm_command.split
+        tm_command_split[0].sub!('.', '_LIVE.') || (tm_command_split[0] += '_LIVE')
 
         action = VmmAction.new(self, id, :disk_snapshot_create, drv_message)
 
@@ -1183,6 +1181,7 @@ class ExecDriver < VirtualMachineDriver
 
         action.run(steps, sg_id)
     end
+
     private
 
     def ensure_xpath(xml_data, id, action, xpath)
@@ -1197,12 +1196,43 @@ class ExecDriver < VirtualMachineDriver
     end
 
     def restart(id, drv_message, signal)
-        data      = decode(drv_message)
-        host      = data.elements['HOST'].text
-        deploy_id = data.elements['DEPLOY_ID'].text
+        action = VmmAction.new(self, id, signal, drv_message)
 
-        do_action("#{deploy_id} #{host}", id, host, ACTION[signal],
-                  :stdin => data)
+        reboot_step = {
+            :driver => :vmm,
+                :action       => signal,
+                :parameters   => [:deploy_id, :host]
+        }
+
+        steps = [reboot_step]
+
+        if @hypervisor == 'lxd'
+            steps += [
+                {
+                    :driver   => :vnm,
+                    :action   => :clean
+                },
+                {
+                    :driver   => :vnm,
+                    :action   => :pre
+                },
+                reboot_step,
+                {
+                    :driver       => :vnm,
+                    :action       => :post,
+                    :parameters   => [:deploy_info],
+                    :fail_actions => [
+                        {
+                            :driver     => :vmm,
+                            :action     => :cancel,
+                            :parameters => [:deploy_info, :host]
+                        }
+                    ]
+                }
+            ]
+        end
+
+        action.run(steps)
     end
 
     def destroy(id, drv_message, signal)
