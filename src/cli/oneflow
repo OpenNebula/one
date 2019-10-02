@@ -230,16 +230,16 @@ def show_service(client, args, options)
                          'INFORMATION'
             CLIHelper.print_header(str_h1 % str_header)
 
-            puts format(str, ['ID', document_hash['DOCUMENT']['ID']])
-            puts format(str, ['NAME', document_hash['DOCUMENT']['NAME']])
-            puts format(str, ['USER', document_hash['DOCUMENT']['UNAME']])
-            puts format(str, ['GROUP', document_hash['DOCUMENT']['GNAME']])
+            puts Kernel.format(str, 'ID', document_hash['DOCUMENT']['ID'])
+            puts Kernel.format(str, 'NAME', document_hash['DOCUMENT']['NAME'])
+            puts Kernel.format(str, 'USER', document_hash['DOCUMENT']['UNAME'])
+            puts Kernel.format(str, 'GROUP', document_hash['DOCUMENT']['GNAME'])
 
-            puts format(str, ['STRATEGY', template['deployment']])
-            puts format(str,
-                        ['SERVICE STATE', Service.state_str(template['state'])])
+            puts Kernel.format(str, 'STRATEGY', template['deployment'])
+            puts Kernel.format(str,
+                        'SERVICE STATE', Service.state_str(template['state']))
             if template['shutdown_action']
-                puts format(str, ['SHUTDOWN', template['shutdown_action']])
+                puts Kernel.format(str, 'SHUTDOWN', template['shutdown_action'])
             end
 
             puts
@@ -253,7 +253,7 @@ def show_service(client, args, options)
                 mask[1] = 'm' if permissions_hash["#{e}_M"] == '1'
                 mask[2] = 'a' if permissions_hash["#{e}_A"] == '1'
 
-                puts format(str, [e, mask])
+                puts Kernel.format(str, e, mask)
             end
 
             puts
@@ -261,23 +261,23 @@ def show_service(client, args, options)
             template['roles'].each do |role|
                 CLIHelper.print_header("ROLE #{role['name']}", false)
 
-                puts format(str, ['ROLE STATE', Role.state_str(role['state'])])
+                puts Kernel.format(str, 'ROLE STATE', Role.state_str(role['state']))
                 if role['parents']
-                    puts format(str, ['PARENTS', role['parents'].join(', ')])
+                    puts Kernel.format(str, 'PARENTS', role['parents'].join(', '))
                 end
-                puts format(str, ['VM TEMPLATE', role['vm_template']])
-                puts format(str, ['CARDINALITY', role['cardinality']])
+                puts Kernel.format(str, 'VM TEMPLATE', role['vm_template'])
+                puts Kernel.format(str, 'CARDINALITY', role['cardinality'])
                 if role['min_vms']
-                    puts format(str, ['MIN VMS', role['min_vms']])
+                    puts Kernel.format(str, 'MIN VMS', role['min_vms'])
                 end
                 if role['max_vms']
-                    puts format(str, ['MAX VMS', role['max_vms']])
+                    puts Kernel.format(str, 'MAX VMS', role['max_vms'])
                 end
                 if role['coolddown']
-                    puts format(str, ['COOLDOWN', "#{role['cooldown']}s"])
+                    puts Kernel.format(str, 'COOLDOWN', "#{role['cooldown']}s")
                 end
                 if role['shutdown_action']
-                    puts format(str, ['SHUTDOWN', role['shutdown_action']])
+                    puts Kernel.format(str, 'SHUTDOWN', role['shutdown_action'])
                 end
 
                 puts 'NODES INFORMATION'
