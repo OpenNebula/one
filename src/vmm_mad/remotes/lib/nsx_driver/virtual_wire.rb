@@ -25,6 +25,7 @@ module NSXDriver
         BACKING_XPATH = '//virtualWire/vdsContextWithBacking/backingValue'
         OBJECTID_XPATH = '//virtualWire/vdsContextWithBacking/switch/objectId'
         TZ_XPATH = '//virtualWire/vdnScopeId'
+        VW_XPATH = '//virtualWire'
         SECTION_LS = '/vdn/virtualwires/'
         SECTION_TZ = '/vdn/scopes/'
 
@@ -53,6 +54,17 @@ module NSXDriver
             end
         end
 
+        # Creates a NSXDriver::VirtualWire from its name
+        def self.new_from_name(nsx_client, ls_name)
+            virtualwire = new(nsx_client)
+            ls_id = virtualwire.ls_id_from_name(nsx_client, ls_name)
+            raise "VirtualWire with name: #{ls_name} not found" unless ls_id
+
+            # initialize_with_id(@ls_id)
+            virtualwire.initialize_with_id(ls_id)
+            virtualwire
+        end
+
         # Creates a NSXDriver::VirtualWire from its id
         def initialize_with_id(ls_id)
             @ls_id = ls_id
@@ -66,6 +78,22 @@ module NSXDriver
                 @guest_vlan_allowed = false
             end
             raise "VirtualWire with id: #{ls_id} not found" unless ls?
+        end
+
+        # Get the logical switch id from its name
+        def ls_id_from_name(nsx_client, name)
+            url = @base_url + SECTION_LS
+            virtualwires = nsx_client.get_xml(url).xpath(VW_XPATH)
+            virtualwires.each do |virtualwire|
+                lsname_arr = name.split(/-sid-/)
+                lsname = lsname_arr[-1].split('-', 2)[-1]
+                lsid = lsname_arr[0].split(/vxw-dvs-\w.-/)[-1]
+                if virtualwire.xpath('name').text == lsname
+                    return virtualwire.xpath('objectId').text \
+                            if virtualwire.xpath('objectId').text == lsid
+                end
+            end
+            nil
         end
 
         # METHODS

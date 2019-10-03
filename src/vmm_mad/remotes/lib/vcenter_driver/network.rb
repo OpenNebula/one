@@ -414,6 +414,27 @@ class NetImporter < VCenterDriver::VcImporter
         net = VCenterDriver::Network.new_from_ref(selected[:ref], @vi_client)
         vid = VCenterDriver::Network.retrieve_vlanid(net.item) if net
 
+        # If type is NSX we need to update values
+        if selected[:type] == VCenterDriver::Network::NETWORK_TYPE_NSXV
+            host_id = @vi_client.instance_variable_get '@host_id'
+            nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
+            nsx_net = NSXDriver::VirtualWire
+                      .new_from_name(nsx_client, selected[:name])
+            selected[:one] << "NSX_ID=\"#{nsx_net.ls_id}\"\n"
+            selected[:one] << "NSX_VNI=\"#{nsx_net.ls_vni}\"\n"
+            selected[:one] << "NSX_TZ_ID=\"#{nsx_net.tz_id}\"\n"
+        end
+
+        if selected[:type] == VCenterDriver::Network::NETWORK_TYPE_NSXT
+            host_id = @vi_client.instance_variable_get '@host_id'
+            nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
+            nsx_net = NSXDriver::OpaqueNetwork
+                      .new_from_name(nsx_client, selected[:name])
+            selected[:one] << "NSX_ID=\"#{nsx_net.ls_id}\"\n"
+            selected[:one] << "NSX_VNI=\"#{nsx_net.ls_vni}\"\n"
+            selected[:one] << "NSX_TZ_ID=\"#{nsx_net.tz_id}\"\n"
+        end
+
         if vid
             vlanid = VCenterDriver::Network.vlanid(vid)
 
