@@ -237,7 +237,8 @@ def show_service(client, args, options)
 
             puts Kernel.format(str, 'STRATEGY', template['deployment'])
             puts Kernel.format(str,
-                        'SERVICE STATE', Service.state_str(template['state']))
+                               'SERVICE STATE',
+                               Service.state_str(template['state']))
             if template['shutdown_action']
                 puts Kernel.format(str, 'SHUTDOWN', template['shutdown_action'])
             end
@@ -261,9 +262,13 @@ def show_service(client, args, options)
             template['roles'].each do |role|
                 CLIHelper.print_header("ROLE #{role['name']}", false)
 
-                puts Kernel.format(str, 'ROLE STATE', Role.state_str(role['state']))
+                puts Kernel.format(str,
+                                   'ROLE STATE',
+                                   Role.state_str(role['state']))
                 if role['parents']
-                    puts Kernel.format(str, 'PARENTS', role['parents'].join(', '))
+                    puts Kernel.format(str,
+                                       'PARENTS',
+                                       role['parents'].join(', '))
                 end
                 puts Kernel.format(str, 'VM TEMPLATE', role['vm_template'])
                 puts Kernel.format(str, 'CARDINALITY', role['cardinality'])

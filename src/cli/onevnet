@@ -434,9 +434,9 @@ CommandParser::CmdParser.new(ARGV) do
         Shows orphans vnets (i.e vnets not referenced in any template).
     EOT
 
-     command :orphans, show_desc do
+    command :orphans, show_desc do
         puts helper.check_orphans
 
-         return 0
+        return 0
     end
 end
