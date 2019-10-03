@@ -130,7 +130,7 @@ define(function(require) {
       $("#add_scheduling_inst_action", context).attr("disabled", "disabled");
 
       ScheduleActions.htmlNewAction(actions, context, "inst");
-      ScheduleActions.setup(context)
+      ScheduleActions.setup(context);
 
       return false;
     });
@@ -233,18 +233,33 @@ define(function(require) {
         tmp_json.VMGROUP = [];
       }
 
+      //default requeriments
+      var defaultSchedDSRequirements = [];
+      var defaultSchedRequirements = [];
+      if(
+        that &&
+        that.template_objects &&
+        that.template_objects[0] &&
+        that.template_objects[0].VMTEMPLATE &&
+        that.template_objects[0].VMTEMPLATE.TEMPLATE
+      ){
+        var template = that.template_objects[0].VMTEMPLATE.TEMPLATE;
+        defaultSchedDSRequirements = template.SCHED_DS_REQUIREMENTS? template.SCHED_DS_REQUIREMENTS.replace(/(["?])/g, "\\$1") : [];
+        defaultSchedRequirements = template.SCHED_REQUIREMENTS? template.SCHED_REQUIREMENTS.replace(/(["?])/g, "\\$1") : [];
+      }
+
       var sched = WizardFields.retrieveInput($("#SCHED_REQUIREMENTS"  + template_id, context));
       if (sched){
         tmp_json.SCHED_REQUIREMENTS = sched;
       } else {
-        tmp_json.SCHED_REQUIREMENTS = [];
+        tmp_json.SCHED_REQUIREMENTS = defaultSchedRequirements ;
       }
 
       var sched_ds = WizardFields.retrieveInput($("#SCHED_DS_REQUIREMENTS"  + template_id, context));
       if (sched_ds){
         tmp_json.SCHED_DS_REQUIREMENTS = sched_ds;
       } else {
-        tmp_json.SCHED_DS_REQUIREMENTS = [];
+        tmp_json.SCHED_DS_REQUIREMENTS = defaultSchedDSRequirements;
       }
 
       var as_uid = that.usersTable.retrieveResourceTableSelect();
@@ -312,10 +327,10 @@ define(function(require) {
         }
       }
 
-      tmp_json['SCHED_ACTION'] = ScheduleActions.retrieve(context);
+      tmp_json["SCHED_ACTION"] = ScheduleActions.retrieve(context);
 
-      if (tmp_json['SCHED_ACTION'].length == 0) {
-        delete tmp_json['SCHED_ACTION'];
+      if (tmp_json["SCHED_ACTION"].length == 0) {
+        delete tmp_json["SCHED_ACTION"];
       }
 
       capacityContext = $(".capacityContext"  + template_id, context);
