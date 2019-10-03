@@ -6534,7 +6534,7 @@ msgstr "自动选择"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:48
 #: ../app/utils/nics-section/dd.hbs:56
-msgid "The Schedule will decide which is the bets virtual network"
+msgid "The Schedule will decide which is the best virtual network"
 msgstr "这个 Schedule 将决定哪个是最好的虚拟网络"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:55
