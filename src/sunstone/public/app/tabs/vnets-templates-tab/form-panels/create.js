@@ -107,7 +107,7 @@ define(function(require) {
       "createARTab": "vntemplateCreateARTab",
       "createSecurityTab": "vntemplateCreateSecurityTab",
       "createQoSTab": "vntemplateCreateQoSTab",
-      "createContextTab": "vntemplatecreateContextTab"
+      "createContextTab": "vntemplateCreateContextTab"
     });
   }
 
