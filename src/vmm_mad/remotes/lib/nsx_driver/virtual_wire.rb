@@ -85,13 +85,9 @@ module NSXDriver
             url = @base_url + SECTION_LS
             virtualwires = nsx_client.get_xml(url).xpath(VW_XPATH)
             virtualwires.each do |virtualwire|
-                # name = "vxw-dvs-48-virtualwire-14-sid-5009-testLS-TZ2"
                 lsname_arr = name.split(/-sid-/)
-                # lsname_arr = ["vxw-dvs-48-virtualwire-14", "5009-testLS-TZ2"]
                 lsname = lsname_arr[-1].split('-', 2)[-1]
-                # lsname = testLS-TZ2
                 lsid = lsname_arr[0].split(/vxw-dvs-\w.-/)[-1]
-                # lsid = virtualwire-14
                 if virtualwire.xpath('name').text == lsname
                     return virtualwire.xpath('objectId').text \
                             if virtualwire.xpath('objectId').text == lsid
