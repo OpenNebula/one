@@ -910,6 +910,7 @@ define(function(require) {
           $('#selected_ids_row_' + that.dataTableId, section).append(span);
           if(that.selectOptions.click && typeof that.selectOptions.click === "function"){
             span.attr("title",Locale.tr("just click if you want to delete the resource"));
+            span.append($("<i/>",{class: "fas fa-times"}).css({"margin-left":"5px"}));
             span.off("click").on("click", that.selectOptions.click);
           }
 
@@ -1101,6 +1102,7 @@ define(function(require) {
 
         if(that.selectOptions.click && typeof that.selectOptions.click === "function"){
           span.attr("title",Locale.tr("just click if you want to delete the resource"));
+          span.append($("<i/>",{class: "fas fa-times"}).css({"margin-left":"5px"}));
           span.off("click").on("click", that.selectOptions.click);
         }
 
