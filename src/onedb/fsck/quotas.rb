@@ -1,4 +1,5 @@
 # Quotas module
+# rubocop:disable Style/FormatStringToken
 module OneDBFsck
 
     # Check and fix quotas
@@ -521,5 +522,6 @@ module OneDBFsck
             new_elem.add_child(leases_el).content = leases_used.to_s
         end
     end
+    # rubocop:enable Style/FormatStringToken
 
 end

@@ -38,6 +38,7 @@ module VirtualMachineMonitor
 
     # monitor function used when VMM poll action is called
     # rubocop:disable Naming/VariableName
+    # rubocop:disable Style/FormatStringToken
     def monitor_poll_vm
         reset_monitor
 
@@ -363,6 +364,7 @@ module VirtualMachineMonitor
                                  (write_kbpersec * 1024 * refresh_rate).to_i
     end
     # rubocop:enable Naming/VariableName
+    # rubocop:enable Style/FormatStringToken
 
     #  Generates a OpenNebula IM Driver valid string with the monitor info
     def info
