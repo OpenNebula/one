@@ -158,8 +158,13 @@ begin
                 <controlPlaneMode>UNICAST_MODE</controlPlaneMode>\
                 <guestVlanAllowed>false</guestVlanAllowed>\
             </virtualWireCreateSpec>"
-        logical_switch = NSXDriver::VirtualWire
-                         .new(nsx_client, nil, tz_id, virtual_wire_spec)
+        begin
+            logical_switch = NSXDriver::VirtualWire
+                             .new(nsx_client, nil, tz_id, virtual_wire_spec)
+        rescue StandardError => e
+            STDERR.puts "ERROR: #{e.message}"
+            exit(-1)
+        end
         # Get reference will have in vcenter and vni
         vnet_ref = logical_switch.ls_vcenter_ref
         ls_vni   = logical_switch.ls_vni
@@ -180,9 +185,14 @@ begin
                 "description": "#{ls_description}"
             }
         )
-        logical_switch = NSXDriver::OpaqueNetwork
-                         .new(nsx_client, nil, nil, opaque_network_spec)
-        # Get NSX_VNI
+        begin
+            logical_switch = NSXDriver::OpaqueNetwork
+                             .new(nsx_client, nil, tz_id, opaque_network_spec)
+        rescue StandardError => e
+            STDERR.puts "ERROR: #{e.message}"
+            exit(-1)
+        end
+        # Get reference will have in vcenter and vni
         vnet_ref = dc.nsx_network(logical_switch.ls_id, pg_type)
         ls_vni = logical_switch.ls_vni
         ls_name = logical_switch.ls_name

@@ -24,7 +24,7 @@ module NSXDriver
         SECTION_LS = '/logical-switches/'
 
         # CONSTRUCTOR
-        def initialize(nsx_client, ls_id = nil, _tz_id = nil, ls_data = nil)
+        def initialize(nsx_client, ls_id = nil, tz_id = nil, ls_data = nil)
             super(nsx_client)
             # Construct base URLs
             @base_url = "#{@nsx_client.nsxmgr}/api/v1"
@@ -32,18 +32,19 @@ module NSXDriver
             if ls_id
                 initialize_with_id(ls_id)
             else
-                if tz_id
-                    if ls_data
-                        @ls_id = new_logical_switch(ls_data)
-                        # Construct URL of the created logical switch
-                        @url_ls = @base_url + SECTION_LS + @ls_id
-                        @ls_vni = ls_vni
-                        @ls_name = ls_name
-                        @tz_id = ls_tz
-                        @admin_display = 'UP'
-                    end
-                    raise 'Missing logical switch data' unless ls_data
-                end
+                raise 'Missing transport zone id' unless tz_id
+
+                raise 'Missing logical switch data' unless ls_data
+
+                @ls_id = new_logical_switch(ls_data)
+                raise 'Opaque Network not created in NSX' unless @ls_id
+
+                # Construct URL of the created logical switch
+                @url_ls = @base_url + SECTION_LS + @ls_id
+                @ls_vni = ls_vni
+                @ls_name = ls_name
+                @tz_id = ls_tz
+                @admin_display = 'UP'
             end
         end
 
