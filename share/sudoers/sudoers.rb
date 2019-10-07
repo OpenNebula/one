@@ -40,11 +40,16 @@ class Sudoers
                 'systemctl stop opennebula-flow',
                 'systemctl start opennebula-gate',
                 'systemctl stop opennebula-gate',
+                'systemctl start opennebula-hem',
+                'systemctl stop opennebula-hem',
                 'service opennebula-flow start',
                 'service opennebula-flow stop',
                 'service opennebula-gate start',
                 'service opennebula-gate stop',
-                'arping'
+                'service opennebula-hem start',
+                'service opennebula-hem stop',
+                'arping',
+                'ip'
             ],
             :MARKET => %W[#{lib_location}/sh/create_container_image.sh]
         }
