@@ -566,6 +566,8 @@ class HookExecutionManager
         params = hook.arguments(event)
         host   = hook.remote_host(event)
 
+        @logger.info("Executing hook for #{hook.key}")
+
         rc = hook.execute(@conf[:hook_base_path], params, host)
 
         if rc == -1
