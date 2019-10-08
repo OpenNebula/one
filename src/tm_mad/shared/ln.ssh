@@ -53,9 +53,15 @@ SRC_DS_PATH="$(dirname $(dirname $SRC_ARG_PATH))"
 SRC_PATH="${DST_DS_PATH}${SRC_ARG_PATH##$SRC_DS_PATH}"
 
 #-------------------------------------------------------------------------------
+# Create DST path
+#-------------------------------------------------------------------------------
+
+ssh_make_path $DST_HOST $DST_DIR 'ssh'
+
+#-------------------------------------------------------------------------------
 # Link (ln) SRC into DST
 #-------------------------------------------------------------------------------
-log "Linking $SRC_PATH in $DST"
+log "Linking $SRC_PATH in $DST (in ssh mode)"
 
 LN_CMD=$(cat <<EOF
     set -ex -o pipefail
@@ -63,7 +69,7 @@ LN_CMD=$(cat <<EOF
     cd ${DST_DIR}
     rm -f ${DST_PATH}
 
-    ln -s "${SRC_PATH}" "${DST_PATH}"
+    cp "${SRC_PATH}" "${DST_PATH}"
 EOF
 )
 

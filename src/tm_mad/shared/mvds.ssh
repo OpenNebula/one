@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# ln fe:SOURCE host:remote_system_ds/disk.i vmid dsid
+# mvds host:remote_system_ds/disk.i fe:SOURCE vmid dsid
 #   - fe is the front-end hostname
 #   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
 #   - host is the target host to deploy the VM
@@ -41,34 +41,18 @@ fi
 #-------------------------------------------------------------------------------
 # Set dst path and dir
 #-------------------------------------------------------------------------------
-DST_PATH=`arg_path $DST`
-DST_HOST=`arg_host $DST`
-DST_DIR=`dirname $DST_PATH`
 
-SRC_ARG_PATH=`arg_path $SRC`
+SRC_PATH="$(arg_path $SRC)"
+SRC_HOST="$(arg_host $SRC)"
 
-DST_DS_PATH="$(dirname $(dirname $(dirname $DST_PATH)))"
-SRC_DS_PATH="$(dirname $(dirname $SRC_ARG_PATH))"
-
-SRC_PATH="${DST_DS_PATH}${SRC_ARG_PATH##$SRC_DS_PATH}"
+DST_PATH="$(arg_path $DST)"
 
 #-------------------------------------------------------------------------------
-# Link (ln) SRC into DST
+# Move the image back to the datastore
 #-------------------------------------------------------------------------------
-log "Linking $SRC_PATH in $DST"
 
-LN_CMD=$(cat <<EOF
-    set -ex -o pipefail
+log "Moving $SRC to datastore as $DST"
 
-    cd ${DST_DIR}
-    rm -f ${DST_PATH}
-
-    ln -s "${SRC_PATH}" "${DST_PATH}"
-EOF
-)
-
-ssh_exec_and_log "${DST_HOST}" \
-    "${LN_CMD}" \
-    "Error linking ${SRC} to ${DST}"
-
-exit 0
+ssh_exec_and_log "${SRC_HOST}" \
+    "cp -r ${SRC_PATH} ${DST_PATH}" \
+    "Error copying ${SRC} to ${DST}" >&2
