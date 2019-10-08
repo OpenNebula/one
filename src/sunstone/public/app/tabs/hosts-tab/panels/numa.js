@@ -162,14 +162,12 @@ define(function(require) {
             var limit = 3; //start in 0 is index of array
             var count = 0;
             numaCores.map(function(core,i){
-
               var placeBody = tBody.find("tr:last");
               if(count === 0){
                 placeBody = tBody.append($("<tr/>")).find("tr:last");
               }
               placeBody.append(
-
-                $("<td/>",{"colspan":2,"class":"text-center"}).append(
+                $("<td/>",{"colspan":2,"class":"text-center"}).css({'vertical-align':'top'}).append(
                   $("<h6/>").text(core.ID? "Core "+core.ID : "")
                 )
               );
@@ -187,7 +185,6 @@ define(function(require) {
                           cpuInfo && cpuInfo[1] && cpuInfo[1] >= 0? 
                             $("<a/>",{"class":"","href":"/#vms-tab/"+cpuInfo[1]}).text("VM #"+cpuInfo[1]) 
                               :
-
                             $("<div/>",{"class":"no-vm"}).text(Number(cpuInfo[1]) === -1?"FREE":"ISOLATED")
                         )
                       )
