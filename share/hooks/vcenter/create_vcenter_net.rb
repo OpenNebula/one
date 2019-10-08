@@ -162,7 +162,7 @@ begin
             logical_switch = NSXDriver::VirtualWire
                              .new(nsx_client, nil, tz_id, virtual_wire_spec)
         rescue StandardError => e
-            STDERR.puts "ERROR: #{e.message}"
+            STDERR.puts "ERROR: #{e.message} #{e.backtrace}"
             exit(-1)
         end
         # Get reference will have in vcenter and vni
@@ -189,7 +189,7 @@ begin
             logical_switch = NSXDriver::OpaqueNetwork
                              .new(nsx_client, nil, tz_id, opaque_network_spec)
         rescue StandardError => e
-            STDERR.puts "ERROR: #{e.message}"
+            STDERR.puts "ERROR: #{e.message} #{e.backtrace}"
             exit(-1)
         end
         # Get reference will have in vcenter and vni
