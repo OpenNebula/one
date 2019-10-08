@@ -123,8 +123,8 @@ func (hc *HostController) Status(status int) error {
 	return err
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update adds host content.
+// * tpl: The new host contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (hc *HostController) Update(tpl string, uType parameters.UpdateType) error {

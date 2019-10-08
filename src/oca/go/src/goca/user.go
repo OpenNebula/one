@@ -133,15 +133,15 @@ func (uc *UserController) Passwd(password string) error {
 func (uc *UserController) Login(token string, timeSeconds int, effectiveGID int) error {
 	user, err := uc.Info(false)
 
- 	if err != nil {
+	if err != nil {
 		return err
 	}
 	_, err = uc.c.Client.Call("one.user.login", user.Name, token, timeSeconds, effectiveGID)
 	return err
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update adds user content.
+// * tpl: The new user contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (uc *UserController) Update(tpl string, uType parameters.UpdateType) error {

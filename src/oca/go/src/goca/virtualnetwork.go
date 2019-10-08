@@ -184,8 +184,8 @@ func (vc *VirtualNetworkController) Release(tpl string) error {
 	return err
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update adds virtual network content.
+// * tpl: The new virtual network contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (vc *VirtualNetworkController) Update(tpl string, uType parameters.UpdateType) error {

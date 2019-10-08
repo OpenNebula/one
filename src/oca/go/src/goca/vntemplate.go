@@ -128,8 +128,8 @@ func (vc *VNTemplateController) Create(vntemplate string) (int, error) {
 	return response.BodyInt(), nil
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update adds vntemplate content.
+// * tpl: The new vntemplate contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (vc *VNTemplateController) Update(tpl string, uType parameters.UpdateType) error {

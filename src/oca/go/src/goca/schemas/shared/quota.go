@@ -16,11 +16,13 @@
 
 package shared
 
+// Quotas keeps quota value per User or Group
 type Quotas struct {
 	ID int `xml:"ID"`
 	QuotasList
 }
 
+// QuotasList keeps quota per entity type
 type QuotasList struct {
 	Datastore []DatastoreQuota `xml:"DATASTORE_QUOTA>DATASTORE"`
 	Network   []NetworkQuota   `xml:"NETWORK_QUOTA>NETWORK"`
@@ -28,6 +30,7 @@ type QuotasList struct {
 	Image     []ImageQuota     `xml:"IMAGE_QUOTA>IMAGE"`
 }
 
+// DatastoreQuota keeps quota for a datastore
 type DatastoreQuota struct {
 	ID         int `xml:"ID"`
 	Images     int `xml:"IMAGES"`
@@ -36,12 +39,14 @@ type DatastoreQuota struct {
 	SizeUsed   int `xml:"SIZE_USED"`
 }
 
+// NetworkQuota keeps quota for a network
 type NetworkQuota struct {
 	ID         int `xml:"ID"`
 	Leases     int `xml:"LEASES"`
 	LeasesUsed int `xml:"LEASES_USED"`
 }
 
+// VMQuota keeps quota for all VMs in the group
 type VMQuota struct {
 	CPU                float32 `xml:"CPU"`
 	CPUUsed            float32 `xml:"CPU_USED,omitempty"`
@@ -59,6 +64,7 @@ type VMQuota struct {
 	VMsUsed            int     `xml:"VMS_USED"`
 }
 
+// ImageQuota keeps quota for an image
 type ImageQuota struct {
 	ID       int `xml:"ID"`
 	RVMs     int `xml:"RVMS"`

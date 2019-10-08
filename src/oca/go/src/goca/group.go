@@ -114,8 +114,8 @@ func (gc *GroupController) Delete() error {
 	return err
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update adds group content.
+// * tpl: The new group contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (gc *GroupController) Update(tpl string, uType parameters.UpdateType) error {
