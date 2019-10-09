@@ -94,7 +94,8 @@ one_client = OpenNebula::Client.new
 # This is potentially different from the Netowrk Template
 # provided as the API call argument
 one_vnet = OpenNebula::VirtualNetwork.new_with_id(network_id, one_client)
-err_and_exit(rc.message) if OpenNebula.is_error?(one_vnet.info)
+rc = one_vnet.info
+err_and_exit(rc.message) if OpenNebula.is_error?(rc)
 
 managed  = one_vnet['TEMPLATE/OPENNEBULA_MANAGED'] != 'NO'
 imported = one_vnet['TEMPLATE/VCENTER_IMPORTED']
@@ -103,8 +104,6 @@ unless one_vnet['VN_MAD'] == 'vcenter' && managed && imported.nil?
     STDOUT.puts 'Network present in vCenter, no actions taken. Exiting'
     exit(0)
 end
-
-
 
 begin
     esx_rollback = [] # Track hosts that require a rollback
