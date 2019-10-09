@@ -1,6 +1,8 @@
 module Oned =
   autoload xfm
 
+(* Version: 1.1 *)
+
 (* primitives *)
 let sep = del /[ \t]*=[ \t]*/ " = "
 let eol = del /\n/ "\n"
@@ -50,7 +52,7 @@ let section_entry_list =
 let section = opt_space
               . [ name . sep
               . left_br
-                . opt_space_nl
+                . opt_nl_indent
                 . section_entry_list
               . right_br ]
               . eol
