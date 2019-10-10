@@ -20,7 +20,8 @@ class OneDBLive
     end
 
     def db_escape(string)
-        string.gsub("'", "''")
+        escaped = string.gsub("'", "''")
+        escaped.gsub!('\\', '\\\\\\')
     end
 
     def delete_sql(table, where)
