@@ -249,8 +249,7 @@ void  DispatchManager::poweroff_success_action(int vid)
 
     vm->unlock();
 
-    if (vm->get_state() == VirtualMachine::POWEROFF &&
-        prev_state != VirtualMachine::DISK_SNAPSHOT_POWEROFF &&
+    if (prev_state != VirtualMachine::DISK_SNAPSHOT_POWEROFF &&
         prev_state != VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF &&
         prev_state != VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF)
     {
