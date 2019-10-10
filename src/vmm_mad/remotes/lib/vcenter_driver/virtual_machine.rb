@@ -15,14 +15,22 @@
 #--------------------------------------------------------------------------- #
 module VCenterDriver
 
-    ONE_LOCATION = ENV['ONE_LOCATION']
+    ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
     if !ONE_LOCATION
-        RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
-        GEMS_LOCATION     = '/usr/share/one/gems'
+        unless defined?(RUBY_LIB_LOCATION)
+            RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+        end
+        unless defined?(GEMS_LOCATION)
+            GEMS_LOCATION = '/usr/share/one/gems'
+        end
     else
-        RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
-        GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+        unless defined?(RUBY_LIB_LOCATION)
+            RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+        end
+        unless defined?(GEMS_LOCATION)
+            GEMS_LOCATION = ONE_LOCATION + '/share/gems'
+        end
     end
 
     if File.directory?(GEMS_LOCATION)
