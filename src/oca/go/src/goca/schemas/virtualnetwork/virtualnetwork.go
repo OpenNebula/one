@@ -53,7 +53,7 @@ type VirtualNetwork struct {
 	Template             Template            `xml:"TEMPLATE"`
 
 	// Variable parts between one.vnpool.info and one.vn.info
-	ARs  []AR         `xml:"AR_POOL,omitempty"`
+	ARs  []AR         `xml:"AR_POOL>AR,omitempty"`
 	Lock *shared.Lock `xml:"LOCK,omitempty"`
 }
 
@@ -76,10 +76,10 @@ type AR struct {
 	IP6               string  `xml:"IP6,omitempty"`
 	IP6End            string  `xml:"IP6_END,omitempty"`
 	UsedLeases        string  `xml:"USED_LEASES,omitempty"`
-	Leases            []Lease `xml:"LEASES,omitempty"`
+	Leases            []Lease `xml:"LEASES>LEASE,omitempty"`
 
 	// Not filled with Info
-	Allocated string `xml:ALLOCATED`
+	Allocated string `xml:"ALLOCATED"`
 }
 
 type Lease struct {

@@ -31,43 +31,35 @@ type Pool struct {
 
 // Image represents an OpenNebula Image
 type Image struct {
-	XMLName         xml.Name            `xml:"IMAGE"`
-	ID              int                 `xml:"ID,omitempty"`
-	UID             int                 `xml:"UID,omitempty"`
-	GID             int                 `xml:"GID,omitempty"`
-	UName           string              `xml:"UNAME,omitempty"`
-	GName           string              `xml:"GNAME,omitempty"`
-	Name            string              `xml:"NAME"`
-	LockInfos       *shared.Lock        `xml:"LOCK,omitempty"`
-	Permissions     *shared.Permissions `xml:"PERMISSIONS,omitempty"`
-	Type            *int                `xml:"TYPE,omitempty"`
-	DiskType        *int                `xml:"DISK_TYPE,omitempty"`
-	PersistentValue *int                `xml:"PERSISTENT,omitempty"`
-	RegTime         int                 `xml:"REGTIME,omitempty"`
-	Source          string              `xml:"SOURCE,omitempty"`
-	Path            string              `xml:"PATH,omitempty"`
-	FsType          string              `xml:"FSTYPE,omitempty"`
-	Size            int                 `xml:"SIZE,omitempty"`
-	StateRaw        int                 `xml:"STATE,omitempty"`
-	RunningVMs      int                 `xml:"RUNNING_VMS,omitempty"`
-	CloningOps      int                 `xml:"CLONING_OPS,omitempty"`
-	CloningID       int                 `xml:"CLONING_ID,omitempty"`
-	TargetSnapshot  int                 `xml:"TARGET_SNAPSHOT,omitempty"`
-	DatastoreID     *int                `xml:"DATASTORE_ID,omitempty"`
-	Datastore       string              `xml:"DATASTORE,omitempty"`
-	VMs             shared.EntitiesID   `xml:"VMS,omitempty"`
-	Clones          shared.EntitiesID   `xml:"CLONES,omitempty"`
-	AppClones       shared.EntitiesID   `xml:"APP_CLONES,omitempty"`
-	Snapshots       Snapshot            `xml:"SNAPSHOTS,omitempty"`
-	Template        Template            `xml:"TEMPLATE"`
-}
-
-// Snapshot entity related
-type Snapshot struct {
-	AllowOrphans string            `xml:"ALLOW_ORPHANS"`
-	CurrentBase  int               `xml:"CURRENT_BASE"`
-	NextSnapshot int               `xml:"NEXT_SNAPSHOT,omitempty"`
-	Snapshots    []shared.Snapshot `xml:"SNAPSHOT"`
+	XMLName        xml.Name            `xml:"IMAGE"`
+	ID             int                 `xml:"ID,omitempty"`
+	UID            int                 `xml:"UID,omitempty"`
+	GID            int                 `xml:"GID,omitempty"`
+	UName          string              `xml:"UNAME,omitempty"`
+	GName          string              `xml:"GNAME,omitempty"`
+	Name           string              `xml:"NAME"`
+	LockInfos      *shared.Lock        `xml:"LOCK,omitempty"`
+	Permissions    *shared.Permissions `xml:"PERMISSIONS,omitempty"`
+	Type           *int                `xml:"TYPE,omitempty"`
+	DiskType       *int                `xml:"DISK_TYPE,omitempty"`
+	Persistent     *int                `xml:"PERSISTENT,omitempty"`
+	RegTime        int                 `xml:"REGTIME,omitempty"`
+	Source         string              `xml:"SOURCE,omitempty"`
+	Path           string              `xml:"PATH,omitempty"`
+	FsType         string              `xml:"FSTYPE,omitempty"`
+	Size           int                 `xml:"SIZE,omitempty"`
+	StateRaw       int                 `xml:"STATE,omitempty"`
+	RunningVMs     int                 `xml:"RUNNING_VMS,omitempty"`
+	CloningOps     int                 `xml:"CLONING_OPS,omitempty"`
+	CloningID      int                 `xml:"CLONING_ID,omitempty"`
+	TargetSnapshot int                 `xml:"TARGET_SNAPSHOT,omitempty"`
+	DatastoreID    *int                `xml:"DATASTORE_ID,omitempty"`
+	Datastore      string              `xml:"DATASTORE,omitempty"`
+	VMs            shared.EntitiesID   `xml:"VMS,omitempty"`
+	Clones         shared.EntitiesID   `xml:"CLONES,omitempty"`
+	AppClones      shared.EntitiesID   `xml:"APP_CLONES,omitempty"`
+	Snapshots      shared.DiskSnapshot `xml:"SNAPSHOTS,omitempty"`
+	Template       Template            `xml:"TEMPLATE"`
 }
 
 // State is the state of the Image

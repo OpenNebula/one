@@ -42,7 +42,7 @@ type MarketPlaceApp struct {
 	RegTime       int                 `xml:"REGTIME,omitempty"`
 	Name          string              `xml:"NAME"`
 	ZoneID        string              `xml:"ZONE_ID,omitempty"`
-	OriginID      string              `xml:"ORIGIN_ID"`
+	OriginID      int                 `xml:"ORIGIN_ID"`
 	Source        string              `xml:"SOURCE,omitempty"`
 	MD5           string              `xml:"MD5,omitempty"`
 	Size          int                 `xml:"SIZE,omitempty"`
@@ -50,7 +50,7 @@ type MarketPlaceApp struct {
 	Version       string              `xml:"VERSION,omitempty"`
 	Format        string              `xml:"FORMAT,omitempty"`
 	AppTemplate64 string              `xml:"APPTEMPLATE64,omitempty"`
-	MarketPlaceID int                 `xml:"MARKETPLACEID,omitempty"`
+	MarketPlaceID *int                `xml:"MARKETPLACE_ID,omitempty"`
 	MarketPlace   string              `xml:"MARKETPLACE,omitempty"`
 	State         int                 `xml:"STATE,omitempty"`
 	Type          int                 `xml:"TYPE,omitempty"`

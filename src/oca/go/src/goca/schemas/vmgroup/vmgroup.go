@@ -40,14 +40,15 @@ type VMGroup struct {
 	Name        string              `xml:"NAME"`
 	Permissions *shared.Permissions `xml:"PERMISSIONS"`
 	LockInfos   *shared.Lock        `xml:"LOCK"`
-	Roles       []vmGroupRole       `xml:"ROLES>ROLE"`
+	Roles       []Role              `xml:"ROLES>ROLE"`
 	Template    dyn.Template        `xml:"TEMPLATE"`
 }
 
-type vmGroupRole struct {
+type Role struct {
 	ID              int    `xml:"ID"`
 	Name            string `xml:"NAME"`
 	HostAffined     string `xml:"HOST_AFFINED,omitempty"`      // minOccurs=0
 	HostAntiAffined string `xml:"HOST_ANTI_AFFINED,omitempty"` // minOccurs=0
 	Policy          string `xml:"POLICY,omitempty"`            // minOccurs=0
+	VMs             string `xml:"VMS,omitempty"`
 }

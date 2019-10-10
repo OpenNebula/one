@@ -31,8 +31,9 @@ type Pool struct {
 	DefaultUserQuotas shared.QuotasList `xml:"DEFAULT_USER_QUOTAS"`
 }
 
-// User represents an OpenNebula user
-type User struct {
+// UserShort keeps summary information on a user
+type UserShort struct {
+	XMLName     xml.Name          `xml:"USER"`
 	ID          int               `xml:"ID,omitempty"`
 	GID         int               `xml:"GID,omitempty"`
 	Groups      shared.EntitiesID `xml:"GROUPS,omitempty"`
@@ -42,15 +43,16 @@ type User struct {
 	AuthDriver  string            `xml:"AUTH_DRIVER,omitempty"`
 	Enabled     int               `xml:"ENABLED,omitempty"`
 	LoginTokens []LoginToken      `xml:"LOGIN_TOKEN,omitempty"`
-	Template    Template          `xml:"TEMPLATE"`
+	Template    dyn.Template      `xml:"TEMPLATE"`
+}
+
+// User represents an OpenNebula user
+type User struct {
+	UserShort
 
 	// Variable part between one.userpool.info and one.user.info
 	shared.QuotasList
 	DefaultUserQuotas shared.QuotasList `xml:"DEFAULT_USER_QUOTAS"`
-}
-
-type Template struct {
-	dyn.Template
 }
 
 type LoginToken struct {

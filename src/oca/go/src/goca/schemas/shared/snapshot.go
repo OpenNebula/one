@@ -28,3 +28,11 @@ type Snapshot struct {
 	Parent   int    `xml:"PARENT"`
 	Size     int    `xml:"SIZE"`
 }
+
+// DiskSnapshot represent a disk snapshot
+type DiskSnapshot struct {
+	AllowOrphans string     `xml:"ALLOW_ORPHANS"`
+	CurrentBase  int        `xml:"CURRENT_BASE"`
+	NextSnapshot int        `xml:"NEXT_SNAPSHOT"`
+	Snapshots    []Snapshot `xml:"SNAPSHOT"`
+}

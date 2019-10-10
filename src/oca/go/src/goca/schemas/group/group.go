@@ -25,14 +25,14 @@ import (
 
 // Pool represents an OpenNebula GroupPool
 type Pool struct {
-	XMLName           xml.Name          `xml:"GROUP_POOL"`
-	Groups            []Group           `xml:"GROUP"`
-	Quotas            []shared.Quotas   `xml:"QUOTAS"`
-	DefaultUserQuotas shared.QuotasList `xml:"DEFAULT_USER_QUOTAS"`
+	XMLName            xml.Name          `xml:"GROUP_POOL"`
+	Groups             []GroupShort      `xml:"GROUP"`
+	Quotas             []shared.Quotas   `xml:"QUOTAS"`
+	DefaultGroupQuotas shared.QuotasList `xml:"DEFAULT_GROUP_QUOTAS"`
 }
 
-// Group represents an OpenNebula Group
-type Group struct {
+// GroupShort keeps summary information on a group
+type GroupShort struct {
 	XMLName  xml.Name     `xml:"GROUP"`
 	ID       int          `xml:"ID,omitempty"`
 	Name     string       `xml:"NAME"`
@@ -40,8 +40,13 @@ type Group struct {
 
 	Users  shared.EntitiesID `xml:"USERS,omitempty"`
 	Admins shared.EntitiesID `xml:"ADMINS,omitempty"`
+}
 
-	// Variable part between one.grouppool.info and one.group.info
+// Group represents an OpenNebula Group
+type Group struct {
+	GroupShort
+
+	// Variable part between one.groupool.info and one.group.info
 	shared.QuotasList
-	DefaultUserQuotas shared.QuotasList `xml:"DEFAULT_USER_QUOTAS,omitempty"`
+	DefaultGroupQuotas shared.QuotasList `xml:"DEFAULT_GROUP_QUOTAS"`
 }

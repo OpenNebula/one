@@ -29,38 +29,38 @@ type QuotasList struct {
 }
 
 type DatastoreQuota struct {
-	ID         int    `xml:"ID"`
-	Images     string `xml:"IMAGES"`
-	ImagesUsed string `xml:"IMAGES_USED,omitempty"`
-	Size       string `xml:"SIZE"`
-	SizeUsed   string `xml:"SIZE_USED,omitempty"`
+	ID         int `xml:"ID"`
+	Images     int `xml:"IMAGES"`
+	ImagesUsed int `xml:"IMAGES_USED"`
+	Size       int `xml:"SIZE"`
+	SizeUsed   int `xml:"SIZE_USED"`
 }
 
 type NetworkQuota struct {
-	ID         int    `xml:"ID"`
-	Leases     string `xml:"LEASES"`
-	LeasesUsed string `xml:"LEASES_USED,omitempty"`
+	ID         int `xml:"ID"`
+	Leases     int `xml:"LEASES"`
+	LeasesUsed int `xml:"LEASES_USED"`
 }
 
 type VMQuota struct {
-	CPU                string `xml:"CPU"`
-	CPUUsed            string `xml:"CPU_USED,omitempty"`
-	Memory             string `xml:"MEMORY"`
-	MemoryUsed         string `xml:"MEMORY_USED,omitempty"`
-	RunningCPU         string `xml:"RUNNING_CPU"`
-	RunningCPUUsed     string `xml:"RUNNING_CPU_USED,omitempty"`
-	RunningMemory      string `xml:"RUNNING_MEMORY"`
-	RunningMemoryUsed  string `xml:"RUNNING_MEMORY_USED,omitempty"`
-	RunningVMs         string `xml:"RUNNING_VMS"`
-	RunningVMsUsed     string `xml:"RUNNING_VMS_USED,omitempty"`
-	SystemDiskSize     string `xml:"SYSTEM_DISK_SIZE"`
-	SystemDiskSizeUsed string `xml:"SYSTEM_DISK_SIZE_USED,omitempty"`
-	VMs                string `xml:"VMS"`
-	VMsUsed            string `xml:"VMS_USED,omitempty"`
+	CPU                float32 `xml:"CPU"`
+	CPUUsed            float32 `xml:"CPU_USED,omitempty"`
+	Memory             int     `xml:"MEMORY"`
+	MemoryUsed         int     `xml:"MEMORY_USED,omitempty"`
+	RunningCPU         float32 `xml:"RUNNING_CPU"`
+	RunningCPUUsed     float32 `xml:"RUNNING_CPU_USED,omitempty"`
+	RunningMemory      int     `xml:"RUNNING_MEMORY"`
+	RunningMemoryUsed  int     `xml:"RUNNING_MEMORY_USED"`
+	RunningVMs         int     `xml:"RUNNING_VMS"`
+	RunningVMsUsed     int     `xml:"RUNNING_VMS_USED,omitempty"`
+	SystemDiskSize     int64   `xml:"SYSTEM_DISK_SIZE"`
+	SystemDiskSizeUsed int64   `xml:"SYSTEM_DISK_SIZE_USED,omitempty"`
+	VMs                int     `xml:"VMS"`
+	VMsUsed            int     `xml:"VMS_USED"`
 }
 
 type ImageQuota struct {
-	ID       int    `xml:"ID"`
-	RVMs     string `xml:"RVMS"`
-	RVMsUsed string `xml:"RVMS_USED,omitempty"`
+	ID       int `xml:"ID"`
+	RVMs     int `xml:"RVMS"`
+	RVMsUsed int `xml:"RVMS_USED"`
 }

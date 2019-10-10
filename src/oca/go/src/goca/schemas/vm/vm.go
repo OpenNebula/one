@@ -21,7 +21,6 @@ import (
 
 	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
 
-	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/image"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
@@ -54,6 +53,7 @@ type VM struct {
 	Template        Template            `xml:"TEMPLATE,omitempty"`
 	UserTemplate    UserTemplate        `xml:"USER_TEMPLATE,omitempty"`
 	HistoryRecords  []HistoryRecord     `xml:"HISTORY_RECORDS>HISTORY,omitempty"`
+	Snapshots       shared.DiskSnapshot `xml:"SNAPSHOTS,omitempty"`
 
 	// Not filled with NewUserPool call
 	LockInfos *shared.Lock `xml:"LOCK"`
@@ -66,30 +66,24 @@ type Monitoring struct {
 
 // History records
 type HistoryRecord struct {
-	OID       int                     `xml:"OID"`
-	SEQ       int                     `xml:"SEQ"`
-	Hostname  string                  `xml:"HOSTNAME"`
-	HID       int                     `xml:"HID"`
-	CID       int                     `xml:"CID"`
-	DSID      int                     `xml:"DS_ID"`
-	Action    int                     `xml:"ACTION"`
-	UID       int                     `xml:"UID"`
-	GID       int                     `xml:"GID"`
-	RequestID string                  `xml:"REQUEST_ID"`
-	PSTime    int                     `xml:"PSTIME"`
-	PETime    int                     `xml:"PETIME"`
-	RSTime    int                     `xml:"RSTIME"`
-	RETime    int                     `xml:"RETIME"`
-	ESTime    int                     `xml:"ESTIME"`
-	EETime    int                     `xml:"EETIME"`
-	STime     int                     `xml:"STIME"`
-	ETime     int                     `xml:"ETIME"`
-	VMMad     string                  `xml:"VM_MAD"`
-	TMMad     string                  `xml:"TM_MAD"`
-	Snapshots []HistoryRecordSnapshot `xml:"SNAPSHOTS"`
-}
-
-type HistoryRecordSnapshot struct {
-	image.Snapshot
-	DiskID int `xml:"DISK_ID"`
+	OID       int    `xml:"OID"`
+	SEQ       int    `xml:"SEQ"`
+	Hostname  string `xml:"HOSTNAME"`
+	HID       int    `xml:"HID"`
+	CID       int    `xml:"CID"`
+	STime     int    `xml:"STIME"`
+	ETime     int    `xml:"ETIME"`
+	VMMad     string `xml:"VM_MAD"`
+	TMMad     string `xml:"TM_MAD"`
+	DSID      int    `xml:"DS_ID"`
+	PSTime    int    `xml:"PSTIME"`
+	PETime    int    `xml:"PETIME"`
+	RSTime    int    `xml:"RSTIME"`
+	RETime    int    `xml:"RETIME"`
+	ESTime    int    `xml:"ESTIME"`
+	EETime    int    `xml:"EETIME"`
+	Action    int    `xml:"ACTION"`
+	UID       int    `xml:"UID"`
+	GID       int    `xml:"GID"`
+	RequestID string `xml:"REQUEST_ID"`
 }
