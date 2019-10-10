@@ -55,7 +55,7 @@ def update_net(vnet, content)
     vnet.lock(1)
     return unless OpenNebula.is_error?(rc)
 
-    err_msg = 'Could not update the virtual network'
+    err_msg = "Could not update the virtual network: #{rc.message}"
     raise UpdateNetworkError, err_msg
 end
 
@@ -265,8 +265,8 @@ def add_vnet_to_cluster(one_vnet, cluster_id)
         default_cluster = VCenterDriver::VIHelper
                           .one_item(OpenNebula::Cluster, '0', false)
         if OpenNebula.is_error?(default_cluster)
-            # LOCK & ERROR
-            STDOUT.puts "Error retrieving default cluster: #{rc.message}."
+            err_msg = "Error retrieving default cluster: #{rc.message}."
+            raise CreateNetworkError, err_msg
         end
 
         rc = default_cluster.delvnet(network_id)
@@ -278,7 +278,6 @@ def add_vnet_to_cluster(one_vnet, cluster_id)
     else
         err_msg = 'Missing cluster ID'
         raise CreateNetworkError, err_msg
-        # exit(-1)
     end
 end
 
@@ -324,6 +323,8 @@ begin
     unless one_vnet['VN_MAD'] == 'vcenter' && managed && imported.nil?
         msg = 'Network is being imported in OpenNebula, as it is already \
                present in vCenter. No actions needed in the hook, exiting.'
+        STDOUT.puts msg
+        one_vnet.unlock
         exit(0)
     end
 
@@ -428,27 +429,34 @@ begin
         net_info << "VCENTER_INSTANCE_ID=\"#{vc_uuid}\"\n"
         add_vnet_to_cluster(one_vnet, cluster_id)
         net_info << "VCENTER_NET_STATE=\"READY\"\n"
-        File.open('/tmp/netinfo.debug', 'w') { |f| f.puts net_info }
         update_net(one_vnet, net_info)
     end
+    one_vnet.unlock
     exit(0)
 rescue AllocateNetworkError => e
-    STDERR.puts("#{e.message} #{e.backtrace}")
-    exit(1)
+    # Here there is no one_vnet allocated
+    STDERR.puts e.message
+    STDERR.puts e.backtrace if VCenterDriver::CONFIG[:debug_information]
+    exit(-1)
 rescue CreateNetworkError => e
-    STDERR.puts("#{e.message} #{e.backtrace}")
+    STDERR.puts e.message
+    STDERR.puts e.backtrace if VCenterDriver::CONFIG[:debug_information]
     net_info << "VCENTER_NET_STATE=\"ERROR\"\n"
     net_info << "VCENTER_NET_ERROR=\"#{e.message}\"\n"
     update_net(one_vnet, net_info)
+    one_vnet.lock(1)
     exit(-1)
 rescue UpdateNetworkError => e
-    STDERR.puts("#{e.message} #{e.backtrace}")
+    STDERR.puts e.message
+    STDERR.puts e.backtrace if VCenterDriver::CONFIG[:debug_information]
     net_info << "VCENTER_NET_STATE=\"ERROR\"\n"
     net_info << "VCENTER_NET_ERROR=\"#{e.message}\"\n"
     update_net(one_vnet, net_info)
+    one_vnet.lock(1)
     exit(-1)
 rescue StandardError => e
-    STDERR.puts("#{e.message} #{e.backtrace}")
+    STDERR.puts e.message
+    STDERR.puts e.backtrace if VCenterDriver::CONFIG[:debug_information]
     net_info << "VCENTER_NET_STATE=\"ERROR\"\n"
     net_info << "VCENTER_NET_ERROR=\"#{e.message}\"\n"
     update_net(one_vnet, net_info)
@@ -483,18 +491,6 @@ rescue StandardError => e
 
     one_vnet.lock(1)
     exit(-1)
-rescue SystemExit => e
-    # Code executing after an exit call
-    case e.status
-    when -1
-        one_vnet.lock(1)
-    when 0
-        one_vnet.unlock
-    when 1
-        exit(-1)
-    else
-        one_vnet.lock(1)
-    end
 ensure
     vi_client.close_connection if vi_client
 end
