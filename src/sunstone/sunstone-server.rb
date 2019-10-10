@@ -411,6 +411,12 @@ helpers do
 
         # end user options
 
+        # secure cookies
+        if request.scheme == 'https'
+            env['rack.session.options'][:secure] = true
+        end
+        # end secure cookies
+
         if params[:remember] == 'true'
             env['rack.session.options'][:expire_after] = 30*60*60*24-1
         end
@@ -522,6 +528,11 @@ end
 
 after do
     unless request.path=='/login' || request.path=='/' || request.path=='/'
+        # secure cookies
+        if request.scheme == 'https'
+            env['rack.session.options'][:secure] = true
+        end
+        # end secure cookies
         unless session[:remember] == "true"
             if params[:timeout] == "true"
                 env['rack.session.options'][:defer] = true
