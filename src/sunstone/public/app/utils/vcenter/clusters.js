@@ -56,7 +56,7 @@ define(function(require) {
   function _fillVCenterClusters(opts) {
     this.opts = opts;
 
-    var path = "/vcenter";
+    var path = "/vcenter/hosts";
 
     var context = $(".vcenter_import", opts.container);
     context.html( TemplateHTML({}) );
@@ -254,6 +254,13 @@ define(function(require) {
               }
 
               Sunstone.runAction("Host.update_template", response.HOST.ID, template_raw);
+
+              $.ajax({
+                url: '/vcenter/register_hooks',
+                type: "POST",
+                processData: false
+              });
+
             },
             error: function (request, error_json) {
               VCenterCommon.importFailure({
