@@ -111,7 +111,7 @@ helpers do
 
 end
 
-get '/vcenter' do
+get '/vcenter/hosts' do
     begin
         dc_folder = VCenterDriver::DatacenterFolder.new(vcenter_client)
 
@@ -254,4 +254,8 @@ post '/vcenter/wild' do
         error = Error.new(e.message)
         error 403, error.to_json
     end
+end
+
+post '/vcenter/register_hooks' do
+  VCenterDriver::VcImporter.register_hooks
 end
