@@ -438,6 +438,24 @@ def install_bundler_gem
 end
 
 def install_gems(packages, bundler = false)
+    gems_location = '/usr/share/one/gems'
+    if File.directory?(gems_location)
+        STDERR.puts(<<-EOT.unindent(12))
+            WARNING: Running install_gems is not necessary anymore, as all the
+            required dependencies are already installed by your packaging
+            system into symlinked location #{gems_location}. Ruby gems
+            installed by this script won't be used until this symlink exists.
+            Remove the symlink before starting the OpenNebula services
+            to use Ruby gems installed by this script. E.g. execute
+
+                # unlink #{gems_location}
+
+            Execution continues in 15 seconds ...
+EOT
+
+        sleep(15)
+    end
+
     if bundler
         gems_list=which_gems(packages)
     else
