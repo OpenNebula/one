@@ -153,9 +153,10 @@ bool Quota::check_quota(const string& qid,
     VectorAttribute * default_q;
     map<string, float>::iterator it;
 
-    bool check;
+    bool  check;
     float limit;
     float usage;
+    int   rc;
 
     if ( get_quota(qid, &q) == -1 )
     {
@@ -215,8 +216,31 @@ bool Quota::check_quota(const string& qid,
             continue;
         }
 
-        q->vector_value(metrics[i],   limit);
-        q->vector_value(metrics_used, usage);
+        rc  = q->vector_value(metrics[i],   limit);
+
+        if ( rc != 0 )
+        {
+            ostringstream oss;
+
+            oss << "missing quota attribute " << metrics[i];
+
+            error = oss.str();
+
+            return false;
+        }
+
+        rc = q->vector_value(metrics_used, usage);
+
+        if ( rc != 0 )
+        {
+            ostringstream oss;
+
+            oss << "missing quota attribute " << metrics_used;
+
+            error = oss.str();
+
+            return false;
+        }
 
         if ( limit == DEFAULT )
         {
