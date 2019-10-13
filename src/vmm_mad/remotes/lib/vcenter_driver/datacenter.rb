@@ -436,6 +436,7 @@ class DatacenterFolder
 
                         networks[s.portgroupKey][:uplink] = s.uplinkPortgroup
                         networks[s.portgroupKey][:processed] = true
+                        networks[s.portgroupKey][:sw_name] = s.switchName
                     end
                 end
                 clusters[r.obj._ref] = r.to_hash if r.obj.is_a?(RbVmomi::VIM::ClusterComputeResource)
@@ -486,6 +487,7 @@ class DatacenterFolder
                         opts[:network_name] = networks[network_ref]['name']
                         opts[:network_ref]  = network_ref
                         opts[:network_type] = networks[network_ref][:network_type]
+                        opts[:sw_name] = networks[network_ref][:sw_name]
 
                         networks[network_ref] = networks[network_ref].merge(VCenterDriver::Network.to_one_template(opts))
                     else
