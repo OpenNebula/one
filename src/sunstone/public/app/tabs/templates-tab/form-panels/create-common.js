@@ -17,7 +17,7 @@
 define(function(require) {
   /*
     DEPENDENCIES
-   */
+  */
   var Notifier = require("utils/notifier");
   var BaseFormPanel = require("utils/form-panels/form-panel");
   var Sunstone = require("sunstone");
@@ -58,7 +58,7 @@ define(function(require) {
 
   /*
     CONSTRUCTOR
-   */
+  */
 
   function FormPanel() {
     var create_title;
@@ -224,7 +224,38 @@ define(function(require) {
 
   function _submitWizard(context) {
     var templateJSON = this.retrieve(context);
-
+    var current = {};
+    cachedTemplate = OpenNebulaAction.cache("VMTEMPLATE");
+    if(
+      this && 
+      this.resourceId && 
+      cachedTemplate && 
+      cachedTemplate.data &&
+      Array.isArray(cachedTemplate.data)
+    ){
+      var id = this.resourceId;
+      var currentTemplate = cachedTemplate.data.filter(function(vmtemplate){
+        var rtn = false;
+        if(
+          vmtemplate && 
+          vmtemplate.VMTEMPLATE && 
+          vmtemplate.VMTEMPLATE.TEMPLATE && 
+          vmtemplate.VMTEMPLATE.ID && 
+          vmtemplate.VMTEMPLATE.ID === id
+        ){
+          return vmtemplate.VMTEMPLATE.TEMPLATE;
+        }
+        return rtn;
+      });
+      if(
+        currentTemplate &&
+        currentTemplate[0] &&
+        currentTemplate[0].VMTEMPLATE && 
+        currentTemplate[0].VMTEMPLATE.TEMPLATE
+      ){
+        current = currentTemplate[0].VMTEMPLATE.TEMPLATE;
+      }
+    }
     if (this.action == "create") {
       Sunstone.runAction(this.resource+".create", {"vmtemplate": templateJSON});
       return false;
@@ -271,17 +302,34 @@ define(function(require) {
                   disks.push(disk);
                 });
                 templateJSON.DISK = disks;
-                Sunstone.runAction(actionUpdate, resourceId, TemplateUtils.templateToString(templateJSON));
+                Sunstone.runAction(
+                  actionUpdate,
+                  resourceId,
+                  TemplateUtils.templateToString(
+                    $.extend( current, templateJSON)
+                  )
+                );
               }else{
-                Sunstone.runAction(actionUpdate, resourceId, TemplateUtils.templateToString(templateJSON));
+                Sunstone.runAction(
+                  actionUpdate,
+                  resourceId,
+                  TemplateUtils.templateToString(
+                    $.extend( current, templateJSON)
+                  )
+                );
               }
             }
           }
         };
-
         OpenNebulaAction.show(params,OpenNebulaTemplate.resource);
       }else{
-        Sunstone.runAction(actionUpdate, resourceId, TemplateUtils.templateToString(templateJSON));
+        Sunstone.runAction(
+          actionUpdate,
+          resourceId,
+          TemplateUtils.templateToString(
+            $.extend( current, templateJSON)
+          )
+        );
       }
       return false;
     }
