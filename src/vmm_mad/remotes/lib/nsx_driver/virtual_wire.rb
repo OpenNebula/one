@@ -38,20 +38,20 @@ module NSXDriver
             if ls_id
                 initialize_with_id(ls_id)
             else
-                raise 'Missing transport zone id' unless tz_id
+                if tz_id
+                    if ls_data
+                        @ls_id = new_logical_switch(ls_data, tz_id)
+                        raise 'Virtual Wire not created in NSX' unless @ls_id
 
-                raise 'Missing logical switch data' unless ls_data
-
-                @ls_id = new_logical_switch(ls_data, tz_id)
-                raise 'Virtual Wire not created in NSX' unless @ls_id
-
-                # Construct URL of the created logical switch
-                @url_ls = @base_url + SECTION_LS + @ls_id
-                @ls_vni = ls_vni
-                @ls_name = ls_name
-                @tz_id = ls_tz
-                @tenant_id = 'virtual wire tenant'
-                @guest_vlan_allowed = false
+                        # Construct URL of the created logical switch
+                        @url_ls = @base_url + SECTION_LS + @ls_id
+                        @ls_vni = ls_vni
+                        @ls_name = ls_name
+                        @tz_id = ls_tz
+                        @tenant_id = 'virtual wire tenant'
+                        @guest_vlan_allowed = false
+                    end
+                end
             end
         end
 

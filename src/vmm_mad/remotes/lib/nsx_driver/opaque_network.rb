@@ -32,19 +32,19 @@ module NSXDriver
             if ls_id
                 initialize_with_id(ls_id)
             else
-                raise 'Missing transport zone id' unless tz_id
+                if tz_id
+                    if ls_data
+                        @ls_id = new_logical_switch(ls_data)
+                        raise 'Opaque Network not created in NSX' unless @ls_id
 
-                raise 'Missing logical switch data' unless ls_data
-
-                @ls_id = new_logical_switch(ls_data)
-                raise 'Opaque Network not created in NSX' unless @ls_id
-
-                # Construct URL of the created logical switch
-                @url_ls = @base_url + SECTION_LS + @ls_id
-                @ls_vni = ls_vni
-                @ls_name = ls_name
-                @tz_id = ls_tz
-                @admin_display = 'UP'
+                        # Construct URL of the created logical switch
+                        @url_ls = @base_url + SECTION_LS + @ls_id
+                        @ls_vni = ls_vni
+                        @ls_name = ls_name
+                        @tz_id = ls_tz
+                        @admin_display = 'UP'
+                    end
+                end
             end
         end
 
