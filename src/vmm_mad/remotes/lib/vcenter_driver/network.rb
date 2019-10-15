@@ -139,6 +139,7 @@ class Network
         network_name          = opts[:network_name]
         network_ref           = opts[:network_ref]
         network_type          = opts[:network_type]
+        sw_name               = opts[:sw_name]
 
         vcenter_uuid          = opts[:vcenter_uuid]
         vcenter_instance_name = opts[:vcenter_instance_name]
@@ -164,12 +165,12 @@ class Network
         one_tmp[:ref]  = network_ref
 
         one_tmp[:one] = to_one(network_import_name, bridge_name, network_ref, network_type,
-                               vcenter_uuid, unmanaged, template_ref, dc_ref, template_id)
+                               vcenter_uuid, unmanaged, template_ref, dc_ref, template_id, sw_name)
         return one_tmp
     end
 
     def self.to_one(network_import_name, network_name, network_ref, network_type,
-                    vcenter_uuid, unmanaged, template_ref, dc_ref, template_id)
+                    vcenter_uuid, unmanaged, template_ref, dc_ref, template_id, sw_name)
 
         template = "NAME=\"#{network_import_name}\"\n"\
                    "BRIDGE=\"#{network_name}\"\n"\
@@ -184,6 +185,8 @@ class Network
         end
 
         template += "VCENTER_TEMPLATE_REF=\"#{template_ref}\"\n" if template_ref
+
+        template += "VCENTER_SWITCH_NAME=\"#{sw_name}\"\n" if sw_name
 
         return template
     end
