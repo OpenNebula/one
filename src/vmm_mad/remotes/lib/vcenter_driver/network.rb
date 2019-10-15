@@ -186,7 +186,7 @@ class Network
 
         template += "VCENTER_TEMPLATE_REF=\"#{template_ref}\"\n" if template_ref
 
-        template += "VCENTER_TEMPLATE_REF=\"#{sw_name}\"\n" if sw_name
+        template += "VCENTER_SWITCH_NAME=\"#{sw_name}\"\n" if sw_name
 
         return template
     end
