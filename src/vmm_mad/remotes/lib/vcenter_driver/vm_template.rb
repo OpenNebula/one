@@ -220,6 +220,7 @@ class Template
     def import_vcenter_disks(vc_uuid, dpool, ipool, type)
         disk_info = ""
         error = ""
+        images = []
 
         begin
             lock #Lock import operation, to avoid concurrent creation of images
@@ -258,7 +259,7 @@ class Template
                 end
 
                 opts = {:persistent => vm? ? "YES":"NO"}
-                image_import = VCenterDriver::Datastore.get_image_import_template(disk, ipool, type, datastore_found["ID"], opts)
+                image_import, image_name = VCenterDriver::Datastore.get_image_import_template(disk, ipool, type, datastore_found["ID"], opts, images)
                 #Image is already in the datastore
                 if image_import[:one]
                     # This is the disk info
@@ -297,6 +298,8 @@ class Template
                     disk_info << "IMAGE_ID=\"#{one_i["ID"]}\",\n"
                     disk_info << "OPENNEBULA_MANAGED=\"NO\"\n"
                     disk_info << "]\n"
+
+                    images.push(image_name)
                 end
             end
 
