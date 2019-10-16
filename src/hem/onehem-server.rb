@@ -527,7 +527,11 @@ class HookExecutionManager
             when :EVENT
                 type, key = key.split(' ')
 
-                key.gsub!(/(?:.(?!\/))+$/, '') if type.downcase.to_sym == :state
+                if type.downcase.to_sym == :state
+                    # rubocop:disable Style/RegexpLiteral
+                    key.gsub!(/(?:.(?!\/))+$/, '')
+                    # rubocop:enable Style/RegexpLiteral
+                end
 
                 content   = Base64.decode64(content)
                 hook      = @hooks.get_hook(type, key)
