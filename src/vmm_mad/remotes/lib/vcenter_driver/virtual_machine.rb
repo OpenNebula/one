@@ -1129,14 +1129,8 @@ module VCenterDriver
                 end
             end
 
-            # vnc configuration (for config_array hash)
+           # vnc configuration (for config_array hash)
             extraconfig += extraconfig_vnc
-
-            # vnc configuration (for config_array hash)
-            extraconfig += extraconfig_vnc
-
-            # opennebula.running flag
-            extraconfig += set_running(true, false)
 
             # device_change hash (nics)
             device_change += sync_nics(:all, false)
@@ -2266,6 +2260,9 @@ module VCenterDriver
                 error = e.message.split(':').first
                 raise e.message if error != 'InvalidPowerState'
             end
+            # opennebula.running flag
+            extraconfig += set_running(true, true)
+
             timeout = CONFIG[:vm_poweron_wait_default]
             wait_timeout(:is_powered_on?, timeout)
         end
