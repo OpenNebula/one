@@ -725,9 +725,6 @@ Style/NumericPredicate:
 Style/SafeNavigation:
     Enabled: false
 
-Style/FloatDivision:
-    Enabled: false
-
 Style/RedundantBegin:
     Enabled: false
 
