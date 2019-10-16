@@ -526,6 +526,9 @@ class HookExecutionManager
             case action
             when :EVENT
                 type, key = key.split(' ')
+
+                key.gsub!(/(?:.(?!\/))+$/, '') if type.downcase.to_sym == :state
+
                 content   = Base64.decode64(content)
                 hook      = @hooks.get_hook(type, key)
 

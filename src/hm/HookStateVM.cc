@@ -36,7 +36,8 @@ string * HookStateVM::format_message(VirtualMachine * vm)
         << "<HOOK_TYPE>STATE</HOOK_TYPE>"
         << "<HOOK_OBJECT>VM</HOOK_OBJECT>"
         << "<STATE>" << VirtualMachine::vm_state_to_str(state, vm->get_state()) << "</STATE>"
-        << "<LCM_STATE>" << VirtualMachine::lcm_state_to_str(lcm_state, vm->get_lcm_state()) << "</LCM_STATE>";
+        << "<LCM_STATE>" << VirtualMachine::lcm_state_to_str(lcm_state, vm->get_lcm_state()) << "</LCM_STATE>"
+        << "<RESOURCE_ID>" << vm->get_oid() << "</RESOURCE_ID>";
 
     if ( vm->hasHistory() )
     {

@@ -85,12 +85,14 @@ class HookManagerDriver < OpenNebulaDriver
         arg_xml = Nokogiri::XML(Base64.decode64(arguments.flatten[0]))
         type    = arg_xml.xpath('//HOOK_TYPE').text
 
-        m_key = "EVENT #{key(type, arg_xml)}"
+        key(type, arg_xml).each do |key|
+            m_key = "EVENT #{key}"
 
-        # Using envelopes for splitting key/val
-        # http://zguide.zeromq.org/page:all#Pub-Sub-Message-Envelopes
-        @publisher.send_string m_key, ZMQ::SNDMORE
-        @publisher.send_string arguments.flatten[0]
+            # Using envelopes for splitting key/val
+            # http://zguide.zeromq.org/page:all#Pub-Sub-Message-Envelopes
+            @publisher.send_string m_key, ZMQ::SNDMORE
+            @publisher.send_string arguments.flatten[0]
+        end
     end
 
     def action_retry(*arguments)
@@ -137,15 +139,17 @@ class HookManagerDriver < OpenNebulaDriver
             call    = xml.xpath('//CALL')[0].text
             success = xml.xpath('//CALL_INFO/RESULT')[0].text
 
-            "API #{call} #{success}"
+            ["API #{call} #{success}"]
         when :STATE
-            obj       = xml.xpath('//HOOK_OBJECT')[0].text
-            state     = xml.xpath('//STATE')[0].text
-            lcm_state = xml.xpath('//LCM_STATE')[0].text if obj == 'VM'
+            obj         = xml.xpath('//HOOK_OBJECT')[0].text
+            state       = xml.xpath('//STATE')[0].text
+            lcm_state   = xml.xpath('//LCM_STATE')[0].text if obj == 'VM'
+            resource_id = xml.xpath('//RESOURCE_ID')[0].text
 
-            "STATE #{obj}/#{state}/#{lcm_state}"
+            ["#{obj} #{resource_id}/#{state}/#{lcm_state} ",
+             "STATE #{obj}/#{state}/#{lcm_state}/#{resource_id} "]
         else
-            ''
+            ['']
         end
     end
 

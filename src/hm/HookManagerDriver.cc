@@ -24,64 +24,11 @@
 /* ************************************************************************** */
 
 void HookManagerDriver::execute(
-        int             oid,
-        const string&   hook_name,
-        const string&   command,
-        const string&   arguments ) const
-{
-    ostringstream oss;
-
-    oss << "EXECUTE " << oid << " " << hook_name << " LOCAL " << command << " ";
-
-    if ( arguments.empty() )
-    {
-        oss << "-" << endl;
-    }
-    else
-    {
-        oss << arguments << endl;
-    }
-
-    write(oss);
-}
-
-
-// ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
-
-void HookManagerDriver::execute(
         const string&   message ) const
 {
     ostringstream oss;
 
     oss << "EXECUTE " << message << endl;
-
-    write(oss);
-}
-
-// ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
-
-void HookManagerDriver::execute(
-        int             oid,
-        const string&   hook_name,
-        const string&   host_name,
-        const string&   command,
-        const string&   arguments ) const
-{
-    ostringstream oss;
-
-    oss << "EXECUTE " << oid << " " << hook_name << " " << host_name << " "
-        << command << " ";
-
-    if ( arguments.empty() )
-    {
-        oss << "-" << endl;
-    }
-    else
-    {
-        oss << arguments << endl;
-    }
 
     write(oss);
 }
