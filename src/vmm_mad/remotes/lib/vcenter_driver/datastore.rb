@@ -87,7 +87,7 @@ class Storage
         end
     end
 
-    def self.get_image_import_template(disk, ipool, type, ds_id, opts = {})
+    def self.get_image_import_template(disk, ipool, type, ds_id, opts = {}, images=[])
 
         VCenterDriver::VIHelper.check_opts(opts, [:persistent])
 
@@ -95,6 +95,8 @@ class Storage
         image_path   = disk[:path_wo_ds]
         image_type   = disk[:type]
         image_prefix = disk[:prefix]
+
+        image_name = nil
 
         one_image = {}
         one_image[:template] = ""
@@ -107,7 +109,12 @@ class Storage
 
         if image.nil?
             key = "#{file_name}#{ds_name}#{image_path}"
-            image_name = VCenterDriver::VIHelper.one_name(OpenNebula::ImagePool, file_name, key, ipool)
+            byte = 0
+            image_name = VCenterDriver::VIHelper.one_name(OpenNebula::ImagePool, file_name, key, ipool, byte)
+            while images.include?(image_name)
+                byte += 2
+                image_name = VCenterDriver::VIHelper.one_name(OpenNebula::ImagePool, file_name, key, ipool, byte)
+            end
 
             #Set template
             one_image[:template] << "NAME=\"#{image_name}\"\n"
@@ -121,7 +128,7 @@ class Storage
             one_image[:one] = image
         end
 
-        return one_image
+        return one_image, image_name
     end
 
     def self.get_one_image_ds_by_ref_and_dc(ref, dc_ref, vcenter_uuid, pool = nil)
