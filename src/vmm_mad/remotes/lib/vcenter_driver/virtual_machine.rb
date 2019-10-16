@@ -1129,7 +1129,7 @@ module VCenterDriver
                 end
             end
 
-           # vnc configuration (for config_array hash)
+            # vnc configuration (for config_array hash)
             extraconfig += extraconfig_vnc
 
             # device_change hash (nics)
