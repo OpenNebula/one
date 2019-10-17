@@ -105,6 +105,7 @@ begin
 
     puts "KVM_MACHINES=\"#{machines.join(' ')}\""
     puts "KVM_CPU_MODELS=\"#{models.join(' ')}\""
+    puts "KVM_CPU_MODEL=\"#{cap_xml.elements['host/cpu/model'].text}\""
 
 rescue
 end
