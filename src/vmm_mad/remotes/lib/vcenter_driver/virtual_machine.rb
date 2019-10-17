@@ -686,7 +686,6 @@ module VCenterDriver
                 query = vc_disks.select {|dev| path == dev[:path_wo_ds]}
             end
 
-            #raise "opennebula disk #{index} not found in vCenter" unless query.size == 1
             return nil if query.size != 1
 
             query.first
