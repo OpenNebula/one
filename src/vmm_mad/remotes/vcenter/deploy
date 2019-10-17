@@ -77,7 +77,9 @@ begin
 
     if vm.is_powered_off?
         vm.sync(deploy)
-        vm.poweron
+        # only mark the VM as running if we are deploying it for the first time
+        set_running = !deploy_id_valid?(deploy_id)
+        vm.poweron(set_running)
     end
 
     puts vm['_ref']

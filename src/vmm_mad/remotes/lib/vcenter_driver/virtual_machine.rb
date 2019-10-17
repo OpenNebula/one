@@ -286,7 +286,6 @@ module VCenterDriver
 
         # @return RbVmomi::VIM::Datastore or nil
         def get_ds
-            ##req_ds = one_item['USER_TEMPLATE/VCENTER_DS_REF']
             current_ds_id  = one_item["HISTORY_RECORDS/HISTORY[last()]/DS_ID"]
             current_ds     = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, current_ds_id)
             current_ds_ref = current_ds['TEMPLATE/VCENTER_DS_REF']
@@ -2253,7 +2252,7 @@ module VCenterDriver
             @item.RebootGuest
         end
 
-        def poweron
+        def poweron(set_running = false)
             begin
                 @item.PowerOnVM_Task.wait_for_completion
             rescue RbVmomi::Fault => e
@@ -2261,7 +2260,7 @@ module VCenterDriver
                 raise e.message if error != 'InvalidPowerState'
             end
             # opennebula.running flag
-            extraconfig += set_running(true, true)
+            set_running(true, true) if set_running
 
             timeout = CONFIG[:vm_poweron_wait_default]
             wait_timeout(:is_powered_on?, timeout)
