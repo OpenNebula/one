@@ -14,7 +14,7 @@
 # limitations under the License.
 
 # Use full path to ensure virtualenv compatibility
-PYTHON = $(shell which python)
+PYTHON = $(shell which python2)
 PYTHON3 = $(shell which python3)
 GDS = $(shell which generateDS)
 PWD = $(shell pwd)
