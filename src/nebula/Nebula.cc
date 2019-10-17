@@ -1290,8 +1290,16 @@ void Nebula::get_ds_location(string& dsloc)
 string Nebula::get_vm_log_filename(int oid)
 {
     ostringstream oss;
+    bool use_vms_location;
 
-    if (nebula_location == "/")
+    const VectorAttribute * log = nebula_configuration->get("LOG");
+
+    if ( log != 0 )
+    {
+        log->vector_value("USE_VMS_LOCATION", use_vms_location);
+    }
+
+    if (nebula_location == "/" && ! use_vms_location)
     {
         oss << log_location << oid << ".log";
     }

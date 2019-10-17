@@ -266,10 +266,12 @@ class SunstoneServer < CloudServer
         if OpenNebula.is_error?(resource)
             return [404, nil]
         else
-            if !ONE_LOCATION
+            use_vms_location = $conf[:locals][:oned_conf]["LOG"]["USE_VMS_LOCATION"]
+
+            if !ONE_LOCATION && use_vms_location != "YES"
                 vm_log_file = LOG_LOCATION + "/#{id}.log"
             else
-                vm_log_file = LOG_LOCATION + "/vms/#{id}/vm.log"
+                vm_log_file = VMS_LOCATION + "/#{id}/vm.log"
             end
 
             begin
