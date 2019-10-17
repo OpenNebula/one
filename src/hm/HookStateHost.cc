@@ -40,6 +40,7 @@ string * HookStateHost::format_message(Host * host)
         << "<HOOK_OBJECT>HOST</HOOK_OBJECT>"
         << "<STATE>" << Host::state_to_str(state, host->get_state()) << "</STATE>"
         << "<REMOTE_HOST>" << host->get_name() << "</REMOTE_HOST>"
+        << "<RESOURCE_ID>" << host->get_oid() << "</RESOURCE_ID>"
         << host->to_xml(host_xml)
         << "</HOOK_MESSAGE>";
 
