@@ -649,11 +649,24 @@ define(function(require) {
     _setupButtons();
   };
 
+  var hideToggleButton = function(elements){
+    if(elements && elements.parents("ul.dropdown-pane.menu")){
+      var parent = elements.parents("ul.dropdown-pane.menu");
+      var id = parent.attr("id");
+      var anchors = parent.find("a.action_button:visible");
+      var button = parent.siblings("button[data-toggle|='"+id+"']");
+      if(anchors.length === 0){
+        button.addClass("superHide");
+      }else{
+        button.removeClass("superHide");
+      }
+    }
+  }
+
   var _showRighList = function(tabName) {
     var tab = $("#" + tabName);
     $(".tab").hide();
     tab.show();
-
     $(".sunstone-info", tab).hide();
     $(".sunstone-form", tab).hide();
     $(".sunstone-list", tab).fadeIn();
@@ -661,6 +674,8 @@ define(function(require) {
     $(".only-sunstone-form", tab).hide();
     $(".only-sunstone-list", tab).fadeIn();
     $(".action_blocks", tab).removeClass("large-12").addClass("large-9");
+
+    hideToggleButton($(".only-sunstone-list", tab));
   };
 
   var _showRighInfo = function(tabName) {
@@ -675,6 +690,8 @@ define(function(require) {
     $(".only-sunstone-form", tab).hide();
     $(".only-sunstone-info", tab).fadeIn();
     $(".action_blocks", tab).removeClass("large-9").addClass("large-12");
+
+    hideToggleButton($(".only-sunstone-list", tab));
   };
 
   var _showTab = function(tabName) {
