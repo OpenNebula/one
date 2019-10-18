@@ -678,10 +678,12 @@ module VCenterDriver
                 query = vc_disks.select {|dev| key == dev[:key]}
             else
                 if has_snapshots?
-                    error = 'disk metadata is corrupted and you have snapshots'
+                    error = 'Disk metadata not present and snapshots exist. ' \
+                            'OpenNebula cannot manage this VM.'
                     raise error
                 end
 
+                # Try to find the disk using the path known by OpenNebula
                 path = !cloned ? one_disk['SOURCE'] : disk_real_path(one_disk, index)
                 query = vc_disks.select {|dev| path == dev[:path_wo_ds]}
             end
