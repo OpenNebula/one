@@ -23,6 +23,11 @@ class OneDB
     attr_accessor :backend
 
     def initialize(ops)
+        # Set MySQL backend as default if any connection option is provided and --type is not
+        if ops[:backend].nil? and (!ops[:server].nil? || !ops[:port].nil? || !ops[:user].nil? || !ops[:password].nil? || !ops[:db_name].nil? || !ops[:encoding].nil?)
+            ops[:backend] = :mysql
+        end
+
         if ops[:backend] == :sqlite
             begin
                 require 'sqlite3'
@@ -55,8 +60,30 @@ class OneDB
                 :db_name => ops[:db_name],
                 :encoding=> ops[:encoding]
             )
+        elsif ops[:backend] == :postgresql
+            begin
+                require 'pg'
+            rescue
+                STDERR.puts "Ruby gem pg is needed for this operation:"
+                STDERR.puts "   $ sudo gem install pg"
+                exit -1
+            end
+
+            passwd = ops[:passwd]
+            if !passwd
+                passwd = get_password("PostgreSQL Password: ")
+            end
+
+            @backend = BackEndPostgreSQL.new(
+                :server  => ops[:server],
+                :port    => ops[:port],
+                :user    => ops[:user],
+                :passwd  => passwd,
+                :db_name => ops[:db_name],
+                :encoding=> ops[:encoding]
+            )
         else
-            raise "You need to specify the SQLite or MySQL connection options."
+            raise "You need to specify the SQLite, MySQL or PostgreSQL connection options."
         end
     end
 

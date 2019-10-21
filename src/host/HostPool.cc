@@ -182,7 +182,7 @@ int HostPool::discover(
 
     sql << "SELECT oid FROM " << Host::table
         << " WHERE last_mon_time <= " << target_time
-        << " ORDER BY last_mon_time ASC LIMIT " << host_limit;
+        << " ORDER BY last_mon_time ASC LIMIT " << db->get_limit_string(to_string(host_limit));
 
     int rc = db->exec_rd(sql, &cb);
 
@@ -202,7 +202,7 @@ int HostPool::dump_monitoring(
 
     cmd << "SELECT " << Host::monit_table << ".body FROM " << Host::monit_table
         << " INNER JOIN " << Host::table
-        << " WHERE hid = oid";
+        << " ON hid = oid";
 
     if ( !where.empty() )
     {

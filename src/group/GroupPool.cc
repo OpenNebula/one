@@ -245,7 +245,7 @@ int GroupPool::dump(string& oss, const string& where,
 
     if ( !limit.empty() )
     {
-        cmd << " LIMIT " << limit;
+        cmd << " LIMIT " << db->get_limit_string(limit);
     }
 
     oss.append("<GROUP_POOL>");

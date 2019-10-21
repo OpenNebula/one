@@ -150,6 +150,16 @@ if mysql == 'yes':
 else:
     main_env.Append(mysql='no')
 
+# PostgreSql
+postgresql = ARGUMENTS.get('postgresql', 'no')
+if postgresql == 'yes':
+    main_env.Append(postgresql='yes')
+    main_env.Append(CPPPATH=['/usr/include/postgresql'])
+    main_env.Append(CPPFLAGS=["-DPOSTGRESQL_DB"])
+    main_env.Append(LIBS=['libpq'])
+else:
+    main_env.Append(postgresql='no')
+
 # Flag to compile with xmlrpc-c versions prior to 1.31 (September 2012)
 new_xmlrpc = ARGUMENTS.get('new_xmlrpc', 'no')
 if new_xmlrpc == 'yes':

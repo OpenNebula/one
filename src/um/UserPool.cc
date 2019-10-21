@@ -1455,7 +1455,7 @@ int UserPool::dump(string& oss, const string& where, const string& limit,
 
     if ( !limit.empty() )
     {
-        cmd << " LIMIT " << limit;
+        cmd << " LIMIT " << db->get_limit_string(limit);
     }
 
     oss.append("<USER_POOL>");

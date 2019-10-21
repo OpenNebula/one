@@ -184,7 +184,7 @@ int LogDB::setup_index(uint64_t& _last_applied, uint64_t& _last_index)
 
     cb.set_callback(&_last_applied);
 
-    oss << "SELECT MAX(log_index) FROM logdb WHERE applied = 1";
+    oss << "SELECT MAX(log_index) FROM logdb WHERE applied = '1'";
 
     rc += db->exec_rd(oss, &cb);
 
@@ -345,7 +345,7 @@ int LogDB::insert(uint64_t index, unsigned int term, const std::string& sql,
             << "'" << sql_db    << "',"
             <<        tstamp    << ","
             <<        fed_index << ","
-            <<        applied   << ")";
+            << "'" << applied   << "')";
 
     int rc = db->exec_wr(oss);
 
@@ -383,7 +383,7 @@ int LogDB::apply_log_record(LogDBRecord * lr)
     {
         std::ostringstream oss;
 
-        oss << "UPDATE logdb SET timestamp = " << time(0) << ", applied = 1"
+        oss << "UPDATE logdb SET timestamp = " << time(0) << ", applied = '1'"
             << " WHERE log_index = " << lr->index << " AND timestamp = 0";
 
         if ( db->exec_wr(oss) != 0 )
@@ -642,8 +642,8 @@ int LogDB::purge_log()
     oss.str("");
     oss << "  SELECT MIN(i.log_index) FROM ("
         << "    SELECT log_index FROM logdb WHERE fed_index = " << UINT64_MAX
-        << "      AND applied = 1 AND log_index >= 0 "
-        << "      ORDER BY log_index DESC LIMIT " << log_retention
+        << "      AND applied = '1' AND log_index >= 0 "
+        << "      ORDER BY log_index DESC LIMIT " << db->get_limit_string(to_string(log_retention))
         << "  ) AS i";
 
     cb_min_idx.set_callback(&min_idx);
@@ -655,12 +655,12 @@ int LogDB::purge_log()
     cb.set_affected_rows(0);
 
     oss.str("");
-    oss << "DELETE FROM logdb WHERE applied = 1 AND log_index >= 0 "
+    oss << "DELETE FROM logdb WHERE applied = '1' AND log_index >= 0 "
         << "AND fed_index = " << UINT64_MAX << " AND log_index < " << min_idx;
 
     if ( db->limit_support() )
     {
-        oss << " LIMIT " << limit_purge;
+        oss << " LIMIT " << db->get_limit_string(to_string(limit_purge));
     }
 
     if ( db->exec_wr(oss, &cb) != -1 )
@@ -705,8 +705,8 @@ int LogDB::purge_log()
     oss.str("");
     oss << "  SELECT MIN(i.log_index) FROM ("
         << "    SELECT log_index FROM logdb WHERE fed_index != " << UINT64_MAX
-        << "      AND applied = 1 AND log_index >= 0 "
-        << "      ORDER BY log_index DESC LIMIT " << log_retention
+        << "      AND applied = '1' AND log_index >= 0 "
+        << "      ORDER BY log_index DESC LIMIT " << db->get_limit_string(to_string(log_retention))
         << "  ) AS i";
 
     cb_min_idx.set_callback(&min_idx);
@@ -718,12 +718,12 @@ int LogDB::purge_log()
     cb.set_affected_rows(0);
 
     oss.str("");
-    oss << "DELETE FROM logdb WHERE applied = 1 AND log_index >= 0 "
+    oss << "DELETE FROM logdb WHERE applied = '1' AND log_index >= 0 "
         << "AND fed_index != " << UINT64_MAX << " AND log_index < " << min_idx;
 
     if ( db->limit_support() )
     {
-        oss << " LIMIT " << limit_purge;
+        oss << " LIMIT " << db->get_limit_string(to_string(limit_purge));
     }
 
     if ( db->exec_wr(oss, &cb) != -1 )

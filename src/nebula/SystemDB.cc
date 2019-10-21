@@ -102,7 +102,7 @@ int SystemDB::local_bootstrap()
     oss << "INSERT INTO " << local_ver_table << " (" << local_ver_names << ") "
         << "VALUES (0, '" << Nebula::local_db_version() << "', " << time(0)
         << ", '" << Nebula::version() << " daemon bootstrap', "
-        << Nebula::instance().is_federation_slave() << ")";
+        << "'" << Nebula::instance().is_federation_slave() << "')";
 
     rc += db->exec_local_wr(oss);
 

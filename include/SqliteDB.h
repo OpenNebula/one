@@ -83,6 +83,12 @@ public:
     {
         return false;
     }
+    
+    std::string get_limit_string(const std::string& str) override
+    {
+        return str;
+    }
+
 protected:
     /**
      *  Wraps the sqlite3_exec function call, and locks the DB mutex.
@@ -148,6 +154,8 @@ public:
     bool limit_support() override { return true; }
 
     bool fts_available() override { return false; }
+
+    std::string get_limit_string(const std::string& str) override { return str; }
 
 protected:
     int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet) override

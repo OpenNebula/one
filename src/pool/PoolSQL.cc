@@ -295,7 +295,7 @@ int PoolSQL::dump(string& oss, const string& elem_name, const string& column, co
 
     if ( !limit.empty() )
     {
-        cmd << " LIMIT " << limit;
+        cmd << " LIMIT " << db->get_limit_string(limit);
     }
 
     return dump(oss, elem_name, cmd);

@@ -222,6 +222,11 @@ public:
     {
         return db->fts_available();
     }
+
+    std::string get_limit_string(const std::string& str)
+    {
+        return db->get_limit_string(str);
+    }
     // -------------------------------------------------------------------------
     // Database methods
     // -------------------------------------------------------------------------
@@ -435,6 +440,11 @@ public:
     bool fts_available()
     {
         return _logdb->fts_available();
+    }
+
+    std::string get_limit_string(const std::string& str)
+    {
+        return _logdb->get_limit_string(str);
     }
 
     /**

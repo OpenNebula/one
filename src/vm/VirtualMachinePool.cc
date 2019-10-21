@@ -245,7 +245,7 @@ int VirtualMachinePool::get_running(
        << " state = " << VirtualMachine::ACTIVE
        << " and ( lcm_state = " << VirtualMachine::RUNNING
        << " or lcm_state = " << VirtualMachine::UNKNOWN << " )"
-       << " ORDER BY last_poll ASC LIMIT " << vm_limit;
+       << " ORDER BY last_poll ASC LIMIT " << db->get_limit_string(to_string(vm_limit));
 
     where = os.str();
 
@@ -278,7 +278,7 @@ int VirtualMachinePool::dump_acct(string& oss, const string&  where,
 
     cmd << "SELECT " << History::table << ".body FROM " << History::table
         << " INNER JOIN " << VirtualMachine::table
-        << " WHERE vid=oid";
+        << " ON vid=oid";
 
     if ( !where.empty() )
     {
@@ -318,7 +318,7 @@ int VirtualMachinePool::dump_showback(string& oss,
     cmd << "SELECT " << VirtualMachine::showback_table << ".body FROM "
         << VirtualMachine::showback_table
         << " INNER JOIN " << VirtualMachine::table
-        << " WHERE vmid=oid";
+        << " ON vmid=oid";
 
     if ( !where.empty() )
     {
@@ -397,7 +397,7 @@ int VirtualMachinePool::dump_monitoring(
     cmd << "SELECT " << VirtualMachine::monit_table << ".body FROM "
         << VirtualMachine::monit_table
         << " INNER JOIN " << VirtualMachine::table
-        << " WHERE vmid = oid";
+        << " ON vmid = oid";
 
     if ( !where.empty() )
     {

@@ -129,6 +129,11 @@ public:
         return this;
     }
 
+    /**
+     *  @return string with compatible LIMIT clause syntax
+     */
+    virtual std::string get_limit_string(const std::string& str) = 0;
+
 protected:
     /**
      *  Performs a DB transaction

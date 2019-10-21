@@ -19,6 +19,7 @@
 #include "VirtualMachine.h"
 #include "SqliteDB.h"
 #include "MySqlDB.h"
+#include "PostgreSqlDB.h"
 #include "Client.h"
 #include "LogDB.h"
 #include "SystemDB.h"
@@ -401,10 +402,25 @@ void Nebula::start(bool bootstrap_only)
         {
             db_backend = new SqliteDB(var_location + "one.db");
         }
-        else
+        else if ( db_backend_type == "mysql" )
         {
             db_backend = new MySqlDB(server, port, user, passwd, db_name,
                     encoding, connections);
+        }
+        else if ( db_backend_type == "postgresql" )
+        {
+            // Default to port 5432
+            if ( port == 0 )
+            {
+                port = 5432;
+            }
+
+            db_backend = new PostgreSqlDB(server, port, user, passwd, db_name,
+                    connections);
+        }
+        else
+        {
+            throw runtime_error("DB BACKEND must be one of sqlite, mysql or postgresql.");
         }
 
         // ---------------------------------------------------------------------
