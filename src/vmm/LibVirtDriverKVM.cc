@@ -481,6 +481,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  vrouter_ip = "";
     string  filter = "";
     string  virtio_queues = "";
+    string  mrg_buf = "";
     string  bridge_type = "";
     string  nic_id = "";
 
@@ -1249,6 +1250,7 @@ int LibVirtDriver::deployment_description_kvm(
         ip            = nic[i]->vector_value("IP");
         filter        = nic[i]->vector_value("FILTER");
         virtio_queues = nic[i]->vector_value("VIRTIO_QUEUES");
+        mrg_buf       = nic[i]->vector_value("MRG_BUF");
         bridge_type   = nic[i]->vector_value("BRIDGE_TYPE");
 
         vrouter_ip = nic[i]->vector_value("VROUTER_IP");
@@ -1337,7 +1339,18 @@ int LibVirtDriver::deployment_description_kvm(
             {
                 file << "\t\t\t<driver name='vhost' queues="
                      << one_util::escape_xml_attr(virtio_queues)
-                     << "/>\n";
+                     << ">";
+
+                if (mrg_buf.empty())
+                {
+                    file << "</driver>\n";
+                }
+                else
+                {
+                    file << "\t\t\t\t<host mrg_rxbuf='"
+                         << one_util::escape_xml_attr(mrg_buf)
+                         << "'/></driver>\n";
+                }
             }
         }
 
