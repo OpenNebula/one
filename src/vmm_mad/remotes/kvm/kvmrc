@@ -26,6 +26,9 @@ export LIBVIRT_MD_KEY=one
 # Seconds to wait after shutdown until timeout
 export SHUTDOWN_TIMEOUT=300
 
+# Instruct QEMU guest agent to synchronize the guest time from RTC
+export SYNC_TIME=no
+
 # Uncomment this line to force VM cancellation after shutdown timeout
 #export FORCE_DESTROY=yes
 
