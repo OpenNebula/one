@@ -816,7 +816,7 @@ module OpenNebula
                 # Replace the original template's capacity with the actual VM values
                 replace = ""
                 if !description.nil?
-                    replace << "DESCRIPTION = #{description}\n"
+                    replace << "DESCRIPTION = \"#{description}\"\n"
                 end
                 cpu = self['TEMPLATE/CPU']
                 if !cpu.nil? && !cpu.empty?
