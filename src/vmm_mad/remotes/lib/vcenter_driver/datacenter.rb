@@ -488,8 +488,6 @@ class DatacenterFolder
                                 end
                             end
                         }
-                    rescue StandardError => e
-                        raise e
                     ensure
                         esx_host.unlock if esx_host
                     end
