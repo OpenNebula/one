@@ -471,6 +471,30 @@ class DatacenterFolder
                 one_cluster = VCenterDriver::ClusterComputeResource.new_from_ref(ref, @vi_client)
                 location = VCenterDriver::VIHelper.get_location(one_cluster.item)
 
+                one_cluster['host'].each do |host|
+                    begin
+                        esx_host = VCenterDriver::ESXHost.new_from_ref(host._ref, @vi_client)
+                        esx_host.lock
+
+                        pg_inside = esx_host.get_pg_inside
+
+                        networks.each {|ref, n|
+                            next if networks[ref][:sw_name]
+                            pg_inside.each do |vswitch, network_names|
+                                network_names.each do |name|
+                                    if n['name'] == name
+                                        networks[ref][:sw_name] = vswitch
+                                    end
+                                end
+                            end
+                        }
+                    rescue StandardError => e
+                        raise e
+                    ensure
+                        esx_host.unlock if esx_host
+                    end
+                end
+
                 network_obj = info['network']
                 cname = info['name']
 

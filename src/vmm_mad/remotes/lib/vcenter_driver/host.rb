@@ -952,6 +952,24 @@ class ESXHost
     end
 
     ########################################################################
+    # Get networks inside a host
+    ########################################################################
+    def get_pg_inside
+        pg_inside = {}
+
+        # Get pnics in use in standard switches
+        @item.config.network.vswitch.each do |vs|
+            pg_inside[vs.name] = []
+            vs.portgroup.each do |pg|
+                pg.slice!("key-vim.host.PortGroup-")
+                pg_inside[vs.name] << pg
+            end
+        end
+
+        pg_inside
+    end
+
+    ########################################################################
     # Check if proxy switch exists in host for distributed virtual switch
     ########################################################################
 
