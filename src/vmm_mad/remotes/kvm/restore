@@ -86,7 +86,7 @@ function restore_domain {
         "Could not restore from $FILE"
 }
 
-retry 3 restore_domain
+retry ${VIRSH_RETRIES:-3} restore_domain
 
 if [ $? -ne 0 ]; then
     exit 1
