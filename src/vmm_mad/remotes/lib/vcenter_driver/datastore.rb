@@ -220,8 +220,6 @@ class Storage
 
         ds_name = self['name']
 
-        disk_type = 'preallocated' if disk_type == 'thick'
-
         vmdk_spec = RbVmomi::VIM::FileBackedVirtualDiskSpec(
             :adapterType => adapter_type,
             :capacityKb  => size.to_i*1024,
