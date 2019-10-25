@@ -423,7 +423,7 @@ module VCenterDriver
                         :spec   => clone_spec).wait_for_completion
                 rescue Exception => e
                     if !e.message.start_with?('DuplicateName')
-                        raise "Cannot clone VM Template: #{e.message}\n#{e.backtrace}"
+                        raise "Cannot clone VM Template: #{e.message}"
                     end
 
                     vm_folder = dc.vm_folder
@@ -442,7 +442,7 @@ module VCenterDriver
                             :name   => vcenter_name,
                             :spec   => clone_spec).wait_for_completion
                     else
-                        raise "Cannot clone VM Template"
+                        raise "Cannot clone VM Template: #{e.message}"
                     end
                 end
             end
