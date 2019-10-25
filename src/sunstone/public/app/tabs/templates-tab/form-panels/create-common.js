@@ -354,7 +354,9 @@ define(function(require) {
     this.setHeader(element);
 
     this.resourceId = element.ID;
-
+    if(element && element.TEMPLATE && element.TEMPLATE.SCHED_RANK){
+      $("#SCHED_RANK").val(element.TEMPLATE.SCHED_RANK);
+    }
     var templateJSON = element.TEMPLATE;
 
     // Fills the name
