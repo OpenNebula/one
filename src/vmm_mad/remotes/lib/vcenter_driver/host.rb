@@ -112,16 +112,18 @@ class ClusterComputeResource
                 # ipPort = ip:port
                 ipPort = urlSplit[2]
                 nsx_obj['url'] = protocol + ipPort
+                nsx_obj['version'] = extList.version
+                nsx_obj['label'] = extList.description.label
             elsif extList.key == "com.vmware.nsx.management.nsxt"
                 nsx_obj['type'] = "NSX-T"
                 nsx_obj['url'] = extList.server[0].url
+                nsx_obj['version'] = extList.version
+                nsx_obj['label'] = extList.description.label
             else
                 next
             end
-            nsx_obj['version'] = extList.version
-            nsx_obj['label'] = extList.description.label
         end
-        unless nsx_obj.nil?
+        unless nsx_obj.empty?
             nsx_info << "NSX_MANAGER=\"#{nsx_obj['url']}\"\n"
             nsx_info << "NSX_TYPE=\"#{nsx_obj['type']}\"\n"
             nsx_info << "NSX_VERSION=\"#{nsx_obj['version']}\"\n"
@@ -134,6 +136,12 @@ class ClusterComputeResource
         @one_item = VCenterDriver::VIHelper
                     .one_item(OpenNebula::Host,
                               @vi_client.instance_variable_get(:@host_id).to_i)
+
+        # Check if NSX_MANAGER is into the host template
+        if [nil, ""].include?(@one_item["TEMPLATE/NSX_MANAGER"])
+            @nsx_status = "NSX_STATUS = \"Missing NSX_MANAGER\"\n"
+            return false
+        end
 
         # Check if NSX_USER is into the host template
         if [nil, ""].include?(@one_item["TEMPLATE/NSX_USER"])
@@ -150,12 +158,6 @@ class ClusterComputeResource
         # Check if NSX_TYPE is into the host template
         if [nil, ""].include?(@one_item["TEMPLATE/NSX_TYPE"])
             @nsx_status = "NSX_STATUS = \"Missing NSX_TYPE\"\n"
-            return false
-        end
-
-        # Check if NSX_MANAGER is into the host template
-        if [nil, ""].include?(@one_item["TEMPLATE/NSX_MANAGER"])
-            @nsx_status = "NSX_STATUS = \"Missing NSX_MANAGER\"\n"
             return false
         end
 
