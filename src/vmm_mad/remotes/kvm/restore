@@ -92,6 +92,10 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+if [ "$SYNC_TIME" = "yes" ]; then
+    virsh --connect $LIBVIRT_URI domtime --sync $DEPLOY_ID >/dev/null 2>/dev/null || :
+fi
+
 rm "$FILE"
 rm "$FILE_XML"
 

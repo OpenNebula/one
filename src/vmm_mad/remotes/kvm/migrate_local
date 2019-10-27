@@ -37,3 +37,6 @@ done
 virsh --connect $QEMU_PROTOCOL://$src_host/system \
     migrate --live $deploy_id $MIGRATE_OPTIONS $QEMU_PROTOCOL://$dest_host/system
 
+if [ "$SYNC_TIME" = "yes" ]; then
+    virsh --connect $QEMU_PROTOCOL://$dest_host/system domtime --sync $deploy_id >/dev/null 2>/dev/null || :
+fi
