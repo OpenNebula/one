@@ -254,11 +254,9 @@ get '/support/check/version' do
     $conf[:one_last_version] = '0' if $conf[:one_last_version].nil?
     find = 'release-'
     validate_time = Time.now.to_i - $conf[:one_version_time]
-=begin
     if validate_time < 86400
         return [200, JSON.pretty_generate(:version => $conf[:one_last_version])]
     end
-=end
     begin
         http = Curl.get(GITHUB_TAGS_URL) do |request|
             if !$conf[:proxy].nil? && !$conf[:proxy].empty?
