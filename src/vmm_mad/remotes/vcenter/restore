@@ -49,7 +49,6 @@ begin
     vm        = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm_ref)
 
     vm.poweron
-    vm.set_running(true, true)
 rescue StandardError => e
     message = "Restore of VM #{vm_ref} on vCenter cluster "\
               "#{vc_cluster_name} failed due to "\
