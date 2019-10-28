@@ -57,8 +57,6 @@ begin
     vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vm_id)
 
     vm.poweroff_hard
-
-    vm.set_running(false, true)
 rescue StandardError => e
     if (retries += 1) < CONFIG[:retries]
         message = "Cancel VM #{vm_ref} failed due to "\

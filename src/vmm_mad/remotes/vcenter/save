@@ -60,7 +60,6 @@ begin
     vm = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm_ref)
 
     vm.suspend
-    vm.set_running(false, true)
 rescue StandardError => e
     message = "Save of VM #{vm_ref} on vCenter cluster "\
               "#{vc_cluster_name} failed due to "\
