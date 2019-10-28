@@ -80,9 +80,11 @@ define(function(require) {
   function _setup(context) {
     var that = this;
     Tips.setup(context);
+    var oneTera = Humanize.sizeToMB("1024GB")*1024;
+    var max = that.diskSize > oneTera? that.diskSize*1024 : oneTera;
     $( ".diskSlider", context).html(RangeSlider.html({
         min: that.diskSize,
-        max: Humanize.sizeToMB("1024GB")*1024,
+        max: max,
         initial: that.diskSize,
         name: "resize",
         max_value: ""
@@ -99,7 +101,12 @@ define(function(require) {
       document.getElementById("new_cost_resize").textContent =  Locale.tr("Cost")+": "+ convertCostNumber(cost);
     });
 
-    $( ".uinput-slider-val", context).on("change", function(){
+    $( ".uinput-slider-val", context).on("keypress", function(e){
+      if(e.which === 13){
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+      }
+    }).on("change", function(e){
       $( ".uinput-slider",context).val(Humanize.sizeToMB(($( ".uinput-slider-val",context).val()).toString())*1024);
       var cost = Humanize.sizeToMB($( ".uinput-slider",context).val())*that.diskCost;
       if(isNaN(cost)){
@@ -113,7 +120,6 @@ define(function(require) {
         cost = 0;
     }
     document.getElementById("new_cost_resize").textContent =  Locale.tr("Cost")+": "+ convertCostNumber(cost);
-
 
     $('#' + DIALOG_ID + 'Form', context).submit(function() {
       var new_size = parseInt(Humanize.sizeToMB($( ".uinput-slider-val", context).val()));
