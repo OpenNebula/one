@@ -41,6 +41,9 @@ module NSXDriver
     require 'opennebula'
     require 'vcenter_driver'
 
+    # Exceptions
+    class IncorrectResponseCodeError < StandardError; end
+
     # Class NSXClient
     class NSXClient
 
@@ -126,6 +129,12 @@ module NSXDriver
                   https.request(request)
               end
             return response.body if check_response(response, 201)
+
+            # If response is different as expected raise the message
+            response_json = JSON.parse(response.body)
+            nsx_error = "\nNSX error code: #{response_json['errorCode']}, " \
+                        "\nNSX error details: #{response_json['details']}"
+            raise IncorrectResponseCodeError, nsx_error
         end
 
         def get_json(url)
@@ -160,6 +169,12 @@ module NSXDriver
               end
             return JSON.parse(response.body)['id'] \
                 if check_response(response, 201)
+
+            # If response is different as expected raise the message
+            response_json = JSON.parse(response.body)
+            nsx_error = "\nNSX error code: #{response_json['errorCode']}, " \
+                        "\nNSX error details: #{response_json['details']}"
+            raise IncorrectResponseCodeError, nsx_error
         end
 
         def delete(url, header)

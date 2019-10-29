@@ -204,14 +204,16 @@ def create_opaque_network(one_vnet, host_id)
     ls_name        = one_vnet['NAME']
     ls_description = one_vnet['TEMPLATE/DESCRIPTION']
     tz_id          = one_vnet['TEMPLATE/NSX_TZ_ID']
+    replication_mode = one_vnet['TEMPLATE/NSX_REP_MODE']
+    admin_state = one_vnet['TEMPLATE/NSX_ADMIN_STATUS']
 
     nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
 
     opaque_network_spec = %(
         {
             "transport_zone_id": "#{tz_id}",
-            "replication_mode": "MTEP",
-            "admin_state": "UP",
+            "replication_mode": "#{replication_mode}",
+            "admin_state": "#{admin_state}",
             "display_name": "#{ls_name}",
             "description": "#{ls_description}"
         }
@@ -225,6 +227,7 @@ def create_virtual_wire(one_vnet, host_id)
     ls_name        = one_vnet['NAME']
     ls_description = one_vnet['TEMPLATE/DESCRIPTION']
     tz_id          = one_vnet['TEMPLATE/NSX_TZ_ID']
+    replication_mode = one_vnet['TEMPLATE/NSX_REP_MODE']
 
     nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
 
@@ -233,7 +236,7 @@ def create_virtual_wire(one_vnet, host_id)
             <name>#{ls_name}</name>\
             <description>#{ls_description}</description>\
             <tenantId>virtual wire tenant</tenantId>\
-            <controlPlaneMode>UNICAST_MODE</controlPlaneMode>\
+            <controlPlaneMode>#{replication_mode}</controlPlaneMode>\
             <guestVlanAllowed>false</guestVlanAllowed>\
         </virtualWireCreateSpec>"
 
@@ -283,8 +286,8 @@ end
 
 # Constants
 SUCCESS_XPATH = '//PARAMETER[TYPE="OUT" and POSITION="1"]/VALUE'
-ERROR_XPATH = '//PARAMETER[TYPE="OUT" and POSITION="2"]/VALUE'
 NETWORK_ID_XPATH = '//PARAMETER[TYPE="OUT" and POSITION="2"]/VALUE'
+ERROR_XPATH = '//PARAMETER[TYPE="OUT" and POSITION="3"]/VALUE'
 
 # Changes due to new hook subsystem
 #   https://github.com/OpenNebula/one/issues/3380
