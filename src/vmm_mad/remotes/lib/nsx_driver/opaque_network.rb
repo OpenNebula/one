@@ -34,8 +34,16 @@ module NSXDriver
             else
                 if tz_id
                     if ls_data
-                        @ls_id = new_logical_switch(ls_data)
-                        raise 'Opaque Network not created in NSX' unless @ls_id
+                        begin
+                            @ls_id = new_logical_switch(ls_data)
+                        rescue IncorrectResponseCodeError => e
+                            raise 'Opaque Network not created in ' \
+                                  "NSX Manager: #{e.message}"
+                        end
+                        unless @ls_id
+                            raise 'Opaque Network not created in NSX Manager: '\
+                                  'generic error'
+                        end
 
                         # Construct URL of the created logical switch
                         @url_ls = @base_url + SECTION_LS + @ls_id
