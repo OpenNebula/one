@@ -80,7 +80,7 @@
             <xs:element name="NUMA_NODES">
               <xs:complexType>
                 <xs:sequence>
-                  <xs:element name="NODE" minOccurs="1" maxOccurs="unbounded">
+                  <xs:element name="NODE" minOccurs="0" maxOccurs="unbounded">
                     <xs:complexType>
                      <xs:sequence>
                        <xs:element name="CORE" minOccurs="0" maxOccurs="unbounded">
