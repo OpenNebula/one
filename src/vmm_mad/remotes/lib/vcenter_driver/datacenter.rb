@@ -373,6 +373,13 @@ class DatacenterFolder
 
             next if exist
 
+            # Exclude networks without hosts
+            next if r.obj['host'].empty?
+            # Exclude uplinks
+            unless r.obj['tag'].empty?
+                next if r.obj['tag'][0][:key] == 'SYSTEM/DVS.UPLINKPG'
+            end
+
             networks[r.obj._ref] = r.to_hash if r.obj.is_a?(RbVmomi::VIM::DistributedVirtualPortgroup) || r.obj.is_a?(RbVmomi::VIM::Network) || r.obj.is_a?(RbVmomi::VIM::OpaqueNetwork)
 
             if r.obj.is_a?(RbVmomi::VIM::DistributedVirtualPortgroup)
