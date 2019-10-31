@@ -35,13 +35,13 @@ define(function(require) {
 
     fields.each(function() {
       var field = $(this);
-
-      if (field.prop('wizard_field_disabled') != true &&
-            field.val() != null && field.val().length &&
-            (field.attr("type") != "checkbox" || field.prop("checked")) &&
-            (field.attr("type") != "radio" || field.prop("checked"))) {
+      if(
+        field.prop('wizard_field_disabled') != true &&
+        field.val() != null && field.val().length &&
+        (field.attr("type") != "checkbox" || field.prop("checked")) &&
+        (field.attr("type") != "radio" || field.prop("checked"))
+      ) {
         var field_name = field.attr('wizard_field');
-
         if (field.attr('wizard_field_64') == "true"){
           templateJSON[field_name] = btoa(field.val());
         } else {
@@ -49,7 +49,6 @@ define(function(require) {
         }
       }
     });
-
     return templateJSON;
   }
 

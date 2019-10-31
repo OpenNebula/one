@@ -127,12 +127,18 @@ define(function(require) {
     });
   }
 
-  function _submitWizard(context) {
-    var templateJSON = {}
+  function _submitWizard() {
+    var context = ".sunstone-content > #vms-tab #vms-tab-wizardForms.is-active";
+    var templateJSON = {};
     $.each(this.wizardTabs, function(index, wizardTab) {
-      $.extend(true, templateJSON, wizardTab.retrieve($('#' + wizardTab.wizardTabId, context)));
+      $.extend(
+        true, 
+        templateJSON, 
+        wizardTab.retrieve(
+          $('#' + wizardTab.wizardTabId, context)
+        )
+      );
     });
-
     Sunstone.runAction("VM.updateconf", this.resourceId, TemplateUtils.templateToString(templateJSON));
     return false;
 
