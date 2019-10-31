@@ -451,7 +451,32 @@ class Container
         Command.unlock(lfd) if lfd
     end
 
+    def save_idmap
+        File.delete idmaps_file if File.exist? idmaps_file
+
+        idmaps = {}
+        idmaps[:idmap_next] = @lxc['config']['volatile.idmap.next']
+        idmaps[:last_state_idmap] = @lxc['config']['volatile.last_state.idmap']
+
+        File.open(idmaps_file, 'a') {|f| f.write idmaps.to_yaml }
+    end
+
+    def load_idmap
+        return unless File.exist?(idmaps_file)
+
+        idmaps = YAML.load_file idmaps_file
+
+        @lxc['config']['volatile.idmap.next'] = idmaps[:idmap_next]
+        @lxc['config']['volatile.last_state.idmap'] = idmaps[:last_state_idmap]
+
+        update
+    end
+
     private
+
+    def idmaps_file
+        "#{@one.sysds_path}/#{@one.vm_id}/idmaps.lxd"
+    end
 
     # Deletes the switch port. Unlike libvirt, LXD doesn't handle this.
     def del_bridge_port(nic)

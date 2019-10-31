@@ -44,6 +44,8 @@ container.check_stop(force)
 
 exit 0 if container.wild?
 
+container.save_idmap
+
 raise 'Failed to dismantle container storage' unless \
 container.setup_storage('unmap')
 

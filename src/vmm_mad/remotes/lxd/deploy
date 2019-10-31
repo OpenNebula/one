@@ -64,6 +64,8 @@ else
         raise 'failed to setup container storage'
     end
 
+    container.load_idmap
+
     begin
         operation = container.start
         raise operation if container.status != 'Running'
