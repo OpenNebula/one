@@ -278,17 +278,22 @@ get '/support/check/version' do
 
             version = tag['name'].tr(find, '')
             split_version = version.split(".")
-            next unless split_version && split_version[1] && split_version[1].to_i &&  split_version[1].to_i.even?
+            next unless split_version &&
+                        split_version[1] &&
+                        split_version[1].to_i &&
+                        split_version[1].to_i.even?
 
             memory_version = $conf[:one_last_version]
-            minor_version = version.slice(version.rindex('.').to_i + 1..-1).to_i
+            minor_version = 
+              version.slice(version.rindex('.').to_i + 1..-1).to_i
             
             if version.to_f > memory_version.to_f
                 $conf[:one_last_version] = version
             end
 
             memory_version_index = memory_version.rindex('.').to_i
-            minor_memory_version = memory_version.slice(memory_version_index.to_i + 1..-1).to_i
+            minor_memory_version = 
+                memory_version.slice(memory_version_index.to_i + 1..-1).to_i
 
             if version.to_f == memory_version.to_f &&
                minor_version >= minor_memory_version
