@@ -186,8 +186,8 @@ end
 get '/vcenter/networks' do
     begin
         new_vcenter_importer("networks")
-
-        [200, $importer.retrieve_resources.to_json]
+        opts = {:filter => true}
+        [200, $importer.retrieve_resources(opts).to_json]
     rescue Exception => e
         logger.error("[vCenter] " + e.message)
         error = Error.new(e.message)
