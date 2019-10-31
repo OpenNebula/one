@@ -322,9 +322,15 @@ define(function(require) {
   function _retrieve(context) {
     var templateJSON = {};
     var osJSON = {};
-    $.extend(osJSON, WizardFields.retrieve(".bootTab", context));
-    $.extend(osJSON, WizardFields.retrieve(".kernelTab", context));
-    $.extend(osJSON, WizardFields.retrieve(".ramdiskTab", context));
+    $.extend(osJSON, WizardFields.retrieve(
+      $(".bootTab", context)
+    ));
+    $.extend(osJSON, WizardFields.retrieve(
+      $(".kernelTab", context)
+    ));
+    $.extend(osJSON, WizardFields.retrieve(
+      $(".ramdiskTab", context)
+    ));
 
     var boot = _retrieveBootValue(context);
 
@@ -334,13 +340,24 @@ define(function(require) {
       osJSON["BOOT"] = "";
     }
 
-    if (!$.isEmptyObject(osJSON)) { templateJSON["OS"] = osJSON; };
+    if (!$.isEmptyObject(osJSON)) {
+      templateJSON["OS"] = osJSON; 
+    }
 
-    var featuresJSON = WizardFields.retrieve(".featuresTab", context);
-    if (!$.isEmptyObject(featuresJSON)) { templateJSON["FEATURES"] = featuresJSON; };
+    var featuresJSON = WizardFields.retrieve(
+      $(".featuresTab", context)
+    );
+    if (!$.isEmptyObject(featuresJSON)) { 
+      templateJSON["FEATURES"] = featuresJSON; 
+    }
 
-    var cpuModelJSON = WizardFields.retrieve(".cpuTab", context);
-    if (!$.isEmptyObject(cpuModelJSON)) { templateJSON["CPU_MODEL"] = cpuModelJSON; };
+    var cpuModelJSON = WizardFields.retrieve(
+      $(".cpuTab", context)
+    );
+
+    if (!$.isEmptyObject(cpuModelJSON)) { 
+      templateJSON["CPU_MODEL"] = cpuModelJSON; 
+    }
 
     return templateJSON;
   }
