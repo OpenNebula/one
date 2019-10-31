@@ -185,7 +185,7 @@ CommandParser::CmdParser.new(ARGV) do
             args[:filter] = false
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
             importer = VCenterDriver::VcImporter
-                      .new_child(helper.client, vi_client, options[:object])
+                       .new_child(helper.client, vi_client, options[:object])
 
             list = importer.retrieve_resources(args)
 
