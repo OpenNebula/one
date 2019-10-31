@@ -40,9 +40,7 @@ module NSXDriver
     require 'nokogiri'
     require 'opennebula'
     require 'vcenter_driver'
-
-    # Exceptions
-    class IncorrectResponseCodeError < StandardError; end
+    require 'nsx_driver'
 
     # Class NSXClient
     class NSXClient
@@ -51,14 +49,24 @@ module NSXDriver
         attr_accessor :nsxmgr
         attr_accessor :nsx_user
         attr_accessor :nsx_password
-        HEADER_JSON = { :'Content-Type' => 'application/json' }
-        HEADER_XML = { :'Content-Type' => 'application/xml' }
 
         # CONSTRUCTORS
         def initialize(nsxmgr, nsx_user, nsx_password)
             @nsxmgr = nsxmgr
             @nsx_user = nsx_user
             @nsx_password = nsx_password
+        end
+
+        def self.new_child(nsxmgr, nsx_user, nsx_password, type)
+            case type.downcase
+            when 'nsx-t'
+                NSXDriver::NSXTClient.new(nsxmgr, nsx_user, nsx_password)
+            when 'nsx-v'
+                NSXDriver::NSXVClient.new(nsxmgr, nsx_user, nsx_password)
+            else
+                raise NSXDriver::NSXException::UnknownObject, \
+                      'Unknown object type'
+            end
         end
 
         def self.new_from_id(host_id)
@@ -75,8 +83,9 @@ module NSXDriver
             nsx_user = host['TEMPLATE/NSX_USER']
             nsx_password = NSXDriver::NSXClient
                            .nsx_pass(host['TEMPLATE/NSX_PASSWORD'])
+            nsx_type = host['TEMPLATE/NSX_TYPE']
 
-            new(nsxmgr, nsx_user, nsx_password)
+            new_child(nsxmgr, nsx_user, nsx_password, nsx_type)
         end
 
         # METHODS
@@ -99,114 +108,14 @@ module NSXDriver
                             .decrypt(nsx_pass_enc, token)
         end
 
-        def get_xml(url)
-            uri = URI.parse(url)
-            request = Net::HTTP::Get.new(uri.request_uri, HEADER_XML)
-            request.basic_auth(@nsx_user, @nsx_password)
-            begin
-                response = Net::HTTP
-                           .start(uri.host,
-                                  uri.port,
-                                  :use_ssl => true,
-                                  :verify_mode => OpenSSL::SSL::VERIFY_NONE)\
-                                  do |https|
-                                      https.request(request)
-                                  end
-            rescue StandardError => e
-                raise e
-            end
-            return Nokogiri::XML response.body if check_response(response, 200)
-        end
+        def get(url); end
 
         # Return: id of the created object
-        def post_xml(url, ls_data)
-            uri = URI.parse(url)
-            request = Net::HTTP::Post.new(uri.request_uri, HEADER_XML)
-            request.body = ls_data
-            request.basic_auth(@nsx_user, @nsx_password)
-            response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
-              :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-                  https.request(request)
-              end
-            return response.body if check_response(response, 201)
+        def post(url, ls_data); end
 
-            # If response is different as expected raise the message
-            response_json = JSON.parse(response.body)
-            nsx_error = "\nNSX error code: #{response_json['errorCode']}, " \
-                        "\nNSX error details: #{response_json['details']}"
-            raise IncorrectResponseCodeError, nsx_error
-        end
+        def delete(url); end
 
-        def get_json(url)
-            uri = URI.parse(url)
-            request = Net::HTTP::Get.new(uri.request_uri, HEADER_JSON)
-            request.basic_auth(@nsx_user, @nsx_password)
-            begin
-                response = Net::HTTP
-                           .start(uri.host,
-                                  uri.port,
-                                  :use_ssl => true,
-                                  :verify_mode => OpenSSL::SSL::VERIFY_NONE)\
-                                  do |https|
-                                      https.request(request)
-                                  end
-            rescue StandardError => e
-                raise e
-            end
-            return JSON.parse(response.body) \
-                if check_response(response, 200)
-        end
-
-        # Return: id of the created object
-        def post_json(url, ls_data)
-            uri = URI.parse(url)
-            request = Net::HTTP::Post.new(uri.request_uri, HEADER_JSON)
-            request.body = ls_data
-            request.basic_auth(@nsx_user, @nsx_password)
-            response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
-              :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-                  https.request(request)
-              end
-            return JSON.parse(response.body)['id'] \
-                if check_response(response, 201)
-
-            # If response is different as expected raise the message
-            response_json = JSON.parse(response.body)
-            nsx_error = "\nNSX error code: #{response_json['errorCode']}, " \
-                        "\nNSX error details: #{response_json['details']}"
-            raise IncorrectResponseCodeError, nsx_error
-        end
-
-        def delete(url, header)
-            uri = URI.parse(url)
-            request = Net::HTTP::Delete.new(uri.request_uri, header)
-            request.basic_auth(@nsx_user, @nsx_password)
-            response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
-              :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-                  https.request(request)
-              end
-            check_response(response, 200)
-        end
-
-        def get_token(url, header)
-            uri = URI.parse(url)
-            request = Net::HTTP::Post.new(uri.request_uri, header)
-            request.basic_auth(@nsx_user, @nsx_password)
-            response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
-              :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-                  https.request(request)
-              end
-            if header[:'Content-Type'] == 'application/json'
-                response.body if check_response(response, 200)
-            elsif header[:'Content-Type'] == 'application/xml'
-                response_xml = Nokogiri::XML response.body \
-                                  if check_response(response, 200)
-                token = response_xml.xpath('//authToken/value').text
-                { 'token' => token }.to_json
-            else
-                nil
-            end
-        end
+        def get_token(url); end
 
     end
 

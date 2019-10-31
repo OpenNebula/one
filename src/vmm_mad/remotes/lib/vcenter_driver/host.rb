@@ -169,7 +169,7 @@ class ClusterComputeResource
             # URL to test a connection
             url = "#{@one_item["TEMPLATE/NSX_MANAGER"]}/api/2.0/vdn/scopes"
             begin
-                if nsx_client.get_xml(url)
+                if nsx_client.get(url)
                     return true
                 else
                     @nsx_status = "NSX_STATUS = \"Response code incorrect\"\n"
@@ -186,7 +186,7 @@ class ClusterComputeResource
             # URL to test a connection
             url = "#{@one_item["TEMPLATE/NSX_MANAGER"]}/api/v1/transport-zones"
             begin
-                if nsx_client.get_json(url)
+                if nsx_client.get(url)
                     return true
                 else
                     @nsx_status = "NSX_STATUS = \"Response code incorrect\"\n"

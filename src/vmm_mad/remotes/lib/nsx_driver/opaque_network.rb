@@ -20,15 +20,10 @@ module NSXDriver
 
         # ATTRIBUTES
         # attr_reader :ls_id, :admin_display
-        HEADER = { :'Content-Type' => 'application/json' }
-        SECTION_LS = '/logical-switches/'
 
         # CONSTRUCTOR
         def initialize(nsx_client, ls_id = nil, tz_id = nil, ls_data = nil)
             super(nsx_client)
-            # Construct base URLs
-            @base_url = "#{@nsx_client.nsxmgr}/api/v1"
-            @base_url_ls = @base_url + SECTION_LS
             if ls_id
                 initialize_with_id(ls_id)
             else
@@ -36,7 +31,9 @@ module NSXDriver
                     if ls_data
                         begin
                             @ls_id = new_logical_switch(ls_data)
-                        rescue IncorrectResponseCodeError => e
+                        # rubocop:disable Metrics/LineLength
+                        rescue NSXDriver::NSXException::IncorrectResponseCodeError => e
+                            # rubocop:enable Metrics/LineLength
                             raise 'Opaque Network not created in ' \
                                   "NSX Manager: #{e.message}"
                         end
@@ -46,7 +43,8 @@ module NSXDriver
                         end
 
                         # Construct URL of the created logical switch
-                        @url_ls = @base_url + SECTION_LS + @ls_id
+                        @url_ls = NSXDriver::NSXConstants::NSXT_LS_SECTION + \
+                                  @ls_id
                         @ls_vni = ls_vni
                         @ls_name = ls_name
                         @tz_id = ls_tz
@@ -60,7 +58,10 @@ module NSXDriver
         def self.new_from_name(nsx_client, ls_name)
             lswitch = new(nsx_client)
             ls_id = lswitch.ls_id_from_name(nsx_client, ls_name)
-            raise "Logical Switch with name: #{ls_name} not found" unless ls_id
+            unless ls_id
+                raise NSXDriver::NSXException::LogicalSwitchNotFound, \
+                      "Logical Switch with name: #{ls_name} not found"
+            end
 
             # initialize_with_id(@ls_id)
             lswitch.initialize_with_id(ls_id)
@@ -71,20 +72,23 @@ module NSXDriver
         def initialize_with_id(ls_id)
             @ls_id = ls_id
             # Construct URL of the created logical switch
-            @url_ls = @base_url + SECTION_LS + @ls_id
+            @url_ls = NSXDriver::NSXConstants::NSXT_LS_SECTION + \
+                      @ls_id
             if ls?
                 @ls_vni = ls_vni
                 @ls_name = ls_name
                 @tz_id = ls_tz
                 @admin_display = 'UP'
+            else
+                raise NSXDriver::NSXException::LogicalSwitchNotFound, \
+                      "Logical switch with id: #{ls_id} not found"
             end
-            raise "Logical switch with id: #{ls_id} not found" unless ls?
         end
 
         # Get the logical switch id from its name
         def ls_id_from_name(nsx_client, name)
-            url = @base_url + SECTION_LS
-            lswitches = nsx_client.get_json(url)['results']
+            url = NSXDriver::NSXConstants::NSXT_LS_SECTION
+            lswitches = nsx_client.get(url)['results']
             lswitches.each do |lswitch|
                 lsname = lswitch['display_name']
                 lsid = lswitch['id']
@@ -98,32 +102,32 @@ module NSXDriver
         # METHODS
         # Check if logical switch exists
         def ls?
-            @nsx_client.get_json(@url_ls) ? true : false
+            @nsx_client.get(@url_ls) ? true : false
         end
 
         # Get logical switch's name
         def ls_name
-            @nsx_client.get_json(@url_ls)['display_name']
+            @nsx_client.get(@url_ls)['display_name']
         end
 
         # Get logical switch's vni
         def ls_vni
-            @nsx_client.get_json(@url_ls)['vni']
+            @nsx_client.get(@url_ls)['vni']
         end
 
         # Get the Transport Zone of the logical switch
         def ls_tz
-            @nsx_client.get_json(@url_ls)['transport_zone_id']
+            @nsx_client.get(@url_ls)['transport_zone_id']
         end
 
         # Create a new logical switch (NSX-T: opaque network)
         def new_logical_switch(ls_data)
-            @nsx_client.post_json(@base_url_ls, ls_data)
+            @nsx_client.post(NSXDriver::NSXConstants::NSXT_LS_SECTION, ls_data)
         end
 
         # Delete a logical switch
         def delete_logical_switch
-            @nsx_client.delete(@url_ls, HEADER)
+            @nsx_client.delete(@url_ls)
         end
 
     end

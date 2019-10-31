@@ -16,7 +16,7 @@
 module NSXDriver
 
     # Class Transport Zone
-    class TransportZone < NSXDriver::NsxComponent
+    class TransportZone < NSXDriver::NSXComponent
 
         # ATTRIBUTES
         attr_reader :tz_id
@@ -39,11 +39,11 @@ module NSXDriver
         # METHODS
         # Return the transport zones list
         def tzs_nsxv
-            @nsx_client.get_xml(@url_tz_nsxv).xpath(VDNSCOPE_XPATH)
+            @nsx_client.get(@url_tz_nsxv).xpath(VDNSCOPE_XPATH)
         end
 
         def tzs_nsxt
-            @nsx_client.get_json(@url_tz_nsxt)
+            @nsx_client.get(@url_tz_nsxt)
         end
 
     end

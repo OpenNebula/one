@@ -18,23 +18,9 @@ module NSXDriver
     # Class VirtualWire NSX-V Network
     class VirtualWire < NSXDriver::LogicalSwitch
 
-        # ATTRIBUTES
-        HEADER = { :'Content-Type' => 'application/xml' }
-        NAME_XPATH = '//virtualWire/name'
-        VNI_XPATH = '//virtualWire/vdnId'
-        BACKING_XPATH = '//virtualWire/vdsContextWithBacking/backingValue'
-        OBJECTID_XPATH = '//virtualWire/vdsContextWithBacking/switch/objectId'
-        TZ_XPATH = '//virtualWire/vdnScopeId'
-        VW_XPATH = '//virtualWire'
-        SECTION_LS = '/vdn/virtualwires/'
-        SECTION_TZ = '/vdn/scopes/'
-
         # CONSTRUCTOR
         def initialize(nsx_client, ls_id = nil, tz_id = nil, ls_data = nil)
             super(nsx_client)
-            # Construct base URLs
-            @base_url = "#{@nsx_client.nsxmgr}/api/2.0"
-            @base_url_tz = @base_url + SECTION_TZ
             if ls_id
                 initialize_with_id(ls_id)
             else
@@ -42,7 +28,9 @@ module NSXDriver
                     if ls_data
                         begin
                             @ls_id = new_logical_switch(ls_data, tz_id)
-                        rescue IncorrectResponseCodeError => e
+                        # rubocop:disable Metrics/LineLength
+                        rescue NSXDriver::NSXException::IncorrectResponseCodeError => e
+                            # rubocop:enable Metrics/LineLength
                             raise 'VirtualWire not created in NSX Manager: ' \
                                   "#{e.message}"
                         end
@@ -52,7 +40,8 @@ module NSXDriver
                         end
 
                         # Construct URL of the created logical switch
-                        @url_ls = @base_url + SECTION_LS + @ls_id
+                        @url_ls = NSXDriver::NSXConstants::NSXV_LS_SECTION + \
+                                  @ls_id
                         @ls_vni = ls_vni
                         @ls_name = ls_name
                         @tz_id = ls_tz
@@ -67,7 +56,10 @@ module NSXDriver
         def self.new_from_name(nsx_client, ls_name)
             virtualwire = new(nsx_client)
             ls_id = virtualwire.ls_id_from_name(nsx_client, ls_name)
-            raise "VirtualWire with name: #{ls_name} not found" unless ls_id
+            unless ls_id
+                raise NSXDriver::NSXException::LogicalSwitchNotFound, \
+                      "VirtualWire with name: #{ls_name} not found"
+            end
 
             # initialize_with_id(@ls_id)
             virtualwire.initialize_with_id(ls_id)
@@ -78,7 +70,8 @@ module NSXDriver
         def initialize_with_id(ls_id)
             @ls_id = ls_id
             # Construct URL of the created logical switch
-            @url_ls = @base_url + SECTION_LS + @ls_id
+            @url_ls = NSXDriver::NSXConstants::NSXV_LS_SECTION + \
+                      @ls_id
             if ls?
                 @ls_vni =  ls_vni
                 @ls_name = ls_name
@@ -91,8 +84,10 @@ module NSXDriver
 
         # Get the logical switch id from its name
         def ls_id_from_name(nsx_client, name)
-            url = @base_url + SECTION_LS
-            virtualwires = nsx_client.get_xml(url).xpath(VW_XPATH)
+            url = NSXDriver::NSXConstants::NSXV_LS_SECTION
+            virtualwires = nsx_client
+                           .get(url)
+                           .xpath(NSXDriver::NSXConstants::NSXV_LS_XPATH)
             virtualwires.each do |virtualwire|
                 lsname_arr = name.split(/-sid-/)
                 lsname = lsname_arr[-1].split('-', 2)[-1]
@@ -109,43 +104,51 @@ module NSXDriver
 
         # Check if logical switch exists
         def ls?
-            @nsx_client.get_xml(@url_ls) ? true : false
+            @nsx_client.get(@url_ls) ? true : false
         end
 
         # Get logical switch's name
         def ls_name
-            @nsx_client.get_xml(@url_ls).xpath(NAME_XPATH).text
+            @nsx_client.get(@url_ls)
+                       .xpath(NSXDriver::NSXConstants::NSXV_LS_NAME_XPATH).text
         end
 
         # Get logical switch's vni
         def ls_vni
-            @nsx_client.get_xml(@url_ls).xpath(VNI_XPATH).text
+            @nsx_client.get(@url_ls)
+                       .xpath(NSXDriver::NSXConstants::NSXV_LS_VNI_XPATH).text
         end
 
         # Get the Transport Zone of the logical switch
         def ls_tz
-            @nsx_client.get_xml(@url_ls).xpath(TZ_XPATH).text
+            @nsx_client.get(@url_ls)
+                       .xpath(NSXDriver::NSXConstants::NSXV_TZ_XPATH).text
         end
 
         # Get the logical switch reference into vcenter
         def ls_vcenter_ref
-            @nsx_client.get_xml(@url_ls).xpath(BACKING_XPATH).text
+            @nsx_client.get(@url_ls)
+                       .xpath(NSXDriver::NSXConstants::NSXV_LS_BACKING_XPATH)
+                       .text
         end
 
         # Get the distributed virtual switch's ref associated to a LS
         def ls_dvs_ref
-            @nsx_client.get_xml(@url_ls).xpath(OBJECTID_XPATH).text
+            @nsx_client.get(@url_ls)
+                       .xpath(NSXDriver::NSXConstants::NSXV_LS_OBJECTID_XPATH)
+                       .text
         end
 
         # Create a new logical switch (NSX-V: virtualwire)
         def new_logical_switch(ls_data, tz_id)
-            url = "#{@base_url_tz}#{tz_id}/virtualwires"
-            @nsx_client.post_xml(url, ls_data)
+            url = "#{NSXDriver::NSXConstants::NSXV_TZ_SECTION}#{tz_id}" \
+                  '/virtualwires'
+            @nsx_client.post(url, ls_data)
         end
 
         # Delete a logical switch
         def delete_logical_switch
-            @nsx_client.delete(@url_ls, HEADER)
+            @nsx_client.delete(@url_ls)
         end
 
     end
