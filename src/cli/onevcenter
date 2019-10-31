@@ -152,9 +152,40 @@ CommandParser::CmdParser.new(ARGV) do
             :options => [OBJECT, HOST, DATASTORE, VCENTER, USER, PASS] do
         begin
             args = helper.parse_opts(options)
+            args[:filter] = true
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
             importer = VCenterDriver::VcImporter
                        .new_child(helper.client, vi_client, options[:object])
+
+            list = importer.retrieve_resources(args)
+
+            helper.list_object(options, list)
+        rescue StandardError => e
+            puts e.message
+        end
+
+        exit 0
+    end
+
+    list_desc = <<-EOT.unindent
+        Show a list with unimported vCenter objects excluding all filters
+
+        Examples:
+          - listing networks including uplinks:
+
+            onevcenter list_all -o networks -h <host_id>
+
+    EOT
+
+    command :list_all,
+            list_desc,
+            :options => [OBJECT, HOST, DATASTORE, VCENTER, USER, PASS] do
+        begin
+            args = helper.parse_opts(options)
+            args[:filter] = false
+            vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
+            importer = VCenterDriver::VcImporter
+                      .new_child(helper.client, vi_client, options[:object])
 
             list = importer.retrieve_resources(args)
 

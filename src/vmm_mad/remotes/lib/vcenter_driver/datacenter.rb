@@ -331,7 +331,7 @@ class DatacenterFolder
         { vcenter_instance_name => template_objects }
     end
 
-    def get_unimported_networks(npool,vcenter_instance_name, hpool)
+    def get_unimported_networks(npool,vcenter_instance_name, hpool, args)
         vcenter_uuid = get_vcenter_instance_uuid
         pc = @vi_client.vim.serviceContent.propertyCollector
 
@@ -373,11 +373,16 @@ class DatacenterFolder
 
             next if exist
 
-            # Exclude networks without hosts
-            next if r.obj['host'].empty?
-            # Exclude uplinks
-            unless r.obj['tag'].empty?
-                next if r.obj['tag'][0][:key] == 'SYSTEM/DVS.UPLINKPG'
+            if args[:filter]
+                # Exclude networks without hosts
+                next if r.obj['host'].empty?
+
+                # Exclude DVS uplinks
+                unless r.obj['tag'].empty?
+                    next if r.obj['tag'][0][:key] == 'SYSTEM/DVS.UPLINKPG'
+                end
+                # Exclude NSX uplinks
+                next if r.obj['name'].match(/^vxw-vmknicPg-dvs-(.*)/)
             end
 
             networks[r.obj._ref] = r.to_hash if r.obj.is_a?(RbVmomi::VIM::DistributedVirtualPortgroup) || r.obj.is_a?(RbVmomi::VIM::Network) || r.obj.is_a?(RbVmomi::VIM::OpaqueNetwork)

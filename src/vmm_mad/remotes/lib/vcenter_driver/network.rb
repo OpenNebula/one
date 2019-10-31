@@ -367,7 +367,7 @@ class NetImporter < VCenterDriver::VcImporter
             raise "Could not get OpenNebula HostPool: #{hpool.message}"
         end
 
-        rs = dc_folder.get_unimported_networks(npool, @vi_client.vc_name,hpool)
+        rs = dc_folder.get_unimported_networks(npool, @vi_client.vc_name,hpool, args)
 		@list = rs
     end
 
