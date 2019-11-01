@@ -503,3 +503,22 @@ function get_destination_host {
 
     echo ${HOSTS_ARRAY[$ARRAY_INDEX]}
 }
+
+#--------------------------------------------------------------------------------
+# Rebase backing files of snapshots in current directory
+#  @param $1 name of the backing_file symlink used internally
+#--------------------------------------------------------------------------------
+rebase_backing_files() {
+    local DST_FILE=$1
+
+    for SNAP_ID in $(find * -maxdepth 0 -type f -print); do
+        INFO=$(qemu-img info --output=json $SNAP_ID)
+
+        if [[ $INFO =~ "backing-filename" ]]; then
+            BACKING_FILE=${INFO/*backing-filename\": \"/}
+            BACKING_FILE=${BACKING_FILE/\"*/}
+            BACKING_FILE=$(basename ${BACKING_FILE})
+            qemu-img rebase -f qcow2 -u -b "${DST_FILE}.snap/$BACKING_FILE" $SNAP_ID
+        fi
+    done
+}
