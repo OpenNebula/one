@@ -331,8 +331,8 @@ module Service
                 uri_proxy  = URI.parse(ENV['http_proxy'])
                 flag = false
 
-                if ENV['http_no_proxy']
-                    ENV['http_no_proxy'].split(',').each do |item|
+                if ENV['no_proxy']
+                    ENV['no_proxy'].split(',').each do |item|
                         item = item.rstrip.lstrip
                         flag = false
 

@@ -148,8 +148,8 @@ if (proxy = $conf[:proxy])
 end
 
 if (no_proxy = $conf[:no_proxy])
-    ENV['http_no_proxy'] = no_proxy
-    ENV['HTTP_NO_PROXY'] = no_proxy
+    ENV['no_proxy'] = no_proxy
+    ENV['NO_PROXY'] = no_proxy
 end
 
 case $conf[:sessions]
