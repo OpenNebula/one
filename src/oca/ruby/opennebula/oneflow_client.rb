@@ -334,7 +334,6 @@ module Service
                 if ENV['no_proxy']
                     ENV['no_proxy'].split(',').each do |item|
                         item = item.rstrip.lstrip
-                        flag = false
 
                         if !(IPAddress @uri.host rescue nil).nil?
                             unless (IPAddress item rescue nil).nil?
