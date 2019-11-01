@@ -46,6 +46,7 @@ READLINK=${READLINK:-readlink}
 RM=${RM:-rm}
 CP=${CP:-cp}
 SCP=${SCP:-scp}
+RSYNC=${RSYNC:-rsync}
 SED=${SED:-sed}
 SSH=${SSH:-ssh}
 SUDO=${SUDO:-sudo}

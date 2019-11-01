@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# mvds host:remote_system_ds/disk.i fe:SOURCE snapid vmid dsid
+# cpds host:remote_system_ds/disk.i fe:SOURCE snapid vmid dsid
 #   - fe is the front-end hostname
 #   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
 #   - host is the target host to deploy the VM
@@ -58,21 +58,19 @@ done < <(onevm show -x $VMID| $XPATH \
                     /VM/DEPLOY_ID \
                     /VM/LCM_STATE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TARGET \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE)
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE)
 
 DEPLOY_ID="${XPATH_ELEMENTS[j++]}"
 LCM_STATE="${XPATH_ELEMENTS[j++]}"
 DISK_TARGET="${XPATH_ELEMENTS[j++]}"
 DISK_SRC="${XPATH_ELEMENTS[j++]}"
-CLONE="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
 #-------------------------------------------------------------------------------
 SRC_PATH=`arg_path $SRC`
 SRC_HOST=`arg_host $SRC`
-SRC_DIR=`dirname $SRC_PATH`
+SRC_TEMP_PATH=$(mktemp -u ${SRC_PATH}.XXXXXXXX)
 
 DST_ARG_PATH=`arg_path $DST`
 
@@ -82,12 +80,12 @@ DST_DS_PATH="$(dirname $(dirname $DST_ARG_PATH))"
 DST_PATH="${SRC_DS_PATH}${DST_ARG_PATH##$DST_DS_PATH}"
 
 if [ "$SNAP_ID" != "-1" ]; then
-    [ "$CLONE" != "YES" ] && SRC_PATH="$DISK_SRC"
     SRC_PATH="$SRC_PATH.snap/$SNAP_ID"
 fi
 
+
 #-------------------------------------------------------------------------------
-# Move the image back to the datastore
+# export the image to the temporary file and scp it back to the datastore
 #-------------------------------------------------------------------------------
 
 # For current image of the running VMs, don't touch the image directly,
@@ -95,8 +93,9 @@ fi
 # domfsfreeze or suspend the domain before.
 if [ "${LCM_STATE}" = '26' ] && [ "${SNAP_ID}" = '-1' ]; then
     CPDS_CMD_EXPORT=$(cat <<EOF
-touch ${DST_PATH}
-if ! virsh -c ${LIBVIRT_URI} blockcopy ${DEPLOY_ID} ${DISK_TARGET} ${DST_PATH} --wait --finish; then
+touch ${SRC_TEMP_PATH}
+if ! virsh -c ${LIBVIRT_URI} blockcopy ${DEPLOY_ID} ${DISK_TARGET} ${SRC_TEMP_PATH} --wait --finish; then
+    set -e -o pipefail
     if virsh -c ${LIBVIRT_URI} domfsfreeze ${DEPLOY_ID}; then
         trap "virsh -c ${LIBVIRT_URI} domfsthaw ${DEPLOY_ID}" EXIT TERM INT HUP
     elif virsh -c ${LIBVIRT_URI} suspend ${DEPLOY_ID}; then
@@ -106,30 +105,21 @@ if ! virsh -c ${LIBVIRT_URI} blockcopy ${DEPLOY_ID} ${DISK_TARGET} ${DST_PATH} -
         exit 1
     fi
 
-    ${QEMU_IMG} convert ${SRC_PATH} -O qcow2 ${DST_PATH}
+    ${QEMU_IMG} convert ${SRC_PATH} -O qcow2 ${SRC_TEMP_PATH}
 fi
 EOF
 )
 else
-    CPDS_CMD_EXPORT="${QEMU_IMG} convert ${SRC_PATH} -O qcow2 ${DST_PATH}"
+    CPDS_CMD_EXPORT="${QEMU_IMG} convert ${SRC_PATH} -O qcow2 ${SRC_TEMP_PATH}"
 fi
 
-CPDS_CMD=$(cat <<EOF
-set -e -o pipefail
+trap "ssh_exec_and_log $SRC_HOST \"$RM ${SRC_TEMP_PATH}\"" EXIT TERM INT HUP
 
-SRC_READLN=\$($READLINK -f $SRC_PATH)
-DST_READLN=\$($READLINK -f $DST_PATH)
 
-if [ \( -L $SRC_PATH \) -a \( "\$SRC_READLN" = "\$DST_READLN" \) ] ; then
-    echo "Not moving files to image repo, they are the same"
-else
-    ${CPDS_CMD_EXPORT}
-fi
-EOF
-)
+log "Exporting $SRC_PATH to temp location $SRC_TEMP_PATH"
+ssh_exec_and_log "$SRC_HOST" "$CPDS_CMD_EXPORT" "Could not move image to $SRC_TEMP_PATH"
 
-log "Copying $SRC_PATH to datastore as $DST_PATH"
-
-ssh_exec_and_log $SRC_HOST "$CPDS_CMD" "Could not move image $DST_PATH"
+log "Copying $SRC_TEMP_PATH to datastore as $DST_PATH"
+exec_and_log  "$SCP -r $SRC_HOST:$SRC_TEMP_PATH $DST_PATH" "Error copying $SRC_TEMP_PATH to $DST_PATH"
 
 exit 0

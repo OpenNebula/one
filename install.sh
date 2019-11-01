@@ -353,6 +353,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/datastore/dummy \
           $VAR_LOCATION/remotes/datastore/fs \
           $VAR_LOCATION/remotes/datastore/ceph \
+          $VAR_LOCATION/remotes/datastore/qcow2 \
           $VAR_LOCATION/remotes/datastore/dev \
           $VAR_LOCATION/remotes/datastore/vcenter \
           $VAR_LOCATION/remotes/market \
@@ -502,6 +503,7 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/datastore/fs
     DATASTORE_DRIVER_ETC_FS_SCRIPTS:$VAR_LOCATION/remotes/etc/datastore/fs
     DATASTORE_DRIVER_CEPH_SCRIPTS:$VAR_LOCATION/remotes/datastore/ceph
+    DATASTORE_DRIVER_QCOW2_SCRIPTS:$VAR_LOCATION/remotes/datastore/qcow2
     DATASTORE_DRIVER_ETC_CEPH_SCRIPTS:$VAR_LOCATION/remotes/etc/datastore/ceph
     DATASTORE_DRIVER_DEV_SCRIPTS:$VAR_LOCATION/remotes/datastore/dev
     DATASTORE_DRIVER_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/datastore/vcenter
@@ -1289,6 +1291,7 @@ TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/mkswap \
                  src/tm_mad/qcow2/mkimage \
                  src/tm_mad/qcow2/mv \
+                 src/tm_mad/qcow2/mv.ssh \
                  src/tm_mad/qcow2/context \
                  src/tm_mad/qcow2/premigrate \
                  src/tm_mad/qcow2/postmigrate \
@@ -1296,9 +1299,13 @@ TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/mvds \
                  src/tm_mad/qcow2/mvds.ssh \
                  src/tm_mad/qcow2/snap_create \
+                 src/tm_mad/qcow2/snap_create.ssh \
                  src/tm_mad/qcow2/snap_create_live \
+                 src/tm_mad/qcow2/snap_create_live.ssh \
                  src/tm_mad/qcow2/snap_delete \
+                 src/tm_mad/qcow2/snap_delete.ssh \
                  src/tm_mad/qcow2/snap_revert \
+                 src/tm_mad/qcow2/snap_revert.ssh \
                  src/tm_mad/qcow2/cpds \
                  src/tm_mad/qcow2/cpds.ssh \
                  src/tm_mad/qcow2/resize"
@@ -1465,6 +1472,8 @@ DATASTORE_DRIVER_CEPH_SCRIPTS="src/datastore_mad/remotes/ceph/cp \
                          src/datastore_mad/remotes/ceph/snap_flatten \
                          src/datastore_mad/remotes/ceph/ceph_utils.sh \
                          src/datastore_mad/remotes/ceph/export"
+
+DATASTORE_DRIVER_QCOW2_SCRIPTS="src/datastore_mad/remotes/qcow2/qcow2_utils.sh"
 
 DATASTORE_DRIVER_ETC_CEPH_SCRIPTS="src/datastore_mad/remotes/ceph/ceph.conf"
 
