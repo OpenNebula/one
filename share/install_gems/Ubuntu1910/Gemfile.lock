@@ -11,13 +11,13 @@ GEM
     amazon-ec2 (0.9.17)
       xml-simple (>= 1.0.12)
     aws-eventstream (1.0.3)
-    aws-sdk (2.11.385)
-      aws-sdk-resources (= 2.11.385)
-    aws-sdk-core (2.11.385)
+    aws-sdk (2.11.387)
+      aws-sdk-resources (= 2.11.387)
+    aws-sdk-core (2.11.387)
       aws-sigv4 (~> 1.0)
       jmespath (~> 1.0)
-    aws-sdk-resources (2.11.385)
-      aws-sdk-core (= 2.11.385)
+    aws-sdk-resources (2.11.387)
+      aws-sdk-core (= 2.11.387)
     aws-sigv4 (1.1.0)
       aws-eventstream (~> 1.0, >= 1.0.2)
     azure (0.7.10)
@@ -54,6 +54,7 @@ GEM
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
     inflection (1.0.0)
+    ipaddress (0.8.3)
     jmespath (1.4.0)
     memcache-client (1.8.5)
     mime-types (3.3)
@@ -65,7 +66,7 @@ GEM
     mustermann (1.0.3)
     mysql2 (0.5.2)
     net-ldap (0.16.1)
-    nokogiri (1.10.4)
+    nokogiri (1.10.5)
       mini_portile2 (~> 2.4.0)
     ox (2.11.0)
     parse-cron (0.1.4)
@@ -126,6 +127,7 @@ DEPENDENCIES
   ffi-rzmq (~> 2.0.7)
   highline (~> 1.7)
   i18n (~> 0.9)
+  ipaddress (~> 0.8.3)
   memcache-client
   mysql2
   net-ldap
@@ -147,4 +149,4 @@ DEPENDENCIES
   zendesk_api
 
 BUNDLED WITH
-   1.11.2
+   1.17.3

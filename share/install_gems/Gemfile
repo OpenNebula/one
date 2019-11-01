@@ -27,6 +27,7 @@ end
 
 if RUBY_VERSION < '2.2.0'
     gem 'rack', '< 2.0.0'                 # sunstone, cloud, oneflow
+    gem 'minitest', '< 5.12.0'            # packethost
 else
     gem 'rack'                            # sunstone, cloud, oneflow
 end
@@ -41,8 +42,10 @@ end
 
 if RUBY_VERSION < '2.3'
     gem 'zendesk_api', '< 1.17.0'         # sunstone
+    gem 'rqrcode', '< 1.0.0'              # sunstone
 else
     gem 'zendesk_api'                     # sunstone
+    gem 'rqrcode'                         # sunstone
 end
 
 gem 'sqlite3'                             # quota, onedb
@@ -52,7 +55,6 @@ gem 'sinatra'                             # sunstone, cloud, oneflow
 gem 'thin'                                # sunstone, cloud
 gem 'memcache-client'                     # sunstone
 gem 'rotp'                                # sunstone
-gem 'rqrcode'                             # sunstone
 gem 'amazon-ec2'                          # cloud
 gem 'uuidtools'                           # cloud
 gem 'curb'                                # cloud
@@ -69,3 +71,4 @@ gem 'faraday_middleware', '~> 0.12'       # packethost
 gem 'activesupport', '~> 4.2'             # packethost
 gem 'i18n', '~> 0.9'                      # packethost
 gem 'ffi-rzmq', '~> 2.0.7'                # onehem (hooks)
+gem 'ipaddress', '~> 0.8.3'               # sunstone, oneflow
