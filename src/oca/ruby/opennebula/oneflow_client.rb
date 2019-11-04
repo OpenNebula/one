@@ -341,7 +341,7 @@ module Service
                                 flag |= IPAddress(item).include? IPAddress(@uri.host)
                             end
                         else
-                            if (IPAddress item rescue nil).nil?
+                            if (IPAddress(item) rescue nil).nil?
                                 flag |= (item == @uri.host)
                             end
                         end
