@@ -15,13 +15,13 @@
 #--------------------------------------------------------------------------- #
 module NSXDriver
 
-    # Class Transport Zone
-    class NSXComponent
+    class NSXException < StandardError
 
-        # CONSTRUCTOR
-        def initialize(nsx_client)
-            @nsx_client = nsx_client
-        end
+        class IncorrectResponseCodeError < NSXException; end
+
+        class LogicalSwitchNotFound < NSXException; end
+
+        class UnknownObject < NSXException; end
 
     end
 

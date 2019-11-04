@@ -16,7 +16,7 @@
 module NSXDriver
 
     # Class Logical Switch
-    class LogicalSwitch < NSXDriver::NsxComponent
+    class LogicalSwitch < NSXDriver::NSXComponent
 
         # ATTRIBUTES
         attr_reader :ls_id
@@ -28,7 +28,7 @@ module NSXDriver
         # CONSTRUCTOR
 
         def initialize(nsx_client)
-            @nsx_client = nsx_client
+            super(nsx_client)
         end
 
         def ls?; end
@@ -47,6 +47,9 @@ module NSXDriver
 
         # Delete a logical switch
         def delete_logical_switch; end
+
+        # Update a logical switch
+        def update_logical_switch; end
 
     end
 

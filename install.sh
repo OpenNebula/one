@@ -862,7 +862,11 @@ VMM_EXEC_LIB_VCENTER_FILES="src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb 
 
 VMM_EXEC_LIB_NSX_FILES="src/vmm_mad/remotes/lib/nsx_driver/logical_switch.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/nsx_client.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/nsxt_client.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/nsxv_client.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/nsx_component.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/nsx_constants.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/nsx_exception.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/opaque_network.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/transport_zone.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/virtual_wire.rb"
