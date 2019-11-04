@@ -28,9 +28,8 @@ module NSXDriver
                     if ls_data
                         begin
                             @ls_id = new_logical_switch(ls_data, tz_id)
-                        # rubocop:disable Metrics/LineLength
-                        rescue NSXDriver::NSXException::IncorrectResponseCodeError => e
-                            # rubocop:enable Metrics/LineLength
+                        rescue NSXDriver::NSXException::
+                               IncorrectResponseCodeError => e
                             raise 'VirtualWire not created in NSX Manager: ' \
                                   "#{e.message}"
                         end
