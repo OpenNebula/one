@@ -45,53 +45,6 @@ define(function(require) {
     return r;
   };
   var _actions = {
-    "Support.check":{
-      type: "list",
-      call: OpenNebulaSupport.check,
-      callback: function(req, lst, res){
-        SupportUtils.showSupportConnect();
-      },
-      error: function(request){
-        if (request && request.status && request.status >= 400) {
-          SupportUtils.stopIntervalRefresh();
-        }
-        SupportUtils.hideSupportConnect();
-      }
-    },
-    "Support.checkversion":{
-      type: "list",
-      call: OpenNebulaSupport.checkversion,
-      callback: function(req, lst, res){
-        if($("#footer>a").length){
-          var localVersion = $("#footer>a").text().replace("OpenNebula ", "");
-          if(req && req.version && req.version!=="0" && localVersion.length){
-            var version = req.version;
-            var remoteMajorVersion = majorVersion(version);
-            var remoteMinorVersion = minorVersion(version);
-            var localMajorVersion = majorVersion(localVersion);
-            var localMinorVersion = minorVersion(localVersion);
-            var link = $("<a/>", {href:"https://opennebula.org/software/"}).text(
-              "(new version available: " + version + ")"
-            );
-            if(remoteMajorVersion > localMajorVersion){
-              $("#latest_version").show().empty().append(link);
-              return;
-            }
-            if(remoteMajorVersion === localMajorVersion && remoteMinorVersion > localMinorVersion){
-              $("#latest_version").show().empty().append(link);
-              return;
-            }
-          }
-        }
-        $("#latest_version").hide().empty();
-      },
-      error: function(request){
-        if (request && request.status && request.status >= 400) {
-          SupportUtils.stopIntervalRefresh();
-        }
-        $("#latest_version").hide().empty();
-      }
-    },
     "Support.list" : {
       type: "list",
       call: OpenNebulaSupport.list,

@@ -151,6 +151,7 @@ require.config({
         "tabs/secgroups-tab",
         "tabs/settings-tab",
         "tabs/support-tab",
+        "tabs/official-support-tab",
         "tabs/upgrade-top-tab",
         "tabs/vmgroup-tab",
         "addons/start",
