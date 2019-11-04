@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'uri'
+require 'ipaddress'
 require 'cloud/CloudClient'
 
 include CloudCLI
@@ -328,8 +329,29 @@ module Service
 
             if ENV['http_proxy']
                 uri_proxy  = URI.parse(ENV['http_proxy'])
-                @host = uri_proxy.host
-                @port = uri_proxy.port
+                flag = false
+
+                # Check if we need to bypass the proxy
+                if ENV['no_proxy']
+                    ENV['no_proxy'].split(',').each do |item|
+                        item = item.rstrip.lstrip
+
+                        unless (IPAddress @uri.host rescue nil).nil?
+                            unless (IPAddress item rescue nil).nil?
+                                flag |= IPAddress(item).include? IPAddress(@uri.host)
+                            end
+                        else
+                            if (IPAddress(item) rescue nil).nil?
+                                flag |= (item == @uri.host)
+                            end
+                        end
+                    end
+                end
+
+                unless flag
+                    @host = uri_proxy.host
+                    @port = uri_proxy.port
+                end
             end
         end
 

@@ -147,6 +147,11 @@ if (proxy = $conf[:proxy])
     ENV['HTTP_PROXY'] = proxy
 end
 
+if (no_proxy = $conf[:no_proxy])
+    ENV['no_proxy'] = no_proxy
+    ENV['NO_PROXY'] = no_proxy
+end
+
 case $conf[:sessions]
 when 'memory', nil
     use Rack::Session::Pool, :key => 'sunstone'
