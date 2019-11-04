@@ -107,7 +107,7 @@ module CloudClient
                             flag |= IPAddress(item).include? IPAddress(url.host)
                         end
                     else
-                        if (IPAddress item rescue nil).nil?
+                        if (IPAddress(item) rescue nil).nil?
                             flag |= (item == url.host)
                         end
                     end
