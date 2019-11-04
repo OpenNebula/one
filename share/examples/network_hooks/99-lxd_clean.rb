@@ -13,16 +13,28 @@ vm = vnm.vm
 exit 0 unless vm.hypervisor == 'lxd'
 OpenNebula.log 'running lxd network post cleanup'
 
+# Detect nics from XML
+nics = []
 vm.nics.each do |nic|
     next unless nic[:nic]
 
-    veth = nic[:nic][:target]
+    nics << nic
+end
 
+# Detect if hotplug or shutdown
+detach = nil
+nics.each do |nic|
+    next unless nic[:nic][:attach] == 'YES'
+
+    detach = nic[:nic][:target]
+end
+
+def clean_host_nic(veth)
     cmd = "ip link show #{veth}"
 
     _o, _e, s = Open3.capture3(cmd)
 
-    next unless s == 0
+    return unless s == 0
 
     cmd = "sudo ip link delete #{veth}"
     OpenNebula.log "Found lingering nic #{veth}\n Running #{cmd}"
@@ -30,4 +42,10 @@ vm.nics.each do |nic|
     o, e, _s = Open3.capture3(cmd)
 
     OpenNebula.log "#{o}\n#{e}"
+end
+
+if detach # only clean detached nic
+    clean_host_nic(detach)
+else # clean all nics
+    nics.each {|nic| clean_host_nic(nic[:nic][:target]) }
 end
