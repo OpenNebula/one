@@ -97,12 +97,13 @@ module CloudClient
             uri_proxy  = URI.parse(ENV['http_proxy'])
             flag = false
 
+            # Check if we need to bypass the proxy
             if ENV['no_proxy']
                 ENV['no_proxy'].split(',').each do |item|
                     item = item.rstrip.lstrip
 
-                    if !(IPAddress url.host rescue nil).nil?
-                        unless (IPAddress item rescue nil).nil?
+                    unless (IPAddress(url.host) rescue nil).nil?
+                        unless (IPAddress(item) rescue nil).nil?
                             flag |= IPAddress(item).include? IPAddress(url.host)
                         end
                     else
