@@ -82,14 +82,19 @@ module NSXDriver
               :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
                   https.request(request)
               end
-            return JSON.parse(response.body)['id'] \
-                if check_response(response, 201)
 
-            # If response is different as expected raise the message
             response_json = JSON.parse(response.body)
-            nsx_error = "\nNSX error code: #{response_json['errorCode']}, " \
-                        "\nNSX error details: #{response_json['details']}"
-            raise NSXDriver::NSXException::IncorrectResponseCodeError, nsx_error
+            # If response is different as expected raise the message
+            unless check_response(response, 201)
+                nsx_error = "\nNSX error code: " \
+                            "#{response_json['errorCode']}, " \
+                            "\nNSX error details: " \
+                            "#{response_json['details']}"
+                raise NSXDriver::NSXException::IncorrectResponseCodeError,
+                      nsx_error
+            end
+
+            response_json['id']
         end
 
         def delete(url)
