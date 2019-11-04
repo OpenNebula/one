@@ -64,6 +64,7 @@ define(function(require) {
     "vnets-topology-tab",
     "vnets-topology-tab",
     "support-tab",
+    "official-support-tab",
     "settings-tab",
     "upgrade-top-tab",
     "vmgroup-tab",
@@ -135,6 +136,9 @@ define(function(require) {
     $.each(Config.allTabs(), function(i, tabName){
       _addAction(i, tabName);
     });
+
+    //add actions official support
+    _addAction(null, 'official-support-tab');
   };
 
   var _addDialogs = function(dialogs) {
@@ -179,7 +183,6 @@ define(function(require) {
       _insertTab(tabName);
       _insertButtonsInTab(tabName);
       _setupDataTable(tabName);
-
       var hooks = SunstoneCfg["tabs"][tabName].initHooks;
 
       if (hooks) {
@@ -189,6 +192,7 @@ define(function(require) {
       }
     }
     var support_tab = "support-tab";
+    var official_support_tab = "official-support-tab";
     if(SunstoneCfg &&
       SunstoneCfg.tabs &&
       !SunstoneCfg.tabs[support_tab]
@@ -207,6 +211,11 @@ define(function(require) {
       _insertTab(support_tab);
       _setupDataTable(support_tab);
     }
+
+    //Separate the logic be supported with the banner
+    _addMainTab(official_support_tab);
+    _insertTab(official_support_tab);
+
     _setupTabs();
   };
 
@@ -256,7 +265,7 @@ define(function(require) {
       $("div#menu ul#navigation").append(liItem);
       if(config && config.user_config){
         if(tabName === "support-tab" && config.user_config.default_view === "cloud"){
-          _addAction(null, "support-tab");
+          _addAction(null, "official-support-tab");
           $(".sunstone-header").addClass("support_place").append(title);
           $("#support-tab").remove();
         }

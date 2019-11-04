@@ -21,7 +21,7 @@ define(function(require) {
 
   var Sunstone = require("sunstone");
 
-  var TAB_ID = require("../tabId");
+  var TAB_ID = require("../../support-tab/tabId");
 
   var support_interval_function;
 
@@ -49,21 +49,19 @@ define(function(require) {
     $("#"+Sunstone.getDataTable(TAB_ID).dataTableId+"Container", "#"+TAB_ID).show();
   }
 
-  function _startIntervalRefresh() {
-    support_interval_function = setInterval(function(){
-      Sunstone.runAction("Support.list");
-    }, Sunstone.TOP_INTERVAL);
+  function _check_validate_official_support(){
+    Sunstone.runAction("Support.check");
   }
 
-  function _stopIntervalRefresh() {
-    clearInterval(support_interval_function);
+  function _check_last_version_support(){
+    Sunstone.runAction("Support.checkversion");
   }
 
   return {
     "showSupportConnect": _show_support_connect,
     "showSupportList": _show_support_list,
     "hideSupportConnect": _hide_support_connect,
-    "startIntervalRefresh": _startIntervalRefresh,
-    "stopIntervalRefresh": _stopIntervalRefresh
+    "checkValidateOfficialSupport": _check_validate_official_support,
+    "checkLastVersionSupport": _check_last_version_support
   };
 });
