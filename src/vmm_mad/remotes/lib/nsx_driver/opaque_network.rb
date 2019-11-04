@@ -31,9 +31,8 @@ module NSXDriver
                     if ls_data
                         begin
                             @ls_id = new_logical_switch(ls_data)
-                        # rubocop:disable Metrics/LineLength
-                        rescue NSXDriver::NSXException::IncorrectResponseCodeError => e
-                            # rubocop:enable Metrics/LineLength
+                        rescue NSXDriver::NSXException::
+                               IncorrectResponseCodeError => e
                             raise 'Opaque Network not created in ' \
                                   "NSX Manager: #{e.message}"
                         end
