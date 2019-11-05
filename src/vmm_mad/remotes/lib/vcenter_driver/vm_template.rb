@@ -582,8 +582,6 @@ class Template
             end
         rescue StandardError => e
             error = "\n    There was an error trying to create a virtual network to repesent a vCenter network for a VM or VM Template. Reason: #{e.message}"
-            OpenNebula.log_error(error)
-            STDERR.puts error
         ensure
             unlock
             #Rollback, delete virtual networks
