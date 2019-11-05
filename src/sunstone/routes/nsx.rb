@@ -56,10 +56,10 @@ post '/nsx/auth' do
                                                 nsxpassword,
                                                 nsx_type)
     if nsx_type == 'NSX-T'
-        url = nsxmgr + NSXDriver::NSXConstants::NSXT_AUTH
+        url = NSXDriver::NSXConstants::NSXT_AUTH
         response = nsx_client.get_token(url)
     elsif nsx_type == 'NSX-V'
-        url = nsxmgr + NSXDriver::NSXConstants::NSXV_AUTH
+        url = NSXDriver::NSXConstants::NSXV_AUTH
         response = nsx_client.get_token(url)
     else
         return [400,

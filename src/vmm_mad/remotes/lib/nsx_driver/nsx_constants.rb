@@ -57,7 +57,7 @@ module NSXDriver
         NSXV_TZ_XPATH = '//virtualWire/vdnScopeId'
         # OpaqueNetwork
         NSXT_BASE = '/api/v1'
-        NSXT_AUTH = '/aaa/registration-token'
+        NSXT_AUTH = NSXT_BASE + '/aaa/registration-token'
         NSXT_LS_SECTION = NSXT_BASE + '/logical-switches/'
         # Messages
         MSG_INCOMPLETE_REQ = 'Incomplete request, NSX_MANAGER, NSX_USER, \

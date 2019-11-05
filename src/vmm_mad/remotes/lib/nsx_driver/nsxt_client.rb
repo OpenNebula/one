@@ -119,10 +119,10 @@ module NSXDriver
               :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
                   https.request(request)
               end
-            response_xml = Nokogiri::XML response.body \
-                              if check_response(response, 200)
-            token = response_xml.xpath('//authToken/value').text
-            { 'token' => token }.to_json
+
+            return unless check_response(response, 200)
+
+            response.body
         end
 
     end
