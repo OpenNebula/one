@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/marketplace"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/marketplace/keys"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
@@ -28,13 +29,14 @@ func TestMarketplace(t *testing.T) {
 
 	var market *marketplace.MarketPlace
 
-	var mkt_template string = "NAME = \"" + mkt_name + "\"\n" +
-		"MARKET_MAD = \"http\"\n" +
-		"BASE_URL = \"http://url/\"\n" +
-		"PUBLIC_DIR = \"/var/loca/market-http\""
+	tpl := marketplace.NewTemplate()
+	tpl.Add(keys.Name, mkt_name)
+	tpl.Add(keys.MarketMAD, "http")
+	tpl.Add(keys.BaseUrl, "http://url/")
+	tpl.Add(keys.PublicDir, "/var/loca/market-http")
 
 	//Create Marketpkace
-	market_id, err := testCtrl.MarketPlaces().Create(mkt_template)
+	market_id, err := testCtrl.MarketPlaces().Create(tpl.String())
 	if err != nil {
 		t.Fatalf("Test failed:\n" + err.Error())
 	}
@@ -70,7 +72,7 @@ func TestMarketplace(t *testing.T) {
 	}
 
 	actual_mm := market.MarketMad
-	actual_1, err := market.Template.Dynamic.GetContentByName("ATT1")
+	actual_1, err := market.Template.GetStr("ATT1")
 	if err != nil {
 		t.Errorf("Test failed, can't retrieve '%s', error: %s", "ATT1", err.Error())
 	} else {

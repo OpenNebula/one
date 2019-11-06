@@ -117,8 +117,8 @@ func (zc *ZoneController) Delete() error {
 	return err
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update adds zone content.
+// * tpl: The new zone contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (zc *ZoneController) Update(tpl string, uType parameters.UpdateType) error {

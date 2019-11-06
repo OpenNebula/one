@@ -17,39 +17,31 @@
 package virtualrouter
 
 import (
-	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
+	"encoding/xml"
+
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
 // Pool represents an OpenNebula VirtualRouter pool
 type Pool struct {
+	XMLName        xml.Name        `xml:"VROUTER_POOL"`
 	VirtualRouters []VirtualRouter `xml:"VROUTER"`
 }
 
 // VirtualRouter represents an OpenNebula VirtualRouter
 type VirtualRouter struct {
-	ID          int                 `xml:"ID"`
-	UID         int                 `xml:"UID"`
-	GID         int                 `xml:"GID"`
-	UName       string              `xml:"UNAME"`
-	GName       string              `xml:"GNAME"`
+	XMLName     xml.Name            `xml:"VROUTER"`
+	ID          int                 `xml:"ID,omitempty"`
+	UID         int                 `xml:"UID,omitempty"`
+	GID         int                 `xml:"GID,omitempty"`
+	UName       string              `xml:"UNAME,omitempty"`
+	GName       string              `xml:"GNAME,omitempty"`
 	Name        string              `xml:"NAME"`
-	LockInfos   *shared.Lock        `xml:"LOCK"`
-	Permissions *shared.Permissions `xml:"PERMISSIONS"`
-	Type        int                 `xml:"TYPE"`
-	DiskType    int                 `xml:"DISK_TYPE"`
-	Persistent  int                 `xml:"PERSISTENT"`
-	VMsID       []int               `xml:"VMS>ID"`
+	LockInfos   *shared.Lock        `xml:"LOCK,omitempty"`
+	Permissions *shared.Permissions `xml:"PERMISSIONS,omitempty"`
+	Type        *int                `xml:"TYPE,omitempty"`
+	DiskType    *int                `xml:"DISK_TYPE,omitempty"`
+	Persistent  int                 `xml:"PERSISTENT,omitempty"`
+	VMs         shared.EntitiesID   `xml:"VMS,omitempty"`
 	Template    Template            `xml:"TEMPLATE"`
-}
-
-// Template represent the template part of the OpenNebula VirtualRouter
-type Template struct {
-	NIC     []NIC                  `xml:"NIC"`
-	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
-}
-
-type NIC struct {
-	NICID   int                    `xml:"NIC_ID"`
-	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
 }

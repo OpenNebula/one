@@ -17,17 +17,21 @@
 package vmgroup
 
 import (
+	"encoding/xml"
+
 	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
 // Pool represents an OpenNebula VM group pool
 type Pool struct {
+	XMLName  xml.Name  `xml:"VM_GROUP_POOL"`
 	VMGroups []VMGroup `xml:"VM_GROUP"`
 }
 
 // VMGroup represents an OpenNebula VM group
 type VMGroup struct {
+	XMLName     xml.Name            `xml:"VM_GROUP"`
 	ID          int                 `xml:"ID"`
 	UID         int                 `xml:"UID"`
 	GID         int                 `xml:"GID"`
@@ -36,18 +40,15 @@ type VMGroup struct {
 	Name        string              `xml:"NAME"`
 	Permissions *shared.Permissions `xml:"PERMISSIONS"`
 	LockInfos   *shared.Lock        `xml:"LOCK"`
-	Roles       []vmGroupRole       `xml:"ROLES>ROLE"`
-	Template    Template            `xml:"TEMPLATE"`
+	Roles       []Role              `xml:"ROLES>ROLE"`
+	Template    dyn.Template        `xml:"TEMPLATE"`
 }
 
-type vmGroupRole struct {
+type Role struct {
 	ID              int    `xml:"ID"`
 	Name            string `xml:"NAME"`
-	HostAffined     string `xml:"HOST_AFFINED"`      // minOccurs=0
-	HostAntiAffined string `xml:"HOST_ANTI_AFFINED"` // minOccurs=0
-	Policy          string `xml:"POLICY"`            // minOccurs=0
-}
-
-type Template struct {
-	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
+	HostAffined     string `xml:"HOST_AFFINED,omitempty"`      // minOccurs=0
+	HostAntiAffined string `xml:"HOST_ANTI_AFFINED,omitempty"` // minOccurs=0
+	Policy          string `xml:"POLICY,omitempty"`            // minOccurs=0
+	VMs             string `xml:"VMS,omitempty"`
 }

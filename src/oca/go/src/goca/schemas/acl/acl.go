@@ -16,19 +16,23 @@
 
 package acl
 
+import "encoding/xml"
+
 // Pool represents an OpenNebula ACL pool
 type Pool struct {
-	ACLs []ACL `xml:"ACL"`
+	XMLName xml.Name `xml:"ACL_POOL"`
+	ACLs    []ACL    `xml:"ACL"`
 }
 
 // ACL represents an OpenNebula ACL
 type ACL struct {
-	ID       int    `xml:"ID"`
-	User     string `xml:"USER"`
-	Resource string `xml:"RESOURCE"`
-	Rights   string `xml:"RIGHTS"`
-	Zone     string `xml:"ZONE"`
-	String   string `xml:"STRING"`
+	XMLName  xml.Name `xml:"ACL"`
+	ID       int      `xml:"ID,omitempty"`
+	User     string   `xml:"USER,omitempty"`
+	Resource string   `xml:"RESOURCE,omitempty"`
+	Rights   string   `xml:"RIGHTS,omitempty"`
+	Zone     string   `xml:"ZONE,omitempty"`
+	String   string   `xml:"STRING,omitempty"`
 }
 
 type Users uint

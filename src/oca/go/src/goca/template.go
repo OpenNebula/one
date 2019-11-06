@@ -125,8 +125,8 @@ func (tc *TemplatesController) Create(template string) (int, error) {
 	return response.BodyInt(), nil
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update adds template content.
+// * tpl: The new template contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (tc *TemplateController) Update(tpl string, uType parameters.UpdateType) error {

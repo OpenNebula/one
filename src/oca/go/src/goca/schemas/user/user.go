@@ -17,37 +17,42 @@
 package user
 
 import (
+	"encoding/xml"
+
 	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
 // Pool represents an OpenNebula User pool
 type Pool struct {
+	XMLName           xml.Name          `xml:"USER_POOL"`
 	Users             []User            `xml:"USER"`
 	Quotas            []shared.Quotas   `xml:"QUOTAS"`
 	DefaultUserQuotas shared.QuotasList `xml:"DEFAULT_USER_QUOTAS"`
 }
 
+// UserShort keeps summary information on a user
+type UserShort struct {
+	XMLName     xml.Name          `xml:"USER"`
+	ID          int               `xml:"ID,omitempty"`
+	GID         int               `xml:"GID,omitempty"`
+	Groups      shared.EntitiesID `xml:"GROUPS,omitempty"`
+	GName       string            `xml:"GNAME,omitempty"`
+	Name        string            `xml:"NAME,omitempty"`
+	Password    string            `xml:"PASSWORD,omitempty"`
+	AuthDriver  string            `xml:"AUTH_DRIVER,omitempty"`
+	Enabled     int               `xml:"ENABLED,omitempty"`
+	LoginTokens []LoginToken      `xml:"LOGIN_TOKEN,omitempty"`
+	Template    dyn.Template      `xml:"TEMPLATE"`
+}
+
 // User represents an OpenNebula user
 type User struct {
-	ID          int          `xml:"ID"`
-	GID         int          `xml:"GID"`
-	GroupsID    []int        `xml:"GROUPS>ID"`
-	GName       string       `xml:"GNAME"`
-	Name        string       `xml:"NAME"`
-	Password    string       `xml:"PASSWORD"`
-	AuthDriver  string       `xml:"AUTH_DRIVER"`
-	Enabled     int          `xml:"ENABLED"`
-	LoginTokens []LoginToken `xml:"LOGIN_TOKEN"`
-	Template    Template     `xml:"TEMPLATE"`
+	UserShort
 
 	// Variable part between one.userpool.info and one.user.info
 	shared.QuotasList
 	DefaultUserQuotas shared.QuotasList `xml:"DEFAULT_USER_QUOTAS"`
-}
-
-type Template struct {
-	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
 }
 
 type LoginToken struct {

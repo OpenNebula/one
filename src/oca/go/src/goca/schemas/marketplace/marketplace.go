@@ -17,34 +17,32 @@
 package marketplace
 
 import (
-	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
+	"encoding/xml"
+
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
 // Pool represents an OpenNebula MarketPlace pool
 type Pool struct {
+	XMLName      xml.Name      `xml:"MARKETPLACE_POOL"`
 	MarketPlaces []MarketPlace `xml:"MARKETPLACE"`
 }
 
 // MarketPlace represents an OpenNebula MarketPlace
 type MarketPlace struct {
-	ID                 int                 `xml:"ID"`
-	UID                int                 `xml:"UID"`
-	GID                int                 `xml:"GID"`
-	UName              string              `xml:"UNAME"`
-	GName              string              `xml:"GNAME"`
+	XMLName            xml.Name            `xml:"MARKETPLACE"`
+	ID                 int                 `xml:"ID,omitempty"`
+	UID                int                 `xml:"UID,omitempty"`
+	GID                int                 `xml:"GID,omitempty"`
+	UName              string              `xml:"UNAME,omitempty"`
+	GName              string              `xml:"GNAME,omitempty"`
 	Name               string              `xml:"NAME"`
-	MarketMad          string              `xml:"MARKET_MAD"`
-	ZoneID             string              `xml:"ZONE_ID"`
-	TotalMB            int                 `xml:"TOTAL_MB"`
-	FreeMB             int                 `xml:"FREE_MB"`
-	UsedMB             int                 `xml:"USED_MB"`
-	MarketPlaceAppsIDs []int               `xml:"MARKETPLACEAPPS>ID"`
-	Permissions        *shared.Permissions `xml:"PERMISSIONS"`
+	MarketMad          string              `xml:"MARKET_MAD,omitempty"`
+	ZoneID             string              `xml:"ZONE_ID,omitempty"`
+	TotalMB            int                 `xml:"TOTAL_MB,omitempty"`
+	FreeMB             int                 `xml:"FREE_MB,omitempty"`
+	UsedMB             int                 `xml:"USED_MB,omitempty"`
+	MarketPlaceAppsIDs shared.EntitiesID   `xml:"MARKETPLACEAPPS,omitempty"`
+	Permissions        *shared.Permissions `xml:"PERMISSIONS,omitempty"`
 	Template           Template            `xml:"TEMPLATE"`
-}
-
-// MarketPlaceTemplate represent the template part of the MarketPlace
-type Template struct {
-	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
 }

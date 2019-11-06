@@ -21,7 +21,7 @@ import (
 )
 
 func Example() {
-	template := NewTemplateBuilder()
+	template := NewTemplate()
 
 	// Main
 	template.AddValue("cpu", 1)

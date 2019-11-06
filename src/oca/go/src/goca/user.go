@@ -30,6 +30,12 @@ type UsersController entitiesController
 // UserController is a controller for User entities
 type UserController entityController
 
+// UserByNameController is a controller for an user by it's name
+type UserByNameController struct {
+	c    *Controller
+	Name string
+}
+
 // Users returns a Users controller.
 func (c *Controller) Users() *UsersController {
 	return &UsersController{c}
@@ -38,6 +44,11 @@ func (c *Controller) Users() *UsersController {
 // User returns a User controller.
 func (c *Controller) User(id int) *UserController {
 	return &UserController{c, id}
+}
+
+// UserByName returns a UserByName controller.
+func (c *Controller) UserByName(name string) *UserByNameController {
+	return &UserByNameController{c, name}
 }
 
 // ByName returns a User by Name
@@ -130,18 +141,28 @@ func (uc *UserController) Passwd(password string) error {
 // * token: The token, if empty oned will generate one
 // * timeSeconds: Valid period in seconds; 0 reset the token and -1 for a non-expiring token.
 // * effectiveGID: Effective GID to use with this token. To use the current GID and user groups set it to -1
+// NOTE: This method make two XML-RPC calls, to make only one call, use UserByName(name).Login(...) method
 func (uc *UserController) Login(token string, timeSeconds int, effectiveGID int) error {
 	user, err := uc.Info(false)
 
- 	if err != nil {
+	if err != nil {
 		return err
 	}
 	_, err = uc.c.Client.Call("one.user.login", user.Name, token, timeSeconds, effectiveGID)
 	return err
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Login generates or sets a login token.
+// * token: The token, if empty oned will generate one
+// * timeSeconds: Valid period in seconds; 0 reset the token and -1 for a non-expiring token.
+// * effectiveGID: Effective GID to use with this token. To use the current GID and user groups set it to -1
+func (uc *UserByNameController) Login(token string, timeSeconds int, effectiveGID int) error {
+	_, err := uc.c.Client.Call("one.user.login", uc.Name, token, timeSeconds, effectiveGID)
+	return err
+}
+
+// Update adds user content.
+// * tpl: The new user contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (uc *UserController) Update(tpl string, uType parameters.UpdateType) error {

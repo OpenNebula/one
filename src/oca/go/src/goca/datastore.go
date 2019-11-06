@@ -118,8 +118,8 @@ func (dc *DatastoreController) Delete() error {
 	return err
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update replaces the datastore contents.
+// * tpl: The new datastore contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (dc *DatastoreController) Update(tpl string, uType parameters.UpdateType) error {

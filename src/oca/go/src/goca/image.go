@@ -142,8 +142,8 @@ func (ic *ImageController) Clone(cloneName string, dsid int) (int, error) {
 	return response.BodyInt(), nil
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update adds image content.
+// * tpl: The new image contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (ic *ImageController) Update(tpl string, uType parameters.UpdateType) error {

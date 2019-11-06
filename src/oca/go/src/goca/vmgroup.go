@@ -142,7 +142,7 @@ func (vc *VMGroupController) Delete() error {
 	return err
 }
 
-// Update replaces the vmGroup template contents.
+// Update replaces the vmGroup template content.
 // * tpl: The new vmGroup template contents. Syntax can be the usual attribute=value or XML.
 // * appendTemplate: Update type: 0: Replace the whole template. 1: Merge new template with the existing one.
 func (vc *VMGroupController) Update(tpl string, uType int) error {

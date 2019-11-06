@@ -17,20 +17,23 @@
 package zone
 
 import (
+	"encoding/xml"
 	"fmt"
 )
 
 // Pool represents an OpenNebula Zone pool
 type Pool struct {
-	Zones []Zone `xml:"ZONE"`
+	XMLName xml.Name `xml:"ZONE_POOL"`
+	Zones   []Zone   `xml:"ZONE"`
 }
 
 // Zone represents an OpenNebula Zone
 type Zone struct {
-	ID         int      `xml:"ID"`
+	XMLName    xml.Name `xml:"ZONE"`
+	ID         int      `xml:"ID,omitempty"`
 	Name       string   `xml:"NAME"`
 	Template   Template `xml:"TEMPLATE"`
-	ServerPool []Server `xml:"SERVER_POOL>SERVER"`
+	ServerPool []Server `xml:"SERVER_POOL>SERVER,omitempty"`
 }
 
 type Server struct {

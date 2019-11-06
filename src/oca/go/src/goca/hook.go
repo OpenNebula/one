@@ -115,7 +115,7 @@ func (hc *HookController) Delete() error {
 	return err
 }
 
-// Update replaces the hook contents.
+// Update replaces the hook content.
 // * tpl: The new hook contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.

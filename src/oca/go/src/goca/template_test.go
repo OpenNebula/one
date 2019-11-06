@@ -21,6 +21,9 @@ import (
 
 	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/template"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm/keys"
 )
 
 // Helper to create a template
@@ -28,11 +31,9 @@ func createTemplate(t *testing.T) (*template.Template, int) {
 	templateName := GenName("template")
 
 	// Create template
-	tpl := dyn.NewTemplateBuilder()
-
-	tpl.AddValue("name", templateName)
-	tpl.AddValue("cpu", 1)
-	tpl.AddValue("memory", "64")
+	tpl := vm.NewTemplate()
+	tpl.Add(keys.Name, templateName)
+	tpl.CPU(1).Memory(64)
 
 	id, err := testCtrl.Templates().Create(tpl.String())
 	if err != nil {
@@ -87,11 +88,9 @@ func TestTemplateInstantiate(t *testing.T) {
 	templateName := GenName("template")
 
 	// Create template
-	tpl := dyn.NewTemplateBuilder()
-
-	tpl.AddValue("name", templateName)
-	tpl.AddValue("cpu", 1)
-	tpl.AddValue("memory", "64")
+	tpl := vm.NewTemplate()
+	tpl.Add(keys.Name, templateName)
+	tpl.CPU(1).Memory(64)
 
 	id, err := testCtrl.Templates().Create(tpl.String())
 	if err != nil {
@@ -124,8 +123,8 @@ func TestTemplateUpdate(t *testing.T) {
 	template, _ := createTemplate(t)
 	templateCtrl := testCtrl.Template(template.ID)
 
-	tpl := dyn.NewTemplateBuilder()
-	tpl.AddValue("A", "B")
+	tpl := dyn.NewTemplate()
+	tpl.AddPair("A", "B")
 
 	// Update
 	templateCtrl.Update(tpl.String(), 1)
@@ -135,7 +134,7 @@ func TestTemplateUpdate(t *testing.T) {
 		t.Error(err)
 	}
 
-	val, err := template.Template.Dynamic.GetContentByName("A")
+	val, err := template.Template.GetStr("A")
 	if err != nil {
 		t.Errorf("Test failed, can't retrieve '%s', error: %s", "A", err.Error())
 	} else {

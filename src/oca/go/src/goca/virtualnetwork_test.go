@@ -21,20 +21,21 @@ import (
 	"testing"
 
 	vn "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/virtualnetwork"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/virtualnetwork/keys"
 )
-
-var vnTpl = `
-NAME = "vntest"
-BRIDGE = "vnetbr"
-PHYDEV = "eth0"
-SECURITY_GROUPS = 0
-VLAN_ID = 8000042
-VN_MAD = "vxlan"
-`
 
 // Helper to create a Virtual Network
 func createVirtualNetwork(t *testing.T) (*vn.VirtualNetwork, int) {
-	id, err := testCtrl.VirtualNetworks().Create(vnTpl, -1)
+
+	vnTpl := vn.NewTemplate()
+	vnTpl.Add(keys.Name, "vntest")
+	vnTpl.Add(keys.Bridge, "vnetbr")
+	vnTpl.Add(keys.PhyDev, "eth0")
+	vnTpl.Add(keys.SecGroups, "0")
+	vnTpl.Add(keys.VlanID, "8000042")
+	vnTpl.Add(keys.VNMad, "vxlan")
+
+	id, err := testCtrl.VirtualNetworks().Create(vnTpl.String(), -1)
 	if err != nil {
 		t.Fatal(err)
 	}

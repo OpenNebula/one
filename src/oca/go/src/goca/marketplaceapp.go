@@ -144,8 +144,8 @@ func (mc *MarketPlaceAppController) Enable(enable bool) error {
 	return err
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update adds marketplace app content.
+// * tpl: The new marketplace contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (mc *MarketPlaceAppController) Update(tpl string, uType parameters.UpdateType) error {

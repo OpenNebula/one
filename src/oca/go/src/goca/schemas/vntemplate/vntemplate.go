@@ -19,30 +19,29 @@ package vntemplate
 // Since version 5.8 of OpenNebula
 
 import (
+	"encoding/xml"
+
 	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
 // Pool represents an OpenNebula Virtual Network Template pool
 type Pool struct {
+	XMLName     xml.Name     `xml:"VNTEMPLATE_POOL"`
 	VNTemplates []VNTemplate `xml:"VNTEMPLATE"`
 }
 
 // VNTemplate represents an OpenNebula Virtual Network Template
 type VNTemplate struct {
-	ID          int                `xml:"ID"`
-	UID         int                `xml:"UID"`
-	GID         int                `xml:"GID"`
-	UName       string             `xml:"UNAME"`
-	GName       string             `xml:"GNAME"`
+	XMLName     xml.Name           `xml:"VNTEMPLATE"`
+	ID          int                `xml:"ID,omitempty"`
+	UID         int                `xml:"UID,omitempty"`
+	GID         int                `xml:"GID,omitempty"`
+	UName       string             `xml:"UNAME,omitempty"`
+	GName       string             `xml:"GNAME,omitempty"`
 	Name        string             `xml:"NAME"`
 	LockInfos   *shared.Lock       `xml:"LOCK"`
 	Permissions shared.Permissions `xml:"PERMISSIONS"`
 	RegTime     string             `xml:"REGTIME"`
-	Template    Template           `xml:"TEMPLATE"`
-}
-
-type Template struct {
-	VNMad   string                 `xml:"VN_MAD"`
-	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
+	Template    dyn.Template       `xml:"TEMPLATE"`
 }

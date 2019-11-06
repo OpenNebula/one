@@ -126,8 +126,8 @@ func (vc *VirtualRoutersController) Create(tpl string) (int, error) {
 	return response.BodyInt(), nil
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update adds virtual router content.
+// * tpl: The new virtual router contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (vc *VirtualRouterController) Update(tpl string, uType parameters.UpdateType) error {
