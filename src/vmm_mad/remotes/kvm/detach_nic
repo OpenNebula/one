@@ -22,14 +22,23 @@ source $(dirname $0)/../../scripts_common.sh
 DOMAIN=$1
 MAC=$2
 
+function is_attached()
+{
+    virsh --connect $LIBVIRT_URI domiflist $DOMAIN | grep $MAC > /dev/null 2>&1
+}
+
+function detach_nic {
+    exec_and_log "virsh --connect $LIBVIRT_URI detach-interface $DETACH_ARGS" \
+        "Could not detach NIC ($MAC) from $DOMAIN"
+}
+
+if ! is_attached; then
+    exit 0
+fi
+
 DETACH_ARGS="--domain $DOMAIN --type bridge --mac $MAC"
 
-exec_and_log "virsh --connect $LIBVIRT_URI detach-interface $DETACH_ARGS" \
-    "Could not detach NIC ($MAC) from $DOMAIN"
+retry ${VIRSH_RETRIES:-3} detach_nic
 
-virsh --connect $LIBVIRT_URI domiflist $DOMAIN | grep $MAC > /dev/null 2>&1
-
-if [ $? -eq 0 ] ; then
-    error_message "Could not detach NIC ($MAC) from $DOMAIN"
-    exit -1
-fi
+error_message "Could not detach NIC ($MAC) from $DOMAIN"
+exit 1
