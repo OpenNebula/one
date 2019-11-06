@@ -1289,6 +1289,7 @@ TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/mkswap \
                  src/tm_mad/qcow2/mkimage \
                  src/tm_mad/qcow2/mv \
+                 src/tm_mad/qcow2/mv.ssh \
                  src/tm_mad/qcow2/context \
                  src/tm_mad/qcow2/premigrate \
                  src/tm_mad/qcow2/postmigrate \
@@ -1296,9 +1297,13 @@ TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/mvds \
                  src/tm_mad/qcow2/mvds.ssh \
                  src/tm_mad/qcow2/snap_create \
+                 src/tm_mad/qcow2/snap_create.ssh \
                  src/tm_mad/qcow2/snap_create_live \
+                 src/tm_mad/qcow2/snap_create_live.ssh \
                  src/tm_mad/qcow2/snap_delete \
+                 src/tm_mad/qcow2/snap_delete.ssh \
                  src/tm_mad/qcow2/snap_revert \
+                 src/tm_mad/qcow2/snap_revert.ssh \
                  src/tm_mad/qcow2/cpds \
                  src/tm_mad/qcow2/cpds.ssh \
                  src/tm_mad/qcow2/resize"

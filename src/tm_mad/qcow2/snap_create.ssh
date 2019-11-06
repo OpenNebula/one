@@ -16,68 +16,70 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# mvds host:remote_system_ds/disk.i fe:SOURCE vmid dsid
-#   - fe is the front-end hostname
-#   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
-#   - host is the target host to deploy the VM
-#   - remote_system_ds is the path for the system datastore in the host
-#   - vmid is the id of the VM
-#   - dsid is the target datastore (0 is the system datastore)
+# snap_create host:parent_image snap_id vmid ds_id
 
 SRC=$1
-DST=$2
+SNAP_ID=$2
 VMID=$3
 DSID=$4
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+    DATASTORES=/var/lib/one/datastores
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+    DATASTORES=$ONE_LOCATION/var/datastores
 fi
 
 DRIVER_PATH=$(dirname $0)
-LIBFS=${DRIVER_PATH}/../../datastore/libfs.sh
 
 . $TMCOMMON
 
-#-------------------------------------------------------------------------------
-# Set dst path and dir
-#-------------------------------------------------------------------------------
-
-SRC_HOST=`arg_host $SRC`
-SRC_PATH=`arg_path $SRC`
-SRC_SNAP_DIR=${SRC_PATH}.snap
-
-DST_PATH="$DST"
-DST_FILE=`basename $DST`
-DST_SNAP_DIR=${DST_PATH}.snap
-DST_DIR=`dirname $DST_PATH`
+SRC_PATH=$(arg_path $SRC)
+SRC_HOST=$(arg_host $SRC)
 
 #-------------------------------------------------------------------------------
-# Move the image back to the datastore
+# Get Image information
 #-------------------------------------------------------------------------------
 
-log "Moving $SRC to datastore as $DST"
+DISK_ID=$(basename ${SRC} | cut -d. -f2)
 
-MV_CMD=$(cat <<EOT
+
+SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
+
+SYSTEM_DS_DISK_PATH="${SYSTEM_DS_PATH}/disk.${DISK_ID}"
+
+# for TM_MAD=ssh create the snapshot always on system DS
+DISK_PATH="${SYSTEM_DS_DISK_PATH}"
+DISK_PATH_SHORT="$(basename ${SYSTEM_DS_DISK_PATH})"
+
+NEXT_SNAP_ID=$(($SNAP_ID+1))
+
+SNAP_DIR="${DISK_PATH}.snap"
+SNAP_DIR_SHORT="${DISK_PATH_SHORT}.snap"
+
+SNAP_PATH="${SNAP_DIR}/${NEXT_SNAP_ID}"
+SNAP_PATH_SHORT="${SNAP_DIR_SHORT}/${NEXT_SNAP_ID}"
+
+SNAP_CMD=$(cat <<EOT
 set -ex -o pipefail
-rm -rf ${DST_SNAP_DIR}
-mkdir -p ${DST_SNAP_DIR}
 
-mv ${SRC_SNAP_DIR}/[0-9]* ${DST_SNAP_DIR}
-cd "${DST_SNAP_DIR}"
-ln -sf "." "${DST_FILE}.snap"
+mkdir -p "${SNAP_DIR}"
 
-rebase_backing_files "$DST_FILE"
+PREVIOUS_SNAP=\$(readlink $SYSTEM_DS_DISK_PATH)
 
-SNAP="\$(ls | grep '^[[:digit:]]*$' | sort -n | tail -n 1 || :)"
-cd ..
-rm "${DST_FILE}"
-ln -sf "${DST_FILE}.snap/\$SNAP" "${DST_FILE}"
-rm -rf ${SRC_PATH}
+cd "${SNAP_DIR}"
+
+if [ -e "${SNAP_PATH}" ]; then
+    echo "Snapshot file ${SNAP_PATH} already exists." >&2
+    exit 1
+fi
+
+qemu-img create -f qcow2 -o backing_fmt=qcow2 -b "\${PREVIOUS_SNAP}" "${SNAP_PATH}"
+ln -sf $SNAP_PATH_SHORT $SYSTEM_DS_DISK_PATH
 EOT
 )
 
-ssh_exec_and_log_stdin "$SRC_HOST" "$MV_CMD" "$LIBFS" "Error moving disk ${SRC_PATH} to ${DST_PATH} on $SRC_HOST"
+ssh_exec_and_log "${SRC_HOST}" "${SNAP_CMD}" \
+                 "Error creating snapshot ${SNAP_PATH}"
 
-exit 0
