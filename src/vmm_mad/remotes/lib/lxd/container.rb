@@ -455,7 +455,6 @@ class Container
         File.delete idmaps_file if File.exist? idmaps_file
 
         idmaps = {}
-        idmaps[:idmap_next] = @lxc['config']['volatile.idmap.next']
         idmaps[:last_state_idmap] = @lxc['config']['volatile.last_state.idmap']
 
         File.open(idmaps_file, 'a') {|f| f.write idmaps.to_yaml }
@@ -466,7 +465,6 @@ class Container
 
         idmaps = YAML.load_file idmaps_file
 
-        @lxc['config']['volatile.idmap.next'] = idmaps[:idmap_next]
         @lxc['config']['volatile.last_state.idmap'] = idmaps[:last_state_idmap]
 
         update
