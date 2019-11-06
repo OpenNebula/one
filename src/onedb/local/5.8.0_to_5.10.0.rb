@@ -92,6 +92,16 @@ module Migrator
         end
 
         @db.run 'DROP TABLE IF EXISTS old_host_pool;'
+
+        @db.run 'CREATE TABLE IF NOT EXISTS hook_pool '\
+                '(oid INTEGER PRIMARY KEY,name VARCHAR(128), '\
+                'body MEDIUMTEXT, uid INTEGER, gid INTEGER, '\
+                'owner_u INTEGER, group_u INTEGER, other_u INTEGER, '\
+                'type INTEGER);'
+
+        @db.run 'CREATE TABLE IF NOT EXISTS hook_log'\
+                '(hkid INTEGER, exeid INTEGER, timestamp INTEGER, rc INTEGER,'\
+                ' body MEDIUMTEXT,PRIMARY KEY(hkid, exeid))'
     end
 
 end
