@@ -1,7 +1,6 @@
 package opennebula
 
 import (
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -9,7 +8,10 @@ import (
 	"time"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca"
-	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm/keys"
+	vm_schemas "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm"
+	shared_schemas "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 
 	"github.com/docker/machine/libmachine/drivers"
 	"github.com/docker/machine/libmachine/log"
@@ -362,10 +364,7 @@ func (d *Driver) PreCreateCheck() error {
 }
 
 func (d *Driver) Create() error {
-	var (
-		vector     *dyn.TemplateBuilderVector
-		err error
-	)
+	var err error
 
 	// build config and set the xmlrpc client
 	controller := d.getController()
@@ -381,91 +380,90 @@ func (d *Driver) Create() error {
 	}
 
 	// Create template
-	template := dyn.NewTemplateBuilder()
+	template := vm_schemas.NewTemplate()
 
 	if d.TemplateName != "" || d.TemplateID != "" {
 		// Template has been specified
 	} else {
 		// Template has NOT been specified
-		template.AddValue("NAME", d.MachineName)
+		template.Add(keys.Name, d.MachineName)
 
 		// OS Boot
-		vector = template.NewVector("OS")
-		vector.AddValue("BOOT", "disk0")
+		template.AddOS(keys.Boot, "disk0")
 
 		// OS Disk
-		vector = template.NewVector("DISK")
+		disk := template.AddDisk()
 
 		if d.ImageID != "" {
-			vector.AddValue("IMAGE_ID", d.ImageID)
+			disk.Add(shared.ImageID, d.ImageID)
 		} else {
-			vector.AddValue("IMAGE", d.ImageName)
+			disk.Add(shared.Image, d.ImageName)
 			if d.ImageOwner != "" {
-				vector.AddValue("IMAGE_UNAME", d.ImageOwner)
+				disk.Add(shared.ImageUname, d.ImageOwner)
 			}
 		}
 
 		if d.DiskSize != "" {
-			vector.AddValue("SIZE", d.DiskSize)
+			disk.Add(shared.Size, d.DiskSize)
 		}
 
 		if d.ImageDevPrefix != "" {
-			vector.AddValue("DEV_PREFIX", d.ImageDevPrefix)
+			disk.Add(shared.DevPrefix, d.ImageDevPrefix)
 		}
 
 		// Add a volatile disk for b2d
 		if d.B2DSize != "" {
-			vector = template.NewVector("DISK")
-			vector.AddValue("SIZE", d.B2DSize)
-			vector.AddValue("TYPE", "fs")
-			vector.AddValue("FORMAT", "raw")
+			vdisk := template.AddDisk()
+			vdisk.Add(shared.Size, d.B2DSize)
+			vdisk.Add("TYPE", "fs")
+			vdisk.Add("FORMAT", "raw")
 		}
 
 		// VNC
 		if !d.DisableVNC {
-			vector = template.NewVector("GRAPHICS")
-			vector.AddValue("LISTEN", "0.0.0.0")
-			vector.AddValue("TYPE", "vnc")
+			template.AddIOGraphic(keys.Listen, "0.0.0.0")
+			template.AddIOGraphic(keys.GraphicType, "vnc")
 		}
 	}
 
 	// Capacity
 	if d.CPU != "" {
-		template.AddValue("CPU", d.CPU)
+		cpu, _ := strconv.ParseFloat(d.CPU, 64)
+		template.CPU(cpu)
 	}
 
 	if d.Memory != "" {
-		template.AddValue("MEMORY", d.Memory)
+		memory, _ := strconv.Atoi(d.Memory)
+		template.Memory(memory)
 	}
 
 	if d.VCPU != "" {
-		template.AddValue("VCPU", d.VCPU)
+		vcpu, _ := strconv.Atoi(d.CPU)
+		template.VCPU(vcpu)
 	}
 
 	// Network
 	if d.NetworkName != "" || d.NetworkID != "" {
-		vector = template.NewVector("NIC")
+		nic := template.AddNIC()
 
 		if d.NetworkName != "" {
-			vector.AddValue("NETWORK", d.NetworkName)
+			nic.Add(shared.Network, d.NetworkName)
 			if d.NetworkOwner != "" {
-				vector.AddValue("NETWORK_UNAME", d.NetworkOwner)
+				nic.Add(shared.NetworkUName, d.NetworkOwner)
 			}
 		}
 
 		if d.NetworkID != "" {
-			vector.AddValue("NETWORK_ID", d.NetworkID)
+			nic.Add(shared.NetworkID, d.NetworkID)
 		}
 	}
 
 	// Context
-	vector = template.NewVector("CONTEXT")
-	vector.AddValue("NETWORK", "YES")
-	vector.AddValue("SSH_PUBLIC_KEY", "$USER[SSH_PUBLIC_KEY]")
-	vector.AddValue("DOCKER_SSH_USER", d.SSHUser)
-	vector.AddValue("DOCKER_SSH_PUBLIC_KEY", string(pubKey))
-	contextScript64 := base64.StdEncoding.EncodeToString([]byte(contextScript))
-	vector.AddValue("START_SCRIPT_BASE64", contextScript64)
+	template.AddCtx(keys.NetworkCtx, "YES")
+	template.AddCtx(keys.SSHPubKey, "$USER[SSH_PUBLIC_KEY]")
+	template.AddCtx("DOCKER_SSH_USER", d.SSHUser)
+	template.AddCtx("DOCKER_SSH_PUBLIC_KEY", string(pubKey))
+	template.AddB64Ctx(keys.StartScriptB64, contextScript)
 
 	// Instantiate
 	log.Infof("Starting	 VM..")
@@ -526,9 +524,11 @@ func (d *Driver) GetIP() (string, error) {
 		return "", err
 	}
 
-	if len(vm.Template.NICs) > 0 {
-		if vm.Template.NICs[0].IP != "" {
-			d.IPAddress = vm.Template.NICs[0].IP
+	if len(vm.Template.GetNICs()) > 0 {
+		ip, err := vm.Template.GetNICs()[0].Get(shared_schemas.IP)
+
+		if err != nil && ip != "" {
+			d.IPAddress = ip
 		}
 	}
 
