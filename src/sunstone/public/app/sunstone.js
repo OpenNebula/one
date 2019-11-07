@@ -252,29 +252,29 @@ define(function(require) {
       title += "<i class=\"fas fa-lg fa-fw " + tabInfo.icon + "\"></i> ";
     }
     title += tabInfo.title;
-
-    if (parent !== "") {
-      liItem = "<li id=\"li_" + tabName + "\" class=\"" + tabClass + "\">" + "<a href=\"#\">" + title + "</a>" + "</li>";
-      if ($("#menu ul#navigation #li_" + parent + " .menu").length > 0) {
-        $("#menu ul#navigation #li_" + parent + " .menu").append(liItem);
-      } else {
-        $("#menu ul#navigation #li_" + parent).append("<ul class=\"menu vertical nested\" data-submenu>" + liItem + "</ul>");
-      }
-    } else {
-      liItem = "<li id=\"li_" + tabName + "\" class=\"" + tabClass + "\">" + "<a href=\"#\">" + title + "</a>" + "</li>";
-      $("div#menu ul#navigation").append(liItem);
-      if(config && config.user_config){
-        if(tabName === "support-tab" && config.user_config.default_view === "cloud"){
-          _addAction(null, "official-support-tab");
-          $(".sunstone-header").addClass("support_place").append(title);
-          $("#support-tab").remove();
+    if(title !== "undefined"){
+      if (parent !== "") {
+        liItem = "<li id=\"li_" + tabName + "\" class=\"" + tabClass + "\">" + "<a href=\"#\">" + title + "</a>" + "</li>";
+        if ($("#menu ul#navigation #li_" + parent + " .menu").length > 0) {
+          $("#menu ul#navigation #li_" + parent + " .menu").append(liItem);
+        } else {
+          $("#menu ul#navigation #li_" + parent).append("<ul class=\"menu vertical nested\" data-submenu>" + liItem + "</ul>");
         }
-        if(config.user_config.default_view !== "admin"){
-          $("#support-tab").remove();
+      } else {
+        liItem = "<li id=\"li_" + tabName + "\" class=\"" + tabClass + "\">" + "<a href=\"#\">" + title + "</a>" + "</li>";
+        $("div#menu ul#navigation").append(liItem);
+        if(config && config.user_config){
+          if(tabName === "support-tab" && config.user_config.default_view === "cloud"){
+            _addAction(null, "official-support-tab");
+            $(".sunstone-header").addClass("support_place").append(title);
+            $("#support-tab").remove();
+          }
+          if(config.user_config.default_view !== "admin"){
+            $("#support-tab").remove();
+          }
         }
       }
     }
-
     //if this is a submenu...
     //if (parent.length) {
     //  var children = $('div#menu ul#navigation #li_' + parent);
