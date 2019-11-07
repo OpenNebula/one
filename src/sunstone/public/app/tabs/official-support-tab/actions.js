@@ -18,7 +18,7 @@ define(function(require) {
   var Sunstone = require("sunstone");
   var Notifier = require("utils/notifier");
   var OpenNebulaSupport = require("opennebula/support");
-  var SupportUtils = require("./utils/common");
+  var SupportUtils = require("../support-tab/utils/common");
 
   var RESOURCE = "official-support";
   var TAB_ID = require("./tabId");
