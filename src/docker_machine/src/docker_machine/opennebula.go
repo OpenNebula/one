@@ -438,7 +438,7 @@ func (d *Driver) Create() error {
 	}
 
 	if d.VCPU != "" {
-		vcpu, _ := strconv.Atoi(d.CPU)
+		vcpu, _ := strconv.Atoi(d.VCPU)
 		template.VCPU(vcpu)
 	}
 
@@ -527,7 +527,7 @@ func (d *Driver) GetIP() (string, error) {
 	if len(vm.Template.GetNICs()) > 0 {
 		ip, err := vm.Template.GetNICs()[0].Get(shared_schemas.IP)
 
-		if err != nil && ip != "" {
+		if err == nil && ip != "" {
 			d.IPAddress = ip
 		}
 	}
