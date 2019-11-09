@@ -1534,7 +1534,7 @@ static int get_datastore_requirements(Template *tmpl, set<int>& ds_ids,
 error_disk:
     oss << "Incompatible system datastore in DISK. Images Datastore for DISK "
         << incomp_id
-        << " has not the same complatible system datastore"
+        << " has not the same compatible system datastore"
         << "(system datastores " << one_util::join(ds_ids, ',') << ")";
 
     error_str = oss.str();
