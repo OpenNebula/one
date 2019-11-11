@@ -55,6 +55,8 @@ require 'nsxv_client'
 require 'logical_switch'
 require 'opaque_network'
 require 'transport_zone'
+require 'nsxt_tz'
+require 'nsxv_tz'
 require 'virtual_wire'
 
 # NSX Driver module

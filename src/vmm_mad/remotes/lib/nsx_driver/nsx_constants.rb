@@ -42,8 +42,16 @@ module NSXDriver
         NSXV = 'NSX-V'
         HEADER_JSON = { :'Content-Type' => 'application/json' }
         HEADER_XML = { :'Content-Type' => 'application/xml' }
-        # VirtualWire
+        # NSX Manager
+        NSXT_EXTENSION_LIST = 'com.vmware.nsx.management.nsxt'
+        NSXV_EXTENSION_LIST = 'com.vmware.vShieldManager'
+        NSXT_BASE = '/api/v1'
         NSXV_BASE = '/api/2.0'
+        # Transport Zones
+        NSXV_TZS = NSXV_BASE + '/vdn/scopes'
+        NSXV_TZS_XPATH = '//vdnScope'
+        NSXT_TZS = NSXT_BASE + '/transport-zones'
+        # VirtualWire
         NSXV_AUTH = NSXV_BASE + '/services/auth/token'
         NSXV_LS_NAME_XPATH = '//virtualWire/name'
         NSXV_LS_VNI_XPATH = '//virtualWire/vdnId'
@@ -56,7 +64,6 @@ module NSXDriver
         NSXV_TZ_SECTION = NSXV_BASE + '/vdn/scopes/'
         NSXV_TZ_XPATH = '//virtualWire/vdnScopeId'
         # OpaqueNetwork
-        NSXT_BASE = '/api/v1'
         NSXT_AUTH = NSXT_BASE + '/aaa/registration-token'
         NSXT_LS_SECTION = NSXT_BASE + '/logical-switches/'
         # Messages

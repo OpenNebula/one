@@ -42,6 +42,7 @@ module NSXDriver
         attr_accessor :nsxmgr
         attr_accessor :nsx_user
         attr_accessor :nsx_password
+        attr_accessor :nsx_type
 
         # CONSTRUCTORS
         def initialize(nsxmgr, nsx_user, nsx_password)
