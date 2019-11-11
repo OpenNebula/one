@@ -2230,6 +2230,7 @@ module VCenterDriver
                 end
                 timeout = CONFIG[:vm_poweron_wait_default]
                 wait_timeout(:is_powered_off?, timeout)
+                sync
             end
         end
 
@@ -2242,6 +2243,7 @@ module VCenterDriver
         end
 
         def reset
+            sync
             @item.ResetVM_Task.wait_for_completion
         end
 
@@ -2250,6 +2252,7 @@ module VCenterDriver
         end
 
         def reboot
+            sync
             @item.RebootGuest
         end
 
