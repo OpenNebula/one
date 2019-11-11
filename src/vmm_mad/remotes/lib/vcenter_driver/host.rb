@@ -98,27 +98,28 @@ class ClusterComputeResource
     end
 
     def get_nsx
-        nsx_info = ""
+        nsx_info = ''
         nsx_obj = {}
-        extensionList = []
-        extensionList = @vi_client.vim.serviceContent.extensionManager.extensionList
-        extensionList.each do |extList|
-            if extList.key == "com.vmware.vShieldManager"
-                nsx_obj['type'] = "NSX-V"
-                urlFull = extList.client[0].url
+        # In the future add more than one nsx manager
+        extension_list = []
+        extension_list = @vi_client.vim.serviceContent.extensionManager.extensionList
+        extension_list.each do |ext_list|
+            if ext_list.key == NSXDriver::NSXConstants::NSXV_EXTENSION_LIST
+                nsx_obj['type'] = NSXDriver::NSXConstants::NSXV
+                urlFull = ext_list.client[0].url
                 urlSplit = urlFull.split("/")
                 # protocol = "https://"
                 protocol = urlSplit[0] + "//"
                 # ipPort = ip:port
                 ipPort = urlSplit[2]
                 nsx_obj['url'] = protocol + ipPort
-                nsx_obj['version'] = extList.version
-                nsx_obj['label'] = extList.description.label
-            elsif extList.key == "com.vmware.nsx.management.nsxt"
-                nsx_obj['type'] = "NSX-T"
-                nsx_obj['url'] = extList.server[0].url
-                nsx_obj['version'] = extList.version
-                nsx_obj['label'] = extList.description.label
+                nsx_obj['version'] = ext_list.version
+                nsx_obj['label'] = ext_list.description.label
+            elsif ext_list.key == NSXDriver::NSXConstants::NSXT_EXTENSION_LIST
+                nsx_obj['type'] = NSXDriver::NSXConstants::NSXT
+                nsx_obj['url'] = ext_list.server[0].url
+                nsx_obj['version'] = ext_list.version
+                nsx_obj['label'] = ext_list.description.label
             else
                 next
             end
@@ -129,7 +130,7 @@ class ClusterComputeResource
             nsx_info << "NSX_VERSION=\"#{nsx_obj['version']}\"\n"
             nsx_info << "NSX_LABEL=\"#{nsx_obj['label']}\"\n"
         end
-        return nsx_info
+        nsx_info
     end
 
     def nsx_ready?
@@ -138,25 +139,25 @@ class ClusterComputeResource
                               @vi_client.instance_variable_get(:@host_id).to_i)
 
         # Check if NSX_MANAGER is into the host template
-        if [nil, ""].include?(@one_item["TEMPLATE/NSX_MANAGER"])
+        if [nil, ''].include?(@one_item['TEMPLATE/NSX_MANAGER'])
             @nsx_status = "NSX_STATUS = \"Missing NSX_MANAGER\"\n"
             return false
         end
 
         # Check if NSX_USER is into the host template
-        if [nil, ""].include?(@one_item["TEMPLATE/NSX_USER"])
+        if [nil, ''].include?(@one_item['TEMPLATE/NSX_USER'])
             @nsx_status = "NSX_STATUS = \"Missing NSX_USER\"\n"
             return false
         end
 
         # Check if NSX_PASSWORD is into the host template
-        if [nil, ""].include?(@one_item["TEMPLATE/NSX_PASSWORD"])
+        if [nil, ''].include?(@one_item['TEMPLATE/NSX_PASSWORD'])
             @nsx_status = "NSX_STATUS = \"Missing NSX_PASSWORD\"\n"
             return false
         end
 
         # Check if NSX_TYPE is into the host template
-        if [nil, ""].include?(@one_item["TEMPLATE/NSX_TYPE"])
+        if [nil, ''].include?(@one_item['TEMPLATE/NSX_TYPE'])
             @nsx_status = "NSX_STATUS = \"Missing NSX_TYPE\"\n"
             return false
         end
@@ -165,9 +166,9 @@ class ClusterComputeResource
         nsx_client = NSXDriver::NSXClient
                      .new_from_id(@vi_client.instance_variable_get(:@host_id).to_i)
 
-        if @one_item["TEMPLATE/NSX_TYPE"] == "NSX-V"
+        if @one_item['TEMPLATE/NSX_TYPE'] == NSXDriver::NSXConstants::NSXV
             # URL to test a connection
-            url = "#{@one_item["TEMPLATE/NSX_MANAGER"]}/api/2.0/vdn/scopes"
+            url = '/api/2.0/vdn/scopes'
             begin
                 if nsx_client.get(url)
                     return true
@@ -176,15 +177,15 @@ class ClusterComputeResource
                     return false
                 end
             rescue StandardError => e
-                @nsx_status = "NSX_STATUS = \"Error connecting to " \
+                @nsx_status = 'NSX_STATUS = Error connecting to ' \
                               "NSX_MANAGER\"\n"
                 return false
             end
         end
 
-        if @one_item["TEMPLATE/NSX_TYPE"] == "NSX-T"
+        if @one_item['TEMPLATE/NSX_TYPE'] == NSXDriver::NSXConstants::NSXT
             # URL to test a connection
-            url = "#{@one_item["TEMPLATE/NSX_MANAGER"]}/api/v1/transport-zones"
+            url = '/api/v1/transport-zones'
             begin
                 if nsx_client.get(url)
                     return true
@@ -193,7 +194,7 @@ class ClusterComputeResource
                     return false
                 end
             rescue StandardError => e
-                @nsx_status = "NSX_STATUS = \"Error connecting to "\
+                @nsx_status = 'NSX_STATUS = Error connecting to '\
                               "NSX_MANAGER\"\n"
                 return false
             end
@@ -201,39 +202,39 @@ class ClusterComputeResource
     end
 
     def get_tz
-        @nsx_status = ""
+        @nsx_status = ''
         if !nsx_ready?
             tz_info = @nsx_status
         else
             tz_info = "NSX_STATUS = OK\n"
-            tz_info << "NSX_TRANSPORT_ZONES = ["
+            tz_info << 'NSX_TRANSPORT_ZONES = ['
 
             nsx_client = NSXDriver::NSXClient
                          .new_from_id(@vi_client.instance_variable_get(:@host_id).to_i)
-            tz_object = NSXDriver::TransportZone.new(nsx_client)
+            tz_object = NSXDriver::TransportZone.new_child(nsx_client)
 
             # NSX request to get Transport Zones
-            if @one_item["TEMPLATE/NSX_TYPE"] == "NSX-V"
-                tzs = tz_object.tzs_nsxv
+            if @one_item['TEMPLATE/NSX_TYPE'] == NSXDriver::NSXConstants::NSXV
+                tzs = tz_object.tzs
                 tzs.each do |tz|
-                    tz_info << tz.xpath("name").text << "=\""
-                    tz_info << tz.xpath("objectId").text << "\","
+                    tz_info << tz.xpath('name').text << '="'
+                    tz_info << tz.xpath('objectId').text << '",'
                 end
                 tz_info.chomp!(',')
-            elsif @one_item["TEMPLATE/NSX_TYPE"] == "NSX-T"
-                r = tz_object.tzs_nsxt
-                r["results"].each do |tz|
-                    tz_info << tz["display_name"] << "=\""
-                    tz_info << tz["id"] << "\","
+            elsif @one_item['TEMPLATE/NSX_TYPE'] == NSXDriver::NSXConstants::NSXT
+                r = tz_object.tzs
+                r['results'].each do |tz|
+                    tz_info << tz['display_name'] << '="'
+                    tz_info << tz['id'] << '",'
                 end
                 tz_info.chomp!(',')
             else
-                raise "Unknown Port Group type #{@one_item["TEMPLATE/NSX_TYPE"]}"
+                raise "Unknown Port Group type #{@one_item['TEMPLATE/NSX_TYPE']}"
             end
-            tz_info << "]"
+            tz_info << ']'
             return tz_info
         end
-        return tz_info
+        tz_info
     end
 
     def monitor

@@ -58,10 +58,10 @@ module NSXDriver
         end
 
         def self.new_child(nsxmgr, nsx_user, nsx_password, type)
-            case type.downcase
-            when 'nsx-t'
+            case type.upcase
+            when NSXDriver::NSXConstants::NSXT
                 NSXDriver::NSXTClient.new(nsxmgr, nsx_user, nsx_password)
-            when 'nsx-v'
+            when NSXDriver::NSXConstants::NSXV
                 NSXDriver::NSXVClient.new(nsxmgr, nsx_user, nsx_password)
             else
                 raise NSXDriver::NSXException::UnknownObject, \

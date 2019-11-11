@@ -16,7 +16,7 @@
 module NSXDriver
 
     # Class Transport Zone
-    class TransportZone < NSXDriver::NSXComponent
+    class NSXTtz < NSXDriver::TransportZone
 
         # ATTRIBUTES
         attr_reader :tz_id
@@ -24,23 +24,14 @@ module NSXDriver
         # CONSTRUCTOR
         def initialize(nsx_client)
             super(nsx_client)
-        end
-
-        def self.new_child(nsx_client)
-            case nsx_client.nsx_type.upcase
-            when NSXDriver::NSXConstants::NSXT
-                NSXDriver::NSXTtz.new(nsx_client)
-            when NSXDriver::NSXConstants::NSXV
-                NSXDriver::NSXVtz.new(nsx_client)
-            else
-                raise NSXDriver::NSXException::UnknownObject, \
-                      'Unknown object type'
-            end
+            # Construct base URLs
+            @url_tzs_nsxt = NSXDriver::NSXConstants::NSXT_TZS
         end
 
         # METHODS
-        # Return the transport zones list
-        def tzs; end
+        def tzs
+            @nsx_client.get(@url_tzs_nsxt)
+        end
 
     end
 
