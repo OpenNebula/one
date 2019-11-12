@@ -49,7 +49,6 @@ DST_SNAP_DIR=${DST_PATH}.snap
 DST_FILE=`basename $DST_PATH`
 DST_DIR=`dirname $DST_PATH`
 
-SRC_HOST=`arg_host $SRC`
 SRC_PATH=`arg_path $SRC`
 SRC_SNAP_DIR=${SRC_PATH}.snap
 
@@ -64,20 +63,25 @@ ssh_make_path $DST_HOST $DST_DIR 'ssh'
 #-------------------------------------------------------------------------------
 log "Copying $SRC_PATH in $DST"
 
+if [ -d "${SRC_SNAP_DIR}" ]; then
+    CP_CMD=$(cat <<EOT
+    for F in \$(ls ${SRC_SNAP_DIR}); do
+        if [ -f ${SRC_SNAP_DIR}/\$F ]; then
+            cp ${SRC_SNAP_DIR}/\$F ${DST_SNAP_DIR}
+        fi
+    done
+EOT
+)
+else
+    CP_CMD="cp ${SRC_PATH} ${DST_SNAP_DIR}/0"
+fi
+
 CMD=$(cat <<EOT
 set -ex -o pipefail
 mkdir -p "${DST_SNAP_DIR}"
 cd "${DST_SNAP_DIR}"
 
-if [ -d ${SRC_SNAP_DIR} ]; then
-    for F in \$(ls ${SRC_SNAP_DIR}); do
-        if [ -f ${SRC_SNAP_DIR}/\$F ]; then
-            cp ${SRC_SNAP_DIR}/\$F .
-        fi
-    done
-else
-    cp ${SRC_PATH} 0
-fi
+${CP_CMD}
 
 rm -f "${DST_FILE}.snap"
 ln -sf "." "${DST_FILE}.snap"
