@@ -83,9 +83,9 @@ module NSXDriver
                   https.request(request)
               end
 
-            response_json = JSON.parse(response.body)
             # If response is different as expected raise the message
             unless check_response(response, 201)
+                response_json = JSON.parse(response.body)
                 nsx_error = "\nNSX error code: " \
                             "#{response_json['errorCode']}, " \
                             "\nNSX error details: " \
