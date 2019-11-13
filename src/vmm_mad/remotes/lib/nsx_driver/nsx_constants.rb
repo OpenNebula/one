@@ -75,22 +75,22 @@ module NSXDriver
                                supported'
         # Responses codes
         # 2xx
-        CODE_OK = "200"
-        CODE_CREATED = "201"
-        CODE_ACCEPTED = "202"
-        CODE_NO_CONTENT = "204"
+        CODE_OK = 200
+        CODE_CREATED = 201
+        CODE_ACCEPTED = 202
+        CODE_NO_CONTENT = 204
         # 4xx
-        CODE_BAD_REQUEST = "400"
-        CODE_UNAUTHORIZED = "401"
-        CODE_FORBIDDEN = "403"
-        CODE_NOT_FOUND = "404"
-        CODE_METHOD_NOT_ALLOWED = "405"
-        CODE_NOT_ACCEPTABLE = "406"
+        CODE_BAD_REQUEST = 400
+        CODE_UNAUTHORIZED = 401
+        CODE_FORBIDDEN = 403
+        CODE_NOT_FOUND = 404
+        CODE_METHOD_NOT_ALLOWED = 405
+        CODE_NOT_ACCEPTABLE = 406
         # 5xx
-        CODE_INTERNAL_SERVER_ERROR = "500"
-        CODE_BAD_GATEWAY = "502"
-        CODE_SERVICE_UNAVAILABLE = "503"
-        CODE_GATEWAY_TIMEOUT = "504"
+        CODE_INTERNAL_SERVER_ERROR = 500
+        CODE_BAD_GATEWAY = 502
+        CODE_SERVICE_UNAVAILABLE = 503
+        CODE_GATEWAY_TIMEOUT = 504
     end
 
 end
