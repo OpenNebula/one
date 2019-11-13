@@ -69,7 +69,7 @@ module NSXDriver
                 raise e
             end
             return JSON.parse(response.body) \
-                if check_response(response, NSXDriver::NSXConstants::CODE_OK)
+                if check_response(response, [NSXDriver::NSXConstants::CODE_OK])
         end
 
         # Return: id of the created object
