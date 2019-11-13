@@ -86,7 +86,7 @@ module NSXDriver
 
             response_json = JSON.parse(response.body)
             # If response is different as expected raise the message
-            unless check_response(response, 201)
+            unless check_response(response, [201])
                 nsx_error = "\nNSX error code: " \
                             "#{response_json['errorCode']}, " \
                             "\nNSX error details: " \
@@ -108,7 +108,7 @@ module NSXDriver
               :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
                   https.request(request)
               end
-            check_response(response, 200)
+            check_response(response, [200])
         end
 
         def get_token(url)
@@ -121,7 +121,7 @@ module NSXDriver
                   https.request(request)
               end
 
-            return unless check_response(response, 200)
+            return unless check_response(response, [200])
 
             response.body
         end
