@@ -16,7 +16,7 @@
 module NSXDriver
 
     # Class Logical Switch
-    class DistributedFirewall < NSXDriver::NsxComponent
+    class DistributedFirewall < NSXDriver::NSXComponent
 
         # ATTRIBUTES
         ONE_SECTION_NAME = 'OpenNebula'
