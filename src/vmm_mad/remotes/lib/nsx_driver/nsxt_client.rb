@@ -69,7 +69,7 @@ module NSXDriver
                 raise e
             end
             return JSON.parse(response.body) \
-                if check_response(response, 200)
+                if check_response(response, NSXDriver::NSXConstants::CODE_OK)
         end
 
         # Return: id of the created object
@@ -86,7 +86,8 @@ module NSXDriver
 
             response_json = JSON.parse(response.body)
             # If response is different as expected raise the message
-            unless check_response(response, [201])
+            unless check_response(response,
+                                  [NSXDriver::NSXConstants::CODE_CREATED])
                 nsx_error = "\nNSX error code: " \
                             "#{response_json['errorCode']}, " \
                             "\nNSX error details: " \
@@ -108,7 +109,7 @@ module NSXDriver
               :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
                   https.request(request)
               end
-            check_response(response, [200])
+            check_response(response, [NSXDriver::NSXConstants::CODE_OK])
         end
 
         def get_token(url)
@@ -121,7 +122,8 @@ module NSXDriver
                   https.request(request)
               end
 
-            return unless check_response(response, [200])
+            return unless check_response(response,
+                                         [NSXDriver::NSXConstants::CODE_OK])
 
             response.body
         end

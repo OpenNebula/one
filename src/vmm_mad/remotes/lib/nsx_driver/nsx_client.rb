@@ -130,7 +130,7 @@ module NSXDriver
                 raise e
             end
             return response \
-                if check_response(response, [200])
+                if check_response(response, [NSXDriver::NSXConstants::CODE_OK])
         end
 
         # Return: id of the created object
