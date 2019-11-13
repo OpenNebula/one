@@ -68,7 +68,7 @@ module NSXDriver
             rescue StandardError => e
                 raise e
             end
-            return Nokogiri::XML response.body if check_response(response, 200)
+            return Nokogiri::XML response.body if check_response(response, [200])
         end
 
         # Return: id of the created object
@@ -84,7 +84,7 @@ module NSXDriver
               end
 
             # If response is different as expected raise the message
-            unless check_response(response, 201)
+            unless check_response(response, [201])
                 response_json = JSON.parse(response.body)
                 nsx_error = "\nNSX error code: " \
                             "#{response_json['errorCode']}, " \
@@ -106,7 +106,7 @@ module NSXDriver
               :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
                   https.request(request)
               end
-            check_response(response, 200)
+            check_response(response, [200])
         end
 
         def get_token(url)
@@ -119,7 +119,7 @@ module NSXDriver
                   https.request(request)
               end
 
-            return unless check_response(response, 200)
+            return unless check_response(response, [200])
 
             response_xml = Nokogiri::XML response.body
             token = response_xml.xpath('//authToken/value').text
