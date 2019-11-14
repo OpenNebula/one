@@ -64,7 +64,7 @@ module NSXDriver
             when NSXDriver::NSXConstants::NSXV
                 NSXDriver::NSXVClient.new(nsxmgr, nsx_user, nsx_password)
             else
-                raise NSXDriver::NSXException::UnknownObject, \
+                raise NSXDriver::NSXError::UnknownObject, \
                       'Unknown object type'
             end
         end
@@ -111,30 +111,16 @@ module NSXDriver
                             .decrypt(nsx_pass_enc, token)
         end
 
+        # Return: respose.body
         def get(url); end
 
-        def get_full_response(url, header)
-            uri = URI.parse(url)
-            request = Net::HTTP::Get.new(uri.request_uri, header)
-            request.basic_auth(@nsx_user, @nsx_password)
-            begin
-                response = Net::HTTP
-                           .start(uri.host,
-                                  uri.port,
-                                  :use_ssl => true,
-                                  :verify_mode => OpenSSL::SSL::VERIFY_NONE)\
-                                  do |https|
-                                      https.request(request)
-                                  end
-            rescue StandardError => e
-                raise e
-            end
-            return response \
-                if check_response(response, [NSXDriver::NSXConstants::CODE_OK])
-        end
+        # Return: response
+        def get_full_response(url); end
 
         # Return: id of the created object
-        def post(url, ls_data); end
+        def post(url, data); end
+
+        def put(url, data); end
 
         def delete(url); end
 

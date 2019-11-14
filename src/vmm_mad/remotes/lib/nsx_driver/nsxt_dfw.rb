@@ -16,20 +16,19 @@
 module NSXDriver
 
     # Class Logical Switch
-    class DfwNsxt < NSXDriver::DistributedFirewall
+    class NSXTdfw < NSXDriver::DistributedFirewall
 
         # ATTRIBUTES
         attr_reader :one_section_id
-        HEADER_JSON = { :'Content-Type' => 'application/json' }
-        SECTIONS = '/sections'
 
         # CONSTRUCTOR
         # Creates OpenNebula section if not exists
         def initialize(nsx_client)
             super(nsx_client)
             # Construct base URLs
-            @base_url = "#{@nsx_client.nsxmgr}/api/v1/firewall"
-            @url_sections = @base_url + SECTIONS
+            @base_url = NSXDriver::NSXConstants::NSXT_DFW_BASE
+            @url_sections = @base_url + \
+                            NSXDriver::NSXConstants::NSXT_DFW_SECTIONS
             @one_section_id = init_section
         end
 
@@ -38,9 +37,13 @@ module NSXDriver
         # its section_id. Returns its section_id if OpenNebula
         # section already exists
         def init_section
-            one_section = section_by_name(@one_section_name)
-            one_section ||= create_section(@one_section_name)
-            @one_section_id = one_section['id']
+            one_section = section_by_name(
+                NSXDriver::NSXConstants::ONE_SECTION_NAME
+            )
+            one_section ||= create_section(
+                NSXDriver::NSXConstants::ONE_SECTION_NAME
+            )
+            @one_section_id = one_section['id'] if one_section
         end
 
         # Get all sections
@@ -49,8 +52,10 @@ module NSXDriver
         # Return
         # - nil | sections
         def sections
-            sections = @nsx_client.get_json(@url_sections)
-            sections['results']
+            result = @nsx_client.get(@url_sections)
+            return unless result
+
+            result['results']
         end
 
         # Get section by id
@@ -60,7 +65,8 @@ module NSXDriver
         # - nil | section
         def section_by_id(section_id = @one_section_id)
             url = @url_sections + '/' + section_id
-            @nsx_client.get_json(url)
+            result = @nsx_client.get(url)
+            result
         end
 
         # Get section by name
@@ -88,9 +94,14 @@ module NSXDriver
                   "stateful": true
               }
             )
-            section_id = @nsx_client.post_json(@url_sections, section_spec)
+            begin
+                section_id = @nsx_client.post(@url_sections, section_spec)
+            rescue StandardError => e
+                raise NSXDriver::DFWError::CreateError, \
+                      "Error creating section in NSX: #{e.message}"
+            end
             result = section_by_id(section_id)
-            raise 'Error creating section in DFW' unless result
+            raise 'Section was not created in DFW' unless result
 
             result
         end
@@ -100,20 +111,20 @@ module NSXDriver
         # - section_id: [String] ID of the section or @one_section_id
         def delete_section(section_id = @one_section_id)
             url = @url_sections + '/' + section_id
-            @nsx_client.delete(url, HEADER_JSON)
+            @nsx_client.delete(url)
         end
 
         # Rules
         # Get all rules of a Section, OpenNebula section if it's not defined
         def rules(section_id = @one_section_id)
             url = @url_sections + '/' + section_id + '/rules'
-            @nsx_client.get_json(url)
+            @nsx_client.get(url)
         end
 
         # Get rule by id
         def rules_by_id(rule_id)
             url = @base_url + '/rules/' + rule_id
-            @nsx_client.get_json(url)
+            @nsx_client.get(url)
         end
 
         # Get rule by name
@@ -133,11 +144,16 @@ module NSXDriver
         # Create new rule
         def create_rule(rule_spec, section_id = @one_section_id)
             # Get revision from section
-            revision_id = section_by_id(section_id)['_revision']
+            section = section_by_id(section_id)
+            unless section
+                raise NSXDriver::NSXError::ObjectNotFound, \
+                      "Section with id #{section_id} not found"
+            end
+            revision_id = section['_revision']
             rule_spec['_revision'] = revision_id
             rule_spec = rule_spec.to_json
             url = @url_sections + '/' + section_id + '/rules'
-            result = @nsx_client.post_json(url, rule_spec)
+            result = @nsx_client.post(url, rule_spec)
             raise 'Error creating DFW rule' unless result
         end
 
@@ -149,7 +165,7 @@ module NSXDriver
 
             rule_spec['_revision'] = rule['_revision']
             rule_spec = rule_spec.to_json
-            result = @nsx_client.put_json(url, rule_spec)
+            result = @nsx_client.put(url, rule_spec)
             raise 'Error updating DFW rule' unless result
         end
 

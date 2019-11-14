@@ -15,13 +15,9 @@
 #--------------------------------------------------------------------------- #
 module NSXDriver
 
-    class NSXException < StandardError
+    class DFWError < NSXError
 
-        class IncorrectResponseCodeError < NSXException; end
-
-        class LogicalSwitchNotFound < NSXException; end
-
-        class UnknownObject < NSXException; end
+        class CreateError < DFWError; end
 
     end
 

@@ -31,7 +31,7 @@ module NSXDriver
                     if ls_data
                         begin
                             @ls_id = new_logical_switch(ls_data)
-                        rescue NSXDriver::NSXException::
+                        rescue NSXDriver::NSXError::
                                IncorrectResponseCodeError => e
                             raise 'Opaque Network not created in ' \
                                   "NSX Manager: #{e.message}"
@@ -58,7 +58,7 @@ module NSXDriver
             lswitch = new(nsx_client)
             ls_id = lswitch.ls_id_from_name(nsx_client, ls_name)
             unless ls_id
-                raise NSXDriver::NSXException::LogicalSwitchNotFound, \
+                raise NSXDriver::LogicalSwitchError::LogicalSwitchNotFound, \
                       "Logical Switch with name: #{ls_name} not found"
             end
 
@@ -79,7 +79,7 @@ module NSXDriver
                 @tz_id = ls_tz
                 @admin_display = 'UP'
             else
-                raise NSXDriver::NSXException::LogicalSwitchNotFound, \
+                raise NSXDriver::LogicalSwitchError::LogicalSwitchNotFound, \
                       "Logical switch with id: #{ls_id} not found"
             end
         end

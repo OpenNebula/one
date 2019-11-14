@@ -28,7 +28,7 @@ module NSXDriver
                     if ls_data
                         begin
                             @ls_id = new_logical_switch(ls_data, tz_id)
-                        rescue NSXDriver::NSXException::
+                        rescue NSXDriver::NSXError::
                                IncorrectResponseCodeError => e
                             raise 'VirtualWire not created in NSX Manager: ' \
                                   "#{e.message}"
@@ -56,7 +56,7 @@ module NSXDriver
             virtualwire = new(nsx_client)
             ls_id = virtualwire.ls_id_from_name(nsx_client, ls_name)
             unless ls_id
-                raise NSXDriver::NSXException::LogicalSwitchNotFound, \
+                raise NSXDriver::LogicalSwitchError::LogicalSwitchNotFound, \
                       "VirtualWire with name: #{ls_name} not found"
             end
 
