@@ -1233,8 +1233,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     int rc = vm->automatic_requirements(cluster_ids, error_str);
 
-    vmpool->update(vm);
-
     if (rc != 0)
     {
         vm->unlock();
@@ -1265,8 +1263,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    vm->unlock();
-
     // Check we are migrating to a compatible cluster
     Host * host = nd.get_hpool()->get_ro(c_hid);
 
@@ -1275,6 +1271,10 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         att.resp_obj = PoolObjectSQL::HOST;
         att.resp_id  = c_hid;
         failure_response(NO_EXISTS, att);
+
+        vm->unlock();
+
+        return;
     }
 
     c_is_public_cloud = host->is_public_cloud();
@@ -1292,6 +1292,8 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         att.resp_msg = oss.str();
         failure_response(ACTION, att);
 
+        vm->unlock();
+
         return;
     }
 
@@ -1299,6 +1301,8 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     {
         att.resp_msg = "Cannot migrate to or from a Public Cloud Host";
         failure_response(ACTION, att);
+
+        vm->unlock();
 
         return;
     }
@@ -1312,6 +1316,9 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         {
             att.resp_msg = "Cannot find vmm driver: " + vmm_mad;
             failure_response(ACTION, att);
+
+            vm->unlock();
+
             return;
         }
 
@@ -1320,11 +1327,16 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
             att.resp_msg = "A migration to a different system datastore "
                 "cannot be performed live.";
             failure_response(ACTION, att);
+
+            vm->unlock();
+
             return;
         }
 
         if (get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr) != 0)
         {
+            vm->unlock();
+
             return;
         }
 
@@ -1332,6 +1344,9 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         {
             att.resp_msg = "System datastore migration not supported by TM driver";
             failure_response(ACTION, att);
+
+            vm->unlock();
+
             return;
         }
 
@@ -1339,6 +1354,8 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         {
             att.resp_msg = "Cannot migrate to a system datastore with a different TM driver";
             failure_response(ACTION, att);
+
+            vm->unlock();
 
             return;
         }
@@ -1349,6 +1366,8 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
         if (get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr) != 0)
         {
+            vm->unlock();
+
             return;
         }
     }
@@ -1364,6 +1383,8 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         att.resp_msg = oss.str();
         failure_response(ACTION, att);
 
+        vm->unlock();
+
         return;
     }
 
@@ -1371,13 +1392,9 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     // Add a new history record and update volatile DISK attributes
     // ------------------------------------------------------------------------
 
-    if ( (vm = get_vm(id, att)) == nullptr )
-    {
-        return;
-    }
-
     set_volatile_disk_info(vm, ds_id);
 
+    //add_history call will also update the vm
     if (add_history(vm,
                     hid,
                     cluster_id,
