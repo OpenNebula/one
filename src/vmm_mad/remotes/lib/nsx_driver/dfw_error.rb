@@ -15,56 +15,9 @@
 #--------------------------------------------------------------------------- #
 module NSXDriver
 
-    # Class Logical Switch
-    class DistributedFirewall < NSXDriver::NSXComponent
+    class DFWError < NSXError
 
-        # ATTRIBUTES
-
-        # CONSTRUCTOR
-        def initialize(nsx_client)
-            super(nsx_client)
-            @one_section_name = NSXDriver::NSXConstants::ONE_SECTION_NAME
-        end
-
-        # Sections
-        # Creates OpenNebula section if not exists and returns
-        # its section_id. Returns its section_id if OpenNebula
-        # section already exists
-        def init_section; end
-
-        # Get all sections
-        def sections; end
-
-        # Get section by id
-        def section_by_id(section_id); end
-
-        # Get section by name
-        def section_by_name(section_name); end
-
-        # Create new section
-        def create_section(section_name); end
-
-        # Delete section
-        def delete_section(section_id); end
-
-        # Rules
-        # Get all rules
-        def rules; end
-
-        # Get rule by id
-        def rules_by_id; end
-
-        # Get rule by name
-        def rules_by_name; end
-
-        # Create new rule
-        def create_rule; end
-
-        # Update rule
-        def update_rule; end
-
-        # Delete rule
-        def delete_rule; end
+        class CreateError < DFWError; end
 
     end
 

@@ -115,8 +115,10 @@ module NSXDriver
         # Return: respose.body
         def get(url); end
 
-        # Return: id of the created object
+        # Return: response
+        def get_full_response(url); end
 
+        # Return: id of the created object
         def post(url, data); end
 
         def put(url, data); end

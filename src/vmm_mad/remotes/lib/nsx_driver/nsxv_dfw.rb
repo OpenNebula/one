@@ -16,23 +16,19 @@
 module NSXDriver
 
     # Class Logical Switch
-    class DfwNsxv < NSXDriver::DistributedFirewall
+    class NSXVdfw < NSXDriver::DistributedFirewall
 
         # ATTRIBUTES
         attr_reader :one_section_id
-        HEADER_XML = { :'Content-Type' => 'application/xml' }
-        SECTIONS = '/layer3sections'
-        SECTION_XPATH = '//section'
-        RULE_XPATH = '//rule'
 
         # CONSTRUCTOR
         # Creates OpenNebula section if not exists
         def initialize(nsx_client)
             super(nsx_client)
             # Construct base URLs
-            @base_url = @nsx_client.nsxmgr
-            @base_url << '/api/4.0/firewall/globalroot-0/config'
-            @url_sections = @base_url + SECTIONS
+            @base_url = NSXDriver::NSXConstants::NSXV_DFW_BASE
+            @url_sections = @base_url + \
+                            NSXDriver::NSXConstants::NSXV_DFW_SECTIONS
             @one_section_id = init_section
         end
 
@@ -42,8 +38,12 @@ module NSXDriver
         # its section_id. Returns its section_id if OpenNebula
         # section already exists
         def init_section
-            one_section = section_by_name(@one_section_name)
-            one_section ||= create_section(@one_section_name)
+            one_section = section_by_name(
+                NSXDriver::NSXConstants::ONE_SECTION_NAME
+            )
+            one_section ||= create_section(
+                NSXDriver::NSXConstants::ONE_SECTION_NAME
+            )
             return one_section.xpath('@id').text if one_section
         end
 
@@ -53,8 +53,10 @@ module NSXDriver
         # Return:
         # - nil | [Nokogiri::XML::NodeSet] sections
         def sections
-            result = @nsx_client.get_xml(@base_url)
-            return result.xpath(SECTION_XPATH) if result
+            result = @nsx_client.get(@base_url)
+            return unless result
+
+            result.xpath(NSXDriver::NSXConstants::NSXV_DFW_SECTION_XPATH)
         end
 
         # Get section by id
@@ -64,8 +66,10 @@ module NSXDriver
         # - nil | [Nokogiri::XML::NodeSet] section
         def section_by_id(section_id = @one_section_id)
             url = @url_sections + '/' + section_id
-            result = @nsx_client.get_xml(url)
-            return result.xpath(SECTION_XPATH) if result
+            result = @nsx_client.get(url)
+            return unless result
+
+            result.xpath(NSXDriver::NSXConstants::NSXV_DFW_SECTION_XPATH)
         end
 
         # Get section etag needed to manage FW rules
@@ -75,7 +79,7 @@ module NSXDriver
         # - nil | etag [String] ID of the etag header
         def section_etag(section_id = @one_section_id)
             url = @url_sections + '/' + section_id
-            response = @nsx_client.get_full_response(url, HEADER_XML)
+            response = @nsx_client.get_full_response(url)
             return unless response
 
             etag = response['etag']
@@ -89,8 +93,10 @@ module NSXDriver
         # - nil | [Nokogiri::XML::NodeSet] section
         def section_by_name(section_name)
             url = @url_sections + '?name=' + section_name
-            result = @nsx_client.get_xml(url)
-            return result.xpath(SECTION_XPATH) if result
+            result = @nsx_client.get(url)
+            return unless result
+
+            result.xpath(NSXDriver::NSXConstants::NSXV_DFW_SECTION_XPATH)
         end
 
         # Create new section
@@ -103,12 +109,21 @@ module NSXDriver
                 "<section name=\"#{section_name}\"\
                 stateless=\"false\" tcpStrict=\"true\" useSid=\"false\">\
                 </section>"
-            section = @nsx_client.post_xml(@url_sections, section_spec)
-            raise 'Error creating section in NSX' unless section
+            begin
+                section = @nsx_client.post(@url_sections, section_spec)
+            rescue StandardError => e
+                raise NSXDriver::DFWError::CreateError, \
+                      "Error creating section in NSX: #{e.message}"
+            end
+
+            unless section
+                raise NSXDriver::DFWError::CreateError, \
+                      'Error creating section in NSX: Unknown error'
+            end
 
             section_id = section.xpath('//section/@id').text
             result = section_by_id(section_id)
-            raise 'Section was not created in NSX' unless result
+            raise 'Section was not created in DFW' unless result
 
             result
         end
@@ -118,7 +133,7 @@ module NSXDriver
         # - section_id: [String] ID of the section or @one_section_id
         def delete_section(section_id = @one_section_id)
             url = @url_sections + '/' + section_id
-            @nsx_client.delete(url, HEADER_XML)
+            @nsx_client.delete(url)
         end
 
         # Rules
@@ -129,15 +144,17 @@ module NSXDriver
         # - [Nokogiri::XML::NodeSet]
         def rules(section_id = @one_section_id)
             url = @url_sections + '/' + section_id
-            result = @nsx_client.get_xml(url)
+            result = @nsx_client.get(url)
             return result.xpath(RULE_XPATH) if result
         end
 
         # Get rule by id
         def rules_by_id(rule_id, section_id = @one_section_id)
             url = @url_sections + '/' + section_id + '/rules/' + rule_id
-            result = @nsx_client.get_xml(url)
-            return result.xpath(RULE_XPATH) if result
+            result = @nsx_client.get(url)
+            return unless result
+
+            result.xpath(NSXDriver::NSXConstants::NSXV_DFW_RULE_XPATH)
         end
 
         # Get rule by name
@@ -160,10 +177,9 @@ module NSXDriver
             etag = section_etag(section_id)
             raise "Cannot get etag from section: #{section_id}" unless etag
 
-            header = HEADER_XML
             header['If-Match'] = etag
             url = @url_sections + '/' + section_id + '/rules'
-            result = @nsx_client.post_xml(url, rule_spec, header)
+            result = @nsx_client.post(url, rule_spec)
             raise 'Error creating DFW rule' unless result
         end
 
@@ -177,9 +193,8 @@ module NSXDriver
             etag = section_etag(section_id)
             raise "Cannot get etag from section: #{section_id}" unless etag
 
-            header = HEADER_XML
             header['If-Match'] = etag
-            result = @nsx_client.put_xml(url, rule_spec, header)
+            result = @nsx_client.put(url, rule_spec)
             raise 'Error creating DFW rule' unless result
         end
 
@@ -190,9 +205,8 @@ module NSXDriver
             etag = section_etag(section_id)
             raise "Cannot get etag from section: #{section_id}" unless etag
 
-            header = HEADER_XML
             header['If-Match'] = etag
-            result = @nsx_client.delete(url, header)
+            result = @nsx_client.delete(url)
             raise 'Invalid http code deleting rule in DFW' unless result
 
             result = rules_by_id(rule_id)
