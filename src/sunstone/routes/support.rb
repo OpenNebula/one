@@ -15,7 +15,6 @@
 #--------------------------------------------------------------------------- #
 require 'curb'
 require 'base64'
-require 'pry-byebug'
 
 # Too hard to get rid of $conf variable
 # rubocop:disable Style/GlobalVars
@@ -291,8 +290,6 @@ get '/support/check/version' do
                         split_version[1] &&
                         split_version[1].to_i &&
                         split_version[1].to_i.even?
-
-            binding.pry
 
             gem_git_version = Gem::Version.new(git_version)
             gem_local_version = Gem::Version.new($conf[:one_last_version])
