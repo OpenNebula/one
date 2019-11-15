@@ -24,6 +24,7 @@ if !ONE_LOCATION
     ETC_LOCATION  = '/etc/one'
     LIB_LOCATION  = '/usr/lib/one'
     HOOK_LOCATION = '/var/lib/one/remotes/hooks'
+    REMOTE_HOOK_LOCATION = '/var/tmp/one/hooks'
     RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
     GEMS_LOCATION     = '/usr/share/one/gems'
 else
@@ -32,6 +33,7 @@ else
     ETC_LOCATION  = ONE_LOCATION + '/etc'
     LIB_LOCATION  = ONE_LOCATION + '/lib'
     HOOK_LOCATION = ONE_LOCATION + '/var/remotest/hooks'
+    REMOTE_HOOK_LOCATION = '/var/tmp/one/hooks'
     RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
 end
@@ -166,7 +168,7 @@ module HEMHook
     end
 
     def remote?
-        self['TEMPLATE/REMOTE'].casecmp('YES').zero?
+        self['TEMPLATE/REMOTE'].casecmp('YES').zero? rescue false
     end
 
     def as_stdin?
@@ -344,11 +346,12 @@ class HookExecutionManager
     # Default configuration options, overwritten in hem.conf
     # --------------------------------------------------------------------------
     DEFAULT_CONF = {
-        :hook_base_path      => HOOK_LOCATION,
-        :subscriber_endpoint => 'tcp://localhost:2101',
-        :replier_endpoint    => 'tcp://localhost:2102',
-        :debug_level         => 2,
-        :concurrency         => 10
+        :hook_base_path        => HOOK_LOCATION,
+        :remote_hook_base_path => REMOTE_HOOK_LOCATION,
+        :subscriber_endpoint   => 'tcp://localhost:2101',
+        :replier_endpoint      => 'tcp://localhost:2102',
+        :debug_level           => 2,
+        :concurrency           => 10
     }
 
     # --------------------------------------------------------------------------
@@ -575,7 +578,13 @@ class HookExecutionManager
 
         @logger.info("Executing hook for #{hook.key}")
 
-        rc = hook.execute(@conf[:hook_base_path], params, host)
+        rc = nil
+
+        if hook.remote?
+            rc = hook.execute(@conf[:remote_hook_base_path], params, host)
+        else
+            rc = hook.execute(@conf[:hook_base_path], params, host)
+        end
 
         if rc == -1
             @logger.error('No remote host specified for a remote hook.')
@@ -607,7 +616,11 @@ class HookExecutionManager
         remote_host = body.xpath('//REMOTE_HOST')[0]
         host = remote_host.text unless remote_host.nil?
 
-        rc = hook.execute(@conf[:hook_base_path], args, host)
+        if hook.remote?
+            rc = hook.execute(@conf[:remote_hook_base_path], params, host)
+        else
+            rc = hook.execute(@conf[:hook_base_path], params, host)
+        end
 
         xml_response = build_response_body(args, rc, host, !host.empty?, true)
 
