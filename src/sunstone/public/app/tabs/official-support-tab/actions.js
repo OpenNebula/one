@@ -23,17 +23,6 @@ define(function(require) {
   var RESOURCE = "official-support";
   var TAB_ID = require("./tabId");
 
-  var version = function(version="", position = 0){
-    var r = 0;
-    if(version && version.length){
-      var number = version.substring(0, version.lastIndexOf(".")+position);
-      if(number && number.length){
-        r = parseFloat(number);
-      }
-    }
-    return r;
-  };
-
   var _actions = {
     "Support.check":{
       type: "list",
@@ -55,32 +44,30 @@ define(function(require) {
         if($("#footer>a").length){
           var localVersion = $("#footer>a").text().replace("OpenNebula ", "");
           if(req && req.version && req.version!=="0" && localVersion.length){
-            console.log(req.version, localVersion);
             var gitVersion = req.version;
             var splitGitVersion = gitVersion.split(".");
-            var splitGitLovalVersion = localVersion.split(".");
+            var splitGitLocalVersion = localVersion.split(".");
 
             var major = false;
             var minor = false;
-
             var message = false;
 
             splitGitVersion.forEach(function(position, index){
               switch (index) {
                 case 0:
-                  if(position > localVersion[index]){
+                  if(position > splitGitLocalVersion[index]){
                     message = true;
                     return;
                   }
                 break;
                 case 1:
-                  if(position > localVersion[index] && major){
+                  if(position > splitGitLocalVersion[index] && major){
                     message = true;
                     return;
                   }
                 break;
                 case 2:
-                  if(position > localVersion[index] && major && minor){
+                  if(position > splitGitLocalVersion[index] && major && minor){
                     message = true;
                     return;
                   }
@@ -88,7 +75,8 @@ define(function(require) {
                 default:
                 break;
               }
-              if(position === localVersion[index]){
+
+              if(position === splitGitLocalVersion[index]){
                 switch (index) {
                   case 0:
                     major = true;
@@ -99,13 +87,13 @@ define(function(require) {
                   default:
                   break;
                 }
-                same = true;
               }
+
             });
 
             if (message){
               var link = $("<a/>", {href:"https://opennebula.org/software/"}).text(
-                "(new version available: " + version + ")"
+                "(new version available: " + gitVersion + ")"
               );
               $("#latest_version").show().empty().append(link);
               return;
