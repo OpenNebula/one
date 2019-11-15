@@ -82,5 +82,3 @@ rules.each do |rule|
     rule_ip = rule.xpath('IP').text
     rule_size = rule.xpath('SIZE').text
 end
-
-
