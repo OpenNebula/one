@@ -5,7 +5,7 @@
 ###############################################################################
 
 # OpenNebula repository version
-opennebula_repository_version: '5.8'
+opennebula_repository_version: '5.10'
 
 # Repository of the OpenNebula packages
 opennebula_repository_base: 'https://downloads.opennebula.org/repo/{{ opennebula_repository_version }}'
