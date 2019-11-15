@@ -286,13 +286,13 @@ get '/support/check/version' do
             git_version = tag['name'].tr(find, '')
             split_version = git_version.split('.')
 
+            gem_git_version = Gem::Version.new(git_version)
+            gem_local_version = Gem::Version.new($conf[:one_last_version])
+
             next unless split_version &&
                         split_version[1] &&
                         split_version[1].to_i &&
                         split_version[1].to_i.even?
-
-            gem_git_version = Gem::Version.new(git_version)
-            gem_local_version = Gem::Version.new($conf[:one_last_version])
 
             if gem_git_version > gem_local_version
               $conf[:one_last_version] = git_version
