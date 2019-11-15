@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 require 'curb'
 require 'base64'
+require 'pry-byebug'
 
 # Too hard to get rid of $conf variable
 # rubocop:disable Style/GlobalVars
@@ -252,10 +253,16 @@ end
 get '/support/check/version' do
     $conf[:one_version_time] = 0 if $conf[:one_version_time].nil?
     $conf[:one_last_version] = '0' if $conf[:one_last_version].nil?
+
+    def returnRoute(version,httpCode=200)
+      return [httpCode, JSON.pretty_generate(:version => version )]
+    end
+
     find = 'release-'
     validate_time = Time.now.to_i - $conf[:one_version_time]
+    
     if validate_time < 86400
-        return [200, JSON.pretty_generate(:version => $conf[:one_last_version])]
+      return returnRoute($conf[:one_last_version])
     end
 
     begin
@@ -266,7 +273,7 @@ get '/support/check/version' do
             request.headers['User-Agent'] = 'OpenNebula Version Validation'
         end
     rescue StandardError
-        return [400, JSON.pretty_generate(:version => 0)]
+        return returnRoute(0, 400)
     end
 
     if !http.nil? && http.response_code == 200
@@ -277,35 +284,27 @@ get '/support/check/version' do
                         !tag['name'].empty? &&
                         tag['name'].start_with?(find)
 
-            version = tag['name'].tr(find, '')
-            split_version = version.split('.')
+            git_version = tag['name'].tr(find, '')
+            split_version = git_version.split('.')
+
             next unless split_version &&
                         split_version[1] &&
                         split_version[1].to_i &&
                         split_version[1].to_i.even?
 
-            memory_version = $conf[:one_last_version]
-            minor_version =
-                version.slice(version.rindex('.').to_i + 1..-1).to_i
+            binding.pry
 
-            if version.to_f > memory_version.to_f
-                $conf[:one_last_version] = version
+            gem_git_version = Gem::Version.new(git_version)
+            gem_local_version = Gem::Version.new($conf[:one_last_version])
+
+            if gem_git_version > gem_local_version
+              $conf[:one_last_version] = git_version
+              $conf[:one_version_time] = Time.now.to_i
             end
-
-            memory_version_index = memory_version.rindex('.').to_i
-            minor_memory_version =
-                memory_version.slice(memory_version_index.to_i + 1..-1).to_i
-
-            if version.to_f == memory_version.to_f &&
-               minor_version >= minor_memory_version
-                $conf[:one_last_version] = version
-            end
+            return returnRoute($conf[:one_last_version])
         end
-        $conf[:one_version_time] = Time.now.to_i
-        [200, JSON.pretty_generate(:version => $conf[:one_last_version])]
-    else
-        [400, JSON.pretty_generate(:version => 0)]
     end
+    return returnRoute(0, 400)
 end
 
 post '/support/request/:id/action' do
