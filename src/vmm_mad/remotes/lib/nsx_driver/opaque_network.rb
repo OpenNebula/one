@@ -53,13 +53,15 @@ module NSXDriver
             end
         end
 
-        # Creates a NSXDriver::VirtualWire from its name
+        # Creates a NSXDriver::OpaqueNetwork from its name
         def self.new_from_name(nsx_client, ls_name)
             lswitch = new(nsx_client)
             ls_id = lswitch.ls_id_from_name(nsx_client, ls_name)
             unless ls_id
-                raise NSXDriver::LogicalSwitchError::LogicalSwitchNotFound, \
-                      "Logical Switch with name: #{ls_name} not found"
+                error_msg = "Opaque Network with name: #{ls_name} not found")
+                error =  NSXDriver::NSXError::ObjectNotFound
+                         .new(error_msg)
+                raise error
             end
 
             # initialize_with_id(@ls_id)
@@ -79,8 +81,10 @@ module NSXDriver
                 @tz_id = ls_tz
                 @admin_display = 'UP'
             else
-                raise NSXDriver::LogicalSwitchError::LogicalSwitchNotFound, \
-                      "Logical switch with id: #{ls_id} not found"
+                error_msg = "Opaque Network with id: #{ls_id} not found"
+                error = NSXDriver::NSXError::ObjectNotFound
+                        .new(error_msg)
+                raise error
             end
         end
 

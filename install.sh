@@ -872,9 +872,7 @@ VMM_EXEC_LIB_NSX_FILES="src/vmm_mad/remotes/lib/nsx_driver/logical_switch.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/virtual_wire.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/distributed_firewall.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/nsxt_dfw.rb \
-                    src/vmm_mad/remotes/lib/nsx_driver/nsxv_dfw.rb \
-                    src/vmm_mad/remotes/lib/nsx_driver/logical_switch_error.rb \
-                    src/vmm_mad/remotes/lib/nsx_driver/dfw_error.rb"
+                    src/vmm_mad/remotes/lib/nsx_driver/nsxv_dfw.rb"
 
 #-------------------------------------------------------------------------------
 # VMM SH Driver LXD scripts, to be installed under $REMOTES_LOCATION/vmm/lxd

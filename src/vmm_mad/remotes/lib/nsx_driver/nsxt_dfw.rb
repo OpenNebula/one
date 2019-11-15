@@ -146,8 +146,10 @@ module NSXDriver
             # Get revision from section
             section = section_by_id(section_id)
             unless section
-                raise NSXDriver::NSXError::ObjectNotFound, \
-                      "Section with id #{section_id} not found"
+                error_msg = "Section with id #{section_id} not found"
+                error = NSXDriver::NSXError::ObjectNotFound
+                        .new(error_msg)
+                raise error
             end
             revision_id = section['_revision']
             rule_spec['_revision'] = revision_id

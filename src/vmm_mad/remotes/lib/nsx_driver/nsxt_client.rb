@@ -109,12 +109,13 @@ module NSXDriver
             # If response is different as expected raise the message
             unless check_response(response,
                                   [NSXDriver::NSXConstants::CODE_CREATED])
-                nsx_error = "\nNSX error code: " \
+                error_msg = "\nNSX error code: " \
                             "#{response_json['errorCode']}, " \
                             "\nNSX error details: " \
                             "#{response_json['details']}"
-                raise NSXDriver::NSXError::IncorrectResponseCodeError,
-                      nsx_error
+                error = NSXDriver::NSXError::IncorrectResponseCodeError
+                        .new(error_msg)
+                raise error
             end
 
             response_json['id']
@@ -135,12 +136,13 @@ module NSXDriver
             # If response is different as expected raise the message
             unless check_response(response,
                                   [NSXDriver::NSXConstants::CODE_CREATED])
-                nsx_error = "\nNSX error code: " \
+                error_msg = "\nNSX error code: " \
                             "#{response_json['errorCode']}, " \
                             "\nNSX error details: " \
                             "#{response_json['details']}"
-                raise NSXDriver::NSXError::IncorrectResponseCodeError,
-                      nsx_error
+                error = NSXDriver::NSXError::IncorrectResponseCodeError
+                        .new(error_msg)
+                raise error
             end
 
             response_json['id']

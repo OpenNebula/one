@@ -56,8 +56,10 @@ module NSXDriver
             virtualwire = new(nsx_client)
             ls_id = virtualwire.ls_id_from_name(nsx_client, ls_name)
             unless ls_id
-                raise NSXDriver::LogicalSwitchError::LogicalSwitchNotFound, \
-                      "VirtualWire with name: #{ls_name} not found"
+                error_msg = "VirtualWire with name: #{ls_name} not found"
+                error = NSXDriver::NSXError::ObjectNotFound
+                        .new(error_msg)
+                raise error
             end
 
             # initialize_with_id(@ls_id)
@@ -71,14 +73,20 @@ module NSXDriver
             # Construct URL of the created logical switch
             @url_ls = NSXDriver::NSXConstants::NSXV_LS_SECTION + \
                       @ls_id
-            if ls?
-                @ls_vni =  ls_vni
-                @ls_name = ls_name
-                @tz_id = ls_tz
-                @tenant_id = 'virtual wire tenant'
-                @guest_vlan_allowed = false
+            # Raise an error if VirtualWire id doesn't exists
+            unless ls?
+                error_msg = "VirtualWire with id: #{ls_id} not found"
+                error = NSXDriver::NSXError::ObjectNotFound
+                        .new(error_msg)
+                raise error
             end
-            raise "VirtualWire with id: #{ls_id} not found" unless ls?
+
+            @ls_vni =  ls_vni
+            @ls_name = ls_name
+            @tz_id = ls_tz
+            @tenant_id = 'virtual wire tenant'
+            @guest_vlan_allowed = false
+
         end
 
         # Get the logical switch id from its name
