@@ -28,6 +28,7 @@
 # Pecadis <Pecadis@gmail.com>, 2017
 # Peter Caron <peter.caron@zimory.com>, 2013
 # Peter Caron <peter.caron@zimory.com>, 2013
+# Philipp wollschlegel <folken@kabelsalat.ch>, 2019
 # Sledge Sulaweyo <sledge.sulaweyo@gmail.com>, 2018
 # Stefan Freitag <stefan.freitag@udo.edu>, 2012
 # Steffen Claus <steffen.claus@scai.fraunhofer.de>, 2013
@@ -42,8 +43,8 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
-"Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
+"PO-Revision-Date: 2019-10-08 14:42+0000\n"
+"Last-Translator: Philipp wollschlegel <folken@kabelsalat.ch>\n"
 "Language-Team: German (http://www.transifex.com/opennebula/one/language/de/)\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -2200,7 +2201,7 @@ msgstr "Ausschalten"
 
 #: ../app/tabs/vms-tab/buttons.js:71
 msgid "Poweroff-hard"
-msgstr ""
+msgstr "Ausschalten-Hart"
 
 #: ../app/tabs/vms-tab/buttons.js:77
 msgid "live"
@@ -2306,7 +2307,7 @@ msgstr "delete-recreate"
 
 #: ../app/tabs/vms-tab/buttons.js:185
 msgid "delete-db"
-msgstr ""
+msgstr "db-löschen"
 
 #: ../app/tabs/vms-tab/buttons.js:187
 msgid "Recovers a stuck VM that is waiting for a driver operation.                     The recovery may be done by failing, succeeding or retrying the current operation.                     YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation                     was successful or not, or if it can be retried.                    <br/>                    <br/>Delete: This will delete the selected VMs                    <br/>Delete-recreate: This will delete and recreate VMs to PENDING state                    <br/>Delete-db: This will delete the selected VMs, but will not perform any action on the hypervisor"
@@ -4109,19 +4110,19 @@ msgstr "Stunden"
 
 #: ../app/utils/schedule_action.js:364 ../app/utils/schedule_action/html.hbs:31
 msgid "Years"
-msgstr ""
+msgstr "Jahre"
 
 #: ../app/utils/schedule_action.js:367 ../app/utils/schedule_action/html.hbs:32
 msgid "Months"
-msgstr ""
+msgstr "Monate"
 
 #: ../app/utils/schedule_action.js:370 ../app/utils/schedule_action/html.hbs:33
 msgid "Weeks"
-msgstr ""
+msgstr "Wochen"
 
 #: ../app/utils/schedule_action.js:373 ../app/utils/schedule_action/html.hbs:34
 msgid "Days"
-msgstr ""
+msgstr "Tage"
 
 #: ../app/utils/schedule_action.js:376 ../app/utils/schedule_action/html.hbs:35
 #: ../app/utils/showback/html.hbs:89
@@ -4130,7 +4131,7 @@ msgstr "Stunden"
 
 #: ../app/utils/schedule_action.js:379 ../app/utils/schedule_action/html.hbs:36
 msgid "Minutes"
-msgstr ""
+msgstr "Minuten"
 
 #: ../app/utils/vmgroup-section.js:167
 msgid "Internal server error."
@@ -4146,11 +4147,11 @@ msgstr "Abbild nicht gefunden"
 
 #: ../app/utils/disks-resize.js:165
 msgid "Persistent image. The changes will be saved back to the datastore after the VM is shut down"
-msgstr "Persistentes Abbild. Änderungen werden nach dem Herunterfahren der VM in den Datenspeicher zurückgespeichert."
+msgstr ""
 
 #: ../app/utils/disks-resize.js:169
 msgid "Non-persistent disk. The changes will be lost once the VM is shut down"
-msgstr "Nicht-persistentes Abbild. Änderungen gehen nach dem Herunterfahren der VM verloren."
+msgstr ""
 
 #: ../app/utils/disks-resize.js:177
 msgid "Image state: "
@@ -5456,8 +5457,9 @@ msgid "Disk Snapshot"
 msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:22
+#, fuzzy
 msgid "Loading"
-msgstr "Lade"
+msgstr "Wird geladen..."
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:24
 msgid "Send CtrlAltDel"
@@ -5470,7 +5472,7 @@ msgstr "Neues Fenster öffnen"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:36
 msgid "Canvas not supported."
-msgstr "Canvas wird nicht unterstützt"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:20
 msgid "Attach new disk"
@@ -6204,8 +6206,9 @@ msgid "CPU Architecture"
 msgstr "CPU Architektur"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:52
+#, fuzzy
 msgid "machine type"
-msgstr ""
+msgstr "Instanz-Typ"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:59
 msgid "Root device"
@@ -7158,8 +7161,9 @@ msgstr ""
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:60
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:95
+#, fuzzy
 msgid "Affinity"
-msgstr ""
+msgstr "Affinitätsgruppe"
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:85
 msgid "Roles Affinity"
@@ -8155,3 +8159,9 @@ msgstr ""
 #: ../app/utils/vcenter-vm-folder/html.hbs:21
 msgid "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
 msgstr ""
+
+#~ msgid "just click if you want to delete the resource"
+#~ msgstr "Klicken wenn sie die Resource löschen wollen."
+
+#~ msgid "none"
+#~ msgstr "none"

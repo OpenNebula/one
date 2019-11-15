@@ -3,10 +3,6 @@
 # This file is distributed under the same license as the OpenNebula package.
 #
 # Translators:
-# Botond Matyus <manzolkkt@gmail.com>, 2013
-# Guba Sándor <gubasanyi@gmail.com>, 2012
-# Kovács Ákos <jampynet@gmail.com>, 2012
-# Sándor Ács <acs.sandor@sztaki.mta.hu>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
@@ -14,12 +10,12 @@ msgstr ""
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
 "PO-Revision-Date: 2019-10-07 15:12+0000\n"
 "Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
-"Language-Team: Hungarian (Hungary) (http://www.transifex.com/opennebula/one/language/hu_HU/)\n"
-"Language: hu_HU\n"
+"Language-Team: Uzbek (http://www.transifex.com/opennebula/one/language/uz/)\n"
+"Language: uz\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../app/opennebula/datastore.js:25 ../app/opennebula/host.js:55
 #: ../app/tabs/datastores-tab.js:54 ../app/tabs/hosts-tab.js:59
@@ -215,7 +211,7 @@ msgstr ""
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:83
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:70
 msgid "ERROR"
-msgstr "HIBA"
+msgstr ""
 
 #: ../app/opennebula/marketplaceapp.js:28 ../app/opennebula/host.js:45
 #: ../app/opennebula/host.js:57 ../app/opennebula/host.js:60
@@ -290,7 +286,7 @@ msgstr ""
 #: ../app/opennebula/image.js:37
 #: ../app/tabs/images-tab/panels/info-common.js:96
 msgid "OS"
-msgstr "Operációs Rendszer"
+msgstr ""
 
 #: ../app/opennebula/image.js:38
 #: ../app/tabs/images-tab/panels/info-common.js:97
@@ -330,11 +326,11 @@ msgstr ""
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:81
 #: ../app/tabs/dashboard-tab/network.hbs:20
 msgid "Virtual Networks"
-msgstr "Virtuális Hálózatok"
+msgstr ""
 
 #: ../app/tabs/vnets-tab.js:58 ../app/tabs/secgroups-tab/utils/common.js:104
 msgid "Virtual Network"
-msgstr "Virtuális Hálózat"
+msgstr ""
 
 #: ../app/tabs/vnets-tab.js:60 ../app/tabs/vnets-templates-tab.js:59
 #: ../app/tabs/datastores-tab.js:53 ../app/tabs/clusters-tab.js:54
@@ -408,7 +404,7 @@ msgstr ""
 #: ../app/tabs/hosts-tab/utils/datastore-capacity-table/html.hbs:21
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:35
 msgid "Capacity"
-msgstr "Kapacitás"
+msgstr ""
 
 #: ../app/tabs/provision-tab.js:694 ../app/tabs/provision-tab.js:880
 #: ../app/tabs/provision-tab.js:1248
@@ -456,7 +452,7 @@ msgstr ""
 #: ../app/tabs/dashboard-tab.js:205 ../app/tabs/dashboard-tab.js:206
 #: ../app/utils/menu/provision-top-row.hbs:25
 msgid "Dashboard"
-msgstr "Irányítópult"
+msgstr ""
 
 #: ../app/tabs/infrastructure-top-tab.js:23
 msgid "Infrastructure"
@@ -514,7 +510,7 @@ msgstr ""
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:43
 #: ../app/utils/showback/html.hbs:86
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/datatable.js:84
 #: ../app/tabs/users-tab/datatable.js:72
@@ -585,7 +581,7 @@ msgstr "ID"
 #: ../app/utils/user-inputs/row.hbs:3 ../app/utils/panel/rename-tr/html.hbs:18
 #: ../app/utils/showback/html.hbs:87
 msgid "Name"
-msgstr "Név"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/datatable.js:85
 #: ../app/tabs/vnets-templates-tab/datatable.js:69
@@ -617,7 +613,7 @@ msgstr "Név"
 #: ../app/utils/panel/permissions-table/permissions.hbs:26
 #: ../app/utils/showback/html.hbs:88
 msgid "Owner"
-msgstr "Tulajdonos"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/datatable.js:86
 #: ../app/tabs/users-tab/datatable.js:73
@@ -658,7 +654,7 @@ msgstr "Tulajdonos"
 #: ../app/utils/panel/permissions-table/group.hbs:18
 #: ../app/utils/accounting/html.hbs:30 ../app/utils/accounting/html.hbs:40
 msgid "Group"
-msgstr "Csoport"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/datatable.js:88
 #: ../app/tabs/vnets-templates-tab/datatable.js:71
@@ -677,7 +673,7 @@ msgstr "Csoport"
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:57
 #: ../app/utils/panel/cluster-tr/html.hbs:18
 msgid "Cluster"
-msgstr "Fürt"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/datatable.js:89
 msgid "Basepath"
@@ -720,7 +716,7 @@ msgstr ""
 #: ../app/utils/user-inputs/row.hbs:9 ../app/utils/vcenter/templates/row.hbs:39
 #: ../app/utils/vcenter/networks/row.hbs:45
 msgid "Type"
-msgstr "Típus"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/datatable.js:93
 #: ../app/tabs/hosts-tab/datatable.js:83
@@ -733,7 +729,7 @@ msgstr "Típus"
 #: ../app/tabs/vms-tab/datatable/search.hbs:22
 #: ../app/tabs/images-tab/datatable/search.hbs:34
 msgid "Status"
-msgstr "Állapot"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/datatable.js:94
 #: ../app/tabs/users-tab/datatable.js:81
@@ -833,7 +829,7 @@ msgstr ""
 #: ../app/tabs/provision-tab/flows/create.hbs:33
 #: ../app/tabs/provision-tab/vms/create.hbs:47 ../app/sunstone/buttons.hbs:30
 msgid "Create"
-msgstr "Létrehozás"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create.js:359
 msgid "Please select a cluster for this datastore"
@@ -843,7 +839,7 @@ msgstr ""
 #: ../app/tabs/vnets-templates-tab/buttons.js:44
 #: ../app/tabs/hosts-tab/buttons.js:32
 msgid "Select cluster"
-msgstr "Válasszon fürtöt"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/buttons.js:46
 #: ../app/tabs/vnets-templates-tab/buttons.js:49
@@ -856,7 +852,7 @@ msgstr "Válasszon fürtöt"
 #: ../app/tabs/oneflow-services-tab/buttons.js:33
 #: ../app/tabs/vrouters-tab/buttons.js:38
 msgid "Change owner"
-msgstr "Tulajdonos váltása"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/buttons.js:49
 #: ../app/tabs/vnets-templates-tab/buttons.js:52
@@ -869,7 +865,7 @@ msgstr "Tulajdonos váltása"
 #: ../app/tabs/oneflow-services-tab/buttons.js:35
 #: ../app/tabs/vrouters-tab/buttons.js:41
 msgid "Select the new owner"
-msgstr "Válaszd ki az új tulajdonost"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/buttons.js:53
 #: ../app/tabs/vnets-templates-tab/buttons.js:57
@@ -882,7 +878,7 @@ msgstr "Válaszd ki az új tulajdonost"
 #: ../app/tabs/oneflow-services-tab/buttons.js:40
 #: ../app/tabs/vrouters-tab/buttons.js:45
 msgid "Change group"
-msgstr "Csoport változtatása"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/buttons.js:56
 #: ../app/tabs/vnets-templates-tab/buttons.js:60
@@ -895,7 +891,7 @@ msgstr "Csoport változtatása"
 #: ../app/tabs/oneflow-services-tab/buttons.js:42
 #: ../app/tabs/vrouters-tab/buttons.js:48
 msgid "Select the new group"
-msgstr "Válaszd ki az új csoportot"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/buttons.js:60 ../app/tabs/users-tab/buttons.js:39
 #: ../app/tabs/vnets-templates-tab/buttons.js:66
@@ -921,13 +917,13 @@ msgstr "Válaszd ki az új csoportot"
 #: ../app/tabs/images-tab/panels/snapshots/html.hbs:32
 #: ../app/tabs/provision-tab/flows/info.hbs:48
 msgid "Delete"
-msgstr "Törlés"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/buttons.js:66
 #: ../app/tabs/marketplaceapps-tab/buttons.js:56
 #: ../app/tabs/hosts-tab/buttons.js:39 ../app/tabs/images-tab/buttons.js:61
 msgid "Enable"
-msgstr "Engedélyez"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/buttons.js:71
 #: ../app/tabs/marketplaceapps-tab/buttons.js:61
@@ -943,7 +939,7 @@ msgstr ""
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:85
 #: ../app/tabs/dashboard-tab/storage.hbs:20
 msgid "Images"
-msgstr "Lemezképek"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/panels/clusters.js:38
 #: ../app/tabs/vnets-templates-tab/panels/clusters.js:39
@@ -956,7 +952,7 @@ msgstr "Lemezképek"
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:71
 #: ../app/utils/dialogs/clusters/html.hbs:19
 msgid "Clusters"
-msgstr "Klaszter"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/panels/info.js:50
 #: ../app/tabs/users-tab/panels/info-common.js:51
@@ -978,7 +974,7 @@ msgstr "Klaszter"
 #: ../app/tabs/oneflow-services-tab/panels/info.js:47
 #: ../app/tabs/vrouters-tab/panels/info.js:54
 msgid "Info"
-msgstr "Információ"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/panels/info.js:86
 #: ../app/tabs/users-tab/panels/auth-common.js:76
@@ -1023,7 +1019,7 @@ msgstr ""
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:192
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:60
 msgid "Password"
-msgstr "Jelszó"
+msgstr ""
 
 #: ../app/tabs/users-tab/datatable.js:76 ../app/tabs/templates-tab.js:47
 #: ../app/tabs/vms-tab.js:68 ../app/tabs/vms-tab.js:72
@@ -1051,7 +1047,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:22
 #: ../app/tabs/provision-tab/vms/info.hbs:113
 msgid "Memory"
-msgstr "Memória"
+msgstr ""
 
 #: ../app/tabs/users-tab/datatable.js:78 ../app/tabs/groups-tab/datatable.js:73
 #: ../app/utils/quotas/quota-widgets.js:155
@@ -1066,7 +1062,7 @@ msgstr "Memória"
 #: ../app/tabs/provision-tab/dashboard/quotas.hbs:48
 #: ../app/tabs/provision-tab/vms/info.hbs:96
 msgid "CPU"
-msgstr "CPU"
+msgstr ""
 
 #: ../app/tabs/users-tab/datatable.js:79
 msgid "Group ID"
@@ -1157,7 +1153,7 @@ msgstr ""
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:99
 #: ../app/sunstone/user_and_zone.hbs:69
 msgid "Groups"
-msgstr "Csoportok"
+msgstr ""
 
 #: ../app/tabs/users-tab/panels/accounting-common.js:37
 #: ../app/tabs/groups-tab/panels/accounting.js:39
@@ -1185,7 +1181,7 @@ msgstr ""
 #: ../app/utils/quotas/quota-widgets.js:1006
 #: ../app/utils/vcenter/templates/row.hbs:41
 msgid "Default"
-msgstr "Alap"
+msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:80
 msgid "Please select a network template from the list"
@@ -1282,7 +1278,7 @@ msgstr ""
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:35
 #: ../app/utils/vcenter/networks/row.hbs:39
 msgid "Size"
-msgstr "Méret"
+msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:409
 #: ../app/tabs/vnets-templates-tab/panels/ar.js:340
@@ -1326,7 +1322,7 @@ msgstr ""
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:28
 #: ../app/utils/dialogs/overcommit/html.hbs:65
 msgid "Update"
-msgstr "Frissítés"
+msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:315
 #: ../app/tabs/vnets-tab/form-panels/create.js:309
@@ -1361,7 +1357,7 @@ msgstr ""
 #: ../app/tabs/provision-tab/flows/create.hbs:38
 #: ../app/tabs/provision-tab/vms/create.hbs:52
 msgid "Template"
-msgstr "Sablon"
+msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/panels/ar.js:52
 #: ../app/tabs/vnets-tab/panels/ar.js:52
@@ -1421,7 +1417,7 @@ msgstr ""
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:63
 #: ../app/tabs/dashboard-tab/hosts.hbs:21
 msgid "Hosts"
-msgstr "Gazdagépek"
+msgstr ""
 
 #: ../app/tabs/vdcs-tab/datatable.js:72
 #: ../app/tabs/clusters-tab/datatable.js:67
@@ -1440,7 +1436,7 @@ msgstr ""
 #: ../app/tabs/clusters-tab/form-panels/create/wizard.hbs:37
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:71
 msgid "Datastores"
-msgstr "Adattárolók"
+msgstr ""
 
 #: ../app/tabs/vdcs-tab/datatable.js:80
 msgid "Please select a VDC from the list"
@@ -1478,7 +1474,7 @@ msgstr ""
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:144
 #: ../app/utils/accounting/html.hbs:39
 msgid "All"
-msgstr "Mind"
+msgstr ""
 
 #: ../app/tabs/vdcs-tab/actions.js:33 ../app/tabs/vdcs-tab/actions.js:104
 msgid "VDC created"
@@ -1532,7 +1528,7 @@ msgstr ""
 #: ../app/tabs/marketplaces-tab/datatable/search.hbs:22
 #: ../app/tabs/marketplaces-tab/panels/info/html.hbs:32
 msgid "Driver"
-msgstr "Meghajtó"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/datatable.js:91
 #: ../app/tabs/marketplaceapps-tab/datatable.js:96 ../app/tabs/zones-tab.js:45
@@ -1656,7 +1652,7 @@ msgstr ""
 #: ../app/tabs/images-tab/panels/info/html.hbs:32
 #: ../app/tabs/provision-tab/vms/create.hbs:147
 msgid "Datastore"
-msgstr "Adattároló"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:90
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:40
@@ -1676,7 +1672,7 @@ msgstr ""
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:42
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:50
 msgid "State"
-msgstr "Állapot"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:94
 msgid "Registration Time"
@@ -1722,7 +1718,7 @@ msgstr ""
 #: ../app/tabs/marketplaceapps-tab/actions.js:134
 #: ../app/tabs/images-tab/actions.js:98
 msgid "Error"
-msgstr "Hiba"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:137
 msgid "This MarketPlace App resides in Zone "
@@ -1760,7 +1756,7 @@ msgstr ""
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:89
 #: ../app/utils/menu/provision-top-row.hbs:34
 msgid "Templates"
-msgstr "Sablonok"
+msgstr ""
 
 #: ../app/tabs/images-tab.js:52 ../app/utils/quotas/quota-widgets.js:420
 #: ../app/utils/quotas/quota-widgets.js:1440
@@ -1770,7 +1766,7 @@ msgstr "Sablonok"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:20
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:31
 msgid "Image"
-msgstr "Lemezkép"
+msgstr ""
 
 #: ../app/tabs/images-tab.js:55
 msgid "TOTAL SIZE"
@@ -1783,14 +1779,14 @@ msgstr ""
 
 #: ../app/tabs/templates-tab.js:51 ../app/tabs/acls-tab/datatable.js:159
 msgid "VM Templates"
-msgstr "VM Sablon"
+msgstr ""
 
 #: ../app/tabs/templates-tab.js:52
 #: ../app/tabs/vms-tab/dialogs/saveas-template.js:86
 #: ../app/tabs/provision-tab/vms/list.js:540
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:53
 msgid "VM Template"
-msgstr "VM Sablon"
+msgstr ""
 
 #: ../app/tabs/instances-top-tab.js:23
 msgid "Instances"
@@ -1916,7 +1912,7 @@ msgstr ""
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:45
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:45
 msgid "Clone"
-msgstr "Klónozás"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/buttons.js:65
 msgid "This will delete the selected templates"
@@ -2019,7 +2015,7 @@ msgstr ""
 
 #: ../app/tabs/hosts-tab/buttons.js:54
 msgid "Delete host"
-msgstr "Gazdagép törlése"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/zombies.js:48
 msgid "Zombies"
@@ -2075,7 +2071,7 @@ msgstr ""
 #: ../app/utils/vcenter/clusters.js:228 ../app/utils/vcenter/clusters.js:236
 #: ../app/utils/vcenter/clusters.js:276
 msgid "Cannot contact server: is it running and reachable?"
-msgstr "Nincs kapcsolat: biztos hogy fut és elérhető?"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/esx.js:46
 msgid "ESX"
@@ -2147,18 +2143,18 @@ msgstr ""
 #: ../app/tabs/vms-tab/form-panels/create.js:44
 #: ../app/tabs/provision-tab/vms/create.hbs:20
 msgid "Create Virtual Machine"
-msgstr "Új Virtuális Gép"
+msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:53
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:52
 msgid "Deploy"
-msgstr "Terítés"
+msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:59 ../app/tabs/vms-tab/buttons.js:65
 #: ../app/tabs/vms-tab/buttons.js:71 ../app/tabs/vms-tab/buttons.js:77
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:52
 msgid "Migrate"
-msgstr "Migrálás"
+msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:65
 msgid "Poweroff"
@@ -2175,17 +2171,17 @@ msgstr ""
 #: ../app/tabs/vms-tab/buttons.js:83
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:28
 msgid "Hold"
-msgstr "Visszatart"
+msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:89
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:33
 msgid "Release"
-msgstr "Elenged"
+msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:95
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:38
 msgid "Suspend"
-msgstr "Felfüggeszt"
+msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:95 ../app/tabs/vms-tab/buttons.js:125
 #: ../app/tabs/vms-tab/buttons.js:131
@@ -2195,7 +2191,7 @@ msgstr ""
 #: ../app/tabs/vms-tab/buttons.js:107
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:48
 msgid "Stop"
-msgstr "Stop"
+msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:107 ../app/tabs/vms-tab/buttons.js:137
 #: ../app/tabs/vms-tab/buttons.js:143
@@ -2219,7 +2215,7 @@ msgstr ""
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:63
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:68
 msgid "Power Off"
-msgstr "Lekapcsolás"
+msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:137 ../app/tabs/vms-tab/buttons.js:143
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:73
@@ -2264,7 +2260,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:183
 msgid "delete"
-msgstr "Törlés"
+msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:184
 msgid "delete-recreate"
@@ -2281,7 +2277,7 @@ msgstr ""
 #: ../app/tabs/vms-tab/buttons.js:199
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:21
 msgid "VNC"
-msgstr "VNC"
+msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:204
 #: ../app/tabs/vms-tab/dialogs/spice/html.hbs:21
@@ -2353,7 +2349,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:51
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:44
 msgid "Network"
-msgstr "Hálózat"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/network.js:84
 #: ../app/tabs/vms-tab/panels/info/html.hbs:51
@@ -2362,7 +2358,7 @@ msgstr "Hálózat"
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:69
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:37
 msgid "IP"
-msgstr "IP"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/network.js:85
 #: ../app/utils/vcenter/networks.js:175 ../app/utils/vcenter/networks.js:188
@@ -2372,7 +2368,7 @@ msgstr "IP"
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:39
 #: ../app/utils/vcenter/networks/row.hbs:58
 msgid "MAC"
-msgstr "MAC"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/network.js:86
 msgid "PCI address"
@@ -2496,7 +2492,7 @@ msgstr ""
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:43
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:44
 msgid "Context"
-msgstr "Kontext"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage.js:273
 msgid "Save as in progress"
@@ -2558,7 +2554,7 @@ msgstr ""
 #: ../app/tabs/vms-tab/panels/placement.js:43
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:20
 msgid "Placement"
-msgstr "Elhelyezés"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/placement.js:67
 msgid "#"
@@ -2569,7 +2565,7 @@ msgstr ""
 #: ../app/tabs/vms-tab/datatable/search.hbs:39
 #: ../app/tabs/vms-tab/panels/info/html.hbs:45
 msgid "Host"
-msgstr "Hoszt"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/placement.js:71
 msgid "UID"
@@ -2609,7 +2605,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/placement.js:174
 msgid "Requirements"
-msgstr "Előfeltételek"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/placement.js:178
 msgid "Rank"
@@ -2655,11 +2651,11 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/utils/datatable-common.js:39
 msgid "IPs"
-msgstr "IP-k"
+msgstr ""
 
 #: ../app/tabs/vms-tab/utils/datatable-common.js:40
 msgid "Start Time"
-msgstr "Kezdés időpontja"
+msgstr ""
 
 #: ../app/tabs/vms-tab/utils/datatable-common.js:42
 msgid "Hidden Template"
@@ -2674,7 +2670,7 @@ msgstr ""
 #: ../app/tabs/files-tab.js:47
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:103
 msgid "File"
-msgstr "Fájl"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab.js:52
 msgid "Service Templates"
@@ -2701,7 +2697,7 @@ msgstr ""
 #: ../app/tabs/acls-tab/datatable.js:162
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:93
 msgid "Users"
-msgstr "Felhasználók"
+msgstr ""
 
 #: ../app/tabs/users-tab.js:58 ../app/tabs/acls-tab/datatable.js:228
 #: ../app/utils/accounting.js:349
@@ -2710,7 +2706,7 @@ msgstr "Felhasználók"
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:39
 #: ../app/utils/accounting/html.hbs:29 ../app/utils/accounting/html.hbs:41
 msgid "User"
-msgstr "Felhasználó"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/datatable.js:77
 msgid "Please select a security group from the list"
@@ -3004,7 +3000,7 @@ msgstr ""
 #: ../app/tabs/images-tab/datatable-common.js:74
 #: ../app/tabs/templates-tab/datatable-common.js:73
 msgid "Registration time"
-msgstr "Regisztráció időpontja"
+msgstr ""
 
 #: ../app/tabs/images-tab/datatable-common.js:75
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:28
@@ -3139,7 +3135,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/utils.js:52
 #: ../app/utils/resource-select.js:68
 msgid "Please select"
-msgstr "Kérem válasszon"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:148
 msgid "OS & CPU"
@@ -3183,7 +3179,7 @@ msgstr ""
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:71
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:102
 msgid "Custom"
-msgstr "Testreszabás"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:198
 msgid "PROVIDER"
@@ -3222,11 +3218,11 @@ msgstr ""
 
 #: ../app/tabs/acls-tab.js:38
 msgid "ACLs"
-msgstr "Hozzáférés-vezérlési listák"
+msgstr ""
 
 #: ../app/tabs/acls-tab.js:42
 msgid "Access Control Lists"
-msgstr "Hozzáférés-vezérlési listák"
+msgstr ""
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:58
 msgid "Instantiate Virtual Router Template"
@@ -3243,25 +3239,25 @@ msgstr ""
 
 #: ../app/tabs/acls-tab/datatable.js:66
 msgid "Applies to"
-msgstr "Érvényes rá:"
+msgstr ""
 
 #: ../app/tabs/acls-tab/datatable.js:67
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:59
 msgid "Affected resources"
-msgstr "Érintett erőforrások"
+msgstr ""
 
 #: ../app/tabs/acls-tab/datatable.js:68
 msgid "Resource ID / Owned by"
-msgstr "Erőforrás ID / Tulajdonos"
+msgstr ""
 
 #: ../app/tabs/acls-tab/datatable.js:69
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:179
 msgid "Allowed operations"
-msgstr "Engedélyezett műveletek"
+msgstr ""
 
 #: ../app/tabs/acls-tab/datatable.js:71
 msgid "ACL String"
-msgstr "ACL érték"
+msgstr ""
 
 #: ../app/tabs/acls-tab/datatable.js:77
 msgid "Please select an ACL rule from the list"
@@ -3286,7 +3282,7 @@ msgstr ""
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:20
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:43
 msgid "Virtual Machines"
-msgstr "Virtuális Gépek"
+msgstr ""
 
 #: ../app/tabs/acls-tab/datatable.js:174
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:220
@@ -3312,7 +3308,7 @@ msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create.js:51
 msgid "Create ACL"
-msgstr "Hozzáférés-vezérlési lista létrehozása"
+msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create.js:212
 msgid "Please select a user to whom the acl applies"
@@ -3324,7 +3320,7 @@ msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create.js:229
 msgid "Please select at least one resource"
-msgstr "Kérem válasszon legalább egy erőforrást"
+msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create.js:239
 msgid "Please provide a resource ID for the resource(s) in this rule"
@@ -3479,7 +3475,7 @@ msgstr ""
 #: ../app/tabs/provision-tab/flows/list.js:522
 #: ../app/tabs/provision-tab/flows/info.hbs:52
 msgid "Shutdown"
-msgstr "Lekapcsolás"
+msgstr ""
 
 #: ../app/tabs/provision-tab/flows/list.js:636
 msgid "FAILED UNDEPLOYING"
@@ -3548,7 +3544,7 @@ msgstr ""
 #: ../app/tabs/vnets-tab/datatable.js:76
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:80
 msgid "Bridge"
-msgstr "Híd"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/datatable.js:77
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:63
@@ -3563,7 +3559,7 @@ msgstr ""
 #: ../app/tabs/vnets-tab/datatable/search.hbs:22
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:34
 msgid "VLAN ID"
-msgstr "VLAN ID"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/datatable.js:87
 msgid "Please select a network from the list"
@@ -3589,7 +3585,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:212
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:223
 msgid "Yes"
-msgstr "Igen"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/datatable.js:158
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:165
@@ -3599,7 +3595,7 @@ msgstr "Igen"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:213
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:224
 msgid "No"
-msgstr "Nem"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:59
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:22
@@ -3631,7 +3627,7 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:57
 msgid "Create Virtual Network"
-msgstr "Virtuális hálózat létrehozása"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:62
 msgid "Update Virtual Network"
@@ -3768,7 +3764,7 @@ msgstr ""
 #: ../app/utils/quotas/quota-widgets.js:295
 #: ../app/utils/quotas/quota-widgets.js:425
 msgid "Running VMs"
-msgstr "Futó VM-ek"
+msgstr ""
 
 #: ../app/utils/quotas/quota-widgets.js:343
 msgid "Running CPU"
@@ -3787,12 +3783,12 @@ msgstr ""
 #: ../app/utils/quotas/quota-widgets.js:882
 #: ../app/tabs/users-tab/panels/groups/html.hbs:19
 msgid "Edit"
-msgstr "Szerkesztés"
+msgstr ""
 
 #: ../app/utils/quotas/quota-widgets.js:885
 #: ../app/tabs/groups-tab/panels/users/html.hbs:25
 msgid "Cancel"
-msgstr "Mégse"
+msgstr ""
 
 #: ../app/utils/quotas/quota-widgets.js:888
 #: ../app/tabs/groups-tab/panels/users/html.hbs:28
@@ -3809,11 +3805,11 @@ msgstr ""
 
 #: ../app/utils/notifier.js:93
 msgid "Network is unreachable: is OpenNebula running?"
-msgstr "A hálózat nem elérhető: fut az OpenNebula?"
+msgstr ""
 
 #: ../app/utils/notifier.js:109
 msgid "Unauthorized"
-msgstr "Ismeretlen"
+msgstr ""
 
 #: ../app/utils/dialogs/confirm.js:79
 #: ../app/utils/dialogs/confirm-with-select.js:118
@@ -3872,7 +3868,7 @@ msgstr ""
 
 #: ../app/utils/vcenter/networks.js:183
 msgid "IP Start"
-msgstr "Kezdő IP"
+msgstr ""
 
 #: ../app/utils/vcenter/networks.js:196
 msgid "Global Prefix"
@@ -4308,7 +4304,7 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:33
 msgid "LVM"
-msgstr "LVM"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:34
 msgid "Raw Device Mapping"
@@ -4348,11 +4344,11 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:66
 msgid "Shared"
-msgstr "Osztott"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:67
 msgid "SSH"
-msgstr "SSH"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:68
 msgid "qcow2"
@@ -4373,11 +4369,11 @@ msgstr ""
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:101
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:87
 msgid "Disk type"
-msgstr "Merevlemez típus"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:104
 msgid "Block"
-msgstr "Blokk"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:105
 msgid "RBD"
@@ -4559,7 +4555,7 @@ msgstr ""
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:23
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:22
 msgid "Information"
-msgstr "Információ"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:42
 msgid "Base path"
@@ -4646,7 +4642,7 @@ msgstr ""
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:46
 msgid "Language"
-msgstr "Nyelv"
+msgstr ""
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:55
 #: ../app/tabs/users-tab/panels/auth/html.hbs:40
@@ -4732,7 +4728,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:172
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:336
 msgid "Network mask"
-msgstr "Hálózati maszk"
+msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:60
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:186
@@ -4763,7 +4759,7 @@ msgstr ""
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:370
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:68
 msgid "Custom attributes"
-msgstr "Egyedi attribútumok"
+msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:101
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:266
@@ -5216,7 +5212,7 @@ msgstr ""
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:86
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:121
 msgid "EC2"
-msgstr "EC2"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:89
 #: ../app/utils/panel/ec2-tr/html.hbs:2
@@ -5249,7 +5245,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:226
 #: ../app/utils/custom-tags-table/html.hbs:23
 msgid "Value"
-msgstr "Érték"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:141
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:22
@@ -5470,20 +5466,20 @@ msgstr ""
 #: ../app/utils/dialogs/generic-confirm/html.hbs:26
 #: ../app/utils/dialogs/confirm/html.hbs:25
 msgid "You have to confirm this action."
-msgstr "Biztos benne, hogy végre hatja a következő műveletet?"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:29
 #: ../app/utils/dialogs/generic-confirm/html.hbs:28
 #: ../app/utils/dialogs/confirm/html.hbs:27
 msgid "Do you want to proceed?"
-msgstr "Biztosan folytatja?"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:33
 #: ../app/utils/dialogs/confirm-with-select/html.hbs:36
 #: ../app/utils/dialogs/generic-confirm/html.hbs:31
 #: ../app/utils/dialogs/confirm/html.hbs:30
 msgid "OK"
-msgstr "OK"
+msgstr ""
 
 #: ../app/tabs/vms-tab/form-panels/updateconf/advanced.hbs:20
 #: ../app/tabs/templates-tab/form-panels/create/advanced.hbs:20
@@ -5502,7 +5498,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:43
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:148
 msgid "VCPU"
-msgstr "VCPU"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:26
 msgid "Cost / CPU"
@@ -5640,12 +5636,12 @@ msgstr ""
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:37
 #: ../app/utils/panel/permissions-table/permissions.hbs:22
 msgid "Admin"
-msgstr "Admin"
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:42
 #: ../app/utils/panel/permissions-table/permissions.hbs:19
 msgid "Permissions"
-msgstr "Jogosultságok"
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:67
 msgid "Allow users in this group to use the following Sunstone views"
@@ -5770,7 +5766,7 @@ msgstr ""
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:44
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:23
 msgid "Kernel"
-msgstr "Kernel"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:45
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:26
@@ -5962,7 +5958,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:26
 msgid "KVM"
-msgstr "KVM"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:30
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:115
@@ -6078,7 +6074,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:22
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:23
 msgid "Amount of RAM required for the VM, in Megabytes."
-msgstr "VM által igényelt RAM mennyisége, Megabájtban."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:34
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:101
@@ -6707,7 +6703,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:42
 msgid "Configuration"
-msgstr "Konfiguráció"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:48
 msgid "Custom vars"
@@ -6783,7 +6779,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:20
 msgid "Graphics"
-msgstr "Grafika"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:37
 msgid "Listen on IP"
@@ -6807,15 +6803,15 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:77
 msgid "Inputs"
-msgstr "Bemenő adatok"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:84
 msgid "Mouse"
-msgstr "Egér"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:85
 msgid "Tablet"
-msgstr "Tablet"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:91
 msgid "Bus"
@@ -6823,17 +6819,17 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:94
 msgid "USB"
-msgstr "USB"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:95
 msgid "PS2"
-msgstr "PS2"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:101
 #: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:30
 #: ../app/utils/schedule_action/html.hbs:121
 msgid "Add"
-msgstr "Hozzáad"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:116
 msgid "PCI Devices"
@@ -7070,7 +7066,7 @@ msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:21
 msgid "This rule applies to"
-msgstr "A szabály vonatkozik"
+msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:53
 msgid "Zones where the rule applies"
@@ -7082,25 +7078,25 @@ msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:140
 msgid "Resource subset"
-msgstr "Forrás alhálózat"
+msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:162
 msgid "Resource ID"
-msgstr "Erőforrás azonosító"
+msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:183
 #: ../app/utils/panel/permissions-table/permissions.hbs:20
 msgid "Use"
-msgstr "Használ"
+msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:187
 #: ../app/utils/panel/permissions-table/permissions.hbs:21
 msgid "Manage"
-msgstr "Kezel"
+msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:191
 msgid "Administrate"
-msgstr "Adminisztráció"
+msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:202
 msgid "ACL String preview"
@@ -7384,7 +7380,7 @@ msgstr ""
 #: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:33
 #: ../app/sunstone/buttons.hbs:27
 msgid "Reset"
-msgstr "Újraindít"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:22
 msgid "Reservation from Virtual Network"
@@ -7424,7 +7420,7 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/advanced.hbs:20
 msgid "Write the Virtual Network template here"
-msgstr "Ide írja be a virtuális hálózat paramétereit"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:39
 msgid "QoS"
@@ -7436,7 +7432,7 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:91
 msgid "Network mode"
-msgstr "Hálózati mód"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:94
 msgid "Bridged"
@@ -7452,7 +7448,7 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:97
 msgid "802.1Q"
-msgstr "802.1Q"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:98
 msgid "VXLAN"
@@ -7460,7 +7456,7 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:99
 msgid "Open vSwitch"
-msgstr "Open vSwitch"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:100
 msgid "Open vSwitch - VXLAN"
@@ -7529,7 +7525,7 @@ msgstr ""
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:173
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:182
 msgid "Physical device"
-msgstr "Fizikai eszköz"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:175
 msgid "Node NIC to send/receive virtual network traffic"
@@ -7788,7 +7784,7 @@ msgstr ""
 
 #: ../app/sunstone/buttons.hbs:101
 msgid "Wizard"
-msgstr "Varázsló"
+msgstr ""
 
 #: ../app/sunstone/buttons.hbs:104
 msgid "Advanced"
@@ -7896,7 +7892,7 @@ msgstr ""
 
 #: ../app/utils/dialogs/confirm-with-select/html.hbs:27
 msgid "You need to select something."
-msgstr "Választanod kell egy lehetőséget."
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:11
 msgid "text"
@@ -8007,7 +8003,7 @@ msgstr ""
 
 #: ../app/utils/panel/permissions-table/permissions.hbs:50
 msgid "Other"
-msgstr "Egyéb"
+msgstr ""
 
 #: ../app/utils/panel/ec2-tr/html.hbs:11
 msgid "EC2 Access"
@@ -8092,7 +8088,7 @@ msgstr ""
 
 #: ../app/utils/vcenter/networks/row.hbs:30
 msgid "VLAN"
-msgstr "VLAN"
+msgstr ""
 
 #: ../app/utils/vcenter/networks/row.hbs:68
 msgid "Cluster(s) to import"

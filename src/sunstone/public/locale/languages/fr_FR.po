@@ -12,7 +12,8 @@
 # CyrilleDuverne <cyrille.duverne@gmail.com>, 2013
 # Damien Raude-Morvan <drazzib@drazzib.com>, 2012
 # Damien Raude-Morvan <drazzib@drazzib.com>, 2012
-# Daniel Dehennin <git@baby-gnu.org>, 2015-2018
+# Daniel <git@baby-gnu.org>, 2015-2018
+# Daniel <git@baby-gnu.org>, 2019
 # Edouard <madko77@gmail.com>, 2016,2018
 # Emmanuel Cohen <atmaniak@gmail.com>, 2013-2014
 # gapany <gapany@icare.ch>, 2012
@@ -38,8 +39,8 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
-"Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
+"PO-Revision-Date: 2019-10-08 12:03+0000\n"
+"Last-Translator: Jean-Philippe Foures <jean-philippe.foures@iguanesolutions.com>\n"
 "Language-Team: French (France) (http://www.transifex.com/opennebula/one/language/fr_FR/)\n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
@@ -3848,7 +3849,7 @@ msgstr "Vous devez confirmer cette action"
 
 #: ../app/utils/panel/template-table.js:114
 msgid "Not valid attribute"
-msgstr "Attribut invalid"
+msgstr "Attribut invalide"
 
 #: ../app/utils/labels/utils.js:156
 msgid "System Labels"
@@ -4049,7 +4050,7 @@ msgstr "<< me >>"
 
 #: ../app/utils/schedule_action.js:47
 msgid "Hour"
-msgstr ""
+msgstr "Heure"
 
 #: ../app/utils/schedule_action.js:124 ../app/utils/schedule_action/html.hbs:69
 msgid "Mo"
@@ -4081,11 +4082,11 @@ msgstr "Di"
 
 #: ../app/utils/schedule_action.js:135
 msgid "Comma separated list of days of the month to repeat the action on. Ex: 1,15,25 repeats the action every first, 15th and 25th day of the month"
-msgstr "Liste de jours du mois séparés par des virgules auxquels répéter l’action. Ex : 1,15,25 répète l’action tous les premier, 15 et 25 du mois"
+msgstr "Liste de jours du mois séparée par des virgules pour lesquels répéter l’action. Ex : 1,15,25 répète l’action tous les premier, 15 et 25 du mois"
 
 #: ../app/utils/schedule_action.js:139
 msgid "Comma separated list of days of the year to repeat the action on. Ex: 1,30,330 repeats the action every first, 30th and 330th day of the year"
-msgstr "Liste de jours de l’année séparés par des virgules auxquels répéter l’action. Ex : 1,30,330 répète l’action tous les premier, 30ème et 330ème jour de l’année"
+msgstr "Liste de jours de l’année séparée par des virgules pour lesquels répéter l’action. Ex : 1,30,330 répète l’action tous les premier, 30ème et 330ème jour de l’année"
 
 #: ../app/utils/schedule_action.js:143
 msgid "Each"
@@ -4097,19 +4098,19 @@ msgstr "heures"
 
 #: ../app/utils/schedule_action.js:364 ../app/utils/schedule_action/html.hbs:31
 msgid "Years"
-msgstr ""
+msgstr "Années"
 
 #: ../app/utils/schedule_action.js:367 ../app/utils/schedule_action/html.hbs:32
 msgid "Months"
-msgstr ""
+msgstr "Mois"
 
 #: ../app/utils/schedule_action.js:370 ../app/utils/schedule_action/html.hbs:33
 msgid "Weeks"
-msgstr ""
+msgstr "Semaines"
 
 #: ../app/utils/schedule_action.js:373 ../app/utils/schedule_action/html.hbs:34
 msgid "Days"
-msgstr ""
+msgstr "Jours"
 
 #: ../app/utils/schedule_action.js:376 ../app/utils/schedule_action/html.hbs:35
 #: ../app/utils/showback/html.hbs:89
@@ -4118,7 +4119,7 @@ msgstr "Heures"
 
 #: ../app/utils/schedule_action.js:379 ../app/utils/schedule_action/html.hbs:36
 msgid "Minutes"
-msgstr ""
+msgstr "Minutes"
 
 #: ../app/utils/vmgroup-section.js:167
 msgid "Internal server error."
@@ -4133,12 +4134,14 @@ msgid "Image was not found"
 msgstr "L’image n’a pas été trouvée"
 
 #: ../app/utils/disks-resize.js:165
+#, fuzzy
 msgid "Persistent image. The changes will be saved back to the datastore after the VM is shut down"
-msgstr "Image persistante. Les modifications seront sauvegardées dans l’espace de stockage une fois la VM arrêtée"
+msgstr "Image persistante. Les modifications seront sauvegardées dans l’espace de stockage une fois la VM arrêtée (ie passage à l'état DONE)"
 
 #: ../app/utils/disks-resize.js:169
+#, fuzzy
 msgid "Non-persistent disk. The changes will be lost once the VM is shut down"
-msgstr "Disque non persitant. Les modifications seront perdues une fois la VM arrêtée"
+msgstr "Disque non persitant. Les modifications seront perdues une fois la VM arrêtée (ie passage à l'état DONE)"
 
 #: ../app/utils/disks-resize.js:177
 msgid "Image state: "
@@ -4423,7 +4426,7 @@ msgstr "Répertoires sûrs pour l’enregistrement des Images"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:126
 msgid "Storage usage limit (MB)"
-msgstr "Limite d’utilisation du stockage (Mo)"
+msgstr "Limite d’utilisation du stockage (Mio)"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:132
 msgid "Transfer bandwidth limit (B/s)"
@@ -4535,7 +4538,7 @@ msgstr "Espaces de stockage \"system\" compatibles"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:257
 msgid "Specifies which system datastores are compatible with this image datastore"
-msgstr ""
+msgstr "Défini quels espaces de stockage sont compatibles avec cet espace de stockage d’image"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:264
 msgid "RBD format"
@@ -5444,8 +5447,9 @@ msgid "Disk Snapshot"
 msgstr "Instantané disque"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:22
+#, fuzzy
 msgid "Loading"
-msgstr "Chargement"
+msgstr "Chargement…"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:24
 msgid "Send CtrlAltDel"
@@ -5458,7 +5462,7 @@ msgstr "Ouvrir une nouvelle fenêtre"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:36
 msgid "Canvas not supported."
-msgstr "Canevas non supporté."
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:20
 msgid "Attach new disk"
@@ -5993,7 +5997,7 @@ msgstr "KVM"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:30
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:115
 msgid "LXD"
-msgstr ""
+msgstr "LXD"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:44
 msgid "Logo"
@@ -6041,15 +6045,15 @@ msgstr "Si spécifié, le chemin du dossier des machines virtuelles et des modè
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:119
 msgid "Security Privileged"
-msgstr ""
+msgstr "Sécurité Privilégiée"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:130
 msgid "Security Nesting"
-msgstr ""
+msgstr "Imbrication de sécurité"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:141
 msgid "Profile"
-msgstr ""
+msgstr "Profile"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:163
 msgid "Cost of each MB or GB per hour"
@@ -6192,6 +6196,7 @@ msgid "CPU Architecture"
 msgstr "Architecture CPU"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:52
+#, fuzzy
 msgid "machine type"
 msgstr "Type de machine"
 
@@ -6551,7 +6556,7 @@ msgstr "Sélection automatique"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:48
 #: ../app/utils/nics-section/dd.hbs:56
 msgid "The Schedule will decide which is the best virtual network"
-msgstr "Le coordinateur décidera quel est le réseau virtuel adapté"
+msgstr "Le coordinateur décidera quel est le meilleur réseau virtuel"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:55
 #: ../app/utils/nics-section/dd.hbs:63
@@ -6912,7 +6917,7 @@ msgstr "Système de fichiers"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:5
 msgid "Device to map image disk. If set, it will overwrite the default device mapping. In LXD this setting specifies a disk mount point like /mnt."
-msgstr ""
+msgstr "Périphérique pour associer l’image disque. S’il est défini, il surchargera l’association par défaut. Dans LXD, ce paramètre défini un point de montage de disque comme /mnt."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:41
 msgid "Read-only"
@@ -6996,7 +7001,7 @@ msgstr "kvm"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:27
 msgid "lxd"
-msgstr ""
+msgstr "lxd"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:33
 msgid "Data"
@@ -7146,8 +7151,9 @@ msgstr "Hôte dissocié"
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:60
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:95
+#, fuzzy
 msgid "Affinity"
-msgstr "Affinité"
+msgstr "Affinité VM"
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:85
 msgid "Roles Affinity"
@@ -7985,7 +7991,7 @@ msgstr "Nouvelle action planifiée"
 
 #: ../app/utils/schedule_action/html.hbs:21
 msgid "Relative Time"
-msgstr ""
+msgstr "Temps relatif"
 
 #: ../app/utils/schedule_action/html.hbs:51
 msgid "Periodic"
@@ -8143,3 +8149,162 @@ msgstr "Nettoyer"
 #: ../app/utils/vcenter-vm-folder/html.hbs:21
 msgid "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
 msgstr "Si spécifié, le chemin du dossier des machines virtuelles et des modèles où les machines virtuelles seront créés dans le centre de données. Le chemin est délimité par des barres obliques ex : « /Management/VMs ». Si aucun chemin n’est défini, les machines virtuelles seront placées dans le même répertoire que leur modèle."
+
+#~ msgid "just click if you want to delete the resource"
+#~ msgstr "cliquez seulement si vous souhaitez supprimer la ressource"
+
+#~ msgid "Error NSX data credentials, check and try again"
+#~ msgstr "Erreur des identifiants de données NSX, vérifiez et essayez une nouvelle fois"
+
+#~ msgid "NSX"
+#~ msgstr "NSX"
+
+#~ msgid "NSX information valid"
+#~ msgstr "information NSX valide"
+
+#~ msgid "Numa"
+#~ msgstr "Numa"
+
+#~ msgid "Manage two factor authentication"
+#~ msgstr "Gérer l'authentification à deux facteurs"
+
+#~ msgid "NUMA"
+#~ msgstr "NUMA"
+
+#~ msgid "Sign in"
+#~ msgstr "Identification"
+
+#~ msgid "Replication Mode"
+#~ msgstr "Mode reproduction"
+
+#~ msgid "Universal Synchronization"
+#~ msgstr "Synchronisation universelle"
+
+#~ msgid "IP Discovery"
+#~ msgstr "Exploration IP"
+
+#~ msgid "MAC Learning"
+#~ msgstr "Apprentissage MAC"
+
+#~ msgid "Admin Status"
+#~ msgstr "Statut d'administration"
+
+#~ msgid "Two Factor Authentication"
+#~ msgstr "Identification à deux facteurs"
+
+#~ msgid "Two factor authentication can be enabled for loging into Sunestone UI."
+#~ msgstr "L'identification à deux facteurs peut être activée pour se connecter à Sunstone"
+
+#~ msgid "Get authenticator app: "
+#~ msgstr "Récupérer l'application d'identification"
+
+#~ msgid "Authy"
+#~ msgstr "Authy"
+
+#~ msgid "Google Authenticator"
+#~ msgstr "Google Authenticator"
+
+#~ msgid "Microsoft Authenticator"
+#~ msgstr "Microsoft Authenticator"
+
+#~ msgid "Scan this Barcode."
+#~ msgstr "Scanner ce code-barre"
+
+#~ msgid "Enter Verification Code."
+#~ msgstr "Entrez le code de vérification"
+
+#~ msgid "Two factor authtentication"
+#~ msgstr "Identification à deux facteurs"
+
+#~ msgid "Default Zone Endpoint"
+#~ msgstr "Point d'entrée de Zone par défaut"
+
+#~ msgid "Bus for SD disks"
+#~ msgstr "Bus pour disques SD"
+
+#~ msgid "NUMA Topology"
+#~ msgstr "Topologie NUMA"
+
+#~ msgid "These settings will help you to fine tune the performance of VMs"
+#~ msgstr "Ces paramètres vous aideront à configurer finement les performances des Machines Virtuelles"
+
+#~ msgid "Pin Policy"
+#~ msgstr "Politique d'affinité"
+
+#~ msgid "vCPU pinning preference: CORE, THREAD, SHARED, NONE"
+#~ msgstr "Préférence d'affinité vCPU: CORE, THREAD, SHARED, NONE"
+
+#~ msgid "none"
+#~ msgstr "aucun"
+
+#~ msgid "thread"
+#~ msgstr "thread"
+
+#~ msgid "shared"
+#~ msgstr "partagé"
+
+#~ msgid "Sockets"
+#~ msgstr "Sockets"
+
+#~ msgid "Number of sockets or NUMA nodes"
+#~ msgstr "Nombre de sockets ou noeuds NUMA"
+
+#~ msgid "Cores"
+#~ msgstr "Coeurs"
+
+#~ msgid "Number of cores per node"
+#~ msgstr "Nombre de coeurs par noeud"
+
+#~ msgid "Threads"
+#~ msgstr "Threads"
+
+#~ msgid "Number of threads per core"
+#~ msgstr "Nombre de threads par coeur"
+
+#~ msgid "Hugepages Size"
+#~ msgstr "Taille des Hugepages"
+
+#~ msgid "Size of the hugepages (MB). If not defined no hugepages will be used"
+#~ msgstr "Taille des hugepages (Mio). Si non définie, aucune hugepage ne sera utilisée"
+
+#~ msgid "Memory Access"
+#~ msgstr "Accès mémoire"
+
+#~ msgid "Control if the memory is to be mapped shared or private"
+#~ msgstr "Controle si la mémoire est affectée en partagé ou privé"
+
+#~ msgid "-"
+#~ msgstr "-"
+
+#~ msgid "Private"
+#~ msgstr "Privé"
+
+#~ msgid "Command"
+#~ msgstr "Commande"
+
+#~ msgid "Host Instance"
+#~ msgstr "Instance d'hôte"
+
+#~ msgid "Host ID"
+#~ msgstr "ID d'hôte"
+
+#~ msgid "Transport"
+#~ msgstr "Transport"
+
+#~ msgid "Officially supported"
+#~ msgstr "Supportée officiellement"
+
+#~ msgid "Open"
+#~ msgstr "Ouvert"
+
+#~ msgid "Pending"
+#~ msgstr "En attente"
+
+#~ msgid "Submit a Request"
+#~ msgstr "Soumettre une requête"
+
+#~ msgid "Not officially supported"
+#~ msgstr "Pas supportée officiellement"
+
+#~ msgid "Not connected"
+#~ msgstr "Pas connecté"

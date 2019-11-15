@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
+"PO-Revision-Date: 2019-10-07 15:12+0000\n"
 "Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
 "Language-Team: Estonian (Estonia) (http://www.transifex.com/opennebula/one/language/et_EE/)\n"
 "Language: et_EE\n"
@@ -4106,11 +4106,11 @@ msgstr "Ketast ei leitud"
 
 #: ../app/utils/disks-resize.js:165
 msgid "Persistent image. The changes will be saved back to the datastore after the VM is shut down"
-msgstr "Püsiv ketas. Muutused salvestatakse andmelattu peale VM-i välja lülitamist"
+msgstr ""
 
 #: ../app/utils/disks-resize.js:169
 msgid "Non-persistent disk. The changes will be lost once the VM is shut down"
-msgstr "Mittepüsiv ketas. Muutused lähevad kaotsi peale VM-i välja lülitamist."
+msgstr ""
 
 #: ../app/utils/disks-resize.js:177
 msgid "Image state: "
@@ -5416,8 +5416,9 @@ msgid "Disk Snapshot"
 msgstr "Ketta tõmmis"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:22
+#, fuzzy
 msgid "Loading"
-msgstr "Laeb"
+msgstr "Laen..."
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:24
 msgid "Send CtrlAltDel"
@@ -7118,8 +7119,9 @@ msgstr "Serverite vastukooslus"
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:60
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:95
+#, fuzzy
 msgid "Affinity"
-msgstr "Kooslus"
+msgstr "Rolli kooslus"
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:85
 msgid "Roles Affinity"

@@ -5,6 +5,7 @@
 # Translators:
 # Carlos Cesario <carloscesario@gmail.com>, 2016
 # Christopher Mota <chrmorandi@yahoo.com.br>, 2013
+# Gesiel Bernardes <gesiel.bernardes@gmail.com>, 2019
 # Jeovane Sousa <jeovanevs@gmail.com>, 2019
 # Joeder Moura <jo_eder@hotmail.com>, 2018
 # Luís Eduardo <eduardovansilva@gmail.com>, 2017
@@ -21,8 +22,8 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
-"Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
+"PO-Revision-Date: 2019-10-08 16:26+0000\n"
+"Last-Translator: Gesiel Bernardes <gesiel.bernardes@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/opennebula/one/language/pt_BR/)\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
@@ -4032,7 +4033,7 @@ msgstr "<< eu >>"
 
 #: ../app/utils/schedule_action.js:47
 msgid "Hour"
-msgstr ""
+msgstr "Hora"
 
 #: ../app/utils/schedule_action.js:124 ../app/utils/schedule_action/html.hbs:69
 msgid "Mo"
@@ -4080,19 +4081,19 @@ msgstr "horas"
 
 #: ../app/utils/schedule_action.js:364 ../app/utils/schedule_action/html.hbs:31
 msgid "Years"
-msgstr ""
+msgstr "Anos"
 
 #: ../app/utils/schedule_action.js:367 ../app/utils/schedule_action/html.hbs:32
 msgid "Months"
-msgstr ""
+msgstr "Meses"
 
 #: ../app/utils/schedule_action.js:370 ../app/utils/schedule_action/html.hbs:33
 msgid "Weeks"
-msgstr ""
+msgstr "Semanas"
 
 #: ../app/utils/schedule_action.js:373 ../app/utils/schedule_action/html.hbs:34
 msgid "Days"
-msgstr ""
+msgstr "Dias"
 
 #: ../app/utils/schedule_action.js:376 ../app/utils/schedule_action/html.hbs:35
 #: ../app/utils/showback/html.hbs:89
@@ -4101,7 +4102,7 @@ msgstr "Horas"
 
 #: ../app/utils/schedule_action.js:379 ../app/utils/schedule_action/html.hbs:36
 msgid "Minutes"
-msgstr ""
+msgstr "Minutos"
 
 #: ../app/utils/vmgroup-section.js:167
 msgid "Internal server error."
@@ -4116,12 +4117,13 @@ msgid "Image was not found"
 msgstr "A Imagem não foi encontrada"
 
 #: ../app/utils/disks-resize.js:165
+#, fuzzy
 msgid "Persistent image. The changes will be saved back to the datastore after the VM is shut down"
-msgstr "Imagem persistente. As alterações serão salvas de volta ao datastore após a VM ser desligada"
+msgstr "Imagem persistente. As alterações serão salvas de volta no datastore após o término da VM (ou seja, entrará no estado DONE)"
 
 #: ../app/utils/disks-resize.js:169
 msgid "Non-persistent disk. The changes will be lost once the VM is shut down"
-msgstr "Disco não-persistente. As alterações serão perdidas quando a VM for desligada"
+msgstr ""
 
 #: ../app/utils/disks-resize.js:177
 msgid "Image state: "
@@ -4534,7 +4536,7 @@ msgstr "Necessário se utilizar um caminho diferente do padrão para o arquivo d
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:279
 msgid "Ceph keyfile"
-msgstr ""
+msgstr "Arquivo de chave do Ceph"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:281
 msgid "File containing the secret key of user."
@@ -5427,8 +5429,9 @@ msgid "Disk Snapshot"
 msgstr "Snapshot do Disco"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:22
+#, fuzzy
 msgid "Loading"
-msgstr "Carregando"
+msgstr "Carregando..."
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:24
 msgid "Send CtrlAltDel"
@@ -5441,7 +5444,7 @@ msgstr "Abrir em nova janela"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:36
 msgid "Canvas not supported."
-msgstr "Canvas não suportado."
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:20
 msgid "Attach new disk"
@@ -5469,11 +5472,11 @@ msgstr "Salvar como"
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot-rename/html.hbs:43
 #: ../app/tabs/vms-tab/panels/storage/disk-details.hbs:27
 msgid "Rename"
-msgstr ""
+msgstr "Renomear"
 
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot-rename/html.hbs:38
 msgid "New name"
-msgstr ""
+msgstr "Novo nome"
 
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:27
 #: ../app/utils/dialogs/generic-confirm/html.hbs:26
@@ -5921,11 +5924,11 @@ msgstr "Expressão booleana que exclui as entradas do conjunto de armazenamento 
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:81
 msgid "Deploy VM in a specific Host"
-msgstr ""
+msgstr "Deploy em um Host específico"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:101
 msgid "Deploy VM in a specific Datastore"
-msgstr ""
+msgstr "Deploy em um Datastore específico"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:121
 msgid "Schedule Actions for VM"
@@ -6168,15 +6171,16 @@ msgstr "Características"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:32
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:261
 msgid "CPU Model"
-msgstr ""
+msgstr "Modelo de CPU"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:42
 msgid "CPU Architecture"
 msgstr "Arquitetura da CPU"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:52
+#, fuzzy
 msgid "machine type"
-msgstr ""
+msgstr "Tipo de máquina"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:59
 msgid "Root device"
@@ -6277,7 +6281,7 @@ msgstr "Habilitar a comunicação com o Agente do Cliente QEMU. Isto não inicia
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:232
 msgid "virtio-scsi Queues"
-msgstr ""
+msgstr "Filas virtio-scsi"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:233
 msgid "Number of vCPU queues to use in the virtio-scsi controller. Leave blank to use the default value."
@@ -7129,8 +7133,9 @@ msgstr ""
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:60
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:95
+#, fuzzy
 msgid "Affinity"
-msgstr "Afinidade"
+msgstr "Afinidade da função"
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:85
 msgid "Roles Affinity"
@@ -7968,7 +7973,7 @@ msgstr ""
 
 #: ../app/utils/schedule_action/html.hbs:21
 msgid "Relative Time"
-msgstr ""
+msgstr "Tempo Relativo"
 
 #: ../app/utils/schedule_action/html.hbs:51
 msgid "Periodic"
@@ -8126,3 +8131,30 @@ msgstr "Limpar"
 #: ../app/utils/vcenter-vm-folder/html.hbs:21
 msgid "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
 msgstr ""
+
+#~ msgid "just click if you want to delete the resource"
+#~ msgstr "Clique apenas se você quiser deletar o recurso"
+
+#~ msgid "NSX"
+#~ msgstr "NSX"
+
+#~ msgid "Manage two factor authentication"
+#~ msgstr "Gerênciar autênticação de dois fatores"
+
+#~ msgid "Replication Mode"
+#~ msgstr "Modo Replicado"
+
+#~ msgid "MAC Learning"
+#~ msgstr "Aprendizado de MAC"
+
+#~ msgid "Google Authenticator"
+#~ msgstr "Google Authenticator"
+
+#~ msgid "Microsoft Authenticator"
+#~ msgstr "Microsoft Authenticator"
+
+#~ msgid "Two factor authtentication"
+#~ msgstr "Autênticação de dois fatores"
+
+#~ msgid "none"
+#~ msgstr "nenhum"

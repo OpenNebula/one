@@ -5,7 +5,7 @@
 # Translators:
 # Jan Benadik <jan.benadik@atos.net>, 2013
 # Ján Beňadik <>, 2012
-# Jan Benadik <jan.benadik@atos.net>, 2013-2018
+# Jan Benadik <jan.benadik@atos.net>, 2013-2019
 # Martin Martin <spam@profihost.sk>, 2019
 # micromanc3r <micromanc3r@gmail.com>, 2012
 msgid ""
@@ -13,8 +13,8 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
-"Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
+"PO-Revision-Date: 2019-10-08 07:33+0000\n"
+"Last-Translator: Jan Benadik <jan.benadik@atos.net>\n"
 "Language-Team: Slovak (Slovakia) (http://www.transifex.com/opennebula/one/language/sk_SK/)\n"
 "Language: sk_SK\n"
 "MIME-Version: 1.0\n"
@@ -4024,7 +4024,7 @@ msgstr "<< ma >>"
 
 #: ../app/utils/schedule_action.js:47
 msgid "Hour"
-msgstr ""
+msgstr "Hodina"
 
 #: ../app/utils/schedule_action.js:124 ../app/utils/schedule_action/html.hbs:69
 msgid "Mo"
@@ -4072,19 +4072,19 @@ msgstr "hodín"
 
 #: ../app/utils/schedule_action.js:364 ../app/utils/schedule_action/html.hbs:31
 msgid "Years"
-msgstr ""
+msgstr "Roky (-ov)"
 
 #: ../app/utils/schedule_action.js:367 ../app/utils/schedule_action/html.hbs:32
 msgid "Months"
-msgstr ""
+msgstr "Mesiace (-ov)"
 
 #: ../app/utils/schedule_action.js:370 ../app/utils/schedule_action/html.hbs:33
 msgid "Weeks"
-msgstr ""
+msgstr "Týždne (-ov)"
 
 #: ../app/utils/schedule_action.js:373 ../app/utils/schedule_action/html.hbs:34
 msgid "Days"
-msgstr ""
+msgstr "Dni (-í)"
 
 #: ../app/utils/schedule_action.js:376 ../app/utils/schedule_action/html.hbs:35
 #: ../app/utils/showback/html.hbs:89
@@ -4093,7 +4093,7 @@ msgstr "Hodiny"
 
 #: ../app/utils/schedule_action.js:379 ../app/utils/schedule_action/html.hbs:36
 msgid "Minutes"
-msgstr ""
+msgstr "Minúty"
 
 #: ../app/utils/vmgroup-section.js:167
 msgid "Internal server error."
@@ -4108,12 +4108,14 @@ msgid "Image was not found"
 msgstr "Obraz nebol nájdený"
 
 #: ../app/utils/disks-resize.js:165
+#, fuzzy
 msgid "Persistent image. The changes will be saved back to the datastore after the VM is shut down"
-msgstr "Persistentný obraz. Zmeny budú uložené naspäť do úložiska po shutdown VS."
+msgstr "Perzistentný obraz. Po zastavení VM budú zmeny uložené do dátového skladu (napr. pri prechode do stavu DONE)."
 
 #: ../app/utils/disks-resize.js:169
+#, fuzzy
 msgid "Non-persistent disk. The changes will be lost once the VM is shut down"
-msgstr "Neperzistentný disk. Po shutdown VS sa zmeny neuložia a budú stratené."
+msgstr "Neperzistentný obraz. Po zastavení VM sa zmeny neuložia (napr. pri prechode do stavu DONE)."
 
 #: ../app/utils/disks-resize.js:177
 msgid "Image state: "
@@ -4510,7 +4512,7 @@ msgstr "Kompatibilné systémové dátové úložiská"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:257
 msgid "Specifies which system datastores are compatible with this image datastore"
-msgstr ""
+msgstr "Špecifikuje, ktoré systémové úložisko je kompatibilné s úložiskom obrazov"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:264
 msgid "RBD format"
@@ -5419,6 +5421,7 @@ msgid "Disk Snapshot"
 msgstr "Snímka disku"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:22
+#, fuzzy
 msgid "Loading"
 msgstr "Nahrávam ..."
 
@@ -5433,7 +5436,7 @@ msgstr "Otvor v novom okne"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:36
 msgid "Canvas not supported."
-msgstr "Canvas nie je podporovaný"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:20
 msgid "Attach new disk"
@@ -5968,7 +5971,7 @@ msgstr "KVM"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:30
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:115
 msgid "LXD"
-msgstr ""
+msgstr "LXD"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:44
 msgid "Logo"
@@ -6016,15 +6019,15 @@ msgstr "Cesta ku adresáru s virtuálnymi strojmi a šablónami, kde budú vo vn
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:119
 msgid "Security Privileged"
-msgstr ""
+msgstr "Utajené zabezpečenie"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:130
 msgid "Security Nesting"
-msgstr ""
+msgstr "Vnorené zabezpečenie"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:141
 msgid "Profile"
-msgstr ""
+msgstr "Profil"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:163
 msgid "Cost of each MB or GB per hour"
@@ -6167,8 +6170,9 @@ msgid "CPU Architecture"
 msgstr "Architektúra CPU"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:52
+#, fuzzy
 msgid "machine type"
-msgstr "typ stroja"
+msgstr "Typ"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:59
 msgid "Root device"
@@ -6526,7 +6530,7 @@ msgstr "Automatický výber"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:48
 #: ../app/utils/nics-section/dd.hbs:56
 msgid "The Schedule will decide which is the best virtual network"
-msgstr "Scheduler vyberie, ktorá virtuálna sieť je najlepšia"
+msgstr "Plánovanie rozhodne, ktorá je najlepšia virtuálna sieť"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:55
 #: ../app/utils/nics-section/dd.hbs:63
@@ -6887,7 +6891,7 @@ msgstr "Filesystem formát"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:5
 msgid "Device to map image disk. If set, it will overwrite the default device mapping. In LXD this setting specifies a disk mount point like /mnt."
-msgstr ""
+msgstr "Zariadenie pre namapovanie obrazu disku. Ak je definované, prepíše sa tým defaultné mapovanie. V LXD toto nastavenie definuje bod pre namapovanie disku, ako /mnt"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:41
 msgid "Read-only"
@@ -6971,7 +6975,7 @@ msgstr "KVM"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:27
 msgid "lxd"
-msgstr ""
+msgstr "lxd"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:33
 msgid "Data"
@@ -7121,8 +7125,9 @@ msgstr "Host Anti Affined"
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:60
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:95
+#, fuzzy
 msgid "Affinity"
-msgstr "Afinita"
+msgstr "VM afinita"
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:85
 msgid "Roles Affinity"
@@ -7960,7 +7965,7 @@ msgstr "Novo naplánovaná udalosť"
 
 #: ../app/utils/schedule_action/html.hbs:21
 msgid "Relative Time"
-msgstr ""
+msgstr "Relatívny čas"
 
 #: ../app/utils/schedule_action/html.hbs:51
 msgid "Periodic"
@@ -8118,3 +8123,162 @@ msgstr "Vyčisti"
 #: ../app/utils/vcenter-vm-folder/html.hbs:21
 msgid "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
 msgstr "Cesta ku adresáru s virtuálnymi strojmi a šablónami, kde budú vo vnútri dátového centra vytvárané virtuálne stroje. Cesta je oddeľovaná prostredníctvom lomítok, napr. /Management/VMs.Ak nie je nastavená, virtuálne stroje budú ukladané v tom istom adresári, kde sa nachádza šablóna. "
+
+#~ msgid "just click if you want to delete the resource"
+#~ msgstr "Klikni, ak chceš vymazať zdroj."
+
+#~ msgid "Error NSX data credentials, check and try again"
+#~ msgstr "Chyba pri zadaní NSX údajov, skontroluj a skús ešte raz"
+
+#~ msgid "NSX"
+#~ msgstr "NSX"
+
+#~ msgid "NSX information valid"
+#~ msgstr "NSX údaje sú platné"
+
+#~ msgid "Numa"
+#~ msgstr "Numa"
+
+#~ msgid "Manage two factor authentication"
+#~ msgstr "Správa dvojfaktorovej autentifikácie"
+
+#~ msgid "NUMA"
+#~ msgstr "NUMA"
+
+#~ msgid "Sign in"
+#~ msgstr "Prihlásiť sa"
+
+#~ msgid "Replication Mode"
+#~ msgstr "Replikačný mód"
+
+#~ msgid "Universal Synchronization"
+#~ msgstr "Všeobecná synchronizácia"
+
+#~ msgid "IP Discovery"
+#~ msgstr "Prehľadávanie IP"
+
+#~ msgid "MAC Learning"
+#~ msgstr "Učenie sa MAC"
+
+#~ msgid "Admin Status"
+#~ msgstr "Stav administrácie"
+
+#~ msgid "Two Factor Authentication"
+#~ msgstr "Dvojfaktorová autentifikácia"
+
+#~ msgid "Two factor authentication can be enabled for loging into Sunestone UI."
+#~ msgstr "Aktivovanie dvojfaktorovej autentifikácie pre prihlásenie sa do Sunstone."
+
+#~ msgid "Get authenticator app: "
+#~ msgstr "Získaj autentifikačnú aplikáciu:"
+
+#~ msgid "Authy"
+#~ msgstr "Authy"
+
+#~ msgid "Google Authenticator"
+#~ msgstr "Google autentifikátor"
+
+#~ msgid "Microsoft Authenticator"
+#~ msgstr "Microsoft autentifikátor"
+
+#~ msgid "Scan this Barcode."
+#~ msgstr "Oskenuj čiarový kód"
+
+#~ msgid "Enter Verification Code."
+#~ msgstr "Vlož verifikačný kód"
+
+#~ msgid "Two factor authtentication"
+#~ msgstr "Dvojfaktorová autentifikácia"
+
+#~ msgid "Default Zone Endpoint"
+#~ msgstr "Predvolený koncový bod"
+
+#~ msgid "Bus for SD disks"
+#~ msgstr "Zbernica pre SD disky"
+
+#~ msgid "NUMA Topology"
+#~ msgstr "NUMA topológia"
+
+#~ msgid "These settings will help you to fine tune the performance of VMs"
+#~ msgstr "Tieto nastavenia slúžia na jemné ladenie výkonu VM"
+
+#~ msgid "Pin Policy"
+#~ msgstr "Politika pripnutia"
+
+#~ msgid "vCPU pinning preference: CORE, THREAD, SHARED, NONE"
+#~ msgstr "Preferencia pripnutia vCPU: JADRO, VLÁKNO, ZDIEĽANÉ, ŽIADNE"
+
+#~ msgid "none"
+#~ msgstr "Nič"
+
+#~ msgid "thread"
+#~ msgstr "vlákno"
+
+#~ msgid "shared"
+#~ msgstr "zdieľaný"
+
+#~ msgid "Sockets"
+#~ msgstr "Sockety"
+
+#~ msgid "Number of sockets or NUMA nodes"
+#~ msgstr "Počet socketov, alebo NUMA nódov"
+
+#~ msgid "Cores"
+#~ msgstr "Jadrá"
+
+#~ msgid "Number of cores per node"
+#~ msgstr "Počet jadier na nód"
+
+#~ msgid "Threads"
+#~ msgstr "Vlákna"
+
+#~ msgid "Number of threads per core"
+#~ msgstr "Počet vláken na jadro"
+
+#~ msgid "Hugepages Size"
+#~ msgstr "Veľkosť Hugepages"
+
+#~ msgid "Size of the hugepages (MB). If not defined no hugepages will be used"
+#~ msgstr "Veľkosť hugepages (v MB). Ak nie je zadefinovaná, hugepages nebudú použité."
+
+#~ msgid "Memory Access"
+#~ msgstr "Prístup k pamäti"
+
+#~ msgid "Control if the memory is to be mapped shared or private"
+#~ msgstr "Urči, či pamäť má byť zdieľaná, alebo privátna"
+
+#~ msgid "-"
+#~ msgstr " - "
+
+#~ msgid "Private"
+#~ msgstr "Privátna"
+
+#~ msgid "Command"
+#~ msgstr "Prílaz"
+
+#~ msgid "Host Instance"
+#~ msgstr "Inštancia hosta"
+
+#~ msgid "Host ID"
+#~ msgstr "ID hosta"
+
+#~ msgid "Transport"
+#~ msgstr "Prenos"
+
+#~ msgid "Officially supported"
+#~ msgstr "Oficiálne podporovaný"
+
+#~ msgid "Open"
+#~ msgstr "Otvorený"
+
+#~ msgid "Pending"
+#~ msgstr "Čaká"
+
+#~ msgid "Submit a Request"
+#~ msgstr "Odošli požiadavku"
+
+#~ msgid "Not officially supported"
+#~ msgstr "Oficiálne nepodporovaný"
+
+#~ msgid "Not connected"
+#~ msgstr "Nepripojený"

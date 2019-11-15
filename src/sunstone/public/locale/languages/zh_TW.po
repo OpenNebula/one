@@ -13,8 +13,8 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
-"Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
+"PO-Revision-Date: 2019-10-07 15:12+0000\n"
+"Last-Translator: Hsi En Yu <yun@narlabs.org.tw>\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/opennebula/one/language/zh_TW/)\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
@@ -5419,8 +5419,9 @@ msgid "Disk Snapshot"
 msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:22
+#, fuzzy
 msgid "Loading"
-msgstr "載入中"
+msgstr "上傳中"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:24
 msgid "Send CtrlAltDel"
@@ -5433,7 +5434,7 @@ msgstr "在新視窗開啟"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:36
 msgid "Canvas not supported."
-msgstr "不支援Canvas"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:20
 msgid "Attach new disk"
@@ -6167,8 +6168,9 @@ msgid "CPU Architecture"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:52
+#, fuzzy
 msgid "machine type"
-msgstr ""
+msgstr "機器種類"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:59
 msgid "Root device"
@@ -8118,3 +8120,6 @@ msgstr ""
 #: ../app/utils/vcenter-vm-folder/html.hbs:21
 msgid "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
 msgstr ""
+
+#~ msgid "none"
+#~ msgstr "none"

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
+"PO-Revision-Date: 2019-10-07 15:12+0000\n"
 "Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
 "Language-Team: Greek (Greece) (http://www.transifex.com/opennebula/one/language/el_GR/)\n"
 "Language: el_GR\n"
@@ -5417,7 +5417,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:22
 msgid "Loading"
-msgstr "Φόρτωση"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:24
 msgid "Send CtrlAltDel"
@@ -5430,7 +5430,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:36
 msgid "Canvas not supported."
-msgstr "Το Canvas δεν υποστηρίζεται."
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:20
 msgid "Attach new disk"

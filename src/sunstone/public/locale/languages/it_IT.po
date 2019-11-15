@@ -15,6 +15,7 @@
 # Giovanni Toraldo <me@gionn.net>, 2012-2015
 # Ivan Rossi <rouge2507@gmail.com>, 2012
 # Marcello Lodi <marcello.lodi@gmail.com>, 2013
+# Marco Aroldi <aroldi@mailup.com>, 2019
 # Rocco <mors10@hotmail.com>, 2015-2016
 # Vincenzo Reale <vinx.reale@gmail.com>, 2012-2016
 msgid ""
@@ -22,8 +23,8 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
-"Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
+"PO-Revision-Date: 2019-10-18 13:17+0000\n"
+"Last-Translator: Marco Aroldi <aroldi@mailup.com>\n"
 "Language-Team: Italian (Italy) (http://www.transifex.com/opennebula/one/language/it_IT/)\n"
 "Language: it_IT\n"
 "MIME-Version: 1.0\n"
@@ -1129,7 +1130,7 @@ msgstr "Crea utente"
 
 #: ../app/tabs/users-tab/form-panels/create.js:95
 msgid "To define secondary groups you need to also set the main group"
-msgstr ""
+msgstr "Per definire i gruppi secondari devi anche impostare il gruppo principale"
 
 #: ../app/tabs/users-tab/buttons.js:32
 msgid "Change primary group"
@@ -1199,19 +1200,19 @@ msgstr "Predefinita"
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:80
 msgid "Please select a network template from the list"
-msgstr ""
+msgstr "Seleziona un template di rete dall'elenco"
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:81
 msgid "You selected the following network template:"
-msgstr ""
+msgstr "Hai selezionato il template di rete seguente:"
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:82
 msgid "Please select one or more networks templates from the list"
-msgstr ""
+msgstr "Seleziona una o più template di rete dall'elenco"
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:83
 msgid "You selected the following networks templates:"
-msgstr ""
+msgstr "Hai selezionato i template di rete seguenti:"
 
 #: ../app/tabs/vnets-templates-tab/dialogs/instantiate-update-ar.js:78
 #: ../app/tabs/vnets-templates-tab/dialogs/instantiate-add-ar.js:84
@@ -1224,15 +1225,15 @@ msgstr "Uno o più campi richiesti sono mancanti."
 
 #: ../app/tabs/vnets-templates-tab/actions.js:38
 msgid "Virtual Network Template created"
-msgstr ""
+msgstr "Template rete virtuale creata"
 
 #: ../app/tabs/vnets-templates-tab/actions.js:123
 msgid "VNet created"
-msgstr ""
+msgstr "Vnet creata"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:60
 msgid "Instantiate Network Template"
-msgstr ""
+msgstr "Istanzia template di rete"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:61
 #: ../app/tabs/vnets-templates-tab/buttons.js:38
@@ -1303,11 +1304,11 @@ msgstr "Driver IPAM"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:58
 msgid "Create Virtual Network Template"
-msgstr ""
+msgstr "Crea un template per la rete virtuale"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:63
 msgid "Update Virtual Network Template"
-msgstr ""
+msgstr "Aggiorna il template per la rete virtuale"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:64
 #: ../app/tabs/vnets-templates-tab/buttons.js:34
@@ -1412,11 +1413,11 @@ msgstr "SÌ"
 
 #: ../app/tabs/vnets-templates-tab.js:52
 msgid "Network Templates"
-msgstr ""
+msgstr "Template di rete"
 
 #: ../app/tabs/vnets-templates-tab.js:56
 msgid "Virtual Network Templates"
-msgstr ""
+msgstr "Template per le reti virtuali"
 
 #: ../app/tabs/vnets-templates-tab.js:57
 msgid "Virtual Network Template"
@@ -2462,7 +2463,7 @@ msgstr "Questo scollegherà immediatamente la scheda di rete"
 
 #: ../app/tabs/vms-tab/panels/network.js:493
 msgid "This will detach the alias immediately"
-msgstr ""
+msgstr "Questo scollegherà immediatamente l'alias di rete"
 
 #: ../app/tabs/vms-tab/panels/network.js:520
 msgid "Network reception"
@@ -3873,7 +3874,7 @@ msgstr ""
 #: ../app/utils/vcenter/networks.js:144
 #, javascript-format
 msgid "%1$s Networks selected."
-msgstr ""
+msgstr "%1$s Reti selezionate."
 
 #: ../app/utils/vcenter/networks.js:176 ../app/utils/vcenter/networks.js:189
 #: ../app/utils/vcenter/networks.js:197 ../app/utils/vcenter/networks.js:207
@@ -4104,7 +4105,7 @@ msgstr "Ore"
 
 #: ../app/utils/schedule_action.js:379 ../app/utils/schedule_action/html.hbs:36
 msgid "Minutes"
-msgstr ""
+msgstr "Minuti"
 
 #: ../app/utils/vmgroup-section.js:167
 msgid "Internal server error."
@@ -4121,13 +4122,10 @@ msgstr "Immagine non trovata"
 #: ../app/utils/disks-resize.js:165
 msgid "Persistent image. The changes will be saved back to the datastore after the VM is shut down"
 msgstr ""
-"2\n"
-"votes\n"
-"Immagine persistente. I cambiamenti saranno salvati nel datastore dopo lo shutdown della VM"
 
 #: ../app/utils/disks-resize.js:169
 msgid "Non-persistent disk. The changes will be lost once the VM is shut down"
-msgstr "Disco non persistente. I cambiamenti saranno persi dopo lo shutdown della VM"
+msgstr ""
 
 #: ../app/utils/disks-resize.js:177
 msgid "Image state: "
@@ -4532,7 +4530,7 @@ msgstr "Formato RBD"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:270
 msgid "Ceph configuration file path"
-msgstr ""
+msgstr "Percorso del file di configurazione di Ceph"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:272
 msgid "Needed if using a non-default path for the ceph configuration file."
@@ -4787,7 +4785,7 @@ msgstr "Il gruppo di sicurezza 0 predefinito è aggiunto automaticamente alle nu
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:25
 msgid "Network name"
-msgstr ""
+msgstr "Nome rete"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:27
 msgid "Defaults to 'template name-<vnetid>' when empty."
@@ -5433,8 +5431,9 @@ msgid "Disk Snapshot"
 msgstr "Snapshot Disco"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:22
+#, fuzzy
 msgid "Loading"
-msgstr "Caricamento in corso"
+msgstr "Caricamento in corso..."
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:24
 msgid "Send CtrlAltDel"
@@ -5447,7 +5446,7 @@ msgstr "Apri in una nuova finestra"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:36
 msgid "Canvas not supported."
-msgstr "Canvas non supportato."
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:20
 msgid "Attach new disk"
@@ -5475,11 +5474,11 @@ msgstr "Salva come"
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot-rename/html.hbs:43
 #: ../app/tabs/vms-tab/panels/storage/disk-details.hbs:27
 msgid "Rename"
-msgstr ""
+msgstr "Rinomina"
 
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot-rename/html.hbs:38
 msgid "New name"
-msgstr ""
+msgstr "Nuovo nome"
 
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:27
 #: ../app/utils/dialogs/generic-confirm/html.hbs:26
@@ -6181,6 +6180,7 @@ msgid "CPU Architecture"
 msgstr "Architettura CPU"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:52
+#, fuzzy
 msgid "machine type"
 msgstr "Tipo della macchina"
 
@@ -6540,12 +6540,12 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:48
 #: ../app/utils/nics-section/dd.hbs:56
 msgid "The Schedule will decide which is the best virtual network"
-msgstr ""
+msgstr "Lo schedulatore deciderà quale è la rete virtuale migliore"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:55
 #: ../app/utils/nics-section/dd.hbs:63
 msgid "Network Requirements"
-msgstr ""
+msgstr "Requisiti di rete"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:59
 #: ../app/utils/nics-section/dd.hbs:67
@@ -7135,8 +7135,9 @@ msgstr ""
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:60
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:95
+#, fuzzy
 msgid "Affinity"
-msgstr "Affinità"
+msgstr "Affinità VM-VM"
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:85
 msgid "Roles Affinity"
@@ -8132,3 +8133,6 @@ msgstr ""
 #: ../app/utils/vcenter-vm-folder/html.hbs:21
 msgid "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
 msgstr ""
+
+#~ msgid "none"
+#~ msgstr "nessuna"

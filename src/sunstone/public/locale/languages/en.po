@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
+"PO-Revision-Date: 2019-10-07 15:12+0000\n"
 "Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
 "Language-Team: English (http://www.transifex.com/opennebula/one/language/en/)\n"
 "Language: en\n"
@@ -4103,12 +4103,14 @@ msgid "Image was not found"
 msgstr "Image was not found"
 
 #: ../app/utils/disks-resize.js:165
+#, fuzzy
 msgid "Persistent image. The changes will be saved back to the datastore after the VM is shut down"
-msgstr "Persistent image. The changes will be saved back to the datastore after the VM is shut down"
+msgstr "Persistent image. The changes will be saved back to the datastore after the VM is terminated (ie goes into DONE state)"
 
 #: ../app/utils/disks-resize.js:169
+#, fuzzy
 msgid "Non-persistent disk. The changes will be lost once the VM is shut down"
-msgstr "Non-persistent disk. The changes will be lost once the VM is shut down"
+msgstr "Non-persistent disk. The changes will be lost once the VM is terminated (ie goes into DONE state)"
 
 #: ../app/utils/disks-resize.js:177
 msgid "Image state: "
@@ -5414,8 +5416,9 @@ msgid "Disk Snapshot"
 msgstr "Disk Snapshot"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:22
+#, fuzzy
 msgid "Loading"
-msgstr "Loading"
+msgstr "Loading..."
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:24
 msgid "Send CtrlAltDel"
@@ -5428,7 +5431,7 @@ msgstr "Open in a new window"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:36
 msgid "Canvas not supported."
-msgstr "Canvas not supported."
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:20
 msgid "Attach new disk"
@@ -6162,8 +6165,9 @@ msgid "CPU Architecture"
 msgstr "CPU Architecture"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:52
+#, fuzzy
 msgid "machine type"
-msgstr "machine type"
+msgstr "Machine type"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:59
 msgid "Root device"
@@ -7116,8 +7120,9 @@ msgstr "Host Anti Affined"
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:60
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:95
+#, fuzzy
 msgid "Affinity"
-msgstr "Affinity"
+msgstr "VM Affinity"
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:85
 msgid "Roles Affinity"
@@ -8113,3 +8118,162 @@ msgstr "Clear"
 #: ../app/utils/vcenter-vm-folder/html.hbs:21
 msgid "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
 msgstr "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
+
+#~ msgid "just click if you want to delete the resource"
+#~ msgstr "just click if you want to delete the resource"
+
+#~ msgid "Error NSX data credentials, check and try again"
+#~ msgstr "Error NSX data credentials, check and try again"
+
+#~ msgid "NSX"
+#~ msgstr "NSX"
+
+#~ msgid "NSX information valid"
+#~ msgstr "NSX information valid"
+
+#~ msgid "Numa"
+#~ msgstr "Numa"
+
+#~ msgid "Manage two factor authentication"
+#~ msgstr "Manage two factor authentication"
+
+#~ msgid "NUMA"
+#~ msgstr "NUMA"
+
+#~ msgid "Sign in"
+#~ msgstr "Sign in"
+
+#~ msgid "Replication Mode"
+#~ msgstr "Replication Mode"
+
+#~ msgid "Universal Synchronization"
+#~ msgstr "Universal Synchronization"
+
+#~ msgid "IP Discovery"
+#~ msgstr "IP Discovery"
+
+#~ msgid "MAC Learning"
+#~ msgstr "MAC Learning"
+
+#~ msgid "Admin Status"
+#~ msgstr "Admin Status"
+
+#~ msgid "Two Factor Authentication"
+#~ msgstr "Two Factor Authentication"
+
+#~ msgid "Two factor authentication can be enabled for loging into Sunestone UI."
+#~ msgstr "Two factor authentication can be enabled for loging into Sunestone UI."
+
+#~ msgid "Get authenticator app: "
+#~ msgstr "Get authenticator app: "
+
+#~ msgid "Authy"
+#~ msgstr "Authy"
+
+#~ msgid "Google Authenticator"
+#~ msgstr "Google Authenticator"
+
+#~ msgid "Microsoft Authenticator"
+#~ msgstr "Microsoft Authenticator"
+
+#~ msgid "Scan this Barcode."
+#~ msgstr "Scan this Barcode."
+
+#~ msgid "Enter Verification Code."
+#~ msgstr "Enter Verification Code."
+
+#~ msgid "Two factor authtentication"
+#~ msgstr "Two factor authtentication"
+
+#~ msgid "Default Zone Endpoint"
+#~ msgstr "Default Zone Endpoint"
+
+#~ msgid "Bus for SD disks"
+#~ msgstr "Bus for SD disks"
+
+#~ msgid "NUMA Topology"
+#~ msgstr "NUMA Topology"
+
+#~ msgid "These settings will help you to fine tune the performance of VMs"
+#~ msgstr "These settings will help you to fine tune the performance of VMs"
+
+#~ msgid "Pin Policy"
+#~ msgstr "Pin Policy"
+
+#~ msgid "vCPU pinning preference: CORE, THREAD, SHARED, NONE"
+#~ msgstr "vCPU pinning preference: CORE, THREAD, SHARED, NONE"
+
+#~ msgid "none"
+#~ msgstr "none"
+
+#~ msgid "thread"
+#~ msgstr "thread"
+
+#~ msgid "shared"
+#~ msgstr "shared"
+
+#~ msgid "Sockets"
+#~ msgstr "Sockets"
+
+#~ msgid "Number of sockets or NUMA nodes"
+#~ msgstr "Number of sockets or NUMA nodes"
+
+#~ msgid "Cores"
+#~ msgstr "Cores"
+
+#~ msgid "Number of cores per node"
+#~ msgstr "Number of cores per node"
+
+#~ msgid "Threads"
+#~ msgstr "Threads"
+
+#~ msgid "Number of threads per core"
+#~ msgstr "Number of threads per core"
+
+#~ msgid "Hugepages Size"
+#~ msgstr "Hugepages Size"
+
+#~ msgid "Size of the hugepages (MB). If not defined no hugepages will be used"
+#~ msgstr "Size of the hugepages (MB). If not defined no hugepages will be used"
+
+#~ msgid "Memory Access"
+#~ msgstr "Memory Access"
+
+#~ msgid "Control if the memory is to be mapped shared or private"
+#~ msgstr "Control if the memory is to be mapped shared or private"
+
+#~ msgid "-"
+#~ msgstr "-"
+
+#~ msgid "Private"
+#~ msgstr "Private"
+
+#~ msgid "Command"
+#~ msgstr "Command"
+
+#~ msgid "Host Instance"
+#~ msgstr "Host Instance"
+
+#~ msgid "Host ID"
+#~ msgstr "Host ID"
+
+#~ msgid "Transport"
+#~ msgstr "Transport"
+
+#~ msgid "Officially supported"
+#~ msgstr "Officially supported"
+
+#~ msgid "Open"
+#~ msgstr "Open"
+
+#~ msgid "Pending"
+#~ msgstr "Pending"
+
+#~ msgid "Submit a Request"
+#~ msgstr "Submit a Request"
+
+#~ msgid "Not officially supported"
+#~ msgstr "Not officially supported"
+
+#~ msgid "Not connected"
+#~ msgstr "Not connected"

@@ -15,8 +15,8 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
-"Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
+"PO-Revision-Date: 2019-11-13 05:41+0000\n"
+"Last-Translator: Toshiharu Kudoh <toshi.kd2@gmail.com>\n"
 "Language-Team: Japanese (http://www.transifex.com/opennebula/one/language/ja/)\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
@@ -80,17 +80,17 @@ msgstr "実行中"
 #: ../app/opennebula/role.js:47 ../app/opennebula/service.js:29
 #: ../app/tabs/provision-tab/flows/list.js:632
 msgid "UNDEPLOYING"
-msgstr "アンデプロイ"
+msgstr "UNDEPLOYING"
 
 #: ../app/opennebula/role.js:48 ../app/opennebula/service.js:30
 #: ../app/tabs/provision-tab/flows/list.js:648
 msgid "WARNING"
-msgstr "警告"
+msgstr "WARNING"
 
 #: ../app/opennebula/role.js:49 ../app/opennebula/service.js:31
 #: ../app/tabs/provision-tab/flows/list.js:664
 msgid "DONE"
-msgstr "完了"
+msgstr "DONE"
 
 #: ../app/opennebula/role.js:50 ../app/opennebula/service.js:32
 msgid "FAILED_UNDEPLOYING"
@@ -103,7 +103,7 @@ msgstr "デプロイ失敗"
 #: ../app/opennebula/role.js:52 ../app/opennebula/service.js:34
 #: ../app/tabs/provision-tab/flows/list.js:656
 msgid "SCALING"
-msgstr "スケーリング"
+msgstr "SCALING"
 
 #: ../app/opennebula/role.js:53 ../app/opennebula/service.js:35
 msgid "FAILED_SCALING"
@@ -112,7 +112,7 @@ msgstr "スケーリング失敗"
 #: ../app/opennebula/role.js:54 ../app/opennebula/service.js:36
 #: ../app/tabs/provision-tab/flows/list.js:660
 msgid "COOLDOWN"
-msgstr "クールダウン"
+msgstr "COOLDOWN"
 
 #: ../app/opennebula/vm.js:195
 msgid "LCM_INIT"
@@ -199,7 +199,7 @@ msgstr "DISK_RSZ"
 #: ../app/opennebula/host.js:53 ../app/opennebula/host.js:59
 #: ../app/opennebula/image.js:23
 msgid "INIT"
-msgstr "初期状態"
+msgstr "INIT"
 
 #: ../app/opennebula/marketplaceapp.js:25 ../app/opennebula/image.js:24
 #: ../app/tabs/provision-tab/vms/list.js:1003
@@ -322,7 +322,7 @@ msgstr "CONTEXT"
 
 #: ../app/sunstone.js:1036 ../app/sunstone.js:1037
 msgid "Submitting..."
-msgstr ""
+msgstr "投入中..."
 
 #: ../app/sunstone.js:1153 ../app/sunstone.js:1154
 msgid "Loading..."
@@ -2145,7 +2145,7 @@ msgstr "VMを作成しました"
 
 #: ../app/tabs/vms-tab/form-panels/updateconf.js:58
 msgid "Update VM Configuration"
-msgstr "VM構成を更新"
+msgstr "VM設定を更新"
 
 #: ../app/tabs/vms-tab/form-panels/create.js:44
 #: ../app/tabs/provision-tab/vms/create.hbs:20
@@ -2584,7 +2584,7 @@ msgstr "GID"
 
 #: ../app/tabs/vms-tab/panels/placement.js:73
 msgid "ReqID"
-msgstr ""
+msgstr "ReqID"
 
 #: ../app/tabs/vms-tab/panels/placement.js:74
 msgid "Change time"
@@ -2616,7 +2616,7 @@ msgstr "要件"
 
 #: ../app/tabs/vms-tab/panels/placement.js:178
 msgid "Rank"
-msgstr "Rank"
+msgstr "ランク"
 
 #: ../app/tabs/vms-tab/panels/placement.js:186
 msgid "Placement - Datastore"
@@ -2628,7 +2628,7 @@ msgstr "DS 要件"
 
 #: ../app/tabs/vms-tab/panels/placement.js:195
 msgid "DS Rank"
-msgstr "DS Rank"
+msgstr "DS ランク"
 
 #: ../app/tabs/vms-tab/panels/info.js:92
 #: ../app/tabs/images-tab/panels/info-common.js:66
@@ -2922,7 +2922,7 @@ msgstr "セキュリティグループ"
 
 #: ../app/tabs/marketplaceapps-tab.js:54
 msgid "App"
-msgstr ""
+msgstr "App"
 
 #: ../app/tabs/marketplaces-tab.js:48 ../app/tabs/marketplaces-tab.js:52
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:125
@@ -3019,7 +3019,7 @@ msgstr "Persistent"
 
 #: ../app/tabs/images-tab/datatable-common.js:77
 msgid "#VMS"
-msgstr "#VMS"
+msgstr "#VM数"
 
 #: ../app/tabs/images-tab/datatable-common.js:78
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:25
@@ -4074,19 +4074,19 @@ msgstr "時間"
 
 #: ../app/utils/schedule_action.js:364 ../app/utils/schedule_action/html.hbs:31
 msgid "Years"
-msgstr ""
+msgstr "年"
 
 #: ../app/utils/schedule_action.js:367 ../app/utils/schedule_action/html.hbs:32
 msgid "Months"
-msgstr ""
+msgstr "月"
 
 #: ../app/utils/schedule_action.js:370 ../app/utils/schedule_action/html.hbs:33
 msgid "Weeks"
-msgstr ""
+msgstr "週"
 
 #: ../app/utils/schedule_action.js:373 ../app/utils/schedule_action/html.hbs:34
 msgid "Days"
-msgstr ""
+msgstr "日"
 
 #: ../app/utils/schedule_action.js:376 ../app/utils/schedule_action/html.hbs:35
 #: ../app/utils/showback/html.hbs:89
@@ -4095,7 +4095,7 @@ msgstr "時"
 
 #: ../app/utils/schedule_action.js:379 ../app/utils/schedule_action/html.hbs:36
 msgid "Minutes"
-msgstr ""
+msgstr "分"
 
 #: ../app/utils/vmgroup-section.js:167
 msgid "Internal server error."
@@ -4508,11 +4508,11 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:255
 msgid "Compatible system datastores"
-msgstr ""
+msgstr "互換性のあるシステムデータストア"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:257
 msgid "Specifies which system datastores are compatible with this image datastore"
-msgstr ""
+msgstr "このイメージデータストアと互換性のあるシステムデータストアを指定します"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:264
 msgid "RBD format"
@@ -4613,7 +4613,7 @@ msgstr "ログイントークン"
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:29
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:199
 msgid "A login token acts as a password and can be used to authenticate with OpenNebula through Sunstone, the CLI, or the API"
-msgstr ""
+msgstr "ログイントークンはパスワードとして機能し、SunstoneやCLI、あるいはAPIを介したOpenNebulaへの認証に用いられます。"
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:39
 msgid "Valid until"
@@ -4824,7 +4824,7 @@ msgstr "ここにマーケットプレイスのテンプレートを記述しま
 
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:45
 msgid "Configuration attributes"
-msgstr "構成属性"
+msgstr "設定属性"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:22
 msgid "Name that the resource will get for description purposes."
@@ -5421,8 +5421,9 @@ msgid "Disk Snapshot"
 msgstr "ディスクスナップショット"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:22
+#, fuzzy
 msgid "Loading"
-msgstr "読込中"
+msgstr "読込中..."
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:24
 msgid "Send CtrlAltDel"
@@ -5435,7 +5436,7 @@ msgstr "新しいウィンドウで開く"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:36
 msgid "Canvas not supported."
-msgstr "Canvasがサポートされていません。"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:20
 msgid "Attach new disk"
@@ -5552,7 +5553,7 @@ msgstr "ディスクを接続"
 
 #: ../app/tabs/vms-tab/panels/conf/html.hbs:22
 msgid "Update Configuration"
-msgstr "構成を更新"
+msgstr "設定を更新"
 
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:19
 msgid "Clone Security Group"
@@ -5748,7 +5749,7 @@ msgstr "複数のイメージが選択されたため、新しいコピーに名
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:36
 msgid "You can select a different target datastore"
-msgstr ""
+msgstr "異なるデータストアが選択可能です"
 
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:26
 msgid "Get Images"
@@ -5970,7 +5971,7 @@ msgstr "KVM"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:30
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:115
 msgid "LXD"
-msgstr ""
+msgstr "LXD"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:44
 msgid "Logo"
@@ -6169,6 +6170,7 @@ msgid "CPU Architecture"
 msgstr "CPUアーキテクチャー"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:52
+#, fuzzy
 msgid "machine type"
 msgstr "マシンタイプ"
 
@@ -6548,7 +6550,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:78
 #: ../app/utils/nics-section/dd.hbs:85
 msgid "Network Rank"
-msgstr ""
+msgstr "ネットワークランク"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:83
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:75
@@ -6710,7 +6712,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:42
 msgid "Configuration"
-msgstr "構成"
+msgstr "設定"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:48
 msgid "Custom vars"
@@ -6973,7 +6975,7 @@ msgstr "kvm"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:27
 msgid "lxd"
-msgstr ""
+msgstr "lxd"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:33
 msgid "Data"
@@ -7013,7 +7015,7 @@ msgstr "データストア要件"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:70
 msgid "Host Rank"
-msgstr "ホスト Rank"
+msgstr "ホストランク"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:76
 msgid "Pack the VMs in the Hosts to reduce VM fragmentation"
@@ -7037,7 +7039,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:102
 msgid "Datastore Rank"
-msgstr "データストア Rank"
+msgstr "データストアランク"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:108
 msgid "Tries to optimize storage usage by selecting the DS with less free space"
@@ -7123,8 +7125,9 @@ msgstr ""
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:60
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:95
+#, fuzzy
 msgid "Affinity"
-msgstr "アフィニティー"
+msgstr "VMアフィニティー"
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:85
 msgid "Roles Affinity"
@@ -7572,7 +7575,7 @@ msgstr "ポート数"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:224
 msgid "Port group type"
-msgstr ""
+msgstr "ポートグループタイプ"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:226
 msgid "Port group"
@@ -7819,7 +7822,7 @@ msgstr "IPv4を強制する:"
 
 #: ../app/utils/nics-section/dd.hbs:123 ../app/utils/nics-section/dd.hbs:162
 msgid "Optionally, you can force the IP assigned to the network interface."
-msgstr ""
+msgstr "オプションとして、ネットワークインターフェースにアサイン済のIPを強制できます。"
 
 #: ../app/utils/nics-section/dd.hbs:139
 msgid "If checked, each Virtual Machine will have a floating IP added to its network interface."
@@ -7962,7 +7965,7 @@ msgstr ""
 
 #: ../app/utils/schedule_action/html.hbs:21
 msgid "Relative Time"
-msgstr ""
+msgstr "相対時間"
 
 #: ../app/utils/schedule_action/html.hbs:51
 msgid "Periodic"
@@ -8120,3 +8123,69 @@ msgstr "クリア"
 #: ../app/utils/vcenter-vm-folder/html.hbs:21
 msgid "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
 msgstr ""
+
+#~ msgid "NSX"
+#~ msgstr "NSX"
+
+#~ msgid "Numa"
+#~ msgstr "Numa"
+
+#~ msgid "Manage two factor authentication"
+#~ msgstr "二要素認証を管理"
+
+#~ msgid "NUMA"
+#~ msgstr "NUMA"
+
+#~ msgid "Sign in"
+#~ msgstr "サインイン"
+
+#~ msgid "Two Factor Authentication"
+#~ msgstr "二要素認証"
+
+#~ msgid "Two factor authentication can be enabled for loging into Sunestone UI."
+#~ msgstr "二要素認証はSunstoneユーザインタフェースへのログイン用に有効化できます。"
+
+#~ msgid "Get authenticator app: "
+#~ msgstr "認証アプリケーションを取得します: "
+
+#~ msgid "Authy"
+#~ msgstr "Authy"
+
+#~ msgid "Google Authenticator"
+#~ msgstr "Google Authenticator"
+
+#~ msgid "Microsoft Authenticator"
+#~ msgstr "Microsoft Authenticator"
+
+#~ msgid "Scan this Barcode."
+#~ msgstr "このバーコードをスキャンします。"
+
+#~ msgid "Enter Verification Code."
+#~ msgstr "確認コードを入力します。"
+
+#~ msgid "Two factor authtentication"
+#~ msgstr "二要素認証"
+
+#~ msgid "NUMA Topology"
+#~ msgstr "NUMAトポロジー"
+
+#~ msgid "none"
+#~ msgstr "なし"
+
+#~ msgid "Sockets"
+#~ msgstr "ソケット数"
+
+#~ msgid "Cores"
+#~ msgstr "コア数"
+
+#~ msgid "Hugepages Size"
+#~ msgstr "Hugepageのサイズ"
+
+#~ msgid "Memory Access"
+#~ msgstr "メモリーアクセス"
+
+#~ msgid "-"
+#~ msgstr "-"
+
+#~ msgid "Command"
+#~ msgstr "コマンド"

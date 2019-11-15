@@ -5,14 +5,15 @@
 # Translators:
 # André Monteiro <andre.monteir@gmail.com>, 2012
 # André Monteiro <andre.monteir@gmail.com>, 2012-2015,2017
+# Pedro Alves <craftideal7@gmail.com>, 2019
 # Philippe Caseiro <caseiro.philippe@gmail.com>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
-"Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
+"PO-Revision-Date: 2019-10-07 15:12+0000\n"
+"Last-Translator: André Monteiro <andre.monteir@gmail.com>\n"
 "Language-Team: Portuguese (Portugal) (http://www.transifex.com/opennebula/one/language/pt_PT/)\n"
 "Language: pt_PT\n"
 "MIME-Version: 1.0\n"
@@ -424,17 +425,17 @@ msgstr "Sem rótulos definidos"
 #: ../app/tabs/provision-tab.js:839 ../app/tabs/provision-tab.js:917
 #: ../app/tabs/provision-tab/vms/create.hbs:74
 msgid "mine"
-msgstr ""
+msgstr "meu"
 
 #: ../app/tabs/provision-tab.js:841 ../app/tabs/provision-tab.js:919
 #: ../app/tabs/provision-tab/vms/create.hbs:75
 msgid "group"
-msgstr ""
+msgstr "grupo"
 
 #: ../app/tabs/provision-tab.js:843 ../app/tabs/provision-tab.js:921
 #: ../app/tabs/provision-tab/vms/create.hbs:76
 msgid "system"
-msgstr ""
+msgstr "sistema"
 
 #: ../app/tabs/provision-tab.js:1116 ../app/tabs/provision-tab.js:1380
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:513
@@ -1188,19 +1189,19 @@ msgstr "Por omissão"
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:80
 msgid "Please select a network template from the list"
-msgstr ""
+msgstr "Por favor selecione um modelo desta lista"
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:81
 msgid "You selected the following network template:"
-msgstr ""
+msgstr "Tu selecionaste o seguinte modelo:"
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:82
 msgid "Please select one or more networks templates from the list"
-msgstr ""
+msgstr "Por favor selecione um ou mais modelos da lista"
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:83
 msgid "You selected the following networks templates:"
-msgstr ""
+msgstr "Tu selecionaste os seguintes modelos:"
 
 #: ../app/tabs/vnets-templates-tab/dialogs/instantiate-update-ar.js:78
 #: ../app/tabs/vnets-templates-tab/dialogs/instantiate-add-ar.js:84
@@ -1213,15 +1214,15 @@ msgstr "Um ou mais campos obrigatórios estão em falta."
 
 #: ../app/tabs/vnets-templates-tab/actions.js:38
 msgid "Virtual Network Template created"
-msgstr ""
+msgstr "Modelo Virtual criado"
 
 #: ../app/tabs/vnets-templates-tab/actions.js:123
 msgid "VNet created"
-msgstr ""
+msgstr "VNet criada"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:60
 msgid "Instantiate Network Template"
-msgstr ""
+msgstr "Representar Modelo"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:61
 #: ../app/tabs/vnets-templates-tab/buttons.js:38
@@ -1251,7 +1252,7 @@ msgstr "Isto irá apagar todos os endereços neste intervalo"
 #: ../app/tabs/vnets-templates-tab/panels/ar.js:261
 #: ../app/tabs/vnets-tab/panels/ar.js:238
 msgid "The Address Range was not found"
-msgstr ""
+msgstr "O endereço não foi encontrado"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:406
 #: ../app/tabs/vnets-templates-tab/panels/ar.js:337
@@ -1288,15 +1289,15 @@ msgstr "Tamanho"
 #: ../app/tabs/vnets-tab/panels/ar.js:317
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:86
 msgid "IPAM driver"
-msgstr ""
+msgstr "Condutor IPAM"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:58
 msgid "Create Virtual Network Template"
-msgstr ""
+msgstr "Criar Modelo Virtual"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:63
 msgid "Update Virtual Network Template"
-msgstr ""
+msgstr "Atualizar Modelo Virtual"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:64
 #: ../app/tabs/vnets-templates-tab/buttons.js:34
@@ -1330,7 +1331,7 @@ msgstr "Atualizar"
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:315
 #: ../app/tabs/vnets-tab/form-panels/create.js:309
 msgid "AR"
-msgstr ""
+msgstr "Realidade Aumentada"
 
 #: ../app/tabs/vnets-templates-tab/buttons.js:85
 #: ../app/tabs/marketplaceapps-tab/buttons.js:85
@@ -1339,7 +1340,7 @@ msgstr ""
 #: ../app/tabs/vmgroup-tab/buttons.js:70 ../app/tabs/vnets-tab/buttons.js:98
 #: ../app/tabs/vrouters-tab/buttons.js:72
 msgid "Lock"
-msgstr ""
+msgstr "Trancar"
 
 #: ../app/tabs/vnets-templates-tab/buttons.js:91
 #: ../app/tabs/marketplaceapps-tab/buttons.js:91
@@ -1348,7 +1349,7 @@ msgstr ""
 #: ../app/tabs/vmgroup-tab/buttons.js:76 ../app/tabs/vnets-tab/buttons.js:104
 #: ../app/tabs/vrouters-tab/buttons.js:78
 msgid "Unlock"
-msgstr ""
+msgstr "Destrancar"
 
 #: ../app/tabs/vnets-templates-tab/panels/templates.js:39
 #: ../app/tabs/oneflow-templates-tab/panels/template.js:45
@@ -1401,15 +1402,15 @@ msgstr "SIM"
 
 #: ../app/tabs/vnets-templates-tab.js:52
 msgid "Network Templates"
-msgstr ""
+msgstr "Modelos"
 
 #: ../app/tabs/vnets-templates-tab.js:56
 msgid "Virtual Network Templates"
-msgstr ""
+msgstr "Modelos Virtuais"
 
 #: ../app/tabs/vnets-templates-tab.js:57
 msgid "Virtual Network Template"
-msgstr ""
+msgstr "Modelo Virtual"
 
 #: ../app/tabs/vdcs-tab/datatable.js:71
 #: ../app/tabs/clusters-tab/datatable.js:66
@@ -1498,15 +1499,15 @@ msgstr "Recursos"
 
 #: ../app/tabs/vnets-topology-tab.js:52
 msgid "Collapse VMs"
-msgstr ""
+msgstr "Quebrar VMs"
 
 #: ../app/tabs/vnets-topology-tab.js:58
 msgid "Open VMs"
-msgstr ""
+msgstr "Abrir VMS"
 
 #: ../app/tabs/vnets-topology-tab.js:89 ../app/tabs/vnets-topology-tab.js:91
 msgid "Network Topology"
-msgstr ""
+msgstr "Topologia de rede"
 
 #: ../app/tabs/vnets-topology-tab.js:556 ../app/tabs/vms-tab.js:73
 #: ../app/tabs/vms-tab/dialogs/migrate.js:146
@@ -1525,7 +1526,7 @@ msgstr "VNet"
 #: ../app/tabs/marketplaces-tab/panels/apps.js:38
 #: ../app/tabs/marketplaceapps-tab.js:49 ../app/tabs/marketplaceapps-tab.js:53
 msgid "Apps"
-msgstr ""
+msgstr "Aplicações"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:90
 #: ../app/tabs/marketplaces-tab/datatable/search.hbs:22
@@ -1544,104 +1545,104 @@ msgstr "Zona"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:100
 msgid "Please select a marketplace from the list"
-msgstr ""
+msgstr "Por favor selecione um mercado da lista"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:101
 msgid "You selected the following marketplace:"
-msgstr ""
+msgstr "Tu selecionaste o seguinte mercado:"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:102
 msgid "Please select one or more marketplaces from the list"
-msgstr ""
+msgstr "Por favor selecione um ou mais mercados da lista"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:103
 msgid "You selected the following marketplaces:"
-msgstr ""
+msgstr "Tu selecionaste os seguintes mercados:"
 
 #: ../app/tabs/marketplaces-tab/actions.js:30
 msgid "MarketPlace created"
-msgstr ""
+msgstr "Mercado criado"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:46
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:100
 msgid "Endpoint URL for marketplace"
-msgstr ""
+msgstr "Desfecho da URL no mercado"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:51
 msgid "Base URL for marketapp"
-msgstr ""
+msgstr "URL Base para a aplicação do mercado"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:56
 msgid "Marketapp directory path"
-msgstr ""
+msgstr "Rota de diretório da aplicação do mercado "
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:57
 msgid "This is the document root for http server"
-msgstr ""
+msgstr "Este é o documento raíz para o servidor http"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:62
 msgid "Storage bridge list"
-msgstr ""
+msgstr "Lista de armazenamento"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:63
 msgid "Comma separated list of servers to access the image directory if not local"
-msgstr ""
+msgstr "Vírgula separou lista de servidores para acessar o diretório da imagem se não for local"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:68
 msgid "Access Key Id"
-msgstr ""
+msgstr "Id da Chave de Acesso"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:73
 msgid "Secret Access Key"
-msgstr ""
+msgstr "Chave de Acesso Secreto"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:78
 msgid "S3 bucket to store marketapps"
-msgstr ""
+msgstr "Armazenamento S3 para armazenar as aplicações do mercado"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:83
 msgid "Amazon Region"
-msgstr ""
+msgstr "Região da Amazon"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:84
 msgid "Only if using public Amazon S3 service."
-msgstr ""
+msgstr "Apenas se estiver a usar o serviço público S3 da Amazon."
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:89
 msgid "Total Marketplace size in MB"
-msgstr ""
+msgstr "Total tamanho do Mercado em MB"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:94
 msgid "Signature Version"
-msgstr ""
+msgstr "Versão de Assinatura"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:95
 msgid "Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** be 's3'."
-msgstr ""
+msgstr "Deixar em branco para o serviço S3 AWS da Amazon. Se estiver a conectar ao Ceph S3 **deve** ser 's3'."
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:105
 msgid "Force Path Style"
-msgstr ""
+msgstr "Forçar rota"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:106
 msgid "Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** be 'YES'."
-msgstr ""
+msgstr "Deixar em branco para o serviço S3 AWS da Amazon. Se estiver a conectar ao Ceph S3 **deve** ser 'YES'."
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:111
 msgid "Read block length in MB"
-msgstr ""
+msgstr "Ler tamanho dos blocos em MB"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:112
 msgid "Split marketapps into chunks of this size (in MB). You should **never** user a quantity larger than 100. Defaults to 32 (MB)."
-msgstr ""
+msgstr "Dividir aplicações de mercado em pedaços deste tamanho (em MB). Tu **nunca** deves utilizar uma quantidade maior que 100. Básicos para 32 (MB)."
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:127
 msgid "Create MarketPlace"
-msgstr ""
+msgstr "Criar Mercado"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:132
 msgid "Update MarketPlace"
-msgstr ""
+msgstr "Atualizar Mercado"
 
 #: ../app/tabs/datastores-tab.js:51 ../app/tabs/vms-tab/panels/placement.js:69
 #: ../app/tabs/images-tab/datatable-common.js:71
@@ -1773,7 +1774,7 @@ msgstr "imagem"
 
 #: ../app/tabs/images-tab.js:55
 msgid "TOTAL SIZE"
-msgstr ""
+msgstr "TAMANHO TOTAL"
 
 #: ../app/tabs/storage-top-tab.js:23 ../app/tabs/vms-tab/panels/storage.js:58
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage.js:56
@@ -1793,11 +1794,11 @@ msgstr "Modelo de VM"
 
 #: ../app/tabs/instances-top-tab.js:23
 msgid "Instances"
-msgstr ""
+msgstr "Ocasiões"
 
 #: ../app/tabs/files-tab/datatable.js:44
 msgid "Please select a file from the list"
-msgstr ""
+msgstr "Por favor selecione um arquivo da lista."
 
 #: ../app/tabs/files-tab/datatable.js:45
 msgid "You selected the following file:"
@@ -1900,7 +1901,7 @@ msgstr "Atualizar Modelo de Serviço"
 #: ../app/tabs/vmgroup-tab/utils/role-tab/html.hbs:24
 #: ../app/utils/user-inputs/row.hbs:5
 msgid "Can only contain alphanumeric and underscore characters"
-msgstr ""
+msgstr "Apenas pode conter caracteres alfanuméricos e realçados"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:430
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:301
@@ -2161,11 +2162,11 @@ msgstr "Migrar"
 
 #: ../app/tabs/vms-tab/buttons.js:65
 msgid "Poweroff"
-msgstr ""
+msgstr "Desligar"
 
 #: ../app/tabs/vms-tab/buttons.js:71
 msgid "Poweroff-hard"
-msgstr ""
+msgstr "Desligar-forçado"
 
 #: ../app/tabs/vms-tab/buttons.js:77
 msgid "live"
@@ -2271,11 +2272,11 @@ msgstr "apagar-recriar"
 
 #: ../app/tabs/vms-tab/buttons.js:185
 msgid "delete-db"
-msgstr ""
+msgstr "deletar-db"
 
 #: ../app/tabs/vms-tab/buttons.js:187
 msgid "Recovers a stuck VM that is waiting for a driver operation.                     The recovery may be done by failing, succeeding or retrying the current operation.                     YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation                     was successful or not, or if it can be retried.                    <br/>                    <br/>Delete: This will delete the selected VMs                    <br/>Delete-recreate: This will delete and recreate VMs to PENDING state                    <br/>Delete-db: This will delete the selected VMs, but will not perform any action on the hypervisor"
-msgstr ""
+msgstr "Recupera um VM preso que esteja à espera da operação de um operador. A recuperação pode ser efetuada a falhar, ter êxito ou repetir a operação atual. TU NECESSITAS DE MANUALMENTE VERIFICAR O ESTADO DO VM NO RECEPTOR, para decidir se a operação foi um êxito ou não ou se pode ser repetida. Deletar: Isto vai deletar os VMs selecionados Deletar-recriar: Isto vai deletar e recriar os VMs para estado PENDENTE Deletar-db: Isto vai deletar os VMs selecionados, mas não vai executar nenhuma ação no hipervisor."
 
 #: ../app/tabs/vms-tab/buttons.js:199
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:21
@@ -2311,17 +2312,17 @@ msgstr "Ação"
 #: ../app/utils/schedule_action/table.hbs:28
 #: ../app/utils/schedule_action/html.hbs:27
 msgid "Time"
-msgstr ""
+msgstr "Tempo"
 
 #: ../app/tabs/vms-tab/panels/actions.js:72
 #: ../app/utils/schedule_action/table.hbs:29
 msgid "Rep"
-msgstr ""
+msgstr "Rep"
 
 #: ../app/tabs/vms-tab/panels/actions.js:73
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:62
 msgid "End"
-msgstr ""
+msgstr "Fim"
 
 #: ../app/tabs/vms-tab/panels/actions.js:74
 msgid "Done"
@@ -2329,7 +2330,7 @@ msgstr "Finalizado"
 
 #: ../app/tabs/vms-tab/panels/actions.js:75
 msgid "Message"
-msgstr ""
+msgstr "Mensagem"
 
 #: ../app/tabs/vms-tab/panels/actions.js:77
 #: ../app/utils/schedule_action/table.hbs:33
@@ -2375,7 +2376,7 @@ msgstr "MAC"
 
 #: ../app/tabs/vms-tab/panels/network.js:86
 msgid "PCI address"
-msgstr ""
+msgstr "Endereço PCI"
 
 #: ../app/tabs/vms-tab/panels/network.js:87
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:41
@@ -2414,7 +2415,7 @@ msgstr "VELOCIDADE DE ENVIO DA REDE"
 
 #: ../app/tabs/vms-tab/panels/network.js:221
 msgid " (VRouter)"
-msgstr ""
+msgstr "(RouterV)"
 
 #: ../app/tabs/vms-tab/panels/network.js:277
 #: ../app/tabs/vms-tab/panels/storage.js:284
@@ -2451,7 +2452,7 @@ msgstr "Isto irá desassociar o nic de imediato"
 
 #: ../app/tabs/vms-tab/panels/network.js:493
 msgid "This will detach the alias immediately"
-msgstr ""
+msgstr "Isto vai separar o alias imediatemente"
 
 #: ../app/tabs/vms-tab/panels/network.js:520
 msgid "Network reception"
@@ -2472,22 +2473,22 @@ msgstr "Velocidade de transmissão de rede"
 #: ../app/tabs/vms-tab/panels/storage.js:96
 #: ../app/tabs/vms-tab/panels/storage.js:755
 msgid "Disk read bytes"
-msgstr ""
+msgstr "Disco a ler bytes"
 
 #: ../app/tabs/vms-tab/panels/storage.js:112
 #: ../app/tabs/vms-tab/panels/storage.js:763
 msgid "Disk write bytes"
-msgstr ""
+msgstr "Disco a escrever bytes"
 
 #: ../app/tabs/vms-tab/panels/storage.js:128
 #: ../app/tabs/vms-tab/panels/storage.js:771
 msgid "Disk read IOPS"
-msgstr ""
+msgstr "Disco a ler IOPS"
 
 #: ../app/tabs/vms-tab/panels/storage.js:144
 #: ../app/tabs/vms-tab/panels/storage.js:780
 msgid "Disk write IOPS"
-msgstr ""
+msgstr "Disco a escrever IOPS"
 
 #: ../app/tabs/vms-tab/panels/storage.js:239
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context.js:57
@@ -2503,7 +2504,7 @@ msgstr "Guardar em progresso"
 
 #: ../app/tabs/vms-tab/panels/storage.js:477
 msgid "This will detach the disk immediately"
-msgstr ""
+msgstr "Isto vai separar o disco imediatamente"
 
 #: ../app/tabs/vms-tab/panels/storage.js:611
 msgid "This will delete the disk snapshot "
@@ -2521,7 +2522,7 @@ msgstr "Registo"
 
 #: ../app/tabs/vms-tab/panels/log.js:104
 msgid "Some ad-block extensions are known to filter the '/log?id=' URL"
-msgstr ""
+msgstr "Algumas extensões ad-block são conhecidas por filtrar o URL '/log?id=' "
 
 #: ../app/tabs/vms-tab/panels/snapshots.js:47
 #: ../app/tabs/images-tab/panels/snapshots.js:46
@@ -2572,19 +2573,19 @@ msgstr "Anfitrião"
 
 #: ../app/tabs/vms-tab/panels/placement.js:71
 msgid "UID"
-msgstr ""
+msgstr "UID"
 
 #: ../app/tabs/vms-tab/panels/placement.js:72
 msgid "GID"
-msgstr ""
+msgstr "GID"
 
 #: ../app/tabs/vms-tab/panels/placement.js:73
 msgid "ReqID"
-msgstr ""
+msgstr "ReqID"
 
 #: ../app/tabs/vms-tab/panels/placement.js:74
 msgid "Change time"
-msgstr ""
+msgstr "Mudar tempo"
 
 #: ../app/tabs/vms-tab/panels/placement.js:75
 msgid "Total time"
@@ -2768,7 +2769,7 @@ msgstr "ICMP"
 #: ../app/tabs/secgroups-tab/utils/common.js:53
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:51
 msgid "ICMPv6"
-msgstr ""
+msgstr "ICMPv6"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:56
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:52
@@ -2829,11 +2830,11 @@ msgstr "Atualizar Cluster"
 #: ../app/tabs/vmgroup-tab.js:37 ../app/tabs/vmgroup-tab.js:41
 #: ../app/tabs/vmgroup-tab.js:42 ../app/tabs/acls-tab/datatable.js:195
 msgid "VM Groups"
-msgstr ""
+msgstr "Grupos VM"
 
 #: ../app/tabs/vmgroup-tab.js:47
 msgid "TOTAL VMs"
-msgstr ""
+msgstr "VMs TOTAIS"
 
 #: ../app/tabs/groups-tab/datatable.js:80
 msgid "Please select a Group from the list"
@@ -2869,43 +2870,43 @@ msgstr "por omissão"
 
 #: ../app/tabs/groups-tab/utils/views.js:23
 msgid "Exposes a complete view of the cloud, allowing administrators and advanced users full control of any physical or virtual resource."
-msgstr ""
+msgstr "Expõe uma visão completa da nuvem, permitindo que administradores ou usuários avançados tenham controlo total de qualquer recurso físico ou virtual."
 
 #: ../app/tabs/groups-tab/utils/views.js:28
 msgid "Simplified version of the cloud allowing group admins and cloud end-users to manage any virtual resource."
-msgstr ""
+msgstr "Versão simplificada da nuvem permitindo que administradores de grupo e usuários da nuvem possam gerir qualquer recurso virtual."
 
 #: ../app/tabs/groups-tab/utils/views.js:33
 msgid "Set of views to present valid operations over a vCenter infrastructure"
-msgstr ""
+msgstr "Conjunto de opiniões para apresentar operações válidas sobre uma infraestrutura vCenter"
 
 #: ../app/tabs/groups-tab/utils/views.js:47
 msgid "Full control of the cloud, including virtual and physical resources."
-msgstr ""
+msgstr "Controlo total da nuvem, incluindo recursos virtuais e físicos."
 
 #: ../app/tabs/groups-tab/utils/views.js:53
 msgid "Users are not able to manage hosts and clusters, although they will be able to create new Images or Virtual Machines."
-msgstr ""
+msgstr "Usuários não serão capazes de gerir receptores e grupos, embora sejam capazes de criar novas Imagens ou Máquinas Virtuais."
 
 #: ../app/tabs/groups-tab/utils/views.js:59
 msgid "Control of all the resources belonging to a group, with the ability to create new users within the group."
-msgstr ""
+msgstr "Controlo de todos os recursos pertencentes a um grupo, com a capacidade de criar novos usuários no grupo."
 
 #: ../app/tabs/groups-tab/utils/views.js:65
 msgid "Simplified view mainly where users can provision new Virtual Machines easily from pre-defined Templates."
-msgstr ""
+msgstr "Visão simplificada principalmente onde usuários possam proporcionar novas Máquinas Virtuais facilmente através de Modelos pré-definidos."
 
 #: ../app/tabs/groups-tab/utils/views.js:71
 msgid "View designed to present the valid operations over a vCenter infrastructure to a cloud administrator"
-msgstr ""
+msgstr "Visão concebida para apresentar as operações válidas de uma infraestrutura vCenter para um administrador da nuvem"
 
 #: ../app/tabs/groups-tab/utils/views.js:77
 msgid "View designed to present the valid operations over a vCenter infrastructure to a group administrator"
-msgstr ""
+msgstr "Visão concebida para apresentar as operações válidas de uma infraestrutura vCenter para um administrador de grupo"
 
 #: ../app/tabs/groups-tab/utils/views.js:83
 msgid "View designed to present the valid operations over a vCenter infrastructure to a cloud consumer"
-msgstr ""
+msgstr "Visão concebida para apresentar as operações válidas de uma infraestrutura vCenter para um consumidor da nuvem."
 
 #: ../app/tabs/secgroups-tab.js:45 ../app/tabs/secgroups-tab.js:49
 #: ../app/tabs/acls-tab/datatable.js:180
@@ -2920,12 +2921,12 @@ msgstr "Grupos de Segurança"
 
 #: ../app/tabs/marketplaceapps-tab.js:54
 msgid "App"
-msgstr ""
+msgstr "Aplicação"
 
 #: ../app/tabs/marketplaces-tab.js:48 ../app/tabs/marketplaces-tab.js:52
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:125
 msgid "MarketPlaces"
-msgstr ""
+msgstr "Mercados"
 
 #: ../app/tabs/marketplaces-tab.js:53 ../app/tabs/images-tab/buttons.js:35
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:32
@@ -3096,7 +3097,7 @@ msgstr "Importar Templates de VM vCenter"
 #: ../app/tabs/provision-tab/vms/create.hbs:132
 #: ../app/tabs/provision-tab/vms/create.hbs:136
 msgid "VM Group"
-msgstr ""
+msgstr "Grupo VM"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other.js:54
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:138
@@ -3112,7 +3113,7 @@ msgstr "Geral"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:321
 msgid "Which resource pool you want this VM to run in?"
-msgstr ""
+msgstr "Em que reserva de recursos queres que este VM funcione?"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io.js:52
 msgid "Input/Output"
@@ -3144,7 +3145,7 @@ msgstr "Por favor selecione"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:148
 msgid "OS & CPU"
-msgstr ""
+msgstr "OS & CPU"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:428
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:35
@@ -3173,7 +3174,7 @@ msgstr "Híbrido"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:179
 msgid "Remote OpenNebula"
-msgstr ""
+msgstr "Comando OpenNebula"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:189
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:36
@@ -3197,7 +3198,7 @@ msgstr "Fornecedor"
 
 #: ../app/tabs/templates-tab/actions-common.js:56
 msgid "This will delete the Template.<br/>You can also delete any Image referenced inside this Template"
-msgstr ""
+msgstr "Isto vai deletar o Modelo. Tu também podes deletar qualquer imagem mencionada dentro deste Modelo"
 
 #: ../app/tabs/templates-tab/actions-common.js:59
 msgid "Delete all images"
@@ -3210,7 +3211,7 @@ msgstr "Partilhar"
 
 #: ../app/tabs/templates-tab/buttons.js:73
 msgid "The template, along with any image referenced by it, will be shared with the group's users. Permission changed: GROUP USE"
-msgstr ""
+msgstr "O modelo, junto com qualquer imagem mencionada por ele, irá ser partilhada com os usuários de grupo. Permissão mudada: USO DE GRUPO"
 
 #: ../app/tabs/templates-tab/buttons.js:78
 #: ../app/tabs/provision-tab/templates/list.js:164
@@ -3219,7 +3220,7 @@ msgstr "Não partilhar"
 
 #: ../app/tabs/templates-tab/buttons.js:79
 msgid "The template, along with any image referenced by it, will be unshared with the group's users. Permission changed: GROUP USE"
-msgstr ""
+msgstr "O modelo, junto com qualquer imagem mencionada por ele, não irá ser compartilhada com os usuários do grupo. Permissão mudada: USO DE GRUPO"
 
 #: ../app/tabs/acls-tab.js:38
 msgid "ACLs"
@@ -3341,44 +3342,44 @@ msgstr "Modelo de VM Roteador Virtual"
 
 #: ../app/tabs/vmgroup-tab/datatable.js:79
 msgid "Please select a vm group from the list"
-msgstr ""
+msgstr "Por favor selecione um grupo vm da lista"
 
 #: ../app/tabs/vmgroup-tab/datatable.js:80
 msgid "You selected the following vm group:"
-msgstr ""
+msgstr "Tu selecionaste o seguinte grupo vm:"
 
 #: ../app/tabs/vmgroup-tab/datatable.js:81
 msgid "Please select one or more vm groups from the list"
-msgstr ""
+msgstr "Por favor selecione um ou mais grupos vm da lista"
 
 #: ../app/tabs/vmgroup-tab/datatable.js:82
 msgid "You selected the following vm groups:"
-msgstr ""
+msgstr "Tu selecionaste os seguintes grupos vm:"
 
 #: ../app/tabs/vmgroup-tab/actions.js:33
 msgid "VM groups"
-msgstr ""
+msgstr "grupos VM"
 
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:58
 msgid "Create Virtual Machine Group"
-msgstr ""
+msgstr "Criar Grupo da Máquina Virtual"
 
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:63
 msgid "Update Virtual Machine Group"
-msgstr ""
+msgstr "Atualizar Grupo da Máquina Virtual"
 
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:292
 msgid "The new role name contains invalid characters."
-msgstr ""
+msgstr "O novo nome de cargo contém caracteres inválidos."
 
 #: ../app/tabs/vmgroup-tab/utils/affinity-role-tab.js:66
 #: ../app/tabs/vmgroup-tab/utils/affinity-role-tab.js:83
 msgid "You have to choose at least two roles."
-msgstr ""
+msgstr "Tu tens de escolher pelo menos dois cargos."
 
 #: ../app/tabs/vmgroup-tab/utils/affinity-role-tab.js:190
 msgid "Already exists a group role with these values."
-msgstr ""
+msgstr "Já existe um cargo de grupo com esses valores."
 
 #: ../app/tabs/zones-tab/datatable.js:66
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:32
@@ -3501,19 +3502,19 @@ msgstr "Não há Máquinas Virtuais"
 
 #: ../app/tabs/provision-tab/vms/list.js:420
 msgid "GUEST STATE"
-msgstr ""
+msgstr "ESTADO DE CONVIDADO"
 
 #: ../app/tabs/provision-tab/vms/list.js:422
 msgid "VMWARETOOLS RUNNING STATUS"
-msgstr ""
+msgstr "ESTADO DE FUNCIONAMENTO DAS FERRAMENTASVM"
 
 #: ../app/tabs/provision-tab/vms/list.js:426
 msgid "VMWARETOOLS VERSION"
-msgstr ""
+msgstr "VERSÃO DAS FERRAMENTASVM"
 
 #: ../app/tabs/provision-tab/vms/list.js:428
 msgid "VMWARETOOLS VERSION STATUS"
-msgstr ""
+msgstr "ESTADO DA VERSÃO DAS FERRAMENTASVM"
 
 #: ../app/tabs/provision-tab/vms/list.js:548
 msgid "VM cloning in the background. The Template will appear as soon as it is ready, and the VM unlocked."
@@ -3624,7 +3625,7 @@ msgstr "Rede Virtual criada"
 
 #: ../app/tabs/vnets-tab/form-panels/instantiate.js:43
 msgid "Instantiate Virtual Network"
-msgstr ""
+msgstr "Representar Rede Virtual"
 
 #: ../app/tabs/vnets-tab/form-panels/import.js:53
 msgid "Import vCenter Networks"
@@ -3661,7 +3662,7 @@ msgstr "REDE:"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:96
 msgid "VR:"
-msgstr ""
+msgstr "VR:"
 
 #: ../app/tabs/vnets-tab/panels/info.js:106
 #: ../app/tabs/vnets-tab/datatable/search.hbs:28
@@ -3674,7 +3675,7 @@ msgstr "Esta Rede já está reservada"
 
 #: ../app/tabs/vnets-tab/panels/vrouters.js:39
 msgid "V. Routers"
-msgstr ""
+msgstr "Routers V."
 
 #: ../app/tabs/oneflow-services-tab/datatable.js:79
 msgid "Please select a Service from the list"
@@ -3773,11 +3774,11 @@ msgstr "VMs a correr"
 
 #: ../app/utils/quotas/quota-widgets.js:343
 msgid "Running CPU"
-msgstr ""
+msgstr "CPU em Execução"
 
 #: ../app/utils/quotas/quota-widgets.js:391
 msgid "Running Memory"
-msgstr ""
+msgstr "Memória em Execução"
 
 #: ../app/utils/quotas/quota-widgets.js:470
 #: ../app/utils/quotas/quota-widgets.js:622
@@ -3823,19 +3824,19 @@ msgstr "Tem que confimar esta ação"
 
 #: ../app/utils/panel/template-table.js:114
 msgid "Not valid attribute"
-msgstr ""
+msgstr "Atributo inválido"
 
 #: ../app/utils/labels/utils.js:156
 msgid "System Labels"
-msgstr ""
+msgstr "Etiquetas de Sistema"
 
 #: ../app/utils/labels/utils.js:163
 msgid "Edit Labels"
-msgstr ""
+msgstr "Editar Etiquetas"
 
 #: ../app/utils/labels/utils.js:169
 msgid "Add Label"
-msgstr ""
+msgstr "Adicionar Etiqueta"
 
 #: ../app/utils/nics-section.js:625
 msgid "There are no networks available."
@@ -3843,26 +3844,26 @@ msgstr "Não há redes disponíveis"
 
 #: ../app/utils/vcenter/networks.js:78 ../app/utils/vcenter/networks.js:87
 msgid "vCenter Networks"
-msgstr ""
+msgstr "Redes vCenter"
 
 #: ../app/utils/vcenter/networks.js:79
 msgid "No new networks found"
-msgstr ""
+msgstr "Nenhuma rede nova encontrada"
 
 #: ../app/utils/vcenter/networks.js:139
 #, javascript-format
 msgid "Select all %1$s Networks"
-msgstr ""
+msgstr "Selecione todas as %1$s Redes"
 
 #: ../app/utils/vcenter/networks.js:143
 #, javascript-format
 msgid "All %1$s Networks selected."
-msgstr ""
+msgstr "Todas as %1$s Redes selecionadas."
 
 #: ../app/utils/vcenter/networks.js:144
 #, javascript-format
 msgid "%1$s Networks selected."
-msgstr ""
+msgstr "%1$s Redes selecionadas."
 
 #: ../app/utils/vcenter/networks.js:176 ../app/utils/vcenter/networks.js:189
 #: ../app/utils/vcenter/networks.js:197 ../app/utils/vcenter/networks.js:207
@@ -3877,70 +3878,70 @@ msgstr "IP Inicial"
 
 #: ../app/utils/vcenter/networks.js:196
 msgid "Global Prefix"
-msgstr ""
+msgstr "Prefixo Global"
 
 #: ../app/utils/vcenter/networks.js:206
 msgid "ULA Prefix"
-msgstr ""
+msgstr "Prefixo ULA"
 
 #: ../app/utils/vcenter/networks.js:214
 msgid "IPv6 address"
-msgstr ""
+msgstr "Endereço IPv6"
 
 #: ../app/utils/vcenter/networks.js:218
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:60
 msgid "Prefix length"
-msgstr ""
+msgstr "Tamanho do prefixo"
 
 #: ../app/utils/vcenter/templates.js:78 ../app/utils/vcenter/templates.js:87
 msgid "vCenter Templates"
-msgstr ""
+msgstr "Modelos vCenter"
 
 #: ../app/utils/vcenter/templates.js:79
 msgid "No new templates found"
-msgstr ""
+msgstr "Nenhum modelo novo encontrado"
 
 #: ../app/utils/vcenter/templates.js:132
 #, javascript-format
 msgid "Select all %1$s Templates"
-msgstr ""
+msgstr "Seleciona todos os %1$s Modelos"
 
 #: ../app/utils/vcenter/templates.js:136
 #, javascript-format
 msgid "All %1$s Templates selected."
-msgstr ""
+msgstr "Todos os %1$s Modelos selecionados."
 
 #: ../app/utils/vcenter/templates.js:137
 #, javascript-format
 msgid "%1$s Templates selected."
-msgstr ""
+msgstr "%1$s Modelos selecionados."
 
 #: ../app/utils/vcenter/images.js:79 ../app/utils/vcenter/images.js:89
 msgid "vCenter Images"
-msgstr ""
+msgstr "Imagens vCenter"
 
 #: ../app/utils/vcenter/images.js:80
 msgid "No new images found"
-msgstr ""
+msgstr "Nenhuma imagem nova encontrada"
 
 #: ../app/utils/vcenter/images.js:93
 msgid "Image Path"
-msgstr ""
+msgstr "Rota da Imagem"
 
 #: ../app/utils/vcenter/images.js:129
 #, javascript-format
 msgid "Select all %1$s Images"
-msgstr ""
+msgstr "Seleciona todas as %1$s Imagens"
 
 #: ../app/utils/vcenter/images.js:133
 #, javascript-format
 msgid "All %1$s Images selected."
-msgstr ""
+msgstr "Todas as %1$s Imagens selecionadas."
 
 #: ../app/utils/vcenter/images.js:134
 #, javascript-format
 msgid "%1$s Images selected."
-msgstr ""
+msgstr "%1$s Imagens selecionadas."
 
 #: ../app/utils/vcenter/clusters.js:82 ../app/utils/vcenter/clusters.js:91
 msgid "DataCenter"
@@ -5419,8 +5420,9 @@ msgid "Disk Snapshot"
 msgstr "Snapshot de disco"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:22
+#, fuzzy
 msgid "Loading"
-msgstr "A carregar"
+msgstr "A carregar..."
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:24
 msgid "Send CtrlAltDel"
@@ -5433,7 +5435,7 @@ msgstr "Abrir numa nova janela"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:36
 msgid "Canvas not supported."
-msgstr "Resolução não suportada."
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:20
 msgid "Attach new disk"
@@ -6167,8 +6169,9 @@ msgid "CPU Architecture"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:52
+#, fuzzy
 msgid "machine type"
-msgstr ""
+msgstr "Tipo de máquina"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:59
 msgid "Root device"
@@ -8118,3 +8121,6 @@ msgstr ""
 #: ../app/utils/vcenter-vm-folder/html.hbs:21
 msgid "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
 msgstr ""
+
+#~ msgid "none"
+#~ msgstr "nenhum"

@@ -8,6 +8,7 @@
 # Adrián Menéndez <amenendez@asac.as>, 2017-2018
 # Daniel Molina <dmolina@opennebula.org>, 2013,2015
 # Diego Hernan Marciano <diego.h.marciano@hotmail.com>, 2014
+# Diego Marciano <thedragonsreborn@hotmail.com>, 2019
 # Daniel Molina <dmolina@opennebula.org>, 2012
 # Felix Perez <felix.perez@e.ineco.com>, 2018
 # Paco Bernabé Pellicer <fjbp1@hotmail.com>, 2012
@@ -32,8 +33,8 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
-"Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
+"PO-Revision-Date: 2019-10-07 16:36+0000\n"
+"Last-Translator: Diego Marciano <thedragonsreborn@hotmail.com>\n"
 "Language-Team: Spanish (Spain) (http://www.transifex.com/opennebula/one/language/es_ES/)\n"
 "Language: es_ES\n"
 "MIME-Version: 1.0\n"
@@ -1213,15 +1214,15 @@ msgstr "Por favor, seleccione una plantilla de red de la lista"
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:81
 msgid "You selected the following network template:"
-msgstr ""
+msgstr "Usted seleccion la siguiente plantilla de red:"
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:82
 msgid "Please select one or more networks templates from the list"
-msgstr ""
+msgstr "Por favor seleccion una o mas plantillas de red de la lista"
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:83
 msgid "You selected the following networks templates:"
-msgstr ""
+msgstr "Usted seleccion las siguientes plantillas de red:"
 
 #: ../app/tabs/vnets-templates-tab/dialogs/instantiate-update-ar.js:78
 #: ../app/tabs/vnets-templates-tab/dialogs/instantiate-add-ar.js:84
@@ -1242,7 +1243,7 @@ msgstr "Red Virtual Creada"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:60
 msgid "Instantiate Network Template"
-msgstr ""
+msgstr "Instanciar plantilla de red"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:61
 #: ../app/tabs/vnets-templates-tab/buttons.js:38
@@ -1313,11 +1314,11 @@ msgstr "Driver IPAM"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:58
 msgid "Create Virtual Network Template"
-msgstr ""
+msgstr "Crear Plantilla de Red Virtual"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:63
 msgid "Update Virtual Network Template"
-msgstr ""
+msgstr "Actualizar plantilla de red virtua"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:64
 #: ../app/tabs/vnets-templates-tab/buttons.js:34
@@ -3643,7 +3644,7 @@ msgstr "Red Virtual creada"
 
 #: ../app/tabs/vnets-tab/form-panels/instantiate.js:43
 msgid "Instantiate Virtual Network"
-msgstr ""
+msgstr "Instanciar maquina virtual"
 
 #: ../app/tabs/vnets-tab/form-panels/import.js:53
 msgid "Import vCenter Networks"
@@ -3792,11 +3793,11 @@ msgstr "MV en ejecución"
 
 #: ../app/utils/quotas/quota-widgets.js:343
 msgid "Running CPU"
-msgstr ""
+msgstr "CPU en uso"
 
 #: ../app/utils/quotas/quota-widgets.js:391
 msgid "Running Memory"
-msgstr ""
+msgstr "Memoria en uso"
 
 #: ../app/utils/quotas/quota-widgets.js:470
 #: ../app/utils/quotas/quota-widgets.js:622
@@ -4043,7 +4044,7 @@ msgstr "<<yo>>"
 
 #: ../app/utils/schedule_action.js:47
 msgid "Hour"
-msgstr ""
+msgstr "Hora"
 
 #: ../app/utils/schedule_action.js:124 ../app/utils/schedule_action/html.hbs:69
 msgid "Mo"
@@ -4091,19 +4092,19 @@ msgstr "horas"
 
 #: ../app/utils/schedule_action.js:364 ../app/utils/schedule_action/html.hbs:31
 msgid "Years"
-msgstr ""
+msgstr "Año"
 
 #: ../app/utils/schedule_action.js:367 ../app/utils/schedule_action/html.hbs:32
 msgid "Months"
-msgstr ""
+msgstr "Mes"
 
 #: ../app/utils/schedule_action.js:370 ../app/utils/schedule_action/html.hbs:33
 msgid "Weeks"
-msgstr ""
+msgstr "Semanas"
 
 #: ../app/utils/schedule_action.js:373 ../app/utils/schedule_action/html.hbs:34
 msgid "Days"
-msgstr ""
+msgstr "Dias"
 
 #: ../app/utils/schedule_action.js:376 ../app/utils/schedule_action/html.hbs:35
 #: ../app/utils/showback/html.hbs:89
@@ -4112,7 +4113,7 @@ msgstr "Horas"
 
 #: ../app/utils/schedule_action.js:379 ../app/utils/schedule_action/html.hbs:36
 msgid "Minutes"
-msgstr ""
+msgstr "Minutos"
 
 #: ../app/utils/vmgroup-section.js:167
 msgid "Internal server error."
@@ -4127,12 +4128,14 @@ msgid "Image was not found"
 msgstr "No se encuentra la Imagen"
 
 #: ../app/utils/disks-resize.js:165
+#, fuzzy
 msgid "Persistent image. The changes will be saved back to the datastore after the VM is shut down"
-msgstr "Imagen Persistente. Los cambios se grabarán al datastore despues del apagado de la MV."
+msgstr "Imagen Persistente. Los cambios se grabarán al datastore despues una vez terminada la MV. (Que seria en estado COMPLETO)"
 
 #: ../app/utils/disks-resize.js:169
+#, fuzzy
 msgid "Non-persistent disk. The changes will be lost once the VM is shut down"
-msgstr "Disco No-persistente. Los cambios se perderán cuando la MV se apage."
+msgstr "Disco no persistente. Los cambios se perderan una vez terminada la MV. (Que seria en estado COMPLETO)"
 
 #: ../app/utils/disks-resize.js:177
 msgid "Image state: "
@@ -4731,11 +4734,11 @@ msgstr "Grupos Secundarios"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:20
 msgid "Network Template"
-msgstr ""
+msgstr "Plantilla de red"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:33
 msgid "Address Ranges"
-msgstr ""
+msgstr "Rangos de direcciones"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:39
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:61
@@ -4792,7 +4795,7 @@ msgstr "El Security Group 0 por defecto se añade automaticamente a las nuevas R
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:25
 msgid "Network name"
-msgstr ""
+msgstr "Nombre de red"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:27
 msgid "Defaults to 'template name-<vnetid>' when empty."
@@ -5348,7 +5351,7 @@ msgstr "Selecciona un Host"
 #: ../app/tabs/vms-tab/dialogs/resize/html.hbs:30
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:37
 msgid "Enforce capacity checks"
-msgstr ""
+msgstr "Forzar chequeos de capacidad"
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:39
 #: ../app/tabs/vms-tab/dialogs/resize/html.hbs:32
@@ -5440,8 +5443,9 @@ msgid "Disk Snapshot"
 msgstr "Snapshot del Disco"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:22
+#, fuzzy
 msgid "Loading"
-msgstr "Cargando"
+msgstr "Cargando..."
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:24
 msgid "Send CtrlAltDel"
@@ -5454,7 +5458,7 @@ msgstr "Abrir en una nueva ventana"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:36
 msgid "Canvas not supported."
-msgstr "Canvas no soportado."
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:20
 msgid "Attach new disk"
@@ -5635,7 +5639,7 @@ msgstr "Rango de puertos"
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:19
 msgid "VMs marked with <i class='fas fa-exclamation-triangle'></i> are waiting to be updated with the latest rules:"
-msgstr ""
+msgstr "MVs marcadas con <i class='fas fa-exclamation-triangle'></i> estan pendientes de ser actualizadas con las ultimas reglas"
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:31
 msgid "VMs in error. The update to the latest rules failed:"
@@ -6045,7 +6049,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:141
 msgid "Profile"
-msgstr ""
+msgstr "Perfil"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:163
 msgid "Cost of each MB or GB per hour"
@@ -6188,8 +6192,9 @@ msgid "CPU Architecture"
 msgstr "Arquitectura"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:52
+#, fuzzy
 msgid "machine type"
-msgstr "Tipo de máquina"
+msgstr "Tipo de Máquina"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:59
 msgid "Root device"
@@ -6567,7 +6572,7 @@ msgstr "Expresión personalizada"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:78
 #: ../app/utils/nics-section/dd.hbs:85
 msgid "Network Rank"
-msgstr ""
+msgstr "Rango de red"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:83
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:75
@@ -6591,7 +6596,7 @@ msgstr "Stripping"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:89
 #: ../app/utils/nics-section/dd.hbs:96
 msgid "Spread the VMs in the vnets"
-msgstr ""
+msgstr "Distribuir las MVs en las redes virtuales"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:98
 #: ../app/utils/nics-section/dd.hbs:105
@@ -6681,11 +6686,11 @@ msgstr "Modelo Hardware a emular"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:297
 msgid "Transmission queue"
-msgstr ""
+msgstr "Cola de transmision"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:298
 msgid "Only supported for virtio driver."
-msgstr ""
+msgstr "Solo soportado para controlador virtio."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:308
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:129
@@ -7142,8 +7147,9 @@ msgstr "Antiafinidad Host"
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:60
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:95
+#, fuzzy
 msgid "Affinity"
-msgstr "Afinidad"
+msgstr "Afinidad de Rol"
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:85
 msgid "Roles Affinity"
@@ -7981,7 +7987,7 @@ msgstr "Nueva acción programada"
 
 #: ../app/utils/schedule_action/html.hbs:21
 msgid "Relative Time"
-msgstr ""
+msgstr "Tiempo relativo"
 
 #: ../app/utils/schedule_action/html.hbs:51
 msgid "Periodic"
@@ -8139,3 +8145,105 @@ msgstr "Limpiar"
 #: ../app/utils/vcenter-vm-folder/html.hbs:21
 msgid "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
 msgstr "Si se especifica, la ruta de la carpeta MVs y Plantilla donde se creará la MV dentro del centro de datos. La ruta está delimitada por barra inclinada, por ejemplo, / Administración / MVs. Si no se establece ninguna ruta, la MV se colocará en la misma carpeta donde se encuentra la plantilla."
+
+#~ msgid "just click if you want to delete the resource"
+#~ msgstr "Solo presione si quiere eliminar el recurso"
+
+#~ msgid "Manage two factor authentication"
+#~ msgstr "Administrar autenticacion en dos pasos"
+
+#~ msgid "Sign in"
+#~ msgstr "Ingresar"
+
+#~ msgid "Replication Mode"
+#~ msgstr "Modo de replicacion"
+
+#~ msgid "Universal Synchronization"
+#~ msgstr "Sincronizacion universal"
+
+#~ msgid "Admin Status"
+#~ msgstr "Estado de administracion"
+
+#~ msgid "Two Factor Authentication"
+#~ msgstr "Autenticacion en dos pasos"
+
+#~ msgid "Two factor authentication can be enabled for loging into Sunestone UI."
+#~ msgstr "La autenticacion en dos pasos puede ser habilitada para Sunstone UI."
+
+#~ msgid "Get authenticator app: "
+#~ msgstr "Obtener la aplicacion de autenticacion:"
+
+#~ msgid "Authy"
+#~ msgstr "Authy"
+
+#~ msgid "Google Authenticator"
+#~ msgstr "Google Authenticator"
+
+#~ msgid "Microsoft Authenticator"
+#~ msgstr "Microsoft Authenticator"
+
+#~ msgid "Scan this Barcode."
+#~ msgstr "Escanee este codigo de barras."
+
+#~ msgid "Enter Verification Code."
+#~ msgstr "Ingrese el codigo de verificacion."
+
+#~ msgid "Two factor authtentication"
+#~ msgstr "Autenticacion en dos pasos."
+
+#~ msgid "These settings will help you to fine tune the performance of VMs"
+#~ msgstr "Estas configuraciones te ayudaran a realizar el ajuste fino de rendimiento de las MVs."
+
+#~ msgid "Pin Policy"
+#~ msgstr "Politica de PIN."
+
+#~ msgid "none"
+#~ msgstr "Ninguno"
+
+#~ msgid "thread"
+#~ msgstr "Hilo"
+
+#~ msgid "shared"
+#~ msgstr "Compartido"
+
+#~ msgid "Cores"
+#~ msgstr "Nucleos"
+
+#~ msgid "Number of cores per node"
+#~ msgstr "Numero de nucleos por nod"
+
+#~ msgid "Threads"
+#~ msgstr "Hilos"
+
+#~ msgid "Number of threads per core"
+#~ msgstr "Numero de hilos por nucleo"
+
+#~ msgid "Memory Access"
+#~ msgstr "Acceso de memoria"
+
+#~ msgid "Private"
+#~ msgstr "Privado"
+
+#~ msgid "Command"
+#~ msgstr "Comando"
+
+#~ msgid "Transport"
+#~ msgstr "Transporte"
+
+#~ msgid "Officially supported"
+#~ msgstr "Soportado oficialmente"
+
+#~ msgid "Open"
+#~ msgstr "Abierto"
+
+#~ msgid "Pending"
+#~ msgstr "Pendiente"
+
+#~ msgid "Submit a Request"
+#~ msgstr "Enviar un pedido"
+
+#~ msgid "Not officially supported"
+#~ msgstr "No soportado oficialmente"
+
+#~ msgid "Not connected"
+#~ msgstr "No conectad"

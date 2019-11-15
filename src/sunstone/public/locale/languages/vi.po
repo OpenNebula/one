@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the OpenNebula package.
 #
 # Translators:
+# Cường Nguyễn Phi <nphicuong.is@gmail.com>, 2019
 # Vy Nguyen Tan <vynt.kenshiro@gmail.com>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
+"PO-Revision-Date: 2019-10-07 15:12+0000\n"
 "Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
 "Language-Team: Vietnamese (http://www.transifex.com/opennebula/one/language/vi/)\n"
 "Language: vi\n"
@@ -21,7 +22,7 @@ msgstr ""
 #: ../app/opennebula/datastore.js:25 ../app/opennebula/host.js:55
 #: ../app/tabs/datastores-tab.js:54 ../app/tabs/hosts-tab.js:59
 msgid "ON"
-msgstr ""
+msgstr "BẬT"
 
 #: ../app/opennebula/datastore.js:26 ../app/opennebula/host.js:61
 #: ../app/tabs/datastores-tab.js:55 ../app/tabs/vms-tab.js:77
@@ -320,7 +321,7 @@ msgstr ""
 
 #: ../app/sunstone.js:1153 ../app/sunstone.js:1154
 msgid "Loading..."
-msgstr ""
+msgstr "Đang tải..."
 
 #: ../app/tabs/vnets-tab.js:53 ../app/tabs/vnets-tab.js:57
 #: ../app/tabs/acls-tab/datatable.js:153
@@ -5415,8 +5416,9 @@ msgid "Disk Snapshot"
 msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:22
+#, fuzzy
 msgid "Loading"
-msgstr ""
+msgstr "Đang tải..."
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:24
 msgid "Send CtrlAltDel"

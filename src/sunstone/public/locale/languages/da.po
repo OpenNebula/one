@@ -4,13 +4,14 @@
 #
 # Translators:
 # Jens Kristian Søgaard <jens@mermaidconsulting.dk>, 2013-2015,2017
+# Jonas J <transifex@ftlog.net>, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
-"Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
+"PO-Revision-Date: 2019-10-08 10:12+0000\n"
+"Last-Translator: Jonas J <transifex@ftlog.net>\n"
 "Language-Team: Danish (http://www.transifex.com/opennebula/one/language/da/)\n"
 "Language: da\n"
 "MIME-Version: 1.0\n"
@@ -3819,7 +3820,7 @@ msgstr "Du skal bekræfte denne handling"
 
 #: ../app/utils/panel/template-table.js:114
 msgid "Not valid attribute"
-msgstr ""
+msgstr "Ikke en valid attribut"
 
 #: ../app/utils/labels/utils.js:156
 msgid "System Labels"
@@ -4104,8 +4105,9 @@ msgid "Image was not found"
 msgstr "Diskbilledet blev ikke fundet"
 
 #: ../app/utils/disks-resize.js:165
+#, fuzzy
 msgid "Persistent image. The changes will be saved back to the datastore after the VM is shut down"
-msgstr ""
+msgstr "Persistent diskbillede. Ændringer vil blive gemt tilbage til datalageret når VMen er afsluttet (det vil sige når den går i UDFØRT tilstand)"
 
 #: ../app/utils/disks-resize.js:169
 msgid "Non-persistent disk. The changes will be lost once the VM is shut down"
@@ -4166,7 +4168,7 @@ msgstr "December"
 #: ../app/utils/user-inputs.js:374 ../app/utils/user-inputs.js:393
 #: ../app/utils/vcenter/networks/row.hbs:70
 msgid "Use ctrl key for multiple selection"
-msgstr ""
+msgstr "Brug ctrl tasten ved valg af flere muligheder"
 
 #: ../app/utils/user-inputs.js:601
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:120
@@ -5415,8 +5417,9 @@ msgid "Disk Snapshot"
 msgstr "Disk-øjebliksbillede"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:22
+#, fuzzy
 msgid "Loading"
-msgstr "Indlæser"
+msgstr "Indlæser..."
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:24
 msgid "Send CtrlAltDel"
@@ -5429,7 +5432,7 @@ msgstr "Åben i nyt vindue"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:36
 msgid "Canvas not supported."
-msgstr "Canvas er ikke understøttet."
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:20
 msgid "Attach new disk"
@@ -6163,8 +6166,9 @@ msgid "CPU Architecture"
 msgstr "CPU-arkitektur"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:52
+#, fuzzy
 msgid "machine type"
-msgstr ""
+msgstr "Maskintype"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:59
 msgid "Root device"
@@ -8114,3 +8118,6 @@ msgstr "Ryd"
 #: ../app/utils/vcenter-vm-folder/html.hbs:21
 msgid "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
 msgstr ""
+
+#~ msgid "none"
+#~ msgstr "ingen"
