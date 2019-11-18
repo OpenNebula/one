@@ -263,7 +263,6 @@ get '/support/check/version' do
     if validate_time < 86400
       return returnRoute($conf[:one_last_version])
     end
-
     begin
         http = Curl.get(GITHUB_TAGS_URL) do |request|
             if !$conf[:proxy].nil? && !$conf[:proxy].empty?
