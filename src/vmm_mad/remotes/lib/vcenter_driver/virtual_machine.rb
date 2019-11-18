@@ -361,6 +361,80 @@ module VCenterDriver
         # Create and reconfigure VM related methods
         ############################################################################
 
+        def reference_devices(options = :all)
+
+            reference_devices_options = []
+
+            if options == :all || options == :managed
+                device = {}
+                device[:key]   = "opennebula.mdisk."
+                device[:managed] = "yes"
+                reference_devices_options << device
+            end
+
+            if options == :all || options == :unmanaged
+                device = {}
+                device[:key]   = "opennebula.disk."
+                device[:managed] = "no"
+                reference_devices_options << device
+            end
+
+            extraconfig   = []
+            spec          = {}
+
+            reference_devices_options.each do |option|
+
+                # Get unmanaged disks in OpenNebula's VM template
+                xpath = "TEMPLATE/DISK[OPENNEBULA_MANAGED=\"" + option[:managed].upcase +
+                    "\" or OPENNEBULA_MANAGED=\"" + option[:managed].downcase + "\"]"
+                disks = one_item.retrieve_xmlelements(xpath)
+
+                # disks:
+                if !disks.empty? && !instantiated_as_persistent?
+
+                    # Get vcenter VM disks to know real path of cloned disk
+                    vcenter_disks = get_vcenter_disks
+
+                    # Create an array with the paths of the disks in vcenter template
+                    vc_disks  = get_vcenter_disks
+                    template_disks_vector = []
+                    vc_disks.each do |d|
+                        template_disks_vector << d[:path_wo_ds]
+                    end
+
+                    # Try to find index of disks in template disks
+                    disks.each do |disk|
+                        disk_source = VCenterDriver::FileHelper.unescape_path(disk["SOURCE"])
+                        template_disk = vc_disks.select{|d| d[:path_wo_ds] == disk_source }.first
+
+                        vcenter_disk = nil
+
+                        if template_disk
+                            vcenter_disk  = vcenter_disks.select{|d| d[:key] == template_disk[:key] && d[:device].deviceInfo.summary == template_disk[:device].deviceInfo.summary}.first
+                        end
+
+                        raise "disk with path #{disk_source} not found in the vCenter VM" unless vcenter_disk
+
+                        reference = {}
+                        reference[:key]   = option[:key] + "#{disk["DISK_ID"]}"
+                        reference[:value] = "#{vcenter_disk[:key]}"
+                        extraconfig << reference
+                    end
+                end
+
+            end
+
+            # Save in extraconfig the key for unmanaged disks
+            unless extraconfig.empty?
+                spec[:extraConfig] = extraconfig unless extraconfig.empty?
+
+                # return spec unless execute
+
+                @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+            end
+
+        end
+
         # This function creates a new VM from the driver_action XML and returns the
         # VMware ref
         # @param drv_action XML representing the deploy action
