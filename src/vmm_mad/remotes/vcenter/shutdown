@@ -68,7 +68,7 @@ begin
         vm_ref = vcenter_vm._ref
     end
 
-    vm = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm_ref)
+    vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vm_id)
 
     vm.shutdown # Undeploy, Poweroff or Terminate
 rescue StandardError => e
