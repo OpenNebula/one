@@ -686,7 +686,7 @@ class ClusterComputeResource
                 end
 
                 vm_info << "POLL=\"#{vm.info.gsub('"', "\\\"")}\"]"
-            rescue Exception => e
+            rescue StandardError => e
                 vm_info = error_monitoring(e, vm_ref, info)
             end
 
