@@ -410,7 +410,7 @@ module VCenterDriver
                         vcenter_disk = nil
 
                         if template_disk
-                            vcenter_disk  = vcenter_disks.select{|d| d[:key] == template_disk[:key] && d[:device].deviceInfo.summary == template_disk[:device].deviceInfo.summary}.first
+                            vcenter_disk  = vcenter_disks.select{|d| d[:key] == template_disk[:key]}.first
                         end
 
                         raise "disk with path #{disk_source} not found in the vCenter VM" unless vcenter_disk
@@ -2304,7 +2304,7 @@ module VCenterDriver
                 end
                 timeout = CONFIG[:vm_poweron_wait_default]
                 wait_timeout(:is_powered_off?, timeout)
-                sync
+                reference_devices
             end
         end
 
@@ -2317,7 +2317,7 @@ module VCenterDriver
         end
 
         def reset
-            sync
+            reference_devices
             @item.ResetVM_Task.wait_for_completion
         end
 
@@ -2326,7 +2326,7 @@ module VCenterDriver
         end
 
         def reboot
-            sync
+            reference_devices
             @item.RebootGuest
         end
 
