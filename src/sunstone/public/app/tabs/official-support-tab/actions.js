@@ -53,21 +53,24 @@ define(function(require) {
             var message = false;
 
             splitGitVersion.forEach(function(position, index){
+              var numberPosition = parseInt(position);
+              var numberLocalPosition = parseInt(splitGitLocalVersion[index]);
+
               switch (index) {
                 case 0:
-                  if(position > splitGitLocalVersion[index]){
+                  if(numberPosition > numberLocalPosition){
                     message = true;
                     return;
                   }
                 break;
                 case 1:
-                  if(position > splitGitLocalVersion[index] && major){
+                  if(numberPosition > numberLocalPosition && major){
                     message = true;
                     return;
                   }
                 break;
                 case 2:
-                  if(position > splitGitLocalVersion[index] && major && minor){
+                  if(numberPosition > numberLocalPosition && major && minor){
                     message = true;
                     return;
                   }
@@ -76,7 +79,7 @@ define(function(require) {
                 break;
               }
 
-              if(position === splitGitLocalVersion[index]){
+              if(numberPosition === numberLocalPosition){
                 switch (index) {
                   case 0:
                     major = true;
