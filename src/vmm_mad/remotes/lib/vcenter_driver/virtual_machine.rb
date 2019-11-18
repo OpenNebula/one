@@ -843,6 +843,9 @@ module VCenterDriver
             end
         end
 
+        # Matches disks from the vCenter VM Template (or VM if it is coming
+        # from a Wild VM) with the disks represented in OpenNebula VM
+        # data model (ie, the XML)
         def reference_unmanaged_devices(template_ref, execute = true)
             extraconfig   = []
             device_change = []
@@ -852,42 +855,15 @@ module VCenterDriver
             xpath = "TEMPLATE/DISK[OPENNEBULA_MANAGED=\"NO\" or OPENNEBULA_MANAGED=\"no\"]"
             unmanaged_disks = one_item.retrieve_xmlelements(xpath)
 
-            # unmanaged disks:
-            if !unmanaged_disks.empty? && !instantiated_as_persistent?
-
-                # Get vcenter VM disks to know real path of cloned disk
-                vcenter_disks = get_vcenter_disks
-
-                # Create an array with the paths of the disks in vcenter template
-                template = VCenterDriver::Template.new_from_ref(template_ref, vi_client)
-                template_disks = template.get_vcenter_disks
-                template_disks_vector = []
-                template_disks.each do |d|
-                    template_disks_vector << d[:path_wo_ds]
-                end
-
-                # Try to find index of disks in template disks
-                unmanaged_disks.each do |unmanaged_disk|
-                    unmanaged_disk_source = VCenterDriver::FileHelper.unescape_path(unmanaged_disk["SOURCE"])
-                    template_disk = template_disks.select{|d| d[:path_wo_ds] == unmanaged_disk_source }.first
-
-                    if template_disk
-                        vcenter_disk  = vcenter_disks.select{|d| d[:key] == template_disk[:key] && d[:device].deviceInfo.summary == template_disk[:device].deviceInfo.summary}.first
-                    end
-
-                    raise "disk with path #{unmanaged_disk_source} not found in the vCenter VM" if !vcenter_disk
-
-                    reference = {}
-                    reference[:key]   = "opennebula.disk.#{unmanaged_disk["DISK_ID"]}"
-                    reference[:value] = "#{vcenter_disk[:key]}"
-                    extraconfig << reference
-                end
-            end
+            managed = false
+            extraconfig = reference_disks(template_ref, unmanaged_disks, managed)
 
             # Add info for existing nics in template in vm xml
             xpath = "TEMPLATE/NIC[OPENNEBULA_MANAGED=\"NO\" or OPENNEBULA_MANAGED=\"no\"]"
             unmanaged_nics = one_item.retrieve_xmlelements(xpath)
 
+            # Handle NIC changes (different model and/or set MAC address
+            # for unmanaged nics
             begin
                 if !unmanaged_nics.empty?
                     nics = get_vcenter_nics
@@ -937,7 +913,7 @@ module VCenterDriver
                     end
 
                 end
-            rescue Exception => e
+            rescue StandardError => e
                 raise "There is a problem with your vm NICS, make sure that they are working properly. Error: #{e.message}"
             end
 
@@ -952,6 +928,54 @@ module VCenterDriver
             end
 
             {}
+        end
+
+        # Build extraconfig section to reference disks
+        # by key and avoid problems with changing paths
+        # (mainly due to snapshots)
+        # Uses VM Templte if ref available, or the vCenter VM if not
+        # (latter case is if we are dealing with a Wild VM
+        def reference_disks(template_ref, disks, managed)
+            return [] if unmanaged_disks.emty? || instantiated_as_persistent?
+
+            extraconfig = []
+            key_prefix = managed ? "opennebula.mdisk" : "opennebula.disk"
+
+            # Get vcenter VM disks to know real path of cloned disk
+            vcenter_disks = get_vcenter_disks
+
+            # Create an array with the paths of the disks in vcenter template
+            if !template_ref.nil?
+              template = VCenterDriver::Template.new_from_ref(template_ref, vi_client)
+              template_disks = template.get_vcenter_disks
+            else
+              # If we are dealing with a Wild VM, we simply use
+              # what is available in the vCenter VM
+              template_disks = get_vcenter_disks
+            end
+            template_disks_vector = []
+            template_disks.each do |d|
+                template_disks_vector << d[:path_wo_ds]
+            end
+
+            # Try to find index of disks in template disks
+            disks.each do |disk|
+                disk_source = VCenterDriver::FileHelper.unescape_path(disk["SOURCE"])
+                template_disk = template_disks.select{|d| d[:path_wo_ds] == disk_source }.first
+
+                if template_disk
+                    vcenter_disk  = vcenter_disks.select{|d| d[:key] == template_disk[:key]}.first
+                end
+
+                raise "disk with path #{unmanaged_disk_source} not found in the vCenter VM" if !vcenter_disk
+
+                reference = {}
+                reference[:key]   = "#{key_prefix}.#{unmanaged_disk["DISK_ID"]}"
+                reference[:value] = "#{vcenter_disk[:key]}"
+                extraconfig << reference
+            end
+
+            extraconfig
         end
 
         # TODO: review storagedrs
