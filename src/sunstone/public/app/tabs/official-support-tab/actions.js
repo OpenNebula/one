@@ -99,6 +99,7 @@ define(function(require) {
                 "(new version available: " + gitVersion + ")"
               );
               $("#latest_version").show().empty().append(link);
+              $("#li_upgrade-top-tab").show();
               return;
             }
 
