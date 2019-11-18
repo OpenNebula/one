@@ -118,13 +118,15 @@ module NSXDriver
         # Get all rules of a Section, OpenNebula section if it's not defined
         def rules(section_id = @one_section_id)
             url = @url_sections + '/' + section_id + '/rules'
-            @nsx_client.get(url)
+            result = @nsx_client.get(url)
+            result
         end
 
         # Get rule by id
         def rules_by_id(rule_id)
             url = @base_url + '/rules/' + rule_id
-            @nsx_client.get(url)
+            result = @nsx_client.get(url)
+            result
         end
 
         # Get rule by name
