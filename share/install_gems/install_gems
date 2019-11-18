@@ -80,7 +80,7 @@ DISTRIBUTIONS={
     },
     :redhat => {
         :id => ['CentOS', /^RedHat/, /^Scientific/],
-        :dependencies_common => ['ruby-devel', 'make'],
+        :dependencies_common => ['ruby-devel', 'make', 'redhat-rpm-config'],
         :dependencies => {
             SQLITE      => ['gcc', 'sqlite-devel'],
             'mysql2'     => ['gcc', 'mysql-devel', 'openssl-devel'],
