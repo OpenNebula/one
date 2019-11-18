@@ -23,28 +23,6 @@ define(function(require) {
   var RESOURCE = "official-support";
   var TAB_ID = require("./tabId");
 
-  var majorVersion = function(version){
-    var r = 0;
-    if(version && version.length){
-      var major = version.substring(0, version.lastIndexOf("."));
-      if(major && major.length){
-        r = parseFloat(major);
-      }
-    }
-    return r;
-  };
-
-  var minorVersion = function(version){
-    var r = 0;
-    if(version && version.length){
-      var minor = version.substring(version.lastIndexOf(".")+1);
-      if(minor && minor.length){
-        r = parseFloat(minor);
-      }
-    }
-    return r;
-  };
-
   var _actions = {
     "Support.check":{
       type: "list",
@@ -66,25 +44,68 @@ define(function(require) {
         if($("#footer>a").length){
           var localVersion = $("#footer>a").text().replace("OpenNebula ", "");
           if(req && req.version && req.version!=="0" && localVersion.length){
-            var version = req.version;
-            var remoteMajorVersion = majorVersion(version);
-            var remoteMinorVersion = minorVersion(version);
-            var localMajorVersion = majorVersion(localVersion);
-            var localMinorVersion = minorVersion(localVersion);
-            var link = $("<a/>", {href:"https://opennebula.org/software/"}).text(
-              "(new version available: " + version + ")"
-            );
-            if(remoteMajorVersion > localMajorVersion){
+            var gitVersion = req.version;
+            var splitGitVersion = gitVersion.split(".");
+            var splitGitLocalVersion = localVersion.split(".");
+
+            var major = false;
+            var minor = false;
+            var message = false;
+
+            splitGitVersion.forEach(function(position, index){
+              var numberPosition = parseInt(position);
+              var numberLocalPosition = parseInt(splitGitLocalVersion[index]);
+
+              switch (index) {
+                case 0:
+                  if(numberPosition > numberLocalPosition){
+                    message = true;
+                    return;
+                  }
+                break;
+                case 1:
+                  if(numberPosition > numberLocalPosition && major){
+                    message = true;
+                    return;
+                  }
+                break;
+                case 2:
+                  if(numberPosition > numberLocalPosition && major && minor){
+                    message = true;
+                    return;
+                  }
+                break;
+                default:
+                break;
+              }
+
+              if(numberPosition === numberLocalPosition){
+                switch (index) {
+                  case 0:
+                    major = true;
+                  break;
+                  case 1:
+                    minor = true;
+                  break;
+                  default:
+                  break;
+                }
+              }
+
+            });
+
+            if (message){
+              var link = $("<a/>", {href:"https://opennebula.org/software/"}).text(
+                "(new version available: " + gitVersion + ")"
+              );
               $("#latest_version").show().empty().append(link);
+              $("#li_upgrade-top-tab").show();
               return;
             }
-            if(remoteMajorVersion === localMajorVersion && remoteMinorVersion > localMinorVersion){
-              $("#latest_version").show().empty().append(link);
-              return;
-            }
+
           }
         }
-        $("#latest_version").hide().empty();
+
       },
       error: function(request){
         if (request && request.status && request.status >= 400) {

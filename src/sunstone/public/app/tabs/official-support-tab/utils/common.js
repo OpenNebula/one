@@ -54,6 +54,7 @@ define(function(require) {
   }
 
   function _check_last_version_support(){
+    $("#li_upgrade-top-tab").hide();
     Sunstone.runAction("Support.checkversion");
   }
 
