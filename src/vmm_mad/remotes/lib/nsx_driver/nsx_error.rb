@@ -17,9 +17,50 @@ module NSXDriver
 
     class NSXError < StandardError
 
-        class IncorrectResponseCodeError < NSXError; end
-        class ObjectNotFound < NSXError; end
-        class UnknownObject < NSXError; end
+        # Class IncorrectResponseCodeError
+        class IncorrectResponseCodeError < NSXError
+
+            def initialize(msg = 'Incorrect response code')
+                super(msg)
+            end
+
+        end
+
+        # Class ObjectNotFound
+        class ObjectNotFound < NSXError
+
+            def initialize(msg = 'Object not found')
+                super(msg)
+            end
+
+        end
+
+        # Class UnknownObject
+        class UnknownObject < NSXError
+
+            def initialize(msg = 'Unknown object type')
+                super(msg)
+            end
+
+        end
+
+        # Class CreateError
+        class CreateError < NSXError
+
+            def initialize(msg = "Error creating NSX object")
+                super(msg)
+
+        end
+
+        # Class DeleteError
+        class DeleteError < NSXError
+
+            def initialize(msg = "Error deleting NSX object")
+                super(msg)
+            end
+
+        end
+
 
     end
 
