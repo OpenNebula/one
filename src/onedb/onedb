@@ -163,6 +163,17 @@ DBNAME={
     }
 }
 
+ENCODING={
+    :name => "encoding",
+    :large => "--encoding charset",
+    :format => String,
+    :description => "MySQL encoding to use for the connection",
+    :proc => lambda { |o, options|
+        options[:backend]  = :mysql
+        options[:encoding] = o
+    }
+}
+
 ###############################################################################
 # Slave MySQL options
 ###############################################################################
@@ -321,7 +332,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     # Global options
     ###########################################################################
     set :option, CommandParser::OPTIONS
-    set :option, [SQLITE, SERVER, PORT, USERNAME, PASSWORD, DBNAME]
+    set :option, [SQLITE, SERVER, PORT, USERNAME, PASSWORD, DBNAME, ENCODING]
 
     ###########################################################################
     # Backup

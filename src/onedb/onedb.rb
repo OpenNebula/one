@@ -52,7 +52,8 @@ class OneDB
                 :port    => ops[:port],
                 :user    => ops[:user],
                 :passwd  => passwd,
-                :db_name => ops[:db_name]
+                :db_name => ops[:db_name],
+                :encoding=> ops[:encoding]
             )
         else
             raise "You need to specify the SQLite or MySQL connection options."

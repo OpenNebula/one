@@ -214,6 +214,7 @@ class BackEndMySQL < OneDBBacKEnd
         @user    = opts[:user]
         @passwd  = opts[:passwd]
         @db_name = opts[:db_name]
+        @encoding= opts[:encoding]
 
         # Check for errors:
         error   = false
@@ -226,8 +227,10 @@ class BackEndMySQL < OneDBBacKEnd
         end
 
         # Check for defaults:
-        @server = "localhost"   if @server.nil?
-        @port   = 0             if @port.nil?
+        @server = "localhost" if @server.nil?
+        @port   = 0           if @port.nil?
+
+        encoding if @encoding.nil?
 
         # Clean leading and trailing quotes, if any
         @server  = @server [1..-2] if @server [0] == ?"
@@ -282,6 +285,19 @@ class BackEndMySQL < OneDBBacKEnd
         puts
     end
 
+    def encoding
+        @encoding = ''
+
+        connect_db
+
+        @db.fetch('select default_character_set_name FROM information_schema.SCHEMATA'\
+          " WHERE schema_name = \"#{@db_name}\"") do |row|
+            @encoding = row[:default_character_set_name]
+        end
+
+        @encoding
+    end
+
     def restore(bck_file, force=nil, federated=false)
         connect_db
 
@@ -323,7 +339,10 @@ class BackEndMySQL < OneDBBacKEnd
         endpoint = "mysql2://#{@user}:#{passwd}@#{@server}:#{@port}/#{@db_name}"
 
         begin
-            @db = Sequel.connect(endpoint)
+            options = {}
+            options[:encoding] = @encoding unless @encoding.empty?
+
+            @db = Sequel.connect(endpoint, options)
         rescue Exception => e
             raise "Error connecting to DB: " + e.message
         end
