@@ -58,7 +58,7 @@ module NSXDriver
             lswitch = new(nsx_client)
             ls_id = lswitch.ls_id_from_name(nsx_client, ls_name)
             unless ls_id
-                error_msg = "Opaque Network with name: #{ls_name} not found")
+                error_msg = "Opaque Network with name: #{ls_name} not found"
                 error =  NSXDriver::NSXError::ObjectNotFound
                          .new(error_msg)
                 raise error
