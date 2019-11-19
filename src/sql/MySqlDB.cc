@@ -84,35 +84,39 @@ int MySqlDB::db_encoding(std::string& error)
         return -1;
     }
 
-    //Get encodings for database and tables
-    if (encoding.empty())
+    if (!encoding.empty())
     {
-        std::string db_sql = "SELECT default_character_set_name FROM "
-         "information_schema.SCHEMATA WHERE schema_name = \"" + database + "\"";
+        mysql_close(connection);
 
-        std::string db_enc = get_encoding(connection, db_sql, error);
-
-        if ( db_enc.empty() )
-        {
-            return -1;
-        }
-
-        std::string table_sql = "SELECT CCSA.character_set_name FROM "
-         "information_schema.`TABLES` T, information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY`"
-         " CCSA WHERE CCSA.collation_name = T.table_collation AND T.table_schema = "
-         "\"" + database + "\" AND T.table_name = \"system_attributes\"";
-
-        std::string table_enc = get_encoding(connection, table_sql, error);
-
-        if ( !table_enc.empty() && table_enc != db_enc)
-        {
-            error = "Database and table charsets (" + db_enc + ", " + table_enc
-                + ") differs";
-            return -1;
-        }
-
-        encoding = db_enc;
+        return 0;
     }
+
+    //Get encodings for database and tables
+    std::string db_sql = "SELECT default_character_set_name FROM "
+     "information_schema.SCHEMATA WHERE schema_name = \"" + database + "\"";
+
+    std::string db_enc = get_encoding(connection, db_sql, error);
+
+    if ( db_enc.empty() )
+    {
+        return -1;
+    }
+
+    std::string table_sql = "SELECT CCSA.character_set_name FROM "
+     "information_schema.`TABLES` T, information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY`"
+     " CCSA WHERE CCSA.collation_name = T.table_collation AND T.table_schema = "
+     "\"" + database + "\" AND T.table_name = \"system_attributes\"";
+
+    std::string table_enc = get_encoding(connection, table_sql, error);
+
+    if ( !table_enc.empty() && table_enc != db_enc)
+    {
+        error = "Database and table charsets (" + db_enc + ", " + table_enc
+            + ") differs";
+        return -1;
+    }
+
+    encoding = db_enc;
 
     mysql_close(connection);
 
