@@ -41,11 +41,29 @@ require 'vcenter_driver'
 require 'base64'
 require 'nsx_driver'
 
+# GETTING DATA
+
+# read input from ARGF
+text = ARGF.read
+
+# prepare new stdin to satisfy pry
+pry_fd_stdin = IO.sysopen("/dev/tty")
+pry_stdin = IO.new(pry_fd_stdin, "r")
+
+# load pry and cheat it with our stdio
+require 'pry'
+Pry.config.input = pry_stdin
+
+binding.pry
+
+
 # Changes due to new hooks
-#arguments_raw = Base64.decode64(STDIN.read)
-arg = "PFBBUkFNRVRFUlM+CiAgPFBBUkFNRVRFUj4KICAgIDxQT1NJVElPTj4xPC9QT1NJVElPTj4KICAgIDxUWVBFPklOPC9UWVBFPgogICAgPFZBTFVFPioqKio8L1ZBTFVFPgogIDwvUEFSQU1FVEVSPgogIDxQQVJBTUVURVI+CiAgICA8UE9TSVRJT04+MjwvUE9TSVRJT04+CiAgICA8VFlQRT5JTjwvVFlQRT4KICAgIDxWQUxVRT5OQU1FPSJhbGxfdHlwZXMiCkRFU0NSSVBUSU9OPSJhbGxfdHlwZXMgZGVzYyIKUlVMRT1bCiAgUFJPVE9DT0w9IlRDUCIsCiAgUlVMRV9UWVBFPSJpbmJvdW5kIiwKICBSQU5HRT0iNDQiCl0KUlVMRT1bCiAgUFJPVE9DT0w9IlVEUCIsCiAgUlVMRV9UWVBFPSJvdXRib3VuZCIsCiAgUkFOR0U9IjE6MiIsCiAgSVA9IjIuMi4yLjIiLAogIFNJWkU9IjEwIgpdClJVTEU9WwogIFBST1RPQ09MPSJJQ01QIiwKICBSVUxFX1RZUEU9ImluYm91bmQiLAogIE5FVFdPUktfSUQ9IjAiCl0KUlVMRT1bCiAgUFJPVE9DT0w9IklDTVB2NiIsCiAgUlVMRV9UWVBFPSJvdXRib3VuZCIKXQpSVUxFPVsKICBQUk9UT0NPTD0iSVBTRUMiLAogIFJVTEVfVFlQRT0iaW5ib3VuZCIKXQpSVUxFPVsKICBQUk9UT0NPTD0iQUxMIiwKICBSVUxFX1RZUEU9ImluYm91bmQiLAogIE5FVFdPUktfSUQ9IjEiCl0KPC9WQUxVRT4KICA8L1BBUkFNRVRFUj4KICA8UEFSQU1FVEVSPgogICAgPFBPU0lUSU9OPjE8L1BPU0lUSU9OPgogICAgPFRZUEU+T1VUPC9UWVBFPgogICAgPFZBTFVFPnRydWU8L1ZBTFVFPgogIDwvUEFSQU1FVEVSPgogIDxQQVJBTUVURVI+CiAgICA8UE9TSVRJT04+MjwvUE9TSVRJT04+CiAgICA8VFlQRT5PVVQ8L1RZUEU+CiAgICA8VkFMVUU+MTE2PC9WQUxVRT4KICA8L1BBUkFNRVRFUj4KICA8UEFSQU1FVEVSPgogICAgPFBPU0lUSU9OPjM8L1BPU0lUSU9OPgogICAgPFRZUEU+T1VUPC9UWVBFPgogICAgPFZBTFVFPjA8L1ZBTFVFPgogIDwvUEFSQU1FVEVSPgo8L1BBUkFNRVRFUlM+"
-arguments_raw = Base64.decode64(arg)
+# arguments_raw = Base64.decode64(STDIN.read)
+arguments_raw = Base64.decode64(text)
 arguments_xml = Nokogiri::XML(arguments_raw)
+
+require 'pry-byebug'
+binding.pry
 
 # Required to construct security group object
 id = arguments_xml.xpath('//PARAMETER[TYPE="OUT" and POSITION="2"]/VALUE').text
@@ -59,26 +77,31 @@ if OpenNebula.is_error?(rc)
 end
 
 one_sg_xml = one_sg.instance_variable_get(:@xml)
-one_sg_xml.xpath('//NAME').text
-one_sg_xml.xpath('//DESCRIPTION').text
+sg_name = one_sg_xml.xpath('//NAME').text
+sg_description = one_sg_xml.xpath('//DESCRIPTION').text
 # Security group rules
 rules = one_sg_xml.xpath('//RULE')
 rules.each do |rule|
+    binding.pry
     # TCP | UDP | ICMP | ICMPv6 | IPSEC | ALL
-    protocol = rule.xpath('PROTOCOL').text
+    sg_protocol = rule.xpath('PROTOCOL').text
     # OpenNebula network ID
-    network_id = rule.xpath('NETWORK_ID').text
+    sg_network_id = rule.xpath('NETWORK_ID').text
     # Format from:to
-    range_port = rule.xpath('RANGE').text
-    range_port = range_port.index(':')
-    if range_port?
-        port_from = range_port[0..range_port.index(':')-1]
-        port_to = range_port[range_port.index(':')+1,range_port.length]
+    sg_range_port = rule.xpath('RANGE').text
+    sg_range_port = sg_range_port.index(':')
+    if sg_range_port
+        sg_port_from = sg_range_port[0..sg_range_port.index(':')-1]
+        sg_port_to = sg_range_port[sg_range_port.index(':')+1,sg_range_port.length]
     else
-        port_from = port_to = range_port
+        sg_port_from = sg_port_to = sg_range_port
     end
     # inbound | outbound
     rule_type = rule.xpath('RULE_TYPE').text
     rule_ip = rule.xpath('IP').text
     rule_size = rule.xpath('SIZE').text
 end
+
+
+# NSX
+
