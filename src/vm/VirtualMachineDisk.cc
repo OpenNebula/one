@@ -1111,6 +1111,15 @@ VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
 
     VirtualMachineDisk * disk = new VirtualMachineDisk(vdisk, max_disk_id + 1);
 
+    if ( !tsys.empty() )
+    {
+        disk->replace("TM_MAD_SYSTEM", tsys);
+    }
+    else
+    {
+        disk->remove("TM_MAD_SYSTEM");
+    }
+
     int rc = ipool->acquire_disk(vmid, disk, max_disk_id + 1, img_type,
                          dev_prefix, uid, image_id, &snap, true, error);
     if ( rc != 0 )
@@ -1174,15 +1183,6 @@ VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
     // -------------------------------------------------------------------------
 
     disk->set_attach();
-
-    if ( !tsys.empty() )
-    {
-        disk->replace("TM_MAD_SYSTEM", tsys);
-    }
-    else
-    {
-        disk->remove("TM_MAD_SYSTEM");
-    }
 
     add_attribute(disk, disk->get_disk_id());
 
