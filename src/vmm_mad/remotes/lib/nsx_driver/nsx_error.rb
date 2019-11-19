@@ -47,15 +47,16 @@ module NSXDriver
         # Class CreateError
         class CreateError < NSXError
 
-            def initialize(msg = "Error creating NSX object")
+            def initialize(msg = 'Error creating NSX object')
                 super(msg)
+            end
 
         end
 
         # Class DeleteError
         class DeleteError < NSXError
 
-            def initialize(msg = "Error deleting NSX object")
+            def initialize(msg = 'Error deleting NSX object')
                 super(msg)
             end
 
