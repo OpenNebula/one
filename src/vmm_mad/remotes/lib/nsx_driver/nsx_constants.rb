@@ -66,6 +66,14 @@ module NSXDriver
         # OpaqueNetwork
         NSXT_AUTH = NSXT_BASE + '/aaa/registration-token'
         NSXT_LS_SECTION = NSXT_BASE + '/logical-switches/'
+        # DFW
+        ONE_SECTION_NAME = 'OpenNebula'
+        NSXT_DFW_BASE = NSXT_BASE + '/firewall'
+        NSXV_DFW_BASE = '/api/4.0/firewall/globalroot-0/config'
+        NSXT_DFW_SECTIONS = '/sections'
+        NSXV_DFW_SECTIONS = '/layer3sections'
+        NSXV_DFW_SECTION_XPATH = '//section'
+        NSXV_DFW_RULE_XPATH = '//rule'
         # Messages
         MSG_INCOMPLETE_REQ = 'Incomplete request, NSX_MANAGER, NSX_USER, \
                               NSX_PASSWORD and NSX_TYPE are needed'
@@ -73,6 +81,24 @@ module NSXDriver
                            NSX_PASSWORD and NSX_TYPE are correct'
         MSG_INVALID_NSXTYPE = 'Invalid NSX-TYPE: Only NSX-T and NSX-V are \
                                supported'
+        # Responses codes
+        # 2xx
+        CODE_OK = 200
+        CODE_CREATED = 201
+        CODE_ACCEPTED = 202
+        CODE_NO_CONTENT = 204
+        # 4xx
+        CODE_BAD_REQUEST = 400
+        CODE_UNAUTHORIZED = 401
+        CODE_FORBIDDEN = 403
+        CODE_NOT_FOUND = 404
+        CODE_METHOD_NOT_ALLOWED = 405
+        CODE_NOT_ACCEPTABLE = 406
+        # 5xx
+        CODE_INTERNAL_SERVER_ERROR = 500
+        CODE_BAD_GATEWAY = 502
+        CODE_SERVICE_UNAVAILABLE = 503
+        CODE_GATEWAY_TIMEOUT = 504
 
     end
 

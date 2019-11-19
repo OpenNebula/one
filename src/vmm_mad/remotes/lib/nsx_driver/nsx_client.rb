@@ -64,8 +64,9 @@ module NSXDriver
             when NSXDriver::NSXConstants::NSXV
                 NSXDriver::NSXVClient.new(nsxmgr, nsx_user, nsx_password)
             else
-                raise NSXDriver::NSXException::UnknownObject, \
-                      'Unknown object type'
+                error_msg = "Unknown object type: #{type}"
+                error = NSXDriver::NSXError::UnknownObject.new(error_msg)
+                raise error
             end
         end
 
@@ -90,8 +91,11 @@ module NSXDriver
 
         # METHODS
 
-        def check_response(response, code)
-            response.code.to_i == code
+        def check_response(response, codes_array)
+            codes_array.each do |code|
+                return true if response.code.to_i == code
+            end
+            false
         end
 
         def self.nsx_pass(nsx_pass_enc)
@@ -108,10 +112,13 @@ module NSXDriver
                             .decrypt(nsx_pass_enc, token)
         end
 
+        # Return: respose.body
         def get(url); end
 
         # Return: id of the created object
-        def post(url, ls_data); end
+        def post(url, data); end
+
+        def put(url, data); end
 
         def delete(url); end
 
