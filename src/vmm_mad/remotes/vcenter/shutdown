@@ -63,6 +63,7 @@ begin
 
     if vm_ref.empty?
         one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
+        host = OpenNebula::Host.new_with_id(host_id, OpenNebula::Client.new())
         vcenter_vm = VCenterDriver::VIHelper.find_vcenter_vm_by_name(one_vm, host, vi_client)
         raise "Could not find the undeployed VM in vCenter's inventory using it's name" if !vcenter_vm
         vm_ref = vcenter_vm._ref

@@ -936,7 +936,7 @@ module VCenterDriver
         # Uses VM Templte if ref available, or the vCenter VM if not
         # (latter case is if we are dealing with a Wild VM
         def reference_disks(template_ref, disks, managed)
-            return [] if unmanaged_disks.emty? || instantiated_as_persistent?
+            return [] if disks.empty? || instantiated_as_persistent?
 
             extraconfig = []
             key_prefix = managed ? "opennebula.mdisk" : "opennebula.disk"
@@ -967,10 +967,10 @@ module VCenterDriver
                     vcenter_disk  = vcenter_disks.select{|d| d[:key] == template_disk[:key]}.first
                 end
 
-                raise "disk with path #{unmanaged_disk_source} not found in the vCenter VM" if !vcenter_disk
+                raise "disk with path #{disk_source} not found in the vCenter VM" if !vcenter_disk
 
                 reference = {}
-                reference[:key]   = "#{key_prefix}.#{unmanaged_disk["DISK_ID"]}"
+                reference[:key]   = "#{key_prefix}.#{disk["DISK_ID"]}"
                 reference[:value] = "#{vcenter_disk[:key]}"
                 extraconfig << reference
             end
