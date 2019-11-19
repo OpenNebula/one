@@ -72,12 +72,33 @@ module NSXDriver
                 if check_response(response, [NSXDriver::NSXConstants::CODE_OK])
         end
 
+        def get_full_response(url)
+            uri = URI.parse(@nsxmgr + url)
+            request = Net::HTTP::Get.new(uri.request_uri,
+                                         NSXDriver::NSXConstants::HEADER_JSON)
+            request.basic_auth(@nsx_user, @nsx_password)
+            begin
+                response = Net::HTTP
+                           .start(uri.host,
+                                  uri.port,
+                                  :use_ssl => true,
+                                  :verify_mode => OpenSSL::SSL::VERIFY_NONE)\
+                                  do |https|
+                                      https.request(request)
+                                  end
+            rescue StandardError => e
+                raise e
+            end
+            return response \
+                if check_response(response, [NSXDriver::NSXConstants::CODE_OK])
+        end
+
         # Return: id of the created object
-        def post(url, ls_data)
+        def post(url, data)
             uri = URI.parse(@nsxmgr + url)
             request = Net::HTTP::Post.new(uri.request_uri,
                                           NSXDriver::NSXConstants::HEADER_JSON)
-            request.body = ls_data
+            request.body = data
             request.basic_auth(@nsx_user, @nsx_password)
             response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
               :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
@@ -92,7 +113,33 @@ module NSXDriver
                             "#{response_json['errorCode']}, " \
                             "\nNSX error details: " \
                             "#{response_json['details']}"
-                raise NSXDriver::NSXException::IncorrectResponseCodeError,
+                raise NSXDriver::NSXError::IncorrectResponseCodeError,
+                      nsx_error
+            end
+
+            response_json['id']
+        end
+
+        def put(url, data)
+            uri = URI.parse(@nsxmgr + url)
+            request = Net::HTTP::Put.new(uri.request_uri,
+                                         NSXDriver::NSXConstants::HEADER_JSON)
+            request.body = data
+            request.basic_auth(@nsx_user, @nsx_password)
+            response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
+              :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
+                  https.request(request)
+              end
+
+            response_json = JSON.parse(response.body)
+            # If response is different as expected raise the message
+            unless check_response(response,
+                                  [NSXDriver::NSXConstants::CODE_CREATED])
+                nsx_error = "\nNSX error code: " \
+                            "#{response_json['errorCode']}, " \
+                            "\nNSX error details: " \
+                            "#{response_json['details']}"
+                raise NSXDriver::NSXError::IncorrectResponseCodeError,
                       nsx_error
             end
 

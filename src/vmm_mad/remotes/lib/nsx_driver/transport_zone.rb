@@ -33,7 +33,7 @@ module NSXDriver
             when NSXDriver::NSXConstants::NSXV
                 NSXDriver::NSXVtz.new(nsx_client)
             else
-                raise NSXDriver::NSXException::UnknownObject, \
+                raise NSXDriver::NSXError::UnknownObject, \
                       'Unknown object type'
             end
         end

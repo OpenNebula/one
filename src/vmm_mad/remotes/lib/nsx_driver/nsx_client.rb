@@ -64,7 +64,7 @@ module NSXDriver
             when NSXDriver::NSXConstants::NSXV
                 NSXDriver::NSXVClient.new(nsxmgr, nsx_user, nsx_password)
             else
-                raise NSXDriver::NSXException::UnknownObject, \
+                raise NSXDriver::NSXError::UnknownObject, \
                       'Unknown object type'
             end
         end
@@ -111,10 +111,13 @@ module NSXDriver
                             .decrypt(nsx_pass_enc, token)
         end
 
+        # Return: respose.body
         def get(url); end
 
         # Return: id of the created object
-        def post(url, ls_data); end
+        def post(url, data); end
+
+        def put(url, data); end
 
         def delete(url); end
 

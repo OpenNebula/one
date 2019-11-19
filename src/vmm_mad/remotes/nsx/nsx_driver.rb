@@ -47,7 +47,7 @@ $LOAD_PATH << LIB_LOCATION + '/ruby/nsx_driver'
 # NSX Library                                                                  #
 # ---------------------------------------------------------------------------- #
 require 'nsx_constants'
-require 'nsx_exception'
+require 'nsx_error'
 require 'nsx_component'
 require 'nsx_client'
 require 'nsxt_client'
