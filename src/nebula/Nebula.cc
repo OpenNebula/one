@@ -270,6 +270,7 @@ void Nebula::start(bool bootstrap_only)
         string user;
         string passwd;
         string db_name;
+        string encoding;
         int    connections;
 
         const VectorAttribute * _db = nebula_configuration->get("DB");
@@ -307,6 +308,11 @@ void Nebula::start(bool bootstrap_only)
             {
                 connections = 50;
             }
+
+            if (_db->vector_value("ENCODING", encoding) == -1)
+            {
+                encoding = "";
+            }
         }
 
         if ( db_backend_type == "sqlite" )
@@ -316,7 +322,7 @@ void Nebula::start(bool bootstrap_only)
         else
         {
             db_backend = new MySqlDB(server, port, user, passwd, db_name,
-                    connections);
+                    encoding, connections);
         }
 
         // ---------------------------------------------------------------------

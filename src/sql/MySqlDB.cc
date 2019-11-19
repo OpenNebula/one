@@ -46,37 +46,40 @@ int MySqlDB::db_encoding(std::string& error)
         return -1;
     }
 
-    //Set encoding for the database clients
-    std::string encoding_sql = "SELECT default_character_set_name FROM "
-        "information_schema.SCHEMATA WHERE schema_name = \"" + database + "\"";
-
-    if ( mysql_query(connection, encoding_sql.c_str()) != 0 )
+    if (encoding.empty())
     {
-        error = "Could not read database encoding.";
-        return -1;
+        //Set encoding for the database clients
+        std::string encoding_sql = "SELECT default_character_set_name FROM "
+            "information_schema.SCHEMATA WHERE schema_name = \"" + database + "\"";
+
+        if ( mysql_query(connection, encoding_sql.c_str()) != 0 )
+        {
+            error = "Could not read database encoding.";
+            return -1;
+        }
+
+        MYSQL_RES * result = mysql_store_result(connection);
+
+        if (result == nullptr)
+        {
+            error = "Could not read database encoding: ";
+            error.append(mysql_error(connection));
+
+            return -1;
+        }
+
+        MYSQL_ROW row = mysql_fetch_row(result);
+
+        if ( row == nullptr )
+        {
+            error = "Could not read databse encoding";
+            return -1;
+        }
+
+        encoding = ((char **) row)[0];
+
+        mysql_free_result(result);
     }
-
-    MYSQL_RES * result = mysql_store_result(connection);
-
-    if (result == nullptr)
-    {
-        error = "Could not read database encoding: ";
-        error.append(mysql_error(connection));
-
-        return -1;
-    }
-
-    MYSQL_ROW row = mysql_fetch_row(result);
-
-    if ( row == nullptr )
-    {
-        error = "Could not read databse encoding";
-        return -1;
-    }
-
-    encoding = ((char **) row)[0];
-
-    mysql_free_result(result);
 
     mysql_close(connection);
 
@@ -92,6 +95,7 @@ MySqlDB::MySqlDB(
         const string& _user,
         const string& _password,
         const string& _database,
+        const string& _encoding,
         int           _max_connections)
 {
     vector<MYSQL *> connections(_max_connections);
@@ -105,6 +109,7 @@ MySqlDB::MySqlDB(
     user     = _user;
     password = _password;
     database = _database;
+    encoding = _encoding;
 
     max_connections = _max_connections;
 

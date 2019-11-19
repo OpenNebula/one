@@ -49,6 +49,7 @@ public:
             const string& _user,
             const string& _password,
             const string& _database,
+            const string& _encoding,
             int           _connections);
 
     ~MySqlDB();
