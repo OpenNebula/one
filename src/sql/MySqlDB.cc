@@ -25,6 +25,44 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static std::string get_encoding(MYSQL * c, const std::string& sql,
+        std::string& error)
+{
+    std::string encoding;
+
+    if ( mysql_query(c, sql.c_str()) != 0 )
+    {
+        error = "Could not read database encoding.";
+        return "";
+    }
+
+    MYSQL_RES * result = mysql_store_result(c);
+
+    if (result == nullptr)
+    {
+        error = "Could not read database encoding: ";
+        error.append(mysql_error(c));
+
+        return "";
+    }
+
+    MYSQL_ROW row = mysql_fetch_row(result);
+
+    if ( row == nullptr )
+    {
+        error = "Could not read databse encoding";
+        return "";
+    }
+
+    encoding = ((char **) row)[0];
+
+    mysql_free_result(result);
+
+    return encoding;
+}
+
+/* -------------------------------------------------------------------------- */
+
 int MySqlDB::db_encoding(std::string& error)
 {
     MYSQL * connection = mysql_init(nullptr);
@@ -46,39 +84,34 @@ int MySqlDB::db_encoding(std::string& error)
         return -1;
     }
 
+    //Get encodings for database and tables
     if (encoding.empty())
     {
-        //Set encoding for the database clients
-        std::string encoding_sql = "SELECT default_character_set_name FROM "
-            "information_schema.SCHEMATA WHERE schema_name = \"" + database + "\"";
+        std::string db_sql = "SELECT default_character_set_name FROM "
+         "information_schema.SCHEMATA WHERE schema_name = \"" + database + "\"";
 
-        if ( mysql_query(connection, encoding_sql.c_str()) != 0 )
+        std::string db_enc = get_encoding(connection, db_sql, error);
+
+        if ( db_enc.empty() )
         {
-            error = "Could not read database encoding.";
             return -1;
         }
 
-        MYSQL_RES * result = mysql_store_result(connection);
+        std::string table_sql = "SELECT CCSA.character_set_name FROM "
+         "information_schema.`TABLES` T, information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY`"
+         " CCSA WHERE CCSA.collation_name = T.table_collation AND T.table_schema = "
+         "\"" + database + "\" AND T.table_name = \"system_attributes\"";
 
-        if (result == nullptr)
+        std::string table_enc = get_encoding(connection, table_sql, error);
+
+        if ( !table_enc.empty() && table_enc != db_enc)
         {
-            error = "Could not read database encoding: ";
-            error.append(mysql_error(connection));
-
+            error = "Database and table charsets (" + db_enc + ", " + table_enc
+                + ") differs";
             return -1;
         }
 
-        MYSQL_ROW row = mysql_fetch_row(result);
-
-        if ( row == nullptr )
-        {
-            error = "Could not read databse encoding";
-            return -1;
-        }
-
-        encoding = ((char **) row)[0];
-
-        mysql_free_result(result);
+        encoding = db_enc;
     }
 
     mysql_close(connection);
@@ -89,29 +122,15 @@ int MySqlDB::db_encoding(std::string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-MySqlDB::MySqlDB(
-        const string& _server,
-        int           _port,
-        const string& _user,
-        const string& _password,
-        const string& _database,
-        const string& _encoding,
-        int           _max_connections)
+MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
+    const string& d, const string& e, int m):max_connections(m), server(s),
+     port(p), user(u), password(_p), database(d), encoding(e)
 {
-    vector<MYSQL *> connections(_max_connections);
+    vector<MYSQL *> connections(max_connections);
     MYSQL * rc;
 
     ostringstream oss;
     std::string   error;
-
-    server   = _server;
-    port     = _port;
-    user     = _user;
-    password = _password;
-    database = _database;
-    encoding = _encoding;
-
-    max_connections = _max_connections;
 
     // Initialize the MySQL library
     mysql_library_init(0, NULL, NULL);

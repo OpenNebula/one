@@ -288,14 +288,28 @@ class BackEndMySQL < OneDBBacKEnd
     def encoding
         @encoding = ''
 
+        db_enc    = ''
+        table_enc = ''
+
         connect_db
 
         @db.fetch('select default_character_set_name FROM information_schema.SCHEMATA'\
           " WHERE schema_name = \"#{@db_name}\"") do |row|
-            @encoding = row[:default_character_set_name]
+            db_enc = row[:default_character_set_name]
         end
 
-        @encoding
+        @db.fetch('select CCSA.character_set_name FROM information_schema.`TABLES`'\
+        ' T, information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA '\
+        'WHERE CCSA.collation_name = T.table_collation AND T.table_schema = '\
+        "\"#{@db_name}\" AND T.table_name = \"system_attributes\"") do |row|
+            table_enc = row[:character_set_name]
+        end
+
+        if db_enc != table_enc
+            raise "Table and database charset (#{db_enc}, #{table_enc}) differs"
+        end
+
+        @encoding = table_enc
     end
 
     def restore(bck_file, force=nil, federated=false)
