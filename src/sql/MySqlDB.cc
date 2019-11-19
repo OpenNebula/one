@@ -23,6 +23,68 @@
  ********/
 
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int MySqlDB::db_encoding(std::string& error)
+{
+    MYSQL * connection = mysql_init(nullptr);
+
+    if ( mysql_real_connect(connection, server.c_str(), user.c_str(),
+                password.c_str(), 0, port, NULL, 0) == nullptr)
+    {
+        error = "Could not open connect to database server: ";
+        error.append(mysql_error(connection));
+
+        return -1;
+    }
+
+    std::string create_sql = "CREATE DATABASE IF NOT EXISTS " + database;
+
+    if ( mysql_query(connection, create_sql.c_str()) != 0 )
+    {
+        error = "Could not create the database.";
+        return -1;
+    }
+
+    //Set encoding for the database clients
+    std::string encoding_sql = "SELECT default_character_set_name FROM "
+        "information_schema.SCHEMATA WHERE schema_name = \"" + database + "\"";
+
+    if ( mysql_query(connection, encoding_sql.c_str()) != 0 )
+    {
+        error = "Could not read database encoding.";
+        return -1;
+    }
+
+    MYSQL_RES * result = mysql_store_result(connection);
+
+    if (result == nullptr)
+    {
+        error = "Could not read database encoding: ";
+        error.append(mysql_error(connection));
+
+        return -1;
+    }
+
+    MYSQL_ROW row = mysql_fetch_row(result);
+
+    if ( row == nullptr )
+    {
+        error = "Could not read databse encoding";
+        return -1;
+    }
+
+    encoding = ((char **) row)[0];
+
+    mysql_free_result(result);
+
+    mysql_close(connection);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 MySqlDB::MySqlDB(
         const string& _server,
@@ -36,6 +98,7 @@ MySqlDB::MySqlDB(
     MYSQL * rc;
 
     ostringstream oss;
+    std::string   error;
 
     server   = _server;
     port     = _port;
@@ -48,76 +111,76 @@ MySqlDB::MySqlDB(
     // Initialize the MySQL library
     mysql_library_init(0, NULL, NULL);
 
+    if ( db_encoding(error) == -1 )
+    {
+        throw runtime_error(error);
+    }
+
     // Create connection pool to the server
     for (int i=0 ; i < max_connections ; i++)
     {
         connections[i] = mysql_init(NULL);
 
-        rc = mysql_real_connect(connections[i],
-                                server.c_str(),
-                                user.c_str(),
-                                password.c_str(),
-                                0,
-                                port,
-                                NULL,
-                                0);
-        if ( rc == NULL)
+        rc = mysql_real_connect(connections[i], server.c_str(), user.c_str(),
+                password.c_str(), 0, port, NULL, 0);
+
+        if ( rc == nullptr)
         {
-            ostringstream oss;
+            std::string error = "Could not open connect to database server: ";
+            error.append(mysql_error(connections[i]));
 
-            oss << "Could not open connect to database server: "
-                << mysql_error(connections[i]);
-
-            throw runtime_error(oss.str());
+            throw runtime_error(error);
         }
     }
 
     db_escape_connect = mysql_init(NULL);
 
-    rc = mysql_real_connect(db_escape_connect,
-                            server.c_str(),
-                            user.c_str(),
-                            password.c_str(),
-                            0,
-                            port,
-                            NULL,
-                            0);
+    rc = mysql_real_connect(db_escape_connect, server.c_str(), user.c_str(),
+            password.c_str(), 0, port, NULL, 0);
 
-    if ( rc == NULL)
+    if ( rc == nullptr)
     {
-        ostringstream oss;
+        std::string error = "Could not open connect to database server: ";
+        error.append(mysql_error(db_escape_connect));
 
-        oss << "Could not open connect to database server: "
-            << mysql_error(db_escape_connect);
-
-        throw runtime_error(oss.str());
+        throw runtime_error(error);
     }
 
-    //Connect to the database & initialize connection pool
-    oss << "CREATE DATABASE IF NOT EXISTS " << database;
-
-    if ( mysql_query(connections[0], oss.str().c_str()) != 0 )
+    if ( mysql_set_character_set(db_escape_connect, encoding.c_str()) != 0 )
     {
-        throw runtime_error("Could not create the database.");
+        std::string error = "Could not set encoding : ";
+        error.append(mysql_error(db_escape_connect));
+
+        throw runtime_error(error);
     }
 
-    oss.str("");
-    oss << "USE " << database;
+    std::string use_sql = "USE " + database;
 
     for (int i=0 ; i < max_connections ; i++)
     {
-        if ( mysql_query(connections[i], oss.str().c_str()) != 0 )
+        if ( mysql_query(connections[i], use_sql.c_str()) != 0 )
         {
-            ostringstream oss;
+            std::string error = "Could not connect to database: ";
+            error.append(mysql_error(connections[i]));
 
-            oss << "Could not connect to database server: "
-                << mysql_error(connections[i]);
+            throw runtime_error(error);
+        }
 
-            throw runtime_error(oss.str());
+        if ( mysql_set_character_set(connections[i], encoding.c_str()) != 0 )
+        {
+            std::string error = "Could not set encoding : ";
+            error.append(mysql_error(connections[i]));
+
+            throw runtime_error(error);
         }
 
         db_connect.push(connections[i]);
     }
+
+    oss << "Set up " << max_connections << " DB connections using encoding " <<
+        encoding;
+
+    NebulaLog::log("ONE", Log::INFO, oss);
 
     pthread_mutex_init(&mutex,0);
 

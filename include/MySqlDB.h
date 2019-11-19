@@ -101,6 +101,12 @@ protected:
 private:
 
     /**
+     *  This functions set the encoding to that being used for the OpenNebula
+     *  database and creates the database if needed
+     */
+    int db_encoding(std::string& error);
+
+    /**
      *  Number of concurrent DB connections.
      */
     int  max_connections;
@@ -113,20 +119,22 @@ private:
     /**
      * Cached DB connection to escape strings (it uses the server character set)
      */
-    MYSQL *        db_escape_connect;
+    MYSQL * db_escape_connect;
 
     /**
      *  MySQL Connection parameters
      */
-    string              server;
+    string server;
 
-    int                 port;
+    int    port;
 
-    string              user;
+    string user;
 
-    string              password;
+    string password;
 
-    string              database;
+    string database;
+
+    string encoding;
 
     /**
      *  Fine-grain mutex for DB access (pool of DB connections)
