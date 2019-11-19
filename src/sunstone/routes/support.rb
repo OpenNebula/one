@@ -253,16 +253,17 @@ get '/support/check/version' do
     $conf[:one_version_time] = 0 if $conf[:one_version_time].nil?
     $conf[:one_last_version] = '0' if $conf[:one_last_version].nil?
 
-    def returnRoute(version,httpCode=200)
-      return [httpCode, JSON.pretty_generate(:version => version )]
+    def return_route(version, http_code = 200)
+        [http_code, JSON.pretty_generate(:version => version)]
     end
 
     find = 'release-'
     validate_time = Time.now.to_i - $conf[:one_version_time]
-    
+
     if validate_time < 86400
-      return returnRoute($conf[:one_last_version])
+        return return_route($conf[:one_last_version])
     end
+
     begin
         http = Curl.get(GITHUB_TAGS_URL) do |request|
             if !$conf[:proxy].nil? && !$conf[:proxy].empty?
@@ -271,7 +272,7 @@ get '/support/check/version' do
             request.headers['User-Agent'] = 'OpenNebula Version Validation'
         end
     rescue StandardError
-        return returnRoute(0, 400)
+        return return_route(0, 400)
     end
 
     if !http.nil? && http.response_code == 200
@@ -294,8 +295,8 @@ get '/support/check/version' do
                         split_version[1].to_i.even?
 
             if gem_git_version > gem_local_version
-              $conf[:one_last_version] = git_version
-              $conf[:one_version_time] = Time.now.to_i
+                $conf[:one_last_version] = git_version
+                $conf[:one_version_time] = Time.now.to_i
             end
             return returnRoute($conf[:one_last_version])
         end
