@@ -151,7 +151,9 @@ function set_downloader_args {
         HASHES="$HASHES --limit $4"
     fi
 
-    echo "$HASHES $5 $6"
+    [ -n "$HASHES" ] && echo -ne "$HASHES "
+    [ -n "$5" ]      && echo -ne "\"$5\" "
+    [ -n "$6" ]      && echo -ne "$6"
 }
 
 #------------------------------------------------------------------------------
