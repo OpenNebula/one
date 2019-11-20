@@ -617,9 +617,9 @@ class HookExecutionManager
         host = remote_host.text unless remote_host.nil?
 
         if hook.remote?
-            rc = hook.execute(@conf[:remote_hook_base_path], params, host)
+            rc = hook.execute(@conf[:remote_hook_base_path], args, host)
         else
-            rc = hook.execute(@conf[:hook_base_path], params, host)
+            rc = hook.execute(@conf[:hook_base_path], args, host)
         end
 
         xml_response = build_response_body(args, rc, host, !host.empty?, true)
