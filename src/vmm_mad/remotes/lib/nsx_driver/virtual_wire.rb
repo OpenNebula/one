@@ -86,7 +86,6 @@ module NSXDriver
             @tz_id = ls_tz
             @tenant_id = 'virtual wire tenant'
             @guest_vlan_allowed = false
-
         end
 
         # Get the logical switch id from its name
