@@ -1695,7 +1695,7 @@ module VCenterDriver
             vm.config.hardware.device.each do |disk|
                 if is_disk_or_cdrom?(disk)
                     # Let's try to find if disks is persistent
-                    source_unescaped = disk.backing.fileName.sub(/^\[(.*?)\] /, "")
+                    source_unescaped = disk.backing.fileName.sub(/^\[(.*?)\] /, "") rescue next
                     source = VCenterDriver::FileHelper.escape_path(source_unescaped)
 
                     persistent = VCenterDriver::VIHelper.find_persistent_image_by_source(source, ipool)
