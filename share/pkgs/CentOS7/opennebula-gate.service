@@ -8,6 +8,8 @@ AssertFileNotEmpty=/var/lib/one/.one/onegate_auth
 Type=simple
 Group=oneadmin
 User=oneadmin
+Restart=on-failure
+RestartSec=5s
 ExecStartPre=-/usr/sbin/logrotate -f /etc/logrotate.d/opennebula-gate -s /var/lib/one/.logrotate.status
 ExecStart=/usr/bin/ruby /usr/lib/one/onegate/onegate-server.rb
 
