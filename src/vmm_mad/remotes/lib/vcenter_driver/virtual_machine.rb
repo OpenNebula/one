@@ -930,34 +930,6 @@ module VCenterDriver
             {}
         end
 
-        def reference_disks_all(template_ref = nil, execute = true)
-            extraconfig   = []
-            spec          = {}
-
-            # Get unmanaged disks in OpenNebula's VM template
-            xpath = "TEMPLATE/DISK[OPENNEBULA_MANAGED=\"NO\" or OPENNEBULA_MANAGED=\"no\"]"
-            unmanaged_disks = one_item.retrieve_xmlelements(xpath)
-
-            managed = false
-            extraconfig + reference_disks(template_ref, unmanaged_disks, managed)
-
-            # Get managed disks in OpenNebula's VM template
-            xpath = "TEMPLATE/DISK[OPENNEBULA_MANAGED=\"YES\" or OPENNEBULA_MANAGED=\"yes\"]"
-            managed_disks = one_item.retrieve_xmlelements(xpath)
-
-            managed = true
-            extraconfig + reference_disks(template_ref, managed_disks, managed)
-
-            # Save in extraconfig the key for unmanaged disks
-            unless extraconfig.empty?
-                spec[:extraConfig] = extraconfig unless extraconfig.empty?
-
-                return spec unless execute
-
-                @item.ReconfigVM_Task(:spec => spec).wait_for_completion
-            end
-        end
-
         # Build extraconfig section to reference disks
         # by key and avoid problems with changing paths
         # (mainly due to snapshots)
@@ -2270,7 +2242,6 @@ module VCenterDriver
 
         def shutdown
             if !is_powered_off?
-                reference_disks_all
                 begin
                     if vm_tools?
                         @item.ShutdownGuest
@@ -2295,7 +2266,6 @@ module VCenterDriver
         end
 
         def reset
-            reference_disks_all
             @item.ResetVM_Task.wait_for_completion
         end
 
@@ -2304,12 +2274,10 @@ module VCenterDriver
         end
 
         def reboot
-            reference_disks_all
             @item.RebootGuest
         end
 
         def poweron(set_running = false)
-            reference_disks_all
             begin
                 @item.PowerOnVM_Task.wait_for_completion
             rescue RbVmomi::Fault => e
