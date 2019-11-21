@@ -310,7 +310,7 @@ class BackEndMySQL < OneDBBacKEnd
             table_enc = row[:character_set_name]
         end
 
-        if db_enc != table_enc
+        if db_enc != table_enc && !table_enc.empty?
             raise "Table and database charset (#{db_enc}, #{table_enc}) differs"
         end
 
