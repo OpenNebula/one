@@ -177,7 +177,7 @@ class ClusterComputeResource
                     return false
                 end
             rescue StandardError => e
-                @nsx_status = 'NSX_STATUS = Error connecting to ' \
+                @nsx_status = 'NSX_STATUS = "Error connecting to ' \
                               "NSX_MANAGER\"\n"
                 return false
             end
@@ -194,7 +194,7 @@ class ClusterComputeResource
                     return false
                 end
             rescue StandardError => e
-                @nsx_status = 'NSX_STATUS = Error connecting to '\
+                @nsx_status = 'NSX_STATUS = "Error connecting to '\
                               "NSX_MANAGER\"\n"
                 return false
             end
