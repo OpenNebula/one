@@ -255,9 +255,14 @@ class BackEndMySQL < OneDBBacKEnd
 
     def backup(bck_file, federated = false)
         cmd = "mysqldump -u #{@user} -p'#{@passwd}' -h #{@server} " <<
-              "-P #{@port} --databases --add-drop-table #{@db_name} "
+              "-P #{@port} "
 
-        cmd << FEDERATED_TABLES.join(" ") if federated
+        if federated
+            cmd << " --add-drop-table #{@db_name} "
+            cmd << FEDERATED_TABLES.join(' ')
+        else
+            cmd << "--add-drop-database --databases --add-drop-table #{@db_name} "
+        end
 
         cmd << " > #{bck_file}"
 
