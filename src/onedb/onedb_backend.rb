@@ -301,6 +301,7 @@ class BackEndMySQL < OneDBBacKEnd
         @db.fetch('select default_character_set_name FROM information_schema.SCHEMATA'\
           " WHERE schema_name = \"#{@db_name}\"") do |row|
             db_enc = row[:default_character_set_name]
+            db_enc ||= row[:DEFAULT_CHARACTER_SET_NAME]
         end
 
         @db.fetch('select CCSA.character_set_name FROM information_schema.`TABLES`'\
@@ -308,6 +309,7 @@ class BackEndMySQL < OneDBBacKEnd
         'WHERE CCSA.collation_name = T.table_collation AND T.table_schema = '\
         "\"#{@db_name}\" AND T.table_name = \"system_attributes\"") do |row|
             table_enc = row[:character_set_name]
+            table_enc ||= row[:CHARACTER_SET_NAME]
         end
 
         if db_enc != table_enc && !table_enc.empty?
