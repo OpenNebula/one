@@ -113,15 +113,14 @@ def normalize_list(list_format)
     list = []
     list_format.split(',').each do |range|
         arr = range.split('-')
+
         if arr.length > 1
-            for entry in arr[0]..arr[1] do
-                list << entry
-            end
+            (arr[0].to_i..arr[1].to_i).each {|entry| list << entry }
         else
-            list.concat(arr)
+            list. << arr[0].to_i
         end
     end
-    list
+    list.uniq
 end
 
 # ------------------------------------------------------------------------------
