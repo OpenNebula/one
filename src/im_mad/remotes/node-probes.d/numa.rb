@@ -117,7 +117,7 @@ def normalize_list(list_format)
         if arr.length > 1
             (arr[0].to_i..arr[1].to_i).each {|entry| list << entry }
         else
-            list. << arr[0].to_i
+            list << arr[0].to_i
         end
     end
     list.uniq
@@ -142,7 +142,7 @@ def cpu_topology(nodes, node_id)
     Dir.foreach(cpu_path) do |cp|
         /cpu(?<cpu_id>\d+)/ =~ cp
         next unless cpu_id
-        next if cpu_visited.include? cpu_id
+        next if cpu_visited.include? cpu_id.to_i
 
         begin
             core_path = "#{cpu_path}/#{cp}/topology"
