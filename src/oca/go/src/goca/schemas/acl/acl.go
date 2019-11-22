@@ -35,7 +35,7 @@ type ACL struct {
 	String   string   `xml:"STRING,omitempty"`
 }
 
-type Users uint
+type Users uint64
 
 const (
 	UID        Users = 0x100000000
@@ -44,7 +44,7 @@ const (
 	ClusterUsr Users = 0x800000000
 )
 
-type Resources uint
+type Resources uint64
 
 const (
 	VM             Resources = 0x1000000000
@@ -67,7 +67,7 @@ const (
 	VNTemplate     Resources = 0x40000000000000
 )
 
-type Rights uint
+type Rights uint64
 
 const (
 	Use    Rights = 0x1 // Auth. to use an object
