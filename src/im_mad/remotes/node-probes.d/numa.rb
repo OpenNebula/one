@@ -109,6 +109,21 @@ def huge_pages(nodes, node_id)
     end
 end
 
+def normalize_list(list_format)
+    list = []
+    list_format.split(',').each do |range|
+        arr = range.split('-')
+        if arr.length > 1
+            for entry in arr[0]..arr[1] do
+                list << entry
+            end
+        else
+            list.concat(arr)
+        end
+    end
+    list
+end
+
 # ------------------------------------------------------------------------------
 # CPU topology
 # ------------------------------------------------------------------------------
@@ -134,7 +149,7 @@ def cpu_topology(nodes, node_id)
             core_path = "#{cpu_path}/#{cp}/topology"
 
             siblings = File.read("#{core_path}/thread_siblings_list").chomp
-            siblings = siblings.split(',')
+            siblings = normalize_list(siblings)
 
             cpu_visited.concat(siblings)
 
