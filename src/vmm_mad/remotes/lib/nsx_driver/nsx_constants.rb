@@ -40,8 +40,8 @@ module NSXDriver
         # CONSTANTS
         NSXT = 'NSX-T'
         NSXV = 'NSX-V'
-        HEADER_JSON = { :'Content-Type' => 'application/json' }
-        HEADER_XML = { :'Content-Type' => 'application/xml' }
+        HEADER_JSON = { 'Content-Type' => 'application/json' }
+        HEADER_XML = { 'Content-Type' => 'application/xml' }
         # NSX Manager
         NSXT_EXTENSION_LIST = 'com.vmware.nsx.management.nsxt'
         NSXV_EXTENSION_LIST = 'com.vmware.vShieldManager'
