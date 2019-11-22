@@ -231,11 +231,11 @@ func (t *Template) AddIOGraphic(key keys.IOGraphics, value string) error {
 	return t.Template.AddPairToVec(keys.IOGraphicsVec, string(key), value)
 }
 
-func (t *Template) GetIOGraphic(key keys.IOInput) (string, error) {
+func (t *Template) GetIOGraphic(key keys.IOGraphics) (string, error) {
 	return t.Template.GetStrFromVec(string(keys.IOGraphicsVec), string(key))
 }
 
-func (t *Template) AddIOInput(key keys.IOGraphics, value string) error {
+func (t *Template) AddIOInput(key keys.IOInput, value string) error {
 	return t.Template.AddPairToVec(keys.IOGraphicsVec, string(key), value)
 }
 
