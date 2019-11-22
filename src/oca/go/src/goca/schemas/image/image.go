@@ -40,7 +40,7 @@ type Image struct {
 	Name           string              `xml:"NAME"`
 	LockInfos      *shared.Lock        `xml:"LOCK,omitempty"`
 	Permissions    *shared.Permissions `xml:"PERMISSIONS,omitempty"`
-	Type           *int                `xml:"TYPE,omitempty"`
+	Type           string              `xml:"TYPE,omitempty"`
 	DiskType       *int                `xml:"DISK_TYPE,omitempty"`
 	Persistent     *int                `xml:"PERSISTENT,omitempty"`
 	RegTime        int                 `xml:"REGTIME,omitempty"`
