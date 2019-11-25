@@ -24,7 +24,7 @@ import (
 	"time"
 )
 
-var testClient = NewClient(NewConfig("", "", ""))
+var testClient = NewDefaultClient(NewConfig("", "", ""))
 var testCtrl = NewController(testClient)
 
 // Appends a random string to a name

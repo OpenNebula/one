@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	client := goca.NewClient(
+	client := goca.NewDefaultClient(
 		goca.NewConfig("", "", ""),
 	)
 	controller := goca.NewController(client)
