@@ -21,13 +21,6 @@ import (
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm/keys"
 )
 
-type UserTemplateKeys string
-
-const (
-	Error        UserTemplateKeys = "ERROR"
-	SchedMessage UserTemplateKeys = "SCHED_MESSAGE"
-)
-
 // UserTemplate contains common and custom attributes
 type UserTemplate struct {
 	dyn.Template

@@ -51,7 +51,7 @@ func (ac *ACLsController) Info() (*acl.Pool, error) {
 // * user: User component of the new rule. A string containing a hex number.
 // * resource: Resource component of the new rule. A string containing a hex number.
 // * rights: Rights component of the new rule. A string containing a hex number.
-func (ac *ACLsController) CreateRule(user acl.Users, resource acl.Resources, rights acl.Rights) (int, error) {
+func (ac *ACLsController) CreateRule(user, resource, rights string) (int, error) {
 	response, err := ac.c.Client.Call("one.acl.addrule", user, resource, rights)
 	if err != nil {
 		return 0, err

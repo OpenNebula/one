@@ -21,16 +21,7 @@ import (
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/hook/keys"
 )
 
-type Types string
-
-const (
-	System Types = "SYSTEM"
-	Image  Types = "IMAGE"
-	File   Types = "FILE"
-)
-
 // Template is a hook template
-// Example of reservation: https://github.com/OpenNebula/addon-storpool/blob/ba9dd3462b369440cf618c4396c266f02e50f36f/misc/reserved.sh
 type Template struct {
 	dyn.Template
 }
