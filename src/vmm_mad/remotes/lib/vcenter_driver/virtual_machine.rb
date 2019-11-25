@@ -235,15 +235,16 @@ module VCenterDriver
             @vi_client.vim.serviceContent.about.instanceUuid
         end
 
+        # @return [Hash (String => String)] Hashmap with the managed and unmanaged keys
         def get_disk_keys
-            unmanaged_keys = {}
+            keys = {}
             @item.config.extraConfig.each do |val|
                 u = val[:key].include?("opennebula.disk")
                 m = val[:key].include?("opennebula.mdisk")
-                unmanaged_keys[val[:key]] = val[:value] if u || m
+                keys[val[:key]] = val[:value] if u || m
             end
 
-            return unmanaged_keys
+            keys
         end
 
         ############################################################################
@@ -657,7 +658,7 @@ module VCenterDriver
         # perform a query to vCenter asking for the OpenNebula disk
         #
         # @param one_disk [XMLelement]  The OpenNebula object representation of the disk
-        # @param keys [Hash (String => String)] Hashmap with the unmanaged keys
+        # @param keys [Hash (String => String)] Hashmap with the managed and unmanaged keys
         # @param vc_disks [Array (vcenter_disks)] Array of the machine real disks
         # see get_vcenter_disks method
         #
@@ -928,6 +929,25 @@ module VCenterDriver
             end
 
             {}
+        end
+
+        def reference_all_disks
+            extraconfig = []
+            disks_each(:synced?) do |disk|
+                begin
+                    key_prefix = disk.managed? ? "opennebula.mdisk." : "opennebula.disk."
+                    k = "#{key_prefix}#{disk.id}"
+                    v = "#{disk.key}"
+
+                    extraconfig << {key: k, value: v}
+                rescue StandardError => e
+                    next
+                end
+            end
+
+            spec_hash = {:extraConfig => extraconfig}
+            spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+            @item.ReconfigVM_Task(:spec => spec).wait_for_completion
         end
 
         # Build extraconfig section to reference disks
