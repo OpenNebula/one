@@ -98,7 +98,7 @@ if ! virsh -c ${LIBVIRT_URI} blockcopy ${DEPLOY_ID} ${DISK_TARGET} ${SRC_TEMP_PA
         $CP $SRC_PATH $SRC_TEMP_PATH
     else
         echo "Could not domfsfreeze or suspend domain" >&2
-        exit 1
+        exit 0
     fi
 fi
 EOF
