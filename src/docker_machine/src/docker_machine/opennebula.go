@@ -109,7 +109,7 @@ func (d *Driver) buildConfig() {
 
 func (d *Driver) getController() *goca.Controller {
 	d.buildConfig()
-	client := goca.NewClient(d.Config)
+	client := goca.NewDefaultClient(d.Config)
 
 	return goca.NewController(client)
 }
