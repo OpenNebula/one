@@ -298,10 +298,10 @@ get '/support/check/version' do
                 $conf[:one_last_version] = git_version
                 $conf[:one_version_time] = Time.now.to_i
             end
-            return returnRoute($conf[:one_last_version])
+            return return_route($conf[:one_last_version])
         end
     end
-    return returnRoute(0, 400)
+    return return_route(0, 400)
 end
 
 post '/support/request/:id/action' do
