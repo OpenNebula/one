@@ -43,27 +43,10 @@ require 'nsx_driver'
 
 # GETTING DATA
 
-# read input from ARGF
-text = ARGF.read
-
-# prepare new stdin to satisfy pry
-pry_fd_stdin = IO.sysopen("/dev/tty")
-pry_stdin = IO.new(pry_fd_stdin, "r")
-
-# load pry and cheat it with our stdio
-require 'pry'
-Pry.config.input = pry_stdin
-
-binding.pry
-
-
 # Changes due to new hooks
 # arguments_raw = Base64.decode64(STDIN.read)
 arguments_raw = Base64.decode64(text)
 arguments_xml = Nokogiri::XML(arguments_raw)
-
-require 'pry-byebug'
-binding.pry
 
 # Required to construct security group object
 id = arguments_xml.xpath('//PARAMETER[TYPE="OUT" and POSITION="2"]/VALUE').text
@@ -82,7 +65,6 @@ sg_description = one_sg_xml.xpath('//DESCRIPTION').text
 # Security group rules
 rules = one_sg_xml.xpath('//RULE')
 rules.each do |rule|
-    binding.pry
     # TCP | UDP | ICMP | ICMPv6 | IPSEC | ALL
     sg_protocol = rule.xpath('PROTOCOL').text
     # OpenNebula network ID
