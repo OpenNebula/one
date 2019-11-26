@@ -163,13 +163,13 @@ class MySqlDB : public SqlDB
 {
 public:
 
-    MySqlDB(
-            string server,
-            int    port,
-            string user,
-            string password,
-            string database,
-            int    connections)
+    MySqlDB(const string& _server,
+            int           _port,
+            const string& _user,
+            const string& _password,
+            const string& _database,
+            const string& _encoding,
+            int           _connections)
     {
         throw runtime_error("Aborting oned, MySQL support not compiled!");
     };
