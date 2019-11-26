@@ -21,7 +21,7 @@ require 'base64'
 
 UNSUPPORTED_RUBY = !(RUBY_VERSION =~ /^1.8/).nil?
 GITHUB_TAGS_URL = 'https://api.github.com/repos/opennebula/one/tags'
-ENTREPRISE_REPO_URL = 'https://downloads.opennebula.systems/repo/<VERSION>/'
+ENTREPRISE_REPO_URL = 'https://downloads.opennebula.systems/repo/'
 
 begin
     require 'zendesk_api'
@@ -220,7 +220,7 @@ get '/support/check' do
         major_version = version.slice(0..version.rindex('.') - 1)
 
         full_version = "#{major_version}.#{minor_version}"
-        url = ENTREPRISE_REPO_URL.sub('<VERSION>', full_version)
+        url = ENTREPRISE_REPO_URL
         begin
             http = Curl.get(url) do |request|
                 if !$conf[:proxy].nil? && !$conf[:proxy].empty?
