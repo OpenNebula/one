@@ -214,15 +214,8 @@ get '/support/check' do
             return [200, JSON.pretty_generate(:pass => true)]
         end
 
-        version = one_version.slice(0..one_version.rindex('.') - 1)
-        minor_version = version.slice(version.rindex('.') + 1..-1).to_i
-        minor_version -= 1 unless minor_version.even?
-        major_version = version.slice(0..version.rindex('.') - 1)
-
-        full_version = "#{major_version}.#{minor_version}"
-        url = ENTREPRISE_REPO_URL
         begin
-            http = Curl.get(url) do |request|
+            http = Curl.get(ENTREPRISE_REPO_URL) do |request|
                 if !$conf[:proxy].nil? && !$conf[:proxy].empty?
                     request.proxy_url = $conf[:proxy]
                 end
