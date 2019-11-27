@@ -903,12 +903,13 @@ void Request::success_response(const string& val, RequestAttributes& att)
 {
     vector<xmlrpc_c::value> arrayData;
     ostringstream oss;
+    string * b64 = one_util::base64_encode(val);
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
     make_parameter(oss, 1, "true");
 
     arrayData.push_back(static_cast<xmlrpc_c::value_string>(val));
-    make_parameter(oss, 2, one_util::escape_xml(val));
+    make_parameter(oss, 2, *b64);
 
     arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
     make_parameter(oss, 3, SUCCESS);
@@ -918,6 +919,8 @@ void Request::success_response(const string& val, RequestAttributes& att)
     *(att.retval)  = arrayresult;
     att.success    = true;
     att.retval_xml = oss.str();
+
+    delete b64;
 }
 
 /* -------------------------------------------------------------------------- */
