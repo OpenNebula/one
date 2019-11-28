@@ -414,11 +414,22 @@ class OneDBLive
                 c.default_xml.noblanks
             end
 
+            append = 1
             doc.xpath(xpath).each do |e|
                 if options[:delete]
                     e.remove
                 else
                     e.content = value
+                end
+                append = 0
+            end
+
+            if append == 1
+                xarr = xpath.split('/')
+                key = xarr.pop
+                doc.xpath(xarr.join('/')).each do |e|
+                    val = doc.create_cdata("#{value}")
+                    e.add_child("<#{key.upcase}>#{val}</#{key.upcase}>")
                 end
             end
 
