@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ -z "${ONE_LOCATION}" ]; then
+    LIB_LOCATION=/usr/lib/one
+else
+    LIB_LOCATION=$ONE_LOCATION/lib
+fi
+
+. $LIB_LOCATION/sh/scripts_common.sh
+
+error_message "Cannot delete app from Virtalus marketplace"
+
+exit -1
