@@ -191,8 +191,8 @@ CONTEXT = [
     # lxd://https://images.linuxcontainers.org/images/ubuntu/xenial/amd64/default/\
     #    ./20181214_07:42/rootfs.tar.xz?size=5120&filesystem=ext4&format=raw
     def app_url(path)
-        "\\\"lxd://#{@options[:url]}#{path}?size=#{@options[:sizemb]}" \
-        "&filesystem=#{@options[:fs]}&format=#{@options[:format]}\\\""
+        "lxd://#{@options[:url]}#{path}?size=#{@options[:sizemb]}" \
+        "&filesystem=#{@options[:fs]}&format=#{@options[:format]}"
     end
 
     # Returns build date based on image path
