@@ -22,6 +22,15 @@ define(function(require) {
   var TemplateUtils = require("utils/template-utils");
   var WizardFields = require('utils/wizard-fields');
   var Sunstone = require('sunstone');
+  var ScheduleActions = require("utils/schedule_action");
+  
+  /*
+    CONSTANTS
+   */
+
+  var classButton = 'button warning leases';
+  var classMessage = 'status-leases';
+  var idElementSchedActions = '#sched_temp_actions_body';
 
   /*
     CONSTRUCTOR
@@ -43,8 +52,15 @@ define(function(require) {
       config.system_config.leases && 
       (config.system_config.leases.suspense || config.system_config.leases.terminate)
     ){
-      return "<button class='button warning leases'>"+Locale.tr("Lease")+"</button>";
+      return $("<div />").append(
+        $("<button />", {class: classButton}).text(Locale.tr("Add lease")).add(
+          $("<b />",{class: classMessage})
+        )
+      ).html();
     }
+  }
+  function parseVarToJqueryClass(constant){
+    return "."+constant.replace(/ /g, '.');
   }
   function _actions(form, res, act){
     if(
@@ -56,8 +72,35 @@ define(function(require) {
       config.system_config && 
       config.system_config.leases
     ){
-      $(".leases").off("click").on("click", function(e){
+      $(parseVarToJqueryClass(classButton)).off("click").on("click", function(e){
         e.preventDefault();
+
+        var confLeases = config.system_config.leases;
+        var confLeasesKeys = Object.keys(confLeases);
+
+        var showLeaseMessage = function(){
+          var element = $(parseVarToJqueryClass(classMessage));
+          element.text(Locale.tr("Added scheduled action")).show().css({display: 'block'}).fadeOut( 5000, function() {
+            $(this).empty();
+          });
+        };
+
+        var addInTemplate = function(){
+          var last = 0;
+          confLeasesKeys.forEach(function(schedAction){
+            if(confLeases[schedAction] && confLeases[schedAction].time){
+              var schedActionTime = parseInt(confLeases[schedAction].time,10);
+              var newAction = {
+                TIME: last === 0? confLeases[schedAction].time : "+"+(schedActionTime+last),
+                ACTION: schedAction
+              };
+              last = schedActionTime;
+              $(idElementSchedActions).append(ScheduleActions.fromJSONtoActionsTable(newAction));
+              showLeaseMessage();
+            }
+          });
+        };
+
         var type = form.constructor.name;
         var resource = null;
         var action = null;
@@ -72,18 +115,19 @@ define(function(require) {
             id = form.resourceId || null;
           break;
           case 'Panel':
-            resource = res || null; // panelForm.action //validate type aciton (create or update)
-            action = act || null; //panelForm.resource; //validate resource template or vm
+            resource = res || null;
+            action = act || null;
             template = (form.element && form.element.USER_TEMPLATE? form.element.USER_TEMPLATE : null );
             id = (form.element && form.element.ID? form.element.ID : null);
           break;
           default:
           break;
         }
+
         if(resource && action && template && id){
           switch (resource.toLowerCase()) {
             case "template":
-              console.log("Aca se tiene que añadir la scheduled actions al template", resource, action, template);
+              addInTemplate();
             break;
             case "vm":
               if(action.toLowerCase() === "update"){
@@ -94,14 +138,19 @@ define(function(require) {
                   : 
                     0
                 );
-                Object.keys(config.system_config.leases).forEach(function(sched_action){
-                  newSchedActions.push(
-                    {
-                      ACTION: sched_action,
-                      TIME: config.system_config.leases[sched_action],
-                      ID: (index++).toString()
-                    }
-                  );
+                var last = 0;
+                confLeasesKeys.forEach(function(schedAction){
+                  if(confLeases[schedAction] && confLeases[schedAction].time){
+                    var schedActionTime = parseInt(confLeases[schedAction].time,10);
+                    newSchedActions.push(
+                      {
+                        ACTION: schedAction,
+                        TIME: last === 0? confLeases[schedAction].time : "+"+(schedActionTime+last),
+                        ID: (index++).toString()
+                      }
+                    );
+                    last = schedActionTime;
+                  }
                 });
                 template.SCHED_ACTION = (
                   template.SCHED_ACTION? 
@@ -111,16 +160,15 @@ define(function(require) {
                 );
                 template = TemplateUtils.templateToString(template);
                 Sunstone.runAction("VM.update_template", id, template);
+                showLeaseMessage();
               }else{
-                console.log("Se tiene que añadir al template");
+                addInTemplate();
               }
             break;
             default:
             break;
           }
         }
-        console.log("FORM", form);
-
       });
     }
   }
