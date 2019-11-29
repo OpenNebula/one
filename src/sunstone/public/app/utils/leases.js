@@ -23,13 +23,13 @@ define(function(require) {
   var WizardFields = require('utils/wizard-fields');
   var Sunstone = require('sunstone');
   var ScheduleActions = require("utils/schedule_action");
+  var notifier = require("utils/notifier");
   
   /*
     CONSTANTS
    */
 
   var classButton = 'button warning leases';
-  var classMessage = 'status-leases';
   var idElementSchedActions = '#sched_temp_actions_body';
 
   /*
@@ -52,11 +52,7 @@ define(function(require) {
       config.system_config.leases && 
       (config.system_config.leases.suspense || config.system_config.leases.terminate)
     ){
-      return $("<div />").append(
-        $("<button />", {class: classButton}).text(Locale.tr("Add lease")).add(
-          $("<b />",{class: classMessage})
-        )
-      ).html();
+      return $("<button />", {class: classButton}).text(Locale.tr("Add lease")).prop('outerHTML');
     }
   }
   function parseVarToJqueryClass(constant){
@@ -79,14 +75,12 @@ define(function(require) {
         var confLeasesKeys = Object.keys(confLeases);
 
         var showLeaseMessage = function(){
-          var element = $(parseVarToJqueryClass(classMessage));
-          element.text(Locale.tr("Added scheduled action")).show().css({display: 'block'}).fadeOut( 5000, function() {
-            $(this).empty();
-          });
+          notifier.notifyCustom(Locale.tr("Added scheduled actions"),"");
         };
 
         var addInTemplate = function(){
           var last = 0;
+          var pass = false;
           confLeasesKeys.forEach(function(schedAction){
             if(confLeases[schedAction] && confLeases[schedAction].time){
               var schedActionTime = parseInt(confLeases[schedAction].time,10);
@@ -96,9 +90,12 @@ define(function(require) {
               };
               last = schedActionTime;
               $(idElementSchedActions).append(ScheduleActions.fromJSONtoActionsTable(newAction));
-              showLeaseMessage();
+              pass = true;
             }
           });
+          if(pass){
+            showLeaseMessage();
+          }
         };
 
         var type = form.constructor.name;
