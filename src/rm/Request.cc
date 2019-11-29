@@ -908,7 +908,7 @@ void Request::success_response(const string& val, RequestAttributes& att)
     make_parameter(oss, 1, "true");
 
     arrayData.push_back(static_cast<xmlrpc_c::value_string>(val));
-    make_parameter(oss, 2, one_util::escape_xml(val));
+    make_parameter(oss, 2, val);
 
     arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
     make_parameter(oss, 3, SUCCESS);
