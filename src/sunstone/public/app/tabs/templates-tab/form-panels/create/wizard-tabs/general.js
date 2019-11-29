@@ -30,6 +30,7 @@ define(function(require) {
   var UsersTable = require("tabs/users-tab/datatable");
   var GroupTable = require("tabs/groups-tab/datatable");
   var OpenNebulaHost = require("opennebula/host");
+  var Leases = require("utils/leases");
 
   /*
     TEMPLATES
@@ -89,7 +90,8 @@ define(function(require) {
       'capacityCreateHTML': CapacityCreate.html(),
       'logos': Config.vmLogos,
       'usersDatatable': this.usersTable.dataTableHTML,
-      'groupDatatable': this.groupTable.dataTableHTML
+      'groupDatatable': this.groupTable.dataTableHTML,
+      'leases': Leases.html()
     });
   }
 
@@ -106,6 +108,8 @@ define(function(require) {
         .prop('wizard_field_disabled', true);
     }
 
+    Leases.actions(panelForm);
+
     if (panelForm.resource == "VirtualRouterTemplate"){
       $("input[wizard_field=VROUTER]", context).attr("checked", "checked");
     }
@@ -114,11 +118,11 @@ define(function(require) {
   }
   function convertCostNumber(number){
     if(number >= 1000000){
-      number = (number/1000000).toFixed(6)
+      number = (number/1000000).toFixed(6);
       return number.toString()+"M";
     }
     else if(number >= 1000){
-      number = (number/1000).toFixed(6)
+      number = (number/1000).toFixed(6);
       return number.toString()+"K";
     }
     return number.toFixed(6);
