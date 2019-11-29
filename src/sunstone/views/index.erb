@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HyperCX Bento</title>
+    <title>HyperCX Bento: Cloud Operations Center</title>
 
     <!--[if IE]><link rel="shortcut icon" href="images/favicon.ico"><![endif]-->
     <link rel="apple-touch-icon-precomposed" href="images/apple-touch-icon-precomposed.png">
@@ -15,7 +15,7 @@
     <% end %>
 
     <% view = $views_config.view(session[:user], session[:user_gname], session[:default_view]) %>
-    <% halt 500, "OpenNebula is unreachable" if view.nil? %>
+    <% halt 500, "HyperCX is unreachable" if view.nil? %>
     <script type="text/javascript">
       var csrftoken = '<%= session[:csrftoken] %>';
       var view = JSON.parse('<%= view.to_json %>')
@@ -87,8 +87,9 @@
           </ul>
         </div>
       <div id="footer" class="text-center large-12 columns">
-        <a href="http://virtalus.com" target="_blank">HyperCX Bento</a>
-        <p>powered by <a href="http://virtalus.com" target="_blank">Virtalus</a>.</p>
+        <a href="http://virtalus.com" target="_blank">HyperCX 2.4.5</a>
+        <div id="latest_version" style="display:none;"></div>
+        <p>by <a href="http://virtalus.com" target="_blank">Virtalus</a>.</p>
       </div>
       </div>
 
