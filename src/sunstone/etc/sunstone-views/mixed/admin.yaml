@@ -9,12 +9,12 @@ enabled_tabs:
     - dashboard-tab
     - instances-top-tab
     - vms-tab
-    - oneflow-services-tab
-      # - vrouters-tab
+      #- oneflow-services-tab
+      #- vrouters-tab
     - templates-top-tab
     - templates-tab
-    - oneflow-templates-tab
-      # - vrouter-templates-tab
+      #- oneflow-templates-tab
+      #- vrouter-templates-tab
     - storage-top-tab
     - datastores-tab
     - images-tab
@@ -23,7 +23,7 @@ enabled_tabs:
     - marketplaceapps-tab
     - network-top-tab
     - vnets-tab
-      # - vnets-templates-tab
+      #- vnets-templates-tab
     - vnets-topology-tab
     - secgroups-tab
     - infrastructure-top-tab
