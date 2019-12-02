@@ -26,6 +26,19 @@ module NSXDriver
             @one_section_name = NSXDriver::NSXConstants::ONE_SECTION_NAME
         end
 
+        def self.new_child(nsx_client)
+            case nsx_client
+            when NSXDriver::NSXTClient
+                NSXDriver::NSXTdfw.new(nsx_client)
+            when NSXDriver::NSXVClient
+                NSXDriver::NSXVdfw.new(nsx_client)
+            else
+                error_msg = "Unknown object type: #{nsx_client}"
+                error = NSXDriver::NSXError::UnknownObject.new(error_msg)
+                raise error
+            end
+        end
+
         # Sections
         # Creates OpenNebula section if not exists and returns
         # its section_id. Returns its section_id if OpenNebula
