@@ -108,7 +108,8 @@ module NSXDriver
             response_json = JSON.parse(response.body)
             # If response is different as expected raise the message
             unless check_response(response,
-                                  [NSXDriver::NSXConstants::CODE_CREATED])
+                                  [NSXDriver::NSXConstants::CODE_CREATED,
+                                   NSXDriver::NSXConstants::CODE_OK])
                 error_msg = "\nNSX error code: " \
                             "#{response_json['errorCode']}, " \
                             "\nNSX error details: " \
