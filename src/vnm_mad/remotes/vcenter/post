@@ -1,1 +1,135 @@
-../common/dummy.sh
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# Define libraries location
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+end
+
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+$LOAD_PATH << File.dirname(__FILE__)
+$LOAD_PATH << File.join(File.dirname(__FILE__), '..')
+
+require 'vnmmad'
+require 'nokogiri'
+require 'opennebula'
+require 'vcenter_driver'
+require 'nsx_driver'
+
+template64   = Base64.decode64(STDIN.read)
+deploy_id    = ARGV[0]
+
+template_xml = Nokogiri::XML(template64)
+host_name = template_xml
+            .xpath('//HISTORY_RECORDS/HISTORY[last()]/HOSTNAME').text
+vm_deploy_id = template_xml.xpath('//DEPLOY_ID').text
+
+# Check Host
+one_host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, host_name)
+rc = one_host.info
+if OpenNebula.is_error?(rc)
+    err_msg = rc.message
+    raise err_msg
+end
+
+nsx_status = one_host['TEMPLATE/NSX_STATUS']
+
+# Check network
+network_id = template_xml.xpath('(//TEMPLATE/NIC)[last()]/NETWORK_ID').text
+one_vnet = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualNetwork, network_id)
+rc = one_vnet.info
+if OpenNebula.is_error?(rc)
+    err_msg = rc.message
+    raise err_msg
+end
+
+portgroup_type = one_vnet['TEMPLATE/VCENTER_PORTGROUP_TYPE']
+
+exit 1 unless nsx_status == 'OK'
+exit 1 unless [NSXDriver::NSXConstants::NSXV_LS_TYPE, NSXDriver::NSXConstants::NSXT_LS_TYPE].include?(portgroup_type)
+
+# Security group rules
+rules = template_xml.xpath('//TEMPLATE/SECURITY_GROUP_RULE')
+rules.each do |rule|
+    rule_id = rule.xpath('SECURITY_GROUP_ID').text
+    rule_name = rule.xpath('SECURITY_GROUP_NAME').text
+    rule_type = rule.xpath('RULE_TYPE').text
+    rule_protocol = rule.xpath('PROTOCOL').text
+    if rule_protocol == 'ICMP'
+        rule_icmp_type = rule.xpath('ICMP_TYPE').text
+    end
+    # OpenNebula network ID
+    rule_network_id = rule.xpath('NETWORK_ID').text
+    # Format from:to
+    rule_range_port = rule.xpath('RANGE').text
+    if rule_range_port
+        if rule_range_port.index(':')
+            rule_port_from = rule_range_port[0..rule_range_port.index(':')-1]
+            rule_port_to = rule_range_port[rule_range_port.index(':')+1,rule_range_port.length]
+        else
+            rule_port_from = rule_port_to = rule_range_port
+        end
+    end
+    rule_ip = rule.xpath('IP').text
+    rule_size = rule.xpath('SIZE').text
+    rule_output = "rule_name = #{rule_name}\n" \
+                  "rule_id = #{rule_id}\n" \
+                  "rule_type = #{rule_type}\n" \
+                  "rule_protocol = #{rule_protocol}\n" \
+                  "rule_icmp_type = #{rule_icmp_type}\n" \
+                  "rule_network_id = #{rule_network_id}\n" \
+                  "rule_port_from = #{rule_port_from}:#{rule_port_to}\n" \
+                  "rule_ip = #{rule_ip}\n" \
+                  "rule_size = #{rule_size}\n"
+    File.open("/tmp/post_#{rule_name}_#{rule_id}_#{rule_type}_#{rule_protocol}", 'w') { |f| f.write(rule_output) }
+end
+
+
+
+File.open('/tmp/post1.debug', 'w') { |f| f.write(template64) }
+File.open('/tmp/post2.debug', 'w') { |f| f.write(template_xml) }
+File.open('/tmp/post3.debug', 'w') { |f| f.write(host_name) }
+File.open('/tmp/post4.debug', 'w') { |f| f.write(vm_deploy_id) }
+File.open('/tmp/post5.debug', 'w') { |f| f.write(nsx_status) }
+File.open('/tmp/post6.debug', 'w') { |f| f.write(network_id) }
+File.open('/tmp/post7.debug', 'w') { |f| f.write(portgroup_type) }
+File.open('/tmp/post8.debug', 'w') { |f| f.write(rules) }
+
+# Obtenemos la VM de STDIN
+# Obtenemos el Host desde la VM
+# Comprobamos si NSX_STATUS = OK
+    # Si no es OK salimos dando error
+    # Si es = OK seguimos
+        # Comprobamos si la red es de NSX
+            # Si no es de nsx salimos, no hay nada que hacer
+            # Si es de nsx continuamos

@@ -53,6 +53,7 @@ module NSXDriver
         NSXT_TZS = NSXT_BASE + '/transport-zones'
         # VirtualWire
         NSXV_AUTH = NSXV_BASE + '/services/auth/token'
+        NSXV_LS_TYPE = 'NSX-V'
         NSXV_LS_NAME_XPATH = '//virtualWire/name'
         NSXV_LS_VNI_XPATH = '//virtualWire/vdnId'
         NSXV_LS_BACKING_XPATH = '//virtualWire/vdsContextWithBacking' \
@@ -65,6 +66,7 @@ module NSXDriver
         NSXV_TZ_XPATH = '//virtualWire/vdnScopeId'
         # OpaqueNetwork
         NSXT_AUTH = NSXT_BASE + '/aaa/registration-token'
+        NSXT_LS_TYPE = 'Opaque Network'
         NSXT_LS_SECTION = NSXT_BASE + '/logical-switches/'
         # DFW
         ONE_SECTION_NAME = 'OpenNebula'
