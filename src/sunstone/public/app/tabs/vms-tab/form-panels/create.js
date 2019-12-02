@@ -23,6 +23,9 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var TemplatesTable = require('tabs/templates-tab/datatable');
+  var Leases = require("utils/leases");
+  var OpenNebulaAction = require("opennebula/action");
+
   /*
     CONSTANTS
    */
@@ -74,12 +77,38 @@ define(function(require) {
         $(".nameContainer", context).show();
         $(".persistentContainer", context).show();
 
-         var templatesContext = $(".list_of_templates", context);
+        var templatesContext = $(".list_of_templates", context);
         templatesContext.html("");
         templatesContext.show();
 
         var template_id = $(this).val();
-        that.setTemplateIds(context, [template_id]);
+        if(template_id){
+          that.setTemplateIds(context, [template_id]);
+          var leasesThat = {};
+
+          function FormPanel() {
+            this.name = this.name;
+          }
+
+          Object.assign(leasesThat, that);
+          leasesThat.resource = "vm";
+          leasesThat.resourceId = template_id;
+
+          if(
+            OpenNebulaAction && 
+            OpenNebulaAction.cache && 
+            OpenNebulaAction.cache("VMTEMPLATE") &&
+            OpenNebulaAction.cache("VMTEMPLATE").data && 
+            OpenNebulaAction.cache("VMTEMPLATE").data[template_id] &&
+            OpenNebulaAction.cache("VMTEMPLATE").data[template_id].VMTEMPLATE && 
+            OpenNebulaAction.cache("VMTEMPLATE").data[template_id].VMTEMPLATE.TEMPLATE
+          ){
+            leasesThat.jsonTemplate = OpenNebulaAction.cache("VMTEMPLATE").data[template_id].VMTEMPLATE.TEMPLATE;
+          }
+
+          leasesThat.__proto__ = FormPanel.prototype;
+          Leases.actions(leasesThat);
+        }
     });
 
     Tips.setup(context);

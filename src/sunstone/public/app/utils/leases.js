@@ -30,7 +30,7 @@ define(function(require) {
    */
 
   var classButton = 'button warning leases';
-  var idElementSchedActions = '#sched_temp_actions_body';
+  var idElementSchedActions = '#sched_temp_actions_body, #sched_inst_actions_body';
 
   /*
     CONSTRUCTOR
@@ -55,9 +55,11 @@ define(function(require) {
       return $("<button />", {class: classButton}).text(Locale.tr("Add lease")).prop('outerHTML');
     }
   }
+
   function parseVarToJqueryClass(constant){
     return "."+constant.replace(/ /g, '.');
   }
+
   function _actions(form, res, act){
     if(
       form &&
@@ -108,7 +110,16 @@ define(function(require) {
           case 'FormPanel':
             resource = form.resource || null;
             action = form.action || null;
-            template = (form.wizardElement ? WizardFields.retrieve(form.wizardElement) : null);
+            template = ( form.jsonTemplate ? 
+                  form.jsonTemplate 
+                : 
+                  (
+                    form.wizardElement ? 
+                      WizardFields.retrieve(form.wizardElement) 
+                    : 
+                      null
+                  )
+            );
             id = form.resourceId || null;
           break;
           case 'Panel':
@@ -167,6 +178,8 @@ define(function(require) {
           }
         }
       });
+    }else{
+      $(parseVarToJqueryClass(classButton)).off("click").remove();
     }
   }
 });

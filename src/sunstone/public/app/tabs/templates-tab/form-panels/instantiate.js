@@ -41,9 +41,9 @@ define(function(require) {
   var UsersTable = require("tabs/users-tab/datatable");
   var GroupTable = require("tabs/groups-tab/datatable");
   var Humanize = require("utils/humanize");
-  var TemplateUtils = require("utils/template-utils");
   var UniqueId = require("utils/unique-id");
   var ScheduleActions = require("utils/schedule_action");
+  var Leases = require("utils/leases");
 
   /*
     CONSTANTS
@@ -90,7 +90,8 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
-      "formPanelId": this.formPanelId
+      "formPanelId": this.formPanelId,
+      "leases": Leases.html()
     });
   }
 
@@ -597,10 +598,8 @@ define(function(require) {
   function _onShow(context) {
     Sunstone.disableFormPanelSubmit(this.tabId);
     $("input.instantiate_pers", context).change();
-
     var templatesContext = $(".list_of_templates", context);
     templatesContext.html("");
-
     Tips.setup(context);
     return false;
   }

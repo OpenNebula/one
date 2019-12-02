@@ -126,7 +126,7 @@ define(function(require) {
       var tmp_tmpl = new Array();
 
       $.each(that.element.USER_TEMPLATE.SCHED_ACTION, function(i, element) {
-        if (element.ID != index)
+        if (element.ID && element.ID != index)
           tmp_tmpl[i] = element;
       });
 
