@@ -480,6 +480,17 @@ class DatacenterFolder
                     cluster_id = one_host['CLUSTER_ID']
                 end
 
+                # Remove networks except for onevcenter list_all command
+                if args[:filter]
+                    # Remove NSX networks if NSX_STATUS != "OK"
+                    if one_host && one_host['TEMPLATE/NSX_STATUS'] != 'OK'
+                        networks.delete_if do |_k,v|
+                            v[:network_type] == 'Opaque Network' || \
+                                v[:network_type] == 'NSX-V'
+                        end
+                    end
+                end
+
                 one_cluster = VCenterDriver::ClusterComputeResource.new_from_ref(ref, @vi_client)
                 location = VCenterDriver::VIHelper.get_location(one_cluster.item)
 
