@@ -46,8 +46,22 @@ require 'opennebula'
 require 'vcenter_driver'
 require 'nsx_driver'
 
-template64   = Base64.decode64(STDIN.read)
-deploy_id    = ARGV[0]
+# read input from ARGF
+text = ARGF.read
+
+# prepare new stdin to satisfy pry
+pry_fd_stdin = IO.sysopen("/dev/tty")
+pry_stdin = IO.new(pry_fd_stdin, "r")
+
+# load pry and cheat it with our stdio
+require 'pry'
+Pry.config.input = pry_stdin
+
+binding.pry
+template64 = Base64.decode64(text)
+
+# template64 = Base64.decode64(STDIN.read)
+deploy_id = ARGV[0]
 
 template_xml = Nokogiri::XML(template64)
 host_name = template_xml
@@ -55,31 +69,60 @@ host_name = template_xml
 vm_deploy_id = template_xml.xpath('//DEPLOY_ID').text
 
 # Check Host
-one_host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, host_name)
+one_host = VCenterDriver::VIHelper
+           .find_by_name(OpenNebula::HostPool, host_name)
 rc = one_host.info
 if OpenNebula.is_error?(rc)
     err_msg = rc.message
     raise err_msg
 end
 
+# Exit if NSX_STATUS != OK
 nsx_status = one_host['TEMPLATE/NSX_STATUS']
+exit 1 unless nsx_status == 'OK'
 
 # Check network
 network_id = template_xml.xpath('(//TEMPLATE/NIC)[last()]/NETWORK_ID').text
-one_vnet = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualNetwork, network_id)
+mac_address = template_xml.xpath('(//TEMPLATE/NIC)[last()]/MAC').text
+one_vnet = VCenterDriver::VIHelper
+           .one_item(OpenNebula::VirtualNetwork, network_id)
 rc = one_vnet.info
 if OpenNebula.is_error?(rc)
     err_msg = rc.message
     raise err_msg
 end
 
+# Exit if portgroup is not a NSX-v or NSX-T portgroup
 portgroup_type = one_vnet['TEMPLATE/VCENTER_PORTGROUP_TYPE']
+exit 1 unless [NSXDriver::NSXConstants::NSXV_LS_TYPE,
+               NSXDriver::NSXConstants::NSXT_LS_TYPE]
+              .include?(portgroup_type)
 
-exit 1 unless nsx_status == 'OK'
-exit 1 unless [NSXDriver::NSXConstants::NSXV_LS_TYPE, NSXDriver::NSXConstants::NSXT_LS_TYPE].include?(portgroup_type)
+# Get nsx network id -> logical port logical_switch_id
+nsx_network_id = one_vnet['TEMPLATE/NSX_ID']
+# Get externalID -> logical port attachment_id
+vi_client = VCenterDriver::VIClient.new_from_host(one_host['ID'])
+
+# Get VM logical port
+vm_id = template_xml.xpath('//VM/ID').text
+one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
+rc = one_vm.info
+if OpenNebula.is_error?(rc)
+    err_msg = rc.message
+    raise err_msg
+end
+one_vm_name = one_vm['NAME']
+vm = VCenterDriver::VirtualMachine.new_from_ref(vi_client,
+                                                vm_deploy_id,
+                                                one_vm_name)
+vm_nics = vm.get_vcenter_nics
+vm_nics.each do |vm_nic|
+    externalId = vm_nic.externalId if vm_nic.macAddress == mac_address
+end
 
 # Security group rules
 rules = template_xml.xpath('//TEMPLATE/SECURITY_GROUP_RULE')
+rules_array = []
 rules.each do |rule|
     rule_id = rule.xpath('SECURITY_GROUP_ID').text
     rule_name = rule.xpath('SECURITY_GROUP_NAME').text
@@ -95,7 +138,8 @@ rules.each do |rule|
     if rule_range_port
         if rule_range_port.index(':')
             rule_port_from = rule_range_port[0..rule_range_port.index(':')-1]
-            rule_port_to = rule_range_port[rule_range_port.index(':')+1,rule_range_port.length]
+            rule_port_to = rule_range_port[rule_range_port.index(':')+1,
+                                           rule_range_port.length]
         else
             rule_port_from = rule_port_to = rule_range_port
         end
@@ -111,25 +155,74 @@ rules.each do |rule|
                   "rule_port_from = #{rule_port_from}:#{rule_port_to}\n" \
                   "rule_ip = #{rule_ip}\n" \
                   "rule_size = #{rule_size}\n"
-    File.open("/tmp/post_#{rule_name}_#{rule_id}_#{rule_type}_#{rule_protocol}", 'w') { |f| f.write(rule_output) }
+    File.open("/tmp/post_#{rule_name}_#{rule_id}_#{rule_type}_#{rule_protocol}", 'w') {|f| f.write(rule_output) }
+
+    # Create NSX rule
+    rule_spec =
+        {
+            "display_name": "#{rule_id} - #{rule_name}",
+            "destinations_excluded": false,
+            "sources": [
+              {
+                "target_display_name": '192.168.100.7',
+                "is_valid": true,
+                "target_type": 'IPv4Address',
+                "target_id": '192.168.100.7'
+              }
+            ],
+            "destinations": [
+              {
+                "target_display_name": '192.168.100.8',
+                "is_valid": true,
+                "target_type": 'IPv4Address',
+                "target_id": '192.168.100.8'
+              }
+            ],
+            "ip_protocol": 'IPV4_IPV6',
+            "logged": false,
+            "action": 'ALLOW',
+            "sources_excluded": false,
+            "disabled": false,
+            "direction": 'IN_OUT'
+        }
+    rules_array.push(rule_spec)
 end
 
+File.open('/tmp/post1.debug', 'w') {|f| f.write(template64) }
+File.open('/tmp/post2.debug', 'w') {|f| f.write(template_xml) }
+File.open('/tmp/post3.debug', 'w') {|f| f.write(host_name) }
+File.open('/tmp/post4.debug', 'w') {|f| f.write(vm_deploy_id) }
+File.open('/tmp/post5.debug', 'w') {|f| f.write(nsx_status) }
+File.open('/tmp/post6.debug', 'w') {|f| f.write(network_id) }
+File.open('/tmp/post7.debug', 'w') {|f| f.write(portgroup_type) }
+File.open('/tmp/post8.debug', 'w') {|f| f.write(rules) }
 
+# NSX Actions
+nsx_client = NSXDriver::NSXTClient.new_from_id(one_host['ID'])
+dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
+sec_id = dfw.instance_variable_get(:@one_section_id)
+base_url = dfw.instance_variable_get(:@base_url)
+url_sections = dfw.instance_variable_get(:@url_sections)
+File.open('/tmp/post9.debug', 'w') {|f| f.write(dfw) }
+File.open('/tmp/post10.debug', 'w') {|f| f.write(sec_id) }
+File.open('/tmp/post11.debug', 'w') {|f| f.write(base_url) }
+File.open('/tmp/post12.debug', 'w') {|f| f.write(url_sections) }
 
-File.open('/tmp/post1.debug', 'w') { |f| f.write(template64) }
-File.open('/tmp/post2.debug', 'w') { |f| f.write(template_xml) }
-File.open('/tmp/post3.debug', 'w') { |f| f.write(host_name) }
-File.open('/tmp/post4.debug', 'w') { |f| f.write(vm_deploy_id) }
-File.open('/tmp/post5.debug', 'w') { |f| f.write(nsx_status) }
-File.open('/tmp/post6.debug', 'w') { |f| f.write(network_id) }
-File.open('/tmp/post7.debug', 'w') { |f| f.write(portgroup_type) }
-File.open('/tmp/post8.debug', 'w') { |f| f.write(rules) }
+lp = nsx_client.get('/api/v1/logical-ports')
+
+File.open('/tmp/post13.debug', 'w') {|f| f.write(lp) }
+File.open('/tmp/post14.debug', 'w') {|f| f.write(one_vm) }
+File.open('/tmp/post15.debug', 'w') {|f| f.write(externalId) }
+
+rules_array.each do |rule_spec|
+    dfw.create_rule(rule_spec)
+end
 
 # Obtenemos la VM de STDIN
 # Obtenemos el Host desde la VM
 # Comprobamos si NSX_STATUS = OK
-    # Si no es OK salimos dando error
-    # Si es = OK seguimos
-        # Comprobamos si la red es de NSX
-            # Si no es de nsx salimos, no hay nada que hacer
-            # Si es de nsx continuamos
+# Si no es OK salimos dando error
+# Si es = OK seguimos
+# Comprobamos si la red es de NSX
+# Si no es de nsx salimos, no hay nada que hacer
+# Si es de nsx continuamos
