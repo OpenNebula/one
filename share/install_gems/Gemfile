@@ -54,6 +54,7 @@ gem 'sequel'                              # quota, oneb
 gem 'sinatra'                             # sunstone, cloud, oneflow
 gem 'thin'                                # sunstone, cloud
 gem 'memcache-client'                     # sunstone
+gem 'dalli'                               # sunstone
 gem 'rotp'                                # sunstone
 gem 'amazon-ec2'                          # cloud
 gem 'uuidtools'                           # cloud
