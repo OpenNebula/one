@@ -16,25 +16,17 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    unless defined?(RUBY_LIB_LOCATION)
-        RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
-    end
-
-    GEMS_LOCATION = '/usr/share/one/gems' unless defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    unless defined?(RUBY_LIB_LOCATION)
-        RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
-    end
-
-    GEMS_LOCATION = ONE_LOCATION + '/share/gems' unless defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
-if File.directory?(GEMS_LOCATION)
-    Gem.use_paths(GEMS_LOCATION)
-end
+Gem.use_paths(GEMS_LOCATION) if File.directory?(GEMS_LOCATION)
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << File.dirname(__FILE__)
@@ -84,14 +76,10 @@ begin
 
     puts vm['_ref']
 rescue StandardError => e
-    if (retries += 1) < CONFIG[:retries]
-        message =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " \
-                   "with #{dfile} failed due to \"#{e.message}\"" \
-                   "on the attempt \##{retries}."
-    else
-        message =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " \
-                   "with #{dfile} failed due to \"#{e.message}\"" \
-                   'on the final attempt.'
+    message =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " \
+               "with #{dfile} failed due to \"#{e.message}\"" \
+               "on attempt \##{retries}."
+    unless (retries += 1) < CONFIG[:retries]
         if e.message.include?('ManagedObjectNotFound')
             template_id = drv_action['TEMPLATE/TEMPLATE_ID'].to_i
 
@@ -105,7 +93,7 @@ rescue StandardError => e
                 template_name = resource.name
 
                 message << "\nVerify inside vCenter cluster #{cluster_name} " \
-                           "that the template #{template_name} currently " \
+                           "that template #{template_name} currently " \
                            'exists and has not been deleted'
             end
         end

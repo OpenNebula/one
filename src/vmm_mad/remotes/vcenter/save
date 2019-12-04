@@ -16,19 +16,17 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' unless defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = '/usr/share/one/gems' unless defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' unless defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' unless defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
-if File.directory?(GEMS_LOCATION)
-    Gem.use_paths(GEMS_LOCATION)
-end
+Gem.use_paths(GEMS_LOCATION) if File.directory?(GEMS_LOCATION)
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << File.dirname(__FILE__)
@@ -36,7 +34,6 @@ $LOAD_PATH << File.dirname(__FILE__)
 require 'vcenter_driver'
 
 vm_ref          = ARGV[0]
-vm_id           = ARGV[3]
 vc_cluster_name = ARGV[-1]
 
 drv_action_enc = STDIN.read.delete("\n")
@@ -49,7 +46,7 @@ lcm_state = drv_action['/VMM_DRIVER_ACTION_DATA/VM/LCM_STATE']
 check_valid(lcm_state, 'lcm_state')
 lcm_state_str = OpenNebula::VirtualMachine::LCM_STATE[lcm_state.to_i]
 
-if !(%{'SAVE_SUSPEND', 'SAVE_STOP', 'SAVE_MIGRATE'}).include?(lcm_state_str)
+if !%('SAVE_SUSPEND', 'SAVE_STOP', 'SAVE_MIGRATE').include?(lcm_state_str)
     STDERR.puts "Wrong lcm state #{lcm_state_str} when saving VM"
     exit(-1)
 end
@@ -65,8 +62,9 @@ rescue StandardError => e
               "#{vc_cluster_name} failed due to "\
               "\"#{e.message}\"\n#{e.backtrace.join("\n")}"
     OpenNebula.log_error(message)
-    STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
-
+    if VCenterDriver::CONFIG[:debug_information]
+        STDERR.puts "#{message} #{e.backtrace}"
+    end
     exit(-1)
 ensure
     vi_client.close_connection if vi_client

@@ -16,19 +16,17 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' unless defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = '/usr/share/one/gems' unless defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' unless defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' unless defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
-if File.directory?(GEMS_LOCATION)
-    Gem.use_paths(GEMS_LOCATION)
-end
+Gem.use_paths(GEMS_LOCATION) if File.directory?(GEMS_LOCATION)
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << File.dirname(__FILE__)
@@ -42,7 +40,7 @@ vm_id           = ARGV[-2]
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VMM_DRIVER_ACTION_DATA')
 
-host_id      = drv_action['VM/HISTORY_RECORDS/HISTORY[last()]/HID']
+host_id = drv_action['VM/HISTORY_RECORDS/HISTORY[last()]/HID']
 
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
@@ -53,9 +51,10 @@ rescue StandardErrord => e
     message = "Reconfiguration of VM #{vm_ref} on vCenter cluster "\
               "#{vc_cluster_name} failed due to "\
               "\"#{e.message}\"."
-    STDERR.puts error_message(message)
-    STDERR.puts "#{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
-
+    OpenNebula.log_error(message)
+    if VCenterDriver::CONFIG[:debug_information]
+        STDERR.puts "#{message} #{e.backtrace}"
+    end
     exit(-1)
 ensure
     vi_client.close_connection if vi_client
