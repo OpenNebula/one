@@ -99,12 +99,6 @@ rm "$FILE_XML"
 # redefine potential snapshots
 for SNAPSHOT_MD_XML in $(ls ${VM_DIR}/snap-*.xml 2>/dev/null); do
 
-	# query UUID, but only once
-	UUID=${UUID:-$(virsh --connect $LIBVIRT_URI dominfo $DEPLOY_ID | grep UUID: | awk '{print $2}')}
-
-	# replace uuid in the snapshot metadata xml
-	sed -i "s%<uuid>[[:alnum:]-]*</uuid>%<uuid>$UUID</uuid>%" $SNAPSHOT_MD_XML
-
 	# redefine the snapshot using the xml metadata file
 	virsh --connect $LIBVIRT_URI snapshot-create $DEPLOY_ID $SNAPSHOT_MD_XML --redefine > /dev/null || true
 done
