@@ -708,12 +708,7 @@ CommandParser::CmdParser.new(ARGV) do
         auth_string = "#{user['NAME']}:#{token}"
         auth_file   = helper.auth_file(auth_string)
 
-        # rubocop:disable Lint/HandleExceptions
-        begin
-            FileUtils.mkdir_p(File.dirname(auth_file))
-        rescue Errno::EEXIST
-        end
-        # rubocop:enable Lint/HandleExceptions
+        FileUtils.mkdir_p(File.dirname(auth_file)) rescue Errno::EEXIST
 
         file = File.open(auth_file, 'w')
         file.write(auth_string)
@@ -776,13 +771,13 @@ CommandParser::CmdParser.new(ARGV) do
         auth_string = "#{user['NAME']}:#{token}"
         auth_file   = helper.auth_file(auth_string)
 
-        # rubocop:disable Lint/HandleExceptions
+        # rubocop:disable Lint/SuppressedException
         begin
             File.unlink(auth_file)
             puts "Removing #{auth_file}"
         rescue Errno::ENOENT
         end
-        # rubocop:enable Lint/HandleExceptions
+        # rubocop:enable Lint/SuppressedException
 
         0
     end

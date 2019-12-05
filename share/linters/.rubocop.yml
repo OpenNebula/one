@@ -607,7 +607,7 @@ Layout/EmptyLinesAroundModuleBody:
 Layout/EmptyLineAfterGuardClause:
     Enabled: true
 
-Layout/AlignHash:
+Layout/HashAlignment:
     Enabled: false
 
 Layout/SpaceAroundOperators:
@@ -727,12 +727,12 @@ Lint/DuplicateCaseCondition:
 Lint/DuplicateMethods:
     Enabled: true
 
-Lint/DuplicatedKey:
+Lint/DuplicateHashKey:
     Enabled: true
 ##
 
 # check empty exceptions
-Lint/HandleExceptions:
+Lint/SuppressedException:
     Enabled: true
 
 # check matching parameters in format
@@ -798,7 +798,7 @@ Naming/ConstantName:
 Naming/HeredocDelimiterNaming:
     Enabled: false
 
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:
     Enabled: false
 
 ###

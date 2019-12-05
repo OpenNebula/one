@@ -98,11 +98,11 @@ module OneProvision
             Utils.exception(@pool.info)
 
             if id
-                return @pool.select do |resource|
+                @pool.select do |resource|
                     resource['TEMPLATE/PROVISION/PROVISION_ID'] == id
                 end
             else
-                return @pool.reject do |resource|
+                @pool.reject do |resource|
                     resource['TEMPLATE/PROVISION/PROVISION_ID'].nil?
                 end
             end
