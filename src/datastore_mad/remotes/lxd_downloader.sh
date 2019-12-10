@@ -219,6 +219,24 @@ rm /dev/random /dev/urandom
 EOC
 )
     ;;
+*centos/8*)
+    terminal="/bin/bash"
+    commands=$(cat <<EOC
+echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
+
+yum install $PKG_RPM -y >> /var/log/chroot.log 2>&1
+
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el8.noarch.rpm -Lsfo /root/context.rpm >> /var/log/chroot.log 2>&1
+yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
+rm /root/context.rpm
+
+rm /dev/random /dev/urandom
+EOC
+)
+    ;;
 *fedora28*)
     terminal="/bin/bash"
     commands=$(cat <<EOC
