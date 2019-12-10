@@ -559,7 +559,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 examples: UNAME=oneadmin, TEMPLATE/NIC/NIC_ID>0
 
         If you want to change a value use a third parameter. In case you want
-        to delete it use --delete option.
+        to delete it use --delete option. In canse you want to append a new
+        attribute use --append option.
 
         Change the second network of VMs that belong to "user":
 
@@ -575,11 +576,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             onedb change-body vm --expr LCM_STATE=8 \\
                 '/VM/TEMPLATE/DISK/CACHE' --delete
 
+        Append cache attribute in all disks in poweroff:
+
+            onedb change-body vm --expr LCM_STATE=8 \\
+                '/VM/TEMPLATE/DISK/CACHE' default --append
+
         #{LIVE_ACTION_HELP}
     EOT
 
     command :'change-body', change_body_desc, :object, :xpath, [:value, nil],
-            :options => [ID, XPATH, EXPR, DRY, DELETE] do
+            :options => [ID, XPATH, EXPR, DRY, DELETE, OpenNebulaHelper::APPEND] do
         begin
             action = OneDBLive.new
             action.change_body(args[0], args[1], args[2], options)

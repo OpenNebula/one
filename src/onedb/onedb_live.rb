@@ -422,6 +422,17 @@ class OneDBLive
                 end
             end
 
+            if options[:append]
+                # take just last match of / to get the xpath and the key
+                matches = xpath.match(/(.*)\/(.*)?/)
+                key     = matches[2].upcase
+
+                doc.xpath(matches[1]).each do |e|
+                    val = doc.create_cdata(value)
+                    e.add_child("<#{key}>#{val}</#{key}>")
+                end
+            end
+
             xml = doc.root.to_xml
 
             if options[:dry]
