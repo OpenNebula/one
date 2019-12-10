@@ -24,6 +24,12 @@ TARGET_DEVICE=$2
 
 if [[ -n "$DOMAIN" ]] && [[ -n "$TARGET_DEVICE" ]]
 then
+    disk="$(virsh --connect $LIBVIRT_URI domblklist $DOMAIN | awk "/^$TARGET_DEVICE/ {print \$2; exit}")"
+    if [[ "$disk" = "-" ]]; then
+        log_debug "CDROM already ejected"
+        exit 0
+    fi
+
     CMD="virsh --connect $LIBVIRT_URI change-media $DOMAIN $TARGET_DEVICE \
         --eject --force"
 
