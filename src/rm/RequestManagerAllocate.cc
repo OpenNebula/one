@@ -22,6 +22,9 @@
 #include "MarketPlaceAppPool.h"
 #include "VirtualMachineDisk.h"
 #include "HookPool.h"
+#include "FedReplicaManager.h"
+#include "ImageManager.h"
+#include "MarketPlaceManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

@@ -16,6 +16,7 @@
 
 #include "Hook.h"
 #include "Nebula.h"
+#include "HookAPI.h"
 #include "HookImplementation.h"
 #include "HookStateHost.h"
 #include "HookStateVM.h"

@@ -20,6 +20,43 @@
 #include "SqliteDB.h"
 #include "MySqlDB.h"
 #include "Client.h"
+#include "LogDB.h"
+#include "SystemDB.h"
+
+#include "ClusterPool.h"
+#include "DatastorePool.h"
+#include "DocumentPool.h"
+#include "GroupPool.h"
+#include "HookPool.h"
+#include "HostPool.h"
+#include "MarketPlacePool.h"
+#include "MarketPlaceAppPool.h"
+#include "SecurityGroupPool.h"
+#include "UserPool.h"
+#include "VdcPool.h"
+#include "VirtualMachinePool.h"
+#include "VirtualNetworkPool.h"
+#include "VirtualRouterPool.h"
+#include "VMGroupPool.h"
+#include "VMTemplatePool.h"
+#include "VNTemplatePool.h"
+#include "ZonePool.h"
+
+#include "AclManager.h"
+#include "AuthManager.h"
+#include "DispatchManager.h"
+#include "FedReplicaManager.h"
+#include "HookManager.h"
+#include "HookLog.h"
+#include "ImageManager.h"
+#include "InformationManager.h"
+#include "IPAMManager.h"
+#include "LifeCycleManager.h"
+#include "MarketPlaceManager.h"
+#include "RaftManager.h"
+#include "RequestManager.h"
+#include "TransferManager.h"
+#include "VirtualMachineManager.h"
 
 #include <stdlib.h>
 #include <stdexcept>
@@ -37,6 +74,51 @@
 #endif
 
 using namespace std;
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Nebula::~Nebula()
+{
+    delete vmpool;
+    delete vnpool;
+    delete hpool;
+    delete upool;
+    delete ipool;
+    delete gpool;
+    delete tpool;
+    delete dspool;
+    delete clpool;
+    delete docpool;
+    delete zonepool;
+    delete secgrouppool;
+    delete vdcpool;
+    delete vrouterpool;
+    delete marketpool;
+    delete apppool;
+    delete vmgrouppool;
+    delete vmm;
+    delete lcm;
+    delete im;
+    delete tm;
+    delete dm;
+    delete rm;
+    delete hm;
+    delete hl;
+    delete authm;
+    delete aclm;
+    delete imagem;
+    delete marketm;
+    delete ipamm;
+    delete raftm;
+    delete frm;
+    delete nebula_configuration;
+    delete logdb;
+    delete fed_logdb;
+    delete system_db;
+    delete vntpool;
+    delete hkpool;
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

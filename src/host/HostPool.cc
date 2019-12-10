@@ -24,6 +24,7 @@
 #include "Nebula.h"
 #include "HostPool.h"
 #include "HookStateHost.h"
+#include "HookManager.h"
 #include "NebulaLog.h"
 #include "GroupPool.h"
 #include "ClusterPool.h"

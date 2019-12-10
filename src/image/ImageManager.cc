@@ -17,6 +17,8 @@
 #include "ImageManager.h"
 #include "ImagePool.h"
 #include "Nebula.h"
+#include "DatastorePool.h"
+#include "RaftManager.h"
 
 const char * ImageManager::image_driver_name = "image_exe";
 

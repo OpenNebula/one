@@ -15,7 +15,9 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerVMTemplate.h"
+#include "VirtualMachine.h"
 #include "VirtualMachineDisk.h"
+#include "VirtualMachinePool.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
 #include "RequestManagerClone.h"

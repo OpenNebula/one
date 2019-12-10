@@ -21,13 +21,10 @@
 #include "VirtualMachineDisk.h"
 #include "VirtualMachineNic.h"
 #include "VirtualMachineMonitorInfo.h"
-#include "PoolSQL.h"
+#include "PoolObjectSQL.h"
 #include "History.h"
 #include "Image.h"
-#include "Log.h"
 #include "NebulaLog.h"
-#include "NebulaUtil.h"
-#include "Quotas.h"
 
 #include <time.h>
 #include <set>
@@ -1447,22 +1444,7 @@ public:
     /**
      * Deletes the alias of the NIC that was in the process of being attached/detached
      */
-    void delete_attach_alias(VirtualMachineNic *nic)
-    {
-        std::set<int> a_ids;
-
-        one_util::split_unique(nic->vector_value("ALIAS_IDS"), ',', a_ids);
-
-        for (std::set<int>::iterator it = a_ids.begin(); it != a_ids.end(); it++)
-        {
-            VirtualMachineNic * nic_a = nics.delete_nic(*it);
-
-            if ( nic_a != 0)
-            {
-                obj_template->remove(nic_a->vector_attribute());
-            }
-        }
-    }
+    void delete_attach_alias(VirtualMachineNic *nic);
 
     // ------------------------------------------------------------------------
     // Disk Snapshot related functions

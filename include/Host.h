@@ -17,7 +17,7 @@
 #ifndef HOST_H_
 #define HOST_H_
 
-#include "PoolSQL.h"
+#include "PoolObjectSQL.h"
 #include "HostTemplate.h"
 #include "HostShare.h"
 #include "ClusterableSingle.h"

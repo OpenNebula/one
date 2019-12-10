@@ -23,11 +23,10 @@
 #include "AclRule.h"
 #include "NebulaLog.h"
 
-#include "SqlDB.h"
-
 using namespace std;
 
 class PoolObjectAuth;
+class SqlDB;
 
 extern "C" void * acl_action_loop(void *arg);
 

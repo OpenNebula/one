@@ -15,9 +15,11 @@
 /* ------------------------------------------------------------------------ */
 
 #include "Datastore.h"
+#include "DatastorePool.h"
 #include "GroupPool.h"
 #include "NebulaLog.h"
 #include "Nebula.h"
+#include "VirtualMachineDisk.h"
 
 const char * Datastore::table = "datastore_pool";
 

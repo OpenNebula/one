@@ -24,7 +24,7 @@
 #include "AuthRequest.h"
 #include "PoolObjectSQL.h"
 #include "Quotas.h"
-#include "History.h"
+#include "UserPool.h"
 
 using namespace std;
 

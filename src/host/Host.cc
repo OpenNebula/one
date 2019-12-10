@@ -14,14 +14,13 @@
 /* limitations under the License.                                           */
 /* ------------------------------------------------------------------------ */
 
-#include <limits.h>
-#include <string.h>
-
-#include <iostream>
-#include <sstream>
-
 #include "Host.h"
 #include "Nebula.h"
+#include "ClusterPool.h"
+#include "InformationManager.h"
+#include "VirtualMachinePool.h"
+
+#include <sstream>
 
 /* ************************************************************************ */
 /* Host :: Constructor/Destructor                                           */

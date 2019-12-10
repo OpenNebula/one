@@ -18,7 +18,7 @@
 #define GROUP_POOL_H_
 
 #include "Group.h"
-#include "SqlDB.h"
+#include "PoolSQL.h"
 
 using namespace std;
 

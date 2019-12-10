@@ -19,6 +19,9 @@
 
 #include "Request.h"
 #include "Nebula.h"
+#include "ClusterPool.h"
+#include "DatastorePool.h"
+#include "VirtualNetworkPool.h"
 
 using namespace std;
 

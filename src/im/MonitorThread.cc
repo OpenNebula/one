@@ -22,6 +22,10 @@
 
 #include "Nebula.h"
 #include "NebulaUtil.h"
+#include "DatastorePool.h"
+#include "HostPool.h"
+#include "LifeCycleManager.h"
+#include "VirtualMachineManager.h"
 
 using namespace std;
 

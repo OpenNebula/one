@@ -27,6 +27,8 @@ extern "C" void * raft_manager_loop(void *arg);
 
 extern "C" void * reconciling_thread(void *arg);
 
+class LogDBRecord;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

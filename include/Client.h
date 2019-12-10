@@ -21,11 +21,7 @@
 #include <xmlrpc-c/client_simple.hpp>
 #include <xmlrpc-c/girerr.hpp>
 
-#include <iostream>
 #include <string>
-#include <sstream>
-
-#include "NebulaLog.h"
 
 using namespace std;
 

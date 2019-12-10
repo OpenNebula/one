@@ -15,16 +15,13 @@
 /* -------------------------------------------------------------------------- */
 
 #include "Client.h"
+#include "NebulaLog.h"
 
 #include <fstream>
 #include <pwd.h>
 #include <stdlib.h>
 #include <stdexcept>
-
-#include <limits.h>
-#include <string.h>
-#include <stdlib.h>
-
+#include <set>
 #include <sstream>
 
 #include <unistd.h>

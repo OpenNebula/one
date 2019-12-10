@@ -21,6 +21,7 @@
 #include "PoolObjectAuth.h"
 #include "AuthManager.h"
 #include "AddressRange.h"
+#include "VirtualMachineNic.h"
 
 #include <sstream>
 #include <ctype.h>

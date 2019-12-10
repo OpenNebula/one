@@ -19,6 +19,8 @@
 #include "NebulaLog.h"
 #include "Nebula.h"
 #include "HookStateVM.h"
+#include "HookManager.h"
+#include "ImageManager.h"
 
 #include <sstream>
 

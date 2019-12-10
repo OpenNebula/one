@@ -19,6 +19,8 @@
 #include "NebulaUtil.h"
 #include "ZoneServer.h"
 #include "Callbackable.h"
+#include "RaftManager.h"
+#include "FedReplicaManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

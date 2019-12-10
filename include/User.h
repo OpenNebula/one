@@ -17,7 +17,7 @@
 #ifndef USER_H_
 #define USER_H_
 
-#include "PoolSQL.h"
+#include "PoolObjectSQL.h"
 #include "UserTemplate.h"
 #include "ObjectCollection.h"
 #include "QuotasSQL.h"

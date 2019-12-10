@@ -16,7 +16,7 @@
 
 #include "Quotas.h"
 #include "Nebula.h"
-
+#include "ImagePool.h"
 #include "ObjectXML.h"
 
 int Quotas::set(Template *tmpl, string& error)

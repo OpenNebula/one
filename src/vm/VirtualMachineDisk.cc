@@ -17,6 +17,9 @@
 #include "VirtualMachineDisk.h"
 #include "NebulaUtil.h"
 #include "Nebula.h"
+#include "DatastorePool.h"
+#include "ImagePool.h"
+#include "ImageManager.h"
 
 
 /* -------------------------------------------------------------------------- */

@@ -15,7 +15,11 @@
 /* -------------------------------------------------------------------------- */
 
 #include "MarketPlaceManagerDriver.h"
-#include "Nebula.h"
+#include "MarketPlace.h"
+#include "MarketPlaceAppPool.h"
+#include "MarketPlaceManager.h"
+#include "MarketPlacePool.h"
+#include "NebulaLog.h"
 #include <sstream>
 
 /* ************************************************************************** */
@@ -169,7 +173,7 @@ static void monitor_action(
         apps_mp.erase(app_id);
     }
 
-    if (num > 0) // num = 0 when no APP information in monitor data 
+    if (num > 0) // num = 0 when no APP information in monitor data
     {
         for (set<int>::iterator i = apps_mp.begin(); i != apps_mp.end(); ++i)
         {

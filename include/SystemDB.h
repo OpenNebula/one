@@ -17,10 +17,10 @@
 #ifndef SYSTEM_DB_H_
 #define SYSTEM_DB_H_
 
-#include "SqlDB.h"
 #include "Callbackable.h"
 
 class Nebula;
+class SqlDB;
 
 /**
  *  This class represents the OpenNebula core system data tables:

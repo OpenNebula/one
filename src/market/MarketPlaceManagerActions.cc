@@ -19,8 +19,8 @@
 #include "MarketPlaceAppPool.h"
 #include "MarketPlaceManagerDriver.h"
 
-#include "Image.h"
-#include "Datastore.h"
+#include "ImagePool.h"
+#include "DatastorePool.h"
 #include "ImageManager.h"
 
 #include "NebulaLog.h"

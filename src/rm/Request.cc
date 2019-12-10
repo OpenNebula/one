@@ -19,6 +19,9 @@
 #include "Client.h"
 
 #include "PoolObjectAuth.h"
+#include "HookAPI.h"
+#include "HookManager.h"
+#include "RaftManager.h"
 
 #include <xmlrpc-c/abyss.h>
 

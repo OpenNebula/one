@@ -14,12 +14,14 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "Nebula.h"
-
 #include "RaftManager.h"
 #include "FedReplicaManager.h"
 #include "ZoneServer.h"
 #include "Client.h"
+#include "ZonePool.h"
+#include "LogDB.h"
+#include "AclManager.h"
+#include "Nebula.h"
 
 #include <cstdlib>
 

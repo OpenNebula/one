@@ -18,8 +18,11 @@
 #define REQUEST_MANAGER_DELETE_H_
 
 #include "Request.h"
-#include "Nebula.h"
-#include "AuthManager.h"
+#include "ClusterPool.h"
+#include "Host.h"
+#include "VirtualNetwork.h"
+
+class AclManager;
 
 using namespace std;
 
@@ -32,28 +35,12 @@ class RequestManagerDelete: public Request
 protected:
     RequestManagerDelete(const string& method_name,
                          const string& params,
-                         const string& help)
-        :Request(method_name, params, help)
-    {
-        auth_op = AuthRequest::MANAGE;
-
-        Nebula& nd  = Nebula::instance();
-        clpool      = nd.get_clpool();
-        aclm        = nd.get_aclm();
-    };
+                         const string& help);
 
     RequestManagerDelete(const string& method_name,
-                         const string& help)
-        :Request(method_name, "A:si", help)
-    {
-        auth_op = AuthRequest::MANAGE;
+                         const string& help);
 
-        Nebula& nd  = Nebula::instance();
-        clpool      = nd.get_clpool();
-        aclm        = nd.get_aclm();
-    };
-
-    ~RequestManagerDelete(){};
+    ~RequestManagerDelete() = default;
 
 
     void request_execute(xmlrpc_c::paramList const& paramList,
@@ -90,17 +77,9 @@ protected:
 class TemplateDelete : public RequestManagerDelete
 {
 public:
-    TemplateDelete():
-        RequestManagerDelete("one.template.delete",
-                             "A:sib"
-                             "Deletes a virtual machine template")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_tpool();
-        auth_object = PoolObjectSQL::TEMPLATE;
-    };
+    TemplateDelete();
 
-    ~TemplateDelete(){};
+    ~TemplateDelete() = default;
 
     ErrorCode request_execute(int oid, bool recursive, RequestAttributes& att)
     {
@@ -118,17 +97,9 @@ protected:
 class VirtualNetworkTemplateDelete : public RequestManagerDelete
 {
 public:
-    VirtualNetworkTemplateDelete():
-        RequestManagerDelete("one.vntemplate.delete",
-                             "A:si",
-                             "Deletes a virtual network template")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vntpool();
-        auth_object = PoolObjectSQL::VNTEMPLATE;
-    };
+    VirtualNetworkTemplateDelete();
 
-    ~VirtualNetworkTemplateDelete(){};
+    ~VirtualNetworkTemplateDelete() = default;
 
     ErrorCode request_execute(int oid, bool recursive, RequestAttributes& att)
     {
@@ -143,16 +114,9 @@ public:
 class VirtualNetworkDelete: public RequestManagerDelete
 {
 public:
-    VirtualNetworkDelete():
-        RequestManagerDelete("one.vn.delete",
-                             "Deletes a virtual network")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vnpool();
-        auth_object = PoolObjectSQL::NET;
-    };
+    VirtualNetworkDelete();
 
-    ~VirtualNetworkDelete(){};
+    ~VirtualNetworkDelete() = default;
 
 protected:
 
@@ -175,15 +139,9 @@ protected:
 class ImageDelete: public RequestManagerDelete
 {
 public:
-    ImageDelete():
-        RequestManagerDelete("one.image.delete", "Deletes an image")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_ipool();
-        auth_object = PoolObjectSQL::IMAGE;
-    };
+    ImageDelete();
 
-    ~ImageDelete(){};
+    ~ImageDelete() = default;
 
     ErrorCode request_execute(int oid, RequestAttributes& att)
     {
@@ -204,16 +162,9 @@ protected:
 class HostDelete : public RequestManagerDelete
 {
 public:
-    HostDelete():
-        RequestManagerDelete("one.host.delete", "Deletes a host")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_hpool();
-        auth_object = PoolObjectSQL::HOST;
-        auth_op     = AuthRequest::ADMIN;
-    };
+    HostDelete();
 
-    ~HostDelete(){};
+    ~HostDelete() = default;
 
 protected:
 
@@ -240,17 +191,9 @@ protected:
 class GroupDelete: public RequestManagerDelete
 {
 public:
-    GroupDelete():
-        RequestManagerDelete("one.group.delete", "Deletes a group")
-    {
-        Nebula& nd = Nebula::instance();
-        pool       = nd.get_gpool();
+    GroupDelete();
 
-        auth_object = PoolObjectSQL::GROUP;
-        auth_op     = AuthRequest::ADMIN;
-    };
-
-    ~GroupDelete(){};
+    ~GroupDelete() = default;
 
 protected:
 
@@ -263,18 +206,9 @@ protected:
 class UserDelete: public RequestManagerDelete
 {
 public:
-    UserDelete():
-        RequestManagerDelete("one.user.delete", "Deletes a user")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_upool();
-        gpool       = nd.get_gpool();
+    UserDelete();
 
-        auth_object = PoolObjectSQL::USER;
-        auth_op     = AuthRequest::ADMIN;
-    };
-
-    ~UserDelete(){};
+    ~UserDelete() = default;
 
 protected:
 
@@ -289,16 +223,9 @@ protected:
 class DatastoreDelete: public RequestManagerDelete
 {
 public:
-    DatastoreDelete():
-        RequestManagerDelete("one.datastore.delete", "Deletes a datastore")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_dspool();
-        auth_object = PoolObjectSQL::DATASTORE;
-        auth_op     = AuthRequest::ADMIN;
-    };
+    DatastoreDelete();
 
-    ~DatastoreDelete(){};
+    ~DatastoreDelete() = default;
 
     /* -------------------------------------------------------------------- */
 
@@ -321,17 +248,9 @@ public:
 class ClusterDelete: public RequestManagerDelete
 {
 public:
-    ClusterDelete():
-        RequestManagerDelete("one.cluster.delete", "Deletes a cluster")
-    {
-        Nebula& nd = Nebula::instance();
-        pool       = nd.get_clpool();
+    ClusterDelete();
 
-        auth_object = PoolObjectSQL::CLUSTER;
-        auth_op     = AuthRequest::ADMIN;
-    };
-
-    ~ClusterDelete(){};
+    ~ClusterDelete() = default;
 
 protected:
 
@@ -344,16 +263,9 @@ protected:
 class DocumentDelete : public RequestManagerDelete
 {
 public:
-    DocumentDelete():
-        RequestManagerDelete("one.document.delete",
-                             "Deletes a generic document")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_docpool();
-        auth_object = PoolObjectSQL::DOCUMENT;
-    };
+    DocumentDelete();
 
-    ~DocumentDelete(){};
+    ~DocumentDelete() = default;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -362,16 +274,9 @@ public:
 class ZoneDelete: public RequestManagerDelete
 {
 public:
-    ZoneDelete():
-        RequestManagerDelete("one.zone.delete", "Deletes a zone")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_zonepool();
-        auth_object = PoolObjectSQL::ZONE;
-        auth_op     = AuthRequest::ADMIN;
-    };
+    ZoneDelete();
 
-    ~ZoneDelete(){};
+    ~ZoneDelete() = default;
 
 protected:
 
@@ -384,16 +289,9 @@ protected:
 class SecurityGroupDelete : public RequestManagerDelete
 {
 public:
-    SecurityGroupDelete():
-        RequestManagerDelete("one.secgroup.delete",
-                             "Deletes a security group")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_secgrouppool();
-        auth_object = PoolObjectSQL::SECGROUP;
-    };
+    SecurityGroupDelete();
 
-    ~SecurityGroupDelete(){};
+    ~SecurityGroupDelete() = default;
 
 protected:
 
@@ -406,16 +304,9 @@ protected:
 class VdcDelete: public RequestManagerDelete
 {
 public:
-    VdcDelete():
-        RequestManagerDelete("one.vdc.delete", "Deletes a VDC")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vdcpool();
-        auth_object = PoolObjectSQL::VDC;
-        auth_op     = AuthRequest::ADMIN;
-    };
+    VdcDelete();
 
-    ~VdcDelete(){};
+    ~VdcDelete() = default;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -424,16 +315,9 @@ public:
 class VirtualRouterDelete : public RequestManagerDelete
 {
 public:
-    VirtualRouterDelete():
-        RequestManagerDelete("one.vrouter.delete",
-                             "Deletes a virtual router")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vrouterpool();
-        auth_object = PoolObjectSQL::VROUTER;
-    };
+    VirtualRouterDelete();
 
-    ~VirtualRouterDelete(){};
+    ~VirtualRouterDelete() = default;
 
 protected:
     int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att) override;
@@ -445,16 +329,9 @@ protected:
 class MarketPlaceDelete : public RequestManagerDelete
 {
 public:
-    MarketPlaceDelete():
-        RequestManagerDelete("one.market.delete",
-                             "Deletes a marketplace")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_marketpool();
-        auth_object = PoolObjectSQL::MARKETPLACE;
-    };
+    MarketPlaceDelete();
 
-    ~MarketPlaceDelete(){};
+    ~MarketPlaceDelete() = default;
 
 protected:
 
@@ -467,16 +344,9 @@ protected:
 class MarketPlaceAppDelete : public RequestManagerDelete
 {
 public:
-    MarketPlaceAppDelete():
-        RequestManagerDelete("one.marketapp.delete",
-                             "Deletes a marketplace app")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_apppool();
-        auth_object = PoolObjectSQL::MARKETPLACEAPP;
-    };
+    MarketPlaceAppDelete();
 
-    ~MarketPlaceAppDelete(){};
+    ~MarketPlaceAppDelete() = default;
 
 protected:
 
@@ -489,16 +359,9 @@ protected:
 class VMGroupDelete : public RequestManagerDelete
 {
 public:
-    VMGroupDelete():
-        RequestManagerDelete("one.vmgroup.delete",
-                             "Deletes a vm group")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vmgrouppool();
-        auth_object = PoolObjectSQL::VMGROUP;
-    };
+    VMGroupDelete();
 
-    ~VMGroupDelete(){};
+    ~VMGroupDelete() = default;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -507,16 +370,9 @@ public:
 class HookDelete : public RequestManagerDelete
 {
 public:
-    HookDelete():
-        RequestManagerDelete("one.hook.delete",
-                             "Deletes a hook")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_hkpool();
-        auth_object = PoolObjectSQL::HOOK;
-    };
+    HookDelete();
 
-    ~HookDelete(){};
+    ~HookDelete() = default;
 };
 
 #endif

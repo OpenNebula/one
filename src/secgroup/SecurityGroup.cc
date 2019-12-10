@@ -17,6 +17,7 @@
 #include "SecurityGroup.h"
 #include "NebulaUtil.h"
 #include "Nebula.h"
+#include "LifeCycleManager.h"
 #include <arpa/inet.h>
 
 /* ------------------------------------------------------------------------ */

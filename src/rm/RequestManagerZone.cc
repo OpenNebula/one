@@ -17,6 +17,9 @@
 #include "RequestManagerZone.h"
 #include "Nebula.h"
 #include "Client.h"
+#include "LogDB.h"
+#include "FedReplicaManager.h"
+#include "RaftManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

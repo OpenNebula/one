@@ -24,8 +24,6 @@
 #include <time.h>
 #include <sstream>
 
-#include <iostream>
-
 #include <vector>
 
 using namespace std;
@@ -56,7 +54,7 @@ public:
         string& error_str);
 
     /**
-     *  Updates a Host in the data base. It also updates the previous state 
+     *  Updates a Host in the data base. It also updates the previous state
      *  after executing the hooks.
      *    @param objsql a pointer to the Host
      *
@@ -373,12 +371,12 @@ private:
     struct HostVM
     {
         /**
-         * Tmp set of lost VM IDs. 
+         * Tmp set of lost VM IDs.
          */
         set<int> tmp_lost_vms;
 
         /**
-         * Tmp set of zombie VM IDs. 
+         * Tmp set of zombie VM IDs.
          */
         set<int> tmp_zombie_vms;
 

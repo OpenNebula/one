@@ -18,19 +18,12 @@
 #define REQUEST_MANAGER_H_
 
 #include "ActionManager.h"
-#include "VirtualMachinePool.h"
-#include "HostPool.h"
-#include "UserPool.h"
-#include "VirtualNetworkPool.h"
-#include "ImagePool.h"
-#include "VMTemplatePool.h"
-#include "GroupPool.h"
-
-#include "AuthManager.h"
 
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/registry.hpp>
 #include <xmlrpc-c/server_abyss.hpp>
+
+#include <set>
 
 using namespace std;
 
@@ -193,21 +186,7 @@ private:
     // ------------------------------------------------------------------------
     // ActioListener Interface
     // ------------------------------------------------------------------------
-    virtual void finalize_action(const ActionRequest& ar)
-    {
-        NebulaLog::log("ReM",Log::INFO,"Stopping Request Manager...");
-
-        pthread_cancel(rm_xml_server_thread);
-
-        pthread_join(rm_xml_server_thread,0);
-
-        NebulaLog::log("ReM",Log::INFO,"XML-RPC server stopped.");
-
-        if ( socket_fd != -1 )
-        {
-            close(socket_fd);
-        }
-    };
+    void finalize_action(const ActionRequest& ar) override;
 };
 
 #endif

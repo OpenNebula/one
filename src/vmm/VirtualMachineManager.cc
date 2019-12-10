@@ -20,6 +20,8 @@
 #include "XMLDriver.h"
 #include "LibVirtDriver.h"
 #include "NebulaUtil.h"
+#include "TransferManager.h"
+#include "LifeCycleManager.h"
 
 #include "Nebula.h"
 

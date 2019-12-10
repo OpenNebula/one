@@ -18,6 +18,7 @@
 #include "RequestManagerPoolInfoFilter.h"
 #include "VirtualMachineDisk.h"
 #include "Nebula.h"
+#include "VirtualRouterPool.h"
 
 using namespace std;
 

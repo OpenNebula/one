@@ -18,7 +18,7 @@
 #define CLUSTER_POOL_H_
 
 #include "Cluster.h"
-#include "SqlDB.h"
+#include "PoolSQL.h"
 
 using namespace std;
 

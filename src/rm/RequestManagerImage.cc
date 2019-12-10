@@ -15,6 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerImage.h"
+#include "ImageManager.h"
+#include "DatastorePool.h"
 
 using namespace std;
 

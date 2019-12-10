@@ -14,16 +14,14 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include <climits>
-#include <sstream>
-#include <iostream>
-#include <stdexcept>
-#include <algorithm>
-
 #include "PoolSQL.h"
 #include "RequestManagerPoolInfoFilter.h"
+#include "AclManager.h"
+#include "Nebula.h"
+#include "ClusterPool.h"
 
-#include <errno.h>
+#include <sstream>
+#include <algorithm>
 
 /* ************************************************************************** */
 /* PoolSQL constructor/destructor                                             */
@@ -313,7 +311,7 @@ int PoolSQL::dump(string& oss, const string& root_elem_name,
 
     string_cb cb(1);
 
-    ostringstream oelem; 
+    ostringstream oelem;
 
     oelem << "<" << root_elem_name << ">";
 

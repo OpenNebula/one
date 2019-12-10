@@ -18,6 +18,8 @@
 #include "Nebula.h"
 #include "NebulaLog.h"
 #include "DatastoreTemplate.h"
+#include "ClusterPool.h"
+#include "ImageManager.h"
 
 #include <stdexcept>
 

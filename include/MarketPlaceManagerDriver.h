@@ -19,7 +19,6 @@
 
 #include <map>
 #include <string>
-#include <sstream>
 
 #include "Mad.h"
 

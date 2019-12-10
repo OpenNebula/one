@@ -19,6 +19,23 @@
 #include "RequestManagerVirtualMachine.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
+#include "DispatchManager.h"
+#include "VirtualRouterPool.h"
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+RequestManagerVirtualRouter::RequestManagerVirtualRouter(const string& method_name,
+                                                         const string& help,
+                                                         const string& params)
+    : Request(method_name, params, help)
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_vrouterpool();
+
+    auth_object = PoolObjectSQL::VROUTER;
+    auth_op     = AuthRequest::MANAGE;
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

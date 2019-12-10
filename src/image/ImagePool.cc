@@ -23,6 +23,9 @@
 #include "AuthManager.h"
 #include "Nebula.h"
 #include "PoolObjectAuth.h"
+#include "ImageManager.h"
+#include "VirtualMachineDisk.h"
+#include "DatastorePool.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

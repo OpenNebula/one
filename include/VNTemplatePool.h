@@ -14,7 +14,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef VNetTEMPLATE_POOL_H_
+#ifndef VNTEMPLATE_POOL_H_
 #define VNTEMPLATE_POOL_H_
 
 #include "PoolSQL.h"

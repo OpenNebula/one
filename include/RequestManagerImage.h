@@ -19,6 +19,7 @@
 
 #include "Request.h"
 #include "Nebula.h"
+#include "ImagePool.h"
 
 using namespace std;
 

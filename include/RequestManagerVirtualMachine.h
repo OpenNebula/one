@@ -19,6 +19,7 @@
 
 #include "Request.h"
 #include "Nebula.h"
+#include "VirtualMachinePool.h"
 
 using namespace std;
 
@@ -535,7 +536,7 @@ public:
     VirtualMachineDiskSnapshotRename():
         RequestManagerVirtualMachine("one.vm.disksnapshotrename",
                            "Rename a disk snapshot",
-                           "A:siiis") 
+                           "A:siiis")
     {
         vm_action = VMActions::DISK_SNAPSHOT_RENAME_ACTION;
     }

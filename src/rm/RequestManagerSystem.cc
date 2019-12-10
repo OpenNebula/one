@@ -16,6 +16,7 @@
 
 #include "RequestManagerSystem.h"
 #include "Nebula.h"
+#include "LogDB.h"
 
 using namespace std;
 

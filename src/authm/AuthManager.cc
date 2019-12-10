@@ -16,6 +16,7 @@
 
 #include "AuthManager.h"
 #include "AuthRequest.h"
+#include "AclManager.h"
 #include "NebulaUtil.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"

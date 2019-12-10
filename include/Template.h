@@ -17,7 +17,6 @@
 #ifndef TEMPLATE_H_
 #define TEMPLATE_H_
 
-#include <iostream>
 #include <map>
 #include <set>
 #include <vector>

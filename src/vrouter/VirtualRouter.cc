@@ -20,6 +20,8 @@
 #include "VirtualMachine.h"
 #include "Request.h"
 #include "VirtualMachineTemplate.h"
+#include "DispatchManager.h"
+
 /* -------------------------------------------------------------------------- */
 
 static void vrouter_prefix(VectorAttribute* nic, const string& attr)

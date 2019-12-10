@@ -19,6 +19,24 @@
 
 #include "Request.h"
 #include "Nebula.h"
+#include "ClusterPool.h"
+#include "DatastorePool.h"
+#include "DocumentPool.h"
+#include "HookPool.h"
+#include "HostPool.h"
+#include "ImagePool.h"
+#include "MarketPlacePool.h"
+#include "MarketPlaceAppPool.h"
+#include "SecurityGroupPool.h"
+#include "VdcPool.h"
+#include "VirtualMachinePool.h"
+#include "VirtualNetworkPool.h"
+#include "VirtualRouterPool.h"
+#include "VMGroupPool.h"
+#include "VMTemplatePool.h"
+#include "VNTemplatePool.h"
+#include "ZonePool.h"
+
 
 using namespace std;
 
@@ -39,7 +57,7 @@ protected:
         auth_op = AuthRequest::MANAGE;
     };
 
-    ~RequestManagerRename(){};
+    ~RequestManagerRename() = default;
 
     /* -------------------------------------------------------------------- */
 
@@ -164,7 +182,7 @@ public:
         auth_object = PoolObjectSQL::TEMPLATE;
     };
 
-    ~TemplateRename(){};
+    ~TemplateRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -187,7 +205,7 @@ public:
         auth_object = PoolObjectSQL::VNTEMPLATE;
     };
 
-    ~VirtualNetworkTemplateRename(){};
+    ~VirtualNetworkTemplateRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -210,7 +228,7 @@ public:
         auth_object = PoolObjectSQL::NET;
     };
 
-    ~VirtualNetworkRename(){};
+    ~VirtualNetworkRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -232,7 +250,7 @@ public:
         auth_object = PoolObjectSQL::IMAGE;
     };
 
-    ~ImageRename(){};
+    ~ImageRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -254,7 +272,7 @@ public:
         auth_object = PoolObjectSQL::DOCUMENT;
     };
 
-    ~DocumentRename(){};
+    ~DocumentRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -276,7 +294,7 @@ public:
         auth_object = PoolObjectSQL::CLUSTER;
     };
 
-    ~ClusterRename(){};
+    ~ClusterRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -300,7 +318,7 @@ public:
         auth_object = PoolObjectSQL::DATASTORE;
     };
 
-    ~DatastoreRename(){};
+    ~DatastoreRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -325,8 +343,7 @@ public:
 
         auth_op = AuthRequest::ADMIN;
     };
-
-    ~HostRename(){};
+    ~HostRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -350,7 +367,7 @@ public:
         auth_object = PoolObjectSQL::ZONE;
     };
 
-    ~ZoneRename(){};
+    ~ZoneRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -372,7 +389,7 @@ public:
         auth_object = PoolObjectSQL::SECGROUP;
     };
 
-    ~SecurityGroupRename(){};
+    ~SecurityGroupRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -394,7 +411,7 @@ public:
         auth_object = PoolObjectSQL::VDC;
     };
 
-    ~VdcRename(){};
+    ~VdcRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -416,7 +433,7 @@ public:
         auth_object = PoolObjectSQL::VROUTER;
     };
 
-    ~VirtualRouterRename(){};
+    ~VirtualRouterRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -438,7 +455,7 @@ public:
         auth_object = PoolObjectSQL::MARKETPLACE;
     };
 
-    ~MarketPlaceRename(){};
+    ~MarketPlaceRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -462,7 +479,7 @@ public:
         auth_object = PoolObjectSQL::MARKETPLACEAPP;
     };
 
-    ~MarketPlaceAppRename(){};
+    ~MarketPlaceAppRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -484,7 +501,7 @@ public:
         auth_object = PoolObjectSQL::VMGROUP;
     };
 
-    ~VMGroupRename(){};
+    ~VMGroupRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -506,7 +523,7 @@ public:
         auth_object = PoolObjectSQL::HOOK;
     };
 
-    ~HookRename(){};
+    ~HookRename() = default;
 
     int exist(const string& name, int uid)
     {

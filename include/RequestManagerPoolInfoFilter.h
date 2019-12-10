@@ -18,8 +18,6 @@
 #define REQUEST_MANAGER_POOL_INFO_FILTER_H_
 
 #include "Request.h"
-#include "Nebula.h"
-#include "AuthManager.h"
 
 using namespace std;
 
@@ -73,12 +71,8 @@ protected:
         extended    = false;
     };
 
-    /* -------------------------------------------------------------------- */
-
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
-
-    /* -------------------------------------------------------------------- */
 
     void where_filter(RequestAttributes& att,
               int                filter_flag,
@@ -90,8 +84,6 @@ protected:
               bool               disable_cluster_acl,
               bool               disable_group_acl,
               string&            where_string);
-
-    /* -------------------------------------------------------------------- */
 
     void dump(RequestAttributes& att,
               int                filter_flag,
@@ -114,28 +106,11 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    VirtualMachinePoolInfo():
-        RequestManagerPoolInfoFilter("one.vmpool.info",
-                                     "Returns the virtual machine instances pool",
-                                     "A:siiiis")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vmpool();
-        auth_object = PoolObjectSQL::VM;
-    };
+    VirtualMachinePoolInfo();
 
     VirtualMachinePoolInfo(const string& method_name,
                            const string& help,
-                           const string& signature)
-        :RequestManagerPoolInfoFilter(method_name, help, signature)
-    {
-
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vmpool();
-        auth_object = PoolObjectSQL::VM;
-    };
-
-    /* -------------------------------------------------------------------- */
+                           const string& signature);
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
@@ -147,7 +122,6 @@ public:
 class VirtualMachinePoolInfoExtended : public VirtualMachinePoolInfo
 {
 public:
-
     VirtualMachinePoolInfoExtended():
         VirtualMachinePoolInfo("one.vmpool.infoextended",
             "Returns the virtual machine instances pool in extended format",
@@ -164,18 +138,7 @@ public:
 class VirtualMachinePoolAccounting : public RequestManagerPoolInfoFilter
 {
 public:
-
-    VirtualMachinePoolAccounting():
-        RequestManagerPoolInfoFilter("one.vmpool.accounting",
-                                     "Returns the virtual machine history records",
-                                     "A:siii")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vmpool();
-        auth_object = PoolObjectSQL::VM;
-    };
-
-    /* -------------------------------------------------------------------- */
+    VirtualMachinePoolAccounting();
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
@@ -187,18 +150,7 @@ public:
 class VirtualMachinePoolShowback : public RequestManagerPoolInfoFilter
 {
 public:
-
-    VirtualMachinePoolShowback():
-        RequestManagerPoolInfoFilter("one.vmpool.showback",
-                                     "Returns the virtual machine showback records",
-                                     "A:siiiii")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vmpool();
-        auth_object = PoolObjectSQL::VM;
-    };
-
-    /* -------------------------------------------------------------------- */
+    VirtualMachinePoolShowback();
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
@@ -210,18 +162,7 @@ public:
 class VirtualMachinePoolMonitoring : public RequestManagerPoolInfoFilter
 {
 public:
-
-    VirtualMachinePoolMonitoring():
-        RequestManagerPoolInfoFilter("one.vmpool.monitoring",
-                                     "Returns the virtual machine monitoring records",
-                                     "A:si")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vmpool();
-        auth_object = PoolObjectSQL::VM;
-    };
-
-    /* -------------------------------------------------------------------- */
+    VirtualMachinePoolMonitoring();
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
@@ -233,15 +174,7 @@ public:
 class TemplatePoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
-    TemplatePoolInfo():
-        RequestManagerPoolInfoFilter("one.templatepool.info",
-                                     "Returns the virtual machine template pool",
-                                     "A:siii")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_tpool();
-        auth_object = PoolObjectSQL::TEMPLATE;
-    };
+    TemplatePoolInfo();
 };
 
 /* ------------------------------------------------------------------------- */
@@ -250,15 +183,7 @@ public:
 class VirtualNetworkPoolInfo: public RequestManagerPoolInfoFilter
 {
 public:
-    VirtualNetworkPoolInfo():
-        RequestManagerPoolInfoFilter("one.vnpool.info",
-                                     "Returns the virtual network pool",
-                                     "A:siii")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vnpool();
-        auth_object = PoolObjectSQL::NET;
-    };
+    VirtualNetworkPoolInfo();
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
@@ -270,15 +195,7 @@ public:
 class VirtualNetworkTemplatePoolInfo: public RequestManagerPoolInfoFilter
 {
 public:
-    VirtualNetworkTemplatePoolInfo():
-        RequestManagerPoolInfoFilter("one.vntemplatepool.info",
-                                     "Returns the virtual network template pool",
-                                     "A:siii")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vntpool();
-        auth_object = PoolObjectSQL::VNTEMPLATE;
-    };
+    VirtualNetworkTemplatePoolInfo();
 };
 
 /* ------------------------------------------------------------------------- */
@@ -287,15 +204,7 @@ public:
 class ImagePoolInfo: public RequestManagerPoolInfoFilter
 {
 public:
-    ImagePoolInfo():
-        RequestManagerPoolInfoFilter("one.imagepool.info",
-                                     "Returns the image pool",
-                                     "A:siii")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_ipool();
-        auth_object = PoolObjectSQL::IMAGE;
-    };
+    ImagePoolInfo();
 };
 
 /* ------------------------------------------------------------------------- */
@@ -304,17 +213,7 @@ public:
 class HostPoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
-    HostPoolInfo():
-        RequestManagerPoolInfoFilter("one.hostpool.info",
-                                     "Returns the host pool",
-                                     "A:s")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_hpool();
-        auth_object = PoolObjectSQL::HOST;
-    };
-
-    /* -------------------------------------------------------------------- */
+    HostPoolInfo();
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
@@ -326,18 +225,7 @@ public:
 class HostPoolMonitoring : public RequestManagerPoolInfoFilter
 {
 public:
-
-    HostPoolMonitoring():
-        RequestManagerPoolInfoFilter("one.hostpool.monitoring",
-                                     "Returns the host monitoring records",
-                                     "A:s")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_hpool();
-        auth_object = PoolObjectSQL::HOST;
-    };
-
-    /* -------------------------------------------------------------------- */
+    HostPoolMonitoring();
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
@@ -349,17 +237,7 @@ public:
 class GroupPoolInfo: public RequestManagerPoolInfoFilter
 {
 public:
-    GroupPoolInfo():
-        RequestManagerPoolInfoFilter("one.grouppool.info",
-                                     "Returns the group pool",
-                                     "A:s")
-    {
-        Nebula& nd = Nebula::instance();
-        pool       = nd.get_gpool();
-        auth_object = PoolObjectSQL::GROUP;
-    };
-
-    /* -------------------------------------------------------------------- */
+    GroupPoolInfo();
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
@@ -371,17 +249,7 @@ public:
 class UserPoolInfo: public RequestManagerPoolInfoFilter
 {
 public:
-    UserPoolInfo():
-        RequestManagerPoolInfoFilter("one.userpool.info",
-                                     "Returns the user pool",
-                                     "A:s")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_upool();
-        auth_object = PoolObjectSQL::USER;
-    };
-
-    /* -------------------------------------------------------------------- */
+    UserPoolInfo();
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
@@ -393,17 +261,7 @@ public:
 class DatastorePoolInfo: public RequestManagerPoolInfoFilter
 {
 public:
-    DatastorePoolInfo():
-        RequestManagerPoolInfoFilter("one.datastorepool.info",
-                                     "Returns the datastore pool",
-                                     "A:s")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_dspool();
-        auth_object = PoolObjectSQL::DATASTORE;
-    };
-
-    /* -------------------------------------------------------------------- */
+    DatastorePoolInfo();
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
@@ -415,17 +273,7 @@ public:
 class ClusterPoolInfo: public RequestManagerPoolInfoFilter
 {
 public:
-    ClusterPoolInfo():
-        RequestManagerPoolInfoFilter("one.clusterpool.info",
-                                     "Returns the cluster pool",
-                                     "A:s")
-    {
-        Nebula& nd = Nebula::instance();
-        pool       = nd.get_clpool();
-        auth_object = PoolObjectSQL::CLUSTER;
-    };
-
-    /* -------------------------------------------------------------------- */
+    ClusterPoolInfo();
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
@@ -437,17 +285,7 @@ public:
 class DocumentPoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
-    DocumentPoolInfo():
-        RequestManagerPoolInfoFilter("one.documentpool.info",
-                                     "Returns the generic document pool",
-                                     "A:siiii")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_docpool();
-        auth_object = PoolObjectSQL::DOCUMENT;
-    };
-
-    /* -------------------------------------------------------------------- */
+    DocumentPoolInfo();
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
@@ -459,17 +297,7 @@ public:
 class ZonePoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
-    ZonePoolInfo():
-        RequestManagerPoolInfoFilter("one.zonepool.info",
-                                     "Returns the zone pool",
-                                     "A:s")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_zonepool();
-        auth_object = PoolObjectSQL::ZONE;
-    };
-
-    /* -------------------------------------------------------------------- */
+    ZonePoolInfo();
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
@@ -481,15 +309,7 @@ public:
 class SecurityGroupPoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
-    SecurityGroupPoolInfo():
-        RequestManagerPoolInfoFilter("one.secgrouppool.info",
-                                     "Returns the security group pool",
-                                     "A:siii")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_secgrouppool();
-        auth_object = PoolObjectSQL::SECGROUP;
-    };
+    SecurityGroupPoolInfo();
 };
 
 /* ------------------------------------------------------------------------- */
@@ -498,15 +318,7 @@ public:
 class VdcPoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
-    VdcPoolInfo():
-        RequestManagerPoolInfoFilter("one.vdcpool.info",
-                                     "Returns the VDC pool",
-                                     "A:s")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vdcpool();
-        auth_object = PoolObjectSQL::VDC;
-    };
+    VdcPoolInfo();
 
     void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att) override;
 };
@@ -517,15 +329,7 @@ public:
 class VirtualRouterPoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
-    VirtualRouterPoolInfo():
-        RequestManagerPoolInfoFilter("one.vrouterpool.info",
-                                     "Returns the virtual router pool",
-                                     "A:siii")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vrouterpool();
-        auth_object = PoolObjectSQL::VROUTER;
-    };
+    VirtualRouterPoolInfo();
 };
 
 /* -------------------------------------------------------------------------- */
@@ -534,15 +338,7 @@ public:
 class MarketPlacePoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
-    MarketPlacePoolInfo():
-        RequestManagerPoolInfoFilter("one.marketpool.info",
-                                     "Returns the marketplace pool",
-                                     "A:s")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_marketpool();
-        auth_object = PoolObjectSQL::MARKETPLACE;
-    };
+    MarketPlacePoolInfo();
 
     void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att) override;
 };
@@ -553,15 +349,7 @@ public:
 class MarketPlaceAppPoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
-    MarketPlaceAppPoolInfo():
-        RequestManagerPoolInfoFilter("one.marketapppool.info",
-                                     "Returns the market place pool",
-                                     "A:siii")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_apppool();
-        auth_object = PoolObjectSQL::MARKETPLACEAPP;
-    };
+    MarketPlaceAppPoolInfo();
 };
 
 /* ------------------------------------------------------------------------- */
@@ -570,15 +358,7 @@ public:
 class VMGroupPoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
-    VMGroupPoolInfo():
-        RequestManagerPoolInfoFilter("one.vmgrouppool.info",
-                                     "Returns the vm group pool",
-                                     "A:siii")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vmgrouppool();
-        auth_object = PoolObjectSQL::VMGROUP;
-    };
+    VMGroupPoolInfo();
 };
 
 /* ------------------------------------------------------------------------- */
@@ -587,17 +367,7 @@ public:
 class HookPoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
-    HookPoolInfo():
-        RequestManagerPoolInfoFilter("one.hookpool.info",
-                                     "Returns the hook pool",
-                                     "A:siii")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_hkpool();
-        auth_object = PoolObjectSQL::HOOK;
-    };
-
-    ~HookPoolInfo(){};
+    HookPoolInfo();
 };
 
 /* ------------------------------------------------------------------------- */
@@ -606,17 +376,7 @@ public:
 class HookLogInfo : public RequestManagerPoolInfoFilter
 {
 public:
-    HookLogInfo():
-        RequestManagerPoolInfoFilter("one.hooklog.info",
-                                     "Returns the hook pool log info",
-                                     "A:siiii")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_hkpool();
-        auth_object = PoolObjectSQL::HOOK;
-    };
-
-    ~HookLogInfo(){};
+    HookLogInfo();
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;

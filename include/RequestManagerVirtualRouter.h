@@ -18,7 +18,6 @@
 #define REQUEST_MANAGER_VIRTUAL_ROUTER_H
 
 #include "Request.h"
-#include "Nebula.h"
 
 using namespace std;
 
@@ -30,20 +29,10 @@ class RequestManagerVirtualRouter: public Request
 {
 protected:
     RequestManagerVirtualRouter(const string& method_name,
-                             const string& help,
-                             const string& params)
-        :Request(method_name,params,help)
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vrouterpool();
+                                const string& help,
+                                const string& params);
 
-        auth_object = PoolObjectSQL::VROUTER;
-        auth_op     = AuthRequest::MANAGE;
-    };
-
-    ~RequestManagerVirtualRouter(){};
-
-    /* -------------------------------------------------------------------- */
+    ~RequestManagerVirtualRouter() = default;
 
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                                  RequestAttributes& att) = 0;
@@ -59,7 +48,7 @@ public:
         "one.vrouter.instantiate", "Instantiates a new virtual machine "
         "associated to a virtual router", "A:siiisbs") { }
 
-    ~VirtualRouterInstantiate(){};
+    ~VirtualRouterInstantiate() = default;
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
@@ -76,7 +65,7 @@ public:
          "Attaches a new NIC to the virtual router, and its virtual machines",
          "A:sis") { }
 
-    ~VirtualRouterAttachNic(){};
+    ~VirtualRouterAttachNic() = default;
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
@@ -92,7 +81,7 @@ public:
     VirtualRouterDetachNic():RequestManagerVirtualRouter("one.vrouter.detachnic",
         "Detaches a NIC from a virtual router, and its virtual machines","A:sii") { }
 
-    ~VirtualRouterDetachNic(){};
+    ~VirtualRouterDetachNic() = default;
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
