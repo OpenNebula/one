@@ -18,7 +18,7 @@
 #define DATASTORE_POOL_H_
 
 #include "Datastore.h"
-#include "SqlDB.h"
+#include "PoolSQL.h"
 
 using namespace std;
 

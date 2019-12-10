@@ -14,9 +14,10 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+#include "RequestManagerHook.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
-#include "RequestManagerHook.h"
+#include "HookLog.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

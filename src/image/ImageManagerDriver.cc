@@ -15,10 +15,14 @@
 /* -------------------------------------------------------------------------- */
 
 #include "ImageManagerDriver.h"
+#include "ImageManager.h"
 #include "ImagePool.h"
 
 #include "NebulaLog.h"
 #include "Quotas.h"
+#include "VirtualMachinePool.h"
+#include "VirtualMachineManagerDriver.h"
+#include "TransferManager.h"
 
 #include "Nebula.h"
 #include <sstream>

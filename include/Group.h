@@ -17,10 +17,9 @@
 #ifndef GROUP_H_
 #define GROUP_H_
 
-#include "PoolSQL.h"
+#include "PoolObjectSQL.h"
 #include "GroupTemplate.h"
 #include "ObjectCollection.h"
-#include "User.h"
 #include "QuotasSQL.h"
 #include "Template.h"
 #include "VMActions.h"

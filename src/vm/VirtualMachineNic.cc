@@ -17,6 +17,8 @@
 #include "VirtualMachineNic.h"
 #include "NebulaUtil.h"
 #include "Nebula.h"
+#include "SecurityGroupPool.h"
+#include "VirtualNetworkPool.h"
 
 
 /* -------------------------------------------------------------------------- */

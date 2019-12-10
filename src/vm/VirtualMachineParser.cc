@@ -13,30 +13,21 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-#include <limits.h>
-#include <string.h>
-#include <time.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <regex.h>
-#include <unistd.h>
-
-#include <iostream>
-#include <sstream>
-#include <queue>
-
 #include "VirtualMachine.h"
 #include "VirtualNetworkPool.h"
+#include "DatastorePool.h"
 #include "ImagePool.h"
 #include "NebulaLog.h"
 #include "NebulaUtil.h"
 #include "Snapshots.h"
-
+#include "HostShare.h"
 #include "Nebula.h"
 
 #include "vm_file_var_syntax.h"
 #include "vm_var_syntax.h"
 #include "vm_var_parser.h"
+
+#include <sstream>
 
 /* -------------------------------------------------------------------------- */
 /* Parser constanta                                                           */

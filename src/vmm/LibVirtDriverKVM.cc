@@ -17,6 +17,10 @@
 #include "LibVirtDriver.h"
 
 #include "Nebula.h"
+#include "HostPool.h"
+#include "ClusterPool.h"
+#include "VirtualNetwork.h"
+
 #include <sstream>
 #include <fstream>
 #include <libgen.h>

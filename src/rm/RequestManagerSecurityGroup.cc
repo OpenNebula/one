@@ -15,6 +15,23 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerSecurityGroup.h"
+#include "LifeCycleManager.h"
+#include "Nebula.h"
+#include "SecurityGroupPool.h"
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+SecurityGroupCommit::SecurityGroupCommit()
+    : Request("one.secgroup.commit", "A:sib",
+              "Commit security group changes to VMs")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_secgrouppool();
+
+    auth_object = PoolObjectSQL::SECGROUP;
+    auth_op     = AuthRequest::MANAGE;
+}
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */

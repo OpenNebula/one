@@ -14,20 +14,18 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include <iostream>
+#include "Mad.h"
+#include "NebulaLog.h"
+
+#include "Nebula.h"
+
 #include <sstream>
 
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <string.h>
-
-#include "Mad.h"
-#include "NebulaLog.h"
-
-#include "Nebula.h"
-
+#include <cstring>
 #include <cerrno>
 
 

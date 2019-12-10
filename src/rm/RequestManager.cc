@@ -64,7 +64,6 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <string.h>
 #include <cstring>
 
 
@@ -1240,3 +1239,19 @@ void RequestManager::register_xml_methods()
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void RequestManager::finalize_action(const ActionRequest& ar)
+{
+    NebulaLog::log("ReM",Log::INFO,"Stopping Request Manager...");
+
+    pthread_cancel(rm_xml_server_thread);
+
+    pthread_join(rm_xml_server_thread,0);
+
+    NebulaLog::log("ReM",Log::INFO,"XML-RPC server stopped.");
+
+    if (socket_fd != -1)
+    {
+        close(socket_fd);
+    }
+}

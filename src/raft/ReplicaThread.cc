@@ -14,14 +14,15 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include <errno.h>
-#include <string>
-
+#include "ReplicaThread.h"
 #include "LogDB.h"
 #include "RaftManager.h"
-#include "ReplicaThread.h"
 #include "Nebula.h"
 #include "NebulaLog.h"
+#include "FedReplicaManager.h"
+
+#include <errno.h>
+#include <string>
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------

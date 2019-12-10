@@ -57,6 +57,8 @@ extern int vm_var_debug;
 
 #include "VirtualMachinePool.h"
 #include "VirtualMachine.h"
+#include "VirtualNetworkPool.h"
+#include "ImagePool.h"
 #include "Nebula.h"
 
 #include "mem_collector.h"

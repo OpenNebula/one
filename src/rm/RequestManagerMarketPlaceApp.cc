@@ -15,6 +15,22 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerMarketPlaceApp.h"
+#include "Nebula.h"
+#include "MarketPlaceAppPool.h"
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+RequestManagerMarketPlaceApp::RequestManagerMarketPlaceApp(const std::string& method_name,
+    const std::string& help, const std::string& params) :
+    Request(method_name, params, help)
+{
+    Nebula& nd = Nebula::instance();
+    pool       = nd.get_apppool();
+
+    auth_object = PoolObjectSQL::MARKETPLACEAPP;
+    auth_op     = AuthRequest::MANAGE;
+};
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */

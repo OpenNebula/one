@@ -19,6 +19,7 @@
 
 #include "Request.h"
 #include "Nebula.h"
+#include "DatastorePool.h"
 
 using namespace std;
 
@@ -40,8 +41,7 @@ protected:
         auth_object = PoolObjectSQL::DATASTORE;
         auth_op     = AuthRequest::MANAGE;
     };
-
-    ~RequestManagerDatastore(){};
+    ~RequestManagerDatastore() = default;
 
     /* --------------------------------------------------------------------- */
 
@@ -58,7 +58,7 @@ public:
     DatastoreEnable(): RequestManagerDatastore("one.datastore.enable",
         "Enables or disables an datastore", "A:sib"){};
 
-    ~DatastoreEnable(){};
+    ~DatastoreEnable() = default;
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;

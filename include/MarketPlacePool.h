@@ -18,10 +18,8 @@
 #define MARKETPLACE_POOL_H_
 
 #include "MarketPlace.h"
-#include "NebulaLog.h"
-#include "SqlDB.h"
+#include "PoolSQL.h"
 
-class SqlDB;
 class MarketPlaceApp;
 
 class MarketPlacePool : public PoolSQL

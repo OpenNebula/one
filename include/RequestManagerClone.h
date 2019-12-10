@@ -21,6 +21,10 @@
 #include "RequestManagerVMTemplate.h"
 #include "Nebula.h"
 
+#include "DocumentPool.h"
+#include "SecurityGroupPool.h"
+#include "VNTemplatePool.h"
+
 using namespace std;
 
 /* ------------------------------------------------------------------------- */

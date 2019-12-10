@@ -17,50 +17,50 @@
 #ifndef NEBULA_H_
 #define NEBULA_H_
 
-#include "LogDB.h"
+#include "NebulaTemplate.h"
 #include "SystemDB.h"
 
-#include "NebulaTemplate.h"
-
-#include "VirtualMachinePool.h"
-#include "VirtualNetworkPool.h"
-#include "HostPool.h"
-#include "UserPool.h"
-#include "VMTemplatePool.h"
-#include "GroupPool.h"
-#include "DatastorePool.h"
-#include "ClusterPool.h"
-#include "DocumentPool.h"
-#include "ZonePool.h"
-#include "SecurityGroupPool.h"
-#include "VdcPool.h"
-#include "VirtualRouterPool.h"
-#include "MarketPlacePool.h"
-#include "MarketPlaceAppPool.h"
-#include "VMGroupPool.h"
-#include "VNTemplatePool.h"
-#include "HookPool.h"
-
-#include "VirtualMachineManager.h"
-#include "LifeCycleManager.h"
-#include "InformationManager.h"
-#include "TransferManager.h"
-#include "DispatchManager.h"
-#include "RequestManager.h"
-#include "HookManager.h"
-#include "HookLog.h"
-#include "AuthManager.h"
-#include "AclManager.h"
-#include "ImageManager.h"
-#include "MarketPlaceManager.h"
-#include "IPAMManager.h"
-#include "RaftManager.h"
-#include "FedReplicaManager.h"
-
 #include "DefaultQuotas.h"
+#include "UserPool.h"
 
-#include "Callbackable.h"
+class LogDB;
+class FedLogDB;
+class User;
 
+class ClusterPool;
+class DatastorePool;
+class DocumentPool;
+class GroupPool;
+class HookPool;
+class HostPool;
+class ImagePool;
+class MarketPlacePool;
+class MarketPlaceAppPool;
+class SecurityGroupPool;
+class VdcPool;
+class VMGroupPool;
+class VMTemplatePool;
+class VNTemplatePool;
+class VirtualMachinePool;
+class VirtualNetworkPool;
+class VirtualRouterPool;
+class ZonePool;
+
+class AclManager;
+class AuthManager;
+class DispatchManager;
+class FedReplicaManager;
+class HookLog;
+class HookManager;
+class ImageManager;
+class InformationManager;
+class IPAMManager;
+class LifeCycleManager;
+class MarketPlaceManager;
+class RaftManager;
+class RequestManager;
+class TransferManager;
+class VirtualMachineManager;
 
 /**
  *  This is the main class for the OpenNebula daemon oned. It stores references
@@ -768,47 +768,7 @@ private:
         }
     };
 
-    ~Nebula()
-    {
-        delete vmpool;
-        delete vnpool;
-        delete hpool;
-        delete upool;
-        delete ipool;
-        delete gpool;
-        delete tpool;
-        delete dspool;
-        delete clpool;
-        delete docpool;
-        delete zonepool;
-        delete secgrouppool;
-        delete vdcpool;
-        delete vrouterpool;
-        delete marketpool;
-        delete apppool;
-        delete vmgrouppool;
-        delete vmm;
-        delete lcm;
-        delete im;
-        delete tm;
-        delete dm;
-        delete rm;
-        delete hm;
-        delete hl;
-        delete authm;
-        delete aclm;
-        delete imagem;
-        delete marketm;
-        delete ipamm;
-        delete raftm;
-        delete frm;
-        delete nebula_configuration;
-        delete logdb;
-        delete fed_logdb;
-        delete system_db;
-        delete vntpool;
-        delete hkpool;
-    };
+    ~Nebula();
 
     Nebula& operator=(Nebula const&){return *this;};
 

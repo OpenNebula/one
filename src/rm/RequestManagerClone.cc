@@ -20,6 +20,7 @@
 #include "RequestManagerVMTemplate.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
+#include "VirtualMachineDisk.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

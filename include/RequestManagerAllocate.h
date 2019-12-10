@@ -24,6 +24,24 @@
 #include "ImageTemplate.h"
 #include "VirtualMachineTemplate.h"
 #include "DatastoreTemplate.h"
+#include "MarketPlaceTemplate.h"
+
+#include "ClusterPool.h"
+#include "DocumentPool.h"
+#include "HookPool.h"
+#include "HostPool.h"
+#include "ImagePool.h"
+#include "MarketPlacePool.h"
+#include "MarketPlaceAppPool.h"
+#include "SecurityGroupPool.h"
+#include "VdcPool.h"
+#include "VirtualMachinePool.h"
+#include "VirtualNetworkPool.h"
+#include "VirtualRouterPool.h"
+#include "VMGroupPool.h"
+#include "VMTemplatePool.h"
+#include "VNTemplatePool.h"
+#include "ZonePool.h"
 
 using namespace std;
 

@@ -18,7 +18,6 @@
 #define _NEBULA_LOG_H_
 
 #include "Log.h"
-#include "NebulaUtil.h"
 
 #include <sstream>
 #include <syslog.h>

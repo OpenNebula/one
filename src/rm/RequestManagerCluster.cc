@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerCluster.h"
+#include "HostPool.h"
 
 using namespace std;
 

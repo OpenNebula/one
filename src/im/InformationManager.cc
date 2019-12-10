@@ -17,6 +17,8 @@
 #include "InformationManager.h"
 #include "Cluster.h"
 #include "Nebula.h"
+#include "HostPool.h"
+#include "RaftManager.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>

@@ -14,18 +14,12 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include <limits.h>
-#include <string.h>
-#include <stdlib.h>
-
-#include <iostream>
-#include <sstream>
-#include <iomanip>
-
 #include "User.h"
 #include "Nebula.h"
 #include "Group.h"
 #include "NebulaUtil.h"
+
+#include <sstream>
 
 const string User::INVALID_NAME_CHARS = " :\t\n\v\f\r";
 const string User::INVALID_PASS_CHARS = " \t\n\v\f\r";

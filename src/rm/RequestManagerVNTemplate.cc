@@ -19,6 +19,23 @@
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
 #include "RequestManagerClone.h"
+#include "ClusterPool.h"
+#include "VirtualNetworkPool.h"
+#include "VNTemplatePool.h"
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+RequestManagerVNTemplate::RequestManagerVNTemplate(const string& method_name,
+                                                   const string& help,
+                                                   const string& params)
+    : Request(method_name, params, help)
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_vntpool();
+
+    auth_object = PoolObjectSQL::VNTEMPLATE;
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

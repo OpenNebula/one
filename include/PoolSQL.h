@@ -22,7 +22,6 @@
 #include "SqlDB.h"
 #include "PoolObjectSQL.h"
 #include "PoolSQLCache.h"
-#include "Log.h"
 
 using namespace std;
 

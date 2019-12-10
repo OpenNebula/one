@@ -17,7 +17,7 @@
 #ifndef CLUSTER_H_
 #define CLUSTER_H_
 
-#include "PoolSQL.h"
+#include "PoolObjectSQL.h"
 #include "ObjectCollection.h"
 #include "DatastorePool.h"
 #include "ClusterTemplate.h"

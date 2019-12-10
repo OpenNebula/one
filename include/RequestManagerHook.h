@@ -19,6 +19,7 @@
 
 #include "Request.h"
 #include "Nebula.h"
+#include "HookPool.h"
 
 using namespace std;
 
@@ -40,7 +41,7 @@ protected:
         auth_object = PoolObjectSQL::HOOK;
     };
 
-    ~RequestManagerHook(){};
+    ~RequestManagerHook() = default;
 
     /* -------------------------------------------------------------------- */
 
@@ -60,7 +61,7 @@ public:
         auth_op = AuthRequest::MANAGE;
     };
 
-    ~HookRetry(){};
+    ~HookRetry() = default;
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);

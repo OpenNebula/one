@@ -17,8 +17,8 @@
 #include "RequestManagerChown.h"
 #include "PoolObjectSQL.h"
 
-#include "NebulaLog.h"
 #include "Nebula.h"
+#include "VirtualMachinePool.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

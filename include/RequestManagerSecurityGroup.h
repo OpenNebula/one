@@ -18,22 +18,13 @@
 #define REQUEST_MANAGER_SECURITY_GROUP_H_
 
 #include "Request.h"
-#include "Nebula.h"
 
 class SecurityGroupCommit : public Request
 {
 public:
-    SecurityGroupCommit() : Request("one.secgroup.commit", "A:sib",
-        "Commit security group changes to VMs")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_secgrouppool();
+    SecurityGroupCommit();
 
-        auth_object = PoolObjectSQL::SECGROUP;
-        auth_op     = AuthRequest::MANAGE;
-    };
-
-    ~SecurityGroupCommit(){};
+    ~SecurityGroupCommit() = default;
 
     void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att) override;
 };

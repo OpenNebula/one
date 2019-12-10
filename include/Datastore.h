@@ -17,7 +17,7 @@
 #ifndef DATASTORE_H_
 #define DATASTORE_H_
 
-#include "PoolSQL.h"
+#include "PoolObjectSQL.h"
 #include "ObjectCollection.h"
 #include "DatastoreTemplate.h"
 #include "Clusterable.h"

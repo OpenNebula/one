@@ -14,14 +14,6 @@
 /* limitations under the License.                                           */
 /* ------------------------------------------------------------------------ */
 
-#include <limits.h>
-#include <string.h>
-
-#include <iostream>
-#include <sstream>
-#include <openssl/evp.h>
-#include <iomanip>
-
 #include "Image.h"
 #include "ImagePool.h"
 
@@ -30,6 +22,11 @@
 #include "NebulaUtil.h"
 #include "LifeCycleManager.h"
 #include "Nebula.h"
+
+#include <sstream>
+#include <openssl/evp.h>
+#include <iomanip>
+
 
 #define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
 

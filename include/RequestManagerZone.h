@@ -19,6 +19,7 @@
 
 #include "Request.h"
 #include "Nebula.h"
+#include "ZonePool.h"
 
 using namespace std;
 

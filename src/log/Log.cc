@@ -16,7 +16,6 @@
 
 #include "Log.h"
 
-#include <string.h>
 #include <stdlib.h>
 #include <stdexcept>
 #include <sstream>

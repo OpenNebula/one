@@ -18,7 +18,6 @@
 #define REQUEST_MANAGER_LOCK_H_
 
 #include "Request.h"
-#include "Nebula.h"
 
 using namespace std;
 
@@ -36,7 +35,7 @@ protected:
         auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
-    ~RequestManagerLock(){};
+    ~RequestManagerLock() = default;
 
     /* -------------------------------------------------------------------- */
 
@@ -62,7 +61,7 @@ protected:
         auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
-    ~RequestManagerUnlock(){};
+    ~RequestManagerUnlock() = default;
 
     /* -------------------------------------------------------------------- */
 
@@ -81,16 +80,9 @@ protected:
 class DocumentLock : public RequestManagerLock
 {
 public:
-    DocumentLock():
-        RequestManagerLock("one.document.lock",
-                           "Tries to acquire the object's lock")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_docpool();
-        auth_object = PoolObjectSQL::DOCUMENT;
-    };
+    DocumentLock();
 
-    ~DocumentLock(){};
+    ~DocumentLock() = default;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -99,16 +91,9 @@ public:
 class DocumentUnlock : public RequestManagerUnlock
 {
 public:
-    DocumentUnlock():
-        RequestManagerUnlock("one.document.unlock",
-                           "Unlocks the object")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_docpool();
-        auth_object = PoolObjectSQL::DOCUMENT;
-    };
+    DocumentUnlock();
 
-    ~DocumentUnlock(){};
+    ~DocumentUnlock() = default;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -117,15 +102,9 @@ public:
 class VirtualMachineLock: public RequestManagerLock
 {
 public:
-    VirtualMachineLock():
-        RequestManagerLock("one.vm.lock",
-                           "Lock a VM"){
-        Nebula& nd  = Nebula::instance();
-        auth_object = PoolObjectSQL::VM;
-        pool        =  nd.get_vmpool();
-    };
+    VirtualMachineLock();
 
-    ~VirtualMachineLock(){};
+    ~VirtualMachineLock() = default;
 };
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -133,15 +112,9 @@ public:
 class VirtualMachineUnlock: public RequestManagerUnlock
 {
 public:
-    VirtualMachineUnlock():
-        RequestManagerUnlock("one.vm.unlock",
-                           "Unlock a VM"){
-        Nebula& nd  = Nebula::instance();
-        auth_object = PoolObjectSQL::VM;
-        pool        =  nd.get_vmpool();
-    };
+    VirtualMachineUnlock();
 
-    ~VirtualMachineUnlock(){};
+    ~VirtualMachineUnlock() = default;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -150,15 +123,9 @@ public:
 class VMTemplateLock: public RequestManagerLock
 {
 public:
-    VMTemplateLock():
-        RequestManagerLock("one.template.lock",
-                           "Lock a Template"){
-        Nebula& nd  = Nebula::instance();
-        auth_object = PoolObjectSQL::TEMPLATE;
-        pool        =  nd.get_tpool();
-    };
+    VMTemplateLock();
 
-    ~VMTemplateLock(){};
+    ~VMTemplateLock() = default;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -167,15 +134,9 @@ public:
 class VMTemplateUnlock: public RequestManagerUnlock
 {
 public:
-    VMTemplateUnlock():
-        RequestManagerUnlock("one.template.unlock",
-                           "Unlock a Template"){
-        Nebula& nd  = Nebula::instance();
-        auth_object = PoolObjectSQL::TEMPLATE;
-        pool        =  nd.get_tpool();
-    };
+    VMTemplateUnlock();
 
-    ~VMTemplateUnlock(){};
+    ~VMTemplateUnlock() = default;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -184,15 +145,9 @@ public:
 class VNTemplateLock: public RequestManagerLock
 {
 public:
-    VNTemplateLock():
-        RequestManagerLock("one.vntemplate.lock",
-                           "Lock a VN Template"){
-        Nebula& nd  = Nebula::instance();
-        auth_object = PoolObjectSQL::VNTEMPLATE;
-        pool        =  nd.get_vntpool();
-    };
+    VNTemplateLock();
 
-    ~VNTemplateLock(){};
+    ~VNTemplateLock() = default;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -201,15 +156,9 @@ public:
 class VNTemplateUnlock: public RequestManagerUnlock
 {
 public:
-    VNTemplateUnlock():
-        RequestManagerUnlock("one.vntemplate.unlock",
-                           "Unlock a VN Template"){
-        Nebula& nd  = Nebula::instance();
-        auth_object = PoolObjectSQL::VNTEMPLATE;
-        pool        =  nd.get_vntpool();
-    };
+    VNTemplateUnlock();
 
-    ~VNTemplateUnlock(){};
+    ~VNTemplateUnlock() = default;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -218,15 +167,9 @@ public:
 class VirtualNetworkLock: public RequestManagerLock
 {
 public:
-    VirtualNetworkLock():
-        RequestManagerLock("one.vn.lock",
-                           "Lock a VNet"){
-        Nebula& nd  = Nebula::instance();
-        auth_object = PoolObjectSQL::NET;
-        pool        =  nd.get_vnpool();
-    };
+    VirtualNetworkLock();
 
-    ~VirtualNetworkLock(){};
+    ~VirtualNetworkLock() = default;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -235,15 +178,9 @@ public:
 class VirtualNetworkUnlock: public RequestManagerUnlock
 {
 public:
-    VirtualNetworkUnlock():
-        RequestManagerUnlock("one.vn.unlock",
-                           "Unlock a VNet"){
-        Nebula& nd  = Nebula::instance();
-        auth_object = PoolObjectSQL::NET;
-        pool        =  nd.get_vnpool();
-    };
+    VirtualNetworkUnlock();
 
-    ~VirtualNetworkUnlock(){};
+    ~VirtualNetworkUnlock() = default;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -252,15 +189,9 @@ public:
 class ImageLock: public RequestManagerLock
 {
 public:
-    ImageLock():
-        RequestManagerLock("one.image.lock",
-                           "Lock a Image"){
-        Nebula& nd  = Nebula::instance();
-        auth_object = PoolObjectSQL::IMAGE;
-        pool        =  nd.get_ipool();
-    };
+    ImageLock();
 
-    ~ImageLock(){};
+    ~ImageLock() = default;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -269,15 +200,9 @@ public:
 class ImageUnlock: public RequestManagerUnlock
 {
 public:
-    ImageUnlock():
-        RequestManagerUnlock("one.image.unlock",
-                           "Unlock a Image"){
-        Nebula& nd  = Nebula::instance();
-        auth_object = PoolObjectSQL::IMAGE;
-        pool        =  nd.get_ipool();
-    };
+    ImageUnlock();
 
-    ~ImageUnlock(){};
+    ~ImageUnlock() = default;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -286,15 +211,9 @@ public:
 class MarketPlaceAppLock: public RequestManagerLock
 {
 public:
-    MarketPlaceAppLock():
-        RequestManagerLock("one.marketapp.lock",
-                           "Lock a MarketPlaceApp"){
-        Nebula& nd  = Nebula::instance();
-        auth_object = PoolObjectSQL::MARKETPLACEAPP;
-        pool        =  nd.get_apppool();
-    };
+    MarketPlaceAppLock();
 
-    ~MarketPlaceAppLock(){};
+    ~MarketPlaceAppLock() = default;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -303,15 +222,9 @@ public:
 class MarketPlaceAppUnlock: public RequestManagerUnlock
 {
 public:
-    MarketPlaceAppUnlock():
-        RequestManagerUnlock("one.marketapp.unlock",
-                           "Unlock a MarketPlaceApp"){
-        Nebula& nd  = Nebula::instance();
-        auth_object = PoolObjectSQL::MARKETPLACEAPP;
-        pool        =  nd.get_apppool();
-    };
+    MarketPlaceAppUnlock();
 
-    ~MarketPlaceAppUnlock(){};
+    ~MarketPlaceAppUnlock() = default;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -320,15 +233,9 @@ public:
 class VirtualRouterLock: public RequestManagerLock
 {
 public:
-    VirtualRouterLock():
-        RequestManagerLock("one.vrouter.lock",
-                           "Lock a VirtualRouter"){
-        Nebula& nd  = Nebula::instance();
-        auth_object = PoolObjectSQL::VROUTER;
-        pool        =  nd.get_vrouterpool();
-    };
+    VirtualRouterLock();
 
-    ~VirtualRouterLock(){};
+    ~VirtualRouterLock() = default;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -337,15 +244,9 @@ public:
 class VirtualRouterUnlock: public RequestManagerUnlock
 {
 public:
-    VirtualRouterUnlock():
-        RequestManagerUnlock("one.vrouter.unlock",
-                           "Unlock a VirtualRouter"){
-        Nebula& nd  = Nebula::instance();
-        auth_object = PoolObjectSQL::VROUTER;
-        pool        =  nd.get_vrouterpool();
-    };
+    VirtualRouterUnlock();
 
-    ~VirtualRouterUnlock(){};
+    ~VirtualRouterUnlock() = default;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -354,15 +255,9 @@ public:
 class VMGroupLock: public RequestManagerLock
 {
 public:
-    VMGroupLock():
-        RequestManagerLock("one.vmgroup.lock",
-                           "Lock a VMGroup"){
-        Nebula& nd  = Nebula::instance();
-        auth_object = PoolObjectSQL::VMGROUP;
-        pool        =  nd.get_vmgrouppool();
-    };
+    VMGroupLock();
 
-    ~VMGroupLock(){};
+    ~VMGroupLock() = default;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -371,15 +266,9 @@ public:
 class VMGroupUnlock: public RequestManagerUnlock
 {
 public:
-    VMGroupUnlock():
-        RequestManagerUnlock("one.vmgroup.unlock",
-                           "Unlock a VMGroup"){
-        Nebula& nd  = Nebula::instance();
-        auth_object = PoolObjectSQL::VMGROUP;
-        pool        =  nd.get_vmgrouppool();
-    };
+    VMGroupUnlock();
 
-    ~VMGroupUnlock(){};
+    ~VMGroupUnlock() = default;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -388,15 +277,9 @@ public:
 class HookLock: public RequestManagerLock
 {
 public:
-    HookLock():
-        RequestManagerLock("one.hook.lock",
-                           "Lock a Hook"){
-        Nebula& nd  = Nebula::instance();
-        auth_object = PoolObjectSQL::HOOK;
-        pool        =  nd.get_hkpool();
-    };
+    HookLock();
 
-    ~HookLock(){};
+    ~HookLock() = default;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -405,15 +288,9 @@ public:
 class HookUnlock: public RequestManagerUnlock
 {
 public:
-    HookUnlock():
-        RequestManagerUnlock("one.hook.unlock",
-                           "Unlock a Hook"){
-        Nebula& nd  = Nebula::instance();
-        auth_object = PoolObjectSQL::HOOK;
-        pool        =  nd.get_hkpool();
-    };
+    HookUnlock();
 
-    ~HookUnlock(){};
+    ~HookUnlock() = default;
 };
 
 #endif

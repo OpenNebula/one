@@ -14,6 +14,9 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+#include "OpenNebulaDriver.h"
+#include "ListenerThread.h"
+
 #include <sstream>
 #include <iostream>
 
@@ -23,10 +26,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <errno.h>
-#include <string.h>
-
-#include "OpenNebulaDriver.h"
-#include "ListenerThread.h"
+#include <cstring>
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

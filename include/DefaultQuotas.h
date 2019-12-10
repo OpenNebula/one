@@ -18,8 +18,6 @@
 #define DEFAULT_QUOTAS_H_
 
 #include "Quotas.h"
-#include "SqlDB.h"
-#include "ObjectSQL.h"
 
 class DefaultQuotas : public Quotas
 {

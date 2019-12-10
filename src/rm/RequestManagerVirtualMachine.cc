@@ -19,6 +19,10 @@
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
 #include "Quotas.h"
+#include "ClusterPool.h"
+#include "ImagePool.h"
+#include "DispatchManager.h"
+#include "VirtualMachineManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -1047,7 +1051,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     DispatchManager *   dm = nd.get_dm();
     DatastorePool * dspool = nd.get_dspool();
 
-    VirtualMachinePool * vmpool = nd.get_vmpool();
     VirtualMachine * vm;
 
     string hostname;

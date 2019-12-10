@@ -18,6 +18,7 @@
 #include "User.h"
 #include "Nebula.h"
 #include "NebulaLog.h"
+#include "VirtualNetworkPool.h"
 
 /* -------------------------------------------------------------------------- */
 

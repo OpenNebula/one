@@ -13,30 +13,25 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-#include <limits.h>
-#include <string.h>
-#include <time.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <regex.h>
-#include <unistd.h>
-
-#include <iostream>
-#include <sstream>
-#include <queue>
-
 #include "VirtualMachine.h"
+#include "VirtualMachineManager.h"
 #include "VirtualNetworkPool.h"
+#include "VMGroupPool.h"
 #include "ImagePool.h"
 #include "NebulaLog.h"
 #include "NebulaUtil.h"
 #include "Snapshots.h"
 #include "ScheduledAction.h"
+#include "LifeCycleManager.h"
+#include "ClusterPool.h"
+#include "DatastorePool.h"
 
 #include "Nebula.h"
 
 #include "vm_file_var_syntax.h"
 #include "vm_var_syntax.h"
+
+#include <sys/stat.h>
 
 /* ************************************************************************** */
 /* Virtual Machine :: Constructor/Destructor                                  */
@@ -3615,6 +3610,26 @@ int VirtualMachine::set_detach_nic(int nic_id)
     }
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::delete_attach_alias(VirtualMachineNic *nic)
+{
+    std::set<int> a_ids;
+
+    one_util::split_unique(nic->vector_value("ALIAS_IDS"), ',', a_ids);
+
+    for (const auto& id : a_ids)
+    {
+        VirtualMachineNic * nic_a = nics.delete_nic(id);
+
+        if (nic_a != 0)
+        {
+            obj_template->remove(nic_a->vector_attribute());
+        }
+    }
 }
 
 /* -------------------------------------------------------------------------- */

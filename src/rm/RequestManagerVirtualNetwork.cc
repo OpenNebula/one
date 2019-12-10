@@ -16,6 +16,7 @@
 
 #include "RequestManagerVirtualNetwork.h"
 #include "VirtualNetworkTemplate.h"
+#include "ClusterPool.h"
 
 using namespace std;
 
