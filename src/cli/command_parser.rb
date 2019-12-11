@@ -140,6 +140,7 @@ module CommandParser
         # @option options [String] :name
         # @option options [String] :short
         # @option options [String] :large
+        # @option options [Boolean] :multiple
         # @option options [String] :description
         # @option options [Class] :format
         # @option options [Block] :proc The block receives the value of the
@@ -490,11 +491,12 @@ module CommandParser
                     args = []
                     args << e[:short] if e[:short]
                     args << e[:large]
+                    args << e[:multiple] if e[:multiple]
                     args << e[:format]
                     args << e[:description]
 
                     opts.on(*args) do |o|
-                        if e[:proc]
+                        if e[:proc] && !e[:multiple]
                             @options[e[:name].to_sym]=o
                             with_proc<<e
                         elsif e[:name]=="help"
@@ -503,8 +505,14 @@ module CommandParser
                         elsif e[:name]=="version"
                             puts @version
                             exit
-                        else
+                        elsif !e[:multiple]
                             @options[e[:name].to_sym]=o
+                        else
+                            if @options[e[:name].to_sym].nil?
+                                @options[e[:name].to_sym] = []
+                            end
+
+                            @options[e[:name].to_sym] << o
                         end
                     end
                 end
