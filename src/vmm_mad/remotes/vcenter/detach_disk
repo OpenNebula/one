@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/bin/sh
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
@@ -16,41 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION ||= ENV['ONE_LOCATION']
+# Detach disk functionality is implemented in src/tm_mad/vcenter/delete
 
-if !ONE_LOCATION
-    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
-    GEMS_LOCATION     ||= '/usr/share/one/gems'
-else
-    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
-    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
-end
+STDIN=`cat -`
 
-$LOAD_PATH << RUBY_LIB_LOCATION
-$LOAD_PATH << File.dirname(__FILE__)
-
-require 'vcenter_driver'
-
-vm_ref           = ARGV[0]
-vc_cluster_name  = ARGV[-1]
-
-drv_action = OpenNebula::XMLElement.new
-drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VMM_DRIVER_ACTION_DATA')
-
-host_id = drv_action['VM/HISTORY_RECORDS/HISTORY/HID']
-
-begin
-    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-
-    VCenterDriver::VirtualMachine.new_without_id(vi_client, vm_ref)
-rescue StandardError => e
-    message = "Detach DISK for VM #{vm_ref} on vCenter cluster " \
-              "#{vc_cluster_name} failed due to \"#{e.message}\"."
-    OpenNebula.log_error(message)
-    if VCenterDriver::CONFIG[:debug_information]
-        STDERR.puts "#{message} #{e.backtrace}"
-    end
-    exit(-1)
-ensure
-    vi_client.close_connection if vi_client
-end
+exit 0
