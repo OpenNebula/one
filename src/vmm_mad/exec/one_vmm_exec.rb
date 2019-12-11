@@ -660,7 +660,7 @@ class ExecDriver < VirtualMachineDriver
     end
 
     #
-    # DETACHDISK action, attaches a disk to a running VM
+    # DETACHDISK action, detach a disk from a running VM
     #
     def detach_disk(id, drv_message)
         action   = ACTION[:detach_disk]
