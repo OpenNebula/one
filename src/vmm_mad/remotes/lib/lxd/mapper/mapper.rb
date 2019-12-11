@@ -70,7 +70,8 @@ class Mapper
         :xfs_growfs => 'sudo xfs_growfs',
         :rbd        => 'sudo rbd-nbd --id',
         :xfs_admin  => 'sudo xfs_admin',
-        :tune2fs    => 'sudo tune2fs'
+        :tune2fs    => 'sudo tune2fs',
+        :mkfs       => '/sbin/mkfs'
     }
 
     #---------------------------------------------------------------------------
@@ -119,6 +120,10 @@ class Mapper
         OpenNebula.log_info "Mapping disk at #{directory} using device #{device}"
 
         return false unless device
+
+        if one_vm.volatile?(disk)
+            return unless mkfs(device, one_vm.lxdrc[:filesystem])
+        end
 
         partitions = lsblk(device)
 
@@ -195,7 +200,7 @@ class Mapper
 
         if device.empty?
             OpenNebula.log_error("Failed to detect block device from #{directory}")
-            return true
+            return
         end
 
         return unless umount(partitions)
@@ -550,6 +555,15 @@ class Mapper
     def update_partable(dev)
         cmd = "#{COMMANDS[:mount]} --fake #{dev} /mnt"
         Command.execute(cmd, false)
+    end
+
+    def mkfs(device, format)
+        cmd = "#{COMMANDS[:mkfs]}.#{format} #{device}"
+        rc, o, e = Command.execute(cmd, false)
+
+        return true if rc.zero?
+
+        OpenNebula.log_error "Failed to format #{device}\n#{o}\n#{e}"
     end
 
 end

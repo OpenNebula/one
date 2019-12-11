@@ -298,12 +298,11 @@ class Container
         return unless @one
 
         @one.get_disks.each do |disk|
+            next if @one.swap?(disk)
             return nil unless setup_disk(disk, operation)
         end
 
         return true unless @one.has_context?
-
-        csrc = @lxc['devices']['context']['source'].clone
 
         context = @one.get_context_disk
         mapper  = FSRawMapper.new
@@ -319,19 +318,15 @@ class Container
             end
         end
 
-        mapper.public_send(operation, @one, context, csrc)
+        mapper.public_send(operation, @one, context, context_source)
     end
 
     # Generate the context devices and maps the context the device
     def attach_context
         @one.context(@lxc['devices'])
 
-        csrc = @lxc['devices']['context']['source'].clone
-
-        context = @one.get_context_disk
-        mapper  = FSRawMapper.new
-
-        return unless mapper.map(@one, context, csrc)
+        mapper = FSRawMapper.new
+        return unless mapper.map(@one, @one.context_disk, context_source)
 
         update
         true
@@ -342,16 +337,13 @@ class Container
     def detach_context
         return true unless @one.has_context?
 
-        csrc = @lxc['devices']['context']['source'].clone
+        context_src = context_source
 
-        @lxc['devices'].delete('context')
-
+        @lxc['devices'].delete('context')['source']
         update
 
-        context = @one.get_context_disk
-        mapper  = FSRawMapper.new
-
-        mapper.unmap(@one, context, csrc)
+        mapper = FSRawMapper.new
+        mapper.unmap(@one, @one.context_disk, context_src)
     end
 
     # Attach disk to container (ATTACH = YES) in VM description
@@ -359,11 +351,11 @@ class Container
         disk_element = hotplug_disk
 
         raise 'Missing hotplug info' unless disk_element
+        return if @one.swap?(disk_element)
 
         return unless setup_disk(disk_element, 'map')
 
         disk_hash = @one.disk(disk_element, nil, nil)
-
         @lxc['devices'].update(disk_hash)
 
         update
@@ -518,10 +510,10 @@ class Container
     #  TODO This maps should be built dynamically or based on a DISK attribute
     #  so new mappers does not need to modified source code
     def new_disk_mapper(disk)
-        case disk['TYPE']
-        when 'FILE', 'BLOCK'
+        ds = @one.disk_source(disk)
 
-            ds = @one.disk_source(disk)
+        case disk['DISK_TYPE']
+        when 'FILE', 'BLOCK'
 
             rc, out, err = Command.execute("#{Mapper::COMMANDS[:file]} #{ds}", false)
 
@@ -553,6 +545,16 @@ class Container
                 ' not supported')
             nil
         end
+    end
+
+    def context_source
+        return unless @one.has_context?
+
+        disk_source('context')
+    end
+
+    def disk_source(disk_name)
+        @lxc['devices'][disk_name]['source'].clone
     end
 
 end

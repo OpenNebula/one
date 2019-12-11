@@ -26,6 +26,7 @@ class LXDConfiguration < Hash
             :height  => '600',
             :timeout => '300'
         },
+        :filesystem => 'ext4',
         :datastore_location => '/var/lib/one/datastores'
     }
 
@@ -207,7 +208,7 @@ class OpenNebulaVM
         disks = @xml.elements('//TEMPLATE/DISK')
 
         disks.each do |n|
-            next unless valid_disk?(n)
+            next if swap?(n)
 
             hash.update(disk(n, nil, nil))
         end
@@ -230,6 +231,7 @@ class OpenNebulaVM
         }
     end
 
+    # Returns the disk mountpoint on the LXD node fs
     def disk_mountpoint(disk_id)
         datastore = @sysds_path
         datastore = File.readlink(@sysds_path) if File.symlink?(@sysds_path)
@@ -240,9 +242,13 @@ class OpenNebulaVM
     def disk_source(disk)
         disk_id = disk['DISK_ID']
 
-        if disk['TYPE'] == 'RBD'
+        if disk['DISK_TYPE'] == 'RBD'
             src = disk['SOURCE']
-            return "#{src}-#{vm_id}-#{disk['DISK_ID']}" if disk['CLONE'] == 'YES'
+
+            return "#{src}-#{vm_id}-#{disk_id}" if disk['CLONE'] == 'YES'
+
+            return "#{disk['POOL_NAME']}/one-sys-#{vm_id}-#{disk_id}" if
+            volatile?(disk)
 
             return src
         end
@@ -318,8 +324,17 @@ class OpenNebulaVM
         { disk_name => disk }
     end
 
-    def valid_disk?(disk)
-        return true if %w[FILE BLOCK RBD].include? disk['TYPE']
+    def swap?(disk)
+        return false unless disk['TYPE'] == 'swap'
+
+        e = "disk #{disk['DISK_ID']} type #{disk['TYPE']} not supported"
+        OpenNebula.log_error e
+
+        true
+    end
+
+    def volatile?(disk)
+        return true if disk['TYPE'] == 'fs'
 
         false
     end
