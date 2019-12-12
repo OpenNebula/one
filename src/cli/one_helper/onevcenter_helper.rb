@@ -96,6 +96,7 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
     end
 
     def host(arg)
+        return arg
     end
 
     ########################
