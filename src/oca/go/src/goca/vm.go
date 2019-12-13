@@ -99,9 +99,14 @@ func (vc *VMsController) Info(args ...int) (*vm.Pool, error) {
 }
 
 // InfoExtended connects to OpenNebula and fetches the whole VM_POOL information
-func (vc *VMsController) InfoExtended(filterFlag, startID, endID, state int) (*vm.Pool, error) {
-	response, err := vc.c.Client.Call("one.vmpool.infoextended", filterFlag,
-		startID, endID, state)
+func (vc *VMsController) InfoExtended(args ...int) (*vm.Pool, error) {
+
+	fArgs, err := handleVMArgs(args)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := vc.c.Client.Call("one.vmpool.infoextended", fArgs...)
 	if err != nil {
 		return nil, err
 	}
