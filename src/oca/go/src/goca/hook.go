@@ -69,8 +69,14 @@ func (c *HooksController) ByName(name string) (int, error) {
 
 // Info returns a hook pool. A connection to OpenNebula is
 // performed
-func (hc *HooksController) Info() (*hook.Pool, error) {
-	response, err := hc.c.Client.Call("one.hookpool.info", -1, -1, -1)
+func (hc *HooksController) Info(args ...int) (*hook.Pool, error) {
+
+	fArgs, err := handleArgs(args)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := hc.c.Client.Call("one.hookpool.info", fArgs...)
 	if err != nil {
 		return nil, err
 	}

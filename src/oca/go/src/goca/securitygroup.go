@@ -71,26 +71,13 @@ func (c *SecurityGroupsController) ByName(name string, args ...int) (int, error)
 // Info returns a security group pool. A connection to OpenNebula is
 // performed.
 func (sc *SecurityGroupsController) Info(args ...int) (*securitygroup.Pool, error) {
-	var who, start, end int
 
-	switch len(args) {
-	case 0:
-		who = parameters.PoolWhoMine
-		start = -1
-		end = -1
-	case 1:
-		who = args[0]
-		start = -1
-		end = -1
-	case 3:
-		who = args[0]
-		start = args[1]
-		end = args[2]
-	default:
-		return nil, errors.New("Wrong number of arguments")
+	fArgs, err := handleArgs(args)
+	if err != nil {
+		return nil, err
 	}
 
-	response, err := sc.c.Client.Call("one.secgrouppool.info", who, start, end)
+	response, err := sc.c.Client.Call("one.secgrouppool.info", fArgs...)
 	if err != nil {
 		return nil, err
 	}
