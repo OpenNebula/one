@@ -18,9 +18,68 @@ package goca
 
 import (
 	"errors"
+	"fmt"
 
+	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	param "github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
 )
+
+// VMFilter groups filtering criterias for VMs
+type VMFilter struct {
+	Who     int
+	StartID int
+	EndID   int
+	State   int
+
+	// Pair is optional. Format: "KEY=VALUE"
+	Pair string
+}
+
+// NewVMFilterDefault return a VM filter configured by default
+func NewVMFilterDefault() *VMFilter {
+	return &VMFilter{
+		Who:     param.PoolWhoMine,
+		StartID: -1,
+		EndID:   -1,
+		State:   -1,
+	}
+}
+
+// NewVMFilter return a VM filter
+func NewVMFilter(who, start, end, state int) *VMFilter {
+
+	filter := &VMFilter{
+		Who:     who,
+		StartID: start,
+		EndID:   end,
+		State:   state,
+	}
+
+	return filter
+}
+
+// SetPair set the optional argument pair to the filter
+func (f *VMFilter) SetPair(key string, value interface{}) error {
+
+	pair, err := dyn.MakePair(key, value)
+	if err != nil {
+		return err
+	}
+
+	// don't work with String method defined on Pair
+	f.Pair = fmt.Sprintf("%s=%s", pair.Key(), pair.Value)
+
+	return nil
+}
+
+func (f *VMFilter) toArgs() []interface{} {
+	if len(f.Pair) > 0 {
+		return []interface{}{f.Who, f.StartID, f.EndID, f.State, f.Pair}
+	}
+	return []interface{}{f.Who, f.StartID, f.EndID, f.State}
+
+}
 
 func handleArgs(args []int) ([]interface{}, error) {
 	var who, start, end int
