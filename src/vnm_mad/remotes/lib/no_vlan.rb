@@ -26,6 +26,10 @@ module VNMMAD
             true
         end
 
+        def delete_vlan_dev
+            true
+        end
+
     private
         def gen_vlan_dev_name
             @nic[:vlan_dev] = @nic[:phydev] if @nic[:phydev]
