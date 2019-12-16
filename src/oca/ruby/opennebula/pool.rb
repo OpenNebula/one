@@ -261,27 +261,52 @@ module OpenNebula
             return rc
         end
 
-        # Iterates over pool pages
-        # size:: nil => default page size
-        #        > 0 => page size
-        # state state of objects
-        # delete true to take always the first page
-        def each_page(size, state = -1, extended = false, delete = false)
+        # Iterates over pool page
+        def loop_page(size, state, extended)
             current = 0
             element = @pool_name.split('_')[0]
             page    = OpenNebula::XMLElement.new
 
             loop do
-                page.initialize_xml(get_page(size, current, extended, state),
+                page.initialize_xml(get_page(size,
+                                             current,
+                                             extended,
+                                             state),
                                              @pool_name)
 
                 break if page["//#{element}"].nil?
 
+                current += yield(element, page)
+            end
+        end
+
+        # Iterates over pool pages
+        # size:: nil => default page size
+        #        > 0 => page size
+        # state state of objects
+        def each_page(size, state = -1, extended = false)
+            loop_page(size, state, extended) do |element, page|
                 page.each("//#{element}") do |obj|
                     yield(obj)
                 end
 
-                current += size unless delete
+                size
+            end
+        end
+
+        # Iterates over pool pages to delete them
+        # size:: nil => default page size
+        #        > 0 => page size
+        # state state of objects
+        def each_page_delete(size, state = -1, extended = false)
+            loop_page(size, state, extended) do |element, page|
+                no_deleted = 0
+
+                page.each("//#{element}") do |obj|
+                    no_deleted += 1 if !yield(obj)
+                end
+
+                no_deleted
             end
         end
 
