@@ -40,7 +40,7 @@ if [ ! -t 0 ]; then
 
     # The data is the driver message. Extracting the System DS TM_MAD
     XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
-    TM_MAD=$(echo "$DRV_MESSAGE" | $XPATH /VMM_DRIVER_ACTION_DATA/DATASTORE/TM_MAD)
+    IFS= read -r -d '' TM_MAD < <(echo "$DRV_MESSAGE" | $XPATH /VMM_DRIVER_ACTION_DATA/DATASTORE/TM_MAD)
 
     # If there is a specific hook for this TM_MAD call it:
     RESTORE_TM_FILE="${DRIVER_PATH}/restore.${TM_MAD}"
