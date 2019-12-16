@@ -163,7 +163,6 @@ AllCops:
     - src/cloud/ec2/bin/econe-disassociate-address
     - src/cloud/ec2/bin/econe-create-keypair
     - src/cloud/ec2/bin/econe-describe-volumes
-    - src/onedb/onedb
     - src/market_mad/remotes/s3/monitor
     - src/market_mad/remotes/s3/delete
     - src/market_mad/remotes/s3/import
@@ -557,7 +556,6 @@ AllCops:
     - src/onedb/local/5.8.0_to_5.9.80.rb
     - src/onedb/local/5.8.0_to_5.10.0.rb
     - src/onedb/local/5.6.0_to_5.10.0.rb
-    - src/onedb/onedb_live.rb
     - src/onedb/onedb_backend.rb
     - src/onedb/sqlite2mysql.rb
     - src/market_mad/remotes/s3/S3.rb
