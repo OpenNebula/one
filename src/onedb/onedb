@@ -21,7 +21,7 @@ nk_encoding = nil
 if RUBY_VERSION =~ /^1.9/
     Encoding.default_external = Encoding::UTF_8
     Encoding.default_internal = Encoding::UTF_8
-    nk_encoding = "UTF-8"
+    nk_encoding = 'UTF-8'
 end
 
 NOKOGIRI_ENCODING = nk_encoding
@@ -59,24 +59,24 @@ require 'onedb_live'
 require 'cli/one_helper'
 
 FORCE={
-    :name => "force",
-    :short => "-f",
-    :large => "--force",
-    :description => "Forces the backup even if the DB exists"
+    :name => 'force',
+    :short => '-f',
+    :large => '--force',
+    :description => 'Forces the backup even if the DB exists'
 }
 
 BACKUP={
-    :name => "backup",
-    :short => "-b file",
-    :large => "--backup file",
-    :description => "Use this file to store SQL dump",
+    :name => 'backup',
+    :short => '-b file',
+    :large => '--backup file',
+    :description => 'Use this file to store SQL dump',
     :format => String
 }
 
 FEDERATED = {
-    :name        => "federated",
-    :large       => "--federated",
-    :description => "Limit backup/restore to federated tables"
+    :name => 'federated',
+    :large => '--federated',
+    :description => 'Limit backup/restore to federated tables'
 }
 
 RECREATE = {
@@ -89,12 +89,12 @@ RECREATE = {
 # SQLite options
 ###############################################################################
 SQLITE={
-    :name => "sqlite",
-    :short => "-s file",
-    :large => "--sqlite file",
+    :name => 'sqlite',
+    :short => '-s file',
+    :large => '--sqlite file',
     :format => String,
-    :description => "SQLite DB file",
-    :proc => lambda { |o, options|
+    :description => 'SQLite DB file',
+    :proc => lambda {|o, options|
         options[:backend] = :sqlite
         options[:sqlite]  = o
     }
@@ -104,71 +104,71 @@ SQLITE={
 # MySQL options
 ###############################################################################
 SERVER={
-    :name => "server",
-    :short => "-S host",
-    :large => "--server host",
+    :name => 'server',
+    :short => '-S host',
+    :large => '--server host',
     :format => String,
-    :description => "MySQL server hostname or IP. Defaults to localhost",
-    :proc => lambda { |o, options|
+    :description => 'MySQL server hostname or IP. Defaults to localhost',
+    :proc => lambda {|o, options|
         options[:backend] = :mysql
         options[:server]  = o
     }
 }
 
 PORT={
-    :name => "port",
-    :short => "-P port",
-    :large => "--port port",
+    :name => 'port',
+    :short => '-P port',
+    :large => '--port port',
     :format => String,
-    :description => "MySQL server port. Defaults to 3306",
-    :proc => lambda { |o, options|
+    :description => 'MySQL server port. Defaults to 3306',
+    :proc => lambda {|o, options|
         options[:backend] = :mysql
-        options[:port]  = o
+        options[:port] = o
     }
 }
 
 USERNAME={
-    :name => "username",
-    :short => "-u user",
-    :large => "--username user",
+    :name => 'username',
+    :short => '-u user',
+    :large => '--username user',
     :format => String,
-    :description => "MySQL username",
-    :proc => lambda { |o, options|
+    :description => 'MySQL username',
+    :proc => lambda {|o, options|
         options[:backend] = :mysql
         options[:user]    = o
     }
 }
 
 PASSWORD={
-    :name => "password",
-    :short => "-p pass",
-    :large => "--password pass",
+    :name => 'password',
+    :short => '-p pass',
+    :large => '--password pass',
     :format => String,
-    :description => "MySQL password. Leave unset to be prompted for it",
-    :proc => lambda { |o, options|
+    :description => 'MySQL password. Leave unset to be prompted for it',
+    :proc => lambda {|o, options|
         options[:backend] = :mysql
         options[:passwd]  = o
     }
 }
 
 DBNAME={
-    :name => "dbname",
-    :short => "-d dbname",
-    :large => "--dbname dbname",
+    :name => 'dbname',
+    :short => '-d dbname',
+    :large => '--dbname dbname',
     :format => String,
-    :description => "MySQL DB name for OpenNebula",
-    :proc => lambda { |o, options|
+    :description => 'MySQL DB name for OpenNebula',
+    :proc => lambda {|o, options|
         options[:backend] = :mysql
         options[:db_name] = o
     }
 }
 
 ENCODING={
-    :name => "encoding",
-    :large => "--encoding charset",
+    :name => 'encoding',
+    :large => '--encoding charset',
     :format => String,
-    :description => "MySQL encoding to use for the connection",
-    :proc => lambda { |o, options|
+    :description => 'MySQL encoding to use for the connection',
+    :proc => lambda {|o, options|
         options[:backend]  = :mysql
         options[:encoding] = o
     }
@@ -178,64 +178,64 @@ ENCODING={
 # Slave MySQL options
 ###############################################################################
 SLAVE_SERVER={
-    :name => "slave-server",
-    :large => "--slave-server host",
+    :name => 'slave-server',
+    :large => '--slave-server host',
     :format => String,
-    :description => "Slave MySQL server hostname or IP. Defaults to localhost",
-    :proc => lambda { |o, options|
+    :description => 'Slave MySQL server hostname or IP. Defaults to localhost',
+    :proc => lambda {|o, options|
         options[:slave_backend] = :mysql
         options[:slave_server]  = o
     }
 }
 
 SLAVE_PORT={
-    :name => "slave-port",
-    :large => "--slave-port port",
+    :name => 'slave-port',
+    :large => '--slave-port port',
     :format => String,
-    :description => "Slave MySQL server port. Defaults to 3306",
-    :proc => lambda { |o, options|
+    :description => 'Slave MySQL server port. Defaults to 3306',
+    :proc => lambda {|o, options|
         options[:slave_backend] = :mysql
-        options[:slave_port]  = o
+        options[:slave_port] = o
     }
 }
 
 SLAVE_USERNAME={
-    :name => "slave-username",
-    :large => "--slave-username user",
+    :name => 'slave-username',
+    :large => '--slave-username user',
     :format => String,
-    :description => "Slave MySQL username",
-    :proc => lambda { |o, options|
+    :description => 'Slave MySQL username',
+    :proc => lambda {|o, options|
         options[:slave_backend] = :mysql
         options[:slave_user]    = o
     }
 }
 
 SLAVE_PASSWORD={
-    :name => "slave-password",
-    :large => "--slave-password pass",
+    :name => 'slave-password',
+    :large => '--slave-password pass',
     :format => String,
-    :description => "Slave MySQL password. Leave unset to be prompted for it",
-    :proc => lambda { |o, options|
+    :description => 'Slave MySQL password. Leave unset to be prompted for it',
+    :proc => lambda {|o, options|
         options[:slave_backend] = :mysql
         options[:slave_passwd]  = o
     }
 }
 
 SLAVE_DBNAME={
-    :name => "slave-dbname",
-    :large => "--slave-dbname dbname",
+    :name => 'slave-dbname',
+    :large => '--slave-dbname dbname',
     :format => String,
-    :description => "Slave MySQL DB name for OpenNebula",
-    :proc => lambda { |o, options|
+    :description => 'Slave MySQL DB name for OpenNebula',
+    :proc => lambda {|o, options|
         options[:slave_backend] = :mysql
         options[:slave_db_name] = o
     }
 }
 
 SLAVE_BACKUP={
-    :name => "slave-backup",
-    :large => "--slave-backup file",
-    :description => "Use this file to store SQL dump",
+    :name => 'slave-backup',
+    :large => '--slave-backup file',
+    :description => 'Use this file to store SQL dump',
     :format => String
 }
 
@@ -244,9 +244,9 @@ SLAVE_BACKUP={
 ###############################################################################
 
 EXTRA={
-    :name => "extra",
-    :large => "--extra arg",
-    :description => "Extra args",
+    :name => 'extra',
+    :large => '--extra arg',
+    :description => 'Extra args',
     :format => Array
 }
 
@@ -255,63 +255,63 @@ EXTRA={
 ###############################################################################
 
 START_TIME = {
-    :name   => "start_time",
-    :short  => "-s TIME",
-    :large  => "--start TIME" ,
-    :description => "First time to process",
+    :name => 'start_time',
+    :short => '-s TIME',
+    :large => '--start TIME',
+    :description => 'First time to process',
     :format => Time
 }
 
 END_TIME = {
-    :name   => "end_time",
-    :short  => "-e TIME",
-    :large  => "--end TIME" ,
-    :description => "Last time to process",
+    :name => 'end_time',
+    :short => '-e TIME',
+    :large => '--end TIME',
+    :description => 'Last time to process',
     :format => Time
 }
 
 ID = {
-    :name   => "id",
-    :short  => "-i ID",
-    :large  => "--id ID" ,
-    :description => "Filter by ID",
+    :name => 'id',
+    :short => '-i ID',
+    :large => '--id ID',
+    :description => 'Filter by ID',
     :format => Numeric
 }
 
 SEQ= {
-    :name   => "seq",
-    :large  => "--seq SEQ" ,
-    :description => "Sequence number of a hitory record",
+    :name => 'seq',
+    :large => '--seq SEQ',
+    :description => 'Sequence number of a hitory record',
     :format => Numeric
 }
 
 XPATH = {
-    :name   => "xpath",
-    :short  => "-x ID",
-    :large  => "--xpath ID" ,
-    :description => "Filter by xpath",
+    :name => 'xpath',
+    :short => '-x ID',
+    :large => '--xpath ID',
+    :description => 'Filter by xpath',
     :format => String
 }
 
 EXPR= {
-    :name   => "expr",
-    :short  => "-e ID",
-    :large  => "--expr ID" ,
-    :description => "Filter by expression (UNAME=oneadmin)",
+    :name => 'expr',
+    :short => '-e ID',
+    :large => '--expr ID',
+    :description => 'Filter by expression (UNAME=oneadmin)',
     :format => String
 }
 
 DRY= {
-    :name   => "dry",
-    :large  => "--dry" ,
-    :description => "Do not write in the database, output xml"
+    :name => 'dry',
+    :large => '--dry',
+    :description => 'Do not write in the database, output xml'
 }
 
 DELETE= {
-    :name   => "delete",
-    :short  => "-d",
-    :large  => "--delete" ,
-    :description => "Delete all matched xpaths"
+    :name => 'delete',
+    :short => '-d',
+    :large => '--delete',
+    :description => 'Delete all matched xpaths'
 }
 
 PAGES = {
@@ -321,7 +321,7 @@ PAGES = {
     :format => Integer
 }
 
-cmd=CommandParser::CmdParser.new(ARGV) do
+CommandParser::CmdParser.new(ARGV) do
     description <<-EOT.unindent
         This command enables the user to manage the OpenNebula database. It
         provides information about the DB version, means to upgrade it to the
@@ -343,11 +343,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :backup, backup_desc, [:output_file, nil],
             :options=>[FORCE, FEDERATED] do
-
         begin
             helper = OneDB.new(options)
             helper.backup(args[0], options)
-        rescue Exception => e
+        rescue StandardError => e
             [-1, e.message]
         end
     end
@@ -360,11 +359,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Use -v flag to see also OpenNebula version
     EOT
 
-    command :version , version_desc do
+    command :version, version_desc do
         begin
             helper = OneDB.new(options)
             helper.version(options)
-        rescue Exception => e
+        rescue StandardError => e
             [-1, e.message]
         end
     end
@@ -376,11 +375,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Prints the upgrades history
     EOT
 
-    command :history , history_desc do
+    command :history, history_desc do
         begin
             helper = OneDB.new(options)
             helper.history
-        rescue Exception => e
+        rescue StandardError => e
             [-1, e.message]
         end
     end
@@ -393,13 +392,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         from the same backend (SQLite or MySQL)
     EOT
 
-    command :restore , restore_desc, :backup_file,
+    command :restore, restore_desc, :backup_file,
             :options=>[FORCE, FEDERATED] do
-
         begin
             helper = OneDB.new(options)
             helper.restore(args[0], options)
-        rescue Exception => e
+        rescue StandardError => e
             [-1, e.message]
         end
     end
@@ -413,11 +411,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                           By default the DB is upgraded to the latest version
     EOT
 
-    command :upgrade , upgrade_desc, [:version, nil], :options=>[FORCE,BACKUP] do
+    command :upgrade,
+            upgrade_desc,
+            [:version, nil],
+            :options=>[FORCE, BACKUP] do
         begin
             helper = OneDB.new(options)
             helper.upgrade(args[0], options)
-        rescue Exception => e
+        rescue StandardError => e
             [-1, e.message]
         end
     end
@@ -429,11 +430,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Checks the consistency of the DB, and fixes the problems found
     EOT
 
-    command :fsck, fsck_desc, :options=>[FORCE,BACKUP] do
+    command :fsck, fsck_desc, :options=>[FORCE, BACKUP] do
         begin
             helper = OneDB.new(options)
             helper.fsck(options)
-        rescue Exception => e
+        rescue StandardError => e
             [-1, e.message]
         end
     end
@@ -445,12 +446,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Migrate VM and templates so they can be used by OpenNebula 5.4
     EOT
 
-    command :"vcenter-one54", vcenter_one54_desc, :options=>[FORCE,BACKUP] do
-
+    command :"vcenter-one54", vcenter_one54_desc, :options=>[FORCE, BACKUP] do
         begin
             helper = OneDB.new(options)
             helper.vcenter_one54(options)
-        rescue Exception => e
+        rescue StandardError => e
             [-1, e.message]
         end
     end
@@ -462,11 +462,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Applies a database patch file
     EOT
 
-    command :patch , patch_desc, :file, :options=>[BACKUP, EXTRA] do
+    command :patch, patch_desc, :file, :options=>[BACKUP, EXTRA] do
         begin
             helper = OneDB.new(options)
             helper.patch(args[0], options)
-        rescue Exception => e
+        rescue StandardError => e
             [-1, e.message]
         end
     end
@@ -478,7 +478,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Migrates a SQLite OpenNebula Database to MySQL
     EOT
 
-    command :sqlite2mysql , sqlite2mysql_desc, :options=>[BACKUP] do
+    command :sqlite2mysql, sqlite2mysql_desc, :options=>[BACKUP] do
         begin
             options[:backend] = :sqlite
             sqlite = OneDB.new(options)
@@ -487,7 +487,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             mysql = OneDB.new(options)
 
             mysql.sqlite2mysql(options, sqlite)
-        rescue Exception => e
+        rescue StdandardError => e
             [-1, e.message]
         end
     end
@@ -511,7 +511,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         begin
             action = OneDBLive.new
             action.purge_history(options)
-        rescue Exception => e
+        rescue StandardError => e
             puts e.message
             pp e.backtrace
             [-1, e.message]
@@ -534,7 +534,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         begin
             action = OneDBLive.new
             action.purge_done_vm(options)
-        rescue Exception => e
+        rescue StandardError => e
             puts e.name
             pp e.backtrace
             [-1, e.message]
@@ -549,7 +549,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     change_body_desc = <<-EOT.unindent
         Changes a value from the body of an object. The possible objects are:
             vm, host, vnet, image, cluster, document, group, marketplace,
-            marketplaceapp, secgroup, template, vrouter, datastore, user, vmgroup, vdc or zone
+            marketplaceapp, secgroup, template, vrouter, datastore, user,
+            vmgroup, vdc or zone
 
         You can filter the objects to modify using one of these options:
 
@@ -559,7 +560,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 examples: UNAME=oneadmin, TEMPLATE/NIC/NIC_ID>0
 
         If you want to change a value use a third parameter. In case you want
-        to delete it use --delete option.
+        to delete it use --delete option. In canse you want to append a new
+        attribute use --append option.
 
         Change the second network of VMs that belong to "user":
 
@@ -575,15 +577,29 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             onedb change-body vm --expr LCM_STATE=8 \\
                 '/VM/TEMPLATE/DISK/CACHE' --delete
 
+        Append cache attribute in all disks in poweroff:
+
+            onedb change-body vm --expr LCM_STATE=8 \\
+                '/VM/TEMPLATE/DISK/CACHE' default --append
+
         #{LIVE_ACTION_HELP}
     EOT
 
-    command :'change-body', change_body_desc, :object, :xpath, [:value, nil],
-            :options => [ID, XPATH, EXPR, DRY, DELETE] do
+    command :'change-body',
+            change_body_desc,
+            :object,
+            :xpath,
+            [:value, nil],
+            :options => [ID,
+                         XPATH,
+                         EXPR,
+                         DRY,
+                         DELETE,
+                         OpenNebulaHelper::APPEND] do
         begin
             action = OneDBLive.new
             action.change_body(args[0], args[1], args[2], options)
-        rescue Exception => e
+        rescue StandardError => e
             puts e.message
             [-1, e.message]
         end
@@ -616,13 +632,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             seq = options[:seq]
 
             if !vid || !seq
-                puts "Missing VM ID or SEQ number"
+                puts 'Missing VM ID or SEQ number'
                 return -1
             end
 
             action = OneDBLive.new
             action.change_history(vid, seq, args[0], args[1], options)
-        rescue Exception => e
+        rescue StandardError => e
             puts e.message
             [-1, e.message]
         end
@@ -649,13 +665,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :'update-body', update_body_desc, :object, :options => [ID] do
         begin
             if !options[:id]
-                puts "Missing object ID"
+                puts 'Missing object ID'
                 return -1
             end
 
             action = OneDBLive.new
             action.update_body_cli(args[0], options[:id])
-        rescue Exception => e
+        rescue StandardError => e
             puts e.message
             [-1, e.message]
         end
@@ -682,13 +698,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :'update-history', update_history_desc, :options => [ID, SEQ] do
         begin
             if !options[:id] || !options[:seq]
-                puts "Missing VM ID or SEQ number"
+                puts 'Missing VM ID or SEQ number'
                 return -1
             end
 
             action = OneDBLive.new
             action.update_history_cli(options[:id], options[:seq])
-        rescue Exception => e
+        rescue StandardError => e
             puts e.message
             [-1, e.message]
         end
@@ -715,13 +731,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :'show-body', show_body_desc, :object, :options => [ID] do
         begin
             if !options[:id]
-                puts "Missing object ID"
+                puts 'Missing object ID'
                 return -1
             end
 
             action = OneDBLive.new
             STDOUT.puts action.show_body_cli(args[0], options[:id])
-        rescue Exception => e
+        rescue StandardError => e
             puts e.message
             [-1, e.message]
         end
@@ -748,13 +764,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :'show-history', show_history_desc, :options => [ID, SEQ] do
         begin
             if !options[:id] || !options[:seq]
-                puts "Missing VM ID or SEQ"
+                puts 'Missing VM ID or SEQ'
                 return -1
             end
 
             action = OneDBLive.new
             STDOUT.puts action.show_history_cli(options[:id], options[:seq])
-        rescue Exception => e
+        rescue StandardError => e
             puts e.message
             [-1, e.message]
         end
@@ -772,7 +788,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :'create-index', fts_desc, :options => [RECREATE] do
         begin
             helper = OneDB.new(options)
-            helper.fts_index(options.has_key? :recreate)
+            helper.fts_index(options.key?(:recreate))
         rescue StandardError => e
             STDERR.puts e.message
             [-1, e.message]
