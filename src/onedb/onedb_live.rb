@@ -214,15 +214,18 @@ class OneDBLive
         end_time    = ops[:end_time].to_i
         done        = OpenNebula::VirtualMachine::VM_STATE.index('DONE')
 
-        vmpool.each_page(ops[:pages], done, false, true) do |obj|
-            print "VM with ID: #{obj['ID']} purged \r"
-
+        vmpool.each_page_delete(ops[:pages], done, false) do |obj|
             time = obj['ETIME'].to_i
 
-            next unless time >= start_time && time < end_time
+            # return false because the VM wasn't deleted
+            next false unless time >= start_time && time < end_time
+
+            print "VM with ID: #{obj['ID']} purged \r"
 
             delete('vm_pool', "oid = #{obj['ID']}", false)
             delete('history', "vid = #{obj['ID']}", false)
+
+            true
         end
     end
 
