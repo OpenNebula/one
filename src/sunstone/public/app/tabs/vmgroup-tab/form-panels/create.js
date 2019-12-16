@@ -168,8 +168,8 @@ define(function(require) {
 
   function _submitWizard(context) {
     that = this;
-    var name = WizardFields.retrieveInput($("#vm_group_name", context));
-    var description = WizardFields.retrieveInput($("#vm_group_description", context));
+    var name = TemplateUtils.removeHTMLTags(WizardFields.retrieveInput($("#vm_group_name", context)));
+    var description = TemplateUtils.removeHTMLTags(WizardFields.retrieveInput($("#vm_group_description", context)));
 
     var role = [];
 

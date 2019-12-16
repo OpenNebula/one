@@ -171,12 +171,21 @@ define(function(require) {
     return template_json;
   }
 
+  function _removeHTMLTags(string){
+    var rtn = string;
+    if(rtn){
+      rtn = string.replace(/<[^>]+>/g, '');
+    }
+    return rtn;
+  }
+
   return {
     "stringToTemplate": _convert_string_to_template,
     "templateToString": _convert_template_to_string,
     "htmlDecode": _htmlDecode,
     "htmlEncode": _htmlEncode,
-    "escapeDoubleQuotes": _escapeDoubleQuotes
+    "escapeDoubleQuotes": _escapeDoubleQuotes,
+    "removeHTMLTags": _removeHTMLTags
   };
 });
 
