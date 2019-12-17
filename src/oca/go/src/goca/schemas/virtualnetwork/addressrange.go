@@ -53,6 +53,6 @@ func (n *AddressRange) GetI(key keys.AddressRange) (int, error) {
 }
 
 // Add adds an address range key, value pair.
-func (n *AddressRange) Add(key keys.AddressRange, value string) {
+func (n *AddressRange) Add(key keys.AddressRange, value interface{}) {
 	n.AddPair(string(key), value)
 }

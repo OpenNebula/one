@@ -42,7 +42,7 @@ func (n *Template) GetI(key keys.Template) (int, error) {
 }
 
 // Add adds a virtual network template key, value pair.
-func (t *Template) Add(key keys.Template, value string) {
+func (t *Template) Add(key keys.Template, value interface{}) {
 	t.AddPair(string(key), value)
 }
 

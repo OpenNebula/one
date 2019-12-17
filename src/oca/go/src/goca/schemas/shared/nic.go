@@ -71,6 +71,6 @@ func (n *NIC) GetI(key NICKeys) (int, error) {
 }
 
 // Add adds a NIC key, value pair
-func (n *NIC) Add(key NICKeys, value string) {
+func (n *NIC) Add(key NICKeys, value interface{}) {
 	n.AddPair(string(key), value)
 }
