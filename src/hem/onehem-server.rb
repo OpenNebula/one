@@ -202,7 +202,7 @@ module HEMHook
                 ''
             end
         rescue StandardError
-            return ''
+            ''
         end
     end
 

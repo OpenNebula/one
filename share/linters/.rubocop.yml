@@ -102,21 +102,6 @@ AllCops:
     - src/vnm_mad/remotes/ovswitch_vxlan/post
     - src/vnm_mad/remotes/ovswitch_vxlan/clean
     - src/vnm_mad/remotes/ovswitch_vxlan/pre
-    - src/vmm_mad/remotes/vcenter/attach_nic
-    - src/vmm_mad/remotes/vcenter/cancel
-    - src/vmm_mad/remotes/vcenter/snapshot_revert
-    - src/vmm_mad/remotes/vcenter/detach_nic
-    - src/vmm_mad/remotes/vcenter/snapshot_delete
-    - src/vmm_mad/remotes/vcenter/detach_disk
-    - src/vmm_mad/remotes/vcenter/shutdown
-    - src/vmm_mad/remotes/vcenter/attach_disk
-    - src/vmm_mad/remotes/vcenter/reboot
-    - src/vmm_mad/remotes/vcenter/reset
-    - src/vmm_mad/remotes/vcenter/reconfigure
-    - src/vmm_mad/remotes/vcenter/save
-    - src/vmm_mad/remotes/vcenter/restore
-    - src/vmm_mad/remotes/vcenter/snapshot_create
-    - src/vmm_mad/remotes/vcenter/poll
     - src/vmm_mad/remotes/lxd/attach_nic
     - src/vmm_mad/remotes/lxd/detach_nic
     - src/vmm_mad/remotes/lxd/detach_disk
@@ -619,7 +604,7 @@ Layout/EmptyLinesAroundModuleBody:
 Layout/EmptyLineAfterGuardClause:
     Enabled: true
 
-Layout/AlignHash:
+Layout/HashAlignment:
     Enabled: false
 
 Layout/SpaceAroundOperators:
@@ -739,12 +724,12 @@ Lint/DuplicateCaseCondition:
 Lint/DuplicateMethods:
     Enabled: true
 
-Lint/DuplicatedKey:
+Lint/DuplicateHashKey:
     Enabled: true
 ##
 
 # check empty exceptions
-Lint/HandleExceptions:
+Lint/SuppressedException:
     Enabled: true
 
 # check matching parameters in format
@@ -810,7 +795,7 @@ Naming/ConstantName:
 Naming/HeredocDelimiterNaming:
     Enabled: false
 
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:
     Enabled: false
 
 ###
