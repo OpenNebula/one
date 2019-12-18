@@ -930,6 +930,25 @@ module VCenterDriver
             {}
         end
 
+        def reference_all_disks
+            extraconfig = []
+            disks_each(:synced?) do |disk|
+                begin
+                    key_prefix = disk.managed? ? "opennebula.mdisk." : "opennebula.disk."
+                    k = "#{key_prefix}#{disk.id}"
+                    v = "#{disk.key}"
+
+                    extraconfig << {key: k, value: v}
+                rescue StandardError => e
+                    next
+                end
+            end
+
+            spec_hash = {:extraConfig => extraconfig}
+            spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+            @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+        end
+
         # Build extraconfig section to reference disks
         # by key and avoid problems with changing paths
         # (mainly due to snapshots)

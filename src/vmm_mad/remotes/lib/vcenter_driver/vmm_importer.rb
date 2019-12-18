@@ -105,6 +105,9 @@ module VCenterDriver
 
             request_vnc(vc_vm)
 
+            # Sync disks with extraConfig
+            vc_vm.reference_all_disks
+
             vm.id
         end
 
