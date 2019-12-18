@@ -1336,6 +1336,19 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
             return;
         }
 
+        if (c_ds_id != ds_id && !live && vm->get_state() == VirtualMachine::ACTIVE)
+        {
+            att.resp_msg = "A migration to a different system datastore "
+                "cannot be performed with the VM in ACTIVE state.";
+
+            failure_response(ACTION, att);
+
+            vm->unlock();
+
+            return;
+        }
+
+
         if (get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr) != 0)
         {
             vm->unlock();
