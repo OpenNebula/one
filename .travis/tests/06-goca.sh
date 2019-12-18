@@ -14,9 +14,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# disabling until race condition is solved
-exit 0
-
 # walk to goca path
 cd src/oca/go/src/goca
 
