@@ -20,54 +20,50 @@
 # This script is used retrieve the file size of a disk
 ###############################################################################
 
-ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' unless defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = '/usr/share/one/gems' unless defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' unless defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' unless defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
-if File.directory?(GEMS_LOCATION)
-    Gem.use_paths(GEMS_LOCATION)
-end
+Gem.use_paths(GEMS_LOCATION) if File.directory?(GEMS_LOCATION)
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
-def was_img_imported?(imported)
-    return imported.nil? || imported.empty?
+def img_imported?(imported)
+    imported.nil? || imported.empty?
 end
 
 drv_action_enc = ARGV[0]
-id             = ARGV[1]
 
 drv_action =OpenNebula::XMLElement.new
-drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
+drv_action.initialize_xml(Base64.decode64(drv_action_enc),
+                          'DS_DRIVER_ACTION_DATA')
 
-ds_ref      = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_REF"]
-ds_id       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/ID"]
-img_src     = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/SOURCE"]
-imported    = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/VCENTER_IMPORTED"]
+ds_ref = drv_action['/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_REF']
+ds_id = drv_action['/DS_DRIVER_ACTION_DATA/DATASTORE/ID']
+img_src = drv_action['/DS_DRIVER_ACTION_DATA/IMAGE/SOURCE']
+imported = drv_action['/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/VCENTER_IMPORTED']
 
-check_valid ds_ref, "ds_ref"
-check_valid img_src, "img_src"
+check_valid ds_ref, 'ds_ref'
+check_valid img_src, 'img_src'
 
-CDROM = "1"
+CDROM = '1'
 
 begin
-    if was_img_imported?(imported)
+    if img_imported?(imported)
         vi_client = VCenterDriver::VIClient.new_from_datastore(ds_id)
-
         ds = VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
 
         img_dir = img_src.split('/')[0..-2].join('/')
-
-        img_type    = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TYPE"]
+        img_type = drv_action['/DS_DRIVER_ACTION_DATA/IMAGE/TYPE']
 
         # Check if file exists before trying to delete it
         ds_name  = ds['name']
@@ -77,69 +73,57 @@ begin
         search_params = ds.get_search_params(ds_name, img_path, img_name)
 
         # Perform search task and return results
-        search_task = ds['browser'].SearchDatastoreSubFolders_Task(search_params)
+        search_task = ds['browser']
+                      .SearchDatastoreSubFolders_Task(search_params)
         search_task.wait_for_completion
 
         if img_type != CDROM
             # delete the disk
             begin
-              retries ||= 0
-              ds.delete_virtual_disk(img_src)
+                retries ||= 0
+                ds.delete_virtual_disk(img_src)
             rescue StandardError => e
-
-              if (retries += 1) < VCenterDriver::CONFIG[:retries]
                 message = "Delete DISK #{img_name} failed due to "\
-                        "\"#{e.message}\"\n#{e.backtrace.join("\n")} "\
-                        "on the attempt \##{retries}\n#{e.backtrace.join("\n")}"
-              else
-                message = "Delete DISK #{img_name} failed due to "\
-                        "\"#{e.message}\"\n#{e.backtrace.join("\n")} "\
-                        "on the final attempt\n#{e.backtrace.join("\n")}"
-              end
-              OpenNebula.log_error(message)
-              STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
-              sleep VCenterDriver::CONFIG[:retry_interval].to_i
-              retry if retries < VCenterDriver::CONFIG[:retries]
+                          "\"#{e.message}\" on the attempt \##{retries}."
+                OpenNebula.log_error(message)
+                if VCenterDriver::CONFIG[:debug_information]
+                    STDERR.puts "#{message} #{e.backtrace}"
+                end
+                sleep VCenterDriver::CONFIG[:retry_interval].to_i
+                retry if retries < VCenterDriver::CONFIG[:retries]
 
-              exit(-1)
-
+                exit(-1)
             end
         else
             # delete the CDROM iso
             begin
-              retries ||= 0
-              ds.delete_file(img_src)
+                retries ||= 0
+                ds.delete_file(img_src)
             rescue StandardError => e
-
-              if (retries += 1) < VCenterDriver::CONFIG[:retries]
                 message = "Delete CDROM #{img_name} failed due to "\
-                        "\"#{e.message}\"\n#{e.backtrace.join("\n")} "\
-                        "on the attempt \##{retries}\n#{e.backtrace.join("\n")}"
-              else
-                message = "Delete CDROM #{img_name} failed due to "\
-                        "\"#{e.message}\"\n#{e.backtrace.join("\n")} "\
-                        "on the final attempt\n#{e.backtrace.join("\n")}"
-              end
-              OpenNebula.log_error(message)
-              STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
-              sleep VCenterDriver::CONFIG[:retry_interval].to_i
-              retry if retries < VCenterDriver::CONFIG[:retries]
+                          "\"#{e.message}\" on the attempt \##{retries}."
+                OpenNebula.log_error(message)
+                if VCenterDriver::CONFIG[:debug_information]
+                    STDERR.puts "#{message} #{e.backtrace}"
+                end
+                sleep VCenterDriver::CONFIG[:retry_interval].to_i
+                retry if retries < VCenterDriver::CONFIG[:retries]
 
-              exit(-1)
-
+                exit(-1)
             end
         end
-
+        # Erase folder if empty
         ds.rm_directory(img_dir) if ds.dir_empty?(img_dir)
     end
-rescue Exception => e
+rescue StandardError => e
     if !e.message.start_with?('FileNotFound')
         message = "Error deleting virtual disk #{img_src}."\
                   " Reason: \"#{e.message}\"\n#{e.backtrace}"
         OpenNebula.log_error(message)
-        STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
-
-        exit -1
+        if VCenterDriver::CONFIG[:debug_information]
+            STDERR.puts "#{message} #{e.backtrace}"
+        end
+        exit(-1)
     end
 ensure
     vi_client.close_connection if vi_client

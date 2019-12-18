@@ -24,19 +24,17 @@
 #   - vmid is the id of the VM
 #   - dsid is the target datastore (0 is the system datastore)
 
-ONE_LOCATION = ENV['ONE_LOCATION'] if !defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' if !defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = '/usr/share/one/gems' if !defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' if !defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' if !defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
-if File.directory?(GEMS_LOCATION)
-    Gem.use_paths(GEMS_LOCATION)
-end
+Gem.use_paths(GEMS_LOCATION) if File.directory?(GEMS_LOCATION)
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << File.dirname(__FILE__)
@@ -48,48 +46,51 @@ dst          = ARGV[1]
 vm_id        = ARGV[2]
 source_ds_id = ARGV[3]
 
-check_valid src, "src"
-check_valid dst, "dst"
-check_valid vm_id, "vm_id"
-check_valid source_ds_id, "source_ds_id"
+check_valid src, 'src'
+check_valid dst, 'dst'
+check_valid vm_id, 'vm_id'
+check_valid source_ds_id, 'source_ds_id'
 
-target_ds_id = dst.split("/")[-3]
-disk_id = dst.split(".")[-1]
+target_ds_id = dst.split('/')[-3]
+disk_id = dst.split('.')[-1]
 
-src_path_escaped = src.split(":")[-1]
+src_path_escaped = src.split(':')[-1]
 src_path = VCenterDriver::FileHelper.unescape_path(src_path_escaped)
 
-hostname = dst.split(":").first
+hostname = dst.split(':').first
 
 # Get host ID
 host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, hostname)
 host_id = host['ID']
 
 # Get datastores refs
-source_ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, source_ds_id)
+source_ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore,
+                                             source_ds_id)
 source_ds_ref = source_ds['TEMPLATE/VCENTER_DS_REF']
 
-target_ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, target_ds_id)
+target_ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore,
+                                             target_ds_id)
 target_ds_ref = target_ds['TEMPLATE/VCENTER_DS_REF']
 
-check_valid source_ds_ref, "source_ds"
-check_valid target_ds_ref, "target_ds"
+check_valid source_ds_ref, 'source_ds'
+check_valid target_ds_ref, 'target_ds'
 
 # Get VM info
 one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
 
 # calculate target path
-target_path_escaped = VCenterDriver::FileHelper.get_img_name_from_path(src_path_escaped,
-                                                               vm_id,
-                                                              disk_id)
+target_path_escaped = VCenterDriver::FileHelper
+                      .get_img_name_from_path(src_path_escaped, vm_id, disk_id)
 
 target_path = VCenterDriver::FileHelper.unescape_path(target_path_escaped)
 
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-    one_disk = one_vm.retrieve_xmlelements("TEMPLATE/DISK[SOURCE=\"#{src_path_escaped}\"]").select{|e| e['DISK_ID'] == disk_id}.first rescue nil
+    disk_xpath ="TEMPLATE/DISK[SOURCE=\"#{src_path_escaped}\"]"
+    one_disk = one_vm.retrieve_xmlelements(disk_xpath) rescue nil
+    one_disk.select! {|e| e['DISK_ID'] == disk_id }.first if one_disk
 
-    raise "Cannot find disk element in vm template" if !one_disk
+    raise 'Cannot find disk element in vm template' unless one_disk
 
     disk = VCenterDriver::VirtualMachine::Disk.one_disk(disk_id, one_disk)
     new_size = disk.new_size
@@ -98,28 +99,34 @@ begin
     is_storage_drs = target_ds_ref.start_with?('group-')
 
     if !(!disk.managed? || (is_storage_drs && disk.volatile?))
-        raise "Non persistent images not supported for StorageDRS datastores" if is_storage_drs
+        if is_storage_drs
+            raise 'Non persistent images not supported in StorageDRS'
+        end
 
-        source_ds_vc = VCenterDriver::Datastore.new_from_ref(source_ds_ref, vi_client)
+        source_ds_vc = VCenterDriver::Datastore.new_from_ref(source_ds_ref,
+                                                             vi_client)
 
         if source_ds_ref == target_ds_ref
             target_ds_vc = source_ds_vc
         else
-            target_ds_vc = VCenterDriver::Storage.new_from_ref(target_ds_ref, vi_client)
+            target_ds_vc = VCenterDriver::Storage.new_from_ref(target_ds_ref,
+                                                               vi_client)
         end
 
         target_ds_name_vc = target_ds_vc['name']
 
-        source_ds_vc.copy_virtual_disk(src_path, target_ds_vc, target_path, new_size)
+        source_ds_vc.copy_virtual_disk(src_path, target_ds_vc,
+                                       target_path, new_size)
     end
-rescue Exception => e
+rescue StandardError => e
     message = "Error clone virtual disk #{src_path} in "\
               "datastore #{target_ds_name_vc}. "\
-              "Reason: #{e.message}\n#{e.backtrace}"
+              "Reason: #{e.message}."
     OpenNebula.log_error(message)
-    STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
-
-    exit -1
+    if VCenterDriver::CONFIG[:debug_information]
+        STDERR.puts "#{message} #{e.backtrace}"
+    end
+    exit(-1)
 ensure
     vi_client.close_connection if vi_client
 end

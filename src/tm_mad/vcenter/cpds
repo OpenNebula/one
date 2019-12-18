@@ -23,19 +23,17 @@
 #   - remote_system_ds is the path for the system datastore in the host
 #   - snap_id is the snapshot id. "-1" for none
 
-ONE_LOCATION = ENV['ONE_LOCATION'] if !defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' if !defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = '/usr/share/one/gems' if !defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' if !defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' if !defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
-if File.directory?(GEMS_LOCATION)
-    Gem.use_paths(GEMS_LOCATION)
-end
+Gem.use_paths(GEMS_LOCATION) if File.directory?(GEMS_LOCATION)
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << File.dirname(__FILE__)
@@ -44,18 +42,17 @@ require 'vcenter_driver'
 
 src          = ARGV[0]
 target_path  = ARGV[1]
-snap_id      = ARGV[2] #TODO snapshots?
+# snap_id = ARGV[2]
 vmid         = ARGV[3]
 target_ds_id = ARGV[4]
 
-check_valid src,"src"
-check_valid target_path,"target_path"
-check_valid vmid,"vmid"
-check_valid target_ds_id,"target_ds_id"
+check_valid src, 'src'
+check_valid target_path, 'target_path'
+check_valid vmid, 'vmid'
+check_valid target_ds_id, 'target_ds_id'
 
-disk_id = src.split(".")[-1]
-source_ds_id = src.split("/")[-3]
-hostname, src_path = src.split ":"
+disk_id = src.split('.')[-1]
+hostname, src_path = src.split ':'
 
 # Get host ID
 host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, hostname)
@@ -65,7 +62,7 @@ host_id = host['ID']
 one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vmid)
 vm_ref = one_vm['DEPLOY_ID']
 
-if one_vm['LCM_STATE'].to_i == 26 #ACTIVE / HOTPLUG_SAVEAS
+if one_vm['LCM_STATE'].to_i == 26 # ACTIVE / HOTPLUG_SAVEAS
     STDERR.puts "'disk-saveas' operation is not supported for running VMs."
     exit 1
 end
@@ -76,8 +73,7 @@ begin
     vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vmid)
 
     if vm.has_snapshots?
-        raise "'disk-saveas' operation is not supported for VMs with system snapshots."
-        exit 1
+        raise "'disk-saveas' not supported in VMs with system snapshots."
     end
 
     # Get source and target ds ref
@@ -85,23 +81,26 @@ begin
     src_path      = disk.path
     source_ds_ref = disk.ds._ref
 
-    source_ds_vc = VCenterDriver::Datastore.new_from_ref(source_ds_ref, vi_client)
+    source_ds_vc = VCenterDriver::Datastore.new_from_ref(source_ds_ref,
+                                                         vi_client)
 
     # Get target ds ref
-    target_ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, target_ds_id, false)
+    target_ds = VCenterDriver::VIHelper
+                .one_item(OpenNebula::Datastore, target_ds_id, false)
     target_ds_ref = target_ds['TEMPLATE/VCENTER_DS_REF']
-    target_ds_vc = VCenterDriver::Datastore.new_from_ref(target_ds_ref, vi_client)
+    target_ds_vc = VCenterDriver::Datastore.new_from_ref(target_ds_ref,
+                                                         vi_client)
     target_ds_name_vc = target_ds_vc['name']
 
     source_ds_vc.copy_virtual_disk(src_path, target_ds_vc, target_path)
-
-rescue Exception => e
+rescue StandardError => e
     message = "Error copying img #{src_path} to #{target_ds_name_vc} "\
-              "Reason: #{e.message}\n#{e.backtrace}"
+      "Reason: #{e.message}."
     OpenNebula.log_error(message)
-    STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
-
-    exit -1
+    if VCenterDriver::CONFIG[:debug_information]
+        STDERR.puts "#{message} #{e.backtrace}"
+    end
+    exit(-1)
 ensure
     vi_client.close_connection if vi_client
 end

@@ -18,19 +18,17 @@
 
 # resize image size vmid
 
-ONE_LOCATION = ENV['ONE_LOCATION'] if !defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' if !defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = '/usr/share/one/gems' if !defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' if !defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' if !defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
-if File.directory?(GEMS_LOCATION)
-    Gem.use_paths(GEMS_LOCATION)
-end
+Gem.use_paths(GEMS_LOCATION) if File.directory?(GEMS_LOCATION)
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << File.dirname(__FILE__)
@@ -41,12 +39,12 @@ src          = ARGV[0]
 new_size     = ARGV[1]
 vmid         = ARGV[2]
 
-check_valid src,"src"
-check_valid new_size,"new_size"
-check_valid vmid,"vmid"
+check_valid src, 'src'
+check_valid new_size, 'new_size'
+check_valid vmid, 'vmid'
 
-disk_id = src.split(".")[-1]
-hostname,  = src.split ":"
+disk_id = src.split('.')[-1]
+hostname, = src.split ':'
 
 # Get host ID
 host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, hostname)
@@ -59,29 +57,29 @@ vm_ref = one_vm['DEPLOY_ID']
 begin
     # This action is only possible when VM in ACTIVE / DISK_RESIZE_POWEROFF
     if one_vm['LCM_STATE'].to_i != 63
-        raise "'disk-resize' operation is not supported for vCenter running VMs."
+        raise "'disk-resize' operation not supported for vCenter running VMs."
     end
 
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-    vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vmid )
+    vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vmid)
 
     # Cannot resize if VM has snapshots
     if vm.has_snapshots?
-        raise "'disk-resize' operation is not supported for VMs with system snapshots."
+        raise "'disk-resize' operation not supported for VMs with snapshots."
     end
 
     disk = vm.disk(disk_id)
     disk.change_size(new_size)
 
     vm.resize_disk(disk)
-
-rescue Exception => e
-    message = "Error resizing disk #{disk_id} for VM #{one_vm["NAME"]} "\
-              "Reason: #{e.message}\n#{e.backtrace}"
+rescue StandardError => e
+    message = "Error resizing disk #{disk_id} for VM #{one_vm['NAME']} "\
+              "Reason: #{e.message}."
     OpenNebula.log_error(message)
-    STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
-
-    exit -1
+    if VCenterDriver::CONFIG[:debug_information]
+        STDERR.puts "#{message} #{e.backtrace}"
+    end
+    exit(-1)
 ensure
     vi_client.close_connection if vi_client
 end

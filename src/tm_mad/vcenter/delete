@@ -23,36 +23,34 @@
 #   - dsid is the target datastore (0 is the system datastore)
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV['ONE_LOCATION'] if !defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' if !defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = '/usr/share/one/gems' if !defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' if !defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' if !defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
-if File.directory?(GEMS_LOCATION)
-    Gem.use_paths(GEMS_LOCATION)
-end
+Gem.use_paths(GEMS_LOCATION) if File.directory?(GEMS_LOCATION)
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
-VM_PREFIX_DEFAULT = "one-$i-"
+VM_PREFIX_DEFAULT = 'one-$i-'
 
 path = ARGV[0]
 vmid = ARGV[1]
 dsid = ARGV[2]
 
-check_valid path, "path"
-check_valid vmid, "vmid"
-check_valid dsid, "dsid"
+check_valid path, 'path'
+check_valid vmid, 'vmid'
+check_valid dsid, 'dsid'
 
-hostname, img_path = path.split(":")
+hostname, img_path = path.split(':')
 
 # Get host ID
 host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, hostname)
@@ -66,34 +64,33 @@ vm = nil
 
 # tm:delete INIT block:
 begin
-    @error_message = "error obtaining client and vm"
+    @error_message = 'error obtaining client and vm'
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
-    if vm_ref && !vm_ref.empty?
-        vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vmid)
-    else
+    unless vm_ref && !vm_ref.empty?
         # we try to get vcenter item
-        vcenter_vm = VCenterDriver::VIHelper.find_vcenter_vm_by_name(one_vm, host, vi_client)
+        vcenter_vm = VCenterDriver::VIHelper
+                     .find_vcenter_vm_by_name(one_vm, host, vi_client)
 
         # If no VM object retrieved, raise an exception
-        raise "Could not find the undeployed VM in vCenter's inventory using it's name" if !vcenter_vm
+        if !vcenter_vm
+            raise "Could not find the undeployed VM in vCenter using it's name"
+        end
 
         vm_ref = vcenter_vm._ref
-        vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vmid)
     end
 
+    vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vmid)
     vm.one_item = one_vm
 
     is_disk = path.match(/disk\.\d+$/)
-
     if is_disk
-        dsid = img_path.split("/")[-3] # get dsid from path
-        @error_message = "error deleting disk with #{img_path} in datastore: #{dsid}"
-        one_ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, dsid)
-        ds_ref = one_ds['TEMPLATE/VCENTER_DS_REF']
+        dsid = img_path.split('/')[-3] # get dsid from path
+        @error_message = "error deleting disk with #{img_path} "\
+                         "in datastore #{dsid}"
 
-        # Get disk info, destroy it if is possible
-        disk_id = img_path.split(".")[-1]
+        # Get disk info, destroy it if possible
+        disk_id = img_path.split('.')[-1]
         disk = vm.disk(disk_id)
         vm.destroy_disk(disk)
     else
@@ -107,12 +104,12 @@ begin
             vm.destroy
         end
     end
-
-rescue Exception => e
+rescue StandardError => e
     vi_client.close_connection if vi_client
-    message = "#{@error_message}. Reason: #{e.message}\n#{e.backtrace}"
+    message = "#{@error_message}. Reason: #{e.message}."
     OpenNebula.log_error(message)
-    STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
-
-    exit -1
+    if VCenterDriver::CONFIG[:debug_information]
+        STDERR.puts "#{message} #{e.backtrace}"
+    end
+    exit(-1)
 end
