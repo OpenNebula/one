@@ -2332,8 +2332,7 @@ DOCS_FILES="LICENSE LICENSE.addons NOTICE README.md"
 # Ruby VENDOR files
 #-----------------------------------------------------------------------------
 
-VENDOR_DIRS="share/vendor/ruby/gems/rbvmomi \
-             share/vendor/ruby/gems/packethost"
+VENDOR_DIRS="share/vendor/ruby/gems/packethost"
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
