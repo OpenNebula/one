@@ -65,12 +65,8 @@ class SunstoneServer < CloudServer
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
         end
-        
-        if kind == "vm" && $conf[:get_extended_vm_info]
-          rc = pool.get_hash_extended
-        else
-          rc = pool.get_hash
-        end
+
+        rc = pool.get_hash
 
         if OpenNebula.is_error?(rc)
             return [500, rc.to_json]
