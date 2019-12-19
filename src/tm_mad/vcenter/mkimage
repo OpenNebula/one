@@ -41,10 +41,10 @@ $LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
-size               = ARGV[0]
-path               = ARGV[2]
-vmid               = ARGV[3]
-dsid               = ARGV[4]
+size = ARGV[0]
+path = ARGV[2]
+vmid = ARGV[3]
+dsid = ARGV[4]
 
 check_valid size, 'size'
 check_valid path, 'path'
