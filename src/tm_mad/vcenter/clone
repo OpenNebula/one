@@ -88,7 +88,8 @@ begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
     disk_xpath ="TEMPLATE/DISK[SOURCE=\"#{src_path_escaped}\"]"
     one_disk = one_vm.retrieve_xmlelements(disk_xpath) rescue nil
-    one_disk.select! {|e| e['DISK_ID'] == disk_id }.first if one_disk
+    one_disk.select! {|e| e['DISK_ID'] == disk_id }
+    one_disk = one_disk.first if one_disk
 
     raise 'Cannot find disk element in vm template' unless one_disk
 
