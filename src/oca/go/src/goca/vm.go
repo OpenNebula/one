@@ -19,6 +19,7 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
+	"fmt"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
@@ -78,34 +79,13 @@ func (c *VMsController) ByName(name string, args ...int) (int, error) {
 
 // Info returns a new VM pool. It accepts the scope of the query.
 func (vc *VMsController) Info(args ...int) (*vm.Pool, error) {
-	var who, start, end, state int
 
-	switch len(args) {
-	case 0:
-		who = parameters.PoolWhoMine
-		start = -1
-		end = -1
-		state = -1
-	case 1:
-		who = args[0]
-		start = -1
-		end = -1
-		state = -1
-	case 3:
-		who = args[0]
-		start = args[1]
-		end = args[2]
-		state = -1
-	case 4:
-		who = args[0]
-		start = args[1]
-		end = args[2]
-		state = args[3]
-	default:
-		return nil, errors.New("Wrong number of arguments")
+	fArgs, err := handleVMArgs(args)
+	if err != nil {
+		return nil, err
 	}
 
-	response, err := vc.c.Client.Call("one.vmpool.info", who, start, end, state)
+	response, err := vc.c.Client.Call("one.vmpool.info", fArgs...)
 	if err != nil {
 		return nil, err
 	}
@@ -120,9 +100,54 @@ func (vc *VMsController) Info(args ...int) (*vm.Pool, error) {
 }
 
 // InfoExtended connects to OpenNebula and fetches the whole VM_POOL information
-func (vc *VMsController) InfoExtended(filterFlag, startID, endID, state int) (*vm.Pool, error) {
-	response, err := vc.c.Client.Call("one.vmpool.infoextended", filterFlag,
-		startID, endID, state)
+func (vc *VMsController) InfoExtended(args ...int) (*vm.Pool, error) {
+
+	fArgs, err := handleVMArgs(args)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := vc.c.Client.Call("one.vmpool.infoextended", fArgs...)
+	if err != nil {
+		return nil, err
+	}
+	vmPool := &vm.Pool{}
+	err = xml.Unmarshal([]byte(response.Body()), vmPool)
+	if err != nil {
+		return nil, err
+	}
+	return vmPool, nil
+}
+
+// InfoFilter returns a new VM pool. It accepts the scope of the query.
+func (vc *VMsController) InfoFilter(f *VMFilter) (*vm.Pool, error) {
+
+	if f == nil {
+		return nil, fmt.Errorf("InfoFilter: nil parameter passed.")
+	}
+
+	response, err := vc.c.Client.Call("one.vmpool.info", f.toArgs()...)
+	if err != nil {
+		return nil, err
+	}
+
+	vmPool := &vm.Pool{}
+	err = xml.Unmarshal([]byte(response.Body()), vmPool)
+	if err != nil {
+		return nil, err
+	}
+
+	return vmPool, nil
+}
+
+// InfoExtendedFilter connects to OpenNebula and fetches the whole VM_POOL information
+func (vc *VMsController) InfoExtendedFilter(f *VMFilter) (*vm.Pool, error) {
+
+	if f == nil {
+		return nil, fmt.Errorf("InfoFilter: nil parameter passed.")
+	}
+
+	response, err := vc.c.Client.Call("one.vmpool.info", f.toArgs()...)
 	if err != nil {
 		return nil, err
 	}

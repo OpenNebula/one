@@ -78,22 +78,13 @@ func (c *ImagesController) ByName(name string, args ...int) (int, error) {
 
 // Info returns a new image pool. It accepts the scope of the query.
 func (ic *ImagesController) Info(args ...int) (*image.Pool, error) {
-	var who, start, end int
 
-	switch len(args) {
-	case 0:
-		who = parameters.PoolWhoMine
-		start = -1
-		end = -1
-	case 3:
-		who = args[0]
-		start = args[1]
-		end = args[2]
-	default:
-		return nil, errors.New("Wrong number of arguments")
+	fArgs, err := handleArgs(args)
+	if err != nil {
+		return nil, err
 	}
 
-	response, err := ic.c.Client.Call("one.imagepool.info", who, start, end)
+	response, err := ic.c.Client.Call("one.imagepool.info", fArgs...)
 	if err != nil {
 		return nil, err
 	}
