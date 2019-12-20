@@ -360,13 +360,12 @@ func (t *Template) AddVector(key string) *Vector {
 	return vector
 }
 
-// AddPair adds a new pair to a Template objects
-func (t *Template) AddPair(key string, v interface{}) error {
+func MakePair(key string, v interface{}) (*Pair, error) {
 	var val string
 
 	switch v := v.(type) {
 	default:
-		return fmt.Errorf("AddPair: Unexpected type")
+		return nil, fmt.Errorf("MakePair: Unexpected type")
 	case float32, float64:
 		val = fmt.Sprintf("%f", v)
 	case int, uint:
@@ -374,8 +373,18 @@ func (t *Template) AddPair(key string, v interface{}) error {
 	case string:
 		val = v
 	}
-
 	pair := &Pair{XMLName: xml.Name{Local: strings.ToUpper(key)}, Value: val}
+
+	return pair, nil
+}
+
+// AddPair adds a new pair to a Template objects
+func (t *Template) AddPair(key string, v interface{}) error {
+
+	pair, err := MakePair(key, v)
+	if err != nil {
+		return fmt.Errorf("AddPair: %s", err)
+	}
 	t.Elements = append(t.Elements, pair)
 
 	return nil
@@ -383,21 +392,12 @@ func (t *Template) AddPair(key string, v interface{}) error {
 
 // AddPair adds a new pair to a Template
 func (t *Vector) AddPair(key string, v interface{}) error {
-	var val string
 
-	switch v := v.(type) {
-	default:
-		return fmt.Errorf("AddPair: Unexpected type")
-	case float32, float64:
-		val = fmt.Sprintf("%f", v)
-	case int, uint:
-		val = fmt.Sprintf("%d", v)
-	case string:
-		val = v
+	pair, err := MakePair(key, v)
+	if err != nil {
+		return fmt.Errorf("AddPair: %s", err)
 	}
-
-	pair := Pair{XMLName: xml.Name{Local: strings.ToUpper(key)}, Value: val}
-	t.Pairs = append(t.Pairs, pair)
+	t.Pairs = append(t.Pairs, *pair)
 
 	return nil
 }
