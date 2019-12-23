@@ -147,7 +147,7 @@ func (vc *VMsController) InfoExtendedFilter(f *VMFilter) (*vm.Pool, error) {
 		return nil, fmt.Errorf("InfoFilter: nil parameter passed.")
 	}
 
-	response, err := vc.c.Client.Call("one.vmpool.info", f.toArgs()...)
+	response, err := vc.c.Client.Call("one.vmpool.infoextended", f.toArgs()...)
 	if err != nil {
 		return nil, err
 	}
