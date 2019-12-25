@@ -70,7 +70,7 @@ module LXD
                 name = container.name
                 values[:state] = get_state(container)
 
-                unless name =~ /^one-\d+/ # Wild VMs
+                unless name =~ /^one-\d+/ or name =~ /^orchestrator\d/ or name =~ /^router\d/ or name =~ /^zabbix/ or name =~ /^monitor-proxy/ # Wild VMs
                     template = to_one(container)
                     values[:template] = Base64.encode64(template).delete("\n")
                     values[:vm_name] = name
