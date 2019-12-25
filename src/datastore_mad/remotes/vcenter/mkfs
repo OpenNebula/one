@@ -58,7 +58,7 @@ disk_type    = drv_action[DRV_ACTION_IMG + 'TEMPLATE/VCENTER_DISK_TYPE'] ||
                VCenterDriver::VIHelper
                .get_default('IMAGE/TEMPLATE/VCENTER_DISK_TYPE')
 size         = drv_action[DRV_ACTION_IMG + 'SIZE']
-fs_type      = drv_action[DRV__ACTION_IMG + 'FSTYPE']
+fs_type      = drv_action[DRV_ACTION_IMG + 'FSTYPE']
 
 check_valid img_id, 'img_id'
 check_valid adapter_type, 'adapter_type'
