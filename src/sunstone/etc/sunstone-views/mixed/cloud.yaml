@@ -17,7 +17,7 @@ features:
     instantiate_hide_cpu: false
 
     # False to not scale the CPU. Number to scale from VCPU
-    instantiate_cpu_factor: true
+    instantiate_cpu_factor: 0.25
 
     # True to show the option to make an instance persistent
     instantiate_persistent: false
