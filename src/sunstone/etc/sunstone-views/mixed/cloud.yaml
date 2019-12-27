@@ -11,16 +11,16 @@ features:
 
     # Allows to change the security groups for each network interface
     # on the VM creation dialog
-    secgroups: true
+    secgroups: false
 
     # True to hide the CPU setting in the VM creation dialog
     instantiate_hide_cpu: false
 
     # False to not scale the CPU. Number to scale from VCPU
-    instantiate_cpu_factor: false
+    instantiate_cpu_factor: true
 
     # True to show the option to make an instance persistent
-    instantiate_persistent: true
+    instantiate_persistent: false
 
     # True to allow to create machines to cloud users
     cloud_vm_create: true
@@ -32,7 +32,7 @@ features:
     show_attributes_info: true
 
     # True to show the vCenter info (VM & VRouters)
-    show_vcenter_info: true
+    show_vcenter_info: false
 
     # True to show advanced options
     show_attach_disk_advanced: true
@@ -50,10 +50,10 @@ tabs:
             vm_actions_tab: true
             vm_conf_tab: false
             vm_template_tab: false
-            vm_log_tab: false
+            vm_log_tab: true
         provision_tabs:
-            flows: true
-            templates: true
+            flows: false
+            templates: false
         actions: &provisionactions
             # In the cloud view, delete is the equivalent
             # of 'onetemplate chmod --recursive'
@@ -76,18 +76,16 @@ tabs:
             VM.disk_resize: true
             VM.attachdisk: true
             VM.detachdisk: true
-            VM.disk_saveas: true
+            VM.disk_saveas: false
             VM.attachnic: true
             VM.detachnic: true
             VM.snapshot_create: true
             VM.snapshot_revert: true
             VM.snapshot_delete: true
-            VM.disk_snapshot_create: true
-            VM.disk_snapshot_revert: true
-            VM.disk_snapshot_rename: true
-            VM.disk_snapshot_delete: true
-            VM.migrate_poff: false
-            VM.migrate_poff_hard: false
+            VM.disk_snapshot_create: false
+            VM.disk_snapshot_revert: false
+            VM.disk_snapshot_rename: false
+            VM.disk_snapshot_delete: false
             VM.save_as_template: true
             VM.lockU: true
             VM.unlock: true
@@ -106,7 +104,7 @@ tabs:
             # True to allow NIC customization
             network_select: true
             # True to allow vmgroup customization
-            vmgroup_select: true
+            vmgroup_select: false
             # True to allow DISK size customization
             disk_resize: true
             # True to allow datastore customization
@@ -121,15 +119,13 @@ tabs:
         actions:
             # Buttons for settings_info_tab
             User.update_password: true
-            User.login_token: true
-            User.two_factor_auth: true
+            User.login_token: false
             # Buttons for settings_config_tab
             Settings.change_language: true
-            Settings.change_password: true
+            Settings.change_password: false
             Settings.change_view: true
             Settings.ssh_key: true
-            Settings.login_token: true
-            Settings.two_factor_auth: true
+            Settings.login_token: false
             # Edit button in settings_quotas_tab
             User.quotas_dialog: false
     vms-tab:
