@@ -398,10 +398,10 @@ tabs:
             VM.snapshot_create: true
             VM.snapshot_revert: true
             VM.snapshot_delete: true
-            VM.disk_snapshot_create: true
-            VM.disk_snapshot_revert: true
-            VM.disk_snapshot_rename: true
-            VM.disk_snapshot_delete: true
+            #VM.disk_snapshot_create: true
+            #VM.disk_snapshot_revert: true
+            #VM.disk_snapshot_rename: true
+            #VM.disk_snapshot_delete: true
             VM.resched: false
             VM.unresched: false
             VM.save_as_template: true
@@ -614,7 +614,7 @@ tabs:
         panel_tabs:
             image_info_tab: true
             image_vms_tab: true
-            image_snapshots_tab: true
+            #image_snapshots_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
@@ -646,9 +646,9 @@ tabs:
             Image.nonpersistent: true
             Image.clone_dialog: true
             Image.delete: true
-            Image.snapshot_flatten: true
-            Image.snapshot_revert: true
-            Image.snapshot_delete: true
+            #Image.snapshot_flatten: true
+            #Image.snapshot_revert: true
+            #Image.snapshot_delete: true
             Image.lockU: true
             Image.unlock: true
             Image.edit_labels: true
