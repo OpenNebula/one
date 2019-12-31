@@ -262,7 +262,7 @@ tabs:
             context: true
             actions: true
             scheduling: false
-            hybrid: true
+            hybrid: false
             vmgroup: true
             other: true
             numa: true
@@ -329,7 +329,7 @@ tabs:
             input_output: false
             context: true
             scheduling: true
-            hybrid: true
+            hybrid: false
             other: true
     instances-top-tab:
         panel_tabs:
