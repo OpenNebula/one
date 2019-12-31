@@ -270,7 +270,7 @@ tabs:
             actions: true
             scheduling: true
             hybrid: false
-            vmgroup: true
+            vmgroup: false
             other: true
             numa: true
     oneflow-templates-tab:
