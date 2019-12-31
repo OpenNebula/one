@@ -16,7 +16,7 @@ enabled_tabs:
       #- oneflow-templates-tab
       #- vrouter-templates-tab
     #- storage-top-tab
-    #- datastores-tab
+    - datastores-tab
     #- images-tab
     #- files-tab
     #- marketplaces-tab
@@ -38,7 +38,7 @@ enabled_tabs:
     - settings-tab
     #- support-tab
     #- upgrade-top-tab
-    - vmgroup-tab
+    #- vmgroup-tab
 features:
     # True to show showback monthly reports, and VM cost
     showback: true
@@ -265,7 +265,7 @@ tabs:
             network: true
             os_booting: true
             features: true
-            input_output: true
+            input_output: false
             context: true
             actions: true
             scheduling: true
@@ -333,7 +333,7 @@ tabs:
             network: true
             os_booting: true
             features: true
-            input_output: true
+            input_output: false
             context: true
             scheduling: true
             hybrid: true
@@ -395,11 +395,11 @@ tabs:
             VM.undeploy_hard: true
             VM.terminate: true
             VM.terminate_hard: true
-            VM.resize: false
+            VM.resize: true
             VM.attachdisk: false
             VM.detachdisk: false
             VM.disk_saveas: false
-            VM.disk_resize: false
+            VM.disk_resize: true
             VM.attachnic: false
             VM.detachnic: false
             VM.snapshot_create: false

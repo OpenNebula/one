@@ -18,9 +18,9 @@ enabled_tabs:
     - storage-top-tab
     - datastores-tab
     - images-tab
-    - files-tab
-    - marketplaces-tab
-    - marketplaceapps-tab
+      #- files-tab
+      #- marketplaces-tab
+      #- marketplaceapps-tab
     - network-top-tab
     - vnets-tab
       #- vnets-templates-tab
@@ -38,7 +38,7 @@ enabled_tabs:
     - settings-tab
     #- support-tab
     #- upgrade-top-tab
-    - vmgroup-tab
+    #- vmgroup-tab
 features:
     # True to show showback monthly reports, and VM cost
     showback: true
@@ -258,7 +258,7 @@ tabs:
             network: true
             os_booting: true
             features: true
-            input_output: true
+            input_output: false
             context: true
             actions: true
             scheduling: false
@@ -326,7 +326,7 @@ tabs:
             network: true
             os_booting: true
             features: true
-            input_output: true
+            input_output: false
             context: true
             scheduling: true
             hybrid: true
@@ -392,7 +392,7 @@ tabs:
             VM.attachdisk: true
             VM.detachdisk: true
             VM.disk_saveas: true
-            VM.disk_resize: false
+            VM.disk_resize: true
             VM.attachnic: true
             VM.detachnic: true
             VM.snapshot_create: true
