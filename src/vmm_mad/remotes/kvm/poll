@@ -166,7 +166,7 @@ module KVM
     end
 
     def self.number_of_processors
-        %x{nproc}.to_i
+        `grep -c processor /proc/cpuinfo`.to_i
     end
 
     def self.get_cpu_jiffies

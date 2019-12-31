@@ -162,7 +162,7 @@ module LXD
         #   @param vm_names [Array] of vms indexed by name. Value is a hash with :pid
         #   @return  [Hash] with ps information
         def get_cpu(vm_names)
-            multiplier = `nproc`.to_i * 100
+            multiplier = `grep -c processor /proc/cpuinfo`.to_i * 100
 
             start_cpu_jiffies = get_cpu_jiffies
 
