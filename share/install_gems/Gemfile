@@ -48,6 +48,7 @@ else
     gem 'rqrcode'                         # sunstone
 end
 
+gem 'json'                                # sunstone, oneflow, cloud, ...
 gem 'sqlite3'                             # quota, onedb
 gem 'treetop', '>= 1.6.3'                 # oneflow
 gem 'sequel'                              # quota, oneb
