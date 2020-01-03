@@ -20,7 +20,7 @@ enabled_tabs:
     - images-tab
     #- files-tab
     #- marketplaces-tab
-    #- marketplaceapps-tab
+    - marketplaceapps-tab
     - network-top-tab
     - vnets-tab
     - vnets-templates-tab
