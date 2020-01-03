@@ -18,8 +18,8 @@ enabled_tabs:
     - storage-top-tab
       #- datastores-tab
     - images-tab
-      #- files-tab
-      #- marketplaces-tab
+    #- files-tab
+    #- marketplaces-tab
     - marketplaceapps-tab
     - network-top-tab
     - vnets-tab
@@ -148,9 +148,9 @@ tabs:
             User.login_token: true
             User.two_factor_auth: true
             User.quotas_dialog: true
-            User.groups_dialog: true
-            User.chgrp: true
-            User.change_authentication: true
+            User.groups_dialog: false
+            User.chgrp: false
+            User.change_authentication: false
             User.delete: true
             User.edit_labels: true
             User.menu_labels: true
@@ -172,13 +172,13 @@ tabs:
             #- 7         # Labels
         actions:
             Group.refresh: true
-            Group.create_dialog: true
-            Group.update_dialog: true
-            Group.quotas_dialog: true
-            Group.delete: true
-            Group.edit_admins: true
-            Group.edit_labels: true
-            Group.menu_labels: true
+            Group.create_dialog: false
+            Group.update_dialog: false
+            Group.quotas_dialog: false
+            Group.delete: false
+            Group.edit_admins: false
+            Group.edit_labels: false
+            Group.menu_labels: false
     vdcs-tab:
         panel_tabs:
             vdc_info_tab: true
@@ -242,7 +242,7 @@ tabs:
             Template.rename: true
             Template.chown: false
             Template.chgrp: false
-            Template.chmod: true
+            Template.chmod: false
             Template.clone_dialog: true
             Template.delete_dialog: true
             Template.share: true
@@ -261,7 +261,7 @@ tabs:
             input_output: false
             context: true
             actions: true
-            scheduling: false
+            scheduling: true
             hybrid: false
             vmgroup: false
             other: true
@@ -286,7 +286,7 @@ tabs:
             ServiceTemplate.instantiate: true
             ServiceTemplate.chown: false
             ServiceTemplate.chgrp: false
-            ServiceTemplate.chmod: true
+            ServiceTemplate.chmod: false
             ServiceTemplate.rename: true
             ServiceTemplate.clone_dialog: true
             ServiceTemplate.delete: true
@@ -295,7 +295,7 @@ tabs:
     vrouter-templates-tab:
         panel_tabs:
             vrouter_template_info_tab: true
-            vrouter_template_template_tab: true
+            vrouter_template_template_tab: false
         table_columns:
             - 0         # Checkbox
             - 1         # ID
@@ -313,7 +313,7 @@ tabs:
             VirtualRouterTemplate.rename: true
             VirtualRouterTemplate.chown: false
             VirtualRouterTemplate.chgrp: false
-            VirtualRouterTemplate.chmod: true
+            VirtualRouterTemplate.chmod: false
             VirtualRouterTemplate.clone_dialog: true
             VirtualRouterTemplate.delete_dialog: true
             VirtualRouterTemplate.share: true
@@ -366,9 +366,9 @@ tabs:
             VM.refresh: true
             VM.create_dialog: true
             VM.rename: true
-            VM.chown: true
+            VM.chown: false
             VM.chgrp: false
-            VM.chmod: true
+            VM.chmod: false
             VM.deploy: false
             VM.migrate: false
             VM.migrate_live: false
@@ -378,7 +378,7 @@ tabs:
             VM.release: true
             VM.suspend: true
             VM.resume: true
-            VM.stop: true
+            VM.stop: false
             VM.recover: false
             VM.reboot: true
             VM.reboot_hard: true
@@ -461,7 +461,7 @@ tabs:
             Service.create_dialog: true
             Service.chown: false
             Service.chgrp: false
-            Service.chmod: true
+            Service.chmod: chown
             Service.rename: true
             Service.shutdown: true
             Service.recover: true
@@ -484,9 +484,9 @@ tabs:
             VirtualRouter.refresh: true
             VirtualRouter.create_dialog: true
             VirtualRouter.rename: true
-            VirtualRouter.chown: true
-            VirtualRouter.chgrp: true
-            VirtualRouter.chmod: true
+            VirtualRouter.chown: false
+            VirtualRouter.chgrp: false
+            VirtualRouter.chmod: false
             VirtualRouter.delete: true
             VirtualRouter.attachnic: true
             VirtualRouter.detachnic: true
@@ -604,7 +604,7 @@ tabs:
             Datastore.rename: true
             Datastore.chown: false
             Datastore.chgrp: false
-            Datastore.chmod: true
+            Datastore.chmod: false
             Datastore.delete: false
             Datastore.enable: false
             Datastore.disable: false
@@ -639,7 +639,7 @@ tabs:
             Image.rename: true
             Image.chown: false
             Image.chgrp: false
-            Image.chmod: true
+            Image.chmod: false
             Image.enable: true
             Image.disable: true
             Image.persistent: true
@@ -678,7 +678,7 @@ tabs:
             File.rename: true
             File.chown: false
             File.chgrp: false
-            File.chmod: true
+            File.chmod: false
             File.enable: true
             File.disable: true
             File.delete: true
@@ -705,9 +705,9 @@ tabs:
             MarketPlace.create_dialog: true
             MarketPlace.update_dialog: true
             MarketPlace.rename: true
-            MarketPlace.chown: true
-            MarketPlace.chgrp: true
-            MarketPlace.chmod: true
+            MarketPlace.chown: false
+            MarketPlace.chgrp: false
+            MarketPlace.chmod: false
             MarketPlace.delete: true
             MarketPlace.lockU: true
             MarketPlace.unlock: true
@@ -738,9 +738,9 @@ tabs:
             MarketPlaceApp.download_opennebula_dialog: true
             MarketPlaceApp.download_local: true
             MarketPlaceApp.rename: true
-            MarketPlaceApp.chown: true
-            MarketPlaceApp.chgrp: true
-            MarketPlaceApp.chmod: true
+            MarketPlaceApp.chown: false
+            MarketPlaceApp.chgrp: false
+            MarketPlaceApp.chmod: false
             MarketPlaceApp.enable: true
             MarketPlaceApp.disable: true
             MarketPlaceApp.delete: true
@@ -755,7 +755,7 @@ tabs:
             vnet_ar_list_tab: true
             vnet_leases_tab: true
             vnet_sg_list_tab: true
-            vnet_vr_list_tab: true
+            vnet_vr_list_tab: false
             vnet_clusters_tab: false
         table_columns:
             - 0         # Checkbox
@@ -780,7 +780,7 @@ tabs:
             Network.rename: true
             Network.chown: false
             Network.chgrp: false
-            Network.chmod: true
+            Network.chmod: false
             Network.delete: true
             Network.hold_lease: true
             Network.release_lease: true
@@ -813,9 +813,9 @@ tabs:
             VNTemplate.instantiate_vnets: true
             VNTemplate.update_dialog: true
             VNTemplate.rename: true
-            VNTemplate.chown: true
-            VNTemplate.chgrp: true
-            VNTemplate.chmod: true
+            VNTemplate.chown: false
+            VNTemplate.chgrp: false
+            VNTemplate.chmod: false
             VNTemplate.delete: true
             VNTemplate.hold_lease: true
             VNTemplate.release_lease: true
@@ -851,9 +851,9 @@ tabs:
             SecurityGroup.create_dialog: true
             SecurityGroup.update_dialog: true
             SecurityGroup.rename: true
-            SecurityGroup.chown: true
-            SecurityGroup.chgrp: true
-            SecurityGroup.chmod: true
+            SecurityGroup.chown: false
+            SecurityGroup.chgrp: false
+            SecurityGroup.chmod: false
             SecurityGroup.clone_dialog: true
             SecurityGroup.commit_dialog: true
             SecurityGroup.delete: true
@@ -913,8 +913,8 @@ tabs:
         actions:
            VMGroup.create_dialog: true
            VMGroup.update_dialog: true
-           VMGroup.chmod: true
-           VMGroup.chown: true
-           VMGroup.chgrp: true
+           VMGroup.chmod: false
+           VMGroup.chown: false
+           VMGroup.chgrp: false
            VMGroup.lockU: true
            VMGroup.unlock: true
