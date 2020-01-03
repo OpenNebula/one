@@ -366,7 +366,7 @@ tabs:
             VM.refresh: true
             VM.create_dialog: true
             VM.rename: true
-            VM.chown: false
+            VM.chown: true
             VM.chgrp: false
             VM.chmod: true
             VM.deploy: false
