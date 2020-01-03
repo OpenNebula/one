@@ -347,10 +347,10 @@ tabs:
             vm_capacity_tab: true
             vm_storage_tab: true
             vm_network_tab: true
-            vm_snapshot_tab: false
+            vm_snapshot_tab: true
             vm_placement_tab: false
-            vm_actions_tab: false
-            vm_conf_tab: false
+            vm_actions_tab: true
+            vm_conf_tab: true
             vm_template_tab: false
             vm_log_tab: false
         table_columns:
