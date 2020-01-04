@@ -180,7 +180,7 @@ tabs:
         actions:
             Group.refresh: true
             Group.create_dialog: false
-            Group.update_dialog: true
+            Group.update_dialog: false
             Group.quotas_dialog: true
             Group.delete: false
             Group.edit_admins: true
