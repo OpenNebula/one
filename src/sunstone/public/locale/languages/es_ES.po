@@ -297,7 +297,7 @@ msgstr "No se puede conectar con el servidor: está ejecutándose y disponible?"
 
 #: ../app/utils/notifier.js:107
 msgid "Network is unreachable: is OpenNebula running?"
-msgstr "La red no está disponible: se está ejecutando Opennebula?"
+msgstr "La red no está disponible: se está ejecutando HyperCX?"
 
 #: ../app/utils/notifier.js:123
 msgid "Unauthorized"
@@ -522,8 +522,8 @@ msgid "Free MB"
 msgstr "MB libres"
 
 #: ../app/utils/vcenter/datastores.js:95
-msgid "OpenNebula Cluster IDs"
-msgstr "IDs de Clústers OpenNebula"
+msgid "HyperCX Cluster IDs"
+msgstr "IDs de Clústers HyperCX"
 
 #: ../app/utils/vcenter/datastores.js:133
 #, javascript-format
@@ -1065,8 +1065,8 @@ msgid "Create MarketPlace App from Image"
 msgstr "Crear una App de la Tienda desde una Imagen"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export.js:71
-msgid "Download App To OpenNebula"
-msgstr "Descargar una App a OpenNebula"
+msgid "Download App To HyperCX"
+msgstr "Descargar una App a HyperCX"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export.js:72
 #: ../app/tabs/marketplaceapps-tab/buttons.js:39
@@ -2234,8 +2234,8 @@ msgid "Please select a file to upload"
 msgstr "Por favor seleccione un fichero para subir"
 
 #: ../app/tabs/images-tab/form-panels/create-common.js:480
-msgid "Registering in OpenNebula"
-msgstr "Registrando en OpenNebula"
+msgid "Registering in HyperCX"
+msgstr "Registrando en HyperCX"
 
 #: ../app/tabs/images-tab/form-panels/import.js:54
 msgid "Import vCenter Images"
@@ -3173,8 +3173,8 @@ msgid "Hybrid"
 msgstr "Híbrido/a"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:179
-msgid "Remote OpenNebula"
-msgstr "OpenNebula Remoto"
+msgid "Remote HyperCX"
+msgstr "HyperCX Remoto"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:189
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:26
@@ -5130,9 +5130,9 @@ msgstr "Nombre de Plantilla MV"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:33
 msgid ""
-"The following template will be created in OpenNebula and the previous images"
+"The following template will be created in HyperCX and the previous images"
 " will be referenced in the disks."
-msgstr "La siguiente plantilla se creará en OpenNebula y las imágenes anteriores se referenciarán en los discos."
+msgstr "La siguiente plantilla se creará en HyperCX y las imágenes anteriores se referenciarán en los discos."
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:40
 msgid "Select the Datastore to store the resource"
@@ -5174,14 +5174,14 @@ msgstr "Escribe la plantilla del MarketPlace aquí"
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:36
 msgid ""
 "You can provide a template for the resource that will be created in "
-"OpenNebula"
-msgstr "Puede proporcionar una plantilla para el recurso que se creará en OpenNebula"
+"HyperCX"
+msgstr "Puede proporcionar una plantilla para el recurso que se creará en HyperCX"
 
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:58
 msgid ""
 "You can provide a VM template associated to the resource that will be "
-"created in OpenNebula"
-msgstr "Puede proporcionar una plantilla de VM asociada al recurso que se creará en OpenNebula"
+"created in HyperCX"
+msgstr "Puede proporcionar una plantilla de VM asociada al recurso que se creará en HyperCX"
 
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:22
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:22
@@ -5463,8 +5463,8 @@ msgstr "La lista valida de tipos de instancias pueden encontrarse en la document
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:141
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:22
-msgid "OpenNebula"
-msgstr "OpenNebula"
+msgid "HyperCX"
+msgstr "HyperCX"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:144
 msgid "Remote username"
@@ -5620,8 +5620,8 @@ msgid "Image location"
 msgstr "Ubicación de la Imagen"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:84
-msgid "Path in OpenNebula server"
-msgstr "Path en el servidor OpenNebula"
+msgid "Path in HyperCX server"
+msgstr "Path en el servidor HyperCX"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:86
 msgid "Upload"
@@ -5762,8 +5762,8 @@ msgstr "Token de inicio de sesión"
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:199
 msgid ""
 "A login token acts as a password and can be used to authenticate with "
-"OpenNebula through Sunstone, the CLI, or the API"
-msgstr "Un token de inicio de sesión actúa como una contraseña y puede utilizarse para autenticarse con OpenNebula a través de Sunstone, la CLI o la APIUn token de inicio de sesión actúa como una contraseña y puede utilizarse para autenticarse con OpenNebula a través de Sunstone, la CLI o la API"
+"HyperCX through Sunstone, the CLI, or the API"
+msgstr "Un token de inicio de sesión actúa como una contraseña y puede utilizarse para autenticarse con HyperCX a través de Sunstone, la CLI o la APIUn token de inicio de sesión actúa como una contraseña y puede utilizarse para autenticarse con HyperCX a través de Sunstone, la CLI o la API"
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:39
 msgid "Valid until"
@@ -6623,7 +6623,7 @@ msgid "Throttling (IOPS)"
 msgstr "Reduciendo (IOPS)"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:242
-msgid "OPENNEBULA MANAGEMENT"
+msgid "HYPERCX MANAGEMENT"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:22
@@ -6782,7 +6782,7 @@ msgstr "Nombre de usuario del propietario de la red virtual"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:147
 msgid "OPEN NEBULA MANAGEMENT"
-msgstr "ADMINISTRACIÓN DE OPENNEBULA"
+msgstr "ADMINISTRACIÓN DE HYPERCX"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:154
 msgid "Override Network Values IPv4"
@@ -7000,7 +7000,7 @@ msgid ""
 "The contextualization package executes an init.sh file if it exists. If more"
 " than one script file is added, this list contains the scripts to run and "
 "their order"
-msgstr "Si la MV usa el paquete de contextualización de OpenNebula, el archivo init.sh será ejecutado por defecto. Si el archivo no se llama init.sh o se desea ejecutar más de un fichero, esta lista deberá de contener los nombres de los ficheros en orden. Por ejemplo: \"init.sh users.sh mysql.sh\""
+msgstr "Si la MV usa el paquete de contextualización de HyperCX, el archivo init.sh será ejecutado por defecto. Si el archivo no se llama init.sh o se desea ejecutar más de un fichero, esta lista deberá de contener los nombres de los ficheros en orden. Por ejemplo: \"init.sh users.sh mysql.sh\""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/opennebula.hbs:4
 msgid "Remote VM Template ID"
@@ -7072,12 +7072,12 @@ msgid ""
 msgstr "Este parametro se le pasará al comando ec2-associate-address -i i-0041230 elasticip."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:67
-msgid "OpenNebula Host"
-msgstr "Host de OpenNebula"
+msgid "HyperCX Host"
+msgstr "Host de HyperCX"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:68
-msgid "Defines which OpenNebula host will use this template"
-msgstr "Define que host de OpenNebula usará esta plantilla"
+msgid "Defines which HyperCX host will use this template"
+msgstr "Define que host de HyperCX usará esta plantilla"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:76
 msgid "Keypair name"
@@ -8384,8 +8384,8 @@ msgid "Distributed Port Group"
 msgstr "Grupo de Puertos Distribuidos"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:276
-msgid "OpenNebula's Host ID"
-msgstr "ID de Host OpenNebula"
+msgid "HyperCX's Host ID"
+msgstr "ID de Host HyperCX"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:298
 msgid ""
@@ -8619,8 +8619,8 @@ msgid "Manual network"
 msgstr "Red manual"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:111
-msgid "OpenNebula Virtual Network"
-msgstr "Red Virtual de OpenNebula"
+msgid "HyperCX Virtual Network"
+msgstr "Red Virtual de HyperCX"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:115
 msgid "First IP/IPv6 address"
