@@ -1734,7 +1734,7 @@ msgid "Ok"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export.js:55
-msgid "Download App To HyperCX"
+msgid "Download App To OpenNebula"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export.js:56
@@ -2990,7 +2990,7 @@ msgid "Please select a file to upload"
 msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create-common.js:480
-msgid "Registering in HyperCX"
+msgid "Registering in OpenNebula"
 msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/import.js:54
@@ -3167,7 +3167,7 @@ msgid "Hybrid"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:179
-msgid "Remote HyperCX"
+msgid "Remote OpenNebula"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:189
@@ -3804,7 +3804,7 @@ msgid "Unlimited"
 msgstr ""
 
 #: ../app/utils/notifier.js:93
-msgid "Network is unreachable: is HyperCX running?"
+msgid "Network is unreachable: is OpenNebula running?"
 msgstr ""
 
 #: ../app/utils/notifier.js:109
@@ -3995,7 +3995,7 @@ msgid "Free MB"
 msgstr ""
 
 #: ../app/utils/vcenter/datastores.js:95
-msgid "HyperCX Cluster IDs"
+msgid "OpenNebula Cluster IDs"
 msgstr ""
 
 #: ../app/utils/vcenter/datastores.js:133
@@ -4605,7 +4605,7 @@ msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:29
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:199
-msgid "A login token acts as a password and can be used to authenticate with HyperCX through Sunstone, the CLI, or the API"
+msgid "A login token acts as a password and can be used to authenticate with OpenNebula through Sunstone, the CLI, or the API"
 msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:39
@@ -4828,7 +4828,7 @@ msgid "VM Template Name"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:33
-msgid "The following template will be created in HyperCX and the previous images will be referenced in the disks."
+msgid "The following template will be created in OpenNebula and the previous images will be referenced in the disks."
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:40
@@ -4881,11 +4881,11 @@ msgid "Created before"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:36
-msgid "You can provide a template for the resource that will be created in HyperCX"
+msgid "You can provide a template for the resource that will be created in OpenNebula"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:58
-msgid "You can provide a VM template associated to the resource that will be created in HyperCX"
+msgid "You can provide a VM template associated to the resource that will be created in OpenNebula"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:37
@@ -5249,7 +5249,7 @@ msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:141
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:22
-msgid "HyperCX"
+msgid "OpenNebula"
 msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:144
@@ -5591,7 +5591,7 @@ msgid "Manual network"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:111
-msgid "HyperCX Virtual Network"
+msgid "OpenNebula Virtual Network"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:115
@@ -5783,7 +5783,7 @@ msgid "Image location"
 msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:84
-msgid "Path in HyperCX server"
+msgid "Path in OpenNebula server"
 msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:86
@@ -6328,11 +6328,11 @@ msgid "This parameter is passed to the command ec2-associate-address -i i-004123
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:67
-msgid "HyperCX Host"
+msgid "OpenNebula Host"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:68
-msgid "Defines which HyperCX host will use this template"
+msgid "Defines which OpenNebula host will use this template"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:76
@@ -6953,7 +6953,7 @@ msgid "Throttling (IOPS)"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:242
-msgid "HYPERCX MANAGEMENT"
+msgid "OPENNEBULA MANAGEMENT"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:20
@@ -7576,7 +7576,7 @@ msgid "Distributed Port Group"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:234
-msgid "HyperCX's Host ID"
+msgid "OpenNebula's Host ID"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:256
