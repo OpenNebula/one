@@ -57,7 +57,7 @@ features:
     instantiate_persistent: true
 
     # True to show the datastore datatable to instantiate VM
-    show_ds_instantiate: false
+    show_ds_instantiate: true
 
     # True to show the vmgroup datatable to instantiate VM
     show_vmgroup_instantiate: true
