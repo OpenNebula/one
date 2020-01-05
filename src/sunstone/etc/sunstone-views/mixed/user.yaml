@@ -754,7 +754,7 @@ tabs:
             vnet_info_tab: true
             vnet_ar_list_tab: true
             vnet_leases_tab: true
-            vnet_sg_list_tab: true
+            vnet_sg_list_tab: false
             vnet_vr_list_tab: false
             vnet_clusters_tab: false
         table_columns:
@@ -795,7 +795,7 @@ tabs:
         panel_tabs:
             vnet_template_info_tab: true
             vnet_template_ar_list_tab: true
-            vnet_template_sg_list_tab: true
+            vnet_template_sg_list_tab: false
             vnet_template_clusters_tab: true
             vnet_template_template_tab: true
         table_columns:
