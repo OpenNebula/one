@@ -9,12 +9,12 @@ enabled_tabs:
     - dashboard-tab
     - instances-top-tab
     - vms-tab
-      #- oneflow-services-tab
-      #- vrouters-tab
+    #- oneflow-services-tab
+    #- vrouters-tab
     - templates-top-tab
     - templates-tab
-      #- oneflow-templates-tab
-      #- vrouter-templates-tab
+    #- oneflow-templates-tab
+    #- vrouter-templates-tab
     - storage-top-tab
     - datastores-tab
     - images-tab
@@ -23,9 +23,9 @@ enabled_tabs:
     - marketplaceapps-tab
     - network-top-tab
     - vnets-tab
-      #- vnets-templates-tab
+    #- vnets-templates-tab
     - vnets-topology-tab
-    - secgroups-tab
+    #- secgroups-tab
     - infrastructure-top-tab
     - clusters-tab
     - hosts-tab
@@ -45,7 +45,7 @@ features:
 
     # Allows to change the security groups for each network interface
     # on the VM creation dialog
-    secgroups: true
+    secgroups: false
 
     # True to hide the CPU setting in the VM creation dialog
     instantiate_hide_cpu: false
@@ -69,7 +69,7 @@ features:
     show_context_instantiate_vnet: true
 
     # True to show context section to instantiate Network
-    show_security_instantiate_vnet: true
+    show_security_instantiate_vnet: false
 
     # True to show the host datatable to instantiate VM
     show_host_instantiate: true
@@ -845,8 +845,8 @@ tabs:
             NetworkTopology.openVMs: true
     secgroups-tab:
         panel_tabs:
-            security_group_info_tab: true
-            security_group_vms_tab: true
+            security_group_info_tab: false
+            security_group_vms_tab: false
         table_columns:
             - 0         # Checkbox
             - 1         # ID
