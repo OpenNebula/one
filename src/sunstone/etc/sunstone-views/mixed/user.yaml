@@ -245,7 +245,7 @@ tabs:
             Template.chmod: false
             Template.clone_dialog: true
             Template.delete_dialog: true
-            Template.share: true
+            Template.share: false
             Template.unshare: true
             Template.lockU: true
             Template.unlock: true
