@@ -261,7 +261,7 @@ tabs:
             input_output: false
             context: true
             actions: true
-            scheduling: true
+            scheduling: false
             hybrid: false
             vmgroup: false
             other: true
