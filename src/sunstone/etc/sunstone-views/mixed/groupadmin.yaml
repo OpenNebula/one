@@ -828,10 +828,10 @@ tabs:
             VNTemplate.release_lease: true
             VNTemplate.add_ar: true
             VNTemplate.remove_ar: true
-            VNTemplate.update_ar: true
+            VNTemplate.update_ar: false
             VNTemplate.update: true
-            VNTemplate.lockU: true
-            VNTemplate.unlock: true
+            VNTemplate.lockU: false
+            VNTemplate.unlock: false
             VNTemplate.edit_labels: true
             VNTemplate.menu_labels: true
     vnets-topology-tab:

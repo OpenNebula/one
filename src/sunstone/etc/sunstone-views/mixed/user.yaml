@@ -811,7 +811,7 @@ tabs:
             VNTemplate.refresh: true
             VNTemplate.create_dialog: false
             VNTemplate.instantiate_vnets: true
-            VNTemplate.update_dialog: true
+            VNTemplate.update_dialog: false
             VNTemplate.rename: true
             VNTemplate.chown: false
             VNTemplate.chgrp: false
@@ -823,8 +823,8 @@ tabs:
             VNTemplate.remove_ar: true
             VNTemplate.update_ar: true
             VNTemplate.update: true
-            VNTemplate.lockU: true
-            VNTemplate.unlock: true
+            VNTemplate.lockU: false
+            VNTemplate.unlock: false
             VNTemplate.edit_labels: true
             VNTemplate.menu_labels: true
     vnets-topology-tab:
