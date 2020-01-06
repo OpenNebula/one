@@ -931,6 +931,12 @@ module VCenterDriver
         end
 
         def reference_all_disks
+            hash = {}
+            @item.config.extraConfig.each do |elem|
+                hash[elem.key] = elem.value if elem.key.start_with?("opennebula.disk.")
+                hash[elem.key] = elem.value if elem.key.start_with?("opennebula.mdisk.")
+            end
+
             extraconfig = []
             disks_each(:synced?) do |disk|
                 begin
@@ -944,9 +950,37 @@ module VCenterDriver
                 end
             end
 
-            spec_hash = {:extraConfig => extraconfig}
-            spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
-            @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+            update = false
+            disks = hash.keys.count - extraconfig.count
+
+            extraconfig.each do |item|
+                if (hash.has_key? item[:key]) and !(hash[item[:key]] == item[:value])
+                    update = true
+                end
+                if !hash.has_key? item[:key]
+                    update = true
+                end
+            end
+
+            if disks != 0 || update
+                hash.keys.each do |key|
+                    hash[key] = ""
+                end
+
+                extraconfig.each do |item|
+                    hash[item[:key]] = item[:value]
+                end
+
+                extraconfig = []
+
+                hash.keys.each do |key|
+                    extraconfig << {key: key, value: hash[key]}
+                end
+
+                spec_hash = {:extraConfig => extraconfig}
+                spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+                @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+            end
         end
 
         # Build extraconfig section to reference disks
