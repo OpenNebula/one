@@ -246,7 +246,7 @@ tabs:
             Template.clone_dialog: true
             Template.delete_dialog: true
             Template.share: false
-            Template.unshare: true
+            Template.unshare: false
             Template.lockU: true
             Template.unlock: true
             Template.edit_labels: true
