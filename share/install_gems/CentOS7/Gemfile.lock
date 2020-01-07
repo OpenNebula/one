@@ -11,13 +11,13 @@ GEM
     amazon-ec2 (0.9.17)
       xml-simple (>= 1.0.12)
     aws-eventstream (1.0.3)
-    aws-sdk (2.11.387)
-      aws-sdk-resources (= 2.11.387)
-    aws-sdk-core (2.11.387)
+    aws-sdk (2.11.421)
+      aws-sdk-resources (= 2.11.421)
+    aws-sdk-core (2.11.421)
       aws-sigv4 (~> 1.0)
       jmespath (~> 1.0)
-    aws-sdk-resources (2.11.387)
-      aws-sdk-core (= 2.11.387)
+    aws-sdk-resources (2.11.421)
+      aws-sdk-core (= 2.11.421)
     aws-sigv4 (1.1.0)
       aws-eventstream (~> 1.0, >= 1.0.2)
     azure (0.7.10)
@@ -33,7 +33,7 @@ GEM
       faraday (~> 0.9)
       faraday_middleware (~> 0.10)
       nokogiri (~> 1.6)
-    builder (3.2.3)
+    builder (3.2.4)
     chunky_png (1.3.11)
     concurrent-ruby (1.1.5)
     configparser (0.1.7)
@@ -41,11 +41,11 @@ GEM
     daemons (1.3.1)
     dalli (2.7.10)
     eventmachine (1.2.7)
-    faraday (0.17.0)
+    faraday (0.17.3)
       multipart-post (>= 1.2, < 3)
     faraday_middleware (0.13.1)
       faraday (>= 0.7.4, < 1.0)
-    ffi (1.11.1)
+    ffi (1.11.3)
     ffi-rzmq (2.0.7)
       ffi-rzmq-core (>= 1.0.7)
     ffi-rzmq-core (1.0.7)
@@ -57,35 +57,42 @@ GEM
     inflection (1.0.0)
     ipaddress (0.8.3)
     jmespath (1.4.0)
+    json (2.3.0)
     memcache-client (1.8.5)
-    mime-types (3.3)
+    mime-types (3.3.1)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2019.1009)
     mini_portile2 (2.1.0)
     minitest (5.11.3)
     multipart-post (2.1.1)
-    mysql2 (0.5.2)
-    net-ldap (0.16.1)
+    mysql2 (0.5.3)
+    net-ldap (0.16.2)
     nokogiri (1.6.8.1)
       mini_portile2 (~> 2.1.0)
-    ox (2.11.0)
+    optimist (3.0.0)
+    ox (2.12.0)
     parse-cron (0.1.4)
     polyglot (0.3.5)
     public_suffix (2.0.5)
-    rack (1.6.11)
+    rack (1.6.12)
     rack-protection (1.5.5)
       rack
+    rbvmomi (2.2.0)
+      builder (~> 3.0)
+      json (>= 1.8)
+      nokogiri (~> 1.5)
+      optimist (~> 3.0)
     rotp (5.1.0)
       addressable (~> 2.5)
     rqrcode (0.10.1)
       chunky_png (~> 1.0)
     scrub_rb (1.0.1)
-    sequel (5.25.0)
+    sequel (5.28.0)
     sinatra (1.4.8)
       rack (~> 1.5)
       rack-protection (~> 1.4)
       tilt (>= 1.3, < 3)
-    sqlite3 (1.4.1)
+    sqlite3 (1.4.2)
     systemu (2.6.5)
     thin (1.7.2)
       daemons (~> 1.0, >= 1.0.9)
@@ -96,8 +103,7 @@ GEM
     tilt (2.0.10)
     treetop (1.6.10)
       polyglot (~> 0.3)
-    trollop (2.9.9)
-    tzinfo (1.2.5)
+    tzinfo (1.2.6)
       thread_safe (~> 0.1)
     uuidtools (2.1.5)
     xml-simple (1.1.5)
@@ -116,7 +122,6 @@ DEPENDENCIES
   amazon-ec2
   aws-sdk (~> 2.5)
   azure
-  builder
   configparser
   curb
   dalli
@@ -126,6 +131,7 @@ DEPENDENCIES
   highline (~> 1.7)
   i18n (~> 0.9)
   ipaddress (~> 0.8.3)
+  json
   memcache-client
   minitest (< 5.12.0)
   mysql2
@@ -135,6 +141,7 @@ DEPENDENCIES
   parse-cron
   public_suffix (< 3.0.0)
   rack (< 2.0.0)
+  rbvmomi (~> 2.2.0)
   rotp
   rqrcode (< 1.0.0)
   scrub_rb
@@ -143,7 +150,6 @@ DEPENDENCIES
   sqlite3
   thin
   treetop (>= 1.6.3)
-  trollop
   uuidtools
   zendesk_api (< 1.17.0)
 
