@@ -2043,9 +2043,9 @@ SUNSTONE_ETC_VIEW_VCENTER="src/sunstone/etc/sunstone-views/vcenter/admin.yaml \
                     src/sunstone/etc/sunstone-views/vcenter/groupadmin.yaml"
 
 SUNSTONE_ETC_VIEW_MIXED="src/sunstone/etc/sunstone-views/mixed/admin.yaml \
-                    src/sunstone/etc/sunstone-views/mixed/user.yaml \
-                    src/sunstone/etc/sunstone-views/mixed/cloud.yaml \
-                    src/sunstone/etc/sunstone-views/mixed/groupadmin.yaml"
+                    src/sunstone/etc/sunstone-views/mixed/advanced.yaml \
+                    src/sunstone/etc/sunstone-views/mixed/simple.yaml \
+                    src/sunstone/etc/sunstone-views/mixed/group_admin.yaml"
 
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                        src/sunstone/models/SunstoneServer.rb \

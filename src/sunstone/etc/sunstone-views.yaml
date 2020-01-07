@@ -3,16 +3,14 @@ logo: images/opennebula-5.0.png
 groups:
     oneadmin:
         - admin
-        - admin_vcenter
-        - groupadmin
-        - groupadmin_vcenter
-        - user
-        - cloud
-        - cloud_vcenter
+        - group_admin
+        - advanced
+        - simple
 default:
-    - cloud
+    - simple
 default_groupadmin:
-    - groupadmin
-    - cloud
+    - group_admin
+    - simple
 labels_groups:
     default:
+
