@@ -121,7 +121,10 @@ class OneMarket
                 if !app['opennebula_template'].nil?
                     parsed_template = JSON.parse(app['opennebula_template'])
                     parsed_template["CONTEXT"]["SET_HOSTNAME"] = "$NAME"
+                    parsed_template["CONTEXT"]["PASSWORD"] = "$ROOT_PASSWORD"
+                    parsed_template["CONTEXT"]["ROOT_PASSWORD"] = "$ROOT_PASSWORD"
                     parsed_template["SCHED_REQUIREMENTS"] = 'CLUSTER=\"KVM\"'
+                    parsed_template["USER_INPUTS"] = "O|password|Optional - Password for VM's root user. Not recommended, try using public keys."
                     vmtmpl64 = template_to_str(
                         parsed_template
                     )
