@@ -931,22 +931,73 @@ module VCenterDriver
         end
 
         def reference_all_disks
-            extraconfig = []
+            # OpenNebula VM disks saved inside .vmx file in vCenter
+            disks_extraconfig_current = {}
+            # iterate over all attributes and get the disk information
+            # keys for disks are prefixed with opennebula.disk and opennebula.mdisk
+            @item.config.extraConfig.each do |elem|
+                disks_extraconfig_current[elem.key] = elem.value if elem.key.start_with?("opennebula.disk.")
+                disks_extraconfig_current[elem.key] = elem.value if elem.key.start_with?("opennebula.mdisk.")
+            end
+
+            # disks that exist currently in the vCenter Virtual Machine
+            disks_vcenter_current = []
             disks_each(:synced?) do |disk|
                 begin
                     key_prefix = disk.managed? ? "opennebula.mdisk." : "opennebula.disk."
                     k = "#{key_prefix}#{disk.id}"
                     v = "#{disk.key}"
 
-                    extraconfig << {key: k, value: v}
+                    disks_vcenter_current << {key: k, value: v}
                 rescue StandardError => e
                     next
                 end
             end
 
-            spec_hash = {:extraConfig => extraconfig}
-            spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
-            @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+            update = false
+            # differences in the number of disks between vCenter and OpenNebula VMs
+            num_disks_difference = disks_extraconfig_current.keys.count - disks_vcenter_current.count
+
+            # check if disks are same in vCenter and OpenNebula
+            disks_vcenter_current.each do |item|
+                # check if vCenter disk have representation in the extraConfig
+                # but with a different key, then we have to update
+                if (disks_extraconfig_current.has_key? item[:key]) and !(disks_extraconfig_current[item[:key]] == item[:value])
+                    update = true
+                end
+                # check if vCenter disk hasn't got a representation in the extraConfig
+                # then we have to update 
+                if !disks_extraconfig_current.has_key? item[:key]
+                    update = true
+                end
+            end
+
+            # new configuration for vCenter .vmx file
+            disks_extraconfig_new = {}
+
+            if num_disks_difference != 0 || update
+                # Step 1: remove disks in the current configuration of .vmx
+                # Avoids having an old disk in the configuration that does not really exist
+                disks_extraconfig_current.keys.each do |key|
+                    disks_extraconfig_new[key] = ""
+                end
+
+                # Step 2: add current vCenter disks to new configuration
+                disks_vcenter_current.each do |item|
+                    disks_extraconfig_new[item[:key]] = item[:value]
+                end
+
+                # Step 3: create extraconfig_new with the values to update
+                extraconfig_new = []
+                disks_extraconfig_new.keys.each do |key|
+                    extraconfig_new << {key: key, value: disks_extraconfig_new[key]}
+                end
+
+                # Step 4: update the extraConfig
+                spec_hash = {:extraConfig => extraconfig_new}
+                spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+                @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+            end
         end
 
         # Build extraconfig section to reference disks
