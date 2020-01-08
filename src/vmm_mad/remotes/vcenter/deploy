@@ -68,7 +68,7 @@ begin
     end
 
     # Sync disks with extraConfig
-    vm.reference_all_disks
+    # vm.reference_all_disks
 
     if vm.is_powered_off?
         vm.sync(deploy)
