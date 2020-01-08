@@ -66,7 +66,7 @@ begin
                                                           drv_action,
                                                           vm_id)
     end
-    
+
     if vm.is_powered_off?
         vm.sync(deploy)
         # Only mark the VM as running if we are deploying it for the first time
