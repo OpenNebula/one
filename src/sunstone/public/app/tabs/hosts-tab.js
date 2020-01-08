@@ -37,6 +37,7 @@ define(function(require) {
     require('./hosts-tab/panels/esx'),
     require('./hosts-tab/panels/pci'),
     require('./hosts-tab/panels/numa'),
+    require('./hosts-tab/panels/pool'),
     require('./hosts-tab/panels/nsx')
   ];
   var _panelsHooks = [

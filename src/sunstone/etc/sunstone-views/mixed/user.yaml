@@ -523,6 +523,7 @@ tabs:
         panel_tabs:
             host_info_tab: true
             host_monitoring_tab: true
+            host_pool_tab: true
             host_vms_tab: true
             host_wilds_tab: true
             host_zombies_tab: true
