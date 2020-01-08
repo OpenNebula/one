@@ -66,10 +66,7 @@ begin
                                                           drv_action,
                                                           vm_id)
     end
-
-    # Sync disks with extraConfig
-    # vm.reference_all_disks
-
+    
     if vm.is_powered_off?
         vm.sync(deploy)
         # Only mark the VM as running if we are deploying it for the first time
