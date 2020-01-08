@@ -931,53 +931,55 @@ module VCenterDriver
         end
 
         def reference_all_disks
-            hash = {}
+            disks_extraconfig_current = {}
             @item.config.extraConfig.each do |elem|
-                hash[elem.key] = elem.value if elem.key.start_with?("opennebula.disk.")
-                hash[elem.key] = elem.value if elem.key.start_with?("opennebula.mdisk.")
+                disks_extraconfig_current[elem.key] = elem.value if elem.key.start_with?("opennebula.disk.")
+                disks_extraconfig_current[elem.key] = elem.value if elem.key.start_with?("opennebula.mdisk.")
             end
 
-            extraconfig = []
+            disks_vcenter_current = []
             disks_each(:synced?) do |disk|
                 begin
                     key_prefix = disk.managed? ? "opennebula.mdisk." : "opennebula.disk."
                     k = "#{key_prefix}#{disk.id}"
                     v = "#{disk.key}"
 
-                    extraconfig << {key: k, value: v}
+                    disks_vcenter_current << {key: k, value: v}
                 rescue StandardError => e
                     next
                 end
             end
 
             update = false
-            disks = hash.keys.count - extraconfig.count
+            num_disks_difference = disks_extraconfig_current.keys.count - disks_vcenter_current.count
 
-            extraconfig.each do |item|
-                if (hash.has_key? item[:key]) and !(hash[item[:key]] == item[:value])
+            disks_vcenter_current.each do |item|
+                if (disks_extraconfig_current.has_key? item[:key]) and !(disks_extraconfig_current[item[:key]] == item[:value])
                     update = true
                 end
-                if !hash.has_key? item[:key]
+                if !disks_extraconfig_current.has_key? item[:key]
                     update = true
                 end
             end
 
-            if disks != 0 || update
-                hash.keys.each do |key|
-                    hash[key] = ""
+            disks_extraconfig_new = {}
+
+            if num_disks_difference != 0 || update
+                disks_extraconfig_current.keys.each do |key|
+                    disks_extraconfig_new[key] = ""
                 end
 
-                extraconfig.each do |item|
-                    hash[item[:key]] = item[:value]
+                disks_vcenter_current.each do |item|
+                    disks_extraconfig_new[item[:key]] = item[:value]
                 end
 
-                extraconfig = []
+                extraconfig_new = []
 
-                hash.keys.each do |key|
-                    extraconfig << {key: key, value: hash[key]}
+                disks_extraconfig_new.keys.each do |key|
+                    extraconfig_new << {key: key, value: disks_extraconfig_new[key]}
                 end
 
-                spec_hash = {:extraConfig => extraconfig}
+                spec_hash = {:extraConfig => extraconfig_new}
                 spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
                 @item.ReconfigVM_Task(:spec => spec).wait_for_completion
             end
