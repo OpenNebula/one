@@ -59,6 +59,7 @@ public:
         const string& auth,
         bool    enabled,
         const set<int>& gids,
+        const set<int>& agids,
         string& error_str);
 
     /**

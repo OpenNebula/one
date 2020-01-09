@@ -104,6 +104,17 @@ public:
     int del_admin(int user_id, string& error_msg);
 
     /**
+     * Retrun true if User is an admin member of the group
+     *
+     * @param user_id ID of the user
+     *
+     * @return true on success
+     */
+    bool is_admin(int user_id)
+    {
+        return admins.contains(user_id);
+    }
+    /**
      *  Object quotas, provides set and check interface
      */
     GroupQuotas quota;
