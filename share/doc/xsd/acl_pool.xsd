@@ -8,10 +8,10 @@
           <xs:complexType>
             <xs:sequence>
               <xs:element name="ID" type="xs:integer"/>
-              <xs:element name="USER" type="xs:integer"/>
-              <xs:element name="RESOURCE" type="xs:integer"/>
-              <xs:element name="RIGHTS" type="xs:integer"/>
-              <xs:element name="ZONE" type="xs:integer"/>
+              <xs:element name="USER" type="xs:hexBinary"/>
+              <xs:element name="RESOURCE" type="xs:hexBinary"/>
+              <xs:element name="RIGHTS" type="xs:hexBinary"/>
+              <xs:element name="ZONE" type="xs:hexBinary"/>
               <xs:element name="STRING" type="xs:string"/>
             </xs:sequence>
           </xs:complexType>
