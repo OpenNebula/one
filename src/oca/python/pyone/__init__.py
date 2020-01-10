@@ -19,6 +19,7 @@ import xmlrpc.client
 import socket
 
 from .util import cast2one
+from .acl import OneAcl
 
 #
 # Exceptions as defined in the XML-API reference
