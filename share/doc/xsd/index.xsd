@@ -2,6 +2,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
   targetNamespace="http://opennebula.org/XMLSchema" xmlns="http://opennebula.org/XMLSchema">
     <xs:include schemaLocation="acct.xsd"/>
+    <xs:include schemaLocation="acl_pool.xsd"/>
     <xs:include schemaLocation="cluster_pool.xsd"/>
     <xs:include schemaLocation="cluster.xsd"/>
     <xs:include schemaLocation="datastore_pool.xsd"/>
