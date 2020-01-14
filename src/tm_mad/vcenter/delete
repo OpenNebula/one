@@ -40,8 +40,6 @@ $LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
-VM_PREFIX_DEFAULT = 'one-$i-'
-
 path = ARGV[0]
 vmid = ARGV[1]
 dsid = ARGV[2]
