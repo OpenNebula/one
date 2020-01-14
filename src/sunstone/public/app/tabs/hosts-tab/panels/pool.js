@@ -17,11 +17,8 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  require('datatables.net');
-  require('datatables.foundation');
   var Locale = require('utils/locale');
-  var CPUBars = require('../utils/cpu-bars');
-  var MemoryBars = require('../utils/memory-bars');
+  var ResourcePool = require("../utils/resource-pool");
   /*
     TEMPLATES
    */
@@ -35,8 +32,9 @@ define(function(require) {
     CONSTRUCTOR
    */
   function Panel(info) {
-    this.title = Locale.tr("ESX");
-    this.icon = "fa-hdd";
+    var self = this;
+    this.title = Locale.tr("POOL");
+    this.icon = "fa-server";
     this.element = info[RESOURCE.toUpperCase()];
     // Do not create an instance of this panel if no vcenter hypervisor
     // porque el hypervisor proviene de la monitorizacion de por si no esta en el template
@@ -47,6 +45,15 @@ define(function(require) {
     }else{
       throw "Panel not available for this element";
     }
+
+    var vCenterResourcePoolInfo = self.element.TEMPLATE['VCENTER_RESOURCE_POOL_INFO']
+
+    if (Array.isArray(vCenterResourcePoolInfo)) {
+        self.resourcePoolItems = vCenterResourcePoolInfo;
+    } else {
+        self.resourcePoolItems = [vCenterResourcePoolInfo];
+    }
+
     return this;
   };
   Panel.PANEL_ID = PANEL_ID;
@@ -57,7 +64,9 @@ define(function(require) {
     FUNCTION DEFINITIONS
    */
   function _html() {
-    return TemplatePool();
+    return TemplatePool({
+        "resourcePoolHTML": ResourcePool.html(this.resourcePoolItems)
+    });
   }
   function _setup(context) {
   }
