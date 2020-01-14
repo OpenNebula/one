@@ -352,9 +352,19 @@ module VCenterDriver
         def get_vcenter_name
             vm_prefix = host['TEMPLATE/VM_PREFIX']
             vm_prefix = VM_PREFIX_DEFAULT if vm_prefix.nil? || vm_prefix.empty?
+
+            if !one_item['USER_TEMPLATE/VM_PREFIX'].nil?
+                vm_prefix = one_item['USER_TEMPLATE/VM_PREFIX']
+            end
             vm_prefix.gsub!("$i", one_item['ID'])
 
-            vm_prefix + one_item['NAME']
+            vm_suffix = ""
+            if !one_item['USER_TEMPLATE/VM_SUFFIX'].nil?
+                vm_suffix = one_item['USER_TEMPLATE/VM_SUFFIX']
+            end
+            vm_suffix.gsub!("$i", one_item['ID'])
+
+            vm_prefix + one_item['NAME'] + vm_suffix
         end
 
         ############################################################################
