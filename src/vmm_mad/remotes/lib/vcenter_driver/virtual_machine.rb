@@ -1628,6 +1628,12 @@ module VCenterDriver
             return detach_disk_array, extra_config
         end
 
+        def different_key?(change_disk, vc_disk)
+            change_disk[:device].controllerKey == vc_disk.controllerKey &&
+            change_disk[:device].unitNumber == vc_disk.unitNumber &&
+            change_disk[:device].key != vc_disk.key
+        end
+
         def sync_extraconfig_disk(spec_hash)
             return if spec_hash[:deviceChange].empty?
             extraconfig_new = []
@@ -1636,15 +1642,13 @@ module VCenterDriver
                 is_disk?(vc_device)
             end
             return unless vc_disks
-            # Number of changed disks
-            disk_changes = spec_hash[:deviceChange].length
             # For each changed disk, compare with vcenter mob disk
-            for i in 0..(disk_changes-1) do
+            spec_hash[:deviceChange].each_with_index do |device, index|
+                change_disk = spec_hash[:deviceChange][index]
                 vc_disks.each do |vc_disk|
-                    if spec_hash[:deviceChange][i][:device].controllerKey == vc_disk.controllerKey &&
-                       spec_hash[:deviceChange][i][:device].unitNumber == vc_disk.unitNumber &&
-                       spec_hash[:deviceChange][i][:device].key != vc_disk.key
-                            extraconfig_new << {key: spec_hash[:extraConfig][i][:key], value: vc_disk.key.to_s} 
+                    if different_key?(change_disk, vc_disk)
+                        extraconfig_new << {key: spec_hash[:extraConfig][index][:key],
+                                            value: vc_disk.key.to_s}
                     end
                 end
             end
