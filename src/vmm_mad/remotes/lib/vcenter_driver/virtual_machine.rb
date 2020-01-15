@@ -1242,6 +1242,7 @@ module VCenterDriver
             spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
 
             @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+            sync_extraconfig_disk(spec_hash)
         end
 
         def extraconfig_file(file, id)
@@ -1627,6 +1628,33 @@ module VCenterDriver
             return detach_disk_array, extra_config
         end
 
+        def sync_extraconfig_disk(spec_hash)
+            return if spec_hash[:deviceChange].empty?
+            extraconfig_new = []
+            # vCenter mob disks
+            vc_disks = @item["config.hardware.device"].select do |vc_device|
+                is_disk?(vc_device)
+            end
+            return unless vc_disks
+            # Number of changed disks
+            disk_changes = spec_hash[:deviceChange].length
+            # For each changed disk, compare with vcenter mob disk
+            for i in 0..(disk_changes-1) do
+                vc_disks.each do |vc_disk|
+                    if spec_hash[:deviceChange][i][:device].controllerKey == vc_disk.controllerKey &&
+                       spec_hash[:deviceChange][i][:device].unitNumber == vc_disk.unitNumber &&
+                       spec_hash[:deviceChange][i][:device].key != vc_disk.key
+                            extraconfig_new << {key: spec_hash[:extraConfig][i][:key], value: vc_disk.key.to_s} 
+                    end
+                end
+            end
+            unless extraconfig_new.empty?
+                spec_hash = {:extraConfig => extraconfig_new}
+                spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+                @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+            end
+        end
+
         # sync OpenNebula disk model with vCenter
         #
         # @param option  [symbol]  if :all is provided the method will try to sync
@@ -1663,7 +1691,7 @@ module VCenterDriver
 
             spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
             @item.ReconfigVM_Task(:spec => spec).wait_for_completion
-
+            ###sync_extraconfig_disk(spec_hash)
             info_disks
         end
 
@@ -1748,6 +1776,8 @@ module VCenterDriver
                 else
                     @item.ReconfigVM_Task(:spec => spec).wait_for_completion
                 end
+                # Modify extraConfig if disks has a bad key
+                sync_extraconfig_disk(spec_hash)
             rescue Exception => e
                 raise "Cannot attach DISK to VM: #{e.message}\n#{e.backtrace.join("\n")}"
             end
