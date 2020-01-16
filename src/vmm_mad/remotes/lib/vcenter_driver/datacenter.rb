@@ -496,16 +496,27 @@ class DatacenterFolder
         network[vc_network._ref][:clusters][:refs] = []
         network[vc_network._ref][:clusters][:one_ids] = []
         network[vc_network._ref][:clusters][:names] = []
-        network[vc_network._ref][:processed] = true
 
-        # Get hosts
+        # Get hosts related to this network and add them if is not
+        # excluded
         vc_hosts = vc_network.host
         vc_hosts.each do |vc_host|
-            # Get cluster
+            # Get vCenter Cluster
             vc_cluster = vc_host.parent
+            # Get one host from each vCenter cluster
+            one_host = VCenterDriver::VIHelper
+                       .find_by_ref(OpenNebula::HostPool,
+                                    "TEMPLATE/VCENTER_CCR_REF",
+                                    vc_cluster._ref,
+                                    vcenter_uuid)
+            # Check if network is excluded from each host
+            next if exclude_network?(vc_network,one_host,args)
+            # Insert vCenter cluster ref
             network[vc_network._ref][:clusters][:refs] << vc_cluster._ref
+            # Insert OpenNebula cluster id
             cluster_id = one_cluster_id(one_host)
             network[vc_network._ref][:clusters][:one_ids] << cluster_id
+            # Insert vCenter cluster name
             network[vc_network._ref][:clusters][:names] << vc_cluster.name
             opts[:dc_name] = vc_cluster.name
         end
@@ -514,6 +525,9 @@ class DatacenterFolder
         network[vc_network._ref][:clusters][:refs].uniq!
         network[vc_network._ref][:clusters][:one_ids].uniq!
         network[vc_network._ref][:clusters][:names].uniq!
+
+        # Mark network as processed
+        network[vc_network._ref][:processed] = true
 
         # General net_info related to datacenter
         opts[:vcenter_uuid] = vcenter_uuid
