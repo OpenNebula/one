@@ -1910,8 +1910,14 @@ module VCenterDriver
 
             else
                 # TYPE is regular disk (not CDROM)
-                controller, unit_number = find_free_controller(position)
-
+                # disk_adapter
+                disk_adapter = disk['VCENTER_ADAPTER_TYPE']
+                case disk_adapter
+                when 'ide'
+                    controller, unit_number = find_free_ide_controller(position)
+                else
+                    controller, unit_number = find_free_controller(position)
+                end
                 storpod = disk["VCENTER_DS_REF"].start_with?('group-')
                 if storpod
                     vmdk_backing = RbVmomi::VIM::VirtualDiskFlatVer2BackingInfo(
