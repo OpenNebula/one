@@ -976,7 +976,7 @@ module VCenterDriver
                     update = true
                 end
                 # check if vCenter disk hasn't got a representation in the extraConfig
-                # then we have to update 
+                # then we have to update
                 if !disks_extraconfig_current.has_key? item[:key]
                     update = true
                 end
@@ -1705,7 +1705,6 @@ module VCenterDriver
 
             spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
             @item.ReconfigVM_Task(:spec => spec).wait_for_completion
-            ###sync_extraconfig_disk(spec_hash)
             info_disks
         end
 
