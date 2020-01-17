@@ -1644,7 +1644,6 @@ module VCenterDriver
 
             spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
             @item.ReconfigVM_Task(:spec => spec).wait_for_completion
-            ###sync_extraconfig_disk(spec_hash)
             info_disks
         end
 
