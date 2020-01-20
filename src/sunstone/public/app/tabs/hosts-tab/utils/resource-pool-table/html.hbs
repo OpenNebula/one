@@ -13,11 +13,13 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-
-<div class="row">
-    <div class="large-12 columns">
-        <div class="provision_vms_ul large-up-2 medium-up-2 small-up-1">
-            {{{resourcePoolCards}}}
-        </div>
-    </div>
-</div>
+<table class="dataTable">
+  <tbody>
+    {{#each resourcePool}}
+    <tr>
+      <td class="key_td">{{key}}</td>
+      <td class="value_td" colspan="2">{{{value}}}</td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>

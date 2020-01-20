@@ -18,7 +18,7 @@ define(function(require) {
     DEPENDENCIES
    */
   var Locale = require('utils/locale');
-  var ResourcePool = require("../utils/resource-pool");
+  var ResourcePoolCards = require("../utils/cards");
   /*
     TEMPLATES
    */
@@ -46,14 +46,6 @@ define(function(require) {
       throw "Panel not available for this element";
     }
 
-    var vCenterResourcePoolInfo = self.element.TEMPLATE['VCENTER_RESOURCE_POOL_INFO']
-
-    if (Array.isArray(vCenterResourcePoolInfo)) {
-        self.resourcePoolItems = vCenterResourcePoolInfo;
-    } else {
-        self.resourcePoolItems = [vCenterResourcePoolInfo];
-    }
-
     return this;
   };
   Panel.PANEL_ID = PANEL_ID;
@@ -65,7 +57,7 @@ define(function(require) {
    */
   function _html() {
     return TemplatePool({
-        "resourcePoolHTML": ResourcePool.html(this.resourcePoolItems)
+        "resourcePoolCards": ResourcePoolCards.html(this.element)
     });
   }
   function _setup(context) {

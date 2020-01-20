@@ -13,14 +13,15 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-
-<table class="dataTable">
-  <tbody>
-    {{#each resourcePools}}
-    <tr>
-      <td class="key_td">{{resourcePoolId}}</td>
-      <td class="value_td" colspan="2">{{{resourcePoolValue}}}</td>
-    </tr>
-    {{/each}}
-  </tbody>
-</table>
+{{#each resourcePools}}
+<div class="column">
+    <ul class="provision-pricing-table menu vertical">
+        <li class="">
+            <a class="top_button button">
+                {{resourcePoolName}}
+            </a>
+        </li>
+        {{{resourcePoolTable}}}
+    </ul>
+</div>
+{{/each}}
