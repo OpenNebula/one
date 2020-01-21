@@ -171,19 +171,19 @@ define(function(require) {
     }
 
     if(
-      templateJSON["TOPOLOGY"] && 
-      templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"] !== undefined && 
-      templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"] !== null &&
-      templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"].length<=0
+      templateJSON["TOPOLOGY"] &&
+      (templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"] === undefined || 
+      templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"] === null ||
+      templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"].length<=0)
     ){
       delete templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"];
     }
 
     if(
-      templateJSON["TOPOLOGY"] && 
-      templateJSON["TOPOLOGY"]["MEMORY_ACCESS"] !== undefined && 
-      templateJSON["TOPOLOGY"]["MEMORY_ACCESS"] !== null &&
-      templateJSON["TOPOLOGY"]["MEMORY_ACCESS"].length<=0
+      templateJSON["TOPOLOGY"] &&
+      (templateJSON["TOPOLOGY"]["MEMORY_ACCESS"] === undefined || 
+      templateJSON["TOPOLOGY"]["MEMORY_ACCESS"] === null ||
+      templateJSON["TOPOLOGY"]["MEMORY_ACCESS"].length<=0)
     ){
       delete templateJSON["TOPOLOGY"]["MEMORY_ACCESS"];
     }
