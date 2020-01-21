@@ -302,10 +302,9 @@ class Container
             return nil unless setup_disk(disk, operation)
         end
 
-        return true unless @one.has_context?
+        return true unless @one.context?
 
-        context = @one.get_context_disk
-        mapper  = FSRawMapper.new
+        mapper = FSRawMapper.new
 
         if operation == 'map'
             mk_context_dir = "#{Mapper::COMMANDS[:su_mkdir]} #{@context_path}"
@@ -318,7 +317,7 @@ class Container
             end
         end
 
-        mapper.public_send(operation, @one, context, context_source)
+        mapper.public_send(operation, @one, @one.context_disk, context_source)
     end
 
     # Generate the context devices and maps the context the device
@@ -332,14 +331,14 @@ class Container
         true
     end
 
-    # Removes the context section from the LXD configuration and unmap the
-    # context device
+    # Removes the context section from the LXD configuration and
+    # unmaps the context device
     def detach_context
-        return true unless @one.has_context?
+        return true unless @one.context?
 
         context_src = context_source
 
-        @lxc['devices'].delete('context')['source']
+        @lxc['devices'].delete('context')
         update
 
         mapper = FSRawMapper.new
@@ -548,7 +547,7 @@ class Container
     end
 
     def context_source
-        return unless @one.has_context?
+        return unless @one.context?
 
         disk_source('context')
     end

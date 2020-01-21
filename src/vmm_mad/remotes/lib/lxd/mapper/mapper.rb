@@ -557,6 +557,7 @@ class Mapper
         Command.execute(cmd, false)
     end
 
+    # Formats a block device
     def mkfs(device, format)
         cmd = "#{COMMANDS[:mkfs]}.#{format} #{device}"
         rc, o, e = Command.execute(cmd, false)
@@ -564,6 +565,7 @@ class Mapper
         return true if rc.zero?
 
         OpenNebula.log_error "Failed to format #{device}\n#{o}\n#{e}"
+        false
     end
 
 end

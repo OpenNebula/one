@@ -78,7 +78,7 @@ class OpenNebulaVM
         @rootfs_id = boot_order.split(',')[0][-1] unless boot_order.empty?
     end
 
-    def has_context?
+    def context?
         !@xml['//TEMPLATE/CONTEXT/DISK_ID'].empty?
     end
 
@@ -157,7 +157,7 @@ class OpenNebulaVM
     # Creates a nic hash from NIC xml root
     def nic(info)
         eth = {
-            'name' => "eth#{info['NIC_ID']}",
+            'name'      => "eth#{info['NIC_ID']}",
             'host_name' => info['TARGET'],
             'parent'    => info['BRIDGE'],
             'hwaddr'    => info['MAC'],
@@ -195,19 +195,19 @@ class OpenNebulaVM
         end
     end
 
-    def get_context_disk
+    # Context disk XML
+    def context_disk
         @xml.element('//TEMPLATE/CONTEXT')
     end
 
+    # Disk XML array
     def get_disks
         @xml.elements('//TEMPLATE/DISK')
     end
 
     # Sets up the storage devices configuration in devices
     def storage(hash)
-        disks = @xml.elements('//TEMPLATE/DISK')
-
-        disks.each do |n|
+        get_disks.each do |n|
             next if swap?(n)
 
             hash.update(disk(n, nil, nil))
