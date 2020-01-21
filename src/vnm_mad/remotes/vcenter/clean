@@ -16,13 +16,91 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-$: << File.dirname(__FILE__)
-$: << File.join(File.dirname(__FILE__), "..")
+File.open('/tmp/clean_timestamp', 'w'){|f| f.write(Time.new)}
+
+# Define libraries location
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+end
+
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+$LOAD_PATH << File.dirname(__FILE__)
+$LOAD_PATH << File.join(File.dirname(__FILE__), '..')
 
 require 'vnmmad'
+require 'nokogiri'
+require 'opennebula'
+require 'vcenter_driver'
+require 'nsx_driver'
 
-template64   = STDIN.read
-deploy_id    = ARGV[0]
+template = Base64.decode64(STDIN.read)
+template_xml = Nokogiri::XML(template)
+File.open("/tmp/clean.debug", 'w') {|f| f.write(template_xml) }
 
-File.open('/tmp/clean.debug', 'w') { |f| f.write("CLEAN") }
-File.open('/tmp/clean.debug', 'a') { |f| f.write(template64) }
+# Check Host exists
+host_name = template_xml
+            .xpath('//HISTORY_RECORDS/HISTORY[last()]/HOSTNAME').text
+one_host = VCenterDriver::VIHelper
+           .find_by_name(OpenNebula::HostPool, host_name)
+rc = one_host.info
+if OpenNebula.is_error?(rc)
+    err_msg = rc.message
+    raise err_msg
+end
+
+# Check if the network attached to all nics are ok
+nics = template_xml.xpath('//TEMPLATE/NIC')
+nsx_pgs = []
+nics.each do |nic|
+    network_id = nic.xpath('NETWORK_ID').text
+    # Check Networks exists
+    one_vnet = VCenterDriver::VIHelper
+               .one_item(OpenNebula::VirtualNetwork, network_id)
+    rc = one_vnet.info
+    if OpenNebula.is_error?(rc)
+        err_msg = rc.message
+        raise err_msg
+    end
+    pg_type = one_vnet['TEMPLATE/VCENTER_PORTGROUP_TYPE']
+    nsx_pgs << pg_type if [NSXDriver::NSXConstants::NSXV_LS_TYPE,
+                                 NSXDriver::NSXConstants::NSXT_LS_TYPE]
+                                .include?(pg_type)
+end
+
+File.open('/tmp/clean_nsxpgs', 'w'){|f| f.write(nsx_pgs)}
+
+# If there isn't any nsx network skip this and exit 0
+# If there is at least a nsx network, then check NSX_STATUS and
+# do a clean
+unless nsx_pgs.empty?
+    # Exit if NSX_STATUS != OK
+    nsx_status = one_host['TEMPLATE/NSX_STATUS']
+    err_msg = "There is NSX networks and NSX_STATUS is not OK"
+    raise err_msg unless nsx_status == 'OK'
+
+    File.open('/tmp/clean_nsxstatus', 'w'){|f| f.write(nsx_status)}
+
+    # NSX Actions
+    nsx_client = NSXDriver::NSXTClient.new_from_id(one_host['ID'])
+    dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
+
+    # Clear rules
+    dfw.clear_opennebula_rules(template)
+end
+
+exit 0
