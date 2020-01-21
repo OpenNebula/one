@@ -47,7 +47,8 @@ GROUPS={
     :oca        => 'ox',
     :market     => 'aws-sdk',
     :onedb      => "mysql2",
-    :hooks      => "zeromq"
+    :hooks      => "zeromq",
+    :serversync => "augeas"
 }
 
 PACKAGES=GROUPS.keys
@@ -69,7 +70,8 @@ DISTRIBUTIONS={
             'xmlparser' => ['gcc', 'libexpat1-dev'],
             'thin'      => ['g++'],
             'json'      => ['gcc'],
-            'zeromq'    => ['gcc', 'libzmq5', 'libzmq3-dev']
+            'zeromq'    => ['gcc', 'libzmq5', 'libzmq3-dev'],
+            'augeas'    => ['gcc', 'libaugeas-dev']
         },
         :install_command_interactive => 'apt-get install',
         :install_command => 'apt-get -y install',
@@ -89,7 +91,8 @@ DISTRIBUTIONS={
             'xmlparser' => ['gcc', 'expat-devel'],
             'thin'      => ['gcc-c++'],
             'json'      => ['gcc'],
-            'zeromq'    => ['gcc', 'zeromq', 'zeromq-devel']
+            'zeromq'    => ['gcc', 'zeromq', 'zeromq-devel'],
+            'augeas'    => ['gcc', 'augeas-devel']
         },
         :install_command_interactive => 'yum install',
         :install_command => 'yum -y install',
