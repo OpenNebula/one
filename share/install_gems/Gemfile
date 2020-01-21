@@ -73,3 +73,4 @@ gem 'activesupport', '~> 4.2'             # packethost
 gem 'i18n', '~> 0.9'                      # packethost
 gem 'ffi-rzmq', '~> 2.0.7'                # onehem (hooks)
 gem 'ipaddress', '~> 0.8.3'               # sunstone, oneflow
+gem 'augeas', '~> 0.6'                    # serversync
