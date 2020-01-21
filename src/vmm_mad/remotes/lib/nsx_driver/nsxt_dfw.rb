@@ -177,11 +177,48 @@ module NSXDriver
         def delete_rule(rule_id, section_id = @one_section_id)
             url = @url_sections + '/' + section_id + '/rules/' + rule_id
             # Delete receive a 200 OK also if the rule doesn't exist
-            @nsx_client.delete(url, HEADER_JSON)
+            @nsx_client.delete(url)
             result = rules_by_id(rule_id)
             raise 'Error deleting rule in DFW' if result
         end
 
+        # Remove OpenNebula created fw rules for an instance (given a template)
+        def clear_opennebula_rules(template)
+            template_xml = Nokogiri::XML(template)
+
+            # OpenNebula Instance IDs
+            vm_id = template_xml.xpath('//VM/ID').text
+            vm_deploy_id = template_xml.xpath('//DEPLOY_ID').text
+
+            # Clean rules
+            nics = template_xml.xpath('//TEMPLATE/NIC')
+            nics.each do |nic|
+                network_id = nic.xpath('NETWORK_ID').text
+                sec_groups = nic.xpath('SECURITY_GROUPS').text.split(',')
+                sec_groups.each do |sec_group|
+                    sg_rules_array = []
+                    sg_rules = template_xml.xpath("//SECURITY_GROUP_RULE[SECURITY_GROUP_ID=#{sec_group}]")
+                    sg_rules.each do |sg_rule|
+                        sg_id = sg_rule.xpath('SECURITY_GROUP_ID').text
+                        sg_name = sg_rule.xpath('SECURITY_GROUP_NAME').text
+                        rule_name = "#{sg_id} - #{sg_name} - #{vm_id} - #{vm_deploy_id} - #{network_id}"
+                        rule = rules_by_name(rule_name, @one_section_id)
+                        delete_rule(rule['id'], @one_section_id) if rule
+                    end
+                end
+            end
+
+            # # Clean rules
+            # sg_rules = template_xml.xpath('//TEMPLATE/SECURITY_GROUP_RULE')
+            # sg_rules.each do |sg_rule|
+            #     sg_id = sg_rule.xpath('SECURITY_GROUP_ID').text
+            #     sg_name = sg_rule.xpath('SECURITY_GROUP_NAME').text
+
+            #     rule_name = "#{sg_id} - #{sg_name} - #{vm_id} - #{vm_deploy_id}"
+            #     rule = rules_by_name(rule_name, @one_section_id)
+            #     delete_rule(rule['id'], @one_section_id) if rule
+            # end
+        end
     end
 
 end

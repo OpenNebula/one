@@ -79,6 +79,9 @@ module NSXDriver
         # Delete rule
         def delete_rule; end
 
+        # Remove OpenNebula created fw rules for an instance (given a template)
+        def clear_opennebula_rules(template); end
+
     end
 
 end
