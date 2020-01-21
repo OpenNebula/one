@@ -172,7 +172,7 @@ class Mapper
 
         real_path = File.realpath(directory) if !is_rootfs && is_shared_ds
 
-        sys_parts.each {|d|
+        sys_parts.each do |d|
             if d['mountpoint'] == real_path
                 partitions = [d]
                 device     = d['path']
@@ -180,23 +180,23 @@ class Mapper
             end
 
             if d['children']
-                d['children'].each {|c|
+                d['children'].each do |c|
                     next unless c['mountpoint'] == real_path
 
                     partitions = d['children']
                     device     = d['path']
                     break
-                }
+                end
             end
 
             break unless partitions.empty?
-        }
+        end
 
         partitions.delete_if {|p| !p['mountpoint'] }
 
-        partitions.sort! {|a, b|
+        partitions.sort! do |a, b|
             b['mountpoint'].length <=> a['mountpoint'].length
-        }
+        end
 
         if device.empty?
             OpenNebula.log_error("Failed to detect block device from #{directory}")
@@ -219,11 +219,11 @@ class Mapper
     # Umounts partitions
     # @param partitions [Array] with partition device names
     def umount(partitions)
-        partitions.each {|p|
+        partitions.each do |p|
             next unless p['mountpoint']
 
             return nil unless umount_dev(p['path'])
-        }
+        end
     end
 
     # Mounts partitions
@@ -313,21 +313,21 @@ class Mapper
                     partitions = [partitions]
                 end
 
-                partitions.delete_if {|p|
+                partitions.delete_if do |p|
                     p['fstype'].casecmp('swap').zero? if p['fstype']
-                }
+                end
             end
-        rescue
+        rescue StandardError
             OpenNebula.log_error("lsblk: error parsing lsblk -OJ #{device}")
             return
         end
 
         # Fix for lsblk paths for version < 2.33
-        partitions.each {|p|
+        partitions.each do |p|
             lsblk_path(p)
 
             p['children'].each {|q| lsblk_path(q) } if p['children']
-        }
+        end
 
         partitions
     end
@@ -451,13 +451,13 @@ class Mapper
 
             next if %w[/ swap].include?(mount_point)
 
-            partitions.each {|p|
+            partitions.each do |p|
                 next if p[key] != value
 
                 return false unless mount_dev(p['path'], path + mount_point)
 
                 break
-            }
+            end
         end
 
         true
@@ -541,12 +541,12 @@ class Mapper
 
         fstype = ''
 
-        o.each_line {|l|
+        o.each_line do |l|
             next unless (m = l.match(/TYPE=(.*)/))
 
             fstype = m[1]
             break
-        }
+        end
 
         fstype
     end
