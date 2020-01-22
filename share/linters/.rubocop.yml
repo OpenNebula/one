@@ -564,6 +564,10 @@ AllCops:
 # LAYOUT
 ########
 
+# Line Length config:
+Layout/LineLength:
+    Max: 80
+
 # Check indendation
 Layout/IndentationWidth:
     Width: 4
@@ -740,10 +744,6 @@ Lint/Debugger:
 
 Metrics/BlockLength:
     Enabled: False
-
-# Line Length config:
-Metrics/LineLength:
-    Max: 80
 
 Metrics/ModuleLength:
     Enabled: False
