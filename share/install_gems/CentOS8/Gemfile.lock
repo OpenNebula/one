@@ -10,6 +10,7 @@ GEM
       public_suffix (>= 2.0.2, < 5.0)
     amazon-ec2 (0.9.17)
       xml-simple (>= 1.0.12)
+    augeas (0.6.4)
     aws-eventstream (1.0.3)
     aws-sdk (2.11.387)
       aws-sdk-resources (= 2.11.387)
@@ -118,6 +119,7 @@ PLATFORMS
 DEPENDENCIES
   activesupport (~> 4.2)
   amazon-ec2
+  augeas (~> 0.6)
   aws-sdk (~> 2.5)
   azure
   builder
