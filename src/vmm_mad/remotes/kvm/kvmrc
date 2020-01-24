@@ -82,5 +82,5 @@ export VIRSH_RETRIES=3
 
 # This parameters will set the default NIC model and filter for
 # the hot-attached interfaces.
-#DEFAULT_ATTACH_NIC_MODEL=virtio
+DEFAULT_ATTACH_NIC_MODEL=virtio
 #DEFAULT_ATTACH_NIC_FILTER=clean-traffic
