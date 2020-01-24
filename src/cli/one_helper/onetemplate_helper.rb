@@ -183,6 +183,20 @@ EOT
                     answer = Base64::encode64(answer).strip.delete("\n")
                 end
 
+            when 'boolean'
+                print header
+
+                answer = STDIN.readline.chop
+
+                # use default in case it's empty
+                answer = initial if answer.empty?
+
+                unless %w[YES NO].include?(answer)
+                    STDERR.puts "Invalid boolean '#{answer}'"
+                    STDERR.puts 'Boolean has to be YES or NO'
+                    exit(-1)
+                end
+
             when 'password'
                 print header
 
