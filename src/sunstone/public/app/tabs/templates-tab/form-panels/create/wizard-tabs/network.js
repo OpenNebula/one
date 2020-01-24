@@ -138,10 +138,16 @@ define(function(require) {
     if (aliasJSON.length > 0) { templateJSON['NIC_ALIAS'] = aliasJSON; };
     if (pcisJSON.length > 0) { templateJSON['NIC_PCI'] = pcisJSON; };
 
-    var nicDefault = WizardFields.retrieveInput($('#DEFAULT_MODEL', context));
-    if (nicDefault) {
-      templateJSON['NIC_DEFAULT'] = {
-        'MODEL': nicDefault
+    var nicDefaultModel = WizardFields.retrieveInput($('#DEFAULT_MODEL', context));
+    var nicDefaultFilter = WizardFields.retrieveInput($('#DEFAULT_FILTER', context));
+    if (nicDefaultModel || nicDefaultFilter) {
+      templateJSON['NIC_DEFAULT'] = {}
+
+      if (nicDefaultModel) {
+        templateJSON['NIC_DEFAULT']['MODEL'] = nicDefaultModel
+      }
+      if (nicDefaultFilter) {
+        templateJSON['NIC_DEFAULT']['FILTER'] = nicDefaultFilter
       }
     }
 
@@ -235,6 +241,9 @@ define(function(require) {
     if (nicDefault != undefined) {
       if (nicDefault.MODEL) {
         WizardFields.fillInput($('#DEFAULT_MODEL', context), nicDefault.MODEL);
+      }
+      if (nicDefault.FILTER) {
+        WizardFields.fillInput($('#DEFAULT_FILTER', context), nicDefault.FILTER);
       }
 
       delete templateJSON.NIC_DEFAULT;
