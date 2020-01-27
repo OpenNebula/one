@@ -349,7 +349,7 @@ define(function(require) {
         nic_dt_data.push({
           NIC_ID : nic.NIC_ID,
           NETWORK : Navigation.link(nic.NETWORK, "vnets-tab", nic.NETWORK_ID),
-          IP : _ipTr(nic, [ipStr, "IP6_LINK"]),
+          IP : _ipTr(nic, [ipStr, "IP"]),
           NIC_ALIAS : nic_alias,
           MAC : nic.MAC,
           PCI_ADDRESS: pci_address,
