@@ -50,7 +50,8 @@ class OpenNebula::LdapAuth
             :mapping_key        => 'GROUP_DN',
             :mapping_default    => 1,
             :attributes         => [ "memberOf" ],
-            :rfc2307bis         => true
+            :rfc2307bis         => true,
+            :group_admin_group_dn => nil
         }.merge(options)
 
         ops={}
@@ -190,26 +191,26 @@ class OpenNebula::LdapAuth
     end
 
     def get_groups
-        groups = []
-
         if @options[:rfc2307bis]
-            [@user['memberOf']].flatten.each do |group|
-                if (g = in_hash_ignore_case?(@mapping, group))
-                    groups << @mapping[g]
-                end
-            end
+            ldap_groups = [@user['memberOf']].flatten
         else
             group_base = @options[:group_base] ? @options[:group_base] : @options[:base]
             filter = Net::LDAP::Filter.equals(@options[:group_field], @user[@options[:user_group_field]].first)
-            @ldap.search(
+            ldap_groups = @ldap.search(
                 :base       => group_base,
                 :attributes => [ "dn" ],
                 :filter     => filter
-            ) do |entry|
-                if (g = in_hash_ignore_case?(@mapping, entry.dn))
+            ).map! { |entry| entry.dn }
+        end
+
+        groups = []
+        ldap_groups.each do |group|
+            if (g = in_hash_ignore_case?(@mapping, group))
+                if ldap_groups.include? @options[:group_admin_group_dn]
+                    groups << "*#{@mapping[g]}"
+                else
                     groups << @mapping[g]
                 end
-
             end
         end
 

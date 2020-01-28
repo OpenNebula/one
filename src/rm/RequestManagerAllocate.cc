@@ -895,7 +895,9 @@ Request::ErrorCode UserAllocate::pool_allocate(
     string driver = xmlrpc_c::value_string(paramList.getString(3));
 
     set<int> gids;
-    int      gid = -1;
+    set<int> agids;
+
+    int gid = -1;
 
     vector<xmlrpc_c::value> param_arr;
     vector<xmlrpc_c::value>::const_iterator it;
@@ -940,7 +942,7 @@ Request::ErrorCode UserAllocate::pool_allocate(
     }
 
     int rc = static_cast<UserPool *>(pool)->allocate(&id, uname, gid, passwd,
-            driver, true, gids, att.resp_msg);
+            driver, true, gids, agids, att.resp_msg);
 
     if (rc < 0)
     {

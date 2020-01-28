@@ -52,13 +52,14 @@ public:
      *    @return the oid assigned to the object or -1 in case of failure
      */
     int allocate(
-        int *   oid,
+        int * oid,
         const string& uname,
-        int     gid,
+        int   gid,
         const string& password,
         const string& auth,
-        bool    enabled,
+        bool  enabled,
         const set<int>& gids,
+        const set<int>& agids,
         string& error_str);
 
     /**
