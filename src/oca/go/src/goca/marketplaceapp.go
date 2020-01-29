@@ -142,7 +142,8 @@ func (mc *MarketPlaceAppController) Update(tpl string, uType parameters.UpdateTy
 
 // Chmod changes the permission bits of a marketplace app
 func (mc *MarketPlaceAppController) Chmod(perm shared.Permissions) error {
-	_, err := mc.c.Client.Call("one.marketapp.chmod", perm.ToArgs(mc.ID)...)
+	args := append([]interface{}{mc.ID}, perm.ToArgs()...)
+	_, err := mc.c.Client.Call("one.marketapp.chmod", args...)
 	return err
 }
 

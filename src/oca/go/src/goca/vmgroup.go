@@ -138,7 +138,8 @@ func (vc *VMGroupController) Update(tpl string, uType int) error {
 
 // Chmod changes the permission bits of a vmGroup.
 func (vc *VMGroupController) Chmod(perm shared.Permissions) error {
-	_, err := vc.c.Client.Call("one.vmgroup.chmod", perm.ToArgs(vc.ID)...)
+	args := append([]interface{}{vc.ID}, perm.ToArgs()...)
+	_, err := vc.c.Client.Call("one.vmgroup.chmod", args...)
 	return err
 }
 

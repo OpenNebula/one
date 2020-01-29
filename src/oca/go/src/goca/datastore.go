@@ -128,8 +128,9 @@ func (dc *DatastoreController) Update(tpl string, uType parameters.UpdateType) e
 }
 
 // Chmod changes the permission bits of a datastore.
-func (dc *DatastoreController) Chmod(perm shared.Permissions) error {
-	_, err := dc.c.Client.Call("one.datastore.chmod", perm.ToArgs(dc.ID)...)
+func (dc *DatastoreController) Chmod(perm *shared.Permissions) error {
+	args := append([]interface{}{dc.ID}, perm.ToArgs()...)
+	_, err := dc.c.Client.Call("one.datastore.chmod", args...)
 	return err
 }
 

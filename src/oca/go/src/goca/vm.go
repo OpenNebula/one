@@ -286,7 +286,8 @@ func (vc *VMController) Chown(uid, gid int) error {
 // Chmod changes the permissions of a VM. If any perm is -1 it will not
 // change
 func (vc *VMController) Chmod(perm shared.Permissions) error {
-	_, err := vc.c.Client.Call("one.vm.chmod", perm.ToArgs(vc.ID)...)
+	args := append([]interface{}{vc.ID}, perm.ToArgs()...)
+	_, err := vc.c.Client.Call("one.vm.chmod", args...)
 	return err
 }
 
