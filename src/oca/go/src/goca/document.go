@@ -143,7 +143,7 @@ func (dc *DocumentController) Update(tpl string, uType parameters.UpdateType) er
 }
 
 // Chmod changes the permission bits of a document.
-func (dc *DocumentController) Chmod(perm *shared.Permissions) error {
+func (dc *DocumentController) Chmod(perm shared.Permissions) error {
 	_, err := dc.c.Client.Call("one.document.chmod", perm.ToArgs(dc.ID)...)
 	return err
 }

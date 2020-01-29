@@ -194,7 +194,7 @@ func (vc *VirtualNetworkController) Update(tpl string, uType parameters.UpdateTy
 }
 
 // Chmod changes the permission bits of a virtual network.
-func (vc *VirtualNetworkController) Chmod(perm *shared.Permissions) error {
+func (vc *VirtualNetworkController) Chmod(perm shared.Permissions) error {
 	_, err := vc.c.Client.Call("one.vn.chmod", perm.ToArgs(vc.ID)...)
 	return err
 }

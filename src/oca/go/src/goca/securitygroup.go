@@ -150,7 +150,7 @@ func (sc *SecurityGroupController) Commit(recovery bool) error {
 }
 
 // Chmod changes the permission bits of a security group
-func (sc *SecurityGroupController) Chmod(perm *shared.Permissions) error {
+func (sc *SecurityGroupController) Chmod(perm shared.Permissions) error {
 	_, err := sc.c.Client.Call("one.secgroup.chmod", perm.ToArgs(sc.ID)...)
 	return err
 }
