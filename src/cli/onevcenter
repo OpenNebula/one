@@ -286,4 +286,49 @@ CommandParser::CmdParser.new(ARGV) do
 
         exit 0
     end
+
+    ############################################################################
+    # Clear VM tags
+    ############################################################################
+    cleartags_desc = <<-EOT.unindent
+        Clear extraconfig tags from a vCenter VM, useful when a VM has been
+        launched by OpenNebula and needs to be reimported
+
+        Example:
+           - Clean VM 15:
+
+           onevcenter cleargs 15
+    EOT
+    command :cleartags, cleartags_desc, :vmid do
+        vmid = args[0]
+        remove_str = "\n        onevm recover --delete-db #{vmid}" \
+                     "\n\nAfter a monitoring cycle, the VM will appear "\
+                     'as a Wild VM for reimport.'
+
+        print 'Extracting information from VM ' + vmid
+
+        begin
+            print '.'
+            vm, keys = helper.clear_tags(vmid)
+            print '.'
+
+            if keys.empty?
+                puts "\n\nNo OpenNebula keys present, is safe to remove the VM."
+                puts remove_str
+                exit 0
+            end
+            puts '.'
+
+            puts 'The following keys will be removed:'
+            keys.each {|key| puts "\t- #{key}" }
+
+            helper.remove_keys(vm, keys)
+        rescue StandardError => e
+            STDERR.puts "Couldn't clear VM tags. Reason: #{e.message}"
+            exit 1
+        end
+        puts "\nKeys removed from VM. Is safe to remove it"
+        puts remove_str
+        exit 0
+    end
 end
