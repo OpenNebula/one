@@ -50,7 +50,7 @@ func (n *Template) GetI(key keys.Template) (int, error) {
 }
 
 // Add adds an datastore key, value pair
-func (n *Template) Add(key keys.Template, value string) {
+func (n *Template) Add(key keys.Template, value interface{}) {
 	n.AddPair(string(key), value)
 }
 
