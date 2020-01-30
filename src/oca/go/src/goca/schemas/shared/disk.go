@@ -54,6 +54,6 @@ func (d *Disk) GetI(key DiskKeys) (int, error) {
 }
 
 // Add adds a disk key, value pair
-func (d *Disk) Add(key DiskKeys, value string) {
+func (d *Disk) Add(key DiskKeys, value interface{}) {
 	d.AddPair(string(key), value)
 }

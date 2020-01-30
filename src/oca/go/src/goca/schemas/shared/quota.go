@@ -16,9 +16,12 @@
 
 package shared
 
+import "encoding/xml"
+
 // Quotas keeps quota value per User or Group
 type Quotas struct {
-	ID int `xml:"ID"`
+	XMLName xml.Name `xml:"QUOTAS"`
+	ID      int      `xml:"ID"`
 	QuotasList
 }
 
@@ -34,16 +37,16 @@ type QuotasList struct {
 type DatastoreQuota struct {
 	ID         int `xml:"ID"`
 	Images     int `xml:"IMAGES"`
-	ImagesUsed int `xml:"IMAGES_USED"`
+	ImagesUsed int `xml:"IMAGES_USED,omitempty"`
 	Size       int `xml:"SIZE"`
-	SizeUsed   int `xml:"SIZE_USED"`
+	SizeUsed   int `xml:"SIZE_USED,omitempty"`
 }
 
 // NetworkQuota keeps quota for a network
 type NetworkQuota struct {
 	ID         int `xml:"ID"`
 	Leases     int `xml:"LEASES"`
-	LeasesUsed int `xml:"LEASES_USED"`
+	LeasesUsed int `xml:"LEASES_USED,omitempty"`
 }
 
 // VMQuota keeps quota for all VMs in the group
@@ -55,18 +58,18 @@ type VMQuota struct {
 	RunningCPU         float32 `xml:"RUNNING_CPU"`
 	RunningCPUUsed     float32 `xml:"RUNNING_CPU_USED,omitempty"`
 	RunningMemory      int     `xml:"RUNNING_MEMORY"`
-	RunningMemoryUsed  int     `xml:"RUNNING_MEMORY_USED"`
+	RunningMemoryUsed  int     `xml:"RUNNING_MEMORY_USED,omitempty"`
 	RunningVMs         int     `xml:"RUNNING_VMS"`
 	RunningVMsUsed     int     `xml:"RUNNING_VMS_USED,omitempty"`
 	SystemDiskSize     int64   `xml:"SYSTEM_DISK_SIZE"`
 	SystemDiskSizeUsed int64   `xml:"SYSTEM_DISK_SIZE_USED,omitempty"`
 	VMs                int     `xml:"VMS"`
-	VMsUsed            int     `xml:"VMS_USED"`
+	VMsUsed            int     `xml:"VMS_USED,omitempty"`
 }
 
 // ImageQuota keeps quota for an image
 type ImageQuota struct {
 	ID       int `xml:"ID"`
 	RVMs     int `xml:"RVMS"`
-	RVMsUsed int `xml:"RVMS_USED"`
+	RVMsUsed int `xml:"RVMS_USED,omitempty"`
 }

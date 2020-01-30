@@ -41,6 +41,6 @@ func (t *Rule) Get(key keys.Rule) (string, error) {
 }
 
 // Add adds a security group rule template key, value pair
-func (t *Rule) Add(key keys.Rule, value string) {
+func (t *Rule) Add(key keys.Rule, value interface{}) {
 	t.AddPair(string(key), value)
 }
