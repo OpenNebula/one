@@ -27,15 +27,15 @@ package shared
 // * om: OTHER MANAGE bit.
 // * oa: OTHER ADMIN bit.
 type Permissions struct {
-	OwnerU int `xml:"OWNER_U"`
-	OwnerM int `xml:"OWNER_M"`
-	OwnerA int `xml:"OWNER_A"`
-	GroupU int `xml:"GROUP_U"`
-	GroupM int `xml:"GROUP_M"`
-	GroupA int `xml:"GROUP_A"`
-	OtherU int `xml:"OTHER_U"`
-	OtherM int `xml:"OTHER_M"`
-	OtherA int `xml:"OTHER_A"`
+	OwnerU int8 `xml:"OWNER_U"`
+	OwnerM int8 `xml:"OWNER_M"`
+	OwnerA int8 `xml:"OWNER_A"`
+	GroupU int8 `xml:"GROUP_U"`
+	GroupM int8 `xml:"GROUP_M"`
+	GroupA int8 `xml:"GROUP_A"`
+	OtherU int8 `xml:"OTHER_U"`
+	OtherM int8 `xml:"OTHER_M"`
+	OtherA int8 `xml:"OTHER_A"`
 }
 
 var permStr = [8]string{"---", "--a", "-m-", "-ma", "u--", "u-a", "um-", "uma"}
