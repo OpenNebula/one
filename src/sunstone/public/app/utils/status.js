@@ -17,14 +17,17 @@
 define(function(require) {
     var resource_states = {
       IMAGES:{
-        CLONE:"#4DBBD3",
-        INIT:"#4DBBD3",
+        CLONE:"#8A8A8A",
+        INIT:"#8A8A8A",
         READY:"#3adb76",
         USED:"#3adb76",
         ERROR:"#ec5840",
-        DELETE:"#ec5840",
-        LOCKED:"lightsalmon",
-        DISABLED:"lightsalmon"
+        DELETE:"#8A8A8A",
+        LOCKED:"#8A8A8A",
+        DISABLED:"#8A8A8A",
+        USED_PERS: "#3adb76",
+        LOCKED_USED: "#8A8A8A",
+        LOCKED_USED_PERS: "#8A8A8A",
       },
       HOST:{
         INIT:"#4DBBD3",
@@ -103,7 +106,7 @@ define(function(require) {
       if (lock){
         show_lock = "border-left: 3px solid #373537;";
       }
-
+      
       return '<span style="'+show_lock+' float:left; margin-right: 3px; width: 5px; height: 20px; background: '+color+';"></span>'
     }
   })
