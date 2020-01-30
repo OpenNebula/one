@@ -137,17 +137,9 @@ func (vc *VMGroupController) Update(tpl string, uType int) error {
 }
 
 // Chmod changes the permission bits of a vmGroup.
-// * uu: USER USE bit. If set to -1, it will not change.
-// * um: USER MANAGE bit. If set to -1, it will not change.
-// * ua: USER ADMIN bit. If set to -1, it will not change.
-// * gu: GROUP USE bit. If set to -1, it will not change.
-// * gm: GROUP MANAGE bit. If set to -1, it will not change.
-// * ga: GROUP ADMIN bit. If set to -1, it will not change.
-// * ou: OTHER USE bit. If set to -1, it will not change.
-// * om: OTHER MANAGE bit. If set to -1, it will not change.
-// * oa: OTHER ADMIN bit. If set to -1, it will not change.
-func (vc *VMGroupController) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
-	_, err := vc.c.Client.Call("one.vmgroup.chmod", vc.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+func (vc *VMGroupController) Chmod(perm shared.Permissions) error {
+	args := append([]interface{}{vc.ID}, perm.ToArgs()...)
+	_, err := vc.c.Client.Call("one.vmgroup.chmod", args...)
 	return err
 }
 

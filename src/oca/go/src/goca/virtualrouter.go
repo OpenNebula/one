@@ -144,8 +144,10 @@ func (vc *VirtualRouterController) Chown(uid, gid int) error {
 
 // Chmod changes the permissions of a virtual router. If any perm is -1 it will not
 // change
-func (vc *VirtualRouterController) Chmod(perm *shared.Permissions) error {
-	_, err := vc.c.Client.Call("one.vrouter.chmod", perm.ToArgs(vc.ID)...)
+func (vc *VirtualRouterController) Chmod(perm shared.Permissions) error {
+	args := append([]interface{}{vc.ID}, perm.ToArgs()...)
+
+	_, err := vc.c.Client.Call("one.vrouter.chmod", args...)
 	return err
 }
 

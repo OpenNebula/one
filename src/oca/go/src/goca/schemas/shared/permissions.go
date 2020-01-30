@@ -40,17 +40,20 @@ type Permissions struct {
 
 var permStr = [8]string{"---", "--a", "-m-", "-ma", "u--", "u-a", "um-", "uma"}
 
+func NewDefaultPermission() Permissions {
+	return Permissions{-1, -1, -1, -1, -1, -1, -1, -1, -1}
+}
+
 // If a bit is set to -1, it will not change when calling Chmod
-func (p *Permissions) ToArgs(id int) []interface{} {
+func (p Permissions) ToArgs() []interface{} {
 	return []interface{}{
-		id,
 		p.OwnerU, p.OwnerM, p.OwnerA,
 		p.GroupU, p.GroupM, p.GroupA,
 		p.OtherU, p.OtherM, p.OtherA,
 	}
 }
 
-func (p *Permissions) String() string {
+func (p Permissions) String() string {
 	owner := permStr[p.OwnerU<<2|p.OwnerM<<1|p.OwnerA]
 	group := permStr[p.GroupU<<2|p.GroupM<<1|p.GroupA]
 	other := permStr[p.OtherU<<2|p.OtherM<<1|p.OtherA]

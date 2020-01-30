@@ -137,8 +137,9 @@ func (vc *VNTemplateController) Chown(uid, gid int) error {
 
 // Chmod changes the permissions of a vntemplate. If any perm is -1 it will not
 // change
-func (vc *VNTemplateController) Chmod(perm *shared.Permissions) error {
-	_, err := vc.c.Client.Call("one.vntemplate.chmod", perm.ToArgs(vc.ID)...)
+func (vc *VNTemplateController) Chmod(perm shared.Permissions) error {
+	args := append([]interface{}{vc.ID}, perm.ToArgs()...)
+	_, err := vc.c.Client.Call("one.vntemplate.chmod", args...)
 	return err
 }
 
