@@ -32,20 +32,20 @@ type Pool struct {
 // VMGroup represents an OpenNebula VM group
 type VMGroup struct {
 	XMLName     xml.Name            `xml:"VM_GROUP"`
-	ID          int                 `xml:"ID"`
-	UID         int                 `xml:"UID"`
-	GID         int                 `xml:"GID"`
-	UName       string              `xml:"UNAME"`
-	GName       string              `xml:"GNAME"`
+	ID          int                 `xml:"ID,omitemtpy"`
+	UID         int                 `xml:"UID,omitempty"`
+	GID         int                 `xml:"GID,omitempty"`
+	UName       string              `xml:"UNAME,omitempty"`
+	GName       string              `xml:"GNAME,omitempty"`
 	Name        string              `xml:"NAME"`
-	Permissions *shared.Permissions `xml:"PERMISSIONS"`
-	LockInfos   *shared.Lock        `xml:"LOCK"`
-	Roles       []Role              `xml:"ROLES>ROLE"`
-	Template    dyn.Template        `xml:"TEMPLATE"`
+	Permissions *shared.Permissions `xml:"PERMISSIONS,omitempty"`
+	LockInfos   *shared.Lock        `xml:"LOCK,omitempty"`
+	Roles       []Role              `xml:"ROLES>ROLE,omitempty"`
+	Template    dyn.Template        `xml:"TEMPLATE,omitempty"`
 }
 
 type Role struct {
-	ID              int    `xml:"ID"`
+	ID              int    `xml:"ID,omitempty"`
 	Name            string `xml:"NAME"`
 	HostAffined     string `xml:"HOST_AFFINED,omitempty"`      // minOccurs=0
 	HostAntiAffined string `xml:"HOST_ANTI_AFFINED,omitempty"` // minOccurs=0
