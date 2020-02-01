@@ -35,4 +35,5 @@
     <xs:include schemaLocation="vrouter.xsd"/>
     <xs:include schemaLocation="zone_pool.xsd"/>
     <xs:include schemaLocation="zone.xsd"/>
+    <xs:include schemaLocation="showback.xsd"/>
 </xs:schema>
