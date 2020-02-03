@@ -17,7 +17,35 @@
 define(function(require) {
   var RFB = require("vnc-rfb").default;
   var Config = require("sunstone-config");
-  var rfb;
+  var _rfb;
+  var _is_encrypted = "";
+
+  function setStatus(message="", status=""){
+    $(".NOVNC_message").text(message);
+    $("#noVNC_status").text(status);
+  }
+
+  function connected(){
+    setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + _rfb._fb_name);
+  }
+
+  function disconnectedFromServer(e){
+    if (e.detail.clean) {
+      setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + _rfb._fb_name);
+    } else {
+      setStatus("Something went wrong, connection is closed", "Failed");
+    }
+  }
+
+  function desktopNameChange(e) {
+    if (e.detail.name) {
+      setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + e.detail.name);
+    }
+  }
+
+  function credentialsRequired(e) {
+    setStatus("Something went wrong, more credentials must be given to continue", "Failed");
+  }
 
   function passwordRequired(rfb) {
     var msg;
@@ -31,24 +59,24 @@ define(function(require) {
     document.querySelector("#setPasswordForm").addEventListener("submit", setPassword);
   }
   function setPassword(event) {
-    rfb.sendPassword(document.querySelector("#password_input").value);
+    _rfb.sendPassword(document.querySelector("#password_input").value);
     event.preventDefault();
     return false;
   }
   function sendCtrlAltDel() {
-    rfb.sendCtrlAltDel();
+    _rfb.sendCtrlAltDel();
     return false;
   }
   function xvpShutdown() {
-    rfb.xvpShutdown();
+    _rfb.xvpShutdown();
     return false;
   }
   function xvpReboot() {
-    rfb.xvpReboot();
+    _rfb.xvpReboot();
     return false;
   }
   function xvpReset() {
-    rfb.xvpReset();
+    _rfb.xvpReset();
     return false;
   }
   function updateState(rfb, state, oldstate, msg) {
@@ -109,8 +137,10 @@ define(function(require) {
 
   if (window.location.protocol === "https:") {
     URL = "wss";
+    _is_encrypted = "encrypted";
   } else {
     URL = "ws";
+    _is_encrypted = "unencrypted";
   }
   URL += "://" + window.location.hostname;
   URL += ":" + proxy_port;
@@ -133,8 +163,13 @@ define(function(require) {
     return;
   }
   try{
-    rfb = new RFB(document.querySelector("#VNC_canvas"), URL, rfbConfig);
+    _rfb = new RFB(document.querySelector("#VNC_canvas"), URL, rfbConfig);
+    _rfb.addEventListener("connect",  connected);
+    _rfb.addEventListener("disconnect", disconnectedFromServer);
+    _rfb.addEventListener("desktopname", desktopNameChange);
+    _rfb.addEventListener("credentialsrequired", credentialsRequired);
   }catch(err){
+    setStatus("Something went wrong, connection is closed", "Failed");
     console.log("error start NOVNC ", err);
   }
 });
