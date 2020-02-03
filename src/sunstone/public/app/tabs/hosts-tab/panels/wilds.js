@@ -83,7 +83,8 @@ define(function(require) {
       "bAutoWidth": false,
       "aoColumnDefs": [
           {"bSortable": false, "aTargets": [0]},
-          {"sWidth": "35px", "aTargets": [0]}
+          {"sWidth": "35px", "aTargets": [0]},
+          {"sType": "string", "aTargets": [1]}
       ]
     });
 
