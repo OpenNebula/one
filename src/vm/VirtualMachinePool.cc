@@ -416,16 +416,20 @@ int VirtualMachinePool::get_vmid (const string& deploy_id)
     int vmid = -1;
     ostringstream oss;
 
+    auto sql_id = db->escape_str(deploy_id);
+
     single_cb<int> cb;
 
     cb.set_callback(&vmid);
 
     oss << "SELECT vmid FROM " << import_table
-        << " WHERE deploy_id = '" << db->escape_str(deploy_id) << "'";
+        << " WHERE deploy_id = '" << sql_id << "'";
 
     rc = db->exec_rd(oss, &cb);
 
     cb.unset_callback();
+
+    db->free_str(sql_id);
 
     if (rc != 0 )
     {
