@@ -35,14 +35,13 @@ $LOAD_PATH << File.dirname(__FILE__)
 
 require 'az_driver'
 
-deploy_id = ARGV[0]
-host      = ARGV[1]
-id        = ARGV[2]
-
+host       = ARGV[0]
+deploy_id  = ARGV[1]
+id         = ARGV[2]
 
 begin
-    az_drv = AzureDriver.new(host)
-    az_drv.poll(id, deploy_id)
+    az_drv = AzureDriver.new(id)
+    az_drv.poll(host, deploy_id)
 rescue => e
     OpenNebula.handle_driver_exception("Poll", e, host, deploy_id, id)
 end
