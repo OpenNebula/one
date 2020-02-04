@@ -130,6 +130,11 @@ public:
         {
             delete user_template;
         }
+
+        for (auto nic : nics)
+        {
+            delete nic.second;
+        }
     }
 
     //--------------------------------------------------------------------------

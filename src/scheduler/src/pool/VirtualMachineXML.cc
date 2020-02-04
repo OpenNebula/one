@@ -161,6 +161,7 @@ void VirtualMachineXML::init_attributes()
 
             if ( !rc || net_mode != "AUTO" )
             {
+                delete nic_template;
                 continue;
             }
 
