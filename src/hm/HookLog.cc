@@ -198,6 +198,7 @@ int HookLog::add(int hkid, int hkrc, std::string &xml_result)
 
     if ( ObjectXML::validate_xml(sql_xml) != 0 )
     {
+        db->free_str(sql_xml);
         return -1;
     }
 
