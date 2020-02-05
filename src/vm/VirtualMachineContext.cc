@@ -349,6 +349,20 @@ int VirtualMachine::generate_network_context(VectorAttribute* context,
             continue;
         }
 
+        if (hasPreviousHistory() &&
+            previous_history->action == VMActions::NIC_DETACH_ACTION &&
+            vatts[i]->vector_value("ATTACH") == "YES")
+        {
+            int nic_id;
+
+            vatts[i]->vector_value("NIC_ID", nic_id);
+
+            clear_nic_context(nic_id);
+
+            continue;
+        }
+
+
         bool alias_detach = hasPreviousHistory() &&
             previous_history->action == VMActions::ALIAS_DETACH_ACTION &&
             vatts[i]->vector_value("ATTACH") == "YES";
