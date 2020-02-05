@@ -35,6 +35,14 @@ public:
     static std::string * format_message(std::string method, ParamList& paramList,
             const RequestAttributes& att);
 
+    /**
+     * Check if an api call is supported or not.
+     *   @param api call
+     *
+     *   @return true if the call exists, false otherwise
+     */
+    static bool supported_call(const std::string& api_call);
+
 private:
     friend class HookPool;
     friend class Hook;
@@ -76,7 +84,7 @@ private:
      * Check if an api call does exist in the XMLRPC server.
      *   @param api call
      *
-     *   @return 0 if the call exists, -1 otherwise
+     *   @return true if the call exists, false otherwise
      */
     bool call_exist(const std::string& api_call);
 

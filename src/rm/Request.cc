@@ -444,9 +444,12 @@ void Request::execute(
 
     std::string * event = HookAPI::format_message(method_name, pl, att);
 
-    hm->trigger(HMAction::SEND_EVENT, *event);
+    if (event != nullptr)
+    {
+        hm->trigger(HMAction::SEND_EVENT, *event);
 
-    delete event;
+        delete event;
+    }
 
     if ( log_method_call )
     {
