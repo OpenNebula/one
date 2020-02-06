@@ -249,7 +249,7 @@ int VirtualMachine::get_created_by_uid() const
 /* -------------------------------------------------------------------------- */
 
 static void parse_context_network(const std::vector<ContextVariable>& cvars,
-        VectorAttribute * context, VectorAttribute * nic, bool alias_detach)
+        VectorAttribute * context, VectorAttribute * nic)
 {
     string nic_id = nic->vector_value("NIC_ID");
 
@@ -291,13 +291,6 @@ static void parse_context_network(const std::vector<ContextVariable>& cvars,
         }
 
         context->replace(cvar.str(), cval);
-    }
-
-    if ( alias_detach )
-    {
-        string cvar = "ETH" + parent_id + "_ALIAS" + alias_id + "_DETACH";
-
-        context->replace(cvar, "YES");
     }
 }
 
@@ -349,26 +342,54 @@ int VirtualMachine::generate_network_context(VectorAttribute* context,
             continue;
         }
 
+        // If a nic was detached
         if (hasPreviousHistory() &&
-            previous_history->action == VMActions::NIC_DETACH_ACTION &&
-            vatts[i]->vector_value("ATTACH") == "YES")
+            previous_history->action == VMActions::NIC_DETACH_ACTION)
         {
             int nic_id;
 
             vatts[i]->vector_value("NIC_ID", nic_id);
 
-            clear_nic_context(nic_id);
+            //If the current nic was detached clear the nic
+            if (vatts[i]->vector_value("ATTACH") == "YES")
+            {
+                clear_nic_context(nic_id);
+                continue;
+            }
+            else if (get_nic(nic_id)->is_alias()) // If nic was detached and current is alias
+	    { 
+                int parent_id;
+
+                vatts[i]->vector_value("PARENT_ID", parent_id);
+
+                // If parent was detached clear alis
+                if (get_nic(parent_id)->vector_value("ATTACH") == "YES")
+		{
+                    int alias_id;
+
+                    vatts[i]->vector_value("ALIAS_ID", alias_id);
+                    clear_nic_alias_context(parent_id, alias_id);
+
+                    continue;
+                }
+            }
+        }
+        else if (hasPreviousHistory() &&
+                 previous_history->action == VMActions::ALIAS_DETACH_ACTION &&
+                 vatts[i]->vector_value("ATTACH") == "YES")
+        {
+            int parent_id, alias_id;
+
+            vatts[i]->vector_value("PARENT_ID", parent_id);
+            vatts[i]->vector_value("ALIAS_ID", alias_id);
+
+            clear_nic_alias_context(parent_id, alias_id);
 
             continue;
         }
 
-
-        bool alias_detach = hasPreviousHistory() &&
-            previous_history->action == VMActions::ALIAS_DETACH_ACTION &&
-            vatts[i]->vector_value("ATTACH") == "YES";
-
-        parse_context_network(NETWORK_CONTEXT, &tmp_context, vatts[i], alias_detach);
-        parse_context_network(NETWORK6_CONTEXT, &tmp_context, vatts[i], alias_detach);
+        parse_context_network(NETWORK_CONTEXT, &tmp_context, vatts[i]);
+        parse_context_network(NETWORK6_CONTEXT, &tmp_context, vatts[i]);
 
         parse_vnets = true;
     }
