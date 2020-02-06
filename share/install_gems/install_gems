@@ -6,7 +6,7 @@ ENV['PATH'] += ENV['PATH'] + ':/usr/local/bin'
 
 require 'pp'
 
-DEFAULT_PRE=%w{sunstone quota cloud auth_ldap vmware oneflow ec2_hybrid oca onedb market hooks}
+DEFAULT_PRE=%w{sunstone quota cloud auth_ldap vmware oneflow ec2_hybrid oca onedb market hooks serversync}
 
 if defined?(RUBY_VERSION) && RUBY_VERSION>="1.8.7"
     SQLITE='sqlite3'
