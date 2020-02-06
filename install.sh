@@ -904,7 +904,10 @@ VMM_EXEC_LIB_NSX_FILES="src/vmm_mad/remotes/lib/nsx_driver/logical_switch.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/virtual_wire.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/distributed_firewall.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/nsxt_dfw.rb \
-                    src/vmm_mad/remotes/lib/nsx_driver/nsxv_dfw.rb"
+                    src/vmm_mad/remotes/lib/nsx_driver/nsxv_dfw.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/logical_port.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/nsxt_logical_port.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/nsxv_logical_port.rb"
 
 #-------------------------------------------------------------------------------
 # VMM SH Driver LXD scripts, to be installed under $REMOTES_LOCATION/vmm/lxd
@@ -1835,10 +1838,7 @@ HOOK_FT_FILES="share/hooks/ft/host_error.rb \
 #-------------------------------------------------------------------------------
 
 HOOK_VCENTER_FILES="share/hooks/vcenter/create_vcenter_net.rb \
-                    share/hooks/vcenter/delete_vcenter_net.rb \
-                    share/hooks/vcenter/create_nsx_secgroup.rb \
-                    share/hooks/vcenter/delete_nsx_secgroup.rb \
-                    share/hooks/vcenter/update_nsx_secgroup.rb"
+                    share/hooks/vcenter/delete_vcenter_net.rb"
 
 #-------------------------------------------------------------------------------
 # HOOK templates, to be installed under
@@ -1846,8 +1846,7 @@ HOOK_VCENTER_FILES="share/hooks/vcenter/create_vcenter_net.rb \
 #-------------------------------------------------------------------------------
 
 HOOK_VCENTER_TMPLS="share/hooks/vcenter/templates/create_vcenter_net.tmpl \
-                    share/hooks/vcenter/templates/delete_vcenter_net.tmpl \
-                    share/hooks/vcenter/templates/create_nsx_secgroup.tmpl"
+                    share/hooks/vcenter/templates/delete_vcenter_net.tmpl"
 
 #-------------------------------------------------------------------------------
 # HOOK RAFT scripts, to be installed under $VAR_LOCATION/remotes/hooks/raft

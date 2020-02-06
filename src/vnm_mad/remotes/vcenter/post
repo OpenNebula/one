@@ -126,6 +126,7 @@ dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
 # Inspect each nic with attach="yes"
 nics = template_xml.xpath('//TEMPLATE/NIC[ATTACH="YES"]')
 nics.each do |nic|
+    # Network attributes
     network_id = nic.xpath('NETWORK_ID').text
     network_vcref = nic.xpath('VCENTER_NET_REF').text
     network_pgtype = nic.xpath('VCENTER_PORTGROUP_TYPE').text
@@ -137,10 +138,9 @@ nics.each do |nic|
             if device.macAddress == network_mac
                 case network_pgtype
                 when NSXDriver::NSXConstants::NSXT_LS_TYPE
-                    port_id = device.externalId
-
-                    # GET lsportid
-                    
+                    lpid = device.externalId
+                    lp = NSXDriver::LogicalPort.new_child(nsx_client, lpid)
+                    raise "Logical port with id: #{lpid} nor found" unless lp
                     # target_id => id
                     # target_display_name => display_name
                     # target_type => resource_type

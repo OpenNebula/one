@@ -76,6 +76,9 @@ module NSXDriver
         NSXV_DFW_SECTIONS = '/layer3sections'
         NSXV_DFW_SECTION_XPATH = '//section'
         NSXV_DFW_RULE_XPATH = '//rule'
+        # Logical Ports
+        NSXT_LP_BASE = NSXT_BASE + '/logical-ports/'
+        NSXV_LP_BASE = ''
         # Messages
         MSG_INCOMPLETE_REQ = 'Incomplete request, NSX_MANAGER, NSX_USER, \
                               NSX_PASSWORD and NSX_TYPE are needed'
