@@ -346,13 +346,15 @@ int VirtualMachine::generate_network_context(VectorAttribute* context,
                 clear_nic_context(nic_id);
                 continue;
             }
-            else if (get_nic(nic_id)->is_alias()) { // If nic was detached and current is alias
+            else if (get_nic(nic_id)->is_alias()) // If nic was detached and current is alias
+	    { 
                 int parent_id;
 
                 vatts[i]->vector_value("PARENT_ID", parent_id);
 
                 // If parent was detached clear alis
-                if (get_nic(parent_id)->vector_value("ATTACH") == "YES"){
+                if (get_nic(parent_id)->vector_value("ATTACH") == "YES")
+		{
                     int alias_id;
 
                     vatts[i]->vector_value("ALIAS_ID", alias_id);
