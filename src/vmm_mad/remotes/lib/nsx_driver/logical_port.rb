@@ -26,12 +26,12 @@ module NSXDriver
             super(nsx_client)
         end
 
-        def self.new_child(nsx_client, id)
+        def self.new_child(nsx_client, id = nil)
             case nsx_client.nsx_type.upcase
             when NSXDriver::NSXConstants::NSXT
-                NSXDriver::NSXTLogicalPort.new_from_id(nsx_client, id)
+                NSXDriver::NSXTLogicalPort.new(nsx_client, id)
             when NSXDriver::NSXConstants::NSXV
-                NSXDriver::NSXVLogicalPort.new_from_id(nsx_client, id)
+                NSXDriver::NSXVLogicalPort.new(nsx_client, id)
             else
                 error_msg = "Unknown object type: #{type}"
                 error = NSXDriver::NSXError::UnknownObject.new(error_msg)

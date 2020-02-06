@@ -130,15 +130,16 @@ module NSXDriver
         end
 
         # Get rule by name
+        # Return an array with rules
         def rules_by_name(rule_name, section_id = @one_section_id)
-            result = nil
+            result = []
             return result unless section_id
 
             all_rules = rules(section_id)
             return result unless all_rules
 
             all_rules['results'].each do |rule|
-                result = rule if rule['display_name'] == rule_name
+                result << rule if rule['display_name'] == rule_name
             end
             result
         end
@@ -191,8 +192,11 @@ module NSXDriver
             vm_deploy_id = template_xml.xpath('//DEPLOY_ID').text
 
             # Clean rules
-            nics = template_xml.xpath('//TEMPLATE/NIC')
+            nics = template_xml.xpath('//TEMPLATE/NIC[ATTACH="YES"]')
+            return unless nics
+
             nics.each do |nic|
+                nic_id = nic.xpath('NIC_ID').text
                 network_id = nic.xpath('NETWORK_ID').text
                 sec_groups = nic.xpath('SECURITY_GROUPS').text.split(',')
                 sec_groups.each do |sec_group|
@@ -201,9 +205,13 @@ module NSXDriver
                     sg_rules.each do |sg_rule|
                         sg_id = sg_rule.xpath('SECURITY_GROUP_ID').text
                         sg_name = sg_rule.xpath('SECURITY_GROUP_NAME').text
-                        rule_name = "#{sg_id} - #{sg_name} - #{vm_id} - #{vm_deploy_id} - #{network_id}"
-                        rule = rules_by_name(rule_name, @one_section_id)
-                        delete_rule(rule['id'], @one_section_id) if rule
+                        rule_name = "#{sg_id}-#{sg_name}-#{vm_id}-#{vm_deploy_id}-#{nic_id}-#{network_id}"
+                        rules = rules_by_name(rule_name, @one_section_id)
+                        File.open("/tmp/clean_rules", 'w') {|f| f.write(rules) }
+                        File.open("/tmp/clean_rules.class", 'w') {|f| f.write(rules.class) }
+                        rules.each do |rule|
+                            delete_rule(rule['id'], @one_section_id) if rule
+                        end
                     end
                 end
             end

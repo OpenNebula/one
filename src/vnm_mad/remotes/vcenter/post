@@ -79,68 +79,30 @@ vm = VCenterDriver::VirtualMachine.new_from_ref(vi_client, vm_deploy_id, one_vm_
 # NSX Actions
 nsx_client = NSXDriver::NSXTClient.new_from_id(one_host['ID'])
 dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
-# sec_id = dfw.instance_variable_get(:@one_section_id)
-# base_url = dfw.instance_variable_get(:@base_url)
-# url_sections = dfw.instance_variable_get(:@url_sections)
-
-# # Check network
-# network_id = template_xml.xpath('(//TEMPLATE/NIC)[last()]/NETWORK_ID').text
-# # mac_address = template_xml.xpath('(//TEMPLATE/NIC)[last()]/MAC').text
-# one_vnet = VCenterDriver::VIHelper
-#            .one_item(OpenNebula::VirtualNetwork, network_id)
-# rc = one_vnet.info
-# if OpenNebula.is_error?(rc)
-#     err_msg = rc.message
-#     raise err_msg
-# end
-
-# # Exit if portgroup is not a NSX-v or NSX-T portgroup
-# portgroup_type = one_vnet['TEMPLATE/VCENTER_PORTGROUP_TYPE']
-# exit 1 unless [NSXDriver::NSXConstants::NSXV_LS_TYPE,
-#                NSXDriver::NSXConstants::NSXT_LS_TYPE]
-#               .include?(portgroup_type)
-
-# # Get nsx network id -> logical port logical_switch_id
-# nsx_network_id = one_vnet['TEMPLATE/NSX_ID']
-# # Get externalID -> logical port attachment_id
-# vi_client = VCenterDriver::VIClient.new_from_host(one_host['ID'])
-
-# # Get VM logical port
-# vm_id = template_xml.xpath('//VM/ID').text
-# one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
-# rc = one_vm.info
-# if OpenNebula.is_error?(rc)
-#     err_msg = rc.message
-#     raise err_msg
-# end
-# one_vm_name = one_vm['NAME']
-# vm = VCenterDriver::VirtualMachine.new_from_ref(vi_client,
-#                                                 vm_deploy_id,
-#                                                 one_vm_name)
-# vm_nics = vm.get_vcenter_nics
-# vm_nics.each do |vm_nic|
-#     externalId = vm_nic.externalId if vm_nic.macAddress == mac_address
-# end
 
 # NICs
 # Inspect each nic with attach="yes"
 nics = template_xml.xpath('//TEMPLATE/NIC[ATTACH="YES"]')
 nics.each do |nic|
     # Network attributes
+    nic_id = nic.xpath('NIC_ID').text
+    nic_lp = nil
     network_id = nic.xpath('NETWORK_ID').text
     network_vcref = nic.xpath('VCENTER_NET_REF').text
     network_pgtype = nic.xpath('VCENTER_PORTGROUP_TYPE').text
     network_mac = nic.xpath('MAC').text
     # Virtual Machine devices
-    vm_devices = vm.config.hardware.device
+    vm_devices = vm.item.config.hardware.device
     vm_devices.each do |device|
-        if is_nic?(device)
+        if vm.is_nic?(device)
             if device.macAddress == network_mac
                 case network_pgtype
                 when NSXDriver::NSXConstants::NSXT_LS_TYPE
                     lpid = device.externalId
-                    lp = NSXDriver::LogicalPort.new_child(nsx_client, lpid)
-                    raise "Logical port with id: #{lpid} nor found" unless lp
+                    File.open("/tmp/post_lpid.debug", 'w') {|f| f.write(lpid) }
+                    nic_lp = NSXDriver::LogicalPort.new_child(nsx_client, lpid)
+                    raise "Logical port with id: #{lpid} nor found" unless nic_lp
+                    File.open("/tmp/post_lp.debug", 'w') {|f| f.write(nic_lp.inspect) }
                     # target_id => id
                     # target_display_name => display_name
                     # target_type => resource_type
@@ -156,25 +118,25 @@ nics.each do |nic|
     end
     # Get all Security Groups belonging to each NIC.
     sec_groups = nic.xpath('SECURITY_GROUPS').text.split(',')
+    File.open("/tmp/post_secgroups", 'w') {|f| f.write(sec_groups) }
     sec_groups.each do |sec_group|
+        File.open("/tmp/post_secgroups_times", 'a') {|f| f.write("#{sec_group} ") }
         sg_rules_array = []
         # Get all rules belonging to this Security Group.
         sg_rules = template_xml.xpath("//SECURITY_GROUP_RULE[SECURITY_GROUP_ID=#{sec_group}]")
+        File.open("/tmp/post_sg_rules", 'a') {|f| f.write(sg_rules) }
+
         sg_rules.each do |sg_rule|
             sg_id = sg_rule.xpath('SECURITY_GROUP_ID').text
+            File.open("/tmp/post_sg_id", 'a') {|f| f.write(sg_id) }
             sg_name = sg_rule.xpath('SECURITY_GROUP_NAME').text
-            sg_type = sg_rule.xpath('RULE_TYPE').text
+            sg_direction = (sg_rule.xpath('RULE_TYPE').text.upcase) == 'INBOUND' ? 'IN' : 'OUT'
+            File.open("/tmp/post_sg_direction", 'a') {|f| f.write(sg_direction) }
             sg_protocol = sg_rule.xpath('PROTOCOL').text
             if sg_protocol == 'ICMP'
                 sg_icmp_type = sg_rule.xpath('ICMP_TYPE').text
             end
             # OpenNebula network ID
-            ### Foreach
-            ### nics = template_xml.xapth('//TEMPLATE/NIC')
-            ### nics.each do |nic|
-            ###     network_id = nic.xpath('NETWORK_ID').text
-            ###     rule_networks_id << network_id if network_id
-            ### end
             sg_network_id = sg_rule.xpath('NETWORK_ID').text
             # Format from:to
             sg_range_port = sg_rule.xpath('RANGE').text
@@ -183,28 +145,29 @@ nics.each do |nic|
                     sg_port_from = sg_range_port[0..sg_range_port.index(':')-1]
                     sg_port_to = sg_range_port[sg_range_port.index(':')+1,
                                                 sg_range_port.length]
+                    sg_ports = "#{sg_port_from}-#{sg_port_to}"
                 else
-                    sg_port_from = sg_port_to = sg_range_port
+                    sg_ports = sg_range_port
                 end
-                sg_ports = "#{sg_port_from}:#{sg_port_to}"
             end
+
             sg_ip = sg_rule.xpath('IP').text
             sg_size = sg_rule.xpath('SIZE').text
             sg_output = "sg_name = #{sg_name}\n" \
                         "sg_id = #{sg_id}\n" \
-                        "sg_type = #{sg_type}\n" \
+                        "sg_direction = #{sg_direction}\n" \
                         "sg_protocol = #{sg_protocol}\n" \
                         "sg_icmp_type = #{sg_icmp_type}\n" \
                         "sg_network_id = #{sg_network_id}\n" \
                         "sg_ports = #{sg_ports}\n" \
                         "sg_ip = #{sg_ip}\n" \
                         "sg_size = #{sg_size}\n"
-            File.open("/tmp/post_#{sg_name}_#{sg_id}_#{sg_type}_#{sg_protocol}", 'w') {|f| f.write(sg_output) }
+            File.open("/tmp/post_#{sg_name}_#{sg_id}_#{sg_direction}_#{sg_protocol}", 'w') {|f| f.write(sg_output) }
 
             # Create NSX rule
             sg_spec =
                 {
-                    "display_name": "#{sg_id}-#{sg_name}-#{vm_id}-#{vm_deploy_id}-#{network_id}",
+                    "display_name": "#{sg_id}-#{sg_name}-#{vm_id}-#{vm_deploy_id}-#{nic_id}-#{network_id}",
                     "destinations_excluded": false,
                     # "sources": [
                     #   {
@@ -222,36 +185,40 @@ nics.each do |nic|
                     #     "target_id": '192.168.100.8'
                     #   }
                     # ],
+                    "services": [
+                        {
+                            "service": {
+                                "l4_protocol": "TCP",
+                                "destination_ports": [
+                                    sg_ports
+                                ],
+                                "resource_type": "L4PortSetNSService"
+                            }
+                        }
+                    ],
+                    "applied_tos": [
+                        {
+                          "target_id": nic_lp.id,
+                          "target_display_name": nic_lp.name,
+                          "target_type": nic_lp.type,
+                          "is_valid": true
+                        }
+                    ],
                     "ip_protocol": 'IPV4_IPV6',
                     "logged": false,
                     "action": 'ALLOW',
                     "sources_excluded": false,
                     "disabled": false,
-                    "direction": 'IN_OUT'
+                    "direction": sg_direction
                 }
-                sg_rules_array.push(sg_spec)
-            end
-            lp = nsx_client.get('/api/v1/logical-ports')
-            sg_rules_array.each do |sg_spec|
-                dfw.create_rule(sg_spec)
+        sg_rules_array.push(sg_spec)
+        end
+        lp = nsx_client.get('/api/v1/logical-ports')
+        sg_rules_array.each do |sg_spec|
+            dfw.create_rule(sg_spec)
         end
 
-        # 
     end
 end
-
-# # Security group rules
-# sg_rules = template_xml.xpath('//TEMPLATE/SECURITY_GROUP_RULE')
-
-
-
-# Obtenemos la VM de STDIN
-# Obtenemos el Host desde la VM
-# Comprobamos si NSX_STATUS = OK
-# Si no es OK salimos dando error
-# Si es = OK seguimos
-# Comprobamos si la red es de NSX
-# Si no es de nsx salimos, no hay nada que hacer
-# Si es de nsx continuamos
 
 exit 0

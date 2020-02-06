@@ -64,7 +64,7 @@ if OpenNebula.is_error?(rc)
 end
 
 # Check if the network attached to all nics are ok
-nics = template_xml.xpath('//TEMPLATE/NIC')
+nics = template_xml.xpath('//TEMPLATE/NIC[ATTACH="YES"]')
 nsx_pgs = []
 nics.each do |nic|
     network_id = nic.xpath('NETWORK_ID').text

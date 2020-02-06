@@ -19,46 +19,94 @@ module NSXDriver
     class NSXTLogicalPort < NSXDriver::LogicalPort
 
         # ATTRIBUTES
+        attr_reader :id, :name, :type, :url
 
         # CONSTRUCTOR
-
-        def initialize(nsx_client)
+        # Logical port class variables:
+        # @lp_id
+        # @url_lp
+        # @lp_name
+        # @lp_type
+        def initialize(nsx_client, id = nil, data = nil)
             super(nsx_client)
+            # lpid can be:
+            #   - Logical port ID
+            #   - Logical port attach ID
+            if id
+                initialize_with_id(id)
+            else
+                if data
+                    begin
+                        @id = new_logical_port(data)
+                    rescue NSXDriver::NSXError::IncorrectResponseCodeError => e
+                        raise 'Logical Port not created in ' \
+                        "NSX Manager: #{e.message}"
+                    end
+                    unless @id
+                        raise 'Logical Port not created in NSX Manager: '\
+                              'generic error'
+                    end
+                    # Construct logical port class variables
+                    @url = NSXDriver::NSXConstants::NSXT_LP_BASE + @id
+                    @name = lp_name
+                    @type = lp_type
+                end
+            end
         end
 
-        def self.new_from_id(nsx_client, lpid)
-            @nsx_client = nsx_client
-            @lp_id = lpid
-            @url_lp = NSXDriver::NSXConstants::NSXT_LP_BASE + @lp_id
+        # Creates a NSXDriver::NSXTLogicalPort from its id
+        def initialize_with_id(id)
+            # First try lpid as logical port id
+            @id = id
+            # Construct URL of the created logical switch
+            @url = NSXDriver::NSXConstants::NSXT_LP_BASE + @id
             if lp?
-                @lp_name = lp_name
-                @lp_type = lp_type
+                @name = lp_name
+                @type = lp_type
             else
-                error_msg = "Logical port with id: #{@lp_id} not found"
-                error = NSXDriver::NSXError::ObjectNotFound
-                        .new(error_msg)
-                raise error
+                # Second try with lpid as logical port attach id
+                @id = lp_with_attachid(id)
+                if @id.nil?
+                    error_msg = "Logical port with id: #{id} not found"
+                    error = NSXDriver::NSXError::ObjectNotFound
+                            .new(error_msg)
+                    raise error
+                else
+                    @url = NSXDriver::NSXConstants::NSXT_LP_BASE + @id
+                    @name = lp_name
+                    @type = lp_type
+                end
             end
         end
 
         # Check if logical port exists
         def lp?
-            @nsx_client.get(@url_lp) ? true : false
+            @nsx_client.get(@url) ? true : false
         end
 
         # Get logical port id
-        def lp_id
-            @nsx_client.get(@url_lp)['id']
+        # def lp_id
+        #     # @nsx_client.get(@url_lp)['id']
+        #     @lp_id
+        # end
+
+        # Get logical port id from attach id
+        def lp_with_attachid(attach_id)
+            lps = @nsx_client.get(NSXDriver::NSXConstants::NSXT_LP_BASE)
+            lps['results'].each do |lp|
+                return lp['id'] if lp['attachment']['id'] == attach_id
+            end
+            return nil
         end
 
-        # Get logical port display name
+        # # Get logical port display name
         def lp_name
-            @nsx_client.get(@url_lp)['display_name']
+            @nsx_client.get(@url)['display_name']
         end
 
-        # Get resource type
+        # # Get resource type
         def lp_type
-            @nsx_client.get(@url_lp)['resource_type']
+            @nsx_client.get(@url)['resource_type']
         end
 
     end
