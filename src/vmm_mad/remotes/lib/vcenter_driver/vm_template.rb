@@ -416,14 +416,14 @@ class Template
         end
         return ipv4, ipv6
     end
-        
+
     def find_ip_in_ar(ip, ar_array)
         ipv4 = ipv6 = ""
         ar_array.each do |ar|
             if ar.key?('IP') && ar.key?('IP_END')
                 start_ip = IPAddr.new(ar['IP'])
                 end_ip = IPAddr.new(ar['IP_END'])
-                if ip.family == start_ip.family && 
+                if ip.family == start_ip.family &&
                    ip.family == end_ip.family
                     if ip > start_ip && ip < end_ip
                         ipv4 = ip.to_s if ip.ipv4?
@@ -437,11 +437,11 @@ class Template
 
     def import_vcenter_nics(vc_uuid, npool, hpool, vcenter_instance_name,
                             template_ref, vm_object, vm_id=nil, dc_name=nil)
-        nic_info = ""
-        error = ""
+        nic_info = ''
+        error = ''
         ar_ids = {}
         begin
-            lock #Lock import operation, to avoid concurrent creation of networks
+            lock # Lock import operation, to avoid concurrent creation of networks
 
             if !dc_name
                 dc = get_dc
@@ -452,8 +452,8 @@ class Template
             ccr_ref  = self["runtime.host.parent._ref"]
             ccr_name = self["runtime.host.parent.name"]
 
-            #Get nics and info required
-            vc_nics = get_vcenter_nics_hash
+            # Get nics and info required
+            vc_nics = vcenter_nics_hash
 
             # Track allocated networks for rollback
             allocated_networks = []
@@ -464,11 +464,11 @@ class Template
             vc_nics.each do |nic|
                 # Check if the network already exists
                 network_found = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,
-                                                                "TEMPLATE/VCENTER_NET_REF",
+                                                                'TEMPLATE/VCENTER_NET_REF',
                                                                  nic[:net_ref],
                                                                  vc_uuid,
                                                                  npool)
-                #Network is already in OpenNebula
+                # Network is already in OpenNebula
                 if network_found
                     nic_tmp = "NIC=[\n"
                     nic_tmp << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
@@ -482,7 +482,7 @@ class Template
 
                         # This is the existing nic info
                         nic_tmp << "AR_ID=\"#{last_id}\",\n"
-                        nic_tmp << "MAC=\"#{nic[:mac]}\",\n" if nic[:mac] and ipv4.empty? and ipv6.empty? 
+                        nic_tmp << "MAC=\"#{nic[:mac]}\",\n" if nic[:mac] and ipv4.empty? and ipv6.empty?
                         nic_tmp << "IP=\"#{ipv4}\"," if !ipv4.empty?
                         nic_tmp << "IP=\"#{ipv6}\"," if !ipv6.empty?
                         nic_tmp << "VCENTER_ADDITIONALS_IP4=\"#{nic[:ipv4_additionals]}\",\n" if nic[:ipv4_additionals]
@@ -497,7 +497,7 @@ class Template
 
                     nic_info << nic_tmp
 
-                # network not found:
+                # Network not found
                 else
                     config = {}
                     config[:refs] = nic[:refs]
@@ -743,7 +743,7 @@ class Template
         res
     end
 
-    def get_vcenter_nics_hash
+    def vcenter_nics_hash
         parse_live = ->(inets_raw) {
             h = nil
             begin
@@ -762,17 +762,17 @@ class Template
         inets_raw = nil
         inets = {}
 
-        @item["config.hardware.device"].each do |device|
+        @item['config.hardware.device'].each do |device|
             next unless is_nic?(device)
 
             nic = retrieve_from_device(device)
             nic[:mac] = device.macAddress rescue nil
             if vm?
                 if online?
-                    inets_raw ||= @item["guest.net"].map.with_index { |x,i| [x.macAddress, x] }
+                    inets_raw ||= @item['guest.net'].map.with_index {|x, _| [x.macAddress, x]}
                     inets = parse_live.call(inets_raw) if inets.empty?
 
-                    if !inets[nic[:mac]]
+                    if !inets[nic[:mac]].nil?
                         ipAddresses = inets[nic[:mac]].ipConfig.ipAddress rescue nil
                     end
 
@@ -803,7 +803,7 @@ class Template
                     nic[:ipv4] = ip
                 end
             elsif ipAddresses[i].ipAddress =~ Resolv::IPv6::Regex
-                if get_ipv6_prefix(ip, 3) == "2000"
+                if get_ipv6_prefix(ip, 3) == '2000'
                     if nic[:ipv6_global]
                         if nic[:ipv6_additionals]
                             nic[:ipv6_additionals] += ',' + ip
@@ -813,9 +813,9 @@ class Template
                     else
                         nic[:ipv6_global] = ip
                     end
-                elsif get_ipv6_prefix(ip, 10) == "fe80"
+                elsif get_ipv6_prefix(ip, 10) == 'fe80'
                     nic[:ipv6] = ip
-                elsif get_ipv6_prefix(ip, 7) == "fc00"
+                elsif get_ipv6_prefix(ip, 7) == 'fc00'
                     if nic[:ipv6_ula]
                         if nic[:ipv6_additionals]
                             nic[:ipv6_additionals] += ',' + ip
