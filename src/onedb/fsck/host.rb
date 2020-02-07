@@ -19,9 +19,10 @@ module OneDBFsck
         hosts_fix = @fixes_host_cluster = {}
 
         @db.fetch('SELECT oid,body,cid FROM host_pool') do |row|
-            doc   = Document.new(row[:body])
-            cid   = doc.root.get_text('CLUSTER_ID').to_s.to_i
-            cname = doc.root.get_text('CLUSTER')
+            doc   = nokogiri_doc(row[:body], 'host_pool')
+
+            cid   = doc.root.xpath("CLUSTER_ID").text.to_i
+            cname = doc.root.xpath("CLUSTER").text
 
             if cid != row[:cid]
                 log_error("Host #{row[:oid]} is in cluster #{cid}, but cid " \
@@ -38,11 +39,11 @@ module OneDBFsck
                 log_error("Host #{row[:oid]} is in cluster #{cid}, " \
                           'but it does not exist')
 
-                doc.root.each_element('CLUSTER_ID') do |e|
+                doc.root.xpath('CLUSTER_ID').each do |e|
                     e.text = '-1'
                 end
 
-                doc.root.each_element('CLUSTER') do |e|
+                doc.root.xpath('CLUSTER').each do |e|
                     e.text = ''
                 end
 
@@ -55,7 +56,7 @@ module OneDBFsck
                               "cluster #{cid}, #{cname}. " \
                               "It will be changed to #{new_cluster}")
 
-                    doc.root.each_element('CLUSTER') do |e|
+                    doc.root.xpath('CLUSTER').each do |e|
                         e.text = new_cluster
                     end
 
