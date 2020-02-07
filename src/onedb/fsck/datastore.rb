@@ -114,7 +114,7 @@ module OneDBFsck
                                   "for datastore #{ds_id}, #{ds_name}. " \
                                   "It will be changed to #{ds_entry[:name]}")
 
-                        doc.root.xpath('DATASTORE') do |e|
+                        doc.root.xpath('DATASTORE').each do |e|
                             e.text = ds_entry[:name]
                         end
 

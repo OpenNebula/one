@@ -56,7 +56,7 @@ module OneDBFsck
                     if market_name != market_entry[:name]
                         log_error("Marketplace App #{row[:oid]} has a wrong name for marketplace #{market_id}, #{market_name}. It will be changed to #{market_entry[:name]}")
 
-                        doc.root.xpath('MARKETPLACE') do |e|
+                        doc.root.xpath('MARKETPLACE').each do |e|
                             e.text = market_entry[:name]
                         end
 

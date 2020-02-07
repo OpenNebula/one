@@ -13,7 +13,7 @@ module OneDBFsck
 
             doc = nokogiri_doc(row[:body], 'image_pool')
 
-            doc.root.xpath("CLONING_ID") do |e|
+            doc.root.xpath("CLONING_ID").each do |e|
                 img_id = e.text.to_i
 
                 if counters[:image][img_id].nil?
