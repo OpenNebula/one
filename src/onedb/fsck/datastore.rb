@@ -19,12 +19,14 @@ module OneDBFsck
         @db.transaction do
             @db.fetch('SELECT * from datastore_pool') do |row|
                 ds_id           = row[:oid]
-                doc             = Document.new(row[:body])
-                images_elem     = doc.root.elements.delete('IMAGES')
-                images_new_elem = doc.root.add_element('IMAGES')
+                doc             = nokogiri_doc(row[:body], 'datastore_pool')
+                images_elem     = doc.root.xpath('IMAGES').remove
+                images_new_elem = doc.create_element('IMAGES')
+
+                doc.root.add_child(images_new_elem)
 
                 datastore[ds_id][:images].each do |id|
-                    id_elem = images_elem.elements.delete("ID[.=#{id}]")
+                    id_elem = images_elem.xpath("ID[.=#{id}]").remove
 
                     if id_elem.nil?
                         log_error(
@@ -33,10 +35,11 @@ module OneDBFsck
                         )
                     end
 
-                    images_new_elem.add_element('ID').text = id.to_s
+                    i_e = doc.create_element('ID')
+                    images_new_elem.add_child(i_e).content = id.to_s
                 end
 
-                images_elem.each_element('ID') do |id_elem|
+                images_elem.children.each do |id_elem|
                     log_error(
                         "Image #{id_elem.text} is in Datastore #{ds_id} " \
                         'image id list, but it should not'
@@ -61,7 +64,7 @@ module OneDBFsck
         @fixes_datastore_cluster = {}
 
         @db.fetch('SELECT oid,body FROM datastore_pool') do |row|
-            doc = nokogiri_doc(row[:body])
+            doc = nokogiri_doc(row[:body], 'datastore_pool')
             oid = row[:oid]
 
             doc.root.xpath('CLUSTERS/ID').each do |e|
@@ -88,9 +91,9 @@ module OneDBFsck
         @fixes_datastore_image = {}
 
         @db.fetch('SELECT oid,body FROM image_pool') do |row|
-            doc     = Document.new(row[:body])
-            ds_id   = doc.root.get_text('DATASTORE_ID').to_s.to_i
-            ds_name = doc.root.get_text('DATASTORE')
+            doc     = nokogiri_doc(row[:body], 'datastore_pool')
+            ds_id   = doc.root.xpath('DATASTORE_ID').text.to_i
+            ds_name = doc.root.xpath('DATASTORE').text
 
             if ds_id != -1
                 ds_entry = datastore[ds_id]
@@ -100,7 +103,7 @@ module OneDBFsck
                               'but it does not exist. The image is probably ' \
                               "unusable, and needs to be deleted manually:\n" \
                               '  * The image contents should be deleted ' \
-                              "manually:\n #{doc.root.get_text('SOURCE')}\n" \
+                              "manually:\n #{doc.root.xpath('SOURCE').text}\n" \
                               '  * The DB entry can be then deleted with ' \
                               "the command:\n" \
                               '    DELETE FROM image_pool WHERE ' \
@@ -111,7 +114,7 @@ module OneDBFsck
                                   "for datastore #{ds_id}, #{ds_name}. " \
                                   "It will be changed to #{ds_entry[:name]}")
 
-                        doc.root.each_element('DATASTORE') do |e|
+                        doc.root.xpath('DATASTORE').each do |e|
                             e.text = ds_entry[:name]
                         end
 
