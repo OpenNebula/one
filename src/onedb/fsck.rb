@@ -109,8 +109,14 @@ EOT
         FEDERATED_TABLES
     end
 
-    def nokogiri_doc(body)
-        Nokogiri::XML(body, nil, NOKOGIRI_ENCODING) do |c|
+    def nokogiri_doc(body, table = nil)
+        nk_enconding = NOKOGIRI_ENCODING
+
+        unless table.nil?
+            nk_enconding = get_table_enconding(table)
+        end
+
+        Nokogiri::XML(body, nil, nk_enconding) do |c|
             c.default_xml.noblanks
         end
     end
