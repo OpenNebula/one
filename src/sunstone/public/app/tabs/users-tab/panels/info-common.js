@@ -77,14 +77,14 @@ define(function(require) {
     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
                                               Locale.tr("Attributes"));
     //====
-
-    return TemplateInfo({
+    render =  TemplateInfo({
       "element": this.element,
-      "sunstone_template": this.element.TEMPLATE.SUNSTONE||{},
+      "sunstone_template": this.element.TEMPLATE.SUNSTONE || {},
       "templateTableHTML": templateTableHTML,
       "tabId": this.tabId,
       "userCreationHTML": this.userCreation.html()
     });
+    return render;
   }
 
   function _setup(context) {

@@ -174,7 +174,7 @@ define(function(require) {
   function _removeHTMLTags(string){
     var rtn = string;
     if(rtn){
-      rtn = string.replace(/<[^>]+>/g, '');
+      rtn = string.replace(/<[^0-9\s=>]+>/g, '');
     }
     return rtn;
   }
