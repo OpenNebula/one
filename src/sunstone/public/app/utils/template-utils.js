@@ -184,7 +184,8 @@ define(function(require) {
     "templateToString": _convert_template_to_string,
     "htmlDecode": _htmlDecode,
     "htmlEncode": _htmlEncode,
-    "escapeDoubleQuotes": _escapeDoubleQuotes
+    "escapeDoubleQuotes": _escapeDoubleQuotes,
+    "removeHTMLTags": _removeHTMLTags
   };
 });
 

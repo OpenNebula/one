@@ -20,6 +20,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var Config = require('sunstone-config');
 
+  var TemplateUtils = require("../../../utils/template-utils");
   var TemplateHTML = require('hbs!./role-tab/html');
   var HostsTable = require('./datatable');
 
@@ -158,21 +159,21 @@ define(function(require) {
     
     var role = {};
     var text = "";
-    role['NAME'] = $('input[name="name"]', context).val();
-    role['VIRTUAL_MACHINES'] = $('input[name="cardinality"]', context).val();
-    role['POLICY'] = $('input[name="protocol_'+this.html_role_id+'"]:checked', context).val();
+    role['NAME'] = TemplateUtils.removeHTMLTags($('input[name="name"]', context).val());
+    role['VIRTUAL_MACHINES'] = TemplateUtils.removeHTMLTags($('input[name="cardinality"]', context).val());
+    role['POLICY'] = TemplateUtils.removeHTMLTags($('input[name="protocol_'+this.html_role_id+'"]:checked', context).val());
     if(this.host_affined.length > 0){
       for(data in this.host_affined)
         text += this.host_affined[data] + ", ";
       text = text.slice(0,-2); 
-      role['HOST_AFFINED'] = text
+      role['HOST_AFFINED'] = TemplateUtils.removeHTMLTags(text)
       text = "";
     }
     if(this.host_anti_affined.length > 0){
       for(data in this.host_anti_affined)
         text += this.host_anti_affined[data] + ", "; 
       text = text.slice(0,-2); 
-      role['HOST_ANTI_AFFINED'] = text;
+      role['HOST_ANTI_AFFINED'] = TemplateUtils.removeHTMLTags(text);
     }
     role = _removeEmptyObjects(role);
     return role;
