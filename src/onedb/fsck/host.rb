@@ -21,8 +21,8 @@ module OneDBFsck
         @db.fetch('SELECT oid,body,cid FROM host_pool') do |row|
             doc   = nokogiri_doc(row[:body], 'host_pool')
 
-            cid   = doc.root.xpath("CLUSTER_ID").text.to_i
-            cname = doc.root.xpath("CLUSTER").text
+            cid   = doc.root.xpath('CLUSTER_ID').text.to_i
+            cname = doc.root.xpath('CLUSTER').text
 
             if cid != row[:cid]
                 log_error("Host #{row[:oid]} is in cluster #{cid}, but cid " \
