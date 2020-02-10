@@ -17,6 +17,7 @@
 define(function(require) {
   var Handlebars = require('hbs/handlebars');
   var Locale = require('utils/locale');
+  var templateUtils = require("utils/template-utils");
 
   var valOrDefault = function(value, defaultValue, options) {
     var out;
@@ -24,7 +25,7 @@ define(function(require) {
     if (value == undefined || ($.isPlainObject(value) && $.isEmptyObject(value))){
         out = defaultValue;
     } else {
-        out = value;
+        out = templateUtils.removeHTMLTags(value);
     }
 
     return new Handlebars.SafeString(out);
