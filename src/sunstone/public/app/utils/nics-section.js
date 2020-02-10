@@ -503,7 +503,7 @@ define(function(require) {
       options.nic &&
       options.nic["RDP"] &&
       options.nic["RDP"] === "YES" &&
-      $("fieldset#rdp_connection input:not(#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_rdp):checked").length === 0
+      $("fieldset#rdp_connection input:not(#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_rdp):checked", context).length === 0
     ) ? true : false;
     
     $("input#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_rdp", context).prop("checked", isRDPActivated);

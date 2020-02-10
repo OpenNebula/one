@@ -310,7 +310,7 @@ define(function(require) {
 
     context.on("change", "#" + that.nicTabId + "_rdp", function() {
       const isRDPActivated = $(this).prop('checked');
-      _hide_rdp(that.nicTabId, isRDPActivated);
+      _hide_rdp(that.nicTabId, isRDPActivated, context);
     });
   }
 
@@ -476,7 +476,7 @@ define(function(require) {
     const isRDPActivated = (
       templateJSON["RDP"] &&
       templateJSON["RDP"] === "YES" &&
-      $("fieldset#rdp_connection input:not(#" + that.nicTabId + "_rdp):checked").length === 0
+      $("fieldset#rdp_connection input:not(#" + that.nicTabId + "_rdp):checked", context).length === 0
     ) ? true : false;
 
     $("input#" + this.nicTabId + "_rdp", context).prop("checked", isRDPActivated);
@@ -519,8 +519,8 @@ define(function(require) {
     });
   }
 
-  function _hide_rdp(nicTabId, isRDPActivated) {
-    $("#template_create_network_tabs_content > div:not(#" + nicTabId + ") fieldset#rdp_connection").each(function() {
+  function _hide_rdp(nicTabId, isRDPActivated, context) {
+    $("#template_create_network_tabs_content > div:not(#" + nicTabId + ") fieldset#rdp_connection", context).each(function() {
       if (isRDPActivated) {
         $(this).hide();
       } else {
