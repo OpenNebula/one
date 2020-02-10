@@ -48,6 +48,94 @@ require 'opennebula'
 require 'vcenter_driver'
 require 'nsx_driver'
 
+
+def rule_data(xml_rule)
+    sg_id = xml_rule.xpath('SECURITY_GROUP_ID').text
+    sg_name = xml_rule.xpath('SECURITY_GROUP_NAME').text
+    sg_direction = (xml_rule.xpath('RULE_TYPE').text.upcase) == 'INBOUND' ? 'IN' : 'OUT'
+    # Protocol: TCP, UDP, ICMP...
+    sg_protocol = xml_rule.xpath('PROTOCOL').text
+    if sg_protocol == 'ICMP'
+        sg_icmp_type = xml_rule.xpath('ICMP_TYPE').text
+    end
+    # OpenNebula network ID
+    sg_network_id = xml_rule.xpath('NETWORK_ID').text
+    # Ports
+    sg_range_port = xml_rule.xpath('RANGE').text
+    if sg_range_port
+        if sg_range_port.index(':')
+            sg_port_from = sg_range_port[0..sg_range_port.index(':')-1]
+            sg_port_to = sg_range_port[sg_range_port.index(':')+1,
+                                        sg_range_port.length]
+            sg_ports = "#{sg_port_from}-#{sg_port_to}"
+        else
+            sg_ports = sg_range_port
+        end
+    end
+    # Create hash with data
+    rule_data = {
+        "id": sg_id,
+        "name": sg_name,
+        "direction": sg_direction,
+        "protocol": sg_protocol,
+        "nid": sg_network_id,
+        "ports": sg_ports
+    }
+end
+
+def rule_spec(rule, vm_id, vm_deploy_id, nic_id, nic_lp)
+
+    # Create security group spec
+    sg_spec =
+    {
+        "display_name": "#{rule[:id]}-#{rule[:name]}-#{vm_id}-#{vm_deploy_id}-#{nic_id}-#{rule[:nid]}",
+        "destinations_excluded": false,
+        # "sources": [
+        #   {
+        #     "target_display_name": '192.168.100.7',
+        #     "is_valid": true,
+        #     "target_type": 'IPv4Address',
+        #     "target_id": '192.168.100.7'
+        #   }
+        # ],
+        # "destinations": [
+        #   {
+        #     "target_display_name": '192.168.100.8',
+        #     "is_valid": true,
+        #     "target_type": 'IPv4Address',
+        #     "target_id": '192.168.100.8'
+        #   }
+        # ],
+        "services": [
+            {
+                "service": {
+                    "l4_protocol": "TCP",
+                    "destination_ports": [
+                        rule[:ports]
+                    ],
+                    "resource_type": "L4PortSetNSService"
+                }
+            }
+        ],
+        "applied_tos": [
+            {
+              "target_id": nic_lp.id,
+              "target_display_name": nic_lp.name,
+              "target_type": nic_lp.type,
+              "is_valid": true
+            }
+        ],
+        "ip_protocol": 'IPV4_IPV6',
+        "logged": false,
+        "action": 'ALLOW',
+        "sources_excluded": false,
+        "disabled": false,
+        "direction": rule[:direction]
+    }
+
+
+end
+
 template = Base64.decode64(STDIN.read)
 
 template_xml = Nokogiri::XML(template)
@@ -127,93 +215,13 @@ nics.each do |nic|
         File.open("/tmp/post_sg_rules", 'a') {|f| f.write(sg_rules) }
 
         sg_rules.each do |sg_rule|
-            sg_id = sg_rule.xpath('SECURITY_GROUP_ID').text
-            File.open("/tmp/post_sg_id", 'a') {|f| f.write(sg_id) }
-            sg_name = sg_rule.xpath('SECURITY_GROUP_NAME').text
-            sg_direction = (sg_rule.xpath('RULE_TYPE').text.upcase) == 'INBOUND' ? 'IN' : 'OUT'
-            File.open("/tmp/post_sg_direction", 'a') {|f| f.write(sg_direction) }
-            sg_protocol = sg_rule.xpath('PROTOCOL').text
-            if sg_protocol == 'ICMP'
-                sg_icmp_type = sg_rule.xpath('ICMP_TYPE').text
-            end
-            # OpenNebula network ID
-            sg_network_id = sg_rule.xpath('NETWORK_ID').text
-            # Format from:to
-            sg_range_port = sg_rule.xpath('RANGE').text
-            if sg_range_port
-                if sg_range_port.index(':')
-                    sg_port_from = sg_range_port[0..sg_range_port.index(':')-1]
-                    sg_port_to = sg_range_port[sg_range_port.index(':')+1,
-                                                sg_range_port.length]
-                    sg_ports = "#{sg_port_from}-#{sg_port_to}"
-                else
-                    sg_ports = sg_range_port
-                end
-            end
-
-            sg_ip = sg_rule.xpath('IP').text
-            sg_size = sg_rule.xpath('SIZE').text
-            sg_output = "sg_name = #{sg_name}\n" \
-                        "sg_id = #{sg_id}\n" \
-                        "sg_direction = #{sg_direction}\n" \
-                        "sg_protocol = #{sg_protocol}\n" \
-                        "sg_icmp_type = #{sg_icmp_type}\n" \
-                        "sg_network_id = #{sg_network_id}\n" \
-                        "sg_ports = #{sg_ports}\n" \
-                        "sg_ip = #{sg_ip}\n" \
-                        "sg_size = #{sg_size}\n"
-            File.open("/tmp/post_#{sg_name}_#{sg_id}_#{sg_direction}_#{sg_protocol}", 'w') {|f| f.write(sg_output) }
-
-            # Create NSX rule
-            sg_spec =
-                {
-                    "display_name": "#{sg_id}-#{sg_name}-#{vm_id}-#{vm_deploy_id}-#{nic_id}-#{network_id}",
-                    "destinations_excluded": false,
-                    # "sources": [
-                    #   {
-                    #     "target_display_name": '192.168.100.7',
-                    #     "is_valid": true,
-                    #     "target_type": 'IPv4Address',
-                    #     "target_id": '192.168.100.7'
-                    #   }
-                    # ],
-                    # "destinations": [
-                    #   {
-                    #     "target_display_name": '192.168.100.8',
-                    #     "is_valid": true,
-                    #     "target_type": 'IPv4Address',
-                    #     "target_id": '192.168.100.8'
-                    #   }
-                    # ],
-                    "services": [
-                        {
-                            "service": {
-                                "l4_protocol": "TCP",
-                                "destination_ports": [
-                                    sg_ports
-                                ],
-                                "resource_type": "L4PortSetNSService"
-                            }
-                        }
-                    ],
-                    "applied_tos": [
-                        {
-                          "target_id": nic_lp.id,
-                          "target_display_name": nic_lp.name,
-                          "target_type": nic_lp.type,
-                          "is_valid": true
-                        }
-                    ],
-                    "ip_protocol": 'IPV4_IPV6',
-                    "logged": false,
-                    "action": 'ALLOW',
-                    "sources_excluded": false,
-                    "disabled": false,
-                    "direction": sg_direction
-                }
-        sg_rules_array.push(sg_spec)
+            # Create rules spec
+            rule_data = rule_data(sg_rule)
+            rule_spec = rule_spec(rule_data, vm_id, vm_deploy_id, nic_id, nic_lp)
+            sg_rules_array.push(rule_spec)
         end
-        lp = nsx_client.get('/api/v1/logical-ports')
+
+        # Create NSX rules
         sg_rules_array.each do |sg_spec|
             dfw.create_rule(sg_spec)
         end
