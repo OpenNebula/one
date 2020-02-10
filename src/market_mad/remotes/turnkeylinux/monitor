@@ -151,7 +151,7 @@ class TurnkeyLinux
 
         # Line example
         # debian-9-turnkey-zurmo_15.2-1_amd64.tar.gz.hash 2018-11-29 09:45  2.2K
-        apps.each do |l|
+        apps[1..-1].each do |l|
             f = l.split
 
             next if f[0] =~ /\.hash$/
@@ -160,8 +160,10 @@ class TurnkeyLinux
             time  = f[1].split('-')
             regt  = Time.new(time[0], time[1], time[2]).to_i
 
+            next if image[1].to_i < 9
+
             data = {
-                'NAME'        => "#{image[3]} - LXD",
+                'NAME'        => "#{image[3].strip} - LXD",
                 'SOURCE'      => app_url(f[0]),
                 'IMPORT_ID'   => -1,
                 'ORIGIN_ID'   => -1,
