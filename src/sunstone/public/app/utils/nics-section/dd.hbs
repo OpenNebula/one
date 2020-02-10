@@ -57,6 +57,21 @@
                     </label>
                 </div>
             </fieldset>
+            <fieldset id="rdp_connection">
+                <legend>{{tr "RDP connection"}}</legend>
+                <div id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_rdp_wrapper">  
+                  <div class="switch left">
+                    <input class="switch-input" id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_rdp" type="checkbox">
+                    <label class="switch-paddle" for="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_rdp">
+                    </label>
+                  </div>
+                  <label class="left">
+                    &nbsp;&nbsp;
+                    {{tr "Activate"}}
+                    {{{tip (tr "RDP will be activate in this network")}}}
+                  </label>
+                </div>
+            </fieldset>
       </div>
       <div class="auto">
         <fieldset>

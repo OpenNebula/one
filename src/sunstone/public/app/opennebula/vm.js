@@ -671,6 +671,7 @@ define(function(require) {
     "isDiskGraphsSupported": isDiskGraphsSupported,
     "isNICAttachSupported": isNICAttachSupported,
     "isVNCSupported": isVNCSupported,
+    "isRDPSupported": isRDPSupported,
     "isSPICESupported": isSPICESupported,
     "getName": function(id){
       return OpenNebulaAction.getName(id, RESOURCE);
@@ -799,7 +800,11 @@ define(function(require) {
       $.each(nic, function(index, value) {
         $.each(NIC_IP_ATTRS, function(j, attr){
           if (value[attr]) {
-            ips.push(value[attr]);
+            if ( attr === "IP" && value["RDP"] === "YES") {
+              ips.push(value[attr] + "&nbsp;<small>RDP</small>");
+            } else {
+              ips.push(value[attr]);
+            }
           }
         });
       });
@@ -864,6 +869,15 @@ define(function(require) {
         graphics.TYPE &&
         graphics.TYPE.toLowerCase() == "spice" &&
         $.inArray(state, VNC_STATES) != -1);
+  }
+
+  // returns true if the RDP button should be enabled
+  function isRDPSupported(element) {
+    return ( element.TEMPLATE &&
+        element.TEMPLATE.NIC &&
+        element.TEMPLATE.NIC.length > 0 &&
+        element.TEMPLATE.NIC.filter(nic => nic.RDP && nic.RDP == "YES")
+    );
   }
 
   return VM;

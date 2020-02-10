@@ -48,6 +48,19 @@
               {{{tip (tr "The Schedule will decide which is the best virtual network")}}}
             </label>
         </fieldset>
+        <fieldset id="rdp_connection">
+            <legend>{{tr "RDP connection"}}</legend>
+            <div class="switch left">
+              <input class="switch-input" id="{{nicTabId}}_rdp" type="checkbox">
+              <label class="switch-paddle" for="{{nicTabId}}_rdp">
+              </label>
+            </div>
+            <label class="left">
+              &nbsp;&nbsp;
+              {{tr "Activate"}}
+              {{{tip (tr "RDP will be activate in this network")}}}
+            </label>
+        </fieldset>
       </div>
     </div>
     <div class="auto">
