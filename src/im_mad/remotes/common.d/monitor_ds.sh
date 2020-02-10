@@ -25,19 +25,13 @@ REMOTES_DIR="${DRIVER_PATH}/../.."
 
 mkdir -p "$DATASTORE_LOCATION"
 
-USED_MB=$(df -B1M -P $DATASTORE_LOCATION 2>/dev/null | tail -n 1 | awk '{print $3}')
-TOTAL_MB=$(df -B1M -P $DATASTORE_LOCATION 2>/dev/null | tail -n 1 | awk '{print $2}')
-FREE_MB=$(df -B1M -P $DATASTORE_LOCATION 2>/dev/null | tail -n 1 | awk '{print $4}')
-
-USED_MB=${USED_MB:-"0"}
-TOTAL_MB=${TOTAL_MB:-"0"}
-FREE_MB=${FREE_MB:-"0"}
-
-echo "DS_LOCATION_USED_MB=$USED_MB"
-echo "DS_LOCATION_TOTAL_MB=$TOTAL_MB"
-echo "DS_LOCATION_FREE_MB=$FREE_MB"
-
 dirs=$(ls $DATASTORE_LOCATION)
+
+read -r -a TOTAL_DS_MB <<< $(df -l -B1M -P /var/lib/one/datastores/* | perl -ane 'if($. > 1 && !$seen{$F[0]}) { $seen{$F[0]}=1; $t[$_] += $F[$_+1] for 0..2 } END { print "@t\n" }')
+
+echo "DS_LOCATION_USED_MB=${TOTAL_DS_MB[1]:-"0"}"
+echo "DS_LOCATION_TOTAL_MB=${TOTAL_DS_MB[0]:-"0"}"
+echo "DS_LOCATION_FREE_MB=${TOTAL_DS_MB[2]:-"0"}"
 
 for ds in $dirs; do
     echo $ds | grep -q -E '^[0123456789]+$' || continue
