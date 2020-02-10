@@ -171,6 +171,14 @@ define(function(require) {
     return template_json;
   }
 
+  function _removeHTMLTags(string){
+    var rtn = string;
+    if(rtn){
+      rtn = string.replace(/<[^0-9\s=>]+>/g, '');
+    }
+    return rtn;
+  }
+
   return {
     "stringToTemplate": _convert_string_to_template,
     "templateToString": _convert_template_to_string,
