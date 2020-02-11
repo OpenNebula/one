@@ -129,8 +129,8 @@ class Container
     # Create a container without a base image
     def create(wait: true, timeout: '')
         @lxc['source'] = { 'type' => 'none' }
-        
-        transient('start')
+
+        transition_start # not ready to report status yet
 
         wait?(@client.post(CONTAINERS, @lxc), wait, timeout)
 
@@ -210,7 +210,7 @@ class Container
 
         operation = change_state(__method__, options)
 
-        transient('start')
+        transition_end
         update
 
         operation
@@ -478,18 +478,15 @@ class Container
         update
     end
 
-    # Sets a temporary contaeinr config flag to indicate a transient state.
-    # Ex, container created, but not started. Container stopped during reboot.
-    # Requires updating the container object in LXD.
-    def transient(action)
-        case action
-        when 'start'
-            @lxc['config']['user.one_status'] = '0'
-        when 'finish'
-            @lxc['config'].delete('user.one_status')
-        else
-            nil
-        end
+    # Flags a container indicating current status not definitive
+    # Stalls monitoring status query. Requires updating the container
+    def transition_start
+        @lxc['config']['user.one_status'] = '0'
+    end
+
+    # Removes transient state flag. Requires updating the container.
+    def transition_end
+        @lxc['config'].delete('user.one_status')
     end
 
     private

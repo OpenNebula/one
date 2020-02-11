@@ -39,15 +39,15 @@ when 'STOPPED'
     container.start
 
     container.config['user.reboot_state'] = 'RUNNING'
-    container.transient('start')
+    container.transition_start
 else
     force = false
     force = true if ARGV[-1] == '-f'
-    
+
     container.check_stop(force)
-    
+
     container.config['user.reboot_state'] = 'STOPPED'
-    container.transient('finish')
+    container.transition_end
 end
 
 container.update
