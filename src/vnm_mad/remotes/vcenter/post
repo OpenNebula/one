@@ -47,6 +47,57 @@ require 'nokogiri'
 require 'opennebula'
 require 'vcenter_driver'
 require 'nsx_driver'
+require 'ipaddr'
+
+def to_nets(ip_start, size)
+    File.open('/tmp/post_tonet_ip.debug', 'a') {|f| f.write(ip_start)}
+    File.open('/tmp/post_tonet_size.debug', 'a') {|f| f.write(size)}
+
+    nets = Array.new
+
+    begin
+        ipaddr = IPAddr.new ip_start
+    rescue
+        return
+    end
+
+    ip_i = ipaddr.to_i
+
+    if ipaddr.ipv4?
+        ip_length = 32
+    elsif ipaddr.ipv6?
+        ip_length = 128
+    else
+        return
+    end
+
+    # Find the largest address block (look for the first 1-bit)
+    lblock = 0
+
+    lblock += 1 while (ip_i[lblock] == 0 && lblock < ip_length )
+
+    # Allocate whole blocks till the size fits
+    while ( size >= 2**lblock )
+        nets << "#{IPAddr.new(ip_i, ipaddr.family).to_s}/#{ip_length-lblock}"
+
+        ip_i += 2**lblock
+        size -= 2**lblock
+
+        lblock += 1 while (ip_i[lblock] == 0 && lblock < ip_length )
+    end
+
+    # Fit remaining address blocks
+    ip_length.downto(0) { |i|
+        next if size[i] == 0
+
+        nets << "#{IPAddr.new(ip_i, ipaddr.family).to_s}/#{ip_length-i}"
+
+        ip_i += 2**i
+    }
+
+    return nets
+end
+
 
 
 def rule_data(xml_rule)
@@ -60,6 +111,9 @@ def rule_data(xml_rule)
     end
     # OpenNebula network ID
     sg_network_id = xml_rule.xpath('NETWORK_ID').text
+    # ip / netmask
+    sg_ip = xml_rule.xpath('IP').text
+    sg_ipsize = xml_rule.xpath('SIZE').text
     # Ports
     sg_range_port = xml_rule.xpath('RANGE').text
     if sg_range_port
@@ -74,50 +128,34 @@ def rule_data(xml_rule)
     end
     # Create hash with data
     rule_data = {
-        "id": sg_id,
-        "name": sg_name,
-        "direction": sg_direction,
-        "protocol": sg_protocol,
-        "nid": sg_network_id,
-        "ports": sg_ports
+        'id': sg_id,
+        'name': sg_name,
+        'direction': sg_direction,
+        'protocol': sg_protocol,
+        'icmp_type': sg_icmp_type,
+        'network_id': sg_network_id,
+        'ip': sg_ip,
+        'ipsize': sg_ipsize,
+        'ports': sg_ports
     }
+    File.open('/tmp/post_rule_data.debug', 'a') {|f| f.write(rule_data)}
+
+    rule_data
 end
 
 def rule_spec(rule, vm_id, vm_deploy_id, nic_id, nic_lp)
 
-    # Create security group spec
-    sg_spec =
-    {
-        "display_name": "#{rule[:id]}-#{rule[:name]}-#{vm_id}-#{vm_deploy_id}-#{nic_id}-#{rule[:nid]}",
-        "destinations_excluded": false,
-        # "sources": [
-        #   {
-        #     "target_display_name": '192.168.100.7',
-        #     "is_valid": true,
-        #     "target_type": 'IPv4Address',
-        #     "target_id": '192.168.100.7'
-        #   }
-        # ],
-        # "destinations": [
-        #   {
-        #     "target_display_name": '192.168.100.8',
-        #     "is_valid": true,
-        #     "target_type": 'IPv4Address',
-        #     "target_id": '192.168.100.8'
-        #   }
-        # ],
-        "services": [
-            {
-                "service": {
-                    "l4_protocol": "TCP",
-                    "destination_ports": [
-                        rule[:ports]
-                    ],
-                    "resource_type": "L4PortSetNSService"
-                }
-            }
-        ],
-        "applied_tos": [
+    File.open('/tmp/post_rule_spec_rule.debug', 'a') {|f| f.write(rule)}
+
+    # default spec
+    # Allow any-any to any port applied on the virtual machine logical port
+    rule_spec = {
+        'display_name': "#{rule[:id]}-#{rule[:name]}-#{vm_id}-#{vm_deploy_id}-#{nic_id}",
+        'destinations_excluded': false,
+        'sources': [],
+        'destinations': [],
+        'services': [],
+        'applied_tos': [
             {
               "target_id": nic_lp.id,
               "target_display_name": nic_lp.name,
@@ -125,14 +163,87 @@ def rule_spec(rule, vm_id, vm_deploy_id, nic_id, nic_lp)
               "is_valid": true
             }
         ],
-        "ip_protocol": 'IPV4_IPV6',
-        "logged": false,
-        "action": 'ALLOW',
-        "sources_excluded": false,
-        "disabled": false,
-        "direction": rule[:direction]
+        'ip_protocol': 'IPV4_IPV6',
+        'logged': false,
+        'action': 'ALLOW',
+        'sources_excluded': false,
+        'disabled': false,
+        'direction': rule[:direction]
     }
 
+    # Modify default rule spec based on rule_data extracted from vm template
+    # INBOUND => Destination
+    if rule[:ip] != "" && rule[:size] != ""
+        File.open('/tmp/post_rule_spec_rule.debug', 'a') {|f| f.write(rule)}
+        networks_array = []
+        networks = to_nets(rule[:ip], rule[:ipsize].to_i)
+        File.open('/tmp/post_nets.debug', 'w') {|f| f.write(networks)}
+        raise "Networks are empty due to invalid ip size" if networks.empty?
+        networks.each do |network|
+            networks_array << {
+                'target_id': network,
+                'target_display_name': network,
+                'target_type': 'IPAddress',
+                'is_valid': true
+            }
+        end
+        unless networks_array.empty?
+            rule_spec['sources'] = networks_array if rule[:direction] == 'OUT'
+            rule_spec['destinations'] = networks_array if rule[:direction] == 'IN'
+        end
+    end
+
+    # Create security group spec
+    # rule_spec =
+    # {
+    #     "display_name": "#{rule[:id]}-#{rule[:name]}-#{vm_id}-#{vm_deploy_id}-#{nic_id}",
+    #     "destinations_excluded": false,
+    #     # "sources": [
+    #     #   {
+    #     #     "target_display_name": '192.168.100.7',
+    #     #     "is_valid": true,
+    #     #     "target_type": 'IPv4Address',
+    #     #     "target_id": '192.168.100.7'
+    #     #   }
+    #     # ],
+    #     # "destinations": [
+    #     #   {
+    #     #     "target_display_name": '192.168.100.8',
+    #     #     "is_valid": true,
+    #     #     "target_type": 'IPv4Address',
+    #     #     "target_id": '192.168.100.8'
+    #     #   }
+    #     # ],
+    #     "services": [
+    #         {
+    #             "service": {
+    #                 "l4_protocol": rule[:protocol],
+    #                 "destination_ports": [
+    #                     ports
+    #                 ],
+    #                 "resource_type": "L4PortSetNSService"
+    #             }
+    #         }
+    #     ],
+    #     "applied_tos": [
+    #         {
+    #           "target_id": nic_lp.id,
+    #           "target_display_name": nic_lp.name,
+    #           "target_type": nic_lp.type,
+    #           "is_valid": true
+    #         }
+    #     ],
+    #     "ip_protocol": 'IPV4_IPV6',
+    #     "logged": false,
+    #     "action": 'ALLOW',
+    #     "sources_excluded": false,
+    #     "disabled": false,
+    #     "direction": rule[:direction]
+    # }
+
+    # File.open('/tmp/post_sg_spec.debug', 'a') {|f| f.write(sg_spec)} 
+
+    rule_spec
 
 end
 
@@ -199,6 +310,7 @@ nics.each do |nic|
                 else
                     error_msg = "Network type is: #{network_pgtype} and should be #{NSXDriver::NSXConstants::NSXT_LS_TYPE} or #{NSXDriver::NSXConstants::NSXV_LS_TYPE} "
                     error = NSXDriver::NSXError::UnknownObject.new(error_msg)
+                    STDERR.puts error_msg
                     raise error
                 end
             end
@@ -221,9 +333,18 @@ nics.each do |nic|
             sg_rules_array.push(rule_spec)
         end
 
+        File.open('/tmp/post_sg_rules_array.debug', 'w'){|f| f.write(sg_rules_array.inspect)}
         # Create NSX rules
         sg_rules_array.each do |sg_spec|
-            dfw.create_rule(sg_spec)
+            begin
+                dfw.create_rule(sg_spec)
+            rescue StandardError => e
+                STDERR.puts e.message
+                STDERR.puts e.backtrace \
+                    if VCenterDriver::CONFIG[:debug_information]
+                dfw.clear_opennebula_rules(template)
+                exit 1
+            end
         end
 
     end
