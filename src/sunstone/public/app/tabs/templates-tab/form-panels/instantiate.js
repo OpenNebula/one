@@ -276,15 +276,21 @@ define(function(require) {
       var pcis = [];
       var alias = [];
 
+      var rdp = true;
       $.each(networks, function(){
         if (this.TYPE == "NIC"){
           pcis.push(this);
         } else if (this.PARENT) {
           alias.push(this);
         } else {
+          (rdp && this.RDP == "YES")
+            ? rdp = false
+            : delete this["RDP"];
+
           nics.push(this);
         }
       });
+      debugger
 
       tmp_json.NIC = nics;
       tmp_json.NIC_ALIAS = alias;
@@ -337,11 +343,11 @@ define(function(require) {
       $.extend(tmp_json, CapacityInputs.retrieveChanges(capacityContext));
 
       extra_info["template"] = tmp_json;
-        for (var i = 0; i < n_times_int; i++) {
-          extra_info["vm_name"] = vm_name.replace(/%i/gi, i); // replace wildcard
+      for (var i = 0; i < n_times_int; i++) {
+        extra_info["vm_name"] = vm_name.replace(/%i/gi, i); // replace wildcard
 
-          Sunstone.runAction("Template."+action, [template_id], extra_info);
-        }
+        Sunstone.runAction("Template."+action, [template_id], extra_info);
+      }
     });
 
     return false;

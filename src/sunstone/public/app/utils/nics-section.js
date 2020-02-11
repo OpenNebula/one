@@ -439,6 +439,12 @@ define(function(require) {
       $(".SCHED_RANK", dd_context).val(this.value);
     });
 
+    $("input#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_rdp", dd_context).on("change", function() {
+      const isRDPActivated = $(this).prop('checked');
+      const idAccordion = "#provision_accordion_dd_" + dd_context["dd_id"];
+      _hide_rdp(idAccordion, isRDPActivated, context);
+    });
+
     if ( options.nic && options.nic["NETWORK_MODE"] && options.nic["NETWORK_MODE"] === "auto" ) {
 
       $("input#provision_accordion_dd_"+provision_nic_accordion_dd_id+"_network_mode", dd_context).prop("checked", true);
@@ -492,6 +498,17 @@ define(function(require) {
         _fill_alias(options.nic.PARENT);
     }
 
+    // fill rdp connection
+    const isRDPActivated = (
+      options.nic &&
+      options.nic["RDP"] &&
+      options.nic["RDP"] === "YES" &&
+      $("fieldset#rdp_connection input:not(#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_rdp):checked", context).length === 0
+    ) ? true : false;
+    
+    $("input#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_rdp", context).prop("checked", isRDPActivated);
+    _enableRDP("#provision_accordion_dd_" + provision_nic_accordion_dd_id, context)
+
     provision_nic_accordion_dd_id += 1;
 
     vnetsTable.initialize();
@@ -535,10 +552,12 @@ define(function(require) {
       dd_context.remove();
 
       var index = _nics.findIndex(nic => nic.NAME === ("NIC" + dd_context["nic_id"]));
-
+      
       _nics.splice(index, 1);
-
+      
       nicId --;
+
+      _enableRDP("#provision_accordion_dd_"+dd_context["nic_id"], context)
 
       return false;
     });
@@ -590,6 +609,8 @@ define(function(require) {
       _generate_provision_network_table($(".accordion", context), options);
 
       nicId ++;
+
+      _enableRDP("#provision_accordion_dd_" + provision_nic_accordion_dd_id, context)
     });
 
     if (options.click_add_button == true){
@@ -655,5 +676,22 @@ define(function(require) {
             $("#remove_nic_" + value.DD_ID).show();
         }
     });
+  }
+
+  function _hide_rdp(idAccordion, isRDPActivated, context) {
+    $(".accordion-item > div:not(" + idAccordion + ") fieldset#rdp_connection", context).each(function() {
+      if (isRDPActivated) {
+        $(this).hide();
+      } else {
+        $(this).show();
+      }
+    });
+  }
+
+  function _enableRDP(idAccordion, context) {
+    const canRDP = $("fieldset#rdp_connection input[type='checkbox']:not(" + idAccordion + "_rdp):checked", context).length === 0;
+
+    if (canRDP) $("fieldset#rdp_connection", context).has("input:not(:checked)").show();
+    else $("fieldset#rdp_connection", context).has("input:not(:checked)").hide();
   }
 });

@@ -196,8 +196,15 @@ define(function(require) {
     },
     "VM.startvnc" : {
       type: "action",
-      text: '<i class="fas fa-desktop"/> ' + Locale.tr("VNC"),
+      text: Locale.tr("VNC"),
+      layout: "vmsremote_buttons",
       custom_classes: "only-sunstone-info vnc-sunstone-info"
+    },
+    "VM.save_rdp" : {
+      type: "action",
+      text: Locale.tr("RDP"),
+      layout: "vmsremote_buttons",
+      custom_classes: "only-sunstone-info rdp-sunstone-info"
     },
     "VM.startspice" : {
       type: "action",
