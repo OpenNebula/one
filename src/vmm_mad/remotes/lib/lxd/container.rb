@@ -231,11 +231,7 @@ class Container
         return if status != 'Running'
 
         begin
-            if force == '-f'
-                stop(:force => true)
-            else
-                stop
-            end
+            stop(:force => force)
         rescue => exception
             OpenNebula.log_error "LXD Error: #{exception}"
 
@@ -258,6 +254,24 @@ class Container
                 OpenNebula.log_error error
             end
         end
+    end
+
+    # Extended reboot required for OpenNebula execution flow
+    def reboot(force)
+        case config['user.reboot_state']
+        when 'STOPPED'
+            start
+
+            config['user.reboot_state'] = 'RUNNING'
+            transition_start
+        else
+            check_stop(force)
+
+            config['user.reboot_state'] = 'STOPPED'
+            transition_end
+        end
+
+        update
     end
 
     def restart(options = {})

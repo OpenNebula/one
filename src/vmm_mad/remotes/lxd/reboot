@@ -31,23 +31,7 @@ client    = LXDClient.new
 container = Container.get(vm_name, nil, client)
 container = Container.get(vm_name, container.config['user.xml'], client)
 
-# ------------------------------------------------------------------------------
-# Stop the container, start it
-# ------------------------------------------------------------------------------
-case container.config['user.reboot_state']
-when 'STOPPED'
-    container.start
+force = false
+force = true if ARGV[-1] == '-f'
 
-    container.config['user.reboot_state'] = 'RUNNING'
-    container.transition_start
-else
-    force = false
-    force = true if ARGV[-1] == '-f'
-
-    container.check_stop(force)
-
-    container.config['user.reboot_state'] = 'STOPPED'
-    container.transition_end
-end
-
-container.update
+container.reboot(force)
