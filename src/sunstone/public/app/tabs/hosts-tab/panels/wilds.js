@@ -85,7 +85,8 @@ define(function(require) {
           {"bSortable": false, "aTargets": [0]},
           {"sWidth": "35px", "aTargets": [0]},
           {"sType": "string", "aTargets": [1]}
-      ]
+      ],
+      "aLengthMenu": [ [10, 25, 50, -1], [10, 25, 50, "All"] ]
     });
 
     if (that.element.TEMPLATE.VM) {
