@@ -237,7 +237,7 @@ class Container
                 stop
             end
         rescue => exception
-            OpenNebula.log_error exception
+            OpenNebula.log_error "LXD Error: #{exception}"
 
             real_status = 'Unknown'
 
@@ -250,7 +250,13 @@ class Container
                 break if %w[Running Stopped].include? real_status
             end
 
-            stop(:force => true) if real_status == 'Running'
+            begin
+                stop(:force => true) if real_status == 'Running'
+            rescue => exception
+                error = "LXD Error: Cannot shut down container #{exception}"
+
+                OpenNebula.log_error error
+            end
         end
     end
 
