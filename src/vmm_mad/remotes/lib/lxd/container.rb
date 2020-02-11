@@ -129,7 +129,8 @@ class Container
     # Create a container without a base image
     def create(wait: true, timeout: '')
         @lxc['source'] = { 'type' => 'none' }
-        @lxc['config']['user.one_status'] = '0'
+
+        transition_start # not ready to report status yet
 
         wait?(@client.post(CONTAINERS, @lxc), wait, timeout)
 
@@ -209,7 +210,7 @@ class Container
 
         operation = change_state(__method__, options)
 
-        @lxc['config'].delete('user.one_status')
+        transition_end
         update
 
         operation
@@ -217,6 +218,7 @@ class Container
 
     def stop(options = { :timeout => 120 })
         OpenNebula.log '--- Stopping container ---'
+
         change_state(__method__, options)
 
         # Remove nic from ovs-switch if needed
@@ -229,13 +231,9 @@ class Container
         return if status != 'Running'
 
         begin
-            if force == '-f'
-                stop(:force => true)
-            else
-                stop
-            end
+            stop(:force => force)
         rescue => exception
-            OpenNebula.log_error exception
+            OpenNebula.log_error "LXD Error: #{exception}"
 
             real_status = 'Unknown'
 
@@ -248,8 +246,32 @@ class Container
                 break if %w[Running Stopped].include? real_status
             end
 
-            stop(:force => true) if real_status == 'Running'
+            begin
+                stop(:force => true) if real_status == 'Running'
+            rescue => exception
+                error = "LXD Error: Cannot shut down container #{exception}"
+
+                OpenNebula.log_error error
+            end
         end
+    end
+
+    # Extended reboot required for OpenNebula execution flow
+    def reboot(force)
+        case config['user.reboot_state']
+        when 'STOPPED'
+            start
+
+            config['user.reboot_state'] = 'RUNNING'
+            transition_start
+        else
+            check_stop(force)
+
+            config['user.reboot_state'] = 'STOPPED'
+            transition_end
+        end
+
+        update
     end
 
     def restart(options = {})
@@ -468,6 +490,17 @@ class Container
         @lxc['config']['volatile.last_state.idmap'] = idmaps[:last_state_idmap]
 
         update
+    end
+
+    # Flags a container indicating current status not definitive
+    # Stalls monitoring status query. Requires updating the container
+    def transition_start
+        @lxc['config']['user.one_status'] = '0'
+    end
+
+    # Removes transient state flag. Requires updating the container.
+    def transition_end
+        @lxc['config'].delete('user.one_status')
     end
 
     private
