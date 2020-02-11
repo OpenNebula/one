@@ -23,6 +23,7 @@ define(function(require) {
   var CommonActions = require('utils/common-actions');
   var Vnc = require('utils/vnc');
   var Spice = require('utils/spice');
+  var Rdp = require('utils/rdp');
 
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID           = require('./form-panels/create/formPanelId');
@@ -171,6 +172,33 @@ define(function(require) {
        dialog.show();
      }
     },
+    "VM.save_rdp" : {
+      type: "custom",
+      call: function() {
+        var vm = Sunstone.getElementRightInfo(TAB_ID);
+
+        if (vm && vm.NAME && vm.TEMPLATE && Array.isArray(vm.TEMPLATE.NIC)) {
+          var name = vm.NAME;
+          var nic = vm.TEMPLATE.NIC.find(n => n.RDP === "YES");
+          var credentials = {};
+
+          if (vm.TEMPLATE.CONTEXT) {
+            var context = vm.TEMPLATE.CONTEXT;
+
+            for (var prop in context) {
+              var propUpperCase = String(prop).toUpperCase();
+              (propUpperCase === "USERNAME" || propUpperCase === "PASSWORD") 
+                && (credentials[propUpperCase] = context[prop]);
+            }
+          }
+          nic && Rdp.downloadFile(nic.IP, name, credentials); 
+        } else {
+          Notifier.notifyError(Locale.tr("RDP file error"));
+          return false;
+        }
+      }
+    },
+    
     "VM.startvnc" : {
       type: "custom",
       call: function() {

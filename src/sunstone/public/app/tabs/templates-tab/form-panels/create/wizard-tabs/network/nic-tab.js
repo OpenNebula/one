@@ -307,6 +307,11 @@ define(function(require) {
     context.on("change", "input[name='" + that.nicTabId + "_rank_select']", function() {
       $("input#"+that.nicTabId+"_SCHED_RANK", context).val(this.value);
     });
+
+    context.on("change", "#" + that.nicTabId + "_rdp", function() {
+      const isRDPActivated = $(this).prop('checked');
+      _hide_rdp(that.nicTabId, isRDPActivated, context);
+    });
   }
 
   function _retrieve(context) {
@@ -354,6 +359,10 @@ define(function(require) {
         delete nicJSON["PARENT"];
     } else {
       nicJSON["PARENT"] = $("#" + this.nicTabId + "_alias_parent", context).val();
+    }
+
+    if($("input#" + this.nicTabId + "_rdp", context).prop("checked")) {
+        nicJSON["RDP"] = "YES";
     }
 
     return nicJSON;
@@ -464,6 +473,14 @@ define(function(require) {
       }
     }
 
+    const isRDPActivated = (
+      templateJSON["RDP"] &&
+      templateJSON["RDP"] === "YES" &&
+      $("fieldset#rdp_connection input:not(#" + that.nicTabId + "_rdp):checked", context).length === 0
+    ) ? true : false;
+
+    $("input#" + this.nicTabId + "_rdp", context).prop("checked", isRDPActivated);
+
     WizardFields.fill(context, templateJSON);
   }
 
@@ -499,6 +516,16 @@ define(function(require) {
         } else {
             $("#update_remove_nic_" + value.ID).show();
         }
+    });
+  }
+
+  function _hide_rdp(nicTabId, isRDPActivated, context) {
+    $("#template_create_network_tabs_content > div:not(#" + nicTabId + ") fieldset#rdp_connection", context).each(function() {
+      if (isRDPActivated) {
+        $(this).hide();
+      } else {
+        $(this).show();
+      }
     });
   }
 });

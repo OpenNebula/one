@@ -48,6 +48,13 @@ define(function(require) {
       $(".vnc-sunstone-info").hide();
     }
 
+    // Enable / disable rdp button
+    if (OpenNebulaVM.isRDPSupported(element)) {
+      $(".rdp-sunstone-info").show();
+    } else {
+      $(".rdp-sunstone-info").hide();
+    }
+
     if (OpenNebulaVM.isSPICESupported(element)) {
       $(".spice-sunstone-info").show();
     } else {
