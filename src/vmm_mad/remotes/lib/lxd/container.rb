@@ -129,7 +129,8 @@ class Container
     # Create a container without a base image
     def create(wait: true, timeout: '')
         @lxc['source'] = { 'type' => 'none' }
-        @lxc['config']['user.one_status'] = '0'
+        
+        transient('start')
 
         wait?(@client.post(CONTAINERS, @lxc), wait, timeout)
 
@@ -209,7 +210,7 @@ class Container
 
         operation = change_state(__method__, options)
 
-        @lxc['config'].delete('user.one_status')
+        transient('start')
         update
 
         operation
@@ -217,6 +218,7 @@ class Container
 
     def stop(options = { :timeout => 120 })
         OpenNebula.log '--- Stopping container ---'
+
         change_state(__method__, options)
 
         # Remove nic from ovs-switch if needed
@@ -468,6 +470,20 @@ class Container
         @lxc['config']['volatile.last_state.idmap'] = idmaps[:last_state_idmap]
 
         update
+    end
+
+    # Sets a temporary contaeinr config flag to indicate a transient state.
+    # Ex, container created, but not started. Container stopped during reboot.
+    # Requires updating the container object in LXD.
+    def transient(action)
+        case action
+        when 'start'
+            @lxc['config']['user.one_status'] = '0'
+        when 'finish'
+            @lxc['config'].delete('user.one_status')
+        else
+            nil
+        end
     end
 
     private

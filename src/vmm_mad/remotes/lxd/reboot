@@ -37,12 +37,17 @@ container = Container.get(vm_name, container.config['user.xml'], client)
 case container.config['user.reboot_state']
 when 'STOPPED'
     container.start
+
     container.config['user.reboot_state'] = 'RUNNING'
+    container.transient('start')
 else
     force = false
     force = true if ARGV[-1] == '-f'
+    
     container.check_stop(force)
+    
     container.config['user.reboot_state'] = 'STOPPED'
+    container.transient('finish')
 end
 
 container.update
