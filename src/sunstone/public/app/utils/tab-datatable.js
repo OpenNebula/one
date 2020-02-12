@@ -1203,8 +1203,7 @@ define(function(require) {
                     elementArray[that.selectOptions.name_index]);
             } else {
               elementArray[that.selectOptions.name_index] =
-                  ('<i class="fas fa-fw"></i> ' +
-                    elementArray[that.selectOptions.name_index]);
+                  elementArray[that.selectOptions.name_index];
             }
           }
 
