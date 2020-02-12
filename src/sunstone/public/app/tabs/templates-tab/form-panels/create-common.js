@@ -255,6 +255,13 @@ define(function(require) {
       ){
         current = currentTemplate[0].VMTEMPLATE.TEMPLATE;
       }
+      if(
+        current &&
+        current.NIC_ALIAS &&
+        !templateJSON.NIC_ALIAS
+      ){
+        delete current.NIC_ALIAS;
+      }
     }
     if (this.action == "create") {
       Sunstone.runAction(this.resource+".create", {"vmtemplate": templateJSON});
