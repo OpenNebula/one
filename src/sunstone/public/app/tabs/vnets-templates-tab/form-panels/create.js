@@ -364,7 +364,7 @@ define(function(require) {
 
     var clusters = this.clustersTable.retrieveResourceTableSelect();
     if (clusters != undefined && clusters.length != 0) {
-      network_json["CLUSTERS"] = clusters.join(",");
+      network_json["CLUSTERS_IDS"] = clusters.join(",");
     }
 
     $.extend(network_json, CustomTagsTable.retrieve($("#vntemplateCreateContextTab", context)));
@@ -395,16 +395,15 @@ define(function(require) {
   }
 
   function _submitAdvanced(context) {
+    var template = $("textarea#template", context).val();
+    
     if (this.action == "create") {
-      var template = $("textarea#template", context).val();
-      var vntemplate_json = {vntemplate: {vntemplate_raw: template}};
+      var vntemplate_json = {vntemplate: { vntemplate_raw: template}};
       Sunstone.runAction("VNTemplate.create", vntemplate_json);
       return false;
 
     } else if (this.action == "update") {
-      var template_raw = $("textarea#template", context).val();
-      var vntemplate_json = {vntemplate: {vntemplate_raw: template}};
-      Sunstone.runAction("VNTemplate.update", this.resourceId, vntemplate_json);
+      Sunstone.runAction("VNTemplate.update", this.resourceId, template);
       return false;
     }
   }
