@@ -98,9 +98,79 @@ def to_nets(ip_start, size)
     return nets
 end
 
+def extract_vnet_data(vnet_id)
+    # Create client to communicate with OpenNebula
+    one_client = OpenNebula::Client.new
 
+    # Get the network XML from OpenNebula
+    # This is potentially different from the Netowrk Template
+    # provided as the API call argument
+    one_vnet = OpenNebula::VirtualNetwork.new_with_id(vnet_id, one_client)
+    rc = one_vnet.info
+    if OpenNebula.is_error?(rc)
+        err_msg = rc.message
+        raise CreateNetworkError, err_msg
+    end
 
-def rule_data(xml_rule)
+    vnet_data = {
+        :nsxid => one_vnet['TEMPLATE/NSX_ID'],
+        :name => one_vnet['NAME']
+    }
+
+    vnet_data
+end
+
+def extract_nic_data(nic, nsx_client, vm)
+    # Network attributes
+    nic_id = nic.xpath('NIC_ID').text
+    nic_lp = nil
+    network_id = nic.xpath('NETWORK_ID').text
+    network_vcref = nic.xpath('VCENTER_NET_REF').text
+    network_pgtype = nic.xpath('VCENTER_PORTGROUP_TYPE').text
+    network_mac = nic.xpath('MAC').text
+
+    # Virtual Machine devices
+    vm_devices = vm.item.config.hardware.device
+    vm_devices.each do |device|
+        next unless vm.is_nic?(device)
+
+        next if device.macAddress != network_mac
+
+        case network_pgtype
+        when NSXDriver::NSXConstants::NSXT_LS_TYPE
+            lpid = device.externalId
+            File.open("/tmp/post_lpid.debug", 'w') {|f| f.write(lpid) }
+            nic_lp = NSXDriver::LogicalPort.new_child(nsx_client, lpid)
+            raise "Logical port with id: #{lpid} nor found" unless nic_lp
+            File.open("/tmp/post_lp.debug", 'w') {|f| f.write(nic_lp.inspect) }
+            # target_id => id
+            # target_display_name => display_name
+            # target_type => resource_type
+        when NSXDriver::NSXConstants::NSXV_LS_TYPE
+            device.backing.port.portGroupKey
+        else
+            error_msg = "Network type is: #{network_pgtype} \
+                            and should be \
+                            #{NSXDriver::NSXConstants::NSXT_LS_TYPE} \
+                            or #{NSXDriver::NSXConstants::NSXV_LS_TYPE}"
+            error = NSXDriver::NSXError::UnknownObject.new(error_msg)
+            STDERR.puts error_msg
+            raise error
+        end
+    end
+
+    nic_data = {
+        :id => nic_id,
+        :network_id => network_id,
+
+        :network_vcref => network_vcref,
+        :lp => nic_lp
+    }
+
+    nic_data
+end
+
+def extract_rule_data(xml_rule)
     sg_id = xml_rule.xpath('SECURITY_GROUP_ID').text
     sg_name = xml_rule.xpath('SECURITY_GROUP_NAME').text
     sg_direction = (xml_rule.xpath('RULE_TYPE').text.upcase) == 'INBOUND' ? 'IN' : 'OUT'
@@ -111,6 +181,8 @@ def rule_data(xml_rule)
     end
     # OpenNebula network ID
     sg_network_id = xml_rule.xpath('NETWORK_ID').text
+    vnet_data = extract_vnet_data(sg_network_id)
+
     # ip / netmask
     sg_ip = xml_rule.xpath('IP').text
     sg_ipsize = xml_rule.xpath('SIZE').text
@@ -128,120 +200,88 @@ def rule_data(xml_rule)
     end
     # Create hash with data
     rule_data = {
-        'id': sg_id,
-        'name': sg_name,
-        'direction': sg_direction,
-        'protocol': sg_protocol,
-        'icmp_type': sg_icmp_type,
-        'network_id': sg_network_id,
-        'ip': sg_ip,
-        'ipsize': sg_ipsize,
-        'ports': sg_ports
+        :id => sg_id,
+        :name => sg_name,
+        :direction => sg_direction,
+        :protocol => sg_protocol,
+        :icmp_type => sg_icmp_type,
+        :network_id => sg_network_id,
+        :network_name => vnet_data[:name],
+        :network_nsxid => vnet_data[:nsxid],
+        :ip => sg_ip,
+        :ipsize => sg_ipsize,
+        :ports => sg_ports
     }
     File.open('/tmp/post_rule_data.debug', 'a') {|f| f.write(rule_data)}
 
     rule_data
 end
 
-def rule_spec(rule, vm_id, vm_deploy_id, nic_id, nic_lp)
+def create_rule_spec(rule, vm_data, nic_data)
 
     File.open('/tmp/post_rule_spec_rule.debug', 'a') {|f| f.write(rule)}
 
     # default spec
     # Allow any-any to any port applied on the virtual machine logical port
     rule_spec = {
-        'display_name': "#{rule[:id]}-#{rule[:name]}-#{vm_id}-#{vm_deploy_id}-#{nic_id}",
-        'destinations_excluded': false,
-        'sources': [],
-        'destinations': [],
-        'services': [],
-        'applied_tos': [
+        :display_name => "#{rule[:id]}-#{rule[:name]}-#{vm_data[:id]}-#{vm_data[:deploy_id]}-#{nic_data[:id]}",
+        :destinations_excluded => false,
+        :sources => [],
+        :destinations => [],
+        :services => [],
+        :applied_tos => [
             {
-              "target_id": nic_lp.id,
-              "target_display_name": nic_lp.name,
-              "target_type": nic_lp.type,
-              "is_valid": true
+                :target_id => nic_data[:lp].id,
+                :target_display_name => nic_data[:lp].name,
+                :target_type => nic_data[:lp].type,
+                :is_valid => true
             }
         ],
-        'ip_protocol': 'IPV4_IPV6',
-        'logged': false,
-        'action': 'ALLOW',
-        'sources_excluded': false,
-        'disabled': false,
-        'direction': rule[:direction]
+        :ip_protocol => 'IPV4_IPV6',
+        :logged => false,
+        :action => 'ALLOW',
+        :sources_excluded => false,
+        :disabled => false,
+        :direction => rule[:direction]
     }
 
     # Modify default rule spec based on rule_data extracted from vm template
-    # INBOUND => Destination
-    if rule[:ip] != "" && rule[:size] != ""
+    # SOURCES OR DESTINATIONS: Any | IP Address | Vnet
+    networks_array = []
+
+    # Target network: Vnet
+    if rule[:network_id] != ''
+
+        networks_array << {
+            :target_id => rule[:network_nsxid],
+            :target_display_name => rule[:network_name],
+            :target_type => "LogicalSwitch",
+            :is_valid => true
+        }
+
+    # Target network: Manual network (IP Address)
+    elsif rule[:ip] != "" && rule[:size] != ""
         File.open('/tmp/post_rule_spec_rule.debug', 'a') {|f| f.write(rule)}
-        networks_array = []
         networks = to_nets(rule[:ip], rule[:ipsize].to_i)
         File.open('/tmp/post_nets.debug', 'w') {|f| f.write(networks)}
-        raise "Networks are empty due to invalid ip size" if networks.empty?
+        raise 'Networks are empty due to invalid ip size' if networks.empty?
+
         networks.each do |network|
             networks_array << {
-                'target_id': network,
-                'target_display_name': network,
-                'target_type': 'IPAddress',
-                'is_valid': true
+                :target_id => network,
+                :target_display_name => network,
+                :target_type => 'IPAddress',
+                :is_valid => true
             }
-        end
-        unless networks_array.empty?
-            rule_spec['sources'] = networks_array if rule[:direction] == 'OUT'
-            rule_spec['destinations'] = networks_array if rule[:direction] == 'IN'
         end
     end
 
-    # Create security group spec
-    # rule_spec =
-    # {
-    #     "display_name": "#{rule[:id]}-#{rule[:name]}-#{vm_id}-#{vm_deploy_id}-#{nic_id}",
-    #     "destinations_excluded": false,
-    #     # "sources": [
-    #     #   {
-    #     #     "target_display_name": '192.168.100.7',
-    #     #     "is_valid": true,
-    #     #     "target_type": 'IPv4Address',
-    #     #     "target_id": '192.168.100.7'
-    #     #   }
-    #     # ],
-    #     # "destinations": [
-    #     #   {
-    #     #     "target_display_name": '192.168.100.8',
-    #     #     "is_valid": true,
-    #     #     "target_type": 'IPv4Address',
-    #     #     "target_id": '192.168.100.8'
-    #     #   }
-    #     # ],
-    #     "services": [
-    #         {
-    #             "service": {
-    #                 "l4_protocol": rule[:protocol],
-    #                 "destination_ports": [
-    #                     ports
-    #                 ],
-    #                 "resource_type": "L4PortSetNSService"
-    #             }
-    #         }
-    #     ],
-    #     "applied_tos": [
-    #         {
-    #           "target_id": nic_lp.id,
-    #           "target_display_name": nic_lp.name,
-    #           "target_type": nic_lp.type,
-    #           "is_valid": true
-    #         }
-    #     ],
-    #     "ip_protocol": 'IPV4_IPV6',
-    #     "logged": false,
-    #     "action": 'ALLOW',
-    #     "sources_excluded": false,
-    #     "disabled": false,
-    #     "direction": rule[:direction]
-    # }
-
-    # File.open('/tmp/post_sg_spec.debug', 'a') {|f| f.write(sg_spec)} 
+    # (OpenNebula) INBOUND  => Destination (NSX)
+    # (OpenNebula) OUTBOUND => Source (NSX)
+    unless networks_array.empty?
+        rule_spec['sources'] = networks_array if rule[:direction] == 'OUT'
+        rule_spec['destinations'] = networks_array if rule[:direction] == 'IN'
+    end
 
     rule_spec
 
@@ -253,9 +293,11 @@ template_xml = Nokogiri::XML(template)
 File.open("/tmp/post1.debug", 'w') {|f| f.write(template_xml) }
 
 # OpenNebula VM
-vm_id = template_xml.xpath('//VM/ID').text
-vm_deploy_id = template_xml.xpath('//DEPLOY_ID').text
-one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
+vm_data = {
+    :id => template_xml.xpath('//VM/ID').text,
+    :deploy_id => template_xml.xpath('//DEPLOY_ID').text
+}
+one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_data[:id])
 one_vm_name = one_vm['NAME']
 
 # OpenNebula host
@@ -273,7 +315,7 @@ host_id = one_host['ID']
 
 # vCenter VirtualMachine
 vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-vm = VCenterDriver::VirtualMachine.new_from_ref(vi_client, vm_deploy_id, one_vm_name)
+vm = VCenterDriver::VirtualMachine.new_from_ref(vi_client, vm_data[:deploy_id], one_vm_name)
 
 # NSX Actions
 nsx_client = NSXDriver::NSXTClient.new_from_id(one_host['ID'])
@@ -283,39 +325,9 @@ dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
 # Inspect each nic with attach="yes"
 nics = template_xml.xpath('//TEMPLATE/NIC[ATTACH="YES"]')
 nics.each do |nic|
-    # Network attributes
-    nic_id = nic.xpath('NIC_ID').text
-    nic_lp = nil
-    network_id = nic.xpath('NETWORK_ID').text
-    network_vcref = nic.xpath('VCENTER_NET_REF').text
-    network_pgtype = nic.xpath('VCENTER_PORTGROUP_TYPE').text
-    network_mac = nic.xpath('MAC').text
-    # Virtual Machine devices
-    vm_devices = vm.item.config.hardware.device
-    vm_devices.each do |device|
-        if vm.is_nic?(device)
-            if device.macAddress == network_mac
-                case network_pgtype
-                when NSXDriver::NSXConstants::NSXT_LS_TYPE
-                    lpid = device.externalId
-                    File.open("/tmp/post_lpid.debug", 'w') {|f| f.write(lpid) }
-                    nic_lp = NSXDriver::LogicalPort.new_child(nsx_client, lpid)
-                    raise "Logical port with id: #{lpid} nor found" unless nic_lp
-                    File.open("/tmp/post_lp.debug", 'w') {|f| f.write(nic_lp.inspect) }
-                    # target_id => id
-                    # target_display_name => display_name
-                    # target_type => resource_type
-                when NSXDriver::NSXConstants::NSXV_LS_TYPE
-                    device.backing.port.portGroupKey
-                else
-                    error_msg = "Network type is: #{network_pgtype} and should be #{NSXDriver::NSXConstants::NSXT_LS_TYPE} or #{NSXDriver::NSXConstants::NSXV_LS_TYPE} "
-                    error = NSXDriver::NSXError::UnknownObject.new(error_msg)
-                    STDERR.puts error_msg
-                    raise error
-                end
-            end
-        end
-    end
+    # Extract NIC data
+nsx_client = NSXDriver::NSXTClient.new_from_id(one_host['ID'])
+nic_data = extract_nic_data(nic, nsx_client, vm)
     # Get all Security Groups belonging to each NIC.
     sec_groups = nic.xpath('SECURITY_GROUPS').text.split(',')
     File.open("/tmp/post_secgroups", 'w') {|f| f.write(sec_groups) }
@@ -328,8 +340,8 @@ nics.each do |nic|
 
         sg_rules.each do |sg_rule|
             # Create rules spec
-            rule_data = rule_data(sg_rule)
-            rule_spec = rule_spec(rule_data, vm_id, vm_deploy_id, nic_id, nic_lp)
+            rule_data = extract_rule_data(sg_rule)
+            rule_spec = create_rule_spec(rule_data, vm_data, nic_data)
             sg_rules_array.push(rule_spec)
         end
 
@@ -349,5 +361,7 @@ nics.each do |nic|
 
     end
 end
+
+
 
 exit 0
