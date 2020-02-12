@@ -614,19 +614,23 @@ define(function(require) {
   function generateRequirements(hosts_table, ds_table, context, id) {
     var req_string = [];
     var req_ds_string = [];
-    var selected_hosts = hosts_table.retrieveResourceTableSelect();
-    var selected_ds = ds_table.retrieveResourceTableSelect();
 
-    $.each(selected_hosts, function(index, hostId) {
-      req_string.push("ID=\"" + hostId + "\"");
-    });
+    if (hosts_table) {
+      var selected_hosts = hosts_table.retrieveResourceTableSelect();
+      
+      $.each(selected_hosts, function(index, hostId) {
+        req_string.push("ID=\"" + hostId + "\"");
+      });
+    }
+    if (ds_table) {
+      var selected_ds = ds_table.retrieveResourceTableSelect();
 
-    $.each(selected_ds, function(index, dsId) {
-      req_ds_string.push("ID=\"" + dsId + "\"");
-    });
+      $.each(selected_ds, function(index, dsId) {
+        req_ds_string.push("ID=\"" + dsId + "\"");
+      });
+    }
 
     $("#SCHED_REQUIREMENTS" + id, context).val(req_string.join(" | "));
     $("#SCHED_DS_REQUIREMENTS" + id, context).val(req_ds_string.join(" | "));
   }
-
 });
