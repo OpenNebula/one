@@ -1243,6 +1243,7 @@ TM_FILES="src/tm_mad/tm_common.sh"
 TM_SHARED_FILES="src/tm_mad/shared/clone \
                  src/tm_mad/shared/delete \
                  src/tm_mad/shared/ln \
+                 src/tm_mad/shared/ln.ssh \
                  src/tm_mad/shared/mkswap \
                  src/tm_mad/shared/mkimage \
                  src/tm_mad/shared/mv \
@@ -1251,6 +1252,7 @@ TM_SHARED_FILES="src/tm_mad/shared/clone \
                  src/tm_mad/shared/postmigrate \
                  src/tm_mad/shared/failmigrate \
                  src/tm_mad/shared/mvds \
+                 src/tm_mad/shared/mvds.ssh \
                  src/tm_mad/shared/snap_create \
                  src/tm_mad/shared/snap_create_live \
                  src/tm_mad/shared/snap_delete \
