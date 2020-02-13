@@ -364,7 +364,7 @@ define(function(require) {
 
     var clusters = this.clustersTable.retrieveResourceTableSelect();
     if (clusters != undefined && clusters.length != 0) {
-      network_json["CLUSTERS_IDS"] = clusters.join(",");
+      network_json["CLUSTER_IDS"] = clusters.join(",");
     }
 
     $.extend(network_json, CustomTagsTable.retrieve($("#vntemplateCreateContextTab", context)));

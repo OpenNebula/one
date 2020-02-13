@@ -58,7 +58,7 @@ define(function(require){
     var clusters = [];
 
     if (this.element.TEMPLATE.CLUSTERS != undefined){
-      clusters = this.element.TEMPLATE.CLUSTERS_IDS.split(",");
+      clusters = this.element.TEMPLATE.CLUSTER_IDS.split(",");
 
       if (!$.isArray(clusters)){
         clusters = [clusters];
