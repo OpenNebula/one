@@ -24,7 +24,7 @@ import (
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/hook/keys"
 )
 
-var call = "one.zone.info"
+var call = "one.zone.raftstatus"
 
 // Helper to create a Hook Network
 func createHook(t *testing.T) (*hk.Hook, int) {
@@ -82,7 +82,7 @@ func TestHook(t *testing.T) {
 	currentExecs := len(hook.Log.ExecutionRecords)
 
 	//triger the hook
-	testCtrl.Zone(0).Info(false)
+	testCtrl.Zones().ServerRaftStatus()
 
 	time.Sleep(2 * time.Second)
 
