@@ -76,6 +76,9 @@ module NSXDriver
         NSXV_DFW_SECTIONS = '/layer3sections'
         NSXV_DFW_SECTION_XPATH = '//section'
         NSXV_DFW_RULE_XPATH = '//rule'
+        # RULE
+        NSXT_RULE_BASE = NSXT_BASE + '/firewall/rules'
+        NSXV_RULE_BASE = 'xxx'
         # Logical Ports
         NSXT_LP_BASE = NSXT_BASE + '/logical-ports/'
         NSXV_LP_BASE = ''

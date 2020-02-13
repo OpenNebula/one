@@ -907,7 +907,10 @@ VMM_EXEC_LIB_NSX_FILES="src/vmm_mad/remotes/lib/nsx_driver/logical_switch.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/nsxv_dfw.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/logical_port.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/nsxt_logical_port.rb \
-                    src/vmm_mad/remotes/lib/nsx_driver/nsxv_logical_port.rb"
+                    src/vmm_mad/remotes/lib/nsx_driver/nsxv_logical_port.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/nsx_rule.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/nsxt_rule.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/nsxv_rule.rb"
 
 #-------------------------------------------------------------------------------
 # VMM SH Driver LXD scripts, to be installed under $REMOTES_LOCATION/vmm/lxd

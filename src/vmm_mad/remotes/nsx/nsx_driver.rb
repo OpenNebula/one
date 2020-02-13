@@ -64,6 +64,10 @@ require 'nsxv_dfw'
 require 'logical_port'
 require 'nsxt_logical_port'
 require 'nsxv_logical_port'
+require 'nsx_rule'
+require 'nsxt_rule'
+require 'nsxv_rule'
+
 
 # NSX Driver module
 module NSXDriver
