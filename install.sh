@@ -1320,7 +1320,8 @@ NETWORK_OVSWITCH_VXLAN_FILES="src/vnm_mad/remotes/ovswitch_vxlan/clean \
 
 NETWORK_VCENTER_FILES="src/vnm_mad/remotes/vcenter/pre \
                        src/vnm_mad/remotes/vcenter/post \
-                       src/vnm_mad/remotes/vcenter/clean"
+                       src/vnm_mad/remotes/vcenter/clean \
+                       src/vnm_mad/remotes/vcenter/update_sg"
 
 NETWORK_ALIAS_SDNAT_FILES="src/vnm_mad/remotes/alias_sdnat/AliasSDNAT.rb \
                            src/vnm_mad/remotes/alias_sdnat/clean \

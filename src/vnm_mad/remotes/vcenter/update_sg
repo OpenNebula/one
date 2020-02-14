@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
@@ -16,17 +16,39 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if [ -z "${ONE_LOCATION}" ]; then
-    MAD_LOCATION=/usr/lib/one/mads
+# Define libraries location
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
 else
-    MAD_LOCATION=$ONE_LOCATION/lib/mads
-fi
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+end
 
-LOCAL_ACTIONS="deploy,shutdown,reboot,cancel,save,restore,migrate,poll"
-LOCAL_ACTIONS="${LOCAL_ACTIONS},pre,post,clean,update_sg"
-LOCAL_ACTIONS="${LOCAL_ACTIONS},snapshotcreate,snapshotrevert,snapshotdelete"
-LOCAL_ACTIONS="${LOCAL_ACTIONS},attach_nic,detach_nic,reset"
-LOCAL_ACTIONS="${LOCAL_ACTIONS},prereconfigure,reconfigure"
-LOCAL_ACTIONS="${LOCAL_ACTIONS},attach_disk,detach_disk,resize_disk"
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+end
 
-exec $MAD_LOCATION/one_vmm_exec -l $LOCAL_ACTIONS $*
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+$LOAD_PATH << File.dirname(__FILE__)
+$LOAD_PATH << File.join(File.dirname(__FILE__), '..')
+
+require 'vnmmad'
+require 'nokogiri'
+require 'opennebula'
+require 'vcenter_driver'
+require 'nsx_driver'
+
+template = Base64.decode64(STDIN.read)
+template_xml = Nokogiri::XML(template)
+
+File.open('/tmp/update_sg_template_xml.debug', 'a'){|f| f.write(template_xml)}
+
+exit 0
