@@ -51,6 +51,28 @@ module NSXDriver
         # Update a logical switch
         def update_logical_switch; end
 
+        # Return new attached nsx nics of type NSX-V and NSX-T
+        def nsx_new_nics(template_xml)
+            nics = template_xml.xpath('//TEMPLATE/NIC[ATTACH="YES"]')
+            new_nics = []
+            nics.each do |nic|
+                network_id = nic.xpath('NETWORK_ID').text
+                # Check Networks exists
+                one_vnet = VCenterDriver::VIHelper
+                           .one_item(OpenNebula::VirtualNetwork, network_id)
+                rc = one_vnet.info
+                if OpenNebula.is_error?(rc)
+                    err_msg = rc.message
+                    raise err_msg
+                end
+                pg_type = one_vnet['TEMPLATE/VCENTER_PORTGROUP_TYPE']
+                new_nics << nic if [NSXDriver::NSXConstants::NSXV_LS_TYPE,
+                                             NSXDriver::NSXConstants::NSXT_LS_TYPE]
+                                            .include?(pg_type)
+            end
+            new_nics
+        end
+
     end
 
 end

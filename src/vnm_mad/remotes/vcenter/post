@@ -16,8 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-File.open('/tmp/post_timestamp', 'w'){|f| f.write(Time.new)}
-
 # Define libraries location
 ONE_LOCATION = ENV['ONE_LOCATION']
 
@@ -50,9 +48,6 @@ require 'nsx_driver'
 require 'ipaddr'
 
 def to_nets(ip_start, size)
-    File.open('/tmp/post_tonet_ip.debug', 'a') {|f| f.write(ip_start)}
-    File.open('/tmp/post_tonet_size.debug', 'a') {|f| f.write(size)}
-
     nets = Array.new
 
     begin
@@ -139,10 +134,8 @@ def extract_nic_data(nic, nsx_client, vm)
         case network_pgtype
         when NSXDriver::NSXConstants::NSXT_LS_TYPE
             lpid = device.externalId
-            File.open("/tmp/post_lpid.debug", 'w') {|f| f.write(lpid) }
             nic_lp = NSXDriver::LogicalPort.new_child(nsx_client, lpid)
             raise "Logical port with id: #{lpid} nor found" unless nic_lp
-            File.open("/tmp/post_lp.debug", 'w') {|f| f.write(nic_lp.inspect) }
             # target_id => id
             # target_display_name => display_name
             # target_type => resource_type
@@ -162,7 +155,6 @@ def extract_nic_data(nic, nsx_client, vm)
     nic_data = {
         :id => nic_id,
         :network_id => network_id,
-
         :network_vcref => network_vcref,
         :lp => nic_lp
     }
@@ -171,9 +163,7 @@ def extract_nic_data(nic, nsx_client, vm)
 end
 
 template = Base64.decode64(STDIN.read)
-
 template_xml = Nokogiri::XML(template)
-File.open("/tmp/post1.debug", 'w') {|f| f.write(template_xml) }
 
 # OpenNebula VM
 vm_data = {
@@ -199,38 +189,36 @@ host_id = one_host['ID']
 
 # vCenter VirtualMachine
 vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-vm = VCenterDriver::VirtualMachine.new_from_ref(vi_client, vm_data[:deploy_id], one_vm_name)
+vm = VCenterDriver::VirtualMachine.new_from_ref(vi_client,
+                                                vm_data[:deploy_id],
+                                                one_vm_name)
 
-# NSX Actions
-nsx_client = NSXDriver::NSXTClient.new_from_id(one_host['ID'])
+# NSX Objects
+nsx_client = NSXDriver::NSXTClient.new_from_id(host_id)
 dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
 nsx_rule = NSXDriver::NSXRule.new_child(nsx_client)
+ls = NSXDriver::LogicalSwitch.new(nsx_client)
+nsx_nics = ls.nsx_new_nics(template_xml)
+
+exit 0 if nsx_nics.empty?
 
 # NICs
 # Inspect each nic with attach="yes"
-nics = template_xml.xpath('//TEMPLATE/NIC[ATTACH="YES"]')
-nics.each do |nic|
+nsx_nics.each do |nic|
     # Extract NIC data
-nsx_client = NSXDriver::NSXTClient.new_from_id(one_host['ID'])
-nic_data = extract_nic_data(nic, nsx_client, vm)
+    nic_data = extract_nic_data(nic, nsx_client, vm)
     # Get all Security Groups belonging to each NIC.
     sec_groups = nic.xpath('SECURITY_GROUPS').text.split(',')
-    File.open("/tmp/post_secgroups", 'w') {|f| f.write(sec_groups) }
     sec_groups.each do |sec_group|
-        File.open("/tmp/post_secgroups_times", 'a') {|f| f.write("#{sec_group} ") }
         sg_rules_array = []
         # Get all rules belonging to this Security Group.
         sg_rules = template_xml.xpath("//SECURITY_GROUP_RULE[SECURITY_GROUP_ID=#{sec_group}]")
-        File.open("/tmp/post_sg_rules", 'a') {|f| f.write(sg_rules) }
-
         sg_rules.each do |sg_rule|
             # Create rules spec
             rule_data = nsx_rule.extract_rule_data(sg_rule)
             rule_spec = nsx_rule.create_rule_spec(rule_data, vm_data, nic_data)
             sg_rules_array.push(rule_spec)
         end
-
-        File.open('/tmp/post_sg_rules_array.debug', 'w'){|f| f.write(sg_rules_array.inspect)}
         # Create NSX rules
         sg_rules_array.each do |sg_spec|
             begin
@@ -243,10 +231,7 @@ nic_data = extract_nic_data(nic, nsx_client, vm)
                 exit 1
             end
         end
-
     end
 end
-
-
 
 exit 0

@@ -78,6 +78,39 @@ module NSXDriver
         NSXV_DFW_RULE_XPATH = '//rule'
         # RULE
         NSXT_RULE_BASE = NSXT_BASE + '/firewall/rules'
+        NSXT_RULE_PROTOCOL = {
+            'TCP' => {
+                :service => {
+                    :l4_protocol => 'TCP',
+                    :source_ports => [],
+                    :destination_ports => [],
+                    :resource_type => 'L4PortSetNSService'
+                }
+            },
+            'UDP' => {
+                :service => {
+                    :l4_protocol => 'UDP',
+                    :source_ports => [],
+                    :destination_ports => [],
+                    :resource_type => 'L4PortSetNSService'
+                }
+            },
+            'ICMP' => {
+                :service => {
+                    :protocol => 'ICMPv4',
+                    :resource_type => 'ICMPTypeNSService'
+                }
+            },
+            'ICMPv6' => {
+                :service => {
+                    :protocol => 'ICMPv6',
+                    :resource_type => 'ICMPTypeNSService'
+                }
+            },
+            'IPSEC' => {
+            },
+            'ALL' => nil
+        }
         NSXV_RULE_BASE = 'xxx'
         # Logical Ports
         NSXT_LP_BASE = NSXT_BASE + '/logical-ports/'

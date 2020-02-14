@@ -16,8 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-File.open('/tmp/clean_timestamp', 'w'){|f| f.write(Time.new)}
-
 # Define libraries location
 ONE_LOCATION = ENV['ONE_LOCATION']
 
@@ -50,7 +48,6 @@ require 'nsx_driver'
 
 template = Base64.decode64(STDIN.read)
 template_xml = Nokogiri::XML(template)
-File.open("/tmp/clean.debug", 'w') {|f| f.write(template_xml) }
 
 # Check Host exists
 host_name = template_xml
@@ -64,41 +61,21 @@ if OpenNebula.is_error?(rc)
 end
 
 # Check if the network attached to all nics are ok
-nics = template_xml.xpath('//TEMPLATE/NIC[ATTACH="YES"]')
-nsx_pgs = []
-nics.each do |nic|
-    network_id = nic.xpath('NETWORK_ID').text
-    # Check Networks exists
-    one_vnet = VCenterDriver::VIHelper
-               .one_item(OpenNebula::VirtualNetwork, network_id)
-    rc = one_vnet.info
-    if OpenNebula.is_error?(rc)
-        err_msg = rc.message
-        raise err_msg
-    end
-    pg_type = one_vnet['TEMPLATE/VCENTER_PORTGROUP_TYPE']
-    nsx_pgs << pg_type if [NSXDriver::NSXConstants::NSXV_LS_TYPE,
-                                 NSXDriver::NSXConstants::NSXT_LS_TYPE]
-                                .include?(pg_type)
-end
-
-File.open('/tmp/clean_nsxpgs', 'w'){|f| f.write(nsx_pgs)}
+host_id = one_host['ID']
+nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
+ls = NSXDriver::LogicalSwitch.new(nsx_client)
+nsx_nics = ls.nsx_new_nics(template_xml)
 
 # If there isn't any nsx network skip this and exit 0
 # If there is at least a nsx network, then check NSX_STATUS and
 # do a clean
-unless nsx_pgs.empty?
+unless nsx_nics.empty?
     # Exit if NSX_STATUS != OK
     nsx_status = one_host['TEMPLATE/NSX_STATUS']
     err_msg = "There is NSX networks and NSX_STATUS is not OK"
     raise err_msg unless nsx_status == 'OK'
-
-    File.open('/tmp/clean_nsxstatus', 'w'){|f| f.write(nsx_status)}
-
     # NSX Actions
-    nsx_client = NSXDriver::NSXTClient.new_from_id(one_host['ID'])
     dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
-
     # Clear rules
     dfw.clear_opennebula_rules(template)
 end

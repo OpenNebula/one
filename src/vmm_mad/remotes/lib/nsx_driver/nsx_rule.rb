@@ -56,6 +56,7 @@ module NSXDriver
             sg_ip = xml_rule.xpath('IP').text
             sg_ipsize = xml_rule.xpath('SIZE').text
             # Ports
+            sg_ports = ""
             sg_range_port = xml_rule.xpath('RANGE').text
             if sg_range_port
                 if sg_range_port.index(':')
@@ -79,7 +80,7 @@ module NSXDriver
                 :network_nsxid => vnet_data[:nsxid],
                 :ip => sg_ip,
                 :ipsize => sg_ipsize,
-                :ports => sg_ports
+                :ports => sg_ports.split(',')
             }
 
             rule_data

@@ -207,8 +207,6 @@ module NSXDriver
                         sg_name = sg_rule.xpath('SECURITY_GROUP_NAME').text
                         rule_name = "#{sg_id}-#{sg_name}-#{vm_id}-#{vm_deploy_id}-#{nic_id}"
                         rules = rules_by_name(rule_name, @one_section_id)
-                        File.open("/tmp/clean_rules", 'w') {|f| f.write(rules) }
-                        File.open("/tmp/clean_rules.class", 'w') {|f| f.write(rules.class) }
                         rules.each do |rule|
                             delete_rule(rule['id'], @one_section_id) if rule
                         end
