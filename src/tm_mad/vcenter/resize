@@ -55,11 +55,6 @@ one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vmid)
 vm_ref = one_vm['DEPLOY_ID']
 
 begin
-    # This action is only possible when VM in ACTIVE / DISK_RESIZE_POWEROFF
-    if one_vm['LCM_STATE'].to_i != 63
-        raise "'disk-resize' operation not supported for vCenter running VMs."
-    end
-
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
     vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vmid)
 
