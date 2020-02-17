@@ -16,6 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+File.open('/tmp/updatesg.debug', 'w'){|f| f.write("UPDATESG")}
+
 # Define libraries location
 ONE_LOCATION = ENV['ONE_LOCATION']
 
@@ -47,8 +49,31 @@ require 'vcenter_driver'
 require 'nsx_driver'
 
 template = Base64.decode64(STDIN.read)
+deploy_id = ARGV[0]
+
 template_xml = Nokogiri::XML(template)
 
-File.open('/tmp/update_sg_template_xml.debug', 'a'){|f| f.write(template_xml)}
+# OpenNebula host
+host_name = template_xml
+            .xpath('//HISTORY_RECORDS/HISTORY[last()]/HOSTNAME').text
+one_host = VCenterDriver::VIHelper
+           .find_by_name(OpenNebula::HostPool, host_name)
+rc = one_host.info
+if OpenNebula.is_error?(rc)
+    err_msg = rc.message
+    raise err_msg
+end
+
+# NSX Objects
+nsx_client = NSXDriver::NSXTClient.new_from_id(one_host['ID'])
+dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
+ls = NSXDriver::LogicalSwitch.new(nsx_client)
+# Get allattached NSX Nics
+nsx_nics = ls.nsx_nics(template_xml, false)
+
+unless nsx_nics.empty?
+    dfw.clear_opennebula_rules(template, nsx_nics)
+    dfw.create_opennebula_rules(deploy_id, template, nsx_nics)
+end
 
 exit 0

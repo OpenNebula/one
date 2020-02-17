@@ -16,6 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+File.open('/tmp/pre.debug', 'w'){|f| f.write("PRE")}
+
 # Define libraries location
 ONE_LOCATION = ENV['ONE_LOCATION']
 
@@ -49,7 +51,6 @@ require 'nsx_driver'
 template = Base64.decode64(STDIN.read)
 template_xml = Nokogiri::XML(template)
 
-
 host_name = template_xml
             .xpath('//HISTORY_RECORDS/HISTORY[last()]/HOSTNAME').text
 
@@ -64,10 +65,10 @@ end
 
 
 # Check if the network attached to all nics are ok
-host_id = one_host['ID']
-nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
+nsx_client = NSXDriver::NSXClient.new_from_id(one_host['ID'])
 ls = NSXDriver::LogicalSwitch.new(nsx_client)
-nsx_nics = ls.nsx_new_nics(template_xml)
+# Get only new attached NSX Nics
+nsx_nics = ls.nsx_nics(template_xml, true)
 
 # If there isn't any nsx network skip this and exit 0
 # If there is at least a nsx network, then check NSX_STATUS and
@@ -76,11 +77,13 @@ unless nsx_nics.empty?
     # Exit if NSX_STATUS != OK
     nsx_status = one_host['TEMPLATE/NSX_STATUS']
     err_msg = "There is NSX networks and NSX_STATUS is not OK"
+    STDERR.puts err_msg
+    exit 1 unless nsx_status == 'OK'
     raise err_msg unless nsx_status == 'OK'
     # NSX Actions
     dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
     # Clear rules
-    dfw.clear_opennebula_rules(template)
+    dfw.clear_opennebula_rules(template, nsx_nics)
 end
 
 exit 0

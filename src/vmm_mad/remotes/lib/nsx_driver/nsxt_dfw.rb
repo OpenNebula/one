@@ -146,6 +146,8 @@ module NSXDriver
 
         # Create new rule
         def create_rule(rule_spec, section_id = @one_section_id)
+            File.open('/tmp/nsxt_dfw_specs_arg.debug', 'a'){|f| f.write(rule_spec)}
+            File.open('/tmp/nsxt_dfw_specs_arg.debug', 'a'){|f| f.write("\n")}
             # Get revision from section
             section = section_by_id(section_id)
             unless section
@@ -157,6 +159,9 @@ module NSXDriver
             revision_id = section['_revision']
             rule_spec['_revision'] = revision_id
             rule_spec = rule_spec.to_json
+            File.open('/tmp/nsxt_dfw_specs.debug', 'a'){|f| f.write(rule_spec)}
+            File.open('/tmp/nsxt_dfw_specs.debug', 'a'){|f| f.write("\n")}
+
             url = @url_sections + '/' + section_id + '/rules'
             result = @nsx_client.post(url, rule_spec)
             raise 'Error creating DFW rule' unless result
@@ -184,7 +189,7 @@ module NSXDriver
         end
 
         # Remove OpenNebula created fw rules for an instance (given a template)
-        def clear_opennebula_rules(template)
+        def clear_opennebula_rules(template, nsx_nics)
             template_xml = Nokogiri::XML(template)
 
             # OpenNebula Instance IDs
@@ -192,10 +197,9 @@ module NSXDriver
             vm_deploy_id = template_xml.xpath('//DEPLOY_ID').text
 
             # Clean rules
-            nics = template_xml.xpath('//TEMPLATE/NIC[ATTACH="YES"]')
-            return unless nics
+            return if nsx_nics.empty?
 
-            nics.each do |nic|
+            nsx_nics.each do |nic|
                 nic_id = nic.xpath('NIC_ID').text
                 network_id = nic.xpath('NETWORK_ID').text
                 sec_groups = nic.xpath('SECURITY_GROUPS').text.split(',')

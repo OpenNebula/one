@@ -52,7 +52,39 @@ module NSXDriver
                 :direction => rule[:direction]
             }
 
-            # Modify default rule spec based on rule_data extracted from vm template
+            rule_protocol_template = {
+                'TCP' => {
+                    :service => {
+                        :l4_protocol => 'TCP',
+                        :source_ports => [],
+                        :destination_ports => [],
+                        :resource_type => 'L4PortSetNSService'
+                    }
+                },
+                'UDP' => {
+                    :service => {
+                        :l4_protocol => 'UDP',
+                        :source_ports => [],
+                        :destination_ports => [],
+                        :resource_type => 'L4PortSetNSService'
+                    }
+                },
+                'ICMP' => {
+                    :service => {
+                        :protocol => 'ICMPv4',
+                        :resource_type => 'ICMPTypeNSService'
+                    }
+                },
+                'ICMPv6' => {
+                    :service => {
+                        :protocol => 'ICMPv6',
+                        :resource_type => 'ICMPTypeNSService'
+                    }
+                }
+            }
+
+            # Modify default rule spec based on rule_data extracted
+            # from vm template
 
             ###### SOURCES / DESTINATIONS: Any | IP Address | Vnet #####
             networks_array = []
@@ -68,14 +100,11 @@ module NSXDriver
                 }
 
             # Target network: Manual network (IP Address)
-            elsif rule[:ip] != "" && rule[:size] != ""
-                networks = to_nets(rule[:ip], rule[:ipsize].to_i)
-                raise 'Networks are empty due to invalid ip size' if networks.empty?
-
-                networks.each do |network|
+            elsif !rule[:subnets].empty?
+                rule[:subnets].each do |subnet|
                     networks_array << {
-                        :target_id => network,
-                        :target_display_name => network,
+                        :target_id => subnet,
+                        :target_display_name => subnet,
                         :target_type => 'IPAddress',
                         :is_valid => true
                     }
@@ -85,25 +114,35 @@ module NSXDriver
             # (OpenNebula) INBOUND  => Destination (NSX)
             # (OpenNebula) OUTBOUND => Source (NSX)
             unless networks_array.empty?
-                rule_spec[:sources] = networks_array if rule[:direction] == 'IN'
-                rule_spec[:destinations] = networks_array if rule[:direction] == 'OUT'
+                rule_spec[:sources] = networks_array \
+                    if rule[:direction] == 'IN'
+                rule_spec[:destinations] = networks_array \
+                    if rule[:direction] == 'OUT'
             end
 
             ##### SERVICES #####
             services = []
-            service = NSXDriver::NSXConstants::NSXT_RULE_PROTOCOL[rule[:protocol]]
+            service = nil
+            service = rule_protocol_template[rule[:protocol]]
+
+            File.open('/tmp/nsxt_rule_service.debug', 'a'){|f| f.write(service)}
+
 
             case rule[:protocol]
             when 'TCP'
-                service[:service][:source_ports] = rule[:ports] if rule[:direction] == 'IN'
-                service[:service][:destination_ports] = rule[:ports] if rule[:direction] == 'OUT'
+                service[:service][:source_ports] = rule[:ports] \
+                    if rule[:direction] == 'IN'
+                service[:service][:destination_ports] = rule[:ports] \
+                    if rule[:direction] == 'OUT'
             when 'UDP'
-                service[:service][:source_ports] = rule[:ports] if rule[:direction] == 'IN'
-                service[:service][:destination_ports] = rule[:ports] if rule[:direction] == 'OUT'
-            when 'ICMP'
-            when 'ICMPv6'
-            when 'IPSEC'
-            when 'ALL'
+                service[:service][:source_ports] = rule[:ports] \
+                    if rule[:direction] == 'IN'
+                service[:service][:destination_ports] = rule[:ports] \
+                    if rule[:direction] == 'OUT'
+            # when 'ICMP'
+            # when 'ICMPv6'
+            # when 'IPSEC'
+            # when 'ALL'
             end
 
             if rule[:protocol] != 'ALL' && !service.nil?

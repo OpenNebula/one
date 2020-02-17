@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+
+require 'ipaddr'
+
 module NSXDriver
 
     # Class Logical Switch
@@ -39,7 +42,80 @@ module NSXDriver
             end
         end
 
+        def to_nets(ip_start, size)
+            nets = Array.new
+
+            begin
+                ipaddr = IPAddr.new ip_start
+            rescue
+                return
+            end
+
+            ip_i = ipaddr.to_i
+
+            if ipaddr.ipv4?
+                ip_length = 32
+            elsif ipaddr.ipv6?
+                ip_length = 128
+            else
+                return
+            end
+
+            # Find the largest address block (look for the first 1-bit)
+            lblock = 0
+
+            lblock += 1 while (ip_i[lblock] == 0 && lblock < ip_length )
+
+            # Allocate whole blocks till the size fits
+            while ( size >= 2**lblock )
+                nets << "#{IPAddr.new(ip_i, ipaddr.family).to_s}/#{ip_length-lblock}"
+
+                ip_i += 2**lblock
+                size -= 2**lblock
+
+                lblock += 1 while (ip_i[lblock] == 0 && lblock < ip_length )
+            end
+
+            # Fit remaining address blocks
+            ip_length.downto(0) { |i|
+                next if size[i] == 0
+
+                nets << "#{IPAddr.new(ip_i, ipaddr.family).to_s}/#{ip_length-i}"
+
+                ip_i += 2**i
+            }
+
+            return nets
+        end
+
+        def extract_vnet_data(vnet_id)
+            if vnet_id == ''
+                return {
+                    :nsxid => '',
+                    :name => ''
+                }
+            end
+            # Create client to communicate with OpenNebula
+            one_client = OpenNebula::Client.new
+            # Get the network XML from OpenNebula
+            # This is potentially different from the Netowrk Template
+            # provided as the API call argument
+            one_vnet = OpenNebula::VirtualNetwork.new_with_id(vnet_id, one_client)
+            rc = one_vnet.info
+            if OpenNebula.is_error?(rc)
+                err_msg = rc.message
+                raise CreateNetworkError, err_msg
+            end
+            vnet_data = {
+                :nsxid => one_vnet['TEMPLATE/NSX_ID'],
+                :name => one_vnet['NAME']
+            }
+            vnet_data
+        end
+
         def extract_rule_data(xml_rule)
+            File.open('/tmp/nsx_rule_xml_rule.debug', 'a'){|f| f.write(xml_rule)}
+
             sg_id = xml_rule.xpath('SECURITY_GROUP_ID').text
             sg_name = xml_rule.xpath('SECURITY_GROUP_NAME').text
             sg_direction = (xml_rule.xpath('RULE_TYPE').text.upcase) == 'INBOUND' ? 'IN' : 'OUT'
@@ -55,6 +131,10 @@ module NSXDriver
             # ip / netmask
             sg_ip = xml_rule.xpath('IP').text
             sg_ipsize = xml_rule.xpath('SIZE').text
+            sg_subnets = []
+            if sg_ip != "" && sg_ipsize != ""
+                sg_subnets = to_nets(sg_ip, sg_ipsize.to_i)
+            end
             # Ports
             sg_ports = ""
             sg_range_port = xml_rule.xpath('RANGE').text
@@ -78,10 +158,11 @@ module NSXDriver
                 :network_id => sg_network_id,
                 :network_name => vnet_data[:name],
                 :network_nsxid => vnet_data[:nsxid],
-                :ip => sg_ip,
-                :ipsize => sg_ipsize,
+                :subnets => sg_subnets,
                 :ports => sg_ports.split(',')
             }
+            File.open('/tmp/nsx_rule_data.debug', 'a'){|f| f.write(rule_data)}
+
 
             rule_data
         end

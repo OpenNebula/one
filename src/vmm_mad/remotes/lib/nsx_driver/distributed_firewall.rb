@@ -79,8 +79,134 @@ module NSXDriver
         # Delete rule
         def delete_rule; end
 
+        def extract_nic_data(nic, nsx_client, vm)
+            # Network attributes
+            nic_id = nic.xpath('NIC_ID').text
+            nic_lp = nil
+            network_id = nic.xpath('NETWORK_ID').text
+            network_vcref = nic.xpath('VCENTER_NET_REF').text
+            network_pgtype = nic.xpath('VCENTER_PORTGROUP_TYPE').text
+            network_mac = nic.xpath('MAC').text
+
+            # Virtual Machine devices
+            vm_devices = vm.item.config.hardware.device
+            vm_devices.each do |device|
+                next unless vm.is_nic?(device)
+
+                next if device.macAddress != network_mac
+
+                case network_pgtype
+                when NSXDriver::NSXConstants::NSXT_LS_TYPE
+                    lpid = device.externalId
+                    nic_lp = NSXDriver::LogicalPort.new_child(nsx_client, lpid)
+                    raise "Logical port with id: #{lpid} nor found" unless nic_lp
+                    # target_id => id
+                    # target_display_name => display_name
+                    # target_type => resource_type
+                when NSXDriver::NSXConstants::NSXV_LS_TYPE
+                    device.backing.port.portGroupKey
+                else
+                    error_msg = "Network type is: #{network_pgtype} \
+                                    and should be \
+                                    #{NSXDriver::NSXConstants::NSXT_LS_TYPE} \
+                                    or #{NSXDriver::NSXConstants::NSXV_LS_TYPE}"
+                    error = NSXDriver::NSXError::UnknownObject.new(error_msg)
+                    STDERR.puts error_msg
+                    raise error
+                end
+            end
+
+            nic_data = {
+                :id => nic_id,
+                :network_id => network_id,
+                :network_vcref => network_vcref,
+                :lp => nic_lp
+            }
+
+            nic_data
+        end
+
+        # Create OpenNebula fw rules for an instance (given a template)
+        def create_opennebula_rules(deploy_id, template, nsx_nics)
+            return if nsx_nics.empty?
+
+            template_xml = Nokogiri::XML(template)
+
+            # OpenNebula host
+            host_name = template_xml
+                        .xpath('//HISTORY_RECORDS/HISTORY[last()]/HOSTNAME')
+                        .text
+            one_host = VCenterDriver::VIHelper
+                       .find_by_name(OpenNebula::HostPool, host_name)
+            rc = one_host.info
+            if OpenNebula.is_error?(rc)
+                err_msg = rc.message
+                raise err_msg
+            end
+            host_id = one_host['ID']
+
+            # OpenNebula VM
+            one_vm = VCenterDriver::VIHelper
+                     .one_item(OpenNebula::VirtualMachine, deploy_id)
+
+            vm_data = {
+                :id => template_xml.xpath('//VM/ID').text,
+                :deploy_id => deploy_id
+            }
+
+            # vCenter VirtualMachine
+            vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+            vm = VCenterDriver::VirtualMachine
+                 .new_one(vi_client, deploy_id, one_vm)
+
+            # NSX Objects needed
+            nsx_rule = NSXDriver::NSXRule.new_child(@nsx_client)
+
+            # Create rules for each NSX Nic
+            nsx_nics.each do |nic|
+                # Extract NIC data
+                nic_data = extract_nic_data(nic, @nsx_client, vm)
+                # Get all Security Groups belonging to each NIC.
+                sec_groups = nic.xpath('SECURITY_GROUPS').text.split(',')
+                sec_groups.each do |sec_group|
+                    sg_rules_array = []
+                    # Get all rules belonging to this Security Group.
+                    xp = "//SECURITY_GROUP_RULE[SECURITY_GROUP_ID=#{sec_group}]"
+                    sg_rules = template_xml.xpath(xp)
+                    File.open('/tmp/dfw_sg_rules.debug', 'a'){|f| f.write(sg_rules)}
+                    sg_rules.each do |sg_rule|
+
+                        # Create rules spec
+                        rule_data = nsx_rule.extract_rule_data(sg_rule)
+                        rule_spec = nsx_rule.create_rule_spec(rule_data,
+                                                              vm_data,
+                                                              nic_data)
+
+                        File.open('/tmp/dfw_rule_specs.debug', 'a'){|f| f.write(rule_spec)}
+                        File.open('/tmp/dfw_rule_specs.debug', 'a'){|f| f.write("\n")}
+
+                        sg_rules_array.push(rule_spec)
+                    end
+                    # Create NSX rules
+                    File.open('/tmp/dfw_sg_rules_array.debug', 'w'){|f| f.write(sg_rules_array)}
+
+                    sg_rules_array.each do |sg_spec|
+                        begin
+                            create_rule(sg_spec)
+                        rescue StandardError => e
+                            STDERR.puts e.message
+                            STDERR.puts e.backtrace \
+                                if VCenterDriver::CONFIG[:debug_information]
+                            clear_opennebula_rules(template, nsx_nics)
+                            exit 1
+                        end
+                    end
+                end
+            end
+        end
+
         # Remove OpenNebula created fw rules for an instance (given a template)
-        def clear_opennebula_rules(template); end
+        def clear_opennebula_rules(template, nsx_nics); end
 
     end
 

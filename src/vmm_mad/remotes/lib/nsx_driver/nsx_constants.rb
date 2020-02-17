@@ -106,10 +106,7 @@ module NSXDriver
                     :protocol => 'ICMPv6',
                     :resource_type => 'ICMPTypeNSService'
                 }
-            },
-            'IPSEC' => {
-            },
-            'ALL' => nil
+            }
         }
         NSXV_RULE_BASE = 'xxx'
         # Logical Ports
