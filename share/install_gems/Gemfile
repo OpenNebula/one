@@ -61,7 +61,11 @@ gem 'amazon-ec2'                          # cloud
 gem 'uuidtools'                           # cloud
 gem 'curb'                                # cloud
 gem 'configparser'                        # hybrid
-gem 'azure'                               # hybrid
+gem 'azure_mgmt_compute'                  # hybrid
+gem 'azure_mgmt_monitor'                  # hybrid
+gem 'azure_mgmt_network'                  # hybrid
+gem 'azure_mgmt_resources'                # hybrid
+gem 'azure_mgmt_storage'                  # hybrid
 gem 'rbvmomi', '~> 2.2.0'                 # vmware
 gem 'parse-cron'                          # oneflow
 gem 'aws-sdk', '~> 2.5'                   # ec2_hybrid

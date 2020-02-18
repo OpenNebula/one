@@ -47,7 +47,6 @@ require 'scripts_common'
 require 'VirtualMachineDriver'
 require 'opennebula'
 
-require 'azure'
 require 'azure_mgmt_compute'
 require 'azure_mgmt_monitor'
 require 'azure_mgmt_network'
