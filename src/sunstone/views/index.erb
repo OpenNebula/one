@@ -45,7 +45,8 @@
             'vnc_proxy_port' : '<%= $vnc.proxy_port %>',
             'vnc_client_port' : '<%= $conf[:vnc_client_port] %>',
             'allow_vnc_federation' : '<%= (!$conf[:allow_vnc_federation].nil?)? $conf[:allow_vnc_federation] : "no" %>',
-            'max_upload_file_size' : <%= $conf[:max_upload_file_size] ? $conf[:max_upload_file_size] : "undefined" %>
+            'max_upload_file_size' : <%= $conf[:max_upload_file_size] ? $conf[:max_upload_file_size] : "undefined" %>,
+            'leases' : <%= $conf[:leases] ? $conf[:leases].to_json : "null" %>
         },
         'view' : view,
         'available_views' : available_views,

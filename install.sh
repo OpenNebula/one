@@ -1945,7 +1945,9 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onevcenter_helper.rb \
                    src/cli/one_helper/onemarket_helper.rb \
                    src/cli/one_helper/onevntemplate_helper.rb \
-                   src/cli/one_helper/onehook_helper.rb"
+                   src/cli/one_helper/onehook_helper.rb \
+                   src/cli/one_helper/oneflow_helper.rb \
+                   src/cli/one_helper/oneflowtemplate_helper.rb"
 
 CLI_BIN_FILES="src/cli/onevm \
                src/cli/onehost \
@@ -2250,7 +2252,8 @@ ONEFLOW_LIB_FILES="src/flow/lib/grammar.rb \
                     src/flow/lib/log.rb \
                     src/flow/lib/models.rb \
                     src/flow/lib/strategy.rb \
-                    src/flow/lib/validator.rb"
+                    src/flow/lib/validator.rb \
+                    src/flow/lib/EventManager.rb"
 
 ONEFLOW_LIB_STRATEGY_FILES="src/flow/lib/strategy/straight.rb"
 

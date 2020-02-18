@@ -113,16 +113,16 @@ define(function(require) {
         $(".name", context).text(template_json.DOCUMENT.NAME);
 
         $("#instantiate_service_user_inputs", context).empty();
-
         UserInputs.serviceTemplateInsert(
           $("#instantiate_service_user_inputs", context),
-          template_json);
+          template_json, {
+            select_networks: true
+          });
 
         n_roles = template_json.DOCUMENT.TEMPLATE.BODY.roles.length;
         n_roles_done = 0;
 
         var total_cost = 0;
-
         $.each(template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
           var div_id = "user_input_role_"+index;
 
@@ -140,30 +140,31 @@ define(function(require) {
             success: function (request, vm_template_json){
               that.vm_template_json = vm_template_json;
               $("#"+div_id, context).empty();
-
-              if (role.vm_template_contents){
+              //if (role.vm_template_contents){
                 roleTemplate = TemplateUtils.stringToTemplate(role.vm_template_contents);
-                var append = roleTemplate.APPEND.split(",");
-                $.each(append, function(key, value){
-                  if (!that.vm_template_json.VMTEMPLATE.TEMPLATE[value]){
-                    that.vm_template_json.VMTEMPLATE.TEMPLATE[value] = roleTemplate[value];
-                  } else {
-                    if (!Array.isArray(that.vm_template_json.VMTEMPLATE.TEMPLATE[value])){
-                      that.vm_template_json.VMTEMPLATE.TEMPLATE[value] = [that.vm_template_json.VMTEMPLATE.TEMPLATE[value]];
-                    }
-                    if (Array.isArray(roleTemplate[value])){
-                      $.each(roleTemplate[value], function(rkey, rvalue){
-                        that.vm_template_json.VMTEMPLATE.TEMPLATE[value].push(rvalue);
-                      });
+                if(roleTemplate && roleTemplate.APPEND){
+                  var append = roleTemplate.APPEND.split(",");
+                  $.each(append, function(key, value){
+                    if (!that.vm_template_json.VMTEMPLATE.TEMPLATE[value]){
+                      that.vm_template_json.VMTEMPLATE.TEMPLATE[value] = roleTemplate[value];
                     } else {
-                      that.vm_template_json.VMTEMPLATE.TEMPLATE[value].push(roleTemplate[value]);
+                      if (!Array.isArray(that.vm_template_json.VMTEMPLATE.TEMPLATE[value])){
+                        that.vm_template_json.VMTEMPLATE.TEMPLATE[value] = [that.vm_template_json.VMTEMPLATE.TEMPLATE[value]];
+                      }
+                      if (Array.isArray(roleTemplate[value])){
+                        $.each(roleTemplate[value], function(rkey, rvalue){
+                          that.vm_template_json.VMTEMPLATE.TEMPLATE[value].push(rvalue);
+                        });
+                      } else {
+                        that.vm_template_json.VMTEMPLATE.TEMPLATE[value].push(roleTemplate[value]);
+                      }
                     }
-                  }
-                  delete roleTemplate[value];
-                });
-                delete roleTemplate.APPEND;
+                    delete roleTemplate[value];
+                  });
+                  delete roleTemplate.APPEND;
+                }
                 $.extend(true, that.vm_template_json.VMTEMPLATE.TEMPLATE, roleTemplate);
-              }
+              //}
               if (vm_template_json.VMTEMPLATE.TEMPLATE["MEMORY_COST"] && vm_template_json.VMTEMPLATE.TEMPLATE["MEMORY_UNIT_COST"] && vm_template_json.VMTEMPLATE.TEMPLATE["MEMORY_UNIT_COST"] === "GB") {
                 vm_template_json.VMTEMPLATE.TEMPLATE["MEMORY_COST"] = vm_template_json.VMTEMPLATE.TEMPLATE["MEMORY_COST"]*1024;
               }
@@ -227,11 +228,43 @@ define(function(require) {
     var extra_info = {
       "merge_template": {}
     };
-
     var tmp_json = WizardFields.retrieve($("#instantiate_service_user_inputs", context));
+    
 
-    extra_info.merge_template.custom_attrs_values = tmp_json;
+    var network_values = [];
+    var prefix = "type_";
+    var networks = Object.keys(tmp_json).filter(function(k) {
+      return k.indexOf('type_') == 0;
+    }).reduce(function(newData, k) {
+      var key = "id";
+      switch (tmp_json[k]) {
+        case "create":
+          key = "template_id";
+        break;
+        case "reserve":
+          key = "reserve_from";
+        break;
+        default:
+        break;
+      }
+      var internal = {};
+      internal[k.replace(prefix,"")] = {};
+      internal[k.replace(prefix,"")][key] = tmp_json[k.replace(prefix,"")];
+      if(tmp_json[k] === "create" || tmp_json[k] === "reserve"){
+        internal[k.replace(prefix,"")].extra = tmp_json["extra_"+k.replace(prefix,"")];
+      }
+      newData[k.replace(prefix,"")] = internal;
+      return newData;
+    }, {});
 
+    //parse to array
+    Object.keys(networks).map(function(key_network){
+      network_values.push(networks[key_network]);
+    });
+
+    //extra_info.merge_template.custom_attrs_values = tmp_json; //OLD
+    extra_info.merge_template.custom_attrs_values = {};
+    extra_info.merge_template.networks_values = network_values;
     extra_info.merge_template.roles = [];
 
     $.each(that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){

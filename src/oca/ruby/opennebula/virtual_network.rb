@@ -252,6 +252,12 @@ module OpenNebula
             return @client.call(VN_METHODS[:reserve], @pe_id, rtmpl)
         end
 
+        def reserve_with_extra(extra)
+            return Error.new('ID not defined') unless @pe_id
+
+            @client.call(VN_METHODS[:reserve], @pe_id, extra)
+        end
+
         # Removes an Address Range from the VirtualNetwork
         def free(ar_id)
             return Error.new('ID not defined') if !@pe_id
