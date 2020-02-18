@@ -200,7 +200,7 @@ class AzureDriver
     end
 
     # Get the info of all Aure instances. An Azure instance must have
-    # a name compliant with the "one-####" format, where #### are intengers
+    # a name compliant with the "one-####" format, where #### are integers
     def monitor_all_vms
         totalmemory = 0
         totalcpu    = 0
