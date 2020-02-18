@@ -290,7 +290,6 @@ define(function(require) {
           nics.push(this);
         }
       });
-      debugger
 
       tmp_json.NIC = nics;
       tmp_json.NIC_ALIAS = alias;
