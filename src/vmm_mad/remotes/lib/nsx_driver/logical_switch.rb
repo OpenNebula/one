@@ -59,7 +59,7 @@ module NSXDriver
             else
                 nics = template_xml.xpath('//TEMPLATE/NIC')
             end
-            new_nics = []
+            nics_array = []
             nics.each do |nic|
                 network_id = nic.xpath('NETWORK_ID').text
                 # Check Networks exists
@@ -71,11 +71,11 @@ module NSXDriver
                     raise err_msg
                 end
                 pg_type = one_vnet['TEMPLATE/VCENTER_PORTGROUP_TYPE']
-                new_nics << nic if [NSXDriver::NSXConstants::NSXV_LS_TYPE,
-                                             NSXDriver::NSXConstants::NSXT_LS_TYPE]
-                                            .include?(pg_type)
+                nics_array << nic if [NSXDriver::NSXConstants::NSXV_LS_TYPE,
+                                      NSXDriver::NSXConstants::NSXT_LS_TYPE]
+                                     .include?(pg_type)
             end
-            new_nics
+            nics_array
         end
 
     end

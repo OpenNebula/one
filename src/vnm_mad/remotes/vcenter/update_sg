@@ -16,8 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-File.open('/tmp/updatesg.debug', 'w'){|f| f.write("UPDATESG")}
-
 # Define libraries location
 ONE_LOCATION = ENV['ONE_LOCATION']
 
@@ -67,13 +65,18 @@ end
 # NSX Objects
 nsx_client = NSXDriver::NSXTClient.new_from_id(one_host['ID'])
 dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
-ls = NSXDriver::LogicalSwitch.new(nsx_client)
-# Get allattached NSX Nics
-nsx_nics = ls.nsx_nics(template_xml, false)
+begin
+    dfw.clear_opennebula_rules(template)
+    dfw.create_opennebula_rules(deploy_id, template)
+rescue StandardError => e
+    OpenNebula::log_error("Error updating security groups " +
+        "due to \"#{e.message}\"" +
+        "\n********* STACK TRACE *********\n" +
+        "\t#{e.backtrace.join("\n\t")}" +
+        "\n*******************************\n")
 
-unless nsx_nics.empty?
-    dfw.clear_opennebula_rules(template, nsx_nics)
-    dfw.create_opennebula_rules(deploy_id, template, nsx_nics)
+    OpenNebula.error_message("Error updating security groups: #{e.message}")
+    exit 1
 end
 
 exit 0

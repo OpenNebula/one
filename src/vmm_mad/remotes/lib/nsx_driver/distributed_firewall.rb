@@ -99,7 +99,7 @@ module NSXDriver
                 when NSXDriver::NSXConstants::NSXT_LS_TYPE
                     lpid = device.externalId
                     nic_lp = NSXDriver::LogicalPort.new_child(nsx_client, lpid)
-                    raise "Logical port with id: #{lpid} nor found" unless nic_lp
+                    raise "Logical port id: #{lpid} not found" unless nic_lp
                     # target_id => id
                     # target_display_name => display_name
                     # target_type => resource_type
@@ -127,9 +127,7 @@ module NSXDriver
         end
 
         # Create OpenNebula fw rules for an instance (given a template)
-        def create_opennebula_rules(deploy_id, template, nsx_nics)
-            return if nsx_nics.empty?
-
+        def create_opennebula_rules(deploy_id, template)
             template_xml = Nokogiri::XML(template)
 
             # OpenNebula host
@@ -161,6 +159,17 @@ module NSXDriver
 
             # NSX Objects needed
             nsx_rule = NSXDriver::NSXRule.new_child(@nsx_client)
+            ls = NSXDriver::LogicalSwitch.new(@nsx_client)
+
+            # Search NSX Nics
+            # First try to search only new attached NSX Nics
+            nsx_nics = ls.nsx_nics(template_xml, true)
+            if nsx_nics.empty?
+                # Second try to search any NSX Nics
+                nsx_nics = ls.nsx_nics(template_xml, false)
+            end
+            # If there is no NSX Nics
+            return if nsx_nics.empty?
 
             # Create rules for each NSX Nic
             nsx_nics.each do |nic|
@@ -173,7 +182,6 @@ module NSXDriver
                     # Get all rules belonging to this Security Group.
                     xp = "//SECURITY_GROUP_RULE[SECURITY_GROUP_ID=#{sec_group}]"
                     sg_rules = template_xml.xpath(xp)
-                    File.open('/tmp/dfw_sg_rules.debug', 'a'){|f| f.write(sg_rules)}
                     sg_rules.each do |sg_rule|
 
                         # Create rules spec
@@ -181,15 +189,9 @@ module NSXDriver
                         rule_spec = nsx_rule.create_rule_spec(rule_data,
                                                               vm_data,
                                                               nic_data)
-
-                        File.open('/tmp/dfw_rule_specs.debug', 'a'){|f| f.write(rule_spec)}
-                        File.open('/tmp/dfw_rule_specs.debug', 'a'){|f| f.write("\n")}
-
                         sg_rules_array.push(rule_spec)
                     end
                     # Create NSX rules
-                    File.open('/tmp/dfw_sg_rules_array.debug', 'w'){|f| f.write(sg_rules_array)}
-
                     sg_rules_array.each do |sg_spec|
                         begin
                             create_rule(sg_spec)
@@ -198,7 +200,6 @@ module NSXDriver
                             STDERR.puts e.backtrace \
                                 if VCenterDriver::CONFIG[:debug_information]
                             clear_opennebula_rules(template, nsx_nics)
-                            exit 1
                         end
                     end
                 end
@@ -206,7 +207,50 @@ module NSXDriver
         end
 
         # Remove OpenNebula created fw rules for an instance (given a template)
-        def clear_opennebula_rules(template, nsx_nics); end
+        def clear_opennebula_rules(template)
+            template_xml = Nokogiri::XML(template)
+            File.open('/tmp/dfw_clear_template.debug', 'w'){|f| f.write(template_xml)}
+            # OpenNebula Instance IDs
+            vm_id = template_xml.xpath('//VM/ID').text
+            vm_deploy_id = template_xml.xpath('//DEPLOY_ID').text
+
+            # Search NSX Nics
+            ls = NSXDriver::LogicalSwitch.new(@nsx_client)
+            # First try to search only new attached NSX Nics
+            nsx_nics = ls.nsx_nics(template_xml, true)
+            if nsx_nics.empty?
+                # Second try to search any NSX Nics
+                nsx_nics = ls.nsx_nics(template_xml, false)
+            end
+
+            File.open('/tmp/dfw_clear_nsx_nics.debug', 'w'){|f| f.write(nsx_nics)}
+
+            # If there is no NSX Nics
+            return if nsx_nics.empty?
+
+            nsx_nics.each do |nic|
+                nic_id = nic.xpath('NIC_ID').text
+                # network_id = nic.xpath('NETWORK_ID').text
+                sec_groups = nic.xpath('SECURITY_GROUPS').text.split(',')
+                sec_groups.each do |sec_group|
+                    xp = "//SECURITY_GROUP_RULE[SECURITY_GROUP_ID=#{sec_group}]"
+                    sg_rules = template_xml.xpath(xp)
+                    File.open('/tmp/dfw_clear_sg_rules.debug', 'a'){|f| f.write(sg_rules)}
+                    sg_rules.each do |sg_rule|
+                        sg_id = sg_rule.xpath('SECURITY_GROUP_ID').text
+                        sg_name = sg_rule.xpath('SECURITY_GROUP_NAME').text
+                        rule_name = "#{sg_id}-#{sg_name}-#{vm_id}-#{vm_deploy_id}-#{nic_id}"
+                        File.open('/tmp/dfw_clear_rules_name.debug', 'a'){|f| f.write(rule_name)}
+                        rules = rules_by_name(rule_name, @one_section_id)
+                        File.open('/tmp/dfw_clear_rules.debug', 'a'){|f| f.write(rules)}
+                        rules.each do |rule|
+                            delete_rule(rule['id'], @one_section_id) if rule
+                        end
+                    end
+                end
+            end
+
+        end
 
     end
 

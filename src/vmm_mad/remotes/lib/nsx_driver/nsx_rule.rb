@@ -114,8 +114,6 @@ module NSXDriver
         end
 
         def extract_rule_data(xml_rule)
-            File.open('/tmp/nsx_rule_xml_rule.debug', 'a'){|f| f.write(xml_rule)}
-
             sg_id = xml_rule.xpath('SECURITY_GROUP_ID').text
             sg_name = xml_rule.xpath('SECURITY_GROUP_NAME').text
             sg_direction = (xml_rule.xpath('RULE_TYPE').text.upcase) == 'INBOUND' ? 'IN' : 'OUT'
@@ -161,8 +159,6 @@ module NSXDriver
                 :subnets => sg_subnets,
                 :ports => sg_ports.split(',')
             }
-            File.open('/tmp/nsx_rule_data.debug', 'a'){|f| f.write(rule_data)}
-
 
             rule_data
         end

@@ -122,11 +122,7 @@ module NSXDriver
 
             ##### SERVICES #####
             services = []
-            service = nil
             service = rule_protocol_template[rule[:protocol]]
-
-            File.open('/tmp/nsxt_rule_service.debug', 'a'){|f| f.write(service)}
-
 
             case rule[:protocol]
             when 'TCP'

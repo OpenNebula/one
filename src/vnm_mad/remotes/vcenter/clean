@@ -16,8 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-File.open('/tmp/clean.debug', 'w'){|f| f.write("CLEAN")}
-
 # Define libraries location
 ONE_LOCATION = ENV['ONE_LOCATION']
 
@@ -64,22 +62,18 @@ end
 
 # Check if the network attached to all nics are ok
 nsx_client = NSXDriver::NSXClient.new_from_id(one_host['ID'])
-ls = NSXDriver::LogicalSwitch.new(nsx_client)
-# Get only new attached NSX Nics
-nsx_nics = ls.nsx_nics(template_xml, true)
 
 # If there isn't any nsx network skip this and exit 0
 # If there is at least a nsx network, then check NSX_STATUS and
 # do a clean
-unless nsx_nics.empty?
-    # Exit if NSX_STATUS != OK
-    nsx_status = one_host['TEMPLATE/NSX_STATUS']
-    err_msg = "There is NSX networks and NSX_STATUS is not OK"
-    raise err_msg unless nsx_status == 'OK'
-    # NSX Actions
-    dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
-    # Clear rules
-    dfw.clear_opennebula_rules(template, nsx_nics)
-end
+
+# Exit if NSX_STATUS != OK
+nsx_status = one_host['TEMPLATE/NSX_STATUS']
+err_msg = "There is NSX networks and NSX_STATUS is not OK"
+raise err_msg unless nsx_status == 'OK'
+# NSX Actions
+dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
+# Clear rules
+dfw.clear_opennebula_rules(template)
 
 exit 0

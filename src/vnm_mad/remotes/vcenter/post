@@ -16,8 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-File.open('/tmp/post.debug', 'w'){|f| f.write("POST")}
-
 # Define libraries location
 ONE_LOCATION = ENV['ONE_LOCATION']
 
@@ -72,8 +70,8 @@ ls = NSXDriver::LogicalSwitch.new(nsx_client)
 nsx_nics = ls.nsx_nics(template_xml, false)
 
 unless nsx_nics.empty?
-    dfw.clear_opennebula_rules(template, nsx_nics)
-    dfw.create_opennebula_rules(deploy_id, template, nsx_nics)
+    dfw.clear_opennebula_rules(template)
+    dfw.create_opennebula_rules(deploy_id, template)
 end
 
 exit 0
