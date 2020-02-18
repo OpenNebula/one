@@ -128,7 +128,8 @@ class AzureDriver
     # DEPLOY action
     def deploy(id, host, xml_text, lcm_state, deploy_id)
         @rgroup = create_rgroup(@rgroup_name, @region) \
-            unless @resource_client.resource_groups.check_existence(@rgroup_name)
+            unless @resource_client.resource_groupsi
+                   .check_existence(@rgroup_name)
 
         if lcm_state == 'BOOT' || lcm_state == 'BOOT_FAILURE'
             @defaults = load_default_template_values
@@ -144,7 +145,8 @@ class AzureDriver
 
             subnet = get_or_create_vnet(id, az_info)
 
-            instance = create_vm(id, subnet, public_ip, az_info, context['SSH_PUBLIC_KEY'])
+            instance = create_vm(id, subnet, public_ip,
+                                 az_info, context['SSH_PUBLIC_KEY'])
 
             puts instance.name # print DEPLOY_ID
         else
@@ -208,7 +210,8 @@ class AzureDriver
         capacity = @xmlhost.to_hash['HOST']['TEMPLATE']['CAPACITY']
 
         if capacity.nil? || !capacity.is_a?(Hash)
-            raise 'You must define CAPACITY section properly! check the template'
+            raise 'You must define CAPACITY section properly! '\
+                  'Check the VM template'
         end
 
         capacity.each do |name, value|
@@ -232,7 +235,8 @@ class AzureDriver
         work_q = Queue.new
 
         if @resource_client.resource_groups.check_existence(@rgroup_name)
-            @compute_client.virtual_machines.list(@rgroup_name).each {|i| work_q.push i }
+            @compute_client.virtual_machines
+                           .list(@rgroup_name).each {|i| work_q.push i }
             workers = (0...20).map do
                 Thread.new do
                     begin
