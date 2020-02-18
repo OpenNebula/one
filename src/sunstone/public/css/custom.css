@@ -209,3 +209,8 @@ meter {
   color: #8a8a8a;
   padding: 0.6em;
 }
+
+/* To resolve bug in foundation dropdown-pane */
+.dropdown-pane:not(.is-open) {
+  left: 0 !important;
+}
