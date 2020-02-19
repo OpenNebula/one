@@ -72,7 +72,7 @@ module OneDBPatch
                 ar_ar = ar.delete('AR')
 
                 @db[:network_pool].where(oid: ar_vn).each do |vn|
-                    doc = Nokogiri::XML(vn[:body],nil,NOKOGIRI_ENCODING)
+                    doc = nokogiri_doc(vn[:body], 'network_pool')
                     doc_ar = doc.root.at_xpath("AR_POOL/AR[AR_ID=#{ar_ar}]")
 
                     ar['TYPE'] = 'IP4_6_STATIC'

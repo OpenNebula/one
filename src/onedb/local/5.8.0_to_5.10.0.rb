@@ -76,9 +76,7 @@ module Migrator
         db.transaction do
             # Add PREV_STATE to each host
             @db.fetch('SELECT * FROM old_host_pool') do |row|
-                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) do |c|
-                    c.default_xml.noblanks
-                end
+                doc = nokogiri_doc(row[:body], 'old_host_pool')
 
                 state = doc.xpath('//STATE').text
 

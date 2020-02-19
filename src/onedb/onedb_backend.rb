@@ -175,6 +175,18 @@ class OneDBBacKEnd
         return @db
     end
 
+    def nokogiri_doc(body, table = nil)
+        nk_enconding = NOKOGIRI_ENCODING
+
+        unless table.nil?
+            nk_enconding = get_table_enconding(table)
+        end
+
+        Nokogiri::XML(body, nil, nk_enconding) do |c|
+            c.default_xml.noblanks
+        end
+    end
+
     private
 
     def db_exists?

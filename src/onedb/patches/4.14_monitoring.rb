@@ -59,7 +59,7 @@ EOT
             # Move monitoring attributes in VM pool table, only for VMs in DONE
 
             @db.fetch("SELECT * FROM vm_pool WHERE state=6") do |row|
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+                doc = nokogiri_doc(row[:body], 'vm_pool')
 
                 update_monitoring(doc.root.at_xpath("/VM"))
 
@@ -75,7 +75,7 @@ EOT
 
             @db.transaction do
             @db.fetch("SELECT * FROM history WHERE etime<>0") do |row|
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+                doc = nokogiri_doc(row[:body], 'history')
 
                 elem = doc.root.at_xpath("/HISTORY/VM")
                 if !elem.nil?
