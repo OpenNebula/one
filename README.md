@@ -90,7 +90,7 @@ Then install the following packages:
   install expat libraries with its development files and install xmlparser
   using gem:
 
-        $ sudo gem install xmlparser --no-ri --no-rdoc
+        $ sudo gem install xmlparser --no-document
 
   Note the extra parameters to gem install. Some versions of xmlparser have
   problems building the documentation and we can use it without documentation
@@ -98,7 +98,7 @@ Then install the following packages:
 
 * **ruby ox**, fast xml parsing library:
 
-        $ sudo gem install ox --no-ri --no-rdoc
+        $ sudo gem install ox --no-document
 
 
 ### Building
