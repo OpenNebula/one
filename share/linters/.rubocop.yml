@@ -574,9 +574,6 @@ Style/StringLiterals:
 Style/SignalException:
     EnforcedStyle: only_raise
 
-Style/BracesAroundHashParameters:
-    EnforcedStyle: context_dependent
-
 Style/ConditionalAssignment:
     EnforcedStyle: assign_inside_condition
 
@@ -644,6 +641,15 @@ Style/SymbolProc:
 
 # TODO: Remove this whenever there is strenght to do so
 Style/StderrPuts:
+    Enabled: false
+
+Style/HashEachMethods:
+    Enabled: false
+
+Style/HashTransformKeys:
+    Enabled: false
+
+Style/HashTransformValues:
     Enabled: false
 
 #This breaks Ruby 1.9
