@@ -285,28 +285,12 @@ module Service
         exit_code = 0
 
         ids.each do |id|
-            response = block.call(id) if block_given?
+            response = block.call(id)
 
             if CloudClient::is_error?(response)
                 puts response.to_s
                 exit_code = response.code.to_i
             end
-        end
-
-        exit_code
-    end
-
-    # Perform an action on a resource
-    # @param [Integer] id resource id
-    # @param [Block] block action to be performed
-    # @return [Integer] exit_code
-    def self.perform_action(id, &block)
-        exit_code = 0
-        response  = block.call(id) if block_given?
-
-        if CloudClient::is_error?(response)
-            puts response.to_s
-            exit_code = response.code.to_i
         end
 
         exit_code

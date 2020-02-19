@@ -74,8 +74,9 @@ define(function(require) {
 
     $(".instantiate_wrapper", context).hide();
 
-    this.templatesTable.idInput().off("change").on("change", function(){
+    this.templatesTable.idInput().on("change", function(){
       $(".instantiate_wrapper", context).show();
+
       var template_id = $(this).val();
       that.setTemplateId(context, template_id);
     });

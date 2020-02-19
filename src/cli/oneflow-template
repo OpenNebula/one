@@ -33,18 +33,124 @@ end
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 
-require 'json'
-require 'English'
-
 require 'command_parser'
 require 'opennebula/oneflow_client'
+require 'English'
 require 'cli_helper'
-require 'one_helper/oneflowtemplate_helper'
+require 'one_helper'
+
+require 'json'
 
 USER_AGENT = 'CLI'
 
 # Base Path representing the resource to be used in the requests
 RESOURCE_PATH = '/service_template'
+
+#
+# Table
+#
+
+TABLE = CLIHelper::ShowTable.new(nil, self) do
+    column :ID, 'ID', :size => 10 do |d|
+        d['ID']
+    end
+
+    column :USER, 'Username', :left, :size => 15 do |d|
+        d['UNAME']
+    end
+
+    column :GROUP, 'Group', :left, :size => 15 do |d|
+        d['GNAME']
+    end
+
+    column :NAME, 'Name', :left, :size => 37 do |d|
+        d['NAME']
+    end
+
+    default :ID, :USER, :GROUP, :NAME
+end
+
+# Show the service template information. This method is used in top and
+# show commands
+# @param [Service::Client] client
+# @param [Array] args
+# @param [Hash] options
+# @return [[Integer, String], Integer] Returns the exit_code and optionally
+#   a String to be printed
+def show_service_template(client, args, options)
+    response = client.get("#{RESOURCE_PATH}/#{args[0]}")
+
+    if CloudClient.is_error?(response)
+        [response.code.to_i, response.to_s]
+    else
+        # [0,response.body]
+        if options[:json]
+            [0, response.body]
+        else
+            str = '%-20s: %-20s'
+            str_h1 = '%-80s'
+
+            document_hash = JSON.parse(response.body)
+            template = document_hash['DOCUMENT']['TEMPLATE']['BODY']
+
+            CLIHelper.print_header(str_h1 %
+                "SERVICE TEMPLATE #{document_hash['DOCUMENT']['ID']} "\
+                'INFORMATION')
+
+            puts Kernel.format str, 'ID',   document_hash['DOCUMENT']['ID']
+            puts Kernel.format str, 'NAME', document_hash['DOCUMENT']['NAME']
+            puts Kernel.format str, 'USER', document_hash['DOCUMENT']['UNAME']
+            puts Kernel.format str, 'GROUP', document_hash['DOCUMENT']['GNAME']
+
+            puts
+
+            CLIHelper.print_header(str_h1 % 'PERMISSIONS', false)
+
+            %w[OWNER GROUP OTHER].each do |e|
+                mask = '---'
+                permissions_hash = document_hash['DOCUMENT']['PERMISSIONS']
+                mask[0] = 'u' if permissions_hash["#{e}_U"] == '1'
+                mask[1] = 'm' if permissions_hash["#{e}_M"] == '1'
+                mask[2] = 'a' if permissions_hash["#{e}_A"] == '1'
+
+                puts Kernel.format str, e, mask
+            end
+
+            puts
+
+            CLIHelper.print_header(str_h1 % 'TEMPLATE CONTENTS', false)
+            puts JSON.pretty_generate(template)
+
+            0
+        end
+    end
+end
+
+# List the services. This method is used in top and list commands
+# @param [Service::Client] client
+# @param [Hash] options
+# @return [[Integer, String], Integer] Returns the exit_code and optionally
+#   a String to be printed
+def list_service_templates(client, options)
+    response = client.get(RESOURCE_PATH)
+
+    if CloudClient.is_error?(response)
+        [response.code.to_i, response.to_s]
+    else
+        # [0,response.body]
+        if options[:json]
+            [0, response.body]
+        else
+            array_list = JSON.parse(response.body)
+            TABLE.show(array_list['DOCUMENT_POOL']['DOCUMENT'])
+            0
+        end
+    end
+end
+
+#
+# Commands
+#
 
 CommandParser::CmdParser.new(ARGV) do
     usage '`oneflow-template` <command> [<args>] [<options>]'
@@ -54,12 +160,9 @@ CommandParser::CmdParser.new(ARGV) do
     set :option, CommandParser::VERSION
     set :option, CommandParser::HELP
 
-    # create helper object
-    helper = OneFlowTemplateHelper.new
-
-    ############################################################################
+    #
     # Formatters for arguments
-    ############################################################################
+    #
     set :format, :groupid, OpenNebulaHelper.rname_to_id_desc('GROUP') do |arg|
         OpenNebulaHelper.rname_to_id(arg, 'GROUP')
     end
@@ -78,7 +181,9 @@ CommandParser::CmdParser.new(ARGV) do
         Service.list_to_id(arg, 'SERVICE TEMPLATE')
     end
 
-    ###
+    #
+    # List
+    #
 
     list_desc = <<-EOT.unindent
         List the available Service Templates
@@ -92,10 +197,12 @@ CommandParser::CmdParser.new(ARGV) do
             :user_agent => USER_AGENT
         )
 
-        helper.list_service_template_pool(client, options)
+        list_service_templates(client, options)
     end
 
-    ###
+    #
+    # Top
+    #
 
     top_desc = <<-EOT.unindent
         List the available Service Templates continuously
@@ -112,29 +219,30 @@ CommandParser::CmdParser.new(ARGV) do
             :user_agent => USER_AGENT
         )
 
-        Signal.trap('INT') { exit(-1) }
+        options[:delay] ? delay = options[:delay] : delay = 3
 
-        helper.top_service_template_pool(client, options)
+        begin
+            loop do
+                CLIHelper.scr_cls
+                CLIHelper.scr_move(0, 0)
+
+                rc, message = list_service_templates(client, options)
+
+                if rc != 0
+                    raise message
+                end
+
+                sleep delay
+            end
+        rescue StandardError => e
+            puts e.message
+            -1
+        end
     end
 
-    ###
-
-    show_desc = <<-EOT.unindent
-        Show detailed information of a given Service Template
-    EOT
-
-    command :show, show_desc, :templateid, :options => Service::JSON_FORMAT do
-        client = Service::Client.new(
-            :username => options[:username],
-            :password => options[:password],
-            :url => options[:server],
-            :user_agent => USER_AGENT
-        )
-
-        helper.format_resource(client, args[0], options)
-    end
-
-    ###
+    #
+    # Create
+    #
 
     create_desc = <<-EOT.unindent
         Create a new Service Template
@@ -163,7 +271,28 @@ CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    ###
+    #
+    # Show
+    #
+
+    show_desc = <<-EOT.unindent
+        Show detailed information of a given Service Template
+    EOT
+
+    command :show, show_desc, :templateid, :options => Service::JSON_FORMAT do
+        client = Service::Client.new(
+            :username => options[:username],
+            :password => options[:password],
+            :url => options[:server],
+            :user_agent => USER_AGENT
+        )
+
+        show_service_template(client, args, options)
+    end
+
+    #
+    # Delete
+    #
 
     delete_desc = <<-EOT.unindent
         Delete a given Service Template
@@ -182,7 +311,9 @@ CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    ###
+    #
+    # Instantiate
+    #
 
     instantiate_desc = <<-EOT.unindent
         Instantiate a Service Template
@@ -220,8 +351,6 @@ CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    ###
-
     chgrp_desc = <<-EOT.unindent
         Changes the service template group
     EOT
@@ -243,8 +372,6 @@ CommandParser::CmdParser.new(ARGV) do
             client.post("#{RESOURCE_PATH}/#{service_id}/action", json_action)
         end
     end
-
-    ###
 
     chown_desc = <<-EOT.unindent
         Changes the service template owner and group
@@ -270,8 +397,6 @@ CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    ###
-
     chmod_desc = <<-EOT.unindent
         Changes the service template permissions
     EOT
@@ -293,8 +418,6 @@ CommandParser::CmdParser.new(ARGV) do
             client.post("#{RESOURCE_PATH}/#{service_id}/action", json_action)
         end
     end
-
-    ###
 
     clone_desc = <<-EOT.unindent
         Creates a new Service Template from an existing one
@@ -329,8 +452,6 @@ CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    ###
-
     rename_desc = <<-EOT.unindent
         Renames the Service Template
     EOT
@@ -357,8 +478,6 @@ CommandParser::CmdParser.new(ARGV) do
             response.code.to_i
         end
     end
-
-    ###
 
     update_desc = <<-EOT.unindent
         Update the template contents. If a path is not provided the editor will

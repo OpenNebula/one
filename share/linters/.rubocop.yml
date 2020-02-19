@@ -557,7 +557,8 @@ AllCops:
     - src/flow/lib/models.rb
     - src/flow/lib/validator.rb
     - src/flow/lib/strategy/straight.rb
-    - src/flow/lib/EventManager.rb
+    - src/flow/oneflow-server.rb
+
 
 ########
 # LAYOUT

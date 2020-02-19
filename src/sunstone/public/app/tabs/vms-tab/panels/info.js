@@ -20,7 +20,6 @@ define(function(require) {
    */
 
   var Locale = require("utils/locale");
-  var Leases = require("utils/leases");
   var Humanize = require("utils/humanize");
   var RenameTr = require("utils/panel/rename-tr");
   var PermissionsTable = require("utils/panel/permissions-table");
@@ -53,9 +52,11 @@ define(function(require) {
   function Panel(info) {
     this.title = Locale.tr("Info");
     this.icon = "fa-info-circle";
+
     this.element = info[XML_ROOT];
+
     return this;
-  }
+  };
 
   Panel.PANEL_ID = PANEL_ID;
   Panel.prototype.html = _html;
@@ -140,8 +141,7 @@ define(function(require) {
       "templateTableVcenterHTML": templateTableVcenterHTML,
       "templateTableHTML": templateTableHTML,
       "monitoringTableContentHTML": monitoringTableContentHTML,
-      "vrouterHTML": vrouterHTML,
-      "leases": Leases.html()
+      "vrouterHTML": vrouterHTML
     });
   }
 
@@ -167,7 +167,7 @@ define(function(require) {
     if($.isEmptyObject(strippedTemplateVcenter)){
       $(".vcenter", context).hide();
     }
-    Leases.actions(that,'vm','update');
+
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, unshownValues, strippedTemplateVcenter);
     TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, unshownValues, strippedTemplate);
   }

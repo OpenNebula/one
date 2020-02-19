@@ -152,13 +152,9 @@ module OpenNebula
                     :required => true
                 },
                 'deployment' => {
-                    :type => :string,
-                    :enum => %w{none straight},
-                    :default => 'none'
-                },
-                'description' => {
-                    :type => :string,
-                    :default => ''
+                :type => :string,
+                :enum => %w{none straight},
+                :default => 'none'
                 },
                 'shutdown_action' => {
                     :type => :string,
@@ -172,37 +168,18 @@ module OpenNebula
                 },
                 'custom_attrs' => {
                     :type => :object,
-                    :properties => { },
-                    :required => false
-                },
-                'custom_attrs_values' => {
-                    :type => :object,
-                    :properties => { },
+                    :properties => {
+                    },
                     :required => false
                 },
                 'ready_status_gate' => {
                     :type => :boolean,
                     :required => false
-                },
-                'networks' => {
-                    :type => :object,
-                    :properties => { },
-                    :required => false
-                },
-                'networks_values' => {
-                    :type => :array,
-                    :items => {
-                        :type => :object,
-                        :properties => { }
-                    },
-                    :required => false
                 }
             }
         }
 
-        def self.init_default_vn_name_template(vn_name_template)
-            @@vn_name_template = vn_name_template
-        end
+
 
         DOCUMENT_TYPE = 101
 
@@ -235,7 +212,9 @@ module OpenNebula
             if append
                 rc = info
 
-                return rc if OpenNebula.is_error?(rc)
+                if OpenNebula.is_error? rc
+                    return rc
+                end
 
                 template = @body.merge(template)
             end
@@ -269,32 +248,7 @@ module OpenNebula
             validate_values(template)
         end
 
-        def instantiate(merge_template)
-            rc = nil
-
-            if merge_template.nil?
-                instantiate_template = JSON.parse(@body.to_json)
-            else
-                instantiate_template = JSON.parse(@body.to_json)
-                                           .merge(merge_template)
-            end
-
-            begin
-                ServiceTemplate.validate(instantiate_template)
-
-                xml     = OpenNebula::Service.build_xml
-                service = OpenNebula::Service.new(xml, @client)
-
-                rc = service.allocate(instantiate_template.to_json)
-            rescue Validator::ParseException, JSON::ParserError => e
-                return e
-            end
-
-            return rc if OpenNebula.is_error?(rc)
-
-            service.info
-            service
-        end
+    private
 
         def self.validate_values(template)
             parser = ElasticityGrammarParser.new
