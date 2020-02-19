@@ -227,6 +227,12 @@ module LXD
             memory
         end
 
+        def unindent(str)
+            m = str.match(/^(\s*)/)
+            spaces = m[1].size
+            str.gsub!(/^ {#{spaces}}/, '')
+        end
+
         def to_one(container)
             name     = container.name
             arch     = container.architecture
@@ -248,7 +254,7 @@ module LXD
             cpu = cpu.chomp('%').to_f / 100
             mem = parse_memory(mem)
 
-            template = <<~EOT
+            unindent(<<-EOT)
                 NAME="#{name}"
                 CPU=#{cpu}
                 VCPU=#{vcpu}
@@ -257,7 +263,6 @@ module LXD
                 IMPORT_VM_ID="#{name}"
                 OS=[ARCH="#{arch}"]
             EOT
-            template
         end
 
     end
