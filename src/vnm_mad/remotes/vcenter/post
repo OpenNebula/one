@@ -46,6 +46,12 @@ require 'opennebula'
 require 'vcenter_driver'
 require 'nsx_driver'
 
+def modified?(template)
+    template_xml = Nokogiri::XML(template)
+    action = template_xml.xpath('//TEMPLATE/NIC[ATTACH="YES"]')
+    action.empty? ? false : true
+end
+
 template = Base64.decode64(STDIN.read)
 deploy_id = ARGV[0]
 
@@ -66,12 +72,22 @@ end
 nsx_client = NSXDriver::NSXTClient.new_from_id(one_host['ID'])
 dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
 ls = NSXDriver::LogicalSwitch.new(nsx_client)
-# Get all attached NSX Nics
-nsx_nics = ls.nsx_nics(template_xml, false)
 
+# Get all modified or all NSX Nics
+is_modified = modified?(template)
+nsx_nics = ls.nsx_nics(template_xml, is_modified)
 unless nsx_nics.empty?
-    dfw.clear_opennebula_rules(template)
-    dfw.create_opennebula_rules(deploy_id, template)
+    begin
+        dfw.create_opennebula_rules(deploy_id, template, is_modified)
+    rescue StandardError => e
+        OpenNebula::log_error("Error creating Security Group rules " +
+            "due to \"#{e.message}\"" +
+            "\n********* STACK TRACE *********\n" +
+            "\t#{e.backtrace.join("\n\t")}" +
+            "\n*******************************\n")
+        OpenNebula.error_message("Error creating ")
+        exit 1
+    end
 end
 
 exit 0

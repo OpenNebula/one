@@ -47,14 +47,12 @@ require 'vcenter_driver'
 require 'nsx_driver'
 
 template = Base64.decode64(STDIN.read)
-deploy_id = ARGV[0]
-
 template_xml = Nokogiri::XML(template)
 
+# Check Host exists
 host_name = template_xml
             .xpath('//HISTORY_RECORDS/HISTORY[last()]/HOSTNAME').text
 
-# Check Host exists
 one_host = VCenterDriver::VIHelper
            .find_by_name(OpenNebula::HostPool, host_name)
 rc = one_host.info
@@ -63,23 +61,12 @@ if OpenNebula.is_error?(rc)
     raise err_msg
 end
 
-
-# Check if the network attached to all nics are ok
-nsx_client = NSXDriver::NSXClient.new_from_id(one_host['ID'])
-
-# If there isn't any nsx network skip this and exit 0
-# If there is at least a nsx network, then check NSX_STATUS and
-# do a clean
-
-# Exit if NSX_STATUS != OK
+# Exit with error if NSX_STATUS != OK
 nsx_status = one_host['TEMPLATE/NSX_STATUS']
-err_msg = "There is NSX networks and NSX_STATUS is not OK"
-STDERR.puts err_msg
-exit 1 unless nsx_status == 'OK'
-raise err_msg unless nsx_status == 'OK'
-# NSX Actions
-dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
-# Clear rules
-dfw.clear_opennebula_rules(template)
+unless nsx_status == 'OK'
+    OpenNebula::log_error("NSX_STATUS is not OK")
+    OpenNebula.error_message("NSX_STATUS is not OK")
+    exit 1
+end
 
 exit 0

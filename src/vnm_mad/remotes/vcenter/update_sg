@@ -46,9 +46,14 @@ require 'opennebula'
 require 'vcenter_driver'
 require 'nsx_driver'
 
+def modified?(template)
+    template_xml = Nokogiri::XML(template)
+    action = template_xml.xpath('//TEMPLATE/NIC[ATTACH="YES"]')
+    action.empty? ? false : true
+end
+
 template = Base64.decode64(STDIN.read)
 deploy_id = ARGV[0]
-
 template_xml = Nokogiri::XML(template)
 
 # OpenNebula host
@@ -66,8 +71,8 @@ end
 nsx_client = NSXDriver::NSXTClient.new_from_id(one_host['ID'])
 dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
 begin
-    dfw.clear_opennebula_rules(template)
-    dfw.create_opennebula_rules(deploy_id, template)
+    dfw.clear_vm_rules(template, false)
+    dfw.create_opennebula_rules(deploy_id, template, false)
 rescue StandardError => e
     OpenNebula::log_error("Error updating security groups " +
         "due to \"#{e.message}\"" +

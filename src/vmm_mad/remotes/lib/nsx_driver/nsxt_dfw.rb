@@ -144,6 +144,21 @@ module NSXDriver
             result
         end
 
+        # Get rule by name
+        # Return an array with rules
+        def rules_by_regex(regex, section_id = @one_section_id)
+            result = []
+            return result unless section_id
+
+            all_rules = rules(section_id)
+            return result unless all_rules
+
+            all_rules['results'].each do |rule|
+                result << rule if rule['display_name'].match(regex)
+            end
+            result
+        end
+
         # Create new rule
         def create_rule(rule_spec, section_id = @one_section_id)
             # Get revision from section
