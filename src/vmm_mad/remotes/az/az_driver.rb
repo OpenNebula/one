@@ -127,7 +127,7 @@ class AzureDriver
     # DEPLOY action
     def deploy(id, host, xml_text, lcm_state, deploy_id)
         @rgroup = create_rgroup(@rgroup_name, @region) \
-            unless @resource_client.resource_groupsi
+            unless @resource_client.resource_groups
                    .check_existence(@rgroup_name)
 
         if lcm_state == 'BOOT' || lcm_state == 'BOOT_FAILURE'
@@ -419,11 +419,24 @@ class AzureDriver
     def create_vm(id, subnet, public_ip, az_info, ssh_public_key)
         vm_name = "one-#{id}"
 
+        if az_info['SECURITY_GROUP']
+            security_group = @network_client.network_security_groups.get(@rgroup_name, az_info['SECURITY_GROUP'])
+        end
+
+        if az_info['PROXIMITY_GROUP']
+            proximity_group = @compute_client.proximity_placement_groups.get(@rgroup_name, az_info['PROXIMITY_GROUP'])
+        end
+
+        if az_info['AVAILABILITY_SET']
+            availability_set = @compute_client.availability_sets.get(@rgroup_name, az_info['AVAILABILITY_SET'])
+        end
+
         nic = @network_client.network_interfaces.create_or_update(
             @rgroup_name,
             "#{vm_name}-nic",
             NetworkModels::NetworkInterface.new.tap do |interface|
                 interface.location = @region
+                interface.network_security_group = security_group if security_group
                 interface.ip_configurations = [
                     NetworkModels::NetworkInterfaceIPConfiguration.new.tap do |nic_conf|
                         nic_conf.name = "#{vm_name}-nic"
@@ -443,6 +456,9 @@ class AzureDriver
                 os_profile.admin_username = az_info['VM_USER']
                 os_profile.admin_password = az_info['VM_PASSWORD']
             end
+
+            vm.proximity_placement_groups = proximity_group if proximity_group
+            vm.availability_set = availability_set if availability_set
 
             vm.storage_profile = ComputeModels::StorageProfile.new.tap do |store_profile|
                 store_profile.image_reference = ComputeModels::ImageReference.new.tap do |ref|
@@ -552,7 +568,7 @@ class AzureDriver
 
             if location.nil?
                 az = @defaults.merge public_cloud
-            elsif location == @region_name.downcase
+            elsif location == @region.downcase
                 az = @defaults.merge public_cloud
                 break
             end
@@ -568,7 +584,7 @@ class AzureDriver
         # If LOCATION not explicitly defined, try to get from host, if not
         # try to use hostname as datacenter
         if !az['LOCATION']
-            az['LOCATION'] = @region_name || @defaults['LOCATION'] || host
+            az['LOCATION'] = @region || @defaults['LOCATION'] || host
         end
 
         context = xml.retrieve_xmlelements('/VM/TEMPLATE/CONTEXT')
