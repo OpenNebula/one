@@ -84,6 +84,7 @@ end
 # Updates container configuration with the OpenNebulaVM description
 # ------------------------------------------------------------------------------
 container.config.update('user.xml' => xml)
+container.transition_end
 container.update
 
 container.vnc('start')

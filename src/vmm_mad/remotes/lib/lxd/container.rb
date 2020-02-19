@@ -208,12 +208,7 @@ class Container
     def start(options = {})
         OpenNebula.log '--- Starting container ---'
 
-        operation = change_state(__method__, options)
-
-        transition_end
-        update
-
-        operation
+        change_state(__method__, options)
     end
 
     def stop(options = { :timeout => 120 })
@@ -263,12 +258,12 @@ class Container
             start
 
             config['user.reboot_state'] = 'RUNNING'
-            transition_start
+            transition_end # container reached a final state
         else
             check_stop(force)
 
             config['user.reboot_state'] = 'STOPPED'
-            transition_end
+            transition_start # container will be started later
         end
 
         update
