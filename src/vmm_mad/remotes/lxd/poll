@@ -108,6 +108,8 @@ module LXD
         #  * 'stopped' container not running or in the process of shutting down.
         #  * 'failure' container have failed.
         def get_state(container)
+            return '-' if container.config['user.one_status'] == '0'
+
             begin
                 status = container.status.downcase
             rescue StandardError
@@ -121,8 +123,6 @@ module LXD
                 state = 'p'
             when 'stopped'
                 state = 'd'
-
-                state = '-' if container.config['user.one_status'] == '0'
             when 'failure'
                 state = 'e'
             else
@@ -227,6 +227,12 @@ module LXD
             memory
         end
 
+        def unindent(str)
+            m = str.match(/^(\s*)/)
+            spaces = m[1].size
+            str.gsub!(/^ {#{spaces}}/, '')
+        end
+
         def to_one(container)
             name     = container.name
             arch     = container.architecture
@@ -248,16 +254,15 @@ module LXD
             cpu = cpu.chomp('%').to_f / 100
             mem = parse_memory(mem)
 
-            template = <<EOT
-NAME="#{name}"
-CPU=#{cpu}
-VCPU=#{vcpu}
-MEMORY=#{mem}
-HYPERVISOR="lxd"
-IMPORT_VM_ID="#{name}"
-OS=[ARCH="#{arch}"]
-EOT
-            template
+            unindent(<<-EOT)
+                NAME="#{name}"
+                CPU=#{cpu}
+                VCPU=#{vcpu}
+                MEMORY=#{mem}
+                HYPERVISOR="lxd"
+                IMPORT_VM_ID="#{name}"
+                OS=[ARCH="#{arch}"]
+            EOT
         end
 
     end
