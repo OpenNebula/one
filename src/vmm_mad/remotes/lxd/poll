@@ -108,6 +108,8 @@ module LXD
         #  * 'stopped' container not running or in the process of shutting down.
         #  * 'failure' container have failed.
         def get_state(container)
+            return '-' if container.config['user.one_status'] == '0'
+
             begin
                 status = container.status.downcase
             rescue StandardError
@@ -121,8 +123,6 @@ module LXD
                 state = 'p'
             when 'stopped'
                 state = 'd'
-
-                state = '-' if container.config['user.one_status'] == '0'
             when 'failure'
                 state = 'e'
             else
