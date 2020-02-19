@@ -227,8 +227,8 @@ class Container
 
         begin
             stop(:force => force)
-        rescue => exception
-            OpenNebula.log_error "LXD Error: #{exception}"
+        rescue => e
+            OpenNebula.log_error "LXD Error: #{e}"
 
             real_status = 'Unknown'
 
@@ -243,8 +243,8 @@ class Container
 
             begin
                 stop(:force => true) if real_status == 'Running'
-            rescue => exception
-                error = "LXD Error: Cannot shut down container #{exception}"
+            rescue => e
+                error = "LXD Error: Cannot shut down container #{e}"
 
                 OpenNebula.log_error error
             end
@@ -550,8 +550,9 @@ class Container
         when 'FILE', 'BLOCK'
 
             ds = @one.disk_source(disk)
+            cmd = "#{Mapper::COMMANDS[:file]} #{ds}"
 
-            rc, out, err = Command.execute("#{Mapper::COMMANDS[:file]} #{ds}", false)
+            rc, out, err = Command.execute(cmd, false)
 
             unless rc.zero?
                 OpenNebula.log_error("#{__method__} #{err}")

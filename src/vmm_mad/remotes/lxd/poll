@@ -248,15 +248,15 @@ module LXD
             cpu = cpu.chomp('%').to_f / 100
             mem = parse_memory(mem)
 
-            template = <<EOT
-NAME="#{name}"
-CPU=#{cpu}
-VCPU=#{vcpu}
-MEMORY=#{mem}
-HYPERVISOR="lxd"
-IMPORT_VM_ID="#{name}"
-OS=[ARCH="#{arch}"]
-EOT
+            template = <<~EOT
+                NAME="#{name}"
+                CPU=#{cpu}
+                VCPU=#{vcpu}
+                MEMORY=#{mem}
+                HYPERVISOR="lxd"
+                IMPORT_VM_ID="#{name}"
+                OS=[ARCH="#{arch}"]
+            EOT
             template
         end
 
