@@ -15,16 +15,16 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' unless defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = '/usr/share/one/gems' unless defined?(GEMS_LOCATION)
-    ETC_LOCATION      = '/etc/one/' unless defined?(ETC_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
+    ETC_LOCATION      ||= '/etc/one/'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' unless defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' unless defined?(GEMS_LOCATION)
-    ETC_LOCATION      = ONE_LOCATION + '/etc/' unless defined?(ETC_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
+    ETC_LOCATION      ||= ONE_LOCATION + '/etc/'
 end
 
 AZ_DRIVER_CONF = "#{ETC_LOCATION}/az_driver.conf"
@@ -128,9 +128,9 @@ class AzureDriver
     def deploy(id, host, xml_text, lcm_state, deploy_id)
         @rgroup = create_rgroup(@rgroup_name, @region) \
             unless @resource_client.resource_groups
-                   .check_existence(@rgroup_name)
+                                   .check_existence(@rgroup_name)
 
-        if lcm_state == 'BOOT' || lcm_state == 'BOOT_FAILURE'
+        if %w[BOOT BOOT_FAILURE].include?(lcm_state)
             @defaults = load_default_template_values
 
             az_info, context = get_deployment_info(host, xml_text)
@@ -248,13 +248,16 @@ class AzureDriver
                             poll_data = parse_poll(i, vm_state)
 
                             vm_template_to_one = vm_to_one(i)
-                            vm_template_to_one = Base64.encode64(vm_template_to_one).gsub("\n", '')
+                            vm_template_to_one = Base64
+                                                 .encode64(vm_template_to_one)
+                                                 .gsub("\n", '')
 
                             vms_info << "VM=[\n"
                             vms_info << "  ID=#{one_id || -1},\n"
                             vms_info << "  DEPLOY_ID=#{i.name},\n"
                             vms_info << "  VM_NAME=#{i.name},\n"
-                            vms_info << "  IMPORT_TEMPLATE=\"#{vm_template_to_one}\",\n"
+                            vms_info << '  IMPORT_TEMPLATE='\
+                                        "\"#{vm_template_to_one}\",\n"
                             vms_info << "  POLL=\"#{poll_data}\" ]\n"
 
                             next unless one_id
@@ -364,10 +367,13 @@ class AzureDriver
         # Network should already be created on azure
         if az_info['VIRTUAL_NETWORK_NAME']
             begin
-                vnet = @network_client.virtual_networks.get(@rgroup_name, az_info['VIRTUAL_NETWORK_NAME'])
-                return vnet.subnets[0]
+                vnets = @network_client.virtual_networks
+                                       .get(@rgroup_name,
+                                            az_info['VIRTUAL_NETWORK_NAME'])
+                vnets.subnets[0]
             rescue StandardError
-                raise "Could not find Azure network #{az_info['VIRTUAL_NETWORK_NAME']}"
+                raise 'Could not find Azure network '\
+                      "#{az_info['VIRTUAL_NETWORK_NAME']}"
             end
 
         # Create virtual network, read the defaults from VM template
@@ -399,7 +405,9 @@ class AzureDriver
                 vnet.tags = { 'ONE_ID' => id }
             end
 
-            vnet = @network_client.virtual_networks.create_or_update(@rgroup_name, name, vnet_create_params)
+            vnet = @network_client.virtual_networks
+                                  .create_or_update(@rgroup_name, name,
+                                                    vnet_create_params)
             vnet.subnets[0]
         end
     end
@@ -407,7 +415,8 @@ class AzureDriver
     def create_public_ip(id, ip_name)
         public_ip_params = NetworkModels::PublicIPAddress.new.tap do |ip|
             ip.location = @region
-            ip.public_ipallocation_method = NetworkModels::IPAllocationMethod::Dynamic
+            ip.public_ipallocation_method =
+                NetworkModels::IPAllocationMethod::Dynamic
             ip.tags = { 'ONE_ID' => id }
         end
         @network_client.public_ipaddresses.create_or_update(
@@ -416,8 +425,11 @@ class AzureDriver
     end
 
     # Create a Virtual Machine and return it
+    # rubocop:disable Layout/LineLength
     def create_vm(id, subnet, public_ip, az_info, ssh_public_key)
         vm_name = "one-#{id}"
+        net_ip_conf = NetworkModels::NetworkInterfaceIPConfiguration
+        ip_method   = NetworkModels::IPAllocationMethod::Dynamic
 
         if az_info['SECURITY_GROUP']
             security_group = @network_client.network_security_groups.get(@rgroup_name, az_info['SECURITY_GROUP'])
@@ -438,11 +450,12 @@ class AzureDriver
                 interface.location = @region
                 interface.network_security_group = security_group if security_group
                 interface.ip_configurations = [
-                    NetworkModels::NetworkInterfaceIPConfiguration.new.tap do |nic_conf|
+                    net_ip_conf.new.tap do |nic_conf|
                         nic_conf.name = "#{vm_name}-nic"
-                        nic_conf.private_ipallocation_method = NetworkModels::IPAllocationMethod::Dynamic
+                        nic_conf.private_ipallocation_method = ip_method
                         nic_conf.subnet = subnet
-                        nic_conf.public_ipaddress = public_ip unless public_ip.nil?
+                        nic_conf.public_ipaddress = public_ip \
+                            unless public_ip.nil?
                     end
                 ]
                 interface.tags = { 'ONE_ID' => id }
@@ -502,24 +515,29 @@ class AzureDriver
 
         @compute_client.virtual_machines.create_or_update(@rgroup_name, vm_name.to_s, vm_create_params)
     end
+    # rubocop:enable Layout/LineLength
 
     def delete_vm_resources(deploy_id)
         # delete nic
-        @network_client.network_interfaces.delete(@rgroup_name, "#{deploy_id}-nic")
+        @network_client.network_interfaces
+                       .delete(@rgroup_name, "#{deploy_id}-nic")
 
         # delet public_ip (if exists)
         begin
-            @network_client.public_ipaddresses.get(@rgroup_name, "#{deploy_id}-public-ip")
+            @network_client.public_ipaddresses
+                           .get(@rgroup_name, "#{deploy_id}-public-ip")
         rescue MsRestAzure::AzureOperationError
             nil
         else
-            @network_client.public_ipaddresses.delete(@rgroup_name, "#{deploy_id}-public-ip")
+            @network_client.public_ipaddresses
+                           .delete(@rgroup_name, "#{deploy_id}-public-ip")
         end
 
         vm_id = deploy_id.split('-').last
 
         # delete disk
-        @compute_client.disks.list_by_resource_group(@rgroup_name).each do |disk|
+        @compute_client.disks
+                       .list_by_resource_group(@rgroup_name).each do |disk|
             if disk.name.start_with?(deploy_id) && disk.tags['ONE_ID'] == vm_id
                 @compute_client.disks.delete(@rgroup_name, disk.name)
             end
@@ -535,9 +553,8 @@ class AzureDriver
         # if last instance was deleted, delete also the resource group
         vm_list = @compute_client.virtual_machines.list(@rgroup_name)
 
-        if vm_list.empty? && !@rgroup_keep_empty
-            @resource_client.resource_groups.delete(@rgroup_name)
-        end
+        @resource_client.resource_groups.delete(@rgroup_name) \
+                                      if vm_list.empty? && !@rgroup_keep_empty
     end
 
     # Get the associated capacity of the instance_type as cpu (in 100 percent
@@ -598,7 +615,6 @@ class AzureDriver
         )
         az_inst_view.statuses[-1].code.split('/').last
     end
-
 
     def get_cpu_num(instance)
         begin
@@ -669,7 +685,9 @@ class AzureDriver
 
     def get_instance_public_ip(vm_name)
         # poor check for public-ip address
-        addr = @network_client.public_ipaddresses.get(@rgroup_name, "#{vm_name}-public-ip") rescue nil
+        addr = @network_client
+               .public_ipaddresses
+               .get(@rgroup_name, "#{vm_name}-public-ip") rescue nil
         addr.ip_address if addr
     end
 
@@ -680,7 +698,8 @@ class AzureDriver
         return {} unless File.exist?(AZ_DRIVER_DEFAULT)
 
         # skip comments
-        az_default = File.readlines(AZ_DRIVER_DEFAULT).reject {|l| l =~ /^#/ }.join
+        az_default = File.readlines(AZ_DRIVER_DEFAULT)
+                         .reject {|l| l =~ /^#/ }.join
 
         az = OpenNebula::XMLElement.new
         az.initialize_xml(az_default, 'TEMPLATE')
