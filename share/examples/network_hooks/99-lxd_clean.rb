@@ -7,7 +7,6 @@ require 'open3'
 
 def clean_host_nic(veth)
     cmd = "ip link show #{veth}"
-
     _o, _e, s = Open3.capture3(cmd)
 
     return unless s == 0
@@ -15,9 +14,8 @@ def clean_host_nic(veth)
     cmd = "sudo ip link delete #{veth}"
     OpenNebula.log "Found lingering nic #{veth}\n Running #{cmd}"
 
-    o, e, _s = Open3.capture3(cmd)
-
-    OpenNebula.log "#{o}\n#{e}"
+    o, e, s = Open3.capture3(cmd)
+    OpenNebula.log "#{o}\n#{e}" unless s == 0
 end
 
 ###############
@@ -40,16 +38,13 @@ vm.nics.each do |nic|
     nics << nic
 end
 
-# Detect if hotplug or shutdown
-detach = nil
+# Detect if shutdown/reboot or nic hotplug calls vnm clean.
+# Assumes only 1 nic detachable at once.
 nics.each do |nic|
-    next unless nic[:nic][:attach] == 'YES'
-
-    detach = nic[:nic][:target]
+    if nic[:nic][:attach] == 'YES'
+        clean_host_nic(nic[:nic][:target])
+        exit 0
+    end
 end
 
-if detach # only clean detached nic
-    clean_host_nic(detach)
-else # clean all nics
-    nics.each {|nic| clean_host_nic(nic[:nic][:target]) }
-end
+nics.each {|nic| clean_host_nic(nic[:nic][:target]) }
