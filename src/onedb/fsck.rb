@@ -109,18 +109,6 @@ EOT
         FEDERATED_TABLES
     end
 
-    def nokogiri_doc(body, table = nil)
-        nk_enconding = NOKOGIRI_ENCODING
-
-        unless table.nil?
-            nk_enconding = get_table_enconding(table)
-        end
-
-        Nokogiri::XML(body, nil, nk_enconding) do |c|
-            c.default_xml.noblanks
-        end
-    end
-
     def add_element(elem, name)
         return elem.add_child(elem.document.create_element(name))
     end
@@ -626,7 +614,7 @@ EOT
         # No image found, so unable to get image TYPE
         return nil if row.nil?
 
-        image = Nokogiri::XML(row[:body], nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        image = nokogiri_doc(row[:body], 'image_pool')
         return image
     end
 
@@ -658,7 +646,7 @@ EOT
         # No image found, so unable to get image TYPE
         return nil if row.nil?
 
-        image = Nokogiri::XML(row[:body], nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        image = nokogiri_doc(row[:body], 'image_pool')
 
         return image
     end

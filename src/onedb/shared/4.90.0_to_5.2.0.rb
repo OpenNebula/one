@@ -37,7 +37,7 @@ module Migrator
 
     @db.transaction do
       @db.fetch("SELECT * FROM old_user_pool") do |row|
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        doc = nokogiri_doc(row[:body], 'old_user_pool')
 
         token_elem = doc.at_xpath("/USER/LOGIN_TOKEN")
 

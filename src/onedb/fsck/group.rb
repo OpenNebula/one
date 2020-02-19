@@ -8,9 +8,7 @@ module OneDBFsck
 
         @db.fetch('SELECT oid,body from group_pool') do |row|
             gid = row[:oid]
-            doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) do |c|
-                c.default_xml.noblanks
-            end
+            doc = nokogiri_doc(row[:body], 'group_pool')
 
             users_elem     = doc.root.at_xpath('USERS')
             users_new_elem = doc.create_element('USERS')

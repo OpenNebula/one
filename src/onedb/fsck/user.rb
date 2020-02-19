@@ -13,9 +13,7 @@ module OneDBFsck
         end
 
         @db.fetch('SELECT oid,body,gid,name FROM user_pool') do |row|
-            doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) do |c|
-                c.default_xml.noblanks
-            end
+            doc = nokogiri_doc(row[:body], 'user_pool')
 
             gid         = doc.root.at_xpath('GID').text.to_i
             auth_driver = doc.root.at_xpath('AUTH_DRIVER').text

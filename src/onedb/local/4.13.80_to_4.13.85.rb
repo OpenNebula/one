@@ -38,7 +38,7 @@ module Migrator
         end
 
         @db.fetch("SELECT * FROM old_user_quotas WHERE user_oid>0") do |row|
-          doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+          doc = nokogiri_doc(row[:body], 'old_user_quotas')
 
           calculate_quotas(doc, "uid=#{row[:user_oid]}", "User")
 
@@ -62,7 +62,7 @@ module Migrator
         end
 
         @db.fetch("SELECT * FROM old_group_quotas WHERE group_oid>0") do |row|
-          doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+          doc = nokogiri_doc(row[:body], 'old_group_quotas')
 
           calculate_quotas(doc, "gid=#{row[:group_oid]}", "Group")
 
@@ -80,7 +80,7 @@ module Migrator
       default_group_quotas = nil
 
       @db.fetch("SELECT * FROM system_attributes WHERE name = 'DEFAULT_USER_QUOTAS'") do |row|
-        default_user_quotas = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        default_user_quotas = nokogiri_doc(row[:body], 'system_attributes')
 
         vm_elem = default_user_quotas.root.at_xpath("VM_QUOTA/VM")
 
@@ -91,7 +91,7 @@ module Migrator
       end
 
       @db.fetch("SELECT * FROM system_attributes WHERE name = 'DEFAULT_GROUP_QUOTAS'") do |row|
-        default_group_quotas = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        default_group_quotas = nokogiri_doc(row[:body], 'system_attributes')
 
         vm_elem = default_group_quotas.root.at_xpath("VM_QUOTA/VM")
 
@@ -118,7 +118,7 @@ module Migrator
 
       @db.transaction do
         @db.fetch("SELECT * FROM old_host_pool") do |row|
-          doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+          doc = nokogiri_doc(row[:body], 'old_host_pool')
 
           doc.root.at_xpath("HOST_SHARE").add_child(doc.create_element("PCI_DEVICES"))
 
@@ -163,7 +163,7 @@ module Migrator
         sys_used = 0
 
         @db.fetch("SELECT body FROM vm_pool WHERE #{where_filter} AND state<>6") do |vm_row|
-            vmdoc = Nokogiri::XML(vm_row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+            vmdoc = nokogiri_doc(row[:body], 'vm_pool')
 
             vmdoc.root.xpath("TEMPLATE/DISK").each { |e|
                 type = ""

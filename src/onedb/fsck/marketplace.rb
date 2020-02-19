@@ -17,7 +17,7 @@ module OneDBFsck
         # DATA: check marketplace pool
         @db.fetch("SELECT oid,body FROM marketplace_pool") do |row|
             market_id = row[:oid]
-            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+            doc = nokogiri_doc(row[:body], 'marketplace_pool')
 
             apps_elem = doc.root.at_xpath("MARKETPLACEAPPS")
             apps_elem.remove if !apps_elem.nil?

@@ -24,9 +24,7 @@ module OneDBFsck
             query = "SELECT * FROM old_#{table} WHERE #{resource}_oid>0"
 
             @db.fetch(query) do |row|
-                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) do |c|
-                    c.default_xml.noblanks
-                end
+                doc = nokogiri_doc(row[:body], "old_#{table}")
 
                 # resource[0] = u if user, g if group
                 id_field = "#{resource[0]}id"
@@ -84,7 +82,7 @@ module OneDBFsck
         # Datastore quotas
         query = "SELECT body FROM image_pool WHERE #{filter}"
 
-        calculate_ds_quotas(doc, query, resource, datastore_usage)
+        calculate_ds_quotas(doc, 'image_pool', query, resource, datastore_usage)
     end
 
     # Calculate running quotas
@@ -107,20 +105,17 @@ module OneDBFsck
     # Calculate datastore quotas
     #
     # @param doc      [Nokogiri::XML] xml document with all information
+    # @param table    [String]        database table
     # @param query    [String]        database query
     # @param resource [String]        OpenNebula object
     # @param datastore_usage [Object] object with datastore usage information
-    def calculate_ds_quotas(doc, query, resource, datastore_usage)
+    def calculate_ds_quotas(doc, table, query, resource, datastore_usage)
         oid = doc.root.at_xpath('ID').text.to_i
 
         ds_usage = {}
 
         @db.fetch(query) do |img_row|
-            img_doc = Nokogiri::XML(img_row[:body],
-                                    nil,
-                                    NOKOGIRI_ENCODING) do |c|
-                c.default_xml.noblanks
-            end
+            img_doc = nokogiri_doc(img_row[:body], table)
 
             img_doc.root.xpath('DATASTORE_ID').each do |e|
                 ds_usage[e.text] = [0, 0] if ds_usage[e.text].nil?
@@ -442,11 +437,7 @@ module OneDBFsck
         end
 
         @db.fetch(queries[1]) do |vrouter_row|
-            vrouter_doc = Nokogiri::XML(vrouter_row[:body],
-                                        nil,
-                                        NOKOGIRI_ENCODING) do |c|
-                c.default_xml.noblanks
-            end
+            vrouter_doc = nokogiri_doc(vrouter_row[:body], 'vrouter_pool')
 
             vrouter_doc.root.xpath('TEMPLATE/NIC').each do |nic|
                 net_id = nil

@@ -4,7 +4,7 @@ module OneDBFsck
         templates_fix = @fixes_template = {}
 
         @db[:template_pool].each do |row|
-            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+            doc = nokogiri_doc(row[:body], 'template_pool')
 
             boot = doc.root.at_xpath("TEMPLATE/OS/BOOT")
 
