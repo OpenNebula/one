@@ -59,9 +59,7 @@ EOT
 
         @db.transaction do
             @db.fetch("SELECT * FROM image_pool") do |row|
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){
-                    |c| c.default_xml.noblanks
-                }
+                doc = nokogiri_doc(row[:body], 'image_pool')
 
                 next_snapshot = doc.at_xpath("//SNAPSHOTS/NEXT_SNAPSHOT")
 
@@ -92,9 +90,7 @@ EOT
             log_time()
 
             @db.fetch("SELECT * FROM vm_pool") do |row|
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){ |c|
-                    c.default_xml.noblanks
-                }
+                doc = nokogiri_doc(row[:body], 'vm_pool')
 
                 # evaluate each disk snapshot individually
                 doc.xpath("//SNAPSHOTS").each do |disk|

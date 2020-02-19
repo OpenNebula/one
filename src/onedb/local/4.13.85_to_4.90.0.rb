@@ -54,7 +54,7 @@ module Migrator
 
     @db.transaction do
       @db.fetch("SELECT * FROM old_host_pool") do |row|
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        doc = nokogiri_doc(row[:body], 'old_host_pool')
 
         cid_elem = doc.root.at_xpath("CLUSTER_ID")
         cid = cid_elem.text.to_i
@@ -93,7 +93,7 @@ module Migrator
 
     @db.transaction do
       @db.fetch("SELECT * FROM old_datastore_pool") do |row|
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        doc = nokogiri_doc(row[:body], 'old_datastore_pool')
 
         doc.root.at_xpath("CLUSTER").remove
 
@@ -139,7 +139,7 @@ module Migrator
 
     @db.transaction do
       @db.fetch("SELECT * FROM old_network_pool") do |row|
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        doc = nokogiri_doc(row[:body], 'old_network_pool')
 
         doc.root.at_xpath("CLUSTER").remove
 
@@ -185,7 +185,7 @@ module Migrator
     @db.transaction do
       @db.fetch("SELECT * FROM old_vm_pool") do |row|
         if row[:state] != 6
-          doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+          doc = nokogiri_doc(row[:body], 'old_vm_pool')
 
           cid = doc.root.at_xpath("HISTORY_RECORDS/HISTORY[last()]/CID").text.to_i rescue nil
 
@@ -257,7 +257,7 @@ module Migrator
 
     @db.transaction do
       @db.fetch("SELECT * FROM old_network_pool") do |row|
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        doc = nokogiri_doc(row[:body], 'old_network_pool')
 
         doc.root.add_child(doc.create_element("VROUTERS"))
 
@@ -283,7 +283,7 @@ module Migrator
 
     @db.transaction do
       @db.fetch("SELECT * FROM old_template_pool") do |row|
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        doc = nokogiri_doc(row[:body], 'old_template_pool')
 
         # Feature #3671
 
@@ -373,7 +373,7 @@ module Migrator
 
     @db.transaction do
       @db.fetch("SELECT * FROM old_image_pool") do |row|
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        doc = nokogiri_doc(row[:body], 'old_image_pool')
 
         doc.root.add_child(doc.create_element("APP_CLONES"))
 
@@ -402,7 +402,7 @@ module Migrator
 
     @db.transaction do
       @db.fetch("SELECT * FROM old_secgroup_pool") do |row|
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        doc = nokogiri_doc(row[:body], 'old_secgroup_pool')
 
         doc.root.at_xpath("VMS").name = "UPDATED_VMS"
         doc.root.add_child(doc.create_element("OUTDATED_VMS"))
@@ -430,7 +430,7 @@ module Migrator
     vms_with_fw = []
     @db.transaction do
       @db.fetch("SELECT * FROM vm_pool WHERE state != 6") do |row|
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        doc = nokogiri_doc(row[:body], 'vm_pool')
 
         has_fw_attrs = !doc.root.xpath("TEMPLATE/NIC[ICMP|WHITE_PORTS_TCP|WHITE_PORTS_UDP|BLACK_PORTS_TCP|BLACK_PORTS_UDP]").empty?
 
@@ -479,7 +479,7 @@ module Migrator
       @db.fetch("SELECT * FROM old_host_pool") do |row|
         do_disable = false
 
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        doc = nokogiri_doc(row[:body], 'old_host_pool')
 
         vm_mad = doc.root.at_xpath("VM_MAD").text
         im_mad = doc.root.at_xpath("IM_MAD").text
@@ -564,7 +564,7 @@ module Migrator
     net_vnmad = {}
     @db.transaction do
       @db.fetch("SELECT * FROM vm_pool WHERE state != 6") do |row|
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        doc = nokogiri_doc(row[:body], 'vm_pool')
         state = row[:state].to_i
 
         vnmads = Set.new
@@ -586,7 +586,7 @@ module Migrator
     cluster_vnmad = {}
     @db.transaction do
       @db.fetch("SELECT * FROM old_host_pool") do |row|
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        doc = nokogiri_doc(row[:body], 'old_host_pool')
 
         # Get cluster
         cluster_id = doc.root.xpath('CLUSTER_ID').text.to_i
@@ -630,7 +630,7 @@ module Migrator
     manual_intervention = false
     @db.transaction do
       @db.fetch("SELECT * FROM old_network_pool") do |row|
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        doc = nokogiri_doc(row[:body], 'old_network_pool')
 
         net_id   = row[:oid]
         net_name = row[:name]
@@ -783,7 +783,7 @@ module Migrator
 
     @db.transaction do
       @db.fetch("SELECT * FROM old_vm_pool") do |row|
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        doc = nokogiri_doc(row[:body], 'old_vm_pool')
         state = row[:state].to_i
 
         if state != 6
@@ -852,7 +852,7 @@ module Migrator
     cluster_vnc = {}
     @db.transaction do
       @db.fetch("SELECT * FROM vm_pool WHERE state != 6") do |row|
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        doc = nokogiri_doc(row[:body], 'vm_pool')
 
         port = doc.root.at_xpath('TEMPLATE/GRAPHICS[translate(TYPE,"vnc","VNC")="VNC"]/PORT').text.to_i rescue nil
         cluster_id = doc.root.at_xpath('HISTORY_RECORDS/HISTORY[last()]/CID').text.to_i rescue nil
@@ -908,7 +908,7 @@ module Migrator
     has_lvm = false
     @db.transaction do
       @db.fetch("SELECT * FROM old_datastore_pool") do |row|
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        doc = nokogiri_doc(row[:body], 'old_datastore_pool')
 
         ds_id   = row[:oid]
         ds_name = row[:name]

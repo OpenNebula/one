@@ -65,9 +65,9 @@ EOT
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_group_pool") do |row|
-                vdc_doc = Nokogiri::XML(EMPTY_VDC,nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+                vdc_doc = nokogiri_doc(row[:body], 'old_group_pool')
 
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+                doc = nokogiri_doc(row[:body], 'old_group_pool')
 
                 ["GROUP_ADMIN_VIEWS", "SUNSTONE_VIEWS", "DEFAULT_VIEW"].each do |elem_name|
                     elem = doc.at_xpath("/GROUP/TEMPLATE/#{elem_name}")
@@ -192,7 +192,7 @@ EOT
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_user_pool") do |row|
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+                doc = nokogiri_doc(row[:body], 'old_user_pool')
 
                 elem = doc.at_xpath("/USER/TEMPLATE/DEFAULT_VIEW")
 

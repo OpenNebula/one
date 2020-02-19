@@ -106,9 +106,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_host_pool") do |row|
-                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) { |c|
-                    c.default_xml.noblanks
-                }
+                doc = nokogiri_doc(row[:body], 'old_host_pool')
 
                 template = doc.root.at_xpath("TEMPLATE")
 
@@ -158,9 +156,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_host_pool") do |row|
-                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) { |c|
-                    c.default_xml.noblanks
-                }
+                doc = nokogiri_doc(row[:body], 'old_host_pool')
 
                 rcpu = xpath(doc, "TEMPLATE/RESERVED_CPU").to_i
                 rmem = xpath(doc, "TEMPLATE/RESERVED_MEM").to_i
@@ -197,9 +193,7 @@ module Migrator
         @db.transaction do
             @db.fetch("SELECT * FROM old_vm_pool") do |row|
 
-                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) { |c|
-                  c.default_xml.noblanks
-                }
+                doc = nokogiri_doc(row[:body], 'old_vm_pool')
 
                 doc.root.xpath("HISTORY_RECORDS/HISTORY").each do |h|
                     reason = h.xpath("REASON")
@@ -228,9 +222,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_history") do |row|
-                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) { |c|
-                    c.default_xml.noblanks
-                }
+                doc = nokogiri_doc(row[:body], 'old_history')
 
                 h = doc.root
 
@@ -281,9 +273,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_datastore_pool") do |row|
-                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) { |c|
-                    c.default_xml.noblanks
-                }
+                doc = nokogiri_doc(row[:body], 'old_datastore_pool')
 
                 type = xpath(doc, 'TYPE').to_i
                 tm_mad = xpath(doc, 'TM_MAD')
@@ -319,9 +309,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_zone_pool") do |row|
-                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) { |c|
-                    c.default_xml.noblanks
-                }
+                doc = nokogiri_doc(row[:body], 'old_zone_pool')
 
                 server_pool = doc.create_element "SERVER_POOL"
                 doc.root.add_child(server_pool)

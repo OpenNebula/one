@@ -87,7 +87,7 @@ EOT
         history_doc = nil
 
         @db.fetch("SELECT * FROM history WHERE vid = #{vid} AND seq = #{seq}") do |row|
-            history_doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+            history_doc = nokogiri_doc(row[:body], 'history')
 
             pphistory(history_doc)
 

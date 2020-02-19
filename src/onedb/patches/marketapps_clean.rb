@@ -58,7 +58,7 @@ EOT
 
         @db.transaction do
             @db.fetch("SELECT * FROM marketplace_pool") do |row|
-                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) { |c| c.default_xml.noblanks }
+                doc = nokogiri_doc(row[:body], 'marketplace_pool')
 
                 # only marketplaces with the MAD "one"
                 mad = doc.xpath("/MARKETPLACE/MARKET_MAD")

@@ -55,9 +55,7 @@ module Migrator
             raise "Host #{hid} not found in the OpenNebula DB" if !row[:body]
             xml = row[:body]
 
-            doc = Nokogiri::XML(xml, nil, NOKOGIRI_ENCODING) do |c|
-                c.default_xml.noblanks
-            end.root.at_xpath('/HOST/TEMPLATE')
+            doc = nokogiri_doc(xml, 'host_pool').root.at_xpath('/HOST/TEMPLATE')
 
             rp = doc.xpath("VCENTER_RESOURCE_POOL").first
             rp = rp.text if rp
@@ -79,9 +77,7 @@ module Migrator
 
         @db.fetch('SELECT * FROM vm_pool') do |row|
             begin
-                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) do |c|
-                    c.default_xml.noblanks
-                end
+                doc = nokogiri_doc(row[:body], 'vm_pool')
 
                 one_vm = OpenNebula::XMLElement.new(doc.root.at_xpath('/VM'))
 
@@ -139,9 +135,7 @@ module Migrator
         @db.transaction do
             # update virtual networks
             @db.fetch('SELECT * FROM old_network_pool') do |row|
-                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) do |c|
-                    c.default_xml.noblanks
-                end
+                doc = nokogiri_doc(row[:body], 'old_network_pool')
 
                 if doc.root.at_xpath('BRIDGE_TYPE').to_s.empty?
                     vn_mad = doc.root.at_xpath('/VNET/VN_MAD').text
@@ -166,9 +160,7 @@ module Migrator
         @db.transaction do
             # updates VM's nics
             @db.fetch('SELECT * FROM old_vm_pool') do |row|
-                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) do |c|
-                    c.default_xml.noblanks
-                end
+                doc = nokogiri_doc(row[:body], 'old_vm_pool')
 
                 if !doc.root.at_xpath('TEMPLATE/NIC').to_s.empty?
                     doc.root.xpath('//NIC').map do |nic|
@@ -199,9 +191,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch('SELECT * FROM old_vm_pool') do |row|
-                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) do |c|
-                    c.default_xml.noblanks
-                end
+                doc = nokogiri_doc(row[:body], 'old_vm_pool')
 
                 row[:short_body] = gen_short_body(doc)
                 row[:search_token] = gen_search_body(doc)
@@ -416,9 +406,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_image_pool") do |row|
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){
-                    |c| c.default_xml.noblanks
-                }
+                doc = nokogiri_doc(row[:body], 'old_image_pool')
 
                 next_snapshot = doc.at_xpath("//SNAPSHOTS/NEXT_SNAPSHOT")
 
@@ -455,9 +443,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_vm_pool") do |row|
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){ |c|
-                    c.default_xml.noblanks
-                }
+                doc = nokogiri_doc(row[:body], 'old_vm_pool')
 
                 # evaluate each disk snapshot individually
                 doc.xpath("//SNAPSHOTS").each do |disk|

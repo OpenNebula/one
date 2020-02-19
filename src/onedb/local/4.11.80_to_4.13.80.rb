@@ -58,7 +58,7 @@ module Migrator
 
       @db.transaction do
           @db.fetch("SELECT * FROM old_document_pool") do |row|
-              doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+              doc = nokogiri_doc(row[:body], 'old_document_pool')
 
               lock_elem = doc.create_element("LOCK")
               lock_elem.add_child(doc.create_element("LOCKED")).content = "0"
@@ -99,7 +99,7 @@ module Migrator
       @db.transaction do
       #@db.fetch("SELECT * FROM old_vm_pool WHERE state<>6") do |row|
       @db.fetch("SELECT * FROM old_vm_pool") do |row|
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        doc = nokogiri_doc(row[:body], 'old_vm_pool')
 
         update_monitoring(doc.root.at_xpath("/VM"))
 
@@ -135,7 +135,7 @@ module Migrator
       @db.transaction do
       #@db.fetch("SELECT * FROM old_history WHERE etime=0") do |row|
       @db.fetch("SELECT * FROM old_history") do |row|
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        doc = nokogiri_doc(row[:body], 'old_history')
 
         elem = doc.root.at_xpath("/HISTORY/VM")
         if !elem.nil?
@@ -162,7 +162,7 @@ module Migrator
 
       @db.transaction do
         @db.fetch("SELECT * FROM old_image_pool") do |row|
-          doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+          doc = nokogiri_doc(row[:body], 'old_image_pool')
 
           doc.root.add_child(doc.create_element("TARGET_SNAPSHOT")).content = "-1"
           doc.root.add_child(doc.create_element("SNAPSHOTS"))
