@@ -22,6 +22,12 @@ require.config({
     /* Almond */
     "almond": "../bower_components/almond/almond",
 
+    /* IP */
+    "ip": "../bower_components/ip/src/ip",
+
+    /* BUFFER */
+    "buffer": "../bower_components/buffer/buffer.min",
+
     /* jQuery */
     "jquery": "../bower_components/jquery/dist/jquery",
     "jquery-ui": "../bower_components/jquery-ui/jquery-ui",

@@ -368,7 +368,8 @@ tabs:
             - 11       # VNC
             #- 12      # Hidden Template
             #- 13      # Labels
-            #- 14      # Search data
+            - 14      # Search data
+            #- 15      # Clock leases
         actions:
             VM.refresh: true
             VM.create_dialog: true

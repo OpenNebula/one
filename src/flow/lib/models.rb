@@ -16,7 +16,9 @@
 
 require 'opennebula'
 
+# rubocop:disable Style/MixinUsage
 include OpenNebula
+# rubocop:enable Style/MixinUsage
 
 require 'opennebula/document_json'
 require 'opennebula/document_pool_json'

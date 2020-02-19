@@ -1608,7 +1608,8 @@ ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
                             src/onedb/local/5.5.80_to_5.6.0.rb \
                             src/onedb/local/5.6.0_to_5.7.80.rb \
                             src/onedb/local/5.7.80_to_5.8.0.rb \
-                            src/onedb/local/5.8.0_to_5.10.0.rb"
+                            src/onedb/local/5.8.0_to_5.10.0.rb \
+                            src/onedb/local/5.10.0_to_5.12.0.rb"
 
 ONEDB_PATCH_FILES="src/onedb/patches/4.14_monitoring.rb \
                    src/onedb/patches/history_times.rb"
@@ -1945,7 +1946,9 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onevcenter_helper.rb \
                    src/cli/one_helper/onemarket_helper.rb \
                    src/cli/one_helper/onevntemplate_helper.rb \
-                   src/cli/one_helper/onehook_helper.rb"
+                   src/cli/one_helper/onehook_helper.rb \
+                   src/cli/one_helper/oneflow_helper.rb \
+                   src/cli/one_helper/oneflowtemplate_helper.rb"
 
 CLI_BIN_FILES="src/cli/onevm \
                src/cli/onehost \
@@ -2247,10 +2250,13 @@ ONEFLOW_ETC_FILES="src/flow/etc/oneflow-server.conf"
 ONEFLOW_LIB_FILES="src/flow/lib/grammar.rb \
                     src/flow/lib/grammar.treetop \
                     src/flow/lib/LifeCycleManager.rb \
+                    src/flow/lib/ServiceWatchDog.rb \
+                    src/flow/lib/ServiceAutoScaler.rb \
                     src/flow/lib/log.rb \
                     src/flow/lib/models.rb \
                     src/flow/lib/strategy.rb \
-                    src/flow/lib/validator.rb"
+                    src/flow/lib/validator.rb \
+                    src/flow/lib/EventManager.rb"
 
 ONEFLOW_LIB_STRATEGY_FILES="src/flow/lib/strategy/straight.rb"
 

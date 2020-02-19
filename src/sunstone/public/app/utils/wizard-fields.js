@@ -32,28 +32,35 @@ define(function(require) {
   function _retrieveWizardFields(context) {
     var templateJSON = {};
     var fields = $('[wizard_field]', context);
-
     fields.each(function() {
       var field = $(this);
+<<<<<<< HEAD
       if(
         field.prop('wizard_field_disabled') != true &&
         field.val() != null && field.val().length &&
+=======
+      var field_default = field.attr('default');
+      var field_value = field.val() || field_default;
+      if (
+        field.prop('wizard_field_disabled') != true &&
+        field_value != null && field_value.length &&
+>>>>>>> flow-queue
         (field.attr("type") != "checkbox" || field.prop("checked")) &&
         (field.attr("type") != "radio" || field.prop("checked"))
       ) {
         var field_name = field.attr('wizard_field');
         if (field.attr('wizard_field_64') == "true"){
-          templateJSON[field_name] = btoa(field.val());
+          templateJSON[field_name] = btoa(field_value);
         } else {
-          templateJSON[field_name] = _retrieveInput(field);
+          templateJSON[field_name] = _retrieveInput(field_value);
         }
       }
     });
     return templateJSON;
   }
 
-  function _retrieveInput(input) {
-    return TemplateUtils.escapeDoubleQuotes( input.val() );
+  function _retrieveInput(value) {
+    return TemplateUtils.escapeDoubleQuotes( value );
   }
 
   // TODO: wizard_field_64 for fill method

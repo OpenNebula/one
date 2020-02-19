@@ -24,9 +24,22 @@ define(function(require) {
   var TemplateUtils = require('utils/template-utils');
   var WizardFields = require('utils/wizard-fields');
   var Sunstone = require('sunstone');
+  var removedStyles = false;
 
-  function _html(){
-    return TemplateHTML();
+  function _html(classTable, classButton, removeStyles){
+    var classTableName = classTable && classTable.length>0 ? classTable : '';
+    var classButtonName = classButton && classButton.length>0 ? classButton : '';
+    if(removeStyles){
+      removedStyles = removeStyles;
+    }
+    return TemplateHTML({
+      'titleKey': Locale.tr("Name"),
+      'titleMandatory': Locale.tr("Type"),
+      'titleValue': Locale.tr("Description"),
+      'titleDefault': Locale.tr("Default Value"),
+      'classTable': classTableName,
+      'classButton': classButtonName
+    });
   }
 
   function _setup(context, hide_vector_button, resourceType, element, elementID){
@@ -35,7 +48,13 @@ define(function(require) {
     }
     context.off("click", ".add_custom_tag");
     context.on("click", ".add_custom_tag", function(){
-      $("tbody.custom_tags", context).append(RowTemplateHTML());
+      $("tbody.custom_tags", context).append(
+        RowTemplateHTML({
+          styles: !removedStyles,
+          mandatory: 'M',
+          valueDefault: ' '
+        })
+      );
       if(hide_vector_button){
         $(".change_to_vector_attribute", context).hide();
         $(".custom_tag_value",context).focusout(function(){
@@ -43,10 +62,21 @@ define(function(require) {
           if(element && !element.CAPACITY){
             element.CAPACITY = {};
           }
-          element.CAPACITY[key] = this.value;
-          Sunstone.runAction(resourceType+".update_template",elementID, TemplateUtils.templateToString(element));
+          if(element && element.CAPACITY){
+            element.CAPACITY[key] = this.value;
+            Sunstone.runAction(resourceType+".update_template",elementID, TemplateUtils.templateToString(element));  
+          }
         });
       }
+    });
+
+    //remove selected optional mandatory
+    context.off("change", ".custom_tag_mandatory");
+    context.on("change", ".custom_tag_mandatory", function(e){
+      var select = $(this);
+      var selected = select.find("option:selected");
+      selected.attr("selected","selected");
+      select.find("option[value!="+selected.val()+"]").removeAttr("selected");
     });
 
     context.off("click", ".add_vector_attribute");
@@ -69,13 +99,12 @@ define(function(require) {
     });
 
     $(".add_custom_tag", context).trigger("click");
-
     context.on("click", "tbody.custom_tags i.remove-tab", function(){
       var tr = $(this).closest('tr');
       tr.remove();
       if(hide_vector_button){
         var key = $(".custom_tag_key",this.parentElement.parentElement.parentElement).val()
-        if(element && element.CAPACITY && element.CAPACITY[key]){
+        if(element && element.CAPACITY && element.CAPACITY[key] && elementID){
           delete element.CAPACITY[key];
           Sunstone.runAction(resourceType+".update_template",elementID, TemplateUtils.templateToString(element));
         }
@@ -86,7 +115,6 @@ define(function(require) {
   // context is the container div of customTagsHtml()
   function _retrieveCustomTags(context){
     var template_json = {};
-
     $('tbody.custom_tags tr', context).each(function(){
       if ($('.custom_tag_key', $(this)).val()) {
         var key = WizardFields.retrieveInput($('.custom_tag_key', $(this)));
@@ -117,20 +145,21 @@ define(function(require) {
   // template_json are the key:values that will be put into the table
   function _fillCustomTags(context, template_json){
     $("tbody.custom_tags i.remove-tab", context).trigger("click");
-
     $.each(template_json, function(key, value){
       if (typeof value == 'object') {
         $("tbody.custom_tags", context).append(
-                              VectorRowTemplateHTML({key: key, value: value}));
+          VectorRowTemplateHTML({key: key, value: value})
+        );
       } else {
         var val = TemplateUtils.escapeDoubleQuotes(value);
-
         $("tbody.custom_tags", context).append(
-                            RowTemplateHTML({
-                                key: key,
-                                value: val
-                              })
-                            );
+          RowTemplateHTML({
+            key: key,
+            value: val,
+            mandatory: 'M',
+            valueDefault: ' '
+          })
+        );
       }
     });
   }

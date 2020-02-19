@@ -47,7 +47,7 @@ class CloudAuth
     # The user pool will be updated every EXPIRE_USER_CACHE seconds.
     EXPIRE_USER_CACHE = 60
 
-    attr_reader :client, :token, :logger
+    attr_reader :client, :token, :logger, :conf
 
     # conf a hash with the configuration attributes as symbols
     def initialize(conf, logger=nil)

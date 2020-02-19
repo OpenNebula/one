@@ -540,25 +540,15 @@ AllCops:
     - src/onedb/local/5.8.0_to_5.9.80.rb
     - src/onedb/local/5.8.0_to_5.10.0.rb
     - src/onedb/local/5.6.0_to_5.10.0.rb
+    - src/onedb/local/5.10.0_to_5.12.0.rb
+    - src/onedb/onedb_live.rb
     - src/onedb/onedb_backend.rb
     - src/onedb/sqlite2mysql.rb
     - src/market_mad/remotes/s3/S3.rb
     - src/market_mad/one_market.rb
     - src/tm_mad/one_tm.rb
-    - src/flow/lib/models/service_template_pool.rb
-    - src/flow/lib/models/service_pool.rb
-    - src/flow/lib/models/service_template.rb
-    - src/flow/lib/models/role.rb
-    - src/flow/lib/models/service.rb
-    - src/flow/lib/strategy.rb
     - src/flow/lib/grammar.rb
-    - src/flow/lib/LifeCycleManager.rb
-    - src/flow/lib/log.rb
-    - src/flow/lib/models.rb
     - src/flow/lib/validator.rb
-    - src/flow/lib/strategy/straight.rb
-    - src/flow/oneflow-server.rb
-
 
 ########
 # LAYOUT

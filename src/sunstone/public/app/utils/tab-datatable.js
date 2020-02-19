@@ -177,7 +177,7 @@ define(function(require) {
     'updateFn': _updateFn,
     'list': _list,
     'clearLabelsFilter': _clearLabelsFilter,
-    'getLabelsFilter': _getLabelsFilter,
+    'getLabelsFilter': _getLabelsFilter
   }
 
   return TabDatatable;

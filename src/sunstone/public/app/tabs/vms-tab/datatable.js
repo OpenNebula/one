@@ -68,7 +68,7 @@ define(function(require) {
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
           {"bVisible": false, "aTargets": ['_all']}
       ]
-    }
+    };
 
     this.columns = VMsTableUtils.columns;
 
@@ -177,7 +177,7 @@ define(function(require) {
         Vnc.lock();
         Sunstone.runAction("VM.startvnc_action", vmId);
       } else {
-        Notifier.notifyError(Locale.tr("VNC Connection in progress"))
+        Notifier.notifyError(Locale.tr("VNC Connection in progress"));
       }
 
       return false;

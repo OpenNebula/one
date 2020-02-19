@@ -15,6 +15,8 @@
 #--------------------------------------------------------------------------- #
 
 module OpenNebula
+
+    # Service Template pool
     class ServiceTemplatePool < DocumentPoolJSON
 
         DOCUMENT_TYPE = 101
@@ -24,5 +26,7 @@ module OpenNebula
             s_template.load_body
             s_template
         end
+
     end
+
 end

@@ -101,72 +101,74 @@ define(function(require) {
     var key, sub_key, value;
     var template_json = {}, obj_aux = {};
     var array = false;
-    while (i <= string_json.length-1){
-      var symbol = symbols[symbols.length-1];
-      if(string_json[i] != " " && string_json[i] != "," && string_json[i] != "\n" || symbol == "\""){
-        if(string_json[i] == "=" && symbol != "\"" && characters.length > 0 && (!symbol || (symbol && symbol == "["))){
-          var key_aux = "";
-          while(characters.length > 0){
-            key_aux += characters.shift();
-          }
-          if(!symbol){
-            key = key_aux;
-            if(template_json[key]){ //exists key, generate Array
-              if(!Array.isArray(template_json[key])){
-                var obj = template_json[key];
-                template_json[key] = [];
-                template_json[key].push(obj);
+    if(string_json){
+      while (i <= string_json.length-1){
+        var symbol = symbols[symbols.length-1];
+        if(string_json[i] != " " && string_json[i] != "," && string_json[i] != "\n" || symbol == "\""){
+          if(string_json[i] == "=" && symbol != "\"" && characters.length > 0 && (!symbol || (symbol && symbol == "["))){
+            var key_aux = "";
+            while(characters.length > 0){
+              key_aux += characters.shift();
+            }
+            if(!symbol){
+              key = key_aux;
+              if(template_json[key]){ //exists key, generate Array
+                if(!Array.isArray(template_json[key])){
+                  var obj = template_json[key];
+                  template_json[key] = [];
+                  template_json[key].push(obj);
+                }
+                array = true;
+              }else{
+                template_json[key] = {};
+                array = false;
               }
-              array = true;
             }else{
-              template_json[key] = {};
-              array = false;
+              sub_key = key_aux;
             }
-          }else{
-            sub_key = key_aux;
           }
-        }
-        else if(string_json[i] == "\"" && symbol && symbol == "\"" && characters[characters.length-1] != "\\"){
-          symbols.pop();
-          var value_aux = "";
-          while(characters.length > 0){
-            value_aux += characters.shift();
-          }
-          if(sub_key){
-            if (array) {
-              obj_aux[sub_key] = value_aux;
+          else if(string_json[i] == "\"" && symbol && symbol == "\"" && characters[characters.length-1] != "\\"){
+            symbols.pop();
+            var value_aux = "";
+            while(characters.length > 0){
+              value_aux += characters.shift();
             }
-            else{
-              template_json[key][sub_key] = value_aux;
+            if(sub_key){
+              if (array) {
+                obj_aux[sub_key] = value_aux;
+              }
+              else{
+                template_json[key][sub_key] = value_aux;
+              }
+              sub_key = undefined;
+            }else{
+              template_json[key] = value_aux;
             }
-            sub_key = undefined;
-          }else{
-            template_json[key] = value_aux;
           }
-        }
-        else if(string_json[i] == "[" && !symbol){
-          symbols.push("[");
-        }
-        else if(string_json[i] == "\"" && characters[characters.length-1] != "\\"){
-          symbols.push("\"");
-        }
-        else if(string_json[i] == "]" && symbol && symbol == "["){
-          symbols.pop();
-          if(array){
-            template_json[key].push(obj_aux);
-            obj_aux = {};
+          else if(string_json[i] == "[" && !symbol){
+            symbols.push("[");
           }
-        }
-        else{
-          if(JSON.stringify(template_json[key]) === "{}" && symbols.length <= 0){ //Empty
-            return false;
+          else if(string_json[i] == "\"" && characters[characters.length-1] != "\\"){
+            symbols.push("\"");
+          }
+          else if(string_json[i] == "]" && symbol && symbol == "["){
+            symbols.pop();
+            if(array){
+              template_json[key].push(obj_aux);
+              obj_aux = {};
+            }
           }
           else{
-            characters.push(string_json[i]);
+            if(JSON.stringify(template_json[key]) === "{}" && symbols.length <= 0){ //Empty
+              return false;
+            }
+            else{
+              characters.push(string_json[i]);
+            }
           }
         }
+        i+=1;
       }
-      i+=1;
     }
     return template_json;
   }
