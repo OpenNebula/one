@@ -69,8 +69,7 @@ define(function(require) {
       config && 
       config.system_config && 
       config.system_config.leases
-    ){  
-      console.log("-->",form);
+    ){
       $(parseVarToJqueryClass(classButton)).off("click").on("click", function(e){
         e.preventDefault();
         var confLeases = config.system_config.leases;
