@@ -16,55 +16,10 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'open3'
+require '../command'
 
 # This module can be used to execute commands. It wraps popen3 and provides
 # locking capabilites using flock
 module Command
-
     LOCK_FILE = '/tmp/onefirecracker-lock'
-
-    def self.execute(cmd, block)
-        stdout = ''
-        stderr = ''
-
-        begin
-            fd = lock if block
-
-            stdout, stderr, s = Open3.capture3(cmd)
-        ensure
-            unlock(fd) if block
-        end
-
-        [s.exitstatus, stdout, stderr]
-    end
-
-    def self.execute_once(cmd, lock)
-        execute(cmd, lock) unless running?(cmd.split[0])
-    end
-
-    def self.execute_rc_log(cmd, lock = false)
-        rc, _stdout, stderr = execute(cmd, lock)
-
-        puts stderr unless rc.zero?
-
-        rc.zero?
-    end
-
-    # Return true if command is running
-    def self.running?(command)
-        !`ps  --noheaders -C #{command}`.empty?
-    end
-
-    def self.lock
-        lfd = File.open(LOCK_FILE, 'w')
-        lfd.flock(File::LOCK_EX)
-
-        lfd
-    end
-
-    def self.unlock(lfd)
-        lfd.close
-    end
-
 end

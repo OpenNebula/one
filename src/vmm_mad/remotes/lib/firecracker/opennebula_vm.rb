@@ -15,7 +15,7 @@
 #--------------------------------------------------------------------------- #
 require 'rexml/document'
 require 'yaml'
-require 'command'
+require 'command_fc'
 
 # This class reads and holds configuration attributes for the LXD driver
 class FirecrackerConfiguration < Hash

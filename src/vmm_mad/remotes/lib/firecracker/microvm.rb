@@ -20,7 +20,6 @@ $LOAD_PATH.unshift File.dirname(__FILE__)
 
 require 'client'
 require 'opennebula_vm'
-require 'command' # TODO, use same class LXD
 
 # This class interacts with Firecracker
 class MicroVM
