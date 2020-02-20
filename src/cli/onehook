@@ -80,7 +80,7 @@ CommandParser::CmdParser.new(ARGV) do
     }
 
     set :format, :hookid, OneHookHelper.to_id_desc do |arg|
-        helper.rname_to_id(arg)
+        helper.to_id(arg)
     end
 
     set :format, :hookid_list, OneHookHelper.list_to_id_desc do |arg|
