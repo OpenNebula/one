@@ -30,10 +30,13 @@ if File.directory?(GEMS_LOCATION)
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 $LOAD_PATH << RUBY_LIB_LOCATION + '/cloud'
+
 
 require 'cli/command_parser'
 require 'cli/cli_helper'
+require 'cli/one_helper'
 require 'econe/EC2QueryClient'
 
 include CloudCLI
