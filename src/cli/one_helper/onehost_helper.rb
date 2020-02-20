@@ -48,25 +48,25 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         :az => {
             :help => <<-EOT.unindent
                 #-----------------------------------------------------------------------
-                # Supported AZURE AUTH ATTRIBUTTES:
+                # Mandatory AZURE ATTRIBUTTES:
                 #
-                #  AZ_ID   = <azure classic id>
-                #  AZ_CERT = <azure classic certificate>
+                # AZ_SUB    = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+                # AZ_CLIENT = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+                # AZ_SECRET = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+                # AZ_TENANT = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+                # AZ_REGION = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
                 #
-                #  REGION_NAME = <the name of the azure region>
+                # CAPACITY=[
+                #   STANDARD_B1LS =<number of machines Standard_B1ls>,
+                #   STANDARD_A1_V2=<number of machines Standard_A1_v2>
+                # ]
                 #
-                #  CAPACITY = [
-                #    Small = <number of small machines>,
-                #    Medium = <number of medium machines>,
-                #    Large = <number of large machines
-                #  ]
+                # Optional AZURE ATTRIBUTES:
                 #
-                # You can set any machine type supported by azure classic
+                # AZ_RGROUP = ""
+                #
+                # You can set any machine type supported by azure
                 # See your az_driver.conf for more information
-                #
-                # Optionally you can set a endpoint
-                #
-                #  AZ_ENDPOINT = <endpoint address>
                 #
                 #-----------------------------------------------------------------------
             EOT

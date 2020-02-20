@@ -427,7 +427,6 @@ AllCops:
     - src/vmm_mad/remotes/lib/lxd/opennebula_vm.rb
     - src/vmm_mad/remotes/lib/lxd/command.rb
     - src/vmm_mad/remotes/lib/poll_common.rb
-    - src/vmm_mad/remotes/az/az_driver.rb
     - src/vmm_mad/remotes/packet/packet_driver.rb
     - src/vmm_mad/remotes/ec2/ec2_driver.rb
     - src/vmm_mad/exec/one_vmm_exec.rb

@@ -454,8 +454,10 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("API_LIST_ORDER", "DESC");
     set_conf_single("HOST_ENCRYPTED_ATTR", "EC2_ACCESS");
     set_conf_single("HOST_ENCRYPTED_ATTR", "EC2_SECRET");
-    set_conf_single("HOST_ENCRYPTED_ATTR", "AZ_ID");
-    set_conf_single("HOST_ENCRYPTED_ATTR", "AZ_CERT");
+    set_conf_single("HOST_ENCRYPTED_ATTR", "AZ_SUB");
+    set_conf_single("HOST_ENCRYPTED_ATTR", "AZ_CLIENT");
+    set_conf_single("HOST_ENCRYPTED_ATTR", "AZ_SECRET");
+    set_conf_single("HOST_ENCRYPTED_ATTR", "AZ_TENANT");
     set_conf_single("HOST_ENCRYPTED_ATTR", "VCENTER_PASSWORD");
     set_conf_single("HOST_ENCRYPTED_ATTR", "NSX_PASSWORD");
     set_conf_single("HOST_ENCRYPTED_ATTR", "ONE_PASSWORD");
