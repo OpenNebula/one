@@ -34,17 +34,11 @@ define(function(require) {
     var fields = $('[wizard_field]', context);
     fields.each(function() {
       var field = $(this);
-<<<<<<< HEAD
-      if(
-        field.prop('wizard_field_disabled') != true &&
-        field.val() != null && field.val().length &&
-=======
       var field_default = field.attr('default');
       var field_value = field.val() || field_default;
       if (
         field.prop('wizard_field_disabled') != true &&
         field_value != null && field_value.length &&
->>>>>>> flow-queue
         (field.attr("type") != "checkbox" || field.prop("checked")) &&
         (field.attr("type") != "radio" || field.prop("checked"))
       ) {
