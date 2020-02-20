@@ -606,6 +606,8 @@ class AzureDriver
 
         context = xml.retrieve_xmlelements('/VM/TEMPLATE/CONTEXT')
 
+        return [az, {}] if context.empty?
+
         [az, context.first.to_hash['CONTEXT']]
     end
 
@@ -672,7 +674,15 @@ class AzureDriver
 
         # include public_ip if exists
         public_ip = get_instance_public_ip(instance.name)
-        info << "AZ_IPADDRESS=#{public_ip} " if public_ip
+        info << "AZ_PUBLIC_IPADDRESS=#{public_ip} " if public_ip
+
+        # include private_ip if exists
+        private_ip = get_instance_private_ip(instance.name)
+        info << "AZ_PRIVATE_IPADDRESS=#{private_ip} " if private_ip
+
+        # put public or private ip to the AZ_IPADDRESS (visible in Sunstone)
+        az_ip = public_ip || private_ip || nil
+        info << "AZ_IPADDRESS=#{az_ip} " if az_ip
 
         # Include all attributes for given instance
         flatten_hash(examine(instance)).each do |k, v|
@@ -689,6 +699,15 @@ class AzureDriver
                .public_ipaddresses
                .get(@rgroup_name, "#{vm_name}-public-ip") rescue nil
         addr.ip_address if addr
+    end
+
+    def get_instance_private_ip(vm_name)
+        nic = @network_client.network_interfaces
+                             .get(@rgroup_name, "#{vm_name}-nic") rescue nil
+
+        return unless nic && !nic.ip_configurations.empty?
+
+        nic.ip_configurations.first.private_ipaddress
     end
 
     # Load the default values that will be used to create a new instance, if
