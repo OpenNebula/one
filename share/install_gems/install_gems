@@ -37,7 +37,8 @@ DEFAULT = DEFAULT_PRE if !defined?(DEFAULT)
 GROUPS={
     :quota      => [SQLITE, 'sequel'],
     :sunstone   => [RACK, 'sinatra', 'thin', 'memcache-client',
-                     ZENDESK_API, SQLITE],
+                    'rotp', 'rqrcode', 'dalli', 'ipaddress',
+                    ZENDESK_API, SQLITE],
     :cloud      => %w{amazon-ec2 sinatra thin uuidtools curb} << RACK,
     :hybrid     => %w{configparser azure},
     :auth_ldap  => LDAP,
@@ -47,7 +48,7 @@ GROUPS={
     :oca        => 'ox',
     :market     => 'aws-sdk',
     :onedb      => "mysql2",
-    :hooks      => "zeromq",
+    :hooks      => %w[zeromq ffi-rzmq],
     :serversync => "augeas"
 }
 
