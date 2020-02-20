@@ -39,7 +39,7 @@ module NSXDriver
                 :applied_tos => [
                     {
                         :target_id => nic_data[:lp].id,
-                        :target_display_name => nic_data[:lp].name,
+                        :target_display_name => nic_data[:name],
                         :target_type => nic_data[:lp].type,
                         :is_valid => true
                     }

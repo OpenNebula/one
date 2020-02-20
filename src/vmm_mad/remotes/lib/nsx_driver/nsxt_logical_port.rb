@@ -84,12 +84,6 @@ module NSXDriver
             @nsx_client.get(@url) ? true : false
         end
 
-        # Get logical port id
-        # def lp_id
-        #     # @nsx_client.get(@url_lp)['id']
-        #     @lp_id
-        # end
-
         # Get logical port id from attach id
         def lp_with_attachid(attach_id)
             lps = @nsx_client.get(NSXDriver::NSXConstants::NSXT_LP_BASE)

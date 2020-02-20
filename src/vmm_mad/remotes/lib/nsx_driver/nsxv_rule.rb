@@ -27,7 +27,53 @@ module NSXDriver
             @base_url = NSXDriver::NSXConstants::NSXV_RULE_BASE
         end
 
-        def create_rule_spec(rule, vm_data, nic_data); end
+        def create_rule_spec(rule, vm_data, nic_data)
+
+            virtual_wire_spec =
+            "<virtualWireCreateSpec>\
+                <name>#{ls_name}</name>\
+                <description>#{ls_description}</description>\
+                <tenantId>virtual wire tenant</tenantId>\
+                <controlPlaneMode>#{replication_mode}</controlPlaneMode>\
+                <guestVlanAllowed>false</guestVlanAllowed>\
+            </virtualWireCreateSpec>"
+
+                rule_spec =
+
+                "<rule disabled=\"false\" logged=\"false\">\
+                    <name>#{rule[:id]}-#{rule[:name]}-#{vm_data[:id]}-#{vm_data[:deploy_id]}-#{nic_data[:id]}</name>\
+                    <action>allow</action>\
+                    <appliedToList>\
+                        <appliedTo>\
+                            <name>#{nic_data[:name]}</name>\
+                            <value>#{nic_data[:lp]}</value>\
+                            <type>Vnic</type>\
+                            <isValid>true</isValid>\
+                        </appliedTo>\
+                    </appliedToList>\
+                <sectionId>1023</sectionId>
+                <sources excluded="false">
+                    <source>
+                        <name>app</name>
+                        <value>virtualwire-6</value>
+                        <type>VirtualWire</type>
+                        <isValid>true</isValid>
+                    </source>
+                </sources>
+                <services>
+                    <service>
+                        <isValid>true</isValid>
+                        <sourcePort>80</sourcePort>
+                        <destinationPort>80</destinationPort>
+                        <protocol>6</protocol>
+                        <protocolName>TCP</protocolName>
+                    </service>
+                </services>
+                <direction>inout</direction>
+                <packetType>any</packetType>
+            </rule>
+
+        end
 
     end
 

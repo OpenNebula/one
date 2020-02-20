@@ -159,17 +159,32 @@ module NSXDriver
 
         # Get rule by name
         def rules_by_name(rule_name, section_id = @one_section_id)
-            result = nil
+            result = []
             return result unless section_id
 
             all_rules = rules(section_id)
             return result unless all_rules
 
             all_rules.each do |rule|
-                result = rule if rule.xpath("//rule/name=\"#{rule_name}\"")
+                result << rule if rule.xpath("//rule/name=\"#{rule_name}\"")
             end
             result
         end
+
+        # Get rule by regex
+        # Return an array with rules
+        # def rules_by_regex(rule_name, section_id = @one_section_id)
+        #     result = []
+        #     return result unless section_id
+
+        #     all_rules = rules(section_id)
+        #     return result unless all_rules
+
+        #     all_rules.each do |rule|
+        # CHANGE THIS: result << rule if rule.xpath("//rule/name=\"#{rule_name}\"")
+        #     end
+        #     result
+        # end
 
         # Create new rule
         def create_rule(rule_spec, section_id = @one_section_id)

@@ -82,6 +82,7 @@ module NSXDriver
         def extract_nic_data(nic, nsx_client, vm)
             # Network attributes
             nic_id = nic.xpath('NIC_ID').text
+            nic_name = nil
             nic_lp = nil
             network_id = nic.xpath('NETWORK_ID').text
             network_vcref = nic.xpath('VCENTER_NET_REF').text
@@ -95,6 +96,8 @@ module NSXDriver
 
                 next if device.macAddress != network_mac
 
+                nic_name = "#{vm.name}-#{nic_id}-#{device.deviceInfo.label}"
+
                 case network_pgtype
                 when NSXDriver::NSXConstants::NSXT_LS_TYPE
                     lpid = device.externalId
@@ -104,7 +107,13 @@ module NSXDriver
                     # target_display_name => display_name
                     # target_type => resource_type
                 when NSXDriver::NSXConstants::NSXV_LS_TYPE
-                    device.backing.port.portGroupKey
+                    # lpid is vm instanceUuid.sufix
+                    # sufix is device number but removing first number
+                    suffix = device.key.to_s[[1..-1]]
+                    lpid = "#{vm.config.instanceUuid}.#{suffix}"
+                    nic_lp = lpid
+                    # nic_lp = NSXDriver::LogicalPort.new_child(nsx_client, lpid)
+                    # raise "Logical port id: #{lpid} not found" unless nic_lp
                 else
                     error_msg = "Network type is: #{network_pgtype} \
                                     and should be \
@@ -118,6 +127,7 @@ module NSXDriver
 
             nic_data = {
                 :id => nic_id,
+                :name => nic_name,
                 :network_id => network_id,
                 :network_vcref => network_vcref,
                 :lp => nic_lp

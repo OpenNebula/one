@@ -144,7 +144,7 @@ module NSXDriver
             result
         end
 
-        # Get rule by name
+        # Get rule by regex
         # Return an array with rules
         def rules_by_regex(regex, section_id = @one_section_id)
             result = []
