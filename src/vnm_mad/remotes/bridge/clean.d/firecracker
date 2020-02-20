@@ -1,0 +1,77 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+$LOAD_PATH << File.dirname(__FILE__)
+$LOAD_PATH << File.join(File.dirname(__FILE__), '../..')
+
+require 'vnmmad'
+require 'open3'
+require 'base64'
+require 'rexml/document'
+
+template64 = STDIN.read
+deploy_id = ARGV[0]
+
+xpath_nics = "//TEMPLATE/NIC[VN_MAD='bridge']"
+xpath_hv   = '//HISTORY/VM_MAD'
+
+template = REXML::Document.new(Base64.decode64(template64))
+
+hypervisor = template.elements[xpath_hv].text
+
+exit 0 if hypervisor != 'firecracker'
+
+if deploy_id.nil? || deploy_id.empty?
+    vm_id = template.elements['/VM/ID'].text
+    deploy_id = "one-#{vm_id}"
+end
+
+rc = nil
+e = nil
+
+template.elements.each(xpath_nics) do |nic_element|
+    nic_id  = Integer(nic_element.elements['//NIC_ID'].text)
+    bridge  = nic_element.elements['//BRIDGE'].text
+    if_name = "#{deploy_id}-#{nic_id}"
+
+    # Del tap interface from the bridge
+    cmd = "sudo brctl delif #{bridge} #{if_name}"
+    _, e, rc = Open3.capture3(cmd)
+
+    break unless rc.success?
+
+    # Del tap device
+    cmd = "sudo ip tuntap del #{if_name} mode tap"
+    _, e, rc = Open3.capture3(cmd)
+
+    break unless rc.success?
+end
+
+if !rc.success?
+    OpenNebula.log_error(e)
+    exit(-1)
+end
+
+begin
+    hm = VNMMAD::NoVLANDriver.from_base64(template64, xpath_nics, deploy_id)
+    hm.deactivate
+rescue Exception => e
+    OpenNebula.log_error(e.message)
+    OpenNebula.log_error(e.backtrace)
+    exit 1
+end

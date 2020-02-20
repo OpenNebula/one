@@ -166,6 +166,29 @@ module VNMMAD
 
         end
 
+        # A NIC using Firecracker. This class implements functions to get the physical
+        # interface that the NIC is using, based on the MAC address
+        class NicFirecracker < Hash
+
+            VNMNetwork::HYPERVISORS['firecracker'] = self
+
+            def initialize
+                super(nil)
+            end
+
+            def get_info(_vm)
+                nil
+            end
+
+            # Look for the tap in config
+            def get_tap(vm)
+                self[:tap] = "#{vm.deploy_id}-#{self[:nic_id]}"
+
+                self
+            end
+
+        end
+
     end
 
 end
