@@ -86,11 +86,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                     path=Dir.pwd+"/"+o
                 end
 
-                if File.readable?(path)
-                    [0, path]
-                else
-                    [-1, "File '#{path}' does not exist or is not readable."]
-                end
+                [0, path]
             end
         },
         {
