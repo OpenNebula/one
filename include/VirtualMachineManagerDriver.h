@@ -113,6 +113,14 @@ public:
         return ds_live_migration;
     }
 
+    /**
+     *  @return true if cold nic attach
+     */
+    bool is_cold_nic_attach() const
+    {
+        return cold_nic_attach;
+    }
+
 protected:
     /**
      *  Gets a configuration attr from driver configuration file (single
@@ -271,6 +279,11 @@ private:
      * Set to true if live migration between datastores is allowed.
      */
     bool ds_live_migration;
+
+    /**
+    * Set to true if cold nic attach/detach calls (pre, post, clean scripts)
+    */
+    bool cold_nic_attach;
 
     /**
      *  Pointer to the Virtual Machine Pool, to access VMs

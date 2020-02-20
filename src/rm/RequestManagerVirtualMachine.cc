@@ -2457,7 +2457,11 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
     // Perform the attach
     // -------------------------------------------------------------------------
 
-    rc = dm->attach_nic(id, &tmpl, att, att.resp_msg);
+    auto vmm_mad = vm->get_vmm_mad();
+    auto vmm     = Nebula::instance().get_vmm();
+    auto vmmd    = vmm->get(vmm_mad);
+
+    rc = dm->attach_nic(id, vmmd->is_cold_nic_attach(), &tmpl, att, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -2551,10 +2555,14 @@ Request::ErrorCode VirtualMachineDetachNic::request_execute(int id, int nic_id,
         return AUTHORIZATION;
     }
 
+    auto vmm_mad = vm->get_vmm_mad();
+    auto vmm     = Nebula::instance().get_vmm();
+    auto vmmd    = vmm->get(vmm_mad);
+
     // -------------------------------------------------------------------------
     // Perform the detach
     // -------------------------------------------------------------------------
-    if ( dm->detach_nic(id, nic_id, att, att.resp_msg) != 0 )
+    if ( dm->detach_nic(id, nic_id, vmmd->is_cold_nic_attach(), att, att.resp_msg) != 0 )
     {
         return ACTION;
     }

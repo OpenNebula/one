@@ -1697,8 +1697,9 @@ int DispatchManager::snapshot_delete(int vid, int snap_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
-        const RequestAttributes& ra, string& error_str)
+int DispatchManager::attach_nic(int vid, bool cold_attach,
+        VirtualMachineTemplate* tmpl, const RequestAttributes& ra,
+        string& error_str)
 {
     ostringstream oss;
 
@@ -1729,8 +1730,8 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
         return -1;
     }
 
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING )
+    if ((vm->get_state()     == VirtualMachine::ACTIVE &&
+        vm->get_lcm_state() == VirtualMachine::RUNNING ) || cold_attach)
     {
         vm->set_state(VirtualMachine::HOTPLUG_NIC);
     }
@@ -1805,8 +1806,8 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DispatchManager::detach_nic(int vid, int nic_id,const RequestAttributes& ra,
-        string&  error_str)
+int DispatchManager::detach_nic(int vid, int nic_id, bool cold_detach,
+        const RequestAttributes& ra, string&  error_str)
 {
     ostringstream oss;
     string        tmp_error;
@@ -1848,8 +1849,8 @@ int DispatchManager::detach_nic(int vid, int nic_id,const RequestAttributes& ra,
         return -1;
     }
 
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING )
+    if ((vm->get_state()     == VirtualMachine::ACTIVE &&
+        vm->get_lcm_state() == VirtualMachine::RUNNING ) || cold_detach)
     {
         time_t the_time = time(0);
 
