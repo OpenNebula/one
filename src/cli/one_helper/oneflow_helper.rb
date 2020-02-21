@@ -47,7 +47,7 @@ class OneFlowHelper < OpenNebulaHelper::OneHelper
                 d['GNAME']
             end
 
-            column :NAME, 'Name', :size => 25, :left => true do |d|
+            column :NAME, 'Name', :expand => true, :left => true do |d|
                 d['NAME']
             end
 
