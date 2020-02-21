@@ -256,14 +256,12 @@ class Container
         case config['user.reboot_state']
         when 'STOPPED'
             start
-
             config['user.reboot_state'] = 'RUNNING'
             transition_end # container reached a final state
         else
-            check_stop(force)
-
-            config['user.reboot_state'] = 'STOPPED'
             transition_start # container will be started later
+            check_stop(force)
+            config['user.reboot_state'] = 'STOPPED'
         end
 
         update
