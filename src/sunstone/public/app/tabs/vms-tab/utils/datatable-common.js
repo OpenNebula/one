@@ -98,14 +98,13 @@ define(function(require) {
 
   function renderMapIps(element){
     var render = '';
-    console.log("PASS", element, config);
     if(
       element && 
       element.NAME &&
       element.TEMPLATE && 
-      //element.TEMPLATE.CONTEXT && 
-      //element.TEMPLATE.CONTEXT.MAP_PRIVATE && 
-      //element.TEMPLATE.CONTEXT.MAP_PUBLIC && 
+      element.TEMPLATE.CONTEXT && 
+      element.TEMPLATE.CONTEXT.MAP_PRIVATE && 
+      element.TEMPLATE.CONTEXT.MAP_PUBLIC && 
       element.TEMPLATE.NIC &&
       config && 
       config.system_config &&
@@ -117,8 +116,8 @@ define(function(require) {
       var nics = element.TEMPLATE.NIC;
       var credentials = {};
       var context = element.TEMPLATE.CONTEXT;
-      var pblc = "10.0.0.0/24"; //element.TEMPLATE.CONTEXT.MAP_PUBLIC;
-      var prvt = "172.16.0.0/24"; //element.TEMPLATE.CONTEXT.MAP_PRIVATE;
+      var pblc = element.TEMPLATE.CONTEXT.MAP_PUBLIC; //"10.0.0.0/8";
+      var prvt = element.TEMPLATE.CONTEXT.MAP_PRIVATE; //"192.168.0.0/16";
       var renderTitle = true;
       if (!$.isArray(nics)){
         nics = [nics];
@@ -132,35 +131,31 @@ define(function(require) {
       }
 
       var mapp = new mapips(pblc, prvt);
-      try {
-        nics.forEach(function(nic){
-          if(nic && nic.IP){
-            var foundip = mapp.renderPublicIp(nic.IP);
-            if (foundip){
-              if(renderTitle){
-                render = $('<div/>').append($('<br/>').add($('<b/>').text(Locale.tr('Mapped Networks')))).html();
-                renderTitle = false;
-              }
-              if(nic.RDP && String(nic.RDP).toUpperCase() === "YES"){
-                render += $("<div/>").append(
-                  $("<button/>",{
-                    class:'button download_rdp',
-                    ip: foundip, 
-                    name:element.NAME,
-                    credential: TemplateUtils.templateToString(credentials)
-                  }).css({display:'block'}).text("RDP: "+foundip)
-                ).html();
-              }else{
-                render += $("<div/>").append(
-                  $("<div/>").text(foundip+" ("+nic.IP+")")
-                ).html();
-              }
-              throw Exception
+      nics.forEach(function(nic){
+        if(nic && nic.IP){
+          var foundip = mapp.renderPublicIp(nic.IP);
+          if (foundip){
+            if(renderTitle){
+              render = $('<div/>').append($('<br/>').add($('<b/>').text(Locale.tr('Mapped Networks')))).html();
+              renderTitle = false;
+            }
+            if(nic.RDP && String(nic.RDP).toUpperCase() === "YES"){
+              render += $("<div/>").append(
+                $("<button/>",{
+                  class:'button download_rdp',
+                  ip: foundip, 
+                  name:element.NAME,
+                  credential: TemplateUtils.templateToString(credentials)
+                }).css({display:'block'}).text("RDP: "+foundip)
+              ).html();
+            }else{
+              render += $("<div/>").append(
+                $("<div/>").text(foundip)
+              ).html();
             }
           }
-        });
-      } catch (error) {
-      }
+        }
+      });
     }
     return render;
   }
