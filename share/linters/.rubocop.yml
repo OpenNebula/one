@@ -730,8 +730,11 @@ Lint/ShadowingOuterLocalVariable:
 
 # Check for debugger info
 Lint/Debugger:
-     Enabled: true
+    Enabled: true
 
+# Check file permissions
+Lint/ScriptPermission:
+    Enabled: false
 
 #########
 # METRICS
