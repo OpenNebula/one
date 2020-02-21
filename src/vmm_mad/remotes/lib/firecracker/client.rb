@@ -21,8 +21,8 @@ require 'socket'
 require 'json'
 
 #
-# Firecracker API Client. This class is used to interact with Firecracker. Wraps API calls
-# through the REST API
+# Firecracker API Client. This class is used to interact with Firecracker.
+# Wraps API calls through the REST API
 #
 class FirecrackerClient
 
@@ -35,11 +35,13 @@ class FirecrackerClient
     API_RETRY = 5 # Attempts, in case a response is failed to read from LXD
 
     def initialize(socket_path)
+        # rubocop:disable Style/RescueStandardError
         begin
             @socket = socket(socket_path)
         rescue
             raise "Failed to open socket: #{socket_path}"
         end
+        # rubocop:enable Style/RescueStandardError
     end
 
     # Performs HTTP::Get
