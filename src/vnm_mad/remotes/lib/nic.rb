@@ -166,8 +166,8 @@ module VNMMAD
 
         end
 
-        # A NIC using Firecracker. This class implements functions to get the physical
-        # interface that the NIC is using, based on the MAC address
+        # A NIC using Firecracker. This class implements functions to get the
+        # physical interface that the NIC is using, based on the MAC address
         class NicFirecracker < Hash
 
             VNMNetwork::HYPERVISORS['firecracker'] = self

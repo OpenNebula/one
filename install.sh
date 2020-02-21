@@ -836,7 +836,8 @@ PM_EXEC_PACKET_SCRIPTS="src/pm_mad/remotes/packet/cancel \
 # $REMOTES_LOCATION/vmm/lib
 #-------------------------------------------------------------------------------
 
-VMM_EXEC_LIB_FILES="src/vmm_mad/remotes/lib/poll_common.rb"
+VMM_EXEC_LIB_FILES="src/vmm_mad/remotes/lib/poll_common.rb \
+                    src/vmm_mad/remotes/lib/command.rb"
 
 #-------------------------------------------------------------------------------
 # VMM Lib vcenter files, used by the vCenter Driver to be installed in

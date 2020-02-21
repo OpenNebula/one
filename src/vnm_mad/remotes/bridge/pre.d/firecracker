@@ -61,7 +61,6 @@ template.elements.each(xpath_nics) do |nic_element|
     _, _, rc = Open3.capture3(cmd)
 
     break unless rc.success?
-
 end
 
 exit(-1) unless rc.success?

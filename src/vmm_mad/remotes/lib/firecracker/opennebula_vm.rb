@@ -15,7 +15,7 @@
 #--------------------------------------------------------------------------- #
 require 'rexml/document'
 require 'yaml'
-require 'command_fc'
+require 'command'
 
 # This class reads and holds configuration attributes for the LXD driver
 class FirecrackerConfiguration < Hash
@@ -42,7 +42,7 @@ class FirecrackerConfiguration < Hash
 
         begin
             merge!(YAML.load_file("#{__dir__}/#{FIRECRACKERRC}"))
-        rescue => e
+        rescue StandardError => e
             OpenNebula.log_error e
         end
     end
@@ -51,6 +51,9 @@ end
 
 # This class parses and wraps the information in the Driver action data
 class OpenNebulaVM
+
+    # rubocop:disable Naming/PredicateName
+    # rubocop:disable Naming/AccessorMethodName
 
     attr_reader :xml, :vm_id, :vm_name, :sysds_path, :rootfs_id, :fcrc
 
@@ -148,7 +151,7 @@ class OpenNebulaVM
 
     def jailer_params(hash)
         hash['id'] = "one-#{vm_id}"
-        hash['node'] = get_numa_node # TODO, check how use NUMA nodes (@xml.element('//TEMPLATE//NUMA_NODE'))
+        hash['node'] = get_numa_node
         hash['exec-file'] = @exec_file
         hash['uid'] = @uid
         hash['gid'] = @gid
@@ -156,7 +159,7 @@ class OpenNebulaVM
     end
 
     def firecracker_params(hash)
-        hash['--config-file'] = 'deployment.file'
+        hash['config-file'] = 'deployment.file'
     end
 
     #---------------------------------------------------------------------------
@@ -229,7 +232,8 @@ class OpenNebulaVM
     #---------------------------------------------------------------------------
 
     def get_numa_node
-        rc, nodes, = Command.execute('ls /sys/devices/system/node | grep node', false)
+        rc, nodes, = Command.execute('ls /sys/devices/system/node | grep node',
+                                     false)
 
         return -1 unless rc.zero?
 
@@ -263,6 +267,9 @@ class OpenNebulaVM
         data = @xml.element('//TEMPLATE/GRAPHICS')
         data && data['TYPE'].casecmp('vnc').zero?
     end
+
+    # rubocop:enable Naming/PredicateName
+    # rubocop:enable Naming/AccessorMethodName
 
 end
 

@@ -67,6 +67,7 @@ if !rc.success?
     exit(-1)
 end
 
+# rubocop:disable Lint/RescueException
 begin
     hm = VNMMAD::NoVLANDriver.from_base64(template64, xpath_nics, deploy_id)
     hm.deactivate
@@ -75,3 +76,4 @@ rescue Exception => e
     OpenNebula.log_error(e.backtrace)
     exit 1
 end
+# rubocop:enable Lint/RescueException

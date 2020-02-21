@@ -16,10 +16,12 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require '../command'
+require_relative '../lib/command'
 
 # This module can be used to execute commands. It wraps popen3 and provides
 # locking capabilites using flock
 module Command
+
     LOCK_FILE = '/tmp/onefirecracker-lock'
+
 end
