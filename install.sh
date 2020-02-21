@@ -385,6 +385,7 @@ SUNSTONE_MINIFIED_DIRS="$SUNSTONE_LOCATION/public \
                $SUNSTONE_LOCATION/public/dist/console \
                $SUNSTONE_LOCATION/public/css \
                $SUNSTONE_LOCATION/public/css/opensans \
+               $SUNSTONE_LOCATION/public/css/lato \
                $SUNSTONE_LOCATION/public/bower_components/fontawesome \
                $SUNSTONE_LOCATION/public/bower_components/fontawesome/web-fonts-with-css \
                $SUNSTONE_LOCATION/public/bower_components/fontawesome/web-fonts-with-css/webfonts \
@@ -2136,6 +2137,11 @@ SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb \
 
 SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/app.min.css \
                 src/sunstone/public/css/opensans/opensans.woff \
+                src/sunstone/public/css/lato/lato-v16-latin-ext_latin-100.woff2 \
+                src/sunstone/public/css/lato/lato-v16-latin-ext_latin-300.woff2 \
+                src/sunstone/public/css/lato/lato-v16-latin-ext_latin-regular.woff2 \
+                src/sunstone/public/css/lato/lato-v16-latin-ext_latin-700.woff2 \
+                src/sunstone/public/css/lato/lato-v16-latin-ext_latin-900.woff2 \
                 src/sunstone/public/css/novnc-custom.css \
                 src/sunstone/public/css/spice-custom.css"
 
