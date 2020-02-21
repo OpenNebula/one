@@ -81,6 +81,9 @@ class ServiceAutoScaler
             policies['elasticity_policies'] = role.elasticity_policies
             policies['scheduled_policies']  = role.scheduled_policies
 
+            # if diff is zero, cooldown doesn't matter
+            cooldown_duration = nil if diff == 0
+
             @lcm.update_role_policies(client,
                                       service.id,
                                       name,

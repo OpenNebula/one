@@ -284,7 +284,7 @@ module OpenNebula
         end
 
         def update_cooldown(new_cooldown)
-            @body['cooldown'] = new_cooldown
+            @body['cooldown'] = new_cooldown unless new_cooldown.nil?
         end
 
         # Sets a new state
