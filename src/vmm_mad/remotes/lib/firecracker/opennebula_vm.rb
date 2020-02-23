@@ -196,7 +196,7 @@ class OpenNebulaVM
                 'drive_id'       => "disk.#{disk_id}",
                 'path_on_host'   => "disk.#{disk_id}",
                 'is_root_device' => rootfs_id == disk_id,
-                'is_read_only'   => n['READONLY'].casecmp?('yes')
+                'is_read_only'   => n['READONLY'].casecmp('yes') == 0
             }
 
             array << drive

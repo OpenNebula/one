@@ -27,16 +27,26 @@ vm_id = ARGV[2]
 xml = STDIN.read
 
 # TODO, custom socket path for client
-# rubocop:disable Layout/LineLength
-client = FirecrackerClient.new("/srv/jailer/firecracker/one-#{vm_id}/root/api.socket")
-# rubocop:enable Layout/LineLength
+died = false
+
+begin
+    socket = "/srv/jailer/firecracker/one-#{vm_id}/root/api.socket"
+    client = FirecrackerClient.new(socket)
+rescue
+    died = true
+end
+
 microvm = MicroVM.new_from_xml(xml, client)
 
 # Stop VNC
 microvm.vnc('stop')
 
-rc = microvm.shutdown
+if !died
+    rc = microvm.shutdown
+    exit(-1) unless rc
+end
 
-rc = microvm.clean if rc
+microvm.clean
 
-exit(-1) unless rc
+exit (0)
+

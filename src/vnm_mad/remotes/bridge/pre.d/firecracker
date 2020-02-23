@@ -20,44 +20,67 @@ require 'open3'
 require 'base64'
 require 'rexml/document'
 
-template64 = STDIN.read
-deploy_id = ARGV[0]
+require_relative '../../command'
 
-xpath_nics = "//TEMPLATE/NIC[VN_MAD='bridge']"
-xpath_hv   = '//HISTORY/VM_MAD'
+#----------------------------------------------------------------------------
+# Constants and helper functions
+#----------------------------------------------------------------------------
+def command(cmd)
+    if VNMMAD::VNMNetwork::COMMANDS.key?(cmd.to_sym)
+        cmd_str = (VNMMAD::VNMNetwork::COMMANDS[cmd.to_sym]).to_s
+    else
+        cmd_str = cmd.to_s
+    end
+
+    cmd_str
+end
+
+XPATH_NICS = "//TEMPLATE/NIC"
+XPATH_HV   = '//HISTORY/VM_MAD'
+#----------------------------------------------------------------------------
+
+template64 = STDIN.read
+deploy_id  = ARGV[0]
 
 template = REXML::Document.new(Base64.decode64(template64))
 
-hypervisor = template.elements[xpath_hv].text
+hypervisor = template.elements[XPATH_HV].text
 
 exit 0 if hypervisor != 'firecracker'
 
 if deploy_id.nil? || deploy_id.empty?
-    vm_id = template.elements['/VM/ID'].text
+    vm_id     = template.elements['/VM/ID'].text
     deploy_id = "one-#{vm_id}"
 end
 
 rc = nil
 
-template.elements.each(xpath_nics) do |nic_element|
+template.elements.each(XPATH_NICS) do |nic_element|
     nic_id  = Integer(nic_element.elements['//NIC_ID'].text)
     bridge  = nic_element.elements['//BRIDGE'].text
+
     if_name = "#{deploy_id}-#{nic_id}"
 
+    # check if interface is already defined
+    cmd = "#{command(:ip)} link show #{if_name}"
+    _, _, rc = Open3.capture3(cmd)
+
+    next if rc.success?
+
     # create tap device
-    cmd = "sudo ip tuntap add #{if_name} mode tap"
+    cmd = "#{command(:ip)} tuntap add #{if_name} mode tap"
     _, _, rc = Open3.capture3(cmd)
 
     break unless rc.success?
 
     # set tap interface up
-    cmd = "sudo ip link set #{if_name} up"
+    cmd = "#{command(:ip)} link set #{if_name} up"
     _, _, rc = Open3.capture3(cmd)
 
     break unless rc.success?
 
     # Add tap interface to the bridge
-    cmd = "sudo brctl addif #{bridge} #{if_name}"
+    cmd = "#{command(:ip)} link set #{if_name} master #{bridge}"
     _, _, rc = Open3.capture3(cmd)
 
     break unless rc.success?

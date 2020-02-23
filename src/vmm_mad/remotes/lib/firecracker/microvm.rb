@@ -146,6 +146,7 @@ class MicroVM
         next while !File.read(path).empty? && (Time.now - t_start < timeout)
 
         File.read(path).empty?
+    rescue Errno::ENOENT
     end
 
     #---------------------------------------------------------------------------
@@ -191,9 +192,12 @@ class MicroVM
     def create
         cmd = ''
 
+        #TODO: make screen oprions configurable to support different versions
+        #TODO: make screen configurable to enable use of tmux etc..
         if @one.vnc?
-            cmd << "screen -L -Logfile /tmp/fc-log-#{@one.vm_id} " \
-                   "-dmS #{@one.vm_name} "
+            cmd << "screen -L"
+            cmd << " -Logfile /tmp/fc-log-#{@one.vm_id}" if false
+            cmd << " -dmS #{@one.vm_name}"
         end
 
         # Build jailer command paramas

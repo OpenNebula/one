@@ -51,7 +51,8 @@ class Sudoers
                 'arping',
                 'ip'
             ],
-            :MARKET => %W[#{lib_location}/sh/create_container_image.sh]
+            :MARKET => %W[#{lib_location}/sh/create_container_image.sh],
+            :FC     => %w[/usr/bin/jailer mount umount rmdir cp mkdir rm]
         }
     end
 
