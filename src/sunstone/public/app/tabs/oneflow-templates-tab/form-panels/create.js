@@ -119,14 +119,14 @@ define(function(require) {
     $(".add_service_network", context).trigger("click");
 
     context.on("change", ".service_network_name", function(){
-      _redo_service_networks_selector(context);
+      _redo_service_networks_selector(context, that);
     });
 
     context.on("click", ".service_networks i.remove-tab", function(){
       var tr = $(this).closest('tr');
       tr.remove();
 
-      _redo_service_networks_selector(context);
+      _redo_service_networks_selector(context, that);
     });
 
     $("#tf_btn_roles", context).bind("click", function(){
@@ -357,10 +357,14 @@ define(function(require) {
 
   //----------------------------------------------------------------------------
 
-  function _redo_service_networks_selector(dialog){
+  function _redo_service_networks_selector(dialog, that){
     $('#roles_tabs_content .role_content', dialog).each(function(){
       var role_section = this;
       _redo_service_networks_selector_role(dialog, role_section);
+      
+      $(Object.values(that.roleTabObjects)).each(function(_, section) {
+        section && section.refresh(role_section);
+      });
     });
   }
 
@@ -374,22 +378,36 @@ define(function(require) {
       });
 
       $(".networks_role", role_section).hide();
+      $(".networks_role_rdp", role_section).hide();
       var service_networks = false;
 
       var role_tab_id = $(role_section).attr('id');
 
       var str = "";
-      $(".service_networks .service_network_name", dialog).each(function(){
-        if ($(this).val()) {
+      $(".service_networks .service_network_name", dialog).each(function(index, input){
+        var pattern = $("input.service_network_name").not(input).map(function(_, v) {
+          return $(v).val();
+        }).get().join("|");
+
+        $(this).attr("pattern", "^(?!"+pattern+")(\\w+)$");
+        
+        var valueNetwork = $(this).val();
+        var regexp = new RegExp("^(?!"+pattern+")(\\w+)$", "gi");
+
+        if (valueNetwork && valueNetwork.match(regexp)) {
           service_networks = true;
-          str += "<tr>\
-            <td style='width:10%'>\
-              <input class='service_network_checkbox check_item' type='checkbox' value='"+$(this).val()+"' id='"+role_tab_id+"_"+$(this).val()+"'/>\
-            </td>\
-            <td>\
-              <label for='"+role_tab_id+"_"+$(this).val()+"'>"+$(this).val()+"</label>\
-            </td>\
-          </tr>";
+          var idNetwork = role_tab_id + "_" + index;
+          var idName = idNetwork + "_name";
+
+          str += "<tr id='"+idNetwork+"'>\
+              <td style='width:10%'>\
+                <input class='service_network_checkbox check_item'\
+                  type='checkbox' value='"+valueNetwork+"' id='"+idName+"' data-index='"+index+"'/>\
+              </td>\
+              <td>\
+                <label for='"+idName+"'>"+valueNetwork+"</label>\
+              </td>\
+            </tr>";
         }
       });
 
@@ -397,8 +415,8 @@ define(function(require) {
 
       if (service_networks) {
         $(".networks_role", role_section).show();
+        $(".networks_role_rdp", role_section).show();
       }
-
 
       $.each(selected_networks, function(){
         $(".service_network_checkbox[value='"+this+"']", role_section).attr('checked', true).change();
