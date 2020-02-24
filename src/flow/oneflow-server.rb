@@ -527,10 +527,12 @@ post '/service_template/:id/action' do
         end
 
         # remove escapes
-        networks_values.each do |net|
-            net.map do |_, value|
-                value.map do |_, value1|
-                    value1.gsub!('\\"', '')
+        if networks_values
+            networks_values.each do |net|
+                net.map do |_, value|
+                    value.map do |_, value1|
+                        value1.gsub!('\\"', '')
+                    end
                 end
             end
         end

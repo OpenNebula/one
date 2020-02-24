@@ -31,6 +31,8 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var DashboardUtils = require('utils/dashboard');
   var SearchDropdown = require('hbs!./datatable/search');
+  var Rdp = require('utils/rdp');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     CONSTANTS
@@ -169,6 +171,15 @@ define(function(require) {
     var that = this;
 
     TabDataTable.prototype.initialize.call(this, opts);
+
+    //download file RDP
+    $('#' + this.dataTableId).on("click", '.download_rdp', function(e){
+      e.stopPropagation();
+      var ip = $(this).attr("ip");
+      var credential = TemplateUtils.stringToTemplate( $(this).attr("credential") );
+      var name = $(this).attr("name");
+      Rdp.downloadFile(ip, name, credential);
+    });
 
     $('#' + this.dataTableId).on("click", '.vnc', function() {
       var vmId = $(this).attr('vm_id');

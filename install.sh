@@ -836,7 +836,8 @@ PM_EXEC_PACKET_SCRIPTS="src/pm_mad/remotes/packet/cancel \
 # $REMOTES_LOCATION/vmm/lib
 #-------------------------------------------------------------------------------
 
-VMM_EXEC_LIB_FILES="src/vmm_mad/remotes/lib/poll_common.rb"
+VMM_EXEC_LIB_FILES="src/vmm_mad/remotes/lib/poll_common.rb \
+                    src/vmm_mad/remotes/lib/command.rb"
 
 #-------------------------------------------------------------------------------
 # VMM Lib vcenter files, used by the vCenter Driver to be installed in
@@ -1271,6 +1272,7 @@ TM_FILES="src/tm_mad/tm_common.sh"
 TM_SHARED_FILES="src/tm_mad/shared/clone \
                  src/tm_mad/shared/delete \
                  src/tm_mad/shared/ln \
+                 src/tm_mad/shared/ln.ssh \
                  src/tm_mad/shared/mkswap \
                  src/tm_mad/shared/mkimage \
                  src/tm_mad/shared/mv \
@@ -1279,6 +1281,7 @@ TM_SHARED_FILES="src/tm_mad/shared/clone \
                  src/tm_mad/shared/postmigrate \
                  src/tm_mad/shared/failmigrate \
                  src/tm_mad/shared/mvds \
+                 src/tm_mad/shared/mvds.ssh \
                  src/tm_mad/shared/snap_create \
                  src/tm_mad/shared/snap_create_live \
                  src/tm_mad/shared/snap_delete \

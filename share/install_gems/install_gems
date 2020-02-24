@@ -206,7 +206,7 @@ EOT
 end
 
 def installed_gems
-    text=`gem list --no-versions --no-details`
+    text=`gem list --no-versions`
     if $?.exitstatus!=0
         nil
     else
@@ -498,7 +498,7 @@ EOT
         end.join(' ')+' '
     end
 
-    command_string = "#{prefix}gem install --no-ri --no-rdoc"
+    command_string = "#{prefix}gem install --no-document"
 
     install_warning(packages)
 

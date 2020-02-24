@@ -100,7 +100,6 @@ define(function(require) {
     $("#tf_btn_elas_policies", role_section).trigger("click");
     $("#tf_btn_sche_policies", role_section).trigger("click");
 
-    
     role_section.on("change", ".service_network_checkbox", role_section, function(){
       // Network values
       var index = $(this).data("index");
@@ -254,7 +253,7 @@ define(function(require) {
       // check all networks appear in vm template
       $(network_names).each(function(){
         var reg = new RegExp("\\$"+this+"\\b");
-
+        
         if(reg.exec(value.vm_template_contents) != null){
           $(".service_network_checkbox[value='"+this+"']", context).attr('checked', true).change();
         }

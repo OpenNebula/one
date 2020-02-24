@@ -333,7 +333,6 @@ AllCops:
     - src/cli/one_helper/oneacct_helper.rb
     - src/cli/one_helper/onequota_helper.rb
     - src/cli/one_helper/oneuser_helper.rb
-    - src/cli/one_helper/oneimage_helper.rb
     - src/cli/one_helper/onemarketapp_helper.rb
     - src/cli/one_helper/onegroup_helper.rb
     - src/cli/one_helper/onevnet_helper.rb
@@ -730,8 +729,11 @@ Lint/ShadowingOuterLocalVariable:
 
 # Check for debugger info
 Lint/Debugger:
-     Enabled: true
+    Enabled: true
 
+# Check file permissions
+Lint/ScriptPermission:
+    Enabled: false
 
 #########
 # METRICS

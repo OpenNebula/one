@@ -255,12 +255,13 @@ define(function(require) {
       ){
         current = currentTemplate[0].VMTEMPLATE.TEMPLATE;
       }
-      if(
-        current &&
-        current.NIC_ALIAS &&
-        !templateJSON.NIC_ALIAS
-      ){
-        delete current.NIC_ALIAS;
+      if(current) {
+        if (current.NIC && !templateJSON.NIC) {
+          delete current.NIC;
+        }
+        if(current.NIC_ALIAS && !templateJSON.NIC_ALIAS) {
+          delete current.NIC_ALIAS;
+        }
       }
     }
     if (this.action == "create") {
