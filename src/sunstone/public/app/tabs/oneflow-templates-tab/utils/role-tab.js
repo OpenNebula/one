@@ -27,6 +27,7 @@ define(function(require) {
 
   function RoleTab(html_role_id) {
     this.html_role_id = html_role_id;
+    this.old_template = "";
 
     return this;
   }
@@ -98,22 +99,27 @@ define(function(require) {
     $("#tf_btn_elas_policies", role_section).trigger("click");
     $("#tf_btn_sche_policies", role_section).trigger("click");
 
+    
+    var textareaTemplate = $(".vm_template_contents", role_section);
     role_section.on("change", ".service_network_checkbox", role_section, function(){
-      var vm_template_contents = {};
-      vm_template_contents["NIC"] = [];
-      var old_template = $(".vm_template_contents", role_section).val();
+      if (this.checked) {
+        if (that.old_template === "") {
+          var vm_template_contents = { NIC: [] };
 
-      $(".service_network_checkbox:checked", role_section).each(function(){
-        vm_template_contents["NIC"].push({"NETWORK_ID":"$"+$(this).val()});
-      });
-      
-      if(old_template != ""){
-        var template = TemplateUtils.stringToTemplate(old_template);
-        template["NIC"] = vm_template_contents["NIC"];
-        $(".vm_template_contents", role_section).val(TemplateUtils.templateToString(template));
-        return false;
+          $(".service_network_checkbox:checked", role_section).each(function(){
+            vm_template_contents["NIC"].push({"NETWORK_ID":"$"+$(this).val()});
+          });
+
+          textareaTemplate.val(TemplateUtils.templateToString(vm_template_contents));
+        }
+        else {
+          textareaTemplate.val(TemplateUtils.stringToTemplate(that.old_template));
+        }
       }
-      $(".vm_template_contents", role_section).val(TemplateUtils.templateToString(vm_template_contents));
+      else {
+        that.old_template = textareaTemplate.val();
+        textareaTemplate.val("");
+      }
     });
   }
 
@@ -200,15 +206,15 @@ define(function(require) {
     this.templatesTable.selectResourceTableSelect({ids : value.vm_template});
 
     if (value.vm_template_contents){
-      $(".vm_template_contents", context).val(value.vm_template_contents);
-
       $(network_names).each(function(){
         var reg = new RegExp("\\$"+this+"\\b");
-
+        
         if(reg.exec(value.vm_template_contents) != null){
           $(".service_network_checkbox[value='"+this+"']", context).attr('checked', true).change();
         }
       });
+
+      $(".vm_template_contents", context).val(value.vm_template_contents);
     }
 
     $("select[name='shutdown_action_role']", context).val(value.shutdown_action);
