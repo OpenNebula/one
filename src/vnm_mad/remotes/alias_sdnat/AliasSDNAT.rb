@@ -115,10 +115,10 @@ class AliasSDNATDriver < VNMMAD::VNMDriver
 
         if activate
             # create mapping rules
-            # rubocop:disable Metrics/LineLength
+            # rubocop:disable Layout/LineLength
             # iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -j SNAT --to-source 10.0.0.41
             # iptables -t nat -A PREROUTING -d 10.0.0.41 -j DNAT --to-destination 192.168.0.250
-            # rubocop:enable Metrics/LineLength
+            # rubocop:enable Layout/LineLength
             nic_aliases.each do |alias_ip, parent_id|
                 parent_ip = nic_parents[parent_id]
 
