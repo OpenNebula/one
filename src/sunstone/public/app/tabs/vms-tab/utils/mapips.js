@@ -46,23 +46,23 @@ define(function(require) {
       );
     }
 
-    mapIPprivate() {
+    mapIPprivate(ipnic) {
       var dataPublic = this.pblc.split("/");
       var dataPrivate = this.prvt.split("/");
+      var nic = ipnic || "";
       if (
         Array.isArray(dataPrivate) &&
         Array.isArray(dataPublic) &&
         dataPublic[0] &&
         dataPublic[1] &&
         dataPrivate[0] &&
-        dataPrivate[1] &&
-        dataPublic[1] === dataPrivate[1]
+        dataPrivate[1]
       ) {
         var mask = ip.fromPrefixLen(dataPublic[1]);
         var networkPublic = ip.mask(dataPublic[0], mask);
         mask = ip.fromPrefixLen(dataPrivate[1]);
         var hostBytes = ip.not(mask);
-        var hostsPrivate = ip.mask(dataPrivate[0], hostBytes);
+        var hostsPrivate = ip.mask(ipnic, hostBytes);
         this.rtn = this.intToip(
           this.ipToint(networkPublic) + this.ipToint(hostsPrivate)
         );
@@ -74,7 +74,7 @@ define(function(require) {
       var ipnic = nic || "";
       var rtn = '';
       if (ip.cidrSubnet(this.prvt).contains(ipnic)) {
-        rtn = this.mapIPprivate();
+        rtn = this.mapIPprivate(ipnic);
       }
       return rtn;
     }
