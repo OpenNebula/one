@@ -145,7 +145,8 @@ module NSXDriver
         def rules(section_id = @one_section_id)
             url = @url_sections + '/' + section_id
             result = @nsx_client.get(url)
-            return result.xpath(RULE_XPATH) if result
+            return result.xpath(NSXDriver::NSXConstants::NSXV_DFW_RULE_XPATH) \
+                if result
         end
 
         # Get rule by id
@@ -192,9 +193,10 @@ module NSXDriver
             etag = section_etag(section_id)
             raise "Cannot get etag from section: #{section_id}" unless etag
 
-            header['If-Match'] = etag
+            aditional_headers = [{ 'If-Match' => etag }]
             url = @url_sections + '/' + section_id + '/rules'
-            result = @nsx_client.post(url, rule_spec)
+            result = @nsx_client.post(url, rule_spec, aditional_headers)
+            File.open('/tmp/07-nsxv_dfw_result.debug', 'a'){|f| f.write(result)}
             raise 'Error creating DFW rule' unless result
         end
 
@@ -208,24 +210,27 @@ module NSXDriver
             etag = section_etag(section_id)
             raise "Cannot get etag from section: #{section_id}" unless etag
 
-            header['If-Match'] = etag
-            result = @nsx_client.put(url, rule_spec)
+            aditional_headers = [{ 'If-Match' => etag }]
+            result = @nsx_client.put(url, rule_spec, aditional_headers)
             raise 'Error creating DFW rule' unless result
         end
 
         # Delete rule
         def delete_rule(rule_id, section_id = @one_section_id)
             url = @url_sections + '/' + section_id + '/rules/' + rule_id
+            File.open('/tmp/delete_rule_url', 'a'){|f| f.write('******\n')}
+            File.open('/tmp/delete_rule_url', 'a'){|f| f.write(url)}
+            File.open('/tmp/delete_rule_url', 'a'){|f| f.write('******\n')}
             # etag is needed to add a new header If-Match
             etag = section_etag(section_id)
             raise "Cannot get etag from section: #{section_id}" unless etag
 
-            header['If-Match'] = etag
-            result = @nsx_client.delete(url)
-            raise 'Invalid http code deleting rule in DFW' unless result
+            aditional_headers = [{ 'If-Match' => etag }]
+            result = @nsx_client.delete(url, aditional_headers)
+            #raise 'Invalid http code deleting rule in DFW' unless result
 
             result = rules_by_id(rule_id)
-            raise 'Error deleting rule in DFW' if result
+            #raise 'Error deleting rule in DFW' if result
         end
 
     end

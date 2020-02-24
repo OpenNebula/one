@@ -19,14 +19,18 @@ require 'ipaddr'
 module NSXDriver
 
     # Class Logical Switch
-    class NSXRule < NSXDriver::NSXComponent
+    class NSXRule < NSXDriver::DistributedFirewall
 
         # ATTRIBUTES
+        attr_reader :one_section_id
 
         # CONSTRUCTOR
 
         def initialize(nsx_client)
             super(nsx_client)
+            dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
+            @url_sections = dfw.instance_variable_get('@url_sections')
+            @one_section_id = dfw.instance_variable_get('@one_section_id')
         end
 
         def self.new_child(nsx_client)
@@ -130,11 +134,11 @@ module NSXDriver
             sg_ip = xml_rule.xpath('IP').text
             sg_ipsize = xml_rule.xpath('SIZE').text
             sg_subnets = []
-            if sg_ip != "" && sg_ipsize != ""
+            if sg_ip != '' && sg_ipsize != ''
                 sg_subnets = to_nets(sg_ip, sg_ipsize.to_i)
             end
             # Ports
-            sg_ports = ""
+            sg_ports = ''
             sg_range_port = xml_rule.xpath('RANGE').text
             if sg_range_port
                 if sg_range_port.index(':')

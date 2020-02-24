@@ -113,19 +113,22 @@ module NSXDriver
         end
 
         # Return: respose.body
-        def get(url); end
+        def get(url, aditional_headers = []); end
 
         # Return: response
-        def get_full_response(url); end
+        def get_full_response(url, aditional_headers = []); end
 
         # Return: id of the created object
-        def post(url, data); end
+        def post(url, data, aditional_headers = []); end
 
-        def put(url, data); end
+        def put(url, data, aditional_headers = []); end
 
         def delete(url); end
 
         def get_token(url); end
+
+        # Prepare headers
+        def add_headers(aditional_headers = []); end
 
     end
 

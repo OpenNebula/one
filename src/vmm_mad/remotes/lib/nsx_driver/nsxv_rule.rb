@@ -28,50 +28,122 @@ module NSXDriver
         end
 
         def create_rule_spec(rule, vm_data, nic_data)
+            # Adapt rule[:port] -> ["22, 443"] => '22, 443'
+            unless rule[:ports].empty?
+                rule_ports = rule[:ports].join(',')
+            end
 
-            virtual_wire_spec =
-            "<virtualWireCreateSpec>\
-                <name>#{ls_name}</name>\
-                <description>#{ls_description}</description>\
-                <tenantId>virtual wire tenant</tenantId>\
-                <controlPlaneMode>#{replication_mode}</controlPlaneMode>\
-                <guestVlanAllowed>false</guestVlanAllowed>\
-            </virtualWireCreateSpec>"
+            rule_name = "#{rule[:id]}-#{rule[:name]}-#{vm_data[:id]}-#{vm_data[:deploy_id]}-#{nic_data[:id]}"
 
-                rule_spec =
+            builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
+                xml.rule('disabled' => 'false', 'logged' => 'false') {
+                    xml.name rule_name
+                    xml.action 'allow'
+                    xml.appliedToList {
+                        xml.appliedTo {
+                            xml.name nic_data[:name]
+                            xml.value nic_data[:lp]
+                            xml.type 'Vnic'
+                            xml.isValid 'true'
+                        }
+                    }
+                    xml.sectionId @one_section_id
 
-                "<rule disabled=\"false\" logged=\"false\">\
-                    <name>#{rule[:id]}-#{rule[:name]}-#{vm_data[:id]}-#{vm_data[:deploy_id]}-#{nic_data[:id]}</name>\
-                    <action>allow</action>\
-                    <appliedToList>\
-                        <appliedTo>\
-                            <name>#{nic_data[:name]}</name>\
-                            <value>#{nic_data[:lp]}</value>\
-                            <type>Vnic</type>\
-                            <isValid>true</isValid>\
-                        </appliedTo>\
-                    </appliedToList>\
-                <sectionId>1023</sectionId>
-                <sources excluded="false">
-                    <source>
-                        <name>app</name>
-                        <value>virtualwire-6</value>
-                        <type>VirtualWire</type>
-                        <isValid>true</isValid>
-                    </source>
-                </sources>
-                <services>
-                    <service>
-                        <isValid>true</isValid>
-                        <sourcePort>80</sourcePort>
-                        <destinationPort>80</destinationPort>
-                        <protocol>6</protocol>
-                        <protocolName>TCP</protocolName>
-                    </service>
-                </services>
-                <direction>inout</direction>
-                <packetType>any</packetType>
-            </rule>
+                    ###### SOURCES / DESTINATIONS: Any | IP Address | Vnet #####
+
+                    unless rule[:network_id].empty? && rule[:subnets].empty?
+
+                        if rule[:direction] == 'IN'
+                            xml.sources('excluded' => 'false') {
+                                if !rule[:network_id].empty?
+                                    xml.source {
+                                        xml.name rule[:network_name]
+                                        xml.value rule[:network_nsxid]
+                                        xml.type 'VirtualWire'
+                                        xml.isValid 'true'
+                                    }
+                                elsif !rule[:subnets].empty?
+                                    rule[:subnets].each do |subnet|
+                                        xml.source {
+                                            ip_version = IPAddr.new(subnet).ipv4? ? 'Ipv4Address' : 'Ipv6Address'
+                                            xml.value subnet
+                                            xml.type ip_version
+                                            xml.isValid 'true'
+                                        }
+                                    end
+                                end
+                            }
+                        else
+                            xml.destinations('excluded' => 'false') {
+                                # Target network: Vnet
+                                if !rule[:network_id].empty?
+                                    xml.destination {
+                                        xml.name nic_data[:network_name]
+                                        xml.value rule[:network_nsxid]
+                                        xml.type 'VirtualWire'
+                                        xml.isValid 'true'
+                                    }
+                                # Target network: Manual network (IP Address)
+                                elsif !rule[:subnets].empty?
+                                    rule[:subnets].each do |subnet|
+                                        xml.destination {
+                                            ip_version = IPAddr.new(subnet).ipv4? ? 'Ipv4Address' : 'Ipv6Address'
+                                            xml.value subnet
+                                            xml.type ip_version
+                                            xml.isValid 'true'
+                                        }
+                                    end
+                                end
+                            }
+                        end
+
+                    end
+
+                    ##### SERVICES #####
+                    unless rule[:protocol].empty?
+                        xml.services {
+                            xml.service {
+                                xml.isValid 'true'
+                                case rule[:protocol]
+                                when 'TCP'
+                                    xml.protocol '6'
+                                    xml.protocolName 'TCP'
+                                    xml.sourcePort rule_ports \
+                                        if rule[:direction] == 'IN'
+                                    xml.destinationPort rule_ports \
+                                        if rule[:direction] == 'OUT'
+                                when 'UDP'
+                                    xml.protocol '17'
+                                    xml.protocolName 'UDP'
+                                    xml.sourcePort rule_ports \
+                                        if rule[:direction] == 'IN'
+                                    xml.destinationPort rule_ports \
+                                        if rule[:direction] == 'OUT'
+                                when 'ICMP'
+                                    xml.protocol '1'
+                                    xml.protocolName 'ICMP'
+                                when 'ICMPv6'
+                                    xml.protocol '58'
+                                    xml.protocolName 'IPV6ICMP'
+                                when 'ALL'
+                                    xml.sourcePort rule_ports \
+                                        if rule[:direction] == 'IN'
+                                    xml.destinationPort rule_ports \
+                                        if rule[:direction] == 'OUT'
+                                end
+                            }
+                        }
+
+                    end
+
+                    xml.direction rule[:direction].downcase
+                    xml.packetType 'any'
+
+                } # end xml.rule
+
+            end
+            #builder.to_xml[22..-1]
+            builder.to_xml
 
         end
 

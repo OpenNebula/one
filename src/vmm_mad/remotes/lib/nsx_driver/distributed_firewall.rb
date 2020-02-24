@@ -19,6 +19,7 @@ module NSXDriver
     class DistributedFirewall < NSXDriver::NSXComponent
 
         # ATTRIBUTES
+        attr_reader :one_section_name
 
         # CONSTRUCTOR
         def initialize(nsx_client)
@@ -85,6 +86,7 @@ module NSXDriver
             nic_name = nil
             nic_lp = nil
             network_id = nic.xpath('NETWORK_ID').text
+            network_name = nic.xpath('NETWORK').text
             network_vcref = nic.xpath('VCENTER_NET_REF').text
             network_pgtype = nic.xpath('VCENTER_PORTGROUP_TYPE').text
             network_mac = nic.xpath('MAC').text
@@ -96,7 +98,7 @@ module NSXDriver
 
                 next if device.macAddress != network_mac
 
-                nic_name = "#{vm.name}-#{nic_id}-#{device.deviceInfo.label}"
+                nic_name = "#{vm.item.name}-#{nic_id}-#{device.deviceInfo.label}"
 
                 case network_pgtype
                 when NSXDriver::NSXConstants::NSXT_LS_TYPE
@@ -109,8 +111,8 @@ module NSXDriver
                 when NSXDriver::NSXConstants::NSXV_LS_TYPE
                     # lpid is vm instanceUuid.sufix
                     # sufix is device number but removing first number
-                    suffix = device.key.to_s[[1..-1]]
-                    lpid = "#{vm.config.instanceUuid}.#{suffix}"
+                    suffix = device.key.to_s[1..-1]
+                    lpid = "#{vm.item.config.instanceUuid}.#{suffix}"
                     nic_lp = lpid
                     # nic_lp = NSXDriver::LogicalPort.new_child(nsx_client, lpid)
                     # raise "Logical port id: #{lpid} not found" unless nic_lp
@@ -128,6 +130,7 @@ module NSXDriver
             nic_data = {
                 :id => nic_id,
                 :name => nic_name,
+                :network_name => network_name,
                 :network_id => network_id,
                 :network_vcref => network_vcref,
                 :lp => nic_lp
@@ -174,6 +177,7 @@ module NSXDriver
             # Search NSX Nics
             # First try to search only new attached NSX Nics
             nsx_nics = ls.nsx_nics(template_xml, only_attached)
+            File.open('/tmp/01-dfw_nsx_nics.debug', 'a'){|f| f.write(nsx_nics)}
 
             # If there is no NSX Nics
             return if nsx_nics.empty?
@@ -193,12 +197,16 @@ module NSXDriver
 
                         # Create rules spec
                         rule_data = nsx_rule.extract_rule_data(sg_rule)
+                        File.open('/tmp/02-dfw_rule_data.debug', 'a'){|f| f.write(rule_data)}
                         rule_spec = nsx_rule.create_rule_spec(rule_data,
                                                               vm_data,
                                                               nic_data)
+                        File.open('/tmp/03-dfw_rule_spec.debug', 'a'){|f| f.write(rule_spec)}
+
                         sg_rules_array.push(rule_spec)
                     end
                     # Create NSX rules
+                    File.open('/tmp/04-dfw_sg_rules_array.debug', 'a'){|f| f.write(sg_rules_array)}
                     sg_rules_array.each do |sg_spec|
                         begin
                             create_rule(sg_spec)
@@ -225,6 +233,7 @@ module NSXDriver
                     end
                 end
             end
+
         end
 
         def clear_all_vm_rules(template)

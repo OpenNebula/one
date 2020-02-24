@@ -50,11 +50,22 @@ module NSXDriver
             @nsx_type = NSXDriver::NSXConstants::NSXT
         end
 
+        # Prepare headers
+        def add_headers(aditional_headers = [])
+            headers = NSXDriver::NSXConstants::HEADER_JSON.clone
+            unless aditional_headers.empty?
+                aditional_headers.each do |header|
+                    headers[header.keys[0]] = header.values[0]
+                end
+            end
+            headers
+        end
+
         # METHODS
-        def get(url)
+        def get(url, aditional_headers = [])
             uri = URI.parse(@nsxmgr + url)
-            request = Net::HTTP::Get.new(uri.request_uri,
-                                         NSXDriver::NSXConstants::HEADER_JSON)
+            headers = add_headers(aditional_headers)
+            request = Net::HTTP::Get.new(uri.request_uri, headers)
             request.basic_auth(@nsx_user, @nsx_password)
             begin
                 response = Net::HTTP
@@ -72,10 +83,10 @@ module NSXDriver
                 if check_response(response, [NSXDriver::NSXConstants::CODE_OK])
         end
 
-        def get_full_response(url)
+        def get_full_response(url, aditional_headers = [])
             uri = URI.parse(@nsxmgr + url)
-            request = Net::HTTP::Get.new(uri.request_uri,
-                                         NSXDriver::NSXConstants::HEADER_JSON)
+            headers = add_headers(aditional_headers)
+            request = Net::HTTP::Get.new(uri.request_uri, headers)
             request.basic_auth(@nsx_user, @nsx_password)
             begin
                 response = Net::HTTP
@@ -94,10 +105,10 @@ module NSXDriver
         end
 
         # Return: id of the created object
-        def post(url, data)
+        def post(url, data, aditional_headers = [])
             uri = URI.parse(@nsxmgr + url)
-            request = Net::HTTP::Post.new(uri.request_uri,
-                                          NSXDriver::NSXConstants::HEADER_JSON)
+            headers = add_headers(aditional_headers)
+            request = Net::HTTP::Post.new(uri.request_uri, headers)
             request.body = data
             request.basic_auth(@nsx_user, @nsx_password)
             response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
@@ -122,10 +133,10 @@ module NSXDriver
             response_json['id']
         end
 
-        def put(url, data)
+        def put(url, data, aditional_headers = [])
             uri = URI.parse(@nsxmgr + url)
-            request = Net::HTTP::Put.new(uri.request_uri,
-                                         NSXDriver::NSXConstants::HEADER_JSON)
+            headers = add_headers(aditional_headers)
+            request = Net::HTTP::Put.new(uri.request_uri, headers)
             request.body = data
             request.basic_auth(@nsx_user, @nsx_password)
             response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
@@ -149,11 +160,10 @@ module NSXDriver
             response_json['id']
         end
 
-        def delete(url)
+        def delete(url, aditional_headers = [])
             uri = URI.parse(@nsxmgr + url)
-            request = Net::HTTP::Delete
-                      .new(uri.request_uri,
-                           NSXDriver::NSXConstants::HEADER_JSON)
+            headers = add_headers(aditional_headers)
+            request = Net::HTTP::Delete.new(uri.request_uri, headers)
             request.basic_auth(@nsx_user, @nsx_password)
             response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
               :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
@@ -162,10 +172,10 @@ module NSXDriver
             check_response(response, [NSXDriver::NSXConstants::CODE_OK])
         end
 
-        def get_token(url)
+        def get_token(url, aditional_headers = [])
             uri = URI.parse(@nsxmgr + url)
-            request = Net::HTTP::Post.new(uri.request_uri,
-                                          NSXDriver::NSXConstants::HEADER_JSON)
+            headers = add_headers(aditional_headers)
+            request = Net::HTTP::Post.new(uri.request_uri, headers)
             request.basic_auth(@nsx_user, @nsx_password)
             response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
               :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|

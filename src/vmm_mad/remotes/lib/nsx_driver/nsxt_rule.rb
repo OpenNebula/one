@@ -87,12 +87,12 @@ module NSXDriver
             # from vm template
 
             ###### SOURCES / DESTINATIONS: Any | IP Address | Vnet #####
-            networks_array = []
+            src_or_dst = []
 
             # Target network: Vnet
-            if rule[:network_id] != ''
+            if !rule[:network_id].empty?
 
-                networks_array << {
+                src_or_dst << {
                     :target_id => rule[:network_nsxid],
                     :target_display_name => rule[:network_name],
                     :target_type => 'LogicalSwitch',
@@ -102,7 +102,7 @@ module NSXDriver
             # Target network: Manual network (IP Address)
             elsif !rule[:subnets].empty?
                 rule[:subnets].each do |subnet|
-                    networks_array << {
+                    src_or_dst << {
                         :target_id => subnet,
                         :target_display_name => subnet,
                         :target_type => 'IPAddress',
@@ -113,10 +113,10 @@ module NSXDriver
 
             # (OpenNebula) INBOUND  => Destination (NSX)
             # (OpenNebula) OUTBOUND => Source (NSX)
-            unless networks_array.empty?
-                rule_spec[:sources] = networks_array \
+            unless src_or_dst.empty?
+                rule_spec[:sources] = src_or_dst \
                     if rule[:direction] == 'IN'
-                rule_spec[:destinations] = networks_array \
+                rule_spec[:destinations] = src_or_dst \
                     if rule[:direction] == 'OUT'
             end
 
@@ -138,10 +138,14 @@ module NSXDriver
             # when 'ICMP'
             # when 'ICMPv6'
             # when 'IPSEC'
-            # when 'ALL'
+            when 'ALL'
+                service[:service][:source_ports] = rule[:ports] \
+                    if rule[:direction] == 'IN'
+                service[:service][:destination_ports] = rule[:ports] \
+                    if rule[:direction] == 'OUT'
             end
 
-            if rule[:protocol] != 'ALL' && !service.nil?
+            if rule[:protocol] != 'ALL' && !service.empty?
                 services << service
                 rule_spec[:services] = services
             end
