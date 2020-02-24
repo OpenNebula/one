@@ -35,7 +35,7 @@ def command(cmd)
     cmd_str
 end
 
-XPATH_NICS = "//TEMPLATE/NIC"
+XPATH_NICS = '//TEMPLATE/NIC'
 XPATH_HV   = '//HISTORY/VM_MAD'
 #----------------------------------------------------------------------------
 

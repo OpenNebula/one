@@ -146,7 +146,7 @@ class MicroVM
         next while !File.read(path).empty? && (Time.now - t_start < timeout)
 
         File.read(path).empty?
-    rescue Errno::ENOENT
+    rescue Errno::ENOENT # rubocop:disable Lint/SuppressedException
     end
 
     #---------------------------------------------------------------------------
@@ -192,11 +192,12 @@ class MicroVM
     def create
         cmd = ''
 
-        #TODO: make screen oprions configurable to support different versions
-        #TODO: make screen configurable to enable use of tmux etc..
+        # TODO: make screen oprions configurable to support different versions
+        # TODO: make screen configurable to enable use of tmux etc..
+        # TODO: make log file from screen configurable (not working on CentOS 7)
         if @one.vnc?
-            cmd << "screen -L"
-            cmd << " -Logfile /tmp/fc-log-#{@one.vm_id}" if false
+            cmd << 'screen -L'
+            # cmd << " -Logfile /tmp/fc-log-#{@one.vm_id}" if false
             cmd << " -dmS #{@one.vm_name}"
         end
 

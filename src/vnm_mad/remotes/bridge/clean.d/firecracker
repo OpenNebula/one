@@ -39,7 +39,7 @@ def command(cmd)
     cmd_str
 end
 
-XPATH_NICS = "//TEMPLATE/NIC"
+XPATH_NICS = '//TEMPLATE/NIC'
 XPATH_HV   = '//HISTORY/VM_MAD'
 #----------------------------------------------------------------------------
 
@@ -63,7 +63,6 @@ error = false
 
 template.elements.each(XPATH_NICS) do |nic_element|
     nic_id  = Integer(nic_element.elements['//NIC_ID'].text)
-    bridge  = nic_element.elements['//BRIDGE'].text
     if_name = "#{deploy_id}-#{nic_id}"
 
     # check if interface is already defined
