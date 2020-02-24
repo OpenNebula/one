@@ -125,7 +125,26 @@ define(function(require) {
     this.datastoresTable.resetResourceTableSelect();
     this.hostsTable.resetResourceTableSelect();
 
-    if (this.live) {
+    if (
+      this.live &&
+      vmTemplate &&
+      vmTemplate.USER_TEMPLATE &&
+      vmTemplate.USER_TEMPLATE.HYPERVISOR &&
+      Config && Config.onedConf && Config.onedConf.VM_MAD && Array.isArray(Config.onedConf.VM_MAD)
+    ) {
+      var hypervisor = $.grep(Config.onedConf.VM_MAD, function(n,i) {
+        return n.NAME && n.NAME === vmTemplate.USER_TEMPLATE.HYPERVISOR;
+      })
+      
+      if (
+        !hypervisor[0] ||
+        !hypervisor[0].DS_LIVE_MIGRATION ||
+        hypervisor[0].DS_LIVE_MIGRATION !== "yes"
+      ) {
+        $(".migrate_vm_ds_selection", context).hide();
+      }
+    }
+    else {
       $(".migrate_vm_ds_selection", context).hide();
     }
 
