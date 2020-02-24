@@ -17,6 +17,7 @@
 require 'one_helper'
 require 'one_helper/onevm_helper'
 
+# CLI helper for oneimage command
 class OneImageHelper < OpenNebulaHelper::OneHelper
 
     TEMPLATE_OPTIONS=[
@@ -36,7 +37,9 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             :name => 'type',
             :large => '--type type',
             :format => String,
-            :description => "Type of the new Image: #{Image::IMAGE_TYPES.join(', ')}",
+            :description => "Type of the new Image: \
+            #{Image::IMAGE_TYPES.join(', ')}",
+
             :proc => lambda do |o, _options|
                 type=o.strip.upcase
 
@@ -79,9 +82,9 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             :description => 'Path of the image file',
             :format => String,
             :proc => lambda do |o, _options|
-                if o.match(%r{^https?://})
-                    next [0, o]
-                elsif o[0, 1]=='/'
+                next [0, o] if o.match(%r{^https?://})
+
+                if o[0, 1]=='/'
                     path=o
                 else
                     path=Dir.pwd+'/'+o
@@ -132,7 +135,9 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         {
             :name => 'size',
             :large => '--size size',
-            :description => 'Size in MB. Used for DATABLOCK type or SOURCE based images.',
+            :description => "Size in MB. \
+            Used for DATABLOCK type or SOURCE based images.",
+
             :format => String,
             :proc => lambda do |o, _options|
                 m=o.strip.match(/^(\d+(?:\.\d+)?)(m|mb|g|gb)?$/i)
@@ -287,20 +292,28 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         str='%-15s: %-20s'
         str_h1='%-80s'
 
+        path = image['PATH']
+        fstype = image['FSTYPE']
+
+        size = OpenNebulaHelper.unit_to_str(image['SIZE'].to_i, {}, 'M')
+        lock = OpenNebulaHelper.level_lock_to_str(image['LOCK/LOCKED'])
+        regtime = OpenNebulaHelper.time_to_str(image['REGTIME'])
+        pers = OpenNebulaHelper.boolean_to_str(image['PERSISTENT'])
+
         CLIHelper.print_header(str_h1 % "IMAGE #{image['ID']} INFORMATION")
         puts format(str, 'ID', image.id.to_s)
         puts format(str, 'NAME', image.name)
         puts format(str, 'USER', image['UNAME'])
         puts format(str, 'GROUP', image['GNAME'])
-        puts format(str, 'LOCK', OpenNebulaHelper.level_lock_to_str(image['LOCK/LOCKED']))
+        puts format(str, 'LOCK', lock)
         puts format(str, 'DATASTORE', image['DATASTORE'])
         puts format(str, 'TYPE', image.type_str)
-        puts format(str, 'REGISTER TIME', OpenNebulaHelper.time_to_str(image['REGTIME']))
-        puts format(str, 'PERSISTENT', OpenNebulaHelper.boolean_to_str(image['PERSISTENT']))
+        puts format(str, 'REGISTER TIME', regtime)
+        puts format(str, 'PERSISTENT', pers)
         puts format(str, 'SOURCE', image['SOURCE'])
-        puts format(str, 'PATH', image['PATH']) if image['PATH'] && !image['PATH'].empty?
-        puts format(str, 'FSTYPE', image['FSTYPE']) if image['FSTYPE'] && !image['FSTYPE'].empty?
-        puts format(str, 'SIZE', OpenNebulaHelper.unit_to_str(image['SIZE'].to_i, {}, 'M'))
+        puts format(str, 'PATH', path) if path && !path.empty?
+        puts format(str, 'FSTYPE', fstype) if fstype && !fstype.empty?
+        puts format(str, 'SIZE', size)
         puts format(str, 'STATE', image.short_state_str)
         puts format(str, 'RUNNING_VMS', image['RUNNING_VMS'])
         puts
@@ -333,12 +346,12 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
 
         vms=image.retrieve_elements('VMS/ID')
 
-        if vms
-            vms.map! {|e| e.to_i }
-            onevm_helper=OneVMHelper.new
-            onevm_helper.client=@client
-            onevm_helper.list_pool({ :ids=>vms, :no_pager => true }, false)
-        end
+        return unless vms
+
+        vms.map! {|e| e.to_i }
+        onevm_helper=OneVMHelper.new
+        onevm_helper.client=@client
+        onevm_helper.list_pool({ :ids=>vms, :no_pager => true }, false)
     end
 
     def format_snapshots(image)
@@ -391,42 +404,48 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         table.show(image_snapshots)
     end
 
-    def self.create_image_variables(options, name)
-        if Array === name
-            names = name
-        else
-            names = [name]
-        end
+    class << self
 
-        t = ''
-        names.each do |n|
-            if options[n]
-                t << "#{n.to_s.upcase}=\"#{options[n]}\"\n"
+        private
+
+        def create_image_variables(options, name)
+            if name.is_a?(Array)
+                names = name
+            else
+                names = [name]
             end
+
+            t = ''
+            names.each do |n|
+                if options[n]
+                    t << "#{n.to_s.upcase}=\"#{options[n]}\"\n"
+                end
+            end
+
+            t
         end
 
-        t
-    end
+        def create_image_template(options)
+            template_options = TEMPLATE_OPTIONS.map do |o|
+                o[:name].to_sym
+            end
 
-    def self.create_image_template(options)
-        template_options = TEMPLATE_OPTIONS.map do |o|
-            o[:name].to_sym
+            template = create_image_variables(
+                options,
+                template_options - [:persistent, :dry, :prefix]
+            )
+
+            if options[:persistent]
+                template << "PERSISTENT=YES\n"
+            end
+
+            if options[:prefix]
+                template << "DEV_PREFIX=\"#{options[:prefix]}\"\n"
+            end
+
+            [0, template]
         end
 
-        template = create_image_variables(
-            options,
-            template_options - [:persistent, :dry, :prefix]
-        )
-
-        if options[:persistent]
-            template << "PERSISTENT=YES\n"
-        end
-
-        if options[:prefix]
-            template << "DEV_PREFIX=\"#{options[:prefix]}\"\n"
-        end
-
-        [0, template]
     end
 
 end
