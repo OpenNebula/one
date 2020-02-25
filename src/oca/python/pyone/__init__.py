@@ -21,6 +21,13 @@ import socket
 from .util import cast2one
 from .acl import OneAcl
 
+import requests
+import requests.utils
+
+import sys
+from distutils.version import StrictVersion
+import warnings
+
 #
 # Exceptions as defined in the XML-API reference
 #
@@ -162,11 +169,20 @@ class OneServer(xmlrpc.client.ServerProxy):
         if timeout:
             # note that this will affect other classes using sockets too.
             socket.setdefaulttimeout(timeout)
+
         # register helpers:
         self.__helpers = {
             "marketapp.export": marketapp_export
         }
-        xmlrpc.client.ServerProxy.__init__(self, uri, **options)
+
+        transport = RequestsTransport()
+        transport.set_https(uri.startswith('https'))
+
+        xmlrpc.client.ServerProxy.__init__(
+                self,
+                uri,
+                transport=transport,
+                **options)
 
     #
     def _ServerProxy__request(self, methodname, params):
@@ -253,4 +269,57 @@ class OneServer(xmlrpc.client.ServerProxy):
         pass
 
 
+class RequestsTransport(xmlrpc.client.Transport):
+    """
+    Drop in Transport for xmlrpclib that uses Requests instead of httplib
+    """
 
+    user_agent = "Python XMLRPC with Requests (python-requests.org)"
+    use_https = False
+
+    def set_https(self, https=False):
+        self.use_https = https
+
+    def request(self, host, handler, request_body, verbose=False):
+        """
+        Make an xmlrpc request.
+        """
+        headers = {'User-Agent': self.user_agent,
+                   'Content-Type': 'text/xml',
+                   'Accept': '*/*'
+                   }
+
+        url = self._build_url(host, handler)
+
+        kwargs = {'verify': True}
+
+        resp = requests.post(url, data=request_body, headers=headers,
+                             **kwargs)
+        try:
+            resp.raise_for_status()
+        except requests.RequestException as e:
+            raise xmlrpc.client.ProtocolError(url, resp.status_code,
+                                              str(e), resp.headers)
+        else:
+            return self.parse_response(resp)
+
+    def parse_response(self, response):
+        """
+        Parse the xmlrpc response.
+        """
+        p, u = self.getparser()
+
+        p.feed(response.content)
+        p.close()
+
+        return u.close()
+
+    def _build_url(self, host, handler):
+        """
+        Build a url for our request based on the host, handler and use_http
+        property
+        """
+        scheme = 'https' if self.use_https else 'http'
+        handler = handler.lstrip('/')
+
+        return '%s://%s/%s' % (scheme, host, handler)
