@@ -471,7 +471,7 @@ tabs:
             Service.chgrp: false
             Service.chmod: false
             Service.rename: true
-            Service.shutdown: true
+            Service.shutdown: false
             Service.recover: true
             Service.delete: true
             Service.edit_labels: true

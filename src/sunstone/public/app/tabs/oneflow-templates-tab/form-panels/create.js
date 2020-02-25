@@ -91,7 +91,9 @@ define(function(require) {
       'customTagsTableHTML': CustomTagsTable.html(
         CustomClassCustomAttrs,
         CustomClassCustomAttrsButton, 
-        true
+        true,
+        true, //mandatory
+        true, //default
       )
     });
   }
@@ -188,7 +190,6 @@ define(function(require) {
 
     // Add first role
     $("#tf_btn_roles", context).trigger("click");
-
     Tips.setup(context);
     CustomTagsTable.setup(context, true);
     return false;
