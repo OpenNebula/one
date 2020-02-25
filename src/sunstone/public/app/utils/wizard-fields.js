@@ -54,7 +54,9 @@ define(function(require) {
   }
 
   function _retrieveInput(value) {
-    return TemplateUtils.escapeDoubleQuotes( value );
+    return (value instanceof $)
+      ? value.val()
+      : TemplateUtils.escapeDoubleQuotes( value );
   }
 
   // TODO: wizard_field_64 for fill method

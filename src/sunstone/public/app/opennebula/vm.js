@@ -875,8 +875,10 @@ define(function(require) {
   function isRDPSupported(element) {
     return ( element.TEMPLATE &&
         element.TEMPLATE.NIC &&
-        element.TEMPLATE.NIC.length > 0 &&
-        element.TEMPLATE.NIC.filter(nic => nic.RDP && nic.RDP == "YES")
+        Array.isArray(element.TEMPLATE.NIC) &&
+        element.TEMPLATE.NIC.some(function(nic) {
+          return nic.RDP && nic.RDP == "YES"
+        })
     );
   }
 
