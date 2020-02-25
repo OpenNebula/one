@@ -108,13 +108,13 @@ module NSXDriver
         def post(url, data, aditional_headers = [])
             uri = URI.parse(@nsxmgr + url)
             headers = add_headers(aditional_headers)
-            File.open('/tmp/05-nsxv_client_post.debug', 'a'){|f| f.write("*****************************\n")}
-            File.open('/tmp/05-nsxv_client_post.debug', 'a'){|f| f.write(url)}
-            File.open('/tmp/05-nsxv_client_post.debug', 'a'){|f| f.write("\n")}
-            File.open('/tmp/05-nsxv_client_post.debug', 'a'){|f| f.write(data)}
-            File.open('/tmp/05-nsxv_client_post.debug', 'a'){|f| f.write("\n")}
-            File.open('/tmp/05-nsxv_client_post.debug', 'a'){|f| f.write(headers)}
-            File.open('/tmp/05-nsxv_client_post.debug', 'a'){|f| f.write("*****************************\n")}
+            #REMOVE# File.open('/tmp/05-nsxv_client_post.debug', 'a'){|f| f.write("*****************************\n")}
+            #REMOVE# File.open('/tmp/05-nsxv_client_post.debug', 'a'){|f| f.write(url)}
+            #REMOVE# File.open('/tmp/05-nsxv_client_post.debug', 'a'){|f| f.write("\n")}
+            #REMOVE# File.open('/tmp/05-nsxv_client_post.debug', 'a'){|f| f.write(data)}
+            #REMOVE# File.open('/tmp/05-nsxv_client_post.debug', 'a'){|f| f.write("\n")}
+            #REMOVE# File.open('/tmp/05-nsxv_client_post.debug', 'a'){|f| f.write(headers)}
+            #REMOVE# File.open('/tmp/05-nsxv_client_post.debug', 'a'){|f| f.write("*****************************\n")}
             request = Net::HTTP::Post.new(uri.request_uri, headers)
             request.body = data
             request.basic_auth(@nsx_user, @nsx_password)
@@ -131,7 +131,7 @@ module NSXDriver
                 raise e
             end
 
-            File.open('/tmp/06-nsxv_client_post_response.debug', 'a'){|f| f.write(response.body)}
+            #REMOVE# File.open('/tmp/06-nsxv_client_post_response.debug', 'a'){|f| f.write(response.body)}
               # If response is different as expected raise the message
             unless check_response(response,
                                   [NSXDriver::NSXConstants::CODE_CREATED,

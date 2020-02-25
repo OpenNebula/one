@@ -109,6 +109,7 @@ module NSXDriver
             }
         }
         NSXV_RULE_BASE = 'xxx'
+        NSX_RULE_IPSEC_PORTS = %w[500 4500]
         # Logical Ports
         NSXT_LP_BASE = NSXT_BASE + '/logical-ports/'
         NSXV_LP_BASE = ''

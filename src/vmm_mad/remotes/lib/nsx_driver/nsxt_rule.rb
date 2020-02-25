@@ -53,34 +53,72 @@ module NSXDriver
             }
 
             rule_protocol_template = {
-                'TCP' => {
-                    :service => {
-                        :l4_protocol => 'TCP',
-                        :source_ports => [],
-                        :destination_ports => [],
-                        :resource_type => 'L4PortSetNSService'
+                'TCP' => [
+                    {
+                        :service => {
+                            :l4_protocol => 'TCP',
+                            :source_ports => [],
+                            :destination_ports => [],
+                            :resource_type => 'L4PortSetNSService'
+                        }
                     }
-                },
-                'UDP' => {
-                    :service => {
-                        :l4_protocol => 'UDP',
-                        :source_ports => [],
-                        :destination_ports => [],
-                        :resource_type => 'L4PortSetNSService'
+                ],
+                'UDP' => [
+                    {
+                        :service => {
+                            :l4_protocol => 'UDP',
+                            :source_ports => [],
+                            :destination_ports => [],
+                            :resource_type => 'L4PortSetNSService'
+                        }
                     }
-                },
-                'ICMP' => {
-                    :service => {
-                        :protocol => 'ICMPv4',
-                        :resource_type => 'ICMPTypeNSService'
+                ],
+                'ICMP' => [
+                    {
+                        :service => {
+                            :protocol => 'ICMPv4',
+                            :resource_type => 'ICMPTypeNSService'
+                        }
                     }
-                },
-                'ICMPv6' => {
-                    :service => {
-                        :protocol => 'ICMPv6',
-                        :resource_type => 'ICMPTypeNSService'
+                ],
+                'ICMPv6' => [
+                    {
+                        :service => {
+                            :protocol => 'ICMPv6',
+                            :resource_type => 'ICMPTypeNSService'
+                        }
                     }
-                }
+                ],
+                'IPSEC' => [
+                    {
+                        :service => {
+                            :l4_protocol => 'UDP',
+                            :source_ports => [],
+                            :destination_ports => [],
+                            :resource_type => 'L4PortSetNSService'
+                        }
+                    },
+                    {
+                        :service => {
+                            :protocol_number => 50,
+                            :resource_type => 'IPProtocolNSService'
+                        }
+                    },
+                    {
+                        :service => {
+                            :protocol_number => 51,
+                            :resource_type => 'IPProtocolNSService'
+                        }
+                    }
+                ],
+                'ALL' => [
+                    {
+                        :service => {
+                            :source_ports => [],
+                            :destination_ports => []
+                        }
+                    }
+                ]
             }
 
             # Modify default rule spec based on rule_data extracted
@@ -126,27 +164,31 @@ module NSXDriver
 
             case rule[:protocol]
             when 'TCP'
-                service[:service][:source_ports] = rule[:ports] \
+                service[0][:service][:source_ports] = rule[:ports] \
                     if rule[:direction] == 'IN'
-                service[:service][:destination_ports] = rule[:ports] \
+                service[0][:service][:destination_ports] = rule[:ports] \
                     if rule[:direction] == 'OUT'
             when 'UDP'
-                service[:service][:source_ports] = rule[:ports] \
+                service[0][:service][:source_ports] = rule[:ports] \
                     if rule[:direction] == 'IN'
-                service[:service][:destination_ports] = rule[:ports] \
+                service[0][:service][:destination_ports] = rule[:ports] \
                     if rule[:direction] == 'OUT'
             # when 'ICMP'
             # when 'ICMPv6'
-            # when 'IPSEC'
+            when 'IPSEC'
+                service[0][:service][:source_ports] = NSXDriver::NSXConstants::NSX_RULE_IPSEC_PORTS if rule[:direction] == 'IN'
+                service[0][:service][:destination_ports] = NSXDriver::NSXConstants::NSX_RULE_IPSEC_PORTS if rule[:direction] == 'OUT'
             when 'ALL'
-                service[:service][:source_ports] = rule[:ports] \
+                service[0][:service][:source_ports] = rule[:ports] \
                     if rule[:direction] == 'IN'
-                service[:service][:destination_ports] = rule[:ports] \
+                service[0][:service][:destination_ports] = rule[:ports] \
                     if rule[:direction] == 'OUT'
             end
 
             if rule[:protocol] != 'ALL' && !service.empty?
-                services << service
+                service.each do |s|
+                    services << s
+                end
                 rule_spec[:services] = services
             end
 

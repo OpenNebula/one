@@ -27,12 +27,16 @@ module NSXDriver
             @base_url = NSXDriver::NSXConstants::NSXV_RULE_BASE
         end
 
-        def create_rule_spec(rule, vm_data, nic_data)
-            # Adapt rule[:port] -> ["22, 443"] => '22, 443'
-            unless rule[:ports].empty?
-                rule_ports = rule[:ports].join(',')
+        # Adapt port from ["22, 443"] to '22, 443'
+        # Adapt port from ["22", "443"] to '22, 443'
+        def parse_ports(rule_ports)
+            unless rule_ports.empty?
+                rule_ports = rule_ports.join(',')
             end
+            rule_ports
+        end
 
+        def create_rule_spec(rule, vm_data, nic_data)
             rule_name = "#{rule[:id]}-#{rule[:name]}-#{vm_data[:id]}-#{vm_data[:deploy_id]}-#{nic_data[:id]}"
 
             builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
@@ -102,49 +106,79 @@ module NSXDriver
                     ##### SERVICES #####
                     unless rule[:protocol].empty?
                         xml.services {
-                            xml.service {
-                                xml.isValid 'true'
-                                case rule[:protocol]
-                                when 'TCP'
+                            case rule[:protocol]
+                            when 'TCP'
+                                xml.service {
+                                    xml.isValid 'true'
                                     xml.protocol '6'
                                     xml.protocolName 'TCP'
-                                    xml.sourcePort rule_ports \
+                                    xml.sourcePort parse_ports(rule[:ports]) \
                                         if rule[:direction] == 'IN'
-                                    xml.destinationPort rule_ports \
+                                    xml.destinationPort parse_ports(rule[:ports]) \
                                         if rule[:direction] == 'OUT'
-                                when 'UDP'
+                                }
+                            when 'UDP'
+                                xml.service {
+                                    xml.isValid 'true'
                                     xml.protocol '17'
                                     xml.protocolName 'UDP'
-                                    xml.sourcePort rule_ports \
+                                    xml.sourcePort parse_ports(rule[:ports]) \
                                         if rule[:direction] == 'IN'
-                                    xml.destinationPort rule_ports \
+                                    xml.destinationPort parse_ports(rule[:ports]) \
                                         if rule[:direction] == 'OUT'
-                                when 'ICMP'
+                                }
+                            when 'ICMP'
+                                xml.service {
+                                    xml.isValid 'true'
                                     xml.protocol '1'
                                     xml.protocolName 'ICMP'
-                                when 'ICMPv6'
+                                }
+                            when 'ICMPv6'
+                                xml.service {
+                                    xml.isValid 'true'
                                     xml.protocol '58'
                                     xml.protocolName 'IPV6ICMP'
-                                when 'ALL'
-                                    xml.sourcePort rule_ports \
+                                }
+                            when 'IPSEC'
+                                ports = NSXDriver::NSXConstants::NSX_RULE_IPSEC_PORTS
+                                xml.service {
+                                    xml.isValid 'true'
+                                    xml.protocol '50'
+                                    xml.protocolName 'ESP'
+                                }
+                                xml.service {
+                                    xml.isValid 'true'
+                                    xml.protocol '51'
+                                    xml.protocolName 'AH'
+                                }
+                                xml.service {
+                                    xml.isValid 'true'
+                                    xml.protocol '17'
+                                    xml.protocolName 'UDP'
+                                    xml.sourcePort parse_ports(ports) \
                                         if rule[:direction] == 'IN'
-                                    xml.destinationPort rule_ports \
+                                    xml.destinationPort parse_ports(ports) \
                                         if rule[:direction] == 'OUT'
-                                end
-                            }
+                                }
+                            when 'ALL'
+                                xml.service {
+                                    xml.isValid 'true'
+                                    xml.sourcePort parse_ports(rule[:ports]) \
+                                        if rule[:direction] == 'IN'
+                                    xml.destinationPort parse_ports(rule[:ports]) \
+                                        if rule[:direction] == 'OUT'
+                                }
+                            end
+
                         }
 
                     end
 
                     xml.direction rule[:direction].downcase
                     xml.packetType 'any'
-
                 } # end xml.rule
-
             end
-            #builder.to_xml[22..-1]
             builder.to_xml
-
         end
 
     end

@@ -196,7 +196,7 @@ module NSXDriver
             aditional_headers = [{ 'If-Match' => etag }]
             url = @url_sections + '/' + section_id + '/rules'
             result = @nsx_client.post(url, rule_spec, aditional_headers)
-            File.open('/tmp/07-nsxv_dfw_result.debug', 'a'){|f| f.write(result)}
+            #REMOVE# File.open('/tmp/07-nsxv_dfw_result.debug', 'a'){|f| f.write(result)}
             raise 'Error creating DFW rule' unless result
         end
 
@@ -218,9 +218,6 @@ module NSXDriver
         # Delete rule
         def delete_rule(rule_id, section_id = @one_section_id)
             url = @url_sections + '/' + section_id + '/rules/' + rule_id
-            File.open('/tmp/delete_rule_url', 'a'){|f| f.write('******\n')}
-            File.open('/tmp/delete_rule_url', 'a'){|f| f.write(url)}
-            File.open('/tmp/delete_rule_url', 'a'){|f| f.write('******\n')}
             # etag is needed to add a new header If-Match
             etag = section_etag(section_id)
             raise "Cannot get etag from section: #{section_id}" unless etag
