@@ -98,7 +98,8 @@ module NSXDriver
 
                 next if device.macAddress != network_mac
 
-                nic_name = "#{vm.item.name}-#{nic_id}-#{device.deviceInfo.label}"
+                device_label = device.deviceInfo.label
+                nic_name = "#{vm.item.name}-#{nic_id}-#{device_label}"
 
                 case network_pgtype
                 when NSXDriver::NSXConstants::NSXT_LS_TYPE
@@ -114,8 +115,6 @@ module NSXDriver
                     suffix = device.key.to_s[1..-1]
                     lpid = "#{vm.item.config.instanceUuid}.#{suffix}"
                     nic_lp = lpid
-                    # nic_lp = NSXDriver::LogicalPort.new_child(nsx_client, lpid)
-                    # raise "Logical port id: #{lpid} not found" unless nic_lp
                 else
                     error_msg = "Network type is: #{network_pgtype} \
                                     and should be \
@@ -177,7 +176,6 @@ module NSXDriver
             # Search NSX Nics
             # First try to search only new attached NSX Nics
             nsx_nics = ls.nsx_nics(template_xml, only_attached)
-            #REMOVE# File.open('/tmp/01-dfw_nsx_nics.debug', 'a'){|f| f.write(nsx_nics)}
 
             # If there is no NSX Nics
             return if nsx_nics.empty?
@@ -194,46 +192,41 @@ module NSXDriver
                     xp = "//SECURITY_GROUP_RULE[SECURITY_GROUP_ID=#{sec_group}]"
                     sg_rules = template_xml.xpath(xp)
                     sg_rules.each do |sg_rule|
-
                         # Create rules spec
                         rule_data = nsx_rule.extract_rule_data(sg_rule)
-                        #REMOVE# File.open('/tmp/02-dfw_rule_data.debug', 'a'){|f| f.write(rule_data)}
                         rule_spec = nsx_rule.create_rule_spec(rule_data,
                                                               vm_data,
                                                               nic_data)
-                        #REMOVE# File.open('/tmp/03-dfw_rule_spec.debug', 'a'){|f| f.write(rule_spec)}
 
                         sg_rules_array.push(rule_spec)
                     end
                     # Create NSX rules
-                    #REMOVE# File.open('/tmp/04-dfw_sg_rules_array.debug', 'a'){|f| f.write(sg_rules_array)}
                     sg_rules_array.each do |sg_spec|
                         begin
                             create_rule(sg_spec)
                         rescue StandardError => e
-                            OpenNebula::log_error("Error creating rule " +
-                                "due to \"#{e.message}\"" +
-                                "\n********* STACK TRACE *********\n" +
-                                "\t#{e.backtrace.join("\n\t")}" +
-                                "\n*******************************\n")
-                            OpenNebula.error_message("Error creating rule: " +
-                                "#{e.message}")
+                            OpenNebula.log_error(
+                                "Error creating NSX rule: \"#{e.message}\""
+                            )
+                            if VCenterDriver::CONFIG[:debug_information]
+                                OpenNebula.error_message(e.backtrace)
+                            end
+
                             begin
                                 clear_vm_rules(template, nsx_nics)
                             rescue StandardError => e
-                                OpenNebula::log_error("Error deleting rule " +
-                                    "due to \"#{e.message}\"" +
-                                    "\n********* STACK TRACE *********\n" +
-                                    "\t#{e.backtrace.join("\n\t")}" +
-                                    "\n*******************************\n")
-                                OpenNebula.error_message("Error deleting rule: " +
-                                    "#{e.message}")
+                                OpenNebula.log_error(
+                                    'Error rolling back NSX rules: '\
+                                    "\"#{e.message}\""
+                                )
+                                if VCenterDriver::CONFIG[:debug_information]
+                                    OpenNebula.error_message(e.backtrace)
+                                end
                             end
                         end
                     end
                 end
             end
-
         end
 
         def clear_all_vm_rules(template)
@@ -272,7 +265,8 @@ module NSXDriver
                     sg_rules.each do |sg_rule|
                         sg_id = sg_rule.xpath('SECURITY_GROUP_ID').text
                         sg_name = sg_rule.xpath('SECURITY_GROUP_NAME').text
-                        rule_name = "#{sg_id}-#{sg_name}-#{vm_id}-#{vm_deploy_id}-#{nic_id}"
+                        rule_name =  "#{sg_id}-#{sg_name}-#{vm_id}"
+                        rule_name << "-#{vm_deploy_id}-#{nic_id}"
                         rules = rules_by_name(rule_name, @one_section_id)
                         rules.each do |rule|
                             delete_rule(rule['id'], @one_section_id) if rule
@@ -280,7 +274,6 @@ module NSXDriver
                     end
                 end
             end
-
         end
 
     end
