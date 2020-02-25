@@ -406,8 +406,6 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
 
     class << self
 
-        private
-
         def create_image_variables(options, name)
             if name.is_a?(Array)
                 names = name
