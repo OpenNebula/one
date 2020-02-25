@@ -26,17 +26,32 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var removedStyles = false;
 
-  function _html(classTable, classButton, removeStyles){
+  var showMandatory = false;
+  var showDefault = false;
+
+  function _reset(){
+    showDefault = false;
+    showMandatory = false;
+  }
+
+  function _html(classTable, classButton, removeStyles, mandatory, deflt){
     var classTableName = classTable && classTable.length>0 ? classTable : '';
     var classButtonName = classButton && classButton.length>0 ? classButton : '';
+    if(mandatory){
+      showMandatory = true;
+    }
+    if(deflt){
+      showDefault = true;
+    }
     if(removeStyles){
       removedStyles = removeStyles;
     }
+
     return TemplateHTML({
       'titleKey': Locale.tr("Name"),
-      'titleMandatory': Locale.tr("Type"),
+      'titleMandatory': showMandatory ? Locale.tr("Type") : '',
       'titleValue': Locale.tr("Description"),
-      'titleDefault': Locale.tr("Default Value"),
+      'titleDefault': showDefault? Locale.tr("Default Value"): '',
       'classTable': classTableName,
       'classButton': classButtonName
     });
@@ -46,13 +61,14 @@ define(function(require) {
     if (!hide_vector_button) {
       hide_vector_button = false;
     }
+    console.log("VALIDATE: ",showMandatory? 'M' : '');
     context.off("click", ".add_custom_tag");
     context.on("click", ".add_custom_tag", function(){
       $("tbody.custom_tags", context).append(
         RowTemplateHTML({
           styles: !removedStyles,
-          mandatory: 'M',
-          valueDefault: ' '
+          mandatory: showMandatory? 'M' : '',
+          valueDefault: showDefault? ' ' : ''
         })
       );
       if(hide_vector_button){
@@ -156,8 +172,8 @@ define(function(require) {
           RowTemplateHTML({
             key: key,
             value: val,
-            mandatory: 'M',
-            valueDefault: ' '
+            mandatory: showMandatory ? 'M': '',
+            valueDefault: showDefault? ' ': ''
           })
         );
       }
@@ -168,6 +184,7 @@ define(function(require) {
     'html': _html,
     'setup': _setup,
     'retrieve': _retrieveCustomTags,
-    'fill': _fillCustomTags
+    'fill': _fillCustomTags,
+    'reset': _reset
   };
 });

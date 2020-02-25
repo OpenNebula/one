@@ -80,6 +80,7 @@ define(function(require) {
    */
 
   function _html() {
+    CustomTagsTable.reset();
     return TemplateHTML({
       'uniqueId': UniqueId.id(),
       'userInputsHTML': UserInputs.html(),
@@ -151,6 +152,7 @@ define(function(require) {
     });
 
     UserInputs.setup(context);
+    CustomTagsTable.reset();
     CustomTagsTable.setup(context, true);
 
     var selectOptions = {
