@@ -39,7 +39,7 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
     bool                        sudo,
     VirtualMachinePool *        pool):
         Mad(userid,attrs,sudo), driver_conf(true), keep_snapshots(false),
-        ds_live_migration(false), vmpool(pool)
+        ds_live_migration(false), cold_nic_attach(false), vmpool(pool)
 {
     map<string,string>::const_iterator  it;
     char *          error_msg = nullptr;
@@ -100,9 +100,14 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
     driver_conf.get("KEEP_SNAPSHOTS", keep_snapshots);
 
     // -------------------------------------------------------------------------
-    // Parse KEEP_SNAPSHOTS
+    // Parse DS_LIVE_MIGRATION
     // -------------------------------------------------------------------------
     driver_conf.get("DS_LIVE_MIGRATION", ds_live_migration);
+
+    // -------------------------------------------------------------------------
+    // Parse COLD_NIC_ATTACH
+    // -------------------------------------------------------------------------
+    driver_conf.get("COLD_NIC_ATTACH", cold_nic_attach);
 
     // -------------------------------------------------------------------------
     // Parse IMPORTED_VMS_ACTIONS string and init the action set

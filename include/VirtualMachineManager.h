@@ -181,12 +181,28 @@ public:
     {
         const VirtualMachineManagerDriver * vmd = get(name);
 
-        if ( vmd == 0 )
+        if ( vmd == nullptr )
         {
             return false;
         }
 
         return vmd->is_keep_snapshots();
+    }
+
+    /**
+     * Get cold_nic_attach behavior for the driver. When true the driver will be
+     * invoked in cold NIC attach operations
+     */
+    bool is_cold_nic_attach(const string& name)
+    {
+        const VirtualMachineManagerDriver * vmd = get(name);
+
+        if ( vmd == nullptr )
+        {
+            return false;
+        }
+
+        return vmd->is_cold_nic_attach();
     }
 
     /**

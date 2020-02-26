@@ -2456,7 +2456,6 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
     // -------------------------------------------------------------------------
     // Perform the attach
     // -------------------------------------------------------------------------
-
     rc = dm->attach_nic(id, &tmpl, att, att.resp_msg);
 
     if ( rc != 0 )

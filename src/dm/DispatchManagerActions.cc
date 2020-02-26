@@ -1729,8 +1729,15 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
         return -1;
     }
 
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING )
+    bool cold_attach = false;
+
+    if ( vm->hasHistory() )
+    {
+        cold_attach = vmm->is_cold_nic_attach(vm->get_vmm_mad());
+    }
+
+    if ((vm->get_state()     == VirtualMachine::ACTIVE &&
+        vm->get_lcm_state() == VirtualMachine::RUNNING ) || cold_attach)
     {
         vm->set_state(VirtualMachine::HOTPLUG_NIC);
     }
@@ -1805,7 +1812,7 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DispatchManager::detach_nic(int vid, int nic_id,const RequestAttributes& ra,
+int DispatchManager::detach_nic(int vid, int nic_id, const RequestAttributes& ra,
         string&  error_str)
 {
     ostringstream oss;
@@ -1848,8 +1855,15 @@ int DispatchManager::detach_nic(int vid, int nic_id,const RequestAttributes& ra,
         return -1;
     }
 
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING )
+    bool cold_attach = false;
+
+    if ( vm->hasHistory() )
+    {
+        cold_attach = vmm->is_cold_nic_attach(vm->get_vmm_mad());
+    }
+
+    if ((vm->get_state()     == VirtualMachine::ACTIVE &&
+        vm->get_lcm_state() == VirtualMachine::RUNNING ) || cold_attach)
     {
         time_t the_time = time(0);
 
