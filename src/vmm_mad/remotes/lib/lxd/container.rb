@@ -253,18 +253,18 @@ class Container
 
     # Extended reboot required for OpenNebula execution flow
     def reboot(force)
-        case config['user.reboot_state']
-        when 'STOPPED'
+        case transient?
+        when true
             start
-            config['user.reboot_state'] = 'RUNNING'
-            transition_end # container reached a final state
+
+            transition_end # container reached the final state of rebooting
+            update
         else
             transition_start # container will be started later
-            check_stop(force)
-            config['user.reboot_state'] = 'STOPPED'
-        end
+            update
 
-        update
+            check_stop(force)
+        end
     end
 
     def restart(options = {})
@@ -494,6 +494,11 @@ class Container
     # Removes transient state flag. Requires updating the container.
     def transition_end
         @lxc['config'].delete('user.one_status')
+    end
+
+    # Helper method for querying transition phase
+    def transient?
+        true if @lxc['config']['user.one_status'] == '0'
     end
 
     private
