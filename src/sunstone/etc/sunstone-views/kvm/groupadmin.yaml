@@ -783,6 +783,7 @@ tabs:
             Network.create_dialog: false
             Network.import_dialog: false
             Network.update_dialog: false
+            Network.instantiate_dialog: false
             Network.reserve_dialog: false
             Network.addtocluster: false
             Network.rename: false
