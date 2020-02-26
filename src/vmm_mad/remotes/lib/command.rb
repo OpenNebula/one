@@ -44,7 +44,7 @@ module Command
     def self.execute_rc_log(cmd, lock = false)
         rc, _stdout, stderr = execute(cmd, lock)
 
-        puts stderr unless rc.zero?
+        STDERR.puts stderr unless rc.zero?
 
         rc.zero?
     end
