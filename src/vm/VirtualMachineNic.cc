@@ -321,6 +321,9 @@ int VirtualMachineNics::get_network_leases(int vm_id, int uid,
             }
             else
             {
+                // set nic name for NIC_ALIAS
+                nic->set_nic_name();
+
                 nic->replace("NIC_ID", nic_id);
             }
 
