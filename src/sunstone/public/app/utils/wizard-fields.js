@@ -52,10 +52,12 @@ define(function(require) {
     return templateJSON;
   }
 
-  function _retrieveInput(value) {
-    return (value instanceof $)
-      ? value.val()
-      : TemplateUtils.escapeDoubleQuotes( value );
+  function _retrieveInput(input) {
+    return TemplateUtils.escapeDoubleQuotes(
+      (input instanceof $)
+        ? input.val()
+        : input
+    );
   }
 
   // TODO: wizard_field_64 for fill method
