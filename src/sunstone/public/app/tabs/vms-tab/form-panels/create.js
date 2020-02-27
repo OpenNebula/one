@@ -67,16 +67,12 @@ define(function(require) {
   function _setup(context) {
     var that = this;
     InstantiateTemplateFormPanel.prototype.setup.call(this, context);
-
-    $(".selectTemplateTable", context).html(
-          '<br/>' + this.templatesTable.dataTableHTML + '<br/>');
-
+    $(".selectTemplateTable", context).html('<br/>' + this.templatesTable.dataTableHTML + '<br/>');
     this.templatesTable.initialize();
-
     this.templatesTable.idInput().on("change", function(){
         $(".nameContainer", context).show();
         $(".persistentContainer", context).show();
-
+        
         var templatesContext = $(".list_of_templates", context);
         templatesContext.html("");
         templatesContext.show();
@@ -85,15 +81,12 @@ define(function(require) {
         if(template_id){
           that.setTemplateIds(context, [template_id]);
           var leasesThat = {};
-
           function FormPanel() {
             this.name = this.name;
           }
-
           Object.assign(leasesThat, that);
           leasesThat.resource = "vm";
           leasesThat.resourceId = template_id;
-
           if(
             OpenNebulaAction && 
             OpenNebulaAction.cache && 
@@ -105,12 +98,10 @@ define(function(require) {
           ){
             leasesThat.jsonTemplate = OpenNebulaAction.cache("VMTEMPLATE").data[template_id].VMTEMPLATE.TEMPLATE;
           }
-
           leasesThat.__proto__ = FormPanel.prototype;
           Leases.actions(leasesThat);
         }
     });
-
     Tips.setup(context);
   }
 

@@ -191,8 +191,8 @@ define(function(require) {
               (propUpperCase === "USERNAME" || propUpperCase === "PASSWORD") 
                 && (credentials[propUpperCase] = context[prop]);
             }
-            var pblc = vm.TEMPLATE.CONTEXT.MAP_PUBLIC;
-            var prvt = vm.TEMPLATE.CONTEXT.MAP_PRIVATE;
+            var pblc = vm.TEMPLATE.CONTEXT.MAP_EXTERNAL;
+            var prvt = vm.TEMPLATE.CONTEXT.MAP_INTERNAL;
             var mapp = new mapips(pblc, prvt);
             var foundip = mapp.renderPublicIp(ip);
             ip = foundip || ip

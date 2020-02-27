@@ -2,7 +2,7 @@
   "name": "opennebula-sunstone",
   "dependencies": {
     "flot": "0.8.3",
-    "ip": "https://github.com/jloboescalona2/ip.git#2c25465",
+    "ip": "https://github.com/jloboescalona2/ip.git#fa504336",
     "buffer": "https://github.com/anodynos/node2web_buffer.git#91433d2",
     "jgrowl": "1.4.2",
     "fontawesome": "5.0.7",
