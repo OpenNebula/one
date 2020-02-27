@@ -587,7 +587,15 @@ $tooltip-pip-width: 1rem;
 $tooltip-pip-height: $tooltip-pip-width * 0.866;
 $tooltip-radius: $global-radius;
 
-// 36. Top Bar
+// 36. Lock
+// -----------
+
+$is-lock-cursor: pointer;
+$is-lock-color: $light-black;
+$is-unlock-cursor: pointer;
+$isunlock-color: $light-black;
+
+// 37. Top Bar
 // -----------
 
 $topbar-padding: 0.5rem;
