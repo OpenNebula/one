@@ -18,6 +18,7 @@ define(function(require) {
   // Dependencies
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
+  var Locks = require('utils/lock');
   var TemplatesTable = require('tabs/templates-tab/datatable');
   var TemplateUtils = require('utils/template-utils');
 
@@ -62,6 +63,7 @@ define(function(require) {
     var that = this;
 
     Tips.setup(role_section);
+    Locks.setup(role_section);
 
     this.templatesTable.initialize();
     this.templatesTable.idInput().attr("required", "");
