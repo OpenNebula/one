@@ -195,7 +195,8 @@ module LXD
         def get_cpu_jiffies
             begin
                 stat = File.read('/proc/stat')
-            rescue StandardError
+            rescue StandardError => e
+                OpenNebula.log e
                 return 0
             end
 
@@ -210,16 +211,16 @@ module LXD
         end
 
         def get_process_jiffies(vm_name)
-            begin
-                jiffies = 0
+            jiffies = 0
+            stat = File.read('/sys/fs/cgroup/cpu,cpuacct/'\
+                "#{lxc_path(vm_name)}/cpuacct.stat")
 
-                stat = File.read('/sys/fs/cgroup/cpu,cpuacct/' + lxc_path(vm_name) + '/cpuacct.stat')
-                stat.lines.each {|line| jiffies += line.split(' ')[1] }
-            rescue StandardError
-                return 0
-            end
+            stat.lines.each {|line| jiffies += line.split(' ')[1].to_i }
 
             jiffies
+        rescue => e
+            OpenNebula.log e
+            0
         end
 
         def parse_memory(memory)
