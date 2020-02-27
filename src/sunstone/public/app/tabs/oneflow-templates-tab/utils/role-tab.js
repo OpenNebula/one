@@ -104,13 +104,22 @@ define(function(require) {
       // Network values
       var index = $(this).data("index");
       var name = $(this).val();
-      
+
       updateOptionsRDP(that.global_template, role_section);
       
       (this.checked)
         ? that.global_template[index] = { "NETWORK_ID": "$"+name }
         : delete that.global_template[index];
 
+      updateTextareaTemplate(role_section, that.global_template);
+    });
+
+    role_section.on("change", ".vm_template_contents", role_section, function(){
+      var value = $(this).val();
+
+      var diff = diffWithTemplate(value, that.global_template);
+      
+      updateExtraTemplate(role_section, that.global_template, diff)
       updateTextareaTemplate(role_section, that.global_template);
     });
 
@@ -127,17 +136,39 @@ define(function(require) {
       });
       
       if (valueSelected !== "" && that.global_template[valueSelected]) {
-        that.global_template[valueSelected]["RDP"] = "yes";
+          that.global_template[valueSelected]["RDP"] = "yes";
       }
       updateTextareaTemplate(role_section, that.global_template);
     });
   }
 
+  function updateExtraTemplate(roleSection, currentTemplate, extraValue) {
+    var checkboxes = $(".service_network_checkbox", roleSection);
+    var lastIndex = checkboxes.length > 100 ? checkboxes.length : 100;
+
+    currentTemplate[lastIndex] = String(extraValue);
+  }
+
+  function diffWithTemplate(newValue, currentTemplate) {
+    // map template with index checkbox
+    var sortedTemplate = TemplateUtils.templateToString({
+      NIC: Object.values(currentTemplate).filter(function(nic)  {
+        return typeof nic === "object"
+      })
+    })//.concat(Object.values(currentTemplate).filter(rest => typeof rest !== "object"));
+
+    var sortedValue = TemplateUtils.templateToString(TemplateUtils.stringToTemplate(newValue))
+
+    return sortedValue.split("").filter(function(c, i) {
+      return sortedTemplate.split("")[i] !== c
+    }).join("");
+  }
+
   function updateTextareaTemplate(roleContext, currentTemplate) {
-    // create a correct template with new changes
+
     var newTemplate = TemplateUtils.templateToString({
-      NIC: Object.values(currentTemplate)
-    });
+      NIC: Object.values(currentTemplate).filter(nic => typeof nic === "object")
+    }).concat(Object.values(currentTemplate).filter(rest => typeof rest !== "object"));
 
     var textareaTemplate = $(".vm_template_contents", roleContext);
     textareaTemplate.val(newTemplate);
@@ -259,17 +290,24 @@ define(function(require) {
         }
       });
 
-      // map template
-      var template = TemplateUtils.stringToTemplate(value.vm_template_contents)["NIC"];
-      $(network_names).each(function(index, name) {
-        var nicTemplate = $.grep(template, function(nic) {
-          return (nic["NETWORK_ID"] === "$"+name) && nic;
-        })
-    
-        if (nicTemplate && nicTemplate[0]) {
-          that.global_template[String(index)] = nicTemplate[0];
-        }
-      });
+      // map template with index checkbox
+      var nics = TemplateUtils.stringToTemplate(value.vm_template_contents)["NIC"];
+      if (nics && Array.isArray(nics)) {
+        $(network_names).each(function(index, name) {
+          var nicTemplate = $.grep(nics, function(nic) {
+            return (nic["NETWORK_ID"] === "$"+name) && nic;
+          })
+          
+          if (nicTemplate && nicTemplate[0]) {
+            that.global_template[String(index)] = nicTemplate[0];
+          }
+        });
+      }
+      
+      // add extra of strings at the end of template
+      var extraTemplate = diffWithTemplate(value.vm_template_contents, that.global_template);
+
+      updateExtraTemplate(context, that.global_template, extraTemplate);
 
       // update textarea template content
       updateTextareaTemplate(context, that.global_template);
@@ -328,12 +366,28 @@ define(function(require) {
   }
 
   function _refreshVMTemplate(role_section) {
-    var that = this;
-    $.grep($(".service_network_checkbox:not(:checked)", role_section), function (nic) {
-      delete that.global_template[$(nic).data("index")];
+    var selected_networks = [];
+    $(".service_network_checkbox:checked", role_section).each(function(){
+      selected_networks.push($(this).val());
     });
 
-    updateTextareaTemplate(role_section, that.global_template);
+    Object.values(this.global_template)
+      .filter(function(nic) { return typeof nic === "object" })
+      .reduce(function(acc, nic, indexKey) {
+        if (!selected_networks.find(
+          function(net) {
+            return nic && nic.NETWORK_ID && nic.NETWORK_ID === "$"+net
+          })
+        ) {
+          acc.push(indexKey);
+        }
+        return acc;
+      }, [])
+      .forEach(function(index) {
+        delete this.global_template[index];
+      }, this);
+
+    updateTextareaTemplate(role_section, this.global_template);
   }
 
   //----------------------------------------------------------------------------
