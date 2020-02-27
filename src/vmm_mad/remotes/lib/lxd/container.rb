@@ -253,8 +253,7 @@ class Container
 
     # Extended reboot required for OpenNebula execution flow
     def reboot(force)
-        case transient?
-        when true
+        if transient?
             start
 
             transition_end # container reached the final state of rebooting
@@ -498,7 +497,7 @@ class Container
 
     # Helper method for querying transition phase
     def transient?
-        true if @lxc['config']['user.one_status'] == '0'
+        @lxc['config']['user.one_status'] == '0'
     end
 
     private
