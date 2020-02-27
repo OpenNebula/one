@@ -52,7 +52,7 @@ define(function(require) {
     this.title = Locale.tr("Addresses");
     this.icon = "fa-align-justify";
 
-    this.element = info[XML_ROOT];
+    this.element = JSON.parse(JSON.stringify(info[XML_ROOT]));
 
     this.last_selected_row_ar = "";
 
