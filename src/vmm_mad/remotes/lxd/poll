@@ -108,7 +108,7 @@ module LXD
         #  * 'stopped' container not running or in the process of shutting down.
         #  * 'failure' container have failed.
         def get_state(container)
-            return '-' if container.config['user.one_status'] == '0'
+            return '-' if container.transient?
 
             begin
                 status = container.status.downcase
