@@ -85,7 +85,7 @@ class MicroVM
     end
 
     def get_pid
-        pid = `ps auxwww | grep "^.*firecracker.*\\-\\-id=#{@one.vm_name}"`
+        pid = `ps auxwww | grep "^.*firecracker.*\\-\\-id.*#{@one.vm_name}"`
 
         if pid.empty? || pid.nil?
             return -1
@@ -197,8 +197,8 @@ class MicroVM
         # TODO: make log file from screen configurable (not working on CentOS 7)
         if @one.vnc?
             cmd << 'screen -L'
-            # cmd << " -Logfile /tmp/fc-log-#{@one.vm_id}" if false
-            cmd << " -dmS #{@one.vm_name}"
+            cmd << " -Logfile /tmp/fc-log-#{@one.vm_id}"
+            cmd << " -dmS #{@one.vm_name} "
         end
 
         # Build jailer command paramas
@@ -236,6 +236,8 @@ class MicroVM
     def cancel
         pid = get_pid
 
+        return true if pid < 0 # The vm is not running (no pid found)
+
         Command.execute_rc_log("kill -9 #{pid}")
     end
 
@@ -247,7 +249,7 @@ class MicroVM
         rc &= Command.execute_rc_log("rm -rf #{@rootfs_dir}/firecracker")
 
         # unmount vm directory
-        rc &= `sudo umount #{@rootfs_dir}`
+        rc &= Command.execute_rc_log("sudo umount #{@rootfs_dir}")
 
         # remove chroot directory
         rc &= Command.execute_rc_log("rm -rf #{File.expand_path('..', @rootfs_dir)}") if rc
