@@ -62,22 +62,29 @@ define(function(require) {
   }
 
   function _setup(context) {
-    var that = this;
+    var id_cb_clone_vms = "clone-vms";
+    var id_cb_clone_images = "clone-images";
+
+    _drawCheckbox(context, id_cb_clone_vms, "Clone VM templates asssociated");
 
     $("#" + DIALOG_ID + "Form", context).submit(function() {
       var extra_info;
       var name = $("input[name=\"name\"]", this).val();
+      var mode = _getModeClone(context, id_cb_clone_vms, id_cb_clone_images);
       var sel_elems = Sunstone.getDataTable(ONEFLOW_TEMPLATES_TAB_ID).elements();
 
       if (sel_elems.length > 1) {
         for (var i = 0; i < sel_elems.length; i++) {
           //If we are cloning several images we
           //use the name as prefix
-          extra_info = name + OpenNebulaServiceTemplate.getName(sel_elems[i]);
+          extra_info = {
+            name: name + OpenNebulaServiceTemplate.getName(sel_elems[i]),
+            mode: mode
+          };
           Sunstone.runAction("ServiceTemplate.clone", sel_elems[i], extra_info);
         }
       } else {
-        extra_info = name;
+        extra_info = { name: name, mode: mode };
         Sunstone.runAction("ServiceTemplate.clone", sel_elems[0], extra_info);
       }
 
@@ -87,6 +94,12 @@ define(function(require) {
         Sunstone.runAction("ServiceTemplate.refresh");
       }, 1500);
       return false;
+    });
+
+    $("#" + id_cb_clone_vms, context).on('change', function() {
+      this.checked
+        ? _drawCheckbox(context, id_cb_clone_images, "Clone images asssociated")
+        : _removeCheckbox(context, id_cb_clone_images);
     });
 
     return false;
@@ -111,5 +124,27 @@ define(function(require) {
     $("input[name='name']", context).focus();
 
     return false;
+  }
+
+  function _drawCheckbox(context, id, text) {
+    $("#clone-options", context).append(
+      '<div class="large-12 columns" id="' + id + '-wrapper">\
+        <input type="checkbox" class="'+ id +'" id="'+ id +'">\
+        <label for="'+ id +'">\
+          ' + Locale.tr(text) + '\
+        </label>\
+      </div>');
+  }
+
+  function _removeCheckbox(context, id) {
+    $("#" + id, context).parent().remove();
+  }
+
+  function _getModeClone(context, id_cb_clone_vms, id_cb_clone_images) {
+    return $("#" + id_cb_clone_images, context).is(":checked")
+      ? "all"
+      : $("#" + id_cb_clone_vms, context).is(":checked")
+        ? "templates"
+        : "none";
   }
 });
