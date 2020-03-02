@@ -43,7 +43,7 @@ define(function(require) {
     Locale.tr("Hidden Template"),
     Locale.tr("Labels"),
     "search_data",
-    Locale.tr("Leases") //clock leases
+    Locale.tr("Charter") //clock leases
   ];
 
   return {
