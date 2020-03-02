@@ -85,13 +85,14 @@ class MicroVM
     end
 
     def get_pid
-        pid = `ps auxwww | grep -E "^.*firecracker.*\\-\\-id[[:blank:]]+#{@one.vm_name}[[:blank:]]+"`
+        rc, stdout, = Command.execute("ps auxwww | grep -E '^.*firecracker.*\\-\\-id[[:blank:]]+#{@one.vm_name}[[:blank:]]+'",
+                                      false)
 
-        if pid.empty? || pid.nil?
+        if !rc.zero? || stdout.nil?
             return -1
         end
 
-        Integer(pid.split[1])
+        Integer(stdout.split[1])
     end
 
     def map_context
