@@ -219,7 +219,7 @@ class MicroVM
 
         return false unless map_context
 
-        Command.execute_rc_log(cmd)
+        Command.execute_detach(cmd)
     end
 
     # Poweroff the microVM by sending CtrlAltSupr signal
