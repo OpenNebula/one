@@ -85,7 +85,7 @@ class MicroVM
     end
 
     def get_pid
-        pid = `ps auxwww | grep "^.*firecracker.*\\-\\-id.*#{@one.vm_name}"`
+        pid = `ps auxwww | grep -E "^.*firecracker.*\\-\\-id[[:blank:]]+#{@one.vm_name}[[:blank:]]+"`
 
         if pid.empty? || pid.nil?
             return -1
