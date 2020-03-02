@@ -111,24 +111,33 @@ define(function(require) {
     var roles_index = 0;
 
     $(".add_service_network", context).on("click", function(){
+      var nic_index = $(".service_network_name", context).length;
+
       $(".service_networks tbody").append(
         '<tr>\
           <td>\
-            <input class="service_network_name" type="text" pattern="^\\w+$"/>\
-            <small class="form-error"><br/>'+Locale.tr("Can only contain alphanumeric and underscore characters")+'</small>\
+            <input class="service_network_name" type="text" />\
+            <small class="form-error"><br/>'+Locale.tr("Can only contain alphanumeric and underscore characters, and be unique")+'</small>\
           </td>\
           <td>\
             <textarea class="service_network_description"/>\
           </td>\
           <td>\
-            <a href="#"><i class="fas fa-times-circle remove-tab"></i></a>\
+            <a href="#"><i class="fas fa-times-circle remove-tab" data-index="'+nic_index+'"></i></a>\
           </td>\
         </tr>');
     });
 
     $(".add_service_network", context).trigger("click");
 
-    context.on("change", ".service_network_name", function(){
+    context.on("keyup", ".service_network_name", function(){
+      // update pattern regex
+      var otherNames = $("input.service_network_name").not($(this)).map(function() {
+        return $(this).val();
+      }).get().join("|");
+
+      $(this).attr("pattern", "^(?!(" + otherNames + ")$)(^\\w+$)");
+
       _redo_service_networks_selector(context, that);
     });
 
@@ -136,7 +145,7 @@ define(function(require) {
       var tr = $(this).closest('tr');
       tr.remove();
 
-      _redo_service_networks_selector(context, that);
+      _redo_service_networks_selector(context, that, $(this).data("index"));
     });
 
     $("#tf_btn_roles", context).bind("click", function(){
@@ -413,45 +422,36 @@ define(function(require) {
 
   //----------------------------------------------------------------------------
 
-  function _redo_service_networks_selector(dialog, template){
+  function _redo_service_networks_selector(dialog, template, nicToDelete){
     $('#roles_tabs_content .role_content', dialog).each(function(){
-      var role_section = this;
-      _redo_service_networks_selector_role(dialog, role_section, template);
+      _redo_service_networks_selector_role(dialog, this, template, nicToDelete);
     });
   }
 
-  function _redo_service_networks_selector_role(dialog, role_section, template){
-    var selected_networks = [];
+  function _redo_service_networks_selector_role(dialog, role_section, template, nicToDelete){
+    var checked_networks = [];
     $(".service_network_checkbox:checked", role_section).each(function(){
-      selected_networks.push($(this).val());
+      checked_networks.push($(this).data("index"))
     });
-
-    $(".networks_role", role_section).hide();
-    $(".networks_role_rdp", role_section).hide();
-    var service_networks = false;
 
     var role_tab_id = $(role_section).attr('id');
 
     var str = "";
-    $(".service_networks .service_network_name", dialog).each(function(index, input){
-      var othersNames = $("input.service_network_name").not(input).map(function(_, v) {
-        return $(v).val();
-      }).get().join("|");
-
-      $(this).attr("pattern", "^(?!"+othersNames+")(\\w+)$");
-      
+    $(".service_networks .service_network_name", dialog).each(function(index, _){
       var name = $(this).val();
-      var regexp = new RegExp("^(?!"+othersNames+")(\\w+)$", "gi");
+      var regexp = new RegExp($(this).attr("pattern"), "gi");
+      var wasChecked = checked_networks.includes(index) ? 'checked="checked"' : '';
 
-      if (name && othersNames === "" || name.match(regexp)) {
-        service_networks = true;
+      // Condition 1: Be unique
+      // Condition 2: Can only contain alphanumeric and underscore characters
+      if (name && name !== "" && regexp.test(name)) {
         var idNetwork = role_tab_id + "_" + index;
         var idName = idNetwork + "_name";
 
         str += "<tr id='"+idNetwork+"'>\
             <td style='width:10%'>\
               <input class='service_network_checkbox check_item'\
-                type='checkbox' value='"+name+"' id='"+idName+"' data-index='"+index+"'/>\
+                type='checkbox' value='"+name+"' id='"+idName+"' data-index='"+index+"' "+wasChecked+" />\
             </td>\
             <td>\
               <label for='"+idName+"'>"+name+"</label>\
@@ -462,18 +462,13 @@ define(function(require) {
 
     $(".networks_role_body", role_section).html(str);
 
-    if (service_networks) {
-      $(".networks_role", role_section).show();
-      $(".networks_role_rdp", role_section).show();
-    }
-
-    $.each(selected_networks, function(){
-      $(".service_network_checkbox[value='"+this+"']", role_section).attr('checked', true);
+    $(".networks_role_rdp", role_section).each(function(){
+      str ? $(this).show() : $(this).hide();
     });
 
     if (template && template.roleTabObjects) {
-      $(Object.values(template.roleTabObjects)).each(function(_, section) {
-        section && section.refresh(role_section);
+      $(Object.values(template.roleTabObjects)).each(function() {
+        this.refresh(nicToDelete);
       });
     }
   }

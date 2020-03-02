@@ -18,7 +18,6 @@ define(function(require) {
   // Dependencies
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
-  var Locks = require('utils/lock');
   var TemplatesTable = require('tabs/templates-tab/datatable');
   var TemplateUtils = require('utils/template-utils');
 
@@ -63,12 +62,11 @@ define(function(require) {
     var that = this;
 
     Tips.setup(role_section);
-    Locks.setup(role_section);
 
     this.templatesTable.initialize();
     this.templatesTable.idInput().attr("required", "");
 
-    role_section.on("change", "#role_name", function(){
+    role_section.on("keyup", "#role_name", function(){
       $("#" + that.html_role_id +" #role_name_text").html($(this).val());
     });
 
@@ -107,22 +105,11 @@ define(function(require) {
       var index = $(this).data("index");
       var name = $(this).val();
 
-      updateOptionsRDP(that.global_template, role_section);
+      updateOptionsRDP(role_section, that.global_template);
       
       (this.checked)
         ? that.global_template[index] = { "NETWORK_ID": "$"+name }
         : delete that.global_template[index];
-
-      updateTextareaTemplate(role_section, that.global_template);
-    });
-
-    role_section.on("change", ".vm_template_contents", role_section, function(){
-      var value = $(this).val();
-
-      var diff = diffWithTemplate(value, that.global_template);
-      
-      updateExtraTemplate(role_section, that.global_template, diff)
-      updateTextareaTemplate(role_section, that.global_template);
     });
 
     role_section.on("change", ".networks_role_rdp select#rdp", role_section, function(){
@@ -133,50 +120,18 @@ define(function(require) {
         var nicIndex = network[0];
         var nicTemplate = network[1];
 
-        (nicIndex !== valueSelected && nicTemplate["RDP"])
-          && delete that.global_template[nicIndex]["RDP"];
+        if (nicIndex !== valueSelected && nicTemplate["RDP"]) {
+          delete that.global_template[nicIndex]["RDP"];
+        }
       });
       
       if (valueSelected !== "" && that.global_template[valueSelected]) {
           that.global_template[valueSelected]["RDP"] = "yes";
       }
-      updateTextareaTemplate(role_section, that.global_template);
     });
   }
 
-  function updateExtraTemplate(roleSection, currentTemplate, extraValue) {
-    var checkboxes = $(".service_network_checkbox", roleSection);
-    var lastIndex = checkboxes.length > 100 ? checkboxes.length : 100;
-
-    currentTemplate[lastIndex] = String(extraValue);
-  }
-
-  function diffWithTemplate(newValue, currentTemplate) {
-    // map template with index checkbox
-    var sortedTemplate = TemplateUtils.templateToString({
-      NIC: Object.values(currentTemplate).filter(function(nic)  {
-        return typeof nic === "object"
-      })
-    })//.concat(Object.values(currentTemplate).filter(rest => typeof rest !== "object"));
-
-    var sortedValue = TemplateUtils.templateToString(TemplateUtils.stringToTemplate(newValue))
-
-    return sortedValue.split("").filter(function(c, i) {
-      return sortedTemplate.split("")[i] !== c
-    }).join("");
-  }
-
-  function updateTextareaTemplate(roleContext, currentTemplate) {
-
-    var newTemplate = TemplateUtils.templateToString({
-      NIC: Object.values(currentTemplate).filter(nic => typeof nic === "object")
-    }).concat(Object.values(currentTemplate).filter(rest => typeof rest !== "object"));
-
-    var textareaTemplate = $(".vm_template_contents", roleContext);
-    textareaTemplate.val(newTemplate);
-  }
-
-  function updateOptionsRDP(currentTemplate, context) {
+  function updateOptionsRDP(context, currentTemplate) {
     var selectRDP = $(".networks_role_rdp select#rdp", context);
     // empty all options in select rdp
     selectRDP.empty();
@@ -210,7 +165,7 @@ define(function(require) {
     role['vm_template'] = this.templatesTable.retrieveResourceTableSelect();
     role['shutdown_action'] = $('select[name="shutdown_action_role"]', context).val();
     role['parents'] = [];
-    role['vm_template_contents'] = $(".vm_template_contents", context).val();
+    role['vm_template_contents'] = TemplateUtils.templateToString({ NIC: Object.values(this.global_template) });
 
     $('.parent_roles_body input.check_item:checked', context).each(function(){
       role['parents'].push($(this).val());
@@ -294,7 +249,10 @@ define(function(require) {
 
       // map template with index checkbox
       var nics = TemplateUtils.stringToTemplate(value.vm_template_contents)["NIC"];
-      if (nics && Array.isArray(nics)) {
+      if (nics) {
+        // if not array, transform it
+        nics = Array.isArray(nics) ? nics : [nics];
+
         $(network_names).each(function(index, name) {
           var nicTemplate = $.grep(nics, function(nic) {
             return (nic["NETWORK_ID"] === "$"+name) && nic;
@@ -305,17 +263,9 @@ define(function(require) {
           }
         });
       }
-      
-      // add extra of strings at the end of template
-      var extraTemplate = diffWithTemplate(value.vm_template_contents, that.global_template);
-
-      updateExtraTemplate(context, that.global_template, extraTemplate);
-
-      // update textarea template content
-      updateTextareaTemplate(context, that.global_template);
 
       // update options for RDP
-      updateOptionsRDP(that.global_template, context);
+      updateOptionsRDP(context, that.global_template);
     }
 
     $("select[name='shutdown_action_role']", context).val(value.shutdown_action);
@@ -367,29 +317,14 @@ define(function(require) {
     }
   }
 
-  function _refreshVMTemplate(role_section) {
-    var selected_networks = [];
-    $(".service_network_checkbox:checked", role_section).each(function(){
-      selected_networks.push($(this).val());
-    });
+  function _refreshVMTemplate(nicToDelete) {
+    if (this.role_section && this.global_template && nicToDelete) {
+      if (nicToDelete) {
+        delete this.global_template[nicToDelete];
+      }
 
-    Object.values(this.global_template)
-      .filter(function(nic) { return typeof nic === "object" })
-      .reduce(function(acc, nic, indexKey) {
-        if (!selected_networks.find(
-          function(net) {
-            return nic && nic.NETWORK_ID && nic.NETWORK_ID === "$"+net
-          })
-        ) {
-          acc.push(indexKey);
-        }
-        return acc;
-      }, [])
-      .forEach(function(index) {
-        delete this.global_template[index];
-      }, this);
-
-    updateTextareaTemplate(role_section, this.global_template);
+      updateOptionsRDP(this.role_section, this.global_template);
+    }
   }
 
   //----------------------------------------------------------------------------

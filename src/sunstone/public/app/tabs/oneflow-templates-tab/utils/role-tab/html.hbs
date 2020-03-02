@@ -150,15 +150,6 @@
       <div class="medium-6 columns">
       </div>
     </div>
-    <div class="row">
-      <div class="service_template_param st_man large-12 columns">
-        <label  for="vm_template_contents">{{tr "VM template content"}}
-          <span class="tip">{{tr "This information will be merged with the original Virtual Machine template. Configuration attributes and network interfaces will be replaced by those provided by the user when the template is instantiated"}}</span>
-          <span class="lock is-lock" data-msg='{{tr "Please take into account that changing this value manually will bypass Sunstone validation and may result on a malformed template"}}'></span>
-        </label>
-        <textarea type="text" rows="4" class="vm_template_contents monospace" name="vm_template_contents" placeholder='ATTRIBUTE = "VALUE"'/>
-      </div>
-    </div>
     {{/advancedSection}}
   </div>
 </div>
