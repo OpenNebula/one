@@ -124,6 +124,7 @@ define(function(require) {
   function _onShow(context) {
     this.datastoresTable.resetResourceTableSelect();
     this.hostsTable.resetResourceTableSelect();
+    var vmTemplate = Sunstone.getElementRightInfo(TAB_ID);
 
     if (
       this.live &&
