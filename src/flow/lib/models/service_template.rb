@@ -267,6 +267,77 @@ module OpenNebula
             super(template.to_json)
         end
 
+        # Clone service template and the VM templates asssociated to it
+        #
+        # @param name [String] New template name
+        # @param mode [Symbol] Cloning mode (:all, :templates)
+        #
+        # @return [Integer] New document ID
+        def clone_recursively(name, mode)
+            recursive = mode == 'all'
+
+            # clone the document to get new ID
+            new_id = clone(name)
+
+            return new_id if OpenNebula.is_error?(new_id)
+
+            doc = OpenNebula::ServiceTemplate.new_with_id(new_id, @client)
+            rc  = doc.info
+
+            return rc if OpenNebula.is_error?(rc)
+
+            body             = JSON.parse(doc["TEMPLATE/#{TEMPLATE_TAG}"])
+            cloned_templates = {}
+
+            # iterate over roles to clone templates
+            rc = body['roles'].each do |role|
+                t_id = role['vm_template']
+
+                # if the template has already been cloned, just update the value
+                if cloned_templates.keys.include?(t_id)
+                    role['vm_template'] = cloned_templates[t_id]
+                    next
+                end
+
+                template = OpenNebula::Template.new_with_id(t_id, @client)
+                rc       = template.info
+
+                break rc if OpenNebula.is_error?(rc)
+
+                rc = template.clone("#{template.name}-#{name}", recursive)
+
+                break rc if OpenNebula.is_error?(rc)
+
+                # add new ID to the hash
+                cloned_templates[t_id] = rc
+
+                role['vm_template'] = rc
+            end
+
+            # if any error, rollback and delete the left templates
+            if OpenNebula.is_error?(rc)
+                cloned_templates.each do |_, value|
+                    template = OpenNebula::Template.new_with_id(value, @client)
+
+                    rc = template.info
+
+                    break rc if OpenNebula.is_error?(rc)
+
+                    rc = template.delete(recursive)
+
+                    break rc if OpenNebula.is_error?(rc)
+                end
+
+                return rc
+            end
+
+            # update the template with the new body
+            doc.update(body.to_json)
+
+            # return the new document ID
+            new_id
+        end
+
         # Replaces the raw template contents
         #
         # @param template [String] New template contents, in the form KEY = VAL
