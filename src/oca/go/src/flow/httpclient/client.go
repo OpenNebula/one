@@ -8,12 +8,14 @@ import (
 	"net/http"
 )
 
+// ONE connection information
 type Auth struct {
 	User string
 	Pass string
 	Oned string
 }
 
+// TODO: Use Auth struct on methods
 // HTTP METHODS
 
 // Get http
