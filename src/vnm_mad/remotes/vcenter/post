@@ -70,6 +70,19 @@ if OpenNebula.is_error?(rc)
     raise err_msg
 end
 
+vc_uuid = one_host['TEMPLATE/VCENTER_INSTANCE_ID']
+
+# OpenNebula VM
+one_vm = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualMachinePool,
+                                             'DEPLOY_ID',
+                                             deploy_id,
+                                             vc_uuid)
+rc = one_vm.info
+if OpenNebula.is_error?(rc)
+    err_msg = rc.message
+    raise err_msg
+end
+
 # NSX Objects
 nsx_client = NSXDriver::NSXTClient.new_from_id(one_host['ID'])
 dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
@@ -78,7 +91,12 @@ ls = NSXDriver::LogicalSwitch.new(nsx_client)
 # Get all modified or all NSX Nics
 is_modified = modified?(template)
 nsx_nics = ls.nsx_nics(template_xml, is_modified)
-unless nsx_nics.empty?
+vm_state = one_vm.state_str
+File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("POST vm_state: #{vm_state}")}
+File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("\n")}
+File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("POST deploy_id: #{deploy_id}")}
+File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("\n")}
+unless nsx_nics.empty? || (vm_state == 'POWEROFF')
     begin
         dfw.create_rules(deploy_id, template, is_modified)
     rescue StandardError => e

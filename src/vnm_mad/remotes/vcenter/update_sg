@@ -67,21 +67,41 @@ if OpenNebula.is_error?(rc)
     raise err_msg
 end
 
+vc_uuid = one_host['TEMPLATE/VCENTER_INSTANCE_ID']
+
+# OpenNebula VM
+one_vm = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualMachinePool,
+                                             'DEPLOY_ID',
+                                             deploy_id,
+                                             vc_uuid)
+rc = one_vm.info
+if OpenNebula.is_error?(rc)
+    err_msg = rc.message
+    raise err_msg
+end
+
 # NSX Objects
 nsx_client = NSXDriver::NSXTClient.new_from_id(one_host['ID'])
 dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
-begin
-    dfw.clear_rules(template, false)
-    dfw.create_rules(deploy_id, template, false)
-rescue StandardError => e
-    OpenNebula::log_error("Error updating security groups " +
-        "due to \"#{e.message}\"" +
-        "\n********* STACK TRACE *********\n" +
-        "\t#{e.backtrace.join("\n\t")}" +
-        "\n*******************************\n")
 
-    OpenNebula.error_message("Error updating security groups: #{e.message}")
-    exit 1
+vm_state = one_vm.state_str
+File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("POST vm_state: #{vm_state}")}
+File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("\n")}
+
+unless vm_state == 'POWEROFF'
+    begin
+        dfw.clear_rules(template, false)
+        dfw.create_rules(deploy_id, template, false)
+    rescue StandardError => e
+        OpenNebula::log_error("Error updating security groups " +
+            "due to \"#{e.message}\"" +
+            "\n********* STACK TRACE *********\n" +
+            "\t#{e.backtrace.join("\n\t")}" +
+            "\n*******************************\n")
+
+        OpenNebula.error_message("Error updating security groups: #{e.message}")
+        exit 1
+    end
 end
 
 exit 0
