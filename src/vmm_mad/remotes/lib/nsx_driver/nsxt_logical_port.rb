@@ -58,10 +58,10 @@ module NSXDriver
             @id = lp_with_attachid(id)
             # Construct URL of the created logical switch
             @url = NSXConstants::NSXT_LP_BASE + @id
-            if lp?
-                @name = lp_name
-                @type = lp_type
-            end
+            return unless lp?
+
+            @name = lp_name
+            @type = lp_type
         end
 
         # Check if logical port exists

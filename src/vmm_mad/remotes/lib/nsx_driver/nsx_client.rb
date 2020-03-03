@@ -94,10 +94,6 @@ module NSXDriver
         # Return response if match with responses codes, If response not match
         # with expected responses codes then raise an IncorrectResponseCodeError
         def check_response(response, codes_array)
-            File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("valid_codes: #{codes_array}")}
-            File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("\n")}
-            File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("response_code: #{response.code}")}
-            File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("\n")}
             unless response.nil?
                 return response if codes_array.include?(response.code.to_i)
 

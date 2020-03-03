@@ -37,7 +37,6 @@ module NSXDriver
                 error = NSXError::UnknownObject.new(error_msg)
                 raise error
             end
-
         end
 
         # Check if logical port exists

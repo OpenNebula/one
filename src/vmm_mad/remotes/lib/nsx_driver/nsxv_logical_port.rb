@@ -90,15 +90,14 @@ module NSXDriver
             lps['results'].each do |lp|
                 return lp['id'] if lp['attachment']['id'] == attach_id
             end
-            return nil
         end
 
-        # # Get logical port display name
+        # Get logical port display name
         def lp_name
             @nsx_client.get(@url)['display_name']
         end
 
-        # # Get resource type
+        # Get resource type
         def lp_type
             @nsx_client.get(@url)['resource_type']
         end

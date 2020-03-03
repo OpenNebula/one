@@ -68,12 +68,10 @@ module NSXDriver
                                NSXConstants::CODE_NO_CONTENT]
             end
             uri = URI.parse(@nsxmgr + url)
-            File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("nsxt_client - GET: #{uri}")}
-            File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("\n")}
             headers = add_headers(aditional_headers)
             request = Net::HTTP::Get.new(uri.request_uri, headers)
             request.basic_auth(@nsx_user, @nsx_password)
-            response = Net::HTTP.start(uri.host,uri.port,:use_ssl => true,
+            response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
                 :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
                     https.request(request)
                 end
@@ -105,10 +103,6 @@ module NSXDriver
                                NSXConstants::CODE_OK]
             end
             uri = URI.parse(@nsxmgr + url)
-            File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("nsxt_client - POST uri: #{uri}")}
-            File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("\n")}
-            File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("nsxt_client - POST data: #{data}")}
-            File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("\n")}
             headers = add_headers(aditional_headers)
             request = Net::HTTP::Post.new(uri.request_uri, headers)
             request.body = data
@@ -147,8 +141,6 @@ module NSXDriver
                                NSXConstants::CODE_NO_CONTENT]
             end
             uri = URI.parse(@nsxmgr + url)
-            File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("nsxv_client - DELETE: #{uri}")}
-            File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("\n")}
             headers = add_headers(aditional_headers)
             request = Net::HTTP::Delete.new(uri.request_uri, headers)
             request.basic_auth(@nsx_user, @nsx_password)
