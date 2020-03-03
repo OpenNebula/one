@@ -335,6 +335,9 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/vcenter/post.d \
           $VAR_LOCATION/remotes/vnm/vcenter/clean.d \
           $VAR_LOCATION/remotes/vnm/alias_sdnat \
+          $VAR_LOCATION/remotes/vnm/hooks/pre \
+          $VAR_LOCATION/remotes/vnm/hooks/post \
+          $VAR_LOCATION/remotes/vnm/hooks/clean \
           $VAR_LOCATION/remotes/tm/ \
           $VAR_LOCATION/remotes/tm/dummy \
           $VAR_LOCATION/remotes/tm/shared \
@@ -521,13 +524,13 @@ INSTALL_FILES=(
     IPAM_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/ipam/dummy
     IPAM_DRIVER_PACKET_SCRIPTS:$VAR_LOCATION/remotes/ipam/packet
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
+    NETWORK_HOOKS_PRE_FILES:$VAR_LOCATION/remotes/vnm/hooks/pre
+    NETWORK_HOOKS_CLEAN_FILES:$VAR_LOCATION/remotes/vnm/hooks/clean
     NETWORK_ETC_FILES:$VAR_LOCATION/remotes/etc/vnm
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
     NETWORK_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/vxlan
     NETWORK_DUMMY_FILES:$VAR_LOCATION/remotes/vnm/dummy
     NETWORK_BRIDGE_FILES:$VAR_LOCATION/remotes/vnm/bridge
-    NETWORK_BRIDGE_PRE_FILES:$VAR_LOCATION/remotes/vnm/bridge/pre.d
-    NETWORK_BRIDGE_CLEAN_FILES:$VAR_LOCATION/remotes/vnm/bridge/clean.d
     NETWORK_EBTABLES_FILES:$VAR_LOCATION/remotes/vnm/ebtables
     NETWORK_FW_FILES:$VAR_LOCATION/remotes/vnm/fw
     NETWORK_OVSWITCH_FILES:$VAR_LOCATION/remotes/vnm/ovswitch
@@ -1171,6 +1174,10 @@ NETWORK_FILES="src/vnm_mad/remotes/lib/vnm_driver.rb \
                src/vnm_mad/remotes/lib/security_groups_iptables.rb \
                src/vnm_mad/remotes/lib/nic.rb"
 
+NETWORK_HOOKS_PRE_FILES="src/vnm_mad/remotes/hooks/pre/firecracker"
+
+NETWORK_HOOKS_CLEAN_FILES="src/vnm_mad/remotes/hooks/clean/firecracker"
+
 NETWORK_8021Q_FILES="src/vnm_mad/remotes/802.1Q/clean \
                     src/vnm_mad/remotes/802.1Q/post \
                     src/vnm_mad/remotes/802.1Q/pre \
@@ -1194,10 +1201,6 @@ NETWORK_BRIDGE_FILES="src/vnm_mad/remotes/bridge/clean \
                     src/vnm_mad/remotes/bridge/post \
                     src/vnm_mad/remotes/bridge/update_sg \
                     src/vnm_mad/remotes/bridge/pre"
-
-NETWORK_BRIDGE_PRE_FILES="src/vnm_mad/remotes/bridge/pre.d/firecracker"
-
-NETWORK_BRIDGE_CLEAN_FILES="src/vnm_mad/remotes/bridge/clean.d/firecracker"
 
 NETWORK_EBTABLES_FILES="src/vnm_mad/remotes/ebtables/clean \
                     src/vnm_mad/remotes/ebtables/post \
