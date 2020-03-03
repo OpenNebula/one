@@ -381,6 +381,21 @@ EOT
             :description => "In a vCenter environment sets the the VMs and Template folder where the VM will be placed in." \
             " The path uses slashes to separate folders. For example: --vcenter_vm_folder \"/Management/VMs\""
         },
+        {
+            :name   => 'user_inputs',
+            :large  => '--user-inputs ui1,ui2,ui3',
+            :format => Array,
+            :description => 'Specify the user inputs values when instantiating',
+            :proc => lambda do |o, options|
+                # escape values
+                options[:user_inputs].map! do |user_input|
+                    user_input_split = user_input.split('=')
+                    "#{user_input_split[0]}=\"#{user_input_split[1]}\""
+                end
+
+                options[:user_inputs] = o.join("\n")
+            end
+        },
         AS_GROUP,
         AS_USER
     ]
