@@ -48,6 +48,8 @@ class MicroVM
 
         @rootfs_dir = "/srv/jailer/firecracker/#{@one.vm_name}/root"
         @context_path = "#{@rootfs_dir}/context"
+
+        @map_context_sh = '/var/tmp/one/vmm/firecracker/map_context.sh'
     end
 
     class << self
@@ -105,30 +107,11 @@ class MicroVM
 
         context_location = context['context']['source']
 
-        # Create temporary directories
-        rc = Command.execute_rc_log("mkdir #{@map_location}")
-        rc &= rc && Command.execute_rc_log("mkdir #{@map_location}/context")
-        rc &= rc && Command.execute_rc_log("mkdir #{@map_location}/fs")
+        params = "-m #{@map_location} -s #{@one.sysds_path} -c #{context_location} -r #{@one.rootfs_id} -v #{@one.vm_id}"
 
-        # mount rootfs
-        rc &= rc && Command.execute_rc_log("sudo mount #{vm_location}/disk.#{@one.rootfs_id} " \
-                        "#{@one.sysds_path}/#{@one.vm_id}/map_context/fs")
-        # mount context disk
-        rc &= rc && Command.execute_rc_log("sudo mount #{context_location} #{@map_location}/context")
+        cmd = "sudo #{@map_context_sh} #{params}"
 
-        # create "/context" inside rootfs ()
-        if !File.directory?("#{@map_location}/fs/context")
-            rc &= rc && Command.execute_rc_log("sudo mkdir #{@map_location}/fs/context")
-        end
-
-        rc &= rc && Command.execute_rc_log("sudo cp #{@map_location}/context/* #{@map_location}/fs/context")
-
-        # clean temporary directories
-        rc &= rc && Command.execute_rc_log("sudo umount #{@map_location}/fs")
-        rc &= rc && Command.execute_rc_log("sudo umount #{@map_location}/context")
-        rc &= rc && Command.execute_rc_log("rm -rf #{@map_location}")
-
-        rc
+        Command.execute_rc_log(cmd, false)
     end
 
     def wait_shutdown
@@ -202,7 +185,7 @@ class MicroVM
             cmd << " -dmS #{@one.vm_name} "
         end
 
-        # Build jailer command paramas
+        # Build jailer command params
         cmd << @jailer_command
 
         @fc['command-params']['jailer'].each do |key, val|
