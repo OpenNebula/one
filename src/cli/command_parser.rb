@@ -453,7 +453,7 @@ module CommandParser
 
             if comm.nil?
                 print_help
-                exit -1
+                exit 0
             end
 
             if comm[:deprecated]
@@ -464,16 +464,27 @@ module CommandParser
             parse(extra_options)
 
             if comm
-                @before_proc.call if @before_proc
+                begin
+                    @before_proc.call if @before_proc
+                rescue StandardError => e
+                    STDERR.puts e.message
+                    exit(-1)
+                end
 
                 check_args!(comm_name, comm[:arity], comm[:args_format])
 
-                rc = comm[:proc].call
-                if rc.instance_of?(Array)
-                    puts rc[1]
-                    exit rc.first
-                else
-                    exit(@exit_code || rc)
+                begin
+                    rc = comm[:proc].call
+
+                    if rc.instance_of?(Array)
+                        puts rc[1]
+                        exit rc.first
+                    else
+                        exit(@exit_code || rc)
+                    end
+                rescue StandardError => e
+                    STDERR.puts e.message
+                    exit(-1)
                 end
             end
         end
@@ -501,10 +512,10 @@ module CommandParser
                             with_proc<<e
                         elsif e[:name]=="help"
                             print_help
-                            exit
+                            exit 0
                         elsif e[:name]=="version"
                             puts @version
-                            exit
+                            exit 0
                         elsif !e[:multiple]
                             @options[e[:name].to_sym]=o
                         else
