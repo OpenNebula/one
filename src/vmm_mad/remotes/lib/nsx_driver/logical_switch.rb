@@ -16,7 +16,7 @@
 module NSXDriver
 
     # Class Logical Switch
-    class LogicalSwitch < NSXDriver::NSXComponent
+    class LogicalSwitch < NSXComponent
 
         # ATTRIBUTES
         attr_reader :ls_id
@@ -71,8 +71,8 @@ module NSXDriver
                     raise err_msg
                 end
                 pg_type = one_vnet['TEMPLATE/VCENTER_PORTGROUP_TYPE']
-                nics_array << nic if [NSXDriver::NSXConstants::NSXV_LS_TYPE,
-                                      NSXDriver::NSXConstants::NSXT_LS_TYPE]
+                nics_array << nic if [NSXConstants::NSXV_LS_TYPE,
+                                      NSXConstants::NSXT_LS_TYPE]
                                      .include?(pg_type)
             end
             nics_array

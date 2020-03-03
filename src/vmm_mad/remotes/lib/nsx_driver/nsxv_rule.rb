@@ -16,7 +16,7 @@
 module NSXDriver
 
     # Class Logical Switch
-    class NSXVRule < NSXDriver::NSXRule
+    class NSXVRule < NSXRule
 
         # ATTRIBUTES
 
@@ -24,7 +24,7 @@ module NSXDriver
 
         def initialize(nsx_client)
             super(nsx_client)
-            @base_url = NSXDriver::NSXConstants::NSXV_RULE_BASE
+            @base_url = NSXConstants::NSXV_RULE_BASE
         end
 
         # Adapt port from ["22, 443"] to '22, 443'
@@ -140,7 +140,7 @@ module NSXDriver
                                     xml.protocolName 'IPV6ICMP'
                                 }
                             when 'IPSEC'
-                                ports = NSXDriver::NSXConstants::NSX_RULE_IPSEC_PORTS
+                                ports = NSXConstants::NSX_RULE_IPSEC_PORTS
                                 xml.service {
                                     xml.isValid 'true'
                                     xml.protocol '50'
@@ -160,16 +160,7 @@ module NSXDriver
                                     xml.destinationPort parse_ports(ports) \
                                         if rule[:direction] == 'OUT'
                                 }
-                            when 'ALL'
-                                xml.service {
-                                    xml.isValid 'true'
-                                    xml.sourcePort parse_ports(rule[:ports]) \
-                                        if rule[:direction] == 'IN'
-                                    xml.destinationPort parse_ports(rule[:ports]) \
-                                        if rule[:direction] == 'OUT'
-                                }
                             end
-
                         }
 
                     end

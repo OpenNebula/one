@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-
+File.open('/tmp/POST.debug', 'w'){|f| f.write('POST')}
 # Define libraries location
 ONE_LOCATION = ENV['ONE_LOCATION']
 
@@ -56,6 +56,8 @@ template = Base64.decode64(STDIN.read)
 deploy_id = ARGV[0]
 
 template_xml = Nokogiri::XML(template)
+File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("POST template:  #{template}")}
+File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("\n")}
 
 # OpenNebula host
 host_name = template_xml
@@ -78,14 +80,14 @@ is_modified = modified?(template)
 nsx_nics = ls.nsx_nics(template_xml, is_modified)
 unless nsx_nics.empty?
     begin
-        dfw.create_opennebula_rules(deploy_id, template, is_modified)
+        dfw.create_rules(deploy_id, template, is_modified)
     rescue StandardError => e
-        OpenNebula::log_error("Error creating Security Group rules " +
-            "due to \"#{e.message}\"" +
-            "\n********* STACK TRACE *********\n" +
-            "\t#{e.backtrace.join("\n\t")}" +
+        dfw.clear_rules(template, is_modified)
+        OpenNebula::log_error("Error creating Security Group rules " \
+            "due to \"#{e.message}\"" \
+            "\n********* STACK TRACE *********\n" \
+            "\t#{e.backtrace.join("\n\t")}" \
             "\n*******************************\n")
-        OpenNebula.error_message("Error creating ")
         exit 1
     end
 end

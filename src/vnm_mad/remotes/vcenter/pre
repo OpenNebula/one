@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-
+File.open('/tmp/PRE.debug', 'w'){|f| f.write('PRE')}
 # Define libraries location
 ONE_LOCATION = ENV['ONE_LOCATION']
 

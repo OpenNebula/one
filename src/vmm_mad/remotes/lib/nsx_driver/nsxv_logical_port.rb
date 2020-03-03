@@ -16,7 +16,7 @@
 module NSXDriver
 
     # Class NSXVLogicalPort
-    class NSXVLogicalPort < NSXDriver::LogicalPort
+    class NSXVLogicalPort < LogicalPort
 
         # ATTRIBUTES
         attr_reader :id, :name, :type, :url
@@ -38,7 +38,7 @@ module NSXDriver
                 if data
                     begin
                         @id = new_logical_port(data)
-                    rescue NSXDriver::NSXError::IncorrectResponseCodeError => e
+                    rescue NSXError::IncorrectResponseCodeError => e
                         raise 'Logical Port not created in ' \
                         "NSX Manager: #{e.message}"
                     end
@@ -47,19 +47,19 @@ module NSXDriver
                               'generic error'
                     end
                     # Construct logical port class variables
-                    @url = NSXDriver::NSXConstants::NSXT_LP_BASE + @id
+                    @url = NSXConstants::NSXT_LP_BASE + @id
                     @name = lp_name
                     @type = lp_type
                 end
             end
         end
 
-        # Creates a NSXDriver::NSXTLogicalPort from its id
+        # Creates a NSXTLogicalPort from its id
         def initialize_with_id(id)
             # First try lpid as logical port id
             @id = id
             # Construct URL of the created logical switch
-            @url = NSXDriver::NSXConstants::NSXV_LP_BASE + @id
+            @url = NSXConstants::NSXV_LP_BASE + @id
             if lp?
                 @name = lp_name
                 @type = lp_type
@@ -68,11 +68,11 @@ module NSXDriver
                 @id = lp_with_attachid(id)
                 if @id.nil?
                     error_msg = "Logical port with id: #{id} not found"
-                    error = NSXDriver::NSXError::ObjectNotFound
+                    error = NSXError::ObjectNotFound
                             .new(error_msg)
                     raise error
                 else
-                    @url = NSXDriver::NSXConstants::NSXT_LP_BASE + @id
+                    @url = NSXConstants::NSXT_LP_BASE + @id
                     @name = lp_name
                     @type = lp_type
                 end
@@ -86,7 +86,7 @@ module NSXDriver
 
         # Get logical port id from attach id
         def lp_with_attachid(attach_id)
-            lps = @nsx_client.get(NSXDriver::NSXConstants::NSXT_LP_BASE)
+            lps = @nsx_client.get(NSXConstants::NSXT_LP_BASE)
             lps['results'].each do |lp|
                 return lp['id'] if lp['attachment']['id'] == attach_id
             end

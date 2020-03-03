@@ -16,7 +16,7 @@
 module NSXDriver
 
     # Class Opaque Network NSX-T Network
-    class OpaqueNetwork < NSXDriver::LogicalSwitch
+    class OpaqueNetwork < LogicalSwitch
 
         # ATTRIBUTES
         # attr_reader :ls_id, :admin_display
@@ -31,7 +31,7 @@ module NSXDriver
                     if ls_data
                         begin
                             @ls_id = new_logical_switch(ls_data)
-                        rescue NSXDriver::NSXError::
+                        rescue NSXError::
                                IncorrectResponseCodeError => e
                             raise 'Opaque Network not created in ' \
                                   "NSX Manager: #{e.message}"
@@ -42,7 +42,7 @@ module NSXDriver
                         end
 
                         # Construct URL of the created logical switch
-                        @url_ls = NSXDriver::NSXConstants::NSXT_LS_SECTION + \
+                        @url_ls = NSXConstants::NSXT_LS_SECTION + \
                                   @ls_id
                         @ls_vni = ls_vni
                         @ls_name = ls_name
@@ -53,13 +53,13 @@ module NSXDriver
             end
         end
 
-        # Creates a NSXDriver::OpaqueNetwork from its name
+        # Creates a OpaqueNetwork from its name
         def self.new_from_name(nsx_client, ls_name)
             lswitch = new(nsx_client)
             ls_id = lswitch.ls_id_from_name(nsx_client, ls_name)
             unless ls_id
                 error_msg = "Opaque Network with name: #{ls_name} not found"
-                error =  NSXDriver::NSXError::ObjectNotFound
+                error =  NSXError::ObjectNotFound
                          .new(error_msg)
                 raise error
             end
@@ -69,11 +69,11 @@ module NSXDriver
             lswitch
         end
 
-        # Creates a NSXDriver::OpaqueNetwork from its id
+        # Creates a OpaqueNetwork from its id
         def initialize_with_id(ls_id)
             @ls_id = ls_id
             # Construct URL of the created logical switch
-            @url_ls = NSXDriver::NSXConstants::NSXT_LS_SECTION + \
+            @url_ls = NSXConstants::NSXT_LS_SECTION + \
                       @ls_id
             if ls?
                 @ls_vni = ls_vni
@@ -82,7 +82,7 @@ module NSXDriver
                 @admin_display = 'UP'
             else
                 error_msg = "Opaque Network with id: #{ls_id} not found"
-                error = NSXDriver::NSXError::ObjectNotFound
+                error = NSXError::ObjectNotFound
                         .new(error_msg)
                 raise error
             end
@@ -90,7 +90,7 @@ module NSXDriver
 
         # Get the logical switch id from its name
         def ls_id_from_name(nsx_client, name)
-            url = NSXDriver::NSXConstants::NSXT_LS_SECTION
+            url = NSXConstants::NSXT_LS_SECTION
             lswitches = nsx_client.get(url)['results']
             lswitches.each do |lswitch|
                 lsname = lswitch['display_name']
@@ -125,7 +125,7 @@ module NSXDriver
 
         # Create a new logical switch (NSX-T: opaque network)
         def new_logical_switch(ls_data)
-            @nsx_client.post(NSXDriver::NSXConstants::NSXT_LS_SECTION, ls_data)
+            @nsx_client.post(NSXConstants::NSXT_LS_SECTION, ls_data)
         end
 
         # Delete a logical switch

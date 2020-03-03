@@ -16,7 +16,7 @@
 module NSXDriver
 
     # Class Logical Switch
-    class LogicalPort < NSXDriver::NSXComponent
+    class LogicalPort < NSXComponent
 
         # ATTRIBUTES
 
@@ -28,13 +28,13 @@ module NSXDriver
 
         def self.new_child(nsx_client, id = nil)
             case nsx_client.nsx_type.upcase
-            when NSXDriver::NSXConstants::NSXT
-                NSXDriver::NSXTLogicalPort.new(nsx_client, id)
-            when NSXDriver::NSXConstants::NSXV
-                NSXDriver::NSXVLogicalPort.new(nsx_client, id)
+            when NSXConstants::NSXT
+                NSXTLogicalPort.new(nsx_client, id)
+            when NSXConstants::NSXV
+                NSXVLogicalPort.new(nsx_client, id)
             else
                 error_msg = "Unknown object type: #{type}"
-                error = NSXDriver::NSXError::UnknownObject.new(error_msg)
+                error = NSXError::UnknownObject.new(error_msg)
                 raise error
             end
 

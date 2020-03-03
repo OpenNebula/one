@@ -16,7 +16,7 @@
 module NSXDriver
 
     # Class Logical Switch
-    class NSXTdfw < NSXDriver::DistributedFirewall
+    class NSXTdfw < DistributedFirewall
 
         # ATTRIBUTES
         attr_reader :one_section_id
@@ -26,9 +26,9 @@ module NSXDriver
         def initialize(nsx_client)
             super(nsx_client)
             # Construct base URLs
-            @base_url = NSXDriver::NSXConstants::NSXT_DFW_BASE
+            @base_url = NSXConstants::NSXT_DFW_BASE
             @url_sections = @base_url + \
-                            NSXDriver::NSXConstants::NSXT_DFW_SECTIONS
+                            NSXConstants::NSXT_DFW_SECTIONS
             @one_section_id = init_section
         end
 
@@ -38,12 +38,12 @@ module NSXDriver
         # section already exists
         def init_section
             one_section = section_by_name(
-                NSXDriver::NSXConstants::ONE_SECTION_NAME
+                NSXConstants::ONE_SECTION_NAME
             )
             one_section ||= create_section(
-                NSXDriver::NSXConstants::ONE_SECTION_NAME
+                NSXConstants::ONE_SECTION_NAME
             )
-            @one_section_id = one_section['id'] if one_section
+            return one_section['id'] if one_section
         end
 
         # Get all sections
@@ -53,8 +53,6 @@ module NSXDriver
         # - nil | sections
         def sections
             result = @nsx_client.get(@url_sections)
-            return unless result
-
             result['results']
         end
 
@@ -94,12 +92,7 @@ module NSXDriver
                   "stateful": true
               }
             )
-            begin
-                section_id = @nsx_client.post(@url_sections, section_spec)
-            rescue StandardError => e
-                raise NSXDriver::DFWError::CreateError, \
-                      "Error creating section in NSX: #{e.message}"
-            end
+            section_id = @nsx_client.post(@url_sections, section_spec)
             result = section_by_id(section_id)
             raise 'Section was not created in DFW' unless result
 
@@ -116,47 +109,58 @@ module NSXDriver
 
         # Rules
         # Get all rules of a Section, OpenNebula section if it's not defined
+        # Return:
+        # - [Array]
         def rules(section_id = @one_section_id)
             url = @url_sections + '/' + section_id + '/rules'
-            result = @nsx_client.get(url)
-            result
+            rules = @nsx_client.get(url)
+            rules
         end
 
         # Get rule by id
-        def rules_by_id(rule_id)
+        # Return:
+        # rule | nil
+        def rule_by_id(rule_id)
             url = @base_url + '/rules/' + rule_id
-            result = @nsx_client.get(url)
-            result
+            valid_codes = [NSXConstants::CODE_CREATED,
+                           NSXConstants::CODE_OK,
+                           NSXConstants::CODE_BAD_REQUEST,
+                           NSXConstants::CODE_NOT_FOUND]
+            additional_headers = []
+            rule = @nsx_client.get(url, additional_headers, valid_codes)
+            rule
         end
 
-        # Get rule by name
-        # Return an array with rules
+        # Get rules by name
+        # Return:
+        #  - Array with rules or an empty array
         def rules_by_name(rule_name, section_id = @one_section_id)
-            result = []
-            return result unless section_id
+            rules = []
+            return rules unless section_id
 
             all_rules = rules(section_id)
-            return result unless all_rules
+            return rules unless all_rules
 
             all_rules['results'].each do |rule|
-                result << rule if rule['display_name'] == rule_name
+                rules << rule if rule['display_name'] == rule_name
             end
-            result
+            rules
         end
 
         # Get rule by regex
-        # Return an array with rules
+        # Return:
+        #  - Array with rules or an empty array
         def rules_by_regex(regex, section_id = @one_section_id)
-            result = []
-            return result unless section_id
+            rules = []
+            return rules unless section_id
 
             all_rules = rules(section_id)
-            return result unless all_rules
+            return rules unless all_rules
 
             all_rules['results'].each do |rule|
-                result << rule if rule['display_name'].match(regex)
+                rules << rule if rule['display_name'].match(regex)
             end
-            result
+            rules
         end
 
         # Create new rule
@@ -165,7 +169,7 @@ module NSXDriver
             section = section_by_id(section_id)
             unless section
                 error_msg = "Section with id #{section_id} not found"
-                error = NSXDriver::NSXError::ObjectNotFound
+                error = NSXError::ObjectNotFound
                         .new(error_msg)
                 raise error
             end
@@ -174,19 +178,19 @@ module NSXDriver
             rule_spec = rule_spec.to_json
             url = @url_sections + '/' + section_id + '/rules'
             result = @nsx_client.post(url, rule_spec)
-            raise 'Error creating DFW rule' unless result
+            result
         end
 
         # Update rule
         def update_rule(rule_id, rule_spec, section_id = @one_section_id)
             url = @url_sections + '/' + section_id + '/rules/' + rule_id
-            rule = rules_by_id(rule_id)
+            rule = rule_by_id(rule_id)
             raise "Rule id #{rule_id} not found" unless rule
 
             rule_spec['_revision'] = rule['_revision']
             rule_spec = rule_spec.to_json
             result = @nsx_client.put(url, rule_spec)
-            raise 'Error updating DFW rule' unless result
+            result
         end
 
         # Delete rule
@@ -194,8 +198,11 @@ module NSXDriver
             url = @url_sections + '/' + section_id + '/rules/' + rule_id
             # Delete receive a 200 OK also if the rule doesn't exist
             @nsx_client.delete(url)
-            result = rules_by_id(rule_id)
-            raise 'Error deleting rule in DFW' if result
+            # Aditional check
+            # result = rule_by_id(rule_id)
+            # raise 'Error deleting rule in DFW' unless result.empty?
+
+            # result
         end
 
     end

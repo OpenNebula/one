@@ -16,7 +16,7 @@
 module NSXDriver
 
     # Class Logical Switch
-    class NSXVdfw < NSXDriver::DistributedFirewall
+    class NSXVdfw < DistributedFirewall
 
         # ATTRIBUTES
         attr_reader :one_section_id
@@ -26,9 +26,9 @@ module NSXDriver
         def initialize(nsx_client)
             super(nsx_client)
             # Construct base URLs
-            @base_url = NSXDriver::NSXConstants::NSXV_DFW_BASE
+            @base_url = NSXConstants::NSXV_DFW_BASE
             @url_sections = @base_url + \
-                            NSXDriver::NSXConstants::NSXV_DFW_SECTIONS
+                            NSXConstants::NSXV_DFW_SECTIONS
             @one_section_id = init_section
         end
 
@@ -39,10 +39,10 @@ module NSXDriver
         # section already exists
         def init_section
             one_section = section_by_name(
-                NSXDriver::NSXConstants::ONE_SECTION_NAME
+                NSXConstants::ONE_SECTION_NAME
             )
             one_section ||= create_section(
-                NSXDriver::NSXConstants::ONE_SECTION_NAME
+                NSXConstants::ONE_SECTION_NAME
             )
             return one_section.xpath('@id').text if one_section
         end
@@ -54,9 +54,9 @@ module NSXDriver
         # - nil | [Nokogiri::XML::NodeSet] sections
         def sections
             result = @nsx_client.get(@base_url)
-            return unless result
-
-            result.xpath(NSXDriver::NSXConstants::NSXV_DFW_SECTION_XPATH)
+            xp = NSXConstants::NSXV_DFW_SECTION_XPATH
+            sections = result.xpath(xp)
+            return sections unless sections.empty?
         end
 
         # Get section by id
@@ -67,9 +67,9 @@ module NSXDriver
         def section_by_id(section_id = @one_section_id)
             url = @url_sections + '/' + section_id
             result = @nsx_client.get(url)
-            return unless result
-
-            result.xpath(NSXDriver::NSXConstants::NSXV_DFW_SECTION_XPATH)
+            xp = NSXConstants::NSXV_DFW_SECTION_XPATH
+            section = result.xpath(xp)
+            return section unless section.empty?
         end
 
         # Get section etag needed to manage FW rules
@@ -80,8 +80,6 @@ module NSXDriver
         def section_etag(section_id = @one_section_id)
             url = @url_sections + '/' + section_id
             response = @nsx_client.get_full_response(url)
-            return unless response
-
             etag = response['etag']
             return etag.delete('\"') if etag
         end
@@ -94,9 +92,9 @@ module NSXDriver
         def section_by_name(section_name)
             url = @url_sections + '?name=' + section_name
             result = @nsx_client.get(url)
-            return unless result
-
-            result.xpath(NSXDriver::NSXConstants::NSXV_DFW_SECTION_XPATH)
+            xp = NSXConstants::NSXV_DFW_SECTION_XPATH
+            section = result.xpath(xp)
+            return section unless section.empty?
         end
 
         # Create new section
@@ -109,18 +107,8 @@ module NSXDriver
                 "<section name=\"#{section_name}\"\
                 stateless=\"false\" tcpStrict=\"true\" useSid=\"false\">\
                 </section>"
-            begin
-                section = @nsx_client.post(@url_sections, section_spec)
-            rescue StandardError => e
-                raise NSXDriver::DFWError::CreateError, \
-                      "Error creating section in NSX: #{e.message}"
-            end
 
-            unless section
-                raise NSXDriver::DFWError::CreateError, \
-                      'Error creating section in NSX: Unknown error'
-            end
-
+            section = @nsx_client.post(@url_sections, section_spec)
             section_id = section.xpath('//section/@id').text
             result = section_by_id(section_id)
             raise 'Section was not created in DFW' unless result
@@ -144,66 +132,55 @@ module NSXDriver
         # - [Nokogiri::XML::NodeSet]
         def rules(section_id = @one_section_id)
             url = @url_sections + '/' + section_id
-            result = @nsx_client.get(url)
-            return result.xpath(NSXDriver::NSXConstants::NSXV_DFW_RULE_XPATH) \
-                if result
+            rules = @nsx_client.get(url)
+            rules.xpath(NSXConstants::NSXV_DFW_RULE_XPATH)
         end
 
         # Get rule by id
-        def rules_by_id(rule_id, section_id = @one_section_id)
+        # Return:
+        # - rule | nil
+        def rule_by_id(rule_id, section_id = @one_section_id)
             url = @url_sections + '/' + section_id + '/rules/' + rule_id
-            result = @nsx_client.get(url)
-            return unless result
-
-            result.xpath(NSXDriver::NSXConstants::NSXV_DFW_RULE_XPATH)
+            valid_codes = [NSXConstants::CODE_CREATED,
+                           NSXConstants::CODE_OK,
+                           NSXConstants::CODE_BAD_REQUEST,
+                           NSXConstants::CODE_NOT_FOUND]
+            additional_headers = []
+            result = @nsx_client.get(url, additional_headers, valid_codes)
+            rule = result.xpath(NSXConstants::NSXV_DFW_RULE_XPATH)
+            rule
         end
 
-        # Get rule by name
+        # Get rules by name
+        # Return:
+        # - [Nokogiri::XML::NodeSet]
         def rules_by_name(rule_name, section_id = @one_section_id)
-            result = []
-            return result unless section_id
+            rules = Nokogiri::XML::NodeSet.new(Nokogiri::XML::Document.new)
 
             all_rules = rules(section_id)
-            return result unless all_rules
+            return rules unless all_rules
 
-            all_rules.each do |rule|
-                result << rule if rule.xpath("//rule/name=\"#{rule_name}\"")
-            end
-            result
+            rules = all_rules.xpath("//rule[name=\"#{rule_name}\"]")
+            rules
         end
-
-        # Get rule by regex
-        # Return an array with rules
-        # def rules_by_regex(rule_name, section_id = @one_section_id)
-        #     result = []
-        #     return result unless section_id
-
-        #     all_rules = rules(section_id)
-        #     return result unless all_rules
-
-        #     all_rules.each do |rule|
-        # CHANGE THIS: result << rule if rule.xpath("//rule/name=\"#{rule_name}\"")
-        #     end
-        #     result
-        # end
 
         # Create new rule
         def create_rule(rule_spec, section_id = @one_section_id)
             # etag is needed to add a new header If-Match
             etag = section_etag(section_id)
-            raise "Cannot get etag from section: #{section_id}" unless etag
+            raise NSXError::ObjectNotFound('etag') \
+                unless etag
 
             aditional_headers = [{ 'If-Match' => etag }]
             url = @url_sections + '/' + section_id + '/rules'
             result = @nsx_client.post(url, rule_spec, aditional_headers)
-            #REMOVE# File.open('/tmp/07-nsxv_dfw_result.debug', 'a'){|f| f.write(result)}
-            raise 'Error creating DFW rule' unless result
+            result
         end
 
         # Update rule
         def update_rule(rule_id, rule_spec, section_id = @one_section_id)
             url = @url_sections + '/' + section_id + '/rules/' + rule_id
-            rule = rules_by_id(rule_id)
+            rule = rule_by_id(rule_id)
             raise "Rule id #{rule_id} not found" unless rule
 
             # etag is needed to add a new header If-Match
@@ -212,7 +189,7 @@ module NSXDriver
 
             aditional_headers = [{ 'If-Match' => etag }]
             result = @nsx_client.put(url, rule_spec, aditional_headers)
-            raise 'Error creating DFW rule' unless result
+            result
         end
 
         # Delete rule
@@ -223,11 +200,12 @@ module NSXDriver
             raise "Cannot get etag from section: #{section_id}" unless etag
 
             aditional_headers = [{ 'If-Match' => etag }]
-            result = @nsx_client.delete(url, aditional_headers)
-            #raise 'Invalid http code deleting rule in DFW' unless result
+            @nsx_client.delete(url, aditional_headers)
+            # Aditional check
+            # result = rule_by_id(rule_id)
+            # raise 'Error deleting rule in DFW' unless result.empty?
 
-            result = rules_by_id(rule_id)
-            #raise 'Error deleting rule in DFW' if result
+            # result
         end
 
     end

@@ -16,7 +16,7 @@
 module NSXDriver
 
     # Class Logical Switch
-    class NSXTRule < NSXDriver::NSXRule
+    class NSXTRule < NSXRule
 
         # ATTRIBUTES
 
@@ -24,7 +24,7 @@ module NSXDriver
 
         def initialize(nsx_client)
             super(nsx_client)
-            @base_url = NSXDriver::NSXConstants::NSXT_RULE_BASE
+            @base_url = NSXConstants::NSXT_RULE_BASE
         end
 
         def create_rule_spec(rule, vm_data, nic_data)
@@ -110,14 +110,6 @@ module NSXDriver
                             :resource_type => 'IPProtocolNSService'
                         }
                     }
-                ],
-                'ALL' => [
-                    {
-                        :service => {
-                            :source_ports => [],
-                            :destination_ports => []
-                        }
-                    }
                 ]
             }
 
@@ -176,13 +168,8 @@ module NSXDriver
             # when 'ICMP'
             # when 'ICMPv6'
             when 'IPSEC'
-                service[0][:service][:source_ports] = NSXDriver::NSXConstants::NSX_RULE_IPSEC_PORTS if rule[:direction] == 'IN'
-                service[0][:service][:destination_ports] = NSXDriver::NSXConstants::NSX_RULE_IPSEC_PORTS if rule[:direction] == 'OUT'
-            when 'ALL'
-                service[0][:service][:source_ports] = rule[:ports] \
-                    if rule[:direction] == 'IN'
-                service[0][:service][:destination_ports] = rule[:ports] \
-                    if rule[:direction] == 'OUT'
+                service[0][:service][:source_ports] = NSXConstants::NSX_RULE_IPSEC_PORTS if rule[:direction] == 'IN'
+                service[0][:service][:destination_ports] = NSXConstants::NSX_RULE_IPSEC_PORTS if rule[:direction] == 'OUT'
             end
 
             if rule[:protocol] != 'ALL' && !service.empty?

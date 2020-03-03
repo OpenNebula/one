@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-
+File.open('/tmp/CLEAN.debug', 'w'){|f| f.write('CLEAN')}
 # Define libraries location
 ONE_LOCATION = ENV['ONE_LOCATION']
 
@@ -78,16 +78,13 @@ end
 nsx_client = NSXDriver::NSXClient.new_from_id(one_host['ID'])
 dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
 begin
-    dfw.clear_vm_rules(template, modified?(template))
+    dfw.clear_rules(template, modified?(template))
 rescue StandardError => e
-    OpenNebula::log_error("Error deleting security groups rules " +
-        "due to \"#{e.message}\"" +
-        "\n********* STACK TRACE *********\n" +
-        "\t#{e.backtrace.join("\n\t")}" +
+    OpenNebula.log_error('Error deleting security groups rules ' \
+        "due to \"#{e.message}\"" \
+        "\n********* STACK TRACE *********\n" \
+        "\t#{e.backtrace.join("\n\t")}" \
         "\n*******************************\n")
-
-    OpenNebula.error_message("Error deleting security groups rules: " +
-        "#{e.message}")
     exit 1
 end
 

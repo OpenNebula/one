@@ -62,6 +62,17 @@ module NSXDriver
 
         end
 
+
+        # Class DeleteError
+        class MissingParameter < NSXError
+
+            def initialize(parameter)
+                msg = "Missing NSX parameter #{parameter}"
+                super(msg)
+            end
+
+        end
+
     end
 
 end

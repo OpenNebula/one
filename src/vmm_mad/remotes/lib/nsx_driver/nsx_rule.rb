@@ -19,7 +19,7 @@ require 'ipaddr'
 module NSXDriver
 
     # Class Logical Switch
-    class NSXRule < NSXDriver::DistributedFirewall
+    class NSXRule < DistributedFirewall
 
         # ATTRIBUTES
         attr_reader :one_section_id
@@ -28,20 +28,20 @@ module NSXDriver
 
         def initialize(nsx_client)
             super(nsx_client)
-            dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
+            dfw = DistributedFirewall.new_child(nsx_client)
             @url_sections = dfw.instance_variable_get('@url_sections')
             @one_section_id = dfw.instance_variable_get('@one_section_id')
         end
 
         def self.new_child(nsx_client)
             case nsx_client
-            when NSXDriver::NSXTClient
-                NSXDriver::NSXTRule.new(nsx_client)
-            when NSXDriver::NSXVClient
-                NSXDriver::NSXVRule.new(nsx_client)
+            when NSXTClient
+                NSXTRule.new(nsx_client)
+            when NSXVClient
+                NSXVRule.new(nsx_client)
             else
                 error_msg = "Unknown object type: #{nsx_client}"
-                error = NSXDriver::NSXError::UnknownObject.new(error_msg)
+                error = NSXError::UnknownObject.new(error_msg)
                 raise error
             end
         end
