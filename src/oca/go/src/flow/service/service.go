@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/oneflow-rest/httpclient"
+	"github.com/OpenNebula/one/src/oca/go/src/flow/httpclient"
 )
 
 var endpoint string
