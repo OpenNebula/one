@@ -268,16 +268,16 @@ void Scheduler::start()
             bool   success = xmlrpc_c::value_boolean(values[0]);
             string message = xmlrpc_c::value_string(values[1]);
 
-            if (!success ||(oned_conf.from_xml(message) != 0))
+            if (success && (oned_conf.from_xml(message) == 0))
             {
-                ostringstream oss;
-
-                oss << "Cannot contact oned, will retry... Error: " << message;
-
-                NebulaLog::log("SCHED", Log::ERROR, oss);
+                break;
             }
 
-            break;
+            ostringstream oss;
+
+            oss << "Cannot contact oned, will retry... Error: " << message;
+
+            NebulaLog::log("SCHED", Log::ERROR, oss);
         }
         catch (exception const& e)
         {
