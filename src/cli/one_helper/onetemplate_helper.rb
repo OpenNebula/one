@@ -128,14 +128,18 @@ EOT
     INT_EXP = /^-?\d+$/
     FLOAT_EXP = /^-?\d+(\.\d+)?$/
 
-    def self.get_user_inputs(template)
+    def self.get_user_inputs(template, get_defaults = false)
         user_inputs = template['VMTEMPLATE']['TEMPLATE']['USER_INPUTS']
 
         return "" if !user_inputs
 
         answers = ""
 
-        puts "There are some parameters that require user input. Use the string <<EDITOR>> to launch an editor (e.g. for multi-line inputs)"
+        unless get_defaults
+            puts 'There are some parameters that require user input. ' \
+                 'Use the string <<EDITOR>> to launch an editor ' \
+                 '(e.g. for multi-line inputs)'
+        end
 
         user_inputs.each do |key, val|
             input_cfg = val.split('|', -1)
@@ -160,6 +164,11 @@ EOT
 
                 params.strip!
                 initial.strip!
+            end
+
+            if get_defaults
+                answers << "#{key}=\"#{initial}\"" unless mandatory == 'M'
+                next
             end
 
             puts "  * (#{key}) #{description}"
