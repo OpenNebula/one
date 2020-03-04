@@ -117,6 +117,36 @@ public:
         logger->log(module,type,message.c_str());
     };
 
+    static void error(const char* module, const string& msg)
+    {
+        logger->log(module, Log::ERROR, msg.c_str());
+    }
+
+    static void warn(const char* module, const string& msg)
+    {
+        logger->log(module, Log::WARNING, msg.c_str());
+    }
+
+    static void info(const char* module, const string& msg)
+    {
+        logger->log(module, Log::INFO, msg.c_str());
+    }
+
+    static void debug(const char* module, const string& msg)
+    {
+        logger->log(module, Log::DEBUG, msg.c_str());
+    }
+
+    static void ddebug(const char* module, const string& msg)
+    {
+        logger->log(module, Log::DDEBUG, msg.c_str());
+    }
+
+    static void dddebug(const char* module, const string& msg)
+    {
+        logger->log(module, Log::DDDEBUG, msg.c_str());
+    }
+
     static Log::MessageType log_level()
     {
         return logger->get_log_level();

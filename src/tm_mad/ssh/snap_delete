@@ -70,5 +70,3 @@ CURRENT_PATH=${DISK_PATH}
 
 ssh_exec_and_log "${SRC_HOST}" "rm ${SNAP_PATH}" \
                  "Error deleting snapshot ${SNAP_PATH}"
-hup_collectd $SRC_HOST
-

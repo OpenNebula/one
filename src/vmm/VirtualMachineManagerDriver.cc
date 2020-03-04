@@ -192,26 +192,26 @@ static void log_error(VirtualMachine* vm,
 
 /* -------------------------------------------------------------------------- */
 
-static void log_monitor_error(VirtualMachine* vm,
-                      ostringstream&  os,
-                      istringstream&  is,
-                      const char *    msg)
-{
-    string info;
+// static void log_monitor_error(VirtualMachine* vm,
+//                       ostringstream&  os,
+//                       istringstream&  is,
+//                       const char *    msg)
+// {
+//     string info;
 
-    getline(is,info);
+//     getline(is,info);
 
-    os.str("");
-    os << msg;
+//     os.str("");
+//     os << msg;
 
-    if (!info.empty() && info[0] != '-')
-    {
-        os << ": " << info;
-        vm->set_template_monitor_error(os.str());
-    }
+//     if (!info.empty() && info[0] != '-')
+//     {
+//         os << ": " << info;
+//         vm->set_template_monitor_error(os.str());
+//     }
 
-    vm->log("VMM",Log::ERROR,os);
-}
+//     vm->log("VMM",Log::ERROR,os);
+// }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -682,19 +682,19 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     }
     else if ( action == "POLL" )
     {
-        if (result == "SUCCESS")
-        {
-            string monitor_str;
-            getline(is, monitor_str);
+        // if (result == "SUCCESS")
+        // {
+        //     string monitor_str;
+        //     getline(is, monitor_str);
 
-            process_poll(vm, monitor_str);
-        }
-        else
-        {
-            log_monitor_error(vm, os, is, "Error monitoring VM");
+        //     process_poll(vm, monitor_str);
+        // }
+        // else
+        // {
+        //     log_monitor_error(vm, os, is, "Error monitoring VM");
 
-            lcm->trigger(LCMAction::MONITOR_DONE, vm->get_oid());
-        }
+        //     lcm->trigger(LCMAction::MONITOR_DONE, vm->get_oid());
+        // }
     }
     else if (action == "LOG")
     {
@@ -705,143 +705,6 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     }
 
     vm->unlock();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineManagerDriver::process_poll(int id,const string& monitor_str)
-{
-    // Get the VM from the pool
-    VirtualMachine* vm = Nebula::instance().get_vmpool()->get(id);
-
-    if ( vm == nullptr )
-    {
-        return;
-    }
-
-    process_poll(vm, monitor_str);
-
-    vm->unlock();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineManagerDriver::process_poll(VirtualMachine* vm,
-    const string& monitor_str)
-{
-    char state;
-    time_t update_time;
-
-    Nebula &ne = Nebula::instance();
-
-    LifeCycleManager* lcm      = ne.get_lcm();
-    VirtualMachinePool* vmpool = ne.get_vmpool();
-
-    /* ---------------------------------------------------------------------- */
-    /* Update VM info only for VMs in ACTIVE                                  */
-    /* ---------------------------------------------------------------------- */
-    ne.get_configuration_attribute("MONITORING_INTERVAL_DB_UPDATE", update_time);
-
-    if (vm->get_state() == VirtualMachine::ACTIVE && update_time != -1 &&
-            (time(0) - vm->get_last_poll() > update_time))
-    {
-        if (vm->update_info(monitor_str) == 0)
-        {
-            vmpool->update_history(vm);
-
-            vmpool->update_monitoring(vm);
-        }
-
-        vmpool->update(vm);
-
-        VirtualMachineMonitorInfo &minfo = vm->get_info();
-
-        state = minfo.remove_state();
-    }
-    else
-    {
-        VirtualMachineMonitorInfo minfo;
-        string error;
-
-        if (minfo.update(monitor_str, error) != 0)
-        {
-            ostringstream oss;
-
-            oss << "Ignoring monitoring information, error:" << error
-                << ". Monitor information was: " << monitor_str;
-
-            NebulaLog::log("VMM", Log::ERROR, oss);
-
-            return;
-        };
-
-        state = minfo.remove_state();
-    }
-
-    /* ---------------------------------------------------------------------- */
-    /* Process the VM state from the monitoring info                          */
-    /* ---------------------------------------------------------------------- */
-
-    switch (state)
-    {
-        case 'a': // Active
-
-            if ( vm->get_state() == VirtualMachine::POWEROFF ||
-                 (vm->get_state() == VirtualMachine::ACTIVE &&
-                 (  vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN  ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE_FAILURE ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED_FAILURE ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY_FAILURE ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT_FAILURE )))
-            {
-                lcm->trigger(LCMAction::MONITOR_POWERON, vm->get_oid());
-            }
-
-            break;
-
-        case 'p': // It's paused
-            if ( vm->get_state() == VirtualMachine::ACTIVE &&
-                ( vm->get_lcm_state() == VirtualMachine::RUNNING ||
-                  vm->get_lcm_state() == VirtualMachine::UNKNOWN ))
-            {
-                vm->log("VMM",Log::INFO, "VM running but monitor state is PAUSED.");
-
-                lcm->trigger(LCMAction::MONITOR_SUSPEND, vm->get_oid());
-            }
-            break;
-
-        case 'e': //Failed
-            if ( vm->get_state() == VirtualMachine::ACTIVE &&
-                ( vm->get_lcm_state() == VirtualMachine::RUNNING ||
-                  vm->get_lcm_state() == VirtualMachine::UNKNOWN ))
-            {
-                vm->log("VMM",Log::INFO,"VM running but monitor state is ERROR.");
-
-                lcm->trigger(LCMAction::MONITOR_DONE, vm->get_oid());
-            }
-            break;
-
-        case 'd': //The VM was powered-off
-            if ( vm->get_state() == VirtualMachine::ACTIVE &&
-                ( vm->get_lcm_state() == VirtualMachine::RUNNING ||
-                  vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
-                  vm->get_lcm_state() == VirtualMachine::SHUTDOWN ||
-                  vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF ||
-                  vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY ))
-            {
-                lcm->trigger(LCMAction::MONITOR_POWEROFF, vm->get_oid());
-            }
-            break;
-    }
 }
 
 /* -------------------------------------------------------------------------- */

@@ -738,8 +738,6 @@ void  LifeCycleManager::restore_action(const LCMAction& la)
 
         vm->set_stime(the_time);
 
-        vm->set_last_poll(0);
-
         vm->set_running_stime(the_time);
 
         vm->set_action(VMActions::RESUME_ACTION, la.uid(), la.gid(), la.req_id());
@@ -796,8 +794,6 @@ void  LifeCycleManager::restart_action(const LCMAction& la)
         vm->cp_history();
 
         vm->set_stime(the_time);
-
-        vm->set_last_poll(0);
 
         vm->set_running_stime(the_time);
 

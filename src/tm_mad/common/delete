@@ -67,4 +67,3 @@ EOF
 )
 
 ssh_exec_and_log $DST_HOST "$delete_file" "Error deleting $DST_PATH"
-hup_collectd $DST_HOST

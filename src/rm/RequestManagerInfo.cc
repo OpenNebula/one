@@ -70,6 +70,8 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
         object->decrypt();
     }
 
+    load_monitoring(object);
+
     to_xml(att, object, str);
 
     object->unlock();

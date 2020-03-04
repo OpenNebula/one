@@ -108,18 +108,12 @@ void LifeCycleManager::revert_migrate_after_failure(VirtualMachine* vm)
 
     vm->set_running_stime(the_time);
 
-    vm->set_last_poll(0);
-
     vmpool->insert_history(vm);
 
     vmpool->update(vm);
 
     vm->log("LCM", Log::INFO, "Fail to save VM state while migrating."
-            " Assuming that the VM is still RUNNING (will poll VM).");
-
-    //----------------------------------------------------
-
-    vmm->trigger(VMMAction::POLL,vm->get_oid());
+            " Assuming that the VM is still RUNNING.");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -241,11 +235,7 @@ void  LifeCycleManager::save_failure_action(int vid)
         vmpool->update(vm);
 
         vm->log("LCM", Log::INFO, "Fail to save VM state."
-                " Assuming that the VM is still RUNNING (will poll VM).");
-
-        //----------------------------------------------------
-
-        vmm->trigger(VMMAction::POLL,vid);
+                " Assuming that the VM is still RUNNING.");
     }
     else
     {
@@ -280,8 +270,6 @@ void  LifeCycleManager::deploy_success_action(int vid)
         time_t the_time = time(0);
 
         vm->set_running_stime(the_time);
-
-        vm->set_last_poll(0);
 
         vmpool->update_history(vm);
 
@@ -389,18 +377,12 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vm->set_running_stime(the_time);
 
-        vm->set_last_poll(0);
-
         vmpool->insert_history(vm);
 
         vmpool->update(vm);
 
         vm->log("LCM", Log::INFO, "Fail to live migrate VM."
-                " Assuming that the VM is still RUNNING (will poll VM).");
-
-        //----------------------------------------------------
-
-        vmm->trigger(VMMAction::POLL,vid);
+                " Assuming that the VM is still RUNNING.");
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT)
     {
@@ -604,11 +586,7 @@ void  LifeCycleManager::shutdown_failure_action(int vid)
         vmpool->update(vm);
 
         vm->log("LCM", Log::INFO, "Fail to shutdown VM."
-                " Assuming that the VM is still RUNNING (will poll VM).");
-
-        //----------------------------------------------------
-
-        vmm->trigger(VMMAction::POLL,vid);
+                " Assuming that the VM is still RUNNING.");
     }
     else if (vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE)
     {
@@ -701,8 +679,6 @@ void LifeCycleManager::prolog_success_action(int vid)
 
             vm->set_running_stime(the_time);
 
-            vm->set_last_poll(0);
-
             vmpool->update_history(vm);
 
             vmpool->update(vm);
@@ -727,8 +703,6 @@ void LifeCycleManager::prolog_success_action(int vid)
             vm->set_etime(the_time);
 
             vm->set_prolog_etime(the_time);
-
-            vm->set_last_poll(0);
 
             vm->set_vm_info();
 
@@ -851,7 +825,6 @@ void  LifeCycleManager::prolog_failure_action(int vid)
 
             vm->set_stime(t);
             vm->set_prolog_stime(t);
-            vm->set_last_poll(0);
 
             hpool->add_capacity(vm->get_hid(), sr);
 
@@ -1235,7 +1208,8 @@ void  LifeCycleManager::monitor_poweron_action(int vid)
         return;
     }
 
-    if ( vm->get_state() == VirtualMachine::POWEROFF )
+    if ( vm->get_state() == VirtualMachine::POWEROFF ||
+         vm->get_state() == VirtualMachine::SUSPENDED )
     {
             vm->log("VMM",Log::INFO,"VM found again by the drivers");
 
@@ -1250,8 +1224,6 @@ void  LifeCycleManager::monitor_poweron_action(int vid)
             vm->set_stime(the_time);
 
             vm->set_running_stime(the_time);
-
-            vm->set_last_poll(the_time);
 
             vmpool->insert_history(vm);
 

@@ -1,7 +1,10 @@
 module Oned =
   autoload xfm
 
-(* Version: 1.1 *)
+(* Version: 1.2 *)
+
+(* Change log: *)
+(*   1.2: Include /etc/one/monitord.conf  *)
 
 (* primitives *)
 let sep = del /[ \t]*=[ \t]*/ " = "
@@ -66,6 +69,7 @@ let lns = ( top_level_line | comment_eol | section | empty_line )*
 (* Variable: filter *)
 let filter = incl "/etc/one/oned.conf"
              . incl "/etc/one/sched.conf"
+             . incl "/etc/one/monitord.conf"
              . incl "/etc/one/vmm_exec/vmm_exec_kvm.conf"
 
 let xfm = transform lns filter

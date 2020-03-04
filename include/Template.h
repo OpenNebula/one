@@ -62,22 +62,43 @@ public:
         }
     }
 
+    Template(Template&& t) noexcept
+        : attributes(std::move(t.attributes))
+        , replace_mode(t.replace_mode)
+        , separator(t.separator)
+        , xml_root(std::move(t.xml_root))
+    {
+    }
+
     Template& operator=(const Template& t)
     {
-        multimap<string,Attribute *>::const_iterator it;
-
         if (this != &t)
         {
             replace_mode = t.replace_mode;
             separator    = t.separator;
             xml_root     = t.xml_root;
 
-            attributes.clear();
+            clear();
 
-            for (it = t.attributes.begin() ; it != t.attributes.end() ; it++)
+            for (auto att : t.attributes)
             {
-                attributes.insert(make_pair(it->first,(it->second)->clone()));
+                attributes.insert(make_pair(att.first,(att.second)->clone()));
             }
+        }
+
+        return *this;
+    }
+
+    Template& operator=(Template&& t) noexcept
+    {
+        if (this != &t)
+        {
+            replace_mode = t.replace_mode;
+            separator    = t.separator;
+            xml_root     = std::move(t.xml_root);
+
+            clear();
+            attributes   = std::move(t.attributes);
         }
 
         return *this;
@@ -186,7 +207,7 @@ public:
     /**
      *  Clears all the attributes from the template
      */
-    void clear();
+    virtual void clear();
 
     /**
      *  Sets a new attribute, the attribute MUST BE ALLOCATED IN THE HEAP, and
@@ -448,7 +469,7 @@ public:
     /**
      *  @return true if template is empty
      */
-    bool empty()
+    bool empty() const
     {
         return attributes.empty();
     }

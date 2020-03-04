@@ -83,9 +83,9 @@ module OpenNebulaCloudAuth
 
             # Check if the user authenticated with a scoped token. In this case
             # encode the EGID in the username as "user:egid"
-            auth_name = user.name
+            egid = user["//LOGIN_TOKEN [ TOKEN = \"#{password}\" ]/EGID"]
 
-            egid = user["//LOGIN_TOKEN [ TOKEN = \"#{password}\" ]/EGID"] rescue nil
+            auth_name = user.name
             auth_name = "#{auth_name}:#{egid}" if egid
 
             return auth_name

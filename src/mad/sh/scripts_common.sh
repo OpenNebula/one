@@ -1017,9 +1017,3 @@ function get_nic_information {
     OUTBOUND_PEAK_KB="${XPATH_ELEMENTS[j++]}"
     ORDER="${XPATH_ELEMENTS[j++]}"
 }
-
-function hup_collectd
-{
-    SEND_HUP='kill -HUP `cat /tmp/one-collectd-client.pid` || true'
-    ssh_exec_and_log_no_error $1 "$SEND_HUP"
-}

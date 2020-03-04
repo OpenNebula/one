@@ -21,87 +21,57 @@
 
 #include <string>
 
-using namespace std;
-
 /**
  *  Virtual Machine Monitor class, stores the monitor data for the VM
  */
-class VirtualMachineMonitorInfo : public Template
+class VirtualMachineMonitorInfo
 {
 public:
-    VirtualMachineMonitorInfo():Template(false,'=',"MONITORING"){};
+    VirtualMachineMonitorInfo()
+        : _oid(-1)
+        , _timestamp(0)
+    {
+    }
 
-    ~VirtualMachineMonitorInfo(){};
+    VirtualMachineMonitorInfo(int oid, time_t timestamp)
+        : _oid(oid)
+        , _timestamp(timestamp)
+    {
+    }
+
+    int oid() const { return _oid; }
+
+    void oid(int oid) { _oid = oid; }
+
+    time_t timestamp() const { return _timestamp; }
+
+    void timestamp(time_t timestamp) { _timestamp = timestamp; }
+
+    std::string to_xml() const;
+
+    std::string to_xml_extended() const;
+
+    std::string to_xml_short() const;
 
     /**
-     *  Update the monitoring information with data from the probes
-     *    @param monitor_data of the VM
-     *    @param error description if any
-     *    @return 0 on success
+     *  Fills monitoring data from xml_string
+     *  If some data are not contained, keep old data
+     *  @return 0 on succes, -1 otherwise
      */
-    int update(const string& monitor_data, string& error)
-    {
-        VirtualMachineMonitorInfo new_info;
+    int from_xml(const std::string& xml_string);
 
-        char * error_c = 0;
+    int from_template(const Template &tmpl);
 
-        remove_state();
+    /**
+     * Reset monitoring data to zero
+     */
+    void reset_info();
 
-        if (new_info.parse(monitor_data, &error_c) != 0)
-        {
-            error = error_c;
+private:
+    int    _oid;
+    time_t _timestamp;
 
-            free(error_c);
-
-            return -1;
-        }
-
-        merge(&new_info);
-
-        return 0;
-    };
-
-    char remove_state()
-    {
-        string state_str;
-
-        get("STATE", state_str);
-
-        erase("STATE");
-
-        if (state_str.empty())
-        {
-            return '-';
-        }
-
-        return state_str[0];
-    };
-
-    string& to_xml_short(string& xml) const
-    {
-        ostringstream oss;
-        string cpu, memory, state;
-
-        if (attributes.empty())
-        {
-            oss << "<MONITORING/>";
-        }
-        else
-        {
-            get("CPU", cpu);
-            get("MEMORY", memory);
-            get("STATE", state);
-
-            oss << "<MONITORING>"
-                << "<CPU>"    << one_util::escape_xml(cpu)    <<  "</CPU>"
-                << "<MEMORY>" << one_util::escape_xml(memory) <<  "</MEMORY>"
-                << "<STATE>"  << one_util::escape_xml(state)  <<  "</STATE>"
-                << "</MONITORING>";
-        }
-
-        xml = oss.str();
-        return xml;
-    }
+    Template monitoring{false, '=', "MONITORING"};
 };
 
 #endif

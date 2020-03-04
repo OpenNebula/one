@@ -145,5 +145,5 @@ EOF
 
 ssh_exec_and_log "$DST_HOST" "$CLONE_CMD" \
         "Error cloning $SRC_PATH to $LV_NAME"
-hup_collectd $DST_HOST
+
 exit 0

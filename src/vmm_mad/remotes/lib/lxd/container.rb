@@ -39,7 +39,7 @@ class Container
     #---------------------------------------------------------------------------
     # Methods to access container attributes
     #---------------------------------------------------------------------------
-    CONTAINER_ATTRIBUTES = %w[name status status_code devices config profile
+    CONTAINER_ATTRIBUTES = %w[name uuid status status_code devices config profile
                               expanded_config expanded_devices architecture].freeze
 
     CONTAINER_ATTRIBUTES.each do |attr|

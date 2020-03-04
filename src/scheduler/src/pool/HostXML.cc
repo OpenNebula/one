@@ -47,7 +47,7 @@ void HostShareXML::init_attributes(ObjectXML * host)
     host->xpath<long long>(max_mem, "/HOST/HOST_SHARE/MAX_MEM", 0);
     host->xpath<long long>(max_cpu, "/HOST/HOST_SHARE/MAX_CPU", 0);
 
-    host->xpath<long long>(free_disk, "/HOST/HOST_SHARE/FREE_DISK", 0);
+    host->xpath<long long>(free_disk, "/HOST/HOST_SHARE/DATASTORES/FREE_DISK", 0);
     host->xpath<long long>(running_vms, "/HOST/HOST_SHARE/RUNNING_VMS", 0);
 
     //-------------------- HostShare Datastores ------------------------------

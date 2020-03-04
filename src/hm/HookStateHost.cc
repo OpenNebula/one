@@ -33,12 +33,11 @@ string * HookStateHost::format_message(Host * host)
 {
     std::ostringstream oss;
     std::string host_xml;
-    std::string state;
 
     oss << "<HOOK_MESSAGE>"
         << "<HOOK_TYPE>STATE</HOOK_TYPE>"
         << "<HOOK_OBJECT>HOST</HOOK_OBJECT>"
-        << "<STATE>" << Host::state_to_str(state, host->get_state()) << "</STATE>"
+        << "<STATE>" << Host::state_to_str(host->get_state()) << "</STATE>"
         << "<REMOTE_HOST>" << host->get_name() << "</REMOTE_HOST>"
         << "<RESOURCE_ID>" << host->get_oid() << "</RESOURCE_ID>"
         << host->to_xml(host_xml)
@@ -63,7 +62,7 @@ int HookStateHost::parse_template(Template * tmpl, std::string& error_str)
         return -1;
     }
 
-    tmpl->add("STATE", Host::state_to_str(state_str, state));
+    tmpl->add("STATE", Host::state_to_str(state));
 
     return 0;
 }

@@ -176,6 +176,3 @@ fi
 
 ssh_exec_and_log "$DST_HOST" "mv $SRC_PATH $DST_PATH" \
     "Error moving VM files to another System DS: $SRC_PATH to $DST_PATH in $DST_HOST"
-
-hup_collectd $DST_HOST
-hup_collectd $SRC_HOST

@@ -79,6 +79,5 @@ ssh_exec_and_log "$SRC_HOST" "$DUMP_CMD" \
 LOCK="tm-fs_lvm-${DS_SYS_ID}.lock"
 exclusive "${LOCK}" 120 ssh_exec_and_log "$SRC_HOST" "$DELETE_CMD" \
     "Error dumping $SRC to $DST"
-hup_collectd $SRC_HOST
 
 exit 0

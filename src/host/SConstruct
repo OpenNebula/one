@@ -23,7 +23,11 @@ lib_name='nebula_host'
 # Sources to generate the library
 source_files=[
     'Host.cc',
+    'HostMonitoringTemplate.cc',
     'HostShare.cc',
+    'HostSharePCI.cc',
+    'HostShareNUMA.cc',
+    'HostShareDatastore.cc',
     'HostPool.cc',
     'HostTemplate.cc'
 ]

@@ -16,6 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+echo 'SSH' >> /tmp/debug.log
+
 dir="$1"
 
 vms=$(ls "$dir" | grep '^[0-9]\+$')
@@ -26,7 +28,9 @@ for vm in $vms; do
 
     [ -z "$disks" ] && continue
 
-    echo -n "VM=[ID=$vm,POLL=\""
+    echo -n "VM = [ ID = $vm, MONITOR = \""
+
+    vm_monitor=""
 
     for disk in $disks; do
         disk_id="$(echo "$disk" | cut -d. -f2)"
@@ -34,7 +38,8 @@ for vm in $vms; do
         snap_dir="${vmdir}/${disk}.snap"
 
         [ -z "$disk_size" ] && continue
-        echo -n "DISK_SIZE=[ID=${disk_id},SIZE=${disk_size}] "
+
+        vm_monitor="${vm_monitor}\nDISK_SIZE = [ ID=${disk_id}, SIZE=${disk_size}]"
 
         if [ -e "$snap_dir" ]; then
             snaps="$(ls "$snap_dir" | grep '^[0-9]$')"
@@ -42,10 +47,14 @@ for vm in $vms; do
             for snap in $snaps; do
                 snap_size="$(du -mL "${snap_dir}/${snap}" 2>/dev/null | awk '{print $1}')"
                 [ -z "$snap_size" ] && continue
-                echo -n "SNAPSHOT_SIZE=[ID=${snap},DISK_ID=${disk_id},SIZE=${snap_size}] "
+
+                vm_monitor="${vm_monitor}\nSNAPSHOT_SIZE = "\
+                    "[ ID=${snap}, DISK_ID=${disk_id}, SIZE=${snap_size}]"
             done
         fi
     done
+
+    echo -e "$vm_monitor" | base64 -w 0 -
 
     echo "\"]"
 done

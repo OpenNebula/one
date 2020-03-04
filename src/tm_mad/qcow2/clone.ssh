@@ -104,4 +104,3 @@ if [ -n "$ORIGINAL_SIZE" -a "$SIZE" -gt "$ORIGINAL_SIZE" ]; then
        "Error resizing image $DST"
 fi
 
-hup_collectd $DST_HOST

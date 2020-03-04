@@ -49,23 +49,26 @@
           </xs:complexType>
         </xs:element>
         <xs:element name="MONITORING">
-        <!--
           <xs:complexType>
             <xs:all>
-              <- Percentage of 1 CPU consumed (two fully consumed cpu is 200) ->
+              <!-- Percentage of 1 CPU consumed (two fully consumed cpu is 2.0) -->
               <xs:element name="CPU" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
-
-              <- MEMORY consumption in kilobytes ->
+              <!-- Amount of bytes read from disk-->
+              <xs:element name="DISKRDBYTES" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- Number of IO read operations -->
+              <xs:element name="DISKRDIOPS" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- Amount of bytes written to disk -->
+              <xs:element name="DISKWRBYTES" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- Number of IO write operations -->
+              <xs:element name="DISKWRIOPS" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- MEMORY consumption in kilobytes -->
               <xs:element name="MEMORY" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-
-              <- NETTX: Sent bytes to the network ->
+              <!-- NETTX: Sent bytes to the network -->
               <xs:element name="NETTX" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-
-              <- NETRX: Received bytes from the network ->
+              <!-- NETRX: Received bytes from the network -->
               <xs:element name="NETRX" type="xs:integer" minOccurs="0" maxOccurs="1"/>
             </xs:all>
           </xs:complexType>
-        -->
         </xs:element>
         <xs:element name="TEMPLATE">
           <xs:complexType>

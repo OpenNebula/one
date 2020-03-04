@@ -161,8 +161,6 @@ int DispatchManager::import(VirtualMachine * vm, const RequestAttributes& ra)
 
     vm->set_running_stime(the_time);
 
-    vm->set_last_poll(0);
-
     vmpool->update_history(vm);
 
     vmpool->update(vm);

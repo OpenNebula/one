@@ -152,8 +152,8 @@ if (no_proxy = $conf[:no_proxy])
     ENV['NO_PROXY'] = no_proxy
 end
 
-if ENV["APP_ENV"] && 
-    !ENV["APP_ENV"].empty? && 
+if ENV["APP_ENV"] &&
+    !ENV["APP_ENV"].empty? &&
     %w{production development test}.include?(ENV["APP_ENV"])
     set :environment, ENV["APP_ENV"].to_sym
 else
@@ -294,7 +294,7 @@ helpers do
             logger.error { rc.message }
             error 500, ""
         end
-        oned_conf_template = rc.to_hash()['TEMPLATE']
+        oned_conf_template = rc.to_hash()['OPENNEBULA_CONFIGURATION']
         oned_conf = {}
         ONED_CONF_OPTS['ALLOWED_KEYS'].each do |key|
             value = oned_conf_template[key]

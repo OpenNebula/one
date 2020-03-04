@@ -274,10 +274,25 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc/vmm/vcenter \
           $VAR_LOCATION/remotes/etc/vnm \
           $VAR_LOCATION/remotes/im \
+          $VAR_LOCATION/remotes/im/lib \
           $VAR_LOCATION/remotes/im/kvm.d \
-          $VAR_LOCATION/remotes/im/kvm-probes.d \
+          $VAR_LOCATION/remotes/im/kvm-probes.d/host/beacon \
+          $VAR_LOCATION/remotes/im/kvm-probes.d/host/monitor \
+          $VAR_LOCATION/remotes/im/kvm-probes.d/host/system \
+          $VAR_LOCATION/remotes/im/kvm-probes.d/vm/monitor \
+          $VAR_LOCATION/remotes/im/kvm-probes.d/vm/status \
+          $VAR_LOCATION/remotes/im/dummy.d \
+          $VAR_LOCATION/remotes/im/dummy-probes.d/host/beacon \
+          $VAR_LOCATION/remotes/im/dummy-probes.d/host/monitor \
+          $VAR_LOCATION/remotes/im/dummy-probes.d/host/system \
+          $VAR_LOCATION/remotes/im/dummy-probes.d/vm/monitor \
+          $VAR_LOCATION/remotes/im/dummy-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/lxd.d \
-          $VAR_LOCATION/remotes/im/lxd-probes.d \
+          $VAR_LOCATION/remotes/im/lxd-probes.d/host/beacon \
+          $VAR_LOCATION/remotes/im/lxd-probes.d/host/monitor \
+          $VAR_LOCATION/remotes/im/lxd-probes.d/host/system \
+          $VAR_LOCATION/remotes/im/lxd-probes.d/vm/monitor \
+          $VAR_LOCATION/remotes/im/lxd-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/vcenter.d \
           $VAR_LOCATION/remotes/im/ec2.d \
           $VAR_LOCATION/remotes/im/az.d \
@@ -288,7 +303,6 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/pm/dummy \
           $VAR_LOCATION/remotes/pm/packet \
           $VAR_LOCATION/remotes/vmm \
-          $VAR_LOCATION/remotes/vmm/lib \
           $VAR_LOCATION/remotes/vmm/kvm \
           $VAR_LOCATION/remotes/vmm/vcenter \
           $VAR_LOCATION/remotes/vmm/ec2 \
@@ -453,10 +467,26 @@ INSTALL_FILES=(
     ONEDB_PATCH_FILES:$LIB_LOCATION/ruby/onedb/patches
     MADS_LIB_FILES:$LIB_LOCATION/mads
     IM_PROBES_FILES:$VAR_LOCATION/remotes/im
+    IM_PROBES_LIB_FILES:$VAR_LOCATION/remotes/im/lib
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
-    IM_PROBES_KVM_PROBES_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d
-    IM_PROBES_ETC_KVM_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/kvm-probes.d
+    IM_PROBES_DUMMY_FILES:$VAR_LOCATION/remotes/im/dummy.d
     IM_PROBES_LXD_FILES:$VAR_LOCATION/remotes/im/lxd.d
+    IM_PROBES_KVM_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/beacon
+    IM_PROBES_KVM_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/monitor
+    IM_PROBES_KVM_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/system
+    IM_PROBES_KVM_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/vm/monitor
+    IM_PROBES_KVM_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/vm/status
+    IM_PROBES_ETC_KVM_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/kvm-probes.d
+    IM_PROBES_DUMMY_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/host/beacon
+    IM_PROBES_DUMMY_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/host/monitor
+    IM_PROBES_DUMMY_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/host/system
+    IM_PROBES_DUMMY_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/vm/monitor
+    IM_PROBES_DUMMY_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/vm/status
+    IM_PROBES_LXD_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d/host/beacon
+    IM_PROBES_LXD_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d/host/monitor
+    IM_PROBES_LXD_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d/host/system
+    IM_PROBES_LXD_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d/vm/monitor
+    IM_PROBES_LXD_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d/vm/status
     IM_PROBES_LXD_PROBES_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d
     IM_PROBES_ETC_LXD_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/lxd-probes.d
     IM_PROBES_VCENTER_FILES:$VAR_LOCATION/remotes/im/vcenter.d
@@ -475,7 +505,6 @@ INSTALL_FILES=(
     PM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/pm/ec2
     PM_EXEC_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/pm/dummy
     PM_EXEC_PACKET_SCRIPTS:$VAR_LOCATION/remotes/pm/packet
-    VMM_EXEC_LIB_FILES:$VAR_LOCATION/remotes/vmm/lib
     VMM_EXEC_LIB_VCENTER_FILES:$LIB_LOCATION/ruby/vcenter_driver
     VMM_EXEC_LIB_NSX_FILES:$LIB_LOCATION/ruby/nsx_driver
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
@@ -782,9 +811,7 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/im_mad/im_exec/one_im_exec \
               src/im_mad/im_exec/one_im_ssh \
               src/im_mad/im_exec/one_im_sh \
-              src/im_mad/dummy/one_im_dummy.rb \
-              src/im_mad/dummy/one_im_dummy \
-              src/im_mad/collectd/collectd \
+              src/monitor/src/monitor/onemonitord \
               src/tm_mad/one_tm \
               src/tm_mad/one_tm.rb \
               src/hm_mad/one_hm.rb \
@@ -830,14 +857,6 @@ PM_EXEC_PACKET_SCRIPTS="src/pm_mad/remotes/packet/cancel \
                         src/pm_mad/remotes/packet/reboot \
                         src/pm_mad/remotes/packet/reset \
                         src/pm_mad/remotes/packet/shutdown"
-
-#-------------------------------------------------------------------------------
-# VMM Lib files, used by some VMM Drivers, to be installed in
-# $REMOTES_LOCATION/vmm/lib
-#-------------------------------------------------------------------------------
-
-VMM_EXEC_LIB_FILES="src/vmm_mad/remotes/lib/poll_common.rb \
-                    src/vmm_mad/remotes/lib/command.rb"
 
 #-------------------------------------------------------------------------------
 # VMM Lib vcenter files, used by the vCenter Driver to be installed in
@@ -892,7 +911,6 @@ VMM_EXEC_LXD_SCRIPTS="src/vmm_mad/remotes/lxd/cancel \
                     src/vmm_mad/remotes/lxd/reboot \
                     src/vmm_mad/remotes/lxd/reset \
                     src/vmm_mad/remotes/lxd/save \
-                    src/vmm_mad/remotes/lxd/poll \
                     src/vmm_mad/remotes/lxd/attach_disk \
                     src/vmm_mad/remotes/lxd/detach_disk \
                     src/vmm_mad/remotes/lxd/attach_nic \
@@ -951,7 +969,6 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/reset \
                     src/vmm_mad/remotes/kvm/save \
                     src/vmm_mad/remotes/kvm/save.ceph \
-                    src/vmm_mad/remotes/kvm/poll \
                     src/vmm_mad/remotes/kvm/attach_disk \
                     src/vmm_mad/remotes/kvm/detach_disk \
                     src/vmm_mad/remotes/kvm/attach_nic \
@@ -1086,43 +1103,109 @@ VMM_EXEC_PACKET_SCRIPTS="src/vmm_mad/remotes/packet/cancel \
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $REMOTES_LOCATION/im
 #-------------------------------------------------------------------------------
+IM_PROBES_FILES="\
+    src/im_mad/remotes/run_probes \
+    src/im_mad/remotes/stop_probes"
 
-IM_PROBES_FILES="src/im_mad/remotes/run_probes \
-                 src/im_mad/remotes/stop_probes"
+IM_PROBES_LIB_FILES="\
+    src/im_mad/remotes/lib/kvm.rb \
+    src/im_mad/remotes/lib/lxd.rb \
+    src/im_mad/remotes/lib/linux.rb \
+    src/im_mad/remotes/lib/numa_common.rb \
+    src/im_mad/remotes/lib/probe_db.rb"
 
-IM_PROBES_KVM_FILES="src/im_mad/remotes/kvm.d/collectd-client_control.sh \
-                     src/im_mad/remotes/kvm.d/collectd-client.rb"
+# KVM PROBES
+IM_PROBES_KVM_FILES="\
+    src/im_mad/remotes/kvm.d/collectd-client_control.sh \
+    src/im_mad/remotes/kvm.d/collectd-client.rb"
 
-IM_PROBES_KVM_PROBES_FILES="src/im_mad/remotes/kvm-probes.d/kvm.rb \
-                     src/im_mad/remotes/kvm-probes.d/architecture.sh \
-                     src/im_mad/remotes/kvm-probes.d/cpu.sh \
-                     src/im_mad/remotes/kvm-probes.d/poll.sh \
-                     src/im_mad/remotes/kvm-probes.d/machines-models.rb \
-                     src/im_mad/remotes/kvm-probes.d/name.sh \
-                     src/im_mad/remotes/kvm-probes.d/pci.rb \
-                     src/im_mad/remotes/kvm-probes.d/numa.rb \
-                     src/im_mad/remotes/common.d/monitor_ds.sh \
-                     src/im_mad/remotes/common.d/version.sh \
-                     src/im_mad/remotes/common.d/collectd-client-shepherd.sh"
+IM_PROBES_KVM_HOST_BEACON_FILES="\
+     src/im_mad/remotes/kvm-probes.d/host/beacon/collectd-client-shepherd.sh \
+     src/im_mad/remotes/kvm-probes.d/host/beacon/date.sh"
 
-IM_PROBES_ETC_KVM_PROBES_FILES="src/im_mad/remotes/kvm-probes.d/pci.conf"
+IM_PROBES_KVM_HOST_MONITOR_FILES="\
+     src/im_mad/remotes/kvm-probes.d/host/monitor/linux_usage.rb \
+     src/im_mad/remotes/kvm-probes.d/host/monitor/numa_usage.rb"
 
-IM_PROBES_LXD_PROBES_FILES="src/im_mad/remotes/lxd-probes.d/lxd.rb \
-                     src/im_mad/remotes/lxd-probes.d/architecture.sh \
-                     src/im_mad/remotes/lxd-probes.d/cpu.sh \
-                     src/im_mad/remotes/lxd-probes.d/poll.sh \
-                     src/im_mad/remotes/lxd-probes.d/name.sh \
-                     src/im_mad/remotes/lxd-probes.d/pci.rb \
-                     src/im_mad/remotes/lxd-probes.d/numa.rb \
-                     src/im_mad/remotes/lxd-probes.d/monitor_ds.sh \
-                     src/im_mad/remotes/lxd-probes.d/version.sh \
-                     src/im_mad/remotes/lxd-probes.d/profiles.sh \
-                     src/im_mad/remotes/lxd-probes.d/collectd-client-shepherd.sh"
+IM_PROBES_KVM_HOST_SYSTEM_FILES="\
+     src/im_mad/remotes/kvm-probes.d/host/system/architecture.sh \
+     src/im_mad/remotes/kvm-probes.d/host/system/cpu.sh \
+     src/im_mad/remotes/kvm-probes.d/host/system/linux_host.rb \
+     src/im_mad/remotes/kvm-probes.d/host/system/machines_models.rb \
+     src/im_mad/remotes/kvm-probes.d/host/system/monitor_ds.rb \
+     src/im_mad/remotes/kvm-probes.d/host/system/name.sh \
+     src/im_mad/remotes/kvm-probes.d/host/system/numa_host.rb \
+     src/im_mad/remotes/kvm-probes.d/host/system/wild_vm.rb \
+     src/im_mad/remotes/kvm-probes.d/host/system/pci.rb \
+     src/im_mad/remotes/kvm-probes.d/host/system/version.sh"
 
-IM_PROBES_LXD_FILES="src/im_mad/remotes/lxd.d/collectd-client_control.sh \
-                     src/im_mad/remotes/lxd.d/collectd-client.rb"
+IM_PROBES_KVM_VM_MONITOR_FILES="\
+     src/im_mad/remotes/kvm-probes.d/vms/monitor/poll.rb \
+     src/im_mad/remotes/kvm-probes.d/vms/monitor/monitor_ds_vm.rb"
 
-IM_PROBES_ETC_LXD_PROBES_FILES="src/im_mad/remotes/lxd-probes.d/pci.conf"
+IM_PROBES_KVM_VM_STATUS_FILES="\
+     src/im_mad/remotes/kvm-probes.d/vms/status/status.rb"
+
+IM_PROBES_ETC_KVM_PROBES_FILES="\
+    src/im_mad/remotes/kvm-probes.d/pci.conf \
+    src/im_mad/remotes/lib/probe_db.conf"
+
+# DUMMY PROBES
+IM_PROBES_DUMMY_FILES="\
+    src/im_mad/remotes/dummy.d/collectd-client_control.sh \
+    src/im_mad/remotes/dummy.d/collectd-client.rb"
+
+IM_PROBES_DUMMY_HOST_BEACON_FILES="\
+     src/im_mad/remotes/dummy-probes.d/host/beacon/collectd-client-shepherd_local.sh \
+     src/im_mad/remotes/dummy-probes.d/host/beacon/date.sh"
+
+IM_PROBES_DUMMY_HOST_MONITOR_FILES="\
+     src/im_mad/remotes/dummy-probes.d/host/monitor/monitor.rb"
+
+IM_PROBES_DUMMY_HOST_SYSTEM_FILES="\
+     src/im_mad/remotes/dummy-probes.d/host/system/system.rb"
+
+IM_PROBES_DUMMY_VM_MONITOR_FILES="\
+     src/im_mad/remotes/dummy-probes.d/vms/monitor/monitor.rb"
+
+IM_PROBES_DUMMY_VM_STATUS_FILES="\
+     src/im_mad/remotes/kvm-probes.d/vms/status/status.rb"
+
+# LXD PROBES
+IM_PROBES_LXD_FILES="\
+    src/im_mad/remotes/lxd.d/collectd-client_control.sh \
+    src/im_mad/remotes/lxd.d/collectd-client.rb"
+
+IM_PROBES_LXD_HOST_BEACON_FILES="\
+     src/im_mad/remotes/lxd-probes.d/host/beacon/collectd-client-shepherd.sh \
+     src/im_mad/remotes/lxd-probes.d/host/beacon/date.sh"
+
+IM_PROBES_LXD_HOST_MONITOR_FILES="\
+     src/im_mad/remotes/lxd-probes.d/host/monitor/linux_usage.rb \
+     src/im_mad/remotes/lxd-probes.d/host/monitor/numa_usage.rb"
+
+IM_PROBES_LXD_HOST_SYSTEM_FILES="\
+     src/im_mad/remotes/lxd-probes.d/host/system/architecture.sh \
+     src/im_mad/remotes/lxd-probes.d/host/system/cpu.sh \
+     src/im_mad/remotes/lxd-probes.d/host/system/linux_host.rb \
+     src/im_mad/remotes/lxd-probes.d/host/system/monitor_ds.rb \
+     src/im_mad/remotes/lxd-probes.d/host/system/name.sh \
+     src/im_mad/remotes/lxd-probes.d/host/system/numa_host.rb \
+     src/im_mad/remotes/lxd-probes.d/host/system/wild_vm.rb \
+     src/im_mad/remotes/lxd-probes.d/host/system/pci.rb \
+     src/im_mad/remotes/lxd-probes.d/host/system/profiles.sh \
+     src/im_mad/remotes/lxd-probes.d/host/system/version.sh"
+
+IM_PROBES_LXD_VM_MONITOR_FILES="\
+     src/im_mad/remotes/lxd-probes.d/vms/monitor/poll.rb \
+     src/im_mad/remotes/lxd-probes.d/vms/monitor/monitor_ds_vm.rb"
+
+IM_PROBES_LXD_VM_STATUS_FILES="\
+     src/im_mad/remotes/lxd-probes.d/vms/status/status.rb"
+
+IM_PROBES_ETC_LXD_PROBES_FILES="\
+    src/im_mad/remotes/lxd-probes.d/pci.conf \
+    src/im_mad/remotes/lib/probe_db.conf"
 
 IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/poll"
 
@@ -1623,7 +1706,8 @@ ONEDB_SHARED_MIGRATOR_FILES="src/onedb/shared/2.0_to_2.9.80.rb \
                              src/onedb/shared/5.4.0_to_5.4.1.rb \
                              src/onedb/shared/5.4.1_to_5.5.80.rb \
                              src/onedb/shared/5.5.80_to_5.6.0.rb \
-                             src/onedb/shared/5.6.0_to_5.10.0.rb"
+                             src/onedb/shared/5.6.0_to_5.10.0.rb \
+                             src/onedb/shared/5.10.0_to_5.12.0.rb"
 
 ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
                             src/onedb/local/4.7.80_to_4.9.80.rb \
@@ -1652,7 +1736,8 @@ ONEDB_PATCH_FILES="src/onedb/patches/4.14_monitoring.rb \
 ETC_FILES="share/etc/oned.conf \
            share/etc/defaultrc \
            src/tm_mad/tmrc \
-           src/scheduler/etc/sched.conf"
+           src/scheduler/etc/sched.conf \
+           src/monitor/etc/monitord.conf "
 
 EC2_ETC_FILES="src/vmm_mad/remotes/ec2/ec2_driver.conf \
                src/vmm_mad/remotes/ec2/ec2_driver.default"

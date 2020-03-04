@@ -565,7 +565,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         puts format(str, 'IM_MAD', host['IM_MAD'])
         puts format(str, 'VM_MAD', host['VM_MAD'])
         puts format(str, 'LAST MONITORING TIME',
-                    OpenNebulaHelper.time_to_str(host['LAST_MON_TIME']))
+                    OpenNebulaHelper.time_to_str(host['MONITORING/TIMESTAMP']))
         puts
 
         CLIHelper.print_header(str_h1 % 'HOST SHARES', false)
@@ -579,7 +579,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                     OpenNebulaHelper.unit_to_str(host['HOST_SHARE/MAX_MEM']
                                     .to_i, {}))
         puts format(str, '  USED (REAL)',
-                    OpenNebulaHelper.unit_to_str(host['HOST_SHARE/USED_MEM']
+                    OpenNebulaHelper.unit_to_str(host['MONITORING/CAPACITY/USED_MEMORY']
                                     .to_i, {}))
         puts format(str, '  USED (ALLOCATED)',
                     OpenNebulaHelper.unit_to_str(host['HOST_SHARE/MEM_USAGE']
@@ -588,7 +588,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 % 'CPU', false)
         puts format(str, '  TOTAL', host['HOST_SHARE/TOTAL_CPU'])
         puts format(str, '  TOTAL +/- RESERVED', host['HOST_SHARE/MAX_CPU'])
-        puts format(str, '  USED (REAL)', host['HOST_SHARE/USED_CPU'])
+        puts format(str, '  USED (REAL)', host['MONITORING/CAPACITY/USED_CPU'])
         puts format(str, '  USED (ALLOCATED)', host['HOST_SHARE/CPU_USAGE'])
         puts
 
@@ -662,13 +662,13 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                                    .split("\n")
                 name   = wild['VM_NAME']
                 import = wild_tmplt.select do |line|
-                             line[/^IMPORT_VM_ID/]
+                             line[/IMPORT_VM_ID/]
                          end[0].split('=')[1].tr('"', ' ').strip
                 memory = wild_tmplt.select do |line|
-                             line[/^MEMORY/]
+                             line[/MEMORY/]
                          end[0].split('=')[1].tr('"', ' ').strip
                 cpu    = wild_tmplt.select do |line|
-                             line[/^CPU/]
+                             line[/CPU/]
                          end[0].split('=')[1].tr('"', ' ').strip
             else
                 name = wild['DEPLOY_ID']

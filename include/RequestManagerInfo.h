@@ -68,6 +68,10 @@ protected:
     {
         object->to_xml(str);
     };
+
+    virtual void load_monitoring(PoolObjectSQL *obj) const
+    {
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -87,11 +91,17 @@ public:
 
     /* -------------------------------------------------------------------- */
 
+protected:
     void to_xml(RequestAttributes& att, PoolObjectSQL * object,
             string& str) override
     {
         static_cast<VirtualMachine *>(object)->to_xml_extended(str);
     };
+
+    void load_monitoring(PoolObjectSQL *obj) const override
+    {
+        static_cast<VirtualMachine*>(obj)->load_monitoring();
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -111,6 +121,7 @@ public:
 
     /* -------------------------------------------------------------------- */
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
 };
@@ -133,6 +144,7 @@ public:
 
     /* -------------------------------------------------------------------- */
 
+protected:
     void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str) override;
 };
 
@@ -154,6 +166,7 @@ public:
 
     /* -------------------------------------------------------------------- */
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
 };
@@ -173,7 +186,6 @@ public:
         pool        = nd.get_ipool();
         auth_object = PoolObjectSQL::IMAGE;
     };
-
 };
 
 /* ------------------------------------------------------------------------- */
@@ -190,6 +202,12 @@ public:
         pool        = nd.get_hpool();
         auth_object = PoolObjectSQL::HOST;
     };
+
+protected:
+    void load_monitoring(PoolObjectSQL *obj) const override
+    {
+        static_cast<Host*>(obj)->load_monitoring();
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -209,6 +227,7 @@ public:
 
     /* -------------------------------------------------------------------- */
 
+protected:
     void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str) override
     {
         static_cast<Group*>(object)->to_xml_extended(str);
@@ -232,6 +251,7 @@ public:
 
     /* -------------------------------------------------------------------- */
 
+protected:
     void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str) override
     {
         static_cast<User*>(object)->to_xml_extended(str);
@@ -415,6 +435,7 @@ public:
 
     ~HookInfo(){};
 
+protected:
     void to_xml(RequestAttributes& att, PoolObjectSQL * object,
         string& str)
     {

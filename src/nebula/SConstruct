@@ -25,7 +25,6 @@ lib_name='nebula_core'
 source_files=[
     'SystemDB.cc',
     'Nebula.cc',
-    'NebulaTemplate.cc'
 ]
 
 # Build library
@@ -61,6 +60,7 @@ env.Prepend(LIBS=[
     'nebula_hm',
     'nebula_common',
     'nebula_sql',
+    'nebula_sql_const',
     'nebula_log',
     'nebula_client',
     'nebula_xml',
@@ -71,6 +71,7 @@ env.Prepend(LIBS=[
     'nebula_marketplace',
     'nebula_ipamm',
     'nebula_vmgroup',
+    'nebula_protocol',
     'crypto',
     'xml2'
 ])

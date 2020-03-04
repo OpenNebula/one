@@ -17,7 +17,7 @@
 #ifndef NEBULA_H_
 #define NEBULA_H_
 
-#include "NebulaTemplate.h"
+#include "OpenNebulaTemplate.h"
 #include "SystemDB.h"
 
 #include "DefaultQuotas.h"

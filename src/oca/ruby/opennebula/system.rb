@@ -60,7 +60,7 @@ module OpenNebula
 
         # Executes a SQL query command on OpenNebula DB
         #   @param [String] Sql string
-        #   @return [String, OpenNebula::Error] Sql execution result in XML 
+        #   @return [String, OpenNebula::Error] Sql execution result in XML
         #   format in case of success, Error otherwise
         #   <QUERY>
         #     the query sent to oned
@@ -110,7 +110,7 @@ module OpenNebula
             end
 
             config = XMLElement.new
-            config.initialize_xml(rc, 'TEMPLATE')
+            config.initialize_xml(rc, 'OPENNEBULA_CONFIGURATION')
 
             return config
         end

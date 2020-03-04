@@ -117,7 +117,6 @@ protected:
         return lt;
     }
 
-private:
     friend class MadManager;
 
     /**
@@ -132,6 +131,7 @@ private:
      */
     int                 nebula_mad_pipe;
 
+private:
     /**
      *  User running this MAD as defined in the upool DB
      */

@@ -54,7 +54,7 @@ public:
      *    @param ptr to the callback function
      *    @param arg custom arguments for the callback function
      */
-    virtual void set_callback(Callback _cb, void * _arg = 0)
+    void set_callback(Callback _cb, void * _arg = nullptr)
     {
         pthread_mutex_lock(&mutex);
 
@@ -248,7 +248,7 @@ public:
         oids = _oids;
 
         Callbackable::set_callback(
-                static_cast<Callbackable::Callback>(&vector_cb::callback));
+                static_cast<Callbackable::Callback>(&vector_cb::callback), 0);
     };
 
     int callback(void * nil, int num, char **values, char **names)
@@ -287,7 +287,7 @@ public:
         str = _str;
 
         Callbackable::set_callback(
-                static_cast<Callbackable::Callback>(&string_cb::callback));
+                static_cast<Callbackable::Callback>(&string_cb::callback), 0);
     };
 
     int callback(void * nil, int num, char **values, char **names)
@@ -327,7 +327,7 @@ public:
         oss = _oss;
 
         Callbackable::set_callback(
-                static_cast<Callbackable::Callback>(&stream_cb::callback));
+                static_cast<Callbackable::Callback>(&stream_cb::callback), 0);
     };
 
     int callback(void * nil, int num, char **values, char **names)
@@ -381,7 +381,7 @@ public:
         columns = _columns;
 
         Callbackable::set_callback(
-                static_cast<Callbackable::Callback>(&multiple_cb::callback));
+                static_cast<Callbackable::Callback>(&multiple_cb::callback), 0);
     };
 
     int callback(void * nil, int num, char **values, char **names)

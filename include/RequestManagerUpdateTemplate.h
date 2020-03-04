@@ -277,6 +277,9 @@ public:
     };
 
     ~ClusterUpdateTemplate(){};
+
+protected:
+    int extra_updates(PoolObjectSQL * obj) override;
 };
 
 /* ------------------------------------------------------------------------- */

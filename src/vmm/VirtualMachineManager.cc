@@ -33,14 +33,10 @@
 
 VirtualMachineManager::VirtualMachineManager(
     time_t                          _timer_period,
-    time_t                          _poll_period,
-    bool                            _do_vm_poll,
     int                             _vm_limit,
     vector<const VectorAttribute*>&       _mads):
         MadManager(_mads),
         timer_period(_timer_period),
-        poll_period(_poll_period),
-        do_vm_poll(_do_vm_poll),
         vm_limit(_vm_limit)
 {
     Nebula& nd = Nebula::instance();
@@ -146,9 +142,6 @@ void VirtualMachineManager::user_action(const ActionRequest& ar)
         break;
         case VMMAction::MIGRATE:
             migrate_action(vid);
-        break;
-        case VMMAction::POLL:
-            poll_action(vid);
         break;
         case VMMAction::DRIVER_CANCEL:
             driver_cancel_action(vid);
@@ -1342,77 +1335,6 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineManager::poll_action(
-    int vid)
-{
-    VirtualMachine *                    vm;
-    const VirtualMachineManagerDriver * vmd;
-
-    ostringstream os;
-
-    string   vm_tmpl;
-    string * drv_msg;
-
-    // Get the VM from the pool
-    vm = vmpool->get(vid);
-
-    if (vm == nullptr)
-    {
-        return;
-    }
-
-    if (!vm->hasHistory())
-    {
-        goto error_history;
-    }
-
-    // Get the driver for this VM
-    vmd = get(vm->get_vmm_mad());
-
-    if ( vmd == nullptr )
-    {
-        goto error_driver;
-    }
-
-    // Invoke driver method
-    drv_msg = format_message(
-        vm->get_hostname(),
-        "",
-        vm->get_deploy_id(),
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        vm->to_xml(vm_tmpl),
-        vm->get_ds_id(),
-        -1);
-
-    vmd->poll(vid, *drv_msg);
-
-    delete drv_msg;
-
-    vm->unlock();
-
-    return;
-
-error_history:
-    os << "poll_action, VM has no history";
-    goto error_common;
-
-error_driver:
-    os << "poll_action, error getting driver " << vm->get_vmm_mad();
-
-error_common:
-    vm->log("VMM", Log::ERROR, os);
-    vm->unlock();
-    return;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void VirtualMachineManager::driver_cancel_action(
     int vid)
 {
@@ -1459,119 +1381,6 @@ error_common:
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();
     return;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineManager::timer_action(const ActionRequest& ar)
-{
-    static int mark        = 0;
-    static int timer_start = time(0);
-
-    VirtualMachine *      vm;
-    vector<int>           oids;
-    vector<int>::iterator it;
-    int                   rc;
-    ostringstream         os;
-
-    time_t thetime = time(0);
-
-    const VirtualMachineManagerDriver * vmd;
-
-    string   vm_tmpl;
-    string * drv_msg;
-
-    mark = mark + timer_period;
-
-    if ( mark >= 600 )
-    {
-        NebulaLog::log("VMM",Log::INFO,"--Mark--");
-        mark = 0;
-    }
-
-    // Clear the expired monitoring records
-    vmpool->clean_expired_monitoring();
-
-    // Skip monitoring the first poll_period to allow the Host monitoring to
-    // gather the VM info (or if it is disabled)
-    if ( timer_start + poll_period > thetime || !do_vm_poll)
-    {
-        return;
-    }
-
-    // Monitor only VMs that hasn't been monitored for 'poll_period' seconds.
-    rc = vmpool->get_running(oids, vm_limit, thetime - poll_period);
-
-    if ( rc != 0 || oids.empty() )
-    {
-        return;
-    }
-
-    for ( it = oids.begin(); it != oids.end(); it++ )
-    {
-        vm = vmpool->get(*it);
-
-        if ( vm == nullptr )
-        {
-            continue;
-        }
-
-        if (!vm->hasHistory())
-        {
-            os.str("");
-            os << "Monitoring VM " << *it << " but it has no history.";
-            NebulaLog::log("VMM", Log::ERROR, os);
-
-            vm->unlock();
-            continue;
-        }
-
-        // Skip monitoring the first poll_period to allow the Host monitoring to
-        // gather the VM info
-        if (vm->get_running_stime() + poll_period > thetime)
-        {
-            vm->unlock();
-            continue;
-        }
-
-        os.str("");
-
-        os << "Monitoring VM " << *it << ".";
-        NebulaLog::log("VMM", Log::DEBUG, os);
-
-        vmd = get(vm->get_vmm_mad());
-
-        if ( vmd == nullptr )
-        {
-            vm->unlock();
-            continue;
-        }
-
-        drv_msg = format_message(
-            vm->get_hostname(),
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            vm->to_xml(vm_tmpl),
-            vm->get_ds_id(),
-            -1);
-
-        vmd->poll(*it, *drv_msg);
-
-        delete drv_msg;
-
-        vm->set_last_poll(thetime);
-
-        vmpool->update(vm);
-
-        vm->unlock();
-    }
 }
 
 /* -------------------------------------------------------------------------- */

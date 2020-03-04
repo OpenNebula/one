@@ -313,9 +313,12 @@ int PoolSQL::dump(string& oss, const string& root_elem_name,
 
     ostringstream oelem;
 
-    oelem << "<" << root_elem_name << ">";
+    if (!root_elem_name.empty())
+    {
+        oelem << "<" << root_elem_name << ">";
 
-    oss.append(oelem.str());
+        oss.append(oelem.str());
+    }
 
     cb.set_callback(&oss);
 
@@ -323,11 +326,14 @@ int PoolSQL::dump(string& oss, const string& root_elem_name,
 
     cb.unset_callback();
 
-    oelem.str("");
+    if (!root_elem_name.empty())
+    {
+        oelem.str("");
 
-    oelem << "</" << root_elem_name << ">";
+        oelem << "</" << root_elem_name << ">";
 
-    oss.append(oelem.str());
+        oss.append(oelem.str());
+    }
 
     return rc;
 }

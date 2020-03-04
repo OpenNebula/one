@@ -19,6 +19,6 @@
 VERSION_FILE=../../VERSION
 
 if [ -e $VERSION_FILE ]; then
-    echo "VERSION=\"$(tail -n 1 ../../VERSION)\""
+    echo "VERSION=\"$(tail -n 1 $VERSION_FILE)\""
 fi
 

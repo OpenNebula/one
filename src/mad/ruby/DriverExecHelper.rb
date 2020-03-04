@@ -28,15 +28,15 @@ module DriverExecHelper
         return rc_str == RESULT[:failure]
     end
 
-    #Initialize module variables
+    # Initialize module variables
     def initialize_helper(directory, options)
         @config = read_configuration
         @remote_scripts_base_path = @config['SCRIPTS_REMOTE_DIR']
 
         @local_actions = options[:local_actions]
 
-        if ENV['ONE_LOCATION'] == nil
-            @local_scripts_base_path = "/var/lib/one/remotes"
+        if ENV['ONE_LOCATION'].nil?
+            @local_scripts_base_path = '/var/lib/one/remotes'
         else
             @local_scripts_base_path = "#{ENV['ONE_LOCATION']}/var/remotes"
         end
@@ -176,37 +176,38 @@ module DriverExecHelper
             one_config = '/var/lib/one/config'
         end
 
-        config=Hash.new
-        cfg=''
+        config = {}
+        cfg    = ''
 
         begin
-            open(one_config) do |file|
+            File.open(one_config, 'r') do |file|
                 cfg=file.read
             end
 
             cfg.split(/\n/).each do |line|
                 m=line.match(/^([^=]+)=(.*)$/)
 
-                if m
-                    name=m[1].strip.upcase
-                    value=m[2].strip
+                next unless m
 
-                    if config[name]
-                        if config[name].instance_of? Array
-                            config[name] << value
-                        else
-                            config[name] = [config[name], value]
-                        end
+                name  = m[1].strip.upcase
+                value = m[2].strip
+
+                if config[name]
+                    if config[name].instance_of? Array
+                        config[name] << value
                     else
-                        config[name]=value
+                        config[name] = [config[name], value]
                     end
+                else
+                    config[name]=value
                 end
             end
-        rescue Exception => e
+        rescue StandardException => e
             STDERR.puts "Error reading config: #{e.inspect}"
             STDERR.flush
         end
 
         config
     end
+
 end

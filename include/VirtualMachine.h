@@ -297,23 +297,13 @@ public:
     };
 
     /**
-     *  Updates VM dynamic information (usage counters), and updates last_poll,
-     *  and copies it to history record for acct.
-     */
-    int update_info(const string& monitor_data);
-
-    /**
      *  Clears the VM monitor information usage counters (MEMORY, CPU),
      *  last_poll, custom attributes, and copies it to the history record
      *  for acct.
      */
     void reset_info()
     {
-        last_poll = time(0);
-
-        monitoring.replace("CPU","0.0");
-
-        monitoring.replace("MEMORY","0");
+        monitoring.reset_info();
 
         set_vm_info();
 
@@ -324,6 +314,11 @@ public:
     {
         return monitoring;
     }
+
+    /**
+     *  Read monitoring from DB
+     */
+    void load_monitoring();
 
     /**
      *  Returns the deployment ID
@@ -991,24 +986,6 @@ public:
     };
 
     /**
-     *  Gets time from last information polling.
-     *    @return time of last poll (epoch) or 0 if never polled
-     */
-    time_t get_last_poll() const
-    {
-        return last_poll;
-    };
-
-    /**
-     *  Sets time of last information polling.
-     *    @param poll time in epoch, normally time(0)
-     */
-    void set_last_poll(time_t poll)
-    {
-        last_poll = poll;
-    };
-
-    /**
      *  Get the VM physical capacity requirements for the host.
      *    @param sr the HostShareCapacity to store the capacity request.
      */
@@ -1668,14 +1645,6 @@ private:
     // *************************************************************************
 
     // -------------------------------------------------------------------------
-    // VM Scheduling & Managing Information
-    // -------------------------------------------------------------------------
-    /**
-     *  Last time (in epoch) that the VM was polled to get its status
-     */
-    time_t      last_poll;
-
-    // -------------------------------------------------------------------------
     // Virtual Machine Description
     // -------------------------------------------------------------------------
     /**
@@ -1802,16 +1771,6 @@ private:
     static int bootstrap(SqlDB * db);
 
     /**
-     *  Callback function to unmarshall a VirtualMachine object
-     *  (VirtualMachine::select)
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int select_cb(void *nil, int num, char **names, char ** values);
-
-    /**
      *  Execute an INSERT or REPLACE Sql query.
      *    @param db The SQL DB
      *    @param replace Execute an INSERT or a REPLACE
@@ -1866,14 +1825,6 @@ private:
 
         return previous_history->update(db);
     };
-
-    /**
-     * Inserts the last monitoring, and deletes old monitoring entries.
-     *
-     * @param db pointer to the db
-     * @return 0 on success
-     */
-    int update_monitoring(SqlDB * db);
 
     /**
      * Updates the VM search information.
@@ -2194,24 +2145,6 @@ protected:
     // *************************************************************************
     // DataBase implementation
     // *************************************************************************
-
-    static const char * table;
-
-    static const char * db_names;
-
-    static const char * db_bootstrap;
-
-    static const char * monit_table;
-
-    static const char * monit_db_names;
-
-    static const char * monit_db_bootstrap;
-
-    static const char * showback_table;
-
-    static const char * showback_db_names;
-
-    static const char * showback_db_bootstrap;
 
     /**
      *  Reads the Virtual Machine (identified with its OID) from the database.

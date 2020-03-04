@@ -67,6 +67,7 @@ add_bison(main_env)
 # Include dirs
 main_env.Append(CPPPATH=[
     cwd+'/include',
+    cwd+'/src/monitor/include',
     cwd+'/src/parsers'
 ])
 
@@ -109,7 +110,9 @@ main_env.Append(LIBPATH=[
     cwd+'/src/vdc',
     cwd+'/src/vrouter',
     cwd+'/src/market',
-    cwd+'/src/ipamm'
+    cwd+'/src/ipamm',
+    cwd+'/src/data_model',
+    cwd+'/src/monitor/src/protocol'
 ])
 
 # Compile flags
@@ -290,9 +293,9 @@ build_scripts = [
     'src/sunstone/public/locale/languages/SConstruct',
     'src/sunstone/public/SConstruct',
     'share/rubygems/SConstruct',
-    'src/im_mad/collectd/SConstruct',
     'src/client/SConstruct',
     'src/docker_machine/SConstruct',
+    'src/monitor/SConstruct',
     svncterm_path
 ]
 

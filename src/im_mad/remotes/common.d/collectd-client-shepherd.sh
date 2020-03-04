@@ -17,7 +17,7 @@
 #--------------------------------------------------------------------------- #
 
 (
-
+[ -f /tmp/one-collectd-client.pid ] || exit 0
 running_pid=$(cat /tmp/one-collectd-client.pid)
 pids=$(ps axuwww | grep /collectd-client.rb | grep -v grep | awk '{ print $2 }' | grep -v "^${running_pid}$")
 

@@ -527,6 +527,7 @@ int HostDelete::drop(PoolObjectSQL * object, bool r, RequestAttributes& att)
     int rc = RequestManagerDelete::drop(object, false, att);
 
     im->stop_monitor(oid, name, im_mad);
+    im->delete_host(oid);
 
     if (rc != 0)
     {

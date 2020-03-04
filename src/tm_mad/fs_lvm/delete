@@ -132,5 +132,3 @@ fi
 LOCK="tm-fs_lvm-${DS_SYS_ID}.lock"
 exclusive "${LOCK}" 120 ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" \
     "Error deleting $DST_PATH"
-
-hup_collectd $DST_HOST

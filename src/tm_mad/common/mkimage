@@ -70,6 +70,5 @@ EOF
 log "Making filesystem of ${SIZE}M and type $FSTYPE at $DST"
 
 ssh_exec_and_log $DST_HOST "$MKSCRIPT" "Could not create image $DST_PATH"
-hup_collectd $DST_HOST
 
 exit 0

@@ -92,5 +92,3 @@ if [ -n "$ORIGINAL_SIZE" -a "$SIZE" -gt "$ORIGINAL_SIZE" ]; then
    ssh_exec_and_log "$DST_HOST" "$RESIZE_CMD" \
        "Error resizing image $DST"
 fi
-
-hup_collectd $DST_HOST

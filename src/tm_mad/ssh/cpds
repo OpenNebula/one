@@ -120,6 +120,5 @@ fi
 
 log "Moving $SRC to datastore as $DST"
 exec_and_log "$SCP -r $SRC $DST" "Error copying $SRC to $DST"
-hup_collectd $SRC_HOST
 
 exit 0

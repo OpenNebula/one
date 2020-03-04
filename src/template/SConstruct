@@ -22,7 +22,9 @@ lib_name='nebula_template'
 
 # Sources to generate the library
 source_files=[
-    'Template.cc'
+    'Template.cc',
+    'NebulaTemplate.cc',
+    'OpenNebulaTemplate.cc'
 ]
 
 # Build library

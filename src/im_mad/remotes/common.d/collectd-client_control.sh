@@ -16,11 +16,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-
 #--------------------------------------------------------------------------- #
 # Process Arguments
 #--------------------------------------------------------------------------- #
-
 ACTION="start"
 
 if [ "$1" = "stop" ]; then
@@ -30,8 +28,7 @@ fi
 
 ARGV=$*
 
-#--------------------------------------------------------------------------- #
-#--------------------------------------------------------------------------- #
+STDIN=`cat -`
 
 # Directory that contains this file
 DIR=$(pwd)
@@ -47,66 +44,30 @@ CLIENT_PID_FILE=/tmp/one-collectd-client.pid
 
 # Launch the client
 function start_client() {
-    nohup /usr/bin/env ruby $CLIENT $ARGV >/dev/null 2>&1 &
+    echo "$STDIN" | /usr/bin/env ruby $CLIENT $ARGV &
+
+    echo $! > $CLIENT_PID_FILE
 }
 
+# Stop the client
 function stop_client() {
-    PID=$(get_pid)
-    kill $PID
-}
+    local pids=$(ps axuww | grep /collectd-client.rb | grep -v grep | awk '{print $2}')
 
-function remove_pid_file() {
-    rm -f $CLIENT_PID_FILE
-}
-
-# Write the PID
-function write_pid() {
-    echo $1 > $CLIENT_PID_FILE
-}
-
-function get_pid() {
-    cat $CLIENT_PID_FILE
-}
-
-# Check if running process
-function check_running() {
-    # Assume the process is not running if there is no pid file
-    test ! -f $CLIENT_PID_FILE && return 1
-
-    PID=$(get_pid)
-
-    if ps --no-headers -o command $PID 2>/dev/null | grep -q $BASENAME; then
-        return 0
-    else
-        # Stale PID file
-        rm -f $CLIENT_PID_FILE
-        return 1
+    if [ -n "$pids" ]; then
+        kill -9 $pids
+        sleep 5
     fi
+
+    rm -f $CLIENT_PID_FILE
 }
 
 case $ACTION in
 start)
-    if check_running; then
-        stop_client
-        remove_pid_file
-    fi
-
+    stop_client
     start_client
-    write_pid $!
-
-    # This script returns the run_probes execution
-    HYPERVISOR=$1
-    shift
-    set $HYPERVISOR-probes $@
-
-    $DIR/../run_probes $@
-
     ;;
 
 stop)
-    if check_running; then
-        stop_client
-        remove_pid_file
-    fi
+    stop_client
     ;;
 esac

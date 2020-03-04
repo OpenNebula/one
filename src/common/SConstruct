@@ -25,6 +25,7 @@ source_files=[
     'ActionManager.cc',
     'Attribute.cc',
     'ExtendedAttribute.cc',
+    'NebulaService.cc',
     'NebulaUtil.cc'
 ]
 

@@ -49,7 +49,6 @@ public:
         RESTORE,
         REBOOT,
         RESET,
-        POLL,
         DRIVER_CANCEL,
         ATTACH,
         DETACH,
@@ -96,8 +95,6 @@ public:
 
     VirtualMachineManager(
         time_t                    _timer_period,
-        time_t                    _poll_period,
-        bool                      _do_vm_poll,
         int                       _vm_limit,
         vector<const VectorAttribute*>& _mads);
 
@@ -247,16 +244,6 @@ private:
     time_t                  timer_period;
 
     /**
-     *  Virtual Machine polling interval
-     */
-    time_t                  poll_period;
-
-    /**
-     *  Perform pro-active VM monitoring
-     */
-    bool                    do_vm_poll;
-
-    /**
      *  Virtual Machine polling limit
      */
     int                     vm_limit;
@@ -291,10 +278,6 @@ private:
     // -------------------------------------------------------------------------
     // Action Listener interface
     // -------------------------------------------------------------------------
-    /**
-     *  This function is executed periodically to poll the running VMs
-     */
-    void timer_action(const ActionRequest& ar);
 
     void finalize_action(const ActionRequest& ar)
     {
@@ -429,14 +412,6 @@ private:
      */
     void reset_action(
         int vid);
-
-    /**
-     *  Polls a VM.
-     *    @param vid the id of the VM.
-     */
-    void poll_action(
-        int vid);
-
 
     /**
      * Attaches a new disk to a VM. The VM must have a disk with the

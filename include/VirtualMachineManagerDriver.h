@@ -72,22 +72,6 @@ public:
         const string&           file_name) const = 0;
 
     /**
-     * Updates the VM with the information gathered by the drivers
-     *
-     * @param id VM id
-     * @param monitor_str String returned by the poll driver call
-     */
-    static void process_poll(int id, const string &monitor_str);
-
-    /**
-     * Updates the VM with the information gathered by the drivers
-     *
-     * @param vm VM to update, must be locked
-     * @param monitor_str String returned by the poll driver call
-     */
-    static void process_poll(VirtualMachine* vm, const string &monitor_str);
-
-    /**
      *  Check if action is supported for imported VMs
      *    @param action
      *    @return True if it is supported

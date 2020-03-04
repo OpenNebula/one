@@ -77,5 +77,3 @@ EOF
 
 ssh_exec_and_log "${SRC_HOST}" "${CMD}" \
                  "Error reverting snapshot to ${SNAP_PATH}"
-hup_collectd $SRC_HOST
-
