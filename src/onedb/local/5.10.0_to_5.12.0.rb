@@ -22,11 +22,11 @@ $LOAD_PATH << File.dirname(__FILE__)
 module Migrator
 
     def db_version
-        '5.11.80'
+        '5.12.0'
     end
 
     def one_version
-        'OpenNebula 5.11.80'
+        'OpenNebula 5.12.0'
     end
 
     def up
