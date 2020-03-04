@@ -2230,7 +2230,8 @@ module VCenterDriver
 
         # Create a snapshot for the VM
         def create_snapshot(snap_id, snap_name)
-            memory_dumps = CONFIG[:memory_dumps]
+            memory_dumps = true
+            memory_dumps = CONFIG[:memory_dumps] if CONFIG[:memory_dumps]
 
             snapshot_hash = {
                 :name        => snap_id,
