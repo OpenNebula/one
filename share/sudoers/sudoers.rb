@@ -52,7 +52,10 @@ class Sudoers
                 'ip'
             ],
             :MARKET => %W[#{lib_location}/sh/create_container_image.sh],
-            :FC     => %w[/usr/bin/jailer mount umount rmdir cp mkdir rm]
+            :FC     => %w[/usr/bin/jailer
+                          mount
+                          /var/tmp/one/vmm/firecracker/map_context.sh
+                          /var/tmp/one/vmm/firecracker/clean.sh]
         }
     end
 
