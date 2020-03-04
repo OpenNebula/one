@@ -19,50 +19,57 @@
 # exit when any command fails
 set -e
 
-MAP_PATH=""
-SYSDS_PATH=""
-CONTEXT_PATH=""
-ROOTFS_ID=""
-VM_ID=""
+ROOTFS_PATH=""
+CGROUP_PATH=""
+VM_NAME=""
+CGROUP_TO=60
 
-while getopts ":m:s:c:r:v:" opt; do
+while getopts ":r:c:v:t:" opt; do
     case $opt in
-        m) MAP_PATH="$OPTARG" ;;
-        s) SYSDS_PATH="$OPTARG" ;;
-        c) CONTEXT_PATH="$OPTARG" ;;
-        r) ROOTFS_ID="$OPTARG" ;;
-        v) VM_ID="$OPTARG" ;;
+        r) ROOTFS_PATH="$OPTARG" ;;
+        c) CGROUP_PATH="$OPTARG" ;;
+        v) VM_NAME="$OPTARG" ;;
+        t) CGROUP_TO=$OPTARG ;;
     esac
 done
 
 shift $(($OPTIND - 1))
 
-if [ -z "$MAP_PATH" ] || [ -z "$SYSDS_PATH" ] || [ -z "$CONTEXT_PATH" ] || [ -z "$ROOTFS_ID" ] || [ -z "$VM_ID" ]; then
+if [ -z "$ROOTFS_PATH" ] || [ -z "$CGROUP_PATH" ] || [ -z "$VM_NAME" ]; then
     exit -1
 fi
 
-# Create temporary directories
-mkdir "$MAP_PATH"
-mkdir "$MAP_PATH/context"
-mkdir "$MAP_PATH/fs"
+# Remove Firecracker residual files
+rm -rf "$ROOTFS_PATH/dev"
+rm -f "$ROOTFS_PATH/api.socket"
+rm -f "$ROOTFS_PATH/firecracker"
 
-# Mount rootfs
-mount "/$SYSDS_PATH/$VM_ID/disk.$ROOTFS_ID" "$MAP_PATH/fs"
+# Unmount VM directory
+umount "$ROOTFS_PATH"
 
-# Mount context disk
-mount "$CONTEXT_PATH" "$MAP_PATH/context"
+# Remove VM chroot directory
+rm -rf $(dirname $ROOTFS_PATH)
 
-# Create /context directory inside rootfs
-if [ ! -d "$MAP_PATH/fs/context" ]; then
-    mkdir "$MAP_PATH/fs/context"
-fi
+#-------------------------------------------------------------------------------
+# Wait for a cgroup to not being used
+#   @param $1 - Path to cgroup
+#-------------------------------------------------------------------------------
+function wait_cgroup () {
+    t_start=$(date +%s)
 
-# Copy context information
-cp $MAP_PATH/context/* "$MAP_PATH/fs/context"
+    while [ $(($(date +%s)-$t_start)) -lt $CGROUP_TO ] &&
+          [ ! -z "$(cat $1/tasks)" ] &&
+          [ ! -z "$(lsof $1)" ]; do continue; done
+}
 
-# Clean temporary directories
-umount "$MAP_PATH/fs"
-umount "$MAP_PATH/context"
-rm -rf "$MAP_PATH"
+DIR="$CGROUP_PATH/cpu/firecracker/$VM_NAME"
+wait_cgroup $DIR
+if [ -d "$DIR" ]; then rmdir "$DIR"; fi
 
-exit 0
+DIR="$CGROUP_PATH/cpuset/firecracker/$VM_NAME"
+wait_cgroup $DIR
+if [ -d "$DIR" ]; then rmdir "$DIR"; fi
+
+DIR="$CGROUP_PATH/pids/firecracker/$VM_NAME"
+wait_cgroup $DIR
+if [ -d "$DIR" ]; then rmdir "$DIR"; fi

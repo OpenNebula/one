@@ -925,10 +925,11 @@ VMM_EXEC_FIRECRACKER_SCRIPTS="src/vmm_mad/remotes/firecracker/deploy \
                             src/vmm_mad/remotes/firecracker/cancel"
 
 VMM_EXEC_FIRECRACKER_LIB="src/vmm_mad/remotes/lib/firecracker/opennebula_vm.rb \
-                src/vmm_mad/remotes/lib/firecracker/client.rb \
-                src/vmm_mad/remotes/lib/firecracker/microvm.rb \
-                src/vmm_mad/remotes/lib/firecracker/map_context.sh \
-                src/vmm_mad/remotes/lib/firecracker/command.rb"
+                        src/vmm_mad/remotes/lib/firecracker/client.rb \
+                        src/vmm_mad/remotes/lib/firecracker/microvm.rb \
+                        src/vmm_mad/remotes/lib/firecracker/map_context.sh \
+                        src/vmm_mad/remotes/lib/firecracker/clean.sh \
+                        src/vmm_mad/remotes/lib/firecracker/command.rb"
 #-------------------------------------------------------------------------------
 # VMM configuration LXD scripts, to be installed under $REMOTES_LOCATION/etc/vmm/lxd
 #-------------------------------------------------------------------------------

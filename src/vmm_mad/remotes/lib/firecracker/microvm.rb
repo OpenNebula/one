@@ -50,6 +50,7 @@ class MicroVM
         @context_path = "#{@rootfs_dir}/context"
 
         @map_context_sh = '/var/tmp/one/vmm/firecracker/map_context.sh'
+        @clean_sh = '/var/tmp/one/vmm/firecracker/clean.sh'
     end
 
     class << self
@@ -227,37 +228,14 @@ class MicroVM
 
     # Clean resources and directories after shuttingdown the microVM
     def clean
-        # remove jailer generated files
-        rc = Command.execute_rc_log("sudo rm -rf #{@rootfs_dir}/dev/")
-        rc &= Command.execute_rc_log("rm -rf #{@rootfs_dir}/api.socket")
-        rc &= Command.execute_rc_log("rm -rf #{@rootfs_dir}/firecracker")
-
-        # unmount vm directory
-        rc &= Command.execute_rc_log("sudo umount #{@rootfs_dir}")
-
-        # remove chroot directory
-        rc &= Command.execute_rc_log("rm -rf #{File.expand_path('..', @rootfs_dir)}") if rc
-
-        # remove residual cgroups
-        rc &= clean_cgroups
-
-        rc
-    end
-
-    # Remove cgroup residual directories
-    def clean_cgroups
         cgroup_path = @one.fcrc[:cgroup_location]
+        timeout = Integer(@one.fcrc[:cgroup_delete_timeout])
 
-        wait_cgroup("#{cgroup_path}/cpu/firecracker/#{@one.vm_name}/tasks")
-        rc = Command.execute_rc_log("sudo rmdir #{cgroup_path}/cpu/firecracker/#{@one.vm_name}")
+        params = "-r #{@rootfs_dir} -c #{cgroup_path} -v #{@one.vm_name} -t #{timeout}"
 
-        wait_cgroup("#{cgroup_path}/cpuset/firecracker/#{@one.vm_name}/tasks")
-        rc &= Command.execute_rc_log("sudo rmdir #{cgroup_path}/cpuset/firecracker/#{@one.vm_name}")
+        cmd = "sudo #{@clean_sh} #{params}"
 
-        wait_cgroup("#{cgroup_path}/pids/firecracker/#{@one.vm_name}/tasks")
-        rc &= Command.execute_rc_log("sudo rmdir #{cgroup_path}/pids/firecracker/#{@one.vm_name}")
-
-        rc
+        Command.execute_rc_log(cmd, false)
     end
 
     # rubocop:enable Naming/AccessorMethodName
