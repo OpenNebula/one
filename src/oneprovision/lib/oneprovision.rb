@@ -92,6 +92,11 @@ module OneProvision
     # Singleton running mode
     class Mode
 
+        MAX_RETRIES_DEFAULT   = 3
+        RUN_MODE_DEFAULT      = :interactive
+        FAIL_CHOICE_DEFAULT   = :quit
+        CLEANUP_DEFAULT       = false
+
         include Singleton
 
         attr_reader :run_mode
@@ -171,6 +176,10 @@ module OneProvision
 
     # Singleton options
     class Options
+
+        PING_TIMEOUT_DEFAULT  = 20
+        PING_RETRIES_DEFAULT  = 10
+        THREADS_DEFAULT       = 3
 
         include Singleton
 

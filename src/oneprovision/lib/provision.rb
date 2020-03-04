@@ -21,7 +21,7 @@ module OneProvision
     # Provision
     class Provision
 
-        attr_reader :id, :name, :clusters, :hosts, :datastores, :vnets
+        attr_reader :id, :name, :clusters, :hosts, :datastores, :vnets, :state
 
         # Class constructor
         def initialize(id, name = nil)
@@ -50,7 +50,7 @@ module OneProvision
 
         # Retrieves all the PROVISION objects
         def refresh
-            Utils.fail('Provision not found.') unless exists
+            raise('Provision not found.') unless exists
 
             @clusters   = Cluster.new.get(@id)
             @datastores = Datastore.new.get(@id)
@@ -58,6 +58,7 @@ module OneProvision
             @vnets      = Vnet.new.get(@id)
 
             @name       = @clusters[0]['TEMPLATE/PROVISION/NAME']
+            @state      = @clusters[0]['TEMPLATE/PROVISION_STATE']
         end
 
         # Deletes the PROVISION
@@ -65,7 +66,7 @@ module OneProvision
         # @param cleanup [Boolean] True to delete running VMs and images
         # @param timeout [Integer] Timeout for deleting running VMs
         def delete(cleanup, timeout)
-            Utils.fail('Provision not found.') unless exists
+            raise('Provision not found.') unless exists
 
             if running_vms? && !cleanup
                 Utils.fail('Provision with running VMs can\'t be deleted')
@@ -167,6 +168,9 @@ module OneProvision
             Ansible.check_ansible_version
 
             begin
+                # Objects are pending to be created
+                @state = :pending
+
                 # read provision file
                 cfg = Utils.create_config(Utils.read_config(config))
 
@@ -181,6 +185,12 @@ module OneProvision
                     cluster = create_cluster(cfg)
                     cid     = cluster.id
                 end
+
+                # Objects are being created and hosts deployed
+                @state = :deploying
+
+                # Update the cluster to persists the state
+                cluster.update('PROVISION_STATE=deploying', true)
 
                 Mode.new_cleanup(true)
 
@@ -210,11 +220,26 @@ module OneProvision
                     Utils.fail('Deployment failed, no ID got from driver')
                 end
 
+                # Hosts are being monitored
+                @state = :monitoring
+
+                # Update the cluster to persists the state
+                cluster.update('PROVISION_STATE=monitoring', true)
+
                 OneProvisionLogger.info('Monitoring hosts')
 
                 update_hosts(deploy_ids)
 
+                # Hosts are being configured
+                @state = :configuring
+
+                # Update the cluster to persists the state
+                cluster.update('PROVISION_STATE=configuring', true)
+
                 Ansible.configure(@hosts)
+
+                # Update the cluster to persists the state
+                cluster.update('PROVISION_STATE=running', true)
 
                 puts "ID: #{@id}"
 
@@ -231,7 +256,16 @@ module OneProvision
         # @param force [Boolean] Force the configuration if the PROVISION
         #   is already configured
         def configure(force)
+            # Hosts are being configured
+            @state = :configuring
+
+            # Update the cluster to persists the state
+            @clusters.first.update('PROVISION_STATE=configuring', true)
+
             Ansible.configure(@hosts, force)
+
+            # Update the cluster to persists the state
+            @clusters.first.update('PROVISION_STATE=running', true)
         end
 
         private
