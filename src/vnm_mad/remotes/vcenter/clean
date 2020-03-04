@@ -15,7 +15,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-File.open('/tmp/CLEAN.debug', 'w'){|f| f.write('CLEAN')}
 # Define libraries location
 ONE_LOCATION = ENV['ONE_LOCATION']
 
@@ -69,8 +68,8 @@ end
 # Exit with error if NSX_STATUS != OK
 nsx_status = one_host['TEMPLATE/NSX_STATUS']
 unless nsx_status == 'OK'
-    OpenNebula::log_error("NSX_STATUS is not OK")
-    OpenNebula.error_message("NSX_STATUS is not OK")
+    OpenNebula.log_error('NSX_STATUS is not OK')
+    OpenNebula.error_message('NSX_STATUS is not OK')
     exit 1
 end
 
@@ -82,10 +81,10 @@ begin
     dfw.clear_rules(template, modified?(template))
 rescue StandardError => e
     OpenNebula.log_error('Error deleting security groups rules ' \
-        "due to \"#{e.message}\"" \
-        "\n********* STACK TRACE *********\n" \
-        "\t#{e.backtrace.join("\n\t")}" \
-        "\n*******************************\n")
+        "due to \"#{e.message}\"")
+    if VCenterDriver::CONFIG[:debug_information]
+        OpenNebula.error_message(e.backtrace)
+    end
     exit 1
 end
 

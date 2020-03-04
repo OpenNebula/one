@@ -62,7 +62,6 @@ module NSXDriver
 
         end
 
-
         # Class DeleteError
         class MissingParameter < NSXError
 

@@ -16,45 +16,41 @@
 
 require 'ipaddr'
 
+# Module NSXDriver
 module NSXDriver
 
+    ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+
+    if !ONE_LOCATION
+        RUBY_LIB_LOCATION = '/usr/lib/one/ruby' \
+            unless defined?(RUBY_LIB_LOCATION)
+        GEMS_LOCATION     = '/usr/share/one/gems' \
+            unless defined?(GEMS_LOCATION)
+    else
+        RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' \
+            unless defined?(RUBY_LIB_LOCATION)
+        GEMS_LOCATION     = ONE_LOCATION + '/share/gems' \
+            unless defined?(GEMS_LOCATION)
+    end
+
+    if File.directory?(GEMS_LOCATION)
+        Gem.use_paths(GEMS_LOCATION)
+    end
+
+    $LOAD_PATH << RUBY_LIB_LOCATION
+
+    require 'nsxt_rule'
+    require 'nsxv_rule'
+
     # Class Logical Switch
-    class NSXRule < DistributedFirewall
+    module NSXRule
 
-        # ATTRIBUTES
-        attr_reader :one_section_id
-
-        # CONSTRUCTOR
-
-        def initialize(nsx_client)
-            super(nsx_client)
-            dfw = DistributedFirewall.new_child(nsx_client)
-            @url_sections = dfw.instance_variable_get('@url_sections')
-            @one_section_id = dfw.instance_variable_get('@one_section_id')
-        end
-
-        def self.new_child(nsx_client)
-            case nsx_client
-            when NSXTClient
-                NSXTRule.new(nsx_client)
-            when NSXVClient
-                NSXVRule.new(nsx_client)
-            else
-                error_msg = "Unknown object type: #{nsx_client}"
-                error = NSXError::UnknownObject.new(error_msg)
-                raise error
-            end
-        end
+        include NSXTRule
+        include NSXVRule
 
         def to_nets(ip_start, size)
-            nets = Array.new
-
-            begin
-                ipaddr = IPAddr.new ip_start
-            rescue
-                return
-            end
-
+            nets = []
+            ipaddr = IPAddr.new ip_start
             ip_i = ipaddr.to_i
 
             if ipaddr.ipv4?
@@ -68,28 +64,38 @@ module NSXDriver
             # Find the largest address block (look for the first 1-bit)
             lblock = 0
 
-            lblock += 1 while (ip_i[lblock] == 0 && lblock < ip_length )
+            lblock += 1 while ip_i[lblock] == 0 && lblock < ip_length
 
             # Allocate whole blocks till the size fits
-            while ( size >= 2**lblock )
-                nets << "#{IPAddr.new(ip_i, ipaddr.family).to_s}/#{ip_length-lblock}"
+            while size >= 2**lblock
+                nets << "#{IPAddr.new(ip_i, ipaddr.family)}" \
+                        "/#{ip_length-lblock}"
 
                 ip_i += 2**lblock
                 size -= 2**lblock
 
-                lblock += 1 while (ip_i[lblock] == 0 && lblock < ip_length )
+                lblock += 1 while ip_i[lblock] == 0 && lblock < ip_length
             end
 
             # Fit remaining address blocks
-            ip_length.downto(0) { |i|
+            ip_length.downto(0) do |i|
                 next if size[i] == 0
 
-                nets << "#{IPAddr.new(ip_i, ipaddr.family).to_s}/#{ip_length-i}"
+                nets << "#{IPAddr.new(ip_i, ipaddr.family)}/#{ip_length-i}"
 
                 ip_i += 2**i
-            }
+            end
 
-            return nets
+            nets
+        end
+
+        # Adapt port from ["22, 443"] to '22, 443'
+        # Adapt port from ["22", "443"] to '22, 443'
+        def parse_ports(rule_ports)
+            unless rule_ports.empty?
+                rule_ports = rule_ports.join(',')
+            end
+            rule_ports
         end
 
         def extract_vnet_data(vnet_id)
@@ -104,7 +110,8 @@ module NSXDriver
             # Get the network XML from OpenNebula
             # This is potentially different from the Netowrk Template
             # provided as the API call argument
-            one_vnet = OpenNebula::VirtualNetwork.new_with_id(vnet_id, one_client)
+            one_vnet = OpenNebula::VirtualNetwork.new_with_id(vnet_id,
+                                                              one_client)
             rc = one_vnet.info
             if OpenNebula.is_error?(rc)
                 err_msg = rc.message
@@ -120,7 +127,8 @@ module NSXDriver
         def extract_rule_data(xml_rule)
             sg_id = xml_rule.xpath('SECURITY_GROUP_ID').text
             sg_name = xml_rule.xpath('SECURITY_GROUP_NAME').text
-            sg_direction = (xml_rule.xpath('RULE_TYPE').text.upcase) == 'INBOUND' ? 'IN' : 'OUT'
+            in_out = xml_rule.xpath('RULE_TYPE').text.upcase
+            in_out == 'INBOUND' ? sg_direction = 'IN' : sg_direction = 'OUT'
             # Protocol: TCP, UDP, ICMP...
             sg_protocol = xml_rule.xpath('PROTOCOL').text
             if sg_protocol == 'ICMP'
@@ -144,7 +152,7 @@ module NSXDriver
                 if sg_range_port.index(':')
                     sg_port_from = sg_range_port[0..sg_range_port.index(':')-1]
                     sg_port_to = sg_range_port[sg_range_port.index(':')+1,
-                                                sg_range_port.length]
+                                               sg_range_port.length]
                     sg_ports = "#{sg_port_from}-#{sg_port_to}"
                 else
                     sg_ports = sg_range_port
@@ -167,7 +175,16 @@ module NSXDriver
             rule_data
         end
 
-        def create_rule_spec(rule, vm_data, nic_data); end
+        def rule_spec(rule, vm_data, nic_data, nsx_client)
+            case nsx_client.nsx_type
+            when NSXDriver::NSXConstants::NSXT
+                nsxt_rule_spec(rule, vm_data, nic_data)
+            when NSXDriver::NSXConstants::NSXV
+                nsxv_rule_spec(rule, vm_data, nic_data)
+            else
+                raise "Unsupported NSX type: #{nsx_type}"
+            end
+        end
 
     end
 

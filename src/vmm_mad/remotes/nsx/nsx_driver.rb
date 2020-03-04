@@ -68,7 +68,6 @@ require 'nsx_rule'
 require 'nsxt_rule'
 require 'nsxv_rule'
 
-
 # NSX Driver module
 module NSXDriver
 end

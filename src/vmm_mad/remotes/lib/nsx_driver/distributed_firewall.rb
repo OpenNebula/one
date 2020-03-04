@@ -15,8 +15,32 @@
 #--------------------------------------------------------------------------- #
 module NSXDriver
 
+    ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+
+    if !ONE_LOCATION
+        RUBY_LIB_LOCATION = '/usr/lib/one/ruby' \
+            unless defined?(RUBY_LIB_LOCATION)
+        GEMS_LOCATION     = '/usr/share/one/gems' \
+            unless defined?(GEMS_LOCATION)
+    else
+        RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' \
+            unless defined?(RUBY_LIB_LOCATION)
+        GEMS_LOCATION     = ONE_LOCATION + '/share/gems' \
+            unless defined?(GEMS_LOCATION)
+    end
+
+    if File.directory?(GEMS_LOCATION)
+        Gem.use_paths(GEMS_LOCATION)
+    end
+
+    $LOAD_PATH << RUBY_LIB_LOCATION
+
+    require 'nsx_rule'
+
     # Class Logical Switch
     class DistributedFirewall < NSXComponent
+
+        include NSXDriver::NSXRule
 
         # ATTRIBUTES
         attr_reader :one_section_name
@@ -170,14 +194,11 @@ module NSXDriver
                  .new_one(vi_client, deploy_id, one_vm)
 
             # NSX Objects needed
-            nsx_rule = NSXRule.new_child(@nsx_client)
             ls = LogicalSwitch.new(@nsx_client)
 
             # Search NSX Nics
             # First try to search only new attached NSX Nics
             nsx_nics = ls.nsx_nics(template_xml, only_attached)
-            File.open('/tmp/template.debug', 'a'){|f| f.write(template)}
-            File.open('/tmp/nsx_nics.debug', 'a'){|f| f.write(nsx_nics)}
             # If there is no NSX Nics
             return if nsx_nics.empty?
 
@@ -194,10 +215,11 @@ module NSXDriver
                     sg_rules = template_xml.xpath(xp)
                     sg_rules.each do |sg_rule|
                         # Create rules spec
-                        rule_data = nsx_rule.extract_rule_data(sg_rule)
-                        rule_spec = nsx_rule.create_rule_spec(rule_data,
-                                                              vm_data,
-                                                              nic_data)
+                        rule_data = extract_rule_data(sg_rule)
+                        rule_spec = rule_spec(rule_data,
+                                              vm_data,
+                                              nic_data,
+                                              @nsx_client)
                         sg_rules_array.push(rule_spec)
                     end
                     # Create NSX rules

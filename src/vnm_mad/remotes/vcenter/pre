@@ -15,7 +15,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-File.open('/tmp/PRE.debug', 'w'){|f| f.write('PRE')}
 # Define libraries location
 ONE_LOCATION = ENV['ONE_LOCATION']
 
@@ -64,8 +63,8 @@ end
 # Exit with error if NSX_STATUS != OK
 nsx_status = one_host['TEMPLATE/NSX_STATUS']
 unless nsx_status == 'OK'
-    OpenNebula::log_error("NSX_STATUS is not OK")
-    OpenNebula.error_message("NSX_STATUS is not OK")
+    OpenNebula.log_error('NSX_STATUS is not OK')
+    OpenNebula.error_message('NSX_STATUS is not OK')
     exit 1
 end
 

@@ -15,7 +15,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-File.open('/tmp/POST.debug', 'w'){|f| f.write('POST')}
 # Define libraries location
 ONE_LOCATION = ENV['ONE_LOCATION']
 
@@ -56,11 +55,6 @@ template = Base64.decode64(STDIN.read)
 deploy_id = ARGV[0]
 
 template_xml = Nokogiri::XML(template)
-File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("POST template:  #{template}")}
-File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("\n")}
-File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("POST deploy_id:  #{deploy_id}")}
-File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("\n")}
-
 
 # OpenNebula host
 host_name = template_xml
@@ -76,8 +70,6 @@ end
 # OpenNebula VM
 vmid = template_xml.xpath('//VM/ID')
 one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vmid)
-File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("POST one_vm.class:  #{one_vm.class}")}
-File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("\n")}
 
 rc = one_vm.info
 if OpenNebula.is_error?(rc)
@@ -94,18 +86,16 @@ ls = NSXDriver::LogicalSwitch.new(nsx_client)
 is_modified = modified?(template)
 nsx_nics = ls.nsx_nics(template_xml, is_modified)
 vm_state = one_vm.state_str
-File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("POST vm_state: #{vm_state}")}
-File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("\n")}
 unless nsx_nics.empty? || (vm_state == 'POWEROFF')
     begin
         dfw.create_rules(deploy_id, template, is_modified)
     rescue StandardError => e
         dfw.clear_rules(template, is_modified)
-        OpenNebula::log_error("Error creating Security Group rules " \
-            "due to \"#{e.message}\"" \
-            "\n********* STACK TRACE *********\n" \
-            "\t#{e.backtrace.join("\n\t")}" \
-            "\n*******************************\n")
+        OpenNebula.log_error('Error creating Security Group rules ' \
+            "due to \"#{e.message}\"")
+        if VCenterDriver::CONFIG[:debug_information]
+            OpenNebula.error_message(e.backtrace)
+        end
         exit 1
     end
 end
