@@ -67,13 +67,9 @@ if OpenNebula.is_error?(rc)
     raise err_msg
 end
 
-vc_uuid = one_host['TEMPLATE/VCENTER_INSTANCE_ID']
-
+vmid = template_xml.xpath('//VM/ID')
+one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vmid)
 # OpenNebula VM
-one_vm = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualMachinePool,
-                                             'DEPLOY_ID',
-                                             deploy_id,
-                                             vc_uuid)
 rc = one_vm.info
 if OpenNebula.is_error?(rc)
     err_msg = rc.message
@@ -87,7 +83,6 @@ dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
 vm_state = one_vm.state_str
 File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("POST vm_state: #{vm_state}")}
 File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("\n")}
-
 unless vm_state == 'POWEROFF'
     begin
         dfw.clear_rules(template, false)

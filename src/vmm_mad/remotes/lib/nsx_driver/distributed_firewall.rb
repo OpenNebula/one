@@ -176,7 +176,8 @@ module NSXDriver
             # Search NSX Nics
             # First try to search only new attached NSX Nics
             nsx_nics = ls.nsx_nics(template_xml, only_attached)
-
+            File.open('/tmp/template.debug', 'a'){|f| f.write(template)}
+            File.open('/tmp/nsx_nics.debug', 'a'){|f| f.write(nsx_nics)}
             # If there is no NSX Nics
             return if nsx_nics.empty?
 

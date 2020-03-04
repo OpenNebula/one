@@ -58,6 +58,9 @@ deploy_id = ARGV[0]
 template_xml = Nokogiri::XML(template)
 File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("POST template:  #{template}")}
 File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("\n")}
+File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("POST deploy_id:  #{deploy_id}")}
+File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("\n")}
+
 
 # OpenNebula host
 host_name = template_xml
@@ -70,13 +73,12 @@ if OpenNebula.is_error?(rc)
     raise err_msg
 end
 
-vc_uuid = one_host['TEMPLATE/VCENTER_INSTANCE_ID']
-
 # OpenNebula VM
-one_vm = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualMachinePool,
-                                             'DEPLOY_ID',
-                                             deploy_id,
-                                             vc_uuid)
+vmid = template_xml.xpath('//VM/ID')
+one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vmid)
+File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("POST one_vm.class:  #{one_vm.class}")}
+File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("\n")}
+
 rc = one_vm.info
 if OpenNebula.is_error?(rc)
     err_msg = rc.message
@@ -93,8 +95,6 @@ is_modified = modified?(template)
 nsx_nics = ls.nsx_nics(template_xml, is_modified)
 vm_state = one_vm.state_str
 File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("POST vm_state: #{vm_state}")}
-File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("\n")}
-File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("POST deploy_id: #{deploy_id}")}
 File.open('/tmp/XXX_process.debug', 'a'){|f| f.write("\n")}
 unless nsx_nics.empty? || (vm_state == 'POWEROFF')
     begin
