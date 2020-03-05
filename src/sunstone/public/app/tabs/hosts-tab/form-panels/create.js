@@ -73,18 +73,6 @@ define(function(require) {
       });
     }
 
-    that.imMadNameList = [];
-    if (Config.onedConf.IM_MAD !== undefined) {
-      $.each(Config.onedConf.IM_MAD, function(index, imMad) {
-        if (imMad.SUNSTONE_NAME !== undefined) {
-          that.imMadNameList.push({
-              'displayName': imMad["SUNSTONE_NAME"],
-              'driverName': imMad["NAME"]
-          });
-        }
-      });
-    }
-
     BaseFormPanel.call(this);
   };
 
@@ -106,8 +94,7 @@ define(function(require) {
     return TemplateWizardHTML({
       'formPanelId': this.formPanelId,
       'vCenterClustersHTML': this.vCenterClusters.html(),
-      'vmMadNameList': this.vmMadNameList,
-      'imMadNameList': this.imMadNameList
+      'vmMadNameList': this.vmMadNameList
     });
   }
 
@@ -117,6 +104,7 @@ define(function(require) {
     $(".drivers", context).hide();
 
     $("#host_type_mad", context).on("change", function() {
+      console.log("-->", this.value);
       $("#vmm_mad", context).val(this.value).change();
       $("#im_mad", context).val(this.value).change();
       $(".vcenter_credentials", context).hide();

@@ -159,12 +159,14 @@ define(function(require) {
         break;
     }
 
-    this.maxCPU += parseInt(element.HOST_SHARE.MAX_CPU);
-    this.allocatedCPU += parseInt(element.HOST_SHARE.CPU_USAGE);
-    this.realCPU += parseInt(element.HOST_SHARE.USED_CPU);
-    this.maxMemory += parseInt(element.HOST_SHARE.MAX_MEM);
-    this.allocatedMemory += parseInt(element.HOST_SHARE.MEM_USAGE);
-    this.realMemory += parseInt(element.HOST_SHARE.USED_MEM);
+    this.maxCPU += parseInt((element && element.HOST_SHARE && element.HOST_SHARE.MAX_CPU)||0);
+    this.allocatedCPU += parseInt((element && element.HOST_SHARE && element.HOST_SHARE.CPU_USAGE)||0);
+    this.realCPU += parseInt((element && element.MONITORING && element.MONITORING.CAPACITY && element.MONITORING.CAPACITY.USED_CPU)||0);//
+    this.maxMemory += parseInt((element && element.HOST_SHARE && element.HOST_SHARE.MAX_MEM)||0);
+    this.allocatedMemory += parseInt((element && element.HOST_SHARE && element.HOST_SHARE.MEM_USAGE)||0);
+    this.realMemory += parseInt((element && element.MONITORING && element.MONITORING.CAPACITY && element.MONITORING.CAPACITY.USED_MEM)||0);//MONITORING.CAPACITY.USED_MEM
+
+    console.log("-->",element);
 
     var state = OpenNebulaHost.simpleStateStr(element.STATE);
 
@@ -239,10 +241,13 @@ define(function(require) {
       "1rem",
       {"percentage": ratio_allocated_cpu, "str": info_str})
     );
-    var percentage = ratio_allocated_cpu > 100 ? 100 : ratio_allocated_cpu;
-    $("#dashboard_host_allocated_cpu_meter").animate({
-      value: percentage,
-    }, time, "swing");
+
+    if(!isNaN(ratio_allocated_cpu)){
+      var percentage = ratio_allocated_cpu > 100 ? 100 : ratio_allocated_cpu;
+      $("#dashboard_host_allocated_cpu_meter").animate({
+        value: percentage,
+      }, time, "swing");
+    }
 
     var ratio_real_cpu = 0;
     if (this.maxCPU > 0) {
@@ -258,10 +263,13 @@ define(function(require) {
       "1rem",
       {"percentage": ratio_real_cpu, "str": info_str})
     );
-    var percentage = ratio_real_cpu > 100 ? 100 : ratio_real_cpu;
-    $("#dashboard_host_real_cpu_meter").animate({
-      value: percentage,
-    }, time, "swing");
+
+    if(!isNaN(ratio_real_cpu)){
+      var percentage = ratio_real_cpu > 100 ? 100 : ratio_real_cpu;
+      $("#dashboard_host_real_cpu_meter").animate({
+        value: percentage,
+      }, time, "swing");
+    }
 
     var ratio_allocated_mem = 0;
     if (this.maxMemory > 0) {
@@ -277,10 +285,13 @@ define(function(require) {
       "1rem",
       {"percentage": ratio_allocated_mem, "str": info_str})
     );
-    var percentage = ratio_allocated_mem > 100 ? 100 : ratio_allocated_mem;
-    $("#dashboard_host_allocated_mem_meter").animate({
-      value: percentage,
-    }, time, "swing");
+
+    if(!isNaN(ratio_allocated_mem)){
+      var percentage = ratio_allocated_mem > 100 ? 100 : ratio_allocated_mem;
+      $("#dashboard_host_allocated_mem_meter").animate({
+        value: percentage,
+      }, time, "swing");
+    }
 
     var ratio_real_mem = 0;
     if (this.maxMemory > 0) {
@@ -296,10 +307,13 @@ define(function(require) {
       "1rem",
       {"percentage": ratio_real_mem, "str": info_str})
     );
-    var percentage = ratio_real_mem > 100 ? 100 : ratio_real_mem;
-    $("#dashboard_host_real_mem_meter").animate({
-      value: percentage,
-    }, time, "swing");
+
+    if(!isNaN(ratio_real_mem)){
+      var percentage = ratio_real_mem > 100 ? 100 : ratio_real_mem;
+      $("#dashboard_host_real_mem_meter").animate({
+        value: percentage,
+      }, time, "swing");
+    }
 
   }
 
