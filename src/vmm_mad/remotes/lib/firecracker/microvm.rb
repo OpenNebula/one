@@ -231,7 +231,7 @@ class MicroVM
         cgroup_path = @one.fcrc[:cgroup_location]
         timeout = Integer(@one.fcrc[:cgroup_delete_timeout])
 
-        params = "-r #{@rootfs_dir} -c #{cgroup_path} -v #{@one.vm_name} -t #{timeout}"
+        params = "-c #{cgroup_path} -v #{@one.vm_name} -t #{timeout}"
 
         cmd = "sudo #{@clean_sh} #{params}"
 

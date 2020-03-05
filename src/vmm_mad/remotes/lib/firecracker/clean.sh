@@ -19,14 +19,12 @@
 # exit when any command fails
 set -e
 
-ROOTFS_PATH=""
 CGROUP_PATH=""
 VM_NAME=""
 CGROUP_TO=60
 
-while getopts ":r:c:v:t:" opt; do
+while getopts ":c:v:t:" opt; do
     case $opt in
-        r) ROOTFS_PATH="$OPTARG" ;;
         c) CGROUP_PATH="$OPTARG" ;;
         v) VM_NAME="$OPTARG" ;;
         t) CGROUP_TO=$OPTARG ;;
@@ -35,9 +33,11 @@ done
 
 shift $(($OPTIND - 1))
 
-if [ -z "$ROOTFS_PATH" ] || [ -z "$CGROUP_PATH" ] || [ -z "$VM_NAME" ]; then
+if [ -z "$CGROUP_PATH" ] || [ -z "$VM_NAME" ]; then
     exit -1
 fi
+
+ROOTFS_PATH="/srv/jailer/firecracker/$VM_NAME/root"
 
 # Remove Firecracker residual files
 rm -rf "$ROOTFS_PATH/dev"
