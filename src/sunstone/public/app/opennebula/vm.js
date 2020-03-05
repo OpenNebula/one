@@ -873,13 +873,16 @@ define(function(require) {
 
   // returns true if the RDP button should be enabled
   function isRDPSupported(element) {
-    return ( element.TEMPLATE &&
-        element.TEMPLATE.NIC &&
-        Array.isArray(element.TEMPLATE.NIC) &&
-        element.TEMPLATE.NIC.some(function(nic) {
-          return nic.RDP && nic.RDP == "YES"
-        })
-    );
+    var rtn = false;
+    if(element.TEMPLATE && element.TEMPLATE.NIC){
+      if(!Array.isArray(element.TEMPLATE.NIC)){
+        element.TEMPLATE.NIC = [element.TEMPLATE.NIC];
+      }
+      element.TEMPLATE.NIC.some(function(nic) {
+        rtn = nic.RDP && nic.RDP == "YES"
+      })
+    }
+    return rtn;
   }
 
   return VM;
