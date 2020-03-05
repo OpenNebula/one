@@ -16,8 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-echo 'SSH' >> /tmp/debug.log
-
 dir="$1"
 
 vms=$(ls "$dir" | grep '^[0-9]\+$')
