@@ -47,7 +47,7 @@ begin
     vm        = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vm_id)
 
     vm.regenerate_context
-rescue StandardErrord => e
+rescue StandardError => e
     message = "Reconfiguration of VM #{vm_ref} on vCenter cluster "\
               "#{vc_cluster_name} failed due to "\
               "\"#{e.message}\"."
