@@ -69,7 +69,7 @@ template.elements.each(XPATH_NICS) do |nic_element|
     cmd = "#{command(:ip)} link show #{if_name}"
     _, _, rc = Open3.capture3(cmd)
 
-    next if rc.success?
+    next unless rc.success?
 
     # Del tap interface from the bridge
     cmd = "#{command(:ip)} link set #{if_name} nomaster"

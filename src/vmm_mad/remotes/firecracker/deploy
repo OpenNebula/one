@@ -41,7 +41,14 @@ rc = microvm.create
 
 exit(-1) unless rc
 
-# Start VNC
+# Make sure process have started
+sleep(1)
+if microvm.get_pid == -1
+    STDERR.puts 'MicroVM failed to start.'
+    exit(-1)
+end
+
+# Start VNC (only started if necessary)
 microvm.vnc('start')
 
 # Set deploy_id

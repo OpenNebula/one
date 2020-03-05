@@ -396,32 +396,42 @@ class ExecDriver < VirtualMachineDriver
         end
 
         steps.concat([
-                         # Execute pre-boot networking setup
-                         {
-                             :driver   => :vnm,
-                             :action   => :pre
-                         },
-                         # Boot the Virtual Machine
-                         {
-                             :driver       => :vmm,
-                             :action       => :deploy,
-                             :parameters   => [dfile, :host],
-                             :stdin        => domain
-                         },
-                         # Execute post-boot networking setup
-                         {
-                             :driver       => :vnm,
-                             :action       => :post,
-                             :parameters   => [:deploy_info],
-                             :fail_actions => [
-                                 {
-                                     :driver     => :vmm,
-                                     :action     => :cancel,
-                                     :parameters => [:deploy_info, :host]
-                                 }
-                             ]
-                         }
-                     ])
+                        # Execute pre-boot networking setup
+                        {
+                            :driver   => :vnm,
+                            :action   => :pre
+                        },
+                        # Boot the Virtual Machine
+                        {
+                            :driver       => :vmm,
+                            :action       => :deploy,
+                            :parameters   => [dfile, :host],
+                            :stdin        => domain,
+                            :fail_actions => [
+                                {
+                                    :driver   => :vnm,
+                                    :action   => :clean
+                                }
+                            ]
+                        },
+                        # Execute post-boot networking setup
+                        {
+                            :driver       => :vnm,
+                            :action       => :post,
+                            :parameters   => [:deploy_info],
+                            :fail_actions => [
+                                {
+                                    :driver     => :vmm,
+                                    :action     => :cancel,
+                                    :parameters => [:deploy_info, :host]
+                                },
+                                {
+                                    :driver   => :vnm,
+                                    :action   => :clean
+                                }
+                            ]
+                        }
+                    ])
 
         action.run(steps)
     end

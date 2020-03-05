@@ -48,6 +48,9 @@ class MicroVM
 
         @rootfs_dir = "/srv/jailer/firecracker/#{@one.vm_name}/root"
         @context_path = "#{@rootfs_dir}/context"
+
+        @map_context_sh = '/var/tmp/one/vmm/firecracker/map_context.sh'
+        @clean_sh = '/var/tmp/one/vmm/firecracker/clean.sh'
     end
 
     class << self
@@ -85,13 +88,14 @@ class MicroVM
     end
 
     def get_pid
-        pid = `ps auxwww | grep "^.*firecracker.*\\-\\-id=#{@one.vm_name}"`
+        rc, stdout, = Command.execute("ps auxwww | grep -E '^.*firecracker.*\\-\\-id[[:blank:]]+#{@one.vm_name}[[:blank:]]+'",
+                                      false)
 
-        if pid.empty? || pid.nil?
+        if !rc.zero? || stdout.nil?
             return -1
         end
 
-        Integer(pid.split[1])
+        Integer(stdout.split[1])
     end
 
     def map_context
@@ -102,32 +106,13 @@ class MicroVM
 
         return 0 unless context['context'] # return if there is no context
 
-        context_location = context['context']['source']
+        context_id = context['context']['disk_id']
 
-        # Create temporary directories
-        rc = Command.execute_rc_log("mkdir #{@map_location}")
-        rc &= rc && Command.execute_rc_log("mkdir #{@map_location}/context")
-        rc &= rc && Command.execute_rc_log("mkdir #{@map_location}/fs")
+        params = " -s #{@one.sysds_path} -c #{context_id} -r #{@one.rootfs_id} -v #{@one.vm_id}"
 
-        # mount rootfs
-        rc &= rc && Command.execute_rc_log("sudo mount #{vm_location}/disk.#{@one.rootfs_id} " \
-                        "#{@one.sysds_path}/#{@one.vm_id}/map_context/fs")
-        # mount context disk
-        rc &= rc && Command.execute_rc_log("sudo mount #{context_location} #{@map_location}/context")
+        cmd = "sudo #{@map_context_sh} #{params}"
 
-        # create "/context" inside rootfs ()
-        if !File.directory?("#{@map_location}/fs/context")
-            rc &= rc && Command.execute_rc_log("sudo mkdir #{@map_location}/fs/context")
-        end
-
-        rc &= rc && Command.execute_rc_log("sudo cp #{@map_location}/context/* #{@map_location}/fs/context")
-
-        # clean temporary directories
-        rc &= rc && Command.execute_rc_log("sudo umount #{@map_location}/fs")
-        rc &= rc && Command.execute_rc_log("sudo umount #{@map_location}/context")
-        rc &= rc && Command.execute_rc_log("rm -rf #{@map_location}")
-
-        rc
+        Command.execute_rc_log(cmd, false)
     end
 
     def wait_shutdown
@@ -197,11 +182,11 @@ class MicroVM
         # TODO: make log file from screen configurable (not working on CentOS 7)
         if @one.vnc?
             cmd << 'screen -L'
-            # cmd << " -Logfile /tmp/fc-log-#{@one.vm_id}" if false
-            cmd << " -dmS #{@one.vm_name}"
+            cmd << " -Logfile /tmp/fc-log-#{@one.vm_id}"
+            cmd << " -dmS #{@one.vm_name} "
         end
 
-        # Build jailer command paramas
+        # Build jailer command params
         cmd << @jailer_command
 
         @fc['command-params']['jailer'].each do |key, val|
@@ -218,7 +203,7 @@ class MicroVM
 
         return false unless map_context
 
-        Command.execute_rc_log(cmd)
+        Command.execute_detach(cmd)
     end
 
     # Poweroff the microVM by sending CtrlAltSupr signal
@@ -236,42 +221,21 @@ class MicroVM
     def cancel
         pid = get_pid
 
+        return true if pid < 0 # The vm is not running (no pid found)
+
         Command.execute_rc_log("kill -9 #{pid}")
     end
 
     # Clean resources and directories after shuttingdown the microVM
     def clean
-        # remove jailer generated files
-        rc = Command.execute_rc_log("sudo rm -rf #{@rootfs_dir}/dev/")
-        rc &= Command.execute_rc_log("rm -rf #{@rootfs_dir}/api.socket")
-        rc &= Command.execute_rc_log("rm -rf #{@rootfs_dir}/firecracker")
-
-        # unmount vm directory
-        rc &= `sudo umount #{@rootfs_dir}`
-
-        # remove chroot directory
-        rc &= Command.execute_rc_log("rm -rf #{File.expand_path('..', @rootfs_dir)}") if rc
-
-        # remove residual cgroups
-        rc &= clean_cgroups
-
-        rc
-    end
-
-    # Remove cgroup residual directories
-    def clean_cgroups
         cgroup_path = @one.fcrc[:cgroup_location]
+        timeout = Integer(@one.fcrc[:cgroup_delete_timeout])
 
-        wait_cgroup("#{cgroup_path}/cpu/firecracker/#{@one.vm_name}/tasks")
-        rc = Command.execute_rc_log("sudo rmdir #{cgroup_path}/cpu/firecracker/#{@one.vm_name}")
+        params = "-c #{cgroup_path} -v #{@one.vm_name} -t #{timeout}"
 
-        wait_cgroup("#{cgroup_path}/cpuset/firecracker/#{@one.vm_name}/tasks")
-        rc &= Command.execute_rc_log("sudo rmdir #{cgroup_path}/cpuset/firecracker/#{@one.vm_name}")
+        cmd = "sudo #{@clean_sh} #{params}"
 
-        wait_cgroup("#{cgroup_path}/pids/firecracker/#{@one.vm_name}/tasks")
-        rc &= Command.execute_rc_log("sudo rmdir #{cgroup_path}/pids/firecracker/#{@one.vm_name}")
-
-        rc
+        Command.execute_rc_log(cmd, false)
     end
 
     # rubocop:enable Naming/AccessorMethodName

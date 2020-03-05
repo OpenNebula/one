@@ -49,6 +49,14 @@ module Command
         rc.zero?
     end
 
+    def self.execute_detach(cmd)
+        pid = Process.fork do
+            exec(cmd)
+        end
+
+        !Process.detach(pid).nil?
+    end
+
     # Return true if command is running
     def self.running?(command)
         !`ps  --noheaders -C #{command}`.empty?

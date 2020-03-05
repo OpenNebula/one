@@ -57,4 +57,4 @@
 :cgroup_location: /sys/fs/cgroup
 #
 # Timeout to wait a cgroup to be empty after shutdown/cancel a microVM
-:cgroup_delete_timeout: 10
+:cgroup_delete_timeout: 60

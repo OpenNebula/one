@@ -46,6 +46,6 @@ if !died
     exit(-1) unless rc
 end
 
-microvm.clean
+exit(-1) unless microvm.clean
 
 exit 0

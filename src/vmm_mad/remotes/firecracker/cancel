@@ -29,8 +29,8 @@ microvm = MicroVM.new_from_xml(xml, nil)
 # Stop vnc
 microvm.vnc('stop')
 
-rc = microvm.cancel
+exit(-1) unless microvm.cancel
 
-microvm.clean if rc
+exit(-1) unless microvm.clean
 
-exit(-1) unless rc
+exit 0

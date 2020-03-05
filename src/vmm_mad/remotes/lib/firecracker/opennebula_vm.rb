@@ -195,12 +195,24 @@ class OpenNebulaVM
             drive = {
                 'drive_id'       => "disk.#{disk_id}",
                 'path_on_host'   => "disk.#{disk_id}",
-                'is_root_device' => rootfs_id == disk_id,
+                'is_root_device' => @rootfs_id == disk_id,
                 'is_read_only'   => n['READONLY'].casecmp('yes') == 0
             }
 
             array << drive
         end
+
+        return unless has_context?
+
+        cid = Integer(@xml['//TEMPLATE/CONTEXT/DISK_ID'])
+        drive = {
+            'drive_id'       => "disk.#{cid}",
+            'path_on_host'   => "disk.#{cid}",
+            'is_root_device' => @rootfs_id == cid,
+            'is_read_only'   => true
+        }
+
+        array << drive
     end
 
     def get_disks
@@ -215,9 +227,10 @@ class OpenNebulaVM
         source = disk_location(cid)
 
         hash['context'] = {
-            'type'   => 'disk',
-            'source' => source,
-            'path'   => '/context'
+            'type'    => 'disk',
+            'source'  => source,
+            'path'    => '/context',
+            'disk_id' => cid
         }
     end
 
