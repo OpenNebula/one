@@ -20,8 +20,6 @@
 # This script is used to monitor the free and used space of a datastore
 ###############################################################################
 
-echo "HERE1 $0 $@" >> /tmp/debug.log
-
 # -------- Set up the environment to source common tools & conf ------------
 
 if [ -z "${ONE_LOCATION}" ]; then

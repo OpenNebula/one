@@ -27,8 +27,6 @@ rescue StandardError => e
     exit(-1)
 end
 
-File.write('/tmp/debug.log', "DEBUG: #{$0}: #{xml_txt}\n", mode: 'a')
-
 ds_location = config.elements['DATASTORE_LOCATION'].text.to_s
 ds_location ||= '/var/lib/one/datastores'
 

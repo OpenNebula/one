@@ -102,7 +102,5 @@ rescue StandardError => e
     exit(-1)
 end
 
-File.write('/tmp/debug.log', "DEBUG: #{xml_txt}\n", mode: 'a')
-
 monitor = DSMonitor.new config
 monitor.dss_metrics
