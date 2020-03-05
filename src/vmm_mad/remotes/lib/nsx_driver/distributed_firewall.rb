@@ -130,9 +130,6 @@ module NSXDriver
                     lpid = device.externalId
                     nic_lp = LogicalPort.new_child(nsx_client, lpid)
                     raise "Logical port id: #{lpid} not found" unless nic_lp
-                    # target_id => id
-                    # target_display_name => display_name
-                    # target_type => resource_type
                 when NSXConstants::NSXV_LS_TYPE
                     # lpid is vm instanceUuid.sufix
                     # sufix is device number but removing first number
@@ -148,6 +145,7 @@ module NSXDriver
                     STDERR.puts error_msg
                     raise error
                 end
+                break
             end
 
             nic_data = {
