@@ -92,8 +92,7 @@ module NSXDriver
                 :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
                     https.request(request)
                 end
-            response = check_response(response, valid_codes)
-            response
+            check_response(response, valid_codes)
         end
 
         # Return: id of the created object
@@ -146,8 +145,7 @@ module NSXDriver
                 :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
                     https.request(request)
                 end
-            response = check_response(response, valid_codes)
-            response
+            check_response(response, valid_codes)
         end
 
         def get_token(url, aditional_headers = [], valid_codes = [])

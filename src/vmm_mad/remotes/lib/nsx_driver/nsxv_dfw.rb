@@ -147,8 +147,7 @@ module NSXDriver
                            NSXConstants::CODE_NOT_FOUND]
             additional_headers = []
             result = @nsx_client.get(url, additional_headers, valid_codes)
-            rule = result.xpath(NSXConstants::NSXV_DFW_RULE_XPATH)
-            rule
+            result.xpath(NSXConstants::NSXV_DFW_RULE_XPATH)
         end
 
         # Get rules by name
@@ -160,8 +159,7 @@ module NSXDriver
             all_rules = rules(section_id)
             return rules unless all_rules
 
-            rules = all_rules.xpath("//rule[name=\"#{rule_name}\"]")
-            rules
+            all_rules.xpath("//rule[name=\"#{rule_name}\"]")
         end
 
         # Create new rule
@@ -173,8 +171,7 @@ module NSXDriver
 
             aditional_headers = [{ 'If-Match' => etag }]
             url = @url_sections + '/' + section_id + '/rules'
-            result = @nsx_client.post(url, rule_spec, aditional_headers)
-            result
+            @nsx_client.post(url, rule_spec, aditional_headers)
         end
 
         # Update rule
@@ -188,8 +185,7 @@ module NSXDriver
             raise "Cannot get etag from section: #{section_id}" unless etag
 
             aditional_headers = [{ 'If-Match' => etag }]
-            result = @nsx_client.put(url, rule_spec, aditional_headers)
-            result
+            @nsx_client.put(url, rule_spec, aditional_headers)
         end
 
         # Delete rule
@@ -201,11 +197,6 @@ module NSXDriver
 
             aditional_headers = [{ 'If-Match' => etag }]
             @nsx_client.delete(url, aditional_headers)
-            # Aditional check
-            # result = rule_by_id(rule_id)
-            # raise 'Error deleting rule in DFW' unless result.empty?
-
-            # result
         end
 
     end

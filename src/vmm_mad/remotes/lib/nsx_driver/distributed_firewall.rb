@@ -37,7 +37,14 @@ module NSXDriver
 
     require 'nsx_rule'
 
-    # Class Logical Switch
+    # Class DistributedFirewall
+    # Naming convention for rules names:
+    # "<sg_id>-<sg_name>-<vm_id>-<vm_deploy_id>-<nic_id>"
+    # <sg_id> : Security Group ID
+    # <sg_name> : Security Group name
+    # <vm_id> : Virtual Machine ID
+    # <vm_deploy_id> : Vmware virtual machine reference ( vm-XXX )
+    # <nic_id> : NIC ID in the virtual machine
     class DistributedFirewall < NSXComponent
 
         include NSXDriver::NSXRule
@@ -48,7 +55,6 @@ module NSXDriver
         # CONSTRUCTOR
         def initialize(nsx_client)
             super(nsx_client)
-            @one_section_name = NSXConstants::ONE_SECTION_NAME
         end
 
         def self.new_child(nsx_client)
@@ -142,7 +148,6 @@ module NSXDriver
                                     #{NSXConstants::NSXT_LS_TYPE} \
                                     or #{NSXConstants::NSXV_LS_TYPE}"
                     error = NSXError::UnknownObject.new(error_msg)
-                    STDERR.puts error_msg
                     raise error
                 end
                 break
@@ -182,7 +187,7 @@ module NSXDriver
                      .one_item(OpenNebula::VirtualMachine, deploy_id)
 
             vm_data = {
-                :id => template_xml.xpath('//VM/ID').text,
+                :id => template_xml.xpath('/VM/ID').text,
                 :deploy_id => deploy_id
             }
 
@@ -230,8 +235,8 @@ module NSXDriver
 
         def clear_all_rules(template)
             template_xml = Nokogiri::XML(template)
-            vm_id = template_xml.xpath('//VM/ID').text
-            vm_deploy_id = template_xml.xpath('//DEPLOY_ID').text
+            vm_id = template_xml.xpath('/VM/ID').text
+            vm_deploy_id = template_xml.xpath('/VM/DEPLOY_ID').text
             regex = "-#{vm_id}-#{vm_deploy_id}-"
             rules = rules_by_regex(regex, @one_section_id)
             rules.each do |rule|
@@ -243,8 +248,8 @@ module NSXDriver
         def clear_rules(template, only_detached)
             template_xml = Nokogiri::XML(template)
             # OpenNebula Instance IDs
-            vm_id = template_xml.xpath('//VM/ID').text
-            vm_deploy_id = template_xml.xpath('//DEPLOY_ID').text
+            vm_id = template_xml.xpath('/VM/ID').text
+            vm_deploy_id = template_xml.xpath('/VM/DEPLOY_ID').text
 
             # Search NSX Nics
             ls = LogicalSwitch.new(@nsx_client)

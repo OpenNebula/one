@@ -63,8 +63,7 @@ module NSXDriver
         # - nil | section
         def section_by_id(section_id = @one_section_id)
             url = @url_sections + '/' + section_id
-            result = @nsx_client.get(url)
-            result
+            @nsx_client.get(url)
         end
 
         # Get section by name
@@ -113,8 +112,7 @@ module NSXDriver
         # - [Array]
         def rules(section_id = @one_section_id)
             url = @url_sections + '/' + section_id + '/rules'
-            rules = @nsx_client.get(url)
-            rules
+            @nsx_client.get(url)
         end
 
         # Get rule by id
@@ -127,8 +125,7 @@ module NSXDriver
                            NSXConstants::CODE_BAD_REQUEST,
                            NSXConstants::CODE_NOT_FOUND]
             additional_headers = []
-            rule = @nsx_client.get(url, additional_headers, valid_codes)
-            rule
+            @nsx_client.get(url, additional_headers, valid_codes)
         end
 
         # Get rules by name
@@ -177,8 +174,7 @@ module NSXDriver
             rule_spec['_revision'] = revision_id
             rule_spec = rule_spec.to_json
             url = @url_sections + '/' + section_id + '/rules'
-            result = @nsx_client.post(url, rule_spec)
-            result
+            @nsx_client.post(url, rule_spec)
         end
 
         # Update rule
@@ -189,8 +185,7 @@ module NSXDriver
 
             rule_spec['_revision'] = rule['_revision']
             rule_spec = rule_spec.to_json
-            result = @nsx_client.put(url, rule_spec)
-            result
+            @nsx_client.put(url, rule_spec)
         end
 
         # Delete rule
@@ -198,11 +193,6 @@ module NSXDriver
             url = @url_sections + '/' + section_id + '/rules/' + rule_id
             # Delete receive a 200 OK also if the rule doesn't exist
             @nsx_client.delete(url)
-            # Aditional check
-            # result = rule_by_id(rule_id)
-            # raise 'Error deleting rule in DFW' unless result.empty?
-
-            # result
         end
 
     end
