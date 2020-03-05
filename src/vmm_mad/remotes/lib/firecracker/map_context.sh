@@ -16,20 +16,23 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# exit when any command fails
-set -e
+function clean () {
+    # Clean temporary directories
+    umount "$MAP_PATH/fs"
+    rm -rf "$MAP_PATH"
+}
 
-MAP_PATH=""
+# exit when any command fails
+set -eE
+
 SYSDS_PATH=""
-CONTEXT_PATH=""
 ROOTFS_ID=""
 VM_ID=""
 
-while getopts ":m:s:c:r:v:" opt; do
+while getopts ":s:c:r:v:" opt; do
     case $opt in
-        m) MAP_PATH="$OPTARG" ;;
         s) SYSDS_PATH="$OPTARG" ;;
-        c) CONTEXT_PATH="$OPTARG" ;;
+        c) CONTEXT_ID=$OPTARG ;;
         r) ROOTFS_ID="$OPTARG" ;;
         v) VM_ID="$OPTARG" ;;
     esac
@@ -37,9 +40,23 @@ done
 
 shift $(($OPTIND - 1))
 
-if [ -z "$MAP_PATH" ] || [ -z "$SYSDS_PATH" ] || [ -z "$CONTEXT_PATH" ] || [ -z "$ROOTFS_ID" ] || [ -z "$VM_ID" ]; then
+
+if [ -z "$SYSDS_PATH" ] || [ -z "$CONTEXT_ID" ] || [ -z "$ROOTFS_ID" ] || [ -z "$VM_ID" ]; then
     exit -1
 fi
+
+rgx_num="^[0-9]+$"
+if ! [[ $CONTEXT_ID =~ $rgx_num ]] || ! [[ $ROOTFS_ID =~ $rgx_num ]] || ! [[ $VM_ID =~ $rgx_num ]]; then
+    exit -1
+fi
+
+VM_LOCATION="$SYSDS_PATH/$VM_ID"
+
+MAP_PATH="$VM_LOCATION/map_context"
+CONTEXT_PATH="$VM_LOCATION/disk.$CONTEXT_ID"
+ROOTFS_PATH="$VM_LOCATION/disk.$ROOTFS_ID"
+
+trap clean ERR
 
 # Create temporary directories
 mkdir "$MAP_PATH"
@@ -47,22 +64,16 @@ mkdir "$MAP_PATH/context"
 mkdir "$MAP_PATH/fs"
 
 # Mount rootfs
-mount "/$SYSDS_PATH/$VM_ID/disk.$ROOTFS_ID" "$MAP_PATH/fs"
-
-# Mount context disk
-mount "$CONTEXT_PATH" "$MAP_PATH/context"
+mount "$ROOTFS_PATH" "$MAP_PATH/fs"
 
 # Create /context directory inside rootfs
 if [ ! -d "$MAP_PATH/fs/context" ]; then
     mkdir "$MAP_PATH/fs/context"
 fi
 
-# Copy context information
-cp $MAP_PATH/context/* "$MAP_PATH/fs/context"
+# Move the context disk info into the microVM fs
+bsdtar -xf "$CONTEXT_PATH" -C "$MAP_PATH/fs/context"
 
-# Clean temporary directories
-umount "$MAP_PATH/fs"
-umount "$MAP_PATH/context"
-rm -rf "$MAP_PATH"
+clean
 
 exit 0

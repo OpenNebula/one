@@ -106,9 +106,9 @@ class MicroVM
 
         return 0 unless context['context'] # return if there is no context
 
-        context_location = context['context']['source']
+        context_id = context['context']['disk_id']
 
-        params = "-m #{@map_location} -s #{@one.sysds_path} -c #{context_location} -r #{@one.rootfs_id} -v #{@one.vm_id}"
+        params = " -s #{@one.sysds_path} -c #{context_id} -r #{@one.rootfs_id} -v #{@one.vm_id}"
 
         cmd = "sudo #{@map_context_sh} #{params}"
 
