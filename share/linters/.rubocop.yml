@@ -522,6 +522,7 @@ AllCops:
     - src/onedb/shared/4.1.80_to_4.2.0.rb
     - src/onedb/shared/5.6.0_to_5.10.0.rb
     - src/onedb/shared/5.5.80_to_5.6.0.rb
+    - src/onedb/shared/5.10.0_to_5.12.0.rb
     - src/onedb/local/5.3.80_to_5.4.0.rb
     - src/onedb/local/4.13.80_to_4.13.85.rb
     - src/onedb/local/5.6.0_to_5.7.80.rb
