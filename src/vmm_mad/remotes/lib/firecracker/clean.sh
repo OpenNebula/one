@@ -16,6 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+source /var/tmp/one/scripts_common.sh
+
 # exit when any command fails
 set -e
 
@@ -62,14 +64,20 @@ function wait_cgroup () {
           [ ! -z "$(lsof $1)" ]; do continue; done
 }
 
-DIR="$CGROUP_PATH/cpu/firecracker/$VM_NAME"
-wait_cgroup $DIR
-if [ -d "$DIR" ]; then rmdir "$DIR"; fi
+function clean_cgroups () {
+    DIR="$CGROUP_PATH/cpu/firecracker/$VM_NAME"
+    wait_cgroup $DIR
+    if [ -d "$DIR" ]; then rmdir "$DIR"; fi
 
-DIR="$CGROUP_PATH/cpuset/firecracker/$VM_NAME"
-wait_cgroup $DIR
-if [ -d "$DIR" ]; then rmdir "$DIR"; fi
+    DIR="$CGROUP_PATH/cpuset/firecracker/$VM_NAME"
+    wait_cgroup $DIR
+    if [ -d "$DIR" ]; then rmdir "$DIR"; fi
 
-DIR="$CGROUP_PATH/pids/firecracker/$VM_NAME"
-wait_cgroup $DIR
-if [ -d "$DIR" ]; then rmdir "$DIR"; fi
+    DIR="$CGROUP_PATH/pids/firecracker/$VM_NAME"
+    wait_cgroup $DIR
+    if [ -d "$DIR" ]; then rmdir "$DIR"; fi
+}
+
+retry 3 clean_cgroups
+
+exit 0
