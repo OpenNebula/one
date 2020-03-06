@@ -610,16 +610,22 @@ post '/service_template/:id/action' do
         status 204
         service_template.rename(opts['name'])
     when 'clone'
-        rc = service_template.clone(opts['name'])
+        if opts['recursive'] != 'none'
+            rc = service_template.clone_recursively(opts['name'],
+                                                    opts['recursive'])
+        else
+            rc = service_template.clone(opts['name'])
+        end
+
         if OpenNebula.is_error?(rc)
-            error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
+            return internal_error(rc.message, GENERAL_EC)
         end
 
         new_stemplate = OpenNebula::ServiceTemplate.new_with_id(rc, @client)
-        new_stemplate.info
-        if OpenNebula.is_error?(new_stemplate)
-            error CloudServer::HTTP_ERROR_CODE[new_stemplate.errno],
-                  new_stemplate.message
+        rc            = new_stemplate.info
+
+        if OpenNebula.is_error?(rc)
+            return internal_error(rc.message, GENERAL_EC)
         end
 
         status 201

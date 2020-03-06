@@ -61,6 +61,19 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Instance multiple templates'
     }
 
+    RECURSIVE = {
+        :name  => 'recursive',
+        :short => '-r',
+        :large => '--recursive',
+        :description => 'Clone the template recursively (templates and images)'
+    }
+
+    RECURSIVE_TEMPLATES = {
+        :name  => 'recursive_templates',
+        :large => '--recursive-templates',
+        :description => 'Clone the template recursively (just templates)'
+    }
+
     usage '`oneflow-template` <command> [<args>] [<options>]'
     version OpenNebulaHelper::ONE_VERSION
 
@@ -293,9 +306,21 @@ CommandParser::CmdParser.new(ARGV) do
         Creates a new Service Template from an existing one
     EOT
 
-    command :clone, clone_desc, :templateid, :name do
+    command :clone,
+            clone_desc,
+            :templateid,
+            :name,
+            :options => [RECURSIVE, RECURSIVE_TEMPLATES] do
         params = {}
         params['name'] = args[1]
+
+        if options.key?(:recursive)
+            params['recursive'] = 'all'
+        elsif options.key?(:recursive_templates)
+            params['recurisve'] = 'templates'
+        else
+            params['recursive'] = 'none'
+        end
 
         json   = Service.build_json_action('clone', params)
         client = helper.client(options)
