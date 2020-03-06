@@ -32,10 +32,7 @@
 #include <condition_variable>
 
 #include "Message.h"
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-#define STREAM_MANAGER_BUFFER_SIZE 512
+#include "StringBuffer.h"
 
 /**
  *  This class manages a stream to process Messages. The StreamManager
@@ -56,10 +53,6 @@ public:
      */
     StreamManager(int __fd, callback_t error_cbk):_fd(__fd)
     {
-        buffer = (char *) malloc(STREAM_MANAGER_BUFFER_SIZE * sizeof(char));
-
-        memset(static_cast<void *>(buffer), 0, STREAM_MANAGER_BUFFER_SIZE);
-
         register_action(E::UNDEFINED, error_cbk);
     };
 
@@ -69,8 +62,6 @@ public:
 
     ~StreamManager()
     {
-        free(buffer);
-
         close(_fd);
     };
 
@@ -110,7 +101,10 @@ protected:
      *  Read a line from the stream
      *    @return -1 in case of error or EOL
      */
-    virtual int read_line(std::string& line);
+    virtual int read_line(std::string& line)
+    {
+        return buffer.read_line(_fd, line);
+    }
 
 private:
     int _fd;
@@ -123,7 +117,7 @@ private:
 
     std::map<E, callback_t > actions;
 
-    char * buffer;
+    StringBuffer buffer;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -227,73 +221,5 @@ int StreamManager<E>::action_loop(int concurrency)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-template<typename E>
-int StreamManager<E>::read_line(std::string& line)
-{
-    static size_t cur_sz  = STREAM_MANAGER_BUFFER_SIZE;
-    static size_t line_sz = 0;
-
-    static char * buffer_seek = buffer;
-
-    /* Look for pending lines in the buffer */
-    const char * eom = strchr(buffer_seek, '\n');
-
-    if ( eom != 0 )
-    {
-        line.assign(buffer_seek, (eom - buffer_seek) + 1);
-
-        line_sz -= (eom - buffer_seek) + 1;
-
-        buffer_seek = (char *) eom + 1;
-
-        return 0;
-    }
-
-    /* Rotate buffer */
-
-    for ( size_t i = 0 ; i < line_sz; i++)
-    {
-        buffer[i] = buffer_seek[i];
-    }
-
-    char * cur_ptr = buffer + line_sz;
-
-    /* Read from stream */
-    do
-    {
-        int rc = ::read(_fd, (void *) cur_ptr, cur_sz - line_sz - 1);
-
-        if ( rc <= 0 )
-        {
-            return -1;
-        }
-
-        cur_ptr[rc] = '\0';
-
-        line_sz += rc;
-
-        const char * eom = strchr(cur_ptr, '\n');
-
-        if ( eom == 0)
-        {
-            cur_sz += STREAM_MANAGER_BUFFER_SIZE;
-
-            buffer  = (char *) realloc((void *) buffer, cur_sz);
-            cur_ptr = buffer + line_sz;
-
-            continue;
-        }
-
-        line.assign(buffer, (eom - buffer) + 1);
-
-        buffer_seek = (char *) eom + 1;
-
-        line_sz -= (eom - buffer) + 1;
-
-        return 0;
-    }
-    while (true);
-}
 
 #endif /*STREAM_MANAGER_H*/

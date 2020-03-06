@@ -96,7 +96,8 @@ int DriverManager<E, D>::load_drivers(const vector<const VectorAttribute*>& mads
             return -1;
         }
 
-        auto rc = drivers.insert(std::make_pair(name, std::unique_ptr<D>(new D(exec, args, threads))));
+        auto rc = drivers.insert(std::make_pair(name,
+                    std::unique_ptr<D>(new D(exec, args, threads))));
 
         if (rc.second)
         {
