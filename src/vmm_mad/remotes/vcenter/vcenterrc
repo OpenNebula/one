@@ -30,3 +30,6 @@
 
 # Amount of time to wait between retry attempts (seconds)
 :retry_interval: 1
+
+# Create snapshots with memory dumps
+:memory_dumps: true
