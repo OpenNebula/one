@@ -936,12 +936,6 @@ void Nebula::start(bool bootstrap_only)
             goto error_mad;
         }
 
-        rc = im->start();
-
-        if ( rc != 0 )
-        {
-            throw runtime_error("Could not start the Information Manager");
-        }
     }
 
     // ---- Transfer Manager ----
@@ -1195,11 +1189,19 @@ void Nebula::start(bool bootstrap_only)
         marketm->init_managers();
     }
 
-    // ---- Start the Request Manager ----
+    // ---- Start the Request Manager & Information Manager----
+    // This modules recevie request from users / monitor and need to be
+    // started in last place when all systems are up
 
-    rc = rm->start();
+    if (!cache)
+    {
+        if ( im->start() != 0 )
+        {
+            throw runtime_error("Could not start the Information Manager");
+        }
+    }
 
-    if ( rc != 0 )
+    if ( rm->start() != 0 )
     {
        throw runtime_error("Could not start the Request Manager");
     }

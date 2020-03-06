@@ -558,6 +558,8 @@ module DomainList
 
             lines = text.split(/\n/)[2..-1]
 
+            return @vms if lines.nil?
+
             names = lines.map do |line|
                 line.split(/\s+/).delete_if {|d| d.empty? }[1]
             end

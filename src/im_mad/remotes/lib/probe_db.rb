@@ -153,6 +153,7 @@ class VirtualMachineDB
         # check missing VMs
         # ----------------------------------------------------------------------
         uuids = @db.execute("SELECT uuid FROM #{@dataset}").flatten!
+        uuids ||= []
 
         (uuids - monitor_ids).each do |uuid|
             vm_db = @db.execute(

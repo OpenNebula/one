@@ -359,14 +359,15 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
                     print_update_info(total - size, total, host['NAME'])
 
-                    if options[:rsync]
-                        sync_cmd = "rsync -Laz --delete #{REMOTES_LOCATION}" \
-                                   " #{host['NAME']}:#{remote_dir}"
-                    else
+                    if options[:ssh]
                         sync_cmd = "ssh #{host['NAME']}" \
+                                   " rm -rf '#{remote_dir}' 2>/dev/null;" \
                                    " mkdir -p '#{remote_dir}' 2>/dev/null &&" \
                                    " scp -rp #{REMOTES_LOCATION}/*" \
                                    " #{host['NAME']}:#{remote_dir} 2> /dev/null"
+                    else
+                        sync_cmd = "rsync -Laz --delete #{REMOTES_LOCATION}" \
+                                   " #{host['NAME']}:#{remote_dir}"
                     end
 
                     retries = 3

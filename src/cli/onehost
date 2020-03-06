@@ -77,13 +77,12 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Force probe upgrade in onehost sync'
     }
 
-    RSYNC = {
-        :name => 'rsync',
-        :large => '--rsync',
-        :description => 'Use rsync to synchronize remotes. In case some '\
-                        'probes are no longer in the fronted ithey will be '\
-                        'deleted in the hosts. rsync command must be '\
-                        'installed in the frontend and nodes.'
+    SSH = {
+        :name => 'ssh',
+        :large => '--ssh',
+        :description => 'Use SSH to synchronize remotes. In case some '\
+                        'probes are no longer in the fronted they will be '\
+                        'deleted in the hosts.'
     }
 
     TYPE = {
@@ -95,7 +94,7 @@ CommandParser::CmdParser.new(ARGV) do
     }
 
     CREAT_OPTIONS = [IM, VMM, OneClusterHelper::CLUSTER, TYPE]
-    SYNC_OPTIONS  = [OneClusterHelper::CLUSTER, FORCE, RSYNC]
+    SYNC_OPTIONS  = [OneClusterHelper::CLUSTER, FORCE, SSH]
 
     ########################################################################
     # Formatters for arguments

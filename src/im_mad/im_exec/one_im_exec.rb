@@ -146,12 +146,13 @@ class InformationManagerDriver < OpenNebulaDriver
         end
 
         # Use SCP to sync:
-        sync_cmd = "scp -r #{@local_scripts_base_path}/* " \
-            "#{hostname}:#{@remote_scripts_base_path}"
+        #sync_cmd = "scp -r #{@local_scripts_base_path}/* " \
+        #    "#{hostname}:#{@remote_scripts_base_path}"
 
         # Use rsync to sync:
-        # sync_cmd = "rsync -Laz #{REMOTES_LOCATION} " \
-        #   #{hostname}:#{@remote_dir}"
+        sync_cmd = "rsync -Laz --delete #{@local_scripts_base_path}" \
+                   " #{hostname}:#{@remote_scripts_base_path}"
+
         cmd = LocalCommand.run(sync_cmd, log_method(hostid))
 
         if cmd.code != 0
