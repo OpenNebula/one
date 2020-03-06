@@ -201,22 +201,26 @@ define(function(require) {
 
     //.off and .on prevent multiple clicks events
     $(context).off("click", "#update_reserved_hosts").on("click", "#update_reserved_hosts", function(){
-      $("#update_reserved_hosts", context).prop("disabled", true);
-      var reservedCPU = parseInt($("#textInput_reserved_cpu_hosts", context).val());
-      var CPU = parseInt(that.element.HOST_SHARE.FREE_CPU);
-      var reservedMem = parseInt(Humanize.sizeToMB($("#textInput_reserved_mem_hosts").val()) * 1024);
-      var MEM = parseInt(that.element.HOST_SHARE.FREE_MEM);
-      if (parseInt(that.element.HOST_SHARE.USED_CPU) > 0){
-        CPU += parseInt(that.element.HOST_SHARE.USED_CPU);
-      }
-      reservedCPU = CPU - reservedCPU;
-      if (parseInt(that.element.HOST_SHARE.USED_MEM) > 0){
-        MEM += parseInt(that.element.HOST_SHARE.USED_MEM);
-      }
-      reservedMem = MEM - reservedMem;
+      var positionFreeAndUsed = that && that.element && that.element.MONITORING && that.element.MONITORING.CAPACITY;
+      if(positionFreeAndUsed){
+        $("#update_reserved_hosts", context).prop("disabled", true);
+        var reservedCPU = parseInt($("#textInput_reserved_cpu_hosts", context).val());
+        var CPU = parseInt(positionFreeAndUsed.FREE_CPU||0);
+        var reservedMem = parseInt(Humanize.sizeToMB($("#textInput_reserved_mem_hosts").val()) * 1024);
+        var MEM = parseInt((positionFreeAndUsed.FREE_MEMORY)||0);
+        if (parseInt(positionFreeAndUsed.USED_CPU||0) > 0){
+          CPU += parseInt(positionFreeAndUsed.USED_CPU||0);
+        }
+        reservedCPU = CPU - reservedCPU;
+        if (parseInt(positionFreeAndUsed.USED_MEMORY||0) > 0){
+          MEM += parseInt(positionFreeAndUsed.USED_MEMORY||0);
+        }
+        reservedMem = MEM - reservedMem;
 
       var obj = { RESERVED_CPU: reservedCPU, RESERVED_MEM: reservedMem };
-      Sunstone.runAction("Host.append_template", that.element.ID, TemplateUtils.templateToString(obj));
+        var obj = { RESERVED_CPU: reservedCPU, RESERVED_MEM: reservedMem };
+        Sunstone.runAction("Host.append_template", that.element.ID, TemplateUtils.templateToString(obj));
+      }
     });
 
     $("#change_bar_cpu_hosts", context).on("input", function(){

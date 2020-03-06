@@ -164,7 +164,8 @@ define(function(require) {
     this.realCPU += parseInt((element && element.MONITORING && element.MONITORING.CAPACITY && element.MONITORING.CAPACITY.USED_CPU)||0);//
     this.maxMemory += parseInt((element && element.HOST_SHARE && element.HOST_SHARE.MAX_MEM)||0);
     this.allocatedMemory += parseInt((element && element.HOST_SHARE && element.HOST_SHARE.MEM_USAGE)||0);
-    this.realMemory += parseInt((element && element.MONITORING && element.MONITORING.CAPACITY && element.MONITORING.CAPACITY.USED_MEM)||0);//MONITORING.CAPACITY.USED_MEM
+    this.realMemory += parseInt((element && element.MONITORING && element.MONITORING.CAPACITY && element.MONITORING.CAPACITY.USED_MEMORY)||0);//MONITORING.CAPACITY.USED_MEMORY
+
 
     console.log("-->",element);
 
@@ -300,6 +301,7 @@ define(function(require) {
     } else {
       info_str = Humanize.size(this.realMemory) + " / -";
     }
+
     $("#dashboard_host_real_mem").html(quotaDashboard(
       "dashboard_host_real_mem",
       Locale.tr("Real Memory"),
