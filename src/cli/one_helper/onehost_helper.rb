@@ -579,8 +579,9 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                     OpenNebulaHelper.unit_to_str(host['HOST_SHARE/MAX_MEM']
                                     .to_i, {}))
         puts format(str, '  USED (REAL)',
-                    OpenNebulaHelper.unit_to_str(host['MONITORING/CAPACITY/USED_MEMORY']
-                                    .to_i, {}))
+                    OpenNebulaHelper
+                    .unit_to_str(host['MONITORING/CAPACITY/USED_MEMORY']
+                    .to_i, {}))
         puts format(str, '  USED (ALLOCATED)',
                     OpenNebulaHelper.unit_to_str(host['HOST_SHARE/MEM_USAGE']
                                     .to_i, {}))
