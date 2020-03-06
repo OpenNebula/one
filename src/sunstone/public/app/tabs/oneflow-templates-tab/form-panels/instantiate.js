@@ -248,8 +248,15 @@ define(function(require) {
     $.each(that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
       var div_id = "user_input_role_"+index;
       var tmp_json = {};
+      var stringCustomValues = TemplateUtils.templateToString(extra_info.merge_template.custom_attrs_values);
+
       $.extend( tmp_json, WizardFields.retrieve($("#"+div_id, context)) );
       role.user_inputs_values = tmp_json;
+      if (stringCustomValues) {
+        (role.vm_template_contents)
+          ? role.vm_template_contents += stringCustomValues 
+          : role.vm_template_contents = stringCustomValues;
+      }
       extra_info.merge_template.roles.push(role);
     });
     if (!service_name.length){ //empty name
