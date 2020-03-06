@@ -42,6 +42,20 @@ AllCops:
     - src/authm_mad/remotes/ssh/authenticate
     - src/sunstone/bin/novnc-server
     - src/sunstone/config.ru
+    - src/im_mad/remotes/dummy-probes.d/vms/monitor/monitor.rb
+    - src/im_mad/remotes/dummy.d/collectd-client.rb
+    - src/im_mad/remotes/dummy.d/collectd-client.rb
+    - src/im_mad/remotes/kvm-probes.d/host/monitor/numa_usage.rb
+    - src/im_mad/remotes/kvm-probes.d/host/system/machines_models.rb
+    - src/im_mad/remotes/kvm-probes.d/host/system/numa_host.rb
+    - src/im_mad/remotes/lib/kvm.rb
+    - src/im_mad/remotes/lib/probe_db.rb
+    - src/im_mad/remotes/lxd-probes.d/host/monitor/numa_usage.rb
+    - src/im_mad/remotes/lxd-probes.d/host/system/numa_host.rb
+    - src/im_mad/remotes/lxd-probes.d/vms/status/status.rb
+    - src/im_mad/remotes/node-probes.d/numa_usage.rb
+    - src/im_mad/remotes/lib/linux.rb
+    - src/im_mad/remotes/node-probes.d/numa_host.rb
     - src/pm_mad/remotes/dummy/cancel
     - src/pm_mad/remotes/dummy/shutdown
     - src/pm_mad/remotes/dummy/reboot
@@ -61,6 +75,8 @@ AllCops:
     - src/pm_mad/remotes/ec2/reset
     - src/pm_mad/remotes/ec2/poll
     - src/onegate/config.ru
+    - src/im_mad/remotes/kvm-probes.d/host/system/pci.rb
+    - src/im_mad/remotes/lxd-probes.d/host/system/pci.rb
     - src/im_mad/remotes/lxd-probes.d/pci.rb
     - src/im_mad/remotes/kvm-probes.d/pci.rb
     - src/im_mad/remotes/kvm.d/collectd-client.rb

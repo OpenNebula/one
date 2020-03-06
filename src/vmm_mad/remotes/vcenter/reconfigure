@@ -35,7 +35,6 @@ require 'vcenter_driver'
 
 vm_ref          = ARGV[0]
 vc_cluster_name = ARGV[-1]
-vm_id           = ARGV[-2]
 
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VMM_DRIVER_ACTION_DATA')
@@ -45,8 +44,9 @@ host_id = drv_action['VM/HISTORY_RECORDS/HISTORY[last()]/HID']
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
-    one_item_xml = drv_action.retrieve_xmlelements('VM').first.to_xml
-    one_item = OpenNebula::VirtualMachine.new(OpenNebula::XMLElement.build_xml(one_item_xml, 'VM'), vi_client)
+    one_item_xml     = drv_action.retrieve_xmlelements('VM').first.to_xml
+    one_item_raw_xml = OpenNebula::XMLElement.build_xml(one_item_xml, 'VM')
+    one_item = OpenNebula::VirtualMachine.new(one_item_raw_xml, vi_client)
 
     vm = VCenterDriver::VirtualMachine.new_one(vi_client, vm_ref, one_item)
 
