@@ -303,6 +303,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/pm/dummy \
           $VAR_LOCATION/remotes/pm/packet \
           $VAR_LOCATION/remotes/vmm \
+          $VAR_LOCATION/remotes/vmm/lib \
           $VAR_LOCATION/remotes/vmm/kvm \
           $VAR_LOCATION/remotes/vmm/vcenter \
           $VAR_LOCATION/remotes/vmm/ec2 \
@@ -510,6 +511,7 @@ INSTALL_FILES=(
     PM_EXEC_PACKET_SCRIPTS:$VAR_LOCATION/remotes/pm/packet
     VMM_EXEC_LIB_VCENTER_FILES:$LIB_LOCATION/ruby/vcenter_driver
     VMM_EXEC_LIB_NSX_FILES:$LIB_LOCATION/ruby/nsx_driver
+    VMM_EXEC_LIB:$VAR_LOCATION/remotes/vmm/lib
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_LXD_SCRIPTS:$VAR_LOCATION/remotes/vmm/lxd
     VMM_EXEC_LXD_LIB:$VAR_LOCATION/remotes/vmm/lxd
@@ -860,6 +862,11 @@ PM_EXEC_PACKET_SCRIPTS="src/pm_mad/remotes/packet/cancel \
                         src/pm_mad/remotes/packet/reboot \
                         src/pm_mad/remotes/packet/reset \
                         src/pm_mad/remotes/packet/shutdown"
+
+#-------------------------------------------------------------------------------
+# Common library files for VMM drivers
+#-------------------------------------------------------------------------------
+VMM_EXEC_LIB="src/vmm_mad/remotes/lib/command.rb"
 
 #-------------------------------------------------------------------------------
 # VMM Lib vcenter files, used by the vCenter Driver to be installed in
