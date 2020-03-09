@@ -28,6 +28,7 @@ define(function(require) {
   Foundation.Reveal.defaults.closeOnClick = false;
 
   _setupDataTableSearch();
+  _setDataTableErrMode();
 
   var SETTINGS_TAB_ID = require('tabs/settings-tab/tabId');
   var PROVISION_TAB_ID = require('tabs/provision-tab/tabId');
@@ -277,6 +278,12 @@ define(function(require) {
       return 'ip-address';
     }
     return null;
+  }
+
+  function _setDataTableErrMode(){
+    $.fn.dataTable.ext.errMode = function(settings, techNote, message) {
+      console.log('data table error: '+message);
+    };
   }
 
   function _setupDataTableSearch() {

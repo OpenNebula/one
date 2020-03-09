@@ -93,8 +93,14 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    if (that && that.element && that.element.HOST_SHARE && that.element.HOST_SHARE.NUMA_NODES) {
-      var numaNodes = that.element.HOST_SHARE.NUMA_NODES.NODE;
+    if (
+      that && 
+      that.element && 
+      that.element.MONITORING && 
+      that.element.MONITORING.HOST_SHARE && 
+      that.element.MONITORING.HOST_SHARE.NUMA_NODES
+    ) {
+      var numaNodes = that.element.MONITORING.HOST_SHARE.NUMA_NODES.NODE;
       if (!(numaNodes instanceof Array)) {
         numaNodes = [numaNodes];
       }
@@ -102,7 +108,11 @@ define(function(require) {
       var select = $("<select/>",{'id': SELECT_ID});
       options.map(function(element){
         if(element && element.value){
-          var selected = that && that.element && that.element.TEMPLATE && that.element.TEMPLATE.PIN_POLICY && that.element.TEMPLATE.PIN_POLICY === element.value;
+          var selected = that && 
+            that.element && 
+            that.element.TEMPLATE && 
+            that.element.TEMPLATE.PIN_POLICY && 
+            that.element.TEMPLATE.PIN_POLICY === element.value;
           select.append($("<option/>",{'value':element.value}).text(capitalize(element.value)).prop('selected', selected));
         }
       });

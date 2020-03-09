@@ -76,20 +76,20 @@ define(function(require) {
       data: {
         id: this.element.ID,
         monitor: {
-          monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU,HOST_SHARE/TOTAL_CPU,HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM,HOST_SHARE/TOTAL_MEM"
+          monitor_resources : "HOST_SHARE/CPU_USAGE,MONITORING/CAPACITY/USED_CPU,HOST_SHARE/MAX_CPU,HOST_SHARE/TOTAL_CPU,HOST_SHARE/MEM_USAGE,MONITORING/CAPACITY/USED_MEMORY,HOST_SHARE/MAX_MEM,HOST_SHARE/TOTAL_MEM"
         }
       },
       success: function(req, response) {
         var host_graphs = [
             {
-              monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU,HOST_SHARE/TOTAL_CPU",
+              monitor_resources : "HOST_SHARE/CPU_USAGE,MONITORING/CAPACITY/USED_CPU,HOST_SHARE/MAX_CPU,HOST_SHARE/TOTAL_CPU",
               labels : Locale.tr("Allocated") + "," + Locale.tr("Real") + "," + Locale.tr("Total") + "," + Locale.tr("Total +/- reserved"),
               humanize_figures : false,
               div_graph : $("#host_cpu_graph"),
               div_legend : $("#host_cpu_legend")
             },
             {
-              monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM,HOST_SHARE/TOTAL_MEM",
+              monitor_resources : "HOST_SHARE/MEM_USAGE,MONITORING/CAPACITY/USED_MEMORY,HOST_SHARE/MAX_MEM,HOST_SHARE/TOTAL_MEM",
               labels : Locale.tr("Allocated") + "," + Locale.tr("Real") + "," + Locale.tr("Total") + "," + Locale.tr("Total +/- reserved"),
               humanize_figures : false,
               humanize_figures : true,
