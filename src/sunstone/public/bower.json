@@ -2,7 +2,7 @@
   "name": "opennebula-sunstone",
   "dependencies": {
     "flot": "0.8.3",
-    "ip": "https://github.com/jloboescalona2/ip.git#2c25465",
+    "ip": "https://github.com/OpenNebula/sunstone-deps.git#50b7927",
     "buffer": "https://github.com/anodynos/node2web_buffer.git#91433d2",
     "jgrowl": "1.4.2",
     "fontawesome": "5.0.7",
@@ -20,7 +20,7 @@
     "navigo": "2.1.1",
     "sprintf": "1.0.3",
     "jquery-ui": "^1.12.1",
-    "wickedpicker": "https://github.com/ericjgagnon/wickedpicker.git#dd2cce3"
+    "wickedpicker": "https://github.com/OpenNebula/sunstone-deps.git#9398b3f"
   },
   "authors": [
     "Daniel Molina <dmolina@opennebula.org>",

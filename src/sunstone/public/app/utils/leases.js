@@ -29,7 +29,7 @@ define(function(require) {
     CONSTANTS
    */
 
-  var classButton = 'button warning leases';
+  var classButton = 'button leases';
   var idElementSchedActions = '#sched_temp_actions_body, #sched_inst_actions_body';
 
   /*
@@ -52,7 +52,9 @@ define(function(require) {
       config.system_config.leases && 
       (config.system_config.leases.suspense || config.system_config.leases.terminate)
     ){
-      return $("<button />", {class: classButton}).text(Locale.tr("Add lease")).prop('outerHTML');
+      return $("<button />", {class: classButton}).append(
+        $("<i/>", {class: 'fa fa-clock'})
+      ).prop('outerHTML');
     }
   }
 

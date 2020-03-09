@@ -50,7 +50,7 @@ define(function(require) {
     return TemplateHTML({
       'titleKey': Locale.tr("Name"),
       'titleMandatory': showMandatory ? Locale.tr("Type") : '',
-      'titleValue': Locale.tr("Description"),
+      'titleValue': Locale.tr("Value"),
       'titleDefault': showDefault? Locale.tr("Default Value"): '',
       'classTable': classTableName,
       'classButton': classButtonName
@@ -61,7 +61,6 @@ define(function(require) {
     if (!hide_vector_button) {
       hide_vector_button = false;
     }
-    console.log("VALIDATE: ",showMandatory? 'M' : '');
     context.off("click", ".add_custom_tag");
     context.on("click", ".add_custom_tag", function(){
       $("tbody.custom_tags", context).append(

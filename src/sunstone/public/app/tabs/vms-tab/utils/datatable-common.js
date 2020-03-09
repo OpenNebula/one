@@ -43,7 +43,7 @@ define(function(require) {
     Locale.tr("Hidden Template"),
     Locale.tr("Labels"),
     "search_data",
-    Locale.tr("Leases") //clock leases
+    Locale.tr("Charter") //clock leases
   ];
 
   return {
@@ -103,8 +103,8 @@ define(function(require) {
       element.NAME &&
       element.TEMPLATE && 
       element.TEMPLATE.CONTEXT && 
-      element.TEMPLATE.CONTEXT.MAP_PRIVATE && 
-      element.TEMPLATE.CONTEXT.MAP_PUBLIC && 
+      element.TEMPLATE.CONTEXT.MAP_EXTERNAL && 
+      element.TEMPLATE.CONTEXT.MAP_INTERNAL && 
       element.TEMPLATE.NIC &&
       config && 
       config.system_config &&
@@ -116,8 +116,8 @@ define(function(require) {
       var nics = element.TEMPLATE.NIC;
       var credentials = {};
       var context = element.TEMPLATE.CONTEXT;
-      var pblc = element.TEMPLATE.CONTEXT.MAP_PUBLIC; //"10.0.0.0/8";
-      var prvt = element.TEMPLATE.CONTEXT.MAP_PRIVATE; //"192.168.0.0/16";
+      var pblc = element.TEMPLATE.CONTEXT.MAP_EXTERNAL; //"10.0.0.0/8";
+      var prvt = element.TEMPLATE.CONTEXT.MAP_INTERNAL; //"192.168.0.0/16";
       var renderTitle = true;
       if (!$.isArray(nics)){
         nics = [nics];
