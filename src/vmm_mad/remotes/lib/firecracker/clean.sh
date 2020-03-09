@@ -24,12 +24,14 @@ set -e
 CGROUP_PATH=""
 VM_NAME=""
 CGROUP_TO=60
+ONLY_UMOUNT=""
 
-while getopts ":c:v:t:" opt; do
+while getopts ":c:v:t:o" opt; do
     case $opt in
         c) CGROUP_PATH="$OPTARG" ;;
         v) VM_NAME="$OPTARG" ;;
         t) CGROUP_TO=$OPTARG ;;
+        o) ONLY_UMOUNT="1"
     esac
 done
 
@@ -48,9 +50,6 @@ rm -f "$ROOTFS_PATH/firecracker"
 
 # Unmount VM directory
 umount "$ROOTFS_PATH"
-
-# Remove VM chroot directory
-rm -rf $(dirname $ROOTFS_PATH)
 
 #-------------------------------------------------------------------------------
 # Wait for a cgroup to not being used
@@ -79,5 +78,14 @@ function clean_cgroups () {
 }
 
 retry 3 clean_cgroups
+
+#-------------------------------------------------------------------------------
+# Remove VM chroot directory
+#-------------------------------------------------------------------------------
+if [ -n "${ONLY_UMOUNT}" ]; then
+    exit 0
+fi
+
+rm -rf $(dirname $ROOTFS_PATH)
 
 exit 0

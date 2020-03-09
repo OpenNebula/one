@@ -38,13 +38,13 @@ microvm.gen_deployment_file
 
 # Create microVM
 rc = microvm.create
-
-exit(-1) unless rc
+sleep(1)
 
 # Make sure process have started
-sleep(1)
-if microvm.get_pid == -1
+if !rc || microvm.get_pid == -1
     STDERR.puts 'MicroVM failed to start.'
+    microvm.clean(false)
+
     exit(-1)
 end
 

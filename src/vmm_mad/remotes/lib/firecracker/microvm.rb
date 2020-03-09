@@ -88,7 +88,7 @@ class MicroVM
     end
 
     def get_pid
-        rc, stdout, = Command.execute("ps auxwww | grep -E '^.*firecracker.*\\-\\-id[[:blank:]]+#{@one.vm_name}[[:blank:]]+'",
+        rc, stdout, = Command.execute("ps auxwww | grep '^.*firecracker.*\\<#{@one.vm_name}\\>' | grep -v grep",
                                       false)
 
         if !rc.zero? || stdout.nil?
@@ -227,11 +227,12 @@ class MicroVM
     end
 
     # Clean resources and directories after shuttingdown the microVM
-    def clean
+    def clean(delete=true)
         cgroup_path = @one.fcrc[:cgroup_location]
         timeout = Integer(@one.fcrc[:cgroup_delete_timeout])
 
         params = "-c #{cgroup_path} -v #{@one.vm_name} -t #{timeout}"
+        params << "  -o" unless delete
 
         cmd = "sudo #{@clean_sh} #{params}"
 
