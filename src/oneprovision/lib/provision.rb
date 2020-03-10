@@ -68,6 +68,12 @@ module OneProvision
         def delete(cleanup, timeout)
             raise('Provision not found.') unless exists
 
+            # Objects are being created and hosts deployed
+            @state = :deleting
+
+            # Update the cluster to persists the state
+            @clusters.first.update('PROVISION_STATE=deleting', true)
+
             if running_vms? && !cleanup
                 Utils.fail('Provision with running VMs can\'t be deleted')
             end
