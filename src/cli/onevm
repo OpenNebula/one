@@ -1229,7 +1229,7 @@ CommandParser::CmdParser.new(ARGV) do
         configuration attributes are:
 
         OS        = ["ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT"]
-        FEATURES  = ["ACPI", "PAE", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT"]
+        FEATURES  = ["ACPI", "PAE", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT", "CRASH_ACTION"]
         INPUT     = ["TYPE", "BUS"]
         GRAPHICS  = ["TYPE", "LISTEN", "PASSWD", "KEYMAP" ]
         RAW       = ["DATA", "DATA_VMX", "TYPE"]

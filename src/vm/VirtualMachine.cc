@@ -2743,7 +2743,7 @@ void VirtualMachine::get_public_clouds(const string& pname, set<string> &clouds)
 static std::map<std::string,std::vector<std::string>> UPDATECONF_ATTRS = {
     {"OS", {"ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT", "KERNEL_CMD", "ROOT", "SD_DISK_BUS"} },
     {"FEATURES", {"PAE", "ACPI", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT",
-         "VIRTIO_SCSI_QUEUES"} },
+         "VIRTIO_SCSI_QUEUES", "CRASH_ACTION"} },
     {"INPUT", {"TYPE", "BUS"} },
     {"GRAPHICS", {"TYPE", "LISTEN", "PASSWD", "KEYMAP", "COMMAND"} },
     {"RAW", {"TYPE", "DATA", "DATA_VMX"} },
