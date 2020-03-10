@@ -227,12 +227,12 @@ class MicroVM
     end
 
     # Clean resources and directories after shuttingdown the microVM
-    def clean(delete=true)
+    def clean(delete = true)
         cgroup_path = @one.fcrc[:cgroup_location]
         timeout = Integer(@one.fcrc[:cgroup_delete_timeout])
 
         params = "-c #{cgroup_path} -v #{@one.vm_name} -t #{timeout}"
-        params << "  -o" unless delete
+        params << '  -o' unless delete
 
         cmd = "sudo #{@clean_sh} #{params}"
 
