@@ -56,7 +56,7 @@ define(function(require) {
    */
 
   function WizardTab(opts) {
-    if (!Config.isTemplateCreationTabEnabled(opts.tabId, "os_booting")) {
+    if (!Config.isTemplateCreationTabEnabled(opts.tabId, "numa")) {
       throw "Wizard Tab not enabled";
     }
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
