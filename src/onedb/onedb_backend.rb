@@ -375,7 +375,8 @@ class BackEndMySQL < OneDBBacKEnd
         when 'ascii'
             'ASCII'
         else
-            'NONE'
+            # if no encoding found, use the default one
+            NOKOGIRI_ENCODING
         end
     end
 
