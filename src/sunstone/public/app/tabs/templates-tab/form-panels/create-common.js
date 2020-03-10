@@ -219,6 +219,7 @@ define(function(require) {
 
       delete templateJSON["NIC_PCI"];
     }
+ 
     return templateJSON;
   }
 
@@ -256,11 +257,10 @@ define(function(require) {
         current = currentTemplate[0].VMTEMPLATE.TEMPLATE;
       }
       if(current) {
-        if (current.NIC && !templateJSON.NIC) {
-          delete current.NIC;
-        }
-        if(current.NIC_ALIAS && !templateJSON.NIC_ALIAS) {
-          delete current.NIC_ALIAS;
+        for (key in current) {
+          if (!templateJSON[key]) {
+            delete current[key]
+          }
         }
       }
     }
