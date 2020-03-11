@@ -318,8 +318,6 @@ public:
      */
     void load_monitoring();
 
-    void update_zombies(const std::set<int>& ids);
-
 private:
     friend class HostPool;
 

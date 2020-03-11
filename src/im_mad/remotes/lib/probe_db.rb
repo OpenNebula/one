@@ -51,7 +51,6 @@ class VirtualMachineDB
         :obsolete      => 720,
         :db_path       => "#{__dir__}/../status.db",
         :period        => 0,
-        :sync_period   => 5,
         :missing_state => "POWEROFF"
     }
 
@@ -91,15 +90,19 @@ class VirtualMachineDB
     # Returns the VM status that changed compared to the DB info as well
     # as VMs that have been reported as missing more than missing_times
     def to_status
+        status_str = ''
+
         time = Time.now.to_i
         last = @db.execute("SELECT MAX(timestamp) from #{@dataset}").flatten![0]
+        vms  = DomainList.state_info
 
-        return to_sync_status if time > (last + @conf[:sync_period])
-
-        status_str  = ''
         monitor_ids = []
 
-        vms  = DomainList.state_info
+        if last
+            force_update = time > (last + 3 * @conf[:period].to_i)
+        else
+            force_update = false
+        end
 
         # ----------------------------------------------------------------------
         # report state changes in vms
@@ -141,7 +144,7 @@ class VirtualMachineDB
                 "#{filter}"
             )
 
-            if vm_db[col_name_to_idx('state')] != vm[:state]
+            if vm_db[col_name_to_idx('state')] != vm[:state] || force_update
                 status_str << vm_to_status(vm)
             end
         end
@@ -161,7 +164,7 @@ class VirtualMachineDB
 
             miss = vm_db[col_name_to_idx('missing')]
 
-            if miss >= @conf[:times_missing]
+            if miss >= @conf[:times_missing] || force_update
                 status_str << vm_db_to_status(vm_db, @conf[:missing_state])
 
                 @db.execute("DELETE FROM #{@dataset} WHERE uuid = \"#{uuid}\"")
@@ -191,19 +194,6 @@ class VirtualMachineDB
 
     private
 
-    def sync_status
-        status_str = "SYNC_STATE=yes\nTIMESTAMTP=#{Time.now.to_i}\n"
-
-        vm_dbs = @db.execute("SELECT * FROM #{@dataset}")
-        vm_dbs ||= []
-
-        vm_dbs.each do |vm_db|
-            status_str << vm_db_to_status(vm_db)
-        end
-
-        status_str
-    end
-
     def vm_to_status(vm, state = vm[:state])
         "VM = [ ID=\"#{vm[:id]}\", DEPLOY_ID=\"#{vm[:name]}\", " \
         " UUID=\"#{vm[:uuid]}\", STATE=\"#{state}\" ]\n"
@@ -231,7 +221,7 @@ class VirtualMachineDB
         conf.merge! opts
 
         conf[:hyperv] = hyperv
-        conf[:sync_period] = conf[:sync_period].to_i * @conf[:period].to_i
+
         conf
     end
 
