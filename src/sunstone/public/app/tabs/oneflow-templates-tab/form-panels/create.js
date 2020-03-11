@@ -269,6 +269,17 @@ define(function(require) {
 
     json_template['ready_status_gate'] = ready_status_gate;
 
+    // add labels
+    var currentInfo = Sunstone.getElementRightInfo(TAB_ID)
+    if (
+      currentInfo &&
+      currentInfo.TEMPLATE &&
+      currentInfo.TEMPLATE.BODY &&
+      currentInfo.TEMPLATE.BODY.labels
+    ) {
+      json_template['labels'] = currentInfo.TEMPLATE.BODY.labels
+    }
+
     if (this.action == "create") {
       Sunstone.runAction("ServiceTemplate.create", json_template );
       return false;
