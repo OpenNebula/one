@@ -904,7 +904,7 @@ define(function(require) {
             $("td", row).addClass('markrowchecked');
             $('input.check_item', row).prop('checked', true);
           }
-          
+
           var attr = {row_id:row_id, class:"radius label"};
           var span = $("<span/>",attr).text(row_name);
           $('#selected_ids_row_' + that.dataTableId, section).append(span);
@@ -1211,20 +1211,6 @@ define(function(require) {
 
           delete fixed_ids_map[this[that.xmlRoot].ID];
         }
-      });
-
-      var n_columns = that.columns.length + 1;
-
-      $.each(fixed_ids_map, function(id, v) {
-        var empty = [];
-
-        for (var i = 0; i <= n_columns; i++) {
-          empty.push("");
-        }
-
-        empty[that.selectOptions.id_index] = id;
-
-        list_array.push(empty);
       });
 
       that.updateView(null, list_array, true);
