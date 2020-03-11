@@ -148,9 +148,7 @@ module LXD
             '/memory.usage_in_bytes').to_i
 
             stat / 1024
-        rescue => e
-            OpenNebula.log e
-
+        rescue
             0
         end
 
@@ -212,14 +210,14 @@ module LXD
 
         def get_process_jiffies(vm_name)
             jiffies = 0
+
             stat = File.read('/sys/fs/cgroup/cpu,cpuacct/'\
                 "#{lxc_path(vm_name)}/cpuacct.stat")
 
             stat.lines.each {|line| jiffies += line.split(' ')[1].to_i }
 
             jiffies
-        rescue => e
-            OpenNebula.log e
+        rescue
             0
         end
 
