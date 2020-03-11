@@ -16,14 +16,64 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-(
-[ -f /tmp/one-collectd-client.pid ] || exit 0
-running_pid=$(cat /tmp/one-collectd-client.pid)
-pids=$(ps axuwww | grep "/collectd-client.rb kvm" | grep -v grep | awk '{ print $2 }' | grep -v "^${running_pid}$")
+#--------------------------------------------------------------------------- #
+# Process Arguments
+#--------------------------------------------------------------------------- #
+ACTION="start"
 
-if [ -n "$pids" ]; then
-    kill -6 $pids
+if [ "$1" = "stop" ]; then
+    shift
+    ACTION="stop"
 fi
 
-) > /dev/null
+ARGV=$*
 
+HID=$2
+HNAME=$3
+
+STDIN=`cat -`
+
+# Directory that contains this file
+DIR=$(pwd)
+
+# Basename
+BASENAME=$(basename $0 _control.sh)
+
+# Collectd client (Ruby)
+CLIENT=$DIR/${BASENAME}.rb
+
+# Collectd client PID
+CLIENT_PID_FILE=/tmp/one-monitord-$HID.pid
+
+# Launch the client
+function start_client() {
+    echo "$STDIN" | base64 -d - | /usr/bin/env ruby $CLIENT $ARGV &
+
+    echo $! > $CLIENT_PID_FILE
+
+    sleep 10
+
+    ps axuww | grep "$CLIENT $ARGV" | grep -v grep > /dev/null 2>&1 || exit -1
+}
+
+# Stop the client
+function stop_client() {
+    local pids=$(ps axuww | grep "$CLIENT $ARGV" | grep -v grep | awk '{print $2}')
+
+    if [ -n "$pids" ]; then
+        kill -6 $pids
+    fi
+
+    rm -f $CLIENT_PID_FILE
+}
+
+case $ACTION in
+start)
+    stop_client
+    start_client
+    ;;
+
+stop)
+    stop_client
+    ;;
+esac

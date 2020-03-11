@@ -43,8 +43,8 @@ AllCops:
     - src/sunstone/bin/novnc-server
     - src/sunstone/config.ru
     - src/im_mad/remotes/dummy-probes.d/vms/monitor/monitor.rb
-    - src/im_mad/remotes/dummy.d/collectd-client.rb
-    - src/im_mad/remotes/dummy.d/collectd-client.rb
+    - src/im_mad/remotes/dummy.d/monitord-client.rb
+    - src/im_mad/remotes/dummy.d/monitord-client.rb
     - src/im_mad/remotes/kvm-probes.d/host/monitor/numa_usage.rb
     - src/im_mad/remotes/kvm-probes.d/host/system/machines_models.rb
     - src/im_mad/remotes/kvm-probes.d/host/system/numa_host.rb
@@ -52,7 +52,7 @@ AllCops:
     - src/im_mad/remotes/lib/probe_db.rb
     - src/im_mad/remotes/lxd-probes.d/host/monitor/numa_usage.rb
     - src/im_mad/remotes/lxd-probes.d/host/system/numa_host.rb
-    - src/im_mad/remotes/lxd-probes.d/vms/status/status.rb
+    - src/im_mad/remotes/lxd-probes.d/vms/status/state.rb
     - src/im_mad/remotes/node-probes.d/numa_usage.rb
     - src/im_mad/remotes/lib/linux.rb
     - src/im_mad/remotes/node-probes.d/numa_host.rb
@@ -79,8 +79,8 @@ AllCops:
     - src/im_mad/remotes/lxd-probes.d/host/system/pci.rb
     - src/im_mad/remotes/lxd-probes.d/pci.rb
     - src/im_mad/remotes/kvm-probes.d/pci.rb
-    - src/im_mad/remotes/kvm.d/collectd-client.rb
-    - src/im_mad/remotes/lxd.d/collectd-client.rb
+    - src/im_mad/remotes/kvm.d/monitord-client.rb
+    - src/im_mad/remotes/lxd.d/monitord-client.rb
     - src/im_mad/remotes/vcenter.d/poll
     - src/im_mad/remotes/packet.d/poll
     - src/im_mad/remotes/ec2.d/poll
@@ -317,7 +317,7 @@ AllCops:
     - src/im_mad/remotes/lxd-probes.d/lxd.rb
     - src/im_mad/remotes/kvm-probes.d/kvm.rb
     - src/im_mad/remotes/kvm-probes.d/machines-models.rb
-    - src/im_mad/remotes/common.d/collectd-client.rb
+    - src/im_mad/remotes/common.d/monitord-client.rb
     - src/im_mad/remotes/node-probes.d/pci.rb
     - src/hm_mad/one_hm.rb
     - src/vnm_mad/one_vnm.rb

@@ -18,6 +18,7 @@ src/monitor/src/monitor/onemonitord
 share/doc/one/html
 src/vmm_mad/remotes/lib/lxd/svncterm_server/genfont
 src/vmm_mad/remotes/lib/lxd/svncterm_server/svncterm_server
+src/im_mad/remotes/status.db
 
 *.class
 src/oca/java/bin

@@ -1,1 +1,0 @@
-../../../common.d/collectd-client-shepherd_local.sh

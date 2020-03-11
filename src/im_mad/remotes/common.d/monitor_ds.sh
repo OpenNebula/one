@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-#Arguments: hypervisor ds_location collectd_port monitor_push_period host_id hostname
+#Arguments: hypervisor ds_location monitord_port monitor_push_period host_id hostname
 HYPERVISOR=$1
 DATASTORE_LOCATION=${2:-"/var/lib/one/datastores"}
 
