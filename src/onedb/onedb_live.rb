@@ -93,7 +93,7 @@ class OneDBLive
         row  = hash['SQL_COMMAND']['RESULT']['ROW'] rescue nil
 
         if !row
-            raise 'Empty SQL query result: '
+            raise 'Empty SQL query result'
         end
 
         [row].flatten.compact
@@ -491,8 +491,9 @@ class OneDBLive
         begin
             db_data = select(table, "oid = #{id}")
         rescue StandardError => e
-            STDERR.puts "Error getting object id #{o.id}"
+            STDERR.puts "Error getting #{object} with id #{id}"
             STDERR.puts e.message
+            exit(-1)
         end
 
         row = db_data.first
@@ -514,8 +515,9 @@ class OneDBLive
 
             update_body(table, xml, "oid = #{id}", federate)
         rescue StandardError => e
-            STDERR.puts "Error updating object id #{id}"
+            STDERR.puts "Error updating #{object} with id #{id}"
             STDERR.puts e.message
+            exit(-1)
         end
     end
 
