@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cmd='lxc profile list'
+cmd='lxc profile list 2>/dev/null'
 
 profiles=$($cmd | grep -v -- -+- | grep -v NAME | grep -v default | awk '{print $2}')
 
