@@ -118,7 +118,7 @@ int TCPStream<E>::action_loop(int threads, std::string& error)
     }
 
     /* ---------------------------------------------------------------------- */
-    /* Create TCP socket for incoming collectd client connections             */
+    /* Create TCP socket for incoming monitord client connections             */
     /* ---------------------------------------------------------------------- */
     _socket = socket(res->ai_family, res->ai_socktype | SOCK_NONBLOCK,
             res->ai_protocol);

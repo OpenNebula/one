@@ -16,44 +16,14 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-#Arguments: hypervisor(0) ds_location(1) collectd_port(2) host_id(3) hostname(4)
+(
+[ -f /tmp/one-monitord-client.pid ] || exit 0
+running_pid=$(cat /tmp/one-monitord-client.pid)
+pids=$(ps axuwww | grep -e /collectd-client.rb -e /monitord-client.rb| grep -v grep | awk '{ print $2 }' | grep -v "^${running_pid}$")
 
-source $(dirname $0)/../scripts_common.sh
+if [ -n "$pids" ]; then
+    kill -6 $pids
+fi
 
-export LANG=C
+) > /dev/null
 
-HYPERVISOR_DIR=$1.d
-ARGUMENTS=$*
-STDIN=`cat -`
-
-SCRIPTS_DIR=`dirname $0`
-cd $SCRIPTS_DIR
-
-function run_dir {
-    cd $1
-    for i in `ls * | grep -E -v '\.(rpmnew|rpmsave|dpkg-\w+)$'`;do
-        if [ -x "$i" ]; then
-            result=$(echo ${STDIN} | ./$i ${ARGUMENTS})
-            EXIT_CODE=$?
-
-            if [ "x${EXIT_CODE}" != "x0" ]; then
-                error_message "Error executing $i: ${result}"
-                exit ${EXIT_CODE}
-            fi
-
-            echo ${result}
-        fi
-    done
-}
-
-data=$(
-    if [ -d "$HYPERVISOR_DIR" ]; then
-        run_dir "$HYPERVISOR_DIR"
-    fi
-)
-
-EXIT_CODE=$?
-
-echo "$data"
-
-exit $EXIT_CODE

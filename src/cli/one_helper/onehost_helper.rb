@@ -474,7 +474,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
                     break unless host
 
-                    cmd = 'cat /tmp/one-collectd-client.pid | xargs kill -HUP'
+                    cmd = 'cat /tmp/one-monitord-client.pid | xargs kill -HUP'
                     system("ssh #{host['NAME']} \"#{cmd}\" 2>/dev/null")
 
                     if !$CHILD_STATUS.success?

@@ -1116,8 +1116,8 @@ VMM_EXEC_PACKET_SCRIPTS="src/vmm_mad/remotes/packet/cancel \
 # Information Manager Probes, to be installed under $REMOTES_LOCATION/im
 #-------------------------------------------------------------------------------
 IM_PROBES_FILES="\
-    src/im_mad/remotes/run_probes \
-    src/im_mad/remotes/stop_probes"
+    src/im_mad/remotes/run_monitord_client \
+    src/im_mad/remotes/stop_monitord_client"
 
 IM_PROBES_LIB_FILES="\
     src/im_mad/remotes/lib/kvm.rb \
@@ -1128,11 +1128,11 @@ IM_PROBES_LIB_FILES="\
 
 # KVM PROBES
 IM_PROBES_KVM_FILES="\
-    src/im_mad/remotes/kvm.d/collectd-client_control.sh \
-    src/im_mad/remotes/kvm.d/collectd-client.rb"
+    src/im_mad/remotes/kvm.d/monitord-client_control.sh \
+    src/im_mad/remotes/kvm.d/monitord-client.rb"
 
 IM_PROBES_KVM_HOST_BEACON_FILES="\
-     src/im_mad/remotes/kvm-probes.d/host/beacon/collectd-client-shepherd.sh \
+     src/im_mad/remotes/kvm-probes.d/host/beacon/monitord-client-shepherd.sh \
      src/im_mad/remotes/kvm-probes.d/host/beacon/date.sh"
 
 IM_PROBES_KVM_HOST_MONITOR_FILES="\
@@ -1156,7 +1156,7 @@ IM_PROBES_KVM_VM_MONITOR_FILES="\
      src/im_mad/remotes/kvm-probes.d/vms/monitor/monitor_ds_vm.rb"
 
 IM_PROBES_KVM_VM_STATUS_FILES="\
-     src/im_mad/remotes/kvm-probes.d/vms/status/status.rb"
+     src/im_mad/remotes/kvm-probes.d/vms/status/state.rb"
 
 IM_PROBES_ETC_KVM_PROBES_FILES="\
     src/im_mad/remotes/kvm-probes.d/pci.conf \
@@ -1164,11 +1164,11 @@ IM_PROBES_ETC_KVM_PROBES_FILES="\
 
 # DUMMY PROBES
 IM_PROBES_DUMMY_FILES="\
-    src/im_mad/remotes/dummy.d/collectd-client_control.sh \
-    src/im_mad/remotes/dummy.d/collectd-client.rb"
+    src/im_mad/remotes/dummy.d/monitord-client_control.sh \
+    src/im_mad/remotes/dummy.d/monitord-client.rb"
 
 IM_PROBES_DUMMY_HOST_BEACON_FILES="\
-     src/im_mad/remotes/dummy-probes.d/host/beacon/collectd-client-shepherd_local.sh \
+     src/im_mad/remotes/dummy-probes.d/host/beacon/monitord-client-shepherd_local.sh \
      src/im_mad/remotes/dummy-probes.d/host/beacon/date.sh"
 
 IM_PROBES_DUMMY_HOST_MONITOR_FILES="\
@@ -1181,15 +1181,15 @@ IM_PROBES_DUMMY_VM_MONITOR_FILES="\
      src/im_mad/remotes/dummy-probes.d/vms/monitor/monitor.rb"
 
 IM_PROBES_DUMMY_VM_STATUS_FILES="\
-     src/im_mad/remotes/kvm-probes.d/vms/status/status.rb"
+     src/im_mad/remotes/kvm-probes.d/vms/status/state.rb"
 
 # LXD PROBES
 IM_PROBES_LXD_FILES="\
-    src/im_mad/remotes/lxd.d/collectd-client_control.sh \
-    src/im_mad/remotes/lxd.d/collectd-client.rb"
+    src/im_mad/remotes/lxd.d/monitord-client_control.sh \
+    src/im_mad/remotes/lxd.d/monitord-client.rb"
 
 IM_PROBES_LXD_HOST_BEACON_FILES="\
-     src/im_mad/remotes/lxd-probes.d/host/beacon/collectd-client-shepherd.sh \
+     src/im_mad/remotes/lxd-probes.d/host/beacon/monitord-client-shepherd.sh \
      src/im_mad/remotes/lxd-probes.d/host/beacon/date.sh"
 
 IM_PROBES_LXD_HOST_MONITOR_FILES="\
@@ -1213,7 +1213,7 @@ IM_PROBES_LXD_VM_MONITOR_FILES="\
      src/im_mad/remotes/lxd-probes.d/vms/monitor/monitor_ds_vm.rb"
 
 IM_PROBES_LXD_VM_STATUS_FILES="\
-     src/im_mad/remotes/lxd-probes.d/vms/status/status.rb"
+     src/im_mad/remotes/lxd-probes.d/vms/status/state.rb"
 
 IM_PROBES_ETC_LXD_PROBES_FILES="\
     src/im_mad/remotes/lxd-probes.d/pci.conf \
