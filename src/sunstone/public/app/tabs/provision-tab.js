@@ -1157,7 +1157,8 @@ define(function(require) {
 
           });
 
-          tab.off("click").on("click", ".provision_select_flow_template .provision-pricing-table.only-one" , function(){
+          tab.off("click", ".provision_select_flow_template .provision-pricing-table.only-one")
+          .on("click", ".provision_select_flow_template .provision-pricing-table.only-one" , function(){
             var context = $("#provision_create_flow");
 
             if ($(this).hasClass("selected")){
