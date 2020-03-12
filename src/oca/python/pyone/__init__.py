@@ -12,38 +12,48 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+'''
+PyONE is an implementation of Open Nebula XML-RPC bindings.
+'''
 
-from pyone import bindings
-from six import string_types
 import xmlrpc.client
 import socket
-
-from .util import cast2one
-from .acl import OneAcl
-
 import requests
 import requests.utils
 
-import sys
-from distutils.version import StrictVersion
-import warnings
+from six import string_types
+from aenum import IntEnum
+from pyone import bindings
+from .util import cast2one
+
 
 #
 # Exceptions as defined in the XML-API reference
 #
-
 class OneException(Exception):
     pass
+
+
 class OneAuthenticationException(OneException):
     pass
+
+
 class OneAuthorizationException(OneException):
     pass
+
+
 class OneNoExistsException(OneException):
     pass
+
+
 class OneActionException(OneException):
     pass
+
+
 class OneApiException(OneException):
     pass
+
+
 class OneInternalException(OneException):
     pass
 
@@ -51,22 +61,34 @@ class OneInternalException(OneException):
 # Constants, naming follows those in Open Nebula Ruby API
 #
 
-from aenum import IntEnum
 
-DATASTORE_TYPES = IntEnum('DATASTORE_TYPES','IMAGE SYSTEM FILE',start=0)
-DATASTORE_STATES = IntEnum('DATASTORE_STATES','READY DISABLED',start=0)
+DATASTORE_TYPES = IntEnum('DATASTORE_TYPES', 'IMAGE SYSTEM FILE', start=0)
+DATASTORE_STATES = IntEnum('DATASTORE_STATES', 'READY DISABLED', start=0)
 
-DISK_TYPES = IntEnum('DISK_TYPES','FILE CD_ROM BLOCK RBD',start=0)
+DISK_TYPES = IntEnum('DISK_TYPES', 'FILE CD_ROM BLOCK RBD', start=0)
 
-HISTORY_ACTION = IntEnum('HISTORY_ACTION','none migrate live-migrate shutdown shutdown-hard undeploy undeploy-hard hold release stop suspend resume boot delete delete-recreate reboot reboot-hard resched unresched poweroff poweroff-hard disk-attach disk-detach nic-attach nic-detach disk-snapshot-create disk-snapshot-delete terminate terminate-hard disk-resize deploy chown chmod updateconf rename resize update snapshot-resize snapshot-delete snapshot-revert disk-saveas disk-snapshot-revert recover retry monitor',start=0)
+HISTORY_ACTION = IntEnum('HISTORY_ACTION', '''none migrate live-migrate
+        shutdown shutdown-hard undeploy undeploy-hard hold release stop
+        suspend resume boot delete delete-recreate reboot reboot-hard resched
+        unresched poweroff poweroff-hard disk-attach disk-detach nic-attach
+        nic-detach disk-snapshot-create disk-snapshot-delete terminate
+        terminate-hard disk-resize deploy chown chmod updateconf rename resize
+        update snapshot-resize snapshot-delete snapshot-revert disk-saveas
+        disk-snapshot-revert recover retry monitor''', start=0)
 
-HOST_STATES = IntEnum('HOST_STATES','INIT MONITORING_MONITORED MONITORED ERROR DISABLED MONITORING_ERROR MONITORING_INIT MONITORING_DISABLED OFFLINE', start=0)
-HOST_STATUS = IntEnum('HOST_STATUS','ENABLED DISABLED OFFLINE',start=0)
+HOST_STATES = IntEnum('HOST_STATES', '''INIT MONITORING_MONITORED MONITORED
+        ERROR DISABLED MONITORING_ERROR MONITORING_INIT MONITORING_DISABLED
+        OFFLINE''', start=0)
 
-IMAGE_STATES = IntEnum('IMAGE_STATES','INIT READY USED DISABLED LOCKED ERROR CLONE DELETE USED_PERS LOCKED_USED LOCKED_USED_PERS', start=0)
-IMAGE_TYPES = IntEnum('IMAGE_TYPES','OS CDROM DATABLOCK KERNEL RAMDISK CONTEXT', start=0)
+HOST_STATUS = IntEnum('HOST_STATUS', 'ENABLED DISABLED OFFLINE', start=0)
 
-LCM_STATE = IntEnum('LCM_STATE','''
+IMAGE_STATES = IntEnum('IMAGE_STATES', '''INIT READY USED DISABLED LOCKED ERROR
+        CLONE DELETE USED_PERS LOCKED_USED LOCKED_USED_PERS''', start=0)
+
+IMAGE_TYPES = IntEnum('IMAGE_TYPES', '''OS CDROM DATABLOCK KERNEL RAMDISK
+        CONTEXT''', start=0)
+
+LCM_STATE = IntEnum('LCM_STATE', '''
             LCM_INIT
             PROLOG
             BOOT
@@ -131,23 +153,29 @@ LCM_STATE = IntEnum('LCM_STATE','''
             PROLOG_MIGRATE_UNKNOWN_FAILURE
             DISK_RESIZE
             DISK_RESIZE_POWEROFF
-            DISK_RESIZE_UNDEPLOYED''',start=0)
+            DISK_RESIZE_UNDEPLOYED''', start=0)
 
-MARKETPLACEAPP_STATES = IntEnum('MARKETPLACEAPP_STATES', 'INIT READY LOCKED ERROR DISABLED', start=0)
-MARKETPLACEAPP_TYPES = IntEnum('MARKETPLACEAPP_TYPES','UNKNOWN IMAGE VMTEMPLATE SERVICE_TEMPLATE', start=0)
+MARKETPLACEAPP_STATES = IntEnum('MARKETPLACEAPP_STATES', '''INIT READY LOCKED
+        ERROR DISABLED''', start=0)
+MARKETPLACEAPP_TYPES = IntEnum('MARKETPLACEAPP_TYPES', '''UNKNOWN IMAGE
+        VMTEMPLATE SERVICE_TEMPLATE''', start=0)
 
-PAGINATED_POOLS = IntEnum('PAGINATED_POOLS','VM_POOL IMAGE_POOL TEMPLATE_POOL VN_POOL DOCUMENT_POOL SECGROUP_POOL',start=0)
+PAGINATED_POOLS = IntEnum('PAGINATED_POOLS', '''VM_POOL IMAGE_POOL
+        TEMPLATE_POOL VN_POOL DOCUMENT_POOL SECGROUP_POOL''', start=0)
 
-REMOVE_VNET_ATTRS = IntEnum('REMOVE_VNET_ATTRS','{AR_ID BRIDGE CLUSTER_ID IP MAC TARGET NIC_ID NETWORK_ID VN_MAD SECURITY_GROUPS VLAN_ID',start=0)
+REMOVE_VNET_ATTRS = IntEnum('REMOVE_VNET_ATTRS', '''AR_ID BRIDGE CLUSTER_ID
+        IP MAC TARGET NIC_ID NETWORK_ID VN_MAD SECURITY_GROUPS VLAN_ID
+        ''', start=0)
 
-VM_STATE = IntEnum('VM_STATE','INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED POWEROFF UNDEPLOYED CLONING CLONING_FAILURE',start=0)
+VM_STATE = IntEnum('VM_STATE', '''INIT PENDING HOLD ACTIVE STOPPED SUSPENDED
+        DONE FAILED POWEROFF UNDEPLOYED CLONING CLONING_FAILURE''', start=0)
 
 
 #
 # Import helper methods after definitions they are likely to refer to.
 #
-
 from .helpers import marketapp_export
+
 
 class OneServer(xmlrpc.client.ServerProxy):
     """
@@ -179,10 +207,10 @@ class OneServer(xmlrpc.client.ServerProxy):
         transport.set_https(uri.startswith('https'))
 
         xmlrpc.client.ServerProxy.__init__(
-                self,
-                uri,
-                transport=transport,
-                **options)
+            self,
+            uri,
+            transport=transport,
+            **options)
 
     #
     def _ServerProxy__request(self, methodname, params):
@@ -202,17 +230,18 @@ class OneServer(xmlrpc.client.ServerProxy):
 
         if methodname in self.__helpers:
             return self.__helpers[methodname](self, *params)
-        else:
-            ret = self._do_request("one."+methodname,self._cast_parms(params))
-            return self.__response(ret)
+
+        ret = self._do_request("one."+methodname, self._cast_parms(params))
+        return self.__response(ret)
 
     def _do_request(self, method, params):
         try:
-            return xmlrpc.client.ServerProxy._ServerProxy__request(self, method, params)
+            return xmlrpc.client.ServerProxy._ServerProxy__request(
+                self, method, params)
         except xmlrpc.client.Fault as e:
             raise OneException(str(e))
 
-    def _cast_parms(self,params):
+    def _cast_parms(self, params):
         """
         cast parameters, make them one-friendly
         :param params:
@@ -221,48 +250,44 @@ class OneServer(xmlrpc.client.ServerProxy):
         lparams = list(params)
         for i, param in enumerate(lparams):
             lparams[i] = cast2one(param)
-        params= tuple(lparams)
+        params = tuple(lparams)
         # and session a prefix
         params = (self.__session,) + params
         return params
 
-
-    #
     # Process the response from one XML-RPC server
     # will throw exceptions for each error condition
     # will bind returned xml to objects generated from xsd schemas
-    def __response(self, rawResponse):
-        sucess = rawResponse[0]
-        code = rawResponse[2]
+    def __response(self, raw_response):
+        sucess = raw_response[0]
+        code = raw_response[2]
 
         if sucess:
-            ret = rawResponse[1]
+            ret = raw_response[1]
             if isinstance(ret, string_types):
                 # detect xml
                 if ret[0] == '<':
                     return bindings.parseString(ret.encode("utf-8"))
             return ret
 
-        else:
-            message = rawResponse[1]
-            if code == 0x0100:
-                raise OneAuthenticationException(message)
-            elif code == 0x0200:
-                raise OneAuthorizationException(message)
-            elif code == 0x0400:
-                raise OneNoExistsException(message)
-            elif code == 0x0800:
-                raise OneActionException(message)
-            elif code == 0x1000:
-                raise OneApiException(message)
-            elif code == 0x2000:
-                raise OneInternalException(message)
-            else:
-                raise OneException(message)
+        message = raw_response[1]
+        if code == 0x0100:
+            raise OneAuthenticationException(message)
+        if code == 0x0200:
+            raise OneAuthorizationException(message)
+        if code == 0x0400:
+            raise OneNoExistsException(message)
+        if code == 0x0800:
+            raise OneActionException(message)
+        if code == 0x1000:
+            raise OneApiException(message)
+        if code == 0x2000:
+            raise OneInternalException(message)
+        raise OneException(message)
 
     def server_retry_interval(self):
-        '''returns the recommended wait time between attempts to check if the opennebula platform has
-        reached a desired state, in seconds'''
+        '''returns the recommended wait time between attempts to check if
+        the opennebula platform has reached a desired state, in seconds'''
         return 1
 
     def server_close(self):
