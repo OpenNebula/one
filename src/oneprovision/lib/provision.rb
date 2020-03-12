@@ -21,6 +21,8 @@ module OneProvision
     # Provision
     class Provision
 
+        RESOURCES = %w[templates vntemplates images marketapps flowtemplates]
+
         attr_reader :id, :name, :clusters, :hosts, :datastores, :vnets
 
         # Class constructor
@@ -97,7 +99,10 @@ module OneProvision
 
             Driver.retry_loop 'Failed to delete hosts' do
                 @hosts.each do |host|
-                    host = Host.new(host['ID'])
+                    id   = host['ID']
+                    host = Host.new
+
+                    host.info(id)
 
                     if Options.threads > 1
                         while Thread.list.count > Options.threads
@@ -119,6 +124,8 @@ module OneProvision
 
             # delete all other deployed objects
             OneProvisionLogger.info('Deleting provision objects')
+
+            delete_extra_resources
 
             %w[datastores vnets clusters].each do |section|
                 send(section).each do |obj|
@@ -194,6 +201,12 @@ module OneProvision
 
                 create_hosts(cfg, cid)
 
+                create_extra_resources(cfg)
+
+                puts "ID: #{@id}"
+
+                return 0
+
                 # ask user to be patient, mandatory for now
                 STDERR.puts 'WARNING: This operation can ' \
                     'take tens of minutes. Please be patient.'
@@ -215,6 +228,8 @@ module OneProvision
                 update_hosts(deploy_ids)
 
                 Ansible.configure(@hosts)
+
+                create_extra_resources(cfg)
 
                 puts "ID: #{@id}"
 
@@ -269,7 +284,7 @@ module OneProvision
 
                 cfg[r].each do |x|
                     Driver.retry_loop 'Failed to create some resources' do
-                        if cfg['defaults'] && cfg['defaults']['driver']
+                        if cfg['defaults'] && cfg['defaults']['provision']
                             driver = cfg['defaults']['provision']['driver']
                         end
 
@@ -296,6 +311,20 @@ module OneProvision
 
                         OneProvisionLogger.debug(msg)
                     end
+                end
+            end
+        end
+
+        def create_extra_resources(cfg)
+            RESOURCES.each do |r|
+                next if cfg[r].nil?
+
+                cfg[r].each do |x|
+                    obj = Resource.object(r)
+                    obj.create(x, @id)
+
+                    obj.chown(x['uid'], x['gid'])
+                    obj.chmod(x['octet']) if x['octet']
                 end
             end
         end
@@ -380,9 +409,10 @@ module OneProvision
                 h.add_element('//TEMPLATE/PROVISION', 'DEPLOY_ID' => deploy_id)
                 h.update(h.template_str)
 
-                host = Host.new(h['ID'])
-                name = host.poll
-                h.rename(name)
+                host = Host.new
+                host.info(h['ID'])
+
+                h.rename(host.poll)
             end
         end
 
@@ -515,6 +545,22 @@ module OneProvision
 
             raise OneProvisionLoopExeception, 'Timeout expired for deleting' /
                                               " image #{image['ID']}"
+        end
+
+        def delete_extra_resources
+            RESOURCES.each do |r|
+                obj = Resource.object(r)
+
+                next unless obj
+
+                obj.get(@id).each do |o|
+                    id = o['ID']
+                    o  = Resource.object(r)
+
+                    o.info(id)
+                    o.delete
+                end
+            end
         end
 
     end

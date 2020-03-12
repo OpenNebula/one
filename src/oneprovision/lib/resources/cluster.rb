@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resource'
+require 'resources/resource'
 
 module OneProvision
 
@@ -22,10 +22,10 @@ module OneProvision
     class Cluster < Resource
 
         # Class constructor
-        #
-        # @param id [Integer] Id of the cluster
-        def initialize(id = nil)
-            super('Cluster', id)
+        def initialize
+            super
+
+            @pool = OpenNebula::ClusterPool.new(@client)
         end
 
         # Creates a new CLUSTER in OpenNebula
@@ -34,13 +34,37 @@ module OneProvision
         # @param provision_id   [String] ID of the provision
         # @param provision_name [String] Name of the provision
         def create(template, provision_id, provision_name)
-            template['provision']['provision_id'] = provision_id
-            template['provision']['name']         = provision_name
+            info = { 'provision_id' => provision_id,
+                     'name'         => provision_name }
 
-            name     = template['name']
-            template = Utils.template_like_str(template)
+            # update template with provision information
+            add_provision_info(template, info)
 
-            super(name, template)
+            # create ONE object
+            new_object
+
+            rc = @one.allocate(template['name'])
+            Utils.exception(rc)
+            rc = @one.update(Utils.template_like_str(template), true)
+            Utils.exception(rc)
+            rc = @one.info
+            Utils.exception(rc)
+        end
+
+        # Info an specific object
+        #
+        # @param id [String] Object ID
+        def info(id)
+            @one = OpenNebula::Cluster.new_with_id(id, @client)
+            @one.info
+        end
+
+        private
+
+        # Create new object
+        def new_object
+            @one = OpenNebula::Cluster.new(OpenNebula::Cluster.build_xml,
+                                           @client)
         end
 
     end

@@ -258,7 +258,8 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/cli/one_helper \
           $LIB_LOCATION/ruby/vcenter_driver \
           $LIB_LOCATION/ruby/nsx_driver \
-          $LIB_LOCATION/oneprovision/lib"
+          $LIB_LOCATION/oneprovision/lib \
+          $LIB_LOCATION/oneprovision/lib/resources"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc \
@@ -616,6 +617,7 @@ INSTALL_ONEPROVISION_FILES=(
     ONEPROVISION_ANSIBLE_FILES:$SHARE_LOCATION/oneprovision
     ONEPROVISION_TEMPLATES_FILES:$SHARE_LOCATION/oneprovision
     ONEPROVISION_LIB_FILES:$LIB_LOCATION/oneprovision/lib
+    ONEPROVISION_LIB_RESOURCES_FILES:$LIB_LOCATION/oneprovision/lib/resources
 )
 
 INSTALL_SUNSTONE_RUBY_FILES=(
@@ -2140,14 +2142,17 @@ ONEPROVISION_TEMPLATES_FILES="share/oneprovision/templates"
 
 ONEPROVISION_LIB_FILES="src/oneprovision/lib/ansible.rb \
                         src/oneprovision/lib/oneprovision.rb \
-                        src/oneprovision/lib/cluster.rb \
-                        src/oneprovision/lib/datastore.rb \
                         src/oneprovision/lib/driver.rb \
-                        src/oneprovision/lib/host.rb \
                         src/oneprovision/lib/provision.rb \
-                        src/oneprovision/lib/resource.rb \
-                        src/oneprovision/lib/utils.rb \
-                        src/oneprovision/lib/vnet.rb"
+                        src/oneprovision/lib/resources.rb \
+                        src/oneprovision/lib/utils.rb"
+
+ONEPROVISION_LIB_RESOURCES_FILES="src/oneprovision/lib/resources/cluster.rb \
+                        src/oneprovision/lib/resources/datastore.rb \
+                        src/oneprovision/lib/resources/host.rb \
+                        src/oneprovision/lib/resources/image.rb \
+                        src/oneprovision/lib/resources/resource.rb \
+                        src/oneprovision/lib/resources/vnet.rb"
 
 #-----------------------------------------------------------------------------
 # Sunstone files

@@ -14,35 +14,12 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resource'
+require 'resources/cluster'
+require 'resources/datastore'
+require 'resources/host'
+require 'resources/image'
+require 'resources/vnet'
 
+# Module OneProvision
 module OneProvision
-
-    # Datastore
-    class Datastore < Resource
-
-        # Class constructor
-        def initialize
-            super 'Datastore'
-        end
-
-        # Creates a new DATASTORE in OpenNebula
-        #
-        # @param cluster_id   [Integer] ID of the CLUSTER where is the DATASTORE
-        # @param template     [String]  Template of the DATASTORE
-        # @param pm_mad       [String]  Provision Manager Driver
-        # @param provision_id [String]  ID of the provision
-        # @param provision_name [String] Name of the provision
-        def create(cluster_id, template, pm_mad, provision_id, provision_name)
-            template['provision']['provision_id'] = provision_id
-            template['provision']['name']         = provision_name
-
-            template  = Utils.template_like_str(template)
-            template += "PM_MAD=\"#{pm_mad}\"\n"
-
-            super(cluster_id, template)
-        end
-
-    end
-
 end

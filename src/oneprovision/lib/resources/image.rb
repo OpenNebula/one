@@ -14,33 +14,55 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resource'
+require 'resources/resource'
 
 module OneProvision
 
-    # Vnet
-    class Vnet < Resource
+    # Image
+    class Image < Resource
 
         # Class constructor
         def initialize
-            super 'Vnet'
+            super
+
+            @pool = OpenNebula::ImagePool.new(@client)
         end
 
-        # Creates a new VNET in OpenNebula
+        # Creates a new IMAGE in OpenNebula
         #
-        # @param cluster_id     [Integer] ID of the CLUSTER where is the VNET
-        # @param template       [String]  Template of the VNET
-        # @param pm_mad         [String]  Provision Manager Driver
-        # @param provision_id   [String]  ID of the provision
-        # @param provision_name [String]  Name of the provision
-        def create(cluster_id, template, pm_mad, provision_id, provision_name)
-            template['provision']['provision_id'] = provision_id
-            template['provision']['name']         = provision_name
+        # @param template     [String] Image template
+        # @param provision_id [String] Provision ID
+        # @param mode         [Symbol] Sync or async mode
+        def create(template, provision_id, mode = :async)
+            add_provision_id(template, provision_id)
 
-            template  = Utils.template_like_str(template)
-            template += "PM_MAD=\"#{pm_mad}\"\n"
+            # create ONE object
+            new_object
 
-            super(cluster_id, template)
+            rc = @one.allocate(Utils.template_like_str(template),
+                               template['ds_id'])
+            Utils.exception(rc)
+            rc = @one.info
+            Utils.exception(rc)
+
+            return if mode == :async
+
+            wait_state('READY', template['timeout'])
+        end
+
+        # Info an specific object
+        #
+        # @param id [String] Object ID
+        def info(id)
+            @one = OpenNebula::Image.new_with_id(id, @client)
+            @one.info
+        end
+
+        private
+
+        # Create new object
+        def new_object
+            @one = OpenNebula::Image.new(OpenNebula::Image.build_xml, @client)
         end
 
     end

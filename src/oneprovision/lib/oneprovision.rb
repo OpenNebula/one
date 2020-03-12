@@ -15,13 +15,10 @@
 #--------------------------------------------------------------------------- #
 
 require 'ansible'
-require 'cluster'
 require 'driver'
-require 'host'
-require 'datastore'
 require 'provision'
+require 'resources'
 require 'utils'
-require 'vnet'
 
 require 'logger'
 require 'singleton'
