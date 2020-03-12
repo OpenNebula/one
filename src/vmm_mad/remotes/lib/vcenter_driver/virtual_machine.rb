@@ -2047,6 +2047,9 @@ module VCenterDriver
 
                 # Update the template reference
                 new_template.update("VCENTER_TEMPLATE_REF=#{@item._ref}", true)
+
+                # Add vCenter template name
+                new_template.update("VCENTER_TEMPLATE_NAME=#{@item.name}", true)
         end
 
         def resize_unmanaged_disks
@@ -2557,7 +2560,7 @@ module VCenterDriver
         # this function is used to instantiate vcenter vms
         #
         # @param vi_client [vi_client] the vcenterdriver client that allows the connection
-        # @param drv_action [xmleleent] driver_action that contains the info
+        # @param drv_action [xmlelement] driver_action that contains the info
         # @param id [int] the if of the opennebula virtual machine
         #
         # @return [vcenterdriver::vm] the virtual machine
