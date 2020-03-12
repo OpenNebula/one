@@ -485,6 +485,10 @@ module OneDBFsck
         end
 
         net_quota.xpath('NETWORK').each do |net_elem|
+            # The ID should exists, just in case it's missing it doesn't make
+            # sense to check this LEASES
+            next unless net_elem.at_xpath('ID')
+
             vnet_id = net_elem.at_xpath('ID').text
 
             leases_used = vnet_usage.delete(vnet_id)
