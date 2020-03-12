@@ -220,6 +220,11 @@ void HostShare::set_monitorization(Template& ht, string& rcpu, string& rmem)
     ht.erase("TOTALMEMORY");
     set_reserved_metric(max_mem, total_mem, rmem);
 
+    set_monitorization(ht);
+}
+
+void HostShare::set_monitorization(Template& ht)
+{
     ds.set_monitorization(ht);
 
     pci.set_monitorization(ht);

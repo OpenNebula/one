@@ -118,6 +118,13 @@ public:
      */
     void set_monitorization(Template& ht, string& rcpu, string& rmem);
 
+
+    /**
+     * Set the capacity attributes of the share.
+     * Same as the 3 parameter method, except it does not update reserved CPU and Memory
+     */
+    void set_monitorization(Template& ht);
+
     /**
      *  Resets capaity values of the share
      */
@@ -148,6 +155,12 @@ public:
     {
         return running_vms;
     };
+
+    long long get_total_mem() const { return total_mem; }
+    long long get_total_cpu() const { return total_cpu; }
+
+    long long get_max_mem() const { return max_mem; }
+    long long get_max_cpu() const { return max_cpu; }
 
 private:
 
