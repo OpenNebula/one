@@ -181,12 +181,32 @@ int Host::update_info(Template &tmpl)
 
     update_wilds();
 
-    string rcpu;
-    string rmem;
+    // Update host_share
+    long long total_cpu, total_mem;
 
-    reserved_capacity(rcpu, rmem);
+    obj_template->get("TOTALCPU", total_cpu);
+    obj_template->get("TOTALMEMORY", total_mem);
+    
+    if (host_share.get_total_cpu() == total_cpu &&
+        host_share.get_total_mem() == total_mem)
+    {
+        // No need to update cpu and memory values
+        obj_template->erase("TOTALCPU");
+        obj_template->erase("TOTALMEMORY");
 
-    host_share.set_monitorization(*obj_template, rcpu, rmem);
+        host_share.set_monitorization(*obj_template);
+    }
+    else
+    {
+        // Total memory or cpu has changed, update
+        // reservation (may access cluster object, which is slow)
+        string rcpu;
+        string rmem;
+
+        reserved_capacity(rcpu, rmem);
+
+        host_share.set_monitorization(*obj_template, rcpu, rmem);
+    }
 
     return 0;
 }
@@ -440,6 +460,14 @@ int Host::from_xml(const string& xml)
 
 void Host::reserved_capacity(string& rcpu, string& rmem) const
 {
+    get_template_attribute("RESERVED_CPU", rcpu);
+    get_template_attribute("RESERVED_MEM", rmem);
+
+    if (!rcpu.empty() && !rmem.empty())
+    {
+        return;
+    }
+
     string cluster_rcpu = "";
     string cluster_rmem = "";
 
@@ -456,15 +484,12 @@ void Host::reserved_capacity(string& rcpu, string& rmem) const
         }
     }
 
-    get_template_attribute("RESERVED_CPU", rcpu);
-    get_template_attribute("RESERVED_MEM", rmem);
-
-    if ( rcpu.empty() )
+    if (rcpu.empty())
     {
         rcpu = cluster_rcpu;
     }
 
-    if ( rmem.empty() )
+    if (rmem.empty())
     {
         rmem = cluster_rmem;
     }

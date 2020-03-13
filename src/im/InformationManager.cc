@@ -246,8 +246,26 @@ void InformationManager::_host_state(unique_ptr<Message<OpenNebulaMessages>> msg
 
 void InformationManager::_system_host(unique_ptr<Message<OpenNebulaMessages>> msg)
 {
-    NebulaLog::debug("InM", "Received SYSTEM_HOST message id: " +
+    NebulaLog::ddebug("InM", "Received SYSTEM_HOST message id: " +
             to_string(msg->oid()));
+
+    char *   error_msg;
+    Template tmpl;
+
+    int rc = tmpl.parse(msg->payload(), &error_msg);
+
+    if (rc != 0)
+    {
+        ostringstream oss;
+        oss << "Error parsing monitoring template for host " << msg->oid()
+            << ", error: " << error_msg;
+        NebulaLog::error("InM", oss.str());
+
+        free(error_msg);
+        return;
+    }
+
+    // -------------------------------------------------------------------------
 
     Host* host = hpool->get(msg->oid());
 
@@ -258,23 +276,6 @@ void InformationManager::_system_host(unique_ptr<Message<OpenNebulaMessages>> ms
 
     if ( host->get_state() == Host::OFFLINE ) //Should not receive any info
     {
-        host->unlock();
-        return;
-    }
-
-    // -------------------------------------------------------------------------
-
-    char *   error_msg;
-    Template tmpl;
-
-    int rc = tmpl.parse(msg->payload(), &error_msg);
-
-    if (rc != 0)
-    {
-        host->error(string("Error parsing monitoring template: ") + error_msg);
-
-        free(error_msg);
-
         host->unlock();
         return;
     }
