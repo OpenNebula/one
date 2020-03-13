@@ -163,9 +163,6 @@ int Host::update_info(Template &tmpl)
     // -------------------------------------------------------------------------
     clear_template_error_message();
 
-    remove_template_attribute("ZOMBIES");
-    remove_template_attribute("TOTAL_ZOMBIES");
-
     remove_template_attribute("VM");
     remove_template_attribute("VM_POLL");
 
@@ -212,6 +209,35 @@ int Host::update_info(Template &tmpl)
 }
 
 /* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void Host::update_zombies(const set<int>& zombies)
+{
+    remove_template_attribute("ZOMBIES");
+    remove_template_attribute("TOTAL_ZOMBIES");
+
+    if (zombies.empty())
+    {
+        return;
+    }
+
+    ostringstream zombie_str;
+    int num_zombies = 0;
+
+    for (auto& it: zombies)
+    {
+        if (num_zombies++ > 0)
+        {
+            zombie_str << ", ";
+        }
+
+        zombie_str << it;
+    }
+
+    add_template_attribute("TOTAL_ZOMBIES", num_zombies);
+    add_template_attribute("ZOMBIES", zombie_str.str());
+}
+
 /* ------------------------------------------------------------------------ */
 
 void Host::update_wilds()

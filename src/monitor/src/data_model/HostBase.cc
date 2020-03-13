@@ -59,7 +59,6 @@ string HostBase::to_xml() const
     oss << xml_print(VM_MAD, one_util::escape_xml(_vmm_mad));
     oss << xml_print(CLUSTER_ID, ClusterableSingle::cluster_id);
     oss << xml_print(CLUSTER, cluster);
-    oss << _vm_ids.to_xml(vm_collection_xml);
 
     oss << "</HOST>";
 
@@ -90,21 +89,11 @@ int HostBase::init_attributes()
     _state = static_cast<Host::HostState>( int_state );
     _prev_state = static_cast<Host::HostState>( int_prev_state );
 
-    // ------------ Host Share ---------------
-    vector<xmlNodePtr> content;
-    // ObjectXML::get_nodes("/HOST/HOST_SHARE", content);
-
-    // if (content.empty())
-    // {
-    //     return -1;
-    // }
-
-    // rc += _host_share.from_xml_node(content[0]);
-
-    // ObjectXML::free_nodes(content);
-    // content.clear();
+    _last_monitored  = time(nullptr);
 
     // ------------ Host Template ---------------
+    vector<xmlNodePtr> content;
+
     ObjectXML::get_nodes("/HOST/TEMPLATE", content);
 
     if (content.empty())
@@ -113,33 +102,11 @@ int HostBase::init_attributes()
     }
 
     rc += _obj_template.from_xml_node(content[0]);
-    _obj_template.get("PUBLIC_CLOUD", _public_cloud);
 
     ObjectXML::free_nodes(content);
     content.clear();
 
-    // ------------ VMS collection ---------------
-    rc += _vm_ids.from_xml(this, "/HOST/");
-
-    if (rc != 0)
-    {
-        return -1;
-    }
-
     return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void HostBase::vm_ids(const std::set<int>& ids)
-{
-    _vm_ids.clear();
-
-    for (auto id : ids)
-    {
-        _vm_ids.add(id);
-    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -149,7 +116,6 @@ ostream& operator<<(ostream& o, const HostBase& host)
 {
     o << "ID         : " << host._oid          << endl;
     o << "CLUSTER_ID : " << host.cluster_id()  << endl;
-    o << "PUBLIC     : " << host._public_cloud << endl;
     // todo print whatever debug info you need
 
     return o;

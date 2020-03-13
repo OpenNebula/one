@@ -7,9 +7,9 @@ xml_txt = STDIN.read
 
 begin
     config = REXML::Document.new(xml_txt).root
-    period = config.elements['PROBES_PERIOD/STATE_VM'].text.to_s
+    sync   = config.elements['PROBES_PERIOD/SYNC_STATE_VM'].text.to_s
 rescue StandardError
-    period = 0
+    sync   = 180
 end
 
 KVM.load_conf
@@ -17,7 +17,7 @@ KVM.load_conf
 begin
     vmdb = VirtualMachineDB.new('kvm',
                                 :missing_state => 'POWEROFF',
-                                :period => period)
+                                :sync => sync)
     vmdb.purge
 
     puts vmdb.to_status

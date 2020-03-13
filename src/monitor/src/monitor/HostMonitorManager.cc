@@ -300,6 +300,7 @@ void HostMonitorManager::update_last_monitor(int oid)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
 void HostMonitorManager::monitor_vm(int oid,
                                     const string& uuid,
                                     const Template &tmpl)
@@ -390,7 +391,6 @@ void HostMonitorManager::timer_action()
         NebulaLog::info("HMM", "--Mark--");
         mark = 0;
     }
-
 
     hpool->clean_expired_monitoring();
     vmpool->clean_expired_monitoring();

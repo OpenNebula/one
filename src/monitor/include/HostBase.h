@@ -18,15 +18,8 @@
 
 #include <set>
 #include "BaseObject.h"
-#include "ObjectCollection.h"
 #include "Host.h"   // For HostState, can we moved it to reduce dependencies?
 
-
-// Class storing Host data, it shouldn't contain any logic
-// Scheduler, Monitor, oned should derive from this class
-// to reduce amount of copy/pasted code
-// Maybe it's not needed to derive, it could be used directly
-// logic could be outside the class
 class HostBase : public BaseObject, public ClusterableSingle
 {
 public:
@@ -90,25 +83,13 @@ public:
         return _im_mad;
     };
 
-    const std::set<int>& vm_ids() const
-    {
-        return _vm_ids.get_collection();
-    }
-
-    void vm_ids(const std::set<int>& ids);
-
-    bool public_cloud() const
-    {
-        return _public_cloud;
-    }
-
     time_t last_monitored() const { return _last_monitored; }
 
     void last_monitored(time_t lm) { _last_monitored = lm; }
 
     bool monitor_in_progress() const { return _monitor_in_progress; }
 
-    void monitor_in_progress(bool monitoring) { _monitor_in_progress = monitoring; }
+    void monitor_in_progress(bool mip) { _monitor_in_progress = mip; }
 
     /**
      *  Prints the Host information to an output stream. This function is used
@@ -126,14 +107,10 @@ private:
     std::string _vmm_mad;
     std::string _im_mad;
 
-    bool _public_cloud = false;
-
-    ObjectCollection _vm_ids{"VMS"};
-
     Template _obj_template;
 
-    time_t   _last_monitored = 0;
-    bool     _monitor_in_progress = false;
+    time_t _last_monitored  = 0;
+    bool   _monitor_in_progress = false;
 };
 
 #endif // HOST_BASE_H_

@@ -50,7 +50,7 @@ class VirtualMachineDB
         :times_missing => 3,
         :obsolete      => 720,
         :db_path       => "#{__dir__}/../status.db",
-        :period        => 0,
+        :sync          => 180,
         :missing_state => "POWEROFF"
     }
 
@@ -90,19 +90,16 @@ class VirtualMachineDB
     # Returns the VM status that changed compared to the DB info as well
     # as VMs that have been reported as missing more than missing_times
     def to_status
-        status_str = ''
-
         time = Time.now.to_i
         last = @db.execute("SELECT MAX(timestamp) from #{@dataset}").flatten![0]
-        vms  = DomainList.state_info
+        last ||= 0
 
+        return sync_status if time > (last + @conf[:sync])
+
+        status_str  = ''
         monitor_ids = []
 
-        if last
-            force_update = time > (last + 3 * @conf[:period].to_i)
-        else
-            force_update = false
-        end
+        vms  = DomainList.state_info
 
         # ----------------------------------------------------------------------
         # report state changes in vms
@@ -144,7 +141,7 @@ class VirtualMachineDB
                 "#{filter}"
             )
 
-            if vm_db[col_name_to_idx('state')] != vm[:state] || force_update
+            if vm_db[col_name_to_idx('state')] != vm[:state]
                 status_str << vm_to_status(vm)
             end
         end
@@ -164,7 +161,7 @@ class VirtualMachineDB
 
             miss = vm_db[col_name_to_idx('missing')]
 
-            if miss >= @conf[:times_missing] || force_update
+            if miss >= @conf[:times_missing]
                 status_str << vm_db_to_status(vm_db, @conf[:missing_state])
 
                 @db.execute("DELETE FROM #{@dataset} WHERE uuid = \"#{uuid}\"")
@@ -194,6 +191,31 @@ class VirtualMachineDB
 
     private
 
+    def sync_status
+        time = Time.now.to_i
+
+        @db.execute("DELETE FROM #{@dataset}")
+
+        status_str = "SYNC_STATE=yes\nMISSING_STATE=#{@conf[:missing_state]}\n"
+
+        DomainList.state_info.each do |uuid, vm|
+            @db.execute(
+                "INSERT INTO #{@dataset} VALUES (?, ?, ?, ?, ?, ?, ?)",
+                [uuid,
+                 vm[:id].to_i,
+                 vm[:name],
+                 time,
+                 0,
+                 vm[:state],
+                 @conf[:hyperv]]
+            )
+
+            status_str << vm_to_status(vm)
+        end
+
+        status_str
+    end
+
     def vm_to_status(vm, state = vm[:state])
         "VM = [ ID=\"#{vm[:id]}\", DEPLOY_ID=\"#{vm[:name]}\", " \
         " UUID=\"#{vm[:uuid]}\", STATE=\"#{state}\" ]\n"
@@ -221,7 +243,6 @@ class VirtualMachineDB
         conf.merge! opts
 
         conf[:hyperv] = hyperv
-
         conf
     end
 
