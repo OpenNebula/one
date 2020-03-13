@@ -35,6 +35,8 @@ module OneProvision
         # @param pm_mad       [String]  Provision Manager Driver
         # @param provision_id [String]  ID of the provision
         # @param provision_name [String] Name of the provision
+        #
+        # @return [Integer] Resource ID
         def create(cluster_id, template, pm_mad, provision_id, provision_name)
             info = { 'provision_id' => provision_id,
                      'name'         => provision_name }
@@ -51,6 +53,8 @@ module OneProvision
             Utils.exception(rc)
             rc = @one.info
             Utils.exception(rc)
+
+            @one.id.to_i
         end
 
         # Info an specific object

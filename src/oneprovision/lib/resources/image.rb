@@ -32,9 +32,14 @@ module OneProvision
         #
         # @param template     [String] Image template
         # @param provision_id [String] Provision ID
-        # @param mode         [Symbol] Sync or async mode
-        def create(template, provision_id, mode = :async)
-            add_provision_id(template, provision_id)
+        # @param mode         [String] Sync or async mode
+        #
+        # @return [Integer] Resource ID
+        def create(template, provision_id, mode)
+            info = { 'provision_id' => provision_id,
+                     'mode'         => mode }
+
+            add_provision_info(template, info)
 
             # create ONE object
             new_object
@@ -45,9 +50,33 @@ module OneProvision
             rc = @one.info
             Utils.exception(rc)
 
-            return if mode == :async
+            return @one.id.to_i if mode == 'async' || mode.nil?
 
             wait_state('READY', template['timeout'])
+
+            @one.id.to_i
+        end
+
+        # Delete image
+        def delete
+            @one.info
+
+            mode = @one['TEMPLATE/PROVISION/MODE']
+
+            super
+
+            return true if mode == 'async' || mode.nil?
+
+            t_start   = Time.now
+            timeout ||= DEFAULT_TIMEOUT
+
+            while Time.now - t_start < timeout
+                rc = @one.info
+
+                break true if OpenNebula.is_error?(rc)
+
+                sleep 1
+            end
         end
 
         # Info an specific object

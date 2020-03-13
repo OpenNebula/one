@@ -21,7 +21,13 @@ module OneProvision
     # Provision
     class Provision
 
+        # Available resources that can be created with the provision
         RESOURCES = %w[templates vntemplates images marketapps flowtemplates]
+
+        # Resources available in a cluster without hosts
+        PHYSICAL_RESOURCES = %w[datastores vnets]
+
+        FULL_CLUSTER = PHYSICAL_RESOURCES + ['clusters']
 
         attr_reader :id, :name, :clusters, :hosts, :datastores, :vnets
 
@@ -122,12 +128,12 @@ module OneProvision
                 threads.map(&:join)
             end
 
+            delete_extra_resources
+
             # delete all other deployed objects
             OneProvisionLogger.info('Deleting provision objects')
 
-            delete_extra_resources
-
-            %w[datastores vnets clusters].each do |section|
+            FULL_CLUSTER.each do |section|
                 send(section).each do |obj|
                     msg = "#{section.chomp('s')} #{obj['ID']}"
 
@@ -279,7 +285,7 @@ module OneProvision
         # @param cfg [Key-Value Object] Configuration of the PROVISION
         # @param cid [String]           Cluster ID
         def create_resources(cfg, cid)
-            %w[datastores networks].each do |r|
+            PHYSICAL_RESOURCES.each do |r|
                 next if cfg[r].nil?
 
                 cfg[r].each do |x|
@@ -315,13 +321,24 @@ module OneProvision
             end
         end
 
+        # Create extra resources in the provision
+        #
+        # @param cfg [Key-Value Object] Provision configuration file content
         def create_extra_resources(cfg)
             RESOURCES.each do |r|
                 next if cfg[r].nil?
 
                 cfg[r].each do |x|
-                    obj = Resource.object(r)
-                    obj.create(x, @id)
+                    OneProvisionLogger.debug(
+                        "Creating #{r.delete_suffix('s')} #{x['name']}"
+                    )
+
+                    mode = x['mode'].downcase.to_sym if x['mode']
+                    obj  = Resource.object(r)
+
+                    # Update the config template with the new ID
+                    # in case the following objects need it to ERB evaluation
+                    x['id'] = obj.create(x, @id, mode)
 
                     obj.chown(x['uid'], x['gid'])
                     obj.chmod(x['octet']) if x['octet']
@@ -547,18 +564,26 @@ module OneProvision
                                               " image #{image['ID']}"
         end
 
+        # Delete extra provision resources
         def delete_extra_resources
+            OneProvisionLogger.info('Deleting provision extra objects')
+
             RESOURCES.each do |r|
                 obj = Resource.object(r)
 
                 next unless obj
 
                 obj.get(@id).each do |o|
-                    id = o['ID']
-                    o  = Resource.object(r)
+                    id  = o['ID']
+                    o   = Resource.object(r)
+                    msg = "#{r.chomp('s')} #{id}"
 
-                    o.info(id)
-                    o.delete
+                    Driver.retry_loop "Failed to delete #{msg}" do
+                        OneProvisionLogger.debug("Deleting OpenNebula #{msg}")
+
+                        o.info(id)
+                        Utils.exception(o.delete)
+                    end
                 end
             end
         end

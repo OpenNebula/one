@@ -31,6 +31,11 @@ module OneProvision
             @client = OpenNebula::Client.new
         end
 
+        # Create operation is implemented in childs
+        def create
+            raise 'Operation not implemented'
+        end
+
         # Gets all resources or just provision resources
         #
         # @param id [Integer]  ID of the provision
@@ -104,6 +109,8 @@ module OneProvision
         # @param template [Hash] Current object template
         # @param info     [Hash] Information to add in provision section
         def add_provision_info(template, info)
+            template['provision'] = {} unless template['provision']
+
             info.each do |key, value|
                 template['provision'][key] = value
             end
