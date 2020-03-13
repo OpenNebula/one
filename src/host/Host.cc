@@ -182,12 +182,11 @@ int Host::update_info(Template &tmpl)
     update_wilds();
 
     // Update host_share
-    string rcpu;
-    string rmem;
     long long total_cpu, total_mem;
 
     obj_template->get("TOTALCPU", total_cpu);
     obj_template->get("TOTALMEMORY", total_mem);
+    
     if (host_share.get_total_cpu() == total_cpu &&
         host_share.get_total_mem() == total_mem)
     {
@@ -199,8 +198,11 @@ int Host::update_info(Template &tmpl)
     }
     else
     {
-        // Total memory or cpu has changed, we need to update
+        // Total memory or cpu has changed, update
         // reservation (may access cluster object, which is slow)
+        string rcpu;
+        string rmem;
+
         reserved_capacity(rcpu, rmem);
 
         host_share.set_monitorization(*obj_template, rcpu, rmem);
