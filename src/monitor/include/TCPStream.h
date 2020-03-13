@@ -129,6 +129,16 @@ int TCPStream<E>::action_loop(int threads, std::string& error)
         return -1;
     }
 
+    int on = 1;
+
+    rc = setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(int));
+
+    if ( rc == -1 )
+    {
+        error = strerror(errno);
+        return -1;
+    }
+
     rc = bind(_socket, res->ai_addr, res->ai_addrlen);
 
     freeaddrinfo(res);
