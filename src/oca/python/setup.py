@@ -32,7 +32,8 @@ install_requires=[
     'xmltodict',
     'six',
     'aenum',
-    'tblib'
+    'tblib',
+    'requests'
 ]
 
 # include future in python2
