@@ -7,7 +7,7 @@ xml_txt = STDIN.read
 
 begin
     config = REXML::Document.new(xml_txt).root
-    sync   = config.elements['PROBES_PERIOD/SYNC_STATE_VM'].text.to_s
+    sync   = config.elements['PROBES_PERIOD/SYNC_STATE_VM'].text.to_i
 rescue StandardError
     sync   = 180
 end
