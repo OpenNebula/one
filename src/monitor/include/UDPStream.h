@@ -73,6 +73,8 @@ public:
         {
             th.join();
         }
+
+        close(_socket);
     }
 
 protected:
