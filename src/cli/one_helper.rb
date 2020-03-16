@@ -1755,6 +1755,9 @@ EOT
                     answer = OpenNebulaHelper.editor_input
                 end
 
+                # use default in case it's empty
+                answer = initial if answer.empty?
+
                 if type == 'text64'
                     answer = Base64.encode64(answer).strip.delete("\n")
                 end
@@ -1777,6 +1780,9 @@ EOT
                 print header
 
                 answer = OpenNebulaHelper::OneHelper.get_password
+
+                # use default in case it's empty
+                answer = initial if answer.empty?
 
             when 'number', 'number-float'
                 if type == 'number'
@@ -1852,7 +1858,7 @@ EOT
                     print header
                     answer = STDIN.readline.chop
 
-                    if answer == ""
+                    if answer == ''
                         answer = initial
                     else
                         answer = options[answer.to_i]

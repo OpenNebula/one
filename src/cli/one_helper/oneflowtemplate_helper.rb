@@ -162,12 +162,138 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
     def custom_attrs(custom_attrs)
         return unless custom_attrs
 
-        puts 'There are some custom attrs which need a value'
-
         ret = {}
-        ret['custom_attrs_values'] = parse_user_inputs(custom_attrs, true)
+        ret['custom_attrs_values'] = OpenNebulaHelper.parse_user_inputs(custom_attrs)
 
         ret
+    end
+
+    def networks(vnets)
+        return unless vnets
+
+        ret = {}
+        ret['networks_values'] = parse_networks(vnets)
+
+        ret
+    end
+
+    def parse_networks(vnets, get_defaults = false)
+        unless get_defaults
+            puts 'There are some networks that require user input. ' \
+                 'Use the string <<EDITOR>> to launch an editor ' \
+                 '(e.g. for multi-line inputs)'
+        end
+
+        answers = []
+
+        vnets.each do |key, val|
+            input_cfg = val.split('|', -1)
+
+            if input_cfg.length != 5
+                STDERR.puts 'Malformed user input. It should have at 4 '\
+                            "parts separated by '|':"
+                STDERR.puts "  #{key}: #{val}"
+                exit(-1)
+            end
+
+            mandatory, _type, description, _params, initial = input_cfg
+
+            vnet = {}
+
+            type, resource_id, extra = initial.split(':', -1) if initial && !initial.empty?
+
+            if (type.nil? || resource_id.nil?) &&
+               (initial && !initial.empty?)
+                STDERR.puts 'Wrong type for user input default value:'
+                STDERR.puts "  #{key}: #{val}"
+                exit(-1)
+            end
+
+            vnet[key] = {}
+
+            if get_defaults
+                vnet[key][type] = resource_id
+                vnet[key]['extra'] = extra
+
+                answers << vnet unless mandatory == 'M'
+                next
+            end
+
+            puts "  * (#{key}) #{description}"
+
+            #######################################
+            # Asks for type
+            #######################################
+
+            header = '    '
+            header += 'TYPE Existing(1), Create(2), Reserve(3). '
+
+            if !type.nil? && type != ''
+                header += 'Press enter for default. '
+            end
+
+            print header
+
+            answer = STDIN.readline.chop
+
+            type_a = type
+
+            case answer.to_i
+            when 1
+                type_a = 'id'
+            when 2
+                type_a = 'template_id'
+            when 3
+                type_a = 'extra'
+            end
+
+            #######################################
+            # Asks for resource id
+            #######################################
+
+            header = '    '
+            header += 'VN Template ID' if type_a == 'instantiate_from'
+            header += 'VN ID. ' if type_a != 'instantiate_from'
+
+            if !resource_id.nil? && resource_id != ''
+                header += "Press enter for default (#{resource_id}). "
+            end
+
+            print header
+
+            resource_id_a = STDIN.readline.chop
+
+            resource_id_a = resource_id if resource_id_a.empty?
+
+            #######################################
+            # Asks for extra
+            #######################################
+
+            if type_a != 'id'
+                header = '    '
+                header += 'EXTRA (Type EMPTY for leaving empty). '
+
+                if !extra.nil? && extra != ''
+                    header += " Press enter for default (#{extra}). "
+                end
+
+                print header
+
+                extra_a = STDIN.readline.chop
+
+                if extra_a.empty?
+                    vnet[key]['extra'] = extra
+                else
+                    vnet[key]['extra'] = extra_a
+                end
+            end
+
+            vnet[key][type_a] = resource_id_a
+
+            answers << vnet
+        end
+
+        answers
     end
 
 end
