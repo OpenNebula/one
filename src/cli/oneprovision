@@ -39,6 +39,7 @@ end
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 $LOAD_PATH << LIB_LOCATION      + '/oneprovision/lib'
+$LOAD_PATH << LIB_LOCATION      + '/oneflow/lib'
 
 PING_TIMEOUT_DEFAULT  = 20
 PING_RETRIES_DEFAULT  = 10
@@ -312,7 +313,7 @@ CommandParser::CmdParser.new(ARGV) do
     command %i[cluster list],
             cluster_list_desc,
             :options => ONE_OPTIONS + [OpenNebulaHelper::DESCRIBE] do
-        columns = %w[hosts vnets datastores]
+        columns = %w[hosts networks datastores]
 
         cluster_helper = OneClusterHelper.new
         list           = helper.get_list(columns, false)
@@ -533,9 +534,9 @@ CommandParser::CmdParser.new(ARGV) do
             vnet_list_desc,
             :options => ONE_OPTIONS + [OpenNebulaHelper::DESCRIBE] do
         vnet_helper = OneVNetHelper.new
-        vnet        = OneProvision::Vnet.new
+        network     = OneProvision::Network.new
 
-        vnet_helper.format_pool(options).show(vnet.get, options)
+        vnet_helper.format_pool(options).show(network.get, options)
 
         0
     end

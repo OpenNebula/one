@@ -19,14 +19,11 @@ module OneProvision
     # Represents the ONE object and pool
     class Resource
 
-        # Default timeout to wait until object is ready in sync mode
-        DEFAULT_TIMEOUT = 60
-
         # @one  ONE object
         # @pool ONE pool
         attr_reader :one, :pool
 
-        # Creates ONE and Pool objects
+        # Class constructor
         def initialize
             @client = OpenNebula::Client.new
         end
@@ -64,6 +61,10 @@ module OneProvision
             user  ||= 0
             group ||= 0
 
+            OneProvisionLogger.debug(
+                "Chown #{@type} #{@one.id} #{user}:#{group}"
+            )
+
             @one.chown(user, group)
         end
 
@@ -71,6 +72,8 @@ module OneProvision
         #
         # @param octet [String] Permissions in octet format
         def chmod(octet)
+            OneProvisionLogger.debug("Chmod #{@type} #{@one.id} #{octet}")
+
             @one.chmod_octet(octet.to_s)
         end
 
@@ -95,14 +98,29 @@ module OneProvision
                 Host.new
             when :image
                 Image.new
-            when :vnet || :network
-                Vnet.new
+            when :network
+                Network.new
+            when :template
+                Template.new
+            when :vntemplate
+                VnTemplate.new
+            when :flowtemplate
+                FlowTemplate.new
+            when :marketplaceapp
+                MarketPlaceApp.new
             else
                 nil
             end
         end
 
         protected
+
+        # Get template in string format
+        #
+        # @param template [Hash] Key value template
+        def format_template(template)
+            Utils.template_like_str(template)
+        end
 
         # Add provision information to object
         #
@@ -124,23 +142,6 @@ module OneProvision
             template['provision'] = {} unless template['provision']
 
             template['provision']['provision_id'] = provision_id
-        end
-
-        # Wait until object reaches state
-        #
-        # @param state   [String]  State to wait
-        # @param timeout [Integer] Timeout to wait
-        def wait_state(state, timeout)
-            t_start   = Time.now
-            timeout ||= DEFAULT_TIMEOUT
-
-            while Time.now - t_start < timeout
-                @one.info
-
-                break if @one.state_str == state
-
-                sleep 1
-            end
         end
 
     end

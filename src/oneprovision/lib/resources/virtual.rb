@@ -14,9 +14,11 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resources/resource'
-require 'resources/physical'
-require 'resources/virtual'
+require 'resources/virtual/image'
+require 'resources/virtual/marketplaceapp'
+require 'resources/virtual/template'
+require 'resources/virtual/flowtemplate'
+require 'resources/virtual/vntemplate'
 
 # Module OneProvision
 module OneProvision

@@ -14,54 +14,26 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resources/resource'
+require 'resources/physical/physical_resource'
 
 module OneProvision
 
-    # Datastore
-    class Datastore < Resource
+    # Network
+    class Network < PhysicalResource
 
         # Class constructor
         def initialize
             super
 
-            @pool = OpenNebula::DatastorePool.new(@client)
-        end
-
-        # Creates a new DATASTORE in OpenNebula
-        #
-        # @param cluster_id   [Integer] ID of the CLUSTER where is the DATASTORE
-        # @param template     [String]  Template of the DATASTORE
-        # @param pm_mad       [String]  Provision Manager Driver
-        # @param provision_id [String]  ID of the provision
-        # @param provision_name [String] Name of the provision
-        #
-        # @return [Integer] Resource ID
-        def create(cluster_id, template, pm_mad, provision_id, provision_name)
-            info = { 'provision_id' => provision_id,
-                     'name'         => provision_name }
-
-            # update template with provision information
-            add_provision_info(template, info)
-
-            template['pm_mad'] = pm_mad
-
-            # create ONE object
-            new_object
-
-            rc = @one.allocate(Utils.template_like_str(template), cluster_id)
-            Utils.exception(rc)
-            rc = @one.info
-            Utils.exception(rc)
-
-            @one.id.to_i
+            @pool = OpenNebula::VirtualNetworkPool.new(@client)
+            @type = 'network'
         end
 
         # Info an specific object
         #
         # @param id [String] Object ID
         def info(id)
-            @one = OpenNebula::Datastore.new_with_id(id, @client)
+            @one = OpenNebula::VirtualNetwork.new_with_id(id, @client)
             @one.info
         end
 
@@ -69,8 +41,10 @@ module OneProvision
 
         # Create new object
         def new_object
-            @one = OpenNebula::Datastore.new(OpenNebula::Datastore.build_xml,
-                                             @client)
+            @one = OpenNebula::VirtualNetwork.new(
+                OpenNebula::VirtualNetwork.build_xml,
+                @client
+            )
         end
 
     end

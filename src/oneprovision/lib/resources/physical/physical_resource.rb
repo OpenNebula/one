@@ -18,80 +18,36 @@ require 'resources/resource'
 
 module OneProvision
 
-    # Image
-    class Image < Resource
+    # Represents a physical resource for the provision
+    class PhysicalResource < Resource
 
-        # Class constructor
-        def initialize
-            super
-
-            @pool = OpenNebula::ImagePool.new(@client)
-        end
-
-        # Creates a new IMAGE in OpenNebula
+        # Creates the object in OpenNebula
         #
-        # @param template     [String] Image template
-        # @param provision_id [String] Provision ID
-        # @param mode         [String] Sync or async mode
+        # @param cluster_id     [Integer] Cluster ID
+        # @param template       [Hash]    Object attributes
+        # @param pm_mad         [String]  Provision Manager Driver
+        # @param provision_id   [String]  Provision ID
+        # @param provision_name [String]  Provision name
         #
         # @return [Integer] Resource ID
-        def create(template, provision_id, mode)
+        def create(cluster_id, template, pm_mad, provision_id, provision_name)
             info = { 'provision_id' => provision_id,
-                     'mode'         => mode }
+                     'name'         => provision_name }
 
+            # update template with provision information
             add_provision_info(template, info)
+
+            template['pm_mad'] = pm_mad
 
             # create ONE object
             new_object
 
-            rc = @one.allocate(Utils.template_like_str(template),
-                               template['ds_id'])
+            rc = @one.allocate(format_template(template), cluster_id)
             Utils.exception(rc)
             rc = @one.info
             Utils.exception(rc)
 
-            return @one.id.to_i if mode == 'async' || mode.nil?
-
-            wait_state('READY', template['timeout'])
-
             @one.id.to_i
-        end
-
-        # Delete image
-        def delete
-            @one.info
-
-            mode = @one['TEMPLATE/PROVISION/MODE']
-
-            super
-
-            return true if mode == 'async' || mode.nil?
-
-            t_start   = Time.now
-            timeout ||= DEFAULT_TIMEOUT
-
-            while Time.now - t_start < timeout
-                rc = @one.info
-
-                break true if OpenNebula.is_error?(rc)
-
-                sleep 1
-            end
-        end
-
-        # Info an specific object
-        #
-        # @param id [String] Object ID
-        def info(id)
-            @one = OpenNebula::Image.new_with_id(id, @client)
-            @one.info
-        end
-
-        private
-
-        # Create new object
-        def new_object
-            @one = OpenNebula::Image.new(OpenNebula::Image.build_xml, @client)
         end
 
     end

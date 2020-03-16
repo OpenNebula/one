@@ -14,9 +14,10 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resources/resource'
-require 'resources/physical'
-require 'resources/virtual'
+require 'resources/physical/cluster'
+require 'resources/physical/datastore'
+require 'resources/physical/host'
+require 'resources/physical/network'
 
 # Module OneProvision
 module OneProvision

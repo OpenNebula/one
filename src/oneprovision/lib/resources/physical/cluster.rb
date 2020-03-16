@@ -18,38 +18,37 @@ require 'resources/resource'
 
 module OneProvision
 
-    # Vnet
-    class Vnet < Resource
+    # Cluster
+    class Cluster < Resource
 
         # Class constructor
         def initialize
             super
 
-            @pool = OpenNebula::VirtualNetworkPool.new(@client)
+            @pool = OpenNebula::ClusterPool.new(@client)
+            @type = 'cluster'
         end
 
-        # Creates a new VNET in OpenNebula
+        # Creates a new CLUSTER in OpenNebula
         #
-        # @param cluster_id     [Integer] ID of the CLUSTER where is the VNET
-        # @param template       [String]  Template of the VNET
-        # @param pm_mad         [String]  Provision Manager Driver
-        # @param provision_id   [String]  ID of the provision
-        # @param provision_name [String]  Name of the provision
+        # @param template       [String] Template of the CLUSTER
+        # @param provision_id   [String] ID of the provision
+        # @param provision_name [String] Name of the provision
         #
         # @return [Integer] Resource ID
-        def create(cluster_id, template, pm_mad, provision_id, provision_name)
+        def create(template, provision_id, provision_name)
             info = { 'provision_id' => provision_id,
                      'name'         => provision_name }
 
             # update template with provision information
             add_provision_info(template, info)
 
-            template['pm_mad'] = pm_mad
-
             # create ONE object
             new_object
 
-            rc = @one.allocate(Utils.template_like_str(template), cluster_id)
+            rc = @one.allocate(template['name'])
+            Utils.exception(rc)
+            rc = @one.update(Utils.template_like_str(template), true)
             Utils.exception(rc)
             rc = @one.info
             Utils.exception(rc)
@@ -61,7 +60,7 @@ module OneProvision
         #
         # @param id [String] Object ID
         def info(id)
-            @one = OpenNebula::VirtualNetwork.new_with_id(id, @client)
+            @one = OpenNebula::Cluster.new_with_id(id, @client)
             @one.info
         end
 
@@ -69,10 +68,8 @@ module OneProvision
 
         # Create new object
         def new_object
-            @one = OpenNebula::VirtualNetwork.new(
-                OpenNebula::VirtualNetwork.build_xml,
-                @client
-            )
+            @one = OpenNebula::Cluster.new(OpenNebula::Cluster.build_xml,
+                                           @client)
         end
 
     end

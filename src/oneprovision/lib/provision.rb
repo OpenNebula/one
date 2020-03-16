@@ -22,14 +22,18 @@ module OneProvision
     class Provision
 
         # Available resources that can be created with the provision
-        RESOURCES = %w[templates vntemplates images marketapps flowtemplates]
+        RESOURCES = %w[templates
+                       vntemplates
+                       images
+                       marketplaceapps
+                       flowtemplates]
 
         # Resources available in a cluster without hosts
-        PHYSICAL_RESOURCES = %w[datastores vnets]
+        PHYSICAL_RESOURCES = %w[datastores networks]
 
         FULL_CLUSTER = PHYSICAL_RESOURCES + ['clusters']
 
-        attr_reader :id, :name, :clusters, :hosts, :datastores, :vnets
+        attr_reader :id, :name, :clusters, :hosts, :datastores, :networks
 
         # Class constructor
         def initialize(id, name = nil)
@@ -38,7 +42,7 @@ module OneProvision
             @clusters    = []
             @hosts       = []
             @datastores  = []
-            @vnets       = []
+            @networks    = []
         end
 
         # Checks if the PROVISION exists
@@ -63,7 +67,7 @@ module OneProvision
             @clusters   = Cluster.new.get(@id)
             @datastores = Datastore.new.get(@id)
             @hosts      = Host.new.get(@id)
-            @vnets      = Vnet.new.get(@id)
+            @networks   = Network.new.get(@id)
 
             @name       = @clusters[0]['TEMPLATE/PROVISION/NAME']
         end
@@ -128,7 +132,7 @@ module OneProvision
                 threads.map(&:join)
             end
 
-            delete_extra_resources
+            delete_virtual_resources
 
             # delete all other deployed objects
             OneProvisionLogger.info('Deleting provision objects')
@@ -207,7 +211,7 @@ module OneProvision
 
                 create_hosts(cfg, cid)
 
-                create_extra_resources(cfg)
+                create_virtual_resources(cfg)
 
                 puts "ID: #{@id}"
 
@@ -235,7 +239,7 @@ module OneProvision
 
                 Ansible.configure(@hosts)
 
-                create_extra_resources(cfg)
+                create_virtual_resources(cfg)
 
                 puts "ID: #{@id}"
 
@@ -273,6 +277,10 @@ module OneProvision
             cluster = cluster.one
             cid = cluster.id
 
+            # Update the config template with the new ID
+            # in case the following objects need it to ERB evaluation
+            cfg['cluster']['id'] = cid
+
             @clusters << cluster
 
             OneProvisionLogger.debug("cluster created with ID: #{cid}")
@@ -305,15 +313,19 @@ module OneProvision
                             datastore.create(cid.to_i, erb, driver, @id, @name)
                             @datastores << datastore.one
                         else
-                            vnet = Vnet.new
-                            vnet.create(cid.to_i, erb, driver, @id, @name)
-                            @vnets << vnet.one
+                            network = Network.new
+                            network.create(cid.to_i, erb, driver, @id, @name)
+                            @networks << network.one
                         end
 
-                        r     = 'vnets' if r == 'networks'
                         rid   = instance_variable_get("@#{r}").last['ID']
                         rname = r.chomp('s').capitalize
                         msg   = "#{rname} created with ID: #{rid}"
+
+                        # Update the config template with the new ID
+                        # in case the following objects need it
+                        # to ERB evaluation
+                        x['id'] = rid
 
                         OneProvisionLogger.debug(msg)
                     end
@@ -321,27 +333,31 @@ module OneProvision
             end
         end
 
-        # Create extra resources in the provision
+        # Create virtual resources in the provision
         #
         # @param cfg [Key-Value Object] Provision configuration file content
-        def create_extra_resources(cfg)
+        def create_virtual_resources(cfg)
             RESOURCES.each do |r|
                 next if cfg[r].nil?
 
                 cfg[r].each do |x|
-                    OneProvisionLogger.debug(
-                        "Creating #{r.delete_suffix('s')} #{x['name']}"
-                    )
+                    Driver.retry_loop 'Failed to create some resources' do
+                        OneProvisionLogger.debug(
+                            "Creating #{r.delete_suffix('s')} #{x['name']}"
+                        )
 
-                    mode = x['mode'].downcase.to_sym if x['mode']
-                    obj  = Resource.object(r)
+                        obj = Resource.object(r)
 
-                    # Update the config template with the new ID
-                    # in case the following objects need it to ERB evaluation
-                    x['id'] = obj.create(x, @id, mode)
+                        next if obj.nil?
 
-                    obj.chown(x['uid'], x['gid'])
-                    obj.chmod(x['octet']) if x['octet']
+                        # Update the config template with the new ID
+                        # in case the following objects need it to
+                        # ERB evaluation
+                        x['id'] = obj.create(x, @id)
+
+                        obj.chown(x['uid'], x['gid'])
+                        obj.chmod(x['octet']) if x['octet']
+                    end
                 end
             end
         end
@@ -564,25 +580,31 @@ module OneProvision
                                               " image #{image['ID']}"
         end
 
-        # Delete extra provision resources
-        def delete_extra_resources
-            OneProvisionLogger.info('Deleting provision extra objects')
+        # Delete virtual provision resources
+        def delete_virtual_resources
+            OneProvisionLogger.info('Deleting provision virtual objects')
 
-            RESOURCES.each do |r|
-                obj = Resource.object(r)
+            resources = RESOURCES - ['marketplaceapps']
 
-                next unless obj
+            resources.each do |r|
+                Driver.retry_loop 'Failed to delete some virtual objects' do
+                    obj = Resource.object(r)
 
-                obj.get(@id).each do |o|
-                    id  = o['ID']
-                    o   = Resource.object(r)
-                    msg = "#{r.chomp('s')} #{id}"
+                    next unless obj
 
-                    Driver.retry_loop "Failed to delete #{msg}" do
-                        OneProvisionLogger.debug("Deleting OpenNebula #{msg}")
+                    obj.get(@id).each do |o|
+                        id  = o['ID']
+                        o   = Resource.object(r)
+                        msg = "#{r.chomp('s')} #{id}"
 
-                        o.info(id)
-                        Utils.exception(o.delete)
+                        Driver.retry_loop "Failed to delete #{msg}" do
+                            OneProvisionLogger.debug(
+                                "Deleting OpenNebula #{msg}"
+                            )
+
+                            o.info(id)
+                            Utils.exception(o.delete)
+                        end
                     end
                 end
             end

@@ -14,10 +14,37 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resources/resource'
-require 'resources/physical'
-require 'resources/virtual'
+require 'resources/virtual/virtual_resource'
 
-# Module OneProvision
 module OneProvision
+
+    # Template
+    class Template < VirtualResource
+
+        # Class constructor
+        def initialize
+            super
+
+            @pool = OpenNebula::TemplatePool.new(@client)
+            @type = 'template'
+        end
+
+        # Info an specific object
+        #
+        # @param id [String] Object ID
+        def info(id)
+            @one = OpenNebula::Template.new_with_id(id, @client)
+            @one.info
+        end
+
+        private
+
+        # Create new object
+        def new_object
+            @one = OpenNebula::Template.new(OpenNebula::Template.build_xml,
+                                            @client)
+        end
+
+    end
+
 end

@@ -19,6 +19,17 @@ require 'securerandom'
 # OneProvision Helper
 class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
+    RESOURCES = %w[
+        clusters
+        datastores
+        hosts
+        networks
+        images
+        templates
+        vntemplates
+        flowtemplates
+    ]
+
     def self.rname
         'PROVISION'
     end
@@ -53,8 +64,8 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
                 p['HOSTS']['ID'].size
             end
 
-            column :VNETS, 'Number of Networks', :size => 5 do |p|
-                p['VNETS']['ID'].size
+            column :NETWORKS, 'Number of Networks', :size => 5 do |p|
+                p['NETWORKS']['ID'].size
             end
 
             column :DATASTORES, 'Number of Datastores', :size => 10 do |p|
@@ -65,7 +76,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
                 p['STATUS']
             end
 
-            default :ID, :NAME, :CLUSTERS, :HOSTS, :VNETS, :DATASTORES, :STAT
+            default :ID, :NAME, :CLUSTERS, :HOSTS, :NETWORKS, :DATASTORES, :STAT
         end
 
         table
@@ -140,17 +151,17 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     end
 
     #######################################################################
-    # Helper vnet functions
+    # Helper network functions
     #######################################################################
 
-    def vnet_operation(vnet, operation)
+    def network_operation(network, operation)
         case operation[:operation]
         when 'delete'
-            msg = "Deleting vnet #{vnet['ID']}"
+            msg = "Deleting network #{network['ID']}"
 
             OneProvision::OneProvisionLogger.info(msg)
 
-            vnet.delete
+            network.delete
         end
     end
 
@@ -166,7 +177,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         case type
         when 'HOST'      then helper = OneHostHelper.new
         when 'DATASTORE' then helper = OneDatastoreHelper.new
-        when 'VNET'      then helper = OneVNetHelper.new
+        when 'NETWORK'   then helper = OneVNetHelper.new
         end
 
         objects = names_to_ids(args[0], type)
@@ -180,8 +191,8 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
                 host_operation(obj, operation, options, args[1])
             when 'DATASTORE'
                 datastore_operation(obj, operation)
-            when 'VNET'
-                vnet_operation(obj, operation)
+            when 'NETWORK'
+                network_operation(obj, operation)
             end
         end
     end
@@ -239,9 +250,10 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
             columns.each do |c|
                 element[c.to_s.upcase] = { 'ID' => [] }
+                obj                    = OneProvision::Resource.object(c)
 
-                provision.instance_variable_get("@#{c}").each do |v|
-                    element[c.to_s.upcase]['ID'] << v['ID']
+                element[c.to_s.upcase]['ID'] = obj.get(i).map do |o|
+                    o['ID']
                 end
             end
 
@@ -252,7 +264,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     end
 
     def list(options)
-        columns = %w[clusters hosts vnets datastores]
+        columns = %w[clusters hosts networks datastores]
 
         format_pool.show(get_list(columns, true), options)
 
@@ -267,16 +279,16 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         OneProvision::Utils.fail('Provision not found.') unless provision.exists
 
         ret = {}
-        ret['id'] = provision_id
-        ret['name'] = provision.name
+        ret['id']     = provision_id
+        ret['name']   = provision.name
         ret['status'] = provision.status
 
-        %w[clusters datastores hosts vnets].each do |r|
-            ret["@#{r}_ids"] = []
+        RESOURCES.each do |r|
+            obj = OneProvision::Resource.object(r)
 
-            provision.instance_variable_get("@#{r}").each do |x|
-                ret["@#{r}_ids"] << (x['ID'])
-            end
+            next unless obj
+
+            ret[r] = obj.get(provision_id).map {|o| o['ID'] }
         end
 
         format_resource(ret)
@@ -294,28 +306,12 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         puts format('NAME    : %<s>s', :s => provision['name'])
         puts format('STATUS  : %<s>s', :s => CLIHelper.color_state(status))
 
-        puts
-        CLIHelper.print_header(format('%<s>s', :s => 'CLUSTERS'))
-        provision['@clusters_ids'].each do |i|
-            puts format('%<s>s', :s => i)
-        end
-
-        puts
-        CLIHelper.print_header(format('%<s>s', :s => 'HOSTS'))
-        provision['@hosts_ids'].each do |i|
-            puts format('%<s>s', :s => i)
-        end
-
-        puts
-        CLIHelper.print_header(format('%<s>s', :s => 'VNETS'))
-        provision['@vnets_ids'].each do |i|
-            puts format('%<s>s', :s => i)
-        end
-
-        puts
-        CLIHelper.print_header(format('%<s>s', :s => 'DATASTORES'))
-        provision['@datastores_ids'].each do |i|
-            puts format('%<s>s', :s => i)
+        RESOURCES.each do |r|
+            puts
+            CLIHelper.print_header(format('%<s>s', :s => r.upcase))
+            provision[r].each do |i|
+                puts format('%<s>s', :s => i)
+            end
         end
     end
 

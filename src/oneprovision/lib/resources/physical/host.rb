@@ -31,6 +31,7 @@ module OneProvision
             super
 
             @pool = OpenNebula::HostPool.new(@client)
+            @type = 'host'
         end
 
         # Checks if there are Running VMs on the HOST

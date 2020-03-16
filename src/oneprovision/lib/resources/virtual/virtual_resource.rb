@@ -15,9 +15,36 @@
 #--------------------------------------------------------------------------- #
 
 require 'resources/resource'
-require 'resources/physical'
-require 'resources/virtual'
 
-# Module OneProvision
 module OneProvision
+
+    # Represents the virtual resources
+    class VirtualResource < Resource
+
+        # Creates a new object in OpenNebula
+        #
+        # @param template     [Hash]   Object attributes
+        # @param provision_id [String] Provision ID
+        #
+        # @return [Integer] Resource ID
+        def create(template, provision_id)
+            add_provision_id(template, provision_id)
+
+            # create ONE object
+            new_object
+
+            rc = @one.allocate(format_template(template))
+            Utils.exception(rc)
+            rc = @one.info
+            Utils.exception(rc)
+
+            OneProvisionLogger.debug(
+                "#{@type} created with ID: #{@one.id}"
+            )
+
+            @one.id.to_i
+        end
+
+    end
+
 end
