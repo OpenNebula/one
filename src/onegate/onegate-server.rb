@@ -393,6 +393,13 @@ def build_vm_hash(vm_hash)
         end
     end
 
+    nic_aliases = []
+    if vm_hash["TEMPLATE"]["NIC_ALIAS"]
+        [vm_hash["TEMPLATE"]["NIC_ALIAS"]].flatten.each do |nic|
+            nic_aliases << Hash[nic.select{|k,v| NIC_VALID_KEYS.include?(k)}]
+        end
+    end
+
     OpenNebula::VirtualMachine::EXTERNAL_IP_ATTRS.each do |attr|
         external_ip = vm_hash["MONITORING"][attr]
 
@@ -411,7 +418,8 @@ def build_vm_hash(vm_hash)
                                     !USER_TEMPLATE_INVALID_KEYS.include?(k)
                                 }],
             "TEMPLATE"  => {
-                "NIC" => nics
+                "NIC" => nics,
+                "NIC_ALIAS" => nic_aliases
             }
         }
     }
