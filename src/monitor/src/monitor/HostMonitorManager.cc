@@ -156,10 +156,10 @@ void HostMonitorManager::update_host(int oid, const std::string &xml)
             {
                 start_host_monitor(host);
             }
-        }
 
-        NebulaLog::debug("HMM", "Updated Host " + to_string(host->oid())
-            + ", state " + Host::state_to_str(host->state()));
+            NebulaLog::debug("HMM", "Updated Host " + to_string(host->oid())
+                + ", state " + Host::state_to_str(host->state()));
+        }
     }
     else
     {

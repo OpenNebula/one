@@ -379,6 +379,7 @@ void InformationManager::_vm_state(unique_ptr<Message<OpenNebulaMessages>> msg)
     if (rc != 0)
     {
         NebulaLog::error("InM", string("Error parsing VM_STATE: ") + error_msg);
+        NebulaLog::error("InM", "Received message was: " + msg->payload());
 
         free(error_msg);
 
