@@ -160,11 +160,13 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
     #
     # @return [Hash] Custom attributes values
     def custom_attrs(custom_attrs)
+        # rubocop:disable Layout/LineLength
         return unless custom_attrs
 
         ret = {}
         ret['custom_attrs_values'] = OpenNebulaHelper.parse_user_inputs(custom_attrs)
 
+        # rubocop:enable Layout/LineLength
         ret
     end
 
@@ -200,7 +202,9 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
 
             vnet = {}
 
-            type, resource_id, extra = initial.split(':', -1) if initial && !initial.empty?
+            if initial && !initial.empty?
+                type, resource_id, extra = initial.split(':', -1)
+            end
 
             if (type.nil? || resource_id.nil?) &&
                (initial && !initial.empty?)
@@ -244,7 +248,7 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
             when 2
                 type_a = 'template_id'
             when 3
-                type_a = 'extra'
+                type_a = 'reserve_from'
             end
 
             #######################################
@@ -252,8 +256,11 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
             #######################################
 
             header = '    '
-            header += 'VN Template ID' if type_a == 'instantiate_from'
-            header += 'VN ID. ' if type_a != 'instantiate_from'
+            if type_a == 'template_id'
+                header += 'VN Template ID. '
+            else
+                header += 'VN ID. '
+            end
 
             if !resource_id.nil? && resource_id != ''
                 header += "Press enter for default (#{resource_id}). "
