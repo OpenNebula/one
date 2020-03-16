@@ -381,7 +381,7 @@ helpers do
     end
 end
 
-NIC_VALID_KEYS = %w(IP IP6_LINK IP6_SITE IP6_GLOBAL NETWORK MAC)
+NIC_VALID_KEYS = %w(IP IP6_LINK IP6_SITE IP6_GLOBAL NETWORK MAC NAME PARENT)
 USER_TEMPLATE_INVALID_KEYS = %w(SCHED_MESSAGE)
 
 def build_vm_hash(vm_hash)
@@ -390,6 +390,14 @@ def build_vm_hash(vm_hash)
     if vm_hash["TEMPLATE"]["NIC"]
         [vm_hash["TEMPLATE"]["NIC"]].flatten.each do |nic|
             nics << Hash[nic.select{|k,v| NIC_VALID_KEYS.include?(k)}]
+        end
+    end
+
+    alias_nics = []
+
+    if vm_hash["TEMPLATE"]["NIC_ALIAS"]
+        [vm_hash["TEMPLATE"]["NIC_ALIAS"]].flatten.each do |nic|
+            alias_nics << Hash[nic.select{|k,v| NIC_VALID_KEYS.include?(k)}]
         end
     end
 
@@ -411,7 +419,8 @@ def build_vm_hash(vm_hash)
                                     !USER_TEMPLATE_INVALID_KEYS.include?(k)
                                 }],
             "TEMPLATE"  => {
-                "NIC" => nics
+                "NIC" => nics,
+                "NIC_ALIAS" => alias_nics
             }
         }
     }
