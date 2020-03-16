@@ -165,40 +165,7 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
         puts 'There are some custom attrs which need a value'
 
         ret = {}
-        ret['custom_attrs_values'] = {}
-
-        custom_attrs.each do |key, value|
-            split_value = value.split('|')
-
-            if split_value.size < 2
-                STDERR.puts 'Custom attribute malformed'
-                STDERR.puts 'M/O|description|<optional_value>'
-                exit(-1)
-            end
-
-            type, desc, initial = split_value
-
-            if %w[M O].include?(type)
-                puts "Introduce (#{type}) value for `#{key}` (#{desc}):"
-            else
-                STDERR.puts "Incorrect type: #{type}"
-                STDERR.puts 'only M (mandatory) O (optional) supported'
-                exit(-1)
-            end
-
-            answer = STDIN.readline.chop
-
-            if answer.empty? && type == 'M'
-                while answer.empty?
-                    STDERR.puts 'Mandatory value can\'t be empty'
-                    answer = STDIN.readline.chop
-                end
-            elsif answer.empty?
-                answer = initial
-            end
-
-            ret['custom_attrs_values'][key] = answer
-        end
+        ret['custom_attrs_values'] = parse_user_inputs(custom_attrs, true)
 
         ret
     end
