@@ -1251,6 +1251,8 @@ class VmImporter < VCenterDriver::VcImporter
 
         working_template[:one] << "VCENTER_VM_FOLDER=\"#{opts[:folder]}\"\n" if deploy_in_folder
 
+        working_template[:one] << "VCENTER_TEMPLATE_NAME=\"#{selected[:name]}\"\n"
+
         create(working_template[:one]) do |one_object, id|
             res[:id] << id
 
