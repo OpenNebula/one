@@ -36,7 +36,24 @@ module OneProvision
         #
         # @return [Integer] Resource ID
         def create(template, provision_id)
-            super(template, provision_id)
+            mode = template['mode'].downcase.to_sym if template['mode']
+            info = { 'provision_id' => provision_id,
+                     'mode'         => mode }
+
+            add_provision_info(template, info)
+
+            # create ONE object
+            new_object
+
+            rc = @one.allocate(format_template(template),
+                               template['ds_id'].to_i)
+            Utils.exception(rc)
+            rc = @one.info
+            Utils.exception(rc)
+
+            OneProvisionLogger.debug(
+                "#{@type} created with ID: #{@one.id}"
+            )
 
             mode = template['mode'].downcase if template['mode']
 

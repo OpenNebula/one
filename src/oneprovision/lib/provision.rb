@@ -22,10 +22,14 @@ module OneProvision
     class Provision
 
         # Available resources that can be created with the provision
-        RESOURCES = %w[templates
-                       vntemplates
-                       images
+        #
+        # Note: order is important, some objects depend on others
+        # so first the objects without dependencies need to be created
+        # and then the rest
+        RESOURCES = %w[images
                        marketplaceapps
+                       templates
+                       vntemplates
                        flowtemplates]
 
         # Resources available in a cluster without hosts
@@ -275,11 +279,7 @@ module OneProvision
             cluster = Cluster.new
             cluster.create(cfg['cluster'], @id, @name)
             cluster = cluster.one
-            cid = cluster.id
-
-            # Update the config template with the new ID
-            # in case the following objects need it to ERB evaluation
-            cfg['cluster']['id'] = cid
+            cid     = cluster.id
 
             @clusters << cluster
 
@@ -322,11 +322,6 @@ module OneProvision
                         rname = r.chomp('s').capitalize
                         msg   = "#{rname} created with ID: #{rid}"
 
-                        # Update the config template with the new ID
-                        # in case the following objects need it
-                        # to ERB evaluation
-                        x['id'] = rid
-
                         OneProvisionLogger.debug(msg)
                     end
                 end
@@ -350,10 +345,10 @@ module OneProvision
 
                         next if obj.nil?
 
-                        # Update the config template with the new ID
-                        # in case the following objects need it to
-                        # ERB evaluation
-                        x['id'] = obj.create(x, @id)
+                        x = Utils.evaluate_erb(self, x)
+
+                        obj.create(x, @id)
+                        obj.append_object(self)
 
                         obj.chown(x['uid'], x['gid'])
                         obj.chmod(x['octet']) if x['octet']

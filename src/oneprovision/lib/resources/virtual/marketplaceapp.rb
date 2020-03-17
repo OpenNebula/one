@@ -55,7 +55,7 @@ module OneProvision
             rc = app.info
             Utils.exception(rc)
             rc = app.export(
-                :dsid => template['dsid'],
+                :dsid => template['dsid'].to_i,
                 :name => template['name'],
                 :vmtemplate_name => template['vmname']
             )
@@ -73,32 +73,49 @@ module OneProvision
                 "Template created with ID: #{template_id}"
             )
             # get new created template and update it with provision ID
-            template = Template.new
+            @template = Template.new
 
-            template.info(template_id)
-            template.one.update("PROVISION=[PROVISION_ID=#{provision_id}]",
-                                true)
+            @template.info(template_id)
+            @template.one.update("PROVISION=[PROVISION_ID=#{provision_id}]",
+                                 true)
 
             # get new created image and update it with provision ID
-            image = Image.new
+            @image = Image.new
 
-            image.info(image_id)
-            image.one.update(
+            @image.info(image_id)
+            @image.one.update(
                 "PROVISION=[MODE=#{mode},PROVISION_ID=#{provision_id}]",
                 true
             )
 
             # Change permissions and ownership
-            image.chown(uid, gid)
-            template.chown(uid, gid)
-            image.chmod(octet)
-            template.chmod(octet)
+            @image.chown(uid, gid)
+            @image.chmod(octet)
+            @template.chown(uid, gid)
+            @template.chmod(octet)
 
             return [image_id, template_id] if mode == 'async' || mode.nil?
 
             image.wait_state('READY', timeout)
 
             [image_id, template_id]
+        end
+
+        # Append one object to provision for ERB evaluation
+        #
+        # @param provision [OneProvision::Provision] Full provision
+        def append_object(provision)
+            images    = provision.instance_variable_get('@images')
+            templates = provision.instance_variable_get('@templates')
+
+            images    ||= []
+            templates ||= []
+
+            images << @image.one
+            templates << @template.one
+
+            provision.instance_variable_set('@images', images)
+            provision.instance_variable_set('@templates', templates)
         end
 
         ########################################################################

@@ -24,34 +24,6 @@ module OneProvision
         # Default timeout to wait until object is ready in sync mode
         DEFAULT_TIMEOUT = 60
 
-        # Creates a new object in OpenNebula
-        #
-        # @param template     [Hash]   Object attributes
-        # @param provision_id [String] Provision ID
-        #
-        # @return [Integer] Resource ID
-        def create(template, provision_id)
-            mode = template['mode'].downcase.to_sym if template['mode']
-            info = { 'provision_id' => provision_id,
-                     'mode'         => mode }
-
-            add_provision_info(template, info)
-
-            # create ONE object
-            new_object
-
-            rc = @one.allocate(format_template(template), template['ds_id'])
-            Utils.exception(rc)
-            rc = @one.info
-            Utils.exception(rc)
-
-            OneProvisionLogger.debug(
-                "#{@type} created with ID: #{@one.id}"
-            )
-
-            @one.id.to_i
-        end
-
         # Delete object
         def delete
             @one.info

@@ -33,56 +33,6 @@ module OneProvision
             raise 'Operation not implemented'
         end
 
-        # Gets all resources or just provision resources
-        #
-        # @param id [Integer]  ID of the provision
-        #
-        # @return [Array] with provision resource if id!=nil
-        #                 with all resources if if==nil
-        def get(id = nil)
-            Utils.exception(@pool.info_all)
-
-            if id
-                @pool.select do |resource|
-                    resource['TEMPLATE/PROVISION/PROVISION_ID'] == id
-                end
-            else
-                @pool.reject do |resource|
-                    resource['TEMPLATE/PROVISION/PROVISION_ID'].nil?
-                end
-            end
-        end
-
-        # Change owner and group
-        #
-        # @param user  [Integer] UID
-        # @param group [Integer] GID
-        def chown(user, group)
-            user  ||= 0
-            group ||= 0
-
-            OneProvisionLogger.debug(
-                "Chown #{@type} #{@one.id} #{user}:#{group}"
-            )
-
-            @one.chown(user, group)
-        end
-
-        # Change object permissions
-        #
-        # @param octet [String] Permissions in octet format
-        def chmod(octet)
-            OneProvisionLogger.debug("Chmod #{@type} #{@one.id} #{octet}")
-
-            @one.chmod_octet(octet.to_s)
-        end
-
-        # Deletes the ONE object
-        def delete
-            @one.info
-            @one.delete
-        end
-
         # Factory to return new object
         #
         # @param type [String] Object type
@@ -111,6 +61,82 @@ module OneProvision
             else
                 nil
             end
+        end
+
+        # Gets all resources or just provision resources
+        #
+        # @param id [Integer]  ID of the provision
+        #
+        # @return [Array] with provision resource if id!=nil
+        #                 with all resources if if==nil
+        def get(id = nil)
+            Utils.exception(@pool.info_all)
+
+            if id
+                @pool.select do |resource|
+                    resource['TEMPLATE/PROVISION/PROVISION_ID'] == id
+                end
+            else
+                @pool.reject do |resource|
+                    resource['TEMPLATE/PROVISION/PROVISION_ID'].nil?
+                end
+            end
+        end
+
+        # Change owner and group
+        #
+        # @param user  [Integer] UID
+        # @param group [Integer] GID
+        def chown(user, group)
+            user  ||= 0
+            group ||= 0
+
+            if user == @one['UID'].to_i && group == @one['GID'].to_i
+                OneProvisionLogger.debug(
+                    "Ownership for #{@type} #{@one.id} is already " \
+                    "#{user}:#{group}"
+                )
+            else
+                OneProvisionLogger.debug(
+                    "Chown #{@type} #{@one.id} #{user}:#{group}"
+                )
+
+                rc = @one.chown(user, group)
+
+                return unless OpenNebula.is_error?(rc)
+
+                raise OneProvisionLoopException, rc.message
+            end
+        end
+
+        # Change object permissions
+        #
+        # @param octet [String] Permissions in octet format
+        def chmod(octet)
+            OneProvisionLogger.debug("Chmod #{@type} #{@one.id} #{octet}")
+
+            rc = @one.chmod_octet(octet.to_s)
+
+            return unless OpenNebula.is_error?(rc)
+
+            raise OneProvisionLoopException, rc.message
+        end
+
+        # Deletes the ONE object
+        def delete
+            @one.info
+            @one.delete
+        end
+
+        # Append one object to provision for ERB evaluation
+        #
+        # @param provision [OneProvision::Provision] Full provision
+        def append_object(provision)
+            objects   = provision.instance_variable_get("@#{@type}s")
+            objects ||= []
+
+            objects << @one
+            provision.instance_variable_set("@#{@type}s", objects)
         end
 
         protected
