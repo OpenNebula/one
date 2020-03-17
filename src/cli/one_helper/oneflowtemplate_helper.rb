@@ -192,7 +192,7 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
             input_cfg = val.split('|', -1)
 
             if input_cfg.length != 5
-                STDERR.puts 'Malformed user input. It should have at 4 '\
+                STDERR.puts 'Malformed user input. It should have 5'\
                             "parts separated by '|':"
                 STDERR.puts "  #{key}: #{val}"
                 exit(-1)
