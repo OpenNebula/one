@@ -188,6 +188,12 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Dump the configuration file result.'
     }
 
+    VIRTUAL = {
+        :name => 'virtual',
+        :large => '--virtual',
+        :description => 'Create just objects and exit, without deploying hosts'
+    }
+
     MODES = CommandParser::OPTIONS - [CommandParser::VERBOSE] +
             [VERBOSE,
              DEBUG,
@@ -202,7 +208,8 @@ CommandParser::CmdParser.new(ARGV) do
                       PING_TIMEOUT,
                       PING_RETRIES,
                       CLEANUP,
-                      CLEANUP_TIMEOUT]
+                      CLEANUP_TIMEOUT,
+                      VIRTUAL]
 
     ONE_OPTIONS = CommandParser::OPTIONS +
                   CLIHelper::OPTIONS +
@@ -225,7 +232,10 @@ CommandParser::CmdParser.new(ARGV) do
             timeout = options[:cleanup_timeout]
         end
 
-        helper.create(args[0], (options.key? :cleanup), timeout)
+        helper.create(args[0],
+                      (options.key? :cleanup),
+                      timeout,
+                      (options.key? :virtual))
     end
 
     ###

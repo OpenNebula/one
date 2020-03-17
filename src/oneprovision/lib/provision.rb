@@ -184,7 +184,8 @@ module OneProvision
         # @param config  [String]  Path to the configuration file
         # @param cleanup [Boolean] True to delete running VMs and images
         # @param timeout [Integer] Timeout for deleting running VMs
-        def create(config, cleanup, timeout)
+        # @param virtual [Boolean] Just create objects and exit
+        def create(config, cleanup, timeout, virtual)
             Ansible.check_ansible_version
 
             begin
@@ -215,11 +216,13 @@ module OneProvision
 
                 create_hosts(cfg, cid)
 
-                create_virtual_resources(cfg)
+                if virtual
+                    create_virtual_resources(cfg)
 
-                puts "ID: #{@id}"
+                    puts "ID: #{@id}"
 
-                return 0
+                    return 0
+                end
 
                 # ask user to be patient, mandatory for now
                 STDERR.puts 'WARNING: This operation can ' \
