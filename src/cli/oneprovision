@@ -272,8 +272,8 @@ CommandParser::CmdParser.new(ARGV) do
     command :show,
             provision_show_desc,
             :provisionid,
-            :options => CommandParser::OPTIONS do
-        helper.show(args[0])
+            :options => CommandParser::OPTIONS + [OpenNebulaHelper::XML] do
+        helper.show(args[0], (options.key? :xml))
     end
 
     ###

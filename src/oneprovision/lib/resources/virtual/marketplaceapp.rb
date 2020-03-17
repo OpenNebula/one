@@ -96,7 +96,7 @@ module OneProvision
 
             return [image_id, template_id] if mode == 'async' || mode.nil?
 
-            image.wait_state('READY', timeout)
+            @image.wait_state('READY', timeout)
 
             [image_id, template_id]
         end

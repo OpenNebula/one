@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'nokogiri'
 require 'securerandom'
 
 # OneProvision Helper
@@ -271,7 +272,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         0
     end
 
-    def show(provision_id)
+    def show(provision_id, xml)
         provision = OneProvision::Provision.new(provision_id)
 
         provision.refresh
@@ -291,7 +292,11 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
             ret[r] = obj.get(provision_id).map {|o| o['ID'] }
         end
 
-        format_resource(ret)
+        if xml
+            to_xml(ret, provision_id)
+        else
+            format_resource(ret)
+        end
 
         0
     end
@@ -313,6 +318,30 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
                 puts format('%<s>s', :s => i)
             end
         end
+    end
+
+    private
+
+    def to_xml(provision, provision_id)
+        xml = "<PROVISION>
+            <ID>#{provision_id}</ID>
+            <NAME>#{provision['name']}</NAME>
+            <STATUS>#{provision['status']}</STATUS>
+            #{
+                RESOURCES.map do |r|
+                    ids = provision[r].map do |id|
+                        "<ID>#{id}</ID>"
+                    end.join("\n")
+
+                    "<#{r.upcase}>
+                    #{ids}
+                    </#{r.upcase}"
+                end.join("\n")
+            }
+        </PROVISION>"
+
+        doc = Nokogiri.XML(xml) {|config| config.default_xml.noblanks }
+        puts doc.root.to_xml(:indent => 2)
     end
 
 end
