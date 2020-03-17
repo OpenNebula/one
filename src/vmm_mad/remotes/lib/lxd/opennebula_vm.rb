@@ -26,6 +26,7 @@ class LXDConfiguration < Hash
             :height  => '600',
             :timeout => '300'
         },
+        :filesystem => 'ext4',
         :datastore_location => '/var/lib/one/datastores'
     }
 
@@ -77,7 +78,7 @@ class OpenNebulaVM
         @rootfs_id = boot_order.split(',')[0][-1] unless boot_order.empty?
     end
 
-    def has_context?
+    def context?
         !@xml['//TEMPLATE/CONTEXT/DISK_ID'].empty?
     end
 
@@ -156,7 +157,7 @@ class OpenNebulaVM
     # Creates a nic hash from NIC xml root
     def nic(info)
         eth = {
-            'name' => "eth#{info['NIC_ID']}",
+            'name'      => "eth#{info['NIC_ID']}",
             'host_name' => info['TARGET'],
             'parent'    => info['BRIDGE'],
             'hwaddr'    => info['MAC'],
@@ -194,20 +195,20 @@ class OpenNebulaVM
         end
     end
 
-    def get_context_disk
+    # Context disk XML
+    def context_disk
         @xml.element('//TEMPLATE/CONTEXT')
     end
 
+    # Disk XML array
     def get_disks
         @xml.elements('//TEMPLATE/DISK')
     end
 
     # Sets up the storage devices configuration in devices
     def storage(hash)
-        disks = @xml.elements('//TEMPLATE/DISK')
-
-        disks.each do |n|
-            next unless valid_disk?(n)
+        get_disks.each do |n|
+            next if swap?(n)
 
             hash.update(disk(n, nil, nil))
         end
@@ -230,6 +231,7 @@ class OpenNebulaVM
         }
     end
 
+    # Returns the disk mountpoint on the LXD node fs
     def disk_mountpoint(disk_id)
         datastore = @sysds_path
         datastore = File.readlink(@sysds_path) if File.symlink?(@sysds_path)
@@ -238,16 +240,20 @@ class OpenNebulaVM
 
     # @return [String] the canonical disk path for the given disk
     def disk_source(disk)
-        disk_id = disk['DISK_ID']
+        disk_id   = disk['DISK_ID']
+        disk_type = disk['DISK_TYPE']
 
-        if disk['TYPE'] == 'RBD'
-            src = disk['SOURCE']
-            return "#{src}-#{vm_id}-#{disk['DISK_ID']}" if disk['CLONE'] == 'YES'
+        return "#{@sysds_path}/#{@vm_id}/disk.#{disk_id}" unless disk_type == 'RBD'
 
-            return src
+        src = disk['SOURCE']
+
+        if disk['CLONE'] == 'YES'
+            "#{src}-#{vm_id}-#{disk_id}"
+        elsif volatile?(disk)
+            "#{disk['POOL_NAME']}/one-sys-#{vm_id}-#{disk_id}"
+        else
+            src
         end
-
-        "#{@sysds_path}/#{@vm_id}/disk.#{disk_id}"
     end
 
     # Creates a disk hash from DISK xml element
@@ -318,10 +324,12 @@ class OpenNebulaVM
         { disk_name => disk }
     end
 
-    def valid_disk?(disk)
-        return true if %w[FILE BLOCK RBD].include? disk['TYPE']
+    def swap?(disk)
+        return disk['TYPE'] == 'swap'
+    end
 
-        false
+    def volatile?(disk)
+        return disk['TYPE'] == 'fs'
     end
 
     #---------------------------------------------------------------------------
