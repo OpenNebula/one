@@ -19,7 +19,7 @@
 (
 [ -f /tmp/one-monitord-client.pid ] || exit 0
 running_pid=$(cat /tmp/one-monitord-client.pid)
-pids=$(ps axuwww | grep -e "/monitord-client.rb lxd" -e "/collectd-client.rb lxd" | grep -v grep | awk '{ print $2 }' | grep -v "^${running_pid}$")
+pids=$(ps axuwww | grep -e "/monitord-client.rb lxd" | grep -v grep | awk '{ print $2 }' | grep -v "^${running_pid}$")
 
 if [ -n "$pids" ]; then
     kill -6 $pids

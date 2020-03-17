@@ -27,7 +27,7 @@ CLIENT_PID_FILE=/tmp/one-monitord-$HID.pid
 [ -f $CLIENT_PID_FILE ] || exit 0
 
 running_pid=$(cat $CLIENT_PID_FILE)
-pids=$(ps axuwww | grep -e "/collectd-client.rb.*${HID}" -e "/monitord-client.rb.*${HID} " | grep -v grep | \
+pids=$(ps axuwww | grep -e "/monitord-client.rb.*${HID} " | grep -v grep | \
     awk '{ print $2 }' | grep -v "^${running_pid}$")
 
 if [ -n "$pids" ]; then
