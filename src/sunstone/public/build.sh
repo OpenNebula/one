@@ -19,7 +19,7 @@ clean() {
 
 dependencies() {
     npm install bower
-    npm install grunt
+    npm install 'grunt@<1.1.0'
     npm install grunt-cli
 
     export PATH=$PATH:$PWD/node_modules/.bin
