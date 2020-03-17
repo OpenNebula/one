@@ -210,6 +210,9 @@ CommandParser::CmdParser.new(ARGV) do
                 params['merge_template'] = helper.custom_attrs(
                     body['custom_attrs']
                 )
+
+                vnets = helper.networks(body['networks'])
+                params['merge_template'].merge!(vnets) unless vnets.nil?
             end
 
             json     = Service.build_json_action('instantiate', params)

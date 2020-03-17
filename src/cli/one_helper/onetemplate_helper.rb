@@ -131,192 +131,21 @@ EOT
     def self.get_user_inputs(template, get_defaults = false)
         user_inputs = template['VMTEMPLATE']['TEMPLATE']['USER_INPUTS']
 
-        return "" if !user_inputs
+        return '' unless user_inputs
 
-        answers = ""
+        answers = OpenNebulaHelper.parse_user_inputs(user_inputs, get_defaults)
 
-        unless get_defaults
-            puts 'There are some parameters that require user input. ' \
-                 'Use the string <<EDITOR>> to launch an editor ' \
-                 '(e.g. for multi-line inputs)'
-        end
-
-        user_inputs.each do |key, val|
-            input_cfg = val.split('|', -1)
-
-            if input_cfg.length < 3
-                STDERR.puts "Malformed user input. It should have at least 3 parts separated by '|':"
-                STDERR.puts "  #{key}: #{val}"
-                exit(-1)
-            end
-
-            mandatory, type, description, params, initial = input_cfg
-            optional = mandatory.strip == "O"
-            type.strip!
-            description.strip!
-
-            if input_cfg.length > 3
-                if input_cfg.length != 5
-                    STDERR.puts "Malformed user input. It should have 5 parts separated by '|':"
-                    STDERR.puts "  #{key}: #{val}"
-                    exit(-1)
-                end
-
-                params.strip!
-                initial.strip!
-            end
-
-            if get_defaults
-                answers << "#{key}=\"#{initial}\"" unless mandatory == 'M'
-                next
-            end
-
-            puts "  * (#{key}) #{description}"
-
-            header = "    "
-            if initial != nil && initial != ""
-                header += "Press enter for default (#{initial}). "
-            end
-
-            case type
-            when 'text', 'text64'
-                print header
-
-                answer = STDIN.readline.chop
-
-                if answer == "<<EDITOR>>"
-                    answer = OpenNebulaHelper.editor_input()
-                end
-
-                if type == 'text64'
-                    answer = Base64::encode64(answer).strip.delete("\n")
-                end
-
-            when 'boolean'
-                print header
-
-                answer = STDIN.readline.chop
-
-                # use default in case it's empty
-                answer = initial if answer.empty?
-
-                unless %w[YES NO].include?(answer)
-                    STDERR.puts "Invalid boolean '#{answer}'"
-                    STDERR.puts 'Boolean has to be YES or NO'
-                    exit(-1)
-                end
-
-            when 'password'
-                print header
-
-                answer = OpenNebulaHelper::OneHelper.get_password
-
-            when 'number', 'number-float'
-                if type == "number"
-                    header += "Integer: "
-                    exp = INT_EXP
-                else
-                    header += "Float: "
-                    exp = FLOAT_EXP
-                end
-
-                begin
-                    print header
-                    answer = STDIN.readline.chop
-
-                    answer = initial if (answer == "")
-
-                    noanswer = ((answer == "") && optional)
-                end while !noanswer && (answer =~ exp) == nil
-
-                if noanswer
-                    next
-                end
-
-            when 'range', 'range-float'
-                min,max = params.split('..')
-
-                if min.nil? || max.nil?
-                    STDERR.puts "Malformed user input. Parameters should be 'min..max':"
-                    STDERR.puts "  #{key}: #{val}"
-                    exit(-1)
-                end
-
-                if type == "range"
-                    exp = INT_EXP
-                    min = min.to_i
-                    max = max.to_i
-
-                    header += "Integer in the range [#{min}..#{max}]: "
-                else
-                    exp = FLOAT_EXP
-                    min = min.to_f
-                    max = max.to_f
-
-                    header += "Float in the range [#{min}..#{max}]: "
-                end
-
-                begin
-                    print header
-                    answer = STDIN.readline.chop
-
-                    answer = initial if (answer == "")
-
-                    noanswer = ((answer == "") && optional)
-                end while !noanswer && ((answer =~ exp) == nil || answer.to_f < min || answer.to_f > max)
-
-                if noanswer
-                    next
-                end
-
-            when 'list'
-                options = params.split(",")
-
-                options.each_with_index {|opt,i|
-                    puts "    #{i}  #{opt}"
-                }
-
-                puts
-
-                header += "Please type the selection number: "
-
-                begin
-                    print header
-                    answer = STDIN.readline.chop
-
-                    if (answer == "")
-                        answer = initial
-                    else
-                        answer = options[answer.to_i]
-                    end
-
-                    noanswer = ((answer == "") && optional)
-
-                end while !noanswer && (!options.include?(answer))
-
-                if noanswer
-                    next
-                end
-
-            when 'fixed'
-                puts "    Fixed value of (#{initial}). Cannot be changed"
-                answer = initial
-
-            else
-                STDERR.puts "Wrong type for user input:"
-                STDERR.puts "  #{key}: #{val}"
-                exit(-1)
-            end
-
+        answers_s = ''
+        answers.each do |key, val|
             # Do not replace values that are equal to the ones already in the
             # template. Useful for cpu, mem, vcpu
-            if answer != template['VMTEMPLATE']['TEMPLATE'][key]
-                answers << "#{key} = \""
-                answers << answer.gsub('"', "\\\"") << "\"\n"
+            if key != template['VMTEMPLATE']['TEMPLATE'][key]
+                answers_s << "#{key} = \""
+                answers_s << val.gsub('"', "\\\"") << "\"\n"
             end
         end
 
-        answers
+        answers_s
     end
 
     private
