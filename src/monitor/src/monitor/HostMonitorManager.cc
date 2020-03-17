@@ -165,7 +165,12 @@ void HostMonitorManager::update_host(int oid, const std::string &xml)
     {
         hpool->add_object(xml);
 
-        start_host_monitor(oid);
+        host = hpool->get(oid);
+
+        if (host->state() == Host::HostState::INIT)
+        {
+            start_host_monitor(host);
+        }
     }
 }
 
