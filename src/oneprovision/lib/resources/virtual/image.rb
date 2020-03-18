@@ -36,9 +36,13 @@ module OneProvision
         #
         # @return [Integer] Resource ID
         def create(template, provision_id)
-            mode = template['mode'].downcase.to_sym if template['mode']
-            info = { 'provision_id' => provision_id,
-                     'mode'         => mode }
+            mode    = template['mode'].downcase if template['mode']
+            timeout = template['timeout']
+            info    = { 'provision_id' => provision_id,
+                        'mode'         => mode,
+                        'timeout'      => timeout }
+
+            check_mode(mode)
 
             add_provision_info(template, info)
 

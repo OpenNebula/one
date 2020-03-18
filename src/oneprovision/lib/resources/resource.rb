@@ -160,7 +160,7 @@ module OneProvision
             end
         end
 
-        # Add just provision ID
+        # Add provision ID to object
         #
         # @param template     [Hash]   Current object template
         # @param provision_id [String] Provision ID
@@ -168,6 +168,29 @@ module OneProvision
             template['provision'] = {} unless template['provision']
 
             template['provision']['provision_id'] = provision_id
+        end
+
+        # Add provision info to ONE object
+        #
+        # @param info [Hash] Information to add in provision section
+        def update_provision_info(info)
+            update_str = 'PROVISION=['
+
+            info.each do |key, value|
+                update_str << "#{key.upcase}=\"#{value}\","
+            end
+
+            update_str.delete_suffix!(',')
+            update_str << ']'
+
+            @one.update(update_str, true)
+        end
+
+        # Add provision ID to ONE object
+        #
+        # @param provision_id [String] Provision ID
+        def update_provision_id(provision_id)
+            @one.update("PROVISION=[PROVISION_ID=#{provision_id}]", true)
         end
 
     end

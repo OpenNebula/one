@@ -59,7 +59,8 @@ module OneProvision
                 :name => template['name'],
                 :vmtemplate_name => template['vmname']
             )
-            Utils.exception(rc)
+            Utils.exception(rc[:image].first) if rc[:image]
+            Utils.exception(rc[:vmtemplate].first) if rc[:vmtemplate]
 
             # get new IDs
             image_id    = rc[:image].first
@@ -76,17 +77,15 @@ module OneProvision
             @template = Template.new
 
             @template.info(template_id)
-            @template.one.update("PROVISION=[PROVISION_ID=#{provision_id}]",
-                                 true)
+            @template.update_provision_id(provision_id)
 
             # get new created image and update it with provision ID
             @image = Image.new
 
             @image.info(image_id)
-            @image.one.update(
-                "PROVISION=[MODE=#{mode},PROVISION_ID=#{provision_id}]",
-                true
-            )
+            @image.update_provision_info({ 'mode'         => mode,
+                                           'provision_id' => provision_id,
+                                           'timeout'      => timeout })
 
             # Change permissions and ownership
             @image.chown(uid, gid)

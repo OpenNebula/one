@@ -24,11 +24,16 @@ module OneProvision
         # Default timeout to wait until object is ready in sync mode
         DEFAULT_TIMEOUT = 60
 
+        # Supported synchronization modes
+        SUPPORTED_MODES = %w[sync async]
+
         # Delete object
         def delete
             @one.info
 
-            mode = @one['TEMPLATE/PROVISION/MODE']
+            id      = @one['ID']
+            mode    = @one['TEMPLATE/PROVISION/MODE']
+            timeout = @one['TEMPLATE/PROVISION/TIMEOUT'].to_f
 
             super
 
@@ -48,6 +53,13 @@ module OneProvision
 
                 sleep 1
             end
+
+            # Check if the object was really deleted
+            rc = @one.info
+
+            return if OpenNebula.is_error?(rc)
+
+            raise OneProvisionLoopException, "Fail to delete #{@type} #{id}"
         end
 
         protected
@@ -71,6 +83,17 @@ module OneProvision
 
                 sleep 1
             end
+        end
+
+        # Check sync mode
+        #
+        # @param mode [String] Sync mode
+        #
+        # Raises exception in case of mode not supported
+        def check_mode(mode)
+            return if SUPPORTED_MODES.include?(mode)
+
+            raise OneProvisionLoopException, "Mode #{mode} not supported"
         end
 
     end

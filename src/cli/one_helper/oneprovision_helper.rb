@@ -21,14 +21,14 @@ require 'securerandom'
 class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
     RESOURCES = %w[
-        clusters
-        datastores
-        hosts
-        networks
-        images
-        templates
-        vntemplates
-        flowtemplates
+        CLUSTERS
+        DATASTORES
+        HOSTS
+        NETWORKS
+        IMAGES
+        TEMPLATES
+        VNTEMPLATES
+        FLOWTEMPLATES
     ]
 
     def self.rname
@@ -233,7 +233,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         objects
     end
 
-    def get_list(columns, provision_list)
+    def get_list(provision_list)
         ret = []
         ids = provision_ids
 
@@ -249,7 +249,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
             element['NAME'] = provision.name
             element['STATUS'] = provision.status
 
-            columns.each do |c|
+            RESOURCES.each do |c|
                 element[c.to_s.upcase] = { 'ID' => [] }
                 obj                    = OneProvision::Resource.object(c)
 
@@ -265,9 +265,13 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     end
 
     def list(options)
-        columns = %w[clusters hosts networks datastores]
+        list = get_list(true)
 
-        format_pool.show(get_list(columns, true), options)
+        if options.key? :xml
+            list.map {|e| to_xml(e) }
+        else
+            format_pool.show(list, options)
+        end
 
         0
     end
@@ -280,9 +284,9 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         OneProvision::Utils.fail('Provision not found.') unless provision.exists
 
         ret = {}
-        ret['id']     = provision_id
-        ret['name']   = provision.name
-        ret['status'] = provision.status
+        ret['ID']     = provision_id
+        ret['NAME']   = provision.name
+        ret['STATUS'] = provision.status
 
         RESOURCES.each do |r|
             obj = OneProvision::Resource.object(r)
@@ -293,7 +297,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         end
 
         if xml
-            to_xml(ret, provision_id)
+            to_xml(ret)
         else
             format_resource(ret)
         end
@@ -322,13 +326,15 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
     private
 
-    def to_xml(provision, provision_id)
+    def to_xml(provision)
         xml = "<PROVISION>
-            <ID>#{provision_id}</ID>
-            <NAME>#{provision['name']}</NAME>
-            <STATUS>#{provision['status']}</STATUS>
+            <ID>#{provision['ID']}</ID>
+            <NAME>#{provision['NAME']}</NAME>
+            <STATUS>#{provision['STATUS']}</STATUS>
             #{
                 RESOURCES.map do |r|
+                    provision[r] = provision[r]['ID'] if provision[r].is_a? Hash
+
                     ids = provision[r].map do |id|
                         "<ID>#{id}</ID>"
                     end.join("\n")
