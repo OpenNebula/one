@@ -106,6 +106,7 @@ module OpenNebulaJSON
                 select_network = self['TEMPLATE/SUNSTONE/NETWORK_SELECT']
                 if (select_network && select_network.upcase == "NO")
                     params['template'].delete("NIC")
+                    params['template'].delete("NIC_ALIAS")
                 end
 
                 template = template_to_str(params['template'])
