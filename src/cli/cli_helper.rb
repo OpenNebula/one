@@ -19,6 +19,9 @@ require 'csv'
 # CLI Helper
 module CLIHelper
 
+    # Available operators for filtering operations
+    FILTER_OPS = %w[= != < <= > >= ~]
+
     # CLI general options
     LIST = {
         :name => 'list',
@@ -55,7 +58,10 @@ module CLIHelper
         :large => '--filter x,y,z',
         :format => Array,
         :description => "Filter data. An array is specified with\n" <<
-                        ' ' * 31 << 'column=value pairs.'
+                        ' ' * 31 << 'column=value pairs.' <<
+                        ' ' * 31 << "Valid operators #{FILTER_OPS.join(',')}" <<
+                        ' ' * 31 << 'e.g. NAME=test (match name with test)' <<
+                        ' ' * 31 << 'NAME~test (match test, te, tes..)'
     }
 
     OPERATOR = {
@@ -802,7 +808,7 @@ module CLIHelper
         # @param data    [Array] Array with data to filter
         # @param options [Hash]  Object with CLI user options
         def filter_data!(data, options)
-            operators = /(=|!=|<|<=|>|>=)/
+            operators = /(#{FILTER_OPS.join('|')})/
             filter    = options[:filter]
 
             if options.key?(:operator)
@@ -825,7 +831,7 @@ module CLIHelper
                             :index      => index
                         }
                     else
-                        CLIHelper.fail("Column '#{left}' not found")
+                        CLIHelper.fail("Column '#{m[1]}' not found")
                     end
                 else
                     CLIHelper.fail("Expression '#{s}' incorrect")
@@ -836,7 +842,14 @@ module CLIHelper
                 pass = true
 
                 stems.each do |s|
-                    s[:operator] == '=' ? op = '==' : op = s[:operator]
+                    case s[:operator]
+                    when '='
+                        op = '=='
+                    when '~'
+                        op = 'include?'
+                    else
+                        op = s[:operator]
+                    end
 
                     if d[s[:index]].public_send(op, s[:right])
                         if log_operator == 'OR'
