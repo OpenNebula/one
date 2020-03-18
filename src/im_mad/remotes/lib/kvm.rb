@@ -449,7 +449,7 @@ module DomainList
         domains.wilds_to_monitor
     end
 
-    def self.state_info
+    def self.state_info(host, host_id)
         domains = KVMDomains.new
 
         domains.state_info
@@ -501,10 +501,6 @@ module DomainList
             end
         end
 
-        # Get the list of VMs (known and not known to OpenNebula) and their info
-        # not including process usage.
-        #
-        #   @return [Hash] with KVM Domain classes indexed by their uuid
         def state_info
             info_each(false) do |name|
                 vm = Domain.new name

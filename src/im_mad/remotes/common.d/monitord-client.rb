@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -29,9 +29,10 @@ require 'rexml/document'
 
 require_relative '../lib/probe_db'
 
+#-------------------------------------------------------------------------------
 #  This class represents a monitord client. It handles udp and tcp connections
 #  and send update messages to monitord
-#
+#-------------------------------------------------------------------------------
 class MonitorClient
 
     # Defined in src/monitor/include/MonitorDriverMessages.h
@@ -110,9 +111,10 @@ class MonitorClient
 
 end
 
+#-------------------------------------------------------------------------------
 #  This class wraps the execution of a probe directory and sends data to
 #  monitord (optionally)
-#
+#-------------------------------------------------------------------------------
 class ProbeRunner
 
     def initialize(hyperv, path, stdin)
@@ -213,25 +215,31 @@ class ProbeRunner
 end
 
 #-------------------------------------------------------------------------------
+#  Script helper functions and gLobals
+#-------------------------------------------------------------------------------
+LOCAL_HYPERVISOR = %w[az ec2 packet].freeze
+
+def local?(hypervisor)
+  LOCAL_HYPERVISOR.include?(hypervisor)
+end
+
+#-------------------------------------------------------------------------------
 # Configuration (from monitord)
 #-------------------------------------------------------------------------------
 xml_txt = STDIN.read
 
 begin
-    config = REXML::Document.new(xml_txt).root
+    hyperv = ARGV[0].split(' ')[0]
+
+    xml_txt = Base64.decode64(xml_txt) if local? hyperv
+    config  = REXML::Document.new(xml_txt).root
 
     host   = config.elements['UDP_LISTENER/MONITOR_ADDRESS'].text.to_s
     port   = config.elements['UDP_LISTENER/PORT'].text.to_s
     pubkey = config.elements['UDP_LISTENER/PUBKEY'].text.to_s
     hostid = config.elements['HOST_ID'].text.to_s
-    hyperv = ARGV[0].split(' ')[0]
 
     probes = {
-        :beacon_host_udp => {
-            :period => config.elements['PROBES_PERIOD/BEACON_HOST'].text.to_s,
-            :path => 'host/beacon'
-        },
-
         :system_host_udp => {
             :period => config.elements['PROBES_PERIOD/SYSTEM_HOST'].text.to_s,
             :path => 'host/system'
@@ -252,6 +260,11 @@ begin
             :path => 'vm/monitor'
         }
     }
+
+    probes[:beacon_host_udp] = {
+        :period => config.elements['PROBES_PERIOD/BEACON_HOST'].text.to_s,
+        :path => 'host/beacon'
+    } unless local? hyperv
 
     if !pubkey.empty?
         exp = /(-+BEGIN RSA PUBLIC KEY-+)([^-]*)(-+END RSA PUBLIC KEY-+)/

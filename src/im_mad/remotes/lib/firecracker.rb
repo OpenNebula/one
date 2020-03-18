@@ -385,7 +385,7 @@ module DomainList
         domains.to_monitor
     end
 
-    def self.state_info
+    def self.state_info(host, host_id)
         domains = FirecrackerDomains.new
 
         domains.state_info

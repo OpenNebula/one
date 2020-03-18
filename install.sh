@@ -305,7 +305,15 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/firecracker-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/vcenter.d \
           $VAR_LOCATION/remotes/im/ec2.d \
+          $VAR_LOCATION/remotes/im/ec2-probes.d/host/monitor \
+          $VAR_LOCATION/remotes/im/ec2-probes.d/host/system \
+          $VAR_LOCATION/remotes/im/ec2-probes.d/vm/monitor \
+          $VAR_LOCATION/remotes/im/ec2-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/az.d \
+          $VAR_LOCATION/remotes/im/az-probes.d/host/monitor \
+          $VAR_LOCATION/remotes/im/az-probes.d/host/system \
+          $VAR_LOCATION/remotes/im/az-probes.d/vm/monitor \
+          $VAR_LOCATION/remotes/im/az-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/one.d \
           $VAR_LOCATION/remotes/im/packet.d \
           $VAR_LOCATION/remotes/pm \
@@ -486,6 +494,11 @@ INSTALL_FILES=(
     IM_PROBES_FIRECRACKER_FILES:$VAR_LOCATION/remotes/im/firecracker.d
     IM_PROBES_DUMMY_FILES:$VAR_LOCATION/remotes/im/dummy.d
     IM_PROBES_LXD_FILES:$VAR_LOCATION/remotes/im/lxd.d
+    IM_PROBES_VCENTER_FILES:$VAR_LOCATION/remotes/im/vcenter.d
+    IM_PROBES_EC2_FILES:$VAR_LOCATION/remotes/im/ec2.d
+    IM_PROBES_AZ_FILES:$VAR_LOCATION/remotes/im/az.d
+    IM_PROBES_ONE_FILES:$VAR_LOCATION/remotes/im/one.d
+    IM_PROBES_PACKET_FILES:$VAR_LOCATION/remotes/im/packet.d
     IM_PROBES_KVM_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/beacon
     IM_PROBES_KVM_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/monitor
     IM_PROBES_KVM_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/system
@@ -504,11 +517,14 @@ INSTALL_FILES=(
     IM_PROBES_LXD_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d/vm/status
     IM_PROBES_LXD_PROBES_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d
     IM_PROBES_ETC_LXD_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/lxd-probes.d
-    IM_PROBES_VCENTER_FILES:$VAR_LOCATION/remotes/im/vcenter.d
-    IM_PROBES_EC2_FILES:$VAR_LOCATION/remotes/im/ec2.d
-    IM_PROBES_AZ_FILES:$VAR_LOCATION/remotes/im/az.d
-    IM_PROBES_ONE_FILES:$VAR_LOCATION/remotes/im/one.d
-    IM_PROBES_PACKET_FILES:$VAR_LOCATION/remotes/im/packet.d
+    IM_PROBES_AZ_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/az-probes.d/host/monitor
+    IM_PROBES_AZ_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/az-probes.d/host/system
+    IM_PROBES_AZ_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/az-probes.d/vm/monitor
+    IM_PROBES_AZ_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/az-probes.d/vm/status
+    IM_PROBES_EC2_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/host/monitor
+    IM_PROBES_EC2_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/host/system
+    IM_PROBES_EC2_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/vm/monitor
+    IM_PROBES_EC2_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/vm/status
     IM_PROBES_VERSION:$VAR_LOCATION/remotes
     IM_PROBES_FIRECRACKER_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/host/beacon
     IM_PROBES_FIRECRACKER_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/host/monitor
@@ -789,6 +805,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/CommandManager.rb \
                 src/mad/ruby/OpenNebulaDriver.rb \
                 src/mad/ruby/VirtualMachineDriver.rb \
+                src/mad/ruby/PublicCloudDriver.rb \
                 src/mad/ruby/DriverExecHelper.rb \
                 src/mad/ruby/ssh_stream.rb \
                 src/vnm_mad/one_vnm.rb \
@@ -1067,7 +1084,6 @@ VMM_EXEC_EC2_SCRIPTS="src/vmm_mad/remotes/ec2/cancel \
                       src/vmm_mad/remotes/ec2/reboot \
                       src/vmm_mad/remotes/ec2/reset \
                       src/vmm_mad/remotes/ec2/save \
-                      src/vmm_mad/remotes/ec2/poll \
                       src/vmm_mad/remotes/ec2/shutdown \
                       src/vmm_mad/remotes/ec2/reconfigure \
                       src/vmm_mad/remotes/ec2/prereconfigure \
@@ -1091,7 +1107,6 @@ VMM_EXEC_AZ_SCRIPTS="src/vmm_mad/remotes/az/cancel \
                      src/vmm_mad/remotes/az/reboot \
                      src/vmm_mad/remotes/az/reset \
                      src/vmm_mad/remotes/az/save \
-                     src/vmm_mad/remotes/az/poll \
                      src/vmm_mad/remotes/az/shutdown \
                      src/vmm_mad/remotes/az/reconfigure \
                      src/vmm_mad/remotes/az/prereconfigure \
@@ -1273,9 +1288,41 @@ IM_PROBES_ETC_FIRECRACKER_PROBES_FILES="src/im_mad/remotes/lib/probe_db.conf"
 
 IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/poll"
 
-IM_PROBES_EC2_FILES="src/im_mad/remotes/ec2.d/poll"
+# EC2 monitord-client
+IM_PROBES_EC2_FILES="\
+    src/im_mad/remotes/ec2.d/monitord-client_control.sh \
+    src/im_mad/remotes/ec2.d/monitord-client.rb"
 
-IM_PROBES_AZ_FILES="src/im_mad/remotes/az.d/poll"
+# EC2 probes
+IM_PROBES_EC2_HOST_MONITOR_FILES="\
+     src/im_mad/remotes/ec2-probes.d/host/monitor/probe_host_monitor.rb"
+
+IM_PROBES_EC2_HOST_SYSTEM_FILES="\
+     src/im_mad/remotes/ec2-probes.d/host/system/probe_host_system.rb"
+
+IM_PROBES_EC2_VM_MONITOR_FILES="\
+     src/im_mad/remotes/ec2-probes.d/vm/monitor/probe_vm_monitor.rb"
+
+IM_PROBES_EC2_VM_STATUS_FILES="\
+     src/im_mad/remotes/ec2-probes.d/vm/status/probe_vm_status.rb"
+
+# AZ monitord-client
+IM_PROBES_AZ_FILES="\
+    src/im_mad/remotes/az.d/monitord-client_control.sh \
+    src/im_mad/remotes/az.d/monitord-client.rb"
+
+# AZ probes
+IM_PROBES_AZ_HOST_MONITOR_FILES="\
+     src/im_mad/remotes/az-probes.d/host/monitor/probe_host_monitor.rb"
+
+IM_PROBES_AZ_HOST_SYSTEM_FILES="\
+     src/im_mad/remotes/az-probes.d/host/system/probe_host_system.rb"
+
+IM_PROBES_AZ_VM_MONITOR_FILES="\
+     src/im_mad/remotes/az-probes.d/vm/monitor/probe_vm_monitor.rb"
+
+IM_PROBES_AZ_VM_STATUS_FILES="\
+     src/im_mad/remotes/az-probes.d/vm/status/probe_vm_status.rb"
 
 IM_PROBES_ONE_FILES="src/im_mad/remotes/one.d/poll"
 

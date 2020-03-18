@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,14 +16,14 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV['ONE_LOCATION'] if !defined?(ONE_LOCATION)
+ONE_LOCATION = ENV['ONE_LOCATION'] if !defined? ONE_LOCATION
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' if !defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = '/usr/share/one/gems' if !defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' if !defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' if !defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
 if File.directory?(GEMS_LOCATION)
@@ -32,13 +32,16 @@ end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 
-require 'az_driver'
 
-host = ARGV[-1]
-az_drv = AzureDriver.new(host)
+require 'ec2_driver'
+
+host    = ARGV[-1]
+host_id = ARGV[-2]
+ec2_drv = EC2Driver.new(host, host_id)
 
 begin
-    az_drv.monitor_all_vms
-rescue => e
-    OpenNebula.handle_driver_exception("im poll", e, host)
+    puts ec2_drv.probe_host_system
+rescue Exception => e
+
+    OpenNebula.handle_driver_exception("im probe_host_system", e, host)
 end
