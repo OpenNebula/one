@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -21,10 +21,12 @@ if !ONE_LOCATION
     RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
     GEMS_LOCATION     ||= '/usr/share/one/gems'
     ETC_LOCATION      ||= '/etc/one/'
+    VAR_LOCATION      ||= '/var/lib/one/'
 else
-    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
-    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
-    ETC_LOCATION      ||= ONE_LOCATION + '/etc/'
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby' if !defined?(RUBY_LIB_LOCATION)
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems' if !defined?(GEMS_LOCATION)
+    ETC_LOCATION      ||= ONE_LOCATION + '/etc/' if !defined?(ETC_LOCATION)
+    VAR_LOCATION      ||= ONE_LOCATION + '/var/' if !defined?(VAR_LOCATION)
 end
 
 AZ_DRIVER_CONF = "#{ETC_LOCATION}/az_driver.conf"
@@ -45,31 +47,13 @@ require 'tempfile'
 require 'CommandManager'
 require 'scripts_common'
 require 'VirtualMachineDriver'
+require 'PublicCloudDriver'
 require 'opennebula'
 
-require 'azure_mgmt_compute'
-require 'azure_mgmt_monitor'
-require 'azure_mgmt_network'
-require 'azure_mgmt_resources'
-require 'azure_mgmt_storage'
-
 # The main class for the Azure driver
-class AzureDriver
+class AzureDriver < PublicCloudDriver
 
-    ACTION          = VirtualMachineDriver::ACTION
     POLL_ATTRIBUTE  = VirtualMachineDriver::POLL_ATTRIBUTE
-    VM_STATE        = VirtualMachineDriver::VM_STATE
-
-    Compute = Azure::Compute::Profiles::Latest::Mgmt
-    Monitor = Azure::Monitor::Profiles::Latest::Mgmt
-    Network = Azure::Network::Profiles::Latest::Mgmt
-    Resources = Azure::Resources::Profiles::Latest::Mgmt
-    Storage = Azure::Storage::Profiles::Latest::Mgmt
-
-    ComputeModels = Compute::Models
-    NetworkModels = Network::Models
-    ResourceModels = Resources::Models
-    StorageModels = Storage::Models
 
     MONITOR_METRICS = [
         'Percentage CPU',
@@ -89,16 +73,17 @@ class AzureDriver
 
     # Azure constructor, loads credentials, create azure clients
     def initialize(host)
+        @hypervisor = 'azure'
         @host = host
         @to_inst ={}
 
-        @public_cloud_az_conf = YAML.safe_load(File.read(AZ_DRIVER_CONF))
+        @public_cloud_conf= YAML.safe_load(File.read(AZ_DRIVER_CONF))
 
-        if @public_cloud_az_conf['proxy_uri']
-            ENV['HTTP_PROXY'] = @public_cloud_az_conf['proxy_uri']
+        if @public_cloud_conf['proxy_uri']
+            ENV['HTTP_PROXY'] = @public_cloud_conf['proxy_uri']
         end
 
-        @instance_types = @public_cloud_az_conf['instance_types']
+        @instance_types = @public_cloud_conf['instance_types']
         @instance_types.keys.each  do |key|
             @to_inst[key.upcase] = key
         end
@@ -106,26 +91,63 @@ class AzureDriver
         @xmlhost = host_info
         @rgroup_name, @rgroup_keep_empty = rgroup_info
 
-        az_conn_opts = connect_info
-        @region = az_conn_opts[:region]
+        @az_conn_opts = connect_info
+        @region = @az_conn_opts[:region]
+
+        # create or open cache db
+        @db = InstanceCache.new(File.join(VAR_LOCATION,'remotes', 'im', 'az.d', 'az-cache.db'))
+    end
+
+    def init_azure
+        require 'azure_mgmt_compute'
+        require 'azure_mgmt_monitor'
+        require 'azure_mgmt_network'
+        require 'azure_mgmt_resources'
+        require 'azure_mgmt_storage'
+
+        @compute_models = Azure::Compute::Profiles::Latest::Mgmt::Models
+        @network_models = Azure::Network::Profiles::Latest::Mgmt::Models
 
         provider = MsRestAzure::ApplicationTokenProvider.new(
-            az_conn_opts[:tenant_id],
-            az_conn_opts[:client_id],
-            az_conn_opts[:client_secret]
+            @az_conn_opts[:tenant_id],
+            @az_conn_opts[:client_id],
+            @az_conn_opts[:client_secret]
         )
 
-        az_conn_opts[:credentials] = MsRest::TokenCredentials.new(provider)
+        @az_conn_opts[:credentials] = MsRest::TokenCredentials.new(provider)
 
-        @compute_client = Compute::Client.new(az_conn_opts)
-        @monitor_client = Monitor::Client.new(az_conn_opts)
-        @network_client = Network::Client.new(az_conn_opts)
-        @resource_client = Resources::Client.new(az_conn_opts)
-        @storage_client = Storage::Client.new(az_conn_opts)
+        # rubocop:disable Layout/LineLength
+        @compute_client = Azure::Compute::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
+        @monitor_client = Azure::Monitor::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
+        @network_client = Azure::Network::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
+        @resource_client = Azure::Resources::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
+        @storage_client = Azure::Storage::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
+        # rubocop:enable Layout/LineLength
+    end
+
+    # Check the host template to retrieve conection info needed for Azure
+    def connect_info
+        ret = {}
+
+        { 'AZ_SUB'    => :subscription_id,
+          'AZ_CLIENT' => :client_id,
+          'AZ_SECRET' => :client_secret,
+          'AZ_TENANT' => :tenant_id,
+          'AZ_REGION' => :region }.each do |attr_name, conn_opt|
+            ret[conn_opt] = @xmlhost["TEMPLATE/#{attr_name}"]
+
+            if ret[conn_opt].nil?
+                raise "Missing #{attr_name} in azure host template"
+            end
+        end
+
+        ret
     end
 
     # DEPLOY action
     def deploy(id, host, xml_text, lcm_state, deploy_id)
+        init_azure
+
         @rgroup = create_rgroup(@rgroup_name, @region) \
             unless @resource_client.resource_groups
                                    .check_existence(@rgroup_name)
@@ -156,24 +178,30 @@ class AzureDriver
 
     # Shutdown an Azure instance
     def shutdown(deploy_id, lcm_state)
+        init_azure
+
         case lcm_state
         when 'SHUTDOWN'
             @compute_client.virtual_machines.power_off(@rgroup_name, deploy_id)
             @compute_client.virtual_machines.delete(@rgroup_name, deploy_id)
+            delete_vm_resources(deploy_id)
         when 'SHUTDOWN_POWEROFF', 'SHUTDOWN_UNDEPLOY'
-            @compute_client.virtual_machines.delete(@rgroup_name, deploy_id)
+            @compute_client.virtual_machines.power_off(@rgroup_name, deploy_id)
         end
-        delete_vm_resources(deploy_id)
     end
 
     # Reboot an Azure instance
     def reboot(deploy_id)
+        init_azure
+
         i = get_instance(deploy_id)
         @compute_client.virtual_machines.restart(@rgroup_name, i.name)
     end
 
     # Cancel an Azure instance
     def cancel(deploy_id)
+        init_azure
+
         @compute_client.virtual_machines.delete(@rgroup_name, deploy_id)
 
         delete_vm_resources(deploy_id)
@@ -181,145 +209,24 @@ class AzureDriver
 
     # Stop an Azure instance
     def save(deploy_id)
+        init_azure
+
         i = get_instance(deploy_id)
         @compute_client.virtual_machines.power_off(@rgroup_name, i.name)
     end
 
     # Resume an Azure instance
     def restore(deploy_id)
+        init_azure
+
         i = get_instance(deploy_id)
 
-        return if vm_state(i) == 'running'
+        return if vm_state(i) == 'RUNNING'
 
         @compute_client.virtual_machines.start(@rgroup_name, i.name)
     end
 
-    # Get info (IP, and state) for an Azure instance
-    def poll(_id, deploy_id)
-        i = get_instance(deploy_id)
-        puts parse_poll(i)
-    end
-
-    # Get the info of all Aure instances. An Azure instance must have
-    # a name compliant with the "one-####" format, where #### are integers
-    def monitor_all_vms
-        totalmemory = 0
-        totalcpu    = 0
-
-        capacity = @xmlhost.to_hash['HOST']['TEMPLATE']['CAPACITY']
-
-        if capacity.nil? || !capacity.is_a?(Hash)
-            raise 'You must define CAPACITY section properly! '\
-                  'Check the VM template'
-        end
-
-        capacity.each do |name, value|
-            cpu, mem = instance_type_capacity(name)
-            totalmemory += mem * value.to_i
-            totalcpu    += cpu * value.to_i
-        end
-
-        host_info =  "HYPERVISOR=AZURE\n"
-        host_info << "PUBLIC_CLOUD=YES\n"
-        host_info << "PRIORITY=-1\n"
-        host_info << "TOTALMEMORY=#{totalmemory.round}\n"
-        host_info << "TOTALCPU=#{totalcpu}\n"
-        host_info << "HOSTNAME=\"#{@host}\"\n"
-
-        vms_info   = "VM_POLL=YES\n"
-
-        usedcpu    = 0
-        usedmemory = 0
-
-        work_q = Queue.new
-
-        if @resource_client.resource_groups.check_existence(@rgroup_name)
-            @compute_client.virtual_machines
-                           .list(@rgroup_name).each {|i| work_q.push i }
-            workers = (0...20).map do
-                Thread.new do
-                    begin
-                        while (i = work_q.pop(true))
-                            vm_state = vm_state(i)
-                            next if vm_state !~ /running|pending/
-
-                            one_id = i.tags['ONE_ID'] if i.tags
-
-                            poll_data = parse_poll(i, vm_state)
-
-                            vm_template_to_one = vm_to_one(i)
-                            vm_template_to_one = Base64
-                                                 .encode64(vm_template_to_one)
-                                                 .gsub("\n", '')
-
-                            vms_info << "VM=[\n"
-                            vms_info << "  ID=#{one_id || -1},\n"
-                            vms_info << "  DEPLOY_ID=#{i.name},\n"
-                            vms_info << "  VM_NAME=#{i.name},\n"
-                            vms_info << '  IMPORT_TEMPLATE='\
-                                        "\"#{vm_template_to_one}\",\n"
-                            vms_info << "  POLL=\"#{poll_data}\" ]\n"
-
-                            next unless one_id
-
-                            name = i.hardware_profile.vm_size
-                            cpu, mem = instance_type_capacity(name)
-                            usedcpu += cpu
-                            usedmemory += mem
-                        end
-                    rescue ThreadError
-                        nil
-                    rescue StandardError
-                        raise
-                    end
-                end
-            end
-            workers.map(&:join)
-        end
-
-        host_info << "USEDMEMORY=#{usedmemory.round}\n"
-        host_info << "USEDCPU=#{usedcpu.round}\n"
-        host_info << "FREEMEMORY=#{(totalmemory - usedmemory).round}\n"
-        host_info << "FREECPU=#{(totalcpu - usedcpu).round}\n"
-
-        puts host_info
-        puts vms_info
-    end
-
     private
-
-    def host_info
-        client = OpenNebula::Client.new
-        pool = OpenNebula::HostPool.new(client)
-        pool.info
-
-        objects=pool.select {|object| object.name==@host }
-
-        host_id = objects.first.id
-        xmlhost = OpenNebula::Host.new_with_id(host_id, client)
-        xmlhost.info(true)
-        xmlhost
-    end
-
-    # Check the host template to retrieve
-    # conection info needed for Azure
-    def connect_info
-        ret = {}
-
-        { 'AZ_SUB'    => :subscription_id,
-          'AZ_CLIENT' => :client_id,
-          'AZ_SECRET' => :client_secret,
-          'AZ_TENANT' => :tenant_id,
-          'AZ_REGION' => :region }.each do |attr_name, conn_opt|
-            ret[conn_opt] = @xmlhost["TEMPLATE/#{attr_name}"]
-
-            if ret[conn_opt].nil?
-                raise "Missing #{attr_name} in azure host template"
-            end
-        end
-
-        ret
-    end
 
     # AZ resource group is either specified in host template attr AZ_GROUP
     # or it is derived from the rgroup_name_format and host attributes
@@ -330,7 +237,7 @@ class AzureDriver
 
         return rgroup, keep_empty if rgroup
 
-        rgroup_name_format = @public_cloud_az_conf['rgroup_name_format'] || \
+        rgroup_name_format = @public_cloud_conf['rgroup_name_format'] || \
                              'one-%<NAME>s-%<ID>s'
 
         rgroup = format(rgroup_name_format,
@@ -348,6 +255,74 @@ class AzureDriver
                       "or in #{AZ_DRIVER_DEFAULT}"
             end
         end
+    end
+
+    # Count total cpu and memory based on instance type numbers in host tmpl.
+    def get_host_capacity
+        capacity = @xmlhost.to_hash['HOST']['TEMPLATE']['CAPACITY']
+
+        if capacity.nil? || !capacity.is_a?(Hash)
+            raise 'You must define CAPACITY section properly! '\
+                  'Check the VM template'
+        end
+
+        total_memory = total_cpu = 0
+        capacity.each do |name, value|
+            cpu, mem = instance_type_capacity(name)
+            total_memory += mem * value.to_i
+            total_cpu    += cpu * value.to_i
+        end
+
+        [total_cpu, total_memory]
+    end
+
+    # Get VMs details from azure, include monitoring if needed
+    def fetch_vms_data(with_monitoring = false)
+        init_azure
+        work_q = Queue.new
+
+        vms = []
+        if @resource_client.resource_groups.check_existence(@rgroup_name)
+            az_instances = @compute_client.virtual_machines.list(@rgroup_name)
+            az_instances.each {|i| work_q.push i }
+
+            workers = (0...[az_instances.length, 20].min).map do
+                Thread.new do
+                    begin
+                        while (i = work_q.pop(true))
+                            vm_state = vm_state(i)
+                            next if vm_state != 'RUNNING'
+
+                            one_id = i.tags['ONE_ID'] if i.tags
+
+                            vm = { :uuid      => i.vm_id,
+                                   :id        => one_id || -1,
+                                   :name      => i.name,
+                                   :type      => i.hardware_profile.vm_size,
+                                   :state     => vm_state(i) }
+
+                            if with_monitoring
+                                vm[:monitor] = get_vm_monitor_data(i)
+                            end
+
+                            vms << vm
+
+                            # next unless one_id
+                        end
+                    rescue ThreadError
+                        nil
+                    rescue StandardError
+                        raise
+                    end
+                end
+            end
+            workers.map(&:join)
+        end
+
+        # store to db
+        @db.insert(vms)
+
+        vms
     end
 
     # Create azure resource group
@@ -413,10 +388,10 @@ class AzureDriver
     end
 
     def create_public_ip(id, ip_name)
-        public_ip_params = NetworkModels::PublicIPAddress.new.tap do |ip|
+        public_ip_params = @network_models::PublicIPAddress.new.tap do |ip|
             ip.location = @region
             ip.public_ipallocation_method =
-                NetworkModels::IPAllocationMethod::Dynamic
+                @network_models::IPAllocationMethod::Dynamic
             ip.tags = { 'ONE_ID' => id }
         end
         @network_client.public_ipaddresses.create_or_update(
@@ -428,8 +403,8 @@ class AzureDriver
     # rubocop:disable Layout/LineLength
     def create_vm(id, subnet, public_ip, az_info, ssh_public_key)
         vm_name = "one-#{id}"
-        net_ip_conf = NetworkModels::NetworkInterfaceIPConfiguration
-        ip_method   = NetworkModels::IPAllocationMethod::Dynamic
+        net_ip_conf = @network_models::NetworkInterfaceIPConfiguration
+        ip_method   = @network_models::IPAllocationMethod::Dynamic
 
         if az_info['SECURITY_GROUP']
             security_group = @network_client.network_security_groups.get(@rgroup_name, az_info['SECURITY_GROUP'])
@@ -446,7 +421,7 @@ class AzureDriver
         nic = @network_client.network_interfaces.create_or_update(
             @rgroup_name,
             "#{vm_name}-nic",
-            NetworkModels::NetworkInterface.new.tap do |interface|
+            @network_models::NetworkInterface.new.tap do |interface|
                 interface.location = @region
                 interface.network_security_group = security_group if security_group
                 interface.ip_configurations = [
@@ -462,9 +437,9 @@ class AzureDriver
             end
         )
 
-        vm_create_params = ComputeModels::VirtualMachine.new.tap do |vm|
+        vm_create_params = @compute_models::VirtualMachine.new.tap do |vm|
             vm.location = @region
-            vm.os_profile = ComputeModels::OSProfile.new.tap do |os_profile|
+            vm.os_profile = @compute_models::OSProfile.new.tap do |os_profile|
                 os_profile.computer_name = vm_name
                 os_profile.admin_username = az_info['VM_USER']
                 os_profile.admin_password = az_info['VM_PASSWORD']
@@ -473,8 +448,8 @@ class AzureDriver
             vm.proximity_placement_groups = proximity_group if proximity_group
             vm.availability_set = availability_set if availability_set
 
-            vm.storage_profile = ComputeModels::StorageProfile.new.tap do |store_profile|
-                store_profile.image_reference = ComputeModels::ImageReference.new.tap do |ref|
+            vm.storage_profile = @compute_models::StorageProfile.new.tap do |store_profile|
+                store_profile.image_reference = @compute_models::ImageReference.new.tap do |ref|
                     ref.publisher = az_info['IMAGE_PUBLISHER']
                     ref.offer = az_info['IMAGE_OFFER']
                     ref.sku = az_info['IMAGE_SKU']
@@ -482,14 +457,14 @@ class AzureDriver
                 end
             end
 
-            vm.hardware_profile = ComputeModels::HardwareProfile.new.tap do |hardware|
-                # hardware.vm_size = ComputeModels::VirtualMachineSizeTypes::StandardDS2V2
+            vm.hardware_profile = @compute_models::HardwareProfile.new.tap do |hardware|
+                # hardware.vm_size = @compute_models::VirtualMachineSizeTypes::StandardDS2V2
                 hardware.vm_size = az_info['INSTANCE_TYPE']
             end
 
-            vm.network_profile = ComputeModels::NetworkProfile.new.tap do |net_profile|
+            vm.network_profile = @compute_models::NetworkProfile.new.tap do |net_profile|
                 net_profile.network_interfaces = [
-                    ComputeModels::NetworkInterfaceReference.new.tap do |ref|
+                    @compute_models::NetworkInterfaceReference.new.tap do |ref|
                         ref.id = nic.id
                         ref.primary = true
                     end
@@ -498,11 +473,11 @@ class AzureDriver
         end
 
         if ssh_public_key
-            vm_create_params.os_profile.linux_configuration = ComputeModels::LinuxConfiguration.new.tap do |linux|
+            vm_create_params.os_profile.linux_configuration = @compute_models::LinuxConfiguration.new.tap do |linux|
                 linux.disable_password_authentication = true
-                linux.ssh = ComputeModels::SshConfiguration.new.tap do |ssh_config|
+                linux.ssh = @compute_models::SshConfiguration.new.tap do |ssh_config|
                     ssh_config.public_keys = [
-                        ComputeModels::SshPublicKey.new.tap do |pub_key|
+                        @compute_models::SshPublicKey.new.tap do |pub_key|
                             pub_key.key_data = ssh_public_key
                             pub_key.path = "/home/#{az_info['VM_USER']}/.ssh/authorized_keys"
                         end
@@ -567,7 +542,7 @@ class AzureDriver
          (resource['memory'].to_f * 1024 * 1024).to_i]
     end
 
-    # Get the Azure section of the template. If more than one Azure section
+    # Get the Azure section of the template.
     def get_deployment_info(host, xml_text)
         xml = OpenNebula::XMLElement.new
         xml.initialize_xml(xml_text, 'VM')
@@ -611,11 +586,23 @@ class AzureDriver
         [az, context.first.to_hash['CONTEXT']]
     end
 
+    # Return state of the instance (ONE state)
     def vm_state(i)
         az_inst_view = @compute_client.virtual_machines.instance_view(
             @rgroup_name, i.name
         )
-        az_inst_view.statuses[-1].code.split('/').last
+        az_state = az_inst_view.statuses[-1].code.split('/').last
+        case az_state
+        when 'running', 'starting'
+            # return VM_STATE[:active]
+            'RUNNING'
+        when 'suspended', 'stopping'
+            # return VM_STATE[:paused]
+            'SHUTDOWN'
+        else
+            # return VM_STATE[:unknown]
+            'UNKNOWN'
+        end
     end
 
     def get_cpu_num(instance)
@@ -628,32 +615,16 @@ class AzureDriver
     end
 
     # Retrive the vm information from the Azure instance view
-    def parse_poll(instance, vm_state)
-        info = state = ''
-
-        if !instance
-            state = VM_STATE[:deleted]
-        else
-            case vm_state
-            when 'running', 'starting'
-                state = VM_STATE[:active]
-            when 'suspended', 'stopping'
-                state = VM_STATE[:paused]
-            else
-                state = VM_STATE[:unknown]
-            end
-        end
-
-        info << "#{POLL_ATTRIBUTE[:state]}=#{state} "
-
+    def get_vm_monitor_data(instance)
         # include metrics data (azure doesn't give any info about VM memory)
         data = @monitor_client.metrics.list(
             instance.id,
             :metricnames => MONITOR_METRICS.join(','),
-            :timespan => 'PT1M', # Period time 1m
+            :timespan    => 'PT1M', # Period time 1m
             :result_type => 'Data'
         )
 
+        info = ''
         data.value.each do |e|
             value = e.timeseries.first.data.first.average || 0
 
@@ -690,7 +661,7 @@ class AzureDriver
             info << "\\\"#{v}\\\" "
         end
 
-        info
+        Base64.encode64(info).gsub("\n", '')
     end
 
     def get_instance_public_ip(vm_name)
@@ -738,29 +709,6 @@ class AzureDriver
         instance
     end
 
-    # Build template for importation
-    def vm_to_one(vm)
-        cpu, mem = instance_type_capacity(vm.hardware_profile.vm_size)
-
-        mem = mem.to_i / 1024 # Memory for templates expressed in MB
-        cpu = cpu.to_f / 100  # CPU expressed in units
-
-        str = "NAME   = \"Instance from #{vm.name}\"\n"\
-              "CPU    = \"#{cpu}\"\n"\
-              "vCPU   = \"#{cpu.ceil}\"\n"\
-              "MEMORY = \"#{mem}\"\n"\
-              "HYPERVISOR = \"AZURE\"\n"\
-              "PUBLIC_CLOUD = [\n"\
-              "  TYPE  =\"azure\"\n"\
-              "]\n"\
-              "IMPORT_VM_ID    = \"#{vm.vm_id}\"\n"\
-              "SCHED_REQUIREMENTS=\"NAME=\\\"#{@host}\\\"\"\n"\
-              'DESCRIPTION = "Instance imported from Azure, from instance'\
-              " #{vm.name}\"\n"
-
-        str
-    end
-
     # Transform object to hash
     def examine(obj)
         ret = {}
@@ -787,6 +735,31 @@ class AzureDriver
                 h[k] = v
             end
         end
+    end
+
+end
+
+############################################################################
+#  Module Interface
+#  Interface for probe_db - VirtualMachineDB
+############################################################################
+module DomainList
+
+    def self.state_info(*args)
+        az = AzureDriver.new(*args)
+
+        vms = az.get_vms_data
+
+        info = {}
+        vms.each do |vm|
+            info[vm[:uuid]] = { :id     => vm[:id],
+                                :uuid   => vm[:uuid],
+                                :name   => vm[:name],
+                                :state  => vm[:state],
+                                :hyperv => 'az' }
+        end
+
+        info
     end
 
 end

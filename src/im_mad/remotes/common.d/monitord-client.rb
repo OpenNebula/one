@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -218,20 +218,20 @@ end
 xml_txt = STDIN.read
 
 begin
+    hyperv = ARGV[0].split(' ')[0]
+
+    if ['az', 'ec2', 'packet'].include? hyperv
+        xml_txt = Base64.decode64(xml_txt)
+    end
+
     config = REXML::Document.new(xml_txt).root
 
     host   = config.elements['UDP_LISTENER/MONITOR_ADDRESS'].text.to_s
     port   = config.elements['UDP_LISTENER/PORT'].text.to_s
     pubkey = config.elements['UDP_LISTENER/PUBKEY'].text.to_s
     hostid = config.elements['HOST_ID'].text.to_s
-    hyperv = ARGV[0].split(' ')[0]
 
     probes = {
-        :beacon_host_udp => {
-            :period => config.elements['PROBES_PERIOD/BEACON_HOST'].text.to_s,
-            :path => 'host/beacon'
-        },
-
         :system_host_udp => {
             :period => config.elements['PROBES_PERIOD/SYSTEM_HOST'].text.to_s,
             :path => 'host/system'
@@ -252,6 +252,14 @@ begin
             :path => 'vm/monitor'
         }
     }
+
+    if ! ['az', 'ec2', 'packet'].include? hyperv
+        probes[:beacon_host_udp] = {
+            :period => config.elements['PROBES_PERIOD/BEACON_HOST'].text.to_s,
+            :path => 'host/beacon'
+        }
+
+    end
 
     if !pubkey.empty?
         exp = /(-+BEGIN RSA PUBLIC KEY-+)([^-]*)(-+END RSA PUBLIC KEY-+)/

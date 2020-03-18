@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
@@ -14,62 +14,33 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
-#--------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------- #
 
-#--------------------------------------------------------------------------- #
-# Process Arguments
-#--------------------------------------------------------------------------- #
-ACTION="start"
+ONE_LOCATION ||= ENV['ONE_LOCATION'] if !defined? ONE_LOCATION
 
-if [ "$1" = "stop" ]; then
-    shift
-    ACTION="stop"
-fi
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
+else
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
+end
 
-ARGV=$*
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+end
 
-STDIN=`cat -`
+$LOAD_PATH << RUBY_LIB_LOCATION
 
-# Directory that contains this file
-DIR=$(pwd)
+require 'ec2_driver'
 
-# Basename
-BASENAME=$(basename $0 _control.sh)
+host    = ARGV[-1]
+host_id = ARGV[-2]
+ec2_drv = EC2Driver.new(host)
 
-# Collectd client (Ruby)
-CLIENT=$DIR/${BASENAME}.rb
+begin
+    puts ec2_drv.probe_host_monitor
+rescue Exception => e
 
-# Collectd client PID
-CLIENT_PID_FILE=/tmp/one-monitord-client.pid
-
-# Launch the client
-function start_client() {
-    rm $CLIENT_PID_FILE >/dev/null 2>&1
-
-    echo "$STDIN" | /usr/bin/env ruby $CLIENT $ARGV &
-
-    echo $! > $CLIENT_PID_FILE
-}
-
-# Stop the client
-function stop_client() {
-    local pids=$(ps axuww | grep /monitord-client.rb | grep -v grep | awk '{print $2}')
-
-    if [ -n "$pids" ]; then
-        kill -9 $pids
-        sleep 5
-    fi
-
-    rm -f $CLIENT_PID_FILE
-}
-
-case $ACTION in
-start)
-    stop_client
-    start_client
-    ;;
-
-stop)
-    stop_client
-    ;;
-esac
+    OpenNebula.handle_driver_exception("im probe_host_monitor", e, host)
+end
