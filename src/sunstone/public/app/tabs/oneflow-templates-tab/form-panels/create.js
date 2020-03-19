@@ -109,9 +109,7 @@ define(function(require) {
     this.roleTabObjects = {};
     var that = this;
 
-    var roles_index = 0;
-
-    $(".add_service_network", context).on("click", function() {
+    $(".add_service_network", context).bind("click", function() {
       var nic_index = $(".service_network_name", context).length;
 
       $(".service_networks tbody").append(
@@ -153,7 +151,7 @@ define(function(require) {
         })
     });
 
-    $(".add_service_network", context).trigger("click");
+    //$(".add_service_network", context).click();
 
     context.on("keyup", ".service_network_name", function(){
       // update pattern regex
@@ -198,11 +196,10 @@ define(function(require) {
       _redo_service_networks_selector(context, that, $(this).data("index"));
     });
 
+    that.roles_index = 0;
     $("#tf_btn_roles", context).bind("click", function(){
-      that.addRoleTab(roles_index, context);
-      roles_index++;
-
-      return false;
+      that.addRoleTab(that.roles_index, context);
+      that.roles_index++;
     });
 
     // Fill parents table
@@ -247,7 +244,7 @@ define(function(require) {
     Foundation.reflow(context, 'tabs');
 
     // Add first role
-    $("#tf_btn_roles", context).trigger("click");
+    $("#tf_btn_roles", context).click();
     Tips.setup(context);
     UserInputs.setup(context);
     return false;
