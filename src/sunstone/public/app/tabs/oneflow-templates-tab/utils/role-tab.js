@@ -230,8 +230,7 @@ define(function(require) {
 
   function _fill(context, value, network_names) {
     var that = this;
-    $("#role_name", context).val(value.name);
-    $("#role_name", context).change();
+    $("#role_name", context).val(value.name).keyup();
 
     $("#cardinality", context).val(value.cardinality);
 

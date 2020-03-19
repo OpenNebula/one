@@ -41,16 +41,20 @@
         <table class="service_networks policies_table dataTable">
           <thead>
             <tr>
-              <th style="width:30%">{{tr "Name"}}</th>
-              <th style="width:70%">{{tr "Description"}}</th>
-              <th style="width:3%"></th>
+              <th width="5%">{{tr "Mandatory"}}</th>
+              <th width="22%">{{tr "Name"}}</th>
+              <th width="23%">{{tr "Description"}}</th>
+              <th width="10%">{{tr "Type"}}</th>
+              <th id="service_network_id_label" width="15%">{{tr "Network"}}</th>
+              <th width="20%">{{tr "Extra"}}</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
           </tbody>
           <tfoot>
             <tr>
-              <td colspan="3">
+              <td colspan="6">
                 <a type="button" class="add_service_network button small small-12 secondary radius"><i class="fas fa-lg fa-plus-circle"></i> {{tr "Network"}}</a>
               </td>
             </tr>
@@ -62,7 +66,7 @@
   </div>
   <div id="custom_attr_values">
     {{#advancedSection (tr "Custom Attributes Values Configuration") }}
-      {{{customTagsTableHTML}}}
+      {{{userInputsHTML}}}
     {{/advancedSection}}
   </div>
   {{#advancedSection (tr "Advanced service parameters") }}

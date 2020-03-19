@@ -61,7 +61,7 @@ define(function(require) {
   }
 
   function _setup(context){
-    context.on("click", ".add_user_input_attr", function() {
+    $(".add_user_input_attr", context).bind("click", function() {
       $(".user_input_attrs tbody", context).append(RowTemplateHTML({"idInput": UniqueId.id()}));
       $("tbody label").css("cursor", "pointer");
       $("select.user_input_type", context).change();
@@ -113,6 +113,8 @@ define(function(require) {
         attr.description = $(".user_input_description", $(this)).val();
 
         switch(attr.type){
+          case "text":
+          case "text64":
           case "number":
           case "number-float":
           case "fixed":
@@ -181,6 +183,8 @@ define(function(require) {
             }
 
             switch(attr.type){
+              case "text":
+              case "text64":
               case "number":
               case "number-float":
               case "fixed":
@@ -326,25 +330,31 @@ define(function(require) {
       return rtn;
     }
 
-    function addInVar(iterator, store, index, notype){
+    function addInVar(iterator, store){
       if(iterator && store && Array.isArray(store)){
         $.each(iterator, function(key, value) {
-          var attrs = _parse(key, value, notype);
+          var attrs = _parse(key, value);
           if (defaults[key] != undefined){
             attrs.initial = opts.defaults[key];
           }
           if(checkItemInArray(attrs, store, 'name')){
             store.push(attrs);
-            if(index){
-              check[index]=true;
-            }
           }
         });
       }
     }
 
     addInVar(networks, network_attrs);
-    addInVar(customs, custom_attrs, 'customs', true); //4 params remove the type
+    addInVar(customs, custom_attrs);
+
+    this.networksType = [
+      //Template id the una VN Template
+      {value: 'template_id', text: 'Create', select: 'vntemplates', extra: true },
+      //ID de una vnet que ya existe para reservar de ella
+      {value: 'reserve_from', text: 'Reserve', select: 'networks', extra: true },
+      //ID de una vnet que ya existe para usarla directamente
+      {value: 'id', text: 'Existing', select: 'networks', extra: false },
+    ]
 
     // Render networks
     if (network_attrs.length > 0) {
@@ -358,14 +368,25 @@ define(function(require) {
       html = "";
       var separator = $("<div>");
       $.each(network_attrs, function(index, vnet_attr) {
+        // 0 type; 1 id; 3(optional) extra
+        var info = vnet_attr.initial.split(":")
+        var type = info[0];
+        var id = info[1];
+        var extra = info.slice(2).join('');
+
         var unique_id = "vnet_user_input_" + UniqueId.id();
-        vnetsTable = new VNetsTable(unique_id, {"select": true});
+        if(type === "reserve_from" || type === "id") {
+          var table = new VNetsTable(unique_id, {"select": true});
+        }else {
+          var table = new VNetsTemplateTable(unique_id, {"select": true});
+        }
+
         if(opts && opts.select_networks){
           $("."+network_attrs_class, div).append(
             $("<div>", {class:"row"}).append(
               $("<div>",{class: "large-12 large-centered columns"}).append(
                 separator.add(
-                  $("<h5>").text(TemplateUtils.htmlEncode(vnet_attr.name)).add(
+                  $("<h6>").text(TemplateUtils.htmlEncode(vnet_attr.name)).add(
                     $("<div>",{class: "row"}).append(
                       $("<div>",{class:"columns small-12"}).append(
                         $("<select>",{
@@ -375,18 +396,21 @@ define(function(require) {
                           'data-idtable': unique_id,
                           'data-id': index
                         }).append(
-                          $("<option>",{value:"existing"}).text(Locale.tr("Existing")).add(
-                            $("<option>", {value: "create"}).text(Locale.tr("Create"))
+                            $("<option>",{ value: "id" }).text(Locale.tr("Existing")
                           ).add(
-                            $("<option>", {value: "reserve"}).text(Locale.tr("Reserve"))
+                            $("<option>", {value: "template_id"}).text(Locale.tr("Create"))
+                          ).add(
+                            $("<option>", {value: "reserve_from"}).text(Locale.tr("Reserve"))
                           )
                         )
-                      ).add($("<div>",
-                        {
-                          class:"columns small-12", 
-                          id:"placeDatatable_"+index
-                        }
-                      ).html(vnetsTable.dataTableHTML))
+                      ).add(
+                        $("<div>",
+                          {
+                            class:"columns small-12", 
+                            id:"placeDatatable_"+index
+                          }
+                        ).html(table.dataTableHTML)
+                      )
                     )
                   )
                 )
@@ -395,9 +419,30 @@ define(function(require) {
           );
         }
         separator = $("<hr/>");
-        vnetsTable.initialize();
+        table.initialize();
         $("#refresh_button_" + unique_id).click();
-        vnetsTable.idInput().attr("wizard_field", vnet_attr.name).attr("required", "");
+        table.idInput().attr("wizard_field", vnet_attr.name).attr("required", "");
+
+        // Fill type, id of vnet/vnet-template and extra
+        $(".changePlaceDatatable[data-id="+index+"]").val(type)
+        table.selectResourceTableSelect({ 'ids': String(id) })
+        if (type === "template_id" || type === "reserve_from") {
+          $("#placeDatatable_"+index).append(
+            $("<div/>",{'class': "row addExtra_"+id}).append(
+              $("<div/>",{'class': "columns small-12"}).append(
+                $("<label/>").text(Locale.tr("Extra")).add(
+                  $("<input/>",{
+                    'wizard_field': "extra_"+vnet_attr.name,
+                    'type': "text",
+                    'name': "extra",
+                    'id': "extra",
+                    'placeholder': Locale.tr("Extra")
+                  }).val(extra)
+                )
+              )
+            )
+          )
+        }
       });
       if(opts && opts.select_networks){
         $(".changePlaceDatatable").change(function(e){
@@ -408,21 +453,18 @@ define(function(require) {
           var nametable = element.attr("data-nametable");
           var value = element.val();
           var place = $("#placeDatatable_"+id);
-          if(value === "reserve" || value === "existing"){
-            var vnetsTable = new VNetsTable(idtable, {"select": true});
-            place.empty().append(vnetsTable.dataTableHTML);
-            vnetsTable.initialize();
-            $("#refresh_button_"+idtable).click();
-            vnetsTable.idInput().attr("wizard_field", nametable).attr("required", "");
+          if(value === "reserve_from" || value === "id"){
+            var table = new VNetsTable(idtable, {"select": true});
           }else{
-            var vnetsTemplateTable = new VNetsTemplateTable(idtable, {"select": true});
-            place.empty().append(vnetsTemplateTable.dataTableHTML);
-            vnetsTemplateTable.initialize();
-            $("#refresh_button_"+idtable).click();
-            vnetsTemplateTable.idInput().attr("wizard_field", nametable).attr("required", "");
+            var table = new VNetsTemplateTable(idtable, {"select": true});
           }
+          place.empty().append(table.dataTableHTML);
+          table.initialize();
+          $("#refresh_button_"+idtable).click();
+          table.idInput().attr("wizard_field", nametable).attr("required", "");
+
           // create input extra
-          if(value === "create" || value === "reserve"){
+          if(value === "template_id" || value === "reserve_from"){
             // falta colocar el render de las diferentes tablas!!!
             if(!place.find(".addExtra_"+id).length){
               place.append(
@@ -520,6 +562,8 @@ define(function(require) {
           (attr.type != undefined ? attr.type : "text") + "|" +
           (attr.description != undefined ? attr.description : "");
     switch (attr.type) {
+      case "text":
+      case "text64":
       case "number":
       case "number-float":
       case "boolean":
@@ -548,12 +592,12 @@ define(function(require) {
    *                          ["initial":] "3"
    *                        }
    */
-  function _unmarshall(value, notype) {
+  function _unmarshall(value) {
     var parts = value.split("|");
     var attr = {
       "mandatory": (parts[0] == "M"),
-      "type": notype? parts[2]: parts[1],
-      "description": notype? parts[1] : parts[2],
+      "type": parts[1],
+      "description": parts[2],
       "initial": ""
     };
     if (parts[3] != undefined){
@@ -584,8 +628,8 @@ define(function(require) {
                                              starting from 0, not min
                             }
    */
-  function _parse(name, value, notype) {
-    var attr = _unmarshall(value, notype);
+  function _parse(name, value) {
+    var attr = _unmarshall(value);
     attr.name = name;
     // TODO: error management (params undefined)
     switch (attr.type) {
