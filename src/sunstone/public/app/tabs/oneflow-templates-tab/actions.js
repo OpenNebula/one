@@ -45,7 +45,21 @@ define(function(require) {
     "ServiceTemplate.rename": _commonActions.singleAction("rename"),
     "ServiceTemplate.update" : _commonActions.update(),
     "ServiceTemplate.update_dialog" : _commonActions.checkAndShowUpdate(),
-    "ServiceTemplate.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
+    
+    "ServiceTemplate.show_to_update" :  {
+      type: "single",
+      call: OpenNebulaResource.show,
+      callback: function(request, response) {
+        Sunstone.runAction("Network.list")
+        Sunstone.runAction("VNTemplate.list")
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update",
+          function(formPanelInstance, context) {
+            formPanelInstance.fill(context, response[XML_ROOT]);
+          }
+        );
+      },
+      error: Notifier.onError
+    },
 
     "ServiceTemplate.list" : {
       type: "list",

@@ -30,7 +30,6 @@ define(function(require) {
   var UsersTable = require("tabs/users-tab/datatable");
   var GroupTable = require("tabs/groups-tab/datatable");
   var OpenNebulaHost = require("opennebula/host");
-  var Leases = require("utils/leases");
 
   /*
     TEMPLATES
@@ -91,7 +90,6 @@ define(function(require) {
       'logos': Config.vmLogos,
       'usersDatatable': this.usersTable.dataTableHTML,
       'groupDatatable': this.groupTable.dataTableHTML,
-      'leases': Leases.html()
     });
   }
 
@@ -107,8 +105,6 @@ define(function(require) {
         .removeAttr("required")
         .prop('wizard_field_disabled', true);
     }
-
-    Leases.actions(panelForm);
 
     if (panelForm.resource == "VirtualRouterTemplate"){
       $("input[wizard_field=VROUTER]", context).attr("checked", "checked");

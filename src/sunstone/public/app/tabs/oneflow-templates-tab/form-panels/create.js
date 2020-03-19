@@ -22,13 +22,12 @@ define(function(require) {
 //  require('foundation.tab');
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
+  var OpenNebulaAction = require("opennebula/action");
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var RoleTab = require('tabs/oneflow-templates-tab/utils/role-tab');
   var TemplateUtils = require('utils/template-utils');
-  var CustomTagsTable = require('utils/custom-tags-table');
-  var CustomClassCustomAttrs = 'service_custom_attr';
-  var CustomClassCustomAttrsButton = 'add_service_custom_attr';
+  var UserInputs = require('utils/user-inputs');
 
   /*
     TEMPLATES
@@ -88,13 +87,7 @@ define(function(require) {
   function _htmlWizard() {
     return TemplateWizardHTML({
       'formPanelId': this.formPanelId,
-      'customTagsTableHTML': CustomTagsTable.html(
-        CustomClassCustomAttrs,
-        CustomClassCustomAttrsButton, 
-        true,
-        true, //mandatory
-        true, //default
-      )
+      'userInputsHTML': UserInputs.html(),
     });
   }
 
@@ -105,30 +98,60 @@ define(function(require) {
   }
 
   function _setup(context) {
+    this.networksType = [
+      //Template id the una VN Template
+      {value: 'template_id', text: 'Create', select: 'vntemplates', extra: true },
+      //ID de una vnet que ya existe para reservar de ella
+      {value: 'reserve_from', text: 'Reserve', select: 'networks', extra: true },
+      //ID de una vnet que ya existe para usarla directamente
+      {value: 'id', text: 'Existing', select: 'networks', extra: false },
+    ]
     this.roleTabObjects = {};
     var that = this;
 
-    var roles_index = 0;
-
-    $(".add_service_network", context).on("click", function(){
+    $(".add_service_network", context).bind("click", function() {
       var nic_index = $(".service_network_name", context).length;
 
       $(".service_networks tbody").append(
-        '<tr>\
+        '<tr id="network'+nic_index+'">\
+          <td>\
+            <input checked="" type="checkbox" name="service_network_mandatory'+nic_index+'"\
+              class="switch input service_network_mandatory slaac" id="service_network_mandatory'+nic_index+'" hidden="">\
+            <label class="switch-paddle" for="service_network_mandatory'+nic_index+'" style="cursor: pointer;"></label>\
+          </td>\
           <td>\
             <input class="service_network_name" type="text" />\
             <small class="form-error"><br/>'+Locale.tr("Can only contain alphanumeric and underscore characters, and be unique")+'</small>\
           </td>\
           <td>\
-            <textarea class="service_network_description"/>\
+            <textarea class="service_network_description" />\
           </td>\
           <td>\
+            <select class="service_network_type">\
+              <option value=" "></option>\
+            </select>\
+          </td>\
+          <td>\
+            <select class="service_network_id">\
+              <option value=" "></option>\
+            </select>\
+          </td>\
+          <td>\
+            <input disabled class="service_network_extra" type="text" />\
+          </td>\
+          <td style="text-align: right;">\
             <a href="#"><i class="fas fa-times-circle remove-tab" data-index="'+nic_index+'"></i></a>\
           </td>\
         </tr>');
+
+        that.networksType.map(function(type) {
+          $(".service_network_type", "tr#network"+nic_index).append($("<option/>", {
+            "value": type.value
+          }).text(type.text))
+        })
     });
 
-    $(".add_service_network", context).trigger("click");
+    //$(".add_service_network", context).click();
 
     context.on("keyup", ".service_network_name", function(){
       // update pattern regex
@@ -141,6 +164,31 @@ define(function(require) {
       _redo_service_networks_selector(context, that);
     });
 
+    context.on("change", ".service_network_type", function(){
+      var selectedType = $(this).val()
+      var serviceNetwork = $(this).closest('tr')
+
+      var data = _get_networks()
+
+      // 1. if val = reserve/existing or create
+      $(".service_network_id", serviceNetwork).empty().append($("<option/>").text(""))
+      
+      // 2. create and fill selector
+      var type = that.networksType.find(function(type) { return type.value === selectedType })
+      
+      // 3. append selector after type
+      type && data[type.select].map(function(net) {
+        $(".service_network_id", serviceNetwork).append($("<option/>", {
+          "value": net.ID
+        }).text(net.NAME))
+      })
+      
+      // 4. append extra after selector if reserve/create
+      var disabled = type ? !type.extra : true;
+      !disabled && $(".service_network_extra", serviceNetwork).empty(); 
+      $(".service_network_extra", serviceNetwork).prop('disabled', disabled);
+    });
+
     context.on("click", ".service_networks i.remove-tab", function(){
       var tr = $(this).closest('tr');
       tr.remove();
@@ -148,11 +196,10 @@ define(function(require) {
       _redo_service_networks_selector(context, that, $(this).data("index"));
     });
 
+    that.roles_index = 0;
     $("#tf_btn_roles", context).bind("click", function(){
-      that.addRoleTab(roles_index, context);
-      roles_index++;
-
-      return false;
+      that.addRoleTab(that.roles_index, context);
+      that.roles_index++;
     });
 
     // Fill parents table
@@ -194,13 +241,12 @@ define(function(require) {
       });
     });
 
-
     Foundation.reflow(context, 'tabs');
 
     // Add first role
-    $("#tf_btn_roles", context).trigger("click");
+    $("#tf_btn_roles", context).click();
     Tips.setup(context);
-    CustomTagsTable.setup(context, true);
+    UserInputs.setup(context);
     return false;
   }
 
@@ -217,29 +263,28 @@ define(function(require) {
     var network_attrs = {};
 
     // get values for networks
-    var attr_type = "vnet_id";
+    var attr_network = "network";
     $(".service_networks tbody > tr").each(function(){
-      var attr_name = $(".service_network_name", $(this)).val();
+      var row = $(this);
+      var attr_name = $(".service_network_name", row).val();
       if (attr_name) {
-        var attr_desc = $(".service_network_description", $(this)).val() || '';
-        network_attrs[attr_name] = "M|" + attr_type + "|" + attr_desc;
+        var attr_mandatory = $(".service_network_mandatory", row).prop('checked') ? 'M' : 'O';
+        var attr_desc = ($(".service_network_description", row).val() || '');
+        var attr_type = $(".service_network_type", row).val() || '';
+        var attr_id = $(".service_network_id", row).val() || '';
+        var type = that.networksType.find(function(type) { return type.value === attr_type })
+        var attr_extra = type.extra ? (':' + ($(".service_network_extra", row).val() || '')) : '';
+        network_attrs[attr_name] =  attr_mandatory + "|" + attr_network + "|" + attr_desc + "| |" + attr_type + ":" + attr_id + attr_extra;
       }
     });
 
-    // get values for custom attributes
-    $("."+CustomClassCustomAttrs+" tbody.custom_tags > tr").each(function(){
-      var row = $(this);
-      var attr_name = $(".custom_tag_key", row).val();
-      if (attr_name) {
-        var attr_type = $(".custom_tag_mandatory", row).val()? $(".custom_tag_mandatory", row).val() : 'M';
-        var attr_desc = $(".custom_tag_value", row).val()? "|"+$(".custom_tag_value", row).val() : '';
-        var attr_default = $(".custom_tag_default", row).val()? "|"+$(".custom_tag_default", row).val() : '';
-        custom_attrs[attr_name] = attr_type + attr_desc + attr_default;
-      }
+    var userInputsJSON = UserInputs.retrieve(context);
+    $.each(userInputsJSON, function(key, value){
+      var name = key.toUpperCase();
+      custom_attrs[name] = value
     });
 
     var roles = [];
-
     $('.role_content', context).each(function() {
       var role_id = $(this).attr("role_id");
 
@@ -329,59 +374,45 @@ define(function(require) {
     $("select[name='shutdown_action_service']", context).val(element.TEMPLATE.BODY.shutdown_action);
     $("input[name='ready_status_gate']", context).prop("checked",element.TEMPLATE.BODY.ready_status_gate || false);
 
-
     $(".service_networks i.remove-tab", context).trigger("click");
 
     //fill form networks
     if ( ! $.isEmptyObject( element.TEMPLATE.BODY['networks'] ) ) {
       $("div#network_configuration a.accordion_advanced_toggle", context).trigger("click");
       $.each(element.TEMPLATE.BODY['networks'], function(key, attr){
+        // 0 mandatory; 1 network; 2 description; 3 empty; 4 info_network;
         var parts = attr.split("|");
-        // 0 mandatory; 1 type; 2 desc;
+        // 0 type; 1 id; 3(optional) extra
+        var info = parts.slice(-1)[0].split(":");
         var attrs = {
           "name": key,
-          "mandatory": parts[0],
-          "type": parts[1],
+          "mandatory": parts[0] === 'M' ? true : false,
+          "network": parts[1],
           "description": parts[2],
+          "empty": parts[3],
+          "type": info[0],
+          "id": info[1],
+          "extra": info.slice(2).join(''),
         };
-        switch (parts[1]) {
-          case "vnet_id":
-            $(".add_service_network", context).trigger("click");
-            var tr = $(".service_networks tbody > tr", context).last();
-            $(".service_network_name", tr).val(attrs.name).change();
-            $(".service_network_description", tr).val(attrs.description);
-            break;
+
+        if (parts[1] === "network") {
+          $(".add_service_network", context).trigger("click");
+          var tr = $(".service_networks tbody > tr", context).last();
+          $(".service_network_mandatory", tr).prop('checked', attrs.mandatory).change();
+          $(".service_network_name", tr).val(attrs.name).change();
+          $(".service_network_description", tr).val(attrs.description).change();
+          $(".service_network_type", tr).val(attrs.type).change();
+          $(".service_network_id", tr).val(attrs.id).change();
+          $(".service_network_extra", tr).val(attrs.extra).change();
         }
       });
     }
 
     //fill form custom attributes
-    if ( ! $.isEmptyObject( element.TEMPLATE.BODY['custom_attrs'] ) ) {
+    var custom_attrs = element.TEMPLATE.BODY['custom_attrs']
+    if (! $.isEmptyObject(custom_attrs)) {
       $("div#custom_attr_values a.accordion_advanced_toggle", context).trigger("click");
-      $.each(element.TEMPLATE.BODY['custom_attrs'], function(key, attr){
-        var parts = attr.split("|");
-        // 0 mandatory; 1 desc;
-        var attrs = {
-          "name": key,
-          "mandatory": parts[0],
-          "description": parts[1],
-          'default': parts[2]
-        };
-        var tr = $("."+CustomClassCustomAttrs+" tbody.custom_tags > tr", context).last();
-        if($(".custom_tag_key", tr).val()){
-          $("."+CustomClassCustomAttrsButton, context).trigger("click");
-          tr = $("."+CustomClassCustomAttrs+" tbody.custom_tags > tr", context).last();
-        }
-        $(".custom_tag_key", tr).val(attrs.name);
-
-        if(attrs.mandatory){
-          var select = $(".custom_tag_mandatory", tr);
-          select.find("option").removeAttr("selected");
-          var selected = select.find("option[value="+attrs.mandatory+"]").attr("selected","selected");
-        }
-        $(".custom_tag_value", tr).val(attrs.description);
-        $(".custom_tag_default", tr).val(attrs.default);
-      });
+      UserInputs.fill(context, {"USER_INPUTS": custom_attrs});
     }
 
     $("#roles_tabs i.remove-tab", context).trigger("click");
@@ -531,6 +562,36 @@ define(function(require) {
     });
     role_tab.setup(role_section);
     role_tab.onShow();
+  }
+
+  function _get_networks() {
+    var networks = OpenNebulaAction.cache("VNET");
+    networks = networks ? networks.data : [];
+    var vntemplates = OpenNebulaAction.cache("VNTEMPLATE");
+    vntemplates = vntemplates ? vntemplates.data : [];
+
+    // Get networks list
+    if (networks) {
+      var data = Array.isArray(networks) ? networks : [];
+      networks = data.map(function(net) {
+        return ({
+          ID: net.VNET.ID,
+          NAME: net.VNET.NAME || "vnet-"+net.VNET.ID
+        })
+      })
+    }
+    
+    // Get network templates list
+    if (vntemplates) {
+      var data = Array.isArray(vntemplates) ? vntemplates : [];
+      vntemplates = data.map(function(temp) {
+        return ({
+          ID: temp.VNTEMPLATE.ID,
+          NAME: temp.VNTEMPLATE.NAME || "vntemplate-"+template.VNTEMPLATE.ID
+        })
+      })
+    }
+    return ({ networks: networks, vntemplates: vntemplates })
   }
 
 });

@@ -24,7 +24,6 @@ define(function(require) {
   var Vnc = require('utils/vnc');
   var Spice = require('utils/spice');
   var Rdp = require('utils/rdp');
-  var mapips = require('./utils/mapips');
 
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID           = require('./form-panels/create/formPanelId');
@@ -191,11 +190,6 @@ define(function(require) {
               (propUpperCase === "USERNAME" || propUpperCase === "PASSWORD") 
                 && (credentials[propUpperCase] = context[prop]);
             }
-            var pblc = vm.TEMPLATE.CONTEXT.MAP_EXTERNAL;
-            var prvt = vm.TEMPLATE.CONTEXT.MAP_INTERNAL;
-            var mapp = new mapips(pblc, prvt);
-            var foundip = mapp.renderPublicIp(ip);
-            ip = foundip || ip
           }
 
           nic && Rdp.downloadFile(ip, name, credentials); 

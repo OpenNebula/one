@@ -25,10 +25,11 @@ define(function (require) {
   var TemplateHTML = require("hbs!./schedule_action/html");
   var TemplateTableHTML = require("hbs!./schedule_action/table");
 
-  function _html(resource) {
+  function _html(resource, leases = null) {
     this.res = resource;
     return TemplateTableHTML({
-      res: resource
+      res: resource,
+      leases: leases
     });
   }
 
