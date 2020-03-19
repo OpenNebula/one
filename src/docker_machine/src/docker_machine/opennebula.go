@@ -727,7 +727,7 @@ func (d *Driver) Kill() error {
 	vm := controller.VM(d.MachineId)
 	err := vm.PoweroffHard()
 	if err != nil {
-			return err
+		return err
 	}
 
 	return nil
