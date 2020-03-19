@@ -21,23 +21,23 @@ module OneProvision
     # Represents the virtual resource with async/sync waits
     class VirtualSyncResource < Resource
 
-        # Default timeout to wait until object is ready in sync mode
+        # Default timeout to wait until object is ready in wait mode
         DEFAULT_TIMEOUT = 60
 
-        # Supported synchronization modes
-        SUPPORTED_MODES = %w[sync async]
+        # Supported wait modes
+        SUPPORTED_MODES = %w[true false]
 
         # Delete object
         def delete
             @one.info
 
             id      = @one['ID']
-            mode    = @one['TEMPLATE/PROVISION/MODE']
-            timeout = @one['TEMPLATE/PROVISION/TIMEOUT'].to_f
+            wait    = @one['TEMPLATE/PROVISION/WAIT']
+            timeout = @one['TEMPLATE/PROVISION/WAIT_TIMEOUT'].to_f
 
             super
 
-            return true if mode == 'async' || mode.nil?
+            return true unless wait == 'true'
 
             t_start   = Time.now
             timeout ||= DEFAULT_TIMEOUT
@@ -85,15 +85,15 @@ module OneProvision
             end
         end
 
-        # Check sync mode
+        # Check wait mode
         #
-        # @param mode [String] Sync mode
+        # @param wait [Boolean] Wait mode
         #
         # Raises exception in case of mode not supported
-        def check_mode(mode)
-            return if SUPPORTED_MODES.include?(mode)
+        def check_wait(wait)
+            return if SUPPORTED_MODES.include?(wait.to_s) || wait.nil?
 
-            raise OneProvisionLoopException, "Mode #{mode} not supported"
+            raise OneProvisionLoopException, "Wait mode #{wait} not supported"
         end
 
     end

@@ -184,8 +184,8 @@ module OneProvision
         # @param config  [String]  Path to the configuration file
         # @param cleanup [Boolean] True to delete running VMs and images
         # @param timeout [Integer] Timeout for deleting running VMs
-        # @param virtual [Boolean] Just create objects and exit
-        def create(config, cleanup, timeout, virtual)
+        # @param skip    [Symbol]  Skip provision, config or none phases
+        def create(config, cleanup, timeout, skip)
             Ansible.check_ansible_version
 
             begin
@@ -209,6 +209,8 @@ module OneProvision
                 create_resources(cfg, cid)
 
                 if cfg['hosts'].nil?
+                    create_virtual_resources(cfg)
+
                     puts "ID: #{@id}"
 
                     return 0
@@ -216,7 +218,7 @@ module OneProvision
 
                 create_hosts(cfg, cid)
 
-                if virtual
+                if skip == :all
                     create_virtual_resources(cfg)
 
                     puts "ID: #{@id}"
@@ -244,7 +246,7 @@ module OneProvision
 
                 update_hosts(deploy_ids)
 
-                Ansible.configure(@hosts)
+                Ansible.configure(@hosts) unless skip == :config
 
                 create_virtual_resources(cfg)
 
@@ -305,27 +307,21 @@ module OneProvision
                             driver = cfg['defaults']['provision']['driver']
                         end
 
-                        erb = Utils.evaluate_erb(self, x)
+                        obj = Resource.object(r)
 
-                        msg = "Creating OpenNebula #{r}: #{erb['name']}"
+                        next if obj.nil?
 
-                        OneProvisionLogger.debug(msg)
+                        x = Utils.evaluate_erb(self, x)
 
-                        if r == 'datastores'
-                            datastore = Datastore.new
-                            datastore.create(cid.to_i, erb, driver, @id, @name)
-                            @datastores << datastore.one
-                        else
-                            network = Network.new
-                            network.create(cid.to_i, erb, driver, @id, @name)
-                            @networks << network.one
-                        end
+                        OneProvisionLogger.debug(
+                            "Creating #{r.delete_suffix('s')} #{x['name']}"
+                        )
 
-                        rid   = instance_variable_get("@#{r}").last['ID']
-                        rname = r.chomp('s').capitalize
-                        msg   = "#{rname} created with ID: #{rid}"
+                        obj.create(cid.to_i, x, driver, @id, @name)
+                        obj.append_object(self)
 
-                        OneProvisionLogger.debug(msg)
+                        obj.template_chown(x)
+                        obj.template_chmod(x)
                     end
                 end
             end
@@ -340,21 +336,21 @@ module OneProvision
 
                 cfg[r].each do |x|
                     Driver.retry_loop 'Failed to create some resources' do
-                        OneProvisionLogger.debug(
-                            "Creating #{r.delete_suffix('s')} #{x['name']}"
-                        )
-
                         obj = Resource.object(r)
 
                         next if obj.nil?
 
                         x = Utils.evaluate_erb(self, x)
 
+                        OneProvisionLogger.debug(
+                            "Creating #{r.delete_suffix('s')} #{x['name']}"
+                        )
+
                         obj.create(x, @id)
                         obj.append_object(self)
 
-                        obj.chown(x['uid'], x['gid'])
-                        obj.chmod(x['octet']) if x['octet']
+                        obj.template_chown(x)
+                        obj.template_chmod(x)
                     end
                 end
             end

@@ -35,12 +35,12 @@ module OneProvision
         #
         # @return [Integer] Resource ID
         def create(template, provision_id)
-            mode    = template['mode'].downcase if template['mode']
-            timeout = template['timeout']
+            meta = template['meta']
 
-            uid   = template['uid']
-            gid   = template['gid']
-            octet = template['octet']
+            wait    = meta['wait'] || false
+            timeout = meta['wait_timeout']
+
+            check_wait(wait)
 
             OneProvisionLogger.debug(
                 "Exporting marketplace app #{template['appid']}"
@@ -83,17 +83,17 @@ module OneProvision
             @image = Image.new
 
             @image.info(image_id)
-            @image.update_provision_info({ 'mode'         => mode,
+            @image.update_provision_info({ 'wait'         => wait,
                                            'provision_id' => provision_id,
-                                           'timeout'      => timeout })
+                                           'wait_timeout' => timeout })
 
             # Change permissions and ownership
-            @image.chown(uid, gid)
-            @image.chmod(octet)
-            @template.chown(uid, gid)
-            @template.chmod(octet)
+            @image.template_chown(template)
+            @image.template_chmod(template)
+            @template.template_chown(template)
+            @template.template_chmod(template)
 
-            return [image_id, template_id] if mode == 'async' || mode.nil?
+            return [image_id, template_id] unless wait
 
             @image.wait_state('READY', timeout)
 
@@ -123,9 +123,9 @@ module OneProvision
 
         def delete; end
 
-        def chown(user, group) end
+        def template_chown(template) end
 
-        def chmod(octet) end
+        def template_chmod(template) end
 
     end
 

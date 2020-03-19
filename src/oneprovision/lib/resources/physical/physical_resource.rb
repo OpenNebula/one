@@ -47,6 +47,10 @@ module OneProvision
             rc = @one.info
             Utils.exception(rc)
 
+            OneProvisionLogger.debug(
+                "#{@type} created with ID: #{@one.id}"
+            )
+
             @one.id.to_i
         end
 

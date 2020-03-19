@@ -36,13 +36,15 @@ module OneProvision
         #
         # @return [Integer] Resource ID
         def create(template, provision_id)
-            mode    = template['mode'].downcase if template['mode']
-            timeout = template['timeout']
-            info    = { 'provision_id' => provision_id,
-                        'mode'         => mode,
-                        'timeout'      => timeout }
+            meta = template['meta']
 
-            check_mode(mode)
+            wait    = meta['wait'] || false
+            timeout = meta['wait_timeout']
+            info    = { 'provision_id' => provision_id,
+                        'wait'         => wait,
+                        'wait_timeout' => timeout }
+
+            check_wait(wait)
 
             add_provision_info(template, info)
 
@@ -59,9 +61,7 @@ module OneProvision
                 "#{@type} created with ID: #{@one.id}"
             )
 
-            mode = template['mode'].downcase if template['mode']
-
-            return @one.id.to_i if mode == 'async' || mode.nil?
+            return @one.id.to_i unless wait
 
             ready?(template, provision_id)
         end

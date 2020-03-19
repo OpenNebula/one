@@ -188,10 +188,16 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Dump the configuration file result.'
     }
 
-    VIRTUAL = {
-        :name => 'virtual',
-        :large => '--virtual',
-        :description => 'Create just objects and exit, without deploying hosts'
+    SKIP_PROVISION = {
+        :name => 'skip_provision',
+        :large => '--skip-provision',
+        :description => 'Skip provision and configuration hosts phases'
+    }
+
+    SKIP_CONFIG = {
+        :name => 'skip_config',
+        :large => '--skip-config',
+        :description => 'Skip configuration hosts phase'
     }
 
     MODES = CommandParser::OPTIONS - [CommandParser::VERBOSE] +
@@ -209,7 +215,8 @@ CommandParser::CmdParser.new(ARGV) do
                       PING_RETRIES,
                       CLEANUP,
                       CLEANUP_TIMEOUT,
-                      VIRTUAL]
+                      SKIP_PROVISION,
+                      SKIP_CONFIG]
 
     ONE_OPTIONS = CommandParser::OPTIONS +
                   CLIHelper::OPTIONS +
@@ -232,10 +239,16 @@ CommandParser::CmdParser.new(ARGV) do
             timeout = options[:cleanup_timeout]
         end
 
-        helper.create(args[0],
-                      (options.key? :cleanup),
-                      timeout,
-                      (options.key? :virtual))
+        # Get skip mode
+        if options.key? :skip_provision
+            skip = :all
+        elsif options.key? :skip_config
+            skip = :config
+        else
+            skip = :none
+        end
+
+        helper.create(args[0], (options.key? :cleanup), timeout, skip)
     end
 
     ###

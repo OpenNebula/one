@@ -70,7 +70,7 @@ module OneProvision
         #
         # @param template [Hash] Key value template
         def format_template(template)
-            template.to_json
+            obj_template(template).to_json
         end
 
         private
