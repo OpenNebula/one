@@ -20,15 +20,12 @@ define(function(require) {
    */
 
   var Locale = require("utils/locale");
-  var Leases = require("utils/leases");
   var Humanize = require("utils/humanize");
   var RenameTr = require("utils/panel/rename-tr");
   var PermissionsTable = require("utils/panel/permissions-table");
   var TemplateTable = require("utils/panel/template-table");
   var TemplateTableVcenter = require("utils/panel/template-table");
   var OpenNebula = require("opennebula");
-  var Sunstone = require("sunstone");
-  var Config = require("sunstone-config");
   var Navigation = require("utils/navigation");
 
   /*
@@ -79,7 +76,8 @@ define(function(require) {
 
     var IP = OpenNebula.VM.ipsStr(this.element);
 
-    var alias = OpenNebula.VM.aliasStr(this.element);
+    var alias = (!config.system_config.get_extended_vm_info)
+      ? OpenNebula.VM.aliasStr(this.element) : null;
 
     if (this.element.TEMPLATE.VROUTER_ID != undefined){
       vrouterHTML = Navigation.link(
@@ -141,7 +139,6 @@ define(function(require) {
       "templateTableHTML": templateTableHTML,
       "monitoringTableContentHTML": monitoringTableContentHTML,
       "vrouterHTML": vrouterHTML,
-      "leases": Leases.html()
     });
   }
 
@@ -167,7 +164,6 @@ define(function(require) {
     if($.isEmptyObject(strippedTemplateVcenter)){
       $(".vcenter", context).hide();
     }
-    Leases.actions(that,'vm','update');
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, unshownValues, strippedTemplateVcenter);
     TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, unshownValues, strippedTemplate);
   }

@@ -15,9 +15,6 @@
 {{! -------------------------------------------------------------------------- }}
 
 <div class="row">
-  <div class="medium-12 columns text-center">
-    {{{leases}}}
-  </div>
   <div class="large-6 columns">
     <table class="dataTable">
       <thead>
@@ -56,11 +53,13 @@
           <td></td>
         </tr>
 
-        <tr>
-          <td class="key_td">{{tr "Alias"}}</td>
-          <td class="value_td">{{{alias}}}</td>
-          <td></td>
-        </tr>
+        {{#if alias }}
+          <tr>
+            <td class="key_td">{{tr "Alias"}}</td>
+            <td class="value_td">{{{alias}}}</td>
+            <td></td>
+          </tr>
+        {{/if }}
 
         <tr>
           <td class="key_td">{{tr "Start time"}}</td>

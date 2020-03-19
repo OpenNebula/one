@@ -22,7 +22,6 @@ define(function(require) {
   var TemplateUtils = require('utils/template-utils');
   var LabelsUtils = require('utils/labels/utils');
   var Status = require('utils/status');
-  var mapips = require('./mapips');
 
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
@@ -94,70 +93,6 @@ define(function(require) {
       }
     }
     return rtn;
-  }
-
-  function renderMapIps(element){
-    var render = '';
-    if(
-      element && 
-      element.NAME &&
-      element.TEMPLATE && 
-      element.TEMPLATE.CONTEXT && 
-      element.TEMPLATE.CONTEXT.MAP_EXTERNAL && 
-      element.TEMPLATE.CONTEXT.MAP_INTERNAL && 
-      element.TEMPLATE.NIC &&
-      config && 
-      config.system_config &&
-      config.system_config.get_extended_vm_info &&
-      config.system_config.get_extended_vm_info !== 'false' && 
-      config.system_config.mapped_ips &&
-      config.system_config.mapped_ips !== 'false'
-    ){
-      var nics = element.TEMPLATE.NIC;
-      var credentials = {};
-      var context = element.TEMPLATE.CONTEXT;
-      var pblc = element.TEMPLATE.CONTEXT.MAP_EXTERNAL; //"10.0.0.0/8";
-      var prvt = element.TEMPLATE.CONTEXT.MAP_INTERNAL; //"192.168.0.0/16";
-      var renderTitle = true;
-      if (!$.isArray(nics)){
-        nics = [nics];
-      }
-
-      //find RDP CREDENTIALS
-      for (var prop in context) {
-        var propUpperCase = String(prop).toUpperCase();
-        (propUpperCase === "USERNAME" || propUpperCase === "PASSWORD") 
-          && (credentials[propUpperCase] = context[prop]);
-      }
-
-      var mapp = new mapips(pblc, prvt);
-      nics.forEach(function(nic){
-        if(nic && nic.IP){
-          var foundip = mapp.renderPublicIp(nic.IP);
-          if (foundip){
-            if(renderTitle){
-              render = $('<div/>').append($('<br/>').add($('<b/>').text(Locale.tr('Mapped Networks')))).html();
-              renderTitle = false;
-            }
-            if(nic.RDP && String(nic.RDP).toUpperCase() === "YES"){
-              render += $("<div/>").append(
-                $("<button/>",{
-                  class:'button download_rdp',
-                  ip: foundip, 
-                  name:element.NAME,
-                  credential: TemplateUtils.templateToString(credentials)
-                }).css({display:'block'}).text("RDP: "+foundip)
-              ).html();
-            }else{
-              render += $("<div/>").append(
-                $("<div/>").text(foundip)
-              ).html();
-            }
-          }
-        }
-      });
-    }
-    return render;
   }
 
   function leasesClock(element){
@@ -295,7 +230,7 @@ define(function(require) {
       cpuMonitoring,
       Humanize.size(memoryMonitoring),
       hostname,
-      OpenNebulaVM.ipsStr(element)+renderMapIps(element),
+      OpenNebulaVM.ipsStr(element),
       Humanize.prettyTimeDatatable(element.STIME),
       vncIcon,
       TemplateUtils.htmlEncode(TemplateUtils.templateToString(element)),

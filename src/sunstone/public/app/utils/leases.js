@@ -29,7 +29,7 @@ define(function(require) {
     CONSTANTS
    */
 
-  var classButton = 'button leases';
+  var classButton = 'small button leases right radius';
   var idElementSchedActions = '#sched_temp_actions_body, #sched_inst_actions_body';
 
   /*
@@ -72,7 +72,8 @@ define(function(require) {
       config.system_config && 
       config.system_config.leases
     ){
-      $(parseVarToJqueryClass(classButton)).off("click").on("click", function(e){
+      form.formContext.off("click", parseVarToJqueryClass(classButton))
+      form.formContext.on("click", parseVarToJqueryClass(classButton), function(e){
         e.preventDefault();
         var confLeases = config.system_config.leases;
         var confLeasesKeys = Object.keys(confLeases);

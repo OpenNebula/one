@@ -28,6 +28,7 @@ define(function(require) {
   var Humanize = require("utils/humanize");
   var TemplateUtils = require("utils/template-utils");
   var Actions = require("utils/actions");
+  var Leases = require("utils/leases");
 
   var TemplateHTML = require("hbs!./actions/html");
   /*
@@ -61,11 +62,12 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
-      "table_sched_actions": ScheduleActions.htmlTable("temp")
+      "table_sched_actions": ScheduleActions.htmlTable("temp", Leases.html()),
     });
   }
 
   function _onShow(context, panelForm) {
+    Leases.actions(panelForm);
   }
 
   function _setup(context) {

@@ -90,18 +90,17 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
-      "formPanelId": this.formPanelId,
-      "leases": Leases.html()
+      "formPanelId": this.formPanelId
     });
   }
 
   function _setup(context) {
     var that = this;
-    var leasesThat = {};
-    var objLeases = Object.assign(leasesThat, that);
+    var objLeases = $.extend(true, {}, that);
     objLeases.resource = "template";
     objLeases.__proto__ = FormPanel.prototype;
     Leases.actions(objLeases);
+    
     if(Config.isFeatureEnabled("instantiate_persistent")){
       $("input.instantiate_pers", context).on("change", function(){
         var persistent = $(this).prop("checked");
@@ -126,6 +125,7 @@ define(function(require) {
       $("#vm_n_times_disabled", context).hide();
       $("#vm_n_times", context).show();
     }
+    
     context.off("click", "#add_scheduling_inst_action");
     context.on("click", "#add_scheduling_inst_action", function() {
       var actions = ["terminate", "terminate-hard", "hold", "release", "stop", "suspend", "resume", "reboot", "reboot-hard", "poweroff", "poweroff-hard", "undeploy", "undeploy-hard", "snapshot-create"];
@@ -134,8 +134,9 @@ define(function(require) {
       ScheduleActions.setup(context);
       return false;
     });
+
     context.off("click", "#add_inst_action_json");
-    context.on("click" , "#add_inst_action_json", function(){
+    context.on("click", "#add_inst_action_json", function(){
       var sched_action = ScheduleActions.retrieveNewAction(context);
       if (sched_action != false) {
         $("#sched_inst_actions_body").append(ScheduleActions.fromJSONtoActionsTable(sched_action));
@@ -143,10 +144,12 @@ define(function(require) {
 
       return false;
     });
+
     context.on("focusout" , "#time_input", function(){
       $("#time_input").removeAttr("data-invalid");
       $("#time_input").removeAttr("class");
     });
+
     context.off("click", ".remove_action_x");
     context.on("click", ".remove_action_x", function(){
       $(this).parents("tr").remove();
@@ -413,7 +416,7 @@ define(function(require) {
                 dsDatatable: that.datastoresTable.dataTableHTML,
                 usersDatatable: that.usersTable.dataTableHTML,
                 groupDatatable: that.groupTable.dataTableHTML,
-                table_sched_actions: ScheduleActions.htmlTable("inst")
+                table_sched_actions: ScheduleActions.htmlTable("inst", Leases.html())
               }) );
 
           $(".provision_host_selector" + template_json.VMTEMPLATE.ID, context).data("hostsTable", that.hostsTable);
@@ -599,9 +602,8 @@ define(function(require) {
   function _onShow(context) {
     Sunstone.disableFormPanelSubmit(this.tabId);
     $("input.instantiate_pers", context).change();
-    var templatesContext = $(".list_of_templates", context);
-    templatesContext.html("");
     Tips.setup(context);
+    
     return false;
   }
 

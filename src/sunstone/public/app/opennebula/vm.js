@@ -664,6 +664,7 @@ define(function(require) {
       return MIGRATE_ACTION_STR[stateId];
     },
     "ipsStr": ipsStr,
+    "groupByIpsStr": groupByIpsStr,
     "aliasStr": aliasStr,
     "retrieveExternalIPs": retrieveExternalIPs,
     "retrieveExternalNetworkAttrs": retrieveExternalNetworkAttrs,
@@ -754,7 +755,7 @@ define(function(require) {
   // Return the IP or several IPs of a VM
   function ipsStr(element, divider) {
     var divider = divider || "<br>";
-    var nic = element.TEMPLATE.NIC;
+    var nics = element.TEMPLATE.NIC;
     var pci = element.TEMPLATE.PCI;
     var ips = [];
     var monitoring = element.MONITORING;
@@ -775,12 +776,12 @@ define(function(require) {
       });
     }
 
-    if (nic == undefined){
-      nic = [];
+    if (nics == undefined){
+      nics = [];
     }
 
-    if (!$.isArray(nic)) {
-      nic = [nic];
+    if (!$.isArray(nics)) {
+      nics = [nics];
     }
 
     if (pci != undefined) {
@@ -790,32 +791,45 @@ define(function(require) {
 
       $.each(pci, function(){
         if (this["TYPE"] == "NIC"){
-          nic.push(this);
+          nics.push(this);
         }
       });
     }
-
-    if(ips.length==0)
-    {
-      $.each(nic, function(index, value) {
-        $.each(NIC_IP_ATTRS, function(j, attr){
-          if (value[attr]) {
-            if ( attr === "IP" && value["RDP"] === "YES") {
-              ips.push(value[attr] + "&nbsp;<small>RDP</small>");
-            } else {
+    
+    // infoextended: alias will be group by nic
+    return (config.system_config.get_extended_vm_info)
+      ? groupByIpsStr(element, nics)
+      : (ips.length == 0) 
+        ? $.each(nics, function(index, value) {
+          $.each(NIC_IP_ATTRS, function(j, attr){
+            if (value[attr] && attr === "IP") {
               ips.push(value[attr]);
             }
-          }
+          });
+        })
+        : (ips.length > 0) ? ips.join(divider) : r = "--";
+  };
+
+  function groupByIpsStr(element = {}, nics = []) {
+    return nics.reduce(function(column, nic) {
+      var nicSection = $("<p>").css("margin-bottom", 0).text(nic.IP)
+
+      if (nic.ALIAS_IDS) {
+        nicSection.append("*");
+
+        nic.ALIAS_IDS.split(",").forEach(function(aliasId) {
+          var alias = element.TEMPLATE.NIC_ALIAS.find(function(alias) { return alias.NIC_ID === aliasId })
+          
+          if (alias) {
+            nicSection.append($("<p/>").css({
+              "margin-bottom": 0,
+              "font-style": "italic",
+            }).text(alias.IP)) }
         });
-      });
-    }
-    r=null;
-    if (ips.length > 0) {
-      r = ips.join(divider);
-    } else {
-      r = "--";
-    }
-    return r;
+      }
+
+      return column.append(nicSection);
+    }, $("<div/>")).html()
   };
 
   // Return the Alias or several Aliases of a VM
@@ -832,8 +846,7 @@ define(function(require) {
       nic_alias = [nic_alias];
     }
 
-    if(ips.length==0)
-    {
+    if(ips.length==0) {
       $.each(nic_alias, function(index, value) {
         $.each(NIC_ALIAS_IP_ATTRS, function(j, attr){
           if (value[attr]) {

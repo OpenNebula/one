@@ -19,12 +19,14 @@ define(function(require) {
     DEPENDENCIES
    */
 
+
   var Locale = require("utils/locale");
   var Sunstone = require("sunstone");
   var Humanize = require("utils/humanize");
   var TemplateUtils = require("utils/template-utils");
   var Config = require("sunstone-config");
   var ScheduleActions = require("utils/schedule_action");
+  var Leases = require("utils/leases");
 
   /*
     CONSTANTS
@@ -75,6 +77,7 @@ define(function(require) {
               <th>" + Locale.tr("Message") + "</th>\
               <th colspan=\"\"> </th>\
               <th><button id=\"add_scheduling_vms_action\" class=\"button small success right radius\" >" + Locale.tr("Add action") + "</button></th>\
+              <th>" + Leases.html() + "</th>\
            </tr>\
           </thead>\
           <tbody id=\"sched_vms_actions_body\">"+
@@ -90,17 +93,23 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    var actions = ["terminate", "terminate-hard", "hold", "release", "stop", "suspend", "resume", "reboot", "reboot-hard", "poweroff", "poweroff-hard", "undeploy", "undeploy-hard", "snapshot-create"];
-    context.off("click", "#add_scheduling_vms_action");
-    context.on("click", "#add_scheduling_vms_action", function() {
-      $("#add_scheduling_vms_action", context).attr("disabled", "disabled");
+    that.formContext = context;
+    Leases.actions(that,'vm','update');
+
+    var actions = [
+      "terminate", "terminate-hard", "hold", "release", "stop", "suspend", "resume",
+      "reboot", "reboot-hard", "poweroff", "poweroff-hard", "undeploy", "undeploy-hard",
+      "snapshot-create"
+    ];
+    
+    $("#add_scheduling_vms_action").bind("click", context, function() {
+      $(this).attr("disabled", "disabled");
       ScheduleActions.htmlNewAction(actions, context, "vms");
       ScheduleActions.setup(context);
       return false;
     });
 
-    context.off("click", "#add_vms_action_json");
-    context.on("click" , "#add_vms_action_json", function(){
+    $("#add_vms_action_json").bind("click", context, function(){
       var sched_action = ScheduleActions.retrieveNewAction(context);
       if (sched_action != false) {
         $("#no_actions_tr", context).remove();
@@ -120,8 +129,7 @@ define(function(require) {
     });
 
     // Listener for key,value pair remove action
-    context.off("click", ".remove_action_x");
-    context.on("click", ".remove_action_x", function() {
+    $(".remove_action_x").bind("click", context, function() {
       var index = this.id.substring(6, this.id.length);
       var tmp_tmpl = new Array();
 
@@ -136,7 +144,6 @@ define(function(require) {
       // Let OpenNebula know
       Sunstone.runAction("VM.update_template", that.element.ID, template_str);
     });
-
   }
 
   // Returns an HTML string with the json keys and values
