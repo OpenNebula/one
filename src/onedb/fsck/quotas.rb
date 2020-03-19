@@ -469,7 +469,6 @@ module OneDBFsck
             next if parent_id.nil? || parent_id.empty?
 
             vnet_doc.xpath('VNET/AR_POOL').each do |ar|
-
                 vnet_usage[parent_id] = 0 if vnet_usage[parent_id].nil?
 
                 ar.xpath('AR/SIZE').each do |size|
