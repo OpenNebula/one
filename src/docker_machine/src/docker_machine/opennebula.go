@@ -42,6 +42,7 @@ type Driver struct {
 	Config         goca.OneConfig
 	DisableVNC     bool
 	StartRetries   string
+	MachineId      int
 }
 
 const (
@@ -366,6 +367,8 @@ func (d *Driver) PreCreateCheck() error {
 func (d *Driver) Create() error {
 	var err error
 
+	var instanceID = -1
+
 	// build config and set the xmlrpc client
 	controller := d.getController()
 
@@ -486,15 +489,17 @@ func (d *Driver) Create() error {
 
 		vmtemplate := controller.Template(templateID)
 
-		_, err = vmtemplate.Instantiate(d.MachineName, false, template.String(), false)
+		instanceID, err = vmtemplate.Instantiate(d.MachineName, false, template.String(), false)
 
 	} else {
-		_, err = controller.VMs().Create(template.String(), false)
+		instanceID, err = controller.VMs().Create(template.String(), false)
 	}
 
 	if err != nil {
 		return err
 	}
+
+	d.MachineId = instanceID
 
 	if d.IPAddress, err = d.GetIP(); err != nil {
 		return err
@@ -514,12 +519,7 @@ func (d *Driver) GetURL() (string, error) {
 func (d *Driver) GetIP() (string, error) {
 	controller := d.getController()
 
-	vm_id, err := controller.VMs().ByName(d.MachineName)
-	if err != nil {
-		return "", err
-	}
-
-	vm, err := controller.VM(vm_id).Info(false)
+	vm, err := controller.VM(d.MachineId).Info(false)
 	if err != nil {
 		return "", err
 	}
@@ -542,12 +542,7 @@ func (d *Driver) GetIP() (string, error) {
 func (d *Driver) GetState() (state.State, error) {
 	controller := d.getController()
 
-	vm_id, err := controller.VMs().ByName(d.MachineName)
-	if err != nil {
-		return state.None, err
-	}
-
-	vm, err := controller.VM(vm_id).Info(false)
+	vm, err := controller.VM(d.MachineId).Info(false)
 	if err != nil {
 		return state.None, err
 	}
@@ -657,12 +652,9 @@ func (d *Driver) GetState() (state.State, error) {
 func (d *Driver) Start() error {
 	controller := d.getController()
 
-	vm_id, err := controller.VMs().ByName(d.MachineName)
-	if err != nil {
-		return err
-	}
+	var err error
 
-	vm := controller.VM(vm_id)
+	vm := controller.VM(d.MachineId)
 	vm.Resume()
 
 	s := state.None
@@ -696,13 +688,8 @@ func (d *Driver) Start() error {
 func (d *Driver) Stop() error {
 	controller := d.getController()
 
-	vm_id, err := controller.VMs().ByName(d.MachineName)
-	if err != nil {
-		return err
-	}
-
-	vm := controller.VM(vm_id)
-	err = vm.Poweroff()
+	vm := controller.VM(d.MachineId)
+	err := vm.Poweroff()
 	if err != nil {
 		return err
 	}
@@ -713,13 +700,8 @@ func (d *Driver) Stop() error {
 func (d *Driver) Remove() error {
 	controller := d.getController()
 
-	vm_id, err := controller.VMs().ByName(d.MachineName)
-	if err != nil {
-		return err
-	}
-
-	vm := controller.VM(vm_id)
-	err = vm.TerminateHard()
+	vm := controller.VM(d.MachineId)
+	err := vm.TerminateHard()
 	if err != nil {
 		return err
 	}
@@ -730,13 +712,8 @@ func (d *Driver) Remove() error {
 func (d *Driver) Restart() error {
 	controller := d.getController()
 
-	vm_id, err := controller.VMs().ByName(d.MachineName)
-	if err != nil {
-		return err
-	}
-
-	vm := controller.VM(vm_id)
-	err = vm.Reboot()
+	vm := controller.VM(d.MachineId)
+	err := vm.Reboot()
 	if err != nil {
 		return err
 	}
@@ -747,14 +724,13 @@ func (d *Driver) Restart() error {
 func (d *Driver) Kill() error {
 	controller := d.getController()
 
-	vm_id, err := controller.VMs().ByName(d.MachineName)
+	vm := controller.VM(d.MachineId)
+	err := vm.PoweroffHard()
 	if err != nil {
 		return err
 	}
 
-	vm := controller.VM(vm_id)
-
-	return vm.PoweroffHard()
+	return nil
 }
 
 func (d *Driver) publicSSHKeyPath() string {
