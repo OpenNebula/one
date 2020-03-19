@@ -206,45 +206,35 @@ define(function(require) {
     if (n_times_int > 1) {
       extra_msg = n_times_int+" times";
     }
-    var extra_info = {
-      "merge_template": {}
-    };
-    var networks_json = WizardFields.retrieve($(".network_attrs_class", context));
-    var custom_attrs_json = WizardFields.retrieve($(".custom_attr_class", context));
-    var network_values = [];
-    var prefix = "type_";
     
-    var networks = Object.keys(networks_json).filter(function(k) {
-      return k.indexOf('type_') == 0;
-    }).reduce(function(newData, k) {
-      var key = "id";
-      switch (networks_json[k]) {
-        case "create":
-          key = "template_id";
-        break;
-        case "reserve":
-          key = "reserve_from";
-        break;
-        default:
-        break;
-      }
-      var internal = {};
-      internal[k.replace(prefix,"")] = {};
-      internal[k.replace(prefix,"")][key] = networks_json[k.replace(prefix,"")];
-      if(networks_json[k] === "create" || networks_json[k] === "reserve"){
-        internal[k.replace(prefix,"")].extra = networks_json["extra_"+k.replace(prefix,"")];
-      }
-      newData[k.replace(prefix,"")] = internal;
+    var custom_attrs_json = WizardFields.retrieve($(".custom_attr_class", context));
+    var networks_json = WizardFields.retrieve($(".network_attrs_class", context));
+    var typePrefix = "type_";
+    
+    var network_values = Object.keys(networks_json).filter(function(key) {
+      return key.indexOf(typePrefix) == 0; // get all networks names with prefix 'type_'
+    }).reduce(function(newData, typeKey) {
+      var type = networks_json[typeKey];
+      var name = typeKey.replace(typePrefix, '');
+      var id = networks_json[name]
+      var extra = networks_json['extra_' + name];
+  
+      newData.push($.extend(true, {},{
+        [name]: {
+          [type]: id, // type configuration: id network/template
+          extra: (extra && extra !== "") ? extra : undefined,
+        },
+      }));
+      
       return newData;
-    }, {});
-    //parse to array
-    Object.keys(networks).map(function(key_network){
-      network_values.push(networks[key_network]);
-    });
+    }, []);
 
-    extra_info.merge_template.custom_attrs_values = custom_attrs_json;
-    extra_info.merge_template.networks_values = network_values;
-    extra_info.merge_template.roles = [];
+    var extra_info = { "merge_template": {
+      custom_attrs_values: custom_attrs_json,
+      networks_values: network_values,
+      roles: []
+    }};
+
     $.each(that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
       var div_id = "user_input_role_"+index;
       var tmp_json = {};
