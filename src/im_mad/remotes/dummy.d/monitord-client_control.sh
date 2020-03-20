@@ -61,7 +61,7 @@ function stop_client() {
     local pids=$(ps axuww | grep "$CLIENT $ARGV" | grep -v grep | awk '{print $2}')
 
     if [ -n "$pids" ]; then
-        kill -6 $pids
+        kill $pids
     fi
 
     rm -f $CLIENT_PID_FILE

@@ -22,7 +22,7 @@ running_pid=$(cat /tmp/one-monitord-client.pid)
 pids=$(ps axuwww | grep -e "/monitord-client.rb kvm" | grep -v grep | awk '{ print $2 }' | grep -v "^${running_pid}$")
 
 if [ -n "$pids" ]; then
-    kill -6 $pids
+    kill $pids
 fi
 
 ) > /dev/null

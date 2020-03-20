@@ -31,13 +31,13 @@ pids=$(ps axuwww | grep -e "/monitord-client.rb.*${HID} " | grep -v grep | \
     awk '{ print $2 }' | grep -v "^${running_pid}$")
 
 if [ -n "$pids" ]; then
-    kill -6 $pids
+    kill $pids
 fi
 
 oned=`ps auxwww | grep oned | grep -v grep | wc -l`
 
 if [ ${oned} -eq 0 ]; then
-    kill -6 ${running_pid}
+    kill ${running_pid}
 fi
 
 ) > /dev/null
