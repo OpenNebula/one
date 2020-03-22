@@ -65,6 +65,13 @@ begin
         vm = VCenterDriver::VirtualMachine.new_from_clone(vi_client,
                                                           drv_action,
                                                           vm_id)
+        if vm.instantiated_as_persistent?
+            template_id = vm.one_item['TEMPLATE/TEMPLATE_ID']
+            vm_template = OpenNebula::Template.new_with_id(template_id, OpenNebula::Client.new)
+            rc = vm_template.info()
+            raise if OpenNebula.is_error?(rc)
+            vm_template.lock(1)
+        end
     end
 
     if vm.is_powered_off?

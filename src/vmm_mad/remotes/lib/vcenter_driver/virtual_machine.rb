@@ -2050,6 +2050,8 @@ module VCenterDriver
 
                 # Add vCenter template name
                 new_template.update("VCENTER_TEMPLATE_NAME=#{@item.name}", true)
+
+                new_template.unlock()
         end
 
         def resize_unmanaged_disks
