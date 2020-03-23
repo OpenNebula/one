@@ -746,14 +746,14 @@ define(function(require) {
         data: {
           id: that.element.ID,
           monitor: {
-            monitor_resources : "MONITORING/DISKRDBYTES,MONITORING/DISKWRBYTES,MONITORING/DISKRDIOPS,MONITORING/DISKWRIOPS"
+            monitor_resources : "DISKRDBYTES,DISKWRBYTES,DISKRDIOPS,DISKWRIOPS"
           }
         },
         success: function(req, response) {
           var vmGraphs = [
             {
               labels : Locale.tr("Disk read bytes"),
-              monitor_resources : "MONITORING/DISKRDBYTES",
+              monitor_resources : "DISKRDBYTES",
               humanize_figures : true,
               convert_from_bytes : true,
                derivative : true,
@@ -761,7 +761,7 @@ define(function(require) {
             },
             {
               labels : Locale.tr("Disk write bytes"),
-              monitor_resources : "MONITORING/DISKWRBYTES",
+              monitor_resources : "DISKWRBYTES",
               humanize_figures : true,
               convert_from_bytes : true,
                derivative : true,
@@ -769,7 +769,7 @@ define(function(require) {
             },
             {
               labels : Locale.tr("Disk read IOPS"),
-              monitor_resources : "MONITORING/DISKRDIOPS",
+              monitor_resources : "DISKRDIOPS",
               //humanize_figures : true,
               //convert_from_bytes : true,
               y_sufix : "IOPS/s",
@@ -778,7 +778,7 @@ define(function(require) {
             },
             {
               labels : Locale.tr("Disk write IOPS"),
-              monitor_resources : "MONITORING/DISKWRIOPS",
+              monitor_resources : "DISKWRIOPS",
               //humanize_figures : true,
               //convert_from_bytes : true,
               y_sufix : "IOPS/s",

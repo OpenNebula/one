@@ -16,42 +16,24 @@
 
 #include "VirtualMachineMonitorInfo.h"
 #include "ObjectXML.h"
+#include "Attribute.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 using namespace std;
 
-#define xml_print(name, value) "<"#name">" << value << "</"#name">"
+#define xml_print(name, value) "<"#name">" << one_util::escape_xml(value) \
+                                           << "</"#name">"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 string VirtualMachineMonitorInfo::to_xml() const
 {
-    string monitor_str;
+    string tmp;
 
-    return monitoring.to_xml(monitor_str);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string VirtualMachineMonitorInfo::to_xml_extended() const
-{
-    string monitor_str;
-    ostringstream oss;
-
-    oss << "<MONITORING>";
-
-    oss << xml_print(TIMESTAMP, _timestamp);
-    oss << xml_print(ID, _oid);
-    oss << monitoring.to_xml(monitor_str);
-
-    oss << "</MONITORING>";
-
-    // todo add Template (CPU and MEMORY)
-    return oss.str();
+    return monitoring.to_xml(tmp);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -73,9 +55,9 @@ string VirtualMachineMonitorInfo::to_xml_short() const
         monitoring.get("STATE", state);
 
         oss << "<MONITORING>"
-            << "<CPU>"    << one_util::escape_xml(cpu)    <<  "</CPU>"
-            << "<MEMORY>" << one_util::escape_xml(memory) <<  "</MEMORY>"
-            << "<STATE>"  << one_util::escape_xml(state)  <<  "</STATE>"
+            << xml_print(CPU, cpu)
+            << xml_print(MEMORY, memory)
+            << xml_print(STATE, state)
             << "</MONITORING>";
     }
 
@@ -87,26 +69,15 @@ string VirtualMachineMonitorInfo::to_xml_short() const
 
 int VirtualMachineMonitorInfo::from_xml(const std::string& xml_string)
 {
-    ObjectXML xml(xml_string);
-
-    int rc = xml.xpath(_timestamp, "/MONITORING/TIMESTAMP", 0L);
-    rc += xml.xpath(_oid, "/MONITORING/ID", -1);
+    int rc = monitoring.from_xml(xml_string);
 
     if (rc < 0)
     {
         return -1;
     }
 
-    vector<xmlNodePtr> content;
-    xml.get_nodes("/MONITORING/MONITORING", content);
-
-    if (!content.empty())
-    {
-        monitoring.from_xml_node(content[0]);
-
-        xml.free_nodes(content);
-        content.clear();
-    }
+    return monitoring.get("TIMESTAMP", _timestamp) &&
+           monitoring.get("ID", _oid);
 
     return 0;
 }
@@ -116,18 +87,10 @@ int VirtualMachineMonitorInfo::from_xml(const std::string& xml_string)
 
 int VirtualMachineMonitorInfo::from_template(const Template &tmpl)
 {
-    int tmp;
-    if (tmpl.get("OID", tmp))
-    {
-        _oid = tmp;
-    }
-
-    if (_oid < 0)
-    {
-        return -1;
-    }
-
     monitoring.merge(&tmpl);
+
+    monitoring.replace("ID", _oid);
+    monitoring.replace("TIMESTAMP", _timestamp);
 
     return 0;
 }
@@ -139,7 +102,13 @@ void VirtualMachineMonitorInfo::reset_info()
 {
     _timestamp = time(0);
 
+    monitoring.clear();
+
     monitoring.replace("CPU","0.0");
 
     monitoring.replace("MEMORY","0");
+
+    monitoring.replace("TIMESTAMP", _timestamp);
+
+    monitoring.replace("ID", _oid);
 }

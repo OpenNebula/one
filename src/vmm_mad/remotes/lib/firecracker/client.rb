@@ -32,7 +32,7 @@ class FirecrackerClient
         'Accept' => 'application/json',
         'Content-Type' => 'application/json'
     }.freeze
-    API_RETRY = 5 # Attempts, in case a response is failed to read from LXD
+    API_RETRY = 5 # Attempts, in case a response is failed to read from FC
 
     def initialize(socket_path)
         # rubocop:disable Style/RescueStandardError
@@ -78,19 +78,6 @@ class FirecrackerClient
     def patch(uri, data)
         get_response(Net::HTTP::Patch.new("#{API}/#{uri}", HEADER), data)
     end
-
-    # Waits for an operation returned in response to be completed
-    # def wait(response, timeout)
-    #    operation_id = response['operation'].split('/').last
-    #
-    #    timeout = "?timeout=#{timeout}" unless [nil, ''].include?(timeout)
-    #
-    #    response = get("operations/#{operation_id}/wait#{timeout}")
-    #
-    #    raise LXDError, response if response['metadata']['status'] == 'Failure'
-    #
-    #    response
-    # end
 
     private
 
@@ -142,7 +129,7 @@ class FirecrackerClient
 
 end
 
-# Error used for raising LXDClient exception when response is error return value
+# Error used for raising FC Client exception when response is error return value
 class FirecrackerError < StandardError
 
     attr_reader :body, :error, :code, :type

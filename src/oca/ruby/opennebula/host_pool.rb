@@ -94,8 +94,7 @@ module OpenNebula
         #      "HOST_SHARE/FREE_CPU"=>[["1337609673", "800"]],
         #      "HOST_SHARE/RUNNING_VMS"=>[["1337609673", "3"]]}}
         def monitoring(xpath_expressions)
-            return super(HOST_POOL_METHODS[:monitoring],
-                'HOST', 'LAST_MON_TIME', xpath_expressions)
+            return super(HOST_POOL_METHODS[:monitoring], xpath_expressions)
         end
 
         # Retrieves the monitoring data for all the Hosts in the pool, in XML

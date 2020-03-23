@@ -91,9 +91,6 @@ module OpenNebula
         # Retrieves the monitoring data for all the Objects in the pool
         #
         # @param [String] xml_method xml-rcp method
-        # @param [String] root_elem Root for each individual PoolElement
-        # @param [String] timestamp_elem Name of the XML element with the last
-        #   monitorization timestamp
         # @param [Array<String>] xpath_expressions Elements to retrieve.
         # @param args arguemnts for the xml_method call
         #
@@ -101,8 +98,7 @@ module OpenNebula
         #   OpenNebula::Error] The first level hash uses the Object ID as keys,
         #   and as value a Hash with the requested xpath expressions,
         #   and an Array of 'timestamp, value'.
-        def monitoring(xml_method, root_elem, timestamp_elem, xpath_expressions,
-            *args)
+        def monitoring(xml_method, xpaths, *args)
 
             rc = @client.call(xml_method, *args)
 
@@ -125,9 +121,7 @@ module OpenNebula
             end
 
             ids.each { |id|
-                hash[id] = OpenNebula.process_monitoring(
-                    xmldoc, root_elem, timestamp_elem, id, xpath_expressions)
-
+                hash[id] = OpenNebula.process_monitoring(xmldoc, id, xpaths)
             }
 
             return hash

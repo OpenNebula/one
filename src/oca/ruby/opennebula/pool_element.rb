@@ -183,15 +183,12 @@ module OpenNebula
         # Retrieves this Element's monitoring data from OpenNebula
         #
         # @param [String] xml_method the name of the XML-RPC method
-        # @param [String] root_elem Root for each individual PoolElement
-        # @param [String] timestamp_elem Name of the XML element with the last
-        #   monitorization timestamp
-        # @param xpath_expressions [Array<String>] Xpath expressions for the
-        #   elements to retrieve.
+        # @param xpaths [Array<String>] Xpath expressions for the elements to
+        # retrieve.
         #
         # @return [Hash<String, Array<Array<int>>, OpenNebula::Error] Hash with
         #   the requested xpath expressions, and an Array of [timestamp, value].
-        def monitoring(xml_method, root_elem, timestamp_elem, xpath_expressions)
+        def monitoring(xml_method, xpaths)
             return Error.new('ID not defined') if !@pe_id
 
             rc = @client.call(xml_method, @pe_id)
@@ -204,8 +201,7 @@ module OpenNebula
             xmldoc.initialize_xml(rc, 'MONITORING_DATA')
 
 
-            return OpenNebula.process_monitoring(
-                xmldoc, root_elem, timestamp_elem, @pe_id, xpath_expressions)
+            return OpenNebula.process_monitoring(xmldoc, @pe_id, xpaths)
         end
 
     public
@@ -261,21 +257,20 @@ module OpenNebula
     # Processes the monitoring data in XML returned by OpenNebula
     #
     # @param [XMLElement] xmldoc monitoring data returned by OpenNebula
-    # @param [String] root_elem Root for each individual PoolElement
-    # @param [String] timestamp_elem Name of the XML element with the last
     #   monitorization timestamp
     # @param [Integer] oid Id of the object to process
     # @param [Array<String>] xpath_expressions Elements to retrieve.
     #
     # @return [Hash<String, Array<Array<int>>, OpenNebula::Error] Hash with
     #   the requested xpath expressions, and an Array of [timestamp, value].
-    def self.process_monitoring(xmldoc, root_elem, timestamp_elem, oid, xpath_expressions)
+    def self.process_monitoring(xmldoc, oid, xpath_expressions)
         hash = {}
         timestamps = xmldoc.retrieve_elements(
-            "#{root_elem}[ID=#{oid}]/#{timestamp_elem}")
+            "/MONITORING_DATA/MONITORING[ID=#{oid}]/TIMESTAMP")
 
         xpath_expressions.each { |xpath|
-            xpath_values = xmldoc.retrieve_elements("#{root_elem}[ID=#{oid}]/#{xpath}")
+            xpath_values = xmldoc.retrieve_elements(
+                "/MONITORING_DATA/MONITORING[ID=#{oid}]/#{xpath}")
 
             if ( xpath_values.nil? )
                 hash[xpath] = []
@@ -287,27 +282,4 @@ module OpenNebula
         return hash
     end
 
-    # Alternative method with better performance for huge number of timestamps.
-    # For reasonable amounts of data, the current method is quicker
-=begin
-    def self.process_monitoring(xmldoc, root_elem, timestamp_elem, oid, xpath_expressions)
-        hash = {}
-
-        xpath_expressions.each { |xpath|
-            hash[xpath] = []
-        }
-
-        xmldoc.each("#{root_elem}[ID=#{oid}]") do |elem|
-            timestamp = elem[timestamp_elem]
-
-            xpath_expressions.each { |xpath|
-                xpath_value = elem[xpath]
-
-                hash[xpath] << [timestamp, xpath_value] if !xpath_value.nil?
-            }
-        end
-
-        return hash
-    end
-=end
 end

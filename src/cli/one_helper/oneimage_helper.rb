@@ -82,7 +82,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             :description => 'Path of the image file',
             :format => String,
             :proc => lambda do |o, _options|
-                next [0, o] if o.match(%r{^https?://})
+                next [0, o] if o.match(%r{^(https?|docker)://})
 
                 if o[0, 1]=='/'
                     path=o

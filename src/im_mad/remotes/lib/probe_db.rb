@@ -94,7 +94,7 @@ class VirtualMachineDB
         last = @db.execute("SELECT MAX(timestamp) from #{@dataset}").flatten![0]
         last ||= 0
 
-        return sync_status if time > (last + @conf[:sync])
+        return sync_status if time > (last + @conf[:sync]) && last != 0
 
         status_str  = ''
         monitor_ids = []

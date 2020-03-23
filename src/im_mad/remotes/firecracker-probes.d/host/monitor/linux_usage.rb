@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
@@ -16,41 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-$LOAD_PATH.unshift File.dirname(__FILE__)
+require_relative '../../../lib/linux'
 
-require 'microvm'
-
-require_relative '../../scripts_common'
-
-# ------------------------------------------------------------------------------
-# Action Arguments, STDIN includes XML description of the OpenNebula VM
-# ------------------------------------------------------------------------------
-
-vm_id = ARGV[2]
-
-xml = STDIN.read
-
-# TODO, check if microVM already exists
-
-microvm = MicroVM.new_from_xml(xml, nil)
-
-microvm.gen_deployment_file
-microvm.gen_logs_files
-
-# Create microVM
-rc = microvm.create
-sleep(1)
-
-# Make sure process have started
-if !rc || microvm.get_pid == -1
-    STDERR.puts 'MicroVM failed to start.'
-    microvm.clean(false)
-
-    exit(-1)
-end
-
-# Start VNC (only started if necessary)
-microvm.vnc('start')
-
-# Set deploy_id
-puts "one-#{vm_id}"
+LinuxHost.usage('firecracker')

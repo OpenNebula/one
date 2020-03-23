@@ -44,6 +44,8 @@ CLIENT_PID_FILE=/tmp/one-monitord-client.pid
 
 # Launch the client
 function start_client() {
+    rm $CLIENT_PID_FILE >/dev/null 2>&1
+
     echo "$STDIN" | /usr/bin/env ruby $CLIENT $ARGV &
 
     echo $! > $CLIENT_PID_FILE

@@ -184,8 +184,7 @@ module OpenNebula
         #        ["1337266088", "800"]]
         #   }
         def monitoring(xpath_expressions)
-            return super(HOST_METHODS[:monitoring], 'HOST',
-                'LAST_MON_TIME', xpath_expressions)
+            return super(HOST_METHODS[:monitoring], xpath_expressions)
         end
 
         # Retrieves this Host's monitoring data from OpenNebula, in XML

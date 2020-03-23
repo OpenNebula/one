@@ -48,8 +48,10 @@ rm -rf "$ROOTFS_PATH/dev"
 rm -f "$ROOTFS_PATH/api.socket"
 rm -f "$ROOTFS_PATH/firecracker"
 
-# Unmount VM directory
-umount "$ROOTFS_PATH"
+# Unmount VM directory (if needed)
+if  grep -qs "$ROOTFS_PATH" /proc/mounts; then
+    umount "$ROOTFS_PATH"
+fi
 
 #-------------------------------------------------------------------------------
 # Wait for a cgroup to not being used

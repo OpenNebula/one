@@ -100,7 +100,7 @@ define(function(require) {
     objLeases.resource = "template";
     objLeases.__proto__ = FormPanel.prototype;
     Leases.actions(objLeases);
-    
+
     if(Config.isFeatureEnabled("instantiate_persistent")){
       $("input.instantiate_pers", context).on("change", function(){
         var persistent = $(this).prop("checked");
@@ -125,7 +125,7 @@ define(function(require) {
       $("#vm_n_times_disabled", context).hide();
       $("#vm_n_times", context).show();
     }
-    
+
     context.off("click", "#add_scheduling_inst_action");
     context.on("click", "#add_scheduling_inst_action", function() {
       var actions = ["terminate", "terminate-hard", "hold", "release", "stop", "suspend", "resume", "reboot", "reboot-hard", "poweroff", "poweroff-hard", "undeploy", "undeploy-hard", "snapshot-create"];
@@ -134,7 +134,6 @@ define(function(require) {
       ScheduleActions.setup(context);
       return false;
     });
-
     context.off("click", "#add_inst_action_json");
     context.on("click", "#add_inst_action_json", function(){
       var sched_action = ScheduleActions.retrieveNewAction(context);
@@ -144,12 +143,10 @@ define(function(require) {
 
       return false;
     });
-
     context.on("focusout" , "#time_input", function(){
       $("#time_input").removeAttr("data-invalid");
       $("#time_input").removeAttr("class");
     });
-
     context.off("click", ".remove_action_x");
     context.on("click", ".remove_action_x", function(){
       $(this).parents("tr").remove();

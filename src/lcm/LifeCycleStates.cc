@@ -314,7 +314,7 @@ void  LifeCycleManager::deploy_success_action(int vid)
 
         vmpool->update(vm);
     }
-    else
+    else if ( vm->get_lcm_state() != VirtualMachine::RUNNING)
     {
         vm->log("LCM",Log::ERROR,"deploy_success_action, VM in a wrong state");
     }

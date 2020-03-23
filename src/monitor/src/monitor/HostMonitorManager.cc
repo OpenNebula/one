@@ -322,7 +322,7 @@ void HostMonitorManager::monitor_vm(int oid,
     if (monitoring.from_template(tmpl) != 0)
     {
         string str;
-        NebulaLog::log("HMM", Log::ERROR, "Error parsing VM monitoring template: "
+        NebulaLog::log("HMM", Log::ERROR, "Error parsing VM monitoring: "
                 + tmpl.to_str(str));
         return;
     }

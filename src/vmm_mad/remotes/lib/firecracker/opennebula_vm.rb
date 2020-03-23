@@ -111,6 +111,11 @@ class OpenNebulaVM
         fc['deployment-file']['network-interfaces'] = []
         fc['command-params'] = {}
 
+        # Set logger info
+        fc['deployment-file']['logger'] = {}
+        fc['deployment-file']['logger']['log_fifo'] = 'logs.fifo'
+        fc['deployment-file']['logger']['metrics_fifo'] = 'metrics.fifo'
+
         boot_source(fc['deployment-file']['boot-source'])
         drives(fc['deployment-file']['drives'])
         machine_config(fc['deployment-file']['machine-config'])

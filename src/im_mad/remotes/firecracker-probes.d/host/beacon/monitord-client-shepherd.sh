@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
@@ -16,41 +16,14 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-$LOAD_PATH.unshift File.dirname(__FILE__)
+(
+[ -f /tmp/one-monitord-client.pid ] || exit 0
+running_pid=$(cat /tmp/one-monitord-client.pid)
+pids=$(ps axuwww | grep -e "/monitord-client.rb firecracker" | grep -v grep | awk '{ print $2 }' | grep -v "^${running_pid}$")
 
-require 'microvm'
+if [ -n "$pids" ]; then
+    kill -6 $pids
+fi
 
-require_relative '../../scripts_common'
+) > /dev/null
 
-# ------------------------------------------------------------------------------
-# Action Arguments, STDIN includes XML description of the OpenNebula VM
-# ------------------------------------------------------------------------------
-
-vm_id = ARGV[2]
-
-xml = STDIN.read
-
-# TODO, check if microVM already exists
-
-microvm = MicroVM.new_from_xml(xml, nil)
-
-microvm.gen_deployment_file
-microvm.gen_logs_files
-
-# Create microVM
-rc = microvm.create
-sleep(1)
-
-# Make sure process have started
-if !rc || microvm.get_pid == -1
-    STDERR.puts 'MicroVM failed to start.'
-    microvm.clean(false)
-
-    exit(-1)
-end
-
-# Start VNC (only started if necessary)
-microvm.vnc('start')
-
-# Set deploy_id
-puts "one-#{vm_id}"

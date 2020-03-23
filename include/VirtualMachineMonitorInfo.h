@@ -22,7 +22,28 @@
 #include <string>
 
 /**
- *  Virtual Machine Monitor class, stores the monitor data for the VM
+ *  Virtual Machine Monitor class, stores the monitor data for the VM in
+ *  template format.
+ *
+ *  The template is free format but the following keys are used:
+ *    - ID of the VM (mandatory)
+ *    - TIMESTAMP of the monitoring record (mandatory)
+ *    - CPU, MEMORY
+ *
+ *  Example:
+ *
+ *  <MONITORING>
+ *      <TIMESTAMP>1584698508</TIMESTAMP>
+ *      <ID>0</ID>
+ *      <CPU><![CDATA[5.02]]></CPU>
+ *      <DISKRDBYTES><![CDATA[346366848]]></DISKRDBYTES>
+ *      <DISKRDIOPS><![CDATA[9935]]></DISKRDIOPS>
+ *      <DISKWRBYTES><![CDATA[1058840064]]></DISKWRBYTES>
+ *      <DISKWRIOPS><![CDATA[107167]]></DISKWRIOPS>
+ *      <MEMORY><![CDATA[1098912]]></MEMORY>
+ *      <NETRX><![CDATA[567412942]]></NETRX>
+ *      <NETTX><![CDATA[3592223]]></NETTX>
+ *  </MONITORING>
  */
 class VirtualMachineMonitorInfo
 {
@@ -39,6 +60,39 @@ public:
     {
     }
 
+    /**
+     *  @return a xml string representation of the monitoring record
+     */
+    std::string to_xml() const;
+
+    /**
+     *  @return a xml string including only STATE, CPU and MEMORY attributes
+     */
+    std::string to_xml_short() const;
+
+    /**
+     *  Loads an exisiting monitoring record from xml_string.
+     *    @param xml_string representation
+     *    @return 0 on succes, -1 otherwise
+     */
+    int from_xml(const std::string& xml_string);
+
+    /**
+     *  The contents of the provided template are merged with any previous 
+     *  exisiting data, preserving it.
+     *    @param tmpl with monitoring attributes
+     *    @return 0 on succes, -1 otherwise
+     */
+    int from_template(const Template &tmpl);
+
+    /**
+     * Reset monitoring data to zero
+     */
+    void reset_info();
+
+    // -------------------------------------------------------------------------
+    // Class set/getters
+    // -------------------------------------------------------------------------
     int oid() const { return _oid; }
 
     void oid(int oid) { _oid = oid; }
@@ -46,26 +100,6 @@ public:
     time_t timestamp() const { return _timestamp; }
 
     void timestamp(time_t timestamp) { _timestamp = timestamp; }
-
-    std::string to_xml() const;
-
-    std::string to_xml_extended() const;
-
-    std::string to_xml_short() const;
-
-    /**
-     *  Fills monitoring data from xml_string
-     *  If some data are not contained, keep old data
-     *  @return 0 on succes, -1 otherwise
-     */
-    int from_xml(const std::string& xml_string);
-
-    int from_template(const Template &tmpl);
-
-    /**
-     * Reset monitoring data to zero
-     */
-    void reset_info();
 
 private:
     int    _oid;

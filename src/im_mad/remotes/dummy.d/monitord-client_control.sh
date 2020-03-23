@@ -47,6 +47,8 @@ CLIENT_PID_FILE=/tmp/one-monitord-$HID.pid
 
 # Launch the client
 function start_client() {
+    rm $CLIENT_PID_FILE >/dev/null 2>&1
+
     echo "$STDIN" | base64 -d - | /usr/bin/env ruby $CLIENT $ARGV &
 
     echo $! > $CLIENT_PID_FILE

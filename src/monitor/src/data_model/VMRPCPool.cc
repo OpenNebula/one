@@ -27,7 +27,7 @@ int VMRPCPool::update_monitoring(const VirtualMachineMonitorInfo& monitoring)
         return 0;
     }
 
-    auto sql_xml = db->escape_str(monitoring.to_xml_extended());
+    auto sql_xml = db->escape_str(monitoring.to_xml());
 
     if (sql_xml == 0)
     {

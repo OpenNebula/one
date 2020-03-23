@@ -542,28 +542,28 @@ define(function(require) {
         data: {
           id: that.element.ID,
           monitor: {
-            monitor_resources : "MONITORING/NETTX,MONITORING/NETRX"
+            monitor_resources : "NETTX,NETRX"
           }
         },
         success: function(req, response) {
           var vmGraphs = [
             {
               labels : Locale.tr("Network reception"),
-              monitor_resources : "MONITORING/NETRX",
+              monitor_resources : "NETRX",
               humanize_figures : true,
               convert_from_bytes : true,
               div_graph : $("#vm_net_rx_graph")
             },
             {
               labels : Locale.tr("Network transmission"),
-              monitor_resources : "MONITORING/NETTX",
+              monitor_resources : "NETTX",
               humanize_figures : true,
               convert_from_bytes : true,
               div_graph : $("#vm_net_tx_graph")
             },
             {
               labels : Locale.tr("Network reception speed"),
-              monitor_resources : "MONITORING/NETRX",
+              monitor_resources : "NETRX",
               humanize_figures : true,
               convert_from_bytes : true,
               y_sufix : "B/s",
@@ -572,7 +572,7 @@ define(function(require) {
             },
             {
               labels : Locale.tr("Network transmission speed"),
-              monitor_resources : "MONITORING/NETTX",
+              monitor_resources : "NETTX",
               humanize_figures : true,
               convert_from_bytes : true,
               y_sufix : "B/s",

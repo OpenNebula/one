@@ -16,59 +16,102 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'open3'
+$LOAD_PATH.unshift "#{File.dirname(__FILE__)}/../../vmm/firecracker/"
+
+require 'json'
 require 'base64'
-require 'rexml/document'
-
-ENV['LANG'] = 'C'
-ENV['LC_ALL'] = 'C'
+require 'client'
 
 #-------------------------------------------------------------------------------
-#  KVM Monitor Module. This module provides basic functionality to execute
-#  virsh commands and load KVM configuration in remotes/etc/vmm/kvm/kvmrc
-#
-#  The load_conf should be called before executing virsh commands
+#  Firecracker Monitor Module. This module provides basic functionality to
+#  retrieve Firecracker instances information
 #-------------------------------------------------------------------------------
-module KVM
+module Firecracker
 
-    # Constants for KVM virsh commands
-    CONF = {
-        :dominfo  => 'virsh --connect LIBVIRT_URI --readonly dominfo',
-        :domstate => 'virsh --connect LIBVIRT_URI --readonly domstate',
-        :list     => 'virsh --connect LIBVIRT_URI --readonly list',
-        :dumpxml  => 'virsh --connect LIBVIRT_URI --readonly dumpxml',
-        :domstats => 'virsh --connect LIBVIRT_URI --readonly domstats',
-        :top      => 'top -b -d2 -n 2 -p ',
-        'LIBVIRT_URI' => 'qemu:///system'
-    }
+    ###########################################################################
+    # MicroVM metrics/info related methods
+    ###########################################################################
 
-    # Variables to read from kvmrc
-    CONF_VARS = %w[LIBVIRT_URI]
+    def self.flush_metrics(uuid)
+        begin
+            socket = "/srv/jailer/firecracker/#{uuid}/root/api.socket"
+            client = FirecrackerClient.new(socket)
 
-    # Execute a virsh command using the predefined command strings and URI
-    # @param command [Symbol] as defined in the module CONF constant
-    def self.virsh(command, arguments)
-        cmd = CONF[command].gsub('LIBVIRT_URI', CONF['LIBVIRT_URI'])
+            data = '{"action_type": "FlushMetrics"}'
+            client.put('actions', data)
+        rescue StandardError, FirecrackerError
+            return false
+        end
 
-        Open3.capture3("#{cmd} #{arguments}")
+        true
     end
 
-    # Loads the rc variables and overrides the default values
-    def self.load_conf
-        file = "#{__dir__}/../../etc/vmm/kvm/kvmrc"
+    def self.metrics(uuid)
+        metrics_path = "/srv/jailer/firecracker/#{uuid}/root/metrics.fifo"
 
-        env   = `. "#{file}"; env`
-        lines = env.split("\n")
+        # clear previos logs
+        File.open(metrics_path, 'w') {|file| file.truncate(0) }
 
-        CONF_VARS.each do |var|
-            lines.each do |line|
-                if (a = line.match(/^(#{var})=(.*)$/))
-                    CONF[var] = a[2]
-                    break
-                end
-            end
+        # Flush metrics
+        flush_metrics(uuid)
+
+        # Read metrics
+        metrics_f = File.read(metrics_path).split("\n")[-1]
+        metrics_f.tr!("\u0000", '')
+
+        JSON.parse(metrics_f)
+    end
+
+    def self.machine_config(uuid)
+        begin
+            socket = "/srv/jailer/firecracker/#{uuid}/root/api.socket"
+            client = FirecrackerClient.new(socket)
+
+            response = client.get('machine-config')
+        rescue StandardError, FirecrackerError
+            return
         end
-    rescue StandardError
+
+        ###################################################################
+        # Machine config will return a JSON with the following information
+        # {
+        #     "vcpu_count": <int>,
+        #     "mem_size_mib": <int>,
+        #     "ht_enabled": <bool>,    # Todo, support it
+        #     "cpu_template": <string> # Todo, support it
+        # }
+        ###################################################################
+
+        response
+    end
+
+    def self.general_info(uuid)
+        begin
+            socket = "/srv/jailer/firecracker/#{uuid}/root/api.socket"
+            client = FirecrackerClient.new(socket)
+
+            response = client.get('')
+        rescue StandardError, FirecrackerError
+            return
+        end
+
+        ###################################################################
+        # General info will return a JSON with the following information
+        # {
+        #     "id": <string>          # (e.g "one-352")
+        #     "state": <string>,      # Check Domain::STATE_MAP
+        #     "vmm_version": <string> # (e.g "0.20.0")
+        # }
+        ###################################################################
+
+        response
+    end
+
+    def self.retrieve_info(uuid)
+        vm_info = {}
+
+        vm_info.merge!(machine_config(uuid))
+        vm_info.merge!(general_info(uuid))
     end
 
 end
@@ -95,7 +138,7 @@ module ProcessList
         ps    = `ps auxwww`
 
         ps.each_line do |l|
-            m = l.match(/-uuid ([a-z0-9\-]+) /)
+            m = l.match(/firecracker.+(one-\d+)/)
             next unless m
 
             l = l.split(/\s+/)
@@ -116,6 +159,20 @@ module ProcessList
         procs.each {|_i, p| p[:cpu] = cpu[p[:pid]] || 0 }
 
         procs
+    end
+
+    def self.retrieve_names
+        ps = `ps auxwww`
+        domains = []
+
+        ps.each_line do |l|
+            m = l.match(/firecracker.+(one-\d+)/)
+            next unless m
+
+            domains << m[1]
+        end
+
+        domains
     end
 
     # Get cpu usage in 100% for a set of PIDs
@@ -177,12 +234,11 @@ module ProcessList
 end
 
 #-------------------------------------------------------------------------------
-#  This class represents a qemu domain, information includes:
+#  This class represents a Firecracker domain, information includes:
 #    @vm[:name]
-#    @vm[:id] from one-<id>, -1 if wild
-#    @vm[:uuid]
-#    @vm[:kvm_state] KVM-qemu state
-#    @vm[:reason] reason for state transition
+#    @vm[:id] from one-<id>
+#    @vm[:uuid] (deployment id)
+#    @vm[:fc_state] Firecracker state
 #    @vm[:state] OpenNebula state
 #    @vm[:netrx]
 #    @vm[:nettx]
@@ -205,20 +261,13 @@ class Domain
     # Gets the information of the domain, fills the @vm hash using ProcessList
     # and virsh dominfo
     def info
-        text, _e, s = KVM.virsh(:dominfo, @name)
+        # Flush the microVM metrics
+        hash = Firecracker.retrieve_info(@name)
 
-        return -1 if s.exitstatus != 0
+        return -1 if hash.nil?
 
-        lines = text.split(/\n/)
-        hash  = {}
-
-        lines.map do |line|
-            parts = line.split(/:\s+/)
-            hash[parts[0].upcase] = parts[1]
-        end
-
-        @vm[:name] = hash['NAME']
-        @vm[:uuid] = hash['UUID']
+        @vm[:name] = @name
+        @vm[:uuid] = hash['id']
 
         m = @vm[:name].match(/^one-(\d*)$/)
 
@@ -228,28 +277,11 @@ class Domain
             @vm[:id] = -1
         end
 
-        @vm[:kvm_state] = hash['STATE']
+        @vm[:fc_state] = hash['state']
 
-        # Domain state
+        state = STATE_MAP[hash['state']] || 'UNKNOWN'
 
-        state  = 'UNKNOWN'
-        reason = 'missing'
-
-        if hash['STATE'] == 'paused'
-            text, _e, s = KVM.virsh(:domstate, "#{@name} --reason")
-
-            if s.exitstatus == 0
-                text =~ /^[^ ]+ \(([^)]+)\)/
-                reason = Regexp.last_match(1) || 'missing'
-            end
-
-            state = STATE_MAP['paused'][reason] || 'UNKNOWN'
-        else
-            state = STATE_MAP[hash['STATE']] || 'UNKNOWN'
-        end
-
-        @vm[:state]  = state
-        @vm[:reason] = reason
+        @vm[:state] = state
 
         io_stats
     end
@@ -266,66 +298,6 @@ class Domain
     # Merge hash value into the domain attributes
     def merge!(map)
         @vm.merge!(map)
-    end
-
-    # Convert the output of dumpxml for this domain to an OpenNebula template
-    # that can be imported. This method is for wild VMs.
-    #
-    #   @return [String] OpenNebula template encoded in base64
-    def to_one
-        xml, _e, s = KVM.virsh(:dumpxml, @name)
-        return '' if s.exitstatus != 0
-
-        doc = REXML::Document.new(xml)
-
-        name = REXML::XPath.first(doc, '/domain/name').text
-        uuid = REXML::XPath.first(doc, '/domain/uuid').text
-        vcpu = REXML::XPath.first(doc, '/domain/vcpu').text
-        mem  = REXML::XPath.first(doc, '/domain/memory').text.to_i / 1024
-        arch = REXML::XPath.first(doc, '/domain/os/type').attributes['arch']
-
-        spice = REXML::XPath.first(doc,
-                                   "/domain/devices/graphics[@type='spice']")
-        spice = spice.attributes['port'] if spice
-
-        spice_txt = ''
-        spice_txt = %(GRAPHICS = [ TYPE="spice", PORT="#{spice}" ]) if spice
-
-        vnc = REXML::XPath.first(doc, "/domain/devices/graphics[@type='vnc']")
-        vnc = vnc.attributes['port'] if vnc
-
-        vnc_txt = ''
-        vnc_txt = %(GRAPHICS = [ TYPE="vnc", PORT="#{vnc}" ]) if vnc
-
-        features = []
-        %w[acpi apic pae].each do |feature|
-            if REXML::XPath.first(doc, "/domain/features/#{feature}")
-                features << feature
-            end
-        end
-
-        feat = []
-        features.each do |feature|
-            feat << %(  #{feature.upcase}="yes")
-        end
-
-        features_txt = ''
-        features_txt = "FEATURES=[#{feat.join(', ')}]" unless feat.empty?
-
-        tmpl =  "NAME=\"#{name}\"\n"
-        tmpl << "CPU=#{vcpu}\n"
-        tmpl << "VCPU=#{vcpu}\n"
-        tmpl << "MEMORY=#{mem}\n"
-        tmpl << "HYPERVISOR=\"kvm\"\n"
-        tmpl << "IMPORT_VM_ID=\"#{uuid}\"\n"
-        tmpl << "OS=[ARCH=\"#{arch}\"]\n"
-        tmpl << features_txt << "\n" unless features_txt.empty?
-        tmpl << spice_txt << "\n" unless spice_txt.empty?
-        tmpl << vnc_txt << "\n" unless vnc_txt.empty?
-
-        tmpl
-    rescue StandardError
-        ''
     end
 
     #  Builds an OpenNebula Template with the monitoring keys. E.g.
@@ -353,33 +325,16 @@ class Domain
     private
 
     # --------------------------------------------------------------------------
-    # Libvirt states for the guest are
-    #  * 'running' state refers to guests which are currently active on a CPU.
-    #  * 'idle' ('blocked') not running or runnable (waiting on I/O or sleeping)
-    #  * 'paused' after virsh suspend.
-    #  * 'in shutdown' ('shutdown') guest in the process of shutting down.
-    #  * 'dying' the domain has not completely shutdown or crashed.
-    #  * 'crashed' guests have failed while running and are no longer running.
-    #  * 'pmsuspended' suspended by guest power management (e.g. S3 state)
+    # Firecracker states for the guest are
+    #  * 'Uninitialized'
+    #  * 'Starting'
+    #  * 'Running'
+    # https://github.com/firecracker-microvm/firecracker/blob/8d369e5db565441987d607f3ff24dc15fa2c8d7a/src/api_server/swagger/firecracker.yaml#L471
     # --------------------------------------------------------------------------
     STATE_MAP = {
-      'running'     => 'RUNNING',
-      'idle'        => 'RUNNING',
-      'blocked'     => 'RUNNING',
-      'in shutdown' => 'RUNNING',
-      'shutdown'    => 'RUNNING',
-      'dying'       => 'RUNNING',
-      'crashed'     => 'FAILURE',
-      'pmsuspended' => 'SUSPENDED',
-      'paused' => {
-          'migrating' => 'RUNNING',
-          'I/O error' => 'FAILURE',
-          'watchdog'  => 'FAILURE',
-          'crashed'   => 'FAILURE',
-          'post-copy failed' => 'FAILURE',
-          'unknown'   => 'FAILURE',
-          'user'      => 'SUSPENDED'
-      }
+        'Uninitialized' => 'FAILURE',
+        'Starting'      => 'RUNNING',
+        'Running'       => 'RUNNING'
     }
 
     MONITOR_KEYS = %w[cpu memory netrx nettx diskrdbytes diskwrbytes diskrdiops
@@ -395,30 +350,18 @@ class Domain
         @vm[:diskrdiops]  = 0
         @vm[:diskwriops]  = 0
 
-        return if @vm[:state] != 'RUNNING' || @vm[:reason] == 'migrating'
+        return if @vm[:state] != 'RUNNING'
 
-        vm_stats, _e, s = KVM.virsh(:domstats, @name)
+        vm_metrics = Firecracker.metrics(@name)
 
-        return if s.exitstatus != 0
+        return if vm_metrics.nil? || vm_metrics.keys.empty?
 
-        vm_stats.each_line do |line|
-            columns = line.split(/=(\d+)/)
-
-            case columns[0]
-            when /rx.bytes/
-                @vm[:netrx] += columns[1].to_i
-            when /tx.bytes/
-                @vm[:nettx] += columns[1].to_i
-            when /rd.bytes/
-                @vm[:diskrdbytes] += columns[1].to_i
-            when /wr.bytes/
-                @vm[:diskwrbytes] += columns[1].to_i
-            when /rd.reqs/
-                @vm[:diskrdiops] += columns[1].to_i
-            when /wr.reqs/
-                @vm[:diskwriops] += columns[1].to_i
-            end
-        end
+        @vm[:netrx] += vm_metrics['net']['rx_bytes_count']
+        @vm[:nettx] += vm_metrics['net']['tx_bytes_count']
+        @vm[:diskrdbytes] += vm_metrics['block']['read_bytes']
+        @vm[:diskwrbytes] += vm_metrics['block']['write_bytes']
+        @vm[:diskrdiops] += vm_metrics['block']['read_count']
+        @vm[:diskwriops] += vm_metrics['block']['write_count']
     end
 
 end
@@ -436,21 +379,14 @@ module DomainList
     #  Module Interface
     ############################################################################
     def self.info
-        domains = KVMDomains.new
+        domains = FirecrackerDomains.new
 
         domains.info
         domains.to_monitor
     end
 
-    def self.wilds_info
-        domains = KVMDomains.new
-
-        domains.wilds_info
-        domains.wilds_to_monitor
-    end
-
     def self.state_info
-        domains = KVMDomains.new
+        domains = FirecrackerDomains.new
 
         domains.state_info
     end
@@ -458,9 +394,9 @@ module DomainList
     ############################################################################
     # This is the implementation class for the module logic
     ############################################################################
-    class KVMDomains
+    class FirecrackerDomains
 
-        include KVM
+        include Firecracker
         include ProcessList
 
         def initialize
@@ -481,27 +417,7 @@ module DomainList
             end
         end
 
-        # Get the list of wild VMs (not known to OpenNebula) and their monitor
-        # information including process usage
-        #
-        #   @return [Hash] with KVM Domain classes indexed by their uuid
-        def wilds_info
-            info_each(true) do |name|
-                next if name =~ /^one-\d+/
-
-                vm = Domain.new name
-
-                next if vm.info == -1
-
-                t = vm.to_one
-
-                vm[:template] = Base64.strict_encode64(t) unless t.empty?
-
-                vm
-            end
-        end
-
-        # Get the list of VMs (known and not known to OpenNebula) and their info
+        # Get the list of VMs and their info
         # not including process usage.
         #
         #   @return [Hash] with KVM Domain classes indexed by their uuid
@@ -527,21 +443,6 @@ module DomainList
             mon_s
         end
 
-        # Return a message string with wild VM information
-        def wilds_to_monitor
-            mon_s = ''
-
-            @vms.each do |_uuid, vm|
-                next if vm[:id] != -1 || vm[:template].empty?
-
-                mon_s << "VM = [ID=\"#{vm[:id]}\", UUID=\"#{vm[:uuid]}\","
-                mon_s << " VM_NAME=\"#{vm.name}\","
-                mon_s << " IMPORT_TEMPLATE=\"#{vm[:template]}\"]\n"
-            end
-
-            mon_s
-        end
-
         private
 
         # Generic build method for the info list. It filters and builds the
@@ -552,17 +453,9 @@ module DomainList
 
             vm_ps = ProcessList.process_list if do_process
 
-            text, _e, s = KVM.virsh(:list, '')
+            names = ProcessList.retrieve_names
 
-            return {} if s.exitstatus != 0
-
-            lines = text.split(/\n/)[2..-1]
-
-            return @vms if lines.nil?
-
-            names = lines.map do |line|
-                line.split(/\s+/).delete_if {|d| d.empty? }[1]
-            end
+            return @vms if names.empty?
 
             names.each do |name|
                 vm = yield(name)

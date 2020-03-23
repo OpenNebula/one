@@ -24,6 +24,14 @@ require 'opennebula_vm'
 # This class interacts with Firecracker
 class MicroVM
 
+    #---------------------------------------------------------------------------
+    #   List of commands executed by the driver.
+    #---------------------------------------------------------------------------
+    COMMANDS = {
+        :clean       => 'sudo /var/tmp/one/vmm/firecracker/clean_fc',
+        :map_context => '/var/tmp/one/vmm/firecracker/map_context'
+    }
+
     # rubocop:disable Naming/AccessorMethodName
     # rubocop:disable Layout/LineLength
 
@@ -48,9 +56,6 @@ class MicroVM
 
         @rootfs_dir = "/srv/jailer/firecracker/#{@one.vm_name}/root"
         @context_path = "#{@rootfs_dir}/context"
-
-        @map_context_sh = '/var/tmp/one/vmm/firecracker/map_context.sh'
-        @clean_sh = '/var/tmp/one/vmm/firecracker/clean.sh'
     end
 
     class << self
@@ -74,6 +79,14 @@ class MicroVM
         end
     end
 
+    def gen_logs_files
+        path_log = "#{vm_location}/#{@fc['deployment-file']['logger']['log_fifo']}"
+        path_metrics = "#{vm_location}/#{@fc['deployment-file']['logger']['metrics_fifo']}"
+
+        File.open(path_log, 'w') {}
+        File.open(path_metrics, 'w') {}
+    end
+
     def vm_location
         "#{@one.sysds_path}/#{@one.vm_id}"
     end
@@ -88,8 +101,9 @@ class MicroVM
     end
 
     def get_pid
-        rc, stdout, = Command.execute("ps auxwww | grep '^.*firecracker.*\\<#{@one.vm_name}\\>' | grep -v grep",
-                                      false)
+        rc, stdout, = Command.execute("ps auxwww | grep " \
+            "\"^.*firecracker.*--id['\\\"=[[:space:]]]*#{@one.vm_name}\" " \
+            "| grep -v grep", false)
 
         if !rc.zero? || stdout.nil?
             return -1
@@ -106,11 +120,11 @@ class MicroVM
 
         return 0 unless context['context'] # return if there is no context
 
-        context_id = context['context']['disk_id']
+        context_location = context['context']['source']
 
-        params = " -s #{@one.sysds_path} -c #{context_id} -r #{@one.rootfs_id} -v #{@one.vm_id}"
+        params = " #{context_location} #{context_location}"
 
-        cmd = "sudo #{@map_context_sh} #{params}"
+        cmd = "#{COMMANDS[:map_context]} #{params}"
 
         Command.execute_rc_log(cmd, false)
     end
@@ -179,11 +193,8 @@ class MicroVM
 
         # TODO: make screen oprions configurable to support different versions
         # TODO: make screen configurable to enable use of tmux etc..
-        # TODO: make log file from screen configurable (not working on CentOS 7)
         if @one.vnc?
-            cmd << 'screen -L'
-            cmd << " -Logfile /tmp/fc-log-#{@one.vm_id}"
-            cmd << " -dmS #{@one.vm_name} "
+            cmd << "screen -dmS #{@one.vm_name} "
         end
 
         # Build jailer command params
@@ -234,7 +245,7 @@ class MicroVM
         params = "-c #{cgroup_path} -v #{@one.vm_name} -t #{timeout}"
         params << '  -o' unless delete
 
-        cmd = "sudo #{@clean_sh} #{params}"
+        cmd = "sudo #{COMMANDS[:clean]} #{params}"
 
         Command.execute_rc_log(cmd, false)
     end

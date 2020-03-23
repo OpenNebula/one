@@ -345,15 +345,15 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 OneVMHelper.state_to_str(d['STATE'], d['LCM_STATE'])
             end
 
-            column :UCPU, 'CPU percentage used by the VM', :size => 4 do |d|
-                cpu = d['MONITORING']['CPU']
+            column :CPU, 'CPU asigned to the VM', :size => 4 do |d|
+                cpu = d['TEMPLATE']['CPU']
                 cpu = '0' if cpu.nil?
 
                 cpu
             end
 
-            column :UMEM, 'Memory used by the VM', :size => 7 do |d|
-                OpenNebulaHelper.unit_to_str(d['MONITORING']['MEMORY'].to_i,
+            column :MEM, 'Memory asigned to the VM', :size => 7 do |d|
+                OpenNebulaHelper.unit_to_str(d['TEMPLATE']['MEMORY'].to_i,
                                              options)
             end
 
@@ -395,7 +395,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 OneVMHelper.ip_str(d)
             end
 
-            default :ID, :USER, :GROUP, :NAME, :STAT, :UCPU, :UMEM, :HOST,
+            default :ID, :USER, :GROUP, :NAME, :STAT, :CPU, :MEM, :HOST,
                     :TIME
         end
 

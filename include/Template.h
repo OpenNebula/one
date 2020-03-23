@@ -21,6 +21,7 @@
 #include <set>
 #include <vector>
 #include <string>
+#include <functional>
 
 #include <libxml/tree.h>
 #include <libxml/parser.h>
@@ -472,6 +473,17 @@ public:
     bool empty() const
     {
         return attributes.empty();
+    }
+
+    /**
+     *  Generic iterator over Template attributes
+     */
+    void each_attribute(std::function<void(const Attribute * a)>&& f) const
+    {
+        for(const auto& it: attributes)
+        {
+            f(it.second);
+        }
     }
 
 protected:
