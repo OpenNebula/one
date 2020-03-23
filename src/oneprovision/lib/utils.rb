@@ -257,10 +257,18 @@ module OneProvision
             #
             # @return          [String]         Evaluated value
             def get_erb_value(provision, value)
+                unless value.match(/@./)
+                    raise OneProvisionLoopException,
+                          "value #{value} not allowed"
+                end
+
                 template = ERB.new value
                 ret = template.result(provision._binding)
 
-                raise "#{value} not found." if ret.empty?
+                if ret.empty?
+                    raise OneProvisionLoopException,
+                          "#{value} not found."
+                end
 
                 ret
             end

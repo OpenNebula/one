@@ -37,17 +37,17 @@ module OneProvision
         def create(template, provision_id)
             meta = template['meta']
 
-            wait    = meta['wait'] || false
-            timeout = meta['wait_timeout']
+            app_id        = template['appid'] || name_to_id(template['appname'])
+            wait, timeout = OneProvision::ObjectOptions.get_wait(meta)
 
             check_wait(wait)
 
             OneProvisionLogger.debug(
-                "Exporting marketplace app #{template['appid']}"
+                "Exporting marketplace app #{app_id}"
             )
 
             app = OpenNebula::MarketPlaceApp.new(
-                OpenNebula::MarketPlaceApp.build_xml(template['appid']),
+                OpenNebula::MarketPlaceApp.build_xml(app_id),
                 @client
             )
 
@@ -126,6 +126,26 @@ module OneProvision
         def template_chown(template) end
 
         def template_chmod(template) end
+
+        private
+
+        # Get app ID from app name
+        #
+        # @param name [String] App name
+        #
+        # @return [Integer] App ID
+        def name_to_id(name)
+            pool = OpenNebula::MarketPlaceAppPool.new(@client)
+
+            rc = pool.info_all
+            Utils.exception(rc)
+
+            app = pool.find {|v| v.name == name }
+
+            return app.id unless app.nil?
+
+            raise OneProvisionLoopException, "App #{name} not found"
+        end
 
     end
 

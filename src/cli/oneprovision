@@ -48,6 +48,7 @@ RUN_MODE_DEFAULT      = :interactive
 FAIL_CHOICE_DEFAULT   = :quit
 CLEANUP_DEFAULT       = false
 THREADS_DEFAULT       = 3
+WAIT_TIMEOUT_DEFAULT  = 60
 
 require 'command_parser'
 
@@ -200,6 +201,19 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Skip configuration hosts phase'
     }
 
+    WAIT_READY = {
+        :name => 'wait_ready',
+        :large => '--wait-ready',
+        :description => 'Wait resources to be ready in OpenNebula'
+    }
+
+    WAIT_TIMEOUT = {
+        :name => 'wait_timeout',
+        :large => '--wait-timeout timeout',
+        :description => 'Timeout to wait objects to be ready',
+        :format      => Integer
+    }
+
     MODES = CommandParser::OPTIONS - [CommandParser::VERBOSE] +
             [VERBOSE,
              DEBUG,
@@ -216,7 +230,9 @@ CommandParser::CmdParser.new(ARGV) do
                       CLEANUP,
                       CLEANUP_TIMEOUT,
                       SKIP_PROVISION,
-                      SKIP_CONFIG]
+                      SKIP_CONFIG,
+                      WAIT_READY,
+                      WAIT_TIMEOUT]
 
     ONE_OPTIONS = CommandParser::OPTIONS +
                   CLIHelper::OPTIONS +

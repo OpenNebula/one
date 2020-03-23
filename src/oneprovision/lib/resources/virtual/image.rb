@@ -38,11 +38,10 @@ module OneProvision
         def create(template, provision_id)
             meta = template['meta']
 
-            wait    = meta['wait'] || false
-            timeout = meta['wait_timeout']
-            info    = { 'provision_id' => provision_id,
-                        'wait'         => wait,
-                        'wait_timeout' => timeout }
+            wait, timeout = OneProvision::ObjectOptions.get_wait(meta)
+            info          = { 'provision_id' => provision_id,
+                              'wait'         => wait,
+                              'wait_timeout' => timeout }
 
             check_wait(wait)
 
@@ -88,23 +87,23 @@ module OneProvision
         #
         # @return [Integer] Resource ID
         def ready?(template, provision_id)
-            wait_state('READY', template['timeout'])
+            Driver.retry_loop 'Fail to create image' do
+                wait_state('READY', template['timeout'])
 
-            # check state after existing wait loop
-            @one.info
+                # check state after existing wait loop
+                @one.info
 
-            case @one.state_str
-            when 'LOCKED'
-                # if locked, keep waiting
-                ready?(template, provision_id)
-            when 'ERROR'
-                # if error, delete the image and try to create it again
-                delete
-
-                create(template, provision_id)
-            else
-                # if everything is ready, return the ID
-                @one.id.to_i
+                case @one.state_str
+                when 'LOCKED'
+                    # if locked, keep waiting
+                    ready?(template, provision_id)
+                when 'ERROR'
+                    # if error, delete the image and try to create it again
+                    raise OneProvisionLoopException
+                else
+                    # if everything is ready, return the ID
+                    @one.id.to_i
+                end
             end
         end
 

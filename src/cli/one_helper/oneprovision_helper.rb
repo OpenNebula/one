@@ -43,6 +43,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         OneProvision::OneProvisionLogger.get_logger(options)
         OneProvision::Mode.get_run_mode(options)
         OneProvision::Options.get_run_options(options)
+        OneProvision::ObjectOptions.get_obj_options(options)
     end
 
     def format_pool

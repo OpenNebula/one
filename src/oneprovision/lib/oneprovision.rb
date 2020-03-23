@@ -224,4 +224,60 @@ module OneProvision
 
     end
 
+    # Singleton virtual objects options
+    class ObjectOptions
+
+        include Singleton
+
+        attr_reader :obj_opts
+
+        # Class constructor
+        def initialize
+            @obj_opts = {}
+        end
+
+        # Gets options
+        #
+        # @param options [Key-Value Object] CLI Options
+        def self.get_obj_options(options)
+            if options.key? :wait_ready
+                instance.obj_opts[:wait_ready] = true
+            else
+                instance.obj_opts[:wait_ready] = false
+            end
+
+            if options.key? :wait_timeout
+                instance.obj_opts[:wait_timeout] = options[:wait_timeout]
+            else
+                instance.obj_opts[:wait_timeout] = WAIT_TIMEOUT_DEFAULT
+            end
+        end
+
+        # Get wait and timeout
+        #
+        # @param meta [Hash] Meta information from object
+        #
+        # @return [boolean, integer] [wait, timeout]
+        def self.get_wait(meta)
+            if meta
+                wait    = meta['wait']
+                timeout = meta['wait_timeout']
+            end
+
+            if wait == false
+                [wait, nil]
+            elsif wait == true
+                if timeout
+                    [wait, timeout]
+                else
+                    [wait, instance.obj_opts[:wait_timeout]]
+                end
+            else
+                [instance.obj_opts[:wait_ready],
+                 instance.obj_opts[:wait_timeout]]
+            end
+        end
+
+    end
+
 end
