@@ -1256,11 +1256,11 @@ IM_PROBES_FIRECRACKER_HOST_SYSTEM_FILES="\
      src/im_mad/remotes/firecracker-probes.d/host/system/version.sh"
 
 IM_PROBES_FIRECRACKER_VM_MONITOR_FILES="\
-     src/im_mad/remotes/firecracker-probes.d/vms/monitor/poll.rb \
-     src/im_mad/remotes/firecracker-probes.d/vms/monitor/monitor_ds_vm.rb"
+     src/im_mad/remotes/firecracker-probes.d/vm/monitor/poll.rb \
+     src/im_mad/remotes/firecracker-probes.d/vm/monitor/monitor_ds_vm.rb"
 
 IM_PROBES_FIRECRACKER_VM_STATUS_FILES="\
-     src/im_mad/remotes/firecracker-probes.d/vms/status/state.rb"
+     src/im_mad/remotes/firecracker-probes.d/vm/status/state.rb"
 
 IM_PROBES_ETC_FIRECRACKER_PROBES_FILES="src/im_mad/remotes/lib/probe_db.conf"
 
