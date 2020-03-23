@@ -330,6 +330,8 @@ module OpenNebula
         end
 
         def create_default_acls(resources=nil)
+            return if resources && resources.strip.empty?
+
             resources = GROUP_DEFAULT_ACLS if !resources
 
             acls = Array.new
