@@ -43,14 +43,7 @@ class DatastoreFolder
                 @items[item_name.to_sym] = Datastore.new(item)
             end
         end
-    end
-
-    def monitor
-        monitor = ''
-        @items.values.each do |ds|
-            monitor << "VCENTER_DS_REF=\"#{ds['_ref']}\"\n"
-        end
-        monitor
+        @items
     end
 
     ########################################################################
