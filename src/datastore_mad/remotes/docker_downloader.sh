@@ -83,7 +83,7 @@ function get_tag_name {
 # This function takes care of removing all temporary directories in case
 # something fails
 #-------------------------------------------------------------------------------
-function clean_err {
+function clean {
 
     docker rm -f $container_id  > /dev/null 2>&1 || true
     docker image rm -f one$sid  > /dev/null 2>&1
@@ -94,19 +94,6 @@ function clean_err {
     fi
 
     rm -rf $dockerdir
-}
-
-#-------------------------------------------------------------------------------
-# This function takes care of checking if the container FS will fit in the size
-# passed as parameter, if not it will used the size of the container FS + 200MB
-#-------------------------------------------------------------------------------
-function get_size {
-    # Get tarbal size
-    tar_size=$(stat -c%s $tarball | awk '{ byte =$1 /1024/1024; print byte}' | cut -d '.' -f 1)
-
-    if [ "$tar_size" -ge "$size" ]; then
-        size=$(($tar_size + 200))
-    fi
 }
 
 set -e -o pipefail
@@ -148,7 +135,8 @@ img_raw=$dockerdir/img.raw
 img_qcow=$dockerdir/img.qcow
 
 # Trap for cleaning temporary directories
-trap clean_err ERR
+trap clean ERR
+trap clean EXIT
 
 mkdir -p $dockerdir
 mkdir -p $dockerdir/mnt
@@ -184,9 +172,18 @@ RUN apt-get clean && \
 EOC
 )
     ;;
-redhat)
+centos|redhat)
     terminal="/bin/bash"
+    contextpkg=$dockerdir/context.rpm
+    contexturl=$CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm
     commands=$(cat <<EOC
+COPY context.rpm /root/context.rpm
+RUN yum update -y
+RUN yum install -y epel-release \
+                   initscripts \
+                   e2fsprogs
+RUN yum localinstall -y /root/context.rpm
+RUN rm /root/context.rpm
 EOC
 )
     ;;
@@ -250,15 +247,18 @@ container_id=$(docker run -d $image_id /bin/true)
 
 docker export -o $tarball $container_id > /dev/null 2>&1
 
-docker rm $container_id  > /dev/null 2>&1
-docker image rm one$sid  > /dev/null 2>&1
-
 #-------------------------------------------------------------------------------
 # Dump container FS and create image
 #-------------------------------------------------------------------------------
 
-# Ensure $size have a good value
-get_size
+# Get tarbal size
+tar_size=$(stat -c%s $tarball | awk '{ byte =$1 /1024/1024; print byte}' | cut -d '.' -f 1)
+
+# Ensure $size is enough to fit the fs
+if [ "$tar_size" -ge "$size" ]; then
+    echo "Not enough space, image size must be at least ${tar_size}Mb" 1>&2
+    exit 1
+fi
 
 qemu-img create -f raw $img_raw ${size}M  > /dev/null 2>&1
 
@@ -291,10 +291,5 @@ if [ "$format" == "qcow2" ]; then
 else
     cat $img_raw
 fi
-
-#-------------------------------------------------------------------------------
-# Clean up files & dirs
-#-------------------------------------------------------------------------------
-rm -rf $dockerdir
 
 exit 0
