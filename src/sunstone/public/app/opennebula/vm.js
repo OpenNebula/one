@@ -755,10 +755,10 @@ define(function(require) {
   // Return the IP or several IPs of a VM
   function ipsStr(element, divider) {
     var divider = divider || "<br>";
-    var nics = element.TEMPLATE.NIC;
-    var pci = element.TEMPLATE.PCI;
+    var nics = element && element.TEMPLATE && element.TEMPLATE.NIC;
+    var pci = element && element.TEMPLATE && element.TEMPLATE.PCI;
     var ips = [];
-    var monitoring = element.MONITORING;
+    var monitoring = element && element.MONITORING;
     if (monitoring) {
       var externalIP;
       $.each(EXTERNAL_IP_ATTRS, function(index, IPAttr) {
@@ -776,7 +776,7 @@ define(function(require) {
       });
     }
 
-    if (nics == undefined){
+    if (nics == undefined || nics == false){
       nics = [];
     }
 
@@ -784,7 +784,7 @@ define(function(require) {
       nics = [nics];
     }
 
-    if (pci != undefined) {
+    if (pci != undefined || pci != false) {
       if (!$.isArray(pci)) {
         pci = [pci];
       }
@@ -865,23 +865,27 @@ define(function(require) {
 
   // returns true if the vnc button should be enabled
   function isVNCSupported(element) {
-    var graphics = element.TEMPLATE.GRAPHICS;
-    var state = parseInt(element.LCM_STATE);
-
-    return (graphics &&
+    var rtn = false;
+    if(element && element.TEMPLATE && element.TEMPLATE.GRAPHICS && element.LCM_STATE){
+      var graphics = element.TEMPLATE.GRAPHICS;
+      var state = parseInt(element.LCM_STATE);
+      rtn = graphics &&
         graphics.TYPE &&
-        graphics.TYPE.toLowerCase() == "vnc"  &&
-        $.inArray(state, VNC_STATES) != -1);
+        graphics.TYPE.toLowerCase() == "vnc" &&
+        $.inArray(state, VNC_STATES) != -1;
+    }
+    return rtn;
   }
 
   function isSPICESupported(element) {
-    var graphics = element.TEMPLATE.GRAPHICS;
-    var state = parseInt(element.LCM_STATE);
-
-    return (graphics &&
+    var rtn = false;
+    if(element && element.TEMPLATE && element.TEMPLATE.GRAPHICS && element.LCM_STATE){
+      rtn = graphics &&
         graphics.TYPE &&
         graphics.TYPE.toLowerCase() == "spice" &&
-        $.inArray(state, VNC_STATES) != -1);
+        $.inArray(state, VNC_STATES) != -1;
+    }
+    return rtn;
   }
 
   // returns true if the RDP button should be enabled
