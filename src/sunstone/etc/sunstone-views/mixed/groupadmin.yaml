@@ -37,7 +37,6 @@ enabled_tabs:
     #- acls-tab
     - settings-tab
     #- support-tab
-    #- upgrade-top-tab
     - vmgroup-tab
 features:
     # True to show showback monthly reports, and VM cost
@@ -904,9 +903,6 @@ tabs:
             Settings.two_factor_auth: true
             # Edit button in settings_quotas_tab
             User.quotas_dialog: false
-    upgrade-top-tab:
-        panel_tabs:
-        actions:
     vmgroup-tab:
         panel_tabs:
             vm_group_info_tab: true

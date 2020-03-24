@@ -66,7 +66,6 @@ define(function(require) {
     "support-tab",
     "official-support-tab",
     "settings-tab",
-    "upgrade-top-tab",
     "vmgroup-tab",
     "secgroups-tab",
     "provision-tab"
