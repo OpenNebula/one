@@ -102,14 +102,16 @@ define(function(require) {
       "snapshot-create"
     ];
     
-    $("#add_scheduling_vms_action").bind("click", context, function() {
+    context.off("click", "#add_scheduling_vms_action");
+    context.on("click" , "#add_scheduling_vms_action", function(){
       $(this).attr("disabled", "disabled");
       ScheduleActions.htmlNewAction(actions, context, "vms");
       ScheduleActions.setup(context);
       return false;
     });
 
-    $("#add_vms_action_json").bind("click", context, function(){
+    context.off("click", "#add_vms_action_json");
+    context.on("click" , "#add_vms_action_json", function(){
       var sched_action = ScheduleActions.retrieveNewAction(context);
       if (sched_action != false) {
         $("#no_actions_tr", context).remove();
@@ -129,7 +131,8 @@ define(function(require) {
     });
 
     // Listener for key,value pair remove action
-    $(".remove_action_x").bind("click", context, function() {
+    context.off("click", ".remove_action_x");
+    context.on("click", ".remove_action_x", function() {
       var index = this.id.substring(6, this.id.length);
       var tmp_tmpl = new Array();
 
