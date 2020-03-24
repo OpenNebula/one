@@ -39,53 +39,65 @@ sdnats = []
 
 roles = service['SERVICE']['roles'].flatten
 roles.each do |role|
-  next unless role['nodes']
+    next unless role['nodes']
 
-  role['nodes'].each do |node|
-    nics = node['vm_info']['VM']['TEMPLATE']['NIC']
-    node['vm_info']['VM']['TEMPLATE']['NIC_ALIAS'].each do |nic_alias|
-      nic = nics.detect { |nic| nic['NAME'] == nic_alias['PARENT'] }
-      sdnats << { 'NIC' => nic['IP'], 'NIC_ALIAS' => nic_alias['IP'] }
+    role['nodes'].each do |node|
+        nics = node['vm_info']['VM']['TEMPLATE']['NIC']
+        node['vm_info']['VM']['TEMPLATE']['NIC_ALIAS'].each do |nic_alias|
+            nic = nics.detect {|n| n['NAME'] == nic_alias['PARENT'] }
+            sdnats << { 'NIC' => nic['IP'], 'NIC_ALIAS' => nic_alias['IP'] }
+        end
     end
-  end
 end
 
 log.debug "IPs: #{sdnats}"
 
-rules = ""
+rules = ''
 
 begin
-  f = Tempfile.new
+    f = Tempfile.new
 
-  f << `#{IPTABLES_NAT_PREFIX} -S #{CHAIN_VROUTER_DNAT} >/dev/null 2>&1 || echo "-N #{CHAIN_VROUTER_DNAT}"`
-  f << `#{IPTABLES_NAT_PREFIX} -S #{CHAIN_VROUTER_SNAT} >/dev/null 2>&1 || echo "-N #{CHAIN_VROUTER_SNAT}"`
-  f << `#{IPTABLES_NAT_PREFIX} -C PREROUTING -j #{CHAIN_VROUTER_DNAT} 2>/dev/null || echo "-A PREROUTING -j #{CHAIN_VROUTER_DNAT}"`
-  f << `#{IPTABLES_NAT_PREFIX} -C POSTROUTING -j #{CHAIN_VROUTER_SNAT} 2>/dev/null || echo "-A POSTROUTING -j #{CHAIN_VROUTER_SNAT}"`
+    f << `iptables -tnat -S #{CHAIN_VROUTER_DNAT} >/dev/null 2>&1 ||\
+          echo "-N #{CHAIN_VROUTER_DNAT}"`
+    f << `iptables -tnat -S #{CHAIN_VROUTER_SNAT} >/dev/null 2>&1 ||\
+          echo "-N #{CHAIN_VROUTER_SNAT}"`
+    f << `iptables -tnat -C PREROUTING -j #{CHAIN_VROUTER_DNAT} 2>/dev/null ||\
+          echo "-A PREROUTING -j #{CHAIN_VROUTER_DNAT}"`
+    f << `iptables -tnat -C POSTROUTING -j #{CHAIN_VROUTER_SNAT} 2>/dev/null ||\
+          echo "-A POSTROUTING -j #{CHAIN_VROUTER_SNAT}"`
 
-  f << `iptables -t nat -S #{CHAIN_VROUTER_DNAT} 2>/dev/null \| sed -n 's/-A\\(.*\\)/-D\\1/p'`
-  f << `iptables -t nat -S #{CHAIN_VROUTER_SNAT} 2>/dev/null \| sed -n 's/-A\\(.*\\)/-D\\1/p'`
+    f << `iptables -t nat -S #{CHAIN_VROUTER_DNAT} 2>/dev/null |\
+          sed -n 's/-A\\(.*\\)/-D\\1/p'`
+    f << `iptables -t nat -S #{CHAIN_VROUTER_SNAT} 2>/dev/null |\
+          sed -n 's/-A\\(.*\\)/-D\\1/p'`
 
-  f.close
+    f.close
 
-  sdnats.each do |nat|
-    `#{IPTABLES_NAT_PREFIX} -C #{CHAIN_VROUTER_DNAT} -d #{nat['NIC_ALIAS']} -j DNAT --to-destination #{nat['NIC']} 2>/dev/null &&\
-           sed -i '/.*#{CHAIN_VROUTER_DNAT} -d #{nat['NIC_ALIAS']}\\/32 -j DNAT --to-destination #{nat['NIC']}/d' #{f.path} ||\
-           echo '-A #{CHAIN_VROUTER_DNAT} -d #{nat['NIC_ALIAS']} -j DNAT --to-destination #{nat['NIC']}' >> #{f.path}`
+    sdnats.each do |nat|
+        `iptables -tnat -C #{CHAIN_VROUTER_DNAT} -d #{nat['NIC_ALIAS']} -j DNAT\
+         --to-destination #{nat['NIC']} 2>/dev/null &&\
+         sed -i '/.*#{CHAIN_VROUTER_DNAT} -d #{nat['NIC_ALIAS']}\\/32 -j DNAT \
+--to-destination #{nat['NIC']}/d' #{f.path} ||\
+         echo '-A #{CHAIN_VROUTER_DNAT} -d #{nat['NIC_ALIAS']} -j DNAT \
+         --to-destination #{nat['NIC']}' >> #{f.path}`
 
-    `#{IPTABLES_NAT_PREFIX} -C #{CHAIN_VROUTER_SNAT} -s #{nat['NIC']} -j SNAT --to-source #{nat['NIC_ALIAS']} 2>/dev/null &&\
-           sed -i '/.*#{CHAIN_VROUTER_SNAT} -s #{nat['NIC']}\\/32 -j SNAT --to-source #{nat['NIC_ALIAS']}/d' #{f.path}||\
-           echo '-A #{CHAIN_VROUTER_SNAT} -s #{nat['NIC']} -j SNAT --to-source #{nat['NIC_ALIAS']}' >> #{f.path}`
-  end
+        `iptables -tnat -C #{CHAIN_VROUTER_SNAT} -s #{nat['NIC']} -j SNAT \
+         --to-source #{nat['NIC_ALIAS']} 2>/dev/null &&\
+         sed -i '/.*#{CHAIN_VROUTER_SNAT} -s #{nat['NIC']}\\/32 -j SNAT \
+--to-source #{nat['NIC_ALIAS']}/d' #{f.path}||\
+         echo '-A #{CHAIN_VROUTER_SNAT} -s #{nat['NIC']} -j SNAT \
+         --to-source #{nat['NIC_ALIAS']}' >> #{f.path}`
+    end
 
-  rules << `cat #{f.path}`
+    rules << `cat #{f.path}`
 ensure
-  f.unlink
+    f.unlink
 end
 
 log.debug "Rules: #{rules}"
 
 rules.each_line do |rule|
-  `#{IPTABLES_NAT_PREFIX} #{rule}`
+    `iptables -tnat #{rule}`
 end
 
 log.debug "iptables-save: #{`iptables-save`}"
