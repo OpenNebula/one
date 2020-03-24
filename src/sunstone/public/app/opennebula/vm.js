@@ -779,8 +779,8 @@ define(function(require) {
       nic = [];
     }
 
-    if (!$.isArray(nic)) {
-      nic = [nic];
+    if (!$.isArray(nics)) {
+      nics = [nics];
     }
 
     if (pci != undefined) {
@@ -790,14 +790,14 @@ define(function(require) {
 
       $.each(pci, function(){
         if (this["TYPE"] == "NIC"){
-          nic.push(this);
+          nics.push(this);
         }
       });
     }
 
     if(ips.length==0)
     {
-      $.each(nic, function(index, value) {
+      $.each(nics, function(index, value) {
         $.each(NIC_IP_ATTRS, function(j, attr){
           if (value[attr]) {
             if ( attr === "IP" && value["RDP"] === "YES") {
