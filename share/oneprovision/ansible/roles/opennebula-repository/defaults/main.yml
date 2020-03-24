@@ -8,7 +8,7 @@
 opennebula_repository_version: '5.10'
 
 # Repository of the OpenNebula packages
-opennebula_repository_base: 'https://downloads.opennebula.org/repo/{{ opennebula_repository_version }}'
+opennebula_repository_base: 'https://downloads.opennebula.io/repo/{{ opennebula_repository_version }}'
 
 # Enable GPG check for the packages
 opennebula_repository_gpgcheck: yes

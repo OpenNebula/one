@@ -15,7 +15,7 @@
 /*--------------------------------------------------------------------------- */
 package keys
 
-// Available template parts and keys are listed here: https://docs.opennebula.org/5.8/operation/references/template.html
+// Available template parts and keys are listed here: https://docs.opennebula.io/5.8/operation/references/template.html
 // Some specific part are not defined: vCenter, Public Cloud, Hypervisor, User Inputs
 
 // Template is a type used to enumerate VM generic keys

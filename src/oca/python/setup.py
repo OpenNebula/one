@@ -47,7 +47,7 @@ setup(
     long_description=long_description,
 
     # The project's main homepage.
-    url='http://opennebula.org',
+    url='http://opennebula.io',
 
     # Author details
     author='Rafael del Valle',

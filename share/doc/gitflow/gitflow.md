@@ -1,4 +1,4 @@
-Each project has it's own way of doing things. The following simple rules capture the OpenNebula dev team gitflow. Comments are welcome (contact@opennebula.org)!
+Each project has it's own way of doing things. The following simple rules capture the OpenNebula dev team gitflow. Comments are welcome (contact@opennebula.io)!
 
 OpenNebula branches
 ===================

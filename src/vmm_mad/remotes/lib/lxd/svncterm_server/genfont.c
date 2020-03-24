@@ -1,23 +1,23 @@
 /*
- 
+
      Copyright (C) 2007 Proxmox Server Solutions GmbH
- 
+
      Copyright: vzdump is under GNU GPL, the GNU General Public License.
- 
+
      This program is free software; you can redistribute it and/or modify
      it under the terms of the GNU General Public License as published by
      the Free Software Foundation; version 2 dated June, 1991.
- 
+
      This program is distributed in the hope that it will be useful,
      but WITHOUT ANY WARRANTY; without even the implied warranty of
      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
      GNU General Public License for more details.
- 
+
      You should have received a copy of the GNU General Public License
      along with this program; if not, write to the Free Software
      Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
      02111-1307, USA.
- 
+
      Author: Dietmar Maurer <dietmar@proxmox.com>
 
      Copyright 2002-2019, OpenNebula Project, OpenNebula Systems
@@ -26,12 +26,12 @@
      - Added command line options & usage
      - Other minor code changes
 
-     contact@opennebula.systems
+     contact@opennebula.io
 */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <zlib.h> 
+#include <zlib.h>
 #include <string.h>
 #include <linux/limits.h>
 #include <getopt.h>
@@ -66,7 +66,7 @@ static int vt_font_maxsize = 0; //Max size of fontmap
 #define PSF2_SEPARATOR  0xFF
 #define PSF2_STARTSEQ   0xFE
 
-struct psf2_header 
+struct psf2_header
 {
     unsigned char magic[4];
     unsigned int version;
@@ -89,7 +89,7 @@ struct psf2_header
  */
 static int font_add_glyph (const char *data, unsigned int gsize)
 {
-    if (vt_font_size >= vt_font_maxsize) 
+    if (vt_font_size >= vt_font_maxsize)
     {
         vt_font_maxsize += 256;
         vt_font_data = realloc (vt_font_data, vt_font_maxsize * gsize);
@@ -158,7 +158,7 @@ static int load_psf_font (const char *filename, int is_default)
 
     gzFile f = gzopen(filename, "rb");
 
-    if (f == NULL) 
+    if (f == NULL)
     {
         fprintf (stderr, "unable to read file %s\n", filename);
         return -1;
@@ -167,7 +167,7 @@ static int load_psf_font (const char *filename, int is_default)
     /* ---------------------------------------------------------------------- */
     /* Load PSF2 header and check consistency                                 */
     /* ---------------------------------------------------------------------- */
-    if (gzread(f, &psf2hdr, psf2hdr_len) != psf2hdr_len) 
+    if (gzread(f, &psf2hdr, psf2hdr_len) != psf2hdr_len)
     {
         fprintf(stderr, "Wrong header in psf2 font file (%s)\n", filename);
         gzclose(f);
@@ -208,7 +208,7 @@ static int load_psf_font (const char *filename, int is_default)
 
     char *chardata = (char *) malloc (font_size);
 
-    if (gzread(f, chardata, font_size)!= font_size) 
+    if (gzread(f, chardata, font_size)!= font_size)
     {
         fprintf (stderr, "Cannot read font character data from %s\n", filename);
         gzclose (f);
@@ -221,7 +221,7 @@ static int load_psf_font (const char *filename, int is_default)
     /* ---------------------------------------------------------------------- */
     /* Read the Unicode description of the glyphs                             */
     /* ---------------------------------------------------------------------- */
-    for (int glyph = 0 ;glyph < psf2hdr.length ;glyph++) 
+    for (int glyph = 0 ;glyph < psf2hdr.length ;glyph++)
     {
         int fi = 0;
         char s;
@@ -241,9 +241,9 @@ static int load_psf_font (const char *filename, int is_default)
                 break;
             }
 
-            if (!vt_fontmap[uchar] && uchar != 0) 
+            if (!vt_fontmap[uchar] && uchar != 0)
             {
-                if (!fi) 
+                if (!fi)
                 {
                     fi = font_add_glyph(chardata + glyph * gsize, gsize);
                 }
@@ -251,11 +251,11 @@ static int load_psf_font (const char *filename, int is_default)
                 vt_fontmap[uchar] = fi;
             }
 
-            if (is_default && fi && glyph < 256) 
+            if (is_default && fi && glyph < 256)
             {
-                vt_fontmap[0xf000 + glyph] = fi;      
+                vt_fontmap[0xf000 + glyph] = fi;
             }
-        } 
+        }
     }
 
     free(chardata);
@@ -274,7 +274,7 @@ void print_glyphs ()
 
     printf ("static unsigned char vt_font_data[] = {\n");
 
-    for (int i = 0; i < vt_font_size; i++) 
+    for (int i = 0; i < vt_font_size; i++)
     {
         printf("\t/* %d 0x%02x */\n", i, i);
 
@@ -284,10 +284,10 @@ void print_glyphs ()
 
             printf ("\t0x%02X, /* ", d);
 
-            for (int k = 128; k > 0; k = k>>1) 
+            for (int k = 128; k > 0; k = k>>1)
             {
-                printf ("%c", (d & k) ? '1': '0'); 
-            }  
+                printf ("%c", (d & k) ? '1': '0');
+            }
 
             printf (" */\n");
         }
@@ -299,7 +299,7 @@ void print_glyphs ()
 
     printf ("static unsigned short vt_fontmap[65536] = {\n");
 
-    for (int i = 0; i < 0x0ffff; i++) 
+    for (int i = 0; i < 0x0ffff; i++)
     {
         printf ("\t/* 0x%04X => */ %d,\n", i, vt_fontmap[i]);
     }
@@ -313,7 +313,7 @@ void print_glyphs ()
 
 static void print_usage()
 {
-   fprintf(stderr, "Usage: genfont [-d font_path] [font1 font2...]\n");  
+   fprintf(stderr, "Usage: genfont [-d font_path] [font1 font2...]\n");
    fprintf(stderr, "Generate Glyph Bitmaps and associated Unicode mapping\n\n");
    fprintf(stderr, "\tfont1... List of fonts, the first one is the default\n\n");
    fprintf(stderr, "\t-d path: Font path defaults to /usr/share/consolefonts\n\n");
@@ -370,4 +370,3 @@ int main (int argc, char** argv)
 
     exit (0);
 }
-

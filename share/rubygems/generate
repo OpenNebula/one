@@ -49,12 +49,12 @@ Gem::Specification.new do |s|
   s.summary     = "$(SUMMARY)"
   s.description = "$(DESCRIPTION)"
   s.authors     = ["OpenNebula"]
-  s.email       = 'contact@opennebula.org'
+  s.email       = 'contact@opennebula.io'
   s.license     = 'Apache-2.0'
   s.files       = [
 $(FILES)
   ]
-  s.homepage    = 'http://opennebula.org'
+  s.homepage    = 'http://opennebula.io'
 $(EXECUTABLES)
 $(DEPENDENCIES)
 end
@@ -237,4 +237,3 @@ Dir.chdir(root)
 
 
 GEM_DESCRIPTION.each {|name, gem| generate_gem(gem) }
-

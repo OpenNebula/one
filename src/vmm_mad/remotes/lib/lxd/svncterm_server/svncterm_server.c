@@ -31,7 +31,7 @@
      - Simplify timeout managemnt
      - Adds some specific options
 
-     contact@opennebula.systems
+     contact@opennebula.io
 
 */
 
@@ -106,7 +106,7 @@ ucs2_to_utf8 (unicode c, char *out)
 }
 
 static void
-rfb_draw_char (rfbScreenInfoPtr rfbScreen, int x, int y, unsigned short c, 
+rfb_draw_char (rfbScreenInfoPtr rfbScreen, int x, int y, unsigned short c,
         rfbPixel col)
 {
   if (c > vt_font_size) {
@@ -1661,8 +1661,8 @@ new_client (rfbClientPtr client)
 static void
 rfbVncAuthSendChallenge(rfbClientPtr cl)
 {
-	
-    /* 4 byte header is alreay sent. Which is rfbSecTypeVncAuth 
+
+    /* 4 byte header is alreay sent. Which is rfbSecTypeVncAuth
        (same as rfbVncAuth). Just send the challenge. */
     rfbRandomBytes(cl->authChallenge);
     if (rfbWriteExact(cl, (char *)cl->authChallenge, CHALLENGESIZE) < 0) {
@@ -1670,7 +1670,7 @@ rfbVncAuthSendChallenge(rfbClientPtr cl)
         rfbCloseClient(cl);
         return;
     }
-    
+
     /* Dispatch client input to rfbVncAuthProcessResponse. */
     cl->state = RFB_AUTHENTICATION;
 }
@@ -1699,8 +1699,8 @@ rfbVncAuthNone(rfbClientPtr cl)
 
 
 /*
- * Advertise the supported security types (protocol 3.7). Here before sending 
- * the list of security types to the client one more security type is added 
+ * Advertise the supported security types (protocol 3.7). Here before sending
+ * the list of security types to the client one more security type is added
  * to the list if primaryType is not set to rfbSecTypeInvalid. This security
  * type is the standard vnc security type which does the vnc authentication
  * or it will be security type for no authentication.
@@ -1754,7 +1754,7 @@ vncTerm * create_vncterm (int sd, int maxx, int maxy, int *argc, char **argv)
 
 	cmap->data.bytes = malloc (16*3);
 
-	for(int i=0;i<16;i++) 
+	for(int i=0;i<16;i++)
 	{
 		cmap->data.bytes[i*3 + 0] = default_red[color_table[i]];
 		cmap->data.bytes[i*3 + 1] = default_grn[color_table[i]];
@@ -1814,7 +1814,7 @@ vncTerm * create_vncterm (int sd, int maxx, int maxy, int *argc, char **argv)
 
 	vt->cells = (TextCell *)calloc(sizeof(TextCell), vt->width*vt->total_height);
 
-	for (int i = 0; i < vt->width * vt->total_height; i++) 
+	for (int i = 0; i < vt->width * vt->total_height; i++)
 	{
 		vt->cells[i].ch = ' ';
 		vt->cells[i].attrib = vt->default_attrib;
@@ -1826,13 +1826,13 @@ vncTerm * create_vncterm (int sd, int maxx, int maxy, int *argc, char **argv)
 
 	rfbInitServer(screen);
 
-	if (screen->authPasswdData && strcmp(((char**)screen->authPasswdData)[0],"")) 
+	if (screen->authPasswdData && strcmp(((char**)screen->authPasswdData)[0],""))
 	{
 		screen->passwordCheck = CheckPasswordByList;
 
 		rfbRegisterSecurityHandler(&VncSecurityHandlerVncAuth);
 	}
-	else 
+	else
 	{
 		screen->authPasswdData = NULL;
 		screen->passwordCheck  = NULL;
@@ -2028,7 +2028,7 @@ void cmd_ctrl_pipe(int pipe_fd, struct vncterm_command ** client_fds)
     int  i = 0;
     int  rb;
 
-    do 
+    do
     {
         rb = read(pipe_fd, &c, sizeof(char));
 
@@ -2047,16 +2047,16 @@ void cmd_ctrl_pipe(int pipe_fd, struct vncterm_command ** client_fds)
     {
         return;
     }
-    
+
     char * token;
-   
+
     /* FIRST TOKEN: VNC PORT */
     vt_cmd = (struct vncterm_command *) malloc(sizeof(struct vncterm_command));
 
     token = strtok(cmd, " ");
 
     vt_cmd->vnc_port = atoi(token);
-    
+
     /* SECOND TOKEN: PASSWD ( - if none ) */
     token = strtok(NULL, " ");
 
@@ -2108,7 +2108,7 @@ void cmd_ctrl_pipe(int pipe_fd, struct vncterm_command ** client_fds)
 
 /* -------------------------------------------------------------------------- */
 
-int vncterm_cmd(int sd, int timeout, int width, int heigth, 
+int vncterm_cmd(int sd, int timeout, int width, int heigth,
         struct vncterm_command * vcmd)
 {
 #ifdef DEBUG
@@ -2427,5 +2427,3 @@ int main (int argc, char** argv)
 
     return 0;
 }
-
-

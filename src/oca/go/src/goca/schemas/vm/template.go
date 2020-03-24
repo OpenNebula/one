@@ -26,7 +26,7 @@ import (
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm/keys"
 )
 
-// Available template parts and keys are listed here: https://docs.opennebula.org/5.8/operation/references/template.html
+// Available template parts and keys are listed here: https://docs.opennebula.io/5.8/operation/references/template.html
 // Some specific part are not defined: vCenter, Public Cloud, Hypervisor, User Inputs
 
 // Template is a structure allowing to parse VM templates.

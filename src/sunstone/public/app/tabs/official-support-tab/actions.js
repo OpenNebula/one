@@ -95,7 +95,7 @@ define(function(require) {
             });
 
             if (message){
-              var link = $("<a/>", {href:"https://opennebula.org/software/"}).text(
+              var link = $("<a/>", {href:"https://opennebula.io/use/"}).text(
                 "(new version available: " + gitVersion + ")"
               );
               $("#latest_version").show().empty().append(link);

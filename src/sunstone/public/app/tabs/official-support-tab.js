@@ -36,7 +36,7 @@ define(function(require) {
     SupportUtils.checkLastVersionSupport();
     $(".support_not_connected > button").on("click", function(e){
       e.stopPropagation();
-      window.open("http://opennebula.systems/opennebula-support/", "_blank");
+      window.open("http://opennebula.io/support/", "_blank");
     });
   }
 });

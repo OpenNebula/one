@@ -241,17 +241,17 @@ SUPPORT = {
     :custom_field_severity => 391197,
     :author_id => 21231023,
     :author_name => "OpenNebula Support Team",
-    :support_subscription => "http://opennebula.systems/support/",
-    :account => "http://opennebula.systems/buy/",
-    :docs => "http://docs.opennebula.org/5.11/",
-    :community => "http://opennebula.org/support/community/",
+    :support_subscription => "https://opennebula.io/support/",
+    :account => "https://opennebula.io/buy-support",
+    :docs => "https://docs.opennebula.io/5.11/",
+    :community => "https://opennebula.io/usec",
     :project => "OpenNebula"
 }
 
 UPGRADE = {
     :upgrade => "<span style='color: #0098c3' id='itemUpdate' style='display:none;'>Upgrade Available</span>&nbsp;<span style='color:#DC7D24'><i class='fas fa-exclamation-circle'></i></span>",
     :no_upgrade => "",
-    :url => "http://opennebula.org/software/"
+    :url => "https://opennebula.io/use/"
 }
 
 ##############################################################################
@@ -637,16 +637,7 @@ end
 get '/version' do
     version = {}
 
-    if (remote_version_url = $conf[:remote_version])
-        begin
-            version = JSON.parse(Net::HTTP.get(URI(remote_version_url)))
-        rescue Exception
-        end
-    end
-
-    if !version["version"] || version["version"].empty?
-        version["version"] = OpenNebula::VERSION
-    end
+    version["version"] = OpenNebula::VERSION
 
     [200, version.to_json]
 end

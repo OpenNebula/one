@@ -21,7 +21,7 @@ require 'base64'
 
 UNSUPPORTED_RUBY = !(RUBY_VERSION =~ /^1.8/).nil?
 GITHUB_TAGS_URL = 'https://api.github.com/repos/opennebula/one/tags'
-ENTERPRISE_REPO_URL = 'https://downloads.opennebula.systems/repo/'
+ENTERPRISE_REPO_URL = 'https://downloads.opennebula.io/repo/'
 
 begin
     require 'zendesk_api'

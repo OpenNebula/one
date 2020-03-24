@@ -52,7 +52,7 @@ module OpenNebula
         #
         # @param [OpenNebula::Client] client the xml-rpc client
         # @param [Integer] user_id the filter flag, see
-        #   http://opennebula.org/documentation:rel3.6:api
+        #   http://docs.opennebula.io/stable/integration/system_interfaces/api.html
         #
         # @return [DocumentPool] the new object
         def initialize(client, user_id=-1)

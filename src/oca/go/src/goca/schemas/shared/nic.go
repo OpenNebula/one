@@ -15,7 +15,7 @@ type NIC struct {
 type NICKeys string
 
 // Some keys are specific to VM some others to VRouter
-// For VM values: https://docs.opennebula.org/5.8/operation/references/template.html#network-section
+// For VM values: https://docs.opennebula.io/5.8/operation/references/template.html#network-section
 const (
 	NICVec            string  = "NIC"
 	NICID             NICKeys = "NIC_ID"
