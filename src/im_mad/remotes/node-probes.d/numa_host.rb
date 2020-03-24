@@ -78,7 +78,7 @@ module NUMA
 
                 core_id = File.read("#{core_path}/core_id").chomp
 
-                nodes[node_id]['cores'] << { 'id' => core_id, 'cpus' => siblings }
+                nodes[node_id]['cores'] << {'id' => core_id, 'cpus' => siblings}
             rescue StandardError
                 next
             end

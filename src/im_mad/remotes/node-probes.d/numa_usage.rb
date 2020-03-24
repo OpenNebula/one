@@ -18,6 +18,9 @@
 
 require_relative '../../../lib/numa_common'
 
+#
+# Module for monitoring host NUMA information
+#
 module NUMA
 
     def self.node_to_template(node, nid)

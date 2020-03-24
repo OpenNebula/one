@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
-
+# rubocop:disable Layout/ArgumentAlignment
 ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
@@ -42,12 +42,12 @@ def unindent(s)
 end
 
 hid   = ARGV[1]
-hname = ARGV[2]
+_hname = ARGV[2]
 
 client = OpenNebula::Client.new
 
 vmpool = OpenNebula::VirtualMachinePool.new(client,
-             OpenNebula::VirtualMachinePool::INFO_ALL_VM)
+              OpenNebula::VirtualMachinePool::INFO_ALL_VM)
 
 rc = vmpool.info
 
@@ -71,10 +71,10 @@ vmpool.each do |vm|
         base_net = Time.now.to_i % 10000
 
         mon_s = unindent(<<-EOS)
-          NETTX=#{base_net+(50*rand(3))}
-          NETRX=#{base_net+(100*rand(4))}
-          MEMORY=#{max_memory * (rand(80)+20)/100}
-          CPU=#{max_cpu * (rand(95)+5)/100}
+          NETTX=#{base_net + (50 * rand(3))}
+          NETRX=#{base_net + (100 * rand(4))}
+          MEMORY=#{max_memory * rand(20..100)/100}
+          CPU=#{max_cpu * rand(5..100)/100}
           DISKRDBYTES=#{rand(1000)}
           DISKWRBYTES=#{rand(1000)}
           DISKRDIOPS=#{rand(1000)}

@@ -9,6 +9,7 @@ require_relative '../../../lib/lxd'
 #  This module implements the functions needed by probe_db.rb
 #  -----------------------------------------------------------
 module DomainList
+
     # LXD to OpenNebula state mapping
     STATE_MAP = {
         'RUNNING' => 'RUNNING',

@@ -125,6 +125,8 @@ class ProbeRunner
     #   @return[Array] rc, data. rc 0 for success and data is the output of
     #   probes. If rc is -1 it signal failure and data is the error message of
     #   the failing probe
+    #
+    # rubocop:disable Lint/SuppressedException
     def run_probes
         data = ''
         dpro = Dir.new(@path)
@@ -167,6 +169,7 @@ class ProbeRunner
 
         [0, data]
     end
+    # rubocop:enable Lint/SuppressedException
 
     # Singleton call for run_probes method
     def self.run_once(hyperv, path, stdin)
@@ -301,11 +304,14 @@ threads = []
 
 probes.each do |msg_type, conf|
     threads << Thread.new do
-        ProbeRunner.monitor_loop(hyperv, conf[:path], conf[:period], xml_txt) do |rc, da|
+        ProbeRunner.monitor_loop(hyperv,
+                                 conf[:path],
+                                 conf[:period],
+                                 xml_txt) do |result, da|
             da.strip!
             next if da.empty?
 
-            client.send(msg_type, rc == 0, da)
+            client.send(msg_type, result == 0, da)
         end
     end
 end
