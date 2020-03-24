@@ -1,0 +1,91 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+MAP_VNETS_START_SCRIPT_LOGFILE = '/var/log/map_vnets_start_script.log'
+
+IPTABLES_NAT_PREFIX = 'iptables -tnat'
+
+CHAIN_VROUTER_SNAT = 'chain-vrouter-snat'
+CHAIN_VROUTER_DNAT = 'chain-vrouter-dnat'
+
+require 'json'
+require 'logger'
+require 'tempfile'
+
+log = Logger.new(MAP_VNETS_START_SCRIPT_LOGFILE.to_s, 'daily')
+log.level = Logger::INFO
+
+log.info 'map_vnets_start_script executed'
+
+service = JSON.parse(`onegate service show -j`)
+log.debug "Service: #{service}"
+
+sdnats = []
+
+roles = service['SERVICE']['roles'].flatten
+roles.each do |role|
+  next unless role['nodes']
+
+  role['nodes'].each do |node|
+    nics = node['vm_info']['VM']['TEMPLATE']['NIC']
+    node['vm_info']['VM']['TEMPLATE']['NIC_ALIAS'].each do |nic_alias|
+      nic = nics.detect { |nic| nic['NAME'] == nic_alias['PARENT'] }
+      sdnats << { 'NIC' => nic['IP'], 'NIC_ALIAS' => nic_alias['IP'] }
+    end
+  end
+end
+
+log.debug "IPs: #{sdnats}"
+
+rules = ""
+
+begin
+  f = Tempfile.new
+
+  f << `#{IPTABLES_NAT_PREFIX} -S #{CHAIN_VROUTER_DNAT} >/dev/null 2>&1 || echo "-N #{CHAIN_VROUTER_DNAT}"`
+  f << `#{IPTABLES_NAT_PREFIX} -S #{CHAIN_VROUTER_SNAT} >/dev/null 2>&1 || echo "-N #{CHAIN_VROUTER_SNAT}"`
+  f << `#{IPTABLES_NAT_PREFIX} -C PREROUTING -j #{CHAIN_VROUTER_DNAT} 2>/dev/null || echo "-A PREROUTING -j #{CHAIN_VROUTER_DNAT}"`
+  f << `#{IPTABLES_NAT_PREFIX} -C POSTROUTING -j #{CHAIN_VROUTER_SNAT} 2>/dev/null || echo "-A POSTROUTING -j #{CHAIN_VROUTER_SNAT}"`
+
+  f << `iptables -t nat -S #{CHAIN_VROUTER_DNAT} 2>/dev/null \| sed -n 's/-A\\(.*\\)/-D\\1/p'`
+  f << `iptables -t nat -S #{CHAIN_VROUTER_SNAT} 2>/dev/null \| sed -n 's/-A\\(.*\\)/-D\\1/p'`
+
+  f.close
+
+  sdnats.each do |nat|
+    `#{IPTABLES_NAT_PREFIX} -C #{CHAIN_VROUTER_DNAT} -d #{nat['NIC_ALIAS']} -j DNAT --to-destination #{nat['NIC']} 2>/dev/null &&\
+           sed -i '/.*#{CHAIN_VROUTER_DNAT} -d #{nat['NIC_ALIAS']}\\/32 -j DNAT --to-destination #{nat['NIC']}/d' #{f.path} ||\
+           echo '-A #{CHAIN_VROUTER_DNAT} -d #{nat['NIC_ALIAS']} -j DNAT --to-destination #{nat['NIC']}' >> #{f.path}`
+
+    `#{IPTABLES_NAT_PREFIX} -C #{CHAIN_VROUTER_SNAT} -s #{nat['NIC']} -j SNAT --to-source #{nat['NIC_ALIAS']} 2>/dev/null &&\
+           sed -i '/.*#{CHAIN_VROUTER_SNAT} -s #{nat['NIC']}\\/32 -j SNAT --to-source #{nat['NIC_ALIAS']}/d' #{f.path}||\
+           echo '-A #{CHAIN_VROUTER_SNAT} -s #{nat['NIC']} -j SNAT --to-source #{nat['NIC_ALIAS']}' >> #{f.path}`
+  end
+
+  rules << `cat #{f.path}`
+ensure
+  f.unlink
+end
+
+log.debug "Rules: #{rules}"
+
+rules.each_line do |rule|
+  `#{IPTABLES_NAT_PREFIX} #{rule}`
+end
+
+log.debug "iptables-save: #{`iptables-save`}"
