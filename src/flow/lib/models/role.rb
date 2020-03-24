@@ -320,6 +320,15 @@ module OpenNebula
                 }
 
                 vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
+
+                if @body['nodes'].size > 0
+                    # Get current UID and GID
+                    uid = @body['nodes'].last['vm_info']['VM']['UID'].to_i
+                    gid = @body['nodes'].last['vm_info']['VM']['GID'].to_i
+
+                    vm.chown(gid, uid)
+                end
+
                 rc = vm.info
                 if OpenNebula.is_error?(rc)
                     node['vm_info'] = nil
