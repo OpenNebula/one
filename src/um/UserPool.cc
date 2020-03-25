@@ -72,6 +72,9 @@ UserPool::UserPool(SqlDB * db, time_t __session_expiration_time, bool is_slave,
 
     _session_expiration_time = __session_expiration_time;
 
+    // Set restricted attributes
+    UserTemplate::parse_restricted(restricted_attrs);
+
     User * oneadmin_user = get_ro(0);
 
     //Slaves do not need to init the pool, just the oneadmin username
@@ -177,9 +180,6 @@ UserPool::UserPool(SqlDB * db, time_t __session_expiration_time, bool is_slave,
     {
         goto error_serveradmin;
     }
-
-    // Set restricted attributes
-    UserTemplate::parse_restricted(restricted_attrs);
 
     return;
 
