@@ -384,6 +384,17 @@ def install_dependencies(gems, distro)
             STDERR.puts 'Error installing dependencies'
             exit(-1)
         end
+
+        if distro.first == :debian
+            # on Debian-like platforms, the augeas gem build might fail
+            # due to incompatible libxml include paths
+            unless File.exists?('/usr/include/libxml')
+                require 'fileutils'
+
+                FileUtils.ln_s('/usr/include/libxml2/libxml',
+                               '/usr/include/libxml')
+            end
+        end
     end
 end
 
