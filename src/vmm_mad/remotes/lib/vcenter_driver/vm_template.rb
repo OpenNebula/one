@@ -435,6 +435,24 @@ class Template
         return ipv4, ipv6
     end
 
+    # Get vSwitch of Standard PortGroup
+    # If there is differents vSwitches returns the first.
+    def vSwitch(vc_pg)
+        vswitch = []
+        vc_hosts = vc_pg.host
+        vc_hosts.each do |vc_host|
+            host_pgs = vc_host.configManager.networkSystem.networkInfo.portgroup
+            host_pgs.each do |pg|
+                if vc_pg.name == pg.spec.name
+                    vswitch << pg.spec.vswitchName
+                end
+            end
+        end
+        vswitch.uniq!
+        vswitch << 'Invalid configuration' if vswitch.length > 1
+        vswitch.join(" / ")
+    end
+
     def import_vcenter_nics(vc_uuid, npool, hpool, vcenter_instance_name,
                             template_ref, vm_object, vm_id=nil, dc_name=nil)
         nic_info = ''
@@ -520,8 +538,38 @@ class Template
                         unmanaged = "template"
                     end
 
+                    case nic[:pg_type]
+                    # Distributed PortGroups
+                    when VCenterDriver::Network::NETWORK_TYPE_DPG
+                        config[:sw_name] = nic[:network].config.distributedVirtualSwitch.name
+                        # For DistributedVirtualPortgroups there is networks and uplinks
+                        config[:uplink] = nic[:network].config.uplink
+                    # NSX-V PortGroups
+                    when VCenterDriver::Network::NETWORK_TYPE_NSXV
+                        config[:sw_name] = nic[:network].config.distributedVirtualSwitch.name
+                        # For NSX-V ( is the same as DistributedVirtualPortgroups )
+                        # there is networks and uplinks
+                        config[:uplink] = false
+                    # Standard PortGroups
+                    when VCenterDriver::Network::NETWORK_TYPE_PG
+                        # There is no uplinks for standard portgroups, so all Standard
+                        # PortGroups are networks and no uplinks
+                        config[:uplink] = false
+                        config[:sw_name] = vSwitch(nic[:network])
+                    # NSX-T PortGroups
+                    when VCenterDriver::Network::NETWORK_TYPE_NSXT
+                        config[:sw_name] = \
+                        nic[:network].summary.opaqueNetworkType
+                        # There is no uplinks for NSX-T networks, so all NSX-T networks
+                        # are networks and no uplinks
+                        config[:uplink] = false
+                    else
+                        raise "Unknown network type: #{nic[:pg_type]}"
+                    end
+
                     import_opts = {
                         :network_name=>          nic[:net_name],
+                        :sw_name=>               config[:sw_name],
                         :network_ref=>           nic[:net_ref],
                         :network_type=>          nic[:pg_type],
                         :ccr_ref=>               ccr_ref,
