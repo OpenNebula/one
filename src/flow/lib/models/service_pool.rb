@@ -72,6 +72,15 @@ module OpenNebula
             rc
         end
 
+        def info_all
+            osp = OpenNebulaServicePool.new(client)
+            rc  = osp.info_all
+
+            @one_pool = osp
+
+            rc
+        end
+
         # rubocop:disable Lint/ToJSON
         def to_json
             # rubocop:enable Lint/ToJSON
