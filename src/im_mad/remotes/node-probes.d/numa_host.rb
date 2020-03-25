@@ -18,6 +18,7 @@
 
 require_relative '../../../lib/numa_common'
 
+# This module extracts NUMA information from a host for firecracker
 module NUMA
 
     def self.node_to_template(node, nid)
@@ -78,7 +79,8 @@ module NUMA
 
                 core_id = File.read("#{core_path}/core_id").chomp
 
-                nodes[node_id]['cores'] << {'id' => core_id, 'cpus' => siblings}
+                nodes[node_id]['cores'] << { 'id' => core_id,
+                                             'cpus' => siblings }
             rescue StandardError
                 next
             end

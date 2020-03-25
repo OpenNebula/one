@@ -41,7 +41,7 @@ def unindent(s)
     s.gsub!(/^ {#{spaces}}/, '')
 end
 
-hid   = ARGV[1]
+hid = ARGV[1]
 _hname = ARGV[2]
 
 client = OpenNebula::Client.new
@@ -91,3 +91,5 @@ vmpool.each do |vm|
 end
 
 puts result
+
+# rubocop:enable Layout/ArgumentAlignment
