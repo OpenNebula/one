@@ -90,6 +90,10 @@ module OpenNebula
             return self['UNAME']
         end
 
+        def gid
+            return self['GID'].to_i
+        end
+
         # Replaces this object's client with a new one
         # @param [OpenNebula::Client] owner_client the new client
         def replace_client(owner_client)

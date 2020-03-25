@@ -38,7 +38,7 @@ class ServiceLCM
             else
                 srv_pool.each_xpath('DOCUMENT/ID') { |id|
                     rc_get = srv_pool.get(id.to_i) { |service|
-                        owner_client = @cloud_auth.client(service.owner_name)
+                        owner_client = @cloud_auth.client("#{service.owner_name}:#{service.gid}")
                         service.replace_client(owner_client)
 
                         Log.debug LOG_COMP, "Loop for service #{service.id()} #{service.name()}" \
