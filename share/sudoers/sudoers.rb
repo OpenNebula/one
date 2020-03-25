@@ -54,7 +54,7 @@ class Sudoers
             :MARKET => %W[#{lib_location}/sh/create_container_image.sh],
             :FIRECRACKER => %w[/usr/bin/jailer
                                mount
-                               one-clean-firecracker-domain]
+                               /usr/sbin/one-clean-firecracker-domain]
         }
     end
 
