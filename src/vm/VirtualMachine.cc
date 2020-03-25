@@ -1781,7 +1781,7 @@ int VirtualMachine::update_search(SqlDB * db)
 
     db->free_str(sql_text);
 
-    return db->exec_local_wr(oss);
+    return db->exec_wr(oss);
 }
 
 /* -------------------------------------------------------------------------- */
