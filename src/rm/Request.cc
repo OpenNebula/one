@@ -1120,9 +1120,8 @@ void RequestAttributes::set_auth_op(VMActions::Action action)
     if (user != nullptr)
     {
         result = user->get_vm_auth_op(action);
+        user->unlock();
     }
-
-    user->unlock();
 
     if (result != AuthRequest::NONE)
     {
@@ -1135,9 +1134,8 @@ void RequestAttributes::set_auth_op(VMActions::Action action)
     if (group != nullptr)
     {
         result = group->get_vm_auth_op(action);
+        group->unlock();
     }
-
-    group->unlock();
 
     if (result != AuthRequest::NONE)
     {
