@@ -880,6 +880,8 @@ define(function(require) {
   function isSPICESupported(element) {
     var rtn = false;
     if(element && element.TEMPLATE && element.TEMPLATE.GRAPHICS && element.LCM_STATE){
+      var graphics = element.TEMPLATE.GRAPHICS;
+      var state = parseInt(element.LCM_STATE);
       rtn = graphics &&
         graphics.TYPE &&
         graphics.TYPE.toLowerCase() == "spice" &&
