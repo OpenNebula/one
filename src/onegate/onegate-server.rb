@@ -298,12 +298,12 @@ helpers do
     # If true the service hash is returned
     # If false a halt is triggered
     #
-    def check_vm_in_service(requested_vm_id, service_id, client)
+    def check_vm_in_service(requested_vm_id, service_id, client, extended = false)
         service = get_service(service_id, client)
 
         service_hash = JSON.parse(service)
 
-        response = build_service_hash(service_hash) rescue nil
+        response = build_service_hash(service_hash, client, extended) rescue nil
         if response.nil?
             error_msg = "Service #{service_id} is empty."
             logger.error {error_msg}
@@ -426,7 +426,7 @@ def build_vm_hash(vm_hash)
     }
 end
 
-def build_service_hash(service_hash)
+def build_service_hash(service_hash, client = nil, extended = false)
     roles = service_hash["DOCUMENT"]["TEMPLATE"]["BODY"]["roles"]
 
     if roles.nil?
@@ -451,13 +451,18 @@ def build_service_hash(service_hash)
         if (nodes = role["nodes"])
             nodes.each do |vm|
                 vm_deploy_id = vm["deploy_id"].to_i
-                vm_info      = vm["vm_info"]["VM"]
-                vm_running   = vm["running"]
+                if extended
+                    vm_info = get_vm(vm_deploy_id, client).to_hash
+                else
+                    vm_info = vm["vm_info"]
+                end
+
+                vm_running = vm["running"]
 
                 role_info["nodes"] << {
                     "deploy_id" => vm_deploy_id,
                     "running"   => vm["running"],
-                    "vm_info"   => build_vm_hash(vm_info)
+                    "vm_info"   => vm_info
                 }
             end
         end
@@ -517,7 +522,7 @@ get '/service' do
     source_vm = get_source_vm(request.env, client)
     service_id = source_vm['USER_TEMPLATE/SERVICE_ID']
 
-    response = check_vm_in_service(source_vm['ID'], service_id, client)
+    response = check_vm_in_service(source_vm['ID'], service_id, client, params['extended'])
     [200, response.to_json]
 end
 

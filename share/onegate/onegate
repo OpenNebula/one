@@ -299,9 +299,12 @@ module OneGate
             return state_str
         end
 
-        def self.print(json_hash)
+        def self.print(json_hash, extended = false)
             OneGate.print_header("VM " + json_hash["VM"]["ID"])
             OneGate.print_key_value("NAME", json_hash["VM"]["NAME"])
+
+            return unless extended
+
             OneGate.print_key_value(
                 "STATE",
                 self.state_to_str(
@@ -352,7 +355,7 @@ module OneGate
             return STATE_STR[state_number.to_i]
         end
 
-        def self.print(json_hash)
+        def self.print(json_hash, extended = false)
             OneGate.print_header("SERVICE " + json_hash["SERVICE"]["id"])
             OneGate.print_key_value("NAME", json_hash["SERVICE"]["name"])
             OneGate.print_key_value("STATE", Service.state_str(json_hash["SERVICE"]['state']))
@@ -364,7 +367,7 @@ module OneGate
 
                 if role["nodes"]
                     role["nodes"].each{ |node|
-                        OneGate::VirtualMachine.print(node["vm_info"])
+                        OneGate::VirtualMachine.print(node["vm_info"], extended)
                     }
                 end
 
@@ -394,8 +397,9 @@ module OneGate
             end
         end
 
-        def get(path)
+        def get(path, extra = nil)
             req = Net::HTTP::Proxy(@host, @port)::Get.new(path)
+            req.body = extra if extra
 
             do_request(req)
         end
@@ -512,7 +516,7 @@ Available commands
         $ onegate hold [VMID]
         $ onegate release [VMID]
 
-    $ onegate service show [--json]
+    $ onegate service show [--json][--extended]
 
     $ onegate service scale --role ROLE --cardinality CARDINALITY
 EOT
@@ -543,6 +547,10 @@ OptionParser.new do |opts|
 
   opts.on("-j", "--json", "Print resource information in JSON") do |json|
     options[:json] = json
+  end
+
+  opts.on("", "--extended", "Print resource extended information") do |ext|
+    options[:extended] = ext
   end
 
   opts.on("-f", "--hard", "Hard option for power off operations") do |hard|
@@ -640,13 +648,24 @@ when "vm"
 when "service"
     case ARGV[1]
     when "show"
-        response = client.get("/service")
+        if options[:extended]
+            extra             = {}
+            extra['extended'] = true
+
+            extra = URI.encode_www_form(extra)
+        end
+
+        response  = client.get("/service", extra)
         json_hash = OneGate.parse_json(response)
         #pp json_hash
         if options[:json]
             puts JSON.pretty_generate(json_hash)
         else
-            OneGate::Service.print(json_hash)
+            if options[:extended]
+                OneGate::Service.print(json_hash, true)
+            else
+                OneGate::Service.print(json_hash)
+            end
         end
     when "scale"
         response = client.put(
