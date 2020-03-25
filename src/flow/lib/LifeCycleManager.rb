@@ -326,6 +326,11 @@ class ServiceLCM
             set_cardinality(role, cardinality, force)
 
             if cardinality_diff > 0
+                # change client to have right ownership
+                client = @cloud_auth.client("#{service.uname}:#{service.gid}")
+
+                service.replace_client(client)
+
                 role.scale_way('UP')
 
                 rc = deploy_roles(client,

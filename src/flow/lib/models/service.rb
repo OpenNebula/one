@@ -140,6 +140,20 @@ module OpenNebula
             @body['ready_status_gate']
         end
 
+        def uname
+            self['UNAME']
+        end
+
+        def gid
+            self['GID'].to_i
+        end
+
+        # Replaces this object's client with a new one
+        # @param [OpenNebula::Client] owner_client the new client
+        def replace_client(owner_client)
+            @client = owner_client
+        end
+
         # Sets a new state
         # @param [Integer] the new state
         # @return [true, false] true if the value was changed

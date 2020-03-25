@@ -161,7 +161,7 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
     # @return [Hash] Custom attributes values
     def custom_attrs(custom_attrs)
         # rubocop:disable Layout/LineLength
-        return unless custom_attrs
+        return if custom_attrs.nil? || custom_attrs.empty?
 
         ret = {}
         ret['custom_attrs_values'] = OpenNebulaHelper.parse_user_inputs(custom_attrs)
