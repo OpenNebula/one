@@ -383,7 +383,13 @@ class ServiceLCM
             elsif service.can_recover_undeploy?
                 recover_undeploy(client, service)
             elsif service.can_recover_scale?
+                # change client to have right ownership
+                client = @cloud_auth.client("#{service.uname}:#{service.gid}")
+
+                service.replace_client(client)
                 recover_scale(client, service)
+            elsif Service::STATE['COOLDOWN'] == service.state
+                service.set_state(Service::STATE['RUNNING'])
             else
                 break OpenNebula::Error.new(
                     'Service cannot be recovered in state: ' \
@@ -684,7 +690,7 @@ class ServiceLCM
     def catch_up(client)
         Log.error LOG_COMP, 'Catching up...'
 
-        @srv_pool.info
+        @srv_pool.info_all
 
         @srv_pool.each do |service|
             recover_action(client, service.id) if service.transient_state?

@@ -55,6 +55,7 @@ module OpenNebula
             DEPLOYING
             UNDEPLOYING
             SCALING
+            COOLDOWN
         ]
 
         FAILED_STATES = %w[

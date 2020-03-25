@@ -498,8 +498,8 @@ post '/service_template/:id/action' do
 
         if custom_attrs &&
            !custom_attrs.empty?
-           custom_attrs_values &&
-           !(custom_attrs.keys - custom_attrs_values.keys).empty?
+            custom_attrs_values &&
+                !(custom_attrs.keys - custom_attrs_values.keys).empty?
             return internal_error('Every custom_attrs key must have its ' \
                                   'value defined at custom_attrs_value',
                                   VALIDATION_EC)
