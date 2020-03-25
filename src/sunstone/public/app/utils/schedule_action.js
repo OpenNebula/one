@@ -308,13 +308,13 @@ define(function (require) {
           var epoch_str = new Date(time_value);
           end_value = parseInt(epoch_str.getTime()) / 1000;
         }
-        sched_action.DAYS = days;
-        sched_action.REPEAT = rep;
-        sched_action.END_VALUE = end_value;
+        sched_action.DAYS = String(days);
+        sched_action.REPEAT = String(rep);
+        sched_action.END_VALUE = String(end_value);
       }
-      sched_action.END_TYPE = end_type;
+      sched_action.END_TYPE = String(end_type);
     }
-    sched_action.ACTION = new_action;
+    sched_action.ACTION = String(new_action);
     $("#scheduling_" + this.res + "_actions_table .create", context).remove();
     $("#scheduling_" + this.res + "_actions_table #relative_time_form", context).remove();
     $("#scheduling_" + this.res + "_actions_table #no_relative_time_form", context).remove();
