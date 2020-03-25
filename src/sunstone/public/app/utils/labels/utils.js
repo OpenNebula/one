@@ -369,10 +369,13 @@ define(function (require) {
   }
 
   function _labelsStr(elementTemplate) {
-    if (elementTemplate['BODY'] && elementTemplate["BODY"][LABELS_ATTR.toLowerCase()]) {
-      return TemplateUtils.htmlEncode(elementTemplate["BODY"][LABELS_ATTR.toLowerCase()]);
+    if (elementTemplate && 
+        elementTemplate.BODY && 
+        elementTemplate.BODY[LABELS_ATTR.toLowerCase()]
+      ) {
+      return TemplateUtils.htmlEncode(elementTemplate.BODY[LABELS_ATTR.toLowerCase()]);
     } else {
-      return TemplateUtils.htmlEncode(elementTemplate[LABELS_ATTR]);
+      return TemplateUtils.htmlEncode(elementTemplate && elementTemplate[LABELS_ATTR]? elementTemplate[LABELS_ATTR] : "");
     }
   }
 
