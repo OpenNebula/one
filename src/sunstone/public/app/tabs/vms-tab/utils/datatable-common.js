@@ -187,9 +187,9 @@ define(function(require) {
 
     var type;
 
-    if (element.TEMPLATE.VROUTER_ID != undefined){
+    if (element && element.TEMPLATE && element.TEMPLATE.VROUTER_ID && element.TEMPLATE.VROUTER_ID != undefined){
       type = "VR";
-    } else if (element.USER_TEMPLATE.SERVICE_ID != undefined){
+    } else if (element && element.USER_TEMPLATE && element.USER_TEMPLATE.SERVICE_ID && element.USER_TEMPLATE.SERVICE_ID != undefined){
       type = "FLOW";
     } else {
       type = "VM";
