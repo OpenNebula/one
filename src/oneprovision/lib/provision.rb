@@ -210,8 +210,6 @@ module OneProvision
 
                 create_hosts(cfg, cid)
 
-                create_virtual_resources(cfg)
-
                 if skip != :all && @hosts && !@hosts.empty?
                     # ask user to be patient, mandatory for now
                     STDERR.puts 'WARNING: This operation can ' \
@@ -235,6 +233,8 @@ module OneProvision
                 end
 
                 Ansible.configure(@hosts) if skip == :none
+
+                create_virtual_resources(cfg)
 
                 puts "ID: #{@id}"
 
