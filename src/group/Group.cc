@@ -580,3 +580,11 @@ void Group::sunstone_views(const string& user_default, const string& user_views,
         }
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Group::post_update_template(string& error)
+{
+    return vm_actions.set_auth_ops(*obj_template, error);
+}

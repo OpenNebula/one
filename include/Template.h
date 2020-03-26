@@ -42,9 +42,9 @@ class Template
 {
 public:
 
-    Template(bool         _replace_mode = false,
-             const char   _separator    = '=',
-             const char * _xml_root     = "TEMPLATE"):
+    explicit Template(bool         _replace_mode = false,
+                      const char   _separator    = '=',
+                      const char * _xml_root     = "TEMPLATE"):
                  replace_mode(_replace_mode),
                  separator(_separator),
                  xml_root(_xml_root){}

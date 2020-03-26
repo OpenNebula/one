@@ -423,6 +423,12 @@ protected:
         string error_str;
         return insert_replace(db, true, error_str);
     }
+
+    /* Checks the validity of template attributes
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    int post_update_template(string& error) override;
 };
 
 #endif /*USER_H_*/
