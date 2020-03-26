@@ -186,6 +186,9 @@ class OneDB
                 puts "Database already uses version #{db_version[:local_version]}"
             end
 
+            # Generate indexes
+            @backend.create_idx
+
             timeb = Time.now
 
             puts
