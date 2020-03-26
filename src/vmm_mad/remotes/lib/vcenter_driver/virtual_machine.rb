@@ -902,18 +902,22 @@ module VCenterDriver
                             break
                         end
 
-                        raise 'Problem with your unmanaged nics!' unless device
-
-                        nics.delete(device)
+                        if device
+                            nics.delete(device)
+                        else
+                            nil
+                        end
                     }
 
                     unmanaged_nics.each do |unic|
                         vnic      = select_net.call(unic['VCENTER_NET_REF'])
-                        nic_class = vnic.class
+                        nic_class = vnic.class if vnic
                         new_model = Nic.nic_model_class(unic['MODEL']) if unic['MODEL']
 
+                        if vnic.nil?
+                                device_change << calculate_add_nic_spec(unic)
                         # delete actual nic and update the new one.
-                        if new_model && new_model != nic_class
+                        elsif new_model && new_model != nic_class
                                 device_change << { :device => vnic, :operation => :remove }
                                 device_change << calculate_add_nic_spec(unic, vnic.unitNumber)
                         else
