@@ -14,33 +14,37 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resource'
+require 'resources/physical/physical_resource'
 
 module OneProvision
 
-    # Vnet
-    class Vnet < Resource
+    # Network
+    class Network < PhysicalResource
 
         # Class constructor
         def initialize
-            super 'Vnet'
+            super
+
+            @pool = OpenNebula::VirtualNetworkPool.new(@client)
+            @type = 'network'
         end
 
-        # Creates a new VNET in OpenNebula
+        # Info an specific object
         #
-        # @param cluster_id     [Integer] ID of the CLUSTER where is the VNET
-        # @param template       [String]  Template of the VNET
-        # @param pm_mad         [String]  Provision Manager Driver
-        # @param provision_id   [String]  ID of the provision
-        # @param provision_name [String]  Name of the provision
-        def create(cluster_id, template, pm_mad, provision_id, provision_name)
-            template['provision']['provision_id'] = provision_id
-            template['provision']['name']         = provision_name
+        # @param id [String] Object ID
+        def info(id)
+            @one = OpenNebula::VirtualNetwork.new_with_id(id, @client)
+            @one.info
+        end
 
-            template  = Utils.template_like_str(template)
-            template += "PM_MAD=\"#{pm_mad}\"\n"
+        private
 
-            super(cluster_id, template)
+        # Create new object
+        def new_object
+            @one = OpenNebula::VirtualNetwork.new(
+                OpenNebula::VirtualNetwork.build_xml,
+                @client
+            )
         end
 
     end

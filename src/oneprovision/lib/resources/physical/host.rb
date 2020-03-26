@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resource'
+require 'resources/resource'
 
 module OneProvision
 
@@ -27,8 +27,11 @@ module OneProvision
         # rubocop:enable Style/ClassVars
 
         # Class constructor
-        def initialize(id = nil)
-            super('Host', id)
+        def initialize
+            super
+
+            @pool = OpenNebula::HostPool.new(@client)
+            @type = 'host'
         end
 
         # Checks if there are Running VMs on the HOST
@@ -288,6 +291,21 @@ module OneProvision
 
             @one.info
             @one.enable
+        end
+
+        # Info an specific object
+        #
+        # @param id [String] Object ID
+        def info(id)
+            @one = OpenNebula::Host.new_with_id(id, @client)
+            @one.info
+        end
+
+        private
+
+        # Create new object
+        def new_object
+            @one = OpenNebula::Host.new(OpenNebula::Host.build_xml, @client)
         end
 
     end

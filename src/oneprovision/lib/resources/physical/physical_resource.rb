@@ -14,33 +14,44 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resource'
+require 'resources/resource'
 
 module OneProvision
 
-    # Datastore
-    class Datastore < Resource
+    # Represents a physical resource for the provision
+    class PhysicalResource < Resource
 
-        # Class constructor
-        def initialize
-            super 'Datastore'
-        end
-
-        # Creates a new DATASTORE in OpenNebula
+        # Creates the object in OpenNebula
         #
-        # @param cluster_id   [Integer] ID of the CLUSTER where is the DATASTORE
-        # @param template     [String]  Template of the DATASTORE
-        # @param pm_mad       [String]  Provision Manager Driver
-        # @param provision_id [String]  ID of the provision
-        # @param provision_name [String] Name of the provision
+        # @param cluster_id     [Integer] Cluster ID
+        # @param template       [Hash]    Object attributes
+        # @param pm_mad         [String]  Provision Manager Driver
+        # @param provision_id   [String]  Provision ID
+        # @param provision_name [String]  Provision name
+        #
+        # @return [Integer] Resource ID
         def create(cluster_id, template, pm_mad, provision_id, provision_name)
-            template['provision']['provision_id'] = provision_id
-            template['provision']['name']         = provision_name
+            info = { 'provision_id' => provision_id,
+                     'name'         => provision_name }
 
-            template  = Utils.template_like_str(template)
-            template += "PM_MAD=\"#{pm_mad}\"\n"
+            # update template with provision information
+            add_provision_info(template, info)
 
-            super(cluster_id, template)
+            template['pm_mad'] = pm_mad
+
+            # create ONE object
+            new_object
+
+            rc = @one.allocate(format_template(template), cluster_id)
+            Utils.exception(rc)
+            rc = @one.info
+            Utils.exception(rc)
+
+            OneProvisionLogger.debug(
+                "#{@type} created with ID: #{@one.id}"
+            )
+
+            @one.id.to_i
         end
 
     end

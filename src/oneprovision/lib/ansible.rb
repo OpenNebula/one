@@ -78,12 +78,17 @@ module OneProvision
             def configure(hosts, force = nil)
                 configured = ''
 
+                return if hosts.nil? || hosts.empty?
+
                 hosts.each do |host|
                     host.info
 
                     status = host['TEMPLATE/PROVISION_CONFIGURATION_STATUS']
 
-                    host = Host.new(host['ID'])
+                    id   = host['ID']
+                    host = Host.new
+
+                    host.info(id)
                     host.check
 
                     if status == 'configured' && !force
