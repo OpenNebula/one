@@ -169,15 +169,4 @@ class OneDBBacKEnd
         @db.run sql
     end
 
-    def create_idx(type, version = nil)
-
-        schema = get_schema(type, version)
-
-        schema.each do |idx|
-            @db.run idx
-        end
-
-    end
-
 end
-
