@@ -543,7 +543,7 @@ class Template
                     when VCenterDriver::Network::NETWORK_TYPE_DPG
                         config[:sw_name] = nic[:network].config.distributedVirtualSwitch.name
                         # For DistributedVirtualPortgroups there is networks and uplinks
-                        config[:uplink] = nic[:network].config.uplink
+                        config[:uplink] = false
                     # NSX-V PortGroups
                     when VCenterDriver::Network::NETWORK_TYPE_NSXV
                         config[:sw_name] = nic[:network].config.distributedVirtualSwitch.name
