@@ -78,6 +78,8 @@ module OneProvision
             def configure(hosts, force = nil)
                 configured = ''
 
+                return if hosts.nil? || hosts.empty?
+
                 hosts.each do |host|
                     host.info
 

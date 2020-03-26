@@ -208,47 +208,33 @@ module OneProvision
 
                 create_resources(cfg, cid)
 
-                if cfg['hosts'].nil?
-                    create_virtual_resources(cfg)
-
-                    puts "ID: #{@id}"
-
-                    return 0
-                end
-
                 create_hosts(cfg, cid)
 
-                if skip == :all
-                    create_virtual_resources(cfg)
-
-                    puts "ID: #{@id}"
-
-                    return 0
-                end
-
-                # ask user to be patient, mandatory for now
-                STDERR.puts 'WARNING: This operation can ' \
-                    'take tens of minutes. Please be patient.'
-
-                OneProvisionLogger.info('Deploying')
-
-                deploy_ids = nil
-
-                Driver.retry_loop 'Failed to deploy hosts' do
-                    deploy_ids = deploy_hosts
-                end
-
-                if deploy_ids.nil? || deploy_ids.empty?
-                    Utils.fail('Deployment failed, no ID got from driver')
-                end
-
-                OneProvisionLogger.info('Monitoring hosts')
-
-                update_hosts(deploy_ids)
-
-                Ansible.configure(@hosts) unless skip == :config
-
                 create_virtual_resources(cfg)
+
+                if skip != :all && @hosts && !@hosts.empty?
+                    # ask user to be patient, mandatory for now
+                    STDERR.puts 'WARNING: This operation can ' \
+                        'take tens of minutes. Please be patient.'
+
+                    OneProvisionLogger.info('Deploying')
+
+                    deploy_ids = nil
+
+                    Driver.retry_loop 'Failed to deploy hosts' do
+                        deploy_ids = deploy_hosts
+                    end
+
+                    if deploy_ids.nil? || deploy_ids.empty?
+                        Utils.fail('Deployment failed, no ID got from driver')
+                    end
+
+                    OneProvisionLogger.info('Monitoring hosts')
+
+                    update_hosts(deploy_ids)
+                end
+
+                Ansible.configure(@hosts) if skip == :none
 
                 puts "ID: #{@id}"
 
@@ -361,6 +347,8 @@ module OneProvision
         # @param cfg [Key-Value Object] Configuration of the PROVISION
         # @param cid [String]           Cluster ID
         def create_hosts(cfg, cid)
+            return unless cfg['hosts']
+
             cfg['hosts'].each do |h|
                 Driver.retry_loop 'Failed to create some host' do
                     erb      = Utils.evaluate_erb(self, h)
