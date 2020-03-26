@@ -148,6 +148,13 @@ public:
         return vm_actions.get_auth_op(action);
     }
 
+protected:
+    /* Checks the validity of template attributes
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    int post_update_template(string& error) override;
+
 private:
 
     // -------------------------------------------------------------------------
