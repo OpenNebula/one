@@ -110,6 +110,26 @@ define(function(require) {
 
   function _onShow(){
     this.securityGroupsTable.refreshResourceTableSelect();
+    
+    // Deletes required on IPV4 when IPAM selected
+    $("input[wizard_field=\"IPAM_MAD\"]").change(function(){
+      var prefix_id = this.id.split("_")[0];
+      
+      // Obtain the correct id for add_ar window
+      if (prefix_id == "add"){
+        prefix_id += "_ar";
+      }
+
+      var dynamic_id = "#" + prefix_id + "_ip_start";
+      
+      if($(this).val().length>0){
+        $(dynamic_id).removeAttr("wizard_field");
+        $(dynamic_id).removeAttr("required");
+      }else{
+        $(dynamic_id).attr("wizard_field","IP");
+        $(dynamic_id).attr("required","required");
+      }
+    });    
 
     $("input.slaac", this.ar_section).change();
   }
