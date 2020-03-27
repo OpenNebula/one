@@ -2,6 +2,7 @@ Defaults:oneadmin !requiretty
 Defaults:oneadmin secure_path = /sbin:/bin:/usr/sbin:/usr/bin
 
 Cmnd_Alias ONE_CEPH = /usr/bin/rbd
+Cmnd_Alias ONE_FIRECRACKER = /usr/bin/jailer, /bin/mount, /usr/sbin/one-clean-firecracker-domain
 Cmnd_Alias ONE_HA = /bin/systemctl start opennebula-flow, /bin/systemctl stop opennebula-flow, /bin/systemctl start opennebula-gate, /bin/systemctl stop opennebula-gate, /bin/systemctl start opennebula-hem, /bin/systemctl stop opennebula-hem, /usr/sbin/service opennebula-flow start, /usr/sbin/service opennebula-flow stop, /usr/sbin/service opennebula-gate start, /usr/sbin/service opennebula-gate stop, /usr/sbin/service opennebula-hem start, /usr/sbin/service opennebula-hem stop, /usr/sbin/arping, /sbin/ip
 Cmnd_Alias ONE_LVM = /sbin/lvcreate, /sbin/lvremove, /sbin/lvs, /sbin/vgdisplay, /sbin/lvchange, /sbin/lvscan, /sbin/lvextend
 Cmnd_Alias ONE_LXD = /snap/bin/lxc, /usr/bin/catfstab, /bin/mount, /bin/umount, /bin/mkdir, /bin/lsblk, /sbin/losetup, /sbin/kpartx, /usr/bin/qemu-nbd, /sbin/blkid, /sbin/e2fsck, /sbin/resize2fs, /usr/sbin/xfs_growfs, /usr/bin/rbd-nbd, /usr/sbin/xfs_admin, /sbin/tune2fs
@@ -11,4 +12,4 @@ Cmnd_Alias ONE_OVS = /usr/bin/ovs-ofctl, /usr/bin/ovs-vsctl
 
 ## Command aliases are enabled individually in dedicated
 ## sudoers files by each OpenNebula component (server, node).
-# oneadmin ALL=(ALL) NOPASSWD: ONE_CEPH, ONE_HA, ONE_LVM, ONE_LXD, ONE_MARKET, ONE_NET, ONE_OVS
+# oneadmin ALL=(ALL) NOPASSWD: ONE_CEPH, ONE_FIRECRACKER, ONE_HA, ONE_LVM, ONE_LXD, ONE_MARKET, ONE_NET, ONE_OVS
