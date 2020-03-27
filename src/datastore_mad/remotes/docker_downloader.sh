@@ -164,11 +164,13 @@ RUN apt-get update && apt-get install -y \
       systemd \
       udev \
       vim-tiny \
-      wget
+      wget \
+      haveged
 RUN apt-get install -y /root/context.deb
 RUN rm /root/context.deb
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+RUN systemctl enable haveged
 EOC
 )
     ;;
@@ -179,11 +181,13 @@ centos|redhat)
     commands=$(cat <<EOC
 COPY context.rpm /root/context.rpm
 RUN yum update -y
-RUN yum install -y epel-release \
-                   initscripts \
-                   e2fsprogs
+RUN yum install -y epel-release
+RUN yum install -y initscripts \
+                   e2fsprogs \
+                   haveged
 RUN yum localinstall -y /root/context.rpm
 RUN rm /root/context.rpm
+RUN systemctl enable haveged
 EOC
 )
     ;;
@@ -197,11 +201,13 @@ RUN apk add coreutils \
             openrc \
             udev \
             openssh
+RUN apk -U add haveged
 
 RUN rc-update add sysfs boot && \
     rc-update add devfs boot && \
     rc-update add procfs boot && \
-    rc-update add hostname boot
+    rc-update add hostname boot && \
+    rc-update add haveged boot
 
 RUN echo "ttyS0::respawn:/sbin/getty -L ttyS0 115200 vt100" >> /etc/inittab
 
