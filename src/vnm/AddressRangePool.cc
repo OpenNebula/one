@@ -171,6 +171,7 @@ int AddressRangePool::from_xml_node(const xmlNodePtr node)
 
         if (ar->from_vattr_db(var[i]) != 0)
         {
+            delete ar;
             return -1;
         }
 
@@ -270,6 +271,8 @@ int AddressRangePool::rm_ars(string& error_msg)
         {
             delete ar_template.remove(it->second->attr);
         }
+
+        delete it->second;
 
         it = ar_pool.erase(it);
     }

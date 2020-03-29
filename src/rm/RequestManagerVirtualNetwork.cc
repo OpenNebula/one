@@ -361,6 +361,8 @@ void VirtualNetworkReserve::request_execute(
         att.resp_msg = ar.message;
         failure_response(AUTHORIZATION, att);
 
+        delete vtmpl;
+
         return;
     }
 

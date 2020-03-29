@@ -221,6 +221,9 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
         if ( !PoolObjectSQL::name_is_valid(app->name, error_str) )
         {
             error_str = "Cannot generate a valida name for app";
+
+            delete app;
+
             return -1;
         }
     }
