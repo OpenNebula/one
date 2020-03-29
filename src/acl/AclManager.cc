@@ -790,7 +790,7 @@ int AclManager::del_rule(
 {
     lock();
 
-    AclRule * rule = new AclRule(-1, user, resource, rights, zone);
+    AclRule rule(-1, user, resource, rights, zone);
 
     int oid = -1;
     bool found = false;
@@ -803,7 +803,7 @@ int AclManager::del_rule(
 
     for ( it = index.first; (it != index.second && !found); it++)
     {
-        found = *(it->second) == *rule;
+        found = *(it->second) == rule;
 
         if (found)
         {
