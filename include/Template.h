@@ -73,7 +73,7 @@ public:
             separator    = t.separator;
             xml_root     = t.xml_root;
 
-            attributes.clear();
+            clear();
 
             for (it = t.attributes.begin() ; it != t.attributes.end() ; it++)
             {

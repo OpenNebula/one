@@ -185,7 +185,7 @@ extern "C" void * rm_xml_server_loop(void *arg)
     // -------------------------------------------------------------------------
     // Main connection loop
     // -------------------------------------------------------------------------
-    ConnectionManager *cm =new ConnectionManager(rm, rm->max_conn);
+    std::unique_ptr<ConnectionManager> cm{new ConnectionManager(rm, rm->max_conn)};
 
     while (true)
     {
@@ -206,12 +206,10 @@ extern "C" void * rm_xml_server_loop(void *arg)
 
         NebulaLog::log("ReM", Log::DDEBUG, oss);
 
-        Connection * rc = new Connection(client_fd, cm);
+        Connection * rc = new Connection(client_fd, cm.get());
 
         pthread_create(&thread_id, &pattr, rm_do_connection, (void *) rc);
     }
-
-    delete cm;
 
     return 0;
 }

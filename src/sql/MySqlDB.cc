@@ -51,6 +51,7 @@ static std::string get_encoding(MYSQL * c, const std::string& sql,
     if ( row == nullptr )
     {
         error = "Could not read databse encoding";
+        mysql_free_result(result);
         return "";
     }
 

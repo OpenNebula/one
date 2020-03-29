@@ -786,6 +786,8 @@ int VirtualMachineDisks::get_images(int vm_id, int uid, const std::string& tsys,
             oss << "DISK " << disk_id << ": " << error_str;
             error_str = oss.str();
 
+            delete disk;
+
             goto error_common;
         }
 
@@ -1124,6 +1126,7 @@ VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
                          dev_prefix, uid, image_id, &snap, true, error);
     if ( rc != 0 )
     {
+        delete disk;
         return 0;
     }
 
@@ -1663,8 +1666,12 @@ int VirtualMachineDisks::check_tm_mad(const string& tm_mad, string& error)
                         disk_type) != 0 )
             {
                 error = "Image Datastore does not support transfer mode: " + tm_mad;
+
+                ds_img->unlock();
                 return -1;
             }
+
+            ds_img->unlock();
 
             disk->replace("CLONE_TARGET", clone_target);
             disk->replace("LN_TARGET", ln_target);
