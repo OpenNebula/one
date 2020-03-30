@@ -16,14 +16,14 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV['ONE_LOCATION'] if !defined?(ONE_LOCATION)
+ONE_LOCATION = ENV['ONE_LOCATION'] if !defined? ONE_LOCATION
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' if !defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = '/usr/share/one/gems' if !defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' if !defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' if !defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
 if File.directory?(GEMS_LOCATION)
@@ -31,18 +31,15 @@ if File.directory?(GEMS_LOCATION)
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
-$LOAD_PATH << File.dirname(__FILE__)
 
 require 'opennebula_driver'
+host    = ARGV[-1]
+host_id = ARGV[-2]
 
-deploy_id = ARGV[0]
-host      = ARGV[1]
-vm_id     = ARGV[2]
+one2one_drv = One2OneDriver.new(host, host_id)
 
-vm = OpenNebula::VirtualMachine.new_with_id(vm_id, OpenNebula::Client.new)
-vm.info
-
-lcm_state = vm.lcm_state_str
-
-one2one_drv = One2OneDriver.new(host)
-one2one_drv.cancel(deploy_id, lcm_state)
+begin
+    puts one2one_drv.probe_host_system
+rescue Exception => e
+    OpenNebula.handle_driver_exception("im probe_host_system", e, host)
+end

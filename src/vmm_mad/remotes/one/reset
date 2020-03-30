@@ -38,5 +38,5 @@ require 'opennebula_driver'
 deploy_id = ARGV[1]
 host      = ARGV[0]
 
-one2one_drv = OpenNebulaDriver.new(host)
+one2one_drv = One2OneDriver.new(host)
 one2one_drv.reset(deploy_id)

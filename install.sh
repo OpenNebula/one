@@ -317,6 +317,10 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/az-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/az-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/one.d \
+          $VAR_LOCATION/remotes/im/one-probes.d/host/monitor \
+          $VAR_LOCATION/remotes/im/one-probes.d/host/system \
+          $VAR_LOCATION/remotes/im/one-probes.d/vm/monitor \
+          $VAR_LOCATION/remotes/im/one-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/packet.d \
           $VAR_LOCATION/remotes/pm \
           $VAR_LOCATION/remotes/pm/ec2 \
@@ -528,6 +532,10 @@ INSTALL_FILES=(
     IM_PROBES_EC2_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/host/system
     IM_PROBES_EC2_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/vm/monitor
     IM_PROBES_EC2_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/vm/status
+    IM_PROBES_ONE_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/one-probes.d/host/monitor
+    IM_PROBES_ONE_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/one-probes.d/host/system
+    IM_PROBES_ONE_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/one-probes.d/vm/monitor
+    IM_PROBES_ONE_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/one-probes.d/vm/status
     IM_PROBES_VERSION:$VAR_LOCATION/remotes
     IM_PROBES_FIRECRACKER_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/host/beacon
     IM_PROBES_FIRECRACKER_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/host/monitor
@@ -1140,7 +1148,6 @@ VMM_EXEC_ONE_SCRIPTS="src/vmm_mad/remotes/one/cancel \
                      src/vmm_mad/remotes/one/reboot \
                      src/vmm_mad/remotes/one/reset \
                      src/vmm_mad/remotes/one/save \
-                     src/vmm_mad/remotes/one/poll \
                      src/vmm_mad/remotes/one/shutdown \
                      src/vmm_mad/remotes/one/reconfigure \
                      src/vmm_mad/remotes/one/prereconfigure"
@@ -1333,7 +1340,24 @@ IM_PROBES_AZ_VM_MONITOR_FILES="\
 IM_PROBES_AZ_VM_STATUS_FILES="\
      src/im_mad/remotes/az-probes.d/vm/status/probe_vm_status.rb"
 
-IM_PROBES_ONE_FILES="src/im_mad/remotes/one.d/poll"
+# ONE monitord-client
+IM_PROBES_ONE_FILES="\
+    src/im_mad/remotes/one.d/monitord-client_control.sh \
+    src/im_mad/remotes/one.d/monitord-client.rb"
+
+# ONE probes
+IM_PROBES_ONE_HOST_MONITOR_FILES="\
+     src/im_mad/remotes/one-probes.d/host/monitor/probe_host_monitor.rb"
+
+IM_PROBES_ONE_HOST_SYSTEM_FILES="\
+     src/im_mad/remotes/one-probes.d/host/system/probe_host_system.rb"
+
+IM_PROBES_ONE_VM_MONITOR_FILES="\
+     src/im_mad/remotes/one-probes.d/vm/monitor/probe_vm_monitor.rb"
+
+IM_PROBES_ONE_VM_STATUS_FILES="\
+     src/im_mad/remotes/one-probes.d/vm/status/probe_vm_status.rb"
+
 
 IM_PROBES_PACKET_FILES="src/im_mad/remotes/packet.d/poll"
 

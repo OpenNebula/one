@@ -16,14 +16,14 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV['ONE_LOCATION'] if !defined?(ONE_LOCATION)
+ONE_LOCATION = ENV['ONE_LOCATION'] if !defined? ONE_LOCATION
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' if !defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = '/usr/share/one/gems' if !defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' if !defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' if !defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
 if File.directory?(GEMS_LOCATION)
@@ -33,10 +33,17 @@ end
 $LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'opennebula_driver'
-host    = ARGV[-1]
+require_relative '../../../lib/probe_db'
+
+host = ARGV[-1]
 host_id = ARGV[-2]
 
-one2one_drv = OpenNebulaDriver.new(host, host_id)
-
-one2one_drv.monitor_all_vms
-
+begin
+    vmdb = VirtualMachineDB.new('one2one',
+                                :missing_state => 'UNKNOWN',
+                                :sync => 180)
+    vmdb.purge
+    puts vmdb.to_status(host, host_id)
+rescue => e
+    OpenNebula.handle_driver_exception("im probe_vm_status", e, host)
+end

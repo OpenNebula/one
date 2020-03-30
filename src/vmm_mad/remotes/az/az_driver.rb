@@ -788,8 +788,8 @@ end
 ############################################################################
 module DomainList
 
-    def self.state_info(id, name)
-        az = AzureDriver.new(id, name)
+    def self.state_info(name, id)
+        az = AzureDriver.new(name, id)
 
         vms = az.retreive_vms_data
 

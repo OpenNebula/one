@@ -46,7 +46,7 @@ vm.info
 lcm_state = vm.lcm_state_str
 deploy_id = vm.deploy_id
 
-one2one_drv = OpenNebulaDriver.new(host)
+one2one_drv = One2OneDriver.new(host)
 
 text=File.read(dfile)
 

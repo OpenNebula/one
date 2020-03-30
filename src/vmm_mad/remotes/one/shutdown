@@ -45,5 +45,5 @@ vm.info
 
 lcm_state = vm.lcm_state_str
 
-one2one_drv = OpenNebulaDriver.new(host)
+one2one_drv = One2OneDriver.new(host)
 one2one_drv.shutdown(deploy_id, lcm_state)
