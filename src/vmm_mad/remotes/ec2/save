@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
@@ -14,36 +14,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
-# -------------------------------------------------------------------------- #
+#--------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV['ONE_LOCATION'] if !defined?(ONE_LOCATION)
-
-if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' if !defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = '/usr/share/one/gems' if !defined?(GEMS_LOCATION)
-else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' if !defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' if !defined?(GEMS_LOCATION)
-end
-
-if File.directory?(GEMS_LOCATION)
-    Gem.use_paths(GEMS_LOCATION)
-end
-
-$LOAD_PATH << RUBY_LIB_LOCATION
-$LOAD_PATH << File.dirname(__FILE__)
-
-require 'ec2_driver'
-
-deploy_id = ARGV[0]
-file      = ARGV[1]
-host      = ARGV[2]
-
-
-begin
-    ec2_drv = EC2Driver.new(host)
-    ec2_drv.save(deploy_id)
-rescue Exception => e
-    OpenNebula.handle_driver_exception("Save", e, host, deploy_id, nil, file)
-end
-
+SCRIPT_NAME=$(basename $0)
+echo "Action $SCRIPT_NAME not supported" 1>&2

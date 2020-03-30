@@ -482,15 +482,6 @@ class EC2Driver < PublicCloudDriver
         end
     end
 
-    # Save a EC2 instance
-    def save(deploy_id)
-        init_ec2
-
-        wait_state('running', deploy_id)
-        ec2_action(deploy_id, :stop)
-        wait_state('stopped', deploy_id)
-    end
-
     # Resumes a EC2 instance
     def restore(deploy_id)
         init_ec2

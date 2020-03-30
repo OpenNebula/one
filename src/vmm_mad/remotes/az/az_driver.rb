@@ -207,14 +207,6 @@ class AzureDriver < PublicCloudDriver
         delete_vm_resources(deploy_id)
     end
 
-    # Stop an Azure instance
-    def save(deploy_id)
-        init_azure
-
-        i = get_instance(deploy_id)
-        @compute_client.virtual_machines.power_off(@rgroup_name, i.name)
-    end
-
     # Resume an Azure instance
     def restore(deploy_id)
         init_azure
