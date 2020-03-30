@@ -15,7 +15,7 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 
-ONE_LOCATION ||= ENV['ONE_LOCATION']
+ONE_LOCATION ||= ENV['ONE_LOCATION'] if !defined? ONE_LOCATION
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
@@ -387,12 +387,11 @@ class EC2Driver < PublicCloudDriver
 
         start_time = Time.now
 
-        while Time.now - start_time < @state_change_timeout
-            begin
-                break if instance.exists?
-            rescue StandardError => e
-                OpenNebula.log_error("RESCUE: #{e.inspect}")
-            end
+        loop do
+            break if instance.exists?
+
+            raise 'Instance initialization timeouted' \
+                if Time.now - start_time > @state_change_timeout
 
             sleep 2
         end
