@@ -458,10 +458,20 @@ void MySqlDB::free_db_connection(MYSQL * db)
 bool MySqlDB::fts_available()
 {
     unsigned long version;
+    unsigned long min_version;
 
-    version = mysql_get_server_version(db_escape_connect);
+    if (is_mariadb())
+    {
+        version = mariadb_get_server_version();
+        min_version = 100005;
+    }
+    else
+    {
+        version = mysql_get_server_version(db_escape_connect);
+        min_version = 50600;
+    }
 
-    if (version >= 50600)
+    if (version >= min_version)
     {
         return true;
     }
@@ -472,3 +482,56 @@ bool MySqlDB::fts_available()
 }
 
 /* -------------------------------------------------------------------------- */
+
+bool MySqlDB::is_mariadb()
+{
+    std::string server_info;
+
+    server_info = mysql_get_server_info(db_escape_connect);
+
+    one_util::tolower(server_info);
+
+    if (server_info.find("mariadb") == std::string::npos)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+
+unsigned long MySqlDB::mariadb_get_server_version()
+{
+    std::string version_str;
+    std::vector<unsigned int> ids;
+
+    std::string version_query = "SELECT @@GLOBAL.innodb_version";
+
+    if ( mysql_query(db_escape_connect, version_query.c_str()) != 0 )
+    {
+        return 0;
+    }
+
+    MYSQL_RES * result = mysql_store_result(db_escape_connect);
+
+    if (result == nullptr)
+    {
+        return ULONG_MAX;
+    }
+
+    MYSQL_ROW row = mysql_fetch_row(result);
+
+    if ( row == nullptr )
+    {
+        return ULONG_MAX;
+    }
+
+    version_str = ((char **) row)[0];
+
+    mysql_free_result(result);
+
+    one_util::split(version_str, '.', ids);
+
+    return ids[0] * 10000 + ids[1] * 100 + ids[2];
+}

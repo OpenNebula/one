@@ -88,7 +88,17 @@ public:
     /**
      *  Return true if the backend allows FTS index
      */
-     bool fts_available();
+    bool fts_available();
+
+    /**
+     *  Return true if the server is mariadDB based
+     */
+    bool is_mariadb();
+
+    /**
+     *  Return the mariadb server version
+     */
+    unsigned long mariadb_get_server_version();
 
 protected:
     /**
@@ -186,6 +196,10 @@ public:
     bool limit_support(){return true;};
 
     bool fts_available(){return false;};
+
+    bool is_mariadb(){return false;};
+
+    unsigned long mariadb_get_server_version(){return 0;}
 
 protected:
     int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet){return -1;};
