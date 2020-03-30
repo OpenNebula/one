@@ -32,7 +32,7 @@ log.level = Logger::INFO
 
 log.info 'map_vnets_start_script executed'
 
-service = JSON.parse(`onegate service show -j`)
+service = JSON.parse(`onegate service show --json --extended`)
 log.debug "Service: #{service}"
 
 sdnats = []
@@ -42,8 +42,11 @@ roles.each do |role|
     next unless role['nodes']
 
     role['nodes'].each do |node|
-        nics = node['vm_info']['VM']['TEMPLATE']['NIC']
-        node['vm_info']['VM']['TEMPLATE']['NIC_ALIAS'].each do |nic_alias|
+        nic_aliases = [node['vm_info']['VM']['TEMPLATE']['NIC_ALIAS']].flatten
+        next unless nic_aliases.any?
+
+        nics = [node['vm_info']['VM']['TEMPLATE']['NIC']].flatten
+        nic_aliases.each do |nic_alias|
             nic = nics.detect {|n| n['NAME'] == nic_alias['PARENT'] }
             sdnats << { 'NIC' => nic['IP'], 'NIC_ALIAS' => nic_alias['IP'] }
         end
