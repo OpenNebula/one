@@ -59,6 +59,8 @@ SqliteDB::SqliteDB(const string& db_name)
         NebulaLog::log("ONE",Log::INFO , "sqlite has enabled: SQLITE_ENABLE_UPDATE_DELETE_LIMIT");
     }
 
+    NebulaLog::log("ONE", Log::INFO, "Using SQLite.");
+
     sqlite3_extended_result_codes(db, 1);
 }
 

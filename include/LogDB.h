@@ -218,9 +218,9 @@ public:
         return db->limit_support();
     }
 
-    bool fts_available()
+    bool get_fts()
     {
-        return db->fts_available();
+        return db->get_fts();
     }
     // -------------------------------------------------------------------------
     // Database methods
@@ -432,9 +432,9 @@ public:
         return _logdb->limit_support();
     }
 
-    bool fts_available()
+    bool get_fts()
     {
-        return _logdb->fts_available();
+        return _logdb->get_fts();
     }
 
     /**

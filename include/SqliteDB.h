@@ -79,7 +79,7 @@ public:
      */
     bool limit_support() override;
 
-    bool fts_available() override
+    bool get_fts() override
     {
         return false;
     }
@@ -147,7 +147,7 @@ public:
 
     bool limit_support() override { return true; }
 
-    bool fts_available() override { return false; }
+    bool get_fts() override { return false; }
 
 protected:
     int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet) override

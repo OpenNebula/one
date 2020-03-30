@@ -50,6 +50,7 @@ static std::string get_encoding(MYSQL * c, const std::string& sql,
 
     if ( row == nullptr )
     {
+        mysql_free_result(result);
         error = "Could not read databse encoding";
         return "";
     }
@@ -209,6 +210,8 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
         encoding;
 
     NebulaLog::log("ONE", Log::INFO, oss);
+
+    fts = fts_available();
 
     pthread_mutex_init(&mutex,0);
 
@@ -486,8 +489,12 @@ bool MySqlDB::fts_available()
 bool MySqlDB::is_mariadb()
 {
     std::string server_info;
+    ostringstream oss;
 
     server_info = mysql_get_server_info(db_escape_connect);
+
+    oss << "Using " << server_info;
+    NebulaLog::log("ONE", Log::INFO, oss);
 
     one_util::tolower(server_info);
 
@@ -524,6 +531,7 @@ unsigned long MySqlDB::mariadb_get_server_version()
 
     if ( row == nullptr )
     {
+        mysql_free_result(result);
         return ULONG_MAX;
     }
 

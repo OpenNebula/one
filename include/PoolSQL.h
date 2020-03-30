@@ -280,7 +280,7 @@ public:
      */
      bool is_fts_available()
      {
-         return db->fts_available();
+         return db->get_fts();
      }
 protected:
 

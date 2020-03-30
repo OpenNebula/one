@@ -88,7 +88,9 @@ public:
     /**
      *  Return true if the backend allows FTS index
      */
-    bool fts_available();
+    bool get_fts() {
+        return fts;
+    };
 
     /**
      *  Return true if the server is mariadDB based
@@ -158,6 +160,11 @@ private:
     pthread_cond_t  cond;
 
     /**
+     *  True if FTS is available
+     */
+    bool fts;
+
+    /**
      *  Gets a free DB connection from the pool.
      */
     MYSQL * get_db_connection();
@@ -166,6 +173,11 @@ private:
      *  Returns the connection to the pool.
      */
     void    free_db_connection(MYSQL * db);
+
+    /**
+     *  Return true if the backend allows FTS index
+     */
+    bool fts_available();
 };
 #else
 //CLass stub
@@ -195,7 +207,7 @@ public:
 
     bool limit_support(){return true;};
 
-    bool fts_available(){return false;};
+    bool get_fts(){return false;};
 
     bool is_mariadb(){return false;};
 

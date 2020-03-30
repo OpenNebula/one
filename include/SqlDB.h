@@ -118,7 +118,7 @@ public:
     /**
      *  Return true if the backend allows FTS index
      */
-    virtual bool fts_available() = 0;
+    virtual bool get_fts() = 0;
 
 
     /**
