@@ -797,17 +797,19 @@ define(function(require) {
     }
     
     // infoextended: alias will be group by nic
-    return (config.system_config.get_extended_vm_info)
+    return (
+      config.system_config &&
+      config.system_config.get_extended_vm_info &&
+      config.system_config.get_extended_vm_info === "true"
+      )
       ? groupByIpsStr(element, nics)
-      : (ips.length == 0) 
-        ? $.each(nics, function(index, value) {
-          $.each(NIC_IP_ATTRS, function(j, attr){
-            if (value[attr] && attr === "IP") {
-              ips.push(value[attr]);
-            }
-          });
-        })
-        : (ips.length > 0) ? ips.join(divider) : r = "--";
+      : (ips.length == 0 && nics && nics.length > 0)
+        ? $.map(nics, function(nic) {
+          if (nic["IP"]) {
+            return nic["IP"];
+          }
+        }).join(divider)
+        : "--";
   };
 
   function groupByIpsStr(element = {}, nics = []) {
@@ -818,7 +820,9 @@ define(function(require) {
         nicSection.append("*");
 
         nic.ALIAS_IDS.split(",").forEach(function(aliasId) {
-          var alias = element.TEMPLATE.NIC_ALIAS.find(function(alias) { return alias.NIC_ID === aliasId })
+          var templateAlias = Array.isArray(element.TEMPLATE.NIC_ALIAS)
+            ? element.TEMPLATE.NIC_ALIAS : [element.TEMPLATE.NIC_ALIAS];
+          var alias = templateAlias.find(function(alias) { return alias.NIC_ID === aliasId });
           
           if (alias) {
             nicSection.append($("<p/>").css({

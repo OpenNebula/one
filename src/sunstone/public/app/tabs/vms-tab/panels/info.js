@@ -76,8 +76,11 @@ define(function(require) {
 
     var IP = OpenNebula.VM.ipsStr(this.element);
 
-    var alias = (!config.system_config.get_extended_vm_info)
-      ? OpenNebula.VM.aliasStr(this.element) : null;
+    var alias = (
+      config.system_config &&
+      config.system_config.get_extended_vm_info &&
+      config.system_config.get_extended_vm_info === "true"
+    ) ? null : OpenNebula.VM.aliasStr(this.element);
 
     if (this.element.TEMPLATE.VROUTER_ID != undefined){
       vrouterHTML = Navigation.link(
