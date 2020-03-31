@@ -303,7 +303,6 @@ class HookMap
 
         @hooks[hook.type][key] = []          unless @hooks[hook.type].key?(key)
         @hooks[hook.type][key].push(hook_id) unless @hooks[hook.type][key].include?(hook_id)
-        
         @hooks_id[hook_id] = hook
         @filters[hook_id]  = filter
 
@@ -317,7 +316,7 @@ class HookMap
 
         if @hooks[hook.type].key?(hook.key)
             @hooks[hook.type][hook.key].delete(hook_id)
-            @hooks[hook.type].delete(hook.key) if @hooks[hook_type][hook.key].empty?
+            @hooks[hook.type].delete(hook.key) if @hooks[hook.type][hook.key].empty?
         end
         @filters.delete(hook_id)
         @hooks_id.delete(hook_id)
