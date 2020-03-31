@@ -22,4 +22,4 @@ host_id = ARGV[1]
 
 puts 'VCENTER_MONITOR_CLUSTER=XXX'
 
-VcenterClusterMonitor.new(host_id)
+ClusterMonitor.new(host_id)

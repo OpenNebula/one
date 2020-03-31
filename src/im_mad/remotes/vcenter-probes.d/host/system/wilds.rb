@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
-
+exit 0
 require_relative '../../../lib/vcenter.rb'
 
 host_id = ARGV[1]
 
-VcenterVmMonitor.new(host_id)
+WildMonitor.new(host_id)
