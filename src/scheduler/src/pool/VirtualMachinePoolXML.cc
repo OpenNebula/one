@@ -38,7 +38,7 @@ int VirtualMachinePoolXML::set_up()
         for ( it = objects.begin(); it != objects.end(); ++it )
         {
             vm_resources.add_resource(it->first);
-        } 
+        }
 
         if (NebulaLog::log_level() >= Log::DDDEBUG)
         {
@@ -282,16 +282,156 @@ int VirtualMachineActionsPoolXML::set_up()
 int VirtualMachineActionsPoolXML::action(
         int             vid,
         const string&   action,
+        const string&   args,
         string&         error_msg) const
 {
     xmlrpc_c::value result;
     bool            success;
 
+    auto sargs = VirtualMachineActionsPoolXML::split(args, ',');
+
     try
     {
         if (action == "snapshot-create")
         {
-            client->call("one.vm.snapshotcreate", "is", &result, vid, "");
+            // name is optional, so no need to check args size
+            string name = "";
+
+            int rc = VirtualMachineActionsPoolXML::parse_args(sargs, name);
+
+            if (rc != 0)
+            {
+                error_msg = "Error parsing ARGS";
+                return -1;
+            }
+
+            client->call("one.vm.snapshotcreate",
+                         "is",
+                         &result,
+                         vid,
+                         name.c_str());
+        }
+        else if (action == "snapshot-revert")
+        {
+            if (sargs.size() < 1)
+            {
+                error_msg = "snapshot-revert needs snapshot ID";
+                return -1;
+            }
+
+            int snapid = 0;
+
+            int rc = VirtualMachineActionsPoolXML::parse_args(sargs, snapid);
+
+            if (rc != 0)
+            {
+                error_msg = "Error parsing ARGS";
+                return -1;
+            }
+
+            client->call("one.vm.snapshotrevert", "ii", &result, vid, snapid);
+        }
+        else if (action == "snapshot-delete")
+        {
+            if (sargs.size() < 1)
+            {
+                error_msg = "snapshot-delete needs snapshot ID";
+                return -1;
+            }
+
+            int snapid = 0;
+
+            int rc = VirtualMachineActionsPoolXML::parse_args(sargs, snapid);
+
+            if (rc != 0)
+            {
+                error_msg = "Error parsing ARGS";
+                return -1;
+            }
+
+            client->call("one.vm.snapshotdelete", "ii", &result, vid, snapid);
+        }
+        else if (action == "disk-snapshot-create")
+        {
+            if (sargs.size() < 1)
+            {
+                error_msg = "disk-snapshot-create needs disk id";
+                return -1;
+            }
+
+            int diskid  = 0;
+            string name = "";
+
+            int rc = VirtualMachineActionsPoolXML::parse_args(sargs,
+                                                              diskid,
+                                                              name);
+
+            if (rc != 0)
+            {
+                error_msg = "Error parsing ARGS";
+                return -1;
+            }
+
+            client->call("one.vm.disksnapshotcreate",
+                         "iis",
+                         &result,
+                         vid,
+                         diskid,
+                         name.c_str());
+        }
+        else if (action == "disk-snapshot-revert")
+        {
+            if (sargs.size() < 2)
+            {
+                error_msg = "disk-snapshot-revert needs disk id and disk snapshot id";
+                return -1;
+            }
+
+            int diskid = 0, snapid = 0;
+
+            int rc = VirtualMachineActionsPoolXML::parse_args(sargs,
+                                                              diskid,
+                                                              snapid);
+
+            if (rc != 0)
+            {
+                error_msg = "Error parsing ARGS";
+                return -1;
+            }
+
+            client->call("one.vm.disksnapshotrevert",
+                         "iii",
+                         &result,
+                         vid,
+                         diskid,
+                         snapid);
+        }
+        else if (action == "disk-snapshot-delete")
+        {
+            if (sargs.size() < 2)
+            {
+                error_msg = "disk-snapshot-delete needs disk id and disk snapshot id";
+                return -1;
+            }
+
+            int diskid = 0, snapid = 0;
+
+            int rc = VirtualMachineActionsPoolXML::parse_args(sargs,
+                                                              diskid,
+                                                              snapid);
+
+            if (rc != 0)
+            {
+                error_msg = "Error parsing ARGS";
+                return -1;
+            }
+
+            client->call("one.vm.disksnapshotdelete",
+                         "iii",
+                         &result,
+                         vid,
+                         diskid,
+                         snapid);
         }
         else
         {
@@ -316,6 +456,83 @@ int VirtualMachineActionsPoolXML::action(
     }
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+template<typename T>
+int VirtualMachineActionsPoolXML::from_str(const string& val_s, T& val)
+{
+    istringstream iss(val_s);
+
+    iss >> val;
+
+    if (iss.fail() || !iss.eof())
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+template<typename T>
+int VirtualMachineActionsPoolXML::parse_args(queue<string>& tokens, T& value)
+{
+    if (tokens.empty())
+    {
+        return 0;
+    }
+
+    int rc = VirtualMachineActionsPoolXML::from_str(tokens.front(), value);
+
+    tokens.pop();
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+template<typename T, typename... Args>
+int VirtualMachineActionsPoolXML::parse_args(queue<string>& tokens, T& value, Args&... args)
+{
+    if (tokens.empty())
+    {
+        return 0;
+    }
+
+    int rc = VirtualMachineActionsPoolXML::from_str(tokens.front(), value);
+
+    tokens.pop();
+
+    if ( rc != 0 )
+    {
+        return -1;
+    }
+
+    return VirtualMachineActionsPoolXML::parse_args(tokens, args...);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+queue<string> VirtualMachineActionsPoolXML::split(const string& st, char delim)
+{
+    queue<string>  parts;
+    string          part;
+
+    stringstream    ss(st);
+
+    while (getline(ss, part, delim))
+    {
+        parts.push(part);
+    }
+
+    return parts;
 }
 
 /* -------------------------------------------------------------------------- */

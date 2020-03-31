@@ -21,6 +21,8 @@
 #include "PoolXML.h"
 #include "VirtualMachineXML.h"
 
+#include <queue>
+
 using namespace std;
 
 class VirtualMachinePoolXML : public PoolXML
@@ -153,11 +155,58 @@ public:
      *
      * @param vid The VM id
      * @param action Action argument (terminate, hold, release...)
+     * @param args Action arguments
      * @param error_msg Error reason, if any
      *
      * @return 0 on success, -1 otherwise
      */
-    int action(int vid, const string &action, string &error_msg) const;
+    int action(int vid,
+               const string &action,
+               const string &args,
+               string &error_msg) const;
+
+    /**
+    * Parses value from string to given type
+    *
+    * @param val_s string value
+    * @param val parsed value
+    *
+    * @return 0 on success, -1 otherwise
+    */
+    template<typename T>
+    static int from_str(const string& val_s, T& val);
+
+    /**
+    * Parses tokens to scpecific value with given type
+    *
+    * @param tokens values to parse
+    * @param value given type to parse it
+    *
+    * @return 0 on success, -1 otherwise
+    */
+    template<typename T>
+    static int parse_args(queue<string>& tokens, T& value);
+
+    /**
+    * Parses tokens to scpecific value with given type
+    *
+    * @param tokens values to parse
+    * @param value given type to parse it
+    *
+    * @return 0 on success, -1 otherwise
+    */
+    template<typename T, typename... Args>
+    static int parse_args(queue<string>& tokens, T& value, Args&... args);
+
+    /**
+    * Splits into a queue
+    *
+    * @param st values to split
+    * @param delim delim char to split
+    *
+    * @return 0 splitted values
+    */
+    static queue<string> split(const string& st, char delim);
 
 protected:
 

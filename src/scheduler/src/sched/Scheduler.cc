@@ -1714,7 +1714,7 @@ int Scheduler::do_scheduled_actions()
     const map<int, ObjectXML*>  vms = vmapool->get_objects();
     map<int, ObjectXML*>::const_iterator vm_it;
 
-    string action_st, error_msg;
+    string action_st, args_st, error_msg;
 
     string time_str = one_util::log_time(time(0));
 
@@ -1736,6 +1736,7 @@ int Scheduler::do_scheduled_actions()
             }
 
             action_st = (*action)->vector_value("ACTION");
+            args_st   = (*action)->vector_value("ARGS");
 
             int rc = VirtualMachineXML::parse_action_name(action_st);
 
@@ -1748,7 +1749,7 @@ int Scheduler::do_scheduled_actions()
             }
             else
             {
-                rc = vmapool->action(vm->get_oid(), action_st, error_msg);
+                rc = vmapool->action(vm->get_oid(), action_st, args_st, error_msg);
 
                 if (rc == 0)
                 {
