@@ -25,6 +25,53 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static unsigned long get_server_version(MYSQL * db)
+{
+    std::string version_str;
+    std::vector<unsigned int> ids;
+
+    std::string version_query = "SELECT @@GLOBAL.version";
+
+    if ( mysql_query(db, version_query.c_str()) != 0 )
+    {
+        return ULONG_MAX;
+    }
+
+    MYSQL_RES * result = mysql_store_result(db);
+
+    if (result == nullptr)
+    {
+        return ULONG_MAX;
+    }
+
+    MYSQL_ROW row = mysql_fetch_row(result);
+
+    if ( row == nullptr )
+    {
+        mysql_free_result(result);
+        return ULONG_MAX;
+    }
+
+    version_str = ((char **) row)[0];
+
+    mysql_free_result(result);
+
+    std::string version_number;
+    std::stringstream version_iss(version_str);
+
+    if (!getline(version_iss, version_number, '-') || version_number.empty())
+    {
+        return ULONG_MAX;
+    }
+
+    one_util::split(version_number, '.', ids);
+
+    return ids[0] * 10000 + ids[1] * 100 + ids[2];
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 static std::string get_encoding(MYSQL * c, const std::string& sql,
         std::string& error)
 {
@@ -129,7 +176,7 @@ int MySqlDB::db_encoding(std::string& error)
 
 MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
     const string& d, const string& e, int m):max_connections(m), server(s),
-     port(p), user(u), password(_p), database(d), encoding(e)
+     port(p), user(u), password(_p), database(d), encoding(e), _fts_available(false)
 {
     vector<MYSQL *> connections(max_connections);
     MYSQL * rc;
@@ -137,7 +184,9 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
     ostringstream oss;
     std::string   error;
 
+    // -------------------------------------------------------------------------
     // Initialize the MySQL library
+    // -------------------------------------------------------------------------
     mysql_library_init(0, NULL, NULL);
 
     if ( db_encoding(error) == -1 )
@@ -145,7 +194,9 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
         throw runtime_error(error);
     }
 
+    // -------------------------------------------------------------------------
     // Create connection pool to the server
+    // -------------------------------------------------------------------------
     for (int i=0 ; i < max_connections ; i++)
     {
         connections[i] = mysql_init(NULL);
@@ -162,6 +213,9 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Create connection to escape strings and inititlize server settings
+    // -------------------------------------------------------------------------
     db_escape_connect = mysql_init(NULL);
 
     rc = mysql_real_connect(db_escape_connect, server.c_str(), user.c_str(),
@@ -183,6 +237,9 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
         throw runtime_error(error);
     }
 
+    // -------------------------------------------------------------------------
+    // Connect to OpenNebula Database
+    // -------------------------------------------------------------------------
     std::string use_sql = "USE " + database;
 
     for (int i=0 ; i < max_connections ; i++)
@@ -210,6 +267,46 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
         encoding;
 
     NebulaLog::log("ONE", Log::INFO, oss);
+
+    oss.clear();
+
+    //--------------------------------------------------------------------------
+    // Get server information and FTS support
+    //--------------------------------------------------------------------------
+    unsigned long version;
+    unsigned long min_fts_version;
+
+    std::string server_info = mysql_get_server_info(db_escape_connect);
+
+    version = get_server_version(db_escape_connect);
+
+    one_util::tolower(server_info);
+
+    oss.str("");
+
+    oss << "Using " << server_info << " (" << version << ")" << " with:";
+
+    NebulaLog::log("ONE", Log::INFO, oss);
+
+    if (server_info.find("mariadb") == std::string::npos)
+    {
+        min_fts_version = 50600;
+    }
+    else
+    {
+        min_fts_version = 100005;
+    }
+
+    if (version >= min_fts_version)
+    {
+        _fts_available = true;
+        NebulaLog::log("ONE", Log::INFO, "\tFTS enabled");
+    }
+    else
+    {
+        _fts_available = false;
+        NebulaLog::log("ONE", Log::INFO, "\tFTS disabled");
+    }
 
     pthread_mutex_init(&mutex,0);
 
@@ -240,19 +337,6 @@ MySqlDB::~MySqlDB()
 }
 
 /* -------------------------------------------------------------------------- */
-
-bool MySqlDB::multiple_values_support()
-{
-    return true;
-}
-
-/* -------------------------------------------------------------------------- */
-
-bool MySqlDB::limit_support()
-{
-    return true;
-}
-
 /* -------------------------------------------------------------------------- */
 
 int MySqlDB::exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
@@ -402,6 +486,7 @@ int MySqlDB::exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
 }
 
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 char * MySqlDB::escape_str(const string& str)
 {
@@ -413,12 +498,6 @@ char * MySqlDB::escape_str(const string& str)
 }
 
 /* -------------------------------------------------------------------------- */
-
-void MySqlDB::free_str(char * str)
-{
-    delete[] str;
-}
-
 /* -------------------------------------------------------------------------- */
 
 MYSQL * MySqlDB::get_db_connection()
@@ -454,22 +533,3 @@ void MySqlDB::free_db_connection(MYSQL * db)
     pthread_mutex_unlock(&mutex);
 }
 
-/* -------------------------------------------------------------------------- */
-
-bool MySqlDB::fts_available()
-{
-    unsigned long version;
-
-    version = mysql_get_server_version(db_escape_connect);
-
-    if (version >= 50600)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-/* -------------------------------------------------------------------------- */

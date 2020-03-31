@@ -67,7 +67,10 @@ public:
      *  Frees a previously scaped string
      *    @param str pointer to the str
      */
-    void free_str(char * str);
+    void free_str(char * str)
+    {
+        delete[] str;
+    }
 
     /**
      * Returns true if the syntax INSERT VALUES (data), (data), (data)
@@ -75,7 +78,10 @@ public:
      *
      * @return true if supported
      */
-    bool multiple_values_support();
+    bool multiple_values_support()
+    {
+        return true;
+    }
 
     /**
      * Returns true if this Database can use LIMIT in queries with DELETE
@@ -83,12 +89,18 @@ public:
      *
      * @return true if supported
      */
-    bool limit_support();
+    bool limit_support()
+    {
+        return true;
+    }
 
     /**
      *  Return true if the backend allows FTS index
      */
-     bool fts_available();
+     bool fts_available()
+     {
+         return _fts_available;
+     }
 
 protected:
     /**
@@ -137,6 +149,8 @@ private:
 
     string encoding;
 
+    bool _fts_available;
+
     /**
      *  Fine-grain mutex for DB access (pool of DB connections)
      */
@@ -155,7 +169,7 @@ private:
     /**
      *  Returns the connection to the pool.
      */
-    void    free_db_connection(MYSQL * db);
+    void free_db_connection(MYSQL * db);
 };
 #else
 //CLass stub
