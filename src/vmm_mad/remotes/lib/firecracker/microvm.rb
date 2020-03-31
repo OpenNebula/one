@@ -24,16 +24,16 @@ require 'opennebula_vm'
 # This class interacts with Firecracker
 class MicroVM
 
+    # rubocop:disable Naming/AccessorMethodName
+    # rubocop:disable Layout/LineLength
+
     #---------------------------------------------------------------------------
     #   List of commands executed by the driver.
     #---------------------------------------------------------------------------
     COMMANDS = {
-        :clean       => 'sudo /var/tmp/one/vmm/firecracker/clean_fc',
+        :clean       => 'sudo /var/tmp/one/vmm/firecracker/one-clean-firecracker-domain',
         :map_context => '/var/tmp/one/vmm/firecracker/map_context'
     }
-
-    # rubocop:disable Naming/AccessorMethodName
-    # rubocop:disable Layout/LineLength
 
     #---------------------------------------------------------------------------
     # Class constructors & static methods
