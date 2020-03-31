@@ -17,6 +17,6 @@ map_vnets_script_src="$MOUNT_DIR/${script_name}"
 cp "${map_vnets_script_src}" "${map_vnets_script_dst}" 
 chmod +x "${map_vnets_script_dst}"
 
-(crontab -l ; echo "*/1 * * * * ${map_vnets_script_dst}") | crontab -
+(crontab -l ; echo "*/1 * * * * ${map_vnets_script_dst} > /var/log/${script_name}.log 2>&1") | crontab -
 
 exit 0
