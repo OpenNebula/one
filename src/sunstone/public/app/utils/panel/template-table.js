@@ -358,6 +358,17 @@ define(function(require) {
     return str;
   }
 
+  // This attributes has special restrictions
+  var special_restrictions = {
+    // vCenter
+    VCENTER_CCR_REF: {edit: false, delete: false},
+    VCENTER_HOST: {edit: false, delete: false},
+    VCENTER_INSTANCE_ID: {edit: false, delete: false},
+    VCENTER_PASSWORD: {edit: false, delete: false},
+    VCENTER_USER: {edit: false, delete: false},
+    VCENTER_VERSION: {edit: false, delete: false}
+  }
+
   // Helper for fromJSONtoHTMLTable function
   function fromJSONtoHTMLRow(field, value, resourceType, vectorial_key, ocurrence, modify) {
     var str = "";
@@ -421,7 +432,15 @@ define(function(require) {
         } else {
           str += '<tr><td class="key_td">' + Locale.tr(field) + '</td><td class="value_td" id="value_td_input_' + field + '">' + TemplateUtils.htmlEncode(value) + '</td>';
           if (modify) {
-            str += '<td class="text-right nowrap"><span id="div_edit"><a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + '" href="#"><i class="fas fa-edit"/></a></span>&emsp;<span id="div_minus"><a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + '" href="#"><i class="fas fa-trash-alt"/></a></span></td>';
+            var edit_html = "";
+            var delete_html = "";
+            if (!special_restrictions[field] || special_restrictions[field]["edit"]){
+              edit_html = '<span id="div_edit"><a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + '" href="#"><i class="fas fa-edit"/></a></span>';
+            }
+            if (!special_restrictions[field] || special_restrictions[field]["delete"]){
+              delete_html = '<span id="div_minus"><a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + '" href="#"><i class="fas fa-trash-alt"/></a></span>';
+            }
+            str += '<td class="text-right nowrap">' + edit_html + '&emsp;' + delete_html + '</td>';
           }
           str += '</tr>';
         }
@@ -430,6 +449,7 @@ define(function(require) {
     }
     return str;
   }
+  
   return {
     'html': _html,
     'setup': _setup
