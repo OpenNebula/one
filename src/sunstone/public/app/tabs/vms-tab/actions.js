@@ -177,9 +177,19 @@ define(function(require) {
       call: function() {
         var vm = Sunstone.getElementRightInfo(TAB_ID);
 
-        if (vm && vm.NAME && vm.TEMPLATE && vm.TEMPLATE.NIC && Array.isArray(vm.TEMPLATE.NIC)) {
+        if (vm && vm.NAME && vm.TEMPLATE && vm.TEMPLATE.NIC) {
           var name = vm.NAME;
-          var nic = vm.TEMPLATE.NIC.find(n => n.RDP === "YES");
+          var nics = vm.TEMPLATE.NIC;
+          nics = Array.isArray(nics) ? vm.TEMPLATE.NIC : [vm.TEMPLATE.NIC];
+
+          // append nic_alias in nics
+          if (vm.TEMPLATE.NIC_ALIAS) {
+            var alias = vm.TEMPLATE.NIC_ALIAS;
+            alias = Array.isArray(alias) ? alias : [alias];
+            nics = $.merge(alias, nics)
+          }
+
+          var nic = nics.find(n => n.RDP && String(n.RDP).toUpperCase() === "YES");
           var ip = nic && nic.IP ? nic.IP : '';
           var credentials = {};
 
@@ -187,12 +197,12 @@ define(function(require) {
             var context = vm.TEMPLATE.CONTEXT;
             for (var prop in context) {
               var propUpperCase = String(prop).toUpperCase();
-              (propUpperCase === "USERNAME" || propUpperCase === "PASSWORD") 
+              (propUpperCase === "USERNAME" || propUpperCase === "PASSWORD")
                 && (credentials[propUpperCase] = context[prop]);
             }
           }
 
-          nic && Rdp.downloadFile(ip, name, credentials); 
+          nic && Rdp.downloadFile(ip, name, credentials);
         } else {
           Notifier.notifyError(Locale.tr("RDP file error"));
           return false;

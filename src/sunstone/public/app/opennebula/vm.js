@@ -897,15 +897,30 @@ define(function(require) {
   // returns true if the RDP button should be enabled
   function isRDPSupported(element) {
     var rtn = false;
-    if(element.TEMPLATE && element.TEMPLATE.NIC){
-      if(!Array.isArray(element.TEMPLATE.NIC)){
-        element.TEMPLATE.NIC = [element.TEMPLATE.NIC];
+
+    if(element.TEMPLATE && element.TEMPLATE.NIC) {
+      var template = element.TEMPLATE;
+      
+      rtn = hasRDP(template.NIC)
+
+      if (!rtn && template.NIC_ALIAS) {
+        rtn = hasRDP(template.NIC_ALIAS)
       }
-      element.TEMPLATE.NIC.some(function(nic) {
-        rtn = nic.RDP && nic.RDP == "YES"
-      })
     }
     return rtn;
+  }
+
+  function hasRDP(nics) {
+    var activated = false;
+    nics = Array.isArray(nics) ? nics : [nics];
+
+    $.each(nics, function(_, nic) {
+      if (nic.RDP && String(nic.RDP).toLowerCase() === "yes") {
+        activated = true;
+      }
+    });
+
+    return activated;
   }
 
   return VM;
