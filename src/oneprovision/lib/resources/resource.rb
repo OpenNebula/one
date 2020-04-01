@@ -122,7 +122,7 @@ module OneProvision
                 OneProvisionLogger.debug("using gname #{gname} id #{gid}")
             end
 
-            chown(gid, uid)
+            chown(uid, gid)
         end
 
         # Change object permissions
