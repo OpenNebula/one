@@ -223,11 +223,25 @@ define(function(require) {
           info.push("");
         }
 
-        if (vm_info) {
-          vms.push(info.concat(VMsTableUtils.elementArray(vm_info)));
-        } else {
-          vms.push(info.concat(VMsTableUtils.emptyElementArray(this.deploy_id)));
-        }
+      
+        var id = vm_info ? vm_info.VM.ID : this.deploy_id;
+        var name = vm_info ? vm_info.VM.NAME : "";
+        var uname = vm_info ? vm_info.VM.UNAME : "";
+        var gname = vm_info ? vm_info.VM.GNAME : "";
+        var rowInfo = [
+          '<input class="check_item" '+
+          'style="vertical-align: inherit;"'+
+          'type="checkbox" '+
+          'id="vm_' + id + '" '+
+          'name="selected_items" ' +
+          'value="' + id + '"/>',
+          '<a href="/#vms-tab/' + id + '">'+ id +'</a>',
+          name,
+          uname,
+          gname
+        ];
+
+        vms.push(info.concat(rowInfo))
       });
     }
 
@@ -235,7 +249,12 @@ define(function(require) {
       'role': role,
       'servicePanel': this.servicePanel,
       'panelId': this.panelId,
-      'vmsTableColumns': VMsTableUtils.columns,
+      'vmsTableColumns': [
+        Locale.tr("ID"),
+        Locale.tr("Name"),
+        Locale.tr("Owner"),
+        Locale.tr("Group"),
+      ],
       'vms': vms
     });
   }
@@ -272,13 +291,6 @@ define(function(require) {
         return false;
       });
 
-      // This table has 2 more columns to the left compared to the normal VM table
-      // The visibility index array needs to be adjusted
-      var visibleColumns = [0,1].concat(
-        SunstoneConfig.tabTableColumns(VMS_TAB_ID).map(function(n){
-          return n+2;
-        }));
-
       this.serviceroleVMsDataTable = new DomDataTable(
         'datatable_vms_'+this.panelId+'_'+role.name,
         {
@@ -291,8 +303,7 @@ define(function(require) {
             "bDeferRender": true,
             "aoColumnDefs": [
               {"bSortable": false, "aTargets": [0,1,"check"]},
-              {"bVisible": true, "aTargets": visibleColumns},
-              {"bVisible": false, "aTargets": ['_all']}
+              {"bVisible": false, "aTargets": [0,1]}
             ]
           }
         });
