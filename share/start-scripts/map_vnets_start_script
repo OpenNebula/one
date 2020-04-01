@@ -16,91 +16,189 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-MAP_VNETS_START_SCRIPT_LOGFILE = '/var/log/map_vnets_start_script.log'
-
-IPTABLES_NAT_PREFIX = 'iptables -tnat'
-
-CHAIN_VROUTER_SNAT = 'chain-vrouter-snat'
-CHAIN_VROUTER_DNAT = 'chain-vrouter-dnat'
-
+require 'getoptlong'
+require 'ipaddr'
 require 'json'
 require 'logger'
+require 'open3'
 require 'tempfile'
+require 'yaml'
 
-log = Logger.new(MAP_VNETS_START_SCRIPT_LOGFILE.to_s, 'daily')
-log.level = Logger::INFO
+CHAINS = {
+    'PREROUTING'  => 'chain-onevnetmap-dnat',
+    'POSTROUTING' => 'chain-onevnetmap-snat'
+}
 
-log.info 'map_vnets_start_script executed'
+# Read the configuration file
+def read_configuration_file(cfile)
+    begin
+        YAML.safe_load(File.read(cfile))
+    rescue StandardError => e
+        puts "Error: #{e}"
+        exit(-1)
+    end
+end
 
-service = JSON.parse(`onegate service show --json --extended`)
-log.debug "Service: #{service}"
+# Get a list of NIC/NIC_ALIAS hashes as long as NIC_ALIAS belongs to
+# public network and NIC belongs to private network
+def do_ip_mapping(service, private_ip = '0.0.0.0/0', public_ip = '0.0.0.0/0')
+    private_network = IPAddr.new private_ip
+    public_network  = IPAddr.new public_ip
 
-sdnats = []
+    retval = []
 
-roles = service['SERVICE']['roles'].flatten
-roles.each do |role|
-    next unless role['nodes']
+    roles = service['SERVICE']['roles'].flatten
 
-    role['nodes'].each do |node|
-        nic_aliases = [node['vm_info']['VM']['TEMPLATE']['NIC_ALIAS']].flatten
-        next unless nic_aliases.any?
+    roles.each do |role|
+        next unless role['nodes']
 
-        nics = [node['vm_info']['VM']['TEMPLATE']['NIC']].flatten
-        nic_aliases.each do |nic_alias|
-            nic = nics.detect {|n| n['NAME'] == nic_alias['PARENT'] }
-            sdnats << { 'NIC' => nic['IP'], 'NIC_ALIAS' => nic_alias['IP'] }
+        role['nodes'].each do |node|
+            nic_aliases =
+                [node['vm_info']['VM']['TEMPLATE']['NIC_ALIAS']].flatten
+            next unless nic_aliases.any?
+
+            nics = [node['vm_info']['VM']['TEMPLATE']['NIC']].flatten
+            nic_aliases.each do |nic_alias|
+                next unless public_network.include?(nic_alias['IP'])
+
+                nic = nics.detect {|n| n['NAME'] == nic_alias['PARENT'] }
+                next unless private_network.include?(nic['IP'])
+
+                retval << { 'NIC' => nic['IP'], 'NIC_ALIAS' => nic_alias['IP'] }
+            end
         end
     end
+
+    retval
 end
 
-log.debug "IPs: #{sdnats}"
+# Get iptables rules to apply for NAT table if no NIC/NIC_ALIAS detected
+def iptables_tnat_apply_init
+    rules = ''
 
-rules = ''
+    CHAINS.each do |nat_chain, custom_chain|
+        o, _, rc = Open3.capture3("iptables -tnat -S #{custom_chain}")
 
-begin
-    f = Tempfile.new
+        if rc.exitstatus != 0
+            # The chain does not exist, add rules to create it and add it to the
+            # corresponding table NAT chain
+            rules += "-N #{custom_chain}\n"
+            rules += "-A #{nat_chain} -j #{custom_chain}\n"
+        else
+            o.each_line do |r|
+                next if r.include?("-N #{custom_chain}")
 
-    f << `iptables -tnat -S #{CHAIN_VROUTER_DNAT} >/dev/null 2>&1 ||\
-          echo "-N #{CHAIN_VROUTER_DNAT}"`
-    f << `iptables -tnat -S #{CHAIN_VROUTER_SNAT} >/dev/null 2>&1 ||\
-          echo "-N #{CHAIN_VROUTER_SNAT}"`
-    f << `iptables -tnat -C PREROUTING -j #{CHAIN_VROUTER_DNAT} 2>/dev/null ||\
-          echo "-A PREROUTING -j #{CHAIN_VROUTER_DNAT}"`
-    f << `iptables -tnat -C POSTROUTING -j #{CHAIN_VROUTER_SNAT} 2>/dev/null ||\
-          echo "-A POSTROUTING -j #{CHAIN_VROUTER_SNAT}"`
-
-    f << `iptables -t nat -S #{CHAIN_VROUTER_DNAT} 2>/dev/null |\
-          sed -n 's/-A\\(.*\\)/-D\\1/p'`
-    f << `iptables -t nat -S #{CHAIN_VROUTER_SNAT} 2>/dev/null |\
-          sed -n 's/-A\\(.*\\)/-D\\1/p'`
-
-    f.close
-
-    sdnats.each do |nat|
-        `iptables -tnat -C #{CHAIN_VROUTER_DNAT} -d #{nat['NIC_ALIAS']} -j DNAT\
-         --to-destination #{nat['NIC']} 2>/dev/null &&\
-         sed -i '/.*#{CHAIN_VROUTER_DNAT} -d #{nat['NIC_ALIAS']}\\/32 -j DNAT \
---to-destination #{nat['NIC']}/d' #{f.path} ||\
-         echo '-A #{CHAIN_VROUTER_DNAT} -d #{nat['NIC_ALIAS']} -j DNAT \
-         --to-destination #{nat['NIC']}' >> #{f.path}`
-
-        `iptables -tnat -C #{CHAIN_VROUTER_SNAT} -s #{nat['NIC']} -j SNAT \
-         --to-source #{nat['NIC_ALIAS']} 2>/dev/null &&\
-         sed -i '/.*#{CHAIN_VROUTER_SNAT} -s #{nat['NIC']}\\/32 -j SNAT \
---to-source #{nat['NIC_ALIAS']}/d' #{f.path}||\
-         echo '-A #{CHAIN_VROUTER_SNAT} -s #{nat['NIC']} -j SNAT \
-         --to-source #{nat['NIC_ALIAS']}' >> #{f.path}`
+                # The chain does exist, add all rules belonging to the chain and
+                # mark them to be deleted initially
+                rules += r.gsub(/-A (.*)/, '-D \1')
+            end
+        end
     end
 
-    rules << `cat #{f.path}`
-ensure
-    f.unlink
+    rules
 end
 
-log.debug "Rules: #{rules}"
+# Merge intial iptables rules to apply for NAT with the ones needed by
+# NIC/NIC_ALIAS mapping
+def iptables_tnat_apply_merge(rules, nics_maps)
+    nics_maps.each do |nat|
+        # DNAT rule
+        jdnat = "#{CHAINS['PREROUTING']} -d #{nat['NIC_ALIAS']}/32 -j DNAT \
+--to-destination #{nat['NIC']}"
+        # Try to delete -D DNAT rule which means previously NIC_ALIAS still
+        # attached
+        if !rules.gsub!(/-D #{jdnat}\n/, '')
+            # Add -A rule if not DNAT rule found which means new NIC_ALIAS
+            # has been attached
+            rules += "-A #{jdnat}\n"
+        end
 
-rules.each_line do |rule|
-    `iptables -tnat #{rule}`
+        # DNAT rule
+        jsnat = "#{CHAINS['POSTROUTING']} -s #{nat['NIC']}/32 -j SNAT \
+--to-source #{nat['NIC_ALIAS']}"
+        # Try to delete -D SNAT rule which means previously NIC_ALIAS still
+        # attached
+        next if rules.gsub!(/-D #{jsnat}\n/, '')
+
+        # Add -A rule if not SNAT rule found which means new NIC_ALIAS
+        # has been attached
+        rules += "-A #{jsnat}\n"
+    end
+
+    rules
 end
 
-log.debug "iptables-save: #{`iptables-save`}"
+def usage
+    puts <<~EOT
+        #{File.basename($PROGRAM_NAME)} [-f|--configuration-file CONFIG_FILE] [-h|--help]
+           -f, --configuration-file=CONFIG_FILE use CONFIG_FILE in YAML format like this:
+                                                networks:
+                                                  public: IP/MASK
+                                                  private: IP/MASK
+                                                Only NIC_ALIASes and NICs belonging to
+                                                public and private networks respectively
+                                                will be used.
+    EOT
+    STDOUT.flush
+end
+
+# Parse arguments
+opts = GetoptLong.new(
+    ['--configuration-file', '-f', GetoptLong::REQUIRED_ARGUMENT],
+    ['--help', '-h', GetoptLong::NO_ARGUMENT]
+)
+
+# Configuration file path
+cfile = ''
+
+begin
+    opts.each do |opt, arg|
+        case opt
+        when '--configuration-file'
+            cfile = arg
+        when '--help'
+            usage
+            exit(0)
+        end
+    end
+rescue StandardError
+    exit(-1)
+end
+
+# Read configuration
+config = read_configuration_file(cfile) unless cfile.empty?
+
+# Get service info through OneGate
+o, e, rc = Open3.capture3('onegate service show --json --extended')
+if rc.exitstatus != 0
+    STDERR.puts "Error: #{o}"
+    exit(-1)
+end
+
+service = JSON.parse(o)
+
+# Get IP network addresses of private and public networks
+# If no network configuration passed each NIC_ALIAS found will be mapped to the
+# parent NIC
+private_ip = '0.0.0.0/0'
+public_ip  = '0.0.0.0/0'
+if !config.nil?
+    private_ip = config['networks']['private']
+    public_ip  = config['networks']['public']
+end
+
+# Perform the NIC_ALIAS/NIC mapping
+nics_maps = do_ip_mapping(service, private_ip, public_ip)
+
+# Get initial iptables rules required as if there no NIC_ALIAS/NIC mappings
+rules_pre  = iptables_tnat_apply_init
+# Modify initial iptables rules with NIC_ALIAS/NIC mappings
+rules_post = iptables_tnat_apply_merge(rules_pre, nics_maps)
+
+# Apply the inferred iptables rules
+rules_post.each_line do |rule|
+    o, e, rc = Open3.capture3("iptables -tnat #{rule}")
+    if rc.exitstatus != 0
+        STDERR.puts e
+    end
+end
