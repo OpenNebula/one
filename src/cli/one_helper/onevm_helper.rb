@@ -457,6 +457,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
             tmp_str << "\nSCHED_ACTION = "
             tmp_str << "[ID = #{id}, ACTION = #{action}, "
+            tmp_str << "ARGS = \"#{options[:args]}\"," if options[:args]
             tmp_str << "TIME = #{options[:schedule].to_i}"
             tmp_str << str_periodic << ']'
 
@@ -1149,6 +1150,10 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
                 column :ACTION, '', :left, :size => 15 do |d|
                     d['ACTION'] unless d.nil?
+                end
+
+                column :ARGS, '', :left, :size => 15 do |d|
+                    d['ARGS'] ? d['ARGS'] : '-'
                 end
 
                 column :SCHEDULED, '', :size => 12 do |d|

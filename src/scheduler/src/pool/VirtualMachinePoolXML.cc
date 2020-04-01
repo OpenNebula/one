@@ -17,6 +17,99 @@
 #include "VirtualMachinePoolXML.h"
 #include <stdexcept>
 #include <iomanip>
+#include <queue>
+
+/* -------------------------------------------------------------------------- */
+/**
+ * Parses value from string to given type
+ *
+ * @param val_s string value
+ * @param val parsed value
+ *
+ * @return 0 on success, -1 otherwise
+ */
+/* -------------------------------------------------------------------------- */
+template<typename T>
+static int from_str(const string& val_s, T& val)
+{
+    if (val_s.empty())
+    {
+        return -1;
+    }
+
+    istringstream iss(val_s);
+
+    iss >> val;
+
+    if (iss.fail() || !iss.eof())
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+template<>
+int from_str(const string& val_s, string& val)
+{
+    if (val_s.empty())
+    {
+        return -1;
+    }
+
+    val = val_s;
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/**
+ * Parses tokens to scpecific value with given type
+ *
+ * @param tokens values to parse
+ * @param value given type to parse it
+ *
+ * @return 0 on success, -1 otherwise
+ */
+/* -------------------------------------------------------------------------- */
+template<typename T>
+static int parse_args(queue<string>& tokens, T& value)
+{
+    if (tokens.empty())
+    {
+        return -1;
+    }
+
+    int rc = from_str(tokens.front(), value);
+
+    tokens.pop();
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+
+template<typename T, typename... Args>
+static int parse_args(queue<string>& tokens, T& value, Args&... args)
+{
+    if (tokens.empty())
+    {
+        return -1;
+    }
+
+    int rc = from_str(tokens.front(), value);
+
+    tokens.pop();
+
+    if ( rc != 0 )
+    {
+        return -1;
+    }
+
+    return parse_args(tokens, args...);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int VirtualMachinePoolXML::set_up()
 {
@@ -38,7 +131,7 @@ int VirtualMachinePoolXML::set_up()
         for ( it = objects.begin(); it != objects.end(); ++it )
         {
             vm_resources.add_resource(it->first);
-        } 
+        }
 
         if (NebulaLog::log_level() >= Log::DDDEBUG)
         {
@@ -282,16 +375,133 @@ int VirtualMachineActionsPoolXML::set_up()
 int VirtualMachineActionsPoolXML::action(
         int             vid,
         const string&   action,
+        const string&   args,
         string&         error_msg) const
 {
     xmlrpc_c::value result;
     bool            success;
 
+    queue<string>  sargs;
+    string         tmp_arg;
+
+    stringstream    ss(args);
+
+    while (getline(ss, tmp_arg, ','))
+    {
+        sargs.push(tmp_arg);
+    }
+
     try
     {
         if (action == "snapshot-create")
         {
-            client->call("one.vm.snapshotcreate", "is", &result, vid, "");
+            string name = "";
+
+            int rc = parse_args(sargs, name);
+
+            if (rc != 0)
+            {
+                error_msg = "Missing or malformed ARGS for: snapshot-create."
+                    " Format: snapshot-name";
+                return -1;
+            }
+
+            client->call("one.vm.snapshotcreate",
+                         "is",
+                         &result,
+                         vid,
+                         name.c_str());
+        }
+        else if (action == "snapshot-revert")
+        {
+            int snapid = 0;
+
+            int rc = parse_args(sargs, snapid);
+
+            if (rc != 0)
+            {
+                error_msg = "Missing or malformed ARGS for: snapshot-revert."
+                    " Format: snapshot-id";
+                return -1;
+            }
+
+            client->call("one.vm.snapshotrevert", "ii", &result, vid, snapid);
+        }
+        else if (action == "snapshot-delete")
+        {
+            int snapid = 0;
+
+            int rc = parse_args(sargs, snapid);
+
+            if (rc != 0)
+            {
+                error_msg = "Missing or malformed ARGS for: snapshot-delete."
+                    " Format: snapshot-id";
+                return -1;
+            }
+
+            client->call("one.vm.snapshotdelete", "ii", &result, vid, snapid);
+        }
+        else if (action == "disk-snapshot-create")
+        {
+            int diskid  = 0;
+            string name = "";
+
+            int rc = parse_args(sargs, diskid, name);
+
+            if (rc != 0)
+            {
+                error_msg = "Missing or malformed ARGS for: disk-snapshot-create."
+                    " Format: disk-id, snapshot-name";
+                return -1;
+            }
+
+            client->call("one.vm.disksnapshotcreate",
+                         "iis",
+                         &result,
+                         vid,
+                         diskid,
+                         name.c_str());
+        }
+        else if (action == "disk-snapshot-revert")
+        {
+            int diskid = 0, snapid = 0;
+
+            int rc = parse_args(sargs, diskid, snapid);
+
+            if (rc != 0)
+            {
+                error_msg = "Missing or malformed ARGS for: disk-snapshot-revert."
+                    " Format: disk-id, snapshot-id";
+                return -1;
+            }
+
+            client->call("one.vm.disksnapshotrevert",
+                         "iii",
+                         &result,
+                         vid,
+                         diskid,
+                         snapid);
+        }
+        else if (action == "disk-snapshot-delete")
+        {
+            int diskid = 0, snapid = 0;
+
+            int rc = parse_args(sargs, diskid, snapid);
+
+            if (rc != 0)
+            {
+                error_msg = "Missing or malformed ARGS for: disk-snapshot-delete."
+                    " Format: disk-id, snapshot-id";
+                return -1;
+            }
+
+            client->call("one.vm.disksnapshotdelete",
+                         "iii",
+                         &result,
+                         vid,
+                         diskid,
+                         snapid);
         }
         else
         {
@@ -317,6 +527,7 @@ int VirtualMachineActionsPoolXML::action(
 
     return 0;
 }
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

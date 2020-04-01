@@ -927,6 +927,9 @@ CommandParser::CmdParser.new(ARGV) do
                                        OneVMHelper::HOURLY,
                                        OneVMHelper::END_TIME] do
         if !options[:schedule].nil?
+            # add name as an argument
+            options[:args] = args[1]
+
             helper.schedule_actions(args[0], options, @comm_name)
         else
             helper.perform_actions(args[0], options, 'snapshot created') do |o|
@@ -940,9 +943,22 @@ CommandParser::CmdParser.new(ARGV) do
         Reverts a VM to a saved snapshot
     EOT
 
-    command :"snapshot-revert", snapshot_revert_desc, :vmid, :snapshot_id do
-        helper.perform_action(args[0], options, 'snapshot reverted') do |o|
-            o.snapshot_revert(args[1].to_i)
+    command :"snapshot-revert", snapshot_revert_desc, :vmid, :snapshot_id,
+            :options => [OneVMHelper::SCHEDULE,
+                         OneVMHelper::WEEKLY,
+                         OneVMHelper::MONTHLY,
+                         OneVMHelper::YEARLY,
+                         OneVMHelper::HOURLY,
+                         OneVMHelper::END_TIME] do
+        if !options[:schedule].nil?
+            # add snap ID as an argument
+            options[:args] = args[1]
+
+            helper.schedule_actions([args[0]], options, @comm_name)
+        else
+            helper.perform_action(args[0], options, 'snapshot reverted') do |o|
+                o.snapshot_revert(args[1].to_i)
+            end
         end
     end
 
@@ -951,9 +967,22 @@ CommandParser::CmdParser.new(ARGV) do
         Delets a snapshot of a VM
     EOT
 
-    command :"snapshot-delete", snapshot_delete_desc, :vmid, :snapshot_id do
-        helper.perform_action(args[0], options, 'snapshot deleted') do |o|
-            o.snapshot_delete(args[1])
+    command :"snapshot-delete", snapshot_delete_desc, :vmid, :snapshot_id,
+            :options => [OneVMHelper::SCHEDULE,
+                         OneVMHelper::WEEKLY,
+                         OneVMHelper::MONTHLY,
+                         OneVMHelper::YEARLY,
+                         OneVMHelper::HOURLY,
+                         OneVMHelper::END_TIME] do
+        if !options[:schedule].nil?
+            # add snap ID as an argument
+            options[:args] = args[1]
+
+            helper.schedule_actions([args[0]], options, @comm_name)
+        else
+            helper.perform_action(args[0], options, 'snapshot deleted') do |o|
+                o.snapshot_delete(args[1])
+            end
         end
     end
 
@@ -965,9 +994,22 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :"disk-snapshot-create", disk_snapshot_create_desc,
-            :vmid, :diskid, :name do
-        helper.perform_action(args[0], options, 'disk snapshot created') do |o|
-            o.disk_snapshot_create(args[1].to_i, args[2])
+            :vmid, :diskid, :name,
+            :options => [OneVMHelper::SCHEDULE,
+                         OneVMHelper::WEEKLY,
+                         OneVMHelper::MONTHLY,
+                         OneVMHelper::YEARLY,
+                         OneVMHelper::HOURLY,
+                         OneVMHelper::END_TIME] do
+        if !options[:schedule].nil?
+            # add disk ID and name as arguments
+            options[:args] = "#{args[1]},#{args[2]}"
+
+            helper.schedule_actions([args[0]], options, @comm_name)
+        else
+            helper.perform_action(args[0], options, 'disk snapshot created') do |o|
+                o.disk_snapshot_create(args[1].to_i, args[2])
+            end
         end
     end
 
@@ -978,9 +1020,22 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :"disk-snapshot-revert", disk_snapshot_revert_desc,
-            :vmid, :diskid, :disk_snapshot_id do
-        helper.perform_action(args[0], options, 'disk snapshot reverted') do |o|
-            o.disk_snapshot_revert(args[1].to_i, args[2].to_i)
+            :vmid, :diskid, :disk_snapshot_id,
+            :options => [OneVMHelper::SCHEDULE,
+                         OneVMHelper::WEEKLY,
+                         OneVMHelper::MONTHLY,
+                         OneVMHelper::YEARLY,
+                         OneVMHelper::HOURLY,
+                         OneVMHelper::END_TIME] do
+        if !options[:schedule].nil?
+            # add disk ID and snap ID as arguments
+            options[:args] = "#{args[1]},#{args[2]}"
+
+            helper.schedule_actions([args[0]], options, @comm_name)
+        else
+            helper.perform_action(args[0], options, 'disk snapshot reverted') do |o|
+                o.disk_snapshot_revert(args[1].to_i, args[2].to_i)
+            end
         end
     end
 
@@ -991,9 +1046,22 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :"disk-snapshot-delete", disk_snapshot_delete_desc,
-            :vmid, :diskid, :disk_snapshot_id do
-        helper.perform_action(args[0], options, 'disk snapshot deleted') do |o|
-            o.disk_snapshot_delete(args[1].to_i, args[2].to_i)
+            :vmid, :diskid, :disk_snapshot_id,
+            :options => [OneVMHelper::SCHEDULE,
+                         OneVMHelper::WEEKLY,
+                         OneVMHelper::MONTHLY,
+                         OneVMHelper::YEARLY,
+                         OneVMHelper::HOURLY,
+                         OneVMHelper::END_TIME] do
+        if !options[:schedule].nil?
+            # add disk ID and snap ID as arguments
+            options[:args] = "#{args[1]},#{args[2]}"
+
+            helper.schedule_actions([args[0]], options, @comm_name)
+        else
+            helper.perform_action(args[0], options, 'disk snapshot deleted') do |o|
+                o.disk_snapshot_delete(args[1].to_i, args[2].to_i)
+            end
         end
     end
 
