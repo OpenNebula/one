@@ -151,6 +151,9 @@ class OneDB
         begin
             timea = Time.now
 
+            # Delete indexes
+            @backend.delete_idx db_version[:version]
+
             # Upgrade shared (federation) tables, only for standalone and master
             if !db_version[:is_slave]
                 puts
