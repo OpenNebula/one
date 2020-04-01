@@ -1900,7 +1900,8 @@ HOOK_VCENTER_FILES="share/hooks/vcenter/create_vcenter_net.rb \
 #-------------------------------------------------------------------------------
 
 HOOK_VCENTER_TMPLS="share/hooks/vcenter/templates/create_vcenter_net.tmpl \
-                    share/hooks/vcenter/templates/delete_vcenter_net.tmpl"
+                    share/hooks/vcenter/templates/delete_vcenter_net.tmpl \
+                    share/hooks/vcenter/templates/instantiate_vcenter_net.tmpl"
 
 #-------------------------------------------------------------------------------
 # HOOK RAFT scripts, to be installed under $VAR_LOCATION/remotes/hooks/raft

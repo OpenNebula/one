@@ -92,7 +92,7 @@ begin
     raise 'Missing VCENTER_ONE_HOST_ID' unless host_id
 
     network_id = template['ID']
-    pg_name = template['TEMPLATE/BRIDGE']
+    pg_name = template['NAME']
     pg_type = template['TEMPLATE/VCENTER_PORTGROUP_TYPE']
     sw_name = template['TEMPLATE/VCENTER_SWITCH_NAME']
 
