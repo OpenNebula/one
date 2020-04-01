@@ -20,4 +20,5 @@ require_relative '../../../lib/vcenter.rb'
 
 host_id = ARGV[1]
 
+ClusterMonitor.new(host_id)
 DatastoreMonitor.new(host_id)

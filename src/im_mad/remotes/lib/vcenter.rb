@@ -32,10 +32,16 @@ end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 
+require 'opennebula'
 require 'vcenter_driver'
+
+
 
 # Gather vCenter cluster monitor info
 class ClusterMonitor
+
+    VM_STATE = OpenNebula::VirtualMachine::Driver::VM_STATE
+
 
     def initialize(host_id)
         begin
@@ -56,12 +62,22 @@ class ClusterMonitor
             @cluster = VCenterDriver::ClusterComputeResource
                        .new_from_ref(ccr_ref, @vi_client)
 
-            cluster_info = monitor
+            cluster_info = monitor_cluster
             puts cluster_info
             raise 'vCenter cluster health is on red, check issues on vCenter' \
                 if cluster_info.include?('STATUS=red')
 
             puts monitor_host_systems
+
+            # Print VM monitor info
+            vm_monitor_info, last_perf_poll = monitor_vms(host_id)
+            if !vm_monitor_info.empty?
+                puts "VM_POLL=YES"
+                puts vm_monitor_info
+            end
+
+            # Print last VM poll for perfmanager tracking
+            puts "VCENTER_LAST_PERF_POLL=" << last_perf_poll << "\n" if last_perf_poll
 
             # Retrieve customizations
             begin
@@ -80,7 +96,7 @@ class ClusterMonitor
         end
     end
 
-    def monitor
+    def monitor_cluster
         total_cpu,
         num_cpu_cores,
         effective_cpu,
@@ -143,32 +159,9 @@ class ClusterMonitor
         str_info << monitor_resource_pools(mhz_core)
     end
 
-    def get_resource_pool_list(rp = @cluster.item.resourcePool, parent_prefix = "", rp_array = [])
-        current_rp = ""
-
-        if !parent_prefix.empty?
-            current_rp << parent_prefix
-            current_rp << "/"
-        end
-
-        resource_pool, name = rp.collect("resourcePool","name")
-        current_rp << name if name != "Resources"
-
-        resource_pool.each do |child_rp|
-            get_resource_pool_list(child_rp, current_rp, rp_array)
-        end
-
-        rp_info = {}
-        rp_info[:name] = current_rp
-        rp_info[:ref]  = rp._ref
-        rp_array << rp_info if !current_rp.empty?
-
-        rp_array
-    end
-
     def monitor_resource_pools(mhz_core)
 
-        @rp_list = get_resource_pool_list
+        @rp_list = @cluster.get_resource_pool_list
 
         view = @vi_client.vim.serviceContent.viewManager.CreateContainerView({
             container: @cluster.item, #View for RPs inside this cluster
@@ -262,7 +255,7 @@ class ClusterMonitor
 
         view.DestroyView
 
-        return rp_info
+        rp_info
     end
 
     def monitor_host_systems
@@ -302,9 +295,8 @@ class ClusterMonitor
             host_info << "]"
         end
 
-        return host_info
+        host_info
     end
-
 
     def monitor_customizations
         customizations = @cluster['_connection'].serviceContent.customizationSpecManager.info
@@ -322,257 +314,216 @@ class ClusterMonitor
         text
     end
 
-end
+    def monitor_vms(host_id)
+        vc_uuid = @vi_client.vim.serviceContent.about.instanceUuid
+        cluster_name = @cluster.item['name']
+        cluster_ref = @cluster.item
 
-# Gather VMs monitor info
-class VirtualMachineMonitor
-
-    POLL_ATTRIBUTE = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
-    VM_STATE = OpenNebula::VirtualMachine::Driver::VM_STATE
-
-    def initialize(host_id)
-        begin
-            @vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-
-            # Get CCR reference
-            client = OpenNebula::Client.new
-            host = OpenNebula::Host.new_with_id(host_id, client)
-            rc = host.info
-            if OpenNebula::is_error? rc
-                STDERR.puts rc.message
-                exit 1
-            end
-
-            ccr_ref = host['TEMPLATE/VCENTER_CCR_REF']
-
-            # Get vCenter Cluster
-            @cluster = VCenterDriver::ClusterComputeResource
-                       .new_from_ref(ccr_ref, @vi_client)
-
-            # Print VM monitor info
-            vm_monitor_info, last_perf_poll = monitor_vms(host_id)
-            if !vm_monitor_info.empty?
-                puts 'VM_POLL=YES'
-                puts vm_monitor_info
-            end
-
-            # Print last VM poll for perfmanager tracking
-            puts 'VCENTER_LAST_PERF_POLL=' << last_perf_poll << "\n" \
-                if last_perf_poll
-        rescue StandardError => e
-            STDERR.puts 'IM poll for vcenter cluster #{host_id} failed due to '\
-                        "\"#{e.message}\"\n#{e.backtrace}"
-            exit(-1)
-        ensure
-            @vi_client.close_connection if @vi_client
-        end
-    end
-
-    # Converts the VI string state to OpenNebula state convention
-    # Guest states are:
-    # - poweredOff   The virtual machine is currently powered off.
-    # - poweredOn    The virtual machine is currently powered on.
-    # - suspended    The virtual machine is currently suspended.
-    def state_to_c(state)
-        case state
-        when 'poweredOn'
-            VM_STATE[:active]
-        when 'suspended'
-            VM_STATE[:paused]
-        when 'poweredOff'
-            VM_STATE[:deleted]
-        else
-            VM_STATE[:unknown]
-        end
-    end
-
-    # monitor function used when VMM poll action is called
-    # rubocop:disable Naming/VariableName
-    # rubocop:disable Style/FormatStringToken
-    def monitor_poll_vm
-        reset_monitor
-
-        return unless get_vm_id
-
-        @state = state_to_c(self['summary.runtime.powerState'])
-
-        if @state != OpenNebula::VirtualMachine::Driver::VM_STATE[:active]
-            reset_monitor
-            return
+        # Get info of the host where the VM/template is located
+        one_host = VCenterDriver::VIHelper.one_item(OpenNebula::Host, host_id)
+        if !one_host
+            STDERR.puts "Failed to retieve host with id #{host.id}"
+            STDERR.puts e.inspect
+            STDERR.puts e.backtrace
         end
 
-        cpuMhz = self['runtime.host.summary.hardware.cpuMhz'].to_f
+        host_id = one_host["ID"] if one_host
 
-        @monitor[:used_memory] = self['summary.quickStats.hostMemoryUsage'] *
-                                 1024
+        # Extract CPU info and name for each esx host in cluster
+        esx_hosts = {}
+        @cluster.item.host.each do |esx_host|
+            info = {}
+            info[:name] = esx_host.name
+            info[:cpu]  = esx_host.summary.hardware.cpuMhz.to_f
+            esx_hosts[esx_host._ref] = info
+        end
 
-        used_cpu = self['summary.quickStats.overallCpuUsage'].to_f / cpuMhz
-        used_cpu = (used_cpu * 100).to_s
-        @monitor[:used_cpu] = format('%.2f', used_cpu).to_s
+        @monitored_vms = Set.new
+        str_info = ''
 
-        # Check for negative values
-        @monitor[:used_memory] = 0 if @monitor[:used_memory].to_i < 0
-        @monitor[:used_cpu]    = 0 if @monitor[:used_cpu].to_i < 0
+        view = @vi_client.vim.serviceContent.viewManager.CreateContainerView({
+            container: @cluster.item, #View for VMs inside this cluster
+            type:      ['VirtualMachine'],
+            recursive: true
+        })
 
-        guest_ip_addresses = []
-        unless self['guest.net'].empty?
-            self['guest.net'].each do |net|
-                next unless net.ipConfig
-                next if net.ipConfig.ipAddress.empty?
+        pc = @vi_client.vim.serviceContent.propertyCollector
 
-                net.ipConfig.ipAddress.each do |ip|
-                    guest_ip_addresses << ip.ipAddress
+        monitored_properties = [
+            "name", #VM name
+            "config.template", #To filter out templates
+            "summary.runtime.powerState", #VM power state
+            "summary.quickStats.hostMemoryUsage", #Memory usage
+            "summary.quickStats.overallCpuUsage", #CPU used by VM
+            "runtime.host", #ESX host
+            "resourcePool", #RP
+            "guest.guestFullName",
+            "guest.net", #IP addresses as seen by guest tools,
+            "guest.guestState",
+            "guest.toolsVersion",
+            "guest.toolsRunningStatus",
+            "guest.toolsVersionStatus2", #IP addresses as seen by guest tools,
+            "config.extraConfig", #VM extraconfig info e.g opennebula.vm.running
+            "config.hardware.numCPU",
+            "config.hardware.memoryMB",
+            "config.annotation",
+            "datastore"
+        ]
+
+        filterSpec = RbVmomi::VIM.PropertyFilterSpec(
+            :objectSet => [
+                :obj => view,
+                :skip => true,
+                :selectSet => [
+                RbVmomi::VIM.TraversalSpec(
+                    :name => 'traverseEntities',
+                    :type => 'ContainerView',
+                    :path => 'view',
+                    :skip => false
+                )
+                ]
+            ],
+            :propSet => [
+                { :type => 'VirtualMachine', :pathSet => monitored_properties }
+            ]
+        )
+
+        result = pc.RetrieveProperties(:specSet => [filterSpec])
+
+        vms = {}
+        vm_objects = []
+        result.each do |r|
+            hashed_properties = r.to_hash
+            if r.obj.is_a?(RbVmomi::VIM::VirtualMachine)
+                #Only take care of VMs, not templates
+                if !hashed_properties["config.template"]
+                    vms[r.obj._ref] = hashed_properties
+                    vm_objects << r.obj
                 end
             end
         end
 
-        @guest_ip_addresses = guest_ip_addresses.join(',')
-
-        pm = self['_connection'].serviceInstance.content.perfManager
-
-        provider = pm.provider_summary(@item)
-
-        refresh_rate = provider.refreshRate
+        pm = @vi_client.vim.serviceContent.perfManager
 
         stats = {}
 
-        if one_item['MONITORING/LAST_MON'] &&
-            one_item['MONITORING/LAST_MON'].to_i != 0
-            # Real time data stores max 1 hour. 1 minute has 3 samples
-            interval = (Time.now.to_i -
-                        one_item['MONITORING/LAST_MON'].to_i)
+        max_samples = 9
+        refresh_rate = 20 #Real time stats takes samples every 20 seconds
 
-             # If last poll was more than hour ago get 3 minutes,
-             # else calculate how many samples since last poll
-            if interval > 3600
-                samples = 9
-            else
-                samples = (interval / refresh_rate) + 1
-            end
-            samples > 0 ? max_samples = samples : max_samples = 1
+        last_mon_time = one_host["TEMPLATE/VCENTER_LAST_PERF_POLL"]
 
+        if last_mon_time
+            interval = (Time.now.to_i - last_mon_time.to_i)
+            interval = 3601 if interval < 0
+            samples = (interval / refresh_rate)
+            samples = 1 if samples == 0
+            max_samples =  interval > 3600 ? 9 : samples
+        end
+
+        if !vm_objects.empty?
             stats = pm.retrieve_stats(
-                [@item],
-                ['net.transmitted', 'net.bytesRx', 'net.bytesTx',
-                 'net.received', 'virtualDisk.numberReadAveraged',
-                 'virtualDisk.numberWriteAveraged', 'virtualDisk.read',
-                 'virtualDisk.write'],
-                interval => refresh_rate, max_samples => max_samples
-            ) rescue {}
-        else
-            # First poll, get at least latest 3 minutes = 9 samples
-            stats = pm.retrieve_stats(
-                [@item],
-                ['net.transmitted', 'net.bytesRx', 'net.bytesTx',
-                 'net.received', 'virtualDisk.numberReadAveraged',
-                 'virtualDisk.numberWriteAveraged', 'virtualDisk.read',
-                 'virtualDisk.write'],
-                interval => refresh_rate, max_samples => 9
+                    vm_objects,
+                    ['net.transmitted','net.bytesRx','net.bytesTx','net.received',
+                    'virtualDisk.numberReadAveraged','virtualDisk.numberWriteAveraged',
+                    'virtualDisk.read','virtualDisk.write'],
+                    {max_samples: max_samples}
             ) rescue {}
         end
 
-        if !stats.empty? && !stats.first[1][:metrics].empty?
-            metrics = stats.first[1][:metrics]
+        if !stats.empty?
+            last_mon_time = Time.now.to_i.to_s
+        end
 
-            nettx_kbpersec = 0
-            if metrics['net.transmitted']
-                metrics['net.transmitted'].each do |sample|
-                    nettx_kbpersec += sample if sample > 0
+        @cluster.get_resource_pool_list if !@rp_list
+
+        vm_pool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualMachinePool)
+
+        # opts common to all vms
+        opts = {
+            pool: vm_pool,
+            vc_uuid: vc_uuid,
+        }
+
+        vms.each do |vm_ref,info|
+            @vm_info = ""
+            begin
+                esx_host = esx_hosts[info["runtime.host"]._ref]
+                info[:esx_host_name] = esx_host[:name]
+                info[:esx_host_cpu] = esx_host[:cpu]
+                info[:cluster_name] = cluster_name
+                info[:cluster_ref] = cluster_ref
+                info[:vc_uuid] = vc_uuid
+                info[:host_id] = host_id
+                info[:rp_list] = @rp_list
+
+                # Check the running flag
+                running_flag = info["config.extraConfig"].select do |val|
+                    val[:key] == "opennebula.vm.running"
                 end
+
+                if !running_flag.empty? && running_flag.first
+                    running_flag = running_flag[0][:value]
+                end
+
+                next if running_flag == "no"
+
+                # retrieve vcenter driver machine
+                @vm = VCenterDriver::VirtualMachine.new_from_ref(@vi_client, vm_ref, info["name"], opts)
+                id = @vm.get_vm_id
+
+                #skip if it's already monitored
+                if @vm.one_exist?
+                    next if @monitored_vms.include? id
+                    @monitored_vms << id
+                end
+
+                @vm.vm_info = info
+                monitor(stats)
+
+                vm_name = "#{info["name"]} - #{cluster_name}"
+                @vm_info << %Q{
+                VM = [
+                    ID="#{id}",
+                    VM_NAME="#{vm_name}",
+                    DEPLOY_ID="#{vm_ref}",
+                }
+
+                # if the machine does not exist in opennebula it means that is a wild:
+                unless @vm.one_exist?
+                    vm_template_64 = Base64.encode64(@vm.vm_to_one(vm_name)).gsub("\n","")
+                    @vm_info << "VCENTER_TEMPLATE=\"YES\","
+                    @vm_info << "IMPORT_TEMPLATE=\"#{vm_template_64}\","
+                end
+
+                #@vm_info << "POLL=\"#{info.gsub('"', "\\\"")}\"]"
+            rescue StandardError => e
+                @vm_info = error_monitoring(e, vm_ref, info)
             end
 
-            netrx_kbpersec = 0
-            if metrics['net.bytesRx']
-                metrics['net.bytesRx'].each do |sample|
-                    netrx_kbpersec += sample if sample > 0
-                end
-            end
-
-            read_kbpersec = 0
-            if metrics['virtualDisk.read']
-                metrics['virtualDisk.read'].each do |sample|
-                    read_kbpersec += sample if sample > 0
-                end
-            end
-
-            read_iops = 0
-            if metrics['virtualDisk.numberReadAveraged']
-                metrics['virtualDisk.numberReadAveraged'].each do |sample|
-                    read_iops += sample if sample > 0
-                end
-            end
-
-            write_kbpersec = 0
-            if metrics['virtualDisk.write']
-                metrics['virtualDisk.write'].each do |sample|
-                    write_kbpersec += sample if sample > 0
-                end
-            end
-
-            write_iops = 0
-            if metrics['virtualDisk.numberWriteAveraged']
-                metrics['virtualDisk.numberWriteAveraged'].each do |sample|
-                    write_iops += sample if sample > 0
-                end
-            end
-
-        else
-            nettx_kbpersec = 0
-            netrx_kbpersec = 0
-            read_kbpersec = 0
-            read_iops = 0
-            write_kbpersec = 0
-            write_iops = 0
+            str_info << @vm_info
         end
 
-        # Accumulate values if present
-        if @one_item && @one_item['MONITORING/NETTX']
-            previous_nettx = @one_item['MONITORING/NETTX'].to_i
-        else
-            previous_nettx = 0
-        end
+        view.DestroyView # Destroy the view
 
-        if @one_item && @one_item['MONITORING/NETRX']
-            previous_netrx = @one_item['MONITORING/NETRX'].to_i
-        else
-            previous_netrx = 0
-        end
+        return str_info, last_mon_time
+    end
 
-        if @one_item && @one_item['MONITORING/DISKRDIOPS']
-            previous_diskrdiops = @one_item['MONITORING/DISKRDIOPS'].to_i
-        else
-            previous_diskrdiops = 0
-        end
+    def error_monitoring(e, vm_ref, info = {})
+        error_info = ''
+        vm_name = info['name'] || nil
+        tmp_str = e.inspect
+        tmp_str << e.backtrace.join("\n")
 
-        if @one_item && @one_item['MONITORING/DISKWRIOPS']
-            previous_diskwriops = @one_item['MONITORING/DISKWRIOPS'].to_i
-        else
-            previous_diskwriops = 0
-        end
+        error_info << %Q{
+        VM = [
+            VM_NAME="#{vm_name}",
+            DEPLOY_ID="#{vm_ref}",
+        }
 
-        if @one_item && @one_item['MONITORING/DISKRDBYTES']
-            previous_diskrdbytes = @one_item['MONITORING/DISKRDBYTES'].to_i
-        else
-            previous_diskrdbytes = 0
-        end
+        # error_info << "ERROR=\"#{Base64.encode64(tmp_str).gsub("\n","")}\"]"
 
-        if @one_item && @one_item['MONITORING/DISKWRBYTES']
-            previous_diskwrbytes = @one_item['MONITORING/DISKWRBYTES'].to_i
-        else
-            previous_diskwrbytes = 0
-        end
+        error_info << "ERROR=\"#{tmp_str}\""
 
-        @monitor[:nettx] = previous_nettx +
-                        (nettx_kbpersec * 1024 * refresh_rate).to_i
-        @monitor[:netrx] = previous_netrx +
-                        (netrx_kbpersec * 1024 * refresh_rate).to_i
-
-        @monitor[:diskrdiops]  = previous_diskrdiops + read_iops
-        @monitor[:diskwriops]  = previous_diskwriops + write_iops
-        @monitor[:diskrdbytes] = previous_diskrdbytes +
-                                (read_kbpersec * 1024 * refresh_rate).to_i
-        @monitor[:diskwrbytes] = previous_diskwrbytes +
-                                (write_kbpersec * 1024 * refresh_rate).to_i
     end
 
     # monitor function used when poll action is called for all vms
@@ -831,6 +782,279 @@ class VirtualMachineMonitor
         }
     end
 
+    # Converts the VI string state to OpenNebula state convention
+    # Guest states are:
+    # - poweredOff   The virtual machine is currently powered off.
+    # - poweredOn    The virtual machine is currently powered on.
+    # - suspended    The virtual machine is currently suspended.
+    def state_to_c(state)
+        case state
+        when 'poweredOn'
+            VM_STATE[:active]
+        when 'suspended'
+            VM_STATE[:paused]
+        when 'poweredOff'
+            VM_STATE[:deleted]
+        else
+            VM_STATE[:unknown]
+        end
+    end
+
+
+end
+
+# Gather VMs monitor info
+class VirtualMachineMonitor
+
+    POLL_ATTRIBUTE = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
+    VM_STATE = OpenNebula::VirtualMachine::Driver::VM_STATE
+
+    def initialize(host_id)
+        begin
+            @vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+
+            # Get CCR reference
+            client = OpenNebula::Client.new
+            host = OpenNebula::Host.new_with_id(host_id, client)
+            rc = host.info
+            if OpenNebula::is_error? rc
+                STDERR.puts rc.message
+                exit 1
+            end
+
+            ccr_ref = host['TEMPLATE/VCENTER_CCR_REF']
+
+            # Get vCenter Cluster
+            @cluster = VCenterDriver::ClusterComputeResource
+                       .new_from_ref(ccr_ref, @vi_client)
+
+            # Print VM monitor info
+            vm_monitor_info, last_perf_poll = monitor_vms(host_id)
+            if !vm_monitor_info.empty?
+                puts 'VM_POLL=YES'
+                puts vm_monitor_info
+            end
+
+            # Print last VM poll for perfmanager tracking
+            puts 'VCENTER_LAST_PERF_POLL=' << last_perf_poll << "\n" \
+                if last_perf_poll
+        rescue StandardError => e
+            STDERR.puts 'IM poll for vcenter cluster #{host_id} failed due to '\
+                        "\"#{e.message}\"\n#{e.backtrace}"
+            exit(-1)
+        ensure
+            @vi_client.close_connection if @vi_client
+        end
+    end
+
+    # Converts the VI string state to OpenNebula state convention
+    # Guest states are:
+    # - poweredOff   The virtual machine is currently powered off.
+    # - poweredOn    The virtual machine is currently powered on.
+    # - suspended    The virtual machine is currently suspended.
+    def state_to_c(state)
+        case state
+        when 'poweredOn'
+            VM_STATE[:active]
+        when 'suspended'
+            VM_STATE[:paused]
+        when 'poweredOff'
+            VM_STATE[:deleted]
+        else
+            VM_STATE[:unknown]
+        end
+    end
+
+    # monitor function used when VMM poll action is called
+    # rubocop:disable Naming/VariableName
+    # rubocop:disable Style/FormatStringToken
+    def monitor_poll_vm
+        reset_monitor
+
+        return unless get_vm_id
+
+        @state = state_to_c(self['summary.runtime.powerState'])
+
+        if @state != OpenNebula::VirtualMachine::Driver::VM_STATE[:active]
+            reset_monitor
+            return
+        end
+
+        cpuMhz = self['runtime.host.summary.hardware.cpuMhz'].to_f
+
+        @monitor[:used_memory] = self['summary.quickStats.hostMemoryUsage'] *
+                                 1024
+
+        used_cpu = self['summary.quickStats.overallCpuUsage'].to_f / cpuMhz
+        used_cpu = (used_cpu * 100).to_s
+        @monitor[:used_cpu] = format('%.2f', used_cpu).to_s
+
+        # Check for negative values
+        @monitor[:used_memory] = 0 if @monitor[:used_memory].to_i < 0
+        @monitor[:used_cpu]    = 0 if @monitor[:used_cpu].to_i < 0
+
+        guest_ip_addresses = []
+        unless self['guest.net'].empty?
+            self['guest.net'].each do |net|
+                next unless net.ipConfig
+                next if net.ipConfig.ipAddress.empty?
+
+                net.ipConfig.ipAddress.each do |ip|
+                    guest_ip_addresses << ip.ipAddress
+                end
+            end
+        end
+
+        @guest_ip_addresses = guest_ip_addresses.join(',')
+
+        pm = self['_connection'].serviceInstance.content.perfManager
+
+        provider = pm.provider_summary(@item)
+
+        refresh_rate = provider.refreshRate
+
+        stats = {}
+
+        if one_item['MONITORING/LAST_MON'] &&
+            one_item['MONITORING/LAST_MON'].to_i != 0
+            # Real time data stores max 1 hour. 1 minute has 3 samples
+            interval = (Time.now.to_i -
+                        one_item['MONITORING/LAST_MON'].to_i)
+
+             # If last poll was more than hour ago get 3 minutes,
+             # else calculate how many samples since last poll
+            if interval > 3600
+                samples = 9
+            else
+                samples = (interval / refresh_rate) + 1
+            end
+            samples > 0 ? max_samples = samples : max_samples = 1
+
+            stats = pm.retrieve_stats(
+                [@item],
+                ['net.transmitted', 'net.bytesRx', 'net.bytesTx',
+                 'net.received', 'virtualDisk.numberReadAveraged',
+                 'virtualDisk.numberWriteAveraged', 'virtualDisk.read',
+                 'virtualDisk.write'],
+                interval => refresh_rate, max_samples => max_samples
+            ) rescue {}
+        else
+            # First poll, get at least latest 3 minutes = 9 samples
+            stats = pm.retrieve_stats(
+                [@item],
+                ['net.transmitted', 'net.bytesRx', 'net.bytesTx',
+                 'net.received', 'virtualDisk.numberReadAveraged',
+                 'virtualDisk.numberWriteAveraged', 'virtualDisk.read',
+                 'virtualDisk.write'],
+                interval => refresh_rate, max_samples => 9
+            ) rescue {}
+        end
+
+        if !stats.empty? && !stats.first[1][:metrics].empty?
+            metrics = stats.first[1][:metrics]
+
+            nettx_kbpersec = 0
+            if metrics['net.transmitted']
+                metrics['net.transmitted'].each do |sample|
+                    nettx_kbpersec += sample if sample > 0
+                end
+            end
+
+            netrx_kbpersec = 0
+            if metrics['net.bytesRx']
+                metrics['net.bytesRx'].each do |sample|
+                    netrx_kbpersec += sample if sample > 0
+                end
+            end
+
+            read_kbpersec = 0
+            if metrics['virtualDisk.read']
+                metrics['virtualDisk.read'].each do |sample|
+                    read_kbpersec += sample if sample > 0
+                end
+            end
+
+            read_iops = 0
+            if metrics['virtualDisk.numberReadAveraged']
+                metrics['virtualDisk.numberReadAveraged'].each do |sample|
+                    read_iops += sample if sample > 0
+                end
+            end
+
+            write_kbpersec = 0
+            if metrics['virtualDisk.write']
+                metrics['virtualDisk.write'].each do |sample|
+                    write_kbpersec += sample if sample > 0
+                end
+            end
+
+            write_iops = 0
+            if metrics['virtualDisk.numberWriteAveraged']
+                metrics['virtualDisk.numberWriteAveraged'].each do |sample|
+                    write_iops += sample if sample > 0
+                end
+            end
+
+        else
+            nettx_kbpersec = 0
+            netrx_kbpersec = 0
+            read_kbpersec = 0
+            read_iops = 0
+            write_kbpersec = 0
+            write_iops = 0
+        end
+
+        # Accumulate values if present
+        if @one_item && @one_item['MONITORING/NETTX']
+            previous_nettx = @one_item['MONITORING/NETTX'].to_i
+        else
+            previous_nettx = 0
+        end
+
+        if @one_item && @one_item['MONITORING/NETRX']
+            previous_netrx = @one_item['MONITORING/NETRX'].to_i
+        else
+            previous_netrx = 0
+        end
+
+        if @one_item && @one_item['MONITORING/DISKRDIOPS']
+            previous_diskrdiops = @one_item['MONITORING/DISKRDIOPS'].to_i
+        else
+            previous_diskrdiops = 0
+        end
+
+        if @one_item && @one_item['MONITORING/DISKWRIOPS']
+            previous_diskwriops = @one_item['MONITORING/DISKWRIOPS'].to_i
+        else
+            previous_diskwriops = 0
+        end
+
+        if @one_item && @one_item['MONITORING/DISKRDBYTES']
+            previous_diskrdbytes = @one_item['MONITORING/DISKRDBYTES'].to_i
+        else
+            previous_diskrdbytes = 0
+        end
+
+        if @one_item && @one_item['MONITORING/DISKWRBYTES']
+            previous_diskwrbytes = @one_item['MONITORING/DISKWRBYTES'].to_i
+        else
+            previous_diskwrbytes = 0
+        end
+
+        @monitor[:nettx] = previous_nettx +
+                        (nettx_kbpersec * 1024 * refresh_rate).to_i
+        @monitor[:netrx] = previous_netrx +
+                        (netrx_kbpersec * 1024 * refresh_rate).to_i
+
+        @monitor[:diskrdiops]  = previous_diskrdiops + read_iops
+        @monitor[:diskwriops]  = previous_diskwriops + write_iops
+        @monitor[:diskrdbytes] = previous_diskrdbytes +
+                                (read_kbpersec * 1024 * refresh_rate).to_i
+        @monitor[:diskwrbytes] = previous_diskwrbytes +
+                                (write_kbpersec * 1024 * refresh_rate).to_i
+    end
+
+
     def monitor_vms(host_id)
         vc_uuid = @vi_client.vim.serviceContent.about.instanceUuid
         cluster_name = @cluster.item['name']
@@ -1041,30 +1265,6 @@ class VirtualMachineMonitor
 
     end
 
-    def get_resource_pool_list(rp = @cluster.item.resourcePool, parent_prefix = "", rp_array = [])
-        current_rp = ""
-
-        if !parent_prefix.empty?
-            current_rp << parent_prefix
-            current_rp << "/"
-        end
-
-        resource_pool, name = rp.collect("resourcePool","name")
-        current_rp << name if name != "Resources"
-
-        resource_pool.each do |child_rp|
-            get_resource_pool_list(child_rp, current_rp, rp_array)
-        end
-
-        rp_info = {}
-        rp_info[:name] = current_rp
-        rp_info[:ref]  = rp._ref
-        rp_array << rp_info if !current_rp.empty?
-
-        rp_array
-    end
-
-
 end
 
 # Gather datastore info
@@ -1109,40 +1309,6 @@ class DatastoreMonitor
             monitor << "VCENTER_DS_REF=\"#{ref}\"\n"
         end
         monitor
-    end
-
-end
-
-class WildMonitor
-
-    def initialize(host_id)
-        begin
-            @vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-
-            # Get CCR reference
-            client = OpenNebula::Client.new
-            host = OpenNebula::Host.new_with_id(host_id, client)
-            rc = host.info
-            if OpenNebula::is_error? rc
-                STDERR.puts rc.message
-                exit 1
-            end
-
-            ccr_ref = host['TEMPLATE/VCENTER_CCR_REF']
-
-            # Get vCenter Cluster
-            @cluster = VCenterDriver::ClusterComputeResource
-                       .new_from_ref(ccr_ref, @vi_client)
-
-            # Print Datastore information
-
-        rescue StandardError => e
-            STDERR.puts 'IM poll for vcenter cluster #{host_id} failed due to '\
-                        "\"#{e.message}\"\n#{e.backtrace}"
-            exit(-1)
-        ensure
-            @vi_client.close_connection if @vi_client
-        end
     end
 
 end
