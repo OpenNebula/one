@@ -228,7 +228,8 @@ SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/websockify \
             $SHARE_LOCATION/websockify/websockify \
             $SHARE_LOCATION/esx-fw-vnc \
-            $SHARE_LOCATION/oneprovision"
+            $SHARE_LOCATION/oneprovision \
+            $SHARE_LOCATION/start-scripts"
 
 ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/hm \
@@ -609,6 +610,7 @@ INSTALL_FILES=(
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
     ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
     VENDOR_DIRS:$LIB_LOCATION/ruby/vendors
+    START_SCRIPT_SHARE_FILES:$SHARE_LOCATION/start-scripts
 )
 
 INSTALL_CLIENT_FILES=(
@@ -1922,6 +1924,13 @@ INSTALL_GEMS_SHARE_FILES="share/install_gems/install_gems \
 ONETOKEN_SHARE_FILE="share/onetoken/onetoken.sh"
 
 FOLLOWER_CLEANUP_SHARE_FILE="share/hooks/raft/follower_cleanup"
+
+#-------------------------------------------------------------------------------
+# Start script files, to be installed under $SHARE_LOCATION/start-scripts
+#-------------------------------------------------------------------------------
+
+START_SCRIPT_SHARE_FILES="share/start-scripts/map_vnets_start_script \
+                          share/start-scripts/cron_start_script"
 
 #-------------------------------------------------------------------------------
 # OCA Files
