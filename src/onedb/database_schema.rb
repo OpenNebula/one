@@ -98,12 +98,12 @@ class OneDBBacKEnd
                 "body MEDIUMTEXT, uid INTEGER, gid INTEGER," <<
                 "owner_u INTEGER, group_u INTEGER, other_u INTEGER",
 
-            index_sql: ["CREATE INDEX IF NOT EXISTS state_oid_idx ON vm_pool (state, oid);",
-                        "CREATE FULLTEXT INDEX IF NOT EXISTS ftidx ON vm_pool(search_token);",
-                        "CREATE INDEX IF NOT EXISTS applied_idx ON logdb (applied);"],
+            index_sql: [{ :name =>'INDEX state_oid_idx', :table => 'vm_pool', :columns => '(state, oid)' },
+                        { :name =>'INDEX ftidx', :table => 'vm_pool', :columns => '(search_token)', :type => 'FULLTEXT' },
+                        { :name =>'INDEX applied_idx', :table => 'logdb', :columns => '(applied)' }],
 
-            index_sqlite: ["CREATE INDEX IF NOT EXISTS state_oid_idx ON vm_pool (state, oid);",
-                           "CREATE INDEX IF NOT EXISTS applied_idx ON logdb (applied);"]
+            index_sqlite: [{ :name =>'INDEX state_oid_idx', :table => 'vm_pool', :columns => '(state, oid)' },
+                           { :name =>'INDEX applied_idx', :table => 'logdb', :columns => '(applied)' }]
         },
         "5.10.0" => {
             logdb: "log_index BIGINT UNSIGNED PRIMARY KEY, term INTEGER, sqlcmd MEDIUMTEXT, " <<
@@ -162,11 +162,6 @@ class OneDBBacKEnd
         end
 
         schema = SCHEMA[type] if !schema
-
-        if !schema
-            STDERR.puts "Schema not found (#{type}) for version #{version}"
-            exit(-1)
-        end
 
         schema
     end

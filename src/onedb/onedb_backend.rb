@@ -421,7 +421,28 @@ class BackEndMySQL < OneDBBacKEnd
         schema = get_schema(type, version)
 
         schema.each do |idx|
-            @db.run idx
+            query = 'CREATE '
+            query << idx[:type] if idx[:type]
+            query << " #{idx[:name]} ON #{idx[:table]} #{idx[:columns]};"
+
+            @db.run query
+        end
+    end
+
+    def delete_idx(version = nil)
+        type = :index_sql
+
+        type = :index_sqlite unless @db.server_version >= 50600
+
+        schema = get_schema(type, version)
+
+        return unless schema
+
+        schema.each do |idx|
+            query = 'DROP '
+            query << "#{idx[:name]} ON #{idx[:table]} ;"
+
+            @db.run query
         end
     end
 
@@ -559,7 +580,24 @@ class BackEndSQLite < OneDBBacKEnd
         schema = get_schema(type, version)
 
         schema.each do |idx|
-            @db.run idx
+            query = 'CREATE '
+            query << idx[:type] if idx[:type]
+            query << " #{idx[:name]} ON #{idx[:table]} #{idx[:columns]};"
+
+            @db.run query
+        end
+    end
+
+    def delete_idx(version = nil)
+        type = :index_sqlite
+
+        schema = get_schema(type, version)
+
+        schema.each do |idx|
+            query = 'DROP '
+            query << " #{idx[:name]};"
+
+            @db.run query
         end
     end
 
