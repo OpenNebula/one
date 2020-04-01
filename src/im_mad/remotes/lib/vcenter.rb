@@ -40,6 +40,7 @@ require 'vcenter_driver'
 # Gather vCenter cluster monitor info
 class ClusterMonitor
 
+    POLL_ATTRIBUTE = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
     VM_STATE = OpenNebula::VirtualMachine::Driver::VM_STATE
 
 
@@ -76,7 +77,7 @@ class ClusterMonitor
                 puts vm_monitor_info
             end
 
-            # Print last VM poll for perfmanager tracking
+            # # Print last VM poll for perfmanager tracking
             puts "VCENTER_LAST_PERF_POLL=" << last_perf_poll << "\n" if last_perf_poll
 
             # Retrieve customizations
@@ -142,19 +143,19 @@ class ClusterMonitor
         # CPU
         str_info << 'CPUSPEED=' << mhz_core.to_s   << "\n"
         str_info << 'TOTALCPU=' << total_cpu.to_s << "\n"
-        str_info << 'USEDCPU='  << used_cpu.to_s  << "\n"
-        str_info << 'FREECPU='  << free_cpu.to_s << "\n"
+        str_info << 'USEDCPU=' << used_cpu.to_s  << "\n"
+        str_info << 'FREECPU=' << free_cpu.to_s << "\n"
 
         # Memory
         str_info << 'TOTALMEMORY=' << total_mem.to_s << "\n"
-        str_info << 'FREEMEMORY='  << free_mem.to_s << "\n"
-        str_info << 'USEDMEMORY='  << (total_mem - free_mem).to_s << "\n"
+        str_info << 'FREEMEMORY=' << free_mem.to_s << "\n"
+        str_info << 'USEDMEMORY=' << (total_mem - free_mem).to_s << "\n"
 
         # DRS enabled
-        str_info << 'VCENTER_DRS='  << drs_enabled.to_s << "\n"
+        str_info << 'VCENTER_DRS=' << drs_enabled.to_s << "\n"
 
         # HA enabled
-        str_info << 'VCENTER_HA='  << ha_enabled.to_s << "\n"
+        str_info << 'VCENTER_HA=' << ha_enabled.to_s << "\n"
 
         str_info << monitor_resource_pools(mhz_core)
     end
@@ -445,7 +446,7 @@ class ClusterMonitor
         }
 
         vms.each do |vm_ref,info|
-            @vm_info = ""
+            vm_info = ''
             begin
                 esx_host = esx_hosts[info["runtime.host"]._ref]
                 info[:esx_host_name] = esx_host[:name]
@@ -481,7 +482,7 @@ class ClusterMonitor
                 monitor(stats)
 
                 vm_name = "#{info["name"]} - #{cluster_name}"
-                @vm_info << %Q{
+                vm_info << %Q{
                 VM = [
                     ID="#{id}",
                     VM_NAME="#{vm_name}",
@@ -491,16 +492,17 @@ class ClusterMonitor
                 # if the machine does not exist in opennebula it means that is a wild:
                 unless @vm.one_exist?
                     vm_template_64 = Base64.encode64(@vm.vm_to_one(vm_name)).gsub("\n","")
-                    @vm_info << "VCENTER_TEMPLATE=\"YES\","
-                    @vm_info << "IMPORT_TEMPLATE=\"#{vm_template_64}\","
+                    vm_info << "VCENTER_TEMPLATE=\"YES\","
+                    vm_info << "IMPORT_TEMPLATE=\"#{vm_template_64}\","
                 end
 
-                #@vm_info << "POLL=\"#{info.gsub('"', "\\\"")}\"]"
+                vm_info << "POLL=\"#{self.info.gsub('"', "\\\"")}\"]"
+
             rescue StandardError => e
-                @vm_info = error_monitoring(e, vm_ref, info)
+                vm_info = error_monitoring(e, vm_ref, info)
             end
 
-            str_info << @vm_info
+            str_info << vm_info
         end
 
         view.DestroyView # Destroy the view
@@ -532,16 +534,16 @@ class ClusterMonitor
 
         refresh_rate = 20 # 20 seconds between samples (realtime)
 
-        @state = state_to_c(@vm_info['summary.runtime.powerState'])
+        @state = state_to_c(@vm.vm_info['summary.runtime.powerState'])
 
         return if @state != VM_STATE[:active]
 
-        cpuMhz =  @vm_info[:esx_host_cpu]
+        cpuMhz =  @vm.vm_info[:esx_host_cpu]
 
-        @monitor[:used_memory] = @vm_info['summary.quickStats.hostMemoryUsage']
+        @monitor[:used_memory] = @vm.vm_info['summary.quickStats.hostMemoryUsage']
                                     .to_i * 1024
 
-        used_cpu = @vm_info['summary.quickStats.overallCpuUsage'].to_f / cpuMhz
+        used_cpu = @vm.vm_info['summary.quickStats.overallCpuUsage'].to_f / cpuMhz
         used_cpu = (used_cpu * 100).to_s
         @monitor[:used_cpu] = format('%.2f', used_cpu).to_s
 
@@ -550,8 +552,8 @@ class ClusterMonitor
         @monitor[:used_cpu]    = 0 if @monitor[:used_cpu].to_i < 0
 
         guest_ip_addresses = []
-        unless self['guest.net'].empty?
-            @vm_info['guest.net'].each do |net|
+        unless @vm['guest.net'].empty?
+            @vm.vm_info['guest.net'].each do |net|
                 next unless net.ipConfig
                 next if net.ipConfig.ipAddress.empty?
 
@@ -672,10 +674,10 @@ class ClusterMonitor
     def info
         return 'STATE=d' if @state == 'd'
 
-        if @vm_info
-            guest_ip = @vm_info['guest.ipAddress']
+        if @vm.vm_info
+            guest_ip = @vm.vm_info['guest.ipAddress']
         else
-            guest_ip = self['guest.ipAddress']
+            guest_ip = @vm['guest.ipAddress']
         end
 
         used_cpu    = @monitor[:used_cpu]
@@ -687,56 +689,56 @@ class ClusterMonitor
         diskrdiops  = @monitor[:diskrdiops]
         diskwriops  = @monitor[:diskwriops]
 
-        if @vm_info
-            esx_host = @vm_info[:esx_host_name].to_s
+        if @vm.vm_info
+            esx_host = @vm.vm_info[:esx_host_name].to_s
         else
-            esx_host = self['runtime.host.name'].to_s
+            esx_host = @vm['runtime.host.name'].to_s
         end
 
-        if @vm_info
-            guest_state = @vm_info['guest.guestState'].to_s
+        if @vm.vm_info
+            guest_state = @vm.vm_info['guest.guestState'].to_s
         else
-            guest_state = self['guest.guestState'].to_s
+            guest_state = @vm['guest.guestState'].to_s
         end
 
-        if @vm_info
-            vmware_tools = @vm_info['guest.toolsRunningStatus'].to_s
+        if @vm.vm_info
+            vmware_tools = @vm.vm_info['guest.toolsRunningStatus'].to_s
         else
-            vmware_tools = self['guest.toolsRunningStatus'].to_s
+            vmware_tools = @vm['guest.toolsRunningStatus'].to_s
         end
 
-        if @vm_info
-            vm_name = @vm_info['name'].to_s
+        if @vm.vm_info
+            vm_name = @vm.vm_info['name'].to_s
         else
-            vm_name = self['name'].to_s
+            vm_name = @vm['name'].to_s
         end
 
-        if @vm_info
-            vmtools_ver = @vm_info['guest.toolsVersion'].to_s
+        if @vm.vm_info
+            vmtools_ver = @vm.vm_info['guest.toolsVersion'].to_s
         else
-            vmtools_ver = self['guest.toolsVersion'].to_s
+            vmtools_ver = @vm['guest.toolsVersion'].to_s
         end
 
-        if @vm_info
-            vmtools_verst = @vm_info['guest.toolsVersionStatus2'].to_s
+        if @vm.vm_info
+            vmtools_verst = @vm.vm_info['guest.toolsVersionStatus2'].to_s
         else
-            vmtools_verst = self['guest.toolsVersionStatus2'].to_s
+            vmtools_verst = @vm['guest.toolsVersionStatus2'].to_s
         end
 
-        if @vm_info
-            # rp_name = @vm_info[:rp_list]
+        if @vm.vm_info
+            # rp_name = @vm.vm_info[:rp_list]
             #           .select {|item|
-            #               item[:ref] == @vm_info['resourcePool']._ref
+            #               item[:ref] == @vm.vm_info['resourcePool']._ref
             #           }.first[:name] rescue ''
-            rp_name = @vm_info[:rp_list]
+            rp_name = @vm.vm_info[:rp_list]
                         .select do |item|
-                            item[:ref] == @vm_info['resourcePool']._ref
+                            item[:ref] == @vm.vm_info['resourcePool']._ref
                         end
                         .first[:name] rescue ''
 
             rp_name = 'Resources' if rp_name.empty?
         else
-            rp_name = self['resourcePool'].name
+            rp_name = @vm['resourcePool'].name
         end
 
         str_info = ''
@@ -873,19 +875,19 @@ class VirtualMachineMonitor
 
         return unless get_vm_id
 
-        @state = state_to_c(self['summary.runtime.powerState'])
+        @state = state_to_c(@vm['summary.runtime.powerState'])
 
         if @state != OpenNebula::VirtualMachine::Driver::VM_STATE[:active]
             reset_monitor
             return
         end
 
-        cpuMhz = self['runtime.host.summary.hardware.cpuMhz'].to_f
+        cpuMhz = @vm['runtime.host.summary.hardware.cpuMhz'].to_f
 
-        @monitor[:used_memory] = self['summary.quickStats.hostMemoryUsage'] *
+        @monitor[:used_memory] = @vm['summary.quickStats.hostMemoryUsage'] *
                                  1024
 
-        used_cpu = self['summary.quickStats.overallCpuUsage'].to_f / cpuMhz
+        used_cpu = @vm['summary.quickStats.overallCpuUsage'].to_f / cpuMhz
         used_cpu = (used_cpu * 100).to_s
         @monitor[:used_cpu] = format('%.2f', used_cpu).to_s
 
@@ -894,8 +896,8 @@ class VirtualMachineMonitor
         @monitor[:used_cpu]    = 0 if @monitor[:used_cpu].to_i < 0
 
         guest_ip_addresses = []
-        unless self['guest.net'].empty?
-            self['guest.net'].each do |net|
+        unless @vm['guest.net'].empty?
+            @vm['guest.net'].each do |net|
                 next unless net.ipConfig
                 next if net.ipConfig.ipAddress.empty?
 
@@ -907,7 +909,7 @@ class VirtualMachineMonitor
 
         @guest_ip_addresses = guest_ip_addresses.join(',')
 
-        pm = self['_connection'].serviceInstance.content.perfManager
+        pm = @vm['_connection'].serviceInstance.content.perfManager
 
         provider = pm.provider_summary(@item)
 
