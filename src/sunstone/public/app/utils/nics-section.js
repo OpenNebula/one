@@ -144,7 +144,6 @@ define(function(require) {
       var that = this;
 
       if( $("input#"+that.id+"_network_mode", $(this)).prop("checked") ){
-        nic = {};
         nic["NETWORK_MODE"] = "auto";
         var req = $("input#"+that.id+"_SCHED_REQUIREMENTS", $(this)).val();
         var rank = $("input#"+that.id+"_SCHED_RANK", $(this)).val();
