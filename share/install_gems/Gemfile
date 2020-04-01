@@ -28,8 +28,10 @@ end
 if RUBY_VERSION < '2.2.0'
     gem 'rack', '< 2.0.0'                 # sunstone, cloud, oneflow
     gem 'minitest', '< 5.12.0'            # packethost
+    gem 'pg', '< 1.2.0'                   # onedb
 else
     gem 'rack'                            # sunstone, cloud, oneflow
+    gem 'pg'                              # onedb
 end
 
 if RUBY_VERSION >= '2.4.0'
