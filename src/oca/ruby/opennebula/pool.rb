@@ -112,7 +112,7 @@ module OpenNebula
             hash = {}
 
             # Get all existing Object IDs
-            ids = xmldoc.retrieve_elements("#{root_elem}/ID")
+            ids = xmldoc.retrieve_elements('/MONITORING_DATA/MONITORING/ID')
 
             if ids.nil?
                 return hash
