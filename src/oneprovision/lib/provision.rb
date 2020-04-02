@@ -300,7 +300,7 @@ module OneProvision
                         x = Utils.evaluate_erb(self, x)
 
                         OneProvisionLogger.debug(
-                            "Creating #{r.delete_suffix('s')} #{x['name']}"
+                            "Creating #{r[0..-2]} #{x['name']}"
                         )
 
                         obj.create(cid.to_i, x, driver, @id, @name)
@@ -329,7 +329,7 @@ module OneProvision
                         x = Utils.evaluate_erb(self, x)
 
                         OneProvisionLogger.debug(
-                            "Creating #{r.delete_suffix('s')} #{x['name']}"
+                            "Creating #{r[0..-2]} #{x['name']}"
                         )
 
                         obj.create(x, @id)
