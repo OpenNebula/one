@@ -277,6 +277,9 @@ class AzureDriver
         @compute_client.virtual_machines.start(@rgroup_name, i.name)
     end
 
+    #---------------------------------------------------------------------------
+    #  Monitor Interface
+    #---------------------------------------------------------------------------
     def probe_host_system
         probe_host_system(@db, @az_conf[:cache_expire])
     end
@@ -286,7 +289,7 @@ class AzureDriver
     end
 
     def vms_data
-        vms_data(@db, @az_conf[:cache_expire], false)
+        vms_data(@db, @az_conf[:cache_expire])
     end
 
     #---------------------------------------------------------------------------
