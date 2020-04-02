@@ -593,6 +593,8 @@ class BackEndSQLite < OneDBBacKEnd
 
         schema = get_schema(type, version)
 
+        return unless schema
+
         schema.each do |idx|
             query = 'DROP '
             query << " #{idx[:name]};"
