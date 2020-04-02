@@ -29,8 +29,9 @@ else
     VAR_LOCATION      ||= ONE_LOCATION + '/var/' if !defined?(VAR_LOCATION)
 end
 
-AZ_DRIVER_CONF = "#{ETC_LOCATION}/az_driver.conf"
+AZ_DRIVER_CONF    = "#{ETC_LOCATION}/az_driver.conf"
 AZ_DRIVER_DEFAULT = "#{ETC_LOCATION}/az_driver.default"
+AZ_DATABASE_PATH  = "#{VAR_LOCATION}/remotes/im/az.d/az-cache.db"
 
 if File.directory?(GEMS_LOCATION)
     Gem.use_paths(GEMS_LOCATION)
@@ -50,9 +51,14 @@ require 'VirtualMachineDriver'
 require 'PublicCloudDriver'
 require 'opennebula'
 
+#-------------------------------------------------------------------------------
 # The main class for the Azure driver
+#-------------------------------------------------------------------------------
 class AzureDriver < PublicCloudDriver
 
+    # --------------------------------------------------------------------------
+    # Constants
+    # --------------------------------------------------------------------------
     POLL_ATTRIBUTE  = VirtualMachineDriver::POLL_ATTRIBUTE
 
     MONITOR_METRICS = [
@@ -71,34 +77,85 @@ class AzureDriver < PublicCloudDriver
         IMAGE_PUBLISHER IMAGE_OFFER IMAGE_SKU IMAGE_VERSION
     ]
 
+    DEFAULTS = {
+        :rgroup_name_format => 'one-%<NAME>s-%<ID>s',
+        :cache_expire       => 120
+    }
+
+    # --------------------------------------------------------------------------
     # Azure constructor, loads credentials, create azure clients
-    def initialize(host)
+    #   @param [String] ID of host in OpenNebula
+    #   @param [String] name of host in OpenNebula
+    # --------------------------------------------------------------------------
+    def initialize(id, name)
         @hypervisor = 'azure'
-        @host = host
-        @to_inst ={}
+        @host       = host
 
-        @public_cloud_conf= YAML.safe_load(File.read(AZ_DRIVER_CONF))
+        @to_inst = {}
 
-        if @public_cloud_conf['proxy_uri']
-            ENV['HTTP_PROXY'] = @public_cloud_conf['proxy_uri']
-        end
+        load_conf = YAML.safe_load(File.read(AZ_DRIVER_CONF))
+        @az_conf  = DEFAULT
+        @az_conf.merge!(load_conf)
+        
+        ENV['HTTP_PROXY'] = @az_conf[:proxy_uri] if @az_conf[:proxy_uri]
 
-        @instance_types = @public_cloud_conf['instance_types']
+        # ----------------------------------------------------------------------
+        # Init instance types
+        # ----------------------------------------------------------------------
+        @instance_types = @az_conf[:instance_types]
+
         @instance_types.keys.each  do |key|
             @to_inst[key.upcase] = key
         end
 
-        @xmlhost = host_info
-        @rgroup_name, @rgroup_keep_empty = rgroup_info
+        # ----------------------------------------------------------------------
+        # Init OpenNebula host information & AZ_RGROUP
+        # ----------------------------------------------------------------------
+        @xmlhost = host_info(id)
 
-        @az_conn_opts = connect_info
+        @rgroup_name = @xmlhost['TEMPLATE/AZ_RGROUP']
+        keep_empty   = @xmlhost['TEMPLATE/AZ_RGROUP_KEEP_EMPTY']
+
+        @rgroup_keep_empty = !keep_empty.nil? && keep_empty.upcase == 'YES'
+
+        if !@rgroup_name
+            rgroup_format = @az_conf['rgroup_name_format']
+                             
+            rgroup = format(rgroup_format,
+                            :NAME    => @xmlhost['NAME'],
+                            :CLUSTER => @xmlhost['CLUSTER'],
+                            :ID      => @xmlhost['ID'])
+        end
+
+        # ----------------------------------------------------------------------
+        # Init AZ connection options
+        # ----------------------------------------------------------------------
+        @az_conn_opts = {}
+
+        {
+          'AZ_SUB'    => :subscription_id,
+          'AZ_CLIENT' => :client_id,
+          'AZ_SECRET' => :client_secret,
+          'AZ_TENANT' => :tenant_id,
+          'AZ_REGION' => :region
+        }.each do |attr, opt|
+            @az_conn_opts[opt] = @xmlhost["TEMPLATE/#{attr}"]
+
+            raise "Missing #{attr} in azure host" if @az_conn_opts[opt].nil?
+        end
+
         @region = @az_conn_opts[:region]
 
+        # ----------------------------------------------------------------------
         # create or open cache db
-        @db = InstanceCache.new(File.join(VAR_LOCATION,'remotes', 'im', 'az.d', 'az-cache.db'))
+        # ----------------------------------------------------------------------
+        @db = InstanceCache.new(AZ_DATABASE_PATH)
     end
 
-    def init_azure
+    #---------------------------------------------------------------------------
+    #
+    #---------------------------------------------------------------------------
+    def az_connect
         require 'azure_mgmt_compute'
         require 'azure_mgmt_monitor'
         require 'azure_mgmt_network'
@@ -117,36 +174,28 @@ class AzureDriver < PublicCloudDriver
         @az_conn_opts[:credentials] = MsRest::TokenCredentials.new(provider)
 
         # rubocop:disable Layout/LineLength
-        @compute_client = Azure::Compute::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
-        @monitor_client = Azure::Monitor::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
-        @network_client = Azure::Network::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
-        @resource_client = Azure::Resources::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
-        @storage_client = Azure::Storage::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
+        @compute_client = 
+              Azure::Compute::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
+
+        @monitor_client = 
+              Azure::Monitor::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
+
+        @network_client = 
+              Azure::Network::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
+
+        @resource_client = 
+              Azure::Resources::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
+
+        @storage_client = 
+              Azure::Storage::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
         # rubocop:enable Layout/LineLength
     end
 
-    # Check the host template to retrieve conection info needed for Azure
-    def connect_info
-        ret = {}
-
-        { 'AZ_SUB'    => :subscription_id,
-          'AZ_CLIENT' => :client_id,
-          'AZ_SECRET' => :client_secret,
-          'AZ_TENANT' => :tenant_id,
-          'AZ_REGION' => :region }.each do |attr_name, conn_opt|
-            ret[conn_opt] = @xmlhost["TEMPLATE/#{attr_name}"]
-
-            if ret[conn_opt].nil?
-                raise "Missing #{attr_name} in azure host template"
-            end
-        end
-
-        ret
-    end
-
+    # --------------------------------------------------------------------------
     # DEPLOY action
+    # --------------------------------------------------------------------------
     def deploy(id, host, xml_text, lcm_state, deploy_id)
-        init_azure
+        az_connect
 
         @rgroup = create_rgroup(@rgroup_name, @region) \
             unless @resource_client.resource_groups
@@ -176,9 +225,11 @@ class AzureDriver < PublicCloudDriver
         end
     end
 
+    # --------------------------------------------------------------------------
     # Shutdown an Azure instance
+    # --------------------------------------------------------------------------
     def shutdown(deploy_id, lcm_state)
-        init_azure
+        az_connect
 
         case lcm_state
         when 'SHUTDOWN'
@@ -190,26 +241,32 @@ class AzureDriver < PublicCloudDriver
         end
     end
 
+    # --------------------------------------------------------------------------
     # Reboot an Azure instance
+    # --------------------------------------------------------------------------
     def reboot(deploy_id)
-        init_azure
+        az_connect
 
         i = get_instance(deploy_id)
         @compute_client.virtual_machines.restart(@rgroup_name, i.name)
     end
 
+    # --------------------------------------------------------------------------
     # Cancel an Azure instance
+    # --------------------------------------------------------------------------
     def cancel(deploy_id)
-        init_azure
+        az_connect
 
         @compute_client.virtual_machines.delete(@rgroup_name, deploy_id)
 
         delete_vm_resources(deploy_id)
     end
 
+    # --------------------------------------------------------------------------
     # Resume an Azure instance
+    # --------------------------------------------------------------------------
     def restore(deploy_id)
-        init_azure
+        az_connect
 
         i = get_instance(deploy_id)
 
@@ -218,26 +275,23 @@ class AzureDriver < PublicCloudDriver
         @compute_client.virtual_machines.start(@rgroup_name, i.name)
     end
 
-    private
-
-    # AZ resource group is either specified in host template attr AZ_GROUP
-    # or it is derived from the rgroup_name_format and host attributes
-    def rgroup_info
-        rgroup = @xmlhost['TEMPLATE/AZ_RGROUP']
-        keep_empty = @xmlhost['TEMPLATE/AZ_RGROUP_KEEP_EMPTY']
-        keep_empty = !keep_empty.nil? && keep_empty.upcase == 'YES'
-
-        return rgroup, keep_empty if rgroup
-
-        rgroup_name_format = @public_cloud_conf['rgroup_name_format'] || \
-                             'one-%<NAME>s-%<ID>s'
-
-        rgroup = format(rgroup_name_format,
-                        :NAME    => @xmlhost['NAME'],
-                        :CLUSTER => @xmlhost['CLUSTER'],
-                        :ID      => @xmlhost['ID'])
-        [rgroup, keep_empty]
+    def probe_host_system
+        probe_host_system(@db, @az_conf[:cache_expire])
     end
+
+    def probe_host_monitor
+        probe_host_monitor(@db, @az_conf[:cache_expire])
+    end
+
+    def vms_data
+        vms_data(@db, @az_conf[:cache_expire], false)
+    end
+
+    #---------------------------------------------------------------------------
+    #
+    #
+    #---------------------------------------------------------------------------
+    private
 
     # Verify az_info contains all required params
     def validate_az_info(az_info)
@@ -249,28 +303,9 @@ class AzureDriver < PublicCloudDriver
         end
     end
 
-    # Count total cpu and memory based on instance type numbers in host tmpl.
-    def get_host_capacity
-        capacity = @xmlhost.to_hash['HOST']['TEMPLATE']['CAPACITY']
-
-        if capacity.nil? || !capacity.is_a?(Hash)
-            raise 'You must define CAPACITY section properly! '\
-                  'Check the VM template'
-        end
-
-        total_memory = total_cpu = 0
-        capacity.each do |name, value|
-            cpu, mem = instance_type_capacity(name)
-            total_memory += mem * value.to_i
-            total_cpu    += cpu * value.to_i
-        end
-
-        [total_cpu, total_memory]
-    end
-
     # Get VMs details from azure, include monitoring if needed
     def fetch_vms_data(with_monitoring = false)
-        init_azure
+        az_connect
         work_q = Queue.new
 
         vms = []
@@ -399,15 +434,18 @@ class AzureDriver < PublicCloudDriver
         ip_method   = @network_models::IPAllocationMethod::Dynamic
 
         if az_info['SECURITY_GROUP']
-            security_group = @network_client.network_security_groups.get(@rgroup_name, az_info['SECURITY_GROUP'])
+            security_group = @network_client.network_security_groups.get(
+                @rgroup_name, az_info['SECURITY_GROUP'])
         end
 
         if az_info['PROXIMITY_GROUP']
-            proximity_group = @compute_client.proximity_placement_groups.get(@rgroup_name, az_info['PROXIMITY_GROUP'])
+            proximity_group = @compute_client.proximity_placement_groups.get(
+                @rgroup_name, az_info['PROXIMITY_GROUP'])
         end
 
         if az_info['AVAILABILITY_SET']
-            availability_set = @compute_client.availability_sets.get(@rgroup_name, az_info['AVAILABILITY_SET'])
+            availability_set = @compute_client.availability_sets.get(
+                @rgroup_name, az_info['AVAILABILITY_SET'])
         end
 
         nic = @network_client.network_interfaces.create_or_update(
@@ -737,10 +775,10 @@ end
 ############################################################################
 module DomainList
 
-    def self.state_info(*args)
-        az = AzureDriver.new(*args)
+    def self.state_info(id, name)
+        az = AzureDriver.new(id, name)
 
-        vms = az.get_vms_data
+        vms = az.vms_data
 
         info = {}
         vms.each do |vm|
