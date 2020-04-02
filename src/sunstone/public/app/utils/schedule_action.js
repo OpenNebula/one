@@ -34,6 +34,7 @@ define(function (require) {
   }
 
   function _htmlNewAction(actions, context, res) {
+    this.res = res
     var options = "";
     var clearEmpySpaces = function(e){
       var value = e.val().replace(/\s/g, "");
@@ -59,9 +60,9 @@ define(function (require) {
         options += "<option value=\"" + action + "\">" + Locale.tr(action) + "</option>";
       }
     });
-    var schedule = $("#scheduling_" + res + "_actions_table tbody", context).append(TemplateHTML({
+    var schedule = $("#scheduling_" + this.res + "_actions_table tbody", context).append(TemplateHTML({
       "actions": options,
-      "res": that.res
+      "res": this.res
     }));
 
     //input periodic scheduled date
@@ -83,7 +84,7 @@ define(function (require) {
         $("#no_relative_time_form", context).removeClass("hide");
       }
     });
-    if (res === "vms") {
+    if (this.res === "vms") {
       $("#title", context).prop("colspan", "2");
       $("#td_days", context).prop("colspan", "5");
     }
