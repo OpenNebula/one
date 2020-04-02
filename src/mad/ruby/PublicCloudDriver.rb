@@ -15,59 +15,22 @@
 #--------------------------------------------------------------------------- #
 require 'sqlite3'
 
-# Class for ec2 + azure drivers containing shared functions
-class PublicCloudDriver
+# ------------------------------------------------------------------------------
+# Class for public drivers (AZ, EC2) It provides common interface to interact
+# wiht the abstract host that representats a public cloud in OpenNebula
+# ------------------------------------------------------------------------------
+module PublicCloudDriver
 
-    def host_info
-        client = OpenNebula::Client.new
-        pool = OpenNebula::HostPool.new(client)
-        pool.info
+    #---------------------------------------------------------------------------
+    #  MODULE Main Interface
+    # --------------------------------------------------------------------------
 
-        objects=pool.select {|object| object.name==@host }
-
-        host_id = objects.first.id
-        xmlhost = OpenNebula::Host.new_with_id(host_id, client)
-        xmlhost.info(true)
-        xmlhost
-    end
-
-    # Count total cpu and memory based on instance type numbers in host tmpl.
-    def get_host_capacity
-        capacity = @xmlhost.to_hash['HOST']['TEMPLATE']['CAPACITY']
-
-        if capacity.nil? || !capacity.is_a?(Hash)
-            raise 'You must define CAPACITY section properly! '\
-                  'Check the VM template'
-        end
-
-        total_memory = total_cpu = 0
-        capacity.each do |name, value|
-            name = parse_inst_type(name)
-            cpu, mem = instance_type_capacity(name)
-            total_memory += mem * value.to_i
-            total_cpu    += cpu * value.to_i
-        end
-
-        [total_cpu, total_memory]
-    end
-
-    # Count cpu + mem of running instances
-    def get_used_capacity
-        vms = get_vms_data
-
-        used_memory = used_cpu = 0
-        vms.each do |vm|
-            cpu, mem = instance_type_capacity(vm[:type])
-            used_memory += mem
-            used_cpu    += cpu
-        end
-
-        [used_cpu, used_memory]
-    end
-
-    def probe_host_monitor
-        total_cpu, total_mem = get_host_capacity
-        used_cpu, used_mem = get_used_capacity
+    #  Returns host monitoring data
+    #
+    #  @return [String]
+    def probe_host_monitor(db, limit)
+        total_cpu, total_mem = host_capacity
+        used_cpu, used_mem   = used_capacity(db, limit)
 
         data = "HYPERVISOR=#{@hypervisor}\n"
         data << "PUBLIC_CLOUD=YES\n"
@@ -79,8 +42,11 @@ class PublicCloudDriver
         data
     end
 
-    def probe_host_system
-        total_cpu, total_mem = get_host_capacity
+    #  Returns host information including wild VMs
+    #
+    #  @return [String]
+    def probe_host_system(db, limit)
+        total_cpu, total_mem = host_capacity
 
         data = "HYPERVISOR=#{@hypervisor}\n"
         data << "PUBLIC_CLOUD=YES\n"
@@ -88,19 +54,24 @@ class PublicCloudDriver
         data << "TOTALMEMORY=#{total_mem}\n"
 
         # include wild instances
-        vms = get_vms_data
+        vms = vms_data(db, limit)
         vms.each do |vm|
             next unless vm[:id] == -1
 
             vm[:import_template] = vm_to_one(vm)
-            vm[:vm_name] = vm[:name]
+            vm[:vm_name]         = vm[:name]
+
             vm.delete(:name)
+
             data << hash_to_template(vm, 'VM = [ ', " ]\n")
         end
 
         data
     end
 
+    #  Returns VM monitor information
+    #
+    #  @return [String]
     def probe_vm_monitor
         vms = fetch_vms_data(true)
 
@@ -108,18 +79,80 @@ class PublicCloudDriver
         vms.each do |vm|
             data << hash_to_template(vm, 'VM = [ ', " ]\n")
         end
+
         data
     end
 
-    # Either return VMs info from cache db or from public_cloud
-    def get_vms_data
-        time_limit = @public_cloud_conf['cache_validity'] || 120
+    #---------------------------------------------------------------------------
+    #  MODULE Helper functions
+    # --------------------------------------------------------------------------
 
-        if Time.now.to_i - time_limit < @db.select_timestamp
-            @db.select_vms
-        else
-            fetch_vms_data
+    # Either return VMs info from cache db or from public_cloud
+    def vms_data(db, time_limit)
+        return fetch_vms_data(false) if db.expired?(time_limit)
+
+        db.select_vms
+    end
+
+    # Return the information of a host in xml format
+    # @param host_id [Integer] ID of the host
+    #
+    # @return [Host, nil]
+    def host_info(host_id)
+        client = OpenNebula::Client.new
+
+        xmlhost = OpenNebula::Host.new_with_id(host_id, client)
+
+        rc = xmlhost.info(true)
+
+        raise rc.to_str() if OpenNebula.is_error?(rc)
+
+        xmlhost
+    end
+
+    # Return count total cpu and memory based on instance type numbers in host
+    # template
+    # @param xmlhost [Host] OpenNebula Host
+    #
+    # @return [Array] total cpu, total memory
+    def host_capacity(xmlhost)
+        capacity = xmlhost.retrieve_xmlelements('/HOST/TEMPLATE/CAPACITY/*')
+
+        raise 'Missing CAPACITY section in Host template' if capacity.nil?
+
+        total_memory = total_cpu = 0
+
+        capacity.each do |element|
+            name  = element.name
+            value = element.value
+
+            name = parse_instance_type(name) if respond_to? :parse_instance_type
+
+            cpu, mem = instance_type_capacity(name)
+
+            total_memory += mem * value.to_i
+            total_cpu    += cpu * value.to_i
         end
+
+        [total_cpu, total_memory]
+    end
+
+    # Count cpu + mem of running instances
+    #
+    # @return [Array] used cpu, used memory
+    def used_capacity(db, limit)
+        vms = vms_data(db, limit)
+
+        used_memory = used_cpu = 0
+
+        vms.each do |vm|
+            cpu, mem = instance_type_capacity(vm[:type])
+
+            used_memory += mem
+            used_cpu    += cpu
+        end
+
+        [used_cpu, used_memory]
     end
 
     # Build template for importation
@@ -131,18 +164,16 @@ class PublicCloudDriver
 
         str = "NAME   = \"Instance from #{vm[:name]}\"\n"\
               "CPU    = \"#{cpu}\"\n"\
-              "vCPU   = \"#{cpu.ceil}\"\n"\
+              "vCPU   = 1\n"\
               "MEMORY = \"#{mem}\"\n"\
-              "HYPERVISOR = \"#{@hypervisor}\"\n"\
               "PUBLIC_CLOUD = [\n"\
-              "  TYPE  =\"azure\"\n"\
+              "  TYPE  =\"#{@hypervisor}\"\n"\
               "]\n"\
-              "IMPORT_VM_ID    = \"#{vm[:uuid]}\"\n"\
-              "SCHED_REQUIREMENTS=\"NAME=\\\"#{@host}\\\"\"\n"\
-              "DESCRIPTION = \"Instance imported from #{@hypervisor}, from instance"\
-              " #{vm[:name]}\"\n"
+              "IMPORT_VM_ID = \"#{vm[:uuid]}\"\n"\
+              "SCHED_REQUIREMENTS = \"NAME=\\\"#{@host}\\\"\"\n"\
+              "DESCRIPTION = \"Imported from #{@hypervisor} from #{vm[:name]}\"\n"
 
-        Base64.encode64(str).gsub("\n", '')
+        Base64.strict_encode64(str)
     end
 
     # Hash to ONE template format
@@ -152,7 +183,9 @@ class PublicCloudDriver
     end
 end
 
-# Store instances info to simple local db
+# ------------------------------------------------------------------------------
+# This class implements a simple local cache to store VM information
+# ------------------------------------------------------------------------------
 class InstanceCache
 
     def initialize(path)
@@ -173,6 +206,7 @@ class InstanceCache
         end
     end
 
+    #TODO document DB schema
     def bootstrap
         sql = 'CREATE TABLE IF NOT EXISTS vms(uuid VARCHAR(128) PRIMARY KEY,'
         sql << ' id INTEGER, name VARCHAR(128), state VARCHAR(128),'
@@ -209,11 +243,15 @@ class InstanceCache
         vms
     end
 
-    def select_timestamp
+    # return true if the cache data expired
+    #
+    #   @param[Integer] time_limit time to expire cache data
+    #
+    #   @return[Boolean]
+    def expired?(limit)
         ts = execute_retry('SELECT * from timestamp')
-        return 0 if ts.empty?
 
-        ts.first.first
+        ts.empty? || (Time.now.to_i - time_limit > ts.first.first)
     end
 
 end
