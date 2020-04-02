@@ -58,6 +58,12 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Show services in DONE state'
     }
 
+    DELETE = {
+        :name => 'delete',
+        :large => '--delete',
+        :description => 'Force flow necover delete'
+    }
+
     # create helper object
     helper = OneFlowHelper.new
 
@@ -151,12 +157,19 @@ CommandParser::CmdParser.new(ARGV) do
             From WARNING failed VMs are deleted, and new VMs are instantiated
     EOT
 
-    command :recover, recover_desc, [:range, :service_id_list] do
+    command :recover,
+            recover_desc,
+            [:range, :service_id_list],
+            :options => DELETE do
         client = helper.client(options)
 
         Service.perform_actions(args[0]) do |service_id|
-            client.post("#{RESOURCE_PATH}/#{service_id}/action",
-                        Service.build_json_action('recover'))
+            params = {}
+            params['delete'] = options.key?(:delete)
+
+            json = Service.build_json_action('recover', params)
+
+            client.post("#{RESOURCE_PATH}/#{service_id}/action", json)
         end
     end
 

@@ -237,7 +237,11 @@ post '/service/:id/action' do
 
     case action['perform']
     when 'recover'
-        rc = lcm.recover_action(@client, params[:id])
+        if opts && opts['delete']
+            rc = lcm.undeploy_action(@client, params[:id], true)
+        else
+            rc = lcm.recover_action(@client, params[:id])
+        end
     when 'chown'
         if opts && opts['owner_id']
             u_id = opts['owner_id'].to_i
