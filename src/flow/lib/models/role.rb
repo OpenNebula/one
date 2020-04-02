@@ -47,6 +47,11 @@ module OpenNebula
             poweroff
             poweroff-hard
             snapshot-create
+            snapshot-revert
+            snapshot-delete
+            disk-snapshot-create
+            disk-snapshot-revert
+            disk-snapshot-delete
         ]
 
         STATE = {
@@ -515,10 +520,11 @@ module OpenNebula
         end
 
         # Schedule the given action on all the VMs that belong to the Role
-        # @param [String] action one of the available SCHEDULE_ACTIONS
+        # @param [String]  action one of the available SCHEDULE_ACTIONS
         # @param [Integer] period
         # @param [Integer] vm_per_period
-        def batch_action(action, period, vms_per_period)
+        # @param [String]  action arguments
+        def batch_action(action, period, vms_per_period, args)
             vms_id      = []
             error_msgs  = []
             nodes       = @body['nodes']
@@ -565,8 +571,11 @@ module OpenNebula
                         time_offset = offset * period.to_i
                     end
 
-                    tmp_str << "\nSCHED_ACTION = [ID = #{id},ACTION = "\
-                               "#{action}, TIME = #{now + time_offset}]"
+                    tmp_str << "\nSCHED_ACTION = ["
+                    tmp_str << "ID = #{id},"
+                    tmp_str << "ACTION = #{action},"
+                    tmp_str << "ARGS = \"#{args}\"," if args
+                    tmp_str << "TIME = #{now + time_offset}]"
 
                     rc = vm.update(tmp_str)
                     if OpenNebula.is_error?(rc)
