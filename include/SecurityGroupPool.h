@@ -144,9 +144,9 @@ public:
      * Removes the VM from the security groups
      *
      * @param id of Virtual Machine
-     * @param sgs security group ID set
+     * @param sg security group ID
      */
-    void release_security_groups(int id, set<int>& sgs);
+    void release_security_group(int id, int sgid);
 
 private:
 
