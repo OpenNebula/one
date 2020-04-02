@@ -29,9 +29,10 @@ require 'rexml/document'
 
 require_relative '../lib/probe_db'
 
+#-------------------------------------------------------------------------------
 #  This class represents a monitord client. It handles udp and tcp connections
 #  and send update messages to monitord
-#
+#-------------------------------------------------------------------------------
 class MonitorClient
 
     # Defined in src/monitor/include/MonitorDriverMessages.h
@@ -110,9 +111,10 @@ class MonitorClient
 
 end
 
+#-------------------------------------------------------------------------------
 #  This class wraps the execution of a probe directory and sends data to
 #  monitord (optionally)
-#
+#-------------------------------------------------------------------------------
 class ProbeRunner
 
     def initialize(hyperv, path, stdin)
@@ -213,6 +215,15 @@ class ProbeRunner
 end
 
 #-------------------------------------------------------------------------------
+#  Script helper functions and gLobals
+#-------------------------------------------------------------------------------
+LOCAL_HYPERVISOR = %w[az ec2 packet].freeze
+
+def local?(hypervisor)
+  LOCAL_HYPERVISOR.include?(hypervisor)
+end
+
+#-------------------------------------------------------------------------------
 # Configuration (from monitord)
 #-------------------------------------------------------------------------------
 xml_txt = STDIN.read
@@ -220,11 +231,8 @@ xml_txt = STDIN.read
 begin
     hyperv = ARGV[0].split(' ')[0]
 
-    if ['az', 'ec2', 'packet'].include? hyperv
-        xml_txt = Base64.decode64(xml_txt)
-    end
-
-    config = REXML::Document.new(xml_txt).root
+    xml_txt = Base64.decode64(xml_txt) if local? hyperv
+    config  = REXML::Document.new(xml_txt).root
 
     host   = config.elements['UDP_LISTENER/MONITOR_ADDRESS'].text.to_s
     port   = config.elements['UDP_LISTENER/PORT'].text.to_s
@@ -253,13 +261,12 @@ begin
         }
     }
 
-    if ! ['az', 'ec2', 'packet'].include? hyperv
-        probes[:beacon_host_udp] = {
+    probes << {
+        :beacon_host_udp => {
             :period => config.elements['PROBES_PERIOD/BEACON_HOST'].text.to_s,
             :path => 'host/beacon'
         }
-
-    end
+    } unless local? hyperv
 
     if !pubkey.empty?
         exp = /(-+BEGIN RSA PUBLIC KEY-+)([^-]*)(-+END RSA PUBLIC KEY-+)/
