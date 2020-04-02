@@ -59,23 +59,23 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
             end
 
             column :CLUSTERS, 'Number of Clusters', :size => 8 do |p|
-                p['CLUSTERS']['ID'].size
+                p['CLUSTERS']['ID'].size rescue 0
             end
 
             column :HOSTS, 'Number of Hosts', :size => 5 do |p|
-                p['HOSTS']['ID'].size
+                p['HOSTS']['ID'].size rescue 0
             end
 
             column :NETWORKS, 'Number of Networks', :size => 5 do |p|
-                p['NETWORKS']['ID'].size
+                p['NETWORKS']['ID'].size rescue 0
             end
 
             column :DATASTORES, 'Number of Datastores', :size => 10 do |p|
-                p['DATASTORES']['ID'].size
+                p['DATASTORES']['ID'].size rescue 0
             end
 
             column :STAT, 'Status of the Provision', :left, :size => 15 do |p|
-                p['STATUS']
+                p['STATUS'] rescue '-'
             end
 
             default :ID, :NAME, :CLUSTERS, :HOSTS, :NETWORKS, :DATASTORES, :STAT
@@ -251,12 +251,15 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
             element['STATUS'] = provision.status
 
             RESOURCES.each do |c|
-                element[c.to_s.upcase] = { 'ID' => [] }
-                obj                    = OneProvision::Resource.object(c)
-
-                element[c.to_s.upcase]['ID'] = obj.get(i).map do |o|
+                obj     = OneProvision::Resource.object(c)
+                obj_ids = obj.get(i).map do |o|
                     o['ID']
                 end
+
+                next if obj_ids.empty?
+
+                element[c.to_s.upcase]       = { 'ID' => [] }
+                element[c.to_s.upcase]['ID'] = obj_ids
             end
 
             ret << element
@@ -294,7 +297,11 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
             next unless obj
 
-            ret[r] = obj.get(provision_id).map {|o| o['ID'] }
+            obj_ids = obj.get(provision_id).map {|o| o['ID'] }
+
+            next if obj_ids.empty?
+
+            ret[r] = obj_ids
         end
 
         if xml
@@ -308,15 +315,17 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
     def format_resource(provision)
         str_h1 = '%-80s'
-        status = provision['status']
-        id     = provision['id']
+        status = provision['STATUS']
+        id     = provision['ID']
 
         CLIHelper.print_header(str_h1 % "PROVISION #{id} INFORMATION")
         puts format('ID      : %<s>s', :s => id)
-        puts format('NAME    : %<s>s', :s => provision['name'])
+        puts format('NAME    : %<s>s', :s => provision['NAME'])
         puts format('STATUS  : %<s>s', :s => CLIHelper.color_state(status))
 
         RESOURCES.each do |r|
+            next unless provision[r]
+
             puts
             CLIHelper.print_header(format('%<s>s', :s => r.upcase))
             provision[r].each do |i|
@@ -334,6 +343,8 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
             <STATUS>#{provision['STATUS']}</STATUS>
             #{
                 RESOURCES.map do |r|
+                    next unless provision[r]
+
                     provision[r] = provision[r]['ID'] if provision[r].is_a? Hash
 
                     ids = provision[r].map do |id|

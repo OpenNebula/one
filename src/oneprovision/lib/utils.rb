@@ -227,6 +227,13 @@ module OneProvision
                 base['defaults'] ||= {}
                 yaml['defaults'] ||= {}
 
+                if base['playbooks']
+                    yaml['playbooks'] = [] unless yaml['playbooks']
+                    yaml['playbooks'] << base['playbooks']
+                    yaml['playbooks'].flatten!
+                    base.delete('playbooks')
+                end
+
                 # replace scalars or append array from child YAML
                 yaml.each do |key, value|
                     next if key == 'defaults'

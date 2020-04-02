@@ -122,12 +122,14 @@ module OneProvision
                 # offline ONE host
                 OneProvisionLogger.info('Configuring hosts')
 
+                inventories = generate_inventories
+
                 # build Ansible command
                 cmd = "ANSIBLE_CONFIG=#{ansible_dir}/ansible.cfg "
-                cmd += "ansible-playbook #{ANSIBLE_ARGS}"
+                cmd << "ansible-playbook #{ANSIBLE_ARGS}"
                 cmd << " -i #{ansible_dir}/inventory"
-                cmd << " -i #{ANSIBLE_LOCATION}/inventories/#{@inventory}/"
-                cmd << " #{ANSIBLE_LOCATION}/#{@inventory}.yml"
+                cmd << " #{inventories[0]}"
+                cmd << "#{inventories[1]}"
 
                 o, _e, s = Driver.run(cmd)
 
@@ -156,6 +158,18 @@ module OneProvision
                 end
             rescue StandardError => e
                 raise OneProvisionLoopException, e.text
+            end
+
+            # Generate playbooks inventories
+            def generate_inventories
+                ret = ['', '']
+
+                @inventories.each do |inventory|
+                    ret[0] << "-i #{ANSIBLE_LOCATION}/inventories/#{inventory}/ "
+                    ret[1] << "#{ANSIBLE_LOCATION}/#{inventory}.yml "
+                end
+
+                ret
             end
 
             # Retries ssh connection
@@ -324,10 +338,11 @@ module OneProvision
                     Driver.write_file_log(fname, c)
                 end
 
-                if hosts[0]['TEMPLATE/ANSIBLE_PLAYBOOK']
-                    @inventory = hosts[0]['TEMPLATE/ANSIBLE_PLAYBOOK']
+                if hosts[0]['TEMPLATE/ANSIBLE_PLAYBOOKS']
+                    @inventories = hosts[0]['TEMPLATE/ANSIBLE_PLAYBOOKS']
+                    @inventories = @inventories.split(',')
                 else
-                    @inventory = ANSIBLE_INVENTORY_DEFAULT
+                    @inventories = [ANSIBLE_INVENTORY_DEFAULT]
                 end
 
                 # Generate "ansible.cfg" file
