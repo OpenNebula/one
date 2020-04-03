@@ -29,10 +29,9 @@ else
     VAR_LOCATION      ||= ONE_LOCATION + '/var/'
 end
 
-EC2_DRIVER_CONF = "#{ETC_LOCATION}/ec2_driver.conf"
+EC2_DRIVER_CONF    = "#{ETC_LOCATION}/ec2_driver.conf"
 EC2_DRIVER_DEFAULT = "#{ETC_LOCATION}/ec2_driver.default"
-
-STATE_WAIT_PM_TIMEOUT_SECONDS = 1500
+EC2_DATABASE_PATH  = "#{VAR_LOCATION}/remotes/im/ec2.d/ec-cache.db"
 
 if File.directory?(GEMS_LOCATION)
     Gem.use_paths(GEMS_LOCATION)
@@ -53,13 +52,18 @@ require 'VirtualMachineDriver'
 require 'PublicCloudDriver'
 require 'opennebula'
 
+#-------------------------------------------------------------------------------
 # The main class for the EC2 driver
-class EC2Driver < PublicCloudDriver
+#-------------------------------------------------------------------------------
+class EC2Driver
+
+    include PublicCloudDriver
+
+    # --------------------------------------------------------------------------
+    # Constants
+    # --------------------------------------------------------------------------
 
     POLL_ATTRIBUTE  = VirtualMachineDriver::POLL_ATTRIBUTE
-
-    # Key that will be used to store the monitoring information in the template
-    EC2_MONITOR_KEY = 'EC2DRIVER_MONITOR'
 
     # EC2 commands constants
     EC2 = {
@@ -232,33 +236,64 @@ class EC2Driver < PublicCloudDriver
         :image_id
     ]
 
+    DEFAULTS = {
+        :state_wait_pm_timeout_seconds => 1500,
+        :cache_expire                  => 120
+    }
+
+    # --------------------------------------------------------------------------
     # EC2 constructor, loads credentials and endpoint
-    def initialize(host, host_id)
+    #   @param [String] name of host in OpenNebula
+    #   @param [String] ID of host in OpenNebula
+    # --------------------------------------------------------------------------
+    def initialize(host, id)
         @hypervisor = 'ec2'
         @host = host
 
-        @public_cloud_conf = YAML.safe_load(File.read(EC2_DRIVER_CONF))
+        load_conf = YAML.safe_load(File.read(EC2_DRIVER_CONF), [Symbol])
+        @ec2_conf = DEFAULTS
+        @ec2_conf.merge!(load_conf)
 
-        @instance_types = @public_cloud_conf['instance_types']
-        @xmlhost = host_info
+        @instance_types = @ec2_conf[:instance_types]
+
+        # ----------------------------------------------------------------------
+        # Init OpenNebula host information
+        # ----------------------------------------------------------------------
+        @xmlhost = host_info(id)
         @cw_mon_time = @xmlhost['/HOST/MONITORING/CWMONTIME']
 
-        conn_opts = get_connect_info(host)
-        @access_key = conn_opts[:access]
-        @secret_key = conn_opts[:secret]
-        @region_name = conn_opts[:region]
+        if @xmlhost['TEMPLATE/PM_MAD']
+			@provision_type = :host
+			@state_change_timeout = \
+				@ec2_conf[:state_wait_pm_timeout_seconds].to_i
+        else
+			@provision_type = :vm
+            @state_change_timeout = \
+                @ec2_conf[:state_wait_timeout_seconds].to_i
+        end
+
+        tmpl_base =
+            @xmlhost['TEMPLATE/PROVISION'] ? 'TEMPLATE/PROVISION' : 'TEMPLATE'
+
+        @access_key = @xmlhost["#{tmpl_base}/EC2_ACCESS"]
+        @secret_key = @xmlhost["#{tmpl_base}/EC2_SECRET"]
+        @region_name = @xmlhost["#{tmpl_base}/REGION_NAME"]
 
         # sanitize region data
         raise "access_key_id not defined for #{host}" if @access_key.nil?
         raise "secret_access_key not defined for #{host}" if @secret_key.nil?
         raise "region_name not defined for #{host}" if @region_name.nil?
 
+		# ----------------------------------------------------------------------
         # create or open cache db
-        @db = InstanceCache.new(File.join(VAR_LOCATION, 'remotes',
-                                          'im', 'ec2.d', 'ec2-cache.db'))
+		# ----------------------------------------------------------------------
+        @db = InstanceCache.new(EC2_DATABASE_PATH)
     end
 
-    def init_ec2
+    #---------------------------------------------------------------------------
+    # Load AWS sdk and connect
+    #---------------------------------------------------------------------------
+    def ec2_connect
         require 'aws-sdk-ec2'
 
         Aws.config.merge!({
@@ -267,67 +302,18 @@ class EC2Driver < PublicCloudDriver
             :region             => @region_name
         })
 
-        if (proxy_uri = @public_cloud_conf['proxy_uri'])
+        if (proxy_uri = @ec2_conf[:proxy_uri])
             Aws.config(:proxy_uri => proxy_uri)
-        end
-
-        if @provision_type == :host
-            if @public_cloud_conf['state_wait_pm_timeout_seconds']
-                @state_change_timeout = \
-                    @public_cloud_conf['state_wait_pm_timeout_seconds'].to_i
-            else
-                @state_change_timeout = STATE_WAIT_PM_TIMEOUT_SECONDS
-            end
-        else
-            @state_change_timeout = \
-                @public_cloud_conf['state_wait_timeout_seconds'].to_i
         end
 
         @ec2 = Aws::EC2::Resource.new
     end
 
-    # Check the current template of host to retrieve connection information
-    # needed for Amazon
-    def get_connect_info(_host)
-        if @xmlhost['TEMPLATE/PROVISION']
-            tmpl_base = 'TEMPLATE/PROVISION'
-        else
-            tmpl_base = 'TEMPLATE'
-        end
-
-        if @xmlhost['TEMPLATE/PM_MAD']
-            @provision_type = :host
-        else
-            @provision_type = :vm
-        end
-
-        conn_opts = {
-            :access => @xmlhost["#{tmpl_base}/EC2_ACCESS"],
-            :secret => @xmlhost["#{tmpl_base}/EC2_SECRET"],
-            :region => @xmlhost["#{tmpl_base}/REGION_NAME"]
-        }
-
-        conn_opts
-    end
-
-    # Generate cloud-init configuration based on context variables
-    def generate_cc(xobj, xpath_context)
-        cc = "#cloud-config\n"
-
-        ssh_key = xobj["#{xpath_context}/SSH_PUBLIC_KEY"]
-        if ssh_key
-            cc << "ssh_authorized_keys:\n"
-            ssh_key.split("\n").each do |key|
-                cc << "- #{key}\n"
-            end
-        end
-
-        cc
-    end
-
+    # --------------------------------------------------------------------------
     # DEPLOY action, also sets ports and ip if needed
+    # --------------------------------------------------------------------------
     def deploy(id, host, xml_text, lcm_state, deploy_id)
-        init_ec2
+        ec2_connect
 
         # Restore if we need to
         if lcm_state != 'BOOT' && lcm_state != 'BOOT_FAILURE'
@@ -446,9 +432,11 @@ class EC2Driver < PublicCloudDriver
         puts(instance.id)
     end
 
+    # --------------------------------------------------------------------------
     # Shutdown a EC2 instance
+    # --------------------------------------------------------------------------
     def shutdown(deploy_id, lcm_state)
-        init_ec2
+        ec2_connect
 
         case lcm_state
         when 'SHUTDOWN'
@@ -460,17 +448,21 @@ class EC2Driver < PublicCloudDriver
         end
     end
 
+    # --------------------------------------------------------------------------
     # Reboot a EC2 instance
+    # --------------------------------------------------------------------------
     def reboot(deploy_id)
-        init_ec2
+        ec2_connect
 
         ec2_action(deploy_id, :reboot)
         wait_state('running', deploy_id)
     end
 
+    # --------------------------------------------------------------------------
     # Cancel a EC2 instance
+    # --------------------------------------------------------------------------
     def cancel(deploy_id, lcm_state = nil)
-        init_ec2
+        ec2_connect
 
         case lcm_state
         when 'SHUTDOWN_POWEROFF', 'SHUTDOWN_UNDEPLOY'
@@ -482,17 +474,21 @@ class EC2Driver < PublicCloudDriver
         end
     end
 
+    # --------------------------------------------------------------------------
     # Resumes a EC2 instance
+    # --------------------------------------------------------------------------
     def restore(deploy_id)
-        init_ec2
+        ec2_connect
 
         ec2_action(deploy_id, :start)
         wait_state('running', deploy_id)
     end
 
+    # --------------------------------------------------------------------------
     # Resets a EC2 instance
+    # --------------------------------------------------------------------------
     def reset(deploy_id)
-        init_ec2
+        ec2_connect
 
         ec2_action(deploy_id, :stop)
         wait_state('stopped', deploy_id)
@@ -501,13 +497,52 @@ class EC2Driver < PublicCloudDriver
         wait_state('running', deploy_id)
     end
 
+    #---------------------------------------------------------------------------
+    #  Monitor Interface
+    #---------------------------------------------------------------------------
+    def probe_host_system
+        # call probe_host_system from PublicCloudDriver module
+        super(@db, @ec2_conf[:cache_expire], @xmlhost)
+    end
+
+    def probe_host_monitor
+        # call probe_host_monitor from PublicCloudDriver module
+        super(@db, @ec2_conf[:cache_expire], @xmlhost)
+    end
+
+    def retreive_vms_data
+        # call vms_data from PublicCloudDriver module
+        vms_data(@db, @ec2_conf[:cache_expire])
+    end
+
+    #---------------------------------------------------------------------------
     # Parse template instance type into
     # Amazon ec2 format (M1SMALL => m1.small)
+    #---------------------------------------------------------------------------
     def parse_inst_type(type)
         type.downcase.gsub('_', '.')
     end
 
+    #---------------------------------------------------------------------------
+    #
+    #---------------------------------------------------------------------------
     private
+
+    # Generate cloud-init configuration based on context variables
+    def generate_cc(xobj, xpath_context)
+        cc = "#cloud-config\n"
+
+        ssh_key = xobj["#{xpath_context}/SSH_PUBLIC_KEY"]
+        if ssh_key
+            cc << "ssh_authorized_keys:\n"
+            ssh_key.split("\n").each do |key|
+                cc << "- #{key}\n"
+            end
+        end
+
+        cc
+    end
+
 
     # Get the associated capacity of the instance_type as cpu (in 100 percent
     # e.g. 800) and memory (in KB)
@@ -620,7 +655,7 @@ class EC2Driver < PublicCloudDriver
     end
 
     def fetch_vms_data(with_monitoring = false)
-        init_ec2
+        ec2_connect
 
         # Build an array of VMs and last_polls for monitoring
         vpool = OpenNebula::VirtualMachinePool.new(OpenNebula::Client.new,
@@ -926,7 +961,7 @@ module DomainList
     def self.state_info(*args)
         ec2 = EC2Driver.new(*args)
 
-        vms = ec2.get_vms_data
+		vms = ec2.retreive_vms_data
 
         info = {}
         vms.each do |vm|

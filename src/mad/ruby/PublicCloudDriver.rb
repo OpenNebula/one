@@ -126,7 +126,7 @@ module PublicCloudDriver
             name  = element.name
             value = element.text
 
-            name = parse_instance_type(name) if respond_to? :parse_instance_type
+            name = parse_inst_type(name) if self.respond_to? :parse_inst_type
 
             cpu, mem = instance_type_capacity(name)
 
