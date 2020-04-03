@@ -86,8 +86,8 @@ class AzureDriver
 
     # --------------------------------------------------------------------------
     # Azure constructor, loads credentials, create azure clients
-    #   @param [String] ID of host in OpenNebula
     #   @param [String] name of host in OpenNebula
+    #   @param [String] ID of host in OpenNebula
     # --------------------------------------------------------------------------
     def initialize(host, id)
         @hypervisor = 'azure'
