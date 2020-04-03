@@ -87,7 +87,7 @@ class AzureDriver < PublicCloudDriver
     #   @param [String] ID of host in OpenNebula
     #   @param [String] name of host in OpenNebula
     # --------------------------------------------------------------------------
-    def initialize(id, name)
+    def initialize(host, id)
         @hypervisor = 'azure'
         @host       = host
 
@@ -96,7 +96,7 @@ class AzureDriver < PublicCloudDriver
         load_conf = YAML.safe_load(File.read(AZ_DRIVER_CONF))
         @az_conf  = DEFAULT
         @az_conf.merge!(load_conf)
-        
+
         ENV['HTTP_PROXY'] = @az_conf[:proxy_uri] if @az_conf[:proxy_uri]
 
         # ----------------------------------------------------------------------
@@ -120,7 +120,7 @@ class AzureDriver < PublicCloudDriver
 
         if !@rgroup_name
             rgroup_format = @az_conf['rgroup_name_format']
-                             
+
             rgroup = format(rgroup_format,
                             :NAME    => @xmlhost['NAME'],
                             :CLUSTER => @xmlhost['CLUSTER'],
@@ -174,19 +174,19 @@ class AzureDriver < PublicCloudDriver
         @az_conn_opts[:credentials] = MsRest::TokenCredentials.new(provider)
 
         # rubocop:disable Layout/LineLength
-        @compute_client = 
+        @compute_client =
               Azure::Compute::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
 
-        @monitor_client = 
+        @monitor_client =
               Azure::Monitor::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
 
-        @network_client = 
+        @network_client =
               Azure::Network::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
 
-        @resource_client = 
+        @resource_client =
               Azure::Resources::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
 
-        @storage_client = 
+        @storage_client =
               Azure::Storage::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
         # rubocop:enable Layout/LineLength
     end

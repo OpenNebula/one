@@ -89,17 +89,17 @@ class VirtualMachineDB
 
     # Returns the VM status that changed compared to the DB info as well
     # as VMs that have been reported as missing more than missing_times
-    def to_status(*args)
+    def to_status(host, host_id)
         time = Time.now.to_i
         last = @db.execute("SELECT MAX(timestamp) from #{@dataset}").flatten![0]
         last ||= 0
 
-        return sync_status(*args) if time > (last + @conf[:sync]) && last != 0
+        return sync_status(host, host_id) if time > (last + @conf[:sync]) && last != 0
 
         status_str  = ''
         monitor_ids = []
 
-        vms  = DomainList.state_info(*args)
+        vms  = DomainList.state_info(host, host_id)
 
         # ----------------------------------------------------------------------
         # report state changes in vms
@@ -192,14 +192,14 @@ class VirtualMachineDB
 
     private
 
-    def sync_status(*args)
+    def sync_status(host, host_id)
         time = Time.now.to_i
 
         @db.execute("DELETE FROM #{@dataset}")
 
         status_str = "SYNC_STATE=yes\nMISSING_STATE=#{@conf[:missing_state]}\n"
 
-        DomainList.state_info(*args).each do |uuid, vm|
+        DomainList.state_info(host, host_id).each do |uuid, vm|
             @db.execute(
                 "INSERT INTO #{@dataset} VALUES (?, ?, ?, ?, ?, ?, ?)",
                 [uuid,

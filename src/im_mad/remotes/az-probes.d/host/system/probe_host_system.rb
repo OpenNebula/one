@@ -34,8 +34,9 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'az_driver'
 
-host = ARGV[-1]
-az_drv = AzureDriver.new(host)
+host    = ARGV[-1]
+host_id = ARGV[-2]
+az_drv = AzureDriver.new(host, host_id)
 
 begin
     puts az_drv.probe_host_system

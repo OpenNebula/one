@@ -4,6 +4,8 @@ require_relative '../../../lib/kvm'
 require_relative '../../../lib/probe_db'
 
 xml_txt = STDIN.read
+host    = ARGV[-1]
+host_id = ARGV[-2]
 
 begin
     config = REXML::Document.new(xml_txt).root
@@ -20,7 +22,7 @@ begin
                                 :sync => sync)
     vmdb.purge
 
-    puts vmdb.to_status
+    puts vmdb.to_status(host, host_id)
 rescue StandardError => e
     puts e
 end

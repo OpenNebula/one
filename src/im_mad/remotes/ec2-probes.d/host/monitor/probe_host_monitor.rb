@@ -36,7 +36,7 @@ require 'ec2_driver'
 
 host    = ARGV[-1]
 host_id = ARGV[-2]
-ec2_drv = EC2Driver.new(host)
+ec2_drv = EC2Driver.new(host, host_id)
 
 begin
     puts ec2_drv.probe_host_monitor

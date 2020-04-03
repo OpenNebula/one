@@ -35,9 +35,9 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'ec2_driver'
 
-
 host    = ARGV[-1]
-ec2_drv = EC2Driver.new(host)
+host_id = ARGV[-2]
+ec2_drv = EC2Driver.new(host, host_id)
 
 begin
     puts ec2_drv.probe_host_system

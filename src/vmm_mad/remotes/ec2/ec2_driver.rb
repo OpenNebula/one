@@ -233,7 +233,7 @@ class EC2Driver < PublicCloudDriver
     ]
 
     # EC2 constructor, loads credentials and endpoint
-    def initialize(host)
+    def initialize(host, host_id)
         @hypervisor = 'ec2'
         @host = host
 
