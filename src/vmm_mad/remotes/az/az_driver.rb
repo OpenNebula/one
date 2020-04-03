@@ -282,12 +282,12 @@ class AzureDriver
     #---------------------------------------------------------------------------
     def probe_host_system
         # call probe_host_system from PublicCloudDriver module
-        super(@db, @az_conf[:cache_expire])
+        super(@db, @az_conf[:cache_expire], @xmlhost)
     end
 
     def probe_host_monitor
         # call probe_host_monitor from PublicCloudDriver module
-        super(@db, @az_conf[:cache_expire])
+        super(@db, @az_conf[:cache_expire], @xmlhost)
     end
 
     # def vms_data

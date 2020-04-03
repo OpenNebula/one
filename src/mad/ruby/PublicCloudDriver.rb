@@ -28,8 +28,8 @@ module PublicCloudDriver
     #  Returns host monitoring data
     #
     #  @return [String]
-    def probe_host_monitor(db, limit)
-        total_cpu, total_mem = host_capacity
+    def probe_host_monitor(db, limit, xmlhost)
+        total_cpu, total_mem = host_capacity(xmlhost)
         used_cpu, used_mem   = used_capacity(db, limit)
 
         data = "HYPERVISOR=#{@hypervisor}\n"
@@ -45,8 +45,8 @@ module PublicCloudDriver
     #  Returns host information including wild VMs
     #
     #  @return [String]
-    def probe_host_system(db, limit)
-        total_cpu, total_mem = host_capacity
+    def probe_host_system(db, limit, xmlhost)
+        total_cpu, total_mem = host_capacity(xmlhost)
 
         data = "HYPERVISOR=#{@hypervisor}\n"
         data << "PUBLIC_CLOUD=YES\n"
@@ -112,10 +112,11 @@ module PublicCloudDriver
 
     # Return count total cpu and memory based on instance type numbers in host
     # template
+    # @param xmlhost [OpenNebula::XMLElement] xml host object
     #
     # @return [Array] total cpu, total memory
-    def host_capacity
-        capacity = @xmlhost.retrieve_xmlelements('/HOST/TEMPLATE/CAPACITY/*')
+    def host_capacity(xmlhost)
+        capacity = xmlhost.retrieve_xmlelements('/HOST/TEMPLATE/CAPACITY/*')
 
         raise 'Missing CAPACITY section in Host template' if capacity.nil?
 
