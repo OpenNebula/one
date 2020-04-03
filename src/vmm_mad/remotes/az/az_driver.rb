@@ -123,7 +123,7 @@ class AzureDriver
         if !@rgroup_name
             rgroup_format = @az_conf[:rgroup_name_format]
 
-            rgroup = format(rgroup_format,
+            @rgroup_name = format(rgroup_format,
                             :NAME    => @xmlhost['NAME'],
                             :CLUSTER => @xmlhost['CLUSTER'],
                             :ID      => @xmlhost['ID'])
@@ -281,16 +281,19 @@ class AzureDriver
     #  Monitor Interface
     #---------------------------------------------------------------------------
     def probe_host_system
-        probe_host_system(@db, @az_conf[:cache_expire])
+        # call probe_host_system from PublicCloudDriver module
+        super(@db, @az_conf[:cache_expire])
     end
 
     def probe_host_monitor
-        probe_host_monitor(@db, @az_conf[:cache_expire])
+        # call probe_host_monitor from PublicCloudDriver module
+        super(@db, @az_conf[:cache_expire])
     end
 
-    def vms_data
-        vms_data(@db, @az_conf[:cache_expire])
-    end
+    # def vms_data
+    #     # call vms_data from PublicCloudDriver module
+    #     super(@db, @az_conf[:cache_expire])
+    # end
 
     #---------------------------------------------------------------------------
     #

@@ -112,11 +112,10 @@ module PublicCloudDriver
 
     # Return count total cpu and memory based on instance type numbers in host
     # template
-    # @param xmlhost [Host] OpenNebula Host
     #
     # @return [Array] total cpu, total memory
-    def host_capacity(xmlhost)
-        capacity = xmlhost.retrieve_xmlelements('/HOST/TEMPLATE/CAPACITY/*')
+    def host_capacity
+        capacity = @xmlhost.retrieve_xmlelements('/HOST/TEMPLATE/CAPACITY/*')
 
         raise 'Missing CAPACITY section in Host template' if capacity.nil?
 
@@ -124,7 +123,7 @@ module PublicCloudDriver
 
         capacity.each do |element|
             name  = element.name
-            value = element.value
+            value = element.text
 
             name = parse_instance_type(name) if respond_to? :parse_instance_type
 
@@ -248,7 +247,7 @@ class InstanceCache
     #   @param[Integer] time_limit time to expire cache data
     #
     #   @return[Boolean]
-    def expired?(limit)
+    def expired?(time_limit)
         ts = execute_retry('SELECT * from timestamp')
 
         ts.empty? || (Time.now.to_i - time_limit > ts.first.first)
