@@ -54,7 +54,9 @@ require 'opennebula'
 #-------------------------------------------------------------------------------
 # The main class for the Azure driver
 #-------------------------------------------------------------------------------
-class AzureDriver < PublicCloudDriver
+class AzureDriver
+
+    include PublicCloudDriver
 
     # --------------------------------------------------------------------------
     # Constants
@@ -93,8 +95,8 @@ class AzureDriver < PublicCloudDriver
 
         @to_inst = {}
 
-        load_conf = YAML.safe_load(File.read(AZ_DRIVER_CONF))
-        @az_conf  = DEFAULT
+        load_conf = YAML.safe_load(File.read(AZ_DRIVER_CONF), [Symbol])
+        @az_conf  = DEFAULTS
         @az_conf.merge!(load_conf)
 
         ENV['HTTP_PROXY'] = @az_conf[:proxy_uri] if @az_conf[:proxy_uri]
@@ -119,7 +121,7 @@ class AzureDriver < PublicCloudDriver
         @rgroup_keep_empty = !keep_empty.nil? && keep_empty.upcase == 'YES'
 
         if !@rgroup_name
-            rgroup_format = @az_conf['rgroup_name_format']
+            rgroup_format = @az_conf[:rgroup_name_format]
 
             rgroup = format(rgroup_format,
                             :NAME    => @xmlhost['NAME'],
