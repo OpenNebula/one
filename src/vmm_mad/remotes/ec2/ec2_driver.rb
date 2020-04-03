@@ -246,7 +246,7 @@ class EC2Driver
     #   @param [String] name of host in OpenNebula
     #   @param [String] ID of host in OpenNebula
     # --------------------------------------------------------------------------
-    def initialize(host, id)
+    def initialize(host, id=nil)
         @hypervisor = 'ec2'
         @host = host
 
@@ -259,7 +259,7 @@ class EC2Driver
         # ----------------------------------------------------------------------
         # Init OpenNebula host information
         # ----------------------------------------------------------------------
-        @xmlhost = host_info(id)
+        @xmlhost = host_info(host, id)
         @cw_mon_time = @xmlhost['/HOST/MONITORING/CWMONTIME']
 
         if @xmlhost['TEMPLATE/PM_MAD']

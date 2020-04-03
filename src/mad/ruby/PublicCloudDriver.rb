@@ -98,8 +98,15 @@ module PublicCloudDriver
     # @param host_id [Integer] ID of the host
     #
     # @return [Host, nil]
-    def host_info(host_id)
+    def host_info(host, host_id)
         client = OpenNebula::Client.new
+
+        if host_id.nil?
+            pool = OpenNebula::HostPool.new(client)
+            pool.info
+            objects = pool.select {|object| object.name==host }
+            host_id = objects.first.id
+        end
 
         xmlhost = OpenNebula::Host.new_with_id(host_id, client)
 

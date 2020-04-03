@@ -89,7 +89,7 @@ class AzureDriver
     #   @param [String] name of host in OpenNebula
     #   @param [String] ID of host in OpenNebula
     # --------------------------------------------------------------------------
-    def initialize(host, id)
+    def initialize(host, id=nil)
         @hypervisor = 'azure'
         @host       = host
 
@@ -113,7 +113,7 @@ class AzureDriver
         # ----------------------------------------------------------------------
         # Init OpenNebula host information & AZ_RGROUP
         # ----------------------------------------------------------------------
-        @xmlhost = host_info(id)
+        @xmlhost = host_info(host, id)
 
         @rgroup_name = @xmlhost['TEMPLATE/AZ_RGROUP']
         keep_empty   = @xmlhost['TEMPLATE/AZ_RGROUP_KEEP_EMPTY']
