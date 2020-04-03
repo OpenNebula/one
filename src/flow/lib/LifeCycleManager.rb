@@ -244,11 +244,12 @@ class ServiceLCM
     #
     # @param client     [OpenNebula::Client] Client executing action
     # @param service_id [Integer]            Service ID
+    # @param delete     [Boolean]            Force flow delete
     #
     # @return [OpenNebula::Error] Error if any
-    def undeploy_action(client, service_id)
+    def undeploy_action(client, service_id, delete = false)
         rc = @srv_pool.get(service_id, client) do |service|
-            unless service.can_undeploy?
+            if !service.can_undeploy? && !delete
                 break OpenNebula::Error.new(
                     'Service cannot be undeployed in state: ' \
                     "#{service.state_str}"
