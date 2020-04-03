@@ -261,11 +261,9 @@ begin
         }
     }
 
-    probes << {
-        :beacon_host_udp => {
-            :period => config.elements['PROBES_PERIOD/BEACON_HOST'].text.to_s,
-            :path => 'host/beacon'
-        }
+    probes[:beacon_host_udp] = {
+        :period => config.elements['PROBES_PERIOD/BEACON_HOST'].text.to_s,
+        :path => 'host/beacon'
     } unless local? hyperv
 
     if !pubkey.empty?
