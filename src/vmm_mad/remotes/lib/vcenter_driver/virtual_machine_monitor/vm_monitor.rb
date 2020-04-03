@@ -465,6 +465,12 @@ module VirtualMachineMonitor
         str_info << 'VCENTER_VMWARETOOLS_VERSION_STATUS=' \
                  << vmtools_verst << ' '
         str_info << 'VCENTER_RP_NAME="' << rp_name << '" '
+
+        info_disks.each do |disk|
+            str_info << "DISK_#{disk[0]}_ACTUAL_PATH=\"[" << disk[1].ds.name << "] " << disk[1].path << "\" "
+        end
+
+        return str_info
     end
 
     def reset_monitor

@@ -31,7 +31,7 @@ class MicroVM
     #   List of commands executed by the driver.
     #---------------------------------------------------------------------------
     COMMANDS = {
-        :clean       => 'sudo /var/tmp/one/vmm/firecracker/one-clean-firecracker-domain',
+        :clean       => 'sudo /usr/sbin/one-clean-firecracker-domain',
         :map_context => '/var/tmp/one/vmm/firecracker/map_context'
     }
 
@@ -245,7 +245,7 @@ class MicroVM
         params = "-c #{cgroup_path} -v #{@one.vm_name} -t #{timeout}"
         params << '  -o' unless delete
 
-        cmd = "sudo #{COMMANDS[:clean]} #{params}"
+        cmd = "#{COMMANDS[:clean]} #{params}"
 
         Command.execute_rc_log(cmd, false)
     end
