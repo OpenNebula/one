@@ -2145,6 +2145,9 @@ void VirtualMachine::remove_security_group(int sgid)
             delete sgs[i];
         }
     }
+
+    SecurityGroupPool* sgpool = Nebula::instance().get_secgrouppool();
+    sgpool->release_security_group(oid, sgid);
 }
 
 /* -------------------------------------------------------------------------- */
