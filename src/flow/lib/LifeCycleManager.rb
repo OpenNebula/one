@@ -159,10 +159,17 @@ class ServiceLCM
     # @param action     [String]             Action to perform
     # @param period     [Integer]            When to execute the action
     # @param number     [Integer]            How many VMs per period
+    # @param args       [String]             Action arguments
     #
     # @return [OpenNebula::Error] Error if any
     # rubocop:disable Metrics/ParameterLists
-    def sched_action(client, service_id, role_name, action, period, number)
+    def sched_action(client,
+                     service_id,
+                     role_name,
+                     action,
+                     period,
+                     number,
+                     args)
         # rubocop:enable Metrics/ParameterLists
         rc = @srv_pool.get(service_id, client) do |service|
             role = service.roles[role_name]
@@ -171,7 +178,7 @@ class ServiceLCM
                 break OpenNebula::Error.new("Role '#{role_name}' not found")
             end
 
-            role.batch_action(action, period, number)
+            role.batch_action(action, period, number, args)
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)

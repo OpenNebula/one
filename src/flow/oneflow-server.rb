@@ -345,7 +345,8 @@ post '/service/:id/role/:role_name/action' do
                           params[:role_name],
                           action['perform'],
                           opts['period'],
-                          opts['number'])
+                          opts['number'],
+                          opts['args'])
 
     if OpenNebula.is_error?(rc)
         return internal_error(rc.message, one_error_to_http(rc.errno))

@@ -58,6 +58,13 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Show services in DONE state'
     }
 
+    ARGS = {
+        :name => 'args',
+        :large => '--args arg1,arg2',
+        :description => 'Schedule action arguments',
+        :format => String
+    }
+ 
     DELETE = {
         :name => 'delete',
         :large => '--delete',
@@ -297,11 +304,12 @@ CommandParser::CmdParser.new(ARGV) do
             :service_id,
             :role_name,
             :vm_action,
-            :options => [Service::PERIOD, Service::NUMBER] do
+            :options => [Service::PERIOD, Service::NUMBER, ARGS] do
         Service.perform_action(args[0]) do |service_id|
             params = {}
             params[:period] = options[:period].to_i if options[:period]
             params[:number] = options[:number].to_i if options[:number]
+            params[:args]   = options[:args]
 
             json   = Service.build_json_action(args[2], params)
             client = helper.client(options)
