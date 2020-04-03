@@ -249,11 +249,9 @@ module OneProvision
 
                         yaml.merge!(base)
                     end
-
-                    yaml
-                else
-                    yaml
                 end
+
+                yaml
             end
 
             # Gets the value of an ERB expression
