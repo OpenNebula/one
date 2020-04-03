@@ -290,10 +290,10 @@ class AzureDriver
         super(@db, @az_conf[:cache_expire], @xmlhost)
     end
 
-    # def vms_data
-    #     # call vms_data from PublicCloudDriver module
-    #     super(@db, @az_conf[:cache_expire])
-    # end
+    def retreive_vms_data
+        # call vms_data from PublicCloudDriver module
+        vms_data(@db, @az_conf[:cache_expire])
+    end
 
     #---------------------------------------------------------------------------
     #
@@ -786,7 +786,7 @@ module DomainList
     def self.state_info(id, name)
         az = AzureDriver.new(id, name)
 
-        vms = az.vms_data
+        vms = az.retreive_vms_data
 
         info = {}
         vms.each do |vm|
