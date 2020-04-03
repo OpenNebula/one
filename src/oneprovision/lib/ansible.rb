@@ -129,7 +129,7 @@ module OneProvision
                 cmd << "ansible-playbook #{ANSIBLE_ARGS}"
                 cmd << " -i #{ansible_dir}/inventory"
                 cmd << " #{inventories[0]}"
-                cmd << "#{inventories[1]}"
+                cmd << inventories[1]
 
                 o, _e, s = Driver.run(cmd)
 
@@ -165,7 +165,8 @@ module OneProvision
                 ret = ['', '']
 
                 @inventories.each do |inventory|
-                    ret[0] << "-i #{ANSIBLE_LOCATION}/inventories/#{inventory}/ "
+                    ret[0] << "-i #{ANSIBLE_LOCATION}/inventories" \
+                              "/#{inventory}/ "
                     ret[1] << "#{ANSIBLE_LOCATION}/#{inventory}.yml "
                 end
 
