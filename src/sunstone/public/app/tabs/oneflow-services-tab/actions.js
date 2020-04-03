@@ -82,6 +82,7 @@ define(function(require) {
     "Service.rename": _commonActions.singleAction('rename'),
     "Service.shutdown": _commonActions.multipleAction('shutdown'),
     "Service.recover":    _commonActions.multipleAction('recover'),
+    "Service.recover_delete":    _commonActions.multipleAction('recover_delete'),
     "Service.create_dialog" : {
       type: "custom",
       call: function() {

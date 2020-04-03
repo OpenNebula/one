@@ -44,8 +44,13 @@ define(function(require) {
     },
     "Service.recover" : {
       type: "action",
-      layout: "main",
-      text: Locale.tr("Recover")
+      text: Locale.tr("Recover"),
+      layout: "vmsplanification_buttons",
+    },
+    "Service.recover_delete" : {
+      type: "action",
+      text: Locale.tr("Recover") + ' <span class="label secondary radius">' + Locale.tr("delete") + '</span>',
+      layout: "vmsplanification_buttons",
     },
     "Service.shutdown" : {
       type: "confirm",
