@@ -16,6 +16,17 @@ type Client struct {
 	Address string // oneflow server address, ie: http://localhost:2474
 }
 
+// New client Constructor
+func New(user, pass, address string) Client {
+	client := Client{
+		User:    user,
+		Pass:    pass,
+		Address: address,
+	}
+
+	return client
+}
+
 // HTTP METHODS
 // The url passed to the methods is the follow up to the endpoint
 // ex. use service instead of  http://localhost:2474/service
