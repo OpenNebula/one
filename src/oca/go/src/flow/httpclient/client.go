@@ -6,39 +6,41 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 )
 
-// ONE connection information
-type Auth struct {
-	User string
-	Pass string
-	Oned string
+// Client for oned connection
+type Client struct {
+	User    string
+	Pass    string
+	Address string // oneflow server address, ie: http://localhost:2474
 }
 
-// TODO: Use Auth struct on methods
 // HTTP METHODS
+// The url passed to the methods is the follow up to the endpoint
+// ex. use service instead of  http://localhost:2474/service
 
 // Get http
-func Get(url, user, password string) *http.Response {
-	return httpReq(url, user, password, "GET", nil)
+func Get(client Client, endpoint string) *http.Response {
+	return httpReq(genurl(client.Address, endpoint), client.User, client.Pass, "GET", nil)
 }
 
 // Delete http
-func Delete(url, user, password string) *http.Response {
-	return httpReq(url, user, password, "DELETE", nil)
+func Delete(client Client, endpoint string) *http.Response {
+	return httpReq(genurl(client.Address, endpoint), client.User, client.Pass, "DELETE", nil)
 }
 
 // Post http
-func Post(url string, user string, password string, message map[string]interface{}) *http.Response {
-	return httpReq(url, user, password, "POST", message)
+func Post(client Client, endpoint string, message map[string]interface{}) *http.Response {
+	return httpReq(genurl(client.Address, endpoint), client.User, client.Pass, "POST", message)
 }
 
 // Put http
-func Put(url string, user string, password string, message map[string]interface{}) *http.Response {
-	return httpReq(url, user, password, "PUT", message)
+func Put(client Client, endpoint string, message map[string]interface{}) *http.Response {
+	return httpReq(genurl(client.Address, endpoint), client.User, client.Pass, "PUT", message)
 }
 
-// General http request method for the client. Uses auth by default
+// General http request method for the client.
 func httpReq(url string, user string, password string, method string, message map[string]interface{}) *http.Response {
 	req, err := http.NewRequest(method, url, bodyContent(message))
 
@@ -59,6 +61,11 @@ func httpReq(url string, user string, password string, method string, message ma
 }
 
 // HELPERS
+
+// concatenates flow endpoint with flow server address in a string
+func genurl(address, endpoint string) string {
+	return strings.Join([]string{address, endpoint}, "/")
+}
 
 // Btomap returns http body as map
 func Btomap(resp *http.Response) map[string]interface{} {
