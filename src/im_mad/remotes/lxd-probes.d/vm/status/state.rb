@@ -20,7 +20,11 @@ module DomainList
     }
 
     # Returns a vm hash with the containers running in LXD
-    def self.state_info
+    #   @param host [String] name of the host (not used here)
+    #   @param host_id [Integer] ID of the host (not used here)
+    #
+    #   @return [Hash] with KVM Domain classes indexed by their name
+    def self.state_info(host, host_id)
         containers = Container.get_all(LXD::CLIENT)
         return unless containers
 
@@ -62,6 +66,8 @@ module DomainList
 end
 
 xml_txt = STDIN.read
+host    = ARGV[-1]
+host_id = ARGV[-2]
 
 begin
     config = REXML::Document.new(xml_txt).root
@@ -76,7 +82,7 @@ begin
                                 :sync => sync)
     vmdb.purge
 
-    puts vmdb.to_status
+    puts vmdb.to_status(host, host_id)
 rescue StandardError => e
     puts e
 end

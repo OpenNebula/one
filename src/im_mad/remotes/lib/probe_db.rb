@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,14 +16,14 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV['ONE_LOCATION']
+ONE_LOCATION = ENV['ONE_LOCATION'] if !defined? ONE_LOCATION
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
-    GEMS_LOCATION     = '/usr/share/one/gems'
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
 if File.directory?(GEMS_LOCATION)
@@ -89,17 +89,17 @@ class VirtualMachineDB
 
     # Returns the VM status that changed compared to the DB info as well
     # as VMs that have been reported as missing more than missing_times
-    def to_status
+    def to_status(host, host_id)
         time = Time.now.to_i
         last = @db.execute("SELECT MAX(timestamp) from #{@dataset}").flatten![0]
         last ||= 0
 
-        return sync_status if time > (last + @conf[:sync]) && last != 0
+        return sync_status(host, host_id) if time > (last + @conf[:sync]) && last != 0
 
         status_str  = ''
         monitor_ids = []
 
-        vms  = DomainList.state_info
+        vms  = DomainList.state_info(host, host_id)
 
         # ----------------------------------------------------------------------
         # report state changes in vms
@@ -108,7 +108,8 @@ class VirtualMachineDB
             if vm[:id] == -1
                 filter = "WHERE uuid = '#{uuid}'"
             else
-                filter = "WHERE id = '#{vm[:id]}'"
+                # in ec2 id could first be -1 but later added, check also uuid
+                filter = "WHERE id = '#{vm[:id]}' OR uuid = '#{uuid}'"
             end
 
             vm_db = @db.execute("SELECT * FROM #{@dataset} #{filter}").first
@@ -191,14 +192,14 @@ class VirtualMachineDB
 
     private
 
-    def sync_status
+    def sync_status(host, host_id)
         time = Time.now.to_i
 
         @db.execute("DELETE FROM #{@dataset}")
 
         status_str = "SYNC_STATE=yes\nMISSING_STATE=#{@conf[:missing_state]}\n"
 
-        DomainList.state_info.each do |uuid, vm|
+        DomainList.state_info(host, host_id).each do |uuid, vm|
             @db.execute(
                 "INSERT INTO #{@dataset} VALUES (?, ?, ?, ?, ?, ?, ?)",
                 [uuid,
