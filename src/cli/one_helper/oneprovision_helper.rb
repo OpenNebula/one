@@ -118,8 +118,9 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     # Helper host functions
     #######################################################################
 
-    def host_operation(host, operation, options, args)
-        host = OneProvision::Host.new(host['ID'])
+    def host_operation(id, operation, options, args)
+        host = OneProvision::Host.new
+        host.info(id)
 
         case operation[:operation]
         when 'resume'
@@ -190,7 +191,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
                                operation[:message]) do |obj|
             case type
             when 'HOST'
-                host_operation(obj, operation, options, args[1])
+                host_operation(obj['ID'], operation, options, args[1])
             when 'DATASTORE'
                 datastore_operation(obj, operation)
             when 'NETWORK'
