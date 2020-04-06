@@ -15,7 +15,7 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 
-ONE_LOCATION ||= ENV['ONE_LOCATION'] if !defined? ONE_LOCATION
+ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
@@ -23,10 +23,10 @@ if !ONE_LOCATION
     ETC_LOCATION      ||= '/etc/one/'
     VAR_LOCATION      ||= '/var/lib/one/'
 else
-    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby' if !defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems' if !defined?(GEMS_LOCATION)
-    ETC_LOCATION      ||= ONE_LOCATION + '/etc/' if !defined?(ETC_LOCATION)
-    VAR_LOCATION      ||= ONE_LOCATION + '/var/' if !defined?(VAR_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
+    ETC_LOCATION      ||= ONE_LOCATION + '/etc/'
+    VAR_LOCATION      ||= ONE_LOCATION + '/var/'
 end
 
 AZ_DRIVER_CONF    = "#{ETC_LOCATION}/az_driver.conf"
@@ -89,7 +89,7 @@ class AzureDriver
     #   @param [String] name of host in OpenNebula
     #   @param [String] ID of host in OpenNebula
     # --------------------------------------------------------------------------
-    def initialize(host, id=nil)
+    def initialize(host, id = nil)
         @hypervisor = 'azure'
         @host       = host
 
@@ -124,9 +124,9 @@ class AzureDriver
             rgroup_format = @az_conf[:rgroup_name_format]
 
             @rgroup_name = format(rgroup_format,
-                            :NAME    => @xmlhost['NAME'],
-                            :CLUSTER => @xmlhost['CLUSTER'],
-                            :ID      => @xmlhost['ID'])
+                                  :NAME    => @xmlhost['NAME'],
+                                  :CLUSTER => @xmlhost['CLUSTER'],
+                                  :ID      => @xmlhost['ID'])
         end
 
         # ----------------------------------------------------------------------
@@ -135,7 +135,7 @@ class AzureDriver
         @az_conn_opts = {}
 
         {
-          'AZ_SUB'    => :subscription_id,
+            'AZ_SUB'    => :subscription_id,
           'AZ_CLIENT' => :client_id,
           'AZ_SECRET' => :client_secret,
           'AZ_TENANT' => :tenant_id,
@@ -174,23 +174,20 @@ class AzureDriver
         )
 
         @az_conn_opts[:credentials] = MsRest::TokenCredentials.new(provider)
-
-        # rubocop:disable Layout/LineLength
         @compute_client =
-              Azure::Compute::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
+            Azure::Compute::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
 
         @monitor_client =
-              Azure::Monitor::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
+            Azure::Monitor::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
 
         @network_client =
-              Azure::Network::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
+            Azure::Network::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
 
         @resource_client =
-              Azure::Resources::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
+            Azure::Resources::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
 
         @storage_client =
-              Azure::Storage::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
-        # rubocop:enable Layout/LineLength
+            Azure::Storage::Profiles::Latest::Mgmt::Client.new(@az_conn_opts)
     end
 
     # --------------------------------------------------------------------------
@@ -443,17 +440,20 @@ class AzureDriver
 
         if az_info['SECURITY_GROUP']
             security_group = @network_client.network_security_groups.get(
-                @rgroup_name, az_info['SECURITY_GROUP'])
+                @rgroup_name, az_info['SECURITY_GROUP']
+            )
         end
 
         if az_info['PROXIMITY_GROUP']
             proximity_group = @compute_client.proximity_placement_groups.get(
-                @rgroup_name, az_info['PROXIMITY_GROUP'])
+                @rgroup_name, az_info['PROXIMITY_GROUP']
+            )
         end
 
         if az_info['AVAILABILITY_SET']
             availability_set = @compute_client.availability_sets.get(
-                @rgroup_name, az_info['AVAILABILITY_SET'])
+                @rgroup_name, az_info['AVAILABILITY_SET']
+            )
         end
 
         nic = @network_client.network_interfaces.create_or_update(
