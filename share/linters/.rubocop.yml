@@ -543,6 +543,12 @@ AllCops:
 # LAYOUT
 ########
 
+Lint/RaiseException:
+    Enabled: true
+
+Lint/StructNewOverride:
+    Enabled: true
+
 # Line Length config:
 Layout/LineLength:
     Max: 80
