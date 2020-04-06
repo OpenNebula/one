@@ -353,7 +353,7 @@ module OneProvision
                 Driver.retry_loop 'Failed to create some host' do
                     erb       = Utils.evaluate_erb(self, h)
                     dfile     = Utils.create_deployment_file(erb, @id, @name)
-                    playbooks = cfg['playbooks']
+                    playbooks = cfg['playbook']
 
                     host = Host.new
                     host = host.create(dfile.to_xml,

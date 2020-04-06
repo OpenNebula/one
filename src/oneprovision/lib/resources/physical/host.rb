@@ -101,7 +101,7 @@ module OneProvision
             host.update(xhost.template_str, true)
 
             unless playbooks.nil?
-                host.update("ANSIBLE_PLAYBOOKS=\"#{playbooks}\"", true)
+                host.update("ANSIBLE_PLAYBOOK=\"#{playbooks}\"", true)
             end
 
             host.offline
