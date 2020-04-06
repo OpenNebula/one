@@ -98,6 +98,7 @@ CONF_LOCATION="$HOME/.one"
 if [ -z "$ROOT" ] ; then
     BIN_LOCATION="/usr/bin"
     LIB_LOCATION="/usr/lib/one"
+    SBIN_LOCATION="/usr/sbin"
     ETC_LOCATION="/etc/one"
     LOG_LOCATION="/var/log/one"
     VAR_LOCATION="/var/lib/one"
@@ -151,7 +152,7 @@ if [ -z "$ROOT" ] ; then
 
         CHOWN_DIRS=""
     else
-        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
+        MAKE_DIRS="$BIN_LOCATION $SBIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $DOCS_LOCATION \
                    $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION \
                    $SYSTEM_DS_LOCATION $DEFAULT_DS_LOCATION $MAN_LOCATION \
@@ -166,6 +167,7 @@ if [ -z "$ROOT" ] ; then
 
 else
     BIN_LOCATION="$ROOT/bin"
+    SBIN_LOCATION="$ROOT/sbin"
     LIB_LOCATION="$ROOT/lib"
     ETC_LOCATION="$ROOT/etc"
     VAR_LOCATION="$ROOT/var"
@@ -207,7 +209,7 @@ else
 
         DELETE_DIRS="$MAKE_DIRS"
     else
-        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
+        MAKE_DIRS="$BIN_LOCATION $SBIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $SYSTEM_DS_LOCATION \
                    $DEFAULT_DS_LOCATION $MAN_LOCATION $DOCS_LOCATION \
                    $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION \
@@ -474,6 +476,7 @@ fi
 #-------------------------------------------------------------------------------
 INSTALL_FILES=(
     BIN_FILES:$BIN_LOCATION
+    SBIN_FILES:$SBIN_LOCATION
     INCLUDE_FILES:$INCLUDE_LOCATION
     LIB_FILES:$LIB_LOCATION
     RUBY_LIB_FILES:$LIB_LOCATION/ruby
@@ -787,6 +790,12 @@ BIN_FILES="src/nebula/oned \
            src/cli/onehook \
            src/onedb/onedb \
            share/scripts/one"
+
+#-------------------------------------------------------------------------------
+# Binary files, to be installed under $SBIN_LOCATION
+#-------------------------------------------------------------------------------
+
+SBIN_FILES="src/vmm_mad/remotes/lib/firecracker/install-firecracker"
 
 #-------------------------------------------------------------------------------
 # C/C++ OpenNebula API Library & Development files
