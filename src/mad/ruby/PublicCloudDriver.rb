@@ -1,3 +1,4 @@
+# rubocop:disable Naming/FileName
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -112,7 +113,7 @@ module PublicCloudDriver
 
         rc = xmlhost.info(true)
 
-        raise rc.to_str() if OpenNebula.is_error?(rc)
+        raise rc.to_str if OpenNebula.is_error?(rc)
 
         xmlhost
     end
@@ -133,7 +134,7 @@ module PublicCloudDriver
             name  = element.name
             value = element.text
 
-            name = parse_inst_type(name) if self.respond_to? :parse_inst_type
+            name = parse_inst_type(name) if respond_to? :parse_inst_type
 
             cpu, mem = instance_type_capacity(name)
 
@@ -178,7 +179,8 @@ module PublicCloudDriver
               "]\n"\
               "IMPORT_VM_ID = \"#{vm[:uuid]}\"\n"\
               "SCHED_REQUIREMENTS = \"NAME=\\\"#{@host}\\\"\"\n"\
-              "DESCRIPTION = \"Imported from #{@hypervisor} from #{vm[:name]}\"\n"
+              "DESCRIPTION = \"Imported from #{@hypervisor} "\
+                             "from #{vm[:name]}\"\n"
 
         Base64.strict_encode64(str)
     end
@@ -188,6 +190,7 @@ module PublicCloudDriver
         tmpl = h.to_a.map {|e| "#{e[0].to_s.upcase}=\"#{e[1]}\"" }.join(', ')
         pref + tmpl + post
     end
+
 end
 
 # ------------------------------------------------------------------------------
@@ -201,19 +204,19 @@ class InstanceCache
         bootstrap
     end
 
-    def execute_retry(query, tries=5, tsleep=0.5)
+    def execute_retry(query, tries = 5, tsleep = 0.5)
         i=0
         while i < tries
             begin
                 return @db.execute(query)
             rescue SQLite3::BusyException
                 i += 1
-                sleep 0.5
+                sleep tsleep
             end
         end
     end
 
-    #TODO document DB schema
+    # TODO: document DB schema
     def bootstrap
         sql = 'CREATE TABLE IF NOT EXISTS vms(uuid VARCHAR(128) PRIMARY KEY,'
         sql << ' id INTEGER, name VARCHAR(128), state VARCHAR(128),'
@@ -241,7 +244,7 @@ class InstanceCache
         execute_retry("INSERT INTO timestamp VALUES (#{Time.now.to_i})")
     end
 
-    def select_vms()
+    def select_vms
         vms = []
         execute_retry('SELECT * from vms').each do |vm|
             vms << Hash[[:uuid, :id, :name, :state, :type].zip(vm)]
@@ -262,3 +265,4 @@ class InstanceCache
     end
 
 end
+# rubocop:enable Naming/FileName

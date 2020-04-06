@@ -220,7 +220,7 @@ end
 LOCAL_HYPERVISOR = %w[az ec2 packet].freeze
 
 def local?(hypervisor)
-  LOCAL_HYPERVISOR.include?(hypervisor)
+    LOCAL_HYPERVISOR.include?(hypervisor)
 end
 
 #-------------------------------------------------------------------------------
@@ -261,10 +261,12 @@ begin
         }
     }
 
-    probes[:beacon_host_udp] = {
-        :period => config.elements['PROBES_PERIOD/BEACON_HOST'].text.to_s,
-        :path => 'host/beacon'
-    } unless local? hyperv
+    unless local? hyperv
+        probes[:beacon_host_udp] = {
+            :period => config.elements['PROBES_PERIOD/BEACON_HOST'].text.to_s,
+            :path => 'host/beacon'
+        }
+    end
 
     if !pubkey.empty?
         exp = /(-+BEGIN RSA PUBLIC KEY-+)([^-]*)(-+END RSA PUBLIC KEY-+)/
