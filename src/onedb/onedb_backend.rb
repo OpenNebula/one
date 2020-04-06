@@ -413,6 +413,11 @@ class BackEndMySQL < OneDBBacKEnd
         end
     end
 
+    def idx?(idx)
+        query = "SHOW INDEX FROM #{idx[:table]} WHERE KEY_NAME = '#{idx[:name]}'"
+        !@db.fetch(query).first.nil?
+    end
+
     def create_idx(version = nil)
         type = :index_sql
 
@@ -421,8 +426,11 @@ class BackEndMySQL < OneDBBacKEnd
         schema = get_schema(type, version)
 
         schema.each do |idx|
+            next if idx? idx
+
             query = 'CREATE '
             query << idx[:type] if idx[:type]
+            query << ' INDEX '
             query << " #{idx[:name]} ON #{idx[:table]} #{idx[:columns]};"
 
             @db.run query
@@ -439,7 +447,9 @@ class BackEndMySQL < OneDBBacKEnd
         return unless schema
 
         schema.each do |idx|
-            query = 'DROP '
+            next unless idx? idx
+
+            query = 'DROP INDEX '
             query << "#{idx[:name]} ON #{idx[:table]} ;"
 
             @db.run query
@@ -574,13 +584,21 @@ class BackEndSQLite < OneDBBacKEnd
         puts "Sqlite database backup restored in #{@sqlite_file}"
     end
 
+    def idx?(idx)
+        query = "SELECT * FROM sqlite_master WHERE type='index' AND name = '#{idx[:name]}'"
+
+        !@db.fetch(query).first.nil?
+    end
+
     def create_idx(version = nil)
         type = :index_sqlite
 
         schema = get_schema(type, version)
 
         schema.each do |idx|
-            query = 'CREATE '
+            next if idx? idx
+
+            query = 'CREATE INDEX '
             query << idx[:type] if idx[:type]
             query << " #{idx[:name]} ON #{idx[:table]} #{idx[:columns]};"
 
@@ -596,7 +614,9 @@ class BackEndSQLite < OneDBBacKEnd
         return unless schema
 
         schema.each do |idx|
-            query = 'DROP '
+            next unless idx? idx
+
+            query = 'DROP INDEX '
             query << " #{idx[:name]};"
 
             @db.run query
