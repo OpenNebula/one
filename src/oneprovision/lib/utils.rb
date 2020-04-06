@@ -220,7 +220,9 @@ module OneProvision
                 end
 
                 if yaml['extends']
-                    yaml['extends'].each do |f|
+                    yaml['extends'] = [yaml['extends']].flatten
+
+                    yaml['extends'].reverse.each do |f|
                         base = read_config(f)
 
                         yaml.delete('extends')
@@ -247,7 +249,7 @@ module OneProvision
                             base['defaults'][section].merge!(defaults)
                         end
 
-                        yaml.merge!(base)
+                        yaml = base
                     end
                 end
 
