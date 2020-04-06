@@ -173,16 +173,16 @@ class ClusterMonitor
         pc = @vi_client.vim.serviceContent.propertyCollector
 
         monitored_properties = [
-            "config.cpuAllocation.expandableReservation",
-            "config.cpuAllocation.limit",
-            "config.cpuAllocation.reservation",
-            "config.cpuAllocation.shares.level",
-            "config.cpuAllocation.shares.shares",
-            "config.memoryAllocation.expandableReservation",
-            "config.memoryAllocation.limit",
-            "config.memoryAllocation.reservation",
-            "config.memoryAllocation.shares.level",
-            "config.memoryAllocation.shares.shares"
+            'config.cpuAllocation.expandableReservation',
+            'config.cpuAllocation.limit',
+            'config.cpuAllocation.reservation',
+            'config.cpuAllocation.shares.level',
+            'config.cpuAllocation.shares.shares',
+            'config.memoryAllocation.expandableReservation',
+            'config.memoryAllocation.limit',
+            'config.memoryAllocation.reservation',
+            'config.memoryAllocation.shares.level',
+            'config.memoryAllocation.shares.shares'
         ]
 
         filterSpec = RbVmomi::VIM.PropertyFilterSpec(
@@ -213,30 +213,30 @@ class ClusterMonitor
             end
         end
 
-        return "" if rps.empty?
+        return '' if rps.empty?
 
-        rp_info = ""
+        rp_info = ''
 
         rps.each{|ref, info|
 
             # CPU
-            cpu_expandable   = info["config.cpuAllocation.expandableReservation"] ? "YES" : "NO"
-            cpu_limit        = info["config.cpuAllocation.limit"] == "-1" ? "UNLIMITED" : info["config.cpuAllocation.limit"]
-            cpu_reservation  = info["config.cpuAllocation.reservation"]
+            cpu_expandable   = info['config.cpuAllocation.expandableReservation'] ? 'YES' : 'NO'
+            cpu_limit        = info['config.cpuAllocation.limit'] == '-1' ? 'UNLIMITED' : info['config.cpuAllocation.limit']
+            cpu_reservation  = info['config.cpuAllocation.reservation']
             cpu_num          = cpu_reservation.to_f / mhz_core
-            cpu_shares_level = info["config.cpuAllocation.shares.level"]
-            cpu_shares       = info["config.cpuAllocation.shares.shares"]
+            cpu_shares_level = info['config.cpuAllocation.shares.level']
+            cpu_shares       = info['config.cpuAllocation.shares.shares']
 
             # MEMORY
-            mem_expandable   = info["config.memoryAllocation.expandableReservation"] ? "YES" : "NO"
-            mem_limit        = info["config.memoryAllocation.limit"] == "-1" ? "UNLIMITED" : info["config.memoryAllocation.limit"]
-            mem_reservation  = info["config.memoryAllocation.reservation"].to_f
-            mem_shares_level = info["config.memoryAllocation.shares.level"]
-            mem_shares       = info["config.memoryAllocation.shares.shares"]
+            mem_expandable   = info['config.memoryAllocation.expandableReservation'] ? 'YES' : 'NO'
+            mem_limit        = info['config.memoryAllocation.limit'] == '-1' ? 'UNLIMITED' : info['config.memoryAllocation.limit']
+            mem_reservation  = info['config.memoryAllocation.reservation'].to_f
+            mem_shares_level = info['config.memoryAllocation.shares.level']
+            mem_shares       = info['config.memoryAllocation.shares.shares']
 
-            rp_name = rp_list.select { |item| item[:ref] == ref}.first[:name] rescue ""
+            rp_name = rp_list.select { |item| item[:ref] == ref}.first[:name] rescue ''
 
-            rp_name = "Resources" if rp_name.empty?
+            rp_name = 'Resources' if rp_name.empty?
 
             rp_info << "\nVCENTER_RESOURCE_POOL_INFO = ["
             rp_info << "NAME=\"#{rp_name}\","
@@ -251,7 +251,7 @@ class ClusterMonitor
             rp_info << "MEM_RESERVATION=#{mem_reservation},"
             rp_info << "MEM_SHARES=#{mem_shares},"
             rp_info << "MEM_SHARES_LEVEL=#{mem_shares_level}"
-            rp_info << "]"
+            rp_info << ']'
         }
 
         view.DestroyView
@@ -270,42 +270,42 @@ class ClusterMonitor
             end
         end
 
-        hosts.each do |ref, info|
-            next if info["runtime.connectionState"] != "connected"
+        hosts.each do |_ref, info|
+            next if info['runtime.connectionState'] != 'connected'
 
-            total_cpu = info["summary.hardware.numCpuCores"] * 100
-            used_cpu  = (info["summary.quickStats.overallCpuUsage"].to_f / info["summary.hardware.cpuMhz"].to_f) * 100
+            total_cpu = info['summary.hardware.numCpuCores'] * 100
+            used_cpu  = (info['summary.quickStats.overallCpuUsage'].to_f / info['summary.hardware.cpuMhz'].to_f) * 100
             used_cpu  = sprintf('%.2f', used_cpu).to_f # Trim precission
             free_cpu  = total_cpu - used_cpu
 
-            total_memory = info["summary.hardware.memorySize"]/1024
-            used_memory  = info["summary.quickStats.overallMemoryUsage"]*1024
+            total_memory = info['summary.hardware.memorySize']/1024
+            used_memory  = info['summary.quickStats.overallMemoryUsage']*1024
             free_memory  = total_memory - used_memory
 
             host_info << "\nHOST=["
-            host_info << "STATE=on,"
-            host_info << "HOSTNAME=\""  << info["name"].to_s       << "\","
-            host_info << "MODELNAME=\"" << info["summary.hardware.cpuModel"].to_s  << "\","
-            host_info << "CPUSPEED="    << info["summary.hardware.cpuMhz"].to_s    << ","
-            host_info << "MAX_CPU="     << total_cpu.to_s    << ","
-            host_info << "USED_CPU="    << used_cpu.to_s     << ","
-            host_info << "FREE_CPU="    << free_cpu.to_s     << ","
-            host_info << "MAX_MEM="     << total_memory.to_s << ","
-            host_info << "USED_MEM="    << used_memory.to_s  << ","
-            host_info << "FREE_MEM="    << free_memory.to_s
-            host_info << "]"
+            host_info << 'STATE=on,'
+            host_info << 'HOSTNAME="' << info['name'].to_s << '"'
+            host_info << 'MODELNAME="' << info['summary.hardware.cpuModel'].to_s << '",'
+            host_info << 'CPUSPEED=' << info['summary.hardware.cpuMhz'].to_s << ','
+            host_info << 'MAX_CPU=' << total_cpu.to_s << ','
+            host_info << 'USED_CPU=' << used_cpu.to_s << ','
+            host_info << 'FREE_CPU=' << free_cpu.to_s << ','
+            host_info << 'MAX_MEM=' << total_memory.to_s << ','
+            host_info << 'USED_MEM=' << used_memory.to_s << ','
+            host_info << 'FREE_MEM=' << free_memory.to_s
+            host_info << ']'
         end
 
         host_info
     end
 
     def monitor_customizations
-        customizations = @cluster['_connection'].serviceContent.customizationSpecManager.info
-
+        customizations = @cluster['_connection'].serviceContent
+                                                .customizationSpecManager.info
         text = ''
 
         customizations.each do |c|
-            t = "CUSTOMIZATION = [ "
+            t = 'CUSTOMIZATION = [ '
             t << %Q<NAME = "#{c.name}", >
             t << %Q<TYPE = "#{c.type}" ]\n>
 
@@ -328,7 +328,7 @@ class ClusterMonitor
             STDERR.puts e.backtrace
         end
 
-        host_id = one_host["ID"] if one_host
+        host_id = one_host['ID'] if one_host
 
         # Extract CPU info and name for each esx host in cluster
         esx_hosts = {}
@@ -342,8 +342,9 @@ class ClusterMonitor
         @monitored_vms = Set.new
         str_info = ''
 
+        # View for VMs inside this cluster
         view = @vi_client.vim.serviceContent.viewManager.CreateContainerView({
-            container: @cluster.item, #View for VMs inside this cluster
+            container: @cluster.item,
             type:      ['VirtualMachine'],
             recursive: true
         })
@@ -351,24 +352,24 @@ class ClusterMonitor
         pc = @vi_client.vim.serviceContent.propertyCollector
 
         monitored_properties = [
-            "name", #VM name
-            "config.template", #To filter out templates
-            "summary.runtime.powerState", #VM power state
-            "summary.quickStats.hostMemoryUsage", #Memory usage
-            "summary.quickStats.overallCpuUsage", #CPU used by VM
-            "runtime.host", #ESX host
-            "resourcePool", #RP
-            "guest.guestFullName",
-            "guest.net", #IP addresses as seen by guest tools,
-            "guest.guestState",
-            "guest.toolsVersion",
-            "guest.toolsRunningStatus",
-            "guest.toolsVersionStatus2", #IP addresses as seen by guest tools,
-            "config.extraConfig", #VM extraconfig info e.g opennebula.vm.running
-            "config.hardware.numCPU",
-            "config.hardware.memoryMB",
-            "config.annotation",
-            "datastore"
+            'name', #VM name
+            'config.template', #To filter out templates
+            'summary.runtime.powerState', #VM power state
+            'summary.quickStats.hostMemoryUsage', #Memory usage
+            'summary.quickStats.overallCpuUsage', #CPU used by VM
+            'runtime.host', #ESX host
+            'resourcePool', #RP
+            'guest.guestFullName',
+            'guest.net', #IP addresses as seen by guest tools,
+            'guest.guestState',
+            'guest.toolsVersion',
+            'guest.toolsRunningStatus',
+            'guest.toolsVersionStatus2', #IP addresses as seen by guest tools,
+            'config.extraConfig', #VM extraconfig info e.g opennebula.vm.running
+            'config.hardware.numCPU',
+            'config.hardware.memoryMB',
+            'config.annotation',
+            'datastore'
         ]
 
         filterSpec = RbVmomi::VIM.PropertyFilterSpec(
@@ -522,10 +523,7 @@ class ClusterMonitor
             DEPLOY_ID="#{vm_ref}",
         }
 
-        # error_info << "ERROR=\"#{Base64.encode64(tmp_str).gsub("\n","")}\"]"
-
-        error_info << "ERROR=\"#{tmp_str}\""
-
+        error_info << "ERROR=\"#{Base64.encode64(tmp_str).gsub("\n","")}\"]"
     end
 
     # monitor function used when poll action is called for all vms
