@@ -1,0 +1,10 @@
+---
+
+- hosts: all
+  gather_facts: false
+  tasks:
+    - name: Create a file in TMP dir
+      file:
+        path: /tmp/ddc_dummy
+        state: touch
+        mode: u=rw,g=r,o=r
