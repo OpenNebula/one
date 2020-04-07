@@ -22,6 +22,7 @@ define(function(require) {
   var TabDataTable = require('utils/tab-datatable');
   var VMsTableUtils = require('./utils/datatable-common');
   var OpenNebulaVM = require('opennebula/vm');
+  var OpenNebulaAction = require("opennebula/action");
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
   var StateActions = require('./utils/state-actions');
@@ -173,12 +174,13 @@ define(function(require) {
     TabDataTable.prototype.initialize.call(this, opts);
 
     //download file RDP
-    $('#' + this.dataTableId).on("click", '.download_rdp', function(e){
+    $('#' + this.dataTableId).on("click", '.rdp', function(e){
       e.stopPropagation();
-      var ip = $(this).attr("ip");
-      var credential = TemplateUtils.stringToTemplate( $(this).attr("credential") );
-      var name = $(this).attr("name");
-      Rdp.downloadFile(ip, name, credential);
+      var data = $(this).data();
+      if (data.ip && data.name) {
+        Sunstone.runAction("VM.save_rdp", data);
+      }
+      return false;
     });
 
     $('#' + this.dataTableId).on("click", '.vnc', function() {

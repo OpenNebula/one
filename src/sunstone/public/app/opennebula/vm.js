@@ -673,6 +673,7 @@ define(function(require) {
     "isNICAttachSupported": isNICAttachSupported,
     "isVNCSupported": isVNCSupported,
     "isRDPSupported": isRDPSupported,
+    "buttonRDP": buttonRDP,
     "isSPICESupported": isSPICESupported,
     "getName": function(id){
       return OpenNebulaAction.getName(id, RESOURCE);
@@ -916,11 +917,30 @@ define(function(require) {
 
     $.each(nics, function(_, nic) {
       if (nic.RDP && String(nic.RDP).toLowerCase() === "yes") {
-        activated = true;
+        activated = nic;
       }
     });
 
     return activated;
+  }
+
+  function buttonRDP(ip = "", vm = {}) {
+    var username, password;
+
+    if (vm && vm.TEMPLATE && vm.TEMPLATE.CONTEXT) {
+      var context = vm.TEMPLATE.CONTEXT;
+      for (var prop in context) {
+        var propUpperCase = String(prop).toUpperCase();
+        (propUpperCase === "USERNAME") && (username = context[prop]);
+        (propUpperCase === "PASSWORD") && (password = context[prop]);
+      }
+    }
+    var button = '<button class="rdp" data-name="' + vm.NAME + '" data-ip="' + ip + '"';
+    username && (button += ' data-username="' + username + '"');
+    password && (button += ' data-password="' + password + '"');
+    button += '><i class="fab fa-windows"></i></button>';
+
+    return button;
   }
 
   return VM;

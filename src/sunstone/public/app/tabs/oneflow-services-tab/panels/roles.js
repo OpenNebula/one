@@ -31,6 +31,8 @@ define(function(require) {
   var Vnc = require('utils/vnc');
   var Spice = require('utils/spice');
   var Notifier = require('utils/notifier');
+  var OpenNebulaAction = require("opennebula/action");
+  var OpenNebulaVM = require("opennebula/vm");
 
   var VMS_TAB_ID = require('tabs/vms-tab/tabId');
 
@@ -87,6 +89,10 @@ define(function(require) {
 
   function _html() {
     var roleList = [];
+
+    if (!OpenNebulaAction.cache("VM")) {
+      Sunstone.runAction("VM.list");
+    }
 
     var roles = this.element.TEMPLATE.BODY.roles;
     if (roles && roles.length) {
@@ -194,6 +200,7 @@ define(function(require) {
 
   function _roleHTML(role_index) {
     var that = this;
+    that.cache = OpenNebulaAction.cache("VM");
 
     var role = this.element.TEMPLATE.BODY.roles[role_index];
 
@@ -223,22 +230,38 @@ define(function(require) {
           info.push("");
         }
 
-      
         var id = vm_info ? vm_info.VM.ID : this.deploy_id;
         var name = vm_info ? vm_info.VM.NAME : "";
         var uname = vm_info ? vm_info.VM.UNAME : "";
         var gname = vm_info ? vm_info.VM.GNAME : "";
+        var ips = "";
+        var actions = "";
+        if (that.cache && that.cache.data && Array.isArray(that.cache.data)) {
+          $.each(that.cache.data, function(_, data){
+            if (data.VM && data.VM.ID === id) {
+              ips = OpenNebulaVM.ipsStr(data.VM);
+              
+              if (OpenNebulaVM.isVNCSupported(data.VM)) {
+                actions += '<button class="vnc" data-id="' + id + '"><i class="fas fa-desktop"></i></button>';
+              }
+              
+              rdp = OpenNebulaVM.isRDPSupported(data.VM);
+              if (rdp) {
+                actions += OpenNebulaVM.buttonRDP(rdp.IP, data.VM)
+              }
+            }
+          })
+        }
+
         var rowInfo = [
-          '<input class="check_item" '+
-          'style="vertical-align: inherit;"'+
-          'type="checkbox" '+
-          'id="vm_' + id + '" '+
-          'name="selected_items" ' +
-          'value="' + id + '"/>',
+          '<input class="check_item" style="vertical-align: inherit;" type="checkbox" '+
+            'id="vm_' + id + '" name="selected_items" value="' + id + '"/>',
           '<a href="/#vms-tab/' + id + '">'+ id +'</a>',
           name,
           uname,
-          gname
+          gname,
+          ips,
+          actions,
         ];
 
         vms.push(info.concat(rowInfo))
@@ -254,28 +277,18 @@ define(function(require) {
         Locale.tr("Name"),
         Locale.tr("Owner"),
         Locale.tr("Group"),
+        Locale.tr("IPs"),
+        "" // VNC and RDP
       ],
       'vms': vms
     });
   }
 
   function _roleSetup(context, role_index) {
+    var that = this;
+
     if(this.servicePanel) {
       var role = this.element.TEMPLATE.BODY.roles[role_index];
-
-      $(".vnc", context).off("click");
-      $(".vnc", context).on("click", function() {
-        var vmId = $(this).attr('vm_id');
-
-        if (!Vnc.lockStatus()) {
-          Vnc.lock();
-          Sunstone.runAction("VM.startvnc_action", vmId);
-        } else {
-          Notifier.notifyError(Locale.tr("VNC Connection in progress"));
-        }
-
-        return false;
-      });
 
       $(".spice", context).off("click");
       $(".spice", context).on("click", function() {
@@ -284,7 +297,8 @@ define(function(require) {
         if (!Spice.lockStatus()) {
           Spice.lock();
           Sunstone.runAction("VM.startspice_action", vmId);
-        } else {
+        } else {that.cache = OpenNebulaAction.cache("VM");
+    
           Notifier.notifyError(Locale.tr("SPICE Connection in progress"));
         }
 
@@ -302,7 +316,7 @@ define(function(require) {
             "bSortClasses" : false,
             "bDeferRender": true,
             "aoColumnDefs": [
-              {"bSortable": false, "aTargets": [0,1,"check"]},
+              {"bSortable": false, "aTargets": [0,1,"check",7,8]},
               {"bVisible": false, "aTargets": [0,1]}
             ]
           }
@@ -313,7 +327,31 @@ define(function(require) {
         TAB_ID,
         "service_roles_tab",
         roles_vm_buttons,
-        $('div#role_vms_actions', context));
+        $('div#role_vms_actions', context)
+      );
+
+      $(".vnc", context).off("click");
+      $(".vnc", context).on("click", function() {
+        var vmId = $(this).data("id");
+
+        if (!Vnc.lockStatus()) {
+          Vnc.lock();
+          Sunstone.runAction("VM.startvnc_action", String(vmId));
+        } else {
+          Notifier.notifyError(Locale.tr("VNC Connection in progress"));
+        }
+
+        return false;
+      });
+
+      $(".rdp", context).off("click");
+      $(".rdp", context).on("click", function() {
+        var data = $(this).data();
+        if (data.ip && data.name) {
+          Sunstone.runAction("VM.save_rdp", data);
+        }
+        return false;
+      });
     }
 
     Tips.setup(context);

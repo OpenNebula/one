@@ -125,3 +125,26 @@ button.search-dropdown {
   box-shadow: none !important;
   border-style: none !important;
 }
+
+button.vnc,
+button.rdp {
+  margin: 0 5px;
+  font-size: 1.4em;
+}
+
+button.vnc i,
+button.rdp i {
+  color: $anchor-color;
+}
+
+button.vnc:hover i,
+button.rdp:hover i {
+  color: $anchor-color-hover;
+}
+
+button.vnc:focus:active,
+button.vnc:focus:active i,
+button.rdp:focus:active,
+button.rdp:focus:active i {
+  outline: 0;
+}

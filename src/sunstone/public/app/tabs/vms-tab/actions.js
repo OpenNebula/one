@@ -174,10 +174,16 @@ define(function(require) {
     },
     "VM.save_rdp" : {
       type: "custom",
-      call: function() {
+      call: function(args) {
         var vm = Sunstone.getElementRightInfo(TAB_ID);
 
-        if (vm && vm.NAME && vm.TEMPLATE && vm.TEMPLATE.NIC) {
+        if (args && args.ip && args.name) {
+          var credentials = {};
+          args.username && (credentials["USERNAME"] = args.username);
+          args.password && (credentials["PASSWORD"] = args.password);
+          Rdp.downloadFile(args.ip, args.name, credentials);
+        }
+        else if (vm && vm.NAME && vm.TEMPLATE && vm.TEMPLATE.NIC) {
           var name = vm.NAME;
           var nics = vm.TEMPLATE.NIC;
           nics = Array.isArray(nics) ? vm.TEMPLATE.NIC : [vm.TEMPLATE.NIC];
