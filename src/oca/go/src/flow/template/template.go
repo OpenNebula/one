@@ -15,24 +15,24 @@ func init() {
 }
 
 // List the contents of the SERVICE_TEMPLATE collection.
-func List(class httpclient.Auth) *http.Response {
-	url := fmt.Sprintf("%s/%s", class.Oned, endpoint)
+func List(client httpclient.Client) *http.Response {
+	url := fmt.Sprintf("%s/%s", client.Address, endpoint)
 
-	return httpclient.Get(url, class.User, class.Pass)
+	return httpclient.Get(client, url)
 }
 
 // Show the SERVICE_TEMPLATE resource identified by <id>
-func Show(class httpclient.Auth, id int) *http.Response {
-	url := fmt.Sprintf("%s/%s/%s", class.Oned, endpoint, strconv.Itoa(id))
+func Show(client httpclient.Client, id int) *http.Response {
+	url := fmt.Sprintf("%s/%s/%s", client.Address, endpoint, strconv.Itoa(id))
 
-	return httpclient.Get(url, class.User, class.Pass)
+	return httpclient.Get(client, url)
 }
 
 // Delete the SERVICE_TEMPLATE resource identified by <id>
-func Delete(class httpclient.Auth, id int) *http.Response {
-	url := fmt.Sprintf("%s/%s/%s", class.Oned, endpoint, strconv.Itoa(id))
+func Delete(client httpclient.Client, id int) *http.Response {
+	url := fmt.Sprintf("%s/%s/%s", client.Address, endpoint, strconv.Itoa(id))
 
-	return httpclient.Delete(url, class.User, class.Pass)
+	return httpclient.Delete(client, url)
 }
 
 // Create a new SERVICE_TEMPLATE resource.
