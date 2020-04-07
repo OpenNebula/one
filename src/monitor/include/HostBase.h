@@ -101,8 +101,8 @@ protected:
     int init_attributes();
 
 private:
-    Host::HostState _state      = Host::HostState::INIT;
-    Host::HostState _prev_state = Host::HostState::INIT;
+    Host::HostState _state      = Host::INIT;
+    Host::HostState _prev_state = Host::INIT;
 
     std::string _vmm_mad;
     std::string _im_mad;
