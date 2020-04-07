@@ -37,7 +37,7 @@
     <div class="tabs-content vertical" data-tabs-content="osTabs">
       <div class="wizard_internal_tab is-active tabs-panel bootTab" id="bootTab{{uniqueId}}">
         <div class="row">
-          <div class="medium-4 columns only_kvm">
+          <div class="medium-4 columns only_kvm not_lxd">
             <label>
               {{tr "CPU Architecture"}}
               <select wizard_field="ARCH">
@@ -47,12 +47,12 @@
               </select>
             </label>
           </div>
-          <div class="medium-4 columns hypervisor only_kvm">
+          <div class="medium-4 columns hypervisor only_kvm not_lxd">
             <label id="sd-disk-bus-info">
               {{tr "Bus for SD disks"}}
             </label>
           </div>
-          <div class="medium-4 columns hypervisor only_kvm">
+          <div class="medium-4 columns hypervisor only_kvm not_lxd">
             <label id="kvm-info">
               {{tr "Machine type"}}
             </label>
@@ -60,7 +60,7 @@
         </div>
         <hr>
         <div class="row">
-          <div class="medium-4 columns only_kvm">
+          <div class="medium-4 columns only_kvm not_lxd">
             <label>
               {{tr "Root device"}}
               <input type="text" wizard_field="ROOT" placeholder="sda1"/>
@@ -81,7 +81,7 @@
         </div>
         <br/>
         <div class="row">
-          <div class="large-12 columns only_kvm">
+          <div class="large-12 columns only_kvm not_lxd">
             <label>
               {{tr "Kernel boot parameters"}}
               <input type="text" wizard_field="KERNEL_CMD" placeholder="ro console=tty1"/>
@@ -89,7 +89,7 @@
           </div>
         </div>
         <div class="row">
-          <div class="large-12 columns only_kvm">
+          <div class="large-12 columns only_kvm not_lxd">
             <label>
               {{tr "Path to the bootloader executable"}}
               <input type="text" wizard_field="BOOTLOADER"/>
