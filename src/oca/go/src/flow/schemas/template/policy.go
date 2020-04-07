@@ -1,4 +1,4 @@
-package policy
+package template
 
 type Policy struct {
 	Type          string

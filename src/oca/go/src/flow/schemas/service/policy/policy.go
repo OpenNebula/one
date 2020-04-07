@@ -1,4 +1,4 @@
-package service
+package policy
 
 type Policy struct {
 	Type          string

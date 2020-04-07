@@ -1,4 +1,4 @@
-package role
+package template
 
 type Role struct {
 	Name        string
@@ -12,12 +12,12 @@ type Role struct {
 	// PolScheduled  []SCheduled
 }
 
-type Action struct {
-	Perform string
-	actionparams
-}
+// type Action struct {
+// 	Perform string
+// 	actionparams
+// }
 
-type actionparams struct {
-	Period int
-	Number int
-}
+// type actionparams struct {
+// 	Period int
+// 	Number int
+// }
