@@ -42,7 +42,7 @@ if sys.version_info[0] < 3:
 
 setup(
     name='pyone',
-    version='5.10.4',
+    version='5.10.5',
     description='Python Bindings for OpenNebula XML-RPC API',
     long_description=long_description,
 
