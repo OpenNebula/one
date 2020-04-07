@@ -151,15 +151,14 @@ define(function(require) {
       state = OpenNebulaVM.stateStr(element.STATE);
     }
 
+    var actions = "";
     // VNC icon
-    var vncIcon;
     if (OpenNebulaVM.isVNCSupported(element)) {
-      vncIcon = '<a class="vnc" href="#" vm_id="' + element.ID + '"><i class="fas fa-desktop"/></a>';
+      actions += '<button class="vnc" vm_id="' + element.ID + '"><i class="fas fa-desktop"></i></button>';
     } else if (OpenNebulaVM.isSPICESupported(element)) {
-      vncIcon = '<a class="spice" href="#" vm_id="' + element.ID + '"><i class="fas fa-desktop"/></a>';
-    } else {
-      vncIcon = '';
+      actions += '<button class="spice" vm_id="' + element.ID + '"><i class="fas fa-desktop"></i></button>';
     }
+
     if(config && 
       config["system_config"] && 
       config["system_config"]["allow_vnc_federation"] && 
@@ -168,7 +167,13 @@ define(function(require) {
       config["zone_id"] && 
       config["id_own_federation"] !== config["zone_id"])
     {
-      vncIcon = '';
+      actions = '';
+    }
+
+    // RDP icon
+    var rdp = OpenNebulaVM.isRDPSupported(element);
+    if (rdp) {
+      actions += OpenNebulaVM.buttonRDP(rdp.IP, element);
     }
 
     var cpuMonitoring = 0;
@@ -232,7 +237,7 @@ define(function(require) {
       hostname,
       OpenNebulaVM.ipsStr(element),
       Humanize.prettyTimeDatatable(element.STIME),
-      vncIcon,
+      actions,
       TemplateUtils.htmlEncode(TemplateUtils.templateToString(element)),
       (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
       btoa(unescape(encodeURIComponent(JSON.stringify(search)))),
