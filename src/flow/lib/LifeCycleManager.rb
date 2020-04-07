@@ -663,6 +663,8 @@ class ServiceLCM
             # just update if the cardinality is positive
             set_cardinality(role, cardinality, true) if cardinality >= 0
 
+            role.nodes.delete_if {|n| n['deploy_id'] == node }
+
             service.update
 
             Log.info 'WD',
