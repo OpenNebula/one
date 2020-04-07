@@ -24,7 +24,7 @@ module DomainList
     #   @param host_id [Integer] ID of the host (not used here)
     #
     #   @return [Hash] with KVM Domain classes indexed by their name
-    def self.state_info(host, host_id)
+    def self.state_info(*)
         containers = Container.get_all(LXD::CLIENT)
         return unless containers
 
