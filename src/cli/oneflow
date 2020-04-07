@@ -64,7 +64,7 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Schedule action arguments',
         :format => String
     }
- 
+
     DELETE = {
         :name => 'delete',
         :large => '--delete',
