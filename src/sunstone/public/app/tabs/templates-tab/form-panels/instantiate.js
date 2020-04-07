@@ -128,7 +128,27 @@ define(function(require) {
 
     context.off("click", "#add_scheduling_inst_action");
     context.on("click", "#add_scheduling_inst_action", function() {
-      var actions = ["terminate", "terminate-hard", "hold", "release", "stop", "suspend", "resume", "reboot", "reboot-hard", "poweroff", "poweroff-hard", "undeploy", "undeploy-hard", "snapshot-create"];
+      var actions = [
+        "terminate", 
+        "terminate-hard", 
+        "hold", 
+        "release", 
+        "stop", 
+        "suspend", 
+        "resume", 
+        "reboot", 
+        "reboot-hard", 
+        "poweroff", 
+        "poweroff-hard", 
+        "undeploy", 
+        "undeploy-hard", 
+        "snapshot-create",
+        "snapshot-delete", 
+        "snapshot-revert", 
+        "disk-snapshot-create", 
+        "disk-snapshot-delete", 
+        "disk-snapshot-revert"
+      ];
       $("#add_scheduling_inst_action", context).attr("disabled", "disabled");
       ScheduleActions.htmlNewAction(actions, context, "inst");
       ScheduleActions.setup(context);

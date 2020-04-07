@@ -25,6 +25,8 @@ define(function (require) {
   var TemplateHTML = require("hbs!./schedule_action/html");
   var TemplateTableHTML = require("hbs!./schedule_action/table");
 
+  var selector = '';
+
   function _html(resource, leases = null) {
     this.res = resource;
     return TemplateTableHTML({
@@ -55,7 +57,7 @@ define(function (require) {
     };
     var that = this;
     $.each(actions, function (key, action) {
-      var actionAux = action.replace("-", "_");
+      var actionAux = action.replace(/\-/g, "_");
       if (Config.isTabActionEnabled("vms-tab", "VM." + actionAux)) {
         options += "<option value=\"" + action + "\">" + Locale.tr(action) + "</option>";
       }
@@ -103,7 +105,50 @@ define(function (require) {
     }
     $("#date_input", context).attr("value", yyyy + "-" + mm + "-" + dd);
     $(".periodic", context).hide();
+    this.selector = $("select#select_new_action");
+    $("select#select_new_action").on("change",function(){
+      var snap_name = $("#snapname");
+      var snap_id = $("#snapid");
+      var disk_id = $("#diskid");
 
+      switch ($(this).val()) {
+        case "snapshot-create":
+          snap_name.removeClass("hide");
+          snap_id.addClass("hide");
+          disk_id.addClass("hide");
+        break;
+        case "snapshot-revert":
+          snap_name.addClass("hide");
+          snap_id.removeClass("hide");
+          disk_id.addClass("hide");
+        break;
+        case "snapshot-delete":
+          snap_name.addClass("hide");
+          snap_id.removeClass("hide");
+          disk_id.addClass("hide");
+        break;
+        case "disk-snapshot-create":
+          snap_name.removeClass("hide");
+          snap_id.addClass("hide");
+          disk_id.removeClass("hide");
+        break;
+        case "disk-snapshot-revert":
+          snap_name.addClass("hide");
+          snap_id.removeClass("hide");
+          disk_id.removeClass("hide");
+        break;
+        case "disk-snapshot-delete":
+          snap_name.addClass("hide");
+          snap_id.removeClass("hide");
+          disk_id.removeClass("hide");
+        break;
+        default:
+          snap_name.addClass("hide");
+          snap_id.addClass("hide");
+          disk_id.addClass("hide");
+        break;
+      }
+    });
     $("input#schedule_type", context).on("change", function () {
       var periodic = $(this).prop("checked");
 
@@ -192,6 +237,7 @@ define(function (require) {
   function _retrieve(context) {
     $("#scheduling_" + this.res + "_actions_table .create", context).remove();
     var actionsJSON = [];
+    var that = this;
     $("#scheduling_" + this.res + "_actions_table tbody tr").each(function (index) {
       var first = $(this).children("td")[0];
       if (!$("select", first).html()) {
@@ -199,6 +245,22 @@ define(function (require) {
         if ($(this).attr("data")) {
           actionJSON = JSON.parse($(this).attr("data"));
           actionJSON.ID = String(index);
+          var actions = [
+            'snapshot-create',
+            'snapshot-revert',
+            'snapshot-delete',
+            'disk-snapshot-create',
+            'disk-snapshot-revert',
+            'disk-snapshot-delete'
+          ];
+
+          if(actions.includes(that.selector.val())){
+            var snap_name = $("#snapname").val();
+            var snap_id = $("#snapid").val();
+            var disk_id = $("#diskid").val();
+            var rawData = [disk_id,snap_id,snap_name];
+            actionJSON.ARGS = rawData.filter(function (e) {return e;}).join();
+          }
         }
       }
       if (!$.isEmptyObject(actionJSON)) { actionsJSON.push(actionJSON); };
