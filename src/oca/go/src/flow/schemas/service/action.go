@@ -10,19 +10,20 @@ const (
 	Chmod    Action = 4
 )
 
-// func (s State) String() string {
-// 	switch s {
-// 	case Shutdown:
-// 		return "shutdown"
-// 	case Recover:
-// 		return "recover"
-// 	case Chown:
-// 		return "chown"
-// 	case Chgrp:
-// 		return "chgrp"
-// 	case Chmod:
-// 		return "chmod"
-// 	default:
-// 		return ""
-// 	}
-// }
+// Map action to hash
+func (s Action, args []int) String() string {
+	switch s {
+	case Shutdown:
+		return "shutdown"
+	case Recover:
+		return "recover"
+	case Chown:
+		return "chown"
+	case Chgrp:
+		return "chgrp"
+	case Chmod:
+		return "chmod"
+	default:
+		return ""
+	}
+}
