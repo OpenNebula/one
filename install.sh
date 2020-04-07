@@ -649,6 +649,7 @@ INSTALL_ONEPROVISION_FILES=(
     ONEPROVISION_CONF_FILES:$ETC_LOCATION/cli
     ONEPROVISION_ANSIBLE_FILES:$SHARE_LOCATION/oneprovision
     ONEPROVISION_TEMPLATES_FILES:$SHARE_LOCATION/oneprovision
+    ONEPROVISION_EXAMPLES_FILES:$SHARE_LOCATION/oneprovision
     ONEPROVISION_LIB_FILES:$LIB_LOCATION/oneprovision/lib
     ONEPROVISION_LIB_RESOURCES_FILES:$LIB_LOCATION/oneprovision/lib/resources
     ONEPROVISION_LIB_PHYSICAL_R_FILES:$LIB_LOCATION/oneprovision/lib/resources/physical
@@ -2245,6 +2246,8 @@ ONEPROVISION_CONF_FILES="src/cli/etc/oneprovision.yaml"
 ONEPROVISION_ANSIBLE_FILES="share/oneprovision/ansible"
 
 ONEPROVISION_TEMPLATES_FILES="share/oneprovision/templates"
+
+ONEPROVISION_EXAMPLES_FILES="share/oneprovision/examples"
 
 ONEPROVISION_LIB_FILES="src/oneprovision/lib/ansible.rb \
                         src/oneprovision/lib/oneprovision.rb \
