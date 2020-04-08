@@ -260,7 +260,7 @@ module OneProvision
                     base['defaults'][section].merge!(defaults)
                 end
 
-                base
+                base              
             end
 
             # Gets the value of an ERB expression
