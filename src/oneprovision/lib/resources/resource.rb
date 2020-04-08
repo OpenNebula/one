@@ -40,7 +40,7 @@ module OneProvision
         #
         # @param type [String] Object type
         def self.object(type)
-            type = type.downcase.delete_suffix('s').to_sym
+            type = type.downcase[0..-2].to_sym
 
             case type
             when :cluster
@@ -198,7 +198,7 @@ module OneProvision
                 update_str << "#{key.upcase}=\"#{value}\","
             end
 
-            update_str.delete_suffix!(',')
+            update_str = update_str[0..-2]
             update_str << ']'
 
             @one.update(update_str, true)
