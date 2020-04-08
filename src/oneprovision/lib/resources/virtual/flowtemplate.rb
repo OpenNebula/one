@@ -54,14 +54,18 @@ module OneProvision
                     resource = resource.to_hash['DOCUMENT']['TEMPLATE']['BODY']
                     resource = JSON.parse(resource)
 
-                    resource['provision']['provision_id'] == id
+                    if resource['provision']
+                        resource['provision']['provision_id'] == id
+                    end
                 end
             else
                 @pool.reject do |resource|
                     resource = resource.to_hash['DOCUMENT']['TEMPLATE']['BODY']
                     resource = JSON.parse(resource)
 
-                    resource['provision']['provision_id'].nil?
+                    if resource['provision']
+                        resource['provision']['provision_id'].nil?
+                    end
                 end
             end
         end

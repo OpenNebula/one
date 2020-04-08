@@ -211,6 +211,8 @@ CommandParser::CmdParser.new(ARGV) do
                     body['custom_attrs']
                 )
 
+                params['merge_template'] = {} unless params['merge_template']
+
                 vnets = helper.networks(body['networks'])
                 params['merge_template'].merge!(vnets) unless vnets.nil?
             end

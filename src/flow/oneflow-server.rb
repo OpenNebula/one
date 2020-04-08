@@ -237,7 +237,11 @@ post '/service/:id/action' do
 
     case action['perform']
     when 'recover'
-        rc = lcm.recover_action(@client, params[:id])
+        if opts && opts['delete']
+            rc = lcm.undeploy_action(@client, params[:id], true)
+        else
+            rc = lcm.recover_action(@client, params[:id])
+        end
     when 'chown'
         if opts && opts['owner_id']
             u_id = opts['owner_id'].to_i
@@ -331,23 +335,22 @@ post '/service/:id/role/:role_name/action' do
     opts   = action['params']
 
     # Use defaults only if one of the options is supplied
-    if opts['period'].nil? && opts['number'].nil?
-        opts['period'] = conf[:action_period] if opts['period'].nil?
-        opts['number'] = conf[:action_number] if opts['number'].nil?
-    end
+    opts['period'] ||= conf[:action_period]
+    opts['number'] ||= conf[:action_number]
 
     rc = lcm.sched_action(@client,
                           params[:id],
                           params[:role_name],
                           action['perform'],
                           opts['period'],
-                          opts['number'])
+                          opts['number'],
+                          opts['args'])
 
     if OpenNebula.is_error?(rc)
         return internal_error(rc.message, one_error_to_http(rc.errno))
     end
 
-    status 201
+    status 200
 end
 
 post '/service/:id/scale' do

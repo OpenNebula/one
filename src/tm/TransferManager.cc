@@ -675,14 +675,6 @@ void TransferManager::prolog_action(int vid)
 
         if ( update )
         {
-            vm->unlock();
-
-            vm = vmpool->get(vid);
-            if (vm == nullptr)
-            {
-                goto error_attributes;
-            }
-
             vmpool->update(vm);
         }
     }

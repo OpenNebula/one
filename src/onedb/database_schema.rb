@@ -97,13 +97,14 @@ class OneDBBacKEnd
             vn_template_pool: "oid INTEGER PRIMARY KEY, name VARCHAR(128), " <<
                 "body MEDIUMTEXT, uid INTEGER, gid INTEGER," <<
                 "owner_u INTEGER, group_u INTEGER, other_u INTEGER",
+            index_sql: [{ :name =>'state_oid_idx', :table => 'vm_pool', :columns => '(state, oid)' },
+                        { :name =>'ftidx', :table => 'vm_pool', :columns => '(search_token)', :type => 'FULLTEXT' },
+                        { :name =>'applied_idx', :table => 'logdb', :columns => '(applied)' },
+                        { :name =>'fed_index_idx', :table => 'logdb', :columns => '(fed_index)' }],
 
-            index_sql: ["CREATE INDEX IF NOT EXISTS state_oid_idx ON vm_pool (state, oid);",
-                        "CREATE FULLTEXT INDEX IF NOT EXISTS ftidx ON vm_pool(search_token);",
-                        "CREATE INDEX IF NOT EXISTS applied_idx ON logdb (applied);"],
-
-            index_sqlite: ["CREATE INDEX IF NOT EXISTS state_oid_idx ON vm_pool (state, oid);",
-                           "CREATE INDEX IF NOT EXISTS applied_idx ON logdb (applied);"]
+            index_sqlite: [{ :name =>'state_oid_idx', :table => 'vm_pool', :columns => '(state, oid)' },
+                           { :name =>'applied_idx', :table => 'logdb', :columns => '(applied)' },
+                           { :name =>'fed_index_idx', :table => 'logdb', :columns => '(fed_index)' }]
         },
         "5.10.0" => {
             logdb: "log_index BIGINT UNSIGNED PRIMARY KEY, term INTEGER, sqlcmd MEDIUMTEXT, " <<
@@ -162,11 +163,6 @@ class OneDBBacKEnd
         end
 
         schema = SCHEMA[type] if !schema
-
-        if !schema
-            STDERR.puts "Schema not found (#{type}) for version #{version}"
-            exit(-1)
-        end
 
         schema
     end

@@ -77,13 +77,13 @@ module OneProvision
 
         # Creates a new HOST in OpenNebula
         #
-        # @param dfile    [String]  XML with all the HOST information
-        # @param cluster  [Integer] ID of the CLUSTER where
+        # @param dfile     [String]  XML with all the HOST information
+        # @param cluster   [Integer] ID of the CLUSTER where
         #                               the HOST will be allocated
-        # @param playbook [String]  Ansible playbook for configuring the HOST
+        # @param playbooks [String]  Ansible playbooks for configuring the HOST
         #
         # @retun [OpenNebula::Host] The ONE HOST object
-        def create(dfile, cluster, playbook)
+        def create(dfile, cluster, playbooks)
             xhost = OpenNebula::XMLElement.new
             xhost.initialize_xml(dfile, 'HOST')
 
@@ -100,8 +100,8 @@ module OneProvision
             host.allocate(name, im, vm, cluster)
             host.update(xhost.template_str, true)
 
-            if !playbook.nil?
-                host.update("ANSIBLE_PLAYBOOK=#{playbook}", true)
+            unless playbooks.nil?
+                host.update("ANSIBLE_PLAYBOOK=\"#{playbooks}\"", true)
             end
 
             host.offline

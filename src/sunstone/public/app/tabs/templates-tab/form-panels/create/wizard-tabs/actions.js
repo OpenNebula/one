@@ -72,8 +72,27 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-		var actions = ["terminate", "terminate-hard", "hold", "release", "stop", "suspend", "resume", "reboot", "reboot-hard", "poweroff", "poweroff-hard", "undeploy", "undeploy-hard", "snapshot-create"];
-
+		var actions = [
+      "terminate", 
+      "terminate-hard", 
+      "hold", 
+      "release", 
+      "stop", 
+      "suspend", 
+      "resume", 
+      "reboot", 
+      "reboot-hard", 
+      "poweroff", 
+      "poweroff-hard", 
+      "undeploy", 
+      "undeploy-hard", 
+      "snapshot-create",
+      "snapshot-delete", 
+      "snapshot-revert", 
+      "disk-snapshot-create", 
+      "disk-snapshot-delete", 
+      "disk-snapshot-revert"
+    ];
     context.off("click", "#add_scheduling_temp_action");
     context.on("click", "#add_scheduling_temp_action", function() {
       $("#add_scheduling_temp_action", context).attr("disabled", "disabled");

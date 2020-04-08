@@ -219,41 +219,48 @@ module OneProvision
                     Utils.fail("Failed to read template: #{e}")
                 end
 
-                if yaml['extends']
-                    yaml['extends'] = [yaml['extends']].flatten
+                return yaml unless yaml['extends']
 
-                    yaml['extends'].reverse.each do |f|
-                        base = read_config(f)
+                base = read_config(yaml['extends'])
 
-                        yaml.delete('extends')
-                        base['defaults'] ||= {}
-                        yaml['defaults'] ||= {}
+                yaml.delete('extends')
+                base['defaults'] ||= {}
+                yaml['defaults'] ||= {}
 
-                        # replace scalars or append array from child YAML
-                        yaml.each do |key, value|
-                            next if key == 'defaults'
+                if base['playbook']
+                    playbooks = []
 
-                            if (value.is_a? Array) && (base[key].is_a? Array)
-                                base[key].concat(value)
-                            else
-                                base[key] = value
-                            end
-                        end
+                    playbooks << base['playbook']
+                    playbooks << yaml['playbook'] if yaml['playbook']
 
-                        # merge each defaults section separately
-                        %w[connection provision configuration].each do |section|
-                            base['defaults'][section] ||= {}
-                            yaml['defaults'][section] ||= {}
-                            defaults = yaml['defaults'][section]
+                    playbooks.flatten!
 
-                            base['defaults'][section].merge!(defaults)
-                        end
+                    yaml['playbook'] = playbooks
 
-                        yaml = base
+                    base.delete('playbook')
+                end
+
+                # replace scalars or append array from child YAML
+                yaml.each do |key, value|
+                    next if key == 'defaults'
+
+                    if (value.is_a? Array) && (base[key].is_a? Array)
+                        base[key].concat(value)
+                    else
+                        base[key] = value
                     end
                 end
 
-                yaml
+                # merge each defaults section separately
+                %w[connection provision configuration].each do |section|
+                    base['defaults'][section] ||= {}
+                    yaml['defaults'][section] ||= {}
+                    defaults = yaml['defaults'][section]
+
+                    base['defaults'][section].merge!(defaults)
+                end
+
+                base              
             end
 
             # Gets the value of an ERB expression

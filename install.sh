@@ -98,6 +98,7 @@ CONF_LOCATION="$HOME/.one"
 if [ -z "$ROOT" ] ; then
     BIN_LOCATION="/usr/bin"
     LIB_LOCATION="/usr/lib/one"
+    SBIN_LOCATION="/usr/sbin"
     ETC_LOCATION="/etc/one"
     LOG_LOCATION="/var/log/one"
     VAR_LOCATION="/var/lib/one"
@@ -151,7 +152,7 @@ if [ -z "$ROOT" ] ; then
 
         CHOWN_DIRS=""
     else
-        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
+        MAKE_DIRS="$BIN_LOCATION $SBIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $DOCS_LOCATION \
                    $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION \
                    $SYSTEM_DS_LOCATION $DEFAULT_DS_LOCATION $MAN_LOCATION \
@@ -166,6 +167,7 @@ if [ -z "$ROOT" ] ; then
 
 else
     BIN_LOCATION="$ROOT/bin"
+    SBIN_LOCATION="$ROOT/sbin"
     LIB_LOCATION="$ROOT/lib"
     ETC_LOCATION="$ROOT/etc"
     VAR_LOCATION="$ROOT/var"
@@ -207,7 +209,7 @@ else
 
         DELETE_DIRS="$MAKE_DIRS"
     else
-        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
+        MAKE_DIRS="$BIN_LOCATION $SBIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $SYSTEM_DS_LOCATION \
                    $DEFAULT_DS_LOCATION $MAN_LOCATION $DOCS_LOCATION \
                    $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION \
@@ -228,7 +230,8 @@ SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/websockify \
             $SHARE_LOCATION/websockify/websockify \
             $SHARE_LOCATION/esx-fw-vnc \
-            $SHARE_LOCATION/oneprovision"
+            $SHARE_LOCATION/oneprovision \
+            $SHARE_LOCATION/start-scripts"
 
 ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/hm \
@@ -304,7 +307,15 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/firecracker-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/vcenter.d \
           $VAR_LOCATION/remotes/im/ec2.d \
+          $VAR_LOCATION/remotes/im/ec2-probes.d/host/monitor \
+          $VAR_LOCATION/remotes/im/ec2-probes.d/host/system \
+          $VAR_LOCATION/remotes/im/ec2-probes.d/vm/monitor \
+          $VAR_LOCATION/remotes/im/ec2-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/az.d \
+          $VAR_LOCATION/remotes/im/az-probes.d/host/monitor \
+          $VAR_LOCATION/remotes/im/az-probes.d/host/system \
+          $VAR_LOCATION/remotes/im/az-probes.d/vm/monitor \
+          $VAR_LOCATION/remotes/im/az-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/one.d \
           $VAR_LOCATION/remotes/im/packet.d \
           $VAR_LOCATION/remotes/pm \
@@ -465,6 +476,7 @@ fi
 #-------------------------------------------------------------------------------
 INSTALL_FILES=(
     BIN_FILES:$BIN_LOCATION
+    SBIN_FILES:$SBIN_LOCATION
     INCLUDE_FILES:$INCLUDE_LOCATION
     LIB_FILES:$LIB_LOCATION
     RUBY_LIB_FILES:$LIB_LOCATION/ruby
@@ -485,6 +497,11 @@ INSTALL_FILES=(
     IM_PROBES_FIRECRACKER_FILES:$VAR_LOCATION/remotes/im/firecracker.d
     IM_PROBES_DUMMY_FILES:$VAR_LOCATION/remotes/im/dummy.d
     IM_PROBES_LXD_FILES:$VAR_LOCATION/remotes/im/lxd.d
+    IM_PROBES_VCENTER_FILES:$VAR_LOCATION/remotes/im/vcenter.d
+    IM_PROBES_EC2_FILES:$VAR_LOCATION/remotes/im/ec2.d
+    IM_PROBES_AZ_FILES:$VAR_LOCATION/remotes/im/az.d
+    IM_PROBES_ONE_FILES:$VAR_LOCATION/remotes/im/one.d
+    IM_PROBES_PACKET_FILES:$VAR_LOCATION/remotes/im/packet.d
     IM_PROBES_KVM_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/beacon
     IM_PROBES_KVM_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/monitor
     IM_PROBES_KVM_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/system
@@ -503,11 +520,14 @@ INSTALL_FILES=(
     IM_PROBES_LXD_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d/vm/status
     IM_PROBES_LXD_PROBES_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d
     IM_PROBES_ETC_LXD_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/lxd-probes.d
-    IM_PROBES_VCENTER_FILES:$VAR_LOCATION/remotes/im/vcenter.d
-    IM_PROBES_EC2_FILES:$VAR_LOCATION/remotes/im/ec2.d
-    IM_PROBES_AZ_FILES:$VAR_LOCATION/remotes/im/az.d
-    IM_PROBES_ONE_FILES:$VAR_LOCATION/remotes/im/one.d
-    IM_PROBES_PACKET_FILES:$VAR_LOCATION/remotes/im/packet.d
+    IM_PROBES_AZ_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/az-probes.d/host/monitor
+    IM_PROBES_AZ_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/az-probes.d/host/system
+    IM_PROBES_AZ_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/az-probes.d/vm/monitor
+    IM_PROBES_AZ_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/az-probes.d/vm/status
+    IM_PROBES_EC2_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/host/monitor
+    IM_PROBES_EC2_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/host/system
+    IM_PROBES_EC2_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/vm/monitor
+    IM_PROBES_EC2_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/vm/status
     IM_PROBES_VERSION:$VAR_LOCATION/remotes
     IM_PROBES_FIRECRACKER_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/host/beacon
     IM_PROBES_FIRECRACKER_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/host/monitor
@@ -609,6 +629,7 @@ INSTALL_FILES=(
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
     ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
     VENDOR_DIRS:$LIB_LOCATION/ruby/vendors
+    START_SCRIPT_SHARE_FILES:$SHARE_LOCATION/start-scripts
 )
 
 INSTALL_CLIENT_FILES=(
@@ -771,6 +792,12 @@ BIN_FILES="src/nebula/oned \
            share/scripts/one"
 
 #-------------------------------------------------------------------------------
+# Binary files, to be installed under $SBIN_LOCATION
+#-------------------------------------------------------------------------------
+
+SBIN_FILES="src/vmm_mad/remotes/lib/firecracker/install-firecracker"
+
+#-------------------------------------------------------------------------------
 # C/C++ OpenNebula API Library & Development files
 # Include files, to be installed under $INCLUDE_LOCATION
 # Library files, to be installed under $LIB_LOCATION
@@ -787,6 +814,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/CommandManager.rb \
                 src/mad/ruby/OpenNebulaDriver.rb \
                 src/mad/ruby/VirtualMachineDriver.rb \
+                src/mad/ruby/PublicCloudDriver.rb \
                 src/mad/ruby/DriverExecHelper.rb \
                 src/mad/ruby/ssh_stream.rb \
                 src/vnm_mad/one_vnm.rb \
@@ -1065,7 +1093,6 @@ VMM_EXEC_EC2_SCRIPTS="src/vmm_mad/remotes/ec2/cancel \
                       src/vmm_mad/remotes/ec2/reboot \
                       src/vmm_mad/remotes/ec2/reset \
                       src/vmm_mad/remotes/ec2/save \
-                      src/vmm_mad/remotes/ec2/poll \
                       src/vmm_mad/remotes/ec2/shutdown \
                       src/vmm_mad/remotes/ec2/reconfigure \
                       src/vmm_mad/remotes/ec2/prereconfigure \
@@ -1089,7 +1116,6 @@ VMM_EXEC_AZ_SCRIPTS="src/vmm_mad/remotes/az/cancel \
                      src/vmm_mad/remotes/az/reboot \
                      src/vmm_mad/remotes/az/reset \
                      src/vmm_mad/remotes/az/save \
-                     src/vmm_mad/remotes/az/poll \
                      src/vmm_mad/remotes/az/shutdown \
                      src/vmm_mad/remotes/az/reconfigure \
                      src/vmm_mad/remotes/az/prereconfigure \
@@ -1271,9 +1297,41 @@ IM_PROBES_ETC_FIRECRACKER_PROBES_FILES="src/im_mad/remotes/lib/probe_db.conf"
 
 IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/poll"
 
-IM_PROBES_EC2_FILES="src/im_mad/remotes/ec2.d/poll"
+# EC2 monitord-client
+IM_PROBES_EC2_FILES="\
+    src/im_mad/remotes/ec2.d/monitord-client_control.sh \
+    src/im_mad/remotes/ec2.d/monitord-client.rb"
 
-IM_PROBES_AZ_FILES="src/im_mad/remotes/az.d/poll"
+# EC2 probes
+IM_PROBES_EC2_HOST_MONITOR_FILES="\
+     src/im_mad/remotes/ec2-probes.d/host/monitor/probe_host_monitor.rb"
+
+IM_PROBES_EC2_HOST_SYSTEM_FILES="\
+     src/im_mad/remotes/ec2-probes.d/host/system/probe_host_system.rb"
+
+IM_PROBES_EC2_VM_MONITOR_FILES="\
+     src/im_mad/remotes/ec2-probes.d/vm/monitor/probe_vm_monitor.rb"
+
+IM_PROBES_EC2_VM_STATUS_FILES="\
+     src/im_mad/remotes/ec2-probes.d/vm/status/probe_vm_status.rb"
+
+# AZ monitord-client
+IM_PROBES_AZ_FILES="\
+    src/im_mad/remotes/az.d/monitord-client_control.sh \
+    src/im_mad/remotes/az.d/monitord-client.rb"
+
+# AZ probes
+IM_PROBES_AZ_HOST_MONITOR_FILES="\
+     src/im_mad/remotes/az-probes.d/host/monitor/probe_host_monitor.rb"
+
+IM_PROBES_AZ_HOST_SYSTEM_FILES="\
+     src/im_mad/remotes/az-probes.d/host/system/probe_host_system.rb"
+
+IM_PROBES_AZ_VM_MONITOR_FILES="\
+     src/im_mad/remotes/az-probes.d/vm/monitor/probe_vm_monitor.rb"
+
+IM_PROBES_AZ_VM_STATUS_FILES="\
+     src/im_mad/remotes/az-probes.d/vm/status/probe_vm_status.rb"
 
 IM_PROBES_ONE_FILES="src/im_mad/remotes/one.d/poll"
 
@@ -1898,7 +1956,8 @@ HOOK_VCENTER_FILES="share/hooks/vcenter/create_vcenter_net.rb \
 #-------------------------------------------------------------------------------
 
 HOOK_VCENTER_TMPLS="share/hooks/vcenter/templates/create_vcenter_net.tmpl \
-                    share/hooks/vcenter/templates/delete_vcenter_net.tmpl"
+                    share/hooks/vcenter/templates/delete_vcenter_net.tmpl \
+                    share/hooks/vcenter/templates/instantiate_vcenter_net.tmpl"
 
 #-------------------------------------------------------------------------------
 # HOOK RAFT scripts, to be installed under $VAR_LOCATION/remotes/hooks/raft
@@ -1922,6 +1981,13 @@ INSTALL_GEMS_SHARE_FILES="share/install_gems/install_gems \
 ONETOKEN_SHARE_FILE="share/onetoken/onetoken.sh"
 
 FOLLOWER_CLEANUP_SHARE_FILE="share/hooks/raft/follower_cleanup"
+
+#-------------------------------------------------------------------------------
+# Start script files, to be installed under $SHARE_LOCATION/start-scripts
+#-------------------------------------------------------------------------------
+
+START_SCRIPT_SHARE_FILES="share/start-scripts/map_vnets_start_script \
+                          share/start-scripts/cron_start_script"
 
 #-------------------------------------------------------------------------------
 # OCA Files

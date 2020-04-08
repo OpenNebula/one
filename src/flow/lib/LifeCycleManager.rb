@@ -159,10 +159,17 @@ class ServiceLCM
     # @param action     [String]             Action to perform
     # @param period     [Integer]            When to execute the action
     # @param number     [Integer]            How many VMs per period
+    # @param args       [String]             Action arguments
     #
     # @return [OpenNebula::Error] Error if any
     # rubocop:disable Metrics/ParameterLists
-    def sched_action(client, service_id, role_name, action, period, number)
+    def sched_action(client,
+                     service_id,
+                     role_name,
+                     action,
+                     period,
+                     number,
+                     args)
         # rubocop:enable Metrics/ParameterLists
         rc = @srv_pool.get(service_id, client) do |service|
             role = service.roles[role_name]
@@ -171,7 +178,7 @@ class ServiceLCM
                 break OpenNebula::Error.new("Role '#{role_name}' not found")
             end
 
-            role.batch_action(action, period, number)
+            role.batch_action(action, period, number, args)
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
@@ -244,11 +251,12 @@ class ServiceLCM
     #
     # @param client     [OpenNebula::Client] Client executing action
     # @param service_id [Integer]            Service ID
+    # @param delete     [Boolean]            Force flow delete
     #
     # @return [OpenNebula::Error] Error if any
-    def undeploy_action(client, service_id)
+    def undeploy_action(client, service_id, delete = false)
         rc = @srv_pool.get(service_id, client) do |service|
-            unless service.can_undeploy?
+            if !service.can_undeploy? && !delete
                 break OpenNebula::Error.new(
                     'Service cannot be undeployed in state: ' \
                     "#{service.state_str}"
@@ -654,6 +662,8 @@ class ServiceLCM
 
             # just update if the cardinality is positive
             set_cardinality(role, cardinality, true) if cardinality >= 0
+
+            role.nodes.delete_if {|n| n['deploy_id'] == node }
 
             service.update
 

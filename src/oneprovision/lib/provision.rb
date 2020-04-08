@@ -300,7 +300,7 @@ module OneProvision
                         x = Utils.evaluate_erb(self, x)
 
                         OneProvisionLogger.debug(
-                            "Creating #{r.delete_suffix('s')} #{x['name']}"
+                            "Creating #{r[0..-2]} #{x['name']}"
                         )
 
                         obj.create(cid.to_i, x, driver, @id, @name)
@@ -329,7 +329,7 @@ module OneProvision
                         x = Utils.evaluate_erb(self, x)
 
                         OneProvisionLogger.debug(
-                            "Creating #{r.delete_suffix('s')} #{x['name']}"
+                            "Creating #{r[0..-2]} #{x['name']}"
                         )
 
                         obj.create(x, @id)
@@ -351,12 +351,14 @@ module OneProvision
 
             cfg['hosts'].each do |h|
                 Driver.retry_loop 'Failed to create some host' do
-                    erb      = Utils.evaluate_erb(self, h)
-                    dfile    = Utils.create_deployment_file(erb, @id, @name)
-                    playbook = cfg['playbook']
+                    erb       = Utils.evaluate_erb(self, h)
+                    dfile     = Utils.create_deployment_file(erb, @id, @name)
+                    playbooks = cfg['playbook']
 
                     host = Host.new
-                    host = host.create(dfile.to_xml, cid.to_i, playbook)
+                    host = host.create(dfile.to_xml,
+                                       cid.to_i,
+                                       playbooks.join(','))
 
                     @hosts << host
 

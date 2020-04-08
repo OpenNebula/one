@@ -36,7 +36,12 @@ module Role
         'reboot-hard',
         'poweroff',
         'poweroff-hard',
-        'snapshot-create'
+        'snapshot-create',
+        'snapshot-revert',
+        'snapshot-delete',
+        'disk-snapshot-create',
+        'disk-snapshot-revert',
+        'disk-snapshot-delete'
     ]
 
     STATE = {

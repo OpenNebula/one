@@ -10,6 +10,7 @@ Group=oneadmin
 User=oneadmin
 ExecStartPre=-/usr/sbin/logrotate -f /etc/logrotate.d/opennebula -s /var/lib/one/.logrotate.status
 ExecStart=/usr/bin/oned -f
+KillMode=mixed
 ExecStopPost=/usr/share/one/follower_cleanup
 PIDFile=/var/lock/one/one
 StartLimitInterval=60

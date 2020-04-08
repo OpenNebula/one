@@ -196,28 +196,24 @@ void SecurityGroupPool::get_security_group_rules(int vmid, int sgid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void SecurityGroupPool::release_security_groups(int id, set<int>& sgs)
+void SecurityGroupPool::release_security_group(int id, int sgid)
 {
-    set<int>::iterator it;
-    SecurityGroup *    sg;
-
-    for (it = sgs.begin(); it != sgs.end(); it++)
+    if (id == -1)
     {
-        sg = get(*it);
-
-        if (sg == 0)
-        {
-            continue;
-        }
-
-        if ( id != -1 )
-        {
-            sg->del_vm(id);
-
-            update(sg);
-        }
-
-        sg->unlock();
+        return;
     }
+
+    SecurityGroup * sg = get(sgid);
+
+    if (sg == 0)
+    {
+        return;
+    }
+
+    sg->del_vm(id);
+
+    update(sg);
+
+    sg->unlock();
 }
 

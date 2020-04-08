@@ -73,7 +73,18 @@ define(function(require) {
   }
 
   var _actions = {
-    "Service.show" : _commonActions.show(),
+    "Service.show" :  {
+      type: "single",
+      call: OpenNebulaResource.show,
+      callback: function(request, response) {
+        Sunstone.runAction("VM.list")
+        Sunstone.getDataTable(TAB_ID).updateElement(request, response);
+        if (Sunstone.rightInfoVisible($('#' + TAB_ID))) {
+          Sunstone.insertPanels(TAB_ID, response);
+        }
+      },
+      error: Notifier.onError
+    },
     "Service.refresh" : _commonActions.refresh(),
     "Service.delete" : _commonActions.del(),
     "Service.chown": _commonActions.multipleAction('chown'),
