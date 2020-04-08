@@ -15,7 +15,7 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 
-ONE_LOCATION ||= ENV['ONE_LOCATION'] if !defined? ONE_LOCATION
+ONE_LOCATION ||= ENV['ONE_LOCATION'] unless defined? ONE_LOCATION
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
@@ -63,7 +63,7 @@ class EC2Driver
     # Constants
     # --------------------------------------------------------------------------
 
-    POLL_ATTRIBUTE  = VirtualMachineDriver::POLL_ATTRIBUTE
+    POLL_ATTRIBUTE = VirtualMachineDriver::POLL_ATTRIBUTE
 
     # EC2 commands constants
     EC2 = {
@@ -247,7 +247,7 @@ class EC2Driver
     #   @param [String] name of host in OpenNebula
     #   @param [String] ID of host in OpenNebula
     # --------------------------------------------------------------------------
-    def initialize(host, id=nil)
+    def initialize(host, id = nil)
         @hypervisor = 'ec2'
         @host = host
 
@@ -263,17 +263,20 @@ class EC2Driver
         @xmlhost = host_info(host, id)
 
         if @xmlhost['TEMPLATE/PM_MAD']
-			@provision_type = :host
-			@state_change_timeout = \
-				@ec2_conf[:state_wait_pm_timeout_seconds].to_i
+            @provision_type = :host
+            @state_change_timeout = \
+                @ec2_conf[:state_wait_pm_timeout_seconds].to_i
         else
-			@provision_type = :vm
+            @provision_type = :vm
             @state_change_timeout = \
                 @ec2_conf[:state_wait_timeout_seconds].to_i
         end
 
-        tmpl_base =
-            @xmlhost['TEMPLATE/PROVISION'] ? 'TEMPLATE/PROVISION' : 'TEMPLATE'
+        if @xmlhost['TEMPLATE/PROVISION']
+            tmpl_base = 'TEMPLATE/PROVISION'
+        else
+            tmpl_base = 'TEMPLATE'
+        end
 
         @access_key = @xmlhost["#{tmpl_base}/EC2_ACCESS"]
         @secret_key = @xmlhost["#{tmpl_base}/EC2_SECRET"]
@@ -284,9 +287,9 @@ class EC2Driver
         raise "secret_access_key not defined for #{host}" if @secret_key.nil?
         raise "region_name not defined for #{host}" if @region_name.nil?
 
-		# ----------------------------------------------------------------------
+        # ----------------------------------------------------------------------
         # create or open cache db
-		# ----------------------------------------------------------------------
+        # ----------------------------------------------------------------------
         @db = InstanceCache.new(EC2_DATABASE_PATH)
     end
 
@@ -298,10 +301,10 @@ class EC2Driver
         require 'aws-sdk-cloudwatch'
 
         Aws.config.merge!({
-            :access_key_id      => @access_key,
+                              :access_key_id      => @access_key,
             :secret_access_key  => @secret_key,
             :region             => @region_name
-        })
+                          })
 
         if (proxy_uri = @ec2_conf[:proxy_uri])
             Aws.config(:proxy_uri => proxy_uri)
@@ -337,7 +340,7 @@ class EC2Driver
         end
 
         opts = generate_options(:run, ec2_info, {
-                                :min_count => 1,
+                                    :min_count => 1,
                                 :max_count => 1
                                 })
 
@@ -345,7 +348,8 @@ class EC2Driver
         # is provided by the user
         if !ec2_value(ec2_info, 'USERDATA')
             xml = OpenNebula::XMLElement.new
-            xml.initialize_xml(xml_text, @provision_type == :host ? 'HOST' : 'VM')
+            xml.initialize_xml(xml_text,
+                               @provision_type == :host ? 'HOST' : 'VM')
 
             if xml.has_elements?('TEMPLATE/CONTEXT')
                 # if requested, we generated cloud-init compatible data
@@ -416,18 +420,18 @@ class EC2Driver
         end
 
         if @provision_type == :host
-            instance.create_tags( :tags => [{
-                :key => 'Name',
+            instance.create_tags(:tags => [{
+                                     :key => 'Name',
                 :value => host['//HOST/TEMPLATE/PROVISION/HOSTNAME']
-            }, {
-                :key => 'ONE_HOST_ID',
+                                 }, {
+                                     :key => 'ONE_HOST_ID',
                 :value => 'TODO'
-            }])
+                                 }])
         else
-            instance.create_tags( :tags => [{
-                :key => 'ONE_ID',
+            instance.create_tags(:tags => [{
+                                     :key => 'ONE_ID',
                 :value => id
-            }])
+                                 }])
         end
 
         puts(instance.id)
@@ -498,8 +502,8 @@ class EC2Driver
         wait_state('running', deploy_id)
     end
 
-    def poll(id, deploy_id)
-        fetch_vms_data(deploy_id: deploy_id, with_monitoring: true)
+    def poll(_id, deploy_id)
+        fetch_vms_data(:deploy_id => deploy_id, :with_monitoring => true)
     end
 
     #---------------------------------------------------------------------------
@@ -548,7 +552,6 @@ class EC2Driver
         cc
     end
 
-
     # Get the associated capacity of the instance_type as cpu (in 100 percent
     # e.g. 800) and memory (in KB)
     def instance_type_capacity(name)
@@ -569,7 +572,8 @@ class EC2Driver
         if @provision_type == :host
             all_ec2_elements = xml.root.get_elements('//TEMPLATE/PROVISION')
         else
-            all_ec2_elements = xml.root.get_elements('//USER_TEMPLATE/PUBLIC_CLOUD')
+            all_ec2_elements =
+                xml.root.get_elements('//USER_TEMPLATE/PUBLIC_CLOUD')
         end
 
         # First, let's see if we have an EC2 site that matches
@@ -623,7 +627,7 @@ class EC2Driver
         data = vm.monitoring(xpath)
 
         # return [-2] next-to-last entry, last is always nil placeholder
-        data.map { |key, entries| [key, entries[-2].last] }.to_h
+        data.map {|key, entries| [key, entries[-2].last] }.to_h
     end
 
     # --------------------------------------------------------------------------
@@ -638,7 +642,11 @@ class EC2Driver
         begin
             if onevm
                 onevm.info
-                cw_mon_time = onevm["MONITORING/LAST_CW"] ? onevm["MONITORING/LAST_CW"].to_i : 0
+                if onevm['MONITORING/LAST_CW']
+                    cw_mon_time = onevm['MONITORING/LAST_CW'].to_i
+                else
+                    cw_mon_time = 0
+                end
 
                 do_cw = (Time.now.to_i - cw_mon_time) >= @ec2_conf[:cw_expire]
 
@@ -652,7 +660,7 @@ class EC2Driver
                 else
 
                     previous_data = get_last_mon(onevm,
-                                                 ['CPU', 'NETRX', 'NETTX'])
+                                                 %w[CPU NETRX NETTX])
 
                     previous_cpu =  previous_data['CPU'] || 0
                     previous_netrx = previous_data['NETRX'] || 0
@@ -682,7 +690,8 @@ class EC2Driver
                     end.join(',')
                 end
 
-                info << "AWS_#{key.to_s.upcase}=\"#{URI.encode(value)}\" "
+                # info << "AWS_#{key.to_s.upcase}=\"#{URI.encode(value)}\" "
+                info << "AWS_#{key.to_s.upcase}=\"#{CGI.escape(value)}\" "
             end
         rescue StandardError
             # Unkown state if exception occurs retrieving information from
@@ -700,7 +709,7 @@ class EC2Driver
     #   return [Array] of VM Hashes
     # --------------------------------------------------------------------------
     def fetch_vms_data(deploy_id: nil, with_monitoring: false)
-        fetch_all       = deploy_id.nil?
+        fetch_all = deploy_id.nil?
 
         ec2_connect
 
@@ -709,8 +718,10 @@ class EC2Driver
         onevm_info = {}
         if fetch_all
             # Build an array of VMs and last_polls for monitoring
+            # rubocop:disable Layout/LineLength
             vpool = OpenNebula::VirtualMachinePool.new(OpenNebula::Client.new,
                                                        OpenNebula::VirtualMachinePool::INFO_ALL_VM)
+            # rubocop:enable Layout/LineLength
             vpool.info
 
             vpool.each do |vm|
@@ -829,14 +840,16 @@ class EC2Driver
     #          ec2:  running, stopped, terminated, pending
     # +deploy_id+: String, VM id in EC2
     def wait_state(state, deploy_id)
-        ready = (state == 'stopped') || (state == 'pending') || (state == 'running') || (state == 'terminated')
+        ready = (state == 'stopped') || (state == 'pending') \
+            || (state == 'running') || (state == 'terminated')
         raise 'Waiting for an invalid state' unless ready
 
         t_init = Time.now
         loop do
             wstate = get_instance(deploy_id).state.name rescue nil
 
-            raise 'Ended in invalid state' if Time.now - t_init > @state_change_timeout
+            raise 'Ended in invalid state' \
+                if Time.now - t_init > @state_change_timeout
 
             sleep 3
             break if wstate == state
@@ -872,7 +885,7 @@ class EC2Driver
     # Retrieve the instance from EC2
     def get_instance(id)
         inst = @ec2.instance(id)
-        raise RuntimeError, "Instance #{id} does not exist" unless inst.exists?
+        raise "Instance #{id} does not exist" unless inst.exists?
 
         inst
     end
@@ -942,6 +955,7 @@ class EC2Driver
     end
 
     # Get metric from AWS/EC2 namespace from the last poll
+    # rubocop:disable Metrics/ParameterLists
     def get_cloudwatch_metric(cw, metric_name, last_poll, statistics, units, id)
         dt = 60 # period
         t0 = (Time.at(last_poll.to_i)-65) # last poll time
@@ -960,6 +974,7 @@ class EC2Driver
 
         cw.get_metric_statistics(options)
     end
+    # rubocop:enable Metrics/ParameterLists
 
     # TODO: move this method to a OneGate library
     def generate_onegate_token(xml)
@@ -1014,7 +1029,7 @@ module DomainList
     def self.state_info(*args)
         ec2 = EC2Driver.new(*args)
 
-		vms = ec2.retreive_vms_data
+        vms = ec2.retreive_vms_data
 
         info = {}
         vms.each do |vm|
