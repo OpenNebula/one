@@ -335,10 +335,8 @@ post '/service/:id/role/:role_name/action' do
     opts   = action['params']
 
     # Use defaults only if one of the options is supplied
-    if opts['period'].nil? && opts['number'].nil?
-        opts['period'] = conf[:action_period] if opts['period'].nil?
-        opts['number'] = conf[:action_number] if opts['number'].nil?
-    end
+    opts['period'] ||= conf[:action_period]
+    opts['number'] ||= conf[:action_number]
 
     rc = lcm.sched_action(@client,
                           params[:id],
@@ -352,7 +350,7 @@ post '/service/:id/role/:role_name/action' do
         return internal_error(rc.message, one_error_to_http(rc.errno))
     end
 
-    status 201
+    status 200
 end
 
 post '/service/:id/scale' do
