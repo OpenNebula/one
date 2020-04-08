@@ -74,7 +74,7 @@ module PublicCloudDriver
     #
     #  @return [String]
     def probe_vm_monitor
-        vms = fetch_vms_data(true)
+        vms = fetch_vms_data(with_monitoring: true)
 
         data = ''
         vms.each do |vm|
@@ -90,7 +90,8 @@ module PublicCloudDriver
 
     # Either return VMs info from cache db or from public_cloud
     def vms_data(db, time_limit)
-        return fetch_vms_data(false) if db.expired?(time_limit)
+        return fetch_vms_data(with_monitoring: false) \
+            if db.expired?(time_limit)
 
         db.select_vms
     end

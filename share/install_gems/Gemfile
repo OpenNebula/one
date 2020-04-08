@@ -69,6 +69,7 @@ gem 'azure_mgmt_storage'                  # hybrid
 gem 'rbvmomi', '~> 2.2.0'                 # vmware
 gem 'parse-cron'                          # oneflow
 gem 'aws-sdk-ec2', '>=1.151'              # ec2_hybrid
+gem 'aws-sdk-cloudwatch'                  # ec2_hybrid
 gem 'ox'                                  # oca
 gem 'highline', '~> 1.7'                  # oneprovision
 gem 'faraday', '~> 0.15'                  # packethost

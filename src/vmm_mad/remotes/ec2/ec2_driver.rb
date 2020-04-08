@@ -238,6 +238,7 @@ class EC2Driver
 
     DEFAULTS = {
         :state_wait_pm_timeout_seconds => 1500,
+        :cw_expire                     => 360,
         :cache_expire                  => 120
     }
 
@@ -260,7 +261,6 @@ class EC2Driver
         # Init OpenNebula host information
         # ----------------------------------------------------------------------
         @xmlhost = host_info(host, id)
-        @cw_mon_time = @xmlhost['/HOST/MONITORING/CWMONTIME']
 
         if @xmlhost['TEMPLATE/PM_MAD']
 			@provision_type = :host
@@ -295,6 +295,7 @@ class EC2Driver
     #---------------------------------------------------------------------------
     def ec2_connect
         require 'aws-sdk-ec2'
+        require 'aws-sdk-cloudwatch'
 
         Aws.config.merge!({
             :access_key_id      => @access_key,
@@ -497,6 +498,10 @@ class EC2Driver
         wait_state('running', deploy_id)
     end
 
+    def poll(id, deploy_id)
+        fetch_vms_data(deploy_id: deploy_id, with_monitoring: true)
+    end
+
     #---------------------------------------------------------------------------
     #  Monitor Interface
     #---------------------------------------------------------------------------
@@ -614,17 +619,50 @@ class EC2Driver
         end
     end
 
-    def get_vm_monitor_data(instance, onevm, do_cw)
+    def get_last_mon(vm, xpath)
+        data = vm.monitoring(xpath)
+
+        # return [-2] next-to-last entry, last is always nil placeholder
+        data.map { |key, entries| [key, entries[-2].last] }.to_h
+    end
+
+    # --------------------------------------------------------------------------
+    # get instance details
+    #   @param [AWS instance]
+    #   @param [OpenNebula Virtual Machine] - to retreive last cloudwatch
+    #
+    #   return [String]   base64 encoded string of VM monitoring data
+    #                     and public cloud variables
+    # --------------------------------------------------------------------------
+    def get_vm_details(instance, onevm)
         begin
             if onevm
-                if do_cw
-                    cloudwatch_str = cloudwatch_monitor_info(instance.instance_id, onevm)
-                else
-                    previous_cpu   = onevm['MONITORING/CPU'] || 0
-                    previous_netrx = onevm['MONITORING/NETRX'] || 0
-                    previous_nettx = onevm['MONITORING/NETTX'] || 0
+                onevm.info
+                cw_mon_time = onevm["MONITORING/LAST_CW"] ? onevm["MONITORING/LAST_CW"].to_i : 0
 
-                    cloudwatch_str = "CPU=#{previous_cpu} NETTX=#{previous_nettx} NETRX=#{previous_netrx} "
+                do_cw = (Time.now.to_i - cw_mon_time) >= @ec2_conf[:cw_expire]
+
+                if do_cw
+                    cloudwatch_str = \
+                        cloudwatch_monitor_info(instance.instance_id,
+                                                onevm,
+                                                cw_mon_time)
+
+                    cloudwatch_str += " LAST_CW=#{Time.now.to_i} "
+                else
+
+                    previous_data = get_last_mon(onevm,
+                                                 ['CPU', 'NETRX', 'NETTX'])
+
+                    previous_cpu =  previous_data['CPU'] || 0
+                    previous_netrx = previous_data['NETRX'] || 0
+                    previous_nettx = previous_data['NETTX'] || 0
+
+                    cloudwatch_str = "CPU=#{previous_cpu} "\
+                        "NETTX=#{previous_nettx} "\
+                        "NETRX=#{previous_netrx} "\
+                        "LAST_CW=#{cw_mon_time} "
+
                 end
             else
                 cloudwatch_str = ''
@@ -654,28 +692,41 @@ class EC2Driver
         Base64.encode64(info).gsub("\n", '')
     end
 
-    def fetch_vms_data(with_monitoring = false)
+    # --------------------------------------------------------------------------
+    # Fetch vms data
+    #   @param deploy_id [String]  of the reuqested VM or nil for ALL
+    #   @param with_monitoring [Boolean] include monitoring and cloud info
+    #
+    #   return [Array] of VM Hashes
+    # --------------------------------------------------------------------------
+    def fetch_vms_data(deploy_id: nil, with_monitoring: false)
+        fetch_all       = deploy_id.nil?
+
         ec2_connect
 
-        # Build an array of VMs and last_polls for monitoring
-        vpool = OpenNebula::VirtualMachinePool.new(OpenNebula::Client.new,
-                                                   OpenNebula::VirtualMachinePool::INFO_ALL_VM)
-        vpool.info
-        onevm_info = {}
-
-        if @cw_mon_time.nil?
-            @cw_mon_time = Time.now.to_i
-        else
-            @cw_mon_time = cw_mon_time.to_i
-        end
-
-        do_cw = (Time.now.to_i - @cw_mon_time) >= 360
-        vpool.each do |vm|
-            onevm_info[vm.deploy_id] = vm
-        end
-
         work_q = Queue.new
-        @ec2.instances.each {|i| work_q.push i }
+
+        onevm_info = {}
+        if fetch_all
+            # Build an array of VMs and last_polls for monitoring
+            vpool = OpenNebula::VirtualMachinePool.new(OpenNebula::Client.new,
+                                                       OpenNebula::VirtualMachinePool::INFO_ALL_VM)
+            vpool.info
+
+            vpool.each do |vm|
+                onevm_info[vm.deploy_id] = vm
+            end
+
+            @ec2.instances.each {|i| work_q.push i }
+        else
+            # The same but just for a single VM
+            vm = OpenNebula::VirtualMachine.new_with_id(deploy_id,
+                                                        OpenNebula::Client.new)
+            vm.info
+            onevm_info[deploy_id] = vm
+
+            work_q.push get_instance(deploy_id)
+        end
 
         vms = []
         workers = (0...20).map do
@@ -695,8 +746,7 @@ class EC2Driver
                                :state     => vm_state }
 
                         if with_monitoring
-                            vm[:monitor] = \
-                                get_vm_monitor_data(i, onevm_info[i.id], do_cw)
+                            vm[:monitor] = get_vm_details(i, onevm_info[i.id])
                         end
 
                         vms << vm
@@ -710,7 +760,7 @@ class EC2Driver
         end
         workers.map(&:join)
 
-        @db.insert(vms) unless vms.empty?
+        @db.insert(vms) if fetch_all
 
         vms
     end
@@ -822,20 +872,21 @@ class EC2Driver
     # Retrieve the instance from EC2
     def get_instance(id)
         inst = @ec2.instance(id)
-        raise RuntimeError "Instance #{id} does not exist" unless inst.exists?
+        raise RuntimeError, "Instance #{id} does not exist" unless inst.exists?
 
         inst
     end
 
     # Extract monitoring information from Cloud Watch
     # CPU, NETTX and NETRX
-    def cloudwatch_monitor_info(id, onevm)
+    def cloudwatch_monitor_info(id, onevm, cw_mon_time)
         cw=Aws::CloudWatch::Client.new
 
         # CPU
         begin
             cpu = get_cloudwatch_metric(cw,
                                         'CPUUtilization',
+                                        cw_mon_time,
                                         ['Average'],
                                         'Percent',
                                         id)
@@ -854,6 +905,7 @@ class EC2Driver
         begin
             nettx_dp = get_cloudwatch_metric(cw,
                                              'NetworkOut',
+                                             cw_mon_time,
                                              ['Sum'],
                                              'Bytes',
                                              id)[:datapoints]
@@ -872,6 +924,7 @@ class EC2Driver
         begin
             netrx_dp = get_cloudwatch_metric(cw,
                                              'NetworkIn',
+                                             cw_mon_time,
                                              ['Sum'],
                                              'Bytes',
                                              id)[:datapoints]
@@ -889,9 +942,9 @@ class EC2Driver
     end
 
     # Get metric from AWS/EC2 namespace from the last poll
-    def get_cloudwatch_metric(cw, metric_name, statistics, units, id)
+    def get_cloudwatch_metric(cw, metric_name, last_poll, statistics, units, id)
         dt = 60 # period
-        t0 = (Time.at(@cw_mon_time.to_i)-65) # last poll time
+        t0 = (Time.at(last_poll.to_i)-65) # last poll time
         t = (Time.now-60) # actual time
 
         while (t - t0)/dt >= 1440 do dt+=60 end
