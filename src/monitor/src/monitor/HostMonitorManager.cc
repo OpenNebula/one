@@ -167,7 +167,7 @@ void HostMonitorManager::update_host(int oid, const std::string &xml)
 
         host = hpool->get(oid);
 
-        if (host->state() == Host::HostState::INIT)
+        if (host->state() == Host::INIT)
         {
             start_host_monitor(host);
         }
@@ -195,7 +195,7 @@ void HostMonitorManager::start_host_monitor(int oid)
         return;
     }
 
-    if (host->state() != Host::HostState::OFFLINE)
+    if (host->state() != Host::OFFLINE)
     {
         start_host_monitor(host);
     }
@@ -230,7 +230,7 @@ void HostMonitorManager::monitor_host(int oid, bool result, const Template &tmpl
         return;
     }
 
-    if (host->state() == Host::HostState::OFFLINE)
+    if (host->state() == Host::OFFLINE)
     {
         // Host is offline, we shouldn't receive monitoring
         return;
@@ -242,7 +242,7 @@ void HostMonitorManager::monitor_host(int oid, bool result, const Template &tmpl
 
         if (host->state() != Host::OFFLINE && host->state() != Host::DISABLED )
         {
-            oned_driver->host_state(oid, Host::state_to_str(Host::HostState::ERROR));
+            oned_driver->host_state(oid, Host::state_to_str(Host::ERROR));
             // TODO Set template error message
         }
 
@@ -274,10 +274,10 @@ void HostMonitorManager::monitor_host(int oid, bool result, const Template &tmpl
     NebulaLog::info("HMM", "Successfully monitored host: " + to_string(oid));
 
     // Send host state update to oned
-    if (host->state() != Host::HostState::MONITORED &&
-        host->state() != Host::HostState::DISABLED)
+    if (host->state() != Host::MONITORED &&
+        host->state() != Host::DISABLED)
     {
-        oned_driver->host_state(oid, Host::state_to_str(Host::HostState::MONITORED));
+        oned_driver->host_state(oid, Host::state_to_str(Host::MONITORED));
     }
 }
 
@@ -294,7 +294,7 @@ void HostMonitorManager::update_last_monitor(int oid)
         return;
     }
 
-    if (host->state() == Host::HostState::OFFLINE)
+    if (host->state() == Host::OFFLINE)
     {
         // Host is offline, we shouldn't receive monitoring
         return;
@@ -350,14 +350,14 @@ void HostMonitorManager::start_monitor_failure(int oid)
 
     auto host = hpool->get(oid);
 
-    if (!host.valid() || host->state() == Host::HostState::OFFLINE)
+    if (!host.valid() || host->state() == Host::OFFLINE)
     {
         return;
     }
 
     host->monitor_in_progress(false);
 
-    oned_driver->host_state(oid, Host::state_to_str(Host::HostState::ERROR));
+    oned_driver->host_state(oid, Host::state_to_str(Host::ERROR));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -368,7 +368,7 @@ void HostMonitorManager::start_monitor_success(int oid)
 
     auto host = hpool->get(oid);
 
-    if (!host.valid() || host->state() == Host::HostState::OFFLINE)
+    if (!host.valid() || host->state() == Host::OFFLINE)
     {
         return;
     }
@@ -377,7 +377,10 @@ void HostMonitorManager::start_monitor_success(int oid)
 
     host->monitor_in_progress(false);
 
-    oned_driver->host_state(oid, Host::state_to_str(Host::HostState::MONITORED));
+    if (host->state() != Host::DISABLED)
+    {
+        oned_driver->host_state(oid, Host::state_to_str(Host::MONITORED));
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -431,7 +434,7 @@ void HostMonitorManager::timer_action()
                 start_host_monitor(host);
             }
         }
-        else if (host->state() == Host::HostState::OFFLINE)
+        else if (host->state() == Host::OFFLINE)
         {
             host->last_monitored(now);
 

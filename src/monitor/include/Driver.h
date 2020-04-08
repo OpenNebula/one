@@ -50,6 +50,11 @@ public:
         , pid(-1)
     {}
 
+    ~Driver()
+    {
+        stream_thr.join();
+    }
+
     /**
      *  Starts the driver and listener thread.
      *    @param error string
@@ -75,8 +80,6 @@ public:
         terminate.store(true);
 
         stop_driver();
-
-        stream_thr.join();
     }
 
     /**
