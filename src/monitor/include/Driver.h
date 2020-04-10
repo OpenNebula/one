@@ -187,7 +187,7 @@ void Driver<E>::stop_driver()
     close(from_drv);
     close(to_drv);
 
-    for (int i=0 ; i < 3; ++i)
+    for (int i=0; i < 10; ++i)
     {
         int status;
 
