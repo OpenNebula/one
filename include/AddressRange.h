@@ -405,7 +405,7 @@ public:
      *  rm_ar from AddressRangePool needs to access the internal representation
      *  of the AR to remove it from the ARPool template.
      */
-    friend int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg);
+    friend int AddressRangePool::rm_ar(unsigned int ar_id, bool force, string& error_msg);
 
     /*
      *  rm_ars from AddressRangePool needs to access the internal representation

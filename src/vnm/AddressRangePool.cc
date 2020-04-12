@@ -191,7 +191,7 @@ int AddressRangePool::from_xml_node(const xmlNodePtr node)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg)
+int AddressRangePool::rm_ar(unsigned int ar_id, bool force, string& error_msg)
 {
     map<unsigned int, AddressRange *>::iterator it;
 
@@ -203,7 +203,7 @@ int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg)
         return -1;
     }
 
-    if (it->second->get_used_addr() > 0)
+    if (!force && it->second->get_used_addr() > 0)
     {
         error_msg = "Address Range has leases in use";
         return -1;
@@ -222,7 +222,7 @@ int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg)
 
         ir.wait();
 
-        if (ir.result != true)
+        if (!force && ir.result != true)
         {
             error_msg = ir.message;
             return -1;

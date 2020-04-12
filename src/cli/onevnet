@@ -71,6 +71,12 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'lock all actions'
     }
 
+    FORCE = {
+        :name => 'force',
+        :large => '--force',
+        :description => 'Force execution of action, bypass the consistency checks'
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -169,9 +175,9 @@ CommandParser::CmdParser.new(ARGV) do
         Removes an address range from the Virtual Network
     EOT
 
-    command :rmar, rmar_desc, :vnetid, :ar_id do
+    command :rmar, rmar_desc, :vnetid, :ar_id, :options => FORCE do
         helper.perform_action(args[0], options, 'address range removed') do |vn|
-            vn.rm_ar(args[1])
+            vn.rm_ar(args[1], options[:force] || false)
         end
     end
 
