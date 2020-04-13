@@ -166,9 +166,18 @@ int DriverManager<E, D>::start(std::string& error)
 template<typename E, typename D>
 void DriverManager<E, D>::stop()
 {
+    vector<thread> threads;
+
     for (auto& driver : drivers)
     {
-        driver.second->stop();
+        threads.push_back(thread([&driver] () {
+            driver.second->stop();
+        }));
+    }
+
+    for (auto& thr : threads)
+    {
+        thr.join();
     }
 }
 
