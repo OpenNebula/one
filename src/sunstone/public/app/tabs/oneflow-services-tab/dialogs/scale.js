@@ -85,9 +85,10 @@ define(function(require) {
         var obj = {
           "force": force,
           "cardinality": $("#cardinality", context).val(),
+          "role_name": that.roleName,
         };
 
-        Sunstone.runAction('Role.update', that.roleIds, obj);
+        Sunstone.runAction('Role.scale', that.serviceId, obj);
 
         return false;
       })
@@ -102,9 +103,11 @@ define(function(require) {
 
   /**
    * @param {object} params
-   *        - params.roleIds : Array of selected role IDs
+   *        - params.serviceId : selected service ID
+   *        - params.roleName : selected role name
    */
   function _setParams(params) {
-    this.roleIds = params.roleIds;
+    this.serviceId = params.serviceId;
+    this.roleName = params.roleName;
   }
 });
