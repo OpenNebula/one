@@ -211,7 +211,7 @@ module OneDBFsck
 
         g_pref = ipv6[:global_prefix]
         u_pref = ipv6[:ula_prefix]
-        l_pref = ipv6[:linked_prefix]
+        l_pref = ipv6[:link_prefix]
 
         unless g_pref.nil?
             pref = (g_pref << 64) | ip6_suffix
