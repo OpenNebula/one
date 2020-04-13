@@ -110,9 +110,16 @@ define(function(require) {
       return STATES_STR[stateId];
     },
     "STATES": STATES,
+    "filterDoneServices": _filterDoneServices,
     "getName": function(id){
       return OpenNebulaAction.getName(id, CACHE_NAME);
     }
+  }
+
+  function _filterDoneServices(services) {
+    return $.grep(services, function(service) {
+      return service.DOCUMENT.TEMPLATE.BODY.state !== STATES.DONE;
+    });
   }
 
   return Service;
