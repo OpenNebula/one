@@ -208,19 +208,14 @@ public:
         db->free_str(str);
     }
 
-    bool multiple_values_support()
+    bool supports(SqlDB::SqlFeature ft)
     {
-        return db->multiple_values_support();
+        return db->supports(ft);
     }
 
-    bool limit_support()
+    std::string limit_string(int start_id, int end_id)
     {
-        return db->limit_support();
-    }
-
-    bool fts_available()
-    {
-        return db->fts_available();
+        return db->limit_string(start_id, end_id);
     }
     // -------------------------------------------------------------------------
     // Database methods
@@ -422,19 +417,9 @@ public:
         _logdb->free_str(str);
     }
 
-    bool multiple_values_support()
+    bool supports(SqlDB::SqlFeature ft)
     {
-        return _logdb->multiple_values_support();
-    }
-
-    bool limit_support()
-    {
-        return _logdb->limit_support();
-    }
-
-    bool fts_available()
-    {
-        return _logdb->fts_available();
+        return _logdb->supports(ft);
     }
 
     /**

@@ -1428,8 +1428,7 @@ int UserPool::authorize(AuthRequest& ar)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int UserPool::dump(string& oss, const string& where, const string& limit,
-        bool desc)
+int UserPool::dump(string& oss, const string& where, int sid, int eid, bool desc)
 {
     int     rc;
     string  def_quota_xml;
@@ -1453,9 +1452,9 @@ int UserPool::dump(string& oss, const string& where, const string& limit,
         cmd << " DESC";
     }
 
-    if ( !limit.empty() )
+    if ( eid != -1 )
     {
-        cmd << " LIMIT " << limit;
+        cmd << " " << db->limit_string(sid, eid);
     }
 
     oss.append("<USER_POOL>");

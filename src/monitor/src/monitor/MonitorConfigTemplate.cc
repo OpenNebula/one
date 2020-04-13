@@ -25,6 +25,7 @@ void MonitorConfigTemplate::set_conf_default()
 /*
  HOST_MONITORING_EXPIRATION_TIME
  VM_MONITORING_EXPIRATION_TIME
+ DB
  LOG
  UDP_LISTENER
  PROBES_PERIOD
@@ -35,6 +36,9 @@ void MonitorConfigTemplate::set_conf_default()
     set_conf_single("MONITORING_INTERVAL_HOST", "180");
     set_conf_single("HOST_MONITORING_EXPIRATION_TIME", "43200");
     set_conf_single("VM_MONITORING_EXPIRATION_TIME", "43200");
+
+    va = new VectorAttribute("DB", {{"CONNECTIONS", "15"}});
+    conf_default.insert(make_pair(va->name(), va));
 
     va = new VectorAttribute("LOG", {{"SYSTEM", "FILE"}, {"DEBUG_LEVEL", "3"}});
     conf_default.insert(make_pair(va->name(), va));

@@ -250,16 +250,17 @@ public:
      *  pool
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
      *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(string& oss, const string& where, const string& limit,
-            bool desc)
+    int dump(std::string& oss, const std::string& where, int sid, int eid,
+        bool desc)
     {
         return PoolSQL::dump(oss, "VM_POOL", "short_body", one_db::vm_table, where,
-                             limit, desc);
+                             sid, eid, desc);
     };
 
     /**
@@ -274,11 +275,11 @@ public:
      *
      *  @return 0 on success
      */
-    int dump_extended(string& oss, const string& where, const string& limit,
+    int dump_extended(string& oss, const string& where, int sid, int eid,
             bool desc)
     {
         return PoolSQL::dump(oss, "VM_POOL", "body", one_db::vm_table, where,
-                             limit, desc);
+                             sid, eid, desc);
     };
 
     /**

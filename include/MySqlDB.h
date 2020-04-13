@@ -30,9 +30,6 @@
 #include "SqlDB.h"
 #include "ObjectSQL.h"
 
-
-using namespace std;
-
 #ifdef MYSQL_DB
 
 #include <mysql.h>
@@ -44,13 +41,13 @@ class MySqlDB : public SqlDB
 {
 public:
 
-    MySqlDB(const string& _server,
-            int           _port,
-            const string& _user,
-            const string& _password,
-            const string& _database,
-            const string& _encoding,
-            int           _connections);
+    MySqlDB(const std::string& _server,
+            int                _port,
+            const std::string& _user,
+            const std::string& _password,
+            const std::string& _database,
+            const std::string& _encoding,
+            int                _connections);
 
     ~MySqlDB();
 
@@ -61,7 +58,7 @@ public:
      *    @param str the string to be escaped
      *    @return a valid SQL string or NULL in case of failure
      */
-    char * escape_str(const string& str);
+    char * escape_str(const std::string& str);
 
     /**
      *  Frees a previously scaped string
@@ -72,36 +69,6 @@ public:
         delete[] str;
     }
 
-    /**
-     * Returns true if the syntax INSERT VALUES (data), (data), (data)
-     * is supported
-     *
-     * @return true if supported
-     */
-    bool multiple_values_support()
-    {
-        return true;
-    }
-
-    /**
-     * Returns true if this Database can use LIMIT in queries with DELETE
-     *  and UPDATE
-     *
-     * @return true if supported
-     */
-    bool limit_support()
-    {
-        return true;
-    }
-
-    /**
-     *  Return true if the backend allows FTS index
-     */
-     bool fts_available()
-     {
-         return _fts_available;
-     }
-
 protected:
     /**
      *  Wraps the mysql_query function call
@@ -109,7 +76,7 @@ protected:
      *    @param obj Callbackable obj to call if the query succeeds
      *    @return 0 on success
      */
-    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet);
+    int exec_ext(std::ostringstream& c, Callbackable *o, bool q) override;
 
 private:
 
@@ -137,19 +104,17 @@ private:
     /**
      *  MySQL Connection parameters
      */
-    string server;
+    std::string server;
 
     int    port;
 
-    string user;
+    std::string user;
 
-    string password;
+    std::string password;
 
-    string database;
+    std::string database;
 
-    string encoding;
-
-    bool _fts_available;
+    std::string encoding;
 
     /**
      *  Fine-grain mutex for DB access (pool of DB connections)
@@ -177,12 +142,12 @@ class MySqlDB : public SqlDB
 {
 public:
 
-    MySqlDB(const string& _server,
+    MySqlDB(const std::string& _server,
             int           _port,
-            const string& _user,
-            const string& _password,
-            const string& _database,
-            const string& _encoding,
+            const std::string& _user,
+            const std::string& _password,
+            const std::string& _database,
+            const std::string& _encoding,
             int           _connections)
     {
         throw runtime_error("Aborting oned, MySQL support not compiled!");
@@ -190,19 +155,14 @@ public:
 
     ~MySqlDB(){};
 
+    char * escape_str(const std::string& str) override {return nullptr;};
 
-    char * escape_str(const string& str){return 0;};
-
-    void free_str(char * str){};
-
-    bool multiple_values_support(){return true;};
-
-    bool limit_support(){return true;};
-
-    bool fts_available(){return false;};
+    void free_str(char * str) override {};
 
 protected:
-    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet){return -1;};
+    int exec_ext(std::ostringstream& c, Callbackable *o, bool q) override {
+        return -1;
+    };
 };
 #endif
 

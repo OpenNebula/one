@@ -72,7 +72,8 @@ int InformationManager::start()
     }
 
     string xml_hosts;
-    hpool->dump(xml_hosts, "", "", false);
+
+    hpool->dump(xml_hosts, "", 0, -1, false);
 
     Message<OpenNebulaMessages> msg;
 

@@ -455,7 +455,7 @@ int VirtualMachine::bootstrap(SqlDB * db)
 
     oss_vm << one_db::vm_db_bootstrap;
 
-    if (db->fts_available())
+    if (db->supports(SqlDB::SqlFeature::FTS))
     {
         oss_vm << ", FULLTEXT ftidx(search_token))";
     }

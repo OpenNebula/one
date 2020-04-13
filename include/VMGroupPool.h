@@ -99,16 +99,17 @@ public:
      *  Dumps the VMGroup pool in XML format. A filter can be added to the query
      *  @param os the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
      *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(std::string& os, const std::string& where,
-            const std::string& limit, bool desc)
+    int dump(std::string& oss, const std::string& where, int sid, int eid,
+        bool desc)
     {
-        return PoolSQL::dump(os, "VM_GROUP_POOL", "body", VMGroup::table, where, limit,
-                desc);
+        return PoolSQL::dump(oss, "VM_GROUP_POOL", "body", VMGroup::table, where,
+                sid, eid, desc);
     };
 
     /**

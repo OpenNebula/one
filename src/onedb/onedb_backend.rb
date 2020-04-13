@@ -120,22 +120,13 @@ class OneDBBacKEnd
         comment = "Database migrated from #{version} to #{db_version}"+
                   " (#{one_version}) by onedb command."
 
-        max_oid = nil
-        @db.fetch("SELECT MAX(oid) FROM db_versioning") do |row|
-            max_oid = row[:"MAX(oid)"].to_i
-        end
+        max_oid = @db[:db_versioning].max(:oid)
 
-        max_oid = 0 if max_oid.nil?
-
-        query =
-        @db.run(
-            "INSERT INTO db_versioning (oid, version, timestamp, comment) "<<
-            "VALUES ("                                                     <<
-                "#{max_oid+1}, "                                           <<
-                "'#{db_version}', "                                        <<
-                "#{Time.new.to_i}, "                                       <<
-                "'#{comment}')"
-        )
+        @db[:db_versioning].insert(
+            oid: max_oid + 1,
+            version: db_version,
+            timestamp: Time.new.to_i,
+            comment: comment)
 
         puts comment
     end
@@ -144,29 +135,16 @@ class OneDBBacKEnd
         comment = "Database migrated from #{version} to #{db_version}"+
                   " (#{one_version}) by onedb command."
 
-        max_oid = nil
-        @db.fetch("SELECT MAX(oid) FROM local_db_versioning") do |row|
-            max_oid = row[:"MAX(oid)"].to_i
-        end
+        max_oid = @db[:local_db_versioning].max(:oid)
 
-        max_oid = 0 if max_oid.nil?
+        is_slave = @db[:local_db_versioning].select(:is_slave).where_single_value(oid: max_oid)
 
-        is_slave = 0
-
-        @db.fetch("SELECT is_slave FROM local_db_versioning "<<
-                  "WHERE oid=#{max_oid}") do |row|
-            is_slave = row[:is_slave] ? 1 : 0
-        end
-
-        @db.run(
-            "INSERT INTO local_db_versioning (oid, version, timestamp, comment, is_slave) "<<
-            "VALUES ("                                                     <<
-                "#{max_oid+1}, "                                           <<
-                "'#{db_version}', "                                        <<
-                "#{Time.new.to_i}, "                                       <<
-                "'#{comment}',"                                            <<
-                "#{is_slave})"
-        )
+        @db[:local_db_versioning].insert(
+            oid: max_oid + 1, 
+            version: db_version, 
+            timestamp: Time.new.to_i, 
+            comment: comment, 
+            is_slave: is_slave)
 
         puts comment
     end
@@ -636,5 +614,263 @@ class BackEndSQLite < OneDBBacKEnd
         rescue Exception => e
             raise "Error connecting to DB: " + e.message
         end
+    end
+end
+
+class BackEndPostgreSQL < OneDBBacKEnd
+    def initialize(opts={})
+        @server  = opts[:server]
+        @port    = opts[:port]
+        @user    = opts[:user]
+        @passwd  = opts[:passwd]
+        @db_name = opts[:db_name]
+        @encoding= opts[:encoding]
+
+        # Check for errors:
+        error   = false
+
+        (error = true; missing = "USER"  )  if @user    == nil
+        (error = true; missing = "DBNAME")  if @db_name == nil
+
+        if error
+            raise "PostgreSQL option #{missing} is needed"
+        end
+
+        # Check for defaults:
+        @server = "localhost" if @server.nil?
+        @port   = 5432        if @port.nil?
+
+        encoding if @encoding.nil?
+
+        # Clean leading and trailing quotes, if any
+        @server  = @server [1..-2] if @server [0] == ?"
+        @port    = @port   [1..-2] if @port   [0] == ?"
+        @user    = @user   [1..-2] if @user   [0] == ?"
+        @passwd  = @passwd [1..-2] if @passwd [0] == ?"
+        @db_name = @db_name[1..-2] if @db_name[0] == ?"
+    end
+
+    def bck_file(federated = false)
+        t = Time.now
+
+        bck_name = "#{VAR_LOCATION}/postgresql_#{@server}_#{@db_name}_"
+
+        bck_name << "federated_" if federated
+
+        bck_name << "#{t.year}-#{t.month}-#{t.day}_"
+        bck_name << "#{t.hour}:#{t.min}:#{t.sec}.sql"
+
+        bck_name
+    end
+
+
+    def backup(bck_file, federated = false)
+        cmd = "PGPASSWORD=\"#{@passwd}\" pg_dump -U #{@user} -h #{@server} -p #{@port} -b #{@db_name} -Fp -f #{bck_file} "
+        
+        if federated
+            connect_db
+
+            @db.create_table!(:logdb_tmp, as: @db[:logdb].where{fed_index != -1})
+
+            FEDERATED_TABLES.each do |table|
+                cmd << " -t " << table
+            end
+
+            cmd << " -t logdb_tmp"
+
+            rc = system(cmd)
+            if !rc
+                raise "Unknown error running '#{cmd}'"
+            end
+
+            @db.drop_table(:logdb_tmp)
+            
+            File.write("#{bck_file}",File.open("#{bck_file}",&:read).gsub("logdb_tmp","logdb"))
+        else
+            rc = system(cmd)
+
+            if !rc
+                raise "Unknown error running '#{cmd}'"
+            end
+        end
+
+        File.write("#{bck_file}",File.open("#{bck_file}",&:read).gsub("COMMENT ON","-- COMMENT ON"))
+
+        puts "PostgreSQL dump stored in #{bck_file}"
+        puts "Use 'onedb restore' to restore the DB"
+        puts
+    end
+
+    def get_db_encoding
+        db_enc = ''
+
+        @db.fetch("SELECT pg_encoding_to_char(encoding) FROM pg_database WHERE datname = \'#{@db_name}\'") do |row|
+            db_enc = row[:pg_encoding_to_char]
+            db_enc ||= row[:PG_ENCODING_TO_CHAR]
+        end
+
+        db_enc
+    end
+
+    def encoding
+        @encoding = ''
+
+        connect_db
+
+        @encoding = get_db_encoding
+    end
+
+    def get_table_enconding(table = nil)
+        encoding = get_db_encoding
+
+        table_to_nk(encoding)
+    end
+
+    def table_to_nk(encoding)
+        case encoding
+        when 'UTF8'
+            'UTF-8'
+        when 'ISO_8859_5'
+            'ISO-8859-5'
+        when 'ISO_8859_6'
+            'ISO-8859-6'
+        when 'ISO_8859_7'
+            'ISO-8859-7'
+        when 'ISO_8859_8'
+            'ISO-8859-8'
+        when 'LATIN1'
+            'ISO-8859-1'
+        when 'LATIN2'
+            'ISO-8859-2'
+        when 'LATIN3'
+            'ISO-8859-3'
+        when 'LATIN4'
+            'ISO-8859-4'
+        when 'LATIN5'
+            'ISO-8859-9'
+        when 'SJIS'
+            'SHIFT-JIS'
+        when 'EUC_JP'
+            'EUC-JP'
+        when 'SQL_ASCII'
+            'ASCII'
+        else
+            NOKOGIRI_ENCODING
+        end
+    end
+
+    def restore(bck_file, force=nil, federated=false)
+        if !federated && !force && db_exists?
+            raise "PostgreSQL database #{@db_name} at #{@server} exists," <<
+                  " use -f to overwrite."
+        end
+
+        connect_db
+        if federated
+            FEDERATED_TABLES.each do |table|
+                @db.drop_table?(table)
+            end
+
+            @db.drop_table?(:logdb)
+        else
+            @db.tables.each do |table|
+                @db.drop_table(table)
+            end
+        end
+
+        rc = system("PGPASSWORD=\"#{@passwd}\" psql -U #{@user} -h #{@server} -p #{@port} -d #{@db_name} -f #{bck_file} --set ON_ERROR_STOP=on --quiet -o /dev/null")
+        if !rc
+            raise "Error while restoring PostgreSQL DB #{@db_name} at #{@server}."
+        end
+
+        puts "PostgreSQL DB #{@db_name} at #{@server} restored."
+    end
+
+    def fts_index(recreate = false)
+        raise "FTS index not supported for PostgreSQL." 
+    end
+
+    private
+
+    def connect_db
+        passwd = CGI.escape(@passwd)
+
+        endpoint = "postgres://#{@user}:#{passwd}@#{@server}:#{@port}/#{@db_name}"
+
+        begin
+            options = {}
+            options[:encoding] = @encoding unless @encoding.empty?
+
+            @db = Sequel.connect(endpoint, options)
+        rescue Exception => e
+            raise "Error connecting to DB: " + e.message
+        end
+
+        redefine_db_methods
+    end
+
+    def redefine_db_methods
+        def @db.fetch(query)
+            preprocessed = BackEndPostgreSQL.preprocess(query)
+            super(preprocessed)
+        end
+
+        def @db.run(query)
+            preprocessed = BackEndPostgreSQL.preprocess(query)
+            super(preprocessed)
+        end
+    end
+
+    # Any change to this method should be reflected in PostgreSqlDB class
+    # in src/sql/PostgreSqlDB.cc
+    def self.preprocess(query)
+        pp_query = query.dup
+
+        if pp_query.upcase.start_with?('CREATE TABLE')
+            pp_query = replace_type(pp_query, 'MEDIUMTEXT', 'TEXT')
+            pp_query = replace_type(pp_query, 'LONGTEXT', 'TEXT')
+            pp_query = replace_type(pp_query, 'BIGINT UNSIGNED', 'NUMERIC(20)')
+        end
+
+        if pp_query.upcase.start_with?('REPLACE')
+            pp_query = replace_replace_into(query)
+        end
+
+        pp_query
+    end
+
+    def self.replace_type(query, type, replacement)
+        query = query.gsub(type.upcase, replacement.upcase)
+        query = query.gsub(type.downcase, replacement.downcase)
+        return query
+    end
+
+    # This method changes MySQL/SQLite REPLACE INTO into PostgreSQL
+    # INSERT INTO query with ON CONFLICT clause. 
+    # For example:
+    #   REPLACE INTO pool_control (tablename, last_oid) VALUES ('acl',0)
+    # changes to:
+    #   INSERT INTO pool_control (tablename, last_oid) VALUES ('acl',0) 
+    #       ON CONFLICT (tablename) DO UPDATE SET last_oid = EXCLUDED.last_oid"
+    #
+    # Any change to this method should be reflected in PostgreSqlDB class
+    # in src/sql/PostgreSqlDB.cc
+    def self.replace_replace_into(query)
+        query[0, 7] = "INSERT" 
+        db_names_start = query.index('(') + 1
+        db_names_end = query.index(')')
+        db_names = query[db_names_start, db_names_end - db_names_start]
+    
+        splits = db_names.split(',')
+    
+        query += " ON CONFLICT (" + splits[0] + ") DO UPDATE SET "
+        sep = ""
+        splits[1..-1].each do |split|
+            split = split.strip
+            query += sep + split + " = EXCLUDED." + split
+            sep = ", "
+        end
+    
+        query    
     end
 end

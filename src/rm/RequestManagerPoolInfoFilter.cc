@@ -200,6 +200,8 @@ void RequestManagerPoolInfoFilter::dump(
     std::string where_string, limit_clause;
     std::string desc;
 
+    int limit_end_id = -1;
+
     int rc;
 
     if ( filter_flag < GROUP )
@@ -222,8 +224,7 @@ void RequestManagerPoolInfoFilter::dump(
 
     if ( end_id < -1 )
     {
-        oss << start_id << "," << -end_id;
-        limit_clause = oss.str();
+        limit_end_id = -end_id;
     }
 
     Nebula::instance().get_configuration_attribute(att.uid, att.gid,
@@ -233,14 +234,16 @@ void RequestManagerPoolInfoFilter::dump(
     {
         rc = pool->dump_extended(str,
                                  where_string,
-                                 limit_clause,
+                                 start_id,
+                                 limit_end_id,
                                  one_util::toupper(desc) == "DESC");
     }
     else
     {
         rc = pool->dump(str,
                         where_string,
-                        limit_clause,
+                        start_id,
+                        limit_end_id,
                         one_util::toupper(desc) == "DESC");
     }
 
@@ -300,7 +303,7 @@ void VirtualMachinePoolInfo::request_execute(
     {
         fts_query = xmlrpc_c::value_string(paramList.getString(5));
 
-        if (!fts_query.empty() && !pool->is_fts_available())
+        if (!fts_query.empty() && !pool->supports(SqlDB::SqlFeature::FTS))
         {
             att.resp_msg = "Full text search is not supported by the SQL backend";
 
@@ -556,6 +559,8 @@ void VirtualNetworkPoolInfo::request_execute(
     int start_id    = xmlrpc_c::value_int(paramList.getInt(2));
     int end_id      = xmlrpc_c::value_int(paramList.getInt(3));
 
+    int limit_end_id = -1;
+
     if ( filter_flag < GROUP )
     {
         att.resp_msg = "Incorrect filter_flag";
@@ -588,7 +593,7 @@ void VirtualNetworkPoolInfo::request_execute(
 
     if ( end_id < -1 )
     {
-        limit_clause << start_id << "," << -end_id;
+        limit_end_id = -end_id;
     }
 
     /* ---------------------------------------------------------------------- */
@@ -600,7 +605,7 @@ void VirtualNetworkPoolInfo::request_execute(
     Nebula::instance().get_configuration_attribute(att.uid, att.gid,
             "API_LIST_ORDER", desc);
 
-    int rc = pool->dump(pool_oss, where_string.str(), limit_clause.str(),
+    int rc = pool->dump(pool_oss, where_string.str(), start_id, limit_end_id,
             one_util::toupper(desc) == "DESC");
 
     if ( rc != 0 )

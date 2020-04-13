@@ -171,7 +171,7 @@ int HostPool::dump_monitoring(
 
     cmd << "SELECT " << one_db::host_monitor_table << ".body FROM "
         << one_db::host_monitor_table << " INNER JOIN " << one_db::host_table
-        << " WHERE hid = oid";
+        << " ON hid = oid";
 
     if ( !where.empty() )
     {

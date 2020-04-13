@@ -169,7 +169,7 @@ public:
      */
     int dump(string& oss, const string& where, bool desc)
     {
-        return dump(oss, where, "", desc);
+        return dump(oss, where, 0, -1, desc);
     }
 
     /**
@@ -177,30 +177,33 @@ public:
      *  to the query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
      *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    virtual int dump(string& oss, const string& where,
-                     const string& limit, bool desc) = 0;
+    virtual int dump(string& oss, const string& where, int sid, int eid,
+            bool desc) = 0;
 
     /**
      *  Dumps the pool in extended XML format
      *  A filter and limit can be also added to the query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
      *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
     virtual int dump_extended(string& oss,
                       const string& where,
-                      const string& limit,
+                      int sid,
+                      int eid,
                       bool desc)
     {
-        return dump(oss, where, limit, desc);
+        return dump(oss, where, sid, eid, desc);
     }
 
     // -------------------------------------------------------------------------
@@ -276,12 +279,13 @@ public:
     }
 
     /**
-     * Return true if FTS is available.
+     * Return true if feature is supported
      */
-     bool is_fts_available()
+     bool supports(SqlDB::SqlFeature ft)
      {
-         return db->fts_available();
+         return db->supports(ft);
      }
+
 protected:
 
     /**
@@ -316,7 +320,8 @@ protected:
      *  @param elem_name Name of the root xml pool name
      *  @param table Pool table name
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param start_id first element used for pagination
+     *  @param end_id last element used for pagination, -1 to disable
      *  @param desc descending order of pool elements
      *
      *  @return 0 on success
@@ -326,7 +331,8 @@ protected:
              const string&  column,
              const char *   table,
              const string&  where,
-             const string&  limit,
+             int            start_id,
+             int            end_id,
              bool           desc);
 
     /**
@@ -346,7 +352,7 @@ protected:
              const string&  where,
              bool           desc)
     {
-        return dump(oss, elem_name, "body", table, where, "", desc);
+        return dump(oss, elem_name, "body", table, where, 0, -1, desc);
     }
 
     /**

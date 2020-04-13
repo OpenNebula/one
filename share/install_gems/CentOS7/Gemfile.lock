@@ -89,6 +89,7 @@ GEM
     optimist (3.0.0)
     ox (2.13.2)
     parse-cron (0.1.4)
+    pg (1.1.4)
     polyglot (0.3.5)
     public_suffix (2.0.5)
     rack (1.6.13)
@@ -163,6 +164,7 @@ DEPENDENCIES
   nokogiri (< 1.7)
   ox
   parse-cron
+  pg (< 1.2.0)
   public_suffix (< 3.0.0)
   rack (< 2.0.0)
   rbvmomi (~> 2.2.0)

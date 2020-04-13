@@ -127,6 +127,8 @@ class OneDBBacKEnd
                 "state INTEGER, lcm_state INTEGER, " <<
                 "owner_u INTEGER, group_u INTEGER, other_u INTEGER, short_body MEDIUMTEXT, " <<
                 "search_token MEDIUMTEXT",
+            acl: "oid INT PRIMARY KEY, userset BIGINT, resource BIGINT, " <<
+                 "rights BIGINT, zone BIGINT, UNIQUE(userset, resource, rights, zone)"
         }
     }
 

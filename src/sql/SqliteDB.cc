@@ -13,8 +13,6 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-
-
 #include "SqliteDB.h"
 
 using namespace std;
@@ -52,14 +50,21 @@ SqliteDB::SqliteDB(const string& db_name)
         throw runtime_error("Could not open database.");
     }
 
-    enable_limit = sqlite3_compileoption_used("SQLITE_ENABLE_UPDATE_DELETE_LIMIT");
+    int enable_limit = sqlite3_compileoption_used("SQLITE_ENABLE_UPDATE_DELETE_LIMIT");
 
-    if (enable_limit)
+    if (enable_limit == 1)
     {
-        NebulaLog::log("ONE",Log::INFO , "sqlite has enabled: SQLITE_ENABLE_UPDATE_DELETE_LIMIT");
+        NebulaLog::log("ONE",Log::INFO ,
+                "sqlite has enabled: SQLITE_ENABLE_UPDATE_DELETE_LIMIT");
     }
 
     sqlite3_extended_result_codes(db, 1);
+
+    features = {
+        {SqlFeature::MULTIPLE_VALUE, false},
+        {SqlFeature::LIMIT, enable_limit == 1},
+        {SqlFeature::FTS, false}
+    };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -72,21 +77,6 @@ SqliteDB::~SqliteDB()
 }
 
 /* -------------------------------------------------------------------------- */
-
-bool SqliteDB::multiple_values_support()
-{
-    // Versions > 3.7.11 support multiple value inserts, but tests
-    // have ended in segfault. A transaction seems to perform better
-    //return SQLITE_VERSION_NUMBER >= 3007011;
-    return false;
-}
-
-/* -------------------------------------------------------------------------- */
-bool SqliteDB::limit_support()
-{
-    return enable_limit == 1;
-}
-
 /* -------------------------------------------------------------------------- */
 
 int SqliteDB::exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)

@@ -22,6 +22,7 @@
 #include "StreamManager.h"
 #include "SqliteDB.h"
 #include "MySqlDB.h"
+#include "PostgreSqlDB.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -35,6 +36,7 @@ void Monitor::start()
     // Configuration File
     // -------------------------------------------------------------------------
     OpenNebulaTemplate oned_config(get_defaults_location(), oned_filename);
+
     if (oned_config.load_configuration() != 0)
     {
         throw runtime_error("Error reading oned configuration file " +
@@ -91,7 +93,8 @@ void Monitor::start()
     // -------------------------------------------------------------------------
     // Database
     // -------------------------------------------------------------------------
-    const VectorAttribute * _db = oned_config.get("DB");
+    const VectorAttribute * _db   = oned_config.get("DB");
+    const VectorAttribute * _db_m = config->get("DB");
 
     std::string db_backend = _db->vector_value("BACKEND");
 
@@ -115,10 +118,23 @@ void Monitor::start()
         _db->vector_value<string>("PASSWD", passwd, "oneadmin");
         _db->vector_value<string>("DB_NAME", db_name, "opennebula");
         _db->vector_value<string>("ENCODING", encoding, "");
-        _db->vector_value("CONNECTIONS", connections, 50);
 
-        sqlDB.reset(new MySqlDB(server, port, user, passwd, db_name,
-                    encoding, connections));
+        _db_m->vector_value("CONNECTIONS", connections, 15);
+
+        if ( db_backend == "postgresql" )
+        {
+            sqlDB.reset(new PostgreSqlDB(server, port, user, passwd, db_name,
+                    connections));
+        }
+        else if ( db_backend == "mysql" )
+        {
+            sqlDB.reset(new MySqlDB(server, port, user, passwd, db_name,
+                        encoding, connections));
+        }
+        else
+        {
+            throw runtime_error("Unknown DB backend " + db_backend);
+        }
     }
 
     // -------------------------------------------------------------------------

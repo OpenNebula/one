@@ -230,7 +230,7 @@ int VirtualMachinePool::get_running(
        << " state = " << VirtualMachine::ACTIVE
        << " and ( lcm_state = " << VirtualMachine::RUNNING
        << " or lcm_state = " << VirtualMachine::UNKNOWN << " )"
-       << " ORDER BY last_poll ASC LIMIT " << vm_limit;
+       << " ORDER BY last_poll ASC " << db->limit_string(vm_limit);
 
     where = os.str();
 
@@ -262,8 +262,7 @@ int VirtualMachinePool::dump_acct(string& oss, const string&  where,
     ostringstream cmd;
 
     cmd << "SELECT " << History::table << ".body FROM " << History::table
-        << " INNER JOIN " << one_db::vm_table
-        << " WHERE vid=oid";
+        << " INNER JOIN " << one_db::vm_table << " ON vid=oid";
 
     if ( !where.empty() )
     {
@@ -302,8 +301,7 @@ int VirtualMachinePool::dump_showback(string& oss,
 
     cmd << "SELECT " << one_db::vm_showback_table << ".body FROM "
         << one_db::vm_showback_table
-        << " INNER JOIN " << one_db::vm_table
-        << " WHERE vmid=oid";
+        << " INNER JOIN " << one_db::vm_table << " ON vmid=oid";
 
     if ( !where.empty() )
     {
@@ -719,7 +717,7 @@ int VirtualMachinePool::calculate_showback(
 
     // Write to DB
 
-    if (db->multiple_values_support())
+    if (db->supports(SqlDB::SqlFeature::MULTIPLE_VALUE))
     {
         oss.str("");
 

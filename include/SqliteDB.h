@@ -63,26 +63,6 @@ public:
      */
     void free_str(char * str) override;
 
-    /**
-     * Returns true if the syntax INSERT VALUES (data), (data), (data)
-     * is supported
-     *
-     * @return true if supported
-     */
-    bool multiple_values_support() override;
-
-    /**
-     * Returns true if this Database can use LIMIT in queries with DELETE
-     *  and UPDATE
-     *
-     * @return true if supported
-     */
-    bool limit_support() override;
-
-    bool fts_available() override
-    {
-        return false;
-    }
 protected:
     /**
      *  Wraps the sqlite3_exec function call, and locks the DB mutex.
@@ -98,17 +78,12 @@ private:
     /**
      *  Fine-grain mutex for DB access
      */
-    pthread_mutex_t     mutex;
+    pthread_mutex_t mutex;
 
     /**
      *  Pointer to the database.
      */
-    sqlite3 *           db;
-
-    /**
-     *  LIMIT for DELETE and UPDATE queries is enabled
-     */
-    int                 enable_limit;
+    sqlite3 * db;
 
     /**
      *  Function to lock the DB
@@ -141,13 +116,9 @@ public:
 
     char * escape_str(const string& str) override { return 0; }
 
-    void free_str(char * str) override {}
+    void free_str(char * str) override {};
 
-    bool multiple_values_support() override { return true; }
-
-    bool limit_support() override { return true; }
-
-    bool fts_available() override { return false; }
+    std::string get_limit_string(const std::string& str) override { return str; }
 
 protected:
     int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet) override

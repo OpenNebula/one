@@ -27,7 +27,28 @@ module Migrator
     end
 
     def up
+        feature_3600
         true
+    end
+
+    private
+
+    #Rename acl column name from user to userset to support postgresql
+    def feature_3600
+        @db.run 'DROP TABLE IF EXISTS old_acl;'
+        @db.run 'ALTER TABLE acl RENAME TO old_acl;'
+
+        create_table(:acl)
+
+        @db.transaction do
+            @db.fetch('SELECT * FROM old_acl') do |row|
+                row[:userset] = row.delete[:user]
+
+                @db[:acl].insert(row)
+            end
+        end
+
+        @db.run "DROP TABLE old_acl;"
     end
 
 end
