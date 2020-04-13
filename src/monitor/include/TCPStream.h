@@ -208,17 +208,13 @@ int TCPStream<E>::read_line(std::string& line)
     socklen_t addr_size = sizeof(struct sockaddr_storage);
 
     fd_set rfds;
-    struct timeval tv;
 
     while (1)
     {
         FD_ZERO(&rfds);
         FD_SET(_socket, &rfds);
 
-        tv.tv_sec  = 0;
-        tv.tv_usec = 5000;
-
-        rc = select(_socket+1, &rfds, nullptr, nullptr, &tv);
+        rc = select(_socket+1, &rfds, nullptr, nullptr, nullptr);
 
         if (terminate)
         {
