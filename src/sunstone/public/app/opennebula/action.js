@@ -338,6 +338,30 @@ define(function(require) {
       _simple_action(params, resource, "lock", action_obj, path);
     },
 
+    "addFlowAction": function(params, resource) {
+      var callback = params && params.success;
+      var callbackError = params && params.error;
+      var id = params && params.data && params.data.id;
+      var roleName = params && params.data && params.data.roleName
+      var action = params && params.data && params.data.action
+      var cacheName = params.cacheName ? params.cacheName : resource;
+      if(id!==undefined && roleName && action && resource){
+        $.ajax({
+          url: resource.toLowerCase()+"/"+id+"/role/"+roleName+"/action",
+          type: "POST",
+          contentType: "application/json; charset=utf-8",
+          data: JSON.stringify({action: action}),
+          success: function(response) {
+            _clearCache(cacheName);
+            return callback ? callback(response) : null;
+          },
+          error: function(response) {
+            return callbackError ? callbackError(OpenNebulaError(response)) : null;
+          }
+        });
+      }
+    },
+
     "chgrp": function(params, resource, path) {
       var id = params.data.extra_param;
       var action_obj = {"owner_id": "-1",

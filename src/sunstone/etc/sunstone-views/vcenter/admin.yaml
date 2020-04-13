@@ -421,6 +421,7 @@ tabs:
             service_info_tab: true
             service_roles_tab: true
             service_log_tab: true
+            service_sched_action_tab: true
         panel_tabs_actions:
             service_roles_tab:
                 Role.scale: true

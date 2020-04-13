@@ -31,7 +31,8 @@ define(function(require) {
   var _panels = [
     require('./oneflow-services-tab/panels/info'),
     require('./oneflow-services-tab/panels/roles'),
-    require('./oneflow-services-tab/panels/log')
+    require('./oneflow-services-tab/panels/log'),
+    require('./oneflow-services-tab/panels/sched_actions')
   ];
 
   var _panelsHooks = [
