@@ -166,9 +166,6 @@ define(function(require) {
     this.allocatedMemory += parseInt((element && element.HOST_SHARE && element.HOST_SHARE.MEM_USAGE)||0);
     this.realMemory += parseInt((element && element.MONITORING && element.MONITORING.CAPACITY && element.MONITORING.CAPACITY.USED_MEMORY)||0);//MONITORING.CAPACITY.USED_MEMORY
 
-
-    console.log("-->",element);
-
     var state = OpenNebulaHost.simpleStateStr(element.STATE);
 
     var search = {
