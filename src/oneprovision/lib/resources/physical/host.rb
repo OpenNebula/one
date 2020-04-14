@@ -67,12 +67,14 @@ module OneProvision
             if poll.key? 'GUEST_IP_ADDRESSES'
                 name = poll['GUEST_IP_ADDRESSES'].split(',')[0][1..-1] # TODO
             elsif poll.key? 'AWS_PUBLIC_IP_ADDRESS'
-                name = poll['AWS_PUBLIC_IP_ADDRESS'][2..-3]
+                name = poll['AWS_PUBLIC_IP_ADDRESS']
             else
                 Utils.fail('Failed to get provision name')
             end
 
-            name
+            # rubocop:disable Style/StringLiterals
+            name.gsub("\"", '')
+            # rubocop:enable Style/StringLiterals
         end
 
         # Creates a new HOST in OpenNebula
