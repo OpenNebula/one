@@ -80,6 +80,14 @@ post '/service/:id/action' do
     af_format_response(resp)
 end
 
+post '/service/:id/scale' do
+    client = af_build_client
+
+    resp = client.post('/service/' + params[:id] + '/scale', @request_body)
+
+    af_format_response(resp)
+end
+
 post '/service/:id/role/:role_name/action' do
     client = af_build_client
 

@@ -34,6 +34,19 @@ define(function(require) {
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
     XML_ROOT, Locale.tr("Service created"));
 
+  function roleElement() {
+    var selected = {};
+
+    var dataTable = $('table[id^=datatable_roles]', '#'+TAB_ID+' #'+ROLES_PANEL_ID);
+    var nodes = $('tbody input.check_item:checked', dataTable);
+    $.each(nodes, function() {
+      selected["serviceId"] = $(this).data("id");
+      selected["roleName"] = $(this).data("name");
+    });
+
+    return selected;
+  }
+
   function roleElements() {
     var selected_nodes = [];
 
@@ -118,18 +131,31 @@ define(function(require) {
     "Role.scale_dialog" : {
       type: "custom",
       call: function(){
-        selected = roleElements();
+        params = roleElement();
 
-        if(selected.length == 0){
+        if(!params.serviceId || !params.roleName) {
+          Notifier.onError("Select one role");
           return;
         }
 
-        Sunstone.getDialog(SCALE_DIALOG_ID).setParams({roleIds: selected});
+        Sunstone.getDialog(SCALE_DIALOG_ID).setParams(params);
         Sunstone.getDialog(SCALE_DIALOG_ID).reset();
         Sunstone.getDialog(SCALE_DIALOG_ID).show();
       }
     },
-
+    "Role.scale" : {
+      type: "single",
+      call: OpenNebulaRole.scale,
+      callback : function() {
+        Sunstone.getDialog(SCALE_DIALOG_ID).hide();
+        roleCallback();
+      },
+      error: function(request, response) {
+        Sunstone.getDialog(SCALE_DIALOG_ID).hide();
+        Notifier.onError(request, response);
+      },
+      notify: true
+    },
     "Role.update" : {
       type: "multiple",
       call: OpenNebulaRole.update,
