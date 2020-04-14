@@ -78,6 +78,7 @@ conf[:shutdown_action]     ||= 'terminate'
 conf[:action_number]       ||= 1
 conf[:action_period]       ||= 60
 conf[:vm_name_template]    ||= DEFAULT_VM_NAME_TEMPLATE
+conf[:wait_timeout]        ||= 30
 conf[:auth]                = 'opennebula'
 
 set :bind, conf[:host]
