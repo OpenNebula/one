@@ -56,7 +56,6 @@ class EventManager
     # --------------------------------------------------------------------------
     DEFAULT_CONF = {
         :subscriber_endpoint  => 'tcp://localhost:2101',
-        :timeout_s   => 30,
         :concurrency => 10,
         :cloud_auth  => nil,
         :am          => nil
@@ -68,8 +67,9 @@ class EventManager
         @lcm = options[:lcm]
         @am  = ActionManager.new(@conf[:concurrency], true)
 
-        @context = ZMQ::Context.new(1)
-        @cloud_auth = @conf[:cloud_auth]
+        @context      = ZMQ::Context.new(1)
+        @cloud_auth   = @conf[:cloud_auth]
+        @wait_timeout = @cloud_auth.conf[:wait_timeout]
 
         # Register Action Manager actions
         @am.register_action(ACTIONS['WAIT_DEPLOY'],
@@ -402,7 +402,7 @@ class EventManager
     def gen_subscriber
         subscriber = @context.socket(ZMQ::SUB)
         # Set timeout (TODO add option for customize timeout)
-        subscriber.setsockopt(ZMQ::RCVTIMEO, @conf[:timeout_s] * 10**3)
+        subscriber.setsockopt(ZMQ::RCVTIMEO, @wait_timeout * 10**3)
         subscriber.connect(@conf[:subscriber_endpoint])
 
         subscriber

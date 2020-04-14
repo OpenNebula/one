@@ -28,7 +28,6 @@ class ServiceWD
 
     DEFAULT_CONF = {
         :subscriber_endpoint  => 'tcp://localhost:2101',
-        :timeout_s   => 30,
         :concurrency => 10,
         :cloud_auth  => nil
     }
@@ -47,10 +46,11 @@ class ServiceWD
     def initialize(client, options)
         @conf = DEFAULT_CONF.merge(options)
 
-        @lcm        = options[:lcm]
-        @context    = ZMQ::Context.new(1)
-        @cloud_auth = @conf[:cloud_auth]
-        @client     = client
+        @lcm          = options[:lcm]
+        @context      = ZMQ::Context.new(1)
+        @cloud_auth   = @conf[:cloud_auth]
+        @wait_timeout = @cloud_auth.conf[:wait_timeout]
+        @client       = client
 
         @services_nodes   = {}
         @services_threads = {}
@@ -213,7 +213,7 @@ class ServiceWD
         subscriber = @context.socket(ZMQ::SUB)
 
         # Set timeout (TODO add option for customize timeout)
-        subscriber.setsockopt(ZMQ::RCVTIMEO, @conf[:timeout_s] * 10**3)
+        subscriber.setsockopt(ZMQ::RCVTIMEO, @wait_timeout * 10**3)
         subscriber.connect(@conf[:subscriber_endpoint])
 
         subscriber
