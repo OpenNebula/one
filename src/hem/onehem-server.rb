@@ -276,7 +276,8 @@ class HookMap
 
             key = hook.key
 
-            @hooks[hook.type][key] = hook
+            @hooks[hook.type][key] = []          unless @hooks[hook.type].key?(key)
+            @hooks[hook.type][key].push(hook.id) unless @hooks[hook.type][key].include?(hook.id)            
             @hooks_id[hook.id]     = hook
             @filters[hook.id]      = hook.filter(key)
         end
@@ -300,7 +301,8 @@ class HookMap
         key    = hook.key
         filter = hook.filter(key)
 
-        @hooks[hook.type][key] = hook
+        @hooks[hook.type][key] = []          unless @hooks[hook.type].key?(key)
+        @hooks[hook.type][key].push(hook_id) unless @hooks[hook.type][key].include?(hook_id)
         @hooks_id[hook_id] = hook
         @filters[hook_id]  = filter
 
@@ -312,7 +314,10 @@ class HookMap
     def delete(hook_id)
         hook = @hooks_id[hook_id]
 
-        @hooks[hook.type].delete(hook.key)
+        if @hooks[hook.type].key?(hook.key)
+            @hooks[hook.type][hook.key].delete(hook_id)
+            @hooks[hook.type].delete(hook.key) if @hooks[hook.type][hook.key].empty?
+        end
         @filters.delete(hook_id)
         @hooks_id.delete(hook_id)
     end
@@ -322,8 +327,8 @@ class HookMap
         @filters.each_value {|f| block.call(f) }
     end
 
-    # Returns a hook by key
-    def get_hook(type, key)
+    # Returns hooks by key
+    def get_hooks(type, key)
         @hooks[type.downcase.to_sym][key]
     end
 
@@ -537,11 +542,14 @@ class HookExecutionManager
                 end
 
                 content   = Base64.decode64(content)
-                hook      = @hooks.get_hook(type, key)
+                hooks     = @hooks.get_hooks(type, key) || []
 
                 body = Nokogiri::XML(content)
 
-                @am.trigger_action(ACTIONS[0], 0, hook, body) unless hook.nil?
+                hooks.each do |hook_id|
+                    hook = @hooks.get_hook_by_id(hook_id)
+                    @am.trigger_action(ACTIONS[0], 0, hook, body) unless hook.nil?
+                end
 
                 reload_hooks(key, body) if UPDATE_CALLS.include? key
             when :RETRY
@@ -576,7 +584,7 @@ class HookExecutionManager
         params = hook.arguments(event)
         host   = hook.remote_host(event)
 
-        @logger.info("Executing hook for #{hook.key}")
+        @logger.info("Executing hook #{hook.id} for #{hook.key}")
 
         rc = nil
 
@@ -592,9 +600,9 @@ class HookExecutionManager
         end
 
         if rc.code.zero?
-            @logger.info("Hook successfully executed for #{hook.key}")
+            @logger.info("Hook #{hook.id} successfully executed for #{hook.key}")
         else
-            @logger.error("Failure executing hook for #{hook.key}")
+            @logger.error("Failure executing hook #{hook.id} for #{hook.key}")
         end
 
         xml_out = build_response_body(params, rc, host, hook.remote?, false)
