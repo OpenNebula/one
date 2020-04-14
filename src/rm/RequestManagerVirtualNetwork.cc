@@ -94,6 +94,12 @@ void VirtualNetworkRmAddressRange::
         return;
     }
 
+    bool force = false;
+    if (paramList.size() > 3)
+    {
+        force = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+    }
+
     // -------------------------------------------------------------------------
     // Get VNET and data for reservations
     // -------------------------------------------------------------------------
@@ -119,7 +125,7 @@ void VirtualNetworkRmAddressRange::
 
     vn->get_template_attribute("MAC" , mac  , ar_id);
 
-    if ( vn->rm_ar(ar_id, att.resp_msg) < 0 )
+    if (vn->rm_ar(ar_id, force, att.resp_msg) < 0)
     {
         failure_response(INTERNAL, att);
 

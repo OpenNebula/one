@@ -1065,9 +1065,9 @@ int VirtualNetwork::update_ar(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::rm_ar(unsigned int ar_id, string& error_msg)
+int VirtualNetwork::rm_ar(unsigned int ar_id, bool force, string& error_msg)
 {
-    return ar_pool.rm_ar(ar_id, error_msg);
+    return ar_pool.rm_ar(ar_id, force, error_msg);
 }
 
 /* -------------------------------------------------------------------------- */

@@ -234,10 +234,11 @@ public:
     /**
      * Removes an address range from the VNET
      *  @param ar_id of the address range
+     *  @param force force remove, even if active leases exists
      *  @param error_msg If the action fails, this message contains the reason.
      *  @return 0 on success
      */
-    int rm_ar(unsigned int ar_id, string& error_msg);
+    int rm_ar(unsigned int ar_id, bool force, string& error_msg);
 
     /**
      * Removes all address ranges from the VNET
