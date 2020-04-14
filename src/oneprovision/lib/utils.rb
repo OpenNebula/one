@@ -242,6 +242,9 @@ module OneProvision
                             base.delete('playbook')
                         end
 
+                        yaml['playbook'] = [yaml['playbook']]
+                        yaml['playbook'].flatten!
+
                         # replace scalars or append array from child YAML
                         yaml.each do |key, value|
                             next if key == 'defaults'

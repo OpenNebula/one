@@ -36,14 +36,17 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 require 'ec2_driver'
 require 'opennebula'
 
+require 'base64'
+
 deploy_id = ARGV[0]
 host      = ARGV[1]
 id        = ARGV[2]
 
 begin
     ec2_drv = EC2Driver.new(host, id)
-    ec2_drv.poll(id, deploy_id)
+    monitor = ec2_drv.poll(id, deploy_id).first
 
+    puts Base64.decode64(monitor[:monitor])
 rescue Exception => e
 		OpenNebula.error_message(<<EOT)
 Cannot poll info for EC2 host #{host} due to "#{e.message}"

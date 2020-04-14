@@ -207,7 +207,6 @@ module OneProvision
                 Mode.new_cleanup(true)
 
                 create_resources(cfg, cid)
-
                 create_hosts(cfg, cid)
 
                 if skip != :all && @hosts && !@hosts.empty?
