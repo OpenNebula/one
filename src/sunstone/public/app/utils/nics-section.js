@@ -134,24 +134,19 @@ define(function(require) {
       // template_nic is the original NIC definition in an instantiate action.
       // We try to use it replacing only the settings offered in this
       // module, to preserve any other potential settings (such as IP6_GLOBAL)
-
       if ($(this).data("template_nic") != undefined) {
         nic = $(this).data("template_nic");
       } else {
         nic = {};
       }
-
       var that = this;
-
       if( $("input#"+that.id+"_network_mode", $(this)).prop("checked") ){
         nic["NETWORK_MODE"] = "auto";
         var req = $("input#"+that.id+"_SCHED_REQUIREMENTS", $(this)).val();
         var rank = $("input#"+that.id+"_SCHED_RANK", $(this)).val();
-
         if ( req && req !== "" ){
           nic["SCHED_REQUIREMENTS"] = req;
         }
-
         if ( rank && rank !== "" ){
           nic["SCHED_RANK"] = rank;
         }
@@ -173,70 +168,53 @@ define(function(require) {
 
       if ( !nic["NETWORK_MODE"] || ( nic["NETWORK_MODE"] && nic["NETWORK_MODE"] !== "auto" ) )
       {
-
         var val = $(this).data("vnetsTable").retrieveResourceTableSelect();
-
         if (val == undefined || val == ""){
           if (nic["NETWORK"] == undefined && nic["NETWORK_ID"] == undefined ){
             // No network name or id in original NIC, and no selection done
             return true; //continue
-          } else {
+          } /* else {
             return nic;
-          }
+          }*/
         }
-
         delete nic["NETWORK"];
         delete nic["NETWORK_ID"];
         delete nic["NETWORK_UNAME"];
         delete nic["NETWORK_UID"];
-
         nic["NETWORK_ID"] = val;
-
         delete nic["FLOATING_IP"];
         if ($("input.floating_ip", $(this)).prop("checked")){
           nic["FLOATING_IP"] = "YES";
         }
-
         var ip4 = $("input.manual_ip4", $(this)).val();
-
         if (ip4 != undefined){
           delete nic["IP"];
-
           if (ip4 != ""){
             nic["IP"] = ip4;
           }
         }
-
         var ip6 = $("input.manual_ip6", $(this)).val();
-
         if (ip6 != undefined){
           delete nic["IP6"];
-
           if (ip6 != ""){
             nic["IP6"] = ip6;
           }
         }
         delete nic["VROUTER_MANAGEMENT"];
-
         if ($("input.management", $(this)).prop("checked")){
           nic["VROUTER_MANAGEMENT"] = "YES";
         }
-
         var sgTable = $(this).data("sgTable");
-
         if (sgTable){
           delete nic["SECURITY_GROUPS"];
-
           var secgroups = sgTable.retrieveResourceTableSelect();
           if (secgroups != undefined && secgroups.length != 0) {
             nic["SECURITY_GROUPS"] = secgroups.join(",");
           }
         }
       }
-
       nics.push(nic);
     });
-
     return nics;
   }
 
