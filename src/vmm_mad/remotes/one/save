@@ -39,5 +39,5 @@ deploy_id = ARGV[0]
 file      = ARGV[1]
 host      = ARGV[2]
 
-one2one_drv = OpenNebulaDriver.new(host)
+one2one_drv = One2OneDriver.new(host)
 one2one_drv.save(deploy_id)

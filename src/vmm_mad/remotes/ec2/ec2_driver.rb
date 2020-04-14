@@ -31,7 +31,7 @@ end
 
 EC2_DRIVER_CONF    = "#{ETC_LOCATION}/ec2_driver.conf"
 EC2_DRIVER_DEFAULT = "#{ETC_LOCATION}/ec2_driver.default"
-EC2_DATABASE_PATH  = "#{VAR_LOCATION}/remotes/im/ec2.d/ec-cache.db"
+EC2_DATABASE_PATH  = "#{VAR_LOCATION}/remotes/im/ec2.d/ec2-cache.db"
 
 if File.directory?(GEMS_LOCATION)
     Gem.use_paths(GEMS_LOCATION)
@@ -1022,8 +1022,8 @@ end
 ############################################################################
 module DomainList
 
-    def self.state_info(*args)
-        ec2 = EC2Driver.new(*args)
+    def self.state_info(name, id)
+        ec2 = EC2Driver.new(name, id)
 
         vms = ec2.retreive_vms_data
 
