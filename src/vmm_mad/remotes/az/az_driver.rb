@@ -308,8 +308,13 @@ class AzureDriver
         end
     end
 
-    # Get VMs details from azure, include monitoring if needed
-    def fetch_vms_data(with_monitoring = false)
+    # --------------------------------------------------------------------------
+    # Fetch vms data
+    #   @param with_monitoring [Boolean] - include monitoring and cloud info
+    #
+    #   return [Array] of VM Hashes
+    # --------------------------------------------------------------------------
+    def fetch_vms_data(with_monitoring: false)
         az_connect
         work_q = Queue.new
 
