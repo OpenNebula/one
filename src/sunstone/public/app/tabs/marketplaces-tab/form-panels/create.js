@@ -43,6 +43,7 @@ define(function(require) {
   var MARKET_MAD_ATTRS = [
     {
       name: 'ENDPOINT',
+      id: 'ENDPOINTONE',
       label: Locale.tr("Endpoint URL for marketplace"),
       driver: 'one'
     },
@@ -97,6 +98,7 @@ define(function(require) {
     },
     {
       name: 'ENDPOINT',
+      id: 'ENDPOINTS3',
       label: Locale.tr("Endpoint URL for marketplace"),
       driver: 's3'
     },
@@ -114,11 +116,12 @@ define(function(require) {
     },
     {
       name: 'ENDPOINT',
+      id: 'ENDPOINTLXD',
       label: Locale.tr("Endpoint URL for marketplace"),
       driver: 'linuxcontainers'
     },
     {
-      name: 'IMAGE_SIZE_MB	',
+      name: 'IMAGE_SIZE_MB',
       label: Locale.tr("Size for the image holding the rootfs in MB"),
       driver: 'linuxcontainers'
     },
