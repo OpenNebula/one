@@ -1,12 +1,29 @@
 ---
+# Ansible playbook to configure hosts
+playbook: "default"
+
+# Cluster to group all the resources
+cluster:
+  name: "PacketCluster"
+
+# Defaults sections with information related with Packet
+defaults:
+#  provision:
+#    driver: "packet"
+#    packet_token: "**************************"
+#    packet_project: "************************"
+#    facility: "ams1"
+#    plan: "baremetal_0"
+#    os: "centos_7"
+
 # Hosts to be deployed in Packet and created in OpenNebula
 hosts:
-  - reserved_cpu: "100"
-    im_mad: "kvm"
-    vm_mad: "kvm"
-    provision:
-      hostname: "centos-host"
-      os: "centos_7"
+#  - reserved_cpu: "100"
+#    im_mad: "kvm"
+#    vm_mad: "kvm"
+#    provision:
+#      hostname: "centos-host"
+#      os: "centos_7"
 
 #  - reserved_cpu: "100"
 #    im_mad: "kvm"
@@ -17,17 +34,17 @@ hosts:
 
 # Datastores to be created in OpenNebula
 datastores:
-  - name: "image-defaultds"
+  - name: "<%= @name %>-image"
     ds_mad: "fs"
     tm_mad: "ssh"
 
-  - name: "system-defaultds"
+  - name: "<%= @name %>-system"
     type: "system_ds"
     tm_mad: "ssh"
 
 networks:
   # Network to be created in OpenNebula
-  - name: "private"
+  - name: "<%= @name %>-private"
     vn_mad: "dummy"
     bridge: "vxbr100"
     mtu: "1450"
@@ -38,7 +55,7 @@ networks:
         type: "IP4"
 
   # Network to be deployed in Packet and created in OpenNebula
-  - name: "public"
+  - name: "<%= @name %>-public"
     vn_mad: "alias_sdnat"
     bridge: "vxbr101"
     external: "yes"
