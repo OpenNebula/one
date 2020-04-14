@@ -300,11 +300,9 @@ class EC2Driver
         require 'aws-sdk-ec2'
         require 'aws-sdk-cloudwatch'
 
-        Aws.config.merge!({
-                              :access_key_id      => @access_key,
-            :secret_access_key  => @secret_key,
-            :region             => @region_name
-                          })
+        Aws.config.merge!({ :access_key_id     => @access_key,
+                            :secret_access_key => @secret_key,
+                            :region            => @region_name })
 
         if (proxy_uri = @ec2_conf[:proxy_uri])
             Aws.config(:proxy_uri => proxy_uri)
@@ -339,10 +337,8 @@ class EC2Driver
             raise 'Cannot find AMI in deployment file'
         end
 
-        opts = generate_options(:run, ec2_info, {
-                                    :min_count => 1,
-                                :max_count => 1
-                                })
+        opts = generate_options(:run, ec2_info, { :min_count => 1,
+                                                  :max_count => 1 })
 
         # The OpenNebula context will be only included if not USERDATA
         # is provided by the user
