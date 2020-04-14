@@ -321,9 +321,9 @@ std::string PostgreSqlDB::preprocess_query(std::ostringstream& cmd)
 
         const char* sep = "";
 
-        for (size_t i = 1; i < splits.size(); i++)
+        for (auto &s: splits)
         {
-            query += sep + splits[i] + " = EXCLUDED." + splits[i];
+            query += sep + s + " = EXCLUDED." + s;
             sep = ", ";
         }
     }

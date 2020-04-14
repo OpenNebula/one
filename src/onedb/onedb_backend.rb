@@ -832,11 +832,7 @@ class BackEndPostgreSQL < OneDBBacKEnd
             pp_query = replace_type(pp_query, 'BIGINT UNSIGNED', 'NUMERIC(20)')
         end
 
-        if pp_query.upcase.start_with?('REPLACE')
-            pp_query = replace_replace_into(query)
-        end
-
-        pp_query
+        preprocess_query(query)
     end
 
     def self.replace_type(query, type, replacement)
@@ -846,31 +842,32 @@ class BackEndPostgreSQL < OneDBBacKEnd
     end
 
     # This method changes MySQL/SQLite REPLACE INTO into PostgreSQL
-    # INSERT INTO query with ON CONFLICT clause. 
-    # For example:
-    #   REPLACE INTO pool_control (tablename, last_oid) VALUES ('acl',0)
-    # changes to:
-    #   INSERT INTO pool_control (tablename, last_oid) VALUES ('acl',0) 
-    #       ON CONFLICT (tablename) DO UPDATE SET last_oid = EXCLUDED.last_oid"
+    # INSERT INTO query with ON CONFLICT clause.
     #
-    # Any change to this method should be reflected in PostgreSqlDB class
-    # in src/sql/PostgreSqlDB.cc
-    def self.replace_replace_into(query)
-        query[0, 7] = "INSERT" 
-        db_names_start = query.index('(') + 1
-        db_names_end = query.index(')')
-        db_names = query[db_names_start, db_names_end - db_names_start]
-    
+    # For more information look into include/PostgreSQL.h
+    def self.preprocess_query(query)
+        return query unless query.upcase.start_with?('REPLACE')
+
+        query[0, 6] = 'INSERT'
+
+        table_start = query.index('INTO ', 7) + 5
+        names_start = query.index('(', table_start) + 1
+        names_end   = query.index(')', names_start)
+
+        table    = query[table_start, names_start - 2 - table_start ]
+        db_names = query[names_start, names_end - names_start]
+
         splits = db_names.split(',')
-    
-        query += " ON CONFLICT (" + splits[0] + ") DO UPDATE SET "
-        sep = ""
-        splits[1..-1].each do |split|
-            split = split.strip
-            query += sep + split + " = EXCLUDED." + split
+
+        query += " ON CONFLICT ON CONSTRAINT #{table}_pkey DO UPDATE SET"
+
+        sep = " "
+        splits.each do |split|
+            query += "#{sep}#{split.strip} = EXCLUDED.#{split.strip}"
             sep = ", "
         end
-    
-        query    
+
+        query
     end
+
 end
