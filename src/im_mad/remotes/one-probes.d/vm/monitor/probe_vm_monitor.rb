@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV['ONE_LOCATION'] if !defined? ONE_LOCATION
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined? ONE_LOCATION
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
@@ -40,6 +40,6 @@ one2one_drv = One2OneDriver.new(host, host_id)
 
 begin
     puts one2one_drv.probe_vm_monitor
-rescue Exception => e
-    OpenNebula.handle_driver_exception("im probe_vm_monitor", e, host)
+rescue StandardError => e
+    OpenNebula.handle_driver_exception('im probe_vm_monitor', e, host)
 end

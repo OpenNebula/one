@@ -188,7 +188,7 @@ module PublicCloudDriver
     end
 
     # Hash to ONE template format
-    def hash_to_template(h, pref = '', post = '', delim=', ')
+    def hash_to_template(h, pref = '', post = '', delim = ', ')
         tmpl = h.to_a.map {|e| "#{e[0].to_s.upcase}=\"#{e[1]}\"" }.join(delim)
         pref + tmpl + post
     end

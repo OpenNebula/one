@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
-ONE_LOCATION = ENV['ONE_LOCATION'] if !defined? ONE_LOCATION
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined? ONE_LOCATION
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
@@ -49,18 +49,18 @@ class One2OneDriver
 
     include PublicCloudDriver
 
-    LIMIT_DEFAULT   = "-1"
-    LIMIT_UNLIMITED = "-2"
+    LIMIT_DEFAULT   = '-1'
+    LIMIT_UNLIMITED = '-2'
 
-    UNLIMITED_CPU_VALUE = "100000"
-    UNLIMITED_MEMORY_VALUE = "1073741824"
+    UNLIMITED_CPU_VALUE = '100000'
+    UNLIMITED_MEMORY_VALUE = '1073741824'
 
     # Local deploy ids will be formed with this prefix and the remote VM ID
-    #DEPLOY_ID_PREFIX = "one-"
-    DEPLOY_ID_PREFIX = "opennebula-hybrid-"
+    # DEPLOY_ID_PREFIX = "one-"
+    DEPLOY_ID_PREFIX = 'opennebula-hybrid-'
 
     # Remote VM names will be formed with this prefix, plus the local VM ID
-    REMOTE_NAME_PREFIX = "remote-opennebula-"
+    REMOTE_NAME_PREFIX = 'remote-opennebula-'
 
     # constructor, loads credentials and endpoint
     def initialize(host, id = nil)
@@ -73,33 +73,37 @@ class One2OneDriver
         @db = InstanceCache.new(File.join(VAR_LOCATION, 'remotes',
                                           'im', 'one.d', 'one-cache.db'))
 
-
         region = {}
 
-        ["user", "password", "endpoint", "capacity"].each do |key|
-            if key == "capacity"
+        %w[user password endpoint capacity].each do |key|
+            if key == 'capacity'
                 region[key] = {}
-                ["cpu", "memory"].each do |key_c|
-                    value = @xmlhost.retrieve_elements("/HOST/TEMPLATE/ONE_#{key.upcase}/#{key_c.upcase}")[0]
-                    if @xmlhost.retrieve_elements("/HOST/TEMPLATE/ONE_#{key.upcase}/#{key_c.upcase}")[0].nil? || value == ""
-                        raise "Region for host #{@xmlhost} does not have '#{key_c.upcase}' defined in host template"
+                %w[cpu memory].each do |key_c|
+                    xpath = "/HOST/TEMPLATE/ONE_#{key.upcase}/#{key_c.upcase}"
+                    value = @xmlhost.retrieve_elements(xpath)[0]
+                    if @xmlhost.retrieve_elements(xpath)[0].nil? || value == ''
+                        raise "Region for host #{@xmlhost} does not have "\
+                            "'#{key_c.upcase}' defined in host template"
                     end
+
                     region[key][key_c] = value.to_i
                 end
             else
-                value = @xmlhost.retrieve_elements("/HOST/TEMPLATE/ONE_#{key.upcase}")[0]
-                if @xmlhost.retrieve_elements("/HOST/TEMPLATE/ONE_#{key.upcase}")[0].nil? || value == ""
-                    raise "Region for host #{@xmlhost} does not have '#{key.upcase}' defined in host template"
+                xpath = "/HOST/TEMPLATE/ONE_#{key.upcase}"
+                value = @xmlhost.retrieve_elements(xpath)[0]
+                if @xmlhost.retrieve_elements(xpath)[0].nil? || value == ''
+                    raise "Region for host #{@xmlhost} does not have "\
+                        "'#{key.upcase}' defined in host template"
                 end
+
                 region[key] = value
             end
         end
 
-        region["password"] = host["/HOST/TEMPLATE/ONE_PASSWORD"],
-
         secret = "#{region['user']}:#{region['password']}"
 
-        @client = OpenNebula::Client.new(secret, region['endpoint'], :sync => true)
+        @client = OpenNebula::Client.new(secret, region['endpoint'],
+                                         :sync => true)
 
         @cpu    = region['capacity']['cpu']
         @memory = region['capacity']['memory']
@@ -109,20 +113,19 @@ class One2OneDriver
     end
 
     def host_capacity(_xmlhost)
-        user = OpenNebula::User.new_with_id("-1", @client)
+        user = OpenNebula::User.new_with_id('-1', @client)
         rc = user.info
 
-
         if OpenNebula.is_error?(rc)
-            STDERR.puts("Error getting remote user information: #{rc.to_str()}")
+            STDERR.puts("Error getting remote user information: #{rc.to_str}")
             exit(-1)
         end
 
-        group = OpenNebula::Group.new_with_id("-1", @client)
+        group = OpenNebula::Group.new_with_id('-1', @client)
         rc = group.info
 
         if OpenNebula.is_error?(rc)
-            STDERR.puts("Error getting remote group information: #{rc.to_str()}")
+            STDERR.puts("Error getting remote group information: #{rc.to_str}")
             exit(-1)
         end
         if @cpu != 0
@@ -172,37 +175,37 @@ class One2OneDriver
         end
 
         [totalcpu, totalmemory * 1024]
-
     end
 
     def instance_type_capacity(type)
-        if type =~ /(\d+\.?\d*)cpu\/(\d+)memory/
-            cpu = ($1.to_f * 100).ceil
-            memory = $2.to_i * 1024
-            return  [cpu, memory]
+        if type =~ %r{(\d+\.?\d*)cpu/(\d+)memory}
+            cpu = (Regexp.last_match(1).to_f * 100).ceil
+            memory = Regexp.last_match(2).to_i * 1024
+            return [cpu, memory]
         end
         [0, 0]
     end
 
     def fetch_vms_data(with_monitoring: false)
+        # rubocop:disable Layout/LineLength
         vmpool = OpenNebula::VirtualMachinePool.new(@client,
-            OpenNebula::VirtualMachinePool::INFO_ALL_VM)
+                                                    OpenNebula::VirtualMachinePool::INFO_ALL_VM)
+        # rubocop:enable Layout/LineLength
         vmpool.info
 
         vms = []
         vmpool.each do |remote_vm|
-            id = remote_vm["USER_TEMPLATE/REMOTE_OPENNEBULA_VM_ID"] || "-1"
-            deploy_id = remote_vm["USER_TEMPLATE/REMOTE_OPENNEBULA_DEPLOY_ID"] \
-                || "#{DEPLOY_ID_PREFIX}#{remote_vm.id()}"
-            cpu = remote_vm["TEMPLATE/CPU"]
-            memory = remote_vm["TEMPLATE/MEMORY"]
+            id = remote_vm['USER_TEMPLATE/REMOTE_OPENNEBULA_VM_ID'] || '-1'
+            deploy_id = remote_vm['USER_TEMPLATE/REMOTE_OPENNEBULA_DEPLOY_ID'] \
+                || "#{DEPLOY_ID_PREFIX}#{remote_vm.id}"
+            cpu = remote_vm['TEMPLATE/CPU']
+            memory = remote_vm['TEMPLATE/MEMORY']
 
             vm = { :id => id,
                    :uuid => deploy_id,
                    :name => remote_vm.name,
                    :state => vm_state(remote_vm),
-                   :type => "#{cpu}cpu/#{memory}memory"
-            }
+                   :type => "#{cpu}cpu/#{memory}memory" }
 
             if with_monitoring
                 vm[:monitor] = get_vm_monitor_data(remote_vm)
@@ -236,34 +239,33 @@ class One2OneDriver
     end
 
     def get_vm_monitor_data(vm)
-        data = vm.monitoring(['CPU', 'DISKRDBYTES', 'DISKRDIOPS', 'DISKWRBYTES',
-                              'DISKWRIOPS',  'MEMORY', 'NETRX', 'NETTX'])
+        data = vm.monitoring(%w[CPU DISKRDBYTES DISKRDIOPS DISKWRBYTES
+                                DISKWRIOPS MEMORY NETRX NETTX])
 
         # take only last monitoring entry
         # TODO: verify timestamp is fresh
-        data = data.map { |key, entries| [key, entries.last.last] }.to_h
+        data = data.map {|key, entries| [key, entries.last.last] }.to_h
 
         data = hash_to_template(data, '', '', "\n")
 
-        return Base64.encode64(data).gsub("\n", '')
+        Base64.encode64(data).gsub("\n", '')
     end
-
 
     # DEPLOY action, also sets ports and ip if needed
     def deploy(id, host, xml_text, lcm_state, deploy_id)
-        if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
+        if %w[BOOT BOOT_FAILURE].include? lcm_state
             one_info = get_deployment_info(host, xml_text)
 
-            #load_default_template_values
+            # load_default_template_values
 
             tid = one_value(one_info, 'TEMPLATE_ID')
 
-            if (tid.nil? || tid == "")
-                STDERR.puts("Cannot find TEMPLATE_ID in deployment file")
+            if tid.nil? || tid == ''
+                STDERR.puts('Cannot find TEMPLATE_ID in deployment file')
                 exit(-1)
             end
 
-            extra_template = "REMOTE_OPENNEBULA = YES\n"<<
+            extra_template = "REMOTE_OPENNEBULA = YES\n"\
                              "REMOTE_OPENNEBULA_VM_ID = #{id}\n"
 
             # The OpenNebula context will be included
@@ -275,7 +277,7 @@ class One2OneDriver
                 context_str = xml.template_like_str('TEMPLATE/CONTEXT')
 
                 if xml['TEMPLATE/CONTEXT/TOKEN'] == 'YES'
-                    # TODO use OneGate library. See ec2_driver.rb
+                    # TODO: use OneGate library. See ec2_driver.rb
                     token_str = generate_onegate_token(xml)
                     if token_str
                         context_str << "\nONEGATE_TOKEN=\"#{token_str}\""
@@ -286,10 +288,11 @@ class One2OneDriver
             end
 
             t = OpenNebula::Template.new_with_id(tid, @client)
-            rc = t.instantiate(REMOTE_NAME_PREFIX+id, true, extra_template, false)
+            rc = t.instantiate(REMOTE_NAME_PREFIX+id, true, extra_template,
+                               false)
 
             if OpenNebula.is_error?(rc)
-                STDERR.puts(rc.to_str())
+                STDERR.puts(rc.to_str)
                 exit(-1)
             end
 
@@ -297,22 +300,24 @@ class One2OneDriver
             vm = get_remote_vm(deploy_id)
 
             if !context_str.nil?
-                new_context_update = "CONTEXT = [" << context_str << "]"
+                new_context_update = 'CONTEXT = [' << context_str << ']'
                 new_context_update = new_context_update.gsub("\n", ",\n")
                 rc = vm.updateconf(new_context_update)
             end
 
             if OpenNebula.is_error?(rc)
-                STDERR.puts(rc.to_str())
+                STDERR.puts(rc.to_str)
                 exit(-1)
             end
 
             vm.release
 
-            rc = vm.update("REMOTE_OPENNEBULA_DEPLOY_ID = \"#{deploy_id}\"", true)
+            rc = vm.update("REMOTE_OPENNEBULA_DEPLOY_ID = \"#{deploy_id}\"",
+                           true)
 
             if OpenNebula.is_error?(rc)
-                STDERR.puts("Error adding REMOTE_OPENNEBULA_DEPLOY_ID attribute to VM #{rc}: #{rc.to_str()}")
+                STDERR.puts('Error adding REMOTE_OPENNEBULA_DEPLOY_ID ' \
+                            "attribute to VM #{rc}: #{rc.to_str}")
             end
 
             puts(deploy_id)
@@ -327,29 +332,29 @@ class One2OneDriver
         vm = get_remote_vm(deploy_id)
 
         case lcm_state
-        when "SHUTDOWN"
+        when 'SHUTDOWN'
             rc = vm.terminate
-        when "SHUTDOWN_POWEROFF"
+        when 'SHUTDOWN_POWEROFF'
             rc = vm.poweroff
-        when "SHUTDOWN_UNDEPLOY"
+        when 'SHUTDOWN_UNDEPLOY'
             rc = vm.undeploy
         end
 
-        if OpenNebula.is_error?(rc)
-            STDERR.puts(rc.to_str())
-            exit(-1)
-        end
+        return unless OpenNebula.is_error?(rc)
+
+        STDERR.puts(rc.to_str)
+        exit(-1)
     end
 
     # Reboot an instance
     def reboot(deploy_id)
         vm = get_remote_vm(deploy_id)
-        rc = vm.reboot()
+        rc = vm.reboot
 
-        if OpenNebula.is_error?(rc)
-            STDERR.puts(rc.to_str())
-            exit(-1)
-        end
+        return unless OpenNebula.is_error?(rc)
+
+        STDERR.puts(rc.to_str)
+        exit(-1)
     end
 
     # Reboot (hard) an instance
@@ -357,10 +362,10 @@ class One2OneDriver
         vm = get_remote_vm(deploy_id)
         rc = vm.reboot(true)
 
-        if OpenNebula.is_error?(rc)
-            STDERR.puts(rc.to_str())
-            exit(-1)
-        end
+        return unless OpenNebula.is_error?(rc)
+
+        STDERR.puts(rc.to_str)
+        exit(-1)
     end
 
     # Cancel an instance
@@ -368,41 +373,41 @@ class One2OneDriver
         vm = get_remote_vm(deploy_id)
 
         case lcm_state
-        when "SHUTDOWN"
+        when 'SHUTDOWN'
             rc = vm.terminate(true)
-        when "SHUTDOWN_POWEROFF"
+        when 'SHUTDOWN_POWEROFF'
             rc = vm.poweroff(true)
-        when "SHUTDOWN_UNDEPLOY"
+        when 'SHUTDOWN_UNDEPLOY'
             rc = vm.undeploy(true)
         end
 
-        if OpenNebula.is_error?(rc)
-            STDERR.puts(rc.to_str())
-            exit(-1)
-        end
+        return unless OpenNebula.is_error?(rc)
+
+        STDERR.puts(rc.to_str)
+        exit(-1)
     end
 
     # Save an instance
     def save(deploy_id)
         vm = get_remote_vm(deploy_id)
 
-        rc = vm.suspend()
+        rc = vm.suspend
 
-        if OpenNebula.is_error?(rc)
-            STDERR.puts(rc.to_str())
-            exit(-1)
-        end
+        return unless OpenNebula.is_error?(rc)
+
+        STDERR.puts(rc.to_str)
+        exit(-1)
     end
 
     # Resumes an instance
     def restore(deploy_id)
         vm = get_remote_vm(deploy_id)
-        rc = vm.resume()
+        rc = vm.resume
 
-        if OpenNebula.is_error?(rc)
-            STDERR.puts(rc.to_str())
-            exit(-1)
-        end
+        return unless OpenNebula.is_error?(rc)
+
+        STDERR.puts(rc.to_str)
+        exit(-1)
     end
 
     #---------------------------------------------------------------------------
@@ -425,23 +430,23 @@ class One2OneDriver
 
     private
 
-    # Get the OpenNebula hybrid section of the template. With more than one section
-    # the HOST element is used and matched with the host
+    # Get the OpenNebula hybrid section of the template. With more than one
+    # section the HOST element is used and matched with the host
     def get_deployment_info(host, xml_text)
         xml = REXML::Document.new xml_text
 
         one = nil
 
-        all_one_elements = xml.root.get_elements("//USER_TEMPLATE/PUBLIC_CLOUD")
+        all_one_elements = xml.root.get_elements('//USER_TEMPLATE/PUBLIC_CLOUD')
 
         # First, let's see if we have an one site that matches
         # our desired host name
-        all_one_elements.each { |element|
-            cloud = element.elements["HOST"]
+        all_one_elements.each do |element|
+            cloud = element.elements['HOST']
             if cloud && cloud.text.upcase == host.upcase
                 one = element
             end
-        }
+        end
 
         if !one
             # If we don't find the one site, and ONE just
@@ -449,16 +454,15 @@ class One2OneDriver
             if all_one_elements.size == 1
                 one = all_one_elements[0]
             else
-                STDERR.puts("Cannot find PUBLIC_CLOUD element in deployment "\
-                    " file or no HOST site matching the requested in the "\
-                    "template.")
+                STDERR.puts('Cannot find PUBLIC_CLOUD element in deployment '\
+                    ' file or no HOST site matching the requested in the '\
+                    'template.')
                 exit(-1)
             end
         end
 
         one
     end
-
 
     # Returns the value of the xml specified by the name or the default
     # one if it does not exist
@@ -475,83 +479,89 @@ class One2OneDriver
     end
 
     def value_from_xml(xml, name)
-        if xml
-            element = xml.elements[name]
-            element.text.strip if element && element.text
-        end
+        return unless xml
+
+        element = xml.elements[name]
+        element.text.strip if element && element.text
     end
 
     # Load the default values that will be used to create a new instance, if
     # not provided in the template. These values are defined in the
     # ONE_DRIVER_DEFAULT file
     def load_default_template_values
-        @defaults = Hash.new
+        @defaults = {}
 
-        if File.exists?(ONE_DRIVER_DEFAULT)
-            fd  = File.new(ONE_DRIVER_DEFAULT)
-            xml = REXML::Document.new fd
-            fd.close()
+        return unless File.exist?(ONE_DRIVER_DEFAULT)
 
-            return if !xml || !xml.root
+        fd  = File.new(ONE_DRIVER_DEFAULT)
+        xml = REXML::Document.new fd
+        fd.close
 
-            xml.elements.each("/TEMPLATE/PUBLIC_CLOUD/*") do |e|
-                @defaults[e.name] = e.text
-            end
+        return if !xml || !xml.root
+
+        xml.elements.each('/TEMPLATE/PUBLIC_CLOUD/*') do |e|
+            @defaults[e.name] = e.text
         end
     end
 
     # Retrive the vm object for the remote opennebula
     def get_remote_vm(deploy_id)
         begin
-            match = deploy_id.match( /#{DEPLOY_ID_PREFIX}(.*)/ )
+            match = deploy_id.match(/#{DEPLOY_ID_PREFIX}(.*)/)
 
-            if (match.nil?)
+            if match.nil?
                 raise "Deploy ID #{deploy_id} was not created with this driver"
             end
 
             id = match[1]
 
-            return OpenNebula::VirtualMachine.new_with_id(id, @client)
-        rescue => e
+            OpenNebula::VirtualMachine.new_with_id(id, @client)
+        rescue StandardError => e
             STDERR.puts e.message
             exit(-1)
         end
     end
 
-    # TODO move this method to a OneGate library. See ec2_driver.rb
+    # TODO: move this method to a OneGate library. See ec2_driver.rb
     def generate_onegate_token(xml)
-        # Create the OneGate token string
-        vmid_str  = xml["ID"]
-        stime_str = xml["STIME"]
+        # Create the OneGate token string
+        vmid_str  = xml['ID']
+        stime_str = xml['STIME']
         str_to_encrypt = "#{vmid_str}:#{stime_str}"
 
         user_id = xml['TEMPLATE/CREATED_BY']
 
         if user_id.nil?
-            STDERR.puts {"VMID:#{vmid} CREATED_BY not present" \
-                " in the VM TEMPLATE"}
-            return nil
+            STDERR.puts do
+                "VMID:#{vmid} CREATED_BY not present" \
+                 ' in the VM TEMPLATE'
+            end
+            return
         end
 
         user = OpenNebula::User.new_with_id(user_id,
-            OpenNebula::Client.new)
+                                            OpenNebula::Client.new)
         rc     = user.info
 
         if OpenNebula.is_error?(rc)
-            STDERR.puts {"VMID:#{vmid} user.info" \
-                " error: #{rc.message}"}
-            return nil
+            STDERR.puts do
+                "VMID:#{vmid} user.info" \
+                 " error: #{rc.message}"
+            end
+            return
         end
 
         token_password = user['TEMPLATE/TOKEN_PASSWORD']
 
         if token_password.nil?
-            STDERR.puts {"VMID:#{vmid} TOKEN_PASSWORD not present"\
-                " in the USER:#{user_id} TEMPLATE"}
-            return nil
+            STDERR.puts do
+                "VMID:#{vmid} TOKEN_PASSWORD not present"\
+                 " in the USER:#{user_id} TEMPLATE"
+            end
+            return
         end
 
-        cipher = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
+        cipher = OpenSSL::Cipher::Cipher.new('aes-256-cbc')
         cipher.encrypt
         cipher.key = token_password
         onegate_token = cipher.update(str_to_encrypt)
@@ -559,6 +569,7 @@ class One2OneDriver
 
         Base64.encode64(onegate_token).chop
     end
+
 end
 
 ###########################################################################
