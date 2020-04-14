@@ -74,7 +74,8 @@ CommandParser::CmdParser.new(ARGV) do
     FORCE = {
         :name => 'force',
         :large => '--force',
-        :description => 'Force execution of action, bypass the consistency checks'
+        :description => 'Force execution of action, ' \
+                        'bypass the consistency checks'
     }
 
     ########################################################################
