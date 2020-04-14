@@ -1018,7 +1018,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 
             if (deploy_id.empty())
             {
-                deploy_id = name;
+                deploy_id = value;
             }
         }
     }
