@@ -89,6 +89,8 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
         return -1;
     }
 
+    decrypt();
+
     VectorAttribute * context = obj_template->get("CONTEXT");
 
     if ( context == 0 )
