@@ -145,7 +145,7 @@ module OpenNebula
         end
 
         # Removes an Address Range from the VirtualNetwork
-        def rm_ar(ar_id, force)
+        def rm_ar(ar_id, force = false)
             return Error.new('ID not defined') if !@pe_id
 
             rc = @client.call(VN_METHODS[:rm_ar], @pe_id, ar_id.to_i, force)
