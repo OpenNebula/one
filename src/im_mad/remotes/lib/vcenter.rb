@@ -35,14 +35,11 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 require 'opennebula'
 require 'vcenter_driver'
 
-
-
 # Gather vCenter cluster monitor info
 class ClusterMonitor
 
     POLL_ATTRIBUTE = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
     VM_STATE = OpenNebula::VirtualMachine::Driver::VM_STATE
-
 
     def initialize(host_id)
         begin
@@ -284,7 +281,7 @@ class ClusterMonitor
 
             host_info << "\nHOST=["
             host_info << 'STATE=on,'
-            host_info << 'HOSTNAME="' << info['name'].to_s << '"'
+            host_info << 'HOSTNAME="' << info['name'].to_s << '",'
             host_info << 'MODELNAME="' << info['summary.hardware.cpuModel'].to_s << '",'
             host_info << 'CPUSPEED=' << info['summary.hardware.cpuMhz'].to_s << ','
             host_info << 'MAX_CPU=' << total_cpu.to_s << ','
@@ -768,10 +765,10 @@ class ClusterMonitor
                     << vmtools_verst << ' '
         str_info << 'VCENTER_RP_NAME="' << rp_name << '" '
 
-        info_disks.each do |disk|
-            str_info << "DISK_#{disk[0]}_ACTUAL_PATH=\"[" <<
-                disk[1].ds.name << '] ' << disk[1].path << '" '
-        end
+        # @vm.info_disks.each do |disk|
+        #     str_info << "DISK_#{disk[0]}_ACTUAL_PATH=\"[" <<
+        #         disk[1].ds.name << '] ' << disk[1].path << '" '
+        # end
 
         str_info
     end
