@@ -163,7 +163,7 @@ class ServiceLCM
     # @return [OpenNebula::Error] Error if any
     # rubocop:disable Metrics/ParameterLists
     def service_sched_action(client, service_id, action, period, number, args)
-    # rubocop:enable Metrics/ParameterLists
+        # rubocop:enable Metrics/ParameterLists
         rc = @srv_pool.get(service_id, client) do |service|
             service.roles.each do |_, role|
                 role.batch_action(action, period, number, args)
