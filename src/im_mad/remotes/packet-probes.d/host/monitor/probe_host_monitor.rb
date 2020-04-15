@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,14 +16,14 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV['ONE_LOCATION'] if !defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION'] unless defined? ONE_LOCATION
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' if !defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = '/usr/share/one/gems' if !defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' if !defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' if !defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
 if File.directory?(GEMS_LOCATION)
@@ -31,23 +31,15 @@ if File.directory?(GEMS_LOCATION)
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
-$LOAD_PATH << File.dirname(__FILE__)
 
 require 'packet_driver'
-require 'opennebula'
 
 host    = ARGV[-1]
 host_id = ARGV[-2]
+packet_drv = PacketDriver.new(host, host_id)
 
 begin
-    packet_drv = PacketDriver.new(host)
-    packet_drv.monitor_all_vms(host) #TODO: host_id
-
-rescue Exception => e
-    STDERR.puts error_message(<<EOT)
-Cannot poll info for Packet host #{host} due to "#{e.message}"
-#{e.backtrace}"
-EOT
-
-    exit(-1)
+    puts packet_drv.probe_host_monitor
+rescue StandardError => e
+    OpenNebula.handle_driver_exception('im probe_host_monitor', e, host)
 end

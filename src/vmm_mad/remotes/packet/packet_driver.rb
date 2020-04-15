@@ -16,16 +16,19 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-
-ONE_LOCATION = ENV['ONE_LOCATION'] if !defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION'] unless defined? ONE_LOCATION
 
 if !ONE_LOCATION
-    GEMS_LOCATION   = '/usr/share/one/gems'
-    PACKET_LOCATION = '/usr/lib/one/ruby/vendors/packethost/lib'
+    GEMS_LOCATION   ||= '/usr/share/one/gems'
+    PACKET_LOCATION ||= '/usr/lib/one/ruby/vendors/packethost/lib'
+    VAR_LOCATION    ||= '/var/lib/one/'
 else
-    GEMS_LOCATION   = ONE_LOCATION + '/share/gems'
-    PACKET_LOCATION = ONE_LOCATION + '/lib/ruby/vendors/packethost/lib'
+    GEMS_LOCATION   ||= ONE_LOCATION + '/share/gems'
+    PACKET_LOCATION ||= ONE_LOCATION + '/lib/ruby/vendors/packethost/lib'
+    VAR_LOCATION    ||= ONE_LOCATION + '/var/'
 end
+
+PACKET_DATABASE_PATH = "#{VAR_LOCATION}/remotes/im/packet.d/packet-cache.db"
 
 if File.directory?(GEMS_LOCATION)
     Gem.use_paths(GEMS_LOCATION)
@@ -33,64 +36,65 @@ end
 
 $LOAD_PATH << PACKET_LOCATION
 
-# gem 'packethost', '> 0.0.8'
-
 require 'packet'
-require 'pp'
 require 'VirtualMachineDriver'
 require 'base64'
+require 'PublicCloudDriver'
+require 'opennebula'
 
 ### Exceptions
 
-class PacketDriverTimeout < Exception
+class PacketDriverTimeout < RuntimeError
 end
 
-class PacketDriverDeviceNotFound < Exception
+class PacketDriverDeviceNotFound < RuntimeError
 end
 
-class PacketDriverInvalidDeviceState < Exception
+class PacketDriverInvalidDeviceState < RuntimeError
 end
-
 
 ### Packet driver
-
 class PacketDriver
-    HYPERVISOR = 'packet'
 
-    #ACTION          = VirtualMachineDriver::ACTION
-    POLL_ATTRIBUTE  = VirtualMachineDriver::POLL_ATTRIBUTE
-    VM_STATE        = VirtualMachineDriver::VM_STATE
+    include PublicCloudDriver
+
+    POLL_ATTRIBUTE = VirtualMachineDriver::POLL_ATTRIBUTE
 
     DEPLOY_ATTRIBUTES = {
-        project_id:               'PROJECT',
-        facility:                 'FACILITY',
-        plan:                     'PLAN',
-        hostname:                 'HOSTNAME',
-        operating_system:         'OS',
-        userdata:                 'USERDATA',
-        tags:                     'TAGS',
-        hardware_reservation_id:  'HARDWARE_RESERVATION',
-        billing_cycle:            'BILLING_CYCLE',
+        :project_id              => 'PROJECT',
+        :facility                => 'FACILITY',
+        :plan                    => 'PLAN',
+        :hostname                => 'HOSTNAME',
+        :operating_system        => 'OS',
+        :userdata                => 'USERDATA',
+        :tags                    => 'TAGS',
+        :hardware_reservation_id => 'HARDWARE_RESERVATION',
+        :billing_cycle           => 'BILLING_CYCLE'
     }
 
-    def initialize(host, one=OpenNebula::Client.new)
-        #@one = OpenNebula::Client.new
+    DEFAULTS = {
+        :cache_expire       => 120
+    }
+
+    def initialize(host, id = nil, one = OpenNebula::Client.new)
         @one = one
+        @hypervisor = 'packet'
         @packet = Packet::Client.new
 
         host = host['NAME'] unless host.is_a?(String)
 
-        @host = get_xhost_by_name(host)
+        @host = host
+        @xmlhost = host_info(host, id)
 
-        raise "Host not found #{host}" unless @host
-
-        @globals = get_globals(@host)
+        @globals = get_globals(@xmlhost)
         @packet.auth_token = @globals['PACKET_TOKEN']
+
+        @db = InstanceCache.new(PACKET_DATABASE_PATH)
     end
 
-    def deploy_vm(id, host, xml_text, lcm_state, deploy_id)
-        # Restore if we need to
-        if lcm_state != "BOOT" && lcm_state != "BOOT_FAILURE"
+    def deploy_vm(_id, _host, xml_text, lcm_state, deploy_id)
+        # Restore if we need to
+        if lcm_state != 'BOOT' && lcm_state != 'BOOT_FAILURE'
             restore(deploy_id)
             return deploy_id
         end
@@ -98,13 +102,15 @@ class PacketDriver
         xvm = OpenNebula::XMLElement.new
         xvm.initialize_xml(xml_text, 'VM')
 
-        device = xobj2device(xvm, 'USER_TEMPLATE/PUBLIC_CLOUD', 'TEMPLATE/CONTEXT')
-        device.tags += [ 'OpenNebula', "ONE_ID=#{xvm['ID']}" ]
+        device = xobj2device(xvm, 'USER_TEMPLATE/PUBLIC_CLOUD',
+                             'TEMPLATE/CONTEXT')
+        device.tags += ['OpenNebula', "ONE_ID=#{xvm['ID']}"]
         @packet.create_device(device)
 
         begin
             wait_state(:active, device.id)
         rescue PacketDriverTimeout
+            nil
         end
 
         device.id
@@ -113,14 +119,14 @@ class PacketDriver
     def deploy_host(xhost)
         deploy_id = xhost['//HOST/TEMPLATE/PROVISION/DEPLOY_ID']
 
-        # Restore if we need to
+        # Restore if we need to
         if deploy_id
             restore(deploy_id)
             return deploy_id
         end
 
         device = xobj2device(xhost, 'TEMPLATE/PROVISION', 'TEMPLATE/CONTEXT')
-        device.tags += [ 'OpenNebula', "ONE_HOST_ID=#{xhost['ID']}" ]
+        device.tags += ['OpenNebula', "ONE_HOST_ID=#{xhost['ID']}"]
         @packet.create_device(device)
 
         wait_state(:active, device.id)
@@ -138,9 +144,9 @@ class PacketDriver
         wait_state(:active, deploy_id)
     end
 
-    def cancel(deploy_id, lcm_state=nil)
+    def cancel(deploy_id, lcm_state = nil)
         case lcm_state
-        when 'SHUTDOWN_POWEROFF', 'SHUTDOWN_UNDEPLOY' #TODO: support undeploy?"
+        when 'SHUTDOWN_POWEROFF', 'SHUTDOWN_UNDEPLOY' # TODO: support undeploy?"
             power_off(deploy_id)
             wait_state(:inactive, deploy_id)
         else
@@ -151,10 +157,10 @@ class PacketDriver
 
     def shutdown(deploy_id, lcm_state)
         case lcm_state
-        when "SHUTDOWN"
+        when 'SHUTDOWN'
             delete(deploy_id)
             wait_state(:done, deploy_id)
-        when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
+        when 'SHUTDOWN_POWEROFF', 'SHUTDOWN_UNDEPLOY'
             power_off(deploy_id)
             wait_state(:inactive, deploy_id)
         end
@@ -203,15 +209,17 @@ class PacketDriver
         tx = 0
 
         begin
-            #@packet.get("devices/#{device.id}/bandwidth", {'from'=>0, 'until'=>1523889200}).body
-            @packet.get("devices/#{device.id}/bandwidth").body['bandwidth'].map do |bw|
+            # @packet.get("devices/#{device.id}/bandwidth"
+            # {'from'=>0, 'until'=>1523889200}).body
+            path = "devices/#{device.id}/bandwidth"
+            @packet.get(path).body['bandwidth'].map do |bw|
                 sum = 0
 
-                bw['datapoints'].each do |data, time|
+                bw['datapoints'].each do |data, _time|
                     sum += data if data
                 end
 
-                sum = (sum*1024/8).ceil   #TODO: this is just a guess
+                sum = (sum*1024/8).ceil # TODO: this is just a guess
 
                 if bw['target'] == 'inbound'
                     rx = sum
@@ -221,160 +229,149 @@ class PacketDriver
             end
 
             [rx, tx]
-        rescue
+        rescue StandardError
             [0, 0]
         end
     end
 
-    def vm_to_one(device)
-        cpu = device_cpu(device)
-        vcpu = (cpu / 100).ceil #TODO
-        mem = (device_mem(device) / 1024).round
+    def host_capacity(_xmlhost)
+        # hardcoded total CPU + MEMORY
+        [1000, 20971520]
+    end
 
-        str = <<-EOT
-NAME = "Imported Packet instance #{device.hostname} from #{device.id}"
-DESCRIPTION = "Imported Packet instance #{device.hostname} from #{device.id}"
-CPU = "#{vcpu}"
-VCPU = "#{vcpu}"
-MEMORY = "#{mem}"
-HYPERVISOR = "#{HYPERVISOR}"
-PUBLIC_CLOUD = [
-  TYPE = "#{HYPERVISOR}",
-  BILLING_CYCLE = "#{device.billing_cycle if device.respond_to? 'billing_cycle'}",
-  OS = "#{device.operating_system.id}",
-  PLAN = "#{device.plan.id}",
-  FACILITY = "#{device.facility.id}"
-]
-IMPORT_VM_ID = "#{device.id}"
-SCHED_REQUIREMENTS = "NAME=\\"#{@host.name}\\""
-        EOT
+    def instance_type_capacity(type)
+        if type =~ %r{(\d+\.?\d*)cpu/(\d+)memory}
+            cpu = (Regexp.last_match(1).to_f * 100).ceil
+            memory = Regexp.last_match(2).to_i * 1024
+            return [cpu, memory]
+        end
+        [0, 0]
+    end
+
+    def used_capacity(db, limit)
+        vms = vms_data(db, limit)
+
+        used_memory = used_cpu = 0
+
+        vms.each do |vm|
+            cpu, mem = instance_type_capacity(vm[:type])
+
+            used_memory += mem
+            used_cpu    += cpu
+        end
+
+        [used_cpu, used_memory]
+    end
+
+    def fetch_vms_data(deploy_id: nil, with_monitoring: false)
+        devices = []
+        if deploy_id.nil?
+            # all devices
+            if @globals['PROJECT'] && !@globals['PROJECT'].empty?
+                projects = [@globals['PROJECT']]
+            else
+                projects = list_projects.map {|p| p.id }
+            end
+
+            projects.each do |project|
+                list_devices(project).each do |device|
+                    devices << device
+                end
+            end
+        else
+            # only single device
+            devices = [get_device(deploy_id)]
+        end
+
+        vms = []
+        devices.each do |device|
+            vm_state = vm_state(device)
+            next if vm_state != 'RUNNING'
+
+            # OpenNebula deployed machines have special tag
+            # with the VM ID inside, e.g.: "ONE_ID=123"
+            one_id = -1
+            device.tags.each do |tag|
+                one_id=Regexp.last_match(1) if tag.to_s =~ /^ONE_ID=(\d+)$/i
+            end
+
+            cpu = device_cpu(device)
+            memory = device_mem(device)
+
+            vm = { :uuid      => device.id,
+                   :id        => one_id || -1,
+                   :name      => device.hostname,
+                   :type      => "#{cpu}cpu/#{memory}memory",
+                   :state     => vm_state(device) }
+
+            if with_monitoring
+                vm[:monitor] = get_vm_monitor_data(device)
+            end
+
+            vms << vm
+        end
+        vms
+    end
+
+    def vm_state(device)
+        if device.nil?
+            'DELETED'
+        else
+            case device.state
+            when :pending, :provisioning, :powering_on
+                'BOOT'
+            when :active, :rebooting
+                'RUNNING'
+            when :powering_off, :inactive
+                'SHUTDOWN'
+            when :failed
+                'SHUTDOWN'
+            else
+                'UNKNOWN'
+            end
+        end
+    end
+
+    def get_vm_monitor_data(device)
+        info = "#{POLL_ATTRIBUTE[:cpu]}=#{device_cpu(device)} "
+        info << "#{POLL_ATTRIBUTE[:memory]}=#{device_mem(device)} "
+
+        netrx, nettx = device_net_rxtx(device)
+        info << "#{POLL_ATTRIBUTE[:nettx]}=#{nettx} "
+        info << "#{POLL_ATTRIBUTE[:netrx]}=#{netrx} "
+
+        ip_addresses = device_ips(device)
+        info << "GUEST_IP_ADDRESSES=\"#{ip_addresses.join(',')}\" "
+        info << "ROOT_PASSWORD=\"#{device.root_password}\" "
+
+        info << "BILLING_CYCLE = \"#{device.billing_cycle}\" " \
+            if device.respond_to? 'billing_cycle'
+        info << "OS = \"#{device.operating_system.id}\" "
+        info << "PLAN = \"#{device.plan.id}\" "
+        info << "FACILITY = \"#{device.facility.id}\" "
 
         case device.operating_system.name
         when /CentOS/i
-            str << "LOGO = images/logos/centos.png\n"
-        when /Debian/i
-            nstr << "LOGO = images/logos/debian.png\n"
-        when /Red\s*Hat/i
-            str << "LOGO = images/logos/redhat.png\n"
-        when /Ubuntu/i
-            str << "LOGO = images/logos/ubuntu.png\n"
-        when /Windows XP/i
-            str << "LOGO = images/logos/windowsxp.png\n"
-        when /Windows/i
-            str << "LOGO = images/logos/windows8.png\n"
-        when /Linux/i
-            str << "LOGO = images/logos/linux.png\n"
+            info << "logo = images/logos/centos.png\n"
+        when /debian/i
+            info << "logo = images/logos/debian.png\n"
+        when /red\s*hat/i
+            info << "logo = images/logos/redhat.png\n"
+        when /ubuntu/i
+            info << "logo = images/logos/ubuntu.png\n"
+        when /windows xp/i
+            info << "logo = images/logos/windowsxp.png\n"
+        when /windows/i
+            info << "logo = images/logos/windows8.png\n"
+        when /linux/i
+            info << "logo = images/logos/linux.png\n"
         end
 
-        str
+        Base64.encode64(info).gsub("\n", '')
     end
 
-    def monitor_all_vms(host) #TODO: host_id
-        xhost = get_xhost_by_name(host)
-
-        totalmemory = 20971520 #TODO
-        totalcpu = 1000        #TODO
-        usedmemory = 0
-        usedcpu = 0
-
-        host_info =  "HYPERVISOR=#{HYPERVISOR}\n"
-        host_info << "PUBLIC_CLOUD=YES\n"
-        host_info << "PRIORITY=-1\n"
-        host_info << "TOTALMEMORY=#{totalmemory.round}\n"
-        host_info << "TOTALCPU=#{totalcpu.round}\n"
-        #host_info << "CPUSPEED=1000\n"
-        host_info << "HOSTNAME=\"#{xhost['NAME']}\"\n"
-
-        vms_info = "VM_POLL=YES\n"
-
-        if @globals['PROJECT'] && !@globals['PROJECT'].empty?
-            projects = [@globals['PROJECT']]
-        else
-            projects = list_projects.map { |p| p.id }
-        end
-
-        projects.each do |project|
-            list_devices(project).each do |device|
-                begin
-                    # OpenNebula deployed machines have special tag
-                    # with the VM ID inside, e.g.: "ONE_ID=123"
-                    one_id = -1
-                    device.tags.each do |tag|
-                        one_id=$1 if tag.to_s =~ /^ONE_ID=(\d+)$/i
-                    end
-
-                    poll_data = parse_poll(device)
-
-                    import_template = Base64.strict_encode64(vm_to_one(device))
-
-                    vms_info << "VM=[\n"
-                    vms_info << "  ID=#{one_id},\n"
-                    vms_info << "  DEPLOY_ID=#{device.id},\n"
-                    vms_info << "  VM_NAME=\"#{device.hostname}\",\n"
-                    vms_info << "  IMPORT_TEMPLATE=\"#{import_template}\",\n"
-                    vms_info << "  POLL=\"#{poll_data.gsub('"','\"')}\" ]\n"
-
-                    usedmemory += device_mem(device)
-                    usedcpu += device_cpu(device)
-                rescue
-                end
-            end
-        end
-
-        host_info << "USEDMEMORY=#{usedmemory.round}\n"
-        host_info << "USEDCPU=#{usedcpu.round}\n"
-#        host_info << "FREEMEMORY=#{(totalmemory - usedmemory).round}\n"
-#        host_info << "FREECPU=#{(totalcpu - usedcpu).round}\n"
-
-        puts host_info
-        puts vms_info
-    end
-
-    def poll(deploy_id)
-        device = get_device(deploy_id)
-        puts parse_poll(device)
-    end
-
-    def parse_poll(device)
-        begin
-            if device.nil?
-                "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:deleted]} "
-            else
-                info = ''
-
-                # States based on
-                # https://github.com/ansible/ansible/blob/2ad7d79985fef9abc2ee1c5166762b5773cf5c4d/lib/ansible/modules/cloud/packet/packet_device.py#L272
-                state = case device.state
-                when :pending, :provisioning, :powering_on
-                    VM_STATE[:paused] #TODO: ????
-                when :active, :rebooting
-                    VM_STATE[:active]
-                when :powering_off, :inactive
-                    VM_STATE[:paused]
-                when :failed
-                    VM_STATE[:error]
-                else
-                    VM_STATE[:unknown]
-                end
-
-                info << "#{POLL_ATTRIBUTE[:state]}=#{state} "
-                info << "#{POLL_ATTRIBUTE[:cpu]}=#{device_cpu(device)} "
-                info << "#{POLL_ATTRIBUTE[:memory]}=#{device_mem(device)} "
-
-                # Network
-                ip_addresses = device_ips(device)
-                netrx, nettx = device_net_rxtx(device)
-
-                info << "NETTX=#{nettx} "
-                info << "NETRX=#{netrx} "
-                info << "GUEST_IP_ADDRESSES=\"#{ip_addresses.join(',')}\" "
-                info << "ROOT_PASSWORD=\"#{device.root_password}\" "
-
-                info
-            end
-        rescue StandardError => e
-            "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:unknown]} "
-        end
+    def poll(_id, deploy_id)
+        fetch_vms_data(:deploy_id => deploy_id, :with_monitoring => true)
     end
 
     # Generate cloud-init configuration based on context variables
@@ -393,18 +390,18 @@ SCHED_REQUIREMENTS = "NAME=\\"#{@host.name}\\""
     end
 
     def get_globals(xhost)
-        if xhost["TEMPLATE/PROVISION"]
-            tmplBase = 'TEMPLATE/PROVISION'
+        if xhost['TEMPLATE/PROVISION']
+            tmpl_base = 'TEMPLATE/PROVISION'
         else
-            tmplBase = 'TEMPLATE'
+            tmpl_base = 'TEMPLATE'
         end
 
         conn_opts = {}
 
         begin
-            conn_opts['PACKET_TOKEN'] = xhost["#{tmplBase}/PACKET_TOKEN"]
-            conn_opts['PROJECT']      = xhost["#{tmplBase}/PACKET_PROJECT"]
-        rescue
+            conn_opts['PACKET_TOKEN'] = xhost["#{tmpl_base}/PACKET_TOKEN"]
+            conn_opts['PROJECT']      = xhost["#{tmpl_base}/PACKET_PROJECT"]
+        rescue StandardError
             raise "HOST: #{xhost['NAME']} must have Packet credentials"
         end
 
@@ -441,15 +438,17 @@ SCHED_REQUIREMENTS = "NAME=\\"#{@host.name}\\""
                 # Parameters specified globaly (on host level) can't
                 # be overriden on device level. I.e. Packet PROJECT set
                 # for (one)host deployer, can't be changed for (one)vm.
-                if val.nil? or (val == @globals[template_name])
+                # rubocop:disable Style/GuardClause
+                if val.nil? || (val == @globals[template_name])
                     device.instance_variable_set(key, @globals[template_name])
                 else
                     raise "Parameter #{template_name} can't be overriden"
                 end
-            elsif ! val.nil?
+                # rubocop:enable Style/GuardClause
+            elsif !val.nil?
                 # TODO: make special handling part of DEPLOY_ATTRIBUTES?
                 if template_name == 'TAGS'
-                    val = val.split(',').map { |v| v.strip }
+                    val = val.split(',').map {|v| v.strip }
                 end
 
                 device.instance_variable_set(key, val)
@@ -464,7 +463,25 @@ SCHED_REQUIREMENTS = "NAME=\\"#{@host.name}\\""
         device
     end
 
-private
+    #---------------------------------------------------------------------------
+    #  Monitor Interface
+    #---------------------------------------------------------------------------
+    def probe_host_system
+        # call probe_host_system from PublicCloudDriver module
+        super(@db, DEFAULTS[:cache_expire], @xmlhost)
+    end
+
+    def probe_host_monitor
+        # call probe_host_monitor from PublicCloudDriver module
+        super(@db, DEFAULTS[:cache_expire], @xmlhost)
+    end
+
+    def retreive_vms_data
+        # call vms_data from PublicCloudDriver module
+        vms_data(@db, DEFAULTS[:cache_expire])
+    end
+
+    private
 
     def delete(deploy_id)
         device = Packet::Device.new('id' => deploy_id)
@@ -502,40 +519,41 @@ private
         @packet.list_projects
     end
 
-    #TODO: configuration state_wait_timeout
-    def wait_state(state, deploy_id, state_change_timeout=1800)
+    # TODO: configuration state_wait_timeout
+    def wait_state(state, deploy_id, state_change_timeout = 1800)
         t_s = Time.now
 
-        begin
+        loop do
             begin
                 device = get_device(deploy_id)
-            rescue
+            rescue StandardError
                 # retry in case of server side problem
                 sleep 5
                 next
             end
 
             if device.nil?
-                if state == :done
-                    return
-                else
-                    raise PacketDriverDeviceNotFound,
-                        "Device with #{deploy_id} not found"
-                end
+                return if state == :done
+
+                raise PacketDriverDeviceNotFound,
+                      "Device with #{deploy_id} not found"
             end
 
             if device.state == :failed
                 raise PacketDriverInvalidDeviceState,
-                    "Invalid device state #{device.state}"
+                      "Invalid device state #{device.state}"
             end
 
             return if device.state == state
 
             sleep 5
-        end while (Time.now - t_s) <= state_change_timeout
+
+            break if (Time.now - t_s) > state_change_timeout
+        end
 
         raise PacketDriverTimeout, "Wait for host state '#{state}' timed out"
-		end
+    end
+
 end
 
 ###
@@ -545,5 +563,30 @@ def error_message(message)
     error_str << message
     error_str << "\nERROR MESSAGE ------>8--"
 
-    return error_str
+    error_str
+end
+
+############################################################################
+#  Module Interface
+#  Interface for probe_db - VirtualMachineDB
+############################################################################
+module DomainList
+
+    def self.state_info(name, id)
+        packet = PacketDriver.new(name, id)
+
+        vms = packet.retreive_vms_data
+
+        info = {}
+        vms.each do |vm|
+            info[vm[:uuid]] = { :id     => vm[:id],
+                                :uuid   => vm[:uuid],
+                                :name   => vm[:name],
+                                :state  => vm[:state],
+                                :hyperv => 'packet' }
+        end
+
+        info
+    end
+
 end
