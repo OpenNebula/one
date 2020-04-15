@@ -1,20 +1,21 @@
 ---
 # Ansible playbook to configure hosts
-playbook: "default"
+playbook: "static_vxlan"
 
-# Cluster to group all the resources
-cluster:
-  name: "PacketCluster"
+# Provision name to use in all resources
+name: "PacketCluster"
 
 # Defaults sections with information related with Packet
 defaults:
-#  provision:
-#    driver: "packet"
-#    packet_token: "**************************"
-#    packet_project: "************************"
-#    facility: "ams1"
-#    plan: "baremetal_0"
-#    os: "centos_7"
+  provision:
+    driver: "packet"
+    packet_token: "**************************"
+    packet_project: "************************"
+    facility: "ams1"
+    plan: "baremetal_0"
+    os: "centos_7"
+  configuration:
+    iptables_masquerade_enabled: False
 
 # Hosts to be deployed in Packet and created in OpenNebula
 hosts:
@@ -44,6 +45,16 @@ datastores:
 
 networks:
   # Network to be created in OpenNebula
+  - name: "<%= @name %>-private-host-only"
+    vn_mad: "dummy"
+    bridge: "br0"
+    description: "Host-only networking with NAT"
+    gateway: "192.168.150.1"
+    ar:
+      - ip: "192.168.150.2"
+        size: "253"
+        type: "IP4"
+
   - name: "<%= @name %>-private"
     vn_mad: "dummy"
     bridge: "vxbr100"
@@ -57,7 +68,6 @@ networks:
   # Network to be deployed in Packet and created in OpenNebula
   - name: "<%= @name %>-public"
     vn_mad: "alias_sdnat"
-    bridge: "vxbr101"
     external: "yes"
     description: "Public networking"
     ar:

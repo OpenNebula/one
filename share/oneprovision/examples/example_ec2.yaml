@@ -1,19 +1,19 @@
 ---
 # Ansible playbook to configure hosts
-playbook: "default"
+playbook: "static_vxlan"
 
-# Cluster to group all the resources
-cluster:
-  name: "EC2Cluster"
+# Provision name to use in all resources
+name: "EC2Cluster"
 
 # Defaults sections with information related with Packet
 defaults:
-#  provision:
-#    driver: ec2
-#    instancetype: t2.nano
-#    ec2_access: "***********************************"
-#    ec2_secret: "***********************************"
-#    region_name: us-east-1
+  provision:
+    driver: "ec2"
+    instancetype: "i3.metal"
+    ec2_access: "***********************************"
+    ec2_secret: "***********************************"
+    region_name: "us-east-1"
+    cloud_init: true
 
 # Hosts to be deployed in Packet and created in OpenNebula
 hosts:
@@ -29,7 +29,7 @@ hosts:
 #    vm_mad: "kvm"
 #    provision:
 #      hostname: "ubuntu-host"
-#      ami: "ami-759bc50a"
+#      ami: "ami-759bc50a" # (Ubuntu 16.04)
 
 # Datastores to be created in OpenNebula
 datastores:
@@ -43,7 +43,7 @@ datastores:
 
 # Network to be created in OpenNebula
 networks:
-  - name: "<%= @name %>-nat"
+  - name: "<%= @name %>-private-host-only"
     vn_mad: "dummy"
     bridge: "br0"
     dns: "8.8.8.8 8.8.4.4"
