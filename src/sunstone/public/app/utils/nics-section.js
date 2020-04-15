@@ -173,9 +173,7 @@ define(function(require) {
           if (nic["NETWORK"] == undefined && nic["NETWORK_ID"] == undefined ){
             // No network name or id in original NIC, and no selection done
             return true; //continue
-          } /* else {
-            return nic;
-          }*/
+          }
         }
         delete nic["NETWORK"];
         delete nic["NETWORK_ID"];
