@@ -43,6 +43,7 @@ define(function(require) {
   var MARKET_MAD_ATTRS = [
     {
       name: 'ENDPOINT',
+      id: 'ENDPOINTONE',
       label: Locale.tr("Endpoint URL for marketplace"),
       driver: 'one'
     },
@@ -97,6 +98,7 @@ define(function(require) {
     },
     {
       name: 'ENDPOINT',
+      id: 'ENDPOINTS3',
       label: Locale.tr("Endpoint URL for marketplace"),
       driver: 's3'
     },
@@ -111,6 +113,32 @@ define(function(require) {
       label: Locale.tr("Read block length in MB"),
       tooltip: Locale.tr("Split marketapps into chunks of this size (in MB). You should **never** user a quantity larger than 100. Defaults to 32 (MB)."),
       driver: 's3'
+    },
+    {
+      name: 'ENDPOINT',
+      id: 'ENDPOINTLXD',
+      label: Locale.tr("Endpoint URL for marketplace"),
+      driver: 'linuxcontainers'
+    },
+    {
+      name: 'IMAGE_SIZE_MB',
+      label: Locale.tr("Size for the image holding the rootfs in MB"),
+      driver: 'linuxcontainers'
+    },
+    {
+      name: 'FILESYSTEM',
+      label: Locale.tr("Filesystem used for the image"),
+      driver: 'linuxcontainers'
+    },
+    {
+      name: 'FORMAT',
+      label: Locale.tr("Image block file format"),
+      driver: 'linuxcontainers'
+    },
+    {
+      name: 'SKIP_UNTESTED',
+      label: Locale.tr("Show only auto-contextualized apps"),
+      driver: 'linuxcontainers'
     }
   ]
   /*
@@ -274,4 +302,3 @@ define(function(require) {
     }
   }
 });
-
