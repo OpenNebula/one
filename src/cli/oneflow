@@ -340,7 +340,7 @@ CommandParser::CmdParser.new(ARGV) do
             json   = Service.build_json_action(args[1], params)
             client = helper.client(options)
 
-            client.post("#{RESOURCE_PATH}/#{service_id}/sched", json)
+            client.post("#{RESOURCE_PATH}/#{service_id}/action", json)
         end
     end
 end

@@ -347,10 +347,10 @@ define(function(require) {
       var cacheName = params.cacheName ? params.cacheName : resource;
       if(id!==undefined && action && resource){
         $.ajax({
-          url: roleName? 
-            resource.toLowerCase()+"/"+id+"/role/"+roleName+"/action" 
-          :  
-            resource.toLowerCase()+"/"+id+"/sched",
+          url: roleName?
+            resource.toLowerCase()+"/"+id+"/role/"+roleName+"/action"
+          :
+            resource.toLowerCase()+"/"+id+"/action",
           type: "POST",
           contentType: "application/json; charset=utf-8",
           data: JSON.stringify({action: action}),
