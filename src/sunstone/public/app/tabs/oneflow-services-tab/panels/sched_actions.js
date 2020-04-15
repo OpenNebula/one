@@ -92,8 +92,9 @@ define(function(require) {
       return role && role.name;
     }).map(function(role){
       return "<option value='"+role.name+"'>"+role.name+"</option>";
-    }).join("");
-
+    });
+    optionsRoles.unshift("<option value=''>"+Locale.tr("All Roles")+"</option>");
+    optionsRoles = optionsRoles.join("");
     return TemplateHTML({
       actions: optionsActions,
       res: RESOURCE,
@@ -155,7 +156,7 @@ define(function(require) {
       var snap_id = $("#snapid").val();
       var disk_id = $("#diskid").val();
 
-      if(new_action && role){
+      if(new_action){
         var actionJSON = {};
         actionJSON.error = function(e){
           Notifier.notifyError((e && e.error && e.error.message) || Locale.tr("Error"));
@@ -165,7 +166,6 @@ define(function(require) {
         };
         actionJSON.data = {};
         actionJSON.data.id = that.id;
-        actionJSON.data.roleName = role;
         actionJSON.data.action = {perform: new_action};
         actionJSON.data.action.params = {};
         if(period!=='' && period!==undefined){
@@ -180,6 +180,9 @@ define(function(require) {
           if(args){
             actionJSON.data.action.params.args = args;
           }
+        }
+        if(role!=='' && role!==undefined){
+          actionJSON.data.roleName = role;
         }
         Actions.addFlowAction(actionJSON,RESOURCE);
       }

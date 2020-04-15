@@ -345,9 +345,12 @@ define(function(require) {
       var roleName = params && params.data && params.data.roleName
       var action = params && params.data && params.data.action
       var cacheName = params.cacheName ? params.cacheName : resource;
-      if(id!==undefined && roleName && action && resource){
+      if(id!==undefined && action && resource){
         $.ajax({
-          url: resource.toLowerCase()+"/"+id+"/role/"+roleName+"/action",
+          url: roleName?
+            resource.toLowerCase()+"/"+id+"/role/"+roleName+"/action"
+          :
+            resource.toLowerCase()+"/"+id+"/action",
           type: "POST",
           contentType: "application/json; charset=utf-8",
           data: JSON.stringify({action: action}),
