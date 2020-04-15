@@ -47,7 +47,7 @@ class RESTClient
             ],
             :category_name => 'OpenNebula',
             :category_description => 'OpenNebula Category',
-	    :cardinality => VSphereAutomation::CIS::CisTaggingCategoryModelCardinality.const_get('single'.upcase)
+	    :cardinality => VSphereAutomation::CIS::CisTaggingCategoryModelCardinality.const_get('multiple'.upcase)
         }.merge(opts)
 
         @configuration = VSphereAutomation::Configuration.new.tap do |c|
@@ -103,15 +103,15 @@ class RESTClient
         end
     end
 
-    def get_or_create_category(api_client)
+    def get_or_create_category(api_client, category_name)
         category_api = VSphereAutomation::CIS::TaggingCategoryApi.new(api_client)
         category = category_api.list.value.find do |id|
         	c = category_api.get(id).value
-        	break c if c.name == @opts[:category_name]
+        	break c if c.name == category_name
         end
         if category.nil?
             create_spec =  VSphereAutomation::CIS::CisTaggingCategoryCreateSpec.new(
-                name: @opts[:category_name],
+                name: category_name,
                 description: @opts[:category_description],
                 associable_types: @opts[:associable_types],
                 cardinality: @opts[:cardinality],
@@ -126,32 +126,35 @@ class RESTClient
     end
 
     def set_tags(vm)
-	    api_client = VSphereAutomation::ApiClient.new(@configuration)
-	    VSphereAutomation::CIS::SessionApi.new(api_client).create('')
+        api_client = VSphereAutomation::ApiClient.new(@configuration)
+        VSphereAutomation::CIS::SessionApi.new(api_client).create('')
 
-	    category_id = get_or_create_category(api_client)
+        association_api = VSphereAutomation::CIS::TaggingTagAssociationApi.new(api_client)
 
-	    association_api = VSphereAutomation::CIS::TaggingTagAssociationApi.new(api_client)
+        vm.get_vcenter_tags.each do |tag|
+            category_name = @opts[:category_name]
+            category_name = tag['CATEGORY_NAME'] if !tag['CATEGORY_NAME'].nil?
 
-	    vm.get_vcenter_tags.each do |tag|
+            category_id = get_or_create_category(api_client, category_name)
+
             tag_name = tag['NAME']
             tag_description = tag['DESCRIPTION']
 
-	        tag_id = get_or_create_tag(api_client, category_id, tag_name, tag_description)
+            tag_id = get_or_create_tag(api_client, category_id, tag_name, tag_description)
 
-	        request_body = VSphereAutomation::CIS::CisTaggingTagAssociationAttach.new
+            request_body = VSphereAutomation::CIS::CisTaggingTagAssociationAttach.new
 
-	        object_id = VSphereAutomation::CIS::VapiStdDynamicID.new
-	        object_id.id = vm['_ref']
-	        object_id.type = "VirtualMachine"
+            object_id = VSphereAutomation::CIS::VapiStdDynamicID.new
+            object_id.id = vm['_ref']
+            object_id.type = "VirtualMachine"
 
-	        request_body.object_id = object_id
+            request_body.object_id = object_id
 
-	        begin
-	            association_api.attach(tag_id, request_body)
-	        rescue VSphereAutomation::ApiError => e
-	            puts "Exception when calling TaggingTagAssociationApi->attach: #{e}"
-	        end
+            begin
+                association_api.attach(tag_id, request_body)
+            rescue VSphereAutomation::ApiError => e
+                puts "Exception when calling TaggingTagAssociationApi->attach: #{e}"
+            end
         end
     end
 end
