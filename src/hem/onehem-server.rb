@@ -276,8 +276,9 @@ class HookMap
 
             key = hook.key
 
-            @hooks[hook.type][key] = []          unless @hooks[hook.type].key?(key)
-            @hooks[hook.type][key].push(hook.id) unless @hooks[hook.type][key].include?(hook.id)            
+            @hooks[hook.type][key] = [] unless @hooks[hook.type].key?(key)
+            @hooks[hook.type][key].push(hook.id) \
+                                 unless @hooks[hook.type][key].include?(hook.id)
             @hooks_id[hook.id]     = hook
             @filters[hook.id]      = hook.filter(key)
         end
@@ -301,8 +302,9 @@ class HookMap
         key    = hook.key
         filter = hook.filter(key)
 
-        @hooks[hook.type][key] = []          unless @hooks[hook.type].key?(key)
-        @hooks[hook.type][key].push(hook_id) unless @hooks[hook.type][key].include?(hook_id)
+        @hooks[hook.type][key] = [] unless @hooks[hook.type].key?(key)
+        @hooks[hook.type][key].push(hook_id) \
+                                 unless @hooks[hook.type][key].include?(hook_id)
         @hooks_id[hook_id] = hook
         @filters[hook_id]  = filter
 
@@ -316,7 +318,8 @@ class HookMap
 
         if @hooks[hook.type].key?(hook.key)
             @hooks[hook.type][hook.key].delete(hook_id)
-            @hooks[hook.type].delete(hook.key) if @hooks[hook.type][hook.key].empty?
+            @hooks[hook.type].delete(hook.key) if @hooks[hook.type][hook.key]
+                                                  .empty?
         end
         @filters.delete(hook_id)
         @hooks_id.delete(hook_id)
@@ -548,7 +551,8 @@ class HookExecutionManager
 
                 hooks.each do |hook_id|
                     hook = @hooks.get_hook_by_id(hook_id)
-                    @am.trigger_action(ACTIONS[0], 0, hook, body) unless hook.nil?
+                    @am.trigger_action(ACTIONS[0], 0, hook, body) \
+                                                              unless hook.nil?
                 end
 
                 reload_hooks(key, body) if UPDATE_CALLS.include? key
@@ -600,7 +604,8 @@ class HookExecutionManager
         end
 
         if rc.code.zero?
-            @logger.info("Hook #{hook.id} successfully executed for #{hook.key}")
+            @logger.info("Hook #{hook.id} successfully executed "\
+                         "for #{hook.key}")
         else
             @logger.error("Failure executing hook #{hook.id} for #{hook.key}")
         end
