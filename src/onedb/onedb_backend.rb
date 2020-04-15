@@ -848,7 +848,7 @@ class BackEndPostgreSQL < OneDBBacKEnd
     def self.preprocess_query(query)
         return query unless query.upcase.start_with?('REPLACE')
 
-        query[0, 6] = 'INSERT'
+        query[0, 7] = 'INSERT'
 
         table_start = query.index('INTO ', 7) + 5
         names_start = query.index('(', table_start) + 1
