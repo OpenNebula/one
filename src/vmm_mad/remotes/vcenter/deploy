@@ -77,6 +77,9 @@ begin
 
             vm_template.lock(1)
         end
+
+        rest_client = VCenterDriver::RESTClient.new_from_host(host_id)
+        rest_client.set_tags(vm)
     end
 
     if vm.is_powered_off?
