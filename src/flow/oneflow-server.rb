@@ -331,6 +331,28 @@ end
 #     status 204
 # end
 
+post '/service/:id/sched' do
+    action = JSON.parse(request.body.read)['action']
+    opts   = action['params']
+
+    # Use defaults only if one of the options is supplied
+    opts['period'] ||= conf[:action_period]
+    opts['number'] ||= conf[:action_number]
+
+    rc = lcm.service_sched_action(@client,
+                                  params[:id],
+                                  action['perform'],
+                                  opts['period'],
+                                  opts['number'],
+                                  opts['args'])
+
+    if OpenNebula.is_error?(rc)
+        return internal_error(rc.message, one_error_to_http(rc.errno))
+    end
+
+    status 200
+end
+
 post '/service/:id/role/:role_name/action' do
     action = JSON.parse(request.body.read)['action']
     opts   = action['params']

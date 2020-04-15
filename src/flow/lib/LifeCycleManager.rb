@@ -151,6 +151,30 @@ class ServiceLCM
         rc
     end
 
+    # Add shced action to service
+    #
+    # @param client     [OpenNebula::Client] Client executing action
+    # @param service_id [Integer]            Service ID
+    # @param action     [String]             Action to perform
+    # @param period     [Integer]            When to execute the action
+    # @param number     [Integer]            How many VMs per period
+    # @param args       [String]             Action arguments
+    #
+    # @return [OpenNebula::Error] Error if any
+    # rubocop:disable Metrics/ParameterLists
+    def service_sched_action(client, service_id, action, period, number, args)
+    # rubocop:enable Metrics/ParameterLists
+        rc = @srv_pool.get(service_id, client) do |service|
+            service.roles.each do |_, role|
+                role.batch_action(action, period, number, args)
+            end
+        end
+
+        Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
+
+        rc
+    end
+
     # Add shced action to service role
     #
     # @param client     [OpenNebula::Client] Client executing action

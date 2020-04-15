@@ -309,13 +309,38 @@ CommandParser::CmdParser.new(ARGV) do
             params = {}
             params[:period] = options[:period].to_i if options[:period]
             params[:number] = options[:number].to_i if options[:number]
-            params[:args]   = options[:args]
+            params[:args]   = options[:args] if options[:args]
 
             json   = Service.build_json_action(args[2], params)
             client = helper.client(options)
 
             client.post("#{RESOURCE_PATH}/#{service_id}/role/#{args[1]}/action",
                         json)
+        end
+    end
+
+    ###
+
+    action_desc = <<-EOT.unindent
+        Perform an action on all the Virtual Machines of a given service.
+        Actions supported: #{Role::SCHEDULE_ACTIONS.join(',')}
+    EOT
+
+    command [:service, :action],
+            action_desc,
+            :service_id,
+            :vm_action,
+            :options => [Service::PERIOD, Service::NUMBER, ARGS] do
+        Service.perform_action(args[0]) do |service_id|
+            params = {}
+            params[:period] = options[:period].to_i if options[:period]
+            params[:number] = options[:number].to_i if options[:number]
+            params[:args]   = options[:args] if options[:args]
+
+            json   = Service.build_json_action(args[1], params)
+            client = helper.client(options)
+
+            client.post("#{RESOURCE_PATH}/#{service_id}/sched", json)
         end
     end
 end
