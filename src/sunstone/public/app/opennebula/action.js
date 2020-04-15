@@ -352,8 +352,9 @@ define(function(require) {
           :
             resource.toLowerCase()+"/"+id+"/action",
           type: "POST",
+          dataType: "text",
           contentType: "application/json; charset=utf-8",
-          data: JSON.stringify({action: action}),
+          data: JSON.stringify({"action": action}),
           success: function(response) {
             _clearCache(cacheName);
             return callback ? callback(response) : null;

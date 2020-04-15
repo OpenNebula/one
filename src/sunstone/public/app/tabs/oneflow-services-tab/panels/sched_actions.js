@@ -46,7 +46,7 @@ define(function(require) {
   function Panel(info) {
     this.icon = "fa-calendar-alt";
     this.title = Locale.tr("Actions");
-    this.id = (info && info.ID) || 0;
+    this.id = (info && info.DOCUMENT && info.DOCUMENT.ID) || "0";
     this.data = (info && info.DOCUMENT && info.DOCUMENT.TEMPLATE && info.DOCUMENT.TEMPLATE.BODY && info.DOCUMENT.TEMPLATE.BODY.roles) || [];
     this.actions = [
       "terminate", 
