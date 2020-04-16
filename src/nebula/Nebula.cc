@@ -934,12 +934,9 @@ void Nebula::start(bool bootstrap_only)
     {
         vector<const VectorAttribute *> im_mads;
 
-        int host_limit;
-
-        nebula_configuration->get("HOST_PER_INTERVAL", host_limit);
         nebula_configuration->get("IM_MAD", im_mads);
 
-        im = new InformationManager(hpool, vmpool, timer_period, mad_location);
+        im = new InformationManager(hpool, vmpool, mad_location);
 
         if (im->load_drivers(im_mads) != 0)
         {

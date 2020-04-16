@@ -163,6 +163,11 @@ private:
      */
     static const time_t monitor_expire;
 
+    /**
+     *  Default timeout to wait for monitor drivers
+     */
+    static const int driver_timeout = 3;
+
     void start_host_monitor(const HostRPCPool::HostBaseLock& host);
 
     void stop_host_monitor(const HostRPCPool::HostBaseLock& host);

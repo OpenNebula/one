@@ -51,8 +51,9 @@ public:
 
     /**
      *  Stop all drivers
+     *    @param secs to wait for each driver before killing it
      */
-    void stop();
+    void stop(int secs);
 
 private:
     std::map<std::string, std::unique_ptr<D>> drivers;
@@ -164,14 +165,15 @@ int DriverManager<E, D>::start(std::string& error)
 /* -------------------------------------------------------------------------- */
 
 template<typename E, typename D>
-void DriverManager<E, D>::stop()
+void DriverManager<E, D>::stop(int secs)
 {
     vector<thread> threads;
 
     for (auto& driver : drivers)
     {
-        threads.push_back(thread([&driver] () {
-            driver.second->stop();
+        int _secs = secs;
+        threads.push_back(thread([_secs, &driver] () {
+            driver.second->stop(_secs);
         }));
     }
 

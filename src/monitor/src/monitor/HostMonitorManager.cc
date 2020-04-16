@@ -127,8 +127,7 @@ int HostMonitorManager::start(std::string& error)
     tcp_driver->stop();
 
     //End monitor drivers
-    driver_manager->stop();
-
+    driver_manager->stop(driver_timeout);
 
     return 0;
 }

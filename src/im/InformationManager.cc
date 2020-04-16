@@ -55,7 +55,7 @@ int InformationManager::start()
     im_thread = std::thread([&] {
         NebulaLog::info("InM", "Information Manager started.");
 
-        am.loop(timer_period);
+        am.loop();
 
         NebulaLog::info("InM", "Information Manager stopped.");
     });
@@ -291,14 +291,6 @@ void InformationManager::_system_host(unique_ptr<Message<OpenNebulaMessages>> ms
          to_string(host->get_oid()) + ") successfully monitored.");
 
     host->unlock();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void InformationManager::timer_action(const ActionRequest& ar)
-{
-
 }
 
 /* -------------------------------------------------------------------------- */

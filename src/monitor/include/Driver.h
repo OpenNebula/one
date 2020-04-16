@@ -74,12 +74,13 @@ public:
 
     /**
      *  Stop the driver and the listener thread
+     *    @param secs seconds to wait for the process to finish
      */
-    void stop()
+    void stop(int secs)
     {
         terminate.store(true);
 
-        stop_driver();
+        stop_driver(secs);
     }
 
     /**
@@ -156,8 +157,9 @@ private:
 
     /**
      *  Stop the driver, closes the pipes.
+     *    @param secs seconds to wait for the process to finish
      */
-    void stop_driver();
+    void stop_driver(int secs);
 
     /**
      *  Starts the listener thread. The thread will reload the driver process if
@@ -173,7 +175,7 @@ private:
 /* -------------------------------------------------------------------------- */
 
 template<typename E>
-void Driver<E>::stop_driver()
+void Driver<E>::stop_driver(int secs)
 {
     if ( pid == -1 )
     {
@@ -187,17 +189,25 @@ void Driver<E>::stop_driver()
     close(from_drv);
     close(to_drv);
 
-    for (int i=0; i < 10; ++i)
+    bool success = false;
+
+    for (int i=0; i < secs; ++i)
     {
         int status;
 
         if ( waitpid(pid, &status, WNOHANG) != 0 )
         {
+            success = true;
             break;
         }
 
         sleep(1);
     }
+
+    if (!success)
+    {
+        kill(pid, SIGKILL);
+    };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -319,7 +329,7 @@ void Driver<E>::start_listener()
         {
             std::string error;
 
-            stop_driver();
+            stop_driver(1);
 
             start_driver(error);
 

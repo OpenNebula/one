@@ -34,12 +34,10 @@ public:
     InformationManager(
         HostPool * _hpool,
         VirtualMachinePool * _vmpool,
-        time_t     _timer_period,
         const string& mad_location)
             : DriverManager(mad_location)
             , hpool(_hpool)
             , vmpool(_vmpool)
-            , timer_period(_timer_period)
     {
         am.addListener(this);
     }
@@ -134,28 +132,23 @@ private:
     VirtualMachinePool * vmpool;
 
     /**
-     *  Timer period for the Virtual Machine Manager.
-     */
-    time_t          timer_period;
-
-    /**
      *  Action engine for the Manager
      */
     ActionManager   am;
 
+    /**
+     *  Default timeout to wait for Information Driver (monitord)
+     */
+    static const int drivers_timeout = 10;
+
     // ------------------------------------------------------------------------
     // ActioListener Interface
     // ------------------------------------------------------------------------
-    /**
-     *  This function is executed periodically to monitor Nebula hosts.
-     */
-    void timer_action(const ActionRequest& ar) override;
-
     void finalize_action(const ActionRequest& ar) override
     {
         NebulaLog::log("InM",Log::INFO,"Stopping Information Manager...");
 
-        stop();
+        stop(drivers_timeout);
     };
 };
 
