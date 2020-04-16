@@ -296,23 +296,21 @@ post '/service/:id/action' do
     #             OpenNebula::Error.new("Action #{action['perform']}: " \
     #                                   'Only supported for append')
     #         end
-    else
-        if Role::SCHEDULE_ACTIONS.include?(action['perform'])
-            # Use defaults only if one of the options is supplied
-            opts['period'] ||= conf[:action_period]
-            opts['number'] ||= conf[:action_number]
+    when *Role::SCHEDULE_ACTIONS
+        # Use defaults only if one of the options is supplied
+        opts['period'] ||= conf[:action_period]
+        opts['number'] ||= conf[:action_number]
 
-            rc = lcm.service_sched_action(@client,
-                                          params[:id],
-                                          action['perform'],
-                                          opts['period'],
-                                          opts['number'],
-                                          opts['args'])
-        else
-            rc = OpenNebula::Error.new(
-                "Action #{action['perform']} not supported"
-            )
-        end
+        rc = lcm.service_sched_action(@client,
+                                      params[:id],
+                                      action['perform'],
+                                      opts['period'],
+                                      opts['number'],
+                                      opts['args'])
+    else
+        rc = OpenNebula::Error.new(
+            "Action #{action['perform']} not supported"
+        )
     end
 
     if OpenNebula.is_error?(rc)
