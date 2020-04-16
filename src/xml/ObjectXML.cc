@@ -116,6 +116,11 @@ void ObjectXML::xpaths(std::vector<std::string>& content, const char * expr)
             break;
 
         case XPATH_NODESET:
+            if (obj->nodesetval == 0)
+            {
+                return;
+            }
+
             for(int i = 0; i < obj->nodesetval->nodeNr ; ++i)
             {
                 cur = obj->nodesetval->nodeTab[i];
