@@ -528,6 +528,31 @@ post '/service_template/:id/action' do
         networks = body['networks']
         networks_values = merge_template['networks_values'] if merge_template
 
+        # Obtain defaults from template
+        unless networks_values
+            networks_values = []
+
+            begin
+                networks.each do |key, value|
+                    net      = {}
+                    net[key] = {}
+
+                    # Format of all available defaults
+                    #
+                    # Existing:    "net": "M|network|| |id:0"
+                    # Instantiate: "net": "M|network|| |template_id:1"
+                    # Reserve:     "net": "M|network|| |reserve_from:0"
+                    value = value.split('||')[1].gsub('|', '').strip.split(':')
+
+                    net[key][value[0]] = value[1]
+
+                    networks_values << net
+                end
+            rescue StandardError
+                return internal_error('Wrong networks format', VALIDATION_EC)
+            end
+        end
+
         if networks && !(networks.is_a? Hash)
             return internal_error('Wrong networks format', VALIDATION_EC)
         end
