@@ -259,7 +259,7 @@ function fs_size {
             kvp=( ${p/=/ } );
 
             if [ ${kvp[0]} == 'size' ]; then
-                SIZE=$((${kvp[1]} * 1024));
+                SIZE=$((${kvp[1]} * 1024 * 1024));
                 error=0
                 break
             fi
