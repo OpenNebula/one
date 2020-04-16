@@ -39,43 +39,41 @@
   </div>
 </div>
 <div class="row">
-  <div class="large-12 columns networks_accordion">
+  <div class="service_template_param service_role large-12 columns">
+    <table class="parent_roles dataTable">
+      <thead>
+        <tr>
+          <th colspan="2">
+            {{tr "Parent roles"}}
+          </th>
+        </tr>
+      </thead>
+      <tbody class="parent_roles_body">
+      </tbody>
+    </table>
+  </div>
+  <div class="networks_accordion large-12 columns ">
     {{#advancedSection (tr "Role network") }}
-    <div class="row">
-      <div class="service_template_param service_role medium-6 columns">
-        <table class="networks_role dataTable">
-          <thead>
-            <tr>
-              <th colspan="2">
-                <label for="interfaces_role">
-                  <i class="fas fa-lg fa-fw fa-globe off-color"/>{{tr "Network Interfaces"}}
-                  <span class="tip">{{tr "This network interface will be configured as an ALIAS in the VM without context configuration."}}</span>
-                </label>
-              </th>
-            </tr>
-          </thead>
-          <tbody class="networks_role_body">
-          </tbody>
-        </table>
-        <div class="form-group networks_role_rdp">
-          <label for="rdp">RDP</label>
-          <select class="form-control" id="rdp">
-            <option value=""></option>
-          </select>
-        </div>
-      </div>
-      <div class="service_template_param service_role medium-6 columns">
-        <table class="parent_roles dataTable">
-          <thead>
-            <tr>
-              <th colspan="2">
-                {{tr "Parent roles"}}
-              </th>
-            </tr>
-          </thead>
-          <tbody class="parent_roles_body">
-          </tbody>
-        </table>
+    <div class="service_template_param service_role">
+      <table class="networks_role dataTable">
+        <thead>
+          <tr>
+            <th colspan="4">
+              <label for="interfaces_role">
+                <i class="fas fa-lg fa-fw fa-globe off-color"/>{{tr "Network Interfaces"}}
+                <span class="tip">{{tr "This network interface will be configured as an ALIAS in the VM without context configuration."}}</span>
+              </label>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="networks_role_body">
+        </tbody>
+      </table>
+      <div class="form-group networks_role_rdp" style="padding:0.6rem;">
+        <label for="rdp">RDP</label>
+        <select class="form-control" id="rdp">
+          <option value=""></option>
+        </select>
       </div>
     </div>
     {{/advancedSection}}
