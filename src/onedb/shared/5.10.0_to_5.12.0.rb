@@ -42,7 +42,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch('SELECT * FROM old_acl') do |row|
-                row[:userset] = row.delete[:user]
+                row[:userset] = row.delete(:user)
 
                 @db[:acl].insert(row)
             end
