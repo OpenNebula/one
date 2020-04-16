@@ -548,6 +548,9 @@ post '/service_template/:id/action' do
 
                     networks_values << net
                 end
+
+                merge_template ||= {}
+                merge_template['networks_values'] = networks_values
             rescue StandardError
                 return internal_error('Wrong networks format', VALIDATION_EC)
             end
