@@ -116,9 +116,10 @@ void ObjectXML::xpaths(std::vector<std::string>& content, const char * expr)
             break;
 
         case XPATH_NODESET:
-            // countering the case of not found ex: /VM_POOL/VM[ID=-1]/"something"
-                if (obj->nodesetval == 0)
-                    return;
+            if (obj->nodesetval == 0)
+            {
+                return;
+            }
 
             for(int i = 0; i < obj->nodesetval->nodeNr ; ++i)
             {
