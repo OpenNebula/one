@@ -813,9 +813,11 @@ class VirtualMachineMonitor
     POLL_ATTRIBUTE = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
     VM_STATE = OpenNebula::VirtualMachine::Driver::VM_STATE
 
-    def initialize(host_id)
+    def initialize(vm)
         begin
+            host_id = vm['HISTORY_RECORDS/HISTORY[last()]/HID']
             @vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+            @one_vm = vm
 
             # Get CCR reference
             client = OpenNebula::Client.new
@@ -832,16 +834,18 @@ class VirtualMachineMonitor
             @cluster = VCenterDriver::ClusterComputeResource
                        .new_from_ref(ccr_ref, @vi_client)
 
-            # Print VM monitor info
-            vm_monitor_info, last_perf_poll = monitor_vms(host_id)
-            if !vm_monitor_info.empty?
-                puts 'VM_POLL=YES'
-                puts vm_monitor_info
-            end
+            @vm = VCenterDriver::VirtualMachine.new_from_ref(@vi_client, vm['DEPLOY_ID'], vm['NAME'])
+            monitor_poll_vm
+            # # Print VM monitor info
+            # vm_monitor_info, last_perf_poll = monitor_vms(host_id)
+            # if !vm_monitor_info.empty?
+            #     puts 'VM_POLL=YES'
+            #     puts vm_monitor_info
+            # end
 
             # Print last VM poll for perfmanager tracking
-            puts 'VCENTER_LAST_PERF_POLL=' << last_perf_poll << "\n" \
-                if last_perf_poll
+            # puts 'VCENTER_LAST_PERF_POLL=' << last_perf_poll << "\n" \
+            #     if last_perf_poll
         rescue StandardError => e
             STDERR.puts 'IM poll for vcenter cluster #{host_id} failed due to '\
                         "\"#{e.message}\"\n#{e.backtrace}"
@@ -869,13 +873,26 @@ class VirtualMachineMonitor
         end
     end
 
+    def reset_monitor
+        @monitor = {
+            :used_cpu    => 0,
+            :used_memory => 0,
+            :netrx       => 0,
+            :nettx       => 0,
+            :diskrdbytes => 0,
+            :diskwrbytes => 0,
+            :diskrdiops  => 0,
+            :diskwriops  => 0
+        }
+    end
+
     # monitor function used when VMM poll action is called
     # rubocop:disable Naming/VariableName
     # rubocop:disable Style/FormatStringToken
     def monitor_poll_vm
         reset_monitor
 
-        return unless get_vm_id
+        return unless @vm.get_vm_id
 
         @state = state_to_c(@vm['summary.runtime.powerState'])
 
@@ -913,17 +930,17 @@ class VirtualMachineMonitor
 
         pm = @vm['_connection'].serviceInstance.content.perfManager
 
-        provider = pm.provider_summary(@item)
+        provider = pm.provider_summary(@vm.item)
 
         refresh_rate = provider.refreshRate
 
         stats = {}
 
-        if one_item['MONITORING/LAST_MON'] &&
-            one_item['MONITORING/LAST_MON'].to_i != 0
+        if @one_vm['MONITORING/LAST_MON'] &&
+            @one_vm['MONITORING/LAST_MON'].to_i != 0
             # Real time data stores max 1 hour. 1 minute has 3 samples
             interval = (Time.now.to_i -
-                        one_item['MONITORING/LAST_MON'].to_i)
+                        @one_vm['MONITORING/LAST_MON'].to_i)
 
              # If last poll was more than hour ago get 3 minutes,
              # else calculate how many samples since last poll
@@ -935,7 +952,7 @@ class VirtualMachineMonitor
             samples > 0 ? max_samples = samples : max_samples = 1
 
             stats = pm.retrieve_stats(
-                [@item],
+                [@vm.item],
                 ['net.transmitted', 'net.bytesRx', 'net.bytesTx',
                  'net.received', 'virtualDisk.numberReadAveraged',
                  'virtualDisk.numberWriteAveraged', 'virtualDisk.read',
@@ -945,7 +962,7 @@ class VirtualMachineMonitor
         else
             # First poll, get at least latest 3 minutes = 9 samples
             stats = pm.retrieve_stats(
-                [@item],
+                [@vm.item],
                 ['net.transmitted', 'net.bytesRx', 'net.bytesTx',
                  'net.received', 'virtualDisk.numberReadAveraged',
                  'virtualDisk.numberWriteAveraged', 'virtualDisk.read',
@@ -1056,8 +1073,9 @@ class VirtualMachineMonitor
                                 (read_kbpersec * 1024 * refresh_rate).to_i
         @monitor[:diskwrbytes] = previous_diskwrbytes +
                                 (write_kbpersec * 1024 * refresh_rate).to_i
-    end
 
+        puts @monitor
+    end
 
     def monitor_vms(host_id)
         vc_uuid = @vi_client.vim.serviceContent.about.instanceUuid

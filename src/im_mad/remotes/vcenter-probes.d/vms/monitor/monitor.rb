@@ -14,9 +14,20 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
-exit 0
 require_relative '../../../lib/vcenter.rb'
 
 host_id = ARGV[1]
 
-VirtualMachineMonitor.new(host_id)
+client = OpenNebula::Client.new
+
+vmpool = OpenNebula::VirtualMachinePool.new(client,
+              OpenNebula::VirtualMachinePool::INFO_ALL_VM)
+
+rc = vmpool.info
+
+return if OpenNebula.is_error?(rc)
+
+result = ''
+vmpool.each do |vm|
+    VirtualMachineMonitor.new(vm)
+end
