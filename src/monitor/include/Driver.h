@@ -187,16 +187,23 @@ void Driver<E>::stop_driver()
     close(from_drv);
     close(to_drv);
 
-    for (int i=0; i < 10; ++i)
+    bool success = false;
+    for (int i=0; i < 7; ++i)
     {
         int status;
 
         if ( waitpid(pid, &status, WNOHANG) != 0 )
         {
+            success = true;
             break;
         }
 
         sleep(1);
+    }
+
+    if (!success)
+    {
+        kill(pid, SIGKILL);
     }
 }
 
