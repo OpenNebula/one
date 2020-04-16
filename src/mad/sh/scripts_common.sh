@@ -48,7 +48,7 @@ CP=${CP:-cp}
 SCP=${SCP:-scp}
 SED=${SED:-sed}
 SSH=${SSH:-ssh}
-SUDO=${SUDO:-sudo}
+SUDO=${SUDO:-sudo -n}
 SYNC=${SYNC:-sync}
 TAR=${TAR:-tar}
 TGTADM=${TGTADM:-tgtadm}
@@ -556,7 +556,7 @@ function tgtadm_next_tid {
 
 function tgt_admin_dump_config {
     FILE_PATH="$1"
-    echo "$TGTADMIN --dump |sudo tee $FILE_PATH > /dev/null 2>&1"
+    echo "$TGTADMIN --dump |sudo -n tee $FILE_PATH > /dev/null 2>&1"
 }
 
 ###

@@ -90,7 +90,7 @@ function clean {
 
     # Unmount mnt directory (if necessary)
     if  grep -qs "$dockerdir/mnt" /proc/mounts; then
-        sudo umount "$dockerdir/mnt"
+        sudo -n umount "$dockerdir/mnt"
     fi
 
     rm -rf $dockerdir
@@ -289,13 +289,13 @@ esac
 #-------------------------------------------------------------------------------
 # Mount container disk image and untar rootfs contents to it
 #-------------------------------------------------------------------------------
-sudo mount $img_raw $dockerdir/mnt > /dev/null 2>&1
-sudo chmod o+w $dockerdir/mnt
-sudo tar xpf $tarball -C $dockerdir/mnt > /dev/null 2>&1
+sudo -n mount $img_raw $dockerdir/mnt > /dev/null 2>&1
+sudo -n chmod o+w $dockerdir/mnt
+sudo -n tar xpf $tarball -C $dockerdir/mnt > /dev/null 2>&1
 
 sync
 
-sudo umount $dockerdir/mnt
+sudo -n umount $dockerdir/mnt
 
 if [ "$format" == "qcow2" ]; then
     qemu-img convert -f raw -O qcow2 $img_raw $img_qcow > /dev/null 2>&1

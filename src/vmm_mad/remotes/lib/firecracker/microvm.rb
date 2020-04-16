@@ -31,7 +31,7 @@ class MicroVM
     #   List of commands executed by the driver.
     #---------------------------------------------------------------------------
     COMMANDS = {
-        :clean       => 'sudo /usr/sbin/one-clean-firecracker-domain',
+        :clean       => 'sudo -n /usr/sbin/one-clean-firecracker-domain',
         :map_context => '/var/tmp/one/vmm/firecracker/map_context'
     }
 
@@ -46,7 +46,7 @@ class MicroVM
         @fc = fc
         @one = one
 
-        @jailer_command = 'sudo jailer'
+        @jailer_command = 'sudo -n jailer'
         @vnc_command    = 'screen -x'
 
         # Location for maping the context
@@ -97,7 +97,7 @@ class MicroVM
         return false unless rc
 
         # TODO, add option for hard links
-        Command.execute_rc_log("sudo mount -o bind #{@one.sysds_path}/#{@one.vm_id} #{@rootfs_dir}")
+        Command.execute_rc_log("sudo -n mount -o bind #{@one.sysds_path}/#{@one.vm_id} #{@rootfs_dir}")
     end
 
     def get_pid
