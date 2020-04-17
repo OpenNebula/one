@@ -70,7 +70,7 @@ class Container
         @one = one
 
         @lxc_command = 'lxc'
-        @lxc_command.prepend 'sudo ' if client.snap
+        @lxc_command.prepend 'sudo -n ' if client.snap
 
         @rootfs_dir = "#{@client.lxd_path}/storage-pools/default/containers/"\
         "#{name}/rootfs"
@@ -501,7 +501,7 @@ class Container
     def del_bridge_port(nic)
         return true unless /ovswitch/ =~ nic['VN_MAD']
 
-        cmd = 'sudo ovs-vsctl --if-exists del-port '\
+        cmd = 'sudo -n ovs-vsctl --if-exists del-port '\
         "#{nic['BRIDGE']} #{nic['TARGET']}"
 
         rc, _o, e = Command.execute(cmd, false)

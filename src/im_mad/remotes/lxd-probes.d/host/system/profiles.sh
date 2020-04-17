@@ -5,7 +5,7 @@ cmd='lxc profile list 2>/dev/null'
 profiles=$($cmd | grep -v -- -+- | grep -v NAME | grep -v default | awk '{print $2}')
 
 if [ "$?" -ne "0" ]; then
-    profiles=$(sudo $cmd | grep -v -- -+- | grep -v NAME | grep -v default | awk '{print $2}')
+    profiles=$(sudo -n $cmd | grep -v -- -+- | grep -v NAME | grep -v default | awk '{print $2}')
 fi
 
 tmpfile=$(mktemp /tmp/lxd_probe.XXXXXX)

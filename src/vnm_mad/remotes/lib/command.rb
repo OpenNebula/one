@@ -22,15 +22,15 @@ module VNMNetwork
     # to local installations. Any modification requires to sync the hosts with
     # onehost sync command.
     COMMANDS = {
-      :ebtables => "sudo ebtables",
-      :iptables => "sudo iptables",
-      :ip6tables=> "sudo ip6tables",
-      :ip       => "sudo ip",
+      :ebtables => "sudo -n ebtables",
+      :iptables => "sudo -n iptables",
+      :ip6tables=> "sudo -n ip6tables",
+      :ip       => "sudo -n ip",
       :virsh    => "virsh -c qemu:///system",
-      :ovs_vsctl=> "sudo ovs-vsctl",
-      :ovs_ofctl=> "sudo ovs-ofctl",
+      :ovs_vsctl=> "sudo -n ovs-vsctl",
+      :ovs_ofctl=> "sudo -n ovs-ofctl",
       :lsmod    => "lsmod",
-      :ipset    => "sudo ipset"
+      :ipset    => "sudo -n ipset"
     }
 
     # Represents an Array of commands to be executed by the networking drivers
