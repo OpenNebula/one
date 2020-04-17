@@ -311,9 +311,21 @@ class EventManager
 
             # rubocop:enable Style/GuardClause
 
-            xml   = Nokogiri::XML(Base64.decode64(content))
-            id    = xml.xpath('//PARAMETER[POSITION=2]/VALUE').first.text.to_i
-            ready = xml.xpath('//PARAMETER[POSITION=3]/VALUE').text
+            xml = Nokogiri::XML(Base64.decode64(content))
+
+            id = xml.xpath(
+                '//PARAMETER[POSITION=2 and TYPE=\'IN\']/VALUE'
+            ).text.to_i
+            ready = xml.xpath(
+                '//PARAMETER[POSITION=3 and TYPE=\'IN\']/VALUE'
+            ).text
+
+            # rubocop:disable Style/StringLiterals
+            # Remove extra quotes
+            ready.gsub!("\"", '')
+            ready.gsub!('"', '')
+            ready.gsub!(' ', '')
+            # rubocop:enable Style/StringLiterals
 
             next if !ready.match('READY=YES') || !nodes.include?(id)
 
