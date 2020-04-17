@@ -527,7 +527,7 @@ post '/service_template/:id/action' do
         networks_values = merge_template['networks_values'] if merge_template
 
         # Obtain defaults from template
-        unless networks_values
+        if networks && !networks_values
             networks_values = []
 
             begin
