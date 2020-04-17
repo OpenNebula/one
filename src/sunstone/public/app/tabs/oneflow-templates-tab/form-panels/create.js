@@ -124,16 +124,14 @@ define(function(require) {
             <label class="switch-paddle" for="service_network_mandatory'+nic_index+'" style="cursor: pointer;"></label>\
           </td>\
           <td>\
-            <input class="service_network_name" type="text" data-index="'+nic_index+'" />\
+            <input class="service_network_name" type="text" data-index="'+nic_index+'" required />\
             <small class="form-error"><br/>'+Locale.tr("Can only contain alphanumeric and underscore characters, and be unique")+'</small>\
           </td>\
           <td>\
             <textarea class="service_network_description" />\
           </td>\
           <td>\
-            <select class="service_network_type">\
-              <option value=" "></option>\
-            </select>\
+            <select class="service_network_type" required></select>\
           </td>\
           <td>\
             <select class="service_network_id">\
@@ -151,11 +149,11 @@ define(function(require) {
         that.networksType.map(function(type) {
           $(".service_network_type", "tr#network"+nic_index).append($("<option/>", {
             "value": type.value
-          }).text(type.text))
+          }).text(type.text));
         });
 
-        $("tr#network"+nic_index+" .service_network_name", context).unbind("keyup");
-        $("tr#network"+nic_index+" .service_network_name", context).bind("keyup", function(){
+        $(".service_network_name", "tr#network"+nic_index).unbind("keyup");
+        $(".service_network_name", "tr#network"+nic_index).bind("keyup", function(){
           // update pattern regex
           var otherNames = $("input.service_network_name").not($(this)).map(function() {
             return $(this).val();
@@ -166,8 +164,8 @@ define(function(require) {
           _redo_service_networks_selector(context, that);
         });
 
-        $("tr#network"+nic_index+" .service_network_type", context).unbind("change");
-        $("tr#network"+nic_index+" .service_network_type", context).bind("change", function(){
+        $(".service_network_type", "tr#network"+nic_index).unbind("change");
+        $(".service_network_type", "tr#network"+nic_index).bind("change", function(){
           var selectedType = $(this).val()
           var serviceNetwork = $(this).closest('tr')
 
@@ -192,13 +190,16 @@ define(function(require) {
           $(".service_network_extra", serviceNetwork).prop('disabled', disabled);
         });
 
-        $("tr#network"+nic_index+" i.remove-tab", context).unbind("click");
-        $("tr#network"+nic_index+" i.remove-tab", context).bind("click", function(){
+        $("i.remove-tab", "tr#network"+nic_index).unbind("click");
+        $("i.remove-tab", "tr#network"+nic_index).bind("click", function(){
           var tr = $(this).closest('tr');
           tr.remove();
     
           _redo_service_networks_selector(context, that, $(this).data("index"));
         });
+
+        // trigger network type to load network options
+        $(".service_network_type", "tr#network"+nic_index).val(that.networksType[0].value).change();
     });
 
     that.roles_index = 0;
@@ -358,6 +359,8 @@ define(function(require) {
       that.roleTabObjects[role_id].onShow();
     });
 
+    // Remove role tabs
+    $("#roles_tabs i.remove-tab", context).trigger("click");
     // Add first role
     $("#tf_btn_roles", context).click();
   }
@@ -423,6 +426,7 @@ define(function(require) {
       UserInputs.fill(context, {"USER_INPUTS": custom_attrs});
     }
 
+    // Remove role tabs
     $("#roles_tabs i.remove-tab", context).trigger("click");
 
     var network_names = [];
@@ -532,8 +536,8 @@ define(function(require) {
           </td>";
 
           str += "<td class='parent_selector' style='width:50%;'>\
-            <select class='form-control' " + (!wasAlias ? "hidden" : "") + "\
-              id='parent_"+idName+"' data-index='"+index+"' style='box-sizing:border-box;' required>\
+            <select class='form-control' " + (!wasAlias ? "hidden" : "required") + "\
+              id='parent_"+idName+"' data-index='"+index+"' style='box-sizing:border-box;'>\
                 <option value=''></option>\
             </select>\
           </td>";

@@ -48,10 +48,12 @@ define(function(require) {
     
     "ServiceTemplate.show_to_update" :  {
       type: "single",
-      call: OpenNebulaResource.show,
+      call: function(params) {
+        Sunstone.runAction("Network.list");
+        Sunstone.runAction("VNTemplate.list");
+        OpenNebulaResource.show(params);
+      },
       callback: function(request, response) {
-        Sunstone.runAction("Network.list")
-        Sunstone.runAction("VNTemplate.list")
         Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update",
           function(formPanelInstance, context) {
             formPanelInstance.fill(context, response[XML_ROOT]);

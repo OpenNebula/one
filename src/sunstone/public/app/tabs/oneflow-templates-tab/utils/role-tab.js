@@ -130,7 +130,7 @@ define(function(require) {
       var index = $(this).data("index");
       var select = $('td.parent_selector select[data-index='+index+']', role_section);
       toogleNicUsedAsAlias(role_section, select, select.val(), null)
-      select.prop("hidden", !this.checked);
+      select.prop("hidden", !this.checked).prop("required", this.checked);
 
       if (this.checked && that.nics_template[index]) {
         that.alias_template[index] = that.nics_template[index];
