@@ -364,7 +364,7 @@ post '/service/:id/role/:role_name/action' do
         return internal_error(rc.message, one_error_to_http(rc.errno))
     end
 
-    status 200
+    status 204
 end
 
 post '/service/:id/scale' do
@@ -380,8 +380,7 @@ post '/service/:id/scale' do
         return internal_error(rc.message, one_error_to_http(rc.errno))
     end
 
-    status 201
-    body
+    status 204
 end
 
 ##############################################################################
@@ -668,6 +667,7 @@ post '/service_template/:id/action' do
         end
 
         new_stemplate = OpenNebula::ServiceTemplate.new_with_id(rc, @client)
+
         rc            = new_stemplate.info
 
         if OpenNebula.is_error?(rc)
