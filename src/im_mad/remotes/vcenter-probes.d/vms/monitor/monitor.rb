@@ -18,16 +18,27 @@ require_relative '../../../lib/vcenter.rb'
 
 host_id = ARGV[1]
 
-client = OpenNebula::Client.new
+begin
+    # Vcenter connection
+    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+    client = OpenNebula::Client.new
+    vmpool = OpenNebula::VirtualMachinePool.new(client,
+                OpenNebula::VirtualMachinePool::INFO_ALL_VM)
 
-vmpool = OpenNebula::VirtualMachinePool.new(client,
-              OpenNebula::VirtualMachinePool::INFO_ALL_VM)
+    rc = vmpool.info
 
-rc = vmpool.info
+    return if OpenNebula.is_error?(rc)
 
-return if OpenNebula.is_error?(rc)
-
-result = ''
-vmpool.each do |vm|
-    VirtualMachineMonitor.new(vm)
+    result = ''
+    vmpool.each do |vm|
+        puts "************VIRTUALMACHINE #{vm['NAME']}**********************"
+        VirtualMachineMonitor.new(vi_client, vm)
+        puts "**************************************************************"
+    end
+rescue StandardError => e
+    STDERR.puts "IM poll for vcenter cluster #{host_id} failed due to "\
+                "\"#{e.message}\"\n#{e.backtrace}"
+    exit(-1)
+ensure
+    @vi_client.close_connection if @vi_client
 end

@@ -37,4 +37,17 @@ require_relative '../../../lib/nsx.rb'
 
 host_id = ARGV[1]
 
-NsxMonitor.new(host_id)
+# Vcenter and NSX connection
+begin
+    nm = NsxMonitor.new(host_id)
+    puts nm.nsx_status
+    # Get Transport Zone info and NSX_STATUS from NSX Manager
+    if nm.nsx_ready?
+        puts nm.tz_info
+    end
+rescue StandardError => e
+    STDERR.puts "IM poll for NSX cluster #{host_id} failed due to "\
+                "\"#{e.message}\"\n#{e.backtrace}"
+end
+
+

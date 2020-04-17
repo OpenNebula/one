@@ -37,16 +37,13 @@ require 'nsx_driver'
 
 class NsxMonitor
 
+    attr_accessor :nsx_status
+
     def initialize(host_id)
-        begin
-            @vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-            puts monitor
-        rescue StandardError => e
-            STDERR.puts "IM poll for NSX cluster #{host_id} failed due to "\
-                        "\"#{e.message}\"\n#{e.backtrace}"
-            exit(-1)
-        ensure
-            @vi_client.close_connection if @vi_client
+        @nsx_client = nil
+        @nsx_status = ''
+        if nsx_ready?
+            @nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
         end
     end
 
@@ -93,39 +90,30 @@ class NsxMonitor
     end
 
     def tz_info
-        @nsx_status = ''
-        if !nsx_ready?
-            tz_info = @nsx_status
-        else
-            tz_info = "NSX_STATUS = OK\n"
-            tz_info << 'NSX_TRANSPORT_ZONES = ['
+        tz_info = 'NSX_TRANSPORT_ZONES = ['
 
-            host_id = @vi_client.instance_variable_get(:@host_id).to_i
-            nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
-            tz_object = NSXDriver::TransportZone.new_child(nsx_client)
+        host_id = @vi_client.instance_variable_get(:@host_id).to_i
+        tz_object = NSXDriver::TransportZone.new_child(@nsx_client)
 
-            # NSX request to get Transport Zones
-            if @one_item['TEMPLATE/NSX_TYPE'] == NSXDriver::NSXConstants::NSXV
-                tzs = tz_object.tzs
-                tzs.each do |tz|
-                    tz_info << tz.xpath('name').text << '="'
-                    tz_info << tz.xpath('objectId').text << '",'
-                end
-                tz_info.chomp!(',')
-            elsif @one_item['TEMPLATE/NSX_TYPE'] == NSXDriver::NSXConstants::NSXT
-                r = tz_object.tzs
-                r['results'].each do |tz|
-                    tz_info << tz['display_name'] << '="'
-                    tz_info << tz['id'] << '",'
-                end
-                tz_info.chomp!(',')
-            else
-                raise "Unknown PortGroup type #{@one_item['TEMPLATE/NSX_TYPE']}"
+        # NSX request to get Transport Zones
+        if @one_item['TEMPLATE/NSX_TYPE'] == NSXDriver::NSXConstants::NSXV
+            tzs = tz_object.tzs
+            tzs.each do |tz|
+                tz_info << tz.xpath('name').text << '="'
+                tz_info << tz.xpath('objectId').text << '",'
             end
-            tz_info << ']'
-            return tz_info
+            tz_info.chomp!(',')
+        elsif @one_item['TEMPLATE/NSX_TYPE'] == NSXDriver::NSXConstants::NSXT
+            r = tz_object.tzs
+            r['results'].each do |tz|
+                tz_info << tz['display_name'] << '="'
+                tz_info << tz['id'] << '",'
+            end
+            tz_info.chomp!(',')
+        else
+            raise "Unknown PortGroup type #{@one_item['TEMPLATE/NSX_TYPE']}"
         end
-        tz_info
+        tz_info << ']'
     end
 
     def nsx_ready?
@@ -167,6 +155,7 @@ class NsxMonitor
             url = '/api/2.0/vdn/scopes'
             begin
                 if nsx_client.get(url)
+                    @nsx_status = "NSX_STATUS = OK\n"
                     return true
                 else
                     @nsx_status = "NSX_STATUS = \"Response code incorrect\"\n"
@@ -184,6 +173,7 @@ class NsxMonitor
             url = '/api/v1/transport-zones'
             begin
                 if nsx_client.get(url)
+                    @nsx_status = "NSX_STATUS = OK\n"
                     return true
                 else
                     @nsx_status = "NSX_STATUS = \"Response code incorrect\"\n"

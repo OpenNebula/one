@@ -20,5 +20,42 @@ require_relative '../../../lib/vcenter.rb'
 
 host_id = ARGV[1]
 
-ClusterMonitor.new(host_id)
-DatastoreMonitor.new(host_id)
+begin
+    # Vcenter connection
+    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+    # Cluster Monitoring
+    cm = ClusterMonitor.new(vi_client, host_id)
+    puts cm.monitor_cluster
+    puts cm.monitor_host_systems
+    # Retrieve customizations
+    begin
+        puts cm.monitor_customizations
+    rescue StandardError
+        # Do not break monitoring on customization error
+        puts 'ERROR="Customizations could not be retrieved,' \
+                'please check permissions"'
+    end
+
+    # Get NSX info detected from vCenter Server
+    puts cm.nsx_info
+
+    # Print VM monitor info
+    vm_monitor_info, last_perf_poll = cm.monitor_vms(host_id)
+    if !vm_monitor_info.empty?
+        puts "VM_POLL=YES"
+        puts vm_monitor_info
+    end
+
+    # # Print last VM poll for perfmanager tracking
+    puts "VCENTER_LAST_PERF_POLL=" << last_perf_poll << "\n" if last_perf_poll
+
+    # Datastore Monitoring
+    dm = DatastoreMonitor.new(vi_client, host_id)
+
+rescue StandardError => e
+    STDERR.puts "IM poll for vcenter cluster #{host_id} failed due to "\
+                "\"#{e.message}\"\n#{e.backtrace}"
+    exit(-1)
+ensure
+    @vi_client.close_connection if @vi_client
+end
