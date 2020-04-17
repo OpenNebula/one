@@ -272,6 +272,12 @@ case $filesystem in
     "ext4")
         mkfs.ext4 -F $img_raw > /dev/null 2>&1
         ;;
+    "ext3")
+        mkfs.ext3 -F $img_raw > /dev/null 2>&1
+        ;;
+    "ext2")
+        mkfs.ext2 -F $img_raw > /dev/null 2>&1
+        ;;
     "xfs")
         mkfs.xfs -f $img_raw > /dev/null 2>&1
         ;;
