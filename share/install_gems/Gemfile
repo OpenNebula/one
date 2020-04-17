@@ -46,6 +46,7 @@ if RUBY_VERSION < '2.3'
 else
     gem 'zendesk_api'                     # sunstone
     gem 'rqrcode'                         # sunstone
+    gem 'webauthn'                        # sunstone
 end
 
 gem 'sqlite3'                             # quota, onedb
