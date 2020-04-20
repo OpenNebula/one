@@ -47,7 +47,7 @@ class ClusterMonitor
         client = OpenNebula::Client.new
         host = OpenNebula::Host.new_with_id(host_id, client)
         rc = host.info
-        if OpenNebula::is_error? rc
+        if OpenNebula.is_error? rc
             STDERR.puts rc.message
             exit 1
         end
@@ -56,7 +56,7 @@ class ClusterMonitor
 
         # Get vCenter Cluster
         @cluster = VCenterDriver::ClusterComputeResource
-                    .new_from_ref(ccr_ref, @vi_client)
+                   .new_from_ref(ccr_ref, @vi_client)
     end
 
     def monitor_cluster
@@ -70,30 +70,31 @@ class ClusterMonitor
         overall_status,
         drs_enabled,
         ha_enabled= @cluster.item.collect('summary.totalCpu',
-                                    'summary.numCpuCores',
-                                    'summary.effectiveCpu',
-                                    'summary.totalMemory',
-                                    'summary.effectiveMemory',
-                                    'summary.numHosts',
-                                    'summary.numEffectiveHosts',
-                                    'summary.overallStatus',
-                                    'configuration.drsConfig.enabled',
-                                    'configuration.dasConfig.enabled'
-        )
+                                          'summary.numCpuCores',
+                                          'summary.effectiveCpu',
+                                          'summary.totalMemory',
+                                          'summary.effectiveMemory',
+                                          'summary.numHosts',
+                                          'summary.numEffectiveHosts',
+                                          'summary.overallStatus',
+                                          'configuration.drsConfig.enabled',
+                                          'configuration.dasConfig.enabled')
 
         mhz_core = total_cpu.to_f / num_cpu_cores.to_f
         eff_core = effective_cpu.to_f / mhz_core
 
-        free_cpu  = sprintf('%.2f', eff_core * 100).to_f
+        # rubocop:disable Style/FormatStringToken
+        free_cpu  = format('%.2f', eff_core * 100).to_f
         total_cpu = num_cpu_cores.to_f * 100
-        used_cpu  = sprintf('%.2f', total_cpu - free_cpu).to_f
+        used_cpu  = format('%.2f', total_cpu - free_cpu).to_f
+        # rubocop:enable Style/FormatStringToken
 
         total_mem = total_memory.to_i / 1024
         free_mem  = effective_mem.to_i * 1024
 
         str_info = ''
 
-        # Get cluster name for informative purposes (replace space with _ if any)
+        # Get cluster name for info purposes (replace space with _ if any)
         str_info << 'VCENTER_NAME=' << @cluster['name'].tr(' ', '_') << "\n"
 
         # System
@@ -128,14 +129,12 @@ class ClusterMonitor
     end
 
     def monitor_resource_pools(mhz_core)
-
         @rp_list = @cluster.get_resource_pool_list
 
-        view = @vi_client.vim.serviceContent.viewManager.CreateContainerView({
-            container: @cluster.item, #View for RPs inside this cluster
-            type:      ['ResourcePool'],
-            recursive: true
-        })
+        view = @vi_client.vim.serviceContent.viewManager
+                         .CreateContainerView({ container: @cluster.item,
+                                                type: ['ResourcePool'],
+                                                recursive: true })
 
         pc = @vi_client.vim.serviceContent.propertyCollector
 
@@ -152,17 +151,17 @@ class ClusterMonitor
             'config.memoryAllocation.shares.shares'
         ]
 
-        filterSpec = RbVmomi::VIM.PropertyFilterSpec(
+        filter_spec = RbVmomi::VIM.PropertyFilterSpec(
             :objectSet => [
                 :obj => view,
                 :skip => true,
                 :selectSet => [
-                RbVmomi::VIM.TraversalSpec(
-                    :name => 'traverseEntities',
-                    :type => 'ContainerView',
-                    :path => 'view',
-                    :skip => false
-                )
+                    RbVmomi::VIM.TraversalSpec(
+                        :name => 'traverseEntities',
+                        :type => 'ContainerView',
+                        :path => 'view',
+                        :skip => false
+                    )
                 ]
             ],
             :propSet => [
@@ -170,7 +169,7 @@ class ClusterMonitor
             ]
         )
 
-        result = pc.RetrieveProperties(:specSet => [filterSpec])
+        result = pc.RetrieveProperties(:specSet => [filter_spec])
 
         rps = {}
         result.each do |r|
@@ -184,24 +183,44 @@ class ClusterMonitor
 
         rp_info = ''
 
-        rps.each{|ref, info|
-
+        rps.each do |ref, info|
             # CPU
-            cpu_expandable   = info['config.cpuAllocation.expandableReservation'] ? 'YES' : 'NO'
-            cpu_limit        = info['config.cpuAllocation.limit'] == '-1' ? 'UNLIMITED' : info['config.cpuAllocation.limit']
-            cpu_reservation  = info['config.cpuAllocation.reservation']
-            cpu_num          = cpu_reservation.to_f / mhz_core
+            # cpu_expandable
+            if info['config.cpuAllocation.expandableReservation']
+                cpu_expandable = 'YES'
+            else
+                cpu_expandable = 'NO'
+            end
+            # cpu_limit
+            if info['config.cpuAllocation.limit'] == '-1'
+                cpu_limit = 'UNLIMITED'
+            else
+                cpu_limit = info['config.cpuAllocation.limit']
+            end
+            cpu_reservation = info['config.cpuAllocation.reservation']
+            cpu_num = cpu_reservation.to_f / mhz_core
             cpu_shares_level = info['config.cpuAllocation.shares.level']
-            cpu_shares       = info['config.cpuAllocation.shares.shares']
+            cpu_shares = info['config.cpuAllocation.shares.shares']
 
             # MEMORY
-            mem_expandable   = info['config.memoryAllocation.expandableReservation'] ? 'YES' : 'NO'
-            mem_limit        = info['config.memoryAllocation.limit'] == '-1' ? 'UNLIMITED' : info['config.memoryAllocation.limit']
-            mem_reservation  = info['config.memoryAllocation.reservation'].to_f
+            # mem_expandable
+            if info['config.memoryAllocation.expandableReservation']
+                mem_expandable = 'YES'
+            else
+                mem_expandable = 'NO'
+            end
+            # mem_limit
+            if info['config.memoryAllocation.limit'] == '-1'
+                mem_limit = 'UNLIMITED'
+            else
+                mem_limit = info['config.memoryAllocation.limit']
+            end
+            mem_reservation = info['config.memoryAllocation.reservation'].to_f
             mem_shares_level = info['config.memoryAllocation.shares.level']
-            mem_shares       = info['config.memoryAllocation.shares.shares']
+            mem_shares = info['config.memoryAllocation.shares.shares']
 
-            rp_name = rp_list.select { |item| item[:ref] == ref}.first[:name] rescue ''
+            rp_name = rp_list.select {|item| item[:ref] == ref }.first[:name] \
+                rescue ''
 
             rp_name = 'Resources' if rp_name.empty?
 
@@ -219,7 +238,7 @@ class ClusterMonitor
             rp_info << "MEM_SHARES=#{mem_shares},"
             rp_info << "MEM_SHARES_LEVEL=#{mem_shares_level}"
             rp_info << ']'
-        }
+        end
 
         view.DestroyView
 
@@ -241,8 +260,11 @@ class ClusterMonitor
             next if info['runtime.connectionState'] != 'connected'
 
             total_cpu = info['summary.hardware.numCpuCores'] * 100
-            used_cpu  = (info['summary.quickStats.overallCpuUsage'].to_f / info['summary.hardware.cpuMhz'].to_f) * 100
-            used_cpu  = sprintf('%.2f', used_cpu).to_f # Trim precission
+            used_cpu  = (info['summary.quickStats.overallCpuUsage'].to_f \
+                        / info['summary.hardware.cpuMhz'].to_f) * 100
+            # rubocop:disable Style/FormatStringToken
+            used_cpu  = format('%.2f', used_cpu).to_f # Trim precission
+            # rubocop:enable Style/FormatStringToken
             free_cpu  = total_cpu - used_cpu
 
             total_memory = info['summary.hardware.memorySize']/1024
@@ -252,8 +274,10 @@ class ClusterMonitor
             host_info << "\nHOST=["
             host_info << 'STATE=on,'
             host_info << 'HOSTNAME="' << info['name'].to_s << '",'
-            host_info << 'MODELNAME="' << info['summary.hardware.cpuModel'].to_s << '",'
-            host_info << 'CPUSPEED=' << info['summary.hardware.cpuMhz'].to_s << ','
+            host_info << 'MODELNAME="' \
+                      << info['summary.hardware.cpuModel'].to_s << '",'
+            host_info << 'CPUSPEED=' \
+                      << info['summary.hardware.cpuMhz'].to_s << ','
             host_info << 'MAX_CPU=' << total_cpu.to_s << ','
             host_info << 'USED_CPU=' << used_cpu.to_s << ','
             host_info << 'FREE_CPU=' << free_cpu.to_s << ','
@@ -273,8 +297,8 @@ class ClusterMonitor
 
         customizations.each do |c|
             t = 'CUSTOMIZATION = [ '
-            t << %Q<NAME = "#{c.name}", >
-            t << %Q<TYPE = "#{c.type}" ]\n>
+            t << %(<NAME = "#{c.name}", >)
+            t << %(<TYPE = "#{c.type}" ]\n>)
 
             text << t
         end
@@ -310,46 +334,45 @@ class ClusterMonitor
         str_info = ''
 
         # View for VMs inside this cluster
-        view = @vi_client.vim.serviceContent.viewManager.CreateContainerView({
-            container: @cluster.item,
-            type:      ['VirtualMachine'],
-            recursive: true
-        })
+        view = @vi_client.vim.serviceContent.viewManager
+                         .CreateContainerView({ container: @cluster.item,
+                                                type: ['VirtualMachine'],
+                                                recursive: true })
 
         pc = @vi_client.vim.serviceContent.propertyCollector
 
         monitored_properties = [
-            'name', #VM name
-            'config.template', #To filter out templates
-            'summary.runtime.powerState', #VM power state
-            'summary.quickStats.hostMemoryUsage', #Memory usage
-            'summary.quickStats.overallCpuUsage', #CPU used by VM
-            'runtime.host', #ESX host
-            'resourcePool', #RP
+            'name', # VM name
+            'config.template', # To filter out templates
+            'summary.runtime.powerState', # VM power state
+            'summary.quickStats.hostMemoryUsage', # Memory usage
+            'summary.quickStats.overallCpuUsage', # CPU used by VM
+            'runtime.host', # ESX host
+            'resourcePool', # RP
             'guest.guestFullName',
-            'guest.net', #IP addresses as seen by guest tools,
+            'guest.net', # IP addresses as seen by guest tools,
             'guest.guestState',
             'guest.toolsVersion',
             'guest.toolsRunningStatus',
-            'guest.toolsVersionStatus2', #IP addresses as seen by guest tools,
-            'config.extraConfig', #VM extraconfig info e.g opennebula.vm.running
+            'guest.toolsVersionStatus2', # IP addresses as seen by guest tools,
+            'config.extraConfig', # VM extraconfig info.. opennebula.vm.running
             'config.hardware.numCPU',
             'config.hardware.memoryMB',
             'config.annotation',
             'datastore'
         ]
 
-        filterSpec = RbVmomi::VIM.PropertyFilterSpec(
+        filter_spec = RbVmomi::VIM.PropertyFilterSpec(
             :objectSet => [
                 :obj => view,
                 :skip => true,
                 :selectSet => [
-                RbVmomi::VIM.TraversalSpec(
-                    :name => 'traverseEntities',
-                    :type => 'ContainerView',
-                    :path => 'view',
-                    :skip => false
-                )
+                    RbVmomi::VIM.TraversalSpec(
+                        :name => 'traverseEntities',
+                        :type => 'ContainerView',
+                        :path => 'view',
+                        :skip => false
+                    )
                 ]
             ],
             :propSet => [
@@ -357,18 +380,18 @@ class ClusterMonitor
             ]
         )
 
-        result = pc.RetrieveProperties(:specSet => [filterSpec])
+        result = pc.RetrieveProperties(:specSet => [filter_spec])
 
         vms = {}
         vm_objects = []
         result.each do |r|
             hashed_properties = r.to_hash
-            if r.obj.is_a?(RbVmomi::VIM::VirtualMachine)
-                #Only take care of VMs, not templates
-                if !hashed_properties["config.template"]
-                    vms[r.obj._ref] = hashed_properties
-                    vm_objects << r.obj
-                end
+            next unless r.obj.is_a?(RbVmomi::VIM::VirtualMachine)
+
+            # Only take care of VMs, not templates
+            if !hashed_properties['config.template']
+                vms[r.obj._ref] = hashed_properties
+                vm_objects << r.obj
             end
         end
 
@@ -377,25 +400,25 @@ class ClusterMonitor
         stats = {}
 
         max_samples = 9
-        refresh_rate = 20 #Real time stats takes samples every 20 seconds
+        refresh_rate = 20 # Real time stats takes samples every 20 seconds
 
-        last_mon_time = one_host["TEMPLATE/VCENTER_LAST_PERF_POLL"]
+        last_mon_time = one_host['TEMPLATE/VCENTER_LAST_PERF_POLL']
 
         if last_mon_time
             interval = (Time.now.to_i - last_mon_time.to_i)
             interval = 3601 if interval < 0
             samples = (interval / refresh_rate)
             samples = 1 if samples == 0
-            max_samples =  interval > 3600 ? 9 : samples
+            interval > 3600 ? max_samples = 9 : max_samples = samples
         end
 
         if !vm_objects.empty?
             stats = pm.retrieve_stats(
-                    vm_objects,
-                    ['net.transmitted','net.bytesRx','net.bytesTx','net.received',
-                    'virtualDisk.numberReadAveraged','virtualDisk.numberWriteAveraged',
-                    'virtualDisk.read','virtualDisk.write'],
-                    {max_samples: max_samples}
+                vm_objects,
+                ['net.transmitted', 'net.bytesRx', 'net.bytesTx',
+                 'net.received', 'virtualDisk.numberReadAveraged',
+                 'virtualDisk.numberWriteAveraged', 'virtualDisk.read',
+                 'virtualDisk.write'], { max_samples => max_samples }
             ) rescue {}
         end
 
@@ -403,21 +426,23 @@ class ClusterMonitor
             last_mon_time = Time.now.to_i.to_s
         end
 
-        @cluster.get_resource_pool_list if !@rp_list
+        @cluster.get_resource_pool_list unless @rp_list
 
-        vm_pool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualMachinePool)
+        vm_pool = VCenterDriver::VIHelper
+                  .one_pool(OpenNebula::VirtualMachinePool)
 
         # opts common to all vms
         opts = {
             pool: vm_pool,
-            vc_uuid: vc_uuid,
+            vc_uuid: vc_uuid
         }
 
-        vms.each do |vm_ref,info|
+        vms.each do |vm_ref, info|
             vm_info = ''
             next if info['name'].match(/^one-(\d*)(-(.*))?$/)
+
             begin
-                esx_host = esx_hosts[info["runtime.host"]._ref]
+                esx_host = esx_hosts[info['runtime.host']._ref]
                 info[:esx_host_name] = esx_host[:name]
                 info[:esx_host_cpu] = esx_host[:cpu]
                 info[:cluster_name] = cluster_name
@@ -427,46 +452,49 @@ class ClusterMonitor
                 info[:rp_list] = @rp_list
 
                 # Check the running flag
-                running_flag = info["config.extraConfig"].select do |val|
-                    val[:key] == "opennebula.vm.running"
+                running_flag = info['config.extraConfig'].select do |val|
+                    val[:key] == 'opennebula.vm.running'
                 end
 
                 if !running_flag.empty? && running_flag.first
                     running_flag = running_flag[0][:value]
                 end
 
-                next if running_flag == "no"
+                next if running_flag == 'no'
 
                 # retrieve vcenter driver machine
-                @vm = VCenterDriver::VirtualMachine.new_from_ref(@vi_client, vm_ref, info["name"], opts)
+                @vm = VCenterDriver::VirtualMachine
+                      .new_from_ref(@vi_client, vm_ref, info['name'], opts)
                 id = @vm.get_vm_id
 
-                #skip if it's already monitored
+                # skip if it's already monitored
                 if @vm.one_exist?
                     next if @monitored_vms.include? id
+
                     @monitored_vms << id
                 end
 
                 @vm.vm_info = info
                 monitor(stats)
 
-                vm_name = "#{info["name"]} - #{cluster_name}"
-                vm_info << %Q{
+                vm_name = "#{info['name']} - #{cluster_name}"
+                vm_info << %(
                 VM = [
                     ID="#{id}",
                     VM_NAME="#{vm_name}",
                     DEPLOY_ID="#{vm_ref}",
-                }
+                )
 
-                # if the machine does not exist in opennebula it means that is a wild:
+                # if the machine does not exist in opennebula
+                # it means that is a wild:
                 unless @vm.one_exist?
-                    vm_template_64 = Base64.encode64(@vm.vm_to_one(vm_name)).gsub("\n","")
-                    vm_info << "VCENTER_TEMPLATE=\"YES\","
-                    vm_info << "IMPORT_TEMPLATE=\"#{vm_template_64}\","
+                    vm_template64 = Base64.encode64(@vm.vm_to_one(vm_name))
+                                          .gsub("\n", '')
+                    vm_info << 'VCENTER_TEMPLATE="YES",'
+                    vm_info << "IMPORT_TEMPLATE=\"#{vm_template64}\","
                 end
 
-                vm_info << "POLL=\"#{self.info.gsub('"', "\\\"")}\"]"
-
+                vm_info << "POLL=\"#{self.info.gsub('"', '\\"')}\"]"
             rescue StandardError => e
                 vm_info = error_monitoring(e, vm_ref, info)
             end
@@ -476,7 +504,7 @@ class ClusterMonitor
 
         view.DestroyView # Destroy the view
 
-        return str_info, last_mon_time
+        [str_info, last_mon_time]
     end
 
     def error_monitoring(e, vm_ref, info = {})
@@ -485,13 +513,13 @@ class ClusterMonitor
         tmp_str = e.inspect
         tmp_str << e.backtrace.join("\n")
 
-        error_info << %Q{
+        error_info << %(
         VM = [
             VM_NAME="#{vm_name}",
             DEPLOY_ID="#{vm_ref}",
-        }
+        )
 
-        error_info << "ERROR=\"#{Base64.encode64(tmp_str).gsub("\n","")}\"]"
+        error_info << "ERROR=\"#{Base64.encode64(tmp_str).gsub("\n", '')}\"]"
     end
 
     # monitor function used when poll action is called for all vms
@@ -504,14 +532,17 @@ class ClusterMonitor
 
         return if @state != VM_STATE[:active]
 
-        cpuMhz =  @vm.vm_info[:esx_host_cpu]
+        cpu_mhz = @vm.vm_info[:esx_host_cpu]
 
-        @monitor[:used_memory] = @vm.vm_info['summary.quickStats.hostMemoryUsage']
-                                    .to_i * 1024
-
-        used_cpu = @vm.vm_info['summary.quickStats.overallCpuUsage'].to_f / cpuMhz
+        # rubocop:disable Layout/LineLength
+        @monitor[:used_memory] = @vm.vm_info['summary.quickStats.hostMemoryUsage'].to_i * 1024
+        # rubocop:enable Layout/LineLength
+        used_cpu = @vm.vm_info['summary.quickStats.overallCpuUsage'].to_f \
+                   / cpu_mhz
         used_cpu = (used_cpu * 100).to_s
+        # rubocop:disable Style/FormatStringToken
         @monitor[:used_cpu] = format('%.2f', used_cpu).to_s
+        # rubocop:enable Style/FormatStringToken
 
         # Check for negative values
         @monitor[:used_memory] = 0 if @monitor[:used_memory].to_i < 0
@@ -622,19 +653,17 @@ class ClusterMonitor
         end
 
         @monitor[:nettx] = previous_nettx +
-                            (nettx_kbpersec * 1024 * refresh_rate).to_i
+                           (nettx_kbpersec * 1024 * refresh_rate).to_i
         @monitor[:netrx] = previous_netrx +
-                            (netrx_kbpersec * 1024 * refresh_rate).to_i
+                           (netrx_kbpersec * 1024 * refresh_rate).to_i
 
-        @monitor[:diskrdiops]  = previous_diskrdiops + read_iops
-        @monitor[:diskwriops]  = previous_diskwriops + write_iops
+        @monitor[:diskrdiops] = previous_diskrdiops + read_iops
+        @monitor[:diskwriops] = previous_diskwriops + write_iops
         @monitor[:diskrdbytes] = previous_diskrdbytes +
-                                    (read_kbpersec * 1024 * refresh_rate).to_i
+                                 (read_kbpersec * 1024 * refresh_rate).to_i
         @monitor[:diskwrbytes] = previous_diskwrbytes +
-                                    (write_kbpersec * 1024 * refresh_rate).to_i
+                                 (write_kbpersec * 1024 * refresh_rate).to_i
     end
-    # rubocop:enable Naming/VariableName
-    # rubocop:enable Style/FormatStringToken
 
     #  Generates a OpenNebula IM Driver valid string with the monitor info
     def info
@@ -692,15 +721,11 @@ class ClusterMonitor
         end
 
         if @vm.vm_info
-            # rp_name = @vm.vm_info[:rp_list]
-            #           .select {|item|
-            #               item[:ref] == @vm.vm_info['resourcePool']._ref
-            #           }.first[:name] rescue ''
             rp_name = @vm.vm_info[:rp_list]
-                        .select do |item|
-                            item[:ref] == @vm.vm_info['resourcePool']._ref
-                        end
-                        .first[:name] rescue ''
+                         .select do |item|
+                             item[:ref] == @vm.vm_info['resourcePool']._ref
+                         end
+                         .first[:name] rescue ''
 
             rp_name = 'Resources' if rp_name.empty?
         else
@@ -780,7 +805,8 @@ class ClusterMonitor
         nsx_info = ''
         nsx_obj = {}
         # In the future add more than one nsx manager
-        extension_list = @vi_client.vim.serviceContent.extensionManager.extensionList
+        extension_list = @vi_client.vim.serviceContent.extensionManager
+                                   .extensionList
         extension_list.each do |ext_list|
             if ext_list.key == NSXDriver::NSXConstants::NSXV_EXTENSION_LIST
                 nsx_obj['type'] = NSXDriver::NSXConstants::NSXV
@@ -828,8 +854,6 @@ class VirtualMachineMonitor
     end
 
     # monitor function used when VMM poll action is called
-    # rubocop:disable Naming/VariableName
-    # rubocop:disable Style/FormatStringToken
     def monitor_poll_vm
         reset_monitor
 
@@ -842,12 +866,12 @@ class VirtualMachineMonitor
             return
         end
 
-        cpuMhz = @vm['runtime.host.summary.hardware.cpuMhz'].to_f
+        cpu_mhz = @vm['runtime.host.summary.hardware.cpuMhz'].to_f
 
         @monitor[:used_memory] = @vm['summary.quickStats.hostMemoryUsage'] *
                                  1024
 
-        used_cpu = @vm['summary.quickStats.overallCpuUsage'].to_f / cpuMhz
+        used_cpu = @vm['summary.quickStats.overallCpuUsage'].to_f / cpu_mhz
         used_cpu = (used_cpu * 100).to_s
         @monitor[:used_cpu] = format('%.2f', used_cpu).to_s
 

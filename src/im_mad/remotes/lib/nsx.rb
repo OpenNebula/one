@@ -14,14 +14,16 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV['ONE_LOCATION'] if !defined?(ONE_LOCATION)
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' if !defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = '/usr/share/one/gems' if !defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' unless defined?(RUBY_LIB_LOCATION)
+    GEMS_LOCATION     = '/usr/share/one/gems' unless defined?(GEMS_LOCATION)
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' if !defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' if !defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' \
+        unless defined?(RUBY_LIB_LOCATION)
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' \
+        unless defined?(GEMS_LOCATION)
 end
 
 if File.directory?(GEMS_LOCATION)
@@ -34,7 +36,6 @@ require 'vcenter_driver'
 require 'nsx_driver'
 
 # Gather NSX cluster monitor info
-
 class NsxMonitor
 
     attr_accessor :nsx_status
@@ -42,9 +43,9 @@ class NsxMonitor
     def initialize(host_id)
         @nsx_client = nil
         @nsx_status = ''
-        if nsx_ready?
-            @nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
-        end
+        return unless nsx_ready?
+
+        @nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
     end
 
     def monitor
@@ -58,17 +59,18 @@ class NsxMonitor
         nsx_info = ''
         nsx_obj = {}
         # In the future add more than one nsx manager
-        extension_list = @vi_client.vim.serviceContent.extensionManager.extensionList
+        extension_list = @vi_client.vim.serviceContent
+                                   .extensionManager.extensionList
         extension_list.each do |ext_list|
             if ext_list.key == NSXDriver::NSXConstants::NSXV_EXTENSION_LIST
                 nsx_obj['type'] = NSXDriver::NSXConstants::NSXV
-                urlFull = ext_list.client[0].url
-                urlSplit = urlFull.split("/")
+                url_full = ext_list.client[0].url
+                url_split = url_full.split('/')
                 # protocol = "https://"
-                protocol = urlSplit[0] + "//"
-                # ipPort = ip:port
-                ipPort = urlSplit[2]
-                nsx_obj['url'] = protocol + ipPort
+                protocol = url_split[0] + '//'
+                # ip_port = ip:port
+                ip_port = url_split[2]
+                nsx_obj['url'] = protocol + ip_port
                 nsx_obj['version'] = ext_list.version
                 nsx_obj['label'] = ext_list.description.label
             elsif ext_list.key == NSXDriver::NSXConstants::NSXT_EXTENSION_LIST
@@ -91,8 +93,6 @@ class NsxMonitor
 
     def tz_info
         tz_info = 'NSX_TRANSPORT_ZONES = ['
-
-        host_id = @vi_client.instance_variable_get(:@host_id).to_i
         tz_object = NSXDriver::TransportZone.new_child(@nsx_client)
 
         # NSX request to get Transport Zones
@@ -156,33 +156,31 @@ class NsxMonitor
             begin
                 if nsx_client.get(url)
                     @nsx_status = "NSX_STATUS = OK\n"
-                    return true
+                    true
                 else
                     @nsx_status = "NSX_STATUS = \"Response code incorrect\"\n"
-                    return false
+                    false
                 end
             rescue StandardError => e
                 @nsx_status = 'NSX_STATUS = "Error connecting to ' \
-                                "NSX_MANAGER\"\n"
-                return false
+                                "NSX_MANAGER: #{e.message}\"\n"
+                false
             end
-        end
-
-        if @one_item['TEMPLATE/NSX_TYPE'] == NSXDriver::NSXConstants::NSXT
+        elsif @one_item['TEMPLATE/NSX_TYPE'] == NSXDriver::NSXConstants::NSXT
             # URL to test a connection
             url = '/api/v1/transport-zones'
             begin
                 if nsx_client.get(url)
                     @nsx_status = "NSX_STATUS = OK\n"
-                    return true
+                    true
                 else
                     @nsx_status = "NSX_STATUS = \"Response code incorrect\"\n"
-                    return false
+                    false
                 end
             rescue StandardError => e
                 @nsx_status = 'NSX_STATUS = "Error connecting to '\
-                                "NSX_MANAGER\"\n"
-                return false
+                                "NSX_MANAGER: #{e.message}\"\n"
+                false
             end
         end
     end
