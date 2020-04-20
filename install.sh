@@ -322,6 +322,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/one-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/one-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/packet.d \
+          $VAR_LOCATION/remotes/im/packet-probes.d/host/beacon \
           $VAR_LOCATION/remotes/im/packet-probes.d/host/monitor \
           $VAR_LOCATION/remotes/im/packet-probes.d/host/system \
           $VAR_LOCATION/remotes/im/packet-probes.d/vm/monitor \
@@ -540,6 +541,7 @@ INSTALL_FILES=(
     IM_PROBES_ONE_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/one-probes.d/host/system
     IM_PROBES_ONE_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/one-probes.d/vm/monitor
     IM_PROBES_ONE_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/one-probes.d/vm/status
+    IM_PROBES_PACKET_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/packet-probes.d/host/beacon
     IM_PROBES_PACKET_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/packet-probes.d/host/monitor
     IM_PROBES_PACKET_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/packet-probes.d/host/system
     IM_PROBES_PACKET_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/packet-probes.d/vm/monitor
@@ -1374,6 +1376,9 @@ IM_PROBES_PACKET_FILES="\
     src/im_mad/remotes/packet.d/monitord-client.rb"
 
 # PACKET probes
+IM_PROBES_PACKET_HOST_BEACON_FILES="\
+     src/im_mad/remotes/packet-probes.d/host/beacon/monitord-client-shepherd_local.sh"
+
 IM_PROBES_PACKET_HOST_MONITOR_FILES="\
      src/im_mad/remotes/packet-probes.d/host/monitor/probe_host_monitor.rb"
 

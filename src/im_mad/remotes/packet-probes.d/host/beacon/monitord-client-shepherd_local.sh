@@ -1,0 +1,1 @@
+../../../dummy-probes.d/host/beacon/monitord-client-shepherd_local.sh
