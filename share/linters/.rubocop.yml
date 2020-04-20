@@ -618,6 +618,9 @@ Layout/HashAlignment:
 Layout/SpaceAroundOperators:
     Enabled: false
 
+Layout/SpaceAroundMethodCallOperator:
+    Enabled: true
+
 ###
 
 #######
@@ -726,6 +729,10 @@ Style/FloatDivision:
 
 Style/RedundantBegin:
     Enabled: false
+
+Style/ExponentialNotation:
+    Enabled: true
+
 
 ######
 # LINT
