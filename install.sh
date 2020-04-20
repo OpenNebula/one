@@ -548,6 +548,11 @@ INSTALL_FILES=(
     IM_PROBES_FIRECRACKER_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/vm/monitor
     IM_PROBES_FIRECRACKER_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/vm/status
     IM_PROBES_ETC_FIRECRACKER_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/firecracker-probes.d
+    IM_PROBES_VCENTER_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/vcenter-probes.d/host/beacon
+    IM_PROBES_VCENTER_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/vcenter-probes.d/host/monitor
+    IM_PROBES_VCENTER_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/vcenter-probes.d/host/system
+    IM_PROBES_VCENTER_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/vcenter-probes.d/vm/monitor
+    IM_PROBES_VCENTER_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/vcenter-probes.d/vm/status
     AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
     AUTH_X509_FILES:$VAR_LOCATION/remotes/auth/x509
     AUTH_LDAP_FILES:$VAR_LOCATION/remotes/auth/ldap
@@ -1308,8 +1313,7 @@ IM_PROBES_FIRECRACKER_VM_STATUS_FILES="\
 
 IM_PROBES_ETC_FIRECRACKER_PROBES_FILES="src/im_mad/remotes/lib/probe_db.conf"
 
-IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/poll \
-    src/im_mad/remotes/vcenter.d/monitord-client.rb \
+IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/monitord-client.rb \
     src/im_mad/remotes/vcenter.d/monitord-client_control.sh"
 
 # EC2 monitord-client
