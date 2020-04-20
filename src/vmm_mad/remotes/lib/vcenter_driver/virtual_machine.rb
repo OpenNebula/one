@@ -373,6 +373,11 @@ module VCenterDriver
             one_item.retrieve_xmlelements("USER_TEMPLATE/VCENTER_TAG")
         end
 
+        # @return if has vCenter Tags
+        def has_vcenter_tags?
+            get_vcenter_tags.size > 0
+        end
+
         ############################################################################
         # Create and reconfigure VM related methods
         ############################################################################
