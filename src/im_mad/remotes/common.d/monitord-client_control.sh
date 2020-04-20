@@ -28,6 +28,8 @@ fi
 
 ARGV=$*
 
+HID=$2
+
 STDIN=`cat -`
 
 # Directory that contains this file
@@ -40,7 +42,7 @@ BASENAME=$(basename $0 _control.sh)
 CLIENT=$DIR/${BASENAME}.rb
 
 # Collectd client PID
-CLIENT_PID_FILE=/tmp/one-monitord-client.pid
+CLIENT_PID_FILE=/tmp/one-monitord-$HID.pid
 
 # Launch the client
 function start_client() {
@@ -53,7 +55,7 @@ function start_client() {
 
 # Stop the client
 function stop_client() {
-    local pids=$(ps axuww | grep /monitord-client.rb | grep -v grep | awk '{print $2}')
+    local pids=$(ps axuww | grep "$CLIENT $ARGV" | grep -v grep | awk '{print $2}')
 
     if [ -n "$pids" ]; then
         kill -9 $pids
