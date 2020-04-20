@@ -72,6 +72,10 @@ define(function(require) {
           nics = [template_nic];
         }
 
+        nics.map(function(nic){
+          nic.FROM = 'TEMPLATE';
+        })
+
         var pcis = [];
 
         if ($.isArray(template_json.VMTEMPLATE.TEMPLATE.PCI)){
@@ -172,13 +176,21 @@ define(function(require) {
         if (val == undefined || val == ""){
           if (nic["NETWORK"] == undefined && nic["NETWORK_ID"] == undefined ){
             // No network name or id in original NIC, and no selection done
-            return true; //continue
+            delete nic['FROM'];
+            return; //continue
+          }
+        }else{
+          if(nic && nic.FROM && nic.FROM==='TEMPLATE'){
+            delete nic['FROM'];
+            nics.push(nic);
+            return; //continue
           }
         }
         delete nic["NETWORK"];
         delete nic["NETWORK_ID"];
         delete nic["NETWORK_UNAME"];
         delete nic["NETWORK_UID"];
+        delete nic["FROM"];
         nic["NETWORK_ID"] = val;
         delete nic["FLOATING_IP"];
         if ($("input.floating_ip", $(this)).prop("checked")){
