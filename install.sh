@@ -307,16 +307,19 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/firecracker-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/vcenter.d \
           $VAR_LOCATION/remotes/im/ec2.d \
+          $VAR_LOCATION/remotes/im/ec2-probes.d/host/beacon \
           $VAR_LOCATION/remotes/im/ec2-probes.d/host/monitor \
           $VAR_LOCATION/remotes/im/ec2-probes.d/host/system \
           $VAR_LOCATION/remotes/im/ec2-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/ec2-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/az.d \
+          $VAR_LOCATION/remotes/im/az-probes.d/host/beacon \
           $VAR_LOCATION/remotes/im/az-probes.d/host/monitor \
           $VAR_LOCATION/remotes/im/az-probes.d/host/system \
           $VAR_LOCATION/remotes/im/az-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/az-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/one.d \
+          $VAR_LOCATION/remotes/im/one-probes.d/host/beacon \
           $VAR_LOCATION/remotes/im/one-probes.d/host/monitor \
           $VAR_LOCATION/remotes/im/one-probes.d/host/system \
           $VAR_LOCATION/remotes/im/one-probes.d/vm/monitor \
@@ -524,14 +527,17 @@ INSTALL_FILES=(
     IM_PROBES_LXD_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d/vm/status
     IM_PROBES_LXD_PROBES_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d
     IM_PROBES_ETC_LXD_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/lxd-probes.d
+    IM_PROBES_AZ_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/az-probes.d/host/beacon
     IM_PROBES_AZ_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/az-probes.d/host/monitor
     IM_PROBES_AZ_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/az-probes.d/host/system
     IM_PROBES_AZ_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/az-probes.d/vm/monitor
     IM_PROBES_AZ_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/az-probes.d/vm/status
+    IM_PROBES_EC2_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/host/beacon
     IM_PROBES_EC2_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/host/monitor
     IM_PROBES_EC2_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/host/system
     IM_PROBES_EC2_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/vm/monitor
     IM_PROBES_EC2_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/vm/status
+    IM_PROBES_ONE_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/one-probes.d/host/beacon
     IM_PROBES_ONE_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/one-probes.d/host/monitor
     IM_PROBES_ONE_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/one-probes.d/host/system
     IM_PROBES_ONE_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/one-probes.d/vm/monitor
@@ -1310,6 +1316,9 @@ IM_PROBES_EC2_FILES="\
     src/im_mad/remotes/ec2.d/monitord-client.rb"
 
 # EC2 probes
+IM_PROBES_EC2_HOST_BEACON_FILES="\
+     src/im_mad/remotes/ec2-probes.d/host/beacon/monitord-client-shepherd_local.sh"
+
 IM_PROBES_EC2_HOST_MONITOR_FILES="\
      src/im_mad/remotes/ec2-probes.d/host/monitor/probe_host_monitor.rb"
 
@@ -1328,6 +1337,9 @@ IM_PROBES_AZ_FILES="\
     src/im_mad/remotes/az.d/monitord-client.rb"
 
 # AZ probes
+IM_PROBES_AZ_HOST_BEACON_FILES="\
+     src/im_mad/remotes/az-probes.d/host/beacon/monitord-client-shepherd_local.sh"
+
 IM_PROBES_AZ_HOST_MONITOR_FILES="\
      src/im_mad/remotes/az-probes.d/host/monitor/probe_host_monitor.rb"
 
@@ -1346,6 +1358,9 @@ IM_PROBES_ONE_FILES="\
     src/im_mad/remotes/one.d/monitord-client.rb"
 
 # ONE probes
+IM_PROBES_ONE_HOST_BEACON_FILES="\
+     src/im_mad/remotes/one-probes.d/host/beacon/monitord-client-shepherd_local.sh"
+
 IM_PROBES_ONE_HOST_MONITOR_FILES="\
      src/im_mad/remotes/one-probes.d/host/monitor/probe_host_monitor.rb"
 
