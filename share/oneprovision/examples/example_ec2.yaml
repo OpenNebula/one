@@ -1,4 +1,12 @@
 ---
+
+#############################################################
+# WARNING: You need to replace ***** values with your
+# own credentials for the particular provider. You need to
+# uncomment and update list of hosts to deploy based
+# on your requirements.
+#############################################################
+
 # Ansible playbook to configure hosts
 playbook: "static_vxlan"
 
@@ -43,12 +51,12 @@ datastores:
 
 # Network to be created in OpenNebula
 networks:
-  - name: "<%= @name %>-private-host-only"
+  - name: "<%= @name %>-private-host-only-nat"
     vn_mad: "dummy"
     bridge: "br0"
     dns: "8.8.8.8 8.8.4.4"
     gateway: "192.168.150.1"
-    description: "Host-only networking with NAT"
+    description: "Host-only private network with NAT"
     ar:
       - ip: "192.168.150.2"
         size: "253"

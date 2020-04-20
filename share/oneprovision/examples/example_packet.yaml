@@ -1,4 +1,12 @@
 ---
+
+#############################################################
+# WARNING: You need to replace ***** values with your
+# own credentials for the particular provider. You need to
+# uncomment and update list of hosts to deploy based
+# on your requirements.
+#############################################################
+
 # Ansible playbook to configure hosts
 playbook: "static_vxlan"
 
@@ -15,7 +23,7 @@ defaults:
     plan: "baremetal_0"
     os: "centos_7"
   configuration:
-    iptables_masquerade_enabled: False
+    iptables_masquerade_enabled: false  # NAT breaks public networking
 
 # Hosts to be deployed in Packet and created in OpenNebula
 hosts:
@@ -43,12 +51,12 @@ datastores:
     type: "system_ds"
     tm_mad: "ssh"
 
+# Network to be created in OpenNebula
 networks:
-  # Network to be created in OpenNebula
   - name: "<%= @name %>-private-host-only"
     vn_mad: "dummy"
     bridge: "br0"
-    description: "Host-only networking with NAT"
+    description: "Host-only private network"
     gateway: "192.168.150.1"
     ar:
       - ip: "192.168.150.2"
@@ -65,13 +73,12 @@ networks:
         size: "253"
         type: "IP4"
 
-  # Network to be deployed in Packet and created in OpenNebula
   - name: "<%= @name %>-public"
     vn_mad: "alias_sdnat"
     external: "yes"
     description: "Public networking"
     ar:
-      - size: "4"
+      - size: "4"  # select number of public IPs
         type: "IP4"
         ipam_mad: "packet"
         packet_ip_type: "public_ipv4"
