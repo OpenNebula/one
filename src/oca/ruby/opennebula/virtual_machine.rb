@@ -779,7 +779,7 @@ module OpenNebula
         # @return [Integer, OpenNebula::Error] the new Template ID in case of
         #   success, error otherwise
         REMOVE_VNET_ATTRS = %w{AR_ID BRIDGE CLUSTER_ID IP MAC TARGET NIC_ID
-            VN_MAD SECURITY_GROUPS VLAN_ID}
+            NETWORK_ID VN_MAD SECURITY_GROUPS VLAN_ID}
 
         REMOVE_IMAGE_ATTRS = %w{DEV_PREFIX SOURCE ORIGINAL_SIZE SIZE
             DISK_SNAPSHOT_TOTAL_SIZE DRIVER IMAGE_STATE SAVE CLONE READONLY
@@ -915,10 +915,6 @@ module OpenNebula
 
                     REMOVE_VNET_ATTRS.each do |attr|
                         nic.delete_element(attr)
-                    end
-
-                    if !nic['NETWORK_NAME'].empty? && !nic['NETNETWORK_UNAME'].empty?
-                        nic.delete_element('NETWORK_ID')
                     end
 
                     replace << "NIC = [ " << nic.template_like_str(".").tr("\n", ",\n") << " ] \n"
