@@ -915,7 +915,7 @@ module OpenNebula
 
                     REMOVE_VNET_ATTRS.each do |attr|
                         # Remove every automatically generated value
-                        # The vncet will be referenced via NAME + UNAME (if defined)
+                        # The vnet will be referenced via NAME + UNAME (if defined)
                         nic.delete_element(attr)
                     end
 
