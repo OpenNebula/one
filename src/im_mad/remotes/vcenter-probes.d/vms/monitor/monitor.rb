@@ -14,30 +14,4 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
-require_relative '../../../lib/vcenter.rb'
-
-host_id = ARGV[1]
-
-begin
-    # Vcenter connection
-    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-    client = OpenNebula::Client.new
-    vmpool = OpenNebula::VirtualMachinePool.new(client,
-                OpenNebula::VirtualMachinePool::INFO_ALL_VM)
-
-    rc = vmpool.info
-
-    return if OpenNebula.is_error?(rc)
-
-    result = ''
-    vmpool.each do |vm|
-        puts "************VIRTUALMACHINE #{vm['NAME']}**********************"
-        VirtualMachineMonitor.new(vi_client, vm)
-        puts "**************************************************************"
-    end
-rescue StandardError => e
-    STDERR.puts "IM poll for vcenter cluster #{host_id} failed due to "\
-                "\"#{e.message}\"\n#{e.backtrace}"
-ensure
-    @vi_client.close_connection if @vi_client
-end
+exit 0
