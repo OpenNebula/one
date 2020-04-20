@@ -611,8 +611,17 @@ define(function(require) {
 
   function _get_networks() {
     var networks = OpenNebulaAction.cache("VNET");
+    if (networks === undefined) {
+      Sunstone.runAction("Network.list");
+      networks = OpenNebulaAction.cache("VNET");
+    }
     networks = networks ? networks.data : [];
+    
     var vntemplates = OpenNebulaAction.cache("VNTEMPLATE");
+    if (vntemplates === undefined) {
+      Sunstone.runAction("VNTemplate.list");
+      vntemplates = OpenNebulaAction.cache("VNTEMPLATE");
+    }
     vntemplates = vntemplates ? vntemplates.data : [];
 
     // Get networks list

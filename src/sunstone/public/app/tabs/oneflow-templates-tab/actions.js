@@ -35,7 +35,6 @@ define(function(require) {
 
   var _actions = {
     "ServiceTemplate.create" : _commonActions.create(CREATE_DIALOG_ID),
-    "ServiceTemplate.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
     "ServiceTemplate.show" : _commonActions.show(),
     "ServiceTemplate.refresh" : _commonActions.refresh(),
     "ServiceTemplate.delete" : _commonActions.del(),
@@ -46,6 +45,14 @@ define(function(require) {
     "ServiceTemplate.update" : _commonActions.update(),
     "ServiceTemplate.update_dialog" : _commonActions.checkAndShowUpdate(),
     
+    "ServiceTemplate.create_dialog" :  {
+      type: "custom",
+      call: function() {
+        Sunstone.runAction("Network.list");
+        Sunstone.runAction("VNTemplate.list");
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
+      }
+    },
     "ServiceTemplate.show_to_update" :  {
       type: "single",
       call: function(params) {
