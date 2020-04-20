@@ -45,9 +45,9 @@ RBD=${RBD:-rbd}
 READLINK=${READLINK:-readlink}
 RM=${RM:-rm}
 CP=${CP:-cp}
-SCP=${SCP:-scp}
+SCP=${SCP:-scp -o ForwardAgent=yes}
 SED=${SED:-sed}
-SSH=${SSH:-ssh}
+SSH=${SSH:-ssh -o ForwardAgent=yes}
 SUDO=${SUDO:-sudo -n}
 SYNC=${SYNC:-sync}
 TAR=${TAR:-tar}
