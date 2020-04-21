@@ -21,7 +21,7 @@ require 'vsphere-automation-cis'
 module VCenterDriver
 
     ########################################################################
-    # Module RESTClient
+    # Class RESTClient
     ########################################################################
     class RESTClient
 
