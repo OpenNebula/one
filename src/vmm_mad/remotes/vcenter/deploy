@@ -58,7 +58,7 @@ begin
     one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
 
     if drv_action.retrieve_xmlelements("USER_TEMPLATE/VCENTER_TAG").size > 0
-        raise "vsphere automation gems are not installed" unless REST_CLIENT
+        raise "vShepre automation gems are not installed" unless REST_CLIENT
     end
 
     if deploy_id_valid?(deploy_id)
@@ -82,7 +82,7 @@ begin
             vm_template.lock(1)
         end
 
-        if vm.has_vcenter_tags?
+        if vm.vcenter_tags?
             rest_client = VCenterDriver::RESTClient.new_from_host(host_id)
             rest_client.set_tags(vm)
         end

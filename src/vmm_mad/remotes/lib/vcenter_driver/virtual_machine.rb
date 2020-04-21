@@ -368,14 +368,14 @@ module VCenterDriver
         end
 
         # @return vCenter Tags
-        def get_vcenter_tags
+        def vcenter_tags
             one_item.info if one_item.instance_of?(OpenNebula::VirtualMachine)
             one_item.retrieve_xmlelements("USER_TEMPLATE/VCENTER_TAG")
         end
 
         # @return if has vCenter Tags
-        def has_vcenter_tags?
-            get_vcenter_tags.size > 0
+        def vcenter_tags?
+            vcenter_tags.size > 0
         end
 
         ############################################################################

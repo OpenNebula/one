@@ -131,7 +131,7 @@ class RESTClient
 
         association_api = VSphereAutomation::CIS::TaggingTagAssociationApi.new(api_client)
 
-        vm.get_vcenter_tags.each do |tag|
+        vm.vcenter_tags.each do |tag|
             category_name = @opts[:category_name]
             category_name = tag['CATEGORY_NAME'] if !tag['CATEGORY_NAME'].nil?
 
