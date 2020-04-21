@@ -30,7 +30,7 @@ xml = STDIN.read
 died = false
 
 begin
-    socket = "/srv/jailer/firecracker/one-#{vm_id}/root/api.socket"
+    socket = "/srv/jailer/firecracker/one-#{vm_id}/root/run/firecracker.socket"
     client = FirecrackerClient.new(socket)
 rescue StandardError
     died = true
