@@ -94,7 +94,12 @@ if [ $? -ne 0 ]; then
 fi
 
 if [ "$SYNC_TIME" = "yes" ]; then
-    virsh --connect $LIBVIRT_URI domtime --sync $DEPLOY_ID >/dev/null 2>/dev/null || :
+    (
+        for i in $(seq 3); do
+            virsh --connect $LIBVIRT_URI domtime --sync $DEPLOY_ID && break
+            [ "$i" -gt 1 ] && sleep 6
+        done
+    ) &> /dev/null &
 fi
 
 rm "$FILE"
