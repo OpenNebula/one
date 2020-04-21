@@ -679,7 +679,7 @@ module OpenNebula
         # Recover
         ########################################################################
 
-        def recover_deploy
+        def recover_deploy(report)
             nodes = @body['nodes']
             deployed_nodes = []
 
@@ -702,7 +702,8 @@ module OpenNebula
                 vm_state = vm.state
                 lcm_state = vm.lcm_state
 
-                next false if vm_state == 3 && lcm_state == 3 # ACTIVE/RUNNING
+                # ACTIVE/RUNNING
+                next false if vm_state == 3 && lcm_state == 3 && !report
 
                 next true if vm_state == '6' # Delete DONE nodes
 

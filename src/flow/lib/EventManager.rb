@@ -385,7 +385,7 @@ class EventManager
 
             vm_lcm_state = OpenNebula::VirtualMachine::LCM_STATE[vm.lcm_state]
 
-            if vm['VM/USER_TEMPLATE/READY'] == 'YES'
+            if vm['/VM/USER_TEMPLATE/READY'] == 'YES'
                 rc_nodes[:successful] << node
 
                 next true
