@@ -30,7 +30,10 @@ else
     GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
-Gem.use_paths(GEMS_LOCATION) if File.directory?(GEMS_LOCATION)
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /(vendor|site)_ruby/ }
+end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << File.dirname(__FILE__)
