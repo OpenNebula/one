@@ -834,7 +834,7 @@ class ServiceLCM
         service.roles.each do |name, role|
             next unless role.can_recover_deploy?
 
-            nodes = role.recover_deploy
+            nodes = role.recover_deploy(service.report_ready?)
 
             @event_manager.trigger_action(:wait_deploy,
                                           service.id,
