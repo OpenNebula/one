@@ -18,7 +18,7 @@
 # VNC Options
 ################################################################################
 #
-# Options to customize the VNC access to the container:
+# Options to customize the VNC access to the microVM:
 #   - :width: of the terminal
 #   - :height: of the terminal
 #   - :timeout: seconds to close the terminal if no input has been received

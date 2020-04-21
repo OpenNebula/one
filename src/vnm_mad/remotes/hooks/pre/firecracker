@@ -56,8 +56,8 @@ end
 rc = nil
 
 template.elements.each(XPATH_NICS) do |nic_element|
-    nic_id  = Integer(nic_element.elements['//NIC_ID'].text)
-    bridge  = nic_element.elements['//BRIDGE'].text
+    nic_id  = Integer(nic_element.elements['NIC_ID'].text)
+    bridge  = nic_element.elements['BRIDGE'].text
 
     if_name = "#{deploy_id}-#{nic_id}"
 
