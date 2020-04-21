@@ -365,6 +365,17 @@ module VCenterDriver
             vm_prefix + one_item['NAME'] + vm_suffix
         end
 
+        # @return vCenter Tags
+        def vcenter_tags
+            one_item.info if one_item.instance_of?(OpenNebula::VirtualMachine)
+            one_item.retrieve_xmlelements("USER_TEMPLATE/VCENTER_TAG")
+        end
+
+        # @return if has vCenter Tags
+        def vcenter_tags?
+            vcenter_tags.size > 0
+        end
+
         ############################################################################
         # Create and reconfigure VM related methods
         ############################################################################

@@ -83,6 +83,12 @@ require 'resolv'
 require 'vcenter_importer.rb'
 require 'memoize'
 require 'vi_client'
+begin
+    require 'rest_client'
+    REST_CLIENT=true
+rescue LoadError
+    REST_CLIENT=false
+end
 require 'vi_helper'
 require 'datacenter'
 require 'host'
