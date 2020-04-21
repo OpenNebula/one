@@ -143,7 +143,8 @@ class OpenNebulaVM
 
         hash['vcpu_count'] = Integer(vcpu)
 
-        hash['ht_enabled'] = false
+        ht = @xml['//TEMPLATE/TOPOLOGY/THREADS']
+        hash['ht_enabled'] = !(ht.nil? || ht.empty? || Integer(ht.to_s) <= 1)
     end
 
     def command_params(hash)
