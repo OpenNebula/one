@@ -84,7 +84,7 @@ begin
 
         if vm.vcenter_tags?
             rest_client = VCenterDriver::RESTClient.new_from_host(host_id)
-            rest_client.set_tags(vm)
+            rest_client.sync_tags(vm)
         end
     end
 
