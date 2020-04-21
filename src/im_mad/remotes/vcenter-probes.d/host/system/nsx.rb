@@ -35,7 +35,8 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 require 'nsx_driver'
 require_relative '../../../lib/nsx.rb'
 
-host_id = ARGV[1]
+host = ARGV[-1]
+host_id = ARGV[-2]
 
 # Vcenter and NSX connection
 begin
