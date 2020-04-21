@@ -18,7 +18,8 @@
 
 require_relative '../../../lib/vcenter.rb'
 
-host_id = ARGV[1]
+host = ARGV[-1]
+host_id = ARGV[-2]
 
 begin
     # Vcenter connection

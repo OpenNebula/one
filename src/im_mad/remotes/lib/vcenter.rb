@@ -297,8 +297,8 @@ class ClusterMonitor
 
         customizations.each do |c|
             t = 'CUSTOMIZATION = [ '
-            t << %(<NAME = "#{c.name}", >)
-            t << %(<TYPE = "#{c.type}" ]\n>)
+            t << %Q<NAME = "#{c.name}", >
+            t << %Q<TYPE = "#{c.type}" ]\n>
 
             text << t
         end
@@ -494,7 +494,7 @@ class ClusterMonitor
                     vm_info << "IMPORT_TEMPLATE=\"#{vm_template64}\","
                 end
 
-                vm_info << "POLL=\"#{self.info.gsub('"', '\\"')}\"]"
+                vm_info << "POLL=\"#{self.info.gsub('"', "\\\"")}\"]"
             rescue StandardError => e
                 vm_info = error_monitoring(e, vm_ref, info)
             end

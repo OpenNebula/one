@@ -41,6 +41,7 @@ class NsxMonitor
     attr_accessor :nsx_status
 
     def initialize(host_id)
+        @host_id = host_id
         @nsx_client = nil
         @nsx_status = ''
         return unless nsx_ready?
@@ -118,8 +119,7 @@ class NsxMonitor
 
     def nsx_ready?
         @one_item = VCenterDriver::VIHelper
-                    .one_item(OpenNebula::Host,
-                              @vi_client.instance_variable_get(:@host_id).to_i)
+                    .one_item(OpenNebula::Host, @host_id.to_i)
 
         # Check if NSX_MANAGER is into the host template
         if [nil, ''].include?(@one_item['TEMPLATE/NSX_MANAGER'])
