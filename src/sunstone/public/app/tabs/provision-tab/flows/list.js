@@ -17,6 +17,8 @@
 define(function(require) {
 //  require('foundation.alert');
   var OpenNebula = require("opennebula");
+  var OpenNebulaService = require("opennebula/service");
+  var OpenNebulaVm = require("opennebula/vm");
   var Locale = require("utils/locale");
   var Notifier = require("utils/notifier");
   var Humanize = require("utils/humanize");
@@ -81,9 +83,10 @@ define(function(require) {
       OpenNebula.Service.list({
         timeout: true,
         success: function (request, item_list){
+          var undoneServices = OpenNebulaService.filterDoneServices(item_list);
           $(".flow_error_message").hide();
           datatable.fnClearTable(true);
-          if (item_list.length == 0) {
+          if (undoneServices.length == 0) {
             datatable.html("<div class=\"text-center\">"+
               "<span class=\"fa-stack fa-5x\">"+
                 "<i class=\"fas fa-cloud fa-stack-2x\"></i>"+
@@ -98,7 +101,7 @@ define(function(require) {
               "<br>"+
               "</div>");
           } else {
-            datatable.fnAddData(item_list);
+            datatable.fnAddData(undoneServices);
           }
         },
         error: function(request, error_json) {
