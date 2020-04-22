@@ -537,9 +537,9 @@ post '/service_template/:id/action' do
 
                     # Format of all available defaults
                     #
-                    # Existing:    "net": "M|network|| |id:0"
-                    # Instantiate: "net": "M|network|| |template_id:1"
-                    # Reserve:     "net": "M|network|| |reserve_from:0"
+                    # Existing:    "net": "M|network|||id:0"
+                    # Instantiate: "net": "M|network|||template_id:1"
+                    # Reserve:     "net": "M|network|||reserve_from:0"
                     value = value.split('|')[4].strip.split(':')
 
                     net[key][value[0]] = value[1]
