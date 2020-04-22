@@ -140,9 +140,8 @@ class OpenNebulaDriver < ActionManager
     # Start the driver. Reads from STDIN and executes methods associated with
     # the messages
     def start_driver
-        loop_thread = Thread.new { loop }
+        Thread.new { loop }
         start_listener
-        loop_thread.kill
     end
 
     # This function parses a string with this form:
@@ -187,7 +186,7 @@ class OpenNebulaDriver < ActionManager
 
     def loop
         Kernel.loop do
-            exit(-1) if STDIN.eof?
+            exit!(-1) if STDIN.eof?
 
             str = STDIN.gets
             next unless str
