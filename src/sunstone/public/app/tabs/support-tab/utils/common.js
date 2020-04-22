@@ -35,7 +35,9 @@ define(function(require) {
 
   function _hide_support_connect() {
     $(".support_info").hide();
-    $("#"+Sunstone.getDataTable(TAB_ID).dataTableId+"Container", "#"+TAB_ID).hide();
+    if (Sunstone.getDataTable(TAB_ID)) {
+      $("#"+Sunstone.getDataTable(TAB_ID).dataTableId+"Container", "#"+TAB_ID).hide();
+    }
     $(".support_connect").hide();
     $(".actions_row", "#"+TAB_ID).hide();
     $(".support_not_connected").show();
