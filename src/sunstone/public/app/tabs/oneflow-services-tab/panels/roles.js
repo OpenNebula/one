@@ -200,6 +200,10 @@ define(function(require) {
 
   function _roleHTML(role_index) {
     var that = this;
+
+    if (!OpenNebulaAction.cache("VM")) {
+      Sunstone.runAction("VM.list");
+    }
     that.cache = OpenNebulaAction.cache("VM");
 
     var role = this.element.TEMPLATE.BODY.roles[role_index];
@@ -219,14 +223,7 @@ define(function(require) {
           info.push("");
         }
 
-        if (that.element.TEMPLATE.BODY.ready_status_gate) {
-          if (vm_info.VM.USER_TEMPLATE.READY == "YES") {
-            info.push('<span class="has-tip" title="'+Locale.tr("The VM is ready")+'"><i class="fas fa-check"/></span>');
-
-          } else {
-            info.push('<span class="has-tip" title="'+Locale.tr("Waiting for the VM to be ready")+'"><i class="fas fa-clock-o"/></span>');
-          }
-        } else {
+        if (!that.element.TEMPLATE.BODY.ready_status_gate) {
           info.push("");
         }
 
@@ -239,6 +236,12 @@ define(function(require) {
         if (that.cache && that.cache.data && Array.isArray(that.cache.data)) {
           $.each(that.cache.data, function(_, data){
             if (data.VM && data.VM.ID === id) {
+              if (that.element.TEMPLATE.BODY.ready_status_gate) {
+                (vm_info.VM.USER_TEMPLATE.READY == "YES")
+                  ? info.push('<span class="has-tip" title="'+Locale.tr("The VM is ready")+'"><i class="fas fa-check"/></span>')
+                  : info.push('<span class="has-tip" title="'+Locale.tr("Waiting for the VM to be ready")+'"><i class="fas fa-clock-o"/></span>')
+              }
+
               ips = OpenNebulaVM.ipsStr(data.VM);
               
               if (OpenNebulaVM.isVNCSupported(data.VM)) {
