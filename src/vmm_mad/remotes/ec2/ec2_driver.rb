@@ -243,6 +243,13 @@ class EC2Driver
         :cache_expire                  => 120
     }
 
+    STATE_MAP = {
+        'pending'       => 'RUNNING',
+        'running'       => 'RUNNING',
+        'shutting-down' => 'POWEROFF',
+        'terminated'    => 'POWEROFF'
+    }
+
     # --------------------------------------------------------------------------
     # EC2 constructor, loads credentials and endpoint
     #   @param [String] name of host in OpenNebula
@@ -607,16 +614,9 @@ class EC2Driver
     # Return state of the instance (ONE state)
     def vm_state(instance)
         if !instance.exists?
-            'DELETED'
+            'UNKNOWN'
         else
-            case instance.state.name
-            when 'pending', 'running'
-                'RUNNING'
-            when 'shutting-down', 'terminated'
-                'SHUTDOWN'
-            else
-                'UNKNOWN'
-            end
+            STATE_MAP[instance.state.name] || 'UNKNOWN'
         end
     end
 
