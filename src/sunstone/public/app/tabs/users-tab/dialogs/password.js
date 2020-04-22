@@ -43,7 +43,7 @@ define(function(require) {
 
     this.userCreation = new UserCreation(DIALOG_ID,
                         {name: false, auth_driver: false, group_select: false});
-
+  
     BaseDialog.call(this);
   }
 
@@ -70,9 +70,11 @@ define(function(require) {
   }
 
   function _html() {
+    this.cantChangePassword = parseInt(this.selectedElements) <= 1;
     return TemplateHTML({
       'dialogId': this.dialogId,
-      'userCreationHTML': this.userCreation.html()
+      'cantChangePassword': this.cantChangePassword,
+      'userCreationHTML': this.userCreation.html()      
     });
   }
 

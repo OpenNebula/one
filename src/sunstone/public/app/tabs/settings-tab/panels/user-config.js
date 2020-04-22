@@ -70,7 +70,11 @@ define(function(require) {
    */
 
   function _html() {
-    return TemplateEasyInfo({"languageOptions": Locale.language_options});
+    this.cantChangePassword = parseInt(this.element.ID) <= 1;
+    return TemplateEasyInfo({
+      'languageOptions': Locale.language_options,
+      'cantChangePassword': this.cantChangePassword
+    });
   }
 
   function _setup(context) {
