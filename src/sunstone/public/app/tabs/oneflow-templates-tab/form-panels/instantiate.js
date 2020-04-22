@@ -31,6 +31,7 @@ define(function(require) {
   var UserInputs = require("utils/user-inputs");
   var Config = require("sunstone-config");
   var TemplateUtils = require("utils/template-utils");
+  var ServiceUtils = require("utils/service-utils");
 
   /*
     TEMPLATES
@@ -202,38 +203,8 @@ define(function(require) {
     if (n_times.length){
       n_times_int=parseInt(n_times,10);
     }
-    var extra_msg = "";
-    if (n_times_int > 1) {
-      extra_msg = n_times_int+" times";
-    }
-    
-    var custom_attrs_json = WizardFields.retrieve($(".custom_attr_class", context));
-    var networks_json = WizardFields.retrieve($(".network_attrs_class", context));
-    var typePrefix = "type_";
-    
-    var network_values = Object.keys(networks_json).filter(function(key) {
-      return key.indexOf(typePrefix) == 0; // get all networks names with prefix 'type_'
-    }).reduce(function(newData, typeKey) {
-      var type = networks_json[typeKey];
-      var name = typeKey.replace(typePrefix, '');
-      var id = networks_json[name]
-      var extra = networks_json['extra_' + name];
-  
-      newData.push($.extend(true, {},{
-        [name]: {
-          [type]: id, // type configuration: id network/template
-          extra: (extra && extra !== "") ? extra : undefined,
-        },
-      }));
-      
-      return newData;
-    }, []);
 
-    var extra_info = { "merge_template": {
-      custom_attrs_values: custom_attrs_json,
-      networks_values: network_values,
-      roles: []
-    }};
+    var extra_info = ServiceUtils.getExtraInfo(context);
 
     $.each(that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
       var div_id = "user_input_role_"+index;
@@ -249,6 +220,7 @@ define(function(require) {
       }
       extra_info.merge_template.roles.push(role);
     });
+    
     if (!service_name.length){ //empty name
       for (var i=0; i< n_times_int; i++){
         Sunstone.runAction("ServiceTemplate.instantiate", that.templateId, extra_info);

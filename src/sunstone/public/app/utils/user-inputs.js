@@ -18,7 +18,7 @@ define(function(require) {
   var Locale = require("utils/locale");
   var TemplateUtils = require("utils/template-utils");
   var VNetsTable = require("tabs/vnets-tab/datatable");
-  var VNetsTemplateTable = require("../tabs/vnets-templates-tab/datatable");
+  var VNetsTemplateTable = require("tabs/vnets-templates-tab/datatable");
   var RangeSlider = require("utils/range-slider");
   var UniqueId = require("utils/unique-id");
 
@@ -347,15 +347,6 @@ define(function(require) {
     addInVar(networks, network_attrs);
     addInVar(customs, custom_attrs);
 
-    this.networksType = [
-      //Template id the una VN Template
-      {value: 'template_id', text: 'Create', select: 'vntemplates', extra: true },
-      //ID de una vnet que ya existe para reservar de ella
-      {value: 'reserve_from', text: 'Reserve', select: 'networks', extra: true },
-      //ID de una vnet que ya existe para usarla directamente
-      {value: 'id', text: 'Existing', select: 'networks', extra: false },
-    ]
-
     // Render networks
     if (network_attrs.length > 0) {
       html += "<fieldset>";
@@ -471,7 +462,13 @@ define(function(require) {
                 $("<div/>",{class:"row addExtra_"+id}).append(
                   $("<div/>",{class:"columns small-12"}).append(
                     $("<label/>").text(Locale.tr("Extra")).add(
-                      $("<input/>",{wizard_field: "extra_"+nametable ,type:"text", name: "extra", id: "extra", placeholder: Locale.tr("Extra") })
+                      $("<input/>",{
+                        "wizard_field": "extra_"+nametable,
+                        "type": "text",
+                        "name": "extra",
+                        "id": "extra",
+                        "placeholder": Locale.tr("Extra")
+                      })
                     )
                   )
                 )

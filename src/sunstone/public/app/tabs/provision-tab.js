@@ -33,6 +33,7 @@ define(function(require) {
     var NicsSection = require("utils/nics-section");
     var VMGroupSection = require("utils/vmgroup-section");
     var TemplateUtils = require("utils/template-utils");
+    var ServiceUtils = require("utils/service-utils");
     var WizardFields = require("utils/wizard-fields");
     var UserInputs = require("utils/user-inputs");
     var CapacityInputs = require("tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs");
@@ -1186,7 +1187,7 @@ define(function(require) {
 
               var context = $("#provision_create_flow");
 
-              if (body.custom_attrs) {
+              if (body.custom_attrs || body.networks) {
                 UserInputs.serviceTemplateInsert(
                   $(".provision_network_selector", context), data);
               } else {
@@ -1261,7 +1262,6 @@ define(function(require) {
 
           $("#provision_create_flow").submit(function(){
             var context = $(this);
-
             var flow_name = $("#flow_name", context).val();
             var template_id = $(".provision_select_flow_template .selected", context).attr("opennebula_id");
 
@@ -1270,9 +1270,7 @@ define(function(require) {
               return false;
             }
 
-            var custom_attrs = WizardFields.retrieve($(".provision_network_selector", context));
-
-            var roles = [];
+            var extra_info = ServiceUtils.getExtraInfo(context);
 
             $(".provision_create_flow_role", context).each(function(){
               var user_inputs_values = WizardFields.retrieve($(".provision_custom_attributes_selector", $(this)));
@@ -1281,18 +1279,11 @@ define(function(require) {
 
               var cardinality = WizardFields.retrieve( $(".provision_cardinality_selector", $(this)) )["cardinality"];
 
-              roles.push($.extend(role_template, {
+              extra_info.merge_template.roles.push($.extend(role_template, {
                 "cardinality": cardinality,
                 "user_inputs_values": user_inputs_values
               }));
             });
-
-            var extra_info = {
-              "merge_template": {
-                "roles" : roles,
-                "custom_attrs_values": custom_attrs
-              }
-            };
 
             if (flow_name){
               extra_info["merge_template"]["name"] = flow_name;

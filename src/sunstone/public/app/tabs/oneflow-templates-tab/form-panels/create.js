@@ -99,12 +99,9 @@ define(function(require) {
 
   function _setup(context) {
     this.networksType = [
-      //Template id the una VN Template
-      {value: 'template_id', text: 'Create', select: 'vntemplates', extra: true },
-      //ID de una vnet que ya existe para reservar de ella
-      {value: 'reserve_from', text: 'Reserve', select: 'networks', extra: true },
-      //ID de una vnet que ya existe para usarla directamente
-      {value: 'id', text: 'Existing', select: 'networks', extra: false },
+      { value: 'template_id', text: 'Create', select: 'vntemplates', extra: true },
+      { value: 'reserve_from', text: 'Reserve', select: 'networks', extra: true },
+      { value: 'id', text: 'Existing', select: 'networks', extra: false },
     ]
     this.roleTabObjects = {};
     this.numberOfNetworks = 0;
