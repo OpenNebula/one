@@ -865,7 +865,7 @@ class ServiceLCM
         service.roles.each do |name, role|
             next unless role.can_recover_scale?
 
-            nodes, up = role.recover_scale
+            nodes, up = role.recover_scale(service.report_ready?)
 
             if up
                 action = :wait_scaleup
