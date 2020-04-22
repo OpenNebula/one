@@ -846,12 +846,13 @@ class VirtualMachineMonitor
     POLL_ATTRIBUTE = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
     VM_STATE = OpenNebula::VirtualMachine::Driver::VM_STATE
 
-    def initialize(vi_client, vm)
+    def initialize(host_id)
+        vi_client = VCenterDriver::VIClient.new_from_host(host_id)
         @vi_client = vi_client
-        host_id = vm['HISTORY_RECORDS/HISTORY[last()]/HID']
-        @one_vm = vm
+        # host_id = vm['HISTORY_RECORDS/HISTORY[last()]/HID']
+        # @one_vm = vm
 
-        @vm = VCenterDriver::VirtualMachine.new_from_ref(@vi_client, vm['DEPLOY_ID'], vm['NAME'])
+        # @vm = VCenterDriver::VirtualMachine.new_from_ref(@vi_client, vm['DEPLOY_ID'], vm['NAME'])
     end
 
     # monitor function used when VMM poll action is called
@@ -1041,6 +1042,116 @@ class VirtualMachineMonitor
                                 (write_kbpersec * 1024 * refresh_rate).to_i
     end
 
+    def vms(host_id)
+        vc_uuid = @vi_client.vim.serviceContent.about.instanceUuid
+        # Get CCR reference
+        client = OpenNebula::Client.new
+        host = OpenNebula::Host.new_with_id(host_id, client)
+        rc = host.info
+        if OpenNebula.is_error? rc
+            STDERR.puts rc.message
+            exit 1
+        end
+
+        ccr_ref = host['TEMPLATE/VCENTER_CCR_REF']
+
+        vm_pool = VCenterDriver::VIHelper
+                  .one_pool(OpenNebula::VirtualMachinePool)
+
+        # opts common to all vms
+        opts = {
+            pool: vm_pool,
+            vc_uuid: vc_uuid
+        }
+
+        # Get vCenter Cluster
+        @cluster = VCenterDriver::ClusterComputeResource
+                   .new_from_ref(ccr_ref, @vi_client)
+
+        @monitored_vms = Set.new
+
+        # View for VMs inside this cluster
+        view = @vi_client.vim.serviceContent.viewManager
+                         .CreateContainerView({ container: @cluster.item,
+                                                type: ['VirtualMachine'],
+                                                recursive: true })
+
+        pc = @vi_client.vim.serviceContent.propertyCollector
+
+        monitored_properties = [
+            'name', # VM name
+            'summary.runtime.powerState', # VM power state
+            'config.extraConfig' # VM extraconfig info.. opennebula.vm.running
+        ]
+
+        filter_spec = RbVmomi::VIM.PropertyFilterSpec(
+            :objectSet => [
+                :obj => view,
+                :skip => true,
+                :selectSet => [
+                    RbVmomi::VIM.TraversalSpec(
+                        :name => 'traverseEntities',
+                        :type => 'ContainerView',
+                        :path => 'view',
+                        :skip => false
+                    )
+                ]
+            ],
+            :propSet => [
+                { :type => 'VirtualMachine', :pathSet => monitored_properties }
+            ]
+        )
+
+        result = pc.RetrieveProperties(:specSet => [filter_spec])
+
+        vms = []
+        result.each do |r|
+            # Next if it's not a VirtualMachine
+            next unless r.obj.is_a?(RbVmomi::VIM::VirtualMachine)
+
+            # Next if it's a template
+            next if r.obj.config.template
+
+            one_vm = VCenterDriver::VirtualMachine.new_from_ref(@vi_client,
+                                                                r.obj._ref,
+                                                                r.obj.name,
+                                                                opts = {})
+
+            vm = {
+                :uuid => r.obj._ref,
+                :id => one_vm.vm_id || -1,
+                :name => r.obj.name,
+                :type => 'vcenter',
+                :state => state_monitor(r.obj.summary.runtime.powerState)
+            }
+
+            vms << vm
+        end
+
+        view.DestroyView # Destroy the view
+        vms
+
+    end
+
+    # Converts the VI string state to OpenNebula state convention
+    # Guest states are:
+    # - poweredOff   The virtual machine is currently powered off.
+    # - poweredOn    The virtual machine is currently powered on.
+    # - suspended    The virtual machine is currently suspended.
+    def state_monitor(state)
+        case state
+        when 'poweredOn'
+            'RUNNING'
+        when 'suspended'
+            'POWEROFF'
+        when 'poweredOff'
+            'POWEROFF'
+        else
+            'UNKNOWN'
+        end
+    end
+
+
 end
 
 # Gather datastore info
@@ -1076,6 +1187,30 @@ class DatastoreMonitor
             monitor << "VCENTER_DS_REF=\"#{ref}\"\n"
         end
         monitor
+    end
+
+end
+
+############################################################################
+#  Module Interface
+#  Interface for probe_db - VirtualMachineDB
+############################################################################
+module DomainList
+
+    def self.state_info(name, id)
+        vmm = VirtualMachineMonitor.new(id)
+
+        vms = vmm.vms(id)
+        info = {}
+        vms.each do |vm|
+            info[vm[:uuid]] = { :id     => vm[:id],
+                                :uuid   => vm[:uuid],
+                                :name   => vm[:name],
+                                :state  => vm[:state],
+                                :hyperv => 'vcenter' }
+        end
+
+        info
     end
 
 end
