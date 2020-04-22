@@ -17,7 +17,7 @@
 define(function(require) {
   /*
     DEPENDENCIES
-   */
+  */
 
   var Config = require("sunstone-config");
   var ScheduleActions = require("utils/schedule_action");
@@ -29,13 +29,15 @@ define(function(require) {
   var TemplateUtils = require("utils/template-utils");
   var Actions = require("utils/actions");
   var Leases = require("utils/leases");
-
   var TemplateHTML = require("hbs!./actions/html");
+
   /*
     CONSTANTS
-   */
+  */
 
   var WIZARD_TAB_ID = require("./actions/wizardTabId");
+  var RESOURCE = "temp";
+  var CREATE = true;
 
   /*
     CONSTRUCTOR
@@ -62,7 +64,7 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
-      "table_sched_actions": ScheduleActions.htmlTable("temp", Leases.html()),
+      "table_sched_actions": ScheduleActions.htmlTable(RESOURCE, Leases.html()),
     });
   }
 
@@ -93,12 +95,21 @@ define(function(require) {
       "disk-snapshot-delete", 
       "disk-snapshot-revert"
     ];
-    context.off("click", "#add_scheduling_temp_action");
-    context.on("click", "#add_scheduling_temp_action", function() {
-      $("#add_scheduling_temp_action", context).attr("disabled", "disabled");
-      ScheduleActions.htmlNewAction(actions, context, "temp");
-      ScheduleActions.setup(context);
+    function renderCreateForm() {
+      if(CREATE){
+        ScheduleActions.htmlNewAction(actions, context, "temp");
+        ScheduleActions.setup(context);
+        CREATE = false;
+      }
       return false;
+    }
+    context.off("click", "#add_scheduling_temp_action");
+    context.on("click", "#add_scheduling_temp_action", function(e){
+      renderCreateForm();
+      e.preventDefault();
+      ScheduleActions.reset();
+      $("#edit_"+RESOURCE+"_action_json").hide();
+      $("#add_"+RESOURCE+"_action_json").show();
     });
 
     context.off("click", "#add_temp_action_json");
@@ -106,14 +117,24 @@ define(function(require) {
       $(".wickedpicker").hide();
       var sched_action = ScheduleActions.retrieveNewAction(context);
       if (sched_action != false) {
-        $("#sched_temp_actions_body").append(ScheduleActions.fromJSONtoActionsTable(sched_action));
+        $("#sched_temp_actions_body").prepend(ScheduleActions.fromJSONtoActionsTable(sched_action));
       }
+      clear();
       return false;
     });
 
     context.off("click", ".remove_action_x");
     context.on("click", ".remove_action_x", function () {
         $(this).parents("tr").remove();
+    });
+
+    context.off("click", ".edit_action_x");
+    context.on("click", ".edit_action_x", function (e) {
+      e.preventDefault();
+      renderCreateForm();
+      $("#edit_"+RESOURCE+"_action_json").show();
+      $("#add_"+RESOURCE+"_action_json").hide();
+      ScheduleActions.fill($(this));
     });
 
   }
@@ -124,9 +145,13 @@ define(function(require) {
     return templateJSON;
   }
 
+  function clear(){
+    CREATE = true;
+  }
+
   function _fill(context, templateJSON) {
     var actions = ScheduleActions.fromJSONtoActionsTable(templateJSON.SCHED_ACTION);
-    $("#sched_temp_actions_body").append(actions);
+    $("#sched_temp_actions_body").prepend(actions);
     delete templateJSON["SCHED_ACTION"];
   }
 });

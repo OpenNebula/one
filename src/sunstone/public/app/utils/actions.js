@@ -51,9 +51,14 @@ define(function(require) {
     str += "<tr class=\"tr_action\">\
         <td class=\"action_row\">" + TemplateUtils.htmlEncode(scheduling_action.ACTION) + "</td>\
         <td nowrap class=\"time_row\">" + time_str + "</td>\
-        <td>\
-          <div>\
-            <a id=\"minus\" class=\"remove_action_x\" href=\"#\"><i class=\"fas fa-trash-alt\"/></a>\
+        <td colspan='3' style='text-align: right;'>\
+          <div style='display: flex;justify-content: flex-end;'>\
+            <div>\
+              <button id='minus' class='small button btn-danger remove_action_x'><i class='fas fa-trash-alt'></i></button>\
+            </div>\
+            <div>\
+              <button id='minus' class='small button btn-warning edit_action_x'><i class='fas fa-edit'></i></button>\
+            </div>\
           </div>\
         </td>\
       </tr>";

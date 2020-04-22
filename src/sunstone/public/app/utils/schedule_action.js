@@ -87,8 +87,8 @@ define(function (require) {
       }
     });
     if (this.res === "vms") {
-      $("#title", context).prop("colspan", "2");
-      $("#td_days", context).prop("colspan", "5");
+      $("#title", context).prop("colspan", "10");
+      $("#td_days", context).prop("colspan", "8");
     }
   }
 
@@ -104,7 +104,7 @@ define(function (require) {
       mm = "0" + mm;
     }
     $("#date_input", context).attr("value", yyyy + "-" + mm + "-" + dd);
-    $(".periodic", context).hide();
+    $(".periodic", context).addClass("hide");
     this.selector = $("select#select_new_action");
     $("select#select_new_action").on("change",function(){
       var snap_name = $("#snapname");
@@ -151,13 +151,12 @@ define(function (require) {
     });
     $("input#schedule_type", context).on("change", function () {
       var periodic = $(this).prop("checked");
-
       if (periodic) {
-        $(".periodic", context).show();
-        $(".non-periodic", context).hide();
+        $(".periodic", context).removeClass("hide");
+        $(".non-periodic", context).addClass("hide");
       } else {
-        $(".periodic", context).hide();
-        $(".non-periodic", context).show();
+        $(".periodic", context).addClass("hide");
+        $(".non-periodic", context).removeClass("hide");
       }
     });
     var that = this;
@@ -234,6 +233,54 @@ define(function (require) {
 
   }
 
+  function _fill(element){
+    _reset();
+    if(element && element.closest && element.closest("tr") && element.closest("tr").attr && element.closest("tr").attr("data")){
+      var data = element.closest("tr").attr("data");
+      var dataJSON = JSON.parse(data);
+      if(dataJSON){
+        var relative = true;
+
+        Object.keys(dataJSON).forEach(function(key){
+          valuesForRelative = ['ACTION','ID','TIME'];
+          if(!valuesForRelative.includes(key)){
+            relative = false;
+          }
+        })
+
+        if(dataJSON.ACTION){
+          $("#select_new_action").val(dataJSON.ACTION).change();
+        }
+        //relative check
+        if(relative){
+          console.log("relative");
+          $('#relative_time').prop('checked', true);
+          $("#relative_time_form").removeClass("hide");
+          $("#no_relative_time_form").addClass("hide");
+        }else{
+          $('#relative_time').prop('checked', false);
+          $("#relative_time_form").addClass("hide");
+          $("#no_relative_time_form").removeClass("hide");
+          //periodic check
+          if(dataJSON.DAYS || dataJSON.REPEAT){
+            $('#schedule_type').click().attr('checked', true);
+          }
+        }
+      }
+      console.log("FILL", dataJSON);
+    }
+  }
+
+  function _reset(){
+    $("#schedule_type").prop("checked",false);
+    $("#schedule_type").prop("checked",false);
+    $(".periodic").addClass("hide");
+    $(".non-periodic").removeClass("hide");
+    $(".relative_time_form").addClass("hide");
+    $(".no_relative_time_form").removeClass("hide");
+    
+  }
+
   function _retrieve(context) {
     $("#scheduling_" + this.res + "_actions_table .create", context).remove();
     var actionsJSON = [];
@@ -253,6 +300,7 @@ define(function (require) {
             'disk-snapshot-revert',
             'disk-snapshot-delete'
           ];
+
           if(that.selector && that.selector.val && actions.includes(that.selector.val())){
             var snap_name = $("#snapname").val();
             var snap_id = $("#snapid").val();
@@ -494,10 +542,15 @@ define(function (require) {
         <td nowrap class='rep_row'>" + rep_str + "</td>\
         <td nowrap class='end_row'>" + end_str + "</td>";
     if (minus === undefined) {
-      str += "<td>\
+      str += "<td colspan='3' style='text-align: right;'>\
+              <div style='display: flex;justify-content: flex-end;'>\
                 <div>\
-                <a id='minus' class='remove_action_x' href='#'><i class='fas fa-trash-alt'/></a>\
+                  <button id='minus' class='small button btn-danger remove_action_x'><i class='fas fa-trash-alt'></i></button>\
                 </div>\
+                <div>\
+                  <button id='edit' class='small button btn-warning edit_action_x'><i class='fas fa-edit'></i></button>\
+                </div>\
+              </div>\
             </td>\
             </tr>";
     }
@@ -517,6 +570,8 @@ define(function (require) {
     "setup": _setup,
     "htmlTable": _html,
     "retrieveNewAction": _retrieveNewAction,
-    "retrieve": _retrieve
+    "retrieve": _retrieve,
+    "fill": _fill,
+    "reset": _reset
   };
 });

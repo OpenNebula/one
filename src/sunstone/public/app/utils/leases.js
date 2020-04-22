@@ -93,7 +93,7 @@ define(function(require) {
                 ACTION: schedAction
               };
               last = schedActionTime;
-              $(idElementSchedActions).append(ScheduleActions.fromJSONtoActionsTable(newAction));
+              $(idElementSchedActions).prepend(ScheduleActions.fromJSONtoActionsTable(newAction));
               pass = true;
             }
           });

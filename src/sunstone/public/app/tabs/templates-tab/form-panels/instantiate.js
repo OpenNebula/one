@@ -51,6 +51,7 @@ define(function(require) {
 
   var FORM_PANEL_ID = require("./instantiate/formPanelId");
   var TAB_ID = require("../tabId");
+  var RESOURCE = 'inst';
 
   /*
     CONSTRUCTOR
@@ -95,6 +96,7 @@ define(function(require) {
   }
 
   function _setup(context) {
+    var CREATE = true;
     var that = this;
     var objLeases = $.extend(true, {}, that);
     objLeases.resource = "template";
@@ -126,39 +128,48 @@ define(function(require) {
       $("#vm_n_times", context).show();
     }
 
+    function renderCreateForm() {
+      if(CREATE){
+        var actions = [
+          "terminate", 
+          "terminate-hard", 
+          "hold", 
+          "release", 
+          "stop", 
+          "suspend", 
+          "resume", 
+          "reboot", 
+          "reboot-hard", 
+          "poweroff", 
+          "poweroff-hard", 
+          "undeploy", 
+          "undeploy-hard", 
+          "snapshot-create",
+          "snapshot-delete", 
+          "snapshot-revert", 
+          "disk-snapshot-create", 
+          "disk-snapshot-delete", 
+          "disk-snapshot-revert"
+        ];
+        $("#add_scheduling_inst_action", context).attr("disabled", "disabled");
+        ScheduleActions.htmlNewAction(actions, context, RESOURCE);
+        ScheduleActions.setup(context);
+        CREATE=false;
+      }
+    }
+
     context.off("click", "#add_scheduling_inst_action");
-    context.on("click", "#add_scheduling_inst_action", function() {
-      var actions = [
-        "terminate", 
-        "terminate-hard", 
-        "hold", 
-        "release", 
-        "stop", 
-        "suspend", 
-        "resume", 
-        "reboot", 
-        "reboot-hard", 
-        "poweroff", 
-        "poweroff-hard", 
-        "undeploy", 
-        "undeploy-hard", 
-        "snapshot-create",
-        "snapshot-delete", 
-        "snapshot-revert", 
-        "disk-snapshot-create", 
-        "disk-snapshot-delete", 
-        "disk-snapshot-revert"
-      ];
-      $("#add_scheduling_inst_action", context).attr("disabled", "disabled");
-      ScheduleActions.htmlNewAction(actions, context, "inst");
-      ScheduleActions.setup(context);
-      return false;
+    context.on("click", "#add_scheduling_inst_action", function(e){
+      e.preventDefault();
+      renderCreateForm();
+      $("#edit_"+RESOURCE+"_action_json").hide();
+      $("#add_"+RESOURCE+"_action_json").show();
     });
     context.off("click", "#add_inst_action_json");
     context.on("click", "#add_inst_action_json", function(){
       var sched_action = ScheduleActions.retrieveNewAction(context);
       if (sched_action != false) {
-        $("#sched_inst_actions_body").append(ScheduleActions.fromJSONtoActionsTable(sched_action));
+        $("#sched_inst_actions_body").prepend(ScheduleActions.fromJSONtoActionsTable(sched_action));
       }
 
       return false;
@@ -170,6 +181,14 @@ define(function(require) {
     context.off("click", ".remove_action_x");
     context.on("click", ".remove_action_x", function(){
       $(this).parents("tr").remove();
+    });
+    context.off("click", ".edit_action_x");
+    context.on("click", ".edit_action_x", function(e){
+      e.prependDefault();
+      renderCreateForm();
+      $("#edit_"+RESOURCE_SCHED_ACTIONS+"_action_json").show();
+      $("#add_"+RESOURCE_SCHED_ACTIONS+"_action_json").hide();
+      ScheduleActions.fill($(this));
     });
   }
 
@@ -433,7 +452,7 @@ define(function(require) {
                 dsDatatable: that.datastoresTable.dataTableHTML,
                 usersDatatable: that.usersTable.dataTableHTML,
                 groupDatatable: that.groupTable.dataTableHTML,
-                table_sched_actions: ScheduleActions.htmlTable("inst", Leases.html())
+                table_sched_actions: ScheduleActions.htmlTable(RESOURCE, Leases.html())
               }) );
 
           $(".provision_host_selector" + template_json.VMTEMPLATE.ID, context).data("hostsTable", that.hostsTable);
@@ -442,7 +461,7 @@ define(function(require) {
           $(".provision_gid_selector" + template_json.VMTEMPLATE.ID, context).data("groupTable", that.groupTable);
 
           var actions = ScheduleActions.fromJSONtoActionsTable(template_json.VMTEMPLATE.TEMPLATE.SCHED_ACTION);
-          $("#sched_inst_actions_body").append(actions);
+          $("#sched_inst_actions_body").prepend(actions);
 
           var selectOptions = {
             "selectOptions": {

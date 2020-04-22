@@ -35,6 +35,7 @@ define(function(require) {
   var TAB_ID = require("../tabId");
   var PANEL_ID = require("./actions/panelId");
   var RESOURCE = "VM";
+  var RESOURCE_SCHED_ACTIONS = 'vms'
   var XML_ROOT = "VM";
 
   /*
@@ -87,11 +88,12 @@ define(function(require) {
         </div>\
       </div>";
 
-    ScheduleActions.htmlTable("vms"); //only charge the resource attribute
+    ScheduleActions.htmlTable(RESOURCE_SCHED_ACTIONS); //only charge the resource attribute
     return html;
   }
 
   function _setup(context) {
+    var CREATE = true;
     var that = this;
     that.formContext = context;
     Leases.actions(that,'vm','update');
@@ -116,12 +118,22 @@ define(function(require) {
       "disk-snapshot-delete", 
       "disk-snapshot-revert"
     ];
-    context.off("click", "#add_scheduling_vms_action");
-    context.on("click" , "#add_scheduling_vms_action", function(){
-      $(this).attr("disabled", "disabled");
-      ScheduleActions.htmlNewAction(actions, context, "vms");
-      ScheduleActions.setup(context);
+
+    function renderCreateForm(){
+      if(CREATE){
+        ScheduleActions.htmlNewAction(actions, context, "vms");
+        ScheduleActions.setup(context);
+        CREATE = false;
+      }
       return false;
+    };
+
+    context.off("click", "#add_scheduling_vms_action");
+    context.on("click" , "#add_scheduling_vms_action", function(e){
+      e.preventDefault();
+      renderCreateForm();
+      $("#edit_"+RESOURCE_SCHED_ACTIONS+"_action_json").hide();
+      $("#add_"+RESOURCE_SCHED_ACTIONS+"_action_json").show();
     });
 
     context.off("click", "#add_vms_action_json");
@@ -129,7 +141,7 @@ define(function(require) {
       var sched_action = ScheduleActions.retrieveNewAction(context);
       if (sched_action != false) {
         $("#no_actions_tr", context).remove();
-        $("#sched_vms_actions_body").append(ScheduleActions.fromJSONtoActionsTable(sched_action));
+        $("#sched_vms_actions_body").prepend(ScheduleActions.fromJSONtoActionsTable(sched_action));
       } else {
         return false;
       }
@@ -160,6 +172,14 @@ define(function(require) {
 
       // Let OpenNebula know
       Sunstone.runAction("VM.update_template", that.element.ID, template_str);
+    });
+    context.off("click", ".edit_action_x");
+    context.on("click", ".edit_action_x", function(e) {
+      e.preventDefault();
+      renderCreateForm();
+      $("#edit_"+RESOURCE_SCHED_ACTIONS+"_action_json").show();
+      $("#add_"+RESOURCE_SCHED_ACTIONS+"_action_json").hide();
+      ScheduleActions.fill($(this));
     });
   }
 
@@ -203,9 +223,14 @@ define(function(require) {
 
     var str = "<td class=\"done_row\">" + done_str + "</td>\
        <td class=\"message_row\">" + TemplateUtils.htmlEncode(message_str) + "</td>\
-       <td>\
-         <div>\
-           <a id=\"minus_" + scheduling_action.ID + "\" class=\"remove_action_x\" href=\"#\"><i class=\"fas fa-trash-alt\"/></a>\
+       <td colspan='3' style='text-align: right;'>\
+         <div style='display: flex;justify-content: flex-end;'>\
+          <div>\
+            <button id='minus_" + scheduling_action.ID + "' class='small button btn-danger remove_action_x'><i class='fas fa-trash-alt'></i></button>\
+          </div>\
+          <div>\
+            <button id='minus_" + scheduling_action.ID + "' class='small button btn-warning edit_action_x'><i class='fas fa-edit'></i></button>\
+          </div>\
          </div>\
        </td>\
      </tr>";
