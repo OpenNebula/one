@@ -35,10 +35,10 @@ class FirecrackerClient
     API_RETRY = 5 # Attempts, in case a response is failed to read from FC
 
     def initialize(uuid)
-        socket_path = "/srv/jailer/firecracker/#{uuid}/root/run/firecracker.socket"
+        path = "/srv/jailer/firecracker/#{uuid}/root/run/firecracker.socket"
         # rubocop:disable Style/RescueStandardError
         begin
-            @socket = socket(socket_path)
+            @socket = socket(path)
         rescue
             raise "Failed to open socket: #{socket_path}"
         end
