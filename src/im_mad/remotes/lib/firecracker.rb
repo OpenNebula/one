@@ -34,8 +34,7 @@ module Firecracker
 
     def self.flush_metrics(uuid)
         begin
-            socket = socket_path(uuid)
-            client = FirecrackerClient.new(socket)
+            client = FirecrackerClient.new(uuid)
 
             data = '{"action_type": "FlushMetrics"}'
             client.put('actions', data)
@@ -64,8 +63,7 @@ module Firecracker
 
     def self.machine_config(uuid)
         begin
-            socket = socket_path(uuid)
-            client = FirecrackerClient.new(socket)
+            client = FirecrackerClient.new(uuid)
 
             response = client.get('machine-config')
         rescue StandardError, FirecrackerError
@@ -87,8 +85,7 @@ module Firecracker
 
     def self.general_info(uuid)
         begin
-            socket = socket_path(uuid)
-            client = FirecrackerClient.new(socket)
+            client = FirecrackerClient.new(uuid)
 
             response = client.get('')
         rescue StandardError, FirecrackerError
@@ -112,10 +109,6 @@ module Firecracker
 
         vm_info.merge!(machine_config(uuid))
         vm_info.merge!(general_info(uuid))
-    end
-
-    def self.socket_path(uuid)
-        "/srv/jailer/firecracker/#{uuid}/root/run/firecracker.socket"
     end
 
 end
