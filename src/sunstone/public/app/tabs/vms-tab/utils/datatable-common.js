@@ -125,7 +125,6 @@ define(function(require) {
           !isNaN(parseInt(leases[action.ACTION].time)) && 
           leases[action.ACTION].color
         ){
-          if(checkTime(element.STIME, leases[action.ACTION].time)){
           if(checkTime(element.STIME, action.TIME)){
             rtn = $("<i/>",{class:"fa fa-clock"}).css("color",leases[action.ACTION].color);
             if(
