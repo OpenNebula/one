@@ -118,16 +118,21 @@ define(function(require) {
         if(
           action && 
           action.ACTION && 
+          action.TIME && 
           leases && 
-          leases[action.ACTION] &&
-          leases[action.ACTION].time &&
-          !isNaN(parseInt(leases[action.ACTION].time)) &&
+          leases[action.ACTION] && 
+          leases[action.ACTION].time && 
+          !isNaN(parseInt(leases[action.ACTION].time)) && 
           leases[action.ACTION].color
         ){
-          if(checkTime(element.STIME, leases[action.ACTION].time)){
+          if(checkTime(element.STIME, action.TIME)){
             rtn = $("<i/>",{class:"fa fa-clock"}).css("color",leases[action.ACTION].color);
-            if(leases[action.ACTION].warning && leases[action.ACTION].warning.time && leases[action.ACTION].warning.color){
-              if(checkTime(element.STIME, leases[action.ACTION].time, leases[action.ACTION].warning.time)){
+            if(
+              leases[action.ACTION].warning && 
+              leases[action.ACTION].warning.time && 
+              leases[action.ACTION].warning.color
+            ){
+              if(checkTime(element.STIME, action.TIME, leases[action.ACTION].warning.time)){
                 rtn.css("color", leases[action.ACTION].warning.color);
               }
             }
