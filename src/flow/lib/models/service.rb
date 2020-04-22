@@ -585,7 +585,7 @@ module OpenNebula
             get_vnet_name(net)
             extra = net[net.keys[0]]['extra'] if net[net.keys[0]].key? 'extra'
 
-            return false if extra.empty?
+            return false if !extra || extra.empty?
 
             extra.concat("\nNAME=\"#{get_vnet_name(net)}\"\n")
 
