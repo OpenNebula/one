@@ -73,6 +73,17 @@ class PacketDriver
         :billing_cycle           => 'BILLING_CYCLE'
     }
 
+    STATE_MAP = {
+        :pending      => 'RUNNING',
+        :provisioning => 'RUNNING',
+        :powering_on  => 'RUNNING',
+        :active       => 'RUNNING',
+        :rebooting    => 'RUNNING',
+        :powering_off => 'POWEROFF',
+        :inactive     => 'POWEROFF',
+        :failed       => 'FAILURE'
+    }
+
     DEFAULTS = {
         :cache_expire       => 120
     }
@@ -316,20 +327,9 @@ class PacketDriver
 
     def vm_state(device)
         if device.nil?
-            'DELETED'
+            'UNKNOWN'
         else
-            case device.state
-            when :pending, :provisioning, :powering_on
-                'BOOT'
-            when :active, :rebooting
-                'RUNNING'
-            when :powering_off, :inactive
-                'SHUTDOWN'
-            when :failed
-                'SHUTDOWN'
-            else
-                'UNKNOWN'
-            end
+            STATE_MAP[device.state] || 'UNKNOWN'
         end
     end
 

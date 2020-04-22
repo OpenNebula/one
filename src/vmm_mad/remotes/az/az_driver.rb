@@ -80,6 +80,15 @@ class AzureDriver
         IMAGE_PUBLISHER IMAGE_OFFER IMAGE_SKU IMAGE_VERSION
     ]
 
+    STATE_MAP = {
+        'starting'     => 'RUNNING',
+        'running'      => 'RUNNING',
+        'stopping'     => 'POWEROFF',
+        'stopped'      => 'POWEROFF',
+        'deallocating' => 'POWEROFF',
+        'deallocated'  => 'POWEROFF'
+    }
+
     DEFAULTS = {
         :rgroup_name_format => 'one-%<NAME>s-%<ID>s',
         :cache_expire       => 120
@@ -636,17 +645,8 @@ class AzureDriver
             @rgroup_name, i.name
         )
         az_state = az_inst_view.statuses[-1].code.split('/').last
-        case az_state
-        when 'running', 'starting'
-            # return VM_STATE[:active]
-            'RUNNING'
-        when 'suspended', 'stopping'
-            # return VM_STATE[:paused]
-            'SHUTDOWN'
-        else
-            # return VM_STATE[:unknown]
-            'UNKNOWN'
-        end
+
+        STATE_MAP[az_state] || 'UNKNOWN'
     end
 
     def get_cpu_num(instance)

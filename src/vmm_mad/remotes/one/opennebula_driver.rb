@@ -224,16 +224,16 @@ class One2OneDriver
         when 'ACTIVE'
             case vm.lcm_state_str
             when /_FAILURE$/ || 'UNKNOWN'
-                'FAILED'
+                'FAILURE'
             else
                 'RUNNING'
             end
         when 'STOPPED' || 'SUSPENDED'
-            'STOPPED'
+            'SUSPENDED'
         when 'DONE' || 'POWEROFF' || 'UNDEPLOYED'
-            'DONE'
+            'POWEROFF'
         when 'FAILED' || 'CLONING_FAILURE'
-            'FAILED'
+            'FAILURE'
         else
             'UNKNOWN'
         end
