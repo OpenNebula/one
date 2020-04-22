@@ -60,8 +60,8 @@ begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
     one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
 
-    if drv_action.retrieve_xmlelements("USER_TEMPLATE/VCENTER_TAG").size > 0
-        raise "vShepre automation gems are not installed" unless REST_CLIENT
+    if !drv_action.retrieve_xmlelements('USER_TEMPLATE/VCENTER_TAG').empty?
+        raise 'vShepre automation gems are not installed' unless REST_CLIENT
     end
 
     if deploy_id_valid?(deploy_id)
