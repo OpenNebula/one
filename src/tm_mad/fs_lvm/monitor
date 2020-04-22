@@ -67,7 +67,7 @@ fi
 # If vg-one-$DS_ID exists, we assume it's an fs_lvm image datastore, therefore'
 # we return the space of the lvm, no of the filesystem
 if PATH=\$PATH:/sbin:/bin:/usr/sbin:/usr/bin which vgdisplay &> /dev/null; then
-    LVM_SIZE=\$(sudo vgdisplay \
+    LVM_SIZE=\$(sudo -n vgdisplay \
                     --separator : \
                     --units m \
                     -o vg_size,vg_free \

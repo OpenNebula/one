@@ -86,6 +86,14 @@ AllCops:
     - src/im_mad/remotes/ec2.d/poll
     - src/im_mad/remotes/one.d/poll
     - src/im_mad/remotes/az.d/poll
+    - src/im_mad/remotes/lib/nsx.rb
+    - src/im_mad/remotes/lib/vcenter.rb
+    - src/im_mad/remotes/vcenter-probes.d/host/monitor/monitor.rb
+    - src/im_mad/remotes/vcenter-probes.d/host/system/nsx.rb
+    - src/im_mad/remotes/vcenter-probes.d/host/system/vcenter.rb
+    - src/im_mad/remotes/vcenter-probes.d/vms/monitor/monitor.rb
+    - src/im_mad/remotes/vcenter-probes.d/vms/status/state.rb
+    - src/im_mad/remotes/vcenter.d/monitord-client.rb
     - src/vnm_mad/remotes/ovswitch/post
     - src/vnm_mad/remotes/ovswitch/clean
     - src/vnm_mad/remotes/ovswitch/pre
@@ -610,6 +618,9 @@ Layout/HashAlignment:
 Layout/SpaceAroundOperators:
     Enabled: false
 
+Layout/SpaceAroundMethodCallOperator:
+    Enabled: true
+
 ###
 
 #######
@@ -718,6 +729,10 @@ Style/FloatDivision:
 
 Style/RedundantBegin:
     Enabled: false
+
+Style/ExponentialNotation:
+    Enabled: true
+
 
 ######
 # LINT

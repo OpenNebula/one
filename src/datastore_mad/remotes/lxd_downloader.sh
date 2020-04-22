@@ -307,7 +307,7 @@ esac
 #-------------------------------------------------------------------------------
 MK_CONTAINER=$LIB_LOCATION/sh/create_container_image.sh
 
-cat << EOF | sudo $MK_CONTAINER $TMP_DIR $id $extension $terminal
+cat << EOF | sudo -n $MK_CONTAINER $TMP_DIR $id $extension $terminal
 $commands
 EOF
 

@@ -26,7 +26,10 @@ else
     GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
-Gem.use_paths(GEMS_LOCATION) if File.directory?(GEMS_LOCATION)
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /(vendor|site)_ruby/ }
+end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << File.dirname(__FILE__)
@@ -57,6 +60,10 @@ begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
     one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
 
+    if drv_action.retrieve_xmlelements("USER_TEMPLATE/VCENTER_TAG").size > 0
+        raise "vShepre automation gems are not installed" unless REST_CLIENT
+    end
+
     if deploy_id_valid?(deploy_id)
         # VM is not new, we just need to reconfigure it and to power it on
         vm = VCenterDriver::VirtualMachine.new_one(vi_client, deploy_id, one_vm)
@@ -76,6 +83,11 @@ begin
             raise if OpenNebula.is_error?(rc)
 
             vm_template.lock(1)
+        end
+
+        if vm.vcenter_tags?
+            rest_client = VCenterDriver::RESTClient.new_from_host(host_id)
+            rest_client.sync_tags(vm)
         end
     end
 

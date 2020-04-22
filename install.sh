@@ -273,6 +273,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc/datastore/ceph \
           $VAR_LOCATION/remotes/etc/im/kvm-probes.d \
           $VAR_LOCATION/remotes/etc/im/lxd-probes.d \
+          $VAR_LOCATION/remotes/etc/im/firecracker-probes.d \
           $VAR_LOCATION/remotes/etc/market/http \
           $VAR_LOCATION/remotes/etc/vmm/kvm \
           $VAR_LOCATION/remotes/etc/vmm/lxd \
@@ -306,22 +307,35 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/firecracker-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/firecracker-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/vcenter.d \
+          $VAR_LOCATION/remotes/im/vcenter-probes.d/host/beacon \
+          $VAR_LOCATION/remotes/im/vcenter-probes.d/host/monitor \
+          $VAR_LOCATION/remotes/im/vcenter-probes.d/host/system \
+          $VAR_LOCATION/remotes/im/vcenter-probes.d/vm/monitor \
+          $VAR_LOCATION/remotes/im/vcenter-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/ec2.d \
+          $VAR_LOCATION/remotes/im/ec2-probes.d/host/beacon \
           $VAR_LOCATION/remotes/im/ec2-probes.d/host/monitor \
           $VAR_LOCATION/remotes/im/ec2-probes.d/host/system \
           $VAR_LOCATION/remotes/im/ec2-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/ec2-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/az.d \
+          $VAR_LOCATION/remotes/im/az-probes.d/host/beacon \
           $VAR_LOCATION/remotes/im/az-probes.d/host/monitor \
           $VAR_LOCATION/remotes/im/az-probes.d/host/system \
           $VAR_LOCATION/remotes/im/az-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/az-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/one.d \
+          $VAR_LOCATION/remotes/im/one-probes.d/host/beacon \
           $VAR_LOCATION/remotes/im/one-probes.d/host/monitor \
           $VAR_LOCATION/remotes/im/one-probes.d/host/system \
           $VAR_LOCATION/remotes/im/one-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/one-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/packet.d \
+          $VAR_LOCATION/remotes/im/packet-probes.d/host/beacon \
+          $VAR_LOCATION/remotes/im/packet-probes.d/host/monitor \
+          $VAR_LOCATION/remotes/im/packet-probes.d/host/system \
+          $VAR_LOCATION/remotes/im/packet-probes.d/vm/monitor \
+          $VAR_LOCATION/remotes/im/packet-probes.d/vm/status \
           $VAR_LOCATION/remotes/pm \
           $VAR_LOCATION/remotes/pm/ec2 \
           $VAR_LOCATION/remotes/pm/dummy \
@@ -524,18 +538,26 @@ INSTALL_FILES=(
     IM_PROBES_LXD_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d/vm/status
     IM_PROBES_LXD_PROBES_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d
     IM_PROBES_ETC_LXD_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/lxd-probes.d
+    IM_PROBES_AZ_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/az-probes.d/host/beacon
     IM_PROBES_AZ_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/az-probes.d/host/monitor
     IM_PROBES_AZ_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/az-probes.d/host/system
     IM_PROBES_AZ_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/az-probes.d/vm/monitor
     IM_PROBES_AZ_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/az-probes.d/vm/status
+    IM_PROBES_EC2_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/host/beacon
     IM_PROBES_EC2_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/host/monitor
     IM_PROBES_EC2_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/host/system
     IM_PROBES_EC2_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/vm/monitor
     IM_PROBES_EC2_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/vm/status
+    IM_PROBES_ONE_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/one-probes.d/host/beacon
     IM_PROBES_ONE_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/one-probes.d/host/monitor
     IM_PROBES_ONE_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/one-probes.d/host/system
     IM_PROBES_ONE_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/one-probes.d/vm/monitor
     IM_PROBES_ONE_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/one-probes.d/vm/status
+    IM_PROBES_PACKET_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/packet-probes.d/host/beacon
+    IM_PROBES_PACKET_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/packet-probes.d/host/monitor
+    IM_PROBES_PACKET_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/packet-probes.d/host/system
+    IM_PROBES_PACKET_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/packet-probes.d/vm/monitor
+    IM_PROBES_PACKET_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/packet-probes.d/vm/status
     IM_PROBES_VERSION:$VAR_LOCATION/remotes
     IM_PROBES_FIRECRACKER_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/host/beacon
     IM_PROBES_FIRECRACKER_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/host/monitor
@@ -543,6 +565,11 @@ INSTALL_FILES=(
     IM_PROBES_FIRECRACKER_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/vm/monitor
     IM_PROBES_FIRECRACKER_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/vm/status
     IM_PROBES_ETC_FIRECRACKER_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/firecracker-probes.d
+    IM_PROBES_VCENTER_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/vcenter-probes.d/host/beacon
+    IM_PROBES_VCENTER_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/vcenter-probes.d/host/monitor
+    IM_PROBES_VCENTER_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/vcenter-probes.d/host/system
+    IM_PROBES_VCENTER_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/vcenter-probes.d/vm/monitor
+    IM_PROBES_VCENTER_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/vcenter-probes.d/vm/status
     AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
     AUTH_X509_FILES:$VAR_LOCATION/remotes/auth/x509
     AUTH_LDAP_FILES:$VAR_LOCATION/remotes/auth/ldap
@@ -660,6 +687,7 @@ INSTALL_ONEPROVISION_FILES=(
     ONEPROVISION_CONF_FILES:$ETC_LOCATION/cli
     ONEPROVISION_ANSIBLE_FILES:$SHARE_LOCATION/oneprovision
     ONEPROVISION_TEMPLATES_FILES:$SHARE_LOCATION/oneprovision
+    ONEPROVISION_EXAMPLES_FILES:$SHARE_LOCATION/oneprovision
     ONEPROVISION_LIB_FILES:$LIB_LOCATION/oneprovision/lib
     ONEPROVISION_LIB_RESOURCES_FILES:$LIB_LOCATION/oneprovision/lib/resources
     ONEPROVISION_LIB_PHYSICAL_R_FILES:$LIB_LOCATION/oneprovision/lib/resources/physical
@@ -930,6 +958,7 @@ VMM_EXEC_LIB="src/vmm_mad/remotes/lib/command.rb"
 
 VMM_EXEC_LIB_VCENTER_FILES="src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/vi_client.rb \
+                    src/vmm_mad/remotes/lib/vcenter_driver/rest_client.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/vcenter_importer.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/file_helper.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/host.rb \
@@ -944,8 +973,7 @@ VMM_EXEC_LIB_VCENTER_FILES="src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb 
                     src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine_device/vm_device.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine_device/vm_disk.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine_device/vm_nic.rb \
-                    src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine_helper/vm_helper.rb \
-                    src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine_monitor/vm_monitor.rb"
+                    src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine_helper/vm_helper.rb"
 
 #-------------------------------------------------------------------------------
 # VMM Lib nsx files, used by the NSX Driver to be installed in
@@ -1176,7 +1204,9 @@ IM_PROBES_LIB_FILES="\
     src/im_mad/remotes/lib/linux.rb \
     src/im_mad/remotes/lib/firecracker.rb\
     src/im_mad/remotes/lib/numa_common.rb \
-    src/im_mad/remotes/lib/probe_db.rb"
+    src/im_mad/remotes/lib/probe_db.rb \
+    src/im_mad/remotes/lib/vcenter.rb \
+    src/im_mad/remotes/lib/nsx.rb"
 
 # KVM PROBES
 IM_PROBES_KVM_FILES="\
@@ -1302,7 +1332,8 @@ IM_PROBES_FIRECRACKER_VM_STATUS_FILES="\
 
 IM_PROBES_ETC_FIRECRACKER_PROBES_FILES="src/im_mad/remotes/lib/probe_db.conf"
 
-IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/poll"
+IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/monitord-client.rb \
+    src/im_mad/remotes/vcenter.d/monitord-client_control.sh"
 
 # EC2 monitord-client
 IM_PROBES_EC2_FILES="\
@@ -1310,6 +1341,9 @@ IM_PROBES_EC2_FILES="\
     src/im_mad/remotes/ec2.d/monitord-client.rb"
 
 # EC2 probes
+IM_PROBES_EC2_HOST_BEACON_FILES="\
+     src/im_mad/remotes/ec2-probes.d/host/beacon/monitord-client-shepherd_local.sh"
+
 IM_PROBES_EC2_HOST_MONITOR_FILES="\
      src/im_mad/remotes/ec2-probes.d/host/monitor/probe_host_monitor.rb"
 
@@ -1328,6 +1362,9 @@ IM_PROBES_AZ_FILES="\
     src/im_mad/remotes/az.d/monitord-client.rb"
 
 # AZ probes
+IM_PROBES_AZ_HOST_BEACON_FILES="\
+     src/im_mad/remotes/az-probes.d/host/beacon/monitord-client-shepherd_local.sh"
+
 IM_PROBES_AZ_HOST_MONITOR_FILES="\
      src/im_mad/remotes/az-probes.d/host/monitor/probe_host_monitor.rb"
 
@@ -1346,6 +1383,9 @@ IM_PROBES_ONE_FILES="\
     src/im_mad/remotes/one.d/monitord-client.rb"
 
 # ONE probes
+IM_PROBES_ONE_HOST_BEACON_FILES="\
+     src/im_mad/remotes/one-probes.d/host/beacon/monitord-client-shepherd_local.sh"
+
 IM_PROBES_ONE_HOST_MONITOR_FILES="\
      src/im_mad/remotes/one-probes.d/host/monitor/probe_host_monitor.rb"
 
@@ -1358,10 +1398,52 @@ IM_PROBES_ONE_VM_MONITOR_FILES="\
 IM_PROBES_ONE_VM_STATUS_FILES="\
      src/im_mad/remotes/one-probes.d/vm/status/probe_vm_status.rb"
 
-
 IM_PROBES_PACKET_FILES="src/im_mad/remotes/packet.d/poll"
 
+# PACKET monitord-client
+IM_PROBES_PACKET_FILES="\
+    src/im_mad/remotes/packet.d/monitord-client_control.sh \
+    src/im_mad/remotes/packet.d/monitord-client.rb"
+
+# PACKET probes
+IM_PROBES_PACKET_HOST_BEACON_FILES="\
+     src/im_mad/remotes/packet-probes.d/host/beacon/monitord-client-shepherd_local.sh"
+
+IM_PROBES_PACKET_HOST_MONITOR_FILES="\
+     src/im_mad/remotes/packet-probes.d/host/monitor/probe_host_monitor.rb"
+
+IM_PROBES_PACKET_HOST_SYSTEM_FILES="\
+     src/im_mad/remotes/packet-probes.d/host/system/probe_host_system.rb"
+
+IM_PROBES_PACKET_VM_MONITOR_FILES="\
+     src/im_mad/remotes/packet-probes.d/vm/monitor/probe_vm_monitor.rb"
+
+IM_PROBES_PACKET_VM_STATUS_FILES="\
+     src/im_mad/remotes/packet-probes.d/vm/status/probe_vm_status.rb"
+
 IM_PROBES_VERSION="src/im_mad/remotes/VERSION"
+
+# VCENTER PROBES
+IM_PROBES_VCENTER_FILES="\
+    src/im_mad/remotes/vcenter.d/monitord-client_control.sh \
+    src/im_mad/remotes/vcenter.d/monitord-client.rb"
+
+IM_PROBES_VCENTER_HOST_BEACON_FILES="\
+     src/im_mad/remotes/vcenter-probes.d/host/beacon/date.sh \
+     src/im_mad/remotes/vcenter-probes.d/host/beacon/monitord-client-shepherd.sh"
+
+IM_PROBES_VCENTER_HOST_MONITOR_FILES="\
+     src/im_mad/remotes/vcenter-probes.d/host/monitor/monitor.rb"
+
+IM_PROBES_VCENTER_HOST_SYSTEM_FILES="\
+    src/im_mad/remotes/vcenter-probes.d/host/system/nsx.rb \
+     src/im_mad/remotes/vcenter-probes.d/host/system/vcenter.rb"
+
+IM_PROBES_VCENTER_VM_MONITOR_FILES="\
+     src/im_mad/remotes/vcenter-probes.d/vms/monitor/monitor.rb"
+
+IM_PROBES_VCENTER_VM_STATUS_FILES="\
+     src/im_mad/remotes/vcenter-probes.d/vms/status/state.rb"
 
 #-------------------------------------------------------------------------------
 # Auth Manager drivers to be installed under $REMOTES_LOCATION/auth
@@ -2278,6 +2360,8 @@ ONEPROVISION_CONF_FILES="src/cli/etc/oneprovision.yaml"
 ONEPROVISION_ANSIBLE_FILES="share/oneprovision/ansible"
 
 ONEPROVISION_TEMPLATES_FILES="share/oneprovision/templates"
+
+ONEPROVISION_EXAMPLES_FILES="share/oneprovision/examples"
 
 ONEPROVISION_LIB_FILES="src/oneprovision/lib/ansible.rb \
                         src/oneprovision/lib/oneprovision.rb \

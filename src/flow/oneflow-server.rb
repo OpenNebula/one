@@ -39,6 +39,7 @@ CONFIGURATION_FILE = ETC_LOCATION + '/oneflow-server.conf'
 
 if File.directory?(GEMS_LOCATION)
     Gem.use_paths(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /(vendor|site)_ruby/ }
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -364,7 +365,7 @@ post '/service/:id/role/:role_name/action' do
         return internal_error(rc.message, one_error_to_http(rc.errno))
     end
 
-    status 200
+    status 204
 end
 
 post '/service/:id/scale' do
@@ -380,8 +381,7 @@ post '/service/:id/scale' do
         return internal_error(rc.message, one_error_to_http(rc.errno))
     end
 
-    status 201
-    body
+    status 204
 end
 
 ##############################################################################
@@ -514,9 +514,9 @@ post '/service_template/:id/action' do
         end
 
         if custom_attrs &&
-           !custom_attrs.empty?
-            custom_attrs_values &&
-                !(custom_attrs.keys - custom_attrs_values.keys).empty?
+           !custom_attrs.empty? &&
+           custom_attrs_values &&
+           !(custom_attrs.keys - custom_attrs_values.keys).empty?
             return internal_error('Every custom_attrs key must have its ' \
                                   'value defined at custom_attrs_value',
                                   VALIDATION_EC)
@@ -527,7 +527,7 @@ post '/service_template/:id/action' do
         networks_values = merge_template['networks_values'] if merge_template
 
         # Obtain defaults from template
-        unless networks_values
+        if networks && !networks_values
             networks_values = []
 
             begin
@@ -540,7 +540,7 @@ post '/service_template/:id/action' do
                     # Existing:    "net": "M|network|| |id:0"
                     # Instantiate: "net": "M|network|| |template_id:1"
                     # Reserve:     "net": "M|network|| |reserve_from:0"
-                    value = value.split('||')[1].gsub('|', '').strip.split(':')
+                    value = value.split('|')[4].strip.split(':')
 
                     net[key][value[0]] = value[1]
 
@@ -668,6 +668,7 @@ post '/service_template/:id/action' do
         end
 
         new_stemplate = OpenNebula::ServiceTemplate.new_with_id(rc, @client)
+
         rc            = new_stemplate.info
 
         if OpenNebula.is_error?(rc)

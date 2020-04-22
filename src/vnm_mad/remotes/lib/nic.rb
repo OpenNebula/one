@@ -107,7 +107,7 @@ module VNMMAD
 
                 _o, _e, snap = Open3.capture3('snap list lxd;') # avoid cmd not found with;
                 @lxc_cmd = 'lxc'
-                @lxc_cmd.prepend('sudo ') if snap.exitstatus.zero?
+                @lxc_cmd.prepend('sudo -n ') if snap.exitstatus.zero?
             end
 
             # Get the VM information with lxc config show

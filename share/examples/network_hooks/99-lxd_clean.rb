@@ -11,7 +11,7 @@ def clean_host_nic(veth)
 
     return unless s == 0
 
-    cmd = "sudo ip link delete #{veth}"
+    cmd = "sudo -n ip link delete #{veth}"
     OpenNebula.log "Found lingering nic #{veth}\n Running #{cmd}"
 
     o, e, s = Open3.capture3(cmd)

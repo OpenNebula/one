@@ -45,7 +45,7 @@ ROOTFS_PATH="/srv/jailer/firecracker/$VM_NAME/root"
 
 # Remove Firecracker residual files
 rm -rf "$ROOTFS_PATH/dev"
-rm -f "$ROOTFS_PATH/api.socket"
+rm -rf "$ROOTFS_PATH/run"
 rm -f "$ROOTFS_PATH/firecracker"
 
 # Unmount VM directory (if needed)

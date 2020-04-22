@@ -24,7 +24,8 @@ class LinuxHost
     ENV['LANG'] = 'C'
     ENV['LC_ALL'] = 'C'
 
-    NODEINFO = 'virsh -c qemu:///system nodeinfo'
+    CPUINFO = 'lscpu | grep CPU'
+    MEMINFO = 'cat /proc/meminfo | grep MemTotal'
 
     ######
     #  First, get all the posible info out of virsh
@@ -34,7 +35,7 @@ class LinuxHost
     attr_accessor :cpu, :memory, :net
 
     def initialize
-        nodeinfo = `#{NODEINFO}`
+        cpuinfo = `#{CPUINFO}`
 
         exit(-1) if $CHILD_STATUS.exitstatus != 0
 
@@ -42,15 +43,16 @@ class LinuxHost
         @memory = {}
         @net = {}
 
-        nodeinfo.split(/\n/).each {|line|
-            if     line =~ /^CPU\(s\)/
-                @cpu[:total]   = line.split(':')[1].strip.to_i * 100
-            elsif  line =~ /^CPU frequency/
-                @cpu[:speed]   = line.split(':')[1].strip.split(' ')[0]
-            elsif  line =~ /^Memory size/
-                @memory[:total] = line.split(':')[1].strip.split(' ')[0]
+        cpuinfo.split(/\n/).each do |line|
+            if line =~ /^CPU\(s\)/
+                @cpu[:total] = line.split(':')[1].strip.to_i * 100
+            elsif line =~ /^CPU MHz:/
+                @cpu[:speed] = Float(line.split(':')[1].strip.split(' ')[0]).round
             end
-        }
+        end
+
+        meminfo = `#{MEMINFO}`
+        @memory[:total] = meminfo.split(':')[1].strip.split(' ')[0]
 
         ######
         #  CPU
