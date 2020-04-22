@@ -1249,3 +1249,27 @@ module DomainList
     end
 
 end
+
+############################################################################
+#  Module Interface
+#  Interface for probe_db - VirtualMachineDB
+############################################################################
+module DomainList
+
+    def self.state_info(name, id)
+        vmm = VirtualMachineMonitor.new(id)
+
+        vms = vmm.vms(id)
+        info = {}
+        vms.each do |vm|
+            info[vm[:uuid]] = { :id     => vm[:id],
+                                :uuid   => vm[:uuid],
+                                :name   => vm[:name],
+                                :state  => vm[:state],
+                                :hyperv => 'vcenter' }
+        end
+
+        info
+    end
+
+end
