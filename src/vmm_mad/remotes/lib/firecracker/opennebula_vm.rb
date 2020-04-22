@@ -32,7 +32,8 @@ class FirecrackerConfiguration < Hash
         :gid => 9869,
         :shutdown_timeout => 10,
         :cgroup_location => '/sys/fs/cgroup',
-        :cgroup_delete_timeout => 10
+        :cgroup_delete_timeout => 10,
+        :numa_policy => 'random'
     }
 
     FIRECRACKERRC = '../../etc/vmm/firecracker/firecrackerrc'
@@ -258,9 +259,23 @@ class OpenNebulaVM
 
         nodes = nodes.split("\n")
 
+        case @fcrc[:numa_policy].downcase
+        when 'rr'
+            rr_policy(nodes)
+        when 'random'
+            random_policy(nodes)
+        else
+            random_policy(nodes)
+        end
+    end
+
+    def rr_policy(nodes)
         Integer(nodes[@vm_id % nodes.size].gsub('node', ''))
     end
 
+    def random_policy(nodes)
+        Integer(nodes.sample.gsub('node', ''))
+    end
     #---------------------------------------------------------------------------
     # Container Mapping: Extra Configuration & Profiles
     #---------------------------------------------------------------------------
