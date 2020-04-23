@@ -217,7 +217,7 @@ end
 #-------------------------------------------------------------------------------
 #  Script helper functions and gLobals
 #-------------------------------------------------------------------------------
-LOCAL_HYPERVISOR = %w[az ec2 one packet].freeze
+LOCAL_HYPERVISOR = %w[az ec2 one packet vcenter].freeze
 
 def local?(hypervisor)
     LOCAL_HYPERVISOR.include?(hypervisor)
