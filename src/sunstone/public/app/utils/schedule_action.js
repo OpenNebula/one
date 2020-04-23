@@ -26,6 +26,7 @@ define(function (require) {
   var TemplateTableHTML = require("hbs!./schedule_action/table");
 
   var selector = '';
+  var defaultHour = "12:30";
 
   function _html(resource, leases = null) {
     this.res = resource;
@@ -33,6 +34,36 @@ define(function (require) {
       res: resource,
       leases: leases
     });
+  }
+
+  function formatDate( date, type = 'full') {
+    var d = date? new Date(date): new Date();
+    var month = '' + (d.getMonth() + 1);
+    var day = '' + d.getDate();
+    var year = d.getFullYear();
+    var hour = d.getHours();
+    var minutes = d.getMinutes();
+    if (hour.length < 2) 
+        hour = '0' + hour;
+    if (minutes.length < 2) 
+        minutes = '0' + minutes;
+    if (month.length < 2) 
+        month = '0' + month;
+    if (day.length < 2) 
+        day = '0' + day;
+    var date = [];
+    switch (type) {
+      case 'hour':
+        date = [hour+":"+minutes];
+      break;
+      case 'date':
+        date = [year, month, day];
+      break;
+      default:
+        date = [year, month, day, hour+":"+minutes];
+      break;
+    }
+    return date.join('-');
   }
 
   function _htmlNewAction(actions, context, res) {
@@ -53,7 +84,7 @@ define(function (require) {
       twentyFour: "true",
       timeSeparator: ":",
       beforeShow: clearEmpySpaces,
-      now: "12:30"
+      now: defaultHour
     };
     var that = this;
     $.each(actions, function (key, action) {
@@ -253,10 +284,21 @@ define(function (require) {
         }
         //relative check
         if(relative){
-          console.log("relative");
           $('#relative_time').prop('checked', true);
           $("#relative_time_form").removeClass("hide");
           $("#no_relative_time_form").addClass("hide");
+          if(dataJSON.TIME){
+            var relativeTime = _time(parseInt(dataJSON.TIME,10));
+            if(relativeTime && relativeTime.split && relativeTime.split(" ")){
+              relativeDate = relativeTime.trim().split(" ");
+              if(relativeDate[0]){
+                $("#time_number").val(relativeDate[0]);
+              }
+              if(relativeDate[1]){
+                $('#time_unit').val(relativeDate[1].toLowerCase());
+              }
+            }
+          }
         }else{
           $('#relative_time').prop('checked', false);
           $("#relative_time_form").addClass("hide");
@@ -264,6 +306,19 @@ define(function (require) {
           //periodic check
           if(dataJSON.DAYS || dataJSON.REPEAT){
             $('#schedule_type').click().attr('checked', true);
+          }
+          if(dataJSON.END_VALUE && dataJSON.END_VALUE > 1){
+            var end_value = parseInt(dataJSON.END_VALUE,10) * 1000;
+            $("#date_input").val(
+              formatDate(end_value,'date')
+            );
+            $("#time_input").val(
+              formatDate(end_value, 'hour')
+            );
+            //JORGE
+
+          }else{
+            _resetInputs();
           }
         }
       }
@@ -274,11 +329,20 @@ define(function (require) {
   function _reset(){
     $("#schedule_type").prop("checked",false);
     $("#schedule_type").prop("checked",false);
+    $("#time_number").val("");
+    _resetInputs();
     $(".periodic").addClass("hide");
     $(".non-periodic").removeClass("hide");
     $(".relative_time_form").addClass("hide");
     $(".no_relative_time_form").removeClass("hide");
     
+  }
+
+  function _resetInputs(){
+    $("#date_input").val(
+      formatDate(false, 'date')
+    );
+    $("#time_input").val(defaultHour);
   }
 
   function _retrieve(context) {
@@ -371,7 +435,7 @@ define(function (require) {
       end_type = 2;
       var timeCal = date_input_value + " " + time_input_value;
       epochStr = new Date(timeCal);
-      var time = parseInt(epochStr.getTime()) / 1000;
+      var time = parseInt(epochStr.getTime(),10) / 1000;
       sched_action.END_TYPE = end_type;
       sched_action.END_VALUE = time;
       sched_action.TIME = time;
