@@ -66,7 +66,7 @@ begin
     puts "VCENTER_LAST_PERF_POLL=" << last_perf_poll << "\n" if last_perf_poll
 
     # Datastore Monitoring
-    puts cm.monitor_datastores
+    puts vcm.monitor_datastores
 
 rescue StandardError => e
     STDERR.puts "IM poll for vcenter cluster #{host_id} failed due to "\
