@@ -151,7 +151,8 @@ void HostMonitorManager::update_host(int oid, const std::string &xml)
             {
                 stop_host_monitor(host);
             }
-            else if (old_state == Host::OFFLINE)
+            else if (old_state == Host::OFFLINE || old_state == Host::ERROR ||
+                     old_state == Host::INIT)
             {
                 start_host_monitor(host);
             }

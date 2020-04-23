@@ -36,6 +36,7 @@ $LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 
 require 'sqlite3'
 require 'yaml'
+require 'fileutils'
 
 # ------------------------------------------------------------------------------
 # SQlite Interface for the status probes. It stores the last known state of
@@ -74,7 +75,11 @@ class VirtualMachineDB
 
     def initialize(hyperv, opts = {})
         @conf = VirtualMachineDB.load_conf(hyperv, opts)
-        @db   = SQLite3::Database.new(@conf[:db_path])
+
+        @mtime = 0
+        @mtime = File.mtime(@conf[:db_path]) if File.exist?(@conf[:db_path])
+
+        @db = SQLite3::Database.new(@conf[:db_path])
 
         bootstrap
 
@@ -93,9 +98,9 @@ class VirtualMachineDB
     def to_status(host, host_id)
         time = Time.now.to_i
         last = @db.execute("SELECT MAX(timestamp) from #{@dataset}").flatten![0]
-        last ||= 0
+        last ||= @mtime.to_i
 
-        return sync_status(host, host_id) if time > (last + @conf[:sync]) && last != 0
+        return sync_status(host, host_id) if last == 0 || time > (last + @conf[:sync])
 
         status_str  = ''
         monitor_ids = []
