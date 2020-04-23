@@ -24,6 +24,13 @@ func TestShow() {
 	fmt.Println(serv)
 }
 
+func TestShutdown() {
+	result, body := service.TestShutdown(client, 3)
+
+	fmt.Println(result)
+	fmt.Println(body)
+}
+
 func TestDelete() {
 	result, body := service.Delete(client, 3)
 

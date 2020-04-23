@@ -1,4 +1,4 @@
-package httpclient
+package client
 
 import (
 	"fmt"
