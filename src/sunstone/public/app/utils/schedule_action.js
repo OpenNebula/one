@@ -307,8 +307,8 @@ define(function (require) {
           if(dataJSON.DAYS || dataJSON.REPEAT){
             $('#schedule_type').click().attr('checked', true);
           }
-          if(dataJSON.END_VALUE && dataJSON.END_VALUE > 1){
-            var end_value = parseInt(dataJSON.END_VALUE,10) * 1000;
+          if(dataJSON.TIME && dataJSON.TIME > 1){
+            var end_value = parseInt(dataJSON.TIME,10) * 1000;
             $("#date_input").val(
               formatDate(end_value,'date')
             );
@@ -357,6 +357,30 @@ define(function (require) {
           }else{
             _resetRepeat();
           }
+          if(dataJSON.END_TYPE && dataJSON.END_TYPE.length){
+            switch (dataJSON.END_TYPE) {
+              case "0":
+                $("#end_type_ever").prop("checked",true).click();
+              break;
+              case "1":
+                $("#end_type_n_rep[value=n_rep]").click();
+                if(dataJSON.END_VALUE && dataJSON.END_VALUE.length){
+                  $("#end_value_n_rep").val(dataJSON.END_VALUE);
+                }
+              break;
+              case "2":
+                $("#end_type_n_rep[value=date]").click();
+                if(dataJSON.END_VALUE && dataJSON.END_VALUE.length){
+                  var end_value = parseInt(dataJSON.END_VALUE,10) * 1000;
+                  $("#end_value_date").val(
+                    formatDate(end_value,'date')
+                  );
+                }
+              break;
+              default:
+              break;
+            }
+          }
         }
       }
       console.log("FILL", dataJSON);
@@ -367,6 +391,9 @@ define(function (require) {
     $("#schedule_type").prop("checked",false);
     $("#schedule_type").prop("checked",false);
     $("#time_number").val("");
+    $("#end_value_date").val("").prop("disabled", true);
+    $("#end_value_n_rep").val("").prop("disabled", true);
+    $("#end_type_ever").click();
     _resetInputs();
     _resetRepeat();
     _resetRepeatValues();
