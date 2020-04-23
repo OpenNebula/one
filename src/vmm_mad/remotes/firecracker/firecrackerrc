@@ -64,6 +64,6 @@
 ################################################################################
 #
 # Policy to schedule microVMs accross NUMA nodes. Available options:
-#   - "rr": scheduled the microVMs in a RR way acrros NUMA nodes based on the VM id.
-#   - "random": scheduled the microVMs randomly acrros NUMA nodes based on the VM id.
-:numa_policy: 'rr'
+#   - "rr": schedule the microVMs in a RR way across NUMA nodes based on the VM id.
+#   - "random": schedule the microVMs randomly across NUMA nodes.
+:numa_policy: 'random'
