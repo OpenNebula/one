@@ -5,7 +5,7 @@
 # to mount both images. Free to use under Apache 2.0 License.
 # 2020, Vlastimil Holer <vlastimil.holer@gmail.com>
 
-export PATH=/usr/sbin:$PATH
+export PATH=/sbin:/usr/sbin:$PATH
 
 set -e -o pipefail
 
