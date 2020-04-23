@@ -1,12 +1,10 @@
-delaycompress
-dateext
-dateformat -%Y%m%d-%s
-
-compress
-weekly
-rotate 52
-
-/var/log/one/one_xmlrpc.log /var/log/one/oned.log {
+/var/log/one/one_xmlrpc.log /var/log/one/oned.log /var/log/one/monitor.log {
+    delaycompress
+    dateext
+    dateformat -%Y%m%d-%s
+    compress
+    weekly
+    rotate 52
     missingok
     notifempty
     copytruncate
