@@ -26,6 +26,16 @@
     group: 9869
     mode: "{{ item.mode }}"
   with_items:
-    - { name: 'id_rsa',      mode: '0600' }
     - { name: 'id_rsa.pub',  mode: '0644' }
     - { name: 'known_hosts', mode: '0644' }
+
+- name: Copy local private SSH keys
+  copy:
+    src: /var/lib/one/.ssh/{{ item.name }}
+    dest: /var/lib/one/.ssh/{{ item.name }}
+    owner: 9869
+    group: 9869
+    mode: "{{ item.mode }}"
+  with_items:
+    - { name: 'id_rsa',      mode: '0600' }
+  when: opennebula_ssh_deploy_private_key == True

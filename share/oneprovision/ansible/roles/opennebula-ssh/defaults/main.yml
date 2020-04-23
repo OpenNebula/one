@@ -11,3 +11,6 @@ opennebula_ssh_sshd_permitrootlogin: 'without-password'
 
 # Deploy local oneadmin's SSH key to remote host
 opennebula_ssh_deploy_local: True
+
+# Deploy local oneadmin's SSH private key to remote host
+opennebula_ssh_deploy_private_key: False
