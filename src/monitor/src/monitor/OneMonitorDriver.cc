@@ -80,7 +80,7 @@ void OneMonitorDriver::host_system_info(int oid, const std::string& status,
 {
     Message<OpenNebulaMessages> oned_msg;
 
-    oned_msg.type(OpenNebulaMessages::SYSTEM_HOST);
+    oned_msg.type(OpenNebulaMessages::HOST_SYSTEM);
     oned_msg.oid(oid);
     oned_msg.status(status);
     oned_msg.payload(payload);

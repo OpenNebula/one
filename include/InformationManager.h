@@ -106,9 +106,9 @@ protected:
     void _host_state(unique_ptr<Message<OpenNebulaMessages>> msg);
 
     /**
-     *  Message SYSTEM_HOST update from monitor
+     *  Message HOST_SYSTEM update from monitor
      */
-    void _system_host(unique_ptr<Message<OpenNebulaMessages>> msg);
+    void _host_system(unique_ptr<Message<OpenNebulaMessages>> msg);
 
     /**
      *  Message VM_STATE from monitor

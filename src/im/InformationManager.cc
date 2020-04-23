@@ -36,8 +36,8 @@ int InformationManager::start()
     register_action(OpenNebulaMessages::HOST_STATE,
             bind(&InformationManager::_host_state, this, _1));
 
-    register_action(OpenNebulaMessages::SYSTEM_HOST,
-            bind(&InformationManager::_system_host, this, _1));
+    register_action(OpenNebulaMessages::HOST_SYSTEM,
+            bind(&InformationManager::_host_system, this, _1));
 
     register_action(OpenNebulaMessages::VM_STATE,
             bind(&InformationManager::_vm_state, this, _1));
@@ -189,7 +189,8 @@ void InformationManager::delete_host(int hid)
 
 void InformationManager::_undefined(unique_ptr<Message<OpenNebulaMessages>> msg)
 {
-    NebulaLog::warn("InM", "Received undefined message: " + msg->payload());
+    NebulaLog::warn("InM", "Received undefined message: " + msg->payload() +
+            "from host: " + to_string(msg->oid()));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -197,7 +198,9 @@ void InformationManager::_undefined(unique_ptr<Message<OpenNebulaMessages>> msg)
 
 void InformationManager::_host_state(unique_ptr<Message<OpenNebulaMessages>> msg)
 {
-    NebulaLog::debug("InM", "Received host_state message: " + msg->payload());
+    NebulaLog::debug("InM", "HOST_STATE update from host: " +
+        to_string(msg->oid()) + ". Host information: " + msg->payload());
+
 
     string str_state = msg->payload();
     Host::HostState new_state;
@@ -245,10 +248,10 @@ void InformationManager::_host_state(unique_ptr<Message<OpenNebulaMessages>> msg
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void InformationManager::_system_host(unique_ptr<Message<OpenNebulaMessages>> msg)
+void InformationManager::_host_system(unique_ptr<Message<OpenNebulaMessages>> msg)
 {
-    NebulaLog::ddebug("InM", "Received SYSTEM_HOST message id: " +
-            to_string(msg->oid()));
+    NebulaLog::debug("InM", "HOST_SYSTEM update from host: " +
+        to_string(msg->oid()) + ". Host information: " + msg->payload());
 
     char *   error_msg;
     Template tmpl;
@@ -419,8 +422,9 @@ void InformationManager::_vm_state(unique_ptr<Message<OpenNebulaMessages>> msg)
 
         hv_ids.insert(id);
 
-        NebulaLog::debug("InM", "Received VM_STATE for VM id: " +
-            to_string(id) + ", state: " + state_str);
+        NebulaLog::debug("InM", "VM_STATE update from host: " +
+            to_string(msg->oid()) + ". VM id: " + to_string(id) + ", state: " +
+            state_str);
 
         auto* vm = vmpool->get(id);
 
@@ -531,6 +535,10 @@ void InformationManager::_vm_state(unique_ptr<Message<OpenNebulaMessages>> msg)
         {
             action = LCMAction::MONITOR_POWEROFF;
         }
+
+        NebulaLog::debug("InM", "VM_STATE update from host: " +
+            to_string(msg->oid()) + ". VM id: " + to_string(vm->get_oid()) +
+            ", state: " + state_str);
 
         lcm->trigger(action, vm->get_oid());
 

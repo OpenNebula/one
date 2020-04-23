@@ -53,7 +53,7 @@ function start_client() {
 
     sleep 1
 
-    if [ -z "$CLIENT_PID" ] || ! ps -p $CLIENT_PID > /dev/null;
+    if [ -z "$CLIENT_PID" ] || ! ps -p $CLIENT_PID > /dev/null; then
         cat /tmp/one-monitord-$HID.error
         exit 1
    fi
