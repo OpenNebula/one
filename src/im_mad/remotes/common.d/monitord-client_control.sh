@@ -48,9 +48,17 @@ CLIENT_PID_FILE=/tmp/one-monitord-$HID.pid
 function start_client() {
     rm $CLIENT_PID_FILE >/dev/null 2>&1
 
-    echo "$STDIN" | /usr/bin/env ruby $CLIENT $ARGV &
+    echo "$STDIN" | /usr/bin/env ruby $CLIENT $ARGV 2> /tmp/one-monitord-$HID.error &
+    CLIENT_PID=$!
 
-    echo $! > $CLIENT_PID_FILE
+    sleep 1
+
+    if [ -z "$CLIENT_PID" ] || ! ps -p $CLIENT_PID > /dev/null;
+        cat /tmp/one-monitord-$HID.error
+        exit 1
+   fi
+
+   echo $CLIENT_PID > $CLIENT_PID_FILE
 }
 
 # Stop the client
