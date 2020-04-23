@@ -670,7 +670,9 @@ class BackEndPostgreSQL < OneDBBacKEnd
         if federated
             connect_db
 
-            @db.create_table!(:logdb_tmp, as: @db[:logdb].where{fed_index != -1})
+            @db.drop_table?(:logdb_tmp)
+            @db.run 'CREATE TABLE logdb_tmp (LIKE logdb INCLUDING ALL)'
+            @db[:logdb_tmp].insert(@db[:logdb].where { fed_index != -1 })
 
             FEDERATED_TABLES.each do |table|
                 cmd << " -t " << table
