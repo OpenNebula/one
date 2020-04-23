@@ -21,9 +21,19 @@ type RPCCaller interface {
 	Call(method string, args ...interface{}) (*Response, error)
 }
 
+// HTTPCaller is the analogous to RPCCaller but for http endpoints
+type HTTPCaller interface {
+	Get(eurl string)
+	Delete(eurl string)
+	Post(eurl string, body map[string]interface)
+	Put(eurl string, body map[string]interface)
+	// Call(method, string, url string, args ...interface{}) (*Response, error)
+}
+
 // Controller is the controller used to make requets on various entities
 type Controller struct {
-	Client RPCCaller
+	Client  RPCCaller
+	Client2 HTTPCaller
 }
 
 // entitiesController is a controller for entitites
@@ -51,9 +61,10 @@ type subEntityController struct {
 }
 
 // NewController return a new one controller
-func NewController(c RPCCaller) *Controller {
+func NewController(c RPCCaller, httpc HTTPCaller) *Controller {
 	return &Controller{
-		Client: c,
+		Client:  c,
+		Client2: httpc,
 	}
 }
 
