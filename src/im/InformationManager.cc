@@ -434,6 +434,13 @@ void InformationManager::_vm_state(unique_ptr<Message<OpenNebulaMessages>> msg)
             continue;
         }
 
+        if (!vm->hasHistory() || vm->get_hid() != msg->oid())
+        {
+            //VM is not running in this host anymore, ignore
+            vm->unlock();
+            continue;
+        }
+
         if (vm->get_deploy_id() != deploy_id)
         {
             vm->set_deploy_id(deploy_id);
@@ -505,7 +512,7 @@ void InformationManager::_vm_state(unique_ptr<Message<OpenNebulaMessages>> msg)
             continue;
         }
 
-        if (!vm->hasHistory())
+        if (!vm->hasHistory() || (vm->get_hid() != msg->oid()))
         {
             vm->unlock();
             continue;
