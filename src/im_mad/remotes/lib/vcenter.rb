@@ -1257,7 +1257,7 @@ end
 module DomainList
 
     def self.state_info(name, id)
-        vmm = VirtualMachineMonitor.new(id)
+        vmm = VcenterMonitor.new(id)
 
         vms = vmm.vms(id)
         info = {}
@@ -1268,7 +1268,6 @@ module DomainList
                                 :state  => vm[:state],
                                 :hyperv => 'vcenter' }
         end
-
         info
     end
 
