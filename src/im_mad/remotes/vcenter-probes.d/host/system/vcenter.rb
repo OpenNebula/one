@@ -16,21 +16,36 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined? ONE_LOCATION
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
+else
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
+end
+
+if File.directory?(GEMS_LOCATION)
+    Gem.use_paths(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /(vendor|site)_ruby/ }
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
 require_relative '../../../lib/vcenter.rb'
 
 host = ARGV[-1]
 host_id = ARGV[-2]
 
 begin
-    # Vcenter connection
-    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-    # Cluster Monitoring
-    cm = ClusterMonitor.new(vi_client, host_id)
-    puts cm.monitor_cluster
-    puts cm.monitor_host_systems
+    # VCenter Monitoring object
+    vcm = VcenterMonitor.new(host_id)
+    puts vcm.monitor_clusters
+    puts vcm.monitor_host_systems
     # Retrieve customizations
     begin
-        puts cm.monitor_customizations
+        puts vcm.monitor_customizations
     rescue StandardError
         # Do not break monitoring on customization error
         puts 'ERROR="Customizations could not be retrieved,' \
@@ -38,10 +53,10 @@ begin
     end
 
     # Get NSX info detected from vCenter Server
-    puts cm.nsx_info
+    puts vcm.nsx_info
 
-    # Print VM monitor info
-    vm_monitor_info, last_perf_poll = cm.monitor_vms(host_id)
+    # VM monitor info
+    vm_monitor_info, last_perf_poll = vcm.monitor_vms(host_id)
     if !vm_monitor_info.empty?
         puts "VM_POLL=YES"
         puts vm_monitor_info
@@ -51,7 +66,7 @@ begin
     puts "VCENTER_LAST_PERF_POLL=" << last_perf_poll << "\n" if last_perf_poll
 
     # Datastore Monitoring
-    dm = DatastoreMonitor.new(vi_client, host_id)
+    puts cm.monitor_datastores
 
 rescue StandardError => e
     STDERR.puts "IM poll for vcenter cluster #{host_id} failed due to "\
