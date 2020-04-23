@@ -315,10 +315,47 @@ define(function (require) {
             $("#time_input").val(
               formatDate(end_value, 'hour')
             );
-            //JORGE
-
           }else{
             _resetInputs();
+          }
+          if(dataJSON.REPEAT && dataJSON.REPEAT.length){
+            _resetRepeatValues();
+            switch (dataJSON.REPEAT) {
+              case '0':
+                $("#repeat").val('week').change();
+                if(dataJSON.DAYS && dataJSON.DAYS.length){
+                  var days = $("#days_week_value input[name=days]");
+                  var dataDays = dataJSON.DAYS.split(",");
+                  dataDays.forEach(function(dataValue){
+                    if(days[dataValue]){
+                      $(days[dataValue]).prop("checked", true);
+                    }
+                  })
+                }
+              break;
+              case '1':
+                $("#repeat").val('month').change();
+                if(dataJSON.DAYS && dataJSON.DAYS.length){
+                  $("#days_month_value").val(dataJSON.DAYS);
+                }
+              break;
+              case '2':
+                $("#repeat").val('year').change();
+                if(dataJSON.DAYS && dataJSON.DAYS.length){
+                  $("#days_year_value").val(dataJSON.DAYS);
+                }
+              break;
+              case '3':
+                $("#repeat").val('hour').change();
+                if(dataJSON.DAYS && dataJSON.DAYS.length){
+                  $("#days_hour_value").val(dataJSON.DAYS);
+                }
+              break;
+              default:
+              break;
+            }
+          }else{
+            _resetRepeat();
           }
         }
       }
@@ -331,11 +368,24 @@ define(function (require) {
     $("#schedule_type").prop("checked",false);
     $("#time_number").val("");
     _resetInputs();
+    _resetRepeat();
+    _resetRepeatValues();
     $(".periodic").addClass("hide");
     $(".non-periodic").removeClass("hide");
     $(".relative_time_form").addClass("hide");
     $(".no_relative_time_form").removeClass("hide");
     
+  }
+
+  function _resetRepeatValues(){
+    $("#days_week_value input[name=days]").prop("checked", false);
+    $("#days_month_value").val("");
+    $("#days_year_value").val("");
+    $("#days_hour_value").val("");
+  }
+
+  function _resetRepeat(){
+    $("#repeat").val('week').change();
   }
 
   function _resetInputs(){
