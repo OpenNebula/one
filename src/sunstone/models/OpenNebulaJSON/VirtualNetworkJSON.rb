@@ -97,7 +97,7 @@ module OpenNebulaJSON
         end
 
         def rm_ar(params=Hash.new)
-            super(params['ar_id'])
+            super(params['ar_id'],params['force'])
         end
 
         def add_ar(params=Hash.new)
