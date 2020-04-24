@@ -38,22 +38,10 @@ module VNMMAD
 
                 @deploy_id = nil if deploy_id == '-'
 
-                nics = VNMNetwork::Nics.new(hypervisor)
-
-                @vm_root.elements.each(xpath_filter) do |nic_element|
-                    nic = nics.new_nic
-
-                    nic_build_hash(nic_element, nic)
-
-                    if !VNMMAD.pre_action?
-                        nic.get_info(self)
-                        nic.get_tap(self)
-                    end
-
-                    nics << nic
-                end
-
-                @nics = nics
+                @nics = nics_build(xpath_filter)
+                @nic_aliases = []
+                @nic_aliases = nics_build('TEMPLATE/NIC_ALIAS') \
+                    if !xpath_filter.nil? && xpath_filter.include?('TEMPLATE/NIC')
             end
 
             # Iterator on each NIC of the VM
@@ -63,6 +51,19 @@ module VNMMAD
                 @nics.each do |the_nic|
                     block.call(the_nic)
                 end
+            end
+
+            # Get NIC_ALIAS by NIC_ID
+            #   @param element [String] the NIC_ID
+            #   @return [Hash] the NIC_ALIAS
+            def nic_alias(id)
+                if @nic_aliases
+                    @nic_aliases.each do |the_nic|
+                        return the_nic if the_nic[:nic_id] == id
+                    end
+                end
+
+                nil
             end
 
             # Access an XML Element of the VM
@@ -119,6 +120,27 @@ module VNMMAD
                         nic[key] = data
                     end
                 end
+            end
+
+            # Method to build the list of NIC/NIC_ALIAS
+            #   @param xpath_filter [String] XML NIC/NIC_ALIAS document
+            def nics_build(xpath_filter)
+                nics = VNMNetwork::Nics.new(hypervisor)
+
+                @vm_root.elements.each(xpath_filter) do |nic_element|
+                    nic = nics.new_nic
+
+                    nic_build_hash(nic_element, nic)
+
+                    if !VNMMAD.pre_action?
+                        nic.get_info(self)
+                        nic.get_tap(self)
+                    end
+
+                    nics << nic
+                end
+
+                nics
             end
 
         end

@@ -79,10 +79,18 @@ module VNMMAD
             SGIPTables.global_bootstrap
 
             attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID'] if !do_all
+            attach_nic_alias_id = nil
+            if !do_all
+                attach_nic_alias_id = @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
+                attach_nic_alias_parent_id =
+                    @vm["TEMPLATE/NIC_ALIAS[NIC_ID=#{attach_nic_alias_id}]/PARENT_ID"]
+            end
 
             # Process the rules
             process do |nic|
                 next if attach_nic_id && attach_nic_id != nic[:nic_id]
+                next if attach_nic_alias_id && \
+                        attach_nic_alias_parent_id != nic[:nic_id]
 
                 if nic[:security_groups].nil?
                     nic[:security_groups] = "0"
@@ -123,9 +131,17 @@ module VNMMAD
 
             begin
                 attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID'] if !do_all
+                attach_nic_alias_id = nil
+                if !do_all
+                    attach_nic_alias_id = @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
+                    attach_nic_alias_parent_id =
+                        @vm["TEMPLATE/NIC_ALIAS[NIC_ID=#{attach_nic_alias_id}]/PARENT_ID"]
+                end
 
                 @vm.nics.each do |nic|
                     next if attach_nic_id && attach_nic_id != nic[:nic_id]
+                    next if attach_nic_alias_id && \
+                            attach_nic_alias_parent_id != nic[:nic_id]
 
                     SGIPTables.nic_deactivate(@vm, nic)
                 end

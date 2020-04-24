@@ -970,7 +970,7 @@ class ExecDriver < VirtualMachineDriver
                     ]
                 }
             ]
-        elsif nic_alias && external
+        elsif nic_alias
             steps = [
                 # Execute pre-attach networking setup
                 {
@@ -1070,6 +1070,15 @@ class ExecDriver < VirtualMachineDriver
                 {
                     :driver       => :vnm,
                     :action       => :clean
+                }
+            ]
+        elsif nic_alias
+            steps = [
+                # Execute post-boot networking setup
+                {
+                    :driver       => :vnm,
+                    :action       => :post,
+                    :parameters   => [:deploy_id]
                 }
             ]
         else
