@@ -95,6 +95,6 @@ rm -rf $SRC_PATH
 EOF
 )
 
-ssh_exec_and_log "$SRC_HOST" "$TAR_SSH" "Error copying disk directory to target host"
+ssh_forward ssh_exec_and_log "$SRC_HOST" "$TAR_SSH" "Error copying disk directory to target host"
 
 exit 0

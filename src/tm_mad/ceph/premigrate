@@ -76,7 +76,7 @@ $TAR -C $DST_PATH_DIRNAME --sparse -cf - $DST_PATH_BASENAME | $SSH $DST_HOST '$T
 EOF
 )
 
-ssh_exec_and_log "$SRC_HOST" "$TAR_SSH" "Error copying disk directory to target host"
+ssh_forward ssh_exec_and_log "$SRC_HOST" "$TAR_SSH" "Error copying disk directory to target host"
 
 migrate_other "$@"
 
