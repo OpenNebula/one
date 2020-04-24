@@ -173,12 +173,15 @@ define(function(require) {
       if ( !nic["NETWORK_MODE"] || ( nic["NETWORK_MODE"] && nic["NETWORK_MODE"] !== "auto" ) )
       {
         var val = $(this).data("vnetsTable").retrieveResourceTableSelect();
+        var tempNetwork = nic["NETWORK"];
+        var preserveNetwork = false;
         if (val == undefined || val == ""){
           if (nic["NETWORK"] == undefined && nic["NETWORK_ID"] == undefined ){
             // No network name or id in original NIC, and no selection done
             delete nic['FROM'];
             return; //continue
           }
+          preserveNetwork = true;
         }else{
           if(nic && nic.FROM && nic.FROM==='TEMPLATE'){
             delete nic['FROM'];
@@ -191,7 +194,13 @@ define(function(require) {
         delete nic["NETWORK_UNAME"];
         delete nic["NETWORK_UID"];
         delete nic["FROM"];
-        nic["NETWORK_ID"] = val;
+        if(preserveNetwork){
+          nic["NETWORK"] = tempNetwork;
+          preserveNetwork = false;
+        }
+        if(val && val.length){
+          nic["NETWORK_ID"] = val;
+        }
         delete nic["FLOATING_IP"];
         if ($("input.floating_ip", $(this)).prop("checked")){
           nic["FLOATING_IP"] = "YES";
