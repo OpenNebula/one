@@ -938,11 +938,11 @@ void  LifeCycleManager::epilog_success_action(int vid)
 
     vmpool->update_history(vm);
 
-    vmpool->update(vm);
-
     vm->get_capacity(sr);
 
     hpool->del_capacity(vm->get_hid(), sr);
+
+    vmpool->update(vm);
 
     //----------------------------------------------------
 
