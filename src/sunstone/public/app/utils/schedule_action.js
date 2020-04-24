@@ -253,8 +253,7 @@ define(function (require) {
             'disk-snapshot-revert',
             'disk-snapshot-delete'
           ];
-
-          if(actions.includes(that.selector.val())){
+          if(that.selector && that.selector.val && actions.includes(that.selector.val())){
             var snap_name = $("#snapname").val();
             var snap_id = $("#snapid").val();
             var disk_id = $("#diskid").val();
