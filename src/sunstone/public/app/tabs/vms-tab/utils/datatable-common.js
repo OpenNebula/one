@@ -157,11 +157,13 @@ define(function(require) {
     }
 
     var actions = "";
-    // VNC icon
+    // VNC/SPICE icon
     if (OpenNebulaVM.isVNCSupported(element)) {
-      actions += '<button class="vnc" vm_id="' + element.ID + '"><i class="fas fa-desktop"></i></button>';
+      actions += '<button class="vnc" vm_id="' + element.ID + '">\
+        <i class="fas fa-desktop"></i></button>';
     } else if (OpenNebulaVM.isSPICESupported(element)) {
-      actions += '<button class="spice" vm_id="' + element.ID + '"><i class="fas fa-desktop"></i></button>';
+      actions += '<button class="spice" vm_id="' + element.ID + '">\
+        <i class="fas fa-desktop" style="-webkit-text-stroke: 0.7px;"></i></button>';
     }
 
     if(config && 
