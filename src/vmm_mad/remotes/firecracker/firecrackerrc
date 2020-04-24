@@ -58,3 +58,12 @@
 #
 # Timeout to wait a cgroup to be empty after shutdown/cancel a microVM
 :cgroup_delete_timeout: 60
+
+################################################################################
+# NUMA placement Options
+################################################################################
+#
+# Policy to schedule microVMs accross NUMA nodes. Available options:
+#   - "rr": schedule the microVMs in a RR way across NUMA nodes based on the VM id.
+#   - "random": schedule the microVMs randomly across NUMA nodes.
+:numa_policy: 'random'
