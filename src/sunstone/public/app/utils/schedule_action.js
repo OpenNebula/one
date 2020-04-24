@@ -102,7 +102,13 @@ define(function (require) {
     schedule.find("#end_value_date",context).on("click",function(e){e.stopPropagation();$(".wickedpicker").hide();}).on("keypress",function(e){e.preventDefault(); return false;}).datepicker(options_date_picker);
 
     //input date scheduled
-    schedule.find("#date_input",context).on("click",function(e){e.stopPropagation();$(".wickedpicker").hide();}).on("keypress",function(e){e.preventDefault(); return false;}).datepicker(options_date_picker);
+    schedule.find("#date_input",context).on("click",function(e){
+      e.stopPropagation();
+      console.log("PEPEX !!!!");
+      $(".wickedpicker").hide();
+    }).on("keypress",function(e){
+      e.preventDefault(); return false;
+    }).datepicker(options_date_picker);
 
     schedule.find("#time_input",context).on("click",function(e){e.stopPropagation();}).wickedpicker(options_hour_picker);
 

@@ -73,8 +73,11 @@ define(function(require) {
   }
 
   function _setup(context) {
+    if(!CREATE){
+      CREATE = true;
+    }
     var that = this;
-		var actions = [
+    var actions = [
       "terminate", 
       "terminate-hard", 
       "hold", 
