@@ -200,16 +200,17 @@ define(function(require) {
       layout: "vmsremote_buttons",
       custom_classes: "only-sunstone-info vnc-sunstone-info"
     },
+    "VM.startspice" : {
+      type: "action",
+      text: Locale.tr("SPICE"),
+      layout: "vmsremote_buttons",
+      custom_classes: "only-sunstone-info spice-sunstone-info"
+    },
     "VM.save_rdp" : {
       type: "action",
       text: Locale.tr("RDP"),
       layout: "vmsremote_buttons",
       custom_classes: "only-sunstone-info rdp-sunstone-info"
-    },
-    "VM.startspice" : {
-      type: "action",
-      text: '<i class="fas fa-desktop"/> ' + Locale.tr("SPICE"),
-      custom_classes: "only-sunstone-info spice-sunstone-info"
     },
     "VM.save_as_template" : {
       type: "action",
