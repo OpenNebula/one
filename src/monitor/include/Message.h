@@ -107,6 +107,11 @@ public:
         return _type_str._to_str(_type);
     }
 
+    static const std::string& type_str(E t)
+    {
+        return _type_str._to_str(t);
+    }
+
     /**
      *  Status of the message, can't contain blanks.
      *  Depends on message type, could contain result of

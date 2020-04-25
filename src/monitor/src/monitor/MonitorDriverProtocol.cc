@@ -20,6 +20,8 @@
 #include "HostMonitorManager.h"
 #include "OneMonitorDriver.h"
 
+#include "MonitorDriverMessages.h"
+
 HostMonitorManager * MonitorDriverProtocol::hm = nullptr;
 
 /* -------------------------------------------------------------------------- */
@@ -97,7 +99,8 @@ void MonitorDriverProtocol::_monitor_vm(message_t msg)
 
             if (it == vms_templ.end())
             {
-                vms_templ.insert(make_pair(std::move(uuid), make_pair(id, std::move(mon_tmpl))));
+                vms_templ.insert(make_pair(std::move(uuid),
+                    make_pair(id, std::move(mon_tmpl))));
             }
             else
             {
@@ -184,7 +187,17 @@ void MonitorDriverProtocol::_state_vm(message_t msg)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
+/* Format of the START_MONITOR response message is:
+ * <MONITOR_MESSAGES>
+ *   <MONITOR_VM>
+ *   ...
+ *   </MONITOR_VM>
+ *   ...
+ * </MONITOR_MESSAGES>
+ *
+ * It includes all messages that may be sent by probes, defined in
+ * MonitorDriverMessages. This message is constructed in monitord_client.rb
+ */
 void MonitorDriverProtocol::_start_monitor(message_t msg)
 {
     NebulaLog::ddebug("MDP", "Received start monitor for host " +
@@ -200,8 +213,71 @@ void MonitorDriverProtocol::_start_monitor(message_t msg)
         return;
     }
 
-    auto oned = hm->get_oned_driver();
-    oned->host_system_info(msg->oid(), msg->status(), msg->payload());
+    ObjectXML msg_xml;
+
+    if ( msg_xml.update_from_str(msg->payload()) != 0 )
+    {
+        hm->start_monitor_failure(msg->oid());
+
+        NebulaLog::warn("MDP", "Error parsing start message for host " +
+            to_string(msg->oid()) + ": " + msg->payload());
+
+        return;
+    }
+
+    const std::vector<MonitorDriverMessages> stypes = {
+        MonitorDriverMessages::MONITOR_VM,
+        MonitorDriverMessages::BEACON_HOST,
+        MonitorDriverMessages::MONITOR_HOST,
+        MonitorDriverMessages::SYSTEM_HOST,
+        MonitorDriverMessages::STATE_VM
+    };
+
+    for (const auto& it : stypes)
+    {
+        std::string payload64, payload;
+
+        std::string xpath = "/MONITOR_MESSAGES/" +
+            Message<MonitorDriverMessages>::type_str(it);
+
+        if ( msg_xml.xpath(payload64, xpath.c_str(), "") != 0 )
+        {
+            continue;
+        }
+
+        base64_decode(payload64, payload);
+
+        message_t m(new Message<MonitorDriverMessages>);
+
+        m->type(it);
+
+        m->oid(msg->oid());
+
+        m->status("SUCCESS");
+
+        m->payload(payload);
+
+        switch(it)
+        {
+            case MonitorDriverMessages::MONITOR_VM:
+                _monitor_vm(std::move(m));
+                break;
+            case MonitorDriverMessages::BEACON_HOST:
+                _beacon_host(std::move(m));
+                break;
+            case MonitorDriverMessages::MONITOR_HOST:
+                _monitor_host(std::move(m));
+                break;
+            case MonitorDriverMessages::SYSTEM_HOST:
+                _system_host(move(m));
+                break;
+            case MonitorDriverMessages::STATE_VM:
+                _state_vm(move(m));
+                break;
+            default:
+                break;
+        }
+    }
 
     hm->start_monitor_success(msg->oid());
 }
