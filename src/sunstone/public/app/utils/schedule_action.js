@@ -705,13 +705,18 @@ define(function (require) {
         <td nowrap class='rep_row'>" + rep_str + "</td>\
         <td nowrap class='end_row'>" + end_str + "</td>";
     if (minus === undefined) {
+      var action_id = scheduling_action.ID || '';
+      var update_sched = '';
+      if(action_id){
+        update_sched = "<button id='edit' class='small button btn-warning edit_action_x' data_id='"+action_id+"'><i class='fas fa-edit'></i></button>";
+      }
       str += "<td colspan='3' style='text-align: right;'>\
               <div style='display: flex;justify-content: flex-end;'>\
                 <div>\
                   <button id='minus' class='small button btn-danger remove_action_x'><i class='fas fa-trash-alt'></i></button>\
                 </div>\
                 <div>\
-                  <button id='edit' class='small button btn-warning edit_action_x'><i class='fas fa-edit'></i></button>\
+                  "+update_sched+"\
                 </div>\
               </div>\
             </td>\

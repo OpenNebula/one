@@ -48,6 +48,12 @@ define(function(require) {
     var time_str = Humanize.prettyTime(scheduling_action.TIME);
 
     var str = "";
+    var action_id = scheduling_action.ID || '';
+    var update_sched = '';
+    if(action_id){
+      update_sched = "<button id='minus' class='small button btn-warning edit_action_x' data_id='"+action_id+"'><i class='fas fa-edit'></i></button>";
+    }
+
     str += "<tr class=\"tr_action\">\
         <td class=\"action_row\">" + TemplateUtils.htmlEncode(scheduling_action.ACTION) + "</td>\
         <td nowrap class=\"time_row\">" + time_str + "</td>\
@@ -57,7 +63,7 @@ define(function(require) {
               <button id='minus' class='small button btn-danger remove_action_x'><i class='fas fa-trash-alt'></i></button>\
             </div>\
             <div>\
-              <button id='minus' class='small button btn-warning edit_action_x'><i class='fas fa-edit'></i></button>\
+              "+update_sched+"\
             </div>\
           </div>\
         </td>\

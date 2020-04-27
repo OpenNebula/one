@@ -38,6 +38,7 @@ define(function(require) {
   var WIZARD_TAB_ID = require("./actions/wizardTabId");
   var RESOURCE = "temp";
   var CREATE = true;
+  var contextRow;
 
   /*
     CONSTRUCTOR
@@ -126,6 +127,22 @@ define(function(require) {
       return false;
     });
 
+    context.on("click" , "#edit_temp_action_json", function(e){
+      e.preventDefault();
+      var id = $(this).attr("data_id");
+      if(id && id.length && contextRow){
+        $(".wickedpicker").hide();
+        var sched_action = ScheduleActions.retrieveNewAction(context);
+        if (sched_action != false) {
+          sched_action.ID = id;
+          contextRow.replaceWith(ScheduleActions.fromJSONtoActionsTable(sched_action));
+          contextRow = undefined;
+        }
+        clear();
+      }
+      return false;
+    });
+
     context.off("click", ".remove_action_x");
     context.on("click", ".remove_action_x", function () {
         $(this).parents("tr").remove();
@@ -134,10 +151,14 @@ define(function(require) {
     context.off("click", ".edit_action_x");
     context.on("click", ".edit_action_x", function (e) {
       e.preventDefault();
-      renderCreateForm();
-      $("#edit_"+RESOURCE+"_action_json").show();
-      $("#add_"+RESOURCE+"_action_json").hide();
-      ScheduleActions.fill($(this));
+      var id = $(this).attr("data_id");
+      if(id && id.length){
+        contextRow = $(this).closest("tr.tr_action");
+        renderCreateForm();
+        $("#edit_"+RESOURCE+"_action_json").show().attr("data_id", id);
+        $("#add_"+RESOURCE+"_action_json").hide();
+        ScheduleActions.fill($(this));
+      }
     });
 
   }
