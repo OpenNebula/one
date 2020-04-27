@@ -22,8 +22,8 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
-  var OpenNebula = require('opennebula');
-  var ResourceSelect = require('utils/resource-select');
+  var WebAuthnJSON = require('../../../../bower_components/webauthn-json/dist/index');
+
 
    /* CONSTANTS */
 
@@ -54,24 +54,111 @@ define(function(require) {
   }
 
   function _html() {
+    var authTokens = [];
+    if (this.element != undefined && this.element.TEMPLATE.SUNSTONE != undefined) {
+      var sunstone_setting = this.element.TEMPLATE.SUNSTONE || {};
+      if (sunstone_setting.TWO_FACTOR_AUTH_SECRET != undefined) {
+        authTokens.push({ 'ID': 0, 'TYPE': 'Authenticator app (HOTP)', 'NAME': '' });
+      }
+      if (sunstone_setting.WEBAUTHN_CREDENTIALS != undefined) {
+        // The handling of double quotes in JSONUtils.template_to_str() is buggy, WEBAUTHN_CREDENTIALS uses single quotes instead
+        var credentials = JSON.parse(sunstone_setting.WEBAUTHN_CREDENTIALS.replace(/\'/g, '"')).cs || {};
+        $.each(credentials, function () {
+          authTokens.push({ 'ID': this.pk, 'TYPE': 'Security key (FIDO2 / U2F / WebAuthn)', 'NAME': this.name });
+        });
+      }
+    }
+
     return TemplateHTML({
-      'dialogId': this.dialogId
+      'dialogId': this.dialogId,
+      'authTokens': authTokens
     });
   }
 
   function _setup(context) {
     var that = this;
-    var secret = randomBase32();
-    $("#secret", context).val(secret);
-    $('#qr_code', context).html('<img src="'+ '/two_factor_auth_hotp_qr_code?secret=' + secret + '&csrftoken=' + csrftoken + '" width="75%" alt="' + secret + '" />'); 
-    $("#enable_btn", context).click(function(){
-      var secret = $("#secret", context).val();
-      var token = $("#token", context).val();
-       Sunstone.runAction(
-        "User.enable_sunstone_two_factor_auth",
-        that.element.ID,
-        {current_sunstone_setting: that.sunstone_setting, secret: secret, token: token}
-      );
+    var sunstone_setting = this.element != undefined ? this.element.TEMPLATE.SUNSTONE : {};
+
+    context.on("click", "i.remove-tab", function(){
+      var tr = $(this).closest("tr");
+      $(this).closest("td").html("<i class=\"fas fa-spinner fa-spin\"/>");
+      var tokenid = $(tr).attr("data-tokenid");
+      var sunstone_setting = that.element.TEMPLATE.SUNSTONE || {};
+      if (tokenid == 0) {
+        Sunstone.runAction(
+          "User.disable_sunstone_two_factor_auth",
+          that.element.ID,
+          { current_sunstone_setting: sunstone_setting }
+        );
+      } else {
+        Sunstone.runAction(
+          "User.disable_sunstone_security_key",
+          that.element.ID,
+          { current_sunstone_setting: sunstone_setting, tokenid_to_remove: tokenid }
+        );
+      }
+    });
+
+    // Register authenticator app button
+    if (sunstone_setting != undefined && sunstone_setting.TWO_FACTOR_AUTH_SECRET != undefined) {
+      $("#register_authenticator_app", context).prop("disabled", true);
+      $("#register_authenticator_app", context).html(Locale.tr("Authenticator app already registered"));
+    }
+
+    context.off("click", "#register_authenticator_app");
+    context.on("click", "#register_authenticator_app", function () {
+      $("#authenticator_app_div").show();
+      $("#security_key_div").hide();
+      var secret = randomBase32();
+      $("#secret", context).val(secret);
+      $('#qr_code', context).html('<img src="' + '/two_factor_auth_hotp_qr_code?secret=' + secret + '&csrftoken=' + csrftoken + '" width="75%" alt="' + secret + '" />');
+      $("#enable_btn", context).click(function () {
+        var secret = $("#secret", context).val();
+        var token = $("#token", context).val();
+        Sunstone.runAction(
+          "User.enable_sunstone_two_factor_auth",
+          that.element.ID,
+          { current_sunstone_setting: that.sunstone_setting, secret: secret, token: token }
+        );
+      });
+    });
+
+    context.off("click", "#register_security_key");
+    context.on("click", "#register_security_key", function () {
+      $("#authenticator_app_div").hide();
+      $("#security_key_div").show();
+      context.off("click", "#add_btn");
+      $.ajax({
+        url: "webauthn_options_for_create",
+        type: "GET",
+        dataType: "json",
+        success: function (response) {
+          if (!navigator.credentials) {
+            $("#security_key_div").hide();
+            Notifier.onError(null, { error: { message: 'WebAuthn functionality unavailable. Ask your cloud administrator to enable TLS.' } });
+            return;
+          }
+          context.on("click", "#add_btn", function () {
+            WebAuthnJSON.create({ "publicKey": response }).then(publicKeyCredential => {
+              var nickname = $("#nickname", context).val();
+              Sunstone.runAction(
+                "User.enable_sunstone_security_key",
+                that.element.ID,
+                { nickname: nickname, publicKeyCredential: publicKeyCredential, current_sunstone_setting: that.sunstone_setting }
+              );
+            })
+            .catch((e) => {
+              Notifier.onError(null, { error: { message: e.message } });
+            });              
+          });
+        },
+        error: function (response) {
+          if (response.status == 501) {
+            $("#security_key_div").hide();
+            Notifier.onError(null, { error: { message: 'WebAuthn functionality unavailable. Ask your cloud administrator to upgrade the Ruby version.' } });
+          }
+        }
+      });
     });
 
     return false;

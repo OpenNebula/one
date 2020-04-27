@@ -5726,7 +5726,7 @@ msgstr "Autenticacion en dos pasos"
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:29
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:233
-msgid "Two factor authentication can be enabled for loging into Sunestone UI."
+msgid "Two factor authentication can be enabled for logging into Sunestone UI."
 msgstr "La autenticacion en dos pasos puede ser habilitada para Sunstone UI."
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:40
@@ -5819,7 +5819,7 @@ msgid "Authentication driver"
 msgstr "Driver de autenticación"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:38
-msgid "Two factor authtentication"
+msgid "Two factor authentication"
 msgstr "Autenticacion en dos pasos."
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:51

@@ -5708,7 +5708,7 @@ msgstr "二要素認証"
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:29
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:233
-msgid "Two factor authentication can be enabled for loging into Sunestone UI."
+msgid "Two factor authentication can be enabled for logging into Sunestone UI."
 msgstr "二要素認証はSunstoneユーザインタフェースへのログイン用に有効化できます。"
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:40
@@ -5801,7 +5801,7 @@ msgid "Authentication driver"
 msgstr "認証ドライバー"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:38
-msgid "Two factor authtentication"
+msgid "Two factor authentication"
 msgstr "二要素認証"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:51
