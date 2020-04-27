@@ -58,8 +58,7 @@ class VmmAction
     # @param[String] Id of the VM
     # @param[String] name of the actions as described in the VMM protocol
     # @param[xml_data] data sent from OpenNebula core
-    # @param[Boolean] Activate SSH ForwardAgent
-    def initialize(driver, id, action, xml_data, forward = false)
+    def initialize(driver, id, action, xml_data)
         # Initialize object with xml data
         @vmm = driver
         @id  = id
@@ -68,6 +67,9 @@ class VmmAction
         @xml_data    = @vmm.decode(xml_data)
 
         @data = {}
+
+        # Check if SSH Forward Agent should be activated
+        forward = @vmm.options[:delegate_actions].keys.include?(action.to_s.upcase)
 
         get_data(:host)
         get_data(:deploy_id)
@@ -538,7 +540,7 @@ class ExecDriver < VirtualMachineDriver
     # MIGRATE (live) action, migrates a VM to another host creating network
     #
     def migrate(id, drv_message)
-        action = VmmAction.new(self, id, :migrate, drv_message, true)
+        action = VmmAction.new(self, id, :migrate, drv_message)
         pre    = 'PRE'
         post   = 'POST'
         failed = 'FAIL'
