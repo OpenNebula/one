@@ -39,11 +39,13 @@ require 'opennebula'
 
 deploy_id = ARGV[0]
 host      = ARGV[1]
+id        = ARGV[2]
 
 begin
-    packet_drv = PacketDriver.new(host)
-    packet_drv.poll(deploy_id)
+    packet_drv = PacketDriver.new(host, id)
+    monitor = packet_drv.poll(id, deploy_id).first
 
+    puts Base64.decode64(monitor[:monitor])
 rescue Exception => e
     STDERR.puts error_message(<<EOT)
 Cannot poll info for Packet host #{host} due to "#{e.message}"
