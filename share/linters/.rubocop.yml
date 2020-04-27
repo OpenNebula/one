@@ -314,6 +314,7 @@ AllCops:
     - src/sunstone/public/config.rb
     - src/sunstone/routes/oneflow.rb
     - src/sunstone/routes/vcenter.rb
+    - src/sunstone/models/OpenNebula2FA/SunstoneWebAuthn.rb
     - src/onegate/onegate-server.rb
     - src/datastore_mad/remotes/vcenter_downloader.rb
     - src/datastore_mad/remotes/vcenter_uploader.rb

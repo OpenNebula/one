@@ -2420,6 +2420,7 @@ SUNSTONE_ETC_VIEW_MIXED="src/sunstone/etc/sunstone-views/mixed/admin.yaml \
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                        src/sunstone/models/SunstoneServer.rb \
                        src/sunstone/models/SunstoneViews.rb \
+                       src/sunstone/models/OpenNebula2FA/SunstoneWebAuthn.rb \
                        src/sunstone/models/OpenNebula2FA/sunstone_qr_code.rb \
                        src/sunstone/models/OpenNebula2FA/sunstone_optp.rb \
                        src/sunstone/models/OpenNebula2FA/sunstone_2f_auth.rb "
