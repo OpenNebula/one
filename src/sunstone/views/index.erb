@@ -37,7 +37,10 @@
             'vnc_wss' : '<%= session[:vnc_wss] %>',
             'table_order' : '<%= session[:table_order] %>',
             'default_view' : '<%= session[:default_view] %>',
-            'page_length' : '<%= session[:page_length] %>'
+            'page_length' : '<%= session[:page_length] %>',
+            'threshold_min' : '<%= $conf[:threshold_min] %>',
+            'threshold_low' : '<%= $conf[:threshold_low] %>',
+            'threshold_high' : '<%= $conf[:threshold_high] %>',
         },
         'system_config' : {
             'marketplace_url' : '<%= $conf[:marketplace_url] %>',

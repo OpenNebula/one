@@ -317,6 +317,9 @@ define(function(require) {
   }
 
   function quotaDashboard(html_tag, legend, font_large_size, font_small_size, quota) {
+    var min = SunstoneConfig.thresholds.min;
+    var low = SunstoneConfig.thresholds.low;
+    var high = SunstoneConfig.thresholds.high;
     return "<div class=\"row\">" +
           "<div class=\"large-12 columns\">" +
             "<span>" + legend + "</span>" +
@@ -324,7 +327,7 @@ define(function(require) {
         "</div>" +
         "<div class=\"row\">" +
           "<div class=\"large-12 columns\">" +
-            "  <meter id=\"" + html_tag + "_meter\" min=\"0\" low=\"33\" high=\"66\" optimum=\"0\" max=\"100\" value=\"0\"></meter>" +
+            "  <meter id=\"" + html_tag + "_meter\" min=\""+ min +"\" low=\""+ low +"\" high=\""+ high +"\" optimum=\"0\" max=\"100\" value=\"0\"></meter>" +
           "</div>" +
         "</div>" +
         "<div class=\"row\">" +

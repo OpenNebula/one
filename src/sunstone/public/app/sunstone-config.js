@@ -176,6 +176,11 @@ define(function(require) {
 
     "allTabs": function() {
       return Object.keys(_config["view"]["tabs"]);
+    },
+    "thresholds":{
+      "min":_config["user_config"]["threshold_min"],
+      "low":_config["user_config"]["threshold_low"],
+      "high":_config["user_config"]["threshold_high"]
     }
   };
 
