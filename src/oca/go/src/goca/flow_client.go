@@ -136,6 +136,19 @@ func (c *FlowClient) Put(eurl string, message map[string]interface{}) (*Response
 
 }
 
+// BodyMap accesses the body of the response and returns it as a map
+func (r *Response) BodyMap() map[string]interface{} {
+	var bodyMap map[string]interface{}
+
+	if err := json.Unmarshal([]byte(r.body), &bodyMap); err != nil {
+		panic(err)
+	}
+
+	return bodyMap
+}
+
+// HELPERS
+
 // General http request method for the c.
 func httpReq(c *FlowClient, method string, eurl string, message map[string]interface{}) (*http.Response, error) {
 	req, err := http.NewRequest(method, eurl, bodyContent(message))
@@ -149,8 +162,6 @@ func httpReq(c *FlowClient, method string, eurl string, message map[string]inter
 
 	return c.httpClient.Do(req)
 }
-
-// HELPERS
 
 // concatenates flow endpoint with flow server address in a string
 func genurl(address, endpoint string) string {
@@ -186,15 +197,4 @@ func bodyToStr(response *http.Response) string {
 	}
 
 	return string(body)
-}
-
-// BodyMap accesses the body of the response and returns it as a map
-func (r *Response) BodyMap() map[string]interface{} {
-	var bodyMap map[string]interface{}
-
-	if err := json.Unmarshal([]byte(r.body), &bodyMap); err != nil {
-		panic(err)
-	}
-
-	return bodyMap
 }
