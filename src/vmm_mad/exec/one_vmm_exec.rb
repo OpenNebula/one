@@ -58,7 +58,8 @@ class VmmAction
     # @param[String] Id of the VM
     # @param[String] name of the actions as described in the VMM protocol
     # @param[xml_data] data sent from OpenNebula core
-    def initialize(driver, id, action, xml_data)
+    # @param[Boolean] Activate SSH ForwardAgent
+    def initialize(driver, id, action, xml_data, forward = false)
         # Initialize object with xml data
         @vmm = driver
         @id  = id
@@ -91,6 +92,10 @@ class VmmAction
 
         # Initialize streams and vnm
         @ssh_src = @vmm.get_ssh_stream(action, @data[:host], @id)
+
+        # Activate SSH Forward Agent
+        @ssh_src.set_forward(forward)
+
         @vnm_src = VirtualNetworkDriver.new(src_drvs,
                                             :local_actions  => @vmm.options[:local_actions],
                                             :message        => src_xml.to_s,
@@ -100,6 +105,10 @@ class VmmAction
             dst_drvs, dst_xml = get_vnm_drivers(vm_template)
 
             @ssh_dst = @vmm.get_ssh_stream(action, @data[:dest_host], @id)
+
+            # Activate SSH Forward Agent
+            @ssh_dst.set_forward(forward)
+
             @vnm_dst = VirtualNetworkDriver.new(dst_drvs,
                                                 :local_actions  => @vmm.options[:local_actions],
                                                 :message        => dst_xml.to_s,
@@ -529,7 +538,7 @@ class ExecDriver < VirtualMachineDriver
     # MIGRATE (live) action, migrates a VM to another host creating network
     #
     def migrate(id, drv_message)
-        action = VmmAction.new(self, id, :migrate, drv_message)
+        action = VmmAction.new(self, id, :migrate, drv_message, true)
         pre    = 'PRE'
         post   = 'POST'
         failed = 'FAIL'
@@ -1284,6 +1293,7 @@ opts = GetoptLong.new(
     ['--retries',           '-r', GetoptLong::OPTIONAL_ARGUMENT],
     ['--threads',           '-t', GetoptLong::OPTIONAL_ARGUMENT],
     ['--local',             '-l', GetoptLong::REQUIRED_ARGUMENT],
+    ['--delegate',          '-d', GetoptLong::REQUIRED_ARGUMENT],
     ['--shell',             '-s', GetoptLong::REQUIRED_ARGUMENT],
     ['--parallel',          '-p', GetoptLong::NO_ARGUMENT],
     ['--timeout',           '-w', GetoptLong::OPTIONAL_ARGUMENT]
@@ -1294,6 +1304,7 @@ retries            = 0
 threads            = 15
 shell              = 'bash'
 local_actions      = {}
+delegate_actions   = {}
 single_host        = true
 timeout            = nil
 
@@ -1306,6 +1317,8 @@ begin
             threads = arg.to_i
         when '--local'
             local_actions = OpenNebulaDriver.parse_actions_list(arg)
+        when '--delegate'
+            delegate_actions = OpenNebulaDriver.parse_actions_list(arg)
         when '--shell'
             shell = arg
         when '--parallel'
@@ -1328,6 +1341,7 @@ exec_driver = ExecDriver.new(hypervisor,
                              :concurrency        => threads,
                              :retries            => retries,
                              :local_actions      => local_actions,
+                             :delegate_actions   => delegate_actions,
                              :shell              => shell,
                              :single_host        => single_host,
                              :timeout            => timeout)
