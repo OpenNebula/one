@@ -64,9 +64,9 @@ define(function(require) {
 
   function _html() {
     var that = this;
-    var html = "<div class=\"row\">\
-      <div class=\"large-12 columns\">\
-        <table id=\"scheduling_vms_actions_table\" class=\"info_table dataTable\">\
+    var html = "<div class='row'>\
+      <div class='large-12 columns'>\
+        <table id='scheduling_vms_actions_table' class='info_table dataTable'>\
          <thead>\
            <tr>\
               <th>" + Locale.tr("ID") + "</th>\
@@ -76,12 +76,12 @@ define(function(require) {
               <th>" + Locale.tr("End") + "</th>\
               <th>" + Locale.tr("Done") + "</th>\
               <th>" + Locale.tr("Message") + "</th>\
-              <th colspan=\"\"> </th>\
-              <th><button id=\"add_scheduling_vms_action\" class=\"button small success right radius\" >" + Locale.tr("Add action") + "</button></th>\
+              <th colspan=''> </th>\
+              <th><button id='add_scheduling_vms_action' class='button small success right radius' >" + Locale.tr("Add action") + "</button></th>\
               <th>" + Leases.html() + "</th>\
            </tr>\
           </thead>\
-          <tbody id=\"sched_vms_actions_body\">"+
+          <tbody id='sched_vms_actions_body' class='scheduling_place'>"+
           vmsfromJSONtoActionsTable(that.element.USER_TEMPLATE.SCHED_ACTION) +
          "</tbody>\
          </table>\

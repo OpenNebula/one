@@ -66,26 +66,68 @@ define(function (require) {
     return date.join('-');
   }
 
+  var clearEmpySpaces = function(e){
+    var value = e.val().replace(/\s/g, "");
+    e.val(value);
+  };
+
+  var options_date_picker={
+    dateFormat: "yy-mm-dd",
+    minDate: new Date(),
+    showOptions: { direction: "down" }
+  };
+  var options_hour_picker = {
+    title: Locale.tr("Hour"),
+    twentyFour: "true",
+    timeSeparator: ":",
+    beforeShow: clearEmpySpaces,
+    now: defaultHour
+  };
+
+  function addPickers(schedule,context){
+    if(schedule && context){
+      //input periodic scheduled date
+      $("#end_value_date").datepicker("disable");
+      schedule.find("#end_value_date",context).off("click").on("click",function(e){
+        e.stopPropagation();
+        $(".wickedpicker").hide();
+      }).on("keypress",function(e){
+        e.preventDefault(); 
+        return false;
+      }).datepicker(options_date_picker);
+
+      //input date scheduled
+      $("#date_input").datepicker("disable");
+      schedule.find("#date_input",context).off("click").on("click",function(e){
+        e.stopPropagation();
+        $(".wickedpicker").hide();
+      }).on("keypress",function(e){
+        e.preventDefault(); return false;
+      }).datepicker(options_date_picker);
+
+      //input hour picker
+      schedule.find("#time_input",context).off("click").on("click",function(e){
+        e.stopPropagation();
+      }).wickedpicker(options_hour_picker);
+
+      schedule.find("#relative_time", context).off("click").on("click", function (e) {
+        $("#schedule_type", context).prop("checked", false);
+        if ($(this).is(":checked")) {
+          $("#no_relative_time_form, .periodic", context).addClass("hide");
+          $("#schedule_time", context).prop("", false);
+          $("#relative_time_form", context).removeClass("hide");
+        } else {
+          $("#relative_time_form", context).addClass("hide");
+          $("#no_relative_time_form", context).removeClass("hide");
+        }
+      });
+    }
+  }
+
   function _htmlNewAction(actions, context, res) {
+    $("tr.periodic.create, tr#no_relative_time_form").remove();
     this.res = res
     var options = "";
-    var clearEmpySpaces = function(e){
-      var value = e.val().replace(/\s/g, "");
-      e.val(value);
-    };
-
-    var options_date_picker={
-      dateFormat: "yy-mm-dd",
-      minDate: new Date(),
-      showOptions: { direction: "down" }
-    };
-    var options_hour_picker = {
-      title: Locale.tr("Hour"),
-      twentyFour: "true",
-      timeSeparator: ":",
-      beforeShow: clearEmpySpaces,
-      now: defaultHour
-    };
     var that = this;
     $.each(actions, function (key, action) {
       var actionAux = action.replace(/\-/g, "_");
@@ -97,32 +139,7 @@ define(function (require) {
       "actions": options,
       "res": this.res
     }));
-
-    //input periodic scheduled date
-    schedule.find("#end_value_date",context).on("click",function(e){e.stopPropagation();$(".wickedpicker").hide();}).on("keypress",function(e){e.preventDefault(); return false;}).datepicker(options_date_picker);
-
-    //input date scheduled
-    schedule.find("#date_input",context).on("click",function(e){
-      e.stopPropagation();
-      console.log("PEPEX !!!!");
-      $(".wickedpicker").hide();
-    }).on("keypress",function(e){
-      e.preventDefault(); return false;
-    }).datepicker(options_date_picker);
-
-    schedule.find("#time_input",context).on("click",function(e){e.stopPropagation();}).wickedpicker(options_hour_picker);
-
-    schedule.find("#relative_time", context).on("click", function (e) {
-      $("#schedule_type", context).prop("checked", false);
-      if ($(this).is(":checked")) {
-        $("#no_relative_time_form, .periodic", context).addClass("hide");
-        $("#schedule_time", context).prop("", false);
-        $("#relative_time_form", context).removeClass("hide");
-      } else {
-        $("#relative_time_form", context).addClass("hide");
-        $("#no_relative_time_form", context).removeClass("hide");
-      }
-    });
+    addPickers(schedule,context);
     if (this.res === "vms") {
       $("#title", context).prop("colspan", "10");
       $("#td_days", context).prop("colspan", "8");
@@ -389,12 +406,11 @@ define(function (require) {
           }
         }
       }
-      console.log("FILL", dataJSON);
     }
   }
 
   function _reset(){
-    $("#schedule_type").prop("checked",false);
+    $("#relative_time").prop("checked",false);
     $("#schedule_type").prop("checked",false);
     $("#time_number").val("");
     $("#end_value_date").val("").prop("disabled", true);
@@ -405,8 +421,8 @@ define(function (require) {
     _resetRepeatValues();
     $(".periodic").addClass("hide");
     $(".non-periodic").removeClass("hide");
-    $(".relative_time_form").addClass("hide");
-    $(".no_relative_time_form").removeClass("hide");
+    $("#relative_time_form").addClass("hide");
+    $("#no_relative_time_form").removeClass("hide");
     
   }
 

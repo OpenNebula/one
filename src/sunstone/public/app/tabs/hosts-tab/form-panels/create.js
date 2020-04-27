@@ -104,7 +104,6 @@ define(function(require) {
     $(".drivers", context).hide();
 
     $("#host_type_mad", context).on("change", function() {
-      console.log("-->", this.value);
       $("#vmm_mad", context).val(this.value).change();
       $("#im_mad", context).val(this.value).change();
       $(".vcenter_credentials", context).hide();
