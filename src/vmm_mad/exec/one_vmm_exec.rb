@@ -69,7 +69,7 @@ class VmmAction
         @data = {}
 
         # Check if SSH Forward Agent should be activated
-        forward = @vmm.options[:delegate_actions].keys.include?(action.to_s.upcase)
+        forward = @vmm.options[:delegate_actions].key?(action.to_s.upcase)
 
         get_data(:host)
         get_data(:deploy_id)
@@ -1306,7 +1306,7 @@ retries            = 0
 threads            = 15
 shell              = 'bash'
 local_actions      = {}
-delegate_actions   = {}
+delegate_actions   = OpenNebulaDriver.parse_actions_list('migrate')
 single_host        = true
 timeout            = nil
 
