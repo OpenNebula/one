@@ -67,6 +67,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 #include <sys/stat.h>
 #include <pthread.h>
 
@@ -130,19 +132,13 @@ void Nebula::start(bool bootstrap_only)
     int      fd;
     sigset_t mask;
     int      signal;
-    char     hn[80];
+    char     hn[1024];
+    struct   addrinfo hints = {}, *addrs;
     string   scripts_remote_dir;
     SqlDB *  db_backend;
     bool     solo;
 
     SqlDB *  db_ptr;
-
-    if ( gethostname(hn,79) != 0 )
-    {
-        throw runtime_error("Error getting hostname");
-    }
-
-    hostname = hn;
 
     // -----------------------------------------------------------
     // Configuration
@@ -167,6 +163,43 @@ void Nebula::start(bool bootstrap_only)
     }
 
     nebula_configuration->get("SCRIPTS_REMOTE_DIR", scripts_remote_dir);
+
+    // -----------------------------------------------------------
+    // Get Hostname
+    // -----------------------------------------------------------
+    nebula_configuration->get("HOSTNAME", hostname);
+
+    // If hostname is not set in oned.conf autodetect it
+    if ( hostname == "" )
+    {
+        hints.ai_family   = AF_UNSPEC;
+        hints.ai_socktype = SOCK_STREAM;
+        hints.ai_flags    = AI_CANONNAME;
+
+        if ( gethostname(hn, 1023) != 0 )
+        {
+            throw runtime_error("Error getting hostname");
+        }
+
+        rc = getaddrinfo(hn, "http", &hints, &addrs);
+
+        if ( rc != 0 )
+        {
+            throw runtime_error("Error getting hostname: " + std::string(strerror(rc)));
+        }
+
+        for ( auto addr = addrs; addr != NULL; addr = addr->ai_next )
+        {
+            if ( addr->ai_canonname != NULL )
+            {
+                hostname = addr->ai_canonname;
+            }
+        }
+
+        freeaddrinfo(addrs);
+    }
+
+
     // -----------------------------------------------------------
     // Log system
     // -----------------------------------------------------------
