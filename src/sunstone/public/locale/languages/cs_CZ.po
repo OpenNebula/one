@@ -5710,7 +5710,7 @@ msgstr "Dvoufázové ověřování"
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:29
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:233
-msgid "Two factor authentication can be enabled for loging into Sunestone UI."
+msgid "Two factor authentication can be enabled for logging into Sunestone UI."
 msgstr "Pro přihlašování do uživatelského rozhraní Sunstone lze zapnout dvoufázové ověřování."
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:40
@@ -5803,7 +5803,7 @@ msgid "Authentication driver"
 msgstr "Ovladač ověřování"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:38
-msgid "Two factor authtentication"
+msgid "Two factor authentication"
 msgstr "Dvoufázové ověřování"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:51
