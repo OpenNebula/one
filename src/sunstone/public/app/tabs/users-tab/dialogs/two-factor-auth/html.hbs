@@ -26,45 +26,11 @@
       <div class="large-12 columns">
         <br/>
         <p>
-          {{tr "Two factor authentication can be enabled for logging into Sunstone UI."}}
+          {{tr "Two factor authentication can be enabled for loging into Sunestone UI."}}
         </p>
       </div>
     </div>
-    {{#if authTokens}}
     <div class="row">
-      <div class="large-12 columns">
-        <table>
-          <thead>
-            <tr>
-              <th>{{tr "Authenticator Type"}}</th>
-              <th>{{tr "Authenticator Name"}}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-          {{#each authTokens}}
-            <tr data-tokenid="{{ID}}">
-              <td>{{tr TYPE}}</td>
-              <td>{{NAME}}</td>
-              <td>
-                <a href="#"><i class="fas fa-times-circle remove-tab"></i></a>
-              </td>
-            </tr>
-          {{/each}}
-          </tbody>
-        </table>
-      </div>
-    </div>
-    {{/if}}
-    <div class="form_buttons row columns">
-      <button id="register_authenticator_app" type="button" class="button radius left">
-        {{tr "Register authenticator app"}}
-      </button>
-      <button id="register_security_key" type="button" class="button radius left">
-        {{tr "Register new security key"}}
-      </button>
-    </div>
-    <div id="authenticator_app_div" class="row fieldset" style="display: none;">
       <div class="large-6 columns">
         <div id="qr_code"></div>
       </div>
@@ -92,22 +58,6 @@
             <button id="enable_btn" type="button" class="button radius">{{tr "Enable"}}</button>
           </li>
         </ul> 
-      </div>
-    </div>
-    <div id="security_key_div" class="row fieldset" style="display: none;">
-      <div class="row">
-        <div class="large-4 medium-6 columns">
-          <label>
-            {{tr "Nickname for this security key"}}
-            <input id="nickname" value="" type="text" class="box" />
-          </label>
-        </div>
-        <div class="large-4 medium-6 columns end">
-          <label>&nbsp;</label>
-          <button id="add_btn" type="button" class="button radius">
-            {{tr "Add"}}
-          </button>
-        </div>
       </div>
     </div>
     <button class="close-button" data-close aria-label="{{tr "Close modal"}}" type="button">

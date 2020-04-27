@@ -108,14 +108,6 @@ define(function(require) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "disable_two_factor_auth", action_obj);
     },
-    "enable_sunstone_security_key": function(params) {
-      var action_obj = params.data.extra_param;
-      OpenNebulaAction.simple_action(params, RESOURCE, "enable_security_key", action_obj);
-    },
-    "disable_sunstone_security_key": function(params) {
-      var action_obj = params.data.extra_param;
-      OpenNebulaAction.simple_action(params, RESOURCE, "disable_security_key", action_obj);
-    },
     "accounting" : function(params) {
       OpenNebulaAction.monitor(params, RESOURCE, false);
     },

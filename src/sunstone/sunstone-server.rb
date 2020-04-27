@@ -111,13 +111,6 @@ require 'CloudAuth'
 require 'SunstoneServer'
 require 'SunstoneViews'
 
-begin
-    require "SunstoneWebAuthn"
-    webauthn_avail = true
-rescue LoadError
-    webauthn_avail = false
-end
-
 ##############################################################################
 # Configuration
 ##############################################################################
@@ -134,7 +127,6 @@ if $conf[:one_xmlrpc_timeout]
 end
 
 $conf[:debug_level] ||= 3
-$conf[:webauthn_avail] = webauthn_avail
 
 # Set Sunstone Session Timeout
 $conf[:session_expire_time] ||= 3600
@@ -227,17 +219,6 @@ rescue StandardError => e
     exit -1
 end
 
-if $conf[:webauthn_avail]
-    begin
-        SunstoneWebAuthn.configure($conf)
-    rescue => e
-        logger.error {
-            "Error initializing WebAuthn" }
-        logger.error { e.message }
-        exit -1
-    end
-end
-
 #start VNC proxy
 
 $vnc = OpenNebulaVNC.new($conf, logger)
@@ -252,6 +233,7 @@ $addons = OpenNebulaAddons.new(logger)
 
 DEFAULT_TABLE_ORDER = "desc"
 DEFAULT_PAGE_LENGTH = 10
+DEFAULT_TWO_FACTOR_AUTH = false
 
 SUPPORT = {
     :zendesk_url => "https://opennebula.zendesk.com/api/v2",
@@ -362,24 +344,21 @@ helpers do
         end
 
         # two factor_auth
-        isHOTPConfigured = (user[TWO_FACTOR_AUTH_SECRET_XPATH] && user[TWO_FACTOR_AUTH_SECRET_XPATH] != "")
-        isWebAuthnConfigured = $conf[:webauthn_avail] && SunstoneWebAuthn.getCredentialIDsForUser(user.id).length > 0
-        if isHOTPConfigured || isWebAuthnConfigured
+        two_factor_auth =
+            if user[TWO_FACTOR_AUTH_SECRET_XPATH]
+                user[TWO_FACTOR_AUTH_SECRET_XPATH] != ""
+            else
+                DEFAULT_TWO_FACTOR_AUTH
+            end
+        if two_factor_auth
             two_factor_auth_token = params[:two_factor_auth_token]
             if !two_factor_auth_token || two_factor_auth_token == ""
-                return [202, { code: "two_factor_auth", uid: user.id }.to_json]
-            end
-            serverResponse = 
-            isTwoFactorAuthSuccessful = false
-            if isHOTPConfigured && Sunstone2FAuth.authenticate(user[TWO_FACTOR_AUTH_SECRET_XPATH], two_factor_auth_token)
-                isTwoFactorAuthSuccessful = true
-            end
-            if isWebAuthnConfigured && SunstoneWebAuthn.authenticate(user.id, two_factor_auth_token)
-                isTwoFactorAuthSuccessful = true
-            end
-            if !isTwoFactorAuthSuccessful
-                logger.info { "Unauthorized two factor authentication login attempt" }
-                return [401, "Two factor authentication failed"]
+                return [202, { code: "two_factor_auth" }.to_json]
+            else
+                unless Sunstone2FAuth.authenticate(user[TWO_FACTOR_AUTH_SECRET_XPATH], two_factor_auth_token)
+                    logger.info { "Unauthorized two factor authentication login attempt" }
+                    return [401, ""]
+                end
             end
         end
 
@@ -494,7 +473,7 @@ before do
     @request_body = request.body.read
     request.body.rewind
 
-    unless %w(/ /login /vnc /spice /version /webauthn_options_for_get).include?(request.path)
+    unless %w(/ /login /vnc /spice /version).include?(request.path)
         halt [401, "csrftoken"] unless authorized? && valid_csrftoken?
     end
 
@@ -566,7 +545,7 @@ before do
 end
 
 after do
-    unless request.path == '/login' || request.path == '/' || request.path == '/'
+    unless request.path=='/login' || request.path=='/' || request.path=='/'
         # secure cookies
         if request.scheme == 'https'
             env['rack.session.options'][:secure] = true
@@ -629,32 +608,6 @@ get '/two_factor_auth_hotp_qr_code' do
     totp_uri = totp.provisioning_uri(session[:user])
     qr_code = SunstoneQRCode.build(totp_uri)
     [200, qr_code.as_svg]
-end
-
-get '/webauthn_options_for_create' do
-    content_type 'application/json'
-    if !$conf[:webauthn_avail]
-        return [501, '']
-    end
-    options = SunstoneWebAuthn.getOptionsForCreate(session[:user_id], session[:user])
-    [200, options]
-end
-
-get '/webauthn_options_for_get' do
-    content_type 'application/json'
-    if !$conf[:webauthn_avail]
-        return [501, '']
-    end
-    begin
-        user_id = Integer(params[:uid]).to_s
-    rescue ArgumentError => e
-        return [401, '']
-    end
-    options = SunstoneWebAuthn.getOptionsForGet(user_id)
-    if options.nil?
-        return [204, '']
-    end
-    [200, options]
 end
 
 get '/vnc' do

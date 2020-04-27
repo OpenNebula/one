@@ -18,8 +18,7 @@
     "navigo": "2.1.1",
     "sprintf": "1.0.3",
     "jquery-ui": "^1.12.1",
-    "wickedpicker": "https://github.com/ericjgagnon/wickedpicker.git#dd2cce3",
-    "webauthn-json": "https://registry.npmjs.org/@github/webauthn-json/-/webauthn-json-0.4.1.tgz"
+    "wickedpicker": "https://github.com/ericjgagnon/wickedpicker.git#dd2cce3"
   },
   "authors": [
     "Daniel Molina <dmolina@opennebula.org>",
