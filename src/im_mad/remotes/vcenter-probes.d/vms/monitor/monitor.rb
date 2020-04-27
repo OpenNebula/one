@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
-
+exit 0
 ONE_LOCATION ||= ENV['ONE_LOCATION'] unless defined? ONE_LOCATION
 
 if !ONE_LOCATION
@@ -34,14 +34,12 @@ end
 $LOAD_PATH << RUBY_LIB_LOCATION
 
 require_relative '../../../lib/vcenter'
-require 'pry-byebug'
 
 host    = ARGV[-1]
 host_id = ARGV[-2]
 vcm = VcenterMonitor.new(host_id)
 begin
-    binding.pry
-    puts vcm.probe_vm_monitor
+    vcm.probe_vm_monitor
 rescue StandardError => e
     OpenNebula.handle_driver_exception('im probe_vm_monitor', e, host)
 end
