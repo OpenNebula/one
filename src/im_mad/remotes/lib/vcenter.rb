@@ -14,17 +14,21 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION'] unless defined? ONE_LOCATION
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' unless defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = '/usr/share/one/gems' unless defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
+    ETC_LOCATION      ||= '/etc/one/'
+    VAR_LOCATION      ||= '/var/lib/one/'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' \
-        unless defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' \
-        unless defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
+    ETC_LOCATION      ||= ONE_LOCATION + '/etc/'
+    VAR_LOCATION      ||= ONE_LOCATION + '/var/'
 end
+
+VCENTER_DATABASE_PATH  = "#{VAR_LOCATION}/remotes/im/vcenter.d/vcenter-cache.db"
 
 if File.directory?(GEMS_LOCATION)
     Gem.use_paths(GEMS_LOCATION)
@@ -35,6 +39,7 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'opennebula'
 require 'vcenter_driver'
+require 'sqlite3'
 
 # Gather vCenter cluster monitor info
 class VcenterMonitor
@@ -43,6 +48,7 @@ class VcenterMonitor
     VM_STATE = OpenNebula::VirtualMachine::Driver::VM_STATE
 
     def initialize(host_id)
+        @host_id = host_id
         @vi_client = VCenterDriver::VIClient.new_from_host(host_id)
         # Get CCR reference
         client = OpenNebula::Client.new
@@ -58,6 +64,11 @@ class VcenterMonitor
         # Get vCenter Cluster
         @cluster = VCenterDriver::ClusterComputeResource
                    .new_from_ref(ccr_ref, @vi_client)
+
+        # ----------------------------------------------------------------------
+        # create or open cache db
+        # ----------------------------------------------------------------------
+        @db = InstanceCache.new(VCENTER_DATABASE_PATH)
     end
 
     def monitor_clusters
@@ -307,20 +318,18 @@ class VcenterMonitor
         text
     end
 
-    def monitor_vms(host_id)
+    def monitor_vms
         vc_uuid = @vi_client.vim.serviceContent.about.instanceUuid
         cluster_name = @cluster.item['name']
         cluster_ref = @cluster.item
 
         # Get info of the host where the VM/template is located
-        one_host = VCenterDriver::VIHelper.one_item(OpenNebula::Host, host_id)
+        one_host = VCenterDriver::VIHelper.one_item(OpenNebula::Host, @host_id)
         if !one_host
             STDERR.puts "Failed to retieve host with id #{host.id}"
             STDERR.puts e.inspect
             STDERR.puts e.backtrace
         end
-
-        host_id = one_host['ID'] if one_host
 
         # Extract CPU info and name for each esx host in cluster
         esx_hosts = {}
@@ -449,7 +458,7 @@ class VcenterMonitor
                 info[:cluster_name] = cluster_name
                 info[:cluster_ref] = cluster_ref
                 info[:vc_uuid] = vc_uuid
-                info[:host_id] = host_id
+                info[:host_id] = @host_id
                 info[:rp_list] = @rp_list
 
                 # Check the running flag
@@ -946,16 +955,27 @@ class VcenterMonitor
     end
 
     # monitor function used when VMM poll action is called
-    def monitor_poll_vm
+    def monitor_poll_vm(vm)
         reset_monitor
+
+        binding.pry
+
+        # vm[:uuid] = vm-ref + vc_uuid
+        # vm[:name] = vm-ref
+        opts = {
+            :vc_uuid => vm[:uuid].split(vm[:name])[1]
+        }
+
+        # vm[:name] = ref into vcenter
+        @vm = VCenterDriver::VirtualMachine.new_from_ref(@vi_client, vm[:name], nil, opts)
 
         return unless @vm.get_vm_id
 
-        @state = state_to_c(@vm['summary.runtime.powerState'])
+        @state = state_to_c(@vm.item.summary.runtime.powerState)
 
         if @state != VM_STATE[:active]
             reset_monitor
-            return
+            return ''
         end
 
         cpu_mhz = @vm['runtime.host.summary.hardware.cpuMhz'].to_f
@@ -1132,11 +1152,11 @@ class VcenterMonitor
                                 (write_kbpersec * 1024 * refresh_rate).to_i
     end
 
-    def vms(host_id)
+    def vms
         vc_uuid = @vi_client.vim.serviceContent.about.instanceUuid
         # Get CCR reference
         client = OpenNebula::Client.new
-        host = OpenNebula::Host.new_with_id(host_id, client)
+        host = OpenNebula::Host.new_with_id(@host_id, client)
         rc = host.info
         if OpenNebula.is_error? rc
             STDERR.puts rc.message
@@ -1225,6 +1245,91 @@ class VcenterMonitor
 
     end
 
+    def probe_vm_monitor
+        vms = self.vms
+        data = ''
+        vms.each do |vm|
+            data << monitor_poll_vm(vm)
+        end
+
+        puts data
+        data
+    end
+
+    # ------------------------------------------------------------------------------
+# This class implements a simple local cache to store VM information
+# ------------------------------------------------------------------------------
+class InstanceCache
+
+    def initialize(path)
+        @db = SQLite3::Database.new(path)
+
+        bootstrap
+    end
+
+    def execute_retry(query, tries = 5, tsleep = 0.5)
+        i=0
+        while i < tries
+            begin
+                return @db.execute(query)
+            rescue SQLite3::BusyException
+                i += 1
+                sleep tsleep
+            end
+        end
+    end
+
+    # TODO: document DB schema
+    def bootstrap
+        sql = 'CREATE TABLE IF NOT EXISTS vms(uuid VARCHAR(128) PRIMARY KEY,'
+        sql << ' id INTEGER, name VARCHAR(128), state VARCHAR(128),'
+        sql << ' type VARCHAR(128))'
+        execute_retry(sql)
+
+        sql = 'CREATE TABLE IF NOT EXISTS timestamp(ts INTEGER PRIMARY KEY)'
+        execute_retry(sql)
+    end
+
+    def insert(instances)
+        execute_retry('DELETE from vms')
+        instances.each do |i|
+            sql = 'INSERT INTO vms VALUES ('
+            sql << "\"#{i[:uuid]}\", "
+            sql << "\"#{i[:id]}\", "
+            sql << "\"#{i[:name]}\", "
+            sql << "\"#{i[:state]}\", "
+            sql << "\"#{i[:type]}\")"
+
+            execute_retry(sql)
+        end
+
+        execute_retry('DELETE from timestamp')
+        execute_retry("INSERT INTO timestamp VALUES (#{Time.now.to_i})")
+    end
+
+    def select_vms
+        vms = []
+        execute_retry('SELECT * from vms').each do |vm|
+            vms << Hash[[:uuid, :id, :name, :state, :type].zip(vm)]
+        end
+
+        vms
+    end
+
+    # return true if the cache data expired
+    #
+    #   @param[Integer] time_limit time to expire cache data
+    #
+    #   @return[Boolean]
+    def expired?(time_limit)
+        ts = execute_retry('SELECT * from timestamp')
+
+        ts.empty? || (Time.now.to_i - time_limit > ts.first.first)
+    end
+
+end
+
+
 end
 
 ############################################################################
@@ -1236,7 +1341,7 @@ module DomainList
     def self.state_info(name, id)
         vmm = VcenterMonitor.new(id)
 
-        vms = vmm.vms(id)
+        vms = vmm.vms
         info = {}
         vms.each do |vm|
             info[vm[:uuid]] = { :id     => vm[:id],
@@ -1245,6 +1350,7 @@ module DomainList
                                 :state  => vm[:state],
                                 :hyperv => 'vcenter' }
         end
+        puts info
         info
     end
 

@@ -56,7 +56,7 @@ begin
     puts vcm.nsx_info
 
     # VM monitor info
-    vm_monitor_info, last_perf_poll = vcm.monitor_vms(host_id)
+    vm_monitor_info, last_perf_poll = vcm.monitor_vms
     if !vm_monitor_info.empty?
         puts "VM_POLL=YES"
         puts vm_monitor_info
