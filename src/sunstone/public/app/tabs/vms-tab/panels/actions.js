@@ -176,10 +176,14 @@ define(function(require) {
     context.off("click", ".edit_action_x");
     context.on("click", ".edit_action_x", function(e) {
       e.preventDefault();
-      renderCreateForm();
-      $("#edit_"+RESOURCE_SCHED_ACTIONS+"_action_json").show();
-      $("#add_"+RESOURCE_SCHED_ACTIONS+"_action_json").hide();
-      ScheduleActions.fill($(this));
+      var id = $(this).attr("data_id");
+      if(id && id.length){
+        renderCreateForm();
+        console.log("action");
+        $("#edit_"+RESOURCE_SCHED_ACTIONS+"_action_json").show().attr("data_id", id);
+        $("#add_"+RESOURCE_SCHED_ACTIONS+"_action_json").hide();
+        ScheduleActions.fill($(this));
+      }
     });
   }
 
