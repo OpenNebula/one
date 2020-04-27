@@ -78,6 +78,14 @@ define(function(require) {
       }
     },
 
+    "isOneFeatureEnabled": function(feature1Name, feature2Name) {
+      if (_config["view"]["features"]) {
+        return _config["view"]["features"][feature1Name] || _config["view"]["features"][feature2Name];
+      } else {
+        return false;
+      }
+    },
+
     "isAdvancedEnabled": function(featureName) {
       if (_config["view"]["features"] && featureName in _config["view"]["features"]) {
         return _config["view"]["features"][featureName];
