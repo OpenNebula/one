@@ -119,6 +119,6 @@ EOF
 fi
 
 log "Moving $SRC to datastore as $DST"
-exec_and_log "$SCP -r $SRC $DST" "Error copying $SRC to $DST"
+ssh_forward exec_and_log "$SCP -r $SRC $DST" "Error copying $SRC to $DST"
 
 exit 0

@@ -45,9 +45,11 @@ RBD=${RBD:-rbd}
 READLINK=${READLINK:-readlink}
 RM=${RM:-rm}
 CP=${CP:-cp}
-SCP=${SCP:-scp -o ForwardAgent=yes}
+SCP=${SCP:-scp}
+SCP_FWD=${SCP_FWD:-scp -o ForwardAgent=yes}
 SED=${SED:-sed}
-SSH=${SSH:-ssh -o ForwardAgent=yes}
+SSH=${SSH:-ssh}
+SSH_FWD=${SSH_FWD:-ssh -o ForwardAgent=yes}
 SUDO=${SUDO:-sudo -n}
 SYNC=${SYNC:-sync}
 TAR=${TAR:-tar}
@@ -359,6 +361,26 @@ function mkfs_command {
     if [ "$FSTYPE" = "swap" ]; then
         echo "$MKSWAP -L swap $DST"
     fi
+}
+
+# This function will accept command as an argument for which it will override
+# the env. variables SSH and SCP with their agent forwarding alternative
+ssh_forward()
+{
+    _ssh_cmd_saved="$SSH"
+    _scp_cmd_saved="$SCP"
+
+    SSH="$SSH_FWD"
+    SCP="$SCP_FWD"
+
+    "$@"
+
+    _ssh_forward_result=$?
+
+    SSH="$_ssh_cmd_saved"
+    SCP="$_scp_cmd_saved"
+
+    return $_ssh_forward_result
 }
 
 #This function executes $2 at $1 host and report error $3 but does not exit
