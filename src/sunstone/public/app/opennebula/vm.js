@@ -278,6 +278,10 @@ define(function(require) {
     LCM_STATES.DISK_RESIZE
   ];
 
+  var RDP_STATES = [
+    LCM_STATES.RUNNING
+  ];
+
   var EXTERNAL_IP_ATTRS = [
     "GUEST_IP",
     "GUEST_IP_ADDRESSES",
@@ -897,18 +901,22 @@ define(function(require) {
 
   // returns true if the RDP button should be enabled
   function isRDPSupported(element) {
-    var rtn = false;
+    var hasRdp = false;
 
-    if(element.TEMPLATE && element.TEMPLATE.NIC) {
+    if (element.TEMPLATE && element.TEMPLATE.NIC && element.LCM_STATE) {
       var template = element.TEMPLATE;
+      var state = parseInt(element.LCM_STATE);
       
-      rtn = hasRDP(template.NIC)
-
-      if (!rtn && template.NIC_ALIAS) {
-        rtn = hasRDP(template.NIC_ALIAS)
+      if ($.inArray(state, RDP_STATES) != -1) {
+        hasRdp = hasRDP(template.NIC);
+        
+        if (!hasRdp && template.NIC_ALIAS) {
+          hasRdp = hasRDP(template.NIC_ALIAS);
+        }
       }
     }
-    return rtn;
+
+    return hasRdp;
   }
 
   function hasRDP(nics) {
