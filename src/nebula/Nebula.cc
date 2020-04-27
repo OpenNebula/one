@@ -67,6 +67,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 #include <sys/stat.h>
 #include <pthread.h>
 
@@ -130,19 +132,11 @@ void Nebula::start(bool bootstrap_only)
     int      fd;
     sigset_t mask;
     int      signal;
-    char     hn[80];
     string   scripts_remote_dir;
     SqlDB *  db_backend;
     bool     solo;
 
     SqlDB *  db_ptr;
-
-    if ( gethostname(hn,79) != 0 )
-    {
-        throw runtime_error("Error getting hostname");
-    }
-
-    hostname = hn;
 
     // -----------------------------------------------------------
     // Configuration
@@ -167,6 +161,44 @@ void Nebula::start(bool bootstrap_only)
     }
 
     nebula_configuration->get("SCRIPTS_REMOTE_DIR", scripts_remote_dir);
+
+    // -----------------------------------------------------------
+    // Get Hostname
+    // -----------------------------------------------------------
+    nebula_configuration->get("HOSTNAME", hostname);
+
+    if ( hostname.empty() )
+    {
+        char   hn[1024];
+        struct addrinfo hints = {}, *addrs;
+
+        hints.ai_family   = AF_UNSPEC;
+        hints.ai_flags    = AI_CANONNAME;
+
+        rc = gethostname(hn, 1023);
+
+        if ( rc != 0 )
+        {
+            throw runtime_error("Error getting hostname" +
+                    std::string(strerror(rc)));
+        }
+
+        rc = getaddrinfo(hn, nullptr, &hints, &addrs);
+
+        if ( rc != 0 )
+        {
+            throw runtime_error("Error getting hostname: " +
+                    std::string(gai_strerror(rc)));
+        }
+
+        if ( addrs != nullptr && addrs->ai_canonname != nullptr )
+        {
+            hostname = addrs->ai_canonname;
+        }
+
+        freeaddrinfo(addrs);
+    }
+
     // -----------------------------------------------------------
     // Log system
     // -----------------------------------------------------------
@@ -227,6 +259,8 @@ void Nebula::start(bool bootstrap_only)
     {
         throw;
     }
+
+    NebulaLog::log("ONE", Log::INFO, "Using hostname: " + hostname);
 
     // -----------------------------------------------------------
     // Load the OpenNebula master key and keep it in memory
