@@ -18,7 +18,7 @@
     "navigo": "2.1.1",
     "sprintf": "1.0.3",
     "jquery-ui": "^1.12.1",
-    "wickedpicker": "https://github.com/OpenNebula/sunstone-deps.git#9398b3f"
+    "wickedpicker": "https://github.com/OpenNebula/sunstone-deps.git#9398b3f",
     "webauthn-json": "https://registry.npmjs.org/@github/webauthn-json/-/webauthn-json-0.4.1.tgz"
   },
   "authors": [
