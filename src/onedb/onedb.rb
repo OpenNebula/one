@@ -72,7 +72,7 @@ class OneDB
 
             passwd = ops[:passwd]
             passwd = ENV['ONE_DB_PASSWORD'] unless passwd
-            passwd = get_password("PostgreSQL Password: ") if !passwd
+            passwd = get_password("PostgreSQL Password: ") unless passwd
 
             @backend = BackEndPostgreSQL.new(
                 :server  => ops[:server],
