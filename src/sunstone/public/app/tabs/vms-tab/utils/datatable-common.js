@@ -55,8 +55,8 @@ define(function(require) {
     var rtn = false;
     if(startTime && addedEndTime){
       var regexNumber = new RegExp('[0-9]*$','gm');
-      var date = parseInt(startTime);
-      var added = parseInt(addedEndTime.match(regexNumber)[0]);
+      var date = parseInt(startTime,10);
+      var added = parseInt(addedEndTime.match(regexNumber)[0],10);
       if(!isNaN(date) && !isNaN(added)){
         var operator = addedEndTime.replace(regexNumber, "");
         var finalTime = date;

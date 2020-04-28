@@ -51,6 +51,9 @@ define(function(require) {
 
   var FORM_PANEL_ID = require("./instantiate/formPanelId");
   var TAB_ID = require("../tabId");
+  var RESOURCE = 'inst';
+  var CREATE = true;
+  var contextRow;
 
   /*
     CONSTRUCTOR
@@ -95,6 +98,30 @@ define(function(require) {
   }
 
   function _setup(context) {
+    if(!CREATE){
+      CREATE = true;
+    }
+    var actions = [
+      "terminate", 
+      "terminate-hard", 
+      "hold", 
+      "release", 
+      "stop", 
+      "suspend", 
+      "resume", 
+      "reboot", 
+      "reboot-hard", 
+      "poweroff", 
+      "poweroff-hard", 
+      "undeploy", 
+      "undeploy-hard", 
+      "snapshot-create",
+      "snapshot-delete", 
+      "snapshot-revert", 
+      "disk-snapshot-create", 
+      "disk-snapshot-delete", 
+      "disk-snapshot-revert"
+    ];
     var that = this;
     var objLeases = $.extend(true, {}, that);
     objLeases.resource = "template";
@@ -126,50 +153,72 @@ define(function(require) {
       $("#vm_n_times", context).show();
     }
 
+    function renderCreateForm() {
+      if(CREATE){
+        ScheduleActions.htmlNewAction(actions, context, RESOURCE);
+        ScheduleActions.setup(context);
+        CREATE=false;
+      }
+    }
+
     context.off("click", "#add_scheduling_inst_action");
-    context.on("click", "#add_scheduling_inst_action", function() {
-      var actions = [
-        "terminate", 
-        "terminate-hard", 
-        "hold", 
-        "release", 
-        "stop", 
-        "suspend", 
-        "resume", 
-        "reboot", 
-        "reboot-hard", 
-        "poweroff", 
-        "poweroff-hard", 
-        "undeploy", 
-        "undeploy-hard", 
-        "snapshot-create",
-        "snapshot-delete", 
-        "snapshot-revert", 
-        "disk-snapshot-create", 
-        "disk-snapshot-delete", 
-        "disk-snapshot-revert"
-      ];
-      $("#add_scheduling_inst_action", context).attr("disabled", "disabled");
-      ScheduleActions.htmlNewAction(actions, context, "inst");
-      ScheduleActions.setup(context);
-      return false;
+    context.on("click", "#add_scheduling_inst_action", function(e){
+      e.preventDefault();
+      renderCreateForm();
+      $("#edit_"+RESOURCE+"_action_json").hide();
+      $("#add_"+RESOURCE+"_action_json").show();
     });
+
     context.off("click", "#add_inst_action_json");
     context.on("click", "#add_inst_action_json", function(){
       var sched_action = ScheduleActions.retrieveNewAction(context);
       if (sched_action != false) {
-        $("#sched_inst_actions_body").append(ScheduleActions.fromJSONtoActionsTable(sched_action));
+        $("#no_actions_tr", context).remove();
+        $("#sched_inst_actions_body").prepend(ScheduleActions.fromJSONtoActionsTable(sched_action));
       }
-
+      $("#input_sched_action_form").remove();
+      clear();
       return false;
     });
+
     context.on("focusout" , "#time_input", function(){
       $("#time_input").removeAttr("data-invalid");
       $("#time_input").removeAttr("class");
     });
+
+    context.off("click" , "#edit_inst_action_json").on("click" , "#edit_inst_action_json", function(e){
+      e.preventDefault();
+      var id = $(this).attr("data_id");
+      if(id && id.length && contextRow){
+        $(".wickedpicker").hide();
+        var sched_action = ScheduleActions.retrieveNewAction(context);
+        if (sched_action != false) {
+          sched_action.ID = id;
+          contextRow.replaceWith(ScheduleActions.fromJSONtoActionsTable(sched_action));
+          contextRow = undefined;
+          $("#input_sched_action_form").remove();
+        }
+        clear();
+      }
+      return false;
+    });
+
     context.off("click", ".remove_action_x");
     context.on("click", ".remove_action_x", function(){
       $(this).parents("tr").remove();
+    });
+
+    context.off("click", ".edit_action_x");
+    context.on("click", ".edit_action_x", function(e){
+      e.preventDefault();
+      var id = $(this).attr("data_id");
+      if(id && id.length){
+        contextRow = $(this).closest("tr.tr_action");
+        renderCreateForm();
+        $("#edit_"+RESOURCE+"_action_json").show().attr("data_id", id);
+        $("#add_"+RESOURCE+"_action_json").hide();
+        ScheduleActions.fill($(this),context);
+      }
     });
   }
 
@@ -433,7 +482,7 @@ define(function(require) {
                 dsDatatable: that.datastoresTable.dataTableHTML,
                 usersDatatable: that.usersTable.dataTableHTML,
                 groupDatatable: that.groupTable.dataTableHTML,
-                table_sched_actions: ScheduleActions.htmlTable("inst", Leases.html())
+                table_sched_actions: ScheduleActions.htmlTable(RESOURCE, Leases.html())
               }) );
 
           $(".provision_host_selector" + template_json.VMTEMPLATE.ID, context).data("hostsTable", that.hostsTable);
@@ -442,7 +491,7 @@ define(function(require) {
           $(".provision_gid_selector" + template_json.VMTEMPLATE.ID, context).data("groupTable", that.groupTable);
 
           var actions = ScheduleActions.fromJSONtoActionsTable(template_json.VMTEMPLATE.TEMPLATE.SCHED_ACTION);
-          $("#sched_inst_actions_body").append(actions);
+          $("#sched_inst_actions_body").prepend(actions);
 
           var selectOptions = {
             "selectOptions": {
@@ -618,10 +667,18 @@ define(function(require) {
 
   function _onShow(context) {
     Sunstone.disableFormPanelSubmit(this.tabId);
-    $("input.instantiate_pers", context).change();
-    Tips.setup(context);
-    
+    if(context){
+      $("input.instantiate_pers", context).change();
+      Tips.setup(context);
+      var form = context.find("#sched_inst_actions_body");
+      form.find("tr.create,tr#schedule_base,tr#input_sched_action_form,tr#relative_time_form,tr#no_relative_time_form").remove();
+    }
+    clear();
     return false;
+  }
+
+  function clear(){
+    CREATE = true;
   }
 
   function generateRequirements(hosts_table, ds_table, context, id) {
