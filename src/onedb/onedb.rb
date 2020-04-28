@@ -49,6 +49,9 @@ class OneDB
 
             passwd = ops[:passwd]
             if !passwd
+                passwd = ENV['ONE_DB_PASSWORD']
+            end
+            if !passwd
                 passwd = get_password
             end
 
