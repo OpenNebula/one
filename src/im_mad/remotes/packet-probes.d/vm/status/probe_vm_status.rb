@@ -41,10 +41,12 @@ host_id = ARGV[-2]
 
 begin
     vmdb = VirtualMachineDB.new('packet',
+                                host,
+                                host_id,
                                 :missing_state => 'UNKNOWN',
                                 :sync => 180)
     vmdb.purge
-    puts vmdb.to_status(host, host_id)
+    puts vmdb.to_status
 rescue StandardError => e
     OpenNebula.handle_driver_exception('im probe_vm_status', e, host)
 end

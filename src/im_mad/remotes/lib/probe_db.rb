@@ -51,7 +51,7 @@ class VirtualMachineDB
     DEFAULT_CONFIGURATION = {
         :times_missing => 3,
         :obsolete      => 720,
-        :db_path       => "#{__dir__}/../status.db",
+        :base_path       => "#{__dir__}/../",
         :sync          => 180,
         :missing_state => "POWEROFF"
     }
@@ -73,8 +73,10 @@ class VirtualMachineDB
         File.unlink(conf[:db_path])
     end
 
-    def initialize(hyperv, opts = {})
-        @conf = VirtualMachineDB.load_conf(hyperv, opts)
+    def initialize(hyperv, host, host_id, opts = {})
+        @host = host
+        @host_id = host_id
+        @conf = VirtualMachineDB.load_conf(hyperv, @host_id, opts)
 
         @mtime = 0
         @mtime = File.mtime(@conf[:db_path]) if File.exist?(@conf[:db_path])
@@ -95,17 +97,17 @@ class VirtualMachineDB
 
     # Returns the VM status that changed compared to the DB info as well
     # as VMs that have been reported as missing more than missing_times
-    def to_status(host, host_id)
+    def to_status
         time = Time.now.to_i
         last = @db.execute("SELECT MAX(timestamp) from #{@dataset}").flatten![0]
         last ||= @mtime.to_i
 
-        return sync_status(host, host_id) if last == 0 || time > (last + @conf[:sync])
+        return sync_status(@host, @host_id) if last == 0 || time > (last + @conf[:sync])
 
         status_str  = ''
         monitor_ids = []
 
-        vms  = DomainList.state_info(host, host_id)
+        vms  = DomainList.state_info(@host, @host_id)
 
         # ----------------------------------------------------------------------
         # report state changes in vms
@@ -239,7 +241,7 @@ class VirtualMachineDB
     end
 
     # Load configuration file and parse user provided options
-    def self.load_conf(hyperv, opts)
+    def self.load_conf(hyperv, host_id, opts)
         conf_path = "#{__dir__}/../../etc/im/#{hyperv}-probes.d/probe_db.conf"
         etc_conf  = YAML.load_file(conf_path) rescue nil
 
@@ -250,6 +252,8 @@ class VirtualMachineDB
         conf.merge! opts
 
         conf[:hyperv] = hyperv
+        conf[:db_path] = File.join(conf[:base_path],
+                                   "status_#{hyperv}_#{host_id}.db")
         conf
     end
 
