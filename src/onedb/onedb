@@ -44,6 +44,8 @@ else
     LOCK_FILE         = VAR_LOCATION + '/.lock'
 end
 
+ONED_CONF = "#{ETC_LOCATION}/oned.conf"
+
 if File.directory?(GEMS_LOCATION)
     Gem.use_paths(GEMS_LOCATION)
     $LOAD_PATH.reject! {|l| l =~ /(vendor|site)_ruby/ }
