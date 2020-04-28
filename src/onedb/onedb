@@ -88,12 +88,6 @@ RECREATE = {
     :description => 'Delete FTS index and create a new one'
 }
 
-READ_CREDENTIALS = {
-    :name => 'read_credentials',
-    :large => '--read-credentials',
-    :description => 'Read DB credentials from oned.conf'
-}
-
 ###############################################################################
 # SQLite options
 ###############################################################################

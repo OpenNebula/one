@@ -28,9 +28,7 @@ class OneDB
             ops[:backend] = :mysql
         end
 
-        if ops[:backend] != :sqlite
-            read_credentials(ops) if ops.key?(:read_credentials)
-        end
+        read_credentials(ops)
 
         if ops[:backend] == :sqlite
             begin
@@ -114,6 +112,7 @@ class OneDB
         aug.context = "/files/#{work_file_name}"
         aug.load
 
+        ops[:backend] = aug.get('DB/BACKEND').gsub("\"", '')
         ops[:server]  = aug.get('DB/SERVER').gsub("\"", '')
         ops[:port]    = aug.get('DB/PORT').gsub("\"", '')
         ops[:user]    = aug.get('DB/USER').gsub("\"", '')
