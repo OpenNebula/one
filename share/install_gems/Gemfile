@@ -50,6 +50,11 @@ else
     gem 'rqrcode'                         # sunstone
 end
 
+if RUBY_VERSION >= '2.3'
+    gem 'vsphere-automation-cis', '~> 0.4.6'
+    gem 'vsphere-automation-vcenter', '~> 0.4.6'
+end
+
 gem 'json'                                # sunstone, oneflow, cloud, ...
 gem 'sqlite3'                             # quota, onedb
 gem 'treetop', '>= 1.6.3'                 # oneflow
