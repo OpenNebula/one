@@ -20,11 +20,11 @@ let right_br = del /\]/ "]"
 (* Match everyhting within quotes *)
 let re_quoted_str = /"[^\"]*"/
 
-(* Match everything except spaces, quote("), l-bracket([) and num-sign(#) *)
-let re_value_str = /[^ \t\n"\[#]+/
+(* Match everything except spaces, l-bracket([) and num-sign(#) *)
+let re_value_str = /[^ \t\n\[#]+/
 
-(* Match everything except spaces, quote("), num-sign(#) and comma(,) *)
-let re_section_value_str = /[^ \t\n"#,]+/
+(* Match everything except spaces, num-sign(#) and comma(,) *)
+let re_section_value_str = /[^ \t\n#,]+/
 
 (* Store either after-value comment or full-line comment *)
 let comment = [ label "#comment" . store /#[^\n]*/ ]
