@@ -36,6 +36,14 @@ end
 TREETOP = 'treetop --version ">= 1.6.3"'
 DEFAULT = DEFAULT_PRE if !defined?(DEFAULT)
 
+
+
+VMWARE = ['rbvmomi --version "~> 2.2.0"', 'json']
+if defined?(RUBY_VERSION) && RUBY_VERSION>="2.3"
+    VMWARE.push('vsphere-automation-cis')
+    VMWARE.push('vsphere-automation-vcenter')
+end
+
 GROUPS={
     :quota      => [SQLITE, 'sequel'],
     :sunstone   => [RACK, 'sinatra', 'thin', 'memcache-client',
@@ -44,7 +52,7 @@ GROUPS={
     :cloud      => %w{amazon-ec2 sinatra thin uuidtools curb} << RACK,
     :hybrid     => %w{configparser azure},
     :auth_ldap  => LDAP,
-    :vmware     => ['rbvmomi --version "~> 2.2.0"', 'json'],
+    :vmware     => VMWARE,
     :oneflow    => ['sinatra', TREETOP, 'parse-cron'],
     :ec2_hybrid => 'aws-sdk --version "~> 2.5"',
     :oca        => 'ox',
