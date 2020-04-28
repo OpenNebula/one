@@ -24,7 +24,7 @@ class OneDB
 
     def initialize(ops)
         if ops[:backend].nil? && ops[:server].nil? && ops[:port].nil? && ops[:user].nil? && ops[:password].nil? && ops[:db_name].nil?
-            read_credentials(ops)
+            ops = read_credentials(ops)
         elsif ops[:backend].nil? and (!ops[:server].nil? || !ops[:port].nil? || !ops[:user].nil? || !ops[:password].nil? || !ops[:db_name].nil? || !ops[:encoding].nil?)
             # Set MySQL backend as default if any connection option is provided and --type is not
             ops[:backend] = :mysql
@@ -131,10 +131,13 @@ class OneDB
         ops[:passwd]  = aug.get('DB/PASSWD')
         ops[:db_name] = aug.get('DB/DB_NAME')
 
-        ops.each {|_, v| v.gsub!("\"", '') if v }
+        ops = ops.transform_values {|v| v[1..-2] if v }
+        ops.each {|_, v| v.gsub!("\\", '') if v }
 
         ops[:backend] = ops[:backend].to_sym
         ops[:port]    = ops[:port].to_i
+
+        ops
     rescue StandardError => e
         STDERR.puts "Unable to parse oned.conf: #{e}"
         exit(-1)
