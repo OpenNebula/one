@@ -1261,6 +1261,12 @@ module VCenterDriver
                 :extraConfig  => extraconfig,
                 :deviceChange => device_change
             }
+            num_cores = one_item["USER_TEMPLATE/CORES"] || num_cpus.to_i
+            if num_cpus.to_i % num_cores.to_i != 0
+                num_cores = num_cpus.to_i
+            end
+            spec_hash[:numCoresPerSocket] = num_cores.to_i
+
             spec_hash[:bootOptions] = boot_opts if boot_opts
 
             spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
