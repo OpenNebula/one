@@ -1,4 +1,4 @@
-package main
+package goca
 
 import (
 	"fmt"
@@ -11,11 +11,6 @@ var client httpclient.Client
 
 func init() {
 	client = httpclient.New("oneadmin", "opennebula", "http://10.10.0.56:2474")
-}
-
-func main() {
-	TestShow()
-	// TestDelete()
 }
 
 func TestShow() {

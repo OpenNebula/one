@@ -23,10 +23,10 @@ type RPCCaller interface {
 
 // HTTPCaller is the analogous to RPCCaller but for http endpoints
 type HTTPCaller interface {
-	Get(eurl string)
-	Delete(eurl string)
-	Post(eurl string, body map[string]interface{})
-	Put(eurl string, body map[string]interface{})
+	Get(eurl string) (*Response, error)
+	Delete(eurl string) (*Response, error)
+	Post(eurl string, body map[string]interface{}) (*Response, error)
+	Put(eurl string, body map[string]interface{}) (*Response, error)
 }
 
 // Controller is the controller used to make requets on various entities
