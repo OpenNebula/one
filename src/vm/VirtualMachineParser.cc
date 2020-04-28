@@ -425,7 +425,17 @@ int VirtualMachine::parse_graphics(string& error_str, Template * tmpl)
 
     if ( !random_passwd.empty() )
     {
-        graphics->replace("PASSWD", one_util::random_password());
+        string password = one_util::random_password();
+
+        if ( graphics->vector_value("TYPE") == "SPICE" )
+        {
+            // Spice password must be 60 characters maximum
+            graphics->replace("PASSWD", password.substr(0, 59));
+        }
+        else
+        {
+            graphics->replace("PASSWD", password);
+        }
     }
 
     return 0;
