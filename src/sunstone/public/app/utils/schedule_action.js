@@ -27,6 +27,14 @@ define(function (require) {
 
   var selector = '';
   var defaultHour = "12:30";
+  var actionsWithARGS = [
+    'snapshot-create',
+    'snapshot-revert',
+    'snapshot-delete',
+    'disk-snapshot-create',
+    'disk-snapshot-revert',
+    'disk-snapshot-delete'
+  ];
 
   function _html(resource, leases = null) {
     this.res = resource;
@@ -159,11 +167,11 @@ define(function (require) {
     }
     $("#date_input", context).attr("value", yyyy + "-" + mm + "-" + dd);
     $(".periodic", context).addClass("hide");
-    this.selector = $("select#select_new_action");
+    this.selector = $("select#select_new_action", context);
     $("select#select_new_action").on("change",function(){
-      var snap_name = $("#snapname");
-      var snap_id = $("#snapid");
-      var disk_id = $("#diskid");
+      var snap_name = $("#snapname",context);
+      var snap_id = $("#snapid",context);
+      var disk_id = $("#diskid",context);
 
       switch ($(this).val()) {
         case "snapshot-create":
@@ -297,7 +305,7 @@ define(function (require) {
 
         Object.keys(dataJSON).forEach(function(key){
           valuesForRelative = ['ACTION','ID','TIME'];
-          if(!valuesForRelative.includes(key)){
+          if(key!=='ARGS' && !valuesForRelative.includes(key)){
             relative = false;
           }
         })
@@ -450,24 +458,16 @@ define(function (require) {
     var that = this;
     $("#scheduling_" + this.res + "_actions_table tbody tr").each(function (index) {
       var first = $(this).children("td")[0];
-      if (!$("select", first).html()) {
+      if (!$("select", first).html()) { //table header
         var actionJSON = {};
         if ($(this).attr("data")) {
           actionJSON = JSON.parse($(this).attr("data"));
           actionJSON.ID = String(index);
           var actions = [
-            'snapshot-create',
-            'snapshot-revert',
-            'snapshot-delete',
-            'disk-snapshot-create',
-            'disk-snapshot-revert',
-            'disk-snapshot-delete'
-          ];
-
-          if(that.selector && that.selector.val && actions.includes(that.selector.val())){
-            var snap_name = $("#snapname").val();
-            var snap_id = $("#snapid").val();
-            var disk_id = $("#diskid").val();
+          if(that.selector && that.selector.val && actionsWithARGS.includes(that.selector.val())){
+            var snap_name = $("#snapname",context).val();
+            var snap_id = $("#snapid",context).val();
+            var disk_id = $("#diskid",context).val();
             var rawData = [disk_id,snap_id,snap_name];
             actionJSON.ARGS = rawData.filter(function (e) {return e;}).join();
           }
@@ -588,6 +588,13 @@ define(function (require) {
       sched_action.END_TYPE = String(end_type);
     }
     sched_action.ACTION = String(new_action);
+    if(sched_action.ACTION && actionsWithARGS.includes(sched_action.ACTION)){
+      var snap_name = $("#snapname",context).val();
+      var snap_id = $("#snapid",context).val();
+      var disk_id = $("#diskid",context).val();
+      var rawData = [disk_id,snap_id,snap_name];
+      sched_action.ARGS = rawData.filter(function (e) {return e;}).join();
+    }
     $("#scheduling_" + this.res + "_actions_table .create", context).remove();
     $("#scheduling_" + this.res + "_actions_table #relative_time_form", context).remove();
     $("#scheduling_" + this.res + "_actions_table #no_relative_time_form", context).remove();

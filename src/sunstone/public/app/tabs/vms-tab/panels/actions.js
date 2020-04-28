@@ -37,7 +37,6 @@ define(function(require) {
   var RESOURCE = "VM";
   var RESOURCE_SCHED_ACTIONS = 'vms'
   var XML_ROOT = "VM";
-
   /*
     CONSTRUCTOR
    */
@@ -145,14 +144,38 @@ define(function(require) {
       } else {
         return false;
       }
-
       that.element.USER_TEMPLATE.SCHED_ACTION = ScheduleActions.retrieve(context);
-
       // Let OpenNebula know
       var template_str = TemplateUtils.templateToString(that.element.USER_TEMPLATE);
       Sunstone.runAction("VM.update_template", that.element.ID, template_str);
+      return false;
+    });
 
-      $("#add_scheduling_vms_action", context).removeAttr("disabled");
+    context.off("click" , "#edit_vms_action_json").on("click" , "#edit_vms_action_json", function(e){
+      e.preventDefault();
+      var id = $(this).attr("data_id");
+      if(id && id.length){
+        $(".wickedpicker").hide();
+        var sched_action = ScheduleActions.retrieveNewAction(context);
+        console.log("-->", sched_action);
+        if (sched_action != false) {
+          sched_action.ID = id;
+          var sched_actions = ScheduleActions.retrieve(context);
+          if(Array.isArray(sched_actions)){
+            sched_actions = sched_actions.map(function(action){
+              if(action && action.ID && action.ID===id){
+                return sched_action;
+              }else{
+                return action;
+              }
+            })
+          }
+          that.element.USER_TEMPLATE.SCHED_ACTION = sched_actions;
+          var template_str = TemplateUtils.templateToString(that.element.USER_TEMPLATE);
+          Sunstone.runAction("VM.update_template", that.element.ID, template_str);
+        }
+        clear();
+      }
       return false;
     });
 
@@ -220,22 +243,27 @@ define(function(require) {
     return str;
   }
 
+  function clear(){
+    CREATE = true;
+  }
+
   // Helper for fromJSONtoHTMLTable function
   function vmsfromJSONtoActionRow(scheduling_action) {
     var done_str    = scheduling_action.DONE ? (Humanize.prettyTime(scheduling_action.DONE)) : "";
     var message_str = scheduling_action.MESSAGE ? scheduling_action.MESSAGE : "";
-
-    var str = "<td class=\"done_row\">" + done_str + "</td>\
-       <td class=\"message_row\">" + TemplateUtils.htmlEncode(message_str) + "</td>\
+    var action_id = scheduling_action.ID || '';
+    var update_sched = '';
+    if(action_id){
+      update_sched = "<button id='minus_"+scheduling_action.ID+ "' class='small button btn-warning edit_action_x' data_id='"+action_id+"'><i class='fas fa-edit'></i></button>";
+    }
+    var str = "<td class='done_row'>" + done_str + "</td>\
+       <td class='message_row'>" + TemplateUtils.htmlEncode(message_str) + "</td>\
        <td colspan='3' style='text-align: right;'>\
          <div style='display: flex;justify-content: flex-end;'>\
           <div>\
             <button id='minus_" + scheduling_action.ID + "' class='small button btn-danger remove_action_x'><i class='fas fa-trash-alt'></i></button>\
           </div>\
-          <div>\
-            <button id='minus_" + scheduling_action.ID + "' class='small button btn-warning edit_action_x'><i class='fas fa-edit'></i></button>\
-          </div>\
-         </div>\
+          <div>"+update_sched+"</div>\
        </td>\
      </tr>";
 

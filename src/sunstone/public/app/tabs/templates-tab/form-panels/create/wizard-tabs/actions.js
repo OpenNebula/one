@@ -127,7 +127,7 @@ define(function(require) {
       return false;
     });
 
-    context.on("click" , "#edit_temp_action_json", function(e){
+    context.off("click" , "#edit_temp_action_json").on("click" , "#edit_temp_action_json", function(e){
       e.preventDefault();
       var id = $(this).attr("data_id");
       if(id && id.length && contextRow){

@@ -54,17 +54,15 @@ define(function(require) {
       update_sched = "<button id='minus' class='small button btn-warning edit_action_x' data_id='"+action_id+"'><i class='fas fa-edit'></i></button>";
     }
 
-    str += "<tr class=\"tr_action\">\
-        <td class=\"action_row\">" + TemplateUtils.htmlEncode(scheduling_action.ACTION) + "</td>\
-        <td nowrap class=\"time_row\">" + time_str + "</td>\
+    str += "<tr class='tr_action'>\
+        <td class='action_row'>" + TemplateUtils.htmlEncode(scheduling_action.ACTION) + "</td>\
+        <td nowrap class='time_row'>" + time_str + "</td>\
         <td colspan='3' style='text-align: right;'>\
           <div style='display: flex;justify-content: flex-end;'>\
             <div>\
               <button id='minus' class='small button btn-danger remove_action_x'><i class='fas fa-trash-alt'></i></button>\
             </div>\
-            <div>\
-              "+update_sched+"\
-            </div>\
+            <div>"+update_sched+"</div>\
           </div>\
         </td>\
       </tr>";
