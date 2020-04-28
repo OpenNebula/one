@@ -123,12 +123,14 @@ class OneDB
         aug.context = "/files/#{work_file_name}"
         aug.load
 
-        ops[:backend] = aug.get('DB/BACKEND').gsub("\"", '')
-        ops[:server]  = aug.get('DB/SERVER').gsub("\"", '')
-        ops[:port]    = aug.get('DB/PORT').gsub("\"", '')
-        ops[:user]    = aug.get('DB/USER').gsub("\"", '')
-        ops[:passwd]  = aug.get('DB/PASSWD').gsub("\"", '')
-        ops[:db_name] = aug.get('DB/DB_NAME').gsub("\"", '')
+        ops[:backend] = aug.get('DB/BACKEND')
+        ops[:server]  = aug.get('DB/SERVER')
+        ops[:port]    = aug.get('DB/PORT')
+        ops[:user]    = aug.get('DB/USER')
+        ops[:passwd]  = aug.get('DB/PASSWD')
+        ops[:db_name] = aug.get('DB/DB_NAME')
+
+        ops.each {|_, v| v.gsub!("\"", '') if v }
     rescue StandardError => e
         STDERR.puts "Unable to parse oned.conf: #{e}"
         exit(-1)
