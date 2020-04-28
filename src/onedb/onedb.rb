@@ -23,12 +23,12 @@ class OneDB
     attr_accessor :backend
 
     def initialize(ops)
-        # Set MySQL backend as default if any connection option is provided and --type is not
-        if ops[:backend].nil? and (!ops[:server].nil? || !ops[:port].nil? || !ops[:user].nil? || !ops[:password].nil? || !ops[:db_name].nil? || !ops[:encoding].nil?)
+        if ops[:backend].nil? && ops[:server].nil? && ops[:port].nil? && ops[:user].nil? && ops[:password].nil? && ops[:db_name].nil?
+            read_credentials(ops)
+        elsif ops[:backend].nil? and (!ops[:server].nil? || !ops[:port].nil? || !ops[:user].nil? || !ops[:password].nil? || !ops[:db_name].nil? || !ops[:encoding].nil?)
+            # Set MySQL backend as default if any connection option is provided and --type is not
             ops[:backend] = :mysql
         end
-
-        read_credentials(ops)
 
         if ops[:backend] == :sqlite
             begin
@@ -99,6 +99,17 @@ class OneDB
     end
 
     def read_credentials(ops)
+       begin
+            gem 'augeas', '~> 0.6'
+            require 'augeas'
+        rescue Gem::LoadError
+            STDERR.puts(
+                'Augeas gem is not installed, run `gem install ' \
+                'augeas -v \'0.6\'` to install it'
+            )
+            exit(-1)
+        end
+
         work_file_dir  = File.dirname(ONED_CONF)
         work_file_name = File.basename(ONED_CONF)
 

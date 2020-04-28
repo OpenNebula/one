@@ -332,17 +332,6 @@ PAGES = {
     :format => Integer
 }
 
-def load_augeas
-    gem 'augeas', '~> 0.6'
-    require 'augeas'
-rescue Gem::LoadError
-    STDERR.puts(
-        'Augeas gem is not installed, run `gem install ' \
-        'augeas -v \'0.6\'` to install it'
-    )
-    exit(-1)
-end
-
 CommandParser::CmdParser.new(ARGV) do
     description <<-EOT.unindent
         This command enables the user to manage the OpenNebula database. It
@@ -373,8 +362,6 @@ CommandParser::CmdParser.new(ARGV) do
     command :backup, backup_desc, [:output_file, nil],
             :options=>[FORCE, FEDERATED] do
         begin
-            load_augeas
-
             helper = OneDB.new(options)
             helper.backup(args[0], options)
         rescue StandardError => e
@@ -392,8 +379,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :version, version_desc do
         begin
-            load_augeas
-
             helper = OneDB.new(options)
             helper.version(options)
         rescue StandardError => e
@@ -410,8 +395,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :history, history_desc do
         begin
-            load_augeas
-
             helper = OneDB.new(options)
             helper.history
         rescue StandardError => e
@@ -430,8 +413,6 @@ CommandParser::CmdParser.new(ARGV) do
     command :restore, restore_desc, :backup_file,
             :options=>[FORCE, FEDERATED] do
         begin
-            load_augeas
-
             helper = OneDB.new(options)
             helper.restore(args[0], options)
         rescue StandardError => e
@@ -453,8 +434,6 @@ CommandParser::CmdParser.new(ARGV) do
             [:version, nil],
             :options=>[FORCE, BACKUP] do
         begin
-            load_augeas
-
             helper = OneDB.new(options)
             helper.upgrade(args[0], options)
         rescue StandardError => e
@@ -471,8 +450,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :fsck, fsck_desc, :options=>[FORCE, BACKUP] do
         begin
-            load_augeas
-
             helper = OneDB.new(options)
             helper.fsck(options)
         rescue StandardError => e
@@ -505,8 +482,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :patch, patch_desc, :file, :options=>[BACKUP, EXTRA] do
         begin
-            load_augeas
-
             helper = OneDB.new(options)
             helper.patch(args[0], options)
         rescue StandardError => e
@@ -523,8 +498,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :sqlite2mysql, sqlite2mysql_desc, :options=>[BACKUP] do
         begin
-            load_augeas
-
             options[:backend] = :sqlite
             sqlite = OneDB.new(options)
 
