@@ -54,7 +54,7 @@ func (sc *ServiceController) Map(service *service.Service) map[string]interface{
 
 // Show the SERVICE resource identified by <id>
 func (sc *ServiceController) Show(id int) (*service.Service, error) {
-	url := urlServiceID(id)
+	url := urlService(id)
 
 	response, e := sc.c.Client2.Get(url)
 
@@ -65,11 +65,17 @@ func (sc *ServiceController) Show(id int) (*service.Service, error) {
 	return NewService(documentJSON(response)), nil
 }
 
-// Delete the SERVICE resource identified by <id>
-func (sc *ServiceController) Delete(id int) (bool, string) {
-	url := urlServiceID(sc.ID)
+// Shutdown Running serviceantes d
+func (sc *ServiceController) Shutdown(id int) (bool, string) {
+	url := urlAction(id)
 
-	response, e := sc.c.Client2.Delete(url)
+	action := make(map[string]interface{})
+
+	action["action"] = map[string]interface{}{
+		"perform": "shutdown",
+	}
+
+	response, e := sc.c.Client2.Post(url, action)
 
 	if e != nil {
 		return false, e.Error()
@@ -78,14 +84,11 @@ func (sc *ServiceController) Delete(id int) (bool, string) {
 	return response.status, response.Body()
 }
 
-// Shutdown Running service
-func (sc *ServiceController) Shutdown(id int) (bool, string) {
-	url := urlServiceID(id)
+// Delete the SERVICE resource identified by <id>
+func (sc *ServiceController) Delete(id int) (bool, string) {
+	url := urlService(sc.ID)
 
-	action := make(map[string]interface{})
-	action["perform"] = "shutdown"
-
-	response, e := sc.c.Client2.Post(url, action)
+	response, e := sc.c.Client2.Delete(url)
 
 	if e != nil {
 		return false, e.Error()
@@ -115,6 +118,10 @@ func documentJSON(response *Response) map[string]interface{} {
 	return responseJSON["DOCUMENT"].(map[string]interface{})
 }
 
-func urlServiceID(id int) string {
+func urlService(id int) string {
 	return fmt.Sprintf("%s/%s", endpoint, strconv.Itoa(id))
+}
+
+func urlAction(id int) string {
+	return fmt.Sprintf("%s/%s/action", endpoint, strconv.Itoa(id))
 }
