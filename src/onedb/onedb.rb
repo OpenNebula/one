@@ -70,9 +70,10 @@ class OneDB
                 exit -1
             end
 
-            passwd = ops[:passwd]
-            passwd = ENV['ONE_DB_PASSWORD'] unless passwd
-            passwd = get_password("PostgreSQL Password: ") unless passwd
+            passwd     = ops[:passwd]
+            passwd     = ENV['ONE_DB_PASSWORD'] unless passwd
+            passwd     = get_password("PostgreSQL Password: ") unless passwd
+            ops[:port] = 5432 if ops[:port] == 0
 
             @backend = BackEndPostgreSQL.new(
                 :server  => ops[:server],
@@ -131,6 +132,9 @@ class OneDB
         ops[:db_name] = aug.get('DB/DB_NAME')
 
         ops.each {|_, v| v.gsub!("\"", '') if v }
+
+        ops[:backend] = ops[:backend].to_sym
+        ops[:port]    = ops[:port].to_i
     rescue StandardError => e
         STDERR.puts "Unable to parse oned.conf: #{e}"
         exit(-1)
