@@ -2,7 +2,6 @@ package goca
 
 import (
 	"fmt"
-	"net/http"
 	"strconv"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/service"
@@ -118,17 +117,4 @@ func documentJSON(response *Response) map[string]interface{} {
 
 func urlServiceID(id int) string {
 	return fmt.Sprintf("%s/%s", endpoint, strconv.Itoa(id))
-}
-
-func checkHttpStatus(status int, response *http.Response) bool {
-	var result bool
-
-	if response.StatusCode != status {
-		result = false
-
-	} else {
-		result = true
-	}
-
-	return result
 }
