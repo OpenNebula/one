@@ -1,12 +1,11 @@
-package service
+package goca
 
 import (
 	"fmt"
 	"net/http"
 	"strconv"
 
-	"github.com/OpenNebula/one/src/oca/go/src/goca/flow/client"
-	"github.com/OpenNebula/one/src/oca/go/src/goca/flow/schemas/service"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/service"
 )
 
 var endpoint string
@@ -15,54 +14,14 @@ func init() {
 	endpoint = "service"
 }
 
-// OpenNebula Actions
+type ServiceController entityController
 
-// Show the SERVICE resource identified by <id>
-func Show(client client.Client, id int) service.Service {
-	url := urlServiceID(id)
-
-	response := client.Get(client, url)
-
-	return New(documentJSON(response))
+func (c *Controller) Service(id int) *ServiceController {
+	return &ServiceController{c, id}
 }
 
-// Delete the SERVICE resource identified by <id>
-func Delete(client client.Client, id int) (bool, string) {
-	url := urlServiceID(id)
-
-	response := client.Delete(client, url)
-
-	result := checkHttpStatus(204, response)
-	return result, client.Btostr(response)
-}
-
-func Shutdown(client client.Client, id int) (bool, string) {
-	url := urlServiceID(id)
-	action := make(map[string]interface{})
-
-	response := client.Post(client, url, action)
-
-	result := checkHttpStatus(201, response)
-	return result, client.Btostr(response)
-}
-
-// List the contents of the SERVICE collection.
-func List(client client.Client) []service.Service {
-	var services []service.Service
-
-	// url := fmt.Sprintf("%s/%s", client.Address, endpoint)
-
-	// servlist := Btomap(client.Get(client, url))
-
-	// Iterate map >> Build service >> Push service to array
-
-	return services
-}
-
-// Helpers
-
-// New Service constructor
-func New(docJSON map[string]interface{}) service.Service {
+// NewService constructor
+func NewService(docJSON map[string]interface{}) *service.Service {
 	var serv service.Service
 
 	body := docJSON["TEMPLATE"].(map[string]interface{})["BODY"].(map[string]interface{})
@@ -82,18 +41,77 @@ func New(docJSON map[string]interface{}) service.Service {
 		serv.ReadyStatusGate = ready
 	}
 
-	return serv
+	return &serv
 }
 
 // Map returns the map representation of a service
-func Map(service service.Service) map[string]interface{} {
+func (sc *ServiceController) Map(service *service.Service) map[string]interface{} {
 	serv := make(map[string]interface{})
 
 	return serv
 }
 
-func documentJSON(response *http.Response) map[string]interface{} {
-	responseJSON := client.Btomap(response)
+// OpenNebula Actions
+
+// Show the SERVICE resource identified by <id>
+func (sc *ServiceController) Show(id int) (*service.Service, error) {
+	url := urlServiceID(id)
+
+	response, e := sc.c.Client2.Get(url)
+
+	if e != nil {
+		return &service.Service{}, e
+	}
+
+	return NewService(documentJSON(response)), nil
+}
+
+// Delete the SERVICE resource identified by <id>
+func (sc *ServiceController) Delete(id int) (bool, string) {
+	url := urlServiceID(sc.ID)
+
+	response, e := sc.c.Client2.Delete(url)
+
+	if e != nil {
+		return false, e.Error()
+	}
+
+	return response.status, response.Body()
+}
+
+// Shutdown Running service
+func (sc *ServiceController) Shutdown(id int) (bool, string) {
+	url := urlServiceID(id)
+
+	action := make(map[string]interface{})
+	action["perform"] = "shutdown"
+
+	response, e := sc.c.Client2.Post(url, action)
+
+	if e != nil {
+		return false, e.Error()
+	}
+
+	return response.status, response.Body()
+}
+
+// List the contents of the SERVICE collection.
+func List(client *RESTClient) *[]service.Service {
+	var services []service.Service
+
+	// url := fmt.Sprintf("%s/%s", client.Address, endpoint)
+
+	// servlist := Btomap(client.Get(url))
+
+	// Iterate map >> Build service >> Push service to array
+
+	return &services
+}
+
+// Helpers
+
+func documentJSON(response *Response) map[string]interface{} {
+	responseJSON := response.BodyMap()
 
 	return responseJSON["DOCUMENT"].(map[string]interface{})
 }

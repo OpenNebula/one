@@ -10,8 +10,8 @@ import (
 	"strings"
 )
 
-// FlowClient for communicating with oneflow server
-type FlowClient struct {
+// RESTClient for communicating with oneflow server
+type RESTClient struct {
 	user    string
 	pass    string
 	address string // oneflow server address, ie: http://localhost:2474
@@ -19,9 +19,9 @@ type FlowClient struct {
 	httpClient *http.Client
 }
 
-// NewFlowClient Constructor
-func NewFlowClient(conf FlowConfig) *FlowClient {
-	return &FlowClient{
+// NewRESTClient Constructor
+func NewRESTClient(conf FlowConfig) *RESTClient {
+	return &RESTClient{
 		user:    conf.user,
 		pass:    conf.pass,
 		address: conf.address,
@@ -30,7 +30,7 @@ func NewFlowClient(conf FlowConfig) *FlowClient {
 	}
 }
 
-// FlowConfig holds OpenNebula connection information for the flow client
+// FlowConfig holds OpenNebula connection information for the flow endpoint API
 type FlowConfig struct {
 	user    string
 	pass    string
@@ -107,21 +107,21 @@ func NewHTTPResponse(r *http.Response, e error) (*Response, error) {
 // ex. use service instead of  http://localhost:2474/service
 
 // Get http
-func (c *FlowClient) Get(eurl string) (*Response, error) {
+func (c *RESTClient) Get(eurl string) (*Response, error) {
 	url := genurl(c.address, eurl)
 
 	return NewHTTPResponse(httpReq(c, "GET", url, nil))
 }
 
 // Delete http
-func (c *FlowClient) Delete(eurl string) (*Response, error) {
+func (c *RESTClient) Delete(eurl string) (*Response, error) {
 	url := genurl(c.address, eurl)
 
 	return NewHTTPResponse(httpReq(c, "DELETE", url, nil))
 }
 
 // Post http
-func (c *FlowClient) Post(eurl string, message map[string]interface{}) (*Response, error) {
+func (c *RESTClient) Post(eurl string, message map[string]interface{}) (*Response, error) {
 	url := genurl(c.address, eurl)
 
 	return NewHTTPResponse(httpReq(c, "POST", url, message))
@@ -129,7 +129,7 @@ func (c *FlowClient) Post(eurl string, message map[string]interface{}) (*Respons
 }
 
 // Put http
-func (c *FlowClient) Put(eurl string, message map[string]interface{}) (*Response, error) {
+func (c *RESTClient) Put(eurl string, message map[string]interface{}) (*Response, error) {
 	url := genurl(c.address, eurl)
 
 	return NewHTTPResponse(httpReq(c, "PUT", url, message))
@@ -147,10 +147,30 @@ func (r *Response) BodyMap() map[string]interface{} {
 	return bodyMap
 }
 
+// Btomap returns http body as map
+func bodyToMap(response *http.Response) map[string]interface{} {
+	var result map[string]interface{}
+
+	json.NewDecoder(response.Body).Decode(&result)
+
+	return result
+}
+
+// Btostr returns http body as string
+func bodyToStr(response *http.Response) string {
+	body, err := ioutil.ReadAll(response.Body)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	return string(body)
+}
+
 // HELPERS
 
 // General http request method for the c.
-func httpReq(c *FlowClient, method string, eurl string, message map[string]interface{}) (*http.Response, error) {
+func httpReq(c *RESTClient, method string, eurl string, message map[string]interface{}) (*http.Response, error) {
 	req, err := http.NewRequest(method, eurl, bodyContent(message))
 
 	if err != nil {
@@ -177,24 +197,4 @@ func bodyContent(message map[string]interface{}) *bytes.Buffer {
 	}
 
 	return bytes.NewBuffer(represent)
-}
-
-// Btomap returns http body as map
-func bodyToMap(response *http.Response) map[string]interface{} {
-	var result map[string]interface{}
-
-	json.NewDecoder(response.Body).Decode(&result)
-
-	return result
-}
-
-// Btostr returns http body as string
-func bodyToStr(response *http.Response) string {
-	body, err := ioutil.ReadAll(response.Body)
-
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	return string(body)
 }
