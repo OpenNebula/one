@@ -371,7 +371,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :backup, backup_desc, [:output_file, nil],
-            :options=>[FORCE, FEDERATED, READ_CREDENTIALS] do
+            :options=>[FORCE, FEDERATED] do
         begin
             load_augeas
 
@@ -390,7 +390,7 @@ CommandParser::CmdParser.new(ARGV) do
         Use -v flag to see also OpenNebula version
     EOT
 
-    command :version, version_desc, :options => [READ_CREDENTIALS] do
+    command :version, version_desc do
         begin
             load_augeas
 
@@ -408,7 +408,7 @@ CommandParser::CmdParser.new(ARGV) do
         Prints the upgrades history
     EOT
 
-    command :history, history_desc, :options => [READ_CREDENTIALS] do
+    command :history, history_desc do
         begin
             load_augeas
 
@@ -428,7 +428,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :restore, restore_desc, :backup_file,
-            :options=>[FORCE, FEDERATED, READ_CREDENTIALS] do
+            :options=>[FORCE, FEDERATED] do
         begin
             load_augeas
 
@@ -448,10 +448,7 @@ CommandParser::CmdParser.new(ARGV) do
                           By default the DB is upgraded to the latest version
     EOT
 
-    command :upgrade,
-            upgrade_desc,
-            [:version, nil],
-            :options=>[FORCE, BACKUP, READ_CREDENTIALS] do
+    command :upgrade, upgrade_desc, [:version, nil], :options=>[FORCE, BACKUP] do
         begin
             load_augeas
 
@@ -469,7 +466,7 @@ CommandParser::CmdParser.new(ARGV) do
         Checks the consistency of the DB, and fixes the problems found
     EOT
 
-    command :fsck, fsck_desc, :options=>[FORCE, BACKUP, READ_CREDENTIALS] do
+    command :fsck, fsck_desc, :options=>[FORCE, BACKUP] do
         begin
             load_augeas
 
@@ -506,7 +503,7 @@ CommandParser::CmdParser.new(ARGV) do
     command :patch,
             patch_desc,
             :file,
-            :options=>[BACKUP, EXTRA, READ_CREDENTIALS] do
+            :options=>[BACKUP, EXTRA] do
         begin
             load_augeas
 
@@ -526,7 +523,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :sqlite2mysql,
             sqlite2mysql_desc,
-            :options=>[BACKUP, READ_CREDENTIALS] do
+            :options=>[BACKUP] do
         begin
             load_augeas
 
