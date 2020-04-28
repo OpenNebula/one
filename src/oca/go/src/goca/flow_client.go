@@ -91,8 +91,8 @@ func NewHTTPResponse(r *http.Response, e error) (*Response, error) {
 
 	status := true
 
-	// HTTP != 2XX
-	if r.StatusCode/2 != 100 {
+	// HTTP 2XX
+	if r.StatusCode/100 != 2 {
 		status = false
 	}
 
