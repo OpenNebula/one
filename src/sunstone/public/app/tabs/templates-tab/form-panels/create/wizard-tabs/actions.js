@@ -137,6 +137,7 @@ define(function(require) {
           sched_action.ID = id;
           contextRow.replaceWith(ScheduleActions.fromJSONtoActionsTable(sched_action));
           contextRow = undefined;
+          $("#input_sched_action_form").remove();
         }
         clear();
       }

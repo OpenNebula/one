@@ -312,6 +312,56 @@ define(function (require) {
 
         if(dataJSON.ACTION){
           $("#select_new_action").val(dataJSON.ACTION).change();
+          if(dataJSON.ARGS){
+            var args = dataJSON.ARGS.split(",");
+            console.log("ARGS", args);
+            var disk_id = $("#diskid");
+            var snap_id = $("#snapid");
+            var snap_name = $("#snapname");
+            if(args && Array.isArray(args)){
+              switch (dataJSON.ACTION) {
+                case "snapshot-create":
+                  disk_id.val("");
+                  snap_id.val("");
+                  snap_name.val(args[0]||"");
+                break;
+                case "snapshot-revert":
+                  disk_id.val("");
+                  snap_id.val(args[0]||"");
+                  snap_name.val("");
+                break;
+                case "snapshot-delete":
+                  disk_id.val("");
+                  snap_id.val(args[0]||"");
+                  snap_name.val("");
+                break;
+                case "disk-snapshot-create":
+                  disk_id.val(args[0]||"");
+                  snap_id.val("");
+                  snap_name.val(args[1]||"");
+                break;
+                case "disk-snapshot-revert":
+                  disk_id.val(args[0]||"");
+                  snap_id.val(args[1]||"");
+                  snap_name.val("");
+                break;
+                case "disk-snapshot-delete":
+                  disk_id.val(args[0]||"");
+                  snap_id.val(args[1]||"");
+                  snap_name.val("");
+                break;
+                default:
+                  snap_name.val("");
+                  snap_id.val("");
+                  disk_id.val("");
+                break;
+              }
+            }else{
+              snap_name.val("");
+              snap_id.val("");
+              disk_id.val("");
+            }
+          }
         }
         //relative check
         if(relative){
@@ -463,14 +513,6 @@ define(function (require) {
         if ($(this).attr("data")) {
           actionJSON = JSON.parse($(this).attr("data"));
           actionJSON.ID = String(index);
-          var actions = [
-          if(that.selector && that.selector.val && actionsWithARGS.includes(that.selector.val())){
-            var snap_name = $("#snapname",context).val();
-            var snap_id = $("#snapid",context).val();
-            var disk_id = $("#diskid",context).val();
-            var rawData = [disk_id,snap_id,snap_name];
-            actionJSON.ARGS = rawData.filter(function (e) {return e;}).join();
-          }
         }
       }
       if (!$.isEmptyObject(actionJSON)) { actionsJSON.push(actionJSON); };
