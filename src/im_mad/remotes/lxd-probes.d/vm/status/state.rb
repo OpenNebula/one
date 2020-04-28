@@ -78,11 +78,13 @@ end
 
 begin
     vmdb = VirtualMachineDB.new('lxd',
+                                host,
+                                host_id,
                                 :missing_state => 'POWEROFF',
                                 :sync => sync)
     vmdb.purge
 
-    puts vmdb.to_status(host, host_id)
+    puts vmdb.to_status
 rescue StandardError => e
     puts e
 end
