@@ -52,6 +52,7 @@ define(function(require) {
   var FORM_PANEL_ID = require("./instantiate/formPanelId");
   var TAB_ID = require("../tabId");
   var RESOURCE = 'inst';
+  var CREATE = true;
 
   /*
     CONSTRUCTOR
@@ -96,7 +97,30 @@ define(function(require) {
   }
 
   function _setup(context) {
-    var CREATE = true;
+    if(!CREATE){
+      CREATE = true;
+    }
+    var actions = [
+      "terminate", 
+      "terminate-hard", 
+      "hold", 
+      "release", 
+      "stop", 
+      "suspend", 
+      "resume", 
+      "reboot", 
+      "reboot-hard", 
+      "poweroff", 
+      "poweroff-hard", 
+      "undeploy", 
+      "undeploy-hard", 
+      "snapshot-create",
+      "snapshot-delete", 
+      "snapshot-revert", 
+      "disk-snapshot-create", 
+      "disk-snapshot-delete", 
+      "disk-snapshot-revert"
+    ];
     var that = this;
     var objLeases = $.extend(true, {}, that);
     objLeases.resource = "template";
@@ -129,29 +153,8 @@ define(function(require) {
     }
 
     function renderCreateForm() {
+      console.log("create", CREATE);
       if(CREATE){
-        var actions = [
-          "terminate", 
-          "terminate-hard", 
-          "hold", 
-          "release", 
-          "stop", 
-          "suspend", 
-          "resume", 
-          "reboot", 
-          "reboot-hard", 
-          "poweroff", 
-          "poweroff-hard", 
-          "undeploy", 
-          "undeploy-hard", 
-          "snapshot-create",
-          "snapshot-delete", 
-          "snapshot-revert", 
-          "disk-snapshot-create", 
-          "disk-snapshot-delete", 
-          "disk-snapshot-revert"
-        ];
-        $("#add_scheduling_inst_action", context).attr("disabled", "disabled");
         ScheduleActions.htmlNewAction(actions, context, RESOURCE);
         ScheduleActions.setup(context);
         CREATE=false;
@@ -165,30 +168,63 @@ define(function(require) {
       $("#edit_"+RESOURCE+"_action_json").hide();
       $("#add_"+RESOURCE+"_action_json").show();
     });
+
     context.off("click", "#add_inst_action_json");
     context.on("click", "#add_inst_action_json", function(){
+      console.log("JORGE instantiate");
       var sched_action = ScheduleActions.retrieveNewAction(context);
       if (sched_action != false) {
         $("#sched_inst_actions_body").prepend(ScheduleActions.fromJSONtoActionsTable(sched_action));
       }
       return false;
     });
+
     context.on("focusout" , "#time_input", function(){
       $("#time_input").removeAttr("data-invalid");
       $("#time_input").removeAttr("class");
     });
+
+    context.off("click" , "#edit_inst_action_json").on("click" , "#edit_inst_action_json", function(e){
+      e.preventDefault();
+      var id = $(this).attr("data_id");
+      if(id && id.length){
+        $(".wickedpicker").hide();
+        var sched_action = ScheduleActions.retrieveNewAction(context);
+        if (sched_action != false) {
+          sched_action.ID = id;
+          var sched_actions = ScheduleActions.retrieve(context);
+          if(Array.isArray(sched_actions)){
+            sched_actions = sched_actions.map(function(action){
+              if(action && action.ID && action.ID===id){
+                return sched_action;
+              }else{
+                return action;
+              }
+            })
+          }
+          that.element.USER_TEMPLATE.SCHED_ACTION = sched_actions;
+          var template_str = TemplateUtils.templateToString(that.element.USER_TEMPLATE);
+          Sunstone.runAction("VM.update_template", that.element.ID, template_str);
+        }
+        clear();
+      }
+      return false;
+    });
+
     context.off("click", ".remove_action_x");
     context.on("click", ".remove_action_x", function(){
       $(this).parents("tr").remove();
     });
+
     context.off("click", ".edit_action_x");
     context.on("click", ".edit_action_x", function(e){
-      e.prependDefault();
+      console.log("EDIT");
+      e.preventDefault();
       var id = $(this).attr("data_id");
       if(id && id.length){
         renderCreateForm();
-        $("#edit_"+RESOURCE_SCHED_ACTIONS+"_action_json").show().attr("data_id", id);
-        $("#add_"+RESOURCE_SCHED_ACTIONS+"_action_json").hide();
+        $("#edit_"+RESOURCE+"_action_json").show().attr("data_id", id);
+        $("#add_"+RESOURCE+"_action_json").hide();
         ScheduleActions.fill($(this));
       }
     });
@@ -643,6 +679,10 @@ define(function(require) {
     Tips.setup(context);
     
     return false;
+  }
+
+  function clear(){
+    CREATE = true;
   }
 
   function generateRequirements(hosts_table, ds_table, context, id) {

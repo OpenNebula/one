@@ -157,7 +157,6 @@ define(function(require) {
       if(id && id.length){
         $(".wickedpicker").hide();
         var sched_action = ScheduleActions.retrieveNewAction(context);
-        console.log("-->", sched_action);
         if (sched_action != false) {
           sched_action.ID = id;
           var sched_actions = ScheduleActions.retrieve(context);
@@ -202,7 +201,6 @@ define(function(require) {
       var id = $(this).attr("data_id");
       if(id && id.length){
         renderCreateForm();
-        console.log("action");
         $("#edit_"+RESOURCE_SCHED_ACTIONS+"_action_json").show().attr("data_id", id);
         $("#add_"+RESOURCE_SCHED_ACTIONS+"_action_json").hide();
         ScheduleActions.fill($(this));

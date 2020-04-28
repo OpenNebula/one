@@ -161,7 +161,6 @@ define(function(require) {
         ScheduleActions.fill($(this));
       }
     });
-
   }
 
   function _retrieve(context) {

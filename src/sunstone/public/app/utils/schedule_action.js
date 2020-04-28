@@ -314,7 +314,6 @@ define(function (require) {
           $("#select_new_action").val(dataJSON.ACTION).change();
           if(dataJSON.ARGS){
             var args = dataJSON.ARGS.split(",");
-            console.log("ARGS", args);
             var disk_id = $("#diskid");
             var snap_id = $("#snapid");
             var snap_name = $("#snapname");
