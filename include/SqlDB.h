@@ -108,7 +108,7 @@ public:
     virtual void free_str(char * str) = 0;
 
 
-    bool supports(SqlFeature ft)
+    virtual bool supports(SqlFeature ft)
     {
         auto it = features.find(ft);
 
