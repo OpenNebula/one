@@ -448,7 +448,10 @@ CommandParser::CmdParser.new(ARGV) do
                           By default the DB is upgraded to the latest version
     EOT
 
-    command :upgrade, upgrade_desc, [:version, nil], :options=>[FORCE, BACKUP] do
+    command :upgrade,
+            upgrade_desc,
+            [:version, nil],
+            :options=>[FORCE, BACKUP] do
         begin
             load_augeas
 
@@ -500,10 +503,7 @@ CommandParser::CmdParser.new(ARGV) do
         Applies a database patch file
     EOT
 
-    command :patch,
-            patch_desc,
-            :file,
-            :options=>[BACKUP, EXTRA] do
+    command :patch, patch_desc, :file, :options=>[BACKUP, EXTRA] do
         begin
             load_augeas
 
@@ -521,9 +521,7 @@ CommandParser::CmdParser.new(ARGV) do
         Migrates a SQLite OpenNebula Database to MySQL
     EOT
 
-    command :sqlite2mysql,
-            sqlite2mysql_desc,
-            :options=>[BACKUP] do
+    command :sqlite2mysql, sqlite2mysql_desc, :options=>[BACKUP] do
         begin
             load_augeas
 
