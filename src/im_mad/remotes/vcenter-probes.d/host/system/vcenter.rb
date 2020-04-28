@@ -55,15 +55,8 @@ begin
     # Get NSX info detected from vCenter Server
     puts vcm.nsx_info
 
-    # VM monitor info
-    vm_monitor_info, last_perf_poll = vcm.monitor_vms(host_id)
-    if !vm_monitor_info.empty?
-        puts "VM_POLL=YES"
-        puts vm_monitor_info
-    end
-
-    # # Print last VM poll for perfmanager tracking
-    puts "VCENTER_LAST_PERF_POLL=" << last_perf_poll << "\n" if last_perf_poll
+    # VM wilds info
+    puts vcm.wilds
 
     # Datastore Monitoring
     puts vcm.monitor_datastores
