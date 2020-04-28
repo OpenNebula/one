@@ -28,6 +28,10 @@ class OneDB
             ops[:backend] = :mysql
         end
 
+        if ops[:backend] != :sqlite
+            read_credentials(ops) if ops.key?(:read_credentials)
+        end
+
         if ops[:backend] == :sqlite
             begin
                 require 'sqlite3'
@@ -48,12 +52,8 @@ class OneDB
             end
 
             passwd = ops[:passwd]
-            if !passwd
-                passwd = ENV['ONE_DB_PASSWORD']
-            end
-            if !passwd
-                passwd = get_password
-            end
+            passwd = ENV['ONE_DB_PASSWORD'] unless passwd
+            passwd = get_password unless passwd
 
             @backend = BackEndMySQL.new(
                 :server  => ops[:server],
@@ -73,9 +73,8 @@ class OneDB
             end
 
             passwd = ops[:passwd]
-            if !passwd
-                passwd = get_password("PostgreSQL Password: ")
-            end
+            passwd = ENV['ONE_DB_PASSWORD'] unless passwd
+            passwd = get_password("PostgreSQL Password: ") if !passwd
 
             @backend = BackEndPostgreSQL.new(
                 :server  => ops[:server],
@@ -99,6 +98,30 @@ class OneDB
         puts ""
 
         return passwd
+    end
+
+    def read_credentials(ops)
+        work_file_dir  = File.dirname(ONED_CONF)
+        work_file_name = File.basename(ONED_CONF)
+
+        aug = Augeas.create(:no_modl_autoload => true,
+                            :no_load          => true,
+                            :root             => work_file_dir,
+                            :loadpath         => ONED_CONF)
+
+        aug.clear_transforms
+        aug.transform(:lens => 'Oned.lns', :incl => work_file_name)
+        aug.context = "/files/#{work_file_name}"
+        aug.load
+
+        ops[:server]  = aug.get('DB/SERVER').gsub("\"", '')
+        ops[:port]    = aug.get('DB/PORT').gsub("\"", '')
+        ops[:user]    = aug.get('DB/USER').gsub("\"", '')
+        ops[:passwd]  = aug.get('DB/PASSWD').gsub("\"", '')
+        ops[:db_name] = aug.get('DB/DB_NAME').gsub("\"", '')
+    rescue StandardError => e
+        STDERR.puts "Unable to parse oned.conf: #{e}"
+        exit(-1)
     end
 
     def backup(bck_file, ops, backend=@backend)

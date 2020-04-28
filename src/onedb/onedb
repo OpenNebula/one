@@ -44,6 +44,8 @@ else
     LOCK_FILE         = VAR_LOCATION + '/.lock'
 end
 
+ONED_CONF = "#{ETC_LOCATION}/oned.conf"
+
 if File.directory?(GEMS_LOCATION)
     Gem.use_paths(GEMS_LOCATION)
     $LOAD_PATH.reject! {|l| l =~ /(vendor|site)_ruby/ }
@@ -84,6 +86,12 @@ RECREATE = {
     :name => 'recreate',
     :large => '--recreate',
     :description => 'Delete FTS index and create a new one'
+}
+
+READ_CREDENTIALS = {
+    :name => 'read_credentials',
+    :large => '--read-credentials',
+    :description => 'Read DB credentials from oned.conf'
 }
 
 ###############################################################################
@@ -330,6 +338,17 @@ PAGES = {
     :format => Integer
 }
 
+def load_augeas
+    gem 'augeas', '~> 0.6'
+    require 'augeas'
+rescue Gem::LoadError
+    STDERR.puts(
+        'Augeas gem is not installed, run `gem install ' \
+        'augeas -v \'0.6\'` to install it'
+    )
+    exit(-1)
+end
+
 CommandParser::CmdParser.new(ARGV) do
     description <<-EOT.unindent
         This command enables the user to manage the OpenNebula database. It
@@ -358,8 +377,10 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :backup, backup_desc, [:output_file, nil],
-            :options=>[FORCE, FEDERATED] do
+            :options=>[FORCE, FEDERATED, READ_CREDENTIALS] do
         begin
+            load_augeas
+
             helper = OneDB.new(options)
             helper.backup(args[0], options)
         rescue StandardError => e
@@ -375,8 +396,10 @@ CommandParser::CmdParser.new(ARGV) do
         Use -v flag to see also OpenNebula version
     EOT
 
-    command :version, version_desc do
+    command :version, version_desc, :options => [READ_CREDENTIALS] do
         begin
+            load_augeas
+
             helper = OneDB.new(options)
             helper.version(options)
         rescue StandardError => e
@@ -391,8 +414,10 @@ CommandParser::CmdParser.new(ARGV) do
         Prints the upgrades history
     EOT
 
-    command :history, history_desc do
+    command :history, history_desc, :options => [READ_CREDENTIALS] do
         begin
+            load_augeas
+
             helper = OneDB.new(options)
             helper.history
         rescue StandardError => e
@@ -409,8 +434,10 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :restore, restore_desc, :backup_file,
-            :options=>[FORCE, FEDERATED] do
+            :options=>[FORCE, FEDERATED, READ_CREDENTIALS] do
         begin
+            load_augeas
+
             helper = OneDB.new(options)
             helper.restore(args[0], options)
         rescue StandardError => e
@@ -430,8 +457,10 @@ CommandParser::CmdParser.new(ARGV) do
     command :upgrade,
             upgrade_desc,
             [:version, nil],
-            :options=>[FORCE, BACKUP] do
+            :options=>[FORCE, BACKUP, READ_CREDENTIALS] do
         begin
+            load_augeas
+
             helper = OneDB.new(options)
             helper.upgrade(args[0], options)
         rescue StandardError => e
@@ -446,8 +475,10 @@ CommandParser::CmdParser.new(ARGV) do
         Checks the consistency of the DB, and fixes the problems found
     EOT
 
-    command :fsck, fsck_desc, :options=>[FORCE, BACKUP] do
+    command :fsck, fsck_desc, :options=>[FORCE, BACKUP, READ_CREDENTIALS] do
         begin
+            load_augeas
+
             helper = OneDB.new(options)
             helper.fsck(options)
         rescue StandardError => e
@@ -478,8 +509,13 @@ CommandParser::CmdParser.new(ARGV) do
         Applies a database patch file
     EOT
 
-    command :patch, patch_desc, :file, :options=>[BACKUP, EXTRA] do
+    command :patch,
+            patch_desc,
+            :file,
+            :options=>[BACKUP, EXTRA, READ_CREDENTIALS] do
         begin
+            load_augeas
+
             helper = OneDB.new(options)
             helper.patch(args[0], options)
         rescue StandardError => e
@@ -494,8 +530,12 @@ CommandParser::CmdParser.new(ARGV) do
         Migrates a SQLite OpenNebula Database to MySQL
     EOT
 
-    command :sqlite2mysql, sqlite2mysql_desc, :options=>[BACKUP] do
+    command :sqlite2mysql,
+            sqlite2mysql_desc,
+            :options=>[BACKUP, READ_CREDENTIALS] do
         begin
+            load_augeas
+
             options[:backend] = :sqlite
             sqlite = OneDB.new(options)
 
