@@ -295,9 +295,9 @@ define(function (require) {
 
   }
 
-  function _fill(element){
+  function _fill(element, context){
     _reset();
-    if(element && element.closest && element.closest("tr") && element.closest("tr").attr && element.closest("tr").attr("data")){
+    if(element && element.closest && element.closest("tr") && element.closest("tr").attr && element.closest("tr").attr("data") && context){
       var data = element.closest("tr").attr("data");
       var dataJSON = JSON.parse(data);
       if(dataJSON){
@@ -314,9 +314,9 @@ define(function (require) {
           $("#select_new_action").val(dataJSON.ACTION).change();
           if(dataJSON.ARGS){
             var args = dataJSON.ARGS.split(",");
-            var disk_id = $("#diskid");
-            var snap_id = $("#snapid");
-            var snap_name = $("#snapname");
+            var disk_id = $("#diskid",context);
+            var snap_id = $("#snapid",context);
+            var snap_name = $("#snapname",context);
             if(args && Array.isArray(args)){
               switch (dataJSON.ACTION) {
                 case "snapshot-create":

@@ -203,7 +203,7 @@ define(function(require) {
         renderCreateForm();
         $("#edit_"+RESOURCE_SCHED_ACTIONS+"_action_json").show().attr("data_id", id);
         $("#add_"+RESOURCE_SCHED_ACTIONS+"_action_json").hide();
-        ScheduleActions.fill($(this));
+        ScheduleActions.fill($(this),context);
       }
     });
   }

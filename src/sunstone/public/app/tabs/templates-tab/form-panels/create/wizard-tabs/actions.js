@@ -123,6 +123,7 @@ define(function(require) {
       if (sched_action != false) {
         $("#sched_temp_actions_body").prepend(ScheduleActions.fromJSONtoActionsTable(sched_action));
       }
+      $("#input_sched_action_form").remove();
       clear();
       return false;
     });
@@ -158,7 +159,7 @@ define(function(require) {
         renderCreateForm();
         $("#edit_"+RESOURCE+"_action_json").show().attr("data_id", id);
         $("#add_"+RESOURCE+"_action_json").hide();
-        ScheduleActions.fill($(this));
+        ScheduleActions.fill($(this),context);
       }
     });
   }

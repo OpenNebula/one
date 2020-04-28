@@ -53,6 +53,7 @@ define(function(require) {
   var TAB_ID = require("../tabId");
   var RESOURCE = 'inst';
   var CREATE = true;
+  var contextRow;
 
   /*
     CONSTRUCTOR
@@ -153,7 +154,6 @@ define(function(require) {
     }
 
     function renderCreateForm() {
-      console.log("create", CREATE);
       if(CREATE){
         ScheduleActions.htmlNewAction(actions, context, RESOURCE);
         ScheduleActions.setup(context);
@@ -171,11 +171,13 @@ define(function(require) {
 
     context.off("click", "#add_inst_action_json");
     context.on("click", "#add_inst_action_json", function(){
-      console.log("JORGE instantiate");
       var sched_action = ScheduleActions.retrieveNewAction(context);
       if (sched_action != false) {
+        $("#no_actions_tr", context).remove();
         $("#sched_inst_actions_body").prepend(ScheduleActions.fromJSONtoActionsTable(sched_action));
       }
+      $("#input_sched_action_form").remove();
+      clear();
       return false;
     });
 
@@ -187,24 +189,14 @@ define(function(require) {
     context.off("click" , "#edit_inst_action_json").on("click" , "#edit_inst_action_json", function(e){
       e.preventDefault();
       var id = $(this).attr("data_id");
-      if(id && id.length){
+      if(id && id.length && contextRow){
         $(".wickedpicker").hide();
         var sched_action = ScheduleActions.retrieveNewAction(context);
         if (sched_action != false) {
           sched_action.ID = id;
-          var sched_actions = ScheduleActions.retrieve(context);
-          if(Array.isArray(sched_actions)){
-            sched_actions = sched_actions.map(function(action){
-              if(action && action.ID && action.ID===id){
-                return sched_action;
-              }else{
-                return action;
-              }
-            })
-          }
-          that.element.USER_TEMPLATE.SCHED_ACTION = sched_actions;
-          var template_str = TemplateUtils.templateToString(that.element.USER_TEMPLATE);
-          Sunstone.runAction("VM.update_template", that.element.ID, template_str);
+          contextRow.replaceWith(ScheduleActions.fromJSONtoActionsTable(sched_action));
+          contextRow = undefined;
+          $("#input_sched_action_form").remove();
         }
         clear();
       }
@@ -218,14 +210,14 @@ define(function(require) {
 
     context.off("click", ".edit_action_x");
     context.on("click", ".edit_action_x", function(e){
-      console.log("EDIT");
       e.preventDefault();
       var id = $(this).attr("data_id");
       if(id && id.length){
+        contextRow = $(this).closest("tr.tr_action");
         renderCreateForm();
         $("#edit_"+RESOURCE+"_action_json").show().attr("data_id", id);
         $("#add_"+RESOURCE+"_action_json").hide();
-        ScheduleActions.fill($(this));
+        ScheduleActions.fill($(this),context);
       }
     });
   }
@@ -675,9 +667,13 @@ define(function(require) {
 
   function _onShow(context) {
     Sunstone.disableFormPanelSubmit(this.tabId);
-    $("input.instantiate_pers", context).change();
-    Tips.setup(context);
-    
+    if(context){
+      $("input.instantiate_pers", context).change();
+      Tips.setup(context);
+      var form = context.find("#sched_inst_actions_body");
+      form.find("tr.create,tr#schedule_base,tr#input_sched_action_form,tr#relative_time_form,tr#no_relative_time_form").remove();
+    }
+    clear();
     return false;
   }
 
