@@ -1,9 +1,10 @@
 module Oned =
   autoload xfm
 
-(* Version: 1.2 *)
+(* Version: 1.3 *)
 
 (* Change log: *)
+(*   1.3: Allow escaped quotes in values  *)
 (*   1.2: Include /etc/one/monitord.conf  *)
 
 (* primitives *)
@@ -17,14 +18,14 @@ let left_br = del /\[/ "["
 let right_br = del /\]/ "]"
 
 (* Regexes *)
-(* Match everyhting within quotes *)
-let re_quoted_str = /"[^\"]*"/
+(* Match everyhting within quotes, allow escape quote *)
+let re_quoted_str = /"(\\\\[\\\\"]|[^\\\\"])*"/
 
-(* Match everything except spaces, l-bracket([) and num-sign(#) *)
-let re_value_str = /[^ \t\n\[#]+/
+(* Match everything except spaces, quote("), l-bracket([) and num-sign(#) *)
+let re_value_str = /[^ \t\n"\[#]+/
 
-(* Match everything except spaces, num-sign(#) and comma(,) *)
-let re_section_value_str = /[^ \t\n#,]+/
+(* Match everything except spaces, quote("), num-sign(#) and comma(,) *)
+let re_section_value_str = /[^ \t\n"#,]+/
 
 (* Store either after-value comment or full-line comment *)
 let comment = [ label "#comment" . store /#[^\n]*/ ]
