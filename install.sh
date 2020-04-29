@@ -1972,7 +1972,8 @@ EC2_ETC_FILES="src/vmm_mad/remotes/ec2/ec2_driver.conf \
 AZ_ETC_FILES="src/vmm_mad/remotes/az/az_driver.conf \
               src/vmm_mad/remotes/az/az_driver.default"
 
-VCENTER_ETC_FILES="src/vmm_mad/remotes/lib/vcenter_driver/vcenter_driver.default"
+VCENTER_ETC_FILES="src/vmm_mad/remotes/lib/vcenter_driver/vcenter_driver.conf \
+                   src/vmm_mad/remotes/lib/vcenter_driver/vcenter_driver.default"
 
 #-------------------------------------------------------------------------------
 # Virtualization drivers config. files, to be installed under $ETC_LOCATION

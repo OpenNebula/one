@@ -1,0 +1,33 @@
+
+[1mFrom:[0m /var/lib/one/remotes/im/lib/vcenter.rb:1107 VcenterMonitor#fetch_vms_data:
+
+    [1;34m1099[0m: [32mdef[0m [1;34mfetch_vms_data[0m([35mwith_monitoring[0m: [1;36mfalse[0m)
+    [1;34m1100[0m:     [1;34m# rubocop:disable Layout/LineLength[0m
+    [1;34m1101[0m:     vmpool = [1;34;4mOpenNebula[0m::[1;34;4mVirtualMachinePool[0m
+    [1;34m1102[0m:              .new(@client, [1;34;4mOpenNebula[0m::[1;34;4mVirtualMachinePool[0m::[1;34;4mINFO_ALL_VM[0m)
+    [1;34m1103[0m:     [1;34m# rubocop:enable Layout/LineLength[0m
+    [1;34m1104[0m:     vmpool.info
+    [1;34m1105[0m: 
+    [1;34m1106[0m:     vms = []
+ => [1;34m1107[0m:     vmpool.each [32mdo[0m |remote_vm|
+    [1;34m1108[0m:         id = remote_vm[[31m[1;31m'[0m[31mUSER_TEMPLATE/REMOTE_OPENNEBULA_VM_ID[1;31m'[0m[31m[0m] || [31m[1;31m'[0m[31m-1[1;31m'[0m[31m[0m
+    [1;34m1109[0m:         deploy_id = remote_vm[[31m[1;31m'[0m[31mUSER_TEMPLATE/REMOTE_OPENNEBULA_DEPLOY_ID[1;31m'[0m[31m[0m] \
+    [1;34m1110[0m:             || [31m[1;31m"[0m[31m#{DEPLOY_ID_PREFIX}[0m[31m#{remote_vm.id}[0m[31m[1;31m"[0m[31m[0m
+    [1;34m1111[0m:         cpu = remote_vm[[31m[1;31m'[0m[31mTEMPLATE/CPU[1;31m'[0m[31m[0m]
+    [1;34m1112[0m:         memory = remote_vm[[31m[1;31m'[0m[31mTEMPLATE/MEMORY[1;31m'[0m[31m[0m]
+    [1;34m1113[0m: 
+    [1;34m1114[0m:         vm = { [33m:id[0m => id,
+    [1;34m1115[0m:                [33m:uuid[0m => deploy_id,
+    [1;34m1116[0m:                [33m:name[0m => remote_vm.name,
+    [1;34m1117[0m:                [33m:state[0m => vm_state(remote_vm),
+    [1;34m1118[0m:                [33m:type[0m => [31m[1;31m"[0m[31m#{cpu}[0m[31mcpu/#{memory}[0m[31mmemory[1;31m"[0m[31m[0m }
+    [1;34m1119[0m: 
+    [1;34m1120[0m:         [32mif[0m with_monitoring
+    [1;34m1121[0m:             vm[[33m:monitor[0m] = get_vm_monitor_data(remote_vm)
+    [1;34m1122[0m:         [32mend[0m
+    [1;34m1123[0m:         vms << vm
+    [1;34m1124[0m:     [32mend[0m
+    [1;34m1125[0m: 
+    [1;34m1126[0m:     vms
+    [1;34m1127[0m: [32mend[0m
+
