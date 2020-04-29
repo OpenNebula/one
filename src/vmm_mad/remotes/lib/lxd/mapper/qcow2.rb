@@ -31,7 +31,7 @@ class Qcow2Mapper < Mapper
         dsrc = one_vm.disk_source(disk)
         File.chmod(0o664, dsrc) if File.symlink?(one_vm.sysds_path)
 
-        map = "#{COMMANDS[:nbd]} -c #{device} #{dsrc}"
+        map = "#{COMMANDS[:nbd]} --fork -c #{device} #{dsrc}"
         rc, _out, err = Command.execute(map, true)
 
         unless rc.zero?
