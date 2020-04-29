@@ -788,6 +788,7 @@ define(function (require) {
     "retrieveNewAction": _retrieveNewAction,
     "retrieve": _retrieve,
     "fill": _fill,
+    "parseTime": _time,
     "reset": _reset
   };
 });

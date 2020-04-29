@@ -166,6 +166,8 @@ define(function(require) {
     DashboardUtils.counterAnimation(".failed_vms", this.failedVms);
 
     $(".off_vms").text(this.offVms);
+
+    VMsTableUtils.tooltipCharters()
   }
 
   function _initialize(opts) {

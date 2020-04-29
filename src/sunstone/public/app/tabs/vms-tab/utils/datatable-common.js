@@ -22,6 +22,7 @@ define(function(require) {
   var TemplateUtils = require('utils/template-utils');
   var LabelsUtils = require('utils/labels/utils');
   var Status = require('utils/status');
+  var ScheduleActions = require("utils/schedule_action");
 
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
@@ -48,10 +49,11 @@ define(function(require) {
   return {
     'elementArray': _elementArray,
     'emptyElementArray': _emptyElementArray,
+    'tooltipCharters': showCharterInfo,
     'columns': _columns
   };
 
-  function checkTime(startTime, addedEndTime, warningTime){
+  function checkTime(startTime, addedEndTime, warningTime, rtnTime){
     var rtn = false;
     if(startTime && addedEndTime){
       var regexNumber = new RegExp('[0-9]*$','gm');
@@ -69,11 +71,12 @@ define(function(require) {
           break;
         }
         now = new Date();
-        var nowInSeconds = Math.round(parseInt(now.getTime()) / 1000);
+        var nowGetTime = parseInt(now.getTime(),10)
+        var nowInSeconds = Math.round(nowGetTime / 1000);
         if(finalTime >= nowInSeconds && warningTime === undefined){
-          rtn = true;
+          rtn = rtnTime? finalTime - nowInSeconds : true;
         }else if(!!warningTime){
-          var warning = parseInt(warningTime.match(regexNumber)[0]);
+          var warning = parseInt(warningTime.match(regexNumber)[0],10);
           if(!isNaN(warning)){
             operator = warningTime.replace(regexNumber, "");
             var wtime = date;
@@ -93,6 +96,42 @@ define(function(require) {
       }
     }
     return rtn;
+  }
+
+  function showCharterInfo(){
+    var classInfo = "charterInfo";
+    var styleTips = {
+      "position":"absolute",
+      "background":"#d7d0d0",
+      "padding":"8px",
+      "z-index":"1",
+      "min-width":"8rem",
+      "font-family": '"Lato","Helvetica Neue",Helvetica,Roboto,Arial,sans-serif',
+      "font-weight": "100"
+    };
+    $(".describeCharter").off("mouseenter").on("mouseenter",function(e){
+      $(this).find(".charterInfo").remove();
+      var start = $(this).attr("data_start");
+      var add = $(this).attr("data_add");
+      var action = $(this).attr("data_action");
+      if((start && start.length) && (add && add.length) && (action && action.length)){
+        var date = checkTime(start, add, undefined, true);
+        if(typeof date === "number"){
+          $(this).append(
+            $("<div/>",{"class":classInfo}).css(styleTips).append(
+              $("<b/>").css({"display":"inline"}).text(action).add(
+                $("<div/>").css({"display":"inline"}).text(
+                  " "+Locale.tr("will run in")+" "+ScheduleActions.parseTime(date)
+                )
+              )
+            )
+          );
+        }
+      }
+    })
+    $(".describeCharter").on("mouseleave").on("mouseleave", function(e){
+      $(this).find("."+classInfo).remove();
+    });
   }
 
   function leasesClock(element){
@@ -126,7 +165,7 @@ define(function(require) {
           leases[action.ACTION].color
         ){
           if(checkTime(element.STIME, action.TIME)){
-            rtn = $("<i/>",{class:"fa fa-clock"}).css("color",leases[action.ACTION].color);
+            rtn = $("<i/>",{class:"describeCharter fa fa-clock",data_start:element.STIME, data_add:action.TIME, data_action:action.ACTION}).css({"position":"relative","color":leases[action.ACTION].color});
             if(
               leases[action.ACTION].warning && 
               leases[action.ACTION].warning.time && 
