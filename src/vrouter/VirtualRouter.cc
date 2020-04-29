@@ -490,7 +490,8 @@ Template * VirtualRouter::get_vm_template() const
 
     if (!obj_template->get("KEEPALIVED_ID", keepalived_id))
     {
-        keepalived_id = (oid & 0xFF);
+        // Keep Alive should be arbitrary unique number from 1 to 255
+        keepalived_id = (oid % 255) + 1;
     }
 
     tmpl->replace("VROUTER_KEEPALIVED_ID", keepalived_id);
