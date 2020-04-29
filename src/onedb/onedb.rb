@@ -22,10 +22,12 @@ LOG_TIME = false
 class OneDB
     attr_accessor :backend
 
+    CONNECTION_PARAMETERS = %i[server port user password db_name]
+
     def initialize(ops)
-        if ops[:backend].nil? && ops[:server].nil? && ops[:port].nil? && ops[:user].nil? && ops[:password].nil? && ops[:db_name].nil?
+        if ops[:backend].nil? && CONNECTION_PARAMETERS.all? {|s| ops[s].nil? }
             ops = read_credentials(ops)
-        elsif ops[:backend].nil? and (!ops[:server].nil? || !ops[:port].nil? || !ops[:user].nil? || !ops[:password].nil? || !ops[:db_name].nil? || !ops[:encoding].nil?)
+        elsif ops[:backend].nil? && CONNECTION_PARAMETERS.one? {|s| !ops[s].nil? }
             # Set MySQL backend as default if any connection option is provided and --type is not
             ops[:backend] = :mysql
         end
@@ -100,7 +102,7 @@ class OneDB
     end
 
     def read_credentials(ops)
-       begin
+        begin
             gem 'augeas', '~> 0.6'
             require 'augeas'
         rescue Gem::LoadError
