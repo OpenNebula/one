@@ -14,18 +14,52 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-define(function() {
+define(function(require) {
+  var Config = require('sunstone-config');
+
   return {
-    "fileText": _fileText,
-    "downloadFile": _downloadFile
+    "downloadWFile": _downloadWFile,
+    "downloadRdpFile": _downloadRdpFile,
   };
 
-  function _downloadFile(ip, name, credentials) {
-    var file = _fileText(ip, credentials.USERNAME, credentials.PASSWORD);
-          
+  function _downloadRdpFile(ip, name = "vm_name", credentials = {}) {
+    var file = _rdpFile(ip, credentials.username, credentials.password);
+    _download(name, ".rdp", file);
+  }
+
+  function _downloadWFile(response, vm_host, graphics_type, graphics_port) {
+    var protocol = window.location.protocol;
+    var proxy_host = window.location.hostname;
+    var proxy_port = Config.vncProxyPort;
+    var token = response["token"];
+    var password = response["password"];
+    var vm_name = response["vm_name"];
+
+    if ($.inArray(graphics_type, ['spice', 'vnc']) < 0) {
+      Notifier.notifyError(Locale.tr("Type grapichs supported: vnc, spice"));
+      return;
+    }
+
+    if (!graphics_type || !graphics_port) {
+      Notifier.notifyError(Locale.tr("Must specify type and port in graphics options"));
+      return;
+    }
+
+    if (!proxy_host || !proxy_port) {
+      Notifier.notifyError(Locale.tr("Must specify proxy host and port in config"));
+      return;
+    }
+
+    var proxy = protocol + "//" + proxy_host + ":" + proxy_port + "?token=" + token;
+    
+    var file = _wFile(graphics_type, vm_name, vm_host, graphics_port, proxy, password);
+    _download(vm_name, ".vv", file);
+  }
+
+  function _download(name, extension, text) {
     var link = $("<a/>", {
-      href: 'data:text/plain;charset=utf-8,' + encodeURIComponent(file),
-      download: name + ".rdp",
+      href: 'data:text/plain;charset=utf-8,' + encodeURIComponent(text),
+      download: String(name).concat(extension),
     }).css({
       display: 'none',
     }).appendTo("body");
@@ -37,8 +71,26 @@ define(function() {
     link.remove();
   }
 
-  function _fileText(ip, username, password) {
-    let file = ""
+  function _wFile(type, title, host, port, proxy, password) {
+    let file = "";
+
+    file += "[virt-viewer]\n";
+    if (type) { file += "type=" + type + "\n"; }
+    if (title) { file += "title=" + title + "\n"; }
+    if (host) { file += "host=" + host + "\n"; }
+    if (port) { file += "port=" + port + "\n"; }
+    if (proxy) { file += "proxy=" + proxy + "\n"; }
+    if (password) { file += "password=" + password + "\n"; }
+    file += "fullscreen=0\n";
+    file += "toggle-fullscreen=shift+f11\n";
+    file += "release-cursor=shift+f12\n";
+    file += "secure-attention=ctrl+alt+end\n";
+    
+    return file;
+  }
+
+  function _rdpFile(ip, username, password) {
+    let file = "";
     
     file += "screen mode id:i:2\n";
     file += "desktopwidth:i:1280\n";

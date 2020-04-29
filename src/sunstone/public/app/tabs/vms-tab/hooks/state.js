@@ -41,25 +41,31 @@ define(function(require) {
     StateActions.disableAllStateActions();
     StateActions.enableStateActions(element.STATE, element.LCM_STATE);
 
-    // Enable / disable vnc button
+    var isWFileSupported = false;
     if (OpenNebulaVM.isVNCSupported(element)) {
       $(".vnc-sunstone-info").show();
-    } else {
+      $(".spice-sunstone-info").hide();
+      isWFileSupported = OpenNebulaVM.isWFileSupported(element);
+    }
+    else if (OpenNebulaVM.isSPICESupported(element)) {
+      $(".spice-sunstone-info").show();
+      $(".vnc-sunstone-info").hide();
+      isWFileSupported = OpenNebulaVM.isWFileSupported(element);
+    }
+    else {
+      $(".spice-sunstone-info").hide();
       $(".vnc-sunstone-info").hide();
     }
+    
+    (isWFileSupported)
+      ? $(".vv-sunstone-info").show()
+      : $(".vv-sunstone-info").hide();
 
     // Enable / disable rdp button
-    if (OpenNebulaVM.isRDPSupported(element)) {
-      $(".rdp-sunstone-info").show();
-    } else {
-      $(".rdp-sunstone-info").hide();
-    }
+    (OpenNebulaVM.isRDPSupported(element))
+      ? $(".rdp-sunstone-info").show()
+      : $(".rdp-sunstone-info").hide();
 
-    if (OpenNebulaVM.isSPICESupported(element)) {
-      $(".spice-sunstone-info").show();
-    } else {
-      $(".spice-sunstone-info").hide();
-    }
     if(config && 
       config["system_config"] && 
       config["system_config"]["allow_vnc_federation"] && 

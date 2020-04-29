@@ -126,30 +126,26 @@ button.search-dropdown {
   border-style: none !important;
 }
 
-button.vnc,
-button.spice,
-button.rdp {
+button.remote_vm {
   margin: 0 5px;
-  font-size: 1.4em;
-}
+  font-size: 1.5em;
 
-button.vnc i,
-button.spice i,
-button.rdp i {
-  color: $anchor-color;
-}
+  &.spice i {
+    -webkit-text-stroke: 0.7px;
+  }
 
-button.vnc:hover i,
-button.spice:hover i,
-button.rdp:hover i {
-  color: $anchor-color-hover;
-}
+  i {
+    color: $anchor-color;
+  }
 
-button.vnc:focus:active,
-button.vnc:focus:active i,
-button.spice:focus:active,
-button.spice:focus:active i,
-button.rdp:focus:active,
-button.rdp:focus:active i {
-  outline: 0;
+  &:hover i {
+    color: $anchor-color-hover;
+  }
+
+  &:focus,
+  &:active,
+  &:focus i,
+  &:active i {
+    outline: 0;
+  }
 }

@@ -148,23 +148,24 @@ define(function(require) {
   function _elementArray(element_json) {
     var element = element_json[XML_ROOT];
 
-    var state;
+    var state = (element.STATE == OpenNebulaVM.STATES.ACTIVE)
+      ? OpenNebulaVM.shortLcmStateStr(element.LCM_STATE)
+      : OpenNebulaVM.stateStr(element.STATE);
 
-    if (element.STATE == OpenNebulaVM.STATES.ACTIVE) {
-      state = OpenNebulaVM.shortLcmStateStr(element.LCM_STATE);
-    } else {
-      state = OpenNebulaVM.stateStr(element.STATE);
-    }
+    var actions = "", wFile = false;
 
-    var actions = "";
     // VNC/SPICE icon
     if (OpenNebulaVM.isVNCSupported(element)) {
-      actions += '<button class="vnc" vm_id="' + element.ID + '">\
-        <i class="fas fa-desktop"></i></button>';
-    } else if (OpenNebulaVM.isSPICESupported(element)) {
-      actions += '<button class="spice" vm_id="' + element.ID + '">\
-        <i class="fas fa-desktop" style="-webkit-text-stroke: 0.7px;"></i></button>';
+      actions += OpenNebulaVM.buttonVnc(element.ID);
+      wFile = OpenNebulaVM.isWFileSupported(element);
     }
+    else if (OpenNebulaVM.isSPICESupported(element)) {
+      actions += OpenNebulaVM.buttonSpice(element.ID);
+      wFile = OpenNebulaVM.isWFileSupported(element);
+    }
+
+    // virt-viewer file icon
+    wFile && (actions += OpenNebulaVM.buttonWFile(element.ID, wFile));
 
     if(config && 
       config["system_config"] && 
@@ -179,12 +180,9 @@ define(function(require) {
 
     // RDP icon
     var rdp = OpenNebulaVM.isRDPSupported(element);
-    if (rdp) {
-      actions += OpenNebulaVM.buttonRDP(rdp.IP, element);
-    }
+    rdp && (actions += OpenNebulaVM.buttonRDP(rdp.IP, element));
 
-    var cpuMonitoring = 0;
-    var memoryMonitoring = 0;
+    var cpuMonitoring = 0, memoryMonitoring = 0;
     if (element.MONITORING) {
       if (element.MONITORING.CPU) {
         cpuMonitoring = element.MONITORING.CPU;
@@ -197,15 +195,10 @@ define(function(require) {
 
     var hostname = OpenNebulaVM.hostnameStr(element);
 
-    var type;
-
-    if (element && element.TEMPLATE && element.TEMPLATE.VROUTER_ID && element.TEMPLATE.VROUTER_ID != undefined){
-      type = "VR";
-    } else if (element && element.USER_TEMPLATE && element.USER_TEMPLATE.SERVICE_ID && element.USER_TEMPLATE.SERVICE_ID != undefined){
-      type = "FLOW";
-    } else {
-      type = "VM";
-    }
+    var type = (element && element.TEMPLATE && element.TEMPLATE.VROUTER_ID && element.TEMPLATE.VROUTER_ID != undefined)
+      ? "VR"
+      : (element && element.USER_TEMPLATE && element.USER_TEMPLATE.SERVICE_ID && element.USER_TEMPLATE.SERVICE_ID != undefined)
+        ? "FLOW" : "VM";
 
     var search = {
       NAME:         element.NAME,
@@ -219,11 +212,9 @@ define(function(require) {
       STIME_BEFORE: element.STIME
     };
 
-    if (OpenNebulaVM.isFailureState(element.LCM_STATE)){
-      value_state = "FAILED";
-    } else {
-      value_state = OpenNebulaVM.stateStr(element.STATE);
-    }
+    var value_state = (OpenNebulaVM.isFailureState(element.LCM_STATE))
+      ? "FAILED" : OpenNebulaVM.stateStr(element.STATE);
+
     var color_html = Status.state_lock_to_color("VM", value_state, element_json[RESOURCE.toUpperCase()]["LOCK"]);
 
     return [

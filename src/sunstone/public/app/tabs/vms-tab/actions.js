@@ -23,7 +23,7 @@ define(function(require) {
   var CommonActions = require('utils/common-actions');
   var Vnc = require('utils/vnc');
   var Spice = require('utils/spice');
-  var Rdp = require('utils/rdp');
+  var Files = require('utils/files');
 
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID           = require('./form-panels/create/formPanelId');
@@ -179,9 +179,9 @@ define(function(require) {
 
         if (args && args.ip && args.name) {
           var credentials = {};
-          args.username && (credentials["USERNAME"] = args.username);
-          args.password && (credentials["PASSWORD"] = args.password);
-          Rdp.downloadFile(args.ip, args.name, credentials);
+          args.username && (credentials["username"] = args.username);
+          args.password && (credentials["password"] = args.password);
+          Files.downloadRdpFile(args.ip, args.name, credentials);
         }
         else if (vm && vm.NAME && vm.TEMPLATE && vm.TEMPLATE.NIC) {
           var name = vm.NAME;
@@ -208,14 +208,44 @@ define(function(require) {
             }
           }
 
-          nic && Rdp.downloadFile(ip, name, credentials);
+          nic && Files.downloadRdpFile(ip, name, credentials);
         } else {
-          Notifier.notifyError(Locale.tr("RDP file error"));
+          Notifier.notifyError(Locale.tr("Data for rdp file isn't correct"));
           return false;
         }
       }
     },
-    
+    "VM.save_virt_viewer" : {
+      type: "custom",
+      call: function() {
+        var vm = Sunstone.getElementRightInfo(TAB_ID) || {};
+        var wDataFile = OpenNebulaVM.isWFileSupported(vm);
+        if (vm && vm.ID && wDataFile) {
+          Sunstone.runAction("VM.save_virt_viewer_action", vm.ID, wDataFile);
+        } else {
+          Notifier.notifyError(Locale.tr("Data for virt-viewer file isn't correct"));
+          return false;
+        }
+      }
+    },
+    "VM.save_virt_viewer_action" : {
+      type: "single",
+      call: OpenNebulaVM.vnc,
+      callback: function(_, response) {
+        _.request && $.each(_.request.data, function(_, vm) {
+          var hostname = vm.extra_param.hostname;
+          var type = vm.extra_param.type;
+          var port = vm.extra_param.port;
+
+          (hostname && type && port)
+            ? Files.downloadWFile(response, hostname, type, port)
+            : Notifier.notifyError(Locale.tr("Data for virt-viewer file isn't correct"));
+        });
+      },
+      error: function(req, resp) {
+        Notifier.onError(req, resp);
+      },
+    },
     "VM.startvnc" : {
       type: "custom",
       call: function() {
