@@ -32,7 +32,6 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var DashboardUtils = require('utils/dashboard');
   var SearchDropdown = require('hbs!./datatable/search');
-  var Rdp = require('utils/rdp');
   var TemplateUtils = require('utils/template-utils');
 
   /*
@@ -173,22 +172,38 @@ define(function(require) {
 
     TabDataTable.prototype.initialize.call(this, opts);
 
-    //download file RDP
-    $('#' + this.dataTableId).on("click", '.rdp', function(e){
-      e.stopPropagation();
+    //download virt-viewer file 
+    $('#' + this.dataTableId).on("click", '.w_file', function(){
       var data = $(this).data();
-      if (data.ip && data.name) {
-        Sunstone.runAction("VM.save_rdp", data);
-      }
+
+      (data.id && data.hostname && data.type && data.port)
+        ? Sunstone.runAction(
+          "VM.save_virt_viewer_action",
+          data.id,
+          { hostname: data.hostname, type: data.type, port: data.port }
+        )
+        : Notifier.notifyError(Locale.tr("Data for virt-viewer file isn't correct"));
+
+        return false;
+    });
+
+    //download RDP file
+    $('#' + this.dataTableId).on("click", '.rdp', function() {
+      var data = $(this).data();
+
+      (data.ip && data.name)
+        ? Sunstone.runAction("VM.save_rdp", data)
+        : Notifier.notifyError(Locale.tr("This VM needs a nic with rdp active"));
+
       return false;
     });
 
     $('#' + this.dataTableId).on("click", '.vnc', function() {
-      var vmId = $(this).attr('vm_id');
+      var data = $(this).data();
 
       if (!Vnc.lockStatus()) {
         Vnc.lock();
-        Sunstone.runAction("VM.startvnc_action", vmId);
+        Sunstone.runAction("VM.startvnc_action", data.id);
       } else {
         Notifier.notifyError(Locale.tr("VNC Connection in progress"));
       }
@@ -197,11 +212,11 @@ define(function(require) {
     });
 
     $('#' + this.dataTableId).on("click", '.spice', function() {
-      var vmId = $(this).attr('vm_id');
+      var data = $(this).data();
 
-      if (!Spice.lockStatus()) {
+      if (!Spice.lockStatus() && data.id) {
         Spice.lock();
-        Sunstone.runAction("VM.startspice_action", vmId);
+        Sunstone.runAction("VM.startspice_action", data.id);
       } else {
         Notifier.notifyError(Locale.tr("SPICE Connection in progress"))
       }

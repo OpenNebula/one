@@ -508,8 +508,7 @@ define(function(require) {
       var resource = RESOURCE;
 
       var method = startstop;
-      var action = OpenNebulaHelper.action(method);
-      var request = OpenNebulaHelper.request(resource, method, id);
+      var request = OpenNebulaHelper.request(resource, method, params.data);
       $.ajax({
         url: "vm/" + id + "/startvnc",
         type: "POST",
@@ -677,8 +676,12 @@ define(function(require) {
     "isNICAttachSupported": isNICAttachSupported,
     "isVNCSupported": isVNCSupported,
     "isRDPSupported": isRDPSupported,
-    "buttonRDP": buttonRDP,
     "isSPICESupported": isSPICESupported,
+    "isWFileSupported": isWFileSupported,
+    "buttonVnc": buttonVnc,
+    "buttonSpice": buttonSpice,
+    "buttonWFile": buttonWFile,
+    "buttonRDP": buttonRDP,
     "getName": function(id){
       return OpenNebulaAction.getName(id, RESOURCE);
     }
@@ -899,6 +902,18 @@ define(function(require) {
     return rtn;
   }
 
+  function isWFileSupported(element) {
+    // spice/vnc is assumed to be supported
+    var history = retrieveLastHistoryRecord(element);
+    return (history) 
+      ? {
+        hostname: history.HOSTNAME,
+        type: element.TEMPLATE.GRAPHICS.TYPE.toLowerCase(),
+        port: element.TEMPLATE.GRAPHICS.PORT || "5901"
+      }
+      : false;
+  }
+
   // returns true if the RDP button should be enabled
   function isRDPSupported(element) {
     var hasRdp = false;
@@ -932,6 +947,22 @@ define(function(require) {
     return activated;
   }
 
+  function buttonVnc(id = "") {
+    return '<button class="vnc remote_vm" data-id="' + id + '">\
+      <i class="fas fa-desktop"></i></button>';
+  }
+  
+  function buttonSpice(id = "") {
+    return '<button class="spice remote_vm" data-id="' + id + '">\
+      <i class="fas fa-desktop"></i></button>';
+  }
+
+  function buttonWFile(id = "", data = {}) {
+    return '<button class="w_file remote_vm" data-id="' + id + '"\
+    data-type="' + data.type + '" data-port="' + data.port + '" data-hostname="' + data.hostname + '">\
+      <i class="fas fa-external-link-alt"></i></button>';
+  }
+
   function buttonRDP(ip = "", vm = {}) {
     var username, password;
 
@@ -943,7 +974,7 @@ define(function(require) {
         (propUpperCase === "PASSWORD") && (password = context[prop]);
       }
     }
-    var button = '<button class="rdp" data-name="' + vm.NAME + '" data-ip="' + ip + '"';
+    var button = '<button class="rdp remote_vm" data-name="' + vm.NAME + '" data-ip="' + ip + '"';
     username && (button += ' data-username="' + username + '"');
     password && (button += ' data-password="' + password + '"');
     button += '><i class="fab fa-windows"></i></button>';

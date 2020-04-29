@@ -206,6 +206,12 @@ define(function(require) {
       layout: "vmsremote_buttons",
       custom_classes: "only-sunstone-info spice-sunstone-info"
     },
+    "VM.save_virt_viewer" : {
+      type: "action",
+      text: Locale.tr("VIRT-VIEWER FILE"),
+      layout: "vmsremote_buttons",
+      custom_classes: "only-sunstone-info vv-sunstone-info"
+    },
     "VM.save_rdp" : {
       type: "action",
       text: Locale.tr("RDP"),
