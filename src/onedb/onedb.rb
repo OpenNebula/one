@@ -27,7 +27,7 @@ class OneDB
     def initialize(ops)
         if ops[:backend].nil? && CONNECTION_PARAMETERS.all? {|s| ops[s].nil? }
             ops = read_credentials(ops)
-        elsif ops[:backend].nil? && CONNECTION_PARAMETERS.one? {|s| !ops[s].nil? }
+        elsif ops[:backend].nil? && CONNECTION_PARAMETERS.any? {|s| !ops[s].nil? }
             # Set MySQL backend as default if any connection option is provided and --type is not
             ops[:backend] = :mysql
         end
@@ -141,7 +141,7 @@ class OneDB
 
         ops.each {|_, v| v.gsub!("\\", '') if v }
 
-        ops[:backend] = ops[:backend].to_sym
+        ops[:backend] = ops[:backend].to_sym unless ops[:backend].nil?
         ops[:port]    = ops[:port].to_i
 
         ops
