@@ -116,6 +116,12 @@ define(function(require) {
     delete that.element.TEMPLATE.WILDS;
     delete that.element.TEMPLATE.VM;
 
+    // Perform search in wilds VM
+    $("#host_wilds_search").on('input', function() {
+      that.dataTableWildHosts.fnFilter($(this).val());
+      return false;
+    })
+
     // Enable the import button when at least a VM is selected
     $("#import_wilds", context).attr("disabled", "disabled").on("click.disable", function(e) { return false; });
 
