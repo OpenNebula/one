@@ -370,7 +370,7 @@ helpers do
             if !two_factor_auth_token || two_factor_auth_token == ""
                 return [202, { code: "two_factor_auth", uid: user.id }.to_json]
             end
-            serverResponse = 
+            serverResponse =
             isTwoFactorAuthSuccessful = false
             if isHOTPConfigured && Sunstone2FAuth.authenticate(user[TWO_FACTOR_AUTH_SECRET_XPATH], two_factor_auth_token)
                 isTwoFactorAuthSuccessful = true
