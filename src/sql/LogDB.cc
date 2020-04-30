@@ -622,12 +622,14 @@ int LogDB::purge_log()
 
     int rc  = 0;
     int frc = 0;
+    int fed_min, fed_max;
 
     pthread_mutex_lock(&mutex);
 
     /* ---------------- Record log state -------------------- */
 
-    oss << "SELECT MIN(log_index), MAX(log_index) FROM logdb WHERE log_index >= 0";
+    oss << "SELECT MIN(log_index), MAX(log_index) FROM logdb"
+        << " WHERE fed_index = " << UINT64_MAX;
 
     cb_info.set_callback(&maxmin_i);
 
@@ -642,7 +644,7 @@ int LogDB::purge_log()
     oss.str("");
     oss << "  SELECT MIN(i.log_index) FROM ("
         << "    SELECT log_index FROM logdb WHERE fed_index = " << UINT64_MAX
-        << "      AND applied = '1' AND log_index >= 0 "
+        << "      AND applied = '1' "
         << "      ORDER BY log_index DESC " << db->limit_string(log_retention)
         << "  ) AS i";
 
@@ -655,8 +657,8 @@ int LogDB::purge_log()
     cb.set_affected_rows(0);
 
     oss.str("");
-    oss << "DELETE FROM logdb WHERE applied = '1' AND log_index >= 0 "
-        << "AND fed_index = " << UINT64_MAX << " AND log_index < " << min_idx;
+    oss << "DELETE FROM logdb WHERE applied = '1'"
+        << " AND fed_index = " << UINT64_MAX << " AND log_index < " << min_idx;
 
     if ( db->supports(SqlDB::SqlFeature::LIMIT) )
     {
@@ -671,7 +673,8 @@ int LogDB::purge_log()
     /* ---------------- Record log state -------------------- */
 
     oss.str("");
-    oss << "SELECT MIN(log_index), MAX(log_index) FROM logdb WHERE log_index >= 0";
+    oss << "SELECT MIN(log_index), MAX(log_index) FROM logdb"
+        << " WHERE fed_index = " << UINT64_MAX;
 
     cb_info.set_callback(&maxmin_e);
 
@@ -691,9 +694,13 @@ int LogDB::purge_log()
 
     foss << "Purging obsolete federated LogDB records: ";
 
+    fed_min = first_federated();
+    fed_max = last_federated();
+
     if ( fed_log.size() < log_retention )
     {
-        foss << "0 records purged. Federated log size: " << fed_log.size();
+        foss << "0 records purged. Federated log size: " << fed_log.size()
+             << ". Federation log state: " << fed_min << "," << fed_max;
 
         NebulaLog::log("DBM", Log::INFO, foss);
 
@@ -705,7 +712,7 @@ int LogDB::purge_log()
     oss.str("");
     oss << "  SELECT MIN(i.log_index) FROM ("
         << "    SELECT log_index FROM logdb WHERE fed_index != " << UINT64_MAX
-        << "      AND applied = '1' AND log_index >= 0 "
+        << "      AND applied = '1' "
         << "      ORDER BY log_index DESC " << db->limit_string(log_retention)
         << "  ) AS i";
 
@@ -718,7 +725,7 @@ int LogDB::purge_log()
     cb.set_affected_rows(0);
 
     oss.str("");
-    oss << "DELETE FROM logdb WHERE applied = '1' AND log_index >= 0 "
+    oss << "DELETE FROM logdb WHERE applied = '1' AND "
         << "AND fed_index != " << UINT64_MAX << " AND log_index < " << min_idx;
 
     if ( db->supports(SqlDB::SqlFeature::LIMIT) )
@@ -735,7 +742,9 @@ int LogDB::purge_log()
 
     build_federated_index();
 
-    foss << frc << " records purged. Federated log size: " << fed_log.size();
+    foss << frc << " records purged. Federated log size: " << fed_log.size()
+         << ". Federation log state: " << fed_min << "," << fed_max << " - "
+         << first_federated() << "," << last_federated();
 
     NebulaLog::log("DBM", Log::INFO, foss);
 
@@ -811,7 +820,7 @@ uint64_t LogDB::last_federated()
 {
     pthread_mutex_lock(&mutex);
 
-    uint64_t findex = -1;
+    uint64_t findex = UINT64_MAX;
 
     if ( !fed_log.empty() )
     {
@@ -820,6 +829,28 @@ uint64_t LogDB::last_federated()
         rit = fed_log.rbegin();
 
         findex = *rit;
+    }
+
+    pthread_mutex_unlock(&mutex);
+
+    return findex;
+}
+
+/* -------------------------------------------------------------------------- */
+
+uint64_t LogDB::first_federated()
+{
+    pthread_mutex_lock(&mutex);
+
+    uint64_t findex = UINT64_MAX;
+
+    if ( !fed_log.empty() )
+    {
+        set<uint64_t>::iterator it;
+
+        it = fed_log.begin();
+
+        findex = *it;
     }
 
     pthread_mutex_unlock(&mutex);
