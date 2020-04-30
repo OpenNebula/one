@@ -28,7 +28,8 @@ else
     VAR_LOCATION      ||= ONE_LOCATION + '/var/'
 end
 
-VCENTER_DATABASE_PATH  = "#{VAR_LOCATION}/remotes/im/vcenter.d/vcenter-cache.db"
+VCENTER_DRIVER_CONF = "#{ETC_LOCATION}/vcenter_driver.conf"
+VCENTER_DATABASE_BASE = "#{VAR_LOCATION}/remotes/im/vcenter.d/"
 
 if File.directory?(GEMS_LOCATION)
     Gem.use_paths(GEMS_LOCATION)
@@ -40,6 +41,7 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 require 'opennebula'
 require 'vcenter_driver'
 require 'sqlite3'
+require 'yaml'
 
 # Gather vCenter cluster monitor info
 class VcenterMonitor
@@ -47,28 +49,48 @@ class VcenterMonitor
     POLL_ATTRIBUTE = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
     VM_STATE = OpenNebula::VirtualMachine::Driver::VM_STATE
 
+    STATE_MAP = {
+        'poweredOn' => 'RUNNING',
+        'suspended' => 'POWEROFF',
+        'poweredOff' => 'POWEROFF'
+    }
+
+    DEFAULTS = {
+        # :rgroup_name_format => 'one-%<NAME>s-%<ID>s',
+        :cache_expire       => 120
+    }
+
     def initialize(host_id)
+        @hypervisor = 'vcenter'
         @host_id = host_id
+
+        load_conf = YAML.safe_load(File.read(VCENTER_DRIVER_CONF), [Symbol])
+        @vcenter_conf = DEFAULTS
+        @vcenter_conf.merge!(load_conf)
+
         @vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+        @vc_uuid = @vi_client.vim.serviceContent.about.instanceUuid
         # Get CCR reference
-        client = OpenNebula::Client.new
-        host = OpenNebula::Host.new_with_id(host_id, client)
-        rc = host.info
+        @client = OpenNebula::Client.new
+        @host = OpenNebula::Host.new_with_id(host_id, @client)
+        rc = @host.info
         if OpenNebula.is_error? rc
             STDERR.puts rc.message
             exit 1
         end
 
-        ccr_ref = host['TEMPLATE/VCENTER_CCR_REF']
+        @ccr_ref = @host['TEMPLATE/VCENTER_CCR_REF']
 
         # Get vCenter Cluster
         @cluster = VCenterDriver::ClusterComputeResource
-                   .new_from_ref(ccr_ref, @vi_client)
+                   .new_from_ref(@ccr_ref, @vi_client)
 
         # ----------------------------------------------------------------------
         # create or open cache db
         # ----------------------------------------------------------------------
-        @db = InstanceCache.new(VCENTER_DATABASE_PATH)
+        db_path = File.join(VCENTER_DATABASE_BASE,
+                            "cache_#{@hypervisor}_#{@host_id}.db")
+        @db = InstanceCache.new(db_path)
     end
 
     def monitor_clusters
@@ -319,90 +341,17 @@ class VcenterMonitor
     end
 
     def wilds
-        vc_uuid = @vi_client.vim.serviceContent.about.instanceUuid
-        cluster_name = @cluster.item['name']
         str_info = ''
-
-        # View for VMs inside this cluster
-        view = @vi_client.vim.serviceContent.viewManager
-                         .CreateContainerView({ container: @cluster.item,
-                                                type: ['VirtualMachine'],
-                                                recursive: true })
-
-        pc = @vi_client.vim.serviceContent.propertyCollector
-
-        monitored_properties = [
-            'name', # VM name
-            'config.template', # To filter out templates
-            'summary.runtime.powerState', # VM power state
-            'summary.quickStats.hostMemoryUsage', # Memory usage
-            'summary.quickStats.overallCpuUsage', # CPU used by VM
-            'runtime.host', # ESX host
-            'resourcePool', # RP
-            'guest.guestFullName',
-            'guest.net', # IP addresses as seen by guest tools,
-            'guest.guestState',
-            'guest.toolsVersion',
-            'guest.toolsRunningStatus',
-            'guest.toolsVersionStatus2', # IP addresses as seen by guest tools,
-            'config.extraConfig', # VM extraconfig info.. opennebula.vm.running
-            'config.hardware.numCPU',
-            'config.hardware.memoryMB',
-            'config.annotation',
-            'datastore'
-        ]
-
-        filter_spec = RbVmomi::VIM.PropertyFilterSpec(
-            :objectSet => [
-                :obj => view,
-                :skip => true,
-                :selectSet => [
-                    RbVmomi::VIM.TraversalSpec(
-                        :name => 'traverseEntities',
-                        :type => 'ContainerView',
-                        :path => 'view',
-                        :skip => false
-                    )
-                ]
-            ],
-            :propSet => [
-                { :type => 'VirtualMachine', :pathSet => monitored_properties }
-            ]
-        )
-
-        result = pc.RetrieveProperties(:specSet => [filter_spec])
-
-        vms = {}
-        vm_objects = []
-        result.each do |r|
-            hashed_properties = r.to_hash
-            next unless r.obj.is_a?(RbVmomi::VIM::VirtualMachine)
-
-            # Only take care of VMs, not templates
-            if !hashed_properties['config.template']
-                vms[r.obj._ref] = hashed_properties
-                vm_objects << r.obj
-            end
-        end
-
-        pm = @vi_client.vim.serviceContent.perfManager
-
-        vm_pool = VCenterDriver::VIHelper
-                  .one_pool(OpenNebula::VirtualMachinePool)
-
-        # opts common to all vms
-        opts = {
-            pool: vm_pool,
-            vc_uuid: vc_uuid
-        }
-
-        vms.each do |vm_ref, info|
+        # include wild instances
+        vms = vms_data(@db, @vcenter_conf[:cache_expire])
+        vms.each do |vm|
             vm_info = ''
-            next if info['name'].match(/^one-(\d*)(-(.*))?$/)
+            next unless vm[:id] == -1
 
             begin
+
                 # Check the running flag
-                running_flag = info['config.extraConfig'].select do |val|
+                running_flag = vm[:mob].config.extraConfig.select do |val|
                     val[:key] == 'opennebula.vm.running'
                 end
 
@@ -412,48 +361,32 @@ class VcenterMonitor
 
                 next if running_flag == 'no'
 
-                # retrieve vcenter driver machine
-                @vm = VCenterDriver::VirtualMachine
-                      .new_from_ref(@vi_client, vm_ref, info['name'], opts)
-                id = @vm.get_vm_id
-
-                next if @vm.one_exist?
-
-                @vm.vm_info = info
-
-                vm_name = "#{info['name']} - #{cluster_name}"
+                vm[:import_template] = vm_to_one(vm[:mob])
                 vm_info << %(
-                VM = [
-                    ID="#{id}",
-                    VM_NAME="#{vm_name}",
-                    DEPLOY_ID="#{vm_ref}",
-                )
+                    VM = [
+                        ID="#{vm[:id]}",
+                        VM_NAME="#{vm[:name]}",
+                        DEPLOY_ID="#{vm[:deploy_id]}",
+                    )
 
-                # if the machine does not exist in opennebula
-                # it means that is a wild:
-                unless @vm.one_exist?
-                    vm_template64 = Base64.encode64(vm_to_one(vm_name))
-                                          .gsub("\n", '')
-                    # vm_info << 'VCENTER_TEMPLATE="YES",'
-                    vm_info << "IMPORT_TEMPLATE=\"#{vm_template64}\"]"
-                end
-
-                # vm_info << "POLL=\"#{self.info.gsub('"', "\\\"")}\"]"
+                vm_template64 = Base64.encode64(vm[:import_template])
+                                    .gsub("\n", '')
+                vm_info << "IMPORT_TEMPLATE=\"#{vm_template64}\"]"
             rescue StandardError => e
-                vm_info = error_monitoring(e, vm_ref, info)
+                vm_info = error_monitoring(e, vm)
             end
 
             str_info << vm_info
         end
 
-        view.DestroyView # Destroy the view
-
         str_info
+
     end
 
-    def error_monitoring(e, vm_ref, info = {})
+    def error_monitoring(e, vm)
         error_info = ''
-        vm_name = info['name'] || nil
+        vm_name = vm[:name] || nil
+        vm_ref = vm[:deploy_id] || nil
         tmp_str = e.inspect
         tmp_str << e.backtrace.join("\n")
 
@@ -467,101 +400,67 @@ class VcenterMonitor
     end
 
     #  Generates a OpenNebula IM Driver valid string with the monitor info
-    def info
-        return 'STATE=d' if @state == 'd'
-
-        if @vm.vm_info
-            guest_ip = @vm.vm_info['guest.ipAddress']
-        else
-            guest_ip = @vm['guest.ipAddress']
-        end
-
-        used_cpu    = @monitor[:used_cpu]
+    def info(vm)
+        used_cpu = @monitor[:used_cpu]
         used_memory = @monitor[:used_memory]
-        netrx       = @monitor[:netrx]
-        nettx       = @monitor[:nettx]
+        netrx = @monitor[:netrx]
+        nettx = @monitor[:nettx]
         diskrdbytes = @monitor[:diskrdbytes]
         diskwrbytes = @monitor[:diskwrbytes]
-        diskrdiops  = @monitor[:diskrdiops]
-        diskwriops  = @monitor[:diskwriops]
+        diskrdiops = @monitor[:diskrdiops]
+        diskwriops = @monitor[:diskwriops]
 
-        if @vm.vm_info
-            esx_host = @vm.vm_info[:esx_host_name].to_s
-        else
-            esx_host = @vm['runtime.host.name'].to_s
+        if vm[:mob]
+            guest_ip = vm[:mob].guest.ipAddress
+            esx_host = vm[:mob].runtime.host.name.to_s
+            guest_state = vm[:mob].guest.guestState.to_s
+            vmware_tools = vm[:mob].guest.toolsRunningStatus.to_s
+            vm_name = vm[:mob].name.to_s
+            vmtools_ver = vm[:mob].guest.toolsVersion.to_s
+            vmtools_verst = vm[:mob].guest.toolsVersionStatus2.to_s
         end
 
-        if @vm.vm_info
-            guest_state = @vm.vm_info['guest.guestState'].to_s
-        else
-            guest_state = @vm['guest.guestState'].to_s
-        end
+        # if vm[:mob]
+        #     rp_name = vm[:mob][:rp_list]
+        #                  .select do |item|
+        #                      item[:ref] == vm[:mob]['resourcePool']._ref
+        #                  end
+        #                  .first[:name] rescue ''
 
-        if @vm.vm_info
-            vmware_tools = @vm.vm_info['guest.toolsRunningStatus'].to_s
-        else
-            vmware_tools = @vm['guest.toolsRunningStatus'].to_s
-        end
-
-        if @vm.vm_info
-            vm_name = @vm.vm_info['name'].to_s
-        else
-            vm_name = @vm['name'].to_s
-        end
-
-        if @vm.vm_info
-            vmtools_ver = @vm.vm_info['guest.toolsVersion'].to_s
-        else
-            vmtools_ver = @vm['guest.toolsVersion'].to_s
-        end
-
-        if @vm.vm_info
-            vmtools_verst = @vm.vm_info['guest.toolsVersionStatus2'].to_s
-        else
-            vmtools_verst = @vm['guest.toolsVersionStatus2'].to_s
-        end
-
-        if @vm.vm_info
-            rp_name = @vm.vm_info[:rp_list]
-                         .select do |item|
-                             item[:ref] == @vm.vm_info['resourcePool']._ref
-                         end
-                         .first[:name] rescue ''
-
-            rp_name = 'Resources' if rp_name.empty?
-        else
-            rp_name = @vm['resourcePool'].name
-        end
+        #     rp_name = 'Resources' if rp_name.empty?
+        # else
+        #     rp_name = @vm['resourcePool'].name
+        # end
 
         str_info = ''
 
-        str_info = 'GUEST_IP=' << guest_ip.to_s << ' ' if guest_ip
+        str_info << 'GUEST_IP=' << guest_ip.to_s << "\n" if guest_ip
 
         if @guest_ip_addresses && !@guest_ip_addresses.empty?
             str_info << 'GUEST_IP_ADDRESSES="' << @guest_ip_addresses.to_s \
                         << '" '
         end
 
-        str_info << "#{POLL_ATTRIBUTE[:state]}=" << @state << ' '
-        str_info << "#{POLL_ATTRIBUTE[:cpu]}=" << used_cpu.to_s << ' '
-        str_info << "#{POLL_ATTRIBUTE[:memory]}=" << used_memory.to_s << ' '
-        str_info << "#{POLL_ATTRIBUTE[:netrx]}=" << netrx.to_s << ' '
-        str_info << "#{POLL_ATTRIBUTE[:nettx]}=" << nettx.to_s << ' '
+        str_info << "#{POLL_ATTRIBUTE[:cpu]}=" << used_cpu.to_s << "\n"
+        str_info << "#{POLL_ATTRIBUTE[:memory]}=" << used_memory.to_s << "\n"
+        str_info << "#{POLL_ATTRIBUTE[:netrx]}=" << netrx.to_s << "\n"
+        str_info << "#{POLL_ATTRIBUTE[:nettx]}=" << nettx.to_s << "\n"
 
-        str_info << 'DISKRDBYTES=' << diskrdbytes.to_s << ' '
-        str_info << 'DISKWRBYTES=' << diskwrbytes.to_s << ' '
-        str_info << 'DISKRDIOPS='  << diskrdiops.to_s  << ' '
-        str_info << 'DISKWRIOPS='  << diskwriops.to_s  << ' '
+        str_info << 'DISKRDBYTES=' << diskrdbytes.to_s << "\n"
+        str_info << 'DISKWRBYTES=' << diskwrbytes.to_s << "\n"
+        str_info << 'DISKRDIOPS='  << diskrdiops.to_s  << "\n"
+        str_info << 'DISKWRIOPS='  << diskwriops.to_s  << "\n"
 
-        str_info << 'VCENTER_ESX_HOST="' << esx_host << '" '
-        str_info << 'VCENTER_GUEST_STATE=' << guest_state << ' '
-        str_info << 'VCENTER_VM_NAME="' << vm_name << '" '
-        str_info << 'VCENTER_VMWARETOOLS_RUNNING_STATUS=' << vmware_tools << ' '
-        str_info << 'VCENTER_VMWARETOOLS_VERSION=' << vmtools_ver << ' '
+        str_info << 'VCENTER_ESX_HOST="' << esx_host << '" ' << "\n"
+        str_info << 'VCENTER_GUEST_STATE=' << guest_state << "\n"
+        str_info << 'VCENTER_VM_NAME="' << vm_name << '" ' << "\n"
+        str_info << 'VCENTER_VMWARETOOLS_RUNNING_STATUS=' << vmware_tools << "\n"
+        str_info << 'VCENTER_VMWARETOOLS_VERSION=' << vmtools_ver << "\n"
         str_info << 'VCENTER_VMWARETOOLS_VERSION_STATUS=' \
-                    << vmtools_verst << ' '
-        str_info << 'VCENTER_RP_NAME="' << rp_name << '" '
+                    << vmtools_verst << "\n"
+        # str_info << 'VCENTER_RP_NAME="' << rp_name << '" '
 
+        # I need modify this Carlos improvement.
         # @vm.info_disks.each do |disk|
         #     str_info << "DISK_#{disk[0]}_ACTUAL_PATH=\"[" <<
         #         disk[1].ds.name << '] ' << disk[1].path << '" '
@@ -601,37 +500,35 @@ class VcenterMonitor
         end
     end
 
-    def vm_to_one(vm_name)
-        str = "NAME   = \"#{vm_name}\"\n"\
-              "CPU    = \"#{@vm.vm_info["config.hardware.numCPU"]}\"\n"\
-              "vCPU   = \"#{@vm.vm_info["config.hardware.numCPU"]}\"\n"\
-              "MEMORY = \"#{@vm.vm_info["config.hardware.memoryMB"]}\"\n"\
+    def vm_to_one(vm)
+        str = "NAME = \"#{vm.name}\"\n"\
+              "CPU = \"#{vm.config.hardware.numCPU}\"\n"\
+              "vCPU = \"#{vm.config.hardware.numCPU}\"\n"\
+              "MEMORY = \"#{vm.config.hardware.memoryMB}\"\n"\
               "HYPERVISOR = \"vcenter\"\n"\
               "CONTEXT = [\n"\
               "    NETWORK = \"YES\",\n"\
               "    SSH_PUBLIC_KEY = \"$USER[SSH_PUBLIC_KEY]\"\n"\
               "]\n"\
-              "VCENTER_INSTANCE_ID =\"#{@vm.vm_info[:vc_uuid]}\"\n"\
-              "VCENTER_CCR_REF =\"#{@vm.vm_info[:cluster_ref]}\"\n"
+              "VCENTER_INSTANCE_ID =\"#{@vc_uuid}\"\n"\
+              "VCENTER_CCR_REF =\"#{@ccr_ref}\"\n"
 
-        str << "IMPORT_VM_ID =\"#{@vm["_ref"]}\"\n"
-        str << "DEPLOY_ID =\"#{@vm["_ref"]}\"\n"
-        # @state = 'POWEROFF' if @state == 'd'
-        @state = vm_state(@vm['summary.runtime.powerState'])
+        str << "IMPORT_VM_ID =\"#{vm._ref}\"\n"
+        str << "DEPLOY_ID =\"#{vm._ref}\"\n"
+        @state = vm_state(vm.summary.runtime.powerState)
         str << "IMPORT_STATE =\"#{@state}\"\n"
 
-         # Get DS information
-        if !@vm.vm_info["datastore"].nil?
-           !@vm.vm_info["datastore"].last.nil? &&
-           !@vm.vm_info["datastore"].last._ref.nil?
-            ds_ref = @vm.vm_template_ds_ref
-            str << "VCENTER_DS_REF = \"#{ds_ref}\"\n"
-       end
+        # Get DS information
+        if !vm.datastore.nil?
+            vm.datastore.each do |ds|
+                str << "VCENTER_DS_REF = \"#{ds._ref}\"\n"
+            end
+        end
 
         vnc_port = nil
         keymap = VCenterDriver::VIHelper.get_default("VM/TEMPLATE/GRAPHICS/KEYMAP")
 
-        @vm.vm_info["config.extraConfig"].select do |xtra|
+        vm.config.extraConfig.select do |xtra|
             if xtra[:key].downcase=="remotedisplay.vnc.port"
                 vnc_port = xtra[:value]
             end
@@ -641,7 +538,7 @@ class VcenterMonitor
             end
         end
 
-        if !@vm.vm_info["config.extraConfig"].empty?
+        if !vm.config.extraConfig.empty?
             str << "GRAPHICS = [\n"\
                    "  TYPE     =\"vnc\",\n"
             str << "  PORT     =\"#{vnc_port}\",\n" if vnc_port
@@ -650,15 +547,15 @@ class VcenterMonitor
             str << "]\n"
         end
 
-        if !@vm.vm_info["config.annotation"] || @vm.vm_info["config.annotation"].empty?
+        if !vm.config.annotation || vm.config.annotation.empty?
             str << "DESCRIPTION = \"vCenter Template imported by OpenNebula" \
-                " from Cluster #{@vm.vm_info["cluster_name"]}\"\n"
+                " from Cluster #{@cluster_name}\"\n"
         else
-            notes = @vm.vm_info["config.annotation"].gsub("\\", "\\\\").gsub("\"", "\\\"")
+            notes = vm.config.annotation.gsub("\\", "\\\\").gsub("\"", "\\\"")
             str << "DESCRIPTION = \"#{notes}\"\n"
         end
 
-        case @vm.vm_info["guest.guestFullName"]
+        case vm.guest.guestFullName
             when /CentOS/i
                 str << "LOGO=images/logos/centos.png\n"
             when /Debian/i
@@ -733,48 +630,22 @@ class VcenterMonitor
     # - poweredOn    The virtual machine is currently powered on.
     # - suspended    The virtual machine is currently suspended.
     def vm_state(state)
-        case state
-        when 'poweredOn'
-            'RUNNING'
-        when 'suspended'
-            'POWEROFF'
-        when 'poweredOff'
-            'POWEROFF'
-        else
-            'UNKNOWN'
-        end
+        STATE_MAP[state] || 'UNKNOWN'
     end
 
     # monitor function used when VMM poll action is called
-    def monitor_poll_vm(vm)
+    def get_vm_monitor_data(vm)
+        # Exclude wilds for monitor
+        return '' if vm[:id] == -1
+
         reset_monitor
 
-        # vm[:uuid] = vm-ref + vc_uuid
-        # vm[:name] = vm-ref
-        opts = {
-            :vc_uuid => vm[:uuid].split(vm[:name])[1]
-        }
+        cpu_mhz = vm[:mob].runtime.host.summary.hardware.cpuMhz.to_f
 
-        # vm[:name] = ref into vcenter
-        @vm = VCenterDriver::VirtualMachine.new_from_ref(@vi_client, vm[:name], nil, opts)
-
-        return unless @vm.one_exist?
-
-        return unless @vm.get_vm_id
-
-        @state = state_to_c(@vm.item.summary.runtime.powerState)
-
-        if @state != VM_STATE[:active]
-            reset_monitor
-            return ''
-        end
-
-        cpu_mhz = @vm['runtime.host.summary.hardware.cpuMhz'].to_f
-
-        @monitor[:used_memory] = @vm['summary.quickStats.hostMemoryUsage'] *
+        @monitor[:used_memory] = vm[:mob].summary.quickStats.hostMemoryUsage *
                                  1024
 
-        used_cpu = @vm['summary.quickStats.overallCpuUsage'].to_f / cpu_mhz
+        used_cpu = vm[:mob].summary.quickStats.overallCpuUsage.to_f / cpu_mhz
         used_cpu = (used_cpu * 100).to_s
         @monitor[:used_cpu] = format('%.2f', used_cpu).to_s
 
@@ -783,8 +654,8 @@ class VcenterMonitor
         @monitor[:used_cpu]    = 0 if @monitor[:used_cpu].to_i < 0
 
         guest_ip_addresses = []
-        unless @vm['guest.net'].empty?
-            @vm['guest.net'].each do |net|
+        unless vm[:mob].guest.net.empty?
+            vm[:mob].guest.net.each do |net|
                 next unless net.ipConfig
                 next if net.ipConfig.ipAddress.empty?
 
@@ -793,19 +664,18 @@ class VcenterMonitor
                 end
             end
         end
-
         @guest_ip_addresses = guest_ip_addresses.join(',')
 
-        pm = @vm['_connection'].serviceInstance.content.perfManager
+        pm = vm[:mob]._connection.serviceInstance.content.perfManager
 
-        provider = pm.provider_summary(@vm.item)
+        provider = pm.provider_summary(vm[:mob])
 
         refresh_rate = provider.refreshRate
 
         stats = {}
 
         @one_vm = OpenNebula::VirtualMachine
-                  .new_with_id(vm[:id], OpenNebula::Client.new)
+                  .new_with_id(vm[:id], @client)
 
         if @one_vm['MONITORING/LAST_MON'] &&
             @one_vm['MONITORING/LAST_MON'].to_i != 0
@@ -823,7 +693,7 @@ class VcenterMonitor
             samples > 0 ? max_samples = samples : max_samples = 1
 
             stats = pm.retrieve_stats(
-                [@vm.item],
+                [vm[:mob]],
                 ['net.transmitted', 'net.bytesRx', 'net.bytesTx',
                  'net.received', 'virtualDisk.numberReadAveraged',
                  'virtualDisk.numberWriteAveraged', 'virtualDisk.read',
@@ -833,7 +703,7 @@ class VcenterMonitor
         else
             # First poll, get at least latest 3 minutes = 9 samples
             stats = pm.retrieve_stats(
-                [@vm.item],
+                [vm[:mob]],
                 ['net.transmitted', 'net.bytesRx', 'net.bytesTx',
                  'net.received', 'virtualDisk.numberReadAveraged',
                  'virtualDisk.numberWriteAveraged', 'virtualDisk.read',
@@ -947,33 +817,28 @@ class VcenterMonitor
         @monitor
     end
 
-    def vms
-        vc_uuid = @vi_client.vim.serviceContent.about.instanceUuid
-        # Get CCR reference
-        client = OpenNebula::Client.new
-        host = OpenNebula::Host.new_with_id(@host_id, client)
-        rc = host.info
-        if OpenNebula.is_error? rc
-            STDERR.puts rc.message
-            exit 1
-        end
+    def retrieve_vms_data
+        # call vms_data
+        vms_data(@db, @vcenter_conf[:cache_expire])
+    end
 
-        ccr_ref = host['TEMPLATE/VCENTER_CCR_REF']
+    # Either return VMs info from cache db or from public_cloud
+    def vms_data(db, time_limit)
+        ############### Prepare for cache ##################
+        # return fetch_vms_data(:with_monitoring => false) \
+        #     if db.expired?(time_limit)
 
-        vm_pool = VCenterDriver::VIHelper
-                  .one_pool(OpenNebula::VirtualMachinePool)
+        # db.select_vms
+        ############### Prepare for cache ##################
 
+        fetch_vms_data(:with_monitoring => false)
+    end
+
+    def fetch_vms_data(with_monitoring: false)
         # opts common to all vms
         opts = {
-            pool: vm_pool,
-            vc_uuid: vc_uuid
+            vc_uuid: @vc_uuid
         }
-
-        # Get vCenter Cluster
-        @cluster = VCenterDriver::ClusterComputeResource
-                   .new_from_ref(ccr_ref, @vi_client)
-
-        @monitored_vms = Set.new
 
         # View for VMs inside this cluster
         view = @vi_client.vim.serviceContent.viewManager
@@ -985,8 +850,23 @@ class VcenterMonitor
 
         monitored_properties = [
             'name', # VM name
+            'config.template', # To filter out templates
             'summary.runtime.powerState', # VM power state
-            'config.extraConfig' # VM extraconfig info.. opennebula.vm.running
+            'summary.quickStats.hostMemoryUsage', # Memory usage
+            'summary.quickStats.overallCpuUsage', # CPU used by VM
+            'runtime.host', # ESX host
+            'resourcePool', # RP
+            'guest.guestFullName',
+            'guest.net', # IP addresses as seen by guest tools,
+            'guest.guestState',
+            'guest.toolsVersion',
+            'guest.toolsRunningStatus',
+            'guest.toolsVersionStatus2', # IP addresses as seen by guest tools,
+            'config.extraConfig', # VM extraconfig info.. opennebula.vm.running
+            'config.hardware.numCPU',
+            'config.hardware.memoryMB',
+            'config.annotation',
+            'datastore'
         ]
 
         filter_spec = RbVmomi::VIM.PropertyFilterSpec(
@@ -1011,47 +891,61 @@ class VcenterMonitor
 
         vms = []
         result.each do |r|
-            # uuid
-            uuid = r.obj._ref + vc_uuid
             # Next if it's not a VirtualMachine
             next unless r.obj.is_a?(RbVmomi::VIM::VirtualMachine)
 
             # Next if it's a template
             next if r.obj.config.template
 
-            one_vm = VCenterDriver::VirtualMachine.new_from_ref(@vi_client,
-                                                                r.obj._ref,
-                                                                r.obj.name,
-                                                                opts = {})
+            one_uuid = r.obj._ref + @vc_uuid
+            @vm = VCenterDriver::VirtualMachine
+                  .new_from_ref(@vi_client, r.obj._ref, r.obj.name, opts)
+            one_id = @vm.get_vm_id
 
-            vm = {
-                :uuid => uuid,
-                :id => one_vm.vm_id || -1,
-                :name => r.obj._ref,
-                :type => 'vcenter',
-                :state => vm_state(r.obj.summary.runtime.powerState)
-            }
+            vm = { :uuid => one_uuid,
+                   :id => one_id,
+                   :name => "#{r.obj.name} - #{@cluster.item.name}",
+                   :deploy_id => r.obj._ref,
+                   :state => vm_state(r.obj.summary.runtime.powerState),
+                   :type => @hypervisor,
+                   :mob =>  r.obj }
 
+            if with_monitoring
+                vm[:monitor] = get_vm_monitor_data(vm)
+            end
             vms << vm
         end
 
         view.DestroyView # Destroy the view
-        vms
 
+        # store to db
+        @db.insert(vms)
+
+        vms
     end
 
+    #  Returns VM monitor information
+    #
+    #  @return [String]
     def probe_vm_monitor
-        vms = self.vms
+        vms = fetch_vms_data(:with_monitoring => true)
+
         data = ''
         vms.each do |vm|
-            data << monitor_poll_vm(vm)
+            next if vm[:monitor].empty?
+
+            mon_s64 = Base64.strict_encode64(info(vm))
+            data << "VM = [ ID=\"#{vm[:id]}\", "
+            data << "DEPLOY_ID=\"#{vm[:deploy_id]}\", "
+            data << "MONITOR=\"#{mon_s64}\"]\n"
         end
 
-        puts data
         data
     end
 
-    # ------------------------------------------------------------------------------
+end
+
+# ------------------------------------------------------------------------------
 # This class implements a simple local cache to store VM information
 # ------------------------------------------------------------------------------
 class InstanceCache
@@ -1077,8 +971,8 @@ class InstanceCache
     # TODO: document DB schema
     def bootstrap
         sql = 'CREATE TABLE IF NOT EXISTS vms(uuid VARCHAR(128) PRIMARY KEY,'
-        sql << ' id INTEGER, name VARCHAR(128), state VARCHAR(128),'
-        sql << ' type VARCHAR(128))'
+        sql << ' id INTEGER, name VARCHAR(128), deploy_id VARCHAR(128),'
+        sql << ' state VARCHAR(128), type VARCHAR(128))'
         execute_retry(sql)
 
         sql = 'CREATE TABLE IF NOT EXISTS timestamp(ts INTEGER PRIMARY KEY)'
@@ -1092,6 +986,7 @@ class InstanceCache
             sql << "\"#{i[:uuid]}\", "
             sql << "\"#{i[:id]}\", "
             sql << "\"#{i[:name]}\", "
+            sql << "\"#{i[:deploy_id]}\", "
             sql << "\"#{i[:state]}\", "
             sql << "\"#{i[:type]}\")"
 
@@ -1105,7 +1000,7 @@ class InstanceCache
     def select_vms
         vms = []
         execute_retry('SELECT * from vms').each do |vm|
-            vms << Hash[[:uuid, :id, :name, :state, :type].zip(vm)]
+            vms << Hash[[:uuid, :id, :name, :deploy_id, :state, :type].zip(vm)]
         end
 
         vms
@@ -1125,8 +1020,6 @@ class InstanceCache
 end
 
 
-end
-
 ############################################################################
 #  Module Interface
 #  Interface for probe_db - VirtualMachineDB
@@ -1134,41 +1027,18 @@ end
 module DomainList
 
     def self.state_info(name, id)
-        vmm = VcenterMonitor.new(id)
+        vcm = VcenterMonitor.new(id)
 
-        vms = vmm.vms
+        vms = vcm.retrieve_vms_data
         info = {}
         vms.each do |vm|
             info[vm[:uuid]] = { :id     => vm[:id],
                                 :uuid   => vm[:uuid],
-                                :name   => vm[:name],
+                                :name   => vm[:deploy_id],
                                 :state  => vm[:state],
                                 :hyperv => 'vcenter' }
         end
-        puts info
-        info
-    end
 
-end
-
-############################################################################
-#  Module Interface
-#  Interface for probe_db - VirtualMachineDB
-############################################################################
-module DomainList
-
-    def self.state_info(name, id)
-        vmm = VcenterMonitor.new(id)
-
-        vms = vmm.vms
-        info = {}
-        vms.each do |vm|
-            info[vm[:uuid]] = { :id     => vm[:id],
-                                :uuid   => vm[:uuid],
-                                :name   => vm[:name],
-                                :state  => vm[:state],
-                                :hyperv => 'vcenter' }
-        end
         info
     end
 
