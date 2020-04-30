@@ -725,7 +725,7 @@ int LogDB::purge_log()
     cb.set_affected_rows(0);
 
     oss.str("");
-    oss << "DELETE FROM logdb WHERE applied = '1' AND "
+    oss << "DELETE FROM logdb WHERE applied = '1' "
         << "AND fed_index != " << UINT64_MAX << " AND log_index < " << min_idx;
 
     if ( db->supports(SqlDB::SqlFeature::LIMIT) )
