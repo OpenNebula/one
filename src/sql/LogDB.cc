@@ -131,7 +131,7 @@ LogDB::LogDB(SqlDB * _db, bool _solo, bool _cache, uint64_t _lret, uint64_t _lp)
 
     LogDBRecord lr;
 
-    if ( get_log_record(0, lr) != 0 )
+    if ( get_log_record(0, 0, lr) != 0 )
     {
         std::ostringstream oss;
 
@@ -195,7 +195,7 @@ int LogDB::setup_index(uint64_t& _last_applied, uint64_t& _last_index)
         last_applied = _last_applied;
     }
 
-    rc += get_log_record(last_index, lr);
+    rc += get_log_record(last_index, last_index - 1, lr);
 
     if ( rc == 0 )
     {
@@ -212,11 +212,9 @@ int LogDB::setup_index(uint64_t& _last_applied, uint64_t& _last_index)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int LogDB::get_log_record(uint64_t index, LogDBRecord& lr)
+int LogDB::get_log_record(uint64_t index, uint64_t prev_index, LogDBRecord& lr)
 {
     ostringstream oss;
-
-    uint64_t prev_index = index - 1;
 
     if ( index == 0 )
     {
@@ -353,8 +351,18 @@ int LogDB::insert(uint64_t index, unsigned int term, const std::string& sql,
     {
         //Check for duplicate (leader retrying i.e. xmlrpc client timeout)
         LogDBRecord lr;
+        int prev_index;
 
-        if ( get_log_record(index, lr) == 0 )
+        if (fed_index == UINT64_MAX)
+        {
+            prev_index = index - 1;
+        }
+        else
+        {
+            prev_index = previous_federated(index);
+        }
+
+        if ( get_log_record(index, prev_index, lr) == 0 )
         {
             NebulaLog::log("DBM", Log::ERROR, "Duplicated log record");
             rc = 0;
@@ -565,7 +573,7 @@ int LogDB::delete_log_records(uint64_t start_index)
 
         last_index = start_index - 1;
 
-        if ( get_log_record(last_index, lr) == 0 )
+        if ( get_log_record(last_index, last_index - 1, lr) == 0 )
         {
             last_term = lr.term;
         }
@@ -587,7 +595,7 @@ int LogDB::apply_log_records(uint64_t commit_index)
     {
         LogDBRecord lr;
 
-        if ( get_log_record(last_applied + 1, lr) != 0 )
+        if ( get_log_record(last_applied + 1, last_applied, lr) != 0 )
         {
             pthread_mutex_unlock(&mutex);
             return -1;
