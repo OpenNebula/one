@@ -247,12 +247,23 @@ public:
     // Federate log methods
     // -------------------------------------------------------------------------
     /**
-     *  Get last federated index, and previous
+     *  Get last federated index
      */
     uint64_t last_federated();
 
+    /**
+     *  Get first federated index (i.e min fed_index)
+     */
+    uint64_t first_federated();
+
+    /**
+     *  Get previous federated index
+     */
     uint64_t previous_federated(uint64_t index);
 
+    /**
+     *  Get next federated index
+     */
     uint64_t next_federated(uint64_t index);
 
     /**
