@@ -40,12 +40,14 @@ install_requires = [
 if sys.version_info[0] < 3:
     install_requires.append('future')
 
+version = '5.11.80'
+
 # mark pre-release
-version = '5.11.85'
 ver_min = int(version.split('.')[-1])
-if ver_min >= 80:
-    rc_num = ver_min - 80
-    pyone_version = version + 'rc' + str(rc_num)
+if ver_min >= 90:
+    pyone_version = version + 'rc1'
+elif ver_min >= 80:
+    pyone_version = version + 'b1'
 else:
     pyone_version = version
 
