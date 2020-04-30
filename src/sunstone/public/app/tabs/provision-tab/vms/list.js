@@ -29,6 +29,7 @@ define(function(require) {
   var StateActions = require("tabs/vms-tab/utils/state-actions");
   var Vnc = require("utils/vnc");
   var Spice = require("utils/spice");
+  var VMsTableUtils = require('../../vms-tab/utils/datatable-common');
 
   var TemplateVmsList = require("hbs!./list");
   var TemplateConfirmSaveAsTemplate = require("hbs!./confirm_save_as_template");
@@ -170,53 +171,55 @@ define(function(require) {
       },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var data = aData.VM;
-
         if(data == undefined){
           return nRow;
         }
-
         var state = get_provision_vm_state(data);
-
         var monitoring = "";
         if(data.MONITORING.GUEST_IP){
           monitoring = "<li class=\"provision-bullet-item\"><span class=\"\"><i class=\"fas fa-fw fa-lg fa-server\"/>" + data.MONITORING.GUEST_IP + "</span></li>";
         }
-
-        $(".provision_vms_ul", context).append("<div class=\"column\">"+
-            "<ul class=\"provision-pricing-table menu vertical\" opennebula_id=\""+data.ID+"\" datatable_index=\""+iDisplayIndexFull+"\">"+
-              "<li class=\"provision-title\">"+
-                "<a class=\"provision_info_vm_button\">"+
-                "<span class=\""+ state.color +"-color right\" title=\""+state.str+"\">"+
-                  "<i class=\"fas fa-square\"/>"+
-                "</span>"+
-                data.NAME + "</a>"+
-              "</li>"+
-              "<li class=\"provision-bullet-item\" >"+
-                "<i class=\"fas fa-fw fa-lg fa-laptop\"/> "+
-                "x"+data.TEMPLATE.CPU+" - "+
+        var charter = VMsTableUtils.leasesClock(data);
+        var addStyle = charter && charter.length && 'style="padding-left:.5rem;"' 
+        $(".provision_vms_ul", context).append("<div class='column'>\
+            <ul class='8 provision-pricing-table menu vertical' opennebula_id='"+data.ID+"' datatable_index='"+iDisplayIndexFull+"'>\
+              <li class='provision-title'>\
+                <div style='display: inline-flex;justify-content:space-between;width:100%;align-items: baseline;'>\
+                  <a class='provision_info_vm_button' style='flex-grow:1;'>\
+                    <span class='"+ state.color +"-color right' title='"+state.str+"'>\
+                      <i class='fas fa-square'/>\
+                    </span>"+
+                    data.NAME + 
+                  "</a>\
+                  <div class='charter' "+addStyle+">"+charter+"</div> \
+                </div>\
+              </li>\
+              <li class='provision-bullet-item' >\
+                <i class='fas fa-fw fa-lg fa-laptop'/> "+"x"+data.TEMPLATE.CPU+" - "+
                 ((data.TEMPLATE.MEMORY > 1000) ?
                   (Math.floor(data.TEMPLATE.MEMORY/1024)+"GB") :
                   (TemplateUtils.htmlEncode(data.TEMPLATE.MEMORY)+"MB"))+
                 " - "+
                 get_provision_disk_image(data) +
-              "</li>"+
-              "<li class=\"provision-bullet-item\" >"+
-                "<span class=\"\">"+
+              "</li>\
+              <li class='provision-bullet-item' >\
+                <span class=''>"+
                   get_provision_ips(data) +
-                "</span>"+
-              "</li>"+ monitoring +
-              "<li class=\"provision-bullet-item-last\" >"+
-                "<span class=\"\">"+
-                  "<i class=\"fas fa-fw fa-lg fa-user\"/> "+
+                "</span>\
+              </li>"+ monitoring +
+              "<li class='provision-bullet-item-last' >\
+                <span class=''>\
+                  <i class='fas fa-fw fa-lg fa-user'/> "+
                   data.UNAME+
                 "</span>"+
-                "<span class=\"right\">"+
+                "<span class='right'>"+
                   Humanize.prettyTimeAgo(data.STIME)+
-                "</span>"+
-              "</li>"+
-            "</ul>"+
-          "</div>");
-
+                "</span>\
+              </li>\
+            </ul>\
+          </div>"
+        );
+        VMsTableUtils.tooltipCharters();
         return nRow;
       }
     });
