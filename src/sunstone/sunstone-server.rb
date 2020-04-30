@@ -48,6 +48,18 @@ SUNSTONE_ROOT_DIR = File.dirname(__FILE__)
 if File.directory?(GEMS_LOCATION)
     Gem.use_paths(GEMS_LOCATION)
     $LOAD_PATH.reject! {|l| l =~ /(vendor|site)_ruby/ }
+
+    # for some platforms, we redistribute newer base Ruby gems which
+    # should be loaded instead of default ones in the distributions
+    require 'rubygems'
+
+    %w[openssl json].each do |name|
+        begin
+            gem name
+        rescue LoadError
+            # ignore
+        end
+    end
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
