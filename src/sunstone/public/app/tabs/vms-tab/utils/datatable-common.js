@@ -50,7 +50,8 @@ define(function(require) {
     'elementArray': _elementArray,
     'emptyElementArray': _emptyElementArray,
     'tooltipCharters': showCharterInfo,
-    'columns': _columns
+    'columns': _columns,
+    'leasesClock': leasesClock
   };
 
   function checkTime(startTime, addedEndTime, warningTime, rtnTime){
@@ -107,7 +108,8 @@ define(function(require) {
       "z-index":"1",
       "min-width":"8rem",
       "font-family": '"Lato","Helvetica Neue",Helvetica,Roboto,Arial,sans-serif',
-      "font-weight": "100"
+      "font-weight": "100",
+      "color":"#000"
     };
     $(".describeCharter").off("mouseenter").on("mouseenter",function(e){
       $(this).find(".charterInfo").remove();
