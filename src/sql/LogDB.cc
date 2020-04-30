@@ -622,7 +622,7 @@ int LogDB::purge_log()
 
     int rc  = 0;
     int frc = 0;
-    int fed_min, fed_max;
+    uint64_t fed_min, fed_max = UINT64_MAX;
 
     pthread_mutex_lock(&mutex);
 
@@ -694,13 +694,20 @@ int LogDB::purge_log()
 
     foss << "Purging obsolete federated LogDB records: ";
 
-    fed_min = first_federated();
-    fed_max = last_federated();
+    if (!fed_log.empty())
+    {
+        fed_min = *(fed_log.begin());
+        fed_max = *(fed_log.rbegin());
+    }
 
     if ( fed_log.size() < log_retention )
     {
-        foss << "0 records purged. Federated log size: " << fed_log.size()
-             << ". Federation log state: " << fed_min << "," << fed_max;
+        foss << "0 records purged. Federated log size: " << fed_log.size() << ".";
+
+        if (fed_max != UINT64_MAX)
+        {
+            foss << " Federation log state: " << fed_min << "," << fed_max;
+        }
 
         NebulaLog::log("DBM", Log::INFO, foss);
 
@@ -744,7 +751,7 @@ int LogDB::purge_log()
 
     foss << frc << " records purged. Federated log size: " << fed_log.size()
          << ". Federation log state: " << fed_min << "," << fed_max << " - "
-         << first_federated() << "," << last_federated();
+         << *(fed_log.begin()) << "," << *(fed_log.rbegin());
 
     NebulaLog::log("DBM", Log::INFO, foss);
 
