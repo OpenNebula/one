@@ -33,3 +33,6 @@
 
 # Create snapshots with memory dumps
 :memory_dumps: true
+
+# Cache expiration for monitoring
+:cache_expire: 120

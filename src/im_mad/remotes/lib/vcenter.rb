@@ -28,7 +28,7 @@ else
     VAR_LOCATION      ||= ONE_LOCATION + '/var/'
 end
 
-VCENTER_DRIVER_CONF = "#{ETC_LOCATION}/vcenter_driver.conf"
+VCENTER_DRIVER_CONF = "#{VAR_LOCATION}/remotes/etc/vmm/vcenter/vcenterrc"
 VCENTER_DATABASE_BASE = "#{VAR_LOCATION}/remotes/im/vcenter.d/"
 
 if File.directory?(GEMS_LOCATION)
