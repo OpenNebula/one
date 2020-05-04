@@ -257,7 +257,7 @@ else:
 # libxml2
 main_env.ParseConfig('xml2-config --libs --cflags')
 
-svncterm_path = 'src/vmm_mad/remotes/lib/lxd/svncterm_server/SConstruct'
+svncterm_path = 'src/svncterm_server/SConstruct'
 
 # SCONS scripts to build
 build_scripts = [
