@@ -245,7 +245,9 @@ class One2OneDriver
 
         # take only last monitoring entry
         # TODO: verify timestamp is fresh
-        data = data.map {|key, entries| [key, entries.last.last] }.to_h
+        data = data.map do |key, entries|
+            [key, entries.last.is_a?(Array) ? entries.last.last : 0]
+        end.to_h
 
         data = hash_to_template(data, '', '', "\n")
 
