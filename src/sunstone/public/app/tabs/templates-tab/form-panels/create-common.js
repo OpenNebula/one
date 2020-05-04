@@ -166,7 +166,7 @@ define(function(require) {
     });
 
 
-    if(templateJSON["TOPOLOGY"] && templateJSON["TOPOLOGY"]["BORRAR"]){
+    if(templateJSON["TOPOLOGY"] && templateJSON["TOPOLOGY"]["DELETE"]){
       delete templateJSON["TOPOLOGY"];
     }
 

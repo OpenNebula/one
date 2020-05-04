@@ -165,9 +165,9 @@ define(function(require) {
   }
 
   function _retrieve(context) {
-    var templateJSON = { TOPOLOGY : {BORRAR:"BORRAR"} };
+    var templateJSON = { TOPOLOGY : {DELETE:"DELETE"} };
     if(getStatusNuma()){
-      delete templateJSON["TOPOLOGY"]["BORRAR"];
+      delete templateJSON["TOPOLOGY"]["DELETE"];
       var temp = {};
       var policy = _getValue(idsElements.pin, context);
       if(policy && policy.length){
