@@ -361,8 +361,12 @@ int LogDB::insert(uint64_t index, unsigned int term, const std::string& sql,
         {
             prev_index = previous_federated(index);
         }
-
-        if ( get_log_record(index, prev_index, lr) == 0 )
+        
+        if ( fed_index != UINT64_MAX && prev_index == UINT64_MAX )
+        {
+            rc = -1;
+        }
+        else if ( get_log_record(index, prev_index, lr) == 0 )
         {
             NebulaLog::log("DBM", Log::ERROR, "Duplicated log record");
             rc = 0;
