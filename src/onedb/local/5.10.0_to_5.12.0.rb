@@ -57,12 +57,12 @@ module Migrator
 
                 json = JSON.parse(doc.xpath('//BODY').text)
 
-                json['networks']     = json['custom_attrs']
+                json['networks']     = json['custom_attrs'] || {}
                 json['custom_attrs'] = {}
 
                 # services
                 if row[:type] == 100
-                    json['networks_values']     = json['custom_attrs_values']
+                    json['networks_values'] = json['custom_attrs_values'] || {}
                     json['custom_attrs_values'] = {}
 
                     # remove unneeded VM information
