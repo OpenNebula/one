@@ -1262,8 +1262,7 @@ IM_PROBES_DUMMY_HOST_SYSTEM_FILES="\
 IM_PROBES_DUMMY_VM_MONITOR_FILES="\
      src/im_mad/remotes/dummy-probes.d/vm/monitor/monitor.rb"
 
-IM_PROBES_DUMMY_VM_STATUS_FILES="\
-     src/im_mad/remotes/kvm-probes.d/vm/status/state.rb"
+IM_PROBES_DUMMY_VM_STATUS_FILES=""
 
 # LXD PROBES
 IM_PROBES_LXD_FILES="\
