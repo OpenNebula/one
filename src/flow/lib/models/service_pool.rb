@@ -21,7 +21,7 @@ module OpenNebula
 
         DOCUMENT_TYPE = 100
 
-        def initialize(client, user_id = -1)
+        def initialize(client, user_id = -2)
             super(client, user_id)
         end
 
