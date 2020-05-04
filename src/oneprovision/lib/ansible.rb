@@ -34,7 +34,7 @@ CONFIG_DEFAULTS = {
 }
 
 # Ansible params
-ANSIBLE_VERSION = [Gem::Version.new('2.5'), Gem::Version.new('2.7')]
+ANSIBLE_VERSION = [Gem::Version.new('2.5'), Gem::Version.new('2.8.9')]
 ANSIBLE_ARGS = "--ssh-common-args='-o UserKnownHostsFile=/dev/null'"
 ANSIBLE_INVENTORY_DEFAULT = 'default'
 
@@ -63,7 +63,7 @@ module OneProvision
                 version = Gem::Version.new(`ansible --version`.split[1])
 
                 if (version < ANSIBLE_VERSION[0]) ||
-                   (version >= ANSIBLE_VERSION[1])
+                   (version > ANSIBLE_VERSION[1])
                     Utils.fail("Unsupported Ansible ver. #{version}, " \
                          "must be >= #{ANSIBLE_VERSION[0]} " \
                          "and < #{ANSIBLE_VERSION[1]}")
@@ -273,9 +273,11 @@ module OneProvision
 
                 o, _e, s = Driver.run(cmd)
 
-                raise OneProvisionLoopException if !s && !s.success?
+                raise OneProvisionLoopException if !s || !s.success?
 
-                hosts = o.lines.count {|l| l =~ /success/i }
+                hosts = o.lines.count do |l|
+                    l =~ /success/i || l =~ /CHANGED/i
+                end
 
                 raise OneProvisionLoopException if hosts.zero?
 
