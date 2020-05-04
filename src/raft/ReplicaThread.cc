@@ -198,7 +198,7 @@ int RaftReplicaThread::replicate()
     }
 
 
-    if ( logdb->get_log_record(next_index, lr) != 0 )
+    if ( logdb->get_log_record(next_index, next_index - 1, lr) != 0 )
     {
         ostringstream ess;
 

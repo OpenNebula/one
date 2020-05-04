@@ -401,7 +401,7 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( index > 0 )
     {
-        if ( logdb->get_log_record(prev_index, prev_lr) != 0 )
+        if ( logdb->get_log_record(prev_index, prev_index - 1, prev_lr) != 0 )
         {
             att.resp_msg = "Error loading previous log record";
             att.resp_id  = current_term;
@@ -420,7 +420,7 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
         }
     }
 
-    if ( logdb->get_log_record(index, lr) == 0 )
+    if ( logdb->get_log_record(index, index - 1, lr) == 0 )
     {
         if ( lr.term != term )
         {
