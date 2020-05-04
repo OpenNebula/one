@@ -99,14 +99,13 @@ define(function(require) {
       hosts.map(function(host){
         if(
           host && 
-          host.MONITORING && 
-          host.MONITORING.HOST_SHARE && 
+          host.HOST_SHARE && 
           host.NAME && 
-          host.MONITORING.HOST_SHARE.NUMA_NODES && 
-          host.MONITORING.HOST_SHARE.NUMA_NODES.NODE
+          host.HOST_SHARE.NUMA_NODES && 
+          host.HOST_SHARE.NUMA_NODES.NODE
         ){
           var name = host.NAME;
-          var numaNodes = host.MONITORING.HOST_SHARE.NUMA_NODES.NODE;
+          var numaNodes = host.HOST_SHARE.NUMA_NODES.NODE;
           if (!(numaNodes instanceof Array)) {
             numaNodes = [numaNodes];
           }
