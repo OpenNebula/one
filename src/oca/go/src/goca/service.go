@@ -65,23 +65,26 @@ func (sc *ServiceController) Show(id int) (*service.Service, error) {
 	return NewService(documentJSON(response)), nil
 }
 
-// Shutdown Running serviceantes d
+// Shutdown running services
 func (sc *ServiceController) Shutdown(id int) (bool, string) {
-	url := urlAction(id)
-
 	action := make(map[string]interface{})
 
 	action["action"] = map[string]interface{}{
 		"perform": "shutdown",
 	}
 
-	response, e := sc.c.Client2.Post(url, action)
+	return sc.serviceAction(id, action)
+}
 
-	if e != nil {
-		return false, e.Error()
+// Recover existing service
+func (sc *ServiceController) Recover(id int) (bool, string) {
+	action := make(map[string]interface{})
+
+	action["action"] = map[string]interface{}{
+		"perform": "recover",
 	}
 
-	return response.status, response.Body()
+	return sc.serviceAction(id, action)
 }
 
 // Delete the SERVICE resource identified by <id>
@@ -124,4 +127,17 @@ func urlService(id int) string {
 
 func urlAction(id int) string {
 	return fmt.Sprintf("%s/%s/action", endpoint, strconv.Itoa(id))
+}
+
+// Generic action for existing flow services. Requires the action body.
+func (sc *ServiceController) serviceAction(id int, action map[string]interface{}) (bool, string) {
+	url := urlAction(id)
+
+	response, e := sc.c.Client2.Post(url, action)
+
+	if e != nil {
+		return false, e.Error()
+	}
+
+	return response.status, response.Body()
 }
