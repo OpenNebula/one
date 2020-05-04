@@ -857,28 +857,6 @@ uint64_t LogDB::last_federated()
 
 /* -------------------------------------------------------------------------- */
 
-uint64_t LogDB::first_federated()
-{
-    pthread_mutex_lock(&mutex);
-
-    uint64_t findex = UINT64_MAX;
-
-    if ( !fed_log.empty() )
-    {
-        set<uint64_t>::iterator it;
-
-        it = fed_log.begin();
-
-        findex = *it;
-    }
-
-    pthread_mutex_unlock(&mutex);
-
-    return findex;
-}
-
-/* -------------------------------------------------------------------------- */
-
 uint64_t LogDB::previous_federated(uint64_t i)
 {
     set<uint64_t>::iterator it;
