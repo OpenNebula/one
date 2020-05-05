@@ -85,7 +85,8 @@ class Qcow2Mapper < Mapper
 
         return "0.0.0" unless rc.zero?
 
-        match_v = out.match(/qemu-nbd version (.*)$/)
+        match_v = out.match(/qemu-nbd ((?:[0-9]+\.?)+) \(/)
+        match_v = out.match(/qemu-nbd version (.*)$/) if match_v.nil?
 
         return "0.0.0" if match_v.nil?
 
