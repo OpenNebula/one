@@ -40,7 +40,7 @@ class Sudoers
             :LXD    => %w[
                 /snap/bin/lxc /usr/bin/catfstab mount umount mkdir lsblk losetup
                 kpartx qemu-nbd blkid e2fsck resize2fs xfs_growfs rbd-nbd
-                xfs_admin tune2fs
+                xfs_admin tune2fs /snap/bin/lxd
             ],
             :HA => [
                 'systemctl start opennebula-flow',
