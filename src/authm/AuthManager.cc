@@ -20,6 +20,7 @@
 #include "NebulaUtil.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
+#include <regex>
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -205,6 +206,13 @@ void AuthManager::authenticate_action(AuthRequest * ar)
     {
         goto error_driver;
     }
+
+    // ------------------------------------------------------------------------
+    // Sanitize the login - remove leading and trailing spaces
+    // ------------------------------------------------------------------------
+
+    ar->username = regex_replace(ar->username, regex("^(%20|%09|%0A|%0D)+"), "");
+    ar->username = regex_replace(ar->username, regex("(%20|%09|%0A|%0D)+$"), "");
 
     // ------------------------------------------------------------------------
     // Queue the request
