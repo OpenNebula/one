@@ -79,14 +79,27 @@ class Container
 
     class << self
 
+        # Returns the LXD container definition
+        def search(name, client)
+            client.get("#{CONTAINERS}/#{name}")['metadata']
+        end
+
         # Returns specific container, by its name
         # Params:
         # +name+:: container name
         def get(name, one_xml, client)
-            info = client.get("#{CONTAINERS}/#{name}")['metadata']
-
+            info = nil
             one  = nil
+
             one  = OpenNebulaVM.new(one_xml) if one_xml
+
+            begin
+                info = search(name, client)
+            rescue LXDError => e # Get naming scheme from deploy_id
+                raise e unless e.code == 404
+
+                info = search(one.xml['//NAME'], client)
+            end
 
             Container.new(info, one, client)
         end

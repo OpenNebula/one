@@ -37,7 +37,7 @@ class LXDConfiguration < Hash
 
         begin
             merge!(YAML.load_file("#{__dir__}/#{LXDRC}"))
-        rescue => e
+        rescue StandardError => e
             OpenNebula.log_error e
         end
     end
@@ -57,8 +57,10 @@ class OpenNebulaVM
         @xml = @xml.element('//VM')
 
         @vm_id    = @xml['//TEMPLATE/VMID']
+
         @vm_name  = @xml['//DEPLOY_ID']
         @vm_name  = "one-#{@vm_id}" if @vm_name.empty?
+        @vm_name  = @xml['//NAME'] if wild?
 
         # Load Driver configuration
         @lxdrc = LXDConfiguration.new
@@ -325,11 +327,11 @@ class OpenNebulaVM
     end
 
     def swap?(disk)
-        return disk['TYPE'] == 'swap'
+        disk['TYPE'] == 'swap'
     end
 
     def volatile?(disk)
-        return disk['TYPE'] == 'fs'
+        disk['TYPE'] == 'fs'
     end
 
     #---------------------------------------------------------------------------
