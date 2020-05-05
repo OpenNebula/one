@@ -188,6 +188,16 @@ define(function(require) {
       delete templateJSON["TOPOLOGY"]["MEMORY_ACCESS"];
     }
 
+    if (templateJSON["CORES"]){
+      if (!templateJSON["TOPOLOGY"]){
+        templateJSON["TOPOLOGY"] = {};
+      }
+      templateJSON["TOPOLOGY"]["CORES"] = templateJSON["CORES"];
+      templateJSON["TOPOLOGY"]["SOCKETS"] = parseInt(templateJSON["VCPU"]) / parseInt(templateJSON["CORES"]);
+      templateJSON["TOPOLOGY"]["THREADS"] = 1;
+      delete templateJSON["CORES"];
+    }
+
     // vCenter PUBLIC_CLOUD is not defined in the hybrid tab. Because it is
     // part of an array, and it is filled in different tabs, the $.extend deep
     // merge can't work. We define an auxiliary attribute for it.
