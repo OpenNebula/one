@@ -33,7 +33,10 @@ xml = STDIN.read
 # ------------------------------------------------------------------------------
 # Action Arguments, STDIN includes XML description of the OpenNebula VM
 # ------------------------------------------------------------------------------
-client    = LXDClient.new
+client = LXDClient.new
+
+Container.compatibility(client)
+
 container = Container.new_from_xml(xml, client)
 
 # ------------------------------------------------------------------------------
