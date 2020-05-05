@@ -23,7 +23,7 @@ define(function(require) {
   };
 
   function _downloadRdpFile(ip, name = "vm_name", credentials = {}) {
-    var file = _rdpFile(ip, credentials.username, credentials.password);
+    var file = _rdpFile(ip, credentials.USERNAME, credentials.PASSWORD);
     _download(name, ".rdp", file);
   }
 
