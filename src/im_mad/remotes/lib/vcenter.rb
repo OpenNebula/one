@@ -56,11 +56,10 @@ class VcenterMonitor
     }
 
     DEFAULTS = {
-        # :rgroup_name_format => 'one-%<NAME>s-%<ID>s',
         :cache_expire       => 120
     }
 
-    def initialize(host_id)
+    def initialize(host, host_id)
         @hypervisor = 'vcenter'
         @host_id = host_id
 
@@ -68,29 +67,20 @@ class VcenterMonitor
         @vcenter_conf = DEFAULTS
         @vcenter_conf.merge!(load_conf)
 
-        @vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-        @vc_uuid = @vi_client.vim.serviceContent.about.instanceUuid
-        # Get CCR reference
-        @client = OpenNebula::Client.new
-        @host = OpenNebula::Host.new_with_id(host_id, @client)
-        rc = @host.info
-        if OpenNebula.is_error? rc
-            STDERR.puts rc.message
-            exit 1
-        end
-
-        @ccr_ref = @host['TEMPLATE/VCENTER_CCR_REF']
-
-        # Get vCenter Cluster
-        @cluster = VCenterDriver::ClusterComputeResource
-                   .new_from_ref(@ccr_ref, @vi_client)
-
         # ----------------------------------------------------------------------
         # create or open cache db
         # ----------------------------------------------------------------------
         db_path = File.join(VCENTER_DATABASE_BASE,
                             "cache_#{@hypervisor}_#{@host_id}.db")
         @db = InstanceCache.new(db_path)
+
+        @vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+        @vc_uuid = @vi_client.vim.serviceContent.about.instanceUuid
+        @client = OpenNebula::Client.new
+        @ccr_ref = retrieve_ccr_ref(host, host_id)
+        # Get vCenter Cluster
+        @cluster = VCenterDriver::ClusterComputeResource
+                   .new_from_ref(@ccr_ref, @vi_client)
     end
 
     def monitor_clusters
@@ -341,46 +331,12 @@ class VcenterMonitor
     end
 
     def wilds
-        str_info = ''
-        # include wild instances
-        vms = vms_data(@db, @vcenter_conf[:cache_expire])
+        wilds = ''
+        vms = @db.select_wilds
         vms.each do |vm|
-            vm_info = ''
-            next unless vm[:id] == -1
-
-            begin
-
-                # Check the running flag
-                running_flag = vm[:mob].config.extraConfig.select do |val|
-                    val[:key] == 'opennebula.vm.running'
-                end
-
-                if !running_flag.empty? && running_flag.first
-                    running_flag = running_flag[0][:value]
-                end
-
-                next if running_flag == 'no'
-
-                vm[:import_template] = vm_to_one(vm[:mob])
-                vm_info << %(
-                    VM = [
-                        ID="#{vm[:id]}",
-                        VM_NAME="#{vm[:name]}",
-                        DEPLOY_ID="#{vm[:deploy_id]}",
-                    )
-
-                vm_template64 = Base64.encode64(vm[:import_template])
-                                    .gsub("\n", '')
-                vm_info << "IMPORT_TEMPLATE=\"#{vm_template64}\"]"
-            rescue StandardError => e
-                vm_info = error_monitoring(e, vm)
-            end
-
-            str_info << vm_info
+            wilds << Base64.decode64(vm)
         end
-
-        str_info
-
+        wilds
     end
 
     def error_monitoring(e, vm)
@@ -501,7 +457,7 @@ class VcenterMonitor
     end
 
     def vm_to_one(vm)
-        str = "NAME = \"#{vm.name}\"\n"\
+        str = "NAME = \"#{vm.name} - #{@cluster.item.name}\"\n"\
               "CPU = \"#{vm.config.hardware.numCPU}\"\n"\
               "vCPU = \"#{vm.config.hardware.numCPU}\"\n"\
               "MEMORY = \"#{vm.config.hardware.memoryMB}\"\n"\
@@ -635,9 +591,6 @@ class VcenterMonitor
 
     # monitor function used when VMM poll action is called
     def get_vm_monitor_data(vm)
-        # Exclude wilds for monitor
-        return '' if vm[:id] == -1
-
         reset_monitor
 
         cpu_mhz = vm[:mob].runtime.host.summary.hardware.cpuMhz.to_f
@@ -818,20 +771,9 @@ class VcenterMonitor
     end
 
     def retrieve_vms_data
-        # call vms_data
-        vms_data(@db, @vcenter_conf[:cache_expire])
-    end
+        return fetch_vms_data if @db.expired?('timestamp', @vcenter_conf[:cache_expire])
 
-    # Either return VMs info from cache db or from public_cloud
-    def vms_data(db, time_limit)
-        ############### Prepare for cache ##################
-        # return fetch_vms_data(:with_monitoring => false) \
-        #     if db.expired?(time_limit)
-
-        # db.select_vms
-        ############### Prepare for cache ##################
-
-        fetch_vms_data(:with_monitoring => false)
+        @db.select_vms
     end
 
     def fetch_vms_data(with_monitoring: false)
@@ -889,58 +831,225 @@ class VcenterMonitor
 
         result = pc.RetrieveProperties(:specSet => [filter_spec])
 
-        vms = []
+        vms_hash = {}
         result.each do |r|
             # Next if it's not a VirtualMachine
             next unless r.obj.is_a?(RbVmomi::VIM::VirtualMachine)
 
+            hashed_properties = r.to_hash
+
             # Next if it's a template
-            next if r.obj.config.template
+            next if hashed_properties["config.template"]
 
-            one_uuid = r.obj._ref + @vc_uuid
-            @vm = VCenterDriver::VirtualMachine
-                  .new_from_ref(@vi_client, r.obj._ref, r.obj.name, opts)
-            one_id = @vm.get_vm_id
-
-            vm = { :uuid => one_uuid,
-                   :id => one_id,
-                   :name => "#{r.obj.name} - #{@cluster.item.name}",
-                   :deploy_id => r.obj._ref,
-                   :state => vm_state(r.obj.summary.runtime.powerState),
-                   :type => @hypervisor,
-                   :mob =>  r.obj }
-
-            if with_monitoring
-                vm[:monitor] = get_vm_monitor_data(vm)
-            end
-            vms << vm
+            vms_hash[r.obj._ref] = hashed_properties
+            vms_hash[r.obj._ref][:mob] = r.obj
         end
 
         view.DestroyView # Destroy the view
 
-        # store to db
+        # Get one vms from database
+        one_vms = retrieve_one_vms
+
+        vms = []
+        vms_hash.each do |vm_ref, info|
+            # Skip VMs starting with one- in vcenter
+            next if info['name'].match(/^one-(\d*)(-(.*))?$/)
+
+            one_uuid = "#{vm_ref}#{@vc_uuid}"
+
+            vm = { :uuid => one_uuid,
+                :id => one_id(one_uuid, one_vms),
+                :name => "#{info['name']} - #{@cluster.item.name}",
+                :deploy_id => vm_ref,
+                :state => vm_state(info['summary.runtime.powerState']),
+                :type => @hypervisor,
+                :mob => info[:mob] }
+            begin
+                monitor_info = ''
+                # Wilds
+                if vm[:id] == -1
+                    vm[:import_template] = vm_to_one(vm[:mob])
+                    monitor_info << "VM = [ ID=\"#{vm[:id]}\", "
+                    monitor_info << "VM_NAME=\"#{vm[:name]}\", "
+                    monitor_info << "DEPLOY_ID=\"#{vm[:deploy_id]}\", "
+                    vm_template64 = Base64.encode64(vm[:import_template]).delete("\n")
+                    monitor_info << "IMPORT_TEMPLATE=\"#{vm_template64}\"]\n"
+                    vm[:monitor_info] = Base64.encode64(monitor_info)
+                else
+                    # @monitor
+                    get_vm_monitor_data(vm)
+                    mon_s64 = Base64.strict_encode64(info(vm))
+                    monitor_info << "VM = [ ID=\"#{vm[:id]}\", "
+                    monitor_info << "DEPLOY_ID=\"#{vm[:deploy_id]}\", "
+                    monitor_info << "MONITOR=\"#{mon_s64}\"]\n"
+                    vm[:monitor_info] = Base64.encode64(monitor_info)
+                end
+            rescue StandardError => e
+                monitor_info = error_monitoring(e, vm)
+            end
+
+            vms << vm
+
+        end
+
         @db.insert(vms)
 
         vms
+    end
+
+    def fetch_vms_state
+        # opts common to all vms
+        opts = {
+            vc_uuid: @vc_uuid
+        }
+
+        # View for VMs inside this cluster
+        view = @vi_client.vim.serviceContent.viewManager
+                         .CreateContainerView({ container: @cluster.item,
+                                                type: ['VirtualMachine'],
+                                                recursive: true })
+
+        pc = @vi_client.vim.serviceContent.propertyCollector
+
+        monitored_properties = [
+            'name', # VM name
+            'summary.runtime.powerState' # VM power state
+        ]
+
+        filter_spec = RbVmomi::VIM.PropertyFilterSpec(
+            :objectSet => [
+                :obj => view,
+                :skip => true,
+                :selectSet => [
+                    RbVmomi::VIM.TraversalSpec(
+                        :name => 'traverseEntities',
+                        :type => 'ContainerView',
+                        :path => 'view',
+                        :skip => false
+                    )
+                ]
+            ],
+            :propSet => [
+                { :type => 'VirtualMachine', :pathSet => monitored_properties }
+            ]
+        )
+
+        result = pc.RetrieveProperties(:specSet => [filter_spec])
+
+        vms_hash = {}
+        result.each do |r|
+            # Next if it's not a VirtualMachine
+            next unless r.obj.is_a?(RbVmomi::VIM::VirtualMachine)
+
+            hashed_properties = r.to_hash
+
+            vms_hash[r.obj._ref] = hashed_properties
+        end
+
+        view.DestroyView # Destroy the view
+
+        # # Get one vms from database
+        # one_vms = @db.select_one_vms
+
+        vms = []
+        vms_hash.each do |vm_ref, info|
+            next if info['name'].match(/^one-(\d*)(-(.*))?$/)
+
+            one_uuid = "#{vm_ref}#{@vc_uuid}"
+            vm = VCenterDriver::VirtualMachine.new_from_ref(@vi_client,
+                                                            vm_ref,
+                                                            info['name'],
+                                                            opts)
+            one_id = vm.vm_id
+
+            vm = { :uuid => one_uuid,
+                :id => one_id,
+                :name => "#{info['name']} - #{@cluster.item.name}",
+                :deploy_id => vm_ref,
+                :state => vm_state(info['summary.runtime.powerState']),
+                :type => @hypervisor }
+
+            vms << vm
+
+        end
+
+        vms
+    end
+
+    def fetch_ccr_ref(host, host_id)
+        one_host = OpenNebula::Host.new_with_id(host_id, @client)
+        rc = one_host.info
+        if OpenNebula.is_error? rc
+            STDERR.puts rc.message
+            exit 1
+        end
+        ccr_ref = one_host['TEMPLATE/VCENTER_CCR_REF']
+        @db.insert_host(host_id, host, ccr_ref)
+
+        ccr_ref
+    end
+
+    def retrieve_ccr_ref(host, host_id)
+        return fetch_ccr_ref(host, host_id) \
+            if @db.expired_host?(host_id, @vcenter_conf[:cache_expire])
+
+        @db.select_ccr_ref(host_id)
+    end
+
+    def fetch_one_vms
+        vm_pool = OpenNebula::VirtualMachinePool
+                  .new(@client, OpenNebula::VirtualMachinePool::INFO_ALL_VM)
+
+        rc = vm_pool.info
+        if OpenNebula.is_error?(rc)
+            puts rc.message
+            exit -1
+        end
+
+        one_vms = []
+        vm_pool.each do |vm|
+            one_id = vm['ID']
+            deploy_id = vm['DEPLOY_ID']
+            uuid = "#{deploy_id}#{@vc_uuid}"
+
+            one_vm = {
+                :id => one_id,
+                :uuid => uuid
+            }
+
+            one_vms << one_vm
+        end
+
+        @db.insert_one_vms(one_vms)
+        one_vms
+    end
+
+    def retrieve_one_vms
+        return fetch_one_vms \
+        if @db.expired?('timestamp_one_vms', @vcenter_conf[:cache_expire])
+
+        @db.select_one_vms
+    end
+
+    def one_id(uuid, one_vms)
+        vm = one_vms.select do |one_vm|
+            one_vm[:uuid] == uuid
+        end
+        return -1 if vm.empty?
+
+        vm[0][:id]
     end
 
     #  Returns VM monitor information
     #
     #  @return [String]
     def probe_vm_monitor
-        vms = fetch_vms_data(:with_monitoring => true)
-
-        data = ''
+        one_vms = ''
+        vms = @db.select_one
         vms.each do |vm|
-            next if vm[:monitor].empty?
-
-            mon_s64 = Base64.strict_encode64(info(vm))
-            data << "VM = [ ID=\"#{vm[:id]}\", "
-            data << "DEPLOY_ID=\"#{vm[:deploy_id]}\", "
-            data << "MONITOR=\"#{mon_s64}\"]\n"
+            one_vms << Base64.decode64(vm)
         end
-
-        data
+        one_vms
     end
 
 end
@@ -972,10 +1081,22 @@ class InstanceCache
     def bootstrap
         sql = 'CREATE TABLE IF NOT EXISTS vms(uuid VARCHAR(128) PRIMARY KEY,'
         sql << ' id INTEGER, name VARCHAR(128), deploy_id VARCHAR(128),'
-        sql << ' state VARCHAR(128), type VARCHAR(128))'
+        sql << ' state VARCHAR(128), type VARCHAR(128),'
+        sql << ' monitor_info VARCHAR(1024))'
+        execute_retry(sql)
+
+        sql = 'CREATE TABLE IF NOT EXISTS hosts(id INTEGER PRIMARY KEY,'
+        sql << ' name VARCHAR(128), ccr_ref VARCHAR(128), timestamp INTEGER)'
+        execute_retry(sql)
+
+        sql = 'CREATE TABLE IF NOT EXISTS one_vms(id INTEGER PRIMARY KEY,'
+        sql << ' uuid VARCHAR(128))'
         execute_retry(sql)
 
         sql = 'CREATE TABLE IF NOT EXISTS timestamp(ts INTEGER PRIMARY KEY)'
+        execute_retry(sql)
+
+        sql = 'CREATE TABLE IF NOT EXISTS timestamp_one_vms(ts INTEGER PRIMARY KEY)'
         execute_retry(sql)
     end
 
@@ -988,7 +1109,8 @@ class InstanceCache
             sql << "\"#{i[:name]}\", "
             sql << "\"#{i[:deploy_id]}\", "
             sql << "\"#{i[:state]}\", "
-            sql << "\"#{i[:type]}\")"
+            sql << "\"#{i[:type]}\", "
+            sql << "\"#{i[:monitor_info]}\")"
 
             execute_retry(sql)
         end
@@ -997,10 +1119,69 @@ class InstanceCache
         execute_retry("INSERT INTO timestamp VALUES (#{Time.now.to_i})")
     end
 
+    def insert_host(host_id, host_name, ccr_ref)
+        execute_retry('DELETE from hosts')
+        timestamp = Time.now.to_i
+        sql = 'INSERT INTO hosts VALUES('
+        sql << "#{host_id}, "
+        sql << "\"#{host_name}\", "
+        sql << "\"#{ccr_ref}\", "
+        sql << "#{timestamp})"
+        execute_retry(sql)
+    end
+
+    def insert_one_vms(instances)
+        execute_retry('DELETE from one_vms')
+        instances.each do |i|
+            sql = "INSERT INTO one_vms VALUES(#{i[:id]}, \"#{i[:uuid]}\")"
+            execute_retry(sql)
+        end
+        execute_retry('DELETE from timestamp_one_vms')
+        execute_retry("INSERT INTO timestamp_one_vms VALUES (#{Time.now.to_i})")
+    end
+
     def select_vms
+        query = 'SELECT * FROM vms'
         vms = []
-        execute_retry('SELECT * from vms').each do |vm|
-            vms << Hash[[:uuid, :id, :name, :deploy_id, :state, :type].zip(vm)]
+        execute_retry(query).each do |vm|
+            vms << Hash[[:uuid, :id, :name, :deploy_id, :state, :type, :monitor_info].zip(vm)]
+        end
+
+        vms
+    end
+
+    def select_wilds
+        vms = []
+        execute_retry('SELECT monitor_info from vms WHERE ID = -1').each do |vm|
+            vms << vm[0]
+        end
+
+        vms
+    end
+
+    def select_one
+        vms = []
+        execute_retry('SELECT monitor_info from vms WHERE ID != -1').each do |vm|
+            vms << vm[0]
+        end
+
+        vms
+    end
+
+    def select_ccr_ref(host_id)
+        query = "SELECT ccr_ref from hosts WHERE id = #{host_id}"
+        result = execute_retry(query)
+        raise "There is more than one CCR_REF for host_id = #{host_id}" \
+            if result.length > 1
+
+        result[0][0]
+    end
+
+    def select_one_vms
+        query = 'SELECT * FROM one_vms'
+        vms = []
+        execute_retry(query).each do |vm|
+            vms << Hash[[:id, :uuid].zip(vm)]
         end
 
         vms
@@ -1011,8 +1192,14 @@ class InstanceCache
     #   @param[Integer] time_limit time to expire cache data
     #
     #   @return[Boolean]
-    def expired?(time_limit)
-        ts = execute_retry('SELECT * from timestamp')
+    def expired?(table, time_limit)
+        ts = execute_retry("SELECT * from #{table}")
+
+        ts.empty? || (Time.now.to_i - time_limit > ts.first.first)
+    end
+
+    def expired_host?(host_id, time_limit)
+        ts = execute_retry("SELECT timestamp from hosts WHERE id = #{host_id}")
 
         ts.empty? || (Time.now.to_i - time_limit > ts.first.first)
     end
@@ -1027,9 +1214,9 @@ end
 module DomainList
 
     def self.state_info(name, id)
-        vcm = VcenterMonitor.new(id)
+        vcm = VcenterMonitor.new(name, id)
 
-        vms = vcm.retrieve_vms_data
+        vms = vcm.fetch_vms_state
         info = {}
         vms.each do |vm|
             info[vm[:uuid]] = { :id     => vm[:id],
