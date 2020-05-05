@@ -93,7 +93,7 @@ module LXD
         # Returns VM string in template
         def wild_template_string
             string = template_string_header
-            string << "IMPORT_VM_ID=#{@deploy_id}, "
+            string << "VM_NAME=#{@deploy_id}, "
 
             template = Base64.encode64(import_template).delete("\n")
 
@@ -139,7 +139,7 @@ module LXD
                 VCPU   = #{vcpu}
                 MEMORY = #{mem}
                 HYPERVISOR   = "lxd"
-                IMPORT_VM_ID = "#{@uuid}"
+                IMPORT_VM_ID = "#{@deploy_id}"
                 OS = [ ARCH="#{arch}" ]
             EOT
 
