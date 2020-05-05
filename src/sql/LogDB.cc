@@ -351,7 +351,7 @@ int LogDB::insert(uint64_t index, unsigned int term, const std::string& sql,
     {
         //Check for duplicate (leader retrying i.e. xmlrpc client timeout)
         LogDBRecord lr;
-        int prev_index;
+        uint64_t prev_index;
 
         if (fed_index == UINT64_MAX)
         {
@@ -361,7 +361,7 @@ int LogDB::insert(uint64_t index, unsigned int term, const std::string& sql,
         {
             prev_index = previous_federated(index);
         }
-        
+
         if ( fed_index != UINT64_MAX && prev_index == UINT64_MAX )
         {
             rc = -1;

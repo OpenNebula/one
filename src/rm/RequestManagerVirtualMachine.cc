@@ -1047,7 +1047,8 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
 void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList,
                                             RequestAttributes& att)
 {
-    Nebula&             nd = Nebula::instance();
+    Nebula& nd = Nebula::instance();
+
     DispatchManager *   dm = nd.get_dm();
     DatastorePool * dspool = nd.get_dspool();
 
