@@ -145,8 +145,6 @@ define(function(require) {
     _totalCost();
   }
 
-<<<<<<< Updated upstream
-=======
   function _generateCores(context){
     $('#CORES_PER_SOCKET').find('option').remove();
     $("#CORES_PER_SOCKET", context).append($('<option>').val("").text(""));
@@ -173,7 +171,6 @@ define(function(require) {
 
   }
 
->>>>>>> Stashed changes
   function _setup(context) {
     context.on("change", "#MEMORY", function() {
       _calculatedRealMemory(context);
@@ -199,7 +196,7 @@ define(function(require) {
     context.on("change", "#CORES_PER_SOCKET", function(){
       _calculateSockets(context);
     });
-    
+
     // MB to GB
     context.on("input", "div.memory_input input", function(){
       $("div.memory_gb_input input", context).val(_m2g(this.value));
