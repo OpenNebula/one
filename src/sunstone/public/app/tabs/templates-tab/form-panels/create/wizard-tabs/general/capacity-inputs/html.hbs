@@ -30,7 +30,7 @@
 <div class="row">
   <div class="cpu_input_wrapper small-12 columns">
     <label style="padding: 0; text-align: left" class="small-5 columns" for="CPU">
-      {{tr "CPU"}}
+      {{tr "Physical CPU"}}
       {{{tip (tr "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.")}}}
     </label>
     <label style="padding: 0; text-align: right" class="small-7 columns" id="quotas-cpu" hidden>
@@ -40,10 +40,28 @@
   </div>
   <div class="vcpu_input_wrapper small-12 columns end">
     <label class="" for="VCPU">
-      {{tr "VCPU"}}
+      {{tr "Virtual CPU"}}
       {{{tip (tr "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU.")}}}
     </label>
     <div class="vcpu_input">
+    </div>
+  </div>
+  <div class="cores_per_socket_select_wrapper small-12 columns end">
+    <label class="" for="CORES_PER_SOCKET">
+      {{tr "Virtual Cores per Socket"}}
+      {{{tip (tr "Number of cores per socket. The number of sockets is automatically calculated dividing the VCPU value by the number of cores per socket value")}}}
+    </label>
+    <div class="cores_per_socket_select">
+      <select wizard_field="CORES" id="CORES_PER_SOCKET"/>
+    </div>
+  </div>
+  <div class="small-12 columns socket_info">
+    <div class="row">
+      <div class="small-12 columns">
+        <label>
+          {{tr "Sockets"}}: <span id="number_sockets"></span> 
+        </label>
+      </div>
     </div>
   </div>
 </div>

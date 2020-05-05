@@ -77,6 +77,19 @@ define(function(require) {
 
       var enforce = $("#enforce", this).is(":checked");
 
+      var topology = {}
+
+      if (templateJSON && templateJSON.CORES){
+        topology.CORES = templateJSON["CORES"];
+        topology.SOCKETS = parseInt(templateJSON["VCPU"]) / parseInt(templateJSON["CORES"]);
+        topology.THREADS = 1;
+        delete templateJSON["CORES"];
+      }
+
+      if (!$.isEmptyObject(topology)){
+        templateJSON.TOPOLOGY = topology;
+      }
+
       var obj = {
         "vm_template": templateJSON,
         "enforce": enforce,

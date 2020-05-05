@@ -61,6 +61,31 @@ define(function(require) {
     Tips.setup(context);
   }
 
+  function _calculateSockets(context){
+    var vcpu = $("div.vcpu_input input", context).val();
+    var cores_per_socket = $("#CORES_PER_SOCKET").val();
+
+    if ((vcpu != "") && (cores_per_socket != "")){
+      $("div.socket_info").show();
+      $("#number_sockets").text(vcpu/cores_per_socket);
+    }
+    else{
+      $("div.socket_info").hide();
+    }
+
+  }
+
+  function _generateCores(context){
+    $("#CORES_PER_SOCKET", context).find('option').remove();
+    $("#CORES_PER_SOCKET", context).append($('<option>').val("").text(""));
+    var vcpuValue = $("div.vcpu_input input").val();
+    for (var i = 1; i <= vcpuValue; i++){
+      if (vcpuValue%i === 0){
+        $("#CORES_PER_SOCKET", context).append($('<option>').val(i).text((i).toString()));
+      }
+    }
+  }
+
   /**
    * Fills the capacity inputs
    * @param  {Object} context  JQuery selector
@@ -106,7 +131,7 @@ define(function(require) {
     input = UserInputs.attributeInput(attr);
 
     if (attr.type != "range-float"){
-      $("div.cpu_input_wrapper", context).addClass("medium-6");
+      $("div.cpu_input_wrapper", context).addClass("small-12");
     }
 
     $("div.cpu_input", context).html(input);
@@ -128,7 +153,7 @@ define(function(require) {
     input = UserInputs.attributeInput(attr);
 
     if (attr.type != "range"){
-      $("div.vcpu_input_wrapper", context).addClass("medium-6");
+      $("div.vcpu_input_wrapper", context).addClass("small-12");
     }
 
     $("div.vcpu_input", context).html(input);
@@ -150,6 +175,34 @@ define(function(require) {
         }
       });
     }
+
+    if (element.TEMPLATE.HYPERVISOR == "vcenter"){
+      $("div.cores_per_socket_select_wrapper").show();
+      $("div.socket_info").show();
+      
+      var vcpuValue = $("div.vcpu_input input", context).val();
+      if (vcpuValue !== "") {
+        _generateCores(context);
+        $('#CORES_PER_SOCKET option[value="' + element.TEMPLATE.CORES_PER_SOCKET + '"]').prop('selected', true);
+      }
+
+      $("div.vcpu_input input", context).on("change", function(){
+        _generateCores(context);
+        $('#CORES_PER_SOCKET option[value=""]').prop('selected', true);
+        _calculateSockets(context);
+      });
+
+      $("#CORES_PER_SOCKET", context).on("change", function(){
+        _calculateSockets(context);
+      })
+
+      _calculateSockets(context);
+    }
+    else{
+      $("div.cores_per_socket_select_wrapper").hide();
+      $("div.socket_info").hide();
+    }
+
 
     if (userInputs != undefined && userInputs.MEMORY != undefined){
       attr = UserInputs.parse("MEMORY", userInputs.MEMORY);

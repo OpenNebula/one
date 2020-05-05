@@ -90,8 +90,8 @@ define(function(require) {
   /*
     FUNCTION DEFINITIONS
    */
-
-  function _html() {
+  
+   function _html() {
     return TemplateHTML({
       "formPanelId": this.formPanelId
     });
@@ -406,6 +406,19 @@ define(function(require) {
 
       capacityContext = $(".capacityContext"  + template_id, context);
       $.extend(tmp_json, CapacityInputs.retrieveChanges(capacityContext));
+
+      var topology = {}
+
+      if (tmp_json && tmp_json.CORES){
+        topology.CORES = tmp_json["CORES"];
+        topology.SOCKETS = parseInt(tmp_json["VCPU"]) / parseInt(tmp_json["CORES"]);
+        topology.THREADS = 1;
+        delete tmp_json["CORES"];
+      }
+
+      if (!$.isEmptyObject(topology)){
+        tmp_json.TOPOLOGY = topology;
+      }
 
       extra_info["template"] = tmp_json;
       for (var i = 0; i < n_times_int; i++) {

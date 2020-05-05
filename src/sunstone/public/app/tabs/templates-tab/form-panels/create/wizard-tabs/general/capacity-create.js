@@ -145,6 +145,35 @@ define(function(require) {
     _totalCost();
   }
 
+<<<<<<< Updated upstream
+=======
+  function _generateCores(context){
+    $('#CORES_PER_SOCKET').find('option').remove();
+    $("#CORES_PER_SOCKET", context).append($('<option>').val("").text(""));
+    var vcpu_count =  parseInt($("#VCPU").val()) || 0;
+    for (var i = 1; i <= vcpu_count; i++){
+      if (vcpu_count%i === 0){
+        $('#CORES_PER_SOCKET').append($('<option>').val(i).text((i).toString()));
+      }
+    }
+    $('#CORES_PER_SOCKET option[value=""]').prop('selected', true);
+  }
+
+  function _calculateSockets(context){
+    var vcpu = $("#VCPU").val();
+    var cores_per_socket = $("#CORES_PER_SOCKET").val();
+
+    if ((vcpu != "") && (cores_per_socket != "")){
+      $("div.socket_info").show();
+      $("#number_sockets").text(vcpu/cores_per_socket);
+    }
+    else{
+      $("div.socket_info").hide();
+    }
+
+  }
+
+>>>>>>> Stashed changes
   function _setup(context) {
     context.on("change", "#MEMORY", function() {
       _calculatedRealMemory(context);
@@ -162,6 +191,15 @@ define(function(require) {
       _calculatedRealCpu(context);
     });
 
+    context.on("change", "#VCPU", function(){
+      _generateCores(context);
+      _calculateSockets(context);
+    });
+
+    context.on("change", "#CORES_PER_SOCKET", function(){
+      _calculateSockets(context);
+    });
+    
     // MB to GB
     context.on("input", "div.memory_input input", function(){
       $("div.memory_gb_input input", context).val(_m2g(this.value));

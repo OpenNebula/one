@@ -84,13 +84,39 @@ define(function(require) {
     if (memoryCost == undefined){
       memoryCost = Config.onedConf.DEFAULT_COST.MEMORY_COST;
     }
-
+    console.log("element ->",this.element);
     return TemplateInfo({
       'element': this.element,
       'resizeStateEnabled': resizeStateEnabled,
       'cpuCost': cpuCost,
       'memoryCost': memoryCost
     });
+  }
+
+  function _calculateSockets(context){
+    var vcpu = $("div.vcpu_input input", context).val();
+    var cores_per_socket = $("#CORES_PER_SOCKET").val();
+
+    if ((vcpu != "") && (cores_per_socket != "")){
+      $("div.socket_info").show();
+      $("#number_sockets").text(vcpu/cores_per_socket);
+    }
+    else{
+      $("div.socket_info").hide();
+    }
+
+  }
+
+  function _generateCores(context){
+    $("#CORES_PER_SOCKET", context).find('option').remove();
+    $("#CORES_PER_SOCKET", context).append($('<option>').val("").text(""));
+    var vcpuValue = $("div.vcpu_input input").val();
+    for (var i = 1; i <= vcpuValue; i++){
+      if (vcpuValue%i === 0){
+        $("#CORES_PER_SOCKET", context).append($('<option>').val(i).text((i).toString()));
+      }
+    }
+    $('#CORES_PER_SOCKET option[value=""]').prop('selected', true);
   }
 
   function _setup(context) {
@@ -101,6 +127,32 @@ define(function(require) {
         var dialog = Sunstone.getDialog(RESIZE_DIALOG_ID);
         dialog.setElement(that.element);
         dialog.show();
+        dialogContext = dialog.dialogElement;
+        if (that.element.USER_TEMPLATE.HYPERVISOR == "vcenter"){
+          $("div.cores_per_socket_select_wrapper", dialogContext).attr("style", "");
+          $("div.socket_info", dialogContext).show();
+          
+          var vcpuValue = $("div.vcpu_input input").val();
+          if (vcpuValue !== "") {
+            _generateCores(dialogContext);
+            $('#CORES_PER_SOCKET option[value="' + that.element.TEMPLATE.TOPOLOGY.CORES + '"]').prop('selected', true);
+          }
+    
+          $("div.vcpu_input input", dialogContext).on("change", function(){
+            _generateCores(dialogContext);
+            _calculateSockets(dialogContext);
+          });
+    
+          $("#CORES_PER_SOCKET", dialogContext).on("change", function(){
+            _calculateSockets(dialogContext);
+          })
+    
+          _calculateSockets(dialogContext);
+        }
+        else{
+          $("div.cores_per_socket_select_wrapper", dialogContext).hide();
+          $("div.socket_info", dialogContext).hide();
+        }
         return false;
       });
     }

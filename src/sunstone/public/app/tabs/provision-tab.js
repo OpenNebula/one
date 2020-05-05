@@ -1053,6 +1053,19 @@ define(function(require) {
                $.extend(extra_info.template, user_inputs_values);
             }
 
+            var topology = {}
+
+            if (extra_info && extra_info.template && extra_info.template.CORES){
+              topology.CORES = extra_info["template"]["CORES"];
+              topology.SOCKETS = parseInt(extra_info["template"]["VCPU"]) / parseInt(extra_info["template"]["CORES"]);
+              topology.THREADS = 1;
+              delete extra_info["template"]["CORES"];
+            }
+      
+            if (!$.isEmptyObject(topology)){
+              extra_info.template.TOPOLOGY = topology;
+            }
+
             var action;
 
             if ($("input.instantiate_pers", context).prop("checked")){
