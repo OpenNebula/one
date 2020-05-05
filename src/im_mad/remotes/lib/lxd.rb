@@ -93,7 +93,7 @@ module LXD
         # Returns VM string in template
         def wild_template_string
             string = template_string_header
-            string << "VM_NAME=#{@deploy_id}, "
+            string << "IMPORT_VM_ID=#{@deploy_id}, "
 
             template = Base64.encode64(import_template).delete("\n")
 
