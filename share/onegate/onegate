@@ -500,7 +500,7 @@ module OneGate
 Available commands
     $ onegate vm show [VMID] [--json]
 
-    $ onegate vm update [VMID] --data KEY=VALUE[\\nKEY2=VALUE2]
+    $ onegate vm update [VMID] --data KEY=VALUE\\nKEY2=VALUE2
 
     $ onegate vm update [VMID] --erase KEY
 

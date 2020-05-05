@@ -325,6 +325,35 @@ helpers do
         return response
     end
 
+    # Escape data from user
+    def scape_attr(attr)
+        ret  = ''
+        attr = attr.split('')
+
+        # KEY=value with spaces -> KEY=\"value with spaces\"
+        # KEY=[KEY2=value with spaces] -> KEY=[KEY2=\"value with spaces\"]
+        attr.each_with_index do |s, idx|
+            if s == '=' && attr[idx + 1] != '['
+                ret << "=\""
+            elsif s == '[' && attr[idx - 1] != '='
+                ret << "\"["
+            elsif s == ']' && attr[idx - 1] != '='
+                ret << "\"]"
+            elsif s == '\\'
+                ret << "\"\\"
+            else
+                ret << s
+            end
+        end
+
+        # Replace scaped \n by no scaped one
+        ret.gsub!("\\n", "\n")
+
+        ret.insert(ret.size, "\"") if ret[-1] != ']'
+
+        ret
+    end
+
     # Update VM user template
     #
     # @param object [OpenNebula::VirtualMachine] VM to update
@@ -340,6 +369,10 @@ helpers do
         end
 
         attr = request.body.read if attr.nil?
+
+        # Escape attr
+        # ###########
+        attr = scape_attr(attr)
 
         if type == 1
             error = "cannot be modified"
