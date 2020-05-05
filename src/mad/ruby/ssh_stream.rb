@@ -189,7 +189,7 @@ class SshStream
 
     def ssh_cmd
         if @forward
-            SSH_CMD + ' -o ForwardAgent=yes'
+            SSH_CMD + ' -o ForwardAgent=yes -o ControlMaster=no -o ControlPath=none'
         else
             SSH_CMD
         end

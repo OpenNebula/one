@@ -1,0 +1,9 @@
+# This file is provided by 'opennebula-common' package
+
+Host *
+  # since SSH version 7.6+
+  StrictHostKeyChecking accept-new
+  ControlMaster auto
+  ControlPath ~/.ssh-%C
+  ControlPersist 5s
+
