@@ -36,7 +36,7 @@ define(function(require) {
     var vm_name = response["vm_name"];
 
     if ($.inArray(graphics_type, ['spice', 'vnc']) < 0) {
-      Notifier.notifyError(Locale.tr("Type grapichs supported: vnc, spice"));
+      Notifier.notifyError(Locale.tr("Type graphics supported: vnc, spice"));
       return;
     }
 
