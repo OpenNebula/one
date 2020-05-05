@@ -179,8 +179,8 @@ define(function(require) {
 
         if (args && args.ip && args.name) {
           var credentials = {};
-          args.username && (credentials["username"] = args.username);
-          args.password && (credentials["password"] = args.password);
+          args.username && (credentials["USERNAME"] = args.username);
+          args.password && (credentials["PASSWORD"] = args.password);
           Files.downloadRdpFile(args.ip, args.name, credentials);
         }
         else if (vm && vm.NAME && vm.TEMPLATE && vm.TEMPLATE.NIC) {
