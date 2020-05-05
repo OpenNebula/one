@@ -65,6 +65,19 @@ func (sc *ServiceController) Show(id int) (*service.Service, error) {
 	return NewService(documentJSON(response)), nil
 }
 
+// Delete the SERVICE resource identified by <id>
+func (sc *ServiceController) Delete(id int) (bool, string) {
+	url := urlService(sc.ID)
+
+	response, e := sc.c.Client2.Delete(url)
+
+	if e != nil {
+		return false, e.Error()
+	}
+
+	return response.status, response.Body()
+}
+
 // Shutdown running services
 func (sc *ServiceController) Shutdown(id int) (bool, string) {
 	action := make(map[string]interface{})
@@ -87,17 +100,50 @@ func (sc *ServiceController) Recover(id int) (bool, string) {
 	return sc.serviceAction(id, action)
 }
 
-// Delete the SERVICE resource identified by <id>
-func (sc *ServiceController) Delete(id int) (bool, string) {
-	url := urlService(sc.ID)
+// Chgrp service
+func (sc *ServiceController) Chgrp(id, gid int) (bool, string) {
+	action := make(map[string]interface{})
 
-	response, e := sc.c.Client2.Delete(url)
-
-	if e != nil {
-		return false, e.Error()
+	action["action"] = map[string]interface{}{
+		"perform": "chgrp",
+		"params": map[string]interface{}{
+			"group_id": gid,
+		},
 	}
 
-	return response.status, response.Body()
+	return sc.serviceAction(id, action)
+}
+
+// Chown service
+func (sc *ServiceController) Chown(id, uid, gid int) (bool, string) {
+	action := make(map[string]interface{})
+
+	action["action"] = map[string]interface{}{
+		"perform": "chgrp",
+		"params": map[string]interface{}{
+			"group_id": gid,
+			"user_id":  uid,
+		},
+	}
+
+	return sc.serviceAction(id, action)
+}
+
+// TODO: Confirm param keys
+// Chmod service
+func (sc *ServiceController) Chmod(id, owner, user, other int) (bool, string) {
+	action := make(map[string]interface{})
+
+	action["action"] = map[string]interface{}{
+		"perform": "chgrp",
+		"params": map[string]interface{}{
+			"owner": owner,
+			"group": user,
+			"other": other,
+		},
+	}
+
+	return sc.serviceAction(id, action)
 }
 
 // List the contents of the SERVICE collection.
