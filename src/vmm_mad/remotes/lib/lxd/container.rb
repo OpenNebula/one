@@ -37,6 +37,11 @@ class Container
     CONTAINERS = 'containers'.freeze
 
     #---------------------------------------------------------------------------
+    # Supported LXD versions
+    #---------------------------------------------------------------------------
+    VERSIONS = ['3.0']
+
+    #---------------------------------------------------------------------------
     # Methods to access container attributes
     #---------------------------------------------------------------------------
     CONTAINER_ATTRIBUTES = %w[name uuid status status_code devices config profile
@@ -69,8 +74,7 @@ class Container
         @lxc = lxc
         @one = one
 
-        @lxc_command = 'lxc'
-        @lxc_command.prepend 'sudo -n ' if client.snap
+        @lxc_command = Container.lxd_cli('lxc', client)
 
         @rootfs_dir = "#{@client.lxd_path}/storage-pools/default/containers/"\
         "#{name}/rootfs"
@@ -119,6 +123,27 @@ class Container
             raise e if e.code != 404
 
             false
+        end
+
+        # Breaks the execution if unsupported version found
+        def compatibility(client)
+            return if LXDConfiguration.new[:validate_version] == (false || nil)
+
+            cmd = lxd_cli('lxd --version', client)
+
+            rc, version, e = Command.execute(cmd, false)
+            raise e if rc != 0
+
+            VERSIONS.each do |v|
+                return nil if version[0..2] == v
+            end
+
+            raise "Unsupported LXD version #{version} found"
+        end
+
+        # Makes the cmd snap compatible if LXD client runs on snapd
+        def lxd_cli(cmd, client)
+            return cmd.prepend 'sudo -n ' if client.snap
         end
 
     end

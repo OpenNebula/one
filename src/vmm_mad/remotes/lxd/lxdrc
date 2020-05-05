@@ -44,3 +44,7 @@
 # Default path for the datastores. This only need to be change if the 
 # corresponding value in oned.conf has been modified.
 :datastore_location: /var/lib/one/datastores
+#
+# Controls the driver being able to break the execution if an unsupported LXD
+# version s found.
+:validate_version: true
