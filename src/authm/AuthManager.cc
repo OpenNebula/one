@@ -27,8 +27,48 @@
 const char * AuthManager::auth_driver_name = "auth_exe";
 
 /* -------------------------------------------------------------------------- */
+/* Sanitize username, remove leading and trailing spaces                      */
 /* -------------------------------------------------------------------------- */
+string& sanitize(string& s)
+{
+    if (s.length() < 3)
+    {
+        return s;
+    }
 
+    // URL-encoded chars space, tab, lf, cr
+    static vector<string> spaces = { "%20", "%09", "%0A", "%0D"};
+
+    string t=s;
+    while (1) {
+        for (const auto& it : spaces) {
+
+            // Leading spaces
+            if ( t.substr(0,3) == it )
+            {
+                t.erase(0,3);
+            }
+
+            // Trailing spaces
+            if ( t.substr(t.length()-3,t.length()) == it )
+            {
+                t.erase(t.length()-3,t.length());
+            }
+        }
+
+        // Done
+        if ( t.length() == s.length() )
+        {
+            break;
+        }
+
+        s = t;
+    }
+
+    return s;
+}
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 void AuthRequest::add_auth(Operation             op,
                            const PoolObjectAuth& ob_perms,
                            string                ob_template)
@@ -205,6 +245,8 @@ void AuthManager::authenticate_action(AuthRequest * ar)
     {
         goto error_driver;
     }
+
+    sanitize(ar->username);
 
     // ------------------------------------------------------------------------
     // Queue the request
