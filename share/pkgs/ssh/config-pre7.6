@@ -1,0 +1,17 @@
+# This file is provided by 'opennebula-common' package in:
+#   /usr/share/one/ssh/
+
+# workaround for SSH version <7.6 which does not support:
+#   StrictHostKeyChecking accept-new
+Match !exec "ssh-keygen -F %h"
+  StrictHostKeyChecking no
+  ControlMaster auto
+  ControlPath ~/.ssh-%C
+  ControlPersist 5s
+
+Host *
+  StrictHostKeyChecking yes
+  ControlMaster auto
+  ControlPath ~/.ssh-%C
+  ControlPersist 5s
+
