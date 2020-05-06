@@ -250,9 +250,9 @@ begin
     xml_txt = Base64.decode64(xml_txt) if local? hyperv
     config  = REXML::Document.new(xml_txt).root
 
-    host   = config.elements['UDP_LISTENER/MONITOR_ADDRESS'].text.to_s
-    port   = config.elements['UDP_LISTENER/PORT'].text.to_s
-    pubkey = config.elements['UDP_LISTENER/PUBKEY'].text.to_s
+    host   = config.elements['NETWORK/MONITOR_ADDRESS'].text.to_s
+    port   = config.elements['NETWORK/PORT'].text.to_s
+    pubkey = config.elements['NETWORK/PUBKEY'].text.to_s
     hostid = config.elements['HOST_ID'].text.to_s
 
     probes = {
