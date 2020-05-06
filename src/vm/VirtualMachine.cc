@@ -739,8 +739,11 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     set<int> cluster_ids;
     set<int> datastore_ids;
     vector<Template *> quotas;
-
+    vector<const VectorAttribute *> raw;
     ostringstream oss;
+
+    VirtualMachineManager * vmm = Nebula::instance().get_vmm();
+    const VirtualMachineManagerDriver * vmd;
 
     // ------------------------------------------------------------------------
     // Set a name if the VM has not got one and VM_ID
@@ -889,6 +892,35 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // Check the CPU Model attribute
     // ------------------------------------------------------------------------
     parse_cpu_model(user_obj_template);
+
+    // ------------------------------------------------------------------------
+    // Validate RAW attribute
+    // ------------------------------------------------------------------------
+
+    // parsed at parse_well_known_attributes()
+    ivalue = obj_template->get("RAW", raw);
+
+    for (long int i=0; i<ivalue; i++)
+    {
+        value = raw[i]->vector_value("TYPE");
+        one_util::tolower(value);
+
+        vmd = vmm->get(value);
+
+        if ( vmd == 0 )
+        {
+            goto error_raw;
+        }
+
+        value = raw[i]->vector_value("DATA");
+
+        rc = vmd->validate_raw(value);
+
+        if ( rc != 0 )
+        {
+            goto error_raw;
+        }
+    }
 
     // ------------------------------------------------------------------------
     // PCI Devices (Needs to be parsed before network)
@@ -1110,6 +1142,10 @@ error_disk_cost:
 
 error_one_vms:
     error_str = "Trying to import an OpenNebula VM: 'one-*'.";
+    goto error_common;
+
+error_raw:
+    error_str = "Invaled RAW section. It does not fit libvirt domain.rng schema";
     goto error_common;
 
 error_os:

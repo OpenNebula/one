@@ -284,6 +284,16 @@ public:
     static int validate_xml(const std::string &xml_doc);
 
     /**
+     *  Validates the XML doc against a RelaxNG schema
+     *
+     *  @param xml_doc string containing the XML document
+     *  @param schema_path path to RelaxNG schema file
+     *  @return 0 if the xml validates
+     */
+    static int validate_rng(const std::string &xml_doc,
+                            const std::string& schema_path);
+
+    /**
      * Renames the nodes given in the xpath expression
      * @param xpath_expr xpath expression to find the nodes to rename
      * @param new_name new name for the xml elements

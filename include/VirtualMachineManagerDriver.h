@@ -72,6 +72,15 @@ public:
         const string&           file_name) const = 0;
 
     /**
+     *  Validates de VM raws section
+     *    @param raw_section raw section of the VM.
+     *    @return 0 on success
+     */
+    virtual int validate_raw(const string& raw_section) const
+    {
+        return 0;
+    }
+    /**
      *  Check if action is supported for imported VMs
      *    @param action
      *    @return True if it is supported

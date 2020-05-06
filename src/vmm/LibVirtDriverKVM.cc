@@ -20,6 +20,7 @@
 #include "HostPool.h"
 #include "ClusterPool.h"
 #include "VirtualNetwork.h"
+#include "ObjectXML.h"
 
 #include <sstream>
 #include <fstream>
@@ -33,6 +34,9 @@ const int LibVirtDriver::CEPH_DEFAULT_PORT = 6789;
 const int LibVirtDriver::GLUSTER_DEFAULT_PORT = 24007;
 
 const int LibVirtDriver::ISCSI_DEFAULT_PORT = 3260;
+
+const string LibVirtDriver::XML_DOMAIN_RNG_PATH = "/usr/share/one/schemas/libvirt/domain.rng";
+
 
 #define set_sec_default(v, dv) if (v.empty() && !dv.empty()){v = dv;}
 
@@ -370,6 +374,20 @@ static string get_disk_bus(std::string &machine, std::string &target,
     }
 
     return "ide";
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int LibVirtDriver::validate_raw(const string& raw_section) const
+{
+    ostringstream oss;
+
+    oss << "<domain type='kvm' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>"
+        << "<name>aux</name>"
+        << raw_section << "</domain>";
+
+    return ObjectXML::validate_rng(oss.str(), XML_DOMAIN_RNG_PATH);
 }
 
 /* -------------------------------------------------------------------------- */

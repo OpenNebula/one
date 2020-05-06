@@ -19,6 +19,8 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
+#include <libxml/parser.h>
+#include <libxml/relaxng.h>
 
 #include "expr_arith.h"
 #include "expr_bool.h"
@@ -538,3 +540,34 @@ error_yy:
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+int ObjectXML::validate_rng(const std::string &xml_doc, const string& schema_path)
+{
+    int rc;
+    xmlDocPtr doc = 0;
+    xmlRelaxNGPtr schema;
+    xmlRelaxNGValidCtxtPtr validctxt;
+    xmlRelaxNGParserCtxtPtr rngparser;
+
+    doc = xmlParseMemory (xml_doc.c_str(),xml_doc.length());
+
+    if (doc == 0)
+    {
+        return -1;
+    }
+
+    rngparser = xmlRelaxNGNewParserCtxt(schema_path.c_str());
+    schema = xmlRelaxNGParse(rngparser);
+    validctxt = xmlRelaxNGNewValidCtxt(schema);
+
+    rc = xmlRelaxNGValidateDoc(validctxt, doc);
+
+    xmlRelaxNGFree(schema);
+    xmlRelaxNGFreeValidCtxt(validctxt);
+    xmlRelaxNGFreeParserCtxt(rngparser);
+    xmlFreeDoc(doc);
+
+    return rc;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
