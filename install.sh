@@ -231,7 +231,9 @@ SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/websockify/websockify \
             $SHARE_LOCATION/esx-fw-vnc \
             $SHARE_LOCATION/oneprovision \
-            $SHARE_LOCATION/start-scripts"
+            $SHARE_LOCATION/start-scripts \
+            $SHARE_LOCATION/schemas \
+            $SHARE_LOCATION/schemas/libvirt"
 
 ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/hm \
@@ -665,6 +667,7 @@ INSTALL_FILES=(
     ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
     VENDOR_DIRS:$LIB_LOCATION/ruby/vendors
     START_SCRIPT_SHARE_FILES:$SHARE_LOCATION/start-scripts
+    LIBVIRT_RNG_SHARE_MODULE_FILES:$SHARE_LOCATION/schemas/libvirt
 )
 
 INSTALL_CLIENT_FILES=(
@@ -2712,6 +2715,21 @@ DOCS_FILES="LICENSE LICENSE.addons NOTICE README.md"
 #-----------------------------------------------------------------------------
 
 VENDOR_DIRS="share/vendor/ruby/gems/packethost"
+
+#-------------------------------------------------------------------------------
+# Libvirt RelaxNG schemas
+#-------------------------------------------------------------------------------
+
+LIBVIRT_RNG_SHARE_MODULE_FILES="share/schemas/libvirt/basictypes.rng \
+                               share/schemas/libvirt/cputypes.rng \
+                               share/schemas/libvirt/domaincaps.rng \
+                               share/schemas/libvirt/domaincheckpoint.rng \
+                               share/schemas/libvirt/domaincommon.rng \
+                               share/schemas/libvirt/domain.rng \
+                               share/schemas/libvirt/domainsnapshot.rng \
+                               share/schemas/libvirt/networkcommon.rng \
+                               share/schemas/libvirt/nwfilter_params.rng \
+                               share/schemas/libvirt/storagecommon.rng"
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
