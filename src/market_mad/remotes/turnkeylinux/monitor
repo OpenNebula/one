@@ -41,11 +41,7 @@ require 'rexml/document'
 require 'nokogiri'
 require 'digest/md5'
 
-def unindent(str)
-    m = str.match(/^(\s*)/)
-    spaces = m[1].size
-    str.gsub!(/^ {#{spaces}}/, '')
-end
+require_relative '../common/lxd'
 
 #-------------------------------------------------------------------------------
 #  This class is used to query the TurnkeyLinux repository
@@ -63,22 +59,6 @@ class TurnkeyLinux
         :format   => 'raw',
         :agent    => 'OpenNebula'
     }
-
-    TEMPLATE = unindent(<<-EOS)
-        HYPERVISOR = \"lxd\"
-        CPU = \"1\"
-        MEMORY = \"768\"
-        LXD_SECURITY_PRIVILEGED = \"true\"
-        GRAPHICS = [
-            LISTEN  =\"0.0.0.0\",
-            TYPE  =\"vnc\"
-        ]
-        CONTEXT = [
-            NETWORK  =\"YES\",
-            SSH_PUBLIC_KEY  =\"$USER[SSH_PUBLIC_KEY]\",
-            SET_HOSTNAME  =\"$NAME\"
-        ]"
-    EOS
 
     #---------------------------------------------------------------------------
     # Configuration varibales
@@ -185,7 +165,8 @@ class TurnkeyLinux
             tmpl64 = ''
             print_var(tmpl64, 'DRIVER', 'raw')
 
-            data = { 'APPTEMPLATE64' => tmpl64, 'VMTEMPLATE64' => TEMPLATE }
+            data = { 'APPTEMPLATE64' => tmpl64,
+                     'VMTEMPLATE64' => LXDMarket.template }
             data.each do |key, val|
                 print_var(tmpl, key, Base64.strict_encode64(val))
             end

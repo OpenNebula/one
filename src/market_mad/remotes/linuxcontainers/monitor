@@ -24,6 +24,8 @@ require 'rexml/document'
 require 'time'
 require 'digest/md5'
 
+require_relative '../common/lxd'
+
 #-------------------------------------------------------------------------------
 #
 #-------------------------------------------------------------------------------
@@ -41,22 +43,6 @@ class LinuxContainersMarket
         :tested_apps => %w[alpine centos debian ubuntu fedora devuan],
         :skip_untested => 'yes'
     }
-
-    # TODO: Make configurable
-    TEMPLATE = "
-HYPERVISOR = \"lxd\"
-CPU = \"1\"
-MEMORY = \"768\"
-LXD_SECURITY_PRIVILEGED = \"yes\"
-GRAPHICS = [
-    LISTEN  =\"0.0.0.0\",
-    TYPE  =\"vnc\"
-]
-CONTEXT = [
-    NETWORK  =\"YES\",
-    SSH_PUBLIC_KEY  =\"$USER[SSH_PUBLIC_KEY]\",
-    SET_HOSTNAME  =\"$NAME\"
-]"
 
     #---------------------------------------------------------------------------
     # Configuration varibales
@@ -170,7 +156,8 @@ CONTEXT = [
                 tmpl64 = ''
                 print_var(tmpl64, 'DRIVER', 'raw')
 
-                data = { 'APPTEMPLATE64' => tmpl64, 'VMTEMPLATE64' => TEMPLATE }
+                data = { 'APPTEMPLATE64' => tmpl64,
+                         'VMTEMPLATE64' => LXDMarket.template }
                 data.each do |key, val|
                     print_var(tmpl, key, Base64.strict_encode64(val))
                 end
