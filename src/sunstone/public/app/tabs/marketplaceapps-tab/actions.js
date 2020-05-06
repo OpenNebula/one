@@ -120,8 +120,33 @@ define(function(require) {
       },
       error: Notifier.onError
     },
-    "MarketPlaceApp.list" : _commonActions.list(),
-    "MarketPlaceApp.show" : _commonActions.show(),
+    "MarketPlaceApp.list" : {
+      type: "list",
+      call: OpenNebulaResource.list,
+      callback: function(request, response) {
+        var datatable = Sunstone.getDataTable(TAB_ID);
+        if (datatable){
+          datatable.updateView(request, response);
+          datatable.updateStateActions();
+        }
+      },
+      error: Notifier.onError
+    },
+    "MarketPlaceApp.show" : {
+      type: "single",
+      call: OpenNebulaResource.show,
+      callback: function(request, response) {
+          var datatable = Sunstone.getDataTable(TAB_ID);
+          if (datatable){
+            datatable.updateElement(request, response);
+            datatable.updateStateActions(response);
+            if (Sunstone.rightInfoVisible($('#' + TAB_ID))) {
+              Sunstone.insertPanels(TAB_ID, response);
+            }
+          }
+      },
+      error: Notifier.onError
+    },
     "MarketPlaceApp.refresh" : _commonActions.refresh(),
 
     "MarketPlaceApp.delete" : {
