@@ -16,6 +16,7 @@
 
 #include "VMTemplate.h"
 #include "ScheduledAction.h"
+#include "VirtualMachine.h"
 
 /* ************************************************************************ */
 /* VMTemplate :: Constructor/Destructor                                     */
@@ -62,6 +63,8 @@ const char * VMTemplate::db_bootstrap =
 
 int VMTemplate::insert(SqlDB *db, string& error_str)
 {
+    vector<const VectorAttribute *> raw;
+
     // ---------------------------------------------------------------------
     // Check default attributes
     // ---------------------------------------------------------------------
@@ -73,6 +76,18 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
     int rc = parse_sched_action(error_str);
 
     if (rc == -1)
+    {
+        return rc;
+    }
+
+    // ------------------------------------------------------------------------
+    // Validate RAW attribute
+    // ------------------------------------------------------------------------
+
+    obj_template->get("RAW", raw);
+    rc = VirtualMachine::validate_raw(raw, error_str);
+
+    if (rc != 0)
     {
         return rc;
     }
@@ -182,8 +197,18 @@ int VMTemplate::parse_sched_action(string& error_str)
 
 int VMTemplate::post_update_template(string& error)
 {
+    vector<const VectorAttribute *> raw;
+
     int rc = parse_sched_action(error);
     if (rc == -1)
+    {
+        return rc;
+    }
+
+    obj_template->get("RAW", raw);
+    rc = VirtualMachine::validate_raw(raw, error);
+
+    if (rc != 0)
     {
         return rc;
     }

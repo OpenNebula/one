@@ -742,9 +742,6 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     vector<const VectorAttribute *> raw;
     ostringstream oss;
 
-    VirtualMachineManager * vmm = Nebula::instance().get_vmm();
-    const VirtualMachineManagerDriver * vmd;
-
     // ------------------------------------------------------------------------
     // Set a name if the VM has not got one and VM_ID
     // ------------------------------------------------------------------------
@@ -896,30 +893,12 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // ------------------------------------------------------------------------
     // Validate RAW attribute
     // ------------------------------------------------------------------------
+    obj_template->get("RAW", raw);
+    rc = validate_raw(raw, error_str);
 
-    // parsed at parse_well_known_attributes()
-    ivalue = obj_template->get("RAW", raw);
-
-    for (long int i=0; i<ivalue; i++)
+    if (rc != 0)
     {
-        value = raw[i]->vector_value("TYPE");
-        one_util::tolower(value);
-
-        vmd = vmm->get(value);
-
-        if ( vmd == 0 )
-        {
-            goto error_raw;
-        }
-
-        value = raw[i]->vector_value("DATA");
-
-        rc = vmd->validate_raw(value);
-
-        if ( rc != 0 )
-        {
-            goto error_raw;
-        }
+        goto error_raw;
     }
 
     // ------------------------------------------------------------------------
@@ -1145,9 +1124,6 @@ error_one_vms:
     goto error_common;
 
 error_raw:
-    error_str = "Invaled RAW section. It does not fit libvirt domain.rng schema";
-    goto error_common;
-
 error_os:
 error_pci:
 error_defaults:
@@ -2931,6 +2907,18 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     }
 
     // -------------------------------------------------------------------------
+    // Validates RAW data section
+    // -------------------------------------------------------------------------
+    vector<const VectorAttribute *> raw;
+
+    tmpl.get("RAW", raw);
+
+    if (validate_raw(raw, err) != 0)
+    {
+        return -1;
+    }
+
+    // -------------------------------------------------------------------------
     // Update OS, FEATURES, INPUT, GRAPHICS, RAW, CPU_MODEL
     // -------------------------------------------------------------------------
     replace_vector_values(obj_template, &tmpl, "OS");
@@ -3642,6 +3630,9 @@ void VirtualMachine::encrypt()
     user_obj_template->encrypt(one_key);
 };
 
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
 void VirtualMachine::decrypt()
 {
     std::string one_key;
@@ -3650,3 +3641,44 @@ void VirtualMachine::decrypt()
     obj_template->decrypt(one_key);
     user_obj_template->decrypt(one_key);
 };
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VirtualMachine::validate_raw(const vector<const VectorAttribute *> raw, string& error_str)
+{
+    string value;
+    int rc;
+
+    VirtualMachineManager * vmm = Nebula::instance().get_vmm();
+    const VirtualMachineManagerDriver * vmd;
+
+    for (unsigned int i=0; i<raw.size(); i++)
+    {
+        value = raw[i]->vector_value("TYPE");
+        one_util::tolower(value);
+
+        vmd = vmm->get(value);
+
+        if ( vmd == 0 )
+        {
+            error_str = "Invaled RAW section. The type does not match with any supported VM_MAD";
+            return rc;
+        }
+
+        value = raw[i]->vector_value("DATA");
+
+        rc = vmd->validate_raw(value);
+
+        if ( rc != 0 )
+        {
+            error_str = "Invaled RAW section. It does not fit libvirt domain.rng schema";
+             return rc;
+        }
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */

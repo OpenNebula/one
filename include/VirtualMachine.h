@@ -1633,6 +1633,12 @@ public:
      */
     int check_tm_mad_disks(const string& tm_mad, string& error);
 
+    /**
+     *  Validates raw sections XML schema
+     *  @param raw raw data
+     */
+    static int validate_raw(const vector<const VectorAttribute *> raw, string& error_str);
+
 private:
 
     // -------------------------------------------------------------------------
