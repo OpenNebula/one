@@ -46,6 +46,7 @@ begin
                                 :missing_state => 'UNKNOWN',
                                 :sync => 180)
     vmdb.purge
+
     puts vmdb.to_status
 rescue StandardError => e
     OpenNebula.handle_driver_exception('im probe_vm_status', e, host)

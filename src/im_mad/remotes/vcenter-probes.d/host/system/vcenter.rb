@@ -40,7 +40,7 @@ host_id = ARGV[-2]
 
 begin
     # VCenter Monitoring object
-    vcm = VcenterMonitor.new(host_id)
+    vcm = VcenterMonitor.new(host, host_id)
     puts vcm.monitor_clusters
     puts vcm.monitor_host_systems
     # Retrieve customizations
@@ -55,12 +55,14 @@ begin
     # Get NSX info detected from vCenter Server
     puts vcm.nsx_info
 
+    # Fetch VMs info ( update cache if neccesary )
+    vcm.retrieve_vms_data
+
     # VM wilds info
     puts vcm.wilds
 
     # Datastore Monitoring
     puts vcm.monitor_datastores
-
 rescue StandardError => e
     STDERR.puts "IM poll for vcenter cluster #{host_id} failed due to "\
                 "\"#{e.message}\"\n#{e.backtrace}"
