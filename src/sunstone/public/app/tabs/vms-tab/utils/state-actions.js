@@ -134,22 +134,22 @@ define(function(require) {
 
   function disableAllStateActions() {
     $(".state-dependent").prop("disabled", true).
-        removeClass("vm-action-enabled").
-        addClass("vm-action-disabled").
+        removeClass("action-enabled").
+        addClass("action-disabled").
         on("click.stateaction", function(e) { return false; });
   }
 
   function resetStateButtons() {
     $(".state-dependent").
-        addClass("vm-action-enabled").
-        removeClass("vm-action-disabled").
+        addClass("action-enabled").
+        removeClass("action-disabled").
         off("click.stateaction");
   }
 
   function enableStateButton(button_action) {
     $(".state-dependent[href='" + button_action + "']").removeAttr("disabled").
-        addClass("vm-action-enabled").
-        removeClass("vm-action-disabled").
+        addClass("action-enabled").
+        removeClass("action-disabled").
         off("click.stateaction");
   }
 
