@@ -63,7 +63,8 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/LIMIT_TRANSFER_BW \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CONVERT \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/DRIVER \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/TYPE)
+                    /DS_DRIVER_ACTION_DATA/IMAGE/TYPE \
+                    /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/URL_ARGS)
 
 unset i
 
@@ -81,6 +82,7 @@ LIMIT_TRANSFER_BW="${XPATH_ELEMENTS[i++]}"
 CONVERT="${XPATH_ELEMENTS[i++]:-yes}"
 DRIVER="${XPATH_ELEMENTS[i++]}"
 IMAGE_TYPE="${XPATH_ELEMENTS[i++]}"
+URL_ARGS="${XPATH_ELEMENTS[i++]}"
 
 DST=`generate_image_path`
 IMAGE_HASH=`basename $DST`
@@ -117,6 +119,9 @@ if echo "$SRC" | grep -vq '^https\?://'; then
 else
     log "Downloading image $SRC to the image repository"
 fi
+
+# Append URL arguments
+SRC+="&${URL_ARGS}"
 
 CONVERT_CMD=$(cat <<EOF
     set -e -o pipefail

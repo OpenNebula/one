@@ -114,7 +114,6 @@ id=`uuidgen`
 sid=`echo $id | cut -d '-' -f 1`
 
 url=`echo $MARKET_URL | grep -oP "^"docker://"\K.*"`
-docker_hub=`echo $url | cut -d '?' -f 1`
 arguments=`echo $url | cut -d '?' -f 2`
 
 selected_tag=`get_tag_name`
@@ -126,6 +125,11 @@ for p in ${arguments//&/ }; do
     [ -n "$k" -a -n "$v" ] && eval $k=$v;
 done
 
+if [ -z $tag ]; then
+    tag="latest"
+fi
+
+docker_hub="`echo $url | cut -d '?' -f 1`:${tag}"
 docker_image=`echo $docker_hub | cut -f1 -d':'``echo $id |cut -f1 -d'-'`
 
 dockerdir=$TMP_DIR/$id
@@ -140,6 +144,23 @@ trap clean EXIT
 
 mkdir -p $dockerdir
 mkdir -p $dockerdir/mnt
+
+# Check distro
+
+distro=`docker run --rm \
+        -e "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+        $docker_hub cat /etc/os-release | grep "ID_LIKE=" | cut -d= -f 2 || true`
+
+if [ -z $distro ]; then
+    distro=`docker run --rm \
+            -e "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+            $docker_hub cat /etc/os-release | grep "^ID=.*\n" | cut -d= -f 2 || true`
+fi
+
+if [ -z $distro ]; then
+    echo "Cannot identified $docker_hub distribution" 1>&2
+    exit 1
+fi
 
 #-------------------------------------------------------------------------------
 # Create a DockerFile

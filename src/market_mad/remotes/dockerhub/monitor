@@ -165,7 +165,7 @@ CONTEXT = [
                 'TAGS'        => '',
                 'REGTIME'     => regt,
                 'SIZE'        => @options[:sizemb],
-                'DESCRIPTION' => app['description']
+                'DESCRIPTION' => app['description'].delete('\\"')
             }
 
             tmpl = ''
@@ -186,8 +186,8 @@ CONTEXT = [
     end
 
     def app_url(app)
-        "docker://#{app['name']}:<%= tag %>?size=#{@options[:sizemb]}&" \
-        "filesystem=#{@options[:fs]}&format=#{@options[:format]}"
+        "docker://#{app['name']}?size=#{@options[:sizemb]}" \
+        "&filesystem=#{@options[:fs]}&format=#{@options[:format]}"
     end
 
     def print_var(str, name, val)
