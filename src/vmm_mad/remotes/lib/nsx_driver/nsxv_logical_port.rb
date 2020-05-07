@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 module NSXDriver
 
+    # The NSXVLogicalPort class represents a LogicalPort in NSXv
     class NSXVLogicalPort < LogicalPort
 
         # ATTRIBUTES
