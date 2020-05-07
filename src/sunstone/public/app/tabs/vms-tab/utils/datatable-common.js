@@ -274,7 +274,7 @@ define(function(require) {
       cpuMonitoring,
       Humanize.size(memoryMonitoring),
       hostname,
-      OpenNebulaVM.ipsStr(element),
+      OpenNebulaVM.ipsDivider(element),
       Humanize.prettyTimeDatatable(element.STIME),
       actions,
       TemplateUtils.htmlEncode(TemplateUtils.templateToString(element)),

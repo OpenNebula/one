@@ -667,6 +667,7 @@ define(function(require) {
       return MIGRATE_ACTION_STR[stateId];
     },
     "ipsStr": ipsStr,
+    "ipsDivider": ipsDivider,
     "groupByIpsStr": groupByIpsStr,
     "aliasStr": aliasStr,
     "retrieveExternalIPs": retrieveExternalIPs,
@@ -818,6 +819,20 @@ define(function(require) {
           }
         }).join(divider)
         : "--";
+  };
+
+  // 
+  function ipsDivider(element, divider) {
+    var ipsStr = this.ipsStr(element,divider);
+    console.log(ipsStr);
+    const ips = ipsStr.split('<br>');
+    if (ips.length < 3) return ipsStr;
+    var html = '<ul class="dropdown menu ips-dropdown" data-dropdown-menu><li><a>Show IPs</a><ul class="menu">';
+    $.each(ips, function(index, value){
+      html+='<li><a style="color:gray">' + value + '</a></li>';
+    });
+    html+='</ul></li></ul>';
+    return  html;
   };
 
   function groupByIpsStr(element = {}, nics = []) {
