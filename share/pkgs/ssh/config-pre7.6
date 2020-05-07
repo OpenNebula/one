@@ -10,8 +10,8 @@
 #   StrictHostKeyChecking accept-new
 #
 # We check if remote host key is not already in the known hosts and
-# if NOT, we expect this is the very first access and silently accept
-# the key. All other accesses already use strict host key checking.
+# if NOT, we expect this is the very first access and accept the key.
+# All further accesses already use strict host key checking.
 Match !exec "ssh-keygen -F %h"
   StrictHostKeyChecking no
   ControlMaster auto
