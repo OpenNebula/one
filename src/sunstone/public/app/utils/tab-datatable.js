@@ -694,6 +694,7 @@ define(function(require) {
 
     if (that.postUpdateView) {
       that.postUpdateView();
+      $("ul.ips-dropdown").foundation();
     }
 
     if(that.conf.searchDropdownHTML != undefined){

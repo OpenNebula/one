@@ -173,7 +173,7 @@ define(function(require) {
     var that = this;
 
     TabDataTable.prototype.initialize.call(this, opts);
-
+    
     //download virt-viewer file 
     $('#' + this.dataTableId).on("click", '.w_file', function(){
       var data = $(this).data();
