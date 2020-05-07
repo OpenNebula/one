@@ -422,7 +422,6 @@ private:
     * Poweroff state should be consider as it is consuming resources
     **/
     const std::set<int> showback_finished_states = {
-        VirtualMachine::SAVE_STOP,
         VirtualMachine::SAVE_SUSPEND,
         VirtualMachine::EPILOG_STOP,
         VirtualMachine::SHUTDOWN_POWEROFF,
