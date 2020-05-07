@@ -1169,7 +1169,7 @@ class InstanceCache
         raise "There is more than one CCR_REF for host_id = #{host_id}" \
             if result.length > 1
 
-        result[0][0]
+        result.empty? ? nil : result[0][0]
     end
 
     def select_one_vms
