@@ -333,11 +333,11 @@ helpers do
         # KEY=value with spaces -> KEY=\"value with spaces\"
         # KEY=[KEY2=value with spaces] -> KEY=[KEY2=\"value with spaces\"]
         attr.each_with_index do |s, idx|
-            if s == '=' && attr[idx + 1] != '['
+            if s == '=' && attr[idx + 1] != '[' && attr[idx + 1] != '"'
                 ret << "=\""
-            elsif s == '[' && attr[idx - 1] != '='
+            elsif s == '[' && attr[idx - 1] != '=' && attr[idx - 1] != '"'
                 ret << "\"["
-            elsif s == ']' && attr[idx - 1] != '='
+            elsif s == ']' && attr[idx - 1] != '=' && attr[idx - 1] != '"'
                 ret << "\"]"
             elsif s == '\\'
                 ret << "\"\\"
