@@ -651,8 +651,6 @@ define(function(require) {
       dTable_settings.iInitDisplayStart = new_start;
 
       that.dataTable.fnDraw(true);
-
-      $("ul.ips-dropdown").foundation();
     };
 
     if (selected_row_id != undefined) {
@@ -696,6 +694,7 @@ define(function(require) {
 
     if (that.postUpdateView) {
       that.postUpdateView();
+      $("ul.ips-dropdown").foundation();
     }
 
     if(that.conf.searchDropdownHTML != undefined){

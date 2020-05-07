@@ -667,7 +667,7 @@ define(function(require) {
       return MIGRATE_ACTION_STR[stateId];
     },
     "ipsStr": ipsStr,
-    "ipsDivider": ipsDivider,
+    "ipsDropdown": ipsDropdown,
     "groupByIpsStr": groupByIpsStr,
     "aliasStr": aliasStr,
     "retrieveExternalIPs": retrieveExternalIPs,
@@ -761,9 +761,8 @@ define(function(require) {
     return ips;
   }
 
-  // Return the IP or several IPs of a VM
-  function ipsStr(element, divider) {
-    var divider = divider || "<br>";
+  // Return ALL NICs of a VM
+  function getNICs(element){
     var nics = element && element.TEMPLATE && element.TEMPLATE.NIC;
     var pci = element && element.TEMPLATE && element.TEMPLATE.PCI;
     var ips = [];
@@ -804,6 +803,14 @@ define(function(require) {
         }
       });
     }
+
+    return nics;
+  }
+
+  // Return the IP or several IPs of a VM
+  function ipsStr(element, divider, groupStrFuntion = groupByIpsStr) {
+    var divider = divider || "<br>";
+    var nics = getNICs(element);
     
     // infoextended: alias will be group by nic
     return (
@@ -811,7 +818,7 @@ define(function(require) {
       config.system_config.get_extended_vm_info &&
       config.system_config.get_extended_vm_info === "true"
       )
-      ? groupByIpsStr(element, nics)
+      ? groupStrFuntion(element, nics)
       : (ips.length == 0 && nics && nics.length > 0)
         ? $.map(nics, function(nic) {
           if (nic["IP"]) {
@@ -821,18 +828,48 @@ define(function(require) {
         : "--";
   };
 
-  // 
-  function ipsDivider(element, divider) {
-    var ipsStr = this.ipsStr(element,divider);
+  // Return a dropdown with all the 
+  function ipsDropdown(element, divider) {
+    var ipsStr = this.ipsStr(element,divider,groupByIpsDropdown);
     console.log(ipsStr);
+    
     const ips = ipsStr.split('<br>');
-    if (ips.length < 3) return ipsStr;
-    var html = '<ul class="dropdown menu ips-dropdown" data-dropdown-menu><li><a>Show IPs</a><ul class="menu">';
-    $.each(ips, function(index, value){
-      html+='<li><a style="color:gray">' + value + '</a></li>';
-    });
+    if ((ips.length < 2) && (!~ipsStr.indexOf("li"))) return ipsStr;
+    var html = '<ul class="dropdown menu ips-dropdown" data-dropdown-menu><li><a>Show IPs</a><ul class="menu" style="max-height: 25em; overflow: scroll;">';
+    if (~ipsStr.indexOf("li")) {
+      html+=ipsStr;
+    }
+    else{
+      $.each(ips, function(index, value){
+        html+='<li><a style="color:gray">' + value + '</a></li>';
+      });
+    }
     html+='</ul></li></ul>';
     return  html;
+  };
+
+  function groupByIpsDropdown(element = {}, nics = []) {
+    return nics.reduce(function(column, nic) {
+      var nicSection = $("<li/>").append($("<a/>").css("color", "gray").text(nic.IP));
+
+      if (nic.ALIAS_IDS) {
+        nicSection.append("*");
+
+        nic.ALIAS_IDS.split(",").forEach(function(aliasId) {
+          var templateAlias = Array.isArray(element.TEMPLATE.NIC_ALIAS)
+            ? element.TEMPLATE.NIC_ALIAS : [element.TEMPLATE.NIC_ALIAS];
+          var alias = templateAlias.find(function(alias) { return alias.NIC_ID === aliasId });
+          
+          if (alias) {
+            nicSection.append($("<li/>").append($("<a/>").css({
+              "color": "gray",
+              "font-style": "italic",
+            }).text("> " + alias.IP))) }
+        });
+      }
+
+      return column.append(nicSection);
+    }, $("<div/>")).html()
   };
 
   function groupByIpsStr(element = {}, nics = []) {
@@ -851,7 +888,7 @@ define(function(require) {
             nicSection.append($("<p/>").css({
               "margin-bottom": 0,
               "font-style": "italic",
-            }).text(alias.IP)) }
+            }).text("> " + alias.IP)) }
         });
       }
 
