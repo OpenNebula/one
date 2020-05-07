@@ -1,5 +1,10 @@
-# This file is provided by 'opennebula-common' package in:
-#   /usr/share/one/ssh/
+# Default configuration placed by opennebula-common
+# package. Latest default configurations are located in
+# /usr/share/one/ssh/.
+
+#####################################################################
+# WARNING: This configuration file is for OpenSSH 7.6 and newer!
+#####################################################################
 
 Host *
   # since SSH version 7.6+
@@ -7,4 +12,3 @@ Host *
   ControlMaster auto
   ControlPath ~/.ssh-%C
   ControlPersist 5s
-

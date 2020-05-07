@@ -1,8 +1,17 @@
-# This file is provided by 'opennebula-common' package in:
-#   /usr/share/one/ssh/
+# Default configuration placed by opennebula-common
+# package. Latest default configurations are located in
+# /usr/share/one/ssh/.
 
-# workaround for SSH version <7.6 which does not support:
+#####################################################################
+# WARNING: This configuration file is ONLY for OpenSSH before 7.6!
+#####################################################################
+
+# Workaround for OpenSSH version <7.6 which does not support:
 #   StrictHostKeyChecking accept-new
+#
+# We check if remote host key is not already in the known hosts and
+# if NOT, we expect this is the very first access and silently accept
+# the key. All other accesses already use strict host key checking.
 Match !exec "ssh-keygen -F %h"
   StrictHostKeyChecking no
   ControlMaster auto
@@ -14,4 +23,3 @@ Host *
   ControlMaster auto
   ControlPath ~/.ssh-%C
   ControlPersist 5s
-
