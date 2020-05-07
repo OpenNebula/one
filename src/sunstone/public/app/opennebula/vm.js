@@ -765,16 +765,37 @@ define(function(require) {
   function getNICs(element){
     var nics = element && element.TEMPLATE && element.TEMPLATE.NIC;
     var pci = element && element.TEMPLATE && element.TEMPLATE.PCI;
+    if (nics == undefined || nics == false){
+      nics = [];
+    }
+    if (!$.isArray(nics)) {
+      nics = [nics];
+    }
+    if (pci != undefined || pci != false) {
+      if (!$.isArray(pci)) {
+        pci = [pci];
+      }
+      $.each(pci, function(){
+        if (this["TYPE"] == "NIC"){
+          nics.push(this);
+        }
+      });
+    }
+    return nics;
+  }
+
+  // Return the IP or several IPs of a VM
+  function ipsStr(element, divider, groupStrFuntion = groupByIpsStr) {
+    var divider = divider || "<br>";
+    var nics = getNICs(element);
     var ips = [];
     var monitoring = element && element.MONITORING;
     if (monitoring) {
       var externalIP;
       $.each(EXTERNAL_IP_ATTRS, function(index, IPAttr) {
         externalIP = monitoring[IPAttr];
-
         if (externalIP) {
           var splitArr = externalIP.split(",");
-
           $.each(splitArr, function(i,ip){
             if (ip && ($.inArray(ip, ips) == -1)) {
               ips.push(ip);
@@ -783,35 +804,6 @@ define(function(require) {
         }
       });
     }
-
-    if (nics == undefined || nics == false){
-      nics = [];
-    }
-
-    if (!$.isArray(nics)) {
-      nics = [nics];
-    }
-
-    if (pci != undefined || pci != false) {
-      if (!$.isArray(pci)) {
-        pci = [pci];
-      }
-
-      $.each(pci, function(){
-        if (this["TYPE"] == "NIC"){
-          nics.push(this);
-        }
-      });
-    }
-
-    return nics;
-  }
-
-  // Return the IP or several IPs of a VM
-  function ipsStr(element, divider, groupStrFuntion = groupByIpsStr) {
-    var divider = divider || "<br>";
-    var nics = getNICs(element);
-    
     // infoextended: alias will be group by nic
     return (
       config.system_config &&
