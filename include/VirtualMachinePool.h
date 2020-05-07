@@ -421,7 +421,10 @@ private:
     * Array of finished states that have to be considered in showback
     * Poweroff state should be consider as it is consuming resources
     **/
-    const std::set<int> showback_finished_states = { VirtualMachine::BOOT_POWEROFF };
+    const std::set<int> showback_finished_states = {
+        VirtualMachine::BOOT_POWEROFF,
+        VirtualMachine::BOOT_SUSPENDED
+    };
 
     /**
      * Callback used to get an int in the DB it is used by VM Pool in:
