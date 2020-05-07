@@ -97,7 +97,13 @@ int PoolObjectSQL::select_oid(SqlDB *db, const char * _table,
 
     ostringstream oss;
 
-    oss << "SELECT oid FROM " << _table << " WHERE name = '" << sql_name << "'";
+    string where = " WHERE ";
+    if (Nebula::instance().get_db_backend() == "mysql")
+    {
+        where = " WHERE BINARY ";
+    }
+
+    oss << "SELECT oid FROM " << _table << where << "name = '" << sql_name << "'";
 
     if ( _uid != -1 )
     {
