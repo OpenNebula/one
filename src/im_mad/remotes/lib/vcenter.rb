@@ -949,21 +949,16 @@ class VcenterMonitor
         view.DestroyView # Destroy the view
 
         # # Get one vms from database
-        # one_vms = @db.select_one_vms
+        one_vms = @db.select_one_vms
 
         vms = []
         vms_hash.each do |vm_ref, info|
             next if info['name'].match(/^one-(\d*)(-(.*))?$/)
 
             one_uuid = "#{vm_ref}#{@vc_uuid}"
-            vm = VCenterDriver::VirtualMachine.new_from_ref(@vi_client,
-                                                            vm_ref,
-                                                            info['name'],
-                                                            opts)
-            one_id = vm.vm_id
 
             vm = { :uuid => one_uuid,
-                :id => one_id,
+                :id => one_id(one_uuid, one_vms),
                 :name => "#{info['name']} - #{@cluster.item.name}",
                 :deploy_id => vm_ref,
                 :state => vm_state(info['summary.runtime.powerState']),
@@ -1174,7 +1169,7 @@ class InstanceCache
         raise "There is more than one CCR_REF for host_id = #{host_id}" \
             if result.length > 1
 
-        result[0][0]
+        result.empty? ? nil : result[0][0]
     end
 
     def select_one_vms
