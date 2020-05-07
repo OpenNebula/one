@@ -514,6 +514,7 @@ int VirtualMachinePool::calculate_showback(
     float cpu;
     float disk;
     int   mem;
+    int   action;
 
 #ifdef SBDEBUG
     ostringstream debug;
@@ -643,6 +644,8 @@ int VirtualMachinePool::calculate_showback(
 
         history.xpath(vid,      "/HISTORY/OID", -1);
 
+        history.xpath(action,   "/HISTORY/ACTION", -1);
+
         history.xpath(h_stime,  "/HISTORY/STIME", 0);
         history.xpath(h_etime,  "/HISTORY/ETIME", 0);
 
@@ -682,12 +685,17 @@ int VirtualMachinePool::calculate_showback(
                 (h_stime != 0 && h_stime <= t_next) ) {
 
                 time_t stime = t;
-                if(h_stime != 0){
+                if ( h_stime != 0 )
+                {
                     stime = (t < h_stime) ? h_stime : t; //max(t, h_stime);
                 }
 
                 time_t etime = t_next;
-                if(h_etime != 0){
+
+                // Take finished records or the finished ones with states
+                // that are consuming resources
+                if ( (h_etime != 0) && !(showback_finished_states.count(action) > 0) )
+                {
                     etime = (t_next < h_etime) ? t_next : h_etime; //min(t_next, h_etime);
                 }
 
