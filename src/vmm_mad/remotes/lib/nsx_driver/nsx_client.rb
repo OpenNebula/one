@@ -60,13 +60,13 @@ module NSXDriver
 
         def self.new_child(nsxmgr, nsx_user, nsx_password, type)
             case type.upcase
-            when NSXDriver::NSXConstants::NSXT
-                NSXDriver::NSXTClient.new(nsxmgr, nsx_user, nsx_password)
-            when NSXDriver::NSXConstants::NSXV
-                NSXDriver::NSXVClient.new(nsxmgr, nsx_user, nsx_password)
+            when NSXConstants::NSXT
+                NSXTClient.new(nsxmgr, nsx_user, nsx_password)
+            when NSXConstants::NSXV
+                NSXVClient.new(nsxmgr, nsx_user, nsx_password)
             else
                 error_msg = "Unknown object type: #{type}"
-                error = NSXDriver::NSXError::UnknownObject.new(error_msg)
+                error = NSXError::UnknownObject.new(error_msg)
                 raise error
             end
         end
@@ -83,7 +83,7 @@ module NSXDriver
 
             nsxmgr = host['TEMPLATE/NSX_MANAGER']
             nsx_user = host['TEMPLATE/NSX_USER']
-            nsx_password = NSXDriver::NSXClient
+            nsx_password = NSXClient
                            .nsx_pass(host['TEMPLATE/NSX_PASSWORD'])
             nsx_type = host['TEMPLATE/NSX_TYPE']
 
@@ -92,11 +92,20 @@ module NSXDriver
 
         # METHODS
 
+        # Return response if match with responses codes, If response not match
+        # with expected responses codes then raise an IncorrectResponseCodeError
         def check_response(response, codes_array)
-            codes_array.each do |code|
-                return true if response.code.to_i == code
+            unless response.nil?
+                return response if codes_array.include?(response.code.to_i)
+
+                response_json = JSON.parse(response.body)
+                nsx_error = "\nNSX error code: " \
+                            "#{response_json['errorCode']}, " \
+                            "\nNSX error details: " \
+                            "#{response_json['details']}"
+                raise NSXError::IncorrectResponseCodeError, nsx_error
             end
-            false
+            raise NSXError::IncorrectResponseCodeError, nsx_error
         end
 
         def self.nsx_pass(nsx_pass_enc)
@@ -114,16 +123,22 @@ module NSXDriver
         end
 
         # Return: respose.body
-        def get(url); end
+        def get(url, aditional_headers = []); end
+
+        # Return: response
+        def get_full_response(url, aditional_headers = []); end
 
         # Return: id of the created object
-        def post(url, data); end
+        def post(url, data, aditional_headers = []); end
 
-        def put(url, data); end
+        def put(url, data, aditional_headers = []); end
 
         def delete(url); end
 
         def get_token(url); end
+
+        # Prepare headers
+        def add_headers(aditional_headers = []); end
 
     end
 

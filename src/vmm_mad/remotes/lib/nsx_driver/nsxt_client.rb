@@ -37,7 +37,7 @@ module NSXDriver
     $LOAD_PATH << RUBY_LIB_LOCATION
 
     # Class NSXTClient
-    class NSXTClient < NSXDriver::NSXClient
+    class NSXTClient < NSXClient
 
         # ATTIBUTES
         attr_accessor :nsxmgr
@@ -48,133 +48,122 @@ module NSXDriver
         # CONSTRUCTORS
         def initialize(nsxmgr, nsx_user, nsx_password)
             super(nsxmgr, nsx_user, nsx_password)
-            @nsx_type = NSXDriver::NSXConstants::NSXT
+            @nsx_type = NSXConstants::NSXT
+        end
+
+        # Prepare headers
+        def add_headers(aditional_headers = [])
+            headers = NSXConstants::HEADER_JSON.clone
+            unless aditional_headers.empty?
+                aditional_headers.each do |header|
+                    headers[header.keys[0]] = header.values[0]
+                end
+            end
+            headers
         end
 
         # METHODS
-        def get(url)
-            uri = URI.parse(@nsxmgr + url)
-            request = Net::HTTP::Get.new(uri.request_uri,
-                                         NSXDriver::NSXConstants::HEADER_JSON)
-            request.basic_auth(@nsx_user, @nsx_password)
-            begin
-                response = Net::HTTP
-                           .start(uri.host,
-                                  uri.port,
-                                  :use_ssl => true,
-                                  :verify_mode => OpenSSL::SSL::VERIFY_NONE)\
-                                  do |https|
-                                      https.request(request)
-                                  end
-            rescue StandardError => e
-                raise e
+        def get(url, aditional_headers = [], valid_codes = [])
+            if valid_codes.empty?
+                valid_codes = [NSXConstants::CODE_OK,
+                               NSXConstants::CODE_NO_CONTENT]
             end
-            return JSON.parse(response.body) \
-                if check_response(response, [NSXDriver::NSXConstants::CODE_OK])
+            uri = URI.parse(@nsxmgr + url)
+            headers = add_headers(aditional_headers)
+            request = Net::HTTP::Get.new(uri.request_uri, headers)
+            request.basic_auth(@nsx_user, @nsx_password)
+            response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
+                :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
+                    https.request(request)
+                end
+            response = check_response(response, valid_codes)
+            JSON.parse(response.body)
         end
 
-        def get_full_response(url)
-            uri = URI.parse(@nsxmgr + url)
-            request = Net::HTTP::Get.new(uri.request_uri,
-                                         NSXDriver::NSXConstants::HEADER_JSON)
-            request.basic_auth(@nsx_user, @nsx_password)
-            begin
-                response = Net::HTTP
-                           .start(uri.host,
-                                  uri.port,
-                                  :use_ssl => true,
-                                  :verify_mode => OpenSSL::SSL::VERIFY_NONE)\
-                                  do |https|
-                                      https.request(request)
-                                  end
-            rescue StandardError => e
-                raise e
+        def get_full_response(url, aditional_headers = [], valid_codes = [])
+            if valid_codes.empty?
+                valid_codes = [NSXConstants::CODE_OK,
+                               NSXConstants::CODE_NO_CONTENT]
             end
-            return response \
-                if check_response(response, [NSXDriver::NSXConstants::CODE_OK])
+            uri = URI.parse(@nsxmgr + url)
+            headers = add_headers(aditional_headers)
+            request = Net::HTTP::Get.new(uri.request_uri, headers)
+            request.basic_auth(@nsx_user, @nsx_password)
+            response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
+                :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
+                    https.request(request)
+                end
+            check_response(response, valid_codes)
         end
 
         # Return: id of the created object
-        def post(url, data)
+        def post(url, data, aditional_headers = [], valid_codes = [])
+            if valid_codes.empty?
+                valid_codes = [NSXConstants::CODE_CREATED,
+                               NSXConstants::CODE_OK]
+            end
             uri = URI.parse(@nsxmgr + url)
-            request = Net::HTTP::Post.new(uri.request_uri,
-                                          NSXDriver::NSXConstants::HEADER_JSON)
+            headers = add_headers(aditional_headers)
+            request = Net::HTTP::Post.new(uri.request_uri, headers)
             request.body = data
             request.basic_auth(@nsx_user, @nsx_password)
             response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
-              :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-                  https.request(request)
-              end
-
+                :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
+                    https.request(request)
+                end
+            response = check_response(response, valid_codes)
             response_json = JSON.parse(response.body)
-            # If response is different as expected raise the message
-            unless check_response(response,
-                                  [NSXDriver::NSXConstants::CODE_CREATED])
-                error_msg = "\nNSX error code: " \
-                            "#{response_json['errorCode']}, " \
-                            "\nNSX error details: " \
-                            "#{response_json['details']}"
-                error = NSXDriver::NSXError::IncorrectResponseCodeError
-                        .new(error_msg)
-                raise error
-            end
-
             response_json['id']
         end
 
-        def put(url, data)
+        def put(url, data, aditional_headers = [], valid_codes = [])
+            if valid_codes.empty?
+                valid_codes = [NSXConstants::CODE_CREATED,
+                               NSXConstants::CODE_OK]
+            end
             uri = URI.parse(@nsxmgr + url)
-            request = Net::HTTP::Put.new(uri.request_uri,
-                                         NSXDriver::NSXConstants::HEADER_JSON)
+            headers = add_headers(aditional_headers)
+            request = Net::HTTP::Put.new(uri.request_uri, headers)
             request.body = data
             request.basic_auth(@nsx_user, @nsx_password)
             response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
-              :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-                  https.request(request)
-              end
-
+                :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
+                    https.request(request)
+                end
+            response = check_response(response, valid_codes)
             response_json = JSON.parse(response.body)
-            # If response is different as expected raise the message
-            unless check_response(response,
-                                  [NSXDriver::NSXConstants::CODE_CREATED])
-                error_msg = "\nNSX error code: " \
-                            "#{response_json['errorCode']}, " \
-                            "\nNSX error details: " \
-                            "#{response_json['details']}"
-                error = NSXDriver::NSXError::IncorrectResponseCodeError
-                        .new(error_msg)
-                raise error
-            end
-
             response_json['id']
         end
 
-        def delete(url)
+        def delete(url, aditional_headers = [], valid_codes = [])
+            if valid_codes.empty?
+                valid_codes = [NSXConstants::CODE_OK,
+                               NSXConstants::CODE_NO_CONTENT]
+            end
             uri = URI.parse(@nsxmgr + url)
-            request = Net::HTTP::Delete
-                      .new(uri.request_uri,
-                           NSXDriver::NSXConstants::HEADER_JSON)
+            headers = add_headers(aditional_headers)
+            request = Net::HTTP::Delete.new(uri.request_uri, headers)
             request.basic_auth(@nsx_user, @nsx_password)
             response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
-              :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-                  https.request(request)
-              end
-            check_response(response, [NSXDriver::NSXConstants::CODE_OK])
+                :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
+                    https.request(request)
+                end
+            check_response(response, valid_codes)
         end
 
-        def get_token(url)
+        def get_token(url, aditional_headers = [], valid_codes = [])
+            if valid_codes.empty?
+                valid_codes = [NSXConstants::CODE_OK]
+            end
             uri = URI.parse(@nsxmgr + url)
-            request = Net::HTTP::Post.new(uri.request_uri,
-                                          NSXDriver::NSXConstants::HEADER_JSON)
+            headers = add_headers(aditional_headers)
+            request = Net::HTTP::Post.new(uri.request_uri, headers)
             request.basic_auth(@nsx_user, @nsx_password)
             response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
-              :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-                  https.request(request)
-              end
-
-            return unless check_response(response,
-                                         [NSXDriver::NSXConstants::CODE_OK])
-
+                :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
+                    https.request(request)
+                end
+            response = check_response(response, valid_codes)
             response.body
         end
 

@@ -991,7 +991,16 @@ VMM_EXEC_LIB_NSX_FILES="src/vmm_mad/remotes/lib/nsx_driver/logical_switch.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/transport_zone.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/nsxt_tz.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/nsxv_tz.rb \
-                    src/vmm_mad/remotes/lib/nsx_driver/virtual_wire.rb"
+                    src/vmm_mad/remotes/lib/nsx_driver/virtual_wire.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/distributed_firewall.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/nsxt_dfw.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/nsxv_dfw.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/logical_port.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/nsxt_logical_port.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/nsxv_logical_port.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/nsx_rule.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/nsxt_rule.rb \
+                    src/vmm_mad/remotes/lib/nsx_driver/nsxv_rule.rb"
 
 #-------------------------------------------------------------------------------
 # VMM SH Driver LXD scripts, to be installed under $REMOTES_LOCATION/vmm/lxd
@@ -1531,7 +1540,8 @@ NETWORK_OVSWITCH_VXLAN_FILES="src/vnm_mad/remotes/ovswitch_vxlan/clean \
 
 NETWORK_VCENTER_FILES="src/vnm_mad/remotes/vcenter/pre \
                        src/vnm_mad/remotes/vcenter/post \
-                       src/vnm_mad/remotes/vcenter/clean"
+                       src/vnm_mad/remotes/vcenter/clean \
+                       src/vnm_mad/remotes/vcenter/update_sg"
 
 NETWORK_ALIAS_SDNAT_FILES="src/vnm_mad/remotes/alias_sdnat/AliasSDNAT.rb \
                            src/vnm_mad/remotes/alias_sdnat/clean \

@@ -16,7 +16,7 @@
 module NSXDriver
 
     # Class Logical Switch
-    class LogicalSwitch < NSXDriver::NSXComponent
+    class LogicalSwitch < NSXComponent
 
         # ATTRIBUTES
         attr_reader :ls_id
@@ -50,6 +50,33 @@ module NSXDriver
 
         # Update a logical switch
         def update_logical_switch; end
+
+        # Return nsx nics of type NSX-V and NSX-T
+        # If only_new_attached = true --> Only returns new attached nsx nics
+        def nsx_nics(template_xml, only_new_attached = true)
+            if only_new_attached == true
+                nics = template_xml.xpath('//TEMPLATE/NIC[ATTACH="YES"]')
+            else
+                nics = template_xml.xpath('//TEMPLATE/NIC')
+            end
+            nics_array = []
+            nics.each do |nic|
+                network_id = nic.xpath('NETWORK_ID').text
+                # Check Networks exists
+                one_vnet = VCenterDriver::VIHelper
+                           .one_item(OpenNebula::VirtualNetwork, network_id)
+                rc = one_vnet.info
+                if OpenNebula.is_error?(rc)
+                    err_msg = rc.message
+                    raise err_msg
+                end
+                pg_type = one_vnet['TEMPLATE/VCENTER_PORTGROUP_TYPE']
+                nics_array << nic if [NSXConstants::NSXV_LS_TYPE,
+                                      NSXConstants::NSXT_LS_TYPE]
+                                     .include?(pg_type)
+            end
+            nics_array
+        end
 
     end
 

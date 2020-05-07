@@ -1,7 +1,5 @@
-#!/bin/bash
-
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -15,18 +13,44 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+module NSXDriver
 
-if [ -z "${ONE_LOCATION}" ]; then
-    MAD_LOCATION=/usr/lib/one/mads
-else
-    MAD_LOCATION=$ONE_LOCATION/lib/mads
-fi
+    # Class Logical Switch
+    class LogicalPort < NSXComponent
 
-LOCAL_ACTIONS="deploy,shutdown,reboot,cancel,save,restore,migrate,poll"
-LOCAL_ACTIONS="${LOCAL_ACTIONS},pre,post,clean,update_sg"
-LOCAL_ACTIONS="${LOCAL_ACTIONS},snapshotcreate,snapshotrevert,snapshotdelete"
-LOCAL_ACTIONS="${LOCAL_ACTIONS},attach_nic,detach_nic,reset"
-LOCAL_ACTIONS="${LOCAL_ACTIONS},prereconfigure,reconfigure"
-LOCAL_ACTIONS="${LOCAL_ACTIONS},attach_disk,detach_disk,resize_disk"
+        # ATTRIBUTES
 
-exec $MAD_LOCATION/one_vmm_exec -l $LOCAL_ACTIONS $*
+        # CONSTRUCTOR
+
+        def initialize(nsx_client)
+            super(nsx_client)
+        end
+
+        def self.new_child(nsx_client, id = nil)
+            case nsx_client.nsx_type.upcase
+            when NSXConstants::NSXT
+                NSXTLogicalPort.new(nsx_client, id)
+            when NSXConstants::NSXV
+                NSXVLogicalPort.new(nsx_client, id)
+            else
+                error_msg = "Unknown object type: #{type}"
+                error = NSXError::UnknownObject.new(error_msg)
+                raise error
+            end
+        end
+
+        # Check if logical port exists
+        def lp?; end
+
+        # Get logical port id
+        def lp_id; end
+
+        # Get logical port display name
+        def lp_name; end
+
+        # Get resource type
+        def lp_type; end
+
+    end
+
+end

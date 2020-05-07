@@ -16,7 +16,7 @@
 module NSXDriver
 
     # Class Transport Zone
-    class TransportZone < NSXDriver::NSXComponent
+    class TransportZone < NSXComponent
 
         # ATTRIBUTES
         attr_reader :tz_id
@@ -28,13 +28,13 @@ module NSXDriver
 
         def self.new_child(nsx_client)
             case nsx_client.nsx_type.upcase
-            when NSXDriver::NSXConstants::NSXT
-                NSXDriver::NSXTtz.new(nsx_client)
-            when NSXDriver::NSXConstants::NSXV
-                NSXDriver::NSXVtz.new(nsx_client)
+            when NSXConstants::NSXT
+                NSXTtz.new(nsx_client)
+            when NSXConstants::NSXV
+                NSXVtz.new(nsx_client)
             else
                 error_msg = "Unknown object type: #{nsx_client.nsx_type}"
-                error = NSXDriver::NSXError::UnknownObject.new(error_msg)
+                error = NSXError::UnknownObject.new(error_msg)
                 raise error
             end
         end

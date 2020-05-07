@@ -16,7 +16,7 @@
 module NSXDriver
 
     # Class Transport Zone
-    class NSXTtz < NSXDriver::TransportZone
+    class NSXTtz < TransportZone
 
         # ATTRIBUTES
         attr_reader :tz_id
@@ -25,7 +25,7 @@ module NSXDriver
         def initialize(nsx_client)
             super(nsx_client)
             # Construct base URLs
-            @url_tzs_nsxt = NSXDriver::NSXConstants::NSXT_TZS
+            @url_tzs_nsxt = NSXConstants::NSXT_TZS
         end
 
         # METHODS
