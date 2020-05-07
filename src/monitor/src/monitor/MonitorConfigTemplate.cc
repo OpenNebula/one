@@ -27,7 +27,7 @@ void MonitorConfigTemplate::set_conf_default()
  VM_MONITORING_EXPIRATION_TIME
  DB
  LOG
- UDP_LISTENER
+ NETWORK
  PROBES_PERIOD
  */
 
@@ -43,7 +43,7 @@ void MonitorConfigTemplate::set_conf_default()
     va = new VectorAttribute("LOG", {{"SYSTEM", "FILE"}, {"DEBUG_LEVEL", "3"}});
     conf_default.insert(make_pair(va->name(), va));
 
-    va = new VectorAttribute("UDP_LISTENER", {{"ADDRESS", "0.0.0.0"},
+    va = new VectorAttribute("NETWORK", {{"ADDRESS", "0.0.0.0"},
             {"PORT", "4124"}, {"THREADS", "16"}});
     conf_default.insert(make_pair(va->name(), va));
 

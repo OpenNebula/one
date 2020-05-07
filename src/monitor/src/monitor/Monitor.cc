@@ -167,7 +167,7 @@ void Monitor::start()
     std::string pub_key;
     std::string pri_key;
 
-    auto udp_conf = config->get("UDP_LISTENER");
+    auto udp_conf = config->get("NETWORK");
 
     udp_conf->vector_value("ADDRESS", addr);
     udp_conf->vector_value("PORT", port);
