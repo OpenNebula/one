@@ -781,6 +781,10 @@ define(function(require) {
         }
       });
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> F #1417: VM IPs Dropdown
     return nics;
   }
 
@@ -788,6 +792,7 @@ define(function(require) {
   function ipsStr(element, divider, groupStrFuntion = groupByIpsStr) {
     var divider = divider || "<br>";
     var nics = getNICs(element);
+<<<<<<< HEAD
     var ips = [];
     var monitoring = element && element.MONITORING;
     if (monitoring) {
@@ -804,6 +809,9 @@ define(function(require) {
         }
       });
     }
+=======
+    
+>>>>>>> F #1417: VM IPs Dropdown
     // infoextended: alias will be group by nic
     return (
       config.system_config &&
@@ -820,9 +828,17 @@ define(function(require) {
         : "--";
   };
 
+<<<<<<< HEAD
   // Return a dropdown with all the
   function ipsDropdown(element, divider) {
     var ipsStr = this.ipsStr(element,divider,groupByIpsDropdown);
+=======
+  // Return a dropdown with all the 
+  function ipsDropdown(element, divider) {
+    var ipsStr = this.ipsStr(element,divider,groupByIpsDropdown);
+    console.log(ipsStr);
+    
+>>>>>>> F #1417: VM IPs Dropdown
     const ips = ipsStr.split('<br>');
     if ((ips.length < 2) && (!~ipsStr.indexOf("li"))) return ipsStr;
     var html = '<ul class="dropdown menu ips-dropdown" data-dropdown-menu><li><a>Show IPs</a><ul class="menu" style="max-height: 25em; overflow: scroll;">';
@@ -849,7 +865,11 @@ define(function(require) {
           var templateAlias = Array.isArray(element.TEMPLATE.NIC_ALIAS)
             ? element.TEMPLATE.NIC_ALIAS : [element.TEMPLATE.NIC_ALIAS];
           var alias = templateAlias.find(function(alias) { return alias.NIC_ID === aliasId });
+<<<<<<< HEAD
 
+=======
+          
+>>>>>>> F #1417: VM IPs Dropdown
           if (alias) {
             nicSection.append($("<li/>").append($("<a/>").css({
               "color": "gray",
