@@ -3,7 +3,7 @@
 # /usr/share/one/ssh/.
 
 #####################################################################
-# WARNING: This configuration file is for OpenSSH 7.6 and newer!
+# WARNING: This configuration file is ONLY for OpenSSH 7.6 and newer!
 #####################################################################
 
 Host *
