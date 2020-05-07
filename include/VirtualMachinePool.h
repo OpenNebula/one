@@ -422,6 +422,8 @@ private:
     * Poweroff state should be consider as it is consuming resources
     **/
     const std::set<int> showback_finished_states = {
+        VirtualMachine::SHUTDOWN_POWEROFF,
+        VirtualMachine::BOOT_UNKNOWN,
         VirtualMachine::BOOT_POWEROFF,
         VirtualMachine::BOOT_SUSPENDED
     };
