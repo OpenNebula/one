@@ -43,8 +43,8 @@ define(function(require) {
       allocatedMemBar = ProgressBar.html(allocatedMem, maxMem, infoStr);
     }
     var realMemBar;
-    if (hostMonitoring && hostMonitoring.USED_MEM) {
-      var realMem = parseInt(hostMonitoring.USED_MEM);
+    if (hostMonitoring && hostMonitoring.USED_MEMORY) {
+      var realMem = parseInt(hostMonitoring.USED_MEMORY,10);
       if (maxMem > 0) {
           var ratioRealMem = Math.round((realMem / maxMem) * 100);
           infoStr = Humanize.size(realMem) + ' / ' + Humanize.size(maxMem) + ' (' + ratioRealMem + '%)';

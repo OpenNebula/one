@@ -29,11 +29,11 @@ define(function(require) {
   var _html = function(host, hostShareFlag) {
     var hostShare = hostShareFlag ? host : host && host.HOST_SHARE;
     var hostMonitoring = hostShareFlag ? host : host.MONITORING && host.MONITORING.CAPACITY
-    var maxCPU = parseInt(hostShare.MAX_CPU||0);
+    var maxCPU = parseInt(hostShare.TOTAL_CPU||0);
     var infoStr;
     var allocatedCPUBar
     if (hostShare.CPU_USAGE) {
-      var allocatedCPU = parseInt(hostShare.CPU_USAGE);
+      var allocatedCPU = parseInt(hostShare.CPU_USAGE,10);
       if (maxCPU > 0) {
           var ratioAllocatedCPU = Math.round((allocatedCPU / maxCPU) * 100);
           infoStr = allocatedCPU + ' / ' + maxCPU + ' (' + ratioAllocatedCPU + '%)';
@@ -44,7 +44,7 @@ define(function(require) {
     }
     var realCPUBar
     if (hostMonitoring && hostMonitoring.USED_CPU) {
-      var realCPU = parseInt(hostMonitoring.USED_CPU);
+      var realCPU = parseInt(hostMonitoring.USED_CPU,10);
       if (maxCPU > 0) {
           var ratioRealCPU = Math.round((realCPU / maxCPU) * 100);
           infoStr = realCPU + ' / ' + maxCPU + ' (' + ratioRealCPU + '%)';

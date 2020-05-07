@@ -119,8 +119,8 @@ define(function(require) {
     var cpuBars = CPUBars.html(elementAux);
     var memoryBars = MemoryBars.html(elementAux);
     var datastoresCapacityTableHTML = DatastoresCapacityTable.html(this.element);
-    var realCPU = parseInt(this.element.HOST_SHARE.TOTAL_CPU);
-    var realMEM = parseInt(this.element.HOST_SHARE.TOTAL_MEM);
+    var realCPU = parseInt(this.element.HOST_SHARE.TOTAL_CPU,10);
+    var realMEM = parseInt(this.element.HOST_SHARE.TOTAL_MEM,10);
 
     return TemplateInfo({
       "element": this.element,

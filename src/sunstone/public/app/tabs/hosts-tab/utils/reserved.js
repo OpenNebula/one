@@ -16,9 +16,9 @@
 
 define(function(require) {
 
-	function _updateHostTemplate(cache, element) {
+  function _updateHostTemplate(cache, element) {
     var elementAux = $.extend(true, {}, element);
-		if (cache && (elementAux.TEMPLATE.RESERVED_CPU === "" || elementAux.TEMPLATE.RESERVED_MEM === "")) {
+    if (cache && (elementAux.TEMPLATE.RESERVED_CPU === "" || elementAux.TEMPLATE.RESERVED_MEM === "")) {
       $.each(cache.data, function(key, value){
         if (value.CLUSTER.ID === elementAux.CLUSTER_ID){
           if (elementAux.TEMPLATE.RESERVED_CPU === ""){
@@ -33,7 +33,7 @@ define(function(require) {
           }
         }
       });
-		}
+    }
 		return elementAux;
 	}
 
