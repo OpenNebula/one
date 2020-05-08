@@ -242,10 +242,6 @@ RUN rc-update add sshd default && \
     rc-update add networking default
 
 RUN echo 'rc_sys=""' >> /etc/rc.conf
-
-RUN sed -e '159a dev_context=/dev/vdb' \
-        -e '169s/.*/\t\tmount -o ro \/dev\/vdb \${MOUNT_DIR} 2\>\/dev\/null/' \
-        -i /usr/sbin/one-contextd
 EOC
 )
     ;;

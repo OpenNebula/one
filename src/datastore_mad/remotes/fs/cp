@@ -100,6 +100,11 @@ if [ "$IMAGE_TYPE" = "1" ] || [ "$TYPE" = "2" ]; then
     CONVERT=no
 fi
 
+# Append URL args to SRC url
+if [ ! -z $URL_ARGS ]; then
+    SRC+="&$URL_ARGS"
+fi
+
 if [ -n "$BRIDGE_LIST" ]; then
     DOWNLOADER_ARGS=`set_downloader_args "$MD5" "$SHA1" "$NO_DECOMPRESS" "$LIMIT_TRANSFER_BW" "$SRC" -`
 else
@@ -119,9 +124,6 @@ if echo "$SRC" | grep -vq '^https\?://'; then
 else
     log "Downloading image $SRC to the image repository"
 fi
-
-# Append URL arguments
-SRC+="&${URL_ARGS}"
 
 CONVERT_CMD=$(cat <<EOF
     set -e -o pipefail
