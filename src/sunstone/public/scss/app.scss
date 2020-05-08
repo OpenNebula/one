@@ -247,3 +247,12 @@ meter {
     vertical-align: top;
   }
 }
+.jGrowl-message{
+  display: -webkit-box;
+  max-height: 28rem;
+  -webkit-line-clamp: 20;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4rem;
+}
