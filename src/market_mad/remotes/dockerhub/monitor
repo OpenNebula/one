@@ -93,8 +93,9 @@ CONTEXT = [
 
         req['User-Agent'] = @options[:agent] if @options[:agent]
 
-        opts = {:use_ssl => true}
-        rc = Net::HTTP.start(uri.hostname, uri.port, p_host, p_port, opts) do |http|
+        opts = { :use_ssl => true }
+        rc = Net::HTTP.start(uri.hostname, uri.port,
+                             p_host, p_port, opts) do |http|
             http.request(req)
         end
 
