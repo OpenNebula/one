@@ -124,7 +124,7 @@ class NsxMonitor
 
         # Check if NSX_MANAGER is into the host template
         if [nil, ''].include?(@one_item['TEMPLATE/NSX_MANAGER'])
-            @nsx_status = "NSX_STATUS = \"Missing NSX_MANAGER\"\n"
+            @nsx_status = ''
             return false
         end
 
@@ -147,9 +147,7 @@ class NsxMonitor
         end
 
         # Try a connection as part of NSX_STATUS
-        nsx_client = NSXDriver::NSXClient
-                     .new_from_id(@vi_client.instance_variable_get(:@host_id)
-                     .to_i)
+        nsx_client = NSXDriver::NSXClient.new_from_id(@host_id.to_i)
 
         if @one_item['TEMPLATE/NSX_TYPE'] == NSXDriver::NSXConstants::NSXV
             # URL to test a connection
