@@ -852,9 +852,6 @@ class VcenterMonitor
 
         vms = []
         vms_hash.each do |vm_ref, info|
-            # Skip VMs starting with one- in vcenter
-            next if info['name'].match(/^one-(\d*)(-(.*))?$/)
-
             one_uuid = "#{vm_ref}#{@vc_uuid}"
 
             vm = { :uuid => one_uuid,

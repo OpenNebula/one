@@ -65,13 +65,9 @@ if OpenNebula.is_error?(rc)
     raise err_msg
 end
 
-# Exit with error if NSX_STATUS != OK
+# Exit if there is no NSX
 nsx_status = one_host['TEMPLATE/NSX_STATUS']
-unless nsx_status == 'OK'
-    OpenNebula.log_error('NSX_STATUS is not OK')
-    OpenNebula.error_message('NSX_STATUS is not OK')
-    exit 1
-end
+exit 0 if nsx_status.nil?
 
 # Clear rules
 nsx_client = NSXDriver::NSXClient.new_from_id(one_host['ID'])
