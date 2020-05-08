@@ -137,8 +137,6 @@ void  LifeCycleManager::save_success_action(int vid)
     }
     else if (vm->get_lcm_state() == VirtualMachine::SAVE_SUSPEND)
     {
-        time_t the_time = time(0);
-
         //----------------------------------------------------
         //                SUSPENDED STATE
         //----------------------------------------------------
@@ -149,10 +147,6 @@ void  LifeCycleManager::save_success_action(int vid)
         }
 
         vm->reset_info();
-
-        vm->set_running_etime(the_time);
-
-        vm->set_etime(the_time);
 
         vm->set_vm_info();
 
@@ -306,6 +300,16 @@ void  LifeCycleManager::deploy_success_action(int vid)
               vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY_FAILURE ||
               vm->get_lcm_state() == VirtualMachine::BOOT_FAILURE )
     {
+        if ( vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED ||
+             vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF )
+        {
+            vm->set_previous_etime(time(0));
+
+            vm->set_previous_running_etime(time(0));
+
+            vmpool->update_previous_history(vm);
+        }
+
         vm->set_state(VirtualMachine::RUNNING);
 
         vm->clear_action();
@@ -336,8 +340,6 @@ void  LifeCycleManager::deploy_failure_action(int vid)
     {
         return;
     }
-
-    time_t  the_time = time(0);
 
     if ( vm->get_lcm_state() == VirtualMachine::MIGRATE )
     {
@@ -404,24 +406,16 @@ void  LifeCycleManager::deploy_failure_action(int vid)
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF)
     {
-        vm->set_etime(the_time);
-        vm->set_running_etime(the_time);
-
         vm->set_state(VirtualMachine::POWEROFF);
         vm->set_state(VirtualMachine::LCM_INIT);
 
-        vmpool->update_history(vm);
         vmpool->update(vm);
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED)
     {
-        vm->set_etime(the_time);
-        vm->set_running_etime(the_time);
-
         vm->set_state(VirtualMachine::SUSPENDED);
         vm->set_state(VirtualMachine::LCM_INIT);
 
-        vmpool->update_history(vm);
         vmpool->update(vm);
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED)
@@ -503,8 +497,6 @@ void  LifeCycleManager::shutdown_success_action(int vid)
         vm->reset_info();
 
         vm->set_running_etime(the_time);
-
-        vm->set_etime(the_time);
 
         vm->set_vm_info();
 
@@ -699,8 +691,6 @@ void LifeCycleManager::prolog_success_action(int vid)
             }
 
             vm->reset_info();
-
-            vm->set_etime(the_time);
 
             vm->set_prolog_etime(the_time);
 
@@ -1043,8 +1033,6 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
 {
     VirtualMachine *    vm;
 
-    time_t  the_time = time(0);
-
     vm = vmpool->get(vid);
 
     if ( vm == nullptr )
@@ -1071,10 +1059,6 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
         }
 
         vm->reset_info();
-
-        vm->set_running_etime(the_time);
-
-        vm->set_etime(the_time);
 
         vm->set_vm_info();
 
@@ -1152,8 +1136,6 @@ void  LifeCycleManager::monitor_poweroff_action(int vid)
 
         vm->log("LCM",Log::INFO,"VM running but monitor state is POWEROFF");
 
-        time_t the_time = time(0);
-
         if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
         {
             vm->delete_snapshots();
@@ -1164,10 +1146,6 @@ void  LifeCycleManager::monitor_poweroff_action(int vid)
         vm->set_resched(false);
 
         vm->set_state(VirtualMachine::SHUTDOWN_POWEROFF);
-
-        vm->set_running_etime(the_time);
-
-        vm->set_etime(the_time);
 
         vm->set_vm_info();
 
@@ -1218,6 +1196,10 @@ void  LifeCycleManager::monitor_poweron_action(int vid)
             vm->set_state(VirtualMachine::ACTIVE);
 
             vm->set_state(VirtualMachine::RUNNING);
+
+            vm->set_etime(the_time);
+
+            vmpool->update_history(vm);
 
             vm->cp_history();
 
