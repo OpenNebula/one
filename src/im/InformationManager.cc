@@ -519,6 +519,7 @@ void InformationManager::_vm_state(unique_ptr<Message<OpenNebulaMessages>> msg)
         }
 
         if (vm->get_state() != VirtualMachine::ACTIVE || (
+             vm->get_lcm_state() != VirtualMachine::UNKNOWN &&
              vm->get_lcm_state() != VirtualMachine::RUNNING &&
              vm->get_lcm_state() != VirtualMachine::SHUTDOWN &&
              vm->get_lcm_state() != VirtualMachine::SHUTDOWN_POWEROFF &&
