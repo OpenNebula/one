@@ -63,7 +63,8 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/LIMIT_TRANSFER_BW \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CONVERT \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/DRIVER \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/TYPE)
+                    /DS_DRIVER_ACTION_DATA/IMAGE/TYPE \
+                    /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/URL_ARGS)
 
 unset i
 
@@ -81,6 +82,7 @@ LIMIT_TRANSFER_BW="${XPATH_ELEMENTS[i++]}"
 CONVERT="${XPATH_ELEMENTS[i++]:-yes}"
 DRIVER="${XPATH_ELEMENTS[i++]}"
 IMAGE_TYPE="${XPATH_ELEMENTS[i++]}"
+URL_ARGS="${XPATH_ELEMENTS[i++]}"
 
 DST=`generate_image_path`
 IMAGE_HASH=`basename $DST`
@@ -96,6 +98,11 @@ fi
 CONVERT=$(echo "${CONVERT}" | $TR '[:upper:]' '[:lower:]')
 if [ "$IMAGE_TYPE" = "1" ] || [ "$TYPE" = "2" ]; then
     CONVERT=no
+fi
+
+# Append URL args to SRC url
+if [ ! -z $URL_ARGS ]; then
+    SRC+="&$URL_ARGS"
 fi
 
 if [ -n "$BRIDGE_LIST" ]; then

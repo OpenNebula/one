@@ -75,6 +75,13 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'lock all actions'
     }
 
+    TAG = {
+        :name => 'tag',
+        :large => '--tag tag',
+        :format => String,
+        :description => 'DockerHub image tag (default latest)'
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -87,7 +94,8 @@ CommandParser::CmdParser.new(ARGV) do
 
     CREATE_OPTIONS = [OneMarketPlaceHelper::MARKETPLACE]
     EXPORT_OPTIONS = [OneDatastoreHelper::DATASTORE,
-                      OneMarketPlaceAppHelper::VMNAME]
+                      OneMarketPlaceAppHelper::VMNAME,
+                      TAG]
 
     ########################################################################
     # Formatters for arguments
@@ -172,10 +180,13 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :export, export_desc, :appid, :name, :options => EXPORT_OPTIONS do
         helper.perform_action(args[0], options, 'exported') do |obj|
+            tag ="tag=#{options[:tag]}" if options[:tag]
+
             rc = obj.export(
                 :dsid => options[:datastore],
                 :name => args[1],
-                :vmtemplate_name => options[:vmname]
+                :vmtemplate_name => options[:vmname],
+                :url_args => tag
             )
 
             next rc if OpenNebula.is_error?(rc)
