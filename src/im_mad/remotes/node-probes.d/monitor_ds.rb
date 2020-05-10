@@ -23,7 +23,11 @@ require 'fileutils'
 class DSMonitor
 
     def initialize(config)
-        @ds_location = config.elements['DATASTORE_LOCATION'].text.to_s
+        begin
+            @ds_location = config.elements['DATASTORE_LOCATION'].text.to_s
+        rescue
+        end
+
         @ds_location ||= '/var/lib/one/datastores'
 
         FileUtils.mkdir_p @ds_location

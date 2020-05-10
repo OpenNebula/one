@@ -67,7 +67,7 @@ module Firecracker
 
             response = client.get('machine-config')
         rescue StandardError, FirecrackerError
-            return
+            return {}
         end
 
         ###################################################################
@@ -89,7 +89,7 @@ module Firecracker
 
             response = client.get('')
         rescue StandardError, FirecrackerError
-            return
+            return {}
         end
 
         ###################################################################

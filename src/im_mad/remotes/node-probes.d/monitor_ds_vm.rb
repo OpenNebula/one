@@ -27,7 +27,11 @@ rescue StandardError => e
     exit(-1)
 end
 
+begin
 ds_location = config.elements['DATASTORE_LOCATION'].text.to_s
+rescue
+end
+
 ds_location ||= '/var/lib/one/datastores'
 
 Dir.chdir ds_location
