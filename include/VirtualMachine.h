@@ -297,19 +297,8 @@ public:
     };
 
     /**
-     *  Clears the VM monitor information usage counters (MEMORY, CPU),
-     *  last_poll, custom attributes, and copies it to the history record
-     *  for acct.
+     * @return monitor info
      */
-    void reset_info()
-    {
-        monitoring.reset_info();
-
-        set_vm_info();
-
-        clear_template_monitor_error();
-    }
-
     VirtualMachineMonitorInfo& get_info()
     {
         return monitoring;
@@ -721,21 +710,26 @@ public:
     };
 
     /**
-     *  Sets end time of a VM.
+     *  Sets end time of a VM. It also sets the vm_info when the record is closed
      *    @param _etime time when the VM finished
      */
     void set_etime(time_t _etime)
     {
         history->etime = _etime;
+
+        to_xml_extended(history->vm_info, 0);
     };
 
     /**
-     *  Sets end time of a VM in the previous Host.
+     *  Sets end time of a VM in the previous Host. It also sets the vm_info 
+     *  when the record is closed
      *    @param _etime time when the VM finished
      */
     void set_previous_etime(time_t _etime)
     {
         previous_history->etime = _etime;
+
+        to_xml_extended(previous_history->vm_info, 0);
     };
 
     /**

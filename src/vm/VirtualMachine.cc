@@ -2705,21 +2705,6 @@ void VirtualMachine::clear_template_error_message()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::set_template_monitor_error(const string& message)
-{
-    set_template_error_message("ERROR_MONITOR", message);
-}
-
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::clear_template_monitor_error()
-{
-    user_obj_template->erase("ERROR_MONITOR");
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void VirtualMachine::get_public_clouds(const string& pname, set<string> &clouds) const
 {
     vector<VectorAttribute *>                 attrs;

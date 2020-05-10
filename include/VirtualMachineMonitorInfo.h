@@ -85,11 +85,6 @@ public:
      */
     int from_template(const Template &tmpl);
 
-    /**
-     * Reset monitoring data to zero
-     */
-    void reset_info();
-
     // -------------------------------------------------------------------------
     // Class set/getters
     // -------------------------------------------------------------------------

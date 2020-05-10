@@ -37,11 +37,7 @@ void LifeCycleManager::start_prolog_migrate(VirtualMachine* vm)
         vm->delete_snapshots();
     }
 
-    vm->reset_info();
-
     vm->set_previous_etime(the_time);
-
-    vm->set_previous_vm_info();
 
     vm->set_previous_running_etime(the_time);
 
@@ -81,8 +77,6 @@ void LifeCycleManager::revert_migrate_after_failure(VirtualMachine* vm)
 
     vm->set_etime(the_time);
 
-    vm->set_vm_info();
-
     vmpool->update_history(vm);
 
     vm->get_capacity(sr);
@@ -93,8 +87,6 @@ void LifeCycleManager::revert_migrate_after_failure(VirtualMachine* vm)
     }
 
     vm->set_previous_etime(the_time);
-
-    vm->set_previous_vm_info();
 
     vm->set_previous_running_etime(the_time);
 
@@ -144,15 +136,9 @@ void  LifeCycleManager::save_success_action(int vid)
         if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
         {
             vm->delete_snapshots();
+
+            vmpool->update(vm);
         }
-
-        vm->reset_info();
-
-        vm->set_vm_info();
-
-        vmpool->update_history(vm);
-
-        vmpool->update(vm);
 
         //----------------------------------------------------
 
@@ -172,8 +158,6 @@ void  LifeCycleManager::save_success_action(int vid)
         {
             vm->delete_snapshots();
         }
-
-        vm->reset_info();
 
         vm->set_epilog_stime(the_time);
 
@@ -269,8 +253,6 @@ void  LifeCycleManager::deploy_success_action(int vid)
 
         vm->set_previous_etime(the_time);
 
-        vm->set_previous_vm_info();
-
         vm->set_previous_running_etime(the_time);
 
         vmpool->update_previous_history(vm);
@@ -355,13 +337,9 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vm->set_etime(the_time);
 
-        vm->set_vm_info();
-
         vmpool->update_history(vm);
 
         vm->set_previous_etime(the_time);
-
-        vm->set_previous_vm_info();
 
         vm->set_previous_running_etime(the_time);
 
@@ -469,8 +447,6 @@ void  LifeCycleManager::shutdown_success_action(int vid)
             vm->delete_snapshots();
         }
 
-        vm->reset_info();
-
         vm->set_epilog_stime(the_time);
 
         vm->set_running_etime(the_time);
@@ -492,17 +468,9 @@ void  LifeCycleManager::shutdown_success_action(int vid)
         if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
         {
             vm->delete_snapshots();
+
+            vmpool->update(vm);
         }
-
-        vm->reset_info();
-
-        vm->set_running_etime(the_time);
-
-        vm->set_vm_info();
-
-        vmpool->update_history(vm);
-
-        vmpool->update(vm);
 
         //----------------------------------------------------
 
@@ -520,8 +488,6 @@ void  LifeCycleManager::shutdown_success_action(int vid)
         {
             vm->delete_snapshots();
         }
-
-        vm->reset_info();
 
         vm->set_epilog_stime(the_time);
 
@@ -690,11 +656,7 @@ void LifeCycleManager::prolog_success_action(int vid)
                 vm->delete_snapshots();
             }
 
-            vm->reset_info();
-
             vm->set_prolog_etime(the_time);
-
-            vm->set_vm_info();
 
             vmpool->update_history(vm);
 
@@ -783,8 +745,6 @@ void  LifeCycleManager::prolog_failure_action(int vid)
             // Close current history record
             vm->set_prolog_etime(t);
             vm->set_etime(t);
-
-            vm->set_vm_info();
 
             vmpool->update_history(vm);
 
@@ -913,8 +873,6 @@ void  LifeCycleManager::epilog_success_action(int vid)
     vm->set_epilog_etime(the_time);
 
     vm->set_etime(the_time);
-
-    vm->set_vm_info();
 
     VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
 
@@ -1058,10 +1016,6 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
             vm->delete_snapshots();
         }
 
-        vm->reset_info();
-
-        vm->set_vm_info();
-
         vm->set_internal_action(VMActions::MONITOR_ACTION);
 
         vmpool->update_history(vm);
@@ -1141,13 +1095,9 @@ void  LifeCycleManager::monitor_poweroff_action(int vid)
             vm->delete_snapshots();
         }
 
-        vm->reset_info();
-
         vm->set_resched(false);
 
         vm->set_state(VirtualMachine::SHUTDOWN_POWEROFF);
-
-        vm->set_vm_info();
 
         vm->set_internal_action(VMActions::MONITOR_ACTION);
 
@@ -1189,27 +1139,27 @@ void  LifeCycleManager::monitor_poweron_action(int vid)
     if ( vm->get_state() == VirtualMachine::POWEROFF ||
          vm->get_state() == VirtualMachine::SUSPENDED )
     {
-            vm->log("VMM",Log::INFO,"VM found again by the drivers");
+        vm->log("VMM",Log::INFO,"VM found again by the drivers");
 
-            time_t the_time = time(0);
+        time_t the_time = time(0);
 
-            vm->set_state(VirtualMachine::ACTIVE);
+        vm->set_state(VirtualMachine::ACTIVE);
 
-            vm->set_state(VirtualMachine::RUNNING);
+        vm->set_state(VirtualMachine::RUNNING);
 
-            vm->set_etime(the_time);
+        vm->set_etime(the_time);
 
-            vmpool->update_history(vm);
+        vmpool->update_history(vm);
 
-            vm->cp_history();
+        vm->cp_history();
 
-            vm->set_stime(the_time);
+        vm->set_stime(the_time);
 
-            vm->set_running_stime(the_time);
+        vm->set_running_stime(the_time);
 
-            vmpool->insert_history(vm);
+        vmpool->insert_history(vm);
 
-            vmpool->update(vm);
+        vmpool->update(vm);
     }
     else if ( vm->get_state() == VirtualMachine::ACTIVE )
     {

@@ -297,31 +297,24 @@ void  LifeCycleManager::migrate_action(const LCMAction& la)
         if (vm->get_state() == VirtualMachine::POWEROFF)
         {
             vm->set_state(VirtualMachine::PROLOG_MIGRATE_POWEROFF);
-            vm->set_action(VMActions::MIGRATE_ACTION, la.uid(), la.gid(),
-                    la.req_id());
-
         }
         else if (vm->get_state() == VirtualMachine::SUSPENDED)
         {
             vm->set_state(VirtualMachine::PROLOG_MIGRATE_SUSPEND);
-            vm->set_action(VMActions::MIGRATE_ACTION, la.uid(), la.gid(),
-                    la.req_id());
         }
         else //VirtualMachine::UNKNOWN
         {
             vm->set_state(VirtualMachine::PROLOG_MIGRATE_UNKNOWN);
 
-            vm->set_previous_running_etime(the_time);
-
-            vm->set_previous_etime(the_time);
-
-            vm->set_previous_action(VMActions::MIGRATE_ACTION, la.uid(), la.gid(),
-                    la.req_id());
-
-            vm->set_previous_vm_info();
-
-            vmpool->update_previous_history(vm);
+            vm->set_previous_action(VMActions::MIGRATE_ACTION, la.uid(),
+                    la.gid(), la.req_id());
         }
+
+        vm->set_previous_running_etime(the_time);
+
+        vm->set_previous_etime(the_time);
+
+        vmpool->update_previous_history(vm);
 
         vm->set_state(VirtualMachine::ACTIVE);
 
@@ -332,7 +325,7 @@ void  LifeCycleManager::migrate_action(const LCMAction& la)
             vm->delete_snapshots();
         }
 
-        vm->reset_info();
+        vm->set_action(VMActions::MIGRATE_ACTION, la.uid(), la.gid(), la.req_id());
 
         vm->get_capacity(sr);
 
@@ -399,9 +392,6 @@ void  LifeCycleManager::live_migrate_action(const LCMAction& la)
         hpool->add_capacity(vm->get_hid(), sr);
 
         vm->set_stime(time(0));
-
-        vm->set_action(VMActions::LIVE_MIGRATE_ACTION, la.uid(), la.gid(),
-                    la.req_id());
 
         vmpool->update_history(vm);
 
@@ -734,6 +724,12 @@ void  LifeCycleManager::restore_action(const LCMAction& la)
 
         vm->set_state(VirtualMachine::BOOT_SUSPENDED);
 
+        vm->set_etime(the_time);
+
+        vm->set_running_etime(the_time);
+
+        vmpool->update_history(vm);
+
         vm->cp_history();
 
         vm->set_stime(the_time);
@@ -790,6 +786,12 @@ void  LifeCycleManager::restart_action(const LCMAction& la)
         vm->set_state(VirtualMachine::ACTIVE);
 
         vm->set_state(VirtualMachine::BOOT_POWEROFF);
+
+        vm->set_etime(the_time);
+
+        vm->set_running_etime(the_time);
+
+        vmpool->update_history(vm);
 
         vm->cp_history();
 
@@ -989,10 +991,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
         vm->delete_snapshots();
     }
 
-    vm->reset_info();
-
     vm->set_etime(the_time);
-    vm->set_vm_info();
 
     vm->get_capacity(sr);
 

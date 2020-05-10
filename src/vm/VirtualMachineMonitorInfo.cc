@@ -95,20 +95,3 @@ int VirtualMachineMonitorInfo::from_template(const Template &tmpl)
     return 0;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineMonitorInfo::reset_info()
-{
-    _timestamp = time(0);
-
-    monitoring.clear();
-
-    monitoring.replace("CPU","0.0");
-
-    monitoring.replace("MEMORY","0");
-
-    monitoring.replace("TIMESTAMP", _timestamp);
-
-    monitoring.replace("ID", _oid);
-}
