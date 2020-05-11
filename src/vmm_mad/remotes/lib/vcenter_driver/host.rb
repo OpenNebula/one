@@ -503,7 +503,6 @@ class ClusterComputeResource
     end
 
     def monitor_vms(host_id)
-
         vc_uuid = @vi_client.vim.serviceContent.about.instanceUuid
         cluster_name = self["name"]
         cluster_ref = self["_ref"]
@@ -661,6 +660,8 @@ class ClusterComputeResource
                 vm = VCenterDriver::VirtualMachine.new_from_ref(@vi_client, vm_ref, info["name"], opts)
                 id = vm.vm_id
 
+                next if id == -1
+
                 #skip if it's already monitored
                 if vm.one_exist?
                     next if @monitored_vms.include? id
@@ -671,21 +672,20 @@ class ClusterComputeResource
                 vm.monitor(stats)
 
                 vm_name = "#{info["name"]} - #{cluster_name}"
-                vm_info << %Q{
-                VM = [
-                    ID="#{id}",
-                    VM_NAME="#{vm_name}",
-                    DEPLOY_ID="#{vm_ref}",
-                }
+                vm_info << "VM = [ ID=\"#{id}\", "
+                vm_info << "VM_NAME=\"#{vm_name}\", "
+                vm_info << "DEPLOY_ID=\"#{vm_ref}\", "
 
                 # if the machine does not exist in opennebula it means that is a wild:
                 unless vm.one_exist?
                     vm_template_64 = Base64.encode64(vm.vm_to_one(vm_name)).gsub("\n","")
                     vm_info << "VCENTER_TEMPLATE=\"YES\","
-                    vm_info << "IMPORT_TEMPLATE=\"#{vm_template_64}\","
+                    vm_info << "IMPORT_TEMPLATE=\"#{vm_template_64}\"]"
+                else
+                    mon_s64 = Base64.strict_encode64(vm.info)
+                    vm_info << "MONITOR=\"#{mon_s64}\"]\n"
                 end
 
-                vm_info << "POLL=\"#{vm.info.gsub('"', "\\\"")}\"]"
             rescue StandardError => e
                 vm_info = error_monitoring(e, vm_ref, info)
             end

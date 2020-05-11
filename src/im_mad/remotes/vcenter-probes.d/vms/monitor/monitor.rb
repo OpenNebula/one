@@ -42,7 +42,7 @@ begin
     # Fetch VMs info ( update cache if neccesary )
     # vcm.retrieve_vms_data
     # puts vcm.probe_vm_monitor
-    vcm.monitor_vms
+    puts vcm.monitor_vms
 rescue StandardError => e
     OpenNebula.handle_driver_exception('im probe_vm_monitor', e, host)
 end

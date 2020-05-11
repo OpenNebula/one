@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -947,6 +947,81 @@ class Template
 
     def get_esx_name
         self['runtime.host.name']
+    end
+
+    def vm_to_one(vm_name)
+        str = "NAME   = \"#{vm_name}\"\n"\
+              "CPU    = \"#{@vm_info["config.hardware.numCPU"]}\"\n"\
+              "vCPU   = \"#{@vm_info["config.hardware.numCPU"]}\"\n"\
+              "MEMORY = \"#{@vm_info["config.hardware.memoryMB"]}\"\n"\
+              "HYPERVISOR = \"vcenter\"\n"\
+              "CONTEXT = [\n"\
+              "    NETWORK = \"YES\",\n"\
+              "    SSH_PUBLIC_KEY = \"$USER[SSH_PUBLIC_KEY]\"\n"\
+              "]\n"\
+              "VCENTER_INSTANCE_ID =\"#{@vm_info[:vc_uuid]}\"\n"\
+              "VCENTER_CCR_REF =\"#{@vm_info[:cluster_ref]}\"\n"
+
+        str << "IMPORT_VM_ID =\"#{self["_ref"]}\"\n"
+        @state = 'POWEROFF' if @state == 'd'
+        str << "IMPORT_STATE =\"#{@state}\"\n"
+
+         # Get DS information
+        if !@vm_info["datastore"].nil?
+           !@vm_info["datastore"].last.nil? &&
+           !@vm_info["datastore"].last._ref.nil?
+            ds_ref = vm_template_ds_ref
+            str << "VCENTER_DS_REF = \"#{ds_ref}\"\n"
+       end
+
+        vnc_port = nil
+        keymap = VCenterDriver::VIHelper.get_default("VM/TEMPLATE/GRAPHICS/KEYMAP")
+
+        @vm_info["config.extraConfig"].select do |xtra|
+            if xtra[:key].downcase=="remotedisplay.vnc.port"
+                vnc_port = xtra[:value]
+            end
+
+            if xtra[:key].downcase=="remotedisplay.vnc.keymap"
+                keymap = xtra[:value]
+            end
+        end
+
+        if !@vm_info["config.extraConfig"].empty?
+            str << "GRAPHICS = [\n"\
+                   "  TYPE     =\"vnc\",\n"
+            str << "  PORT     =\"#{vnc_port}\",\n" if vnc_port
+            str << "  KEYMAP   =\"#{keymap}\",\n" if keymap
+            str << "  LISTEN   =\"0.0.0.0\"\n"
+            str << "]\n"
+        end
+
+        if !@vm_info["config.annotation"] || @vm_info["config.annotation"].empty?
+            str << "DESCRIPTION = \"vCenter Template imported by OpenNebula" \
+                " from Cluster #{@vm_info["cluster_name"]}\"\n"
+        else
+            notes = @vm_info["config.annotation"].gsub("\\", "\\\\").gsub("\"", "\\\"")
+            str << "DESCRIPTION = \"#{notes}\"\n"
+        end
+
+        case @vm_info["guest.guestFullName"]
+            when /CentOS/i
+                str << "LOGO=images/logos/centos.png\n"
+            when /Debian/i
+                str << "LOGO=images/logos/debian.png\n"
+            when /Red Hat/i
+                str << "LOGO=images/logos/redhat.png\n"
+            when /Ubuntu/i
+                str << "LOGO=images/logos/ubuntu.png\n"
+            when /Windows XP/i
+                str << "LOGO=images/logos/windowsxp.png\n"
+            when /Windows/i
+                str << "LOGO=images/logos/windows8.png\n"
+            when /Linux/i
+                str << "LOGO=images/logos/linux.png\n"
+        end
+
+        return str
     end
 
     #Gets MOREF from Datastore used by the VM. It validates

@@ -368,7 +368,7 @@ module VirtualMachineMonitor
 
     #  Generates a OpenNebula IM Driver valid string with the monitor info
     def info
-        return 'STATE=d' if @state == 'd'
+        # return 'STATE=d' if @state == 'd'
 
         if @vm_info
             guest_ip = @vm_info['guest.ipAddress']
@@ -439,32 +439,39 @@ module VirtualMachineMonitor
 
         str_info = ''
 
-        str_info = 'GUEST_IP=' << guest_ip.to_s << ' ' if guest_ip
+        str_info = 'GUEST_IP=' << guest_ip.to_s << "\n" if guest_ip
 
         if @guest_ip_addresses && !@guest_ip_addresses.empty?
             str_info << 'GUEST_IP_ADDRESSES="' << @guest_ip_addresses.to_s \
                      << '" '
         end
 
-        str_info << "#{POLL_ATTRIBUTE[:state]}=" << @state << ' '
-        str_info << "#{POLL_ATTRIBUTE[:cpu]}=" << used_cpu.to_s << ' '
-        str_info << "#{POLL_ATTRIBUTE[:memory]}=" << used_memory.to_s << ' '
-        str_info << "#{POLL_ATTRIBUTE[:netrx]}=" << netrx.to_s << ' '
-        str_info << "#{POLL_ATTRIBUTE[:nettx]}=" << nettx.to_s << ' '
+        str_info << "#{POLL_ATTRIBUTE[:state]}=" << @state << "\n"
+        str_info << "#{POLL_ATTRIBUTE[:cpu]}=" << used_cpu.to_s << "\n"
+        str_info << "#{POLL_ATTRIBUTE[:memory]}=" << used_memory.to_s << "\n"
+        str_info << "#{POLL_ATTRIBUTE[:netrx]}=" << netrx.to_s << "\n"
+        str_info << "#{POLL_ATTRIBUTE[:nettx]}=" << nettx.to_s << "\n"
 
-        str_info << 'DISKRDBYTES=' << diskrdbytes.to_s << ' '
-        str_info << 'DISKWRBYTES=' << diskwrbytes.to_s << ' '
-        str_info << 'DISKRDIOPS='  << diskrdiops.to_s  << ' '
-        str_info << 'DISKWRIOPS='  << diskwriops.to_s  << ' '
+        str_info << 'DISKRDBYTES=' << diskrdbytes.to_s << "\n"
+        str_info << 'DISKWRBYTES=' << diskwrbytes.to_s << "\n"
+        str_info << 'DISKRDIOPS='  << diskrdiops.to_s  << "\n"
+        str_info << 'DISKWRIOPS='  << diskwriops.to_s  << "\n"
 
-        str_info << 'VCENTER_ESX_HOST="' << esx_host << '" '
-        str_info << 'VCENTER_GUEST_STATE=' << guest_state << ' '
-        str_info << 'VCENTER_VM_NAME="' << vm_name << '" '
-        str_info << 'VCENTER_VMWARETOOLS_RUNNING_STATUS=' << vmware_tools << ' '
-        str_info << 'VCENTER_VMWARETOOLS_VERSION=' << vmtools_ver << ' '
+        str_info << 'VCENTER_ESX_HOST="' << esx_host << '" ' << "\n"
+        str_info << 'VCENTER_GUEST_STATE=' << guest_state << "\n"
+        str_info << 'VCENTER_VM_NAME="' << vm_name << '" ' << "\n"
+        str_info << 'VCENTER_VMWARETOOLS_RUNNING_STATUS=' << vmware_tools << "\n"
+        str_info << 'VCENTER_VMWARETOOLS_VERSION=' << vmtools_ver << "\n"
         str_info << 'VCENTER_VMWARETOOLS_VERSION_STATUS=' \
-                 << vmtools_verst << ' '
-        str_info << 'VCENTER_RP_NAME="' << rp_name << '" '
+                 << vmtools_verst << "\n"
+        str_info << 'VCENTER_RP_NAME="' << rp_name << '" ' << "\n"
+
+        # @vm.info_disks.each do |disk|
+        #     str_info << "DISK_#{disk[0]}_ACTUAL_PATH=\"[" <<
+        #         disk[1].ds.name << '] ' << disk[1].path << '" '
+        # end
+
+        str_info
     end
 
     def reset_monitor
