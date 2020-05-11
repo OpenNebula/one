@@ -618,7 +618,7 @@ class ExecDriver < VirtualMachineDriver
         deploy_id = data.elements['DEPLOY_ID'].text
 
         do_action("#{deploy_id} #{host}", id, host, ACTION[:poll],
-                  :stdin => xml_data)
+                  :stdin => xml_data.to_s)
     end
 
     # REBOOT action, reboots a running VM
@@ -737,7 +737,7 @@ class ExecDriver < VirtualMachineDriver
                   host,
                   ACTION[:snapshot_create],
                   :script_name => 'snapshot_create',
-                  :stdin => xml_data)
+                  :stdin => xml_data.to_s)
     end
 
     #
@@ -757,7 +757,7 @@ class ExecDriver < VirtualMachineDriver
                   host,
                   ACTION[:snapshot_revert],
                   :script_name => 'snapshot_revert',
-                  :stdin => xml_data)
+                  :stdin => xml_data.to_s)
     end
 
     #
@@ -777,7 +777,7 @@ class ExecDriver < VirtualMachineDriver
                   host,
                   ACTION[:snapshot_delete],
                   :script_name => 'snapshot_delete',
-                  :stdin => xml_data)
+                  :stdin => xml_data.to_s)
     end
 
     #
@@ -1005,8 +1005,7 @@ class ExecDriver < VirtualMachineDriver
         steps << {
             :driver     => :vmm,
             :action     => :reconfigure,
-            :parameters => [:deploy_id, target_device, target_path],
-            :stdin      => xml_data
+            :parameters => [:deploy_id, target_device, target_path]
         }
 
         action.run(steps)
@@ -1094,8 +1093,7 @@ class ExecDriver < VirtualMachineDriver
         steps << {
             :driver     => :vmm,
             :action     => :reconfigure,
-            :parameters => [:deploy_id, target_device, target_path],
-            :stdin      => xml_data
+            :parameters => [:deploy_id, target_device, target_path]
         }
 
         action.run(steps)
@@ -1176,8 +1174,7 @@ class ExecDriver < VirtualMachineDriver
         steps << {
             :driver     => :vmm,
             :action     => :reconfigure,
-            :parameters => [:deploy_id, target_device, target_path],
-            :stdin      => xml_data
+            :parameters => [:deploy_id, target_device, target_path]
         }
 
         action.run(steps)

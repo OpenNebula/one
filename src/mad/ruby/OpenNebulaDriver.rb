@@ -97,7 +97,7 @@ class OpenNebulaDriver < ActionManager
         command = action_command_line(aname, params, options[:script_name])
 
         if action_is_local?(aname)
-            stdin = Base64.strict_encode64(options[:stdin])
+            stdin = Base64.strict_encode64(options[:stdin].to_s)
             execution = LocalCommand.run(command,
                                          log_method(id),
                                          stdin,
