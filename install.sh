@@ -417,6 +417,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/market/http \
           $VAR_LOCATION/remotes/market/one \
           $VAR_LOCATION/remotes/market/s3 \
+          $VAR_LOCATION/remotes/market/common \
           $VAR_LOCATION/remotes/market/linuxcontainers \
           $VAR_LOCATION/remotes/market/turnkeylinux \
           $VAR_LOCATION/remotes/datastore/iscsi_libvirt \
@@ -621,6 +622,7 @@ INSTALL_FILES=(
     MARKETPLACE_DRIVER_ETC_HTTP_SCRIPTS:$VAR_LOCATION/remotes/etc/market/http
     MARKETPLACE_DRIVER_ONE_SCRIPTS:$VAR_LOCATION/remotes/market/one
     MARKETPLACE_DRIVER_S3_SCRIPTS:$VAR_LOCATION/remotes/market/s3
+    MARKETPLACE_DRIVER_COMMON_SCRIPTS:$VAR_LOCATION/remotes/market/common
     MARKETPLACE_DRIVER_LXC_SCRIPTS:$VAR_LOCATION/remotes/market/linuxcontainers
     MARKETPLACE_DRIVER_TK_SCRIPTS:$VAR_LOCATION/remotes/market/turnkeylinux
     IPAM_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/ipam/dummy
@@ -1868,6 +1870,8 @@ MARKETPLACE_DRIVER_S3_SCRIPTS="src/market_mad/remotes/s3/import \
             src/market_mad/remotes/s3/delete \
             src/market_mad/remotes/s3/monitor \
             src/market_mad/remotes/s3/S3.rb"
+
+MARKETPLACE_DRIVER_COMMON_SCRIPTS="src/market_mad/remotes/common/lxd.rb"
 
 MARKETPLACE_DRIVER_LXC_SCRIPTS="src/market_mad/remotes/linuxcontainers/import \
             src/market_mad/remotes/linuxcontainers/delete \
