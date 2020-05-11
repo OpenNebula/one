@@ -349,7 +349,7 @@ int VirtualNetworkDelete::drop(PoolObjectSQL * object, bool r, RequestAttributes
     if (rc != 0)
     {
         vnpool->update(vnet);
-        object->unlock();
+        vnet->unlock();
 
         return rc;
     }
