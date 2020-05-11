@@ -55,6 +55,7 @@ define(function(require) {
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-cloud';
     this.title = Locale.tr("Hybrid");
+    this.classes = "not_firecracker";
 
     this.oneEnabled = false;
 
