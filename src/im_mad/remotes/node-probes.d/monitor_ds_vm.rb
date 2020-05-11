@@ -29,7 +29,7 @@ end
 
 # rubocop:disable Lint/SuppressedException
 begin
-ds_location = config.elements['DATASTORE_LOCATION'].text.to_s
+    ds_location = config.elements['DATASTORE_LOCATION'].text.to_s
 rescue StandardError
 end
 # rubocop:enable Lint/SuppressedException
