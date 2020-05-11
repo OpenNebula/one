@@ -847,6 +847,10 @@ void HostShareNUMA::set_monitorization(Template &ht, unsigned int _vt)
 
         node.set_memory();
     }
+
+    ht.erase("CORE");
+    ht.erase("HUGEPAGE");
+    ht.erase("MEMORY_NODE");
 }
 
 // -----------------------------------------------------------------------------
