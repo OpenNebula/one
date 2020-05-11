@@ -335,6 +335,8 @@ helpers do
         attr.each_with_index do |s, idx|
             if s == '=' && attr[idx + 1] != '[' && attr[idx + 1] != "\""
                 ret << "=\""
+            elsif s == ',' && attr[idx - 1] != "\""
+                ret << "\","
             elsif s == '[' && attr[idx - 1] != '=' && attr[idx - 1] != "\""
                 ret << "\"["
             elsif s == ']' && attr[idx - 1] != '=' && attr[idx - 1] != "\""
