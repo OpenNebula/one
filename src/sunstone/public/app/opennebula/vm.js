@@ -860,7 +860,7 @@ define(function(require) {
 
   function groupByIpsDropdown(element = {}, nics = []) {
 
-    return reducedNics = nics.reduce(function(column, nic) {
+    return nics.reduce(function(column, nic) {
       var nicSection = $("<li/>").append($("<a/>").css("color", "gray").text(nic.IP));
 
       if (nic.ALIAS_IDS) {
