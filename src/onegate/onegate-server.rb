@@ -341,8 +341,8 @@ helpers do
                 ret << "\"["
             elsif s == ']' && attr[idx - 1] != '=' && attr[idx - 1] != "\""
                 ret << "\"]"
-            elsif s == '\\'
-                ret << "\\"
+            elsif s == '\\' && attr[idx - 1] != "\""
+                ret << "\"\\"
             else
                 ret << s
             end
