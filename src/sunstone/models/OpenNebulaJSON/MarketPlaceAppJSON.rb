@@ -75,10 +75,12 @@ module OpenNebulaJSON
             dsid = params['dsid'] ? params['dsid'].to_i : params['dsid']
             name = params['name']
             vmtemplate_name = params['vmtemplate_name']
+            tag ="tag=#{params['tag']}" if !params['tag'].empty?
             rc = super({
                 :dsid => dsid,
                 :name => name,
-                :vmtemplate_name => vmtemplate_name
+                :vmtemplate_name => vmtemplate_name,
+                :url_args => tag
             })
 
             if OpenNebula.is_error?(rc)
