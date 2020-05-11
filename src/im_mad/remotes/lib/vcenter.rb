@@ -1044,6 +1044,10 @@ class VcenterMonitor
         one_vms
     end
 
+    def monitor_vms
+        @cluster.monitor_vms(@host_id)
+    end
+
 end
 
 # ------------------------------------------------------------------------------
