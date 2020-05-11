@@ -358,7 +358,7 @@ CommandParser::CmdParser.new(ARGV) do
         columns = %w[hosts networks datastores]
 
         cluster_helper = OneClusterHelper.new
-        list           = helper.get_list(columns, false)
+        list           = helper.get_list(columns)
 
         cluster_helper.format_pool(options).show(list, options)
 
