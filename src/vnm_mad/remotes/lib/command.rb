@@ -26,6 +26,7 @@ module VNMNetwork
       :iptables => "sudo -n iptables",
       :ip6tables=> "sudo -n ip6tables",
       :ip       => "sudo -n ip",
+      :ip_unpriv=> "ip",
       :virsh    => "virsh -c qemu:///system",
       :ovs_vsctl=> "sudo -n ovs-vsctl",
       :ovs_ofctl=> "sudo -n ovs-ofctl",

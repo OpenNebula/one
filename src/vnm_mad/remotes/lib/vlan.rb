@@ -207,7 +207,7 @@ module VNMMAD
             bridges = {}
 
             ip_show_bridge =
-                `#{VNMNetwork::COMMANDS[:ip]} link show type bridge`
+                `#{VNMNetwork::COMMANDS[:ip_unpriv]} link show type bridge`
 
             ip_show_bridge.split("\n").each do |line|
                 next if line !~ /^[0-9]*:/
@@ -216,7 +216,7 @@ module VNMMAD
                 bridges[br_name] = []
 
                 ip_show_master =
-                    `#{VNMNetwork::COMMANDS[:ip]} link show master #{br_name}`
+                    `#{VNMNetwork::COMMANDS[:ip_unpriv]} link show master #{br_name}`
 
                 ip_show_master.split("\n").each do |l|
                     next if l !~ /^[0-9]*:/
