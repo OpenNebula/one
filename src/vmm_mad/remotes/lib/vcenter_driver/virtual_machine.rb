@@ -42,6 +42,7 @@ module VCenterDriver
 
     require 'vm_device'
     require 'vm_helper'
+    require 'vm_monitor'
 
     class VirtualMachine < VCenterDriver::Template
 
@@ -52,6 +53,7 @@ module VCenterDriver
         #           VCenterDriver::VirtualMachine::Disk
         include VirtualMachineDevice
         include VirtualMachineHelper
+        include VirtualMachineMonitor
 
         ############################################################################
         # Virtual Machine main Class
