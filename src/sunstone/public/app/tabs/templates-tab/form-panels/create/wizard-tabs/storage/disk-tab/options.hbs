@@ -1,5 +1,5 @@
 <div class="row">
-  <div class="medium-6 columns hypervisor only_kvm">
+  <div class="medium-6 columns hypervisor only_kvm not_firecracker">
     <label for="TARGET">
       <span class="hypervisor only_kvm"> {{tr "Target device"}} </span>
       <span class="hypervisor only_lxd"> {{tr "Mountpoint"}} </span>
@@ -7,7 +7,7 @@
     </label>
     <input type="text" wizard_field="TARGET" id="TARGET" name="target" placeholder="sdc"/>
   </div>
-  <div class="medium-6 columns hypervisor only_kvm">
+  <div class="medium-6 columns hypervisor only_kvm not_firecracker">
     <label for="DRIVER">
       {{tr "Image mapping driver"}}
     </label>
@@ -22,7 +22,7 @@
   </div>
 </div>
 <div class="row">
-  <div class="medium-6 columns hypervisor only_kvm not_lxd">
+  <div class="medium-6 columns hypervisor only_kvm not_lxd not_firecracker">
     <label>
       {{tr "BUS"}}
       <select id="disk_dev_prefix" name="disk_dev_prefix">
@@ -47,7 +47,7 @@
       <option value="no">{{tr "no"}}</option>
     </select>
   </div>
-  <div class="medium-6 columns hypervisor only_vcenter">
+  <div class="medium-6 columns hypervisor only_vcenter not_firecracker">
     <label for="vcenter_adapter_type">
       {{tr "Bus adapter controller"}}
     </label>
@@ -59,7 +59,7 @@
       <option value="custom">custom</option>
     </select>
   </div>
-  <div class="medium-6 columns only_vcenter">
+  <div class="medium-6 columns only_vcenter not_firecracker">
     <label for="vcenter_disk_type">
       {{tr "Disk provisioning type"}}
     </label>
@@ -73,7 +73,7 @@
   </div>
 </div>
 <div class="row vm_param">
-  <div class="medium-6 columns hypervisor only_kvm not_lxd">
+  <div class="medium-6 columns hypervisor only_kvm not_lxd not_firecracker">
     <label for="CACHE">
       {{tr "Cache"}}
     </label>
@@ -87,7 +87,7 @@
       <option value="unsafe">unsafe</option>
     </select>
   </div>
-  <div class="medium-6 columns hypervisor only_kvm not_lxd">
+  <div class="medium-6 columns hypervisor only_kvm not_lxd not_firecracker">
     <label for="IO">
       {{tr "IO policy"}}
     </label>
@@ -97,7 +97,7 @@
       <option value="native">native</option>
     </select>
   </div>
-  <div class="medium-6 columns hypervisor only_kvm not_lxd">
+  <div class="medium-6 columns hypervisor only_kvm not_lxd not_firecracker">
     <label for="DISCARD">
       {{tr "Discard"}}
     </label>
@@ -127,7 +127,7 @@
   </div>
   {{/unless}}
 </div>
-<fieldset>
+<fieldset class="not_firecracker">
   <legend>{{tr "Throttling (Bytes/s)"}}</legend>
   <div class="row vm_param">
     <div class="medium-4 columns hypervisor only_kvm">
@@ -183,7 +183,7 @@
     </div>
   </div>
 </fieldset>
-<fieldset>
+<fieldset class="not_firecracker">
   <legend>{{tr "Throttling (IOPS)"}}</legend>
   <div class="row vm_param">
     <div class="medium-4 columns hypervisor only_kvm">

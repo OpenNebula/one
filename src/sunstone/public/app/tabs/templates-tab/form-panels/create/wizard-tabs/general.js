@@ -221,10 +221,40 @@ define(function(require) {
         // All KVM settings are available in LXD plus
         // Privileged, Profile and Security Nesting
 
-      if (this.value == "lxd"){
+      if (this.value == "lxd") {
         $('.only_lxd').show();
         $('.not_lxd').hide();
         $('.raw_type').val('lxd');
+      }
+
+      var formContext = "#createVMTemplateFormWizard";
+      var NUMA_THREADS_MIN = 1;
+      var NUMA_THREADS_MAX = 2;
+      if (this.value == "firecracker") {
+        // [GENERAL]
+        $(".cpu_input > input", formContext).val("1");
+        // [NUMA]
+        $("#numa-pin-policy", formContext).val("SHARED");
+        $("#numa-sockets", formContext).val("1");
+        $("#numa-threads", formContext)
+          .prop("max", NUMA_THREADS_MAX)
+          .val(function(_, value) {
+            return (value > NUMA_THREADS_MAX) ? NUMA_THREADS_MAX : NUMA_THREADS_MIN;
+          })
+        
+        $('.disabled_firecracker', formContext).prop("disabled", true);
+        $('.not_firecracker', formContext).hide();
+      }
+      else {
+        // [GENERAL]
+        $(".cpu_input > input", formContext).val("");
+        // [NUMA]
+        $("#numa-pin-policy", formContext).val("NONE");
+        $("#numa-sockets", formContext).val("");
+        $("#numa-threads", formContext).removeAttr("max").val("");
+
+        $('.disabled_firecracker', formContext).removeAttr("disabled");
+        $('.not_firecracker', formContext).show();
       }
     });
 
