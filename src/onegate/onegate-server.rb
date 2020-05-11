@@ -343,6 +343,8 @@ helpers do
                 ret << "\"]"
             elsif s == '\\' && attr[idx - 1] != "\""
                 ret << "\"\\"
+            elsif s == "\n" && attr[idx - 1] != "\""
+                ret << "\"\n"
             else
                 ret << s
             end
