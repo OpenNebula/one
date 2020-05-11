@@ -820,11 +820,11 @@ define(function(require) {
         : "--";
   };
 
-  // Return a dropdown with all the 
+  // Return a dropdown with all the
   function ipsDropdown(element, divider) {
     var ipsStr = this.ipsStr(element,divider,groupByIpsDropdown);
     console.log(ipsStr);
-    
+
     const ips = ipsStr.split('<br>');
     if ((ips.length < 2) && (!~ipsStr.indexOf("li"))) return ipsStr;
     var html = '<ul class="dropdown menu ips-dropdown" data-dropdown-menu><li><a>Show IPs</a><ul class="menu" style="max-height: 25em; overflow: scroll;">';
@@ -851,7 +851,7 @@ define(function(require) {
           var templateAlias = Array.isArray(element.TEMPLATE.NIC_ALIAS)
             ? element.TEMPLATE.NIC_ALIAS : [element.TEMPLATE.NIC_ALIAS];
           var alias = templateAlias.find(function(alias) { return alias.NIC_ID === aliasId });
-          
+
           if (alias) {
             nicSection.append($("<li/>").append($("<a/>").css({
               "color": "gray",
@@ -875,7 +875,7 @@ define(function(require) {
           var templateAlias = Array.isArray(element.TEMPLATE.NIC_ALIAS)
             ? element.TEMPLATE.NIC_ALIAS : [element.TEMPLATE.NIC_ALIAS];
           var alias = templateAlias.find(function(alias) { return alias.NIC_ID === aliasId });
-          
+
           if (alias) {
             nicSection.append($("<p/>").css({
               "margin-bottom": 0,
@@ -953,10 +953,10 @@ define(function(require) {
     ) {
       var template = element.TEMPLATE;
       var state = parseInt(element.LCM_STATE);
-      
+
       if ($.inArray(state, RDP_STATES) != -1 && template.NIC) {
         hasRdp = hasRDP(template.NIC);
-        
+
         if (!hasRdp && template.NIC_ALIAS) {
           hasRdp = hasRDP(template.NIC_ALIAS);
         }
@@ -996,7 +996,7 @@ define(function(require) {
     return '<button class="vnc remote_vm" data-id="' + id + '">\
       <i class="fas fa-desktop"></i></button>';
   }
-  
+
   function buttonSpice(id = "") {
     return '<button class="spice remote_vm" data-id="' + id + '">\
       <i class="fas fa-desktop"></i></button>';
