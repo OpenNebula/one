@@ -531,11 +531,11 @@ void InformationManager::_vm_state(unique_ptr<Message<OpenNebulaMessages>> msg)
 
         LCMAction::Actions action;
 
-        if ( state_str == "POWEROFF" )
+        if ( missing_state == "POWEROFF" )
         {
             action = LCMAction::MONITOR_POWEROFF;
         }
-        else if ( state_str == "UNKNOWN" )
+        else if ( missing_state == "UNKNOWN" )
         {
             action = LCMAction::MONITOR_DONE;
         }
@@ -546,7 +546,7 @@ void InformationManager::_vm_state(unique_ptr<Message<OpenNebulaMessages>> msg)
 
         NebulaLog::debug("InM", "VM_STATE update from host: " +
             to_string(msg->oid()) + ". VM id: " + to_string(vm->get_oid()) +
-            ", state: " + state_str);
+            ", state: " + missing_state);
 
         lcm->trigger(action, vm->get_oid());
 
