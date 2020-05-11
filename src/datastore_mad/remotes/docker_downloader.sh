@@ -32,6 +32,8 @@ fi
 DRIVER_PATH=$(dirname $0)
 MARKET_URL=$1
 
+MK_DOCKER=$LIB_LOCATION/sh/create_docker_image.sh
+
 # URL with the context releases
 CONTEXT_API="https://api.github.com/repos/OpenNebula/addon-context-linux/releases"
 CONTEXT_URL="https://github.com/OpenNebula/addon-context-linux/releases/download"
@@ -90,7 +92,7 @@ function clean {
 
     # Unmount mnt directory (if necessary)
     if  grep -qs "$dockerdir/mnt" /proc/mounts; then
-        sudo -n umount "$dockerdir/mnt"
+        sudo -n $MK_DOCKER -a "CLEAN" -d $dockerdir
     fi
 
     rm -rf $dockerdir
@@ -306,13 +308,8 @@ esac
 #-------------------------------------------------------------------------------
 # Mount container disk image and untar rootfs contents to it
 #-------------------------------------------------------------------------------
-sudo -n mount $img_raw $dockerdir/mnt > /dev/null 2>&1
-sudo -n chmod o+w $dockerdir/mnt
-sudo -n tar xpf $tarball -C $dockerdir/mnt > /dev/null 2>&1
 
-sync
-
-sudo -n umount $dockerdir/mnt
+sudo -n $MK_DOCKER -a "CREATE" -d $dockerdir -i $img_raw -t $tarball
 
 if [ "$format" == "qcow2" ]; then
     qemu-img convert -f raw -O qcow2 $img_raw $img_qcow > /dev/null 2>&1

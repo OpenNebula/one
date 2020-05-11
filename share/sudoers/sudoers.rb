@@ -58,7 +58,8 @@ class Sudoers
                 'arping',
                 'ip address *'
             ],
-            :MARKET => %W[#{lib_location}/sh/create_container_image.sh],
+            :MARKET => %W[#{lib_location}/sh/create_container_image.sh
+                          #{lib_location}/sh/create_docker_image.sh  ],
             :FIRECRACKER => %w[/usr/bin/jailer
                                mount
                                /usr/sbin/one-clean-firecracker-domain]
