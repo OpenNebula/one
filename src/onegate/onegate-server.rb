@@ -349,7 +349,7 @@ helpers do
         # Replace scaped \n by no scaped one
         ret.gsub!("\\n", "\n")
 
-        ret.insert(ret.size, "\"") if ret[-1] != ']'
+        ret.insert(ret.size, "\"") if ret[-1] != ']' && ret[-1] != "\""
 
         ret
     end
