@@ -59,7 +59,14 @@ define(function(require) {
           EXPORT_DIALOG_ID, 
           "export",
           function(formPanelInstance, context) {
-            formPanelInstance.setResourceId(context, resourceId, type);
+            OpenNebulaResource.show({
+              data: { id: resourceId },
+              success: function(_, app_json) {
+                formPanelInstance.setDockerTags(resourceId, app_json);
+                formPanelInstance.setResourceId(context, app_json, type);
+              },
+              error: Notifier.onError
+            });
           }
         );
       }

@@ -121,7 +121,10 @@ define(function(require) {
     },
     "unlock" : function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "unlock");
-    }
+    },
+    "tags" : function(params) {
+      OpenNebulaAction.getAppTags(params, RESOURCE)
+    },
   }
 
   return MarketPlaceApp;

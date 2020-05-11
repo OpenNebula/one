@@ -462,6 +462,29 @@ define(function(require) {
 
       return ""+id;
     },
+
+    "getAppTags": function(params, resource){
+      var callback = params.success;
+      var callbackError = params.error;
+      var data = params.data;
+
+      var method = "getAppTags";
+      var request = OpenNebulaHelper.request(resource, method, data);
+
+      var url = resource.toLowerCase() + "/" + params.data.id + "/tags";
+      $.ajax({
+        url: url,
+        type: "GET",
+        dataType: "json",
+        success: function(response) {
+          return callback ? callback(request, response) : null;
+        },
+        error: function(response) {
+          return callbackError ?
+              callbackError(request, OpenNebulaError(response)) : null;
+        }
+      });
+    },
     "get_all_cache": function() {
       return listCache;
     },
