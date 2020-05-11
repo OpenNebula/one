@@ -91,6 +91,10 @@ tabs:
             VM.migrate_poff_hard: false
             VM.lockU: true
             VM.unlock: true
+            VM.startvnc: true
+            VM.startspice: true
+            VM.save_rdp: true
+            VM.save_virt_viewer: true
         dashboard:
             # Connected user's quotas
             quotas: true

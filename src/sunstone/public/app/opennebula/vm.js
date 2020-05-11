@@ -16,12 +16,12 @@
 
 define(function(require) {
   var OpenNebulaAction = require("./action"),
-      OpenNebulaHelper = require("./helper"),
-      OpenNebulaError  = require("./error");
-      Locale = require("utils/locale"),
-      Navigation = require("utils/navigation");
-
-  var OpenNebulaCluster = require("./cluster");
+    OpenNebulaHelper = require("./helper"),
+    OpenNebulaError  = require("./error");
+    OpenNebulaCluster = require("./cluster"),
+    Locale = require("utils/locale"),
+    Config = require("sunstone-config"),
+    Navigation = require("utils/navigation");
 
   var RESOURCE = "VM";
 
@@ -921,35 +921,21 @@ define(function(require) {
 
   // returns true if the vnc button should be enabled
   function isVNCSupported(element) {
-    var rtn = false;
-    if(element && element.TEMPLATE && element.TEMPLATE.GRAPHICS && element.LCM_STATE){
-      var graphics = element.TEMPLATE.GRAPHICS;
-      var state = parseInt(element.LCM_STATE);
-      rtn = graphics &&
-        graphics.TYPE &&
-        graphics.TYPE.toLowerCase() == "vnc" &&
-        $.inArray(state, VNC_STATES) != -1;
-    }
-    return rtn;
+    return (Config.isTabActionEnabled("vms-tab", "VM.startvnc") && graphicSupported(element, "vnc"))
+      ? true : false;
   }
 
   function isSPICESupported(element) {
-    var rtn = false;
-    if(element && element.TEMPLATE && element.TEMPLATE.GRAPHICS && element.LCM_STATE){
-      var graphics = element.TEMPLATE.GRAPHICS;
-      var state = parseInt(element.LCM_STATE);
-      rtn = graphics &&
-        graphics.TYPE &&
-        graphics.TYPE.toLowerCase() == "spice" &&
-        $.inArray(state, VNC_STATES) != -1;
-    }
-    return rtn;
+    return (Config.isTabActionEnabled("vms-tab", "VM.startspice") && graphicSupported(element, "spice"))
+      ? true : false;
   }
 
   function isWFileSupported(element) {
-    // spice/vnc is assumed to be supported
     var history = retrieveLastHistoryRecord(element);
-    return (history) 
+    return (
+      Config.isTabActionEnabled("vms-tab", "VM.save_virt_viewer") && history &&
+      (graphicSupported(element, "vnc") || graphicSupported(element, "spice"))
+    )
       ? {
         hostname: history.HOSTNAME,
         type: element.TEMPLATE.GRAPHICS.TYPE.toLowerCase(),
@@ -961,12 +947,14 @@ define(function(require) {
   // returns true if the RDP button should be enabled
   function isRDPSupported(element) {
     var hasRdp = false;
-
-    if (element.TEMPLATE && element.TEMPLATE.NIC && element.LCM_STATE) {
+    if (
+      Config.isTabActionEnabled("vms-tab", "VM.save_rdp") &&
+      element && element.TEMPLATE && element.TEMPLATE.GRAPHICS && element.LCM_STATE
+    ) {
       var template = element.TEMPLATE;
       var state = parseInt(element.LCM_STATE);
       
-      if ($.inArray(state, RDP_STATES) != -1) {
+      if ($.inArray(state, RDP_STATES) != -1 && template.NIC) {
         hasRdp = hasRDP(template.NIC);
         
         if (!hasRdp && template.NIC_ALIAS) {
@@ -989,6 +977,19 @@ define(function(require) {
     });
 
     return activated;
+  }
+
+  function graphicSupported(element, type) {
+    var rtn = false;
+    if (element && element.TEMPLATE && element.TEMPLATE.GRAPHICS && element.LCM_STATE) {
+      var graphics = element.TEMPLATE.GRAPHICS;
+      var state = parseInt(element.LCM_STATE);
+      rtn = graphics &&
+        graphics.TYPE &&
+        graphics.TYPE.toLowerCase() == type &&
+        $.inArray(state, VNC_STATES) != -1;
+    }
+    return rtn;
   }
 
   function buttonVnc(id = "") {

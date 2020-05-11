@@ -193,19 +193,18 @@ define(function(require) {
       ? OpenNebulaVM.shortLcmStateStr(element.LCM_STATE)
       : OpenNebulaVM.stateStr(element.STATE);
 
-    var actions = "", wFile = false;
+    var actions = "";
 
     // VNC/SPICE icon
     if (OpenNebulaVM.isVNCSupported(element)) {
       actions += OpenNebulaVM.buttonVnc(element.ID);
-      wFile = OpenNebulaVM.isWFileSupported(element);
     }
     else if (OpenNebulaVM.isSPICESupported(element)) {
       actions += OpenNebulaVM.buttonSpice(element.ID);
-      wFile = OpenNebulaVM.isWFileSupported(element);
     }
-
+    
     // virt-viewer file icon
+    wFile = OpenNebulaVM.isWFileSupported(element);
     wFile && (actions += OpenNebulaVM.buttonWFile(element.ID, wFile));
 
     if(config && 

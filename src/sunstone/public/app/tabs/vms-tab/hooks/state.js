@@ -41,30 +41,34 @@ define(function(require) {
     StateActions.disableAllStateActions();
     StateActions.enableStateActions(element.STATE, element.LCM_STATE);
 
-    var isWFileSupported = false;
-    if (OpenNebulaVM.isVNCSupported(element)) {
+    var isVNCSupported = OpenNebulaVM.isVNCSupported(element),
+      isSPICESupported = OpenNebulaVM.isSPICESupported(element),
+      isWFileSupported = OpenNebulaVM.isWFileSupported(element),
+      isRDPSupported = OpenNebulaVM.isRDPSupported(element);
+
+    if (isVNCSupported) {
       $(".vnc-sunstone-info").show();
       $(".spice-sunstone-info").hide();
-      isWFileSupported = OpenNebulaVM.isWFileSupported(element);
     }
-    else if (OpenNebulaVM.isSPICESupported(element)) {
+    else if (isSPICESupported) {
       $(".spice-sunstone-info").show();
       $(".vnc-sunstone-info").hide();
-      isWFileSupported = OpenNebulaVM.isWFileSupported(element);
     }
     else {
       $(".spice-sunstone-info").hide();
       $(".vnc-sunstone-info").hide();
     }
     
-    (isWFileSupported)
-      ? $(".vv-sunstone-info").show()
-      : $(".vv-sunstone-info").hide();
+    // Enable / disable virt-viewer button
+    isWFileSupported ? $(".vv-sunstone-info").show() : $(".vv-sunstone-info").hide();
 
     // Enable / disable rdp button
-    (OpenNebulaVM.isRDPSupported(element))
-      ? $(".rdp-sunstone-info").show()
-      : $(".rdp-sunstone-info").hide();
+    isRDPSupported ? $(".rdp-sunstone-info").show() : $(".rdp-sunstone-info").hide();
+
+    // All remote buttons are disabled
+    if (!isVNCSupported && !isSPICESupported && !isWFileSupported && !isRDPSupported) {
+      $("#vmsremote_buttons").hide()
+    }
 
     if(config && 
       config["system_config"] && 

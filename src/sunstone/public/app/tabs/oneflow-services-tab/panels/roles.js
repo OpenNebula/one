@@ -244,22 +244,19 @@ define(function(require) {
 
               ips = OpenNebulaVM.ipsStr(data.VM);
 
-              var wFile = false, rdp = false;
-
               if (OpenNebulaVM.isVNCSupported(data.VM)) {
                 actions += OpenNebulaVM.buttonVnc(id);
-                wFile = OpenNebulaVM.isWFileSupported(data.VM);
               }
               else if (OpenNebulaVM.isSPICESupported(data.VM)) {
                 actions += OpenNebulaVM.buttonSpice(id);
-                wFile = OpenNebulaVM.isWFileSupported(data.VM);
               }
-
+              
+              var wFile = OpenNebulaVM.isWFileSupported(data.VM);
               if (wFile) {
                 actions += OpenNebulaVM.buttonWFile(id, wFile);
               }
 
-              rdp = OpenNebulaVM.isRDPSupported(data.VM);
+              var rdp = OpenNebulaVM.isRDPSupported(data.VM);
               if (rdp) {
                 actions += OpenNebulaVM.buttonRDP(rdp.IP, data.VM);
               }
