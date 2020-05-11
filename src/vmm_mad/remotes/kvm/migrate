@@ -33,8 +33,19 @@ for snap in $snaps; do
         "Failed to delete snapshot $snap from $deploy_id"
 done
 
-exec_and_log "virsh --connect $LIBVIRT_URI migrate --live $MIGRATE_OPTIONS $deploy_id $QEMU_PROTOCOL://$dest_host/system" \
-    "Could not migrate $deploy_id to $dest_host"
+# do live migration, but cleanup target host in case of error
+virsh --connect $LIBVIRT_URI migrate --live $MIGRATE_OPTIONS $deploy_id $QEMU_PROTOCOL://$dest_host/system
+
+RC=$?
+
+if [ $RC -ne 0 ]; then
+    for CLEAN_OP in destroy undefine; do
+        virsh --connect $QEMU_PROTOCOL://$dest_host/system "${CLEAN_OP}" $deploy_id >/dev/null 2>&1
+    done
+
+    error_message "Could not migrate $deploy_id to $dest_host"
+    exit $RC
+fi
 
 if [ "$SYNC_TIME" = "yes" ]; then
     (
