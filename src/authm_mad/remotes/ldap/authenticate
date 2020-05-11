@@ -112,7 +112,7 @@ order.each do |name|
                     break
                 end
 
-                if user_uid != user
+                if server_conf[:match_user_exactly] && user_uid != user
                     STDERR.puts "User \"#{user}\" has different "\
                                 "casing in LDAP \"#{user_uid}\""
                     break
@@ -139,7 +139,10 @@ order.each do |name|
                     # authentication success
                     group_list = groups.join(' ')
 
-                    escaped_user = URI_PARSER.escape(user).strip.downcase
+                    escaped_user = URI_PARSER.escape(user).strip
+                    if server_conf[:lowercase_user]
+                        escaped_user = escaped_user.downcase
+                    end
                     escaped_secret = URI_PARSER.escape(user_dn)
 
                     puts "ldap #{escaped_user} #{escaped_secret} #{group_list}"
