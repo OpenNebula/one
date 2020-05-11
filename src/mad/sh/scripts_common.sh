@@ -46,10 +46,10 @@ READLINK=${READLINK:-readlink}
 RM=${RM:-rm}
 CP=${CP:-cp}
 SCP=${SCP:-scp}
-SCP_FWD=${SCP_FWD:-scp -o ForwardAgent=yes}
+SCP_FWD=${SCP_FWD:-scp -o ForwardAgent=yes -o ControlMaster=no -o ControlPath=none}
 SED=${SED:-sed}
 SSH=${SSH:-ssh}
-SSH_FWD=${SSH_FWD:-ssh -o ForwardAgent=yes}
+SSH_FWD=${SSH_FWD:-ssh -o ForwardAgent=yes -o ControlMaster=no -o ControlPath=none}
 SUDO=${SUDO:-sudo -n}
 SYNC=${SYNC:-sync}
 TAR=${TAR:-tar}
