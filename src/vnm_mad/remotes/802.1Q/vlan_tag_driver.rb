@@ -71,7 +71,7 @@ class VLANTagDriver < VNMMAD::VLANDriver
 	end
 
     def list_interface_vlan(name)
-        text = %x(#{command(:ip)} -d link show #{name})
+        text = %x(#{command(:ip_unpriv)} -d link show #{name})
         return nil if $?.exitstatus != 0
 
         text.each_line do |line|

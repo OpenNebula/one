@@ -62,7 +62,7 @@ leader)
     ;;
 
 follower)
-    if sudo -n ip address show dev $INTERFACE | grep -qi " ${IP}/"; then
+    if ip address show dev $INTERFACE | grep -qi " ${IP}/"; then
         sudo -n ip address del $IFADDR dev $INTERFACE
     fi
 

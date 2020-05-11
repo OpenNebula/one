@@ -24,7 +24,14 @@ class Sudoers
     def initialize(lib_location)
         # Commands required to be used as root, without password, by oneadmin
         @cmds = {
-            :NET    => %w[ebtables iptables ip6tables ip ipset],
+            :NET => [
+                'ebtables',
+                'iptables',
+                'ip6tables',
+                'ipset',
+                'ip link *',
+                'ip tuntap *'
+            ],
             :LVM    => %w[
                 lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend
             ],
@@ -49,7 +56,7 @@ class Sudoers
                 'service opennebula-hem start',
                 'service opennebula-hem stop',
                 'arping',
-                'ip'
+                'ip address *'
             ],
             :MARKET => %W[#{lib_location}/sh/create_container_image.sh],
             :FIRECRACKER => %w[/usr/bin/jailer
