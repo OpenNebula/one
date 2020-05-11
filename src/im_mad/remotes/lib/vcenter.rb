@@ -1044,6 +1044,11 @@ class VcenterMonitor
         one_vms
     end
 
+    def monitor_vms
+        str_info, last_mon_time = @cluster.monitor_vms(@host_id)
+        return str_info
+    end
+
 end
 
 # ------------------------------------------------------------------------------
