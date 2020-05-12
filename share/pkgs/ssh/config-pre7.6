@@ -14,12 +14,29 @@
 # All further accesses already use strict host key checking.
 Match !exec "ssh-keygen -F %h 2>/dev/null || ssh-keygen -F %h -f /etc/ssh/ssh_known_hosts 2>/dev/null"
   StrictHostKeyChecking no
+  ServerAliveInterval 10
   ControlMaster auto
-  ControlPath ~/.ssh-%C
-  ControlPersist 5s
+  # BEWARE!
+  #
+  # The following options must be in-sync with the accompanying cronjob:
+  #   /etc/cron.d/opennebula-ssh-socks-cleaner
+  #
+  # This is a workaround for the issues and races encountered when SSH is
+  # handling these master sockets.
+  #
+  # 'ControlPersist' cannot be set less than 120 (two minutes) to offset the
+  # minimum one minute time before each cronjob check! It will also not change
+  # behavior even if it set much higher or to infinity (0).
+  #
+  # (+) Add another 10s to give crond a room for cleanup
+  ControlPersist 130s
+  # 'ControlPath' must match the 'find' command in the cronjob above!
+  ControlPath ~/.ssh-M-%C.sock
 
 Host *
   StrictHostKeyChecking yes
+  ServerAliveInterval 10
   ControlMaster auto
-  ControlPath ~/.ssh-%C
-  ControlPersist 5s
+  # IMPORTANT: set the following two options the same way as above
+  ControlPersist 130s
+  ControlPath ~/.ssh-M-%C.sock

@@ -1,0 +1,13 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# BEWARE!
+#
+# This cronjob must be in-sync with the 'ControlPath' SSH option in oneadmin's
+# SSH config (~/.ssh/config) otherwise it will not have the desired effect...
+
+# This will cleanup all oneadmin's SSH master sockets for the persistent
+# connections when they reach an age of a one minute to workaround issues and
+# races when SSH is handling these master sockets and ensure that they are not
+# used pass this one minute limit
+* * * * * oneadmin find ~oneadmin -maxdepth 1 -type s -name '.ssh-M-*.sock' -mmin +1 -delete
