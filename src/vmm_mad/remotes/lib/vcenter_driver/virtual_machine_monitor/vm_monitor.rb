@@ -460,7 +460,8 @@ module VirtualMachineMonitor
         str_info << 'VCENTER_ESX_HOST="' << esx_host << '" ' << "\n"
         str_info << 'VCENTER_GUEST_STATE=' << guest_state << "\n"
         str_info << 'VCENTER_VM_NAME="' << vm_name << '" ' << "\n"
-        str_info << 'VCENTER_VMWARETOOLS_RUNNING_STATUS=' << vmware_tools << "\n"
+        str_info << 'VCENTER_VMWARETOOLS_RUNNING_STATUS=' \
+                 << vmware_tools << "\n"
         str_info << 'VCENTER_VMWARETOOLS_VERSION=' << vmtools_ver << "\n"
         str_info << 'VCENTER_VMWARETOOLS_VERSION_STATUS=' \
                  << vmtools_verst << "\n"
