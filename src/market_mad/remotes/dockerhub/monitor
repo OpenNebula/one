@@ -166,7 +166,8 @@ CONTEXT = [
                 'TAGS'        => '',
                 'REGTIME'     => regt,
                 'SIZE'        => @options[:sizemb],
-                'DESCRIPTION' => app['description'].delete('\\"')
+                'DESCRIPTION' => app['description'].delete('\\"'),
+                'LINK'        => "https://hub.docker.com/_/#{app['name']}"
             }
 
             tmpl = ''
