@@ -1003,7 +1003,7 @@ define(function(require) {
   function buttonWFile(id = "", data = {}) {
     return '<button class="w_file remote_vm" data-id="' + id + '"\
     data-type="' + data.type + '" data-port="' + data.port + '" data-hostname="' + data.hostname + '">\
-      <i class="fas fa-external-link-alt"></i></button>';
+      <i class="fas fa-external-link-square-alt"></i></button>';
   }
 
   function buttonRDP(ip = "", vm = {}) {
