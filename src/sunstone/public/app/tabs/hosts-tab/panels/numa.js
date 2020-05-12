@@ -48,6 +48,7 @@ define(function(require) {
     this.title = Locale.tr("Numa");
     this.icon = "fa-microchip";
     this.element = info[RESOURCE.toUpperCase()];
+    this.class = "not_vcenter";
     return this;
   };
 
@@ -93,6 +94,16 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
+
+    console.log(that);
+
+    // Hide NUMA tab if hypervisor is vcenter
+    if( that.element &&
+        that.element.VM_MAD &&
+        that.element.VM_MAD == "vcenter"){
+      $("li.not_vcenter").addClass("hide");
+    }
+    
     if (
       that && 
       that.element && 
@@ -271,4 +282,3 @@ define(function(require) {
     }
   }
 })
-
