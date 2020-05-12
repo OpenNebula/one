@@ -16,13 +16,10 @@ Match !exec "ssh-keygen -F %h 2>/dev/null || ssh-keygen -F %h -f /etc/ssh/ssh_kn
   StrictHostKeyChecking no
   ServerAliveInterval 10
   ControlMaster auto
-  # BEWARE!
-  #
-  # The following options must be in-sync with the accompanying cronjob:
-  #   /etc/cron.d/opennebula-ssh-socks-cleaner
-  #
-  # This is a workaround for the issues and races encountered when SSH is
-  # handling these master sockets.
+  #####################################################################
+  # The following options must be aligned with the accompanying cronjob
+  # /etc/cron.d/opennebula-ssh-socks-cleaner which implements workaround
+  # for OpenSSH race condition during close of the master socket.
   #
   # 'ControlPersist' cannot be set less than 120 (two minutes) to offset the
   # minimum one minute time before each cronjob check! It will also not change

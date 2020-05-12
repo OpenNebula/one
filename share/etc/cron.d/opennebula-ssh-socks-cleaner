@@ -1,13 +1,15 @@
 SHELL=/bin/sh
-PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
-# BEWARE!
-#
-# This cronjob must be in-sync with the 'ControlPath' SSH option in oneadmin's
-# SSH config (~/.ssh/config) otherwise it will not have the desired effect...
+#####################################################################
+# WARNING: This cronjob command parameters must be aligned with
+# 'ControlPath' and 'ControlPersist' options in oneadmin's SSH
+# configuration (/var/lib/one/.ssh/config) otherwise it will
+# not have desired effect!
+#####################################################################
 
-# This will cleanup all oneadmin's SSH master sockets for the persistent
-# connections when they reach an age of a one minute to workaround issues and
-# races when SSH is handling these master sockets and ensure that they are not
-# used pass this one minute limit
+# Cleans all oneadmin's SSH master sockets for the persistent
+# connections when they reach their age of one minute as workaround to
+# race condition in OpenSSH during close of the master socket.
+# Possibly related to https://bugzilla.mindrot.org/show_bug.cgi?id=3067
+
 * * * * * oneadmin find ~oneadmin -maxdepth 1 -type s -name '.ssh-M-*.sock' -mmin +1 -delete
