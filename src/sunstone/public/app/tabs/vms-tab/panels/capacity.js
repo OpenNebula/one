@@ -84,7 +84,6 @@ define(function(require) {
     if (memoryCost == undefined){
       memoryCost = Config.onedConf.DEFAULT_COST.MEMORY_COST;
     }
-    console.log("element ->",this.element);
     return TemplateInfo({
       'element': this.element,
       'resizeStateEnabled': resizeStateEnabled,

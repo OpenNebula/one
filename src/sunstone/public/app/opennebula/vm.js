@@ -823,8 +823,6 @@ define(function(require) {
   // Return a dropdown with all the
   function ipsDropdown(element, divider) {
     var ipsStr = this.ipsStr(element,divider,groupByIpsDropdown);
-    console.log(ipsStr);
-
     const ips = ipsStr.split('<br>');
     if ((ips.length < 2) && (!~ipsStr.indexOf("li"))) return ipsStr;
     var html = '<ul class="dropdown menu ips-dropdown" data-dropdown-menu><li><a>Show IPs</a><ul class="menu" style="max-height: 25em; overflow: scroll;">';

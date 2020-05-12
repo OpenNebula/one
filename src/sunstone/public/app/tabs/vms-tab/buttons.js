@@ -76,7 +76,7 @@ define(function(require) {
       type: "action",
       text: Locale.tr("Migrate") + ' <span class="label secondary radius">' + Locale.tr("live") + '</span>',
       layout: "vmsmigration_buttons",
-      custom_classes : "state-dependent"
+      custom_classes : "state-dependent not_firecracker"
     },
     "VM.hold" : {
       type: "action",

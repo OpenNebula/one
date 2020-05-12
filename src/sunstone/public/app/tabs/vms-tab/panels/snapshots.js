@@ -46,6 +46,7 @@ define(function(require) {
     this.panelId = PANEL_ID;
     this.title = Locale.tr("Snapshots");
     this.icon = "fa-laptop";
+    this.class = "not_firecracker";
 
     this.element = info[XML_ROOT];
 

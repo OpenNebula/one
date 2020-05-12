@@ -17,7 +17,7 @@
 <div id="{{containerId}}">
   <ul id="{{containerId}}Tabs" class="tabs sunstone-info-tabs text-center" data-tabs>
     {{#each panels}}
-    <li class="tabs-title {{#if active}}is-active{{/if}}">
+    <li class="{{class}} tabs-title {{#if active}}is-active{{/if}}">
       <a href="#{{panelName}}">
         {{#if icon}}
           <i class="fas {{icon}}"></i>
