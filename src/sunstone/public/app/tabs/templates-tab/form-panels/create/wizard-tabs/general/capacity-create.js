@@ -196,7 +196,6 @@ define(function(require) {
     context.on("change", "#CORES_PER_SOCKET", function(){
       _calculateSockets(context);
     });
-
     // MB to GB
     context.on("input", "div.memory_input input", function(){
       $("div.memory_gb_input input", context).val(_m2g(this.value));
