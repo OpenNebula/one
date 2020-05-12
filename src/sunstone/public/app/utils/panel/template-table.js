@@ -430,7 +430,11 @@ define(function(require) {
               modify
           );
         } else {
-          str += '<tr><td class="key_td">' + Locale.tr(field) + '</td><td class="value_td" id="value_td_input_' + field + '">' + TemplateUtils.htmlEncode(value) + '</td>';
+          str += '<tr><td class="key_td">' + Locale.tr(field) + '</td><td class="value_td" id="value_td_input_' + field + '">';
+          str += (field.toLowerCase() === "link")
+            ? '<a target="_blank" href="'+TemplateUtils.htmlEncode(value)+'">' + TemplateUtils.htmlEncode(value) + '</a></td>'
+            : TemplateUtils.htmlEncode(value) + '</td>';
+          
           if (modify) {
             var edit_html = "";
             var delete_html = "";
