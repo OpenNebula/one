@@ -75,7 +75,6 @@ define(function(require) {
   Panel.PANEL_ID = PANEL_ID;
   Panel.prototype.html = _html;
   Panel.prototype.setup = _setup;
-  Panel.prototype.onShow = _onShow;
 
   return Panel;
 
@@ -150,8 +149,6 @@ define(function(require) {
     context.off("click", "#add_"+RESOURCE+"_action_json").on("click", "#add_"+RESOURCE+"_action_json", function(){
       var new_action = $("select#select_new_action").val();
       var role = $("select#role_name").val();
-      var period = $("input#period").val();
-      var number = $("input#number").val();
       var snap_name = $("#snapname").val();
       var snap_id = $("#snapid").val();
       var disk_id = $("#diskid").val();
@@ -168,12 +165,6 @@ define(function(require) {
         actionJSON.data.id = that.id;
         actionJSON.data.action = {perform: new_action};
         actionJSON.data.action.params = {};
-        if(period!=='' && period!==undefined){
-          actionJSON.data.action.params.period = period;
-        }
-        if(number!=='' && number!==undefined){
-          actionJSON.data.action.params.number = number;
-        }
         if(that.actions.includes(new_action)){
           var rawData = [disk_id,snap_id,snap_name];
           var args = rawData.filter(function (e) {return e;}).join();
@@ -188,16 +179,5 @@ define(function(require) {
       }
       return false;
     });
-  }
-
-  function _onShow(context) {
-    var deploys = this.data.filter(function(roles){
-      return roles && roles.nodes;
-    }).flatMap(function(node){
-      return node.nodes;
-    }).map(function(nde){
-      return nde && nde.deploy_id && nde.vm_info && nde.vm_info.VM && nde.vm_info.VM.NAME ? "<a style='margin-right: 1rem;' href='/#oneflow-services-tab/"+nde.deploy_id+"'>"+nde.vm_info.VM.NAME+"</a>" : "" ;
-    }).join("");
-    $("#list_vms_sched_actions").empty().append(deploys);
   }
 });

@@ -8,22 +8,17 @@ the License for the specific language governing permissions and }} {{! limitatio
 }}
 <table>
   <tr>
-    <td id="list_vms_sched_actions" colspan="3"></td>
-  </tr>
-  <tr>
     <td id="title" colspan="3">
-      <h6 class="title_label">{{tr "New scheduled action"}}:</h6>
+      <h6 class="title_label">{{tr "Perform an action"}}:</h6>
     </td>
   </tr>
-  <tr id="tr_schedule_base">
-    <td>
+  <tr id="tr_schedule_base" style="vertical-align: top;">
+    <td style="width:50%;">
       <select style="width: 100%" id="select_new_action" class="select_new_action" name="select_action">{{{actions}}}</select>
     </td>
     <td colspan="2">
       <div style="display:flex;">
         <select id="role_name" class="select_role" name="select_action" style="width: 100%">{{{roles}}}</select>
-        <input type="number" id="period" placeholder="{{tr 'Period'}}" style="width: 100%">
-        <input type="number" id="number" placeholder="{{tr 'Number'}}" style="width: 100%">
       </div>
       <div style="display:flex;">
         <input type="number" class="hide" id="diskid" placeholder="{{tr 'Disk Id'}}" style="width: 100%">
