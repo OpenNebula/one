@@ -243,7 +243,7 @@ class VcenterMonitor
             mem_shares_level = info['config.memoryAllocation.shares.level']
             mem_shares = info['config.memoryAllocation.shares.shares']
 
-            rp_name = rp_list.select {|item| item[:ref] == ref }.first[:name] \
+            rp_name = @rp_list.select {|item| item[:ref] == ref }.first[:name] \
                 rescue ''
 
             rp_name = 'Resources' if rp_name.empty?
