@@ -840,15 +840,15 @@ define(function(require) {
     if ((ips.length < numIPs)) return ipsStr;
 
     // Take the first x 
-    html = "<ul style='list-style-type:none; margin-bottom:0px;'>";
+    insideHtml = "";
     for (let i = 0; i < numIPs-1; i++) {
-      html += '<li><a style="color:gray">' + ips.shift() + '</a></li>';
+      insideHtml += ips.shift();
+      if (i != numIPs-2){insideHtml+="<br>";}
     }
-    html += "</ul>";
 
     // Format the other IPs inside a dropdown
     if (ips.length){
-      html += '<ul class="dropdown menu ips-dropdown" data-dropdown-menu><li><a style="padding-top:0em;padding-bottom:0em;">...</a><ul class="menu" style="max-height: 25em; overflow: scroll;">';
+      html += '<ul class="dropdown menu ips-dropdown" data-dropdown-menu><li><a style="padding-top:0em;padding-bottom:0em;color:gray">'+insideHtml+'...</a><ul class="menu" style="max-height: 25em; overflow: scroll;">';
       $.each(ips, function(index, value){
         html+='<li><a style="color:gray">' + value + '</a></li>';
       });
