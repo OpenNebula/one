@@ -309,9 +309,9 @@ define(function(require) {
               var anchorAttributes = {class: "detachnic", href: "VM.detachnic"};
               var anchor = $("<a/>",anchorAttributes).append(icon); //"<a href=\"VM.detachnic\" class=\"detachnic\" ><i class=\"fas fa-times\"/></a>";
               if (validateState(that,"VM.attachnic") && OpenNebulaVM.isNICAttachSupported(that.element)) {
-                html += isFirecracker(that) && anchor.get(0).outerHTML;
+                actions += isFirecracker(that) && anchor.get(0).outerHTML;
               } else {
-                html += !isFirecracker(that) && anchor.get(0).outerHTML;
+                actions += !isFirecracker(that) && anchor.get(0).outerHTML;
               }
             }
           }
