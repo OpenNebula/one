@@ -863,6 +863,7 @@ define(function(require) {
           SunstoneCfg["tabs"][tabName]["panelInstances"][panelName] = panelInstance;
           templatePanelsParams.push({
             "panelName": panelName,
+            "class": panelInstance.class,
             "icon": panelInstance.icon,
             "title": panelInstance.title,
             "html": panelInstance.html(),

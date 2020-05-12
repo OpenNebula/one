@@ -46,6 +46,7 @@ define(function(require) {
       type: "single",
       call: OpenNebulaVM.show,
       callback: function(request, response) {
+        $(".not_firecracker").removeClass("hide");
         if (Config.isTabEnabled("provision-tab")) {
           $(".provision_refresh_info", ".provision_list_vms").click();
         } else {
@@ -54,6 +55,13 @@ define(function(require) {
             Sunstone.insertPanels(TAB_ID, response);
           }
         }
+        if(response && 
+          response.VM && 
+          response.VM.USER_TEMPLATE && 
+          response.VM.USER_TEMPLATE.HYPERVISOR &&
+          response.VM.USER_TEMPLATE.HYPERVISOR === "firecracker"){
+            $(".not_firecracker").addClass("hide");
+          }
       },
       error: Notifier.onError
     },

@@ -255,6 +255,19 @@ define(function(require) {
 
     var disk_dt_data = [];
     if (disks.length) {
+      var isFirecracker = that && 
+              that.element && 
+              that.element.USER_TEMPLATE && 
+              that.element.USER_TEMPLATE.HYPERVISOR && 
+              that.element.USER_TEMPLATE.HYPERVISOR === "firecracker";
+
+      var validateState = function(state){
+        var rtn = false;
+        if(state){
+          rtn = StateActions.enabledStateAction(state, that.element.STATE, that.element.LCM_STATE)
+        }
+        return rtn;
+      }
 
       for (var i = 0; i < disks.length; i++) {
         var disk = disks[i];
@@ -285,21 +298,23 @@ define(function(require) {
         } else {
           actions = '';
 
-
           if (Config.isTabActionEnabled("vms-tab", "VM.disk_saveas")) {
             // Check if it's volatile
-            if (disk.IMAGE_ID &&
-                 StateActions.enabledStateAction("VM.disk_saveas", that.element.STATE, that.element.LCM_STATE)) {
-              if(Array.isArray(that.element.HISTORY_RECORDS.HISTORY)){
-                var historyLenght = that.element.HISTORY_RECORDS.HISTORY.length - 1;
-                if(that.element.LCM_STATE != "3" || that.element.HISTORY_RECORDS.HISTORY[historyLenght].VM_MAD != "vcenter"){
-                  actions += '<a href="VM.disk_saveas" class="disk_saveas nowrap" >\
-              <i class="fas fa-save fa-fw" title="Saveas"></i></a> &emsp;';
-                }
-              } else {
-                if(that.element.LCM_STATE != "3" || that.element.HISTORY_RECORDS.HISTORY.VM_MAD != "vcenter"){
-                  actions += '<a href="VM.disk_saveas" class="disk_saveas nowrap" >\
-              <i class="fas fa-save fa-fw" title="Saveas"></i></a> &emsp;';
+            if (disk.IMAGE_ID && validateState("VM.disk_saveas")) {
+                  if(Array.isArray(that.element.HISTORY_RECORDS.HISTORY)){
+                    var historyLenght = that.element.HISTORY_RECORDS.HISTORY.length - 1;
+                    if(that.element.LCM_STATE != "3" || that.element.HISTORY_RECORDS.HISTORY[historyLenght].VM_MAD != "vcenter"){
+                      var render = '<a href="VM.disk_saveas" class="disk_saveas nowrap" >\
+                        <i class="fas fa-save fa-fw" title="Saveas"></i>\
+                      </a> &emsp;';
+                      actions += !isFirecracker? render : "";
+                  }
+                } else {
+                  if(that.element.LCM_STATE != "3" || that.element.HISTORY_RECORDS.HISTORY.VM_MAD != "vcenter"){
+                    var render ='<a href="VM.disk_saveas" class="disk_saveas nowrap" >\
+                      <i class="fas fa-save fa-fw" title="Saveas"></i>\
+                    </a> &emsp;';
+                    actions += !isFirecracker? render : "";
                 }
               }
               //+ Locale.tr("Save as") + ';'
@@ -308,10 +323,17 @@ define(function(require) {
 
 
           if (Config.isTabActionEnabled("vms-tab", "VM.detachdisk")) {
-            if (StateActions.enabledStateAction("VM.detachdisk", that.element.STATE, that.element.LCM_STATE) && !disk.CONTEXT) {
-              actions += ('<a href="VM.detachdisk" class="detachdisk nowrap" >\
-              <i class="fas fa-times fa-fw" title="Detach"></i></a> &emsp;');// + Locale.tr("Detach") +
-              
+            var vmState = validateState("VM.detachdisk");
+            var render = (
+              '<a href="VM.detachdisk" class="detachdisk nowrap" >\
+                  <i class="fas fa-times fa-fw" title="Detach"></i>\
+               </a> &emsp;'
+            );
+            if(isFirecracker && !vmState){
+              actions += render;
+            }
+            if(!isFirecracker && vmState && !disk.CONTEXT){
+              actions += render;
             }
           }
 
@@ -319,7 +341,6 @@ define(function(require) {
             if (StateActions.enabledStateAction("VM.disk_snapshot_create", that.element.STATE, that.element.LCM_STATE) && disk.IMAGE_ID) {
               actions += ('<a href="VM.disk_snapshot_create" class="disk_snapshot_create nowrap" >\
               <i class="fas fa-camera fa-fw" title="Snapshot"></i></a> &emsp;');//+ Locale.tr("Snapshot") +
-              
             }
           }
           
@@ -450,7 +471,8 @@ define(function(require) {
     }
 
     if (Config.isTabActionEnabled("vms-tab", "VM.attachdisk")) {
-      if (!StateActions.enabledStateAction("VM.attachdisk", that.element.STATE, that.element.LCM_STATE)){
+      var vmState = validateState("VM.attachdisk");
+      if (!vmState){
         $('#attach_disk', context).attr("disabled", "disabled");
       }
 
