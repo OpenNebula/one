@@ -354,10 +354,10 @@ module OneProvision
                     dfile     = Utils.create_deployment_file(erb, @id, @name)
                     playbooks = cfg['playbook']
 
+                    playbooks.join(',') if playbooks.is_a? Array
+
                     host = Host.new
-                    host = host.create(dfile.to_xml,
-                                       cid.to_i,
-                                       playbooks.join(','))
+                    host = host.create(dfile.to_xml, cid.to_i, playbooks)
 
                     @hosts << host
 
