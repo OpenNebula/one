@@ -39,10 +39,7 @@ host    = ARGV[-1]
 host_id = ARGV[-2]
 vcm = VcenterMonitor.new(host, host_id)
 begin
-    # Fetch VMs info ( update cache if neccesary )
-    # vcm.retrieve_vms_data
-    # puts vcm.probe_vm_monitor
-    puts vcm.monitor_vms
+    puts vcm.monitor_vms('ones')
 rescue StandardError => e
     OpenNebula.handle_driver_exception('im probe_vm_monitor', e, host)
 end

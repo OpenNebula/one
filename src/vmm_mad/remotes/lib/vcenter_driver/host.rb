@@ -502,7 +502,7 @@ class ClusterComputeResource
         return host_info
     end
 
-    def monitor_vms(host_id)
+    def monitor_vms(host_id, vm_type)
         vc_uuid = @vi_client.vim.serviceContent.about.instanceUuid
         cluster_name = self["name"]
         cluster_ref = self["_ref"]
@@ -660,7 +660,13 @@ class ClusterComputeResource
                 vm = VCenterDriver::VirtualMachine.new_from_ref(@vi_client, vm_ref, info["name"], opts)
                 id = vm.vm_id
 
-                next if id == -1
+                if vm_type == 'ones'
+                    next if id == -1
+                elsif vm_type == 'wilds'
+                    next if id != -1
+                else
+                    next
+                end
 
                 #skip if it's already monitored
                 if vm.one_exist?

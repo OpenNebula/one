@@ -422,10 +422,6 @@ module VirtualMachineMonitor
         end
 
         if @vm_info
-            # rp_name = @vm_info[:rp_list]
-            #           .select {|item|
-            #               item[:ref] == @vm_info['resourcePool']._ref
-            #           }.first[:name] rescue ''
             rp_name = @vm_info[:rp_list]
                       .select do |item|
                           item[:ref] == @vm_info['resourcePool']._ref
@@ -467,10 +463,10 @@ module VirtualMachineMonitor
                  << vmtools_verst << "\n"
         str_info << 'VCENTER_RP_NAME="' << rp_name << '" ' << "\n"
 
-        # @vm.info_disks.each do |disk|
-        #     str_info << "DISK_#{disk[0]}_ACTUAL_PATH=\"[" <<
-        #         disk[1].ds.name << '] ' << disk[1].path << '" '
-        # end
+        info_disks.each do |disk|
+            str_info << "DISK_#{disk[0]}_ACTUAL_PATH=\"[" <<
+                disk[1].ds.name << '] ' << disk[1].path << '" '
+        end
 
         str_info
     end

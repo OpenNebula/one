@@ -59,7 +59,7 @@ begin
     vcm.retrieve_vms_data
 
     # VM wilds info
-    puts vcm.wilds
+    puts vcm.monitor_vms('wilds')
 
     # Datastore Monitoring
     puts vcm.monitor_datastores
