@@ -102,6 +102,28 @@ func NewHTTPResponse(r *http.Response, e error) (*Response, error) {
 	}, nil
 }
 
+// HTTPMethod interface to client internals
+func (c *RESTClient) HTTPMethod(method string, url string, args ...interface{}) (*Response, error) {
+	var e error
+	var response Response
+	r := &response
+
+	switch method {
+	case "GET":
+		r, e = c.Get(string(url))
+	case "DELETE":
+		r, e = c.Delete(string(url))
+	case "POST":
+		r, e = c.Post(string(url), args[1].(map[string]interface{}))
+	case "PUT":
+		r, e = c.Put(string(url), args[1].(map[string]interface{}))
+	case "":
+		return &Response{}, e
+	}
+
+	return r, e
+}
+
 // HTTP METHODS
 // The url passed to the methods is the follow up to the endpoint
 // ex. use service instead of  http://localhost:2474/service
