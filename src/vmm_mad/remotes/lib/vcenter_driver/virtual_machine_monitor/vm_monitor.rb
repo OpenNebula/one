@@ -442,7 +442,6 @@ module VirtualMachineMonitor
                      << '" '
         end
 
-        str_info << "#{POLL_ATTRIBUTE[:state]}=" << @state << "\n"
         str_info << "#{POLL_ATTRIBUTE[:cpu]}=" << used_cpu.to_s << "\n"
         str_info << "#{POLL_ATTRIBUTE[:memory]}=" << used_memory.to_s << "\n"
         str_info << "#{POLL_ATTRIBUTE[:netrx]}=" << netrx.to_s << "\n"
@@ -465,7 +464,7 @@ module VirtualMachineMonitor
 
         info_disks.each do |disk|
             str_info << "DISK_#{disk[0]}_ACTUAL_PATH=\"[" <<
-                disk[1].ds.name << '] ' << disk[1].path << '" '
+                disk[1].ds.name << '] ' << disk[1].path << '" ' << "\n"
         end
 
         str_info
