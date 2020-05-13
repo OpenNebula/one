@@ -93,6 +93,7 @@ class OneMarket
             print_var(tmpl, 'VERSION',     app['version'])
             print_var(tmpl, 'TAGS',        app['tags'].join(', '))
             print_var(tmpl, 'REGTIME',     app['creation_time'])
+            print_var(tmpl, 'LINK', source.gsub('download/0', '').gsub('//', '/'))
 
             if !app['files'].nil? && !app['files'][0].nil?
                 file = app['files'][0]
