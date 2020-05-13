@@ -17,6 +17,7 @@
 define(function(require) {
 //  require('foundation.alert');
   var OpenNebula = require("opennebula");
+  var Sunstone = require("sunstone");
   var OpenNebulaService = require("opennebula/service");
   var OpenNebulaVm = require("opennebula/vm");
   var Locale = require("utils/locale");
@@ -133,7 +134,7 @@ define(function(require) {
     provision_flows_datatable = $(".provision_flows_table", context).dataTable({
       "iDisplayLength": 6,
       "sDom" : "<\"H\">t<\"F\"lp>",
-      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
+      "aLengthMenu": Sunstone.getPaginate(),
       "aaSorting"  : [[0, "desc"]],
       "aoColumnDefs": [
           { "bVisible": false, "aTargets": ["all"]}

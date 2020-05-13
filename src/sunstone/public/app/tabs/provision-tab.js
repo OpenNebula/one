@@ -755,7 +755,7 @@ define(function(require) {
             "iDisplayLength": 6,
             "bAutoWidth": false,
             "sDom" : "<\"H\">t<\"F\"lp>",
-            "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
+            "aLengthMenu": Sunstone.getPaginate(),
             "aoColumnDefs": [
                 { "bVisible": false, "aTargets": ["all"]}
             ],
@@ -1093,7 +1093,7 @@ define(function(require) {
             "iDisplayLength": 6,
             "bAutoWidth": false,
             "sDom" : "<\"H\">t<\"F\"lp>",
-            "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
+            "aLengthMenu": Sunstone.getPaginate(),
             "aaSorting"  : [[1, "asc"]],
             "aoColumnDefs": [
                 { "bVisible": false, "aTargets": ["all"]}

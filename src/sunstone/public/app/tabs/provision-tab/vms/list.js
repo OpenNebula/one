@@ -138,7 +138,7 @@ define(function(require) {
       "iDisplayLength": 6,
       "bAutoWidth": false,
       "sDom" : "<\"H\">t<\"F\"lp>",
-      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
+      "aLengthMenu": Sunstone.getPaginate(),
       "aaSorting"  : [[0, "desc"]],
       "aoColumnDefs": [
           { "bVisible": false, "aTargets": ["all"]},
