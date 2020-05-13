@@ -293,13 +293,18 @@ define(function(require) {
     var displayType = true;
     var displaySelection = true;
     var displayRDP = true;
-    if(template_json && template_json.VMTEMPLATE && template_json.VMTEMPLATE.TEMPLATE){
-      var templateType = template_json.VMTEMPLATE.TEMPLATE.HIDE_NETWORK_TYPE;
-      var templateSelection = template_json.VMTEMPLATE.TEMPLATE.HIDE_NETWORK_SELECTION;
-      var templateRDP = template_json.VMTEMPLATE.TEMPLATE.HIDE_NETWORK_RDP;
-      displayType = templateType && templateType.toUpperCase()==='YES'? false : true;
-      displaySelection = templateSelection && templateSelection.toUpperCase()==='YES'? false : true;
-      displayRDP = templateRDP && templateRDP.toUpperCase()==='YES'? false : true;
+    if(
+      template_json && 
+      template_json.VMTEMPLATE && 
+      template_json.VMTEMPLATE.TEMPLATE &&  
+      template_json.VMTEMPLATE.TEMPLATE.SUNSTONE
+    ){
+      var templateType = template_json.VMTEMPLATE.TEMPLATE.SUNSTONE.NETWORK_ALIAS;
+      var templateSelection = template_json.VMTEMPLATE.TEMPLATE.SUNSTONE.NETWORK_AUTO;
+      var templateRDP = template_json.VMTEMPLATE.TEMPLATE.SUNSTONE.NETWORK_RDP;
+      displayType = templateType && templateType.toUpperCase()==='NO'? false : true;
+      displaySelection = templateSelection && templateSelection.toUpperCase()==='NO'? false : true;
+      displayRDP = templateRDP && templateRDP.toUpperCase()==='NO'? false : true;
     }
     var dd_context = $(TemplateDD({
       vnetsTableHTML: vnetsTable.dataTableHTML,
