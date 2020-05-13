@@ -98,14 +98,18 @@ define(function(require) {
     this.roleTabObjects = {};
     var that = this;
 
+    this.numberOfNetworks = 0;
     var roles_index = 0;
 
     $(".add_service_network", context).on("click", function(){
+      var nic_index = that.numberOfNetworks;
+      that.numberOfNetworks++;
+
       $(".service_networks tbody").append(
-        '<tr>\
+        '<tr id="network'+nic_index+'">\
           <td>\
-            <input class="service_network_name" type="text" pattern="^\\w+$"/>\
-            <small class="form-error"><br/>'+Locale.tr("Can only contain alphanumeric and underscore characters")+'</small>\
+            <input class="service_network_name" type="text" data-index="'+nic_index+'" required />\
+            <small class="form-error"><br/>'+Locale.tr("Can only contain alphanumeric and underscore characters, and be unique")+'</small>\
           </td>\
           <td>\
             <textarea class="service_network_description"/>\
@@ -114,13 +118,21 @@ define(function(require) {
             <a href="#"><i class="fas fa-times-circle remove-tab"></i></a>\
           </td>\
         </tr>');
+
+        $(".service_network_name", "tr#network"+nic_index).unbind("keyup");
+        $(".service_network_name", "tr#network"+nic_index).bind("keyup", function(){
+          // update pattern regex
+          var otherNames = $("input.service_network_name").not($(this)).map(function() {
+            return $(this).val();
+          }).get().join("|");
+    
+          $(this).attr("pattern", "^(?!(" + otherNames + ")$)(^\\w+$)");
+    
+          _redo_service_networks_selector(context, that);
+        });
     });
 
     $(".add_service_network", context).trigger("click");
-
-    context.on("change", ".service_network_name", function(){
-      _redo_service_networks_selector(context, that);
-    });
 
     context.on("click", ".service_networks i.remove-tab", function(){
       var tr = $(this).closest('tr');
@@ -389,16 +401,10 @@ define(function(require) {
 
     var str = "";
     $(".service_networks .service_network_name", dialog).each(function(index, input){
-      var othersNames = $("input.service_network_name").not(input).map(function(_, v) {
-        return $(v).val();
-      }).get().join("|");
-
-      $(this).attr("pattern", "^(?!"+othersNames+")(\\w+)$");
-      
       var name = $(this).val();
-      var regexp = new RegExp("^(?!"+othersNames+")(\\w+)$", "gi");
+      var regexp = new RegExp($(this).attr("pattern"), "gi");
 
-      if (name && othersNames === "" || name.match(regexp)) {
+      if (name && name !== "" && regexp.test(name)) {
         service_networks = true;
         var idNetwork = role_tab_id + "_" + index;
         var idName = idNetwork + "_name";
