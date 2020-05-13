@@ -2,18 +2,20 @@
 # package. Latest default configurations are located in
 # /usr/share/one/ssh/.
 
-#####################################################################
+###############################################################################
 # WARNING: This configuration file is ONLY for OpenSSH 7.6 and newer!
-#####################################################################
+###############################################################################
 
 Host *
   StrictHostKeyChecking accept-new
   ServerAliveInterval 10
-  ControlMaster auto
-  #####################################################################
-  # The following options must be aligned with the accompanying cronjob
-  # /etc/cron.d/opennebula-ssh-socks-cleaner which implements workaround
-  # for OpenSSH race condition during close of the master socket.
+  #############################################################################
+  # 'ControlMaster' is overriden by OpenNebula's drivers when needed
+  ControlMaster no
+  # The following options must be aligned with the accompanying cronjob:
+  # /etc/cron.d/opennebula-ssh-socks-cleaner (if present) which implements
+  # workaround for OpenSSH race condition during the closing of the master
+  # socket.
   #
   # 'ControlPersist' cannot be set less than 120 (two minutes) to offset the
   # minimum one minute time before each cronjob check! It will also not change
