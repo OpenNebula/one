@@ -317,7 +317,7 @@ class Domain
         tmpl << "VCPU=#{vcpu}\n"
         tmpl << "MEMORY=#{mem}\n"
         tmpl << "HYPERVISOR=\"kvm\"\n"
-        tmpl << "IMPORT_VM_ID=\"#{uuid}\"\n"
+        tmpl << "DEPLOY_ID=\"#{name}\"\n"
         tmpl << "OS=[ARCH=\"#{arch}\"]\n"
         tmpl << features_txt << "\n" unless features_txt.empty?
         tmpl << spice_txt << "\n" unless spice_txt.empty?
@@ -516,7 +516,7 @@ module DomainList
             mon_s = ''
 
             @vms.each do |_uuid, vm|
-                mon_s << "VM = [ ID=\"#{vm[:id]}\", UUID=\"#{vm[:uuid]}\","
+                mon_s << "VM = [ ID=\"#{vm[:id]}\", DEPLOY_ID=\"#{vm[:name]}\","
                 mon_s << " MONITOR=\"#{vm.to_monitor}\"]\n"
             end
 
@@ -530,7 +530,7 @@ module DomainList
             @vms.each do |_uuid, vm|
                 next if vm[:id] != -1 || vm[:template].empty?
 
-                mon_s << "VM = [ID=\"#{vm[:id]}\", UUID=\"#{vm[:uuid]}\","
+                mon_s << "VM = [ID=\"#{vm[:id]}\", DEPLOY_ID=\"#{vm[:name]}\","
                 mon_s << " VM_NAME=\"#{vm.name}\","
                 mon_s << " IMPORT_TEMPLATE=\"#{vm[:template]}\"]\n"
             end

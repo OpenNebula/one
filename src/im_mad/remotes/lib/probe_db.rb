@@ -227,17 +227,15 @@ class VirtualMachineDB
 
     def vm_to_status(vm, state = vm[:state])
         "VM = [ ID=\"#{vm[:id]}\", DEPLOY_ID=\"#{vm[:name]}\", " \
-        " UUID=\"#{vm[:uuid]}\", STATE=\"#{state}\" ]\n"
+        " STATE=\"#{state}\" ]\n"
     end
 
     def vm_db_to_status(vm, state = vm[col_name_to_idx('state')])
         id    = col_name_to_idx('id')
         name  = col_name_to_idx('name')
-        uuid  = col_name_to_idx('uuid')
-
 
         "VM = [ ID=\"#{vm[id]}\", DEPLOY_ID=\"#{vm[name]}\", " \
-        " UUID=\"#{vm[uuid]}\", STATE=\"#{state}\" ]\n"
+        " STATE=\"#{state}\" ]\n"
     end
 
     # Load configuration file and parse user provided options

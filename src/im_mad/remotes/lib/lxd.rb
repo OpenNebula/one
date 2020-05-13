@@ -36,7 +36,6 @@ module LXD
             @container = container
 
             @deploy_id = @container.name
-            @uuid      = "#{@deploy_id}-#{Socket.gethostname}"
 
             if @deploy_id =~ /^one-\d+/
                 @wild = false
@@ -139,7 +138,7 @@ module LXD
                 VCPU   = #{vcpu}
                 MEMORY = #{mem}
                 HYPERVISOR   = "lxd"
-                IMPORT_VM_ID = "#{@deploy_id}"
+                DEPLOY_ID = "#{@deploy_id}"
                 OS = [ ARCH="#{arch}" ]
             EOT
 
@@ -149,7 +148,7 @@ module LXD
         private
 
         def template_string_header
-            "VM = [ ID=#{@id}, UUID=#{@uuid}, "
+            "VM = [ ID=#{@id}, DEPLOY_ID=#{@deploy_id}, "
         end
 
         def parse_memory(memory)
