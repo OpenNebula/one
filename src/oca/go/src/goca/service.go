@@ -13,9 +13,19 @@ func init() {
 	endpoint = "service"
 }
 
+// ServiceController interacts with oneflow service. Uses REST Client.
 type ServiceController entityController
 
+// ServicesController interacts with oneflow services. Uses REST Client.
+type ServicesController entitiesController
+
+// Service Controller constructor
 func (c *Controller) Service(id int) *ServiceController {
+	return &ServiceController{c, id}
+}
+
+// Services Controller constructor
+func (c *Controller) Services(id int) *ServiceController {
 	return &ServiceController{c, id}
 }
 
@@ -53,10 +63,10 @@ func (sc *ServiceController) Map(service *service.Service) map[string]interface{
 // OpenNebula Actions
 
 // Show the SERVICE resource identified by <id>
-func (sc *ServiceController) Show(id int) (*service.Service, error) {
-	url := urlService(id)
+func (sc *ServiceController) Show() (*service.Service, error) {
+	url := urlService(sc.ID)
 
-	response, e := sc.c.Client2.Get(url)
+	response, e := sc.c.ClientREST.HTTPMethod("GET", url)
 
 	if e != nil {
 		return &service.Service{}, e
@@ -66,10 +76,10 @@ func (sc *ServiceController) Show(id int) (*service.Service, error) {
 }
 
 // Delete the SERVICE resource identified by <id>
-func (sc *ServiceController) Delete(id int) (bool, string) {
+func (sc *ServiceController) Delete() (bool, string) {
 	url := urlService(sc.ID)
 
-	response, e := sc.c.Client2.Delete(url)
+	response, e := sc.c.ClientREST.HTTPMethod("DELETE", url)
 
 	if e != nil {
 		return false, e.Error()
@@ -79,29 +89,29 @@ func (sc *ServiceController) Delete(id int) (bool, string) {
 }
 
 // Shutdown running services
-func (sc *ServiceController) Shutdown(id int) (bool, string) {
+func (sc *ServiceController) Shutdown() (bool, string) {
 	action := make(map[string]interface{})
 
 	action["action"] = map[string]interface{}{
 		"perform": "shutdown",
 	}
 
-	return sc.serviceAction(id, action)
+	return sc.serviceAction(action)
 }
 
 // Recover existing service
-func (sc *ServiceController) Recover(id int) (bool, string) {
+func (sc *ServiceController) Recover() (bool, string) {
 	action := make(map[string]interface{})
 
 	action["action"] = map[string]interface{}{
 		"perform": "recover",
 	}
 
-	return sc.serviceAction(id, action)
+	return sc.serviceAction(action)
 }
 
 // Chgrp service
-func (sc *ServiceController) Chgrp(id, gid int) (bool, string) {
+func (sc *ServiceController) Chgrp(gid int) (bool, string) {
 	action := make(map[string]interface{})
 
 	action["action"] = map[string]interface{}{
@@ -111,11 +121,11 @@ func (sc *ServiceController) Chgrp(id, gid int) (bool, string) {
 		},
 	}
 
-	return sc.serviceAction(id, action)
+	return sc.serviceAction(action)
 }
 
 // Chown service
-func (sc *ServiceController) Chown(id, uid, gid int) (bool, string) {
+func (sc *ServiceController) Chown(uid, gid int) (bool, string) {
 	action := make(map[string]interface{})
 
 	action["action"] = map[string]interface{}{
@@ -126,12 +136,12 @@ func (sc *ServiceController) Chown(id, uid, gid int) (bool, string) {
 		},
 	}
 
-	return sc.serviceAction(id, action)
+	return sc.serviceAction(action)
 }
 
 // TODO: Confirm param keys
 // Chmod service
-func (sc *ServiceController) Chmod(id, owner, user, other int) (bool, string) {
+func (sc *ServiceController) Chmod(owner, user, other int) (bool, string) {
 	action := make(map[string]interface{})
 
 	action["action"] = map[string]interface{}{
@@ -143,20 +153,28 @@ func (sc *ServiceController) Chmod(id, owner, user, other int) (bool, string) {
 		},
 	}
 
-	return sc.serviceAction(id, action)
+	return sc.serviceAction(action)
 }
 
 // List the contents of the SERVICE collection.
-func List(client *RESTClient) *[]service.Service {
-	var services []service.Service
+func (ssc *ServicesController) List() (*[]*service.Service, error) {
+	var services []*service.Service
 
-	// url := fmt.Sprintf("%s/%s", client.Address, endpoint)
+	response, e := ssc.c.ClientREST.HTTPMethod("GET", endpoint)
 
-	// servlist := Btomap(client.Get(url))
+	if e != nil {
+		services = append(services, &service.Service{})
+		return &services, e
+	}
 
-	// Iterate map >> Build service >> Push service to array
+	documents := response.BodyMap()["DOCUMENT_POOL"].(map[string]interface{})
 
-	return &services
+	for _, v := range documents {
+		service := NewService(v.(map[string]interface{}))
+		services = append(services, service)
+	}
+
+	return &services, e
 }
 
 // Helpers
@@ -176,10 +194,10 @@ func urlAction(id int) string {
 }
 
 // Generic action for existing flow services. Requires the action body.
-func (sc *ServiceController) serviceAction(id int, action map[string]interface{}) (bool, string) {
-	url := urlAction(id)
+func (sc *ServiceController) serviceAction(action map[string]interface{}) (bool, string) {
+	url := urlAction(sc.ID)
 
-	response, e := sc.c.Client2.Post(url, action)
+	response, e := sc.c.ClientREST.HTTPMethod("POST", url, action)
 
 	if e != nil {
 		return false, e.Error()

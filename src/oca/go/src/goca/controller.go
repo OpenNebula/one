@@ -23,16 +23,13 @@ type RPCCaller interface {
 
 // HTTPCaller is the analogous to RPCCaller but for http endpoints
 type HTTPCaller interface {
-	Get(eurl string) (*Response, error)
-	Delete(eurl string) (*Response, error)
-	Post(eurl string, body map[string]interface{}) (*Response, error)
-	Put(eurl string, body map[string]interface{}) (*Response, error)
+	HTTPMethod(method string, url string, args ...interface{}) (*Response, error)
 }
 
 // Controller is the controller used to make requets on various entities
 type Controller struct {
-	Client  RPCCaller
-	Client2 HTTPCaller
+	Client     RPCCaller
+	ClientREST HTTPCaller
 }
 
 // entitiesController is a controller for entitites
@@ -60,10 +57,19 @@ type subEntityController struct {
 }
 
 // NewController return a new one controller
-func NewController(c RPCCaller, httpc HTTPCaller) *Controller {
+func NewController(c RPCCaller) *Controller {
 	return &Controller{
-		Client:  c,
-		Client2: httpc,
+		Client: c,
+	}
+}
+
+// SetClients updates the clients that the controller interface will use. If nil is passed then there is no client update
+func (c *Controller) SetClients(rpcc RPCCaller, httpc HTTPCaller) {
+	if rpcc != nil {
+		c.Client = rpcc
+	}
+	if httpc != nil {
+		c.ClientREST = httpc
 	}
 }
 
