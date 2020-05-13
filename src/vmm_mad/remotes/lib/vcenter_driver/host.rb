@@ -634,7 +634,7 @@ class ClusterComputeResource
         }
 
         vms.each do |vm_ref,info|
-            vm_info = ""
+            vm_info = ''
             begin
                 esx_host = esx_hosts[info["runtime.host"]._ref]
                 info[:esx_host_name] = esx_host[:name]
@@ -657,8 +657,21 @@ class ClusterComputeResource
                 next if running_flag == "no"
 
                 # retrieve vcenter driver machine
-                vm = VCenterDriver::VirtualMachine.new_from_ref(@vi_client, vm_ref, info["name"], opts)
-                id = vm.vm_id
+                begin
+                    vm = VCenterDriver::VirtualMachine.new_from_ref(@vi_client, vm_ref, info["name"], opts)
+                    id = vm.vm_id
+                rescue
+                    # Wild starting with one- not existing in one.
+                    next
+                end
+                if !vm.nil? && vm.one_exist?
+                    one_uuid = vm.one_item.deploy_id + vc_uuid
+                    vmvc_uuid = vm_ref + vc_uuid
+                    if one_uuid != vmvc_uuid
+                        # Wild starting with one- with the same id like existing one vm
+                        next
+                    end
+                end
 
                 if vm_type == 'ones'
                     next if id == -1
@@ -680,20 +693,20 @@ class ClusterComputeResource
                 vm_name = "#{info["name"]} - #{cluster_name}"
                 vm_info << "VM = [ ID=\"#{id}\", "
                 vm_info << "VM_NAME=\"#{vm_name}\", "
-                vm_info << "DEPLOY_ID=\"#{vm_ref}\", "
+                vm_info << "UUID=\"#{vm_ref + vc_uuid}\", "
 
                 # if the machine does not exist in opennebula it means that is a wild:
                 unless vm.one_exist?
                     vm_template_64 = Base64.encode64(vm.vm_to_one(vm_name)).gsub("\n","")
                     vm_info << "VCENTER_TEMPLATE=\"YES\","
-                    vm_info << "IMPORT_TEMPLATE=\"#{vm_template_64}\"]"
+                    vm_info << "IMPORT_TEMPLATE=\"#{vm_template_64}\"]\n"
                 else
                     mon_s64 = Base64.strict_encode64(vm.info)
                     vm_info << "MONITOR=\"#{mon_s64}\"]\n"
                 end
 
             rescue StandardError => e
-                vm_info = error_monitoring(e, vm_ref, info)
+                vm_info = error_monitoring(e, id, vm_ref, info)
             end
 
             str_info << vm_info
@@ -704,20 +717,16 @@ class ClusterComputeResource
         return str_info, last_mon_time
     end
 
-    def error_monitoring(e, vm_ref, info = {})
+    def error_monitoring(e, id, vm_ref, info = {})
         error_info = ''
         vm_name = info['name'] || nil
         tmp_str = e.inspect
         tmp_str << e.backtrace.join("\n")
 
-        error_info << %Q{
-        VM = [
-            VM_NAME="#{vm_name}",
-            DEPLOY_ID="#{vm_ref}",
-        }
-
-        error_info << "ERROR=\"#{Base64.encode64(tmp_str).gsub("\n","")}\"]"
-
+        error_info << "VM = [ ID=\"#{id}\", "
+        error_info << "VM_NAME=\"#{vm_name}\", "
+        error_info << "UUID=\"#{vm_ref + vc_uuid}\", "
+        error_info << "ERROR=\"#{Base64.encode64(tmp_str).gsub("\n", '')}\"]\n"
     end
 
     def monitor_customizations
