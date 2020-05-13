@@ -441,8 +441,7 @@ define(function(require) {
       if ($(e.target).is('input') || $(e.target).is('select') || $(e.target).is('option')) {
         return true;
       }
-
-      if (info_action) {
+      else if (info_action) {
         //If ctrl is hold down, make check_box click
         if (e.ctrlKey || e.metaKey || $(e.target).is('input')) {
           $('.check_item', this).trigger('click');
@@ -969,27 +968,25 @@ define(function(require) {
         that.selectOptions.unselect_callback(aData, that.selectOptions);
       });
     } else {
-      $('#' + that.dataTableId + ' tbody', section).delegate("tr", "click", function(e) {
+      $('#' + that.dataTableId + ' tbody', section).delegate("tr", "click", function() {
         that.dataTable.unbind("draw");
+        var wasChecked = $("td.markrow", this).hasClass("markrow");
         var aData = that.dataTable.fnGetData(this);
+        var check = aData != undefined && !wasChecked;
 
-        $("td.markrow", that.dataTable).removeClass('markrow');
-        $('tbody input.check_item', that.dataTable).prop('checked', false);
+        $("td", that.dataTable).removeClass('markrow');
+        $("td", this).toggleClass('markrow', check);
+        $('tbody input.check_item', that.dataTable).prop('checked', check);
 
-        if (aData != undefined){
-          $("td", this).addClass('markrow');
-          $('input.check_item', this).prop('checked', true);
+        $('#selected_resource_' + that.dataTableId, section).toggle(check);
+        $('#select_resource_' + that.dataTableId, section).toggle(!check);
 
-          $('#selected_resource_' + that.dataTableId, section).show();
-          $('#select_resource_' + that.dataTableId, section).hide();
+        $('#selected_resource_id_' + that.dataTableId, section)
+          .val(function() { return check ? aData[that.selectOptions.id_index] : "" }).trigger("change");
+        $('#selected_resource_name_' + that.dataTableId, section)
+          .text(function() { return check ? aData[that.selectOptions.name_index] : "" }).trigger("change");
 
-          $('#selected_resource_id_' + that.dataTableId, section).val(aData[that.selectOptions.id_index]).trigger("change");
-
-          $('#selected_resource_name_' + that.dataTableId, section).text(aData[that.selectOptions.name_index]).trigger("change");
-          $('#selected_resource_name_' + that.dataTableId, section).show();
-
-          that.selectOptions.select_callback(aData, that.selectOptions);
-        }
+        $('#selected_resource_name_' + that.dataTableId, section).toggle(check);
 
         $('#selected_resource_id_' + that.dataTableId, section).removeData("pending_select");
 
