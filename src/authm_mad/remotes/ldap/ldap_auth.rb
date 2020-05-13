@@ -64,9 +64,8 @@ class OpenNebula::LdapAuth
             }
         end
 
-        if !@options[:rfc2307bis]
-            @options[:attributes] << @options[:user_field]
-        end
+        # always fetch user_filed to compare whitespace diff
+        @options[:attributes] << @options[:user_field]
 
         # fetch the user group field only if we need that
         if @options[:group] or !@options[:rfc2307bis]
@@ -143,15 +142,20 @@ class OpenNebula::LdapAuth
 
         if result && result.first
             @user = result.first
-            [@user.dn, @user[@options[:user_group_field]]]
+
+            [@user.dn,
+             @user[@options[:user_field]].first,
+             @user[@options[:user_group_field]]]
         else
             result=@ldap.search(:base => name)
 
             if result && result.first
                 @user = result.first
-                [name, @user[@options[:user_group_field]]]
+                [name,
+                 @user[@options[:user_field]].first,
+                 @user[@options[:user_group_field]]]
             else
-                [nil, nil]
+                [nil, nil, nil]
             end
         end
     end
