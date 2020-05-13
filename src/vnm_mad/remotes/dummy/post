@@ -18,6 +18,8 @@
 
 stdin="$(</dev/stdin)"
 
+export PATH="${PATH}:/bin:/sbin:/usr/bin"
+
 for f in "$0".d/* ; do
   [ -x "$f" ] || exit 0 && echo "$stdin" | "$f" "$@"  || exit 1
 done
