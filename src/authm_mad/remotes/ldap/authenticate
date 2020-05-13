@@ -54,6 +54,7 @@ begin
     xml.initialize_xml(STDIN.read, 'AUTHN')
 
     user   = URI_PARSER.unescape(xml['/AUTHN/USERNAME'])
+    pass   = URI_PARSER.unescape(xml['/AUTHN/PASSWORD'])
     secret = URI_PARSER.unescape(xml['/AUTHN/SECRET'])
 rescue
     STDERR.puts "Invalid XML input"
@@ -105,16 +106,10 @@ order.each do |name|
             Timeout.timeout(timeout) do
                 ldap=OpenNebula::LdapAuth.new(server_conf)
 
-                user_dn, user_uid, user_group_name = ldap.find_user(user)
+                user_name, user_group_name = ldap.find_user(user)
 
-                if !user_dn
+                if !user_name
                     STDERR.puts "User #{user} not found"
-                    break
-                end
-
-                if user_uid != user
-                    STDERR.puts "User \"#{user}\" has different "\
-                                "casing in LDAP \"#{user_uid}\""
                     break
                 end
 
@@ -125,7 +120,7 @@ order.each do |name|
                     end
                 end
 
-                if ldap.authenticate(user_dn, secret)
+                if ldap.authenticate(user_name, secret)
                     groups = ldap.get_groups
                     if groups.empty?
                         if !server_conf[:mapping_default]
@@ -138,9 +133,8 @@ order.each do |name|
 
                     # authentication success
                     group_list = groups.join(' ')
-
                     escaped_user = URI_PARSER.escape(user).strip.downcase
-                    escaped_secret = URI_PARSER.escape(user_dn)
+                    escaped_secret = URI_PARSER.escape(user_name)
 
                     puts "ldap #{escaped_user} #{escaped_secret} #{group_list}"
                     exit
