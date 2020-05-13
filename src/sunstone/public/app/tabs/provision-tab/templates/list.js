@@ -17,6 +17,7 @@
 define(function(require) {
 //  require('foundation.alert');
   var OpenNebula = require("opennebula");
+  var Sunstone = require("sunstone");
   var Locale = require("utils/locale");
   var Config = require("sunstone-config");
   var Notifier = require("utils/notifier");
@@ -123,7 +124,7 @@ define(function(require) {
     var provision_templates_datatable = $(".provision_templates_table", context).dataTable({
       "iDisplayLength": 8,
       "sDom" : "<\"H\">t<\"F\"lp>",
-      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
+      "aLengthMenu": Sunstone.getPaginate(),
       "aaSorting"  : [[0, "desc"]],
       "aoColumnDefs": [
           { "bVisible": false, "aTargets": ["all"]}

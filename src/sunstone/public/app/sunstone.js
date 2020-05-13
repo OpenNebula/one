@@ -1335,6 +1335,15 @@ define(function(require) {
     router.resolve();
   };
 
+  var _getPaginate = function(){
+    var rtn = [[6, 12, 36, 72], [6, 12, 36, 72]];
+    if(config && config.system_config && config.system_config.paginate){
+      var paginate = config.system_config.paginate;
+      rtn = typeof paginate === 'string' ? JSON.parse(paginate) : paginate;
+    }
+    return rtn;
+  }
+
   var Sunstone = {
     "addMainTabs": _addMainTabs,
     "addMainTab": _addMainTab,
@@ -1373,7 +1382,9 @@ define(function(require) {
 
     "TOP_INTERVAL": TOP_INTERVAL,
 
-    "setupNavigoRoutes": _setupNavigoRoutes
+    "setupNavigoRoutes": _setupNavigoRoutes,
+
+    "getPaginate": _getPaginate
   };
 
   return Sunstone;
