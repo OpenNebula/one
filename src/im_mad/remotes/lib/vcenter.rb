@@ -1048,7 +1048,9 @@ class VcenterMonitor
     # 'wilds' : VMs in vCenter but not in OpenNebula
     # 'ones' : VMs in OpenNebula
     def monitor_vms(vm_type)
-        str_info, last_mon_time = @cluster.monitor_vms(@host_id, vm_type)
+        str_info, last_mon_time = @cluster.monitor_vms(@host_id,
+                                                       vm_type,
+                                                       @vcenter_conf[:debug_information])
         return str_info
     end
 

@@ -502,7 +502,7 @@ class ClusterComputeResource
         return host_info
     end
 
-    def monitor_vms(host_id, vm_type)
+    def monitor_vms(host_id, vm_type, debug = false)
         vc_uuid = @vi_client.vim.serviceContent.about.instanceUuid
         cluster_name = self["name"]
         cluster_ref = self["_ref"]
@@ -662,7 +662,12 @@ class ClusterComputeResource
                     id = vm.vm_id
                 rescue
                     # Wild starting with one- not existing in one.
-                    next
+                    # Show all monitored vms, included if it's configured
+                    # in vcenterrc, skip if not.
+                    next unless debug
+
+                    id = -1
+                    raise
                 end
                 if !vm.nil? && vm.one_exist?
                     one_uuid = vm.one_item.deploy_id + vc_uuid
@@ -693,6 +698,7 @@ class ClusterComputeResource
                 vm_name = "#{info["name"]} - #{cluster_name}"
                 vm_info << "VM = [ ID=\"#{id}\", "
                 vm_info << "VM_NAME=\"#{vm_name}\", "
+                vm_info << "DEPLOY_ID=\"#{vm_ref}\", "
                 vm_info << "UUID=\"#{vm_ref + vc_uuid}\", "
 
                 # if the machine does not exist in opennebula it means that is a wild:
@@ -706,7 +712,7 @@ class ClusterComputeResource
                 end
 
             rescue StandardError => e
-                vm_info = error_monitoring(e, id, vm_ref, info)
+                vm_info = error_monitoring(e, id, vm_ref, vc_uuid, info)
             end
 
             str_info << vm_info
@@ -717,7 +723,7 @@ class ClusterComputeResource
         return str_info, last_mon_time
     end
 
-    def error_monitoring(e, id, vm_ref, info = {})
+    def error_monitoring(e, id, vm_ref, vc_uuid, info = {})
         error_info = ''
         vm_name = info['name'] || nil
         tmp_str = e.inspect
@@ -725,6 +731,7 @@ class ClusterComputeResource
 
         error_info << "VM = [ ID=\"#{id}\", "
         error_info << "VM_NAME=\"#{vm_name}\", "
+        error_info << "DEPLOY_ID=\"#{vm_ref}\", "
         error_info << "UUID=\"#{vm_ref + vc_uuid}\", "
         error_info << "ERROR=\"#{Base64.encode64(tmp_str).gsub("\n", '')}\"]\n"
     end
