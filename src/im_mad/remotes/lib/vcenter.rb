@@ -1220,10 +1220,11 @@ module DomainList
         vms = vcm.fetch_vms_state
         info = {}
         vms.each do |vm|
-            info[vm[:uuid]] = { :id     => vm[:id],
-                                :uuid   => vm[:uuid],
-                                :name   => vm[:deploy_id],
-                                :state  => vm[:state],
+            info[vm[:uuid]] = { :id => vm[:id],
+                                :uuid => vm[:uuid],
+                                :name => vm[:name],
+                                :deploy_id => vm[:deploy_id],
+                                :state => vm[:state],
                                 :hyperv => 'vcenter' }
         end
 
