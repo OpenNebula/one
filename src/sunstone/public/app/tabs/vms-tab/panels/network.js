@@ -42,20 +42,21 @@ define(function(require) {
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
 
-  var isFirecracker = function(context){
+  var isFirecracker = function(context) {
     return context && 
     context.element && 
     context.element.USER_TEMPLATE && 
     context.element.USER_TEMPLATE.HYPERVISOR && 
-    context.element.USER_TEMPLATE.HYPERVISOR === "firecracker"
+    String(context.element.USER_TEMPLATE.HYPERVISOR).toLowerCase() === "firecracker"
   }
 
-  var validateState = function(context, state){
-    var rtn = false;
-    if(context && state && context.element && context.element.STATE && context.element.LCM_STATE){
-      rtn = StateActions.enabledStateAction(state, context.element.STATE, context.element.LCM_STATE)
-    }
-    return rtn;
+  var validateAction = function(context, action) {
+    return (action && context && context.element && context.element.STATE && context.element.LCM_STATE)
+      ? StateActions.enabledStateAction(action, context.element.STATE, context.element.LCM_STATE) : false;
+  }
+
+  var isPowerOff = function(context) {
+    return (context && context.element && context.element.STATE == OpenNebulaVM.STATES.POWEROFF) ? true : false
   }
 
   /*
@@ -103,14 +104,15 @@ define(function(require) {
                   <th>";
 
     if (Config.isTabActionEnabled("vms-tab", "VM.attachnic")) {
-      var renderButton = function(disable){
-        var renderDisable = disable? "disabled='disabled'" : "";
-        return "<button id='attach_nic' class='button small success right radius' "+renderDisable+">" + Locale.tr("Attach nic") + "</button>";
+      var attachButton = function(enable){
+        var isDisabled = enable ?  "" : "disabled='disabled'";
+        return "<button id='attach_nic' class='button small success right radius' "+isDisabled+">" + Locale.tr("Attach nic") + "</button>";
       }
-      if (validateState(that,"VM.attachnic") && OpenNebulaVM.isNICAttachSupported(that.element)) {
-        html += renderButton(isFirecracker(that))
+
+      if (validateAction(that, "VM.attachnic") && OpenNebulaVM.isNICAttachSupported(that.element)) {
+        html += (isFirecracker(that)) ? attachButton(isPowerOff(that)) : attachButton(true);
       } else {
-        html += renderButton(!isFirecracker(that));
+        html += attachButton(false);
       }
     }
 
@@ -308,11 +310,12 @@ define(function(require) {
               var icon = $("<i/>",{class:"fas fa-times"});
               var anchorAttributes = {class: "detachnic", href: "VM.detachnic"};
               var anchor = $("<a/>",anchorAttributes).append(icon); //"<a href=\"VM.detachnic\" class=\"detachnic\" ><i class=\"fas fa-times\"/></a>";
-              if (validateState(that,"VM.attachnic") && OpenNebulaVM.isNICAttachSupported(that.element)) {
-                actions += isFirecracker(that) && anchor.get(0).outerHTML;
-              } else {
-                actions += !isFirecracker(that) && anchor.get(0).outerHTML;
-              }
+              actions +=  (validateAction(that,"VM.detachnic"))
+                ? (isFirecracker(that)
+                  ? (isPowerOff(that) ? anchor.get(0).outerHTML : "")
+                  : anchor.get(0).outerHTML
+                  )
+                : "";
             }
           }
         }
