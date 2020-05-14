@@ -353,8 +353,7 @@ module OneProvision
                     erb       = Utils.evaluate_erb(self, h)
                     dfile     = Utils.create_deployment_file(erb, @id, @name)
                     playbooks = cfg['playbook']
-
-                    playbooks.join(',') if playbooks.is_a? Array
+                    playbooks = playbooks.join(',') if playbooks.is_a? Array
 
                     host = Host.new
                     host = host.create(dfile.to_xml, cid.to_i, playbooks)
