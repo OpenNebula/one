@@ -667,6 +667,9 @@ INSTALL_FILES=(
     ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
     VENDOR_DIRS:$LIB_LOCATION/ruby/vendors
     START_SCRIPT_SHARE_FILES:$SHARE_LOCATION/start-scripts
+    SSH_SHARE_BIN_FILES:$LIB_LOCATION/sh
+    SSH_SHARE_BIN_OVERRIDE_FILES:$LIB_LOCATION/sh/override
+    SSH_SHARE_ETC_CONFIG_FILES:$SHARE_LOCATION/ssh
 )
 
 INSTALL_CLIENT_FILES=(
@@ -2664,6 +2667,17 @@ ONEHEM_ETC_FILES="src/hem/etc/onehem-server.conf"
 #-----------------------------------------------------------------------------
 
 DOCKER_MACHINE_BIN_FILES="src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula"
+
+#-----------------------------------------------------------------------------
+# SSH files
+#-----------------------------------------------------------------------------
+
+SSH_SHARE_BIN_FILES="share/ssh/bin/ssh-socks-cleaner"
+
+SSH_SHARE_BIN_OVERRIDE_FILES="share/ssh/bin/ssh"
+
+SSH_SHARE_ETC_CONFIG_FILES="share/ssh/etc/config \
+                            share/ssh/etc/config-pre7.6"
 
 #-----------------------------------------------------------------------------
 # MAN files

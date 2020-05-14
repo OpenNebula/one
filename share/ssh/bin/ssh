@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
@@ -37,6 +37,9 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 is_control_master_used()
 {
+    # match regardless of the case
+    shopt -s nocasematch
+
     # parse the arguments
     _state=nil
     while [ "$#" -gt 0 ] ; do
@@ -47,8 +50,8 @@ is_control_master_used()
                         _state=option
                         ;;
                     -o*)
-                        if echo "$1" | grep -iq -- '^-o[[:space:]]*ControlMaster' ; then
-                            # ControlMaster is already used!
+                        if [[ "$1" =~ ^-o[[:space:]]*ControlMaster.*$ ]] ; then
+                            # ControlMaster option was found!
                             return 0
                         fi
                         _state=nil
@@ -59,8 +62,8 @@ is_control_master_used()
                 esac
                 ;;
             option)
-                if echo "$1" | grep -iq -- '^[[:space:]]*ControlMaster' ; then
-                    # ControlMaster is already used!
+                if [[ "$1" =~ ^[[:space:]]*ControlMaster.*$ ]] ; then
+                    # ControlMaster option was found!
                     return 0
                 fi
                 _state=nil
@@ -68,6 +71,9 @@ is_control_master_used()
         esac
         shift
     done
+
+    # revert back to normal
+    shopt -u nocasematch
 
     # ControlMaster was not encountered
     return 1
@@ -83,7 +89,7 @@ case "$SSH_USE_MASTER_SOCK" in
         : 'continue below'
         ;;
     *)
-        # no override and pass the command without changes to the ssh
+        # override is not allowed: pass the command without changes
         exec ssh "$@"
         ;;
 esac
