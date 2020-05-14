@@ -181,6 +181,7 @@ end
 #    @vm[:name]
 #    @vm[:id] from one-<id>, -1 if wild
 #    @vm[:uuid]
+#    @vm[:deploy_id]
 #    @vm[:kvm_state] KVM-qemu state
 #    @vm[:reason] reason for state transition
 #    @vm[:state] OpenNebula state
@@ -219,6 +220,8 @@ class Domain
 
         @vm[:name] = hash['NAME']
         @vm[:uuid] = hash['UUID']
+
+        @vm[:deploy_id] = hash['UUID']
 
         m = @vm[:name].match(/^one-(\d*)$/)
 
@@ -317,7 +320,7 @@ class Domain
         tmpl << "VCPU=#{vcpu}\n"
         tmpl << "MEMORY=#{mem}\n"
         tmpl << "HYPERVISOR=\"kvm\"\n"
-        tmpl << "IMPORT_VM_ID=\"#{uuid}\"\n"
+        tmpl << "DEPLOY_ID=\"#{uuid}\"\n"
         tmpl << "OS=[ARCH=\"#{arch}\"]\n"
         tmpl << features_txt << "\n" unless features_txt.empty?
         tmpl << spice_txt << "\n" unless spice_txt.empty?
@@ -516,7 +519,7 @@ module DomainList
             mon_s = ''
 
             @vms.each do |_uuid, vm|
-                mon_s << "VM = [ ID=\"#{vm[:id]}\", UUID=\"#{vm[:uuid]}\","
+                mon_s << "VM = [ ID=\"#{vm[:id]}\", DEPLOY_ID=\"#{vm[:deploy_id]}\","
                 mon_s << " MONITOR=\"#{vm.to_monitor}\"]\n"
             end
 
@@ -530,7 +533,7 @@ module DomainList
             @vms.each do |_uuid, vm|
                 next if vm[:id] != -1 || vm[:template].empty?
 
-                mon_s << "VM = [ID=\"#{vm[:id]}\", UUID=\"#{vm[:uuid]}\","
+                mon_s << "VM = [ID=\"#{vm[:id]}\", DEPLOY_ID=\"#{vm[:deploy_id]}\","
                 mon_s << " VM_NAME=\"#{vm.name}\","
                 mon_s << " IMPORT_TEMPLATE=\"#{vm[:template]}\"]\n"
             end

@@ -345,6 +345,7 @@ class AzureDriver
                             vm = { :uuid      => i.vm_id,
                                    :id        => one_id || -1,
                                    :name      => i.name,
+                                   :deploy_id => i.vm_id,
                                    :type      => i.hardware_profile.vm_size,
                                    :state     => vm_state(i) }
 
@@ -796,11 +797,12 @@ module DomainList
 
         info = {}
         vms.each do |vm|
-            info[vm[:uuid]] = { :id     => vm[:id],
-                                :uuid   => vm[:uuid],
-                                :name   => vm[:name],
-                                :state  => vm[:state],
-                                :hyperv => 'az' }
+            info[vm[:uuid]] = { :id        => vm[:id],
+                                :uuid      => vm[:uuid],
+                                :deploy_id => vm[:deploy_id],
+                                :name      => vm[:name],
+                                :state     => vm[:state],
+                                :hyperv    => 'az' }
         end
 
         info

@@ -204,6 +204,7 @@ class One2OneDriver
 
             vm = { :id => id,
                    :uuid => deploy_id,
+                   :deploy_id => deploy_id,
                    :name => remote_vm.name,
                    :state => vm_state(remote_vm),
                    :type => "#{cpu}cpu/#{memory}memory" }
@@ -588,11 +589,12 @@ module DomainList
 
         info = {}
         vms.each do |vm|
-            info[vm[:uuid]] = { :id     => vm[:id],
-                                :uuid   => vm[:uuid],
-                                :name   => vm[:name],
-                                :state  => vm[:state],
-                                :hyperv => 'opennebula' }
+            info[vm[:uuid]] = { :id        => vm[:id],
+                                :uuid      => vm[:uuid],
+                                :deploy_id => vm[:deploy_id],
+                                :name      => vm[:name],
+                                :state     => vm[:state],
+                                :hyperv    => 'opennebula' }
         end
 
         info

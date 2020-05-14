@@ -750,6 +750,7 @@ class EC2Driver
                         vm = { :uuid      => i.instance_id,
                                :id        => one_id || -1,
                                :name      => i.instance_id,
+                               :deploy_id => i.instance_id,
                                :type      => i.instance_type,
                                :state     => vm_state }
 
@@ -1030,11 +1031,12 @@ module DomainList
 
         info = {}
         vms.each do |vm|
-            info[vm[:uuid]] = { :id     => vm[:id],
-                                :uuid   => vm[:uuid],
-                                :name   => vm[:name],
-                                :state  => vm[:state],
-                                :hyperv => 'ec2' }
+            info[vm[:uuid]] = { :id        => vm[:id],
+                                :uuid      => vm[:uuid],
+                                :name      => vm[:name],
+                                :state     => vm[:state],
+                                :deploy_id => vm[:deploy_id],
+                                :hyperv    => 'ec2' }
         end
 
         info

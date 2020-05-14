@@ -239,7 +239,8 @@ module OpenNebula
                 vi_client = VCenterDriver::VIClient.new_from_host(self["ID"])
                 importer  = VCenterDriver::VmmImporter.new(@client, vi_client)
 
-                return importer.import({wild: wild, template: template, one_item: vm, host: self['ID']})
+                return importer.import({wild: wild, template: template,
+                                        one_item: vm, host: self['ID']})
             else
                 rc = vm.allocate(template)
 

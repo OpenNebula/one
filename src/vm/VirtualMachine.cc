@@ -998,8 +998,8 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // -------------------------------------------------------------------------
     // Get and set DEPLOY_ID for imported VMs
     // -------------------------------------------------------------------------
-    user_obj_template->get("IMPORT_VM_ID", value);
-    user_obj_template->erase("IMPORT_VM_ID");
+    user_obj_template->get("DEPLOY_ID", value);
+    user_obj_template->erase("DEPLOY_ID");
 
     if (!value.empty())
     {
@@ -1012,14 +1012,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         else
         {
             obj_template->add("IMPORTED", "YES");
-
-            user_obj_template->get("DEPLOY_ID", deploy_id);
-            user_obj_template->erase("DEPLOY_ID");
-
-            if (deploy_id.empty())
-            {
-                deploy_id = value;
-            }
+            deploy_id = value;
         }
     }
 

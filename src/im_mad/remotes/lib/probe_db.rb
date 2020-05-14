@@ -61,6 +61,7 @@ class VirtualMachineDB
         uuid
         id
         name
+        deploy_id
         timestamp
         missing
         state
@@ -126,10 +127,11 @@ class VirtualMachineDB
 
             if vm_db.nil?
                 @db.execute(
-                    "INSERT INTO #{@dataset} VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO #{@dataset} VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                     [uuid,
                      vm[:id].to_i,
                      vm[:name],
+                     vm[:deploy_id],
                      time,
                      0,
                      vm[:state],
@@ -140,13 +142,14 @@ class VirtualMachineDB
                 next
             end
 
-            # Updates timestamp and uuid (e.g. VM recreated in KVM)
+            # Updates timestamp and uuid/deploy_id (e.g. VM recreated in KVM)
             @db.execute(
                 "UPDATE #{@dataset} SET " \
                 "state = '#{vm[:state]}', " \
                 "missing = 0, " \
                 "timestamp = #{time}, " \
-                "uuid = '#{uuid}' " \
+                "uuid = '#{uuid}', " \
+                "deploy_id = '#{vm[:deploy_id]}' "\
                 "#{filter}"
             )
 
@@ -192,7 +195,7 @@ class VirtualMachineDB
     #
     def bootstrap
         sql = 'CREATE TABLE IF NOT EXISTS states(uuid VARCHAR(128) PRIMARY KEY,'
-        sql << ' id INTEGER, name VARCHAR(128), timestamp INTEGER,'
+        sql << ' id INTEGER, name VARCHAR(128), deploy_id VARCHAR(128), timestamp INTEGER,'
         sql << ' missing INTEGER, state VARCHAR(128), hyperv VARCHAR(128))'
 
         @db.execute(sql)
@@ -209,10 +212,11 @@ class VirtualMachineDB
 
         DomainList.state_info(host, host_id).each do |uuid, vm|
             @db.execute(
-                "INSERT INTO #{@dataset} VALUES (?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO #{@dataset} VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 [uuid,
                  vm[:id].to_i,
                  vm[:name],
+                 vm[:deploy_id],
                  time,
                  0,
                  vm[:state],
@@ -226,18 +230,17 @@ class VirtualMachineDB
     end
 
     def vm_to_status(vm, state = vm[:state])
-        "VM = [ ID=\"#{vm[:id]}\", DEPLOY_ID=\"#{vm[:name]}\", " \
-        " UUID=\"#{vm[:uuid]}\", STATE=\"#{state}\" ]\n"
+        "VM = [ ID=\"#{vm[:id]}\", DEPLOY_ID=\"#{vm[:deploy_id]}\", " \
+        " STATE=\"#{state}\" ]\n"
     end
 
     def vm_db_to_status(vm, state = vm[col_name_to_idx('state')])
-        id    = col_name_to_idx('id')
-        name  = col_name_to_idx('name')
-        uuid  = col_name_to_idx('uuid')
+        id = col_name_to_idx('id')
+        deploy_id  = col_name_to_idx('deploy_id')
 
 
-        "VM = [ ID=\"#{vm[id]}\", DEPLOY_ID=\"#{vm[name]}\", " \
-        " UUID=\"#{vm[uuid]}\", STATE=\"#{state}\" ]\n"
+        "VM = [ ID=\"#{vm[id]}\", DEPLOY_ID=\"#{vm[deploy_id]}\", " \
+        " STATE=\"#{state}\" ]\n"
     end
 
     # Load configuration file and parse user provided options

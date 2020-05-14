@@ -235,6 +235,7 @@ end
 #    @vm[:name]
 #    @vm[:id] from one-<id>
 #    @vm[:uuid] (deployment id)
+#    @vm[:deploy_id] (deployment id)
 #    @vm[:fc_state] Firecracker state
 #    @vm[:state] OpenNebula state
 #    @vm[:netrx]
@@ -265,6 +266,8 @@ class Domain
 
         @vm[:name] = @name
         @vm[:uuid] = hash['id']
+
+        @vm[:deploy_id] = hash['id']
 
         m = @vm[:name].match(/^one-(\d*)$/)
 
@@ -433,7 +436,7 @@ module DomainList
             mon_s = ''
 
             @vms.each do |_uuid, vm|
-                mon_s << "VM = [ ID=\"#{vm[:id]}\", UUID=\"#{vm[:uuid]}\","
+                mon_s << "VM = [ ID=\"#{vm[:id]}\", DEPLOY_ID=\"#{vm[:deploy_id]}\","
                 mon_s << " MONITOR=\"#{vm.to_monitor}\"]\n"
             end
 

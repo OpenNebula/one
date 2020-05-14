@@ -40,6 +40,8 @@ module DomainList
             vm[:uuid]  = "#{name}-#{Socket.gethostname}"
             vm[:state] = one_status(container)
 
+            vm[:deploy_id] = name
+
             m = vm[:name].match(/^one-(\d*)$/)
 
             if m

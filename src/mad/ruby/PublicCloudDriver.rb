@@ -179,7 +179,7 @@ module PublicCloudDriver
               "PUBLIC_CLOUD = [\n"\
               "  TYPE  =\"#{@hypervisor}\"\n"\
               "]\n"\
-              "IMPORT_VM_ID = \"#{vm[:uuid]}\"\n"\
+              "DEPLOY_ID = \"#{vm[:uuid]}\"\n"\
               "SCHED_REQUIREMENTS = \"NAME=\\\"#{@host}\\\"\"\n"\
               "DESCRIPTION = \"Imported from #{@hypervisor} "\
                              "from #{vm[:name]}\"\n"

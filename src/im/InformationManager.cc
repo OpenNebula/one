@@ -198,7 +198,7 @@ void InformationManager::_undefined(unique_ptr<Message<OpenNebulaMessages>> msg)
 
 void InformationManager::_host_state(unique_ptr<Message<OpenNebulaMessages>> msg)
 {
-    NebulaLog::debug("InM", "HOST_STATE update from host: " +
+    NebulaLog::ddebug("InM", "HOST_STATE update from host: " +
         to_string(msg->oid()) + ". Host information: " + msg->payload());
 
 
@@ -250,7 +250,7 @@ void InformationManager::_host_state(unique_ptr<Message<OpenNebulaMessages>> msg
 
 void InformationManager::_host_system(unique_ptr<Message<OpenNebulaMessages>> msg)
 {
-    NebulaLog::debug("InM", "HOST_SYSTEM update from host: " +
+    NebulaLog::ddebug("InM", "HOST_SYSTEM update from host: " +
         to_string(msg->oid()) + ". Host information: " + msg->payload());
 
     char *   error_msg;
@@ -388,7 +388,6 @@ void InformationManager::_vm_state(unique_ptr<Message<OpenNebulaMessages>> msg)
     int id;
 
     string deploy_id;
-    string uuid;
     string state_str;
     string vm_msg;
 
@@ -405,13 +404,12 @@ void InformationManager::_vm_state(unique_ptr<Message<OpenNebulaMessages>> msg)
         }
 
         vm_tmpl->vector_value("DEPLOY_ID", deploy_id);
-        vm_tmpl->vector_value("UUID", uuid);
         vm_tmpl->vector_value("STATE", state_str);
 
         if (id < 0)
         {
             // Check wild VMs
-            id = vmpool->get_vmid(uuid);
+            id = vmpool->get_vmid(deploy_id);
 
             if (id < 0)
             {
