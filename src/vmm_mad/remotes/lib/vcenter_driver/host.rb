@@ -699,7 +699,6 @@ class ClusterComputeResource
                 vm_info << "VM = [ ID=\"#{id}\", "
                 vm_info << "VM_NAME=\"#{vm_name}\", "
                 vm_info << "DEPLOY_ID=\"#{vm_ref}\", "
-                vm_info << "UUID=\"#{vm_ref + vc_uuid}\", "
 
                 # if the machine does not exist in opennebula it means that is a wild:
                 unless vm.one_exist?
@@ -732,7 +731,6 @@ class ClusterComputeResource
         error_info << "VM = [ ID=\"#{id}\", "
         error_info << "VM_NAME=\"#{vm_name}\", "
         error_info << "DEPLOY_ID=\"#{vm_ref}\", "
-        error_info << "UUID=\"#{vm_ref + vc_uuid}\", "
         error_info << "ERROR=\"#{Base64.encode64(tmp_str).gsub("\n", '')}\"]\n"
     end
 

@@ -469,7 +469,6 @@ class VcenterMonitor
               "VCENTER_INSTANCE_ID =\"#{@vc_uuid}\"\n"\
               "VCENTER_CCR_REF =\"#{@ccr_ref}\"\n"
 
-        str << "IMPORT_VM_ID =\"#{vm._ref}\"\n"
         str << "DEPLOY_ID =\"#{vm._ref}\"\n"
         @state = vm_state(vm.summary.runtime.powerState)
         str << "IMPORT_STATE =\"#{@state}\"\n"
