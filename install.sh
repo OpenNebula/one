@@ -2361,7 +2361,9 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onemarketapp.yaml \
                 src/cli/etc/onemarket.yaml \
                 src/cli/etc/onevntemplate.yaml \
-                src/cli/etc/onehook.yaml"
+                src/cli/etc/onehook.yaml \
+                src/cli/etc/oneflow.yaml \
+                src/cli/etc/oneflowtemplate.yaml"
 
 #-----------------------------------------------------------------------------
 # Provision files

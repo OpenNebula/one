@@ -19,6 +19,11 @@ require 'one_helper'
 # Oneflow command helper
 class OneFlowHelper < OpenNebulaHelper::OneHelper
 
+    # Configuration file
+    def self.conf_file
+        'oneflow.yaml'
+    end
+
     # Get client to make request
     #
     # @options [Hash] CLI options
@@ -33,8 +38,9 @@ class OneFlowHelper < OpenNebulaHelper::OneHelper
 
     # Get service pool table
     def format_service_pool
-        # TODO: config file
-        CLIHelper::ShowTable.new(nil, self) do
+        config_file = self.class.table_conf
+
+        CLIHelper::ShowTable.new(config_file, self) do
             column :ID, 'ID', :size => 10 do |d|
                 d['ID']
             end
