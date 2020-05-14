@@ -1362,6 +1362,8 @@ bool UserPool::authenticate(const string& session,
         return false;
     }
 
+    username = one_util::strip(username);
+
     user = get(username);
 
     if (user != 0 ) //User known to OpenNebula

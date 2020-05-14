@@ -54,6 +54,44 @@ string& one_util::tolower(string& st)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+string& one_util::strip(string& s)
+{
+    //  chars space, tab, lf, cr
+    static vector<char> spaces = { char(32), char(9), char(13), char(10) };
+
+    string t=s;
+    while (1) {
+        for (const auto& it : spaces) {
+
+            // Leading spaces
+            if ( t.front() == it )
+            {
+                t.erase(0,1);
+            }
+
+            // Trailing spaces
+            if ( t.back() == it )
+            {
+                t.pop_back();
+            }
+        }
+
+        // Done
+        if ( t.length() == s.length() )
+        {
+            break;
+        }
+
+        s = t;
+    }
+
+    return s;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+
 string one_util::log_time(time_t the_time)
 {
     char time_str[26];

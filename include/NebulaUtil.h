@@ -32,6 +32,8 @@ namespace one_util
 
     std::string& tolower(std::string& st);
 
+    std::string& strip(std::string& s);
+
     std::string log_time(time_t the_time);
 
     std::string log_time();
