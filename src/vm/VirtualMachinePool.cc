@@ -159,7 +159,7 @@ int VirtualMachinePool::allocate(
 
     vm->prev_state = vm->state;
 
-    vm->user_obj_template->get("DEPLOY_ID", deploy_id);
+    vm->user_obj_template->get("IMPORT_VM_ID", deploy_id);
 
     if (!deploy_id.empty())
     {

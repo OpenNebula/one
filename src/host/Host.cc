@@ -183,7 +183,7 @@ int Host::update_info(Template &tmpl)
 
     obj_template->get("TOTALCPU", total_cpu);
     obj_template->get("TOTALMEMORY", total_mem);
-
+    
     if (host_share.get_total_cpu() == total_cpu &&
         host_share.get_total_mem() == total_mem)
     {
@@ -275,7 +275,7 @@ void Host::update_wilds()
         {
             VirtualMachinePool * vmpool = Nebula::instance().get_vmpool();
 
-            vmid = vmpool->get_vmid(vatt->vector_value("DEPLOY_ID"));
+            vmid = vmpool->get_vmid(vatt->vector_value("UUID"));
         }
 
         if (vmid == -1)
@@ -290,7 +290,7 @@ void Host::update_wilds()
 
             if (wname.empty())
             {
-                wname = vatt->vector_value("DEPLOY_ID");
+                wname = vatt->vector_value("UUID");
             }
 
             wild << wname;

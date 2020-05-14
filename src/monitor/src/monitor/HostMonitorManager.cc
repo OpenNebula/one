@@ -307,13 +307,13 @@ void HostMonitorManager::update_last_monitor(int oid)
 /* -------------------------------------------------------------------------- */
 
 void HostMonitorManager::monitor_vm(int oid,
-                                    const string& deploy_id,
+                                    const string& uuid,
                                     const Template &tmpl)
 {
     if (oid < 0)
     {
         // Wild VM, check if it is imported to OpenNebula
-        oid = vmpool->get_vmid(deploy_id);
+        oid = vmpool->get_vmid(uuid);
 
         if (oid < 0)
         {

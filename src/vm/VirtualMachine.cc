@@ -998,20 +998,28 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // -------------------------------------------------------------------------
     // Get and set DEPLOY_ID for imported VMs
     // -------------------------------------------------------------------------
-    user_obj_template->get("DEPLOY_ID", deploy_id);
-    user_obj_template->erase("DEPLOY_ID");
+    user_obj_template->get("IMPORT_VM_ID", value);
+    user_obj_template->erase("IMPORT_VM_ID");
 
     if (!value.empty())
     {
         const char * one_vms = "^one-[[:digit:]]+$";
 
-        if (one_util::regex_match(one_vms, deploy_id.c_str()) == 0)
+        if (one_util::regex_match(one_vms, value.c_str()) == 0)
         {
             goto error_one_vms;
         }
         else
         {
             obj_template->add("IMPORTED", "YES");
+
+            user_obj_template->get("DEPLOY_ID", deploy_id);
+            user_obj_template->erase("DEPLOY_ID");
+
+            if (deploy_id.empty())
+            {
+                deploy_id = value;
+            }
         }
     }
 
