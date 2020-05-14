@@ -104,7 +104,10 @@ define(function(require) {
         });
 
         _generate_provision_network_accordion(
-          $(".provision_network_selector", context), options);
+          $(".provision_network_selector", context),
+          options,
+          template_json
+        );
 
         $.each(nics, function(index, nic) {
           var opt = $.extend({}, options);
@@ -118,7 +121,9 @@ define(function(require) {
 
           _generate_provision_network_table(
             $(".provision_nic_accordion", context),
-            opt);
+            opt,
+            template_json
+          );
 
            nicId ++;
         });
@@ -127,7 +132,10 @@ define(function(require) {
       }
     } catch(err) {
       _generate_provision_network_accordion(
-        $(".provision_network_selector", context), options);
+        $(".provision_network_selector", context),
+        options,
+        template_json
+      );
     }
   }
 
@@ -250,7 +258,7 @@ define(function(require) {
    *                                - securityGroups {bool}: true to select SGs
    *                                - pci {bool}: true if this is a PCI interface
    */
-  function _generate_provision_network_table(context, options) {
+  function _generate_provision_network_table(context, options, template_json) {
     context.off();
     var nic_span;
 
@@ -282,13 +290,31 @@ define(function(require) {
 
       sgHtml = sgTable.dataTableHTML;
     }
-
+    var displayType = true;
+    var displaySelection = true;
+    var displayRDP = true;
+    if(
+      template_json && 
+      template_json.VMTEMPLATE && 
+      template_json.VMTEMPLATE.TEMPLATE &&  
+      template_json.VMTEMPLATE.TEMPLATE.SUNSTONE
+    ){
+      var templateType = template_json.VMTEMPLATE.TEMPLATE.SUNSTONE.NETWORK_ALIAS;
+      var templateSelection = template_json.VMTEMPLATE.TEMPLATE.SUNSTONE.NETWORK_AUTO;
+      var templateRDP = template_json.VMTEMPLATE.TEMPLATE.SUNSTONE.NETWORK_RDP;
+      displayType = templateType && templateType.toUpperCase()==='NO'? false : true;
+      displaySelection = templateSelection && templateSelection.toUpperCase()==='NO'? false : true;
+      displayRDP = templateRDP && templateRDP.toUpperCase()==='NO'? false : true;
+    }
     var dd_context = $(TemplateDD({
       vnetsTableHTML: vnetsTable.dataTableHTML,
       vnetsTableAutoHTML: vnetsTableAuto.dataTableHTML,
       securityGroupsTableHTML: sgHtml,
       provision_nic_accordion_dd_id: provision_nic_accordion_dd_id,
-      options: options
+      options: options,
+      displayType: displayType,
+      displaySelection: displaySelection,
+      displayRDP: displayRDP
     })).appendTo(context);
 
     dd_context["nic_id"] = nicId;
@@ -576,7 +602,7 @@ define(function(require) {
    *                                management checkbox
    *                                - securityGroups {bool}: true to select SGs
    */
-  function _generate_provision_network_accordion(context, options) {
+  function _generate_provision_network_accordion(context, options, template_json) {
     context.off();
     var name = "Network";
     if (options.name){
@@ -602,7 +628,7 @@ define(function(require) {
           _nics.push({"NAME": "NIC" + nicId, "ALIAS": false, "DD_ID": provision_nic_accordion_dd_id});
       }
 
-      _generate_provision_network_table($(".accordion", context), options);
+      _generate_provision_network_table($(".accordion", context), options, template_json);
 
       nicId ++;
 

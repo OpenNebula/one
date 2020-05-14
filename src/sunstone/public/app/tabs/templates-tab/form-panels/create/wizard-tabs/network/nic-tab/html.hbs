@@ -16,9 +16,9 @@
   {{!-- {{#isFeatureEnabled "automatic_selection_vnet"}} --}}
   <div class="only_create">
     <div class="row autoContainer">
-      <div class="large-12 large-centered columns">
-        <fieldset id="{{nicTabId}}interface_type">
-            <legend>{{tr "Interface type"}}</legend>
+      <div class="large-12 large-centered columns" style="display:inline-flex;justify-content:start;">
+        <fieldset id="{{nicTabId}}interface_type" class="small-12 large-4 columns">
+            <legend style="margin:0px;">{{tr "Interface type"}}</legend>
             <div class="switch left">
               <input class="switch-input" id="{{nicTabId}}_interface_type" type="checkbox">
               <label class="switch-paddle" for="{{nicTabId}}_interface_type">
@@ -35,8 +35,8 @@
             </span>
             <select id="{{nicTabId}}_alias_parent" style="width: 200px; margin-left: 5px"></select>
         </fieldset>
-        <fieldset>
-            <legend>{{tr "Network selection"}}</legend>
+        <fieldset class="small-12 large-4 columns">
+            <legend style="margin:0px;">{{tr "Network selection"}}</legend>
             <div class="switch left network_selection">
               <input class="switch-input" id="{{nicTabId}}_network_mode" type="checkbox">
               <label class="switch-paddle" for="{{nicTabId}}_network_mode">
@@ -47,9 +47,9 @@
               {{tr "Automatic selection"}}
               {{{tip (tr "The Schedule will decide which is the best virtual network")}}}
             </label>
-        </fieldset>
-        <fieldset id="rdp_connection">
-            <legend>{{tr "RDP connection"}}</legend>
+        </fieldset class="small-12 large-4 columns">
+        <fieldset id="rdp_connection" class="small-12 large-4 columns">
+            <legend style="margin:0px;">{{tr "RDP connection"}}</legend>
             <div class="switch left">
               <input class="switch-input" id="{{nicTabId}}_rdp" type="checkbox">
               <label class="switch-paddle" for="{{nicTabId}}_rdp">
