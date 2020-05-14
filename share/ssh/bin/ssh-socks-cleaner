@@ -35,7 +35,7 @@ find /var/run/one/ssh-socks \
     -mmin +1 \
     -print | while read -r sockname ; do
         # atomic operation - no other ssh client should be disrupted
-        mv "$sockname" "$sockname"~todelete
+        mv -f "$sockname" "$sockname"~todelete
 
         # stop the multiplexing ('this' is just unnecessary gibberish)
         ssh -S "$sockname"~todelete -O stop this </dev/null >/dev/null
