@@ -58,6 +58,11 @@
 #
 # Timeout to wait a cgroup to be empty after shutdown/cancel a microVM
 :cgroup_delete_timeout: 60
+#
+# If true the cpu.shares will be set acording to the VM CPU value if false the
+# cpu.shares is left by default which means that all the resources are shared
+# equally acrros the VMs
+:cgroup_cpu_shares: true
 
 ################################################################################
 # NUMA placement Options

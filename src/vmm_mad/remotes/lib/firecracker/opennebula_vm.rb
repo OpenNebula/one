@@ -99,6 +99,10 @@ class OpenNebulaVM
         @vm_name && !@vm_name.include?('one-')
     end
 
+    def get_cpu
+        Float(@xml['//TEMPLATE/CPU'])
+    end
+
     # Returns a Hash representing the LXC configuration for this OpenNebulaVM
     def to_fc
         fc = {}
@@ -127,9 +131,10 @@ class OpenNebulaVM
     end
 
     #---------------------------------------------------------------------------
-    # Container Attribute Mapping
+    # MicroVM Attribute Mapping
     #---------------------------------------------------------------------------
-    # Creates a dictionary for Firecracker containing $MEMORY RAM allocated
+    # Creates a dictionary for Firecracker containing vm information
+
     def boot_source(hash)
         hash['kernel_image_path'] = 'kernel'
         hash['boot_args'] = @boot_args

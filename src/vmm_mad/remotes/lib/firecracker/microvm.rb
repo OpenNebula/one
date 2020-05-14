@@ -148,6 +148,18 @@ class MicroVM
     rescue Errno::ENOENT # rubocop:disable Lint/SuppressedException
     end
 
+    def cpu_shares(cpu)
+        # default value for cpu.shares
+        default_value = 1024
+
+        shares_val = (cpu * default_value).round
+
+        # The value specified in the cpu.shares file must be 2 or higher.
+        shares_val = 2 if shares_val < 2
+
+        shares_val
+    end
+
     #---------------------------------------------------------------------------
     # VNC
     #---------------------------------------------------------------------------
@@ -252,5 +264,15 @@ class MicroVM
 
     # rubocop:enable Naming/AccessorMethodName
     # rubocop:enable Layout/LineLength
+
+    def set_cpu_limit
+        return unless @one.fcrc[:cgroup_cpu_shares]
+
+        shares_location = "#{@one.fcrc[:cgroup_location]}/cpu/" \
+                          "firecracker/one-#{@one.vm_id}/cpu.shares"
+
+        cmd = "echo #{cpu_shares(@one.get_cpu)} > #{shares_location}"
+        `echo "AAA#{Command.execute_once(cmd, false)}" > /tmp/a`
+    end
 
 end
