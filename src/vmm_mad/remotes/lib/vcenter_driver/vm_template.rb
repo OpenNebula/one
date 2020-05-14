@@ -962,7 +962,7 @@ class Template
               "VCENTER_INSTANCE_ID =\"#{@vm_info[:vc_uuid]}\"\n"\
               "VCENTER_CCR_REF =\"#{@vm_info[:cluster_ref]}\"\n"
 
-        str << "IMPORT_VM_ID =\"#{self["_ref"]}\"\n"
+        str << "DEPLOY_ID =\"#{self["_ref"]}\"\n"
         @state = 'POWEROFF' if @state == 'd'
         str << "IMPORT_STATE =\"#{@state}\"\n"
 
