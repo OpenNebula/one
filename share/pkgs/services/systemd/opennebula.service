@@ -12,7 +12,6 @@ Type=notify
 Group=oneadmin
 User=oneadmin
 Environment="PATH=/usr/lib/one/sh/override:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-Environment="SSH_USE_MASTER_SOCK=yes"
 EnvironmentFile=-/var/run/one/ssh-agent.env
 ExecStartPre=-/usr/sbin/logrotate -f /etc/logrotate.d/opennebula -s /var/lib/one/.logrotate.status
 ExecStart=/usr/bin/oned -f

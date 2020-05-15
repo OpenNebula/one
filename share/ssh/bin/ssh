@@ -20,8 +20,10 @@
 # for the persistent connections - it will add '-o ControlMaster=auto' to the
 # ssh command in some specific cases (where it does not hang the SSH session).
 #
-# NOTE: It can be disabled by setting the env. var 'SSH_USE_MASTER_SOCK' to
-# 'no' - e.g.: by overriding the systemd unit 'opennebula.service'.
+# NOTE: It can be overriden by setting the env. var 'SSH_OPT_CONTROL_MASTER'
+# either directly when run manually in the shell or in the systemd unit
+# 'opennebula.service' (e.g.: Environment="SSH_OPT_CONTROL_MASTER=no").
+# In either case it must be a valid value for SSH's 'ControlMaster' option...
 
 #
 # global variables
@@ -29,6 +31,9 @@
 
 # fix the PATH again...
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# default 'ControlMaster' override value
+SSH_OPT_CONTROL_MASTER="${SSH_OPT_CONTROL_MASTER:-auto}"
 
 
 #
@@ -84,20 +89,10 @@ is_control_master_used()
 # main
 #
 
-case "$SSH_USE_MASTER_SOCK" in
-    yes|YES|Yes|1|true|True|TRUE)
-        : 'continue below'
-        ;;
-    *)
-        # override is not allowed: pass the command without changes
-        exec ssh "$@"
-        ;;
-esac
-
 if is_control_master_used "$@" ; then
     # do not override anything - ControlMaster was already set explicitly
     exec ssh "$@"
 fi
 
 # now we can override the ssh command with the enabled master socket
-exec ssh -o ControlMaster=auto "$@"
+exec ssh -o "ControlMaster=${SSH_OPT_CONTROL_MASTER}" "$@"
