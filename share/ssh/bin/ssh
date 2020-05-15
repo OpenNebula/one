@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
@@ -20,8 +20,10 @@
 # for the persistent connections - it will add '-o ControlMaster=auto' to the
 # ssh command in some specific cases (where it does not hang the SSH session).
 #
-# NOTE: It can be disabled by setting the env. var 'SSH_USE_MASTER_SOCK' to
-# 'no' - e.g.: by overriding the systemd unit 'opennebula.service'.
+# NOTE: It can be overriden by setting the env. var 'SSH_OPT_CONTROL_MASTER'
+# either directly when run manually in the shell or in the systemd unit
+# 'opennebula.service' (e.g.: Environment="SSH_OPT_CONTROL_MASTER=no").
+# In either case it must be a valid value for SSH's 'ControlMaster' option...
 
 #
 # global variables
@@ -30,6 +32,9 @@
 # fix the PATH again...
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
+# default 'ControlMaster' override value
+SSH_OPT_CONTROL_MASTER="${SSH_OPT_CONTROL_MASTER:-auto}"
+
 
 #
 # functions
@@ -37,6 +42,9 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 is_control_master_used()
 {
+    # match regardless of the case
+    shopt -s nocasematch
+
     # parse the arguments
     _state=nil
     while [ "$#" -gt 0 ] ; do
@@ -47,8 +55,8 @@ is_control_master_used()
                         _state=option
                         ;;
                     -o*)
-                        if echo "$1" | grep -iq -- '^-o[[:space:]]*ControlMaster' ; then
-                            # ControlMaster is already used!
+                        if [[ "$1" =~ ^-o[[:space:]]*ControlMaster.*$ ]] ; then
+                            # ControlMaster option was found!
                             return 0
                         fi
                         _state=nil
@@ -59,8 +67,8 @@ is_control_master_used()
                 esac
                 ;;
             option)
-                if echo "$1" | grep -iq -- '^[[:space:]]*ControlMaster' ; then
-                    # ControlMaster is already used!
+                if [[ "$1" =~ ^[[:space:]]*ControlMaster.*$ ]] ; then
+                    # ControlMaster option was found!
                     return 0
                 fi
                 _state=nil
@@ -68,6 +76,9 @@ is_control_master_used()
         esac
         shift
     done
+
+    # revert back to normal
+    shopt -u nocasematch
 
     # ControlMaster was not encountered
     return 1
@@ -78,20 +89,10 @@ is_control_master_used()
 # main
 #
 
-case "$SSH_USE_MASTER_SOCK" in
-    yes|YES|Yes|1|true|True|TRUE)
-        : 'continue below'
-        ;;
-    *)
-        # no override and pass the command without changes to the ssh
-        exec ssh "$@"
-        ;;
-esac
-
 if is_control_master_used "$@" ; then
     # do not override anything - ControlMaster was already set explicitly
     exec ssh "$@"
 fi
 
 # now we can override the ssh command with the enabled master socket
-exec ssh -o ControlMaster=auto "$@"
+exec ssh -o "ControlMaster=${SSH_OPT_CONTROL_MASTER}" "$@"

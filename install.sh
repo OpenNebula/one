@@ -231,6 +231,7 @@ SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/websockify/websockify \
             $SHARE_LOCATION/esx-fw-vnc \
             $SHARE_LOCATION/oneprovision \
+            $SHARE_LOCATION/ssh \
             $SHARE_LOCATION/start-scripts"
 
 ETC_DIRS="$ETC_LOCATION/vmm_exec \
@@ -257,6 +258,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/vendors \
           $LIB_LOCATION/mads \
           $LIB_LOCATION/sh \
+          $LIB_LOCATION/sh/override \
           $LIB_LOCATION/ruby/cli \
           $LIB_LOCATION/ruby/cli/one_helper \
           $LIB_LOCATION/ruby/vcenter_driver \
@@ -667,6 +669,9 @@ INSTALL_FILES=(
     ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
     VENDOR_DIRS:$LIB_LOCATION/ruby/vendors
     START_SCRIPT_SHARE_FILES:$SHARE_LOCATION/start-scripts
+    SSH_SH_LIB_FILES:$LIB_LOCATION/sh
+    SSH_SH_OVERRIDE_LIB_FILES:$LIB_LOCATION/sh/override
+    SSH_SHARE_FILES:$SHARE_LOCATION/ssh
 )
 
 INSTALL_CLIENT_FILES=(
@@ -2664,6 +2669,17 @@ ONEHEM_ETC_FILES="src/hem/etc/onehem-server.conf"
 #-----------------------------------------------------------------------------
 
 DOCKER_MACHINE_BIN_FILES="src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula"
+
+#-----------------------------------------------------------------------------
+# SSH files
+#-----------------------------------------------------------------------------
+
+SSH_SH_LIB_FILES="share/ssh/bin/ssh-socks-cleaner"
+
+SSH_SH_OVERRIDE_LIB_FILES="share/ssh/bin/ssh"
+
+SSH_SHARE_FILES="share/ssh/etc/config \
+                 share/ssh/etc/config-pre7.6"
 
 #-----------------------------------------------------------------------------
 # MAN files
