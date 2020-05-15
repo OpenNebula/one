@@ -44,7 +44,7 @@ class MonitorClient
     MESSAGE_TYPES.each do |mt|
         define_method("#{mt}_udp".downcase.to_sym) do |rc, payload|
             msg = "#{mt} #{MESSAGE_STATUS[rc]} #{@hostid} #{pack(payload)}"
-            @socket_udp.send(msg, 0)
+            @socket_udp.send(msg, 0, @host, @port)
         end
     end
 
@@ -75,7 +75,6 @@ class MonitorClient
         @port   = addr[1]
 
         @socket_udp = UDPSocket.new(@family)
-        @socket_udp.connect(@host, @port)
 
         @pubkey = @opts[:pubkey]
 

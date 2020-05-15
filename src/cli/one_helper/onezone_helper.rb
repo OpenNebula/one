@@ -36,6 +36,8 @@ class Replicator
           :service => 'opennebula' },
         { :name    => 'ec2_driver.default',
           :service => 'opennebula' },
+        { :name    => 'monitord.conf',
+          :service => 'opennebula' },
         { :name    => 'econe.conf',
           :service => 'opennebula-econe' },
         { :name    => 'oneflow-server.conf',

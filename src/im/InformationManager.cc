@@ -60,29 +60,10 @@ int InformationManager::start()
         NebulaLog::info("InM", "Information Manager stopped.");
     });
 
-    // Send the list of hosts to the driver
+    auto rftm = Nebula::instance().get_raftm();
+    raft_status(rftm->get_state());
 
-    auto * imd = get_driver("monitord");
-
-    if (!imd)
-    {
-        NebulaLog::error("InM", "Could not find information driver 'monitor'");
-
-        return rc;
-    }
-
-    string xml_hosts;
-
-    hpool->dump(xml_hosts, "", 0, -1, false);
-
-    Message<OpenNebulaMessages> msg;
-
-    msg.type(OpenNebulaMessages::HOST_LIST);
-    msg.payload(xml_hosts);
-
-    imd->write(msg);
-
-    return rc;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -94,7 +75,7 @@ void InformationManager::stop_monitor(int hid, const string& name, const string&
 
     if (!imd)
     {
-        NebulaLog::error("InM", "Could not find information driver 'monitor'");
+        NebulaLog::error("InM", "Could not find information driver 'monitord'");
 
         return;
     }
@@ -127,7 +108,7 @@ int InformationManager::start_monitor(Host * host, bool update_remotes)
 
     if (!imd)
     {
-        host->error("Cannot find driver: 'monitor'");
+        host->error("Cannot find driver: 'monitord'");
         return -1;
     }
 
@@ -180,6 +161,43 @@ void InformationManager::delete_host(int hid)
 
     msg.type(OpenNebulaMessages::DEL_HOST);
     msg.oid(hid);
+
+    imd->write(msg);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void InformationManager::raft_status(RaftManager::State state)
+{
+    auto imd = get_driver("monitord");
+
+    if (!imd)
+    {
+        NebulaLog::error("InM", "Could not find information driver 'monitord'");
+
+        return;
+    }
+
+    if (state == RaftManager::SOLO || state == RaftManager::LEADER)
+    {
+        // Send host pool to Monitor Daemon
+        string xml_hosts;
+
+        hpool->dump(xml_hosts, "", 0, -1, false);
+
+        Message<OpenNebulaMessages> msg;
+
+        msg.type(OpenNebulaMessages::HOST_LIST);
+        msg.payload(xml_hosts);
+
+        imd->write(msg);
+    }
+
+    Message<OpenNebulaMessages> msg;
+
+    msg.type(OpenNebulaMessages::RAFT_STATUS);
+    msg.payload(RaftManager::state_to_str(state));
 
     imd->write(msg);
 }
@@ -555,4 +573,3 @@ void InformationManager::_vm_state(unique_ptr<Message<OpenNebulaMessages>> msg)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-

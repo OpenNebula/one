@@ -85,6 +85,11 @@ private:
      */
     static void _stop_monitor(message_t msg);
 
+    /**
+     *  Raft status changed
+     */
+    static void _raft_status(message_t msg);
+
 private:
     static HostMonitorManager * hm;
 };

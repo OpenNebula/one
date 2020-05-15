@@ -53,6 +53,7 @@ const EString<OpenNebulaMessages> Message<OpenNebulaMessages>::_type_str({
     {"HOST_STATE", OpenNebulaMessages::HOST_STATE},
     {"VM_STATE", OpenNebulaMessages::VM_STATE},
     {"HOST_SYSTEM", OpenNebulaMessages::HOST_SYSTEM},
+    {"RAFT_STATUS", OpenNebulaMessages::RAFT_STATUS},
 });
 
 /* ************************************************************************** */

@@ -50,6 +50,7 @@ HostMonitorManager::HostMonitorManager(
     , threads(_threads)
     , timer_period(timer_period)
     , monitor_interval_host(monitor_interval_host)
+    , is_leader(false)
 {
     oned_driver    = new OneMonitorDriver(this);
     udp_driver     = new UDPMonitorDriver(addr, port);
@@ -215,6 +216,16 @@ void HostMonitorManager::stop_host_monitor(int oid)
     }
 
     stop_host_monitor(host);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void HostMonitorManager::raft_status(const string& state)
+{
+    NebulaLog::info("HMM", "Raft status: " + state);
+
+    is_leader = state == "LEADER" || state == "SOLO";
 }
 
 /* -------------------------------------------------------------------------- */
@@ -403,6 +414,11 @@ void HostMonitorManager::timer_action()
     hpool->clean_expired_monitoring();
     vmpool->clean_expired_monitoring();
 
+    if (!is_leader)
+    {
+        return;
+    }
+
     set<int> discovered_hosts;
     time_t now = time(nullptr);
     time_t target_time = now - monitor_interval_host;
@@ -458,6 +474,11 @@ void HostMonitorManager::timer_action()
 
 void HostMonitorManager::start_host_monitor(const HostRPCPool::HostBaseLock& host)
 {
+    if (!is_leader)
+    {
+        return;
+    }
+
     auto driver = driver_manager->get_driver(host->im_mad());
 
     if (!driver)
@@ -482,6 +503,11 @@ void HostMonitorManager::start_host_monitor(const HostRPCPool::HostBaseLock& hos
 
 void HostMonitorManager::stop_host_monitor(const HostRPCPool::HostBaseLock& host)
 {
+    if (!is_leader)
+    {
+        return;
+    }
+
     auto driver = driver_manager->get_driver(host->im_mad());
 
     if (!driver)
