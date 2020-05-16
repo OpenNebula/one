@@ -38,7 +38,7 @@ class LinuxContainersMarket
         :fs => 'ext4',
         :format => 'raw',
         :agent => 'OpenNebula',
-        :tested_apps => %w[alpine centos debian ubuntu fedora devuan],
+        :tested_apps => %w[alpine alt centos debian ubuntu fedora devuan],
         :skip_untested => 'yes'
     }
 

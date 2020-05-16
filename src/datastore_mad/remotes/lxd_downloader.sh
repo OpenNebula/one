@@ -36,6 +36,7 @@ MARKET_URL=$1
 CONTEXT_API="https://api.github.com/repos/OpenNebula/addon-context-linux/releases"
 CONTEXT_URL="https://github.com/OpenNebula/addon-context-linux/releases/download"
 
+PKG_ALT="curl openssh-server"
 PKG_APK="curl openssh"
 PKG_DEB="curl dbus openssh-server"
 PKG_RPM="openssh-server"
@@ -289,6 +290,28 @@ rc-update add sshd >> /var/log/chroot.log 2>&1
 $CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-r1.apk -Lsfo /root/context.apk >> /var/log/chroot.log 2>&1
 apk add --allow-untrusted /root/context.apk >> /var/log/chroot.log 2>&1
 rm /root/context.apk
+
+rm /dev/random /dev/urandom
+EOC
+)
+    ;;
+*alt*)
+    terminal="/bin/bash"
+    commands=$(cat <<EOC
+export PATH=/sbin:/usr/sbin:/bin:/usr/bin
+
+rm -f /etc/resolv.conf >> /var/log/chroot.log 2>&1
+echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
+
+apt-get update >> /var/log/chroot.log 2>&1
+apt-get install $PKG_ALT -y >> /var/log/chroot.log 2>&1
+
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-alt1.noarch.rpm -Lsfo /root/context.rpm >> /var/log/chroot.log 2>&1
+apt-get install /root/context.rpm -y >> /var/log/chroot.log 2>&1
+rm /root/context.rpm
 
 rm /dev/random /dev/urandom
 EOC
