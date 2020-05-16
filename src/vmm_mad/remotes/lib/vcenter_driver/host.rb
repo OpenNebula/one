@@ -623,7 +623,7 @@ class ClusterComputeResource
             last_mon_time = Time.now.to_i.to_s
         end
 
-        get_resource_pool_list if !@rp_list
+        @rp_list = get_resource_pool_list if !@rp_list
 
         vm_pool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualMachinePool)
 
