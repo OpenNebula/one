@@ -36,4 +36,5 @@
     <xs:include schemaLocation="zone_pool.xsd"/>
     <xs:include schemaLocation="zone.xsd"/>
     <xs:include schemaLocation="showback.xsd"/>
+    <xs:include schemaLocation="raftstatus.xsd"/>
 </xs:schema>
