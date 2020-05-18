@@ -53,7 +53,6 @@ end
 
 template = Base64.decode64(STDIN.read)
 deploy_id = ARGV[0]
-
 template_xml = Nokogiri::XML(template)
 
 # OpenNebula host
@@ -71,6 +70,10 @@ end
 nsx_status = one_host['TEMPLATE/NSX_STATUS']
 exit 0 if nsx_status.nil?
 
+# Exit if there is no NSX_PASSWORD
+nsx_password = one_host['TEMPLATE/NSX_PASSWORD']
+exit 0 if nsx_password.nil?
+
 # OpenNebula VM
 vmid = template_xml.xpath('//VM/ID')
 one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vmid)
@@ -81,17 +84,16 @@ if OpenNebula.is_error?(rc)
     raise err_msg
 end
 
-# NSX Objects
-nsx_client = NSXDriver::NSXTClient.new_from_id(one_host['ID'])
-dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
-ls = NSXDriver::LogicalSwitch.new(nsx_client)
-
 # Get all modified or all NSX Nics
 is_modified = modified?(template)
-nsx_nics = ls.nsx_nics(template_xml, is_modified)
+nsx_nics = NSXDriver::LogicalSwitch.nsx_nics(template_xml,
+                                             is_modified)
 vm_state = one_vm.state_str
 unless nsx_nics.empty? || (vm_state == 'POWEROFF')
     begin
+        # NSX Objects
+        nsx_client = NSXDriver::NSXTClient.new_from_id(one_host['ID'])
+        dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
         dfw.create_rules(deploy_id, template, is_modified)
     rescue StandardError => e
         dfw.clear_rules(template, is_modified)

@@ -196,12 +196,10 @@ module NSXDriver
             vm = VCenterDriver::VirtualMachine
                  .new_one(vi_client, deploy_id, one_vm)
 
-            # NSX Objects needed
-            ls = LogicalSwitch.new(@nsx_client)
-
             # Search NSX Nics
             # First try to search only new attached NSX Nics
-            nsx_nics = ls.nsx_nics(template_xml, only_attached)
+            nsx_nics = NSXDriver::LogicalSwitch.nsx_nics(template_xml,
+                                                         only_attached)
             # If there is no NSX Nics
             return if nsx_nics.empty?
 
@@ -251,10 +249,9 @@ module NSXDriver
             vm_id = template_xml.xpath('/VM/ID').text
             vm_deploy_id = template_xml.xpath('/VM/DEPLOY_ID').text
 
-            # Search NSX Nics
-            ls = LogicalSwitch.new(@nsx_client)
             # First try to search only new attached NSX Nics
-            nsx_nics = ls.nsx_nics(template_xml, only_detached)
+            nsx_nics = NSXDriver::LogicalSwitch.nsx_nics(template_xml,
+                                                         only_detached)
 
             # If there is no NSX Nics
             return if nsx_nics.empty?

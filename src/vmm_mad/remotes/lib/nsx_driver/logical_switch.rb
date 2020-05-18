@@ -53,7 +53,7 @@ module NSXDriver
 
         # Return nsx nics of type NSX-V and NSX-T
         # If only_new_attached = true --> Only returns new attached nsx nics
-        def nsx_nics(template_xml, only_new_attached = true)
+        def self.nsx_nics(template_xml, only_new_attached = true)
             if only_new_attached == true
                 nics = template_xml.xpath('//TEMPLATE/NIC[ATTACH="YES"]')
             else
