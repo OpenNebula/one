@@ -345,6 +345,8 @@ module OneProvision
                 ssh_key = try_read_file(host['connection']['public_key'])
                 config = Base64.strict_encode64(host['configuration'].to_yaml)
 
+                reject = %w[im_mad vm_mad provision connection configuration]
+
                 Nokogiri::XML::Builder.new do |xml|
                     xml.HOST do
                         xml.NAME "provision-#{SecureRandom.hex(24)}"
@@ -378,6 +380,10 @@ module OneProvision
                                         xml.SSH_PUBLIC_KEY ssh_key
                                     end
                                 end
+                            end
+
+                            host.each do |key, value|
+                                xml.send(key.upcase, value) unless reject.include?(key)
                             end
                         end
                     end
