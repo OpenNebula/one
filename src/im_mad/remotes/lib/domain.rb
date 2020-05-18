@@ -113,7 +113,8 @@ class BaseDomains
         mon_s = ''
 
         @vms.each do |_uuid, vm|
-            mon_s << "VM = [ ID=\"#{vm[:id]}\", DEPLOY_ID=\"#{vm[:deploy_id]}\","
+            mon_s << "VM = [ ID=\"#{vm[:id]}\","
+            mon_s << " DEPLOY_ID=\"#{vm[:deploy_id]}\","
             mon_s << " MONITOR=\"#{vm.to_monitor}\"]\n"
         end
 
