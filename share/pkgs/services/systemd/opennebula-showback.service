@@ -1,0 +1,8 @@
+[Unit]
+Description=OpenNebula's periodic showback calculation
+
+[Service]
+Group=oneadmin
+User=oneadmin
+Type=oneshot
+ExecStart=/usr/bin/oneshowback calculate

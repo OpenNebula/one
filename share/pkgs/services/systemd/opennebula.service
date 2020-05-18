@@ -6,6 +6,7 @@ After=opennebula-ssh-agent.service
 Wants=opennebula-scheduler.service opennebula-hem.service
 Wants=opennebula-ssh-agent.service
 Wants=opennebula-ssh-socks-cleaner.timer
+Wants=opennebula-showback.timer
 
 [Service]
 Type=notify
