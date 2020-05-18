@@ -146,11 +146,13 @@ class HookManagerDriver < OpenNebulaDriver
             state       = xml.xpath('//STATE')[0].text
             lcm_state   = xml.xpath('//LCM_STATE')[0].text if obj == 'VM'
             resource_id = xml.xpath('//RESOURCE_ID')[0].text
-            service_id  = xml.xpath('//SERVICE_ID')[0].text
+            service_id  = xml.xpath('//SERVICE_ID')[0]
+            service_id  = service_id.text if service
 
-            ["#{obj} #{resource_id}/#{state}/#{lcm_state} ",
-             "STATE #{obj}/#{state}/#{lcm_state}/#{resource_id} ",
-             "SERVICE #{service_id} "]
+            ret = ["#{obj} #{resource_id}/#{state}/#{lcm_state} ",
+                   "STATE #{obj}/#{state}/#{lcm_state}/#{resource_id} "]
+
+            ret << "SERVICE #{service_id} " if service_id
         else
             ['']
         end
