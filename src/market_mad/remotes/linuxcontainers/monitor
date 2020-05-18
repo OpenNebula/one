@@ -161,7 +161,9 @@ CONTEXT = [
                     'VERSION' => '1.0',
                     'TYPE' => 'IMAGE',
                     'DESCRIPTION' => description,
-                    'TAGS' => ''
+                    'TAGS' => '',
+                    'LINK' => "#{@options[:url]}#{path}"
+                       .gsub('/rootfs.tar.xz', '')
                 }
 
                 tmpl = ''

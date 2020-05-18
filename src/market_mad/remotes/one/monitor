@@ -76,8 +76,8 @@ class OneMarket
 
         applist['appliances'].each do |app|
             id     = app['_id']['$oid']
-            source = "#{@url}/appliance/#{id}/download/0"
-
+            link   = "#{@url}/appliance/#{id}".gsub('//', '/')
+            source = "#{link}/download/0"
             tmpl = ''
 
             app['type'] = 'IMAGE' unless app['type']
@@ -93,6 +93,7 @@ class OneMarket
             print_var(tmpl, 'VERSION',     app['version'])
             print_var(tmpl, 'TAGS',        app['tags'].join(', '))
             print_var(tmpl, 'REGTIME',     app['creation_time'])
+            print_var(tmpl, 'LINK',        link)
 
             if !app['files'].nil? && !app['files'][0].nil?
                 file = app['files'][0]
