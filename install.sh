@@ -1229,7 +1229,9 @@ IM_PROBES_LIB_FILES="\
     src/im_mad/remotes/lib/numa_common.rb \
     src/im_mad/remotes/lib/probe_db.rb \
     src/im_mad/remotes/lib/vcenter.rb \
-    src/im_mad/remotes/lib/nsx.rb"
+    src/im_mad/remotes/lib/nsx.rb \
+    src/im_mad/remotes/lib/domain.rb \
+    src/im_mad/remotes/lib/process_list.rb"
 
 # KVM PROBES
 IM_PROBES_KVM_FILES="\

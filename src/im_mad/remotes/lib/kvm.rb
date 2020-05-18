@@ -20,6 +20,9 @@ require 'open3'
 require 'base64'
 require 'rexml/document'
 
+require_relative 'process_list'
+require_relative 'domain'
+
 ENV['LANG'] = 'C'
 ENV['LC_ALL'] = 'C'
 
@@ -74,104 +77,29 @@ module KVM
 end
 
 #-------------------------------------------------------------------------------
-#  This module gets the pid, memory and cpu usage of a set of process that
-#  includes a -uuid argument (qemu-kvm vms).
-#
-#  Usage is computed based on the fraction of jiffies used by the process
-#  relative to the system during AVERAGE_SECS (1s)
+#  Extends ProcessList module defined at process_list.rb
 #-------------------------------------------------------------------------------
 module ProcessList
 
     #  Number of seconds to average process usage
     AVERAGE_SECS = 1
 
-    # list of process indexed by uuid, each entry:
-    #    :pid
-    #    :memory
-    #    :cpu
-    def self.process_list
-        pids  = []
-        procs = {}
-        ps    = `ps auxwww`
+    # Regex used to retrieve VMs process info
+    PS_REGEX = /-uuid ([a-z0-9\-]+) /
 
-        ps.each_line do |l|
-            m = l.match(/-uuid ([a-z0-9\-]+) /)
-            next unless m
+    def self.retrieve_names
+        text, _e, s = KVM.virsh(:list, '')
+        names = []
 
-            l = l.split(/\s+/)
+        return names if s.exitstatus != 0
 
-            swap = `cat /proc/#{l[1]}/status 2>/dev/null | grep VmSwap`
-            swap = swap.split[1] || 0
+        lines = text.split(/\n/)[2..-1]
 
-            procs[m[1]] = {
-                :pid => l[1],
-                :memory => l[5].to_i + swap.to_i
-            }
-
-            pids << l[1]
+        names = lines.map do |line|
+            line.split(/\s+/).delete_if {|d| d.empty? }[1]
         end
 
-        cpu = cpu_info(pids)
-
-        procs.each {|_i, p| p[:cpu] = cpu[p[:pid]] || 0 }
-
-        procs
-    end
-
-    # Get cpu usage in 100% for a set of PIDs
-    #   param[Array] pids of the arrys to compute the CPU usage
-    #   result[Array] array of cpu usage
-    def self.cpu_info(pids)
-        multiplier = Integer(`grep -c processor /proc/cpuinfo`) * 100
-
-        cpu_ini = {}
-
-        j_ini = jiffies
-
-        pids.each do |pid|
-            cpu_ini[pid] = proc_jiffies(pid).to_f
-        end
-
-        sleep AVERAGE_SECS
-
-        cpu_j = jiffies - j_ini
-
-        cpu = {}
-
-        pids.each do |pid|
-            cpu[pid] = (proc_jiffies(pid) - cpu_ini[pid]) / cpu_j
-            cpu[pid] = (cpu[pid] * multiplier).round(2)
-        end
-
-        cpu
-    end
-
-    # CPU tics used in the system
-    def self.jiffies
-        stat = File.open('/proc/stat', 'r') {|f| f.readline }
-
-        j = 0
-
-        stat.split(' ')[1..-3].each {|num| j += num.to_i }
-
-        j
-    rescue StandardError
-        0
-    end
-
-    # CPU tics used by a process
-    def self.proc_jiffies(pid)
-        stat = File.read("/proc/#{pid}/stat")
-
-        j = 0
-
-        data = stat.lines.first.split(' ')
-
-        [13, 14, 15, 16].each {|col| j += data[col].to_i }
-
-        j
-    rescue StandardError
-        0
+        names
     end
 
 end
@@ -194,14 +122,7 @@ end
 #
 #  This class uses the KVM and ProcessList interface
 #-------------------------------------------------------------------------------
-class Domain
-
-    attr_reader :vm, :name
-
-    def initialize(name)
-        @name = name
-        @vm   = {}
-    end
+class Domain < BaseDomain
 
     # Gets the information of the domain, fills the @vm hash using ProcessList
     # and virsh dominfo
@@ -255,20 +176,6 @@ class Domain
         @vm[:reason] = reason
 
         io_stats
-    end
-
-    # Get domain attribute by name.
-    def [](name)
-        @vm[name]
-    end
-
-    def []=(name, value)
-        @vm[name] = value
-    end
-
-    # Merge hash value into the domain attributes
-    def merge!(map)
-        @vm.merge!(map)
     end
 
     # Convert the output of dumpxml for this domain to an OpenNebula template
@@ -331,28 +238,6 @@ class Domain
         ''
     end
 
-    #  Builds an OpenNebula Template with the monitoring keys. E.g.
-    #    CPU=125.2
-    #    MEMORY=1024
-    #    NETTX=224324
-    #    NETRX=213132
-    #    ...
-    #
-    #  Keys are defined in MONITOR_KEYS constant
-    #
-    #  @return [String] OpenNebula template encoded in base64
-    def to_monitor
-        mon_s = ''
-
-        MONITOR_KEYS.each do |k|
-            next unless @vm[k.to_sym]
-
-            mon_s << "#{k.upcase}=\"#{@vm[k.to_sym]}\"\n"
-        end
-
-        Base64.strict_encode64(mon_s)
-    end
-
     private
 
     # --------------------------------------------------------------------------
@@ -384,9 +269,6 @@ class Domain
           'user'      => 'SUSPENDED'
       }
     }
-
-    MONITOR_KEYS = %w[cpu memory netrx nettx diskrdbytes diskwrbytes diskrdiops
-                      diskwriops]
 
     # Get the I/O stats of the domain as provided by Libvirt command domstats
     # The metrics are aggregated for all DIKS and NIC
@@ -461,28 +343,10 @@ module DomainList
     ############################################################################
     # This is the implementation class for the module logic
     ############################################################################
-    class KVMDomains
+    class KVMDomains < BaseDomains
 
         include KVM
         include ProcessList
-
-        def initialize
-            @vms = {}
-        end
-
-        # Get the list of VMs (known to OpenNebula) and their monitor info
-        # including process usage
-        #
-        #   @return [Hash] with KVM Domain classes indexed by their uuid
-        def info
-            info_each(true) do |name|
-                vm = Domain.new name
-
-                next if vm.info == -1
-
-                vm
-            end
-        end
 
         # Get the list of wild VMs (not known to OpenNebula) and their monitor
         # information including process usage
@@ -504,28 +368,6 @@ module DomainList
             end
         end
 
-        def state_info
-            info_each(false) do |name|
-                vm = Domain.new name
-
-                next if vm.info == -1
-
-                vm
-            end
-        end
-
-        # Return a message string with VM monitor information
-        def to_monitor
-            mon_s = ''
-
-            @vms.each do |_uuid, vm|
-                mon_s << "VM = [ ID=\"#{vm[:id]}\", DEPLOY_ID=\"#{vm[:deploy_id]}\","
-                mon_s << " MONITOR=\"#{vm.to_monitor}\"]\n"
-            end
-
-            mon_s
-        end
-
         # Return a message string with wild VM information
         def wilds_to_monitor
             mon_s = ''
@@ -539,45 +381,6 @@ module DomainList
             end
 
             mon_s
-        end
-
-        private
-
-        # Generic build method for the info list. It filters and builds the
-        # domain list based on the given block
-        #   @param[Boolean] do_process, to get process information
-        def info_each(do_process)
-            return unless block_given?
-
-            vm_ps = ProcessList.process_list if do_process
-
-            text, _e, s = KVM.virsh(:list, '')
-
-            return {} if s.exitstatus != 0
-
-            lines = text.split(/\n/)[2..-1]
-
-            return @vms if lines.nil?
-
-            names = lines.map do |line|
-                line.split(/\s+/).delete_if {|d| d.empty? }[1]
-            end
-
-            names.each do |name|
-                vm = yield(name)
-
-                @vms[vm[:uuid]] = vm if vm
-            end
-
-            return @vms unless do_process
-
-            vm_ps.each do |uuid, ps|
-                next unless @vms[uuid]
-
-                @vms[uuid].merge!(ps)
-            end
-
-            @vms
         end
 
     end
