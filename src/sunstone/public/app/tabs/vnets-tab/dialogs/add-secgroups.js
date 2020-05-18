@@ -93,16 +93,6 @@ define(function(require) {
             new_security_groups.push(security_group);
           }
         }
-        // Get current values of VNet.
-        var network_json ={        
-          "DESCRIPTION": $("#value_td_input_DESCRIPTION").text(),
-          "BRIDGE": $("#value_td_input_BRIDGE").text(),
-          "VN_MAD": $("#value_td_input_VN_MAD").text(),
-          "NETWORK_ADDRESS": $("#value_td_input_NETWORK_ADDRESS").text(),
-          "GATEWAY": $("#value_td_input_GATEWAY").text(),
-          "DNS": $("#value_td_input_DNS").text(),
-          "BRIDGE_TYPE": $("#value_td_input_BRIDGE_TYPE").text()
-        }
 
         var selected_security_groups = that.secgroupTab.retrieve()["SECURITY_GROUPS"].split(",");
 
@@ -112,7 +102,7 @@ define(function(require) {
             new_security_groups += "," + security_group;
           }
         }
-        
+        var network_json = {};
         network_json["SECURITY_GROUPS"] = new_security_groups;
         Sunstone.runAction('Network.add_secgroup', that.vnetId, TemplateUtils.templateToString(network_json));
       })
