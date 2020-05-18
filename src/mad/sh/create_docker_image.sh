@@ -54,7 +54,7 @@ fi
 trap clean EXIT
 
 # Mount container disk image and untar rootfs contents to it
-mount -o noexec,nodev $img_raw $dockerdir/mnt > /dev/null 2>&1
+mount -o noexec,nodev,nosuid $img_raw $dockerdir/mnt > /dev/null 2>&1
 chmod o+w $dockerdir/mnt
 tar xpf $tarball -C $dockerdir/mnt > /dev/null 2>&1
 
