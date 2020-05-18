@@ -62,6 +62,8 @@ class ServiceWD
     def start(service_pool)
         Log.info LOG_COMP, 'Start watch dog'
 
+        service_pool.info_all
+
         # check that all nodes are in RUNNING state, if not, notify
         check_roles_state(client, service_pool)
 
@@ -161,10 +163,12 @@ class ServiceWD
     # @param service_id [Integer]            Service ID to check
     # @param roles      [Array]              Service roles with its nodes
     def check_roles_state(client, service_pool)
-        service_pool.each do |service|
+       service_pool.each do |service|
+            service.info
+
             service.roles.each do |name, role|
                 role.nodes_ids.each do |node|
-                    check_role_state(client, service_id, name, node)
+                    check_role_state(client, service.id, name, node)
                 end
             end
         end

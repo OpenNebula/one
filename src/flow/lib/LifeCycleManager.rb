@@ -91,7 +91,7 @@ class ServiceLCM
 
         Thread.new do
             wd = ServiceWD.new(client, em_conf)
-            wd.start @srv_pool
+            wd.start(@srv_pool)
         end
 
         Thread.new do
