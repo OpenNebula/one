@@ -45,6 +45,11 @@ if [ ! -f "$img_raw" ]; then
     exit -1
 fi
 
+# Check tarball is a valid file
+if [ ! -f "$tarball" ]; then
+    exit -1
+fi
+
 # Check dockerdir is different than / and the directory name is an uuid
 regex_uuid="^\{?[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{12}\}?$"
 if [[ ! `echo $dockerdir | awk -F/ '{print $NF}'` =~ $regex_uuid ]]; then
