@@ -596,8 +596,6 @@ Layout/IndentationWidth:
 Layout/SpaceInsideBlockBraces:
     SpaceBeforeBlockParameters: false
 
-###
-
 # Align the end keyword
 Layout/EndAlignment:
     AutoCorrect: true
@@ -622,7 +620,8 @@ Layout/SpaceAroundOperators:
 Layout/SpaceAroundMethodCallOperator:
     Enabled: true
 
-###
+Layout/EmptyLinesAroundAttributeAccessor:
+    Enabled: true
 
 #######
 # STYLE
@@ -732,6 +731,9 @@ Style/RedundantBegin:
     Enabled: false
 
 Style/ExponentialNotation:
+    Enabled: true
+
+Style/SlicingWithRange:
     Enabled: true
 
 
