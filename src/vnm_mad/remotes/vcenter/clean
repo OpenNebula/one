@@ -69,19 +69,39 @@ end
 nsx_status = one_host['TEMPLATE/NSX_STATUS']
 exit 0 if nsx_status.nil?
 
-# Clear rules
-nsx_client = NSXDriver::NSXClient.new_from_id(one_host['ID'])
-dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
+# Exit if there is no NSX_PASSWORD
+nsx_password = one_host['TEMPLATE/NSX_PASSWORD']
+exit 0 if nsx_password.nil?
 
-begin
-    dfw.clear_rules(template, modified?(template))
-rescue StandardError => e
-    OpenNebula.log_error('Error deleting security groups rules ' \
-        "due to \"#{e.message}\"")
-    if VCenterDriver::CONFIG[:debug_information]
-        OpenNebula.error_message(e.backtrace)
+# OpenNebula VM
+vmid = template_xml.xpath('//VM/ID')
+one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vmid)
+
+rc = one_vm.info
+if OpenNebula.is_error?(rc)
+    err_msg = rc.message
+    raise err_msg
+end
+
+# Get all modified or all NSX Nics
+is_modified = modified?(template)
+nsx_nics = NSXDriver::LogicalSwitch.nsx_nics(template_xml,
+                                             is_modified)
+vm_state = one_vm.state_str
+unless nsx_nics.empty? || (vm_state != 'POWEROFF')
+    begin
+        # Clear rules
+        nsx_client = NSXDriver::NSXClient.new_from_id(one_host['ID'])
+        dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
+        dfw.clear_rules(template, modified?(template))
+    rescue StandardError => e
+        OpenNebula.log_error('Error deleting security groups rules ' \
+            "due to \"#{e.message}\"")
+        if VCenterDriver::CONFIG[:debug_information]
+            OpenNebula.error_message(e.backtrace)
+        end
+        exit 1
     end
-    exit 1
 end
 
 exit 0
