@@ -379,9 +379,9 @@ module OneProvision
                                     end
                                 end
                             end
-                            host.reject! {|k| reject.include?(k) }
+
                             host.each do |key, value|
-                                xml.send(key.upcase, value)
+                                xml.send(key.upcase, value) unless reject.include?(key)
                             end
                         end
                     end
