@@ -161,7 +161,7 @@ class ServiceWD
     # @param client       [OpenNebula::Client] Client to make API calls
     # @param service_pool [ServicePool]        All services to check
     def check_roles_state(client, service_pool)
-       service_pool.each do |service|
+        service_pool.each do |service|
             service.info
 
             service.roles.each do |name, role|
