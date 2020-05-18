@@ -64,7 +64,7 @@ void MonitorDriverProtocol::_monitor_vm(message_t msg)
     {
         int id = -1;
         string monitor_b64;
-        string uuid;
+        string deploy_id;
 
         if (vm->vector_value("ID", id) != 0)
         {
@@ -72,7 +72,7 @@ void MonitorDriverProtocol::_monitor_vm(message_t msg)
         }
 
         vm->vector_value("MONITOR", monitor_b64);
-        vm->vector_value("UUID", uuid);
+        vm->vector_value("DEPLOY_ID", deploy_id);
 
         auto monitor_plain = one_util::base64_decode(monitor_b64);
 
@@ -95,11 +95,11 @@ void MonitorDriverProtocol::_monitor_vm(message_t msg)
 
             delete monitor_plain;
 
-            auto it = vms_templ.find(uuid);
+            auto it = vms_templ.find(deploy_id);
 
             if (it == vms_templ.end())
             {
-                vms_templ.insert(make_pair(std::move(uuid),
+                vms_templ.insert(make_pair(std::move(deploy_id),
                     make_pair(id, std::move(mon_tmpl))));
             }
             else
