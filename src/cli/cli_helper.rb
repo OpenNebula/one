@@ -571,8 +571,8 @@ module CLIHelper
         # @return        [Array] Array with selected columns information
         def data_array(data, options)
             res_data = data.collect do |d|
-                @default_columns.collect do |c|
-                    @columns[c][:proc].call(d).to_s if @columns[c]
+                @columns.collect do |_, params|
+                    params[:proc].call(d).to_s
                 end
             end
 
@@ -821,7 +821,7 @@ module CLIHelper
                 m = s.match(/^(.*?)#{operators}(.*?)$/)
 
                 if m
-                    index = @default_columns.index(m[1].to_sym)
+                    index = @columns.keys.index(m[1].to_sym)
 
                     if index
                         {
