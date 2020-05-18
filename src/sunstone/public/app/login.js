@@ -109,8 +109,8 @@ define(function(require) {
   }
 
   function authenticate(publicKeyCredential) {
-    var username = $("#username").val();
-    var password = $("#password").val();
+    var username = $.trim($("#username").val());
+    var password = $.trim($("#password").val());
     var remember = $("#check_remember").is(":checked");
     var two_factor_auth_token;
     var error_callback;
