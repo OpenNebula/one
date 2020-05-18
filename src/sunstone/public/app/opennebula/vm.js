@@ -805,11 +805,7 @@ define(function(require) {
       });
     }
     // infoextended: alias will be group by nic
-    return (
-      config.system_config &&
-      config.system_config.get_extended_vm_info &&
-      config.system_config.get_extended_vm_info === "true"
-      )
+    return Config.isExtendedVmInfo
       ? groupStrFuntion(element, nics)
       : (ips.length == 0 && nics && nics.length > 0)
         ? $.map(nics, function(nic) {

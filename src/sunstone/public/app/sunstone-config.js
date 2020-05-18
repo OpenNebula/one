@@ -181,7 +181,8 @@ define(function(require) {
       "min":_config["user_config"]["threshold_min"],
       "low":_config["user_config"]["threshold_low"],
       "high":_config["user_config"]["threshold_high"]
-    }
+    },
+    "isExtendedVmInfo": _config["system_config"] && _config["system_config"]["get_extended_vm_info"] && _config["system_config"]["get_extended_vm_info"] === "true",
   };
 
   return Config;

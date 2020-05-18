@@ -90,10 +90,6 @@ define(function(require) {
   function _html() {
     var roleList = [];
 
-    if (!OpenNebulaAction.cache("VM")) {
-      Sunstone.runAction("VM.list");
-    }
-
     var roles = this.element.TEMPLATE.BODY.roles;
     if (roles && roles.length) {
       $.each(roles, function(){
@@ -200,49 +196,25 @@ define(function(require) {
 
   function _roleHTML(role_index) {
     var that = this;
-
-    if (!OpenNebulaAction.cache("VM")) {
-      Sunstone.runAction("VM.list");
-    }
-    that.cache = OpenNebulaAction.cache("VM");
-
     var role = this.element.TEMPLATE.BODY.roles[role_index];
-
-    var vms = [];
+    var roleVms = [];
 
     if (role.nodes) {
-      $.each(role.nodes, function(){
-        var vm_info = this.vm_info;
+      $.each(role.nodes, function(index, node){
+        var vm_info = node.vm_info;
 
-        var info = [];
-        if (this.scale_up) {
-          info.push("<i class='fas fa-arrow-up'/>");
-        } else if (this.disposed) {
-          info.push("<i class='fas fa-arrow-down'/>");
-        } else {
-          info.push("");
-        }
-
-        if (!that.element.TEMPLATE.BODY.ready_status_gate) {
-          info.push("");
-        }
-
-        var id = vm_info ? vm_info.VM.ID : this.deploy_id;
+        var id = vm_info ? vm_info.VM.ID : node.deploy_id;
         var name = vm_info ? vm_info.VM.NAME : "";
         var uname = vm_info ? vm_info.VM.UNAME : "";
         var gname = vm_info ? vm_info.VM.GNAME : "";
         var ips = "", actions = "";
 
-        if (that.cache && that.cache.data && Array.isArray(that.cache.data)) {
-          $.each(that.cache.data, function(_, data){
+        
+        OpenNebulaVM.show({
+          data : { id: id },
+          timeout: true,
+          success: function (_, data) {
             if (data.VM && data.VM.ID === id) {
-              (that.element.TEMPLATE.BODY.ready_status_gate &&
-              vm_info.VM.USER_TEMPLATE &&
-              vm_info.VM.USER_TEMPLATE.READY &&
-              vm_info.VM.USER_TEMPLATE.READY == "YES")
-                ? info.push('<span class="has-tip" title="'+Locale.tr("The VM is ready")+'"><i class="fas fa-check"/></span>')
-                : info.push('<span class="has-tip" title="'+Locale.tr("Waiting for the VM to be ready")+'"><i class="fas fa-clock-o"/></span>');
-
               ips = OpenNebulaVM.ipsStr(data.VM);
 
               if (OpenNebulaVM.isVNCSupported(data.VM)) {
@@ -253,30 +225,16 @@ define(function(require) {
               }
               
               var wFile = OpenNebulaVM.isWFileSupported(data.VM);
-              if (wFile) {
-                actions += OpenNebulaVM.buttonWFile(id, wFile);
-              }
+              actions += wFile ? OpenNebulaVM.buttonWFile(id, wFile) : "";
 
               var rdp = OpenNebulaVM.isRDPSupported(data.VM);
-              if (rdp) {
-                actions += OpenNebulaVM.buttonRDP(rdp.IP, data.VM);
-              }
+              actions += rdp ? OpenNebulaVM.buttonRDP(rdp.IP, data.VM) : "";
             }
-          })
-        }
 
-        var rowInfo = [
-          '<input class="check_item" style="vertical-align: inherit;" type="checkbox" '+
-            'id="vm_' + id + '" name="selected_items" value="' + id + '"/>',
-          '<a href="/#vms-tab/' + id + '">'+ id +'</a>',
-          name,
-          uname,
-          gname,
-          ips,
-          actions,
-        ];
-
-        vms.push(info.concat(rowInfo))
+            roleVms[index] = rowInfoRoleVm(id, name, uname, gname, ips, actions);
+            that.serviceroleVMsDataTable.updateView(null, roleVms, true);
+          }
+        });
       });
     }
 
@@ -290,10 +248,23 @@ define(function(require) {
         Locale.tr("Owner"),
         Locale.tr("Group"),
         Locale.tr("IPs"),
-        "" // VNC and RDP
+        "" // Remote actions
       ],
-      'vms': vms
+      'vms': roleVms
     });
+  }
+
+  function rowInfoRoleVm(id, name = "", uname = "", gname = "", ips = "", actions = "") {
+    return [
+      '<input class="check_item" style="vertical-align: inherit;" type="checkbox" '+
+        'id="vm_' + id + '" name="selected_items" value="' + id + '"/>',
+      '<a href="/#vms-tab/' + id + '">'+ id +'</a>',
+      name,
+      uname,
+      gname,
+      ips,
+      actions
+    ];
   }
 
   function _roleSetup(context, role_index) {
@@ -311,8 +282,7 @@ define(function(require) {
             "bSortClasses" : false,
             "bDeferRender": true,
             "aoColumnDefs": [
-              {"bSortable": false, "aTargets": [0,1,"check",7,8]},
-              {"bVisible": false, "aTargets": [0,1]}
+              {"bSortable": false, "aTargets": ["check", 5, 6]}
             ]
           }
         });
