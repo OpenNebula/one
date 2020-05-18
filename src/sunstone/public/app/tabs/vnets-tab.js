@@ -27,7 +27,8 @@ define(function(require) {
     require('./vnets-tab/dialogs/add-ar'),
     require('./vnets-tab/dialogs/update-ar'),
     require('./vnets-tab/dialogs/reserve'),
-    require('./vnets-templates-tab/dialogs/instantiate-add-ar')
+    require('./vnets-templates-tab/dialogs/instantiate-add-ar'),
+    require('./vnets-tab/dialogs/add-secgroups')
   ];
 
   var _panels = [
