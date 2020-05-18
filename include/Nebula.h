@@ -328,6 +328,16 @@ public:
     };
 
     /**
+     *  Returns the default share location. When ONE_LOCATION is defined this path
+     *  points to $ONE_LOCATION/share, otherwise it is /usr/share/one.
+     *      @return the log location.
+     */
+    const string& get_share_location()
+    {
+        return share_location;
+    };
+
+    /**
      *
      *
      */
@@ -749,6 +759,7 @@ private:
             var_location     = "/var/lib/one/";
             remotes_location = "/var/lib/one/remotes/";
             vms_location     = "/var/lib/one/vms/";
+            share_location   = "/usr/share/one";
         }
         else
         {
@@ -765,6 +776,7 @@ private:
             var_location     = nebula_location + "var/";
             remotes_location = nebula_location + "var/remotes/";
             vms_location     = nebula_location + "var/vms/";
+            share_location   = nebula_location + "share/";
         }
     };
 
@@ -784,6 +796,7 @@ private:
     string  var_location;
     string  remotes_location;
     string  vms_location;
+    string  share_location;
 
     string  hostname;
 

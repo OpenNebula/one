@@ -15,6 +15,8 @@
 /* ------------------------------------------------------------------------ */
 
 #include "VMTemplate.h"
+#include "Nebula.h"
+#include "VirtualMachineManager.h"
 #include "ScheduledAction.h"
 
 /* ************************************************************************ */
@@ -73,6 +75,16 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
     int rc = parse_sched_action(error_str);
 
     if (rc == -1)
+    {
+        return rc;
+    }
+
+    // ------------------------------------------------------------------------
+    // Validate RAW attribute
+    // ------------------------------------------------------------------------
+    rc = Nebula::instance().get_vmm()->validate_raw(obj_template, error_str);
+
+    if (rc != 0)
     {
         return rc;
     }
@@ -182,8 +194,18 @@ int VMTemplate::parse_sched_action(string& error_str)
 
 int VMTemplate::post_update_template(string& error)
 {
+    vector<const VectorAttribute *> raw;
+
     int rc = parse_sched_action(error);
+
     if (rc == -1)
+    {
+        return rc;
+    }
+    
+    rc = Nebula::instance().get_vmm()->validate_raw(obj_template, error);
+
+    if (rc != 0)
     {
         return rc;
     }

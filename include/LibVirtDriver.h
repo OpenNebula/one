@@ -34,14 +34,18 @@ public:
 
     ~LibVirtDriver(){};
 
+    int validate_raw(const string& raw_section, string& error) const override;
+
 private:
-    static const float CGROUP_BASE_CPU_SHARES;
+    static const float  CGROUP_BASE_CPU_SHARES;
 
-    static const int   CEPH_DEFAULT_PORT;
+    static const int    CEPH_DEFAULT_PORT;
 
-    static const int   GLUSTER_DEFAULT_PORT;
+    static const int    GLUSTER_DEFAULT_PORT;
 
-    static const int   ISCSI_DEFAULT_PORT;
+    static const int    ISCSI_DEFAULT_PORT;
+
+    static const char * XML_DOMAIN_RNG_PATH;
 
     int deployment_description(const VirtualMachine * vm, const string& fn) const override
     {

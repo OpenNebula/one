@@ -72,20 +72,20 @@ public:
 
     /**
      * Returns a copy of the DISK attributes of this template, the attributes
-	 * are copied and must be freed by the calling function.
-	 *   @param a vector to store the disks.
+     * are copied and must be freed by the calling function.
+     *   @param a vector to store the disks.
      */
     void clone_disks(vector<VectorAttribute *>& disks)
     {
-		vector<const VectorAttribute *> _disks;
+        vector<const VectorAttribute *> _disks;
 
-		obj_template->get("DISK", _disks);
+        obj_template->get("DISK", _disks);
 
-		for (vector<const VectorAttribute *>::const_iterator i = _disks.begin();
-				i != _disks.end() ; ++i)
-		{
-			disks.push_back(new VectorAttribute(*i));
-		}
+        for (vector<const VectorAttribute *>::const_iterator i = _disks.begin();
+                i != _disks.end() ; ++i)
+        {
+            disks.push_back(new VectorAttribute(*i));
+        }
     }
 
     /**

@@ -739,7 +739,6 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     set<int> cluster_ids;
     set<int> datastore_ids;
     vector<Template *> quotas;
-
     ostringstream oss;
 
     // ------------------------------------------------------------------------
@@ -889,6 +888,16 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // Check the CPU Model attribute
     // ------------------------------------------------------------------------
     parse_cpu_model(user_obj_template);
+
+    // ------------------------------------------------------------------------
+    // Validate RAW attribute
+    // ------------------------------------------------------------------------
+    rc = Nebula::instance().get_vmm()->validate_raw(obj_template, error_str);
+
+    if (rc != 0)
+    {
+        goto error_raw;
+    }
 
     // ------------------------------------------------------------------------
     // PCI Devices (Needs to be parsed before network)
@@ -1105,6 +1114,7 @@ error_one_vms:
     error_str = "Trying to import an OpenNebula VM: 'one-*'.";
     goto error_common;
 
+error_raw:
 error_os:
 error_pci:
 error_defaults:
@@ -2873,6 +2883,14 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     }
 
     // -------------------------------------------------------------------------
+    // Validates RAW data section
+    // -------------------------------------------------------------------------
+    if (Nebula::instance().get_vmm()->validate_raw(&tmpl, err) != 0)
+    {
+        return -1;
+    }
+
+    // -------------------------------------------------------------------------
     // Update OS, FEATURES, INPUT, GRAPHICS, RAW, CPU_MODEL
     // -------------------------------------------------------------------------
     replace_vector_values(obj_template, &tmpl, "OS");
@@ -3584,6 +3602,9 @@ void VirtualMachine::encrypt()
     user_obj_template->encrypt(one_key);
 };
 
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
 void VirtualMachine::decrypt()
 {
     std::string one_key;
@@ -3592,3 +3613,7 @@ void VirtualMachine::decrypt()
     obj_template->decrypt(one_key);
     user_obj_template->decrypt(one_key);
 };
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+

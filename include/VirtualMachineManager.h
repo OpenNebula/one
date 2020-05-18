@@ -217,6 +217,16 @@ public:
                (MadManager::get(0,_name,name));
     };
 
+    /**
+     *  Validates raw sections in the Virtual Machine Template for the
+     *  target driver
+     *  @param template of the virtual machine
+     *  @param error_str error if any
+     *
+     *  @return 0 on success (valid raw)
+     */
+    int validate_raw(const Template * vmt, string& error_str);
+
 private:
     /**
      *  Thread id for the Virtual Machine Manager

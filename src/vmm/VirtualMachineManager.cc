@@ -183,6 +183,36 @@ void VirtualMachineManager::user_action(const ActionRequest& ar)
 /* Manager Actions                                                            */
 /* ************************************************************************** */
 
+int VirtualMachineManager::validate_raw(const Template * vmt, string& error_str)
+{
+    const VectorAttribute * raw = vmt->get("RAW");
+
+    if (raw == nullptr)
+    {
+        return 0;
+    }
+
+    string value = raw->vector_value("TYPE");
+    one_util::tolower(value);
+
+    const VirtualMachineManagerDriver * vmd = get(value);
+
+    if ( vmd == 0 )
+    {
+        error_str = "Invalid RAW section: unsupported TYPE";
+        return -1;
+    }
+
+    value = raw->vector_value("DATA");
+
+    return vmd->validate_raw(value, error_str);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 string * VirtualMachineManager::format_message(
     const string& hostname,
     const string& m_hostname,
