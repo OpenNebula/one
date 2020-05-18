@@ -57,8 +57,7 @@ class ServiceWD
 
     # Start services WD
     #
-    # @param service_id [Integer] Service ID to watch
-    # @param roles      [Array]   Service roles with its nodes
+    # @param service_pool [ServicePool] All services to check
     def start(service_pool)
         Log.info LOG_COMP, 'Start watch dog'
 
@@ -159,9 +158,8 @@ class ServiceWD
 
     # Check service roles state
     #
-    # @param client     [OpenNebula::Client] Client to make API calls
-    # @param service_id [Integer]            Service ID to check
-    # @param roles      [Array]              Service roles with its nodes
+    # @param client       [OpenNebula::Client] Client to make API calls
+    # @param service_pool [ServicePool]        All services to check
     def check_roles_state(client, service_pool)
        service_pool.each do |service|
             service.info
