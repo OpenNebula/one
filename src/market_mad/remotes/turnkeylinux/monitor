@@ -157,7 +157,7 @@ class TurnkeyLinux
                 'REGTIME'     => regt,
                 'SIZE'        => @options[:sizemb],
                 'DESCRIPTION' => "Based on #{image[0]}-#{image[1]}",
-                'LINK' => "#{@options[:url]}/#{@options[:platform]}/#{path}"
+                'LINK'        => "#{@options[:url]}/#{@options[:platform]}"
             }
 
             tmpl = ''
