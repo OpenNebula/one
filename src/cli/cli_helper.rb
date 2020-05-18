@@ -571,14 +571,18 @@ module CLIHelper
         # @return        [Array] Array with selected columns information
         def data_array(data, options)
             res_data = data.collect do |d|
-                @columns.collect do |_, params|
-                    params[:proc].call(d).to_s
+                @default_columns.collect do |c|
+                    @columns[c][:proc].call(d).to_s if @columns[c]
                 end
             end
 
             if options
                 filter_data!(res_data, options) if options[:filter]
             end
+
+            return res_data unless options[:list]
+
+            @default_columns = options[:list].collect {|o| o.upcase.to_sym }
 
             res_data
         end
@@ -797,10 +801,6 @@ module CLIHelper
             rescue StandardError => e
                 CLIHelper.fail(e.message)
             end
-
-            return unless options[:list]
-
-            @default_columns = options[:list].collect {|o| o.upcase.to_sym }
         end
 
         # Filter data
