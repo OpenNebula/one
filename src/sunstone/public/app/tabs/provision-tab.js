@@ -919,7 +919,9 @@ define(function(require) {
 
                   if (Config.provision.create_vm.isEnabled("network_select")) {
                     NicsSection.insert(template_json, create_vm_context,
-                      {"securityGroups": Config.isFeatureEnabled("secgroups")});
+                      { "forceIPv4": true,
+                        "securityGroups": Config.isFeatureEnabled("secgroups")
+                      });
                   } else {
                     $(".provision_network_selector", create_vm_context).html("");
                   }
