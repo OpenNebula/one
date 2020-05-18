@@ -76,7 +76,7 @@ class OneMarket
 
         applist['appliances'].each do |app|
             id     = app['_id']['$oid']
-            link   = "#{@url}/appliance/#{id}".gsub('//', '/')
+            link   = "#{@url}appliance/#{id}"
             source = "#{link}/download/0"
             tmpl = ''
 
