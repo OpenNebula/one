@@ -58,7 +58,6 @@ class ServiceLCM
         }
 
         @event_manager = EventManager.new(em_conf).am
-        @wd            = ServiceWD.new(client, em_conf)
 
         # Register Action Manager actions
         @am.register_action(ACTIONS['DEPLOY_CB'],
@@ -89,6 +88,11 @@ class ServiceLCM
         Thread.new { @am.start_listener }
 
         Thread.new { catch_up(client) }
+
+        Thread.new do
+            wd = ServiceWD.new(client, em_conf)
+            wd.start(@srv_pool)
+        end
 
         Thread.new do
             auto_scaler = ServiceAutoScaler.new(@srv_pool,
@@ -239,9 +243,6 @@ class ServiceLCM
                 if service.all_roles_running?
                     service.set_state(Service::STATE['RUNNING'])
                     service.update
-
-                    # start watchdog
-                    @wd.start(service.id, service.roles)
                 end
 
                 # If there is no node in PENDING the service is not modified.
@@ -286,9 +287,6 @@ class ServiceLCM
                     "#{service.state_str}"
                 )
             end
-
-            # stop watchdog
-            @wd.stop(service.id)
 
             set_deploy_strategy(service)
 
@@ -342,9 +340,6 @@ class ServiceLCM
                     "Service cannot be scaled in state: #{service.state_str}"
                 )
             end
-
-            # stop watchdog
-            @wd.stop(service.id)
 
             role = service.roles[role_name]
 
@@ -482,9 +477,6 @@ class ServiceLCM
 
             if service.all_roles_running?
                 service.set_state(Service::STATE['RUNNING'])
-
-                # start watching the service
-                @wd.start(service.id, service.roles)
             elsif service.strategy == 'straight'
                 set_deploy_strategy(service)
 
@@ -655,9 +647,6 @@ class ServiceLCM
             service.set_state(Service::STATE['RUNNING'])
             service.roles[role_name].set_state(Role::STATE['RUNNING'])
 
-            # start watching the service
-            @wd.start(service.id, service.roles)
-
             service.update
         end
 
@@ -694,8 +683,6 @@ class ServiceLCM
             Log.info 'WD',
                      "Update #{service_id}:#{role_name} " \
                      "cardinality to #{cardinality}"
-
-            @wd.update(service.id, role_name, node)
         end
 
         Log.error 'WD', rc.message if OpenNebula.is_error?(rc)
@@ -728,13 +715,6 @@ class ServiceLCM
 
         @srv_pool.each do |service|
             recover_action(client, service.id) if service.transient_state?
-
-            service.info
-
-            if Service::STATE['RUNNING'] == service.state ||
-               Service::STATE['WARNING'] == service.state
-                @wd.start(service.id, service.roles)
-            end
         end
     end
 

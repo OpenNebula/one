@@ -45,7 +45,7 @@ class ServiceAutoScaler
                 # fill service roles information
                 service.info_roles
 
-                next if service.state == Service::STATE['DONE']
+                next if service.state != Service::STATE['RUNNING']
 
                 Log.info LOG_COMP,
                          'Checking policies for ' \
