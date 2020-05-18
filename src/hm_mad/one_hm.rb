@@ -153,6 +153,8 @@ class HookManagerDriver < OpenNebulaDriver
                    "STATE #{obj}/#{state}/#{lcm_state}/#{resource_id} "]
 
             ret << "SERVICE #{service_id} " if service_id
+
+            ret
         else
             ['']
         end
