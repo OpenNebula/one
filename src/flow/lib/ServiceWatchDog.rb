@@ -15,7 +15,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'base64'
 require 'ffi-rzmq'
+require 'nokogiri'
 require 'EventManager'
 
 # Service watchdog class
@@ -98,7 +100,7 @@ class ServiceWD
     def update(service_id, role_name, node)
         subscriber = gen_subscriber
 
-        unsubscribe(node, subscriber)
+        unsubscribe(service_id, subscriber)
 
         @nodes_mutex.synchronize do
             return if @services_nodes[service_id].nil?
@@ -136,13 +138,7 @@ class ServiceWD
         # subscribe to all nodes
         subscriber = gen_subscriber
 
-        @nodes_mutex.synchronize do
-            @services_nodes[service_id].each do |_, nodes|
-                nodes.each do |node|
-                    subscribe(node, subscriber)
-                end
-            end
-        end
+        subscribe(service_id, subscriber)
 
         key     = ''
         content = ''
@@ -156,18 +152,19 @@ class ServiceWD
                 Log.error LOG_COMP, 'Error reading from subscriber.'
             end
 
-            # key format: EVENT VM VM_ID/STATE/LCM_STATE
+            # key format: EVENT SERVICE SERVICE_ID
             next if key.nil?
 
             split_key = key.split
 
             # if there is no data skip
-            next if split_key[2].nil?
+            next if content.nil?
 
-            split_key = key.split[2].split('/')
-            node      = split_key[0].to_i
-            state     = split_key[1]
-            lcm_state = split_key[2]
+            xml = Nokogiri::XML(Base64.decode64(content))
+
+            node      = xml.xpath("/HOOK_MESSAGE/VM/ID").text.to_i
+            state     = xml.xpath("/HOOK_MESSAGE/STATE").text
+            lcm_state = xml.xpath("/HOOK_MESSAGE/LCM_STATE").text
             role_name = find_by_id(service_id, node)
 
             # if the VM is not from the service skip
@@ -188,13 +185,9 @@ class ServiceWD
         # unsubscribe from all nodes
         subscriber = gen_subscriber
 
-        @nodes_mutex.synchronize do
-            @services_nodes[service_id].each do |_, nodes|
-                nodes.each do |node|
-                    unsubscribe(node, subscriber)
-                end
-            end
+        unsubscribe(service_id, subscriber)
 
+        @nodes_mutex.synchronize do
             @services_nodes.delete(service_id)
         end
     end
@@ -221,18 +214,18 @@ class ServiceWD
 
     # Subscribe to VM state changes
     #
-    # @param vm_id      [Integer] VM ID to subscribe
+    # @param service_id [Integer] Service ID to subscribe
     # @param subscriber [ZMQ]     ZMQ subscriber object
-    def subscribe(vm_id, subscriber)
-        subscriber.setsockopt(ZMQ::SUBSCRIBE, "EVENT VM #{vm_id}")
+    def subscribe(service_id, subscriber)
+        subscriber.setsockopt(ZMQ::SUBSCRIBE, "EVENT SERVICE #{service_id}")
     end
 
     # Unsubscribe from VM state changes
     #
-    # @param vm_id      [Integer] VM ID to unsubscribe
+    # @param service_id [Integer] Service ID to subscribe
     # @param subscriber [ZMQ]     ZMQ subscriber object
-    def unsubscribe(vm_id, subscriber)
-        subscriber.setsockopt(ZMQ::UNSUBSCRIBE, "EVENT VM #{vm_id}")
+    def unsubscribe(service_id, subscriber)
+        subscriber.setsockopt(ZMQ::UNSUBSCRIBE, "EVENT SERVICE #{service_id}")
     end
 
     # Check service roles state
