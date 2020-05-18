@@ -142,6 +142,13 @@ define(function(require) {
             $('#NETWORK_UNAME', context).val(aData[options.uname_index]);
             $('#NETWORK_UID', context).val("");
           }
+        },
+        'unselect_callback': function() {
+          // reset values
+          that.secgroupsTable.selectResourceTableSelect({ ids: [] });
+          $.each(['NETWORK_ID', 'NETWORK', 'NETWORK_UNAME', 'NETWORK_UID'], function() {
+            $('#'+this, context).val("");
+          })
         }
       }
     });
