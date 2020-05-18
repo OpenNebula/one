@@ -147,14 +147,11 @@ define(function(require) {
             var current_security_group = that.element.TEMPLATE.SECURITY_GROUPS.split(",");
             var new_security_groups = [];
             // Get current values of VNet.
-            var network_json ={        
-              "DESCRIPTION": that.element.TEMPLATE.DESCRIPTION,
-              "BRIDGE": that.element.TEMPLATE.BRIDGE,
-              "VN_MAD": that.element.TEMPLATE.VN_MAD,
-              "NETWORK_ADDRESS": that.element.TEMPLATE.NETWORK_ADDRESS,
-              "GATEWAY": that.element.TEMPLATE.GATEWAY,
-              "DNS": that.element.TEMPLATE.DNS,
-              "BRIDGE_TYPE": that.element.TEMPLATE.BRIDGE_TYPE
+            var network_json = {}
+            obj = that.element.TEMPLATE;
+            for (var key in obj){
+              var value = obj[key];
+              network_json[key] = value;
             }
 
             for (var i = 0; i < current_security_group.length; i++) {
