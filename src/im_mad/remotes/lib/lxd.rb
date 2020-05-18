@@ -27,6 +27,15 @@ module LXD
 
     CLIENT = LXDClient.new
 
+    # LXD to OpenNebula state mapping
+    STATE_MAP = {
+        'RUNNING' => 'RUNNING',
+        'FROZEN'  => 'PAUSED',
+        'STOPPED' => 'POWEROFF',
+        'FAILURE' => 'FAILURE',
+        'POWEROFF'=> 'POWEROFF'
+    }
+
     # High level abstraction entity for monitoring LXD containers
     class Domain
 
@@ -84,6 +93,16 @@ module LXD
             DomainList.usage_cpu([self])
         end
 
+        # LXD -> ONE status mapping
+        def self.one_status(container)
+            state = STATE_MAP[container.status.upcase]
+            state ||= 'UNKNOWN'
+
+            state
+        rescue StandardError
+            'UNKNOWN'
+        end
+
         # Returns VM string in template
         def template_string
             string = template_string_header
@@ -138,6 +157,7 @@ module LXD
                 CPU    = #{cpu}
                 VCPU   = #{vcpu}
                 MEMORY = #{mem}
+                IMPORT_STATE = #{self.class.one_status(@container)}
                 HYPERVISOR = "lxd"
                 DEPLOY_ID  = "#{@deploy_id}"
                 OS = [ ARCH="#{arch}" ]

@@ -10,16 +10,7 @@ require_relative '../../../lib/lxd'
 #  -----------------------------------------------------------
 module DomainList
 
-    # LXD to OpenNebula state mapping
-    STATE_MAP = {
-        'RUNNING' => 'RUNNING',
-        'FROZEN'  => 'PAUSED',
-        'STOPPED' => 'POWEROFF',
-        'FAILURE' => 'FAILURE',
-        'POWEROFF'=> 'POWEROFF'
-    }
-
-    # Returns a vm hash with the containers running in LXD
+    #   Returns a vm hash with the containers running in LXD
     #   @param host [String] name of the host (not used here)
     #   @param host_id [Integer] ID of the host (not used here)
     #
@@ -38,7 +29,7 @@ module DomainList
 
             vm[:name]  = name
             vm[:uuid]  = "#{name}-#{Socket.gethostname}"
-            vm[:state] = one_status(container)
+            vm[:state] = Domain.one_status(container)
 
             vm[:deploy_id] = name
 
@@ -56,14 +47,7 @@ module DomainList
         vms
     end
 
-    def self.one_status(container)
-        state = STATE_MAP[container.status.upcase]
-        state ||= 'UNKNOWN'
-
-        state
-    rescue StandardError
-        'UNKNOWN'
-    end
+    
 
 end
 
