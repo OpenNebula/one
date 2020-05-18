@@ -686,7 +686,6 @@ module VCenterDriver
         # @return [vCenter_disk] the proper disk
         def query_disk(one_disk, keys, vc_disks)
             index     = one_disk['DISK_ID']
-            cloned    = one_disk["CLONE"].nil? || one_disk["CLONE"] == "YES"
             unmanaged = "opennebula.disk.#{index}"
             managed   = "opennebula.mdisk.#{index}"
 
@@ -706,8 +705,12 @@ module VCenterDriver
                 end
 
                 # Try to find the disk using the path known by OpenNebula
-                path = !cloned ? one_disk['SOURCE'] : disk_real_path(one_disk, index)
-                query = vc_disks.select {|dev| path == dev[:path_wo_ds]}
+                source_path = one_disk['SOURCE']
+                calculated_path = disk_real_path(one_disk, index)
+                query = vc_disks.select { |dev|
+                    source_path == dev[:path_wo_ds] ||
+                    calculated_path == dev[:path_wo_ds]
+                }
             end
 
             return nil if query.size != 1
