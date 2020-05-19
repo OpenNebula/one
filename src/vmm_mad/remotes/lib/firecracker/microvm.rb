@@ -33,7 +33,7 @@ class MicroVM
     COMMANDS = {
         :clean          => 'sudo -n /usr/sbin/one-clean-firecracker-domain',
         :map_context    => '/var/tmp/one/vmm/firecracker/map_context',
-        :preapre_domain => 'sudo -n /usr/sbin/one-prepare-firecracker-domain'
+        :prepare_domain => 'sudo -n /usr/sbin/one-prepare-firecracker-domain'
     }
 
     #---------------------------------------------------------------------------
@@ -155,14 +155,14 @@ class MicroVM
         shares_val
     end
 
-    def preapre_domain
+    def prepare_domain
         cgroup_path = @one.fcrc[:cgroup_location]
         cpu_val = cpu_shares(@one.get_cpu)
 
         params = "-c #{cgroup_path} -p #{cpu_val} -s #{@one.sysds_path}"\
                  " -v #{@one.vm_id}"
 
-        cmd = "#{COMMANDS[:preapre_domain]} #{params}"
+        cmd = "#{COMMANDS[:prepare_domain]} #{params}"
 
         Command.execute_rc_log(cmd)
     end
@@ -229,7 +229,7 @@ class MicroVM
             cmd << " --#{key} #{val}"
         end
 
-        return false unless preapre_domain
+        return false unless prepare_domain
 
         return false unless map_context
 
