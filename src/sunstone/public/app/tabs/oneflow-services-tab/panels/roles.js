@@ -197,6 +197,7 @@ define(function(require) {
   function _roleHTML(role_index) {
     var that = this;
     var role = this.element.TEMPLATE.BODY.roles[role_index];
+    var promises = [];
     var roleVms = [];
 
     if (role.nodes) {
@@ -209,34 +210,37 @@ define(function(require) {
         var gname = vm_info ? vm_info.VM.GNAME : "";
         var ips = "", actions = "";
 
-        
-        OpenNebulaVM.show({
-          data : { id: id },
-          timeout: true,
-          success: function (_, data) {
-            if (data.VM && data.VM.ID === id) {
-              ips = OpenNebulaVM.ipsStr(data.VM);
+        function successCallback (data) {
+          if (data.VM && data.VM.ID === id) {
+            ips = OpenNebulaVM.ipsStr(data.VM);
 
-              if (OpenNebulaVM.isVNCSupported(data.VM)) {
-                actions += OpenNebulaVM.buttonVnc(id);
-              }
-              else if (OpenNebulaVM.isSPICESupported(data.VM)) {
-                actions += OpenNebulaVM.buttonSpice(id);
-              }
-              
-              var wFile = OpenNebulaVM.isWFileSupported(data.VM);
-              actions += wFile ? OpenNebulaVM.buttonWFile(id, wFile) : "";
-
-              var rdp = OpenNebulaVM.isRDPSupported(data.VM);
-              actions += rdp ? OpenNebulaVM.buttonRDP(rdp.IP, data.VM) : "";
+            if (OpenNebulaVM.isVNCSupported(data.VM)) {
+              actions += OpenNebulaVM.buttonVnc(id);
             }
+            else if (OpenNebulaVM.isSPICESupported(data.VM)) {
+              actions += OpenNebulaVM.buttonSpice(id);
+            }
+            
+            var wFile = OpenNebulaVM.isWFileSupported(data.VM);
+            actions += wFile ? OpenNebulaVM.buttonWFile(id, wFile) : "";
 
-            roleVms[index] = rowInfoRoleVm(id, name, uname, gname, ips, actions);
-            that.serviceroleVMsDataTable.updateView(null, roleVms, true);
+            var rdp = OpenNebulaVM.isRDPSupported(data.VM);
+            actions += rdp ? OpenNebulaVM.buttonRDP(rdp.IP, data.VM) : "";
           }
-        });
-      });
+
+          roleVms[index] = rowInfoRoleVm(id, name, uname, gname, ips, actions);
+        }
+
+        promises.push(promiseVmInfo(id, successCallback))
+      })
     }
+      
+    $.when.apply($, promises).then(function() {
+      if (that.serviceroleVMsDataTable) {
+        that.serviceroleVMsDataTable.updateView(null, roleVms, true);
+      }
+    });
+
 
     return TemplateRoleInfo({
       'role': role,
@@ -265,6 +269,15 @@ define(function(require) {
       ips,
       actions
     ];
+  }
+
+  function promiseVmInfo(id, success) {
+    return $.ajax({
+      url: "vm/" + id,
+      type: "GET",
+      dataType: "json",
+      success: success
+    })
   }
 
   function _roleSetup(context, role_index) {
