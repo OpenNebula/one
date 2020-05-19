@@ -65,6 +65,6 @@ mount -o bind "$SYSDS_PATH/$VM_ID" "$ROOTFS_PATH"
 ###############################################################################
 # Set cpu.shares value to restrict cpu usage
 ###############################################################################
-mkdir "$CGROUP_PATH/cpu/firecracker/one-$VM_ID"
+mkdir -p "$CGROUP_PATH/cpu/firecracker/one-$VM_ID"
 echo "$CPU_VAL" > "$CGROUP_PATH/cpu/firecracker/one-$VM_ID/cpu.shares"
 

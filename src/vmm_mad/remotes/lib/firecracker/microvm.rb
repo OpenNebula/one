@@ -143,7 +143,7 @@ class MicroVM
     def cpu_shares(cpu)
         # default value for cpu.shares
         default_value = 1024
-        shares_enabled = @one.fcrc[:cgroup_cpu_shares].downcase == 'true'
+        shares_enabled = @one.fcrc[:cgroup_cpu_shares] == true
 
         return default_value if !shares_enabled || cpu.nil? || cpu == ''
 
