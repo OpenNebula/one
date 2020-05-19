@@ -59,9 +59,6 @@ begin
     # Get NSX info detected from vCenter Server
     puts vcm.nsx_info
 
-    # Fetch VMs info ( update cache if neccesary )
-    vcm.retrieve_vms_data
-
     # VM wilds info
     puts vcm.monitor_vms('wilds')
 
