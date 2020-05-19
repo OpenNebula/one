@@ -99,9 +99,9 @@ class ServiceWD
 
             service_id = split_key[2].to_i
 
-            @mutex.synchronize{
+            @mutex.synchronize do
                 next unless @services.include?(service_id)
-            }
+            end
 
             node       = xml.xpath('/HOOK_MESSAGE/VM/ID').text.to_i
             state      = xml.xpath('/HOOK_MESSAGE/STATE').text
@@ -133,18 +133,18 @@ class ServiceWD
     #
     # @param service_id [String] Service ID
     def add_service(service_id)
-        @mutex.synchronize{
+        @mutex.synchronize do
             @services << service_id.to_i
-        }
+        end
     end
 
     # Remove service from watch dog
     #
     # @param service_id [String] Service ID
     def remove_service(service_id)
-        @mutex.synchronize{
+        @mutex.synchronize do
             @services.delete(service_id.to_i)
-        }
+        end
     end
 
     private
@@ -196,9 +196,9 @@ class ServiceWD
                 next
             end
 
-            @mutex.synchronize{
+            @mutex.synchronize do
                 @services << service.id.to_i
-            }
+            end
 
             service.roles.each do |name, role|
                 role.nodes_ids.each do |node|
