@@ -55,6 +55,7 @@ class ServiceWD
         @client       = client
 
         # Array of running services to watch
+        @mutex    = Mutex.new
         @services = []
     end
 
@@ -98,7 +99,9 @@ class ServiceWD
 
             service_id = split_key[2].to_i
 
-            next unless @services.include?(service_id)
+            @mutex.synchronize{
+                next unless @services.include?(service_id)
+            }
 
             node       = xml.xpath('/HOOK_MESSAGE/VM/ID').text.to_i
             state      = xml.xpath('/HOOK_MESSAGE/STATE').text
@@ -130,14 +133,18 @@ class ServiceWD
     #
     # @param service_id [String] Service ID
     def add_service(service_id)
-        @services << service_id.to_i
+        @mutex.synchronize{
+            @services << service_id.to_i
+        }
     end
 
     # Remove service from watch dog
     #
     # @param service_id [String] Service ID
     def remove_service(service_id)
-        @services.delete(service_id.to_i)
+        @mutex.synchronize{
+            @services.delete(service_id.to_i)
+        }
     end
 
     private
@@ -189,7 +196,9 @@ class ServiceWD
                 next
             end
 
-            @services << service.id.to_i
+            @mutex.synchronize{
+                @services << service.id.to_i
+            }
 
             service.roles.each do |name, role|
                 role.nodes_ids.each do |node|
