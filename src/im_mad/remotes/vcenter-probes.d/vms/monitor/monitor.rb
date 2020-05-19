@@ -37,7 +37,7 @@ require_relative '../../../lib/vcenter'
 
 host    = ARGV[-1]
 host_id = ARGV[-2]
-vcm = VcenterMonitor.new(host, host_id)
+vcm = VcenterMonitor.new(host_id)
 begin
     puts vcm.monitor_vms('ones')
 rescue StandardError => e

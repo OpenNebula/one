@@ -19,12 +19,10 @@ ONE_LOCATION ||= ENV['ONE_LOCATION'] unless defined? ONE_LOCATION
 if !ONE_LOCATION
     RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
     GEMS_LOCATION     ||= '/usr/share/one/gems'
-    ETC_LOCATION      ||= '/etc/one/'
     VAR_LOCATION      ||= '/var/lib/one/'
 else
     RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
-    ETC_LOCATION      ||= ONE_LOCATION + '/etc/'
     VAR_LOCATION      ||= ONE_LOCATION + '/var/'
 end
 
@@ -46,6 +44,8 @@ require 'yaml'
 # Gather vCenter cluster monitor info
 class VcenterMonitor
 
+    attr_accessor :vcenter_conf
+
     POLL_ATTRIBUTE = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
     VM_STATE = OpenNebula::VirtualMachine::Driver::VM_STATE
 
@@ -59,7 +59,7 @@ class VcenterMonitor
         :cache_expire       => 120
     }
 
-    def initialize(host, host_id)
+    def initialize(host_id)
         @hypervisor = 'vcenter'
         @host_id = host_id
 
@@ -77,7 +77,7 @@ class VcenterMonitor
         @vi_client = VCenterDriver::VIClient.new_from_host(host_id)
         @vc_uuid = @vi_client.vim.serviceContent.about.instanceUuid
         @client = OpenNebula::Client.new
-        @ccr_ref = retrieve_ccr_ref(host, host_id)
+        @ccr_ref = @vi_client.ccr_ref
         # Get vCenter Cluster
         @cluster = VCenterDriver::ClusterComputeResource
                    .new_from_ref(@ccr_ref, @vi_client)
@@ -1214,8 +1214,8 @@ end
 ############################################################################
 module DomainList
 
-    def self.state_info(name, id)
-        vcm = VcenterMonitor.new(name, id)
+    def self.state_info(_, id)
+        vcm = VcenterMonitor.new(id)
 
         vms = vcm.fetch_vms_state
         info = {}

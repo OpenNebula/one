@@ -22,6 +22,7 @@ class VIClient
     attr_accessor :vim
     attr_accessor :rp
     attr_accessor :vc_name
+    attr_accessor :ccr_ref
 
     def initialize(opts, host_id = -1)
         opts = {:insecure => true}.merge(opts)
@@ -30,9 +31,9 @@ class VIClient
         @vc_name = opts[:host] if opts[:host]
 
         # Get ccr and get rp
-        ccr_ref = opts.delete(:ccr)
-        if ccr_ref
-            ccr = RbVmomi::VIM::ClusterComputeResource.new(@vim, ccr_ref)
+        @ccr_ref = opts.delete(:ccr)
+        if @ccr_ref
+            ccr = RbVmomi::VIM::ClusterComputeResource.new(@vim, @ccr_ref)
 
             #Get ref for rp
             if ccr

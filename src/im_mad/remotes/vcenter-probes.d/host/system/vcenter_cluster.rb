@@ -19,12 +19,16 @@
 ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
-    GEMS_LOCATION     ||= '/usr/share/one/gems'
+    RUBY_LIB_LOCATION   ||= '/usr/lib/one/ruby'
+    VAR_LOCATION        ||= '/var/lib/one/'
+    GEMS_LOCATION       ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
-    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
+    RUBY_LIB_LOCATION   ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION       ||= ONE_LOCATION + '/share/gems'
+    VAR_LOCATION        ||= ONE_LOCATION + '/var/'
 end
+
+REMOTE_LIB_LOCATION ||= VAR_LOCATION + 'remotes/im/lib'
 
 if File.directory?(GEMS_LOCATION)
     Gem.use_paths(GEMS_LOCATION)
@@ -32,15 +36,15 @@ if File.directory?(GEMS_LOCATION)
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << REMOTE_LIB_LOCATION
 
-require_relative '../../../lib/vcenter.rb'
+require 'vcenter.rb'
 
-host = ARGV[-1]
 host_id = ARGV[-2]
 
 begin
     # VCenter Monitoring object
-    vcm = VcenterMonitor.new(host, host_id)
+    vcm = VcenterMonitor.new(host_id)
     puts vcm.monitor_clusters
     puts vcm.monitor_host_systems
     # Retrieve customizations
@@ -64,7 +68,7 @@ begin
     # Datastore Monitoring
     puts vcm.monitor_datastores
 rescue StandardError => e
-    STDERR.puts "IM poll for vcenter cluster #{host_id} failed due to "\
+    STDERR.puts "IM poll for vCenter cluster #{host_id} failed due to "\
                 "\"#{e.message}\"\n#{e.backtrace}"
     exit(-1)
 ensure

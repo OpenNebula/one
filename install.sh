@@ -1461,7 +1461,7 @@ IM_PROBES_VCENTER_HOST_MONITOR_FILES="\
 
 IM_PROBES_VCENTER_HOST_SYSTEM_FILES="\
     src/im_mad/remotes/vcenter-probes.d/host/system/nsx.rb \
-     src/im_mad/remotes/vcenter-probes.d/host/system/vcenter.rb"
+    src/im_mad/remotes/vcenter-probes.d/host/system/vcenter_cluster.rb"
 
 IM_PROBES_VCENTER_VM_MONITOR_FILES="\
      src/im_mad/remotes/vcenter-probes.d/vms/monitor/monitor.rb"
