@@ -53,6 +53,10 @@ class ServiceWD
         @cloud_auth   = @conf[:cloud_auth]
         @wait_timeout = @cloud_auth.conf[:wait_timeout]
         @client       = client
+
+        # Array of running services to watch
+        @mutex    = Mutex.new
+        @services = []
     end
 
     # Start services WD
@@ -93,7 +97,12 @@ class ServiceWD
 
             xml = Nokogiri::XML(Base64.decode64(content))
 
-            service_id = split_key[2]
+            service_id = split_key[2].to_i
+
+            @mutex.synchronize{
+                next unless @services.include?(service_id)
+            }
+
             node       = xml.xpath('/HOOK_MESSAGE/VM/ID').text.to_i
             state      = xml.xpath('/HOOK_MESSAGE/STATE').text
             lcm_state  = xml.xpath('/HOOK_MESSAGE/LCM_STATE').text
@@ -118,6 +127,24 @@ class ServiceWD
         subscriber = gen_subscriber
 
         unsubscribe(subscriber)
+    end
+
+    # Add service to watch dog
+    #
+    # @param service_id [String] Service ID
+    def add_service(service_id)
+        @mutex.synchronize{
+            @services << service_id.to_i
+        }
+    end
+
+    # Remove service from watch dog
+    #
+    # @param service_id [String] Service ID
+    def remove_service(service_id)
+        @mutex.synchronize{
+            @services.delete(service_id.to_i)
+        }
     end
 
     private
@@ -163,6 +190,15 @@ class ServiceWD
     def check_roles_state(client, service_pool)
         service_pool.each do |service|
             service.info
+
+            if service.state != Service::STATE['RUNNING'] &&
+               service.state != Service::STATE['WARNING']
+                next
+            end
+
+            @mutex.synchronize{
+                @services << service.id.to_i
+            }
 
             service.roles.each do |name, role|
                 role.nodes_ids.each do |node|

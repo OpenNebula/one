@@ -47,8 +47,6 @@ module DomainList
         vms
     end
 
-    
-
 end
 
 xml_txt = STDIN.read

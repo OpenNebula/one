@@ -59,6 +59,8 @@ class ServiceLCM
 
         @event_manager = EventManager.new(em_conf).am
 
+        @wd = ServiceWD.new(client, em_conf)
+
         # Register Action Manager actions
         @am.register_action(ACTIONS['DEPLOY_CB'],
                             method('deploy_cb'))
@@ -89,10 +91,7 @@ class ServiceLCM
 
         Thread.new { catch_up(client) }
 
-        Thread.new do
-            wd = ServiceWD.new(client, em_conf)
-            wd.start(@srv_pool)
-        end
+        Thread.new { @wd.start(@srv_pool) }
 
         Thread.new do
             auto_scaler = ServiceAutoScaler.new(@srv_pool,
@@ -243,6 +242,8 @@ class ServiceLCM
                 if service.all_roles_running?
                     service.set_state(Service::STATE['RUNNING'])
                     service.update
+
+                    @wd.add_service(service_id)
                 end
 
                 # If there is no node in PENDING the service is not modified.
@@ -287,6 +288,8 @@ class ServiceLCM
                     "#{service.state_str}"
                 )
             end
+
+            @wd.remove_service(service_id)
 
             set_deploy_strategy(service)
 
@@ -340,6 +343,8 @@ class ServiceLCM
                     "Service cannot be scaled in state: #{service.state_str}"
                 )
             end
+
+            @wd.remove_service(service_id)
 
             role = service.roles[role_name]
 
@@ -477,6 +482,8 @@ class ServiceLCM
 
             if service.all_roles_running?
                 service.set_state(Service::STATE['RUNNING'])
+
+                @wd.add_service(service_id)
             elsif service.strategy == 'straight'
                 set_deploy_strategy(service)
 
@@ -646,6 +653,8 @@ class ServiceLCM
         rc = @srv_pool.get(service_id, client) do |service|
             service.set_state(Service::STATE['RUNNING'])
             service.roles[role_name].set_state(Role::STATE['RUNNING'])
+
+            @wd.add_service(service_id)
 
             service.update
         end
