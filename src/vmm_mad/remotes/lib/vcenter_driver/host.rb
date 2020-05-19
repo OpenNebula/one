@@ -961,6 +961,8 @@ class ESXHost
         # Get pnics in use in standard switches
         @item.config.network.vswitch.each do |vs|
             vs.pnic.each do |pnic|
+                next unless pnic.instance_of?(String)
+
                 pnic.slice!("key-vim.host.PhysicalNic-")
                 pnics_in_use << pnic
             end
