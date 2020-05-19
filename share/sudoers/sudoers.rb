@@ -62,7 +62,8 @@ class Sudoers
                           #{lib_location}/sh/create_docker_image.sh  ],
             :FIRECRACKER => %w[/usr/bin/jailer
                                mount
-                               /usr/sbin/one-clean-firecracker-domain]
+                               /usr/sbin/one-clean-firecracker-domain
+                               /usr/sbin/one-prepare-firecracker-domain]
         }
     end
 

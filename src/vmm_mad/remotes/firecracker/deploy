@@ -54,8 +54,6 @@ end
 
 # Start VNC (only started if necessary)
 microvm.vnc('start')
-# Set cpu.shares (only if configured)
-microvm.set_cpu_limit
 
 # Set deploy_id
 puts "one-#{vm_id}"

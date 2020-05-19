@@ -31,8 +31,9 @@ class MicroVM
     #   List of commands executed by the driver.
     #---------------------------------------------------------------------------
     COMMANDS = {
-        :clean       => 'sudo -n /usr/sbin/one-clean-firecracker-domain',
-        :map_context => '/var/tmp/one/vmm/firecracker/map_context'
+        :clean          => 'sudo -n /usr/sbin/one-clean-firecracker-domain',
+        :map_context    => '/var/tmp/one/vmm/firecracker/map_context',
+        :preapre_domain => 'sudo -n /usr/sbin/one-prepare-firecracker-domain'
     }
 
     #---------------------------------------------------------------------------
@@ -91,15 +92,6 @@ class MicroVM
         "#{@one.sysds_path}/#{@one.vm_id}"
     end
 
-    def map_chroot_path
-        rc = Command.execute_rc_log("mkdir -p #{@rootfs_dir}")
-
-        return false unless rc
-
-        # TODO, add option for hard links
-        Command.execute_rc_log("sudo -n mount -o bind #{@one.sysds_path}/#{@one.vm_id} #{@rootfs_dir}")
-    end
-
     def get_pid
         rc, stdout, = Command.execute('ps auxwww | grep ' \
             "\"^.*firecracker.*--id['\\\"=[[:space:]]]*#{@one.vm_name}\" " \
@@ -151,6 +143,9 @@ class MicroVM
     def cpu_shares(cpu)
         # default value for cpu.shares
         default_value = 1024
+        shares_enabled = @one.fcrc[:cgroup_cpu_shares].downcase == 'true'
+
+        return default_value if !shares_enabled || cpu.nil? || cpu == ''
 
         shares_val = (cpu * default_value).round
 
@@ -158,6 +153,18 @@ class MicroVM
         shares_val = 2 if shares_val < 2
 
         shares_val
+    end
+
+    def preapre_domain
+        cgroup_path = @one.fcrc[:cgroup_location]
+        cpu_val = cpu_shares(@one.get_cpu)
+
+        params = "-c #{cgroup_path} -p #{cpu_val} -s #{@one.sysds_path}"\
+                 " -v #{@one.vm_id}"
+
+        cmd = "#{COMMANDS[:preapre_domain]} #{params}"
+
+        Command.execute_rc_log(cmd)
     end
 
     #---------------------------------------------------------------------------
@@ -222,7 +229,7 @@ class MicroVM
             cmd << " --#{key} #{val}"
         end
 
-        return false unless map_chroot_path
+        return false unless preapre_domain
 
         return false unless map_context
 
@@ -264,15 +271,5 @@ class MicroVM
 
     # rubocop:enable Naming/AccessorMethodName
     # rubocop:enable Layout/LineLength
-
-    def set_cpu_limit
-        return unless @one.fcrc[:cgroup_cpu_shares]
-
-        shares_location = "#{@one.fcrc[:cgroup_location]}/cpu/" \
-                          "firecracker/one-#{@one.vm_id}/cpu.shares"
-
-        cmd = "echo #{cpu_shares(@one.get_cpu)} > #{shares_location}"
-        `echo "AAA#{Command.execute_once(cmd, false)}" > /tmp/a`
-    end
 
 end
