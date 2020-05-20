@@ -580,6 +580,10 @@ module CLIHelper
                 filter_data!(res_data, options) if options[:filter]
             end
 
+            return res_data unless options[:list]
+
+            @default_columns = options[:list].collect {|o| o.upcase.to_sym }
+
             res_data
         end
 
@@ -797,10 +801,6 @@ module CLIHelper
             rescue StandardError => e
                 CLIHelper.fail(e.message)
             end
-
-            return unless options[:list]
-
-            @default_columns = options[:list].collect {|o| o.upcase.to_sym }
         end
 
         # Filter data
@@ -821,7 +821,7 @@ module CLIHelper
                 m = s.match(/^(.*?)#{operators}(.*?)$/)
 
                 if m
-                    index = @default_columns.index(m[1].to_sym)
+                    index = @columns.keys.index(m[1].to_sym)
 
                     if index
                         {
