@@ -28,18 +28,36 @@
 # closing of the master sockets.
 # Possibly related to: https://bugzilla.mindrot.org/show_bug.cgi?id=3067
 
-find /var/run/one/ssh-socks \
-    -maxdepth 1 \
-    -type s \
-    -name 'ctl-M-*.sock' \
-    -mmin +1 \
-    -print | while read -r sockname ; do
-        # atomic operation - no other ssh client should be disrupted
-        mv -f "$sockname" "$sockname"~todelete
+SSH_SOCKS_DIR="${SSH_SOCKS_DIR:-/var/run/one/ssh-socks}"
 
-        # stop the multiplexing ('this' is just unnecessary gibberish)
-        ssh -S "$sockname"~todelete -O stop this </dev/null >/dev/null
+trap 'echo "waiting for cleanup jobs to finish..." && wait && exit' INT QUIT TERM EXIT
 
-        # delete the old socket
-        rm -f "$sockname"~todelete
-    done
+while true ; do
+    # wait for new socket to emerge and spawn a background job to clean it up
+    # when it reach its age (one minute)
+    if inotifywait "$SSH_SOCKS_DIR" >/dev/null 2>&1 ; then
+        # we run background job for basically one and each socket...
+        # VERY INEFFICIENT...
+        (
+            # no point to try to delete anything while the socket is still young
+            sleep 1m
+
+            # now we can start cleanup
+            find "$SSH_SOCKS_DIR" \
+                -maxdepth 1 \
+                -type s \
+                -name 'ctl-M-*.sock' \
+                -mmin +1 \
+                -print | while read -r sockname ; do
+                    # atomic operation - no other ssh client should be disrupted
+                    mv -f "$sockname" "$sockname"~todelete
+
+                    # stop the multiplexing ('this' is just unnecessary gibberish)
+                    ssh -S "$sockname"~todelete -O stop this </dev/null >/dev/null
+
+                    # delete the old socket
+                    rm -f "$sockname"~todelete
+                done
+        ) &
+    fi
+done

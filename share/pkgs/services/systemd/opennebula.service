@@ -5,7 +5,7 @@ After=mariadb.service mysql.service
 After=opennebula-ssh-agent.service
 Wants=opennebula-scheduler.service opennebula-hem.service
 Wants=opennebula-ssh-agent.service
-Wants=opennebula-ssh-socks-cleaner.timer
+Wants=opennebula-ssh-socks-cleaner.service
 
 [Service]
 Type=notify
