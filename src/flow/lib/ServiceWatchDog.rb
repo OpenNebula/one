@@ -98,10 +98,13 @@ class ServiceWD
             xml = Nokogiri::XML(Base64.decode64(content))
 
             service_id = split_key[2].to_i
+            check      = false
 
             @mutex.synchronize do
-                next unless @services.include?(service_id)
+                check = @services.include?(service_id)
             end
+
+            next unless check
 
             node       = xml.xpath('/HOOK_MESSAGE/VM/ID').text.to_i
             state      = xml.xpath('/HOOK_MESSAGE/STATE').text
