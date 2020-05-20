@@ -254,6 +254,10 @@ class EventManager
 
                 next if !nodes.empty? && rc_nodes[:failure].empty?
 
+                nodes.each do |id|
+                    unsubscribe(id, state, lcm_state, subscriber)
+                end
+
                 # If any node is in error wait action will fails
                 return [false, rc_nodes] unless rc_nodes[:failure].empty?
 
@@ -267,6 +271,8 @@ class EventManager
             unsubscribe(id, state, lcm_state, subscriber)
             rc_nodes[:successful] << id
         end
+
+        subscriber.close
 
         [true, rc_nodes]
     end
@@ -336,6 +342,8 @@ class EventManager
         end
 
         subscriber.setsockopt(ZMQ::UNSUBSCRIBE, 'EVENT API one.vm.update 1')
+
+        subscriber.close
 
         [true, rc_nodes]
     end
