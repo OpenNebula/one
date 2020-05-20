@@ -443,22 +443,8 @@ define(function(require) {
     var idsLength = this.selected_nodes.length;
     var idsDone = 0;
 
-    $.each(this.selected_nodes, function(index, template_id) {
-      OpenNebulaTemplate.show({
-        data : {
-          id: template_id,
-          extended: false
-        },
-        timeout: true,
-        success: function (request, template_json) {
-          that.template_base_objects[template_json.VMTEMPLATE.ID] = template_json;
-        }
-      });
-    });
-
     templatesContext.html("");
     $.each(this.selected_nodes, function(index, template_id) {
-
       OpenNebulaTemplate.show({
         data : {
           id: template_id,
@@ -466,6 +452,7 @@ define(function(require) {
         },
         timeout: true,
         success: function (request, template_json) {
+          that.template_base_objects[template_json.VMTEMPLATE.ID] = template_json;
           that.template_objects.push(template_json);
 
           var options = {
