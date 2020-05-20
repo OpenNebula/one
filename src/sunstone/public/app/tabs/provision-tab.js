@@ -450,8 +450,15 @@ define(function(require) {
             that.user = user;
             QuotaWidgets.initEmptyQuotas(user);
             if (user && user.VM_QUOTA && !$.isEmptyObject(user.VM_QUOTA)){
-                $("#provision_quotas_dashboard").show();
-                var default_user_quotas = QuotaDefaults.default_quotas(user.DEFAULT_USER_QUOTAS);
+              $("#provision_quotas_dashboard").show();
+              var default_user_quotas = QuotaDefaults.default_quotas(user.DEFAULT_USER_QUOTAS);
+              //running VMS
+              if(
+                default_user_quotas &&
+                default_user_quotas.VM_QUOTA &&
+                default_user_quotas.VM_QUOTA.VM &&
+                default_user_quotas.VM_QUOTA.VM.VMS
+              ){
                 var vms = QuotaWidgets.quotaInfo(
                     user.VM_QUOTA.VM.VMS_USED,
                     user.VM_QUOTA.VM.VMS,
@@ -459,6 +466,14 @@ define(function(require) {
                 $("#provision_dashboard_rvms_percentage").html(vms["percentage"]);
                 $("#provision_dashboard_rvms_str").html(vms["str"]);
                 $("#provision_dashboard_rvms_meter").val(vms["percentage"]);
+              }
+              //MEMORY
+              if(
+                default_user_quotas &&
+                default_user_quotas.VM_QUOTA &&
+                default_user_quotas.VM_QUOTA.VM &&
+                default_user_quotas.VM_QUOTA.VM.MEMORY
+              ){
                 var memory = QuotaWidgets.quotaMBInfo(
                     user.VM_QUOTA.VM.MEMORY_USED,
                     user.VM_QUOTA.VM.MEMORY,
@@ -466,6 +481,14 @@ define(function(require) {
                 $("#provision_dashboard_memory_percentage").html(memory["percentage"]);
                 $("#provision_dashboard_memory_str").html(memory["str"]);
                 $("#provision_dashboard_memory_meter").val(memory["percentage"]);
+              }
+              //CPU
+              if(
+                default_user_quotas &&
+                default_user_quotas.VM_QUOTA &&
+                default_user_quotas.VM_QUOTA.VM &&
+                default_user_quotas.VM_QUOTA.VM.CPU
+              ){
                 var cpu = QuotaWidgets.quotaFloatInfo(
                     user.VM_QUOTA.VM.CPU_USED,
                     user.VM_QUOTA.VM.CPU,
@@ -473,6 +496,59 @@ define(function(require) {
                 $("#provision_dashboard_cpu_percentage").html(cpu["percentage"]);
                 $("#provision_dashboard_cpu_str").html(cpu["str"]);
                 $("#provision_dashboard_cpu_meter").val(cpu["percentage"]);
+              }
+              //IP LEASES
+              if(
+                user &&
+                user.NETWORK_QUOTA &&
+                user.NETWORK_QUOTA.NETWORK
+              ){
+                var used = 0;
+                var size = 0;
+                if(Array.isArray(user.NETWORK_QUOTA.NETWORK)){
+                  user.NETWORK_QUOTA.NETWORK.map(function(network){
+                    if(network.LEASES_USED){
+                      used = used+parseInt(network.LEASES_USED,10);
+                    }
+                    if(network.LEASES){
+                      size = size+parseInt(network.LEASES,10);
+                    }
+                  });
+                  var ipLeases = QuotaWidgets.quotaInfo(used, size);
+                  $("#provision_dashboard_ips_percentage").html(ipLeases["percentage"]);
+                  $("#provision_dashboard_ips_str").html(ipLeases["str"]);
+                  $("#provision_dashboard_ips_meter").val(ipLeases["percentage"]);
+                }
+              }
+              //SYSTEM DISK
+              if(
+                default_user_quotas &&
+                default_user_quotas.VM_QUOTA &&
+                default_user_quotas.VM_QUOTA.VM.SYSTEM_DISK_SIZE
+              ){
+                var systemDisk = QuotaWidgets.quotaInfo(
+                    user.VM_QUOTA.VM.SYSTEM_DISK_SIZE_USED,
+                    user.VM_QUOTA.VM.SYSTEM_DISK_SIZE,
+                    default_user_quotas.VM_QUOTA.VM.SYSTEM_DISK_SIZE);
+                $("#provision_dashboard_system_disk_percentage").html(systemDisk["percentage"]);
+                $("#provision_dashboard_system_disk_str").html(systemDisk["str"]);
+                $("#provision_dashboard_system_disk_meter").val(systemDisk["percentage"]);
+              }
+              //DATASTORE
+              if(
+                user &&
+                user.DATASTORE_QUOTA &&
+                user.DATASTORE_QUOTA.DATASTORE &&
+                user.DATASTORE_QUOTA.DATASTORE.SIZE &&
+                user.DATASTORE_QUOTA.DATASTORE.SIZE_USED
+              ){
+                var datastore = QuotaWidgets.quotaInfo(
+                  user.DATASTORE_QUOTA.DATASTORE.SIZE_USED,
+                  user.DATASTORE_QUOTA.DATASTORE.SIZE);
+                $("#provision_dashboard_datastore_percentage").html(datastore["percentage"]);
+                $("#provision_dashboard_datastore_str").html(datastore["str"]);
+                $("#provision_dashboard_datastore_meter").val(datastore["percentage"]);
+              }
             } else {
               $("#provision_quotas_dashboard").hide();
             }

@@ -1397,7 +1397,7 @@ define(function(require) {
 
   function _quotaIntLimit(limit, default_limit){
     i_limit = parseInt(limit, 10);
-    i_default_limit = parseInt(default_limit, 10);
+    i_default_limit = default_limit? parseInt(default_limit, 10) : i_limit;
 
     if (limit == QUOTA_LIMIT_DEFAULT){
       i_limit = i_default_limit;
