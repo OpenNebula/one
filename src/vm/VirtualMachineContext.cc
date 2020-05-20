@@ -60,7 +60,6 @@ const std::vector<ContextVariable> NETWORK6_CONTEXT = {
     {"IP6", "IP6_GLOBAL", "IP6", false},
     {"IP6_ULA", "IP6_ULA", "", false},
     {"GATEWAY6", "GATEWAY6", "", true},
-    {"METRIC6", "METRIC6", "", true},
     {"CONTEXT_FORCE_IPV4", "CONTEXT_FORCE_IPV4", "", true},
     {"IP6_PREFIX_LENGTH", "PREFIX_LENGTH", "", true},
     {"VROUTER_IP6", "VROUTER_IP6_GLOBAL", "VROUTER_IP6", false},
