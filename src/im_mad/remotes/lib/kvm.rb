@@ -261,6 +261,7 @@ class Domain < BaseDomain
       'pmsuspended' => 'SUSPENDED',
       'paused' => {
           'migrating' => 'RUNNING',
+          'starting up' => 'RUNNING',
           'I/O error' => 'FAILURE',
           'watchdog'  => 'FAILURE',
           'crashed'   => 'FAILURE',
