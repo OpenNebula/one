@@ -145,7 +145,7 @@ class MicroVM
         next while !File.read(path).empty? && (Time.now - t_start < timeout)
 
         File.read(path).empty?
-    rescue Errno::ENOENT # rubocop:disable Lint/SuppressedException
+    rescue Errno::ENOENT
     end
 
     #---------------------------------------------------------------------------
