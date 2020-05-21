@@ -55,7 +55,7 @@ CONTEXT = [
     SET_HOSTNAME  =\"$NAME\"
 ]
 OS = [
-    KERNEL_CMD=\"console=ttyS0 reboot=k panic=1 pci=off\"
+    KERNEL_CMD=\"console=ttyS0 reboot=k panic=1\"
 ]"
 
     #---------------------------------------------------------------------------
