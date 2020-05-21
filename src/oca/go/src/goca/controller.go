@@ -63,16 +63,6 @@ func NewController(c RPCCaller) *Controller {
 	}
 }
 
-// SetClients updates the clients that the controller interface will use. If nil is passed then there is no client update
-func (c *Controller) SetClients(rpcc RPCCaller, httpc HTTPCaller) {
-	if rpcc != nil {
-		c.Client = rpcc
-	}
-	if httpc != nil {
-		c.ClientREST = httpc
-	}
-}
-
 // SystemVersion returns the current OpenNebula Version
 func (c *Controller) SystemVersion() (string, error) {
 	response, err := c.Client.Call("one.system.version")
