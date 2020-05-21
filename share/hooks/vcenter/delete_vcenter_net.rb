@@ -64,7 +64,7 @@ VNET_XPATH = '//EXTRA/VNET'
 # Changes due to new hooks
 arguments_raw = Base64.decode64(STDIN.read)
 arguments_xml = Nokogiri::XML(arguments_raw)
-success = arguments_xml.xpath(SUCCESS_XPATH).text
+success = arguments_xml.xpath(SUCCESS_XPATH).text != 'false'
 
 unless success
     err_msg = arguments_xml.xpath(ERROR_XPATH).text
