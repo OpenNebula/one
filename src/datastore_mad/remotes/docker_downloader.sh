@@ -90,11 +90,6 @@ function clean {
     docker rm -f $container_id  > /dev/null 2>&1 || true
     docker image rm -f one$sid  > /dev/null 2>&1
 
-    # Unmount mnt directory (if necessary)
-    if  grep -qs "$dockerdir/mnt" /proc/mounts; then
-        sudo -n $MK_DOCKER -a "CLEAN" -d $dockerdir
-    fi
-
     rm -rf $dockerdir
 }
 
@@ -141,7 +136,6 @@ img_raw=$dockerdir/img.raw
 img_qcow=$dockerdir/img.qcow
 
 # Trap for cleaning temporary directories
-trap clean ERR
 trap clean EXIT
 
 mkdir -p $dockerdir
@@ -302,7 +296,7 @@ esac
 # Mount container disk image and untar rootfs contents to it
 #-------------------------------------------------------------------------------
 
-sudo -n $MK_DOCKER -a "CREATE" -d $dockerdir -i $img_raw -t $tarball
+sudo -n $MK_DOCKER -d $dockerdir -i $img_raw -t $tarball
 
 if [ "$format" == "qcow2" ]; then
     qemu-img convert -f raw -O qcow2 $img_raw $img_qcow > /dev/null 2>&1

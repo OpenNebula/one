@@ -19,41 +19,51 @@
 # exit when any command fails
 set -e
 
+function clean {
+    if  grep -qs "$dockerdir/mnt" /proc/mounts; then
+        umount $dockerdir/mnt
+    fi
+}
+
 #-------------------------------------------------------------------------------
 # Configuration attributes and parameters
 #-------------------------------------------------------------------------------
 img_raw=""
 dockerdir=""
 tarball=""
-action=""
 
 while getopts ":i:d:t:a:" opt; do
     case $opt in
         i) img_raw="$OPTARG" ;;
         d) dockerdir="$OPTARG" ;;
         t) tarball="$OPTARG" ;;
-        a) action="$OPTARG" ;;
     esac
 done
 
-if [ -z "$action" ]; then
+# Check img_raw is a valid file
+if [ ! -f "$img_raw" ]; then
     exit -1
 fi
 
-if [ $action == "CREATE" ]; then
-    # Mount container disk image and untar rootfs contents to it
-    mount -o noexec,nodev $img_raw $dockerdir/mnt > /dev/null 2>&1
-    chmod o+w $dockerdir/mnt
-    tar xpf $tarball -C $dockerdir/mnt > /dev/null 2>&1
-
-    sync
-
-    umount $dockerdir/mnt
-
-    exit 0
-elif [ $action == "CLEAN" ]; then
-    umount "$dockerdir/mnt"
-
-    exit 0
+# Check tarball is a valid file
+if [ ! -f "$tarball" ]; then
+    exit -1
 fi
+
+# Check dockerdir is different than / and the directory name is an uuid
+regex_uuid="^\{?[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{12}\}?$"
+if [ ! -d $dockerdir ] || [[ ! $(basename $dockerdir) =~ $regex_uuid ]]; then
+    exit -1
+fi
+
+trap clean EXIT
+
+# Mount container disk image and untar rootfs contents to it
+mount -o noexec,nodev,nosuid $img_raw $dockerdir/mnt > /dev/null 2>&1
+chmod o+w $dockerdir/mnt
+tar xpf $tarball -C $dockerdir/mnt > /dev/null 2>&1
+
+sync
+
+exit 0
 
