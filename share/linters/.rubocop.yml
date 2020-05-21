@@ -759,6 +759,10 @@ Lint/DuplicateHashKey:
 Lint/SuppressedException:
     Enabled: false
 
+# Workaround version 0.84 
+Lint/RedundantCopDisableDirective:
+    Enabled: false
+
 # check matching parameters in format
 Lint/FormatParameterMismatch:
     Enabled: true
