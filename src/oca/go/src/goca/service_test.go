@@ -2,33 +2,39 @@ package goca
 
 import (
 	"fmt"
-
-	"github.com/OpenNebula/one/src/oca/go/src/goca/flow/httpclient"
-	"github.com/OpenNebula/one/src/oca/go/src/goca/flow/service"
+	"testing"
 )
 
-var client httpclient.Client
+func TestService(t *testing.T) {
+	c := createController()
+	services := c.Services()
 
-func init() {
-	client = httpclient.New("oneadmin", "opennebula", "http://10.10.0.56:2474")
+	response, e := services.List()
+
+	if e != nil {
+		t.Fatal(e)
+	}
+
+	fmt.Println(response)
 }
 
-func TestShow() {
-	serv := service.Show(client, 4)
+func createController() *Controller {
+	config := NewFlowConfig("", "", "")
+	client := NewRESTClient(config)
 
-	fmt.Println(serv)
+	controller := NewController(nil)
+
+	controller.ClientREST = client
+
+	return controller
 }
 
-func TestShutdown() {
-	result, body := service.TestShutdown(client, 3)
-
-	fmt.Println(result)
-	fmt.Println(body)
-}
-
-func TestDelete() {
-	result, body := service.Delete(client, 3)
-
-	fmt.Println(result)
-	fmt.Println(body)
+func createRole(name string) map[string]interface{} {
+	return map[string]interface{}{
+		"name":                name,
+		"cardiniality":        1,
+		"vm_template":         0,
+		"elasticity_policies": []map[string]interface{}{},
+		"scheduled_policies":  []map[string]interface{}{},
+	}
 }

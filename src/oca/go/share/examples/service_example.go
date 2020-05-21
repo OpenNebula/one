@@ -12,10 +12,10 @@ var controller *goca.Controller
 
 func init() {
 	rclient = goca.NewRESTClient(
-		goca.NewFlowConfig("oneadmin", "opennebula", "http://10.10.0.56:2474"),
+		goca.NewFlowConfig("", "", ""),
 	)
 	xclient := goca.NewDefaultClient(
-		goca.NewConfig("oneadmin", "opennebula", "http://10.10.0.56:2474"),
+		goca.NewConfig("", "", ""),
 	)
 
 	controller = goca.NewController(xclient, rclient)

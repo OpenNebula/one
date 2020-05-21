@@ -1,26 +1,24 @@
 package goca
 
 import (
-	"fmt"
+	"testing"
 )
 
-var client *FlowClient
+func TestFlowClient(t *testing.T) {
+	client := createRESTClient()
 
-func init() {
-	config := NewFlowConfig("oneadmin", "opennebula", "http://10.10.0.56:2474")
-	client = NewFlowClient(config)
+	response, e := client.HTTPMethod("GET", "service")
+
+	if e != nil {
+		t.Fatal(e)
+	}
+
+	if response.status == false {
+		t.Error(response.Body())
+	}
 }
 
-func TestClient() {
-	response, e := client.Get("service")
-
-	if e == nil {
-		body := response.BodyMap()
-
-		// fmt.Println(body)
-		fmt.Println(body)
-
-	} else {
-		fmt.Println(e)
-	}
+func createRESTClient() *RESTClient {
+	config := NewFlowConfig("", "", "")
+	return NewRESTClient(config)
 }
