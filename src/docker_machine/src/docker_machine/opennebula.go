@@ -525,7 +525,7 @@ func (d *Driver) GetIP() (string, error) {
 	if d.MachineId == 0 {
 		vm_id, err2 = controller.VMs().ByName(d.MachineName)
 		if err2 != nil {
-			return err2
+			return "", err2
 		}
 		d.MachineId = vm_id
 	} else {
@@ -561,7 +561,7 @@ func (d *Driver) GetState() (state.State, error) {
 	if d.MachineId == 0 {
 		vm_id, err2 = controller.VMs().ByName(d.MachineName)
 		if err2 != nil {
-			return err2
+			return state.None, err2
 		}
 		d.MachineId = vm_id
 	} else {
