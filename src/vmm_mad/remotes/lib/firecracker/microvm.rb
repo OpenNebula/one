@@ -31,8 +31,9 @@ class MicroVM
     #   List of commands executed by the driver.
     #---------------------------------------------------------------------------
     COMMANDS = {
-        :clean       => 'sudo -n /usr/sbin/one-clean-firecracker-domain',
-        :map_context => '/var/tmp/one/vmm/firecracker/map_context'
+        :clean          => 'sudo -n /usr/sbin/one-clean-firecracker-domain',
+        :map_context    => '/var/tmp/one/vmm/firecracker/map_context',
+        :prepare_domain => 'sudo -n /usr/sbin/one-prepare-firecracker-domain'
     }
 
     #---------------------------------------------------------------------------
@@ -91,15 +92,6 @@ class MicroVM
         "#{@one.sysds_path}/#{@one.vm_id}"
     end
 
-    def map_chroot_path
-        rc = Command.execute_rc_log("mkdir -p #{@rootfs_dir}")
-
-        return false unless rc
-
-        # TODO, add option for hard links
-        Command.execute_rc_log("sudo -n mount -o bind #{@one.sysds_path}/#{@one.vm_id} #{@rootfs_dir}")
-    end
-
     def get_pid
         rc, stdout, = Command.execute('ps auxwww | grep ' \
             "\"^.*firecracker.*--id['\\\"=[[:space:]]]*#{@one.vm_name}\" " \
@@ -151,6 +143,33 @@ class MicroVM
     end
     # rubocop:enable Lint/SuppressedException
     # rubocop:enable Lint/RedundantCopDisableDirective
+
+    def cpu_shares(cpu)
+        # default value for cpu.shares
+        default_value = 1024
+        shares_enabled = @one.fcrc[:cgroup_cpu_shares] == true
+
+        return default_value if !shares_enabled || cpu.nil? || cpu == ''
+
+        shares_val = (cpu * default_value).round
+
+        # The value specified in the cpu.shares file must be 2 or higher.
+        shares_val = 2 if shares_val < 2
+
+        shares_val
+    end
+
+    def prepare_domain
+        cgroup_path = @one.fcrc[:cgroup_location]
+        cpu_val = cpu_shares(@one.get_cpu)
+
+        params = "-c #{cgroup_path} -p #{cpu_val} -s #{@one.sysds_path}"\
+                 " -v #{@one.vm_id}"
+
+        cmd = "#{COMMANDS[:prepare_domain]} #{params}"
+
+        Command.execute_rc_log(cmd)
+    end
 
     #---------------------------------------------------------------------------
     # VNC
@@ -214,7 +233,7 @@ class MicroVM
             cmd << " --#{key} #{val}"
         end
 
-        return false unless map_chroot_path
+        return false unless prepare_domain
 
         return false unless map_context
 
