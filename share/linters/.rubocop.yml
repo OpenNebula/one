@@ -578,12 +578,6 @@ AllCops:
 # LAYOUT
 ########
 
-Lint/RaiseException:
-    Enabled: true
-
-Lint/StructNewOverride:
-    Enabled: true
-
 # Line Length config:
 Layout/LineLength:
     Max: 80
@@ -740,6 +734,15 @@ Style/SlicingWithRange:
 ######
 # LINT
 ######
+
+Lint/RaiseException:
+    Enabled: true
+
+Lint/StructNewOverride:
+    Enabled: true
+
+Lint/DeprecatedOpenSSLConstant:
+    Enabled: true
 
 # check duplicate X:
 Lint/DuplicateCaseCondition:
