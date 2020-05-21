@@ -21,9 +21,15 @@ type RPCCaller interface {
 	Call(method string, args ...interface{}) (*Response, error)
 }
 
+// HTTPCaller is the analogous to RPCCaller but for http endpoints
+type HTTPCaller interface {
+	HTTPMethod(method string, url string, args ...interface{}) (*Response, error)
+}
+
 // Controller is the controller used to make requets on various entities
 type Controller struct {
-	Client RPCCaller
+	Client     RPCCaller
+	ClientREST HTTPCaller
 }
 
 // entitiesController is a controller for entitites
