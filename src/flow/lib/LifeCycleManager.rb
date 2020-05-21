@@ -668,8 +668,13 @@ class ServiceLCM
 
     def error_wd_cb(client, service_id, role_name, _node)
         rc = @srv_pool.get(service_id, client) do |service|
-            service.set_state(Service::STATE['WARNING'])
-            service.roles[role_name].set_state(Role::STATE['WARNING'])
+            if service.state != Service::STATE['WARNING']
+                service.set_state(Service::STATE['WARNING'])
+            end
+
+            if service.roles[role_name].state != Role::STATE['WARNING']
+                service.roles[role_name].set_state(Role::STATE['WARNING'])
+            end
 
             service.update
         end
@@ -699,10 +704,14 @@ class ServiceLCM
 
     def running_wd_cb(client, service_id, role_name, _node)
         rc = @srv_pool.get(service_id, client) do |service|
-            service.roles[role_name].set_state(Role::STATE['RUNNING'])
+            if service.roles[role_name].state != Role::STATE['RUNNING']
+                service.roles[role_name].set_state(Role::STATE['RUNNING'])
+            end
 
             if service.all_roles_running?
-                service.set_state(Service::STATE['RUNNING'])
+                if service.state != Service::STATE['RUNNING']
+                    service.set_state(Service::STATE['RUNNING'])
+                end
             end
 
             service.update
