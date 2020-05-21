@@ -57,11 +57,26 @@ func NewTemplate(docJSON map[string]interface{}) *service.Template {
 	return &template
 }
 
+// Map Template to map
+func (tc *STemplateController) Map(st *service.Template) map[string]interface{} {
+	body := map[string]interface{}{
+		"name":              st.Name,
+		"roles":             st.Roles,
+		"ready_status_gate": st.ReadyStatusGate,
+	}
+
+	if st.Deployment != "" {
+		body["deployment"] = st.Deployment
+	}
+
+	return body
+}
+
 // OpenNebula Actions
 
-// TODO: use schema as input
 // Create service template
-func (tc *STemplateController) Create(body map[string]interface{}) (*service.Template, error) {
+func (tc *STemplateController) Create(st *service.Template) (*service.Template, error) {
+	body := tc.Map(st)
 
 	response, e := tc.c.ClientREST.HTTPMethod("POST", endpointFTemplate, body)
 
@@ -79,10 +94,10 @@ func (tc *STemplateController) Delete() (bool, string) {
 	return tc.c.boolResponse("DELETE", url, nil)
 }
 
-// TODO: use schema as input
 // Update service template
-func (tc *STemplateController) Update(body map[string]interface{}) (bool, string) {
+func (tc *STemplateController) Update(st *service.Template) (bool, string) {
 	url := urlTemplate(tc.ID)
+	body := tc.Map(st)
 
 	return tc.c.boolResponse("PUT", url, body)
 }
