@@ -25,7 +25,7 @@ func (c *Controller) Service(id int) *ServiceController {
 }
 
 // Services Controller constructor
-func (c *Controller) Services(id int) *ServicesController {
+func (c *Controller) Services() *ServicesController {
 	return &ServicesController{c}
 }
 

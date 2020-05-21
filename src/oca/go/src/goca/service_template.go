@@ -25,7 +25,7 @@ func (c *Controller) STemplate(id int) *STemplateController {
 }
 
 // STemplates Controller constructor
-func (c *Controller) STemplates(id int) *STemplatesController {
+func (c *Controller) STemplates() *STemplatesController {
 	return &STemplatesController{c}
 }
 
