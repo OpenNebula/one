@@ -89,7 +89,7 @@ define(function(require) {
     var html = "<form id=\"tab_network_form\" vmid=\"" + that.element.ID + "\" >\
         <div class=\"row\">\
         <div class=\"large-12 columns\">\
-           <table class=\"nics_table no-hover info_table dataTable\">\
+           <table id=\"vm" + that.element.ID + "_networktab_datatable\" class=\"nics_table no-hover info_table dataTable\">\
              <thead>\
                <tr>\
                   <th></th>\
@@ -380,6 +380,7 @@ define(function(require) {
     }
 
     var nics_table = $("#tab_network_form .nics_table", context).DataTable({
+      "stateSave": true,
       "bDeferRender": true,
       "data": nic_dt_data,
       "columns": [
