@@ -757,7 +757,11 @@ Lint/DuplicateHashKey:
 
 # check empty exceptions
 Lint/SuppressedException:
-    Enabled: true
+    Enabled: false
+
+# Workaround version 0.84
+Lint/RedundantCopDisableDirective:
+    Enabled: false
 
 # check matching parameters in format
 Lint/FormatParameterMismatch:
