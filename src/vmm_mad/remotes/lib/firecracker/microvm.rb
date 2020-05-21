@@ -26,8 +26,6 @@ class MicroVM
 
     # rubocop:disable Naming/AccessorMethodName
     # rubocop:disable Layout/LineLength
-    # rubocop:disable Lint/RedundantCopDisableDirective
-    # rubocop:disable Lint/SuppressedException
 
     #---------------------------------------------------------------------------
     #   List of commands executed by the driver.
@@ -254,7 +252,5 @@ class MicroVM
 
     # rubocop:enable Naming/AccessorMethodName
     # rubocop:enable Layout/LineLength
-    # rubocop:enable Lint/SuppressedException
-    # rubocop:enable Lint/RedundantCopDisableDirective
 
 end

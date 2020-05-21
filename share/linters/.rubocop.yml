@@ -757,7 +757,7 @@ Lint/DuplicateHashKey:
 
 # check empty exceptions
 Lint/SuppressedException:
-    Enabled: true
+    Enabled: false
 
 # check matching parameters in format
 Lint/FormatParameterMismatch:
