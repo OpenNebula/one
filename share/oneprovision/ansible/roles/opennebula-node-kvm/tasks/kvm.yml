@@ -14,7 +14,7 @@
     - kvm_intel
     - kvm_amd
   register: modprobe_result
-  until: modprobe_result | succeeded
+  until: modprobe_result is success
   retries: 3
   delay: 10
   when: template.changed
