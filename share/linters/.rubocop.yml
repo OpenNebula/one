@@ -759,7 +759,7 @@ Lint/DuplicateHashKey:
 Lint/SuppressedException:
     Enabled: false
 
-# Workaround version 0.84 
+# Workaround version 0.84
 Lint/RedundantCopDisableDirective:
     Enabled: false
 
