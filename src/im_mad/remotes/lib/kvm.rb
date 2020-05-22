@@ -262,6 +262,7 @@ class Domain < BaseDomain
       'paused' => {
           'migrating' => 'RUNNING',
           'starting up' => 'RUNNING',
+          'booted'    => 'RUNNING',
           'I/O error' => 'FAILURE',
           'watchdog'  => 'FAILURE',
           'crashed'   => 'FAILURE',
