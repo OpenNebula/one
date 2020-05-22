@@ -401,6 +401,12 @@ string one_util::trim(const string& str)
     string::const_reverse_iterator rwlast;
 
     wfirst = find_if(str.begin(), str.end(), not_space);
+
+    if (wfirst == str.end())
+    {
+        return string();
+    }
+
     rwlast = find_if(str.rbegin(),str.rend(),not_space);
 
     string::const_iterator wlast(rwlast.base());

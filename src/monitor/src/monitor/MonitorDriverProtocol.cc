@@ -46,9 +46,9 @@ void MonitorDriverProtocol::_monitor_vm(message_t msg)
 
     if (rc != 0)
     {
-        NebulaLog::error("MDP", msg->payload());
         NebulaLog::error("MDP", string("Error parsing VM monitoring template: ")
                 + error_msg);
+        NebulaLog::error("MDP", "Received monitoring message: " + msg->payload());
 
         free(error_msg);
         return;
@@ -209,6 +209,14 @@ void MonitorDriverProtocol::_start_monitor(message_t msg)
 
         NebulaLog::warn("MDP", "Start monitor failed for host " +
             to_string(msg->oid()) + ": " + msg->payload());
+
+        return;
+    }
+
+    auto data = one_util::trim(msg->payload());
+    if (data.empty())
+    {
+        hm->start_monitor_success(msg->oid());
 
         return;
     }
