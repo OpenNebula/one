@@ -262,7 +262,8 @@ void InformationManager::_host_system(unique_ptr<Message<OpenNebulaMessages>> ms
     {
         ostringstream oss;
         oss << "Error parsing monitoring template for host " << msg->oid()
-            << ", error: " << error_msg;
+            << "\nMessage: " << msg->payload()
+            << "Error: " << error_msg;
         NebulaLog::error("InM", oss.str());
 
         free(error_msg);
