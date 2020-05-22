@@ -256,3 +256,9 @@ meter {
   text-overflow: ellipsis;
   line-height: 1.4rem;
 }
+
+@media screen and (min-width: 64em){
+  .medium-hide {
+      display: none !important;
+  }
+}
