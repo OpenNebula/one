@@ -49,6 +49,8 @@ class Sudoers
                 'systemctl stop opennebula-gate',
                 'systemctl start opennebula-hem',
                 'systemctl stop opennebula-hem',
+                'systemctl start opennebula-showback.timer',
+                'systemctl stop opennebula-showback.timer',
                 'service opennebula-flow start',
                 'service opennebula-flow stop',
                 'service opennebula-gate start',
