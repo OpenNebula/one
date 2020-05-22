@@ -12,7 +12,7 @@
     validate_certs: no
     state: present
   register: apt_result
-  until: apt_result | succeeded
+  until: apt_result is succeeded
   retries: 3
   delay: 10
 
