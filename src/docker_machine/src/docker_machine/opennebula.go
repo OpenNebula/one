@@ -519,7 +519,20 @@ func (d *Driver) GetURL() (string, error) {
 func (d *Driver) GetIP() (string, error) {
 	controller := d.getController()
 
-	vm, err := controller.VM(d.MachineId).Info(false)
+	var err2 error
+	var vm_id int
+
+	if d.MachineId == 0 {
+		vm_id, err2 = controller.VMs().ByName(d.MachineName)
+		if err2 != nil {
+			return "", err2
+		}
+		d.MachineId = vm_id
+	} else {
+		vm_id = d.MachineId
+	}
+
+	vm, err := controller.VM(vm_id).Info(false)
 	if err != nil {
 		return "", err
 	}
@@ -542,7 +555,20 @@ func (d *Driver) GetIP() (string, error) {
 func (d *Driver) GetState() (state.State, error) {
 	controller := d.getController()
 
-	vm, err := controller.VM(d.MachineId).Info(false)
+	var err2 error
+	var vm_id int
+
+	if d.MachineId == 0 {
+		vm_id, err2 = controller.VMs().ByName(d.MachineName)
+		if err2 != nil {
+			return state.None, err2
+		}
+		d.MachineId = vm_id
+	} else {
+		vm_id = d.MachineId
+	}
+
+	vm, err := controller.VM(vm_id).Info(false)
 	if err != nil {
 		return state.None, err
 	}
@@ -653,8 +679,19 @@ func (d *Driver) Start() error {
 	controller := d.getController()
 
 	var err error
+	var vm_id int
 
-	vm := controller.VM(d.MachineId)
+	if d.MachineId == 0 {
+		vm_id, err = controller.VMs().ByName(d.MachineName)
+		if err != nil {
+			return err
+		}
+		d.MachineId = vm_id
+	} else {
+		vm_id = d.MachineId
+	}
+
+	vm := controller.VM(vm_id)
 	vm.Resume()
 
 	s := state.None
@@ -688,7 +725,20 @@ func (d *Driver) Start() error {
 func (d *Driver) Stop() error {
 	controller := d.getController()
 
-	vm := controller.VM(d.MachineId)
+	var err2 error
+	var vm_id int
+
+	if d.MachineId == 0 {
+		vm_id, err2 = controller.VMs().ByName(d.MachineName)
+		if err2 != nil {
+			return err2
+		}
+		d.MachineId = vm_id
+	} else {
+		vm_id = d.MachineId
+	}
+
+	vm := controller.VM(vm_id)
 	err := vm.Poweroff()
 	if err != nil {
 		return err
@@ -700,7 +750,20 @@ func (d *Driver) Stop() error {
 func (d *Driver) Remove() error {
 	controller := d.getController()
 
-	vm := controller.VM(d.MachineId)
+	var err2 error
+	var vm_id int
+
+	if d.MachineId == 0 {
+		vm_id, err2 = controller.VMs().ByName(d.MachineName)
+		if err2 != nil {
+			return err2
+		}
+		d.MachineId = vm_id
+	} else {
+		vm_id = d.MachineId
+	}
+
+	vm := controller.VM(vm_id)
 	err := vm.TerminateHard()
 	if err != nil {
 		return err
@@ -712,7 +775,20 @@ func (d *Driver) Remove() error {
 func (d *Driver) Restart() error {
 	controller := d.getController()
 
-	vm := controller.VM(d.MachineId)
+	var err2 error
+	var vm_id int
+
+	if d.MachineId == 0 {
+		vm_id, err2 = controller.VMs().ByName(d.MachineName)
+		if err2 != nil {
+			return err2
+		}
+		d.MachineId = vm_id
+	} else {
+		vm_id = d.MachineId
+	}
+
+	vm := controller.VM(vm_id)
 	err := vm.Reboot()
 	if err != nil {
 		return err
@@ -724,7 +800,20 @@ func (d *Driver) Restart() error {
 func (d *Driver) Kill() error {
 	controller := d.getController()
 
-	vm := controller.VM(d.MachineId)
+	var err2 error
+	var vm_id int
+
+	if d.MachineId == 0 {
+		vm_id, err2 = controller.VMs().ByName(d.MachineName)
+		if err2 != nil {
+			return err2
+		}
+		d.MachineId = vm_id
+	} else {
+		vm_id = d.MachineId
+	}
+
+	vm := controller.VM(vm_id)
 	err := vm.PoweroffHard()
 	if err != nil {
 		return err
