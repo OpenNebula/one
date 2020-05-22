@@ -184,8 +184,8 @@ class ProbeRunner
             runner = ProbeRunner.new(hyperv, probe[:path], stdin)
             rc, dt = runner.run_probes
 
-            dt64 = Base64.encode64(dt).gsub("\n", '')
-            ret += "<#{probe[:elem_name]}>#{dt64}</#{probe[:elem_name]}>\n"
+            dt = Base64.encode64(dt).gsub("\n", '') if rc == 0
+            ret += "<#{probe[:elem_name]}>#{dt}</#{probe[:elem_name]}>\n"
 
             return rc, ret if rc == -1
         end
