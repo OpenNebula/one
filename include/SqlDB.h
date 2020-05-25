@@ -131,7 +131,7 @@ public:
     /**
      *  @return string with compatible LIMIT clause syntax
      *  LIMIT [offset], row_count
-     *  
+     *
      *  +---+---+---+---+---+---+---+---+--
      *  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |...
      *  +---+---+---+---+---+---+---+---+--

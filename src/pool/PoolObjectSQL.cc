@@ -97,7 +97,14 @@ int PoolObjectSQL::select_oid(SqlDB *db, const char * _table,
 
     ostringstream oss;
 
-    oss << "SELECT oid FROM " << _table << " WHERE name = '" << sql_name << "'";
+    oss << "SELECT oid FROM " << _table << " WHERE ";
+
+    if (Nebula::instance().get_db_backend() == "mysql")
+    {
+        oss << "BINARY ";
+    }
+
+    oss << "name = '" << sql_name << "'";
 
     if ( _uid != -1 )
     {
@@ -176,7 +183,14 @@ int PoolObjectSQL::select(SqlDB *db, const string& _name, int _uid)
     set_callback(
             static_cast<Callbackable::Callback>(&PoolObjectSQL::select_cb));
 
-    oss << "SELECT body FROM " << table << " WHERE name = '" << sql_name << "'";
+    oss << "SELECT body FROM " << table << " WHERE ";
+
+    if (Nebula::instance().get_db_backend() == "mysql")
+    {
+        oss << "BINARY ";
+    }
+
+    oss << "name = '" << sql_name << "'";
 
     if ( _uid != -1 )
     {
