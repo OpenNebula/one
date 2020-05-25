@@ -233,6 +233,11 @@ void HostMonitorManager::raft_status(const string& state)
 
 void HostMonitorManager::monitor_host(int oid, bool result, const Template &tmpl)
 {
+    if (!is_leader)
+    {
+        return;
+    }
+
     auto host = hpool->get(oid);
 
     if (!host.valid())
@@ -297,6 +302,11 @@ void HostMonitorManager::monitor_host(int oid, bool result, const Template &tmpl
 
 void HostMonitorManager::update_last_monitor(int oid)
 {
+    if (!is_leader)
+    {
+        return;
+    }
+
     auto host = hpool->get(oid);
 
     if (!host.valid())
@@ -321,6 +331,11 @@ void HostMonitorManager::monitor_vm(int oid,
                                     const string& uuid,
                                     const Template &tmpl)
 {
+    if (!is_leader)
+    {
+        return;
+    }
+
     if (oid < 0)
     {
         // Wild VM, check if it is imported to OpenNebula
@@ -357,6 +372,11 @@ void HostMonitorManager::monitor_vm(int oid,
 
 void HostMonitorManager::start_monitor_failure(int oid)
 {
+    if (!is_leader)
+    {
+        return;
+    }
+
     NebulaLog::error("HMM", "Unable to monitor host id: " + to_string(oid));
 
     auto host = hpool->get(oid);
@@ -375,6 +395,11 @@ void HostMonitorManager::start_monitor_failure(int oid)
 
 void HostMonitorManager::start_monitor_success(int oid)
 {
+    if (!is_leader)
+    {
+        return;
+    }
+
     NebulaLog::debug("HMM", "Start monitor success, host: " + to_string(oid));
 
     auto host = hpool->get(oid);
