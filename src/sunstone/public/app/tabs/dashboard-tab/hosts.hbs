@@ -25,19 +25,24 @@
         <button class="button success radius tiny show_create_host"> <i class="fas fa-lg fa-plus fa-fw"></i></button>
       </div>
     </div>
-    <div class="row">
-      <div class="row"></div>
+    <div class="row" style="display:flex;align-items:center;">
       <div class="small-12 medium-6 columns">
-        <div id="dashboard_host_allocated_cpu"></div>
+        <div class="hidden" id="dashboard_host_allocated_cpu"></div>
+        <div class="hidden" id="dashboard_host_allocated_mem"></div>
       </div>
       <div class="small-12 medium-6 columns">
-        <div id="dashboard_host_allocated_mem"></div>
-      </div>
-      <div class="small-12 medium-6 columns">
-        <div id="dashboard_host_real_cpu"></div>
-      </div>
-      <div class="small-12 medium-6 columns">
-        <div id="dashboard_host_real_mem"></div>
+        <div class="card small-12 medium-4 columns">
+          <h3 class="on_hosts fadeinout success-color number-title">0</h3>
+          <span class="small-12 medium-12 columns label-card">{{tr "MONITORED"}}</span>
+        </div>
+        <div class="card small-12 medium-4 columns">
+            <h3 class="off_hosts fadeinout warning-color number-title">0</h3>
+            <span class="small-12 medium-12 columns label-card">{{tr "DISABLED"}}</span>
+        </div>
+        <div class="card small-12 medium-4 columns">
+            <h3 class="error_hosts fadeinout alert-color number-title">0</h3>
+            <span class="small-12 medium-12 columns label-card">{{tr "FAILED"}}</span>
+        </div>
       </div>
     </div>
   </fieldset>
