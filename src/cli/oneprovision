@@ -542,9 +542,10 @@ CommandParser::CmdParser.new(ARGV) do
     command %i[datastore list], datastore_list_desc,
             :options => ONE_OPTIONS + [OpenNebulaHelper::DESCRIBE] do
         datastore_helper = OneDatastoreHelper.new
-        datastore        = OneProvision::Datastore.new
+        datastore        = OneProvision::Datastore.new.get
+        datastore.map! {|d| d.to_hash['DATASTORE'] }
 
-        datastore_helper.format_pool(options).show(datastore.get)
+        datastore_helper.format_pool(options).show(datastore)
 
         0
     end
@@ -576,9 +577,10 @@ CommandParser::CmdParser.new(ARGV) do
             vnet_list_desc,
             :options => ONE_OPTIONS + [OpenNebulaHelper::DESCRIBE] do
         vnet_helper = OneVNetHelper.new
-        network     = OneProvision::Network.new
+        network     = OneProvision::Network.new.get
+        network.map! {|n| n.to_hash['VNET'] }
 
-        vnet_helper.format_pool(options).show(network.get, options)
+        vnet_helper.format_pool(options).show(network, options)
 
         0
     end
