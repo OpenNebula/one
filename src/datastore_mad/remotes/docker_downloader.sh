@@ -107,7 +107,7 @@ set -e -o pipefail
 #  format: image format e.g. raw or qcow2
 #  distro: base image distro to install contents
 #-------------------------------------------------------------------------------
-id=`uuidgen`
+id=`echo "$RANDOM-$RANDOM-$RANDOM-$RANDOM-$RANDOM"`
 sid=`echo $id | cut -d '-' -f 1`
 
 url=`echo $MARKET_URL | grep -oP "^"docker://"\K.*"`

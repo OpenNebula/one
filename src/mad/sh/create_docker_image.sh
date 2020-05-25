@@ -51,7 +51,7 @@ if [ ! -f "$tarball" ]; then
 fi
 
 # Check dockerdir is different than / and the directory name is an uuid
-regex_uuid="^\{?[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{12}\}?$"
+regex_uuid="^\{?[0-9]+-[0-9]+-[0-9]+-[0-9]+-[0-9]+\}?$"
 if [ ! -d $dockerdir ] || [[ ! $(basename $dockerdir) =~ $regex_uuid ]]; then
     exit -1
 fi
