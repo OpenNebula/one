@@ -68,12 +68,12 @@ void MonitorDriverProtocol::_monitor_vm(message_t msg)
         return;
     }
 
-    map<string, pair<int, Template>> vms_templ;
+    map<int, Template> vms_templ;
     vector<VectorAttribute*> vms;
 
     tmpl.get("VM", vms);
 
-    // Merge all attributes by deploy_id
+    // Merge all attributes by ID
     for (const auto& vm : vms)
     {
         int id = -1;
@@ -109,16 +109,25 @@ void MonitorDriverProtocol::_monitor_vm(message_t msg)
 
             delete monitor_plain;
 
-            auto it = vms_templ.find(deploy_id);
-
-            if (it == vms_templ.end())
+            if (id < 0)
             {
-                vms_templ.insert(make_pair(std::move(deploy_id),
-                    make_pair(id, std::move(mon_tmpl))));
+                // Wild VM, no need to merge templates
+                hm->monitor_wild_vm(deploy_id, mon_tmpl);
             }
             else
             {
-                it->second.second.merge(&mon_tmpl);
+                // OpenNebula VM, merge templates with same ID
+                auto it = vms_templ.find(id);
+
+                if (it == vms_templ.end())
+                {
+                    vms_templ[id] = std::move(mon_tmpl);
+                }
+                else
+                {
+                    it->second.merge(&mon_tmpl);
+                }
+
             }
         }
     }
@@ -126,7 +135,7 @@ void MonitorDriverProtocol::_monitor_vm(message_t msg)
     // Process all monitoring templates
     for (const auto& vm : vms_templ)
     {
-        hm->monitor_vm(vm.second.first, vm.first, vm.second.second);
+        hm->monitor_vm(vm.first, vm.second);
     }
 }
 
