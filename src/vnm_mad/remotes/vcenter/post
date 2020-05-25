@@ -66,10 +66,6 @@ if OpenNebula.is_error?(rc)
     raise err_msg
 end
 
-# Exit if there is no NSX
-nsx_status = one_host['TEMPLATE/NSX_STATUS']
-exit 0 if nsx_status.nil?
-
 # Exit if there is no NSX_PASSWORD
 nsx_password = one_host['TEMPLATE/NSX_PASSWORD']
 exit 0 if nsx_password.nil?

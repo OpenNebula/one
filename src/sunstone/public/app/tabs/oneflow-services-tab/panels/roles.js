@@ -223,7 +223,7 @@ define(function(require) {
             else if (OpenNebulaVM.isSPICESupported(data.VM)) {
               actions += OpenNebulaVM.buttonSpice(id);
             }
-            
+
             var wFile = OpenNebulaVM.isWFileSupported(data.VM);
             actions += wFile ? OpenNebulaVM.buttonWFile(id, wFile) : "";
 
@@ -237,7 +237,7 @@ define(function(require) {
         promises.push(promiseVmInfo(id, successCallback))
       })
     }
-      
+
     $.when.apply($, promises).then(function() {
       if (that.serviceroleVMsDataTable) {
         that.serviceroleVMsDataTable.updateView(null, roleVms, true);

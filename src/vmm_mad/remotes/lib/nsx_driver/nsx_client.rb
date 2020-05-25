@@ -66,28 +66,22 @@ module NSXDriver
                 NSXVClient.new(nsxmgr, nsx_user, nsx_password)
             else
                 error_msg = "Unknown object type: #{type}"
-                error = NSXError::UnknownObject.new(error_msg)
+                error     = NSXError::UnknownObject.new(error_msg)
                 raise error
             end
         end
 
-        def self.new_from_id(host_id)
+        def self.new_from_id(hid)
             client = OpenNebula::Client.new
-            host = OpenNebula::Host.new_with_id(host_id, client)
-            rc = host.info
+            host   = OpenNebula::Host.new_with_id(hid, client)
+
+            rc = host.info(true)
 
             if OpenNebula.is_error?(rc)
-                raise "Could not get host info for ID: \
-                        #{host_id} - #{rc.message}"
+                raise "Could not get host info for ID: #{hid} - #{rc.message}"
             end
 
-            nsxmgr = host['TEMPLATE/NSX_MANAGER']
-            nsx_user = host['TEMPLATE/NSX_USER']
-            nsx_password = NSXClient
-                           .nsx_pass(host['TEMPLATE/NSX_PASSWORD'])
-            nsx_type = host['TEMPLATE/NSX_TYPE']
-
-            new_child(nsxmgr, nsx_user, nsx_password, nsx_type)
+            new_from_host(host)
         end
 
         # METHODS
@@ -106,20 +100,6 @@ module NSXDriver
                 raise NSXError::IncorrectResponseCodeError, nsx_error
             end
             raise NSXError::IncorrectResponseCodeError, nsx_error
-        end
-
-        def self.nsx_pass(nsx_pass_enc)
-            client = OpenNebula::Client.new
-            system = OpenNebula::System.new(client)
-            config = system.get_configuration
-
-            if OpenNebula.is_error?(config)
-                raise "Error getting oned configuration : #{config.message}"
-            end
-
-            token = config['ONE_KEY']
-            @nsx_password = VCenterDriver::VIClient
-                            .decrypt(nsx_pass_enc, token)
         end
 
         # Return: respose.body

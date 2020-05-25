@@ -380,7 +380,7 @@ class ClusterComputeResource
             mem_shares_level = info["config.memoryAllocation.shares.level"]
             mem_shares       = info["config.memoryAllocation.shares.shares"]
 
-            rp_name = rp_list.select { |item| item[:ref] == ref}.first[:name] rescue ""
+            rp_name = @rp_list.select { |item| item[:ref] == ref}.first[:name] rescue ""
 
             rp_name = "Resources" if rp_name.empty?
 
@@ -502,7 +502,7 @@ class ClusterComputeResource
         return host_info
     end
 
-    def monitor_vms(host_id, vm_type, debug = false)
+    def monitor_vms(host_id, vm_type)
         vc_uuid = @vi_client.vim.serviceContent.about.instanceUuid
         cluster_name = self["name"]
         cluster_ref = self["_ref"]
@@ -511,23 +511,20 @@ class ClusterComputeResource
         one_host = VCenterDriver::VIHelper.one_item(OpenNebula::Host, host_id)
         if !one_host
             STDERR.puts "Failed to retieve host with id #{host.id}"
-            STDERR.puts e.inspect
-            STDERR.puts e.backtrace
+            if VCenterDriver::CONFIG[:debug_information]
+                STDERR.puts "#{message} #{e.backtrace}"
+            end
         end
 
-        host_id = one_host["ID"] if one_host
-
-
-        # Extract CPU info and name for each esx host in cluster
         esx_hosts = {}
         @item.host.each do |esx_host|
-            info = {}
-            info[:name] = esx_host.name
-            info[:cpu]  = esx_host.summary.hardware.cpuMhz.to_f
-            esx_hosts[esx_host._ref] = info
+            esx_hosts[esx_host._ref] = {
+                :name => esx_host.name,
+                :cpu  => esx_host.summary.hardware.cpuMhz.to_f
+            }
         end
 
-        @monitored_vms = Set.new
+        monitored_vms = Set.new
         str_info = ""
 
         view = @vi_client.vim.serviceContent.viewManager.CreateContainerView({
@@ -626,12 +623,8 @@ class ClusterComputeResource
         @rp_list = get_resource_pool_list if !@rp_list
 
         vm_pool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualMachinePool)
-
-        # opts common to all vms
-        opts = {
-            pool: vm_pool,
-            vc_uuid: vc_uuid,
-        }
+        # We filter to retrieve only those VMs running in the host that we are monitoring
+        host_vms = vm_pool.retrieve_xmlelements("/VM_POOL/VM[HISTORY_RECORDS/HISTORY/HID='#{host_id}']")
 
         vms.each do |vm_ref,info|
             vm_info = ''
@@ -656,42 +649,22 @@ class ClusterComputeResource
 
                 next if running_flag == "no"
 
-                # retrieve vcenter driver machine
-                begin
-                    vm = VCenterDriver::VirtualMachine.new_from_ref(@vi_client, vm_ref, info["name"], opts)
-                    id = vm.vm_id
-                rescue
-                    # Wild starting with one- not existing in one.
-                    # Show all monitored vms, included if it's configured
-                    # in vcenterrc, skip if not.
-                    next unless debug
+                id = -1
+                # Find the VM by its deploy_id, which in the vCenter driver is
+                # the vCenter managed object reference
+                found_vm = host_vms.select{|vm| vm["DEPLOY_ID"].eql? vm_ref }.first
+                id = found_vm["ID"] if found_vm
 
-                    id = -1
-                    raise
-                end
-                if !vm.nil? && vm.one_exist?
-                    one_uuid = vm.one_item.deploy_id + vc_uuid
-                    vmvc_uuid = vm_ref + vc_uuid
-                    if one_uuid != vmvc_uuid
-                        # Wild starting with one- with the same id like existing one vm
-                        next
-                    end
-                end
+                # skip if it is a wild and we are looking for OpenNebula VMs
+                next if vm_type == 'ones' and id == -1
+                # skip if it is not a wild and we are looking for wilds
+                next if vm_type == 'wilds' and id != -1
+                # skip if already monitored
+                next if monitored_vms.include? vm_ref
 
-                if vm_type == 'ones'
-                    next if id == -1
-                elsif vm_type == 'wilds'
-                    next if id != -1
-                else
-                    next
-                end
+                monitored_vms << vm_ref
 
-                #skip if it's already monitored
-                if vm.one_exist?
-                    next if @monitored_vms.include? id
-                    @monitored_vms << id
-                end
-
+                vm = VCenterDriver::VirtualMachine.new(@vi_client, vm_ref, id)
                 vm.vm_info = info
                 vm.monitor(stats)
 
@@ -703,7 +676,7 @@ class ClusterComputeResource
                 # if the machine does not exist in opennebula it means that is a wild:
                 unless vm.one_exist?
                     vm_template_64 = Base64.encode64(vm.vm_to_one(vm_name)).gsub("\n","")
-                    vm_info << "VCENTER_TEMPLATE=\"YES\","
+                    vm_info << 'VCENTER_TEMPLATE="YES",'
                     vm_info << "IMPORT_TEMPLATE=\"#{vm_template_64}\"]\n"
                 else
                     mon_s64 = Base64.strict_encode64(vm.info)

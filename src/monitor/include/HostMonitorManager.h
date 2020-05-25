@@ -112,7 +112,7 @@ public:
      *    @param oid host id
      *    @param tmpl monitoring template
      */
-    void monitor_host(int oid, bool result, const Template &tmpl);
+    void monitor_host(int oid, const Template &tmpl);
 
     /**
      *  Sets the monitor information of the VM.
@@ -131,6 +131,14 @@ public:
     void start_monitor_failure(int oid);
 
     void start_monitor_success(int oid);
+
+    /**
+     *
+     *  Set host in error becasue of a monitor failure
+     *    @param oid of the host
+     *    @param message describing the error
+     */
+    void error_monitor(int oid, const string& message);
 
     /**
      *  This function is executed periodically to update host monitor status

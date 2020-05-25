@@ -213,14 +213,25 @@ void InformationManager::_undefined(unique_ptr<Message<OpenNebulaMessages>> msg)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+/* HOST_STATE - <state_str> <optional_desciption>                             */
 
 void InformationManager::_host_state(unique_ptr<Message<OpenNebulaMessages>> msg)
 {
     NebulaLog::ddebug("InM", "HOST_STATE update from host: " +
         to_string(msg->oid()) + ". Host information: " + msg->payload());
 
+    string str_state;
+    string err_message;
 
-    string str_state = msg->payload();
+    istringstream is(msg->payload());
+
+    is >> str_state >> ws;
+
+    if (is.good())
+    {
+        getline(is, err_message);
+    }
+
     Host::HostState new_state;
 
     if (Host::str_to_state(str_state, new_state) != 0)
@@ -245,16 +256,20 @@ void InformationManager::_host_state(unique_ptr<Message<OpenNebulaMessages>> msg
 
     if (host->get_state() != new_state)
     {
-        host->set_state(new_state);
-
         if ( new_state == Host::ERROR )
         {
+            host->error(err_message);
+
             LifeCycleManager* lcm = Nebula::instance().get_lcm();
 
             for (const auto& vmid : host->get_vm_ids())
             {
                 lcm->trigger(LCMAction::MONITOR_DONE, vmid);
             }
+        }
+        else
+        {
+            host->set_state(new_state);
         }
 
         hpool->update(host);

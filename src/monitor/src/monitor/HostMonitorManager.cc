@@ -231,7 +231,7 @@ void HostMonitorManager::raft_status(const string& state)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void HostMonitorManager::monitor_host(int oid, bool result, const Template &tmpl)
+void HostMonitorManager::monitor_host(int oid, const Template &tmpl)
 {
     if (!is_leader)
     {
@@ -249,19 +249,6 @@ void HostMonitorManager::monitor_host(int oid, bool result, const Template &tmpl
     if (host->state() == Host::OFFLINE)
     {
         // Host is offline, we shouldn't receive monitoring
-        return;
-    }
-
-    if (!result)
-    {
-        NebulaLog::error("HMM", "Monitor host failed id:" + to_string(oid));
-
-        if (host->state() != Host::OFFLINE && host->state() != Host::DISABLED )
-        {
-            oned_driver->host_state(oid, Host::state_to_str(Host::ERROR));
-            // TODO Set template error message
-        }
-
         return;
     }
 
@@ -549,4 +536,32 @@ void HostMonitorManager::stop_host_monitor(const HostRPCPool::HostBaseLock& host
     driver->stop_monitor(host->oid(), xml);
     host->monitor_in_progress(false);
 
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void HostMonitorManager::error_monitor(int oid, const string& msg)
+{
+    auto host = hpool->get(oid);
+
+    if (!host.valid())
+    {
+        NebulaLog::warn("HMM", "monitor_host: unknown host " + to_string(oid));
+        return;
+    }
+
+    host->monitor_in_progress(false);
+
+    if (host->state() == Host::OFFLINE)
+    {
+        // Host is offline, we shouldn't receive monitoring
+        return;
+    }
+
+    ostringstream oss;
+
+    oss << Host::state_to_str(Host::ERROR) << " " << msg;
+
+    oned_driver->host_state(oid, oss.str());
 }

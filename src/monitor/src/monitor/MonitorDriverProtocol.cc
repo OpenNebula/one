@@ -39,9 +39,18 @@ void MonitorDriverProtocol::_monitor_vm(message_t msg)
 {
     NebulaLog::ddebug("MDP", "Received MONITOR_VM msg: " + msg->payload());
 
-    char * error_msg;
+    if (msg->status() != "SUCCESS")
+    {
+        NebulaLog::warn("MDP", "Failed to monitor VM for host " +
+            to_string(msg->oid()) + ": " + msg->payload());
+
+        hm->error_monitor(msg->oid(), msg->payload());
+        return;
+    }
 
     Template tmpl;
+    char *   error_msg;
+
     int rc = tmpl.parse(msg->payload(), &error_msg);
 
     if (rc != 0)
@@ -50,9 +59,12 @@ void MonitorDriverProtocol::_monitor_vm(message_t msg)
         oss << "Error parsing VM monitoring template from host " << msg->oid()
             << "\nMessage: " << msg->payload()
             << "\nError: " << error_msg;
+
         NebulaLog::error("MDP", oss.str());
 
         free(error_msg);
+
+        hm->error_monitor(msg->oid(), "Error parsing monitor information");
         return;
     }
 
@@ -126,6 +138,15 @@ void MonitorDriverProtocol::_beacon_host(message_t msg)
     NebulaLog::ddebug("MDP", "Received beacon for host " +
             to_string(msg->oid()) + ": " + msg->payload());
 
+    if (msg->status() != "SUCCESS")
+    {
+        NebulaLog::warn("MDP", "Error condition detected on beacon for host "
+                + to_string(msg->oid()) + ": " + msg->payload());
+
+        hm->error_monitor(msg->oid(), msg->payload());
+        return;
+    }
+
     hm->update_last_monitor(msg->oid());
 }
 
@@ -137,11 +158,19 @@ void MonitorDriverProtocol::_monitor_host(message_t msg)
     NebulaLog::ddebug("MDP", "Received monitoring information for host " +
             to_string(msg->oid()) + ": " + msg->payload());
 
-    std::string msg_str = msg->payload();
-    char * error_msg;
+    if (msg->status() != "SUCCESS")
+    {
+        NebulaLog::warn("MDP", "Failed to monitor host " + to_string(msg->oid())
+                + ": " + msg->payload());
+
+        hm->error_monitor(msg->oid(), msg->payload());
+        return;
+    }
 
     Template tmpl;
-    int rc = tmpl.parse(msg_str, &error_msg);
+    char*    error_msg;
+
+    int rc = tmpl.parse(msg->payload(), &error_msg);
 
     if (rc != 0)
     {
@@ -149,15 +178,16 @@ void MonitorDriverProtocol::_monitor_host(message_t msg)
         oss << "Error parsing monitoring template for host " << msg->oid()
             << "\nMessage: " << msg->payload()
             << "\nError: " << error_msg;
+
         NebulaLog::error("MDP", oss.str());
 
         free(error_msg);
+
+        hm->error_monitor(msg->oid(), "Error parsing monitor information");
         return;
     }
 
-    bool result = msg->status() == "SUCCESS" ? true : false;
-
-    hm->monitor_host(msg->oid(), result, tmpl);
+    hm->monitor_host(msg->oid(), tmpl);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -167,6 +197,15 @@ void MonitorDriverProtocol::_system_host(message_t msg)
 {
     NebulaLog::ddebug("MDP", "Received system information for host " +
             to_string(msg->oid()) + ": " + msg->payload());
+
+    if (msg->status() != "SUCCESS")
+    {
+        NebulaLog::warn("MDP", "Failed to get system information for host " +
+            to_string(msg->oid()) + ": " + msg->payload());
+
+        hm->error_monitor(msg->oid(), msg->payload());
+        return;
+    }
 
     auto oned = hm->get_oned_driver();
     oned->host_system_info(msg->oid(), msg->status(), msg->payload());
@@ -184,6 +223,9 @@ void MonitorDriverProtocol::_state_vm(message_t msg)
     {
         NebulaLog::warn("MDP", "Failed to monitor VM state for host " +
             to_string(msg->oid()) + ": " + msg->payload());
+
+        hm->error_monitor(msg->oid(), msg->payload());
+        return;
     }
 
     auto oned = hm->get_oned_driver();
@@ -210,11 +252,10 @@ void MonitorDriverProtocol::_start_monitor(message_t msg)
 
     if (msg->status() != "SUCCESS")
     {
-        hm->start_monitor_failure(msg->oid());
-
         NebulaLog::warn("MDP", "Start monitor failed for host " +
             to_string(msg->oid()) + ": " + msg->payload());
 
+        hm->start_monitor_failure(msg->oid());
         return;
     }
 

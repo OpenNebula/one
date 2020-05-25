@@ -15,12 +15,7 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-
-require 'socket'
 require 'base64'
-require 'resolv'
-require 'ipaddr'
-require 'zlib'
 require 'yaml'
 require 'open3'
 require 'openssl'
@@ -28,87 +23,7 @@ require 'openssl'
 require 'rexml/document'
 
 require_relative '../lib/probe_db'
-
-#-------------------------------------------------------------------------------
-#  This class represents a monitord client. It handles udp and tcp connections
-#  and send update messages to monitord
-#-------------------------------------------------------------------------------
-class MonitorClient
-
-    # Defined in src/monitor/include/MonitorDriverMessages.h
-    MESSAGE_TYPES = %w[MONITOR_VM MONITOR_HOST SYSTEM_HOST BEACON_HOST STATE_VM
-                       START_MONITOR STOP_MONITOR].freeze
-
-    MESSAGE_STATUS = { true =>'SUCCESS', false => 'FAILURE' }.freeze
-
-    MESSAGE_TYPES.each do |mt|
-        define_method("#{mt}_udp".downcase.to_sym) do |rc, payload|
-            msg = "#{mt} #{MESSAGE_STATUS[rc]} #{@hostid} #{pack(payload)}"
-            @socket_udp.send(msg, 0, @host, @port)
-        end
-    end
-
-    MESSAGE_TYPES.each do |mt|
-        define_method("#{mt}_tcp".downcase.to_sym) do |rc, payload|
-            msg = "#{mt} #{MESSAGE_STATUS[rc]} #{@hostid} #{pack(payload)}"
-
-            socket_tcp = TCPSocket.new(@host, @port)
-            socket_tcp.send(msg, 0)
-            socket_tcp.close
-        end
-    end
-
-    # Options to create a monitord client
-    # :host [:String] to send the messages to
-    # :port [:String] of monitord server
-    # :hostid [:String] OpenNebula ID of this host
-    # :pubkey [:String] public key to encrypt messages
-    def initialize(server, port, id, opt = {})
-        @opts = {
-            :pubkey => ''
-        }.merge opt
-
-        addr = Socket.getaddrinfo(server, port)[0]
-
-        @family = addr[0]
-        @host   = addr[3]
-        @port   = addr[1]
-
-        @socket_udp = UDPSocket.new(@family)
-
-        @pubkey = @opts[:pubkey]
-
-        @hostid = id
-    end
-
-    private
-
-    # Formats message payload to send over the wire
-    def pack(data)
-        if @pubkey
-            block_size = @pubkey.n.num_bytes - 11
-
-            edata = ''
-            index = 0
-
-            loop do
-                break if index >= data.length
-
-                edata << @pubkey.public_encrypt(data[index, block_size])
-
-                index += block_size
-            end
-
-            data = edata
-        end
-
-        zdata  = Zlib::Deflate.deflate(data, Zlib::BEST_COMPRESSION)
-        data64 = Base64.strict_encode64(zdata)
-
-        data64
-    end
-
-end
+require_relative '../lib/monitord_client'
 
 #-------------------------------------------------------------------------------
 #  This class wraps the execution of a probe directory and sends data to

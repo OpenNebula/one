@@ -311,11 +311,6 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/firecracker-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/firecracker-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/vcenter.d \
-          $VAR_LOCATION/remotes/im/vcenter-probes.d/host/beacon \
-          $VAR_LOCATION/remotes/im/vcenter-probes.d/host/monitor \
-          $VAR_LOCATION/remotes/im/vcenter-probes.d/host/system \
-          $VAR_LOCATION/remotes/im/vcenter-probes.d/vm/monitor \
-          $VAR_LOCATION/remotes/im/vcenter-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/ec2.d \
           $VAR_LOCATION/remotes/im/ec2-probes.d/host/beacon \
           $VAR_LOCATION/remotes/im/ec2-probes.d/host/monitor \
@@ -571,11 +566,6 @@ INSTALL_FILES=(
     IM_PROBES_FIRECRACKER_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/vm/monitor
     IM_PROBES_FIRECRACKER_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/vm/status
     IM_PROBES_ETC_FIRECRACKER_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/firecracker-probes.d
-    IM_PROBES_VCENTER_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/vcenter-probes.d/host/beacon
-    IM_PROBES_VCENTER_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/vcenter-probes.d/host/monitor
-    IM_PROBES_VCENTER_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/vcenter-probes.d/host/system
-    IM_PROBES_VCENTER_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/vcenter-probes.d/vm/monitor
-    IM_PROBES_VCENTER_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/vcenter-probes.d/vm/status
     AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
     AUTH_X509_FILES:$VAR_LOCATION/remotes/auth/x509
     AUTH_LDAP_FILES:$VAR_LOCATION/remotes/auth/ldap
@@ -1229,8 +1219,9 @@ IM_PROBES_LIB_FILES="\
     src/im_mad/remotes/lib/firecracker.rb\
     src/im_mad/remotes/lib/numa_common.rb \
     src/im_mad/remotes/lib/probe_db.rb \
-    src/im_mad/remotes/lib/vcenter.rb \
-    src/im_mad/remotes/lib/nsx.rb \
+    src/im_mad/remotes/lib/vcenter_monitor.rb \
+    src/im_mad/remotes/lib/vcenter_cluster.rb \
+    src/im_mad/remotes/lib/monitord_client.rb \
     src/im_mad/remotes/lib/domain.rb \
     src/im_mad/remotes/lib/process_list.rb"
 
@@ -1357,8 +1348,7 @@ IM_PROBES_FIRECRACKER_VM_STATUS_FILES="\
 
 IM_PROBES_ETC_FIRECRACKER_PROBES_FILES="src/im_mad/remotes/lib/probe_db.conf"
 
-IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/monitord-client.rb \
-    src/im_mad/remotes/vcenter.d/monitord-client_control.sh"
+IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/monitord-client_control.sh"
 
 # EC2 monitord-client
 IM_PROBES_EC2_FILES="\
@@ -1447,28 +1437,6 @@ IM_PROBES_PACKET_VM_STATUS_FILES="\
      src/im_mad/remotes/packet-probes.d/vm/status/probe_vm_status.rb"
 
 IM_PROBES_VERSION="src/im_mad/remotes/VERSION"
-
-# VCENTER PROBES
-IM_PROBES_VCENTER_FILES="\
-    src/im_mad/remotes/vcenter.d/monitord-client_control.sh \
-    src/im_mad/remotes/vcenter.d/monitord-client.rb"
-
-IM_PROBES_VCENTER_HOST_BEACON_FILES="\
-     src/im_mad/remotes/vcenter-probes.d/host/beacon/date.sh \
-     src/im_mad/remotes/vcenter-probes.d/host/beacon/monitord-client-shepherd.sh"
-
-IM_PROBES_VCENTER_HOST_MONITOR_FILES="\
-     src/im_mad/remotes/vcenter-probes.d/host/monitor/monitor.rb"
-
-IM_PROBES_VCENTER_HOST_SYSTEM_FILES="\
-    src/im_mad/remotes/vcenter-probes.d/host/system/nsx.rb \
-    src/im_mad/remotes/vcenter-probes.d/host/system/vcenter_cluster.rb"
-
-IM_PROBES_VCENTER_VM_MONITOR_FILES="\
-     src/im_mad/remotes/vcenter-probes.d/vms/monitor/monitor.rb"
-
-IM_PROBES_VCENTER_VM_STATUS_FILES="\
-     src/im_mad/remotes/vcenter-probes.d/vms/status/state.rb"
 
 #-------------------------------------------------------------------------------
 # Auth Manager drivers to be installed under $REMOTES_LOCATION/auth
