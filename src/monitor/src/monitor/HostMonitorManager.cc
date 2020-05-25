@@ -551,13 +551,15 @@ void HostMonitorManager::error_monitor(int oid, const string& msg)
         return;
     }
 
-    host->monitor_in_progress(false);
-
     if (host->state() == Host::OFFLINE)
     {
         // Host is offline, we shouldn't receive monitoring
         return;
     }
+
+    host->monitor_in_progress(false);
+
+    host->last_monitored(time(nullptr));
 
     ostringstream oss;
 
