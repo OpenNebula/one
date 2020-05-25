@@ -474,15 +474,19 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
                     break unless host
 
-                    cmd = 'cat /tmp/one-monitord-client.pid | xargs kill -HUP'
-                    system("ssh #{host['NAME']} \"#{cmd}\" 2>/dev/null")
+                    hostname = host['NAME']
+
+                    cmd = "onehost offline #{hostname}"
+                    cmd << " && onehost enable #{hostname}"
+
+                    system("ssh #{hostname} \"#{cmd}\" 2>/dev/null")
 
                     if !$CHILD_STATUS.success?
                         error_lock.synchronize do
-                            host_errors << host['NAME']
+                            host_errors << hostname
                         end
                     else
-                        puts "#{host['NAME']} monitoring forced"
+                        puts "#{hostname} monitoring forced"
                     end
                 end
             end
