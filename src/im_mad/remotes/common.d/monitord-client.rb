@@ -147,7 +147,7 @@ end
 #-------------------------------------------------------------------------------
 #  Script helper functions and gLobals
 #-------------------------------------------------------------------------------
-LOCAL_HYPERVISOR = %w[az ec2 one packet vcenter].freeze
+LOCAL_HYPERVISOR = %w[az ec2 one packet].freeze
 
 def local?(hypervisor)
     LOCAL_HYPERVISOR.include?(hypervisor)
@@ -170,11 +170,15 @@ begin
     hostid = config.elements['HOST_ID'].text.to_s
 
     if host == 'auto'
-        host = ENV['SSH_CLIENT'].split.first
+        if local? hyperv
+            host = '127.0.0.1'
+        else
+            host = ENV['SSH_CLIENT'].split.first
 
-        if host.to_s.empty?
-            puts 'NETWORK/MONITOR_ADDRESS is "auto", but SSH_CLIENT unknown'
-            exit(-1)
+            if host.to_s.empty?
+                puts 'NETWORK/MONITOR_ADDRESS is "auto", but SSH_CLIENT unknown'
+                exit(-1)
+            end
         end
     end
 

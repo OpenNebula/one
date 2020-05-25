@@ -99,6 +99,8 @@ class VcenterMonitorManager
             }
         }
 
+        @conf[:address] = '127.0.0.1' if @conf[:address] == 'auto'
+
     rescue StandardError
         @mutex.synchronize {
             @conf = DEFAULT_CONF.clone
