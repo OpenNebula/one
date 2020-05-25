@@ -32,6 +32,7 @@ define(function(require) {
   var OpenNebulaAction = require("opennebula/action");
   var Sunstone = require("sunstone");
   var Status = require('utils/status');
+  var DashboardUtils = require('utils/dashboard');
 
 
   /*
@@ -103,10 +104,8 @@ define(function(require) {
     this.errorHosts = 0;
     this.maxCPU = 0;
     this.allocatedCPU = 0;
-    this.realCPU = 0;
     this.maxMemory = 0;
     this.allocatedMemory = 0;
-    this.realMemory = 0;
 
     this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});
     this.searchColumn = SEARCH_COLUMN;
@@ -161,10 +160,8 @@ define(function(require) {
 
     this.maxCPU += parseInt((element && element.HOST_SHARE && element.HOST_SHARE.MAX_CPU)||0);
     this.allocatedCPU += parseInt((element && element.HOST_SHARE && element.HOST_SHARE.CPU_USAGE)||0);
-    this.realCPU += parseInt((element && element.MONITORING && element.MONITORING.CAPACITY && element.MONITORING.CAPACITY.USED_CPU)||0);//
     this.maxMemory += parseInt((element && element.HOST_SHARE && element.HOST_SHARE.MAX_MEM)||0);
     this.allocatedMemory += parseInt((element && element.HOST_SHARE && element.HOST_SHARE.MEM_USAGE)||0);
-    this.realMemory += parseInt((element && element.MONITORING && element.MONITORING.CAPACITY && element.MONITORING.CAPACITY.USED_MEMORY)||0);//MONITORING.CAPACITY.USED_MEMORY
 
     var state = OpenNebulaHost.simpleStateStr(element.STATE);
 
@@ -207,10 +204,8 @@ define(function(require) {
     this.errorHosts = 0;
     this.maxCPU = 0;
     this.allocatedCPU = 0;
-    this.realCPU = 0;
     this.maxMemory = 0;
     this.allocatedMemory = 0;
-    this.realMemory = 0;
   }
 
   function _postUpdateView() {
@@ -220,10 +215,13 @@ define(function(require) {
       time = 1;
     }
 
-    $(".total_hosts").text(this.totalHosts);
-    $(".on_hosts").text(this.onHosts);
-    $(".off_hosts").text(this.offHosts);
-    $(".error_hosts").text(this.errorHosts);
+    //$(".total_hosts").text(this.totalHosts);
+    $(".on_hosts").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".on_hosts", this.onHosts);
+    $(".off_hosts").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".off_hosts", this.offHosts);
+    $(".error_hosts").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".error_hosts", this.errorHosts);
 
     var ratio_allocated_cpu = 0;
     if (this.maxCPU > 0) {
@@ -238,36 +236,15 @@ define(function(require) {
       "1.2rem",
       "1rem",
       {"percentage": ratio_allocated_cpu, "str": info_str})
-    );
-
-    if(!isNaN(ratio_allocated_cpu)){
-      var percentage = ratio_allocated_cpu > 100 ? 100 : ratio_allocated_cpu;
-      $("#dashboard_host_allocated_cpu_meter").animate({
-        value: percentage,
-      }, time, "swing");
-    }
-
-    var ratio_real_cpu = 0;
-    if (this.maxCPU > 0) {
-      ratio_real_cpu = Math.round((this.realCPU / this.maxCPU) * 100);
-      info_str = this.realCPU + " / " + this.maxCPU;
-    } else {
-      info_str = "- / -";
-    }
-    $("#dashboard_host_real_cpu").html(quotaDashboard(
-      "dashboard_host_real_cpu",
-      Locale.tr("Real CPU"),
-      "1.2rem",
-      "1rem",
-      {"percentage": ratio_real_cpu, "str": info_str})
-    );
-
-    if(!isNaN(ratio_real_cpu)){
-      var percentage = ratio_real_cpu > 100 ? 100 : ratio_real_cpu;
-      $("#dashboard_host_real_cpu_meter").animate({
-        value: percentage,
-      }, time, "swing");
-    }
+    ).fadeIn("slow", function() {
+      // Fill percentage allocated CPU
+      if(!isNaN(ratio_allocated_cpu)){
+        var percentage = ratio_allocated_cpu > 100 ? 100 : ratio_allocated_cpu;
+        $("#dashboard_host_allocated_cpu_meter").animate({
+          value: percentage,
+        }, time, "swing");
+      }
+    });
 
     var ratio_allocated_mem = 0;
     if (this.maxMemory > 0) {
@@ -282,38 +259,15 @@ define(function(require) {
       "1.2rem",
       "1rem",
       {"percentage": ratio_allocated_mem, "str": info_str})
-    );
-
-    if(!isNaN(ratio_allocated_mem)){
-      var percentage = ratio_allocated_mem > 100 ? 100 : ratio_allocated_mem;
-      $("#dashboard_host_allocated_mem_meter").animate({
-        value: percentage,
-      }, time, "swing");
-    }
-
-    var ratio_real_mem = 0;
-    if (this.maxMemory > 0) {
-      ratio_real_mem = Math.round((this.realMemory / this.maxMemory) * 100);
-      info_str = Humanize.size(this.realMemory) + " / " + Humanize.size(this.maxMemory);
-    } else {
-      info_str = Humanize.size(this.realMemory) + " / -";
-    }
-
-    $("#dashboard_host_real_mem").html(quotaDashboard(
-      "dashboard_host_real_mem",
-      Locale.tr("Real Memory"),
-      "1.2rem",
-      "1rem",
-      {"percentage": ratio_real_mem, "str": info_str})
-    );
-
-    if(!isNaN(ratio_real_mem)){
-      var percentage = ratio_real_mem > 100 ? 100 : ratio_real_mem;
-      $("#dashboard_host_real_mem_meter").animate({
-        value: percentage,
-      }, time, "swing");
-    }
-
+    ).fadeIn("slow", function() {
+      // Fill percentage allocated MEMORY
+      if(!isNaN(ratio_allocated_mem)){
+        var percentage = ratio_allocated_mem > 100 ? 100 : ratio_allocated_mem;
+        $("#dashboard_host_allocated_mem_meter").animate({
+          value: percentage,
+        }, time, "swing");
+      }
+    });
   }
 
   function quotaDashboard(html_tag, legend, font_large_size, font_small_size, quota) {
