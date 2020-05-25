@@ -203,6 +203,12 @@ define(function(require) {
       tmpl.SIZE = tmpl.SIZE * 1024;
       tmpl.SIZE = tmpl.SIZE.toString();
     }
+
+    if(tmpl.SIZE != undefined && $(".mb_input_unit", selectedContext).val() == "TB"){
+      tmpl.SIZE = tmpl.SIZE * 1048576;
+      tmpl.SIZE = tmpl.SIZE.toString();
+    }
+    
     var formatKvm = $("#FORMAT_KVM", context).val();
     var formatVcenter = $("#FORMAT_VCENTER", context).val();
 
