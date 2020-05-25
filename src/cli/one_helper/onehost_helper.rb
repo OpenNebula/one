@@ -479,8 +479,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                     cmd = "onehost offline #{hostname}"
                     cmd << " && onehost enable #{hostname}"
 
-                    system("ssh #{hostname} \"#{cmd}\" 2>/dev/null")
-
+                    system(cmd)
                     if !$CHILD_STATUS.success?
                         error_lock.synchronize do
                             host_errors << hostname
