@@ -254,6 +254,15 @@ begin
     pubkey = config.elements['NETWORK/PUBKEY'].text.to_s
     hostid = config.elements['HOST_ID'].text.to_s
 
+    if host == 'auto'
+        host = ENV['SSH_CLIENT'].split.first
+
+        if host.to_s.empty?
+            puts 'NETWORK/MONITOR_ADDRESS is "auto", but SSH_CLIENT unknown'
+            exit(-1)
+        end
+    end
+
     probes = {
         :system_host_udp => {
             :period => config.elements['PROBES_PERIOD/SYSTEM_HOST'].text.to_s,
