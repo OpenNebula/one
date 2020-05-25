@@ -16,7 +16,28 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source /var/tmp/one/scripts_common.sh
+# Parameters are times (seconds) and monitoring command (or function).
+# Executes monitoring command until it is successful (VM is no longer
+# running) or the timeout is reached.
+function retry
+{
+    times=$1
+    function=$2
+
+    count=1
+
+    ret=$($function)
+    error=$?
+
+    while [ $count -lt $times -a "$error" != "0" ]; do
+        sleep 1
+        count=$(( $count + 1 ))
+        ret=$($function)
+        error=$?
+    done
+
+    [ "x$error" = "x0" ]
+}
 
 # exit when any command fails
 set -e
@@ -37,7 +58,20 @@ done
 
 shift $(($OPTIND - 1))
 
-if [ -z "$CGROUP_PATH" ] || [ -z "$VM_NAME" ]; then
+# Check $CGROUP_PATH is an existing directory
+if [ ! -d "$CGROUP_PATH" ]; then
+    exit -1
+fi
+
+# Check $VM_NAME have the right format
+regex='^one-[0-9]+$'
+if ! [[ "$VM_NAME" ~= $regex ]]; then
+    exit -1
+fi
+
+# Check $CGROUP_TO is an integer
+regex_num='^[0-9]+$'
+if ! [[ "$CGROUP_TO" =~ $regex_num ]]; then
     exit -1
 fi
 

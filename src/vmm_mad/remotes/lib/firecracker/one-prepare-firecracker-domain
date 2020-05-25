@@ -55,6 +55,11 @@ if ! [[ "$CPU_VAL" =~ $regex_num ]]; then
     exit -1
 fi
 
+# Check $SYSDS_PATH/$VM_ID is a directory and not a symlink
+if [ ! -d "$SYSDS_PATH/$VM_ID" ] || [ -L "$SYSDS_PATH/$VM_ID" ]; then
+    exit -1
+fi
+
 ###############################################################################
 # Map the jailer chroot path to the OpenNebula VM location
 ###############################################################################
