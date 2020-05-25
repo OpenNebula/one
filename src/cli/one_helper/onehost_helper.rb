@@ -474,18 +474,15 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
                     break unless host
 
-                    hostname = host['NAME']
+                    hn = host['NAME']
 
-                    cmd = "onehost offline #{hostname}"
-                    cmd << " && onehost enable #{hostname}"
-
-                    system(cmd)
+                    system("onehost offline #{hn} && onehost enable #{hn}")
                     if !$CHILD_STATUS.success?
                         error_lock.synchronize do
-                            host_errors << hostname
+                            host_errors << hn
                         end
                     else
-                        puts "#{hostname} monitoring forced"
+                        puts "#{hn} monitoring forced"
                     end
                 end
             end
