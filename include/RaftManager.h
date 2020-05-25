@@ -134,6 +134,41 @@ public:
      */
     void follower(unsigned int term);
 
+    static std::string state_to_str(State _state)
+    {
+        string st;
+
+        switch (_state)
+        {
+            case SOLO:
+                st = "SOLO";
+                break;
+            case CANDIDATE:
+                st = "CANDIDATE";
+                break;
+            case FOLLOWER:
+                st = "FOLLOWER";
+                break;
+            case LEADER:
+                st = "LEADER";
+                break;
+        }
+        return st;
+    }
+
+    State get_state()
+    {
+        State _state;
+
+        pthread_mutex_lock(&mutex);
+
+        _state = state;
+
+        pthread_mutex_unlock(&mutex);
+
+        return _state;
+    }
+
     unsigned int get_term()
     {
         unsigned int _term;

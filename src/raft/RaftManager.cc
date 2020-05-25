@@ -22,6 +22,7 @@
 #include "LogDB.h"
 #include "AclManager.h"
 #include "Nebula.h"
+#include "InformationManager.h"
 
 #include <cstdlib>
 
@@ -475,6 +476,9 @@ void RaftManager::leader()
 
     aclm->reload_rules();
 
+    auto im = nd.get_im();
+    im->raft_status(state);
+
     if ( nd.is_federation_master() )
     {
         frm->start_replica_threads();
@@ -541,6 +545,9 @@ void RaftManager::follower(unsigned int _term)
 
     commit    = lapplied;
     leader_id = -1;
+
+    auto im = nd.get_im();
+    im->raft_status(state);
 
     NebulaLog::log("RCM", Log::INFO, "oned is set to follower mode");
 

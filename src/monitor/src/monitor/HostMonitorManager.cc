@@ -50,6 +50,7 @@ HostMonitorManager::HostMonitorManager(
     , threads(_threads)
     , timer_period(timer_period)
     , monitor_interval_host(monitor_interval_host)
+    , is_leader(false)
 {
     oned_driver    = new OneMonitorDriver(this);
     udp_driver     = new UDPMonitorDriver(addr, port);
@@ -220,8 +221,23 @@ void HostMonitorManager::stop_host_monitor(int oid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void HostMonitorManager::raft_status(const string& state)
+{
+    NebulaLog::info("HMM", "Raft status: " + state);
+
+    is_leader = state == "LEADER" || state == "SOLO";
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void HostMonitorManager::monitor_host(int oid, bool result, const Template &tmpl)
 {
+    if (!is_leader)
+    {
+        return;
+    }
+
     auto host = hpool->get(oid);
 
     if (!host.valid())
@@ -286,6 +302,11 @@ void HostMonitorManager::monitor_host(int oid, bool result, const Template &tmpl
 
 void HostMonitorManager::update_last_monitor(int oid)
 {
+    if (!is_leader)
+    {
+        return;
+    }
+
     auto host = hpool->get(oid);
 
     if (!host.valid())
@@ -310,6 +331,11 @@ void HostMonitorManager::monitor_vm(int oid,
                                     const string& uuid,
                                     const Template &tmpl)
 {
+    if (!is_leader)
+    {
+        return;
+    }
+
     if (oid < 0)
     {
         // Wild VM, check if it is imported to OpenNebula
@@ -346,6 +372,11 @@ void HostMonitorManager::monitor_vm(int oid,
 
 void HostMonitorManager::start_monitor_failure(int oid)
 {
+    if (!is_leader)
+    {
+        return;
+    }
+
     NebulaLog::error("HMM", "Unable to monitor host id: " + to_string(oid));
 
     auto host = hpool->get(oid);
@@ -364,6 +395,11 @@ void HostMonitorManager::start_monitor_failure(int oid)
 
 void HostMonitorManager::start_monitor_success(int oid)
 {
+    if (!is_leader)
+    {
+        return;
+    }
+
     NebulaLog::debug("HMM", "Start monitor success, host: " + to_string(oid));
 
     auto host = hpool->get(oid);
@@ -402,6 +438,11 @@ void HostMonitorManager::timer_action()
 
     hpool->clean_expired_monitoring();
     vmpool->clean_expired_monitoring();
+
+    if (!is_leader)
+    {
+        return;
+    }
 
     set<int> discovered_hosts;
     time_t now = time(nullptr);
@@ -458,6 +499,11 @@ void HostMonitorManager::timer_action()
 
 void HostMonitorManager::start_host_monitor(const HostRPCPool::HostBaseLock& host)
 {
+    if (!is_leader)
+    {
+        return;
+    }
+
     auto driver = driver_manager->get_driver(host->im_mad());
 
     if (!driver)
@@ -482,6 +528,11 @@ void HostMonitorManager::start_host_monitor(const HostRPCPool::HostBaseLock& hos
 
 void HostMonitorManager::stop_host_monitor(const HostRPCPool::HostBaseLock& host)
 {
+    if (!is_leader)
+    {
+        return;
+    }
+
     auto driver = driver_manager->get_driver(host->im_mad());
 
     if (!driver)

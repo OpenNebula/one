@@ -20,6 +20,7 @@
 #include "DriverManager.h"
 #include "ActionManager.h"
 #include "OpenNebulaMessages.h"
+#include "RaftManager.h"
 
 class HostPool;
 class Host;
@@ -93,6 +94,11 @@ public:
      *  Send host delete message to monitor
      */
     void delete_host(int hid);
+
+    /**
+     *  Set raft status, send info to monitor daemon
+     */
+    void raft_status(RaftManager::State raft);
 
 protected:
     /**

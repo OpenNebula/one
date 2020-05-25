@@ -30,11 +30,12 @@ enum class OpenNebulaMessages : unsigned short int
     HOST_LIST,
     UPDATE_HOST,
     DEL_HOST,
-    START_MONITOR,  // not used
-    STOP_MONITOR,   // not used
+    START_MONITOR,
+    STOP_MONITOR,
     HOST_STATE,
     VM_STATE,
     HOST_SYSTEM,
+    RAFT_STATUS,
     ENUM_MAX
 };
 
