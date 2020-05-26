@@ -1695,9 +1695,16 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
         return -1;
     }
 
-    if (( vm->get_state()     != VirtualMachine::ACTIVE ||
-          vm->get_lcm_state() != VirtualMachine::RUNNING ) &&
-        vm->get_state()       != VirtualMachine::POWEROFF )
+    VirtualMachine::VmState  state     = vm->get_state();
+    VirtualMachine::LcmState lcm_state = vm->get_lcm_state();
+
+    bool is_running = state == VirtualMachine::ACTIVE &&
+        lcm_state == VirtualMachine::RUNNING;
+
+    bool is_poweroff = state == VirtualMachine::POWEROFF &&
+        lcm_state == VirtualMachine::LCM_INIT;
+
+    if (!is_running && !is_poweroff)
     {
         oss << "Could not add a new NIC to VM " << vid << ", wrong state "
             << vm->state_str() << ".";
@@ -1716,9 +1723,9 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
         cold_attach = vmm->is_cold_nic_attach(vm->get_vmm_mad());
     }
 
-    if ((vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING ) || cold_attach)
+    if (is_running || (cold_attach && is_poweroff))
     {
+        vm->set_state(VirtualMachine::ACTIVE);
         vm->set_state(VirtualMachine::HOTPLUG_NIC);
     }
 
@@ -1728,7 +1735,16 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
     {
         if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC)
         {
-            vm->set_state(VirtualMachine::RUNNING);
+            if (!cold_attach)
+            {
+                vm->set_state(VirtualMachine::ACTIVE);
+                vm->set_state(VirtualMachine::RUNNING);
+            }
+            else
+            {
+                vm->set_state(VirtualMachine::POWEROFF);
+                vm->set_state(VirtualMachine::LCM_INIT);
+            }
         }
 
         vmpool->update(vm);
@@ -1791,9 +1807,16 @@ int DispatchManager::detach_nic(int vid, int nic_id, const RequestAttributes& ra
         return -1;
     }
 
-    if (( vm->get_state()     != VirtualMachine::ACTIVE ||
-          vm->get_lcm_state() != VirtualMachine::RUNNING ) &&
-        vm->get_state()       != VirtualMachine::POWEROFF )
+    VirtualMachine::VmState  state     = vm->get_state();
+    VirtualMachine::LcmState lcm_state = vm->get_lcm_state();
+
+    bool is_running = state == VirtualMachine::ACTIVE &&
+        lcm_state == VirtualMachine::RUNNING;
+
+    bool is_poweroff = state == VirtualMachine::POWEROFF &&
+        lcm_state == VirtualMachine::LCM_INIT;
+
+    if (!is_running && !is_poweroff)
     {
         oss << "Could not detach NIC from VM " << vid << ", wrong state "
             << vm->state_str() << ".";
@@ -1830,10 +1853,17 @@ int DispatchManager::detach_nic(int vid, int nic_id, const RequestAttributes& ra
 
     close_cp_history(vmpool, vm, action, ra);
 
-    if ((vm->get_state() == VirtualMachine::ACTIVE && 
-            vm->get_lcm_state() == VirtualMachine::RUNNING ) || 
-                vmm->is_cold_nic_attach(vm->get_vmm_mad()))
+    bool cold_attach = false;
+
+    if ( vm->hasHistory() )
     {
+        cold_attach = vmm->is_cold_nic_attach(vm->get_vmm_mad());
+    }
+
+    if (is_running || (cold_attach && is_poweroff))
+    {
+        vm->set_state(VirtualMachine::ACTIVE);
+
         vm->set_state(VirtualMachine::HOTPLUG_NIC);
 
         vm->set_resched(false);
