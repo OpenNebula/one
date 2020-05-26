@@ -89,7 +89,7 @@ define(function(require) {
     var templateTableHTML = TemplateTable.html(
       this.strippedTemplateNSX,
       RESOURCE,
-      Locale.tr("Attributes"));
+      Locale.tr("NSX Specific Attributes"));
     
     return TemplateNsx({"templateTableHTML":templateTableHTML});
   }
