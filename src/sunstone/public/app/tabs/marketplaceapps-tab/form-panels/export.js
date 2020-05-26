@@ -51,7 +51,7 @@ define(function(require) {
         formPanelId + "datastoresTable", {
           "select": true,
           "selectOptions": {
-            "filter_fn": function(ds) { return ds.TYPE == DataStore.TYPES.IMAGE_DS; }
+            "filter_fn": function(ds) { return ds.TYPE != DataStore.TYPES.SYSTEM_DS; }
           }
         }
       );
