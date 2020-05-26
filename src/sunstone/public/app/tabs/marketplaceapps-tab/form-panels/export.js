@@ -51,7 +51,7 @@ define(function(require) {
         formPanelId + "datastoresTable", {
           "select": true,
           "selectOptions": {
-            "filter_fn": function(ds) { return ds.TYPE != DataStore.TYPES.SYSTEM_DS; }
+            "filter_fn": function() { return }
           }
         }
       );
@@ -142,8 +142,18 @@ define(function(require) {
 
   function _setResourceId(context, appJson, type) {
     this.type = type;
+    var appTemplate64 = (appJson.MARKETPLACEAPP.TEMPLATE && appJson.MARKETPLACEAPP.TEMPLATE.APPTEMPLATE64)
+      ? appJson.MARKETPLACEAPP.TEMPLATE.APPTEMPLATE64 : ""
+
+    this.datastoresTable.selectOptions.filter_fn = function(ds) {
+      return String(atob(appTemplate64)).includes("TYPE=\"KERNEL\"")
+        ? ds.TYPE == DataStore.TYPES.FILE_DS
+        : ds.TYPE == DataStore.TYPES.IMAGE_DS;
+    }
+    this.datastoresTable.updateFn()
 
     $("input#NAME", context).val(appJson.MARKETPLACEAPP.NAME).trigger("input");
+
     if (appJson.MARKETPLACEAPP.TEMPLATE.VMTEMPLATE64 != undefined){
       $(".vmname", context).show();
     }
