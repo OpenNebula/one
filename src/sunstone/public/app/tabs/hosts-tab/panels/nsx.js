@@ -23,6 +23,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
+  var TemplateTable = require("utils/panel/template-table");
 
   /*
     TEMPLATES
@@ -49,9 +50,21 @@ define(function(require) {
    */
 
   function Panel(info) {
+    var that = this;
     this.title = Locale.tr("NSX");
     this.icon = "fa-desktop";
     this.element = info[RESOURCE.toUpperCase()];
+
+    // Hide information of the Wild VMs of the Host and the ESX Hosts
+    //  in the template table. Unshow values are stored in the unshownTemplate
+    //  object to be used when the host info is updated.
+    that.strippedTemplateNSX = {};
+    $.each(that.element.TEMPLATE, function(key, value) {
+      if (key.match(/^NSX_*/)){
+        that.strippedTemplateNSX[key] = value;
+      }
+    });
+
     return this;
   };
 
@@ -71,7 +84,14 @@ define(function(require) {
     if(this && this.element && this.element.IM_MAD && this.element.IM_MAD !== "vcenter"){
       showForm=false;
     }
-    return TemplateNsx();
+
+    // NSX Atributes Table
+    var templateTableHTML = TemplateTable.html(
+      this.strippedTemplateNSX,
+      RESOURCE,
+      Locale.tr("NSX Specific Attributes"));
+    
+    return TemplateNsx({"templateTableHTML":templateTableHTML});
   }
 
   function _onShow(context){

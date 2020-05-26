@@ -71,6 +71,7 @@ define(function(require) {
     //  object to be used when the host info is updated.
     that.unshownTemplate = {};
     that.strippedTemplateVcenter = {};
+    that.strippedTemplateNSX = {};
     that.strippedTemplate = {};
     var unshownKeys = ["HOST", "VM", "WILDS", "ZOMBIES", "RESERVED_CPU", "RESERVED_MEM", "EC2_ACCESS", "EC2_SECRET", "CAPACITY", "REGION_NAME"];
     $.each(that.element.TEMPLATE, function(key, value) {
@@ -79,6 +80,9 @@ define(function(require) {
       }
       else if (!key.match(/^VCENTER_RESOURCE_POOL$/) && key.match(/^VCENTER_*/)){
         that.strippedTemplateVcenter[key] = value;
+      }
+      else if (key.match(/^NSX_*/)){
+        that.strippedTemplateNSX[key] = value;
       }
       else {
         that.strippedTemplate[key] = value;
