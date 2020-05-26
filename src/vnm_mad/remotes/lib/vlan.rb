@@ -147,7 +147,7 @@ module VNMMAD
             return if @bridges.key?(@nic[:bridge])
 
             OpenNebula.exec_and_log("#{command(:ip)} link add name " \
-                "#{@nic[:bridge]} type bridge #{list_bridge_options}")
+                "#{@nic[:bridge]} type bridge #{list_bridge_options}", nil, 2)
 
             @bridges[@nic[:bridge]] = []
 
