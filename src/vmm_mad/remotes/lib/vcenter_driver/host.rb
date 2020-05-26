@@ -776,6 +776,33 @@ class ClusterComputeResource
             end
         end
 
+        rc = one_host.offline
+
+        if OpenNebula.is_error?(rc)
+            update_error = rc.message
+            rc = one_host.delete
+            if OpenNebula.is_error?(rc)
+                raise "Could not offline host: #{update_error} "\
+                      "and could not delete host: #{rc.message}"
+            else
+                raise "Could not offline host: #{rc.message}"
+            end
+        end
+
+
+        rc = one_host.enable
+
+        if OpenNebula.is_error?(rc)
+            update_error = rc.message
+            rc = one_host.delete
+            if OpenNebula.is_error?(rc)
+                raise "Could not enable host: #{update_error} "\
+                      "and could not delete host: #{rc.message}"
+            else
+                raise "Could not enable host: #{rc.message}"
+            end
+        end
+
         return one_host
     end
 
