@@ -163,8 +163,8 @@ module VNMMAD
         # It tries to translate the options from brctl to ip-route2 format
         # for the backward compatibility
         def list_bridge_options
-            bridge_options = @nic[:conf][:bridge_conf] || Hash.new
-            ip_bridge_options = Hash.new
+            bridge_options = @nic[:conf][:bridge_conf] || {}
+            ip_bridge_options = {}
 
             # options transform table from brctl to ip-route2
             brctl_to_ipbridge = {
@@ -178,7 +178,8 @@ module VNMMAD
 
             # translate bridge_options to ip_bridge_options
             bridge_options.each do |brctl_opt, brctl_val|
-                next if ! brctl_to_ipbridge.include? brctl_opt
+                next unless brctl_to_ipbridge.include? brctl_opt
+
                 ip_bridge_options[brctl_to_ipbridge[brctl_opt]] = brctl_val
             end
 
@@ -186,7 +187,7 @@ module VNMMAD
             ip_bridge_options.merge!(@nic[:conf][:ip_bridge_conf]) \
                 if @nic[:conf][:ip_bridge_conf]
 
-            bridge_options_str = ""
+            bridge_options_str = ''
             ip_bridge_options.each do |option, value|
                 case value
                 when true
@@ -215,8 +216,10 @@ module VNMMAD
                 br_name = line.split(': ')[1]
                 bridges[br_name] = []
 
+                # rubocop:disable Layout/LineLength
                 ip_show_master =
                     `#{VNMNetwork::COMMANDS[:ip_unpriv]} link show master #{br_name}`
+                # rubocop:enable Layout/LineLength
 
                 ip_show_master.split("\n").each do |l|
                     next if l !~ /^[0-9]*:/

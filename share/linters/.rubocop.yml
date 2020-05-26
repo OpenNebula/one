@@ -301,7 +301,6 @@ AllCops:
     - src/vnm_mad/remotes/lib/vnm_driver.rb
     - src/vnm_mad/remotes/lib/sg_driver.rb
     - src/vnm_mad/remotes/lib/command.rb
-    - src/vnm_mad/remotes/lib/vlan.rb
     - src/vnm_mad/remotes/lib/address.rb
     - src/cli/command_parser.rb
     - src/cli/one_helper.rb
