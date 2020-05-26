@@ -170,10 +170,14 @@ begin
     hostid = config.elements['HOST_ID'].text.to_s
 
     if host == 'auto'
-        if local? hyperv
+        if local? hyperv || hyperv == 'dummy'
             host = '127.0.0.1'
         else
-            host = ENV['SSH_CLIENT'].split.first
+            begin
+                host = ENV['SSH_CLIENT'].split.first
+            rescue
+                host = ''
+            end
 
             if host.to_s.empty?
                 puts 'NETWORK/MONITOR_ADDRESS is "auto", but SSH_CLIENT unknown'
