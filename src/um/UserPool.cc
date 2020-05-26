@@ -1351,6 +1351,7 @@ bool UserPool::authenticate(const string& session,
     User * user = 0;
     string username;
     string token;
+    string error_str;
 
     int  rc;
     bool ar;
@@ -1359,6 +1360,12 @@ bool UserPool::authenticate(const string& session,
 
     if ( rc != 0 )
     {
+        return false;
+    }
+
+    if (!PoolObjectSQL::name_is_valid(username, User::INVALID_NAME_CHARS, error_str))
+    {
+        NebulaLog::log("AuM",Log::ERROR, "User is invalid, " + error_str );
         return false;
     }
 
