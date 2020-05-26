@@ -170,12 +170,12 @@ begin
     hostid = config.elements['HOST_ID'].text.to_s
 
     if host == 'auto'
-        if local? hyperv || hyperv == 'dummy'
+        if local?(hyperv) || hyperv == 'dummy'
             host = '127.0.0.1'
         else
             begin
                 host = ENV['SSH_CLIENT'].split.first
-            rescue
+            rescue StandardError
                 host = ''
             end
 
