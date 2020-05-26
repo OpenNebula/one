@@ -256,7 +256,7 @@ void MonitorDriverProtocol::_state_vm(message_t msg)
  */
 void MonitorDriverProtocol::_start_monitor(message_t msg)
 {
-    NebulaLog::debug("MDP", "Received start monitor for host " +
+    NebulaLog::ddebug("MDP", "Received start monitor for host " +
             to_string(msg->oid()) + ": " + msg->payload());
 
     if (msg->status() != "SUCCESS")

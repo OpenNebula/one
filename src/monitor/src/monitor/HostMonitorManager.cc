@@ -323,6 +323,13 @@ void HostMonitorManager::monitor_vm(int oid,
 
     VirtualMachineMonitorInfo monitoring(oid, time(nullptr));
 
+    if (vmpool->get_monitoring(oid, monitoring))
+    {
+        // Old monitoring exists in DB, update timestamp
+        // and merge it with new data
+        monitoring.timestamp(time(nullptr));
+    }
+
     if (monitoring.from_template(tmpl) != 0)
     {
         string str;
