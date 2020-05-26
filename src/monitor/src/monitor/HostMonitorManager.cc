@@ -274,13 +274,6 @@ void HostMonitorManager::monitor_host(int oid, const Template &tmpl)
     host->monitor_in_progress(false);
 
     NebulaLog::info("HMM", "Successfully monitored host: " + to_string(oid));
-
-    // Send host state update to oned
-    if (host->state() != Host::MONITORED &&
-        host->state() != Host::DISABLED)
-    {
-        oned_driver->host_state(oid, Host::state_to_str(Host::MONITORED));
-    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -398,11 +391,6 @@ void HostMonitorManager::start_monitor_success(int oid)
     host->last_monitored(time(nullptr));
 
     host->monitor_in_progress(false);
-
-    if (host->state() != Host::DISABLED)
-    {
-        oned_driver->host_state(oid, Host::state_to_str(Host::MONITORED));
-    }
 }
 
 /* -------------------------------------------------------------------------- */
