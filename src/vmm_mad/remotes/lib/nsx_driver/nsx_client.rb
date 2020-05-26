@@ -71,6 +71,15 @@ module NSXDriver
             end
         end
 
+        def self.new_from_host(host)
+            nsxmgr = host['TEMPLATE/NSX_MANAGER']
+            nsx_user = host['TEMPLATE/NSX_USER']
+            nsx_password = host['TEMPLATE/NSX_PASSWORD']
+            nsx_type = host['TEMPLATE/NSX_TYPE']
+
+            new_child(nsxmgr, nsx_user, nsx_password, nsx_type)
+        end
+
         def self.new_from_id(hid)
             client = OpenNebula::Client.new
             host   = OpenNebula::Host.new_with_id(hid, client)
