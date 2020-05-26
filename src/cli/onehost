@@ -300,8 +300,18 @@ CommandParser::CmdParser.new(ARGV) do
             onehost forceupdate -c myCluster
     EOT
 
-    command :forceupdate, forceupdate_desc, [:range, :hostid_list, nil],
-            :options => [OneClusterHelper::CLUSTER] do
-        helper.forceupdate(args[0], options)
+    command :forceupdate, forceupdate_desc, [:range, :hostid_list] do
+        excluded_states = %w[err dsbl off]
+
+        helper.perform_actions(args[0], options, 'forceupdate') do |host|
+            next if excluded_states.include? host.short_state_str
+
+            host.offline
+            if host.short_state_str == 'off'
+                host.enable
+            else
+                STDERR.puts 'Failed to set host offline'
+            end
+        end
     end
 end
