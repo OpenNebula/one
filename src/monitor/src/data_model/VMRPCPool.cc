@@ -62,6 +62,38 @@ int VMRPCPool::update_monitoring(const VirtualMachineMonitorInfo& monitoring)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool VMRPCPool::get_monitoring(int vmid, VirtualMachineMonitorInfo& vm)
+{
+    ostringstream cmd;
+    string monitor_str;
+
+    cmd << "SELECT " << one_db::vm_monitor_table << ".body FROM "
+        << one_db::vm_monitor_table
+        << " WHERE vmid = " << vmid
+        << " AND last_poll=(SELECT MAX(last_poll) FROM "
+        << one_db::vm_monitor_table
+        << " WHERE vmid = " << vmid << ")";
+
+    string_cb cb(1);
+
+    cb.set_callback(&monitor_str);
+
+    int rc = db->exec_rd(cmd, &cb);
+
+    cb.unset_callback();
+
+    if (rc == 0 && !monitor_str.empty())
+    {
+        vm.from_xml(monitor_str);
+        return true;
+    }
+
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VMRPCPool::get_vmid(const string& deploy_id)
 {
     int rc;

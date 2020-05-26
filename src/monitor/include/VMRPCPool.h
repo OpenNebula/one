@@ -54,6 +54,11 @@ public:
     int update_monitoring(const VirtualMachineMonitorInfo& vm);
 
     /**
+     *  Read last monitoring from DB
+     */
+    bool get_monitoring(int vmid, VirtualMachineMonitorInfo& vm);
+
+    /**
      *  Gets a VM ID by its deploy_id
      *    @param deploy_id to search the id for
      *    @return -1 if not found or VMID

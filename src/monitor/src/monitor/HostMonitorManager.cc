@@ -307,7 +307,6 @@ void HostMonitorManager::update_last_monitor(int oid)
 /* -------------------------------------------------------------------------- */
 
 void HostMonitorManager::monitor_vm(int oid,
-                                    const string& uuid,
                                     const Template &tmpl)
 {
     if (!is_leader)
@@ -315,19 +314,10 @@ void HostMonitorManager::monitor_vm(int oid,
         return;
     }
 
-    if (oid < 0)
-    {
-        // Wild VM, check if it is imported to OpenNebula
-        oid = vmpool->get_vmid(uuid);
-
-        if (oid < 0)
-        {
-            // Not imported VM, ignore monitoring
-            return;
-        }
-    }
-
     VirtualMachineMonitorInfo monitoring(oid, time(nullptr));
+
+    //Get previous monitor info to merge with new data
+    vmpool->get_monitoring(oid, monitoring);
 
     if (monitoring.from_template(tmpl) != 0)
     {
@@ -344,6 +334,29 @@ void HostMonitorManager::monitor_vm(int oid,
     };
 
     NebulaLog::info("HMM", "Successfully monitored VM: " + to_string(oid));
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void HostMonitorManager::monitor_wild_vm(const string& deploy_id,
+                                         const Template &tmpl)
+{
+    if (!is_leader)
+    {
+        return;
+    }
+
+    // Wild VM, check if it is imported to OpenNebula
+    int oid = vmpool->get_vmid(deploy_id);
+
+    if (oid < 0)
+    {
+        // Not imported VM, ignore monitoring
+        return;
+    }
+
+    monitor_vm(oid, tmpl);
 }
 
 /* -------------------------------------------------------------------------- */

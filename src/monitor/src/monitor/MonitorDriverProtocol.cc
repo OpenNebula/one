@@ -68,12 +68,12 @@ void MonitorDriverProtocol::_monitor_vm(message_t msg)
         return;
     }
 
-    map<string, pair<int, Template>> vms_templ;
+    map<int, Template> vms_templ;
     vector<VectorAttribute*> vms;
 
     tmpl.get("VM", vms);
 
-    // Merge all attributes by deploy_id
+    // Merge all attributes by ID
     for (const auto& vm : vms)
     {
         int id = -1;
@@ -90,35 +90,47 @@ void MonitorDriverProtocol::_monitor_vm(message_t msg)
 
         auto monitor_plain = one_util::base64_decode(monitor_b64);
 
-        if (monitor_plain != nullptr)
+        if (monitor_plain == nullptr)
         {
-            Template mon_tmpl;
+            NebulaLog::error("MDP", "Error decoding VM monitor attribute: "
+                + monitor_b64);
+            continue;
+        }
 
-            rc = mon_tmpl.parse(*monitor_plain, &error_msg);
+        Template mon_tmpl;
 
-            if (rc != 0)
-            {
-                NebulaLog::error("MDP", "Error parsing VM monitor attribute: "
-                    + *monitor_plain + ", error: " + error_msg);
+        rc = mon_tmpl.parse(*monitor_plain, &error_msg);
 
-                delete monitor_plain;
-
-                free(error_msg);
-                continue;
-            }
+        if (rc != 0)
+        {
+            NebulaLog::error("MDP", "Error parsing VM monitor attribute: "
+                + *monitor_plain + ", error: " + error_msg);
 
             delete monitor_plain;
 
-            auto it = vms_templ.find(deploy_id);
+            free(error_msg);
+            continue;
+        }
+
+        delete monitor_plain;
+
+        if (id < 0)
+        {
+            // Wild VM, no need to merge storage monitor data
+            hm->monitor_wild_vm(deploy_id, mon_tmpl);
+        }
+        else
+        {
+            // OpenNebula VM, merge templates with same ID
+            auto it = vms_templ.find(id);
 
             if (it == vms_templ.end())
             {
-                vms_templ.insert(make_pair(std::move(deploy_id),
-                    make_pair(id, std::move(mon_tmpl))));
+                vms_templ[id] = std::move(mon_tmpl);
             }
             else
             {
-                it->second.second.merge(&mon_tmpl);
+                it->second.merge(&mon_tmpl);
             }
         }
     }
@@ -126,7 +138,7 @@ void MonitorDriverProtocol::_monitor_vm(message_t msg)
     // Process all monitoring templates
     for (const auto& vm : vms_templ)
     {
-        hm->monitor_vm(vm.second.first, vm.first, vm.second.second);
+        hm->monitor_vm(vm.first, vm.second);
     }
 }
 
@@ -247,7 +259,7 @@ void MonitorDriverProtocol::_state_vm(message_t msg)
  */
 void MonitorDriverProtocol::_start_monitor(message_t msg)
 {
-    NebulaLog::debug("MDP", "Received start monitor for host " +
+    NebulaLog::ddebug("MDP", "Received start monitor for host " +
             to_string(msg->oid()) + ": " + msg->payload());
 
     if (msg->status() != "SUCCESS")
