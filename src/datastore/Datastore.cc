@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -15,9 +15,11 @@
 /* ------------------------------------------------------------------------ */
 
 #include "Datastore.h"
+#include "DatastorePool.h"
 #include "GroupPool.h"
 #include "NebulaLog.h"
 #include "Nebula.h"
+#include "VirtualMachineDisk.h"
 
 const char * Datastore::table = "datastore_pool";
 
@@ -67,8 +69,6 @@ Datastore::Datastore(
 
     group_u = 1;
 }
-
-Datastore::~Datastore(){};
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -164,8 +164,8 @@ void Datastore::disk_attribute(
 
     for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
     {
-        current_val = disk->vector_value((*it).c_str());
-        get_template_attribute((*it).c_str(), inherit_val);
+        current_val = disk->vector_value(*it);
+        get_template_attribute(*it, inherit_val);
 
         if ( current_val.empty() && !inherit_val.empty() )
         {
@@ -193,7 +193,7 @@ void Datastore::disk_attribute(
     {
         get_template_attribute("DRIVER", st);
 
-        if(!st.empty() && disk->vector_value("DRIVER").empty())
+        if (!st.empty() && disk->vector_value("DRIVER").empty())
         {
             disk->replace("DRIVER", st);
         }
@@ -292,7 +292,7 @@ int Datastore::set_ds_mad(std::string &mad, std::string &error_str)
         required_attr = one_util::trim(required_attr);
         one_util::toupper(required_attr);
 
-        get_template_attribute(required_attr.c_str(), value);
+        get_template_attribute(required_attr, value);
 
         if ( value.empty() )
         {
@@ -643,6 +643,9 @@ int Datastore::insert(SqlDB *db, string& error_str)
         replace_template_attribute("RESTRICTED_DIRS", "/");
     }
 
+    // Encrypt all the secrets
+    encrypt();
+
     //--------------------------------------------------------------------------
     // Insert the Datastore
     //--------------------------------------------------------------------------
@@ -680,14 +683,14 @@ int Datastore::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     // Update the Datastore
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -934,37 +937,6 @@ int Datastore::post_update_template(string& error_str)
             return -1;
         }
     }
-
-    /* ---------------------------------------------------------------------- */
-    /* Encrypt VCENTER_PASSWORD attribute                                     */
-    /* ---------------------------------------------------------------------- */
-
-    get_template_attribute("VCENTER_PASSWORD", vcenter_password);
-
-    if (!vcenter_password.empty() && vcenter_password.size() <= 22)
-    {
-        erase_template_attribute("VCENTER_PASSWORD", vcenter_password);
-
-        Nebula& nd = Nebula::instance();
-        string  one_key;
-        string  * encrypted;
-
-        nd.get_configuration_attribute("ONE_KEY", one_key);
-
-        if (!one_key.empty())
-        {
-            encrypted = one_util::aes256cbc_encrypt(vcenter_password, one_key);
-
-            add_template_attribute("VCENTER_PASSWORD", *encrypted);
-
-            delete encrypted;
-        }
-        else
-        {
-            add_template_attribute("VCENTER_PASSWORD", vcenter_password);
-        }
-    }
-
 
     /* ---------------------------------------------------------------------- */
     /* Set the TM_MAD of the Datastore (class & template)                     */

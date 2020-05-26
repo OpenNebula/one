@@ -1,42 +1,40 @@
 package datastore
 
 import (
+	"encoding/xml"
 	"fmt"
 
-	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
 // Pool represents an OpenNebula Datastore pool
 type Pool struct {
+	XMLName    xml.Name    `xml:"DATASTORE_POOL"`
 	Datastores []Datastore `xml:"DATASTORE"`
 }
 
 // Datastore represents an OpenNebula Datastore
 type Datastore struct {
-	ID          int                 `xml:"ID"`
-	UID         int                 `xml:"UID"`
-	GID         int                 `xml:"GID"`
-	UName       string              `xml:"UNAME"`
-	GName       string              `xml:"GNAME"`
+	XMLName     xml.Name            `xml:"DATASTORE"`
+	ID          int                 `xml:"ID,omitempty"`
+	UID         int                 `xml:"UID,omitempty"`
+	GID         int                 `xml:"GID,omitempty"`
+	UName       string              `xml:"UNAME,omitempty"`
+	GName       string              `xml:"GNAME,omitempty"`
 	Name        string              `xml:"NAME"`
-	Permissions *shared.Permissions `xml:"PERMISSIONS"`
-	DSMad       string              `xml:"DS_MAD"`
-	TMMad       string              `xml:"TM_MAD"`
-	BasePath    string              `xml:"BASE_PATH"`
-	Type        string              `xml:"TYPE"`
-	DiskType    string              `xml:"DISK_TYPE"`
-	StateRaw    int                 `xml:"STATE"`
-	ClustersID  []int               `xml:"CLUSTERS>ID"`
-	TotalMB     int                 `xml:"TOTAL_MB"`
-	FreeMB      int                 `xml:"FREE_MB"`
-	UsedMB      int                 `xml:"USED_MB"`
-	ImagesID    []int               `xml:"IMAGES>ID"`
-	Template    Template            `xml:"TEMPLATE"`
-}
-
-type Template struct {
-	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
+	Permissions *shared.Permissions `xml:"PERMISSIONS,omitempty"`
+	DSMad       string              `xml:"DS_MAD,omitempty"`
+	TMMad       string              `xml:"TM_MAD,omitempty"`
+	BasePath    string              `xml:"BASE_PATH,omitempty"`
+	Type        string              `xml:"TYPE,omitempty"`
+	DiskType    string              `xml:"DISK_TYPE,omitempty"`
+	StateRaw    int                 `xml:"STATE,omitempty"`
+	Clusters    shared.EntitiesID   `xml:"CLUSTERS,omitempty"`
+	TotalMB     int                 `xml:"TOTAL_MB,omitempty"`
+	FreeMB      int                 `xml:"FREE_MB,omitempty"`
+	UsedMB      int                 `xml:"USED_MB,omitempty"`
+	Images      shared.EntitiesID   `xml:"IMAGES,omitempty"`
+	Template    Template            `xml:"TEMPLATE,omitempty"`
 }
 
 // State is the state of an OpenNebula datastore

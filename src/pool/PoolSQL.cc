@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -14,16 +14,14 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include <climits>
-#include <sstream>
-#include <iostream>
-#include <stdexcept>
-#include <algorithm>
-
 #include "PoolSQL.h"
 #include "RequestManagerPoolInfoFilter.h"
+#include "AclManager.h"
+#include "Nebula.h"
+#include "ClusterPool.h"
 
-#include <errno.h>
+#include <sstream>
+#include <algorithm>
 
 /* ************************************************************************** */
 /* PoolSQL constructor/destructor                                             */
@@ -141,7 +139,6 @@ int PoolSQL::allocate(PoolObjectSQL *objsql, string& error_str)
     else
     {
         rc = lastOID;
-        do_hooks(objsql, Hook::ALLOCATE);
     }
 
     delete objsql;
@@ -277,8 +274,8 @@ PoolObjectSQL * PoolSQL::get_ro(const string& name, int uid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int PoolSQL::dump(string& oss, const string& elem_name, const string& column, const char* table,
-    const string& where, const string& limit, bool desc)
+int PoolSQL::dump(string& oss, const string& elem_name, const string& column, 
+        const char* table, const string& where, int sid, int eid, bool desc)
 {
     ostringstream   cmd;
 
@@ -296,9 +293,9 @@ int PoolSQL::dump(string& oss, const string& elem_name, const string& column, co
         cmd << " DESC";
     }
 
-    if ( !limit.empty() )
+    if ( eid != -1 )
     {
-        cmd << " LIMIT " << limit;
+        cmd << " " << db->limit_string(sid, eid);
     }
 
     return dump(oss, elem_name, cmd);
@@ -314,11 +311,14 @@ int PoolSQL::dump(string& oss, const string& root_elem_name,
 
     string_cb cb(1);
 
-    ostringstream oelem; 
+    ostringstream oelem;
 
-    oelem << "<" << root_elem_name << ">";
+    if (!root_elem_name.empty())
+    {
+        oelem << "<" << root_elem_name << ">";
 
-    oss.append(oelem.str());
+        oss.append(oelem.str());
+    }
 
     cb.set_callback(&oss);
 
@@ -326,11 +326,14 @@ int PoolSQL::dump(string& oss, const string& root_elem_name,
 
     cb.unset_callback();
 
-    oelem.str("");
+    if (!root_elem_name.empty())
+    {
+        oelem.str("");
 
-    oelem << "</" << root_elem_name << ">";
+        oelem << "</" << root_elem_name << ">";
 
-    oss.append(oelem.str());
+        oss.append(oelem.str());
+    }
 
     return rc;
 }
@@ -526,67 +529,6 @@ void PoolSQL::oid_filter(int     start_id,
     }
 
     filter = idfilter.str();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void PoolSQL::register_hooks(vector<const VectorAttribute *> hook_mads,
-                             const string&                   remotes_location)
-{
-    string name;
-    string on;
-    string cmd;
-    string arg;
-
-    for (unsigned int i = 0 ; i < hook_mads.size() ; i++ )
-    {
-        name = hook_mads[i]->vector_value("NAME");
-        on   = hook_mads[i]->vector_value("ON");
-        cmd  = hook_mads[i]->vector_value("COMMAND");
-        arg  = hook_mads[i]->vector_value("ARGUMENTS");
-
-        one_util::toupper(on);
-
-        if ( on.empty() || cmd.empty() )
-        {
-            NebulaLog::log("VM", Log::WARNING, "Empty ON or COMMAND attribute"
-                " in Hook, not registered!");
-
-            continue;
-        }
-
-        if ( name.empty() )
-        {
-            name = cmd;
-        }
-
-        if (cmd[0] != '/')
-        {
-            ostringstream cmd_os;
-
-            cmd_os << remotes_location << "/hooks/" << cmd;
-
-            cmd = cmd_os.str();
-        }
-
-        if ( on == "CREATE" )
-        {
-            AllocateHook * hook;
-
-            hook = new AllocateHook(name, cmd, arg, false);
-
-            add_hook(hook);
-        }
-        else if ( on == "REMOVE" )
-        {
-            RemoveHook * hook;
-
-            hook = new RemoveHook(name, cmd, arg, false);
-
-            add_hook(hook);
-        }
-    }
 }
 
 /* -------------------------------------------------------------------------- */

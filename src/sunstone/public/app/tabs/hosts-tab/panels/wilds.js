@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -83,8 +83,10 @@ define(function(require) {
       "bAutoWidth": false,
       "aoColumnDefs": [
           {"bSortable": false, "aTargets": [0]},
-          {"sWidth": "35px", "aTargets": [0]}
-      ]
+          {"sWidth": "35px", "aTargets": [0]},
+          {"sType": "string", "aTargets": [1]}
+      ],
+      "aLengthMenu": [ [10, 25, 50, -1], [10, 25, 50, "All"] ]
     });
 
     if (that.element.TEMPLATE.VM) {
@@ -100,19 +102,24 @@ define(function(require) {
         if (name && deploy_id && template) {
           var wilds_list_array = [
             [
-              "<input type=\"checkbox\" class=\"import_wild_checker import_" + index + "\" unchecked/>",
+              "<input type='checkbox' class='import_wild_checker import_" + index + "' unchecked import_data='"+JSON.stringify(elem)+"' />",
               name,
               deploy_id
             ]
           ];
           that.dataTableWildHosts.fnAddData(wilds_list_array);
-          $(".import_wild_checker.import_" + index, context).data("import_data", elem);
         }
       });
     }
 
     delete that.element.TEMPLATE.WILDS;
     delete that.element.TEMPLATE.VM;
+
+    // Perform search in wilds VM
+    $("#host_wilds_search").on('input', function() {
+      that.dataTableWildHosts.fnFilter($(this).val());
+      return false;
+    })
 
     // Enable the import button when at least a VM is selected
     $("#import_wilds", context).attr("disabled", "disabled").on("click.disable", function(e) { return false; });
@@ -138,11 +145,16 @@ define(function(require) {
         var vcenter_refs = [];
         var opts = {};
         $(".import_wild_checker:checked", "#datatable_host_wilds").each(function() {
-          var wild_obj = $(this).data("import_data");
-          if(wild_obj && wild_obj.DEPLOY_ID){
-            var ref = wild_obj.DEPLOY_ID;
-            vcenter_refs.push(ref);
-            opts[ref] = wild_obj;
+          var wild_obj = $(this).attr("import_data");
+          try{
+            var wild_data = JSON.parse(wild_obj);
+            if(wild_data && wild_data.DEPLOY_ID){
+              var ref = wild_data.DEPLOY_ID;
+              vcenter_refs.push(ref);
+              opts[ref] = wild_data;
+            }
+          }catch(error){
+            Notifier.notifyError("Empty data Vm Wild");
           }
         });
 

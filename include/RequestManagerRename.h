@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,6 +19,24 @@
 
 #include "Request.h"
 #include "Nebula.h"
+#include "ClusterPool.h"
+#include "DatastorePool.h"
+#include "DocumentPool.h"
+#include "HookPool.h"
+#include "HostPool.h"
+#include "ImagePool.h"
+#include "MarketPlacePool.h"
+#include "MarketPlaceAppPool.h"
+#include "SecurityGroupPool.h"
+#include "VdcPool.h"
+#include "VirtualMachinePool.h"
+#include "VirtualNetworkPool.h"
+#include "VirtualRouterPool.h"
+#include "VMGroupPool.h"
+#include "VMTemplatePool.h"
+#include "VNTemplatePool.h"
+#include "ZonePool.h"
+
 
 using namespace std;
 
@@ -39,7 +57,7 @@ protected:
         auth_op = AuthRequest::MANAGE;
     };
 
-    ~RequestManagerRename(){};
+    ~RequestManagerRename() = default;
 
     /* -------------------------------------------------------------------- */
 
@@ -122,17 +140,15 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
         auth_object = PoolObjectSQL::VM;
+        vm_action   = VMActions::RENAME_ACTION;
+    }
 
-        auth_op     = nd.get_vm_auth_op(History::RENAME_ACTION);
-    };
-
-    ~VirtualMachineRename(){};
+    ~VirtualMachineRename() = default;
 
     int exist(const string& name, int uid) override
     {
         return -1;
     }
-
 
     int extra_updates(PoolObjectSQL * obj) override
     {
@@ -148,7 +164,7 @@ public:
         vm = static_cast<VirtualMachine *>(obj);
 
         return vmpool->update_search(vm);
-    };
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -166,7 +182,7 @@ public:
         auth_object = PoolObjectSQL::TEMPLATE;
     };
 
-    ~TemplateRename(){};
+    ~TemplateRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -189,7 +205,7 @@ public:
         auth_object = PoolObjectSQL::VNTEMPLATE;
     };
 
-    ~VirtualNetworkTemplateRename(){};
+    ~VirtualNetworkTemplateRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -212,7 +228,7 @@ public:
         auth_object = PoolObjectSQL::NET;
     };
 
-    ~VirtualNetworkRename(){};
+    ~VirtualNetworkRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -234,7 +250,7 @@ public:
         auth_object = PoolObjectSQL::IMAGE;
     };
 
-    ~ImageRename(){};
+    ~ImageRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -256,7 +272,7 @@ public:
         auth_object = PoolObjectSQL::DOCUMENT;
     };
 
-    ~DocumentRename(){};
+    ~DocumentRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -278,7 +294,7 @@ public:
         auth_object = PoolObjectSQL::CLUSTER;
     };
 
-    ~ClusterRename(){};
+    ~ClusterRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -302,7 +318,7 @@ public:
         auth_object = PoolObjectSQL::DATASTORE;
     };
 
-    ~DatastoreRename(){};
+    ~DatastoreRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -327,8 +343,7 @@ public:
 
         auth_op = AuthRequest::ADMIN;
     };
-
-    ~HostRename(){};
+    ~HostRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -352,7 +367,7 @@ public:
         auth_object = PoolObjectSQL::ZONE;
     };
 
-    ~ZoneRename(){};
+    ~ZoneRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -374,7 +389,7 @@ public:
         auth_object = PoolObjectSQL::SECGROUP;
     };
 
-    ~SecurityGroupRename(){};
+    ~SecurityGroupRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -396,7 +411,7 @@ public:
         auth_object = PoolObjectSQL::VDC;
     };
 
-    ~VdcRename(){};
+    ~VdcRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -418,7 +433,7 @@ public:
         auth_object = PoolObjectSQL::VROUTER;
     };
 
-    ~VirtualRouterRename(){};
+    ~VirtualRouterRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -440,7 +455,7 @@ public:
         auth_object = PoolObjectSQL::MARKETPLACE;
     };
 
-    ~MarketPlaceRename(){};
+    ~MarketPlaceRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -464,7 +479,7 @@ public:
         auth_object = PoolObjectSQL::MARKETPLACEAPP;
     };
 
-    ~MarketPlaceAppRename(){};
+    ~MarketPlaceAppRename() = default;
 
     int exist(const string& name, int uid) override
     {
@@ -486,9 +501,31 @@ public:
         auth_object = PoolObjectSQL::VMGROUP;
     };
 
-    ~VMGroupRename(){};
+    ~VMGroupRename() = default;
 
     int exist(const string& name, int uid) override
+    {
+        return pool->exist(name, uid);
+    }
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class HookRename: public RequestManagerRename
+{
+public:
+    HookRename():
+        RequestManagerRename("one.hook.rename", "Renames a hook")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_hkpool();
+        auth_object = PoolObjectSQL::HOOK;
+    };
+
+    ~HookRename() = default;
+
+    int exist(const string& name, int uid)
     {
         return pool->exist(name, uid);
     }

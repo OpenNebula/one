@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -61,8 +61,16 @@
         <tr>
           <td class="nic_id" nic_id="{{NIC_ID}}">{{NIC_ID}}</td>
           <td>{{{NETWORK}}}</td>
-          <td>{{IP}}</td>
-          <td>{{IP6_ULA}}</td>
+          {{#if VROUTER_IP}}
+            <td>{{VROUTER_IP}}</td>
+          {{else}}
+            <td>{{IP}}</td>
+          {{/if}}
+          {{#if VROUTER_IP6_LINK}}
+            <td>{{VROUTER_IP6_LINK}}</td>
+          {{else}}
+            <td>{{IP6_ULA}}</td>
+          {{/if}}
           <td>{{IP6_GLOBAL}}</td>
           <td>{{VROUTER_MANAGEMENT}}</td>
           <td>

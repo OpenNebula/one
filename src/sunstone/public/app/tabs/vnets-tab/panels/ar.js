@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -174,14 +174,15 @@ define(function(require) {
       context.off("click", 'button#rm_ar_button');
       context.on("click", 'button#rm_ar_button', function(){
         var ar_id = $(this).attr('ar_id');
-
+        var checkbox_code = '<br><input type="checkbox" id="force_rm_ar"><label for="force_rm_ar">Force remove?</label>';
         Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
           //header :
           headerTabId: TAB_ID,
-          body : Locale.tr("This will delete all the addresses in this range"),
+          body : Locale.tr("This will delete all the addresses in this range") + checkbox_code,
           //question :
           submit : function(){
-            var obj = {ar_id: ar_id};
+            var force = $("#force_rm_ar").is(":checked");
+            var obj = {ar_id: ar_id, force: force};
             Sunstone.runAction('Network.rm_ar',that.element.ID,obj);
 
             return false;

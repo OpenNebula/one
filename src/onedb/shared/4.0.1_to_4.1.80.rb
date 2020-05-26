@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -49,7 +49,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_user_pool") do |row|
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+                doc = nokogiri_doc(row[:body], 'old_user_pool')
 
                 doc.root.at_xpath("TEMPLATE").
                     add_child(doc.create_element("TOKEN_PASSWORD")).
@@ -80,7 +80,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_datastore_pool") do |row|
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+                doc = nokogiri_doc(row[:body], 'old_datastore_pool')
 
                 doc.root.add_child(doc.create_element("TOTAL_MB")).content = "0"
                 doc.root.add_child(doc.create_element("FREE_MB")).content  = "0"

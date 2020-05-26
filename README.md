@@ -8,7 +8,7 @@
 OpenNebula is an open-source project delivering a simple but feature-rich and
 flexible solution to build and manage enterprise clouds and virtualized data centers.
 
-Complete documentation: https://docs.opennebula.org
+Complete documentation: https://docs.opennebula.io
 
 How to contribute: https://github.com/OpenNebula/one/wiki/How-to-Contribute-to-Development
 
@@ -44,7 +44,7 @@ include a handy script to install them and the requirements. It is located at
 `share/install_gems/install_gems` and you should use it to install the
 required gems. You have more information at:
 
-  https://docs.opennebula.org/stable/integration/references/compile.html
+  https://docs.opennebula.io/stable/integration/references/compile.html
 
 If you want to install them manually here are the list of required rubygems:
 
@@ -90,7 +90,7 @@ Then install the following packages:
   install expat libraries with its development files and install xmlparser
   using gem:
 
-        $ sudo gem install xmlparser --no-ri --no-rdoc
+        $ sudo gem install xmlparser --no-document
 
   Note the extra parameters to gem install. Some versions of xmlparser have
   problems building the documentation and we can use it without documentation
@@ -98,7 +98,7 @@ Then install the following packages:
 
 * **ruby ox**, fast xml parsing library:
 
-        $ sudo gem install ox --no-ri --no-rdoc
+        $ sudo gem install ox --no-document
 
 
 ### Building
@@ -156,25 +156,25 @@ You can find the documentation about OpenNebula architecture, installation,
 configuration and references to configuration files in this documentation
 chapter:
 
-https://docs.opennebula.org/stable/deployment/index.html
+https://docs.opennebula.io/stable/deployment/index.html
 
 The reference about the main configuration file is located here:
 
-https://docs.opennebula.org/stable/deployment/references/oned_conf.html
+https://docs.opennebula.io/stable/deployment/references/oned_conf.html
 
 
 ## Contact
 
-OpenNebula web page: https://opennebula.org
+OpenNebula web page: https://opennebula.io
 
 Development and issue tracking: https://github.com/OpenNebula/one/issues
 
-Support: https://opennebula.org/support
+Support: https://opennebula.io/support
 
 
 ## License
 
-Copyright 2002-2019, OpenNebula Project, OpenNebula Systems (formerly C12G Labs)
+Copyright 2002-2020, OpenNebula Project, OpenNebula Systems (formerly C12G Labs)
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may
 not use this file except in compliance with the License. You may obtain

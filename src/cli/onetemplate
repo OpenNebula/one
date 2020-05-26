@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -28,6 +28,7 @@ end
 
 if File.directory?(GEMS_LOCATION)
     Gem.use_paths(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /(vendor|site)_ruby/ }
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -167,7 +168,7 @@ CommandParser::CmdParser.new(ARGV) do
                     tmpl.allocate(template)
                 end
             rescue StandardError => e
-                STDERR.puts e.messsage
+                STDERR.puts e.message
                 exit(-1)
             end
         end
@@ -224,8 +225,8 @@ CommandParser::CmdParser.new(ARGV) do
             next -1
         end
 
-        number = options[:multiple] || 1
-        user_inputs = nil
+        number      = options[:multiple] || 1
+        user_inputs = options[:user_inputs]
 
         number.times do |i|
             exit_code = helper.perform_action(args[0], options,
@@ -258,6 +259,10 @@ CommandParser::CmdParser.new(ARGV) do
 
                 if !user_inputs
                     user_inputs = OneTemplateHelper.get_user_inputs(t.to_hash)
+                else
+                    optionals = OneTemplateHelper.get_user_inputs(t.to_hash,
+                                                                  true)
+                    user_inputs = user_inputs + "\n" + optionals
                 end
 
                 extra_template << "\n#{user_inputs}"

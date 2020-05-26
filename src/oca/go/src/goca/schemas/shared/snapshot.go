@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -27,4 +27,12 @@ type Snapshot struct {
 	Name     string `xml:"NAME"` //minOccur=0
 	Parent   int    `xml:"PARENT"`
 	Size     int    `xml:"SIZE"`
+}
+
+// DiskSnapshot represent a disk snapshot
+type DiskSnapshot struct {
+	AllowOrphans string     `xml:"ALLOW_ORPHANS"`
+	CurrentBase  int        `xml:"CURRENT_BASE"`
+	NextSnapshot int        `xml:"NEXT_SNAPSHOT"`
+	Snapshots    []Snapshot `xml:"SNAPSHOT"`
 }

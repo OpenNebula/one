@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,6 +23,7 @@ define(function(require) {
   var CommonActions = require('utils/common-actions');
   var Vnc = require('utils/vnc');
   var Spice = require('utils/spice');
+  var Files = require('utils/files');
 
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID           = require('./form-panels/create/formPanelId');
@@ -45,6 +46,7 @@ define(function(require) {
       type: "single",
       call: OpenNebulaVM.show,
       callback: function(request, response) {
+        $(".not_firecracker").removeClass("hide");
         if (Config.isTabEnabled("provision-tab")) {
           $(".provision_refresh_info", ".provision_list_vms").click();
         } else {
@@ -53,6 +55,13 @@ define(function(require) {
             Sunstone.insertPanels(TAB_ID, response);
           }
         }
+        if(response && 
+          response.VM && 
+          response.VM.USER_TEMPLATE && 
+          response.VM.USER_TEMPLATE.HYPERVISOR &&
+          response.VM.USER_TEMPLATE.HYPERVISOR === "firecracker"){
+            $(".not_firecracker").addClass("hide");
+          }
       },
       error: Notifier.onError
     },
@@ -170,6 +179,80 @@ define(function(require) {
        dialog.setType(0);
        dialog.show();
      }
+    },
+    "VM.save_rdp" : {
+      type: "custom",
+      call: function(args) {
+        var vm = Sunstone.getElementRightInfo(TAB_ID);
+
+        if (args && args.ip && args.name) {
+          var credentials = {};
+          args.username && (credentials["USERNAME"] = args.username);
+          args.password && (credentials["PASSWORD"] = args.password);
+          Files.downloadRdpFile(args.ip, args.name, credentials);
+        }
+        else if (vm && vm.NAME && vm.TEMPLATE && vm.TEMPLATE.NIC) {
+          var name = vm.NAME;
+          var nics = vm.TEMPLATE.NIC;
+          nics = Array.isArray(nics) ? vm.TEMPLATE.NIC : [vm.TEMPLATE.NIC];
+
+          // append nic_alias in nics
+          if (vm.TEMPLATE.NIC_ALIAS) {
+            var alias = vm.TEMPLATE.NIC_ALIAS;
+            alias = Array.isArray(alias) ? alias : [alias];
+            nics = $.merge(alias, nics)
+          }
+
+          var nic = nics.find(n => n.RDP && String(n.RDP).toUpperCase() === "YES");
+          var ip = nic && nic.IP ? nic.IP : '';
+          var credentials = {};
+
+          if (vm.TEMPLATE.CONTEXT) {
+            var context = vm.TEMPLATE.CONTEXT;
+            for (var prop in context) {
+              var propUpperCase = String(prop).toUpperCase();
+              (propUpperCase === "USERNAME" || propUpperCase === "PASSWORD")
+                && (credentials[propUpperCase] = context[prop]);
+            }
+          }
+
+          nic && Files.downloadRdpFile(ip, name, credentials);
+        } else {
+          Notifier.notifyError(Locale.tr("Data for rdp file isn't correct"));
+          return false;
+        }
+      }
+    },
+    "VM.save_virt_viewer" : {
+      type: "custom",
+      call: function() {
+        var vm = Sunstone.getElementRightInfo(TAB_ID) || {};
+        var wDataFile = OpenNebulaVM.isWFileSupported(vm);
+        if (vm && vm.ID && wDataFile) {
+          Sunstone.runAction("VM.save_virt_viewer_action", vm.ID, wDataFile);
+        } else {
+          Notifier.notifyError(Locale.tr("Data for virt-viewer file isn't correct"));
+          return false;
+        }
+      }
+    },
+    "VM.save_virt_viewer_action" : {
+      type: "single",
+      call: OpenNebulaVM.vnc,
+      callback: function(_, response) {
+        _.request && $.each(_.request.data, function(_, vm) {
+          var hostname = vm.extra_param.hostname;
+          var type = vm.extra_param.type;
+          var port = vm.extra_param.port;
+
+          (hostname && type && port)
+            ? Files.downloadWFile(response, hostname, type, port)
+            : Notifier.notifyError(Locale.tr("Data for virt-viewer file isn't correct"));
+        });
+      },
+      error: function(req, resp) {
+        Notifier.onError(req, resp);
+      },
     },
     "VM.startvnc" : {
       type: "custom",

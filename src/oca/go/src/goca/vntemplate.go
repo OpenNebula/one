@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -73,22 +73,13 @@ func (c *VNTemplatesController) ByName(name string) (int, error) {
 // Info returns a vntemplate pool. A connection to OpenNebula is
 // performed.
 func (vc *VNTemplatesController) Info(args ...int) (*vntemplate.Pool, error) {
-	var who, start, end int
 
-	switch len(args) {
-	case 0:
-		who = parameters.PoolWhoMine
-		start = -1
-		end = -1
-	case 3:
-		who = args[0]
-		start = args[1]
-		end = args[2]
-	default:
-		return nil, errors.New("Wrong number of arguments")
+	fArgs, err := handleArgs(args)
+	if err != nil {
+		return nil, err
 	}
 
-	response, err := vc.c.Client.Call("one.vntemplatepool.info", who, start, end)
+	response, err := vc.c.Client.Call("one.vntemplatepool.info", fArgs...)
 	if err != nil {
 		return nil, err
 	}
@@ -104,8 +95,8 @@ func (vc *VNTemplatesController) Info(args ...int) (*vntemplate.Pool, error) {
 }
 
 // Info connects to OpenNebula and fetches the information of the VNTemplate
-func (vc *VNTemplateController) Info() (*vntemplate.VNTemplate, error) {
-	response, err := vc.c.Client.Call("one.vntemplate.info", vc.ID)
+func (vc *VNTemplateController) Info(decrypt bool) (*vntemplate.VNTemplate, error) {
+	response, err := vc.c.Client.Call("one.vntemplate.info", vc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -128,8 +119,8 @@ func (vc *VNTemplateController) Create(vntemplate string) (int, error) {
 	return response.BodyInt(), nil
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update adds vntemplate content.
+// * tpl: The new vntemplate contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (vc *VNTemplateController) Update(tpl string, uType parameters.UpdateType) error {
@@ -146,8 +137,9 @@ func (vc *VNTemplateController) Chown(uid, gid int) error {
 
 // Chmod changes the permissions of a vntemplate. If any perm is -1 it will not
 // change
-func (vc *VNTemplateController) Chmod(perm *shared.Permissions) error {
-	_, err := vc.c.Client.Call("one.vntemplate.chmod", perm.ToArgs(vc.ID)...)
+func (vc *VNTemplateController) Chmod(perm shared.Permissions) error {
+	args := append([]interface{}{vc.ID}, perm.ToArgs()...)
+	_, err := vc.c.Client.Call("one.vntemplate.chmod", args...)
 	return err
 }
 

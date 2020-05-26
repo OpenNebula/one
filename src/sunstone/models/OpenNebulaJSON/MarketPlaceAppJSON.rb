@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -75,10 +75,12 @@ module OpenNebulaJSON
             dsid = params['dsid'] ? params['dsid'].to_i : params['dsid']
             name = params['name']
             vmtemplate_name = params['vmtemplate_name']
+            tag ="tag=#{params['tag']}" if params['tag'] && !params['tag'].empty?
             rc = super({
                 :dsid => dsid,
                 :name => name,
-                :vmtemplate_name => vmtemplate_name
+                :vmtemplate_name => vmtemplate_name,
+                :url_args => tag
             })
 
             if OpenNebula.is_error?(rc)

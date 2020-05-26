@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -78,8 +78,8 @@ module VXLAN
         OpenNebula.exec_and_log("#{command(:ip)} link delete #{@nic[@attr_vlan_dev]}")
     end
 
-    def get_interface_vlan(name)
-        text = %x(#{command(:ip)} -d link show #{name})
+    def list_interface_vlan(name)
+        text = %x(#{command(:ip_unpriv)} -d link show #{name})
         return nil if $?.exitstatus != 0
 
         text.each_line do |line|
@@ -92,7 +92,7 @@ module VXLAN
     end
 
     def get_interface_first_ip(name)
-        text = %x(#{command(:ip)} addr show dev #{name})
+        text = %x(#{command(:ip_unpriv)} addr show dev #{name})
         return nil if $?.exitstatus != 0
 
         text.each_line do |line|

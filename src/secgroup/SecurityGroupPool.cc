@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,6 +18,7 @@
 #include "User.h"
 #include "Nebula.h"
 #include "NebulaLog.h"
+#include "VirtualNetworkPool.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -195,28 +196,24 @@ void SecurityGroupPool::get_security_group_rules(int vmid, int sgid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void SecurityGroupPool::release_security_groups(int id, set<int>& sgs)
+void SecurityGroupPool::release_security_group(int id, int sgid)
 {
-    set<int>::iterator it;
-    SecurityGroup *    sg;
-
-    for (it = sgs.begin(); it != sgs.end(); it++)
+    if (id == -1)
     {
-        sg = get(*it);
-
-        if (sg == 0)
-        {
-            continue;
-        }
-
-        if ( id != -1 )
-        {
-            sg->del_vm(id);
-
-            update(sg);
-        }
-
-        sg->unlock();
+        return;
     }
+
+    SecurityGroup * sg = get(sgid);
+
+    if (sg == 0)
+    {
+        return;
+    }
+
+    sg->del_vm(id);
+
+    update(sg);
+
+    sg->unlock();
 }
 

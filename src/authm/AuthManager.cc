@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,6 +16,7 @@
 
 #include "AuthManager.h"
 #include "AuthRequest.h"
+#include "AclManager.h"
 #include "NebulaUtil.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
@@ -45,7 +46,7 @@ void AuthRequest::add_auth(Operation             op,
         if (encoded_id != 0)
         {
             oss << *encoded_id << ":";
-            delete (encoded_id);
+            delete encoded_id;
         }
         else
         {

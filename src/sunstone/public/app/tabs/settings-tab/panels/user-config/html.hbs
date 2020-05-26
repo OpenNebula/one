@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -75,9 +75,18 @@
                 <input type="password" id="provision_new_confirm_password" class="provision-input" placeholder="{{tr "Confirm Password"}}"/>
               </div>
             </div>
+            {{#if cantChangePassword}}
+              <div>
+                Special Cloud administrator accounts (oneadmin and serveradmin)
+                cannot be changed in Sunstone as authorization files need to be changed
+                to ensure the proper functioning of the OpenNebula cloud. Please follow the
+                <a href="http://docs.opennebula.io/5.10/operation/users_groups_management/manage_users.html#change-credentials-for-oneadmin-or-serveradmin" target="_blank">documentation</a>
+                for this task.
+              </div>
+            {{/if}}
             <div class="row">
               <div class="large-12 columns">
-                <button href"#" type="submit" class="button large radius large-12 small-12">{{tr "Update Password"}}</button>
+                <button href"#" type="submit" class="button large radius large-12 small-12" {{#if cantChangePassword}}disabled{{/if}}>{{tr "Update Password"}}</button>
               </div>
             </div>
           </form>
@@ -230,7 +239,7 @@
             <div id="provision_two_factor_auth_accordion" class="accordion-content" data-tab-content>
               <br/>
               <p>
-                {{tr "Two factor authentication can be enabled for loging into Sunestone UI."}}
+                {{tr "Two factor authentication can be enabled for logging into Sunstone UI."}}
               </p>
               <div class="row">
                 <div class="large-12 columns">

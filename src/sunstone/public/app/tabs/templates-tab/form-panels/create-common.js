@@ -1,5 +1,5 @@
  /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,7 +17,7 @@
 define(function(require) {
   /*
     DEPENDENCIES
-   */
+  */
   var Notifier = require("utils/notifier");
   var BaseFormPanel = require("utils/form-panels/form-panel");
   var Sunstone = require("sunstone");
@@ -58,7 +58,7 @@ define(function(require) {
 
   /*
     CONSTRUCTOR
-   */
+  */
 
   function FormPanel() {
     var create_title;
@@ -166,26 +166,36 @@ define(function(require) {
     });
 
 
-    if(templateJSON["TOPOLOGY"] && templateJSON["TOPOLOGY"]["BORRAR"]){
+    if(templateJSON["TOPOLOGY"] && templateJSON["TOPOLOGY"]["DELETE"]){
       delete templateJSON["TOPOLOGY"];
     }
 
     if(
-      templateJSON["TOPOLOGY"] && 
-      templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"] !== undefined && 
-      templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"] !== null &&
-      templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"].length<=0
+      templateJSON["TOPOLOGY"] &&
+      (templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"] === undefined || 
+      templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"] === null ||
+      templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"].length<=0)
     ){
       delete templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"];
     }
 
     if(
-      templateJSON["TOPOLOGY"] && 
-      templateJSON["TOPOLOGY"]["MEMORY_ACCESS"] !== undefined && 
-      templateJSON["TOPOLOGY"]["MEMORY_ACCESS"] !== null &&
-      templateJSON["TOPOLOGY"]["MEMORY_ACCESS"].length<=0
+      templateJSON["TOPOLOGY"] &&
+      (templateJSON["TOPOLOGY"]["MEMORY_ACCESS"] === undefined || 
+      templateJSON["TOPOLOGY"]["MEMORY_ACCESS"] === null ||
+      templateJSON["TOPOLOGY"]["MEMORY_ACCESS"].length<=0)
     ){
       delete templateJSON["TOPOLOGY"]["MEMORY_ACCESS"];
+    }
+
+    if (templateJSON["CORES"]){
+      if (!templateJSON["TOPOLOGY"]){
+        templateJSON["TOPOLOGY"] = {};
+      }
+      templateJSON["TOPOLOGY"]["CORES"] = templateJSON["CORES"];
+      templateJSON["TOPOLOGY"]["SOCKETS"] = parseInt(templateJSON["VCPU"]) / parseInt(templateJSON["CORES"]);
+      templateJSON["TOPOLOGY"]["THREADS"] = 1;
+      delete templateJSON["CORES"];
     }
 
     // vCenter PUBLIC_CLOUD is not defined in the hybrid tab. Because it is
@@ -219,12 +229,51 @@ define(function(require) {
 
       delete templateJSON["NIC_PCI"];
     }
+ 
     return templateJSON;
   }
 
   function _submitWizard(context) {
     var templateJSON = this.retrieve(context);
-
+    var current = {};
+    cachedTemplate = OpenNebulaAction.cache("VMTEMPLATE");
+    if(
+      this && 
+      this.resourceId && 
+      cachedTemplate && 
+      cachedTemplate.data &&
+      Array.isArray(cachedTemplate.data)
+    ){
+      var id = this.resourceId;
+      var currentTemplate = cachedTemplate.data.filter(function(vmtemplate){
+        var rtn = false;
+        if(
+          vmtemplate && 
+          vmtemplate.VMTEMPLATE && 
+          vmtemplate.VMTEMPLATE.TEMPLATE && 
+          vmtemplate.VMTEMPLATE.ID && 
+          vmtemplate.VMTEMPLATE.ID === id
+        ){
+          return vmtemplate.VMTEMPLATE.TEMPLATE;
+        }
+        return rtn;
+      });
+      if(
+        currentTemplate &&
+        currentTemplate[0] &&
+        currentTemplate[0].VMTEMPLATE && 
+        currentTemplate[0].VMTEMPLATE.TEMPLATE
+      ){
+        current = currentTemplate[0].VMTEMPLATE.TEMPLATE;
+      }
+      if(current) {
+        for (key in current) {
+          if (!templateJSON[key]) {
+            delete current[key]
+          }
+        }
+      }
+    }
     if (this.action == "create") {
       Sunstone.runAction(this.resource+".create", {"vmtemplate": templateJSON});
       return false;
@@ -271,17 +320,34 @@ define(function(require) {
                   disks.push(disk);
                 });
                 templateJSON.DISK = disks;
-                Sunstone.runAction(actionUpdate, resourceId, TemplateUtils.templateToString(templateJSON));
+                Sunstone.runAction(
+                  actionUpdate,
+                  resourceId,
+                  TemplateUtils.templateToString(
+                    $.extend( current, templateJSON)
+                  )
+                );
               }else{
-                Sunstone.runAction(actionUpdate, resourceId, TemplateUtils.templateToString(templateJSON));
+                Sunstone.runAction(
+                  actionUpdate,
+                  resourceId,
+                  TemplateUtils.templateToString(
+                    $.extend( current, templateJSON)
+                  )
+                );
               }
             }
           }
         };
-
         OpenNebulaAction.show(params,OpenNebulaTemplate.resource);
       }else{
-        Sunstone.runAction(actionUpdate, resourceId, TemplateUtils.templateToString(templateJSON));
+        Sunstone.runAction(
+          actionUpdate,
+          resourceId,
+          TemplateUtils.templateToString(
+            $.extend( current, templateJSON)
+          )
+        );
       }
       return false;
     }
@@ -306,7 +372,9 @@ define(function(require) {
     this.setHeader(element);
 
     this.resourceId = element.ID;
-
+    if(element && element.TEMPLATE && element.TEMPLATE.SCHED_RANK){
+      $("#SCHED_RANK").val(element.TEMPLATE.SCHED_RANK);
+    }
     var templateJSON = element.TEMPLATE;
 
     // Fills the name

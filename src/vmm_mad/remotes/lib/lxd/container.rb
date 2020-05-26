@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -39,7 +39,7 @@ class Container
     #---------------------------------------------------------------------------
     # Methods to access container attributes
     #---------------------------------------------------------------------------
-    CONTAINER_ATTRIBUTES = %w[name status status_code devices config profile
+    CONTAINER_ATTRIBUTES = %w[name uuid status status_code devices config profile
                               expanded_config expanded_devices architecture].freeze
 
     CONTAINER_ATTRIBUTES.each do |attr|
@@ -70,7 +70,7 @@ class Container
         @one = one
 
         @lxc_command = 'lxc'
-        @lxc_command.prepend 'sudo ' if client.snap
+        @lxc_command.prepend 'sudo -n ' if client.snap
 
         @rootfs_dir = "#{@client.lxd_path}/storage-pools/default/containers/"\
         "#{name}/rootfs"
@@ -129,7 +129,8 @@ class Container
     # Create a container without a base image
     def create(wait: true, timeout: '')
         @lxc['source'] = { 'type' => 'none' }
-        @lxc['config']['user.one_status'] = '0'
+
+        transition_start # not ready to report status yet
 
         wait?(@client.post(CONTAINERS, @lxc), wait, timeout)
 
@@ -207,16 +208,12 @@ class Container
     def start(options = {})
         OpenNebula.log '--- Starting container ---'
 
-        operation = change_state(__method__, options)
-
-        @lxc['config'].delete('user.one_status')
-        update
-
-        operation
+        change_state(__method__, options)
     end
 
     def stop(options = { :timeout => 120 })
         OpenNebula.log '--- Stopping container ---'
+
         change_state(__method__, options)
 
         # Remove nic from ovs-switch if needed
@@ -225,17 +222,13 @@ class Container
         end
     end
 
-    def check_stop
+    def check_stop(force)
         return if status != 'Running'
 
         begin
-            if ARGV[-1] == '-f'
-                stop(:force => true)
-            else
-                stop
-            end
-        rescue => exception
-            OpenNebula.log_error exception
+            stop(:force => force)
+        rescue => e
+            OpenNebula.log_error "LXD Error: #{e}"
 
             real_status = 'Unknown'
 
@@ -248,7 +241,28 @@ class Container
                 break if %w[Running Stopped].include? real_status
             end
 
-            stop(:force => true) if real_status == 'Running'
+            begin
+                stop(:force => true) if real_status == 'Running'
+            rescue => e
+                error = "LXD Error: Cannot shut down container #{e}"
+
+                OpenNebula.log_error error
+            end
+        end
+    end
+
+    # Extended reboot required for OpenNebula execution flow
+    def reboot(force)
+        if transient?
+            start
+
+            transition_end # container reached the final state of rebooting
+            update
+        else
+            transition_start # container will be started later
+            update
+
+            check_stop(force)
         end
     end
 
@@ -298,15 +312,13 @@ class Container
         return unless @one
 
         @one.get_disks.each do |disk|
+            next if @one.swap?(disk)
             return nil unless setup_disk(disk, operation)
         end
 
-        return true unless @one.has_context?
+        return true unless @one.context?
 
-        csrc = @lxc['devices']['context']['source'].clone
-
-        context = @one.get_context_disk
-        mapper  = FSRawMapper.new
+        mapper = FSRawMapper.new
 
         if operation == 'map'
             mk_context_dir = "#{Mapper::COMMANDS[:su_mkdir]} #{@context_path}"
@@ -319,39 +331,32 @@ class Container
             end
         end
 
-        mapper.public_send(operation, @one, context, csrc)
+        mapper.public_send(operation, @one, @one.context_disk, context_source)
     end
 
     # Generate the context devices and maps the context the device
     def attach_context
         @one.context(@lxc['devices'])
 
-        csrc = @lxc['devices']['context']['source'].clone
-
-        context = @one.get_context_disk
-        mapper  = FSRawMapper.new
-
-        return unless mapper.map(@one, context, csrc)
+        mapper = FSRawMapper.new
+        return unless mapper.map(@one, @one.context_disk, context_source)
 
         update
         true
     end
 
-    # Removes the context section from the LXD configuration and unmap the
-    # context device
+    # Removes the context section from the LXD configuration and
+    # unmaps the context device
     def detach_context
-        return true unless @one.has_context?
+        return true unless @one.context?
 
-        csrc = @lxc['devices']['context']['source'].clone
+        context_src = context_source
 
         @lxc['devices'].delete('context')
-
         update
 
-        context = @one.get_context_disk
-        mapper  = FSRawMapper.new
-
-        mapper.unmap(@one, context, csrc)
+        mapper = FSRawMapper.new
+        mapper.unmap(@one, @one.context_disk, context_src)
     end
 
     # Attach disk to container (ATTACH = YES) in VM description
@@ -359,11 +364,11 @@ class Container
         disk_element = hotplug_disk
 
         raise 'Missing hotplug info' unless disk_element
+        return if @one.swap?(disk_element)
 
         return unless setup_disk(disk_element, 'map')
 
         disk_hash = @one.disk(disk_element, nil, nil)
-
         @lxc['devices'].update(disk_hash)
 
         update
@@ -451,13 +456,52 @@ class Container
         Command.unlock(lfd) if lfd
     end
 
+    def save_idmap
+        File.delete idmaps_file if File.exist? idmaps_file
+
+        idmaps = {}
+        idmaps[:last_state_idmap] = @lxc['config']['volatile.last_state.idmap']
+
+        File.open(idmaps_file, 'a') {|f| f.write idmaps.to_yaml }
+    end
+
+    def load_idmap
+        return unless File.exist?(idmaps_file)
+
+        idmaps = YAML.load_file idmaps_file
+
+        @lxc['config']['volatile.last_state.idmap'] = idmaps[:last_state_idmap]
+
+        update
+    end
+
+    # Flags a container indicating current status not definitive
+    # Stalls monitoring status query. Requires updating the container
+    def transition_start
+        @lxc['config']['user.one_status'] = '0'
+    end
+
+    # Removes transient state flag. Requires updating the container.
+    def transition_end
+        @lxc['config'].delete('user.one_status')
+    end
+
+    # Helper method for querying transition phase
+    def transient?
+        @lxc['config']['user.one_status'] == '0'
+    end
+
     private
+
+    def idmaps_file
+        "#{@one.sysds_path}/#{@one.vm_id}/idmaps.lxd"
+    end
 
     # Deletes the switch port. Unlike libvirt, LXD doesn't handle this.
     def del_bridge_port(nic)
         return true unless /ovswitch/ =~ nic['VN_MAD']
 
-        cmd = 'sudo ovs-vsctl --if-exists del-port '\
+        cmd = 'sudo -n ovs-vsctl --if-exists del-port '\
         "#{nic['BRIDGE']} #{nic['TARGET']}"
 
         rc, _o, e = Command.execute(cmd, false)
@@ -495,12 +539,13 @@ class Container
     #  TODO This maps should be built dynamically or based on a DISK attribute
     #  so new mappers does not need to modified source code
     def new_disk_mapper(disk)
-        case disk['TYPE']
+        ds = @one.disk_source(disk)
+
+        case disk['DISK_TYPE']
         when 'FILE', 'BLOCK'
+            cmd = "#{Mapper::COMMANDS[:file]} #{ds}"
 
-            ds = @one.disk_source(disk)
-
-            rc, out, err = Command.execute("#{Mapper::COMMANDS[:file]} #{ds}", false)
+            rc, out, err = Command.execute(cmd, false)
 
             unless rc.zero?
                 OpenNebula.log_error("#{__method__} #{err}")
@@ -530,6 +575,16 @@ class Container
                 ' not supported')
             nil
         end
+    end
+
+    def context_source
+        return unless @one.context?
+
+        disk_source('context')
+    end
+
+    def disk_source(disk_name)
+        @lxc['devices'][disk_name]['source'].clone
     end
 
 end

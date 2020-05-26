@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -51,6 +51,7 @@ FENCE_HOST = File.dirname(__FILE__) + '/fence_host.sh'
 
 if File.directory?(GEMS_LOCATION)
     Gem.use_paths(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /(vendor|site)_ruby/ }
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -66,11 +67,10 @@ require 'open3'
 # Arguments
 ################################################################################
 
-HOST_ID = ARGV[0]
+raw_host_template = Base64.decode64(ARGV[0])
+xml_host_template = Nokogiri::XML(raw_host_template)
 
-if HOST_ID.nil?
-    exit -1
-end
+HOST_ID = xml_host_template.xpath('HOST/ID').text
 
 ################################################################################
 # Methods

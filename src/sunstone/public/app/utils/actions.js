@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -48,12 +48,21 @@ define(function(require) {
     var time_str = Humanize.prettyTime(scheduling_action.TIME);
 
     var str = "";
-    str += "<tr class=\"tr_action\">\
-        <td class=\"action_row\">" + TemplateUtils.htmlEncode(scheduling_action.ACTION) + "</td>\
-        <td nowrap class=\"time_row\">" + time_str + "</td>\
-        <td>\
-          <div>\
-            <a id=\"minus\" class=\"remove_action_x\" href=\"#\"><i class=\"fas fa-trash-alt\"/></a>\
+    var action_id = scheduling_action.ID || '';
+    var update_sched = '';
+    if(action_id){
+      update_sched = "<button id='minus' class='small button btn-warning edit_action_x' data_id='"+action_id+"'><i class='fas fa-edit'></i></button>";
+    }
+
+    str += "<tr class='tr_action'>\
+        <td class='action_row'>" + TemplateUtils.htmlEncode(scheduling_action.ACTION) + "</td>\
+        <td nowrap class='time_row'>" + time_str + "</td>\
+        <td colspan='3' style='text-align: right;'>\
+          <div style='display: flex;justify-content: flex-end;'>\
+            <div>\
+              <button id='minus' class='small button btn-danger remove_action_x'><i class='fas fa-trash-alt'></i></button>\
+            </div>\
+            <div>"+update_sched+"</div>\
           </div>\
         </td>\
       </tr>";

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,7 +20,8 @@
 #include "SyncRequest.h"
 #include "Template.h"
 #include "Nebula.h"
-
+#include "DatastorePool.h"
+#include "VirtualMachinePool.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -844,7 +845,7 @@ int ImageManager::register_image(int iid,
             oss << "Using source " << source
                 << " from template for image " << img->get_name();
         }
-        else if ( img->is_saving() || img->get_type() == Image::DATABLOCK 
+        else if ( img->is_saving() || img->get_type() == Image::DATABLOCK
                 || img->get_type() == Image::OS)
         {
             imd->mkfs(img->get_oid(), *drv_msg);
@@ -929,7 +930,7 @@ int ImageManager::stat_image(Template*     img_tmpl,
                      << one_util::xml_escape(res)
                      << "</PATH></IMAGE>";
             break;
-                    
+
         case Image::OS:
             img_tmpl->get("SOURCE", res);
 

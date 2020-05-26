@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -35,7 +35,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    string& to_xml(string& xml) const override;
 
 
     /**
@@ -55,7 +55,7 @@ public:
     /**
      *  Factory method for virtual machine templates
      */
-    Template * get_new_template() const
+    Template * get_new_template() const override
     {
         return new VirtualMachineTemplate;
     }
@@ -72,20 +72,20 @@ public:
 
     /**
      * Returns a copy of the DISK attributes of this template, the attributes
-	 * are copied and must be freed by the calling function.
-	 *   @param a vector to store the disks.
+     * are copied and must be freed by the calling function.
+     *   @param a vector to store the disks.
      */
     void clone_disks(vector<VectorAttribute *>& disks)
     {
-		vector<const VectorAttribute *> _disks;
+        vector<const VectorAttribute *> _disks;
 
-		obj_template->get("DISK", _disks);
+        obj_template->get("DISK", _disks);
 
-		for (vector<const VectorAttribute *>::const_iterator i = _disks.begin();
-				i != _disks.end() ; ++i)
-		{
-			disks.push_back(new VectorAttribute(*i));
-		}
+        for (vector<const VectorAttribute *>::const_iterator i = _disks.begin();
+                i != _disks.end() ; ++i)
+        {
+            disks.push_back(new VectorAttribute(*i));
+        }
     }
 
     /**
@@ -146,7 +146,7 @@ private:
      *    @param error Returns the error reason, if any
      *    @return 0 one success
      */
-    int post_update_template(string& error);
+    int post_update_template(string& error) override;
 
     /**
      *  Bootstraps the database table(s) associated to the VMTemplate
@@ -165,7 +165,7 @@ private:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const string &xml_str) override;
 
     /**
      *  This method removes sched_action DONE/MESSAGE attributes
@@ -185,7 +185,7 @@ protected:
                int umask,
                VirtualMachineTemplate * _template_contents);
 
-    ~VMTemplate();
+    virtual ~VMTemplate() = default;
 
     // *************************************************************************
     // DataBase implementation
@@ -203,14 +203,14 @@ protected:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, string& error_str) override;
 
     /**
      *  Writes/updates the VMTemplate data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
         string err;
         return insert_replace(db, true, err);

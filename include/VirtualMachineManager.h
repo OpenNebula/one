@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -49,7 +49,6 @@ public:
         RESTORE,
         REBOOT,
         RESET,
-        POLL,
         DRIVER_CANCEL,
         ATTACH,
         DETACH,
@@ -96,8 +95,6 @@ public:
 
     VirtualMachineManager(
         time_t                    _timer_period,
-        time_t                    _poll_period,
-        bool                      _do_vm_poll,
         int                       _vm_limit,
         vector<const VectorAttribute*>& _mads);
 
@@ -153,7 +150,7 @@ public:
      *    @param action
      *    @return True if it is supported
      */
-    bool is_imported_action_supported(const string& mad,History::VMAction action)
+    bool is_imported_action_supported(const string& mad, VMActions::Action action)
     {
         const VirtualMachineManagerDriver * vmd = get(mad);
 
@@ -181,12 +178,28 @@ public:
     {
         const VirtualMachineManagerDriver * vmd = get(name);
 
-        if ( vmd == 0 )
+        if ( vmd == nullptr )
         {
             return false;
         }
 
         return vmd->is_keep_snapshots();
+    }
+
+    /**
+     * Get cold_nic_attach behavior for the driver. When true the driver will be
+     * invoked in cold NIC attach operations
+     */
+    bool is_cold_nic_attach(const string& name)
+    {
+        const VirtualMachineManagerDriver * vmd = get(name);
+
+        if ( vmd == nullptr )
+        {
+            return false;
+        }
+
+        return vmd->is_cold_nic_attach();
     }
 
     /**
@@ -203,6 +216,16 @@ public:
         return static_cast<const VirtualMachineManagerDriver *>
                (MadManager::get(0,_name,name));
     };
+
+    /**
+     *  Validates raw sections in the Virtual Machine Template for the
+     *  target driver
+     *  @param template of the virtual machine
+     *  @param error_str error if any
+     *
+     *  @return 0 on success (valid raw)
+     */
+    int validate_raw(const Template * vmt, string& error_str);
 
 private:
     /**
@@ -229,16 +252,6 @@ private:
      *  Timer period for the Virtual Machine Manager.
      */
     time_t                  timer_period;
-
-    /**
-     *  Virtual Machine polling interval
-     */
-    time_t                  poll_period;
-
-    /**
-     *  Perform pro-active VM monitoring
-     */
-    bool                    do_vm_poll;
 
     /**
      *  Virtual Machine polling limit
@@ -275,10 +288,6 @@ private:
     // -------------------------------------------------------------------------
     // Action Listener interface
     // -------------------------------------------------------------------------
-    /**
-     *  This function is executed periodically to poll the running VMs
-     */
-    void timer_action(const ActionRequest& ar);
 
     void finalize_action(const ActionRequest& ar)
     {
@@ -413,14 +422,6 @@ private:
      */
     void reset_action(
         int vid);
-
-    /**
-     *  Polls a VM.
-     *    @param vid the id of the VM.
-     */
-    void poll_action(
-        int vid);
-
 
     /**
      * Attaches a new disk to a VM. The VM must have a disk with the

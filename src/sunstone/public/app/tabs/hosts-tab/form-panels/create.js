@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -73,18 +73,6 @@ define(function(require) {
       });
     }
 
-    that.imMadNameList = [];
-    if (Config.onedConf.IM_MAD !== undefined) {
-      $.each(Config.onedConf.IM_MAD, function(index, imMad) {
-        if (imMad.SUNSTONE_NAME !== undefined) {
-          that.imMadNameList.push({
-              'displayName': imMad["SUNSTONE_NAME"],
-              'driverName': imMad["NAME"]
-          });
-        }
-      });
-    }
-
     BaseFormPanel.call(this);
   };
 
@@ -106,8 +94,7 @@ define(function(require) {
     return TemplateWizardHTML({
       'formPanelId': this.formPanelId,
       'vCenterClustersHTML': this.vCenterClusters.html(),
-      'vmMadNameList': this.vmMadNameList,
-      'imMadNameList': this.imMadNameList
+      'vmMadNameList': this.vmMadNameList
     });
   }
 

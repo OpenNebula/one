@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,6 +17,7 @@
 define(function(require) {
 //  require('foundation.alert');
   var OpenNebula = require("opennebula");
+  var Sunstone = require("sunstone");
   var Locale = require("utils/locale");
   var Config = require("sunstone-config");
   var Notifier = require("utils/notifier");
@@ -123,7 +124,7 @@ define(function(require) {
     var provision_templates_datatable = $(".provision_templates_table", context).dataTable({
       "iDisplayLength": 8,
       "sDom" : "<\"H\">t<\"F\"lp>",
-      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
+      "aLengthMenu": Sunstone.getPaginate(),
       "aaSorting"  : [[0, "desc"]],
       "aoColumnDefs": [
           { "bVisible": false, "aTargets": ["all"]}

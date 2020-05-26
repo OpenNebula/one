@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,89 +19,88 @@
 
 #include "Template.h"
 
-#include <string.h>
-
-using namespace std;
+#include <string>
 
 /**
- *  Virtual Machine Monitor class, stores the monitor data for the VM
+ *  Virtual Machine Monitor class, stores the monitor data for the VM in
+ *  template format.
+ *
+ *  The template is free format but the following keys are used:
+ *    - ID of the VM (mandatory)
+ *    - TIMESTAMP of the monitoring record (mandatory)
+ *    - CPU, MEMORY
+ *
+ *  Example:
+ *
+ *  <MONITORING>
+ *      <TIMESTAMP>1584698508</TIMESTAMP>
+ *      <ID>0</ID>
+ *      <CPU><![CDATA[5.02]]></CPU>
+ *      <DISKRDBYTES><![CDATA[346366848]]></DISKRDBYTES>
+ *      <DISKRDIOPS><![CDATA[9935]]></DISKRDIOPS>
+ *      <DISKWRBYTES><![CDATA[1058840064]]></DISKWRBYTES>
+ *      <DISKWRIOPS><![CDATA[107167]]></DISKWRIOPS>
+ *      <MEMORY><![CDATA[1098912]]></MEMORY>
+ *      <NETRX><![CDATA[567412942]]></NETRX>
+ *      <NETTX><![CDATA[3592223]]></NETTX>
+ *  </MONITORING>
  */
-class VirtualMachineMonitorInfo : public Template
+class VirtualMachineMonitorInfo
 {
 public:
-    VirtualMachineMonitorInfo():Template(false,'=',"MONITORING"){};
+    VirtualMachineMonitorInfo()
+        : _oid(-1)
+        , _timestamp(0)
+    {
+    }
 
-    ~VirtualMachineMonitorInfo(){};
+    VirtualMachineMonitorInfo(int oid, time_t timestamp)
+        : _oid(oid)
+        , _timestamp(timestamp)
+    {
+    }
 
     /**
-     *  Update the monitoring information with data from the probes
-     *    @param monitor_data of the VM
-     *    @param error description if any
-     *    @return 0 on success
+     *  @return a xml string representation of the monitoring record
      */
-    int update(const string& monitor_data, string& error)
-    {
-        VirtualMachineMonitorInfo new_info;
+    std::string to_xml() const;
 
-        char * error_c = 0;
+    /**
+     *  @return a xml string including only STATE, CPU and MEMORY attributes
+     */
+    std::string to_xml_short() const;
 
-        remove_state();
+    /**
+     *  Loads an exisiting monitoring record from xml_string.
+     *    @param xml_string representation
+     *    @return 0 on succes, -1 otherwise
+     */
+    int from_xml(const std::string& xml_string);
 
-        if (new_info.parse(monitor_data, &error_c) != 0)
-        {
-            error = error_c;
+    /**
+     *  The contents of the provided template are merged with any previous 
+     *  exisiting data, preserving it.
+     *    @param tmpl with monitoring attributes
+     *    @return 0 on succes, -1 otherwise
+     */
+    int from_template(const Template &tmpl);
 
-            free(error_c);
+    // -------------------------------------------------------------------------
+    // Class set/getters
+    // -------------------------------------------------------------------------
+    int oid() const { return _oid; }
 
-            return -1;
-        }
+    void oid(int oid) { _oid = oid; }
 
-        merge(&new_info);
+    time_t timestamp() const { return _timestamp; }
 
-        return 0;
-    };
+    void timestamp(time_t timestamp) { _timestamp = timestamp; }
 
-    char remove_state()
-    {
-        string state_str;
+private:
+    int    _oid;
+    time_t _timestamp;
 
-        get("STATE", state_str);
-
-        erase("STATE");
-
-        if (state_str.empty())
-        {
-            return '-';
-        }
-
-        return state_str[0];
-    };
-
-    string& to_xml_short(string& xml) const
-    {
-        ostringstream oss;
-        string cpu, memory, state;
-
-        if (attributes.empty())
-        {
-            oss << "<MONITORING/>";
-        }
-        else
-        {
-            get("CPU", cpu);
-            get("MEMORY", memory);
-            get("STATE", state);
-
-            oss << "<MONITORING>"
-                << "<CPU>"    << one_util::escape_xml(cpu)    <<  "</CPU>"
-                << "<MEMORY>" << one_util::escape_xml(memory) <<  "</MEMORY>"
-                << "<STATE>"  << one_util::escape_xml(state)  <<  "</STATE>"
-                << "</MONITORING>";
-        }
-
-        xml = oss.str();
-        return xml;
-    }
+    Template monitoring{false, '=', "MONITORING"};
 };
 
 #endif

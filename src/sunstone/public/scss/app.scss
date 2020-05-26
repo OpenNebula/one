@@ -238,3 +238,27 @@ meter {
   width: 4em;
 }
 
+.superHide{
+  display: none !important;
+}
+
+.dataTable{
+  tr{
+    vertical-align: top;
+  }
+}
+.jGrowl-message{
+  display: -webkit-box;
+  max-height: 28rem;
+  -webkit-line-clamp: 8;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4rem;
+}
+
+@media screen and (min-width: 64em){
+  .medium-hide {
+      display: none !important;
+  }
+}

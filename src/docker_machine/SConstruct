@@ -1,7 +1,7 @@
 # SConstruct for share/scripts/rubygems
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -21,9 +21,9 @@ import os
 Import('env')
 
 if env['docker_machine']=='yes':
-    print "Generating docker-machine-driver-opennebula\n"
+    print ("Generating docker-machine-driver-opennebula\n")
     exit_code=os.system("make -C src/docker_machine build")
 
     if exit_code != 0:
-        print "Error generating docker-machine-driver-opennebula\n"
+        print ("Error generating docker-machine-driver-opennebula\n")
         exit(-1)

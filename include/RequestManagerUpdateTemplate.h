@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,6 +19,24 @@
 
 #include "Request.h"
 #include "Nebula.h"
+
+#include "ClusterPool.h"
+#include "DatastorePool.h"
+#include "DocumentPool.h"
+#include "HookPool.h"
+#include "HostPool.h"
+#include "ImagePool.h"
+#include "MarketPlacePool.h"
+#include "MarketPlaceAppPool.h"
+#include "SecurityGroupPool.h"
+#include "VdcPool.h"
+#include "VirtualMachinePool.h"
+#include "VirtualNetworkPool.h"
+#include "VirtualRouterPool.h"
+#include "VMGroupPool.h"
+#include "VMTemplatePool.h"
+#include "VNTemplatePool.h"
+#include "ZonePool.h"
 
 using namespace std;
 
@@ -110,12 +128,12 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
         auth_object = PoolObjectSQL::VM;
+        vm_action   = VMActions::UPDATE_ACTION;
+    }
 
-        auth_op     = nd.get_vm_auth_op(History::UPDATE_ACTION);
-    };
+    ~VirtualMachineUpdateTemplate() = default;
 
-    ~VirtualMachineUpdateTemplate(){};
-
+protected:
     int extra_updates(PoolObjectSQL * obj) override
     {
         VirtualMachine * vm;
@@ -259,6 +277,9 @@ public:
     };
 
     ~ClusterUpdateTemplate(){};
+
+protected:
+    int extra_updates(PoolObjectSQL * obj) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -403,6 +424,24 @@ public:
     };
 
     ~VMGroupUpdateTemplate(){};
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class HookUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    HookUpdateTemplate():
+        RequestManagerUpdateTemplate("one.hook.update",
+                                     "Updates a hook template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_hkpool();
+        auth_object = PoolObjectSQL::HOOK;
+    };
+
+    ~HookUpdateTemplate(){};
 };
 
 #endif

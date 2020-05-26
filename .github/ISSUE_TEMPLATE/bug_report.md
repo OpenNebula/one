@@ -4,6 +4,9 @@ about: Create a report to help us improve
 
 ---
 
+/!\ To report a **security issue** please follow this procedure:
+   [https://github.com/OpenNebula/one/wiki/Vulnerability-Management-Process]
+
 **Description**
 A clear and concise description of what the bug is.
 
@@ -20,7 +23,6 @@ A clear and concise description of what you expected to happen.
 
 **Additional context**
 Add any other context about the problem here.
-
 
 <!--////////////////////////////////////////////-->
 <!-- THIS SECTION IS FOR THE DEVELOPMENT TEAM   -->

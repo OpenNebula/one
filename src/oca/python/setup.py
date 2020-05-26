@@ -1,5 +1,5 @@
 # Copyright 2018 www.privaz.io Valletech AB
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,27 +26,39 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
-install_requires=[
+install_requires = [
     'lxml',
     'dicttoxml',
     'xmltodict',
     'six',
     'aenum',
-    'tblib'
+    'tblib',
+    'requests'
 ]
 
 # include future in python2
 if sys.version_info[0] < 3:
     install_requires.append('future')
 
+version = '5.11.90'
+
+# mark pre-release
+ver_min = int(version.split('.')[-1])
+if ver_min >= 90:
+    pyone_version = version + 'rc1'
+elif ver_min >= 80:
+    pyone_version = version + 'b1'
+else:
+    pyone_version = version
+
 setup(
     name='pyone',
-    version='5.9.80',
+    version=pyone_version,
     description='Python Bindings for OpenNebula XML-RPC API',
     long_description=long_description,
 
     # The project's main homepage.
-    url='http://opennebula.org',
+    url='http://opennebula.io',
 
     # Author details
     author='Rafael del Valle',

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -76,6 +76,14 @@ post '/service/:id/action' do
     client = af_build_client
 
     resp = client.post('/service/' + params[:id] + '/action', @request_body)
+
+    af_format_response(resp)
+end
+
+post '/service/:id/scale' do
+    client = af_build_client
+
+    resp = client.post('/service/' + params[:id] + '/scale', @request_body)
 
     af_format_response(resp)
 end

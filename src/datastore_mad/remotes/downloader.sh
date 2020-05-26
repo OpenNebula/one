@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -309,7 +309,6 @@ ssh://*)
     command="ssh ${ssh_arg[0]} $rmt_cmd"
     ;;
 s3://*)
-
     # Read s3 environment
     s3_env
 
@@ -331,6 +330,10 @@ vcenter://*)
 lxd://*)
     file_type="application/octet-stream"
     command="$VAR_LOCATION/remotes/datastore/lxd_downloader.sh \"$FROM\""
+    ;;
+docker://*)
+    file_type="application/octet-stream"
+    command="$VAR_LOCATION/remotes/datastore/docker_downloader.sh \"$FROM\""
     ;;
 *)
     if [ ! -r $FROM ]; then

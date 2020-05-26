@@ -1,7 +1,7 @@
 # SConstruct for src/nebula
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -25,7 +25,6 @@ lib_name='nebula_core'
 source_files=[
     'SystemDB.cc',
     'Nebula.cc',
-    'NebulaTemplate.cc'
 ]
 
 # Build library
@@ -57,9 +56,11 @@ env.Prepend(LIBS=[
     'nebula_vmtemplate',
     'nebula_document',
     'nebula_zone',
+    'nebula_raft',
     'nebula_hm',
     'nebula_common',
     'nebula_sql',
+    'nebula_sql_const',
     'nebula_log',
     'nebula_client',
     'nebula_xml',
@@ -70,13 +71,18 @@ env.Prepend(LIBS=[
     'nebula_marketplace',
     'nebula_ipamm',
     'nebula_vmgroup',
-    'nebula_raft',
+    'nebula_protocol',
     'crypto',
     'xml2'
 ])
 
 if not env.GetOption('clean'):
-    env.ParseConfig(("LDFLAGS='%s' ../../share/scons/get_xmlrpc_config"+
-        " server") % (os.environ['LDFLAGS'],))
+    env_xmlrpc_flags = "LDFLAGS='%s' CXXFLAGS='%s' CPPFLAGS='%s'" % (
+                       os.environ.get('LDFLAGS', ''),
+                       os.environ.get('CXXFLAGS', ''),
+                       os.environ.get('CPPFLAGS', ''))
+
+    env.ParseConfig("%s ../../share/scons/get_xmlrpc_config server" % (
+                    env_xmlrpc_flags,))
 
 env.Program('oned.cc')

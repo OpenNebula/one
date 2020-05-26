@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,6 +16,7 @@
 
 #include "RequestManagerVirtualNetwork.h"
 #include "VirtualNetworkTemplate.h"
+#include "ClusterPool.h"
 
 using namespace std;
 
@@ -93,6 +94,12 @@ void VirtualNetworkRmAddressRange::
         return;
     }
 
+    bool force = false;
+    if (paramList.size() > 3)
+    {
+        force = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+    }
+
     // -------------------------------------------------------------------------
     // Get VNET and data for reservations
     // -------------------------------------------------------------------------
@@ -118,7 +125,7 @@ void VirtualNetworkRmAddressRange::
 
     vn->get_template_attribute("MAC" , mac  , ar_id);
 
-    if ( vn->rm_ar(ar_id, att.resp_msg) < 0 )
+    if (vn->rm_ar(ar_id, force, att.resp_msg) < 0)
     {
         failure_response(INTERNAL, att);
 
@@ -360,6 +367,8 @@ void VirtualNetworkReserve::request_execute(
     {
         att.resp_msg = ar.message;
         failure_response(AUTHORIZATION, att);
+
+        delete vtmpl;
 
         return;
     }

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,26 +20,30 @@ import (
 	"testing"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/securitygroup"
+	secgroup "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/securitygroup"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/securitygroup/keys"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
 func TestSGAllocate(t *testing.T) {
 	var sg_name string = "new_test_sg"
 	var sg *securitygroup.SecurityGroup
-	var sg_template string = "NAME = \"" + sg_name + "\"\n" +
-		"DESCRIPTION  = \"test security group\"\n" +
-		"ATT1 = \"VAL1\"\n" +
-		"ATT2 = \"VAL2\""
+
+	sg_template := secgroup.NewTemplate()
+	sg_template.Add(keys.Name, sg_name)
+	sg_template.Add(keys.Description, "test security group")
+	sg_template.AddPair("ATT1", "VAL1")
+	sg_template.AddPair("ATT2", "VAL2")
 
 	//Create SG
-	sg_id, err := testCtrl.SecurityGroups().Create(sg_template)
+	sg_id, err := testCtrl.SecurityGroups().Create(sg_template.String())
 
 	if err != nil {
 		t.Fatalf("Test failed:\n" + err.Error())
 	}
 
 	sgC := testCtrl.SecurityGroup(sg_id)
-	sg, err = sgC.Info()
+	sg, err = sgC.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
@@ -59,12 +63,12 @@ func TestSGAllocate(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	sg, err = sgC.Info()
+	sg, err = sgC.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	actual_1, err := sg.Template.Dynamic.GetContentByName("ATT1")
+	actual_1, err := sg.Template.GetStr("ATT1")
 	if err != nil {
 		t.Errorf("Test failed, can't retrieve '%s', error: %s", "ATT1", err.Error())
 	} else {
@@ -73,7 +77,7 @@ func TestSGAllocate(t *testing.T) {
 		}
 	}
 
-	actual_3, err := sg.Template.Dynamic.GetContentByName("ATT3")
+	actual_3, err := sg.Template.GetStr("ATT3")
 	if err != nil {
 		t.Errorf("Test failed, can't retrieve '%s', error: %s", "ATT3", err.Error())
 	} else {
@@ -91,7 +95,7 @@ func TestSGAllocate(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	clone, err := testCtrl.SecurityGroup(clone_id).Info()
+	clone, err := testCtrl.SecurityGroup(clone_id).Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
@@ -105,13 +109,13 @@ func TestSGAllocate(t *testing.T) {
 	testCtrl.SecurityGroup(clone_id).Delete()
 
 	//Change permission of SG
-	err = sgC.Chmod(&shared.Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1})
+	err = sgC.Chmod(shared.Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1})
 
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	sg, err = sgC.Info()
+	sg, err = sgC.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
@@ -130,7 +134,7 @@ func TestSGAllocate(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	sg, err = sgC.Info()
+	sg, err = sgC.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
@@ -156,7 +160,7 @@ func TestSGAllocate(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	sg, err = sgC.Info()
+	sg, err = sgC.Info(false)
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -21,7 +21,23 @@ module OneProvision
     # Provision
     class Provision
 
-        attr_reader :id, :name, :clusters, :hosts, :datastores, :vnets
+        # Available resources that can be created with the provision
+        #
+        # Note: order is important, some objects depend on others
+        # so first the objects without dependencies need to be created
+        # and then the rest
+        RESOURCES = %w[images
+                       marketplaceapps
+                       templates
+                       vntemplates
+                       flowtemplates]
+
+        # Resources available in a cluster without hosts
+        PHYSICAL_RESOURCES = %w[datastores networks]
+
+        FULL_CLUSTER = PHYSICAL_RESOURCES + ['clusters']
+
+        attr_reader :id, :name, :clusters, :hosts, :datastores, :networks
 
         # Class constructor
         def initialize(id, name = nil)
@@ -30,7 +46,7 @@ module OneProvision
             @clusters    = []
             @hosts       = []
             @datastores  = []
-            @vnets       = []
+            @networks    = []
         end
 
         # Checks if the PROVISION exists
@@ -55,7 +71,7 @@ module OneProvision
             @clusters   = Cluster.new.get(@id)
             @datastores = Datastore.new.get(@id)
             @hosts      = Host.new.get(@id)
-            @vnets      = Vnet.new.get(@id)
+            @networks   = Network.new.get(@id)
 
             @name       = @clusters[0]['TEMPLATE/PROVISION/NAME']
         end
@@ -97,7 +113,10 @@ module OneProvision
 
             Driver.retry_loop 'Failed to delete hosts' do
                 @hosts.each do |host|
-                    host = Host.new(host['ID'])
+                    id   = host['ID']
+                    host = Host.new
+
+                    host.info(id)
 
                     if Options.threads > 1
                         while Thread.list.count > Options.threads
@@ -117,19 +136,16 @@ module OneProvision
                 threads.map(&:join)
             end
 
+            delete_virtual_resources
+
             # delete all other deployed objects
             OneProvisionLogger.info('Deleting provision objects')
 
-            %w[datastores vnets clusters].each do |section|
+            FULL_CLUSTER.each do |section|
                 send(section).each do |obj|
                     msg = "#{section.chomp('s')} #{obj['ID']}"
 
                     Driver.retry_loop "Failed to delete #{msg}" do
-                        if section == 'vnets'
-                            vnet = Vnet.new(obj.id)
-                            vnet.delete_ars
-                        end
-
                         OneProvisionLogger.debug("Deleting OpenNebula #{msg}")
 
                         Utils.exception(obj.delete)
@@ -168,7 +184,8 @@ module OneProvision
         # @param config  [String]  Path to the configuration file
         # @param cleanup [Boolean] True to delete running VMs and images
         # @param timeout [Integer] Timeout for deleting running VMs
-        def create(config, cleanup, timeout)
+        # @param skip    [Symbol]  Skip provision, config or none phases
+        def create(config, cleanup, timeout, skip)
             Ansible.check_ansible_version
 
             begin
@@ -190,36 +207,33 @@ module OneProvision
                 Mode.new_cleanup(true)
 
                 create_resources(cfg, cid)
-
-                if cfg['hosts'].nil?
-                    puts "ID: #{@id}"
-
-                    return 0
-                end
-
                 create_hosts(cfg, cid)
 
-                # ask user to be patient, mandatory for now
-                STDERR.puts 'WARNING: This operation can ' \
-                    'take tens of minutes. Please be patient.'
+                if skip != :all && @hosts && !@hosts.empty?
+                    # ask user to be patient, mandatory for now
+                    STDERR.puts 'WARNING: This operation can ' \
+                        'take tens of minutes. Please be patient.'
 
-                OneProvisionLogger.info('Deploying')
+                    OneProvisionLogger.info('Deploying')
 
-                deploy_ids = nil
+                    deploy_ids = nil
 
-                Driver.retry_loop 'Failed to deploy hosts' do
-                    deploy_ids = deploy_hosts
+                    Driver.retry_loop 'Failed to deploy hosts' do
+                        deploy_ids = deploy_hosts
+                    end
+
+                    if deploy_ids.nil? || deploy_ids.empty?
+                        Utils.fail('Deployment failed, no ID got from driver')
+                    end
+
+                    OneProvisionLogger.info('Monitoring hosts')
+
+                    update_hosts(deploy_ids)
                 end
 
-                if deploy_ids.nil? || deploy_ids.empty?
-                    Utils.fail('Deployment failed, no ID got from driver')
-                end
+                Ansible.configure(@hosts) if skip == :none
 
-                OneProvisionLogger.info('Monitoring hosts')
-
-                update_hosts(deploy_ids)
-
-                Ansible.configure(@hosts)
+                create_virtual_resources(cfg)
 
                 puts "ID: #{@id}"
 
@@ -255,7 +269,7 @@ module OneProvision
             cluster = Cluster.new
             cluster.create(cfg['cluster'], @id, @name)
             cluster = cluster.one
-            cid = cluster.id
+            cid     = cluster.id
 
             @clusters << cluster
 
@@ -269,37 +283,59 @@ module OneProvision
         # @param cfg [Key-Value Object] Configuration of the PROVISION
         # @param cid [String]           Cluster ID
         def create_resources(cfg, cid)
-            %w[datastores networks].each do |r|
+            PHYSICAL_RESOURCES.each do |r|
                 next if cfg[r].nil?
 
                 cfg[r].each do |x|
                     Driver.retry_loop 'Failed to create some resources' do
-                        if cfg['defaults'] && cfg['defaults']['driver']
+                        if cfg['defaults'] && cfg['defaults']['provision']
                             driver = cfg['defaults']['provision']['driver']
                         end
 
-                        erb = Utils.evaluate_erb(self, x)
+                        obj = Resource.object(r)
 
-                        msg = "Creating OpenNebula #{r}: #{erb['name']}"
+                        next if obj.nil?
 
-                        OneProvisionLogger.debug(msg)
+                        x = Utils.evaluate_erb(self, x)
 
-                        if r == 'datastores'
-                            datastore = Datastore.new
-                            datastore.create(cid.to_i, erb, driver, @id, @name)
-                            @datastores << datastore.one
-                        else
-                            vnet = Vnet.new
-                            vnet.create(cid.to_i, erb, driver, @id, @name)
-                            @vnets << vnet.one
-                        end
+                        OneProvisionLogger.debug(
+                            "Creating #{r[0..-2]} #{x['name']}"
+                        )
 
-                        r     = 'vnets' if r == 'networks'
-                        rid   = instance_variable_get("@#{r}").last['ID']
-                        rname = r.chomp('s').capitalize
-                        msg   = "#{rname} created with ID: #{rid}"
+                        obj.create(cid.to_i, x, driver, @id, @name)
+                        obj.append_object(self)
 
-                        OneProvisionLogger.debug(msg)
+                        obj.template_chown(x)
+                        obj.template_chmod(x)
+                    end
+                end
+            end
+        end
+
+        # Create virtual resources in the provision
+        #
+        # @param cfg [Key-Value Object] Provision configuration file content
+        def create_virtual_resources(cfg)
+            RESOURCES.each do |r|
+                next if cfg[r].nil?
+
+                cfg[r].each do |x|
+                    Driver.retry_loop 'Failed to create some resources' do
+                        obj = Resource.object(r)
+
+                        next if obj.nil?
+
+                        x = Utils.evaluate_erb(self, x)
+
+                        OneProvisionLogger.debug(
+                            "Creating #{r[0..-2]} #{x['name']}"
+                        )
+
+                        obj.create(x, @id)
+                        obj.append_object(self)
+
+                        obj.template_chown(x)
+                        obj.template_chmod(x)
                     end
                 end
             end
@@ -310,14 +346,17 @@ module OneProvision
         # @param cfg [Key-Value Object] Configuration of the PROVISION
         # @param cid [String]           Cluster ID
         def create_hosts(cfg, cid)
+            return unless cfg['hosts']
+
             cfg['hosts'].each do |h|
                 Driver.retry_loop 'Failed to create some host' do
-                    erb      = Utils.evaluate_erb(self, h)
-                    dfile    = Utils.create_deployment_file(erb, @id, @name)
-                    playbook = cfg['playbook']
+                    erb       = Utils.evaluate_erb(self, h)
+                    dfile     = Utils.create_deployment_file(erb, @id, @name)
+                    playbooks = cfg['playbook']
+                    playbooks = playbooks.join(',') if playbooks.is_a? Array
 
                     host = Host.new
-                    host = host.create(dfile.to_xml, cid.to_i, playbook)
+                    host = host.create(dfile.to_xml, cid.to_i, playbooks)
 
                     @hosts << host
 
@@ -385,9 +424,10 @@ module OneProvision
                 h.add_element('//TEMPLATE/PROVISION', 'DEPLOY_ID' => deploy_id)
                 h.update(h.template_str)
 
-                host = Host.new(h['ID'])
-                name = host.poll
-                h.rename(name)
+                host = Host.new
+                host.info(h['ID'])
+
+                h.rename(host.poll)
             end
         end
 
@@ -520,6 +560,36 @@ module OneProvision
 
             raise OneProvisionLoopExeception, 'Timeout expired for deleting' /
                                               " image #{image['ID']}"
+        end
+
+        # Delete virtual provision resources
+        def delete_virtual_resources
+            OneProvisionLogger.info('Deleting provision virtual objects')
+
+            resources = RESOURCES - ['marketplaceapps']
+
+            resources.each do |r|
+                Driver.retry_loop 'Failed to delete some virtual objects' do
+                    obj = Resource.object(r)
+
+                    next unless obj
+
+                    obj.get(@id).each do |o|
+                        id  = o['ID']
+                        o   = Resource.object(r)
+                        msg = "#{r.chomp('s')} #{id}"
+
+                        Driver.retry_loop "Failed to delete #{msg}" do
+                            OneProvisionLogger.debug(
+                                "Deleting OpenNebula #{msg}"
+                            )
+
+                            o.info(id)
+                            Utils.exception(o.delete)
+                        end
+                    end
+                end
+            end
         end
 
     end

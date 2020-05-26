@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -129,9 +129,11 @@ define(function(require) {
     var that = this;
 
     nicsNames.forEach(function(element) {
-        var alias_str = element.ID + " " + element.NET + " " + element.IP;
-
-        $("#parent", that.context).append(new Option(alias_str, element.NAME));
+      var nicID = element && element.ID? element.ID : "";
+      var nicNET = element && element.NET? element.NET : "";
+      var nicIP = element && element.IP? element.IP : "";
+      var alias_str = nicID + " - " + nicNET + " " + nicIP;
+      $("#parent", that.context).append(new Option(alias_str, element.NAME));
     });
   }
 });

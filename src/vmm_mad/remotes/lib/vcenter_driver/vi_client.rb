@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -22,6 +22,7 @@ class VIClient
     attr_accessor :vim
     attr_accessor :rp
     attr_accessor :vc_name
+    attr_accessor :ccr_ref
 
     def initialize(opts, host_id = -1)
         opts = {:insecure => true}.merge(opts)
@@ -30,9 +31,9 @@ class VIClient
         @vc_name = opts[:host] if opts[:host]
 
         # Get ccr and get rp
-        ccr_ref = opts.delete(:ccr)
-        if ccr_ref
-            ccr = RbVmomi::VIM::ClusterComputeResource.new(@vim, ccr_ref)
+        @ccr_ref = opts.delete(:ccr)
+        if @ccr_ref
+            ccr = RbVmomi::VIM::ClusterComputeResource.new(@vim, @ccr_ref)
 
             #Get ref for rp
             if ccr
@@ -124,30 +125,20 @@ class VIClient
         begin
             client = OpenNebula::Client.new
             host = OpenNebula::Host.new_with_id(host_id, client)
-            rc = host.info
+            rc = host.info(true)
             if OpenNebula.is_error?(rc)
                 raise "Could not get host info for ID: #{host_id} - #{rc.message}"
             end
-
-            password = host["TEMPLATE/VCENTER_PASSWORD"]
-
-            system = OpenNebula::System.new(client)
-            config = system.get_configuration
-            if OpenNebula.is_error?(config)
-                raise "Error getting oned configuration : #{config.message}"
-            end
-
-            token = config["ONE_KEY"]
-
-            password = VIClient::decrypt(password, token)
 
             connection = {
                 :host     => host["TEMPLATE/VCENTER_HOST"],
                 :user     => host["TEMPLATE/VCENTER_USER"],
                 :rp       => host["TEMPLATE/VCENTER_RESOURCE_POOL"],
                 :ccr      => host["TEMPLATE/VCENTER_CCR_REF"],
-                :password => password
+                :password => host["TEMPLATE/VCENTER_PASSWORD"]
             }
+
+            connection[:port] = host["TEMPLATE/VCENTER_PORT"] unless host["TEMPLATE/VCENTER_PORT"].nil?
 
             self.new(connection, host_id)
 
@@ -174,31 +165,27 @@ class VIClient
 
             user = ""
             password = ""
+            port = 0
             host_pool.each do |host|
               if host["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_id
-                user = host["TEMPLATE/VCENTER_USER"]
-                password = host["TEMPLATE/VCENTER_PASSWORD"]
+                host_decrypted = OpenNebula::Host.new_with_id(host["ID"], client)
+                host_decrypted.info(true)
+                user = host_decrypted["TEMPLATE/VCENTER_USER"]
+                password = host_decrypted["TEMPLATE/VCENTER_PASSWORD"]
+                port = host_decrypted["TEMPLATE/VCENTER_PORT"]
               end
             end
             if password.empty? or user.empty?
               raise "Error getting credentials for datastore #{datastore_id}"
             end
 
-            system = OpenNebula::System.new(client)
-            config = system.get_configuration
-            if OpenNebula.is_error?(config)
-                raise "Error getting oned configuration : #{config.message}"
-            end
-
-            token = config["ONE_KEY"]
-
-            password = VIClient::decrypt(password, token)
-
             connection = {
                 :host     => datastore["TEMPLATE/VCENTER_HOST"],
                 :user     => user,
                 :password => password
             }
+
+            connection[:port] = port unless port.nil?
 
             self.new(connection)
 

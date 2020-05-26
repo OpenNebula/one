@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -16,24 +16,19 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    unless defined?(RUBY_LIB_LOCATION)
-        RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
-    end
-
-    GEMS_LOCATION = '/usr/share/one/gems' unless defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    unless defined?(RUBY_LIB_LOCATION)
-        RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
-    end
-
-    GEMS_LOCATION = ONE_LOCATION + '/share/gems' unless defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
 if File.directory?(GEMS_LOCATION)
     Gem.use_paths(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /(vendor|site)_ruby/ }
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -57,13 +52,17 @@ drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VM')
 
 deploy_id    = drv_action['DEPLOY_ID']
-host_id      = drv_action['HISTORY_RECORDS/HISTORY/HID']
+host_id      = drv_action['HISTORY_RECORDS/HISTORY[last()]/HID']
 deploy       = {}
 
 begin
     retries ||= 0
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
     one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
+
+    if !drv_action.retrieve_xmlelements('USER_TEMPLATE/VCENTER_TAG').empty?
+        raise 'vShepre automation gems are not installed' unless REST_CLIENT
+    end
 
     if deploy_id_valid?(deploy_id)
         # VM is not new, we just need to reconfigure it and to power it on
@@ -73,23 +72,38 @@ begin
         vm = VCenterDriver::VirtualMachine.new_from_clone(vi_client,
                                                           drv_action,
                                                           vm_id)
+        if vm.instantiated_as_persistent?
+            oclient = OpenNebula::Client.new
+
+            template_id = vm.one_item['TEMPLATE/TEMPLATE_ID']
+            vm_template = OpenNebula::Template.new_with_id(template_id, oclient)
+
+            rc = vm_template.info
+
+            raise if OpenNebula.is_error?(rc)
+
+            vm_template.lock(1)
+        end
+
+        if vm.vcenter_tags?
+            rest_client = VCenterDriver::RESTClient.new_from_host(host_id)
+            rest_client.sync_tags(vm)
+        end
     end
 
     if vm.is_powered_off?
         vm.sync(deploy)
-        vm.poweron
+        # Only mark the VM as running if we are deploying it for the first time
+        set_running = !deploy_id_valid?(deploy_id)
+        vm.poweron(set_running)
     end
 
     puts vm['_ref']
 rescue StandardError => e
-    if (retries += 1) < CONFIG[:retries]
-        message =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " \
-                   "with #{dfile} failed due to \"#{e.message}\"" \
-                   "on the attempt \##{retries}."
-    else
-        message =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " \
-                   "with #{dfile} failed due to \"#{e.message}\"" \
-                   'on the final attempt.'
+    message =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " \
+               "with #{dfile} failed due to \"#{e.message}\"" \
+               "on attempt \##{retries}."
+    unless (retries += 1) < CONFIG[:retries]
         if e.message.include?('ManagedObjectNotFound')
             template_id = drv_action['TEMPLATE/TEMPLATE_ID'].to_i
 
@@ -103,7 +117,7 @@ rescue StandardError => e
                 template_name = resource.name
 
                 message << "\nVerify inside vCenter cluster #{cluster_name} " \
-                           "that the template #{template_name} currently " \
+                           "that template #{template_name} currently " \
                            'exists and has not been deleted'
             end
         end

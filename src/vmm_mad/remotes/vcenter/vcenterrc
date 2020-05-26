@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -30,3 +30,9 @@
 
 # Amount of time to wait between retry attempts (seconds)
 :retry_interval: 1
+
+# Create snapshots with memory dumps
+:memory_dumps: true
+
+# Cache expiration for monitoring
+:cache_expire: 120

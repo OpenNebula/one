@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,6 +18,7 @@
 #define SQL_DB_H_
 
 #include <sstream>
+#include <map>
 #include "Callbackable.h"
 
 /**
@@ -38,6 +39,13 @@ public:
         CONNECTION  = -100,
         SQL         = -200,
         SQL_DUP_KEY = -201
+    };
+
+    enum class SqlFeature
+    {
+        MULTIPLE_VALUE, // syntax INSERT VALUES (data), (data), (data)
+        LIMIT,          // LIMIT in queries with DELETE and UPDATE
+        FTS             // Full Text Search
     };
 
     /* ---------------------------------------------------------------------- */
@@ -99,27 +107,18 @@ public:
      */
     virtual void free_str(char * str) = 0;
 
-    /**
-     * Returns true if the syntax INSERT VALUES (data), (data), (data)
-     * is supported
-     *
-     * @return true if supported
-     */
-    virtual bool multiple_values_support() = 0;
 
-    /**
-     * Returns true if this Database can use LIMIT in queries with DELETE
-     *  and UPDATE
-     *
-     * @return true if supported
-     */
-    virtual bool limit_support() = 0;
+    virtual bool supports(SqlFeature ft)
+    {
+        auto it = features.find(ft);
 
-    /**
-     *  Return true if the backend allows FTS index
-     */
-    virtual bool fts_available() = 0;
+        if ( it == features.end() )
+        {
+            return false;
+        }
 
+        return it->second;
+    }
 
     /**
      *  @return pointer to a non-federated version of this database
@@ -127,6 +126,35 @@ public:
     virtual SqlDB * get_local_db()
     {
         return this;
+    }
+
+    /**
+     *  @return string with compatible LIMIT clause syntax
+     *  LIMIT [offset], row_count
+     *
+     *  +---+---+---+---+---+---+---+---+--
+     *  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |...
+     *  +---+---+---+---+---+---+---+---+--
+     *          |                   |
+     *          /-------------------/
+     *              LIMIT 3, 5
+     */
+    virtual std::string limit_string(int sid, int eid)
+    {
+        std::ostringstream oss;
+
+        oss << "LIMIT " << sid << "," << eid;
+
+        return oss.str();
+    }
+
+    virtual std::string limit_string(int sid)
+    {
+        std::ostringstream oss;
+
+        oss << "LIMIT " << sid;
+
+        return oss.str();
     }
 
 protected:
@@ -154,6 +182,15 @@ protected:
      *    @return SqlError enum
      */
     virtual int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet) = 0;
+
+    /**
+     *  Feature set
+     */
+    std::map<SqlFeature, bool> features = {
+        {SqlFeature::MULTIPLE_VALUE, false},
+        {SqlFeature::LIMIT, false},
+        {SqlFeature::FTS, false}
+    };
 };
 
 #endif /*SQL_DB_H_*/

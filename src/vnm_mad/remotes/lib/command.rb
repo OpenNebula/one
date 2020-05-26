@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -22,16 +22,16 @@ module VNMNetwork
     # to local installations. Any modification requires to sync the hosts with
     # onehost sync command.
     COMMANDS = {
-      :ebtables => "sudo ebtables",
-      :iptables => "sudo iptables",
-      :ip6tables=> "sudo ip6tables",
-      :brctl    => "sudo brctl",
-      :ip       => "sudo ip",
+      :ebtables => "sudo -n ebtables",
+      :iptables => "sudo -n iptables",
+      :ip6tables=> "sudo -n ip6tables",
+      :ip       => "sudo -n ip",
+      :ip_unpriv=> "ip",
       :virsh    => "virsh -c qemu:///system",
-      :ovs_vsctl=> "sudo ovs-vsctl",
-      :ovs_ofctl=> "sudo ovs-ofctl",
+      :ovs_vsctl=> "sudo -n ovs-vsctl",
+      :ovs_ofctl=> "sudo -n ovs-ofctl",
       :lsmod    => "lsmod",
-      :ipset    => "sudo ipset"
+      :ipset    => "sudo -n ipset"
     }
 
     # Represents an Array of commands to be executed by the networking drivers

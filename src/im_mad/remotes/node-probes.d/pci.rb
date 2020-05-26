@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -21,21 +21,21 @@ require 'yaml'
 
 begin
     probes_path = File.dirname(File.realdirpath(__FILE__))
-    ETC_NAME = probes_path.split(File::SEPARATOR)[-1]
+    ETC_NAME = probes_path.split(File::SEPARATOR)[-3]
 
-    NAME = File.join(File.dirname(__FILE__),"../../etc/im/#{ETC_NAME}/pci.conf")
+    NAME = File.join(__dir__, "../../../../etc/im/#{ETC_NAME}/pci.conf")
     CONF = {
-        :filter        => '0:0',
+        :filter => '0:0',
         :short_address => [],
-        :device_name   => [],
+        :device_name => []
     }.merge(YAML.load_file(NAME))
-rescue
+rescue StandardError
     STDERR.puts "Invalid configuration #{NAME}"
     exit(-1)
 end
 
-def get_pci(filter=nil)
-    command = "lspci -mmnn"
+def get_pci(filter = nil)
+    command = 'lspci -mmnn'
     command << " -d #{filter}" if filter
 
     text = %x(#{command})

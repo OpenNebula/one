@@ -1,0 +1,20 @@
+---
+:ID:
+  :desc: ONE identifier for Hook
+  :size: 4
+  :adjust: true
+
+:NAME:
+  :desc: Name of the Hook
+  :size: 19
+  :left: true
+  :expand: true
+
+:TYPE:
+  :desc: Type of the hook
+  :size: 8
+
+:default:
+- :ID
+- :NAME
+- :TYPE

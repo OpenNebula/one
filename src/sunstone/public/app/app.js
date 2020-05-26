@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -28,6 +28,7 @@ define(function(require) {
   Foundation.Reveal.defaults.closeOnClick = false;
 
   _setupDataTableSearch();
+  _setDataTableErrMode();
 
   var SETTINGS_TAB_ID = require('tabs/settings-tab/tabId');
   var PROVISION_TAB_ID = require('tabs/provision-tab/tabId');
@@ -277,6 +278,12 @@ define(function(require) {
       return 'ip-address';
     }
     return null;
+  }
+
+  function _setDataTableErrMode(){
+    $.fn.dataTable.ext.errMode = function(settings, techNote, message) {
+      console.log('data table error: '+message);
+    };
   }
 
   function _setupDataTableSearch() {

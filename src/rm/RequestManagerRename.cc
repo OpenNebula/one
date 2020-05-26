@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -63,7 +63,7 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
 
     AuthRequest ar(att.uid, att.group_ids);
 
-    ar.add_auth(auth_op, operms); // MANAGE OBJECT
+    ar.add_auth(att.auth_op, operms); // MANAGE OBJECT
 
     if (UserPool::authorize(ar) == -1)
     {

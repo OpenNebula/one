@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -24,7 +24,7 @@ import (
 	"time"
 )
 
-var testClient = NewClient(NewConfig("", "", ""))
+var testClient = NewDefaultClient(NewConfig("", "", ""))
 var testCtrl = NewController(testClient)
 
 // Appends a random string to a name
@@ -54,7 +54,7 @@ func GetUserGroup(t *testing.T, user string) (string, error) {
 	}
 
     // Get User Info
-    u, err := testCtrl.User(uid).Info()
+    u, err := testCtrl.User(uid).Info(false)
 	if err != nil {
         t.Error("Cannot retreive caller user Info")
 	}

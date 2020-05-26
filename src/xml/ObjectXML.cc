@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,6 +19,8 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
+#include <libxml/parser.h>
+#include <libxml/relaxng.h>
 
 #include "expr_arith.h"
 #include "expr_bool.h"
@@ -116,6 +118,11 @@ void ObjectXML::xpaths(std::vector<std::string>& content, const char * expr)
             break;
 
         case XPATH_NODESET:
+            if (obj->nodesetval == 0)
+            {
+                return;
+            }
+
             for(int i = 0; i < obj->nodesetval->nodeNr ; ++i)
             {
                 cur = obj->nodesetval->nodeTab[i];
@@ -533,3 +540,34 @@ error_yy:
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+int ObjectXML::validate_rng(const std::string &xml_doc, const string& schema_path)
+{
+    int rc;
+    xmlDocPtr doc = 0;
+    xmlRelaxNGPtr schema;
+    xmlRelaxNGValidCtxtPtr validctxt;
+    xmlRelaxNGParserCtxtPtr rngparser;
+
+    doc = xmlParseMemory (xml_doc.c_str(),xml_doc.length());
+
+    if (doc == 0)
+    {
+        return -1;
+    }
+
+    rngparser = xmlRelaxNGNewParserCtxt(schema_path.c_str());
+    schema = xmlRelaxNGParse(rngparser);
+    validctxt = xmlRelaxNGNewValidCtxt(schema);
+
+    rc = xmlRelaxNGValidateDoc(validctxt, doc);
+
+    xmlRelaxNGFree(schema);
+    xmlRelaxNGFreeValidCtxt(validctxt);
+    xmlRelaxNGFreeParserCtxt(rngparser);
+    xmlFreeDoc(doc);
+
+    return rc;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */

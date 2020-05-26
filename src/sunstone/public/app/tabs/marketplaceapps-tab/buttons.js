@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -30,11 +30,15 @@ define(function(require) {
     },
     "MarketPlaceApp.download_opennebula_dialog" : {
       type: "action",
-      text: '<i class="fas fa-lg fa-cloud-download-alt"/>'
+      text: '<i class="fas fa-lg fa-cloud-download-alt"/>',
+      tip: Locale.tr('Import into Datastore'),
+      custom_classes : "state-dependent"
     },
     "MarketPlaceApp.download_local" : {
       type: "action",
-      text: '<i class="fas fa-lg fa-download"/>'
+      text: '<i class="fas fa-lg fa-download"/>',
+      tip: Locale.tr('Download to your desktop'),
+      custom_classes : "state-dependent"
     },
     "MarketPlaceApp.chown" : {
       type: "confirm_with_select",

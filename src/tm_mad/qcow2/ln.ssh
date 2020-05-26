@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -26,7 +26,6 @@
 
 SRC=$1
 DST=$2
-
 VMID=$3
 DSID=$4
 
@@ -36,25 +35,22 @@ else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
 fi
 
-. $TMCOMMON
-
 DRIVER_PATH=$(dirname $0)
+LIBFS=${DRIVER_PATH}/../../datastore/libfs.sh
+
+. $TMCOMMON
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
 #-------------------------------------------------------------------------------
-DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
+DST_PATH=`arg_path $DST`
+DST_SNAP_DIR=${DST_PATH}.snap
+DST_FILE=`basename $DST_PATH`
 DST_DIR=`dirname $DST_PATH`
 
-SRC_ARG_PATH=`arg_path $SRC`
-
-DST_DS_PATH="$(dirname $(dirname $(dirname $DST_PATH)))"
-SRC_DS_PATH="$(dirname $(dirname $SRC_ARG_PATH))"
-
-SRC_PATH="${DST_DS_PATH}${SRC_ARG_PATH##$SRC_DS_PATH}"
-SNAP_DIR="${SRC_PATH}.snap"
-SNAP_NAME="$(basename $SNAP_DIR)"
+SRC_PATH=`arg_path $SRC`
+SRC_SNAP_DIR=${SRC_PATH}.snap
 
 #-------------------------------------------------------------------------------
 # Create DST path
@@ -63,42 +59,43 @@ SNAP_NAME="$(basename $SNAP_DIR)"
 ssh_make_path $DST_HOST $DST_DIR 'ssh'
 
 #-------------------------------------------------------------------------------
-# Link (ln) SRC into DST
+# Copy SRC into DST
 #-------------------------------------------------------------------------------
-log "Linking $SRC_PATH in $DST"
+log "Copying $SRC_PATH in $DST"
 
-type="$(file -b --mime-type $SRC_PATH)"
-
-if [ "$type" == "application/x-iso9660-image" ]; then
-    CMD="ln -sf ${SRC_PATH} ${DST_PATH}"
-else
-    CMD=$(cat <<EOT
-set -ex -o pipefail
-
-mkdir -p "${SNAP_DIR}"
-
-if [ ! -L "${SNAP_DIR}/${SNAP_NAME}" ]; then
-    ln -s "${SNAP_DIR}" "${SNAP_DIR}/${SNAP_NAME}"
-fi
-
-SNAP="\$(ls ${SNAP_DIR} | grep '^[[:digit:]]*$' | sort -n | tail -n 1 || :)"
-
-if [ -z "\${SNAP}" ]; then
-    SNAP=0
-    ln -sf "$SRC_PATH" "$SNAP_DIR/0"
-fi
-
-rm -f "${DST_PATH}"
-
-ln -sf "$SNAP_DIR/\$SNAP" "$DST_PATH"
-
-rm -rf "${DST_PATH}.snap"
-
-ln -sf "$SNAP_DIR" "${DST_PATH}.snap"
+if [ -d "${SRC_SNAP_DIR}" ]; then
+    CP_CMD=$(cat <<EOT
+    for F in \$(ls ${SRC_SNAP_DIR}); do
+        if [ -f ${SRC_SNAP_DIR}/\$F ]; then
+            cp ${SRC_SNAP_DIR}/\$F ${DST_SNAP_DIR}
+        fi
+    done
 EOT
 )
+else
+    CP_CMD="cp ${SRC_PATH} ${DST_SNAP_DIR}/0"
 fi
 
-ssh_exec_and_log $DST_HOST "$CMD" "Error linking $SRC to $DST"
+CMD=$(cat <<EOT
+set -ex -o pipefail
+mkdir -p "${DST_SNAP_DIR}"
+cd "${DST_SNAP_DIR}"
+
+${CP_CMD}
+
+rm -f "${DST_FILE}.snap"
+ln -sf "." "${DST_FILE}.snap"
+
+rebase_backing_files "$DST_FILE"
+
+SNAP="\$(ls | grep '^[[:digit:]]*$' | sort -n | tail -n 1 || :)"
+cd ..
+rm -f "${DST_FILE}"
+ln -sf "${DST_FILE}.snap/\$SNAP" "${DST_FILE}"
+
+EOT
+)
+
+ssh_exec_and_log_stdin $DST_HOST "$CMD" "$LIBFS" "Error copying $SRC to $DST"
 
 exit 0

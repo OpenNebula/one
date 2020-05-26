@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,6 +18,8 @@
 #include "ReplicaThread.h"
 #include "Nebula.h"
 #include "Client.h"
+#include "ZonePool.h"
+#include "LogDB.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -308,7 +310,22 @@ int FedReplicaManager::get_next_record(int zone_id, std::string& zedp,
         return -2;
     }
 
-    int rc = logdb->get_log_record(zs->next, lr);
+    uint64_t prev_index = logdb->previous_federated(zs->next);
+
+    if ( prev_index == UINT64_MAX )
+    {
+        std::ostringstream oss;
+
+        oss << "Missing federation record previous to: " << zs->next;
+
+        error = oss.str();
+
+        pthread_mutex_unlock(&mutex);
+
+        return -1;
+    }
+
+    int rc = logdb->get_log_record(zs->next, prev_index, lr);
 
     if ( rc == -1 )
     {

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -89,7 +89,7 @@ define(function(require) {
       'capacityCreateHTML': CapacityCreate.html(),
       'logos': Config.vmLogos,
       'usersDatatable': this.usersTable.dataTableHTML,
-      'groupDatatable': this.groupTable.dataTableHTML
+      'groupDatatable': this.groupTable.dataTableHTML,
     });
   }
 
@@ -114,11 +114,11 @@ define(function(require) {
   }
   function convertCostNumber(number){
     if(number >= 1000000){
-      number = (number/1000000).toFixed(6)
+      number = (number/1000000).toFixed(6);
       return number.toString()+"M";
     }
     else if(number >= 1000){
-      number = (number/1000).toFixed(6)
+      number = (number/1000).toFixed(6);
       return number.toString()+"K";
     }
     return number.toFixed(6);
@@ -221,10 +221,40 @@ define(function(require) {
         // All KVM settings are available in LXD plus
         // Privileged, Profile and Security Nesting
 
-      if (this.value == "lxd"){
+      if (this.value == "lxd") {
         $('.only_lxd').show();
         $('.not_lxd').hide();
         $('.raw_type').val('lxd');
+      }
+
+      var formContext = "#createVMTemplateFormWizard";
+      var NUMA_THREADS_MIN = 1;
+      var NUMA_THREADS_MAX = 2;
+      if (this.value == "firecracker") {
+        // [GENERAL]
+        $(".cpu_input > input", formContext).val("1");
+        // [NUMA]
+        $("#numa-pin-policy", formContext).val("SHARED");
+        $("#numa-sockets", formContext).val("1");
+        $("#numa-threads", formContext)
+          .prop("max", NUMA_THREADS_MAX)
+          .val(function(_, value) {
+            return (value > NUMA_THREADS_MAX) ? NUMA_THREADS_MAX : NUMA_THREADS_MIN;
+          })
+        
+        $('.disabled_firecracker', formContext).prop("disabled", true);
+        $('.not_firecracker', formContext).hide();
+      }
+      else {
+        // [GENERAL]
+        $(".cpu_input > input", formContext).val("");
+        // [NUMA]
+        $("#numa-pin-policy", formContext).val("NONE");
+        $("#numa-sockets", formContext).val("");
+        $("#numa-threads", formContext).removeAttr("max").val("");
+
+        $('.disabled_firecracker', formContext).removeAttr("disabled");
+        $('.not_firecracker', formContext).show();
       }
     });
 

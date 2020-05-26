@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -21,11 +21,13 @@
 #include "ReplicaManager.h"
 #include "ReplicaRequest.h"
 #include "Template.h"
-#include "RaftHook.h"
+#include "ExecuteHook.h"
 
 extern "C" void * raft_manager_loop(void *arg);
 
 extern "C" void * reconciling_thread(void *arg);
+
+class LogDBRecord;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -131,6 +133,41 @@ public:
      *  Makes this server follower. Stop associated replication facilities
      */
     void follower(unsigned int term);
+
+    static std::string state_to_str(State _state)
+    {
+        string st;
+
+        switch (_state)
+        {
+            case SOLO:
+                st = "SOLO";
+                break;
+            case CANDIDATE:
+                st = "CANDIDATE";
+                break;
+            case FOLLOWER:
+                st = "FOLLOWER";
+                break;
+            case LEADER:
+                st = "LEADER";
+                break;
+        }
+        return st;
+    }
+
+    State get_state()
+    {
+        State _state;
+
+        pthread_mutex_lock(&mutex);
+
+        _state = state;
+
+        pthread_mutex_unlock(&mutex);
+
+        return _state;
+    }
 
     unsigned int get_term()
     {
@@ -425,8 +462,8 @@ private:
     // Hooks
     // -------------------------------------------------------------------------
 
-    RaftLeaderHook   * leader_hook;
-    RaftFollowerHook * follower_hook;
+    ExecuteHook * leader_hook;
+    ExecuteHook * follower_hook;
 
     // -------------------------------------------------------------------------
     // Action Listener interface

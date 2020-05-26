@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -85,8 +85,8 @@ func (vc *VDCsController) Info() (*vdc.Pool, error) {
 }
 
 // Info retrieves information for the VDC.
-func (vc *VDCController) Info() (*vdc.VDC, error) {
-	response, err := vc.c.Client.Call("one.vdc.info", vc.ID)
+func (vc *VDCController) Info(decrypt bool) (*vdc.VDC, error) {
+	response, err := vc.c.Client.Call("one.vdc.info", vc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -119,8 +119,8 @@ func (vc *VDCController) Delete() error {
 	return err
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update adds vdc content.
+// * tpl: The new vdc contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (vc *VDCController) Update(tpl string, uType parameters.UpdateType) error {

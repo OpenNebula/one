@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -48,16 +48,17 @@
   <div class="row">
     <div class="medium-5 small-12 columns template_user_inputs{{element.ID}}"></div>
   </div>
-  {{#advancedImportationSection "<i class=\"fas fa-code-branch\"></i>" (tr "Network") }}
   {{#isFeatureEnabled "show_vnet_instantiate"}}
+  {{#advancedImportationSection "<i class=\"fas fa-code-branch\"></i>" (tr "Network") }}
   <div class="row">
     <div class="small-12 columns nicsContext{{element.ID}}">
       <div class="provision_network_selector">
       </div>
     </div>
   </div>
-  {{/isFeatureEnabled}}
   {{/advancedImportationSection}}
+  {{/isFeatureEnabled}}
+  {{#isOneFeatureEnabled "show_as_uid_instantiate" "show_as_gid_instantiate"}}
   {{#advancedImportationSection "<i class=\"fas fa-user\"></i>" (tr "Instantiate as different User / Group")}}
   {{#isFeatureEnabled "show_as_uid_instantiate"}}
   <div class="row">
@@ -78,8 +79,9 @@
   </div>
   {{/isFeatureEnabled}}
   {{/advancedImportationSection}}
-  {{#advancedImportationSection "<i class=\"fas fa-hdd\"></i>" (tr "Deploy VM in a specific Host") }}
+  {{/isOneFeatureEnabled}}
   {{#isFeatureEnabled "show_host_instantiate"}}
+  {{#advancedImportationSection "<i class=\"fas fa-hdd\"></i>" (tr "Deploy VM in a specific Host") }}
   <div class="row">
     <div class="small-12 columns hostContext{{element.ID}}">
       <fieldset>
@@ -96,10 +98,10 @@
       </fieldset>
     </div>
   </div>
-  {{/isFeatureEnabled}}
   {{/advancedImportationSection}}
-  {{#advancedImportationSection "<i class=\"fas fa-folder-open\"></i>" (tr "Deploy VM in a specific Datastore") }}
+  {{/isFeatureEnabled}}
   {{#isFeatureEnabled "show_ds_instantiate"}}
+  {{#advancedImportationSection "<i class=\"fas fa-folder-open\"></i>" (tr "Deploy VM in a specific Datastore") }}
   <div class="row">
     <div class="small-12 columns dsContext{{element.ID}}">
       <fieldset>
@@ -116,8 +118,8 @@
       </fieldset>
     </div>
   </div>
-  {{/isFeatureEnabled}}
   {{/advancedImportationSection}}
+  {{/isFeatureEnabled}}
   {{#advancedImportationSection "<i class=\"fas fa-calendar-alt\"></i>" (tr "Schedule Actions for VM") }}
   <div class="row">
     <div class="large-12 columns actionContext{{element.ID}}">
@@ -127,8 +129,8 @@
     </div>
   </div>
   {{/advancedImportationSection}}
-  {{#advancedImportationSection "<i class=\"fas fa-folder-open\"></i>" (tr "Associate VM to a VM Group") }}
   {{#isFeatureEnabled "show_vmgroup_instantiate"}}
+  {{#advancedImportationSection "<i class=\"fas fa-folder-open\"></i>" (tr "Associate VM to a VM Group") }}
   <div class="row">
     <div class="small-12 columns vmgroupContext{{element.ID}}">
       <fieldset>
@@ -142,9 +144,10 @@
       </fieldset>
     </div>
   </div>
-  {{/isFeatureEnabled}}
   {{/advancedImportationSection}}
-  {{#advancedImportationSection "<i class=\"fas fa-folder\"></i>" (tr "vCenter Deployment") }}
+  {{/isFeatureEnabled}}
+  {{#isFeatureEnabled "vcenter_vm_folder"}}
+  {{#advancedImportationSection "<i class=\"fas fa-folder\"></i>" (tr "vCenter Deployment")}}
   <div class="row">
     <div class="medium-6 small-12 columns vcenterVMFolderContext{{element.ID}}">
       <div class="provision_vcenter_vm_folder_selector">
@@ -152,5 +155,6 @@
     </div>
   </div>
   {{/advancedImportationSection}}
+  {{/isFeatureEnabled}}
 </div>
 <br>

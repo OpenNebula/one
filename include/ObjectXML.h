@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -37,7 +37,7 @@ public:
 
     // ---------------------- Constructors ------------------------------------
 
-    ObjectXML():xml(0),ctx(0){};
+    ObjectXML():xml(0), ctx(0) {}
 
     /**
      *  Constructs an object using a XML document
@@ -65,7 +65,7 @@ public:
         xmlNodePtr cur;
         xmlChar *  str_ptr;
 
-        obj=xmlXPathEvalExpression(reinterpret_cast<const xmlChar *>(expr),ctx);
+        obj = xmlXPathEvalExpression(reinterpret_cast<const xmlChar *>(expr),ctx);
 
         if (obj == 0)
         {
@@ -79,7 +79,12 @@ public:
                 break;
 
             case XPATH_NODESET:
-                for(int i = 0; i < obj->nodesetval->nodeNr ; ++i)
+                if (obj->nodesetval == 0)
+                {
+                    return;
+                }
+
+                for (int i = 0; i < obj->nodesetval->nodeNr ; ++i)
                 {
                     cur = obj->nodesetval->nodeTab[i];
 
@@ -277,6 +282,16 @@ public:
      *  @return 0 if the xml validates
      */
     static int validate_xml(const std::string &xml_doc);
+
+    /**
+     *  Validates the XML doc against a RelaxNG schema
+     *
+     *  @param xml_doc string containing the XML document
+     *  @param schema_path path to RelaxNG schema file
+     *  @return 0 if the xml validates
+     */
+    static int validate_rng(const std::string &xml_doc,
+                            const std::string& schema_path);
 
     /**
      * Renames the nodes given in the xpath expression

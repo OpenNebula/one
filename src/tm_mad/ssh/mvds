@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -49,11 +49,10 @@ DST_SNAP="${DST}.snap"
 #-------------------------------------------------------------------------------
 
 log "Moving $SRC to datastore as $DST"
-exec_and_log "$SCP -r $SRC $DST" "Error copying $SRC to $DST"
+ssh_forward exec_and_log "$SCP -r $SRC $DST" "Error copying $SRC to $DST"
 
 if $SSH $SRC_HOST ls ${SRC_PATH_SNAP} >/dev/null 2>&1; then
     exec_and_log "rsync -r --delete ${SRC_HOST}:${SRC_PATH_SNAP}/ ${DST_SNAP}"
-    hup_collectd $SRC_HOST
 fi
 
 exit 0

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -21,6 +21,10 @@
 #include "MarketPlacePool.h"
 #include "MarketPlaceAppPool.h"
 #include "VirtualMachineDisk.h"
+#include "HookPool.h"
+#include "FedReplicaManager.h"
+#include "ImageManager.h"
+#include "MarketPlaceManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -265,6 +269,17 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
         cluster->unlock();
     }
 
+    //Take object body for hooks.
+    PoolObjectSQL * obj = pool->get(id);
+
+    if (obj != nullptr)
+    {
+        obj->to_xml(att.extra_xml);
+
+        obj->unlock();
+    }
+
+    att.resp_id = id;
     success_response(id, att);
 }
 
@@ -648,6 +663,17 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
         ds->unlock();
     }
 
+    // Take image body for Hooks
+    Image * img = ipool->get(id);
+
+    if (img != nullptr)
+    {
+        img->to_xml(att.extra_xml);
+
+        img->unlock();
+    }
+
+    att.resp_id = id;
     success_response(id, att);
 }
 
@@ -687,6 +713,11 @@ bool TemplateAllocate::allocate_authorization(
     AuthRequest ar(att.uid, att.group_ids);
     string      t64;
     string      aname;
+
+    if (!RequestManagerAllocate::allocate_authorization(paramList, tmpl, att, cluster_perms))
+    {
+        return false;
+    }
 
     VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
 
@@ -869,7 +900,9 @@ Request::ErrorCode UserAllocate::pool_allocate(
     string driver = xmlrpc_c::value_string(paramList.getString(3));
 
     set<int> gids;
-    int      gid = -1;
+    set<int> agids;
+
+    int gid = -1;
 
     vector<xmlrpc_c::value> param_arr;
     vector<xmlrpc_c::value>::const_iterator it;
@@ -914,7 +947,7 @@ Request::ErrorCode UserAllocate::pool_allocate(
     }
 
     int rc = static_cast<UserPool *>(pool)->allocate(&id, uname, gid, passwd,
-            driver, true, gids, att.resp_msg);
+            driver, true, gids, agids, att.resp_msg);
 
     if (rc < 0)
     {
@@ -1331,3 +1364,37 @@ Request::ErrorCode VMGroupAllocate::pool_allocate(
     return Request::SUCCESS;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode HookAllocate::pool_allocate(
+        xmlrpc_c::paramList const&  paramList,
+        Template *                  tmpl,
+        int&                        id,
+        RequestAttributes&          att)
+{
+    std::string hk_type;
+
+    HookPool * hkpool = static_cast<HookPool *>(pool);
+
+    tmpl->get("TYPE", hk_type);
+
+    if (Hook::str_to_hook_type(hk_type) == Hook::UNDEFINED)
+    {
+        ostringstream oss;
+
+        oss << "Invalid Hook type: " << hk_type;
+        att.resp_msg = oss.str();
+
+        return Request::INTERNAL;
+    }
+
+    id = hkpool->allocate(tmpl, att.resp_msg);
+
+    if (id < 0)
+    {
+        return Request::INTERNAL;
+    }
+
+    return Request::SUCCESS;
+}

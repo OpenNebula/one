@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	client := goca.NewClient(
+	client := goca.NewDefaultClient(
 		goca.NewConfig("", "", ""),
 	)
 	controller := goca.NewController(client)
@@ -20,7 +20,7 @@ func main() {
 	}
 
 	// Fetch VM informations
-	vm, err := controller.VM(id).Info()
+	vm, err := controller.VM(id).Info(false)
 	if err != nil {
 		log.Fatal(err)
 	}

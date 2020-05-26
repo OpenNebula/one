@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,7 +18,7 @@
 #define GROUP_POOL_H_
 
 #include "Group.h"
-#include "SqlDB.h"
+#include "PoolSQL.h"
 
 using namespace std;
 
@@ -26,10 +26,11 @@ using namespace std;
 class GroupPool : public PoolSQL
 {
 public:
-    GroupPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
-          const string& remotes_location, bool is_federation_slave);
 
-    ~GroupPool(){};
+    GroupPool(SqlDB * db, bool is_federation_slave,
+        vector<const SingleAttribute *>& restricted_attrs);
+
+    ~GroupPool() = default;
 
     /* ---------------------------------------------------------------------- */
     /* Constants for DB management                                            */
@@ -159,13 +160,13 @@ public:
      *  query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
      *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(string& oss, const string& where, const string& limit,
-            bool desc);
+    int dump(string& oss, const string& where, int sid, int eid, bool desc);
 
 private:
 

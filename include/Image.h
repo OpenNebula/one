@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -146,7 +146,7 @@ public:
      */
     static string state_to_str(ImageState state)
     {
-        switch(state)
+        switch (state)
         {
             case INIT:              return "INIT";          break;
             case READY:             return "READY";         break;
@@ -172,7 +172,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    string& to_xml(string& xml) const override;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -180,7 +180,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const string &xml_str) override;
 
     /**
      *  Returns true if the image is persistent
@@ -320,7 +320,7 @@ public:
     /*   Access Image Counters (running vms and cloning operations )          */
     /* ---------------------------------------------------------------------- */
 
-    int dec_running (int vm_id)
+    int dec_running(int vm_id)
     {
         if ( vm_collection.del(vm_id) == 0 )
         {
@@ -431,7 +431,7 @@ public:
            return -1;
         }
 
-        switch(state)
+        switch (state)
         {
             case USED:
             case CLONE:
@@ -483,7 +483,7 @@ public:
     /**
      *  Factory method for image templates
      */
-    Template * get_new_template() const
+    Template * get_new_template() const override
     {
         return new ImageTemplate;
     }
@@ -726,7 +726,7 @@ protected:
           int            umask,
           ImageTemplate* img_template);
 
-    virtual ~Image();
+    virtual ~Image() = default;
 
     // *************************************************************************
     // DataBase implementation
@@ -743,14 +743,14 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, string& error_str) override;
 
     /**
      *  Writes/updates the Images data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int update(SqlDB *db);
+    int update(SqlDB *db) override;
 };
 
 #endif /*IMAGE_H_*/

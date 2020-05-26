@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -51,13 +51,24 @@ define(function(require) {
         }
 
         var resourceId = "" + selected_nodes[0];
-        var type       = Sunstone.getDataTable(TAB_ID).type;
+        var type       = "IMAGE"; //Sunstone.getDataTable(TAB_ID).type;
 
         Sunstone.resetFormPanel(TAB_ID, EXPORT_DIALOG_ID);
-        Sunstone.showFormPanel(TAB_ID, EXPORT_DIALOG_ID, "export",
+        Sunstone.showFormPanel(
+          TAB_ID, 
+          EXPORT_DIALOG_ID, 
+          "export",
           function(formPanelInstance, context) {
-            formPanelInstance.setResourceId(context, resourceId, type);
-          });
+            OpenNebulaResource.show({
+              data: { id: resourceId },
+              success: function(_, app_json) {
+                formPanelInstance.setDockerTags(resourceId, app_json);
+                formPanelInstance.setResourceId(context, app_json, type);
+              },
+              error: Notifier.onError
+            });
+          }
+        );
       }
     },
     "MarketPlaceApp.export" : {
@@ -116,8 +127,33 @@ define(function(require) {
       },
       error: Notifier.onError
     },
-    "MarketPlaceApp.list" : _commonActions.list(),
-    "MarketPlaceApp.show" : _commonActions.show(),
+    "MarketPlaceApp.list" : {
+      type: "list",
+      call: OpenNebulaResource.list,
+      callback: function(request, response) {
+        var datatable = Sunstone.getDataTable(TAB_ID);
+        if (datatable){
+          datatable.updateView(request, response);
+          datatable.updateStateActions();
+        }
+      },
+      error: Notifier.onError
+    },
+    "MarketPlaceApp.show" : {
+      type: "single",
+      call: OpenNebulaResource.show,
+      callback: function(request, response) {
+          var datatable = Sunstone.getDataTable(TAB_ID);
+          if (datatable){
+            datatable.updateElement(request, response);
+            datatable.updateStateActions(response);
+            if (Sunstone.rightInfoVisible($('#' + TAB_ID))) {
+              Sunstone.insertPanels(TAB_ID, response);
+            }
+          }
+      },
+      error: Notifier.onError
+    },
     "MarketPlaceApp.refresh" : _commonActions.refresh(),
 
     "MarketPlaceApp.delete" : {

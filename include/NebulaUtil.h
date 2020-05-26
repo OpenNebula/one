@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,7 +23,6 @@
 #include <set>
 #include <algorithm>
 #include <random>
-#include <mutex>
 
 #include <openssl/crypto.h>
 
@@ -61,7 +60,7 @@ namespace one_util
     /**
     *  Base 64 encoding
     *    @param in the string to encoded
-    *    @return a pointer to the encoded string (must be freed) or 0 in case of
+    *    @return a pointer to the encoded string (must be freed) or nullptr in case of
     *    error
     */
     std::string * base64_encode(const std::string& in);
@@ -69,7 +68,7 @@ namespace one_util
    /**
     *  Base 64 decoding
     *    @param in the string to decode
-    *    @return a pointer to the decoded string (must be freed) or 0 in case of
+    *    @return a pointer to the decoded string (must be freed) or nullptr in case of
     *    error
     */
     std::string * base64_decode(const std::string& in);
@@ -78,10 +77,19 @@ namespace one_util
     *  AES256 encryption
     *    @param in the string to encrypt
     *    @param password to encrypt data
-    *    @return a pointer to the encrypted string (must be freed) or 0 in case of
+    *    @return a pointer to the encrypted string (must be freed) or nullptr in case of
     *    error
     */
-    std::string * aes256cbc_encrypt(const std::string& in, const std::string password);
+    std::string * aes256cbc_encrypt(const std::string& in, const std::string& password);
+
+   /**
+    *  AES256 decryption
+    *    @param in the base64 string to decrypt
+    *    @param password to decrypt data
+    *    @return a pointer to the decrypted string (must be freed) or nullptr in case of
+    *    error
+    */
+    std::string * aes256cbc_decrypt(const std::string& in, const std::string& password);
 
     /**
      *  Creates a random number, using time(0) as seed, and performs an sha1 hash
@@ -180,7 +188,7 @@ namespace one_util
     }
 
     std::vector<std::string> split(const std::string& st, char delim,
-            bool clean_empty=true);
+            bool clean_empty = true);
 
     /**
      * Splits a string, using the given delimiter
@@ -231,7 +239,7 @@ namespace one_util
     {
         std::ostringstream oss;
 
-        for(Iterator it = first; it != last; it++)
+        for (Iterator it = first; it != last; it++)
         {
             if (it != first)
             {
@@ -252,7 +260,7 @@ namespace one_util
      * @return the joined strings
      */
     template <class T>
-    std::string join(const std::set<T> values, char delim)
+    std::string join(const std::set<T>& values, char delim)
     {
         return join(values.begin(), values.end(), delim);
     }
@@ -380,6 +388,6 @@ namespace one_util
 
         static std::vector<pthread_mutex_t *> vmutex;
     };
-};
+} // namespace one_util
 
 #endif /* _NEBULA_UTIL_H_ */

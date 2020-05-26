@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -107,7 +107,7 @@ module VNMMAD
 
                 _o, _e, snap = Open3.capture3('snap list lxd;') # avoid cmd not found with;
                 @lxc_cmd = 'lxc'
-                @lxc_cmd.prepend('sudo ') if snap.exitstatus.zero?
+                @lxc_cmd.prepend('sudo -n ') if snap.exitstatus.zero?
             end
 
             # Get the VM information with lxc config show
@@ -162,6 +162,29 @@ module VNMMAD
                     return path unless tmp.nil?
                 end
                 nil
+            end
+
+        end
+
+        # A NIC using Firecracker. This class implements functions to get the
+        # physical interface that the NIC is using, based on the MAC address
+        class NicFirecracker < Hash
+
+            VNMNetwork::HYPERVISORS['firecracker'] = self
+
+            def initialize
+                super(nil)
+            end
+
+            def get_info(_vm)
+                nil
+            end
+
+            # Look for the tap in config
+            def get_tap(vm)
+                self[:tap] = "#{vm.deploy_id}-#{self[:nic_id]}"
+
+                self
             end
 
         end

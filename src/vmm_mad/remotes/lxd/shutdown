@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -37,9 +37,15 @@ container = Container.get(vm_name, xml, client)
 # Stop vnc connection and container & unmap devices if not a wild container
 # ------------------------------------------------------------------------------
 container.vnc('stop')
-container.check_stop
+
+force = false
+force = true if ARGV[-1] == '-f'
+
+container.check_stop(force)
 
 exit 0 if container.wild?
+
+container.save_idmap
 
 raise 'Failed to dismantle container storage' unless \
 container.setup_storage('unmap')

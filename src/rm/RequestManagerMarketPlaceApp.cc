@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,6 +15,22 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerMarketPlaceApp.h"
+#include "Nebula.h"
+#include "MarketPlaceAppPool.h"
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+RequestManagerMarketPlaceApp::RequestManagerMarketPlaceApp(const std::string& method_name,
+    const std::string& help, const std::string& params) :
+    Request(method_name, params, help)
+{
+    Nebula& nd = Nebula::instance();
+    pool       = nd.get_apppool();
+
+    auth_object = PoolObjectSQL::MARKETPLACEAPP;
+    auth_op     = AuthRequest::MANAGE;
+};
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */

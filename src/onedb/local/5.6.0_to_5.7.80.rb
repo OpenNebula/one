@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -38,12 +38,16 @@ module Migrator
 
     def up
         feature_2944
-        bug_2687         # MUST be run before 2489, which generates short body
+        GC.start
+        bug_2687 # MUST be run before 2489, which generates short body
+        GC.start
         feature_2253
+        GC.start
         feature_2489_2671
+        GC.start
         feature_826
+        GC.start
         feature_2966
-        create_idxs      #MUST be the last one
         true
     end
 
@@ -55,9 +59,7 @@ module Migrator
             raise "Host #{hid} not found in the OpenNebula DB" if !row[:body]
             xml = row[:body]
 
-            doc = Nokogiri::XML(xml, nil, NOKOGIRI_ENCODING) do |c|
-                c.default_xml.noblanks
-            end.root.at_xpath('/HOST/TEMPLATE')
+            doc = nokogiri_doc(xml, 'host_pool').root.at_xpath('/HOST/TEMPLATE')
 
             rp = doc.xpath("VCENTER_RESOURCE_POOL").first
             rp = rp.text if rp
@@ -79,9 +81,7 @@ module Migrator
 
         @db.fetch('SELECT * FROM vm_pool') do |row|
             begin
-                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) do |c|
-                    c.default_xml.noblanks
-                end
+                doc = nokogiri_doc(row[:body], 'vm_pool')
 
                 one_vm = OpenNebula::XMLElement.new(doc.root.at_xpath('/VM'))
 
@@ -139,9 +139,7 @@ module Migrator
         @db.transaction do
             # update virtual networks
             @db.fetch('SELECT * FROM old_network_pool') do |row|
-                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) do |c|
-                    c.default_xml.noblanks
-                end
+                doc = nokogiri_doc(row[:body], 'old_network_pool')
 
                 if doc.root.at_xpath('BRIDGE_TYPE').to_s.empty?
                     vn_mad = doc.root.at_xpath('/VNET/VN_MAD').text
@@ -166,9 +164,7 @@ module Migrator
         @db.transaction do
             # updates VM's nics
             @db.fetch('SELECT * FROM old_vm_pool') do |row|
-                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) do |c|
-                    c.default_xml.noblanks
-                end
+                doc = nokogiri_doc(row[:body], 'old_vm_pool')
 
                 if !doc.root.at_xpath('TEMPLATE/NIC').to_s.empty?
                     doc.root.xpath('//NIC').map do |nic|
@@ -199,9 +195,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch('SELECT * FROM old_vm_pool') do |row|
-                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) do |c|
-                    c.default_xml.noblanks
-                end
+                doc = nokogiri_doc(row[:body], 'old_vm_pool')
 
                 row[:short_body] = gen_short_body(doc)
                 row[:search_token] = gen_search_body(doc)
@@ -283,18 +277,6 @@ module Migrator
         end
 
         return str_scaped
-    end
-
-    def is_fts_available()
-        if @db.adapter_scheme == :sqlite
-            return false
-        else
-            if @db.server_version >= 50600
-                return true
-            else
-                return false
-            end
-        end
     end
 
     def gen_short_body(body)
@@ -416,9 +398,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_image_pool") do |row|
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){
-                    |c| c.default_xml.noblanks
-                }
+                doc = nokogiri_doc(row[:body], 'old_image_pool')
 
                 next_snapshot = doc.at_xpath("//SNAPSHOTS/NEXT_SNAPSHOT")
 
@@ -455,9 +435,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_vm_pool") do |row|
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){ |c|
-                    c.default_xml.noblanks
-                }
+                doc = nokogiri_doc(row[:body], 'old_vm_pool')
 
                 # evaluate each disk snapshot individually
                 doc.xpath("//SNAPSHOTS").each do |disk|
@@ -485,14 +463,6 @@ module Migrator
         end
 
         @db.run "DROP TABLE old_vm_pool;"
-    end
-
-    def create_idxs
-        if !is_fts_available
-            create_idx(:index_sqlite, db_version)
-        else
-            create_idx(:index_sql, db_version)
-        end
     end
 
     def feature_2966

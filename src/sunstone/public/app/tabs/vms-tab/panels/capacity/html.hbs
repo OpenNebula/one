@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -19,8 +19,11 @@
     <table class="info_table dataTable">
       <thead>
         <tr>
-          <th>{{tr "CPU"}}</th>
-          <th>{{tr "VCPU"}}</th>
+          <th>{{tr "Physical CPU"}}</th>
+          <th>{{tr "Virtual CPU"}}</th>
+          {{#ifEquals element.USER_TEMPLATE.HYPERVISOR "vcenter"}}
+          <th>{{tr "Virtual Cores"}}</th>
+          {{/ifEquals}}
           <th>{{tr "Memory"}}</th>
           {{#isFeatureEnabled "showback"}}
           <th>{{tr "Cost / CPU"}}</th>
@@ -33,6 +36,12 @@
         <tr>
           <td id="cpu_info">{{valOrDefault element.TEMPLATE.CPU '-'}}</td>
           <td id="vcpu_info">{{valOrDefault element.TEMPLATE.VCPU '-'}}</td>
+          {{#ifEquals element.USER_TEMPLATE.HYPERVISOR "vcenter"}}
+          <td id="cores_info">
+            {{valOrDefault element.TEMPLATE.TOPOLOGY.CORES '-'}} Cores x
+            {{valOrDefault element.TEMPLATE.TOPOLOGY.SOCKETS '-'}} Sockets
+          </td>
+          {{/ifEquals}}
           <td id="memory_info">{{humanizeSize "MB" element.TEMPLATE.MEMORY}}</td>
           {{#isFeatureEnabled "showback"}}
           <td id="cpu_cost_info">{{cpuCost}}</td>

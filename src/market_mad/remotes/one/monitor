@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -25,7 +25,7 @@ require 'rexml/document'
 # OpenNebula MarketPlace
 class OneMarket
 
-    ONE_MARKET_URL = 'https://marketplace.opennebula.systems/'
+    ONE_MARKET_URL = 'https://marketplace.opennebula.io/'
     AGENT          = 'Market Driver'
     VERSION        = File.dirname(__FILE__) + '/../../VERSION'
 
@@ -76,8 +76,8 @@ class OneMarket
 
         applist['appliances'].each do |app|
             id     = app['_id']['$oid']
-            source = "#{@url}/appliance/#{id}/download/0"
-
+            link   = "#{@url}appliance/#{id}"
+            source = "#{link}/download/0"
             tmpl = ''
 
             app['type'] = 'IMAGE' unless app['type']
@@ -93,6 +93,7 @@ class OneMarket
             print_var(tmpl, 'VERSION',     app['version'])
             print_var(tmpl, 'TAGS',        app['tags'].join(', '))
             print_var(tmpl, 'REGTIME',     app['creation_time'])
+            print_var(tmpl, 'LINK',        link)
 
             if !app['files'].nil? && !app['files'][0].nil?
                 file = app['files'][0]

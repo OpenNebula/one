@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -36,6 +36,7 @@ MARKET_URL=$1
 CONTEXT_API="https://api.github.com/repos/OpenNebula/addon-context-linux/releases"
 CONTEXT_URL="https://github.com/OpenNebula/addon-context-linux/releases/download"
 
+PKG_ALT="curl openssh-server"
 PKG_APK="curl openssh"
 PKG_DEB="curl dbus openssh-server"
 PKG_RPM="openssh-server"
@@ -149,23 +150,35 @@ esac
 
 mkdir $TMP_DIR/$id
 
-# Generate installation scripts for each Linux distribution
-#-------------------------------------------------------------------------------
+# Generate contextualization procedure per supported platform.
+# The Goal is to install the required context package for each distro
+#--------------------------------------------------------------------
+# Overview:
+# 1- Setup name resolution
+# 2- Setup randomness
+# 3- Download and install context package
+#--------------------------------------------------------------------
+
 case "$rootfs_url" in
 *ubuntu*|*debian*|*devuan*)
     terminal="/bin/bash"
     commands=$(cat <<EOC
 export PATH=\$PATH:/bin:/sbin
 
-rm -f /etc/resolv.conf > /dev/null 2>&1
+rm -f /etc/resolv.conf >> /var/log/chroot.log 2>&1
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
-apt-get update > /dev/null
-apt-get install $PKG_DEB -y > /dev/null 2>&1
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
 
-$CURL $CONTEXT_URL/v$selected_tag/one-context_$selected_tag-1.deb -Lsfo /root/context.deb
-apt-get install /root/context.deb -y > /dev/null 2>&1
+apt-get update >> /var/log/chroot.log 2>&1
+apt-get install $PKG_DEB -y >> /var/log/chroot.log 2>&1
+
+$CURL $CONTEXT_URL/v$selected_tag/one-context_$selected_tag-1.deb -Lsfo /root/context.deb >> /var/log/chroot.log 2>&1
+apt-get install -y /root/context.deb >> /var/log/chroot.log 2>&1
 rm /root/context.deb
+
+rm /dev/random /dev/urandom
 EOC
 )
     ;;
@@ -176,11 +189,16 @@ export PATH=\$PATH:/bin:/sbin
 
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
-yum install $PKG_CENTOS6 -y > /dev/null 2>&1
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
 
-$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el6.noarch.rpm -Lsfo /root/context.rpm
-yum install /root/context.rpm -y > /dev/null 2>&1
+yum install $PKG_CENTOS6 -y  >> /var/log/chroot.log 2>&1
+
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el6.noarch.rpm -Lsfo /root/context.rpm  >> /var/log/chroot.log 2>&1
+yum install /root/context.rpm -y  >> /var/log/chroot.log 2>&1
 rm /root/context.rpm
+
+rm /dev/random /dev/urandom
 EOC
 )
     ;;
@@ -189,15 +207,31 @@ EOC
     commands=$(cat <<EOC
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
-## New yum version requires random bits to initialize GnuTLS, but chroot
-## prevents access to /dev/urandom (as desgined).
-mknod -m 666 /dev/random c 1 8
-mknod -m 666 /dev/urandom c 1 9
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
 
-yum install $PKG_RPM -y > /dev/null 2>&1
+yum install $PKG_RPM -y >> /var/log/chroot.log 2>&1
 
-$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lsfo /root/context.rpm
-yum install /root/context.rpm -y > /dev/null 2>&1
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lsfo /root/context.rpm >> /var/log/chroot.log 2>&1
+yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
+rm /root/context.rpm
+
+rm /dev/random /dev/urandom
+EOC
+)
+    ;;
+*centos/8*)
+    terminal="/bin/bash"
+    commands=$(cat <<EOC
+echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
+
+yum install $PKG_RPM -y >> /var/log/chroot.log 2>&1
+
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el8.noarch.rpm -Lsfo /root/context.rpm >> /var/log/chroot.log 2>&1
+yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
 rm /root/context.rpm
 
 rm /dev/random /dev/urandom
@@ -209,11 +243,16 @@ EOC
     commands=$(cat <<EOC
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
-yum install $PKG_RPM -y > /dev/null 2>&1
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
 
-$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lsfo /root/context.rpm
-yum install /root/context.rpm -y > /dev/null 2>&1
+yum install $PKG_RPM -y >> /var/log/chroot.log 2>&1
+
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lsfo /root/context.rpm >> /var/log/chroot.log 2>&1
+yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
 rm /root/context.rpm
+
+rm /dev/random /dev/urandom
 EOC
 )
     ;;
@@ -223,15 +262,13 @@ EOC
 rm /etc/resolv.conf
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
-## New yum version requires random bits to initialize GnuTLS, but chroot
-## prevents access to /dev/urandom (as desgined).
-mknod -m 666 /dev/random c 1 8
-mknod -m 666 /dev/urandom c 1 9
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9
 
-yum install $PKG_FEDORA -y > /dev/null 2>&1
+yum install $PKG_FEDORA -y >> /var/log/chroot.log 2>&1
 
-$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lsfo /root/context.rpm
-yum install /root/context.rpm -y > /dev/null 2>&1
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lsfo /root/context.rpm >> /var/log/chroot.log 2>&1
+yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
 rm /root/context.rpm
 
 rm /dev/random /dev/urandom
@@ -243,13 +280,40 @@ EOC
     commands=$(cat <<EOC
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
-apk add $PKG_APK > /dev/null 2>&1
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
 
-rc-update add sshd > /dev/null 2>&1
+apk add $PKG_APK >> /var/log/chroot.log 2>&1
 
-$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-r1.apk -Lsfo /root/context.apk
-apk add --allow-untrusted /root/context.apk > /dev/null 2>&1
+rc-update add sshd >> /var/log/chroot.log 2>&1
+
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-r1.apk -Lsfo /root/context.apk >> /var/log/chroot.log 2>&1
+apk add --allow-untrusted /root/context.apk >> /var/log/chroot.log 2>&1
 rm /root/context.apk
+
+rm /dev/random /dev/urandom
+EOC
+)
+    ;;
+*alt*)
+    terminal="/bin/bash"
+    commands=$(cat <<EOC
+export PATH=/sbin:/usr/sbin:/bin:/usr/bin
+
+rm -f /etc/resolv.conf >> /var/log/chroot.log 2>&1
+echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
+
+apt-get update >> /var/log/chroot.log 2>&1
+apt-get install $PKG_ALT -y >> /var/log/chroot.log 2>&1
+
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-alt1.noarch.rpm -Lsfo /root/context.rpm >> /var/log/chroot.log 2>&1
+apt-get install /root/context.rpm -y >> /var/log/chroot.log 2>&1
+rm /root/context.rpm
+
+rm /dev/random /dev/urandom
 EOC
 )
     ;;
@@ -266,7 +330,7 @@ esac
 #-------------------------------------------------------------------------------
 MK_CONTAINER=$LIB_LOCATION/sh/create_container_image.sh
 
-cat << EOF | sudo $MK_CONTAINER $TMP_DIR $id $extension $terminal
+cat << EOF | sudo -n $MK_CONTAINER $TMP_DIR $id $extension $terminal
 $commands
 EOF
 

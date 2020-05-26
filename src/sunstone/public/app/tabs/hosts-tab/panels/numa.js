@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -48,6 +48,7 @@ define(function(require) {
     this.title = Locale.tr("Numa");
     this.icon = "fa-microchip";
     this.element = info[RESOURCE.toUpperCase()];
+    this.class = "not_vcenter";
     return this;
   };
 
@@ -93,8 +94,24 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    if (that && that.element && that.element.HOST_SHARE && that.element.HOST_SHARE.NUMA_NODES) {
-      var numaNodes = that.element.HOST_SHARE.NUMA_NODES.NODE;
+
+    console.log(that);
+
+    // Hide NUMA tab if hypervisor is vcenter
+    if( that.element &&
+        that.element.VM_MAD &&
+        that.element.VM_MAD == "vcenter"){
+      $("li.not_vcenter").addClass("hide");
+    }
+    
+    if (
+      that && 
+      that.element && 
+      that.element.MONITORING && 
+      that.element.MONITORING.HOST_SHARE && 
+      that.element.MONITORING.HOST_SHARE.NUMA_NODES
+    ) {
+      var numaNodes = that.element.MONITORING.HOST_SHARE.NUMA_NODES.NODE;
       if (!(numaNodes instanceof Array)) {
         numaNodes = [numaNodes];
       }
@@ -102,7 +119,11 @@ define(function(require) {
       var select = $("<select/>",{'id': SELECT_ID});
       options.map(function(element){
         if(element && element.value){
-          var selected = that && that.element && that.element.TEMPLATE && that.element.TEMPLATE.PIN_POLICY && that.element.TEMPLATE.PIN_POLICY === element.value;
+          var selected = that && 
+            that.element && 
+            that.element.TEMPLATE && 
+            that.element.TEMPLATE.PIN_POLICY && 
+            that.element.TEMPLATE.PIN_POLICY === element.value;
           select.append($("<option/>",{'value':element.value}).text(capitalize(element.value)).prop('selected', selected));
         }
       });
@@ -162,14 +183,12 @@ define(function(require) {
             var limit = 3; //start in 0 is index of array
             var count = 0;
             numaCores.map(function(core,i){
-
               var placeBody = tBody.find("tr:last");
               if(count === 0){
                 placeBody = tBody.append($("<tr/>")).find("tr:last");
               }
               placeBody.append(
-
-                $("<td/>",{"colspan":2,"class":"text-center"}).append(
+                $("<td/>",{"colspan":2,"class":"text-center"}).css({'vertical-align':'top'}).append(
                   $("<h6/>").text(core.ID? "Core "+core.ID : "")
                 )
               );
@@ -187,7 +206,6 @@ define(function(require) {
                           cpuInfo && cpuInfo[1] && cpuInfo[1] >= 0? 
                             $("<a/>",{"class":"","href":"/#vms-tab/"+cpuInfo[1]}).text("VM #"+cpuInfo[1]) 
                               :
-
                             $("<div/>",{"class":"no-vm"}).text(Number(cpuInfo[1]) === -1?"FREE":"ISOLATED")
                         )
                       )
@@ -264,4 +282,3 @@ define(function(require) {
     }
   }
 })
-

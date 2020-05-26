@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -71,22 +71,13 @@ func (c *TemplatesController) ByName(name string, args ...int) (int, error) {
 // Info returns a template pool. A connection to OpenNebula is
 // performed.
 func (tc *TemplatesController) Info(args ...int) (*template.Pool, error) {
-	var who, start, end int
 
-	switch len(args) {
-	case 0:
-		who = parameters.PoolWhoMine
-		start = -1
-		end = -1
-	case 3:
-		who = args[0]
-		start = args[1]
-		end = args[2]
-	default:
-		return nil, errors.New("Wrong number of arguments")
+	fArgs, err := handleArgs(args)
+	if err != nil {
+		return nil, err
 	}
 
-	response, err := tc.c.Client.Call("one.templatepool.info", who, start, end)
+	response, err := tc.c.Client.Call("one.templatepool.info", fArgs...)
 	if err != nil {
 		return nil, err
 	}
@@ -101,8 +92,8 @@ func (tc *TemplatesController) Info(args ...int) (*template.Pool, error) {
 }
 
 // Info connects to OpenNebula and fetches the information of the Template
-func (tc *TemplateController) Info() (*template.Template, error) {
-	response, err := tc.c.Client.Call("one.template.info", tc.ID)
+func (tc *TemplateController) Info(extended, decrypt bool) (*template.Template, error) {
+	response, err := tc.c.Client.Call("one.template.info", tc.ID, extended, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -125,8 +116,8 @@ func (tc *TemplatesController) Create(template string) (int, error) {
 	return response.BodyInt(), nil
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update adds template content.
+// * tpl: The new template contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (tc *TemplateController) Update(tpl string, uType parameters.UpdateType) error {
@@ -143,8 +134,9 @@ func (tc *TemplateController) Chown(uid, gid int) error {
 
 // Chmod changes the permissions of a template. If any perm is -1 it will not
 // change
-func (tc *TemplateController) Chmod(perm *shared.Permissions) error {
-	_, err := tc.c.Client.Call("one.template.chmod", perm.ToArgs(tc.ID)...)
+func (tc *TemplateController) Chmod(perm shared.Permissions) error {
+	args := append([]interface{}{tc.ID}, perm.ToArgs()...)
+	_, err := tc.c.Client.Call("one.template.chmod", args...)
 	return err
 }
 

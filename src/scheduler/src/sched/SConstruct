@@ -1,7 +1,7 @@
 # SConstruct for src/pool
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -37,7 +37,6 @@ sched_env.Prepend(LIBS=[
     'nebula_pool',
     'nebula_xml',
     'nebula_common',
-    'nebula_core',
     'nebula_template',
     'nebula_vmtemplate',
     'nebula_vm',
@@ -48,6 +47,12 @@ sched_env.Prepend(LIBS=[
 ])
 
 if not sched_env.GetOption('clean'):
-    sched_env.ParseConfig(("LDFLAGS='%s' ../../../../share/scons/get_xmlrpc_config client") % (os.environ['LDFLAGS'],))
+    env_xmlrpc_flags = "LDFLAGS='%s' CXXFLAGS='%s' CPPFLAGS='%s'" % (
+                       os.environ.get('LDFLAGS', ''),
+                       os.environ.get('CXXFLAGS', ''),
+                       os.environ.get('CPPFLAGS', ''))
+
+    sched_env.ParseConfig("%s ../../../../share/scons/get_xmlrpc_config client" % (
+                          env_xmlrpc_flags,))
 
 sched_env.Program('mm_sched.cc')

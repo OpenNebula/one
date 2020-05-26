@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -28,6 +28,7 @@ end
 
 if File.directory?(GEMS_LOCATION)
     Gem.use_paths(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /(vendor|site)_ruby/ }
 end
 
 $LOAD_PATH << File.dirname(__FILE__)
@@ -45,7 +46,7 @@ begin
     xhost.initialize_xml(xml_text, 'HOST')
     deploy_id = xhost["TEMPLATE/PROVISION/DEPLOY_ID"]
 
-    ec2_drv = EC2Driver.new(deploy_id ? xhost['NAME'] : xhost)
+    ec2_drv = EC2Driver.new(deploy_id ? xhost['NAME'] : xhost, xhost['ID'])
 
     puts ec2_drv.deploy(nil, xhost, xml_text, deploy_id ? "" : "BOOT", deploy_id)
 

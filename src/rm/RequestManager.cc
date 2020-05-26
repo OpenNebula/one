@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -51,6 +51,7 @@
 #include "RequestManagerVirtualRouter.h"
 #include "RequestManagerSecurityGroup.h"
 #include "RequestManagerVNTemplate.h"
+#include "RequestManagerHook.h"
 
 #include "RequestManagerSystem.h"
 #include "RequestManagerProxy.h"
@@ -63,7 +64,6 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <string.h>
 #include <cstring>
 
 
@@ -184,7 +184,7 @@ extern "C" void * rm_xml_server_loop(void *arg)
     // -------------------------------------------------------------------------
     // Main connection loop
     // -------------------------------------------------------------------------
-    ConnectionManager *cm =new ConnectionManager(rm, rm->max_conn);
+    std::unique_ptr<ConnectionManager> cm{new ConnectionManager(rm, rm->max_conn)};
 
     while (true)
     {
@@ -205,12 +205,10 @@ extern "C" void * rm_xml_server_loop(void *arg)
 
         NebulaLog::log("ReM", Log::DDEBUG, oss);
 
-        Connection * rc = new Connection(client_fd, cm);
+        Connection * rc = new Connection(client_fd, cm.get());
 
         pthread_create(&thread_id, &pattr, rm_do_connection, (void *) rc);
     }
-
-    delete cm;
 
     return 0;
 }
@@ -222,7 +220,7 @@ xmlrpc_c::serverAbyss * RequestManager::create_abyss()
 {
     xmlrpc_c::serverAbyss::constrOpt opt = xmlrpc_c::serverAbyss::constrOpt();
 
-    opt.registryP(&RequestManagerRegistry);
+    opt.registryP(&RequestManagerRegistry.registry);
     opt.keepaliveTimeout(keepalive_timeout);
     opt.keepaliveMaxConn(keepalive_max_conn);
     opt.timeout(timeout);
@@ -413,6 +411,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vrouter_update(new VirtualRouterUpdateTemplate());
     xmlrpc_c::methodPtr vmg_update(new VMGroupUpdateTemplate());
     xmlrpc_c::methodPtr vntemplate_update(new VirtualNetworkTemplateUpdateTemplate());
+    xmlrpc_c::methodPtr hook_update(new HookUpdateTemplate());
 
     // Allocate Methods
     xmlrpc_c::methodPtr vm_allocate(new VirtualMachineAllocate());
@@ -427,6 +426,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vrouter_allocate(new VirtualRouterAllocate());
     xmlrpc_c::methodPtr vmg_allocate(new VMGroupAllocate());
     xmlrpc_c::methodPtr vntemplate_allocate(new VirtualNetworkTemplateAllocate());
+    xmlrpc_c::methodPtr hook_allocate(new HookAllocate());
 
     // Clone Methods
     xmlrpc_c::methodPtr template_clone(new VMTemplateClone());
@@ -446,6 +446,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vrouter_delete(new VirtualRouterDelete());
     xmlrpc_c::methodPtr vmg_delete(new VMGroupDelete());
     xmlrpc_c::methodPtr vntemplate_delete(new VirtualNetworkTemplateDelete());
+    xmlrpc_c::methodPtr hook_delete(new HookDelete());
 
     // Info Methods
     xmlrpc_c::methodPtr vm_info(new VirtualMachineInfo());
@@ -460,6 +461,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr secg_info(new SecurityGroupInfo());
     xmlrpc_c::methodPtr vrouter_info(new VirtualRouterInfo());
     xmlrpc_c::methodPtr vmg_info(new VMGroupInfo());
+    xmlrpc_c::methodPtr hook_info(new HookInfo());
 
     // Lock Methods
     xmlrpc_c::methodPtr doc_lock(new DocumentLock());
@@ -478,6 +480,8 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vmg_unlock(new VMGroupUnlock());
     xmlrpc_c::methodPtr vntemplate_lock(new VNTemplateLock());
     xmlrpc_c::methodPtr vntemplate_unlock(new VNTemplateUnlock());
+    xmlrpc_c::methodPtr hook_lock(new HookLock());
+    xmlrpc_c::methodPtr hook_unlock(new HookUnlock());
 
     // PoolInfo Methods
     xmlrpc_c::methodPtr hostpool_info(new HostPoolInfo());
@@ -493,6 +497,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr secgpool_info(new SecurityGroupPoolInfo());
     xmlrpc_c::methodPtr vmgpool_info(new VMGroupPoolInfo());
     xmlrpc_c::methodPtr vrouter_pool_info(new VirtualRouterPoolInfo());
+    xmlrpc_c::methodPtr hookpool_info(new HookPoolInfo());
 
     // Host Methods
     xmlrpc_c::methodPtr host_status(new HostStatus());
@@ -562,6 +567,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vrouter_rename(new VirtualRouterRename());
     xmlrpc_c::methodPtr vmg_rename(new VMGroupRename());
     xmlrpc_c::methodPtr vntemplate_rename(new VirtualNetworkTemplateRename());
+    xmlrpc_c::methodPtr hook_rename(new HookRename());
 
     // Virtual Router Methods
     xmlrpc_c::methodPtr vrouter_instantiate(new VirtualRouterInstantiate());
@@ -570,6 +576,12 @@ void RequestManager::register_xml_methods()
 
     // Security Group methods
     xmlrpc_c::methodPtr secg_commit(new SecurityGroupCommit());
+
+    // Hook methods
+    xmlrpc_c::methodPtr hook_retry(new HookRetry());
+
+    //HookLog methods
+    xmlrpc_c::methodPtr hooklog_info(new HookLogInfo());
 
     /* VM related methods  */
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
@@ -1202,6 +1214,20 @@ void RequestManager::register_xml_methods()
 
     RequestManagerRegistry.addMethod("one.marketapppool.info", marketapppool_info);
 
+    /* Hooks related methods */
+    RequestManagerRegistry.addMethod("one.hook.allocate", hook_allocate);
+    RequestManagerRegistry.addMethod("one.hook.delete", hook_delete);
+    RequestManagerRegistry.addMethod("one.hook.update", hook_update);
+    RequestManagerRegistry.addMethod("one.hook.rename", hook_rename);
+    RequestManagerRegistry.addMethod("one.hook.info", hook_info);
+    RequestManagerRegistry.addMethod("one.hook.lock", hook_lock);
+    RequestManagerRegistry.addMethod("one.hook.unlock", hook_unlock);
+    RequestManagerRegistry.addMethod("one.hook.retry", hook_retry);
+    RequestManagerRegistry.addMethod("one.hookpool.info", hookpool_info);
+
+    /* Hook Log related methods */
+    RequestManagerRegistry.addMethod("one.hooklog.info", hooklog_info);
+
     /* System related methods */
     RequestManagerRegistry.addMethod("one.system.version", system_version);
     RequestManagerRegistry.addMethod("one.system.config", system_config);
@@ -1211,3 +1237,19 @@ void RequestManager::register_xml_methods()
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void RequestManager::finalize_action(const ActionRequest& ar)
+{
+    NebulaLog::log("ReM",Log::INFO,"Stopping Request Manager...");
+
+    pthread_cancel(rm_xml_server_thread);
+
+    pthread_join(rm_xml_server_thread,0);
+
+    NebulaLog::log("ReM",Log::INFO,"XML-RPC server stopped.");
+
+    if (socket_fd != -1)
+    {
+        close(socket_fd);
+    }
+}

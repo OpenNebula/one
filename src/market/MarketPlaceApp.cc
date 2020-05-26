@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -68,8 +68,6 @@ MarketPlaceApp::MarketPlaceApp(
 
     set_umask(umask);
 };
-
-MarketPlaceApp::~MarketPlaceApp(){};
 
 /* ************************************************************************ */
 /* MartketPlaceApp:: Database Access Functions                              */
@@ -155,14 +153,14 @@ int MarketPlaceApp::insert_replace(SqlDB *db, bool replace, string& error_str)
     char * sql_name;
     char * sql_xml;
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -199,10 +197,10 @@ int MarketPlaceApp::insert_replace(SqlDB *db, bool replace, string& error_str)
             <<          other_u             << ")";
     }
 
-    rc = db->exec_wr(oss);
-
     db->free_str(sql_name);
     db->free_str(sql_xml);
+
+    rc = db->exec_wr(oss);
 
     return rc;
 
@@ -392,7 +390,7 @@ MarketPlaceApp::Type MarketPlaceApp::str_to_type(string& str_type)
 
 int MarketPlaceApp::enable(bool enable, string& error_str)
 {
-    switch(state)
+    switch (state)
     {
         case INIT:
         case LOCKED:

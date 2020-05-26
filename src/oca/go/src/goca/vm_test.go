@@ -1,5 +1,7 @@
+// +build !disabled
+
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,9 +21,11 @@ package goca
 import (
 	"testing"
 
+	ds "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/datastore"
+	dskeys "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/datastore/keys"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm/keys"
 	. "gopkg.in/check.v1"
-
-	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
 )
 
 // Hook up gocheck into the "go test" runner.
@@ -37,11 +41,10 @@ var _ = Suite(&VMSuite{})
 
 func (s *VMSuite) SetUpSuite(c *C) {
 	// Create template
-	tpl := dyn.NewTemplateBuilder()
-
-	tpl.AddValue("NAME", GenName("VMSuite-template"))
-	tpl.AddValue("CPU", 1)
-	tpl.AddValue("MEMORY", "64")
+	vmName := GenName("VMSuite-template")
+	tpl := vm.NewTemplate()
+	tpl.Add(keys.Name, vmName)
+	tpl.CPU(1).Memory(64)
 
 	templateID, err := testCtrl.Templates().Create(tpl.String())
 	c.Assert(err, IsNil)
@@ -50,11 +53,13 @@ func (s *VMSuite) SetUpSuite(c *C) {
 
 	s.hostID, _ = testCtrl.Hosts().Create("dummy-test", "dummy", "dummy", 0)
 
-	tmpl := "TM_MAD=dummy\nDS_MAD=dummy"
+	tmpl := ds.NewTemplate()
+	tmpl.Add(dskeys.TMMAD, "dummy")
+	tmpl.Add(dskeys.DSMAD, "dummy")
 
-	testCtrl.Datastore(1).Update(tmpl, 1)
+	testCtrl.Datastore(1).Update(tmpl.String(), 1)
 
-	testCtrl.Datastore(0).Update(tmpl, 1)
+	testCtrl.Datastore(0).Update(tmpl.String(), 1)
 
 }
 
@@ -83,7 +88,7 @@ func (s *VMSuite) TearDownSuite(c *C) {
 
 func VMExpectState(c *C, vmID int, state, lcmState string) func() bool {
 	return func() bool {
-		vm, err := testCtrl.VM(vmID).Info()
+		vm, err := testCtrl.VM(vmID).Info(false)
 		if err != nil {
 			return false
 		}
@@ -130,10 +135,10 @@ func (s *VMSuite) TestVMUpdate(c *C) {
 	err := vmC.Update("A=B", 1)
 	c.Assert(err, IsNil)
 
-	vm, err := vmC.Info()
+	vm, err := vmC.Info(false)
 	c.Assert(err, IsNil)
 
-	val := vm.UserTemplate.Dynamic.GetContentByName("A")
+	val, _ := vm.UserTemplate.GetStr("A")
 	c.Assert(val, Equals, "B")
 }
 
@@ -206,7 +211,7 @@ func (s *VMSuite) TestVMResize(c *C) {
 	expectHostState := func(hostID int) func() bool {
 		return func() bool {
 			hostC := testCtrl.Host(hostID)
-			host, err := hostC.Info()
+			host, err := hostC.Info(false)
 			c.Assert(err, IsNil)
 			state, err := host.StateString()
 			c.Assert(err, IsNil)
@@ -234,10 +239,12 @@ func (s *VMSuite) TestVMResize(c *C) {
 	c.Assert(err, IsNil)
 	c.Assert(WaitResource(VMExpectState(c, s.vmID, "ACTIVE", "RUNNING")), Equals, true)
 
-	vm, err := vmC.Info()
+	vm, err := vmC.Info(false)
 	c.Assert(err, IsNil)
 
-	c.Assert(vm.Template.CPU, Equals, 2.5)
+	cpu, _ := vm.Template.GetCPU()
+	mem, _ := vm.Template.GetMemory()
 
-	c.Assert(vm.Template.Memory, Equals, 512)
+	c.Assert(cpu, Equals, 2.5)
+	c.Assert(mem, Equals, 512)
 }

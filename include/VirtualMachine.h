@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -21,13 +21,10 @@
 #include "VirtualMachineDisk.h"
 #include "VirtualMachineNic.h"
 #include "VirtualMachineMonitorInfo.h"
-#include "PoolSQL.h"
+#include "PoolObjectSQL.h"
 #include "History.h"
 #include "Image.h"
-#include "Log.h"
 #include "NebulaLog.h"
-#include "NebulaUtil.h"
-#include "Quotas.h"
 
 #include <time.h>
 #include <set>
@@ -227,7 +224,7 @@ public:
      *  Test if the VM has changed state since last time prev state was set
      *    @return true if VM changed state
      */
-    bool has_changed_state()
+    bool has_changed_state() const
     {
         return (prev_lcm_state != lcm_state || prev_state != state);
     }
@@ -240,7 +237,6 @@ public:
     {
         resched = do_sched ? 1 : 0;
     };
-
 
     // -------------------------------------------------------------------------
     // Log & Print
@@ -300,33 +296,17 @@ public:
     };
 
     /**
-     *  Updates VM dynamic information (usage counters), and updates last_poll,
-     *  and copies it to history record for acct.
+     * @return monitor info
      */
-    int update_info(const string& monitor_data);
-
-    /**
-     *  Clears the VM monitor information usage counters (MEMORY, CPU),
-     *  last_poll, custom attributes, and copies it to the history record
-     *  for acct.
-     */
-    void reset_info()
-    {
-        last_poll = time(0);
-
-        monitoring.replace("CPU","0.0");
-
-        monitoring.replace("MEMORY","0");
-
-        set_vm_info();
-
-        clear_template_monitor_error();
-    }
-
     VirtualMachineMonitorInfo& get_info()
     {
         return monitoring;
     }
+
+    /**
+     *  Read monitoring from DB
+     */
+    void load_monitoring();
 
     /**
      *  Returns the deployment ID
@@ -653,7 +633,7 @@ public:
      *  function MUST be called before this one.
      *    @return the action that closed the current history record
      */
-    const History::VMAction get_action() const
+    const VMActions::Action get_action() const
     {
         return history->action;
     };
@@ -662,7 +642,7 @@ public:
      *  Returns the action that closed the history record in the previous host
      *    @return the action that closed the history record in the previous host
      */
-    const History::VMAction get_previous_action() const
+    const VMActions::Action get_previous_action() const
     {
         return previous_history->action;
     };
@@ -671,7 +651,7 @@ public:
      *  Get host id where the VM is or is going to execute. The hasHistory()
      *  function MUST be called before this one.
      */
-    int get_hid()
+    int get_hid() const
     {
         return history->hid;
     }
@@ -680,7 +660,7 @@ public:
      *  Get host id where the VM was executing. The hasPreviousHistory()
      *  function MUST be called before this one.
      */
-    int get_previous_hid()
+    int get_previous_hid() const
     {
         return previous_history->hid;
     }
@@ -689,7 +669,7 @@ public:
      *  Get cluster id where the VM is or is going to execute. The hasHistory()
      *  function MUST be called before this one.
      */
-    int get_cid()
+    int get_cid() const
     {
         return history->cid;
     }
@@ -698,7 +678,7 @@ public:
      *  Get cluster id where the VM was executing. The hasPreviousHistory()
      *  function MUST be called before this one.
      */
-    int get_previous_cid()
+    int get_previous_cid() const
     {
         return previous_history->cid;
     }
@@ -729,21 +709,26 @@ public:
     };
 
     /**
-     *  Sets end time of a VM.
+     *  Sets end time of a VM. It also sets the vm_info when the record is closed
      *    @param _etime time when the VM finished
      */
     void set_etime(time_t _etime)
     {
         history->etime = _etime;
+
+        to_xml_extended(history->vm_info, 0);
     };
 
     /**
-     *  Sets end time of a VM in the previous Host.
+     *  Sets end time of a VM in the previous Host. It also sets the vm_info 
+     *  when the record is closed
      *    @param _etime time when the VM finished
      */
     void set_previous_etime(time_t _etime)
     {
         previous_history->etime = _etime;
+
+        to_xml_extended(previous_history->vm_info, 0);
     };
 
     /**
@@ -776,7 +761,7 @@ public:
     /**
      *  Gets the running start time for the VM
      */
-    time_t get_running_stime()
+    time_t get_running_stime() const
     {
         return history->running_stime;
     }
@@ -821,7 +806,7 @@ public:
      *  Sets the action that closed the history record
      *    @param action that closed the history record
      */
-    void set_action(History::VMAction action, int uid, int gid, int req_id)
+    void set_action(VMActions::Action action, int uid, int gid, int req_id)
     {
         history->action = action;
 
@@ -831,7 +816,7 @@ public:
         history->req_id = req_id;
     };
 
-    void set_internal_action(History::VMAction action)
+    void set_internal_action(VMActions::Action action)
     {
         history->action = action;
 
@@ -843,7 +828,7 @@ public:
 
     void clear_action()
     {
-        history->action = History::NONE_ACTION;
+        history->action = VMActions::NONE_ACTION;
 
         history->uid = -1;
         history->gid = -1;
@@ -851,7 +836,7 @@ public:
         history->req_id = -1;
     }
 
-    void set_previous_action(History::VMAction action, int uid, int gid,int rid)
+    void set_previous_action(VMActions::Action action, int uid, int gid,int rid)
     {
         previous_history->action = action;
 
@@ -870,7 +855,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const
+    string& to_xml(string& xml) const override
     {
         return to_xml_extended(xml, 1);
     }
@@ -900,12 +885,12 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const string &xml_str) override;
 
     /**
      *  Factory method for virtual machine templates
      */
-    Template * get_new_template() const
+    Template * get_new_template() const override
     {
         return new VirtualMachineTemplate;
     }
@@ -929,7 +914,7 @@ public:
      *    @return 0 on success
      */
     int replace_template(const string& tmpl_str, bool keep_restricted,
-            string& error);
+            string& error) override;
 
     /**
      *  Append new attributes to the *user template*.
@@ -940,23 +925,23 @@ public:
      *    @return 0 on success
      */
     int append_template(const string& tmpl_str, bool keep_restricted,
-            string& error);
+            string& error) override;
 
     /**
      *  This function gets an attribute from the user template
      *    @param name of the attribute
      *    @param value of the attribute
      */
-    void get_user_template_attribute(const char * name, string& value) const
+    void get_user_template_attribute(const string& name, string& value) const
     {
-        user_obj_template->get(name,value);
+        user_obj_template->get(name, value);
     }
 
     /**
      *  Sets an error message with timestamp in the template
      *    @param message Message string
      */
-    void set_template_error_message(const string& message);
+    void set_template_error_message(const string& message) override;
 
     /**
      *  Sets an error message with timestamp in the template
@@ -968,7 +953,7 @@ public:
     /**
      *  Deletes the error message from the template
      */
-    void clear_template_error_message();
+    void clear_template_error_message() override;
 
     /**
      *  Sets an error message with timestamp in the template (ERROR_MONITOR)
@@ -994,28 +979,10 @@ public:
     };
 
     /**
-     *  Gets time from last information polling.
-     *    @return time of last poll (epoch) or 0 if never polled
-     */
-    time_t get_last_poll() const
-    {
-        return last_poll;
-    };
-
-    /**
-     *  Sets time of last information polling.
-     *    @param poll time in epoch, normally time(0)
-     */
-    void set_last_poll(time_t poll)
-    {
-        last_poll = poll;
-    };
-
-    /**
      *  Get the VM physical capacity requirements for the host.
      *    @param sr the HostShareCapacity to store the capacity request.
      */
-    void get_capacity(HostShareCapacity &sr);
+    void get_capacity(HostShareCapacity &sr) const;
 
     /**
      * Adds automatic placement requirements: Datastore and Cluster
@@ -1050,7 +1017,7 @@ public:
     /**
      *  @return true if the VM is being deployed with a pinned policy
      */
-    bool is_pinned();
+    bool is_pinned() const;
 
     // ------------------------------------------------------------------------
     // Virtual Machine Disks
@@ -1132,14 +1099,14 @@ public:
     /**
      *  Return state of the VM right before import
      */
-    string get_import_state();
+    string get_import_state() const;
 
     /**
      * Checks if the current VM MAD supports the given action for imported VMs
      * @param action VM action to check
      * @return true if the current VM MAD supports the given action for imported VMs
      */
-    bool is_imported_action_supported(History::VMAction action) const;
+    bool is_imported_action_supported(VMActions::Action action) const;
 
     // ------------------------------------------------------------------------
     // Virtual Router related functions
@@ -1148,13 +1115,13 @@ public:
      * Returns the Virtual Router ID if this VM is a VR, or -1
      * @return VR ID or -1
      */
-    int get_vrouter_id();
+    int get_vrouter_id() const;
 
     /**
      * Returns true if this VM is a Virtual Router
      * @return true if this VM is a Virtual Router
      */
-    bool is_vrouter();
+    bool is_vrouter() const;
 
     // ------------------------------------------------------------------------
     // Context related functions
@@ -1193,7 +1160,7 @@ public:
      *    @param err description if any
      *    @return template with the attributes
      */
-    VirtualMachineTemplate * get_updateconf_template();
+    VirtualMachineTemplate * get_updateconf_template() const;
 
     // -------------------------------------------------------------------------
     // "Save as" Disk related functions (save_as hot)
@@ -1264,7 +1231,7 @@ public:
      *    @return -1 if failure
      */
     int get_saveas_disk(int& disk_id, string& source, int& image_id,
-            string& snap_id, string& tm_mad, string& ds_id)
+            string& snap_id, string& tm_mad, string& ds_id) const
     {
         return disks.get_saveas_info(disk_id, source, image_id, snap_id,
                 tm_mad, ds_id);
@@ -1303,7 +1270,7 @@ public:
      *
      * @return the disk waiting for an attachment action, or 0
      */
-    VirtualMachineDisk * get_attach_disk()
+    VirtualMachineDisk * get_attach_disk() const
     {
         return disks.get_attach();
     }
@@ -1353,7 +1320,7 @@ public:
      *
      * @return the disk or 0 if not found
      */
-    VirtualMachineDisk * get_resize_disk()
+    VirtualMachineDisk * get_resize_disk() const
     {
         return disks.get_resize();
     }
@@ -1447,22 +1414,7 @@ public:
     /**
      * Deletes the alias of the NIC that was in the process of being attached/detached
      */
-    void delete_attach_alias(VirtualMachineNic *nic)
-    {
-        std::set<int> a_ids;
-
-        one_util::split_unique(nic->vector_value("ALIAS_IDS"), ',', a_ids);
-
-        for (std::set<int>::iterator it = a_ids.begin(); it != a_ids.end(); it++)
-        {
-            VirtualMachineNic * nic_a = nics.delete_nic(*it);
-
-            if ( nic_a != 0)
-            {
-                obj_template->remove(nic_a->vector_attribute());
-            }
-        }
-    }
+    void delete_attach_alias(VirtualMachineNic *nic);
 
     // ------------------------------------------------------------------------
     // Disk Snapshot related functions
@@ -1552,7 +1504,7 @@ public:
      *    @param snap_id of the snapshot
      */
     int get_snapshot_disk(int& ds_id, string& tm_mad, int& disk_id,
-            int& snap_id)
+            int& snap_id) const
     {
         return disks.get_active_snapshot(ds_id, tm_mad, disk_id, snap_id);
     }
@@ -1603,7 +1555,7 @@ public:
     /**
      *  @return the on-going ACTION associated to the ACTIVE snapshot
      */
-    string get_snapshot_action();
+    string get_snapshot_action() const;
 
     /**
      * Replaces HYPERVISOR_ID for the active SNAPSHOT
@@ -1684,14 +1636,6 @@ private:
     // *************************************************************************
     // Virtual Machine Attributes
     // *************************************************************************
-
-    // -------------------------------------------------------------------------
-    // VM Scheduling & Managing Information
-    // -------------------------------------------------------------------------
-    /**
-     *  Last time (in epoch) that the VM was polled to get its status
-     */
-    time_t      last_poll;
 
     // -------------------------------------------------------------------------
     // Virtual Machine Description
@@ -1820,16 +1764,6 @@ private:
     static int bootstrap(SqlDB * db);
 
     /**
-     *  Callback function to unmarshall a VirtualMachine object
-     *  (VirtualMachine::select)
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int select_cb(void *nil, int num, char **names, char ** values);
-
-    /**
      *  Execute an INSERT or REPLACE Sql query.
      *    @param db The SQL DB
      *    @param replace Execute an INSERT or a REPLACE
@@ -1884,14 +1818,6 @@ private:
 
         return previous_history->update(db);
     };
-
-    /**
-     * Inserts the last monitoring, and deletes old monitoring entries.
-     *
-     * @param db pointer to the db
-     * @return 0 on success
-     */
-    int update_monitoring(SqlDB * db);
 
     /**
      * Updates the VM search information.
@@ -2183,6 +2109,16 @@ private:
      */
     int parse_sched_action(string& error_str);
 
+    /**
+     *  Encrypt all secret attributes
+     */
+    virtual void encrypt() override;
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    virtual void decrypt() override;
+
 protected:
 
     //**************************************************************************
@@ -2203,44 +2139,26 @@ protected:
     // DataBase implementation
     // *************************************************************************
 
-    static const char * table;
-
-    static const char * db_names;
-
-    static const char * db_bootstrap;
-
-    static const char * monit_table;
-
-    static const char * monit_db_names;
-
-    static const char * monit_db_bootstrap;
-
-    static const char * showback_table;
-
-    static const char * showback_db_names;
-
-    static const char * showback_db_bootstrap;
-
     /**
      *  Reads the Virtual Machine (identified with its OID) from the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int select(SqlDB * db);
+    int select(SqlDB * db) override;
 
     /**
      *  Writes the Virtual Machine and its associated template in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB * db, string& error_str);
+    int insert(SqlDB * db, string& error_str) override;
 
     /**
      *  Writes/updates the Virtual Machine data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB * db)
+    int update(SqlDB * db) override
     {
         string error_str;
         return insert_replace(db, true, error_str);
@@ -2251,7 +2169,7 @@ protected:
      *   @param db pointer to the db
      *   @return -1
      */
-    int drop(SqlDB * db)
+    int drop(SqlDB * db) override
     {
         NebulaLog::log("ONE",Log::ERROR, "VM Drop not implemented!");
         return -1;

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -24,7 +24,7 @@
 
 #include <libxml/parser.h>
 
-#include "Template.h"
+#include "VirtualNetworkTemplate.h"
 #include "PoolObjectSQL.h"
 
 class VectorAttribute;
@@ -68,9 +68,17 @@ public:
      *  Removes an address range from the pool if it does not contain any used
      *  leases
      *    @param arid of the address range to be removed
+     *    @param force force remove, even if active leases exists
      *    @return 0 on success, -1 if not exists or has used addresses
      */
-    int rm_ar(unsigned int ar_id, string& error_msg);
+    int rm_ar(unsigned int ar_id, bool force, string& error_msg);
+
+    /**
+     *  Removes all address ranges from the pool if it does not contain any used
+     *  leases
+     *    @return 0 on success, -1 if not exists or has used addresses
+     */
+    int rm_ars(string& error_msg);
 
     /**
      *  Updates the given address ranges
@@ -291,7 +299,7 @@ public:
      *    @param value of the attribute
      *    @param ar_id to get the attribute from
      */
-    void get_attribute(const char * name, string& value, int ar_id) const;
+    void get_attribute(const string& name, string& value, int ar_id) const;
 
     /**
      *  Gets an attribute from the Address Range, int version
@@ -300,7 +308,7 @@ public:
      *    @param ar_id to get the attribute from
      *    @return 0 on success
      */
-    int get_attribute(const char * name, int& value, int ar_id) const;
+    int get_attribute(const string& name, int& value, int ar_id) const;
 
     /**
      *  Gets a reference to a the security group set of an AR
@@ -329,12 +337,28 @@ public:
     string& to_xml(string& sstream, bool extended, const vector<int>& vms,
         const vector<int>& vnets, const vector<int>& vrs) const;
 
+    /**
+     *  Encrypt all secret attributes
+     */
+    void encrypt(const std::string& one_key)
+    {
+        ar_template.encrypt(one_key);
+    };
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    void decrypt(const std::string& one_key)
+    {
+        ar_template.decrypt(one_key);
+    };
+
 private:
     /**
      *  Stores the Address Ranges in a template form. This template is used
      *  to store the pool in the DB
      */
-    Template ar_template;
+    VirtualNetworkTemplate ar_template;
 
     /**
      *  ID for the next Address Range

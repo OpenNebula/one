@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -70,6 +70,7 @@ define(function(require) {
   WizardTab.prototype.renameTabLinks = _renameTabLinks;
   WizardTab.prototype.addNicTab = _addNicTab;
   WizardTab.prototype.notify = _notify;
+  WizardTab.prototype.enableRDP = _enableRDP;
 
   return WizardTab;
 
@@ -138,10 +139,16 @@ define(function(require) {
     if (aliasJSON.length > 0) { templateJSON['NIC_ALIAS'] = aliasJSON; };
     if (pcisJSON.length > 0) { templateJSON['NIC_PCI'] = pcisJSON; };
 
-    var nicDefault = WizardFields.retrieveInput($('#DEFAULT_MODEL', context));
-    if (nicDefault) {
-      templateJSON['NIC_DEFAULT'] = {
-        'MODEL': nicDefault
+    var nicDefaultModel = WizardFields.retrieveInput($('#DEFAULT_MODEL', context));
+    var nicDefaultFilter = WizardFields.retrieveInput($('#DEFAULT_FILTER', context));
+    if (nicDefaultModel || nicDefaultFilter) {
+      templateJSON['NIC_DEFAULT'] = {}
+
+      if (nicDefaultModel) {
+        templateJSON['NIC_DEFAULT']['MODEL'] = nicDefaultModel
+      }
+      if (nicDefaultFilter) {
+        templateJSON['NIC_DEFAULT']['FILTER'] = nicDefaultFilter
       }
     }
 
@@ -202,6 +209,7 @@ define(function(require) {
     });
 
     that.renameTabLinks(context);
+    that.enableRDP(context);
 
     if (templateJSON.NIC) {
       delete templateJSON.NIC;
@@ -235,6 +243,9 @@ define(function(require) {
     if (nicDefault != undefined) {
       if (nicDefault.MODEL) {
         WizardFields.fillInput($('#DEFAULT_MODEL', context), nicDefault.MODEL);
+      }
+      if (nicDefault.FILTER) {
+        WizardFields.fillInput($('#DEFAULT_FILTER', context), nicDefault.FILTER);
       }
 
       delete templateJSON.NIC_DEFAULT;
@@ -270,6 +281,7 @@ define(function(require) {
     content.attr("nicId", that.numberOfNics);
 
     that.renameTabLinks(context);
+    that.enableRDP(context);
     that.nicTabObjects[that.numberOfNics] = nicTab;
 
     // close icon: removing the tab on click
@@ -293,6 +305,7 @@ define(function(require) {
       }
 
       that.renameTabLinks(context);
+      that.enableRDP(context);
       that.numberOfNics --;
     });
   }
@@ -311,6 +324,13 @@ define(function(require) {
     if(this.listener != undefined){
       this.listener.notify();
     }
+  }
+
+  function _enableRDP(context) {
+    const canRDP = $("fieldset#rdp_connection input[type='checkbox']:not(#" + that.nicTabId + "_rdp):checked", context).length === 0;
+
+    if (canRDP) $("fieldset#rdp_connection").show();
+    else $("fieldset#rdp_connection", that.context).hide();
   }
 
   function _notify(context, templateJSON) {

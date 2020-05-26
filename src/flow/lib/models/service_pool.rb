@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -15,21 +15,13 @@
 #--------------------------------------------------------------------------- #
 
 module OpenNebula
-    class ServicePool < DocumentPoolJSON
+
+    # ServicePool class
+    class OpenNebulaServicePool < DocumentPoolJSON
 
         DOCUMENT_TYPE = 100
 
-        @@mutex      = Mutex.new
-        @@mutex_hash = Hash.new
-
-        # Class constructor
-        #
-        # @param [OpenNebula::Client] client the xml-rpc client
-        # @param [Integer] user_id the filter flag, see
-        #   http://opennebula.org/documentation:rel3.6:api
-        #
-        # @return [DocumentPool] the new object
-        def initialize(client, user_id=-1)
+        def initialize(client, user_id = -2)
             super(client, user_id)
         end
 
@@ -37,6 +29,68 @@ module OpenNebula
             service = OpenNebula::Service.new(element_xml, @client)
             service.load_body
             service
+        end
+
+    end
+
+    # ServicePool class
+    class ServicePool
+
+        # rubocop:disable Style/ClassVars
+        @@mutex      = Mutex.new
+        @@mutex_hash = {}
+        # rubocop:enable Style/ClassVars
+
+        # Class constructor
+        #
+        # @param [OpenNebula::Client] client the xml-rpc client
+        # @param [Integer] user_id the filter flag, see
+        #   http://docs.opennebula.io/stable/integration/system_interfaces/api.html
+        #
+        # @return [DocumentPool] the new object
+        def initialize(cloud_auth, client)
+            # TODO, what if cloud_auth is nil?
+            @cloud_auth = cloud_auth
+            @client     = client
+            @one_pool   = nil
+        end
+
+        def client
+            # If there's a client defined use it
+            return @client unless @client.nil?
+
+            # If not, get one via cloud_auth
+            @cloud_auth.client
+        end
+
+        def info
+            osp = OpenNebulaServicePool.new(client)
+            rc  = osp.info
+
+            @one_pool = osp
+
+            rc
+        end
+
+        def info_all
+            osp = OpenNebulaServicePool.new(client)
+            rc  = osp.info_all
+
+            @one_pool = osp
+
+            rc
+        end
+
+        # rubocop:disable Lint/ToJSON
+        def to_json
+            # rubocop:enable Lint/ToJSON
+            @one_pool.to_json
+        end
+
+        def each(&block)
+            return if @one_pool.nil?
+
+            @one_pool.each(&block)
         end
 
         # Retrieves a Service element from OpenNebula. The Service::info()
@@ -47,51 +101,66 @@ module OpenNebula
         #   The mutex will be unlocked after the block execution.
         #
         # @return [Service, OpenNebula::Error] The Service in case of success
-        def get(service_id, &block)
+        def get(service_id, external_client = nil, &block)
             service_id = service_id.to_i if service_id
-            service = Service.new_with_id(service_id, @client)
+            aux_client = nil
 
-            rc = service.info
-
-            if OpenNebula.is_error?(rc)
-                return rc
+            if external_client.nil?
+                aux_client = client
             else
-                if block_given?
-                    obj_mutex = nil
-                    entry     = nil
+                aux_client = external_client
+            end
 
-                    @@mutex.synchronize {
-                        # entry is an array of [Mutex, waiting]
-                        # waiting is the number of threads waiting on this mutex
-                        entry = @@mutex_hash[service_id]
+            service = Service.new_with_id(service_id, aux_client)
 
-                        if entry.nil?
-                            entry = [Mutex.new, 0]
-                            @@mutex_hash[service_id] = entry
+            if block_given?
+                obj_mutex = nil
+                entry     = nil
+
+                @@mutex.synchronize do
+                    # entry is an array of [Mutex, waiting]
+                    # waiting is the number of threads waiting on this mutex
+                    entry = @@mutex_hash[service_id]
+
+                    if entry.nil?
+                        entry = [Mutex.new, 0]
+                        @@mutex_hash[service_id] = entry
+                    end
+
+                    obj_mutex = entry[0]
+                    entry[1]  = entry[1] + 1
+
+                    if @@mutex_hash.size > 10000
+                        @@mutex_hash.delete_if do |_s_id, entry_loop|
+                            entry_loop[1] == 0
                         end
-
-                        obj_mutex = entry[0]
-                        entry[1]  = entry[1] + 1
-
-                        if @@mutex_hash.size > 10000
-                            @@mutex_hash.delete_if { |s_id, entry|
-                                entry[1] == 0
-                            }
-                        end
-                    }
-
-                    obj_mutex.synchronize {
-                        block.call(service)
-                    }
-
-                    @@mutex.synchronize {
-                        entry[1] = entry[1] - 1
-                    }
+                    end
                 end
 
-                return service
+                rc = obj_mutex.synchronize do
+                    rc = service.info
+
+                    if OpenNebula.is_error?(rc)
+                        return rc
+                    end
+
+                    block.call(service)
+                end
+
+                @@mutex.synchronize do
+                    entry[1] = entry[1] - 1
+                end
+
+                if OpenNebula.is_error?(rc)
+                    return rc
+                end
+            else
+                service.info
             end
+
+            service
         end
 
     end
+
 end

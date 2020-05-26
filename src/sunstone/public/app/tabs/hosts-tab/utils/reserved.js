@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,24 +16,24 @@
 
 define(function(require) {
 
-	function _updateHostTemplate(cache, element) {
-		var elementAux = $.extend(true, {}, element);
-		if (cache && (elementAux.TEMPLATE.RESERVED_CPU === "" || elementAux.TEMPLATE.RESERVED_MEM === "")) {
+  function _updateHostTemplate(cache, element) {
+    var elementAux = $.extend(true, {}, element);
+    if (cache && (elementAux.TEMPLATE.RESERVED_CPU === "" || elementAux.TEMPLATE.RESERVED_MEM === "")) {
       $.each(cache.data, function(key, value){
         if (value.CLUSTER.ID === elementAux.CLUSTER_ID){
           if (elementAux.TEMPLATE.RESERVED_CPU === ""){
             var cpuPercentage = value.CLUSTER.TEMPLATE.RESERVED_CPU.split("%")[0];
-            var cpu = cpuPercentage / 100 * elementAux.HOST_SHARE.MAX_CPU;
-            elementAux.HOST_SHARE.MAX_CPU = (elementAux.HOST_SHARE.MAX_CPU - cpu).toString();
+            var cpu = cpuPercentage / 100 * elementAux.HOST_SHARE.TOTAL_CPU;
+            elementAux.HOST_SHARE.MAX_CPU = (elementAux.HOST_SHARE.TOTAL_CPU - cpu).toString();
           }
           if (elementAux.TEMPLATE.RESERVED_MEM === ""){
             var memPercentage = value.CLUSTER.TEMPLATE.RESERVED_MEM.split("%")[0];
-            var mem = memPercentage / 100 * elementAux.HOST_SHARE.MAX_MEM;
-            elementAux.HOST_SHARE.MAX_MEM = (elementAux.HOST_SHARE.MAX_MEM - mem).toString();
+            var mem = memPercentage / 100 * elementAux.HOST_SHARE.TOTAL_MEM;
+            elementAux.HOST_SHARE.MAX_MEM = (elementAux.HOST_SHARE.TOTAL_MEM - mem).toString();
           }
         }
       });
-		}
+    }
 		return elementAux;
 	}
 

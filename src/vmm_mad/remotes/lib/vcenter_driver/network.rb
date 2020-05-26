@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -139,6 +139,7 @@ class Network
         network_name          = opts[:network_name]
         network_ref           = opts[:network_ref]
         network_type          = opts[:network_type]
+        sw_name               = opts[:sw_name]
 
         vcenter_uuid          = opts[:vcenter_uuid]
         vcenter_instance_name = opts[:vcenter_instance_name]
@@ -164,12 +165,12 @@ class Network
         one_tmp[:ref]  = network_ref
 
         one_tmp[:one] = to_one(network_import_name, bridge_name, network_ref, network_type,
-                               vcenter_uuid, unmanaged, template_ref, dc_ref, template_id)
+                               vcenter_uuid, unmanaged, template_ref, dc_ref, template_id, sw_name)
         return one_tmp
     end
 
     def self.to_one(network_import_name, network_name, network_ref, network_type,
-                    vcenter_uuid, unmanaged, template_ref, dc_ref, template_id)
+                    vcenter_uuid, unmanaged, template_ref, dc_ref, template_id, sw_name)
 
         template = "NAME=\"#{network_import_name}\"\n"\
                    "BRIDGE=\"#{network_name}\"\n"\
@@ -184,6 +185,8 @@ class Network
         end
 
         template += "VCENTER_TEMPLATE_REF=\"#{template_ref}\"\n" if template_ref
+
+        template += "VCENTER_SWITCH_NAME=\"#{sw_name}\"\n" if sw_name
 
         return template
     end
@@ -364,7 +367,7 @@ class NetImporter < VCenterDriver::VcImporter
             raise "Could not get OpenNebula HostPool: #{hpool.message}"
         end
 
-        rs = dc_folder.get_unimported_networks(npool, @vi_client.vc_name,hpool)
+        rs = dc_folder.get_unimported_networks(npool, @vi_client.vc_name,hpool, args)
 		@list = rs
     end
 
@@ -413,6 +416,27 @@ class NetImporter < VCenterDriver::VcImporter
 
         net = VCenterDriver::Network.new_from_ref(selected[:ref], @vi_client)
         vid = VCenterDriver::Network.retrieve_vlanid(net.item) if net
+
+        # If type is NSX we need to update values
+        if selected[:type] == VCenterDriver::Network::NETWORK_TYPE_NSXV
+            host_id = @vi_client.instance_variable_get '@host_id'
+            nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
+            nsx_net = NSXDriver::VirtualWire
+                      .new_from_name(nsx_client, selected[:name])
+            selected[:one] << "NSX_ID=\"#{nsx_net.ls_id}\"\n"
+            selected[:one] << "NSX_VNI=\"#{nsx_net.ls_vni}\"\n"
+            selected[:one] << "NSX_TZ_ID=\"#{nsx_net.tz_id}\"\n"
+        end
+
+        if selected[:type] == VCenterDriver::Network::NETWORK_TYPE_NSXT
+            host_id = @vi_client.instance_variable_get '@host_id'
+            nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
+            nsx_net = NSXDriver::OpaqueNetwork
+                      .new_from_name(nsx_client, selected[:name])
+            selected[:one] << "NSX_ID=\"#{nsx_net.ls_id}\"\n"
+            selected[:one] << "NSX_VNI=\"#{nsx_net.ls_vni}\"\n"
+            selected[:one] << "NSX_TZ_ID=\"#{nsx_net.tz_id}\"\n"
+        end
 
         if vid
             vlanid = VCenterDriver::Network.vlanid(vid)

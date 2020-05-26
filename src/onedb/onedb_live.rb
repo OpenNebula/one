@@ -1,7 +1,7 @@
-
 require 'opennebula'
 require 'base64'
 
+# Database Live Operations
 class OneDBLive
 
     EDITOR_PATH = '/bin/vi'
@@ -16,12 +16,15 @@ class OneDBLive
         @client ||= OpenNebula::Client.new
     end
 
+    # rubocop:disable Naming/MemoizedInstanceVariableName
     def system_db
         @system ||= OpenNebula::System.new(client)
     end
+    # rubocop:enable Naming/MemoizedInstanceVariableName
 
     def db_escape(string)
-        string.gsub("'", "''")
+        escaped = string.gsub("'", "''")
+        escaped.gsub('\\') { '\\\\' }
     end
 
     def delete_sql(table, where)
@@ -30,7 +33,7 @@ class OneDBLive
 
     def delete(table, where, federate)
         sql = delete_sql(table, where)
-        db_exec(sql, "Error deleting record", federate)
+        db_exec(sql, 'Error deleting record', federate)
     end
 
     def update_sql(table, values, where)
@@ -39,7 +42,7 @@ class OneDBLive
         changes = []
 
         values.each do |key, value|
-            change = "#{key.to_s} = "
+            change = "#{key} = "
 
             case value
             when String, Symbol
@@ -61,7 +64,7 @@ class OneDBLive
 
     def update(table, values, where, federate)
         sql = update_sql(table, values, where)
-        db_exec(sql, "Error updating record", federate)
+        db_exec(sql, 'Error updating record', federate)
     end
 
     def update_body_sql(table, body, where)
@@ -70,28 +73,27 @@ class OneDBLive
 
     def update_body(table, body, where, federate)
         sql = update_body_sql(table, body, where)
-        db_exec(sql, "Error updating record", federate)
+        db_exec(sql, 'Error updating record', federate)
     end
 
     def db_exec(sql, error_msg, federate = false)
         rc = system_db.sql_command(sql, federate)
-        if OpenNebula.is_error?(rc)
-            raise "#{error_msg}: #{rc.message}"
-        end
+        raise "#{error_msg}: #{rc.message}" if OpenNebula.is_error?(rc)
     end
 
     def select(table, where)
         sql = "SELECT * FROM #{table} WHERE #{where}"
-        res = db_query(sql, "Error querying database")
+        res = db_query(sql, 'Error querying database')
 
         element = OpenNebula::XMLElement.new(
-            OpenNebula::XMLElement.build_xml(res, '/SQL_COMMAND'))
+            OpenNebula::XMLElement.build_xml(res, '/SQL_COMMAND')
+        )
 
         hash = element.to_hash
         row  = hash['SQL_COMMAND']['RESULT']['ROW'] rescue nil
 
         if !row
-            raise "Empty SQL query result: "
+            raise 'Empty SQL query result'
         end
 
         [row].flatten.compact
@@ -108,7 +110,7 @@ class OneDBLive
     end
 
     def percentage_line(current, max, carriage_return = false)
-        return_symbol = carriage_return ? "\r" : ""
+        carriage_return ? return_symbol = "\r" : return_symbol = ''
         percentile = current.to_f / max.to_f * 100
 
         "#{current}/#{max} #{percentile.round(2)}%#{return_symbol}"
@@ -119,19 +121,19 @@ class OneDBLive
         vmpool.info_all
 
         ops = {
-            start_time: 0,
-            end_time: Time.now
+            :start_time => 0,
+            :end_time => Time.now
         }.merge(options)
 
         start_time  = ops[:start_time].to_i
         end_time    = ops[:end_time].to_i
 
-        last_id = vmpool["/VM_POOL/VM[last()]/ID"]
+        last_id = vmpool['/VM_POOL/VM[last()]/ID']
 
         vmpool.each do |vm|
             print percentage_line(vm.id, last_id, true)
 
-            time = vm["STIME"].to_i
+            time = vm['STIME'].to_i
             next unless time >= start_time && time < end_time
 
             # vmpool info only returns the last history record. We can check
@@ -159,71 +161,74 @@ class OneDBLive
             val_history = [val_history].flatten
             last_seq = val_history.last['SEQ'].to_i rescue 0
 
-            if last_seq >= history_num
-                last_history = val_history.last(history_num)
+            next unless last_seq >= history_num
 
-                old_seq = []
-                seq_num = last_history.first['SEQ']
+            last_history = val_history.last(history_num)
 
-                # Renumerate the sequence
-                last_history.each_with_index do |history, index|
-                    old_seq << history['SEQ'].to_i
-                    history['SEQ'] = index
-                end
+            old_seq = []
+            seq_num = last_history.first['SEQ']
 
-                # Only the last history record is saved in vm_pool
-                vm.delete_element('HISTORY_RECORDS/HISTORY')
-                vm.add_element('HISTORY_RECORDS',
-                               'HISTORY' => last_history.last)
+            # Renumerate the sequence
+            last_history.each_with_index do |history, index|
+                old_seq << history['SEQ'].to_i
+                history['SEQ'] = index
+            end
 
-                # Update VM body to leave only the last history record
-                body = db_escape(vm.to_xml)
-                update_body("vm_pool", vm.to_xml, "oid = #{vm.id}", false)
+            # Only the last history record is saved in vm_pool
+            vm.delete_element('HISTORY_RECORDS/HISTORY')
+            vm.add_element('HISTORY_RECORDS',
+                           'HISTORY' => last_history.last)
 
-                # Delete any history record that does not have the same
-                # SEQ number as the last history record
-                delete("history", "vid = #{vm.id} and seq < #{seq_num}", false)
+            # Update VM body to leave only the last history record
+            body = db_escape(vm.to_xml)
+            update_body('vm_pool', vm.to_xml, "oid = #{vm.id}", false)
 
-                # Get VM history
-                history = select("history", "vid = #{vm.id}")
+            # Delete any history record that does not have the same
+            # SEQ number as the last history record
+            delete('history', "vid = #{vm.id} and seq < #{seq_num}", false)
 
-                # Renumerate sequence numbers
-                old_seq.each_with_index do |seq, index|
-                    row = history.find {|r| seq.to_s == r["seq"] }
-                    next if !row
+            # Get VM history
+            history = select('history', "vid = #{vm.id}")
 
-                    body = Base64.decode64(row['body64'])
+            # Renumerate sequence numbers
+            old_seq.each_with_index do |o_seq, index|
+                row = history.find {|r| o_seq.to_s == r['seq'] }
+                next unless row
 
-                    doc = Nokogiri::XML(body)
-                    doc.xpath("/HISTORY/SEQ").first.content = index.to_s
-                    new_body = doc.root.to_xml
+                body = Base64.decode64(row['body64'])
 
-                    update("history",
-                           { seq: index, body: new_body },
-                           "vid = #{vm.id} and seq = #{seq}", false)
-                end
+                doc = Nokogiri::XML(body)
+                doc.xpath('/HISTORY/SEQ').first.content = index.to_s
+                new_body = doc.root.to_xml
+
+                update('history',
+                       { :seq => index, :body => new_body },
+                       "vid = #{vm.id} and seq = #{o_seq}", false)
             end
         end
     end
 
     def purge_done_vm(options = {})
         ops         = { :start_time => 0,
-                        :end_time   => Time.now,
-                        :pages      => PAGES }.merge(options)
-        vmpool      = OpenNebula::VirtualMachinePool.new(client)
+                        :end_time => Time.now,
+                        :pages => PAGES }.merge(options)
+        vmpool      = OpenNebula::VirtualMachinePool.new(client, Pool::INFO_ALL)
         start_time  = ops[:start_time].to_i
         end_time    = ops[:end_time].to_i
         done        = OpenNebula::VirtualMachine::VM_STATE.index('DONE')
 
-        vmpool.each_page(ops[:pages], done, false, true) do |obj|
-            print "VM with ID: #{obj['ID']} purged \r"
-
+        vmpool.each_page_delete(ops[:pages], done, false) do |obj|
             time = obj['ETIME'].to_i
 
-            next unless time >= start_time && time < end_time
+            # return false because the VM wasn't deleted
+            next false unless time >= start_time && time < end_time
+
+            print "VM with ID: #{obj['ID']} purged \r"
 
             delete('vm_pool', "oid = #{obj['ID']}", false)
             delete('history', "vid = #{obj['ID']}", false)
+
+            true
         end
     end
 
@@ -234,14 +239,12 @@ class OneDBLive
         raise "Expression malformed: '#{expr}'" unless parsed
 
         val = object[parsed[:xpath]]
-        return false if !val
+        return false unless val
 
         p_val = parsed[:value].strip
         val.strip!
 
-        res = false
-
-        res = case parsed[:operator]
+        case parsed[:operator]
         when '='
             val == p_val
         when '!='
@@ -254,13 +257,13 @@ class OneDBLive
             val.to_i <= p_val.to_i
         when '>='
             val.to_i >= p_val.to_i
+        else
+            false
         end
-
-        res
     end
 
     def get_pool_config(object)
-        case (object||'').downcase.strip.to_sym
+        case (object || '').downcase.strip.to_sym
         when :vm
             table = 'vm_pool'
             object = OpenNebula::VirtualMachinePool.new(client)
@@ -350,20 +353,18 @@ class OneDBLive
             raise "Object type '#{object}' not supported"
         end
 
-        return table, object, federate
+        [table, object, federate]
     end
 
     def change_history(vid, seq, xpath, value, options)
         begin
             doc = get_history_body(vid, seq)
-        rescue => e
+        rescue StandardError => e
             STDERR.puts e.message
             return
         end
 
-        doc.xpath(xpath).each do |e|
-            e.content = value
-        end
+        doc.xpath(xpath).each {|el| el.content = value }
 
         xml = doc.root.to_xml
 
@@ -371,9 +372,12 @@ class OneDBLive
             puts xml
         else
             begin
-                update_body("history", xml, "vid = #{vid} and seq = #{seq}", false)
-            rescue => e
-                STDERR.puts "Error updating history recored #{seq} for VM #{vid}"
+                update_body('history',
+                            xml,
+                            "vid = #{vid} and seq = #{seq}",
+                            false)
+            rescue StandardError => e
+                STDERR.puts "Error updating history record #{seq} for VM #{vid}"
                 STDERR.puts e.message
             end
         end
@@ -384,7 +388,7 @@ class OneDBLive
         found_id = false
 
         if !value && !options[:delete]
-            raise "A value or --delete should specified"
+            raise 'A value or --delete should specified'
         end
 
         rc = object.info_all
@@ -402,7 +406,7 @@ class OneDBLive
             # Get body from the database
             begin
                 db_data = select(table, "oid = #{o.id}")
-            rescue => e
+            rescue StandardError => e
                 STDERR.puts "Error getting object id #{o.id}"
                 STDERR.puts e.message
                 next
@@ -415,11 +419,22 @@ class OneDBLive
                 c.default_xml.noblanks
             end
 
-            doc.xpath(xpath).each do |e|
+            doc.xpath(xpath).each do |el|
                 if options[:delete]
-                    e.remove
+                    el.remove
                 else
-                    e.content = value
+                    el.content = value
+                end
+            end
+
+            if options[:append]
+                # take just last match of / to get the xpath and the key
+                matches = xpath.match(%r{(.*)/(.*)?})
+                key     = matches[2].upcase
+
+                doc.xpath(matches[1]).each do |el|
+                    val = doc.create_cdata(value)
+                    el.add_child("<#{key}>#{val}</#{key}>")
                 end
             end
 
@@ -430,7 +445,7 @@ class OneDBLive
             else
                 begin
                     update_body(table, xml, "oid = #{o.id}", federate)
-                rescue => e
+                rescue StandardError => e
                     STDERR.puts "Error updating object id #{o.id}"
                     STDERR.puts e.message
                     next
@@ -438,43 +453,47 @@ class OneDBLive
             end
             break if found_id
         end
-        raise "Object with id #{options[:id]} not found" if options[:id] && !found_id
+
+        return if options[:id] && found_id
+
+        raise "Object with id #{options[:id]} not found"
     end
 
     def editor_body(body_xml)
-        #Editor
+        # Editor
         require 'tempfile'
 
-        tmp  = Tempfile.new("onedb")
+        tmp = Tempfile.new('onedb')
 
         if body_xml
             tmp << body_xml
             tmp.flush
         end
 
-        editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
+        ENV['EDITOR'] ? editor_path = ENV['EDITOR'] : editor_path = EDITOR_PATH
 
         system("#{editor_path} #{tmp.path}")
 
-        unless $?.exitstatus == 0
-            puts "Editor not defined"
-            exit -1
+        unless $CHILD_STATUS.exitstatus == 0
+            puts 'Editor not defined'
+            exit(-1)
         end
 
         tmp.close
 
-        return File.read(tmp.path)
+        File.read(tmp.path)
     end
 
     def update_body_cli(object, id)
-        table, object, federate = get_pool_config(object)
+        table, _object, federate = get_pool_config(object)
 
         # Get body from the database
         begin
             db_data = select(table, "oid = #{id}")
-        rescue => e
-            STDERR.puts "Error getting object id #{o.id}"
+        rescue StandardError => e
+            STDERR.puts "Error getting #{object} with id #{id}"
             STDERR.puts e.message
+            exit(-1)
         end
 
         row = db_data.first
@@ -495,16 +514,17 @@ class OneDBLive
             xml = xml_doc.root.to_xml
 
             update_body(table, xml, "oid = #{id}", federate)
-        rescue => e
-            STDERR.puts "Error updating object id #{id}"
+        rescue StandardError => e
+            STDERR.puts "Error updating #{object} with id #{id}"
             STDERR.puts e.message
+            exit(-1)
         end
     end
 
     def update_history_cli(vid, seq)
         begin
             doc = get_history_body(vid, seq)
-        rescue => e
+        rescue StandardError => e
             STDERR.puts e.message
             return
         end
@@ -519,20 +539,20 @@ class OneDBLive
 
             xml = xml_doc.root.to_xml
 
-            update_body("history", xml, "vid = #{vid} and seq = #{seq}", false)
-        rescue => e
+            update_body('history', xml, "vid = #{vid} and seq = #{seq}", false)
+        rescue StandardError => e
             STDERR.puts "Error updating history record #{seq} for VM #{vid}"
             STDERR.puts e.message
         end
     end
 
     def show_body_cli(object, id)
-        table, object, federate = get_pool_config(object)
+        table, _object, _federate = get_pool_config(object)
 
         # Get body from the database
         begin
             db_data = select(table, "oid = #{id}")
-        rescue => e
+        rescue StandardError => e
             STDERR.puts "Error getting object id #{id}"
             STDERR.puts e.message
         end
@@ -550,7 +570,7 @@ class OneDBLive
     def show_history_cli(vid, seq)
         begin
             doc = get_history_body(vid, seq)
-        rescue => e
+        rescue StandardError => e
             STDERR.puts e.message
             return
         end
@@ -560,8 +580,8 @@ class OneDBLive
 
     def get_history_body(vid, seq)
         begin
-            db_data = select("history", "vid = #{vid} and seq = #{seq}")
-        rescue => e
+            db_data = select('history', "vid = #{vid} and seq = #{seq}")
+        rescue StandardError => e
             error_str = "Error getting history record #{seq} for VM #{vid}"
             error_str << e.message
 
@@ -575,7 +595,7 @@ class OneDBLive
             c.default_xml.noblanks
         end
 
-        return doc
+        doc
     end
-end
 
+end

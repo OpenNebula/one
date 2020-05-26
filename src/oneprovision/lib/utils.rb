@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -21,8 +21,6 @@ require 'open3'
 require 'tempfile'
 require 'highline'
 require 'highline/import'
-
-ENCRYPT_VALUES = %w[PACKET_TOKEN EC2_SECRET EC2_ACCESS]
 
 # Cleanup Exception
 class OneProvisionCleanupException < RuntimeError
@@ -221,35 +219,59 @@ module OneProvision
                     Utils.fail("Failed to read template: #{e}")
                 end
 
-                return yaml unless yaml['extends']
+                if yaml['extends']
+                    yaml['extends'] = [yaml['extends']].flatten
 
-                base = read_config(yaml['extends'])
+                    yaml['extends'].reverse.each do |f|
+                        base = read_config(f)
 
-                yaml.delete('extends')
-                base['defaults'] ||= {}
-                yaml['defaults'] ||= {}
+                        yaml.delete('extends')
+                        base['defaults'] ||= {}
+                        yaml['defaults'] ||= {}
 
-                # replace scalars or append array from child YAML
-                yaml.each do |key, value|
-                    next if key == 'defaults'
+                        if base['playbook']
+                            playbooks = []
 
-                    if (value.is_a? Array) && (base[key].is_a? Array)
-                        base[key].concat(value)
-                    else
-                        base[key] = value
+                            playbooks << base['playbook']
+                            playbooks << yaml['playbook'] if yaml['playbook']
+
+                            playbooks.flatten!
+
+                            yaml['playbook'] = playbooks
+
+                            base.delete('playbook')
+                        end
+
+                        if yaml['playbook']
+                            yaml['playbook'] = [yaml['playbook']]
+                            yaml['playbook'].flatten!
+                        end
+
+                        # replace scalars or append array from child YAML
+                        yaml.each do |key, value|
+                            next if key == 'defaults'
+
+                            if (value.is_a? Array) && (base[key].is_a? Array)
+                                base[key].concat(value)
+                            else
+                                base[key] = value
+                            end
+                        end
+
+                        # merge each defaults section separately
+                        %w[connection provision configuration].each do |section|
+                            base['defaults'][section] ||= {}
+                            yaml['defaults'][section] ||= {}
+                            defaults = yaml['defaults'][section]
+
+                            base['defaults'][section].merge!(defaults)
+                        end
+
+                        yaml = base
                     end
                 end
 
-                # merge each defaults section separately
-                %w[connection provision configuration].each do |section|
-                    base['defaults'][section] ||= {}
-                    yaml['defaults'][section] ||= {}
-                    defaults = yaml['defaults'][section]
-
-                    base['defaults'][section].merge!(defaults)
-                end
-
-                base
+                yaml
             end
 
             # Gets the value of an ERB expression
@@ -259,10 +281,18 @@ module OneProvision
             #
             # @return          [String]         Evaluated value
             def get_erb_value(provision, value)
+                unless value.match(/@./)
+                    raise OneProvisionLoopException,
+                          "value #{value} not allowed"
+                end
+
                 template = ERB.new value
                 ret = template.result(provision._binding)
 
-                raise "#{value} not found." if ret.empty?
+                if ret.empty?
+                    raise OneProvisionLoopException,
+                          "#{value} not found."
+                end
 
                 ret
             end
@@ -315,6 +345,8 @@ module OneProvision
                 ssh_key = try_read_file(host['connection']['public_key'])
                 config = Base64.strict_encode64(host['configuration'].to_yaml)
 
+                reject = %w[im_mad vm_mad provision connection configuration]
+
                 Nokogiri::XML::Builder.new do |xml|
                     xml.HOST do
                         xml.NAME "provision-#{SecureRandom.hex(24)}"
@@ -325,8 +357,7 @@ module OneProvision
                             xml.PROVISION do
                                 host['provision'].each do |key, value|
                                     if key != 'driver'
-                                        encrypt = encrypt(key.upcase, value)
-                                        xml.send(key.upcase, encrypt)
+                                        xml.send(key.upcase, value)
                                     end
                                 end
                                 xml.send('PROVISION_ID', provision_id)
@@ -349,6 +380,12 @@ module OneProvision
                                         xml.SSH_PUBLIC_KEY ssh_key
                                     end
                                 end
+                            end
+
+                            host.each do |key, value|
+                                next if reject.include?(key)
+
+                                xml.send(key.upcase, value)
                             end
                         end
                     end
@@ -417,8 +454,7 @@ module OneProvision
                                     str = ind_tab + key3.to_s.upcase + '='
 
                                     if value3
-                                        str += "\"#{encrypt(key3.to_s.upcase,
-                                                            value3.to_s)}\""
+                                        str += "\"#{value3}\""
                                     end
 
                                     str
@@ -434,8 +470,7 @@ module OneProvision
                             str = ind_tab + key3.to_s.upcase + '='
 
                             if value3
-                                str += "\"#{encrypt(key3.to_s.upcase,
-                                                    value3.to_s)}\""
+                                str += "\"#{value3}\""
                             end
 
                             str
@@ -444,31 +479,12 @@ module OneProvision
                         str_line << "\n]\n"
 
                     else
-                        str_line << key.to_s.upcase << '=' \
-                            "\"#{encrypt(key.to_s.upcase, value.to_s)}\""
+                        str_line << key.to_s.upcase << '=' << "\"#{value}\""
                     end
                     str_line
                 end.compact.join("\n")
 
                 str
-            end
-
-            # Encrypts a value
-            #
-            # @param key   [String] Key to encrypt
-            # @param value [String] Value to encrypt
-            #
-            # @return      [String] Encrypted value
-            def encrypt(key, value)
-                if ENCRYPT_VALUES.include? key
-                    system = OpenNebula::System.new(OpenNebula::Client.new)
-                    config = system.get_configuration
-                    token = config['ONE_KEY']
-
-                    OpenNebula.encrypt({ :value => value }, token)[:value]
-                else
-                    value
-                end
             end
 
         end

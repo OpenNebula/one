@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,7 +19,45 @@
 #include "VirtualMachine.h"
 #include "SqliteDB.h"
 #include "MySqlDB.h"
+#include "PostgreSqlDB.h"
 #include "Client.h"
+#include "LogDB.h"
+#include "SystemDB.h"
+
+#include "ClusterPool.h"
+#include "DatastorePool.h"
+#include "DocumentPool.h"
+#include "GroupPool.h"
+#include "HookPool.h"
+#include "HostPool.h"
+#include "MarketPlacePool.h"
+#include "MarketPlaceAppPool.h"
+#include "SecurityGroupPool.h"
+#include "UserPool.h"
+#include "VdcPool.h"
+#include "VirtualMachinePool.h"
+#include "VirtualNetworkPool.h"
+#include "VirtualRouterPool.h"
+#include "VMGroupPool.h"
+#include "VMTemplatePool.h"
+#include "VNTemplatePool.h"
+#include "ZonePool.h"
+
+#include "AclManager.h"
+#include "AuthManager.h"
+#include "DispatchManager.h"
+#include "FedReplicaManager.h"
+#include "HookManager.h"
+#include "HookLog.h"
+#include "ImageManager.h"
+#include "InformationManager.h"
+#include "IPAMManager.h"
+#include "LifeCycleManager.h"
+#include "MarketPlaceManager.h"
+#include "RaftManager.h"
+#include "RequestManager.h"
+#include "TransferManager.h"
+#include "VirtualMachineManager.h"
 
 #include <stdlib.h>
 #include <stdexcept>
@@ -29,6 +67,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 #include <sys/stat.h>
 #include <pthread.h>
 
@@ -41,25 +81,62 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+Nebula::~Nebula()
+{
+    delete vmpool;
+    delete vnpool;
+    delete hpool;
+    delete upool;
+    delete ipool;
+    delete gpool;
+    delete tpool;
+    delete dspool;
+    delete clpool;
+    delete docpool;
+    delete zonepool;
+    delete secgrouppool;
+    delete vdcpool;
+    delete vrouterpool;
+    delete marketpool;
+    delete apppool;
+    delete vmgrouppool;
+    delete vmm;
+    delete lcm;
+    delete im;
+    delete tm;
+    delete dm;
+    delete rm;
+    delete hm;
+    delete hl;
+    delete authm;
+    delete aclm;
+    delete imagem;
+    delete marketm;
+    delete ipamm;
+    delete raftm;
+    delete frm;
+    delete nebula_configuration;
+    delete logdb;
+    delete fed_logdb;
+    delete system_db;
+    delete vntpool;
+    delete hkpool;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void Nebula::start(bool bootstrap_only)
 {
     int      rc;
     int      fd;
     sigset_t mask;
     int      signal;
-    char     hn[80];
     string   scripts_remote_dir;
     SqlDB *  db_backend;
     bool     solo;
 
     SqlDB *  db_ptr;
-
-    if ( gethostname(hn,79) != 0 )
-    {
-        throw runtime_error("Error getting hostname");
-    }
-
-    hostname = hn;
 
     // -----------------------------------------------------------
     // Configuration
@@ -84,7 +161,43 @@ void Nebula::start(bool bootstrap_only)
     }
 
     nebula_configuration->get("SCRIPTS_REMOTE_DIR", scripts_remote_dir);
-    hook_location = scripts_remote_dir + "/hooks/";
+
+    // -----------------------------------------------------------
+    // Get Hostname
+    // -----------------------------------------------------------
+    nebula_configuration->get("HOSTNAME", hostname);
+
+    if ( hostname.empty() )
+    {
+        char   hn[1024];
+        struct addrinfo hints = {}, *addrs;
+
+        hints.ai_family   = AF_UNSPEC;
+        hints.ai_flags    = AI_CANONNAME;
+
+        rc = gethostname(hn, 1023);
+
+        if ( rc != 0 )
+        {
+            throw runtime_error("Error getting hostname" +
+                    std::string(strerror(rc)));
+        }
+
+        rc = getaddrinfo(hn, nullptr, &hints, &addrs);
+
+        if ( rc != 0 )
+        {
+            throw runtime_error("Error getting hostname: " +
+                    std::string(gai_strerror(rc)));
+        }
+
+        if ( addrs != nullptr && addrs->ai_canonname != nullptr )
+        {
+            hostname = addrs->ai_canonname;
+        }
+
+        freeaddrinfo(addrs);
+    }
 
     // -----------------------------------------------------------
     // Log system
@@ -146,6 +259,8 @@ void Nebula::start(bool bootstrap_only)
     {
         throw;
     }
+
+    NebulaLog::log("ONE", Log::INFO, "Using hostname: " + hostname);
 
     // -----------------------------------------------------------
     // Load the OpenNebula master key and keep it in memory
@@ -272,6 +387,7 @@ void Nebula::start(bool bootstrap_only)
         string user;
         string passwd;
         string db_name;
+        string encoding;
         int    connections;
 
         const VectorAttribute * _db = nebula_configuration->get("DB");
@@ -307,7 +423,12 @@ void Nebula::start(bool bootstrap_only)
 
             if (_db->vector_value("CONNECTIONS", connections) == -1)
             {
-                connections = 50;
+                connections = 25;
+            }
+
+            if (_db->vector_value("ENCODING", encoding) == -1)
+            {
+                encoding = "";
             }
         }
 
@@ -315,10 +436,19 @@ void Nebula::start(bool bootstrap_only)
         {
             db_backend = new SqliteDB(var_location + "one.db");
         }
-        else
+        else if ( db_backend_type == "mysql" )
         {
             db_backend = new MySqlDB(server, port, user, passwd, db_name,
+                    encoding, connections);
+        }
+        else if ( db_backend_type == "postgresql" )
+        {
+            db_backend = new PostgreSqlDB(server, port, user, passwd, db_name,
                     connections);
+        }
+        else
+        {
+            throw runtime_error("DB BACKEND must be one of sqlite, mysql or postgresql.");
         }
 
         // ---------------------------------------------------------------------
@@ -406,6 +536,8 @@ void Nebula::start(bool bootstrap_only)
             rc += VirtualRouterPool::bootstrap(logdb);
             rc += VMGroupPool::bootstrap(logdb);
             rc += VNTemplatePool::bootstrap(logdb);
+            rc += HookPool::bootstrap(logdb);
+            rc += HookLog::bootstrap(logdb);
 
             // Create the system tables only if bootstrap went well
             if (rc == 0)
@@ -499,16 +631,12 @@ void Nebula::start(bool bootstrap_only)
     MadManager::mad_manager_system_init();
 
     time_t timer_period;
-    time_t monitor_interval_host;
     time_t monitor_interval_datastore;
     time_t monitor_interval_market;
-    time_t monitor_interval_vm;
 
     nebula_configuration->get("MANAGER_TIMER", timer_period);
-    nebula_configuration->get("MONITORING_INTERVAL_HOST", monitor_interval_host);
     nebula_configuration->get("MONITORING_INTERVAL_DATASTORE", monitor_interval_datastore);
     nebula_configuration->get("MONITORING_INTERVAL_MARKET", monitor_interval_market);
-    nebula_configuration->get("MONITORING_INTERVAL_VM", monitor_interval_vm);
 
     // ---- ACL Manager ----
     try
@@ -528,23 +656,22 @@ void Nebula::start(bool bootstrap_only)
        throw runtime_error("Could not start the ACL Manager");
     }
 
-    // -------------------------------------------------------------------------
-    // Pools
-    // -------------------------------------------------------------------------
     try
     {
         /* -------------------------- Cluster Pool -------------------------- */
         const VectorAttribute * vnc_conf;
+        vector<const SingleAttribute *> cluster_encrypted_attrs;
+
+        nebula_configuration->get("CLUSTER_ENCRYPTED_ATTR", cluster_encrypted_attrs);
 
         vnc_conf = nebula_configuration->get("VNC_PORTS");
 
-        clpool = new ClusterPool(logdb, vnc_conf);
+        clpool = new ClusterPool(logdb, vnc_conf, cluster_encrypted_attrs);
 
         /* --------------------- VirtualMachine Pool ------------------------ */
-        vector<const VectorAttribute *> vm_hooks;
         vector<const SingleAttribute *> vm_restricted_attrs;
+        vector<const SingleAttribute *> vm_encrypted_attrs;
 
-        time_t vm_expiration;
         bool   vm_submit_on_hold;
 
         float cpu_cost;
@@ -553,11 +680,9 @@ void Nebula::start(bool bootstrap_only)
 
         const VectorAttribute * default_cost;
 
-        nebula_configuration->get("VM_HOOK", vm_hooks);
-
         nebula_configuration->get("VM_RESTRICTED_ATTR", vm_restricted_attrs);
 
-        nebula_configuration->get("VM_MONITORING_EXPIRATION_TIME",vm_expiration);
+        nebula_configuration->get("VM_ENCRYPTED_ATTR", vm_encrypted_attrs);
 
         nebula_configuration->get("VM_SUBMIT_ON_HOLD",vm_submit_on_hold);
 
@@ -578,30 +703,18 @@ void Nebula::start(bool bootstrap_only)
             disk_cost = 0;
         }
 
-        vmpool = new VirtualMachinePool(logdb, vm_hooks, hook_location,
-            remotes_location, vm_restricted_attrs, vm_expiration,
-            vm_submit_on_hold, cpu_cost, mem_cost, disk_cost);
+        vmpool = new VirtualMachinePool(logdb, vm_restricted_attrs, vm_encrypted_attrs,
+                vm_submit_on_hold, cpu_cost, mem_cost, disk_cost);
 
         /* ---------------------------- Host Pool --------------------------- */
-        vector<const VectorAttribute *> host_hooks;
+        vector<const SingleAttribute *> host_encrypted_attrs;
 
-        time_t host_expiration;
+        nebula_configuration->get("HOST_ENCRYPTED_ATTR", host_encrypted_attrs);
 
-        nebula_configuration->get("HOST_HOOK", host_hooks);
-
-        nebula_configuration->get("HOST_MONITORING_EXPIRATION_TIME",
-                host_expiration);
-
-        hpool  = new HostPool(logdb, host_hooks, hook_location, remotes_location,
-            host_expiration);
+        hpool  = new HostPool(logdb, host_encrypted_attrs);
 
         /* --------------------- VirtualRouter Pool ------------------------- */
-        vector<const VectorAttribute *> vrouter_hooks;
-
-        nebula_configuration->get("VROUTER_HOOK", vrouter_hooks);
-
-        vrouterpool = new VirtualRouterPool(logdb, vrouter_hooks,
-                remotes_location);
+        vrouterpool = new VirtualRouterPool(logdb);
 
         /* -------------------- VirtualNetwork Pool ------------------------- */
         int     size;
@@ -609,7 +722,7 @@ void Nebula::start(bool bootstrap_only)
 
         vector<const SingleAttribute *> inherit_vnet_attrs;
         vector<const SingleAttribute *> vnet_restricted_attrs;
-        vector<const VectorAttribute *> vnet_hooks;
+        vector<const SingleAttribute *> vnet_encrypted_attrs;
 
         const VectorAttribute * vlan_id;
         const VectorAttribute * vxlan_id;
@@ -620,7 +733,7 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("VNET_RESTRICTED_ATTR", vnet_restricted_attrs);
 
-        nebula_configuration->get("VNET_HOOK", vnet_hooks);
+        nebula_configuration->get("VNET_ENCRYPTED_ATTR", vnet_encrypted_attrs);
 
         nebula_configuration->get("INHERIT_VNET_ATTR", inherit_vnet_attrs);
 
@@ -629,54 +742,51 @@ void Nebula::start(bool bootstrap_only)
         vxlan_id = nebula_configuration->get("VXLAN_IDS");
 
         vnpool = new VirtualNetworkPool(logdb, mac_prefix, size,
-                vnet_restricted_attrs, vnet_hooks, remotes_location,
-                inherit_vnet_attrs, vlan_id, vxlan_id);
+                vnet_restricted_attrs, vnet_encrypted_attrs, inherit_vnet_attrs,
+                vlan_id, vxlan_id);
 
         /* ----------------------- Group/User Pool -------------------------- */
-        vector<const VectorAttribute *> user_hooks;
-        vector<const VectorAttribute *> group_hooks;
+        vector<const SingleAttribute *> user_restricted;
+        vector<const SingleAttribute *> group_restricted;
 
         time_t  expiration_time;
 
-        nebula_configuration->get("GROUP_HOOK", group_hooks);
+        nebula_configuration->get("GROUP_RESTRICTED_ATTR", group_restricted);
 
-        gpool = new GroupPool(db_ptr, group_hooks, remotes_location,
-                is_federation_slave());
+        gpool = new GroupPool(db_ptr, is_federation_slave(), group_restricted);
 
         nebula_configuration->get("SESSION_EXPIRATION_TIME", expiration_time);
+        nebula_configuration->get("USER_RESTRICTED_ATTR", user_restricted);
 
-        nebula_configuration->get("USER_HOOK", user_hooks);
-
-        upool = new UserPool(db_ptr, expiration_time, user_hooks,
-                remotes_location, is_federation_slave());
+        upool = new UserPool(db_ptr, expiration_time, is_federation_slave(),
+                user_restricted);
 
         /* -------------------- Image/Datastore Pool ------------------------ */
         string  image_type;
         string  device_prefix;
         string  cd_dev_prefix;
 
-        vector<const VectorAttribute *> image_hooks;
         vector<const SingleAttribute *> img_restricted_attrs;
         vector<const SingleAttribute *> inherit_image_attrs;
         vector<const SingleAttribute *> inherit_ds_attrs;
+        vector<const SingleAttribute *> ds_encrypted_attrs;
 
         nebula_configuration->get("DEFAULT_IMAGE_TYPE", image_type);
         nebula_configuration->get("DEFAULT_DEVICE_PREFIX", device_prefix);
         nebula_configuration->get("DEFAULT_CDROM_DEVICE_PREFIX", cd_dev_prefix);
-
-        nebula_configuration->get("IMAGE_HOOK", image_hooks);
 
         nebula_configuration->get("IMAGE_RESTRICTED_ATTR", img_restricted_attrs);
 
         nebula_configuration->get("INHERIT_IMAGE_ATTR", inherit_image_attrs);
 
         ipool = new ImagePool(logdb, image_type, device_prefix, cd_dev_prefix,
-            img_restricted_attrs, image_hooks, remotes_location,
-            inherit_image_attrs);
+            img_restricted_attrs, inherit_image_attrs);
 
         nebula_configuration->get("INHERIT_DATASTORE_ATTR", inherit_ds_attrs);
 
-        dspool = new DatastorePool(logdb, inherit_ds_attrs);
+        nebula_configuration->get("DATASTORE_ENCRYPTED_ATTR", ds_encrypted_attrs);
+
+        dspool = new DatastorePool(logdb, inherit_ds_attrs, ds_encrypted_attrs);
 
         /* ----- Document, Zone, VDC, VMTemplate, SG and Makerket Pools ----- */
         docpool  = new DocumentPool(logdb);
@@ -692,6 +802,8 @@ void Nebula::start(bool bootstrap_only)
         apppool    = new MarketPlaceAppPool(db_ptr);
 
         vmgrouppool = new VMGroupPool(logdb);
+
+        hkpool = new HookPool(logdb);
 
         default_user_quota.select();
         default_group_quota.select();
@@ -715,16 +827,19 @@ void Nebula::start(bool bootstrap_only)
         Client::initialize("", get_master_oned(), msg_size, timeout);
     }
 
-    // ---- Hook Manager ----
+    // ---- Hook Manager and log----
     if (!cache)
     {
         try
         {
             vector<const VectorAttribute *> hm_mads;
+            const VectorAttribute * hl_conf;
 
             nebula_configuration->get("HM_MAD", hm_mads);
+            hl_conf = nebula_configuration->get("HOOK_LOG_CONF");
 
-            hm = new HookManager(hm_mads,vmpool);
+            hm = new HookManager(hm_mads);
+            hl = new HookLog(logdb, hl_conf);
         }
         catch (bad_alloc&)
         {
@@ -806,18 +921,12 @@ void Nebula::start(bool bootstrap_only)
             vector<const VectorAttribute *> vmm_mads;
             int    vm_limit;
 
-            bool   do_poll;
-
             nebula_configuration->get("VM_PER_INTERVAL", vm_limit);
 
             nebula_configuration->get("VM_MAD", vmm_mads);
 
-            nebula_configuration->get("VM_INDIVIDUAL_MONITORING", do_poll);
-
             vmm = new VirtualMachineManager(
                 timer_period,
-                monitor_interval_vm,
-                do_poll,
                 vm_limit,
                 vmm_mads);
         }
@@ -857,39 +966,17 @@ void Nebula::start(bool bootstrap_only)
     // ---- Information Manager ----
     if (!cache)
     {
-        try
+        vector<const VectorAttribute *> im_mads;
+
+        nebula_configuration->get("IM_MAD", im_mads);
+
+        im = new InformationManager(hpool, vmpool, mad_location);
+
+        if (im->load_drivers(im_mads) != 0)
         {
-            vector<const VectorAttribute *> im_mads;
-
-            int host_limit;
-            int monitor_threads;
-
-            nebula_configuration->get("HOST_PER_INTERVAL", host_limit);
-
-            nebula_configuration->get("MONITORING_THREADS", monitor_threads);
-
-            nebula_configuration->get("IM_MAD", im_mads);
-
-            im = new InformationManager(hpool,
-                                        clpool,
-                                        timer_period,
-                                        monitor_interval_host,
-                                        host_limit,
-                                        monitor_threads,
-                                        remotes_location,
-                                        im_mads);
-        }
-        catch (bad_alloc&)
-        {
-            throw;
+            goto error_mad;
         }
 
-        rc = im->start();
-
-        if ( rc != 0 )
-        {
-            throw runtime_error("Could not start the Information Manager");
-        }
     }
 
     // ---- Transfer Manager ----
@@ -1062,11 +1149,6 @@ void Nebula::start(bool bootstrap_only)
             goto error_mad;
         }
 
-        if (im->load_mads(0) != 0)
-        {
-            goto error_mad;
-        }
-
         if (tm->load_mads(0) != 0)
         {
             goto error_mad;
@@ -1148,11 +1230,19 @@ void Nebula::start(bool bootstrap_only)
         marketm->init_managers();
     }
 
-    // ---- Start the Request Manager ----
+    // ---- Start the Request Manager & Information Manager----
+    // This modules recevie request from users / monitor and need to be
+    // started in last place when all systems are up
 
-    rc = rm->start();
+    if (!cache)
+    {
+        if ( im->start() != 0 )
+        {
+            throw runtime_error("Could not start the Information Manager");
+        }
+    }
 
-    if ( rc != 0 )
+    if ( rm->start() != 0 )
     {
        throw runtime_error("Could not start the Request Manager");
     }
@@ -1166,7 +1256,6 @@ void Nebula::start(bool bootstrap_only)
     // -----------------------------------------------------------
     // Wait for a SIGTERM or SIGINT signal
     // -----------------------------------------------------------
-
     sigemptyset(&mask);
 
     sigaddset(&mask, SIGINT);
@@ -1201,7 +1290,7 @@ void Nebula::start(bool bootstrap_only)
         pthread_join(tm->get_thread_id(),0);
         pthread_join(dm->get_thread_id(),0);
 
-        pthread_join(im->get_thread_id(),0);
+        im->join_thread();
         pthread_join(hm->get_thread_id(),0);
         pthread_join(imagem->get_thread_id(),0);
         pthread_join(marketm->get_thread_id(),0);

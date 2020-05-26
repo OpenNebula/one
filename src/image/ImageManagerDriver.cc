@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,10 +15,14 @@
 /* -------------------------------------------------------------------------- */
 
 #include "ImageManagerDriver.h"
+#include "ImageManager.h"
 #include "ImagePool.h"
 
 #include "NebulaLog.h"
 #include "Quotas.h"
+#include "VirtualMachinePool.h"
+#include "VirtualMachineManagerDriver.h"
+#include "TransferManager.h"
 
 #include "Nebula.h"
 #include <sstream>
@@ -693,26 +697,6 @@ static void monitor_action(istringstream& is,
     oss << "Datastore " << ds_name << " (" << id << ") successfully monitored.";
 
     NebulaLog::log("ImM", Log::DEBUG, oss);
-
-    //Process VM disk information
-    vector<VectorAttribute *> vm_disk_info;
-    vector<VectorAttribute *>::iterator it;
-
-    monitor_data.get("VM", vm_disk_info);
-
-    for ( it = vm_disk_info.begin(); it != vm_disk_info.end(); ++it )
-    {
-        int    vm_id;
-        string poll_info;
-
-        if ( (*it)->vector_value("ID", vm_id) == -1 ||
-                (*it)->vector_value("POLL", poll_info) == -1 )
-        {
-            continue;
-        }
-
-        VirtualMachineManagerDriver::process_poll(vm_id, poll_info);
-    }
 
     return;
 }

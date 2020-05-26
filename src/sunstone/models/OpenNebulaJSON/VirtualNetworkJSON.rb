@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -97,7 +97,7 @@ module OpenNebulaJSON
         end
 
         def rm_ar(params=Hash.new)
-            super(params['ar_id'])
+            super(params['ar_id'],params['force'])
         end
 
         def add_ar(params=Hash.new)

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,11 +17,11 @@
 #ifndef TEMPLATE_H_
 #define TEMPLATE_H_
 
-#include <iostream>
 #include <map>
 #include <set>
 #include <vector>
 #include <string>
+#include <functional>
 
 #include <libxml/tree.h>
 #include <libxml/parser.h>
@@ -42,12 +42,12 @@ class Template
 {
 public:
 
-    Template(bool         _replace_mode = false,
-             const char   _separator    = '=',
-             const char * _xml_root     = "TEMPLATE"):
+    explicit Template(bool         _replace_mode = false,
+                      const char   _separator    = '=',
+                      const char * _xml_root     = "TEMPLATE"):
                  replace_mode(_replace_mode),
                  separator(_separator),
-                 xml_root(_xml_root){};
+                 xml_root(_xml_root){}
 
     Template(const Template& t)
     {
@@ -63,22 +63,43 @@ public:
         }
     }
 
+    Template(Template&& t) noexcept
+        : attributes(std::move(t.attributes))
+        , replace_mode(t.replace_mode)
+        , separator(t.separator)
+        , xml_root(std::move(t.xml_root))
+    {
+    }
+
     Template& operator=(const Template& t)
     {
-        multimap<string,Attribute *>::const_iterator it;
-
         if (this != &t)
         {
             replace_mode = t.replace_mode;
             separator    = t.separator;
             xml_root     = t.xml_root;
 
-            attributes.clear();
+            clear();
 
-            for (it = t.attributes.begin() ; it != t.attributes.end() ; it++)
+            for (auto att : t.attributes)
             {
-                attributes.insert(make_pair(it->first,(it->second)->clone()));
+                attributes.insert(make_pair(att.first,(att.second)->clone()));
             }
+        }
+
+        return *this;
+    }
+
+    Template& operator=(Template&& t) noexcept
+    {
+        if (this != &t)
+        {
+            replace_mode = t.replace_mode;
+            separator    = t.separator;
+            xml_root     = std::move(t.xml_root);
+
+            clear();
+            attributes   = std::move(t.attributes);
         }
 
         return *this;
@@ -152,7 +173,7 @@ public:
      *    @param str_tempalte string that hold the template
      *    @param delim to separate attributes
      */
-    void marshall(string &str, const char delim='\n');
+    void marshall(string &str, const char delim = '\n');
 
     /**
      *  Writes the template in a simple xml string:
@@ -187,7 +208,7 @@ public:
     /**
      *  Clears all the attributes from the template
      */
-    void clear();
+    virtual void clear();
 
     /**
      *  Sets a new attribute, the attribute MUST BE ALLOCATED IN THE HEAP, and
@@ -321,7 +342,7 @@ public:
         return __get<VectorAttribute>(n, v);
     }
 
-    inline virtual int get( const string& n, vector<VectorAttribute*>& v)
+    inline virtual int get(const string& n, vector<VectorAttribute*>& v)
     {
         return __get<VectorAttribute>(n, v);
     }
@@ -331,7 +352,7 @@ public:
         return __get<SingleAttribute>(n, s);
     }
 
-    inline virtual int get( const string& n, vector<SingleAttribute*>& s)
+    inline virtual int get(const string& n, vector<SingleAttribute*>& s)
     {
         return __get<SingleAttribute>(n, s);
     }
@@ -437,11 +458,32 @@ public:
     }
 
     /**
+     *  Encrypt all secret attributes
+     */
+    virtual void encrypt(const std::string& one_key){};
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    virtual void decrypt(const std::string& one_key){};
+
+    /**
      *  @return true if template is empty
      */
-    bool empty()
+    bool empty() const
     {
         return attributes.empty();
+    }
+
+    /**
+     *  Generic iterator over Template attributes
+     */
+    void each_attribute(std::function<void(const Attribute * a)>&& f) const
+    {
+        for(const auto& it: attributes)
+        {
+            f(it.second);
+        }
     }
 
 protected:
@@ -498,6 +540,34 @@ protected:
 
     bool check_restricted(string& rs_attr,
            const std::map<std::string, std::set<std::string> >& ras);
+
+    /**
+     *  Parses a list of encrypted attributes in the form ATTRIBUTE_NAME or
+     *  ATTRIBUTE_NAME/SUBATTRIBUTE.
+     *    @param eas list of encrypted attributes
+     *    @param eattr_m result list of attributes indexed by ATTRIBUTE_NAME.
+     *    EAs are stored:
+     *      {
+     *        ENCRYPTED_ATTR_NAME => [ ENCRYPTED_SUB_ATTRIBUTES ],
+     *        ...
+     *      }
+     *    If the EA is Single the sub attribute list will be empty.
+     */
+    static void parse_encrypted(const vector<const SingleAttribute *>& eas,
+        std::map<std::string, std::set<std::string> >& eattr_m);
+
+    /**
+     *  Encrypt all secret attributes
+     */
+    void encrypt(const std::string& one_key,
+                 const std::map<std::string, std::set<std::string> >& eas);
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    void decrypt(const std::string& one_key,
+                 const std::map<std::string, std::set<std::string> >& eas);
+
     /**
      * Updates the xml root element name
      *
@@ -624,7 +694,7 @@ private:
     {
         typename vector<T *>::iterator it;
 
-        for(it = values.begin(); it != values.end(); it++ )
+        for (it = values.begin(); it != values.end(); it++ )
         {
             set(*it);
         }

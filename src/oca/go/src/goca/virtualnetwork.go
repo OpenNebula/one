@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -104,8 +104,8 @@ func (vc *VirtualNetworksController) Info(args ...int) (*vn.Pool, error) {
 }
 
 // Info retrieves information for the virtual network.
-func (vc *VirtualNetworkController) Info() (*vn.VirtualNetwork, error) {
-	response, err := vc.c.Client.Call("one.vn.info", vc.ID)
+func (vc *VirtualNetworkController) Info(decrypt bool) (*vn.VirtualNetwork, error) {
+	response, err := vc.c.Client.Call("one.vn.info", vc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -156,11 +156,11 @@ func (vc *VirtualNetworkController) UpdateAR(tpl string) error {
 	return err
 }
 
-// Reserve reserve network addresses.
+// Reserve reserve network addresses. It returns the Reserved Virtual Network ID
 // * tpl: Template
-func (vc *VirtualNetworkController) Reserve(tpl string) error {
-	_, err := vc.c.Client.Call("one.vn.reserve", vc.ID, tpl)
-	return err
+func (vc *VirtualNetworkController) Reserve(tpl string) (int, error) {
+	response, err := vc.c.Client.Call("one.vn.reserve", vc.ID, tpl)
+	return response.BodyInt(), err
 }
 
 // FreeAR frees a reserved address range from a virtual network.
@@ -184,8 +184,8 @@ func (vc *VirtualNetworkController) Release(tpl string) error {
 	return err
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update adds virtual network content.
+// * tpl: The new virtual network contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (vc *VirtualNetworkController) Update(tpl string, uType parameters.UpdateType) error {
@@ -194,8 +194,9 @@ func (vc *VirtualNetworkController) Update(tpl string, uType parameters.UpdateTy
 }
 
 // Chmod changes the permission bits of a virtual network.
-func (vc *VirtualNetworkController) Chmod(perm *shared.Permissions) error {
-	_, err := vc.c.Client.Call("one.vn.chmod", perm.ToArgs(vc.ID)...)
+func (vc *VirtualNetworkController) Chmod(perm shared.Permissions) error {
+	args := append([]interface{}{vc.ID}, perm.ToArgs()...)
+	_, err := vc.c.Client.Call("one.vn.chmod", args...)
 	return err
 }
 

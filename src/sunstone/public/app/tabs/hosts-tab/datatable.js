@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -32,6 +32,7 @@ define(function(require) {
   var OpenNebulaAction = require("opennebula/action");
   var Sunstone = require("sunstone");
   var Status = require('utils/status');
+  var DashboardUtils = require('utils/dashboard');
 
 
   /*
@@ -103,10 +104,8 @@ define(function(require) {
     this.errorHosts = 0;
     this.maxCPU = 0;
     this.allocatedCPU = 0;
-    this.realCPU = 0;
     this.maxMemory = 0;
     this.allocatedMemory = 0;
-    this.realMemory = 0;
 
     this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});
     this.searchColumn = SEARCH_COLUMN;
@@ -159,12 +158,10 @@ define(function(require) {
         break;
     }
 
-    this.maxCPU += parseInt(element.HOST_SHARE.MAX_CPU);
-    this.allocatedCPU += parseInt(element.HOST_SHARE.CPU_USAGE);
-    this.realCPU += parseInt(element.HOST_SHARE.USED_CPU);
-    this.maxMemory += parseInt(element.HOST_SHARE.MAX_MEM);
-    this.allocatedMemory += parseInt(element.HOST_SHARE.MEM_USAGE);
-    this.realMemory += parseInt(element.HOST_SHARE.USED_MEM);
+    this.maxCPU += parseInt((element && element.HOST_SHARE && element.HOST_SHARE.MAX_CPU)||0);
+    this.allocatedCPU += parseInt((element && element.HOST_SHARE && element.HOST_SHARE.CPU_USAGE)||0);
+    this.maxMemory += parseInt((element && element.HOST_SHARE && element.HOST_SHARE.MAX_MEM)||0);
+    this.allocatedMemory += parseInt((element && element.HOST_SHARE && element.HOST_SHARE.MEM_USAGE)||0);
 
     var state = OpenNebulaHost.simpleStateStr(element.STATE);
 
@@ -207,10 +204,8 @@ define(function(require) {
     this.errorHosts = 0;
     this.maxCPU = 0;
     this.allocatedCPU = 0;
-    this.realCPU = 0;
     this.maxMemory = 0;
     this.allocatedMemory = 0;
-    this.realMemory = 0;
   }
 
   function _postUpdateView() {
@@ -220,10 +215,13 @@ define(function(require) {
       time = 1;
     }
 
-    $(".total_hosts").text(this.totalHosts);
-    $(".on_hosts").text(this.onHosts);
-    $(".off_hosts").text(this.offHosts);
-    $(".error_hosts").text(this.errorHosts);
+    //$(".total_hosts").text(this.totalHosts);
+    $(".on_hosts").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".on_hosts", this.onHosts);
+    $(".off_hosts").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".off_hosts", this.offHosts);
+    $(".error_hosts").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".error_hosts", this.errorHosts);
 
     var ratio_allocated_cpu = 0;
     if (this.maxCPU > 0) {
@@ -238,30 +236,15 @@ define(function(require) {
       "1.2rem",
       "1rem",
       {"percentage": ratio_allocated_cpu, "str": info_str})
-    );
-    var percentage = ratio_allocated_cpu > 100 ? 100 : ratio_allocated_cpu;
-    $("#dashboard_host_allocated_cpu_meter").animate({
-      value: percentage,
-    }, time, "swing");
-
-    var ratio_real_cpu = 0;
-    if (this.maxCPU > 0) {
-      ratio_real_cpu = Math.round((this.realCPU / this.maxCPU) * 100);
-      info_str = this.realCPU + " / " + this.maxCPU;
-    } else {
-      info_str = "- / -";
-    }
-    $("#dashboard_host_real_cpu").html(quotaDashboard(
-      "dashboard_host_real_cpu",
-      Locale.tr("Real CPU"),
-      "1.2rem",
-      "1rem",
-      {"percentage": ratio_real_cpu, "str": info_str})
-    );
-    var percentage = ratio_real_cpu > 100 ? 100 : ratio_real_cpu;
-    $("#dashboard_host_real_cpu_meter").animate({
-      value: percentage,
-    }, time, "swing");
+    ).fadeIn("slow", function() {
+      // Fill percentage allocated CPU
+      if(!isNaN(ratio_allocated_cpu)){
+        var percentage = ratio_allocated_cpu > 100 ? 100 : ratio_allocated_cpu;
+        $("#dashboard_host_allocated_cpu_meter").animate({
+          value: percentage,
+        }, time, "swing");
+      }
+    });
 
     var ratio_allocated_mem = 0;
     if (this.maxMemory > 0) {
@@ -276,34 +259,21 @@ define(function(require) {
       "1.2rem",
       "1rem",
       {"percentage": ratio_allocated_mem, "str": info_str})
-    );
-    var percentage = ratio_allocated_mem > 100 ? 100 : ratio_allocated_mem;
-    $("#dashboard_host_allocated_mem_meter").animate({
-      value: percentage,
-    }, time, "swing");
-
-    var ratio_real_mem = 0;
-    if (this.maxMemory > 0) {
-      ratio_real_mem = Math.round((this.realMemory / this.maxMemory) * 100);
-      info_str = Humanize.size(this.realMemory) + " / " + Humanize.size(this.maxMemory);
-    } else {
-      info_str = Humanize.size(this.realMemory) + " / -";
-    }
-    $("#dashboard_host_real_mem").html(quotaDashboard(
-      "dashboard_host_real_mem",
-      Locale.tr("Real Memory"),
-      "1.2rem",
-      "1rem",
-      {"percentage": ratio_real_mem, "str": info_str})
-    );
-    var percentage = ratio_real_mem > 100 ? 100 : ratio_real_mem;
-    $("#dashboard_host_real_mem_meter").animate({
-      value: percentage,
-    }, time, "swing");
-
+    ).fadeIn("slow", function() {
+      // Fill percentage allocated MEMORY
+      if(!isNaN(ratio_allocated_mem)){
+        var percentage = ratio_allocated_mem > 100 ? 100 : ratio_allocated_mem;
+        $("#dashboard_host_allocated_mem_meter").animate({
+          value: percentage,
+        }, time, "swing");
+      }
+    });
   }
 
   function quotaDashboard(html_tag, legend, font_large_size, font_small_size, quota) {
+    var min = SunstoneConfig.thresholds.min;
+    var low = SunstoneConfig.thresholds.low;
+    var high = SunstoneConfig.thresholds.high;
     return "<div class=\"row\">" +
           "<div class=\"large-12 columns\">" +
             "<span>" + legend + "</span>" +
@@ -311,7 +281,7 @@ define(function(require) {
         "</div>" +
         "<div class=\"row\">" +
           "<div class=\"large-12 columns\">" +
-            "  <meter id=\"" + html_tag + "_meter\" min=\"0\" low=\"33\" high=\"66\" optimum=\"0\" max=\"100\" value=\"0\"></meter>" +
+            "  <meter id=\"" + html_tag + "_meter\" min=\""+ min +"\" low=\""+ low +"\" high=\""+ high +"\" optimum=\"0\" max=\"100\" value=\"0\"></meter>" +
           "</div>" +
         "</div>" +
         "<div class=\"row\">" +

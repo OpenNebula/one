@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -64,15 +64,8 @@ define(function(require) {
   return Tab;
 
   function _setup(context) {
-    //SupportUtils.startIntervalRefresh(); //esto de debe de borrar porque me esta listando el login de un usuario
-    SupportUtils.checkValidateOfficialSupport();
-    SupportUtils.checkLastVersionSupport();
     $("#li_support-tab > a").on("click", function(e){
       e.preventDefault();
-    });
-    $(".support_not_connected > button").on("click", function(e){
-      e.stopPropagation();
-      window.open("http://opennebula.systems/opennebula-support/", "_blank");
     });
     if(config && config.user_config && config.user_config.default_view === "admin"){
       $("#support_credentials_form", context).on("submit", function(){

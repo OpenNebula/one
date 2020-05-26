@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,37 +17,38 @@
 package vmgroup
 
 import (
+	"encoding/xml"
+
 	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
 // Pool represents an OpenNebula VM group pool
 type Pool struct {
+	XMLName  xml.Name  `xml:"VM_GROUP_POOL"`
 	VMGroups []VMGroup `xml:"VM_GROUP"`
 }
 
 // VMGroup represents an OpenNebula VM group
 type VMGroup struct {
-	ID          int                 `xml:"ID"`
-	UID         int                 `xml:"UID"`
-	GID         int                 `xml:"GID"`
-	UName       string              `xml:"UNAME"`
-	GName       string              `xml:"GNAME"`
+	XMLName     xml.Name            `xml:"VM_GROUP"`
+	ID          int                 `xml:"ID,omitemtpy"`
+	UID         int                 `xml:"UID,omitempty"`
+	GID         int                 `xml:"GID,omitempty"`
+	UName       string              `xml:"UNAME,omitempty"`
+	GName       string              `xml:"GNAME,omitempty"`
 	Name        string              `xml:"NAME"`
-	Permissions *shared.Permissions `xml:"PERMISSIONS"`
-	LockInfos   *shared.Lock        `xml:"LOCK"`
-	Roles       []vmGroupRole       `xml:"ROLES>ROLE"`
-	Template    Template            `xml:"TEMPLATE"`
+	Permissions *shared.Permissions `xml:"PERMISSIONS,omitempty"`
+	LockInfos   *shared.Lock        `xml:"LOCK,omitempty"`
+	Roles       []Role              `xml:"ROLES>ROLE,omitempty"`
+	Template    dyn.Template        `xml:"TEMPLATE,omitempty"`
 }
 
-type vmGroupRole struct {
-	ID              int    `xml:"ID"`
+type Role struct {
+	ID              int    `xml:"ID,omitempty"`
 	Name            string `xml:"NAME"`
-	HostAffined     string `xml:"HOST_AFFINED"`      // minOccurs=0
-	HostAntiAffined string `xml:"HOST_ANTI_AFFINED"` // minOccurs=0
-	Policy          string `xml:"POLICY"`            // minOccurs=0
-}
-
-type Template struct {
-	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
+	HostAffined     string `xml:"HOST_AFFINED,omitempty"`      // minOccurs=0
+	HostAntiAffined string `xml:"HOST_ANTI_AFFINED,omitempty"` // minOccurs=0
+	Policy          string `xml:"POLICY,omitempty"`            // minOccurs=0
+	VMs             string `xml:"VMS,omitempty"`
 }

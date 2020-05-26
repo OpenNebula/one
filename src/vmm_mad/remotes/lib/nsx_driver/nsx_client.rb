@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -15,18 +15,23 @@
 #--------------------------------------------------------------------------- #
 module NSXDriver
 
-    ONE_LOCATION = ENV['ONE_LOCATION']
+    ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
     if !ONE_LOCATION
-        RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
-        GEMS_LOCATION     = '/usr/share/one/gems'
+        RUBY_LIB_LOCATION = '/usr/lib/one/ruby' \
+            unless defined?(RUBY_LIB_LOCATION)
+        GEMS_LOCATION     = '/usr/share/one/gems' \
+            unless defined?(GEMS_LOCATION)
     else
-        RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
-        GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+        RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' \
+            unless defined?(RUBY_LIB_LOCATION)
+        GEMS_LOCATION     = ONE_LOCATION + '/share/gems' \
+            unless defined?(GEMS_LOCATION)
     end
 
     if File.directory?(GEMS_LOCATION)
         Gem.use_paths(GEMS_LOCATION)
+        $LOAD_PATH.reject! {|l| l =~ /(vendor|site)_ruby/ }
     end
 
     $LOAD_PATH << RUBY_LIB_LOCATION
@@ -36,6 +41,7 @@ module NSXDriver
     require 'nokogiri'
     require 'opennebula'
     require 'vcenter_driver'
+    require 'nsx_driver'
 
     # Class NSXClient
     class NSXClient
@@ -44,127 +50,84 @@ module NSXDriver
         attr_accessor :nsxmgr
         attr_accessor :nsx_user
         attr_accessor :nsx_password
-        HEADER_JSON = { :'Content-Type' => 'application/json' }
-        HEADER_XML = { :'Content-Type' => 'application/xml' }
 
         # CONSTRUCTORS
-        def initialize(host_id)
-            client = OpenNebula::Client.new
-            host = OpenNebula::Host.new_with_id(host_id, client)
-            rc = host.info
-
-            if OpenNebula.is_error?(rc)
-                raise "Could not get host info for ID: \
-                        #{host_id} - #{rc.message}"
-            end
-
-            @nsxmgr = host['TEMPLATE/NSX_MANAGER']
-            @nsx_user = host['TEMPLATE/NSX_USER']
-            @nsx_password = nsx_pass(host['TEMPLATE/NSX_PASSWORD'])
-        end
-
-        def self.new_nsxmgr(nsxmgr, nsx_user, nsx_password)
+        def initialize(nsxmgr, nsx_user, nsx_password)
             @nsxmgr = nsxmgr
             @nsx_user = nsx_user
-            @nsx_password = nsx_pass(nsx_password)
+            @nsx_password = nsx_password
+        end
+
+        def self.new_child(nsxmgr, nsx_user, nsx_password, type)
+            case type.upcase
+            when NSXConstants::NSXT
+                NSXTClient.new(nsxmgr, nsx_user, nsx_password)
+            when NSXConstants::NSXV
+                NSXVClient.new(nsxmgr, nsx_user, nsx_password)
+            else
+                error_msg = "Unknown object type: #{type}"
+                error     = NSXError::UnknownObject.new(error_msg)
+                raise error
+            end
+        end
+
+        def self.new_from_host(host)
+            nsxmgr = host['TEMPLATE/NSX_MANAGER']
+            nsx_user = host['TEMPLATE/NSX_USER']
+            nsx_password = host['TEMPLATE/NSX_PASSWORD']
+            nsx_type = host['TEMPLATE/NSX_TYPE']
+
+            new_child(nsxmgr, nsx_user, nsx_password, nsx_type)
+        end
+
+        def self.new_from_id(hid)
+            client = OpenNebula::Client.new
+            host   = OpenNebula::Host.new_with_id(hid, client)
+
+            rc = host.info(true)
+
+            if OpenNebula.is_error?(rc)
+                raise "Could not get host info for ID: #{hid} - #{rc.message}"
+            end
+
+            new_from_host(host)
         end
 
         # METHODS
 
-        def check_response(response, code)
-            response.code.to_i == code
-        end
+        # Return response if match with responses codes, If response not match
+        # with expected responses codes then raise an IncorrectResponseCodeError
+        def check_response(response, codes_array)
+            unless response.nil?
+                return response if codes_array.include?(response.code.to_i)
 
-        def nsx_pass(nsx_pass_enc)
-            client = OpenNebula::Client.new
-            system = OpenNebula::System.new(client)
-            config = system.get_configuration
-
-            if OpenNebula.is_error?(config)
-                raise "Error getting oned configuration : #{config.message}"
+                response_json = JSON.parse(response.body)
+                nsx_error = "\nNSX error code: " \
+                            "#{response_json['errorCode']}, " \
+                            "\nNSX error details: " \
+                            "#{response_json['details']}"
+                raise NSXError::IncorrectResponseCodeError, nsx_error
             end
-
-            token = config['ONE_KEY']
-            @nsx_password = VCenterDriver::VIClient
-                            .decrypt(nsx_pass_enc, token)
+            raise NSXError::IncorrectResponseCodeError, nsx_error
         end
 
-        def get_xml(url)
-            uri = URI.parse(url)
-            request = Net::HTTP::Get.new(uri.request_uri, HEADER_XML)
-            request.basic_auth(@nsx_user, @nsx_password)
-            begin
-                response = Net::HTTP
-                           .start(uri.host,
-                                  uri.port,
-                                  :use_ssl => true,
-                                  :verify_mode => OpenSSL::SSL::VERIFY_NONE)\
-                                  do |https|
-                                      https.request(request)
-                                  end
-            rescue StandtardError => e
-                raise e
-            end
-            return Nokogiri::XML response.body if check_response(response, 200)
-        end
+        # Return: respose.body
+        def get(url, aditional_headers = []); end
+
+        # Return: response
+        def get_full_response(url, aditional_headers = []); end
 
         # Return: id of the created object
-        def post_xml(url, ls_data)
-            uri = URI.parse(url)
-            request = Net::HTTP::Post.new(uri.request_uri, HEADER_XML)
-            request.body = ls_data
-            request.basic_auth(@nsx_user, @nsx_password)
-            response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
-              :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-                  https.request(request)
-              end
-            return response.body if check_response(response, 201)
-        end
+        def post(url, data, aditional_headers = []); end
 
-        def get_json(url)
-            uri = URI.parse(url)
-            request = Net::HTTP::Get.new(uri.request_uri, HEADER_JSON)
-            request.basic_auth(@nsx_user, @nsx_password)
-            begin
-                response = Net::HTTP
-                           .start(uri.host,
-                                  uri.port,
-                                  :use_ssl => true,
-                                  :verify_mode => OpenSSL::SSL::VERIFY_NONE)\
-                                  do |https|
-                                      https.request(request)
-                                  end
-            rescue StandardError => e
-                raise e
-            end
-            return JSON.parse(response.body) \
-                if check_response(response, 200)
-        end
+        def put(url, data, aditional_headers = []); end
 
-        # Return: id of the created object
-        def post_json(url, ls_data)
-            uri = URI.parse(url)
-            request = Net::HTTP::Post.new(uri.request_uri, HEADER_JSON)
-            request.body = ls_data
-            request.basic_auth(@nsx_user, @nsx_password)
-            response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
-              :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-                  https.request(request)
-              end
-            return JSON.parse(response.body)['id'] \
-                if check_response(response, 201)
-        end
+        def delete(url); end
 
-        def delete(url, header)
-            uri = URI.parse(url)
-            request = Net::HTTP::Delete.new(uri.request_uri, header)
-            request.basic_auth(@nsx_user, @nsx_password)
-            response = Net::HTTP.start(uri.host, uri.port, :use_ssl => true,
-              :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-                  https.request(request)
-              end
-            check_response(response, 200)
-        end
+        def get_token(url); end
+
+        # Prepare headers
+        def add_headers(aditional_headers = []); end
 
     end
 

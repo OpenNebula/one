@@ -1,0 +1,25 @@
+<!-- This schema is followd by the EVENT API message sent by the Hook Manager   -->
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://opennebula.org/XMLSchema" elementFormDefault="qualified" targetNamespace="http://opennebula.org/XMLSchema">
+  <xs:element name="HOOK_MESSAGE">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="HOOK_TYPE" type="xs:string" fixed="STATE"/>
+        <xs:element name="HOOK_OBJECT" type="xs:string">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+            <xs:enumeration value="VM"/>
+            <xs:enumeration value="HOST"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="STATE" type="xs:string"/>
+        <xs:element name="LCM_STATE" type="xs:string" maxOccurs="1" minOccurs="0"/>
+        <xs:element name="REMOTE_HOST" type="xs:string" maxOccurs="1" minOccurs="0"/>
+         <!-- The template of the resource (VM or Host) is inlcuded here -->
+         <xs:element ref="HOST" maxOccurs="1" minOccurs="0"/>
+         <xs:element ref="VM" maxOccurs="1" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

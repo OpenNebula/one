@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -221,6 +221,9 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
         if ( !PoolObjectSQL::name_is_valid(app->name, error_str) )
         {
             error_str = "Cannot generate a valida name for app";
+
+            delete app;
+
             return -1;
         }
     }

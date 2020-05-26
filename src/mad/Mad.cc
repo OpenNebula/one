@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -14,20 +14,18 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include <iostream>
+#include "Mad.h"
+#include "NebulaLog.h"
+
+#include "Nebula.h"
+
 #include <sstream>
 
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <string.h>
-
-#include "Mad.h"
-#include "NebulaLog.h"
-
-#include "Nebula.h"
-
+#include <cstring>
 #include <cerrno>
 
 
@@ -36,9 +34,8 @@
 
 Mad::~Mad()
 {
-    char    buf[]="FINALIZE\n";
-    int     status;
-    pid_t   rp;
+    char buf[]   = "FINALIZE\n";
+    bool success = false;
 
     if ( pid==-1)
     {
@@ -51,13 +48,23 @@ Mad::~Mad()
     close(mad_nebula_pipe);
     close(nebula_mad_pipe);
 
-    rp = waitpid(pid, &status, WNOHANG);
-
-    if ( rp == 0 )
+    for (int i=0; i < 2; ++i)
     {
+        int status;
+
+        if ( waitpid(pid, &status, WNOHANG) != 0 )
+        {
+            success = true;
+            break;
+        }
+
         sleep(1);
-        waitpid(pid, &status, WNOHANG);
     }
+
+    if (!success)
+    {
+        kill(pid, SIGKILL);
+    };
 }
 
 /* -------------------------------------------------------------------------- */

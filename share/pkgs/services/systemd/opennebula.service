@@ -1,0 +1,27 @@
+[Unit]
+Description=OpenNebula Cloud Controller Daemon
+After=syslog.target network.target remote-fs.target
+After=mariadb.service mysql.service
+After=opennebula-ssh-agent.service
+Wants=opennebula-scheduler.service opennebula-hem.service
+Wants=opennebula-ssh-agent.service
+Wants=opennebula-ssh-socks-cleaner.timer
+Wants=opennebula-showback.timer
+
+[Service]
+Type=notify
+Group=oneadmin
+User=oneadmin
+Environment="PATH=/usr/lib/one/sh/override:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+EnvironmentFile=-/var/run/one/ssh-agent.env
+ExecStartPre=-/usr/sbin/logrotate -f /etc/logrotate.d/opennebula -s /var/lib/one/.logrotate.status
+ExecStart=/usr/bin/oned -f
+ExecStopPost=/usr/share/one/follower_cleanup
+PIDFile=/var/lock/one/one
+StartLimitInterval=60
+StartLimitBurst=3
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

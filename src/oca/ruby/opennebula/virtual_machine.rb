@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -277,8 +277,8 @@ module OpenNebula
         #######################################################################
 
         # Retrieves the information of the given VirtualMachine.
-        def info()
-            super(VM_METHODS[:info], 'VM')
+        def info(decrypt = false)
+            super(VM_METHODS[:info], 'VM', decrypt)
         end
 
         alias_method :info!, :info
@@ -468,7 +468,7 @@ module OpenNebula
         #   overcommited. Defaults to false
         # @param ds_id [Integer] The System Datastore where to migrate the VM.
         #   To use the current one, set it to -1
-        # @param mtype [Integer] How to perform the cold migration: 
+        # @param mtype [Integer] How to perform the cold migration:
         #     - 0: save - restore,
         #     - 1: power off - boot
         #     - 2: power off hard - boot
@@ -560,18 +560,17 @@ module OpenNebula
         #   the requested xpath expressions, and an Array of 'timestamp, value'.
         #
         # @example
-        #   vm.monitoring( ['MONITORING/CPU', 'MONITORING/NETTX'] )
+        #   vm.monitoring( ['CPU', 'NETTX'] )
         #
         #   {
-        #    "MONITORING/CPU"=>[["1435085098", "47"], ["1435085253", "5"],
+        #    "CPU"=>[["1435085098", "47"], ["1435085253", "5"],
         #      ["1435085410", "48"], ["1435085566", "3"], ["1435088136", "2"]],
-        #    "MONITORING/NETTX"=>[["1435085098", "0"], ["1435085253", "50"],
+        #    "NETTX"=>[["1435085098", "0"], ["1435085253", "50"],
         #      ["1435085410", "50"], ["1435085566", "50"], ["1435085723", "50"]]
         #   }
         #
         def monitoring(xpath_expressions)
-            return super(VM_METHODS[:monitoring], 'VM',
-                'LAST_POLL', xpath_expressions)
+            return super(VM_METHODS[:monitoring], xpath_expressions)
         end
 
         # Retrieves this VM's monitoring data from OpenNebula, in XML
@@ -816,7 +815,7 @@ module OpenNebula
                 # Replace the original template's capacity with the actual VM values
                 replace = ""
                 if !description.nil?
-                    replace << "DESCRIPTION = #{description}\n"
+                    replace << "DESCRIPTION = \"#{description}\"\n"
                 end
                 cpu = self['TEMPLATE/CPU']
                 if !cpu.nil? && !cpu.empty?
@@ -915,6 +914,8 @@ module OpenNebula
                     end
 
                     REMOVE_VNET_ATTRS.each do |attr|
+                        # Remove every automatically generated value
+                        # The vnet will be referenced via NAME + UNAME (if defined)
                         nic.delete_element(attr)
                     end
 

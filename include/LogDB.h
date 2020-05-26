@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -94,20 +94,21 @@ public:
      *  Loads a log record from the database. Memory is allocated by this class
      *  and needs to be freed.
      *    @param index of the associated logDB entry
+     *    @param prev_index of the associated logDB entry
      *    @param lr logDBrecored to load from the DB
      *    @return 0 on success -1 otherwise
      */
-    int get_log_record(uint64_t index, LogDBRecord& lr);
+    int get_log_record(uint64_t index, uint64_t prev_index, LogDBRecord& lr);
 
     /**
      *  Applies the SQL command of the given record to the database. The
-     *  timestamp of the record is updated.
+     *  timestamp of the record is updated. (Do not use for Federation)
      *    @param index of the log record
      */
     int apply_log_records(uint64_t commit_index);
 
     /**
-     *  Deletes the record in start_index and all that follow it
+     *  Deletes the record in start_index and all that follow it (do not use for Federation)
      *    @param start_index first log record to delete
      */
     int delete_log_records(uint64_t start_index);
@@ -208,19 +209,14 @@ public:
         db->free_str(str);
     }
 
-    bool multiple_values_support()
+    bool supports(SqlDB::SqlFeature ft)
     {
-        return db->multiple_values_support();
+        return db->supports(ft);
     }
 
-    bool limit_support()
+    std::string limit_string(int start_id, int end_id)
     {
-        return db->limit_support();
-    }
-
-    bool fts_available()
-    {
-        return db->fts_available();
+        return db->limit_string(start_id, end_id);
     }
     // -------------------------------------------------------------------------
     // Database methods
@@ -247,12 +243,18 @@ public:
     // Federate log methods
     // -------------------------------------------------------------------------
     /**
-     *  Get last federated index, and previous
+     *  Get last federated index
      */
     uint64_t last_federated();
 
+    /**
+     *  Get previous federated index
+     */
     uint64_t previous_federated(uint64_t index);
 
+    /**
+     *  Get next federated index
+     */
     uint64_t next_federated(uint64_t index);
 
     /**
@@ -422,19 +424,9 @@ public:
         _logdb->free_str(str);
     }
 
-    bool multiple_values_support()
+    bool supports(SqlDB::SqlFeature ft)
     {
-        return _logdb->multiple_values_support();
-    }
-
-    bool limit_support()
-    {
-        return _logdb->limit_support();
-    }
-
-    bool fts_available()
-    {
-        return _logdb->fts_available();
+        return _logdb->supports(ft);
     }
 
     /**

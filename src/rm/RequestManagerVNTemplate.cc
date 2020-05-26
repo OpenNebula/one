@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,6 +19,23 @@
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
 #include "RequestManagerClone.h"
+#include "ClusterPool.h"
+#include "VirtualNetworkPool.h"
+#include "VNTemplatePool.h"
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+RequestManagerVNTemplate::RequestManagerVNTemplate(const string& method_name,
+                                                   const string& help,
+                                                   const string& params)
+    : Request(method_name, params, help)
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_vntpool();
+
+    auth_object = PoolObjectSQL::VNTEMPLATE;
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

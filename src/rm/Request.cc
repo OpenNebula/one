@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,6 +19,9 @@
 #include "Client.h"
 
 #include "PoolObjectAuth.h"
+#include "HookAPI.h"
+#include "HookManager.h"
+#include "RaftManager.h"
 
 #include <xmlrpc-c/abyss.h>
 
@@ -73,6 +76,8 @@ string Request::object_name(PoolObjectSQL::ObjectType ob)
             return "vm group";
         case PoolObjectSQL::VNTEMPLATE:
             return "virtual network template";
+        case PoolObjectSQL::HOOK:
+            return "hook";
         default:
             return "-";
       }
@@ -356,7 +361,7 @@ void Request::execute(
         const xmlrpc_c::callInfo * _callInfoP,
         xmlrpc_c::value *   const  _retval)
 {
-    RequestAttributes att;
+    RequestAttributes att(auth_op);
 
     att.retval  = _retval;
     att.session = xmlrpc_c::value_string(_paramList.getString(0));
@@ -368,8 +373,12 @@ void Request::execute(
     RaftManager * raftm = nd.get_raftm();
     UserPool* upool     = nd.get_upool();
 
+    HookManager * hm = nd.get_hm();
+
     bool authenticated = upool->authenticate(att.session, att.password,
         att.uid, att.gid, att.uname, att.gname, att.group_ids, att.umask);
+
+    att.set_auth_op(vm_action);
 
     if ( log_method_call )
     {
@@ -431,6 +440,20 @@ void Request::execute(
         request_execute(_paramList, att);
     }
 
+    //--------------------------------------------------------------------------
+    // Register API hook event & log call
+    //--------------------------------------------------------------------------
+    ParamList pl(&_paramList, hidden_params);
+
+    std::string * event = HookAPI::format_message(method_name, pl, att);
+
+    if (event != nullptr)
+    {
+        hm->trigger(HMAction::SEND_EVENT, *event);
+
+        delete event;
+    }
+
     if ( log_method_call )
     {
         log_result(att, method_name);
@@ -440,11 +463,9 @@ void Request::execute(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool Request::basic_authorization(int oid,
-                                  AuthRequest::Operation op,
-                                  RequestAttributes& att)
+bool Request::basic_authorization(int oid, RequestAttributes& att)
 {
-    ErrorCode ec = basic_authorization(pool, oid, op, auth_object, att);
+    ErrorCode ec = basic_authorization(pool, oid, auth_object, att);
 
     if (ec == SUCCESS)
     {
@@ -463,7 +484,6 @@ bool Request::basic_authorization(int oid,
 Request::ErrorCode Request::basic_authorization(
         PoolSQL*                pool,
         int                     oid,
-        AuthRequest::Operation  op,
         PoolObjectSQL::ObjectType auth_object,
         RequestAttributes&      att)
 {
@@ -493,7 +513,7 @@ Request::ErrorCode Request::basic_authorization(
 
     AuthRequest ar(att.uid, att.group_ids);
 
-    ar.add_auth(op, perms);
+    ar.add_auth(att.auth_op, perms);
 
     if (UserPool::authorize(ar) == -1)
     {
@@ -722,20 +742,41 @@ void Request::quota_rollback(Template *         tmpl,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+template <typename T>
+static void make_parameter(std::ostringstream& oss, int pos, const T& val)
+{
+    oss << "<PARAMETER>"
+        << "<POSITION>" << pos << "</POSITION>"
+        << "<TYPE>OUT</TYPE>"
+        << "<VALUE>" << val << "</VALUE>"
+        << "</PARAMETER>";
+}
+
 void Request::failure_response(ErrorCode ec, const string& str_val,
                                RequestAttributes& att)
 {
     vector<xmlrpc_c::value> arrayData;
+    ostringstream oss;
 
     arrayData.push_back(xmlrpc_c::value_boolean(false));
+    make_parameter(oss, 1, "false");
+
     arrayData.push_back(xmlrpc_c::value_string(str_val));
+    make_parameter(oss, 2, one_util::escape_xml(str_val));
+
     arrayData.push_back(xmlrpc_c::value_int(ec));
+    make_parameter(oss, 3, ec);
+
     arrayData.push_back(xmlrpc_c::value_int(att.resp_id));
+    make_parameter(oss, 4, att.resp_id);
+
     arrayData.push_back(xmlrpc_c::value_i8(att.replication_idx));
 
     xmlrpc_c::value_array arrayresult(arrayData);
 
-    *(att.retval) = arrayresult;
+    *(att.retval)  = arrayresult;
+    att.success    = false;
+    att.retval_xml = oss.str();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -844,15 +885,22 @@ void Request::failure_response(ErrorCode ec, RequestAttributes& att)
 void Request::success_response(int id, RequestAttributes& att)
 {
     vector<xmlrpc_c::value> arrayData;
+    ostringstream oss;
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
-    arrayData.push_back(xmlrpc_c::value_int(id));
-    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
+    make_parameter(oss, 1, "true");
 
+    arrayData.push_back(xmlrpc_c::value_int(id));
+    make_parameter(oss, 2, id);
+
+    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
+    make_parameter(oss, 3, SUCCESS);
 
     xmlrpc_c::value_array arrayresult(arrayData);
 
-    *(att.retval) = arrayresult;
+    *(att.retval)  = arrayresult;
+    att.success    = true;
+    att.retval_xml = oss.str();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -860,14 +908,22 @@ void Request::success_response(int id, RequestAttributes& att)
 void Request::success_response(const string& val, RequestAttributes& att)
 {
     vector<xmlrpc_c::value> arrayData;
+    ostringstream oss;
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
+    make_parameter(oss, 1, "true");
+
     arrayData.push_back(static_cast<xmlrpc_c::value_string>(val));
+    make_parameter(oss, 2, val);
+
     arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
+    make_parameter(oss, 3, SUCCESS);
 
     xmlrpc_c::value_array arrayresult(arrayData);
 
-    *(att.retval) = arrayresult;
+    *(att.retval)  = arrayresult;
+    att.success    = true;
+    att.retval_xml = oss.str();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -876,15 +932,22 @@ void Request::success_response(const string& val, RequestAttributes& att)
 void Request::success_response(bool val, RequestAttributes& att)
 {
     vector<xmlrpc_c::value> arrayData;
+    ostringstream oss;
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
-    arrayData.push_back(xmlrpc_c::value_boolean(val));
-    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
+    make_parameter(oss, 1, "true");
 
+    arrayData.push_back(xmlrpc_c::value_boolean(val));
+    make_parameter(oss, 2, val? "true": "false");
+
+    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
+    make_parameter(oss, 3, SUCCESS);
 
     xmlrpc_c::value_array arrayresult(arrayData);
 
-    *(att.retval) = arrayresult;
+    *(att.retval)  = arrayresult;
+    att.success    = true;
+    att.retval_xml = oss.str();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -893,15 +956,22 @@ void Request::success_response(bool val, RequestAttributes& att)
 void Request::success_response(uint64_t val, RequestAttributes& att)
 {
     vector<xmlrpc_c::value> arrayData;
+    ostringstream oss;
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
-    arrayData.push_back(xmlrpc_c::value_i8(val));
-    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
+    make_parameter(oss, 1, "true");
 
+    arrayData.push_back(xmlrpc_c::value_i8(val));
+    make_parameter(oss, 2, val);
+
+    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
+    make_parameter(oss, 3, SUCCESS);
 
     xmlrpc_c::value_array arrayresult(arrayData);
 
-    *(att.retval) = arrayresult;
+    *(att.retval)  = arrayresult;
+    att.success    = true;
+    att.retval_xml = oss.str();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -942,25 +1012,29 @@ int Request::get_info(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Request::ErrorCode Request::as_uid_gid(Template *         tmpl,
-                             RequestAttributes& att)
+Request::ErrorCode Request::as_uid_gid(Template * tmpl, RequestAttributes& att)
 {
     string gname;
     string uname;
 
     PoolObjectAuth uperms;
     PoolObjectAuth gperms;
+
     int uid = att.uid, as_uid = -1, as_gid = -1;
+
     set<int> gids = att.group_ids;
+
     int rc;
 
-    UserPool * upool = Nebula::instance().get_upool();
+    UserPool * upool  = Nebula::instance().get_upool();
     GroupPool * gpool = Nebula::instance().get_gpool();
 
     if ( tmpl->get("AS_UID", as_uid) )
     {
         tmpl->erase("AS_UID");
-        rc = get_info(upool, as_uid, PoolObjectSQL::USER, att, uperms, uname,true);
+
+        rc = get_info(upool, as_uid, PoolObjectSQL::USER, att, uperms, uname,
+                true);
 
         if ( rc == -1 )
         {
@@ -975,7 +1049,9 @@ Request::ErrorCode Request::as_uid_gid(Template *         tmpl,
     if ( tmpl->get("AS_GID", as_gid) )
     {
         tmpl->erase("AS_GID");
-        rc = get_info(gpool, as_gid, PoolObjectSQL::GROUP, att, gperms, gname,true);
+
+        rc = get_info(gpool, as_gid, PoolObjectSQL::GROUP, att, gperms, gname,
+                true);
 
         if ( rc == -1 )
         {
@@ -1031,3 +1107,50 @@ Request::ErrorCode Request::as_uid_gid(Template *         tmpl,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void RequestAttributes::set_auth_op(VMActions::Action action)
+{
+    if (action == VMActions::NONE_ACTION)
+    {
+        return;
+    }
+
+    AuthRequest::Operation result = AuthRequest::NONE;
+
+    auto& nd  = Nebula::instance();
+    auto user = nd.get_upool()->get_ro(uid);
+
+    if (user != nullptr)
+    {
+        result = user->get_vm_auth_op(action);
+        user->unlock();
+    }
+
+    if (result != AuthRequest::NONE)
+    {
+        auth_op = result;
+        return;
+    }
+
+    auto group = nd.get_gpool()->get_ro(gid);
+
+    if (group != nullptr)
+    {
+        result = group->get_vm_auth_op(action);
+        group->unlock();
+    }
+
+    if (result != AuthRequest::NONE)
+    {
+        auth_op = result;
+        return;
+    }
+
+    result = nd.get_vm_auth_op(action);
+
+    if (result != AuthRequest::NONE)
+    {
+        auth_op = result;
+    }
+}
+

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -108,7 +108,7 @@ int QuotasSQL::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     // Quota fields
 
-    sql_quota_xml = db->escape_str(to_xml_db(xml_quota).c_str());
+    sql_quota_xml = db->escape_str(to_xml_db(xml_quota));
 
     if ( sql_quota_xml == 0 )
     {

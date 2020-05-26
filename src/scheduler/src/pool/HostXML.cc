@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -47,7 +47,7 @@ void HostShareXML::init_attributes(ObjectXML * host)
     host->xpath<long long>(max_mem, "/HOST/HOST_SHARE/MAX_MEM", 0);
     host->xpath<long long>(max_cpu, "/HOST/HOST_SHARE/MAX_CPU", 0);
 
-    host->xpath<long long>(free_disk, "/HOST/HOST_SHARE/FREE_DISK", 0);
+    host->xpath<long long>(free_disk, "/HOST/HOST_SHARE/DATASTORES/FREE_DISK", 0);
     host->xpath<long long>(running_vms, "/HOST/HOST_SHARE/RUNNING_VMS", 0);
 
     //-------------------- HostShare Datastores ------------------------------
@@ -77,11 +77,15 @@ void HostShareXML::init_attributes(ObjectXML * host)
     }
 
     //---------------------- HostShare NUMA Nodes ------------------------------
+    unsigned int vms_thread;
+
+    host->xpath<unsigned int>(vms_thread, "/HOST/HOST_SHARE/VMS_THREAD", 1);
+
     host->get_nodes("/HOST/HOST_SHARE/NUMA_NODES/NODE", content);
 
     if(!content.empty())
     {
-        numa.from_xml_node(content);
+        numa.from_xml_node(content, vms_thread);
 
         host->free_nodes(content);
 

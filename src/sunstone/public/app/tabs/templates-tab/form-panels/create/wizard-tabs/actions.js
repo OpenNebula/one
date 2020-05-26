@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,7 +17,7 @@
 define(function(require) {
   /*
     DEPENDENCIES
-   */
+  */
 
   var Config = require("sunstone-config");
   var ScheduleActions = require("utils/schedule_action");
@@ -28,13 +28,17 @@ define(function(require) {
   var Humanize = require("utils/humanize");
   var TemplateUtils = require("utils/template-utils");
   var Actions = require("utils/actions");
-
+  var Leases = require("utils/leases");
   var TemplateHTML = require("hbs!./actions/html");
+
   /*
     CONSTANTS
-   */
+  */
 
   var WIZARD_TAB_ID = require("./actions/wizardTabId");
+  var RESOURCE = "temp";
+  var CREATE = true;
+  var contextRow;
 
   /*
     CONSTRUCTOR
@@ -61,23 +65,55 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
-      "table_sched_actions": ScheduleActions.htmlTable("temp")
+      "table_sched_actions": ScheduleActions.htmlTable(RESOURCE, Leases.html()),
     });
   }
 
   function _onShow(context, panelForm) {
+    Leases.actions(panelForm);
   }
 
   function _setup(context) {
+    if(!CREATE){
+      CREATE = true;
+    }
     var that = this;
-		var actions = ["terminate", "terminate-hard", "hold", "release", "stop", "suspend", "resume", "reboot", "reboot-hard", "poweroff", "poweroff-hard", "undeploy", "undeploy-hard", "snapshot-create"];
-
-    context.off("click", "#add_scheduling_temp_action");
-    context.on("click", "#add_scheduling_temp_action", function() {
-      $("#add_scheduling_temp_action", context).attr("disabled", "disabled");
-      ScheduleActions.htmlNewAction(actions, context, "temp");
-      ScheduleActions.setup(context);
+    var actions = [
+      "terminate", 
+      "terminate-hard", 
+      "hold", 
+      "release", 
+      "stop", 
+      "suspend", 
+      "resume", 
+      "reboot", 
+      "reboot-hard", 
+      "poweroff", 
+      "poweroff-hard", 
+      "undeploy", 
+      "undeploy-hard", 
+      "snapshot-create",
+      "snapshot-delete", 
+      "snapshot-revert", 
+      "disk-snapshot-create", 
+      "disk-snapshot-delete", 
+      "disk-snapshot-revert"
+    ];
+    function renderCreateForm() {
+      if(CREATE){
+        ScheduleActions.htmlNewAction(actions, context, "temp");
+        ScheduleActions.setup(context);
+        CREATE = false;
+      }
       return false;
+    }
+    context.off("click", "#add_scheduling_temp_action");
+    context.on("click", "#add_scheduling_temp_action", function(e){
+      renderCreateForm();
+      e.preventDefault();
+      ScheduleActions.reset();
+      $("#edit_"+RESOURCE+"_action_json").hide();
+      $("#add_"+RESOURCE+"_action_json").show();
     });
 
     context.off("click", "#add_temp_action_json");
@@ -85,7 +121,26 @@ define(function(require) {
       $(".wickedpicker").hide();
       var sched_action = ScheduleActions.retrieveNewAction(context);
       if (sched_action != false) {
-        $("#sched_temp_actions_body").append(ScheduleActions.fromJSONtoActionsTable(sched_action));
+        $("#sched_temp_actions_body").prepend(ScheduleActions.fromJSONtoActionsTable(sched_action));
+      }
+      $("#input_sched_action_form").remove();
+      clear();
+      return false;
+    });
+
+    context.off("click" , "#edit_temp_action_json").on("click" , "#edit_temp_action_json", function(e){
+      e.preventDefault();
+      var id = $(this).attr("data_id");
+      if(id && id.length && contextRow){
+        $(".wickedpicker").hide();
+        var sched_action = ScheduleActions.retrieveNewAction(context);
+        if (sched_action != false) {
+          sched_action.ID = id;
+          contextRow.replaceWith(ScheduleActions.fromJSONtoActionsTable(sched_action));
+          contextRow = undefined;
+          $("#input_sched_action_form").remove();
+        }
+        clear();
       }
       return false;
     });
@@ -95,6 +150,18 @@ define(function(require) {
         $(this).parents("tr").remove();
     });
 
+    context.off("click", ".edit_action_x");
+    context.on("click", ".edit_action_x", function (e) {
+      e.preventDefault();
+      var id = $(this).attr("data_id");
+      if(id && id.length){
+        contextRow = $(this).closest("tr.tr_action");
+        renderCreateForm();
+        $("#edit_"+RESOURCE+"_action_json").show().attr("data_id", id);
+        $("#add_"+RESOURCE+"_action_json").hide();
+        ScheduleActions.fill($(this),context);
+      }
+    });
   }
 
   function _retrieve(context) {
@@ -103,9 +170,13 @@ define(function(require) {
     return templateJSON;
   }
 
+  function clear(){
+    CREATE = true;
+  }
+
   function _fill(context, templateJSON) {
     var actions = ScheduleActions.fromJSONtoActionsTable(templateJSON.SCHED_ACTION);
-    $("#sched_temp_actions_body").append(actions);
+    $("#sched_temp_actions_body").prepend(actions);
     delete templateJSON["SCHED_ACTION"];
   }
 });

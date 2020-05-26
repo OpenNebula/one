@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "HookManagerDriver.h"
+#include "Nebula.h"
 #include "NebulaLog.h"
 #include <sstream>
 
@@ -23,23 +24,11 @@
 /* ************************************************************************** */
 
 void HookManagerDriver::execute(
-        int             oid,
-        const string&   hook_name,
-        const string&   command,
-        const string&   arguments ) const
+        const string&   message ) const
 {
     ostringstream oss;
 
-    oss << "EXECUTE " << oid << " " << hook_name << " LOCAL " << command << " ";
-
-    if ( arguments.empty() )
-    {
-        oss << "-" << endl;
-    }
-    else
-    {
-        oss << arguments << endl;
-    }
+    oss << "EXECUTE " << message << endl;
 
     write(oss);
 }
@@ -47,26 +36,12 @@ void HookManagerDriver::execute(
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-void HookManagerDriver::execute(
-        int             oid,
-        const string&   hook_name,
-        const string&   host_name,
-        const string&   command,
-        const string&   arguments ) const
+void HookManagerDriver::retry(
+        const string&   message ) const
 {
     ostringstream oss;
 
-    oss << "EXECUTE " << oid << " " << hook_name << " " << host_name << " "
-        << command << " ";
-
-    if ( arguments.empty() )
-    {
-        oss << "-" << endl;
-    }
-    else
-    {
-        oss << arguments << endl;
-    }
+    oss << "RETRY " << message << endl;
 
     write(oss);
 }
@@ -76,22 +51,17 @@ void HookManagerDriver::execute(
 
 void HookManagerDriver::protocol(const string& message) const
 {
-    istringstream   is(message);
+    std::string error_str;
+    std::istringstream is(message);
+
     //stores the action name
-    string          action;
-    //stores the action result
-    string          result;
-    //stores the action id of the asociated VM
-    int             id;
+    std::string action;
+    std::string result;
 
-    ostringstream    os;
-    string           hinfo;
-    VirtualMachine * vm;
+    NebulaLog::log("HKM", Log::DEBUG, "Message received: " + message);
 
-    // Parse the driver message
-
-    os << "Message received: " << message;
-    NebulaLog::log("HKM", Log::DEBUG, os);
+    Nebula& nd  = Nebula::instance();
+    HookLog* hl = nd.get_hl();
 
     // Parse the driver message
     if ( is.good() )
@@ -100,7 +70,8 @@ void HookManagerDriver::protocol(const string& message) const
     }
     else
     {
-        return;
+        error_str = "Error reading driver action.";
+        goto error_common;
     }
 
     if ( is.good() )
@@ -109,37 +80,8 @@ void HookManagerDriver::protocol(const string& message) const
     }
     else
     {
-        return;
-    }
-
-    if ( is.good() )
-    {
-        is >> id >> ws;
-
-        if ( is.fail() )
-        {
-            if ( action == "LOG" )
-            {
-                string info;
-
-                is.clear();
-                getline(is,info);
-                NebulaLog::log("HKM", log_type(result[0]), info.c_str());
-            }
-
-            return;
-        }
-    }
-    else
-    {
-        return;
-    }
-
-    vm = vmpool->get(id);
-
-    if ( vm == 0 )
-    {
-        return;
+        error_str = "Error reading action result.";
+        goto error_common;
     }
 
     // -------------------------------------------------------------------------
@@ -148,46 +90,62 @@ void HookManagerDriver::protocol(const string& message) const
 
     if ( action == "EXECUTE" )
     {
-        ostringstream oss;
+        std::ostringstream oss;
 
-        string hook_name;
-        string info;
+        std::string info_b64;
+        std::string *info;
 
+        int hook_id;
+        int hook_rc;
+
+        // Parse the hook info
         if ( is.good() )
         {
-            getline(is,hook_name);
-        }
-
-        getline (is,info);
-
-        if (result == "SUCCESS")
-        {
-            oss << "Success executing Hook: " << hook_name << ". " << info;
-            vm->log("HKM",Log::INFO,oss);
+            is >> hook_id >> ws;
         }
         else
         {
-            oss << "Error executing Hook: " << hook_name << ". " << info;
-
-            if ( !info.empty() && info[0] != '-' )
-            {
-                vm->set_template_error_message(oss.str());
-                vmpool->update(vm);
-            }
-
-            vm->log("HKM",Log::ERROR,oss);
+            error_str = "Error reading hook id.";
+            goto error_common;
         }
+
+        if ( is.good() )
+        {
+            is >> hook_rc >> ws;
+        }
+        else
+        {
+            error_str = "Error reading hook execution return code.";
+            goto error_common;
+        }
+
+        getline(is, info_b64);
+
+        if (result == "SUCCESS")
+        {
+            oss << "Success executing Hook " <<  hook_id;
+            NebulaLog::log("HKM",Log::INFO,oss);
+        }
+        else
+        {
+            oss << "Error executing Hook " << hook_id;
+            NebulaLog::log("HKM",Log::ERROR,oss);
+        }
+
+        info = one_util::base64_decode(info_b64);
+
+        if ( info != 0 )
+        {
+            hl->add(hook_id, hook_rc, *info);
+            delete info;
+        }
+
     }
-    else if (action == "LOG")
-    {
-        string info;
 
-        getline(is,info);
-        vm->log("HKM",log_type(result[0]),info.c_str());
-    }
+    return;
 
-    vm->unlock();
-
+error_common:
+    NebulaLog::log("HKM", Log::ERROR, error_str);
     return;
 }
 

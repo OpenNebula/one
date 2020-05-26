@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,6 +17,9 @@
 #include "DatastorePool.h"
 #include "Nebula.h"
 #include "NebulaLog.h"
+#include "DatastoreTemplate.h"
+#include "ClusterPool.h"
+#include "ImageManager.h"
 
 #include <stdexcept>
 
@@ -40,7 +43,8 @@ const int    DatastorePool::FILE_DS_ID   = 2;
 
 DatastorePool::DatastorePool(
         SqlDB * db,
-        const vector<const SingleAttribute *>& _inherit_attrs) :
+        const vector<const SingleAttribute *>& _inherit_attrs,
+        vector<const SingleAttribute *>& encrypted_attrs) :
     PoolSQL(db, Datastore::table)
 
 {
@@ -162,6 +166,9 @@ DatastorePool::DatastorePool(
         // User created datastores will start from ID 100
         set_lastOID(99);
     }
+
+    // Parse encrypted attributes
+    DatastoreTemplate::parse_encrypted(encrypted_attrs);
 
     return;
 

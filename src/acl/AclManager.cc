@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,17 +18,18 @@
 
 #include "AclManager.h"
 #include "PoolObjectAuth.h"
+#include "SqlDB.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 const char * AclManager::table = "acl";
 
-const char * AclManager::db_names = "oid, user, resource, rights, zone";
+const char * AclManager::db_names = "oid, userset, resource, rights, zone";
 
 const char * AclManager::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-    "acl (oid INT PRIMARY KEY, user BIGINT, resource BIGINT, "
-    "rights BIGINT, zone BIGINT, UNIQUE(user, resource, rights, zone))";
+    "acl (oid INT PRIMARY KEY, userset BIGINT, resource BIGINT, "
+    "rights BIGINT, zone BIGINT, UNIQUE(userset, resource, rights, zone))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -789,7 +790,7 @@ int AclManager::del_rule(
 {
     lock();
 
-    AclRule * rule = new AclRule(-1, user, resource, rights, zone);
+    AclRule rule(-1, user, resource, rights, zone);
 
     int oid = -1;
     bool found = false;
@@ -802,7 +803,7 @@ int AclManager::del_rule(
 
     for ( it = index.first; (it != index.second && !found); it++)
     {
-        found = *(it->second) == *rule;
+        found = *(it->second) == rule;
 
         if (found)
         {

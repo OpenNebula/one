@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,7 +18,6 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-
   var Locale = require("utils/locale");
   var Config = require("sunstone-config");
   var Sunstone = require("sunstone");
@@ -43,6 +42,23 @@ define(function(require) {
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
 
+  var isFirecracker = function(context) {
+    return context && 
+    context.element && 
+    context.element.USER_TEMPLATE && 
+    context.element.USER_TEMPLATE.HYPERVISOR && 
+    String(context.element.USER_TEMPLATE.HYPERVISOR).toLowerCase() === "firecracker"
+  }
+
+  var validateAction = function(context, action) {
+    return (action && context && context.element && context.element.STATE && context.element.LCM_STATE)
+      ? StateActions.enabledStateAction(action, context.element.STATE, context.element.LCM_STATE) : false;
+  }
+
+  var isPowerOff = function(context) {
+    return (context && context.element && context.element.STATE == OpenNebulaVM.STATES.POWEROFF) ? true : false
+  }
+
   /*
     CONSTRUCTOR
    */
@@ -51,7 +67,6 @@ define(function(require) {
     this.panelId = PANEL_ID;
     this.title = Locale.tr("Network");
     this.icon = "fa-globe";
-
     this.element = info[XML_ROOT];
 
     return this;
@@ -63,7 +78,6 @@ define(function(require) {
   Panel.prototype.onShow = _onShow;
   Panel.prototype.getState = _getState;
   Panel.prototype.setState = _setState;
-
   return Panel;
 
   /*
@@ -75,7 +89,7 @@ define(function(require) {
     var html = "<form id=\"tab_network_form\" vmid=\"" + that.element.ID + "\" >\
         <div class=\"row\">\
         <div class=\"large-12 columns\">\
-           <table class=\"nics_table no-hover info_table dataTable\">\
+           <table id=\"vm" + that.element.ID + "_networktab_datatable\" class=\"nics_table no-hover info_table dataTable\">\
              <thead>\
                <tr>\
                   <th></th>\
@@ -87,18 +101,18 @@ define(function(require) {
                   <th>" + Locale.tr("IPv6 ULA") + "</th>\
                   <th>" + Locale.tr("IPv6 Global") + "</th>\
                   <th colspan=\"\">" + Locale.tr("Actions") + "</th>\
-                  <th>"                 ;
+                  <th>";
 
     if (Config.isTabActionEnabled("vms-tab", "VM.attachnic")) {
-      if (StateActions.enabledStateAction("VM.attachnic",
-            that.element.STATE,
-            that.element.LCM_STATE) &&
-          OpenNebulaVM.isNICAttachSupported(that.element)) {
-        html += "\
-             <button id=\"attach_nic\" class=\"button small success right radius\" >" + Locale.tr("Attach nic") + "</button>";
+      var attachButton = function(enable){
+        var isDisabled = enable ?  "" : "disabled='disabled'";
+        return "<button id='attach_nic' class='button small success right radius' "+isDisabled+">" + Locale.tr("Attach nic") + "</button>";
+      }
+
+      if (validateAction(that, "VM.attachnic") && OpenNebulaVM.isNICAttachSupported(that.element)) {
+        html += (isFirecracker(that)) ? attachButton(isPowerOff(that)) : attachButton(true);
       } else {
-        html += "\
-             <button id=\"attach_nic\" class=\"button small success right radius\" disabled=\"disabled\">" + Locale.tr("Attach nic") + "</button>";
+        html += attachButton(false);
       }
     }
 
@@ -213,15 +227,19 @@ define(function(require) {
 
   function _ipTr(nic, attr){
     var v = "--";
-
-    if (nic[attr] != undefined){
-      v = nic[attr];
-
-      if (nic["VROUTER_"+attr] != undefined){
-        v += ("<br/>" + nic["VROUTER_"+attr] + Locale.tr(" (VRouter)"));
+    if(nic && attr){
+      if(!Array.isArray(attr)){
+        attr = [attr];
       }
+      attr.map(function(attr){
+        if(nic[attr]){
+          v = nic[attr];
+          if (nic["VROUTER_"+attr] != undefined){
+            v += ("<br/>" + nic["VROUTER_"+attr] + Locale.tr(" (VRouter)"));
+          }
+        }
+      });
     }
-
     return v;
   }
 
@@ -267,21 +285,37 @@ define(function(require) {
     if (nics.length) {
       for (var i = 0; i < nics.length; i++) {
         var nic = nics[i];
-
-        nics_names.push({ NAME: nic.NAME, IP: nic.IP, NET: nic.NETWORK, ID: nic.NIC_ID });
+        nics_names.push(
+          { 
+            NAME: nic.NAME, 
+            IP: nic.IP, 
+            NET: nic.NETWORK, 
+            ID: nic.NIC_ID 
+          }
+        );
 
         var is_pci = (nic.PCI_ID != undefined);
 
         var actions = "";
         // Attach / Detach
         if (!is_pci){
-          if ( (that.element.STATE == OpenNebulaVM.STATES.ACTIVE) &&
-               (that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_NIC)) {
+          if ( 
+            that.element.STATE == OpenNebulaVM.STATES.ACTIVE &&
+            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_NIC
+          ) {
             actions = Locale.tr("attach/detach in progress");
           } else {
-            if ( (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) &&
-                 (StateActions.enabledStateAction("VM.detachnic", that.element.STATE, that.element.LCM_STATE))) {
-              actions += "<a href=\"VM.detachnic\" class=\"detachnic\" ><i class=\"fas fa-times\"/></a>";
+
+            if(Config.isTabActionEnabled("vms-tab", "VM.detachnic")){
+              var icon = $("<i/>",{class:"fas fa-times"});
+              var anchorAttributes = {class: "detachnic", href: "VM.detachnic"};
+              var anchor = $("<a/>",anchorAttributes).append(icon); //"<a href=\"VM.detachnic\" class=\"detachnic\" ><i class=\"fas fa-times\"/></a>";
+              actions +=  (validateAction(that,"VM.detachnic"))
+                ? (isFirecracker(that)
+                  ? (isPowerOff(that) ? anchor.get(0).outerHTML : "")
+                  : anchor.get(0).outerHTML
+                  )
+                : "";
             }
           }
         }
@@ -330,11 +364,10 @@ define(function(require) {
                 nic_alias.push(alias[j]);
             }
         }
-
         nic_dt_data.push({
           NIC_ID : nic.NIC_ID,
           NETWORK : Navigation.link(nic.NETWORK, "vnets-tab", nic.NETWORK_ID),
-          IP : _ipTr(nic, ipStr),
+          IP : _ipTr(nic, [ipStr, "IP"]),
           NIC_ALIAS : nic_alias,
           MAC : nic.MAC,
           PCI_ADDRESS: pci_address,
@@ -347,6 +380,7 @@ define(function(require) {
     }
 
     var nics_table = $("#tab_network_form .nics_table", context).DataTable({
+      "stateSave": true,
       "bDeferRender": true,
       "data": nic_dt_data,
       "columns": [
@@ -378,14 +412,13 @@ define(function(require) {
         $(nRow).attr("nic_id", aData.NIC_ID);
       }
     });
-
+    
     $("#tab_network_form .nics_table", context).dataTable().fnSort([[1, "asc"]]);
 
     // Add event listener for opening and closing each NIC row details
     context.off("click", "#tab_network_form .nics_table td.open-control");
     context.on("click", "#tab_network_form .nics_table td.open-control", function () {
       var row = $(this).closest("table").DataTable().row($(this).closest("tr"));
-
       if (row.child.isShown()) {
         row.child.hide();
         $(this).children("span").addClass("fa-chevron-down");
@@ -499,6 +532,9 @@ define(function(require) {
 
   function detach_alias(event) {
     var nic_id = $(this).parent().attr("nic_id");
+    if(!nic_id){
+      var nic_id = $(this).parents("tr").attr("nic_id");
+    }
     var element_id = event.data.element_id;
 
     Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
@@ -525,28 +561,28 @@ define(function(require) {
         data: {
           id: that.element.ID,
           monitor: {
-            monitor_resources : "MONITORING/NETTX,MONITORING/NETRX"
+            monitor_resources : "NETTX,NETRX"
           }
         },
         success: function(req, response) {
           var vmGraphs = [
             {
               labels : Locale.tr("Network reception"),
-              monitor_resources : "MONITORING/NETRX",
+              monitor_resources : "NETRX",
               humanize_figures : true,
               convert_from_bytes : true,
               div_graph : $("#vm_net_rx_graph")
             },
             {
               labels : Locale.tr("Network transmission"),
-              monitor_resources : "MONITORING/NETTX",
+              monitor_resources : "NETTX",
               humanize_figures : true,
               convert_from_bytes : true,
               div_graph : $("#vm_net_tx_graph")
             },
             {
               labels : Locale.tr("Network reception speed"),
-              monitor_resources : "MONITORING/NETRX",
+              monitor_resources : "NETRX",
               humanize_figures : true,
               convert_from_bytes : true,
               y_sufix : "B/s",
@@ -555,7 +591,7 @@ define(function(require) {
             },
             {
               labels : Locale.tr("Network transmission speed"),
-              monitor_resources : "MONITORING/NETTX",
+              monitor_resources : "NETTX",
               humanize_figures : true,
               convert_from_bytes : true,
               y_sufix : "B/s",
@@ -584,7 +620,6 @@ define(function(require) {
 
     return state;
   }
-
   function _setState(state, context) {
     var that = this;
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -63,11 +63,6 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
 
     set_umask(_umask);
 };
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-VirtualNetwork::~VirtualNetwork(){};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -216,7 +211,6 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     string value;
     string name;
     string prefix;
-
 
     int rc, num_ars;
 
@@ -373,6 +367,9 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     add_template_attribute("SECURITY_GROUPS", sg_str);
 
+    // Encrypt all the secrets
+    encrypt();
+
     //--------------------------------------------------------------------------
     // Insert the Virtual Network
     //--------------------------------------------------------------------------
@@ -480,14 +477,14 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace, string& error_str)
     char * sql_xml;
 
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -855,7 +852,7 @@ int VirtualNetwork::nic_attribute(
 
     for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
     {
-        PoolObjectSQL::get_template_attribute((*it).c_str(), inherit_val);
+        PoolObjectSQL::get_template_attribute(*it, inherit_val);
 
         if (!inherit_val.empty())
         {
@@ -1068,9 +1065,17 @@ int VirtualNetwork::update_ar(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::rm_ar(unsigned int ar_id, string& error_msg)
+int VirtualNetwork::rm_ar(unsigned int ar_id, bool force, string& error_msg)
 {
-    return ar_pool.rm_ar(ar_id, error_msg);
+    return ar_pool.rm_ar(ar_id, force, error_msg);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::rm_ars(string& error_msg)
+{
+    return ar_pool.rm_ars(error_msg);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1225,7 +1230,7 @@ int VirtualNetwork::free_leases(VirtualNetworkTemplate * leases_template,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualNetwork::get_template_attribute(const char * name,
+void VirtualNetwork::get_template_attribute(const string& name,
     string& value, int ar_id) const
 {
     ar_pool.get_attribute(name, value, ar_id);
@@ -1239,7 +1244,7 @@ void VirtualNetwork::get_template_attribute(const char * name,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::get_template_attribute(const char * name, int& value,
+int VirtualNetwork::get_template_attribute(const string& name, int& value,
     int ar_id) const
 {
     int rc = ar_pool.get_attribute(name, value, ar_id);
@@ -1421,3 +1426,27 @@ error_common:
     error_str = oss.str();
     return -1;
 }
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetwork::encrypt()
+{
+    std::string one_key;
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+
+    obj_template->encrypt(one_key);
+    ar_pool.encrypt(one_key);
+}
+
+void VirtualNetwork::decrypt()
+{
+    std::string one_key;
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+
+    obj_template->decrypt(one_key);
+    ar_pool.decrypt(one_key);
+}
+
+

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -203,6 +203,12 @@ define(function(require) {
       tmpl.SIZE = tmpl.SIZE * 1024;
       tmpl.SIZE = tmpl.SIZE.toString();
     }
+
+    if(tmpl.SIZE != undefined && $(".mb_input_unit", selectedContext).val() == "TB"){
+      tmpl.SIZE = tmpl.SIZE * 1048576;
+      tmpl.SIZE = tmpl.SIZE.toString();
+    }
+    
     var formatKvm = $("#FORMAT_KVM", context).val();
     var formatVcenter = $("#FORMAT_VCENTER", context).val();
 

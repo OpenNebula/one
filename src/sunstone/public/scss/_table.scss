@@ -125,3 +125,27 @@ button.search-dropdown {
   box-shadow: none !important;
   border-style: none !important;
 }
+
+button.remote_vm {
+  margin: 0 5px;
+  font-size: 1.4em;
+
+  &.spice i {
+    -webkit-text-stroke: 0.7px;
+  }
+
+  i {
+    color: $anchor-color;
+  }
+
+  &:hover i {
+    color: $anchor-color-hover;
+  }
+
+  &:focus,
+  &:active,
+  &:focus i,
+  &:active i {
+    outline: 0;
+  }
+}

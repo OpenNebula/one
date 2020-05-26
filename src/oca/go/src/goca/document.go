@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -74,26 +74,14 @@ func (dc *DocumentsController) ByName(name string, args ...int) (int, error) {
 // Info returns a document pool. A connection to OpenNebula is
 // performed.
 func (dc *DocumentsController) Info(args ...int) (*document.Pool, error) {
-	var who, start, end int
 
-	switch len(args) {
-	case 0:
-		who = parameters.PoolWhoMine
-		start = -1
-		end = -1
-	case 1:
-		who = args[0]
-		start = -1
-		end = -1
-	case 3:
-		who = args[0]
-		start = args[1]
-		end = args[2]
-	default:
-		return nil, errors.New("Wrong number of arguments")
+	fArgs, err := handleArgs(args)
+	if err != nil {
+		return nil, err
 	}
+	fArgs = append(fArgs, dc.dType)
 
-	response, err := dc.c.Client.Call("one.documentpool.info", who, start, end, dc.dType)
+	response, err := dc.c.Client.Call("one.documentpool.info", fArgs...)
 	if err != nil {
 		return nil, err
 	}
@@ -108,8 +96,8 @@ func (dc *DocumentsController) Info(args ...int) (*document.Pool, error) {
 }
 
 // Info retrieves information for the document.
-func (dc *DocumentController) Info() (*document.Document, error) {
-	response, err := dc.c.Client.Call("one.document.info", dc.ID)
+func (dc *DocumentController) Info(decrypt bool) (*document.Document, error) {
+	response, err := dc.c.Client.Call("one.document.info", dc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -145,8 +133,8 @@ func (dc *DocumentController) Delete() error {
 	return err
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update adds document content.
+// * tpl: The new document contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (dc *DocumentController) Update(tpl string, uType parameters.UpdateType) error {
@@ -155,8 +143,9 @@ func (dc *DocumentController) Update(tpl string, uType parameters.UpdateType) er
 }
 
 // Chmod changes the permission bits of a document.
-func (dc *DocumentController) Chmod(perm *shared.Permissions) error {
-	_, err := dc.c.Client.Call("one.document.chmod", perm.ToArgs(dc.ID)...)
+func (dc *DocumentController) Chmod(perm shared.Permissions) error {
+	args := append([]interface{}{dc.ID}, perm.ToArgs()...)
+	_, err := dc.c.Client.Call("one.document.chmod", args...)
 	return err
 }
 

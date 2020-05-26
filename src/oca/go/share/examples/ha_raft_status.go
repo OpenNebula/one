@@ -16,7 +16,7 @@ func main() {
 
 	// Create first client on the floating ip to
 	// retrieve the global zone informations
-	client := goca.NewClient(conf)
+	client := goca.NewDefaultClient(conf)
 	controller := goca.NewController(client)
 
 	// Retrieve the id of the zone
@@ -26,7 +26,7 @@ func main() {
 	}
 
 	// Retrieve zone informations
-	zone, err := controller.Zone(id).Info()
+	zone, err := controller.Zone(id).Info(false)
 	if err != nil {
 		log.Fatalf("Zone id %d: %s", id, err)
 	}
@@ -37,7 +37,7 @@ func main() {
 
 		// Create a client
 		conf.Endpoint = server.Endpoint
-		client = goca.NewClient(conf)
+		client = goca.NewDefaultClient(conf)
 
 		// Pass it to the controller
 		controller.Client = client

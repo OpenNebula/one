@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -35,6 +35,7 @@ define(function(require) {
   var RESERVE_DIALOG_ID = require("./dialogs/reserve/dialogId");
   var IMPORT_DIALOG_ID = require("./form-panels/import/formPanelId");
   var CLUSTERS_DIALOG_ID = require("utils/dialogs/clusters/dialogId");
+  var ADD_SECGROUPS_DIALOG_ID = require("./dialogs/add-secgroups/dialogId");
 
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
     XML_ROOT, Locale.tr("Virtual Network created"));
@@ -158,6 +159,32 @@ define(function(require) {
 
         Sunstone.getDialog(CLUSTERS_DIALOG_ID).reset();
         Sunstone.getDialog(CLUSTERS_DIALOG_ID).show();
+      },
+      error: Notifier.onError
+    },
+
+    "Network.add_secgroup" : {
+      type: "single",
+      call: OpenNebulaResource.append,
+      callback: function(req) {
+        // Reset the wizard
+        Sunstone.getDialog(ADD_SECGROUPS_DIALOG_ID).hide();
+        Sunstone.getDialog(ADD_SECGROUPS_DIALOG_ID).reset();
+
+        Sunstone.runAction("Network.show",req.request.data[0]);
+      },
+      error: Notifier.onError
+    },
+
+    "Network.rm_secgroup" : {
+      type: "single",
+      call: OpenNebulaResource.update,
+      callback: function(req) {
+        // Reset the wizard
+        Sunstone.getDialog(ADD_SECGROUPS_DIALOG_ID).hide();
+        Sunstone.getDialog(ADD_SECGROUPS_DIALOG_ID).reset();
+
+        Sunstone.runAction("Network.show",req.request.data[0]);
       },
       error: Notifier.onError
     }

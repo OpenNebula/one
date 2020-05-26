@@ -19,7 +19,7 @@
   when: ansible_distribution == "RedHat"
 
 - name: Add repository GPG key for RPM
-  rpm_key: key=https://downloads.opennebula.org/repo/repo.key
+  rpm_key: key=https://downloads.opennebula.io/repo/repo.key
   when: opennebula_repository_gpgcheck | bool
 
 - name: Add OpenNebula repository
@@ -27,7 +27,7 @@
     name: opennebula
     description: OpenNebula packages
     baseurl: "{{ opennebula_repository_base }}/CentOS/{{ ansible_distribution_major_version }}/{{ ansible_architecture }}"
-    gpgkey: https://downloads.opennebula.org/repo/repo.key
+    gpgkey: https://downloads.opennebula.io/repo/repo.key
     gpgcheck: "{{ opennebula_repository_gpgcheck }}"
     repo_gpgcheck: "{{ opennebula_repository_repo_gpgcheck }}"
   notify: "clean repository metadata"

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -104,7 +104,18 @@ public:
      */
     virtual Attribute* clone() const = 0;
 
+    /**
+     *  Encrypt all secret attributes
+     */
+    virtual void encrypt(const string& one_key, const set<string>& eas) {};
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    virtual void decrypt(const string& one_key, const set<string>& eas) {};
+
 protected:
+
     /**
      *  The attribute name.
      */
@@ -148,7 +159,7 @@ public:
      *  by the calling function.
      *    @return a string (allocated in the heap) holding the attribute value.
      */
-    string * marshall(const char * _sep = 0) const
+    string * marshall(const char * _sep = 0) const override
     {
         string * rs = new string;
 
@@ -164,19 +175,19 @@ public:
      *
      *  @paran s the stream to write the attribute.
      */
-    void to_xml(std::ostringstream& s) const
+    void to_xml(std::ostringstream& s) const override
     {
         s << "<" << attribute_name << ">" << one_util::escape_xml(attribute_value)
           << "</"<< attribute_name << ">";
 
     }
 
-    void to_json(std::ostringstream& s) const
+    void to_json(std::ostringstream& s) const override
     {
-        one_util::escape_json(attribute_value, s); 
+        one_util::escape_json(attribute_value, s);
     }
 
-    void to_token(std::ostringstream& s) const
+    void to_token(std::ostringstream& s) const override
     {
         if (attribute_name.empty() || attribute_value.empty())
         {
@@ -192,7 +203,7 @@ public:
     /**
      *  Builds a new attribute from a string.
      */
-    void unmarshall(const string& sattr, const char * _sep = 0)
+    void unmarshall(const string& sattr, const char * _sep = 0) override
     {
         attribute_value = sattr;
     };
@@ -208,7 +219,7 @@ public:
     /**
      *  Returns the attribute type
      */
-    AttributeType type()
+    AttributeType type() override
     {
         return SIMPLE;
     };
@@ -216,10 +227,20 @@ public:
     /**
      *  Clones the current attribute
      */
-    Attribute* clone() const
+    Attribute* clone() const override
     {
         return new SingleAttribute(*this);
     };
+
+    /**
+     *  Encrypt all secret attributes
+     */
+    virtual void encrypt(const string& one_key, const set<string>& eas) override;
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    virtual void decrypt(const string& one_key, const set<string>& eas) override;
 
 private:
 
@@ -307,6 +328,23 @@ public:
         return 0;
     }
 
+    /**
+     * Returns the value of the given element of the VectorAttribute.
+     * If element is invalid, returns default value
+     *
+     * @param name of the attribute
+     * @param value always set, if element is invalid set default_value
+     * @param default_value used if element is invalid
+     */
+    template<typename T>
+    void vector_value(const string& name, T& value, const T& default_value) const
+    {
+        if (vector_value(name, value) != 0)
+        {
+            value = default_value;
+        }
+    }
+
     int vector_value(const string& name, string& value) const;
 
     int vector_value(const string& name, bool& value) const;
@@ -354,7 +392,7 @@ public:
      *  "VAL_NAME_1=VAL_VALUE_1,...,VAL_NAME_N=VAL_VALUE_N".
      *    @return a string (allocated in the heap) holding the attribute value.
      */
-    string * marshall(const char * _sep = 0) const;
+    string * marshall(const char * _sep = 0) const override;
 
     /**
      *  Write the attribute using a simple XML format:
@@ -368,17 +406,17 @@ public:
      *  The string MUST be freed by the calling function.
      *    @return a string (allocated in the heap) holding the attribute value.
      */
-    void to_xml(std::ostringstream& s) const;
+    void to_xml(std::ostringstream& s) const override;
 
-    void to_json(std::ostringstream& s) const;
+    void to_json(std::ostringstream& s) const override;
 
-    void to_token(std::ostringstream& s) const;
+    void to_token(std::ostringstream& s) const override;
 
     /**
      *  Builds a new attribute from a string of the form:
      *  "VAL_NAME_1=VAL_VALUE_1,...,VAL_NAME_N=VAL_VALUE_N".
      */
-    void unmarshall(const string& sattr, const char * _sep = 0);
+    void unmarshall(const string& sattr, const char * _sep = 0) override;
 
     /**
      *  Replace the value of the given attribute with the provided map
@@ -429,7 +467,7 @@ public:
     /**
      *  Returns the attribute type
      */
-    AttributeType type()
+    AttributeType type() override
     {
         return VECTOR;
     };
@@ -437,7 +475,7 @@ public:
     /**
      *  Clones the current attribute
      */
-    VectorAttribute* clone() const
+    VectorAttribute* clone() const override
     {
         return new VectorAttribute(*this);
     };
@@ -457,6 +495,16 @@ public:
     {
         return attribute_value.empty();
     }
+
+    /**
+     *  Encrypt all secret attributes
+     */
+    virtual void encrypt(const string& one_key, const set<string>& eas) override;
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    virtual void decrypt(const string& one_key, const set<string>& eas) override;
 
 private:
 

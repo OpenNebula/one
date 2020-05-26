@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -15,6 +15,8 @@
 /* ------------------------------------------------------------------------ */
 
 #include "VMTemplate.h"
+#include "Nebula.h"
+#include "VirtualMachineManager.h"
 #include "ScheduledAction.h"
 
 /* ************************************************************************ */
@@ -42,11 +44,6 @@ VMTemplate::VMTemplate(int id,
 
     set_umask(umask);
 }
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-VMTemplate::~VMTemplate(){};
 
 /* ************************************************************************ */
 /* VMTemplate :: Database Access Functions                                  */
@@ -83,6 +80,16 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
     }
 
     // ------------------------------------------------------------------------
+    // Validate RAW attribute
+    // ------------------------------------------------------------------------
+    rc = Nebula::instance().get_vmm()->validate_raw(obj_template, error_str);
+
+    if (rc != 0)
+    {
+        return rc;
+    }
+
+    // ------------------------------------------------------------------------
     // Insert the Template
     // ------------------------------------------------------------------------
     return insert_replace(db, false, error_str);
@@ -103,14 +110,14 @@ int VMTemplate::insert_replace(SqlDB *db, bool replace, string& error_str)
 
    // Update the Object
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -187,8 +194,18 @@ int VMTemplate::parse_sched_action(string& error_str)
 
 int VMTemplate::post_update_template(string& error)
 {
+    vector<const VectorAttribute *> raw;
+
     int rc = parse_sched_action(error);
+
     if (rc == -1)
+    {
+        return rc;
+    }
+    
+    rc = Nebula::instance().get_vmm()->validate_raw(obj_template, error);
+
+    if (rc != 0)
     {
         return rc;
     }

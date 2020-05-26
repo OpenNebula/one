@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -28,6 +28,7 @@ end
 
 if File.directory?(GEMS_LOCATION)
     Gem.use_paths(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /(vendor|site)_ruby/ }
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -49,6 +50,12 @@ CommandParser::CmdParser.new(ARGV) do
         :description => "Don't overwrite endpoint file located in home folder,"\
                         ' use it as a temporary zone.',
         :format => String
+    }
+
+    DATABASE = {
+        :name  => 'database',
+        :large => '--db',
+        :description => 'Also sync database'
     }
 
     before_proc do
@@ -214,5 +221,34 @@ CommandParser::CmdParser.new(ARGV) do
         else
             helper.set_zone(args[0], false)
         end
+    end
+
+    sync_desc = <<-EOT.unindent
+        Syncs configuration files and folders from another server
+
+        This command must be executed under root
+    EOT
+
+    command :serversync, sync_desc, :server, :options => [DATABASE] do
+        begin
+            gem 'augeas', '~> 0.6'
+            require 'augeas'
+        rescue Gem::LoadError
+            STDERR.puts(
+                'Augeas gem is not installed, run `gem install ' \
+                'augeas -v \'0.6\'` to install it'
+            )
+            exit(-1)
+        end
+
+        if !Process.uid.zero? || !Process.gid.zero?
+            STDERR.puts("'onezone serversync' must be run under root")
+            exit(-1)
+        end
+
+        server = Replicator.new('/var/lib/one/.ssh/id_rsa', args[0])
+        server.process_files(options.key?(:database))
+
+        0
     end
 end

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -67,9 +67,12 @@ require 'opennebula/vm_group'
 require 'opennebula/vm_group_pool'
 require 'opennebula/vntemplate'
 require 'opennebula/vntemplate_pool'
+require 'opennebula/hook'
+require 'opennebula/hook_pool'
+require 'opennebula/hook_log'
 
 module OpenNebula
 
     # OpenNebula version
-    VERSION = '5.9.80'
+    VERSION = '5.11.90'
 end

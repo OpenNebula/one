@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,7 +19,7 @@
 
 #include "Template.h"
 
-#include <string.h>
+#include <string>
 
 using namespace std;
 
@@ -76,6 +76,24 @@ public:
         Template::parse_restricted(ra, restricted);
     }
 
+    // -------------------------------------------------------------------------
+    // Encrypted attributes interface implementation
+    // -------------------------------------------------------------------------
+    virtual void encrypt(const std::string& one_key)
+    {
+        Template::encrypt(one_key, encrypted);
+    }
+
+    virtual void decrypt(const std::string& one_key)
+    {
+        Template::decrypt(one_key, encrypted);
+    }
+
+    static void parse_encrypted(vector<const SingleAttribute *>& ea)
+    {
+        Template::parse_encrypted(ea, encrypted);
+    }
+
     string& to_xml_short(string& xml) const;
 
     /**
@@ -99,6 +117,11 @@ private:
      *  Restricted attribute list for VirtualMachineTemplates
      */
     static std::map<std::string, std::set<std::string> > restricted;
+
+    /**
+     *  Encrypted attribute list for VirtualMachineTemplates
+     */
+    static std::map<std::string, std::set<std::string> > encrypted;
 
     /**
      *  @param rs set of restricted attributes for a key

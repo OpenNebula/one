@@ -1,5 +1,5 @@
 # Copyright 2018 www.privaz.io Valletech AB
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -137,6 +137,6 @@ class TemplatedType(object):
     '''
     Mixin class for Templated bindings
     '''
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
         if not build_template_node(self, nodeName_, child_):
-            super(TemplatedType, self).buildChildren(child_,node,nodeName_,fromsubclass_)
+            super(TemplatedType, self).buildChildren(child_,node,nodeName_,fromsubclass_,gds_collector_)

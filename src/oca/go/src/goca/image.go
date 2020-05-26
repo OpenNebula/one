@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -78,22 +78,13 @@ func (c *ImagesController) ByName(name string, args ...int) (int, error) {
 
 // Info returns a new image pool. It accepts the scope of the query.
 func (ic *ImagesController) Info(args ...int) (*image.Pool, error) {
-	var who, start, end int
 
-	switch len(args) {
-	case 0:
-		who = parameters.PoolWhoMine
-		start = -1
-		end = -1
-	case 3:
-		who = args[0]
-		start = args[1]
-		end = args[2]
-	default:
-		return nil, errors.New("Wrong number of arguments")
+	fArgs, err := handleArgs(args)
+	if err != nil {
+		return nil, err
 	}
 
-	response, err := ic.c.Client.Call("one.imagepool.info", who, start, end)
+	response, err := ic.c.Client.Call("one.imagepool.info", fArgs...)
 	if err != nil {
 		return nil, err
 	}
@@ -108,8 +99,8 @@ func (ic *ImagesController) Info(args ...int) (*image.Pool, error) {
 }
 
 // Info connects to OpenNebula and fetches the information of the Image
-func (ic *ImageController) Info() (*image.Image, error) {
-	response, err := ic.c.Client.Call("one.image.info", ic.ID)
+func (ic *ImageController) Info(decrypt bool) (*image.Image, error) {
+	response, err := ic.c.Client.Call("one.image.info", ic.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -142,8 +133,8 @@ func (ic *ImageController) Clone(cloneName string, dsid int) (int, error) {
 	return response.BodyInt(), nil
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update adds image content.
+// * tpl: The new image contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (ic *ImageController) Update(tpl string, uType parameters.UpdateType) error {
@@ -166,8 +157,10 @@ func (ic *ImageController) Chown(uid, gid int) error {
 
 // Chmod changes the permissions of the image. If any perm is -1 it will not
 // change
-func (ic *ImageController) Chmod(perm *shared.Permissions) error {
-	_, err := ic.c.Client.Call("one.image.chmod", perm.ToArgs(ic.ID)...)
+func (ic *ImageController) Chmod(perm shared.Permissions) error {
+	args := append([]interface{}{ic.ID}, perm.ToArgs()...)
+
+	_, err := ic.c.Client.Call("one.image.chmod", args...)
 	return err
 }
 

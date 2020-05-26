@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -44,7 +44,7 @@ define(function(require) {
     [];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.POWEROFF] =
-    ["VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_revert", "VM.disk_snapshot_delete", "VM.migrate", "VM.undeploy", "VM.undeploy_hard", "VM.save_as_template", "VM.updateconf", "VM.terminate_hard", "VM.recover", "VM.disk_resize", "VM.snapshot_delete"];
+    ["VM.resched", "VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_revert", "VM.disk_snapshot_delete", "VM.migrate", "VM.undeploy", "VM.undeploy_hard", "VM.save_as_template", "VM.updateconf", "VM.terminate_hard", "VM.recover", "VM.disk_resize", "VM.snapshot_delete"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.UNDEPLOYED] =
     ["VM.resume", "VM.resize", "VM.deploy", "VM.updateconf", "VM.terminate_hard", "VM.recover"];
@@ -134,22 +134,22 @@ define(function(require) {
 
   function disableAllStateActions() {
     $(".state-dependent").prop("disabled", true).
-        removeClass("vm-action-enabled").
-        addClass("vm-action-disabled").
+        removeClass("action-enabled").
+        addClass("action-disabled").
         on("click.stateaction", function(e) { return false; });
   }
 
   function resetStateButtons() {
     $(".state-dependent").
-        addClass("vm-action-enabled").
-        removeClass("vm-action-disabled").
+        addClass("action-enabled").
+        removeClass("action-disabled").
         off("click.stateaction");
   }
 
   function enableStateButton(button_action) {
     $(".state-dependent[href='" + button_action + "']").removeAttr("disabled").
-        addClass("vm-action-enabled").
-        removeClass("vm-action-disabled").
+        addClass("action-enabled").
+        removeClass("action-disabled").
         off("click.stateaction");
   }
 

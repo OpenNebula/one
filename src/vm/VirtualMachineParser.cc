@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -13,30 +13,21 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-#include <limits.h>
-#include <string.h>
-#include <time.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <regex.h>
-#include <unistd.h>
-
-#include <iostream>
-#include <sstream>
-#include <queue>
-
 #include "VirtualMachine.h"
 #include "VirtualNetworkPool.h"
+#include "DatastorePool.h"
 #include "ImagePool.h"
 #include "NebulaLog.h"
 #include "NebulaUtil.h"
 #include "Snapshots.h"
-
+#include "HostShare.h"
 #include "Nebula.h"
 
 #include "vm_file_var_syntax.h"
 #include "vm_var_syntax.h"
 #include "vm_var_parser.h"
+
+#include <sstream>
 
 /* -------------------------------------------------------------------------- */
 /* Parser constanta                                                           */
@@ -92,7 +83,7 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
 
     string type_str;
 
-    attr = os->vector_value(base_name_ds.c_str());
+    attr = os->vector_value(base_name_ds);
 
     if ( attr.empty() )
     {
@@ -425,7 +416,17 @@ int VirtualMachine::parse_graphics(string& error_str, Template * tmpl)
 
     if ( !random_passwd.empty() )
     {
-        graphics->replace("PASSWD", one_util::random_password());
+        string password = one_util::random_password();
+
+        if ( graphics->vector_value("TYPE") == "SPICE" )
+        {
+            // Spice password must be 60 characters maximum
+            graphics->replace("PASSWD", password.substr(0, 59));
+        }
+        else
+        {
+            graphics->replace("PASSWD", password);
+        }
     }
 
     return 0;
@@ -522,8 +523,9 @@ void VirtualMachine::parse_well_known_attributes()
      * TOPOLOGY
      * NUMA_NODE
      */
-    std::vector<std::string> names = {"INPUT", "FEATURES", "RAW", 
-        "CLONING_TEMPLATE_ID", "TOPOLOGY", "NUMA_NODE"};
+    std::vector<std::string> names = {"INPUT", "FEATURES", "RAW",
+        "CLONING_TEMPLATE_ID", "TOPOLOGY", "NUMA_NODE", "HYPERV_OPTIONS",
+        "SPICE_OPTIONS"};
 
     for (auto it = names.begin(); it != names.end() ; ++it)
     {
@@ -988,7 +990,7 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachine::is_pinned()
+bool VirtualMachine::is_pinned() const
 {
     VectorAttribute * topology = obj_template->get("TOPOLOGY");
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,6 +19,11 @@
 
 #include "Request.h"
 #include "Nebula.h"
+#include "ClusterPool.h"
+#include "HostPool.h"
+#include "VdcPool.h"
+#include "VirtualNetworkPool.h"
+#include "ZonePool.h"
 
 using namespace std;
 
@@ -67,7 +72,7 @@ public:
     VdcAddGroup():VdcEditGroup("one.vdc.addgroup", "Adds a group to the VDC",
         "A:sii", true){};
 
-    ~VdcAddGroup(){};
+    ~VdcAddGroup() = default;
 
     int edit_group(
             Vdc* vdc, int group_id, string& error_msg) override;
@@ -82,7 +87,7 @@ public:
     VdcDelGroup():VdcEditGroup("one.vdc.delgroup","Deletes a group from the VDC",
         "A:sii", false){};
 
-    ~VdcDelGroup(){};
+    ~VdcDelGroup() = default;
 
     int edit_group(
             Vdc* vdc, int group_id, string& error_msg) override;
@@ -141,7 +146,7 @@ public:
         "Adds a cluster to the VDC", "A:siii", true,
         Nebula::instance().get_clpool(), PoolObjectSQL::CLUSTER){};
 
-    ~VdcAddCluster(){};
+    ~VdcAddCluster() = default;
 
     int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
 };
@@ -156,7 +161,7 @@ public:
         "Deletes a cluster from the VDC", "A:siii", false,
         Nebula::instance().get_clpool(), PoolObjectSQL::CLUSTER){};
 
-    ~VdcDelCluster(){};
+    ~VdcDelCluster() = default;
 
     int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
 };
@@ -170,7 +175,7 @@ public:
     VdcAddHost(): VdcEditResource("one.vdc.addhost", "Adds a host to the VDC",
         "A:siii", true, Nebula::instance().get_hpool(), PoolObjectSQL::HOST){};
 
-    ~VdcAddHost(){};
+    ~VdcAddHost() = default;
 
     int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
 };
@@ -184,7 +189,7 @@ public:
     VdcDelHost():VdcEditResource("one.vdc.delhost", "Deletes a host from the VDC",
         "A:siii", false, Nebula::instance().get_hpool(), PoolObjectSQL::HOST){};
 
-    ~VdcDelHost(){};
+    ~VdcDelHost() = default;
 
     int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
 };
@@ -199,7 +204,7 @@ public:
         "Adds a datastore to the VDC", "A:siii", true,
         Nebula::instance().get_dspool(), PoolObjectSQL::DATASTORE){};
 
-    ~VdcAddDatastore(){};
+    ~VdcAddDatastore() = default;
 
     int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
 };
@@ -214,7 +219,7 @@ public:
         "Deletes a datastore from the VDC", "A:siii", false,
         Nebula::instance().get_dspool(), PoolObjectSQL::DATASTORE){};
 
-    ~VdcDelDatastore(){};
+    ~VdcDelDatastore() = default;
 
     int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
 };
@@ -229,7 +234,7 @@ public:
         "Adds a virtual network to the VDC", "A:siii", true,
         Nebula::instance().get_vnpool(), PoolObjectSQL::NET){};
 
-    ~VdcAddVNet(){};
+    ~VdcAddVNet() = default;
 
     int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
 };
@@ -244,7 +249,7 @@ public:
         "Deletes a virtual network from the VDC", "A:siii", false,
         Nebula::instance().get_vnpool(), PoolObjectSQL::NET){};
 
-    ~VdcDelVNet(){};
+    ~VdcDelVNet() = default;
 
     int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
 };

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,13 +26,9 @@
 
 int AddressRangeIPAM::from_vattr(VectorAttribute * attr, std::string& error_msg)
 {
-    std::ostringstream oss;
-
     IPAMManager * ipamm = Nebula::instance().get_ipamm();
 
-    attr->to_xml(oss);
-
-    IPAMRequest ir(oss.str());
+    IPAMRequest ir(attr);
 
     ipamm->trigger(IPMAction::REGISTER_ADDRESS_RANGE, &ir);
 
@@ -61,12 +57,9 @@ int AddressRangeIPAM::allocate_addr(unsigned int index, unsigned int rsize,
     IPAMManager *      ipamm = Nebula::instance().get_ipamm();
     std::ostringstream oss;
 
-    std::string ar_xml;
     std::string address_xml;
 
     to_xml(oss);
-
-    ar_xml = oss.str();
 
     oss.str("");
 
@@ -74,7 +67,7 @@ int AddressRangeIPAM::allocate_addr(unsigned int index, unsigned int rsize,
 
     address_xml = oss.str();
 
-    IPAMRequest ir(ar_xml, address_xml);
+    IPAMRequest ir(this, address_xml);
 
     ipamm->trigger(IPMAction::ALLOCATE_ADDRESS, &ir);
 
@@ -98,12 +91,9 @@ int AddressRangeIPAM::get_addr(unsigned int& index, unsigned int rsize,
     IPAMManager *      ipamm = Nebula::instance().get_ipamm();
     std::ostringstream oss;
 
-    std::string ar_xml;
     std::string address_xml;
 
     to_xml(oss);
-
-    ar_xml = oss.str();
 
     oss.str("");
 
@@ -111,7 +101,7 @@ int AddressRangeIPAM::get_addr(unsigned int& index, unsigned int rsize,
 
     address_xml = oss.str();
 
-    IPAMRequest ir(ar_xml, address_xml);
+    IPAMRequest ir(this, address_xml);
 
     ipamm->trigger(IPMAction::GET_ADDRESS, &ir);
 
@@ -158,12 +148,9 @@ int AddressRangeIPAM::free_addr(unsigned int index, std::string& error_msg)
     IPAMManager *      ipamm = Nebula::instance().get_ipamm();
     std::ostringstream oss;
 
-    std::string ar_xml;
     std::string address_xml;
 
     to_xml(oss);
-
-    ar_xml = oss.str();
 
     oss.str("");
 
@@ -171,7 +158,7 @@ int AddressRangeIPAM::free_addr(unsigned int index, std::string& error_msg)
 
     address_xml = oss.str();
 
-    IPAMRequest ir(ar_xml, address_xml);
+    IPAMRequest ir(this, address_xml);
 
     ipamm->trigger(IPMAction::FREE_ADDRESS, &ir);
 

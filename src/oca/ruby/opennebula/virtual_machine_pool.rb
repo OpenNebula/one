@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -48,6 +48,13 @@ module OpenNebula
             super('VM_POOL','VM',client)
 
             @user_id  = user_id
+        end
+
+        # Get info extended VM
+        def get_hash_extended
+            rc = info_search(:extended => true)
+            return rc if OpenNebula.is_error?(rc)
+            to_hash
         end
 
         # Default Factory Method for the Pools
@@ -184,9 +191,8 @@ module OpenNebula
         #     }
         #   }
         #
-        def monitoring(xpath_expressions, filter_flag=INFO_ALL)
-            return super(VM_POOL_METHODS[:monitoring],
-                'VM', 'LAST_POLL', xpath_expressions, filter_flag)
+        def monitoring(xpaths, filter_flag=INFO_ALL)
+            return super(VM_POOL_METHODS[:monitoring], xpaths, filter_flag)
         end
 
         # Retrieves the monitoring data for all the VMs in the pool, in XML

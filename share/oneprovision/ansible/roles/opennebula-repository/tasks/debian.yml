@@ -8,11 +8,11 @@
 
 - name: Add repository key
   apt_key:
-    url: https://downloads.opennebula.org/repo/repo.key
+    url: https://downloads.opennebula.io/repo/repo.key
     validate_certs: no
     state: present
   register: apt_result
-  until: apt_result | succeeded
+  until: apt_result is succeeded
   retries: 3
   delay: 10
 

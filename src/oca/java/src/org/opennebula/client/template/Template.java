@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2019, OpenNebula Project, OpenNebula Systems
+ * Copyright 2002-2020, OpenNebula Project, OpenNebula Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,6 +102,20 @@ public class Template extends PoolElement
     public static OneResponse info(Client client, int id, boolean extended)
     {
         return client.call(INFO, id, extended);
+    }
+
+    /**
+     * Retrieves the information of the given Template.
+     *
+     * @param client XML-RPC Client.
+     * @param id The template id for the template to retrieve the information from
+     * @param decrypt If true decrypt sensitive attributes
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info(Client client, int id, boolean extended, boolean decrypt)
+    {
+        return client.call(INFO, id, extended, decrypt);
     }
 
     /**

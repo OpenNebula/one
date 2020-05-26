@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -27,6 +27,7 @@ COMMANDS=(
     'onedb'             'OpenNebula database migration tool'
     'onegroup'          'manages OpenNebula groups'
     'onehost'           'manages OpenNebula hosts'
+    'onehook'           'manages OpenNebula hooks'
     'oneimage'          'manages OpenNebula images'
     'onetemplate'       'manages OpenNebula templates'
     'oneuser'           'manages OpenNebula users'

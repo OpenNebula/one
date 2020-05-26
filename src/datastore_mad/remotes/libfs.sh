@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -151,7 +151,9 @@ function set_downloader_args {
         HASHES="$HASHES --limit $4"
     fi
 
-    echo "$HASHES $5 $6"
+    [ -n "$HASHES" ] && echo -ne "$HASHES "
+    [ -n "$5" ]      && echo -ne "'$5' "
+    [ -n "$6" ]      && echo -ne "'$6'"
 }
 
 #------------------------------------------------------------------------------
@@ -249,6 +251,19 @@ function fs_size {
     if [ -d "${SRC}" ]; then
         SIZE=`set -o pipefail; du -sb "${SRC}" | cut -f1`
         error=$?
+    elif (echo "${SRC}" | grep -qe '^docker\?://'); then
+        url=`echo ${SRC} | grep -oP "^"docker://"\K.*"`
+        arguments=`echo $url | cut -d '?' -f 2`
+
+        for p in ${arguments//&/ }; do
+            kvp=( ${p/=/ } );
+
+            if [ ${kvp[0]} == 'size' ]; then
+                SIZE=$((${kvp[1]} * 1024 * 1024));
+                error=0
+                break
+            fi
+        done
     elif [ -f "${SRC}" ] || (echo "${SRC}" | grep -qe '^https\?://'); then
         IMAGE=$(mktemp)
 
@@ -502,4 +517,23 @@ function get_destination_host {
     fi
 
     echo ${HOSTS_ARRAY[$ARRAY_INDEX]}
+}
+
+#--------------------------------------------------------------------------------
+# Rebase backing files of snapshots in current directory
+#  @param $1 name of the backing_file symlink used internally
+#--------------------------------------------------------------------------------
+rebase_backing_files() {
+    local DST_FILE=$1
+
+    for SNAP_ID in $(find * -maxdepth 0 -type f -print); do
+        INFO=$(qemu-img info --output=json $SNAP_ID)
+
+        if [[ $INFO =~ "backing-filename" ]]; then
+            BACKING_FILE=${INFO/*backing-filename\": \"/}
+            BACKING_FILE=${BACKING_FILE/\"*/}
+            BACKING_FILE=$(basename ${BACKING_FILE})
+            qemu-img rebase -f qcow2 -u -b "${DST_FILE}.snap/$BACKING_FILE" $SNAP_ID
+        fi
+    done
 }

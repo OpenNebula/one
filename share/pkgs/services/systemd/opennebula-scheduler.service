@@ -1,0 +1,19 @@
+[Unit]
+Description=OpenNebula Cloud Scheduler Daemon
+After=syslog.target network.target remote-fs.target
+After=opennebula.service
+AssertFileNotEmpty=/var/lib/one/.one/one_auth
+
+[Service]
+Type=simple
+Group=oneadmin
+User=oneadmin
+ExecStartPre=-/usr/sbin/logrotate -f /etc/logrotate.d/opennebula-scheduler -s /var/lib/one/.logrotate.status
+ExecStart=/usr/bin/mm_sched
+StartLimitInterval=60
+StartLimitBurst=3
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

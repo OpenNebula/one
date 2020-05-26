@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -38,6 +38,7 @@ module VirtualMachineMonitor
 
     # monitor function used when VMM poll action is called
     # rubocop:disable Naming/VariableName
+    # rubocop:disable Style/FormatStringToken
     def monitor_poll_vm
         reset_monitor
 
@@ -363,10 +364,11 @@ module VirtualMachineMonitor
                                  (write_kbpersec * 1024 * refresh_rate).to_i
     end
     # rubocop:enable Naming/VariableName
+    # rubocop:enable Style/FormatStringToken
 
     #  Generates a OpenNebula IM Driver valid string with the monitor info
     def info
-        return 'STATE=d' if @state == 'd'
+        # return 'STATE=d' if @state == 'd'
 
         if @vm_info
             guest_ip = @vm_info['guest.ipAddress']
@@ -402,6 +404,12 @@ module VirtualMachineMonitor
         end
 
         if @vm_info
+            vm_name = @vm_info['name'].to_s
+        else
+            vm_name = self['name'].to_s
+        end
+
+        if @vm_info
             vmtools_ver = @vm_info['guest.toolsVersion'].to_s
         else
             vmtools_ver = self['guest.toolsVersion'].to_s
@@ -414,10 +422,6 @@ module VirtualMachineMonitor
         end
 
         if @vm_info
-            # rp_name = @vm_info[:rp_list]
-            #           .select {|item|
-            #               item[:ref] == @vm_info['resourcePool']._ref
-            #           }.first[:name] rescue ''
             rp_name = @vm_info[:rp_list]
                       .select do |item|
                           item[:ref] == @vm_info['resourcePool']._ref
@@ -431,31 +435,41 @@ module VirtualMachineMonitor
 
         str_info = ''
 
-        str_info = 'GUEST_IP=' << guest_ip.to_s << ' ' if guest_ip
+        str_info = 'GUEST_IP=' << guest_ip.to_s << "\n" if guest_ip
 
         if @guest_ip_addresses && !@guest_ip_addresses.empty?
             str_info << 'GUEST_IP_ADDRESSES="' << @guest_ip_addresses.to_s \
                      << '" '
         end
 
-        str_info << "#{POLL_ATTRIBUTE[:state]}=" << @state << ' '
-        str_info << "#{POLL_ATTRIBUTE[:cpu]}=" << used_cpu.to_s << ' '
-        str_info << "#{POLL_ATTRIBUTE[:memory]}=" << used_memory.to_s << ' '
-        str_info << "#{POLL_ATTRIBUTE[:netrx]}=" << netrx.to_s << ' '
-        str_info << "#{POLL_ATTRIBUTE[:nettx]}=" << nettx.to_s << ' '
+        str_info << "#{POLL_ATTRIBUTE[:cpu]}=" << used_cpu.to_s << "\n"
+        str_info << "#{POLL_ATTRIBUTE[:memory]}=" << used_memory.to_s << "\n"
+        str_info << "#{POLL_ATTRIBUTE[:netrx]}=" << netrx.to_s << "\n"
+        str_info << "#{POLL_ATTRIBUTE[:nettx]}=" << nettx.to_s << "\n"
 
-        str_info << 'DISKRDBYTES=' << diskrdbytes.to_s << ' '
-        str_info << 'DISKWRBYTES=' << diskwrbytes.to_s << ' '
-        str_info << 'DISKRDIOPS='  << diskrdiops.to_s  << ' '
-        str_info << 'DISKWRIOPS='  << diskwriops.to_s  << ' '
+        str_info << 'DISKRDBYTES=' << diskrdbytes.to_s << "\n"
+        str_info << 'DISKWRBYTES=' << diskwrbytes.to_s << "\n"
+        str_info << 'DISKRDIOPS='  << diskrdiops.to_s  << "\n"
+        str_info << 'DISKWRIOPS='  << diskwriops.to_s  << "\n"
 
-        str_info << 'VCENTER_ESX_HOST="' << esx_host << '" '
-        str_info << 'VCENTER_GUEST_STATE=' << guest_state << ' '
-        str_info << 'VCENTER_VMWARETOOLS_RUNNING_STATUS=' << vmware_tools << ' '
-        str_info << 'VCENTER_VMWARETOOLS_VERSION=' << vmtools_ver << ' '
+        str_info << 'VCENTER_ESX_HOST="' << esx_host << '" ' << "\n"
+        str_info << 'VCENTER_GUEST_STATE=' << guest_state << "\n"
+        str_info << 'VCENTER_VM_NAME="' << vm_name << '" ' << "\n"
+        str_info << 'VCENTER_VMWARETOOLS_RUNNING_STATUS=' \
+                 << vmware_tools << "\n"
+        str_info << 'VCENTER_VMWARETOOLS_VERSION=' << vmtools_ver << "\n"
         str_info << 'VCENTER_VMWARETOOLS_VERSION_STATUS=' \
-                 << vmtools_verst << ' '
-        str_info << 'VCENTER_RP_NAME="' << rp_name << '" '
+                 << vmtools_verst << "\n"
+        str_info << 'VCENTER_RP_NAME="' << rp_name << '" ' << "\n"
+
+        info_disks.each do |disk|
+            next if disk[1].no_exists?
+
+            str_info << "DISK_#{disk[0]}_ACTUAL_PATH=\"[" <<
+                disk[1].ds.name << '] ' << disk[1].path << '" ' << "\n"
+        end
+
+        str_info
     end
 
     def reset_monitor

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -51,23 +51,22 @@ string UserPool::oneadmin_name;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-UserPool::UserPool(SqlDB * db,
-                   time_t  __session_expiration_time,
-                   vector<const VectorAttribute *> hook_mads,
-                   const string&             remotes_location,
-                   bool                      is_federation_slave):
-                       PoolSQL(db, User::table)
+UserPool::UserPool(SqlDB * db, time_t __session_expiration_time, bool is_slave,
+        vector<const SingleAttribute *>& restricted_attrs):PoolSQL(db, User::table)
 {
-    int           one_uid    = -1;
-    int           server_uid = -1;
-    int           i;
+    int one_uid    = -1;
+    int server_uid = -1;
+    int i;
 
     ostringstream oss;
-    string   one_token;
-    string   one_name;
-    string   one_pass;
-    string   random;
+
+    string one_token;
+    string one_name;
+    string one_pass;
+    string random;
+
     set<int> gids;
+    set<int> agids;
 
     string        filenames[5];
     string        error_str;
@@ -76,10 +75,13 @@ UserPool::UserPool(SqlDB * db,
 
     _session_expiration_time = __session_expiration_time;
 
+    // Set restricted attributes
+    UserTemplate::parse_restricted(restricted_attrs);
+
     User * oneadmin_user = get_ro(0);
 
     //Slaves do not need to init the pool, just the oneadmin username
-    if (is_federation_slave)
+    if (is_slave)
     {
         if (oneadmin_user == 0)
         {
@@ -96,8 +98,6 @@ UserPool::UserPool(SqlDB * db,
     {
         oneadmin_name = oneadmin_user->get_name();
         oneadmin_user->unlock();
-
-        register_hooks(hook_mads, remotes_location);
 
         return;
     }
@@ -163,6 +163,7 @@ UserPool::UserPool(SqlDB * db,
              UserPool::CORE_AUTH,
              true,
              gids,
+             agids,
              error_str);
 
     if ( one_uid != 0 )
@@ -177,14 +178,13 @@ UserPool::UserPool(SqlDB * db,
              "server_cipher",
              true,
              gids,
+             agids,
              error_str);
 
     if ( server_uid != 1 )
     {
         goto error_serveradmin;
     }
-
-    register_hooks(hook_mads, remotes_location);
 
     return;
 
@@ -305,7 +305,7 @@ static int master_chgrp(int user_id, int group_id, string& error_str)
 
 /* -------------------------------------------------------------------------- */
 
-int UserPool::allocate (
+int UserPool::allocate(
     int * oid,
     const string& uname,
     int   gid,
@@ -313,6 +313,7 @@ int UserPool::allocate (
     const string& auth,
     bool  enabled,
     const set<int>& gids,
+    const set<int>& agids,
     string& error_str)
 {
     Nebula& nd = Nebula::instance();
@@ -339,10 +340,10 @@ int UserPool::allocate (
             return -1;
         }
 
-		if ( master_chgrp(*oid, gid, error_str) == -1 )
-		{
-			NebulaLog::log("ONE", Log::ERROR, error_str);
-		}
+        if ( master_chgrp(*oid, gid, error_str) == -1 )
+        {
+            NebulaLog::log("ONE", Log::ERROR, error_str);
+        }
 
         return *oid;
     }
@@ -420,6 +421,23 @@ int UserPool::allocate (
         }
 
         group->add_user(*oid);
+
+        gpool->update(group);
+
+        group->unlock();
+    }
+
+    // Set the user group admin
+    for(set<int>::const_iterator it = agids.begin(); it != agids.end(); it++)
+    {
+        Group * group = gpool->get(*it);
+
+        if( group == 0 ) //Secondary group no longer exists
+        {
+            goto error_group;
+        }
+
+        group->add_admin(*oid, error_str);
 
         gpool->update(group);
 
@@ -542,6 +560,7 @@ static int parse_auth_msg(
     AuthRequest &ar,
     int         &gid,
     set<int>    &group_ids,
+    set<int>    &group_admin_ids,
     string      &driver_name,
     string      &mad_name,
     string      &mad_pass,
@@ -572,7 +591,16 @@ static int parse_auth_msg(
 
     while ( is.good() )
     {
-        int tmp_gid;
+        int  tmp_gid;
+        bool gr_admin = false;
+
+        char c = is.peek();
+
+        if ( c == '*' )
+        {
+            is.get(c);
+            gr_admin = true;
+        }
 
         is >> tmp_gid >> ws;
 
@@ -594,6 +622,11 @@ static int parse_auth_msg(
         }
 
         group_ids.insert(tmp_gid);
+
+        if ( gr_admin )
+        {
+            group_admin_ids.insert(tmp_gid);
+        }
     }
 
     return 0;
@@ -623,10 +656,14 @@ bool UserPool::authenticate_internal(User *        user,
     int egid    = -1;
     int new_gid = -1;
     string new_gname;
+
     set<int> new_group_ids;
+    set<int> group_admin_ids;
+    set<int> new_group_admin_ids;
 
     set<int> groups_remove;
     set<int> groups_add;
+    set<int> groups_same;
     set<int>::iterator it;
 
     Nebula&     nd      = Nebula::instance();
@@ -751,8 +788,8 @@ bool UserPool::authenticate_internal(User *        user,
         {
             string str;
 
-            if ( parse_auth_msg(ar, new_gid, new_group_ids, str, str, str,
-                    error_str) != 0 )
+            if ( parse_auth_msg(ar, new_gid, new_group_ids, new_group_admin_ids,
+                        str, str, str, error_str) != 0 )
             {
                 goto auth_failure_parse;
             };
@@ -777,10 +814,28 @@ bool UserPool::authenticate_internal(User *        user,
 
     user->session->set(token, _session_expiration_time);
 
-    if ( !driver_managed_groups || new_gid == -1 || new_group_ids == group_ids )
+    // Search and store previous groups where user was admin
+    for(it = group_ids.begin(); it != group_ids.end(); it++)
+    {
+        group = gpool->get_ro(*it);
+        if( group == 0 ) // group no longer exists
+        {
+            continue;
+        }
+
+        if ( group->is_admin(user_id) )
+        {
+            group_admin_ids.insert(*it);
+        }
+
+        group->unlock();
+    }
+
+    if ( !driver_managed_groups || new_gid == -1 ||
+            ( new_group_ids == group_ids
+              && group_admin_ids == new_group_admin_ids ) )
     {
         user->unlock();
-
         return true;
     }
 
@@ -805,6 +860,11 @@ bool UserPool::authenticate_internal(User *        user,
     std::set_difference(new_group_ids.begin(), new_group_ids.end(),
             group_ids.begin(), group_ids.end(),
             std::inserter(groups_add, groups_add.end()));
+
+    // Same groups
+    std::set_intersection(group_ids.begin(), group_ids.end(),
+            new_group_ids.begin(), new_group_ids.end(),
+            std::inserter(groups_same, groups_same.end()));
 
     for(it = groups_add.begin(); it != groups_add.end(); it++)
     {
@@ -837,6 +897,13 @@ bool UserPool::authenticate_internal(User *        user,
             continue;
         }
 
+        group->add_user(*it);
+
+        if ( new_group_admin_ids.find(*it) != new_group_admin_ids.end() )
+        {
+            group->add_admin(*it, error_str);
+        }
+
         group->add_user(user_id);
 
         gpool->update(group);
@@ -858,6 +925,39 @@ bool UserPool::authenticate_internal(User *        user,
         gpool->update(group);
 
         group->unlock();
+    }
+
+    // -------------------------------------------------------------------------
+    // For groups which user remained member also check if the admin status
+    // did not changed
+    // -------------------------------------------------------------------------
+    for(it = groups_same.begin(); it != groups_same.end(); it++)
+    {
+        // user was admin before but is not now
+        if ( group_admin_ids.find(*it) != group_admin_ids.end()
+             && new_group_admin_ids.find(*it) == new_group_admin_ids.end() )
+        {
+            group = gpool->get(*it);
+
+            group->del_admin(user_id, error_str);
+
+            gpool->update(group);
+
+            group->unlock();
+        }
+
+        // user was not admin before but is now
+        if ( group_admin_ids.find(*it) == group_admin_ids.end()
+             && new_group_admin_ids.find(*it) != new_group_admin_ids.end() )
+        {
+            group = gpool->get(*it);
+
+            group->add_admin(user_id, error_str);
+
+            gpool->update(group);
+
+            group->unlock();
+        }
     }
 
     return true;
@@ -1122,6 +1222,7 @@ bool UserPool::authenticate_external(const string&  username,
 
     set<int>::iterator it;
     set<int> empty_set;
+    set<int> group_admin_ids;
 
     AuthRequest ar(-1,empty_set);
 
@@ -1148,7 +1249,7 @@ bool UserPool::authenticate_external(const string&  username,
     //--------------------------------------------------------------------------
     // Parse driver response
     //--------------------------------------------------------------------------
-    rc = parse_auth_msg(ar, gid, group_ids,
+    rc = parse_auth_msg(ar, gid, group_ids, group_admin_ids,
             driver_name, mad_name, mad_pass, error_str);
 
     if (rc != 0)
@@ -1185,6 +1286,7 @@ bool UserPool::authenticate_external(const string&  username,
              driver_name,
              true,
              group_ids,
+             group_admin_ids,
              error_str);
 
     if ( user_id == -1 )
@@ -1283,7 +1385,7 @@ bool UserPool::authenticate(const string& session,
             uname, gname, group_ids, umask);
     }
 
-   return ar;
+    return ar;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1326,8 +1428,7 @@ int UserPool::authorize(AuthRequest& ar)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int UserPool::dump(string& oss, const string& where, const string& limit,
-        bool desc)
+int UserPool::dump(string& oss, const string& where, int sid, int eid, bool desc)
 {
     int     rc;
     string  def_quota_xml;
@@ -1351,9 +1452,9 @@ int UserPool::dump(string& oss, const string& where, const string& limit,
         cmd << " DESC";
     }
 
-    if ( !limit.empty() )
+    if ( eid != -1 )
     {
-        cmd << " LIMIT " << limit;
+        cmd << " " << db->limit_string(sid, eid);
     }
 
     oss.append("<USER_POOL>");

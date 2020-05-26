@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,11 +20,12 @@ define(function(require) {
    */
 
   var TabDataTable = require('utils/tab-datatable');
+  var Sunstone = require('sunstone');
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
   var OpenNebulaMarketPlaceApp = require('opennebula/marketplaceapp');
-  var OpenNebulaMarketPlace = require('opennebula/marketplace');
   var OpenNebulaZone = require('opennebula/zone');
+  var StateActions = require('./utils/state-actions');
   var LabelsUtils = require('utils/labels/utils');
   var Humanize = require('utils/humanize');
   var SearchDropdown = require('hbs!./datatable/search');
@@ -118,15 +119,24 @@ define(function(require) {
 
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
+  Table.prototype.initialize = _initialize;
   Table.prototype.elementArray = _elementArray;
   Table.prototype.preUpdateView = _preUpdateView;
   Table.prototype.postUpdateView = _postUpdateView;
+  Table.prototype.updateStateActions = _updateStateActions;
 
   return Table;
 
   /*
     FUNCTION DEFINITIONS
    */
+
+  function _initialize(opts) {
+    var that = this;
+
+    TabDataTable.prototype.initialize.call(this, opts);
+    _updateStateActions();
+  }
 
   function _elementArray(element_json) {
     var element = element_json[XML_ROOT];
@@ -152,34 +162,26 @@ define(function(require) {
     var color_html = Status.state_lock_to_color("MARKETPLACEAPP",state, element_json[XML_ROOT]["LOCK"]);
 
     return [
-      '<input class="check_item" type="checkbox" '+
-                          'style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' +
-                           element.ID + '" name="selected_items" value="' +
-                           element.ID + '"/>'+color_html,
-        element.ID,
-        element.NAME,
-        element.UNAME,
-        element.GNAME,
-        element.VERSION,
-        Humanize.sizeFromMB(element.SIZE),
-        state,
-        OpenNebulaMarketPlaceApp.typeStr(element.TYPE),
-        Humanize.prettyTimeDatatable(element.REGTIME),
-        element.MARKETPLACE,
-        zone,
-        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
-        btoa(unescape(encodeURIComponent(JSON.stringify(search))))
+      '<input class="check_item"' +
+        'type="checkbox" style="vertical-align: inherit;"' +
+        'id="'+this.resource.toLowerCase()+'_' + element.ID + '"' +
+        'name="selected_items"' +
+        'state="'+element.STATE+'"' +
+        'value="' + element.ID + '"/>'+color_html,
+      element.ID,
+      element.NAME,
+      element.UNAME,
+      element.GNAME,
+      element.VERSION,
+      Humanize.sizeFromMB(element.SIZE),
+      state,
+      OpenNebulaMarketPlaceApp.typeStr(element.TYPE),
+      Humanize.prettyTimeDatatable(element.REGTIME),
+      element.MARKETPLACE,
+      zone,
+      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+      btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
-  }
-
-  function _lengthOf(ids){
-    var l = 0;
-    if ($.isArray(ids))
-      l = ids.length;
-    else if (!$.isEmptyObject(ids))
-      l = 1;
-
-    return l;
   }
 
   function _preUpdateView() {
@@ -188,5 +190,28 @@ define(function(require) {
 
   function _postUpdateView() {
     $(".total_apps").text(this.totalApps);
+  }
+
+  function _updateStateActions(response) {
+    if (response) {
+      var app = response.MARKETPLACEAPP;
+      
+      app && app.STATE && OpenNebulaMarketPlaceApp.BUTTON_DEPENDENT_STATES[app.STATE]
+        ? StateActions.enableAllStateActions()
+        : StateActions.disableAllStateActions(); 
+    }
+    else {
+      $('#' + this.dataTableId).on("change", 'tbody input.check_item', function() {
+        var dataTable = Sunstone.getDataTable(TAB_NAME);
+        
+        // make sure if all checked inputs are available
+        $(dataTable.elements()).filter(function() {
+          var appState = $("input.check_item[value='"+this+"']", dataTable.dataTable).attr("state");
+          return OpenNebulaMarketPlaceApp.BUTTON_DEPENDENT_STATES[appState];
+        }).length === dataTable.elements().length && dataTable.elements().length > 0
+          ? StateActions.enableAllStateActions()
+          : StateActions.disableAllStateActions();
+      });
+    }
   }
 });

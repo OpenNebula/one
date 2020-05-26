@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -31,6 +31,7 @@ define(function(require) {
   var UserInputs = require("utils/user-inputs");
   var Config = require("sunstone-config");
   var TemplateUtils = require("utils/template-utils");
+  var ServiceUtils = require("utils/service-utils");
 
   /*
     TEMPLATES
@@ -96,41 +97,30 @@ define(function(require) {
 
   function _setTemplateId(context, templateId) {
     var that = this;
-
     this.templateId = templateId;
-
     this.service_template_json = {};
-
     OpenNebulaServiceTemplate.show({
       data : {
         id: templateId
       },
       timeout: true,
       success: function (request, template_json){
-
         that.service_template_json = template_json;
-
         $(".name", context).text(template_json.DOCUMENT.NAME);
-
         $("#instantiate_service_user_inputs", context).empty();
-
         UserInputs.serviceTemplateInsert(
           $("#instantiate_service_user_inputs", context),
-          template_json);
-
+          template_json, {
+            select_networks: true
+          });
         n_roles = template_json.DOCUMENT.TEMPLATE.BODY.roles.length;
         n_roles_done = 0;
-
         var total_cost = 0;
-
         $.each(template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
           var div_id = "user_input_role_"+index;
-
           $("#instantiate_service_role_user_inputs", context).append(
-            "<div id=\""+div_id+"\" class=\"large-6 columns\">\
-            </div>"
-            );
-
+            "<div id=\""+div_id+"\" class=\"large-6 columns\"></div>"
+          );
           OpenNebulaTemplate.show({
             data : {
               id: role.vm_template,
@@ -140,46 +130,44 @@ define(function(require) {
             success: function (request, vm_template_json){
               that.vm_template_json = vm_template_json;
               $("#"+div_id, context).empty();
-
-              if (role.vm_template_contents){
+              //if (role.vm_template_contents){
                 roleTemplate = TemplateUtils.stringToTemplate(role.vm_template_contents);
-                var append = roleTemplate.APPEND.split(",");
-                $.each(append, function(key, value){
-                  if (!that.vm_template_json.VMTEMPLATE.TEMPLATE[value]){
-                    that.vm_template_json.VMTEMPLATE.TEMPLATE[value] = roleTemplate[value];
-                  } else {
-                    if (!Array.isArray(that.vm_template_json.VMTEMPLATE.TEMPLATE[value])){
-                      that.vm_template_json.VMTEMPLATE.TEMPLATE[value] = [that.vm_template_json.VMTEMPLATE.TEMPLATE[value]];
-                    }
-                    if (Array.isArray(roleTemplate[value])){
-                      $.each(roleTemplate[value], function(rkey, rvalue){
-                        that.vm_template_json.VMTEMPLATE.TEMPLATE[value].push(rvalue);
-                      });
+                if(roleTemplate && roleTemplate.APPEND){
+                  var append = roleTemplate.APPEND.split(",");
+                  $.each(append, function(key, value){
+                    if (!that.vm_template_json.VMTEMPLATE.TEMPLATE[value]){
+                      that.vm_template_json.VMTEMPLATE.TEMPLATE[value] = roleTemplate[value];
                     } else {
-                      that.vm_template_json.VMTEMPLATE.TEMPLATE[value].push(roleTemplate[value]);
+                      if (!Array.isArray(that.vm_template_json.VMTEMPLATE.TEMPLATE[value])){
+                        that.vm_template_json.VMTEMPLATE.TEMPLATE[value] = [that.vm_template_json.VMTEMPLATE.TEMPLATE[value]];
+                      }
+                      if (Array.isArray(roleTemplate[value])){
+                        $.each(roleTemplate[value], function(rkey, rvalue){
+                          that.vm_template_json.VMTEMPLATE.TEMPLATE[value].push(rvalue);
+                        });
+                      } else {
+                        that.vm_template_json.VMTEMPLATE.TEMPLATE[value].push(roleTemplate[value]);
+                      }
                     }
-                  }
-                  delete roleTemplate[value];
-                });
-                delete roleTemplate.APPEND;
+                    delete roleTemplate[value];
+                  });
+                  delete roleTemplate.APPEND;
+                }
                 $.extend(true, that.vm_template_json.VMTEMPLATE.TEMPLATE, roleTemplate);
-              }
+              //}
               if (vm_template_json.VMTEMPLATE.TEMPLATE["MEMORY_COST"] && vm_template_json.VMTEMPLATE.TEMPLATE["MEMORY_UNIT_COST"] && vm_template_json.VMTEMPLATE.TEMPLATE["MEMORY_UNIT_COST"] === "GB") {
                 vm_template_json.VMTEMPLATE.TEMPLATE["MEMORY_COST"] = vm_template_json.VMTEMPLATE.TEMPLATE["MEMORY_COST"]*1024;
               }
               if (vm_template_json.VMTEMPLATE.TEMPLATE["DISK_COST"]) {
                 vm_template_json.VMTEMPLATE.TEMPLATE["DISK_COST"] = vm_template_json.VMTEMPLATE.TEMPLATE["DISK_COST"]*1024;
               }
-
               var cost = OpenNebulaTemplate.cost(that.vm_template_json);
-
               if (cost !== 0 && Config.isFeatureEnabled("showback")) {
                 total_cost += (cost * role.cardinality);
 
                 $(".total_cost_div", context).show();
                 $(".total_cost_div .cost_value", context).text((total_cost).toFixed(4));
               }
-
               UserInputs.vmTemplateInsert(
                 $("#"+div_id, context),
                 vm_template_json,
@@ -187,9 +175,7 @@ define(function(require) {
                   text_header: Locale.tr("Role") + " " + role.name
                 }
               );
-
               n_roles_done += 1;
-
               if(n_roles_done === n_roles){
                 Sunstone.enableFormPanelSubmit();
               }
@@ -208,44 +194,33 @@ define(function(require) {
     });
   }
 
+  //submit
   function _submitWizard(context) {
     var that = this;
-
     var service_name = $("#service_name",context).val();
     var n_times = $("#service_n_times",context).val();
     var n_times_int=1;
-
     if (n_times.length){
       n_times_int=parseInt(n_times,10);
     }
 
-    var extra_msg = "";
-    if (n_times_int > 1) {
-      extra_msg = n_times_int+" times";
-    }
-
-    var extra_info = {
-      "merge_template": {}
-    };
-
-    var tmp_json = WizardFields.retrieve($("#instantiate_service_user_inputs", context));
-
-    extra_info.merge_template.custom_attrs_values = tmp_json;
-
-    extra_info.merge_template.roles = [];
+    var extra_info = ServiceUtils.getExtraInfo(context);
 
     $.each(that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
       var div_id = "user_input_role_"+index;
-
-      tmp_json = {};
+      var tmp_json = {};
+      var stringCustomValues = TemplateUtils.templateToString(extra_info.merge_template.custom_attrs_values);
 
       $.extend( tmp_json, WizardFields.retrieve($("#"+div_id, context)) );
-
       role.user_inputs_values = tmp_json;
-
+      if (stringCustomValues) {
+        (role.vm_template_contents)
+          ? role.vm_template_contents += stringCustomValues 
+          : role.vm_template_contents = stringCustomValues;
+      }
       extra_info.merge_template.roles.push(role);
     });
-
+    
     if (!service_name.length){ //empty name
       for (var i=0; i< n_times_int; i++){
         Sunstone.runAction("ServiceTemplate.instantiate", that.templateId, extra_info);
@@ -253,7 +228,6 @@ define(function(require) {
     } else {
       if (service_name.indexOf("%i") === -1){//no wildcard, all with the same name
         extra_info["merge_template"]["name"] = service_name;
-
         for (var i=0; i< n_times_int; i++){
           Sunstone.runAction(
               "ServiceTemplate.instantiate",
@@ -262,15 +236,12 @@ define(function(require) {
       } else { //wildcard present: replace wildcard
         for (var i=0; i< n_times_int; i++){
           extra_info["merge_template"]["name"] = service_name.replace(/%i/gi,i);
-
           Sunstone.runAction(
               "ServiceTemplate.instantiate",
               that.templateId, extra_info);
         }
       }
     }
-
     return false;
   }
-
 });

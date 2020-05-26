@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -24,7 +24,9 @@
 #include "Mad.h"
 #include "ActionSet.h"
 #include "VirtualMachinePool.h"
-#include "History.h"
+#include "VMActions.h"
+#include "Host.h"
+#include "Cluster.h"
 
 using namespace std;
 
@@ -45,7 +47,7 @@ public:
         bool                        sudo,
         VirtualMachinePool *        pool);
 
-    virtual ~VirtualMachineManagerDriver(){};
+    virtual ~VirtualMachineManagerDriver() = default;
 
     /**
      *  Implements the VM Manager driver protocol.
@@ -70,27 +72,21 @@ public:
         const string&           file_name) const = 0;
 
     /**
-     * Updates the VM with the information gathered by the drivers
-     *
-     * @param id VM id
-     * @param monitor_str String returned by the poll driver call
+     *  Validates de VM raws section
+     *    @param raw_section raw section of the VM.
+     *    @param error description on error
+     *    @return 0 on success
      */
-    static void process_poll(int id, const string &monitor_str);
-
-    /**
-     * Updates the VM with the information gathered by the drivers
-     *
-     * @param vm VM to update, must be locked
-     * @param monitor_str String returned by the poll driver call
-     */
-    static void process_poll(VirtualMachine* vm, const string &monitor_str);
-
+    virtual int validate_raw(const string& raw, string& error) const
+    {
+        return 0;
+    }
     /**
      *  Check if action is supported for imported VMs
      *    @param action
      *    @return True if it is supported
      */
-    bool is_imported_action_supported(History::VMAction action) const
+    bool is_imported_action_supported(VMActions::Action action) const
     {
         return imported_actions.is_set(action);
     }
@@ -109,6 +105,14 @@ public:
     bool is_ds_live_migration() const
     {
         return ds_live_migration;
+    }
+
+    /**
+     *  @return true if cold nic attach
+     */
+    bool is_cold_nic_attach() const
+    {
+        return cold_nic_attach;
     }
 
 protected:
@@ -144,6 +148,104 @@ protected:
         return vattr->vector_value(vname, value);
     }
 
+    /**
+     *  Gets a configuration attribute (single version)
+     *  priority VM > host > cluster > config_file
+     *    @param vm pointer to Virtual Machine
+     *    @param host pointer to Host
+     *    @param cluster pointer Cluster
+     *    @param name of config attribute
+     *    @param value of the attribute
+     *    @return true if atribute was found, false otherwise
+     */
+    template<typename T>
+    bool get_attribute(const VirtualMachine * vm,
+                       const Host * host,
+                       const Cluster * cluster,
+                       const string& name,
+                       T& value) const
+    {
+        // Get value from VM
+        if (vm && vm->get_template_attribute(name, value))
+        {
+            return true;
+        }
+
+        // Get value from host
+        if (host && host->get_template_attribute(name, value))
+        {
+            return true;
+        }
+
+        // Get value from cluster
+        if (cluster && cluster->get_template_attribute(name, value))
+        {
+            return true;
+        }
+
+        return driver_conf.get(name, value);
+    }
+
+    /**
+     *  Gets a configuration attribute (vector version)
+     *  priority VM > host > cluster > config_file
+     *    @param vm pointer to Virtual Machine
+     *    @param host pointer to Host
+     *    @param cluster pointer Cluster
+     *    @param name of config vector attribute for the domain
+     *    @param vname of the attribute
+     *    @param value of the attribute
+     *    @return true if atribute was found, false otherwise
+     */
+    template<typename T>
+    bool get_attribute(const VirtualMachine * vm,
+                       const Host * host,
+                       const Cluster* cluster,
+                       const string& name,
+                       const string& vname,
+                       T& value) const
+    {
+        const VectorAttribute * vattr;
+
+        // Get value from VM
+        if (vm)
+        {
+            vattr = vm->get_template_attribute(name);
+            if (vattr && vattr->vector_value(vname, value) == 0)
+            {
+                return true;
+            }
+        }
+
+        // Get value from host
+        if (host)
+        {
+            vattr = host->get_template_attribute(name);
+            if (vattr && vattr->vector_value(vname, value) == 0)
+            {
+                return true;
+            }
+        }
+
+        // Get value from cluster
+        if (cluster)
+        {
+            vattr = cluster->get_template_attribute(name);
+            if (vattr && vattr->vector_value(vname, value) == 0)
+            {
+                return true;
+            }
+        }
+
+        vattr = driver_conf.get(name);
+        if (vattr && vattr->vector_value(vname, value) == 0)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
 private:
     friend class VirtualMachineManager;
 
@@ -159,7 +261,7 @@ private:
      *  List of available actions for imported VMs. Each bit is an action
      *  as defined in History.h, 1=supported and 0=not supported
      */
-    ActionSet<History::VMAction> imported_actions;
+    ActionSet<VMActions::Action> imported_actions;
 
     /**
      * Set to true if the hypervisor can keep system snapshots across
@@ -171,6 +273,11 @@ private:
      * Set to true if live migration between datastores is allowed.
      */
     bool ds_live_migration;
+
+    /**
+    * Set to true if cold nic attach/detach calls (pre, post, clean scripts)
+    */
+    bool cold_nic_attach;
 
     /**
      *  Pointer to the Virtual Machine Pool, to access VMs

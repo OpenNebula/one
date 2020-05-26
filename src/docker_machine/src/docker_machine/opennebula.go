@@ -1,7 +1,6 @@
 package opennebula
 
 import (
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -9,7 +8,10 @@ import (
 	"time"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca"
-	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm/keys"
+	vm_schemas "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm"
+	shared_schemas "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 
 	"github.com/docker/machine/libmachine/drivers"
 	"github.com/docker/machine/libmachine/log"
@@ -37,9 +39,10 @@ type Driver struct {
 	User           string
 	Password       string
 	Xmlrpcurl      string
-	Controller     *goca.Controller
+	Config         goca.OneConfig
 	DisableVNC     bool
 	StartRetries   string
+	MachineId      int
 }
 
 const (
@@ -101,11 +104,15 @@ func NewDriver(hostName, storePath string) *Driver {
 	}
 }
 
-func (d *Driver) setController() {
-	client := goca.NewClient(
-		goca.NewConfig(d.User, d.Password, d.Xmlrpcurl),
-	)
-	d.Controller = goca.NewController(client)
+func (d *Driver) buildConfig() {
+	d.Config = goca.NewConfig(d.User, d.Password, d.Xmlrpcurl)
+}
+
+func (d *Driver) getController() *goca.Controller {
+	d.buildConfig()
+	client := goca.NewDefaultClient(d.Config)
+
+	return goca.NewController(client)
 }
 
 // GetCreateFlags registers the flags this driver adds to
@@ -358,13 +365,12 @@ func (d *Driver) PreCreateCheck() error {
 }
 
 func (d *Driver) Create() error {
-	var (
-		vector     *dyn.TemplateBuilderVector
-		err error
-	)
+	var err error
+
+	var instanceID = -1
 
 	// build config and set the xmlrpc client
-	d.setController()
+	controller := d.getController()
 
 	log.Infof("Creating SSH key..")
 	if err := ssh.GenerateSSHKey(d.GetSSHKeyPath()); err != nil {
@@ -377,91 +383,90 @@ func (d *Driver) Create() error {
 	}
 
 	// Create template
-	template := dyn.NewTemplateBuilder()
+	template := vm_schemas.NewTemplate()
 
 	if d.TemplateName != "" || d.TemplateID != "" {
 		// Template has been specified
 	} else {
 		// Template has NOT been specified
-		template.AddValue("NAME", d.MachineName)
+		template.Add(keys.Name, d.MachineName)
 
 		// OS Boot
-		vector = template.NewVector("OS")
-		vector.AddValue("BOOT", "disk0")
+		template.AddOS(keys.Boot, "disk0")
 
 		// OS Disk
-		vector = template.NewVector("DISK")
+		disk := template.AddDisk()
 
 		if d.ImageID != "" {
-			vector.AddValue("IMAGE_ID", d.ImageID)
+			disk.Add(shared.ImageID, d.ImageID)
 		} else {
-			vector.AddValue("IMAGE", d.ImageName)
+			disk.Add(shared.Image, d.ImageName)
 			if d.ImageOwner != "" {
-				vector.AddValue("IMAGE_UNAME", d.ImageOwner)
+				disk.Add(shared.ImageUname, d.ImageOwner)
 			}
 		}
 
 		if d.DiskSize != "" {
-			vector.AddValue("SIZE", d.DiskSize)
+			disk.Add(shared.Size, d.DiskSize)
 		}
 
 		if d.ImageDevPrefix != "" {
-			vector.AddValue("DEV_PREFIX", d.ImageDevPrefix)
+			disk.Add(shared.DevPrefix, d.ImageDevPrefix)
 		}
 
 		// Add a volatile disk for b2d
 		if d.B2DSize != "" {
-			vector = template.NewVector("DISK")
-			vector.AddValue("SIZE", d.B2DSize)
-			vector.AddValue("TYPE", "fs")
-			vector.AddValue("FORMAT", "raw")
+			vdisk := template.AddDisk()
+			vdisk.Add(shared.Size, d.B2DSize)
+			vdisk.Add("TYPE", "fs")
+			vdisk.Add("FORMAT", "raw")
 		}
 
 		// VNC
 		if !d.DisableVNC {
-			vector = template.NewVector("GRAPHICS")
-			vector.AddValue("LISTEN", "0.0.0.0")
-			vector.AddValue("TYPE", "vnc")
+			template.AddIOGraphic(keys.Listen, "0.0.0.0")
+			template.AddIOGraphic(keys.GraphicType, "vnc")
 		}
 	}
 
 	// Capacity
 	if d.CPU != "" {
-		template.AddValue("CPU", d.CPU)
+		cpu, _ := strconv.ParseFloat(d.CPU, 64)
+		template.CPU(cpu)
 	}
 
 	if d.Memory != "" {
-		template.AddValue("MEMORY", d.Memory)
+		memory, _ := strconv.Atoi(d.Memory)
+		template.Memory(memory)
 	}
 
 	if d.VCPU != "" {
-		template.AddValue("VCPU", d.VCPU)
+		vcpu, _ := strconv.Atoi(d.VCPU)
+		template.VCPU(vcpu)
 	}
 
 	// Network
 	if d.NetworkName != "" || d.NetworkID != "" {
-		vector = template.NewVector("NIC")
+		nic := template.AddNIC()
 
 		if d.NetworkName != "" {
-			vector.AddValue("NETWORK", d.NetworkName)
+			nic.Add(shared.Network, d.NetworkName)
 			if d.NetworkOwner != "" {
-				vector.AddValue("NETWORK_UNAME", d.NetworkOwner)
+				nic.Add(shared.NetworkUName, d.NetworkOwner)
 			}
 		}
 
 		if d.NetworkID != "" {
-			vector.AddValue("NETWORK_ID", d.NetworkID)
+			nic.Add(shared.NetworkID, d.NetworkID)
 		}
 	}
 
 	// Context
-	vector = template.NewVector("CONTEXT")
-	vector.AddValue("NETWORK", "YES")
-	vector.AddValue("SSH_PUBLIC_KEY", "$USER[SSH_PUBLIC_KEY]")
-	vector.AddValue("DOCKER_SSH_USER", d.SSHUser)
-	vector.AddValue("DOCKER_SSH_PUBLIC_KEY", string(pubKey))
-	contextScript64 := base64.StdEncoding.EncodeToString([]byte(contextScript))
-	vector.AddValue("START_SCRIPT_BASE64", contextScript64)
+	template.AddCtx(keys.NetworkCtx, "YES")
+	template.AddCtx(keys.SSHPubKey, "$USER[SSH_PUBLIC_KEY]")
+	template.AddCtx("DOCKER_SSH_USER", d.SSHUser)
+	template.AddCtx("DOCKER_SSH_PUBLIC_KEY", string(pubKey))
+	template.AddB64Ctx(keys.StartScriptB64, contextScript)
 
 	// Instantiate
 	log.Infof("Starting	 VM..")
@@ -471,7 +476,7 @@ func (d *Driver) Create() error {
 		var templateID int
 
 		if d.TemplateName != "" {
-			templateID, err = d.Controller.Templates().ByName(d.TemplateName)
+			templateID, err = controller.Templates().ByName(d.TemplateName)
 			if err != nil {
 				return err
 			}
@@ -482,17 +487,19 @@ func (d *Driver) Create() error {
 			}
 		}
 
-		vmtemplate := d.Controller.Template(templateID)
+		vmtemplate := controller.Template(templateID)
 
-		_, err = vmtemplate.Instantiate(d.MachineName, false, template.String(), false)
+		instanceID, err = vmtemplate.Instantiate(d.MachineName, false, template.String(), false)
 
 	} else {
-		_, err = d.Controller.VMs().Create(template.String(), false)
+		instanceID, err = controller.VMs().Create(template.String(), false)
 	}
 
 	if err != nil {
 		return err
 	}
+
+	d.MachineId = instanceID
 
 	if d.IPAddress, err = d.GetIP(); err != nil {
 		return err
@@ -510,21 +517,29 @@ func (d *Driver) GetURL() (string, error) {
 }
 
 func (d *Driver) GetIP() (string, error) {
-	d.setController()
+	controller := d.getController()
 
-	vm_id, err := d.Controller.VMs().ByName(d.MachineName)
+	var err2 error
+	var vm_id int
+
+	if d.MachineId == 0 {
+		vm_id, err2 = controller.VMs().ByName(d.MachineName)
+		if err2 != nil {
+			return "", err2
+		}
+		d.MachineId = vm_id
+	}
+
+	vm, err := controller.VM(d.MachineId).Info(false)
 	if err != nil {
 		return "", err
 	}
 
-	vm, err := d.Controller.VM(vm_id).Info()
-	if err != nil {
-		return "", err
-	}
+	if len(vm.Template.GetNICs()) > 0 {
+		ip, err := vm.Template.GetNICs()[0].Get(shared_schemas.IP)
 
-	if len(vm.Template.NICs) > 0 {
-		if vm.Template.NICs[0].IP != "" {
-			d.IPAddress = vm.Template.NICs[0].IP
+		if err == nil && ip != "" {
+			d.IPAddress = ip
 		}
 	}
 
@@ -536,14 +551,20 @@ func (d *Driver) GetIP() (string, error) {
 }
 
 func (d *Driver) GetState() (state.State, error) {
-	d.setController()
+	controller := d.getController()
 
-	vm_id, err := d.Controller.VMs().ByName(d.MachineName)
-	if err != nil {
-		return state.None, err
+	var err2 error
+	var vm_id int
+
+	if d.MachineId == 0 {
+		vm_id, err2 = controller.VMs().ByName(d.MachineName)
+		if err2 != nil {
+			return state.None, err2
+		}
+		d.MachineId = vm_id
 	}
 
-	vm, err := d.Controller.VM(vm_id).Info()
+	vm, err := controller.VM(d.MachineId).Info(false)
 	if err != nil {
 		return state.None, err
 	}
@@ -651,14 +672,20 @@ func (d *Driver) GetState() (state.State, error) {
 }
 
 func (d *Driver) Start() error {
-	d.setController()
+	controller := d.getController()
 
-	vm_id, err := d.Controller.VMs().ByName(d.MachineName)
-	if err != nil {
-		return err
+	var err error
+	var vm_id int
+
+	if d.MachineId == 0 {
+		vm_id, err = controller.VMs().ByName(d.MachineName)
+		if err != nil {
+			return err
+		}
+		d.MachineId = vm_id
 	}
 
-	vm := d.Controller.VM(vm_id)
+	vm := controller.VM(d.MachineId)
 	vm.Resume()
 
 	s := state.None
@@ -690,15 +717,21 @@ func (d *Driver) Start() error {
 }
 
 func (d *Driver) Stop() error {
-	d.setController()
+	controller := d.getController()
 
-	vm_id, err := d.Controller.VMs().ByName(d.MachineName)
-	if err != nil {
-		return err
+	var err2 error
+	var vm_id int
+
+	if d.MachineId == 0 {
+		vm_id, err2 = controller.VMs().ByName(d.MachineName)
+		if err2 != nil {
+			return err2
+		}
+		d.MachineId = vm_id
 	}
 
-	vm := d.Controller.VM(vm_id)
-	err = vm.Poweroff()
+	vm := controller.VM(d.MachineId)
+	err := vm.Poweroff()
 	if err != nil {
 		return err
 	}
@@ -707,15 +740,21 @@ func (d *Driver) Stop() error {
 }
 
 func (d *Driver) Remove() error {
-	d.setController()
+	controller := d.getController()
 
-	vm_id, err := d.Controller.VMs().ByName(d.MachineName)
-	if err != nil {
-		return err
+	var err2 error
+	var vm_id int
+
+	if d.MachineId == 0 {
+		vm_id, err2 = controller.VMs().ByName(d.MachineName)
+		if err2 != nil {
+			return err2
+		}
+		d.MachineId = vm_id
 	}
 
-	vm := d.Controller.VM(vm_id)
-	err = vm.TerminateHard()
+	vm := controller.VM(d.MachineId)
+	err := vm.TerminateHard()
 	if err != nil {
 		return err
 	}
@@ -724,15 +763,21 @@ func (d *Driver) Remove() error {
 }
 
 func (d *Driver) Restart() error {
-	d.setController()
+	controller := d.getController()
 
-	vm_id, err := d.Controller.VMs().ByName(d.MachineName)
-	if err != nil {
-		return err
+	var err2 error
+	var vm_id int
+
+	if d.MachineId == 0 {
+		vm_id, err2 = controller.VMs().ByName(d.MachineName)
+		if err2 != nil {
+			return err2
+		}
+		d.MachineId = vm_id
 	}
 
-	vm := d.Controller.VM(vm_id)
-	err = vm.Reboot()
+	vm := controller.VM(d.MachineId)
+	err := vm.Reboot()
 	if err != nil {
 		return err
 	}
@@ -741,16 +786,26 @@ func (d *Driver) Restart() error {
 }
 
 func (d *Driver) Kill() error {
-	d.setController()
+	controller := d.getController()
 
-	vm_id, err := d.Controller.VMs().ByName(d.MachineName)
+	var err2 error
+	var vm_id int
+
+	if d.MachineId == 0 {
+		vm_id, err2 = controller.VMs().ByName(d.MachineName)
+		if err2 != nil {
+			return err2
+		}
+		d.MachineId = vm_id
+	}
+
+	vm := controller.VM(d.MachineId)
+	err := vm.PoweroffHard()
 	if err != nil {
 		return err
 	}
 
-	vm := d.Controller.VM(vm_id)
-
-	return vm.PoweroffHard()
+	return nil
 }
 
 func (d *Driver) publicSSHKeyPath() string {

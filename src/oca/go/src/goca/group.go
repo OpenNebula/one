@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -85,8 +85,8 @@ func (gc *GroupsController) Info() (*group.Pool, error) {
 }
 
 // Info retrieves information for the group.
-func (gc *GroupController) Info() (*group.Group, error) {
-	response, err := gc.c.Client.Call("one.group.info", gc.ID)
+func (gc *GroupController) Info(decrypt bool) (*group.Group, error) {
+	response, err := gc.c.Client.Call("one.group.info", gc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -114,8 +114,8 @@ func (gc *GroupController) Delete() error {
 	return err
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update adds group content.
+// * tpl: The new group contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (gc *GroupController) Update(tpl string, uType parameters.UpdateType) error {

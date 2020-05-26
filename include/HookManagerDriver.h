@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,6 +23,7 @@
 
 #include "Mad.h"
 #include "VirtualMachinePool.h"
+#include "HookLog.h"
 
 using namespace std;
 
@@ -39,9 +40,8 @@ public:
     HookManagerDriver(
         int                       userid,
         const map<string,string>& attrs,
-        bool                      sudo,
-        VirtualMachinePool *      _vmpool)
-            : Mad(userid,attrs,sudo), vmpool(_vmpool){};
+        bool                      sudo)
+            : Mad(userid,attrs,sudo) {};
 
     virtual ~HookManagerDriver(){};
 
@@ -84,11 +84,15 @@ public:
         const string&   command,
         const string&   arguments ) const;
 
+    void execute(
+        const string&   message ) const;
+
+    void retry(
+        const string&   message ) const;
+
 private:
 
     friend class            HookManager;
-
-    VirtualMachinePool *    vmpool;
 };
 
 /* -------------------------------------------------------------------------- */

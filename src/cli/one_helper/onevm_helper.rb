@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -345,15 +345,15 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 OneVMHelper.state_to_str(d['STATE'], d['LCM_STATE'])
             end
 
-            column :UCPU, 'CPU percentage used by the VM', :size => 4 do |d|
-                cpu = d['MONITORING']['CPU']
+            column :CPU, 'CPU asigned to the VM', :size => 4 do |d|
+                cpu = d['TEMPLATE']['CPU']
                 cpu = '0' if cpu.nil?
 
                 cpu
             end
 
-            column :UMEM, 'Memory used by the VM', :size => 7 do |d|
-                OpenNebulaHelper.unit_to_str(d['MONITORING']['MEMORY'].to_i,
+            column :MEM, 'Memory asigned to the VM', :size => 7 do |d|
+                OpenNebulaHelper.unit_to_str(d['TEMPLATE']['MEMORY'].to_i,
                                              options)
             end
 
@@ -395,7 +395,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 OneVMHelper.ip_str(d)
             end
 
-            default :ID, :USER, :GROUP, :NAME, :STAT, :UCPU, :UMEM, :HOST,
+            default :ID, :USER, :GROUP, :NAME, :STAT, :CPU, :MEM, :HOST,
                     :TIME
         end
 
@@ -457,7 +457,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
             tmp_str << "\nSCHED_ACTION = "
             tmp_str << "[ID = #{id}, ACTION = #{action}, "
-            tmp str << "TIME = #{options[:schedule].to_i}"
+            tmp_str << "ARGS = \"#{options[:args]}\"," if options[:args]
+            tmp_str << "TIME = #{options[:schedule].to_i}"
             tmp_str << str_periodic << ']'
 
             vm.update(tmp_str)
@@ -1149,6 +1150,10 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
                 column :ACTION, '', :left, :size => 15 do |d|
                     d['ACTION'] unless d.nil?
+                end
+
+                column :ARGS, '', :left, :size => 15 do |d|
+                    d['ARGS'] ? d['ARGS'] : '-'
                 end
 
                 column :SCHEDULED, '', :size => 12 do |d|

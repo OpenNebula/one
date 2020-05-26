@@ -37,15 +37,22 @@
             'vnc_wss' : '<%= session[:vnc_wss] %>',
             'table_order' : '<%= session[:table_order] %>',
             'default_view' : '<%= session[:default_view] %>',
-            'page_length' : '<%= session[:page_length] %>'
+            'page_length' : '<%= session[:page_length] %>',
+            'threshold_min' : '<%= $conf[:threshold_min] %>',
+            'threshold_low' : '<%= $conf[:threshold_low] %>',
+            'threshold_high' : '<%= $conf[:threshold_high] %>',
         },
         'system_config' : {
+            'paginate': '<%= $conf[:paginate] %>',
             'marketplace_url' : '<%= $conf[:marketplace_url] %>',
             'vnc_request_password' : <%= $conf[:vnc_request_password] || false %>,
             'vnc_proxy_port' : '<%= $vnc.proxy_port %>',
             'vnc_client_port' : '<%= $conf[:vnc_client_port] %>',
             'allow_vnc_federation' : '<%= (!$conf[:allow_vnc_federation].nil?)? $conf[:allow_vnc_federation] : "no" %>',
-            'max_upload_file_size' : <%= $conf[:max_upload_file_size] ? $conf[:max_upload_file_size] : "undefined" %>
+            'max_upload_file_size' : <%= $conf[:max_upload_file_size] ? $conf[:max_upload_file_size] : "undefined" %>,
+            'leases' : <%= $conf[:leases] ? $conf[:leases].to_json : "null" %>,
+            'mapped_ips' : '<%= $conf[:mapped_ips] ? $conf[:mapped_ips] : false %>',
+            'get_extended_vm_info': '<%= $conf[:get_extended_vm_info] ? $conf[:get_extended_vm_info] : false %>'
         },
         'view' : view,
         'available_views' : available_views,
@@ -87,7 +94,7 @@
           </ul>
         </div>
       <div id="footer" class="text-center large-12 columns">
-        <a href="http://opennebula.org" target="_blank">OpenNebula <%= OpenNebula::VERSION %></a>
+        <a href="http://opennebula.io" target="_blank">OpenNebula <%= OpenNebula::VERSION %></a>
         <div id="latest_version" style="display:none;"></div>
         <p>by <a href="http://OpenNebula.systems" target="_blank">OpenNebula Systems</a>.</p>
       </div>

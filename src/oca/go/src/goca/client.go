@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -92,12 +92,25 @@ func NewConfig(user string, password string, endpoint string) OneConfig {
 	return config
 }
 
-// NewClient return a new basic one client
-func NewClient(conf OneConfig) *Client {
+// NewDefaultClient return a new basic one client
+func NewDefaultClient(conf OneConfig) *Client {
 	return &Client{
 		url:        conf.Endpoint,
 		token:      conf.Token,
 		httpClient: cleanhttp.DefaultPooledClient(),
+	}
+}
+
+// NewClient return a new one client that allows setting a custom http.Client.
+// If the httpClient is nil, it will return a NewDefaultClient
+func NewClient(conf OneConfig, httpClient *http.Client) *Client {
+	if httpClient == nil {
+		return NewDefaultClient(conf)
+	}
+	return &Client{
+		url:        conf.Endpoint,
+		token:      conf.Token,
+		httpClient: httpClient,
 	}
 }
 

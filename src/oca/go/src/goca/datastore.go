@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -86,8 +86,8 @@ func (dc *DatastoresController) Info() (*datastore.Pool, error) {
 }
 
 // Info retrieves information for the datastore.
-func (dc *DatastoreController) Info() (*datastore.Datastore, error) {
-	response, err := dc.c.Client.Call("one.datastore.info", dc.ID)
+func (dc *DatastoreController) Info(decrypt bool) (*datastore.Datastore, error) {
+	response, err := dc.c.Client.Call("one.datastore.info", dc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -118,8 +118,8 @@ func (dc *DatastoreController) Delete() error {
 	return err
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update replaces the datastore contents.
+// * tpl: The new datastore contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (dc *DatastoreController) Update(tpl string, uType parameters.UpdateType) error {
@@ -129,7 +129,8 @@ func (dc *DatastoreController) Update(tpl string, uType parameters.UpdateType) e
 
 // Chmod changes the permission bits of a datastore.
 func (dc *DatastoreController) Chmod(perm *shared.Permissions) error {
-	_, err := dc.c.Client.Call("one.datastore.chmod", perm.ToArgs(dc.ID)...)
+	args := append([]interface{}{dc.ID}, perm.ToArgs()...)
+	_, err := dc.c.Client.Call("one.datastore.chmod", args...)
 	return err
 }
 

@@ -27,12 +27,16 @@ end
 
 if RUBY_VERSION < '2.2.0'
     gem 'rack', '< 2.0.0'                 # sunstone, cloud, oneflow
+    gem 'minitest', '< 5.12.0'            # packethost
+    gem 'pg', '< 1.2.0'                   # onedb
 else
     gem 'rack'                            # sunstone, cloud, oneflow
+    gem 'pg'                              # onedb
 end
 
 if RUBY_VERSION >= '2.4.0'
     gem 'xmlrpc'
+    gem 'webauthn'                        # sunstone
 end
 
 if RUBY_VERSION < '2.1'
@@ -41,27 +45,39 @@ end
 
 if RUBY_VERSION < '2.3'
     gem 'zendesk_api', '< 1.17.0'         # sunstone
+    gem 'rqrcode', '< 1.0.0'              # sunstone
 else
     gem 'zendesk_api'                     # sunstone
+    gem 'rqrcode'                         # sunstone
 end
 
+if RUBY_VERSION >= '2.3'
+    gem 'vsphere-automation-cis', '~> 0.4.6'
+    gem 'vsphere-automation-vcenter', '~> 0.4.6'
+end
+
+gem 'json'                                # sunstone, oneflow, cloud, ...
 gem 'sqlite3'                             # quota, onedb
 gem 'treetop', '>= 1.6.3'                 # oneflow
 gem 'sequel'                              # quota, oneb
 gem 'sinatra'                             # sunstone, cloud, oneflow
 gem 'thin'                                # sunstone, cloud
 gem 'memcache-client'                     # sunstone
+gem 'dalli'                               # sunstone
 gem 'rotp'                                # sunstone
-gem 'rqrcode'                             # sunstone
 gem 'amazon-ec2'                          # cloud
 gem 'uuidtools'                           # cloud
 gem 'curb'                                # cloud
 gem 'configparser'                        # hybrid
-gem 'azure'                               # hybrid
-gem 'builder'                             # vmware
-gem 'trollop'                             # vmware
+gem 'azure_mgmt_compute'                  # hybrid
+gem 'azure_mgmt_monitor'                  # hybrid
+gem 'azure_mgmt_network'                  # hybrid
+gem 'azure_mgmt_resources'                # hybrid
+gem 'azure_mgmt_storage'                  # hybrid
+gem 'rbvmomi', '~> 2.2.0'                 # vmware
 gem 'parse-cron'                          # oneflow
-gem 'aws-sdk', '~> 2.5'                   # ec2_hybrid
+gem 'aws-sdk-ec2', '>=1.151'              # ec2_hybrid
+gem 'aws-sdk-cloudwatch'                  # ec2_hybrid
 gem 'ox'                                  # oca
 gem 'highline', '~> 1.7'                  # oneprovision
 gem 'faraday', '~> 0.15'                  # packethost
@@ -69,3 +85,5 @@ gem 'faraday_middleware', '~> 0.12'       # packethost
 gem 'activesupport', '~> 4.2'             # packethost
 gem 'i18n', '~> 0.9'                      # packethost
 gem 'ffi-rzmq', '~> 2.0.7'                # onehem (hooks)
+gem 'ipaddress', '~> 0.8.3'               # sunstone, oneflow
+gem 'augeas', '~> 0.6'                    # serversync

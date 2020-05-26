@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -21,26 +21,27 @@ import (
 	"testing"
 
 	vn "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/virtualnetwork"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/virtualnetwork/keys"
 )
-
-var vnTpl = `
-NAME = "vntest"
-BRIDGE = "vnetbr"
-PHYDEV = "eth0"
-SECURITY_GROUPS = 0
-VLAN_ID = 8000042
-VN_MAD = "vxlan"
-`
 
 // Helper to create a Virtual Network
 func createVirtualNetwork(t *testing.T) (*vn.VirtualNetwork, int) {
-	id, err := testCtrl.VirtualNetworks().Create(vnTpl, -1)
+
+	vnTpl := vn.NewTemplate()
+	vnTpl.Add(keys.Name, "vntest")
+	vnTpl.Add(keys.Bridge, "vnetbr")
+	vnTpl.Add(keys.PhyDev, "eth0")
+	vnTpl.Add(keys.SecGroups, "0")
+	vnTpl.Add(keys.VlanID, "8000042")
+	vnTpl.Add(keys.VNMad, "vxlan")
+
+	id, err := testCtrl.VirtualNetworks().Create(vnTpl.String(), -1)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Get Virtual Network by ID
-	vnet, err := testCtrl.VirtualNetwork(id).Info()
+	vnet, err := testCtrl.VirtualNetwork(id).Info(false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -67,7 +68,7 @@ func TestVirtualNetwork(t *testing.T) {
 	}
 
 	vnetC := testCtrl.VirtualNetwork(id)
-	vnet, err = vnetC.Info()
+	vnet, err = vnetC.Info(false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -83,7 +84,7 @@ func TestVirtualNetwork(t *testing.T) {
 		t.Error(err)
 	}
 
-	vnet, err = vnetC.Info()
+	vnet, err = vnetC.Info(false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -116,7 +117,7 @@ func TestVirtualNetwork(t *testing.T) {
 		t.Error(err)
 	}
 
-	vnet, err = vnetC.Info()
+	vnet, err = vnetC.Info(false)
 	if err != nil {
 		t.Error(err)
 	}

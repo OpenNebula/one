@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,6 +19,23 @@
 #include "RequestManagerVirtualMachine.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
+#include "DispatchManager.h"
+#include "VirtualRouterPool.h"
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+RequestManagerVirtualRouter::RequestManagerVirtualRouter(const string& method_name,
+                                                         const string& help,
+                                                         const string& params)
+    : Request(method_name, params, help)
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_vrouterpool();
+
+    auth_object = PoolObjectSQL::VROUTER;
+    auth_op     = AuthRequest::MANAGE;
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -41,7 +58,6 @@ void VirtualRouterInstantiate::request_execute(
     VMTemplatePool*     tpool = nd.get_tpool();
 
     PoolObjectAuth vr_perms;
-    Template*      extra_attrs;
     string         error;
     string         vr_name, tmp_name;
     ostringstream  oss;
@@ -65,7 +81,7 @@ void VirtualRouterInstantiate::request_execute(
 
     vr->get_permissions(vr_perms);
 
-    extra_attrs = vr->get_vm_template();
+    std::unique_ptr<Template> extra_attrs{vr->get_vm_template()};
     vr_name     = vr->get_name();
 
     if (tmpl_id == -1)
@@ -129,7 +145,7 @@ void VirtualRouterInstantiate::request_execute(
         tmp_name = one_util::gsub(name, "%i", oss.str());
 
         ErrorCode ec = tmpl_instantiate.request_execute(tmpl_id, tmp_name,
-                true, str_uattrs, extra_attrs, vid, att);
+                true, str_uattrs, extra_attrs.get(), vid, att);
 
         if (ec != SUCCESS)
         {

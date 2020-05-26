@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -39,7 +39,7 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
     bool                        sudo,
     VirtualMachinePool *        pool):
         Mad(userid,attrs,sudo), driver_conf(true), keep_snapshots(false),
-        ds_live_migration(false), vmpool(pool)
+        ds_live_migration(false), cold_nic_attach(false), vmpool(pool)
 {
     map<string,string>::const_iterator  it;
     char *          error_msg = nullptr;
@@ -100,9 +100,14 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
     driver_conf.get("KEEP_SNAPSHOTS", keep_snapshots);
 
     // -------------------------------------------------------------------------
-    // Parse KEEP_SNAPSHOTS
+    // Parse DS_LIVE_MIGRATION
     // -------------------------------------------------------------------------
     driver_conf.get("DS_LIVE_MIGRATION", ds_live_migration);
+
+    // -------------------------------------------------------------------------
+    // Parse COLD_NIC_ATTACH
+    // -------------------------------------------------------------------------
+    driver_conf.get("COLD_NIC_ATTACH", cold_nic_attach);
 
     // -------------------------------------------------------------------------
     // Parse IMPORTED_VMS_ACTIONS string and init the action set
@@ -115,29 +120,29 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
     }
     else
     {
-		NebulaLog::log("VMM", Log::INFO, "Using default imported VMs actions");
+        NebulaLog::log("VMM", Log::INFO, "Using default imported VMs actions");
 
-		it = attrs.find("NAME");
+        it = attrs.find("NAME");
 
-		if (it != attrs.end())
-		{
-			if ( it->second == "kvm" || it->second == "xen" )
-			{
-				action_defaults = imported_actions_default;
-			}
-			else if ( it->second == "sl" || it->second == "ec2" ||
-			          it->second == "az" || it->second == "vcenter" )
-			{
+        if (it != attrs.end())
+        {
+            if ( it->second == "kvm" || it->second == "xen" )
+            {
+                action_defaults = imported_actions_default;
+            }
+            else if ( it->second == "sl" || it->second == "ec2" ||
+                      it->second == "az" || it->second == "vcenter" )
+            {
                 action_defaults = imported_actions_default_public;
-			}
-		}
+            }
+        }
     }
 
     vector<string> actions;
     vector<string>::iterator vit;
 
     string action;
-    History::VMAction id;
+    VMActions::Action id;
 
     actions = one_util::split(action_defaults, ',');
 
@@ -145,7 +150,7 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
     {
         action = one_util::trim(*vit);
 
-        if ( History::action_from_str(action, id) != 0 )
+        if ( VMActions::action_from_str(action, id) != 0 )
         {
             NebulaLog::log("VMM", Log::ERROR, "Wrong action: " + action);
             continue;
@@ -180,29 +185,6 @@ static void log_error(VirtualMachine* vm,
     {
         os << ": " << info;
         vm->set_template_error_message(os.str());
-    }
-
-    vm->log("VMM",Log::ERROR,os);
-}
-
-/* -------------------------------------------------------------------------- */
-
-static void log_monitor_error(VirtualMachine* vm,
-                      ostringstream&  os,
-                      istringstream&  is,
-                      const char *    msg)
-{
-    string info;
-
-    getline(is,info);
-
-    os.str("");
-    os << msg;
-
-    if (!info.empty() && info[0] != '-')
-    {
-        os << ": " << info;
-        vm->set_template_monitor_error(os.str());
     }
 
     vm->log("VMM",Log::ERROR,os);
@@ -677,19 +659,19 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     }
     else if ( action == "POLL" )
     {
-        if (result == "SUCCESS")
-        {
-            string monitor_str;
-            getline(is, monitor_str);
+        // if (result == "SUCCESS")
+        // {
+        //     string monitor_str;
+        //     getline(is, monitor_str);
 
-            process_poll(vm, monitor_str);
-        }
-        else
-        {
-            log_monitor_error(vm, os, is, "Error monitoring VM");
+        //     process_poll(vm, monitor_str);
+        // }
+        // else
+        // {
+        //     log_monitor_error(vm, os, is, "Error monitoring VM");
 
-            lcm->trigger(LCMAction::MONITOR_DONE, vm->get_oid());
-        }
+        //     lcm->trigger(LCMAction::MONITOR_DONE, vm->get_oid());
+        // }
     }
     else if (action == "LOG")
     {
@@ -700,143 +682,6 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     }
 
     vm->unlock();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineManagerDriver::process_poll(int id,const string& monitor_str)
-{
-    // Get the VM from the pool
-    VirtualMachine* vm = Nebula::instance().get_vmpool()->get(id);
-
-    if ( vm == nullptr )
-    {
-        return;
-    }
-
-    process_poll(vm, monitor_str);
-
-    vm->unlock();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineManagerDriver::process_poll(VirtualMachine* vm,
-    const string& monitor_str)
-{
-    char state;
-    time_t update_time;
-
-    Nebula &ne = Nebula::instance();
-
-    LifeCycleManager* lcm      = ne.get_lcm();
-    VirtualMachinePool* vmpool = ne.get_vmpool();
-
-    /* ---------------------------------------------------------------------- */
-    /* Update VM info only for VMs in ACTIVE                                  */
-    /* ---------------------------------------------------------------------- */
-    ne.get_configuration_attribute("MONITORING_INTERVAL_DB_UPDATE", update_time);
-
-    if (vm->get_state() == VirtualMachine::ACTIVE && update_time != -1 &&
-            (time(0) - vm->get_last_poll() > update_time))
-    {
-        if (vm->update_info(monitor_str) == 0)
-        {
-            vmpool->update_history(vm);
-
-            vmpool->update_monitoring(vm);
-        }
-
-        vmpool->update(vm);
-
-        VirtualMachineMonitorInfo &minfo = vm->get_info();
-
-        state = minfo.remove_state();
-    }
-    else
-    {
-        VirtualMachineMonitorInfo minfo;
-        string error;
-
-        if (minfo.update(monitor_str, error) != 0)
-        {
-            ostringstream oss;
-
-            oss << "Ignoring monitoring information, error:" << error
-                << ". Monitor information was: " << monitor_str;
-
-            NebulaLog::log("VMM", Log::ERROR, oss);
-
-            return;
-        };
-
-        state = minfo.remove_state();
-    }
-
-    /* ---------------------------------------------------------------------- */
-    /* Process the VM state from the monitoring info                          */
-    /* ---------------------------------------------------------------------- */
-
-    switch (state)
-    {
-        case 'a': // Active
-
-            if ( vm->get_state() == VirtualMachine::POWEROFF ||
-                 (vm->get_state() == VirtualMachine::ACTIVE &&
-                 (  vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN  ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE_FAILURE ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED_FAILURE ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY_FAILURE ||
-                    vm->get_lcm_state() == VirtualMachine::BOOT_FAILURE )))
-            {
-                lcm->trigger(LCMAction::MONITOR_POWERON, vm->get_oid());
-            }
-
-            break;
-
-        case 'p': // It's paused
-            if ( vm->get_state() == VirtualMachine::ACTIVE &&
-                ( vm->get_lcm_state() == VirtualMachine::RUNNING ||
-                  vm->get_lcm_state() == VirtualMachine::UNKNOWN ))
-            {
-                vm->log("VMM",Log::INFO, "VM running but monitor state is PAUSED.");
-
-                lcm->trigger(LCMAction::MONITOR_SUSPEND, vm->get_oid());
-            }
-            break;
-
-        case 'e': //Failed
-            if ( vm->get_state() == VirtualMachine::ACTIVE &&
-                ( vm->get_lcm_state() == VirtualMachine::RUNNING ||
-                  vm->get_lcm_state() == VirtualMachine::UNKNOWN ))
-            {
-                vm->log("VMM",Log::INFO,"VM running but monitor state is ERROR.");
-
-                lcm->trigger(LCMAction::MONITOR_DONE, vm->get_oid());
-            }
-            break;
-
-        case 'd': //The VM was powered-off
-            if ( vm->get_state() == VirtualMachine::ACTIVE &&
-                ( vm->get_lcm_state() == VirtualMachine::RUNNING ||
-                  vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
-                  vm->get_lcm_state() == VirtualMachine::SHUTDOWN ||
-                  vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF ||
-                  vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY ))
-            {
-                lcm->trigger(LCMAction::MONITOR_POWEROFF, vm->get_oid());
-            }
-            break;
-    }
 }
 
 /* -------------------------------------------------------------------------- */

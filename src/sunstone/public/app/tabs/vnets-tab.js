@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,7 +26,9 @@ define(function(require) {
   var _dialogs = [
     require('./vnets-tab/dialogs/add-ar'),
     require('./vnets-tab/dialogs/update-ar'),
-    require('./vnets-tab/dialogs/reserve')
+    require('./vnets-tab/dialogs/reserve'),
+    require('./vnets-templates-tab/dialogs/instantiate-add-ar'),
+    require('./vnets-tab/dialogs/add-secgroups')
   ];
 
   var _panels = [

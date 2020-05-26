@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -29,6 +29,7 @@ define(function(require) {
   var AUTH_DRIVER_DIALOG_ID = require("./dialogs/auth-driver/dialogId");
   var QUOTAS_DIALOG_ID = require("./dialogs/quotas/dialogId");
   var GROUPS_DIALOG_ID = require("./dialogs/groups/dialogId");
+  var TWO_FACTOR_AUTH_DIALOG_ID = require('tabs/users-tab/dialogs/two-factor-auth/dialogId');
 
   var RESOURCE = "User";
   var XML_ROOT = "USER";
@@ -190,6 +191,62 @@ define(function(require) {
         } else {
           Sunstone.runAction(RESOURCE+'.show',reqId);
         }
+      },
+      error: Notifier.onError
+    },
+
+    "User.enable_sunstone_security_key" : {
+      type: "single",
+      call: OpenNebulaResource.enable_sunstone_security_key,
+      callback: function(request, response) {
+        OpenNebulaResource.show({
+          data : {
+            id: request.request.data[0]
+          },
+          success: function(request, response) {
+            var sunstone_template = {};
+            if (response[XML_ROOT].TEMPLATE.SUNSTONE) {
+              $.extend(sunstone_template, response[XML_ROOT].TEMPLATE.SUNSTONE);
+            }
+            Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).hide();
+            Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).setParams({
+              element: response[XML_ROOT],
+              sunstone_setting: sunstone_template
+            });
+            Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).reset();
+            Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).show();
+          },
+          error: Notifier.onError
+        });
+        Sunstone.runAction("Settings.refresh");
+      },
+      error: Notifier.onError
+    },
+
+    "User.disable_sunstone_security_key" : {
+      type: "single",
+      call: OpenNebulaResource.disable_sunstone_security_key,
+      callback: function(request, response) {
+        OpenNebulaResource.show({
+          data : {
+            id: request.request.data[0]
+          },
+          success: function(request, response) {
+            var sunstone_template = {};
+            if (response[XML_ROOT].TEMPLATE.SUNSTONE) {
+              $.extend(sunstone_template, response[XML_ROOT].TEMPLATE.SUNSTONE);
+            }
+            Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).hide();
+            Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).setParams({
+              element: response[XML_ROOT],
+              sunstone_setting: sunstone_template
+            });
+            Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).reset();
+            Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).show();
+          },
+          error: Notifier.onError
+        });
+        Sunstone.runAction("Settings.refresh");
       },
       error: Notifier.onError
     },

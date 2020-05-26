@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -16,9 +16,9 @@
   {{!-- {{#isFeatureEnabled "automatic_selection_vnet"}} --}}
   <div class="only_create">
     <div class="row autoContainer">
-      <div class="large-12 large-centered columns">
-        <fieldset id="{{nicTabId}}interface_type">
-            <legend>{{tr "Interface type"}}</legend>
+      <div class="large-12 large-centered columns" style="display:inline-flex;justify-content:start;">
+        <fieldset id="{{nicTabId}}interface_type" class="small-12 large-4 columns">
+            <legend style="margin:0px;">{{tr "Interface type"}}</legend>
             <div class="switch left">
               <input class="switch-input" id="{{nicTabId}}_interface_type" type="checkbox">
               <label class="switch-paddle" for="{{nicTabId}}_interface_type">
@@ -35,8 +35,8 @@
             </span>
             <select id="{{nicTabId}}_alias_parent" style="width: 200px; margin-left: 5px"></select>
         </fieldset>
-        <fieldset>
-            <legend>{{tr "Network selection"}}</legend>
+        <fieldset class="small-12 large-4 columns">
+            <legend style="margin:0px;">{{tr "Network selection"}}</legend>
             <div class="switch left network_selection">
               <input class="switch-input" id="{{nicTabId}}_network_mode" type="checkbox">
               <label class="switch-paddle" for="{{nicTabId}}_network_mode">
@@ -45,7 +45,20 @@
             <label class="left network_selection">
               &nbsp;&nbsp;
               {{tr "Automatic selection"}}
-              {{{tip (tr "The Schedule will decide which is the bets virtual network")}}}
+              {{{tip (tr "The Schedule will decide which is the best virtual network")}}}
+            </label>
+        </fieldset class="small-12 large-4 columns">
+        <fieldset id="rdp_connection" class="small-12 large-4 columns">
+            <legend style="margin:0px;">{{tr "RDP connection"}}</legend>
+            <div class="switch left">
+              <input class="switch-input" id="{{nicTabId}}_rdp" type="checkbox">
+              <label class="switch-paddle" for="{{nicTabId}}_rdp">
+              </label>
+            </div>
+            <label class="left">
+              &nbsp;&nbsp;
+              {{tr "Activate"}}
+              {{{tip (tr "RDP will be activate in this network")}}}
             </label>
         </fieldset>
       </div>
@@ -229,7 +242,7 @@
       </div>
     </div>
   </fieldset>
-  <fieldset>
+  <fieldset class="not_firecracker">
     <legend>{{tr "Override Network Inbound Traffic QoS"}}</legend>
     <div class="row">
       <div class="medium-4 columns">
@@ -252,7 +265,7 @@
       </div>
     </div>
   </fieldset>
-  <fieldset>
+  <fieldset class="not_firecracker">
     <legend>{{tr "Override Network Outbound Traffic QoS"}}</legend>
     <div class="row">
       <div class="medium-4 columns">
@@ -275,7 +288,7 @@
       </div>
     </div>
   </fieldset>
-  <fieldset>
+  <fieldset class="not_firecracker">
     <legend>{{tr "Hardware"}}</legend>
     <div class="row">
       <div class="small-12 columns">

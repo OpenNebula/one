@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,12 +19,14 @@ define(function(require) {
     DEPENDENCIES
    */
 
+
   var Locale = require("utils/locale");
   var Sunstone = require("sunstone");
   var Humanize = require("utils/humanize");
   var TemplateUtils = require("utils/template-utils");
   var Config = require("sunstone-config");
   var ScheduleActions = require("utils/schedule_action");
+  var Leases = require("utils/leases");
 
   /*
     CONSTANTS
@@ -33,8 +35,8 @@ define(function(require) {
   var TAB_ID = require("../tabId");
   var PANEL_ID = require("./actions/panelId");
   var RESOURCE = "VM";
+  var RESOURCE_SCHED_ACTIONS = 'vms'
   var XML_ROOT = "VM";
-
   /*
     CONSTRUCTOR
    */
@@ -61,9 +63,9 @@ define(function(require) {
 
   function _html() {
     var that = this;
-    var html = "<div class=\"row\">\
-      <div class=\"large-12 columns\">\
-        <table id=\"scheduling_vms_actions_table\" class=\"info_table dataTable\">\
+    var html = "<div class='row'>\
+      <div class='large-12 columns'>\
+        <table id='scheduling_vms_actions_table' class='info_table dataTable'>\
          <thead>\
            <tr>\
               <th>" + Locale.tr("ID") + "</th>\
@@ -73,30 +75,64 @@ define(function(require) {
               <th>" + Locale.tr("End") + "</th>\
               <th>" + Locale.tr("Done") + "</th>\
               <th>" + Locale.tr("Message") + "</th>\
-              <th colspan=\"\"> </th>\
-              <th><button id=\"add_scheduling_vms_action\" class=\"button small success right radius\" >" + Locale.tr("Add action") + "</button></th>\
+              <th colspan=''> </th>\
+              <th><button id='add_scheduling_vms_action' class='button small success right radius' >" + Locale.tr("Add action") + "</button></th>\
+              <th>" + Leases.html() + "</th>\
            </tr>\
           </thead>\
-          <tbody id=\"sched_vms_actions_body\">"+
+          <tbody id='sched_vms_actions_body' class='scheduling_place'>"+
           vmsfromJSONtoActionsTable(that.element.USER_TEMPLATE.SCHED_ACTION) +
          "</tbody>\
          </table>\
         </div>\
       </div>";
 
-    ScheduleActions.htmlTable("vms"); //only charge the resource attribute
+    ScheduleActions.htmlTable(RESOURCE_SCHED_ACTIONS); //only charge the resource attribute
     return html;
   }
 
   function _setup(context) {
+    var CREATE = true;
     var that = this;
-    var actions = ["terminate", "terminate-hard", "hold", "release", "stop", "suspend", "resume", "reboot", "reboot-hard", "poweroff", "poweroff-hard", "undeploy", "undeploy-hard", "snapshot-create"];
-    context.off("click", "#add_scheduling_vms_action");
-    context.on("click", "#add_scheduling_vms_action", function() {
-      $("#add_scheduling_vms_action", context).attr("disabled", "disabled");
-      ScheduleActions.htmlNewAction(actions, context, "vms");
-      ScheduleActions.setup(context);
+    that.formContext = context;
+    Leases.actions(that,'vm','update');
+    var actions = [
+      "terminate", 
+      "terminate-hard", 
+      "hold", 
+      "release", 
+      "stop", 
+      "suspend", 
+      "resume",
+      "reboot", 
+      "reboot-hard", 
+      "poweroff", 
+      "poweroff-hard", 
+      "undeploy", 
+      "undeploy-hard",
+      "snapshot-create",
+      "snapshot-delete", 
+      "snapshot-revert", 
+      "disk-snapshot-create", 
+      "disk-snapshot-delete", 
+      "disk-snapshot-revert"
+    ];
+
+    function renderCreateForm(){
+      if(CREATE){
+        ScheduleActions.htmlNewAction(actions, context, "vms");
+        ScheduleActions.setup(context);
+        CREATE = false;
+      }
       return false;
+    };
+
+    context.off("click", "#add_scheduling_vms_action");
+    context.on("click" , "#add_scheduling_vms_action", function(e){
+      e.preventDefault();
+      renderCreateForm();
+      $("#edit_"+RESOURCE_SCHED_ACTIONS+"_action_json").hide();
+      $("#add_"+RESOURCE_SCHED_ACTIONS+"_action_json").show();
     });
 
     context.off("click", "#add_vms_action_json");
@@ -104,18 +140,41 @@ define(function(require) {
       var sched_action = ScheduleActions.retrieveNewAction(context);
       if (sched_action != false) {
         $("#no_actions_tr", context).remove();
-        $("#sched_vms_actions_body").append(ScheduleActions.fromJSONtoActionsTable(sched_action));
+        $("#sched_vms_actions_body").prepend(ScheduleActions.fromJSONtoActionsTable(sched_action));
       } else {
         return false;
       }
-
       that.element.USER_TEMPLATE.SCHED_ACTION = ScheduleActions.retrieve(context);
-
       // Let OpenNebula know
       var template_str = TemplateUtils.templateToString(that.element.USER_TEMPLATE);
       Sunstone.runAction("VM.update_template", that.element.ID, template_str);
+      return false;
+    });
 
-      $("#add_scheduling_vms_action", context).removeAttr("disabled");
+    context.off("click" , "#edit_vms_action_json").on("click" , "#edit_vms_action_json", function(e){
+      e.preventDefault();
+      var id = $(this).attr("data_id");
+      if(id && id.length){
+        $(".wickedpicker").hide();
+        var sched_action = ScheduleActions.retrieveNewAction(context);
+        if (sched_action != false) {
+          sched_action.ID = id;
+          var sched_actions = ScheduleActions.retrieve(context);
+          if(Array.isArray(sched_actions)){
+            sched_actions = sched_actions.map(function(action){
+              if(action && action.ID && action.ID===id){
+                return sched_action;
+              }else{
+                return action;
+              }
+            })
+          }
+          that.element.USER_TEMPLATE.SCHED_ACTION = sched_actions;
+          var template_str = TemplateUtils.templateToString(that.element.USER_TEMPLATE);
+          Sunstone.runAction("VM.update_template", that.element.ID, template_str);
+        }
+        clear();
+      }
       return false;
     });
 
@@ -126,7 +185,7 @@ define(function(require) {
       var tmp_tmpl = new Array();
 
       $.each(that.element.USER_TEMPLATE.SCHED_ACTION, function(i, element) {
-        if (element.ID != index)
+        if (element.ID && element.ID != index)
           tmp_tmpl[i] = element;
       });
 
@@ -136,7 +195,17 @@ define(function(require) {
       // Let OpenNebula know
       Sunstone.runAction("VM.update_template", that.element.ID, template_str);
     });
-
+    context.off("click", ".edit_action_x");
+    context.on("click", ".edit_action_x", function(e) {
+      e.preventDefault();
+      var id = $(this).attr("data_id");
+      if(id && id.length){
+        renderCreateForm();
+        $("#edit_"+RESOURCE_SCHED_ACTIONS+"_action_json").show().attr("data_id", id);
+        $("#add_"+RESOURCE_SCHED_ACTIONS+"_action_json").hide();
+        ScheduleActions.fill($(this),context);
+      }
+    });
   }
 
   // Returns an HTML string with the json keys and values
@@ -172,17 +241,27 @@ define(function(require) {
     return str;
   }
 
+  function clear(){
+    CREATE = true;
+  }
+
   // Helper for fromJSONtoHTMLTable function
   function vmsfromJSONtoActionRow(scheduling_action) {
     var done_str    = scheduling_action.DONE ? (Humanize.prettyTime(scheduling_action.DONE)) : "";
     var message_str = scheduling_action.MESSAGE ? scheduling_action.MESSAGE : "";
-
-    var str = "<td class=\"done_row\">" + done_str + "</td>\
-       <td class=\"message_row\">" + TemplateUtils.htmlEncode(message_str) + "</td>\
-       <td>\
-         <div>\
-           <a id=\"minus_" + scheduling_action.ID + "\" class=\"remove_action_x\" href=\"#\"><i class=\"fas fa-trash-alt\"/></a>\
-         </div>\
+    var action_id = scheduling_action.ID || '';
+    var update_sched = '';
+    if(action_id){
+      update_sched = "<button id='minus_"+scheduling_action.ID+ "' class='small button btn-warning edit_action_x' data_id='"+action_id+"'><i class='fas fa-edit'></i></button>";
+    }
+    var str = "<td class='done_row'>" + done_str + "</td>\
+       <td class='message_row'>" + TemplateUtils.htmlEncode(message_str) + "</td>\
+       <td colspan='3' style='text-align: right;'>\
+         <div style='display: flex;justify-content: flex-end;'>\
+          <div>\
+            <button id='minus_" + scheduling_action.ID + "' class='small button btn-danger remove_action_x'><i class='fas fa-trash-alt'></i></button>\
+          </div>\
+          <div>"+update_sched+"</div>\
        </td>\
      </tr>";
 

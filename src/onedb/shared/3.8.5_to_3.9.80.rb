@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -291,7 +291,7 @@ module Migrator
             end
 
             @db.fetch("SELECT * FROM old_user_pool WHERE oid>0") do |row|
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+                doc = nokogiri_doc(row[:body], 'old_user_pool')
 
                 set_default_quotas(doc)
 
@@ -329,7 +329,7 @@ module Migrator
             end
 
             @db.fetch("SELECT * FROM old_group_pool WHERE oid>0") do |row|
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+                doc = nokogiri_doc(row[:body], 'old_group_pool')
 
                 set_default_quotas(doc)
 
@@ -452,7 +452,7 @@ module Migrator
         @db.transaction do
             @db.fetch("SELECT * FROM old_vm_pool") do |row|
 
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+                doc = nokogiri_doc(row[:body], 'old_vm_pool')
                 user_template = doc.create_element("USER_TEMPLATE")
 
                 e = doc.root.at_xpath("TEMPLATE")
@@ -509,7 +509,7 @@ module Migrator
         @db.transaction do
             @db.fetch("SELECT * FROM old_template_pool") do |row|
 
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+                doc = nokogiri_doc(row[:body], 'old_template_pool')
 
                 template = doc.root.at_xpath("TEMPLATE")
 
@@ -559,7 +559,7 @@ module Migrator
         @db.transaction do
             @db.fetch("SELECT * FROM old_vm_pool") do |row|
                 if ( row[:state] != 6 )     # DONE
-                    doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+                    doc = nokogiri_doc(row[:body], 'old_vm_pool')
 
                     nic_id = 0
 

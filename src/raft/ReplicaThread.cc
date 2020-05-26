@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -14,14 +14,15 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include <errno.h>
-#include <string>
-
+#include "ReplicaThread.h"
 #include "LogDB.h"
 #include "RaftManager.h"
-#include "ReplicaThread.h"
 #include "Nebula.h"
 #include "NebulaLog.h"
+#include "FedReplicaManager.h"
+
+#include <errno.h>
+#include <string>
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -198,7 +199,7 @@ int RaftReplicaThread::replicate()
     }
 
 
-    if ( logdb->get_log_record(next_index, lr) != 0 )
+    if ( logdb->get_log_record(next_index, next_index - 1, lr) != 0 )
     {
         ostringstream ess;
 

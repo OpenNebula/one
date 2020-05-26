@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -107,7 +107,7 @@ define(function(require) {
       "createARTab": "vntemplateCreateARTab",
       "createSecurityTab": "vntemplateCreateSecurityTab",
       "createQoSTab": "vntemplateCreateQoSTab",
-      "createContextTab": "vntemplatecreateContextTab"
+      "createContextTab": "vntemplateCreateContextTab"
     });
   }
 
@@ -364,7 +364,7 @@ define(function(require) {
 
     var clusters = this.clustersTable.retrieveResourceTableSelect();
     if (clusters != undefined && clusters.length != 0) {
-      network_json["CLUSTERS"] = clusters.join(",");
+      network_json["CLUSTER_IDS"] = clusters.join(",");
     }
 
     $.extend(network_json, CustomTagsTable.retrieve($("#vntemplateCreateContextTab", context)));
@@ -395,16 +395,15 @@ define(function(require) {
   }
 
   function _submitAdvanced(context) {
+    var template = $("textarea#template", context).val();
+    
     if (this.action == "create") {
-      var template = $("textarea#template", context).val();
-      var vntemplate_json = {vntemplate: {vntemplate_raw: template}};
+      var vntemplate_json = {vntemplate: { vntemplate_raw: template}};
       Sunstone.runAction("VNTemplate.create", vntemplate_json);
       return false;
 
     } else if (this.action == "update") {
-      var template_raw = $("textarea#template", context).val();
-      var vntemplate_json = {vntemplate: {vntemplate_raw: template}};
-      Sunstone.runAction("VNTemplate.update", this.resourceId, vntemplate_json);
+      Sunstone.runAction("VNTemplate.update", this.resourceId, template);
       return false;
     }
   }

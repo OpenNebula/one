@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -101,8 +101,8 @@ func (vc *VirtualRoutersController) Info(args ...int) (*vr.Pool, error) {
 }
 
 // Info connects to OpenNebula and fetches the information of the VirtualRouter
-func (vc *VirtualRouterController) Info() (*vr.VirtualRouter, error) {
-	response, err := vc.c.Client.Call("one.vrouter.info", vc.ID)
+func (vc *VirtualRouterController) Info(decrypt bool) (*vr.VirtualRouter, error) {
+	response, err := vc.c.Client.Call("one.vrouter.info", vc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -126,8 +126,8 @@ func (vc *VirtualRoutersController) Create(tpl string) (int, error) {
 	return response.BodyInt(), nil
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update adds virtual router content.
+// * tpl: The new virtual router contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (vc *VirtualRouterController) Update(tpl string, uType parameters.UpdateType) error {
@@ -144,8 +144,10 @@ func (vc *VirtualRouterController) Chown(uid, gid int) error {
 
 // Chmod changes the permissions of a virtual router. If any perm is -1 it will not
 // change
-func (vc *VirtualRouterController) Chmod(perm *shared.Permissions) error {
-	_, err := vc.c.Client.Call("one.vrouter.chmod", perm.ToArgs(vc.ID)...)
+func (vc *VirtualRouterController) Chmod(perm shared.Permissions) error {
+	args := append([]interface{}{vc.ID}, perm.ToArgs()...)
+
+	_, err := vc.c.Client.Call("one.vrouter.chmod", args...)
 	return err
 }
 

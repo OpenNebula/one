@@ -1,5 +1,5 @@
 # Copyright 2018 www.privaz.io Valletech AB
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,8 @@
 # limitations under the License.
 
 # Use full path to ensure virtualenv compatibility
-PYTHON = $(shell which python)
+PYTHON = $(shell which python2)
+PYTHON3 = $(shell which python3)
 GDS = $(shell which generateDS)
 PWD = $(shell pwd)
 
@@ -44,6 +45,9 @@ dist:
 
 install:
 	${PYTHON} setup.py install ${root}
+
+install3:
+	${PYTHON3} setup.py install ${root}
 
 doc:
 	mkdir -p doc

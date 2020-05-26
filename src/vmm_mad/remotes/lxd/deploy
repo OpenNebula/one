@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -64,16 +64,18 @@ else
         raise 'failed to setup container storage'
     end
 
+    container.load_idmap
+
     begin
         operation = container.start
         raise operation if container.status != 'Running'
-    rescue StandardError => exception
+    rescue e
         # TODO: Improve wait condition
         sleep 5 # Wait for LXD to revert non-rootfs disks mountpoint
 
         container.clean
 
-        raise exception
+        raise e
     end
 
 end
@@ -82,6 +84,7 @@ end
 # Updates container configuration with the OpenNebulaVM description
 # ------------------------------------------------------------------------------
 container.config.update('user.xml' => xml)
+container.transition_end unless container.wild?
 container.update
 
 container.vnc('start')

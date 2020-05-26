@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,7 +16,7 @@
 module NSXDriver
 
     # Class Logical Switch
-    class LogicalSwitch < NSXDriver::NsxComponent
+    class LogicalSwitch < NSXComponent
 
         # ATTRIBUTES
         attr_reader :ls_id
@@ -28,7 +28,7 @@ module NSXDriver
         # CONSTRUCTOR
 
         def initialize(nsx_client)
-            @nsx_client = nsx_client
+            super(nsx_client)
         end
 
         def ls?; end
@@ -47,6 +47,36 @@ module NSXDriver
 
         # Delete a logical switch
         def delete_logical_switch; end
+
+        # Update a logical switch
+        def update_logical_switch; end
+
+        # Return nsx nics of type NSX-V and NSX-T
+        # If only_new_attached = true --> Only returns new attached nsx nics
+        def self.nsx_nics(template_xml, only_new_attached = true)
+            if only_new_attached == true
+                nics = template_xml.xpath('//TEMPLATE/NIC[ATTACH="YES"]')
+            else
+                nics = template_xml.xpath('//TEMPLATE/NIC')
+            end
+            nics_array = []
+            nics.each do |nic|
+                network_id = nic.xpath('NETWORK_ID').text
+                # Check Networks exists
+                one_vnet = VCenterDriver::VIHelper
+                           .one_item(OpenNebula::VirtualNetwork, network_id)
+                rc = one_vnet.info
+                if OpenNebula.is_error?(rc)
+                    err_msg = rc.message
+                    raise err_msg
+                end
+                pg_type = one_vnet['TEMPLATE/VCENTER_PORTGROUP_TYPE']
+                nics_array << nic if [NSXConstants::NSXV_LS_TYPE,
+                                      NSXConstants::NSXT_LS_TYPE]
+                                     .include?(pg_type)
+            end
+            nics_array
+        end
 
     end
 

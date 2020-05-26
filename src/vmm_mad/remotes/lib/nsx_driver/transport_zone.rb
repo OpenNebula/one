@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,35 +16,32 @@
 module NSXDriver
 
     # Class Transport Zone
-    class TransportZone < NSXDriver::NsxComponent
+    class TransportZone < NSXComponent
 
         # ATTRIBUTES
         attr_reader :tz_id
-        HEADER_XML = { :'Content-Type' => 'application/xml' }
-        HEADER_JSON = { :'Content-Type' => 'application/json' }
-        NSXV_TZ = '/vdn/scopes'
-        NSXT_TZ = '/transport-zones'
-        VDNSCOPE_XPATH = '//vdnScope'
 
         # CONSTRUCTOR
         def initialize(nsx_client)
             super(nsx_client)
-            # Construct base URLs
-            @base_url_nsxv = "#{@nsx_client.nsxmgr}/api/2.0"
-            @base_url_nsxt = "#{@nsx_client.nsxmgr}/api/v1"
-            @url_tz_nsxv = @base_url_nsxv + NSXV_TZ
-            @url_tz_nsxt = @base_url_nsxt + NSXT_TZ
+        end
+
+        def self.new_child(nsx_client)
+            case nsx_client.nsx_type.upcase
+            when NSXConstants::NSXT
+                NSXTtz.new(nsx_client)
+            when NSXConstants::NSXV
+                NSXVtz.new(nsx_client)
+            else
+                error_msg = "Unknown object type: #{nsx_client.nsx_type}"
+                error = NSXError::UnknownObject.new(error_msg)
+                raise error
+            end
         end
 
         # METHODS
         # Return the transport zones list
-        def tzs_nsxv
-            @nsx_client.get_xml(@url_tz_nsxv).xpath(VDNSCOPE_XPATH)
-        end
-
-        def tzs_nsxt
-            @nsx_client.get_json(@url_tz_nsxt)
-        end
+        def tzs; end
 
     end
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -133,6 +133,10 @@ define(function(require) {
     "winXPPro64Guest",
     "winXPProGues"
   ];
+
+  var distinct = function(value, index, self){
+    return self.indexOf(value)===index;
+  };
 
   /*
     CONSTRUCTOR
@@ -288,6 +292,13 @@ define(function(require) {
           html += "</select>";
           $("#kvm-info", context).append(html);
 
+          var html = "<select id=\"sd-disk-bus\" wizard_field=\"SD_DISK_BUS\">";
+          html += "<option value=\"\">" + " " + "</option>";
+          html += "<option value='scsi'>SCSI</option>";
+          html += "<option value='sata'>SATA</option>";
+          html += "</select>";
+          $("#sd-disk-bus-info", context).append(html);
+
           var html = "<select id=\"model-cpu\" wizard_field=\"MODEL\">";
           html += "<option value=\"\">" + " " + "</option>";
           html += "<option value=\"host-passthrough\">host-passthrough</option>";
@@ -311,9 +322,15 @@ define(function(require) {
   function _retrieve(context) {
     var templateJSON = {};
     var osJSON = {};
-    $.extend(osJSON, WizardFields.retrieve(".bootTab", context));
-    $.extend(osJSON, WizardFields.retrieve(".kernelTab", context));
-    $.extend(osJSON, WizardFields.retrieve(".ramdiskTab", context));
+    $.extend(osJSON, WizardFields.retrieve(
+      $(".bootTab", context)
+    ));
+    $.extend(osJSON, WizardFields.retrieve(
+      $(".kernelTab", context)
+    ));
+    $.extend(osJSON, WizardFields.retrieve(
+      $(".ramdiskTab", context)
+    ));
 
     var boot = _retrieveBootValue(context);
 
@@ -323,13 +340,24 @@ define(function(require) {
       osJSON["BOOT"] = "";
     }
 
-    if (!$.isEmptyObject(osJSON)) { templateJSON["OS"] = osJSON; };
+    if (!$.isEmptyObject(osJSON)) {
+      templateJSON["OS"] = osJSON; 
+    }
 
-    var featuresJSON = WizardFields.retrieve(".featuresTab", context);
-    if (!$.isEmptyObject(featuresJSON)) { templateJSON["FEATURES"] = featuresJSON; };
+    var featuresJSON = WizardFields.retrieve(
+      $(".featuresTab", context)
+    );
+    if (!$.isEmptyObject(featuresJSON)) { 
+      templateJSON["FEATURES"] = featuresJSON; 
+    }
 
-    var cpuModelJSON = WizardFields.retrieve(".cpuTab", context);
-    if (!$.isEmptyObject(cpuModelJSON)) { templateJSON["CPU_MODEL"] = cpuModelJSON; };
+    var cpuModelJSON = WizardFields.retrieve(
+      $(".cpuTab", context)
+    );
+
+    if (!$.isEmptyObject(cpuModelJSON)) { 
+      templateJSON["CPU_MODEL"] = cpuModelJSON; 
+    }
 
     return templateJSON;
   }
@@ -417,6 +445,7 @@ define(function(require) {
       if (!$.isArray(disks)){
         disks = [disks];
       }
+      disks = disks.filter(distinct);
 
       $.each(disks, function(i,disk){
         var label = "<i class=\"fas fa-fw fa-lg fa-server\"></i> ";
@@ -446,9 +475,6 @@ define(function(require) {
       if (!$.isArray(nics)){
         nics = [nics];
       }
-      var distinct = function(value, index, self){
-        return self.indexOf(value)===index;
-      };
       nics = nics.filter(distinct);
       nics.map(function(nic,i){
         var label = "<i class=\"fas fa-fw fa-lg fa-globe\"></i> ";

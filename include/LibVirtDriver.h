@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -34,16 +34,20 @@ public:
 
     ~LibVirtDriver(){};
 
+    int validate_raw(const string& raw_section, string& error) const override;
+
 private:
-    static const float CGROUP_BASE_CPU_SHARES;
+    static const float  CGROUP_BASE_CPU_SHARES;
 
-    static const int   CEPH_DEFAULT_PORT;
+    static const int    CEPH_DEFAULT_PORT;
 
-    static const int   GLUSTER_DEFAULT_PORT;
+    static const int    GLUSTER_DEFAULT_PORT;
 
-    static const int   ISCSI_DEFAULT_PORT;
+    static const int    ISCSI_DEFAULT_PORT;
 
-    int deployment_description(const VirtualMachine * vm, const string& fn) const
+    static const char * XML_DOMAIN_RNG_PATH;
+
+    int deployment_description(const VirtualMachine * vm, const string& fn) const override
     {
         int   rc = -1;
 

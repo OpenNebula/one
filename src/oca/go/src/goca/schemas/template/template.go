@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,63 +17,29 @@
 package template
 
 import (
-	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
+	"encoding/xml"
+
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+
+	vm "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm"
 )
 
 // Pool represents an OpenNebula Template pool
 type Pool struct {
+	XMLName   xml.Name   `xml:"VMTEMPLATE_POOL"`
 	Templates []Template `xml:"VMTEMPLATE"`
 }
 
 // Template represents an OpenNebula Template
 type Template struct {
-	ID          int                 `xml:"ID"`
-	UID         int                 `xml:"UID"`
-	GID         int                 `xml:"GID"`
-	UName       string              `xml:"UNAME"`
-	GName       string              `xml:"GNAME"`
+	ID          int                 `xml:"ID,omitempty"`
+	UID         int                 `xml:"UID,omitempty"`
+	GID         int                 `xml:"GID,omitempty"`
+	UName       string              `xml:"UNAME,omitempty"`
+	GName       string              `xml:"GNAME,omitempty"`
 	Name        string              `xml:"NAME"`
-	LockInfos   *shared.Lock        `xml:"LOCK"`
-	Permissions *shared.Permissions `xml:"PERMISSIONS"`
-	RegTime     int                 `xml:"REGTIME"`
-	Template    TemplateTpl         `xml:"TEMPLATE"`
-}
-
-// Template represent the template part of the OpenNebula Template
-type TemplateTpl struct {
-	CPU        float64                `xml:"CPU"`
-	Memory     int                    `xml:"MEMORY"`
-	Context    *Context               `xml:"CONTEXT"`
-	Disk       []Disk                 `xml:"DISK"`
-	Graphics   *Graphics              `xml:"GRAPHICS"`
-	NICDefault *NicDefault            `xml:"NIC_DEFAULT"`
-	OS         *OS                    `xml:"OS"`
-	UserInputs UserInputs             `xml:"USER_INPUTS"`
-	Dynamic    dyn.UnmatchedTagsSlice `xml:",any"`
-}
-
-type Context struct {
-	Dynamic dyn.UnmatchedTagsMap `xml:",any"`
-}
-
-type Disk struct {
-	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
-}
-
-type Graphics struct {
-	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
-}
-
-type UserInputs struct {
-	Dynamic dyn.UnmatchedTagsSlice `xml:",any"`
-}
-
-type NicDefault struct {
-	Model string `xml:"MODEL"`
-}
-
-type OS struct {
-	Arch string `xml:"ARCH"`
-	Boot string `xml:"BOOT"`
+	LockInfos   *shared.Lock        `xml:"LOCK,omitempty"`
+	Permissions *shared.Permissions `xml:"PERMISSIONS,omitempty"`
+	RegTime     int                 `xml:"REGTIME,omitempty"`
+	Template    vm.Template         `xml:"TEMPLATE"`
 }

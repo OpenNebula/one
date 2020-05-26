@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -68,10 +68,10 @@ module OpenNebula
 
         # Retrieves the information of the given VNTemplate.
         # include extended information, such as the SIZE for each DISK
-        def info()
+        def info(decrypt = false)
             return Error.new('ID not defined') if !@pe_id
 
-            rc = @client.call(TEMPLATE_METHODS[:info], @pe_id, false)
+            rc = @client.call(TEMPLATE_METHODS[:info], @pe_id, decrypt)
 
             if !OpenNebula.is_error?(rc)
                 initialize_xml(rc, 'VNTEMPLATE')
@@ -97,7 +97,7 @@ module OpenNebula
         end
 
         # Deletes the Template
-        # 
+        #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def delete()

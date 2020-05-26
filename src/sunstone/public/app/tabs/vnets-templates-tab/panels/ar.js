@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -52,7 +52,7 @@ define(function(require) {
     this.title = Locale.tr("Addresses");
     this.icon = "fa-align-justify";
 
-    this.element = info[XML_ROOT];
+    this.element = JSON.parse(JSON.stringify(info[XML_ROOT]));
 
     this.last_selected_row_ar = "";
 

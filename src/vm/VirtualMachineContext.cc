@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -13,18 +13,6 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-#include <limits.h>
-#include <string.h>
-#include <time.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <regex.h>
-#include <unistd.h>
-
-#include <iostream>
-#include <sstream>
-#include <queue>
-
 #include "VirtualMachine.h"
 #include "VirtualNetworkPool.h"
 #include "ImagePool.h"
@@ -36,6 +24,8 @@
 
 #include "vm_file_var_syntax.h"
 #include "vm_var_syntax.h"
+
+#include <sstream>
 
 /* -------------------------------------------------------------------------- */
 /* Context constants                                                          */
@@ -59,6 +49,7 @@ const std::vector<ContextVariable> NETWORK_CONTEXT = {
     {"DNS", "DNS", "", true},
     {"SEARCH_DOMAIN", "SEARCH_DOMAIN", "", true},
     {"MTU", "GUEST_MTU", "", true},
+    {"METRIC", "METRIC", "", true},
     {"VLAN_ID", "VLAN_ID", "", true},
     {"VROUTER_IP", "VROUTER_IP", "", false},
     {"VROUTER_MANAGEMENT", "VROUTER_MANAGEMENT", "", false},
@@ -69,6 +60,7 @@ const std::vector<ContextVariable> NETWORK6_CONTEXT = {
     {"IP6", "IP6_GLOBAL", "IP6", false},
     {"IP6_ULA", "IP6_ULA", "", false},
     {"GATEWAY6", "GATEWAY6", "", true},
+    {"METRIC6", "METRIC6", "", true},
     {"CONTEXT_FORCE_IPV4", "CONTEXT_FORCE_IPV4", "", true},
     {"IP6_PREFIX_LENGTH", "PREFIX_LENGTH", "", true},
     {"VROUTER_IP6", "VROUTER_IP6_GLOBAL", "VROUTER_IP6", false},
@@ -98,6 +90,8 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
     {
         return -1;
     }
+
+    decrypt();
 
     VectorAttribute * context = obj_template->get("CONTEXT");
 
@@ -249,7 +243,7 @@ int VirtualMachine::get_created_by_uid() const
 /* -------------------------------------------------------------------------- */
 
 static void parse_context_network(const std::vector<ContextVariable>& cvars,
-        VectorAttribute * context, VectorAttribute * nic, bool alias_detach)
+        VectorAttribute * context, VectorAttribute * nic)
 {
     string nic_id = nic->vector_value("NIC_ID");
 
@@ -291,13 +285,6 @@ static void parse_context_network(const std::vector<ContextVariable>& cvars,
         }
 
         context->replace(cvar.str(), cval);
-    }
-
-    if ( alias_detach )
-    {
-        string cvar = "ETH" + parent_id + "_ALIAS" + alias_id + "_DETACH";
-
-        context->replace(cvar, "YES");
     }
 }
 
@@ -349,12 +336,54 @@ int VirtualMachine::generate_network_context(VectorAttribute* context,
             continue;
         }
 
-        bool alias_detach = hasPreviousHistory() &&
-                            previous_history->action == History::ALIAS_DETACH_ACTION &&
-                            vatts[i]->vector_value("ATTACH") == "YES";
+        // If a nic was detached
+        if (hasPreviousHistory() &&
+            previous_history->action == VMActions::NIC_DETACH_ACTION)
+        {
+            int nic_id;
 
-        parse_context_network(NETWORK_CONTEXT, &tmp_context, vatts[i], alias_detach);
-        parse_context_network(NETWORK6_CONTEXT, &tmp_context, vatts[i], alias_detach);
+            vatts[i]->vector_value("NIC_ID", nic_id);
+
+            //If the current nic was detached clear the nic
+            if (vatts[i]->vector_value("ATTACH") == "YES")
+            {
+                clear_nic_context(nic_id);
+                continue;
+            }
+            else if (get_nic(nic_id)->is_alias()) // If nic was detached and current is alias
+	    { 
+                int parent_id;
+
+                vatts[i]->vector_value("PARENT_ID", parent_id);
+
+                // If parent was detached clear alis
+                if (get_nic(parent_id)->vector_value("ATTACH") == "YES")
+		{
+                    int alias_id;
+
+                    vatts[i]->vector_value("ALIAS_ID", alias_id);
+                    clear_nic_alias_context(parent_id, alias_id);
+
+                    continue;
+                }
+            }
+        }
+        else if (hasPreviousHistory() &&
+                 previous_history->action == VMActions::ALIAS_DETACH_ACTION &&
+                 vatts[i]->vector_value("ATTACH") == "YES")
+        {
+            int parent_id, alias_id;
+
+            vatts[i]->vector_value("PARENT_ID", parent_id);
+            vatts[i]->vector_value("ALIAS_ID", alias_id);
+
+            clear_nic_alias_context(parent_id, alias_id);
+
+            continue;
+        }
+
+        parse_context_network(NETWORK_CONTEXT, &tmp_context, vatts[i]);
+        parse_context_network(NETWORK6_CONTEXT, &tmp_context, vatts[i]);
 
         parse_vnets = true;
     }

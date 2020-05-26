@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -21,6 +21,7 @@ define(function(require) {
   var _rfb;
   var _message = "";
   var _status = "Loading";
+  var _is_encrypted = "";
 
   return {
     "lockStatus": lockStatus,
@@ -43,23 +44,33 @@ define(function(require) {
     _lock = false;
   }
 
-  function connected(){
-    status("","Loaded");
-  }
-
-  function status(message="", status=""){
+  function setStatus(message="", status=""){
     _message = message;
     _status = status;
     $(".NOVNC_message").text(_message);
     $("#VNC_status").text(_status);
   }
 
+  function connected(){
+    setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + _rfb._fb_name);
+  }
+
   function disconnectedFromServer(e){
     if (e.detail.clean) {
-      status("", "Loaded");
+      setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + _rfb._fb_name);
     } else {
-      status("Something went wrong, connection is closed", "Failed");
+      setStatus("Something went wrong, connection is closed", "Failed");
     }
+  }
+
+  function desktopNameChange(e) {
+    if (e.detail.name) {
+      setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + e.detail.name);
+    }
+  }
+
+  function credentialsRequired(e) {
+    setStatus("Something went wrong, more credentials must be given to continue", "Failed");
   }
 
   function vncCallback(response) {
@@ -72,10 +83,14 @@ define(function(require) {
     var protocol = window.location.protocol;
     var hostname = window.location.hostname;
     var port = window.location.port;
+    var rfbConfig = pw? { "credentials": { "password": pw } } : {};
+
     if (protocol === "https:") {
       URL = "wss";
+      _is_encrypted ="encrypted";
     } else {
       URL = "ws";
+      _is_encrypted ="unencrypted";
     }
     URL += "://" + hostname;
     URL += ":" + proxy_port;
@@ -92,11 +107,13 @@ define(function(require) {
     var link = URL.replace(re, protocol + "//" + hostname + ":" + port + "/vnc?");
 
     try{
-      _rfb = new RFB(document.querySelector("#VNC_canvas"), URL);
+      _rfb = new RFB(document.querySelector("#VNC_canvas"), URL, rfbConfig);
       _rfb.addEventListener("connect",  connected);
       _rfb.addEventListener("disconnect", disconnectedFromServer);
+      _rfb.addEventListener("desktopname", desktopNameChange);
+      _rfb.addEventListener("credentialsrequired", credentialsRequired);
     }catch(err){
-      status("Something went wrong, connection is closed", "Failed");
+      setStatus("Something went wrong, connection is closed", "Failed");
       console.log("error start NOVNC ", err);
     }
 

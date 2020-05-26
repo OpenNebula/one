@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -22,7 +22,16 @@ LOG_TIME = false
 class OneDB
     attr_accessor :backend
 
+    CONNECTION_PARAMETERS = %i[server port user password db_name]
+
     def initialize(ops)
+        if ops[:backend].nil? && CONNECTION_PARAMETERS.all? {|s| ops[s].nil? }
+            ops = read_credentials(ops)
+        elsif ops[:backend].nil? && CONNECTION_PARAMETERS.any? {|s| !ops[s].nil? }
+            # Set MySQL backend as default if any connection option is provided and --type is not
+            ops[:backend] = :mysql
+        end
+
         if ops[:backend] == :sqlite
             begin
                 require 'sqlite3'
@@ -43,19 +52,41 @@ class OneDB
             end
 
             passwd = ops[:passwd]
-            if !passwd
-                passwd = get_password
-            end
+            passwd = ENV['ONE_DB_PASSWORD'] unless passwd
+            passwd = get_password unless passwd
 
             @backend = BackEndMySQL.new(
                 :server  => ops[:server],
                 :port    => ops[:port],
                 :user    => ops[:user],
                 :passwd  => passwd,
-                :db_name => ops[:db_name]
+                :db_name => ops[:db_name],
+                :encoding=> ops[:encoding]
+            )
+        elsif ops[:backend] == :postgresql
+            begin
+                require 'pg'
+            rescue
+                STDERR.puts "Ruby gem pg is needed for this operation:"
+                STDERR.puts "   $ sudo gem install pg"
+                exit -1
+            end
+
+            passwd     = ops[:passwd]
+            passwd     = ENV['ONE_DB_PASSWORD'] unless passwd
+            passwd     = get_password("PostgreSQL Password: ") unless passwd
+            ops[:port] = 5432 if ops[:port] == 0
+
+            @backend = BackEndPostgreSQL.new(
+                :server  => ops[:server],
+                :port    => ops[:port],
+                :user    => ops[:user],
+                :passwd  => passwd,
+                :db_name => ops[:db_name],
+                :encoding=> ops[:encoding]
             )
         else
-            raise "You need to specify the SQLite or MySQL connection options."
+            raise "You need to specify the SQLite, MySQL or PostgreSQL connection options."
         end
     end
 
@@ -68,6 +99,55 @@ class OneDB
         puts ""
 
         return passwd
+    end
+
+    def read_credentials(ops)
+        begin
+            gem 'augeas', '~> 0.6'
+            require 'augeas'
+        rescue Gem::LoadError
+            STDERR.puts(
+                'Augeas gem is not installed, run `gem install ' \
+                'augeas -v \'0.6\'` to install it'
+            )
+            exit(-1)
+        end
+
+        work_file_dir  = File.dirname(ONED_CONF)
+        work_file_name = File.basename(ONED_CONF)
+
+        aug = Augeas.create(:no_modl_autoload => true,
+                            :no_load          => true,
+                            :root             => work_file_dir,
+                            :loadpath         => ONED_CONF)
+
+        aug.clear_transforms
+        aug.transform(:lens => 'Oned.lns', :incl => work_file_name)
+        aug.context = "/files/#{work_file_name}"
+        aug.load
+
+        ops[:backend] = aug.get('DB/BACKEND')
+        ops[:server]  = aug.get('DB/SERVER')
+        ops[:port]    = aug.get('DB/PORT')
+        ops[:user]    = aug.get('DB/USER')
+        ops[:passwd]  = aug.get('DB/PASSWD')
+        ops[:db_name] = aug.get('DB/DB_NAME')
+
+        ops = ops.transform_values do |v|
+            next unless v
+
+            v.chomp('"').reverse.chomp('"').reverse
+        end
+
+        ops.each {|_, v| v.gsub!("\\", '') if v }
+
+        ops[:backend] = ops[:backend].to_sym unless ops[:backend].nil?
+        ops[:port]    = ops[:port].to_i
+
+        ops
+    rescue StandardError => e
+        STDERR.puts "Unable to parse oned.conf: #{e}"
+        exit(-1)
     end
 
     def backup(bck_file, ops, backend=@backend)
@@ -150,6 +230,9 @@ class OneDB
         begin
             timea = Time.now
 
+            # Delete indexes
+            @backend.delete_idx db_version[:local_version]
+
             # Upgrade shared (federation) tables, only for standalone and master
             if !db_version[:is_slave]
                 puts
@@ -184,6 +267,9 @@ class OneDB
             else
                 puts "Database already uses version #{db_version[:local_version]}"
             end
+
+            # Generate indexes
+            @backend.create_idx
 
             timeb = Time.now
 
@@ -503,6 +589,17 @@ class OneDB
         else
             raise "No vcenter_one54 file found in #{RUBY_LIB_LOCATION}/onedb/vcenter_one54.rb"
         end
+    end
+
+    # Create or recreate FTS index on vm_pool search_token column
+    #
+    # @param recreate [Boolean] True to delete the index and create it again
+    def fts_index(recreate = false)
+        if backend.is_a? BackEndSQLite
+            raise 'This is operation is not supported for sqlite backend'
+        end
+
+        backend.fts_index(recreate)
     end
 
     private

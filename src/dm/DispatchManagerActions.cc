@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -160,8 +160,6 @@ int DispatchManager::import(VirtualMachine * vm, const RequestAttributes& ra)
     vm->set_prolog_etime(the_time);
 
     vm->set_running_stime(the_time);
-
-    vm->set_last_poll(0);
 
     vmpool->update_history(vm);
 
@@ -942,9 +940,10 @@ int DispatchManager::resched(int vid, bool do_resched,
     oss << "Setting rescheduling flag on VM " << vid;
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
+    if (vm->get_state()     == VirtualMachine::POWEROFF ||
+        (vm->get_state()     == VirtualMachine::ACTIVE &&
+         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
+          vm->get_lcm_state() == VirtualMachine::UNKNOWN)))
     {
         if (do_resched)
         {
@@ -1218,7 +1217,7 @@ int DispatchManager::delete_recreate(VirtualMachine * vm,
         case VirtualMachine::HOLD:
             if (vm->hasHistory())
             {
-                vm->set_action(History::DELETE_RECREATE_ACTION, ra.uid, ra.gid,
+                vm->set_action(VMActions::DELETE_RECREATE_ACTION, ra.uid, ra.gid,
                         ra.req_id);
                 vmpool->update_history(vm);
             }
@@ -1312,6 +1311,34 @@ int DispatchManager::delete_vm_db(VirtualMachine * vm,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static void close_cp_history(VirtualMachinePool *vmpool, VirtualMachine *vm, 
+        VMActions::Action action, const RequestAttributes& ra)
+{
+    time_t the_time = time(0);
+
+    vm->set_running_etime(the_time);
+
+    vm->set_etime(the_time);
+
+    VMActions::Action current = vm->get_action();
+
+    vm->set_action(action, ra.uid, ra.gid, ra.req_id);
+
+    vmpool->update_history(vm);
+
+    vm->cp_history();
+
+    vm->set_internal_action(current);
+
+    vm->set_stime(the_time);
+
+    vm->set_running_stime(the_time);
+
+    vmpool->insert_history(vm);
+}
+
+/* -------------------------------------------------------------------------- */
+
 int DispatchManager::attach(int vid, VirtualMachineTemplate * tmpl,
         const RequestAttributes& ra, string & err)
 {
@@ -1374,32 +1401,10 @@ int DispatchManager::attach(int vid, VirtualMachineTemplate * tmpl,
         return -1;
     }
 
+    close_cp_history(vmpool, vm, VMActions::DISK_ATTACH_ACTION, ra);
+
     if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
     {
-        time_t the_time = time(0);
-
-        // Close current history record
-
-        vm->set_running_etime(the_time);
-
-        vm->set_etime(the_time);
-
-        vm->set_action(History::DISK_ATTACH_ACTION, ra.uid, ra.gid, ra.req_id);
-
-        vmpool->update_history(vm);
-
-        // Open a new history record
-
-        vm->cp_history();
-
-        vm->set_stime(the_time);
-
-        vm->set_running_stime(the_time);
-
-        vmpool->insert_history(vm);
-
-        //-----------------------------------------------
-
         vmm->trigger(VMMAction::ATTACH, vid);
     }
     else
@@ -1461,35 +1466,11 @@ int DispatchManager::detach(int vid, int disk_id, const RequestAttributes& ra,
 
     vm->set_resched(false);
 
+    close_cp_history(vmpool, vm, VMActions::DISK_DETACH_ACTION, ra);
+
     if ( vm->get_state() == VirtualMachine::ACTIVE &&
          vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
-        time_t the_time = time(0);
-
-        // Close current history record
-
-        vm->set_vm_info();
-
-        vm->set_running_etime(the_time);
-
-        vm->set_etime(the_time);
-
-        vm->set_action(History::DISK_DETACH_ACTION, ra.uid, ra.gid, ra.req_id);
-
-        vmpool->update_history(vm);
-
-        // Open a new history record
-
-        vm->cp_history();
-
-        vm->set_stime(the_time);
-
-        vm->set_running_stime(the_time);
-
-        vmpool->insert_history(vm);
-
-        //---------------------------------------------------
-
         vm->set_state(VirtualMachine::HOTPLUG);
 
         vmm->trigger(VMMAction::DETACH, vid);
@@ -1728,8 +1709,15 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
         return -1;
     }
 
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING )
+    bool cold_attach = false;
+
+    if ( vm->hasHistory() )
+    {
+        cold_attach = vmm->is_cold_nic_attach(vm->get_vmm_mad());
+    }
+
+    if ((vm->get_state()     == VirtualMachine::ACTIVE &&
+        vm->get_lcm_state() == VirtualMachine::RUNNING ) || cold_attach)
     {
         vm->set_state(VirtualMachine::HOTPLUG_NIC);
     }
@@ -1752,39 +1740,21 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
         return -1;
     }
 
+    VMActions::Action action;
+
+    if ( tmpl->get("NIC") != 0 )
+    {
+        action = VMActions::NIC_ATTACH_ACTION;
+    }
+    else
+    {
+        action = VMActions::ALIAS_ATTACH_ACTION;
+    }
+
+    close_cp_history(vmpool, vm, action, ra);
+
     if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC)
     {
-        time_t the_time = time(0);
-
-        // Close current history record
-
-        vm->set_running_etime(the_time);
-
-        vm->set_etime(the_time);
-
-        if ( tmpl->get("NIC") != 0 )
-        {
-            vm->set_action(History::NIC_ATTACH_ACTION, ra.uid, ra.gid, ra.req_id);
-        }
-        else
-        {
-            vm->set_action(History::ALIAS_ATTACH_ACTION, ra.uid, ra.gid, ra.req_id);
-        }
-
-        vmpool->update_history(vm);
-
-        // Open a new history record
-
-        vm->cp_history();
-
-        vm->set_stime(the_time);
-
-        vm->set_running_stime(the_time);
-
-        vmpool->insert_history(vm);
-
-        //-----------------------------------------------
-
         vmm->trigger(VMMAction::ATTACH_NIC, vid);
     }
     else
@@ -1804,7 +1774,7 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DispatchManager::detach_nic(int vid, int nic_id,const RequestAttributes& ra,
+int DispatchManager::detach_nic(int vid, int nic_id, const RequestAttributes& ra,
         string&  error_str)
 {
     ostringstream oss;
@@ -1847,40 +1817,23 @@ int DispatchManager::detach_nic(int vid, int nic_id,const RequestAttributes& ra,
         return -1;
     }
 
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING )
+    VMActions::Action action;
+
+    if ( !vm->get_nic(nic_id)->is_alias() )
     {
-        time_t the_time = time(0);
+        action = VMActions::NIC_DETACH_ACTION;
+    }
+    else
+    {
+        action = VMActions::ALIAS_DETACH_ACTION;
+    }
 
-        // Close current history record
+    close_cp_history(vmpool, vm, action, ra);
 
-        vm->set_vm_info();
-
-        vm->set_running_etime(the_time);
-
-        vm->set_etime(the_time);
-
-        if ( !vm->get_nic(nic_id)->is_alias() )
-        {
-            vm->set_action(History::NIC_DETACH_ACTION, ra.uid, ra.gid, ra.req_id);
-        }
-        else
-        {
-            vm->set_action(History::ALIAS_DETACH_ACTION, ra.uid, ra.gid, ra.req_id);
-        }
-
-        vmpool->update_history(vm);
-
-        // Open a new history record
-
-        vm->cp_history();
-
-        vm->set_stime(the_time);
-
-        vm->set_running_stime(the_time);
-
-        vmpool->insert_history(vm);
-
+    if ((vm->get_state() == VirtualMachine::ACTIVE && 
+            vm->get_lcm_state() == VirtualMachine::RUNNING ) || 
+                vmm->is_cold_nic_attach(vm->get_vmm_mad()))
+    {
         vm->set_state(VirtualMachine::HOTPLUG_NIC);
 
         vm->set_resched(false);
@@ -1888,8 +1841,6 @@ int DispatchManager::detach_nic(int vid, int nic_id,const RequestAttributes& ra,
         vmpool->update(vm);
 
         vm->unlock();
-
-        //---------------------------------------------------
 
         vmm->trigger(VMMAction::DETACH_NIC, vid);
     }
@@ -1916,7 +1867,6 @@ int DispatchManager::disk_snapshot_create(int vid, int did, const string& name,
         int& snap_id, const RequestAttributes& ra, string& error_str)
 {
     ostringstream oss;
-    time_t        the_time;
 
     VirtualMachine * vm = vmpool->get(vid);
 
@@ -1980,6 +1930,8 @@ int DispatchManager::disk_snapshot_create(int vid, int did, const string& name,
         default: break;
     }
 
+    close_cp_history(vmpool, vm, VMActions::DISK_SNAPSHOT_CREATE_ACTION, ra);
+
     switch (state)
     {
         case VirtualMachine::POWEROFF:
@@ -1988,28 +1940,6 @@ int DispatchManager::disk_snapshot_create(int vid, int did, const string& name,
             break;
 
         case VirtualMachine::ACTIVE:
-            the_time = time(0);
-
-            // Close current history record
-
-            vm->set_running_etime(the_time);
-
-            vm->set_etime(the_time);
-
-            vm->set_action(History::DISK_SNAPSHOT_CREATE_ACTION, ra.uid, ra.gid,
-                    ra.req_id);
-
-            vmpool->update_history(vm);
-
-            // Open a new history record
-
-            vm->cp_history();
-
-            vm->set_stime(the_time);
-
-            vm->set_running_stime(the_time);
-
-            vmpool->insert_history(vm);
 
             vmm->trigger(VMMAction::DISK_SNAPSHOT_CREATE, vid);
             break;
@@ -2071,9 +2001,17 @@ int DispatchManager::disk_snapshot_revert(int vid, int did, int snap_id,
 
     if (vm->set_snapshot_disk(did, snap_id) == -1)
     {
+        oss << "Disk id (" << did << ") or snapshot id ("
+            << snap_id << ") is not invalid.";
+
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
         vm->unlock();
         return -1;
     }
+
+    close_cp_history(vmpool, vm, VMActions::DISK_SNAPSHOT_REVERT_ACTION, ra);
 
     switch (state)
     {
@@ -2105,13 +2043,13 @@ int DispatchManager::disk_snapshot_revert(int vid, int did, int snap_id,
 int DispatchManager::disk_snapshot_delete(int vid, int did, int snap_id,
         const RequestAttributes& ra, string& error_str)
 {
-    ostringstream oss;
-    time_t        the_time;
 
     VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == nullptr )
     {
+        ostringstream oss;
+
         oss << "Could not delete disk snapshot from VM " << vid
             << ", VM does not exist";
         error_str = oss.str();
@@ -2128,6 +2066,8 @@ int DispatchManager::disk_snapshot_delete(int vid, int did, int snap_id,
         (state !=VirtualMachine::SUSPENDED|| lstate !=VirtualMachine::LCM_INIT)&&
         (state !=VirtualMachine::ACTIVE   || lstate !=VirtualMachine::RUNNING))
     {
+        ostringstream oss;
+
         oss << "Could not delete disk snapshot from VM " << vid
             << ", wrong state " << vm->state_str() << ".";
         error_str = oss.str();
@@ -2181,39 +2121,9 @@ int DispatchManager::disk_snapshot_delete(int vid, int did, int snap_id,
         default: break;
     }
 
-    switch (state)
-    {
-        case VirtualMachine::ACTIVE:
-            the_time = time(0);
+    close_cp_history(vmpool, vm, VMActions::DISK_SNAPSHOT_DELETE_ACTION, ra);
 
-            // Close current history record
-
-            vm->set_running_etime(the_time);
-
-            vm->set_etime(the_time);
-
-            vm->set_action(History::DISK_SNAPSHOT_DELETE_ACTION, ra.uid, ra.gid,
-                    ra.req_id);
-
-            vmpool->update_history(vm);
-
-            // Open a new history record
-
-            vm->cp_history();
-
-            vm->set_stime(the_time);
-
-            vm->set_running_stime(the_time);
-
-            vmpool->insert_history(vm);
-
-        case VirtualMachine::POWEROFF:
-        case VirtualMachine::SUSPENDED:
-            tm->trigger(TMAction::SNAPSHOT_DELETE, vid);
-            break;
-
-        default: break;
-    }
+    tm->trigger(TMAction::SNAPSHOT_DELETE, vid);
 
     vmpool->update(vm);
 
@@ -2229,7 +2139,6 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
         const RequestAttributes& ra, string& error_str)
 {
     ostringstream oss;
-    time_t        the_time;
 
     VirtualMachine * vm = vmpool->get(vid);
 
@@ -2291,6 +2200,8 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
         default: break;
     }
 
+    close_cp_history(vmpool, vm, VMActions::DISK_RESIZE_ACTION, ra);
+
     switch (state)
     {
         case VirtualMachine::POWEROFF:
@@ -2299,29 +2210,6 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
             break;
 
         case VirtualMachine::ACTIVE:
-            the_time = time(0);
-
-            // Close current history record
-
-            vm->set_running_etime(the_time);
-
-            vm->set_etime(the_time);
-
-            vm->set_action(History::DISK_RESIZE_ACTION, ra.uid, ra.gid,
-                    ra.req_id);
-
-            vmpool->update_history(vm);
-
-            // Open a new history record
-
-            vm->cp_history();
-
-            vm->set_stime(the_time);
-
-            vm->set_running_stime(the_time);
-
-            vmpool->insert_history(vm);
-
             vmm->trigger(VMMAction::DISK_RESIZE, vid);
             break;
 

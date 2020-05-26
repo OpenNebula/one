@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -30,6 +30,7 @@ end
 
 if File.directory?(GEMS_LOCATION)
     Gem.use_paths(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /(vendor|site)_ruby/ }
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -111,6 +112,7 @@ class IPAMDriver < OpenNebulaDriver
     def free_address(id, drv_message)
         do_ipam_action(id, :free_address, drv_message)
     end
+
     private
 
     def do_ipam_action(id, action, arguments)
@@ -131,9 +133,9 @@ class IPAMDriver < OpenNebulaDriver
 
         path = File.join(@local_scripts_path, ipam)
         cmd  = File.join(path, ACTION[action].downcase)
-        cmd << " " << arguments
+        cmd << " " << id
 
-        rc = LocalCommand.run(cmd, log_method(id))
+        rc = LocalCommand.run(cmd, log_method(id), arguments)
 
         result, info = get_info_from_execution(rc)
 

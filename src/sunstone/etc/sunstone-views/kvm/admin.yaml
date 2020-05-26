@@ -37,7 +37,6 @@ enabled_tabs:
     - acls-tab
     - settings-tab
     - support-tab
-    - upgrade-top-tab
     - vmgroup-tab
 features:
     # True to show showback monthly reports, and VM cost
@@ -369,7 +368,8 @@ tabs:
             - 11      # VNC
             #- 12     # Hidden Template
             #- 13     # Labels
-            #- 14     # Search data
+            - 14     # Search data
+            - 15     # Clock leases
         actions:
             VM.refresh: true
             VM.create_dialog: true
@@ -380,6 +380,8 @@ tabs:
             VM.deploy: true
             VM.migrate: true
             VM.migrate_live: true
+            VM.migrate_poff: false
+            VM.migrate_poff_hard: false
             VM.hold: true
             VM.release: true
             VM.suspend: true
@@ -416,11 +418,16 @@ tabs:
             VM.unlock: true
             VM.edit_labels: true
             VM.menu_labels: true
+            VM.startvnc: true
+            VM.startspice: true
+            VM.save_rdp: true
+            VM.save_virt_viewer: true
     oneflow-services-tab:
         panel_tabs:
             service_info_tab: true
             service_roles_tab: true
             service_log_tab: true
+            service_sched_action_tab: true
         panel_tabs_actions:
             service_roles_tab:
                 Role.scale: true
@@ -469,7 +476,7 @@ tabs:
             Service.chgrp: true
             Service.chmod: true
             Service.rename: true
-            Service.shutdown: true
+            Service.shutdown: false
             Service.recover: true
             Service.delete: true
             Service.edit_labels: true
@@ -527,6 +534,7 @@ tabs:
         panel_tabs:
             host_info_tab: true
             host_monitoring_tab: true
+            host_pool_tab: true
             host_vms_tab: true
             host_wilds_tab: true
             host_zombies_tab: true
@@ -779,6 +787,7 @@ tabs:
             Network.create_dialog: true
             Network.import_dialog: false
             Network.update_dialog: true
+            Network.instantiate_dialog: true
             Network.reserve_dialog: true
             Network.addtocluster: true
             Network.rename: true
@@ -795,6 +804,8 @@ tabs:
             Network.unlock: true
             Network.edit_labels: true
             Network.menu_labels: true
+            Network.add_secgroup: true
+            Network.remove_secgroup: true
     vnets-templates-tab:
         panel_tabs:
             vnet_template_info_tab: true
@@ -898,9 +909,6 @@ tabs:
             # Edit button in settings_quotas_tab
             User.two_factor_auth: true
             User.quotas_dialog: false
-    upgrade-top-tab:
-        panel_tabs:
-        actions:
     vmgroup-tab:
         panel_tabs:
             vm_group_info_tab: true

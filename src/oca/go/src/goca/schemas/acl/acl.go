@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,22 +16,26 @@
 
 package acl
 
+import "encoding/xml"
+
 // Pool represents an OpenNebula ACL pool
 type Pool struct {
-	ACLs []ACL `xml:"ACL"`
+	XMLName xml.Name `xml:"ACL_POOL"`
+	ACLs    []ACL    `xml:"ACL"`
 }
 
 // ACL represents an OpenNebula ACL
 type ACL struct {
-	ID       int    `xml:"ID"`
-	User     string `xml:"USER"`
-	Resource string `xml:"RESOURCE"`
-	Rights   string `xml:"RIGHTS"`
-	Zone     string `xml:"ZONE"`
-	String   string `xml:"STRING"`
+	XMLName  xml.Name `xml:"ACL"`
+	ID       int      `xml:"ID,omitempty"`
+	User     string   `xml:"USER,omitempty"`
+	Resource string   `xml:"RESOURCE,omitempty"`
+	Rights   string   `xml:"RIGHTS,omitempty"`
+	Zone     string   `xml:"ZONE,omitempty"`
+	String   string   `xml:"STRING,omitempty"`
 }
 
-type Users uint
+type Users uint64
 
 const (
 	UID        Users = 0x100000000
@@ -40,7 +44,7 @@ const (
 	ClusterUsr Users = 0x800000000
 )
 
-type Resources uint
+type Resources uint64
 
 const (
 	VM             Resources = 0x1000000000
@@ -63,7 +67,7 @@ const (
 	VNTemplate     Resources = 0x40000000000000
 )
 
-type Rights uint
+type Rights uint64
 
 const (
 	Use    Rights = 0x1 // Auth. to use an object

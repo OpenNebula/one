@@ -27,5 +27,5 @@
       name: apparmor
       state: reloaded
     register: service_result
-    failed_when: "service_result|failed and ('find' not in service_result.msg and 'found' not in service_result.msg)"
+    failed_when: "service_result is failed and ('find' not in service_result.msg and 'found' not in service_result.msg)"
   when: ansible_distribution == "Ubuntu"

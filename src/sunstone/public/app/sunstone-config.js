@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -73,6 +73,14 @@ define(function(require) {
     "isFeatureEnabled": function(featureName) {
       if (_config["view"]["features"] && _config["view"]["features"][featureName]) {
         return true;
+      } else {
+        return false;
+      }
+    },
+
+    "isOneFeatureEnabled": function(feature1Name, feature2Name) {
+      if (_config["view"]["features"]) {
+        return _config["view"]["features"][feature1Name] || _config["view"]["features"][feature2Name];
       } else {
         return false;
       }
@@ -168,7 +176,13 @@ define(function(require) {
 
     "allTabs": function() {
       return Object.keys(_config["view"]["tabs"]);
-    }
+    },
+    "thresholds":{
+      "min":_config["user_config"]["threshold_min"],
+      "low":_config["user_config"]["threshold_low"],
+      "high":_config["user_config"]["threshold_high"]
+    },
+    "isExtendedVmInfo": _config["system_config"] && _config["system_config"]["get_extended_vm_info"] && _config["system_config"]["get_extended_vm_info"] === "true",
   };
 
   return Config;

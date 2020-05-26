@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -38,6 +38,7 @@ module Migrator
 
     def up
         feature_2722
+        feature_3380
         true
     end
 
@@ -62,6 +63,43 @@ module Migrator
                 @db[:logdb].insert(row)
             end
         end
+
+        @db.run 'DROP TABLE IF EXISTS old_logdb;'
+    end
+
+    def feature_3380
+        @db.run 'DROP TABLE IF EXISTS old_host_pool;'
+        @db.run 'ALTER TABLE host_pool RENAME TO old_host_pool;'
+
+        create_table(:host_pool)
+
+        db.transaction do
+            # Add PREV_STATE to each host
+            @db.fetch('SELECT * FROM old_host_pool') do |row|
+                doc = nokogiri_doc(row[:body], 'old_host_pool')
+
+                state = doc.xpath('//STATE').text
+
+                prev_state = doc.create_element('PREV_STATE', state)
+                doc.root.at_xpath('//HOST').add_child(prev_state)
+
+                row[:body] = doc.root.to_s
+
+                @db[:host_pool].insert(row)
+            end
+        end
+
+        @db.run 'DROP TABLE IF EXISTS old_host_pool;'
+
+        @db.run 'CREATE TABLE IF NOT EXISTS hook_pool '\
+                '(oid INTEGER PRIMARY KEY,name VARCHAR(128), '\
+                'body MEDIUMTEXT, uid INTEGER, gid INTEGER, '\
+                'owner_u INTEGER, group_u INTEGER, other_u INTEGER, '\
+                'type INTEGER);'
+
+        @db.run 'CREATE TABLE IF NOT EXISTS hook_log'\
+                '(hkid INTEGER, exeid INTEGER, timestamp INTEGER, rc INTEGER,'\
+                ' body MEDIUMTEXT,PRIMARY KEY(hkid, exeid))'
     end
 
 end

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,48 +17,50 @@
 #ifndef NEBULA_H_
 #define NEBULA_H_
 
-#include "LogDB.h"
+#include "OpenNebulaTemplate.h"
 #include "SystemDB.h"
 
-#include "NebulaTemplate.h"
-
-#include "VirtualMachinePool.h"
-#include "VirtualNetworkPool.h"
-#include "HostPool.h"
-#include "UserPool.h"
-#include "VMTemplatePool.h"
-#include "GroupPool.h"
-#include "DatastorePool.h"
-#include "ClusterPool.h"
-#include "DocumentPool.h"
-#include "ZonePool.h"
-#include "SecurityGroupPool.h"
-#include "VdcPool.h"
-#include "VirtualRouterPool.h"
-#include "MarketPlacePool.h"
-#include "MarketPlaceAppPool.h"
-#include "VMGroupPool.h"
-#include "VNTemplatePool.h"
-
-#include "VirtualMachineManager.h"
-#include "LifeCycleManager.h"
-#include "InformationManager.h"
-#include "TransferManager.h"
-#include "DispatchManager.h"
-#include "RequestManager.h"
-#include "HookManager.h"
-#include "AuthManager.h"
-#include "AclManager.h"
-#include "ImageManager.h"
-#include "MarketPlaceManager.h"
-#include "IPAMManager.h"
-#include "RaftManager.h"
-#include "FedReplicaManager.h"
-
 #include "DefaultQuotas.h"
+#include "UserPool.h"
 
-#include "Callbackable.h"
+class LogDB;
+class FedLogDB;
+class User;
 
+class ClusterPool;
+class DatastorePool;
+class DocumentPool;
+class GroupPool;
+class HookPool;
+class HostPool;
+class ImagePool;
+class MarketPlacePool;
+class MarketPlaceAppPool;
+class SecurityGroupPool;
+class VdcPool;
+class VMGroupPool;
+class VMTemplatePool;
+class VNTemplatePool;
+class VirtualMachinePool;
+class VirtualNetworkPool;
+class VirtualRouterPool;
+class ZonePool;
+
+class AclManager;
+class AuthManager;
+class DispatchManager;
+class FedReplicaManager;
+class HookLog;
+class HookManager;
+class ImageManager;
+class InformationManager;
+class IPAMManager;
+class LifeCycleManager;
+class MarketPlaceManager;
+class RaftManager;
+class RequestManager;
+class TransferManager;
+class VirtualMachineManager;
 
 /**
  *  This is the main class for the OpenNebula daemon oned. It stores references
@@ -169,10 +171,15 @@ public:
         return vmgrouppool;
     };
 
-    VNTemplatePool * get_vntpool(){
+    VNTemplatePool * get_vntpool()
+    {
         return vntpool;
     }
 
+    HookPool * get_hkpool()
+    {
+        return hkpool;
+    }
     // --------------------------------------------------------------
     // Manager Accessors
     // --------------------------------------------------------------
@@ -205,6 +212,11 @@ public:
     HookManager * get_hm()
     {
         return hm;
+    };
+
+    HookLog * get_hl()
+    {
+        return hl;
     };
 
     AuthManager * get_authm()
@@ -240,6 +252,11 @@ public:
     FedReplicaManager * get_frm()
     {
         return frm;
+    };
+
+    RequestManager * get_rm()
+    {
+        return rm;
     };
 
     // --------------------------------------------------------------
@@ -311,6 +328,16 @@ public:
     };
 
     /**
+     *  Returns the default share location. When ONE_LOCATION is defined this path
+     *  points to $ONE_LOCATION/share, otherwise it is /usr/share/one.
+     *      @return the log location.
+     */
+    const string& get_share_location()
+    {
+        return share_location;
+    };
+
+    /**
      *
      *
      */
@@ -366,7 +393,7 @@ public:
      */
     static string code_version()
     {
-        return "5.9.80"; // bump version
+        return "5.11.90"; // bump version
     }
 
     /**
@@ -375,7 +402,7 @@ public:
      */
     static string shared_db_version()
     {
-        return "5.10.0";
+        return "5.12.0";
     }
 
     /**
@@ -384,7 +411,7 @@ public:
      */
     static string local_db_version()
     {
-        return "5.10.0";
+        return "5.12.0";
     }
 
     /**
@@ -572,7 +599,7 @@ public:
      *  Return the Authorization operation for a VM action
      *
      */
-    AuthRequest::Operation get_vm_auth_op(History::VMAction action)
+    AuthRequest::Operation get_vm_auth_op(VMActions::Action action)
     {
         return nebula_configuration->get_vm_auth_op(action);
     }
@@ -717,8 +744,8 @@ private:
         vmpool(0), hpool(0), vnpool(0), upool(0), ipool(0), gpool(0), tpool(0),
         dspool(0), clpool(0), docpool(0), zonepool(0), secgrouppool(0),
         vdcpool(0), vrouterpool(0), marketpool(0), apppool(0), vmgrouppool(0),
-        vntpool(0), lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0), authm(0), aclm(0),
-        imagem(0), marketm(0), ipamm(0), raftm(0), frm(0)
+        vntpool(0), hkpool(0), lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0),
+        hl(0), authm(0), aclm(0), imagem(0), marketm(0), ipamm(0), raftm(0), frm(0)
     {
         const char * nl = getenv("ONE_LOCATION");
 
@@ -732,6 +759,7 @@ private:
             var_location     = "/var/lib/one/";
             remotes_location = "/var/lib/one/remotes/";
             vms_location     = "/var/lib/one/vms/";
+            share_location   = "/usr/share/one";
         }
         else
         {
@@ -748,48 +776,11 @@ private:
             var_location     = nebula_location + "var/";
             remotes_location = nebula_location + "var/remotes/";
             vms_location     = nebula_location + "var/vms/";
+            share_location   = nebula_location + "share/";
         }
     };
 
-    ~Nebula()
-    {
-        delete vmpool;
-        delete vnpool;
-        delete hpool;
-        delete upool;
-        delete ipool;
-        delete gpool;
-        delete tpool;
-        delete dspool;
-        delete clpool;
-        delete docpool;
-        delete zonepool;
-        delete secgrouppool;
-        delete vdcpool;
-        delete vrouterpool;
-        delete marketpool;
-        delete apppool;
-        delete vmgrouppool;
-        delete vmm;
-        delete lcm;
-        delete im;
-        delete tm;
-        delete dm;
-        delete rm;
-        delete hm;
-        delete authm;
-        delete aclm;
-        delete imagem;
-        delete marketm;
-        delete ipamm;
-        delete raftm;
-        delete frm;
-        delete nebula_configuration;
-        delete logdb;
-        delete fed_logdb;
-        delete system_db;
-        delete vntpool;
-    };
+    ~Nebula();
 
     Nebula& operator=(Nebula const&){return *this;};
 
@@ -803,9 +794,9 @@ private:
     string  etc_location;
     string  log_location;
     string  var_location;
-    string  hook_location;
     string  remotes_location;
     string  vms_location;
+    string  share_location;
 
     string  hostname;
 
@@ -864,6 +855,7 @@ private:
     MarketPlaceAppPool * apppool;
     VMGroupPool        * vmgrouppool;
     VNTemplatePool     * vntpool;
+    HookPool           * hkpool;
     // ---------------------------------------------------------------
     // Nebula Managers
     // ---------------------------------------------------------------
@@ -875,6 +867,7 @@ private:
     DispatchManager *       dm;
     RequestManager *        rm;
     HookManager *           hm;
+    HookLog *               hl;
     AuthManager *           authm;
     AclManager *            aclm;
     ImageManager *          imagem;

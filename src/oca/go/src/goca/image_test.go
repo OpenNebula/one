@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/image"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/image/keys"
 )
 
 var imageTpl = `
@@ -31,7 +32,7 @@ TYPE = "DATABLOCK"
 
 func ImageExpectState(imageC *ImageController, state string) func() bool {
 	return func() bool {
-		image, err := imageC.Info()
+		image, err := imageC.Info(false)
 		if err != nil {
 			return false
 		}
@@ -51,6 +52,12 @@ func ImageExpectState(imageC *ImageController, state string) func() bool {
 
 // Helper to create a Image
 func createImage(t *testing.T) (*image.Image, int) {
+
+	tpl := image.NewTemplate()
+	tpl.Add(keys.Name, "test-image")
+	tpl.Add(keys.Size, "1")
+	tpl.SetType(image.Datablock)
+
 	// Datastore ID 1 means default for image
 	id, err := testCtrl.Images().Create(imageTpl, 1)
 	if err != nil {
@@ -58,7 +65,7 @@ func createImage(t *testing.T) (*image.Image, int) {
 	}
 
 	// Get Image by ID
-	image, err := testCtrl.Image(id).Info()
+	image, err := testCtrl.Image(id).Info(false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -85,7 +92,7 @@ func TestImage(t *testing.T) {
 	}
 
 	imageCtrl := testCtrl.Image(id)
-	image, err = imageCtrl.Info()
+	image, err = imageCtrl.Info(false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -107,7 +114,7 @@ func TestImage(t *testing.T) {
 		t.Error(err)
 	}
 
-	image, err = imageCtrl.Info()
+	image, err = imageCtrl.Info(false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -140,7 +147,7 @@ func TestImage(t *testing.T) {
 		t.Error(err)
 	}
 
-	image, err = imageCtrl.Info()
+	image, err = imageCtrl.Info(false)
 	if err != nil {
 		t.Error(err)
 	}

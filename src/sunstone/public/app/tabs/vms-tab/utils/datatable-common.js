@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,6 +22,7 @@ define(function(require) {
   var TemplateUtils = require('utils/template-utils');
   var LabelsUtils = require('utils/labels/utils');
   var Status = require('utils/status');
+  var ScheduleActions = require("utils/schedule_action");
 
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
@@ -41,35 +42,171 @@ define(function(require) {
     "",
     Locale.tr("Hidden Template"),
     Locale.tr("Labels"),
-    "search_data"
+    "search_data",
+    Locale.tr("Charter") //clock leases
   ];
 
   return {
     'elementArray': _elementArray,
     'emptyElementArray': _emptyElementArray,
-    'columns': _columns
+    'tooltipCharters': showCharterInfo,
+    'columns': _columns,
+    'leasesClock': leasesClock
   };
+
+  function checkTime(startTime, addedEndTime, warningTime, rtnTime){
+    var rtn = false;
+    if(startTime && addedEndTime){
+      var regexNumber = new RegExp('[0-9]*$','gm');
+      var date = parseInt(startTime,10);
+      var added = parseInt(addedEndTime.match(regexNumber)[0],10);
+      if(!isNaN(date) && !isNaN(added)){
+        var operator = addedEndTime.replace(regexNumber, "");
+        var finalTime = date;
+        switch (operator) {
+          case '-':
+            finalTime = date - added;
+          break;
+          default:
+            finalTime = date + added;
+          break;
+        }
+        now = new Date();
+        var nowGetTime = parseInt(now.getTime(),10)
+        var nowInSeconds = Math.round(nowGetTime / 1000);
+        if(finalTime >= nowInSeconds && warningTime === undefined){
+          rtn = rtnTime? finalTime - nowInSeconds : true;
+        }else if(!!warningTime){
+          var warning = parseInt(warningTime.match(regexNumber)[0],10);
+          if(!isNaN(warning)){
+            operator = warningTime.replace(regexNumber, "");
+            var wtime = date;
+            switch (operator) {
+              case '-':
+                wtime = finalTime - warning;
+              break;
+              default:
+                wtime = finalTime + warning;
+              break;
+            }
+            if(finalTime >= nowInSeconds && wtime <= nowInSeconds){
+              rtn = true;
+            }
+          }
+        }
+      }
+    }
+    return rtn;
+  }
+
+  function showCharterInfo(){
+    var classInfo = "charterInfo";
+    var styleTips = {
+      "position":"absolute",
+      "background":"#d7d0d0",
+      "padding":"8px",
+      "z-index":"1",
+      "min-width":"8rem",
+      "font-family": '"Lato","Helvetica Neue",Helvetica,Roboto,Arial,sans-serif',
+      "font-weight": "100",
+      "color":"#000"
+    };
+    $(".describeCharter").off("mouseenter").on("mouseenter",function(e){
+      $(this).find(".charterInfo").remove();
+      var start = $(this).attr("data_start");
+      var add = $(this).attr("data_add");
+      var action = $(this).attr("data_action");
+      if((start && start.length) && (add && add.length) && (action && action.length)){
+        var date = checkTime(start, add, undefined, true);
+        if(typeof date === "number"){
+          $(this).append(
+            $("<div/>",{"class":classInfo}).css(styleTips).append(
+              $("<b/>").css({"display":"inline"}).text(action).add(
+                $("<div/>").css({"display":"inline"}).text(
+                  " "+Locale.tr("will run in")+" "+ScheduleActions.parseTime(date)
+                )
+              )
+            )
+          );
+        }
+      }
+    })
+    $(".describeCharter").on("mouseleave").on("mouseleave", function(e){
+      $(this).find("."+classInfo).remove();
+    });
+  }
+
+  function leasesClock(element){
+    var rtn = "";
+    if(
+      element && 
+      element.STIME && 
+      element.USER_TEMPLATE && 
+      element.USER_TEMPLATE.SCHED_ACTION && 
+      config && 
+      config.system_config &&
+      config.system_config.leases
+    ){
+      var actionsArray = [];
+      var actions = element.USER_TEMPLATE.SCHED_ACTION;
+      var leases = config.system_config.leases;
+      if(Array.isArray(element.USER_TEMPLATE.SCHED_ACTION)){
+        actionsArray = actions;
+      }else{
+        actionsArray.push(actions);
+      }
+      actionsArray.some(function(action){
+        if(
+          action && 
+          action.ACTION && 
+          action.TIME && 
+          leases && 
+          leases[action.ACTION] && 
+          leases[action.ACTION].time && 
+          !isNaN(parseInt(leases[action.ACTION].time)) && 
+          leases[action.ACTION].color
+        ){
+          if(checkTime(element.STIME, action.TIME)){
+            rtn = $("<i/>",{class:"describeCharter fa fa-clock",data_start:element.STIME, data_add:action.TIME, data_action:action.ACTION}).css({"position":"relative","color":leases[action.ACTION].color});
+            if(
+              leases[action.ACTION].warning && 
+              leases[action.ACTION].warning.time && 
+              leases[action.ACTION].warning.color
+            ){
+              if(checkTime(element.STIME, action.TIME, leases[action.ACTION].warning.time)){
+                rtn.css("color", leases[action.ACTION].warning.color);
+              }
+            }
+            rtn = rtn.prop('outerHTML');
+            return true;
+          }
+        }
+      });
+    }
+    return rtn;
+  }
 
   function _elementArray(element_json) {
     var element = element_json[XML_ROOT];
 
-    var state;
+    var state = (element.STATE == OpenNebulaVM.STATES.ACTIVE)
+      ? OpenNebulaVM.shortLcmStateStr(element.LCM_STATE)
+      : OpenNebulaVM.stateStr(element.STATE);
 
-    if (element.STATE == OpenNebulaVM.STATES.ACTIVE) {
-      state = OpenNebulaVM.shortLcmStateStr(element.LCM_STATE);
-    } else {
-      state = OpenNebulaVM.stateStr(element.STATE);
-    }
+    var actions = "";
 
-    // VNC icon
-    var vncIcon;
+    // VNC/SPICE icon
     if (OpenNebulaVM.isVNCSupported(element)) {
-      vncIcon = '<a class="vnc" href="#" vm_id="' + element.ID + '"><i class="fas fa-desktop"/></a>';
-    } else if (OpenNebulaVM.isSPICESupported(element)) {
-      vncIcon = '<a class="spice" href="#" vm_id="' + element.ID + '"><i class="fas fa-desktop"/></a>';
-    } else {
-      vncIcon = '';
+      actions += OpenNebulaVM.buttonVnc(element.ID);
     }
+    else if (OpenNebulaVM.isSPICESupported(element)) {
+      actions += OpenNebulaVM.buttonSpice(element.ID);
+    }
+    
+    // virt-viewer file icon
+    wFile = OpenNebulaVM.isWFileSupported(element);
+    wFile && (actions += OpenNebulaVM.buttonWFile(element.ID, wFile));
+
     if(config && 
       config["system_config"] && 
       config["system_config"]["allow_vnc_federation"] && 
@@ -78,32 +215,30 @@ define(function(require) {
       config["zone_id"] && 
       config["id_own_federation"] !== config["zone_id"])
     {
-      vncIcon = '';
+      actions = '';
     }
 
-    var cpuMonitoring = 0;
-    var memoryMonitoring = 0;
+    // RDP icon
+    var rdp = OpenNebulaVM.isRDPSupported(element);
+    rdp && (actions += OpenNebulaVM.buttonRDP(rdp.IP, element));
+
+    var cpuMonitoring = 0, memoryMonitoring = 0;
     if (element.MONITORING) {
       if (element.MONITORING.CPU) {
-        cpuMonitoring = element.MONITORING.CPU
+        cpuMonitoring = element.MONITORING.CPU;
       }
 
       if (element.MONITORING.MEMORY) {
-        memoryMonitoring = element.MONITORING.MEMORY
+        memoryMonitoring = element.MONITORING.MEMORY;
       }
     }
 
     var hostname = OpenNebulaVM.hostnameStr(element);
 
-    var type;
-
-    if (element.TEMPLATE.VROUTER_ID != undefined){
-      type = "VR";
-    } else if (element.USER_TEMPLATE.SERVICE_ID != undefined){
-      type = "FLOW";
-    } else {
-      type = "VM";
-    }
+    var type = (element && element.TEMPLATE && element.TEMPLATE.VROUTER_ID && element.TEMPLATE.VROUTER_ID != undefined)
+      ? "VR"
+      : (element && element.USER_TEMPLATE && element.USER_TEMPLATE.SERVICE_ID && element.USER_TEMPLATE.SERVICE_ID != undefined)
+        ? "FLOW" : "VM";
 
     var search = {
       NAME:         element.NAME,
@@ -115,12 +250,11 @@ define(function(require) {
       CLUSTER:      OpenNebulaVM.clusterStr(element),
       STIME_AFTER:  element.STIME,
       STIME_BEFORE: element.STIME
-    }
-    if (OpenNebulaVM.isFailureState(element.LCM_STATE)){
-      value_state = "FAILED"
-    } else {
-      value_state = OpenNebulaVM.stateStr(element.STATE)
-    }
+    };
+
+    var value_state = (OpenNebulaVM.isFailureState(element.LCM_STATE))
+      ? "FAILED" : OpenNebulaVM.stateStr(element.STATE);
+
     var color_html = Status.state_lock_to_color("VM", value_state, element_json[RESOURCE.toUpperCase()]["LOCK"]);
 
     return [
@@ -139,12 +273,13 @@ define(function(require) {
       cpuMonitoring,
       Humanize.size(memoryMonitoring),
       hostname,
-      OpenNebulaVM.ipsStr(element),
+      OpenNebulaVM.ipsDropdown(element),
       Humanize.prettyTimeDatatable(element.STIME),
-      vncIcon,
+      actions,
       TemplateUtils.htmlEncode(TemplateUtils.templateToString(element)),
       (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
-      btoa(unescape(encodeURIComponent(JSON.stringify(search))))
+      btoa(unescape(encodeURIComponent(JSON.stringify(search)))),
+      leasesClock(element)
     ];
   }
 
@@ -155,6 +290,7 @@ define(function(require) {
                              vmId + '" name="selected_items" value="' +
                              vmId + '"/>',
        vmId,
+       "",
        "",
        "",
        "",

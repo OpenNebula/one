@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -82,16 +82,10 @@ define(function(require) {
             var valid = market.ZONE_ID == config.zone_id;
 
             if (valid){
-              var create_support = false;
-
-              $.each(config.oned_conf.MARKET_MAD_CONF, function(){
-                if (this.NAME == market.MARKET_MAD){
-                  create_support = this.APP_ACTIONS.split(',').includes("create");
-                  return false; //break
-                }
-              });
-
-              valid = create_support;
+              valid = $(config.oned_conf.MARKET_MAD_CONF)
+                .filter(function(_, marketMad){
+                  return marketMad.NAME == market.MARKET_MAD && marketMad.APP_ACTIONS.indexOf('create') !== -1;
+                }).length > 0;
             }
 
             return valid;

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -57,15 +57,11 @@ while IFS= read -r -d '' element; do
 done < <(onevm show -x $VMID| $XPATH \
                     /VM/DEPLOY_ID \
                     /VM/LCM_STATE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TARGET \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE)
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TARGET)
 
 DEPLOY_ID="${XPATH_ELEMENTS[j++]}"
 LCM_STATE="${XPATH_ELEMENTS[j++]}"
 DISK_TARGET="${XPATH_ELEMENTS[j++]}"
-DISK_SRC="${XPATH_ELEMENTS[j++]}"
-CLONE="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
@@ -82,7 +78,6 @@ DST_DS_PATH="$(dirname $(dirname $DST_ARG_PATH))"
 DST_PATH="${SRC_DS_PATH}${DST_ARG_PATH##$DST_DS_PATH}"
 
 if [ "$SNAP_ID" != "-1" ]; then
-    [ "$CLONE" != "YES" ] && SRC_PATH="$DISK_SRC"
     SRC_PATH="$SRC_PATH.snap/$SNAP_ID"
 fi
 

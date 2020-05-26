@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -46,9 +46,11 @@ READLINK=${READLINK:-readlink}
 RM=${RM:-rm}
 CP=${CP:-cp}
 SCP=${SCP:-scp}
+SCP_FWD=${SCP_FWD:-scp -o ForwardAgent=yes -o ControlMaster=no -o ControlPath=none}
 SED=${SED:-sed}
 SSH=${SSH:-ssh}
-SUDO=${SUDO:-sudo}
+SSH_FWD=${SSH_FWD:-ssh -o ForwardAgent=yes -o ControlMaster=no -o ControlPath=none}
+SUDO=${SUDO:-sudo -n}
 SYNC=${SYNC:-sync}
 TAR=${TAR:-tar}
 TGTADM=${TGTADM:-tgtadm}
@@ -361,6 +363,26 @@ function mkfs_command {
     fi
 }
 
+# This function will accept command as an argument for which it will override
+# the env. variables SSH and SCP with their agent forwarding alternative
+ssh_forward()
+{
+    _ssh_cmd_saved="$SSH"
+    _scp_cmd_saved="$SCP"
+
+    SSH="$SSH_FWD"
+    SCP="$SCP_FWD"
+
+    "$@"
+
+    _ssh_forward_result=$?
+
+    SSH="$_ssh_cmd_saved"
+    SCP="$_scp_cmd_saved"
+
+    return $_ssh_forward_result
+}
+
 #This function executes $2 at $1 host and report error $3 but does not exit
 function ssh_exec_and_log_no_error
 {
@@ -556,7 +578,7 @@ function tgtadm_next_tid {
 
 function tgt_admin_dump_config {
     FILE_PATH="$1"
-    echo "$TGTADMIN --dump |sudo tee $FILE_PATH > /dev/null 2>&1"
+    echo "$TGTADMIN --dump |sudo -n tee $FILE_PATH > /dev/null 2>&1"
 }
 
 ###
@@ -762,6 +784,7 @@ function get_disk_information {
                         $DISK_XPATH/POOL_NAME \
                         $DISK_XPATH/SIZE \
                         $DISK_XPATH/TARGET \
+                        $DISK_XPATH/TM_MAD \
                         $DISK_XPATH/IO \
                         $DISK_XPATH/ORDER \
                         $DISK_XPATH/TOTAL_BYTES_SEC \
@@ -803,6 +826,7 @@ function get_disk_information {
     POOL_NAME="${XPATH_ELEMENTS[j++]}"
     SIZE="${XPATH_ELEMENTS[j++]}"
     DISK_TARGET="${XPATH_ELEMENTS[j++]}"
+    DISK_TM_MAD="${XPATH_ELEMENTS[j++]}"
     DISK_IO="${XPATH_ELEMENTS[j++]}"
     ORDER="${XPATH_ELEMENTS[j++]}"
     TOTAL_BYTES_SEC="${XPATH_ELEMENTS[j++]}"
@@ -907,13 +931,23 @@ function get_disk_information {
             fi
             ;;
         *)
-            TYPE_SOURCE="file"
-            TYPE_XML="file"
-            DEVICE="disk"
+            case "$DISK_TM_MAD" in
+            fs_lvm)
+                TYPE_SOURCE="dev"
+                TYPE_XML="block"
+                DEVICE="disk"
+                ;;
+            *)
+                TYPE_SOURCE="file"
+                TYPE_XML="file"
+                DEVICE="disk"
+                ;;
+            esac
             ;;
-        esac
 
+        esac
         ;;
+
     esac
 }
 
@@ -1004,10 +1038,4 @@ function get_nic_information {
     OUTBOUND_PEAK_BW="${XPATH_ELEMENTS[j++]}"
     OUTBOUND_PEAK_KB="${XPATH_ELEMENTS[j++]}"
     ORDER="${XPATH_ELEMENTS[j++]}"
-}
-
-function hup_collectd
-{
-    SEND_HUP='kill -HUP `cat /tmp/one-collectd-client.pid` || true'
-    ssh_exec_and_log_no_error $1 "$SEND_HUP"
 }

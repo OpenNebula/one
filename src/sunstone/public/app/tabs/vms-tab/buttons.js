@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -76,7 +76,7 @@ define(function(require) {
       type: "action",
       text: Locale.tr("Migrate") + ' <span class="label secondary radius">' + Locale.tr("live") + '</span>',
       layout: "vmsmigration_buttons",
-      custom_classes : "state-dependent"
+      custom_classes : "state-dependent not_firecracker"
     },
     "VM.hold" : {
       type: "action",
@@ -196,13 +196,27 @@ define(function(require) {
     },
     "VM.startvnc" : {
       type: "action",
-      text: '<i class="fas fa-desktop"/> ' + Locale.tr("VNC"),
+      text: Locale.tr("VNC"),
+      layout: "vmsremote_buttons",
       custom_classes: "only-sunstone-info vnc-sunstone-info"
     },
     "VM.startspice" : {
       type: "action",
-      text: '<i class="fas fa-desktop"/> ' + Locale.tr("SPICE"),
+      text: Locale.tr("SPICE"),
+      layout: "vmsremote_buttons",
       custom_classes: "only-sunstone-info spice-sunstone-info"
+    },
+    "VM.save_virt_viewer" : {
+      type: "action",
+      text: Locale.tr("VIRT-VIEWER FILE"),
+      layout: "vmsremote_buttons",
+      custom_classes: "only-sunstone-info vv-sunstone-info"
+    },
+    "VM.save_rdp" : {
+      type: "action",
+      text: Locale.tr("RDP"),
+      layout: "vmsremote_buttons",
+      custom_classes: "only-sunstone-info rdp-sunstone-info"
     },
     "VM.save_as_template" : {
       type: "action",

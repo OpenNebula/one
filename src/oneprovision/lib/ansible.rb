@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -34,7 +34,7 @@ CONFIG_DEFAULTS = {
 }
 
 # Ansible params
-ANSIBLE_VERSION = [Gem::Version.new('2.5'), Gem::Version.new('2.7')]
+ANSIBLE_VERSION = [Gem::Version.new('2.8'), Gem::Version.new('2.10')]
 ANSIBLE_ARGS = "--ssh-common-args='-o UserKnownHostsFile=/dev/null'"
 ANSIBLE_INVENTORY_DEFAULT = 'default'
 
@@ -78,12 +78,17 @@ module OneProvision
             def configure(hosts, force = nil)
                 configured = ''
 
+                return if hosts.nil? || hosts.empty?
+
                 hosts.each do |host|
                     host.info
 
                     status = host['TEMPLATE/PROVISION_CONFIGURATION_STATUS']
 
-                    host = Host.new(host['ID'])
+                    id   = host['ID']
+                    host = Host.new
+
+                    host.info(id)
                     host.check
 
                     if status == 'configured' && !force
@@ -110,6 +115,13 @@ module OneProvision
             def configure_all(hosts, ping = true)
                 check_ansible_version
 
+                hosts.each do |host|
+                    host.update(
+                        'PROVISION_CONFIGURATION_STATUS=configured',
+                        true
+                    )
+                end
+
                 ansible_dir = generate_ansible_configs(hosts)
 
                 try_ssh(ansible_dir) if ping
@@ -117,40 +129,44 @@ module OneProvision
                 # offline ONE host
                 OneProvisionLogger.info('Configuring hosts')
 
-                # build Ansible command
-                cmd = "ANSIBLE_CONFIG=#{ansible_dir}/ansible.cfg "
-                cmd += "ansible-playbook #{ANSIBLE_ARGS}"
-                cmd << " -i #{ansible_dir}/inventory"
-                cmd << " -i #{ANSIBLE_LOCATION}/inventories/#{@inventory}/"
-                cmd << " #{ANSIBLE_LOCATION}/#{@inventory}.yml"
+                @inventories.each do |inventory|
+                    # build Ansible command
+                    cmd = "ANSIBLE_CONFIG=#{ansible_dir}/ansible.cfg "
+                    cmd << "ansible-playbook #{ANSIBLE_ARGS}"
+                    cmd << " -i #{ansible_dir}/inventory"
+                    cmd << " -i #{ANSIBLE_LOCATION}/inventories/#{inventory}"
+                    cmd << " #{ANSIBLE_LOCATION}/#{inventory}.yml"
 
-                o, _e, s = Driver.run(cmd)
+                    o, _e, s = Driver.run(cmd)
 
-                if s && s.success?
-                    # enable configured ONE host back
-                    OneProvisionLogger.debug('Enabling OpenNebula hosts')
+                    if s && s.success? && inventory == @inventories.last
+                        # enable configured ONE host back
+                        OneProvisionLogger.debug('Enabling OpenNebula hosts')
 
-                    configured = 'PROVISION_CONFIGURATION_STATUS=configured'
+                        hosts.each do |host|
+                            host.update(
+                                'PROVISION_CONFIGURATION_STATUS=configured',
+                                true
+                            )
+                            host.enable
+                        end
+                    elsif s && !s.success?
+                        hosts.each do |host|
+                            host.update(
+                                'PROVISION_CONFIGURATION_STATUS=error',
+                                true
+                            )
+                        end
 
-                    hosts.each do |host|
-                        host.update(configured, true)
-                        host.enable
+                        errors = parse_ansible(o) if o
+
+                        raise OneProvisionLoopException, errors
                     end
-
-                    0
-                else
-                    error = 'PROVISION_CONFIGURATION_STATUS=error'
-
-                    hosts.each do |host|
-                        host.update(error, true)
-                    end
-
-                    errors = parse_ansible(o) if o
-
-                    raise OneProvisionLoopException, errors
                 end
-            rescue StandardError => error
-                raise OneProvisionLoopException, error.text
+
+                0
+            rescue StandardError => e
+                raise OneProvisionLoopException, e
             end
 
             # Retries ssh connection
@@ -257,9 +273,11 @@ module OneProvision
 
                 o, _e, s = Driver.run(cmd)
 
-                raise OneProvisionLoopException if !s && !s.success?
+                raise OneProvisionLoopException if !s || !s.success?
 
-                hosts = o.lines.count {|l| l =~ /success/i }
+                hosts = o.lines.count do |l|
+                    l =~ /success/i || l =~ /CHANGED/i
+                end
 
                 raise OneProvisionLoopException if hosts.zero?
 
@@ -320,9 +338,10 @@ module OneProvision
                 end
 
                 if hosts[0]['TEMPLATE/ANSIBLE_PLAYBOOK']
-                    @inventory = hosts[0]['TEMPLATE/ANSIBLE_PLAYBOOK']
+                    @inventories = hosts[0]['TEMPLATE/ANSIBLE_PLAYBOOK']
+                    @inventories = @inventories.split(',')
                 else
-                    @inventory = ANSIBLE_INVENTORY_DEFAULT
+                    @inventories = [ANSIBLE_INVENTORY_DEFAULT]
                 end
 
                 # Generate "ansible.cfg" file

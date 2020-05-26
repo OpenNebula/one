@@ -5,7 +5,7 @@
     name: opennebula-node
     state: latest
   register: apt_result
-  until: apt_result | succeeded
+  until: apt_result is success
   retries: 3
   delay: 10
 

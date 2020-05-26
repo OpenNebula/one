@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -101,9 +101,9 @@ void  DispatchManager::stop_success_action(int vid)
         vm->set_state(VirtualMachine::LCM_INIT);
 
         //Set history action field to perform the right TM command on resume
-        if (vm->get_action() == History::NONE_ACTION)
+        if (vm->get_action() == VMActions::NONE_ACTION)
         {
-            vm->set_internal_action(History::STOP_ACTION);
+            vm->set_internal_action(VMActions::STOP_ACTION);
 
             vmpool->update_history(vm);
         }
@@ -161,9 +161,9 @@ void  DispatchManager::undeploy_success_action(int vid)
         vm->set_state(VirtualMachine::LCM_INIT);
 
         //Set history action field to perform the right TM command on resume
-        if (vm->get_action() == History::NONE_ACTION)
+        if (vm->get_action() == VMActions::NONE_ACTION)
         {
-            vm->set_internal_action(History::UNDEPLOY_ACTION);
+            vm->set_internal_action(VMActions::UNDEPLOY_ACTION);
 
             vmpool->update_history(vm);
         }
@@ -211,6 +211,8 @@ void  DispatchManager::poweroff_success_action(int vid)
         return;
     }
 
+    VirtualMachine::LcmState prev_state = vm->get_lcm_state();
+
     if ((vm->get_state() == VirtualMachine::ACTIVE) &&
         (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF ||
          vm->get_lcm_state() == VirtualMachine::HOTPLUG_PROLOG_POWEROFF ||
@@ -247,7 +249,12 @@ void  DispatchManager::poweroff_success_action(int vid)
 
     vm->unlock();
 
-    Quotas::vm_del(uid, gid, &quota_tmpl);
+    if (prev_state != VirtualMachine::DISK_SNAPSHOT_POWEROFF &&
+        prev_state != VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF &&
+        prev_state != VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF)
+    {
+        Quotas::vm_del(uid, gid, &quota_tmpl);
+    }
 
     return;
 }

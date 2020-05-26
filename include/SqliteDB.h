@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -55,34 +55,14 @@ public:
      *    @param str the string to be escaped
      *    @return a valid SQL string or NULL in case of failure
      */
-    char * escape_str(const string& str);
+    char * escape_str(const string& str) override;
 
     /**
      *  Frees a previously scaped string
      *    @param str pointer to the str
      */
-    void free_str(char * str);
+    void free_str(char * str) override;
 
-    /**
-     * Returns true if the syntax INSERT VALUES (data), (data), (data)
-     * is supported
-     *
-     * @return true if supported
-     */
-    bool multiple_values_support();
-
-    /**
-     * Returns true if this Database can use LIMIT in queries with DELETE
-     *  and UPDATE
-     *
-     * @return true if supported
-     */
-    bool limit_support();
-
-    bool fts_available()
-    {
-        return false;
-    }
 protected:
     /**
      *  Wraps the sqlite3_exec function call, and locks the DB mutex.
@@ -92,23 +72,18 @@ protected:
      *    @param arg to pass to the callback function
      *    @return 0 on success
      */
-    virtual int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet);
+    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet) override;
 
 private:
     /**
      *  Fine-grain mutex for DB access
      */
-    pthread_mutex_t     mutex;
+    pthread_mutex_t mutex;
 
     /**
      *  Pointer to the database.
      */
-    sqlite3 *           db;
-
-    /**
-     *  LIMIT for DELETE and UPDATE queries is enabled
-     */
-    int                 enable_limit;
+    sqlite3 * db;
 
     /**
      *  Function to lock the DB
@@ -135,20 +110,21 @@ public:
     SqliteDB(const string& db_name)
     {
         throw runtime_error("Aborting oned, Sqlite support not compiled!");
-    };
+    }
 
-    ~SqliteDB(){};
+    ~SqliteDB() = default;
 
-    char * escape_str(const string& str){return 0;};
+    char * escape_str(const string& str) override { return 0; }
 
-    void free_str(char * str){};
+    void free_str(char * str) override {};
 
-    bool multiple_values_support(){return true;};
-
-    bool limit_support(){return true;};
+    std::string get_limit_string(const std::string& str) override { return str; }
 
 protected:
-    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet){return -1;};
+    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet) override
+    {
+        return -1;
+    }
 };
 #endif
 

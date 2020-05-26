@@ -1,0 +1,42 @@
+<!-- The information sent to the hook when $API is used in an API Hook follos the following schema   -->
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://opennebula.org/XMLSchema" elementFormDefault="qualified" targetNamespace="http://opennebula.org/XMLSchema">
+  <xs:element name="CALL_INFO">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="RESULT" type="xs:integer"/>
+        <xs:element name="PARAMETERS" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <!-- The list of IN and OUT parameters will match the API call parameters defined here: http://docs.opennebula.org/5.9/integration/system_interfaces/api.html   -->
+              <xs:element name="PARAMETER" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="POSITION" type="xs:integer"/>
+                    <xs:element name="TYPE" type="xs:integer">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                        <xs:enumeration value="IN"/>
+                        <xs:enumeration value="OUT"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+                    <xs:element name="VALUE" type="xs:string"/>
+                  </xs:sequence>
+                </xs:complexType>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <!-- This info is only included when the API hook is set on a one.*.delete or one.*.allocate API call   -->
+        <xs:element name="EXTRA" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <!-- EXTRA section will contain the template of the allocated/deleted resource as defined here; https://github.com/OpenNebula/one/tree/master/share/doc/xsd  -->
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

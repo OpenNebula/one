@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,6 +17,9 @@
 #include "VirtualMachineDisk.h"
 #include "NebulaUtil.h"
 #include "Nebula.h"
+#include "DatastorePool.h"
+#include "ImagePool.h"
+#include "ImageManager.h"
 
 
 /* -------------------------------------------------------------------------- */
@@ -57,7 +60,7 @@ string VirtualMachineDisk::get_tm_target() const
 
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachineDisk::get_uid(int _uid)
+int VirtualMachineDisk::get_uid(int _uid) const
 {
     istringstream  is;
 
@@ -102,7 +105,7 @@ int VirtualMachineDisk::get_uid(int _uid)
 
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachineDisk::get_image_id(int &id, int uid)
+int VirtualMachineDisk::get_image_id(int &id, int uid) const
 {
     int    iid;
     string iname;
@@ -356,7 +359,7 @@ void VirtualMachineDisk::delete_snapshot(int snap_id, Template **ds_quotas,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-long long VirtualMachineDisk::system_ds_size()
+long long VirtualMachineDisk::system_ds_size() const
 {
 	long long disk_sz, snapshot_sz = 0;
 
@@ -382,7 +385,7 @@ long long VirtualMachineDisk::system_ds_size()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-long long VirtualMachineDisk::image_ds_size()
+long long VirtualMachineDisk::image_ds_size() const
 {
 	long long disk_sz, snapshot_sz = 0;
 
@@ -471,7 +474,7 @@ void VirtualMachineDisk::resize_quotas(long long new_size, Template& ds_deltas,
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineDisk::datastore_sizes(int& ds_id, long long& image_sz,
-        long long& system_sz)
+        long long& system_sz) const
 {
 	long long tmp_size, snapshot_size;
 
@@ -561,7 +564,7 @@ void VirtualMachineDisk::set_types(const string& ds_name)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 #define XML_DISK_ATTR(Y,X) ( Y << "<" << X << ">" << \
-        one_util::escape_xml(vector_value(X)) << "</" << X << ">") 
+        one_util::escape_xml(vector_value(X)) << "</" << X << ">")
 
 void VirtualMachineDisk::to_xml_short(std::ostringstream& oss) const
 {
@@ -785,6 +788,8 @@ int VirtualMachineDisks::get_images(int vm_id, int uid, const std::string& tsys,
         {
             oss << "DISK " << disk_id << ": " << error_str;
             error_str = oss.str();
+
+            delete disk;
 
             goto error_common;
         }
@@ -1111,10 +1116,20 @@ VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
 
     VirtualMachineDisk * disk = new VirtualMachineDisk(vdisk, max_disk_id + 1);
 
+    if ( !tsys.empty() )
+    {
+        disk->replace("TM_MAD_SYSTEM", tsys);
+    }
+    else
+    {
+        disk->remove("TM_MAD_SYSTEM");
+    }
+
     int rc = ipool->acquire_disk(vmid, disk, max_disk_id + 1, img_type,
                          dev_prefix, uid, image_id, &snap, true, error);
     if ( rc != 0 )
     {
+        delete disk;
         return 0;
     }
 
@@ -1174,14 +1189,6 @@ VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
     // -------------------------------------------------------------------------
 
     disk->set_attach();
-    if ( !tsys.empty() )
-    {
-        disk->replace("TM_MAD_SYSTEM", tsys);
-    }
-    else
-    {
-        disk->remove("TM_MAD_SYSTEM");
-    }
 
     add_attribute(disk, disk->get_disk_id());
 
@@ -1269,6 +1276,11 @@ int VirtualMachineDisks::set_active_snapshot(int id, int snap_id)
         return -1;
     }
 
+    if (!disk->has_snapshot(snap_id))
+    {
+        return -1;
+    }
+
     disk->set_active_snapshot();
     disk->replace("DISK_SNAPSHOT_ID", snap_id);
 
@@ -1292,7 +1304,7 @@ void VirtualMachineDisks::clear_active_snapshot()
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachineDisks::get_active_snapshot(int& ds_id, string& tm_mad,
-        int& disk_id, int& snap_id)
+        int& disk_id, int& snap_id) const
 {
     int rc;
     VirtualMachineDisk * disk =
@@ -1576,7 +1588,7 @@ int VirtualMachineDisks::clear_saveas()
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachineDisks::get_saveas_info(int& disk_id, string& source,
-        int& image_id, string& snap_id, string& tm_mad, string& ds_id)
+        int& image_id, string& snap_id, string& tm_mad, string& ds_id) const
 {
     int rc;
 
@@ -1657,8 +1669,12 @@ int VirtualMachineDisks::check_tm_mad(const string& tm_mad, string& error)
                         disk_type) != 0 )
             {
                 error = "Image Datastore does not support transfer mode: " + tm_mad;
+
+                ds_img->unlock();
                 return -1;
             }
+
+            ds_img->unlock();
 
             disk->replace("CLONE_TARGET", clone_target);
             disk->replace("LN_TARGET", ln_target);

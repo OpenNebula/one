@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -85,8 +85,8 @@ func (zc *ZonesController) Info() (*zone.Pool, error) {
 }
 
 // Info retrieves information for the zone.
-func (zc *ZoneController) Info() (*zone.Zone, error) {
-	response, err := zc.c.Client.Call("one.zone.info", zc.ID)
+func (zc *ZoneController) Info(decrypt bool) (*zone.Zone, error) {
+	response, err := zc.c.Client.Call("one.zone.info", zc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -117,8 +117,8 @@ func (zc *ZoneController) Delete() error {
 	return err
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update adds zone content.
+// * tpl: The new zone contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (zc *ZoneController) Update(tpl string, uType parameters.UpdateType) error {

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -59,9 +59,7 @@ EOT
 
         @db.transaction do
             @db.fetch("SELECT * FROM image_pool") do |row|
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){
-                    |c| c.default_xml.noblanks
-                }
+                doc = nokogiri_doc(row[:body], 'image_pool')
 
                 next_snapshot = doc.at_xpath("//SNAPSHOTS/NEXT_SNAPSHOT")
 
@@ -92,9 +90,7 @@ EOT
             log_time()
 
             @db.fetch("SELECT * FROM vm_pool") do |row|
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){ |c|
-                    c.default_xml.noblanks
-                }
+                doc = nokogiri_doc(row[:body], 'vm_pool')
 
                 # evaluate each disk snapshot individually
                 doc.xpath("//SNAPSHOTS").each do |disk|

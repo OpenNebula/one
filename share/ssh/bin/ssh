@@ -1,0 +1,98 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# This is a SSH command (ssh) wrapper to workaround issues with master sockets
+# for the persistent connections - it will add '-o ControlMaster=auto' to the
+# ssh command in some specific cases (where it does not hang the SSH session).
+#
+# NOTE: It can be overriden by setting the env. var 'SSH_OPT_CONTROL_MASTER'
+# either directly when run manually in the shell or in the systemd unit
+# 'opennebula.service' (e.g.: Environment="SSH_OPT_CONTROL_MASTER=no").
+# In either case it must be a valid value for SSH's 'ControlMaster' option...
+
+#
+# global variables
+#
+
+# fix the PATH again...
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# default 'ControlMaster' override value
+SSH_OPT_CONTROL_MASTER="${SSH_OPT_CONTROL_MASTER:-auto}"
+
+
+#
+# functions
+#
+
+is_control_master_used()
+{
+    # match regardless of the case
+    shopt -s nocasematch
+
+    # parse the arguments
+    _state=nil
+    while [ "$#" -gt 0 ] ; do
+        case "$_state" in
+            nil)
+                case "$1" in
+                    -o)
+                        _state=option
+                        ;;
+                    -o*)
+                        if [[ "$1" =~ ^-o[[:space:]]*ControlMaster.*$ ]] ; then
+                            # ControlMaster option was found!
+                            return 0
+                        fi
+                        _state=nil
+                        ;;
+                    *)
+                        _state=nil
+                        ;;
+                esac
+                ;;
+            option)
+                if [[ "$1" =~ ^[[:space:]]*ControlMaster.*$ ]] ; then
+                    # ControlMaster option was found!
+                    return 0
+                fi
+                _state=nil
+                ;;
+        esac
+        shift
+    done
+
+    # revert back to normal
+    shopt -u nocasematch
+
+    # ControlMaster was not encountered
+    return 1
+}
+
+
+#
+# main
+#
+
+if is_control_master_used "$@" ; then
+    # do not override anything - ControlMaster was already set explicitly
+    exec ssh "$@"
+fi
+
+# now we can override the ssh command with the enabled master socket
+exec ssh -o "ControlMaster=${SSH_OPT_CONTROL_MASTER}" "$@"

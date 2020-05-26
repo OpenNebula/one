@@ -12,7 +12,7 @@ module Packet
                 delete("/ips/#{range.id}")
             end
 
-            def assign_ip(device, range)
+            def assign_ip_old(device, range)
                 data = {"address" => get_ips(range)}
 
                 post("/devices/#{device.id}/ips", data).tap do |response|
@@ -20,7 +20,7 @@ module Packet
                 end
             end
 
-            def unassign_ip(range)
+            def unassign_ip_old(range)
                 delete("/ips/#{range.id}")
             end
 

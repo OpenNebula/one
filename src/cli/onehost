@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -30,6 +30,7 @@ end
 
 if File.directory?(GEMS_LOCATION)
     Gem.use_paths(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /(vendor|site)_ruby/ }
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -77,13 +78,12 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Force probe upgrade in onehost sync'
     }
 
-    RSYNC = {
-        :name => 'rsync',
-        :large => '--rsync',
-        :description => 'Use rsync to synchronize remotes. In case some '\
-                        'probes are no longer in the fronted ithey will be '\
-                        'deleted in the hosts. rsync command must be '\
-                        'installed in the frontend and nodes.'
+    SSH = {
+        :name => 'ssh',
+        :large => '--ssh',
+        :description => 'Use SSH to synchronize remotes. In case some '\
+                        'probes are no longer in the fronted they will be '\
+                        'deleted in the hosts.'
     }
 
     TYPE = {
@@ -95,7 +95,7 @@ CommandParser::CmdParser.new(ARGV) do
     }
 
     CREAT_OPTIONS = [IM, VMM, OneClusterHelper::CLUSTER, TYPE]
-    SYNC_OPTIONS  = [OneClusterHelper::CLUSTER, FORCE, RSYNC]
+    SYNC_OPTIONS  = [OneClusterHelper::CLUSTER, FORCE, SSH]
 
     ########################################################################
     # Formatters for arguments
@@ -236,7 +236,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :show, show_desc, :hostid,
-            :options => OpenNebulaHelper::XML do
+            :options => [OpenNebulaHelper::XML, OpenNebulaHelper::DECRYPT] do
         helper.show_resource(args[0], options)
     end
 

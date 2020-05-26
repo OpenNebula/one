@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -25,66 +25,132 @@ define(function (require) {
   var TemplateHTML = require("hbs!./schedule_action/html");
   var TemplateTableHTML = require("hbs!./schedule_action/table");
 
-  function _html(resource) {
+  var selector = '';
+  var defaultHour = "12:30";
+  var actionsWithARGS = [
+    'snapshot-create',
+    'snapshot-revert',
+    'snapshot-delete',
+    'disk-snapshot-create',
+    'disk-snapshot-revert',
+    'disk-snapshot-delete'
+  ];
+
+  function _html(resource, leases = null) {
     this.res = resource;
     return TemplateTableHTML({
-      res: resource
+      res: resource,
+      leases: leases
     });
   }
 
-  function _htmlNewAction(actions, context, res) {
-    var options = "";
-    var clearEmpySpaces = function(e){
-      var value = e.val().replace(/\s/g, "");
-      e.val(value);
-    };
+  function formatDate( date, type = 'full') {
+    var d = date? new Date(date): new Date();
+    var month = '' + (d.getMonth() + 1);
+    var day = '' + d.getDate();
+    var year = d.getFullYear();
+    var hour = d.getHours();
+    var minutes = d.getMinutes();
+    if (hour.length < 2) 
+        hour = '0' + hour;
+    if (minutes.length < 2) 
+        minutes = '0' + minutes;
+    if (month.length < 2) 
+        month = '0' + month;
+    if (day.length < 2) 
+        day = '0' + day;
+    var date = [];
+    switch (type) {
+      case 'hour':
+        date = [hour+":"+minutes];
+      break;
+      case 'date':
+        date = [year, month, day];
+      break;
+      default:
+        date = [year, month, day, hour+":"+minutes];
+      break;
+    }
+    return date.join('-');
+  }
 
-    var options_date_picker={
-      dateFormat: "yy-mm-dd",
-      minDate: new Date(),
-      showOptions: { direction: "down" }
-    };
-    var options_hour_picker = {
-      title: Locale.tr("Hour"),
-      twentyFour: "true",
-      timeSeparator: ":",
-      beforeShow: clearEmpySpaces,
-      now: "12:30"
-    };
+  var clearEmpySpaces = function(e){
+    var value = e.val().replace(/\s/g, "");
+    e.val(value);
+  };
+
+  var options_date_picker={
+    dateFormat: "yy-mm-dd",
+    minDate: new Date(),
+    showOptions: { direction: "down" }
+  };
+  var options_hour_picker = {
+    title: Locale.tr("Hour"),
+    twentyFour: "true",
+    timeSeparator: ":",
+    beforeShow: clearEmpySpaces,
+    now: defaultHour
+  };
+
+  function addPickers(schedule,context){
+    if(schedule && context){
+      //input periodic scheduled date
+      $("#end_value_date").datepicker("disable");
+      schedule.find("#end_value_date",context).off("click").on("click",function(e){
+        e.stopPropagation();
+        $(".wickedpicker").hide();
+      }).on("keypress",function(e){
+        e.preventDefault(); 
+        return false;
+      }).datepicker(options_date_picker);
+
+      //input date scheduled
+      $("#date_input").datepicker("disable");
+      schedule.find("#date_input",context).off("click").on("click",function(e){
+        e.stopPropagation();
+        $(".wickedpicker").hide();
+      }).on("keypress",function(e){
+        e.preventDefault(); return false;
+      }).datepicker(options_date_picker);
+
+      //input hour picker
+      schedule.find("#time_input",context).off("click").on("click",function(e){
+        e.stopPropagation();
+      }).wickedpicker(options_hour_picker);
+
+      schedule.find("#relative_time", context).off("click").on("click", function (e) {
+        $("#schedule_type", context).prop("checked", false);
+        if ($(this).is(":checked")) {
+          $("#no_relative_time_form, .periodic", context).addClass("hide");
+          $("#schedule_time", context).prop("", false);
+          $("#relative_time_form", context).removeClass("hide");
+        } else {
+          $("#relative_time_form", context).addClass("hide");
+          $("#no_relative_time_form", context).removeClass("hide");
+        }
+      });
+    }
+  }
+
+  function _htmlNewAction(actions, context, res) {
+    $("tr.periodic.create, tr#no_relative_time_form").remove();
+    this.res = res
+    var options = "";
     var that = this;
     $.each(actions, function (key, action) {
-      var actionAux = action.replace("-", "_");
+      var actionAux = action.replace(/\-/g, "_");
       if (Config.isTabActionEnabled("vms-tab", "VM." + actionAux)) {
         options += "<option value=\"" + action + "\">" + Locale.tr(action) + "</option>";
       }
     });
-    var schedule = $("#scheduling_" + res + "_actions_table tbody", context).append(TemplateHTML({
+    var schedule = $("#scheduling_" + this.res + "_actions_table tbody", context).append(TemplateHTML({
       "actions": options,
-      "res": that.res
+      "res": this.res
     }));
-
-    //input periodic scheduled date
-    schedule.find("#end_value_date",context).on("click",function(e){e.stopPropagation();$(".wickedpicker").hide();}).on("keypress",function(e){e.preventDefault(); return false;}).datepicker(options_date_picker);
-
-    //input date scheduled
-    schedule.find("#date_input",context).on("click",function(e){e.stopPropagation();$(".wickedpicker").hide();}).on("keypress",function(e){e.preventDefault(); return false;}).datepicker(options_date_picker);
-
-    schedule.find("#time_input",context).on("click",function(e){e.stopPropagation();}).wickedpicker(options_hour_picker);
-
-    schedule.find("#relative_time", context).on("click", function (e) {
-      $("#schedule_type", context).prop("checked", false);
-      if ($(this).is(":checked")) {
-        $("#no_relative_time_form, .periodic", context).addClass("hide");
-        $("#schedule_time", context).prop("", false);
-        $("#relative_time_form", context).removeClass("hide");
-      } else {
-        $("#relative_time_form", context).addClass("hide");
-        $("#no_relative_time_form", context).removeClass("hide");
-      }
-    });
-    if (res === "vms") {
-      $("#title", context).prop("colspan", "2");
-      $("#td_days", context).prop("colspan", "5");
+    addPickers(schedule,context);
+    if (this.res === "vms") {
+      $("#title", context).prop("colspan", "10");
+      $("#td_days", context).prop("colspan", "8");
     }
   }
 
@@ -100,17 +166,59 @@ define(function (require) {
       mm = "0" + mm;
     }
     $("#date_input", context).attr("value", yyyy + "-" + mm + "-" + dd);
-    $(".periodic", context).hide();
+    $(".periodic", context).addClass("hide");
+    this.selector = $("select#select_new_action", context);
+    $("select#select_new_action").on("change",function(){
+      var snap_name = $("#snapname",context);
+      var snap_id = $("#snapid",context);
+      var disk_id = $("#diskid",context);
 
+      switch ($(this).val()) {
+        case "snapshot-create":
+          snap_name.removeClass("hide");
+          snap_id.addClass("hide");
+          disk_id.addClass("hide");
+        break;
+        case "snapshot-revert":
+          snap_name.addClass("hide");
+          snap_id.removeClass("hide");
+          disk_id.addClass("hide");
+        break;
+        case "snapshot-delete":
+          snap_name.addClass("hide");
+          snap_id.removeClass("hide");
+          disk_id.addClass("hide");
+        break;
+        case "disk-snapshot-create":
+          snap_name.removeClass("hide");
+          snap_id.addClass("hide");
+          disk_id.removeClass("hide");
+        break;
+        case "disk-snapshot-revert":
+          snap_name.addClass("hide");
+          snap_id.removeClass("hide");
+          disk_id.removeClass("hide");
+        break;
+        case "disk-snapshot-delete":
+          snap_name.addClass("hide");
+          snap_id.removeClass("hide");
+          disk_id.removeClass("hide");
+        break;
+        default:
+          snap_name.addClass("hide");
+          snap_id.addClass("hide");
+          disk_id.addClass("hide");
+        break;
+      }
+    });
     $("input#schedule_type", context).on("change", function () {
       var periodic = $(this).prop("checked");
-
       if (periodic) {
-        $(".periodic", context).show();
-        $(".non-periodic", context).hide();
+        $(".periodic", context).removeClass("hide");
+        $(".non-periodic", context).addClass("hide");
       } else {
-        $(".periodic", context).hide();
-        $(".non-periodic", context).show();
+        $(".periodic", context).addClass("hide");
+        $(".non-periodic", context).removeClass("hide");
       }
     });
     var that = this;
@@ -187,16 +295,223 @@ define(function (require) {
 
   }
 
+  function _fill(element, context){
+    _reset();
+    if(element && element.closest && element.closest("tr") && element.closest("tr").attr && element.closest("tr").attr("data") && context){
+      var data = element.closest("tr").attr("data");
+      var dataJSON = JSON.parse(data);
+      if(dataJSON){
+        var relative = true;
+
+        Object.keys(dataJSON).forEach(function(key){
+          valuesForRelative = ['ACTION','ID','TIME'];
+          if(key!=='ARGS' && !valuesForRelative.includes(key)){
+            relative = false;
+          }
+        })
+
+        if(dataJSON.ACTION){
+          $("#select_new_action").val(dataJSON.ACTION).change();
+          if(dataJSON.ARGS){
+            var args = dataJSON.ARGS.split(",");
+            var disk_id = $("#diskid",context);
+            var snap_id = $("#snapid",context);
+            var snap_name = $("#snapname",context);
+            if(args && Array.isArray(args)){
+              switch (dataJSON.ACTION) {
+                case "snapshot-create":
+                  disk_id.val("");
+                  snap_id.val("");
+                  snap_name.val(args[0]||"");
+                break;
+                case "snapshot-revert":
+                  disk_id.val("");
+                  snap_id.val(args[0]||"");
+                  snap_name.val("");
+                break;
+                case "snapshot-delete":
+                  disk_id.val("");
+                  snap_id.val(args[0]||"");
+                  snap_name.val("");
+                break;
+                case "disk-snapshot-create":
+                  disk_id.val(args[0]||"");
+                  snap_id.val("");
+                  snap_name.val(args[1]||"");
+                break;
+                case "disk-snapshot-revert":
+                  disk_id.val(args[0]||"");
+                  snap_id.val(args[1]||"");
+                  snap_name.val("");
+                break;
+                case "disk-snapshot-delete":
+                  disk_id.val(args[0]||"");
+                  snap_id.val(args[1]||"");
+                  snap_name.val("");
+                break;
+                default:
+                  snap_name.val("");
+                  snap_id.val("");
+                  disk_id.val("");
+                break;
+              }
+            }else{
+              snap_name.val("");
+              snap_id.val("");
+              disk_id.val("");
+            }
+          }
+        }
+        //relative check
+        if(relative){
+          $('#relative_time').prop('checked', true);
+          $("#relative_time_form").removeClass("hide");
+          $("#no_relative_time_form").addClass("hide");
+          if(dataJSON.TIME){
+            var relativeTime = _time(parseInt(dataJSON.TIME,10));
+            if(relativeTime && relativeTime.split && relativeTime.split(" ")){
+              relativeDate = relativeTime.trim().split(" ");
+              if(relativeDate[0]){
+                $("#time_number").val(relativeDate[0]);
+              }
+              if(relativeDate[1]){
+                $('#time_unit').val(relativeDate[1].toLowerCase());
+              }
+            }
+          }
+        }else{
+          $('#relative_time').prop('checked', false);
+          $("#relative_time_form").addClass("hide");
+          $("#no_relative_time_form").removeClass("hide");
+          //periodic check
+          if(dataJSON.DAYS || dataJSON.REPEAT){
+            $('#schedule_type').click().attr('checked', true);
+          }
+          if(dataJSON.TIME && dataJSON.TIME > 1){
+            var end_value = parseInt(dataJSON.TIME,10) * 1000;
+            $("#date_input").val(
+              formatDate(end_value,'date')
+            );
+            $("#time_input").val(
+              formatDate(end_value, 'hour')
+            );
+          }else{
+            _resetInputs();
+          }
+          if(dataJSON.REPEAT && dataJSON.REPEAT.length){
+            _resetRepeatValues();
+            switch (dataJSON.REPEAT) {
+              case '0':
+                $("#repeat").val('week').change();
+                if(dataJSON.DAYS && dataJSON.DAYS.length){
+                  var days = $("#days_week_value input[name=days]");
+                  var dataDays = dataJSON.DAYS.split(",");
+                  dataDays.forEach(function(dataValue){
+                    if(days[dataValue]){
+                      $(days[dataValue]).prop("checked", true);
+                    }
+                  })
+                }
+              break;
+              case '1':
+                $("#repeat").val('month').change();
+                if(dataJSON.DAYS && dataJSON.DAYS.length){
+                  $("#days_month_value").val(dataJSON.DAYS);
+                }
+              break;
+              case '2':
+                $("#repeat").val('year').change();
+                if(dataJSON.DAYS && dataJSON.DAYS.length){
+                  $("#days_year_value").val(dataJSON.DAYS);
+                }
+              break;
+              case '3':
+                $("#repeat").val('hour').change();
+                if(dataJSON.DAYS && dataJSON.DAYS.length){
+                  $("#days_hour_value").val(dataJSON.DAYS);
+                }
+              break;
+              default:
+              break;
+            }
+          }else{
+            _resetRepeat();
+          }
+          if(dataJSON.END_TYPE && dataJSON.END_TYPE.length){
+            switch (dataJSON.END_TYPE) {
+              case "0":
+                $("#end_type_ever").prop("checked",true).click();
+              break;
+              case "1":
+                $("#end_type_n_rep[value=n_rep]").click();
+                if(dataJSON.END_VALUE && dataJSON.END_VALUE.length){
+                  $("#end_value_n_rep").val(dataJSON.END_VALUE);
+                }
+              break;
+              case "2":
+                $("#end_type_n_rep[value=date]").click();
+                if(dataJSON.END_VALUE && dataJSON.END_VALUE.length){
+                  var end_value = parseInt(dataJSON.END_VALUE,10) * 1000;
+                  $("#end_value_date").val(
+                    formatDate(end_value,'date')
+                  );
+                }
+              break;
+              default:
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  function _reset(){
+    $("#relative_time").prop("checked",false);
+    $("#schedule_type").prop("checked",false);
+    $("#time_number").val("");
+    $("#end_value_date").val("").prop("disabled", true);
+    $("#end_value_n_rep").val("").prop("disabled", true);
+    $("#end_type_ever").click();
+    _resetInputs();
+    _resetRepeat();
+    _resetRepeatValues();
+    $(".periodic").addClass("hide");
+    $(".non-periodic").removeClass("hide");
+    $("#relative_time_form").addClass("hide");
+    $("#no_relative_time_form").removeClass("hide");
+    
+  }
+
+  function _resetRepeatValues(){
+    $("#days_week_value input[name=days]").prop("checked", false);
+    $("#days_month_value").val("");
+    $("#days_year_value").val("");
+    $("#days_hour_value").val("");
+  }
+
+  function _resetRepeat(){
+    $("#repeat").val('week').change();
+  }
+
+  function _resetInputs(){
+    $("#date_input").val(
+      formatDate(false, 'date')
+    );
+    $("#time_input").val(defaultHour);
+  }
+
   function _retrieve(context) {
     $("#scheduling_" + this.res + "_actions_table .create", context).remove();
     var actionsJSON = [];
+    var that = this;
     $("#scheduling_" + this.res + "_actions_table tbody tr").each(function (index) {
       var first = $(this).children("td")[0];
-      if (!$("select", first).html()) {
+      if (!$("select", first).html()) { //table header
         var actionJSON = {};
         if ($(this).attr("data")) {
           actionJSON = JSON.parse($(this).attr("data"));
-          actionJSON.ID = index;
+          actionJSON.ID = String(index);
         }
       }
       if (!$.isEmptyObject(actionJSON)) { actionsJSON.push(actionJSON); };
@@ -260,7 +575,7 @@ define(function (require) {
       end_type = 2;
       var timeCal = date_input_value + " " + time_input_value;
       epochStr = new Date(timeCal);
-      var time = parseInt(epochStr.getTime()) / 1000;
+      var time = parseInt(epochStr.getTime(),10) / 1000;
       sched_action.END_TYPE = end_type;
       sched_action.END_VALUE = time;
       sched_action.TIME = time;
@@ -307,13 +622,20 @@ define(function (require) {
           var epoch_str = new Date(time_value);
           end_value = parseInt(epoch_str.getTime()) / 1000;
         }
-        sched_action.DAYS = days;
-        sched_action.REPEAT = rep;
-        sched_action.END_VALUE = end_value;
+        sched_action.DAYS = String(days);
+        sched_action.REPEAT = String(rep);
+        sched_action.END_VALUE = String(end_value);
       }
-      sched_action.END_TYPE = end_type;
+      sched_action.END_TYPE = String(end_type);
     }
-    sched_action.ACTION = new_action;
+    sched_action.ACTION = String(new_action);
+    if(sched_action.ACTION && actionsWithARGS.includes(sched_action.ACTION)){
+      var snap_name = $("#snapname",context).val();
+      var snap_id = $("#snapid",context).val();
+      var disk_id = $("#diskid",context).val();
+      var rawData = [disk_id,snap_id,snap_name];
+      sched_action.ARGS = rawData.filter(function (e) {return e;}).join();
+    }
     $("#scheduling_" + this.res + "_actions_table .create", context).remove();
     $("#scheduling_" + this.res + "_actions_table #relative_time_form", context).remove();
     $("#scheduling_" + this.res + "_actions_table #no_relative_time_form", context).remove();
@@ -431,10 +753,20 @@ define(function (require) {
         <td nowrap class='rep_row'>" + rep_str + "</td>\
         <td nowrap class='end_row'>" + end_str + "</td>";
     if (minus === undefined) {
-      str += "<td>\
+      var action_id = scheduling_action.ID || '';
+      var update_sched = '';
+      if(action_id){
+        update_sched = "<button id='edit' class='small button btn-warning edit_action_x' data_id='"+action_id+"'><i class='fas fa-edit'></i></button>";
+      }
+      str += "<td colspan='3' style='text-align: right;'>\
+              <div style='display: flex;justify-content: flex-end;'>\
                 <div>\
-                <a id='minus' class='remove_action_x' href='#'><i class='fas fa-trash-alt'/></a>\
+                  <button id='minus' class='small button btn-danger remove_action_x'><i class='fas fa-trash-alt'></i></button>\
                 </div>\
+                <div>\
+                  "+update_sched+"\
+                </div>\
+              </div>\
             </td>\
             </tr>";
     }
@@ -454,6 +786,9 @@ define(function (require) {
     "setup": _setup,
     "htmlTable": _html,
     "retrieveNewAction": _retrieveNewAction,
-    "retrieve": _retrieve
+    "retrieve": _retrieve,
+    "fill": _fill,
+    "parseTime": _time,
+    "reset": _reset
   };
 });

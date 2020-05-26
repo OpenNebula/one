@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -495,6 +495,7 @@ define(function(require) {
       ResourceSelect.insert({
           context: $('.image_select', $(".image_quota_table tbody tr", context).last()),
           resourceName: 'Image',
+          force: true,
           emptyValue: true
         });
 
@@ -650,6 +651,7 @@ define(function(require) {
       ResourceSelect.insert({
           context: $('.ds_select', $(".ds_quota_table tbody tr", context).last()),
           resourceName: 'Datastore',
+          force: true,
           emptyValue: true
         });
 
@@ -802,6 +804,7 @@ define(function(require) {
       ResourceSelect.insert({
           context: $('.network_select', $(".network_quota_table tbody tr", context).last()),
           resourceName: 'Network',
+          force: true,
           emptyValue: true
         });
 
@@ -1397,7 +1400,7 @@ define(function(require) {
 
   function _quotaIntLimit(limit, default_limit){
     i_limit = parseInt(limit, 10);
-    i_default_limit = parseInt(default_limit, 10);
+    i_default_limit = default_limit? parseInt(default_limit, 10) : i_limit;
 
     if (limit == QUOTA_LIMIT_DEFAULT){
       i_limit = i_default_limit;

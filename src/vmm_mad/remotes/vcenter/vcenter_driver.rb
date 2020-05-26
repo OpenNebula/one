@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -38,6 +38,7 @@ ENV['LANG'] = 'C'
 
 if File.directory?(GEMS_LOCATION)
     Gem.use_paths(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /(vendor|site)_ruby/ }
 end
 
 $LOAD_PATH << LIB_LOCATION + '/ruby/vendors/rbvmomi/lib'
@@ -83,6 +84,12 @@ require 'resolv'
 require 'vcenter_importer.rb'
 require 'memoize'
 require 'vi_client'
+begin
+    require 'rest_client'
+    REST_CLIENT=true
+rescue LoadError
+    REST_CLIENT=false
+end
 require 'vi_helper'
 require 'datacenter'
 require 'host'
@@ -97,7 +104,6 @@ require 'vm_device'
 require 'vm_disk'
 require 'vm_nic'
 require 'vm_helper'
-require 'vm_monitor'
 
 CHECK_REFS = true
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -21,6 +21,8 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var TemplateUtils = require('utils/template-utils');
   var Tips = require('utils/tips');
+  var Notifier = require('utils/notifier');
+  var Locale = require('utils/locale');
 
   /*
     TEMPLATES
@@ -66,7 +68,7 @@ define(function(require) {
 
   function _html() {
     showForm = true;
-    if(this && this.element && this.element.TEMPLATE && this.element.TEMPLATE.NSX_STATUS && this.element.TEMPLATE.NSX_STATUS.trim() === 'OK'){
+    if(this && this.element && this.element.IM_MAD && this.element.IM_MAD !== "vcenter"){
       showForm=false;
     }
     return TemplateNsx();
@@ -97,7 +99,7 @@ define(function(require) {
     var label = $("<label />");
     var input = $("<input />",{type: 'text'});
     var form = $("#nsx-form").empty();
-    var button = $("<button>")
+    var button = $("<button>");
     var userValue = (that && that.element && that.element.TEMPLATE && that.element.TEMPLATE.NSX_USER) || "";
     var passValue = (that && that.element && that.element.TEMPLATE && that.element.TEMPLATE.NSX_PASSWORD) || "";
     displayTab(showForm);
@@ -126,15 +128,25 @@ define(function(require) {
 
     //action
     $("#"+submit).off().on('click',function(){
-      if($('#'+user.toLowerCase()).val() && $('#'+pass.toLowerCase()).val()){
-        var template = that.element.TEMPLATE;
-        template[user] = $('#'+user.toLowerCase()).val();
-        template[pass] = $('#'+pass.toLowerCase()).val();
-        template_str  = TemplateUtils.templateToString(template);
-        Sunstone.runAction(RESOURCE + ".update_template", that.element.ID, template_str);
+      var template = that.element.TEMPLATE;
+      if($('#'+user.toLowerCase()).val() && $('#'+pass.toLowerCase()).val() && template && template.NSX_MANAGER && template.NSX_TYPE){
+        var sendUser = $('#'+user.toLowerCase()).val();
+        var sendPass = $('#'+pass.toLowerCase()).val();
+        Sunstone.runAction(RESOURCE + ".validateCredentials", {
+          user:sendUser, 
+          pass: sendPass, 
+          nsxmngr: template.NSX_MANAGER, 
+          nsxtype: template.NSX_TYPE
+        },{
+          success: function(response){
+            template[user] = sendUser;
+            template[pass] = sendPass;
+            template_str  = TemplateUtils.templateToString(template);
+            Sunstone.runAction(RESOURCE + ".update_template", that.element.ID,template_str);
+            Notifier.notifyMessage(Locale.tr("NSX information valid"));
+          }
+        });
       }
     });
   }
-})
-
-
+});

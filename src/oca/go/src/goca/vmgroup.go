@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,7 +20,6 @@ import (
 	"encoding/xml"
 	"errors"
 
-	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vmgroup"
 )
@@ -71,26 +70,13 @@ func (c *VMGroupsController) ByName(name string, args ...int) (int, error) {
 // Info returns a vm group pool. A connection to OpenNebula is
 // performed.
 func (vc *VMGroupsController) Info(args ...int) (*vmgroup.Pool, error) {
-	var who, start, end int
 
-	switch len(args) {
-	case 0:
-		who = parameters.PoolWhoMine
-		start = -1
-		end = -1
-	case 1:
-		who = args[0]
-		start = -1
-		end = -1
-	case 3:
-		who = args[0]
-		start = args[1]
-		end = args[2]
-	default:
-		return nil, errors.New("Wrong number of arguments")
+	fArgs, err := handleArgs(args)
+	if err != nil {
+		return nil, err
 	}
 
-	response, err := vc.c.Client.Call("one.vmgrouppool.info", who, start, end)
+	response, err := vc.c.Client.Call("one.vmgrouppool.info", fArgs...)
 	if err != nil {
 		return nil, err
 	}
@@ -105,8 +91,8 @@ func (vc *VMGroupsController) Info(args ...int) (*vmgroup.Pool, error) {
 }
 
 // Info retrieves information for the vm group.
-func (vc *VMGroupController) Info() (*vmgroup.VMGroup, error) {
-	response, err := vc.c.Client.Call("one.vmgroup.info", vc.ID)
+func (vc *VMGroupController) Info(decrypt bool) (*vmgroup.VMGroup, error) {
+	response, err := vc.c.Client.Call("one.vmgroup.info", vc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +106,7 @@ func (vc *VMGroupController) Info() (*vmgroup.VMGroup, error) {
 }
 
 // Create allocates a new vmGroup. It returns the new vmGroup ID.
-func (vc *VMGroupController) Create(tpl string) (int, error) {
+func (vc *VMGroupsController) Create(tpl string) (int, error) {
 	response, err := vc.c.Client.Call("one.vmgroup.allocate", tpl)
 	if err != nil {
 		return 0, err
@@ -142,7 +128,7 @@ func (vc *VMGroupController) Delete() error {
 	return err
 }
 
-// Update replaces the vmGroup template contents.
+// Update replaces the vmGroup template content.
 // * tpl: The new vmGroup template contents. Syntax can be the usual attribute=value or XML.
 // * appendTemplate: Update type: 0: Replace the whole template. 1: Merge new template with the existing one.
 func (vc *VMGroupController) Update(tpl string, uType int) error {
@@ -151,17 +137,9 @@ func (vc *VMGroupController) Update(tpl string, uType int) error {
 }
 
 // Chmod changes the permission bits of a vmGroup.
-// * uu: USER USE bit. If set to -1, it will not change.
-// * um: USER MANAGE bit. If set to -1, it will not change.
-// * ua: USER ADMIN bit. If set to -1, it will not change.
-// * gu: GROUP USE bit. If set to -1, it will not change.
-// * gm: GROUP MANAGE bit. If set to -1, it will not change.
-// * ga: GROUP ADMIN bit. If set to -1, it will not change.
-// * ou: OTHER USE bit. If set to -1, it will not change.
-// * om: OTHER MANAGE bit. If set to -1, it will not change.
-// * oa: OTHER ADMIN bit. If set to -1, it will not change.
-func (vc *VMGroupController) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
-	_, err := vc.c.Client.Call("one.vmgroup.chmod", vc.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+func (vc *VMGroupController) Chmod(perm shared.Permissions) error {
+	args := append([]interface{}{vc.ID}, perm.ToArgs()...)
+	_, err := vc.c.Client.Call("one.vmgroup.chmod", args...)
 	return err
 }
 

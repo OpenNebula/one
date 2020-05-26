@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -77,14 +77,14 @@ define(function(require) {
     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
                                               Locale.tr("Attributes"));
     //====
-
-    return TemplateInfo({
+    render =  TemplateInfo({
       "element": this.element,
-      "sunstone_template": this.element.TEMPLATE.SUNSTONE||{},
+      "sunstone_template": this.element.TEMPLATE.SUNSTONE || {},
       "templateTableHTML": templateTableHTML,
       "tabId": this.tabId,
       "userCreationHTML": this.userCreation.html()
     });
+    return render;
   }
 
   function _setup(context) {

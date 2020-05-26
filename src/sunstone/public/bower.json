@@ -5,9 +5,9 @@
     "jgrowl": "1.4.2",
     "fontawesome": "5.0.7",
     "flot.tooltip": "0.8.4",
-    "no-vnc": "1.1.0",
+    "no-vnc": "https://github.com/novnc/noVNC.git#9fe2fd04d4",
     "resumablejs": "https://github.com/23/resumable.js.git#420cd351c5",
-    "spice-html5": "https://gitlab.freedesktop.org/spice/spice-html5.git#spice-html5-0.1.6",
+    "spice-html5": "https://github.com/freedesktop/spice-html5.git#spice-html5-0.1.7",
     "require-handlebars-plugin": "0.11.2",
     "almond": "0.3.1",
     "vis": "4.12.0",
@@ -18,7 +18,8 @@
     "navigo": "2.1.1",
     "sprintf": "1.0.3",
     "jquery-ui": "^1.12.1",
-    "wickedpicker": "https://github.com/ericjgagnon/wickedpicker.git#dd2cce3"
+    "wickedpicker": "https://github.com/OpenNebula/sunstone-deps.git#9398b3f",
+    "webauthn-json": "https://registry.npmjs.org/@github/webauthn-json/-/webauthn-json-0.4.1.tgz"
   },
   "authors": [
     "Daniel Molina <dmolina@opennebula.org>",

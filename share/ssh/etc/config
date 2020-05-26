@@ -1,0 +1,28 @@
+# Initial default configuration placed by opennebula-common
+# package. Latest default configurations are located in
+# /usr/share/one/ssh/.
+
+###############################################################################
+# WARNING: This configuration file is ONLY for OpenSSH 7.6 and newer!
+###############################################################################
+
+Host *
+  StrictHostKeyChecking accept-new
+  ServerAliveInterval 10
+  #############################################################################
+  # 'ControlMaster' is overriden by OpenNebula's drivers when needed
+  ControlMaster no
+  # The following options must be aligned with the accompanying timer/cronjob:
+  # opennebula-ssh-socks-cleaner (if present) which implements workaround for
+  # OpenSSH race condition during the closing of the master socket.
+  #
+  # 'ControlPersist' should be set to more than twice the period after which
+  # timer or cronjob is run - to offset the delay - e.g.: timer job is run each
+  # 30s then 'ControlPersist' should be at least one minute. It will also not
+  # change the behavior even if it set much higher or to the infinity (0) - it
+  # is limited by the timer/cronjob *AND* the command which is executed inside.
+  #
+  # (+) Add another 10s to give timer/cronjob a room for cleanup
+  ControlPersist 70s
+  # 'ControlPath' must be in-sync with the script run by timer/cronjob above!
+  ControlPath /run/one/ssh-socks/ctl-M-%C.sock

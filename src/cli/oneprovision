@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -25,7 +25,7 @@ if !ONE_LOCATION
     REMOTES_LOCATION  = '/var/lib/one/remotes'
     ANSIBLE_LOCATION  = '/usr/share/one/oneprovision/ansible'
 else
-    LIB_LOCATION      = ONE_LOCATION + '/usr/lib/one'
+    LIB_LOCATION      = ONE_LOCATION + '/lib'
     RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
     REMOTES_LOCATION  = ONE_LOCATION + '/var/remotes'
@@ -34,11 +34,13 @@ end
 
 if File.directory?(GEMS_LOCATION)
     Gem.use_paths(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /(vendor|site)_ruby/ }
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 $LOAD_PATH << LIB_LOCATION      + '/oneprovision/lib'
+$LOAD_PATH << LIB_LOCATION      + '/oneflow/lib'
 
 PING_TIMEOUT_DEFAULT  = 20
 PING_RETRIES_DEFAULT  = 10
@@ -47,6 +49,7 @@ RUN_MODE_DEFAULT      = :interactive
 FAIL_CHOICE_DEFAULT   = :quit
 CLEANUP_DEFAULT       = false
 THREADS_DEFAULT       = 3
+WAIT_TIMEOUT_DEFAULT  = 60
 
 require 'command_parser'
 
@@ -187,6 +190,31 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Dump the configuration file result.'
     }
 
+    SKIP_PROVISION = {
+        :name => 'skip_provision',
+        :large => '--skip-provision',
+        :description => 'Skip provision and configuration hosts phases'
+    }
+
+    SKIP_CONFIG = {
+        :name => 'skip_config',
+        :large => '--skip-config',
+        :description => 'Skip configuration hosts phase'
+    }
+
+    WAIT_READY = {
+        :name => 'wait_ready',
+        :large => '--wait-ready',
+        :description => 'Wait resources to be ready in OpenNebula'
+    }
+
+    WAIT_TIMEOUT = {
+        :name => 'wait_timeout',
+        :large => '--wait-timeout timeout',
+        :description => 'Timeout to wait objects to be ready',
+        :format      => Integer
+    }
+
     MODES = CommandParser::OPTIONS - [CommandParser::VERBOSE] +
             [VERBOSE,
              DEBUG,
@@ -201,7 +229,11 @@ CommandParser::CmdParser.new(ARGV) do
                       PING_TIMEOUT,
                       PING_RETRIES,
                       CLEANUP,
-                      CLEANUP_TIMEOUT]
+                      CLEANUP_TIMEOUT,
+                      SKIP_PROVISION,
+                      SKIP_CONFIG,
+                      WAIT_READY,
+                      WAIT_TIMEOUT]
 
     ONE_OPTIONS = CommandParser::OPTIONS +
                   CLIHelper::OPTIONS +
@@ -224,7 +256,16 @@ CommandParser::CmdParser.new(ARGV) do
             timeout = options[:cleanup_timeout]
         end
 
-        helper.create(args[0], (options.key? :cleanup), timeout)
+        # Get skip mode
+        if options.key? :skip_provision
+            skip = :all
+        elsif options.key? :skip_config
+            skip = :config
+        else
+            skip = :none
+        end
+
+        helper.create(args[0], (options.key? :cleanup), timeout, skip)
     end
 
     ###
@@ -248,7 +289,9 @@ CommandParser::CmdParser.new(ARGV) do
     # TODO: add xml option
     command :list,
             provision_list_desc,
-            :options => CommandParser::OPTIONS + CLIHelper::OPTIONS do
+            :options => CommandParser::OPTIONS +
+                        CLIHelper::OPTIONS +
+                        [OpenNebulaHelper::XML] do
         helper.list(options)
     end
 
@@ -261,8 +304,8 @@ CommandParser::CmdParser.new(ARGV) do
     command :show,
             provision_show_desc,
             :provisionid,
-            :options => CommandParser::OPTIONS do
-        helper.show(args[0])
+            :options => CommandParser::OPTIONS + [OpenNebulaHelper::XML] do
+        helper.show(args[0], (options.key? :xml))
     end
 
     ###
@@ -312,10 +355,10 @@ CommandParser::CmdParser.new(ARGV) do
     command %i[cluster list],
             cluster_list_desc,
             :options => ONE_OPTIONS + [OpenNebulaHelper::DESCRIBE] do
-        columns = %w[hosts vnets datastores]
+        columns = %w[hosts networks datastores]
 
         cluster_helper = OneClusterHelper.new
-        list           = helper.get_list(columns, false)
+        list           = helper.get_list(columns)
 
         cluster_helper.format_pool(options).show(list, options)
 
@@ -499,9 +542,10 @@ CommandParser::CmdParser.new(ARGV) do
     command %i[datastore list], datastore_list_desc,
             :options => ONE_OPTIONS + [OpenNebulaHelper::DESCRIBE] do
         datastore_helper = OneDatastoreHelper.new
-        datastore        = OneProvision::Datastore.new
+        datastore        = OneProvision::Datastore.new.get
+        datastore.map! {|d| d.to_hash['DATASTORE'] }
 
-        datastore_helper.format_pool(options).show(datastore.get)
+        datastore_helper.format_pool(options).show(datastore)
 
         0
     end
@@ -533,9 +577,10 @@ CommandParser::CmdParser.new(ARGV) do
             vnet_list_desc,
             :options => ONE_OPTIONS + [OpenNebulaHelper::DESCRIBE] do
         vnet_helper = OneVNetHelper.new
-        vnet        = OneProvision::Vnet.new
+        network     = OneProvision::Network.new.get
+        network.map! {|n| n.to_hash['VNET'] }
 
-        vnet_helper.format_pool(options).show(vnet.get, options)
+        vnet_helper.format_pool(options).show(network, options)
 
         0
     end

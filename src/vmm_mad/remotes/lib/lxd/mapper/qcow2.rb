@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -23,6 +23,9 @@ require 'mapper'
 # Block device mapping for qcow2 disks, backed by nbd kernel module
 class Qcow2Mapper < Mapper
 
+    # Version --fork option was introduced in qemu-nbd command
+    QEMU_NBD_FORK_VERSION = "2.8.0"
+
     def do_map(one_vm, disk, _directory)
         device = nbd_device
 
@@ -31,7 +34,10 @@ class Qcow2Mapper < Mapper
         dsrc = one_vm.disk_source(disk)
         File.chmod(0o664, dsrc) if File.symlink?(one_vm.sysds_path)
 
-        map = "#{COMMANDS[:nbd]} -c #{device} #{dsrc}"
+        map = "#{COMMANDS[:nbd]}"
+        map.concat(" --fork") if fork_supported
+        map.concat(" -c #{device} #{dsrc}")
+
         rc, _out, err = Command.execute(map, true)
 
         unless rc.zero?
@@ -63,6 +69,28 @@ class Qcow2Mapper < Mapper
     end
 
     private
+
+    def fork_supported
+        tgt_ver = nbd_version
+
+        return false if tgt_ver == "0.0.0"
+
+        Gem::Version.new(tgt_ver) >= Gem::Version.new(QEMU_NBD_FORK_VERSION)
+    end
+
+    def nbd_version
+        cmd = "#{COMMANDS[:nbd]} -V"
+
+        rc, out, _err = Command.execute(cmd, false)
+
+        return "0.0.0" unless rc.zero?
+
+        match_v = out.match(/qemu-nbd(?: version)? ((?:[0-9]+\.?)+)\s?\(?.*$/)
+
+        return "0.0.0" if match_v.nil?
+
+        match_v[1]
+    end
 
     # Detects Max number of block devices
     def nbds_max

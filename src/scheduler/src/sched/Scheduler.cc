@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -268,16 +268,16 @@ void Scheduler::start()
             bool   success = xmlrpc_c::value_boolean(values[0]);
             string message = xmlrpc_c::value_string(values[1]);
 
-            if (!success ||(oned_conf.from_xml(message) != 0))
+            if (success && (oned_conf.from_xml(message) == 0))
             {
-                ostringstream oss;
-
-                oss << "Cannot contact oned, will retry... Error: " << message;
-
-                NebulaLog::log("SCHED", Log::ERROR, oss);
+                break;
             }
 
-            break;
+            ostringstream oss;
+
+            oss << "Cannot contact oned, will retry... Error: " << message;
+
+            NebulaLog::log("SCHED", Log::ERROR, oss);
         }
         catch (exception const& e)
         {
@@ -1714,7 +1714,7 @@ int Scheduler::do_scheduled_actions()
     const map<int, ObjectXML*>  vms = vmapool->get_objects();
     map<int, ObjectXML*>::const_iterator vm_it;
 
-    string action_st, error_msg;
+    string action_st, args_st, error_msg;
 
     string time_str = one_util::log_time(time(0));
 
@@ -1736,6 +1736,7 @@ int Scheduler::do_scheduled_actions()
             }
 
             action_st = (*action)->vector_value("ACTION");
+            args_st   = (*action)->vector_value("ARGS");
 
             int rc = VirtualMachineXML::parse_action_name(action_st);
 
@@ -1748,7 +1749,7 @@ int Scheduler::do_scheduled_actions()
             }
             else
             {
-                rc = vmapool->action(vm->get_oid(), action_st, error_msg);
+                rc = vmapool->action(vm->get_oid(), action_st, args_st, error_msg);
 
                 if (rc == 0)
                 {

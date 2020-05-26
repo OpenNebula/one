@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -192,8 +192,9 @@ module OpenNebula
             options[:vmtemplate_name] = name unless options[:vmtemplate_name]
 
             tmpl << "\n"
-            tmpl << "NAME=\"" << name << "\"\n"
-            tmpl << "FROM_APP=\"" << self['ID'] << "\"\n"
+            tmpl << 'NAME="' << name << "\"\n"
+            tmpl << 'FROM_APP="' << self['ID'] << "\"\n"
+            tmpl << 'URL_ARGS="' << options[:url_args] << "\"\n" if options[:url_args]
 
             case type_str
             when 'IMAGE'

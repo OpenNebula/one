@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project (OpenNebula.org), C12G Labs           #
+# Copyright 2002-2020, OpenNebula Project (OpenNebula.org), C12G Labs           #
 #                                                                               #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may       #
 # not use this file except in compliance with the License. You may obtain       #
@@ -173,6 +173,7 @@ rbd_rm_r() {
     local rbd rbd_base children snaps
 
     rbd=$1
+    move_to_trash=$2
     rbd_base=${rbd%%@*}
 
     if [ "$rbd" != "$rbd_base" ]; then
@@ -185,13 +186,17 @@ rbd_rm_r() {
         $RBD snap unprotect $rbd
         $RBD snap rm $rbd
     else
-        snaps=$($RBD snap ls $rbd 2>/dev/null| awk 'NR > 1 {print $2}')
+        if [[ $move_to_trash =~ ^(yes|YES|true|TRUE)$ ]]; then
+            $RBD trash move $rbd
+        else
+            snaps=$($RBD snap ls $rbd 2>/dev/null| awk 'NR > 1 {print $2}')
 
-        for snap in $snaps; do
-            rbd_rm_r $rbd@$snap
-        done
+            for snap in $snaps; do
+                rbd_rm_r $rbd@$snap
+            done
 
-        $RBD rm $rbd
+            $RBD rm $rbd
+        fi
     fi
 }
 
@@ -203,7 +208,8 @@ rbd_rm_r() {
 #--------------------------------------------------------------------------------
 rbd_df_monitor() {
 
-    local monitor_data i j xpath_elements pool_name bytes_used quota_bytes free
+    local monitor_data i j xpath_elements pool_name
+    local quota_bytes free bytes_used stored
 
     monitor_data=$1
     pool_name=$2
@@ -211,13 +217,19 @@ rbd_df_monitor() {
     while IFS= read -r -d '' element; do
         xpath_elements[i++]="$element"
     done < <(echo $monitor_data | $XPATH \
-                "/stats/pools/pool[name = \"${pool_name}\"]/stats/bytes_used" \
                 "/stats/pools/pool[name = \"${pool_name}\"]/stats/quota_bytes" \
-                "/stats/pools/pool[name = \"${pool_name}\"]/stats/max_avail")
+                "/stats/pools/pool[name = \"${pool_name}\"]/stats/max_avail" \
+                "/stats/pools/pool[name = \"${pool_name}\"]/stats/bytes_used" \
+                "/stats/pools/pool[name = \"${pool_name}\"]/stats/stored")
 
-    bytes_used="${xpath_elements[j++]:-0}"
     quota_bytes="${xpath_elements[j++]:-0}"
     free="${xpath_elements[j++]:-0}"
+    bytes_used="${xpath_elements[j++]:-0}"
+    stored="${xpath_elements[j++]:-0}"
+
+    # https://docs.ceph.com/docs/master/releases/nautilus/
+    # ‘BYTES USED’ column renamed to ‘STORED’. Represents amount of data stored by the user.
+    [ $stored = "0" ] && stored=$bytes_used
 
     if [ $quota_bytes -ne 0 ]; then
         if [ $quota_bytes -lt $free ]; then
@@ -226,8 +238,8 @@ rbd_df_monitor() {
     fi
 
     cat << EOF | tr -d '[:blank:][:space:]'
-        USED_MB=$(($bytes_used / 1024**2))\n
-        TOTAL_MB=$((($bytes_used + $free) / 1024**2))\n
+        USED_MB=$(($stored / 1024**2))\n
+        TOTAL_MB=$((($stored + $free) / 1024**2))\n
         FREE_MB=$(($free / 1024**2))\n
 EOF
 }

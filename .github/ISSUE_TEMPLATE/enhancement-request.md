@@ -1,5 +1,5 @@
 ---
-name: Enhancement request
+name: New Feature request
 about: Suggest an idea to improve OpenNebula
 
 ---
@@ -8,10 +8,10 @@ about: Suggest an idea to improve OpenNebula
 Brief description of the new functionality
 
 **Use case**
-How are you going to use this new feature? Why do you need it? 
+How are you going to use this new feature? Why do you need it?
 
 **Interface Changes**
-Describe any changed you'd like to see to current interfaces including Sunstone, CLI or/and API  
+Describe any changed you'd like to see to current interfaces including Sunstone, CLI or/and API
 
 **Additional Context**
 Add any other context or screenshots about the feature request here. Or any other alternative you have considered to addressed this new feature.
@@ -23,10 +23,10 @@ Add any other context or screenshots about the feature request here. Or any othe
 <!--////////////////////////////////////////////-->
 
 ## Progress Status
-- [ ] Branch created 
+- [ ] Branch created
 - [ ] Code committed to development branch
 - [ ] Testing - QA
-- [ ] Documentation 
+- [ ] Documentation
 - [ ] Release notes - resolved issues, compatibility, known issues
 - [ ] Code committed to upstream release/hotfix branches
 - [ ] Documentation committed to upstream release/hotfix branches

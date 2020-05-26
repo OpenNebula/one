@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,6 +17,9 @@
 #include "RequestManagerZone.h"
 #include "Nebula.h"
 #include "Client.h"
+#include "LogDB.h"
+#include "FedReplicaManager.h"
+#include "RaftManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -401,7 +404,7 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( index > 0 )
     {
-        if ( logdb->get_log_record(prev_index, prev_lr) != 0 )
+        if ( logdb->get_log_record(prev_index, prev_index - 1, prev_lr) != 0 )
         {
             att.resp_msg = "Error loading previous log record";
             att.resp_id  = current_term;
@@ -420,7 +423,7 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
         }
     }
 
-    if ( logdb->get_log_record(index, lr) == 0 )
+    if ( logdb->get_log_record(index, index - 1, lr) == 0 )
     {
         if ( lr.term != term )
         {

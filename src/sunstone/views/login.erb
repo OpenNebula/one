@@ -34,19 +34,38 @@
           <% end %>
         </form>
         <div id="two_factor_auth" class="border" style="display: none;">
-          <div class="border columns small-6 small-centered small-offset-3 text-center" id="login">
-            <div class="content">
-              <label class="text-left">
-                Two Factor Token
-                <input value="" type="number" maxlength="15" name="two_factor_auth_token" id="two_factor_auth_token" class="box"/>
-              </label>
-              <div class="row buttons small-collapse">
-                <div class="columns small-offset-6 small-6 text-right">
-                  <button id="two_factor_auth_login" type="button"></button>
+          <form id="two_factor_form" method="post" class="row">
+            <div class="border columns small-6 small-centered small-offset-3 text-center" id="login">
+              <div class="content">
+                <div class="fieldset">
+                  <label class="text-left">
+                    Enter the six-digit code from your authenticator app
+                    <input value="" type="text" maxlength="15" name="two_factor_auth_token" id="two_factor_auth_token" class="box"/>
+                  </label>
+                  <div class="row buttons small-collapse">
+                    <div class="columns small-offset-6 small-6 text-right">
+                      <button id="two_factor_auth_login_btn" type="button"></button>
+                    </div>
+                  </div>
+                </div>
+                <div id="webauthn_login_div">
+                  <div class="text-center">
+                    - or -
+                  </div>
+                  <div class="fieldset">
+                    <div class="small-offset-2 small-8 text-center">
+                      When you are ready to authenticate with your security key, press the button below.
+                      <div class="row buttons small-collapse">
+                        <div class="columns text-center">
+                          <button id="webauthn_login_btn" type="button"></button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </form>
         </div>
         <div class="small-offset-3 small-6 error-place">
           <div id="error_box" class="alert alert-box callout hidden secondary small" style="display: none">
@@ -59,9 +78,9 @@
     </div>
 
     <div id="footer" style="overflow:visible;">
-      <a href="http://opennebula.org" target="_blank">OpenNebula <%= OpenNebula::VERSION %></a>
+      <a href="http://opennebula.io" target="_blank">OpenNebula <%= OpenNebula::VERSION %></a>
       by
-      <a href="http://opennebula.systems" target="_blank">OpenNebula Systems</a>
+      <a href="http://opennebula.io" target="_blank">OpenNebula Systems</a>
       .
     </div>
   </body>

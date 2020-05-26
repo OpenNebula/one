@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -91,9 +91,6 @@ module OpenNebula
         # Retrieves the monitoring data for all the Objects in the pool
         #
         # @param [String] xml_method xml-rcp method
-        # @param [String] root_elem Root for each individual PoolElement
-        # @param [String] timestamp_elem Name of the XML element with the last
-        #   monitorization timestamp
         # @param [Array<String>] xpath_expressions Elements to retrieve.
         # @param args arguemnts for the xml_method call
         #
@@ -101,8 +98,7 @@ module OpenNebula
         #   OpenNebula::Error] The first level hash uses the Object ID as keys,
         #   and as value a Hash with the requested xpath expressions,
         #   and an Array of 'timestamp, value'.
-        def monitoring(xml_method, root_elem, timestamp_elem, xpath_expressions,
-            *args)
+        def monitoring(xml_method, xpaths, *args)
 
             rc = @client.call(xml_method, *args)
 
@@ -116,7 +112,7 @@ module OpenNebula
             hash = {}
 
             # Get all existing Object IDs
-            ids = xmldoc.retrieve_elements("#{root_elem}/ID")
+            ids = xmldoc.retrieve_elements('/MONITORING_DATA/MONITORING/ID')
 
             if ids.nil?
                 return hash
@@ -125,9 +121,7 @@ module OpenNebula
             end
 
             ids.each { |id|
-                hash[id] = OpenNebula.process_monitoring(
-                    xmldoc, root_elem, timestamp_elem, id, xpath_expressions)
-
+                hash[id] = OpenNebula.process_monitoring(xmldoc, id, xpaths)
             }
 
             return hash
@@ -261,27 +255,52 @@ module OpenNebula
             return rc
         end
 
-        # Iterates over pool pages
-        # size:: nil => default page size
-        #        > 0 => page size
-        # state state of objects
-        # delete true to take always the first page
-        def each_page(size, state = -1, extended = false, delete = false)
+        # Iterates over pool page
+        def loop_page(size, state, extended)
             current = 0
             element = @pool_name.split('_')[0]
             page    = OpenNebula::XMLElement.new
 
             loop do
-                page.initialize_xml(get_page(size, current, extended, state),
+                page.initialize_xml(get_page(size,
+                                             current,
+                                             extended,
+                                             state),
                                              @pool_name)
 
                 break if page["//#{element}"].nil?
 
+                current += yield(element, page)
+            end
+        end
+
+        # Iterates over pool pages
+        # size:: nil => default page size
+        #        > 0 => page size
+        # state state of objects
+        def each_page(size, state = -1, extended = false)
+            loop_page(size, state, extended) do |element, page|
                 page.each("//#{element}") do |obj|
                     yield(obj)
                 end
 
-                current += size unless delete
+                size
+            end
+        end
+
+        # Iterates over pool pages to delete them
+        # size:: nil => default page size
+        #        > 0 => page size
+        # state state of objects
+        def each_page_delete(size, state = -1, extended = false)
+            loop_page(size, state, extended) do |element, page|
+                no_deleted = 0
+
+                page.each("//#{element}") do |obj|
+                    no_deleted += 1 if !yield(obj)
+                end
+
+                no_deleted
             end
         end
 

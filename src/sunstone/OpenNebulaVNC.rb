@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -190,6 +190,10 @@ class OpenNebulaVNC
 
     def proxy(vm_resource)
         # Check configurations and VM attributes
+        unless is_lockfile?
+            return error(400, "VNC Proxy is not running")
+        end
+
         if !is_running?
             return error(400, "VNC Proxy is not running")
         end
@@ -343,6 +347,20 @@ class OpenNebulaVNC
         false
     end
     alias_method :get_pid, :is_running?
+
+    def is_lockfile?
+        dn = File.dirname(@lock_file)
+        bn = File.basename(@lock_file)
+
+        # Due to restrictions which doesn't allow to stat the lock file
+        # when Sunstone is running under Apache with SELinux enabled,
+        # as a workaround we read content of the whole lock directory.
+        begin
+            Dir.entries(dn).include?(bn)
+        rescue StandardError
+            false
+        end
+    end
 
 if RUBY_VERSION<'1.9'
     def spawn(*args)

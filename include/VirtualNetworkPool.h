@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -39,8 +39,7 @@ public:
             const string& str_mac_prefix,
             int default_size,
             vector<const SingleAttribute *>& restricted_attrs,
-            vector<const VectorAttribute *>& hook_mads,
-            const string& remotes_location,
+            vector<const SingleAttribute *>& encrypted_attrs,
             const vector<const SingleAttribute *>& _inherit_attrs,
             const VectorAttribute * vlan_conf,
             const VectorAttribute * vxlan_conf);
@@ -158,16 +157,17 @@ public:
      *  to the query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
      *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(string& oss, const string& where, const string& limit, 
-            bool desc)
+    int dump(std::string& oss, const std::string& where, int sid, int eid,
+        bool desc)
     {
-        return PoolSQL::dump(oss, "VNET_POOL", "body", VirtualNetwork::table, where,
-                             limit, desc);
+        return PoolSQL::dump(oss, "VNET_POOL", "body", VirtualNetwork::table,
+                where, sid, eid, desc);
     }
 
     /**

@@ -1,4 +1,5 @@
 # Quotas module
+# rubocop:disable Style/FormatStringToken
 module OneDBFsck
 
     # Check and fix quotas
@@ -23,9 +24,7 @@ module OneDBFsck
             query = "SELECT * FROM old_#{table} WHERE #{resource}_oid>0"
 
             @db.fetch(query) do |row|
-                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) do |c|
-                    c.default_xml.noblanks
-                end
+                doc = nokogiri_doc(row[:body], "old_#{table}")
 
                 # resource[0] = u if user, g if group
                 id_field = "#{resource[0]}id"
@@ -83,7 +82,7 @@ module OneDBFsck
         # Datastore quotas
         query = "SELECT body FROM image_pool WHERE #{filter}"
 
-        calculate_ds_quotas(doc, query, resource, datastore_usage)
+        calculate_ds_quotas(doc, 'image_pool', query, resource, datastore_usage)
     end
 
     # Calculate running quotas
@@ -106,20 +105,17 @@ module OneDBFsck
     # Calculate datastore quotas
     #
     # @param doc      [Nokogiri::XML] xml document with all information
+    # @param table    [String]        database table
     # @param query    [String]        database query
     # @param resource [String]        OpenNebula object
     # @param datastore_usage [Object] object with datastore usage information
-    def calculate_ds_quotas(doc, query, resource, datastore_usage)
+    def calculate_ds_quotas(doc, table, query, resource, datastore_usage)
         oid = doc.root.at_xpath('ID').text.to_i
 
         ds_usage = {}
 
         @db.fetch(query) do |img_row|
-            img_doc = Nokogiri::XML(img_row[:body],
-                                    nil,
-                                    NOKOGIRI_ENCODING) do |c|
-                c.default_xml.noblanks
-            end
+            img_doc = nokogiri_doc(img_row[:body], table)
 
             img_doc.root.xpath('DATASTORE_ID').each do |e|
                 ds_usage[e.text] = [0, 0] if ds_usage[e.text].nil?
@@ -441,11 +437,7 @@ module OneDBFsck
         end
 
         @db.fetch(queries[1]) do |vrouter_row|
-            vrouter_doc = Nokogiri::XML(vrouter_row[:body],
-                                        nil,
-                                        NOKOGIRI_ENCODING) do |c|
-                c.default_xml.noblanks
-            end
+            vrouter_doc = nokogiri_doc(vrouter_row[:body], 'vrouter_pool')
 
             vrouter_doc.root.xpath('TEMPLATE/NIC').each do |nic|
                 net_id = nil
@@ -471,12 +463,12 @@ module OneDBFsck
         @db.fetch(queries[2]) do |vnet_row|
             vnet_doc = nokogiri_doc(vnet_row[:body])
 
+            parent_id = vnet_doc.root.xpath('PARENT_NETWORK_ID')
+            parent_id = parent_id.text unless parent_id.nil?
+
+            next if parent_id.nil? || parent_id.empty?
+
             vnet_doc.xpath('VNET/AR_POOL').each do |ar|
-                parent_id = ar.xpath('AR/PARENT_NETWORK_AR_ID')
-                parent_id = parent_id.text unless parent_id.nil?
-
-                next if parent_id.nil? || parent_id.empty?
-
                 vnet_usage[parent_id] = 0 if vnet_usage[parent_id].nil?
 
                 ar.xpath('AR/SIZE').each do |size|
@@ -493,6 +485,10 @@ module OneDBFsck
         end
 
         net_quota.xpath('NETWORK').each do |net_elem|
+            # The ID should exists, just in case it's missing it doesn't make
+            # sense to check this LEASES
+            next unless net_elem.at_xpath('ID')
+
             vnet_id = net_elem.at_xpath('ID').text
 
             leases_used = vnet_usage.delete(vnet_id)
@@ -521,5 +517,6 @@ module OneDBFsck
             new_elem.add_child(leases_el).content = leases_used.to_s
         end
     end
+    # rubocop:enable Style/FormatStringToken
 
 end

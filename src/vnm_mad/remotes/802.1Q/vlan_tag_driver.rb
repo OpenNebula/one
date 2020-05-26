@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -64,14 +64,14 @@ class VLANTagDriver < VNMMAD::VLANDriver
 
         OpenNebula.exec_and_log("#{command(:ip)} link set #{@nic[:vlan_dev]} up")
     end
-    
+
     def delete_vlan_dev
 		OpenNebula.exec_and_log("#{command(:ip)} link delete"\
             " #{@nic[:vlan_dev]}") if @nic[:vlan_dev] != @nic[:phydev]
 	end
 
-    def get_interface_vlan(name)
-        text = %x(#{command(:ip)} -d link show #{name})
+    def list_interface_vlan(name)
+        text = %x(#{command(:ip_unpriv)} -d link show #{name})
         return nil if $?.exitstatus != 0
 
         text.each_line do |line|

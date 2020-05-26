@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,6 +23,9 @@
 #include "AuthManager.h"
 #include "Nebula.h"
 #include "PoolObjectAuth.h"
+#include "ImageManager.h"
+#include "VirtualMachineDisk.h"
+#include "DatastorePool.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -39,8 +42,6 @@ ImagePool::ImagePool(
         const string&                    __default_dev_prefix,
         const string&                    __default_cdrom_dev_prefix,
         vector<const SingleAttribute *>& restricted_attrs,
-        vector<const VectorAttribute *>& hook_mads,
-        const string&                    remotes_location,
         const vector<const SingleAttribute *>& _inherit_attrs)
     :PoolSQL(db, Image::table)
 {
@@ -68,8 +69,6 @@ ImagePool::ImagePool(
     }
 
     ImageTemplate::parse_restricted(restricted_attrs);
-
-    register_hooks(hook_mads, remotes_location);
 }
 
 /* -------------------------------------------------------------------------- */

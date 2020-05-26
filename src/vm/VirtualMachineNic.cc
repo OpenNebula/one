@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,6 +17,8 @@
 #include "VirtualMachineNic.h"
 #include "NebulaUtil.h"
 #include "Nebula.h"
+#include "SecurityGroupPool.h"
+#include "VirtualNetworkPool.h"
 
 
 /* -------------------------------------------------------------------------- */
@@ -26,13 +28,6 @@ int VirtualMachineNic::release_network_leases(int vmid)
 {
     Nebula& nd = Nebula::instance();
     VirtualNetworkPool* vnpool = nd.get_vnpool();
-    SecurityGroupPool*  sgpool = nd.get_secgrouppool();
-
-    set<int> sgs;
-
-    get_security_groups(sgs);
-
-    sgpool->release_security_groups(vmid, sgs);
 
     int vnid;
 
@@ -321,6 +316,9 @@ int VirtualMachineNics::get_network_leases(int vm_id, int uid,
             }
             else
             {
+                // set nic name for NIC_ALIAS
+                nic->set_nic_name();
+
                 nic->replace("NIC_ID", nic_id);
             }
 
@@ -481,6 +479,17 @@ int VirtualMachineNics::get_auto_network_leases(int vm_id, int uid,
 
 void VirtualMachineNics::release_network_leases(int vmid)
 {
+    SecurityGroupPool*  sgpool = Nebula::instance().get_secgrouppool();
+
+    set<int> sgs;
+
+    get_security_groups(sgs);
+
+    for (auto sgid : sgs)
+    {
+        sgpool->release_security_group(vmid, sgid);
+    }
+
     for (nic_iterator it = begin(); it != end() ; ++it)
     {
         (*it)->release_network_leases(vmid);

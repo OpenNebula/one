@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -18,6 +18,9 @@ require 'csv'
 
 # CLI Helper
 module CLIHelper
+
+    # Available operators for filtering operations
+    FILTER_OPS = %w[= != < <= > >= ~]
 
     # CLI general options
     LIST = {
@@ -55,7 +58,10 @@ module CLIHelper
         :large => '--filter x,y,z',
         :format => Array,
         :description => "Filter data. An array is specified with\n" <<
-                        ' ' * 31 << 'column=value pairs.'
+                        ' ' * 31 << 'column=value pairs.' <<
+                        ' ' * 31 << "Valid operators #{FILTER_OPS.join(',')}" <<
+                        ' ' * 31 << 'e.g. NAME=test (match name with test)' <<
+                        ' ' * 31 << 'NAME~test (match test, te, tes..)'
     }
 
     OPERATOR = {
@@ -175,9 +181,15 @@ module CLIHelper
     ANSI_YELLOW = "\33[33m"
 
     # CLI states
-    OK_STATES      = %w[runn rdy on configured]
-    BAD_STATES     = %w[fail err err error]
-    REGULAR_STATES = %w[pending]
+    OK_STATES      = %w[runn rdy on configured SUCCESS RUNNING]
+    BAD_STATES     = %w[fail
+                        err
+                        error
+                        ERROR
+                        FAILED_DEPLOYING
+                        FAILED_UNDEPLOYING
+                        FAILED_SCALING]
+    REGULAR_STATES = %w[pending WARNING]
 
     # Set state color
     #
@@ -231,6 +243,17 @@ module CLIHelper
         STDERR.puts message
 
         exit(-1)
+    end
+
+    # Check if value is in base64
+    #
+    # @param value [String] Value to check
+    #
+    # @return [Boolean] True if it's base64
+    def self.base64?(value)
+        re = %r(^([A-Za-z0-9+\/]{4})*([A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{2}==)?$)
+
+        !value.match(re).nil?
     end
 
     # Hash with search
@@ -557,6 +580,10 @@ module CLIHelper
                 filter_data!(res_data, options) if options[:filter]
             end
 
+            return res_data unless options[:list]
+
+            @default_columns = options[:list].collect {|o| o.upcase.to_sym }
+
             res_data
         end
 
@@ -622,7 +649,7 @@ module CLIHelper
         def expand_columns(expand_columns, all = false)
             return if expand_columns.empty?
 
-            if $stdout.tty?
+            if $stdout.tty? || (IO.console && IO.console.tty?)
                 terminal_size = IO.console.winsize[1]
             else
                 terminal_size = nil
@@ -774,10 +801,6 @@ module CLIHelper
             rescue StandardError => e
                 CLIHelper.fail(e.message)
             end
-
-            return unless options[:list]
-
-            @default_columns = options[:list].collect {|o| o.upcase.to_sym }
         end
 
         # Filter data
@@ -785,7 +808,7 @@ module CLIHelper
         # @param data    [Array] Array with data to filter
         # @param options [Hash]  Object with CLI user options
         def filter_data!(data, options)
-            operators = /(=|!=|<|<=|>|>=)/
+            operators = /(#{FILTER_OPS.join('|')})/
             filter    = options[:filter]
 
             if options.key?(:operator)
@@ -798,7 +821,7 @@ module CLIHelper
                 m = s.match(/^(.*?)#{operators}(.*?)$/)
 
                 if m
-                    index = @default_columns.index(m[1].to_sym)
+                    index = @columns.keys.index(m[1].to_sym)
 
                     if index
                         {
@@ -808,7 +831,7 @@ module CLIHelper
                             :index      => index
                         }
                     else
-                        CLIHelper.fail("Column '#{left}' not found")
+                        CLIHelper.fail("Column '#{m[1]}' not found")
                     end
                 else
                     CLIHelper.fail("Expression '#{s}' incorrect")
@@ -819,7 +842,14 @@ module CLIHelper
                 pass = true
 
                 stems.each do |s|
-                    s[:operator] == '=' ? op = '==' : op = s[:operator]
+                    case s[:operator]
+                    when '='
+                        op = '=='
+                    when '~'
+                        op = 'include?'
+                    else
+                        op = s[:operator]
+                    end
 
                     if d[s[:index]].public_send(op, s[:right])
                         if log_operator == 'OR'

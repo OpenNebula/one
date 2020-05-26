@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -71,26 +71,13 @@ func (c *MarketPlaceAppsController) ByName(name string, args ...int) (int, error
 // Info returns a marketplace app pool. A connection to OpenNebula is
 // performed.
 func (mc *MarketPlaceAppsController) Info(args ...int) (*marketplaceapp.Pool, error) {
-	var who, start, end int
 
-	switch len(args) {
-	case 0:
-		who = parameters.PoolWhoMine
-		start = -1
-		end = -1
-	case 1:
-		who = args[0]
-		start = -1
-		end = -1
-	case 3:
-		who = args[0]
-		start = args[1]
-		end = args[2]
-	default:
-		return nil, errors.New("Wrong number of arguments")
+	fArgs, err := handleArgs(args)
+	if err != nil {
+		return nil, err
 	}
 
-	response, err := mc.c.Client.Call("one.marketapppool.info", who, start, end)
+	response, err := mc.c.Client.Call("one.marketapppool.info", fArgs...)
 	if err != nil {
 		return nil, err
 	}
@@ -105,8 +92,8 @@ func (mc *MarketPlaceAppsController) Info(args ...int) (*marketplaceapp.Pool, er
 }
 
 // Info retrieves information for the marketplace app.
-func (mc *MarketPlaceAppController) Info() (*marketplaceapp.MarketPlaceApp, error) {
-	response, err := mc.c.Client.Call("one.marketapp.info", mc.ID)
+func (mc *MarketPlaceAppController) Info(decrypt bool) (*marketplaceapp.MarketPlaceApp, error) {
+	response, err := mc.c.Client.Call("one.marketapp.info", mc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -144,8 +131,8 @@ func (mc *MarketPlaceAppController) Enable(enable bool) error {
 	return err
 }
 
-// Update replaces the cluster cluster contents.
-// * tpl: The new cluster contents. Syntax can be the usual attribute=value or XML.
+// Update adds marketplace app content.
+// * tpl: The new marketplace contents. Syntax can be the usual attribute=value or XML.
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (mc *MarketPlaceAppController) Update(tpl string, uType parameters.UpdateType) error {
@@ -154,8 +141,9 @@ func (mc *MarketPlaceAppController) Update(tpl string, uType parameters.UpdateTy
 }
 
 // Chmod changes the permission bits of a marketplace app
-func (mc *MarketPlaceAppController) Chmod(perm *shared.Permissions) error {
-	_, err := mc.c.Client.Call("one.marketapp.chmod", perm.ToArgs(mc.ID)...)
+func (mc *MarketPlaceAppController) Chmod(perm shared.Permissions) error {
+	args := append([]interface{}{mc.ID}, perm.ToArgs()...)
+	_, err := mc.c.Client.Call("one.marketapp.chmod", args...)
 	return err
 }
 

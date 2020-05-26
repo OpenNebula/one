@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -19,7 +19,7 @@
 require 'fileutils'
 require 'tmpdir'
 
-VERSION = "5.9.80"
+VERSION = "5.11.90"
 
 def version
     v = VERSION
@@ -49,12 +49,12 @@ Gem::Specification.new do |s|
   s.summary     = "$(SUMMARY)"
   s.description = "$(DESCRIPTION)"
   s.authors     = ["OpenNebula"]
-  s.email       = 'contact@opennebula.org'
+  s.email       = 'contact@opennebula.io'
   s.license     = 'Apache-2.0'
   s.files       = [
 $(FILES)
   ]
-  s.homepage    = 'http://opennebula.org'
+  s.homepage    = 'http://opennebula.io'
 $(EXECUTABLES)
 $(DEPENDENCIES)
 end
@@ -237,4 +237,3 @@ Dir.chdir(root)
 
 
 GEM_DESCRIPTION.each {|name, gem| generate_gem(gem) }
-

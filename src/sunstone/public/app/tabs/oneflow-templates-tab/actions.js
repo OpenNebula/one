@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -35,7 +35,6 @@ define(function(require) {
 
   var _actions = {
     "ServiceTemplate.create" : _commonActions.create(CREATE_DIALOG_ID),
-    "ServiceTemplate.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
     "ServiceTemplate.show" : _commonActions.show(),
     "ServiceTemplate.refresh" : _commonActions.refresh(),
     "ServiceTemplate.delete" : _commonActions.del(),
@@ -45,7 +44,31 @@ define(function(require) {
     "ServiceTemplate.rename": _commonActions.singleAction("rename"),
     "ServiceTemplate.update" : _commonActions.update(),
     "ServiceTemplate.update_dialog" : _commonActions.checkAndShowUpdate(),
-    "ServiceTemplate.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
+    
+    "ServiceTemplate.create_dialog" :  {
+      type: "custom",
+      call: function() {
+        Sunstone.runAction("Network.list");
+        Sunstone.runAction("VNTemplate.list");
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
+      }
+    },
+    "ServiceTemplate.show_to_update" :  {
+      type: "single",
+      call: function(params) {
+        Sunstone.runAction("Network.list");
+        Sunstone.runAction("VNTemplate.list");
+        OpenNebulaResource.show(params);
+      },
+      callback: function(request, response) {
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update",
+          function(formPanelInstance, context) {
+            formPanelInstance.fill(context, response[XML_ROOT]);
+          }
+        );
+      },
+      error: Notifier.onError
+    },
 
     "ServiceTemplate.list" : {
       type: "list",

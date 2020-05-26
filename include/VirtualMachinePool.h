@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,6 +19,7 @@
 
 #include "PoolSQL.h"
 #include "VirtualMachine.h"
+#include "OneDB.h"
 
 #include <time.h>
 
@@ -31,12 +32,9 @@ class VirtualMachinePool : public PoolSQL
 {
 public:
 
-    VirtualMachinePool(SqlDB *                      db,
-                       vector<const VectorAttribute *> hook_mads,
-                       const string&                hook_location,
-                       const string&                remotes_location,
+    VirtualMachinePool(SqlDB * db,
                        vector<const SingleAttribute *>& restricted_attrs,
-                       time_t                       expire_time,
+                       vector<const SingleAttribute *>& encrypted_attrs,
                        bool                         on_hold,
                        float                        default_cpu_cost,
                        float                        default_mem_cost,
@@ -140,21 +138,7 @@ public:
      *
      *    @return 0 on success.
      */
-    virtual int update(PoolObjectSQL * objsql)
-    {
-        VirtualMachine * vm = dynamic_cast<VirtualMachine *>(objsql);
-
-        if ( vm == 0 )
-        {
-            return -1;
-        }
-
-        do_hooks(objsql, Hook::UPDATE);
-
-        vm->set_prev_state();
-
-        return vm->update(db);
-    };
+    virtual int update(PoolObjectSQL * objsql);
 
     /**
      *  Gets a VM ID by its deploy_id, the dedploy_id - VM id mapping is keep
@@ -194,7 +178,7 @@ public:
      */
     int search(vector<int>& oids, const string& where)
     {
-        return PoolSQL::search(oids, VirtualMachine::table, where);
+        return PoolSQL::search(oids, one_db::vm_table, where);
     };
 
     //--------------------------------------------------------------------------
@@ -235,24 +219,6 @@ public:
     }
 
     /**
-     * Inserts the last monitoring, and deletes old monitoring entries for this
-     * VM
-     *
-     * @param vm pointer to the virtual machine object
-     * @return 0 on success
-     */
-    int update_monitoring(
-        VirtualMachine * vm)
-    {
-        if ( _monitor_expiration <= 0 )
-        {
-            return 0;
-        }
-
-        return vm->update_monitoring(db);
-    };
-
-    /**
      *  Updates the VM's search information
      *    @param vm pointer to the virtual machine object
      *    @return 0 on success
@@ -264,27 +230,13 @@ public:
     }
 
     /**
-     * Deletes the expired monitoring entries for all VMs
-     *
-     * @return 0 on success
-     */
-    int clean_expired_monitoring();
-
-    /**
-     * Deletes all monitoring entries for all VMs
-     *
-     * @return 0 on success
-     */
-    int clean_all_monitoring();
-
-    /**
      *  Bootstraps the database table(s) associated to the VirtualMachine pool
      *    @return 0 on success
      */
     static int bootstrap(SqlDB * _db)
     {
         int rc;
-        ostringstream oss_import(import_db_bootstrap);
+        ostringstream oss_import(one_db::vm_import_db_bootstrap);
 
         rc  = VirtualMachine::bootstrap(_db);
         rc += _db->exec_local_wr(oss_import);
@@ -298,16 +250,17 @@ public:
      *  pool
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
      *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(string& oss, const string& where, const string& limit,
-            bool desc)
+    int dump(std::string& oss, const std::string& where, int sid, int eid,
+        bool desc)
     {
-        return PoolSQL::dump(oss, "VM_POOL", "short_body", VirtualMachine::table, where,
-                             limit, desc);
+        return PoolSQL::dump(oss, "VM_POOL", "short_body", one_db::vm_table, where,
+                             sid, eid, desc);
     };
 
     /**
@@ -322,11 +275,11 @@ public:
      *
      *  @return 0 on success
      */
-    int dump_extended(string& oss, const string& where, const string& limit,
+    int dump_extended(string& oss, const string& where, int sid, int eid,
             bool desc)
     {
-        return PoolSQL::dump(oss, "VM_POOL", "body", VirtualMachine::table, where,
-                             limit, desc);
+        return PoolSQL::dump(oss, "VM_POOL", "body", one_db::vm_table, where,
+                             sid, eid, desc);
     };
 
     /**
@@ -394,6 +347,12 @@ public:
     }
 
     /**
+     * Returns last monitoring info for a VM
+     *  @param vmid Virtual Machine id
+     */
+    VirtualMachineMonitorInfo get_monitoring(int vmid);
+
+    /**
      * Processes all the history records, and stores the monthly cost for each
      * VM
      *  @param start_month First month (+year) to process. January is 1.
@@ -447,11 +406,6 @@ private:
     };
 
     /**
-     * Size, in seconds, of the historical monitoring information
-     */
-    time_t _monitor_expiration;
-
-    /**
      * True or false whether to submit new VM on HOLD or not
      */
     bool _submit_on_hold;
@@ -469,16 +423,6 @@ private:
      *   - get_vmid (vmid)
      */
     int db_int_cb(void * _min_stime, int num, char **values, char **names);
-
-    // -------------------------------------------------------------------------
-    // Virtual Machine ID - Deploy ID index for imported VMs
-    // The index is managed by the VirtualMachinePool
-    // -------------------------------------------------------------------------
-    static const char * import_table;
-
-    static const char * import_db_names;
-
-    static const char * import_db_bootstrap;
 
     /**
      * Insert deploy_id - vmid index.

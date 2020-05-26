@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -48,25 +48,25 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         :az => {
             :help => <<-EOT.unindent
                 #-----------------------------------------------------------------------
-                # Supported AZURE AUTH ATTRIBUTTES:
+                # Mandatory AZURE ATTRIBUTTES:
                 #
-                #  AZ_ID   = <azure classic id>
-                #  AZ_CERT = <azure classic certificate>
+                # AZ_SUB    = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+                # AZ_CLIENT = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+                # AZ_SECRET = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+                # AZ_TENANT = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+                # AZ_REGION = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
                 #
-                #  REGION_NAME = <the name of the azure region>
+                # CAPACITY=[
+                #   STANDARD_B1LS =<number of machines Standard_B1ls>,
+                #   STANDARD_A1_V2=<number of machines Standard_A1_v2>
+                # ]
                 #
-                #  CAPACITY = [
-                #    Small = <number of small machines>,
-                #    Medium = <number of medium machines>,
-                #    Large = <number of large machines
-                #  ]
+                # Optional AZURE ATTRIBUTES:
                 #
-                # You can set any machine type supported by azure classic
+                # AZ_RGROUP = ""
+                #
+                # You can set any machine type supported by azure
                 # See your az_driver.conf for more information
-                #
-                # Optionally you can set a endpoint
-                #
-                #  AZ_ENDPOINT = <endpoint address>
                 #
                 #-----------------------------------------------------------------------
             EOT
@@ -359,14 +359,15 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
                     print_update_info(total - size, total, host['NAME'])
 
-                    if options[:rsync]
-                        sync_cmd = "rsync -Laz --delete #{REMOTES_LOCATION}" \
-                                   " #{host['NAME']}:#{remote_dir}"
-                    else
+                    if options[:ssh]
                         sync_cmd = "ssh #{host['NAME']}" \
+                                   " rm -rf '#{remote_dir}' 2>/dev/null;" \
                                    " mkdir -p '#{remote_dir}' 2>/dev/null &&" \
                                    " scp -rp #{REMOTES_LOCATION}/*" \
                                    " #{host['NAME']}:#{remote_dir} 2> /dev/null"
+                    else
+                        sync_cmd = "rsync -Laz --delete #{REMOTES_LOCATION}/" \
+                                   " #{host['NAME']}:#{remote_dir}/"
                     end
 
                     retries = 3
@@ -473,15 +474,15 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
                     break unless host
 
-                    cmd = 'cat /tmp/one-collectd-client.pid | xargs kill -HUP'
-                    system("ssh #{host['NAME']} \"#{cmd}\" 2>/dev/null")
+                    hn = host['NAME']
 
+                    system("onehost offline #{hn} && onehost enable #{hn}")
                     if !$CHILD_STATUS.success?
                         error_lock.synchronize do
-                            host_errors << host['NAME']
+                            host_errors << hn
                         end
                     else
-                        puts "#{host['NAME']} monitoring forced"
+                        puts "#{hn} monitoring forced"
                     end
                 end
             end
@@ -565,7 +566,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         puts format(str, 'IM_MAD', host['IM_MAD'])
         puts format(str, 'VM_MAD', host['VM_MAD'])
         puts format(str, 'LAST MONITORING TIME',
-                    OpenNebulaHelper.time_to_str(host['LAST_MON_TIME']))
+                    OpenNebulaHelper.time_to_str(host['MONITORING/TIMESTAMP']))
         puts
 
         CLIHelper.print_header(str_h1 % 'HOST SHARES', false)
@@ -579,8 +580,9 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                     OpenNebulaHelper.unit_to_str(host['HOST_SHARE/MAX_MEM']
                                     .to_i, {}))
         puts format(str, '  USED (REAL)',
-                    OpenNebulaHelper.unit_to_str(host['HOST_SHARE/USED_MEM']
-                                    .to_i, {}))
+                    OpenNebulaHelper
+                    .unit_to_str(host['MONITORING/CAPACITY/USED_MEMORY']
+                    .to_i, {}))
         puts format(str, '  USED (ALLOCATED)',
                     OpenNebulaHelper.unit_to_str(host['HOST_SHARE/MEM_USAGE']
                                     .to_i, {}))
@@ -588,7 +590,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 % 'CPU', false)
         puts format(str, '  TOTAL', host['HOST_SHARE/TOTAL_CPU'])
         puts format(str, '  TOTAL +/- RESERVED', host['HOST_SHARE/MAX_CPU'])
-        puts format(str, '  USED (REAL)', host['HOST_SHARE/USED_CPU'])
+        puts format(str, '  USED (REAL)', host['MONITORING/CAPACITY/USED_CPU'])
         puts format(str, '  USED (ALLOCATED)', host['HOST_SHARE/CPU_USAGE'])
         puts
 
@@ -662,13 +664,13 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                                    .split("\n")
                 name   = wild['VM_NAME']
                 import = wild_tmplt.select do |line|
-                             line[/^IMPORT_VM_ID/]
+                             line[/DEPLOY_ID/]
                          end[0].split('=')[1].tr('"', ' ').strip
                 memory = wild_tmplt.select do |line|
-                             line[/^MEMORY/]
+                             line[/MEMORY/]
                          end[0].split('=')[1].tr('"', ' ').strip
                 cpu    = wild_tmplt.select do |line|
-                             line[/^CPU/]
+                             line[/CPU/]
                          end[0].split('=')[1].tr('"', ' ').strip
             else
                 name = wild['DEPLOY_ID']
@@ -763,6 +765,11 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
         [cores].flatten.each do |info|
             core = info['CPUS'].split(',')
+
+            core.uniq! do |c|
+                c = c.split(':')
+                c[0]
+            end
 
             core.each do |c|
                 c = c.split(':')

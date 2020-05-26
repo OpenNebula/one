@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -17,6 +17,7 @@
 require 'pp'
 require 'open3'
 require 'timeout'
+require 'base64'
 
 # Generic command executor that holds the code shared by all the command
 # executors.
@@ -104,6 +105,18 @@ class GenericCommand
         tmp=@stderr.scan(/^#{ERROR_OPEN}\n(.*?)#{ERROR_CLOSE}$/m)
         return "-" if !tmp[0]
         tmp[0].join(' ').strip
+    end
+
+    def to_xml
+        stdout = @stdout.nil? ? '' : @stdout
+        stderr = @stderr.nil? ? '' : @stderr
+
+        '<EXECUTION_RESULT>' \
+            "<COMMAND>#{@command}</COMMAND>" \
+            "<STDOUT>#{Base64.encode64(stdout)}</STDOUT>" \
+            "<STDERR>#{Base64.encode64(stderr)}</STDERR>" \
+            "<CODE>#{@code}</CODE>" \
+        '</EXECUTION_RESULT>'
     end
 
 private

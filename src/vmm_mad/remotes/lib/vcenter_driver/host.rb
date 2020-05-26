@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -98,36 +98,39 @@ class ClusterComputeResource
     end
 
     def get_nsx
-        nsx_info = ""
+        nsx_info = ''
         nsx_obj = {}
-        extensionList = []
-        extensionList = @vi_client.vim.serviceContent.extensionManager.extensionList
-        extensionList.each do |extList|
-            if extList.key == "com.vmware.vShieldManager"
-              nsx_obj['type'] = "NSX-V"
-                urlFull = extList.client[0].url
+        # In the future add more than one nsx manager
+        extension_list = []
+        extension_list = @vi_client.vim.serviceContent.extensionManager.extensionList
+        extension_list.each do |ext_list|
+            if ext_list.key == NSXDriver::NSXConstants::NSXV_EXTENSION_LIST
+                nsx_obj['type'] = NSXDriver::NSXConstants::NSXV
+                urlFull = ext_list.client[0].url
                 urlSplit = urlFull.split("/")
                 # protocol = "https://"
                 protocol = urlSplit[0] + "//"
                 # ipPort = ip:port
                 ipPort = urlSplit[2]
                 nsx_obj['url'] = protocol + ipPort
-            elsif extList.key == "com.vmware.nsx.management.nsxt"
-              nsx_obj['type'] = "NSX-T"
-              nsx_obj['url'] = extList.server[0].url
+                nsx_obj['version'] = ext_list.version
+                nsx_obj['label'] = ext_list.description.label
+            elsif ext_list.key == NSXDriver::NSXConstants::NSXT_EXTENSION_LIST
+                nsx_obj['type'] = NSXDriver::NSXConstants::NSXT
+                nsx_obj['url'] = ext_list.server[0].url
+                nsx_obj['version'] = ext_list.version
+                nsx_obj['label'] = ext_list.description.label
             else
                 next
             end
-            nsx_obj['version'] = extList.version
-            nsx_obj['label'] = extList.description.label
         end
-        unless nsx_obj.nil?
+        unless nsx_obj.empty?
             nsx_info << "NSX_MANAGER=\"#{nsx_obj['url']}\"\n"
             nsx_info << "NSX_TYPE=\"#{nsx_obj['type']}\"\n"
             nsx_info << "NSX_VERSION=\"#{nsx_obj['version']}\"\n"
             nsx_info << "NSX_LABEL=\"#{nsx_obj['label']}\"\n"
         end
-        return nsx_info
+        nsx_info
     end
 
     def nsx_ready?
@@ -135,103 +138,103 @@ class ClusterComputeResource
                     .one_item(OpenNebula::Host,
                               @vi_client.instance_variable_get(:@host_id).to_i)
 
+        # Check if NSX_MANAGER is into the host template
+        if [nil, ''].include?(@one_item['TEMPLATE/NSX_MANAGER'])
+            @nsx_status = "NSX_STATUS = \"Missing NSX_MANAGER\"\n"
+            return false
+        end
+
         # Check if NSX_USER is into the host template
-        if [nil, ""].include?(@one_item["TEMPLATE/NSX_USER"])
+        if [nil, ''].include?(@one_item['TEMPLATE/NSX_USER'])
             @nsx_status = "NSX_STATUS = \"Missing NSX_USER\"\n"
             return false
         end
 
         # Check if NSX_PASSWORD is into the host template
-        if [nil, ""].include?(@one_item["TEMPLATE/NSX_PASSWORD"])
+        if [nil, ''].include?(@one_item['TEMPLATE/NSX_PASSWORD'])
             @nsx_status = "NSX_STATUS = \"Missing NSX_PASSWORD\"\n"
             return false
         end
 
         # Check if NSX_TYPE is into the host template
-        if [nil, ""].include?(@one_item["TEMPLATE/NSX_TYPE"])
+        if [nil, ''].include?(@one_item['TEMPLATE/NSX_TYPE'])
             @nsx_status = "NSX_STATUS = \"Missing NSX_TYPE\"\n"
-            return false
-        end
-
-        # Check if NSX_MANAGER is into the host template
-        if [nil, ""].include?(@one_item["TEMPLATE/NSX_MANAGER"])
-            @nsx_status = "NSX_STATUS = \"Missing NSX_MANAGER\"\n"
             return false
         end
 
         # Try a connection as part of NSX_STATUS
         nsx_client = NSXDriver::NSXClient
-                     .new(@vi_client.instance_variable_get(:@host_id).to_i)
+                     .new_from_id(@vi_client.instance_variable_get(:@host_id).to_i)
 
-        if @one_item["TEMPLATE/NSX_TYPE"] == "NSX-V"
+        if @one_item['TEMPLATE/NSX_TYPE'] == NSXDriver::NSXConstants::NSXV
             # URL to test a connection
-            url = "#{@one_item["TEMPLATE/NSX_MANAGER"]}/api/2.0/vdn/scopes"
+            url = '/api/2.0/vdn/scopes'
             begin
-                if nsx_client.get_xml(url)
+                if nsx_client.get(url)
                     return true
                 else
                     @nsx_status = "NSX_STATUS = \"Response code incorrect\"\n"
                     return false
                 end
             rescue StandardError => e
-                @nsx_status = "NSX_STATUS = \"Error connecting to " \
-                              "NSX_MANAGER\": #{e.message}\n"
+                @nsx_status = 'NSX_STATUS = "Error connecting to ' \
+                              "NSX_MANAGER\"\n"
                 return false
             end
         end
 
-        if @one_item["TEMPLATE/NSX_TYPE"] == "NSX-T"
+        if @one_item['TEMPLATE/NSX_TYPE'] == NSXDriver::NSXConstants::NSXT
             # URL to test a connection
-            url = "#{@one_item["TEMPLATE/NSX_MANAGER"]}/api/v1/transport-zones"
+            url = '/api/v1/transport-zones'
             begin
-                if nsx_client.get_json(url)  
+                if nsx_client.get(url)
                     return true
                 else
                     @nsx_status = "NSX_STATUS = \"Response code incorrect\"\n"
                     return false
                 end
             rescue StandardError => e
-                @nsx_status = "NSX_STATUS = \"Error connecting to "\
-                              "NSX_MANAGER\": #{e.message}\n"
+                @nsx_status = 'NSX_STATUS = "Error connecting to '\
+                              "NSX_MANAGER\"\n"
                 return false
             end
         end
     end
 
     def get_tz
-        @nsx_status = ""
+        @nsx_status = ''
         if !nsx_ready?
             tz_info = @nsx_status
         else
             tz_info = "NSX_STATUS = OK\n"
-            tz_info << "NSX_TRANSPORT_ZONES = ["
+            tz_info << 'NSX_TRANSPORT_ZONES = ['
 
             nsx_client = NSXDriver::NSXClient
-                         .new(@vi_client.instance_variable_get(:@host_id).to_i)
-            tz_object = NSXDriver::TransportZone.new(nsx_client)
+                         .new_from_id(@vi_client.instance_variable_get(:@host_id).to_i)
+            tz_object = NSXDriver::TransportZone.new_child(nsx_client)
 
             # NSX request to get Transport Zones
-            if @one_item["TEMPLATE/NSX_TYPE"] == "NSX-V"
-                tzs = tz_object.tzs_nsxv
+            if @one_item['TEMPLATE/NSX_TYPE'] == NSXDriver::NSXConstants::NSXV
+                tzs = tz_object.tzs
                 tzs.each do |tz|
-                    tz_info << tz.xpath("name").text << "=\""
-                    tz_info << tz.xpath("objectId").text << "\","
+                    tz_info << tz.xpath('name').text << '="'
+                    tz_info << tz.xpath('objectId').text << '",'
                 end
                 tz_info.chomp!(',')
-            elsif @one_item["TEMPLATE/NSX_TYPE"] == "NSX-T"
-                r = tz_object.tzs_nsxt
-                r["results"].each do |tz|
-                    tz_info << tz["display_name"] << "=\"" 
-                    tz_info << tz["id"] << "\","
+            elsif @one_item['TEMPLATE/NSX_TYPE'] == NSXDriver::NSXConstants::NSXT
+                r = tz_object.tzs
+                r['results'].each do |tz|
+                    tz_info << tz['display_name'] << '="'
+                    tz_info << tz['id'] << '",'
                 end
                 tz_info.chomp!(',')
             else
-                raise "Unknown Port Group type #{@one_item["TEMPLATE/NSX_TYPE"]}"
+                raise "Unknown Port Group type #{@one_item['TEMPLATE/NSX_TYPE']}"
             end
-            tz_info << "]"
+            tz_info << ']'
             return tz_info
         end
-        return tz_info
+        tz_info
     end
 
     def monitor
@@ -293,7 +296,7 @@ class ClusterComputeResource
 
         # HA enabled
         str_info << "VCENTER_HA="  << ha_enabled.to_s << "\n"
-        
+
         # NSX info
         str_info << get_nsx
         str_info << get_tz
@@ -377,7 +380,7 @@ class ClusterComputeResource
             mem_shares_level = info["config.memoryAllocation.shares.level"]
             mem_shares       = info["config.memoryAllocation.shares.shares"]
 
-            rp_name = rp_list.select { |item| item[:ref] == ref}.first[:name] rescue ""
+            rp_name = @rp_list.select { |item| item[:ref] == ref}.first[:name] rescue ""
 
             rp_name = "Resources" if rp_name.empty?
 
@@ -499,8 +502,7 @@ class ClusterComputeResource
         return host_info
     end
 
-    def monitor_vms(host_id)
-
+    def monitor_vms(host_id, vm_type)
         vc_uuid = @vi_client.vim.serviceContent.about.instanceUuid
         cluster_name = self["name"]
         cluster_ref = self["_ref"]
@@ -509,23 +511,20 @@ class ClusterComputeResource
         one_host = VCenterDriver::VIHelper.one_item(OpenNebula::Host, host_id)
         if !one_host
             STDERR.puts "Failed to retieve host with id #{host.id}"
-            STDERR.puts e.inspect
-            STDERR.puts e.backtrace
+            if VCenterDriver::CONFIG[:debug_information]
+                STDERR.puts "#{message} #{e.backtrace}"
+            end
         end
 
-        host_id = one_host["ID"] if one_host
-
-
-        # Extract CPU info and name for each esx host in cluster
         esx_hosts = {}
         @item.host.each do |esx_host|
-            info = {}
-            info[:name] = esx_host.name
-            info[:cpu]  = esx_host.summary.hardware.cpuMhz.to_f
-            esx_hosts[esx_host._ref] = info
+            esx_hosts[esx_host._ref] = {
+                :name => esx_host.name,
+                :cpu  => esx_host.summary.hardware.cpuMhz.to_f
+            }
         end
 
-        @monitored_vms = Set.new
+        monitored_vms = Set.new
         str_info = ""
 
         view = @vi_client.vim.serviceContent.viewManager.CreateContainerView({
@@ -621,18 +620,14 @@ class ClusterComputeResource
             last_mon_time = Time.now.to_i.to_s
         end
 
-        get_resource_pool_list if !@rp_list
+        @rp_list = get_resource_pool_list if !@rp_list
 
         vm_pool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualMachinePool)
-
-        # opts common to all vms
-        opts = {
-            pool: vm_pool,
-            vc_uuid: vc_uuid,
-        }
+        # We filter to retrieve only those VMs running in the host that we are monitoring
+        host_vms = vm_pool.retrieve_xmlelements("/VM_POOL/VM[HISTORY_RECORDS/HISTORY/HID='#{host_id}']")
 
         vms.each do |vm_ref,info|
-            vm_info = ""
+            vm_info = ''
             begin
                 esx_host = esx_hosts[info["runtime.host"]._ref]
                 info[:esx_host_name] = esx_host[:name]
@@ -654,37 +649,42 @@ class ClusterComputeResource
 
                 next if running_flag == "no"
 
-                # retrieve vcenter driver machine
-                vm = VCenterDriver::VirtualMachine.new_from_ref(@vi_client, vm_ref, info["name"], opts)
-                id = vm.vm_id
+                id = -1
+                # Find the VM by its deploy_id, which in the vCenter driver is
+                # the vCenter managed object reference
+                found_vm = host_vms.select{|vm| vm["DEPLOY_ID"].eql? vm_ref }.first
+                id = found_vm["ID"] if found_vm
 
-                #skip if it's already monitored
-                if vm.one_exist?
-                    next if @monitored_vms.include? id
-                    @monitored_vms << id
-                end
+                # skip if it is a wild and we are looking for OpenNebula VMs
+                next if vm_type == 'ones' and id == -1
+                # skip if it is not a wild and we are looking for wilds
+                next if vm_type == 'wilds' and id != -1
+                # skip if already monitored
+                next if monitored_vms.include? vm_ref
 
+                monitored_vms << vm_ref
+
+                vm = VCenterDriver::VirtualMachine.new(@vi_client, vm_ref, id)
                 vm.vm_info = info
                 vm.monitor(stats)
 
                 vm_name = "#{info["name"]} - #{cluster_name}"
-                vm_info << %Q{
-                VM = [
-                    ID="#{id}",
-                    VM_NAME="#{vm_name}",
-                    DEPLOY_ID="#{vm_ref}",
-                }
+                vm_info << "VM = [ ID=\"#{id}\", "
+                vm_info << "VM_NAME=\"#{vm_name}\", "
+                vm_info << "DEPLOY_ID=\"#{vm_ref}\", "
 
                 # if the machine does not exist in opennebula it means that is a wild:
                 unless vm.one_exist?
                     vm_template_64 = Base64.encode64(vm.vm_to_one(vm_name)).gsub("\n","")
-                    vm_info << "VCENTER_TEMPLATE=\"YES\","
-                    vm_info << "IMPORT_TEMPLATE=\"#{vm_template_64}\","
+                    vm_info << 'VCENTER_TEMPLATE="YES",'
+                    vm_info << "IMPORT_TEMPLATE=\"#{vm_template_64}\"]\n"
+                else
+                    mon_s64 = Base64.strict_encode64(vm.info)
+                    vm_info << "MONITOR=\"#{mon_s64}\"]\n"
                 end
 
-                vm_info << "POLL=\"#{vm.info.gsub('"', "\\\"")}\"]"
-            rescue Exception => e
-                vm_info = error_monitoring(e, vm_ref, info)
+            rescue StandardError => e
+                vm_info = error_monitoring(e, id, vm_ref, vc_uuid, info)
             end
 
             str_info << vm_info
@@ -695,20 +695,16 @@ class ClusterComputeResource
         return str_info, last_mon_time
     end
 
-    def error_monitoring(e, vm_ref, info = {})
+    def error_monitoring(e, id, vm_ref, vc_uuid, info = {})
         error_info = ''
         vm_name = info['name'] || nil
         tmp_str = e.inspect
         tmp_str << e.backtrace.join("\n")
 
-        error_info << %Q{
-        VM = [
-            VM_NAME="#{vm_name}",
-            DEPLOY_ID="#{vm_ref}",
-        }
-
-        error_info << "ERROR=\"#{Base64.encode64(tmp_str).gsub("\n","")}\"]"
-
+        error_info << "VM = [ ID=\"#{id}\", "
+        error_info << "VM_NAME=\"#{vm_name}\", "
+        error_info << "DEPLOY_ID=\"#{vm_ref}\", "
+        error_info << "ERROR=\"#{Base64.encode64(tmp_str).gsub("\n", '')}\"]\n"
     end
 
     def monitor_customizations
@@ -764,6 +760,8 @@ class ClusterComputeResource
                    "VCENTER_VERSION=\"#{cluster[:vcenter_version]}\"\n"\
 
         template << "VCENTER_RESOURCE_POOL=\"#{rp}\"" if rp
+
+        template << "VCENTER_PORT=\"#{con_ops[:port]}\"" if con_ops[:port]
 
         rc = one_host.update(template, false)
 
@@ -936,6 +934,8 @@ class ESXHost
         # Get pnics in use in standard switches
         @item.config.network.vswitch.each do |vs|
             vs.pnic.each do |pnic|
+                next unless pnic.instance_of?(String)
+
                 pnic.slice!("key-vim.host.PhysicalNic-")
                 pnics_in_use << pnic
             end
@@ -947,6 +947,24 @@ class ESXHost
         end
 
         return pnics_available
+    end
+
+    ########################################################################
+    # Get networks inside a host
+    ########################################################################
+    def get_pg_inside
+        pg_inside = {}
+
+        # Get pnics in use in standard switches
+        @item.config.network.vswitch.each do |vs|
+            pg_inside[vs.name] = []
+            vs.portgroup.each do |pg|
+                pg.slice!("key-vim.host.PortGroup-")
+                pg_inside[vs.name] << pg
+            end
+        end
+
+        pg_inside
     end
 
     ########################################################################

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -52,8 +52,8 @@ require 'fsck/template'
 require 'fsck/quotas'
 
 module OneDBFsck
-    VERSION = "5.10.0"
-    LOCAL_VERSION = "5.10.0"
+    VERSION = "5.12.0"
+    LOCAL_VERSION = "5.12.0"
 
     def db_version
         if defined?(@db_version) && @db_version
@@ -107,12 +107,6 @@ EOT
 
     def federated_tables
         FEDERATED_TABLES
-    end
-
-    def nokogiri_doc(body)
-        Nokogiri::XML(body, nil, NOKOGIRI_ENCODING) do |c|
-            c.default_xml.noblanks
-        end
     end
 
     def add_element(elem, name)
@@ -556,7 +550,7 @@ EOT
         mlow = mac[0]
         eui64 = [
             4261412864 + (mlow & 0x00FFFFFF),
-            ((mac[1]+512)<<16) + ((mlow & 0xFF000000)>>16) + 0x000000FF
+            ((mac[1]^0x0200)<<16) + ((mlow & 0xFF000000)>>16) + 0x000000FF
         ]
 
         return (eui64[1] << 32) + eui64[0]
@@ -620,7 +614,7 @@ EOT
         # No image found, so unable to get image TYPE
         return nil if row.nil?
 
-        image = Nokogiri::XML(row[:body], nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        image = nokogiri_doc(row[:body], 'image_pool')
         return image
     end
 
@@ -652,7 +646,7 @@ EOT
         # No image found, so unable to get image TYPE
         return nil if row.nil?
 
-        image = Nokogiri::XML(row[:body], nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        image = nokogiri_doc(row[:body], 'image_pool')
 
         return image
     end

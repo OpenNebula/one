@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -30,7 +30,7 @@ include OpenNebula
 module OpenNebulaHelper
     ONE_VERSION=<<-EOT
 OpenNebula #{OpenNebula::VERSION}
-Copyright 2002-2019, OpenNebula Project, OpenNebula Systems
+Copyright 2002-2020, OpenNebula Project, OpenNebula Systems
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may
 not use this file except in compliance with the License. You may obtain
@@ -191,7 +191,7 @@ EOT
             :format => Integer,
             :description => 'The Group ID to instantiate the VM'
     }
-    
+
     #NOTE: Other options defined using this array, add new options at the end
     TEMPLATE_OPTIONS=[
         {
@@ -381,6 +381,21 @@ EOT
             :description => "In a vCenter environment sets the the VMs and Template folder where the VM will be placed in." \
             " The path uses slashes to separate folders. For example: --vcenter_vm_folder \"/Management/VMs\""
         },
+        {
+            :name   => 'user_inputs',
+            :large  => '--user-inputs ui1,ui2,ui3',
+            :format => Array,
+            :description => 'Specify the user inputs values when instantiating',
+            :proc => lambda do |o, options|
+                # escape values
+                options[:user_inputs].map! do |user_input|
+                    user_input_split = user_input.split('=')
+                    "#{user_input_split[0]}=\"#{user_input_split[1]}\""
+                end
+
+                options[:user_inputs] = o.join("\n")
+            end
+        },
         AS_GROUP,
         AS_USER
     ]
@@ -395,6 +410,12 @@ EOT
         :name => 'extended',
         :large => '--extended',
         :description => 'Show info extended (it only works with xml output)'
+    }
+
+    DECRYPT = {
+        :name => 'decrypt',
+        :large => '--decrypt',
+        :description => 'Get decrypted attributes'
     }
 
     TEMPLATE_OPTIONS_VM   = [TEMPLATE_NAME_VM] + TEMPLATE_OPTIONS + [DRY]
@@ -674,7 +695,7 @@ EOT
         def list_pool_xml(pool, options, filter_flag)
             extended = options.include?(:extended) && options[:extended]
 
-            if $stdout.isatty
+            if $stdout.isatty and (!options.key?:no_pager)
                 size = $stdout.winsize[0] - 1
 
                 # ----------- First page, check if pager is needed -------------
@@ -702,6 +723,13 @@ EOT
                     return 0
                 end
 
+                if elements < size
+                    return 0
+                elsif !pool.is_paginated?
+                    stop_pager(ppid)
+                    return 0
+                end
+
                 # ------- Rest of the pages in the pool, piped to pager --------
                 current = size
 
@@ -711,6 +739,12 @@ EOT
                     return -1, rc.message if OpenNebula.is_error?(rc)
 
                     current += size
+
+                    begin
+                        Process.waitpid(ppid, Process::WNOHANG)
+                    rescue Errno::ECHILD
+                        break
+                    end
 
                     elements, page = print_page(pool, options)
 
@@ -779,10 +813,38 @@ EOT
             return 0
         end
 
+        # Check if a resource defined by attributes is referenced in pool
+        #
+        # @param pool pool to search in
+        # @param xpath xpath to search in pool
+        # @param resource_name name of the resource to search (e.g IMAGE)
+        # @attributes hash with resource attributes, must contains :id, :name
+        # and :uname
+        #
+        # atributes {uname => ..., name => ..., id => ...}
+        def check_orphan(pool, xpath, resource_name, attributes)
+            return false if attributes.empty?
+
+            return false unless pool["#{xpath}[#{resource_name}_ID = "\
+                                     "#{attributes[:id]}]"].nil?
+
+            return false unless pool["#{xpath}[#{resource_name} = "\
+                                     "'#{attributes[:name]}' and "\
+                                     "#{resource_name}_UNAME = "\
+                                     "'#{attributes[:uname]}']"].nil?
+
+            true
+        end
+
         def show_resource(id, options)
             resource = retrieve_resource(id)
 
-            rc = resource.info
+            if !options.key? :decrypt
+                rc = resource.info
+            else
+                rc = resource.info(true)
+            end
+
             return -1, rc.message if OpenNebula.is_error?(rc)
 
             if options[:xml]
@@ -1005,6 +1067,7 @@ EOT
 
         pool = case poolname
         when "HOST"        then OpenNebula::HostPool.new(client)
+        when "HOOK"        then OpenNebula::HookPool.new(client)
         when "GROUP"       then OpenNebula::GroupPool.new(client)
         when "USER"        then OpenNebula::UserPool.new(client)
         when "DATASTORE"   then OpenNebula::DatastorePool.new(client)
@@ -1061,7 +1124,7 @@ EOT
         end
     end
 
-    def OpenNebulaHelper.time_to_str(time, print_seconds=true, 
+    def OpenNebulaHelper.time_to_str(time, print_seconds=true,
         print_hours=true, print_years=false)
 
         value = time.to_i
@@ -1633,4 +1696,195 @@ EOT
             "-"
         end
     end
+
+    def OpenNebulaHelper.parse_user_inputs(inputs, get_defaults = false)
+        unless get_defaults
+            puts 'There are some parameters that require user input. ' \
+                 'Use the string <<EDITOR>> to launch an editor ' \
+                 '(e.g. for multi-line inputs)'
+        end
+
+        answers = {}
+
+        inputs.each do |key, val|
+            input_cfg = val.split('|', -1)
+
+            if input_cfg.length < 3
+                STDERR.puts 'Malformed user input. It should have at least 3 '\
+                            "parts separated by '|':"
+                STDERR.puts "  #{key}: #{val}"
+                exit(-1)
+            end
+
+            mandatory, type, description, params, initial = input_cfg
+            optional = mandatory.strip == 'O'
+            type.strip!
+            description.strip!
+
+            if input_cfg.length > 3
+                if input_cfg.length != 5
+                    STDERR.puts 'Malformed user input. It should have 5 parts'\
+                                " separated by '|':"
+                    STDERR.puts "  #{key}: #{val}"
+                    exit(-1)
+                end
+
+                params.strip!
+                initial.strip!
+            end
+
+            if get_defaults
+                answers[key]= initial unless mandatory == 'M'
+                next
+            end
+
+            puts "  * (#{key}) #{description}"
+
+            header = '    '
+            if !initial.nil? && initial != ''
+                header += "Press enter for default (#{initial}). "
+            end
+
+            case type
+            when 'text', 'text64'
+                print header
+
+                answer = STDIN.readline.chop
+
+                if answer == '<<EDITOR>>'
+                    answer = OpenNebulaHelper.editor_input
+                end
+
+                # use default in case it's empty
+                answer = initial if answer.empty?
+
+                if type == 'text64'
+                    answer = Base64.encode64(answer).strip.delete("\n")
+                end
+
+            when 'boolean'
+                print header
+
+                answer = STDIN.readline.chop
+
+                # use default in case it's empty
+                answer = initial if answer.empty?
+
+                unless %w[YES NO].include?(answer)
+                    STDERR.puts "Invalid boolean '#{answer}'"
+                    STDERR.puts 'Boolean has to be YES or NO'
+                    exit(-1)
+                end
+
+            when 'password'
+                print header
+
+                answer = OpenNebulaHelper::OneHelper.get_password
+
+                # use default in case it's empty
+                answer = initial if answer.empty?
+
+            when 'number', 'number-float'
+                if type == 'number'
+                    header += 'Integer: '
+                    exp = INT_EXP
+                else
+                    header += 'Float: '
+                    exp = FLOAT_EXP
+                end
+
+                begin
+                    print header
+                    answer = STDIN.readline.chop
+
+                    answer = initial if answer == ''
+                        noanswer = ((answer == '') && optional)
+                end while !noanswer && (answer =~ exp) == nil
+
+                if noanswer
+                    next
+                end
+
+            when 'range', 'range-float'
+                min, max = params.split('..')
+
+                if min.nil? || max.nil?
+                    STDERR.puts 'Malformed user input. '\
+                                "Parameters should be 'min..max':"
+                    STDERR.puts "  #{key}: #{val}"
+                    exit(-1)
+                end
+
+                if type == 'range'
+                    exp = INT_EXP
+                    min = min.to_i
+                    max = max.to_i
+
+                    header += "Integer in the range [#{min}..#{max}]: "
+                else
+                    exp = FLOAT_EXP
+                    min = min.to_f
+                    max = max.to_f
+
+                    header += "Float in the range [#{min}..#{max}]: "
+                end
+
+                begin
+                    print header
+                    answer = STDIN.readline.chop
+
+                    answer = initial if answer == ''
+
+                    noanswer = (answer == '') && optional
+                end while !noanswer && ((answer =~ exp) == nil ||
+                          answer.to_f < min || answer.to_f > max)
+
+                if noanswer
+                    next
+                end
+
+            when 'list'
+                options = params.split(',')
+
+                options.each_with_index do |opt, i|
+                    puts "    #{i}  #{opt}"
+                end
+
+                puts
+
+                header += 'Please type the selection number: '
+
+                begin
+                    print header
+                    answer = STDIN.readline.chop
+
+                    if answer == ''
+                        answer = initial
+                    else
+                        answer = options[answer.to_i]
+                    end
+
+                    noanswer = ((answer == '') && optional)
+                end while !noanswer && !options.include?(answer)
+
+                if noanswer
+                    next
+                end
+
+            when 'fixed'
+                puts "    Fixed value of (#{initial}). Cannot be changed"
+                answer = initial
+
+            else
+                STDERR.puts 'Wrong type for user input:'
+                STDERR.puts "  #{key}: #{val}"
+                exit(-1)
+            end
+
+            answers[key] = answer
+        end
+
+        answers
+    end
+
 end

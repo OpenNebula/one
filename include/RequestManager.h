@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,19 +18,12 @@
 #define REQUEST_MANAGER_H_
 
 #include "ActionManager.h"
-#include "VirtualMachinePool.h"
-#include "HostPool.h"
-#include "UserPool.h"
-#include "VirtualNetworkPool.h"
-#include "ImagePool.h"
-#include "VMTemplatePool.h"
-#include "GroupPool.h"
-
-#include "AuthManager.h"
 
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/registry.hpp>
 #include <xmlrpc-c/server_abyss.hpp>
+
+#include <set>
 
 using namespace std;
 
@@ -86,7 +79,29 @@ public:
      */
     xmlrpc_c::serverAbyss * create_abyss();
 
+    bool exist_method(const string& call)
+    {
+        return RequestManagerRegistry.exist(call);
+    }
+
 private:
+
+    struct NebulaRegistry
+    {
+        std::set<std::string> registered_methods;
+        xmlrpc_c::registry registry;
+
+        void addMethod(std::string const name, xmlrpc_c::methodPtr const methodP)
+        {
+            registered_methods.insert(name);
+            registry.addMethod(name, methodP);
+        };
+
+        bool exist(const string& call)
+        {
+            return registered_methods.find(call) != registered_methods.end();
+        }
+    };
 
     //--------------------------------------------------------------------------
     // Friends, thread functions require C-linkage
@@ -159,7 +174,7 @@ private:
     /**
      *  To register XML-RPC methods
      */
-    xmlrpc_c::registry RequestManagerRegistry;
+    NebulaRegistry RequestManagerRegistry;
 
     /**
      *  Register the XML-RPC API Calls
@@ -171,21 +186,7 @@ private:
     // ------------------------------------------------------------------------
     // ActioListener Interface
     // ------------------------------------------------------------------------
-    virtual void finalize_action(const ActionRequest& ar)
-    {
-        NebulaLog::log("ReM",Log::INFO,"Stopping Request Manager...");
-
-        pthread_cancel(rm_xml_server_thread);
-
-        pthread_join(rm_xml_server_thread,0);
-
-        NebulaLog::log("ReM",Log::INFO,"XML-RPC server stopped.");
-
-        if ( socket_fd != -1 )
-        {
-            close(socket_fd);
-        }
-    };
+    void finalize_action(const ActionRequest& ar) override;
 };
 
 #endif

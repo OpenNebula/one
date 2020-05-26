@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,8 +26,6 @@ define(function(require) {
   var TemplateTable = require("utils/panel/template-table");
   var TemplateTableVcenter = require("utils/panel/template-table");
   var OpenNebula = require("opennebula");
-  var Sunstone = require("sunstone");
-  var Config = require("sunstone-config");
   var Navigation = require("utils/navigation");
 
   /*
@@ -52,11 +50,9 @@ define(function(require) {
   function Panel(info) {
     this.title = Locale.tr("Info");
     this.icon = "fa-info-circle";
-
     this.element = info[XML_ROOT];
-
     return this;
-  };
+  }
 
   Panel.PANEL_ID = PANEL_ID;
   Panel.prototype.html = _html;
@@ -80,7 +76,11 @@ define(function(require) {
 
     var IP = OpenNebula.VM.ipsStr(this.element);
 
-    var alias = OpenNebula.VM.aliasStr(this.element);
+    var alias = (
+      config.system_config &&
+      config.system_config.get_extended_vm_info &&
+      config.system_config.get_extended_vm_info === "true"
+    ) ? null : OpenNebula.VM.aliasStr(this.element);
 
     if (this.element.TEMPLATE.VROUTER_ID != undefined){
       vrouterHTML = Navigation.link(
@@ -141,7 +141,7 @@ define(function(require) {
       "templateTableVcenterHTML": templateTableVcenterHTML,
       "templateTableHTML": templateTableHTML,
       "monitoringTableContentHTML": monitoringTableContentHTML,
-      "vrouterHTML": vrouterHTML
+      "vrouterHTML": vrouterHTML,
     });
   }
 
@@ -167,7 +167,6 @@ define(function(require) {
     if($.isEmptyObject(strippedTemplateVcenter)){
       $(".vcenter", context).hide();
     }
-
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, unshownValues, strippedTemplateVcenter);
     TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, unshownValues, strippedTemplate);
   }

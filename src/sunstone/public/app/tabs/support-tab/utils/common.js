@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -41,14 +41,6 @@ define(function(require) {
     $(".support_not_connected").show();
   }
 
-  function _check_validate_official_support(){
-    Sunstone.runAction("Support.check");
-  }
-
-  function _check_last_version_support(){
-    Sunstone.runAction("Support.checkversion");
-  }
-
   function _show_support_list() {
     $(".support_info").show();
     $(".support_connect").hide();
@@ -58,7 +50,6 @@ define(function(require) {
   }
 
   function _startIntervalRefresh() {
-    //Sunstone.runAction("Support.list"); //esto no se que pinta!!!
     support_interval_function = setInterval(function(){
       Sunstone.runAction("Support.list");
     }, Sunstone.TOP_INTERVAL);
@@ -73,8 +64,6 @@ define(function(require) {
     "showSupportList": _show_support_list,
     "hideSupportConnect": _hide_support_connect,
     "startIntervalRefresh": _startIntervalRefresh,
-    "stopIntervalRefresh": _stopIntervalRefresh,
-    "checkValidateOfficialSupport": _check_validate_official_support,
-    "checkLastVersionSupport": _check_last_version_support
+    "stopIntervalRefresh": _stopIntervalRefresh
   };
 });

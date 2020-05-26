@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,7 +18,6 @@
 #define REQUEST_MANAGER_VN_TEMPLATE_H
 
 #include "Request.h"
-#include "Nebula.h"
 
 using namespace std;
 
@@ -31,18 +30,9 @@ class RequestManagerVNTemplate: public Request
 protected:
     RequestManagerVNTemplate(const string& method_name,
                              const string& help,
-                             const string& params)
-        :Request(method_name,params,help)
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vntpool();
+                             const string& params);
 
-        auth_object = PoolObjectSQL::VNTEMPLATE;
-    };
-
-    ~RequestManagerVNTemplate(){};
-
-    /* -------------------------------------------------------------------- */
+    ~RequestManagerVNTemplate() = default;
 
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                                  RequestAttributes& att) = 0;
@@ -61,7 +51,7 @@ public:
         auth_op = AuthRequest::USE;
     };
 
-    ~VNTemplateInstantiate(){};
+    ~VNTemplateInstantiate() = default;
 
     /**
      * Instantiates the VN Template, checking permissions, quotas, etc
@@ -81,7 +71,7 @@ public:
         const string& s_uattr, Template* extra_attrs, int& vid,
         RequestAttributes& att);
 
-	/**
+    /**
      * Parse & merge user attributes (check if the request user is not oneadmin)
      *  @param tmpl to merge the attributes to
      *  @param s_uattr Template supplied by user to merge with the original

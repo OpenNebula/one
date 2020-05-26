@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -14,12 +14,15 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "Nebula.h"
-
 #include "RaftManager.h"
 #include "FedReplicaManager.h"
 #include "ZoneServer.h"
 #include "Client.h"
+#include "ZonePool.h"
+#include "LogDB.h"
+#include "AclManager.h"
+#include "Nebula.h"
+#include "InformationManager.h"
 
 #include <cstdlib>
 
@@ -145,14 +148,8 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
         }
         else
         {
-            if (cmd[0] != '/')
-            {
-                ostringstream cmd_os;
-                cmd_os << remotes_location << "/hooks/" << cmd;
-                cmd = cmd_os.str();
-            }
-
-            leader_hook = new RaftLeaderHook(cmd, arg);
+            leader_hook = new ExecuteHook("RAFT_LEADER_HOOK", cmd, arg,
+                    remotes_location);
         }
     }
 
@@ -172,20 +169,14 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
         }
         else
         {
-            if (cmd[0] != '/')
-            {
-                ostringstream cmd_os;
-                cmd_os << remotes_location << "/hooks/" << cmd;
-                cmd = cmd_os.str();
-            }
-
-            follower_hook = new RaftFollowerHook(cmd, arg);
+            follower_hook = new ExecuteHook("RAFT_FOLLOWER_HOOK", cmd, arg,
+                    remotes_location);
         }
     }
 
     if ( state == FOLLOWER && follower_hook != 0 )
     {
-        follower_hook->do_hook(0);
+        follower_hook->execute();
     }
 };
 
@@ -441,7 +432,7 @@ void RaftManager::leader()
 
     if ( leader_hook != 0 )
     {
-        leader_hook->do_hook(0);
+        leader_hook->execute();
     }
 
     state  = LEADER;
@@ -484,6 +475,9 @@ void RaftManager::leader()
     pthread_mutex_unlock(&mutex);
 
     aclm->reload_rules();
+
+    auto im = nd.get_im();
+    im->raft_status(state);
 
     if ( nd.is_federation_master() )
     {
@@ -530,7 +524,7 @@ void RaftManager::follower(unsigned int _term)
 
     if ( state == LEADER && follower_hook != 0 )
     {
-        follower_hook->do_hook(0);
+        follower_hook->execute();
     }
 
     replica_manager.stop_replica_threads();
@@ -551,6 +545,9 @@ void RaftManager::follower(unsigned int _term)
 
     commit    = lapplied;
     leader_id = -1;
+
+    auto im = nd.get_im();
+    im->raft_status(state);
 
     NebulaLog::log("RCM", Log::INFO, "oned is set to follower mode");
 

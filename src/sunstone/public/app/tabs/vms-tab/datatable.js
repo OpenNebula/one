@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,6 +22,7 @@ define(function(require) {
   var TabDataTable = require('utils/tab-datatable');
   var VMsTableUtils = require('./utils/datatable-common');
   var OpenNebulaVM = require('opennebula/vm');
+  var OpenNebulaAction = require("opennebula/action");
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
   var StateActions = require('./utils/state-actions');
@@ -31,6 +32,7 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var DashboardUtils = require('utils/dashboard');
   var SearchDropdown = require('hbs!./datatable/search');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     CONSTANTS
@@ -68,7 +70,7 @@ define(function(require) {
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
           {"bVisible": false, "aTargets": ['_all']}
       ]
-    }
+    };
 
     this.columns = VMsTableUtils.columns;
 
@@ -163,32 +165,60 @@ define(function(require) {
     DashboardUtils.counterAnimation(".failed_vms", this.failedVms);
 
     $(".off_vms").text(this.offVms);
+
+    VMsTableUtils.tooltipCharters()
   }
 
   function _initialize(opts) {
     var that = this;
 
     TabDataTable.prototype.initialize.call(this, opts);
+    
+    //download virt-viewer file 
+    $('#' + this.dataTableId).on("click", '.w_file', function(){
+      var data = $(this).data();
+
+      (data.id && data.hostname && data.type && data.port)
+        ? Sunstone.runAction(
+          "VM.save_virt_viewer_action",
+          data.id,
+          { hostname: data.hostname, type: data.type, port: data.port }
+        )
+        : Notifier.notifyError(Locale.tr("Data for virt-viewer file isn't correct"));
+
+        return false;
+    });
+
+    //download RDP file
+    $('#' + this.dataTableId).on("click", '.rdp', function() {
+      var data = $(this).data();
+
+      (data.ip && data.name)
+        ? Sunstone.runAction("VM.save_rdp", data)
+        : Notifier.notifyError(Locale.tr("This VM needs a nic with rdp active"));
+
+      return false;
+    });
 
     $('#' + this.dataTableId).on("click", '.vnc', function() {
-      var vmId = $(this).attr('vm_id');
+      var data = $(this).data();
 
       if (!Vnc.lockStatus()) {
         Vnc.lock();
-        Sunstone.runAction("VM.startvnc_action", vmId);
+        Sunstone.runAction("VM.startvnc_action", data.id);
       } else {
-        Notifier.notifyError(Locale.tr("VNC Connection in progress"))
+        Notifier.notifyError(Locale.tr("VNC Connection in progress"));
       }
 
       return false;
     });
 
     $('#' + this.dataTableId).on("click", '.spice', function() {
-      var vmId = $(this).attr('vm_id');
+      var data = $(this).data();
 
-      if (!Spice.lockStatus()) {
+      if (!Spice.lockStatus() && data.id) {
         Spice.lock();
-        Sunstone.runAction("VM.startspice_action", vmId);
+        Sunstone.runAction("VM.startspice_action", data.id);
       } else {
         Notifier.notifyError(Locale.tr("SPICE Connection in progress"))
       }

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -76,6 +76,19 @@ define(function(require) {
       var templateJSON = CapacityInputs.retrieveChanges(context);
 
       var enforce = $("#enforce", this).is(":checked");
+
+      var topology = {}
+
+      if (templateJSON && templateJSON.CORES){
+        topology.CORES = templateJSON["CORES"];
+        topology.SOCKETS = parseInt(templateJSON["VCPU"]) / parseInt(templateJSON["CORES"]);
+        topology.THREADS = 1;
+        delete templateJSON["CORES"];
+      }
+
+      if (!$.isEmptyObject(topology)){
+        templateJSON.TOPOLOGY = topology;
+      }
 
       var obj = {
         "vm_template": templateJSON,

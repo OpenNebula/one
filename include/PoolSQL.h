@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,8 +22,6 @@
 #include "SqlDB.h"
 #include "PoolObjectSQL.h"
 #include "PoolSQLCache.h"
-#include "Log.h"
-#include "Hook.h"
 
 using namespace std;
 
@@ -33,7 +31,7 @@ using namespace std;
  * multithreaded applications. Any modification or access function to the pool
  * SHOULD block the mutex.
  */
-class PoolSQL: public Hookable
+class PoolSQL
 {
 public:
     /**
@@ -137,16 +135,7 @@ public:
     virtual int update(
         PoolObjectSQL * objsql)
     {
-        int rc;
-
-        rc = objsql->update(db);
-
-        if ( rc == 0 )
-        {
-            do_hooks(objsql, Hook::UPDATE);
-        }
-
-        return rc;
+        return objsql->update(db);;
     };
 
     /**
@@ -165,10 +154,6 @@ public:
             error_msg = "SQL DB error";
             return -1;
         }
-        else
-        {
-            do_hooks(objsql, Hook::REMOVE);
-        }
 
         return 0;
     };
@@ -184,7 +169,7 @@ public:
      */
     int dump(string& oss, const string& where, bool desc)
     {
-        return dump(oss, where, "", desc);
+        return dump(oss, where, 0, -1, desc);
     }
 
     /**
@@ -192,30 +177,33 @@ public:
      *  to the query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
      *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    virtual int dump(string& oss, const string& where,
-                     const string& limit, bool desc) = 0;
+    virtual int dump(string& oss, const string& where, int sid, int eid,
+            bool desc) = 0;
 
     /**
      *  Dumps the pool in extended XML format
      *  A filter and limit can be also added to the query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
      *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
     virtual int dump_extended(string& oss,
                       const string& where,
-                      const string& limit,
+                      int sid,
+                      int eid,
                       bool desc)
     {
-        return dump(oss, where, limit, desc);
+        return dump(oss, where, sid, eid, desc);
     }
 
     // -------------------------------------------------------------------------
@@ -291,24 +279,14 @@ public:
     }
 
     /**
-     * Return true if FTS is available.
+     * Return true if feature is supported
      */
-     bool is_fts_available()
+     bool supports(SqlDB::SqlFeature ft)
      {
-         return db->fts_available();
+         return db->supports(ft);
      }
-protected:
 
-    /**
-     *  Register on "CREATE" and on "REMOVE" hooks for the pool. The hooks are
-     *  meant to be executed locally by the generic AllocateHook and RemoveHook
-     *  classes.
-     *    @param hook_mads, array of HOOKs to be installed
-     *    @param remotes_location, path to remotes in the front-end where the
-     *    hooks are installed
-     */
-    void register_hooks(vector<const VectorAttribute *> hook_mads,
-                        const string&                   remotes_location);
+protected:
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
@@ -342,7 +320,8 @@ protected:
      *  @param elem_name Name of the root xml pool name
      *  @param table Pool table name
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param start_id first element used for pagination
+     *  @param end_id last element used for pagination, -1 to disable
      *  @param desc descending order of pool elements
      *
      *  @return 0 on success
@@ -352,7 +331,8 @@ protected:
              const string&  column,
              const char *   table,
              const string&  where,
-             const string&  limit,
+             int            start_id,
+             int            end_id,
              bool           desc);
 
     /**
@@ -372,7 +352,7 @@ protected:
              const string&  where,
              bool           desc)
     {
-        return dump(oss, elem_name, "body", table, where, "", desc);
+        return dump(oss, elem_name, "body", table, where, 0, -1, desc);
     }
 
     /**

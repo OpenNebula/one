@@ -82,6 +82,29 @@
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
+              <xs:element name="SNAPSHOTS" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="ALLOW_ORPHANS" type="xs:string"/>
+                    <xs:element name="CURRENT_BASE" type="xs:integer"/>
+                    <xs:element name="DISK_ID" type="xs:integer"/>
+                    <xs:element name="NEXT_SNAPSHOT" type="xs:integer"/>
+                    <xs:element name="SNAPSHOT" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="ACTIVE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                          <xs:element name="CHILDREN" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                          <xs:element name="DATE" type="xs:integer"/>
+                          <xs:element name="ID" type="xs:integer"/>
+                          <xs:element name="NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                          <xs:element name="PARENT" type="xs:integer"/>
+                          <xs:element name="SIZE" type="xs:integer"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
             </xs:sequence>
           </xs:complexType>
         </xs:element>

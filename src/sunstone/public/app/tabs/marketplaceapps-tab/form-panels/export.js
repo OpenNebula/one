@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,14 +22,10 @@ define(function(require) {
   var BaseFormPanel = require("utils/form-panels/form-panel");
   var Sunstone = require("sunstone");
   var Locale = require("utils/locale");
-  var Notifier = require("utils/notifier");
   var Tips = require("utils/tips");
   var DataStoresTable = require("tabs/datastores-tab/datatable");
+  var DockerTagsTable = require("./docker-tags");
   var DataStore = require("opennebula/datastore");
-  var OpenNebulaMarketPlaceApp = require("opennebula/marketplaceapp");
-  var Config = require("sunstone-config");
-  var OpenNebula = require("opennebula");
-  var TemplateUtils = require("utils/template-utils");
 
   /*
     TEMPLATES
@@ -55,12 +51,20 @@ define(function(require) {
         formPanelId + "datastoresTable", {
           "select": true,
           "selectOptions": {
-            "filter_fn": function(ds) { return ds.TYPE == DataStore.TYPES.IMAGE_DS; }
+            "filter_fn": function(ds) { return ds.TYPE != DataStore.TYPES.SYSTEM_DS; }
           }
         }
       );
     }
     return r;
+  }
+
+  function _getDockerTagsTable(formPanelId, resourceId){
+    return (formPanelId)
+      ? new DockerTagsTable(
+        formPanelId + "docketagsTable",
+        { appId: resourceId, select: true }
+      ) : null;
   }
 
   function FormPanel() {
@@ -85,6 +89,7 @@ define(function(require) {
   FormPanel.prototype.htmlWizard = _htmlWizard;
   FormPanel.prototype.submitWizard = _submitWizard;
   FormPanel.prototype.setResourceId = _setResourceId;
+  FormPanel.prototype.setDockerTags = _setDockerTags;
   FormPanel.prototype.onShow = _onShow;
   FormPanel.prototype.setup = _setup;
 
@@ -104,14 +109,17 @@ define(function(require) {
   function _onShow(context) {
     var placeDataStore = "#placeDatatableDatastore";
     Sunstone.disableFormPanelSubmit(TAB_ID);
-    if(this.type === "VMTEMPLATE" ){
+
+    if (this.type === "VMTEMPLATE") {
       this.datastoresTable.dataTable.parents(placeDataStore).remove();
-    }else{
+    }
+    else {
       if(!($(placeDataStore).length)){
         $("#exportMarketPlaceAppFormWizard").append(this.datastoresTable.dataTableHTML);
         this.datastoresTable = getDataStore(FORM_PANEL_ID);
         this.datastoresTable.initialize();
       }
+
       this.datastoresTable.resetResourceTableSelect();
     }
     $("#NAME", context).focus();
@@ -132,22 +140,31 @@ define(function(require) {
     });
   }
 
-  function _setResourceId(context, resourceId, type) {
+  function _setResourceId(context, appJson, type) {
+    this.type = type;
+
+    $("input#NAME", context).val(appJson.MARKETPLACEAPP.NAME).trigger("input");
+    if (appJson.MARKETPLACEAPP.TEMPLATE.VMTEMPLATE64 != undefined){
+      $(".vmname", context).show();
+    }
+  }
+
+  function _setDockerTags(resourceId, appJson) {
     this.resourceId = resourceId;
-    this.type       = type;
-    OpenNebula.MarketPlaceApp.show({
-      data : {
-          id: resourceId
-      },
-      success: function(request,app_json){
-        $("input#NAME", context).val(app_json.MARKETPLACEAPP.NAME).trigger("input");
-        if (app_json.MARKETPLACEAPP.TEMPLATE.VMTEMPLATE64 != undefined){
-          $(".vmname", context).show();
-        }
-        Sunstone.enableFormPanelSubmit(TAB_ID);
-      },
-      error: Notifier.onError
-    });
+
+    if (appJson.MARKETPLACEAPP &&
+      appJson.MARKETPLACEAPP.MARKETPLACE != undefined &&
+      String(appJson.MARKETPLACEAPP.MARKETPLACE).toLowerCase() === "dockerhub"
+    ) {
+        this.dockertagsTable = _getDockerTagsTable(FORM_PANEL_ID, resourceId);
+        $("#placeDatatableDockerTags").show().append(this.dockertagsTable.dataTableHTML);
+        this.dockertagsTable.initialize();
+        this.dockertagsTable.resetResourceTableSelect();
+    }
+    else {
+      $("#placeDatatableDockerTags").hide()
+      Sunstone.enableFormPanelSubmit(TAB_ID);
+    }
   }
 
   function _submitWizard(context) {
@@ -156,6 +173,10 @@ define(function(require) {
       "vmtemplate_name" : $("#VMNAME", context).val(),
       "dsid" : this.datastoresTable.idInput().val()
     };
+
+    if (this.dockertagsTable) {
+      $.extend(marketPlaceAppObj, { "tag": this.dockertagsTable.idInput().val() });
+    }
 
     Sunstone.runAction("MarketPlaceApp.export", [this.resourceId], marketPlaceAppObj);
     return false;

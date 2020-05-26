@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -39,6 +39,7 @@ CONFIGURATION_FILE = ETC_LOCATION + "/onegate-server.conf"
 
 if File.directory?(GEMS_LOCATION)
     Gem.use_paths(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /(vendor|site)_ruby/ }
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -298,12 +299,12 @@ helpers do
     # If true the service hash is returned
     # If false a halt is triggered
     #
-    def check_vm_in_service(requested_vm_id, service_id, client)
+    def check_vm_in_service(requested_vm_id, service_id, client, extended = false)
         service = get_service(service_id, client)
 
         service_hash = JSON.parse(service)
 
-        response = build_service_hash(service_hash) rescue nil
+        response = build_service_hash(service_hash, client, extended) rescue nil
         if response.nil?
             error_msg = "Service #{service_id} is empty."
             logger.error {error_msg}
@@ -324,6 +325,39 @@ helpers do
         return response
     end
 
+    # Escape data from user
+    def scape_attr(attr)
+        ret  = ''
+        attr = attr.split('')
+
+        # KEY=value with spaces -> KEY=\"value with spaces\"
+        # KEY=[KEY2=value with spaces] -> KEY=[KEY2=\"value with spaces\"]
+        attr.each_with_index do |s, idx|
+            if s == '=' && attr[idx + 1] != '[' && attr[idx + 1] != "\""
+                ret << "=\""
+            elsif s == ',' && attr[idx - 1] != "\""
+                ret << "\","
+            elsif s == '[' && attr[idx - 1] != '=' && attr[idx - 1] != "\""
+                ret << "\"["
+            elsif s == ']' && attr[idx - 1] != '=' && attr[idx - 1] != "\""
+                ret << "\"]"
+            elsif s == '\\' && attr[idx - 1] != "\""
+                ret << "\"\\"
+            elsif s == "\n" && attr[idx - 1] != "\""
+                ret << "\"\n"
+            else
+                ret << s
+            end
+        end
+
+        # Replace scaped \n by no scaped one
+        ret.gsub!("\\n", "\n")
+
+        ret.insert(ret.size, "\"") if ret[-1] != ']' && ret[-1] != "\""
+
+        ret
+    end
+
     # Update VM user template
     #
     # @param object [OpenNebula::VirtualMachine] VM to update
@@ -339,6 +373,10 @@ helpers do
         end
 
         attr = request.body.read if attr.nil?
+
+        # Escape attr
+        # ###########
+        attr = scape_attr(attr)
 
         if type == 1
             error = "cannot be modified"
@@ -381,7 +419,7 @@ helpers do
     end
 end
 
-NIC_VALID_KEYS = %w(IP IP6_LINK IP6_SITE IP6_GLOBAL NETWORK MAC)
+NIC_VALID_KEYS = %w(IP IP6_LINK IP6_SITE IP6_GLOBAL NETWORK MAC NAME PARENT)
 USER_TEMPLATE_INVALID_KEYS = %w(SCHED_MESSAGE)
 
 def build_vm_hash(vm_hash)
@@ -390,6 +428,14 @@ def build_vm_hash(vm_hash)
     if vm_hash["TEMPLATE"]["NIC"]
         [vm_hash["TEMPLATE"]["NIC"]].flatten.each do |nic|
             nics << Hash[nic.select{|k,v| NIC_VALID_KEYS.include?(k)}]
+        end
+    end
+
+    alias_nics = []
+
+    if vm_hash["TEMPLATE"]["NIC_ALIAS"]
+        [vm_hash["TEMPLATE"]["NIC_ALIAS"]].flatten.each do |nic|
+            alias_nics << Hash[nic.select{|k,v| NIC_VALID_KEYS.include?(k)}]
         end
     end
 
@@ -411,13 +457,14 @@ def build_vm_hash(vm_hash)
                                     !USER_TEMPLATE_INVALID_KEYS.include?(k)
                                 }],
             "TEMPLATE"  => {
-                "NIC" => nics
+                "NIC" => nics,
+                "NIC_ALIAS" => alias_nics
             }
         }
     }
 end
 
-def build_service_hash(service_hash)
+def build_service_hash(service_hash, client = nil, extended = false)
     roles = service_hash["DOCUMENT"]["TEMPLATE"]["BODY"]["roles"]
 
     if roles.nil?
@@ -442,13 +489,18 @@ def build_service_hash(service_hash)
         if (nodes = role["nodes"])
             nodes.each do |vm|
                 vm_deploy_id = vm["deploy_id"].to_i
-                vm_info      = vm["vm_info"]["VM"]
-                vm_running   = vm["running"]
+                if extended
+                    vm_info = get_vm(vm_deploy_id, client).to_hash
+                else
+                    vm_info = vm["vm_info"]
+                end
+
+                vm_running = vm["running"]
 
                 role_info["nodes"] << {
                     "deploy_id" => vm_deploy_id,
                     "running"   => vm["running"],
-                    "vm_info"   => build_vm_hash(vm_info)
+                    "vm_info"   => vm_info
                 }
             end
         end
@@ -508,7 +560,7 @@ get '/service' do
     source_vm = get_source_vm(request.env, client)
     service_id = source_vm['USER_TEMPLATE/SERVICE_ID']
 
-    response = check_vm_in_service(source_vm['ID'], service_id, client)
+    response = check_vm_in_service(source_vm['ID'], service_id, client, params['extended'])
     [200, response.to_json]
 end
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,6 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerImage.h"
+#include "ImageManager.h"
+#include "DatastorePool.h"
 
 using namespace std;
 
@@ -99,8 +101,7 @@ Request::ErrorCode ImagePersistent::request_execute(
 
     ErrorCode ec;
 
-    ec = basic_authorization(ipool, id,
-            AuthRequest::MANAGE, PoolObjectSQL::IMAGE, att);
+    ec = basic_authorization(ipool, id, PoolObjectSQL::IMAGE, att);
 
     if ( ec != SUCCESS)
     {

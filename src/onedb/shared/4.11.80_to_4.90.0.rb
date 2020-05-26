@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -53,7 +53,7 @@ module Migrator
 
     @db.transaction do
       @db.fetch("SELECT * FROM old_user_pool") do |row|
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        doc = nokogiri_doc(row[:body], 'old_user_pool')
 
         USER_TRANSFORM_ATTRS.each do |old_name, new_name|
           elem = doc.at_xpath("/USER/TEMPLATE/#{old_name}")
@@ -93,7 +93,7 @@ module Migrator
 
     @db.transaction do
       @db.fetch("SELECT * FROM old_group_pool") do |row|
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        doc = nokogiri_doc(row[:body], 'old_group_pool')
 
         GROUP_TRANSFORM_ATTRS.each do |old_name, new_name|
           elem = doc.at_xpath("/GROUP/TEMPLATE/#{old_name}")
@@ -132,7 +132,7 @@ module Migrator
 
     @db.transaction do
       @db.fetch("SELECT oid,body FROM group_pool") do |row|
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        doc = nokogiri_doc(row[:body], 'group_pool')
 
         doc.root.xpath("ADMINS/ID").each do |uid|
           user     = Acl::USERS["UID"] | uid.text.to_i
