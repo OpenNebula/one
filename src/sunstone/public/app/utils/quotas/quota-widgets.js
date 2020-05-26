@@ -495,6 +495,7 @@ define(function(require) {
       ResourceSelect.insert({
           context: $('.image_select', $(".image_quota_table tbody tr", context).last()),
           resourceName: 'Image',
+          force: true,
           emptyValue: true
         });
 
@@ -650,6 +651,7 @@ define(function(require) {
       ResourceSelect.insert({
           context: $('.ds_select', $(".ds_quota_table tbody tr", context).last()),
           resourceName: 'Datastore',
+          force: true,
           emptyValue: true
         });
 
@@ -802,6 +804,7 @@ define(function(require) {
       ResourceSelect.insert({
           context: $('.network_select', $(".network_quota_table tbody tr", context).last()),
           resourceName: 'Network',
+          force: true,
           emptyValue: true
         });
 

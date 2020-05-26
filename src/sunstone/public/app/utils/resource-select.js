@@ -47,6 +47,7 @@ define(function(require) {
     opts.context.html('<i class="fas fa-spinner fa-spin"></i>');
 
     Resource.list({
+      options: { force: opts.force || false },
       timeout: true,
       success: function (request, elemList) {
         var elemId = '';
