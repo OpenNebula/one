@@ -27,9 +27,10 @@ define(function(require) {
 
   var network_attrs = [];
   var custom_attrs = [];
+  var vmgroups_attrs = [];
   var network_attrs_class = "network_attrs_class";
   var custom_attr_class = "custom_attr_class";
-
+  var vmgroups_attr_class = "vmgroups_class";
 
   //==============================================================================
   // VM & Service user inputs
@@ -292,7 +293,8 @@ define(function(require) {
     var div = opts.div;
     var networks = opts && opts.networks ? opts.networks : null;
     var customs = opts && opts.customs ? opts.customs : null;
-    var check = {networks:false, customs:false};
+    var vmgroups = opts && opts.vmgroups ? opts.vmgroups : null;
+    var check = {networks:false, customs:false, vmgroups:false};
 
     var defaults = opts.defaults;
     if (defaults == undefined){
@@ -312,6 +314,10 @@ define(function(require) {
 
     if (opts.network_header == undefined && networks) {
       opts.network_header = Locale.tr("Network");
+    }
+
+    if (opts.vmgroups_header == undefined && vmgroups) {
+      opts.vmgroups_header = Locale.tr("Vm group");
     }
 
     function checkItemInArray(object={}, list=[], index="name") {
@@ -346,6 +352,10 @@ define(function(require) {
 
     addInVar(networks, network_attrs);
     addInVar(customs, custom_attrs);
+    if(vmgroups){
+      vmgroups_attrs = vmgroups;
+      check.vmgroups = true;
+    }
 
     // Render networks
     if (network_attrs.length > 0) {
@@ -537,9 +547,35 @@ define(function(require) {
         });
       }
     }
+
+    //render Vmgroups_attr_values
+    if (vmgroups_attrs.length > 0 && opts.role) {
+      var options = '<option value="">'+Locale.tr("Without VM Group")+'</option>';
+      vmgroups_attrs.map(function(vmgroup){
+        if(
+          vmgroup && 
+          vmgroup.VM_GROUP && 
+          vmgroup.VM_GROUP.GNAME && 
+          vmgroup.VM_GROUP.ID
+        ){
+          options += "<option value='"+vmgroup.VM_GROUP.ID+"'>"+vmgroup.VM_GROUP.GNAME+" ("+vmgroup.VM_GROUP.ID+")</option>"
+        }
+      });
+
+      if (opts && opts.text_header && opts.text_header.length > 0) {
+        html += "<div>"+opts.text_header+"</div>";
+      }
+      html += "<div class='"+vmgroups_attr_class+"'>";
+      html += "<select data-role='"+opts.role+"'>"+options+"</select>";
+      html += "</div>";
+      div.append(html);
+      html = "";
+    }
+
     network_attrs = [];
     custom_attrs = [];
-    return (check.networks || check.customs);
+    vmgroups_attrs = [];
+    return (check.networks || check.customs || check.vmgroups);
   }
 
   /**

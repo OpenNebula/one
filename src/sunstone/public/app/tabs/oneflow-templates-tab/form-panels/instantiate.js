@@ -24,6 +24,7 @@ define(function(require) {
   var Sunstone = require("sunstone");
   var Locale = require("utils/locale");
   var Tips = require("utils/tips");
+  var OpenNebulaAction = require('opennebula/action');
   var OpenNebulaServiceTemplate = require("opennebula/servicetemplate");
   var OpenNebulaTemplate = require("opennebula/template");
   var Notifier = require("utils/notifier");
@@ -45,6 +46,7 @@ define(function(require) {
 
   var FORM_PANEL_ID = require("./instantiate/formPanelId");
   var TAB_ID = require("../tabId");
+  var vm_group = "VM_GROUP";
 
   /*
     CONSTRUCTOR
@@ -53,6 +55,7 @@ define(function(require) {
   function FormPanel() {
     this.formPanelId = FORM_PANEL_ID;
     this.tabId = TAB_ID;
+    this.display_vmgroups = false;
     this.actions = {
       "instantiate": {
         "title": Locale.tr("Instantiate Service Template"),
@@ -87,12 +90,15 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-
     Tips.setup(context);
     return false;
   }
 
   function _onShow(context) {
+    var vmgroups = OpenNebulaAction.cache(vm_group)
+    if(!vmgroups){
+      Sunstone.runAction("VMGroup.list");
+    }
   }
 
   function _setTemplateId(context, templateId) {
@@ -116,10 +122,20 @@ define(function(require) {
         n_roles = template_json.DOCUMENT.TEMPLATE.BODY.roles.length;
         n_roles_done = 0;
         var total_cost = 0;
+        var vmgroup_title = Locale.tr("Associate VM Group to Service");
+        var setDisplayTitle = function(value=""){
+          vmgroup_title = value
+        }
         $.each(template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
           var div_id = "user_input_role_"+index;
+          if(vmgroup_title && that.display_vmgroups){
+            $("#instantiate_service_role_user_inputs", context).empty().prepend(
+              $("<legend/>").text(vmgroup_title)
+            );
+            setDisplayTitle("");
+          }
           $("#instantiate_service_role_user_inputs", context).append(
-            "<div id=\""+div_id+"\" class=\"large-6 columns\"></div>"
+            $("<div/>",{id:div_id, class:"large-6 columns"})
           );
           OpenNebulaTemplate.show({
             data : {
@@ -168,12 +184,26 @@ define(function(require) {
                 $(".total_cost_div", context).show();
                 $(".total_cost_div .cost_value", context).text((total_cost).toFixed(4));
               }
+
+              var opts = {
+                text_header: Locale.tr("Role") + " " + role.name
+              };
+              //vmgroups
+              if(that.display_vmgroups){
+                var vmgroups = OpenNebulaAction.cache(vm_group);
+                if(vmgroups && vmgroups.data){
+                  opts.vmgroups = vmgroups.data;
+                  opts.role = role.name;
+                  if(!Array.isArray(vmgroups.data)){
+                    opts.vmgroups = [vmgroups.data];
+                  }
+                }
+              }
+
               UserInputs.vmTemplateInsert(
                 $("#"+div_id, context),
                 vm_template_json,
-                {
-                  text_header: Locale.tr("Role") + " " + role.name
-                }
+                opts
               );
               n_roles_done += 1;
               if(n_roles_done === n_roles){
@@ -207,6 +237,7 @@ define(function(require) {
     var extra_info = ServiceUtils.getExtraInfo(context);
 
     $.each(that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
+      var temp_role = role;
       var div_id = "user_input_role_"+index;
       var tmp_json = {};
       var stringCustomValues = TemplateUtils.templateToString(extra_info.merge_template.custom_attrs_values);
@@ -214,11 +245,24 @@ define(function(require) {
       $.extend( tmp_json, WizardFields.retrieve($("#"+div_id, context)) );
       role.user_inputs_values = tmp_json;
       if (stringCustomValues) {
-        (role.vm_template_contents)
-          ? role.vm_template_contents += stringCustomValues 
-          : role.vm_template_contents = stringCustomValues;
+        (temp_role.vm_template_contents)
+          ? temp_role.vm_template_contents += stringCustomValues 
+          : temp_role.vm_template_contents = stringCustomValues;
       }
-      extra_info.merge_template.roles.push(role);
+
+      $("#instantiate_service_role_user_inputs").find("select").each(function(key, vm_group){
+        var element = $(vm_group);
+        rolevm_group = element.attr("data-role");
+        vm_group_value = element.children("option:selected").val();
+        if(rolevm_group && role.name && rolevm_group === role.name && vm_group_value){
+          if(temp_role.vm_template_contents === undefined){
+            temp_role.vm_template_contents = "";
+          }
+          temp_role.vm_template_contents += TemplateUtils.templateToString({VMGROUP:{ROLE:role.name,VMGROUP_ID:vm_group_value}});
+        }
+      });
+
+      extra_info.merge_template.roles.push(temp_role);
     });
     
     if (!service_name.length){ //empty name
