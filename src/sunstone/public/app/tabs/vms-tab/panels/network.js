@@ -428,29 +428,29 @@ define(function(require) {
             var html = "";
 
             $.each(row.data().NIC_ALIAS, function(index, elem) {
-              var new_div = "<div id=alias_" + this.NIC_ID + " style=\"margin-left: 40px; margin-bottom: 5px\"><b> - Alias-" + this.ALIAS_ID + ":</b>";
+                var new_div = "<div id=alias_" + this.NIC_ID + " style=\"margin-left: 40px; margin-bottom: 5px\">" +
+                              "<b>" + "- Alias-" + this.ALIAS_ID + ":" + "</b>";
+                if(this.IP !== undefined) {
+                    new_div += "&nbsp;&nbsp;&nbsp;" + this.IP;
+                }
+                if(this.IP6 !== undefined) {
+                    new_div += "&nbsp;&nbsp;&nbsp;" + this.IP6;
+                }
+                new_div += "&nbsp;&nbsp;&nbsp;" + this.MAC;
+                if(this.IP6_ULA !== undefined) {
+                    new_div += "&nbsp;&nbsp;&nbsp;<b>ULA</b>&nbsp;" + this.IP6_ULA;
+                }
+                if(this.IP6_GLOBAL !== undefined) {
+                    new_div += "&nbsp;&nbsp;&nbsp;<b>Global</b>&nbsp;" + this.IP6_GLOBAL;
+                }
+                new_div += "&nbsp;&nbsp;&nbsp;" + this.ACTIONS + "</div>";
 
-              if(!!this.IP) {
-                new_div += "&nbsp;&nbsp;&nbsp;" + this.IP;
-              }
-              if(!!this.IP6) {
-                new_div += "&nbsp;&nbsp;&nbsp;" + this.IP6;
-              }
-              new_div += "&nbsp;&nbsp;&nbsp;" + this.MAC;
-              if(!!this.IP6_ULA) {
-                new_div += "&nbsp;&nbsp;&nbsp;<b>ULA:</b>&nbsp;" + this.IP6_ULA;
-              }
-              if(!!this.IP6_GLOBAL) {
-                new_div += "&nbsp;&nbsp;&nbsp;<b>Global:</b>&nbsp;" + this.IP6_GLOBAL;
-              }
-              new_div += "&nbsp;&nbsp;&nbsp;" + this.ACTIONS + "</div>";
+                html += new_div;
 
-              html += new_div;
-
-              if (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) {
-                context.off("click", ".detachnic");
-                context.on("click", ".detachnic", {element_id: that.element.ID}, detach_alias);
-              }
+                if (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) {
+                    context.off("click", ".detachnic");
+                    context.on("click", ".detachnic", {element_id: that.element.ID}, detach_alias);
+                }
             });
           } else {
               html = "";
