@@ -65,7 +65,7 @@ fi
 
 # Check $VM_NAME have the right format
 regex='^one-[0-9]+$'
-if ! [[ "$VM_NAME" ~= $regex ]]; then
+if ! [[ "$VM_NAME" =~ $regex ]]; then
     exit -1
 fi
 
