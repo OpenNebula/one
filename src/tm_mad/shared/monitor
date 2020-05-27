@@ -116,7 +116,7 @@ if [ $MONITOR_VM_DISKS -eq 1 ]; then
 
     monitor_b64="\$(echo \$monitor | ruby -e "require 'zlib';\
         puts Zlib::Deflate.deflate(STDIN.read)" | base64 -w 0)"
-    echo MONITOR_VM SUCCESS 0 \$monitor_b64 | nc -u -w0 127.0.0.1 4124
+    echo MONITOR_VM SUCCESS 0 \$monitor_b64 | nc -u -w${NETCAT_WAIT:-0} "${MONITOR_ADDRESS:-127.0.0.1}" 4124
 fi
 
 EOF
