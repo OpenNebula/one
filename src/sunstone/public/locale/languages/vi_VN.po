@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
+"PO-Revision-Date: 2020-05-04 11:21+0000\n"
 "Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
 "Language-Team: Vietnamese (Viet Nam) (http://www.transifex.com/opennebula/one/language/vi_VN/)\n"
 "Language: vi_VN\n"
@@ -4262,8 +4262,9 @@ msgid "Close modal"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/import/html.hbs:22
+#, fuzzy
 msgid "Get Datastores"
-msgstr ""
+msgstr "Datastores"
 
 #: ../app/tabs/datastores-tab/form-panels/create/advanced.hbs:26
 msgid "Write the Datastore template here"
@@ -4304,8 +4305,9 @@ msgid "vCenter"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:33
+#, fuzzy
 msgid "LVM"
-msgstr ""
+msgstr "VMs"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:34
 msgid "Raw Device Mapping"
@@ -4364,8 +4366,9 @@ msgid "Custom TM_MAD"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:87
+#, fuzzy
 msgid "Datastore Type"
-msgstr ""
+msgstr "Datastores"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:101
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:87
@@ -4568,8 +4571,9 @@ msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/quotas/html.hbs:19
 #: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:19
+#, fuzzy
 msgid "Update Quota"
-msgstr ""
+msgstr "Cập nhật nhóm"
 
 #: ../app/tabs/users-tab/dialogs/quotas/html.hbs:30
 #: ../app/tabs/users-tab/dialogs/groups/html.hbs:30
@@ -4614,8 +4618,9 @@ msgid "Valid until"
 msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:40
+#, fuzzy
 msgid "Target Group"
-msgstr ""
+msgstr "Tạo nhóm"
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:41
 msgid "Token"
@@ -4630,8 +4635,9 @@ msgid "Get a new token"
 msgstr ""
 
 #: ../app/tabs/users-tab/panels/groups/html.hbs:28
+#, fuzzy
 msgid "Primary Group"
-msgstr ""
+msgstr "Tạo nhóm"
 
 #: ../app/tabs/users-tab/panels/groups/html.hbs:35
 msgid "Secondary Group"
@@ -4678,8 +4684,9 @@ msgid "You can provide a SSH Key for this User clicking on the edit button"
 msgstr ""
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:19
+#, fuzzy
 msgid "Username"
-msgstr ""
+msgstr "Người dùng"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:29
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:75
@@ -4699,8 +4706,9 @@ msgid "custom"
 msgstr ""
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:53
+#, fuzzy
 msgid "Main Group"
-msgstr ""
+msgstr "Tạo nhóm"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:63
 msgid "Secondary Groups"
@@ -4871,15 +4879,17 @@ msgstr ""
 #: ../app/tabs/vms-tab/datatable/search.hbs:57
 #: ../app/tabs/images-tab/datatable/search.hbs:44
 #: ../app/tabs/templates-tab/datatable/search.hbs:26
+#, fuzzy
 msgid "Created after"
-msgstr ""
+msgstr "Tạo nhóm"
 
 #: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:50
 #: ../app/tabs/vms-tab/datatable/search.hbs:63
 #: ../app/tabs/images-tab/datatable/search.hbs:50
 #: ../app/tabs/templates-tab/datatable/search.hbs:32
+#, fuzzy
 msgid "Created before"
-msgstr ""
+msgstr "Tạo nhóm"
 
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:36
 msgid "You can provide a template for the resource that will be created in OpenNebula"
@@ -5299,8 +5309,9 @@ msgid "MEMORY"
 msgstr ""
 
 #: ../app/tabs/hosts-tab/utils/datastore-capacity-table/html.hbs:20
+#, fuzzy
 msgid "Datastore ID"
-msgstr ""
+msgstr "Datastores"
 
 #: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:20
 msgid "Snapshot"
@@ -5661,8 +5672,9 @@ msgid "Default Admin View"
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:101
+#, fuzzy
 msgid "Group Users"
-msgstr ""
+msgstr "Người dùng"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:102
 msgid "Group Admins"
@@ -5677,8 +5689,9 @@ msgid "You can create now an administrator user. More administrators can be adde
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:151
+#, fuzzy
 msgid "Image & Datastore"
-msgstr ""
+msgstr "Datastores"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:155
 msgid "Make new images persistent by default"
@@ -5857,8 +5870,9 @@ msgid "Change view"
 msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:116
+#, fuzzy
 msgid "Update view"
-msgstr ""
+msgstr "Cập nhật"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:141
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:165
@@ -5867,8 +5881,9 @@ msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:142
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:166
+#, fuzzy
 msgid "Update SSH Key"
-msgstr ""
+msgstr "Cập nhật"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:148
 msgid "Add a public SSH key to your account!"
@@ -5958,8 +5973,9 @@ msgid "Hypervisor"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:26
+#, fuzzy
 msgid "KVM"
-msgstr ""
+msgstr "VMs"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:30
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:115
@@ -6069,8 +6085,9 @@ msgid "Instantiate as a different group"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:228
+#, fuzzy
 msgid "User / Group"
-msgstr ""
+msgstr "Cập nhật nhóm"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:22
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:23
@@ -6759,8 +6776,9 @@ msgid "Encode script in Base64"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:120
+#, fuzzy
 msgid "User Inputs"
-msgstr ""
+msgstr "Người dùng"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:121
 msgid "These attributes must be provided by the user when a new VM is instantiated. They will be included in the VM context"
@@ -7002,8 +7020,9 @@ msgid "Boolean expression that rules out provisioning hosts from list of machine
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:55
+#, fuzzy
 msgid "Datastore Requirements"
-msgstr ""
+msgstr "Datastores"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:70
 msgid "Host Rank"
@@ -7030,8 +7049,9 @@ msgid "This field sets which attribute will be used to sort the suitable hosts f
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:102
+#, fuzzy
 msgid "Datastore Rank"
-msgstr ""
+msgstr "Datastores"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:108
 msgid "Tries to optimize storage usage by selecting the DS with less free space"
@@ -7087,8 +7107,9 @@ msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:183
 #: ../app/utils/panel/permissions-table/permissions.hbs:20
+#, fuzzy
 msgid "Use"
-msgstr ""
+msgstr "Người dùng"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:187
 #: ../app/utils/panel/permissions-table/permissions.hbs:21
@@ -7171,12 +7192,14 @@ msgid "VNETS"
 msgstr ""
 
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:20
+#, fuzzy
 msgid "Create Zone"
-msgstr ""
+msgstr "Khởi tạo"
 
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:26
+#, fuzzy
 msgid "Zone Name"
-msgstr ""
+msgstr "Tên"
 
 #: ../app/tabs/zones-tab/panels/info/html.hbs:41
 msgid "Server Pool"
@@ -7228,8 +7251,9 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/flows/list.hbs:48
 #: ../app/tabs/provision-tab/vms/list.hbs:55
+#, fuzzy
 msgid "User ID"
-msgstr ""
+msgstr "Người dùng"
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:5
 msgid "This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later"
@@ -7569,8 +7593,9 @@ msgid "Port group type"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:226
+#, fuzzy
 msgid "Port group"
-msgstr ""
+msgstr "Tạo nhóm"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:227
 msgid "Distributed Port Group"
@@ -8084,8 +8109,9 @@ msgid "Linked clone"
 msgstr ""
 
 #: ../app/utils/vcenter/templates/row.hbs:88
+#, fuzzy
 msgid "Create copy"
-msgstr ""
+msgstr "Tạo nhóm"
 
 #: ../app/utils/vcenter/networks/row.hbs:30
 msgid "VLAN"

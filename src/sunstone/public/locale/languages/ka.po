@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
+"PO-Revision-Date: 2020-05-04 11:21+0000\n"
 "Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
 "Language-Team: Georgian (http://www.transifex.com/opennebula/one/language/ka/)\n"
 "Language: ka\n"
@@ -2030,15 +2030,17 @@ msgstr "გრაფიკები"
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
 #: ../app/tabs/vms-tab/panels/capacity.js:120
 #: ../app/tabs/vms-tab/panels/capacity.js:127
+#, fuzzy
 msgid "Allocated"
-msgstr "გამოყენებული"
+msgstr "გამოყენებული CPU"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
 #: ../app/tabs/vms-tab/panels/capacity.js:120
 #: ../app/tabs/vms-tab/panels/capacity.js:127
+#, fuzzy
 msgid "Real"
-msgstr "რეალური"
+msgstr "რეალური CPU"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 #: ../app/tabs/hosts-tab/panels/monitor.js:93 ../app/utils/accounting.js:621
@@ -4262,8 +4264,9 @@ msgid "Close modal"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/import/html.hbs:22
+#, fuzzy
 msgid "Get Datastores"
-msgstr ""
+msgstr "მონაცემთა საცავი"
 
 #: ../app/tabs/datastores-tab/form-panels/create/advanced.hbs:26
 msgid "Write the Datastore template here"
@@ -4271,8 +4274,9 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:26
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:33
+#, fuzzy
 msgid "Storage backend"
-msgstr ""
+msgstr "მონაცემთა საცავი"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:28
 msgid "Filesystem - shared mode"
@@ -4304,8 +4308,9 @@ msgid "vCenter"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:33
+#, fuzzy
 msgid "LVM"
-msgstr ""
+msgstr "VM-ები"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:34
 msgid "Raw Device Mapping"
@@ -4317,17 +4322,20 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:47
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:44
+#, fuzzy
 msgid "Drivers"
-msgstr ""
+msgstr "დრაივერი"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:51
+#, fuzzy
 msgid "Filesystem"
-msgstr ""
+msgstr "სისტემა"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:53
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:71
+#, fuzzy
 msgid "Devices"
-msgstr ""
+msgstr "სერვისები"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:54
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:72
@@ -4344,8 +4352,9 @@ msgid "Transfer"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:66
+#, fuzzy
 msgid "Shared"
-msgstr ""
+msgstr "გაზიარება"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:67
 msgid "SSH"
@@ -4364,8 +4373,9 @@ msgid "Custom TM_MAD"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:87
+#, fuzzy
 msgid "Datastore Type"
-msgstr ""
+msgstr "მონაცემთა საცავი"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:101
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:87
@@ -4381,8 +4391,9 @@ msgid "RBD"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:106
+#, fuzzy
 msgid "Gluster"
-msgstr ""
+msgstr "კლასტერი"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:114
 msgid "Restricted directories for registering Images"
@@ -4425,8 +4436,9 @@ msgid "Volume Group Name"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:164
+#, fuzzy
 msgid "Gluster Host"
-msgstr ""
+msgstr "კლასტერი"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:166
 msgid "Host and port of one (and only one) Gluster server (host:port)"
@@ -4445,8 +4457,9 @@ msgid "Ceph pool to store Images"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:186
+#, fuzzy
 msgid "Ceph host"
-msgstr ""
+msgstr "ჰოსტის წაშლა"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:188
 msgid "Space-separated list of Ceph monitors"
@@ -4489,8 +4502,9 @@ msgid "'Usage' of the registered secret with the authentication string."
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:237
+#, fuzzy
 msgid "vCenter cluster"
-msgstr ""
+msgstr "შეარჩიეტ კლასტერი"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:239
 msgid "The vCenter Cluster that has access to this datastore."
@@ -4532,8 +4546,9 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:113
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:29
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:112
+#, fuzzy
 msgid "Advanced options"
-msgstr ""
+msgstr "ნაბადართული ოპერაციები"
 
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:22
 #: ../app/tabs/users-tab/panels/info/html.hbs:22
@@ -4568,8 +4583,9 @@ msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/quotas/html.hbs:19
 #: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:19
+#, fuzzy
 msgid "Update Quota"
-msgstr ""
+msgstr "ჯგუფის განახლება"
 
 #: ../app/tabs/users-tab/dialogs/quotas/html.hbs:30
 #: ../app/tabs/users-tab/dialogs/groups/html.hbs:30
@@ -4580,8 +4596,9 @@ msgid "Apply changes"
 msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/groups/html.hbs:19
+#, fuzzy
 msgid "Select Secondary Groups"
-msgstr ""
+msgstr "ახალი ჯგუფის შერჩეევა"
 
 #: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:19
 msgid "Change authentication"
@@ -4591,8 +4608,9 @@ msgstr ""
 #: ../app/tabs/users-tab/dialogs/password/html.hbs:30
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:21
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-row.hbs:21
+#, fuzzy
 msgid "Change"
-msgstr ""
+msgstr "მფლობელის შეცვლა"
 
 #: ../app/tabs/users-tab/dialogs/password/html.hbs:19
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:80
@@ -4614,8 +4632,9 @@ msgid "Valid until"
 msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:40
+#, fuzzy
 msgid "Target Group"
-msgstr ""
+msgstr "ჯგუფის შექმნა"
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:41
 msgid "Token"
@@ -4630,12 +4649,14 @@ msgid "Get a new token"
 msgstr ""
 
 #: ../app/tabs/users-tab/panels/groups/html.hbs:28
+#, fuzzy
 msgid "Primary Group"
-msgstr ""
+msgstr "უსაფრთხოების ჯგუფი"
 
 #: ../app/tabs/users-tab/panels/groups/html.hbs:35
+#, fuzzy
 msgid "Secondary Group"
-msgstr ""
+msgstr "უსაფრთხოების ჯგუფი"
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:37
 msgid "Table Order"
@@ -4678,8 +4699,9 @@ msgid "You can provide a SSH Key for this User clicking on the edit button"
 msgstr ""
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:19
+#, fuzzy
 msgid "Username"
-msgstr ""
+msgstr "მომხმარებელი"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:29
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:75
@@ -4699,16 +4721,19 @@ msgid "custom"
 msgstr ""
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:53
+#, fuzzy
 msgid "Main Group"
-msgstr ""
+msgstr "ჯგუფი"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:63
+#, fuzzy
 msgid "Secondary Groups"
-msgstr ""
+msgstr "უსაფრთხოების ჯგუფები"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:20
+#, fuzzy
 msgid "Network Template"
-msgstr ""
+msgstr "VM შაბლონები"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:33
 msgid "Address Ranges"
@@ -4722,14 +4747,16 @@ msgstr ""
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:46
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:178
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:330
+#, fuzzy
 msgid "Network address"
-msgstr ""
+msgstr "ქსელის ID"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:52
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:172
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:336
+#, fuzzy
 msgid "Network mask"
-msgstr ""
+msgstr "ქსელი"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:60
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:186
@@ -4759,8 +4786,9 @@ msgstr ""
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:215
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:370
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:68
+#, fuzzy
 msgid "Custom attributes"
-msgstr ""
+msgstr "ატრიბუტები"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:101
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:266
@@ -4768,16 +4796,18 @@ msgid "The default Security Group 0 is automatically added to new Virtual Networ
 msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:25
+#, fuzzy
 msgid "Network name"
-msgstr ""
+msgstr "ქსელი"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:27
 msgid "Defaults to 'template name-<vnetid>' when empty."
 msgstr ""
 
 #: ../app/tabs/vdcs-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
 msgid "Write the VDC template here"
-msgstr ""
+msgstr "VM-ის შაბლონის შექმნა"
 
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:37
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:26
@@ -4825,8 +4855,9 @@ msgid "Name that the resource will get for description purposes."
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:31
+#, fuzzy
 msgid "VM Template Name"
-msgstr ""
+msgstr "VM შაბლონები"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:33
 msgid "The following template will be created in OpenNebula and the previous images will be referenced in the disks."
@@ -4850,13 +4881,15 @@ msgid "Select the Image to create the App"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:56
+#, fuzzy
 msgid "Templates for the App"
-msgstr ""
+msgstr "შაბლონები"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:60
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:44
+#, fuzzy
 msgid "VM template"
-msgstr ""
+msgstr "VM შაბლონები"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:61
 msgid "VM Template to be created. A DISK element pointing to the App Image will be automatically added when the App is exported"
@@ -4864,22 +4897,25 @@ msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:67
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:22
+#, fuzzy
 msgid "App template"
-msgstr ""
+msgstr "შაბლონი"
 
 #: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:44
 #: ../app/tabs/vms-tab/datatable/search.hbs:57
 #: ../app/tabs/images-tab/datatable/search.hbs:44
 #: ../app/tabs/templates-tab/datatable/search.hbs:26
+#, fuzzy
 msgid "Created after"
-msgstr ""
+msgstr "იმიჯის შექმნა"
 
 #: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:50
 #: ../app/tabs/vms-tab/datatable/search.hbs:63
 #: ../app/tabs/images-tab/datatable/search.hbs:50
 #: ../app/tabs/templates-tab/datatable/search.hbs:32
+#, fuzzy
 msgid "Created before"
-msgstr ""
+msgstr "მონაცემთა საცავის შექმნა"
 
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:36
 msgid "You can provide a template for the resource that will be created in OpenNebula"
@@ -4892,16 +4928,18 @@ msgstr ""
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:37
 #: ../app/tabs/images-tab/panels/info/html.hbs:37
 #: ../app/tabs/templates-tab/panels/info/html.hbs:35
+#, fuzzy
 msgid "Register time"
-msgstr ""
+msgstr "რეგისტრაციის დრო"
 
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:56
 msgid "Format"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:19
+#, fuzzy
 msgid "Clone Service Template"
-msgstr ""
+msgstr "VM-ის შაბლონის შექმნა"
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:27
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:27
@@ -4915,8 +4953,9 @@ msgid "Prefix"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:25
+#, fuzzy
 msgid "Service name"
-msgstr ""
+msgstr "სერვისები"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:26
 msgid "When creating several Services, the wildcard %i will be replaced with a number starting from 0"
@@ -4970,8 +5009,9 @@ msgstr ""
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:40
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:36
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:28
+#, fuzzy
 msgid "Shutdown action"
-msgstr ""
+msgstr "გამორთვა"
 
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:46
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:46
@@ -5091,8 +5131,9 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:20
 #: ../app/tabs/vmgroup-tab/utils/role-tab/html.hbs:21
+#, fuzzy
 msgid "Role name"
-msgstr ""
+msgstr "როლი"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:27
 #: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:26
@@ -5100,12 +5141,14 @@ msgid "Number of VMs"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:35
+#, fuzzy
 msgid "VM template to create this role's VMs"
-msgstr ""
+msgstr "VM-ის შაბლონი შექმნილია"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:47
+#, fuzzy
 msgid "Network Interfaces"
-msgstr ""
+msgstr "ქსელის ID"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:60
 msgid "Parent roles"
@@ -5134,8 +5177,9 @@ msgid "If it is not set, the one set for the Service will be used"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:149
+#, fuzzy
 msgid "VM template content"
-msgstr ""
+msgstr "VM-ის შაბლონი შექმნილია"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:150
 msgid "This information will be merged with the original Virtual Machine template. Configuration attributes and network interfaces will be replaced by those provided by the user when the template is instantiated"
@@ -5154,8 +5198,9 @@ msgstr ""
 #: ../app/tabs/vms-tab/panels/info/html.hbs:63
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:117
 #: ../app/utils/accounting/html.hbs:19
+#, fuzzy
 msgid "Start time"
-msgstr ""
+msgstr "გაშვების დრო"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:34
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:121
@@ -5195,12 +5240,14 @@ msgstr ""
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:36
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:184
 #: ../app/tabs/hosts-tab/panels/esx/html.hbs:22
+#, fuzzy
 msgid "Hostname"
-msgstr ""
+msgstr "ჰოსტი"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:49
+#, fuzzy
 msgid "Virtualization"
-msgstr ""
+msgstr "ვირტუალური მანქანები"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:58
 msgid "Custom VMM_MAD"
@@ -5217,8 +5264,9 @@ msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:89
 #: ../app/utils/panel/ec2-tr/html.hbs:2
+#, fuzzy
 msgid "Region name"
-msgstr ""
+msgstr "რეგისტრაციის დრო"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:95
 msgid "Access key ID"
@@ -5235,7 +5283,7 @@ msgstr ""
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:115
 #: ../app/utils/custom-tags-table/html.hbs:22
 msgid "Key"
-msgstr "გასაღები"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:116
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:136
@@ -5266,12 +5314,14 @@ msgid "Remote endpoint"
 msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:160
+#, fuzzy
 msgid "Remote capacity"
-msgstr ""
+msgstr "მოცულობა"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:198
+#, fuzzy
 msgid "Get Clusters"
-msgstr ""
+msgstr "კლასტერი"
 
 #: ../app/tabs/hosts-tab/panels/wilds/html.hbs:28
 #: ../app/tabs/hosts-tab/panels/zombies/html.hbs:22
@@ -5299,8 +5349,9 @@ msgid "MEMORY"
 msgstr ""
 
 #: ../app/tabs/hosts-tab/utils/datastore-capacity-table/html.hbs:20
+#, fuzzy
 msgid "Datastore ID"
-msgstr ""
+msgstr "მონაცემთა საცავი"
 
 #: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:20
 msgid "Snapshot"
@@ -5311,13 +5362,15 @@ msgid "Snapshot name"
 msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:20
+#, fuzzy
 msgid "Migrate Virtual Machine"
-msgstr ""
+msgstr "ვირტუალური მანქანები"
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:29
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:28
+#, fuzzy
 msgid "Select a Host"
-msgstr "შეარჩიეთ ჰოსტი"
+msgstr "შეარჩიეტ კლასტერი"
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:37
 #: ../app/tabs/vms-tab/dialogs/resize/html.hbs:30
@@ -5333,8 +5386,9 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:46
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:46
+#, fuzzy
 msgid "Select a datastore"
-msgstr "შეარჩიეთ მონაცემთა საცავი"
+msgstr "მონაცემთა საცავის შექმნა"
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:32
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:32
@@ -5390,33 +5444,38 @@ msgid "Attach"
 msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:20
+#, fuzzy
 msgid "Deploy Virtual Machine"
-msgstr ""
+msgstr "ვირტუალური მანქანები"
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:20
+#, fuzzy
 msgid "Save as Template"
-msgstr ""
+msgstr "VM-ის შაბლონის შექმნა"
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:28
 #: ../app/utils/vcenter/templates/row.hbs:72
+#, fuzzy
 msgid "Template name"
-msgstr ""
+msgstr "შაბლონი"
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:35
 msgid "Make the new images persistent"
 msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:39
+#, fuzzy
 msgid "Save As Template"
-msgstr ""
+msgstr "VM-ის შაბლონის შექმნა"
 
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:20
 msgid "Disk Snapshot"
 msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:22
+#, fuzzy
 msgid "Loading"
-msgstr ""
+msgstr "ჩატვირთვა..."
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:24
 msgid "Send CtrlAltDel"
@@ -5511,16 +5570,19 @@ msgid "Cost / MByte"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:78
+#, fuzzy
 msgid "Real memory"
-msgstr ""
+msgstr "რალური მეხსიერება"
 
 #: ../app/tabs/vms-tab/panels/template/html.hbs:19
+#, fuzzy
 msgid "User template"
-msgstr ""
+msgstr "შაბლონი"
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:40
+#, fuzzy
 msgid "LCM State"
-msgstr ""
+msgstr "მდგომარეობა"
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:57
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:29
@@ -5549,8 +5611,9 @@ msgid "Update Configuration"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:19
+#, fuzzy
 msgid "Clone Security Group"
-msgstr ""
+msgstr "უსაფრთხოების ჯგუფი"
 
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:27
 msgid "Several security groups are selected, please choose a prefix to name the new copies"
@@ -5580,20 +5643,24 @@ msgid "Port range"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:106
+#, fuzzy
 msgid "Target Network"
-msgstr ""
+msgstr "ვირტუალური ქსელი"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:109
+#, fuzzy
 msgid "Any network"
-msgstr ""
+msgstr "ქსელი"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:110
+#, fuzzy
 msgid "Manual network"
-msgstr ""
+msgstr "ვირტუალური ქსელი"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:111
+#, fuzzy
 msgid "OpenNebula Virtual Network"
-msgstr ""
+msgstr "ვირტუალური ქსელი"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:115
 msgid "First IP/IPv6 address"
@@ -5618,12 +5685,14 @@ msgstr ""
 
 #: ../app/tabs/clusters-tab/panels/info/html.hbs:52
 #: ../app/utils/dialogs/overcommit/html.hbs:45
+#, fuzzy
 msgid "Reserved CPU"
-msgstr ""
+msgstr "გამოყენებული პროცესორი"
 
 #: ../app/tabs/clusters-tab/panels/info/html.hbs:58
+#, fuzzy
 msgid "Reserved Memory"
-msgstr ""
+msgstr "გამოყენებული მეხსიერება"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:20
 msgid "New Groups are automatically added to the default VDC"
@@ -5661,24 +5730,27 @@ msgid "Default Admin View"
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:101
+#, fuzzy
 msgid "Group Users"
-msgstr ""
+msgstr "ჯგუფი"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:102
 msgid "Group Admins"
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:137
+#, fuzzy
 msgid "Create an administrator user"
-msgstr ""
+msgstr "მონაცემთა საცავის შექმნა"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:139
 msgid "You can create now an administrator user. More administrators can be added later."
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:151
+#, fuzzy
 msgid "Image & Datastore"
-msgstr ""
+msgstr "მონაცემთა საცავის შექმნა"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:155
 msgid "Make new images persistent by default"
@@ -5733,8 +5805,9 @@ msgid "Users marked with <i class='fas fa-star'></i> are administrators"
 msgstr ""
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:19
+#, fuzzy
 msgid "Clone Image"
-msgstr "იმიჯის კლონირება"
+msgstr "იმიჯის შექმნა"
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:27
 msgid "Several images are selected, please choose a prefix to name the new copies"
@@ -5745,8 +5818,9 @@ msgid "You can select a different target datastore"
 msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:26
+#, fuzzy
 msgid "Get Images"
-msgstr ""
+msgstr "იმიჯები"
 
 #: ../app/tabs/images-tab/form-panels/create/advanced.hbs:26
 msgid "Write the Image template here"
@@ -5754,11 +5828,11 @@ msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:39
 msgid "Operating System image"
-msgstr "საოეპრაციო სისტემის იმიჯი"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:40
 msgid "Readonly CD-ROM"
-msgstr "მხოლოდ წაკითხვადი CD-ROM"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:41
 msgid "Generic storage datablock"
@@ -5781,15 +5855,16 @@ msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:80
 msgid "Image location"
-msgstr "იმიჯის მდებარეობა"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:84
 msgid "Path in OpenNebula server"
 msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:86
+#, fuzzy
 msgid "Upload"
-msgstr "ატვირთვა"
+msgstr "ატვრითვა..."
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:89
 msgid "Empty disk image"
@@ -5797,7 +5872,7 @@ msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:97
 msgid "Path"
-msgstr "მდებარეობა"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:128
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:63
@@ -5821,12 +5896,13 @@ msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:204
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:4
+#, fuzzy
 msgid "Target device"
-msgstr ""
+msgstr "სამიზნე"
 
 #: ../app/tabs/images-tab/panels/info/html.hbs:64
 msgid "Filesystem type"
-msgstr "ფაილური სისტემის ტიპი"
+msgstr ""
 
 #: ../app/tabs/images-tab/panels/info/html.hbs:79
 msgid "Running VMS"
@@ -5837,28 +5913,32 @@ msgid "Flatten"
 msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:29
+#, fuzzy
 msgid "Change Language"
-msgstr ""
+msgstr "მფლობელის შეცვლა"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:41
 msgid "Update Language"
 msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:63
+#, fuzzy
 msgid "Change Password"
-msgstr ""
+msgstr "მფლობელის შეცვლა"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:70
 msgid "New Password"
 msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:104
+#, fuzzy
 msgid "Change view"
-msgstr ""
+msgstr "მფლობელის შეცვლა"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:116
+#, fuzzy
 msgid "Update view"
-msgstr ""
+msgstr "განახლებები"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:141
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:165
@@ -5867,8 +5947,9 @@ msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:142
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:166
+#, fuzzy
 msgid "Update SSH Key"
-msgstr ""
+msgstr "განახლებები"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:148
 msgid "Add a public SSH key to your account!"
@@ -5884,16 +5965,18 @@ msgid "Update your public SSH key!"
 msgstr ""
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:19
+#, fuzzy
 msgid "Clone Template"
-msgstr ""
+msgstr "შაბლონი"
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:40
 msgid "You can also clone any Image referenced inside this Template. They will be cloned to a new Image, and made persistent."
 msgstr ""
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:44
+#, fuzzy
 msgid "Clone with Images"
-msgstr ""
+msgstr "იმიჯის შექმნა"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:61
 msgid "Instantiate as different User / Group"
@@ -5950,16 +6033,18 @@ msgid "Sets the new VM to hold state, instead of pending. The scheduler will not
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/import/html.hbs:22
+#, fuzzy
 msgid "Get Templates"
-msgstr ""
+msgstr "შაბლონები"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:24
 msgid "Hypervisor"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:26
+#, fuzzy
 msgid "KVM"
-msgstr ""
+msgstr "VM-ები"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:30
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:115
@@ -5971,8 +6056,9 @@ msgid "Logo"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:62
+#, fuzzy
 msgid "vCenter Template Ref"
-msgstr ""
+msgstr "VM-ის შაბლონის შექმნა"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:70
 msgid "vCenter Cluster Ref"
@@ -6011,12 +6097,14 @@ msgid "If specified, the the VMs and Template folder path where the VM will be c
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:119
+#, fuzzy
 msgid "Security Privileged"
-msgstr ""
+msgstr "უსაფრთხოების ჯგუფი"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:130
+#, fuzzy
 msgid "Security Nesting"
-msgstr ""
+msgstr "უსაფრთხოების ჯგუფები"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:141
 msgid "Profile"
@@ -6038,7 +6126,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:196
 msgid "Disk"
-msgstr "დისკი"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:197
 msgid "Cost of each GB per hour"
@@ -6069,8 +6157,9 @@ msgid "Instantiate as a different group"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:228
+#, fuzzy
 msgid "User / Group"
-msgstr ""
+msgstr "ჯგუფის განახლება"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:22
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:23
@@ -6187,8 +6276,9 @@ msgid "Path to the bootloader executable"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:98
+#, fuzzy
 msgid "Registered Image"
-msgstr ""
+msgstr "იმიჯის შექმნა"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:100
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:130
@@ -6196,20 +6286,23 @@ msgid "Remote path"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:109
+#, fuzzy
 msgid "KERNEL_DS"
-msgstr ""
+msgstr "KERNEL"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:118
 msgid "Path to the OS kernel to boot the image"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:128
+#, fuzzy
 msgid "Registered Image "
-msgstr ""
+msgstr "იმიჯის შექმნა"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:139
+#, fuzzy
 msgid "INITRD_DS"
-msgstr ""
+msgstr "INIT"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:149
 msgid "Path to the initrd image"
@@ -6272,8 +6365,9 @@ msgid "Number of vCPU queues to use in the virtio-scsi controller. Leave blank t
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:4
+#, fuzzy
 msgid "AMI"
-msgstr ""
+msgstr "RAMDISK"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:5
 msgid "Unique ID of a machine image, returned by a call to ec2-describe-images."
@@ -6365,8 +6459,9 @@ msgid "The ID of the RAM disk to select."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:115
+#, fuzzy
 msgid "Security group names"
-msgstr ""
+msgstr "უსაფრთხოების ჯგუფები"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:116
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:123
@@ -6374,8 +6469,9 @@ msgid "You can specify more than one security group (comma separated)."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:122
+#, fuzzy
 msgid "Security group IDs"
-msgstr ""
+msgstr "უსაფრთხოების ჯგუფები"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:131
 msgid "Subnet ID"
@@ -6394,8 +6490,9 @@ msgid "Tenancy"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:153
+#, fuzzy
 msgid "User data"
-msgstr ""
+msgstr "მომხმარებელი"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:154
 msgid "Specifies Base64-encoded MIME user data to be made available to the instance(s) in this reservation."
@@ -6458,8 +6555,9 @@ msgid "Port where the VMs ssh server will listen on"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:77
+#, fuzzy
 msgid "Storage account"
-msgstr ""
+msgstr "მონაცემთა საცავი"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:83
 msgid "Subnet name"
@@ -6479,8 +6577,9 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:99
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:125
+#, fuzzy
 msgid "Virtual Network name"
-msgstr ""
+msgstr "ვირტუალური ქსელი"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:107
 msgid "Win RM"
@@ -6491,8 +6590,9 @@ msgid "Comma-separated list of possible protocols to access this Windows VM"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/opennebula.hbs:4
+#, fuzzy
 msgid "Remote VM Template ID"
-msgstr ""
+msgstr "VM-ის შაბლონის შექმნა"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:21
 #: ../app/utils/nics-section/dd.hbs:28
@@ -6531,8 +6631,9 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:59
 #: ../app/utils/nics-section/dd.hbs:67
+#, fuzzy
 msgid "Select Vnets "
-msgstr ""
+msgstr "შეარჩიეთ ახალი მფლობელი"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:61
 #: ../app/utils/nics-section/dd.hbs:69
@@ -6541,8 +6642,9 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:78
 #: ../app/utils/nics-section/dd.hbs:85
+#, fuzzy
 msgid "Network Rank"
-msgstr ""
+msgstr "ქსელი"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:83
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:75
@@ -6574,20 +6676,24 @@ msgid "This field sets which attribute will be used to sort the suitable vnets f
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:115
+#, fuzzy
 msgid "Choose Network"
-msgstr ""
+msgstr "ქსელი"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:119
+#, fuzzy
 msgid "Virtual Network ID"
-msgstr ""
+msgstr "ვირტუალური ქსელი"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:133
+#, fuzzy
 msgid "Virtual Network owner's user ID"
-msgstr ""
+msgstr "ვირტუალური ქსელები"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:139
+#, fuzzy
 msgid "Virtual Network owner's user Name"
-msgstr ""
+msgstr "ვირტუალური ქსელები"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:147
 msgid "OPEN NEBULA MANAGEMENT"
@@ -6674,8 +6780,9 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:310
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:131
+#, fuzzy
 msgid "Device"
-msgstr ""
+msgstr "სერვისები"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:311
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:132
@@ -6747,8 +6854,9 @@ msgid "Sends READY=YES to OneGate, useful for OneFlow"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:108
+#, fuzzy
 msgid "Start script"
-msgstr ""
+msgstr "გაშვების დრო"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:109
 msgid "Text of the script executed when the machine starts up. It can contain shebang in case it is not shell script"
@@ -6759,8 +6867,9 @@ msgid "Encode script in Base64"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:120
+#, fuzzy
 msgid "User Inputs"
-msgstr ""
+msgstr "მომხმარებლები"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:121
 msgid "These attributes must be provided by the user when a new VM is instantiated. They will be included in the VM context"
@@ -6779,8 +6888,9 @@ msgid "The contextualization package executes an init.sh file if it exists. If m
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:20
+#, fuzzy
 msgid "Graphics"
-msgstr ""
+msgstr "გრაფიკები"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:37
 msgid "Listen on IP"
@@ -6811,8 +6921,9 @@ msgid "Mouse"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:85
+#, fuzzy
 msgid "Tablet"
-msgstr ""
+msgstr "ჩართვა"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:91
 msgid "Bus"
@@ -6833,16 +6944,18 @@ msgid "Add"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:116
+#, fuzzy
 msgid "PCI Devices"
-msgstr ""
+msgstr "სერვისები"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:120
 msgid "PCI passthrough of network devices is configured per NIC, in the \"Network\" tab. Do not add network devices here"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/html.hbs:20
+#, fuzzy
 msgid "Storage Options"
-msgstr ""
+msgstr "მონაცემთა საცავი"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/html.hbs:24
 msgid "Deploy Mode"
@@ -6857,8 +6970,9 @@ msgid "Volatile disk"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:41
+#, fuzzy
 msgid "Image name"
-msgstr ""
+msgstr "იმიჯის ID"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:49
 msgid "Image owner's user ID"
@@ -6970,8 +7084,9 @@ msgid "lxd"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:33
+#, fuzzy
 msgid "Data"
-msgstr ""
+msgstr "მონაცემთა საცავი"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:34
 msgid "Raw data to be passed directly to the hypervisor"
@@ -6990,24 +7105,28 @@ msgid "Host Requirements"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:35
+#, fuzzy
 msgid "Select Hosts "
-msgstr ""
+msgstr "შეარჩიეტ კლასტერი"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:37
+#, fuzzy
 msgid "Select Clusters "
-msgstr ""
+msgstr "შეარჩიეტ კლასტერი"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:48
 msgid "Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:55
+#, fuzzy
 msgid "Datastore Requirements"
-msgstr ""
+msgstr "მონაცემთა საცავი შეიქმნა"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:70
+#, fuzzy
 msgid "Host Rank"
-msgstr ""
+msgstr "ჰოსტი"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:76
 msgid "Pack the VMs in the Hosts to reduce VM fragmentation"
@@ -7030,8 +7149,9 @@ msgid "This field sets which attribute will be used to sort the suitable hosts f
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:102
+#, fuzzy
 msgid "Datastore Rank"
-msgstr ""
+msgstr "მონაცემთა საცავი"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:108
 msgid "Tries to optimize storage usage by selecting the DS with less free space"
@@ -7046,8 +7166,9 @@ msgid "This field sets which attribute will be used to sort the suitable datasto
 msgstr ""
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:25
+#, fuzzy
 msgid "Virtual machine name"
-msgstr ""
+msgstr "ვირტუალური მანქანები"
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:27
 msgid "When creating multiple VMs, %i is replaces by the VM number in the set"
@@ -7078,17 +7199,20 @@ msgid "MarketPlace Apps"
 msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:140
+#, fuzzy
 msgid "Resource subset"
-msgstr ""
+msgstr "რესურსები"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:162
+#, fuzzy
 msgid "Resource ID"
-msgstr ""
+msgstr "რესურსები"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:183
 #: ../app/utils/panel/permissions-table/permissions.hbs:20
+#, fuzzy
 msgid "Use"
-msgstr ""
+msgstr "მომხმარებელი"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:187
 #: ../app/utils/panel/permissions-table/permissions.hbs:21
@@ -7163,20 +7287,23 @@ msgid "GROUPS"
 msgstr ""
 
 #: ../app/tabs/dashboard-tab/storage.hbs:30
+#, fuzzy
 msgid "IMAGES"
-msgstr ""
+msgstr "IMAGE"
 
 #: ../app/tabs/dashboard-tab/network.hbs:30
 msgid "VNETS"
 msgstr ""
 
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:20
+#, fuzzy
 msgid "Create Zone"
-msgstr ""
+msgstr "ჰოსტინს შექმნა"
 
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:26
+#, fuzzy
 msgid "Zone Name"
-msgstr ""
+msgstr "სახელი"
 
 #: ../app/tabs/zones-tab/panels/info/html.hbs:41
 msgid "Server Pool"
@@ -7192,8 +7319,9 @@ msgid "RUNNING VMS"
 msgstr ""
 
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:18
+#, fuzzy
 msgid "Group Virtual Machines"
-msgstr ""
+msgstr "ვირტუალური მანქანები"
 
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:81
 #: ../app/utils/accounting/html.hbs:78 ../app/utils/accounting/html.hbs:107
@@ -7223,13 +7351,15 @@ msgid "Recover a failed service, cleaning the failed VMs"
 msgstr ""
 
 #: ../app/tabs/provision-tab/flows/create.hbs:30
+#, fuzzy
 msgid "Service Name"
-msgstr ""
+msgstr "სერვისები"
 
 #: ../app/tabs/provision-tab/flows/list.hbs:48
 #: ../app/tabs/provision-tab/vms/list.hbs:55
+#, fuzzy
 msgid "User ID"
-msgstr ""
+msgstr "მომხმარებელი"
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:5
 msgid "This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later"
@@ -7307,8 +7437,9 @@ msgid "Send the reboot signal"
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/create.hbs:30
+#, fuzzy
 msgid "Virtual Machine Name"
-msgstr ""
+msgstr "ვირტუალური მანქანები"
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:5
 msgid "Be careful, this action will shutdown and destroy your Virtual Machine"
@@ -7335,12 +7466,14 @@ msgid "You can then create a new Virtual Machine using this Template."
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:14
+#, fuzzy
 msgid "Template Name"
-msgstr ""
+msgstr "შაბლონი"
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:19
+#, fuzzy
 msgid "Template Description"
-msgstr ""
+msgstr "შაბლონები"
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:26
 msgid "The new Virtual Machine's disks can be made persistent. In a persistent Virtual Machine the changes made survive after it is destroyed. On the other hand, you cannot create more than one simultaneous Virtual Machine from a Template with persistent disks."
@@ -7351,8 +7484,9 @@ msgid "Non-persistent"
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:53
+#, fuzzy
 msgid "Save Virtual Machine to Template"
-msgstr ""
+msgstr "ვირტუალური მანქანები"
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:5
 msgid "This action will power off this Virtual Machine and will be undeployed from the physical machine"
@@ -7384,24 +7518,27 @@ msgid "Reset"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:22
+#, fuzzy
 msgid "Reservation from Virtual Network"
-msgstr ""
+msgstr "ვირტუალური ქსელი"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:28
 msgid "Number of addresses"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:36
+#, fuzzy
 msgid "Add to a new Virtual Network"
-msgstr ""
+msgstr "ვირტუალური ქსელი"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:40
 msgid "Add to an existing Reservation"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:47
+#, fuzzy
 msgid "Virtual Network Name"
-msgstr ""
+msgstr "ვირტუალური ქსელი"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:59
 msgid "You can select the addresses from an specific Address Range"
@@ -7416,8 +7553,9 @@ msgid "IP or MAC"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/import/html.hbs:22
+#, fuzzy
 msgid "Get Networks"
-msgstr ""
+msgstr "ქსელი"
 
 #: ../app/tabs/vnets-tab/form-panels/create/advanced.hbs:20
 msgid "Write the Virtual Network template here"
@@ -7432,16 +7570,18 @@ msgid "Name of the physical bridge in the nodes to attach VM NICs"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:91
+#, fuzzy
 msgid "Network mode"
-msgstr ""
+msgstr "ქსელი"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:94
 msgid "Bridged"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:95
+#, fuzzy
 msgid "Bridged & Security Groups"
-msgstr ""
+msgstr "უსაფრთხოების ჯგუფები"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:96
 msgid "Bridged & ebtables VLAN"
@@ -7516,8 +7656,9 @@ msgid "Automatic VLAN ID"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:165
+#, fuzzy
 msgid "No VLAN network"
-msgstr ""
+msgstr "ქსელი"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:166
 msgid "Manual VLAN ID"
@@ -7569,8 +7710,9 @@ msgid "Port group type"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:226
+#, fuzzy
 msgid "Port group"
-msgstr ""
+msgstr "ჯგუფის შექმნა"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:227
 msgid "Distributed Port Group"
@@ -7621,8 +7763,9 @@ msgid "IP6_GLOBAL"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:83
+#, fuzzy
 msgid "IP6"
-msgstr ""
+msgstr "IP-ები"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:90
 msgid "IP6_ULA"
@@ -7754,8 +7897,9 @@ msgid "Select a role in the table for more information"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
 msgid "Write the Virtual Router template here"
-msgstr ""
+msgstr "ვირტუალური როუტერის შექმნა"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:45
 #: ../app/utils/nics-section/dd.hbs:137
@@ -7785,7 +7929,7 @@ msgstr ""
 
 #: ../app/sunstone/buttons.hbs:101
 msgid "Wizard"
-msgstr "ვიზარდი"
+msgstr ""
 
 #: ../app/sunstone/buttons.hbs:104
 msgid "Advanced"
@@ -7793,7 +7937,7 @@ msgstr ""
 
 #: ../app/sunstone/user_and_zone.hbs:45
 msgid "Sign Out"
-msgstr "გამოსვლა"
+msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:6
 msgid "PCI interface"
@@ -7801,11 +7945,12 @@ msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:8
 msgid "Interface"
-msgstr "ინტერფეისი"
+msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:18
+#, fuzzy
 msgid "Select a Network"
-msgstr "შეარჩიეთ ქსელი"
+msgstr "შეარჩიეთ ახალი მფლობელი"
 
 #: ../app/utils/nics-section/dd.hbs:121
 msgid "Force IPv4:"
@@ -7832,18 +7977,19 @@ msgid "You can add Security Groups to this network interface. These IDs do not o
 msgstr ""
 
 #: ../app/utils/nics-section/html.hbs:11
+#, fuzzy
 msgid "Network Interface"
-msgstr ""
+msgstr "ქსელის ID"
 
 #: ../app/utils/disks-resize/html.hbs:19
 msgid "Disks"
-msgstr "დისკები"
+msgstr ""
 
 #: ../app/utils/tab-datatable/table.hbs:30
 #: ../app/utils/tab-datatable/search-input.hbs:19
 #: ../app/utils/tab-datatable/search-input.hbs:45
 msgid "Search"
-msgstr "ძიება"
+msgstr ""
 
 #: ../app/utils/tab-datatable/search-input.hbs:27
 msgid "Label filter:"
@@ -7878,8 +8024,9 @@ msgid "These values can be negative, in that case you'll be actually increasing 
 msgstr ""
 
 #: ../app/utils/dialogs/overcommit/html.hbs:51
+#, fuzzy
 msgid "Reserved Memory in KB"
-msgstr ""
+msgstr "გამოყენებული მეხსიერება"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:59
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
@@ -7889,23 +8036,24 @@ msgstr ""
 #: ../app/utils/dialogs/generic-confirm/html.hbs:20
 #: ../app/utils/dialogs/confirm/html.hbs:19
 msgid "Confirm"
-msgstr "დამოწმება"
+msgstr ""
 
 #: ../app/utils/dialogs/confirm-with-select/html.hbs:27
 msgid "You need to select something."
 msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:11
+#, fuzzy
 msgid "text"
-msgstr "ტექსტი"
+msgstr "კონტექსტი"
 
 #: ../app/utils/user-inputs/row.hbs:12
 msgid "text (base64)"
-msgstr "ტექსტი (base64)"
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:13
 msgid "password"
-msgstr "პაროლი"
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:14
 msgid "number"
@@ -7930,12 +8078,13 @@ msgstr ""
 #: ../app/utils/user-inputs/row.hbs:29 ../app/utils/user-inputs/row.hbs:34
 #: ../app/utils/user-inputs/row.hbs:39 ../app/utils/user-inputs/row.hbs:56
 #: ../app/utils/user-inputs/row.hbs:73 ../app/utils/user-inputs/row.hbs:83
+#, fuzzy
 msgid "Default value"
-msgstr ""
+msgstr "ნაგულისხმევი"
 
 #: ../app/utils/user-inputs/row.hbs:79
 msgid "Options"
-msgstr "ოფციები"
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:80
 msgid "Comma-separated list of options for the drop-down select input"
@@ -7955,8 +8104,9 @@ msgid "New scheduled action"
 msgstr ""
 
 #: ../app/utils/schedule_action/html.hbs:21
+#, fuzzy
 msgid "Relative Time"
-msgstr ""
+msgstr "გაშვების დრო"
 
 #: ../app/utils/schedule_action/html.hbs:51
 msgid "Periodic"
@@ -7979,8 +8129,9 @@ msgid "Yearly"
 msgstr ""
 
 #: ../app/utils/schedule_action/html.hbs:63
+#, fuzzy
 msgid "Hourly"
-msgstr ""
+msgstr "საათი"
 
 #: ../app/utils/schedule_action/html.hbs:94
 msgid "Never"
@@ -7999,12 +8150,13 @@ msgid "times"
 msgstr ""
 
 #: ../app/utils/panel/permissions-table/html.hbs:21
+#, fuzzy
 msgid "Ownership"
-msgstr ""
+msgstr "მფლობელი"
 
 #: ../app/utils/panel/permissions-table/permissions.hbs:50
 msgid "Other"
-msgstr "სხვა"
+msgstr ""
 
 #: ../app/utils/panel/ec2-tr/html.hbs:11
 msgid "EC2 Access"
@@ -8032,16 +8184,16 @@ msgstr ""
 
 #: ../app/utils/showback/html.hbs:60
 msgid "Year"
-msgstr "წელ"
+msgstr ""
 
 #: ../app/utils/showback/html.hbs:61
 msgid "Month"
-msgstr "თვე"
+msgstr ""
 
 #: ../app/utils/showback/html.hbs:62 ../app/utils/accounting/html.hbs:113
 #: ../app/utils/accounting/html.hbs:129 ../app/utils/accounting/html.hbs:145
 msgid "Date"
-msgstr "თარიღი"
+msgstr ""
 
 #: ../app/utils/showback/html.hbs:70
 msgid "Select a row to get detailed information of the month"
@@ -8052,24 +8204,27 @@ msgid "End time"
 msgstr ""
 
 #: ../app/utils/accounting/html.hbs:27
+#, fuzzy
 msgid "Group by"
-msgstr ""
+msgstr "ჯგუფი"
 
 #: ../app/utils/accounting/html.hbs:35
 msgid "Filter"
-msgstr "ფილტრი"
+msgstr ""
 
 #: ../app/utils/accounting/html.hbs:52
+#, fuzzy
 msgid "Get accounting"
-msgstr ""
+msgstr "ანგარიშგება"
 
 #: ../app/utils/accounting/html.hbs:68
 msgid "There are no accounting records"
 msgstr ""
 
 #: ../app/utils/accounting/html.hbs:104
+#, fuzzy
 msgid "Accounting Tables"
-msgstr "ანგარიშგების ცხრილები"
+msgstr "ანგარიშგება"
 
 #: ../app/utils/vcenter/templates/row.hbs:51
 msgid "Use ctrl key for multiple selection (provide on instantiation)."
@@ -8084,8 +8239,9 @@ msgid "Linked clone"
 msgstr ""
 
 #: ../app/utils/vcenter/templates/row.hbs:88
+#, fuzzy
 msgid "Create copy"
-msgstr ""
+msgstr "ჯგუფის შექმნა"
 
 #: ../app/utils/vcenter/networks/row.hbs:30
 msgid "VLAN"
@@ -8100,8 +8256,9 @@ msgid "Unimported Cluster(s)"
 msgstr ""
 
 #: ../app/utils/vcenter/common/fieldset-table.hbs:41
+#, fuzzy
 msgid "Clear selection"
-msgstr ""
+msgstr "გთხოვთ აირჩიეთ"
 
 #: ../app/utils/vcenter/common/fieldset-table.hbs:46
 msgid "Toggle advanced sections"

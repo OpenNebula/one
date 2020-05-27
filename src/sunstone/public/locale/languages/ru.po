@@ -3,17 +3,19 @@
 # This file is distributed under the same license as the OpenNebula package.
 #
 # Translators:
+# Dmitriy Rogozinskiy <dima-online@yandex.ru>, 2020
 # Marat Soltobaev <marat.soltobaev@livetext.com>, 2017
 # 	Translated by CJSC "VIVOSS i OI", 2012
 # VADIM TSAPLIN <foxsibirsky@gmail.com>, 2019
 # 	Переведено ЗАО «ВИВОСС и ОИ», 2012
+# Роман Бычков <bychkovry@gmail.com>, 2020
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
-"Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
+"PO-Revision-Date: 2020-05-12 08:52+0000\n"
+"Last-Translator: Dmitriy Rogozinskiy <dima-online@yandex.ru>\n"
 "Language-Team: Russian (http://www.transifex.com/opennebula/one/language/ru/)\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -451,7 +453,7 @@ msgstr "Вы должны выбрать хотя бы один шаблон "
 
 #: ../app/tabs/support-tab/buttons.js:29
 msgid "Upload a file"
-msgstr ""
+msgstr "Загрузить файл"
 
 #: ../app/tabs/dashboard-tab.js:205 ../app/tabs/dashboard-tab.js:206
 #: ../app/utils/menu/provision-top-row.hbs:25
@@ -1111,11 +1113,11 @@ msgstr "Никакой"
 
 #: ../app/tabs/users-tab/actions.js:37
 msgid "User created"
-msgstr ""
+msgstr "Пользователь создан"
 
 #: ../app/tabs/users-tab/form-panels/create.js:52
 msgid "Create User"
-msgstr ""
+msgstr "Создать пользователя"
 
 #: ../app/tabs/users-tab/form-panels/create.js:95
 msgid "To define secondary groups you need to also set the main group"
@@ -1141,7 +1143,7 @@ msgstr ""
 
 #: ../app/tabs/users-tab/panels/auth-common.js:115
 msgid "Current password"
-msgstr ""
+msgstr "Текущий пароль"
 
 #: ../app/tabs/users-tab/panels/auth-common.js:119
 #: ../app/utils/tab-datatable/search-input.hbs:39
@@ -1214,7 +1216,7 @@ msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/actions.js:38
 msgid "Virtual Network Template created"
-msgstr ""
+msgstr "Шаблон виртуальной сети создан"
 
 #: ../app/tabs/vnets-templates-tab/actions.js:123
 msgid "VNet created"
@@ -1293,11 +1295,11 @@ msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:58
 msgid "Create Virtual Network Template"
-msgstr ""
+msgstr "Создать шаблон виртуальной сети"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:63
 msgid "Update Virtual Network Template"
-msgstr ""
+msgstr "Шаблон виртуальной сети обновлен "
 
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:64
 #: ../app/tabs/vnets-templates-tab/buttons.js:34
@@ -1386,7 +1388,7 @@ msgstr ""
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:70
 #: ../app/utils/user-inputs/row.hbs:41
 msgid "NO"
-msgstr ""
+msgstr "НЕТ"
 
 #: ../app/tabs/vnets-templates-tab/panels/info.js:111
 #: ../app/tabs/vnets-templates-tab/panels/info.js:115
@@ -1398,7 +1400,7 @@ msgstr ""
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:69
 #: ../app/utils/user-inputs/row.hbs:40
 msgid "YES"
-msgstr ""
+msgstr "ДА"
 
 #: ../app/tabs/vnets-templates-tab.js:52
 msgid "Network Templates"
@@ -1662,7 +1664,7 @@ msgstr "Хранилище"
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:40
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:61
 msgid "Version"
-msgstr ""
+msgstr "Версия"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:92
 #: ../app/tabs/oneflow-services-tab/datatable.js:71
@@ -1710,7 +1712,7 @@ msgstr ""
 #: ../app/tabs/marketplaceapps-tab/actions.js:71
 #: ../app/tabs/images-tab/actions.js:38 ../app/tabs/images-tab/actions.js:134
 msgid "Image created"
-msgstr ""
+msgstr "Образ создан"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:83
 #: ../app/tabs/templates-tab/actions-common.js:40
@@ -1743,7 +1745,7 @@ msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export.js:56
 msgid "Download"
-msgstr ""
+msgstr "Скачать"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:56
 msgid "Create MarketPlace App"
@@ -1814,7 +1816,7 @@ msgstr ""
 
 #: ../app/tabs/files-tab/actions.js:30
 msgid "File created"
-msgstr ""
+msgstr "Файл создан"
 
 #: ../app/tabs/vdcs-tab.js:45 ../app/tabs/acls-tab/datatable.js:183
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:117
@@ -1840,7 +1842,7 @@ msgstr "Сервисы"
 #: ../app/tabs/oneflow-services-tab.js:52
 #: ../app/tabs/vms-tab/datatable/search.hbs:33
 msgid "Service"
-msgstr ""
+msgstr "Сервис"
 
 #: ../app/tabs/oneflow-services-tab.js:57
 #: ../app/tabs/oneflow-templates-tab.js:58
@@ -1886,7 +1888,7 @@ msgstr ""
 #: ../app/tabs/vmgroup-tab/panels/vms.js:119
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:18
 msgid "Role"
-msgstr ""
+msgstr "Роль"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:53
 msgid "Create Service Template"
@@ -1906,7 +1908,7 @@ msgstr ""
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:430
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:301
 msgid "Role "
-msgstr ""
+msgstr "Роль"
 
 #: ../app/tabs/oneflow-templates-tab/buttons.js:59
 #: ../app/tabs/secgroups-tab/buttons.js:52 ../app/tabs/images-tab/buttons.js:81
@@ -2033,15 +2035,17 @@ msgstr "Графики"
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
 #: ../app/tabs/vms-tab/panels/capacity.js:120
 #: ../app/tabs/vms-tab/panels/capacity.js:127
+#, fuzzy
 msgid "Allocated"
-msgstr "Выделено"
+msgstr "Выделено CPU"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
 #: ../app/tabs/vms-tab/panels/capacity.js:120
 #: ../app/tabs/vms-tab/panels/capacity.js:127
+#, fuzzy
 msgid "Real"
-msgstr "Потреблено"
+msgstr "Потреблено CPU"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 #: ../app/tabs/hosts-tab/panels/monitor.js:93 ../app/utils/accounting.js:621
@@ -2054,7 +2058,7 @@ msgstr "Всего"
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
 msgid "Total +/- reserved"
-msgstr "Всего +/- зарезервировано"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:50
 msgid "Wilds"
@@ -2424,7 +2428,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/network.js:416 ../app/tabs/secgroups-tab.js:50
 msgid "Security Group"
-msgstr ""
+msgstr "Группа безопасности"
 
 #: ../app/tabs/vms-tab/panels/network.js:417
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:45
@@ -2730,7 +2734,7 @@ msgstr ""
 
 #: ../app/tabs/secgroups-tab/actions.js:33
 msgid "Security Group created"
-msgstr ""
+msgstr "Группа безопасности создана"
 
 #: ../app/tabs/secgroups-tab/actions.js:80
 msgid "Please note: each time the rules are edited, the commit operation is done automatically. <br/><br/>This action will force the propagation of security group changes to VMs. The operation takes time to iterate over all VMs in the security group, the progress can be checked in the \"VMs\" panel."
@@ -2852,7 +2856,7 @@ msgstr ""
 
 #: ../app/tabs/groups-tab/actions.js:33
 msgid "Group created"
-msgstr ""
+msgstr "Группа создана"
 
 #: ../app/tabs/groups-tab/form-panels/create.js:54
 msgid "Create Group"
@@ -2937,7 +2941,7 @@ msgstr "Магазин приложений"
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:216
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:121
 msgid "Virtual Routers"
-msgstr "Виртуальный роутер"
+msgstr "Виртуальные роутеры"
 
 #: ../app/tabs/vrouters-tab.js:51 ../app/tabs/vms-tab/datatable/search.hbs:32
 #: ../app/tabs/vms-tab/panels/info/html.hbs:78
@@ -3046,7 +3050,7 @@ msgstr ""
 
 #: ../app/tabs/settings-tab/panels/group-quotas.js:64
 msgid "Select group"
-msgstr ""
+msgstr "Выберите группу"
 
 #: ../app/tabs/settings-tab/panels/user-config.js:53
 msgid "Config"
@@ -3230,7 +3234,7 @@ msgstr "Списки Контроля Доступа"
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:58
 msgid "Instantiate Virtual Router Template"
-msgstr ""
+msgstr "Создание шаблона маршрутизатора"
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:147
 #: ../app/tabs/vrouters-tab/actions.js:32
@@ -3356,7 +3360,7 @@ msgstr ""
 
 #: ../app/tabs/vmgroup-tab/actions.js:33
 msgid "VM groups"
-msgstr ""
+msgstr "Группы ВМ"
 
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:58
 msgid "Create Virtual Machine Group"
@@ -3373,7 +3377,7 @@ msgstr ""
 #: ../app/tabs/vmgroup-tab/utils/affinity-role-tab.js:66
 #: ../app/tabs/vmgroup-tab/utils/affinity-role-tab.js:83
 msgid "You have to choose at least two roles."
-msgstr ""
+msgstr "Вы должны выбрать минимум две роли"
 
 #: ../app/tabs/vmgroup-tab/utils/affinity-role-tab.js:190
 msgid "Already exists a group role with these values."
@@ -3470,7 +3474,7 @@ msgstr ""
 #: ../app/tabs/provision-tab/flows/list.js:497
 #: ../app/tabs/provision-tab/flows/list.js:518
 msgid "All the information will be lost!"
-msgstr ""
+msgstr "Вся информация будет потеряна!"
 
 #: ../app/tabs/provision-tab/flows/list.js:516
 msgid "Be careful, this action will immediately shutdown your Service"
@@ -3694,7 +3698,7 @@ msgstr ""
 #: ../app/tabs/oneflow-services-tab/form-panels/create.js:46
 #: ../app/tabs/provision-tab/flows/create.hbs:20
 msgid "Create Service"
-msgstr ""
+msgstr "Создать сервис"
 
 #: ../app/tabs/oneflow-services-tab/buttons.js:52
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:83
@@ -3842,11 +3846,11 @@ msgstr "Нет доступных сетей"
 
 #: ../app/utils/vcenter/networks.js:78 ../app/utils/vcenter/networks.js:87
 msgid "vCenter Networks"
-msgstr ""
+msgstr "Сети vCenter"
 
 #: ../app/utils/vcenter/networks.js:79
 msgid "No new networks found"
-msgstr ""
+msgstr "Новых сетей не найдено"
 
 #: ../app/utils/vcenter/networks.js:139
 #, javascript-format
@@ -3893,7 +3897,7 @@ msgstr "Глубина префикса"
 
 #: ../app/utils/vcenter/templates.js:78 ../app/utils/vcenter/templates.js:87
 msgid "vCenter Templates"
-msgstr ""
+msgstr "Шаблоны vCenter"
 
 #: ../app/utils/vcenter/templates.js:79
 msgid "No new templates found"
@@ -4071,28 +4075,28 @@ msgstr "часы"
 
 #: ../app/utils/schedule_action.js:364 ../app/utils/schedule_action/html.hbs:31
 msgid "Years"
-msgstr ""
+msgstr "Годы"
 
 #: ../app/utils/schedule_action.js:367 ../app/utils/schedule_action/html.hbs:32
 msgid "Months"
-msgstr ""
+msgstr "Месяцы"
 
 #: ../app/utils/schedule_action.js:370 ../app/utils/schedule_action/html.hbs:33
 msgid "Weeks"
-msgstr ""
+msgstr "Недели"
 
 #: ../app/utils/schedule_action.js:373 ../app/utils/schedule_action/html.hbs:34
 msgid "Days"
-msgstr ""
+msgstr "Дни"
 
 #: ../app/utils/schedule_action.js:376 ../app/utils/schedule_action/html.hbs:35
 #: ../app/utils/showback/html.hbs:89
 msgid "Hours"
-msgstr ""
+msgstr "Часы"
 
 #: ../app/utils/schedule_action.js:379 ../app/utils/schedule_action/html.hbs:36
 msgid "Minutes"
-msgstr ""
+msgstr "Минуты"
 
 #: ../app/utils/vmgroup-section.js:167
 msgid "Internal server error."
@@ -4108,11 +4112,11 @@ msgstr "Образ не найден"
 
 #: ../app/utils/disks-resize.js:165
 msgid "Persistent image. The changes will be saved back to the datastore after the VM is shut down"
-msgstr "Постоянный образ. Изменения будут сохранены в хранилище образов после выключения ВМ."
+msgstr ""
 
 #: ../app/utils/disks-resize.js:169
 msgid "Non-persistent disk. The changes will be lost once the VM is shut down"
-msgstr "Непостоянный диск. Изменения будут потеряны после выключения ВМ."
+msgstr ""
 
 #: ../app/utils/disks-resize.js:177
 msgid "Image state: "
@@ -4261,12 +4265,14 @@ msgstr "Выбраны следующие ресурсы:"
 #: ../app/utils/dialogs/clusters/html.hbs:33
 #: ../app/utils/dialogs/generic-confirm/html.hbs:33
 #: ../app/utils/dialogs/confirm/html.hbs:32
+#, fuzzy
 msgid "Close modal"
-msgstr ""
+msgstr "Закрыть"
 
 #: ../app/tabs/datastores-tab/form-panels/import/html.hbs:22
+#, fuzzy
 msgid "Get Datastores"
-msgstr ""
+msgstr "Хранилища"
 
 #: ../app/tabs/datastores-tab/form-panels/create/advanced.hbs:26
 msgid "Write the Datastore template here"
@@ -4274,8 +4280,9 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:26
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:33
+#, fuzzy
 msgid "Storage backend"
-msgstr ""
+msgstr "Образы ВМ"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:28
 msgid "Filesystem - shared mode"
@@ -4303,12 +4310,14 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:58
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:20
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:101
+#, fuzzy
 msgid "vCenter"
-msgstr ""
+msgstr "Датацентр"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:33
+#, fuzzy
 msgid "LVM"
-msgstr ""
+msgstr "ВМ"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:34
 msgid "Raw Device Mapping"
@@ -4320,17 +4329,20 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:47
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:44
+#, fuzzy
 msgid "Drivers"
-msgstr "Драйверы"
+msgstr "Драйвер"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:51
+#, fuzzy
 msgid "Filesystem"
-msgstr "Файловая система"
+msgstr "Файлы"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:53
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:71
+#, fuzzy
 msgid "Devices"
-msgstr ""
+msgstr "Сервисы"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:54
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:72
@@ -4339,8 +4351,9 @@ msgid "iSCSI/Libvirt"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:59
+#, fuzzy
 msgid "Custom DS_MAD"
-msgstr ""
+msgstr "Пользовательский"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:64
 msgid "Transfer"
@@ -4348,11 +4361,11 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:66
 msgid "Shared"
-msgstr "Общий каталог"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:67
 msgid "SSH"
-msgstr "SSH"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:68
 msgid "qcow2"
@@ -4363,29 +4376,33 @@ msgid "FS LVM"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:77
+#, fuzzy
 msgid "Custom TM_MAD"
-msgstr ""
+msgstr "Пользовательский"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:87
+#, fuzzy
 msgid "Datastore Type"
-msgstr ""
+msgstr "Хранилище"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:101
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:87
 msgid "Disk type"
-msgstr "Тип диска"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:104
+#, fuzzy
 msgid "Block"
-msgstr "Блок"
+msgstr "Разблокировать"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:105
 msgid "RBD"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:106
+#, fuzzy
 msgid "Gluster"
-msgstr ""
+msgstr "Кластер"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:114
 msgid "Restricted directories for registering Images"
@@ -4397,23 +4414,23 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:126
 msgid "Storage usage limit (MB)"
-msgstr "Лимит на использование хранилища (МБ)"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:132
 msgid "Transfer bandwidth limit (B/s)"
-msgstr "Лимит скорости передачи (Б/с)"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:134
 msgid "Specify the maximum transfer rate in bytes/second when downloading images from a http/https URL. Suffixes K, M or G can be used."
-msgstr "Определить максимальную скорость передачи образов с адресов http/https. Поддерживаются символы K, M, G "
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:141
 msgid "Do not try to untar or decompress"
-msgstr "Не пытаться распаковывать"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:146
 msgid "Check available capacity of the Datastore before creating a new Image"
-msgstr "Перед созданием нового образа, проверить наличние места в хранилище."
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:151
 msgid "Host bridge list"
@@ -4428,8 +4445,9 @@ msgid "Volume Group Name"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:164
+#, fuzzy
 msgid "Gluster Host"
-msgstr ""
+msgstr "Кластеры"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:166
 msgid "Host and port of one (and only one) Gluster server (host:port)"
@@ -4448,8 +4466,9 @@ msgid "Ceph pool to store Images"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:186
+#, fuzzy
 msgid "Ceph host"
-msgstr ""
+msgstr "Удалить узел"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:188
 msgid "Space-separated list of Ceph monitors"
@@ -4492,8 +4511,9 @@ msgid "'Usage' of the registered secret with the authentication string."
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:237
+#, fuzzy
 msgid "vCenter cluster"
-msgstr ""
+msgstr "Создать кластер"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:239
 msgid "The vCenter Cluster that has access to this datastore."
@@ -4535,8 +4555,9 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:113
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:29
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:112
+#, fuzzy
 msgid "Advanced options"
-msgstr ""
+msgstr "Разрешенные действия"
 
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:22
 #: ../app/tabs/users-tab/panels/info/html.hbs:22
@@ -4558,21 +4579,24 @@ msgstr ""
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:22
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:23
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:22
+#, fuzzy
 msgid "Information"
-msgstr "Информация"
+msgstr "Локация"
 
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:42
+#, fuzzy
 msgid "Base path"
 msgstr "Базовый путь"
 
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:51
 msgid "Limit"
-msgstr "Лимит"
+msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/quotas/html.hbs:19
 #: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:19
+#, fuzzy
 msgid "Update Quota"
-msgstr ""
+msgstr "Сохраниеть параметры"
 
 #: ../app/tabs/users-tab/dialogs/quotas/html.hbs:30
 #: ../app/tabs/users-tab/dialogs/groups/html.hbs:30
@@ -4580,27 +4604,30 @@ msgstr ""
 #: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:30
 #: ../app/utils/dialogs/clusters/html.hbs:30
 msgid "Apply changes"
-msgstr "Сохранить изменеия"
+msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/groups/html.hbs:19
+#, fuzzy
 msgid "Select Secondary Groups"
-msgstr ""
+msgstr "Выберите новую группу"
 
 #: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:19
 msgid "Change authentication"
-msgstr "Сменить способ аутентификации"
+msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:30
 #: ../app/tabs/users-tab/dialogs/password/html.hbs:30
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:21
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-row.hbs:21
+#, fuzzy
 msgid "Change"
-msgstr "Сменить"
+msgstr "Сменить владельца"
 
 #: ../app/tabs/users-tab/dialogs/password/html.hbs:19
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:80
+#, fuzzy
 msgid "Update Password"
-msgstr ""
+msgstr "Пароль"
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:20
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:194
@@ -4614,11 +4641,12 @@ msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:39
 msgid "Valid until"
-msgstr "Годен до"
+msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:40
+#, fuzzy
 msgid "Target Group"
-msgstr ""
+msgstr "Цель"
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:41
 msgid "Token"
@@ -4633,12 +4661,14 @@ msgid "Get a new token"
 msgstr ""
 
 #: ../app/tabs/users-tab/panels/groups/html.hbs:28
+#, fuzzy
 msgid "Primary Group"
-msgstr ""
+msgstr "Группа безопасности"
 
 #: ../app/tabs/users-tab/panels/groups/html.hbs:35
+#, fuzzy
 msgid "Secondary Group"
-msgstr ""
+msgstr "Группа безопасности"
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:37
 msgid "Table Order"
@@ -4646,7 +4676,7 @@ msgstr ""
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:46
 msgid "Language"
-msgstr "Язык интерфейса"
+msgstr ""
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:55
 #: ../app/tabs/users-tab/panels/auth/html.hbs:40
@@ -4657,11 +4687,11 @@ msgstr ""
 #: ../app/tabs/users-tab/panels/auth/html.hbs:24
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:36
 msgid "Authentication"
-msgstr "Способ аутентификации"
+msgstr ""
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:29
 msgid "Authentication driver"
-msgstr "Драйвер аутентификации"
+msgstr ""
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:51
 msgid "Login token"
@@ -4674,20 +4704,22 @@ msgstr ""
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:69
 msgid "Public SSH Key"
-msgstr "Публичный SSH ключ"
+msgstr ""
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:84
 msgid "You can provide a SSH Key for this User clicking on the edit button"
 msgstr ""
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:19
+#, fuzzy
 msgid "Username"
-msgstr "Имя пользователя"
+msgstr "Пользователь"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:29
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:75
+#, fuzzy
 msgid "Confirm Password"
-msgstr ""
+msgstr "Пароль"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:38
 msgid "core"
@@ -4698,41 +4730,49 @@ msgid "public"
 msgstr ""
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:43
+#, fuzzy
 msgid "custom"
-msgstr ""
+msgstr "Пользовательский"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:53
+#, fuzzy
 msgid "Main Group"
-msgstr ""
+msgstr "ВМ Группы"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:63
+#, fuzzy
 msgid "Secondary Groups"
-msgstr ""
+msgstr "Группы безопасности"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:20
+#, fuzzy
 msgid "Network Template"
-msgstr ""
+msgstr "Шаблоны vCenter"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:33
+#, fuzzy
 msgid "Address Ranges"
-msgstr ""
+msgstr "Адреса"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:39
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:61
+#, fuzzy
 msgid "Network Configuration"
-msgstr ""
+msgstr "Сеть: принято"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:46
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:178
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:330
+#, fuzzy
 msgid "Network address"
-msgstr ""
+msgstr "Сеть"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:52
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:172
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:336
+#, fuzzy
 msgid "Network mask"
-msgstr "Маска подсети"
+msgstr "Сеть"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:60
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:186
@@ -4762,6 +4802,7 @@ msgstr ""
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:215
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:370
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:68
+#, fuzzy
 msgid "Custom attributes"
 msgstr "Пользовательские атрибуты"
 
@@ -4771,16 +4812,18 @@ msgid "The default Security Group 0 is automatically added to new Virtual Networ
 msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:25
+#, fuzzy
 msgid "Network name"
-msgstr ""
+msgstr "Сеть"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:27
 msgid "Defaults to 'template name-<vnetid>' when empty."
 msgstr ""
 
 #: ../app/tabs/vdcs-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
 msgid "Write the VDC template here"
-msgstr "Введите шаблон вирт. ДЦ"
+msgstr "Укажите параметры шаблона ВМ"
 
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:37
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:26
@@ -4796,8 +4839,9 @@ msgstr "Введите шаблон вирт. ДЦ"
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:35
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:64
 #: ../app/utils/user-inputs/row.hbs:25
+#, fuzzy
 msgid "Description"
-msgstr "Описание"
+msgstr "Резервирование"
 
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:32
 msgid "Selects all current and future clusters"
@@ -4820,16 +4864,18 @@ msgid "Write the MarketPlace template here"
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:45
+#, fuzzy
 msgid "Configuration attributes"
-msgstr ""
+msgstr "Пользовательские атрибуты"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:22
 msgid "Name that the resource will get for description purposes."
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:31
+#, fuzzy
 msgid "VM Template Name"
-msgstr ""
+msgstr "Шаблон ВМ"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:33
 msgid "The following template will be created in OpenNebula and the previous images will be referenced in the disks."
@@ -4853,11 +4899,13 @@ msgid "Select the Image to create the App"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:56
+#, fuzzy
 msgid "Templates for the App"
-msgstr ""
+msgstr "Шаблоны ВМ"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:60
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:44
+#, fuzzy
 msgid "VM template"
 msgstr "Шаблон ВМ"
 
@@ -4867,22 +4915,25 @@ msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:67
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:22
+#, fuzzy
 msgid "App template"
-msgstr ""
+msgstr "Шаблон"
 
 #: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:44
 #: ../app/tabs/vms-tab/datatable/search.hbs:57
 #: ../app/tabs/images-tab/datatable/search.hbs:44
 #: ../app/tabs/templates-tab/datatable/search.hbs:26
+#, fuzzy
 msgid "Created after"
-msgstr ""
+msgstr "Создать пользователя"
 
 #: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:50
 #: ../app/tabs/vms-tab/datatable/search.hbs:63
 #: ../app/tabs/images-tab/datatable/search.hbs:50
 #: ../app/tabs/templates-tab/datatable/search.hbs:32
+#, fuzzy
 msgid "Created before"
-msgstr ""
+msgstr "Создать пользователя"
 
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:36
 msgid "You can provide a template for the resource that will be created in OpenNebula"
@@ -4895,31 +4946,35 @@ msgstr ""
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:37
 #: ../app/tabs/images-tab/panels/info/html.hbs:37
 #: ../app/tabs/templates-tab/panels/info/html.hbs:35
+#, fuzzy
 msgid "Register time"
 msgstr "Время регистрации"
 
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:56
 msgid "Format"
-msgstr "Формат"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:19
+#, fuzzy
 msgid "Clone Service Template"
-msgstr ""
+msgstr "Шаблон сервиса"
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:27
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:27
 msgid "Several templates are selected, please choose prefix to name the new copies"
-msgstr "Выбрано несколько шаблонов, укажите префикс для имен новых копий"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:34
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:35
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:34
+#, fuzzy
 msgid "Prefix"
-msgstr "Префикс"
+msgstr "Глубина префикса"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:25
+#, fuzzy
 msgid "Service name"
-msgstr ""
+msgstr "Сервис"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:26
 msgid "When creating several Services, the wildcard %i will be replaced with a number starting from 0"
@@ -4931,12 +4986,14 @@ msgid "Number of instances"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
 msgid "Write the Service template here"
-msgstr ""
+msgstr "Шаблон сервиса"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:38
+#, fuzzy
 msgid "Network configuration"
-msgstr "Сетевая конфигурация"
+msgstr "Сеть: принято"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:68
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:36
@@ -4973,8 +5030,9 @@ msgstr ""
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:40
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:36
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:28
+#, fuzzy
 msgid "Shutdown action"
-msgstr ""
+msgstr "Выключить"
 
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:46
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:46
@@ -5045,8 +5103,9 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:132
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:176
 #: ../app/utils/user-inputs/row.hbs:46 ../app/utils/user-inputs/row.hbs:63
+#, fuzzy
 msgid "Min"
-msgstr ""
+msgstr "Минуты"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:39
 msgid "Expression to trigger the elasticity"
@@ -5094,8 +5153,9 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:20
 #: ../app/tabs/vmgroup-tab/utils/role-tab/html.hbs:21
+#, fuzzy
 msgid "Role name"
-msgstr ""
+msgstr "Роль"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:27
 #: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:26
@@ -5107,8 +5167,9 @@ msgid "VM template to create this role's VMs"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:47
+#, fuzzy
 msgid "Network Interfaces"
-msgstr "Сетевые интерфейсы"
+msgstr "Сеть: отправлено"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:60
 msgid "Parent roles"
@@ -5116,13 +5177,14 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:76
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:32
+#, fuzzy
 msgid "Min VMs"
-msgstr ""
+msgstr "Показать ВМ"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:81
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:34
 msgid "Max VMs"
-msgstr "Макс. кол-во ВМ"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:88
 msgid "Cooldown time after an elasticity operation (seconds)"
@@ -5137,8 +5199,9 @@ msgid "If it is not set, the one set for the Service will be used"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:149
+#, fuzzy
 msgid "VM template content"
-msgstr ""
+msgstr "Шаблон ВМ"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:150
 msgid "This information will be merged with the original Virtual Machine template. Configuration attributes and network interfaces will be replaced by those provided by the user when the template is instantiated"
@@ -5157,6 +5220,7 @@ msgstr ""
 #: ../app/tabs/vms-tab/panels/info/html.hbs:63
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:117
 #: ../app/utils/accounting/html.hbs:19
+#, fuzzy
 msgid "Start time"
 msgstr "Время запуска"
 
@@ -5198,30 +5262,35 @@ msgstr ""
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:36
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:184
 #: ../app/tabs/hosts-tab/panels/esx/html.hbs:22
+#, fuzzy
 msgid "Hostname"
-msgstr "Название узла"
+msgstr "Узел"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:49
+#, fuzzy
 msgid "Virtualization"
-msgstr ""
+msgstr "Вирт. машины"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:58
+#, fuzzy
 msgid "Custom VMM_MAD"
-msgstr "Пользовательский VMM_MAD"
+msgstr "Пользовательский"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:75
+#, fuzzy
 msgid "Custom IM_MAD"
-msgstr "Пользовательский IM_MAD"
+msgstr "Пользовательский"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:86
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:121
 msgid "EC2"
-msgstr "EC2"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:89
 #: ../app/utils/panel/ec2-tr/html.hbs:2
+#, fuzzy
 msgid "Region name"
-msgstr ""
+msgstr "Время регистрации"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:95
 msgid "Access key ID"
@@ -5261,20 +5330,23 @@ msgid "Remote username"
 msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:148
+#, fuzzy
 msgid "Remote password"
-msgstr ""
+msgstr "Текущий пароль"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:154
 msgid "Remote endpoint"
 msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:160
+#, fuzzy
 msgid "Remote capacity"
-msgstr ""
+msgstr "Производительность"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:198
+#, fuzzy
 msgid "Get Clusters"
-msgstr ""
+msgstr "Кластеры"
 
 #: ../app/tabs/hosts-tab/panels/wilds/html.hbs:28
 #: ../app/tabs/hosts-tab/panels/zombies/html.hbs:22
@@ -5292,8 +5364,9 @@ msgid "Overcommitment"
 msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/pci/html.hbs:23
+#, fuzzy
 msgid "PCI Address"
-msgstr ""
+msgstr "Адреса"
 
 #: ../app/tabs/hosts-tab/panels/monitor/html.hbs:38
 #: ../app/tabs/provision-tab/dashboard/group-quotas.hbs:61
@@ -5302,25 +5375,29 @@ msgid "MEMORY"
 msgstr ""
 
 #: ../app/tabs/hosts-tab/utils/datastore-capacity-table/html.hbs:20
+#, fuzzy
 msgid "Datastore ID"
-msgstr ""
+msgstr "Хранилище"
 
 #: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:20
+#, fuzzy
 msgid "Snapshot"
-msgstr ""
+msgstr "Сделать снимок"
 
 #: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:28
 msgid "Snapshot name"
 msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:20
+#, fuzzy
 msgid "Migrate Virtual Machine"
-msgstr ""
+msgstr "Укажите параметры виртуальной машины"
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:29
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:28
+#, fuzzy
 msgid "Select a Host"
-msgstr ""
+msgstr "Выберите кластер"
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:37
 #: ../app/tabs/vms-tab/dialogs/resize/html.hbs:30
@@ -5336,8 +5413,9 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:46
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:46
+#, fuzzy
 msgid "Select a datastore"
-msgstr "Выберите хранилище"
+msgstr "Создать хранилище"
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:32
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:32
@@ -5350,7 +5428,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/disk-resize/html.hbs:20
 msgid "Disk Resize"
-msgstr "Изменить размер диска"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/disk-resize/html.hbs:28
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:28
@@ -5375,7 +5453,7 @@ msgstr ""
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:44
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:46
 msgid "Resize"
-msgstr "Изменить размер"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/resize/html.hbs:20
 msgid "Resize VM capacity"
@@ -5384,7 +5462,7 @@ msgstr ""
 #: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:20
 #: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:20
 msgid "Attach new nic"
-msgstr "Добавить новый сетевой интерфейс"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:31
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:29
@@ -5393,33 +5471,40 @@ msgid "Attach"
 msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:20
+#, fuzzy
 msgid "Deploy Virtual Machine"
-msgstr ""
+msgstr "Вирт. машины"
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:20
+#, fuzzy
 msgid "Save as Template"
-msgstr ""
+msgstr "Шаблон сервиса"
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:28
 #: ../app/utils/vcenter/templates/row.hbs:72
+#, fuzzy
 msgid "Template name"
-msgstr ""
+msgstr "Шаблон"
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:35
+#, fuzzy
 msgid "Make the new images persistent"
-msgstr ""
+msgstr "Сделать непостоянным"
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:39
+#, fuzzy
 msgid "Save As Template"
-msgstr ""
+msgstr "Шаблон сервиса"
 
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:20
+#, fuzzy
 msgid "Disk Snapshot"
-msgstr ""
+msgstr "Сделать снимок"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:22
+#, fuzzy
 msgid "Loading"
-msgstr "Идет загрузка"
+msgstr "Загрузка..."
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:24
 msgid "Send CtrlAltDel"
@@ -5432,7 +5517,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:36
 msgid "Canvas not supported."
-msgstr "Canvas не поддерживается."
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:20
 msgid "Attach new disk"
@@ -5440,7 +5525,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:20
 msgid "Disk Saveas"
-msgstr "Сохранить диск"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:32
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot-rename/html.hbs:32
@@ -5448,19 +5533,20 @@ msgid "Snapshot ID"
 msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:38
+#, fuzzy
 msgid "New Image name"
-msgstr "Имя нового образа"
+msgstr "Новые образы не найдены"
 
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:43
 #: ../app/tabs/vms-tab/panels/storage/disk-details.hbs:22
 msgid "Save as"
-msgstr "Сохранить как"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot-rename/html.hbs:20
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot-rename/html.hbs:43
 #: ../app/tabs/vms-tab/panels/storage/disk-details.hbs:27
 msgid "Rename"
-msgstr "Переименовать"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot-rename/html.hbs:38
 msgid "New name"
@@ -5469,6 +5555,7 @@ msgstr ""
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:27
 #: ../app/utils/dialogs/generic-confirm/html.hbs:26
 #: ../app/utils/dialogs/confirm/html.hbs:25
+#, fuzzy
 msgid "You have to confirm this action."
 msgstr "Необходимо подтвердить данную операцию."
 
@@ -5476,23 +5563,24 @@ msgstr "Необходимо подтвердить данную операци�
 #: ../app/utils/dialogs/generic-confirm/html.hbs:28
 #: ../app/utils/dialogs/confirm/html.hbs:27
 msgid "Do you want to proceed?"
-msgstr "Хотите продолжить?"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:33
 #: ../app/utils/dialogs/confirm-with-select/html.hbs:36
 #: ../app/utils/dialogs/generic-confirm/html.hbs:31
 #: ../app/utils/dialogs/confirm/html.hbs:30
 msgid "OK"
-msgstr "OK"
+msgstr ""
 
 #: ../app/tabs/vms-tab/form-panels/updateconf/advanced.hbs:20
 #: ../app/tabs/templates-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
 msgid "Write the Virtual Machine template here"
-msgstr "Отредактируйте параметры шаблона ВМ вручную"
+msgstr "Укажите параметры виртуальной машины"
 
 #: ../app/tabs/vms-tab/datatable/search.hbs:28
 msgid "VM type"
-msgstr "Тип ВМ"
+msgstr ""
 
 #: ../app/tabs/vms-tab/datatable/search.hbs:31
 msgid "Regular VM"
@@ -5502,28 +5590,31 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:43
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:148
 msgid "VCPU"
-msgstr "Кол-во вирт. ЦП"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:26
 msgid "Cost / CPU"
-msgstr "Цена / ЦП"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:27
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:51
 msgid "Cost / MByte"
-msgstr "Цена / МБ"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:78
+#, fuzzy
 msgid "Real memory"
-msgstr "Потребляемая память"
+msgstr "Потреблено RAM"
 
 #: ../app/tabs/vms-tab/panels/template/html.hbs:19
+#, fuzzy
 msgid "User template"
-msgstr "Шаблон пользователя"
+msgstr "Пользователь создан"
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:40
+#, fuzzy
 msgid "LCM State"
-msgstr "Текущее состояние ВМ"
+msgstr "Состояние"
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:57
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:29
@@ -5532,8 +5623,9 @@ msgid "Alias"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:68
+#, fuzzy
 msgid "Deploy ID"
-msgstr "№ размещения"
+msgstr "Разместить на узле"
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:105
 msgid "Monitoring"
@@ -5545,23 +5637,25 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:33
 msgid "Attach disk"
-msgstr "Добавить диск"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/conf/html.hbs:22
 msgid "Update Configuration"
-msgstr "Сохранить конфигурацию"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:19
+#, fuzzy
 msgid "Clone Security Group"
-msgstr ""
+msgstr "Группа безопасности"
 
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:27
 msgid "Several security groups are selected, please choose a prefix to name the new copies"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
 msgid "Write the Security Group template here"
-msgstr ""
+msgstr "Группа безопасности создана"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:33
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:43
@@ -5570,7 +5664,7 @@ msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:37
 msgid "Traffic direction"
-msgstr "Направление трафика"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:77
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:150
@@ -5580,31 +5674,36 @@ msgstr ""
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:92
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:96
 msgid "Port range"
-msgstr "Диапазон портов"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:106
+#, fuzzy
 msgid "Target Network"
-msgstr ""
+msgstr "Виртуальная сеть"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:109
+#, fuzzy
 msgid "Any network"
-msgstr ""
+msgstr "Сеть"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:110
+#, fuzzy
 msgid "Manual network"
-msgstr ""
+msgstr "Виртуальная сеть"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:111
+#, fuzzy
 msgid "OpenNebula Virtual Network"
-msgstr ""
+msgstr "Укажите параметры виртуальной сети"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:115
+#, fuzzy
 msgid "First IP/IPv6 address"
-msgstr ""
+msgstr "IPv6 адрес"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:136
 msgid "Add rule"
-msgstr "Добавить правило"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:147
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:52
@@ -5621,16 +5720,18 @@ msgstr ""
 
 #: ../app/tabs/clusters-tab/panels/info/html.hbs:52
 #: ../app/utils/dialogs/overcommit/html.hbs:45
+#, fuzzy
 msgid "Reserved CPU"
-msgstr ""
+msgstr "Используется ЦП"
 
 #: ../app/tabs/clusters-tab/panels/info/html.hbs:58
+#, fuzzy
 msgid "Reserved Memory"
-msgstr ""
+msgstr "Используется памяти"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:20
 msgid "New Groups are automatically added to the default VDC"
-msgstr "Новые группы автоматически будут добавлены в вирт. ДЦ по-умолчанию"
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:33
 #: ../app/sunstone/user_and_zone.hbs:52
@@ -5640,12 +5741,13 @@ msgstr ""
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:37
 #: ../app/utils/panel/permissions-table/permissions.hbs:22
 msgid "Admin"
-msgstr "Администрирование"
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:42
 #: ../app/utils/panel/permissions-table/permissions.hbs:19
+#, fuzzy
 msgid "Permissions"
-msgstr "Права"
+msgstr "Версия"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:67
 msgid "Allow users in this group to use the following Sunstone views"
@@ -5656,36 +5758,43 @@ msgid "Not required. Defaults to the one set in sunstone-views.yaml"
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:79
+#, fuzzy
 msgid "Default Users View"
-msgstr "Интерфейс пользователя по-умолчанию"
+msgstr "Значение по умолчанию"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:83
+#, fuzzy
 msgid "Default Admin View"
-msgstr "Интерфейс администратора по-умолчанию"
+msgstr "Значение по умолчанию"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:101
+#, fuzzy
 msgid "Group Users"
-msgstr "Пользователи группы"
+msgstr "Группы"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:102
+#, fuzzy
 msgid "Group Admins"
-msgstr "Администраторы группы"
+msgstr "Группы"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:137
+#, fuzzy
 msgid "Create an administrator user"
-msgstr "Создать администратора"
+msgstr "Создать хранилище"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:139
 msgid "You can create now an administrator user. More administrators can be added later."
-msgstr "Вы можете создать администратора. Позже вы сможете добавить еще администраторов. "
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:151
+#, fuzzy
 msgid "Image & Datastore"
-msgstr "Образы и хранилища"
+msgstr "Создать хранилище"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:155
+#, fuzzy
 msgid "Make new images persistent by default"
-msgstr "Делать новые образы постоянными по-умолчанию"
+msgstr "Сделать непостоянным"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:157
 msgid "Control the default value for the PERSISTENT attribute on image creation (oneimage create)."
@@ -5693,7 +5802,7 @@ msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:170
 msgid "Make save-as and clone images persistent by default"
-msgstr "Делать сохраненные и клонированные образы постоянными по-умолчанию"
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:172
 msgid "Control the default value for the PERSISTENT attribute on image creation (oneimage clone, onevm disk-saveas). If blank images will inherit the persistent attribute from the base image."
@@ -5701,19 +5810,20 @@ msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:190
 msgid "Allow users to view the VMs and Services of other users in the same group"
-msgstr "Разрешать пользователям группы видеть ВМ и сервисы, созданные другими участниками группы."
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:192
 msgid "An ACL Rule will be created to give users in this group access to all the resources in the same group."
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:200
+#, fuzzy
 msgid "Allow users in this group to create the following resources"
-msgstr "Рзарешить пользователям этой группы создавать следующие ресурсы"
+msgstr "Выбраны следующие ресурсы:"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:203
 msgid "This will create new ACL Rules to define which virtual resources this group's users will be able to create."
-msgstr "Это создаст новое правило, которое разрешает пользователям группы создавать виртуальные ресурсы."
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:222
 msgid "Documents are a special tool used for general purposes, mainly by OneFlow. If you want to enable users of this group to use service composition via OneFlow, let it checked."
@@ -5736,8 +5846,9 @@ msgid "Users marked with <i class='fas fa-star'></i> are administrators"
 msgstr ""
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:19
+#, fuzzy
 msgid "Clone Image"
-msgstr ""
+msgstr "Образы vCenter"
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:27
 msgid "Several images are selected, please choose a prefix to name the new copies"
@@ -5748,8 +5859,9 @@ msgid "You can select a different target datastore"
 msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:26
+#, fuzzy
 msgid "Get Images"
-msgstr ""
+msgstr "Образы vCenter"
 
 #: ../app/tabs/images-tab/form-panels/create/advanced.hbs:26
 msgid "Write the Image template here"
@@ -5770,7 +5882,7 @@ msgstr ""
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:44
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:23
 msgid "Kernel"
-msgstr "Ядро"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:45
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:26
@@ -5779,20 +5891,23 @@ msgid "Ramdisk"
 msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:63
+#, fuzzy
 msgid "This image is persistent"
-msgstr ""
+msgstr "Сделать постоянным"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:80
+#, fuzzy
 msgid "Image location"
-msgstr "Расположение образа"
+msgstr "Путь к образу"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:84
 msgid "Path in OpenNebula server"
 msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:86
+#, fuzzy
 msgid "Upload"
-msgstr "Закачать"
+msgstr "Закачка..."
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:89
 msgid "Empty disk image"
@@ -5800,7 +5915,7 @@ msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:97
 msgid "Path"
-msgstr "Путь к файлу"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:128
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:63
@@ -5824,44 +5939,52 @@ msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:204
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:4
+#, fuzzy
 msgid "Target device"
-msgstr ""
+msgstr "Создать сервис"
 
 #: ../app/tabs/images-tab/panels/info/html.hbs:64
 msgid "Filesystem type"
-msgstr "Тип файловой системы"
+msgstr ""
 
 #: ../app/tabs/images-tab/panels/info/html.hbs:79
+#, fuzzy
 msgid "Running VMS"
-msgstr ""
+msgstr "Запущено ВМ"
 
 #: ../app/tabs/images-tab/panels/snapshots/html.hbs:22
 msgid "Flatten"
 msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:29
+#, fuzzy
 msgid "Change Language"
-msgstr ""
+msgstr "Сменить владельца"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:41
+#, fuzzy
 msgid "Update Language"
-msgstr ""
+msgstr "Сохраниеть параметры"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:63
+#, fuzzy
 msgid "Change Password"
-msgstr ""
+msgstr "Пароль"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:70
+#, fuzzy
 msgid "New Password"
-msgstr ""
+msgstr "Пароль"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:104
+#, fuzzy
 msgid "Change view"
-msgstr ""
+msgstr "Сменить владельца"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:116
+#, fuzzy
 msgid "Update view"
-msgstr ""
+msgstr "Сохранить изменения"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:141
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:165
@@ -5870,8 +5993,9 @@ msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:142
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:166
+#, fuzzy
 msgid "Update SSH Key"
-msgstr ""
+msgstr "Сохранить изменения"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:148
 msgid "Add a public SSH key to your account!"
@@ -5887,16 +6011,18 @@ msgid "Update your public SSH key!"
 msgstr ""
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:19
+#, fuzzy
 msgid "Clone Template"
-msgstr ""
+msgstr "Шаблоны vCenter"
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:40
 msgid "You can also clone any Image referenced inside this Template. They will be cloned to a new Image, and made persistent."
 msgstr ""
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:44
+#, fuzzy
 msgid "Clone with Images"
-msgstr ""
+msgstr "Образы vCenter"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:61
 msgid "Instantiate as different User / Group"
@@ -5927,12 +6053,14 @@ msgid "Associate VM to a VM Group"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:147
+#, fuzzy
 msgid "vCenter Deployment"
-msgstr ""
+msgstr "Шаблоны vCenter"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:32
+#, fuzzy
 msgid "Instantiate as persistent"
-msgstr ""
+msgstr "Сделать постоянным"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:33
 #: ../app/tabs/provision-tab/vms/create.hbs:42
@@ -5953,16 +6081,18 @@ msgid "Sets the new VM to hold state, instead of pending. The scheduler will not
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/import/html.hbs:22
+#, fuzzy
 msgid "Get Templates"
-msgstr ""
+msgstr "Шаблоны ВМ"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:24
 msgid "Hypervisor"
-msgstr "Гипервизор"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:26
+#, fuzzy
 msgid "KVM"
-msgstr "KVM"
+msgstr "ВМ"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:30
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:115
@@ -5974,16 +6104,19 @@ msgid "Logo"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:62
+#, fuzzy
 msgid "vCenter Template Ref"
-msgstr ""
+msgstr "Шаблоны vCenter"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:70
+#, fuzzy
 msgid "vCenter Cluster Ref"
-msgstr ""
+msgstr "Создать кластер"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:76
+#, fuzzy
 msgid "vCenter Instance ID"
-msgstr ""
+msgstr "Образы vCenter"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:84
 msgid "Default Resource Pool"
@@ -6006,20 +6139,23 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:107
 #: ../app/utils/vcenter-vm-folder/html.hbs:20
+#, fuzzy
 msgid "vCenter VM Folder"
-msgstr ""
+msgstr "Сети vCenter"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:108
 msgid "If specified, the the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:119
+#, fuzzy
 msgid "Security Privileged"
-msgstr ""
+msgstr "Группа безопасности создана"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:130
+#, fuzzy
 msgid "Security Nesting"
-msgstr ""
+msgstr "Группы безопасности"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:141
 msgid "Profile"
@@ -6032,8 +6168,9 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:177
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:191
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:203
+#, fuzzy
 msgid "month"
-msgstr ""
+msgstr "Месяцы"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:184
 msgid "Cost of each CPU per hour"
@@ -6041,7 +6178,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:196
 msgid "Disk"
-msgstr "Диск"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:197
 msgid "Cost of each GB per hour"
@@ -6072,23 +6209,24 @@ msgid "Instantiate as a different group"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:228
+#, fuzzy
 msgid "User / Group"
-msgstr ""
+msgstr "Группа безопасности"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:22
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:23
 msgid "Amount of RAM required for the VM, in Megabytes."
-msgstr "Объем ОЗУ (в МБ), необходимый для ВМ."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:34
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:101
 msgid "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5."
-msgstr "Процент процессорного времени ЦП, предоставляемого ВМ, разделенный на 100. Например, для выделения половины процессорного времени следует указать 0.5."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:44
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:149
 msgid "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU."
-msgstr "Количество виртуальных процессоров. Это значение опционально, используется поведение гипервизора по умолчанию - один виртуальный ЦП."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:52
 msgid "Memory modification"
@@ -6129,8 +6267,9 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:135
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:179
 #: ../app/utils/user-inputs/row.hbs:51 ../app/utils/user-inputs/row.hbs:68
+#, fuzzy
 msgid "Max"
-msgstr ""
+msgstr "Май"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:117
 msgid "CPU modification"
@@ -6150,11 +6289,11 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:20
 msgid "Boot"
-msgstr "Загрузка"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:29
 msgid "Features"
-msgstr "Особенности"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:32
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:261
@@ -6187,11 +6326,12 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:88
 msgid "Path to the bootloader executable"
-msgstr "Путь к исполняемому файлу загрузчика"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:98
+#, fuzzy
 msgid "Registered Image"
-msgstr ""
+msgstr "Образы vCenter"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:100
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:130
@@ -6204,31 +6344,34 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:118
 msgid "Path to the OS kernel to boot the image"
-msgstr "Путь к ядру ОС для загрузки образа"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:128
+#, fuzzy
 msgid "Registered Image "
-msgstr ""
+msgstr "Образы vCenter"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:139
+#, fuzzy
 msgid "INITRD_DS"
-msgstr ""
+msgstr "ИНИЦИАЛИЗАЦИЯ"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:149
 msgid "Path to the initrd image"
-msgstr "Путь к образу initrd"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:160
 msgid "ACPI"
-msgstr "ACPI"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:161
 msgid "Add support in the VM for Advanced Configuration and Power Interface (ACPI)"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:171
+#, fuzzy
 msgid "PAE"
-msgstr "PAE"
+msgstr "ОБНОВИТЬ"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:172
 msgid "Add support in the VM for Physical Address Extension (PAE)"
@@ -6251,8 +6394,9 @@ msgid "Add support in the VM for hyper-v features (HYPERV)"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:208
+#, fuzzy
 msgid "Localtime"
-msgstr ""
+msgstr "Всего времени"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:209
 msgid "The guest clock will be synchronized to the hosts configured timezone when booted."
@@ -6284,8 +6428,9 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:11
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:11
+#, fuzzy
 msgid "Instance type"
-msgstr "Тип экземпляра ВМ"
+msgstr "Создать экземпляр ВМ"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:20
 msgid "AKI"
@@ -6324,8 +6469,9 @@ msgid "Obtain a better I/O throughput for VMs with EBS provisioned volumes"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:58
+#, fuzzy
 msgid "Elastic IP address"
-msgstr ""
+msgstr "IPv6 адрес"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:59
 msgid "This parameter is passed to the command ec2-associate-address -i i-0041230 elasticip."
@@ -6352,8 +6498,9 @@ msgid "License pool name"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:91
+#, fuzzy
 msgid "Placement group name"
-msgstr ""
+msgstr "Размещение"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:99
 msgid "Private IP"
@@ -6368,8 +6515,9 @@ msgid "The ID of the RAM disk to select."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:115
+#, fuzzy
 msgid "Security group names"
-msgstr ""
+msgstr "Группы безопасности"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:116
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:123
@@ -6377,8 +6525,9 @@ msgid "You can specify more than one security group (comma separated)."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:122
+#, fuzzy
 msgid "Security group IDs"
-msgstr ""
+msgstr "Группы безопасности"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:131
 msgid "Subnet ID"
@@ -6397,8 +6546,9 @@ msgid "Tenancy"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:153
+#, fuzzy
 msgid "User data"
-msgstr ""
+msgstr "Пользователь создан"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:154
 msgid "Specifies Base64-encoded MIME user data to be made available to the instance(s) in this reservation."
@@ -6425,8 +6575,9 @@ msgid "If the selected IMAGE is prepared for Azure provisioning, a username can 
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:36
+#, fuzzy
 msgid "VM user password"
-msgstr ""
+msgstr "Текущий пароль"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:37
 msgid "Password for VM User"
@@ -6445,8 +6596,9 @@ msgid "Availability set"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:61
+#, fuzzy
 msgid "Cloud service"
-msgstr ""
+msgstr "Сервис"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:62
 msgid "Specifies the name of the cloud service where this VM will be linked. Defaults to 'OpennebulaDefaultCloudServiceName'"
@@ -6461,8 +6613,9 @@ msgid "Port where the VMs ssh server will listen on"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:77
+#, fuzzy
 msgid "Storage account"
-msgstr ""
+msgstr "Образы ВМ"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:83
 msgid "Subnet name"
@@ -6482,8 +6635,9 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:99
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:125
+#, fuzzy
 msgid "Virtual Network name"
-msgstr ""
+msgstr "Виртуальная сеть"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:107
 msgid "Win RM"
@@ -6494,8 +6648,9 @@ msgid "Comma-separated list of possible protocols to access this Windows VM"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/opennebula.hbs:4
+#, fuzzy
 msgid "Remote VM Template ID"
-msgstr ""
+msgstr "Укажите параметры шаблона ВМ"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:21
 #: ../app/utils/nics-section/dd.hbs:28
@@ -6514,8 +6669,9 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:39
 #: ../app/utils/nics-section/dd.hbs:46
+#, fuzzy
 msgid "Network selection"
-msgstr ""
+msgstr "Сеть: принято"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:47
 #: ../app/utils/nics-section/dd.hbs:55
@@ -6529,13 +6685,15 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:55
 #: ../app/utils/nics-section/dd.hbs:63
+#, fuzzy
 msgid "Network Requirements"
-msgstr ""
+msgstr "Требования"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:59
 #: ../app/utils/nics-section/dd.hbs:67
+#, fuzzy
 msgid "Select Vnets "
-msgstr ""
+msgstr "Выберите нового владельца"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:61
 #: ../app/utils/nics-section/dd.hbs:69
@@ -6544,8 +6702,9 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:78
 #: ../app/utils/nics-section/dd.hbs:85
+#, fuzzy
 msgid "Network Rank"
-msgstr ""
+msgstr "Сеть"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:83
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:75
@@ -6563,8 +6722,9 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:80
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:112
 #: ../app/utils/nics-section/dd.hbs:95
+#, fuzzy
 msgid "Stripping"
-msgstr ""
+msgstr "Строка, задающая правило"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:89
 #: ../app/utils/nics-section/dd.hbs:96
@@ -6577,20 +6737,24 @@ msgid "This field sets which attribute will be used to sort the suitable vnets f
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:115
+#, fuzzy
 msgid "Choose Network"
-msgstr ""
+msgstr "Сети vCenter"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:119
+#, fuzzy
 msgid "Virtual Network ID"
-msgstr ""
+msgstr "Виртуальная сеть"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:133
+#, fuzzy
 msgid "Virtual Network owner's user ID"
-msgstr ""
+msgstr "Вирт. сети"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:139
+#, fuzzy
 msgid "Virtual Network owner's user Name"
-msgstr ""
+msgstr "Создана виртуальная сеть"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:147
 msgid "OPEN NEBULA MANAGEMENT"
@@ -6677,8 +6841,9 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:310
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:131
+#, fuzzy
 msgid "Device"
-msgstr ""
+msgstr "Сервис"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:311
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:132
@@ -6702,16 +6867,18 @@ msgid "Contextualization type"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:29
+#, fuzzy
 msgid "vCenter customizations"
-msgstr ""
+msgstr "Шаблоны vCenter"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:42
 msgid "Configuration"
-msgstr "Интерфейс"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:48
+#, fuzzy
 msgid "Custom vars"
-msgstr ""
+msgstr "Пользовательский"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:61
 msgid "  Add SSH contextualization"
@@ -6750,8 +6917,9 @@ msgid "Sends READY=YES to OneGate, useful for OneFlow"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:108
+#, fuzzy
 msgid "Start script"
-msgstr ""
+msgstr "Время запуска"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:109
 msgid "Text of the script executed when the machine starts up. It can contain shebang in case it is not shell script"
@@ -6762,16 +6930,18 @@ msgid "Encode script in Base64"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:120
+#, fuzzy
 msgid "User Inputs"
-msgstr ""
+msgstr "Пользователи"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:121
 msgid "These attributes must be provided by the user when a new VM is instantiated. They will be included in the VM context"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:136
+#, fuzzy
 msgid "FILES_DS"
-msgstr ""
+msgstr "ФАЙЛ"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:144
 msgid "Init scripts"
@@ -6782,8 +6952,9 @@ msgid "The contextualization package executes an init.sh file if it exists. If m
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:20
+#, fuzzy
 msgid "Graphics"
-msgstr "Средства графического доступа"
+msgstr "Графики"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:37
 msgid "Listen on IP"
@@ -6799,69 +6970,76 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:52
 msgid "Keymap"
-msgstr "Раскладка клавиатуры"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:69
+#, fuzzy
 msgid "Generate random password"
-msgstr ""
+msgstr "Текущий пароль"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:77
 msgid "Inputs"
-msgstr "Устройства ввода"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:84
 msgid "Mouse"
-msgstr "Мышь"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:85
+#, fuzzy
 msgid "Tablet"
-msgstr "Планшетный ПК"
+msgstr "Включить"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:91
 msgid "Bus"
-msgstr "Тип шины"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:94
 msgid "USB"
-msgstr "USB"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:95
 msgid "PS2"
-msgstr "PS/2"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:101
 #: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:30
 #: ../app/utils/schedule_action/html.hbs:121
 msgid "Add"
-msgstr "Добавить"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:116
+#, fuzzy
 msgid "PCI Devices"
-msgstr ""
+msgstr "Сервисы"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:120
 msgid "PCI passthrough of network devices is configured per NIC, in the \"Network\" tab. Do not add network devices here"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/html.hbs:20
+#, fuzzy
 msgid "Storage Options"
-msgstr ""
+msgstr "Образы ВМ"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/html.hbs:24
+#, fuzzy
 msgid "Deploy Mode"
-msgstr ""
+msgstr "Разместить на узле"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/html.hbs:27
 msgid "Set an alternative mode to deploy VM disks to the hosts"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:22
+#, fuzzy
 msgid "Volatile disk"
-msgstr ""
+msgstr "Временный диск"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:41
+#, fuzzy
 msgid "Image name"
-msgstr "Название образа"
+msgstr "Путь к образу"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:49
 msgid "Image owner's user ID"
@@ -6874,11 +7052,11 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:90
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:94
 msgid "FS"
-msgstr "FS"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:91
 msgid "Swap"
-msgstr "Swap"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:99
 msgid "Filesystem format"
@@ -6913,8 +7091,9 @@ msgid "unmap"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:112
+#, fuzzy
 msgid "Size on instantiate"
-msgstr ""
+msgstr "Создать экземпляр ВМ"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:113
 msgid "The size of the disk will be modified to match this size when the template is instantiated"
@@ -6973,44 +7152,51 @@ msgid "lxd"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:33
+#, fuzzy
 msgid "Data"
-msgstr "Данные"
+msgstr "Хранилище"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:34
 msgid "Raw data to be passed directly to the hypervisor"
-msgstr "Исходные данные, передаваемые напрямую гипервизору"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:41
+#, fuzzy
 msgid "Custom Tags"
-msgstr ""
+msgstr "Пользовательский"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:23
 msgid "Policy"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:31
+#, fuzzy
 msgid "Host Requirements"
-msgstr ""
+msgstr "Требования"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:35
+#, fuzzy
 msgid "Select Hosts "
-msgstr ""
+msgstr "Выберите кластер"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:37
+#, fuzzy
 msgid "Select Clusters "
-msgstr ""
+msgstr "Выберите кластер"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:48
 msgid "Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM"
-msgstr "Логическое выражение, исключающее элементы из списка узлов, подходящих для запуска данной ВМ"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:55
+#, fuzzy
 msgid "Datastore Requirements"
-msgstr ""
+msgstr "Требования"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:70
+#, fuzzy
 msgid "Host Rank"
-msgstr ""
+msgstr "Узел"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:76
 msgid "Pack the VMs in the Hosts to reduce VM fragmentation"
@@ -7033,8 +7219,9 @@ msgid "This field sets which attribute will be used to sort the suitable hosts f
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:102
+#, fuzzy
 msgid "Datastore Rank"
-msgstr ""
+msgstr "Хранилище"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:108
 msgid "Tries to optimize storage usage by selecting the DS with less free space"
@@ -7049,8 +7236,9 @@ msgid "This field sets which attribute will be used to sort the suitable datasto
 msgstr ""
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:25
+#, fuzzy
 msgid "Virtual machine name"
-msgstr ""
+msgstr "Вирт. машины"
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:27
 msgid "When creating multiple VMs, %i is replaces by the VM number in the set"
@@ -7065,50 +7253,58 @@ msgid "Keepalive service ID"
 msgstr ""
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/wizard.hbs:43
+#, fuzzy
 msgid "Keepalive password"
-msgstr ""
+msgstr "Введите новый пароль"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:21
+#, fuzzy
 msgid "This rule applies to"
-msgstr "Область применения"
+msgstr "Применено к"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:53
 msgid "Zones where the rule applies"
 msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:129
+#, fuzzy
 msgid "MarketPlace Apps"
-msgstr ""
+msgstr "Магазины приложений"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:140
+#, fuzzy
 msgid "Resource subset"
-msgstr "Подмножество ресурсов"
+msgstr "Ресурсы"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:162
+#, fuzzy
 msgid "Resource ID"
-msgstr "№ ресурса"
+msgstr "Ресурсы"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:183
 #: ../app/utils/panel/permissions-table/permissions.hbs:20
+#, fuzzy
 msgid "Use"
-msgstr "Пользование"
+msgstr "Пользователь"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:187
 #: ../app/utils/panel/permissions-table/permissions.hbs:21
 msgid "Manage"
-msgstr "Управление"
+msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:191
 msgid "Administrate"
-msgstr "Администрирование"
+msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:202
+#, fuzzy
 msgid "ACL String preview"
 msgstr "Строка, задающая правило"
 
 #: ../app/tabs/vmgroup-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
 msgid "Write the Virtual Machine Group template here"
-msgstr ""
+msgstr "Создать шаблон виртуальной сети"
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:58
 msgid "Host Affined"
@@ -7154,32 +7350,36 @@ msgstr ""
 #: ../app/tabs/dashboard-tab/empty-graph.hbs:20
 #: ../app/tabs/provision-tab/dashboard/empty-graphs.hbs:20
 #: ../app/utils/accounting/empty-graph.hbs:20
+#, fuzzy
 msgid "There is no information available"
-msgstr ""
+msgstr "Нет доступных сетей"
 
 #: ../app/tabs/dashboard-tab/users.hbs:31
 msgid "USERS"
-msgstr "ПОЛЬЗОВАТЕЛИ"
+msgstr ""
 
 #: ../app/tabs/dashboard-tab/users.hbs:35
 msgid "GROUPS"
-msgstr "ГРУППЫ"
+msgstr ""
 
 #: ../app/tabs/dashboard-tab/storage.hbs:30
+#, fuzzy
 msgid "IMAGES"
-msgstr "ОБРАЗЫ"
+msgstr "ОБРАЗ"
 
 #: ../app/tabs/dashboard-tab/network.hbs:30
 msgid "VNETS"
-msgstr "Вирт. СЕТИ"
+msgstr ""
 
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:20
+#, fuzzy
 msgid "Create Zone"
-msgstr ""
+msgstr "Создать пользователя"
 
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:26
+#, fuzzy
 msgid "Zone Name"
-msgstr ""
+msgstr "Название"
 
 #: ../app/tabs/zones-tab/panels/info/html.hbs:41
 msgid "Server Pool"
@@ -7191,17 +7391,20 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/dashboard/group-quotas.hbs:37
 #: ../app/tabs/provision-tab/dashboard/quotas.hbs:36
+#, fuzzy
 msgid "RUNNING VMS"
-msgstr ""
+msgstr "ЗАПУЩЕН"
 
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:18
+#, fuzzy
 msgid "Group Virtual Machines"
-msgstr ""
+msgstr "Вирт. машины"
 
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:81
 #: ../app/utils/accounting/html.hbs:78 ../app/utils/accounting/html.hbs:107
+#, fuzzy
 msgid "CPU hours"
-msgstr ""
+msgstr "часы"
 
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:93
 #: ../app/utils/accounting/html.hbs:87 ../app/utils/accounting/html.hbs:123
@@ -7226,13 +7429,15 @@ msgid "Recover a failed service, cleaning the failed VMs"
 msgstr ""
 
 #: ../app/tabs/provision-tab/flows/create.hbs:30
+#, fuzzy
 msgid "Service Name"
-msgstr ""
+msgstr "Сервис"
 
 #: ../app/tabs/provision-tab/flows/list.hbs:48
 #: ../app/tabs/provision-tab/vms/list.hbs:55
+#, fuzzy
 msgid "User ID"
-msgstr ""
+msgstr "Пользователь"
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:5
 msgid "This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later"
@@ -7262,8 +7467,9 @@ msgid "Open a remote console in a new window"
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:43
+#, fuzzy
 msgid "You have to boot the Virtual Machine first"
-msgstr ""
+msgstr "Необходимо подтвердить данную операцию."
 
 #: ../app/tabs/provision-tab/vms/info.hbs:48
 msgid "The disks of the Virtual Machine will be saved in a new Image"
@@ -7286,8 +7492,9 @@ msgid "Net TX"
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:164
+#, fuzzy
 msgid "Net Download Speed"
-msgstr ""
+msgstr "Скачать"
 
 #: ../app/tabs/provision-tab/vms/info.hbs:181
 msgid "Net Upload Speed"
@@ -7310,8 +7517,9 @@ msgid "Send the reboot signal"
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/create.hbs:30
+#, fuzzy
 msgid "Virtual Machine Name"
-msgstr ""
+msgstr "Вирт. машины"
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:5
 msgid "Be careful, this action will shutdown and destroy your Virtual Machine"
@@ -7322,8 +7530,9 @@ msgid "You can send the shutdown signal to the Virtual Machine (this is equivale
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:25
+#, fuzzy
 msgid "Terminate the machine"
-msgstr ""
+msgstr "Укажите параметры виртуальной машины"
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:31
 msgid "Send the shutdown signal and terminate"
@@ -7338,24 +7547,28 @@ msgid "You can then create a new Virtual Machine using this Template."
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:14
+#, fuzzy
 msgid "Template Name"
-msgstr ""
+msgstr "Шаблон"
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:19
+#, fuzzy
 msgid "Template Description"
-msgstr ""
+msgstr "Шаблоны ВМ"
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:26
 msgid "The new Virtual Machine's disks can be made persistent. In a persistent Virtual Machine the changes made survive after it is destroyed. On the other hand, you cannot create more than one simultaneous Virtual Machine from a Template with persistent disks."
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:43
+#, fuzzy
 msgid "Non-persistent"
-msgstr ""
+msgstr "Постоянный"
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:53
+#, fuzzy
 msgid "Save Virtual Machine to Template"
-msgstr ""
+msgstr "Создать шаблон виртуальной сети"
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:5
 msgid "This action will power off this Virtual Machine and will be undeployed from the physical machine"
@@ -7378,53 +7591,62 @@ msgid "Edit Address Range"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:22
+#, fuzzy
 msgid "New Address Range"
-msgstr ""
+msgstr "Диапазон адресов не найден"
 
 #: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:33
 #: ../app/sunstone/buttons.hbs:27
+#, fuzzy
 msgid "Reset"
-msgstr "Включить/Выключить"
+msgstr "Резервирование"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:22
+#, fuzzy
 msgid "Reservation from Virtual Network"
-msgstr ""
+msgstr "Укажите параметры виртуальной сети"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:28
 msgid "Number of addresses"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:36
+#, fuzzy
 msgid "Add to a new Virtual Network"
-msgstr ""
+msgstr "Укажите параметры виртуальной сети"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:40
 msgid "Add to an existing Reservation"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:47
+#, fuzzy
 msgid "Virtual Network Name"
-msgstr ""
+msgstr "Виртуальная сеть"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:59
+#, fuzzy
 msgid "You can select the addresses from an specific Address Range"
-msgstr ""
+msgstr "Выбраны следующие диапазоны адресов:"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:70
+#, fuzzy
 msgid "First address"
-msgstr ""
+msgstr "IPv6 адрес"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:71
 msgid "IP or MAC"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/import/html.hbs:22
+#, fuzzy
 msgid "Get Networks"
-msgstr ""
+msgstr "Сети vCenter"
 
 #: ../app/tabs/vnets-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
 msgid "Write the Virtual Network template here"
-msgstr "Отредактируйте параметры шаблона вирт. сети вручную"
+msgstr "Создать шаблон виртуальной сети"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:39
 msgid "QoS"
@@ -7435,16 +7657,19 @@ msgid "Name of the physical bridge in the nodes to attach VM NICs"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:91
+#, fuzzy
 msgid "Network mode"
-msgstr ""
+msgstr "Сеть"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:94
+#, fuzzy
 msgid "Bridged"
-msgstr ""
+msgstr "Шлюз"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:95
+#, fuzzy
 msgid "Bridged & Security Groups"
-msgstr ""
+msgstr "Группы безопасности"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:96
 msgid "Bridged & ebtables VLAN"
@@ -7519,17 +7744,19 @@ msgid "Automatic VLAN ID"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:165
+#, fuzzy
 msgid "No VLAN network"
-msgstr ""
+msgstr "Сеть"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:166
+#, fuzzy
 msgid "Manual VLAN ID"
-msgstr ""
+msgstr "ВЛАН"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:173
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:182
 msgid "Physical device"
-msgstr "Физическое устройство"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:175
 msgid "Node NIC to send/receive virtual network traffic"
@@ -7544,8 +7771,9 @@ msgid "MTU of the interface"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:197
+#, fuzzy
 msgid "Outer VLAN ID"
-msgstr ""
+msgstr "ВЛАН"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:199
 msgid "First level (outer, service) VLAN ID"
@@ -7572,8 +7800,9 @@ msgid "Port group type"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:226
+#, fuzzy
 msgid "Port group"
-msgstr ""
+msgstr "группа"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:227
 msgid "Distributed Port Group"
@@ -7604,12 +7833,14 @@ msgid "Remove"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:47
+#, fuzzy
 msgid "IPv6 Prefix"
-msgstr ""
+msgstr "IPv6 адрес"
 
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:75
+#, fuzzy
 msgid "Select an Address Range to see more information"
-msgstr ""
+msgstr "Выберите диапазон адресов из списка"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:57
 msgid "First"
@@ -7624,20 +7855,23 @@ msgid "IP6_GLOBAL"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:83
+#, fuzzy
 msgid "IP6"
-msgstr ""
+msgstr "IP-адрес"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:90
 msgid "IP6_ULA"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:39
+#, fuzzy
 msgid "AUTO VLAN ID"
-msgstr ""
+msgstr "ВЛАН"
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:44
+#, fuzzy
 msgid "OUTER VLAN ID"
-msgstr ""
+msgstr "ВЛАН"
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:49
 msgid "AUTO OUTER VLAN ID"
@@ -7679,8 +7913,9 @@ msgid "Outbound QoS"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:25
+#, fuzzy
 msgid "Hold IP"
-msgstr ""
+msgstr "Запретить размещение"
 
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:38
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:21
@@ -7705,8 +7940,9 @@ msgid "Ethernet"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:27
+#, fuzzy
 msgid "First IPv4 address"
-msgstr ""
+msgstr "IPv6 адрес"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:31
 msgid "First MAC address"
@@ -7741,8 +7977,9 @@ msgid "Seconds between each group of actions"
 msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:32
+#, fuzzy
 msgid "Number"
-msgstr ""
+msgstr "Ноябрь"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:33
 msgid "Number of VMs to apply the action to each period"
@@ -7757,8 +7994,9 @@ msgid "Select a role in the table for more information"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
 msgid "Write the Virtual Router template here"
-msgstr ""
+msgstr "Создание шаблона маршрутизатора"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:45
 #: ../app/utils/nics-section/dd.hbs:137
@@ -7784,19 +8022,20 @@ msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:71
 msgid "Detach"
-msgstr "Отсоединить"
+msgstr ""
 
 #: ../app/sunstone/buttons.hbs:101
 msgid "Wizard"
-msgstr "Мастер настройки"
+msgstr ""
 
 #: ../app/sunstone/buttons.hbs:104
 msgid "Advanced"
-msgstr "Дополнительно"
+msgstr ""
 
 #: ../app/sunstone/user_and_zone.hbs:45
+#, fuzzy
 msgid "Sign Out"
-msgstr "Выйти из сервиса"
+msgstr "Войти"
 
 #: ../app/utils/nics-section/dd.hbs:6
 msgid "PCI interface"
@@ -7807,8 +8046,9 @@ msgid "Interface"
 msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:18
+#, fuzzy
 msgid "Select a Network"
-msgstr ""
+msgstr "Выберите нового владельца"
 
 #: ../app/utils/nics-section/dd.hbs:121
 msgid "Force IPv4:"
@@ -7835,18 +8075,20 @@ msgid "You can add Security Groups to this network interface. These IDs do not o
 msgstr ""
 
 #: ../app/utils/nics-section/html.hbs:11
+#, fuzzy
 msgid "Network Interface"
-msgstr ""
+msgstr "Сеть: принято"
 
 #: ../app/utils/disks-resize/html.hbs:19
 msgid "Disks"
-msgstr "Диски"
+msgstr ""
 
 #: ../app/utils/tab-datatable/table.hbs:30
 #: ../app/utils/tab-datatable/search-input.hbs:19
 #: ../app/utils/tab-datatable/search-input.hbs:45
+#, fuzzy
 msgid "Search"
-msgstr ""
+msgstr "Март"
 
 #: ../app/utils/tab-datatable/search-input.hbs:27
 msgid "Label filter:"
@@ -7857,8 +8099,9 @@ msgid "Clear search"
 msgstr ""
 
 #: ../app/utils/tab-datatable/empty-table.hbs:24
+#, fuzzy
 msgid "There is no data available"
-msgstr ""
+msgstr "Нет доступных сетей"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:20
 msgid "Host Overcommitment"
@@ -7881,8 +8124,9 @@ msgid "These values can be negative, in that case you'll be actually increasing 
 msgstr ""
 
 #: ../app/utils/dialogs/overcommit/html.hbs:51
+#, fuzzy
 msgid "Reserved Memory in KB"
-msgstr ""
+msgstr "Используется памяти"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:59
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
@@ -7896,19 +8140,21 @@ msgstr ""
 
 #: ../app/utils/dialogs/confirm-with-select/html.hbs:27
 msgid "You need to select something."
-msgstr "Вы должны что-нибудь выбрать."
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:11
+#, fuzzy
 msgid "text"
-msgstr ""
+msgstr "Контекст"
 
 #: ../app/utils/user-inputs/row.hbs:12
 msgid "text (base64)"
 msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:13
+#, fuzzy
 msgid "password"
-msgstr ""
+msgstr "Пароль"
 
 #: ../app/utils/user-inputs/row.hbs:14
 msgid "number"
@@ -7933,12 +8179,14 @@ msgstr ""
 #: ../app/utils/user-inputs/row.hbs:29 ../app/utils/user-inputs/row.hbs:34
 #: ../app/utils/user-inputs/row.hbs:39 ../app/utils/user-inputs/row.hbs:56
 #: ../app/utils/user-inputs/row.hbs:73 ../app/utils/user-inputs/row.hbs:83
+#, fuzzy
 msgid "Default value"
-msgstr ""
+msgstr "Значение по умолчанию"
 
 #: ../app/utils/user-inputs/row.hbs:79
+#, fuzzy
 msgid "Options"
-msgstr ""
+msgstr "Опции"
 
 #: ../app/utils/user-inputs/row.hbs:80
 msgid "Comma-separated list of options for the drop-down select input"
@@ -7958,8 +8206,9 @@ msgid "New scheduled action"
 msgstr ""
 
 #: ../app/utils/schedule_action/html.hbs:21
+#, fuzzy
 msgid "Relative Time"
-msgstr ""
+msgstr "Время запуска"
 
 #: ../app/utils/schedule_action/html.hbs:51
 msgid "Periodic"
@@ -7970,20 +8219,24 @@ msgid "Repeat"
 msgstr ""
 
 #: ../app/utils/schedule_action/html.hbs:60
+#, fuzzy
 msgid "Weekly"
-msgstr ""
+msgstr "Недели"
 
 #: ../app/utils/schedule_action/html.hbs:61
+#, fuzzy
 msgid "Monthly"
-msgstr ""
+msgstr "Месяцы"
 
 #: ../app/utils/schedule_action/html.hbs:62
+#, fuzzy
 msgid "Yearly"
-msgstr ""
+msgstr "Годы"
 
 #: ../app/utils/schedule_action/html.hbs:63
+#, fuzzy
 msgid "Hourly"
-msgstr ""
+msgstr "Часы"
 
 #: ../app/utils/schedule_action/html.hbs:94
 msgid "Never"
@@ -8002,12 +8255,13 @@ msgid "times"
 msgstr ""
 
 #: ../app/utils/panel/permissions-table/html.hbs:21
+#, fuzzy
 msgid "Ownership"
-msgstr ""
+msgstr "Владелец"
 
 #: ../app/utils/panel/permissions-table/permissions.hbs:50
 msgid "Other"
-msgstr "Все остальные"
+msgstr ""
 
 #: ../app/utils/panel/ec2-tr/html.hbs:11
 msgid "EC2 Access"
@@ -8030,21 +8284,25 @@ msgid "Get showback"
 msgstr ""
 
 #: ../app/utils/showback/html.hbs:43
+#, fuzzy
 msgid "There are no showback records"
-msgstr ""
+msgstr "Нет заданных квот"
 
 #: ../app/utils/showback/html.hbs:60
+#, fuzzy
 msgid "Year"
-msgstr ""
+msgstr "Годы"
 
 #: ../app/utils/showback/html.hbs:61
+#, fuzzy
 msgid "Month"
-msgstr ""
+msgstr "Месяцы"
 
 #: ../app/utils/showback/html.hbs:62 ../app/utils/accounting/html.hbs:113
 #: ../app/utils/accounting/html.hbs:129 ../app/utils/accounting/html.hbs:145
+#, fuzzy
 msgid "Date"
-msgstr ""
+msgstr "Дата UTC"
 
 #: ../app/utils/showback/html.hbs:70
 msgid "Select a row to get detailed information of the month"
@@ -8055,8 +8313,9 @@ msgid "End time"
 msgstr ""
 
 #: ../app/utils/accounting/html.hbs:27
+#, fuzzy
 msgid "Group by"
-msgstr ""
+msgstr "Группа"
 
 #: ../app/utils/accounting/html.hbs:35
 msgid "Filter"
@@ -8067,16 +8326,18 @@ msgid "Get accounting"
 msgstr ""
 
 #: ../app/utils/accounting/html.hbs:68
+#, fuzzy
 msgid "There are no accounting records"
-msgstr ""
+msgstr "Нет заданных квот"
 
 #: ../app/utils/accounting/html.hbs:104
 msgid "Accounting Tables"
 msgstr ""
 
 #: ../app/utils/vcenter/templates/row.hbs:51
+#, fuzzy
 msgid "Use ctrl key for multiple selection (provide on instantiation)."
-msgstr ""
+msgstr "Используйте ctrl для множественного выбора"
 
 #: ../app/utils/vcenter/templates/row.hbs:66
 msgid "Folder"
@@ -8087,24 +8348,28 @@ msgid "Linked clone"
 msgstr ""
 
 #: ../app/utils/vcenter/templates/row.hbs:88
+#, fuzzy
 msgid "Create copy"
-msgstr ""
+msgstr "Создать"
 
 #: ../app/utils/vcenter/networks/row.hbs:30
+#, fuzzy
 msgid "VLAN"
-msgstr ""
+msgstr "ВЛАН"
 
 #: ../app/utils/vcenter/networks/row.hbs:68
 msgid "Cluster(s) to import"
 msgstr ""
 
 #: ../app/utils/vcenter/networks/row.hbs:81
+#, fuzzy
 msgid "Unimported Cluster(s)"
-msgstr ""
+msgstr "Сохраниеть параметры"
 
 #: ../app/utils/vcenter/common/fieldset-table.hbs:41
+#, fuzzy
 msgid "Clear selection"
-msgstr ""
+msgstr "выберите"
 
 #: ../app/utils/vcenter/common/fieldset-table.hbs:46
 msgid "Toggle advanced sections"
@@ -8117,3 +8382,6 @@ msgstr ""
 #: ../app/utils/vcenter-vm-folder/html.hbs:21
 msgid "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
 msgstr ""
+
+#~ msgid "All Roles"
+#~ msgstr "Все роли"

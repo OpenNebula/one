@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
+"PO-Revision-Date: 2020-05-04 11:21+0000\n"
 "Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
 "Language-Team: Persian (Iran) (http://www.transifex.com/opennebula/one/language/fa_IR/)\n"
 "Language: fa_IR\n"
@@ -1904,7 +1904,7 @@ msgstr "به روز رسانی template سرویس"
 #: ../app/tabs/vmgroup-tab/utils/role-tab/html.hbs:24
 #: ../app/utils/user-inputs/row.hbs:5
 msgid "Can only contain alphanumeric and underscore characters"
-msgstr "تنها می‌تواند شامل حروف و اعداد باشد"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:430
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:301
@@ -2036,15 +2036,17 @@ msgstr "گراف‌ها"
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
 #: ../app/tabs/vms-tab/panels/capacity.js:120
 #: ../app/tabs/vms-tab/panels/capacity.js:127
+#, fuzzy
 msgid "Allocated"
-msgstr "تخصیص یافته"
+msgstr "پردازنده‌ی تخصیص یافته"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
 #: ../app/tabs/vms-tab/panels/capacity.js:120
 #: ../app/tabs/vms-tab/panels/capacity.js:127
+#, fuzzy
 msgid "Real"
-msgstr "واقعی"
+msgstr "پردازنده‌ی واقعی"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 #: ../app/tabs/hosts-tab/panels/monitor.js:93 ../app/utils/accounting.js:621
@@ -4264,12 +4266,14 @@ msgstr "شما منابع زیر را انتخاب کرده‌اید:"
 #: ../app/utils/dialogs/clusters/html.hbs:33
 #: ../app/utils/dialogs/generic-confirm/html.hbs:33
 #: ../app/utils/dialogs/confirm/html.hbs:32
+#, fuzzy
 msgid "Close modal"
-msgstr ""
+msgstr "ببند"
 
 #: ../app/tabs/datastores-tab/form-panels/import/html.hbs:22
+#, fuzzy
 msgid "Get Datastores"
-msgstr ""
+msgstr "فضاهای ذخیره سازی"
 
 #: ../app/tabs/datastores-tab/form-panels/create/advanced.hbs:26
 msgid "Write the Datastore template here"
@@ -4277,8 +4281,9 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:26
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:33
+#, fuzzy
 msgid "Storage backend"
-msgstr ""
+msgstr "ذخیره‌ساز"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:28
 msgid "Filesystem - shared mode"
@@ -4296,7 +4301,7 @@ msgstr ""
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:52
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:70
 msgid "Ceph"
-msgstr "سِف"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:32
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:55
@@ -4306,12 +4311,14 @@ msgstr "سِف"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:58
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:20
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:101
+#, fuzzy
 msgid "vCenter"
-msgstr "vCenter"
+msgstr "مرکز داده"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:33
+#, fuzzy
 msgid "LVM"
-msgstr "LVM"
+msgstr "ماشین مجازی"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:34
 msgid "Raw Device Mapping"
@@ -4323,17 +4330,20 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:47
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:44
+#, fuzzy
 msgid "Drivers"
-msgstr "درایورها"
+msgstr "درایور"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:51
+#, fuzzy
 msgid "Filesystem"
-msgstr "فایل سیستم"
+msgstr "فایل‌ها"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:53
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:71
+#, fuzzy
 msgid "Devices"
-msgstr "دستگاه‌ها"
+msgstr "سرویس‌ها"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:54
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:72
@@ -4342,53 +4352,58 @@ msgid "iSCSI/Libvirt"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:59
+#, fuzzy
 msgid "Custom DS_MAD"
-msgstr "DS_MAD سفارشی"
+msgstr "سفارشی"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:64
 msgid "Transfer"
-msgstr "انتقال"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:66
+#, fuzzy
 msgid "Shared"
-msgstr "اشتراکی"
+msgstr "به اشتراک گذاری"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:67
 msgid "SSH"
-msgstr "SSH"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:68
 msgid "qcow2"
-msgstr "qcow2"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:69
 msgid "FS LVM"
-msgstr "FS LVM"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:77
+#, fuzzy
 msgid "Custom TM_MAD"
-msgstr "TM_MAD سفارشی"
+msgstr "سفارشی"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:87
+#, fuzzy
 msgid "Datastore Type"
-msgstr ""
+msgstr "محیط ذخیره سازی"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:101
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:87
 msgid "Disk type"
-msgstr "نوع دیسک"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:104
 msgid "Block"
-msgstr "بلاک"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:105
 msgid "RBD"
-msgstr "RBD"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:106
+#, fuzzy
 msgid "Gluster"
-msgstr "گلاستر"
+msgstr "خوشه"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:114
 msgid "Restricted directories for registering Images"
@@ -4408,11 +4423,11 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:134
 msgid "Specify the maximum transfer rate in bytes/second when downloading images from a http/https URL. Suffixes K, M or G can be used."
-msgstr "حداکثر نرخ انتقال را بر حسب بایت بر ثانیه، برای دانلود ایمیج‌ها از یک آدرس http/https تعیین کنید. از پیشوند‌های K، M یا G هم می‌توانید استفاده کنید."
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:141
 msgid "Do not try to untar or decompress"
-msgstr "لطفاً از untar یا decompress استفاده نکنید"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:146
 msgid "Check available capacity of the Datastore before creating a new Image"
@@ -4428,31 +4443,34 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:159
 msgid "Volume Group Name"
-msgstr "نام Volume Group"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:164
+#, fuzzy
 msgid "Gluster Host"
-msgstr "میزبان گلاستر"
+msgstr "خوشه ها"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:166
 msgid "Host and port of one (and only one) Gluster server (host:port)"
-msgstr "میزبان و درگاه یک (و فقط یک) سرور گلاستر، به شکل هاست:درگاه"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:173
 msgid "Gluster Volume"
-msgstr "Gluster Volume"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:174
+#, fuzzy
 msgid "Gluster volume to use for the datastore"
-msgstr "Gluster Volume مورد استفاده در مخزن داده"
+msgstr "لطفاً یک کلاستر برای این datastore انتخاب نمایید."
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:180
 msgid "Ceph pool to store Images"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:186
+#, fuzzy
 msgid "Ceph host"
-msgstr ""
+msgstr "میزبان را پاک کن"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:188
 msgid "Space-separated list of Ceph monitors"
@@ -4495,8 +4513,9 @@ msgid "'Usage' of the registered secret with the authentication string."
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:237
+#, fuzzy
 msgid "vCenter cluster"
-msgstr ""
+msgstr "ساخت کلاستر"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:239
 msgid "The vCenter Cluster that has access to this datastore."
@@ -4538,8 +4557,9 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:113
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:29
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:112
+#, fuzzy
 msgid "Advanced options"
-msgstr "تنظیمات پیشرفته"
+msgstr "اعمال مجاز"
 
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:22
 #: ../app/tabs/users-tab/panels/info/html.hbs:22
@@ -4561,21 +4581,24 @@ msgstr "تنظیمات پیشرفته"
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:22
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:23
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:22
+#, fuzzy
 msgid "Information"
-msgstr "اطلاعات"
+msgstr "مکان"
 
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:42
+#, fuzzy
 msgid "Base path"
 msgstr "مسیر پایه"
 
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:51
 msgid "Limit"
-msgstr "محدود کردن"
+msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/quotas/html.hbs:19
 #: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:19
+#, fuzzy
 msgid "Update Quota"
-msgstr "سهمیه به‌روز رسانی"
+msgstr "به روز رسانی کلاستر"
 
 #: ../app/tabs/users-tab/dialogs/quotas/html.hbs:30
 #: ../app/tabs/users-tab/dialogs/groups/html.hbs:30
@@ -4583,27 +4606,30 @@ msgstr "سهمیه به‌روز رسانی"
 #: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:30
 #: ../app/utils/dialogs/clusters/html.hbs:30
 msgid "Apply changes"
-msgstr "تغییرات را اعمال کن"
+msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/groups/html.hbs:19
+#, fuzzy
 msgid "Select Secondary Groups"
-msgstr ""
+msgstr "گروه جدید را انتخاب نمایید"
 
 #: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:19
 msgid "Change authentication"
-msgstr "تغییر رویه احراز هویت"
+msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:30
 #: ../app/tabs/users-tab/dialogs/password/html.hbs:30
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:21
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-row.hbs:21
+#, fuzzy
 msgid "Change"
-msgstr "تغییر بده"
+msgstr "محدوده"
 
 #: ../app/tabs/users-tab/dialogs/password/html.hbs:19
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:80
+#, fuzzy
 msgid "Update Password"
-msgstr "به روز رسانی رمزعبور"
+msgstr "رمز عبور"
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:20
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:194
@@ -4620,8 +4646,9 @@ msgid "Valid until"
 msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:40
+#, fuzzy
 msgid "Target Group"
-msgstr ""
+msgstr "ساخت گروه"
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:41
 msgid "Token"
@@ -4636,35 +4663,39 @@ msgid "Get a new token"
 msgstr ""
 
 #: ../app/tabs/users-tab/panels/groups/html.hbs:28
+#, fuzzy
 msgid "Primary Group"
-msgstr ""
+msgstr "گروه امنیتی"
 
 #: ../app/tabs/users-tab/panels/groups/html.hbs:35
+#, fuzzy
 msgid "Secondary Group"
-msgstr ""
+msgstr "گروه امنیتی"
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:37
 msgid "Table Order"
-msgstr "ترتیب جدول"
+msgstr ""
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:46
 msgid "Language"
-msgstr "زبان"
+msgstr ""
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:55
 #: ../app/tabs/users-tab/panels/auth/html.hbs:40
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:107
 msgid "View"
-msgstr "دید"
+msgstr ""
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:24
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:36
+#, fuzzy
 msgid "Authentication"
-msgstr "احراز هویت"
+msgstr "اقدام"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:29
+#, fuzzy
 msgid "Authentication driver"
-msgstr "درایور احراز هویت"
+msgstr "Auth driver"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:51
 msgid "Login token"
@@ -4677,20 +4708,22 @@ msgstr ""
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:69
 msgid "Public SSH Key"
-msgstr "کلید SSH عمومی"
+msgstr ""
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:84
 msgid "You can provide a SSH Key for this User clicking on the edit button"
-msgstr "شما می‌توانید با کلیک بر روی دکمه‌ی ویرایش یک کلید SSH برای این کاربر ارائه کنید"
+msgstr ""
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:19
+#, fuzzy
 msgid "Username"
-msgstr "نام کاربری"
+msgstr "کاربر"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:29
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:75
+#, fuzzy
 msgid "Confirm Password"
-msgstr "تأیید کردن رمزعبور"
+msgstr "رمز عبور"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:38
 msgid "core"
@@ -4701,59 +4734,68 @@ msgid "public"
 msgstr ""
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:43
+#, fuzzy
 msgid "custom"
-msgstr ""
+msgstr "سفارشی"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:53
+#, fuzzy
 msgid "Main Group"
-msgstr ""
+msgstr "گروه"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:63
+#, fuzzy
 msgid "Secondary Groups"
-msgstr ""
+msgstr "گروه‌های امنیتی"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:20
+#, fuzzy
 msgid "Network Template"
-msgstr ""
+msgstr "تمپلیت ماشین‌مجازی"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:33
+#, fuzzy
 msgid "Address Ranges"
-msgstr ""
+msgstr "طیف آدرس"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:39
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:61
+#, fuzzy
 msgid "Network Configuration"
-msgstr "تنظیمات شبکه"
+msgstr "دریافت شبکه"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:46
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:178
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:330
+#, fuzzy
 msgid "Network address"
-msgstr "آدرس شبکه"
+msgstr "شبکه"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:52
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:172
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:336
+#, fuzzy
 msgid "Network mask"
-msgstr "ماسک شبکه"
+msgstr "شبکه"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:60
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:186
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:217
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:344
 msgid "Gateway"
-msgstr "گیت وی"
+msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:66
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:350
+#, fuzzy
 msgid "IPv6 Gateway"
-msgstr "گیت‌وی IPv6"
+msgstr "IPv6 Global"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:74
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:192
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:358
 msgid "DNS"
-msgstr "دی ان اس"
+msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:80
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:364
@@ -4765,25 +4807,28 @@ msgstr ""
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:215
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:370
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:68
+#, fuzzy
 msgid "Custom attributes"
-msgstr "ویژگی دلخواه"
+msgstr "ویژگی‌های سفارشی"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:101
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:266
 msgid "The default Security Group 0 is automatically added to new Virtual Networks"
-msgstr "گروه امنیتی پیش‌فرض 0 به صورت اتومایتک به شبکه‌های مجازی جدید اضافه می‌شود"
+msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:25
+#, fuzzy
 msgid "Network name"
-msgstr ""
+msgstr "شبکه"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:27
 msgid "Defaults to 'template name-<vnetid>' when empty."
 msgstr ""
 
 #: ../app/tabs/vdcs-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
 msgid "Write the VDC template here"
-msgstr "قالب VDC را اینجا بنویسید"
+msgstr "ایجاد template ماشین‌مجازی"
 
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:37
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:26
@@ -4799,40 +4844,43 @@ msgstr "قالب VDC را اینجا بنویسید"
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:35
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:64
 #: ../app/utils/user-inputs/row.hbs:25
+#, fuzzy
 msgid "Description"
-msgstr "توضیحات"
+msgstr "رزرواسیون"
 
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:32
 msgid "Selects all current and future clusters"
-msgstr "همه خوشه‌های فعلی و آتی را انتخاب کنید"
+msgstr ""
 
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:46
 msgid "Selects all current and future hosts"
-msgstr "همه‌ی میزبان‌های فعلی و بعدی را انتخاب کنید"
+msgstr ""
 
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:60
 msgid "Selects all current and future vnets"
-msgstr "همه‌ی vnet‌های فعلی و بعدی را انتخاب کنید"
+msgstr ""
 
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:74
 msgid "Selects all current and future datastores"
-msgstr "همه‌ی datastore‌های فعلی و بعدی را انتخاب کنید"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create/advanced.hbs:20
 msgid "Write the MarketPlace template here"
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:45
+#, fuzzy
 msgid "Configuration attributes"
-msgstr ""
+msgstr "ویژگی‌های سفارشی"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:22
 msgid "Name that the resource will get for description purposes."
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:31
+#, fuzzy
 msgid "VM Template Name"
-msgstr ""
+msgstr "تمپلیت ماشین‌مجازی"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:33
 msgid "The following template will be created in OpenNebula and the previous images will be referenced in the disks."
@@ -4856,13 +4904,15 @@ msgid "Select the Image to create the App"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:56
+#, fuzzy
 msgid "Templates for the App"
-msgstr ""
+msgstr "قالب ها"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:60
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:44
+#, fuzzy
 msgid "VM template"
-msgstr "قالب ماشین مجازی"
+msgstr "تمپلیت ماشین‌مجازی"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:61
 msgid "VM Template to be created. A DISK element pointing to the App Image will be automatically added when the App is exported"
@@ -4870,22 +4920,25 @@ msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:67
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:22
+#, fuzzy
 msgid "App template"
-msgstr ""
+msgstr "تمپلیت"
 
 #: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:44
 #: ../app/tabs/vms-tab/datatable/search.hbs:57
 #: ../app/tabs/images-tab/datatable/search.hbs:44
 #: ../app/tabs/templates-tab/datatable/search.hbs:26
+#, fuzzy
 msgid "Created after"
-msgstr ""
+msgstr "ایجاد کاربر"
 
 #: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:50
 #: ../app/tabs/vms-tab/datatable/search.hbs:63
 #: ../app/tabs/images-tab/datatable/search.hbs:50
 #: ../app/tabs/templates-tab/datatable/search.hbs:32
+#, fuzzy
 msgid "Created before"
-msgstr ""
+msgstr "ایجاد کاربر"
 
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:36
 msgid "You can provide a template for the resource that will be created in OpenNebula"
@@ -4898,31 +4951,35 @@ msgstr ""
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:37
 #: ../app/tabs/images-tab/panels/info/html.hbs:37
 #: ../app/tabs/templates-tab/panels/info/html.hbs:35
+#, fuzzy
 msgid "Register time"
 msgstr "زمان ثبت"
 
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:56
 msgid "Format"
-msgstr "Format"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:19
+#, fuzzy
 msgid "Clone Service Template"
-msgstr ""
+msgstr "ایجاد template سرویس"
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:27
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:27
 msgid "Several templates are selected, please choose prefix to name the new copies"
-msgstr "چندین قالب انتخاب شده. لطفا برای کپی های جدید یک پیشوند انتخاب کنید"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:34
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:35
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:34
+#, fuzzy
 msgid "Prefix"
-msgstr "پیشوند"
+msgstr "پیشوند ULA"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:25
+#, fuzzy
 msgid "Service name"
-msgstr ""
+msgstr "سرویس‌ها"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:26
 msgid "When creating several Services, the wildcard %i will be replaced with a number starting from 0"
@@ -4931,29 +4988,31 @@ msgstr ""
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:31
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:50
 msgid "Number of instances"
-msgstr "تعداد نمونه‌ها"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
 msgid "Write the Service template here"
-msgstr "قالب سرویس را در اینجا بنویسید"
+msgstr "ایجاد template سرویس"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:38
+#, fuzzy
 msgid "Network configuration"
-msgstr ""
+msgstr "دریافت شبکه"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:68
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:36
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:32
 msgid "Strategy"
-msgstr "استراتژی"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:69
 msgid "Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships."
-msgstr "استراتژی مستقیم از هر نقش نمونه سازی می‌کند: نقش والد قبل از فرزندان برپا می‌شود. هیچ استراتژی نیست که نقش‌ها را بدون توجه به رابطه‌‌اش برپا کند."
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:72
 msgid "Straight"
-msgstr "مستقیم"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:78
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:135
@@ -4970,28 +5029,30 @@ msgid "Wait for VMs to report that they are READY via OneGate to consider them r
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:64
+#, fuzzy
 msgid "Advanced service parameters"
-msgstr ""
+msgstr "به روز رسانی template سرویس"
 
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:40
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:36
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:28
+#, fuzzy
 msgid "Shutdown action"
-msgstr "عمل shotdown"
+msgstr "خاموش کن"
 
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:46
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:46
 msgid "Ready Status Gate"
-msgstr "درگاه وضعیت آماده"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:20
 msgid "Elasticity policies"
-msgstr "سیاست‌های انعطاف‌پذیری"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:26
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:26
 msgid "Type of adjustment."
-msgstr "نوع تطبیق"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:27
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:27
@@ -5001,7 +5062,7 @@ msgstr ""
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:28
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:28
 msgid "CARDINALITY: Set the cardinality to the given number."
-msgstr "شمارگان: شمارگان را به اندازه عدد داده شده تعیین می‌کند."
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:29
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:29
@@ -5011,7 +5072,7 @@ msgstr ""
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:31
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:31
 msgid "Positive or negative adjustment. Its meaning depends on 'type'"
-msgstr "طول گام مثبت یا منفی. معنای آن به «نوع» بستگی دارد"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:32
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:32
@@ -5026,20 +5087,20 @@ msgstr ""
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:34
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:34
 msgid "PERCENTAGE_CHANGE: 20, will increment cardinality by 20%"
-msgstr "تغییر_درصد: ۲۰ مقدار شمارگان را ۲۰٪ افزایش می‌دهد"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:34
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:34
 msgid "Adjust"
-msgstr "تنظیم"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:36
 msgid "Optional parameter for PERCENTAGE_CHANGE adjustment type."
-msgstr "پارامتر اختیاری برای نوع گام تغییر_درصد"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:37
 msgid " If present, the policy will change the cardinality by at least the number of VMs set in this attribute."
-msgstr "اگر سساستی موجود باشد، شمارگان را به اندازه حداقل تعدادی که در این صفت آمده‌است تنظیم می‌کند."
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:37
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:36
@@ -5049,15 +5110,15 @@ msgstr "اگر سساستی موجود باشد، شمارگان را به ان�
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:176
 #: ../app/utils/user-inputs/row.hbs:46 ../app/utils/user-inputs/row.hbs:63
 msgid "Min"
-msgstr "حداقل"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:39
 msgid "Expression to trigger the elasticity"
-msgstr "عبارتی که باعث شروع به کار انعطاف‌پذیری می‌شود"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:40
 msgid "Example: ATT < 20"
-msgstr "مثال: ATT < 20"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:40
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:90
@@ -5070,35 +5131,36 @@ msgstr "مثال: ATT < 20"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:121
 #: ../app/utils/nics-section/dd.hbs:77 ../app/utils/nics-section/dd.hbs:104
 msgid "Expression"
-msgstr "بیان"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:42
 msgid "Number of periods that the expression must be true before the elasticity is triggered"
-msgstr "تعداد دوره‌هایی که عبارت باید قبل از شروع به کار انعطاف‌پذیری صحیح باشد"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:44
 msgid "Duration, in seconds, of each period in '# Periods'"
-msgstr "طول زمان، بر اساس ثانیه، برای هر دوره به شکل '# Periods'"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:44
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:26
 msgid "Period"
-msgstr "دوره"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:46
 msgid "Cooldown period duration after a scale operation, in seconds"
-msgstr "طول دوره خنک‌سازی پس از عملیات توزین، به ثانیه"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:46
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:87
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:30
 msgid "Cooldown"
-msgstr "استراحت"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:20
 #: ../app/tabs/vmgroup-tab/utils/role-tab/html.hbs:21
+#, fuzzy
 msgid "Role name"
-msgstr ""
+msgstr "وظیفه"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:27
 #: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:26
@@ -5110,22 +5172,24 @@ msgid "VM template to create this role's VMs"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:47
+#, fuzzy
 msgid "Network Interfaces"
-msgstr "واسط‌های شبکه"
+msgstr "نقل و انتقال شبکه"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:60
 msgid "Parent roles"
-msgstr "نقش‌های والد"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:76
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:32
+#, fuzzy
 msgid "Min VMs"
-msgstr "حداقل ماشین‌های مجازی"
+msgstr "ماشین های در حال اجرا"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:81
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:34
 msgid "Max VMs"
-msgstr "حد اکثر تعداد ماشین مجازی"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:88
 msgid "Cooldown time after an elasticity operation (seconds)"
@@ -5140,12 +5204,13 @@ msgid "If it is not set, the one set for the Service will be used"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:149
+#, fuzzy
 msgid "VM template content"
-msgstr ""
+msgstr "هیچ template‌ای انتخاب نشده است"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:150
 msgid "This information will be merged with the original Virtual Machine template. Configuration attributes and network interfaces will be replaced by those provided by the user when the template is instantiated"
-msgstr "این اطلاعات با قالب اصلی ماشین مجازی ادغام خواهد شد. موارد پیکربندی و واسط‌های شبکه به وسیله مواردی که توسط کاربر در زمان نمونه سازی وارد شده، جایگزین خواهند شد."
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:132
 msgid "Advanced role parameters"
@@ -5154,27 +5219,28 @@ msgstr ""
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:23
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-row.hbs:23
 msgid "Percentage"
-msgstr "درصد"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:33
 #: ../app/tabs/vms-tab/panels/info/html.hbs:63
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:117
 #: ../app/utils/accounting/html.hbs:19
+#, fuzzy
 msgid "Start time"
 msgstr "زمان آغاز"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:34
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:121
 msgid "Recurrence"
-msgstr "بازرخداد"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:20
 msgid "Scheduled policies"
-msgstr "سیاست‌های زمان‌بندی شده"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:36
 msgid "Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute."
-msgstr "پارامتر اختیاری برای نوع گام تغییر_درصد. اگر موجود باشد، سیاست، شمارگان را بر اساس حداقل تعداد ماشین‌های مجازی که در این صفت تنظیم شده تغییر می‌دهد"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:38
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:42
@@ -5188,7 +5254,7 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:39
 msgid "Time format"
-msgstr "قالب زمان"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:41
 msgid "Time expression depends on the the time format selected"
@@ -5196,35 +5262,40 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:43
 msgid "Time expression"
-msgstr "بیان زمان"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:36
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:184
 #: ../app/tabs/hosts-tab/panels/esx/html.hbs:22
+#, fuzzy
 msgid "Hostname"
-msgstr "نام میزبان"
+msgstr "میزبان"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:49
+#, fuzzy
 msgid "Virtualization"
-msgstr "مجازی‌سازی"
+msgstr "ماشین های مجازی"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:58
+#, fuzzy
 msgid "Custom VMM_MAD"
-msgstr "VMM_MAD سفارشی"
+msgstr "سفارشی"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:75
+#, fuzzy
 msgid "Custom IM_MAD"
-msgstr "IM_MAD سفارشی"
+msgstr "سفارشی"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:86
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:121
 msgid "EC2"
-msgstr "EC2"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:89
 #: ../app/utils/panel/ec2-tr/html.hbs:2
+#, fuzzy
 msgid "Region name"
-msgstr ""
+msgstr "زمان ثبت"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:95
 msgid "Access key ID"
@@ -5257,37 +5328,41 @@ msgstr "مقدار"
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:141
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:22
 msgid "OpenNebula"
-msgstr "اوپن‌نبولا"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:144
 msgid "Remote username"
 msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:148
+#, fuzzy
 msgid "Remote password"
-msgstr ""
+msgstr "رمز عبور"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:154
+#, fuzzy
 msgid "Remote endpoint"
-msgstr ""
+msgstr "نقطه پایانی"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:160
+#, fuzzy
 msgid "Remote capacity"
-msgstr ""
+msgstr "ظرفیت"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:198
+#, fuzzy
 msgid "Get Clusters"
-msgstr ""
+msgstr "خوشه ها"
 
 #: ../app/tabs/hosts-tab/panels/wilds/html.hbs:28
 #: ../app/tabs/hosts-tab/panels/zombies/html.hbs:22
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:41
 msgid "VM name"
-msgstr "نام ماشین مجازی"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/wilds/html.hbs:29
 msgid "Remote ID"
-msgstr "شناسه راه‌دور"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:84
 #: ../app/tabs/clusters-tab/panels/info/html.hbs:41
@@ -5295,35 +5370,41 @@ msgid "Overcommitment"
 msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/pci/html.hbs:23
+#, fuzzy
 msgid "PCI Address"
-msgstr "آدرس PCI"
+msgstr "آدرش‌ها"
 
 #: ../app/tabs/hosts-tab/panels/monitor/html.hbs:38
 #: ../app/tabs/provision-tab/dashboard/group-quotas.hbs:61
 #: ../app/tabs/provision-tab/dashboard/quotas.hbs:60
 msgid "MEMORY"
-msgstr "حافظه"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/utils/datastore-capacity-table/html.hbs:20
+#, fuzzy
 msgid "Datastore ID"
-msgstr "شناسه مخزن داده"
+msgstr "محیط ذخیره سازی"
 
 #: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:20
+#, fuzzy
 msgid "Snapshot"
-msgstr "اسنپ‌شات"
+msgstr "اسنپ‌شات‌ها"
 
 #: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:28
+#, fuzzy
 msgid "Snapshot name"
-msgstr "نام اسنپ‌شات"
+msgstr "اسنپ‌شات‌ها"
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:20
+#, fuzzy
 msgid "Migrate Virtual Machine"
-msgstr "انتقال ماشین‌مجازی"
+msgstr "یک ماشین مجازی بساز"
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:29
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:28
+#, fuzzy
 msgid "Select a Host"
-msgstr "یک میزبان انتخاب کنید"
+msgstr "انتخاب خوشه"
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:37
 #: ../app/tabs/vms-tab/dialogs/resize/html.hbs:30
@@ -5335,12 +5416,13 @@ msgstr ""
 #: ../app/tabs/vms-tab/dialogs/resize/html.hbs:32
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:39
 msgid "If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced"
-msgstr "اگر به «درست» تنظیم شده باشد، ظرفیت میزبان چک خواهد شد. این تنها درخواست‌های کاربر oneadmin را تحت تاثیر قرار می‌دهد. درخواست تغییر اندازه برای کاربران معمولی معمولاً تحمیل می‌شود."
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:46
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:46
+#, fuzzy
 msgid "Select a datastore"
-msgstr "انتخاب datastore"
+msgstr "قرارگیری - پایگاه داده"
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:32
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:32
@@ -5348,8 +5430,9 @@ msgstr "انتخاب datastore"
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:144
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:56
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:66
+#, fuzzy
 msgid "Advanced Options"
-msgstr ""
+msgstr "اضافه کردن اقدام"
 
 #: ../app/tabs/vms-tab/dialogs/disk-resize/html.hbs:20
 msgid "Disk Resize"
@@ -5360,7 +5443,7 @@ msgstr ""
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:28
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot-rename/html.hbs:28
 msgid "Disk ID"
-msgstr "شناسه دیسک"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/disk-resize/html.hbs:34
 msgid "New size"
@@ -5378,51 +5461,60 @@ msgstr ""
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:44
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:46
 msgid "Resize"
-msgstr "تغییر اندازه"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/resize/html.hbs:20
 msgid "Resize VM capacity"
-msgstr "تغییر ظرفیت ماشین‌مجازی"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:20
 #: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:20
+#, fuzzy
 msgid "Attach new nic"
 msgstr "nic جدید را اضافه کنید"
 
 #: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:31
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:29
 #: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:35
+#, fuzzy
 msgid "Attach"
-msgstr "ضمیمه"
+msgstr "nic جدید را اضافه کنید"
 
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:20
+#, fuzzy
 msgid "Deploy Virtual Machine"
-msgstr "استقرار ماشین مجازی"
+msgstr "ماشین های مجازی"
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:20
+#, fuzzy
 msgid "Save as Template"
-msgstr "ذخیره‌ی template در یک نام دیگر"
+msgstr "به اشتراک‌گذاری template"
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:28
 #: ../app/utils/vcenter/templates/row.hbs:72
+#, fuzzy
 msgid "Template name"
-msgstr "نام template"
+msgstr "قالب"
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:35
+#, fuzzy
 msgid "Make the new images persistent"
-msgstr "image‌های جدید را persistent کن"
+msgstr "غیر ماندگارش کن"
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:39
+#, fuzzy
 msgid "Save As Template"
-msgstr "ذخیره‌ی template در یک نام دیگر"
+msgstr "به اشتراک‌گذاری template"
 
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:20
+#, fuzzy
 msgid "Disk Snapshot"
-msgstr "اسنت‌شات دیسک"
+msgstr "اسنپ‌شات‌ها"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:22
+#, fuzzy
 msgid "Loading"
-msgstr "بارگزاری"
+msgstr "در حال بارگذاری"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:24
 msgid "Send CtrlAltDel"
@@ -5431,33 +5523,35 @@ msgstr ""
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:25
 #: ../app/tabs/vms-tab/dialogs/spice/html.hbs:23
 msgid "Open in a new window"
-msgstr "در یک پنجره‌ی جدید باز کن"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:36
 msgid "Canvas not supported."
-msgstr "از Canvas پشتیبانی نمی شود"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:20
+#, fuzzy
 msgid "Attach new disk"
-msgstr "دیسک جدید اضافه کنید"
+msgstr "nic جدید را اضافه کنید"
 
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:20
 msgid "Disk Saveas"
-msgstr "Saveas دیسک"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:32
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot-rename/html.hbs:32
+#, fuzzy
 msgid "Snapshot ID"
-msgstr "شناسه اسنپ‌شات"
+msgstr "اسنپ‌شات‌ها"
 
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:38
 msgid "New Image name"
-msgstr "نام image جدید"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:43
 #: ../app/tabs/vms-tab/panels/storage/disk-details.hbs:22
 msgid "Save as"
-msgstr "ذخیره بعنوان"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot-rename/html.hbs:20
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot-rename/html.hbs:43
@@ -5472,26 +5566,28 @@ msgstr ""
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:27
 #: ../app/utils/dialogs/generic-confirm/html.hbs:26
 #: ../app/utils/dialogs/confirm/html.hbs:25
+#, fuzzy
 msgid "You have to confirm this action."
-msgstr "لازم است این عمل را تایید نمایید"
+msgstr "شما باید این اقدام را تایید کنید"
 
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:29
 #: ../app/utils/dialogs/generic-confirm/html.hbs:28
 #: ../app/utils/dialogs/confirm/html.hbs:27
 msgid "Do you want to proceed?"
-msgstr "آیا میخواهید ادامه دهید؟"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:33
 #: ../app/utils/dialogs/confirm-with-select/html.hbs:36
 #: ../app/utils/dialogs/generic-confirm/html.hbs:31
 #: ../app/utils/dialogs/confirm/html.hbs:30
 msgid "OK"
-msgstr "باشه"
+msgstr ""
 
 #: ../app/tabs/vms-tab/form-panels/updateconf/advanced.hbs:20
 #: ../app/tabs/templates-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
 msgid "Write the Virtual Machine template here"
-msgstr "قالب ماشین مجازی را در اینجا بنویسید"
+msgstr "یک ماشین مجازی بساز"
 
 #: ../app/tabs/vms-tab/datatable/search.hbs:28
 msgid "VM type"
@@ -5505,28 +5601,31 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:43
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:148
 msgid "VCPU"
-msgstr "پردازنده مجازی"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:26
 msgid "Cost / CPU"
-msgstr "هزینه / CPU"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:27
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:51
 msgid "Cost / MByte"
-msgstr "هزینه / مگابایت"
-
-#: ../app/tabs/vms-tab/panels/capacity/html.hbs:78
-msgid "Real memory"
 msgstr ""
 
+#: ../app/tabs/vms-tab/panels/capacity/html.hbs:78
+#, fuzzy
+msgid "Real memory"
+msgstr "رم واقعی"
+
 #: ../app/tabs/vms-tab/panels/template/html.hbs:19
+#, fuzzy
 msgid "User template"
-msgstr "قالب کاربر"
+msgstr "لغو اشتراک‌گذاری template"
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:40
+#, fuzzy
 msgid "LCM State"
-msgstr "وضعیت LCM"
+msgstr "وضعیت"
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:57
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:29
@@ -5535,41 +5634,45 @@ msgid "Alias"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:68
+#, fuzzy
 msgid "Deploy ID"
-msgstr "مشخصه پیاده سازی"
+msgstr "پیاده کن"
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:105
 msgid "Monitoring"
-msgstr "مانیتورینگ"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:26
 msgid "Image / Size-Format"
-msgstr "ایمیج / قالب اندازه"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:33
+#, fuzzy
 msgid "Attach disk"
-msgstr "attach کردن دیسک"
+msgstr "nic جدید را اضافه کنید"
 
 #: ../app/tabs/vms-tab/panels/conf/html.hbs:22
 msgid "Update Configuration"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:19
+#, fuzzy
 msgid "Clone Security Group"
-msgstr "همسان‌سازی از گروه امنیتی"
+msgstr "ایجاد گروه امنیتی"
 
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:27
 msgid "Several security groups are selected, please choose a prefix to name the new copies"
-msgstr "چندین گروه امنیتی انتخاب شده است، لطفاً یک پیشوند برای نامگذاری کپی‌های جدید انتخاب کنید."
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
 msgid "Write the Security Group template here"
-msgstr "قالب گروه امنیتی را در اینجا بنویسید"
+msgstr "ایجاد گروه امنیتی"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:33
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:43
 msgid "Rules"
-msgstr "قوانین"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:37
 msgid "Traffic direction"
@@ -5577,29 +5680,34 @@ msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:77
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:150
+#, fuzzy
 msgid "ICMPv6 Type"
-msgstr ""
+msgstr "نوع ICMP"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:92
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:96
 msgid "Port range"
-msgstr "طیف درگاه"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:106
+#, fuzzy
 msgid "Target Network"
-msgstr ""
+msgstr "شبکه مجازی"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:109
+#, fuzzy
 msgid "Any network"
-msgstr ""
+msgstr "شبکه"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:110
+#, fuzzy
 msgid "Manual network"
-msgstr ""
+msgstr "شبکه مجازی"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:111
+#, fuzzy
 msgid "OpenNebula Virtual Network"
-msgstr ""
+msgstr "شبکه مجازی بساز"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:115
 msgid "First IP/IPv6 address"
@@ -5611,8 +5719,9 @@ msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:147
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:52
+#, fuzzy
 msgid "Port Range"
-msgstr "طیف درگاه"
+msgstr "محدوده"
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:19
 msgid "VMs marked with <i class='fas fa-exclamation-triangle'></i> are waiting to be updated with the latest rules:"
@@ -5624,35 +5733,37 @@ msgstr ""
 
 #: ../app/tabs/clusters-tab/panels/info/html.hbs:52
 #: ../app/utils/dialogs/overcommit/html.hbs:45
+#, fuzzy
 msgid "Reserved CPU"
-msgstr ""
+msgstr "بازگشتی"
 
 #: ../app/tabs/clusters-tab/panels/info/html.hbs:58
+#, fuzzy
 msgid "Reserved Memory"
-msgstr ""
+msgstr "حافظه مورد استفاده"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:20
 msgid "New Groups are automatically added to the default VDC"
-msgstr "گروه‌های جدید به طور خودکار به VDC پیش‌فرض اضافه می‌شوند."
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:33
 #: ../app/sunstone/user_and_zone.hbs:52
 msgid "Views"
-msgstr "دیدها"
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:37
 #: ../app/utils/panel/permissions-table/permissions.hbs:22
 msgid "Admin"
-msgstr "سرپرست"
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:42
 #: ../app/utils/panel/permissions-table/permissions.hbs:19
 msgid "Permissions"
-msgstr "مجوزها"
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:67
 msgid "Allow users in this group to use the following Sunstone views"
-msgstr "به کاربران درون گروه اجازه استفاده از دیدهای زیر در SunStone را می‌دهد"
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:70
 msgid "Not required. Defaults to the one set in sunstone-views.yaml"
@@ -5660,35 +5771,40 @@ msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:79
 msgid "Default Users View"
-msgstr "دید کاربران پیش‌فرض"
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:83
 msgid "Default Admin View"
-msgstr "دید مدیر پیش‌فرض"
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:101
+#, fuzzy
 msgid "Group Users"
-msgstr "کاربران گروه"
+msgstr "گروه ها"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:102
+#, fuzzy
 msgid "Group Admins"
-msgstr "مدیران گروه"
+msgstr "گروه ها"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:137
+#, fuzzy
 msgid "Create an administrator user"
-msgstr "ایجاد یک کاربر مدیر"
+msgstr "یک محیط ذخیره سازی بساز"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:139
 msgid "You can create now an administrator user. More administrators can be added later."
-msgstr "شما اکنون می‌توانید یک کاربر مدیر بسازید. مدیرهای بیشتری هم می‌توانند در آینده اضافه شوند."
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:151
+#, fuzzy
 msgid "Image & Datastore"
-msgstr ""
+msgstr "یک محیط ذخیره سازی بساز"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:155
+#, fuzzy
 msgid "Make new images persistent by default"
-msgstr ""
+msgstr "غیر ماندگارش کن"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:157
 msgid "Control the default value for the PERSISTENT attribute on image creation (oneimage create)."
@@ -5704,59 +5820,63 @@ msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:190
 msgid "Allow users to view the VMs and Services of other users in the same group"
-msgstr "به کاربران امکان مشاهده‌ی ماشین‌های مجازی و سرویس‌های دیگر کاربران در گروه مشابه را می‌دهید."
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:192
 msgid "An ACL Rule will be created to give users in this group access to all the resources in the same group."
-msgstr "یک قانون ACL ساخته خواهد شد تا به کاربران درون گروه اجازه دسترسی به همه منابع درون همان گروه را بدهد."
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:200
+#, fuzzy
 msgid "Allow users in this group to create the following resources"
-msgstr "به کاربران درون گروه اجازه ساختن منابع زیر را بده"
+msgstr "شما منابع زیر را انتخاب کرده‌اید:"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:203
 msgid "This will create new ACL Rules to define which virtual resources this group's users will be able to create."
-msgstr "این کار باعث ساخت قوانین ACL جدید می‌شود تا تعریف کند که کدام منابع مجازی را کاربران این گروه می‌توانند بسازند."
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:222
 msgid "Documents are a special tool used for general purposes, mainly by OneFlow. If you want to enable users of this group to use service composition via OneFlow, let it checked."
-msgstr "سندها، ابزارهای خاصی هستند که برای اهداف عمومی استفاده می‌شوند، در اصل به وسیله OneFlow استفاده می‌شود. اگر می‌خواهید کاربران گروه را فعال کنید تا از طریق از ترکیب سرویس‌ها استفاده کنند، این گزینه را تیک زده بگذارید."
+msgstr ""
 
 #: ../app/tabs/groups-tab/panels/info/html.hbs:44
 msgid "Group Admins Views"
-msgstr "دیدهای مدیران گروه"
+msgstr ""
 
 #: ../app/tabs/groups-tab/panels/info/html.hbs:61
 msgid "Group Users Views"
-msgstr "دیدهای کاربران گروه"
+msgstr ""
 
 #: ../app/tabs/groups-tab/panels/users/html.hbs:22
 msgid "Edit administrators"
-msgstr "ویرایش مدیران"
+msgstr ""
 
 #: ../app/tabs/groups-tab/panels/users/html.hbs:38
 msgid "Users marked with <i class='fas fa-star'></i> are administrators"
 msgstr ""
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:19
+#, fuzzy
 msgid "Clone Image"
-msgstr "همانندسازی ایمیج"
+msgstr "ایمیج بساز"
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:27
 msgid "Several images are selected, please choose a prefix to name the new copies"
-msgstr "چندین ایمیج انتخاب شده، لطفاً یک پیشوند جهت نامگذاری کپی‌های جدید انتخاب کنید"
+msgstr ""
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:36
+#, fuzzy
 msgid "You can select a different target datastore"
-msgstr "شما می‌توانید مقصد دیگری را برای مخزن داده انتخاب کنید"
+msgstr "دیتا استور زیر را انتخاب کرده اید"
 
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:26
+#, fuzzy
 msgid "Get Images"
-msgstr ""
+msgstr "ایمیج‌ها"
 
 #: ../app/tabs/images-tab/form-panels/create/advanced.hbs:26
 msgid "Write the Image template here"
-msgstr "قالب ایمیج را در اینجا بنویسید"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:39
 msgid "Operating System image"
@@ -5773,29 +5893,33 @@ msgstr ""
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:44
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:23
 msgid "Kernel"
-msgstr "هسته"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:45
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:26
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:106
 msgid "Ramdisk"
-msgstr "رم دیسک"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:63
+#, fuzzy
 msgid "This image is persistent"
-msgstr ""
+msgstr "ماندگارش کن"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:80
+#, fuzzy
 msgid "Image location"
-msgstr "آدرس تصویر"
+msgstr "مکان"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:84
+#, fuzzy
 msgid "Path in OpenNebula server"
-msgstr ""
+msgstr "در حال ثبت‌نام در OpenNebula"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:86
+#, fuzzy
 msgid "Upload"
-msgstr "بارگزاری"
+msgstr "در حال بارگزاری..."
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:89
 msgid "Empty disk image"
@@ -5803,7 +5927,7 @@ msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:97
 msgid "Path"
-msgstr "مسیر"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:128
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:63
@@ -5818,7 +5942,7 @@ msgstr ""
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:167
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:26
 msgid "BUS"
-msgstr "باس"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:184
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:11
@@ -5827,79 +5951,90 @@ msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:204
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:4
+#, fuzzy
 msgid "Target device"
-msgstr ""
+msgstr "ایجاد سرویس"
 
 #: ../app/tabs/images-tab/panels/info/html.hbs:64
 msgid "Filesystem type"
-msgstr "نوع فایل سیستم"
+msgstr ""
 
 #: ../app/tabs/images-tab/panels/info/html.hbs:79
+#, fuzzy
 msgid "Running VMS"
-msgstr "ماشین‌های مجازی در حال اجرا"
+msgstr "ماشین های در حال اجرا"
 
 #: ../app/tabs/images-tab/panels/snapshots/html.hbs:22
 msgid "Flatten"
-msgstr "مسطح کردن"
+msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:29
+#, fuzzy
 msgid "Change Language"
-msgstr "تغییر زبان"
+msgstr "تغییر مالک"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:41
+#, fuzzy
 msgid "Update Language"
-msgstr "به‌روزرسانی زبان"
+msgstr "به روز رسانی کلاستر"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:63
+#, fuzzy
 msgid "Change Password"
-msgstr "تغییر رمز عبور"
+msgstr "رمز عبور"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:70
+#, fuzzy
 msgid "New Password"
-msgstr "رمزعبور جدید"
+msgstr "رمز عبور"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:104
+#, fuzzy
 msgid "Change view"
-msgstr "تغییر دید"
+msgstr "تغییر مالک"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:116
+#, fuzzy
 msgid "Update view"
-msgstr "به‌روزرسانی دید"
+msgstr "به روز رسانی"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:141
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:165
 msgid "Add SSH Key"
-msgstr "اضافه کردن کلید SSH"
+msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:142
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:166
+#, fuzzy
 msgid "Update SSH Key"
-msgstr "به‌روزرسانی کلید SSH"
+msgstr "به روز رسانی"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:148
 msgid "Add a public SSH key to your account!"
-msgstr "یک  کلید عمومی به حسابتان اضافه کنید!"
+msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:150
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:155
 msgid "You will be able to access your Virtual Machines without password"
-msgstr "شما قادرید به ماشین‌های مجازیتان بدون رمز عبور دست بیابید."
+msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:153
 msgid "Update your public SSH key!"
-msgstr "کلید SSHتان را به‌روز کنید!"
+msgstr ""
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:19
+#, fuzzy
 msgid "Clone Template"
-msgstr "همانندسازی از قالب"
+msgstr "قالب"
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:40
 msgid "You can also clone any Image referenced inside this Template. They will be cloned to a new Image, and made persistent."
 msgstr ""
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:44
+#, fuzzy
 msgid "Clone with Images"
-msgstr ""
+msgstr "ایمیج بساز"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:61
 msgid "Instantiate as different User / Group"
@@ -5911,7 +6046,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:61
 #: ../app/utils/nics-section/dd.hbs:78
 msgid "Boolean expression that rules out entries from the pool of datastores suitable to run this VM."
-msgstr "عبارت دودویی که مدخل‌های مناسب از حوض مخازن‌داده را جهت تخصیص به این ماشین مجازی مشخص می‌کند."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:81
 msgid "Deploy VM in a specific Host"
@@ -5934,8 +6069,9 @@ msgid "vCenter Deployment"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:32
+#, fuzzy
 msgid "Instantiate as persistent"
-msgstr ""
+msgstr "نمونه‌سازی از قالب ماشین مجازی"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:33
 #: ../app/tabs/provision-tab/vms/create.hbs:42
@@ -5953,19 +6089,21 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:61
 msgid "Sets the new VM to hold state, instead of pending. The scheduler will not deploy VMs in this state. It can be released later, or deployed manually."
-msgstr "ماشین مجازی جدید را برای نگهداری از وضعیت تنظیم می‌کند، به جای اینکه در حالت معوق بماند. زمانبند ماشین مجازی را در این حالت برپا نمی‌کند. این می‌تواند بعداً منتشر شود، یا به طور دستی برپا شود."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/import/html.hbs:22
+#, fuzzy
 msgid "Get Templates"
-msgstr ""
+msgstr "قالب ها"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:24
 msgid "Hypervisor"
-msgstr "Hypervisor"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:26
+#, fuzzy
 msgid "KVM"
-msgstr "KVM"
+msgstr "ماشین مجازی"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:30
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:115
@@ -5974,15 +6112,17 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:44
 msgid "Logo"
-msgstr "آرم"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:62
+#, fuzzy
 msgid "vCenter Template Ref"
-msgstr ""
+msgstr "ایجاد template ماشین‌مجازی"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:70
+#, fuzzy
 msgid "vCenter Cluster Ref"
-msgstr ""
+msgstr "ساخت کلاستر"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:76
 msgid "vCenter Instance ID"
@@ -6017,12 +6157,14 @@ msgid "If specified, the the VMs and Template folder path where the VM will be c
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:119
+#, fuzzy
 msgid "Security Privileged"
-msgstr ""
+msgstr "گروه امنیتی"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:130
+#, fuzzy
 msgid "Security Nesting"
-msgstr ""
+msgstr "امنیت"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:141
 msgid "Profile"
@@ -6040,11 +6182,11 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:184
 msgid "Cost of each CPU per hour"
-msgstr "هزینه‌ی هر پردازنده به ازای هر ساعت"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:196
 msgid "Disk"
-msgstr "دیسک"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:197
 msgid "Cost of each GB per hour"
@@ -6052,7 +6194,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:214
 msgid "Do not allow to modify network configuration"
-msgstr "اجازه‌ی ویرایش تنظیمات شبکه را ندهید"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:215
 msgid "Users will not be able to remove or add new NICs"
@@ -6075,23 +6217,24 @@ msgid "Instantiate as a different group"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:228
+#, fuzzy
 msgid "User / Group"
-msgstr ""
+msgstr "به روز رسانی گروه"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:22
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:23
 msgid "Amount of RAM required for the VM, in Megabytes."
-msgstr "مقدار حافظه مورد نیاز برای ماشین مجازی به مگابایت."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:34
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:101
 msgid "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5."
-msgstr "درصد پردازنده تقسیم بر 100 مورد نیاز ماشین های مجازی. نیمی از یک پردازنده با 0.5 مشخص می گردد."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:44
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:149
 msgid "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU."
-msgstr "تعداد پردازنده مجازی. این مقدار انتخابی است. رفتار پیش فرض لایه مجازی سازی استفاده می شود که اصولا یک پردازنده مجازی است."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:52
 msgid "Memory modification"
@@ -6117,8 +6260,9 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:125
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:169
 #: ../app/utils/user-inputs/row.hbs:16
+#, fuzzy
 msgid "range"
-msgstr ""
+msgstr "محدوده"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:61
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:126
@@ -6132,8 +6276,9 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:135
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:179
 #: ../app/utils/user-inputs/row.hbs:51 ../app/utils/user-inputs/row.hbs:68
+#, fuzzy
 msgid "Max"
-msgstr ""
+msgstr "می"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:117
 msgid "CPU modification"
@@ -6153,11 +6298,11 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:20
 msgid "Boot"
-msgstr "بالا آمدن"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:29
 msgid "Features"
-msgstr "ویژگی ها"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:32
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:261
@@ -6190,11 +6335,12 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:88
 msgid "Path to the bootloader executable"
-msgstr "مسیر اجرایی بارگزارِ بالا آمدن"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:98
+#, fuzzy
 msgid "Registered Image"
-msgstr "ایمیج ثبت شده"
+msgstr "ایمیج بساز"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:100
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:130
@@ -6202,64 +6348,69 @@ msgid "Remote path"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:109
+#, fuzzy
 msgid "KERNEL_DS"
-msgstr "KERNEL_DS"
+msgstr "کرنل"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:118
 msgid "Path to the OS kernel to boot the image"
-msgstr "مسیر هسته سیستم عامل برای بالا آمدن تصویر"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:128
+#, fuzzy
 msgid "Registered Image "
-msgstr "ایمیج ثبت شده"
+msgstr "ایمیج بساز"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:139
+#, fuzzy
 msgid "INITRD_DS"
-msgstr "INITRD_DS"
+msgstr "INIT"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:149
 msgid "Path to the initrd image"
-msgstr "مسیر تصویر initrd"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:160
 msgid "ACPI"
-msgstr "ACPI"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:161
 msgid "Add support in the VM for Advanced Configuration and Power Interface (ACPI)"
-msgstr "اضافه کردن پشتیبانی در ماشین مجازی برای ACPI"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:171
+#, fuzzy
 msgid "PAE"
-msgstr "PAE"
+msgstr "به روز رسانی"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:172
 msgid "Add support in the VM for Physical Address Extension (PAE)"
-msgstr "اضافه کردن پشتیبانی PAE به ماشین مجازی"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:184
 msgid "APIC"
-msgstr "APIC"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:185
 msgid "Enables the advanced programmable IRQ management."
-msgstr "مدیریت IRQ قابل برنامه‌ریزی را فعال می کند."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:195
 msgid "HYPERV"
-msgstr "HYPERV"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:196
 msgid "Add support in the VM for hyper-v features (HYPERV)"
-msgstr "اضافه کردن پشتیبانی hiper-v به ماشین مجازی (HYPERV)"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:208
+#, fuzzy
 msgid "Localtime"
-msgstr "زمان محلی"
+msgstr "زمان کلی"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:209
 msgid "The guest clock will be synchronized to the hosts configured timezone when booted."
-msgstr "هنگامی که ماشین مهمان بالا بیاید، ساعت آن با ساعت جغرافیایی ماشین میزبان همگام می‌شود."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:219
 msgid "QEMU Guest Agent"
@@ -6278,25 +6429,27 @@ msgid "Number of vCPU queues to use in the virtio-scsi controller. Leave blank t
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:4
+#, fuzzy
 msgid "AMI"
-msgstr "AMI"
+msgstr "رم دیسک"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:5
 msgid "Unique ID of a machine image, returned by a call to ec2-describe-images."
-msgstr "شناسه یکتای ایمیج ماشین توسط یک مکالمه با ec2-describe-image بدست آمد."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:11
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:11
+#, fuzzy
 msgid "Instance type"
-msgstr "نوع مورد"
+msgstr "فورا بساز"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:20
 msgid "AKI"
-msgstr "AKI"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:21
 msgid "The ID of the kernel with which to launch the instance."
-msgstr "شناسه کرنلی که با آن یک نمونه جدید راه‌اندازی می‌شود. "
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:27
 msgid "Availability zone"
@@ -6316,7 +6469,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:43
 msgid "Unique, case-sensitive identifier you provide to ensure idempotency of the request."
-msgstr "شناسه‌ای یکتا و حساس به حروف بزرگ و کوچک تعیین کنید که تغییرناپذیر بودن آن برای آینده تضمین باشد."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:51
 msgid "EBS optimized"
@@ -6324,7 +6477,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:52
 msgid "Obtain a better I/O throughput for VMs with EBS provisioned volumes"
-msgstr "ضریب کارکرد ورودی/خروجی بهتری را برای ماشین‌های مجازی‌ای که به منابع داده EBS متصلند فراهم کنید."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:58
 msgid "Elastic IP address"
@@ -6336,11 +6489,11 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:67
 msgid "OpenNebula Host"
-msgstr "میزبان OpenNebula"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:68
 msgid "Defines which OpenNebula host will use this template"
-msgstr "مشخص کنید کدام میزبان OpenNebula از این template استفاده می‌کند"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:76
 msgid "Keypair name"
@@ -6348,19 +6501,20 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:77
 msgid "The name of the key pair, later will be used to execute commands like ssh -i id_keypair or scp -i id_keypair"
-msgstr "نام زوج کلید بعدها جهت اجرای دستوراتی همچون ssh -i id_keypair یا scp -i id_keypair استفاده خواهد شد."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:85
 msgid "License pool name"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:91
+#, fuzzy
 msgid "Placement group name"
-msgstr ""
+msgstr "قرارگیری - پایگاه داده"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:99
 msgid "Private IP"
-msgstr "آی‌پی خصوصی"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:100
 msgid "If you're using Amazon Virtual Private Cloud, you can optionally use this parameter to assign the instance a specific available IP address from the subnet."
@@ -6368,11 +6522,12 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:107
 msgid "The ID of the RAM disk to select."
-msgstr "شناسه رم دیسک جهت انتخاب"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:115
+#, fuzzy
 msgid "Security group names"
-msgstr ""
+msgstr "گروه‌های امنیتی"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:116
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:123
@@ -6380,12 +6535,13 @@ msgid "You can specify more than one security group (comma separated)."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:122
+#, fuzzy
 msgid "Security group IDs"
-msgstr ""
+msgstr "گروه‌های امنیتی"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:131
 msgid "Subnet ID"
-msgstr "شناسه سابنت"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:132
 msgid "If you're using Amazon Virtual Private Cloud, this specifies the ID of the subnet you want to launch the instance into. This parameter is also passed to the command ec2-associate-address -i i-0041230 -a elasticip."
@@ -6393,31 +6549,32 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:139
 msgid "Key and optional value of the tag, separated by an equals sign ( = ).You can specify more than one tag (comma separated)."
-msgstr "کلید و مقدار اختیاری برچسب، با علامت مساوی (=) از هم جدا می‌شوند. شما می‌توانید (به وسیله ویرگول) برچسب‌های بیشتری را تعریف کنید."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:147
 msgid "Tenancy"
-msgstr "مدت اجاره"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:153
+#, fuzzy
 msgid "User data"
-msgstr ""
+msgstr "داده پنهان کاربر"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:154
 msgid "Specifies Base64-encoded MIME user data to be made available to the instance(s) in this reservation."
-msgstr "MIME داده کاربر در مبنای ۶۴ را جهت در دسترس بودن برای نمونه(ها)یی که در رزرو قرار دارند، تعیین می‌کند."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:5
 msgid "Specifies the base OS of the VM."
-msgstr "پایه‌ی سیستم‌عامل ماشین‌مجازی را مشخص کنید"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:12
 msgid "Specifies the capacity of the VM in terms of CPU and memory"
-msgstr "ظرفیت ماشین‌مجازی را در مورد CPU و memory مشخص کنید"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:21
 msgid "Azure datacenter where the VM will be sent. See /etc/one/az_driver.conf for possible values (under region_name)"
-msgstr "مرکز داده آژور که ماشین مجازی به آن فرستاده می‌شود. فایل /etc/one/az_driver.conf را برای مقادیر احتمالی ببینید. (در زیر region_name)"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:29
 msgid "VM user name"
@@ -6425,7 +6582,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:30
 msgid "If the selected IMAGE is prepared for Azure provisioning, a username can be specified here to access the VM once booted"
-msgstr "اگر ایمیج انتخاب شده جهت برپایی برای آژور آماده باشد، یک نام کاربری در اینجا می‌تواند برای دسترسی به ماشین مجازی، بعد از بوت شدن، تعیین شود."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:36
 msgid "VM user password"
@@ -6441,7 +6598,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:47
 msgid "Affinity groups allow you to group your Azure services to optimize performance. All services and VMs within an affinity group will be located in the same region"
-msgstr "گروه‌های خویشاوند به شما اجازه می‌دهند که سرویس‌های آژور خود را به منظور بهینه‌سازی کارایی گروه‌بندی کنید. همه سرویس‌ها و ماشین‌های مجازی در یک گروه خویشاوندی در یک محدوده قرار می‌گیرند."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:53
 msgid "Availability set"
@@ -6453,7 +6610,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:62
 msgid "Specifies the name of the cloud service where this VM will be linked. Defaults to 'OpennebulaDefaultCloudServiceName'"
-msgstr "نام سرویس‌های ابری که این ماشین مجازی به آن متصل می‌شود را تعیین می‌کند. پیشفرض: 'OpennebulaDefaultCloudServiceName'"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:68
 msgid "SSH port"
@@ -6461,11 +6618,12 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:69
 msgid "Port where the VMs ssh server will listen on"
-msgstr "پورتی که سرور ssh ماشین‌مجازی باید به آن گوش کند"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:77
+#, fuzzy
 msgid "Storage account"
-msgstr ""
+msgstr "ذخیره‌ساز"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:83
 msgid "Subnet name"
@@ -6473,11 +6631,12 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:84
 msgid "Name of the particular Subnet where this VM will be connected to"
-msgstr "نام سابنت خاصی که این ماشین مجازی به آن متصل شده است"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:92
+#, fuzzy
 msgid "TCP endpoints"
-msgstr ""
+msgstr "نقطه پایانی"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:93
 msgid "Comma-separated list of TCP ports to be accessible from the public internet to this VM"
@@ -6485,20 +6644,22 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:99
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:125
+#, fuzzy
 msgid "Virtual Network name"
-msgstr ""
+msgstr "شبکه مجازی"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:107
 msgid "Win RM"
-msgstr "Win RM"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:108
 msgid "Comma-separated list of possible protocols to access this Windows VM"
-msgstr "لیست منفصل با ویرگول از پرتوکل‌های احتمالی جهت دسترسی به ماشین مجازی ویندوز"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/opennebula.hbs:4
+#, fuzzy
 msgid "Remote VM Template ID"
-msgstr ""
+msgstr "ایجاد template ماشین‌مجازی"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:21
 #: ../app/utils/nics-section/dd.hbs:28
@@ -6517,8 +6678,9 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:39
 #: ../app/utils/nics-section/dd.hbs:46
+#, fuzzy
 msgid "Network selection"
-msgstr ""
+msgstr "دریافت شبکه"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:47
 #: ../app/utils/nics-section/dd.hbs:55
@@ -6532,13 +6694,15 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:55
 #: ../app/utils/nics-section/dd.hbs:63
+#, fuzzy
 msgid "Network Requirements"
-msgstr ""
+msgstr "نیازمندی‌ها"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:59
 #: ../app/utils/nics-section/dd.hbs:67
+#, fuzzy
 msgid "Select Vnets "
-msgstr ""
+msgstr "انتخاب مالک جدید"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:61
 #: ../app/utils/nics-section/dd.hbs:69
@@ -6547,15 +6711,16 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:78
 #: ../app/utils/nics-section/dd.hbs:85
+#, fuzzy
 msgid "Network Rank"
-msgstr ""
+msgstr "شبکه"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:83
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:75
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:107
 #: ../app/utils/nics-section/dd.hbs:90
 msgid "Packing"
-msgstr "بسته‌بندی"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:84
 #: ../app/utils/nics-section/dd.hbs:91
@@ -6566,8 +6731,9 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:80
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:112
 #: ../app/utils/nics-section/dd.hbs:95
+#, fuzzy
 msgid "Stripping"
-msgstr "استریپینگ"
+msgstr "سلسله لیست کنترل دسترسی"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:89
 #: ../app/utils/nics-section/dd.hbs:96
@@ -6580,20 +6746,24 @@ msgid "This field sets which attribute will be used to sort the suitable vnets f
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:115
+#, fuzzy
 msgid "Choose Network"
-msgstr "انتخاب شبکه"
+msgstr "شبکه"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:119
+#, fuzzy
 msgid "Virtual Network ID"
-msgstr ""
+msgstr "شبکه مجازی"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:133
+#, fuzzy
 msgid "Virtual Network owner's user ID"
-msgstr ""
+msgstr "شبکه های مجازی"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:139
+#, fuzzy
 msgid "Virtual Network owner's user Name"
-msgstr ""
+msgstr "شبکه های مجازی"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:147
 msgid "OPEN NEBULA MANAGEMENT"
@@ -6601,7 +6771,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:154
 msgid "Override Network Values IPv4"
-msgstr "مقادیر IPv4 شبکه را بنویسید"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:200
 msgid "Search domain for DNS resolution"
@@ -6609,7 +6779,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:207
 msgid "Override Network Values IPv6"
-msgstr "مقدار IPv6 شبکه را تعیین کنید"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:225
 msgid "Force IPv4 context"
@@ -6617,7 +6787,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:226
 msgid "Override force IPv4 for this IPv6 network. Values: Yes or No."
-msgstr "مقدار بله/خیر را برای اجبار IPv4 برای این IPv6 تعیین کنید"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:233
 msgid "Override Network Inbound Traffic QoS"
@@ -6661,8 +6831,9 @@ msgid "Hardware model to emulate"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:297
+#, fuzzy
 msgid "Transmission queue"
-msgstr ""
+msgstr "سرعت نقل و انتقال شبکه"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:298
 msgid "Only supported for virtio driver."
@@ -6671,22 +6842,23 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:308
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:129
 msgid "Device name"
-msgstr "نام وسیله"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:309
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:130
 msgid "Vendor"
-msgstr "فروشنده"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:310
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:131
+#, fuzzy
 msgid "Device"
-msgstr "دستگاه"
+msgstr "سرویس‌ها"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:311
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:132
 msgid "Class"
-msgstr "کلاس"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:326
 msgid "Security Groups belonging to the selected Virtual Network will be applied and cannot be unselected"
@@ -6702,27 +6874,29 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:18
 msgid "Contextualization type"
-msgstr "نوع زمینه‌سازی"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:29
 msgid "vCenter customizations"
-msgstr "سفارشی‌سازی vCenter"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:42
+#, fuzzy
 msgid "Configuration"
-msgstr "پیکربندی"
+msgstr "تنظیم"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:48
+#, fuzzy
 msgid "Custom vars"
-msgstr "متغیرهای سفارشی"
+msgstr "سفارشی"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:61
 msgid "  Add SSH contextualization"
-msgstr "اضافه کردن زمینه‌سازی SSH"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:62
 msgid "Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used."
-msgstr "کلید عمومی ssh را به زمینه اضافه کنید. اگر محتویات متنی کلید عمومی خالی باشد، آنگاه از متغیر کاربری SSH_PUBLIC_KEY استفاده می‌شود"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:69
 msgid "SSH public key"
@@ -6730,15 +6904,15 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:80
 msgid "  Add Network contextualization"
-msgstr "اضافه کردن زمینه‌سازی شبکه"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:81
 msgid "Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine"
-msgstr "پارامترهای زمینه‌سازی شبکه را اضافه کنید. برای هر NIC تعریف شده در بخش شبکه، پارامترهای ETH$i_IP و ETH$i_NETWORK و... درون بخش «زمینه» لحاظ خواهند شد و در ماشین مجازی قابل دسترس خواهد بود."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:89
 msgid "  Add OneGate token"
-msgstr "اضافه نمودن توکن OneGate"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:90
 msgid "Add a file (token.txt) to the context containing the token to push custom metrics to the VirtualMachine through OneGate"
@@ -6753,8 +6927,9 @@ msgid "Sends READY=YES to OneGate, useful for OneFlow"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:108
+#, fuzzy
 msgid "Start script"
-msgstr ""
+msgstr "زمان آغاز"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:109
 msgid "Text of the script executed when the machine starts up. It can contain shebang in case it is not shell script"
@@ -6765,28 +6940,31 @@ msgid "Encode script in Base64"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:120
+#, fuzzy
 msgid "User Inputs"
-msgstr "ورودی‌های کاربر"
+msgstr "کاربران"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:121
 msgid "These attributes must be provided by the user when a new VM is instantiated. They will be included in the VM context"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:136
+#, fuzzy
 msgid "FILES_DS"
-msgstr "FILES_DS"
+msgstr "فایل"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:144
 msgid "Init scripts"
-msgstr "اسکریپت‌های ابتدایی"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:145
 msgid "The contextualization package executes an init.sh file if it exists. If more than one script file is added, this list contains the scripts to run and their order"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:20
+#, fuzzy
 msgid "Graphics"
-msgstr "گرافیک"
+msgstr "گراف‌ها"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:37
 msgid "Listen on IP"
@@ -6798,11 +6976,11 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:46
 msgid "Port for the VNC/SPICE server"
-msgstr "پورت سرور VNC/SPICE"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:52
 msgid "Keymap"
-msgstr "keymap"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:69
 msgid "Generate random password"
@@ -6810,61 +6988,67 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:77
 msgid "Inputs"
-msgstr "ورودی ها"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:84
 msgid "Mouse"
-msgstr "mouse"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:85
+#, fuzzy
 msgid "Tablet"
-msgstr "tablet"
+msgstr "فعال کن"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:91
 msgid "Bus"
-msgstr "Bus"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:94
 msgid "USB"
-msgstr "USB"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:95
 msgid "PS2"
-msgstr "PS2"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:101
 #: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:30
 #: ../app/utils/schedule_action/html.hbs:121
 msgid "Add"
-msgstr "اضافه کن"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:116
+#, fuzzy
 msgid "PCI Devices"
-msgstr "دستگاه‌های PCI"
+msgstr "سرویس‌ها"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:120
 msgid "PCI passthrough of network devices is configured per NIC, in the \"Network\" tab. Do not add network devices here"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/html.hbs:20
+#, fuzzy
 msgid "Storage Options"
-msgstr ""
+msgstr "ذخیره‌ساز"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/html.hbs:24
+#, fuzzy
 msgid "Deploy Mode"
-msgstr ""
+msgstr "پیاده کن"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/html.hbs:27
 msgid "Set an alternative mode to deploy VM disks to the hosts"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:22
+#, fuzzy
 msgid "Volatile disk"
-msgstr "دیسک فرّار"
+msgstr "دیسک فرار"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:41
+#, fuzzy
 msgid "Image name"
-msgstr "نام تصویر"
+msgstr "ایمیج"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:49
 msgid "Image owner's user ID"
@@ -6877,11 +7061,11 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:90
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:94
 msgid "FS"
-msgstr "فایل سیستم"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:91
 msgid "Swap"
-msgstr "Swap"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:99
 msgid "Filesystem format"
@@ -6897,7 +7081,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:77
 msgid "Cache"
-msgstr "کش"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:91
 msgid "IO policy"
@@ -6905,23 +7089,24 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:101
 msgid "Discard"
-msgstr "رد کردن"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:105
 msgid "ignore"
-msgstr "چشم پوشی"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:106
 msgid "unmap"
-msgstr "عدم نگاشت"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:112
+#, fuzzy
 msgid "Size on instantiate"
-msgstr ""
+msgstr "فورا بساز"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:113
 msgid "The size of the disk will be modified to match this size when the template is instantiated"
-msgstr "در زمان نمونه‌سازی از قالبت، اندازه دیسک جهت تطبیق با این اندازه تغییر خواهد کرد"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:130
 msgid "Throttling (Bytes/s)"
@@ -6965,55 +7150,62 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:20
 msgid "RAW data"
-msgstr "داده خام"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:26
 msgid "kvm"
-msgstr "kvm"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:27
 msgid "lxd"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:33
+#, fuzzy
 msgid "Data"
-msgstr "داده"
+msgstr "محیط ذخیره سازی"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:34
 msgid "Raw data to be passed directly to the hypervisor"
-msgstr "داده‌های خامی که مستقیماً به هایپروایزور فرستاده می‌شود"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:41
+#, fuzzy
 msgid "Custom Tags"
-msgstr "برچسب‌های سفارشی"
+msgstr "سفارشی"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:23
 msgid "Policy"
-msgstr "خط مشی"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:31
+#, fuzzy
 msgid "Host Requirements"
-msgstr "نیازمندی‌های میزبان"
+msgstr "نیازمندی‌ها"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:35
+#, fuzzy
 msgid "Select Hosts "
-msgstr "میزبان‌ها را انتخاب کنید"
+msgstr "انتخاب خوشه"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:37
+#, fuzzy
 msgid "Select Clusters "
-msgstr "خوشه‌ها را انتخاب کنید"
+msgstr "انتخاب خوشه"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:48
 msgid "Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM"
-msgstr "عبارت دودویی که سرورهای مناسب تخصیص منابع به این ماشین مجازی را مشخص می کند"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:55
+#, fuzzy
 msgid "Datastore Requirements"
-msgstr "نیازمندی‌های مخزن داده"
+msgstr "نیازمندی‌های ذخیره‌ساز داده"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:70
+#, fuzzy
 msgid "Host Rank"
-msgstr "رتبه میزبان"
+msgstr "رتبه ذخیره‌ساز داده"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:76
 msgid "Pack the VMs in the Hosts to reduce VM fragmentation"
@@ -7025,7 +7217,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:85
 msgid "Load-aware"
-msgstr "آگاه از بار"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:86
 msgid "Maximize the resources available to VMs in a Host"
@@ -7033,27 +7225,29 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:95
 msgid "This field sets which attribute will be used to sort the suitable hosts for this VM"
-msgstr "این فیلد مشخص می‌کند که کدام صفت جهت مرتب‌سازی میزبانان این ماشین مجازی به کار می‌رود"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:102
+#, fuzzy
 msgid "Datastore Rank"
-msgstr "رتبه ی فضای ذخیره سازی"
+msgstr "محیط ذخیره سازی"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:108
 msgid "Tries to optimize storage usage by selecting the DS with less free space"
-msgstr "تلاش می کند با استفاده از انتخاب دیتا استوری که کمتر استفاده شده است فضای ذخیره را بهینه کند."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:113
 msgid "Striping. Tries to optimize I/O by distributing the VMs across datastores."
-msgstr "استریپینگ. تلاش می‌کند تا I/O را به وسیله توزین ماشین‌های مجازی در سراسر مخازن داده بهبود ببخشد."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:122
 msgid "This field sets which attribute will be used to sort the suitable datastores for this VM"
-msgstr "این فیلد تعیین می‌کند که چه صفتی برای مرتب کردن مخازن داده برای این ماشین مجازی مورد استفاده قرار گیرد."
+msgstr ""
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:25
+#, fuzzy
 msgid "Virtual machine name"
-msgstr ""
+msgstr "ماشین های مجازی"
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:27
 msgid "When creating multiple VMs, %i is replaces by the VM number in the set"
@@ -7068,46 +7262,53 @@ msgid "Keepalive service ID"
 msgstr ""
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/wizard.hbs:43
+#, fuzzy
 msgid "Keepalive password"
-msgstr ""
+msgstr "یک رمز عبور جدید وارد کنید"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:21
+#, fuzzy
 msgid "This rule applies to"
-msgstr "این قانون به این موارد اعمال می شود"
+msgstr "به این موارد اعمال می شود"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:53
 msgid "Zones where the rule applies"
-msgstr "زون‌هایی که قوانین به کار می‌روند"
-
-#: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:129
-msgid "MarketPlace Apps"
 msgstr ""
 
+#: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:129
+#, fuzzy
+msgid "MarketPlace Apps"
+msgstr "فروشگاه"
+
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:140
+#, fuzzy
 msgid "Resource subset"
-msgstr "زیرمجموعه منابع"
+msgstr "منابع"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:162
+#, fuzzy
 msgid "Resource ID"
-msgstr "مشخصه منبع"
+msgstr "منابع"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:183
 #: ../app/utils/panel/permissions-table/permissions.hbs:20
+#, fuzzy
 msgid "Use"
 msgstr "کاربر"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:187
 #: ../app/utils/panel/permissions-table/permissions.hbs:21
 msgid "Manage"
-msgstr "مدیریت"
+msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:191
 msgid "Administrate"
-msgstr "نظارت واجرا"
+msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:202
+#, fuzzy
 msgid "ACL String preview"
-msgstr "پیش نماید سلسله لیست کنترل دسترسی"
+msgstr "سلسله لیست کنترل دسترسی"
 
 #: ../app/tabs/vmgroup-tab/form-panels/create/advanced.hbs:20
 msgid "Write the Virtual Machine Group template here"
@@ -7157,32 +7358,36 @@ msgstr ""
 #: ../app/tabs/dashboard-tab/empty-graph.hbs:20
 #: ../app/tabs/provision-tab/dashboard/empty-graphs.hbs:20
 #: ../app/utils/accounting/empty-graph.hbs:20
+#, fuzzy
 msgid "There is no information available"
-msgstr "اطلاعاتی یافت نشد."
+msgstr "هیچ شبکه‌ای موجود نیست."
 
 #: ../app/tabs/dashboard-tab/users.hbs:31
 msgid "USERS"
-msgstr "کاربران"
+msgstr ""
 
 #: ../app/tabs/dashboard-tab/users.hbs:35
 msgid "GROUPS"
 msgstr ""
 
 #: ../app/tabs/dashboard-tab/storage.hbs:30
+#, fuzzy
 msgid "IMAGES"
-msgstr "ایمیج‌ها"
+msgstr "ایمیج"
 
 #: ../app/tabs/dashboard-tab/network.hbs:30
 msgid "VNETS"
 msgstr ""
 
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:20
+#, fuzzy
 msgid "Create Zone"
-msgstr "ایجاد Zone"
+msgstr "ساخت میزبان"
 
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:26
+#, fuzzy
 msgid "Zone Name"
-msgstr "نام Zone"
+msgstr "نام"
 
 #: ../app/tabs/zones-tab/panels/info/html.hbs:41
 msgid "Server Pool"
@@ -7194,27 +7399,29 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/dashboard/group-quotas.hbs:37
 #: ../app/tabs/provision-tab/dashboard/quotas.hbs:36
+#, fuzzy
 msgid "RUNNING VMS"
-msgstr "ماشین‌های مجازی در حال اجرا"
+msgstr "در حال اجرا"
 
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:18
+#, fuzzy
 msgid "Group Virtual Machines"
-msgstr "ماشین‌های مجازی گروه"
+msgstr "ماشین های مجازی"
 
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:81
 #: ../app/utils/accounting/html.hbs:78 ../app/utils/accounting/html.hbs:107
 msgid "CPU hours"
-msgstr "ساعات سی‌پی‌یو"
+msgstr ""
 
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:93
 #: ../app/utils/accounting/html.hbs:87 ../app/utils/accounting/html.hbs:123
 msgid "Memory GB hours"
-msgstr "ساعت گیگابایت حافظه"
+msgstr ""
 
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:105
 #: ../app/utils/accounting/html.hbs:96 ../app/utils/accounting/html.hbs:139
 msgid "Disk MB hours"
-msgstr "ساعت مگابایت دیسک"
+msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.hbs:25
 #: ../app/tabs/provision-tab/flows/list.hbs:24
@@ -7222,24 +7429,26 @@ msgstr "ساعت مگابایت دیسک"
 #: ../app/tabs/provision-tab/vms/list.hbs:24
 #: ../app/tabs/provision-tab/vms/list.hbs:28
 msgid "Refresh"
-msgstr "نوسازی"
+msgstr ""
 
 #: ../app/tabs/provision-tab/flows/info.hbs:44
 msgid "Recover a failed service, cleaning the failed VMs"
-msgstr "یک سرویس شکست خورده را بازسازی می‌کند، در حال پاک‌سازی ماشین‌های مجازی شکست خورده"
+msgstr ""
 
 #: ../app/tabs/provision-tab/flows/create.hbs:30
+#, fuzzy
 msgid "Service Name"
-msgstr "نام سرویس"
+msgstr "سرویس‌ها"
 
 #: ../app/tabs/provision-tab/flows/list.hbs:48
 #: ../app/tabs/provision-tab/vms/list.hbs:55
+#, fuzzy
 msgid "User ID"
-msgstr "شناسه کاربر"
+msgstr "کاربر"
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:5
 msgid "This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later"
-msgstr "این کار ماشین‌مجازی را خاموش می‌کند. ماشین‌مجازی در حالت poweroff باقی مانده و در آینده قابل راه‌اندازی دوباره است."
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:9
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:9
@@ -7249,24 +7458,26 @@ msgstr ""
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:18
 #: ../app/tabs/provision-tab/vms/info.hbs:65
 #: ../app/tabs/provision-tab/vms/info.hbs:70
+#, fuzzy
 msgid "Power off"
-msgstr "خاموش شدن"
+msgstr "خاموش"
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:25
 msgid "Power off the machine"
-msgstr "خاموش کردن ماشین"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:31
 msgid "Send the power off signal"
-msgstr "ارسال سیگنال خاموش"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:39
 msgid "Open a remote console in a new window"
-msgstr "کنسول راه‌دور را در پنجره جدید باز کن"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:43
+#, fuzzy
 msgid "You have to boot the Virtual Machine first"
-msgstr "شما باید ابتدا ماشین مجازی را بوت کنید"
+msgstr "ماشین‌مجازی‌ای وجود ندارد"
 
 #: ../app/tabs/provision-tab/vms/info.hbs:48
 msgid "The disks of the Virtual Machine will be saved in a new Image"
@@ -7274,31 +7485,33 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:53
 msgid "You have to power-off the virtual machine first"
-msgstr "شما باید در ابتدا ماشین مجازی را خاموش کنید"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:76
+#, fuzzy
 msgid "Power on"
-msgstr "روشن کن"
+msgstr "خاموش"
 
 #: ../app/tabs/provision-tab/vms/info.hbs:130
 msgid "Net RX"
-msgstr "Net RX"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:147
 msgid "Net TX"
-msgstr "Net TX"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:164
 msgid "Net Download Speed"
-msgstr "سرعت دانلود شبکه"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:181
 msgid "Net Upload Speed"
-msgstr "سرعت آپلود شبکه"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:5
+#, fuzzy
 msgid "This action will reboot this Virtual Machine."
-msgstr "این عمل موجب ریبوت شدن ماشین‌مجازی می‌شود."
+msgstr "ماشین‌مجازی‌ای وجود ندارد"
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:9
 msgid "You can send the reboot signal to the Virtual Machine (this is equivalent to execute the reboot command form the console). If that doesn't affect your Virtual Machine, try to Reboot the machine (this is equivalent to pressing the reset button a physical computer)."
@@ -7306,15 +7519,16 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:25
 msgid "Reboot the machine"
-msgstr "ماشین را ریبوت کن"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:31
 msgid "Send the reboot signal"
-msgstr "ارسال سیگنال ریبوت"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/create.hbs:30
+#, fuzzy
 msgid "Virtual Machine Name"
-msgstr "نام ماشین مجازی"
+msgstr "ماشین های مجازی"
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:5
 msgid "Be careful, this action will shutdown and destroy your Virtual Machine"
@@ -7325,8 +7539,9 @@ msgid "You can send the shutdown signal to the Virtual Machine (this is equivale
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:25
+#, fuzzy
 msgid "Terminate the machine"
-msgstr ""
+msgstr "یک ماشین مجازی بساز"
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:31
 msgid "Send the shutdown signal and terminate"
@@ -7334,100 +7549,113 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:5
 msgid "This Virtual Machine will be saved in a new Template."
-msgstr "این ماشین‌مجازی در یک tempalte جدید ذخیره شد."
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:7
 msgid "You can then create a new Virtual Machine using this Template."
-msgstr "شما می‌توانید با استفاده از این template یک ماشین‌مجازی جدید بسازید."
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:14
+#, fuzzy
 msgid "Template Name"
-msgstr "نام template"
+msgstr "قالب"
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:19
+#, fuzzy
 msgid "Template Description"
-msgstr ""
+msgstr "قالب ها"
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:26
 msgid "The new Virtual Machine's disks can be made persistent. In a persistent Virtual Machine the changes made survive after it is destroyed. On the other hand, you cannot create more than one simultaneous Virtual Machine from a Template with persistent disks."
-msgstr "دیسک جدید ماشین مجازی می‌تواند پایا شود. در یک ماشین مجازی پایا، تغییراتی که روی ماشین اعمال می‌شود، تا زمان نابود کردن ماشین باقی خواهد ماند. از طرفی دیگر شما نمی‌توانید بیش از یک ماشین به طور همزمان از یک الگو که دارای دیسک پایا است داشته باشید."
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:43
+#, fuzzy
 msgid "Non-persistent"
-msgstr " non-persistent"
+msgstr "ماندگار"
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:53
+#, fuzzy
 msgid "Save Virtual Machine to Template"
-msgstr "ذخیره‌ی ماشین‌مجازی به عنوان Template"
+msgstr "یک ماشین مجازی بساز"
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:5
 msgid "This action will power off this Virtual Machine and will be undeployed from the physical machine"
-msgstr "این عمل ماشین مجازی را خاموش کرده و آن را از حالت استقرار در ماشین فیزیکی خارج می‌کند"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:18
 msgid "Power off and undeploy"
-msgstr "خاموش کردن و عدم استقرار"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:25
 msgid "Power off and undeploy the VM"
-msgstr "خاموش کردن و عدم استقرار ماشین مجازی"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:31
 msgid "Send the power off signal and undeploy the VM"
-msgstr "ارسال سیگنال خاموش‌سازی و عدم استقرار ماشین مجازی"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:22
+#, fuzzy
 msgid "Edit Address Range"
-msgstr "رنج آدرس ایمیل"
+msgstr "طیف آدرس"
 
 #: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:22
+#, fuzzy
 msgid "New Address Range"
-msgstr "رنج آدرس جدید"
+msgstr "طیف آدرس"
 
 #: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:33
 #: ../app/sunstone/buttons.hbs:27
+#, fuzzy
 msgid "Reset"
-msgstr "بازنشانی"
+msgstr "بازگشتی"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:22
+#, fuzzy
 msgid "Reservation from Virtual Network"
-msgstr "رزروسازی از شبکه مجازی"
+msgstr "شبکه مجازی بساز"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:28
 msgid "Number of addresses"
-msgstr "تعداد آدرس‌ها"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:36
+#, fuzzy
 msgid "Add to a new Virtual Network"
-msgstr "اضافه کردن شبکه‌ی مجازی جدید"
+msgstr "آپلود شبکه مجازی"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:40
 msgid "Add to an existing Reservation"
-msgstr "اضافه کردن به رزرو موجود"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:47
+#, fuzzy
 msgid "Virtual Network Name"
-msgstr "نام شبکه‌ی مجازی"
+msgstr "شبکه مجازی"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:59
+#, fuzzy
 msgid "You can select the addresses from an specific Address Range"
-msgstr "شما می‌توانید آدرس‌ها را از رنج آدرس مشخص شده انتخاب کنید"
+msgstr "شما طیف‌های آدرس زیر را انتخاب کرده‌اید:"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:70
 msgid "First address"
-msgstr "اوّلین آدرس"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:71
 msgid "IP or MAC"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/import/html.hbs:22
+#, fuzzy
 msgid "Get Networks"
-msgstr "بدست آوردن شبکه ها"
+msgstr "شبکه"
 
 #: ../app/tabs/vnets-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
 msgid "Write the Virtual Network template here"
-msgstr "قالب شبکه مجازی را اینجا بنویسید"
+msgstr "شبکه مجازی بساز"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:39
 msgid "QoS"
@@ -7438,16 +7666,19 @@ msgid "Name of the physical bridge in the nodes to attach VM NICs"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:91
+#, fuzzy
 msgid "Network mode"
-msgstr "حالت شبکه"
+msgstr "شبکه"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:94
+#, fuzzy
 msgid "Bridged"
-msgstr ""
+msgstr "پل ارتباطی"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:95
+#, fuzzy
 msgid "Bridged & Security Groups"
-msgstr ""
+msgstr "گروه‌های امنیتی"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:96
 msgid "Bridged & ebtables VLAN"
@@ -7455,15 +7686,15 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:97
 msgid "802.1Q"
-msgstr "802.1 Q"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:98
 msgid "VXLAN"
-msgstr "VXLAN"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:99
 msgid "Open vSwitch"
-msgstr "Open vSwitch"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:100
 msgid "Open vSwitch - VXLAN"
@@ -7522,17 +7753,19 @@ msgid "Automatic VLAN ID"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:165
+#, fuzzy
 msgid "No VLAN network"
-msgstr ""
+msgstr "شبکه"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:166
+#, fuzzy
 msgid "Manual VLAN ID"
-msgstr ""
+msgstr "مشخصه VLAN"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:173
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:182
 msgid "Physical device"
-msgstr "دستگاه فیزیکی"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:175
 msgid "Node NIC to send/receive virtual network traffic"
@@ -7547,8 +7780,9 @@ msgid "MTU of the interface"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:197
+#, fuzzy
 msgid "Outer VLAN ID"
-msgstr ""
+msgstr "مشخصه VLAN"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:199
 msgid "First level (outer, service) VLAN ID"
@@ -7575,8 +7809,9 @@ msgid "Port group type"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:226
+#, fuzzy
 msgid "Port group"
-msgstr ""
+msgstr "انتخاب گروه"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:227
 msgid "Distributed Port Group"
@@ -7588,15 +7823,17 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:256
 msgid "Address Ranges need to be managed in the individual Virtual Network panel"
-msgstr "طیف‌های آدرسی که در پنل شبکه مجازی جداگانه نیاز به مدیریت دارند."
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:273
+#, fuzzy
 msgid "Inbound traffic"
-msgstr ""
+msgstr "ورودی"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:296
+#, fuzzy
 msgid "Outbound traffic"
-msgstr ""
+msgstr "خروجی"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:321
 msgid "These values apply to each VM interface individually, they are not global values for the Virtual Network"
@@ -7604,51 +7841,56 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:33
 msgid "Remove"
-msgstr "حذف"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:47
 msgid "IPv6 Prefix"
-msgstr "پیشوند IPv6"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:75
+#, fuzzy
 msgid "Select an Address Range to see more information"
-msgstr "برای اطلاعات بیشتر رنج آدرس را مشخص کنید"
+msgstr "یک طیف آدرس از لیست زیر انتخاب کنید"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:57
 msgid "First"
-msgstr "اول"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:58
 msgid "Last"
-msgstr "آخر"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:76
 msgid "IP6_GLOBAL"
-msgstr "IP6_GLOBAL"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:83
+#, fuzzy
 msgid "IP6"
-msgstr ""
+msgstr "IP"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:90
 msgid "IP6_ULA"
-msgstr "IP6_ULA"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:39
+#, fuzzy
 msgid "AUTO VLAN ID"
-msgstr ""
+msgstr "مشخصه VLAN"
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:44
+#, fuzzy
 msgid "OUTER VLAN ID"
-msgstr ""
+msgstr "مشخصه VLAN"
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:49
 msgid "AUTO OUTER VLAN ID"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:65
+#, fuzzy
 msgid "Inbound QoS"
-msgstr ""
+msgstr "ورودی"
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:70
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:96
@@ -7678,34 +7920,38 @@ msgid "KBytes"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:91
+#, fuzzy
 msgid "Outbound QoS"
-msgstr ""
+msgstr "خروجی"
 
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:25
+#, fuzzy
 msgid "Hold IP"
-msgstr "نگهداری IP"
+msgstr "در دست بگیر"
 
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:38
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:21
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:56
+#, fuzzy
 msgid "IPv6"
-msgstr "IPv6"
+msgstr "IPv6 ULA"
 
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:40
+#, fuzzy
 msgid "IPv6 Link"
-msgstr "IPv6 Link"
+msgstr "IPv6 ULA"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:19
 msgid "IPv4"
-msgstr "IPv4"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:20
 msgid "IPv4/6"
-msgstr "IPv4/6"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:22
 msgid "Ethernet"
-msgstr "ایترنت"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:27
 msgid "First IPv4 address"
@@ -7713,19 +7959,21 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:31
 msgid "First MAC address"
-msgstr "اوّلین آدرس MAC"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:39
 msgid "SLAAC"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:46
+#, fuzzy
 msgid "IPv6 Global prefix"
-msgstr ""
+msgstr "پیشوند عمومی"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:50
+#, fuzzy
 msgid "IPv6 ULA prefix"
-msgstr ""
+msgstr "پیشوند ULA"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:83
 msgid "IPAM"
@@ -7733,31 +7981,32 @@ msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:34
 msgid "Force"
-msgstr "اجبار"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:35
 msgid "Force the new cardinality even if it is outside the limits"
-msgstr "شمارگان جدید را اعمال کن، حتی اگر فراتر از محدوده باشد"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:27
 msgid "Seconds between each group of actions"
-msgstr "ثانیه‌های حد فاصل بین هر عمل"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:32
+#, fuzzy
 msgid "Number"
-msgstr "تعداد"
+msgstr "نوامبر"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:33
 msgid "Number of VMs to apply the action to each period"
-msgstr "تعداد ماشین‌های مجازی که در هر دوره عملیات انجام می‌دهند."
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:54
 msgid "Parents"
-msgstr "والدین"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:84
 msgid "Select a role in the table for more information"
-msgstr "برای اطلاعات بیشتر یک نقش را از جدول انتخاب کنید"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/advanced.hbs:20
 msgid "Write the Virtual Router template here"
@@ -7769,12 +8018,14 @@ msgid "Floating IP"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:46
+#, fuzzy
 msgid "Floating IPv6 ULA"
-msgstr ""
+msgstr "IPv6 ULA"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:47
+#, fuzzy
 msgid "Floating IPv6 Global"
-msgstr ""
+msgstr "IPv6 Global"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:48
 #: ../app/utils/nics-section/dd.hbs:148
@@ -7782,20 +8033,21 @@ msgid "Management Interface"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:53
+#, fuzzy
 msgid "Attach NIC"
-msgstr ""
+msgstr "nic جدید را اضافه کنید"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:71
 msgid "Detach"
-msgstr "جدا سازی"
+msgstr ""
 
 #: ../app/sunstone/buttons.hbs:101
 msgid "Wizard"
-msgstr "پله به پله"
+msgstr ""
 
 #: ../app/sunstone/buttons.hbs:104
 msgid "Advanced"
-msgstr "پیشرفته"
+msgstr ""
 
 #: ../app/sunstone/user_and_zone.hbs:45
 msgid "Sign Out"
@@ -7810,8 +8062,9 @@ msgid "Interface"
 msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:18
+#, fuzzy
 msgid "Select a Network"
-msgstr "یک شبکه انتخاب کنید"
+msgstr "انتخاب مالک جدید"
 
 #: ../app/utils/nics-section/dd.hbs:121
 msgid "Force IPv4:"
@@ -7838,18 +8091,20 @@ msgid "You can add Security Groups to this network interface. These IDs do not o
 msgstr ""
 
 #: ../app/utils/nics-section/html.hbs:11
+#, fuzzy
 msgid "Network Interface"
-msgstr ""
+msgstr "دریافت شبکه"
 
 #: ../app/utils/disks-resize/html.hbs:19
 msgid "Disks"
-msgstr "دیسک‌ها"
+msgstr ""
 
 #: ../app/utils/tab-datatable/table.hbs:30
 #: ../app/utils/tab-datatable/search-input.hbs:19
 #: ../app/utils/tab-datatable/search-input.hbs:45
+#, fuzzy
 msgid "Search"
-msgstr "جستجو"
+msgstr "مارس"
 
 #: ../app/utils/tab-datatable/search-input.hbs:27
 msgid "Label filter:"
@@ -7860,8 +8115,9 @@ msgid "Clear search"
 msgstr ""
 
 #: ../app/utils/tab-datatable/empty-table.hbs:24
+#, fuzzy
 msgid "There is no data available"
-msgstr "داده‌ای وجود ندارد"
+msgstr "templateای وجود ندارد"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:20
 msgid "Host Overcommitment"
@@ -7884,8 +8140,9 @@ msgid "These values can be negative, in that case you'll be actually increasing 
 msgstr ""
 
 #: ../app/utils/dialogs/overcommit/html.hbs:51
+#, fuzzy
 msgid "Reserved Memory in KB"
-msgstr ""
+msgstr "حافظه مورد استفاده"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:59
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
@@ -7894,22 +8151,25 @@ msgstr ""
 #: ../app/utils/dialogs/confirm-with-select/html.hbs:20
 #: ../app/utils/dialogs/generic-confirm/html.hbs:20
 #: ../app/utils/dialogs/confirm/html.hbs:19
+#, fuzzy
 msgid "Confirm"
-msgstr "تأیید کردن"
+msgstr "تنظیم"
 
 #: ../app/utils/dialogs/confirm-with-select/html.hbs:27
 msgid "You need to select something."
-msgstr "چیزی را از قلم انداخته اید"
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:11
+#, fuzzy
 msgid "text"
-msgstr "متن"
+msgstr "Contex"
 
 #: ../app/utils/user-inputs/row.hbs:12
 msgid "text (base64)"
-msgstr "متن (base64)"
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:13
+#, fuzzy
 msgid "password"
 msgstr "رمز عبور"
 
@@ -7936,12 +8196,14 @@ msgstr ""
 #: ../app/utils/user-inputs/row.hbs:29 ../app/utils/user-inputs/row.hbs:34
 #: ../app/utils/user-inputs/row.hbs:39 ../app/utils/user-inputs/row.hbs:56
 #: ../app/utils/user-inputs/row.hbs:73 ../app/utils/user-inputs/row.hbs:83
+#, fuzzy
 msgid "Default value"
-msgstr ""
+msgstr "پیش فرض"
 
 #: ../app/utils/user-inputs/row.hbs:79
+#, fuzzy
 msgid "Options"
-msgstr ""
+msgstr "اختیاری"
 
 #: ../app/utils/user-inputs/row.hbs:80
 msgid "Comma-separated list of options for the drop-down select input"
@@ -7957,12 +8219,14 @@ msgid "Ends"
 msgstr ""
 
 #: ../app/utils/schedule_action/html.hbs:12
+#, fuzzy
 msgid "New scheduled action"
-msgstr ""
+msgstr "باززمانبندی"
 
 #: ../app/utils/schedule_action/html.hbs:21
+#, fuzzy
 msgid "Relative Time"
-msgstr ""
+msgstr "زمان آغاز"
 
 #: ../app/utils/schedule_action/html.hbs:51
 msgid "Periodic"
@@ -7985,12 +8249,14 @@ msgid "Yearly"
 msgstr ""
 
 #: ../app/utils/schedule_action/html.hbs:63
+#, fuzzy
 msgid "Hourly"
-msgstr ""
+msgstr "ساعت"
 
 #: ../app/utils/schedule_action/html.hbs:94
+#, fuzzy
 msgid "Never"
-msgstr ""
+msgstr "بازگشت به قبل"
 
 #: ../app/utils/schedule_action/html.hbs:100
 msgid "On"
@@ -8005,12 +8271,13 @@ msgid "times"
 msgstr ""
 
 #: ../app/utils/panel/permissions-table/html.hbs:21
+#, fuzzy
 msgid "Ownership"
-msgstr "مالکیت"
+msgstr "مالک"
 
 #: ../app/utils/panel/permissions-table/permissions.hbs:50
 msgid "Other"
-msgstr "دیگر"
+msgstr ""
 
 #: ../app/utils/panel/ec2-tr/html.hbs:11
 msgid "EC2 Access"
@@ -8022,60 +8289,67 @@ msgstr ""
 
 #: ../app/utils/showback/html.hbs:19
 msgid "Filter by user"
-msgstr "فیلتر کردن بر اساس کاربر"
+msgstr ""
 
 #: ../app/utils/showback/html.hbs:23
 msgid "Filter by group"
-msgstr "فیلتر کردن بر اساس گروه"
-
-#: ../app/utils/showback/html.hbs:28
-msgid "Get showback"
 msgstr ""
 
+#: ../app/utils/showback/html.hbs:28
+#, fuzzy
+msgid "Get showback"
+msgstr "شوبک"
+
 #: ../app/utils/showback/html.hbs:43
+#, fuzzy
 msgid "There are no showback records"
-msgstr "هیچ رکورد شوبکی وجود ندارد"
+msgstr "هیچ سهمی تعریف نشده است."
 
 #: ../app/utils/showback/html.hbs:60
 msgid "Year"
-msgstr "سال"
+msgstr ""
 
 #: ../app/utils/showback/html.hbs:61
 msgid "Month"
-msgstr "ماه"
+msgstr ""
 
 #: ../app/utils/showback/html.hbs:62 ../app/utils/accounting/html.hbs:113
 #: ../app/utils/accounting/html.hbs:129 ../app/utils/accounting/html.hbs:145
+#, fuzzy
 msgid "Date"
-msgstr "تاریخ"
+msgstr "تاریخ UTC"
 
 #: ../app/utils/showback/html.hbs:70
 msgid "Select a row to get detailed information of the month"
-msgstr "یک رکورد را جهت دریافت اطلاعات جزئی در ماه انتخاب کنید."
+msgstr ""
 
 #: ../app/utils/accounting/html.hbs:23
 msgid "End time"
-msgstr "زمان پایان"
+msgstr ""
 
 #: ../app/utils/accounting/html.hbs:27
+#, fuzzy
 msgid "Group by"
-msgstr "گروه‌بندی بر اساس"
+msgstr "گروه"
 
 #: ../app/utils/accounting/html.hbs:35
 msgid "Filter"
-msgstr "فیلتر"
+msgstr ""
 
 #: ../app/utils/accounting/html.hbs:52
+#, fuzzy
 msgid "Get accounting"
-msgstr ""
+msgstr "حسابداری"
 
 #: ../app/utils/accounting/html.hbs:68
+#, fuzzy
 msgid "There are no accounting records"
-msgstr "رکورد حسابداری وجود ندارد"
+msgstr "هیچ سهمی تعریف نشده است."
 
 #: ../app/utils/accounting/html.hbs:104
+#, fuzzy
 msgid "Accounting Tables"
-msgstr ""
+msgstr "حسابداری"
 
 #: ../app/utils/vcenter/templates/row.hbs:51
 msgid "Use ctrl key for multiple selection (provide on instantiation)."
@@ -8090,24 +8364,28 @@ msgid "Linked clone"
 msgstr ""
 
 #: ../app/utils/vcenter/templates/row.hbs:88
+#, fuzzy
 msgid "Create copy"
-msgstr ""
+msgstr "ساخت گروه"
 
 #: ../app/utils/vcenter/networks/row.hbs:30
+#, fuzzy
 msgid "VLAN"
-msgstr "VLAN"
+msgstr "مشخصه VLAN"
 
 #: ../app/utils/vcenter/networks/row.hbs:68
 msgid "Cluster(s) to import"
 msgstr ""
 
 #: ../app/utils/vcenter/networks/row.hbs:81
+#, fuzzy
 msgid "Unimported Cluster(s)"
-msgstr ""
+msgstr "به روز رسانی کلاستر"
 
 #: ../app/utils/vcenter/common/fieldset-table.hbs:41
+#, fuzzy
 msgid "Clear selection"
-msgstr ""
+msgstr "لطفا انتخاب کنید"
 
 #: ../app/utils/vcenter/common/fieldset-table.hbs:46
 msgid "Toggle advanced sections"
