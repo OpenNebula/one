@@ -22,6 +22,7 @@ define(function(require) {
   var Locale = require("utils/locale");
   var Notifier = require("utils/notifier");
   var OpenNebulaVM = require("opennebula/vm");
+  var SunstoneConfig = require("sunstone-config");
 
   /*
     CONSTANTS
@@ -58,15 +59,17 @@ define(function(require) {
    */
 
   function _html() {
-    return "<div class=\"row\">" +
-      "<div class=\"large-12 columns vm_log_container monospace\" style=\"overflow: auto; height: 500px\">" +
-        "<div class=\"text-center\" style=\"height: 100px;\">" +
-          "<span style=\"font-size:80px\">" +
-            "<i class=\"fas fa-spinner fa-spin\"></i>" +
-          "</span>" +
+    if (SunstoneConfig.isLogEnabled) {
+      return "<div class=\"row\">" +
+        "<div class=\"large-12 columns vm_log_container monospace\" style=\"overflow: auto; height: 500px\">" +
+          "<div class=\"text-center\" style=\"height: 100px;\">" +
+            "<span style=\"font-size:80px\">" +
+              "<i class=\"fas fa-spinner fa-spin\"></i>" +
+            "</span>" +
+          "</div>" +
         "</div>" +
-      "</div>" +
-    "</div>";
+      "</div>";
+    }
   }
 
   function _setup(context) {
@@ -77,12 +80,18 @@ define(function(require) {
     OpenNebulaVM.log({
       data: {id: that.element.ID},
       success: function(req, response) {
+        // When log is empty
+        if (response.vm_log === "") {
+          $(".vm_log_container", context).html(secondaryCenterLabel(Locale.tr("Log file is empty")));
+          return;
+        }
+
         var log_lines = response["vm_log"].split("\n");
         var colored_log = "";
         for (var i = 0; i < log_lines.length; i++) {
           var line = escapeHtml(log_lines[i]);
           if (line.match(/\[E\]/)) {
-            line = "<span class=\"vm_log_error\">" + line + "</span>";
+            line = "<span class='vm_log_error'>" + line + "</span>";
           }
           colored_log += line + "<br>";
         }
@@ -97,18 +106,21 @@ define(function(require) {
 
       },
       error: function(request, error_json) {
-        $(".vm_log_container", context).html(
-          "<div class=\"row\">" +
-            "<div class=\"large-12 columns vm_log_container monospace\">" +
-              "<div class=\"text-center\" style=\"height: 100px;\">" +
-                "<span class=\"radius secondary label\"><i class=\"fas fa-exclamation-triangle\"></i> "+Locale.tr("Some ad-block extensions are known to filter the '/log?id=' URL")+"</span>" +
-              "</div>" +
-            "</div>" +
-          "</div>");
+        $(".vm_log_container", context).html(secondaryCenterLabel(Locale.tr("Some ad-block extensions are known to filter the '/log?id=' URL")));
 
         Notifier.onError(request, error_json);
       }
     });
+  }
+
+  function secondaryCenterLabel(text) {
+    return "<div class=\"row\">" +
+      "<div class=\"large-12 columns monospace\">" +
+        "<div class=\"text-center\" style=\"height: 100px;\">" +
+          "<span class=\"radius secondary label\"><i class=\"fas fa-exclamation-triangle\"></i> " + text + "</span>" +
+        "</div>" +
+      "</div>" +
+    "</div>";
   }
 
   function escapeHtml(log_line) {
