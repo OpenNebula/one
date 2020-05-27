@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
+"PO-Revision-Date: 2020-05-04 11:21+0000\n"
 "Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
 "Language-Team: Ukrainian (http://www.transifex.com/opennebula/one/language/uk/)\n"
 "Language: uk\n"
@@ -4107,11 +4107,11 @@ msgstr "Зображення не знайдено"
 
 #: ../app/utils/disks-resize.js:165
 msgid "Persistent image. The changes will be saved back to the datastore after the VM is shut down"
-msgstr "Постійне зображення. Зміни будуть збережені назад в сховище даних після завершення роботи віртуальної машини."
+msgstr ""
 
 #: ../app/utils/disks-resize.js:169
 msgid "Non-persistent disk. The changes will be lost once the VM is shut down"
-msgstr "Непостійний диск. Зміни будуть втрачені після виключення віртуальної машини."
+msgstr ""
 
 #: ../app/utils/disks-resize.js:177
 msgid "Image state: "
@@ -4264,8 +4264,9 @@ msgid "Close modal"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/import/html.hbs:22
+#, fuzzy
 msgid "Get Datastores"
-msgstr ""
+msgstr "vCenter сховище даних"
 
 #: ../app/tabs/datastores-tab/form-panels/create/advanced.hbs:26
 msgid "Write the Datastore template here"
@@ -4302,12 +4303,14 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:58
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:20
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:101
+#, fuzzy
 msgid "vCenter"
-msgstr ""
+msgstr "Зображення vCenter"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:33
+#, fuzzy
 msgid "LVM"
-msgstr ""
+msgstr "Віртуральная машина"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:34
 msgid "Raw Device Mapping"
@@ -4366,8 +4369,9 @@ msgid "Custom TM_MAD"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:87
+#, fuzzy
 msgid "Datastore Type"
-msgstr ""
+msgstr "Сховище даних"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:101
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:87
@@ -4491,8 +4495,9 @@ msgid "'Usage' of the registered secret with the authentication string."
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:237
+#, fuzzy
 msgid "vCenter cluster"
-msgstr ""
+msgstr "vCenter Шаблони"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:239
 msgid "The vCenter Cluster that has access to this datastore."
@@ -4503,8 +4508,9 @@ msgid "Staging directory for Image registration"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:255
+#, fuzzy
 msgid "Compatible system datastores"
-msgstr ""
+msgstr "vCenter сховище даних"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:257
 msgid "Specifies which system datastores are compatible with this image datastore"
@@ -4709,8 +4715,9 @@ msgid "Secondary Groups"
 msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:20
+#, fuzzy
 msgid "Network Template"
-msgstr ""
+msgstr "vCenter Шаблони"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:33
 msgid "Address Ranges"
@@ -4724,14 +4731,16 @@ msgstr ""
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:46
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:178
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:330
+#, fuzzy
 msgid "Network address"
-msgstr ""
+msgstr "Мережа"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:52
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:172
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:336
+#, fuzzy
 msgid "Network mask"
-msgstr ""
+msgstr "Мережа"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:60
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:186
@@ -4770,8 +4779,9 @@ msgid "The default Security Group 0 is automatically added to new Virtual Networ
 msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:25
+#, fuzzy
 msgid "Network name"
-msgstr ""
+msgstr "Мережа"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:27
 msgid "Defaults to 'template name-<vnetid>' when empty."
@@ -4827,8 +4837,9 @@ msgid "Name that the resource will get for description purposes."
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:31
+#, fuzzy
 msgid "VM Template Name"
-msgstr ""
+msgstr "Шаблон"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:33
 msgid "The following template will be created in OpenNebula and the previous images will be referenced in the disks."
@@ -4857,8 +4868,9 @@ msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:60
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:44
+#, fuzzy
 msgid "VM template"
-msgstr ""
+msgstr "Шаблон"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:61
 msgid "VM Template to be created. A DISK element pointing to the App Image will be automatically added when the App is exported"
@@ -4866,8 +4878,9 @@ msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:67
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:22
+#, fuzzy
 msgid "App template"
-msgstr ""
+msgstr "Шаблон"
 
 #: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:44
 #: ../app/tabs/vms-tab/datatable/search.hbs:57
@@ -4902,8 +4915,9 @@ msgid "Format"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:19
+#, fuzzy
 msgid "Clone Service Template"
-msgstr ""
+msgstr "vCenter Шаблони"
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:27
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:27
@@ -5115,8 +5129,9 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:76
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:32
+#, fuzzy
 msgid "Min VMs"
-msgstr ""
+msgstr "Працює VMs"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:81
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:34
@@ -5301,8 +5316,9 @@ msgid "MEMORY"
 msgstr ""
 
 #: ../app/tabs/hosts-tab/utils/datastore-capacity-table/html.hbs:20
+#, fuzzy
 msgid "Datastore ID"
-msgstr ""
+msgstr "Сховище даних"
 
 #: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:20
 msgid "Snapshot"
@@ -5335,8 +5351,9 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:46
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:46
+#, fuzzy
 msgid "Select a datastore"
-msgstr ""
+msgstr "vCenter сховище даних"
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:32
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:32
@@ -5396,21 +5413,24 @@ msgid "Deploy Virtual Machine"
 msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:20
+#, fuzzy
 msgid "Save as Template"
-msgstr ""
+msgstr "Виберіть усі %1$s шаблони"
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:28
 #: ../app/utils/vcenter/templates/row.hbs:72
+#, fuzzy
 msgid "Template name"
-msgstr ""
+msgstr "Шаблон"
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:35
 msgid "Make the new images persistent"
 msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:39
+#, fuzzy
 msgid "Save As Template"
-msgstr ""
+msgstr "vCenter Шаблони"
 
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:20
 msgid "Disk Snapshot"
@@ -5447,8 +5467,9 @@ msgid "Snapshot ID"
 msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:38
+#, fuzzy
 msgid "New Image name"
-msgstr ""
+msgstr "Нові зображення не знайдені"
 
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:43
 #: ../app/tabs/vms-tab/panels/storage/disk-details.hbs:22
@@ -5468,8 +5489,9 @@ msgstr ""
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:27
 #: ../app/utils/dialogs/generic-confirm/html.hbs:26
 #: ../app/utils/dialogs/confirm/html.hbs:25
+#, fuzzy
 msgid "You have to confirm this action."
-msgstr ""
+msgstr "Ви повинні підтвердити цю дію"
 
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:29
 #: ../app/utils/dialogs/generic-confirm/html.hbs:28
@@ -5517,8 +5539,9 @@ msgid "Real memory"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/template/html.hbs:19
+#, fuzzy
 msgid "User template"
-msgstr ""
+msgstr "vCenter Шаблони"
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:40
 msgid "LCM State"
@@ -5582,12 +5605,14 @@ msgid "Port range"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:106
+#, fuzzy
 msgid "Target Network"
-msgstr ""
+msgstr "Мережа"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:109
+#, fuzzy
 msgid "Any network"
-msgstr ""
+msgstr "Мережа"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:110
 msgid "Manual network"
@@ -5679,8 +5704,9 @@ msgid "You can create now an administrator user. More administrators can be adde
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:151
+#, fuzzy
 msgid "Image & Datastore"
-msgstr ""
+msgstr "Сховище даних"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:155
 msgid "Make new images persistent by default"
@@ -5735,8 +5761,9 @@ msgid "Users marked with <i class='fas fa-star'></i> are administrators"
 msgstr ""
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:19
+#, fuzzy
 msgid "Clone Image"
-msgstr ""
+msgstr "Зображення vCenter"
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:27
 msgid "Several images are selected, please choose a prefix to name the new copies"
@@ -5747,8 +5774,9 @@ msgid "You can select a different target datastore"
 msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:26
+#, fuzzy
 msgid "Get Images"
-msgstr ""
+msgstr "Зображення vCenter"
 
 #: ../app/tabs/images-tab/form-panels/create/advanced.hbs:26
 msgid "Write the Image template here"
@@ -5782,8 +5810,9 @@ msgid "This image is persistent"
 msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:80
+#, fuzzy
 msgid "Image location"
-msgstr ""
+msgstr "Шлях до зображення"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:84
 msgid "Path in OpenNebula server"
@@ -5831,8 +5860,9 @@ msgid "Filesystem type"
 msgstr ""
 
 #: ../app/tabs/images-tab/panels/info/html.hbs:79
+#, fuzzy
 msgid "Running VMS"
-msgstr ""
+msgstr "Працює VMs"
 
 #: ../app/tabs/images-tab/panels/snapshots/html.hbs:22
 msgid "Flatten"
@@ -5886,16 +5916,18 @@ msgid "Update your public SSH key!"
 msgstr ""
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:19
+#, fuzzy
 msgid "Clone Template"
-msgstr ""
+msgstr "vCenter Шаблони"
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:40
 msgid "You can also clone any Image referenced inside this Template. They will be cloned to a new Image, and made persistent."
 msgstr ""
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:44
+#, fuzzy
 msgid "Clone with Images"
-msgstr ""
+msgstr "Зображення vCenter"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:61
 msgid "Instantiate as different User / Group"
@@ -5926,8 +5958,9 @@ msgid "Associate VM to a VM Group"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:147
+#, fuzzy
 msgid "vCenter Deployment"
-msgstr ""
+msgstr "vCenter Шаблони"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:32
 msgid "Instantiate as persistent"
@@ -5952,16 +5985,18 @@ msgid "Sets the new VM to hold state, instead of pending. The scheduler will not
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/import/html.hbs:22
+#, fuzzy
 msgid "Get Templates"
-msgstr ""
+msgstr "vCenter Шаблони"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:24
 msgid "Hypervisor"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:26
+#, fuzzy
 msgid "KVM"
-msgstr ""
+msgstr "Віртуральная машина"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:30
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:115
@@ -5973,16 +6008,19 @@ msgid "Logo"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:62
+#, fuzzy
 msgid "vCenter Template Ref"
-msgstr ""
+msgstr "vCenter Шаблони"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:70
+#, fuzzy
 msgid "vCenter Cluster Ref"
-msgstr ""
+msgstr "vCenter сховище даних"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:76
+#, fuzzy
 msgid "vCenter Instance ID"
-msgstr ""
+msgstr "Зображення vCenter"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:84
 msgid "Default Resource Pool"
@@ -6128,8 +6166,9 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:135
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:179
 #: ../app/utils/user-inputs/row.hbs:51 ../app/utils/user-inputs/row.hbs:68
+#, fuzzy
 msgid "Max"
-msgstr ""
+msgstr "Травень"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:117
 msgid "CPU modification"
@@ -6189,8 +6228,9 @@ msgid "Path to the bootloader executable"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:98
+#, fuzzy
 msgid "Registered Image"
-msgstr ""
+msgstr "Зображення vCenter"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:100
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:130
@@ -6206,8 +6246,9 @@ msgid "Path to the OS kernel to boot the image"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:128
+#, fuzzy
 msgid "Registered Image "
-msgstr ""
+msgstr "Зображення vCenter"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:139
 msgid "INITRD_DS"
@@ -6493,8 +6534,9 @@ msgid "Comma-separated list of possible protocols to access this Windows VM"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/opennebula.hbs:4
+#, fuzzy
 msgid "Remote VM Template ID"
-msgstr ""
+msgstr "vCenter Шаблони"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:21
 #: ../app/utils/nics-section/dd.hbs:28
@@ -6543,8 +6585,9 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:78
 #: ../app/utils/nics-section/dd.hbs:85
+#, fuzzy
 msgid "Network Rank"
-msgstr ""
+msgstr "Мережа"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:83
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:75
@@ -6576,8 +6619,9 @@ msgid "This field sets which attribute will be used to sort the suitable vnets f
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:115
+#, fuzzy
 msgid "Choose Network"
-msgstr ""
+msgstr "Мережа"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:119
 msgid "Virtual Network ID"
@@ -6701,8 +6745,9 @@ msgid "Contextualization type"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:29
+#, fuzzy
 msgid "vCenter customizations"
-msgstr ""
+msgstr "vCenter сховище даних"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:42
 msgid "Configuration"
@@ -6855,12 +6900,14 @@ msgid "Set an alternative mode to deploy VM disks to the hosts"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:22
+#, fuzzy
 msgid "Volatile disk"
-msgstr ""
+msgstr "Енергозалежний диск"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:41
+#, fuzzy
 msgid "Image name"
-msgstr ""
+msgstr "Шлях до зображення"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:49
 msgid "Image owner's user ID"
@@ -6972,8 +7019,9 @@ msgid "lxd"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:33
+#, fuzzy
 msgid "Data"
-msgstr ""
+msgstr "Сховище даних"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:34
 msgid "Raw data to be passed directly to the hypervisor"
@@ -7032,8 +7080,9 @@ msgid "This field sets which attribute will be used to sort the suitable hosts f
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:102
+#, fuzzy
 msgid "Datastore Rank"
-msgstr ""
+msgstr "Сховище даних"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:108
 msgid "Tries to optimize storage usage by selecting the DS with less free space"
@@ -7153,8 +7202,9 @@ msgstr ""
 #: ../app/tabs/dashboard-tab/empty-graph.hbs:20
 #: ../app/tabs/provision-tab/dashboard/empty-graphs.hbs:20
 #: ../app/utils/accounting/empty-graph.hbs:20
+#, fuzzy
 msgid "There is no information available"
-msgstr ""
+msgstr "Немає доступних мереж."
 
 #: ../app/tabs/dashboard-tab/users.hbs:31
 msgid "USERS"
@@ -7177,8 +7227,9 @@ msgid "Create Zone"
 msgstr ""
 
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:26
+#, fuzzy
 msgid "Zone Name"
-msgstr ""
+msgstr "Ім'я"
 
 #: ../app/tabs/zones-tab/panels/info/html.hbs:41
 msgid "Server Pool"
@@ -7199,8 +7250,9 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:81
 #: ../app/utils/accounting/html.hbs:78 ../app/utils/accounting/html.hbs:107
+#, fuzzy
 msgid "CPU hours"
-msgstr ""
+msgstr "годин"
 
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:93
 #: ../app/utils/accounting/html.hbs:87 ../app/utils/accounting/html.hbs:123
@@ -7261,8 +7313,9 @@ msgid "Open a remote console in a new window"
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:43
+#, fuzzy
 msgid "You have to boot the Virtual Machine first"
-msgstr ""
+msgstr "Ви повинні підтвердити цю дію"
 
 #: ../app/tabs/provision-tab/vms/info.hbs:48
 msgid "The disks of the Virtual Machine will be saved in a new Image"
@@ -7337,8 +7390,9 @@ msgid "You can then create a new Virtual Machine using this Template."
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:14
+#, fuzzy
 msgid "Template Name"
-msgstr ""
+msgstr "Шаблон"
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:19
 msgid "Template Description"
@@ -7418,8 +7472,9 @@ msgid "IP or MAC"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/import/html.hbs:22
+#, fuzzy
 msgid "Get Networks"
-msgstr ""
+msgstr "Мережа"
 
 #: ../app/tabs/vnets-tab/form-panels/create/advanced.hbs:20
 msgid "Write the Virtual Network template here"
@@ -7434,8 +7489,9 @@ msgid "Name of the physical bridge in the nodes to attach VM NICs"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:91
+#, fuzzy
 msgid "Network mode"
-msgstr ""
+msgstr "Мережа"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:94
 msgid "Bridged"
@@ -7518,8 +7574,9 @@ msgid "Automatic VLAN ID"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:165
+#, fuzzy
 msgid "No VLAN network"
-msgstr ""
+msgstr "Мережа"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:166
 msgid "Manual VLAN ID"
@@ -7740,8 +7797,9 @@ msgid "Seconds between each group of actions"
 msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:32
+#, fuzzy
 msgid "Number"
-msgstr ""
+msgstr "Листопад"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:33
 msgid "Number of VMs to apply the action to each period"
@@ -7806,8 +7864,9 @@ msgid "Interface"
 msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:18
+#, fuzzy
 msgid "Select a Network"
-msgstr ""
+msgstr "Мережа"
 
 #: ../app/utils/nics-section/dd.hbs:121
 msgid "Force IPv4:"
@@ -7844,8 +7903,9 @@ msgstr ""
 #: ../app/utils/tab-datatable/table.hbs:30
 #: ../app/utils/tab-datatable/search-input.hbs:19
 #: ../app/utils/tab-datatable/search-input.hbs:45
+#, fuzzy
 msgid "Search"
-msgstr ""
+msgstr "Березень"
 
 #: ../app/utils/tab-datatable/search-input.hbs:27
 msgid "Label filter:"
@@ -7856,8 +7916,9 @@ msgid "Clear search"
 msgstr ""
 
 #: ../app/utils/tab-datatable/empty-table.hbs:24
+#, fuzzy
 msgid "There is no data available"
-msgstr ""
+msgstr "Немає доступних мереж."
 
 #: ../app/utils/dialogs/overcommit/html.hbs:20
 msgid "Host Overcommitment"
@@ -7932,8 +7993,9 @@ msgstr ""
 #: ../app/utils/user-inputs/row.hbs:29 ../app/utils/user-inputs/row.hbs:34
 #: ../app/utils/user-inputs/row.hbs:39 ../app/utils/user-inputs/row.hbs:56
 #: ../app/utils/user-inputs/row.hbs:73 ../app/utils/user-inputs/row.hbs:83
+#, fuzzy
 msgid "Default value"
-msgstr ""
+msgstr "За замовчуванням"
 
 #: ../app/utils/user-inputs/row.hbs:79
 msgid "Options"
@@ -8029,8 +8091,9 @@ msgid "Get showback"
 msgstr ""
 
 #: ../app/utils/showback/html.hbs:43
+#, fuzzy
 msgid "There are no showback records"
-msgstr ""
+msgstr "Не визначено жодних квот"
 
 #: ../app/utils/showback/html.hbs:60
 msgid "Year"
@@ -8066,8 +8129,9 @@ msgid "Get accounting"
 msgstr ""
 
 #: ../app/utils/accounting/html.hbs:68
+#, fuzzy
 msgid "There are no accounting records"
-msgstr ""
+msgstr "Не визначено жодних квот"
 
 #: ../app/utils/accounting/html.hbs:104
 msgid "Accounting Tables"

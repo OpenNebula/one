@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the OpenNebula package.
 #
 # Translators:
+# Dede Wahyu <dewanu@gmail.com>, 2020
 # heince <heince@gmail.com>, 2013
 # mahirrudin <mahirheaven@gmail.com>, 2012
 msgid ""
@@ -10,7 +11,7 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
+"PO-Revision-Date: 2020-05-04 11:21+0000\n"
 "Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
 "Language-Team: Indonesian (http://www.transifex.com/opennebula/one/language/id/)\n"
 "Language: id\n"
@@ -441,7 +442,7 @@ msgstr ""
 #: ../app/tabs/vrouters-tab/form-panels/instantiate.js:116
 #: ../app/utils/user-inputs.js:283
 msgid "Custom Attributes"
-msgstr ""
+msgstr "Atribut Khusus"
 
 #: ../app/tabs/provision-tab.js:1148 ../app/tabs/provision-tab.js:1413
 msgid "You must select at least a template configuration"
@@ -583,7 +584,7 @@ msgstr "ID"
 #: ../app/utils/user-inputs/row.hbs:3 ../app/utils/panel/rename-tr/html.hbs:18
 #: ../app/utils/showback/html.hbs:87
 msgid "Name"
-msgstr ""
+msgstr "Nama"
 
 #: ../app/tabs/datastores-tab/datatable.js:85
 #: ../app/tabs/vnets-templates-tab/datatable.js:69
@@ -656,7 +657,7 @@ msgstr ""
 #: ../app/utils/panel/permissions-table/group.hbs:18
 #: ../app/utils/accounting/html.hbs:30 ../app/utils/accounting/html.hbs:40
 msgid "Group"
-msgstr ""
+msgstr "Grup"
 
 #: ../app/tabs/datastores-tab/datatable.js:88
 #: ../app/tabs/vnets-templates-tab/datatable.js:71
@@ -718,7 +719,7 @@ msgstr ""
 #: ../app/utils/user-inputs/row.hbs:9 ../app/utils/vcenter/templates/row.hbs:39
 #: ../app/utils/vcenter/networks/row.hbs:45
 msgid "Type"
-msgstr ""
+msgstr "Tipe"
 
 #: ../app/tabs/datastores-tab/datatable.js:93
 #: ../app/tabs/hosts-tab/datatable.js:83
@@ -1096,7 +1097,7 @@ msgstr ""
 #: ../app/tabs/oneflow-services-tab/dialogs/scale.js:77
 #: ../app/utils/form-panels/form-panel.js:77
 msgid "One or more required fields are missing or malformed."
-msgstr ""
+msgstr "Satu atau lebih field yang diminta hilang atau tidak sesuai."
 
 #: ../app/tabs/users-tab/dialogs/login-token.js:83
 #: ../app/tabs/users-tab/dialogs/login-token.js:102
@@ -1280,7 +1281,7 @@ msgstr ""
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:35
 #: ../app/utils/vcenter/networks/row.hbs:39
 msgid "Size"
-msgstr ""
+msgstr "Ukuran"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:409
 #: ../app/tabs/vnets-templates-tab/panels/ar.js:340
@@ -1324,7 +1325,7 @@ msgstr ""
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:28
 #: ../app/utils/dialogs/overcommit/html.hbs:65
 msgid "Update"
-msgstr "Update"
+msgstr "Perbarui"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:315
 #: ../app/tabs/vnets-tab/form-panels/create.js:309
@@ -1513,7 +1514,7 @@ msgstr ""
 #: ../app/tabs/hosts-tab/panels/pci/html.hbs:22
 #: ../app/utils/accounting/html.hbs:31
 msgid "VM"
-msgstr ""
+msgstr "VM"
 
 #: ../app/tabs/vnets-topology-tab.js:559
 #: ../app/utils/quotas/quota-widgets.js:1441
@@ -2047,7 +2048,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:134
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:190
 msgid "Total"
-msgstr ""
+msgstr "Total"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
@@ -2351,7 +2352,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:51
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:44
 msgid "Network"
-msgstr ""
+msgstr "Jaringan"
 
 #: ../app/tabs/vms-tab/panels/network.js:84
 #: ../app/tabs/vms-tab/panels/info/html.hbs:51
@@ -2370,7 +2371,7 @@ msgstr ""
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:39
 #: ../app/utils/vcenter/networks/row.hbs:58
 msgid "MAC"
-msgstr ""
+msgstr "MAC"
 
 #: ../app/tabs/vms-tab/panels/network.js:86
 msgid "PCI address"
@@ -2708,7 +2709,7 @@ msgstr ""
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:39
 #: ../app/utils/accounting/html.hbs:29 ../app/utils/accounting/html.hbs:41
 msgid "User"
-msgstr ""
+msgstr "Pengguna"
 
 #: ../app/tabs/secgroups-tab/datatable.js:77
 msgid "Please select a security group from the list"
@@ -3790,7 +3791,7 @@ msgstr ""
 #: ../app/utils/quotas/quota-widgets.js:885
 #: ../app/tabs/groups-tab/panels/users/html.hbs:25
 msgid "Cancel"
-msgstr "Cancel"
+msgstr "Batal"
 
 #: ../app/utils/quotas/quota-widgets.js:888
 #: ../app/tabs/groups-tab/panels/users/html.hbs:28
@@ -3816,27 +3817,27 @@ msgstr "Unauthorized"
 #: ../app/utils/dialogs/confirm.js:79
 #: ../app/utils/dialogs/confirm-with-select.js:118
 msgid "You have to confirm this action"
-msgstr ""
+msgstr "Anda harus mengkonfirmasi langkah ini"
 
 #: ../app/utils/panel/template-table.js:114
 msgid "Not valid attribute"
-msgstr ""
+msgstr "Atribut tidak sesuai"
 
 #: ../app/utils/labels/utils.js:156
 msgid "System Labels"
-msgstr ""
+msgstr "Label Sistem"
 
 #: ../app/utils/labels/utils.js:163
 msgid "Edit Labels"
-msgstr ""
+msgstr "Ubah Label"
 
 #: ../app/utils/labels/utils.js:169
 msgid "Add Label"
-msgstr ""
+msgstr "Tambah Label"
 
 #: ../app/utils/nics-section.js:625
 msgid "There are no networks available."
-msgstr ""
+msgstr "Tidak ada jaringan yang tersedia."
 
 #: ../app/utils/vcenter/networks.js:78 ../app/utils/vcenter/networks.js:87
 msgid "vCenter Networks"
@@ -3866,7 +3867,7 @@ msgstr ""
 #: ../app/utils/vcenter/networks.js:224
 #: ../app/utils/vcenter/networks/row.hbs:59
 msgid "Optional"
-msgstr ""
+msgstr "Pilihan"
 
 #: ../app/utils/vcenter/networks.js:183
 msgid "IP Start"
@@ -3954,7 +3955,7 @@ msgstr ""
 #: ../app/utils/vcenter/clusters.js:97
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:20
 msgid "Location"
-msgstr ""
+msgstr "Lokasi"
 
 #: ../app/utils/vcenter/clusters.js:142
 #, javascript-format
@@ -3990,7 +3991,7 @@ msgstr ""
 
 #: ../app/utils/vcenter/datastores.js:93
 msgid "Total MB"
-msgstr ""
+msgstr "Total MB"
 
 #: ../app/utils/vcenter/datastores.js:94
 msgid "Free MB"
@@ -4017,7 +4018,7 @@ msgstr ""
 
 #: ../app/utils/showback.js:57 ../app/utils/accounting.js:126
 msgid "<< me >>"
-msgstr ""
+msgstr "<< saya >>"
 
 #: ../app/utils/schedule_action.js:47
 msgid "Hour"
@@ -4118,56 +4119,56 @@ msgstr ""
 
 #: ../app/utils/locale.js:43
 msgid "January"
-msgstr ""
+msgstr "Januari"
 
 #: ../app/utils/locale.js:43
 msgid "February"
-msgstr ""
+msgstr "Februari"
 
 #: ../app/utils/locale.js:43
 msgid "March"
-msgstr ""
+msgstr "Maret"
 
 #: ../app/utils/locale.js:43
 msgid "April"
-msgstr ""
+msgstr "April"
 
 #: ../app/utils/locale.js:43
 msgid "May"
-msgstr ""
+msgstr "Mei"
 
 #: ../app/utils/locale.js:44
 msgid "June"
-msgstr ""
+msgstr "Juni"
 
 #: ../app/utils/locale.js:44
 msgid "July"
-msgstr ""
+msgstr "Juli"
 
 #: ../app/utils/locale.js:44
 msgid "August"
-msgstr ""
+msgstr "Agustus"
 
 #: ../app/utils/locale.js:44
 msgid "September"
-msgstr ""
+msgstr "September"
 
 #: ../app/utils/locale.js:44
 msgid "October"
-msgstr ""
+msgstr "Oktober"
 
 #: ../app/utils/locale.js:45
 msgid "November"
-msgstr ""
+msgstr "November"
 
 #: ../app/utils/locale.js:45
 msgid "December"
-msgstr ""
+msgstr "Desember"
 
 #: ../app/utils/user-inputs.js:374 ../app/utils/user-inputs.js:393
 #: ../app/utils/vcenter/networks/row.hbs:70
 msgid "Use ctrl key for multiple selection"
-msgstr ""
+msgstr "Gunakan tombol ctrl untuk memilih lebih banyak"
 
 #: ../app/utils/user-inputs.js:601
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:120
@@ -4176,7 +4177,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:77
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:121
 msgid "MB"
-msgstr ""
+msgstr "MB"
 
 #: ../app/utils/user-inputs.js:602
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:121
@@ -4185,34 +4186,34 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:78
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:122
 msgid "GB"
-msgstr ""
+msgstr "GB"
 
 #: ../app/utils/user-inputs.js:703 ../app/utils/user-inputs.js:706
 #: ../app/utils/user-inputs.js:709
 msgid "YES "
-msgstr ""
+msgstr "Ya"
 
 #: ../app/utils/user-inputs.js:704 ../app/utils/user-inputs.js:707
 #: ../app/utils/user-inputs.js:710
 msgid "NO "
-msgstr ""
+msgstr "Tidak"
 
 #: ../app/utils/accounting.js:158
 msgid "Time range start is mandatory"
-msgstr ""
+msgstr "Rentang waktu wajib diisi"
 
 #: ../app/utils/accounting.js:165
 msgid "Time range start is not a valid date. It must be YYYY/MM/DD"
-msgstr ""
+msgstr "Tanggal pada rentang waktu awal tidak valid. Format seharusnya: YYYY/MM/DD"
 
 #: ../app/utils/accounting.js:178
 msgid "Time range end is not a valid date. It must be YYYY/MM/DD"
-msgstr ""
+msgstr "Tanggal pada rentang waktu akhir tidak valid. Format seharusnya: YYYY/MM/DD"
 
 #: ../app/utils/accounting.js:620 ../app/utils/accounting.js:637
 #: ../app/utils/accounting.js:654
 msgid "Date UTC"
-msgstr ""
+msgstr "Tanggal UTC"
 
 #: ../app/utils/tab-datatable.js:108
 msgid "Please select a resource from the list"
@@ -4305,8 +4306,9 @@ msgid "vCenter"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:33
+#, fuzzy
 msgid "LVM"
-msgstr ""
+msgstr "VM"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:34
 msgid "Raw Device Mapping"
@@ -4533,8 +4535,9 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:113
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:29
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:112
+#, fuzzy
 msgid "Advanced options"
-msgstr ""
+msgstr "Operasi yang diperbolehkan"
 
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:22
 #: ../app/tabs/users-tab/panels/info/html.hbs:22
@@ -4556,8 +4559,9 @@ msgstr ""
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:22
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:23
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:22
+#, fuzzy
 msgid "Information"
-msgstr ""
+msgstr "Lokasi"
 
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:42
 msgid "Base path"
@@ -4569,8 +4573,9 @@ msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/quotas/html.hbs:19
 #: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:19
+#, fuzzy
 msgid "Update Quota"
-msgstr ""
+msgstr "Perbarui"
 
 #: ../app/tabs/users-tab/dialogs/quotas/html.hbs:30
 #: ../app/tabs/users-tab/dialogs/groups/html.hbs:30
@@ -4679,8 +4684,9 @@ msgid "You can provide a SSH Key for this User clicking on the edit button"
 msgstr ""
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:19
+#, fuzzy
 msgid "Username"
-msgstr ""
+msgstr "Pengguna"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:29
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:75
@@ -4700,16 +4706,18 @@ msgid "custom"
 msgstr ""
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:53
+#, fuzzy
 msgid "Main Group"
-msgstr ""
+msgstr "Grup"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:63
 msgid "Secondary Groups"
 msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:20
+#, fuzzy
 msgid "Network Template"
-msgstr ""
+msgstr "Jaringan"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:33
 msgid "Address Ranges"
@@ -4723,14 +4731,16 @@ msgstr ""
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:46
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:178
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:330
+#, fuzzy
 msgid "Network address"
-msgstr ""
+msgstr "Jaringan"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:52
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:172
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:336
+#, fuzzy
 msgid "Network mask"
-msgstr ""
+msgstr "Jaringan"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:60
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:186
@@ -4760,8 +4770,9 @@ msgstr ""
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:215
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:370
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:68
+#, fuzzy
 msgid "Custom attributes"
-msgstr ""
+msgstr "Atribut Khusus"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:101
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:266
@@ -4769,8 +4780,9 @@ msgid "The default Security Group 0 is automatically added to new Virtual Networ
 msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:25
+#, fuzzy
 msgid "Network name"
-msgstr ""
+msgstr "Jaringan"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:27
 msgid "Defaults to 'template name-<vnetid>' when empty."
@@ -4818,8 +4830,9 @@ msgid "Write the MarketPlace template here"
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:45
+#, fuzzy
 msgid "Configuration attributes"
-msgstr ""
+msgstr "Atribut Khusus"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:22
 msgid "Name that the resource will get for description purposes."
@@ -5467,21 +5480,22 @@ msgstr ""
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:27
 #: ../app/utils/dialogs/generic-confirm/html.hbs:26
 #: ../app/utils/dialogs/confirm/html.hbs:25
+#, fuzzy
 msgid "You have to confirm this action."
-msgstr "Anda harus melakukan langkah konfirmasi"
+msgstr "Anda harus mengkonfirmasi langkah ini"
 
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:29
 #: ../app/utils/dialogs/generic-confirm/html.hbs:28
 #: ../app/utils/dialogs/confirm/html.hbs:27
 msgid "Do you want to proceed?"
-msgstr "Apakah anda ingin memproses?"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:33
 #: ../app/utils/dialogs/confirm-with-select/html.hbs:36
 #: ../app/utils/dialogs/generic-confirm/html.hbs:31
 #: ../app/utils/dialogs/confirm/html.hbs:30
 msgid "OK"
-msgstr "OK"
+msgstr ""
 
 #: ../app/tabs/vms-tab/form-panels/updateconf/advanced.hbs:20
 #: ../app/tabs/templates-tab/form-panels/create/advanced.hbs:20
@@ -5581,12 +5595,14 @@ msgid "Port range"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:106
+#, fuzzy
 msgid "Target Network"
-msgstr ""
+msgstr "Jaringan"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:109
+#, fuzzy
 msgid "Any network"
-msgstr ""
+msgstr "Jaringan"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:110
 msgid "Manual network"
@@ -5662,8 +5678,9 @@ msgid "Default Admin View"
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:101
+#, fuzzy
 msgid "Group Users"
-msgstr ""
+msgstr "Grup"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:102
 msgid "Group Admins"
@@ -5781,8 +5798,9 @@ msgid "This image is persistent"
 msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:80
+#, fuzzy
 msgid "Image location"
-msgstr ""
+msgstr "Lokasi"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:84
 msgid "Path in OpenNebula server"
@@ -5858,8 +5876,9 @@ msgid "Change view"
 msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:116
+#, fuzzy
 msgid "Update view"
-msgstr ""
+msgstr "Perbarui"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:141
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:165
@@ -5868,8 +5887,9 @@ msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:142
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:166
+#, fuzzy
 msgid "Update SSH Key"
-msgstr ""
+msgstr "Perbarui"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:148
 msgid "Add a public SSH key to your account!"
@@ -5959,8 +5979,9 @@ msgid "Hypervisor"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:26
+#, fuzzy
 msgid "KVM"
-msgstr ""
+msgstr "VM"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:30
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:115
@@ -6127,8 +6148,9 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:135
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:179
 #: ../app/utils/user-inputs/row.hbs:51 ../app/utils/user-inputs/row.hbs:68
+#, fuzzy
 msgid "Max"
-msgstr ""
+msgstr "Mei"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:117
 msgid "CPU modification"
@@ -6249,8 +6271,9 @@ msgid "Add support in the VM for hyper-v features (HYPERV)"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:208
+#, fuzzy
 msgid "Localtime"
-msgstr ""
+msgstr "Lokasi"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:209
 msgid "The guest clock will be synchronized to the hosts configured timezone when booted."
@@ -6395,8 +6418,9 @@ msgid "Tenancy"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:153
+#, fuzzy
 msgid "User data"
-msgstr ""
+msgstr "Pengguna"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:154
 msgid "Specifies Base64-encoded MIME user data to be made available to the instance(s) in this reservation."
@@ -6542,8 +6566,9 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:78
 #: ../app/utils/nics-section/dd.hbs:85
+#, fuzzy
 msgid "Network Rank"
-msgstr ""
+msgstr "Jaringan"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:83
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:75
@@ -6561,8 +6586,9 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:80
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:112
 #: ../app/utils/nics-section/dd.hbs:95
+#, fuzzy
 msgid "Stripping"
-msgstr ""
+msgstr "String ACL"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:89
 #: ../app/utils/nics-section/dd.hbs:96
@@ -6575,8 +6601,9 @@ msgid "This field sets which attribute will be used to sort the suitable vnets f
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:115
+#, fuzzy
 msgid "Choose Network"
-msgstr ""
+msgstr "Jaringan"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:119
 msgid "Virtual Network ID"
@@ -6708,8 +6735,9 @@ msgid "Configuration"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:48
+#, fuzzy
 msgid "Custom vars"
-msgstr ""
+msgstr "Atribut Khusus"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:61
 msgid "  Add SSH contextualization"
@@ -7067,8 +7095,9 @@ msgid "Keepalive password"
 msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:21
+#, fuzzy
 msgid "This rule applies to"
-msgstr "Aturan ini berlaku untuk"
+msgstr "Berlaku untuk"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:53
 msgid "Zones where the rule applies"
@@ -7083,13 +7112,15 @@ msgid "Resource subset"
 msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:162
+#, fuzzy
 msgid "Resource ID"
-msgstr ""
+msgstr "Resource ID / Dimiliki oleh"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:183
 #: ../app/utils/panel/permissions-table/permissions.hbs:20
+#, fuzzy
 msgid "Use"
-msgstr ""
+msgstr "Pengguna"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:187
 #: ../app/utils/panel/permissions-table/permissions.hbs:21
@@ -7101,8 +7132,9 @@ msgid "Administrate"
 msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:202
+#, fuzzy
 msgid "ACL String preview"
-msgstr ""
+msgstr "String ACL"
 
 #: ../app/tabs/vmgroup-tab/form-panels/create/advanced.hbs:20
 msgid "Write the Virtual Machine Group template here"
@@ -7152,8 +7184,9 @@ msgstr ""
 #: ../app/tabs/dashboard-tab/empty-graph.hbs:20
 #: ../app/tabs/provision-tab/dashboard/empty-graphs.hbs:20
 #: ../app/utils/accounting/empty-graph.hbs:20
+#, fuzzy
 msgid "There is no information available"
-msgstr ""
+msgstr "Tidak ada jaringan yang tersedia."
 
 #: ../app/tabs/dashboard-tab/users.hbs:31
 msgid "USERS"
@@ -7176,8 +7209,9 @@ msgid "Create Zone"
 msgstr ""
 
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:26
+#, fuzzy
 msgid "Zone Name"
-msgstr ""
+msgstr "Nama"
 
 #: ../app/tabs/zones-tab/panels/info/html.hbs:41
 msgid "Server Pool"
@@ -7229,8 +7263,9 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/flows/list.hbs:48
 #: ../app/tabs/provision-tab/vms/list.hbs:55
+#, fuzzy
 msgid "User ID"
-msgstr ""
+msgstr "Pengguna"
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:5
 msgid "This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later"
@@ -7260,8 +7295,9 @@ msgid "Open a remote console in a new window"
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:43
+#, fuzzy
 msgid "You have to boot the Virtual Machine first"
-msgstr ""
+msgstr "Anda harus mengkonfirmasi langkah ini"
 
 #: ../app/tabs/provision-tab/vms/info.hbs:48
 msgid "The disks of the Virtual Machine will be saved in a new Image"
@@ -7417,8 +7453,9 @@ msgid "IP or MAC"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/import/html.hbs:22
+#, fuzzy
 msgid "Get Networks"
-msgstr ""
+msgstr "Jaringan"
 
 #: ../app/tabs/vnets-tab/form-panels/create/advanced.hbs:20
 msgid "Write the Virtual Network template here"
@@ -7433,8 +7470,9 @@ msgid "Name of the physical bridge in the nodes to attach VM NICs"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:91
+#, fuzzy
 msgid "Network mode"
-msgstr ""
+msgstr "Jaringan"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:94
 msgid "Bridged"
@@ -7517,8 +7555,9 @@ msgid "Automatic VLAN ID"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:165
+#, fuzzy
 msgid "No VLAN network"
-msgstr ""
+msgstr "Jaringan"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:166
 msgid "Manual VLAN ID"
@@ -7739,8 +7778,9 @@ msgid "Seconds between each group of actions"
 msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:32
+#, fuzzy
 msgid "Number"
-msgstr ""
+msgstr "November"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:33
 msgid "Number of VMs to apply the action to each period"
@@ -7805,8 +7845,9 @@ msgid "Interface"
 msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:18
+#, fuzzy
 msgid "Select a Network"
-msgstr ""
+msgstr "Jaringan"
 
 #: ../app/utils/nics-section/dd.hbs:121
 msgid "Force IPv4:"
@@ -7843,8 +7884,9 @@ msgstr ""
 #: ../app/utils/tab-datatable/table.hbs:30
 #: ../app/utils/tab-datatable/search-input.hbs:19
 #: ../app/utils/tab-datatable/search-input.hbs:45
+#, fuzzy
 msgid "Search"
-msgstr ""
+msgstr "Maret"
 
 #: ../app/utils/tab-datatable/search-input.hbs:27
 msgid "Label filter:"
@@ -7855,8 +7897,9 @@ msgid "Clear search"
 msgstr ""
 
 #: ../app/utils/tab-datatable/empty-table.hbs:24
+#, fuzzy
 msgid "There is no data available"
-msgstr ""
+msgstr "Tidak ada jaringan yang tersedia."
 
 #: ../app/utils/dialogs/overcommit/html.hbs:20
 msgid "Host Overcommitment"
@@ -7894,7 +7937,7 @@ msgstr ""
 
 #: ../app/utils/dialogs/confirm-with-select/html.hbs:27
 msgid "You need to select something."
-msgstr "Anda harus memilih salah satu"
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:11
 msgid "text"
@@ -7935,8 +7978,9 @@ msgid "Default value"
 msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:79
+#, fuzzy
 msgid "Options"
-msgstr ""
+msgstr "Pilihan"
 
 #: ../app/utils/user-inputs/row.hbs:80
 msgid "Comma-separated list of options for the drop-down select input"
@@ -8041,8 +8085,9 @@ msgstr ""
 
 #: ../app/utils/showback/html.hbs:62 ../app/utils/accounting/html.hbs:113
 #: ../app/utils/accounting/html.hbs:129 ../app/utils/accounting/html.hbs:145
+#, fuzzy
 msgid "Date"
-msgstr ""
+msgstr "Tanggal UTC"
 
 #: ../app/utils/showback/html.hbs:70
 msgid "Select a row to get detailed information of the month"
@@ -8053,8 +8098,9 @@ msgid "End time"
 msgstr ""
 
 #: ../app/utils/accounting/html.hbs:27
+#, fuzzy
 msgid "Group by"
-msgstr ""
+msgstr "Grup"
 
 #: ../app/utils/accounting/html.hbs:35
 msgid "Filter"
@@ -8073,8 +8119,9 @@ msgid "Accounting Tables"
 msgstr ""
 
 #: ../app/utils/vcenter/templates/row.hbs:51
+#, fuzzy
 msgid "Use ctrl key for multiple selection (provide on instantiation)."
-msgstr ""
+msgstr "Gunakan tombol ctrl untuk memilih lebih banyak"
 
 #: ../app/utils/vcenter/templates/row.hbs:66
 msgid "Folder"
@@ -8101,8 +8148,9 @@ msgid "Unimported Cluster(s)"
 msgstr ""
 
 #: ../app/utils/vcenter/common/fieldset-table.hbs:41
+#, fuzzy
 msgid "Clear selection"
-msgstr ""
+msgstr "Pilihlah"
 
 #: ../app/utils/vcenter/common/fieldset-table.hbs:46
 msgid "Toggle advanced sections"

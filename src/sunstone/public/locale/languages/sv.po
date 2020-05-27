@@ -3,13 +3,13 @@
 # This file is distributed under the same license as the OpenNebula package.
 #
 # Translators:
-# eckeman <eckeman@zoho.com>, 2018
+# eckeman <eckeman@zoho.com>, 2018,2020
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
+"PO-Revision-Date: 2020-05-04 11:21+0000\n"
 "Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
 "Language-Team: Swedish (http://www.transifex.com/opennebula/one/language/sv/)\n"
 "Language: sv\n"
@@ -440,7 +440,7 @@ msgstr ""
 #: ../app/tabs/vrouters-tab/form-panels/instantiate.js:116
 #: ../app/utils/user-inputs.js:283
 msgid "Custom Attributes"
-msgstr ""
+msgstr "Anpassade attribut"
 
 #: ../app/tabs/provision-tab.js:1148 ../app/tabs/provision-tab.js:1413
 msgid "You must select at least a template configuration"
@@ -1095,7 +1095,7 @@ msgstr ""
 #: ../app/tabs/oneflow-services-tab/dialogs/scale.js:77
 #: ../app/utils/form-panels/form-panel.js:77
 msgid "One or more required fields are missing or malformed."
-msgstr ""
+msgstr "Ett eller flera obligatoriska fält saknas eller är felformade."
 
 #: ../app/tabs/users-tab/dialogs/login-token.js:83
 #: ../app/tabs/users-tab/dialogs/login-token.js:102
@@ -1512,7 +1512,7 @@ msgstr ""
 #: ../app/tabs/hosts-tab/panels/pci/html.hbs:22
 #: ../app/utils/accounting/html.hbs:31
 msgid "VM"
-msgstr ""
+msgstr "VM"
 
 #: ../app/tabs/vnets-topology-tab.js:559
 #: ../app/utils/quotas/quota-widgets.js:1441
@@ -2046,7 +2046,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:134
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:190
 msgid "Total"
-msgstr ""
+msgstr "Sammanlagd"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
@@ -2350,7 +2350,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:51
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:44
 msgid "Network"
-msgstr ""
+msgstr "Nätverk"
 
 #: ../app/tabs/vms-tab/panels/network.js:84
 #: ../app/tabs/vms-tab/panels/info/html.hbs:51
@@ -2707,7 +2707,7 @@ msgstr ""
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:39
 #: ../app/utils/accounting/html.hbs:29 ../app/utils/accounting/html.hbs:41
 msgid "User"
-msgstr ""
+msgstr "Användare"
 
 #: ../app/tabs/secgroups-tab/datatable.js:77
 msgid "Please select a security group from the list"
@@ -3815,7 +3815,7 @@ msgstr ""
 #: ../app/utils/dialogs/confirm.js:79
 #: ../app/utils/dialogs/confirm-with-select.js:118
 msgid "You have to confirm this action"
-msgstr ""
+msgstr "Du måste bekräfta denna åtgärd"
 
 #: ../app/utils/panel/template-table.js:114
 msgid "Not valid attribute"
@@ -3835,7 +3835,7 @@ msgstr ""
 
 #: ../app/utils/nics-section.js:625
 msgid "There are no networks available."
-msgstr ""
+msgstr "Det finns inga nätverk tillgängliga."
 
 #: ../app/utils/vcenter/networks.js:78 ../app/utils/vcenter/networks.js:87
 msgid "vCenter Networks"
@@ -4016,7 +4016,7 @@ msgstr ""
 
 #: ../app/utils/showback.js:57 ../app/utils/accounting.js:126
 msgid "<< me >>"
-msgstr ""
+msgstr "<< jag >>"
 
 #: ../app/utils/schedule_action.js:47
 msgid "Hour"
@@ -4117,35 +4117,35 @@ msgstr ""
 
 #: ../app/utils/locale.js:43
 msgid "January"
-msgstr ""
+msgstr "Januari"
 
 #: ../app/utils/locale.js:43
 msgid "February"
-msgstr ""
+msgstr "Februari"
 
 #: ../app/utils/locale.js:43
 msgid "March"
-msgstr ""
+msgstr "Mars"
 
 #: ../app/utils/locale.js:43
 msgid "April"
-msgstr ""
+msgstr "April"
 
 #: ../app/utils/locale.js:43
 msgid "May"
-msgstr ""
+msgstr "Maj"
 
 #: ../app/utils/locale.js:44
 msgid "June"
-msgstr ""
+msgstr "Juni"
 
 #: ../app/utils/locale.js:44
 msgid "July"
-msgstr ""
+msgstr "Juli"
 
 #: ../app/utils/locale.js:44
 msgid "August"
-msgstr ""
+msgstr "Augusti"
 
 #: ../app/utils/locale.js:44
 msgid "September"
@@ -4166,7 +4166,7 @@ msgstr ""
 #: ../app/utils/user-inputs.js:374 ../app/utils/user-inputs.js:393
 #: ../app/utils/vcenter/networks/row.hbs:70
 msgid "Use ctrl key for multiple selection"
-msgstr ""
+msgstr "Använd ctrl-tangent för flerval"
 
 #: ../app/utils/user-inputs.js:601
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:120
@@ -4175,7 +4175,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:77
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:121
 msgid "MB"
-msgstr ""
+msgstr "MB"
 
 #: ../app/utils/user-inputs.js:602
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:121
@@ -4184,34 +4184,34 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:78
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:122
 msgid "GB"
-msgstr ""
+msgstr "GB"
 
 #: ../app/utils/user-inputs.js:703 ../app/utils/user-inputs.js:706
 #: ../app/utils/user-inputs.js:709
 msgid "YES "
-msgstr ""
+msgstr "JA"
 
 #: ../app/utils/user-inputs.js:704 ../app/utils/user-inputs.js:707
 #: ../app/utils/user-inputs.js:710
 msgid "NO "
-msgstr ""
+msgstr "NEJ"
 
 #: ../app/utils/accounting.js:158
 msgid "Time range start is mandatory"
-msgstr ""
+msgstr "Tidsintervallstart är obligatoriskt"
 
 #: ../app/utils/accounting.js:165
 msgid "Time range start is not a valid date. It must be YYYY/MM/DD"
-msgstr ""
+msgstr "Tidsintervallstart är inte ett giltigt datum. Det måste vara YYYY/MM/DD"
 
 #: ../app/utils/accounting.js:178
 msgid "Time range end is not a valid date. It must be YYYY/MM/DD"
-msgstr ""
+msgstr "Tidsintervallslutet är inte ett giltigt datum. Det måste vara YYYY/MM/DD"
 
 #: ../app/utils/accounting.js:620 ../app/utils/accounting.js:637
 #: ../app/utils/accounting.js:654
 msgid "Date UTC"
-msgstr ""
+msgstr "UTC-datum"
 
 #: ../app/utils/tab-datatable.js:108
 msgid "Please select a resource from the list"
@@ -4262,8 +4262,9 @@ msgid "Close modal"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/import/html.hbs:22
+#, fuzzy
 msgid "Get Datastores"
-msgstr ""
+msgstr "Lagringsutrymmen"
 
 #: ../app/tabs/datastores-tab/form-panels/create/advanced.hbs:26
 msgid "Write the Datastore template here"
@@ -4304,8 +4305,9 @@ msgid "vCenter"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:33
+#, fuzzy
 msgid "LVM"
-msgstr ""
+msgstr "VM"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:34
 msgid "Raw Device Mapping"
@@ -4321,8 +4323,9 @@ msgid "Drivers"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:51
+#, fuzzy
 msgid "Filesystem"
-msgstr ""
+msgstr "System"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:53
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:71
@@ -4364,8 +4367,9 @@ msgid "Custom TM_MAD"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:87
+#, fuzzy
 msgid "Datastore Type"
-msgstr ""
+msgstr "Lagringsutrymmen"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:101
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:87
@@ -4381,8 +4385,9 @@ msgid "RBD"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:106
+#, fuzzy
 msgid "Gluster"
-msgstr ""
+msgstr "Kluster"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:114
 msgid "Restricted directories for registering Images"
@@ -4425,8 +4430,9 @@ msgid "Volume Group Name"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:164
+#, fuzzy
 msgid "Gluster Host"
-msgstr ""
+msgstr "Kluster"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:166
 msgid "Host and port of one (and only one) Gluster server (host:port)"
@@ -4437,8 +4443,9 @@ msgid "Gluster Volume"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:174
+#, fuzzy
 msgid "Gluster volume to use for the datastore"
-msgstr ""
+msgstr "Var god välj ett kluster för lagringsutrymmet"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:180
 msgid "Ceph pool to store Images"
@@ -4489,8 +4496,9 @@ msgid "'Usage' of the registered secret with the authentication string."
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:237
+#, fuzzy
 msgid "vCenter cluster"
-msgstr ""
+msgstr "Skapa kluster"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:239
 msgid "The vCenter Cluster that has access to this datastore."
@@ -4501,8 +4509,9 @@ msgid "Staging directory for Image registration"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:255
+#, fuzzy
 msgid "Compatible system datastores"
-msgstr ""
+msgstr "Importera vCenter-lagringutrymmen"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:257
 msgid "Specifies which system datastores are compatible with this image datastore"
@@ -4555,12 +4564,14 @@ msgstr ""
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:22
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:23
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:22
+#, fuzzy
 msgid "Information"
-msgstr ""
+msgstr "vCenter-information"
 
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:42
+#, fuzzy
 msgid "Base path"
-msgstr ""
+msgstr "Grundkatalog"
 
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:51
 msgid "Limit"
@@ -4568,8 +4579,9 @@ msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/quotas/html.hbs:19
 #: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:19
+#, fuzzy
 msgid "Update Quota"
-msgstr ""
+msgstr "Uppdatera kluster"
 
 #: ../app/tabs/users-tab/dialogs/quotas/html.hbs:30
 #: ../app/tabs/users-tab/dialogs/groups/html.hbs:30
@@ -4580,8 +4592,9 @@ msgid "Apply changes"
 msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/groups/html.hbs:19
+#, fuzzy
 msgid "Select Secondary Groups"
-msgstr ""
+msgstr "Välj ny ägargrupp"
 
 #: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:19
 msgid "Change authentication"
@@ -4591,13 +4604,15 @@ msgstr ""
 #: ../app/tabs/users-tab/dialogs/password/html.hbs:30
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:21
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-row.hbs:21
+#, fuzzy
 msgid "Change"
-msgstr ""
+msgstr "Ändra ägare"
 
 #: ../app/tabs/users-tab/dialogs/password/html.hbs:19
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:80
+#, fuzzy
 msgid "Update Password"
-msgstr ""
+msgstr "Uppdatera kluster"
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:20
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:194
@@ -4614,8 +4629,9 @@ msgid "Valid until"
 msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:40
+#, fuzzy
 msgid "Target Group"
-msgstr ""
+msgstr "Ändra ägargrupp"
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:41
 msgid "Token"
@@ -4678,8 +4694,9 @@ msgid "You can provide a SSH Key for this User clicking on the edit button"
 msgstr ""
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:19
+#, fuzzy
 msgid "Username"
-msgstr ""
+msgstr "Användare"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:29
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:75
@@ -4699,16 +4716,18 @@ msgid "custom"
 msgstr ""
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:53
+#, fuzzy
 msgid "Main Group"
-msgstr ""
+msgstr "Ägargrupp"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:63
 msgid "Secondary Groups"
 msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:20
+#, fuzzy
 msgid "Network Template"
-msgstr ""
+msgstr "Nätverk"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:33
 msgid "Address Ranges"
@@ -4716,20 +4735,23 @@ msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:39
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:61
+#, fuzzy
 msgid "Network Configuration"
-msgstr ""
+msgstr "vCenter-information"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:46
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:178
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:330
+#, fuzzy
 msgid "Network address"
-msgstr ""
+msgstr "Nätverk"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:52
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:172
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:336
+#, fuzzy
 msgid "Network mask"
-msgstr ""
+msgstr "Nätverk"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:60
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:186
@@ -4759,8 +4781,9 @@ msgstr ""
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:215
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:370
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:68
+#, fuzzy
 msgid "Custom attributes"
-msgstr ""
+msgstr "Anpassade attribut"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:101
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:266
@@ -4768,8 +4791,9 @@ msgid "The default Security Group 0 is automatically added to new Virtual Networ
 msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:25
+#, fuzzy
 msgid "Network name"
-msgstr ""
+msgstr "Nätverk"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:27
 msgid "Defaults to 'template name-<vnetid>' when empty."
@@ -4817,8 +4841,9 @@ msgid "Write the MarketPlace template here"
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:45
+#, fuzzy
 msgid "Configuration attributes"
-msgstr ""
+msgstr "Anpassade attribut"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:22
 msgid "Name that the resource will get for description purposes."
@@ -4871,15 +4896,17 @@ msgstr ""
 #: ../app/tabs/vms-tab/datatable/search.hbs:57
 #: ../app/tabs/images-tab/datatable/search.hbs:44
 #: ../app/tabs/templates-tab/datatable/search.hbs:26
+#, fuzzy
 msgid "Created after"
-msgstr ""
+msgstr "Skapa kluster"
 
 #: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:50
 #: ../app/tabs/vms-tab/datatable/search.hbs:63
 #: ../app/tabs/images-tab/datatable/search.hbs:50
 #: ../app/tabs/templates-tab/datatable/search.hbs:32
+#, fuzzy
 msgid "Created before"
-msgstr ""
+msgstr "Skapa lagringutrymme"
 
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:36
 msgid "You can provide a template for the resource that will be created in OpenNebula"
@@ -4932,8 +4959,9 @@ msgid "Write the Service template here"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:38
+#, fuzzy
 msgid "Network configuration"
-msgstr ""
+msgstr "vCenter-information"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:68
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:36
@@ -5195,8 +5223,9 @@ msgstr ""
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:36
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:184
 #: ../app/tabs/hosts-tab/panels/esx/html.hbs:22
+#, fuzzy
 msgid "Hostname"
-msgstr ""
+msgstr "Värdar"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:49
 msgid "Virtualization"
@@ -5266,12 +5295,14 @@ msgid "Remote endpoint"
 msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:160
+#, fuzzy
 msgid "Remote capacity"
-msgstr ""
+msgstr "Kapacitet"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:198
+#, fuzzy
 msgid "Get Clusters"
-msgstr ""
+msgstr "Kluster"
 
 #: ../app/tabs/hosts-tab/panels/wilds/html.hbs:28
 #: ../app/tabs/hosts-tab/panels/zombies/html.hbs:22
@@ -5299,8 +5330,9 @@ msgid "MEMORY"
 msgstr ""
 
 #: ../app/tabs/hosts-tab/utils/datastore-capacity-table/html.hbs:20
+#, fuzzy
 msgid "Datastore ID"
-msgstr ""
+msgstr "Lagringsutrymmen"
 
 #: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:20
 msgid "Snapshot"
@@ -5316,8 +5348,9 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:29
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:28
+#, fuzzy
 msgid "Select a Host"
-msgstr ""
+msgstr "Välj kluster"
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:37
 #: ../app/tabs/vms-tab/dialogs/resize/html.hbs:30
@@ -5333,8 +5366,9 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:46
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:46
+#, fuzzy
 msgid "Select a datastore"
-msgstr ""
+msgstr "Skapa lagringutrymme"
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:32
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:32
@@ -5466,8 +5500,9 @@ msgstr ""
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:27
 #: ../app/utils/dialogs/generic-confirm/html.hbs:26
 #: ../app/utils/dialogs/confirm/html.hbs:25
+#, fuzzy
 msgid "You have to confirm this action."
-msgstr ""
+msgstr "Du måste bekräfta denna åtgärd"
 
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:29
 #: ../app/utils/dialogs/generic-confirm/html.hbs:28
@@ -5580,12 +5615,14 @@ msgid "Port range"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:106
+#, fuzzy
 msgid "Target Network"
-msgstr ""
+msgstr "Nätverk"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:109
+#, fuzzy
 msgid "Any network"
-msgstr ""
+msgstr "Nätverk"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:110
 msgid "Manual network"
@@ -5661,24 +5698,27 @@ msgid "Default Admin View"
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:101
+#, fuzzy
 msgid "Group Users"
-msgstr ""
+msgstr "Ägargrupp"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:102
 msgid "Group Admins"
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:137
+#, fuzzy
 msgid "Create an administrator user"
-msgstr ""
+msgstr "Skapa lagringutrymme"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:139
 msgid "You can create now an administrator user. More administrators can be added later."
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:151
+#, fuzzy
 msgid "Image & Datastore"
-msgstr ""
+msgstr "Skapa lagringutrymme"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:155
 msgid "Make new images persistent by default"
@@ -5741,12 +5781,14 @@ msgid "Several images are selected, please choose a prefix to name the new copie
 msgstr ""
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:36
+#, fuzzy
 msgid "You can select a different target datastore"
-msgstr ""
+msgstr "Var god välj ett kluster för lagringsutrymmet"
 
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:26
+#, fuzzy
 msgid "Get Images"
-msgstr ""
+msgstr "Bilder"
 
 #: ../app/tabs/images-tab/form-panels/create/advanced.hbs:26
 msgid "Write the Image template here"
@@ -5837,28 +5879,33 @@ msgid "Flatten"
 msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:29
+#, fuzzy
 msgid "Change Language"
-msgstr ""
+msgstr "Ändra ägare"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:41
+#, fuzzy
 msgid "Update Language"
-msgstr ""
+msgstr "Uppdatera kluster"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:63
+#, fuzzy
 msgid "Change Password"
-msgstr ""
+msgstr "Ändra ägare"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:70
 msgid "New Password"
 msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:104
+#, fuzzy
 msgid "Change view"
-msgstr ""
+msgstr "Ändra ägare"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:116
+#, fuzzy
 msgid "Update view"
-msgstr ""
+msgstr "Uppdatera"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:141
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:165
@@ -5867,8 +5914,9 @@ msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:142
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:166
+#, fuzzy
 msgid "Update SSH Key"
-msgstr ""
+msgstr "Uppdatera"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:148
 msgid "Add a public SSH key to your account!"
@@ -5958,8 +6006,9 @@ msgid "Hypervisor"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:26
+#, fuzzy
 msgid "KVM"
-msgstr ""
+msgstr "VM"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:30
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:115
@@ -5975,8 +6024,9 @@ msgid "vCenter Template Ref"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:70
+#, fuzzy
 msgid "vCenter Cluster Ref"
-msgstr ""
+msgstr "Skapa kluster"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:76
 msgid "vCenter Instance ID"
@@ -6126,8 +6176,9 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:135
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:179
 #: ../app/utils/user-inputs/row.hbs:51 ../app/utils/user-inputs/row.hbs:68
+#, fuzzy
 msgid "Max"
-msgstr ""
+msgstr "Maj"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:117
 msgid "CPU modification"
@@ -6208,8 +6259,9 @@ msgid "Registered Image "
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:139
+#, fuzzy
 msgid "INITRD_DS"
-msgstr ""
+msgstr "INIITIALT"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:149
 msgid "Path to the initrd image"
@@ -6224,8 +6276,9 @@ msgid "Add support in the VM for Advanced Configuration and Power Interface (ACP
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:171
+#, fuzzy
 msgid "PAE"
-msgstr ""
+msgstr "UPPDATERA"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:172
 msgid "Add support in the VM for Physical Address Extension (PAE)"
@@ -6394,8 +6447,9 @@ msgid "Tenancy"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:153
+#, fuzzy
 msgid "User data"
-msgstr ""
+msgstr "Användare"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:154
 msgid "Specifies Base64-encoded MIME user data to be made available to the instance(s) in this reservation."
@@ -6531,8 +6585,9 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:59
 #: ../app/utils/nics-section/dd.hbs:67
+#, fuzzy
 msgid "Select Vnets "
-msgstr ""
+msgstr "Välj ny ägare"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:61
 #: ../app/utils/nics-section/dd.hbs:69
@@ -6541,8 +6596,9 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:78
 #: ../app/utils/nics-section/dd.hbs:85
+#, fuzzy
 msgid "Network Rank"
-msgstr ""
+msgstr "Nätverk"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:83
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:75
@@ -6574,12 +6630,14 @@ msgid "This field sets which attribute will be used to sort the suitable vnets f
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:115
+#, fuzzy
 msgid "Choose Network"
-msgstr ""
+msgstr "Nätverk"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:119
+#, fuzzy
 msgid "Virtual Network ID"
-msgstr ""
+msgstr "Virtuell router"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:133
 msgid "Virtual Network owner's user ID"
@@ -6699,16 +6757,18 @@ msgid "Contextualization type"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:29
+#, fuzzy
 msgid "vCenter customizations"
-msgstr ""
+msgstr "vCenter-information"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:42
 msgid "Configuration"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:48
+#, fuzzy
 msgid "Custom vars"
-msgstr ""
+msgstr "Anpassade attribut"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:61
 msgid "  Add SSH contextualization"
@@ -6811,8 +6871,9 @@ msgid "Mouse"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:85
+#, fuzzy
 msgid "Tablet"
-msgstr ""
+msgstr "Aktivera"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:91
 msgid "Bus"
@@ -6857,8 +6918,9 @@ msgid "Volatile disk"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:41
+#, fuzzy
 msgid "Image name"
-msgstr ""
+msgstr "Bilder"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:49
 msgid "Image owner's user ID"
@@ -6990,20 +7052,23 @@ msgid "Host Requirements"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:35
+#, fuzzy
 msgid "Select Hosts "
-msgstr ""
+msgstr "Välj kluster"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:37
+#, fuzzy
 msgid "Select Clusters "
-msgstr ""
+msgstr "Välj kluster"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:48
 msgid "Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:55
+#, fuzzy
 msgid "Datastore Requirements"
-msgstr ""
+msgstr "Lagringsutrymmen"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:70
 msgid "Host Rank"
@@ -7030,8 +7095,9 @@ msgid "This field sets which attribute will be used to sort the suitable hosts f
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:102
+#, fuzzy
 msgid "Datastore Rank"
-msgstr ""
+msgstr "Lagringsutrymmen"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:108
 msgid "Tries to optimize storage usage by selecting the DS with less free space"
@@ -7087,8 +7153,9 @@ msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:183
 #: ../app/utils/panel/permissions-table/permissions.hbs:20
+#, fuzzy
 msgid "Use"
-msgstr ""
+msgstr "Användare"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:187
 #: ../app/utils/panel/permissions-table/permissions.hbs:21
@@ -7151,8 +7218,9 @@ msgstr ""
 #: ../app/tabs/dashboard-tab/empty-graph.hbs:20
 #: ../app/tabs/provision-tab/dashboard/empty-graphs.hbs:20
 #: ../app/utils/accounting/empty-graph.hbs:20
+#, fuzzy
 msgid "There is no information available"
-msgstr ""
+msgstr "Det finns inga nätverk tillgängliga."
 
 #: ../app/tabs/dashboard-tab/users.hbs:31
 msgid "USERS"
@@ -7163,20 +7231,23 @@ msgid "GROUPS"
 msgstr ""
 
 #: ../app/tabs/dashboard-tab/storage.hbs:30
+#, fuzzy
 msgid "IMAGES"
-msgstr ""
+msgstr "BILD"
 
 #: ../app/tabs/dashboard-tab/network.hbs:30
 msgid "VNETS"
 msgstr ""
 
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:20
+#, fuzzy
 msgid "Create Zone"
-msgstr ""
+msgstr "Skapa"
 
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:26
+#, fuzzy
 msgid "Zone Name"
-msgstr ""
+msgstr "Namn"
 
 #: ../app/tabs/zones-tab/panels/info/html.hbs:41
 msgid "Server Pool"
@@ -7188,8 +7259,9 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/dashboard/group-quotas.hbs:37
 #: ../app/tabs/provision-tab/dashboard/quotas.hbs:36
+#, fuzzy
 msgid "RUNNING VMS"
-msgstr ""
+msgstr "AKTIV"
 
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:18
 msgid "Group Virtual Machines"
@@ -7228,8 +7300,9 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/flows/list.hbs:48
 #: ../app/tabs/provision-tab/vms/list.hbs:55
+#, fuzzy
 msgid "User ID"
-msgstr ""
+msgstr "Användare"
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:5
 msgid "This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later"
@@ -7259,8 +7332,9 @@ msgid "Open a remote console in a new window"
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:43
+#, fuzzy
 msgid "You have to boot the Virtual Machine first"
-msgstr ""
+msgstr "Du måste bekräfta denna åtgärd"
 
 #: ../app/tabs/provision-tab/vms/info.hbs:48
 msgid "The disks of the Virtual Machine will be saved in a new Image"
@@ -7416,8 +7490,9 @@ msgid "IP or MAC"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/import/html.hbs:22
+#, fuzzy
 msgid "Get Networks"
-msgstr ""
+msgstr "Nätverk"
 
 #: ../app/tabs/vnets-tab/form-panels/create/advanced.hbs:20
 msgid "Write the Virtual Network template here"
@@ -7432,8 +7507,9 @@ msgid "Name of the physical bridge in the nodes to attach VM NICs"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:91
+#, fuzzy
 msgid "Network mode"
-msgstr ""
+msgstr "Nätverk"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:94
 msgid "Bridged"
@@ -7516,8 +7592,9 @@ msgid "Automatic VLAN ID"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:165
+#, fuzzy
 msgid "No VLAN network"
-msgstr ""
+msgstr "Nätverk"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:166
 msgid "Manual VLAN ID"
@@ -7804,8 +7881,9 @@ msgid "Interface"
 msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:18
+#, fuzzy
 msgid "Select a Network"
-msgstr ""
+msgstr "Välj ny ägare"
 
 #: ../app/utils/nics-section/dd.hbs:121
 msgid "Force IPv4:"
@@ -7842,8 +7920,9 @@ msgstr ""
 #: ../app/utils/tab-datatable/table.hbs:30
 #: ../app/utils/tab-datatable/search-input.hbs:19
 #: ../app/utils/tab-datatable/search-input.hbs:45
+#, fuzzy
 msgid "Search"
-msgstr ""
+msgstr "Mars"
 
 #: ../app/utils/tab-datatable/search-input.hbs:27
 msgid "Label filter:"
@@ -7854,8 +7933,9 @@ msgid "Clear search"
 msgstr ""
 
 #: ../app/utils/tab-datatable/empty-table.hbs:24
+#, fuzzy
 msgid "There is no data available"
-msgstr ""
+msgstr "Det finns inga nätverk tillgängliga."
 
 #: ../app/utils/dialogs/overcommit/html.hbs:20
 msgid "Host Overcommitment"
@@ -7999,8 +8079,9 @@ msgid "times"
 msgstr ""
 
 #: ../app/utils/panel/permissions-table/html.hbs:21
+#, fuzzy
 msgid "Ownership"
-msgstr ""
+msgstr "Ägare"
 
 #: ../app/utils/panel/permissions-table/permissions.hbs:50
 msgid "Other"
@@ -8040,8 +8121,9 @@ msgstr ""
 
 #: ../app/utils/showback/html.hbs:62 ../app/utils/accounting/html.hbs:113
 #: ../app/utils/accounting/html.hbs:129 ../app/utils/accounting/html.hbs:145
+#, fuzzy
 msgid "Date"
-msgstr ""
+msgstr "UTC-datum"
 
 #: ../app/utils/showback/html.hbs:70
 msgid "Select a row to get detailed information of the month"
@@ -8052,8 +8134,9 @@ msgid "End time"
 msgstr ""
 
 #: ../app/utils/accounting/html.hbs:27
+#, fuzzy
 msgid "Group by"
-msgstr ""
+msgstr "Ägargrupp"
 
 #: ../app/utils/accounting/html.hbs:35
 msgid "Filter"
@@ -8072,8 +8155,9 @@ msgid "Accounting Tables"
 msgstr ""
 
 #: ../app/utils/vcenter/templates/row.hbs:51
+#, fuzzy
 msgid "Use ctrl key for multiple selection (provide on instantiation)."
-msgstr ""
+msgstr "Använd ctrl-tangent för flerval"
 
 #: ../app/utils/vcenter/templates/row.hbs:66
 msgid "Folder"
@@ -8084,8 +8168,9 @@ msgid "Linked clone"
 msgstr ""
 
 #: ../app/utils/vcenter/templates/row.hbs:88
+#, fuzzy
 msgid "Create copy"
-msgstr ""
+msgstr "Skapa"
 
 #: ../app/utils/vcenter/networks/row.hbs:30
 msgid "VLAN"
@@ -8096,8 +8181,9 @@ msgid "Cluster(s) to import"
 msgstr ""
 
 #: ../app/utils/vcenter/networks/row.hbs:81
+#, fuzzy
 msgid "Unimported Cluster(s)"
-msgstr ""
+msgstr "Uppdatera kluster"
 
 #: ../app/utils/vcenter/common/fieldset-table.hbs:41
 msgid "Clear selection"

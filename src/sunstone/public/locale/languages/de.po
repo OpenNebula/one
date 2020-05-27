@@ -23,11 +23,12 @@
 # neuroserve <neuro@hush.com>, 2012
 # Noah Müller, 2016,2018
 # Oliver Göldi <olivergoldi@me.com>, 2016
-# Pascal Jufer, 2013
-# Pascal Jufer, 2013-2014
+# eecbe13c679c60ec347d8f0d06b1fd9e, 2013
+# eecbe13c679c60ec347d8f0d06b1fd9e, 2013-2014
 # Pecadis <Pecadis@gmail.com>, 2017
 # Peter Caron <peter.caron@zimory.com>, 2013
 # Peter Caron <peter.caron@zimory.com>, 2013
+# Philipp wollschlegel <folken@kabelsalat.ch>, 2019
 # Sledge Sulaweyo <sledge.sulaweyo@gmail.com>, 2018
 # Stefan Freitag <stefan.freitag@udo.edu>, 2012
 # Steffen Claus <steffen.claus@scai.fraunhofer.de>, 2013
@@ -42,7 +43,7 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-27 13:26+0100\n"
-"PO-Revision-Date: 2019-02-27 16:27+0000\n"
+"PO-Revision-Date: 2020-05-04 11:21+0000\n"
 "Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
 "Language-Team: German (http://www.transifex.com/opennebula/one/language/de/)\n"
 "Language: de\n"
@@ -1933,7 +1934,7 @@ msgstr "Service Vorlage aktualisieren"
 #: ../app/tabs/vmgroup-tab/utils/role-tab/html.hbs:24
 #: ../app/utils/user-inputs/row.hbs:5
 msgid "Can only contain alphanumeric and underscore characters"
-msgstr "Es dürfen nur Alphanumerische Zeichen und Unterstriche verwendet werden."
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:430
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:301
@@ -2067,15 +2068,17 @@ msgstr ""
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
 #: ../app/tabs/vms-tab/panels/capacity.js:120
 #: ../app/tabs/vms-tab/panels/capacity.js:127
+#, fuzzy
 msgid "Allocated"
-msgstr "Zugewiesen"
+msgstr "Zugewiesene CPU"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
 #: ../app/tabs/vms-tab/panels/capacity.js:120
 #: ../app/tabs/vms-tab/panels/capacity.js:127
+#, fuzzy
 msgid "Real"
-msgstr "Reell"
+msgstr "Reelle CPU"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 #: ../app/tabs/hosts-tab/panels/monitor.js:93 ../app/utils/accounting.js:621
@@ -2088,7 +2091,7 @@ msgstr "Gesamt"
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
 msgid "Total +/- reserved"
-msgstr "Total +/- reserviert"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:50
 msgid "Wilds"
@@ -2200,7 +2203,7 @@ msgstr "Ausschalten"
 
 #: ../app/tabs/vms-tab/buttons.js:71
 msgid "Poweroff-hard"
-msgstr ""
+msgstr "Ausschalten-Hart"
 
 #: ../app/tabs/vms-tab/buttons.js:77
 msgid "live"
@@ -2306,7 +2309,7 @@ msgstr "delete-recreate"
 
 #: ../app/tabs/vms-tab/buttons.js:185
 msgid "delete-db"
-msgstr ""
+msgstr "db-löschen"
 
 #: ../app/tabs/vms-tab/buttons.js:187
 msgid "Recovers a stuck VM that is waiting for a driver operation.                     The recovery may be done by failing, succeeding or retrying the current operation.                     YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation                     was successful or not, or if it can be retried.                    <br/>                    <br/>Delete: This will delete the selected VMs                    <br/>Delete-recreate: This will delete and recreate VMs to PENDING state                    <br/>Delete-db: This will delete the selected VMs, but will not perform any action on the hypervisor"
@@ -4109,19 +4112,19 @@ msgstr "Stunden"
 
 #: ../app/utils/schedule_action.js:364 ../app/utils/schedule_action/html.hbs:31
 msgid "Years"
-msgstr ""
+msgstr "Jahre"
 
 #: ../app/utils/schedule_action.js:367 ../app/utils/schedule_action/html.hbs:32
 msgid "Months"
-msgstr ""
+msgstr "Monate"
 
 #: ../app/utils/schedule_action.js:370 ../app/utils/schedule_action/html.hbs:33
 msgid "Weeks"
-msgstr ""
+msgstr "Wochen"
 
 #: ../app/utils/schedule_action.js:373 ../app/utils/schedule_action/html.hbs:34
 msgid "Days"
-msgstr ""
+msgstr "Tage"
 
 #: ../app/utils/schedule_action.js:376 ../app/utils/schedule_action/html.hbs:35
 #: ../app/utils/showback/html.hbs:89
@@ -4130,7 +4133,7 @@ msgstr "Stunden"
 
 #: ../app/utils/schedule_action.js:379 ../app/utils/schedule_action/html.hbs:36
 msgid "Minutes"
-msgstr ""
+msgstr "Minuten"
 
 #: ../app/utils/vmgroup-section.js:167
 msgid "Internal server error."
@@ -4146,11 +4149,11 @@ msgstr "Abbild nicht gefunden"
 
 #: ../app/utils/disks-resize.js:165
 msgid "Persistent image. The changes will be saved back to the datastore after the VM is shut down"
-msgstr "Persistentes Abbild. Änderungen werden nach dem Herunterfahren der VM in den Datenspeicher zurückgespeichert."
+msgstr ""
 
 #: ../app/utils/disks-resize.js:169
 msgid "Non-persistent disk. The changes will be lost once the VM is shut down"
-msgstr "Nicht-persistentes Abbild. Änderungen gehen nach dem Herunterfahren der VM verloren."
+msgstr ""
 
 #: ../app/utils/disks-resize.js:177
 msgid "Image state: "
@@ -4299,12 +4302,14 @@ msgstr "Sie haben die folgende Ressource ausgewählt:"
 #: ../app/utils/dialogs/clusters/html.hbs:33
 #: ../app/utils/dialogs/generic-confirm/html.hbs:33
 #: ../app/utils/dialogs/confirm/html.hbs:32
+#, fuzzy
 msgid "Close modal"
-msgstr ""
+msgstr "Schließen"
 
 #: ../app/tabs/datastores-tab/form-panels/import/html.hbs:22
+#, fuzzy
 msgid "Get Datastores"
-msgstr ""
+msgstr "Datenspeicher"
 
 #: ../app/tabs/datastores-tab/form-panels/create/advanced.hbs:26
 msgid "Write the Datastore template here"
@@ -4312,26 +4317,27 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:26
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:33
+#, fuzzy
 msgid "Storage backend"
-msgstr ""
+msgstr "Speicher"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:28
 msgid "Filesystem - shared mode"
-msgstr "Dateisystem - shared Modus"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:29
 msgid "Filesystem - ssh mode"
-msgstr "Dateisystem - SSH Modus"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:30
 msgid "Filesystem - qcow2 mode"
-msgstr "Dateisystem - qcow2 Modus"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:31
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:52
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:70
 msgid "Ceph"
-msgstr "Ceph"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:32
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:55
@@ -4341,12 +4347,14 @@ msgstr "Ceph"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:58
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:20
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:101
+#, fuzzy
 msgid "vCenter"
-msgstr "vCenter"
+msgstr "vCenter ref"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:33
+#, fuzzy
 msgid "LVM"
-msgstr "LVM"
+msgstr "VM"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:34
 msgid "Raw Device Mapping"
@@ -4358,17 +4366,20 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:47
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:44
+#, fuzzy
 msgid "Drivers"
 msgstr "Treiber"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:51
+#, fuzzy
 msgid "Filesystem"
-msgstr "Dateisystem"
+msgstr "System"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:53
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:71
+#, fuzzy
 msgid "Devices"
-msgstr "Geräte"
+msgstr "Services"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:54
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:72
@@ -4377,53 +4388,60 @@ msgid "iSCSI/Libvirt"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:59
+#, fuzzy
 msgid "Custom DS_MAD"
-msgstr "Benutzerdefinierter DS_MAD"
+msgstr "Benutzerdefiniert"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:64
 msgid "Transfer"
-msgstr "Transfer"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:66
+#, fuzzy
 msgid "Shared"
-msgstr "Geteilt"
+msgstr "Freigeben"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:67
 msgid "SSH"
-msgstr "SSH"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:68
 msgid "qcow2"
-msgstr "qcow2"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:69
 msgid "FS LVM"
-msgstr "FS LVM"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:77
+#, fuzzy
 msgid "Custom TM_MAD"
-msgstr "Benutzerdefinierter TM_MAD"
+msgstr "Benutzerdefiniert"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:87
+#, fuzzy
 msgid "Datastore Type"
-msgstr ""
+msgstr "Datenspeicher"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:101
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:87
+#, fuzzy
 msgid "Disk type"
-msgstr "Festplatten Typ"
+msgstr "Festplatte geschriebene bytes"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:104
+#, fuzzy
 msgid "Block"
-msgstr "Block"
+msgstr "Entsperren"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:105
 msgid "RBD"
-msgstr "RBD"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:106
+#, fuzzy
 msgid "Gluster"
-msgstr "Gluster"
+msgstr "Cluster"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:114
 msgid "Restricted directories for registering Images"
@@ -4447,7 +4465,7 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:141
 msgid "Do not try to untar or decompress"
-msgstr "Versuchen Sie nicht zu entpacken oder zu dekomprimieren."
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:146
 msgid "Check available capacity of the Datastore before creating a new Image"
@@ -4458,36 +4476,40 @@ msgid "Host bridge list"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:153
+#, fuzzy
 msgid "Space separated list of servers to add new Images to the Datastore storage"
-msgstr ""
+msgstr "Kommagetrennte Liste von Servern für den Zugriff auf das Abbild-Verzeichnis, falls nicht lokal"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:159
 msgid "Volume Group Name"
-msgstr "Volumen Gruppenname"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:164
+#, fuzzy
 msgid "Gluster Host"
-msgstr "Gluster-Host"
+msgstr "Cluster"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:166
 msgid "Host and port of one (and only one) Gluster server (host:port)"
-msgstr "Hostname und Port eines (und nur eines) der Gluster-Servers (hostname:port)"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:173
 msgid "Gluster Volume"
-msgstr "Gluster-Volumen"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:174
+#, fuzzy
 msgid "Gluster volume to use for the datastore"
-msgstr "Gluster-Volumen für den Gebrauch des Datenspeicher"
+msgstr "Bitte einen Cluster für diesen Datenspeicher auswählen"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:180
 msgid "Ceph pool to store Images"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:186
+#, fuzzy
 msgid "Ceph host"
-msgstr ""
+msgstr "Host löschen"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:188
 msgid "Space-separated list of Ceph monitors"
@@ -4530,8 +4552,9 @@ msgid "'Usage' of the registered secret with the authentication string."
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:237
+#, fuzzy
 msgid "vCenter cluster"
-msgstr "vCenter Cluster"
+msgstr "Cluster erstellen"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:239
 msgid "The vCenter Cluster that has access to this datastore."
@@ -4542,8 +4565,9 @@ msgid "Staging directory for Image registration"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:255
+#, fuzzy
 msgid "Compatible system datastores"
-msgstr ""
+msgstr "vCenter Datenspeicher"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:257
 msgid "Specifies which system datastores are compatible with this image datastore"
@@ -4573,8 +4597,9 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:113
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:29
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:112
+#, fuzzy
 msgid "Advanced options"
-msgstr "Erweiterte Optionen"
+msgstr "Erlaubte Aktionen"
 
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:22
 #: ../app/tabs/users-tab/panels/info/html.hbs:22
@@ -4596,21 +4621,24 @@ msgstr "Erweiterte Optionen"
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:22
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:23
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:22
+#, fuzzy
 msgid "Information"
-msgstr "Information"
+msgstr "vCenter Informationen"
 
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:42
+#, fuzzy
 msgid "Base path"
 msgstr "Basispfad"
 
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:51
 msgid "Limit"
-msgstr "Limit"
+msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/quotas/html.hbs:19
 #: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:19
+#, fuzzy
 msgid "Update Quota"
-msgstr "Limits aktualisieren"
+msgstr "Cluster aktualisieren"
 
 #: ../app/tabs/users-tab/dialogs/quotas/html.hbs:30
 #: ../app/tabs/users-tab/dialogs/groups/html.hbs:30
@@ -4618,32 +4646,35 @@ msgstr "Limits aktualisieren"
 #: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:30
 #: ../app/utils/dialogs/clusters/html.hbs:30
 msgid "Apply changes"
-msgstr "Änderungen anwenden"
+msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/groups/html.hbs:19
+#, fuzzy
 msgid "Select Secondary Groups"
-msgstr "Sekundäre Gruppe auswählen"
+msgstr "Neue Gruppe auswählen"
 
 #: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:19
 msgid "Change authentication"
-msgstr "Authentifizierung ändern"
+msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:30
 #: ../app/tabs/users-tab/dialogs/password/html.hbs:30
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:21
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-row.hbs:21
+#, fuzzy
 msgid "Change"
-msgstr "Wechseln"
+msgstr "Bereich"
 
 #: ../app/tabs/users-tab/dialogs/password/html.hbs:19
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:80
+#, fuzzy
 msgid "Update Password"
-msgstr "Passwort ändern"
+msgstr "Passwort"
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:20
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:194
 msgid "Login Token"
-msgstr "Anmelde-Token"
+msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:29
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:199
@@ -4652,11 +4683,12 @@ msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:39
 msgid "Valid until"
-msgstr "Gültig bis"
+msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:40
+#, fuzzy
 msgid "Target Group"
-msgstr ""
+msgstr "Gruppe erstellen"
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:41
 msgid "Token"
@@ -4671,12 +4703,14 @@ msgid "Get a new token"
 msgstr ""
 
 #: ../app/tabs/users-tab/panels/groups/html.hbs:28
+#, fuzzy
 msgid "Primary Group"
-msgstr "Primäre Gruppe"
+msgstr "Primäre Gruppe ändern"
 
 #: ../app/tabs/users-tab/panels/groups/html.hbs:35
+#, fuzzy
 msgid "Secondary Group"
-msgstr "Sekundäre Gruppe"
+msgstr "Sicherheitsgruppe"
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:37
 msgid "Table Order"
@@ -4684,7 +4718,7 @@ msgstr ""
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:46
 msgid "Language"
-msgstr "Sprache"
+msgstr ""
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:55
 #: ../app/tabs/users-tab/panels/auth/html.hbs:40
@@ -4694,12 +4728,14 @@ msgstr ""
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:24
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:36
+#, fuzzy
 msgid "Authentication"
-msgstr "Authentifikation"
+msgstr "Aktion"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:29
+#, fuzzy
 msgid "Authentication driver"
-msgstr "Authentifizierungtreiber"
+msgstr "Auth Treiber"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:51
 msgid "Login token"
@@ -4712,20 +4748,22 @@ msgstr ""
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:69
 msgid "Public SSH Key"
-msgstr "Öffentlicher SSH-Schlüssel"
+msgstr ""
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:84
 msgid "You can provide a SSH Key for this User clicking on the edit button"
-msgstr "Sie können einen SSH-Schlüssel für diesen Benutzer bereitstellen, indem Sie auf die Schaltfläche \"Bearbeiten\" klicken."
+msgstr ""
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:19
+#, fuzzy
 msgid "Username"
-msgstr "Benutzername"
+msgstr "Benutzer"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:29
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:75
+#, fuzzy
 msgid "Confirm Password"
-msgstr "Passwort bestätigen"
+msgstr "Passwort"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:38
 msgid "core"
@@ -4736,59 +4774,68 @@ msgid "public"
 msgstr ""
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:43
+#, fuzzy
 msgid "custom"
-msgstr ""
+msgstr "Benutzerdefiniert"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:53
+#, fuzzy
 msgid "Main Group"
-msgstr "Hauptgruppe"
+msgstr "VM Gruppe"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:63
+#, fuzzy
 msgid "Secondary Groups"
-msgstr "Sekundäre Gruppen"
+msgstr "Sicherheitsgruppen"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:20
+#, fuzzy
 msgid "Network Template"
-msgstr ""
+msgstr "Vorlage für ein virtuelles Netzwerk"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:33
+#, fuzzy
 msgid "Address Ranges"
-msgstr ""
+msgstr "Adressbereich"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:39
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:61
+#, fuzzy
 msgid "Network Configuration"
-msgstr "Netzwerkkonfiguration"
+msgstr "Netzwerk Empfang"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:46
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:178
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:330
+#, fuzzy
 msgid "Network address"
-msgstr "Netzwerk Adresse"
+msgstr "Netzwerk ID"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:52
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:172
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:336
+#, fuzzy
 msgid "Network mask"
-msgstr "Netzwerkmaske"
+msgstr "Netzwerk"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:60
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:186
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:217
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:344
 msgid "Gateway"
-msgstr "Gateway"
+msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:66
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:350
+#, fuzzy
 msgid "IPv6 Gateway"
-msgstr "IPv6 Gateway"
+msgstr "IPv6 Global"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:74
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:192
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:358
 msgid "DNS"
-msgstr "DNS"
+msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:80
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:364
@@ -4800,6 +4847,7 @@ msgstr ""
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:215
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:370
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:68
+#, fuzzy
 msgid "Custom attributes"
 msgstr "Benutzerdefinierte Attribute"
 
@@ -4809,16 +4857,18 @@ msgid "The default Security Group 0 is automatically added to new Virtual Networ
 msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:25
+#, fuzzy
 msgid "Network name"
-msgstr ""
+msgstr "Netzwerk"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:27
 msgid "Defaults to 'template name-<vnetid>' when empty."
 msgstr ""
 
 #: ../app/tabs/vdcs-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
 msgid "Write the VDC template here"
-msgstr "Definieren Sie hier die Vorlage des VDC "
+msgstr "VM Vorlage erstellen"
 
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:37
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:26
@@ -4834,40 +4884,46 @@ msgstr "Definieren Sie hier die Vorlage des VDC "
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:35
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:64
 #: ../app/utils/user-inputs/row.hbs:25
+#, fuzzy
 msgid "Description"
-msgstr "Beschreibung"
+msgstr "Reservierung"
 
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:32
+#, fuzzy
 msgid "Selects all current and future clusters"
-msgstr "Auswahl aller aktuellen und zukünftigen Cluster"
+msgstr "Alle %1$s Cluster auswählen"
 
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:46
 msgid "Selects all current and future hosts"
-msgstr "Auswahl aller aktuellen und zukünftigen Hosts"
+msgstr ""
 
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:60
 msgid "Selects all current and future vnets"
-msgstr "Auswahl aller aktuellen und zukünftigen vnets"
+msgstr ""
 
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:74
+#, fuzzy
 msgid "Selects all current and future datastores"
-msgstr "Auswahl aller aktuellen und zukünftigen Datenspeicher"
+msgstr "%1$s Datenspeicher auswählen"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
 msgid "Write the MarketPlace template here"
-msgstr ""
+msgstr "Marktplatz Applikation erstellen"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:45
+#, fuzzy
 msgid "Configuration attributes"
-msgstr ""
+msgstr "Benutzerdefinierte Attribute"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:22
 msgid "Name that the resource will get for description purposes."
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:31
+#, fuzzy
 msgid "VM Template Name"
-msgstr "Name der VM Vorlage"
+msgstr "VM Vorlage"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:33
 msgid "The following template will be created in OpenNebula and the previous images will be referenced in the disks."
@@ -4883,19 +4939,22 @@ msgid "Select the Marketplace where the App will be created"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/advanced.hbs:24
+#, fuzzy
 msgid "Write the MarketPlace Appliance template here"
-msgstr ""
+msgstr "Marktplatz Applikation aus Abbild erstellen"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:48
 msgid "Select the Image to create the App"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:56
+#, fuzzy
 msgid "Templates for the App"
-msgstr ""
+msgstr "Vorlagen"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:60
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:44
+#, fuzzy
 msgid "VM template"
 msgstr "VM Vorlage"
 
@@ -4905,22 +4964,25 @@ msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:67
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:22
+#, fuzzy
 msgid "App template"
-msgstr "Applikationsvorlage"
+msgstr "Die Vorlage"
 
 #: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:44
 #: ../app/tabs/vms-tab/datatable/search.hbs:57
 #: ../app/tabs/images-tab/datatable/search.hbs:44
 #: ../app/tabs/templates-tab/datatable/search.hbs:26
+#, fuzzy
 msgid "Created after"
-msgstr ""
+msgstr "Benutzer erstellen"
 
 #: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:50
 #: ../app/tabs/vms-tab/datatable/search.hbs:63
 #: ../app/tabs/images-tab/datatable/search.hbs:50
 #: ../app/tabs/templates-tab/datatable/search.hbs:32
+#, fuzzy
 msgid "Created before"
-msgstr ""
+msgstr "Benutzer erstellen"
 
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:36
 msgid "You can provide a template for the resource that will be created in OpenNebula"
@@ -4933,31 +4995,35 @@ msgstr ""
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:37
 #: ../app/tabs/images-tab/panels/info/html.hbs:37
 #: ../app/tabs/templates-tab/panels/info/html.hbs:35
+#, fuzzy
 msgid "Register time"
 msgstr "Registrierungszeitpunkt"
 
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:56
 msgid "Format"
-msgstr "Format"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:19
+#, fuzzy
 msgid "Clone Service Template"
-msgstr ""
+msgstr "Service Vorlage erstellen"
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:27
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:27
 msgid "Several templates are selected, please choose prefix to name the new copies"
-msgstr "Mehrere Vorlagen sind ausgewählt, bitte das Präfix für die neuen Kopien auswählen"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:34
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:35
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:34
+#, fuzzy
 msgid "Prefix"
-msgstr "Präfix"
+msgstr "ULA Präfix"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:25
+#, fuzzy
 msgid "Service name"
-msgstr "Servicename"
+msgstr "Service erstellt"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:26
 msgid "When creating several Services, the wildcard %i will be replaced with a number starting from 0"
@@ -4966,29 +5032,31 @@ msgstr ""
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:31
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:50
 msgid "Number of instances"
-msgstr "Anzahl der Instanzen"
-
-#: ../app/tabs/oneflow-templates-tab/form-panels/create/advanced.hbs:20
-msgid "Write the Service template here"
 msgstr ""
 
+#: ../app/tabs/oneflow-templates-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
+msgid "Write the Service template here"
+msgstr "Service Vorlage erstellen"
+
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:38
+#, fuzzy
 msgid "Network configuration"
-msgstr "Netzwerkkonfiguration"
+msgstr "Netzwerk Empfang"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:68
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:36
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:32
 msgid "Strategy"
-msgstr "Strategie"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:69
 msgid "Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships."
-msgstr "Die \"straight\" Strategie instanziiert jede Rolle geordnet: Oberrollen werden vor Unterrolen deployed. Die \"none\" Strategie instanziiert Rollen unabhängig von ihren Beziehungen untereinander."
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:72
 msgid "Straight"
-msgstr "Straight"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:78
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:135
@@ -4997,22 +5065,25 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:83
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:141
+#, fuzzy
 msgid "Terminate hard"
-msgstr "Beenden erzwingen"
+msgstr "Beenden"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:91
 msgid "Wait for VMs to report that they are READY via OneGate to consider them running"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:64
+#, fuzzy
 msgid "Advanced service parameters"
-msgstr ""
+msgstr "Service Vorlage aktualisieren"
 
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:40
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:36
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:28
+#, fuzzy
 msgid "Shutdown action"
-msgstr "Herunterfahren-Aktion"
+msgstr "Herunterfahren"
 
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:46
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:46
@@ -5021,12 +5092,12 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:20
 msgid "Elasticity policies"
-msgstr "Elastizitätsrichtlinien"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:26
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:26
 msgid "Type of adjustment."
-msgstr "Typ der Angleichung."
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:27
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:27
@@ -5036,7 +5107,7 @@ msgstr ""
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:28
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:28
 msgid "CARDINALITY: Set the cardinality to the given number."
-msgstr "CARDINALITY: Setzen der Kardinalität auf die spezifizierte Anzahl."
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:29
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:29
@@ -5046,7 +5117,7 @@ msgstr ""
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:31
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:31
 msgid "Positive or negative adjustment. Its meaning depends on 'type'"
-msgstr "Positive oder negative Angleichung. Bedeutung ist abhängig vom 'Typ'."
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:32
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:32
@@ -5061,12 +5132,12 @@ msgstr ""
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:34
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:34
 msgid "PERCENTAGE_CHANGE: 20, will increment cardinality by 20%"
-msgstr "PERCENTAGE_CHANGE: 20, erhöht die Kardinalität um 20%"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:34
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:34
 msgid "Adjust"
-msgstr "Angleichen"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:36
 msgid "Optional parameter for PERCENTAGE_CHANGE adjustment type."
@@ -5083,16 +5154,17 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:132
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:176
 #: ../app/utils/user-inputs/row.hbs:46 ../app/utils/user-inputs/row.hbs:63
+#, fuzzy
 msgid "Min"
-msgstr "Min"
+msgstr "Minuten"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:39
 msgid "Expression to trigger the elasticity"
-msgstr "Ausdruck, der die Elastizität auslöst"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:40
 msgid "Example: ATT < 20"
-msgstr "Beispiel: ATT < 20"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:40
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:90
@@ -5105,62 +5177,67 @@ msgstr "Beispiel: ATT < 20"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:121
 #: ../app/utils/nics-section/dd.hbs:77 ../app/utils/nics-section/dd.hbs:104
 msgid "Expression"
-msgstr "Ausdruck"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:42
 msgid "Number of periods that the expression must be true before the elasticity is triggered"
-msgstr "Anzahl von Zeitintervallen, in denen der Ausdruck gelten muss, bevor die Elastizität ausgelöst wird"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:44
 msgid "Duration, in seconds, of each period in '# Periods'"
-msgstr "Dauer, in Sekunden, von jedem Zeitintervall in '# Periods'"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:44
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:26
 msgid "Period"
-msgstr "Zeitraum"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:46
 msgid "Cooldown period duration after a scale operation, in seconds"
-msgstr "Dauer der Nachkühlphase nach eine Skalierungsoperation, in Sekunden."
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:46
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:87
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:30
 msgid "Cooldown"
-msgstr "Abkühlphase"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:20
 #: ../app/tabs/vmgroup-tab/utils/role-tab/html.hbs:21
+#, fuzzy
 msgid "Role name"
-msgstr "Rollenname"
+msgstr "Rolle"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:27
 #: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:26
+#, fuzzy
 msgid "Number of VMs"
-msgstr "Anzahl VMs"
+msgstr "Anzahl der Virtuellen Maschinen für diese Rolle."
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:35
+#, fuzzy
 msgid "VM template to create this role's VMs"
-msgstr ""
+msgstr "Vm Vorlage erstellt"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:47
+#, fuzzy
 msgid "Network Interfaces"
-msgstr "Netzwerkschnittstelle"
+msgstr "Netzwerk ID"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:60
 msgid "Parent roles"
-msgstr "Oberrolle"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:76
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:32
+#, fuzzy
 msgid "Min VMs"
-msgstr "Min VMs"
+msgstr "VMs Öffnen"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:81
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:34
 msgid "Max VMs"
-msgstr "Max VMs"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:88
 msgid "Cooldown time after an elasticity operation (seconds)"
@@ -5175,8 +5252,9 @@ msgid "If it is not set, the one set for the Service will be used"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:149
+#, fuzzy
 msgid "VM template content"
-msgstr ""
+msgstr "Vm Vorlage erstellt"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:150
 msgid "This information will be merged with the original Virtual Machine template. Configuration attributes and network interfaces will be replaced by those provided by the user when the template is instantiated"
@@ -5189,89 +5267,97 @@ msgstr ""
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:23
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-row.hbs:23
 msgid "Percentage"
-msgstr "Prozentualer Anteil"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:33
 #: ../app/tabs/vms-tab/panels/info/html.hbs:63
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:117
 #: ../app/utils/accounting/html.hbs:19
+#, fuzzy
 msgid "Start time"
-msgstr "Startzeit"
+msgstr "Start Zeit"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:34
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:121
 msgid "Recurrence"
-msgstr "Wiederholung"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:20
 msgid "Scheduled policies"
-msgstr "Eingeplante Richtlinien"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:36
 msgid "Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute."
-msgstr "Optionaler Parameter für den PERCENTAGE_CHANGE Angleichungstyp. Falls vorhanden, wird die Kardinalität mindestens um die Anzahl der definierten VMs erhöht."
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:38
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:42
 msgid "Recurrence: Time for recurring adjustments. Time is specified with the Unix cron syntax"
-msgstr "Wiederholung: Zeitpunkt für wiederkehrende Angleichungen. Format des Zeitpunkts ist die Unix cron Syntax"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:39
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:43
 msgid "Start time: Exact time for the adjustment"
-msgstr "Startzeitpunkt: Genauer Zeitpunkt für die Angleichung"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:39
 msgid "Time format"
-msgstr "Zeitformat"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:41
 msgid "Time expression depends on the the time format selected"
-msgstr "Zeit-Ausdruck ist abhängig vom ausgewählten Zeitformat"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:43
 msgid "Time expression"
-msgstr "Zeit-Ausdruck"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:36
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:184
 #: ../app/tabs/hosts-tab/panels/esx/html.hbs:22
+#, fuzzy
 msgid "Hostname"
-msgstr "Hostname"
+msgstr "Host"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:49
+#, fuzzy
 msgid "Virtualization"
-msgstr "Virtualisierung"
+msgstr "Virtuelle Maschinen"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:58
+#, fuzzy
 msgid "Custom VMM_MAD"
-msgstr "Benutzerdefinierter VMM_MAD"
+msgstr "Benutzerdefiniert"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:75
+#, fuzzy
 msgid "Custom IM_MAD"
-msgstr "Benutzerdefinierter IM_MAD"
+msgstr "Benutzerdefiniert"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:86
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:121
 msgid "EC2"
-msgstr "EC2"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:89
 #: ../app/utils/panel/ec2-tr/html.hbs:2
+#, fuzzy
 msgid "Region name"
-msgstr "Name der Region"
+msgstr "Registrierungszeitpunkt"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:95
+#, fuzzy
 msgid "Access key ID"
-msgstr ""
+msgstr "Zugrifsschlüssel ID"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:99
+#, fuzzy
 msgid "Secret access key"
-msgstr ""
+msgstr "Privater Zugriffsschlüssel"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:107
 msgid "The valid list of instance types can be found in the official Amazon EC2 documentation, please use a value from the Model column of the following table: aws.amazon.com/ ec2/instance-types/"
-msgstr "Die gültige Liste der Instanztypen finden Sie in der offiziellen Amazon EC2 Dokumentation, bitte verwenden Sie einen Wert aus der Modellspalte der folgenden Tabelle: aws.amazon.com/ ec2/instance-types/"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:115
 #: ../app/utils/custom-tags-table/html.hbs:22
@@ -5291,45 +5377,52 @@ msgstr "Wert"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:141
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:22
+#, fuzzy
 msgid "OpenNebula"
-msgstr "OpenNebula"
+msgstr "Remote OpenNebula"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:144
+#, fuzzy
 msgid "Remote username"
-msgstr "Remote Benutzername"
+msgstr "Remote OpenNebula"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:148
+#, fuzzy
 msgid "Remote password"
-msgstr "Remote Passwort"
+msgstr "Momentanes Passwort"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:154
+#, fuzzy
 msgid "Remote endpoint"
-msgstr "Remote Endpunkt"
+msgstr "Endpunkt"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:160
+#, fuzzy
 msgid "Remote capacity"
-msgstr "Remote Kapazität"
+msgstr "Kapazität"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:198
+#, fuzzy
 msgid "Get Clusters"
-msgstr ""
+msgstr "Cluster"
 
 #: ../app/tabs/hosts-tab/panels/wilds/html.hbs:28
 #: ../app/tabs/hosts-tab/panels/zombies/html.hbs:22
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:41
 msgid "VM name"
-msgstr "VM Name"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/wilds/html.hbs:29
 msgid "Remote ID"
-msgstr "Remote ID"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:84
 #: ../app/tabs/clusters-tab/panels/info/html.hbs:41
 msgid "Overcommitment"
-msgstr "Overcommitment"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/pci/html.hbs:23
+#, fuzzy
 msgid "PCI Address"
 msgstr "PCI Adresse"
 
@@ -5337,28 +5430,33 @@ msgstr "PCI Adresse"
 #: ../app/tabs/provision-tab/dashboard/group-quotas.hbs:61
 #: ../app/tabs/provision-tab/dashboard/quotas.hbs:60
 msgid "MEMORY"
-msgstr "ARBEITSSPEICHER"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/utils/datastore-capacity-table/html.hbs:20
+#, fuzzy
 msgid "Datastore ID"
-msgstr "Datenspeicher ID"
+msgstr "Datenspeicher"
 
 #: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:20
+#, fuzzy
 msgid "Snapshot"
-msgstr "Snapshot"
+msgstr "Snapshots"
 
 #: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:28
+#, fuzzy
 msgid "Snapshot name"
-msgstr "Snapshot-Name"
+msgstr "Snapshots"
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:20
+#, fuzzy
 msgid "Migrate Virtual Machine"
-msgstr "Migriere die virtuelle Maschiene"
+msgstr "Virtuelle Maschine erstellen"
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:29
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:28
+#, fuzzy
 msgid "Select a Host"
-msgstr "Host auswählen"
+msgstr "Cluster auswählen"
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:37
 #: ../app/tabs/vms-tab/dialogs/resize/html.hbs:30
@@ -5370,12 +5468,13 @@ msgstr ""
 #: ../app/tabs/vms-tab/dialogs/resize/html.hbs:32
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:39
 msgid "If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced"
-msgstr "Falls dies auf \"true\" gesetzt ist wird die Kapazität des Hosts geprüft. Dies beeinflusst nur Anfragen von oneadmin, normale Benutzeranfragen werden stets durchgeführt."
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:46
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:46
+#, fuzzy
 msgid "Select a datastore"
-msgstr "Datenspeicher auswählen"
+msgstr "%1$s Datenspeicher auswählen"
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:32
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:32
@@ -5383,116 +5482,130 @@ msgstr "Datenspeicher auswählen"
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:144
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:56
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:66
+#, fuzzy
 msgid "Advanced Options"
-msgstr "Erweiterte Optionen"
+msgstr "Aktion hinzufügen"
 
 #: ../app/tabs/vms-tab/dialogs/disk-resize/html.hbs:20
 msgid "Disk Resize"
-msgstr "Festplatte vergrößern"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/disk-resize/html.hbs:28
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:28
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:28
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot-rename/html.hbs:28
 msgid "Disk ID"
-msgstr "Festplatten ID"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/disk-resize/html.hbs:34
 msgid "New size"
-msgstr "Neue Größe"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/disk-resize/html.hbs:42
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:157
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:43
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:108
 msgid "MONTH"
-msgstr "MONAT"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/disk-resize/html.hbs:47
 #: ../app/tabs/vms-tab/dialogs/resize/html.hbs:40
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:44
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:46
 msgid "Resize"
-msgstr "Grösse ändern"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/resize/html.hbs:20
 msgid "Resize VM capacity"
-msgstr "VM Kapazität anpassen"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:20
 #: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:20
+#, fuzzy
 msgid "Attach new nic"
-msgstr "Neue Netzwerkkarte einhängen"
+msgstr "Netzwerkkarte einbinden"
 
 #: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:31
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:29
 #: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:35
+#, fuzzy
 msgid "Attach"
-msgstr "Einhängen"
+msgstr "Netzwerkkarte einbinden"
 
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:20
+#, fuzzy
 msgid "Deploy Virtual Machine"
-msgstr "Virtuelle Maschine stationieren"
+msgstr "Virtuelle Maschinen"
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:20
+#, fuzzy
 msgid "Save as Template"
-msgstr "Als Vorlage speichern"
+msgstr "Service Vorlage"
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:28
 #: ../app/utils/vcenter/templates/row.hbs:72
+#, fuzzy
 msgid "Template name"
-msgstr "Name der Vorlage"
+msgstr "Vorlage"
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:35
+#, fuzzy
 msgid "Make the new images persistent"
-msgstr ""
+msgstr "Transient machen"
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:39
+#, fuzzy
 msgid "Save As Template"
-msgstr "Als Vorlage speichern"
+msgstr "Service Vorlage"
 
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:20
+#, fuzzy
 msgid "Disk Snapshot"
-msgstr ""
+msgstr "Snapshots"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:22
+#, fuzzy
 msgid "Loading"
-msgstr "Lade"
+msgstr "Wird geladen..."
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:24
 msgid "Send CtrlAltDel"
-msgstr "CtrlAltDel senden"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:25
 #: ../app/tabs/vms-tab/dialogs/spice/html.hbs:23
 msgid "Open in a new window"
-msgstr "Neues Fenster öffnen"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:36
 msgid "Canvas not supported."
-msgstr "Canvas wird nicht unterstützt"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:20
+#, fuzzy
 msgid "Attach new disk"
-msgstr "Neue Festplatte einhängen"
+msgstr "Netzwerkkarte einbinden"
 
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:20
+#, fuzzy
 msgid "Disk Saveas"
-msgstr ""
+msgstr "Festplatte gelesene bytes"
 
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:32
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot-rename/html.hbs:32
+#, fuzzy
 msgid "Snapshot ID"
-msgstr ""
+msgstr "Snapshots"
 
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:38
+#, fuzzy
 msgid "New Image name"
-msgstr "Neuer Abbildname"
+msgstr "Keine neuen Abbilder gefunden."
 
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:43
 #: ../app/tabs/vms-tab/panels/storage/disk-details.hbs:22
 msgid "Save as"
-msgstr "Speichern unter"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot-rename/html.hbs:20
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot-rename/html.hbs:43
@@ -5507,26 +5620,28 @@ msgstr ""
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:27
 #: ../app/utils/dialogs/generic-confirm/html.hbs:26
 #: ../app/utils/dialogs/confirm/html.hbs:25
+#, fuzzy
 msgid "You have to confirm this action."
-msgstr "Sie müssen diese Aktion bestätigen."
+msgstr "Sie müssen die Aktion bestätigen"
 
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:29
 #: ../app/utils/dialogs/generic-confirm/html.hbs:28
 #: ../app/utils/dialogs/confirm/html.hbs:27
 msgid "Do you want to proceed?"
-msgstr "Möchten Sie fortfahren?"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:33
 #: ../app/utils/dialogs/confirm-with-select/html.hbs:36
 #: ../app/utils/dialogs/generic-confirm/html.hbs:31
 #: ../app/utils/dialogs/confirm/html.hbs:30
 msgid "OK"
-msgstr "OK"
+msgstr ""
 
 #: ../app/tabs/vms-tab/form-panels/updateconf/advanced.hbs:20
 #: ../app/tabs/templates-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
 msgid "Write the Virtual Machine template here"
-msgstr "Definieren Sie hier die Vorlage der virtuellen Maschine"
+msgstr "Gruppe von virtuellen Maschinen erstellen"
 
 #: ../app/tabs/vms-tab/datatable/search.hbs:28
 msgid "VM type"
@@ -5540,38 +5655,42 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:43
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:148
 msgid "VCPU"
-msgstr "VCPU"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:26
 msgid "Cost / CPU"
-msgstr "Kosten / CPU"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:27
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:51
 msgid "Cost / MByte"
-msgstr "Kosten / MByte"
-
-#: ../app/tabs/vms-tab/panels/capacity/html.hbs:78
-msgid "Real memory"
 msgstr ""
 
+#: ../app/tabs/vms-tab/panels/capacity/html.hbs:78
+#, fuzzy
+msgid "Real memory"
+msgstr "Reeller Arbeitsspeicher"
+
 #: ../app/tabs/vms-tab/panels/template/html.hbs:19
+#, fuzzy
 msgid "User template"
-msgstr "User Vorlage"
+msgstr "Sperren der Vorlage."
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:40
+#, fuzzy
 msgid "LCM State"
-msgstr "LCM Status"
+msgstr "Status"
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:57
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:29
 #: ../app/utils/nics-section/dd.hbs:36
 msgid "Alias"
-msgstr "Alias"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:68
+#, fuzzy
 msgid "Deploy ID"
-msgstr "Deploy ID"
+msgstr "Ausrollen"
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:105
 msgid "Monitoring"
@@ -5582,72 +5701,83 @@ msgid "Image / Size-Format"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:33
+#, fuzzy
 msgid "Attach disk"
-msgstr "Festplatte einbinden"
+msgstr "Netzwerkkarte einbinden"
 
 #: ../app/tabs/vms-tab/panels/conf/html.hbs:22
+#, fuzzy
 msgid "Update Configuration"
-msgstr ""
+msgstr "VM Konfiguration aktualisieren"
 
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:19
+#, fuzzy
 msgid "Clone Security Group"
-msgstr "Sicherheitsgruppe klonen"
+msgstr "Sicherheitsgruppe erstellen"
 
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:27
 msgid "Several security groups are selected, please choose a prefix to name the new copies"
-msgstr "Mehrere Sicherheitsgruppen sind ausgewählt, bitte wählen Sie ein Präfix, um die neuen Kopien zu benennen."
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
 msgid "Write the Security Group template here"
-msgstr ""
+msgstr "Sicherheitsgruppe erstellen"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:33
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:43
 msgid "Rules"
-msgstr "Regeln"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:37
 msgid "Traffic direction"
-msgstr "Richtung"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:77
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:150
+#, fuzzy
 msgid "ICMPv6 Type"
-msgstr "ICMPv6 Typ"
+msgstr "ICMP Typ"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:92
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:96
 msgid "Port range"
-msgstr "Port Bereich"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:106
+#, fuzzy
 msgid "Target Network"
-msgstr "Zielnetz"
+msgstr "Virtuelles Netzwerk"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:109
+#, fuzzy
 msgid "Any network"
-msgstr "jedes Netzwerk"
+msgstr "Netzwerk"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:110
+#, fuzzy
 msgid "Manual network"
-msgstr "Manuelles Netzwerk"
+msgstr "Virtuelles Netzwerk"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:111
+#, fuzzy
 msgid "OpenNebula Virtual Network"
-msgstr "OpenNebula Virtuelles Netzwerk"
+msgstr "Virtuelles Netzwerk erstellen"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:115
+#, fuzzy
 msgid "First IP/IPv6 address"
-msgstr "Erste IP/IPv6 Adresse"
+msgstr "IPv6 Adresse"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:136
 msgid "Add rule"
-msgstr "Regel hinzufügen"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:147
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:52
+#, fuzzy
 msgid "Port Range"
-msgstr "Port Bereich"
+msgstr "Bereich"
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:19
 msgid "VMs marked with <i class='fas fa-exclamation-triangle'></i> are waiting to be updated with the latest rules:"
@@ -5659,31 +5789,34 @@ msgstr ""
 
 #: ../app/tabs/clusters-tab/panels/info/html.hbs:52
 #: ../app/utils/dialogs/overcommit/html.hbs:45
+#, fuzzy
 msgid "Reserved CPU"
-msgstr "Reservierte CPU"
+msgstr "Reserve"
 
 #: ../app/tabs/clusters-tab/panels/info/html.hbs:58
+#, fuzzy
 msgid "Reserved Memory"
-msgstr "Reservierter Speicher"
+msgstr "Genutzter Arbeitsspeicher"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:20
 msgid "New Groups are automatically added to the default VDC"
-msgstr "Neue Gruppen werden automatisch zum Standard VDC hinzugefügt"
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:33
 #: ../app/sunstone/user_and_zone.hbs:52
 msgid "Views"
-msgstr "Ansichten"
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:37
 #: ../app/utils/panel/permissions-table/permissions.hbs:22
 msgid "Admin"
-msgstr "Administrator"
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:42
 #: ../app/utils/panel/permissions-table/permissions.hbs:19
+#, fuzzy
 msgid "Permissions"
-msgstr "Berechtigungen"
+msgstr "Version"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:67
 msgid "Allow users in this group to use the following Sunstone views"
@@ -5695,35 +5828,40 @@ msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:79
 msgid "Default Users View"
-msgstr "Standard Benutzeransicht"
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:83
 msgid "Default Admin View"
-msgstr "Standard Adminansicht"
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:101
+#, fuzzy
 msgid "Group Users"
-msgstr "Benutzergruppe"
+msgstr "Gruppen"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:102
+#, fuzzy
 msgid "Group Admins"
-msgstr "Admingruppe"
+msgstr "Gruppen"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:137
+#, fuzzy
 msgid "Create an administrator user"
-msgstr "Erstelle einen administrativen Nutzer"
+msgstr "Datenspeicher erstellen"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:139
 msgid "You can create now an administrator user. More administrators can be added later."
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:151
+#, fuzzy
 msgid "Image & Datastore"
-msgstr ""
+msgstr "Datenspeicher erstellen"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:155
+#, fuzzy
 msgid "Make new images persistent by default"
-msgstr ""
+msgstr "Transient machen"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:157
 msgid "Control the default value for the PERSISTENT attribute on image creation (oneimage create)."
@@ -5746,8 +5884,9 @@ msgid "An ACL Rule will be created to give users in this group access to all the
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:200
+#, fuzzy
 msgid "Allow users in this group to create the following resources"
-msgstr ""
+msgstr "Sie haben die folgende Ressource ausgewählt:"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:203
 msgid "This will create new ACL Rules to define which virtual resources this group's users will be able to create."
@@ -5774,20 +5913,23 @@ msgid "Users marked with <i class='fas fa-star'></i> are administrators"
 msgstr ""
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:19
+#, fuzzy
 msgid "Clone Image"
-msgstr "Abbild klonen"
+msgstr "vCenter Abbilder"
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:27
 msgid "Several images are selected, please choose a prefix to name the new copies"
 msgstr ""
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:36
+#, fuzzy
 msgid "You can select a different target datastore"
-msgstr ""
+msgstr "Sie haben folgenden Datenspeicher ausgewählt:"
 
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:26
+#, fuzzy
 msgid "Get Images"
-msgstr ""
+msgstr "vCenter Abbilder"
 
 #: ../app/tabs/images-tab/form-panels/create/advanced.hbs:26
 msgid "Write the Image template here"
@@ -5795,11 +5937,11 @@ msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:39
 msgid "Operating System image"
-msgstr "Betriebssystemabbild"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:40
 msgid "Readonly CD-ROM"
-msgstr "Nur-Lesen CD-ROM"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:41
 msgid "Generic storage datablock"
@@ -5808,29 +5950,33 @@ msgstr ""
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:44
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:23
 msgid "Kernel"
-msgstr "Kernel"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:45
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:26
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:106
 msgid "Ramdisk"
-msgstr "Ramdisk"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:63
+#, fuzzy
 msgid "This image is persistent"
-msgstr ""
+msgstr "Beständig machen"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:80
+#, fuzzy
 msgid "Image location"
-msgstr "Ablageort des Abbilds"
+msgstr "Pfad zum Abbild"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:84
+#, fuzzy
 msgid "Path in OpenNebula server"
-msgstr ""
+msgstr "Registrierung in OpenNebula"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:86
+#, fuzzy
 msgid "Upload"
-msgstr "Hochladen"
+msgstr "Lade hoch..."
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:89
 msgid "Empty disk image"
@@ -5838,7 +5984,7 @@ msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:97
 msgid "Path"
-msgstr "Pfad"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:128
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:63
@@ -5853,23 +5999,25 @@ msgstr ""
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:167
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:26
 msgid "BUS"
-msgstr "BUS"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:184
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:11
 msgid "Image mapping driver"
-msgstr "Treiber für das Abbild-Mapping"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:204
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:4
+#, fuzzy
 msgid "Target device"
-msgstr "Zielgerät"
+msgstr "Service erstellen"
 
 #: ../app/tabs/images-tab/panels/info/html.hbs:64
 msgid "Filesystem type"
-msgstr "Dateisystemtyp"
+msgstr ""
 
 #: ../app/tabs/images-tab/panels/info/html.hbs:79
+#, fuzzy
 msgid "Running VMS"
 msgstr "Laufende VMs"
 
@@ -5878,67 +6026,76 @@ msgid "Flatten"
 msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:29
+#, fuzzy
 msgid "Change Language"
-msgstr "Sprache ändern"
+msgstr "Besitzer wechseln"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:41
+#, fuzzy
 msgid "Update Language"
-msgstr "Sprache aktualisieren"
+msgstr "Cluster aktualisieren"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:63
+#, fuzzy
 msgid "Change Password"
-msgstr "Passwort ändern"
+msgstr "Passwort"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:70
+#, fuzzy
 msgid "New Password"
-msgstr "Neues Passwort"
+msgstr "Passwort"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:104
+#, fuzzy
 msgid "Change view"
-msgstr "Ansicht welchseln"
+msgstr "Uhrzeit ändern"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:116
+#, fuzzy
 msgid "Update view"
-msgstr "Ansicht aktualisieren"
+msgstr "Aktualisieren"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:141
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:165
 msgid "Add SSH Key"
-msgstr "SSH-Schlüssel hinzufügen"
+msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:142
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:166
+#, fuzzy
 msgid "Update SSH Key"
-msgstr "SSH-Schlüssel aktualisieren"
+msgstr "Aktualisieren"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:148
 msgid "Add a public SSH key to your account!"
-msgstr "Fügen Sie einen öffentlichen SSH-Schlüssel zu Ihrem Konto hinzu!"
+msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:150
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:155
 msgid "You will be able to access your Virtual Machines without password"
-msgstr "Sie können ohne Passwort auf Ihre virtuellen Maschinen zugreifen."
+msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:153
 msgid "Update your public SSH key!"
-msgstr "Aktualisieren Sie Ihren öffentlichen SSH-Schlüssel!"
+msgstr ""
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:19
+#, fuzzy
 msgid "Clone Template"
-msgstr "Vorlage klonen"
+msgstr "vCenter Vorlagen"
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:40
 msgid "You can also clone any Image referenced inside this Template. They will be cloned to a new Image, and made persistent."
 msgstr ""
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:44
+#, fuzzy
 msgid "Clone with Images"
-msgstr ""
+msgstr "vCenter Abbilder"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:61
 msgid "Instantiate as different User / Group"
-msgstr "Instanziierung als unterschiedlicher Benutzer / Gruppe"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:91
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:111
@@ -5946,31 +6103,33 @@ msgstr "Instanziierung als unterschiedlicher Benutzer / Gruppe"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:61
 #: ../app/utils/nics-section/dd.hbs:78
 msgid "Boolean expression that rules out entries from the pool of datastores suitable to run this VM."
-msgstr "Boolescher Ausdruck, der für das Starten der VM inkompatabile Datenspeicher aussortiert."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:81
 msgid "Deploy VM in a specific Host"
-msgstr "VM auf einem bestimmten Host bereitstellen"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:101
 msgid "Deploy VM in a specific Datastore"
-msgstr "VM in einem bestimmten Datenspeicher bereitstellen"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:121
 msgid "Schedule Actions for VM"
-msgstr "Aktion für VM planen"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:130
 msgid "Associate VM to a VM Group"
-msgstr "VM einer VM-Gruppe zuordnen"
-
-#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:147
-msgid "vCenter Deployment"
 msgstr ""
 
+#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:147
+#, fuzzy
+msgid "vCenter Deployment"
+msgstr "vCenter Vorlagen"
+
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:32
+#, fuzzy
 msgid "Instantiate as persistent"
-msgstr "Persistent instanziieren"
+msgstr "VM Vorlage instanziieren"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:33
 #: ../app/tabs/provision-tab/vms/create.hbs:42
@@ -5984,23 +6143,25 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:59
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:41
 msgid "Start on hold"
-msgstr "Start pausiert"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:61
 msgid "Sets the new VM to hold state, instead of pending. The scheduler will not deploy VMs in this state. It can be released later, or deployed manually."
-msgstr "Setzt die neue VM auf den Status hold, anstatt auf pending. Der Scheduler wird in diesem Zustand keine VMs bereitstellen. Es kann später freigegeben oder manuell bereitgestellt werden."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/import/html.hbs:22
+#, fuzzy
 msgid "Get Templates"
-msgstr ""
+msgstr "Vorlagen"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:24
 msgid "Hypervisor"
-msgstr "Hypervisor"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:26
+#, fuzzy
 msgid "KVM"
-msgstr "KVM"
+msgstr "VM"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:30
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:115
@@ -6009,19 +6170,22 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:44
 msgid "Logo"
-msgstr "Logo"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:62
+#, fuzzy
 msgid "vCenter Template Ref"
-msgstr "vCenter Vorlage Ref"
+msgstr "vCenter Vorlagen"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:70
+#, fuzzy
 msgid "vCenter Cluster Ref"
-msgstr "vCenter Cluster Ref"
+msgstr "vCenter ref"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:76
+#, fuzzy
 msgid "vCenter Instance ID"
-msgstr "vCenter Instanz ID"
+msgstr "vCenter Abbilder"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:84
 msgid "Default Resource Pool"
@@ -6044,20 +6208,23 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:107
 #: ../app/utils/vcenter-vm-folder/html.hbs:20
+#, fuzzy
 msgid "vCenter VM Folder"
-msgstr "vCenter VM Ordner"
+msgstr "vCenter ref"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:108
 msgid "If specified, the the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:119
+#, fuzzy
 msgid "Security Privileged"
-msgstr ""
+msgstr "Sicherheitsgruppe erstellt"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:130
+#, fuzzy
 msgid "Security Nesting"
-msgstr ""
+msgstr "Sicherheit"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:141
 msgid "Profile"
@@ -6065,68 +6232,71 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:163
 msgid "Cost of each MB or GB per hour"
-msgstr "Kosten pro MB oder GB pro Stunde"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:177
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:191
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:203
+#, fuzzy
 msgid "month"
-msgstr "Monat"
+msgstr "Monate"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:184
 msgid "Cost of each CPU per hour"
-msgstr "Kosten pro CPU pro Stunde"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:196
 msgid "Disk"
-msgstr "Festplatte"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:197
 msgid "Cost of each GB per hour"
-msgstr "Kosten pro GB pro Stunde"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:214
 msgid "Do not allow to modify network configuration"
-msgstr "Keine Änderung der Netzwerkkonfiguration zulassen"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:215
 msgid "Users will not be able to remove or add new NICs"
-msgstr "Benutzer können keine neuen NICs entfernen oder hinzufügen."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:223
 msgid "Make this template available for Virtual Router machines only"
-msgstr "Diese Vorlage nur für Virtual Router Maschinen verfügbar machen"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:224
 msgid "Virtual Routers create Virtual Machines from a source Template. This checkbox makes this template available to be selected in the New Virtual Router wizard"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:234
+#, fuzzy
 msgid "Instantiate as a different user"
-msgstr ""
+msgstr "Virtuelles Netzwerk instanziieren"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:246
 msgid "Instantiate as a different group"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:228
+#, fuzzy
 msgid "User / Group"
-msgstr "Benutzer / Gruppe"
+msgstr "Gruppe aktualisieren"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:22
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:23
 msgid "Amount of RAM required for the VM, in Megabytes."
-msgstr "Arbeitsspeicher der virtuellen Maschine in Megabyte"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:34
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:101
 msgid "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5."
-msgstr "Prozentsatz der CPU / 100 die für die virtuelle Maschine benötigt wird. Die Hälfe des Prozessor ist beispielsweise 0.5."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:44
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:149
 msgid "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU."
-msgstr "Anzahl der virtuellen CPUs. Der Wert ist optional, wird er nicht angegeben, so gilt der Standardwert des Hypervisor (typischerweise eine virtuelle CPU)."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:52
 msgid "Memory modification"
@@ -6152,8 +6322,9 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:125
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:169
 #: ../app/utils/user-inputs/row.hbs:16
+#, fuzzy
 msgid "range"
-msgstr ""
+msgstr "Bereich"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:61
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:126
@@ -6167,8 +6338,9 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:135
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:179
 #: ../app/utils/user-inputs/row.hbs:51 ../app/utils/user-inputs/row.hbs:68
+#, fuzzy
 msgid "Max"
-msgstr ""
+msgstr "Mai"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:117
 msgid "CPU modification"
@@ -6188,20 +6360,20 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:20
 msgid "Boot"
-msgstr "Starten"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:29
 msgid "Features"
-msgstr "Eigenschaften"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:32
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:261
 msgid "CPU Model"
-msgstr "CPU Modell"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:42
 msgid "CPU Architecture"
-msgstr "CPU Architektur"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:52
 msgid "machine type"
@@ -6213,7 +6385,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:67
 msgid "Boot order"
-msgstr "Bootreihenfolge"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:68
 msgid "Select the devices to boot from, and their order"
@@ -6225,56 +6397,62 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:88
 msgid "Path to the bootloader executable"
-msgstr "Pfad zum Bootloader-Executable"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:98
+#, fuzzy
 msgid "Registered Image"
-msgstr "Registriertes Abbild"
+msgstr "vCenter Abbilder"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:100
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:130
+#, fuzzy
 msgid "Remote path"
-msgstr "Remote Pfad"
+msgstr "Remote OpenNebula"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:109
+#, fuzzy
 msgid "KERNEL_DS"
-msgstr "KERNEL_DS"
+msgstr "KERNEL"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:118
 msgid "Path to the OS kernel to boot the image"
-msgstr "Pfad zu dem OS Kernel, welcher das Abbild bootet. "
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:128
+#, fuzzy
 msgid "Registered Image "
-msgstr "Registriertes Abbild"
+msgstr "vCenter Abbilder"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:139
+#, fuzzy
 msgid "INITRD_DS"
-msgstr "INITRD_DS"
+msgstr "INIT"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:149
 msgid "Path to the initrd image"
-msgstr "Pfad für das initrd image"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:160
 msgid "ACPI"
-msgstr "ACPI"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:161
 msgid "Add support in the VM for Advanced Configuration and Power Interface (ACPI)"
-msgstr "Unterstützung für Advanced Configuration and Power Interface (ACPI) zur VM hinzufügen"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:171
+#, fuzzy
 msgid "PAE"
-msgstr "PAE"
+msgstr "AKTUALISIERUNG"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:172
 msgid "Add support in the VM for Physical Address Extension (PAE)"
-msgstr "Unterstützung für Physical Address Extension (PAE) zur VM hinzufügen"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:184
 msgid "APIC"
-msgstr "APIC"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:185
 msgid "Enables the advanced programmable IRQ management."
@@ -6282,23 +6460,24 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:195
 msgid "HYPERV"
-msgstr "HYPERV"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:196
 msgid "Add support in the VM for hyper-v features (HYPERV)"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:208
+#, fuzzy
 msgid "Localtime"
-msgstr "Lokale Zeit"
+msgstr "Gesamtzeit"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:209
 msgid "The guest clock will be synchronized to the hosts configured timezone when booted."
-msgstr "Die Gastuhr wird beim Booten mit der konfigurierten Zeitzone des Hosts synchronisiert."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:219
 msgid "QEMU Guest Agent"
-msgstr "QEMU Gast-Agent"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:220
 msgid "Enables the QEMU Guest Agent communication. This does not start the Guest Agent inside the VM."
@@ -6313,8 +6492,9 @@ msgid "Number of vCPU queues to use in the virtio-scsi controller. Leave blank t
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:4
+#, fuzzy
 msgid "AMI"
-msgstr "AMI"
+msgstr "RAMDISK"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:5
 msgid "Unique ID of a machine image, returned by a call to ec2-describe-images."
@@ -6322,20 +6502,21 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:11
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:11
+#, fuzzy
 msgid "Instance type"
-msgstr "Instanz-Typ"
+msgstr "Instanzen"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:20
 msgid "AKI"
-msgstr "AKI"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:21
 msgid "The ID of the kernel with which to launch the instance."
-msgstr "Die ID des Kernels, mit dem die Instanz gestartet werden soll."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:27
 msgid "Availability zone"
-msgstr "Verfügbarkeitszone"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:35
 msgid "Block device mapping"
@@ -6347,7 +6528,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:42
 msgid "Client token"
-msgstr "Client Token"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:43
 msgid "Unique, case-sensitive identifier you provide to ensure idempotency of the request."
@@ -6355,23 +6536,25 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:51
 msgid "EBS optimized"
-msgstr "EBS optimiert"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:52
 msgid "Obtain a better I/O throughput for VMs with EBS provisioned volumes"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:58
+#, fuzzy
 msgid "Elastic IP address"
-msgstr "Elastic IP Adresse"
+msgstr "IPv6 Adresse"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:59
 msgid "This parameter is passed to the command ec2-associate-address -i i-0041230 elasticip."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:67
+#, fuzzy
 msgid "OpenNebula Host"
-msgstr "OpenNebula Host"
+msgstr "OpenNebula Cluster-IDs"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:68
 msgid "Defines which OpenNebula host will use this template"
@@ -6390,24 +6573,26 @@ msgid "License pool name"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:91
+#, fuzzy
 msgid "Placement group name"
-msgstr ""
+msgstr "Platzierung - Datenspeicher"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:99
 msgid "Private IP"
-msgstr "Private IP"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:100
 msgid "If you're using Amazon Virtual Private Cloud, you can optionally use this parameter to assign the instance a specific available IP address from the subnet."
-msgstr "Wenn Sie Amazon Virtual Private Cloud verwenden, können Sie optional diesen Parameter verwenden, um der Instanz eine bestimmte verfügbare IP-Adresse aus dem Subnetz zuzuweisen."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:107
 msgid "The ID of the RAM disk to select."
-msgstr "Die ID der zu wählenden RAM-Disk."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:115
+#, fuzzy
 msgid "Security group names"
-msgstr ""
+msgstr "Sicherheitsgruppen"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:116
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:123
@@ -6415,16 +6600,17 @@ msgid "You can specify more than one security group (comma separated)."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:122
+#, fuzzy
 msgid "Security group IDs"
-msgstr ""
+msgstr "Sicherheitsgruppen"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:131
 msgid "Subnet ID"
-msgstr "Subnetz ID"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:132
 msgid "If you're using Amazon Virtual Private Cloud, this specifies the ID of the subnet you want to launch the instance into. This parameter is also passed to the command ec2-associate-address -i i-0041230 -a elasticip."
-msgstr "Wenn Sie Amazon Virtual Private Cloud verwenden, gibt dies die ID des Subnetzes an, in dem Sie die Instanz starten möchten. Dieser Parameter wird auch an den Befehl ec2-associate-address -i i-0041230 -a elasticip übergeben."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:139
 msgid "Key and optional value of the tag, separated by an equals sign ( = ).You can specify more than one tag (comma separated)."
@@ -6435,8 +6621,9 @@ msgid "Tenancy"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:153
+#, fuzzy
 msgid "User data"
-msgstr ""
+msgstr "Nutzer erstellt"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:154
 msgid "Specifies Base64-encoded MIME user data to be made available to the instance(s) in this reservation."
@@ -6452,39 +6639,41 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:21
 msgid "Azure datacenter where the VM will be sent. See /etc/one/az_driver.conf for possible values (under region_name)"
-msgstr "Azure Datacenter in das die VM gesendet wird. Siehe /etc/one/az_driver.conf für mögliche Werte (unter region_name)"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:29
 msgid "VM user name"
-msgstr "VM Benutzername"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:30
 msgid "If the selected IMAGE is prepared for Azure provisioning, a username can be specified here to access the VM once booted"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:36
+#, fuzzy
 msgid "VM user password"
-msgstr "VM Benutzerpasswort"
+msgstr "Momentanes Passwort"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:37
 msgid "Password for VM User"
-msgstr "Passwort für VM Benutzer"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:46
 msgid "Affinity group"
-msgstr "Affinitätsgruppe"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:47
 msgid "Affinity groups allow you to group your Azure services to optimize performance. All services and VMs within an affinity group will be located in the same region"
-msgstr "Mit Affinitätsgruppen können Azure-Dienste gruppiert werden, um die Leistung zu optimieren. Alle Services und VMs innerhalb einer Affinitätsgruppe werden in der gleichen Region platziert."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:53
 msgid "Availability set"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:61
+#, fuzzy
 msgid "Cloud service"
-msgstr ""
+msgstr "Service"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:62
 msgid "Specifies the name of the cloud service where this VM will be linked. Defaults to 'OpennebulaDefaultCloudServiceName'"
@@ -6492,53 +6681,59 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:68
 msgid "SSH port"
-msgstr "SSH Port"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:69
 msgid "Port where the VMs ssh server will listen on"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:77
+#, fuzzy
 msgid "Storage account"
-msgstr ""
+msgstr "Speicher"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:83
 msgid "Subnet name"
-msgstr "Subnetz"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:84
 msgid "Name of the particular Subnet where this VM will be connected to"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:92
+#, fuzzy
 msgid "TCP endpoints"
-msgstr "TCP Endpunkte"
+msgstr "Endpunkt"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:93
+#, fuzzy
 msgid "Comma-separated list of TCP ports to be accessible from the public internet to this VM"
-msgstr ""
+msgstr "Kommagetrennte Liste von Servern für den Zugriff auf das Abbild-Verzeichnis, falls nicht lokal"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:99
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:125
+#, fuzzy
 msgid "Virtual Network name"
-msgstr "Name des virtuellen Netzwerks"
+msgstr "Virtuelles Netzwerk"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:107
 msgid "Win RM"
-msgstr "Win RM"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:108
+#, fuzzy
 msgid "Comma-separated list of possible protocols to access this Windows VM"
-msgstr "Kommagetrennte Liste möglicher Protokolle für den Zugriff auf diese Windows VM"
+msgstr "Kommagetrennte Liste von Servern für den Zugriff auf das Abbild-Verzeichnis, falls nicht lokal"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/opennebula.hbs:4
+#, fuzzy
 msgid "Remote VM Template ID"
-msgstr "Remote VM Vorlage ID"
+msgstr "VM Vorlage erstellen"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:21
 #: ../app/utils/nics-section/dd.hbs:28
 msgid "Interface type"
-msgstr "Schnittstellentyp"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:30
 #: ../app/utils/nics-section/dd.hbs:37
@@ -6552,13 +6747,14 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:39
 #: ../app/utils/nics-section/dd.hbs:46
+#, fuzzy
 msgid "Network selection"
-msgstr ""
+msgstr "Netzwerk Empfang"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:47
 #: ../app/utils/nics-section/dd.hbs:55
 msgid "Automatic selection"
-msgstr "Automatische Auswahl"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:48
 #: ../app/utils/nics-section/dd.hbs:56
@@ -6567,13 +6763,15 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:55
 #: ../app/utils/nics-section/dd.hbs:63
+#, fuzzy
 msgid "Network Requirements"
-msgstr ""
+msgstr "Anforderungen"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:59
 #: ../app/utils/nics-section/dd.hbs:67
+#, fuzzy
 msgid "Select Vnets "
-msgstr ""
+msgstr "Neuen Besitzer auswählen"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:61
 #: ../app/utils/nics-section/dd.hbs:69
@@ -6582,15 +6780,16 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:78
 #: ../app/utils/nics-section/dd.hbs:85
+#, fuzzy
 msgid "Network Rank"
-msgstr ""
+msgstr "Netzwerk"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:83
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:75
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:107
 #: ../app/utils/nics-section/dd.hbs:90
 msgid "Packing"
-msgstr "Komprimierung"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:84
 #: ../app/utils/nics-section/dd.hbs:91
@@ -6601,8 +6800,9 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:80
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:112
 #: ../app/utils/nics-section/dd.hbs:95
+#, fuzzy
 msgid "Stripping"
-msgstr "Stripping"
+msgstr "ACL Zeichenfolge"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:89
 #: ../app/utils/nics-section/dd.hbs:96
@@ -6615,40 +6815,44 @@ msgid "This field sets which attribute will be used to sort the suitable vnets f
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:115
+#, fuzzy
 msgid "Choose Network"
-msgstr "Netzwerk auswählen"
+msgstr "vCenter Netzwerke"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:119
+#, fuzzy
 msgid "Virtual Network ID"
-msgstr "ID Virtuelles Netzwerk"
+msgstr "Virtuelles Netzwerk"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:133
+#, fuzzy
 msgid "Virtual Network owner's user ID"
-msgstr "Benutzer-ID des Eigentümers des virtuellen Netzwerks"
+msgstr "Virtuelle Netzwerke"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:139
+#, fuzzy
 msgid "Virtual Network owner's user Name"
-msgstr "Benutzername des Eigentümers des virtuellen Netzwerks"
+msgstr "Virtuelles Netzwerk erstellt"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:147
 msgid "OPEN NEBULA MANAGEMENT"
-msgstr "OPEN NEBULA VERWALTUNG"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:154
 msgid "Override Network Values IPv4"
-msgstr "Überschreiben von IPv4-Netzwerkwerten"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:200
 msgid "Search domain for DNS resolution"
-msgstr "Suchdomain für DNS-Auflösung"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:207
 msgid "Override Network Values IPv6"
-msgstr "Überschreiben von IPv6-Netzwerkwerten"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:225
 msgid "Force IPv4 context"
-msgstr "IPv4 Kontext erzwingen"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:226
 msgid "Override force IPv4 for this IPv6 network. Values: Yes or No."
@@ -6663,14 +6867,14 @@ msgstr ""
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:277
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:300
 msgid "Average bandwidth (KBytes/s)"
-msgstr "Mittlere Bandbreite (KBytes/s)"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:243
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:266
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:283
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:306
 msgid "Peak bandwidth (KBytes/s)"
-msgstr "Spitzen-Bandbreite (KBytes/s)"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:249
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:272
@@ -6685,7 +6889,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:279
 msgid "Hardware"
-msgstr "Hardware"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:284
 msgid "PCI passthrough"
@@ -6696,8 +6900,9 @@ msgid "Hardware model to emulate"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:297
+#, fuzzy
 msgid "Transmission queue"
-msgstr ""
+msgstr "Netzwerk Übertragungsgeschwindigkeit"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:298
 msgid "Only supported for virtio driver."
@@ -6705,23 +6910,25 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:308
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:129
+#, fuzzy
 msgid "Device name"
-msgstr "Gerätename"
+msgstr "Service erstellt"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:309
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:130
 msgid "Vendor"
-msgstr "Hersteller"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:310
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:131
+#, fuzzy
 msgid "Device"
-msgstr "Gerät"
+msgstr "Service"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:311
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:132
 msgid "Class"
-msgstr "Klasse"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:326
 msgid "Security Groups belonging to the selected Virtual Network will be applied and cannot be unselected"
@@ -6737,43 +6944,46 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:18
 msgid "Contextualization type"
-msgstr "Kontextualisierungstyp"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:29
+#, fuzzy
 msgid "vCenter customizations"
-msgstr "vCenter Anpassungen"
+msgstr "vCenter Informationen"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:42
+#, fuzzy
 msgid "Configuration"
-msgstr "Konfiguration"
+msgstr "VM Konfiguration aktualisieren"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:48
+#, fuzzy
 msgid "Custom vars"
-msgstr "Benutzerdefinierte Variablen"
+msgstr "Benutzerdefiniert"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:61
 msgid "  Add SSH contextualization"
-msgstr "Hinzufügen der SSH Kontextualisierung"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:62
 msgid "Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used."
-msgstr "Einen öffentlichen SSK-KEY zum Kontext hinzufügen. Falls das Textfeld für den öffentlichen Schlüssel leer ist, wird die Benutzervariable SSH_PUBLIC_KEY verwendet."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:69
 msgid "SSH public key"
-msgstr "Öffentlicher SSH Schlüssel"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:80
 msgid "  Add Network contextualization"
-msgstr "Hinzufügen der Netzwerk Kontextualisierung"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:81
 msgid "Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine"
-msgstr "Parameter der Netzwerkkontextualisierung hinzufügen. Für jede NIC, die im NETWORK Abschnitt definiert ist, werden Parameter ETH$i_IP, ETH$i_NETWORK... in den CONTEXT Abschnitt eingebunden und in der virtuellen Maschine verfügbar sein."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:89
 msgid "  Add OneGate token"
-msgstr "OneGate Token hinzufügen"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:90
 msgid "Add a file (token.txt) to the context containing the token to push custom metrics to the VirtualMachine through OneGate"
@@ -6785,11 +6995,12 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:99
 msgid "Sends READY=YES to OneGate, useful for OneFlow"
-msgstr "Sendet READY=YES an OneGate, nützlich für OneFlow"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:108
+#, fuzzy
 msgid "Start script"
-msgstr "Startskript"
+msgstr "Start Zeit"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:109
 msgid "Text of the script executed when the machine starts up. It can contain shebang in case it is not shell script"
@@ -6797,109 +7008,122 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:113
 msgid "Encode script in Base64"
-msgstr "Skript in Base64 kodieren"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:120
+#, fuzzy
 msgid "User Inputs"
-msgstr "Benutzereingaben"
+msgstr "Benutzer"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:121
 msgid "These attributes must be provided by the user when a new VM is instantiated. They will be included in the VM context"
-msgstr "Diese Attribute müssen vom Benutzer bei der Instanziierung einer neuen VM angegeben werden. Sie werden in den VM-Kontext aufgenommen."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:136
+#, fuzzy
 msgid "FILES_DS"
-msgstr "DATEI_DS"
+msgstr "DATEI"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:144
 msgid "Init scripts"
-msgstr "Initialisierungsskripte"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:145
 msgid "The contextualization package executes an init.sh file if it exists. If more than one script file is added, this list contains the scripts to run and their order"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:20
+#, fuzzy
 msgid "Graphics"
-msgstr "Grafik"
+msgstr ""
+"Diagramme\n"
+"Graphen"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:37
 msgid "Listen on IP"
-msgstr "Lausche auf IP"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:45
+#, fuzzy
 msgid "Server port"
-msgstr "Server Port"
+msgstr "Service erstellt"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:46
 msgid "Port for the VNC/SPICE server"
-msgstr "Port des VNC/SPICE Servers"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:52
 msgid "Keymap"
-msgstr "Tastaturlayout"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:69
+#, fuzzy
 msgid "Generate random password"
-msgstr "Zufallspasswort generieren"
+msgstr "Momentanes Passwort"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:77
 msgid "Inputs"
-msgstr "Eingaben"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:84
 msgid "Mouse"
-msgstr "Maus"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:85
+#, fuzzy
 msgid "Tablet"
-msgstr "Tablet"
+msgstr "Aktivieren"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:91
 msgid "Bus"
-msgstr "Bus"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:94
 msgid "USB"
-msgstr "USB"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:95
 msgid "PS2"
-msgstr "PS2"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:101
 #: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:30
 #: ../app/utils/schedule_action/html.hbs:121
 msgid "Add"
-msgstr "Hinzufügen"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:116
+#, fuzzy
 msgid "PCI Devices"
-msgstr "PCI Gerät"
+msgstr "Services"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:120
 msgid "PCI passthrough of network devices is configured per NIC, in the \"Network\" tab. Do not add network devices here"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/html.hbs:20
+#, fuzzy
 msgid "Storage Options"
-msgstr ""
+msgstr "Speicher"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/html.hbs:24
+#, fuzzy
 msgid "Deploy Mode"
-msgstr ""
+msgstr "Ausrollen"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/html.hbs:27
 msgid "Set an alternative mode to deploy VM disks to the hosts"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:22
+#, fuzzy
 msgid "Volatile disk"
-msgstr ""
+msgstr "Flüchtiger Speicher"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:41
+#, fuzzy
 msgid "Image name"
-msgstr "Abbildname"
+msgstr "Pfad zum Abbild"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:49
 msgid "Image owner's user ID"
@@ -6912,15 +7136,15 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:90
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:94
 msgid "FS"
-msgstr "FS"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:91
 msgid "Swap"
-msgstr "Swap"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:99
 msgid "Filesystem format"
-msgstr "Dateisystemformat"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:5
 msgid "Device to map image disk. If set, it will overwrite the default device mapping. In LXD this setting specifies a disk mount point like /mnt."
@@ -6928,39 +7152,40 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:41
 msgid "Read-only"
-msgstr "Nur-lesen"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:77
 msgid "Cache"
-msgstr "Zwischenspeicher"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:91
 msgid "IO policy"
-msgstr "IO-Richtlinie"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:101
 msgid "Discard"
-msgstr "Verwerfen"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:105
 msgid "ignore"
-msgstr "Ignorieren"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:106
 msgid "unmap"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:112
+#, fuzzy
 msgid "Size on instantiate"
-msgstr ""
+msgstr "Instanziieren"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:113
 msgid "The size of the disk will be modified to match this size when the template is instantiated"
-msgstr "Die Größe des Datenträgers wird bei der Instanziierung der Vorlage an diese Größe angepasst"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:130
 msgid "Throttling (Bytes/s)"
-msgstr "Throttling (Bytes/s)"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:140
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:157
@@ -6969,7 +7194,7 @@ msgstr "Throttling (Bytes/s)"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:213
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:230
 msgid "Maximum"
-msgstr "Maximum"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:144
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:161
@@ -6978,21 +7203,21 @@ msgstr "Maximum"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:217
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:234
 msgid "Maximum length"
-msgstr "Maximale Länge"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:151
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:207
 msgid "Read"
-msgstr "Lesen"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:168
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:224
 msgid "Write"
-msgstr "Schreiben"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:186
 msgid "Throttling (IOPS)"
-msgstr "Throttling (IOPS)"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:242
 msgid "OPENNEBULA MANAGEMENT"
@@ -7000,55 +7225,62 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:20
 msgid "RAW data"
-msgstr "Rohdaten"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:26
 msgid "kvm"
-msgstr "kvm"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:27
 msgid "lxd"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:33
+#, fuzzy
 msgid "Data"
-msgstr "Daten"
+msgstr "Datenspeicher"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:34
 msgid "Raw data to be passed directly to the hypervisor"
-msgstr "Rohdaten, die direkt zum Hypervisor weitergeleitet werden sollen"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:41
+#, fuzzy
 msgid "Custom Tags"
-msgstr "Benutzerdefinierte Tags"
+msgstr "Benutzerdefiniert"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:23
 msgid "Policy"
-msgstr "Richtlinie"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:31
+#, fuzzy
 msgid "Host Requirements"
-msgstr "Anforderungen des Hosts"
+msgstr "Anforderungen"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:35
+#, fuzzy
 msgid "Select Hosts "
-msgstr "Hosts auswählen"
+msgstr "Cluster auswählen"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:37
+#, fuzzy
 msgid "Select Clusters "
 msgstr "Cluster auswählen"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:48
 msgid "Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM"
-msgstr "Boolescher Ausdruck, der für das Starten der VM inkompatabile Hosts aussortiert."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:55
+#, fuzzy
 msgid "Datastore Requirements"
-msgstr "Anforderungen des Datenspeichers"
+msgstr "DS Anforderungen"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:70
+#, fuzzy
 msgid "Host Rank"
-msgstr "Rang des Hosts"
+msgstr "DS Rang"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:76
 msgid "Pack the VMs in the Hosts to reduce VM fragmentation"
@@ -7060,7 +7292,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:85
 msgid "Load-aware"
-msgstr "Last-bewusst"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:86
 msgid "Maximize the resources available to VMs in a Host"
@@ -7068,85 +7300,96 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:95
 msgid "This field sets which attribute will be used to sort the suitable hosts for this VM"
-msgstr "Attribute, welches für die Sortierung der für die VM geeigneten Hosts verwendet wird"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:102
+#, fuzzy
 msgid "Datastore Rank"
-msgstr "Rang des Datenspeichers"
+msgstr "Datenspeicher"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:108
 msgid "Tries to optimize storage usage by selecting the DS with less free space"
-msgstr "Optimiert die Speicherausnutzung durch Auswahl des DS mit weniger freiem Speicherplatz."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:113
 msgid "Striping. Tries to optimize I/O by distributing the VMs across datastores."
-msgstr "Striping. Optimiert I/O durch Aufteilung der VMs über mehrere Datenspeicher."
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:122
 msgid "This field sets which attribute will be used to sort the suitable datastores for this VM"
-msgstr "Attribute, welches für die Sortierung der für die VM geeigneten Datenspeicher verwendet wird"
+msgstr ""
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:25
+#, fuzzy
 msgid "Virtual machine name"
-msgstr "Name der virtuellen Maschine"
+msgstr "Virtuelle Maschinen"
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:27
 msgid "When creating multiple VMs, %i is replaces by the VM number in the set"
 msgstr ""
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:34
+#, fuzzy
 msgid "Number of VM instances"
-msgstr ""
+msgstr "Anzahl der Virtuellen Maschinen für diese Rolle."
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/wizard.hbs:37
 msgid "Keepalive service ID"
 msgstr ""
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/wizard.hbs:43
+#, fuzzy
 msgid "Keepalive password"
-msgstr ""
+msgstr "Neues Passwort eingeben"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:21
+#, fuzzy
 msgid "This rule applies to"
-msgstr "Diese Regel bezieht sich auf"
+msgstr "Bezieht sich auf"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:53
 msgid "Zones where the rule applies"
-msgstr "Zonen in denen die Regeln gelten"
+msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:129
+#, fuzzy
 msgid "MarketPlace Apps"
 msgstr "Marktplatz Applikationen"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:140
+#, fuzzy
 msgid "Resource subset"
-msgstr "Ressourcen Untermenge"
+msgstr "Ressourcen"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:162
+#, fuzzy
 msgid "Resource ID"
-msgstr "Ressourcen ID"
+msgstr "Ressourcen"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:183
 #: ../app/utils/panel/permissions-table/permissions.hbs:20
+#, fuzzy
 msgid "Use"
-msgstr "Gebrauch"
+msgstr "Benutzer"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:187
 #: ../app/utils/panel/permissions-table/permissions.hbs:21
 msgid "Manage"
-msgstr "Verwalten"
+msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:191
 msgid "Administrate"
-msgstr "Administrieren"
+msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:202
+#, fuzzy
 msgid "ACL String preview"
-msgstr "Vorschau der ACL Zeichenfolge"
+msgstr "ACL Zeichenfolge"
 
 #: ../app/tabs/vmgroup-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
 msgid "Write the Virtual Machine Group template here"
-msgstr ""
+msgstr "Gruppe von virtuellen Maschinen erstellen"
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:58
 msgid "Host Affined"
@@ -7192,32 +7435,36 @@ msgstr ""
 #: ../app/tabs/dashboard-tab/empty-graph.hbs:20
 #: ../app/tabs/provision-tab/dashboard/empty-graphs.hbs:20
 #: ../app/utils/accounting/empty-graph.hbs:20
+#, fuzzy
 msgid "There is no information available"
-msgstr "Es sind keine Informationen verfügbar."
+msgstr "Es sind keine Netzwerke verfügbar."
 
 #: ../app/tabs/dashboard-tab/users.hbs:31
 msgid "USERS"
-msgstr "BENUTZER"
+msgstr ""
 
 #: ../app/tabs/dashboard-tab/users.hbs:35
 msgid "GROUPS"
-msgstr "GRUPPEN"
+msgstr ""
 
 #: ../app/tabs/dashboard-tab/storage.hbs:30
+#, fuzzy
 msgid "IMAGES"
-msgstr "ABBILDER"
+msgstr "ABBILD"
 
 #: ../app/tabs/dashboard-tab/network.hbs:30
 msgid "VNETS"
-msgstr "VNETS"
+msgstr ""
 
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:20
+#, fuzzy
 msgid "Create Zone"
-msgstr "Erstelle Zone"
+msgstr "Host erstellen"
 
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:26
+#, fuzzy
 msgid "Zone Name"
-msgstr "Zonenname"
+msgstr "Zone erstellt"
 
 #: ../app/tabs/zones-tab/panels/info/html.hbs:41
 msgid "Server Pool"
@@ -7229,17 +7476,20 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/dashboard/group-quotas.hbs:37
 #: ../app/tabs/provision-tab/dashboard/quotas.hbs:36
+#, fuzzy
 msgid "RUNNING VMS"
-msgstr "LAUFENDE VMS"
+msgstr "LAUFEND"
 
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:18
+#, fuzzy
 msgid "Group Virtual Machines"
-msgstr ""
+msgstr "Virtuelle Maschinen"
 
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:81
 #: ../app/utils/accounting/html.hbs:78 ../app/utils/accounting/html.hbs:107
+#, fuzzy
 msgid "CPU hours"
-msgstr "CPU Stunden"
+msgstr "Stunden"
 
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:93
 #: ../app/utils/accounting/html.hbs:87 ../app/utils/accounting/html.hbs:123
@@ -7257,20 +7507,22 @@ msgstr ""
 #: ../app/tabs/provision-tab/vms/list.hbs:24
 #: ../app/tabs/provision-tab/vms/list.hbs:28
 msgid "Refresh"
-msgstr "Neu laden"
+msgstr ""
 
 #: ../app/tabs/provision-tab/flows/info.hbs:44
 msgid "Recover a failed service, cleaning the failed VMs"
 msgstr ""
 
 #: ../app/tabs/provision-tab/flows/create.hbs:30
+#, fuzzy
 msgid "Service Name"
-msgstr ""
+msgstr "Service erstellt"
 
 #: ../app/tabs/provision-tab/flows/list.hbs:48
 #: ../app/tabs/provision-tab/vms/list.hbs:55
+#, fuzzy
 msgid "User ID"
-msgstr "Nutzer ID"
+msgstr "Benutzer"
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:5
 msgid "This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later"
@@ -7284,56 +7536,61 @@ msgstr ""
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:18
 #: ../app/tabs/provision-tab/vms/info.hbs:65
 #: ../app/tabs/provision-tab/vms/info.hbs:70
+#, fuzzy
 msgid "Power off"
 msgstr "Ausschalten"
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:25
 msgid "Power off the machine"
-msgstr "Maschine ausschalten"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:31
 msgid "Send the power off signal"
-msgstr "Ausschaltsignal senden"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:39
 msgid "Open a remote console in a new window"
-msgstr "Öffnen einer Remote-Konsole in einem neuen Fenster"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:43
+#, fuzzy
 msgid "You have to boot the Virtual Machine first"
-msgstr "Sie müssen die virtuelle Maschine zuerst booten."
+msgstr "Keine Virtuellen Maschinen vorhanden."
 
 #: ../app/tabs/provision-tab/vms/info.hbs:48
 msgid "The disks of the Virtual Machine will be saved in a new Image"
-msgstr "Die Festplatten der virtuellen Maschine werden in einem neuen Abbild gespeichert."
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:53
 msgid "You have to power-off the virtual machine first"
-msgstr "Sie müssen die virtuelle Maschine zuerst beenden"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:76
+#, fuzzy
 msgid "Power on"
-msgstr "Anschalten"
+msgstr "Ausschalten"
 
 #: ../app/tabs/provision-tab/vms/info.hbs:130
 msgid "Net RX"
-msgstr "Net RX"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:147
 msgid "Net TX"
-msgstr "Net TX"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:164
+#, fuzzy
 msgid "Net Download Speed"
-msgstr "Netto Download-Geschwindigkeit"
+msgstr "Herunterladen"
 
 #: ../app/tabs/provision-tab/vms/info.hbs:181
 msgid "Net Upload Speed"
-msgstr "Netto- Upload-Geschwindigkeit"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:5
+#, fuzzy
 msgid "This action will reboot this Virtual Machine."
-msgstr "Diese Aktion wird die virtuelle Maschine neu starten."
+msgstr "Keine Virtuellen Maschinen vorhanden."
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:9
 msgid "You can send the reboot signal to the Virtual Machine (this is equivalent to execute the reboot command form the console). If that doesn't affect your Virtual Machine, try to Reboot the machine (this is equivalent to pressing the reset button a physical computer)."
@@ -7341,59 +7598,66 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:25
 msgid "Reboot the machine"
-msgstr "Maschine neu starten"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:31
 msgid "Send the reboot signal"
-msgstr "Neustartsignal senden"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/create.hbs:30
+#, fuzzy
 msgid "Virtual Machine Name"
-msgstr "Name der virtuellen Maschine"
+msgstr "Virtuelle Maschinen"
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:5
+#, fuzzy
 msgid "Be careful, this action will shutdown and destroy your Virtual Machine"
-msgstr "Seien Sie vorsichtig, diese Aktion wird Ihre virtuelle Maschine herunterfahren und zerstören."
+msgstr "Sei vorsichtig, durch das ausführen dieser Aktion löscht du den Service."
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:9
 msgid "You can send the shutdown signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't affect your Virtual Machine, try to terminate the machine (this is equivalent to pressing the power off button in a physical computer)."
-msgstr "Sie können das Abschaltsignal an die virtuelle Maschine senden (entspricht der Ausführung des Befehls von der Konsole aus). Wenn sich dies nicht auf Ihre virtuelle Maschine auswirkt, versuchen Sie, die Maschine zu beenden (dies entspricht dem Drücken der Ausschalttaste in einem physischen Computer)."
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:25
+#, fuzzy
 msgid "Terminate the machine"
-msgstr "Maschine beenden"
+msgstr "Virtuelle Maschine erstellen"
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:31
 msgid "Send the shutdown signal and terminate"
-msgstr "Abschaltsignal senden und beenden"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:5
 msgid "This Virtual Machine will be saved in a new Template."
-msgstr "Diese virtuelle Maschine wird in einer neuen Vorlage gespeichert."
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:7
 msgid "You can then create a new Virtual Machine using this Template."
-msgstr "Mit dieser Vorlage können Sie dann eine neue virtuelle Maschine erstellen."
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:14
+#, fuzzy
 msgid "Template Name"
-msgstr "Name der Vorlage"
+msgstr "Vorlage"
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:19
+#, fuzzy
 msgid "Template Description"
-msgstr "Beschreibung Vorlage"
+msgstr "Vorlagen"
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:26
 msgid "The new Virtual Machine's disks can be made persistent. In a persistent Virtual Machine the changes made survive after it is destroyed. On the other hand, you cannot create more than one simultaneous Virtual Machine from a Template with persistent disks."
-msgstr "Die Festplatten der neuen Virtual Machine können persistent gemacht werden. In einer persistenten virtuellen Maschine bleiben die vorgenommenen Änderungen erhalten, nachdem diese zerstört wurden. Sie können nicht mehr als eine virtuelle Maschine gleichzeitig aus einer Vorlage mit persistenten Festplatten erstellen."
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:43
+#, fuzzy
 msgid "Non-persistent"
-msgstr "Nicht-persistent"
+msgstr "Beständig"
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:53
+#, fuzzy
 msgid "Save Virtual Machine to Template"
-msgstr "Virtuelle Maschine als Vorlage speichern"
+msgstr "Vorlage für virtuelles Netzwerk erstellen"
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:5
 msgid "This action will power off this Virtual Machine and will be undeployed from the physical machine"
@@ -7412,77 +7676,90 @@ msgid "Send the power off signal and undeploy the VM"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:22
+#, fuzzy
 msgid "Edit Address Range"
-msgstr "Adressbereich bearbeiten"
+msgstr "Adressbereich"
 
 #: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:22
+#, fuzzy
 msgid "New Address Range"
-msgstr "Neuer Adressbereich"
+msgstr "Adressbereich"
 
 #: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:33
 #: ../app/sunstone/buttons.hbs:27
+#, fuzzy
 msgid "Reset"
-msgstr "Zurücksetzen"
+msgstr "Reserve"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:22
+#, fuzzy
 msgid "Reservation from Virtual Network"
-msgstr ""
+msgstr "Virtuelles Netzwerk erstellen"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:28
 msgid "Number of addresses"
-msgstr "Anzahl Adressen"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:36
+#, fuzzy
 msgid "Add to a new Virtual Network"
-msgstr "Zu virtuellem Netz hinzufügen"
+msgstr "Virtuelles Netzwerk aktualisieren"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:40
 msgid "Add to an existing Reservation"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:47
+#, fuzzy
 msgid "Virtual Network Name"
-msgstr "Name des virtuellen Netzwerks"
+msgstr "Virtuelles Netzwerk"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:59
+#, fuzzy
 msgid "You can select the addresses from an specific Address Range"
-msgstr ""
+msgstr "Sie haben folgenden Adressbereich ausgewählt:"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:70
+#, fuzzy
 msgid "First address"
-msgstr "Startadresse"
+msgstr "PCI Adresse"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:71
 msgid "IP or MAC"
-msgstr "IP oder MAC"
-
-#: ../app/tabs/vnets-tab/form-panels/import/html.hbs:22
-msgid "Get Networks"
 msgstr ""
 
+#: ../app/tabs/vnets-tab/form-panels/import/html.hbs:22
+#, fuzzy
+msgid "Get Networks"
+msgstr "vCenter Netzwerke"
+
 #: ../app/tabs/vnets-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
 msgid "Write the Virtual Network template here"
-msgstr "Definieren Sie die Vorlage für das virtuelle Netzwerk hier"
+msgstr "Vorlage für virtuelles Netzwerk erstellen"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:39
 msgid "QoS"
-msgstr "QoS"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:82
 msgid "Name of the physical bridge in the nodes to attach VM NICs"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:91
+#, fuzzy
 msgid "Network mode"
-msgstr "Netzwerk Modus"
+msgstr "Netzwerk"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:94
+#, fuzzy
 msgid "Bridged"
-msgstr ""
+msgstr "Brücke"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:95
+#, fuzzy
 msgid "Bridged & Security Groups"
-msgstr ""
+msgstr "Sicherheitsgruppen"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:96
 msgid "Bridged & ebtables VLAN"
@@ -7490,23 +7767,23 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:97
 msgid "802.1Q"
-msgstr "802.1Q"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:98
 msgid "VXLAN"
-msgstr "VXLAN"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:99
 msgid "Open vSwitch"
-msgstr "Open vSwitch"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:100
 msgid "Open vSwitch - VXLAN"
-msgstr "Open vSwitch - VXLAN"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:107
 msgid "Network Driver (VN_MAD)"
-msgstr "Netzwerk Treiber (VN_MAD)"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:113
 msgid "Bridged, virtual machine traffic is directly bridged. The Linux bridge is created in the nodes as needed. No traffic filtering is made."
@@ -7546,28 +7823,30 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:146
 msgid "MAC spoofing filter"
-msgstr "MAC-Spoofing-Filter"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:154
 msgid "IP spoofing filter"
-msgstr "IP-Spoofing-Filter"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:164
 msgid "Automatic VLAN ID"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:165
+#, fuzzy
 msgid "No VLAN network"
-msgstr ""
+msgstr "Netzwerk"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:166
+#, fuzzy
 msgid "Manual VLAN ID"
-msgstr ""
+msgstr "VLAN ID"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:173
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:182
 msgid "Physical device"
-msgstr "Physikalisches Gerät"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:175
 msgid "Node NIC to send/receive virtual network traffic"
@@ -7582,8 +7861,9 @@ msgid "MTU of the interface"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:197
+#, fuzzy
 msgid "Outer VLAN ID"
-msgstr ""
+msgstr "VLAN ID"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:199
 msgid "First level (outer, service) VLAN ID"
@@ -7599,39 +7879,44 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:212
 msgid "Switch name"
-msgstr "Switchname"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:218
+#, fuzzy
 msgid "Number of ports"
-msgstr "Portanzahl"
+msgstr "Anzahl der Virtuellen Maschinen für diese Rolle."
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:224
 msgid "Port group type"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:226
+#, fuzzy
 msgid "Port group"
-msgstr "Portgruppe"
+msgstr "Gruppe"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:227
 msgid "Distributed Port Group"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:234
+#, fuzzy
 msgid "OpenNebula's Host ID"
-msgstr ""
+msgstr "OpenNebula Cluster-IDs"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:256
 msgid "Address Ranges need to be managed in the individual Virtual Network panel"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:273
+#, fuzzy
 msgid "Inbound traffic"
-msgstr "Eingehender Verkehr"
+msgstr "Eingehend"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:296
+#, fuzzy
 msgid "Outbound traffic"
-msgstr "Ausgehender Verkehr"
+msgstr "Abgehend"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:321
 msgid "These values apply to each VM interface individually, they are not global values for the Virtual Network"
@@ -7639,56 +7924,62 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:33
 msgid "Remove"
-msgstr "Entfernen"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:47
+#, fuzzy
 msgid "IPv6 Prefix"
-msgstr "IPv6 Präfix"
+msgstr "ULA Präfix"
 
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:75
+#, fuzzy
 msgid "Select an Address Range to see more information"
-msgstr "Für mehr Informationen einen Adressbereich auswählen"
+msgstr "Bitte ein Adressbereich aus der Liste auswählen"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:57
 msgid "First"
-msgstr "Erster"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:58
 msgid "Last"
-msgstr "Letzter"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:76
 msgid "IP6_GLOBAL"
-msgstr "IP6_GLOBAL"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:83
+#, fuzzy
 msgid "IP6"
-msgstr "IP6"
+msgstr "IP"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:90
 msgid "IP6_ULA"
-msgstr "IP6_ULA"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:39
+#, fuzzy
 msgid "AUTO VLAN ID"
-msgstr ""
+msgstr "VLAN ID"
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:44
+#, fuzzy
 msgid "OUTER VLAN ID"
-msgstr ""
+msgstr "VLAN ID"
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:49
 msgid "AUTO OUTER VLAN ID"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:65
+#, fuzzy
 msgid "Inbound QoS"
-msgstr ""
+msgstr "Eingehend"
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:70
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:96
 msgid "Average bandwidth"
-msgstr "Mittlere Bandbreite"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:72
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:77
@@ -7696,7 +7987,7 @@ msgstr "Mittlere Bandbreite"
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:103
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:108
 msgid "KBytes/s"
-msgstr "KBytes/s"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:75
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:101
@@ -7710,147 +8001,161 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:82
 msgid "KBytes"
-msgstr "KBytes"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:91
+#, fuzzy
 msgid "Outbound QoS"
-msgstr "Ausgehendes QoS"
+msgstr "Abgehend"
 
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:25
+#, fuzzy
 msgid "Hold IP"
-msgstr "IP behalten"
+msgstr "Blockieren"
 
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:38
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:21
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:56
+#, fuzzy
 msgid "IPv6"
-msgstr "IPv6"
+msgstr "IPv6 ULA"
 
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:40
+#, fuzzy
 msgid "IPv6 Link"
-msgstr ""
+msgstr "IPv6 ULA"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:19
 msgid "IPv4"
-msgstr "IPv4"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:20
 msgid "IPv4/6"
-msgstr "IPv4/6"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:22
 msgid "Ethernet"
-msgstr "Ethernet"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:27
+#, fuzzy
 msgid "First IPv4 address"
-msgstr "Erste IPv4 Adresse"
+msgstr "IPv6 Adresse"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:31
+#, fuzzy
 msgid "First MAC address"
-msgstr "Erste MAC Adresse"
+msgstr "PCI Adresse"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:39
 msgid "SLAAC"
-msgstr "SLAAC"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:46
+#, fuzzy
 msgid "IPv6 Global prefix"
-msgstr "IPv6 Global Präfix"
+msgstr "Globaler Präfix"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:50
+#, fuzzy
 msgid "IPv6 ULA prefix"
-msgstr ""
+msgstr "ULA Präfix"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:83
 msgid "IPAM"
-msgstr "IPAM"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:34
 msgid "Force"
-msgstr "Zwingen"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:35
 msgid "Force the new cardinality even if it is outside the limits"
-msgstr "Neue Kardinalität erzwingen, selbst wenn diese außerhalb des Limits liegt"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:27
 msgid "Seconds between each group of actions"
-msgstr "Abstand in Sekunden zwischen Aktionsgruppen"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:32
+#, fuzzy
 msgid "Number"
-msgstr "Anzahl"
+msgstr "November"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:33
 msgid "Number of VMs to apply the action to each period"
-msgstr "Anzahl der virtuellen Maschinen an denen die Aktion zu jedem Zyklus durchgeführt werden soll"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:54
 msgid "Parents"
-msgstr "Übergeordnete"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:84
 msgid "Select a role in the table for more information"
-msgstr "Für mehr Informationen eine Rolle in der Tabelle auswählen"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/advanced.hbs:20
+#, fuzzy
 msgid "Write the Virtual Router template here"
-msgstr ""
+msgstr "Virtual Router Vorlage erstellen"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:45
 #: ../app/utils/nics-section/dd.hbs:137
 msgid "Floating IP"
-msgstr "Floating IP"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:46
+#, fuzzy
 msgid "Floating IPv6 ULA"
-msgstr "Floating IPv6 ULA"
+msgstr "IPv6 ULA"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:47
+#, fuzzy
 msgid "Floating IPv6 Global"
-msgstr "Floating IPv6 Global"
+msgstr "IPv6 Global"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:48
 #: ../app/utils/nics-section/dd.hbs:148
 msgid "Management Interface"
-msgstr "Managementschnittstelle"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:53
+#, fuzzy
 msgid "Attach NIC"
 msgstr "Netzwerkkarte einbinden"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:71
 msgid "Detach"
-msgstr "Aushängen"
+msgstr ""
 
 #: ../app/sunstone/buttons.hbs:101
 msgid "Wizard"
-msgstr "Assistent"
+msgstr ""
 
 #: ../app/sunstone/buttons.hbs:104
 msgid "Advanced"
-msgstr "Erweitert"
+msgstr ""
 
 #: ../app/sunstone/user_and_zone.hbs:45
 msgid "Sign Out"
-msgstr "Abmelden"
+msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:6
 msgid "PCI interface"
-msgstr "PCI-Schnittstelle"
+msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:8
 msgid "Interface"
-msgstr "Schnittstelle"
+msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:18
+#, fuzzy
 msgid "Select a Network"
-msgstr "Netzwerk auswählen"
+msgstr "Alle %1$s Netzwerke auswählen"
 
 #: ../app/utils/nics-section/dd.hbs:121
 msgid "Force IPv4:"
-msgstr "IPv4 erzwingen:"
+msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:123 ../app/utils/nics-section/dd.hbs:162
 msgid "Optionally, you can force the IP assigned to the network interface."
@@ -7866,37 +8171,40 @@ msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:160
 msgid "Force IPv6:"
-msgstr "IPv6 erzwingen:"
+msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:178
 msgid "You can add Security Groups to this network interface. These IDs do not overwrite the ones defined in the Virtual Network. All the Security Group IDs are combined, and applied to the Virtual Machine instance."
 msgstr ""
 
 #: ../app/utils/nics-section/html.hbs:11
+#, fuzzy
 msgid "Network Interface"
-msgstr "Netzwerkschnittstelle"
+msgstr "Netzwerk ID"
 
 #: ../app/utils/disks-resize/html.hbs:19
 msgid "Disks"
-msgstr "Disks"
+msgstr ""
 
 #: ../app/utils/tab-datatable/table.hbs:30
 #: ../app/utils/tab-datatable/search-input.hbs:19
 #: ../app/utils/tab-datatable/search-input.hbs:45
+#, fuzzy
 msgid "Search"
-msgstr "Suchen"
+msgstr "März"
 
 #: ../app/utils/tab-datatable/search-input.hbs:27
 msgid "Label filter:"
-msgstr "Label-Filter:"
+msgstr ""
 
 #: ../app/utils/tab-datatable/search-input.hbs:36
 msgid "Clear search"
-msgstr "Suche zurücksetzen"
+msgstr ""
 
 #: ../app/utils/tab-datatable/empty-table.hbs:24
+#, fuzzy
 msgid "There is no data available"
-msgstr "Keine Daten vorhanden"
+msgstr "Keine Vorlagen vorhanden"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:20
 msgid "Host Overcommitment"
@@ -7919,8 +8227,9 @@ msgid "These values can be negative, in that case you'll be actually increasing 
 msgstr ""
 
 #: ../app/utils/dialogs/overcommit/html.hbs:51
+#, fuzzy
 msgid "Reserved Memory in KB"
-msgstr "Reservierter Speicher in KB"
+msgstr "Genutzter Arbeitsspeicher"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:59
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
@@ -7929,62 +8238,67 @@ msgstr ""
 #: ../app/utils/dialogs/confirm-with-select/html.hbs:20
 #: ../app/utils/dialogs/generic-confirm/html.hbs:20
 #: ../app/utils/dialogs/confirm/html.hbs:19
+#, fuzzy
 msgid "Confirm"
-msgstr "Bestätigen "
+msgstr "Konfiguration"
 
 #: ../app/utils/dialogs/confirm-with-select/html.hbs:27
 msgid "You need to select something."
-msgstr "Sie müssen etwas auswählen."
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:11
+#, fuzzy
 msgid "text"
-msgstr "Text"
+msgstr "Kontext"
 
 #: ../app/utils/user-inputs/row.hbs:12
 msgid "text (base64)"
-msgstr "Text (base64)"
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:13
+#, fuzzy
 msgid "password"
 msgstr "Passwort"
 
 #: ../app/utils/user-inputs/row.hbs:14
 msgid "number"
-msgstr "Nummer"
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:15
 msgid "number (float)"
-msgstr "Nummer (Gleitkommazahl)"
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:17
 msgid "range (float)"
-msgstr "Bereich (Gleitkommazahl)"
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:19
 msgid "list (multiple)"
-msgstr "Liste (mehrere)"
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:20
 msgid "boolean"
-msgstr "boolescher Typ"
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:29 ../app/utils/user-inputs/row.hbs:34
 #: ../app/utils/user-inputs/row.hbs:39 ../app/utils/user-inputs/row.hbs:56
 #: ../app/utils/user-inputs/row.hbs:73 ../app/utils/user-inputs/row.hbs:83
+#, fuzzy
 msgid "Default value"
-msgstr "Standardwert"
+msgstr "Standard"
 
 #: ../app/utils/user-inputs/row.hbs:79
+#, fuzzy
 msgid "Options"
-msgstr "Optionen"
+msgstr "Optional"
 
 #: ../app/utils/user-inputs/row.hbs:80
 msgid "Comma-separated list of options for the drop-down select input"
-msgstr "Kommagetrennte Liste der Optionen für die Dropdown-Auswahlliste"
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:89
 msgid "Mandatory"
-msgstr "Zwingend"
+msgstr ""
 
 #: ../app/utils/schedule_action/table.hbs:30
 #: ../app/utils/schedule_action/html.hbs:87
@@ -7992,12 +8306,14 @@ msgid "Ends"
 msgstr ""
 
 #: ../app/utils/schedule_action/html.hbs:12
+#, fuzzy
 msgid "New scheduled action"
-msgstr "Neu geplante Aktion"
+msgstr "Neu einplanen"
 
 #: ../app/utils/schedule_action/html.hbs:21
+#, fuzzy
 msgid "Relative Time"
-msgstr ""
+msgstr "Registrierungszeitpunkt"
 
 #: ../app/utils/schedule_action/html.hbs:51
 msgid "Periodic"
@@ -8008,44 +8324,50 @@ msgid "Repeat"
 msgstr ""
 
 #: ../app/utils/schedule_action/html.hbs:60
+#, fuzzy
 msgid "Weekly"
-msgstr "wöchentlich"
+msgstr "Wochen"
 
 #: ../app/utils/schedule_action/html.hbs:61
+#, fuzzy
 msgid "Monthly"
-msgstr "monatlich"
+msgstr "Monate"
 
 #: ../app/utils/schedule_action/html.hbs:62
+#, fuzzy
 msgid "Yearly"
-msgstr "jährlich"
+msgstr "Jahre"
 
 #: ../app/utils/schedule_action/html.hbs:63
+#, fuzzy
 msgid "Hourly"
-msgstr "stündlich"
+msgstr "Stunden"
 
 #: ../app/utils/schedule_action/html.hbs:94
+#, fuzzy
 msgid "Never"
-msgstr "niemals"
+msgstr "Rückgängig machen"
 
 #: ../app/utils/schedule_action/html.hbs:100
 msgid "On"
-msgstr "An"
+msgstr ""
 
 #: ../app/utils/schedule_action/html.hbs:109
 msgid "After"
-msgstr "Nach"
+msgstr ""
 
 #: ../app/utils/schedule_action/html.hbs:115
 msgid "times"
 msgstr ""
 
 #: ../app/utils/panel/permissions-table/html.hbs:21
+#, fuzzy
 msgid "Ownership"
-msgstr "Besitz"
+msgstr "Besitzer"
 
 #: ../app/utils/panel/permissions-table/permissions.hbs:50
 msgid "Other"
-msgstr "Andere"
+msgstr ""
 
 #: ../app/utils/panel/ec2-tr/html.hbs:11
 msgid "EC2 Access"
@@ -8057,92 +8379,107 @@ msgstr ""
 
 #: ../app/utils/showback/html.hbs:19
 msgid "Filter by user"
-msgstr "Nach Benutzer filtern"
+msgstr ""
 
 #: ../app/utils/showback/html.hbs:23
 msgid "Filter by group"
-msgstr "Nach Gruppe filtern"
+msgstr ""
 
 #: ../app/utils/showback/html.hbs:28
+#, fuzzy
 msgid "Get showback"
-msgstr ""
+msgstr "Rückblick"
 
 #: ../app/utils/showback/html.hbs:43
+#, fuzzy
 msgid "There are no showback records"
-msgstr ""
+msgstr "Keine Limits definiert"
 
 #: ../app/utils/showback/html.hbs:60
+#, fuzzy
 msgid "Year"
-msgstr "Jahr"
+msgstr "Jahre"
 
 #: ../app/utils/showback/html.hbs:61
+#, fuzzy
 msgid "Month"
-msgstr "Monat"
+msgstr "Monate"
 
 #: ../app/utils/showback/html.hbs:62 ../app/utils/accounting/html.hbs:113
 #: ../app/utils/accounting/html.hbs:129 ../app/utils/accounting/html.hbs:145
+#, fuzzy
 msgid "Date"
-msgstr "Datum"
+msgstr "UTC Datum"
 
 #: ../app/utils/showback/html.hbs:70
 msgid "Select a row to get detailed information of the month"
-msgstr "Wählen sie eine Zeile aus um detailiertere informationen über den Monat zu erhalten"
+msgstr ""
 
 #: ../app/utils/accounting/html.hbs:23
+#, fuzzy
 msgid "End time"
-msgstr "Endzeitpunkt"
+msgstr "Uhrzeit ändern"
 
 #: ../app/utils/accounting/html.hbs:27
+#, fuzzy
 msgid "Group by"
-msgstr "Sortieren nach"
+msgstr "Gruppe"
 
 #: ../app/utils/accounting/html.hbs:35
 msgid "Filter"
-msgstr "Filtern"
+msgstr ""
 
 #: ../app/utils/accounting/html.hbs:52
+#, fuzzy
 msgid "Get accounting"
-msgstr ""
+msgstr "Buchführung"
 
 #: ../app/utils/accounting/html.hbs:68
+#, fuzzy
 msgid "There are no accounting records"
-msgstr ""
+msgstr "Keine Limits definiert"
 
 #: ../app/utils/accounting/html.hbs:104
+#, fuzzy
 msgid "Accounting Tables"
-msgstr ""
+msgstr "Buchführung"
 
 #: ../app/utils/vcenter/templates/row.hbs:51
+#, fuzzy
 msgid "Use ctrl key for multiple selection (provide on instantiation)."
-msgstr ""
+msgstr "STRG-Taste für Mehrfachauswahl verwenden"
 
 #: ../app/utils/vcenter/templates/row.hbs:66
 msgid "Folder"
-msgstr "Ordner"
+msgstr ""
 
 #: ../app/utils/vcenter/templates/row.hbs:82
 msgid "Linked clone"
 msgstr ""
 
 #: ../app/utils/vcenter/templates/row.hbs:88
+#, fuzzy
 msgid "Create copy"
-msgstr "Kopie erstellen"
+msgstr "Gruppe erstellen"
 
 #: ../app/utils/vcenter/networks/row.hbs:30
+#, fuzzy
 msgid "VLAN"
-msgstr "VLAN"
+msgstr "VLAN ID"
 
 #: ../app/utils/vcenter/networks/row.hbs:68
 msgid "Cluster(s) to import"
-msgstr "Cluster zum Importieren"
-
-#: ../app/utils/vcenter/networks/row.hbs:81
-msgid "Unimported Cluster(s)"
 msgstr ""
 
+#: ../app/utils/vcenter/networks/row.hbs:81
+#, fuzzy
+msgid "Unimported Cluster(s)"
+msgstr "Cluster aktualisieren"
+
 #: ../app/utils/vcenter/common/fieldset-table.hbs:41
+#, fuzzy
 msgid "Clear selection"
-msgstr "Auswahl zurücksetzen"
+msgstr "Bitte auswählen"
 
 #: ../app/utils/vcenter/common/fieldset-table.hbs:46
 msgid "Toggle advanced sections"
@@ -8155,3 +8492,6 @@ msgstr ""
 #: ../app/utils/vcenter-vm-folder/html.hbs:21
 msgid "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
 msgstr ""
+
+#~ msgid "just click if you want to delete the resource"
+#~ msgstr "Klicken wenn sie die Resource löschen wollen."
