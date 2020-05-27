@@ -165,7 +165,7 @@ class Cluster
     end
 
     def beacon_host
-        vi_client = VCenterDriver::VIClient.new(connection, @host.id)
+        VCenterDriver::VIClient.new(connection, @host.id)
         Time.now.to_s
     end
 
