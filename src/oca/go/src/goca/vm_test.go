@@ -1,5 +1,3 @@
-// +build !disabled
-
 /* -------------------------------------------------------------------------- */
 /* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
