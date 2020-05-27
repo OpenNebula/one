@@ -236,35 +236,40 @@ define(function(require) {
 
     var extra_info = ServiceUtils.getExtraInfo(context);
 
-    $.each(that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
-      var temp_role = role;
-      var div_id = "user_input_role_"+index;
-      var tmp_json = {};
-      var stringCustomValues = TemplateUtils.templateToString(extra_info.merge_template.custom_attrs_values);
-
-      $.extend( tmp_json, WizardFields.retrieve($("#"+div_id, context)) );
-      role.user_inputs_values = tmp_json;
-      if (stringCustomValues) {
-        (temp_role.vm_template_contents)
-          ? temp_role.vm_template_contents += stringCustomValues 
-          : temp_role.vm_template_contents = stringCustomValues;
-      }
-
-      $("#instantiate_service_role_user_inputs").find("select").each(function(key, vm_group){
-        var element = $(vm_group);
-        rolevm_group = element.attr("data-role");
-        vm_group_value = element.children("option:selected").val();
-        if(rolevm_group && role.name && rolevm_group === role.name && vm_group_value){
-          if(temp_role.vm_template_contents === undefined){
-            temp_role.vm_template_contents = "";
-          }
-          temp_role.vm_template_contents += TemplateUtils.templateToString({VMGROUP:{ROLE:role.name,VMGROUP_ID:vm_group_value}});
+    if(
+      that && 
+      that.service_template_json && 
+      that.service_template_json.DOCUMENT &&
+      that.service_template_json.DOCUMENT.TEMPLATE &&
+      that.service_template_json.DOCUMENT.TEMPLATE.BODY &&
+      that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles
+    ){
+      $.each(that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
+        var temp_role = role;
+        var div_id = "user_input_role_"+index;
+        var tmp_json = {};
+        var stringCustomValues = TemplateUtils.templateToString(extra_info.merge_template.custom_attrs_values);
+        $.extend( tmp_json, WizardFields.retrieve($("#"+div_id, context)) );
+        role.user_inputs_values = tmp_json;
+        if (stringCustomValues) {
+          (temp_role.vm_template_contents)
+            ? temp_role.vm_template_contents += stringCustomValues 
+            : temp_role.vm_template_contents = stringCustomValues;
         }
+        $("#instantiate_service_role_user_inputs").find("select").each(function(key, vm_group){
+          var element = $(vm_group);
+          rolevm_group = element.attr("data-role");
+          vm_group_value = element.children("option:selected").val();
+          if(rolevm_group && role.name && rolevm_group === role.name && vm_group_value){
+            if(temp_role.vm_template_contents === undefined){
+              temp_role.vm_template_contents = "";
+            }
+            temp_role.vm_template_contents += TemplateUtils.templateToString({VMGROUP:{ROLE:role.name,VMGROUP_ID:vm_group_value}});
+          }
+        });
+        extra_info.merge_template.roles.push(temp_role);
       });
-
-      extra_info.merge_template.roles.push(temp_role);
-    });
-    
+    }
     if (!service_name.length){ //empty name
       for (var i=0; i< n_times_int; i++){
         Sunstone.runAction("ServiceTemplate.instantiate", that.templateId, extra_info);

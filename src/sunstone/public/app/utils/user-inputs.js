@@ -556,9 +556,11 @@ define(function(require) {
           vmgroup && 
           vmgroup.VM_GROUP && 
           vmgroup.VM_GROUP.GNAME && 
-          vmgroup.VM_GROUP.ID
+          vmgroup.VM_GROUP.ID &&
+          vmgroup.VM_GROUP.TEMPLATE &&
+          typeof vmgroup.VM_GROUP.TEMPLATE.DESCRIPTION !== 'undefined'
         ){
-          options += "<option value='"+vmgroup.VM_GROUP.ID+"'>"+vmgroup.VM_GROUP.GNAME+" ("+vmgroup.VM_GROUP.ID+")</option>"
+          options += "<option value='"+vmgroup.VM_GROUP.ID+"'>"+vmgroup.VM_GROUP.GNAME+" ("+vmgroup.VM_GROUP.TEMPLATE.DESCRIPTION+")</option>"
         }
       });
 
