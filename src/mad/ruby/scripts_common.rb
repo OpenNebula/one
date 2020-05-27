@@ -14,6 +14,11 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'augeas'
+require 'base64'
+require 'zlib'
+require 'socket'
+
 module OpenNebula
 
     # Generic log function
@@ -92,4 +97,61 @@ module OpenNebula
         log "Executed \"#{command}\"."
     end
 
+    def self.send_to_monitor(msg_type, result, oid, data)
+        # Read monitord.conf
+        one_location = ENV['ONE_LOCATION']
+
+        if !one_location
+            file_dir = '/etc/one/'
+        else
+            file_dir = one_location + '/etc/'
+        end
+
+        file_name = 'monitord.conf'
+
+        aug = Augeas.create(:no_modl_autoload => true,
+                            :no_load          => true,
+                            :root             => file_dir,
+                            :loadpath         => file_name)
+
+        aug.clear_transforms
+        aug.transform(:lens => 'Oned.lns', :incl => file_name)
+        aug.context = "/files/#{file_name}"
+        aug.load
+
+        mon_address = aug.get('NETWORK/MONITOR_ADDRESS')
+        mon_port    = aug.get('NETWORK/PORT')
+        mon_key     = aug.get('NETWORK/PUBKEY').tr('"', '')
+
+        mon_address = "127.0.0.1" if mon_address.include? "auto"
+
+        # Encrypt
+        if mon_key && !mon_key.empty?
+            block_size = mon_key.n.num_bytes - 11
+
+            edata = ''
+            index = 0
+
+            loop do
+                break if index >= data.length
+
+                edata << mon_key.public_encrypt(data[index, block_size])
+
+                index += block_size
+            end
+
+            data = edata
+        end
+
+        # Send data
+        zdata  = Zlib::Deflate.deflate(data, Zlib::BEST_COMPRESSION)
+        data64 = Base64.strict_encode64(zdata)
+
+        result = "SUCCESS" if result == "0" || result == 0
+
+        msg = "#{msg_type} #{result} #{oid} #{data64}"
+
+        socket_udp = UDPSocket.new()
+        socket_udp.send(msg, 0, mon_address, mon_port)
+    end
 end
