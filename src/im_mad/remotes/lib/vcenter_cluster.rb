@@ -790,6 +790,9 @@ class ClusterSet
     def monitor(conf)
         @mutex.synchronize do
             @clusters.each do |id, c|
+                if c[:cluster].nil?
+                    c[:cluster] = Cluster.new(id, @client) rescue nil
+                end
                 next if c[:cluster].nil?
 
                 if c[:monitordc].nil?
