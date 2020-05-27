@@ -880,6 +880,7 @@ define(function(require) {
             break;
           case OpenNebulaVM.LCM_STATES.HOTPLUG:
           case OpenNebulaVM.LCM_STATES.HOTPLUG_NIC:
+          case OpenNebulaVM.LCM_STATES.HOTPLUG_NIC_POWEROFF:
           case OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS:
           case OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_POWEROFF:
           case OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_SUSPENDED:

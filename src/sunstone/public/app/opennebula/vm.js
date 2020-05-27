@@ -120,7 +120,8 @@ define(function(require) {
     "PROLOG_MIGRATE_UNKNOWN_FAILURE",
     "DISK_RESIZE",
     "DISK_RESIZE_POWEROFF",
-    "DISK_RESIZE_UNDEPLOYED"
+    "DISK_RESIZE_UNDEPLOYED",
+    "HOTPLUG_NIC_POWEROFF"
   ];
 
   var LCM_STATES = {
@@ -188,7 +189,8 @@ define(function(require) {
     PROLOG_MIGRATE_UNKNOWN_FAILURE  : 61,
     DISK_RESIZE                     : 62,
     DISK_RESIZE_POWEROFF            : 63,
-    DISK_RESIZE_UNDEPLOYED          : 64
+    DISK_RESIZE_UNDEPLOYED          : 64,
+    HOTPLUG_NIC_POWEROFF            : 65
   };
 
   var SHORT_LCM_STATES_STR = [
@@ -256,7 +258,8 @@ define(function(require) {
     Locale.tr("FAILURE"),   // PROLOG_MIGRATE_UNKNOWN_FAILURE
     Locale.tr("DISK_RSZ"),  // DISK_RESIZE
     Locale.tr("DISK_RSZ"),  // DISK_RESIZE_POWEROFF
-    Locale.tr("DISK_RSZ")   // DISK_RESIZE_UNDEPLOYED
+    Locale.tr("DISK_RSZ"),  // DISK_RESIZE_UNDEPLOYED
+    Locale.tr("HOTPLUG")    // HOTPLUG_NIC_POWEROFF
   ];
 
   var VNC_STATES = [

@@ -287,6 +287,8 @@ int VirtualMachine::lcm_state_from_str(string& st, LcmState& state)
         state = DISK_RESIZE_POWEROFF;
     } else if ( st == "DISK_RESIZE_UNDEPLOYED" ) {
         state = DISK_RESIZE_UNDEPLOYED;
+    } else if ( st == "HOTPLUG_NIC_POWEROFF" ) {
+        state = HOTPLUG_NIC_POWEROFF;
     } else {
         return -1;
     }
@@ -424,6 +426,8 @@ string& VirtualMachine::lcm_state_to_str(string& st, LcmState state)
             st = "DISK_RESIZE_POWEROFF"; break;
         case DISK_RESIZE_UNDEPLOYED:
             st = "DISK_RESIZE_UNDEPLOYED"; break;
+        case HOTPLUG_NIC_POWEROFF:
+            st = "HOTPLUG_NIC_POWEROFF"; break;
     }
 
         return st;

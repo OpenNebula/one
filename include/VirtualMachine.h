@@ -136,7 +136,8 @@ public:
         PROLOG_MIGRATE_UNKNOWN_FAILURE = 61,
         DISK_RESIZE = 62,
         DISK_RESIZE_POWEROFF = 63,
-        DISK_RESIZE_UNDEPLOYED = 64
+        DISK_RESIZE_UNDEPLOYED = 64,
+        HOTPLUG_NIC_POWEROFF   = 65
     };
 
     /**

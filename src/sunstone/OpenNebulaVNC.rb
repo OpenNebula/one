@@ -97,6 +97,7 @@ VNC_STATES = [
         "62" #DISK_RESIZE
         #63, #DISK_RESIZE_POWEROFF
         #64  #DISK_RESIZE_UNDEPLOYED
+        #65  #HOTPLUG_NIC_POWEROFF
 ]
 
 class OpenNebulaVNC

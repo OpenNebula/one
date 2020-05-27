@@ -300,8 +300,10 @@ define(function(require) {
         // Attach / Detach
         if (!is_pci){
           if ( 
-            that.element.STATE == OpenNebulaVM.STATES.ACTIVE &&
-            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_NIC
+            that.element.STATE == OpenNebulaVM.STATES.ACTIVE && (
+              that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_NIC ||
+              that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_NIC_POWEROFF
+            )
           ) {
             actions = Locale.tr("attach/detach in progress");
           } else {

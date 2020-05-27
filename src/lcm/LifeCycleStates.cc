@@ -1560,6 +1560,15 @@ void LifeCycleManager::attach_nic_success_action(int vid)
         vmpool->update(vm);
         vmpool->update_search(vm);
     }
+    else if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC_POWEROFF )
+    {
+        vm->clear_attach_nic();
+
+        vmpool->update(vm);
+        vmpool->update_search(vm);
+
+        dm->trigger(DMAction::POWEROFF_SUCCESS,vid);
+    }
     else
     {
         vm->log("LCM",Log::ERROR,"attach_nic_success_action, VM in a wrong state");
@@ -1601,6 +1610,14 @@ void LifeCycleManager::attach_nic_failure_action(int vid)
 
         vm->unlock();
     }
+    else if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC_POWEROFF )
+    {
+        vm->unlock();
+
+        vmpool->delete_attach_nic(vid);
+
+        dm->trigger(DMAction::POWEROFF_SUCCESS, vid);
+    }
     else
     {
         vm->log("LCM",Log::ERROR,"attach_nic_failure_action, VM in a wrong state");
@@ -1639,14 +1656,31 @@ void LifeCycleManager::detach_nic_success_action(int vid)
 
         vmpool->update(vm);
         vmpool->update_search(vm);
-
+    }
+    else if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC_POWEROFF )
+    {
         vm->unlock();
+
+        vmpool->delete_attach_nic(vid);
+
+        vm = vmpool->get(vid);
+
+        if ( vm == nullptr )
+        {
+            return;
+        }
+
+        vmpool->update(vm);
+        vmpool->update_search(vm);
+
+        dm->trigger(DMAction::POWEROFF_SUCCESS, vid);
     }
     else
     {
         vm->log("LCM",Log::ERROR,"detach_nic_success_action, VM in a wrong state");
-        vm->unlock();
     }
+
+    vm->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1670,6 +1704,14 @@ void LifeCycleManager::detach_nic_failure_action(int vid)
         vm->set_state(VirtualMachine::RUNNING);
 
         vmpool->update(vm);
+    }
+    else if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC_POWEROFF )
+    {
+        vm->clear_attach_nic();
+
+        vmpool->update(vm);
+
+        dm->trigger(DMAction::POWEROFF_SUCCESS, vid);
     }
     else
     {

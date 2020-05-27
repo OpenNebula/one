@@ -1051,6 +1051,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
         break;
 
         case VirtualMachine::HOTPLUG_NIC:
+        case VirtualMachine::HOTPLUG_NIC_POWEROFF:
             vm->clear_attach_nic();
 
             vm->set_running_etime(the_time);
@@ -1379,6 +1380,7 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
         break;
 
         case VirtualMachine::HOTPLUG_NIC:
+        case VirtualMachine::HOTPLUG_NIC_POWEROFF:
             if (success)
             {
                 lcm_action = LCMAction::ATTACH_NIC_SUCCESS;
@@ -1662,6 +1664,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
         case VirtualMachine::CLEANUP_DELETE:
         case VirtualMachine::HOTPLUG:
         case VirtualMachine::HOTPLUG_NIC:
+        case VirtualMachine::HOTPLUG_NIC_POWEROFF:
         case VirtualMachine::HOTPLUG_SNAPSHOT:
         case VirtualMachine::HOTPLUG_SAVEAS:
         case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
@@ -1755,6 +1758,7 @@ void  LifeCycleManager::updatesg_action(const LCMAction& la)
                 case VirtualMachine::BOOT_STOPPED_FAILURE:
                 case VirtualMachine::MIGRATE:
                 case VirtualMachine::HOTPLUG_NIC:
+                case VirtualMachine::HOTPLUG_NIC_POWEROFF:
                 case VirtualMachine::UNKNOWN:
                     is_error = true;
                     break;

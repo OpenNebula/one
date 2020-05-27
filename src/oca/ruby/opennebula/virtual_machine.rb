@@ -122,6 +122,7 @@ module OpenNebula
             DISK_RESIZE
             DISK_RESIZE_POWEROFF
             DISK_RESIZE_UNDEPLOYED
+            HOTPLUG_NIC_POWEROFF
         }
 
         SHORT_VM_STATES={
@@ -202,7 +203,8 @@ module OpenNebula
             "PROLOG_MIGRATE_UNKNOWN_FAILURE" => "fail",
             "DISK_RESIZE"            => "drsz",
             "DISK_RESIZE_POWEROFF"   => "drsz",
-            "DISK_RESIZE_UNDEPLOYED" => "drsz"
+            "DISK_RESIZE_UNDEPLOYED" => "drsz",
+            "HOTPLUG_NIC_POWEROFF"   => "hotp"
         }
 
         HISTORY_ACTION=%w{none migrate live-migrate shutdown shutdown-hard

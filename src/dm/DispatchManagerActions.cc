@@ -1723,11 +1723,17 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
         cold_attach = vmm->is_cold_nic_attach(vm->get_vmm_mad());
     }
 
-    if (is_running || (cold_attach && is_poweroff))
+    if (is_running)
     {
         vm->set_state(VirtualMachine::ACTIVE);
         vm->set_state(VirtualMachine::HOTPLUG_NIC);
     }
+    else if (cold_attach && is_poweroff)
+    {
+        vm->set_state(VirtualMachine::ACTIVE);
+        vm->set_state(VirtualMachine::HOTPLUG_NIC_POWEROFF);
+    }
+    //else POWEROFF && !cold_attach
 
     vm->set_resched(false);
 
@@ -1735,17 +1741,15 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
     {
         if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC)
         {
-            if (!cold_attach)
-            {
-                vm->set_state(VirtualMachine::ACTIVE);
-                vm->set_state(VirtualMachine::RUNNING);
-            }
-            else
-            {
-                vm->set_state(VirtualMachine::POWEROFF);
-                vm->set_state(VirtualMachine::LCM_INIT);
-            }
+            vm->set_state(VirtualMachine::ACTIVE);
+            vm->set_state(VirtualMachine::RUNNING);
         }
+        else if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC_POWEROFF)
+        {
+            vm->set_state(VirtualMachine::POWEROFF);
+            vm->set_state(VirtualMachine::LCM_INIT);
+        }
+        //else POWEROFF / LCM_INIT
 
         vmpool->update(vm);
 
@@ -1769,13 +1773,14 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
 
     close_cp_history(vmpool, vm, action, ra);
 
-    if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC)
+    if (vm->get_state() == VirtualMachine::ACTIVE)
     {
         vmm->trigger(VMMAction::ATTACH_NIC, vid);
     }
     else
     {
         vm->log("DiM", Log::INFO, "VM NIC Successfully attached.");
+
         vm->clear_attach_nic();
         vmpool->update_search(vm);
     }
@@ -1864,7 +1869,14 @@ int DispatchManager::detach_nic(int vid, int nic_id, const RequestAttributes& ra
     {
         vm->set_state(VirtualMachine::ACTIVE);
 
-        vm->set_state(VirtualMachine::HOTPLUG_NIC);
+        if ( is_running )
+        {
+            vm->set_state(VirtualMachine::HOTPLUG_NIC);
+        }
+        else
+        {
+            vm->set_state(VirtualMachine::HOTPLUG_NIC_POWEROFF);
+        }
 
         vm->set_resched(false);
 
