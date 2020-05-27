@@ -71,13 +71,11 @@ int VirtualMachineMonitorInfo::from_xml(const std::string& xml_string)
 {
     int rc = monitoring.from_xml(xml_string);
 
-    if (rc < 0)
+    if (rc < 0 || !monitoring.get("TIMESTAMP", _timestamp)
+        || !monitoring.get("ID", _oid))
     {
         return -1;
     }
-
-    return monitoring.get("TIMESTAMP", _timestamp) &&
-           monitoring.get("ID", _oid);
 
     return 0;
 }

@@ -317,7 +317,10 @@ void HostMonitorManager::monitor_vm(int oid,
     VirtualMachineMonitorInfo monitoring(oid, time(nullptr));
 
     //Get previous monitor info to merge with new data
-    vmpool->get_monitoring(oid, monitoring);
+    if (vmpool->get_monitoring(oid, monitoring))
+    {
+        monitoring.timestamp(time(nullptr));
+    }
 
     if (monitoring.from_template(tmpl) != 0)
     {
