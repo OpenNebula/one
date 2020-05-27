@@ -183,6 +183,7 @@ define(function(require) {
       "high":_config["user_config"]["threshold_high"]
     },
     "isExtendedVmInfo": _config["system_config"] && _config["system_config"]["get_extended_vm_info"] && _config["system_config"]["get_extended_vm_info"] === "true",
+    "isLogEnabled": _config["zone_id"] === _config["id_own_federation"] ? true : false,
   };
 
   return Config;
