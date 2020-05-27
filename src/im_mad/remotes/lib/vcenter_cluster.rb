@@ -359,9 +359,7 @@ class Cluster
 
         total_cpu      = metrics[0].to_f
         num_cpu_cores  = metrics[1].to_f
-        effective_cpu  = metrics[2].to_f
         total_memory   = metrics[3].to_i
-        effective_mem  = metrics[4].to_i
         num_hosts      = metrics[5]
         num_eff_hosts  = metrics[6]
         overall_status = metrics[7]
@@ -370,10 +368,8 @@ class Cluster
 
         if num_cpu_cores > 0
             mhz_core = total_cpu / num_cpu_cores
-            eff_core = effective_cpu / mhz_core
         else
             mhz_core = 0
-            eff_core = 0
         end
 
         total_cpu = num_cpu_cores * 100
