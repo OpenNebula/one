@@ -38,9 +38,9 @@ define(function(require) {
 
   function FormPanel() {
     InstantiateTemplateFormPanel.call(this);
-
     this.formPanelId = FORM_PANEL_ID;
     this.tabId = TAB_ID;
+    this.display_vmgroups = true;
     this.actions = {
       'create': {
         'title': Locale.tr("Create Service"),
@@ -48,7 +48,6 @@ define(function(require) {
         'resetButton': true
       }
     };
-
     this.templatesTable = new TemplatesTable('service_create', {'select': true});
   }
 
