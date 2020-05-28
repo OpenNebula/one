@@ -65,7 +65,8 @@ module VCenterDriver
 
             # Create images or get nics information for template
             error, template_nics, ar_ids = vc_vm
-                                           .import_vcenter_nics(vc_uuid,
+                                           .import_vcenter_nics(@vi_client,
+                                                                vc_uuid,
                                                                 npool,
                                                                 hpool,
                                                                 vc_name,

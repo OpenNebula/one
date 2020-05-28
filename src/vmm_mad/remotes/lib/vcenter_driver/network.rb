@@ -151,6 +151,12 @@ class Network
         dc_ref                = opts[:dc_ref] || nil
         template_id           = opts[:template_id] || nil
 
+        nsx_id                = opts[:nsx_id] || nil
+        nsx_vni               = opts[:nsx_vni] || nil
+        nsx_tz_id             = opts[:nsx_tz_id] || nil
+
+        vlanid                = opts[:vlanid] || nil
+
         bridge_name = network_name
         network_name = network_name.gsub("/","_")
 
@@ -165,12 +171,14 @@ class Network
         one_tmp[:ref]  = network_ref
 
         one_tmp[:one] = to_one(network_import_name, bridge_name, network_ref, network_type,
-                               vcenter_uuid, unmanaged, template_ref, dc_ref, template_id, sw_name)
+                               vcenter_uuid, unmanaged, template_ref, dc_ref, template_id, sw_name,
+                               nsx_id, nsx_vni, nsx_tz_id, vlanid)
         return one_tmp
     end
 
     def self.to_one(network_import_name, network_name, network_ref, network_type,
-                    vcenter_uuid, unmanaged, template_ref, dc_ref, template_id, sw_name)
+                    vcenter_uuid, unmanaged, template_ref, dc_ref, template_id, sw_name,
+                    nsx_id, nsx_vni, nsx_tz_id, vlanid)
 
         template = "NAME=\"#{network_import_name}\"\n"\
                    "BRIDGE=\"#{network_name}\"\n"\
@@ -187,6 +195,12 @@ class Network
         template += "VCENTER_TEMPLATE_REF=\"#{template_ref}\"\n" if template_ref
 
         template += "VCENTER_SWITCH_NAME=\"#{sw_name}\"\n" if sw_name
+
+        template += "NSX_ID=\"#{nsx_id}\"\n" if nsx_id
+        template += "NSX_VNI=\"#{nsx_vni}\"\n" if nsx_vni
+        template += "NSX_TZ_ID=\"#{nsx_tz_id}\"\n" if nsx_tz_id
+
+        template += "VCENTER_VLAN_ID=\"#{vlanid}\"\n" if vlanid
 
         return template
     end
@@ -222,17 +236,20 @@ class Network
     end
 
     def self.get_network_type(network)
-        netString = network.class.to_s
-        case netString
-        when "DistributedVirtualPortgroup"
-            return VCenterDriver::Network::NETWORK_TYPE_DPG
-        when "OpaqueNetwork"
-            return VCenterDriver::Network::NETWORK_TYPE_NSXT
-        when "Network"
-            return VCenterDriver::Network::NETWORK_TYPE_PG
-
-        else 
-            return "Network not defined"
+        case network
+        when RbVmomi::VIM::DistributedVirtualPortgroup
+            if network['name']
+              .match(/^vxw-dvs-(.*)-virtualwire-(.*)-sid-(.*)/)
+                VCenterDriver::Network::NETWORK_TYPE_NSXV
+            else
+                VCenterDriver::Network::NETWORK_TYPE_DPG
+            end
+        when RbVmomi::VIM::OpaqueNetwork
+            VCenterDriver::Network::NETWORK_TYPE_NSXT
+        when RbVmomi::VIM::Network
+            VCenterDriver::Network::NETWORK_TYPE_PG
+        else
+            VCenterDriver::Network::NETWORK_TYPE_UNKNOWN
         end
     end
 
