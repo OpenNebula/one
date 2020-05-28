@@ -399,7 +399,7 @@ class DatacenterFolder
     def exclude_network?(vc_network, one_host, args)
         # Exclude some networks if filter = true
         if args[:filter]
-            if ( one_host && one_host['TEMPLATE/NSX_STATUS'] != 'OK')
+            if ( one_host && one_host['TEMPLATE/NSX_PASSWORD'].nil?)
                 # Only NSX-V and NSX-T can be excluded
                 network_type = identify_network_type(vc_network)
                 if network_type == VCenterDriver::Network::NETWORK_TYPE_NSXT ||\

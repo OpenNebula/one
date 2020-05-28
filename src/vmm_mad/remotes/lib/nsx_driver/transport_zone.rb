@@ -33,7 +33,7 @@ module NSXDriver
             when NSXConstants::NSXV
                 NSXVtz.new(nsx_client)
             else
-                error_msg = "Unknown object type: #{nsx_client.nsx_type}"
+                error_msg = "Unknown NSX type: #{nsx_client.nsx_type}"
                 error = NSXError::UnknownObject.new(error_msg)
                 raise error
             end
