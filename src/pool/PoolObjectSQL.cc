@@ -99,7 +99,7 @@ int PoolObjectSQL::select_oid(SqlDB *db, const char * _table,
 
     oss << "SELECT oid FROM " << _table << " WHERE ";
 
-    if (Nebula::instance().get_db_backend() == "mysql")
+    if (Nebula::instance().mysql_compare_binary())
     {
         oss << "BINARY ";
     }
@@ -185,7 +185,7 @@ int PoolObjectSQL::select(SqlDB *db, const string& _name, int _uid)
 
     oss << "SELECT body FROM " << table << " WHERE ";
 
-    if (Nebula::instance().get_db_backend() == "mysql")
+    if (Nebula::instance().mysql_compare_binary())
     {
         oss << "BINARY ";
     }

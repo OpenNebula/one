@@ -623,6 +623,32 @@ public:
         return db_backend_type;
     }
 
+    /**
+     *  returns database attribute MYSQL_COMPARE_BINARY for mysql db backend
+     *    @return MYSQL_COMPARE_BINARY
+     */
+    bool mysql_compare_binary() const
+    {
+        bool compare_binary;
+        const VectorAttribute * _db = nebula_configuration->get("DB");
+
+        if ( _db != 0 )
+        {
+            if ( db_backend_type == "mysql" )
+            {
+                if ( _db->vector_value("MYSQL_COMPARE_BINARY", compare_binary) != -1 )
+                {
+                    return compare_binary;
+                }
+
+                // default for MYSQL DB is yes
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     // -----------------------------------------------------------------------
     // Default Quotas
     // -----------------------------------------------------------------------
