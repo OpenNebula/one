@@ -110,6 +110,16 @@ func (hc *HostsController) Create(name, im, vm string, clusterID int) (int, erro
 	return response.BodyInt(), nil
 }
 
+// Monitoring Returns the Hosts monitoring records
+// * num: The number of records to be retrieved. If it is -1, all the records will be retrieved.
+func (hc *HostsController) Monitoring(num int) (string, error) {
+	monitorData, err := hc.c.Client.Call("one.hostpool.monitoring", num)
+	if err != nil {
+		return "", err
+	}
+	return monitorData.Body(), nil
+}
+
 // Delete deletes the given host from the pool
 func (hc *HostController) Delete() error {
 	_, err := hc.c.Client.Call("one.host.delete", hc.ID)

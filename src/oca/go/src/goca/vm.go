@@ -180,8 +180,9 @@ func (vc *VMController) Info(decrypt bool) (*vm.VM, error) {
 // -2: All resources
 // -1: Resources belonging to the user and any of his groups
 // >= 0: UID User's Resources
-func (vc *VMsController) Monitoring(filter int) (string, error) {
-	monitorData, err := vc.c.Client.Call("one.vmpool.monitoring", filter)
+// num: the number of records to be retrieved. If -1 every record is retrieved
+func (vc *VMsController) Monitoring(filter, num int) (string, error) {
+	monitorData, err := vc.c.Client.Call("one.vmpool.monitoring", filter, num)
 	if err != nil {
 		return "", err
 	}
