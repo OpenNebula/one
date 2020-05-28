@@ -199,10 +199,13 @@ module OpenNebula
         #
         # @param [Integer] filter_flag Optional filter flag to retrieve all or
         #   part of the Pool. Possible values: INFO_ALL, INFO_GROUP, INFO_MINE.
-        #
+        # @param [Integer] num Optional number of monitoring records to be
+        #   retrieved. If nill all records are retrieved
         # @return [String] VM monitoring data, in XML
-        def monitoring_xml(filter_flag=INFO_ALL)
-            return @client.call(VM_POOL_METHODS[:monitoring], filter_flag)
+        def monitoring_xml(filter_flag=INFO_ALL, num=nil)
+            return @client.call(VM_POOL_METHODS[:monitoring], filter_flag) if num.nil?
+
+            @client.call(VM_POOL_METHODS[:monitoring], filter_flag, num.to_i)
         end
 
         # Processes all the history records, and stores the monthly cost for

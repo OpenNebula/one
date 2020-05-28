@@ -28,6 +28,7 @@
 #include "SchedulerPolicy.h"
 #include "ActionManager.h"
 #include "AclXML.h"
+#include "MonitorXML.h"
 
 using namespace std;
 
@@ -78,6 +79,7 @@ protected:
         vnetpool(0),
         vmgpool(0),
         vmapool(0),
+        hmonpool(0),
         timer(0),
         one_xmlrpc(""),
         machines_limit(0),
@@ -93,6 +95,7 @@ protected:
     {
         delete hpool;
         delete clpool;
+        delete hmonpool;
 
         delete vmpool;
         delete vm_roles_pool;
@@ -128,6 +131,8 @@ protected:
     VMGroupPoolXML * vmgpool;
 
     VirtualMachineActionsPoolXML* vmapool;
+
+    MonitorPoolXML * hmonpool;
 
     // ---------------------------------------------------------------
     // Scheduler Policies

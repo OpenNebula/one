@@ -248,6 +248,15 @@ public:
     int add_node(const char * xpath_expr, xmlNodePtr node, const char * new_name);
 
     /**
+     *  Removes nodes from the object by xPath
+     *
+     *  @param xpath_expr Path of the parent node
+     *
+     *  @return number of elements removed
+     */
+    int remove_nodes(const char * xpath_expr);
+
+    /**
      *  Frees a vector of XMLNodes, as returned by the get_nodes function
      *    @param content the vector of xmlNodePtr
      */

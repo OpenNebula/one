@@ -99,9 +99,16 @@ module OpenNebula
 
         # Retrieves the monitoring data for all the Hosts in the pool, in XML
         #
+        # @param [Integer] num Optional number of monitoring records to be
+        #   retrieved. If nill all records are retrieved
+        #
         # @return [String] VM monitoring data, in XML
-        def monitoring_xml()
-            return @client.call(HOST_POOL_METHODS[:monitoring])
+        def monitoring_xml(num = nil)
+            return @client.call(HOST_POOL_METHODS[:monitoring]) if num.nil?
+
+            @client.call(HOST_POOL_METHODS[:monitoring], num.to_i)
         end
+
     end
+
 end

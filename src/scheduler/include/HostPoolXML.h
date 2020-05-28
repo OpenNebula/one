@@ -20,7 +20,9 @@
 
 #include "PoolXML.h"
 #include "HostXML.h"
-#include "ClusterPoolXML.h"
+
+class ClusterPoolXML;
+class MonitorPoolXML;
 
 using namespace std;
 
@@ -52,6 +54,13 @@ public:
      * @param clpool Cluster pool
      */
     void merge_clusters(ClusterPoolXML * clpool);
+
+    /**
+     * Add the last MONITORING information to each Host
+     *
+     * @param mpool Monitoring Pool with last data
+     */
+    void merge_monitoring(MonitorPoolXML * mpool);
 
 protected:
 

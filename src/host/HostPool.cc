@@ -175,7 +175,7 @@ int HostPool::dump_monitoring(
 
     if ( !where.empty() )
     {
-        cmd << " AND " << where;
+        cmd << " WHERE " << where;
     }
 
     cmd << " ORDER BY hid, " << one_db::host_monitor_table << ".last_mon_time;";

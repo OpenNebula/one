@@ -463,6 +463,44 @@ int ObjectXML::rename_nodes(const char * xpath_expr, const char * new_name)
     return renamed;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ObjectXML::remove_nodes(const char * xpath_expr)
+{
+    xmlXPathObjectPtr obj = xmlXPathEvalExpression(
+        reinterpret_cast<const xmlChar *>(xpath_expr), ctx);
+
+    if (obj == 0 || obj->nodesetval == 0)
+    {
+        return 0;
+    }
+
+    xmlNodeSetPtr ns = obj->nodesetval;
+
+    int size    = ns->nodeNr;
+    int removed = size;
+
+    for(int i = 0; i < size; ++i)
+    {
+        xmlNodePtr cur = ns->nodeTab[i];
+
+        if ( cur == 0 || cur->type != XML_ELEMENT_NODE )
+        {
+            removed--;
+            continue;
+        }
+
+        xmlUnlinkNode(cur);
+
+        xmlFreeNode(cur);
+    }
+
+    xmlXPathFreeObject(obj);
+
+    return removed;
+}
+
 /* ************************************************************************ */
 /* Host :: Parse functions to compute rank and evaluate requirements        */
 /* ************************************************************************ */

@@ -318,8 +318,9 @@ void Scheduler::start()
     acls  = new AclXML(client, zone_id);
     upool = new UserPoolXML(client);
 
-    hpool  = new HostPoolXML(client);
-    clpool = new ClusterPoolXML(client);
+    hpool    = new HostPoolXML(client);
+    clpool   = new ClusterPoolXML(client);
+    hmonpool = new MonitorPoolXML(client);
 
     dspool     = new SystemDatastorePoolXML(client);
     img_dspool = new ImageDatastorePoolXML(client);
@@ -492,6 +493,15 @@ int Scheduler::set_up_pools()
     {
         return rc;
     }
+
+    rc = hmonpool->set_up();
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    hpool->merge_monitoring(hmonpool);
 
     return 0;
 };

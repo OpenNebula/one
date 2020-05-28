@@ -15,6 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 #include "HostPoolXML.h"
+#include "MonitorXML.h"
+#include "ClusterPoolXML.h"
 
 int HostPoolXML::set_up()
 {
@@ -128,3 +130,39 @@ void HostPoolXML::merge_clusters(ClusterPoolXML * clpool)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void HostPoolXML::merge_monitoring(MonitorPoolXML * mpool)
+{
+    map<int,ObjectXML*>::iterator it;
+
+    vector<xmlNodePtr> nodes;
+
+    for (it=objects.begin(); it!=objects.end(); it++)
+    {
+        HostXML* host = static_cast<HostXML*>(it->second);
+
+        MonitorXML* monitor = mpool->get(host->get_hid());
+
+        if ( monitor == nullptr )
+        {
+            continue;
+        }
+
+        nodes.clear();
+
+        monitor->get_nodes("/MONITORING", nodes);
+
+        if (!nodes.empty())
+        {
+            host->remove_nodes("/HOST/MONITORING");
+
+            host->add_node("/HOST", nodes[0], "MONITORING");
+        }
+
+        monitor->free_nodes(nodes);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+

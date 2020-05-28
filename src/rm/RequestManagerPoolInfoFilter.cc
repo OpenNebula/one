@@ -35,6 +35,7 @@
 #include "VMTemplatePool.h"
 #include "VNTemplatePool.h"
 #include "ZonePool.h"
+#include "OneDB.h"
 
 using namespace std;
 
@@ -497,8 +498,9 @@ void VirtualMachinePoolMonitoring::request_execute(
     int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
 
     string oss;
-    string        where;
-    int           rc;
+    string where;
+    string and_clause = "";
+    int rc;
 
     if ( filter_flag < GROUP )
     {
@@ -507,7 +509,25 @@ void VirtualMachinePoolMonitoring::request_execute(
         return;
     }
 
-    where_filter(att, filter_flag, -1, -1, "", "", false, false, false, where);
+    if (paramList.size() > 2)
+    {
+        ostringstream oss;
+        int num_rows = xmlrpc_c::value_int(paramList.getInt(2));
+
+        oss << one_db::vm_monitor_table << ".last_poll in "
+            << "(select last_poll from " << one_db::vm_monitor_table << " as t "
+            << "where t.vmid = " << one_db::vm_monitor_table << ".vmid "
+            << "ORDER by last_poll DESC";
+
+        if (num_rows != -1)
+        {
+            oss << " LIMIT " << num_rows << ")";
+        }
+
+        and_clause = oss.str();
+    }
+
+    where_filter(att, filter_flag, -1, -1, and_clause, "", false, false, false, where);
 
     rc = (static_cast<VirtualMachinePool *>(pool))->dump_monitoring(oss, where);
 
@@ -691,10 +711,30 @@ void HostPoolMonitoring::request_execute(
 {
     string oss;
     string where;
+    string and_clause = "";
 
     int rc;
 
-    where_filter(att, ALL, -1, -1, "", "", false, false, false, where);
+    if (paramList.size() > 1)
+    {
+        ostringstream oss;
+        int num_rows = xmlrpc_c::value_int(paramList.getInt(1));
+
+        oss << one_db::host_monitor_table << ".last_mon_time in "
+            << "(select last_mon_time "
+            << "from " << one_db::host_monitor_table << " as t "
+            << "where t.hid = " << one_db::host_monitor_table << ".hid "
+            << "ORDER by last_mon_time DESC";
+
+        if (num_rows != -1)
+        {
+            oss << " LIMIT " << num_rows << ")";
+        }
+
+        and_clause = oss.str();
+    }
+
+    where_filter(att, ALL, -1, -1, and_clause, "", false, false, false, where);
 
     rc = (static_cast<HostPool *>(pool))->dump_monitoring(oss, where);
 

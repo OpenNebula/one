@@ -25,11 +25,13 @@
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-int HostXML::host_num_paths =  4;
+int HostXML::host_num_paths =  6;
 
 const char *HostXML::host_paths[] = {
     "/HOST/TEMPLATE/",
     "/HOST/HOST_SHARE/",
+    "/HOST/MONITORING/CAPACITY/",
+    "/HOST/MONITORING/SYSTEM/",
     "/HOST/",
     "/HOST/CLUSTER_TEMPLATE/"};
 
