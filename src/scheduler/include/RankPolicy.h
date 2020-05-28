@@ -73,30 +73,44 @@ private:
             return;
         }
 
+        NebulaLog::log("RANK", Log::DDEBUG, "Rank evaluation for expression : "
+                + srank);
+
         for (unsigned int i=0; i<resources.size(); rank=0, i++)
         {
             resource = pool->get(resources[i]->oid);
 
             if ( resource != 0 )
             {
-                rc = resource->eval_arith(srank, rank, &errmsg);
+                continue;
+            }
 
-                if (rc != 0)
+            rc = resource->eval_arith(srank, rank, &errmsg);
+
+            if (rc != 0)
+            {
+                ostringstream oss;
+
+                oss << "Computing rank, expression: " << srank;
+
+                if (errmsg != 0)
                 {
-                    ostringstream oss;
+                    oss << ", error: " << errmsg;
+                    errmsg = 0;
 
-                    oss << "Computing rank, expression: " << srank;
-
-                    if (errmsg != 0)
-                    {
-                        oss << ", error: " << errmsg;
-                        errmsg = 0;
-
-                        free(errmsg);
-                    }
-
-                    NebulaLog::log("RANK",Log::ERROR,oss);
+                    free(errmsg);
                 }
+
+                NebulaLog::log("RANK",Log::ERROR,oss);
+            }
+
+            if (NebulaLog::log_level() >= Log::DDEBUG)
+            {
+                ostringstream oss;
+
+                oss << "ID: " << resources[i]->oid << " Rank: " << rank;
+
+                NebulaLog::log("RANK", Log::DDEBUG, oss);
             }
 
             priority.push_back(rank);
