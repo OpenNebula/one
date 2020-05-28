@@ -555,12 +555,20 @@ class Template
                         config[:uplink] = false
 
                         host_id = vi_client.instance_variable_get '@host_id'
-                        nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
-                        nsx_net = NSXDriver::VirtualWire.new_from_name(nsx_client, nic[:net_name])
 
-                        config[:nsx_id] = nsx_net.ls_id
-                        config[:nsx_vni] = nsx_net.ls_vni
-                        config[:nsx_tz_id] = nsx_net.tz_id
+                        begin
+                            nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
+                        rescue
+                            nsx_client = nil
+                        end
+
+                        if nsx_client != nil
+                            nsx_net = NSXDriver::VirtualWire.new_from_name(nsx_client, nic[:net_name])
+
+                            config[:nsx_id] = nsx_net.ls_id
+                            config[:nsx_vni] = nsx_net.ls_vni
+                            config[:nsx_tz_id] = nsx_net.tz_id
+                        end
                     # Standard PortGroups
                     when VCenterDriver::Network::NETWORK_TYPE_PG
                         # There is no uplinks for standard portgroups, so all Standard
@@ -576,12 +584,20 @@ class Template
                         config[:uplink] = false
 
                         host_id = vi_client.instance_variable_get '@host_id'
-                        nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
-                        nsx_net = NSXDriver::OpaqueNetwork.new_from_name(nsx_client, nic[:net_name])
 
-                        config[:nsx_id] = nsx_net.ls_id
-                        config[:nsx_vni] = nsx_net.ls_vni
-                        config[:nsx_tz_id] = nsx_net.tz_id
+                        begin
+                            nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
+                        rescue
+                            nsx_client = nil
+                        end
+
+                        if nsx_client != nil
+                            nsx_net = NSXDriver::OpaqueNetwork.new_from_name(nsx_client, nic[:net_name])
+
+                            config[:nsx_id] = nsx_net.ls_id
+                            config[:nsx_vni] = nsx_net.ls_vni
+                            config[:nsx_tz_id] = nsx_net.tz_id
+                        end
                     else
                         raise "Unknown network type: #{nic[:pg_type]}"
                     end
