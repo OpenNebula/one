@@ -171,20 +171,20 @@ class Network
         one_tmp[:ref]  = network_ref
 
         opts = {
-            :network_import_name     => network_import_name,
-            :bridge_name         => bridge_name,
-            :network_ref    => network_ref,
-            :network_type    => network_type,
-            :vcenter_uuid    => vcenter_uuid,
-            :unmanaged    => unmanaged,
-            :template_ref    => template_ref,
-            :dc_ref    => dc_ref,
-            :template_id    => template_id,
-            :sw_name    => sw_name,
-            :nsx_id    => nsx_id,
-            :nsx_vni    => nsx_vni,
-            :nsx_tz_id    => nsx_tz_id,
-            :vlanid    => vlanid,
+            :network_import_name    => network_import_name,
+            :bridge_name            => bridge_name,
+            :network_ref            => network_ref,
+            :network_type           => network_type,
+            :vcenter_uuid           => vcenter_uuid,
+            :unmanaged              => unmanaged,
+            :template_ref           => template_ref,
+            :dc_ref                 => dc_ref,
+            :template_id            => template_id,
+            :sw_name                => sw_name,
+            :nsx_id                 => nsx_id,
+            :nsx_vni                => nsx_vni,
+            :nsx_tz_id              => nsx_tz_id,
+            :vlanid                 => vlanid,
         }
 
         one_tmp[:one] = to_one(opts)
@@ -194,7 +194,7 @@ class Network
     def self.to_one(opts)
 
         template = "NAME=\"#{opts[:network_import_name]}\"\n"\
-                   "BRIDGE=\"#{opts[:network_name]}\"\n"\
+                   "BRIDGE=\"#{opts[:bridge_name]}\"\n"\
                    "VN_MAD=\"vcenter\"\n"\
                    "VCENTER_PORTGROUP_TYPE=\"#{opts[:network_type]}\"\n"\
                    "VCENTER_NET_REF=\"#{opts[:network_ref]}\"\n"\
