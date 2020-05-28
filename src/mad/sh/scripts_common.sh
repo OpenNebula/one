@@ -1056,8 +1056,10 @@ function send_to_monitor {
     msg_oid="$3"
     msg_payload="$4"
 
-    if [ "$msg_result" = "0" ]; then
-        msg_result=SUCCESS
+    if [ "$msg_result" = "0" -o "$msg_result" = "SUCCESS" ]; then
+        msg_result="SUCCESS"
+    else
+        msg_result="FAILURE"
     fi
 
     # Read monitord config
