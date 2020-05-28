@@ -1039,3 +1039,50 @@ function get_nic_information {
     OUTBOUND_PEAK_KB="${XPATH_ELEMENTS[j++]}"
     ORDER="${XPATH_ELEMENTS[j++]}"
 }
+
+# Send message to monitor daemon
+# This function reads monitor network and encryption settings from monitord.conf,
+# packs and optionally encrypt the message and sends it to monitor daemon
+# Parameters
+#   $1 Message type: MONITOR_VM, BEACON_HOST, MONITOR_HOST, SYSTEM_HOST, STATE_VM, LOG, ...
+#   $2 Result of the operation:
+#        0 or "SUCCESS" means succesful monitoring
+#        everything else is failure
+#   $3 Object ID, use -1 if not relevant
+#   $4 Message payload (the monitoring data)
+function send_to_monitor {
+    msg_type="$1"
+    msg_result="$2"
+    msg_oid="$3"
+    msg_payload="$4"
+
+    if [ "$msg_result" = "0" ]; then
+        msg_result=SUCCESS
+    fi
+
+    # Read monitord config
+    if [ -z "${ONE_LOCATION}" ]; then
+        mon_conf=/etc/one/monitord.conf
+    else
+        mon_conf=$ONE_LOCATION/etc/monitord.conf
+    fi
+
+    mon_config=$(augtool -L -l $mon_conf ls /files/$mon_conf/NETWORK)
+    mon_address=$(echo "$mon_config" | grep MONITOR_ADDRESS | awk '{print $3}')
+    mon_port=$(echo "$mon_config" | grep PORT | awk '{print $3}')
+    mon_key=$(echo "$mon_config" | grep PUBKEY | awk '{print $3}')
+
+    if [[ $mon_address == *"auto"* ]]; then
+        mon_address="127.0.0.1"
+    fi
+
+    # Send message
+    # todo if mon_key is not empty do message encryption
+
+    payload_b64="$(echo $msg_payload | \
+        ruby -e "require 'zlib'; puts Zlib::Deflate.deflate(STDIN.read)" | \
+        base64 -w 0)"
+
+    echo "$msg_type $msg_result $msg_oid $payload_b64" |
+        nc -u -w1 $mon_address $mon_port
+}

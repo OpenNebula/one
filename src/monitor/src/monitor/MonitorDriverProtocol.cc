@@ -155,7 +155,10 @@ void MonitorDriverProtocol::_beacon_host(message_t msg)
         NebulaLog::warn("MDP", "Error condition detected on beacon for host "
                 + to_string(msg->oid()) + ": " + msg->payload());
 
-        hm->error_monitor(msg->oid(), msg->payload());
+        if (msg->oid() >= 0)
+        {
+            hm->error_monitor(msg->oid(), msg->payload());
+        }
         return;
     }
 

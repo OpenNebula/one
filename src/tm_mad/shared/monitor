@@ -75,49 +75,48 @@ echo "USED_MB=\$USED_MB"
 echo "FREE_MB=\$FREE_MB"
 echo "TOTAL_MB=\$TOTAL_MB"
 
-if [ $MONITOR_VM_DISKS -eq 1 ]; then
-    vms=\$(ls "$BASE_PATH" | grep '^[0-9]\+$')
+EOF
+)
 
-    monitor=""
+MONITOR_VM_SCRIPT=$(cat <<EOF
 
-    for vm in \$vms; do
-        vmdir="${BASE_PATH}/\${vm}"
-        disks=\$(ls "\$vmdir" 2>/dev/null | grep '^disk\.[0-9]\+$')
+vms=\$(ls "$BASE_PATH" | grep '^[0-9]\+$')
 
-        [ -z \$disks ] && continue
+monitor=""
 
-        vm_monitor=""
+for vm in \$vms; do
+    vmdir="${BASE_PATH}/\${vm}"
+    disks=\$(ls "\$vmdir" 2>/dev/null | grep '^disk\.[0-9]\+$')
 
-        for disk in \$disks; do
-            disk_id="\$(echo "\$disk" | cut -d. -f2)"
-            disk_size="\$(du -mL "\${vmdir}/\${disk}" 2>/dev/null | awk '{print \$1}')"
-            snap_dir="\${vmdir}/\${disk}.snap"
+    [ -z \$disks ] && continue
 
-            [ -z "\$disk_size" ] && continue
+    vm_monitor=""
 
-            vm_monitor="\${vm_monitor} DISK_SIZE = [ ID=\${disk_id}, SIZE=\${disk_size}]"
+    for disk in \$disks; do
+        disk_id="\$(echo "\$disk" | cut -d. -f2)"
+        disk_size="\$(du -mL "\${vmdir}/\${disk}" 2>/dev/null | awk '{print \$1}')"
+        snap_dir="\${vmdir}/\${disk}.snap"
 
-            if [ -e "\$snap_dir" ]; then
-                snaps="\$(ls "\$snap_dir" 2>/dev/null | grep '^[0-9]$')"
+        [ -z "\$disk_size" ] && continue
 
-                for snap in \$snaps; do
-                    snap_size="\$(du -mL "\${snap_dir}/\${snap}" 2>/dev/null | awk '{print \$1}')"
-                    [ -z "\$snap_size" ] && continue
+        vm_monitor="\${vm_monitor} DISK_SIZE = [ ID=\${disk_id}, SIZE=\${disk_size}]"
 
-                    vm_monitor="\${vm_monitor}\nSNAPSHOT_SIZE = "\
-                        "[ ID=\${snap}, DISK_ID=\${disk_id}, SIZE=\${snap_size}]"
-                done
-            fi
-        done
+        if [ -e "\$snap_dir" ]; then
+            snaps="\$(ls "\$snap_dir" 2>/dev/null | grep '^[0-9]$')"
 
-        vm_monitor_b64="\$(echo \$vm_monitor | base64 -w 0)"
-        monitor="\${monitor}VM=[ID=\$vm,MONITOR=\"\$vm_monitor_b64\"] "
+            for snap in \$snaps; do
+                snap_size="\$(du -mL "\${snap_dir}/\${snap}" 2>/dev/null | awk '{print \$1}')"
+                [ -z "\$snap_size" ] && continue
+
+                vm_monitor="\${vm_monitor}\nSNAPSHOT_SIZE = "\
+                    "[ ID=\${snap}, DISK_ID=\${disk_id}, SIZE=\${snap_size}]"
+            done
+        fi
     done
 
-    monitor_b64="\$(echo \$monitor | ruby -e "require 'zlib';\
-        puts Zlib::Deflate.deflate(STDIN.read)" | base64 -w 0)"
-    echo MONITOR_VM SUCCESS 0 \$monitor_b64 | nc -u -w0 127.0.0.1 4124
-fi
+    vm_monitor_b64="\$(echo \$vm_monitor | base64 -w 0)"
+    echo "VM=[ID=\$vm, MONITOR=\"\$vm_monitor_b64\"] "
+done
 
 EOF
 )
@@ -125,16 +124,26 @@ EOF
 if [ -n "$BRIDGE_LIST" ]; then
     HOST=`get_destination_host`
     MONITOR_DATA=$(ssh_monitor_and_log "$HOST" "$MONITOR_SCRIPT" "Remote monitor script" 2>&1)
+    MONITOR_STATUS=$?
+
+    if [ $MONITOR_VM_DISKS -eq 1 ]; then
+        MONITOR_DATA_VMS=$(ssh_monitor_and_log "$HOST" "$MONITOR_VM_SCRIPT" "Remote VM disks monitor script" 2>&1)
+        MONITOR_VMS_STATUS=$?
+    fi
 else
     MONITOR_DATA=$(monitor_and_log "$MONITOR_SCRIPT" "Monitor script" 2>&1)
+    MONITOR_STATUS=$?
+
+    if [ $MONITOR_VM_DISKS -eq 1 ]; then
+        MONITOR_DATA_VMS=$(monitor_and_log "$MONITOR_VM_SCRIPT" "VM disks monitor script" 2>&1)
+        MONITOR_VMS_STATUS=$?
+    fi
 fi
 
-MONITOR_STATUS=$?
+echo $MONITOR_DATA
 
-if [ "$MONITOR_STATUS" = "0" ]; then
-    echo "$MONITOR_DATA"
-    exit 0
-else
-    echo "$MONITOR_DATA"
-    exit $MONITOR_STATUS
+if [ $MONITOR_VM_DISKS -eq 1 ]; then
+    send_to_monitor MONITOR_VM $MONITOR_VMS_STATUS -1 "$MONITOR_DATA_VMS"
 fi
+
+exit $MONITOR_STATUS
