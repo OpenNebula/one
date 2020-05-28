@@ -252,6 +252,30 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
     }
 
     /**
+     * Retrieves the monitoring data for all or part of the Virtual
+     * Machines in the pool.
+     *
+     * @param client XML-RPC Client.
+     * @param filter Filter flag to use. Possible values:
+     * <ul>
+     * <li>{@link Pool#ALL}: All Virtual Machines</li>
+     * <li>{@link Pool#MINE}: Connected user's Virtual Machines</li>
+     * <li>{@link Pool#MINE_GROUP}: Connected user's Virtual Machines, and
+     * the ones in his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Virtual Machines</li>
+     * <li>&gt;= 0 UID User's Virtual Machines</li>
+     * </ul>
+     * @param num number of monitoring records to be retrieved, if -1
+     * every record will be retrieved.
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse monitoring(Client client, int filter, int num)
+    {
+        return client.call(MONITORING, filter, num);
+    }
+
+    /**
      * Loads the xml representation of all or part of the
      * Virtual Machines in the pool. The filter used is the one set in
      * the constructor.
