@@ -153,8 +153,12 @@ OS = [
         #    "is_migrated": false
         # }
         apps[0..-1].each do |app|
-            time = app['last_updated'].split('T')[0].split('-')
-            regt = Time.new(time[0], time[1], time[2]).to_i
+            regt = ''
+
+            if !app['last_updated'].nil?
+                time = app['last_updated'].split('T')[0].split('-')
+                regt = Time.new(time[0], time[1], time[2]).to_i
+            end
 
             data = {
                 'NAME'        => app['name'],
