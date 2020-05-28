@@ -33,7 +33,7 @@ module NSXDriver
             when NSXConstants::NSXV
                 NSXVLogicalPort.new(nsx_client, id)
             else
-                error_msg = "Unknown object type: #{type}"
+                error_msg = "Unknown NSX type: #{type}"
                 error = NSXError::UnknownObject.new(error_msg)
                 raise error
             end

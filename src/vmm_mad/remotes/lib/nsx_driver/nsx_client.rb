@@ -59,13 +59,19 @@ module NSXDriver
         end
 
         def self.new_child(nsxmgr, nsx_user, nsx_password, type)
+            [nsxmgr, nsx_user, nsx_password, type].each do |v|
+                next if !v.nil? && !v.empty?
+
+                return nil
+            end
+
             case type.upcase
             when NSXConstants::NSXT
                 NSXTClient.new(nsxmgr, nsx_user, nsx_password)
             when NSXConstants::NSXV
                 NSXVClient.new(nsxmgr, nsx_user, nsx_password)
             else
-                error_msg = "Unknown object type: #{type}"
+                error_msg = "Unknown NSX type: #{type}"
                 error     = NSXError::UnknownObject.new(error_msg)
                 raise error
             end
