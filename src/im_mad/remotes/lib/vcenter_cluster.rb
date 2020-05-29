@@ -116,31 +116,6 @@ class Cluster
         @cluster = VCenterDriver::ClusterComputeResource
                    .new_from_ref(connection[:ccr], @vic)
 
-        #-----------------------------------------------------------------------
-        #  NSX Client Initialization
-        #-----------------------------------------------------------------------
-        nsx_manager  = @host['TEMPLATE/NSX_MANAGER']
-        nsx_user     = @host['TEMPLATE/NSX_USER']
-        nsx_password = @host['TEMPLATE/NSX_PASSWORD']
-
-        @nsx_type    = @host['TEMPLATE/NSX_TYPE']
-        @nsx_status  = ''
-        @nsx_client  = nil
-
-        [nsx_manager, nsx_user, nsx_password, @nsx_type].each do |v|
-            next if !v.nil? && !v.empty?
-
-            @nsx_status = 'NSX_STATUS="Check NSX configuration attributes: '\
-                'NSX_MANAGER, NSX_USER, NSX_PASSWORD or NSX_TYPE"'
-            break
-        end
-
-       if @nsx_status.empty?
-           @nsx_client = NSXDriver::NSXClient.new_child(nsx_manager,
-                                                        nsx_user,
-                                                        nsx_password,
-                                                        @nsx_type)
-       end
     end
 
     #---------------------------------------------------------------------------
@@ -154,8 +129,8 @@ class Cluster
         monitor_str += customizations_info
         monitor_str += datastore_info
         monitor_str += vms_info('wild')
+        monitor_str += nsx_info_vcenter
         monitor_str += nsx_info
-        monitor_str += tz_info
 
         monitor_str
     end
@@ -592,8 +567,8 @@ class Cluster
     #
     # TODO: Add more than one nsx managers
     #---------------------------------------------------------------------------
-    def nsx_info
-        nsx_obj = {}
+    def nsx_info_vcenter
+        @nsx_obj = {}
 
         elist = @vic.vim.serviceContent.extensionManager.extensionList
 
@@ -605,28 +580,28 @@ class Cluster
                 protocol = parts[0] + "//"
                 ip_port  = parts[2]
 
-                nsx_obj['type']    = NSXDriver::NSXConstants::NSXV
-                nsx_obj['url']     = protocol + ip_port
-                nsx_obj['version'] = ext_list.version
-                nsx_obj['label']   = ext_list.description.label
+                @nsx_obj['type']    = NSXDriver::NSXConstants::NSXV
+                @nsx_obj['url']     = protocol + ip_port
+                @nsx_obj['version'] = ext_list.version
+                @nsx_obj['label']   = ext_list.description.label
 
             when NSXDriver::NSXConstants::NSXT_EXTENSION_LIST
-                nsx_obj['type']    = NSXDriver::NSXConstants::NSXT
-                nsx_obj['url']     = ext_list.server[0].url
-                nsx_obj['version'] = ext_list.version
-                nsx_obj['label']   = ext_list.description.label
+                @nsx_obj['type']    = NSXDriver::NSXConstants::NSXT
+                @nsx_obj['url']     = ext_list.server[0].url
+                @nsx_obj['version'] = ext_list.version
+                @nsx_obj['label']   = ext_list.description.label
             else
                 next
             end
         end
 
-        return '' if nsx_obj.empty?
+        return '' if @nsx_obj.empty?
 
         unindent(<<-EOS)
-            NSX_MANAGER ="#{nsx_obj['url']}"
-            NSX_TYPE    ="#{nsx_obj['type']}"
-            NSX_VERSION ="#{nsx_obj['version']}"
-            NSX_LABEL   ="#{nsx_obj['label']}"
+            NSX_MANAGER ="#{@nsx_obj['url']}"
+            NSX_TYPE    ="#{@nsx_obj['type']}"
+            NSX_VERSION ="#{@nsx_obj['version']}"
+            NSX_LABEL   ="#{@nsx_obj['label']}"
         EOS
     end
 
@@ -657,35 +632,58 @@ class Cluster
     end
 
     #---------------------------------------------------------------------------
-    #
+    # Return NSX info monitoring
     #---------------------------------------------------------------------------
-    def tz_info
-        return @nsx_status if @nsx_client.nil?
+    def nsx_info
+        create_nsx_client = true
+        nsx_manager = @host['TEMPLATE/NSX_MANAGER'] || @nsx_obj['url']
+        nsx_user = @host['TEMPLATE/NSX_USER']
+        nsx_password = @host['TEMPLATE/NSX_PASSWORD']
+        nsx_type = @host['TEMPLATE/NSX_TYPE'] || @nsx_obj['type']
 
+        [nsx_manager, nsx_user, nsx_password, nsx_type].each do |v|
+            next if !v.nil? && !v.empty?
+
+            create_nsx_client = false
+            break
+        end
+
+        if create_nsx_client
+            @nsx_client = NSXDriver::NSXClient.new_child(nsx_manager,
+                                                        nsx_user,
+                                                        nsx_password,
+                                                        nsx_type)
+        end
+
+        return '' if @nsx_client.nil?
+
+        #-----------------------------------------------------------------------
+        # Transport Zones
+        #-----------------------------------------------------------------------
         tz_object = NSXDriver::TransportZone.new_child(@nsx_client)
 
-        tz_info = 'NSX_TRANSPORT_ZONES = ['
+        nsx_info = 'NSX_TRANSPORT_ZONES = ['
 
-        case @nsx_type
+        case nsx_type
         when NSXDriver::NSXConstants::NSXV
             tzs = tz_object.tzs
             tzs.each do |tz|
-                tz_info << "#{tz.xpath('name').text}=\"#{tz.xpath('objectId').text}\","
+                nsx_info << "#{tz.xpath('name').text}=\"#{tz.xpath('objectId').text}\","
             end
 
         when NSXDriver::NSXConstants::NSXT
             tzs = tz_object.tzs
             tzs['results'].each do |tz|
-                tz_info << "#{tz['display_name']}=\"#{tz['id']}\","
+                nsx_info << "#{tz['display_name']}=\"#{tz['id']}\","
             end
 
         else
-          raise "Unknown PortGroup type #{@nsx_type}"
+          raise "Unknown PortGroup type #{nsx_type}"
         end
 
-        tz_info.chomp!(',')
+        nsx_info.chomp!(',')
 
-        tz_info << ']'
+        nsx_info << ']'
     end
 
 end
