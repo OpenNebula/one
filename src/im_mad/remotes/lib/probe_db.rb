@@ -125,6 +125,8 @@ class VirtualMachineDB
 
             monitor_ids << uuid
 
+            next if vm[:ignore] == true
+
             if vm_db.nil?
                 @db.execute(
                     "INSERT INTO #{@dataset} VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
