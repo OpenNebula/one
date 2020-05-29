@@ -123,10 +123,6 @@ module OpenNebula
 
             mon_address = "127.0.0.1" if mon_address.include? "auto"
         rescue LoadError
-            STDERR.puts(
-                'Augeas gem is not installed, run `gem install ' \
-                'augeas` to install it'
-            )
             mon_address = "127.0.0.1"
             mon_port    = 4124
         end
