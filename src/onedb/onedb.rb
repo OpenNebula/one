@@ -133,10 +133,10 @@ class OneDB
         ops[:passwd]  = aug.get('DB/PASSWD')
         ops[:db_name] = aug.get('DB/DB_NAME')
 
-        ops = ops.transform_values do |v|
+        ops.each do |k, v|
             next unless v
 
-            v.chomp('"').reverse.chomp('"').reverse
+            ops[k] = v.chomp('"').reverse.chomp('"').reverse
         end
 
         ops.each {|_, v| v.gsub!("\\", '') if v }
