@@ -122,11 +122,20 @@ class Cluster
         nsx_manager  = @host['TEMPLATE/NSX_MANAGER']
         nsx_user     = @host['TEMPLATE/NSX_USER']
         nsx_password = @host['TEMPLATE/NSX_PASSWORD']
-        @nsx_type    = @host['TEMPLATE/NSX_TYPE']
 
+        @nsx_type    = @host['TEMPLATE/NSX_TYPE']
+        @nsx_status  = ''
         @nsx_client  = nil
 
-       unless nsx_password.nil? || nsx_password.empty? 
+        [nsx_manager, nsx_user, nsx_password, @nsx_type].each do |v|
+            next if !v.nil? && !v.empty?
+
+            @nsx_status = 'NSX_STATUS="Check NSX configuration attributes: '\
+                'NSX_MANAGER, NSX_USER, NSX_PASSWORD or NSX_TYPE"'
+            break
+        end
+
+       if @nsx_status.empty?
            @nsx_client = NSXDriver::NSXClient.new_child(nsx_manager,
                                                         nsx_user,
                                                         nsx_password,
@@ -146,7 +155,6 @@ class Cluster
         monitor_str += datastore_info
         monitor_str += vms_info('wild')
         monitor_str += nsx_info
-        monitor_str += update_nsx_status
         monitor_str += tz_info
 
         monitor_str
@@ -622,82 +630,6 @@ class Cluster
         EOS
     end
 
-    def nsx_ready?
-        # Check if NSX_MANAGER is into the host template
-        if [nil, ''].include?(@host['TEMPLATE/NSX_MANAGER'])
-            @nsx_status = "NSX_STATUS = \"Missing NSX_MANAGER\"\n"
-            return false
-        end
-
-        # Check if NSX_USER is into the host template
-        if [nil, ''].include?(@host['TEMPLATE/NSX_USER'])
-            @nsx_status = "NSX_STATUS = \"Missing NSX_USER\"\n"
-            return false
-        end
-
-        # Check if NSX_PASSWORD is into the host template
-        if [nil, ''].include?(@host['TEMPLATE/NSX_PASSWORD'])
-            @nsx_status = "NSX_STATUS = \"Missing NSX_PASSWORD\"\n"
-            return false
-        end
-
-        # Check if NSX_TYPE is into the host template
-        if [nil, ''].include?(@host['TEMPLATE/NSX_TYPE'])
-            @nsx_status = "NSX_STATUS = \"Missing NSX_TYPE\"\n"
-            return false
-        end
-
-        # Try a connection as part of NSX_STATUS
-        begin
-            nsx_client = NSXDriver::NSXClient.new_from_host(@host)
-        rescue
-            @nsx_status = "NSX_STATUS = \"Error creating NSX client\"\n"
-            return false
-        end
-
-        if @host['TEMPLATE/NSX_TYPE'] == NSXDriver::NSXConstants::NSXV
-            # URL to test a connection
-            url = '/api/2.0/vdn/scopes'
-            begin
-                if nsx_client.get(url)
-                    @nsx_status = "NSX_STATUS = \"OK\"\n"
-                    return true
-                else
-                    @nsx_status = "NSX_STATUS = \"Response code incorrect\"\n"
-                    return false
-                end
-            rescue StandardError => e
-                @nsx_status = 'NSX_STATUS = "Error connecting to ' \
-                              "NSX_MANAGER\"\n"
-                return false
-            end
-        end
-
-        if @host['TEMPLATE/NSX_TYPE'] == NSXDriver::NSXConstants::NSXT
-            # URL to test a connection
-            url = '/api/v1/transport-zones'
-            begin
-                if nsx_client.get(url)
-                    @nsx_status = "NSX_STATUS = \"OK\"\n"
-                    return true
-                else
-                    @nsx_status = "NSX_STATUS = \"Response code incorrect\"\n"
-                    return false
-                end
-            rescue StandardError => e
-                @nsx_status = 'NSX_STATUS = "Error connecting to '\
-                              "NSX_MANAGER\"\n"
-                return false
-            end
-        end
-    end
-
-
-    def update_nsx_status
-        ready = nsx_ready?
-        @nsx_status
-    end
-
     #---------------------------------------------------------------------------
     # Get a list vCenter datastores morefs
     #---------------------------------------------------------------------------
@@ -728,7 +660,7 @@ class Cluster
     #
     #---------------------------------------------------------------------------
     def tz_info
-        return '' if @nsx_client.nil?
+        return @nsx_status if @nsx_client.nil?
 
         tz_object = NSXDriver::TransportZone.new_child(@nsx_client)
 
