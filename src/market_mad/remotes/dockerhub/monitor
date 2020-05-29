@@ -182,6 +182,7 @@ OS = [
 
             tmpl64 = ''
             print_var(tmpl64, 'DRIVER', 'raw')
+            print_var(tmpl64, 'DEV_PREFIX', 'vd')
 
             data = { 'APPTEMPLATE64' => tmpl64, 'VMTEMPLATE64' => TEMPLATE }
             data.each do |key, val|
