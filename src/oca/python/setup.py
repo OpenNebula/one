@@ -43,11 +43,10 @@ if sys.version_info[0] < 3:
 version = '5.11.90'
 
 # mark pre-release
-v1, v2 = version.split('.')[1:3]
-
-if v1 >= 90 or v2 >= 90:
+ver_min = int(version.split('.')[-1])
+if ver_min >= 90:
     pyone_version = version + 'rc1'
-elif v1 >= 80 or v2 >= 80:
+elif ver_min >= 80:
     pyone_version = version + 'b1'
 else:
     pyone_version = version
