@@ -14,11 +14,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'augeas'
-require 'base64'
-require 'zlib'
-require 'socket'
-
 module OpenNebula
 
     # Generic log function
@@ -109,21 +104,28 @@ module OpenNebula
 
         file_name = 'monitord.conf'
 
-        aug = Augeas.create(:no_modl_autoload => true,
-                            :no_load          => true,
-                            :root             => file_dir,
-                            :loadpath         => file_name)
+        begin
+            require 'augeas'
 
-        aug.clear_transforms
-        aug.transform(:lens => 'Oned.lns', :incl => file_name)
-        aug.context = "/files/#{file_name}"
-        aug.load
+            aug = Augeas.create(:no_modl_autoload => true,
+                :no_load          => true,
+                :root             => file_dir,
+                :loadpath         => file_name)
 
-        mon_address = aug.get('NETWORK/MONITOR_ADDRESS')
-        mon_port    = aug.get('NETWORK/PORT')
-        mon_key     = aug.get('NETWORK/PUBKEY').tr('"', '')
+            aug.clear_transforms
+            aug.transform(:lens => 'Oned.lns', :incl => file_name)
+            aug.context = "/files/#{file_name}"
+            aug.load
 
-        mon_address = "127.0.0.1" if mon_address.include? "auto"
+            mon_address = aug.get('NETWORK/MONITOR_ADDRESS')
+            mon_port    = aug.get('NETWORK/PORT')
+            mon_key     = aug.get('NETWORK/PUBKEY').tr('"', '')
+
+            mon_address = "127.0.0.1" if mon_address.include? "auto"
+        rescue LoadError
+            mon_address = "127.0.0.1"
+            mon_port    = 4124
+        end
 
         # Encrypt
         if mon_key && !mon_key.empty?
@@ -144,14 +146,26 @@ module OpenNebula
         end
 
         # Send data
-        zdata  = Zlib::Deflate.deflate(data, Zlib::BEST_COMPRESSION)
-        data64 = Base64.strict_encode64(zdata)
+        begin
+            require 'base64'
+            require 'zlib'
+            require 'socket'
 
-        result = "SUCCESS" if result == "0" || result == 0
+            zdata  = Zlib::Deflate.deflate(data, Zlib::BEST_COMPRESSION)
+            data64 = Base64.strict_encode64(zdata)
 
-        msg = "#{msg_type} #{result} #{oid} #{data64}"
+            if (result == "SUCCESS" || result == "0")
+                result = "SUCCESS"
+            else
+                result = "FAILURE"
+            end
 
-        socket_udp = UDPSocket.new()
-        socket_udp.send(msg, 0, mon_address, mon_port)
+            msg = "#{msg_type} #{result} #{oid} #{data64}"
+
+            socket_udp = UDPSocket.new()
+            socket_udp.send(msg, 0, mon_address, mon_port)
+        rescue LoadError
+            STDERR.puts('Unable to send data to Monitor Daemon')
+        end
     end
 end
