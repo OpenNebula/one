@@ -116,22 +116,6 @@ class Cluster
         @cluster = VCenterDriver::ClusterComputeResource
                    .new_from_ref(connection[:ccr], @vic)
 
-        #-----------------------------------------------------------------------
-        #  NSX Client Initialization
-        #-----------------------------------------------------------------------
-        nsx_manager  = @host['TEMPLATE/NSX_MANAGER']
-        nsx_user     = @host['TEMPLATE/NSX_USER']
-        nsx_password = @host['TEMPLATE/NSX_PASSWORD']
-        @nsx_type    = @host['TEMPLATE/NSX_TYPE']
-
-        @nsx_client  = nil
-
-       unless nsx_password.nil? || nsx_password.empty? 
-           @nsx_client = NSXDriver::NSXClient.new_child(nsx_manager,
-                                                        nsx_user,
-                                                        nsx_password,
-                                                        @nsx_type)
-       end
     end
 
     #---------------------------------------------------------------------------
@@ -145,9 +129,8 @@ class Cluster
         monitor_str += customizations_info
         monitor_str += datastore_info
         monitor_str += vms_info('wild')
+        monitor_str += nsx_info_vcenter
         monitor_str += nsx_info
-        monitor_str += update_nsx_status
-        monitor_str += tz_info
 
         monitor_str
     end
@@ -584,8 +567,8 @@ class Cluster
     #
     # TODO: Add more than one nsx managers
     #---------------------------------------------------------------------------
-    def nsx_info
-        nsx_obj = {}
+    def nsx_info_vcenter
+        @nsx_obj = {}
 
         elist = @vic.vim.serviceContent.extensionManager.extensionList
 
@@ -597,105 +580,29 @@ class Cluster
                 protocol = parts[0] + "//"
                 ip_port  = parts[2]
 
-                nsx_obj['type']    = NSXDriver::NSXConstants::NSXV
-                nsx_obj['url']     = protocol + ip_port
-                nsx_obj['version'] = ext_list.version
-                nsx_obj['label']   = ext_list.description.label
+                @nsx_obj['type']    = NSXDriver::NSXConstants::NSXV
+                @nsx_obj['url']     = protocol + ip_port
+                @nsx_obj['version'] = ext_list.version
+                @nsx_obj['label']   = ext_list.description.label
 
             when NSXDriver::NSXConstants::NSXT_EXTENSION_LIST
-                nsx_obj['type']    = NSXDriver::NSXConstants::NSXT
-                nsx_obj['url']     = ext_list.server[0].url
-                nsx_obj['version'] = ext_list.version
-                nsx_obj['label']   = ext_list.description.label
+                @nsx_obj['type']    = NSXDriver::NSXConstants::NSXT
+                @nsx_obj['url']     = ext_list.server[0].url
+                @nsx_obj['version'] = ext_list.version
+                @nsx_obj['label']   = ext_list.description.label
             else
                 next
             end
         end
 
-        return '' if nsx_obj.empty?
+        return '' if @nsx_obj.empty?
 
         unindent(<<-EOS)
-            NSX_MANAGER ="#{nsx_obj['url']}"
-            NSX_TYPE    ="#{nsx_obj['type']}"
-            NSX_VERSION ="#{nsx_obj['version']}"
-            NSX_LABEL   ="#{nsx_obj['label']}"
+            NSX_MANAGER ="#{@nsx_obj['url']}"
+            NSX_TYPE    ="#{@nsx_obj['type']}"
+            NSX_VERSION ="#{@nsx_obj['version']}"
+            NSX_LABEL   ="#{@nsx_obj['label']}"
         EOS
-    end
-
-    def nsx_ready?
-        # Check if NSX_MANAGER is into the host template
-        if [nil, ''].include?(@host['TEMPLATE/NSX_MANAGER'])
-            @nsx_status = "NSX_STATUS = \"Missing NSX_MANAGER\"\n"
-            return false
-        end
-
-        # Check if NSX_USER is into the host template
-        if [nil, ''].include?(@host['TEMPLATE/NSX_USER'])
-            @nsx_status = "NSX_STATUS = \"Missing NSX_USER\"\n"
-            return false
-        end
-
-        # Check if NSX_PASSWORD is into the host template
-        if [nil, ''].include?(@host['TEMPLATE/NSX_PASSWORD'])
-            @nsx_status = "NSX_STATUS = \"Missing NSX_PASSWORD\"\n"
-            return false
-        end
-
-        # Check if NSX_TYPE is into the host template
-        if [nil, ''].include?(@host['TEMPLATE/NSX_TYPE'])
-            @nsx_status = "NSX_STATUS = \"Missing NSX_TYPE\"\n"
-            return false
-        end
-
-        # Try a connection as part of NSX_STATUS
-        begin
-            nsx_client = NSXDriver::NSXClient.new_from_host(@host)
-        rescue
-            @nsx_status = "NSX_STATUS = \"Error creating NSX client\"\n"
-            return false
-        end
-
-        if @host['TEMPLATE/NSX_TYPE'] == NSXDriver::NSXConstants::NSXV
-            # URL to test a connection
-            url = '/api/2.0/vdn/scopes'
-            begin
-                if nsx_client.get(url)
-                    @nsx_status = "NSX_STATUS = \"OK\"\n"
-                    return true
-                else
-                    @nsx_status = "NSX_STATUS = \"Response code incorrect\"\n"
-                    return false
-                end
-            rescue StandardError => e
-                @nsx_status = 'NSX_STATUS = "Error connecting to ' \
-                              "NSX_MANAGER\"\n"
-                return false
-            end
-        end
-
-        if @host['TEMPLATE/NSX_TYPE'] == NSXDriver::NSXConstants::NSXT
-            # URL to test a connection
-            url = '/api/v1/transport-zones'
-            begin
-                if nsx_client.get(url)
-                    @nsx_status = "NSX_STATUS = \"OK\"\n"
-                    return true
-                else
-                    @nsx_status = "NSX_STATUS = \"Response code incorrect\"\n"
-                    return false
-                end
-            rescue StandardError => e
-                @nsx_status = 'NSX_STATUS = "Error connecting to '\
-                              "NSX_MANAGER\"\n"
-                return false
-            end
-        end
-    end
-
-
-    def update_nsx_status
-        ready = nsx_ready?
-        @nsx_status
     end
 
     #---------------------------------------------------------------------------
@@ -725,35 +632,58 @@ class Cluster
     end
 
     #---------------------------------------------------------------------------
-    #
+    # Return NSX info monitoring
     #---------------------------------------------------------------------------
-    def tz_info
+    def nsx_info
+        create_nsx_client = true
+        nsx_manager = @host['TEMPLATE/NSX_MANAGER'] || @nsx_obj['url']
+        nsx_user = @host['TEMPLATE/NSX_USER']
+        nsx_password = @host['TEMPLATE/NSX_PASSWORD']
+        nsx_type = @host['TEMPLATE/NSX_TYPE'] || @nsx_obj['type']
+
+        [nsx_manager, nsx_user, nsx_password, nsx_type].each do |v|
+            next if !v.nil? && !v.empty?
+
+            create_nsx_client = false
+            break
+        end
+
+        if create_nsx_client
+            @nsx_client = NSXDriver::NSXClient.new_child(nsx_manager,
+                                                        nsx_user,
+                                                        nsx_password,
+                                                        nsx_type)
+        end
+
         return '' if @nsx_client.nil?
 
+        #-----------------------------------------------------------------------
+        # Transport Zones
+        #-----------------------------------------------------------------------
         tz_object = NSXDriver::TransportZone.new_child(@nsx_client)
 
-        tz_info = 'NSX_TRANSPORT_ZONES = ['
+        nsx_info = 'NSX_TRANSPORT_ZONES = ['
 
-        case @nsx_type
+        case nsx_type
         when NSXDriver::NSXConstants::NSXV
             tzs = tz_object.tzs
             tzs.each do |tz|
-                tz_info << "#{tz.xpath('name').text}=\"#{tz.xpath('objectId').text}\","
+                nsx_info << "#{tz.xpath('name').text}=\"#{tz.xpath('objectId').text}\","
             end
 
         when NSXDriver::NSXConstants::NSXT
             tzs = tz_object.tzs
             tzs['results'].each do |tz|
-                tz_info << "#{tz['display_name']}=\"#{tz['id']}\","
+                nsx_info << "#{tz['display_name']}=\"#{tz['id']}\","
             end
 
         else
-          raise "Unknown PortGroup type #{@nsx_type}"
+          raise "Unknown PortGroup type #{nsx_type}"
         end
 
-        tz_info.chomp!(',')
+        nsx_info.chomp!(',')
 
-        tz_info << ']'
+        nsx_info << ']'
     end
 
 end
