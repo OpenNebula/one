@@ -342,30 +342,6 @@ class DatacenterFolder
         return networks
     end
 
-    # Return network type of a given network:
-    #   "Port Group"
-    #   "Distributed Port Group"
-    #   "NSX-V"
-    #   "Opaque Network"
-    #   "Unknown Network"
-    def identify_network_type(vc_network)
-        case vc_network
-        when RbVmomi::VIM::DistributedVirtualPortgroup
-            if vc_network['name']
-              .match(/^vxw-dvs-(.*)-virtualwire-(.*)-sid-(.*)/)
-                VCenterDriver::Network::NETWORK_TYPE_NSXV
-            else
-                VCenterDriver::Network::NETWORK_TYPE_DPG
-            end
-        when RbVmomi::VIM::OpaqueNetwork
-            VCenterDriver::Network::NETWORK_TYPE_NSXT
-        when RbVmomi::VIM::Network
-            VCenterDriver::Network::NETWORK_TYPE_PG
-        else
-            VCenterDriver::Network::NETWORK_TYPE_UNKNOWN
-        end
-    end
-
     # Return ONE cluster ID
     def one_cluster_id(one_host)
         if !one_host || !one_host['CLUSTER_ID']
@@ -401,7 +377,7 @@ class DatacenterFolder
         if args[:filter]
             if ( one_host && one_host['TEMPLATE/NSX_PASSWORD'].nil?)
                 # Only NSX-V and NSX-T can be excluded
-                network_type = identify_network_type(vc_network)
+                network_type = VCenterDriver::Network.get_network_type(vc_network)
                 if network_type == VCenterDriver::Network::NETWORK_TYPE_NSXT ||\
                    network_type == VCenterDriver::Network::NETWORK_TYPE_NSXV
 
@@ -446,7 +422,7 @@ class DatacenterFolder
         opts = {}
 
         # Add network type to network hash
-        network_type = identify_network_type(vc_network)
+        network_type = VCenterDriver::Network.get_network_type(vc_network)
         network[vc_network._ref][:network_type] = network_type
 
         # Determine if the network must be excluded
