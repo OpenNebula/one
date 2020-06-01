@@ -79,11 +79,11 @@ module LXD
             netrx = 0
             nettx = 0
 
-            @container.monitor['metadata']['network'].each do |iface, values|
+            @container.monitor['metadata']['network'].each do |iface, val|
                 next if iface == 'lo'
 
-                netrx += values['counters']['bytes_received']
-                nettx += values['counters']['bytes_sent']
+                netrx += val['counters']['bytes_received']
+                nettx += val['counters']['bytes_sent']
             end
 
             @metrics[:netrx] = netrx
