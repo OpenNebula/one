@@ -196,6 +196,9 @@ else:
 # Rubygem generation
 main_env.Append(rubygems=ARGUMENTS.get('rubygems', 'no'))
 
+# Enterprise Edition
+main_env.Append(enterprise=ARGUMENTS.get('enterprise', 'no'))
+
 # Sunstone minified files generation
 main_env.Append(sunstone=ARGUMENTS.get('sunstone', 'no'))
 

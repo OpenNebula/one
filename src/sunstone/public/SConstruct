@@ -24,9 +24,12 @@ Import('env')
 if env['sunstone']=='yes':
     print ("Generating Sunstone minified files\n")
 
-    exit_code=os.system("./build.sh")
+    if env['enterprise']=='yes':
+        print("OpenNebula Enterprise Suntone\n")
+        exit_code=os.system("./build.sh -e")
+    else:
+        exit_code=os.system("./build.sh")
 
     if exit_code != 0:
         print ("Error generating minifying Sunstone files\n")
         exit(-1)
-

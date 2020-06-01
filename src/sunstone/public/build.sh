@@ -58,7 +58,7 @@ install_patch() {
 }
 #-------------------------------------------------------------------------------
 
-PARAMETERS="dlch"
+PARAMETERS="dlche"
 
 if [ $(getopt --version | tr -d " ") = "--" ]; then
     TEMP_OPT=`getopt $PARAMETERS "$@"`
@@ -69,6 +69,7 @@ fi
 DEPENDENCIES="no"
 CLEAN="no"
 DO_LINK="no"
+ENTERPRISE="no"
 
 eval set -- "$TEMP_OPT"
 
@@ -77,6 +78,7 @@ while true ; do
         -d) DEPENDENCIES="yes"   ; shift ;;
         -c) CLEAN="yes"   ; shift ;;
         -l) DO_LINK="yes"   ; shift ;;
+        -e) ENTERPRISE="yes"; shift;;
         -h) usage; exit 0;;
         --) shift ; break ;;
         *)  usage; exit 1 ;;
@@ -91,6 +93,13 @@ fi
 if [ "$DEPENDENCIES" = "yes" ]; then
     dependencies
     exit 0
+fi
+
+if [ "$ENTERPRISE" = "yes" ]; then
+    echo "Enterprise Edition Activated"
+    sed -i -e 's|<a href="http://opennebula.io" target="_blank">OpenNebula <%= OpenNebula::VERSION %></a>|<a href="http://opennebula.io" target="_blank">OpenNebula <%= OpenNebula::VERSION %></a><div id="enterprise_edition"><a href="http://opennebula.io/enterprise" target="_blank">Enterprise Edition</a></div>|g' ../views/index.erb
+else
+    sed -i -e 's|<a href="http://opennebula.io" target="_blank">OpenNebula <%= OpenNebula::VERSION %></a><div id="enterprise_edition"><a href="http://opennebula.io/enterprise" target="_blank">Enterprise Edition</a></div>|<a href="http://opennebula.io" target="_blank">OpenNebula <%= OpenNebula::VERSION %></a>|g' ../views/index.erb
 fi
 
 install_patch
