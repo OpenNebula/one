@@ -25,7 +25,7 @@ module DomainList
             vm   = {}
             name = container.name
 
-            next if container.config['user.one_status'] == '0'
+            vm[:ignore] = true if container.config['user.one_status'] == '0'
 
             vm[:name]  = name
             vm[:uuid]  = "#{name}-#{Socket.gethostname}"
