@@ -88,7 +88,7 @@ vm_state = one_vm.state_str
 unless nsx_nics.empty? || (vm_state == 'POWEROFF')
     begin
         # NSX Objects
-        nsx_client = NSXDriver::NSXTClient.new_from_id(one_host['ID'])
+        nsx_client = NSXDriver::NSXClient.new_from_id(one_host['ID'])
         dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
         dfw.create_rules(deploy_id, template, is_modified)
     rescue StandardError => e
