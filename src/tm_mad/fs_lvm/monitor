@@ -101,51 +101,64 @@ echo "USED_MB=\$USED_MB"
 echo "FREE_MB=\$FREE_MB"
 echo "TOTAL_MB=\$TOTAL_MB"
 
-if [ $MONITOR_VM_DISKS -eq 1 ]; then
-    lvdata=\$($SUDO $LVS --noheadings --nosuffix --units m -o lv_name,lv_size --separator : "${LVM_VG_PREFIX}${DS_ID}" | sed -e 's/^[[:space:]]*//' | grep '^lv-one-' | sed 's/^lv-one-//' | tr '-' ':' | sort -n)
-    [ -z "\$lvdata" ] && exit 0
+EOF
+)
 
-    vm_previous='n'
+MONITOR_VM_SCRIPT=$(cat <<EOF
+lvdata=\$($SUDO $LVS --noheadings --nosuffix --units m -o lv_name,lv_size --separator : "${LVM_VG_PREFIX}${DS_ID}" | sed -e 's/^[[:space:]]*//' | grep '^lv-one-' | sed 's/^lv-one-//' | tr '-' ':' | sort -n)
+[ -z "\$lvdata" ] && exit 0
 
-    while IFS="\n" read -r line; do
-        vm=\$(echo "\$line" | cut -d':' -f1)
-        [ -n "\$vm" ] || continue
+vm_previous='n'
 
-        disk=\$(echo "\$line" | cut -d':' -f2)
-        size=\$(echo "\$line" | cut -d':' -f3 | cut -d'.' -f1)
+while IFS="\n" read -r line; do
+    vm=\$(echo "\$line" | cut -d':' -f1)
+    [ -n "\$vm" ] || continue
 
-        if [ "\$vm" != "\$vm_previous" ]; then
-            [ "\$vm_previous" != "n" ] && echo "\"]"
+    disk=\$(echo "\$line" | cut -d':' -f2)
+    size=\$(echo "\$line" | cut -d':' -f3 | cut -d'.' -f1)
 
-            vm_previous="\$vm"
-            echo -n "VM=[ID=\$vm,POLL=\""
-        else
-            echo -n " "
-        fi
+    if [ "\$vm" != "\$vm_previous" ]; then
+        [ "\$vm_previous" != "n" ] && echo "\"]"
 
-        echo -n "DISK_SIZE=[ID=\$disk,SIZE=\$size]"
+        vm_previous="\$vm"
+        echo -n "VM=[ID=\$vm,MONITOR=\""
+    else
+        echo -n " "
+    fi
 
-    done <<< "\$( echo "\$lvdata" )"
+    monitor_b64="\$(echo -n "DISK_SIZE=[ID=\$disk,SIZE=\$size]" | base64 -w 0)"
+    echo -n "\$monitor_b64"
 
-    [ "\$vm_previous" != "n" ] && echo "\"]"
-fi
+done <<< "\$( echo "\$lvdata" )"
+
+[ "\$vm_previous" != "n" ] && echo "\"]"
 
 EOF
 )
 
 if [ -n "$BRIDGE_LIST" ]; then
     HOST=`get_destination_host`
-    MONITOR_DATA="$(ssh_monitor_and_log "$HOST" "$MONITOR_SCRIPT" "Remote monitor script" 2>&1)"
+    MONITOR_DATA=$(ssh_monitor_and_log "$HOST" "$MONITOR_SCRIPT" "Remote monitor script" 2>&1)
+    MONITOR_STATUS=$?
+
+    if [ $MONITOR_VM_DISKS -eq 1 ]; then
+        MONITOR_DATA_VMS=$(ssh_monitor_and_log "$HOST" "$MONITOR_VM_SCRIPT" "Remote VM disks monitor script" 2>&1)
+        MONITOR_VMS_STATUS=$?
+    fi
 else
-    MONITOR_DATA="$(monitor_and_log "$MONITOR_SCRIPT" "Monitor script" 2>&1)"
+    MONITOR_DATA=$(monitor_and_log "$MONITOR_SCRIPT" "Monitor script" 2>&1)
+    MONITOR_STATUS=$?
+
+    if [ $MONITOR_VM_DISKS -eq 1 ]; then
+        MONITOR_DATA_VMS=$(monitor_and_log "$MONITOR_VM_SCRIPT" "VM disks monitor script" 2>&1)
+        MONITOR_VMS_STATUS=$?
+    fi
 fi
 
-MONITOR_STATUS=$?
+echo $MONITOR_DATA
 
-if [ "$MONITOR_STATUS" = "0" ]; then
-    echo "$MONITOR_DATA"
-    exit 0
-else
-    echo "$MONITOR_DATA"
-    exit $MONITOR_STATUS
+if [ $MONITOR_VM_DISKS -eq 1 ]; then
+    send_to_monitor MONITOR_VM $MONITOR_VMS_STATUS -1 "$MONITOR_DATA_VMS"
 fi
+
+exit $MONITOR_STATUS
