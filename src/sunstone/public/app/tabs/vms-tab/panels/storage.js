@@ -659,11 +659,11 @@ define(function(require) {
         if(Array.isArray(that.element.TEMPLATE.DISK)){
           $.each(that.element.TEMPLATE.DISK, function(){
             if (this.DISK_ID == disk_id){
-              disk_size = this.SIZE * 1024;
+              disk_size = this.SIZE;
             }
           });
         } else {
-            disk_size = that.element.TEMPLATE.DISK.SIZE * 1024;
+            disk_size = that.element.TEMPLATE.DISK.SIZE;
         }
         var dialog = Sunstone.getDialog(DISK_RESIZE_DIALOG_ID);
         dialog.setParams(
