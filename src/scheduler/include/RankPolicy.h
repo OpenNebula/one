@@ -80,7 +80,7 @@ private:
         {
             resource = pool->get(resources[i]->oid);
 
-            if ( resource != 0 )
+            if ( resource == nullptr )
             {
                 continue;
             }
