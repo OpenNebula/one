@@ -69,7 +69,6 @@ module LXD
             stat = File.read(path).to_i
 
             @metrics[:memory] = stat / 1024
-
         rescue StandardError
             @metrics[:memory] = 0
         end
@@ -88,7 +87,6 @@ module LXD
 
             @metrics[:netrx] = netrx
             @metrics[:nettx] = nettx
-
         rescue StandardError
             @metrics[:netrx] = 0
             @metrics[:nettx] = 0
