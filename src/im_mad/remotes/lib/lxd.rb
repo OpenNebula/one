@@ -67,7 +67,9 @@ module LXD
         def usage_memory
             path = "/sys/fs/cgroup/memory/#{@lxc_path}/memory.usage_in_bytes"
             stat = File.read(path).to_i
+
             @metrics[:memory] = stat / 1024
+
         rescue StandardError
             @metrics[:memory] = 0
         end
@@ -77,20 +79,19 @@ module LXD
             netrx = 0
             nettx = 0
 
-            begin
-                @container.monitor['metadata']['network'].each do |iface, values|
-                    next if iface == 'lo'
+            @container.monitor['metadata']['network'].each do |iface, values|
+                next if iface == 'lo'
 
-                    netrx += values['counters']['bytes_received']
-                    nettx += values['counters']['bytes_sent']
-                end
-            rescue StandardError
-                @metrics[:netrx] = 0
-                @metrics[:nettx] = 0
+                netrx += values['counters']['bytes_received']
+                nettx += values['counters']['bytes_sent']
             end
 
             @metrics[:netrx] = netrx
             @metrics[:nettx] = nettx
+
+        rescue StandardError
+            @metrics[:netrx] = 0
+            @metrics[:nettx] = 0
         end
 
         # Calculates and cpu usage
