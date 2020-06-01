@@ -718,52 +718,11 @@ define(function(require) {
     if (attr.type == "range"){
       attr.tick_size = 1024;
     }
-    delete attr_gb.initial;
-    attr_gb.wizard_field_disabled = true;
-    if (attr_gb.type == "range"){
-      attr_gb.type = "range-float";
-      attr_gb.min = Math.ceil((attr_gb.min / 1024));
-      attr_gb.max = Math.floor((attr_gb.max / 1024));
-      attr_gb.step = "1";
-      attr_gb.tick_size = 1;
-    } else if (attr_gb.type == "list"){
-      attr_gb.options = attr_gb.options.map(function(e){
-        return e / 1024;
-      });
-    } else if (attr_gb.type == "number"){
-      attr_gb.type = "number-float";
-      attr_gb.step = "0.1";
-    }
-    // Modified input for TB
-    var attr_tb = $.extend({}, attr);
-    delete attr_tb.initial;
-    attr_tb.wizard_field_disabled = true;
-    if (attr_tb.type == "range"){
-      attr_tb.type = "range-float";
-      attr_tb.min = (attr_tb.min / (1024*1024));
-      attr_tb.max = (attr_tb.max / (1024*1024));
-      attr_tb.step = "0.0001";
-      attr_tb.tick_size = 0.0001;
-    } else if (attr_tb.type == "list"){
-      attr_tb.options = attr_tb.options.map(function(e){
-        return e / (1024*1024);
-      });
-    } else if (attr_tb.type == "number"){
-      attr_tb.type = "number-float";
-      attr_tb.step = "0.1";
-    }
     div.html(
       "<div class=\"input-group mb_input_wrapper\">"+
         "<div class=\"mb_input input-group-field\">" +
           _attributeInput(attr) +
-        "</div>" +
-        "<div class=\"gb_input input-group-field\">" +
-          _attributeInput(attr_gb) +
-        "</div>" +
-        "<div class=\"tb_input input-group-field\">" +
-          _attributeInput(attr_tb) +
-        "</div>" +
-        "<div class=\"input-group-button\">"+
+        "</div><div class=\"input-group-button\">"+
           "<select class=\"mb_input_unit\">" +
             "<option value=\"MB\">"+Locale.tr("MB")+"</option>" +
             "<option value=\"GB\" selected>"+Locale.tr("GB")+"</option>" +
@@ -772,14 +731,17 @@ define(function(require) {
         "</div>"+
       "</div>");
     _setupAttributeInputMB(div);
-    // Update attr_gb with the value set in attr
     $("input, select", $("div.mb_input", div)).trigger("input");
     var input_val = $("input, select", $("div.mb_input", div)).val();
     
     if (input_val == ""){
       $(".mb_input_unit", div).val("GB").change();
     }else{
-      if ((input_val >= 1024) && (input_val < 1048576) && (input_val % 1024 == 0)){
+      if (
+        (input_val >= 1024) && 
+        (input_val < 1048576) && 
+        (input_val % 1024 == 0)
+      ){
         $(".mb_input_unit", div).val("GB").change();
       } else if ((input_val >= 1048576) && (input_val % 1048576 == 0)){
         $(".mb_input_unit", div).val("TB").change();
@@ -790,72 +752,53 @@ define(function(require) {
   }
 
   function _setupAttributeInputMB(context) {
-    // MB to GB and TB
-    $("div.mb_input", context).on("change", "input, select", function(){
-      var valGB = "";
-      var valTB = "";
+    $("div.mb_input", context).on("change", "input.visor, select", function(e){
+      var base = 1024;
+      var baseCal = 1;
+      var unit = "MB";
+      var valueInMB = 0;
+      var element = $(this);
+      var min = parseInt(element.attr("data-min"),10);
+      var max = parseInt(element.attr("data-max"),10);
+      var value = element.val();
+      var valueInUnit = value;
 
-      if (this.value && this.value >= 0) {
-        valGB = this.value / 1024;
-        valTB = this.value / 1048576;
+      var contextElement = $("div.mb_input", context);
+      var mb_input_unit_val = $(".mb_input_unit :selected", context).val();
+
+      switch (mb_input_unit_val) {
+        case 'TB':
+          baseCal = base**2;
+          unit = "TB";
+        break;
+        case 'GB':
+          baseCal = base;
+          unit = "GB";
+        break;
+        default:
+        break;
       }
 
-      $("input, select", $("div.gb_input", context)).val(valGB);
-      $("input, select", $("div.tb_input", context)).val(valTB);
-    });
-
-    // GB to MB and TB
-    $("div.gb_input", context).on("change", "input, select", function(){
-      var valMB = "";
-      var valTB = "";
-
-      if (this.value && this.value >= 0) {
-        valMB = Math.floor(this.value * 1024);
-        valTB = this.value / 1024;
+      if (value && value.length > 0) {
+        //aca se puede colocar el div de validation de min and max
+        valueInMB = value * baseCal;
+        if(!isNaN(min) && parseInt(min, 10) > valueInMB ){
+          valueInMB = min;
+        }
+        $("input, select", contextElement).val(valueInMB);
+        valueInUnit = valueInMB / baseCal;
       }
 
-      $("input, select", $("div.mb_input", context)).val(valMB);
-      $("input, select", $("div.tb_input", context)).val(valTB);
-    });
-
-    // TB to MB and GB
-    $("div.tb_input", context).on("change", "input, select", function(){
-      var valMB = "";
-      var valGB = "";
-
-      if (this.value && this.value >= 0) {
-        valGB = Math.floor(this.value * (1024));
-        valMB = Math.floor(this.value * (1048576));
-      }
-
-      $("input, select", $("div.mb_input", context)).val(valMB);
-      $("input, select", $("div.gb_input", context)).val(valGB);
+      $("input.visor", contextElement).val(valueInUnit);
+      var contextUnit = contextElement.siblings(".input-group-button");
+      $(".mb_input_unit", contextUnit).val(unit);
     });
 
     // Unit select
     $(".mb_input_unit", context).on("change", function() {
       var mb_input_unit_val = $(".mb_input_unit :selected", context).val();
-
-      if (mb_input_unit_val == "TB") {
-        $("div.mb_input", context).hide();
-        $("div.gb_input", context).hide();
-        $("div.tb_input", context).show();
-
-        $("input, select", $("div.mb_input",context)).trigger("change");
-      } else if (mb_input_unit_val == "GB") {
-        $("div.mb_input", context).hide();
-        $("div.gb_input", context).show();
-        $("div.tb_input", context).hide();
-
-        $("input, select", $("div.mb_input",context)).trigger("change");
-      } else {
-        $("div.mb_input", context).show();
-        $("div.gb_input", context).hide();
-        $("div.tb_input", context).hide();
-      }
+      $("input, select", $("div.mb_input",context)).trigger("change");
     });
-
-    $(".mb_input_unit", context).change();
   }
 
   /**

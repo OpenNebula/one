@@ -45,13 +45,21 @@ define(function(require) {
 
   function _html(opts) {
     opts['sliderId'] = sliderId;
-
     opts['ticks'] = [];
     if (opts.tick_size !== undefined){
       var tick_val = opts.tick_size * Math.ceil(opts.min / opts.tick_size);
       while (tick_val <= opts.max){
         opts['ticks'].push(tick_val);
         tick_val += opts.tick_size;
+      }
+      if(
+        opts && 
+        opts.min && 
+        opts.tick_size &&
+        parseInt(opts.min,10) && 
+        parseInt(opts.min, 10) < parseInt(opts.tick_size)
+      ){
+        opts['ticks'].unshift(opts.min)
       }
     }
     sliderId += 1;
@@ -66,9 +74,10 @@ define(function(require) {
       if(parseInt(this.value) > parseInt(max))
         $("input[type=number]", $(this).closest('.uinput-slider-container')).val(max);
     });
-
     $(document).off("input", "input.uinput-slider");
     $(document).on("input", "input.uinput-slider", function(){
+      //change selector to MB
+      $(".mb_input_unit", $(this).closest('.mb_input_wrapper')).val("MB");
       $("input[type=number]", $(this).closest('.uinput-slider-container')).val( this.value );
     });
   }

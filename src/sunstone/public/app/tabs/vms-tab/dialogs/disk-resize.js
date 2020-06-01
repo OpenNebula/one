@@ -23,7 +23,8 @@ define(function(require) {
   var TemplateHTML = require('hbs!./disk-resize/html');
   var Sunstone = require('sunstone');
   var Tips = require('utils/tips');
-  var RangeSlider = require('utils/range-slider');
+  var UserInputs = require("utils/user-inputs");
+  //var RangeSlider = require('utils/range-slider');
   var Humanize = require('utils/humanize');
 
   /*
@@ -82,13 +83,16 @@ define(function(require) {
     Tips.setup(context);
     var oneTera = Humanize.sizeToMB("1024GB")*1024;
     var max = that.diskSize > oneTera? that.diskSize*1024 : oneTera;
-    $( ".diskSlider", context).html(RangeSlider.html({
-        min: that.diskSize,
-        max: max,
-        initial: that.diskSize,
-        name: "resize",
-        max_value: ""
-    }));
+    var attrs = {
+      min: that.diskSize,
+      max: max,
+      initial: that.diskSize,
+      name: "resize",
+      max_value: "",
+      type: "range"
+  }
+    //$( ".diskSlider", context).html(RangeSlider.html(attrs));
+    UserInputs.insertAttributeInputMB(attrs, $(".diskSlider", context))
     $( ".uinput-slider-val",context).prop('type', 'text');
     $( ".uinput-slider-val",context).val(Humanize.size($( ".uinput-slider",context).val()));
 

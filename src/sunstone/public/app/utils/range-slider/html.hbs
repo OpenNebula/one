@@ -34,10 +34,13 @@
     </datalist>
   </div>
   <div class="large-4 small-6 columns">
-    <input type="number" class="uinput-slider-val"
-      min="{{min}}" max="{{max_value}}" step="{{step}}"
+    <input type="number" class="uinput-slider-val hide"
+      min="{{min}}" max="{{max_value}}"
       value="{{initial}}"
       {{#unless wizard_field_disabled}}wizard_field="{{name}}"{{/unless}}
-      {{#if disabled}}disabled="true"{{/if}} required/>
+      {{#if disabled}}disabled="true"{{/if}}/>
+    <input type="number" class="visor"
+      data-min="{{min}}" data-max="{{max_value}}"
+      value="{{initial}}" required/>
   </div>
 </div>
