@@ -26,6 +26,7 @@ if [ -z "$ONE_LOCATION" ]; then
     ONE_SCHED_LOG=/var/log/one/sched.log
     ONE_HEM_LOG=/var/log/one/onehem.log
     ONE_XMLRPC_LOG=/var/log/one/one_xmlrpc.log
+    ONE_MONITOR_LOG=/var/log/one/monitor.log
 
     ONED=/usr/bin/oned
     ONE_SCHEDULER=/usr/bin/mm_sched
@@ -42,6 +43,7 @@ else
     ONE_SCHED_LOG=$ONE_LOCATION/var/sched.log
     ONE_HEM_LOG=$ONE_LOCATION/var/onehem.log
     ONE_XMLRPC_LOG=$ONE_LOCATION/var/one_xmlrpc.log
+    ONE_MONITOR_LOG=$ONE_LOCATION/var/monitor.log
 
     ONED=$ONE_LOCATION/bin/oned
     ONE_SCHEDULER=$ONE_LOCATION/bin/mm_sched
@@ -205,6 +207,7 @@ start_oned()
     if [ "$BACKUP" = "true" ];then
         [ -f "$ONE_LOG" ] && mv $ONE_LOG{,.$(date '+%Y%m%d%H%M%S')}
         [ -f "$ONE_XMLRPC_LOG" ] && mv $ONE_XMLRPC_LOG{,.$(date '+%Y%m%d%H%M%S')}
+        [ -f "$ONE_MONITOR_LOG" ] && mv $ONE_MONITOR_LOG{,.$(date '+%Y%m%d%H%M%S')}
     fi
     $ONED -f 2>&1 &
 
@@ -243,7 +246,7 @@ start_hem()
         [ -f "$ONE_HEM_LOG" ] && mv $ONE_HEM_LOG{,.$(date '+%Y%m%d%H%M%S')}
     fi
 
-    onehem-server start > /dev/null 2>&1 
+    onehem-server start > /dev/null 2>&1
 
     LASTRC=$?
 
