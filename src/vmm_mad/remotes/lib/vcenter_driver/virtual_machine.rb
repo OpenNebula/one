@@ -2070,13 +2070,14 @@ module VCenterDriver
                 new_template = OpenNebula::Template.new_with_id(template_id, one_client)
                 new_template.info
 
+                # unlock VM Template
+                new_template.unlock()
+
                 # Update the template reference
                 new_template.update("VCENTER_TEMPLATE_REF=#{@item._ref}", true)
 
                 # Add vCenter template name
                 new_template.update("VCENTER_TEMPLATE_NAME=#{@item.name}", true)
-
-                new_template.unlock()
         end
 
         def resize_unmanaged_disks
