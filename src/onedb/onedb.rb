@@ -14,6 +14,14 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    SQLITE_PATH = '/var/lib/one/one.db'
+else
+    SQLITE_PATH = ONE_LOCATION + '/var/one.db'
+end
+
 require 'onedb_backend'
 
 # If set to true, extra verbose time log will be printed for each migrator
@@ -33,7 +41,7 @@ class OneDB
         end
 
         if ops[:backend] == :sqlite
-            ops[:sqlite] = '/var/lib/one/one.db' if ops[:sqlite].nil?
+            ops[:sqlite] = SQLITE_PATH if ops[:sqlite].nil?
 
             begin
                 require 'sqlite3'
