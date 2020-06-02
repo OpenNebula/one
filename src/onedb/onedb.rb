@@ -33,6 +33,8 @@ class OneDB
         end
 
         if ops[:backend] == :sqlite
+            ops[:sqlite] = '/var/lib/one/one.db' if ops[:sqlite].nil?
+
             begin
                 require 'sqlite3'
             rescue LoadError
