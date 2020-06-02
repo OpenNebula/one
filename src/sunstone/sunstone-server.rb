@@ -274,7 +274,7 @@ SUPPORT = {
     :author_name => "OpenNebula Support Team",
     :support_subscription => "https://opennebula.io/support/",
     :account => "https://opennebula.io/buy-support",
-    :docs => "https://docs.opennebula.io/5.11/",
+    :docs => "https://docs.opennebula.io/5.12/",
     :community => "https://opennebula.io/usec",
     :project => "OpenNebula"
 }
