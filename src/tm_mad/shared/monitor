@@ -42,8 +42,8 @@ XPATH="${DRIVER_PATH}/../../datastore/xpath.rb -b $DRV_ACTION"
 
 unset i XPATH_ELEMENTS
 
-while IFS= read -r -d '' element; do
-    XPATH_ELEMENTS[i++]="$element"
+while IFS= read -r -d '' ELEMENT; do
+    XPATH_ELEMENTS[i++]="$ELEMENT"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE_LOCATION \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/MONITOR_VM_DISKS)
@@ -66,8 +66,8 @@ TOTAL_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$2}')
 FREE_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$4}')
 
 if [ -z "\$USED_MB" -o -z "\$TOTAL_MB" -o -z "\$FREE_MB" ]; then
-    msg="Empty value found"
-    echo "\$msg: USED_MB=\$USED_MB, TOTAL_MB=\$TOTAL_MB, FREE_MB=\$FREE_MB"
+    MSG="Empty value found"
+    echo "\$MSG: USED_MB=\$USED_MB, TOTAL_MB=\$TOTAL_MB, FREE_MB=\$FREE_MB"
     exit 1
 fi
 
@@ -80,42 +80,40 @@ EOF
 
 MONITOR_VM_SCRIPT=$(cat <<EOF
 
-vms=\$(ls "$BASE_PATH" | grep '^[0-9]\+$')
+VMS=\$(ls "$BASE_PATH" | grep '^[0-9]\+$')
 
-monitor=""
+for VM in \$VMS; do
+    VMDIR="${BASE_PATH}/\${VM}"
+    DISKS=\$(ls "\$VMDIR" 2>/dev/null | grep '^disk\.[0-9]\+$')
 
-for vm in \$vms; do
-    vmdir="${BASE_PATH}/\${vm}"
-    disks=\$(ls "\$vmdir" 2>/dev/null | grep '^disk\.[0-9]\+$')
+    [ -z \$DISKS ] && continue
 
-    [ -z \$disks ] && continue
+    VM_MONITOR=""
 
-    vm_monitor=""
+    for DISK in \$DISKS; do
+        DISK_ID="\$(echo "\$DISK" | cut -d. -f2)"
+        DISK_SIZE="\$(du -mL "\${VMDIR}/\${DISK}" 2>/dev/null | awk '{print \$1}')"
+        SNAP_DIR="\${VMDIR}/\${DISK}.snap"
 
-    for disk in \$disks; do
-        disk_id="\$(echo "\$disk" | cut -d. -f2)"
-        disk_size="\$(du -mL "\${vmdir}/\${disk}" 2>/dev/null | awk '{print \$1}')"
-        snap_dir="\${vmdir}/\${disk}.snap"
+        [ -z "\$DISK_SIZE" ] && continue
 
-        [ -z "\$disk_size" ] && continue
+        VM_MONITOR="\${VM_MONITOR} DISK_SIZE = [ ID=\${DISK_ID}, SIZE=\${DISK_SIZE}]"
 
-        vm_monitor="\${vm_monitor} DISK_SIZE = [ ID=\${disk_id}, SIZE=\${disk_size}]"
+        if [ -e "\$SNAP_DIR" ]; then
+            SNAPS="\$(ls "\$SNAP_DIR" 2>/dev/null | grep '^[0-9]$')"
 
-        if [ -e "\$snap_dir" ]; then
-            snaps="\$(ls "\$snap_dir" 2>/dev/null | grep '^[0-9]$')"
+            for SNAP in \$SNAPS; do
+                SNAP_SIZE="\$(du -mL "\${SNAP_DIR}/\${SNAP}" 2>/dev/null | awk '{print \$1}')"
+                [ -z "\$SNAP_SIZE" ] && continue
 
-            for snap in \$snaps; do
-                snap_size="\$(du -mL "\${snap_dir}/\${snap}" 2>/dev/null | awk '{print \$1}')"
-                [ -z "\$snap_size" ] && continue
-
-                vm_monitor="\${vm_monitor}\nSNAPSHOT_SIZE = "\
-                    "[ ID=\${snap}, DISK_ID=\${disk_id}, SIZE=\${snap_size}]"
+                VM_MONITOR="\${VM_MONITOR}\nSNAPSHOT_SIZE = "\
+                    "[ ID=\${SNAP}, DISK_ID=\${DISK_ID}, SIZE=\${SNAP_SIZE}]"
             done
         fi
     done
 
-    vm_monitor_b64="\$(echo \$vm_monitor | base64 -w 0)"
-    echo "VM=[ID=\$vm, MONITOR=\"\$vm_monitor_b64\"] "
+    VM_MONITOR_B64="\$(echo \$VM_MONITOR | base64 -w 0)"
+    echo "VM=[ID=\$VM, MONITOR=\"\$VM_MONITOR_B64\"] "
 done
 
 EOF
