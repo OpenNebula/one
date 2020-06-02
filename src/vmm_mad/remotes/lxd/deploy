@@ -37,6 +37,19 @@ client    = LXDClient.new
 container = Container.new_from_xml(xml, client)
 
 # ------------------------------------------------------------------------------
+# Setup the container storage if it is not wild
+# ------------------------------------------------------------------------------
+if !container.wild?
+    if !container.setup_storage('map')
+        container.clean
+
+        raise 'failed to setup container storage'
+    end
+
+    container.load_idmap
+end
+
+# ------------------------------------------------------------------------------
 # Create Container in LXD
 #   - Already exists: Raise error if container is detected running
 #   - Doesn't exist. Creates new container in LXD.
@@ -53,32 +66,19 @@ else
 end
 
 # ------------------------------------------------------------------------------
-# Start the container, if not wild, maps storage to host directories
+# Starts the container. Reverts storage operations in case of error.
 # ------------------------------------------------------------------------------
-if container.wild?
-    container.start
-else
-    if !container.setup_storage('map')
-        container.clean
-
-        raise 'failed to setup container storage'
-    end
-
-    container.load_idmap
-
-    begin
+begin
         operation = container.start
         raise operation if container.status != 'Running'
-    rescue e
-        # TODO: Improve wait condition
-        sleep 5 # Wait for LXD to revert non-rootfs disks mountpoint
+rescue e
+    # TODO: Improve wait condition
+    sleep 5 # Wait for LXD to revert non-rootfs disks mountpoint
 
-        container.clean
+    container.clean unless container.wild?
 
-        raise e
+    raise e
     end
-
-end
 
 #-------------------------------------------------------------------------------
 # Updates container configuration with the OpenNebulaVM description
