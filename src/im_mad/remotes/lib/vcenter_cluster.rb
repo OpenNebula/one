@@ -115,7 +115,6 @@ class Cluster
         @vic     = VCenterDriver::VIClient.new(connection, hid)
         @cluster = VCenterDriver::ClusterComputeResource
                    .new_from_ref(connection[:ccr], @vic)
-
     end
 
     #---------------------------------------------------------------------------
@@ -852,7 +851,7 @@ class ClusterSet
                 :last_monitor_host => 0,
                 :last_beacon_host  => 0,
                 :last_monitor_vm   => 0,
-                :last_state_vm    => 0
+                :last_state_vm     => 0
             }
         end
     end

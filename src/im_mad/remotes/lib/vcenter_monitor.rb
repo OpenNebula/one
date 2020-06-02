@@ -60,9 +60,15 @@ class VcenterMonitorManager
         :state_vm     => 30,
         :monitor_vm   => 30,
         :beacon_host  => 30,
-        :address      => "127.0.0.1",
+        :address      => '127.0.0.1',
         :port         => 4124
     }.freeze
+
+    # Minimum interval for vCenter probes
+    # They run in the front-end and are RAM consuming
+    # so this is the minimum grain for the intervals
+    MINIMUM_INTERVAL = 30
+
 
     #---------------------------------------------------------------------------
     #
@@ -76,9 +82,7 @@ class VcenterMonitorManager
         @conf  = DEFAULT_CONFIGURATION.clone
 
         # Create timer thread to monitor vcenters
-        Thread.new {
-            timer
-        }
+        Thread.new { timer }
     end
 
     #---------------------------------------------------------------------------
@@ -87,7 +91,7 @@ class VcenterMonitorManager
     def update_conf(conf64)
         conftxt = Base64.decode64(conf64)
         conf    = REXML::Document.new(conftxt).root
-        @mutex.synchronize {
+        @mutex.synchronize do
             @conf = {
                 :system_host  => conf.elements['PROBES_PERIOD/SYSTEM_HOST'].text.to_i,
                 :monitor_host => conf.elements['PROBES_PERIOD/MONITOR_HOST'].text.to_i,
@@ -97,14 +101,13 @@ class VcenterMonitorManager
                 :address      => conf.elements['NETWORK/MONITOR_ADDRESS'].text.to_s,
                 :port         => conf.elements['NETWORK/PORT'].text.to_s
             }
-        }
+
+            @conf.each{ |k,v| @conf[k] = 30 if v.is_a?(Integer) && v < MINIMUM_INTERVAL }
+        end
 
         @conf[:address] = '127.0.0.1' if @conf[:address] == 'auto'
-
     rescue StandardError
-        @mutex.synchronize {
-            @conf = DEFAULT_CONF.clone
-        }
+        @mutex.synchronize { @conf = DEFAULT_CONF.clone }
     end
 
     #---------------------------------------------------------------------------
@@ -141,7 +144,7 @@ end
 # to monitord client and trigger operations on the Vcenter logic thread
 # --------------------------------------------------------------------------
 class IOThread
-    IO_FIFO = "/tmp/vcenter_monitor.fifo"
+    IO_FIFO = '/tmp/vcenter_monitor.fifo'
 
     def initialize(vcentermm)
         @vcentermm = vcentermm
@@ -151,19 +154,20 @@ class IOThread
         loop do
             fifo = File.open(IO_FIFO)
 
-            fifo.each_line { |line|
+            fifo.each_line do |line|
                 action, hid, conf = line.split
 
                 @vcentermm.send(action.to_sym, hid.to_i, conf)
-            }
+            end
         end
     end
+
 end
 
-Thread.new {
+Thread.new do
     exit unless system('pgrep oned')
     sleep 5
-}
+end
 
 vcentermm = VcenterMonitorManager.new
 
