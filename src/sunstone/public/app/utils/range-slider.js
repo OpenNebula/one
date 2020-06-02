@@ -46,7 +46,7 @@ define(function(require) {
   function _html(opts) {
     opts['sliderId'] = sliderId;
     opts['ticks'] = [];
-    if (opts.tick_size !== undefined){
+    if (opts.tick_size !== undefined && !opts.no_ticks){
       var tick_val = opts.tick_size * Math.ceil(opts.min / opts.tick_size);
       while (tick_val <= opts.max){
         opts['ticks'].push(tick_val);
