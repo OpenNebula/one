@@ -441,7 +441,7 @@ class Template
         vswitch = []
         vc_hosts = vc_pg.host
         vc_hosts.each do |vc_host|
-            host_pgs = vc_host.configManager.networkSystem.networkInfo.portgroup
+            host_pgs = vc_host.configManager.networkSystem.networkInfo.portgroup rescue []
             host_pgs.each do |pg|
                 if vc_pg.name == pg.spec.name
                     vswitch << pg.spec.vswitchName
