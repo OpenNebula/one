@@ -83,7 +83,6 @@ end
 is_modified = modified?(template)
 nsx_nics = NSXDriver::LogicalSwitch.nsx_nics(template_xml,
                                              is_modified)
-vm_state = one_vm.state_str
 unless nsx_nics.empty?
     begin
         # Clear rules
