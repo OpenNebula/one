@@ -425,8 +425,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         rc = pool.info
         return -1, rc.message if OpenNebula.is_error?(rc)
 
-        # Assign hosts to threads
-        queue = []
+        host_errors = []
 
         pool.each do |host|
             if host_ids
@@ -435,7 +434,6 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 next if host['CLUSTER_ID'].to_i != cluster_id
             end
 
-            vm_mad = host['VM_MAD'].downcase
             state = host['STATE']
 
             # Skip this host from remote syncing if it's a PUBLIC_CLOUD host
@@ -444,52 +442,10 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             # Skip this host from remote syncing if it's OFFLINE
             next if Host::HOST_STATES[state.to_i] == 'OFFLINE'
 
-            # Skip this host if it is a vCenter cluster
-            next if vm_mad == 'vcenter'
+            rc = host.forceupdate
 
-            queue << host
+            host_errors << host['NAME'] if OpenNebula.is_error?(rc)
         end
-
-        # Run the jobs in threads
-        host_errors = []
-        queue_lock = Mutex.new
-        error_lock = Mutex.new
-        total = queue.length
-
-        if total.zero?
-            puts 'No hosts are going to be forced.'
-            exit(0)
-        end
-
-        ts = (1..NUM_THREADS).map do |_t|
-            Thread.new do
-                loop do
-                    host = nil
-                    size = 0
-
-                    queue_lock.synchronize do
-                        host = queue.shift
-                        size = queue.length
-                    end
-
-                    break unless host
-
-                    hn = host['NAME']
-
-                    system("onehost offline #{hn} && onehost enable #{hn}")
-                    if !$CHILD_STATUS.success?
-                        error_lock.synchronize do
-                            host_errors << hn
-                        end
-                    else
-                        puts "#{hn} monitoring forced"
-                    end
-                end
-            end
-        end
-
-        # Wait for threads to finish
-        ts.each {|t| t.join }
 
         if host_errors.empty?
             puts 'All hosts updated successfully.'

@@ -125,6 +125,14 @@ module OpenNebula
             set_status("OFFLINE")
         end
 
+        #Resets monitoring forcing an update
+        def forceupdate()
+            rc = offline
+            return rc if OpenNebula.is_error?(rc)
+
+            enable
+        end
+
         def flush(action)
             self.disable
 
@@ -134,7 +142,7 @@ module OpenNebula
             rc = vm_pool.info
             if OpenNebula.is_error?(rc)
                  puts rc.message
-                 exit -1
+                 exit(-1)
             end
 
             vm_pool.each do |vm|
