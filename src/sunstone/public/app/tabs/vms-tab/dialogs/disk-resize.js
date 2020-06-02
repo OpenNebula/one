@@ -89,7 +89,8 @@ define(function(require) {
       initial: that.diskSize,
       name: "resize",
       max_value: "",
-      type: "range"
+      type: "range",
+      no_ticks: true
   }
     //$( ".diskSlider", context).html(RangeSlider.html(attrs));
     UserInputs.insertAttributeInputMB(attrs, $(".diskSlider", context))
