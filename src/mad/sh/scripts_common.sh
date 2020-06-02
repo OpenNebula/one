@@ -1072,19 +1072,45 @@ function send_to_monitor {
     mon_config=$(augtool -L -l $mon_conf ls /files/$mon_conf/NETWORK)
     mon_address=$(echo "$mon_config" | grep MONITOR_ADDRESS | awk '{print $3}')
     mon_port=$(echo "$mon_config" | grep PORT | awk '{print $3}')
-    mon_key=$(echo "$mon_config" | grep PUBKEY | awk '{print $3}')
+    mon_key=$(echo "$mon_config" | grep PUBKEY | awk '{print $3}' | \
+        sed 's/^"\(.*\)"$/\1/')
 
     if [[ $mon_address == *"auto"* ]]; then
         mon_address="127.0.0.1"
     fi
 
+    # Encrypt message
+    if [ -n "$mon_key" -a -r "$mon_key" ]; then
+        # Read block size from public key
+        block_size=$(openssl rsa -RSAPublicKey_in -in "$mon_key" -text -noout \
+            | grep "Public-Key" | tr -dc '0-9')
+        block_size=$(( block_size / 8 ))
+
+        # Convert public key to format known to openssl
+        pub_key=$(mktemp)
+        openssl rsa -RSAPublicKey_in -in "$mon_key" -pubout -out "$pub_key"
+            \2>/dev/null
+
+        # Encrypt payload per block_size to temporary file
+        tmp_file=$(mktemp)
+        for line in $(echo "$msg_payload" | fold -w$block_size); do
+            echo $line | openssl rsautl -encrypt -pubin -inkey "$pub_key" \
+                >>$tmp_file
+        done
+
+        payload_b64="$(cat "$tmp_file" | \
+            ruby -e "require 'zlib'; puts Zlib::Deflate.deflate(STDIN.read)" \
+            | base64 -w 0)"
+
+        rm "$tmp_file"
+        rm "$pub_key"
+    else
+        payload_b64="$(echo $msg_payload | \
+            ruby -e "require 'zlib'; puts Zlib::Deflate.deflate(STDIN.read)" \
+            | base64 -w 0)"
+    fi
+
     # Send message
-    # todo if mon_key is not empty do message encryption
-
-    payload_b64="$(echo $msg_payload | \
-        ruby -e "require 'zlib'; puts Zlib::Deflate.deflate(STDIN.read)" | \
-        base64 -w 0)"
-
     echo "$msg_type $msg_result $msg_oid $payload_b64" |
         nc -u -w1 $mon_address $mon_port
 }
