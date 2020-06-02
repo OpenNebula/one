@@ -37,12 +37,8 @@ module NSXDriver
         # its section_id. Returns its section_id if OpenNebula
         # section already exists
         def init_section
-            one_section = section_by_name(
-                NSXConstants::ONE_SECTION_NAME
-            )
-            one_section ||= create_section(
-                NSXConstants::ONE_SECTION_NAME
-            )
+            one_section = section_by_name(NSXConstants::ONE_SECTION_NAME)
+            one_section ||= create_section(NSXConstants::ONE_SECTION_NAME)
             return one_section['id'] if one_section
         end
 

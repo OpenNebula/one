@@ -38,12 +38,8 @@ module NSXDriver
         # its section_id. Returns its section_id if OpenNebula
         # section already exists
         def init_section
-            one_section = section_by_name(
-                NSXConstants::ONE_SECTION_NAME
-            )
-            one_section ||= create_section(
-                NSXConstants::ONE_SECTION_NAME
-            )
+            one_section = section_by_name(NSXConstants::ONE_SECTION_NAME)
+            one_section ||= create_section(NSXConstants::ONE_SECTION_NAME)
             return one_section.xpath('@id').text if one_section
         end
 
@@ -91,10 +87,12 @@ module NSXDriver
         # - nil | [Nokogiri::XML::NodeSet] section
         def section_by_name(section_name)
             url = @url_sections + '?name=' + section_name
-            result = @nsx_client.get(url)
+            result = @nsx_client.get(url) rescue nil
+            return nil if result.nil?
+
             xp = NSXConstants::NSXV_DFW_SECTION_XPATH
             section = result.xpath(xp)
-            return section unless section.empty?
+            section
         end
 
         # Create new section
