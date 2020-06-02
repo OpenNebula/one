@@ -767,7 +767,12 @@ class ClusterSet
         rc    = hpool.info
 
         if OpenNebula.is_error?(rc)
-            raise "Could not get hosts information - #{rc.message}"
+            # Wait 5 seconds and retry
+            sleep 5
+            rc = hpool.info
+            if OpenNebula.is_error?(rc)
+                raise "Could not get hosts information - #{rc.message}"
+            end
         end
 
         $logger.info("Bootstraping list of clusters")
