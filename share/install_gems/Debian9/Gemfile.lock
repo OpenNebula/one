@@ -58,6 +58,7 @@ GEM
       ffi-rzmq-core (>= 1.0.7)
     ffi-rzmq-core (1.0.7)
       ffi
+    gnuplot (2.6.2)
     hashie (3.6.0)
     highline (1.7.10)
     http-cookie (1.0.3)

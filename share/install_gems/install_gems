@@ -59,7 +59,8 @@ GROUPS={
     :market     => 'aws-sdk',
     :onedb      => ['mysql2', PG],
     :hooks      => %w[zeromq ffi-rzmq],
-    :serversync => "augeas"
+    :serversync => "augeas",
+    :gnuplot    => "gnuplot"
 }
 
 PACKAGES=GROUPS.keys
@@ -83,7 +84,8 @@ DISTRIBUTIONS={
             'thin'      => ['g++'],
             'json'      => ['gcc'],
             'zeromq'    => ['gcc', 'libzmq5', 'libzmq3-dev'],
-            'augeas'    => ['gcc', 'libaugeas-dev']
+            'augeas'    => ['gcc', 'libaugeas-dev'],
+            'gnuplot'   => ['gcc']
         },
         :install_command_interactive => 'apt-get install',
         :install_command => 'apt-get -y install',
@@ -105,7 +107,8 @@ DISTRIBUTIONS={
             'thin'      => ['gcc-c++'],
             'json'      => ['gcc'],
             'zeromq'    => ['gcc', 'zeromq', 'zeromq-devel'],
-            'augeas'    => ['gcc', 'augeas-devel']
+            'augeas'    => ['gcc', 'augeas-devel'],
+            'gnuplot'   => ['gcc']
         },
         :install_command_interactive => 'yum install',
         :install_command => 'yum -y install',

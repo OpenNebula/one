@@ -17,6 +17,7 @@
 require 'one_helper'
 require 'one_helper/onevm_helper'
 require 'rubygems'
+require 'time'
 
 # implements onehost command
 class OneHostHelper < OpenNebulaHelper::OneHelper
@@ -74,6 +75,15 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
     }
 
     VERSION_XPATH = "#{TEMPLATE_XPATH}/VERSION"
+
+    MONITORING = {
+        'FREE_CPU'    => 'CAPACITY',
+        'FREE_MEMORY' => 'CAPACITY',
+        'USED_CPU'    => 'CAPACITY',
+        'USED_MEMORY' => 'CAPACITY',
+        'NETRX'       => 'SYSTEM',
+        'NETTX'       => 'SYSTEM'
+    }
 
     def self.rname
         'HOST'
@@ -501,6 +511,92 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         end
     end
 
+    def monitoring(host, attr, options)
+        unit    = options[:unit] || 'G'
+        start_d = options[:start]
+        end_d   = options[:end]
+        n_elems = options[:n_elems] || 8
+
+        # Different available size units
+        units = %w[K M G T]
+
+        # Attrs that need units conversion
+        attrs = %w[FREE_MEMORY USED_MEMORY]
+
+        if unit && !units.include?(unit)
+            STDERR.puts "Invalid unit `#{unit}`"
+            exit(-1)
+        end
+
+        attr      = attr.upcase
+        start_d   = Time.parse(start_d) if start_d
+        end_d     = Time.parse(end_d) if end_d
+
+        # Get monitoring data from user path
+        #
+        #   0 -> timestamp
+        #   1 -> data retrieved
+        monitoring_data = host.monitoring(["#{MONITORING[attr]}/#{attr}"])
+        monitoring_data = monitoring_data["#{MONITORING[attr]}/#{attr}"]
+
+        if monitoring_data.empty?
+            STDERR.puts 'No monitoring data found'
+            return
+        end
+
+        # Get data max and min date
+        start_d ||= Time.at(monitoring_data.min {|v| v[0].to_i }[0].to_i)
+        end_d   ||= Time.at(monitoring_data.max {|v| v[0].to_i }[0].to_i)
+
+        # Filter data betwen dates
+        monitoring_data.reject! do |v|
+            v[0].to_i < start_d.to_i || v[0].to_i > end_d.to_i
+        end
+
+        if monitoring_data.empty?
+            STDERR.puts "No monitoring data found between #{start_d} " \
+                        "and #{end_d}"
+            return
+        end
+
+        start_d = start_d.strftime('%d/%m/%Y %H:%M')
+        end_d   = end_d.strftime('%d/%m/%Y %H:%M')
+
+        # Parse dcollected data
+        x = monitoring_data.collect {|v| Time.at(v[0].to_i).strftime('%H:%M') }
+        y = monitoring_data.collect do |v|
+            if attrs.include?(attr)
+                # GB is the default unit
+                v = OpenNebulaHelper.bytes_to_unit(v[1].to_i, unit).round(2)
+                "#{v} #{unit}B"
+            else
+                v[1]
+            end
+        end
+
+        title = ''
+        title << "Host #{host.id} #{attr} "
+        title << "in #{unit}B " if unit && attrs.include?(attr)
+        title << "from #{start_d} to #{end_d}"
+
+        x = x.last(n_elems)
+        y = y.last(n_elems)
+
+        if options[:table]
+            print_monitoring_table(x, y, title)
+        elsif options[:csv]
+            csv = ''
+
+            csv << "TIME#{options[:csv]}VALUE\n"
+
+            x.zip(y) {|x_v, y_v| csv << "#{x_v}#{options[:csv]}#{y_v}\n" }
+
+            puts csv
+        else
+            puts OpenNebulaHelper.get_plot(x, y, attr, title)
+        end
+    end
+
     private
 
     def print_update_info(current, total, host)
@@ -918,6 +1014,32 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         end
 
         table.show(hugepages)
+    end
+
+    def print_monitoring_table(x, y, title)
+        puts
+        CLIHelper.print_header(title, true)
+        puts
+
+        table = CLIHelper::ShowTable.new(nil, self) do
+            column :TIME, 'Timestamp', :size => 8, :left => false do |d|
+                d['TIME']
+            end
+
+            column :VALUE, 'Value', :size => 8, :left => false do |d|
+                d['VALUE']
+            end
+
+            default :TIME, :VALUE
+        end
+
+        data = []
+
+        x.zip(y) do |x_v, y_v|
+            data << { 'TIME' => x_v, 'VALUE' => y_v }
+        end
+
+        table.show(data)
     end
 
 end
