@@ -42,8 +42,8 @@ XPATH="${DRIVER_PATH}/../../datastore/xpath.rb -b $DRV_ACTION"
 
 unset i XPATH_ELEMENTS
 
-while IFS= read -r -d '' element; do
-    XPATH_ELEMENTS[i++]="$element"
+while IFS= read -r -d '' ELEMENT; do
+    XPATH_ELEMENTS[i++]="$ELEMENT"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE_LOCATION \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/MONITOR_VM_DISKS)
@@ -57,7 +57,6 @@ MONITOR_VM_DISKS="${XPATH_ELEMENTS[i++]}"
 # ------------ Compute datastore usage -------------
 
 LVM_VG_PREFIX="vg-one-"
-LVM_SIZE_CMD="$SUDO $VGDISPLAY --separator : --units m -o vg_size,vg_free --nosuffix --noheadings -C"
 
 MONITOR_SCRIPT=$(cat <<EOF
 if [ ! -d $BASE_PATH ]; then
@@ -67,7 +66,7 @@ fi
 # If vg-one-$DS_ID exists, we assume it's an fs_lvm image datastore, therefore'
 # we return the space of the lvm, no of the filesystem
 if PATH=\$PATH:/sbin:/bin:/usr/sbin:/usr/bin which vgdisplay &> /dev/null; then
-    LVM_SIZE=\$(sudo -n vgdisplay \
+    LVM_SIZE=\$($SUDO $VGDISPLAY \
                     --separator : \
                     --units m \
                     -o vg_size,vg_free \
@@ -92,8 +91,8 @@ else
 fi
 
 if [ -z "\$USED_MB" -o -z "\$TOTAL_MB" -o -z "\$FREE_MB" ]; then
-    msg="Empty value found"
-    echo "\$msg: USED_MB=\$USED_MB, TOTAL_MB=\$TOTAL_MB, FREE_MB=\$FREE_MB"
+    MSG="Empty value found"
+    echo "\$MSG: USED_MB=\$USED_MB, TOTAL_MB=\$TOTAL_MB, FREE_MB=\$FREE_MB"
     exit 1
 fi
 
@@ -105,33 +104,33 @@ EOF
 )
 
 MONITOR_VM_SCRIPT=$(cat <<EOF
-lvdata=\$($SUDO $LVS --noheadings --nosuffix --units m -o lv_name,lv_size --separator : "${LVM_VG_PREFIX}${DS_ID}" | sed -e 's/^[[:space:]]*//' | grep '^lv-one-' | sed 's/^lv-one-//' | tr '-' ':' | sort -n)
-[ -z "\$lvdata" ] && exit 0
+LVDATA=\$($SUDO $LVS --noheadings --nosuffix --units m -o lv_name,lv_size --separator : "${LVM_VG_PREFIX}${DS_ID}" | sed -e 's/^[[:space:]]*//' | grep '^lv-one-' | sed 's/^lv-one-//' | tr '-' ':' | sort -n)
+[ -z "\$LVDATA" ] && exit 0
 
-vm_previous='n'
+VM_PREVIOUS='n'
 
-while IFS="\n" read -r line; do
-    vm=\$(echo "\$line" | cut -d':' -f1)
-    [ -n "\$vm" ] || continue
+while IFS="\n" read -r LINE; do
+    VM=\$(echo "\$LINE" | cut -d':' -f1)
+    [ -n "\$VM" ] || continue
 
-    disk=\$(echo "\$line" | cut -d':' -f2)
-    size=\$(echo "\$line" | cut -d':' -f3 | cut -d'.' -f1)
+    DISK=\$(echo "\$LINE" | cut -d':' -f2)
+    SIZE=\$(echo "\$LINE" | cut -d':' -f3 | cut -d'.' -f1)
 
-    if [ "\$vm" != "\$vm_previous" ]; then
-        [ "\$vm_previous" != "n" ] && echo "\"]"
+    if [ "\$VM" != "\$VM_PREVIOUS" ]; then
+        [ "\$VM_PREVIOUS" != "n" ] && echo "\"]"
 
-        vm_previous="\$vm"
-        echo -n "VM=[ID=\$vm,MONITOR=\""
+        VM_PREVIOUS="\$VM"
+        echo -n "VM=[ID=\$VM,MONITOR=\""
     else
         echo -n " "
     fi
 
-    monitor_b64="\$(echo -n "DISK_SIZE=[ID=\$disk,SIZE=\$size]" | base64 -w 0)"
-    echo -n "\$monitor_b64"
+    MONITOR_B64="\$(echo -n "DISK_SIZE=[ID=\$DISK,SIZE=\$SIZE]" | base64 -w 0)"
+    echo -n "\$MONITOR_B64"
 
-done <<< "\$( echo "\$lvdata" )"
+done <<< "\$( echo "\$LVDATA" )"
 
-[ "\$vm_previous" != "n" ] && echo "\"]"
+[ "\$VM_PREVIOUS" != "n" ] && echo "\"]"
 
 EOF
 )
