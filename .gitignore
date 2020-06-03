@@ -47,6 +47,9 @@ src/sunstone/public/locale/languages/*.js
 src/sunstone/public/package-lock.json
 .tx/config
 
+src/onedb/local/
+src/onedb/shared/
+
 share/esx-fw-vnc/*.rpm
 share/esx-fw-vnc/.vagrant*
 

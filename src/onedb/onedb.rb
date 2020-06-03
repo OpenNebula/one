@@ -24,6 +24,20 @@ end
 
 require 'onedb_backend'
 
+require 'fiddle'
+require 'zlib'
+
+class RubyVM::InstructionSequence
+    load_fn_addr  = Fiddle::Handle::DEFAULT['rb_iseq_load']
+    load_fn       = Fiddle::Function.new(load_fn_addr,
+                                         [Fiddle::TYPE_VOIDP] * 3,
+                                          Fiddle::TYPE_VOIDP)
+
+    define_singleton_method(:load) do |data, parent = nil, opt = nil|
+        load_fn.call(Fiddle.dlwrap(data), parent, opt).to_value
+    end
+end
+
 # If set to true, extra verbose time log will be printed for each migrator
 LOG_TIME = false
 
@@ -253,7 +267,8 @@ class OneDB
 
                 dir_prefix = "#{RUBY_LIB_LOCATION}/onedb/shared"
 
-                result = apply_migrators(dir_prefix, db_version[:version], ops)
+                result, found = apply_migrators(dir_prefix, 'rb', db_version[:version], ops)
+                result, _     = apply_migrators(dir_prefix, 'rbm', db_version[:version], ops) unless found
 
                 # Modify db_versioning table
                 if result != nil
@@ -272,7 +287,8 @@ class OneDB
 
             dir_prefix = "#{RUBY_LIB_LOCATION}/onedb/local"
 
-            result = apply_migrators(dir_prefix, db_version[:local_version], ops)
+            result, found = apply_migrators(dir_prefix, 'rb', db_version[:local_version], ops)
+            result,_      = apply_migrators(dir_prefix, 'rbm', db_version[:local_version], ops) unless found
 
             # Modify db_versioning table
             if result != nil
@@ -308,43 +324,69 @@ class OneDB
         end
     end
 
-    def apply_migrators(prefix, db_version, ops)
-        result = nil
-        i = 0
+    def load_bytecode(file)
+        file = File.open(file, 'rb')
+        data = file.read
 
-        matches = Dir.glob("#{prefix}/#{db_version}_to_*.rb")
+        file.close
+
+        data = Zlib::Inflate.inflate(data)
+        data = Marshal.load(data)
+
+        c_ruby_version = Gem::Version.new(data.to_a[1..2].join('.'))
+        i_ruby_version = Gem::Version.new(RUBY_VERSION.split('.')[0..1].join('.'))
+
+        if c_ruby_version != i_ruby_version
+            raise 'Attemp to run migrators compiled in other version' \
+                "Compiled: #{c_ruby_version}, installed: #{i_ruby_version}"
+        end
+
+        new_iseq = RubyVM::InstructionSequence.load(data)
+        new_iseq.eval
+    end
+
+    def apply_migrators(prefix, suffix, db_version, ops)
+        result  = nil
+        found   = false
+        matches = Dir.glob("#{prefix}/#{db_version}_to_*.#{suffix}")
 
         while ( matches.size > 0 )
             if ( matches.size > 1 )
                 raise "There are more than one file that match \
-                        \"#{prefix}/#{db_version}_to_*.rb\""
+                        \"#{prefix}/#{db_version}_to_*.#{suffix}\""
             end
 
-            file = matches[0]
+            found = true
+            file  = matches[0]
 
             puts "  > Running migrator #{file}" if ops[:verbose]
 
             time0 = Time.now
 
-            load(file)
-            @backend.extend Migrator
-            result = @backend.up
+            if suffix == 'rb'
+                load(file)
+            else
+                load_bytecode(file)
+            end
 
-            time1 = Time.now
+            @backend.extend Migrator
+
+            result = @backend.up
+            time1  = Time.now
 
             if !result
                 raise "Error while upgrading from #{db_version} to " <<
-                      " #{@backend.db_version}"
+                        " #{@backend.db_version}"
             end
 
             puts "  > Done in #{"%0.02f" % (time1 - time0).to_s}s" if ops[:verbose]
             puts "" if ops[:verbose]
 
             matches = Dir.glob(
-                "#{prefix}/#{@backend.db_version}_to_*.rb")
+                "#{prefix}/#{@backend.db_version}_to_*.#{suffix}")
         end
 
-        return result
+        [result, found]
     end
 
     def fsck(ops)

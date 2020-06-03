@@ -202,6 +202,10 @@ main_env.Append(enterprise=ARGUMENTS.get('enterprise', 'no'))
 # Sunstone minified files generation
 main_env.Append(sunstone=ARGUMENTS.get('sunstone', 'no'))
 
+# TODO this should be aligned with one-ee-tools workflows
+# Onedb Marshal files generation
+main_env.Append(marshal=ARGUMENTS.get('marshal', 'no'))
+
 # Docker-machine addon generation
 main_env.Append(docker_machine=ARGUMENTS.get('docker_machine', 'no'))
 
@@ -308,6 +312,7 @@ build_scripts = [
     'src/client/SConstruct',
     'src/docker_machine/SConstruct',
     'src/monitor/SConstruct',
+    'src/onedb/SConstruct',
     svncterm_path
 ]
 
