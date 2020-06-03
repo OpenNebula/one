@@ -5,11 +5,12 @@ set -e
 #-------------------------------------------------------------------------------
 usage() {
  echo
- echo "Usage: build.sh [-d] [-c] [-l] [-h]"
+ echo "Usage: build.sh [-d] [-c] [-l] [-h] [-e]"
  echo
  echo "-d: install build dependencies (bower, grunt)"
  echo "-c: clean build"
  echo "-l: preserve main.js"
+ echo "-e: apply enterprise edition patchs"
  echo "-h: prints this help"
 }
 
@@ -23,6 +24,26 @@ dependencies() {
     npm install grunt-cli
 
     export PATH=$PATH:$PWD/node_modules/.bin
+}
+
+install_enterprise_patch() {
+    PATCH_DIR="./patches/enterprise"
+
+    for i in `ls ${PATCH_DIR}` ; do
+        if [ -f "${PATCH_DIR}/$i" ]; then
+            if [ "$ENTERPRISE" = "yes" ]; then
+                # If the patch is not applied then apply it.
+                if ! patch -f -s -R -d.. -p1 --dry-run < "${PATCH_DIR}/$i"; then
+                    patch -d.. -p1 <"${PATCH_DIR}/$i"
+                fi
+            else
+                # If the patch is not applied then apply it.
+                if ! patch -f -s -d.. -p1 --dry-run < "${PATCH_DIR}/$i"; then
+                    patch -R -d.. -p1 <"${PATCH_DIR}/$i"
+                fi
+            fi
+        fi
+    done
 }
 
 install_patch() {
@@ -40,6 +61,8 @@ install_patch() {
             patch -p1 <"${PATCH_DIR}/$i"
         fi
     done
+
+    install_enterprise_patch
 
     if [ "$DO_LINK" = "yes" ]; then
         mv -f dist/main.js ./main.js
@@ -93,13 +116,6 @@ fi
 if [ "$DEPENDENCIES" = "yes" ]; then
     dependencies
     exit 0
-fi
-
-if [ "$ENTERPRISE" = "yes" ]; then
-    echo "Enterprise Edition Activated"
-    sed -i -e 's|<a href="http://opennebula.io" target="_blank">OpenNebula <%= OpenNebula::VERSION %></a>|<a href="http://opennebula.io" target="_blank">OpenNebula <%= OpenNebula::VERSION %></a><div id="enterprise_edition"><a href="http://opennebula.io/enterprise" target="_blank">Enterprise Edition</a></div>|g' ../views/index.erb
-else
-    sed -i -e 's|<a href="http://opennebula.io" target="_blank">OpenNebula <%= OpenNebula::VERSION %></a><div id="enterprise_edition"><a href="http://opennebula.io/enterprise" target="_blank">Enterprise Edition</a></div>|<a href="http://opennebula.io" target="_blank">OpenNebula <%= OpenNebula::VERSION %></a>|g' ../views/index.erb
 fi
 
 install_patch
