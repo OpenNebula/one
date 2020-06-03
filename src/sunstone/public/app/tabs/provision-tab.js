@@ -505,8 +505,9 @@ define(function(require) {
               ){
                 var used = 0;
                 var size = 0;
-                if(Array.isArray(user.NETWORK_QUOTA.NETWORK)){
-                  user.NETWORK_QUOTA.NETWORK.map(function(network){
+                var nets = user.NETWORK_QUOTA.NETWORK
+                if(Array.isArray(nets)){
+                  nets.map(function(network){
                     if(network.LEASES_USED){
                       used = used+parseInt(network.LEASES_USED,10);
                     }
@@ -515,10 +516,14 @@ define(function(require) {
                     }
                   });
                   var ipLeases = QuotaWidgets.quotaInfo(used, size);
-                  $("#provision_dashboard_ips_percentage").html(ipLeases["percentage"]);
-                  $("#provision_dashboard_ips_str").html(ipLeases["str"]);
-                  $("#provision_dashboard_ips_meter").val(ipLeases["percentage"]);
+                }else{
+                  used = parseInt(nets.LEASES_USED,10);
+                  size = parseInt(nets.LEASES,10);
                 }
+                var ipLeases = QuotaWidgets.quotaInfo(used, size);
+                $("#provision_dashboard_ips_percentage").html(ipLeases["percentage"]);
+                $("#provision_dashboard_ips_str").html(ipLeases["str"]);
+                $("#provision_dashboard_ips_meter").val(ipLeases["percentage"]);
               }
               //SYSTEM DISK
               if(
