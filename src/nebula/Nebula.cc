@@ -403,7 +403,7 @@ void Nebula::start(bool bootstrap_only)
             _db->vector_value<string>("PASSWD", passwd, "oneadmin");
             _db->vector_value<string>("DB_NAME", db_name, "opennebula");
             _db->vector_value<string>("ENCODING", encoding, "");
-            _db->vector_value<string>("COMPARE_BINARY", compare_binary, "YES");
+            _db->vector_value<string>("COMPARE_BINARY", compare_binary, "NO");
             _db->vector_value("CONNECTIONS", connections, 25);
         }
 
