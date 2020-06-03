@@ -319,7 +319,7 @@ define(function(require) {
     $(".spice", context).on("click", function() {
       var data = $(this).data();
 
-      if (!Spice.lockStatus() && data.id) {
+      if (!Spice.lockStatus() && data.hasOwnProperty("id")) {
         Spice.lock();
         Sunstone.runAction("VM.startspice_action", String(data.id));
       } else {
@@ -333,10 +333,10 @@ define(function(require) {
     $(".w_file", context).on("click", function() {
       var data = $(this).data();
 
-      (data.id && data.hostname && data.type && data.port)
+      (data.hasOwnProperty("id") && data.hasOwnProperty("hostname") && data.hasOwnProperty("type") && data.hasOwnProperty("port"))
         ? Sunstone.runAction(
           "VM.save_virt_viewer_action",
-          data.id,
+          String(data.id),
           { hostname: data.hostname, type: data.type, port: data.port }
         )
         : Notifier.notifyError(Locale.tr("Data for virt-viewer file isn't correct"));
@@ -348,7 +348,7 @@ define(function(require) {
     $(".vnc", context).on("click", function() {
       var data = $(this).data();
 
-      if (!Vnc.lockStatus() && data.id) {
+      if (!Vnc.lockStatus() && data.hasOwnProperty("id")) {
         Vnc.lock();
         Sunstone.runAction("VM.startvnc_action", String(data.id));
       } else {
@@ -362,7 +362,7 @@ define(function(require) {
     $(".rdp", context).on("click", function() {
       var data = $(this).data();
 
-      (data.ip && data.name)
+      (data.hasOwnProperty("ip") && data.hasOwnProperty("name"))
         ? Sunstone.runAction("VM.save_rdp", data)
         : Notifier.notifyError(Locale.tr("This VM needs a nic with rdp active"));
 
