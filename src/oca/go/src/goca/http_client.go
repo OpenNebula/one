@@ -111,15 +111,6 @@ func (r *Response) BodyMap() map[string]interface{} {
 	return bodyMap
 }
 
-// bodyToMap returns http body as map
-func bodyToMap(response *http.Response) map[string]interface{} {
-	var result map[string]interface{}
-
-	json.NewDecoder(response.Body).Decode(&result)
-
-	return result
-}
-
 // bodyToStr returns http body as string
 func bodyToStr(response *http.Response) string {
 	body, err := ioutil.ReadAll(response.Body)

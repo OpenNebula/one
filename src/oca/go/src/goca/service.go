@@ -3,6 +3,7 @@ package goca
 import (
 	"fmt"
 	"strconv"
+	"encoding/json"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/service"
 )
@@ -29,31 +30,20 @@ func (c *Controller) Services() *ServicesController {
 	return &ServicesController{c}
 }
 
-// NewService constructor
-func NewService(docJSON map[string]interface{}) *service.Service {
-	var serv service.Service
-
-	template := NewTemplate(docJSON)
-
-	serv.Template = *template
-	serv.State = template.JSON["state"].(int)
-
-	return &serv
-}
-
 // OpenNebula Actions
 
 // Show the SERVICE resource identified by <id>
 func (sc *ServiceController) Info() (*service.Service, error) {
 	url := urlService(sc.ID)
-
-	response, e := sc.c.ClientFlow.HTTPMethod("GET", url)
-
-	if e != nil {
-		return &service.Service{}, e
+	response, err := sc.c.ClientFlow.HTTPMethod("GET", url)
+	if err != nil {
+		return &service.Service{}, err
 	}
+	service := &service.Service{}
+	service_str, err := json.Marshal(response.BodyMap()["DOCUMENT"])
+	err = json.Unmarshal([]byte(service_str), service)
 
-	return NewService(documentJSON(response)), nil
+	return service, nil
 }
 
 // Delete the SERVICE resource identified by <id>
@@ -86,23 +76,19 @@ func (sc *ServiceController) Recover() (bool, string) {
 }
 
 // List the contents of the SERVICE collection.
-func (ssc *ServicesController) Info() ([]*service.Service, error) {
-	var services []*service.Service
-
-	response, e := ssc.c.ClientFlow.HTTPMethod("GET", endpointFService)
-
-	if e != nil {
-		return services, e
+func (ssc *ServicesController) Info() (*service.Pool, error) {
+	response, err := ssc.c.ClientFlow.HTTPMethod("GET", endpointFService)
+	if err != nil {
+		return nil, err
+	}
+	servicepool := &service.Pool{}
+	pool_str, err := json.Marshal(response.BodyMap()["DOCUMENT_POOL"])
+	err = json.Unmarshal([]byte(pool_str), servicepool)
+	if err != nil {
+		return nil, err
 	}
 
-	documents := response.BodyMap()["DOCUMENT_POOL"].(map[string]interface{})
-
-	for _, v := range documents {
-		service := NewService(v.(map[string]interface{}))
-		services = append(services, service)
-	}
-
-	return services, e
+	return servicepool, err
 }
 
 // Role operations
