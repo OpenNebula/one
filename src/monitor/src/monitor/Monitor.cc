@@ -110,6 +110,7 @@ void Monitor::start()
         string passwd;
         string db_name;
         string encoding;
+        string compare_binary;
         int    connections;
 
         _db->vector_value<string>("SERVER", server, "localhost");
@@ -118,6 +119,7 @@ void Monitor::start()
         _db->vector_value<string>("PASSWD", passwd, "oneadmin");
         _db->vector_value<string>("DB_NAME", db_name, "opennebula");
         _db->vector_value<string>("ENCODING", encoding, "");
+        _db->vector_value<string>("COMPARE_BINARY", compare_binary, "YES");
 
         _db_m->vector_value("CONNECTIONS", connections, 15);
 
@@ -129,7 +131,7 @@ void Monitor::start()
         else if ( db_backend == "mysql" )
         {
             sqlDB.reset(new MySqlDB(server, port, user, passwd, db_name,
-                        encoding, connections));
+                        encoding, connections, compare_binary));
         }
         else
         {

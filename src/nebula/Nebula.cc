@@ -388,6 +388,7 @@ void Nebula::start(bool bootstrap_only)
         string passwd;
         string db_name;
         string encoding;
+        string compare_binary;
         int    connections;
 
         const VectorAttribute * _db = nebula_configuration->get("DB");
@@ -396,40 +397,14 @@ void Nebula::start(bool bootstrap_only)
         {
             db_backend_type = _db->vector_value("BACKEND");
 
-            if (_db->vector_value("SERVER", server) == -1)
-            {
-                server = "localhost";
-            }
-
-            if (_db->vector_value("PORT", port)  == -1)
-            {
-                port = 0;
-            }
-
-            if (_db->vector_value("USER", user) == -1)
-            {
-                user = "oneadmin";
-            }
-
-            if (_db->vector_value("PASSWD", passwd) == -1)
-            {
-                passwd = "oneadmin";
-            }
-
-            if (_db->vector_value("DB_NAME", db_name) == -1)
-            {
-                db_name = "opennebula";
-            }
-
-            if (_db->vector_value("CONNECTIONS", connections) == -1)
-            {
-                connections = 25;
-            }
-
-            if (_db->vector_value("ENCODING", encoding) == -1)
-            {
-                encoding = "";
-            }
+            _db->vector_value<string>("SERVER", server, "localhost");
+            _db->vector_value("PORT", port, 0);
+            _db->vector_value<string>("USER", user, "oneadmin");
+            _db->vector_value<string>("PASSWD", passwd, "oneadmin");
+            _db->vector_value<string>("DB_NAME", db_name, "opennebula");
+            _db->vector_value<string>("ENCODING", encoding, "");
+            _db->vector_value<string>("COMPARE_BINARY", compare_binary, "YES");
+            _db->vector_value("CONNECTIONS", connections, 25);
         }
 
         if ( db_backend_type == "sqlite" )
@@ -439,7 +414,7 @@ void Nebula::start(bool bootstrap_only)
         else if ( db_backend_type == "mysql" )
         {
             db_backend = new MySqlDB(server, port, user, passwd, db_name,
-                    encoding, connections);
+                    encoding, connections, compare_binary);
         }
         else if ( db_backend_type == "postgresql" )
         {

@@ -92,7 +92,8 @@ PostgreSqlDB::PostgreSqlDB(
     features = {
         {SqlFeature::MULTIPLE_VALUE, PQlibVersion() < 80200},
         {SqlFeature::LIMIT, false},
-        {SqlFeature::FTS, false}
+        {SqlFeature::FTS, false},
+        {SqlFeature::COMPARE_BINARY, false}
     };
 
     pthread_mutex_init(&mutex, 0);

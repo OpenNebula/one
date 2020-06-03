@@ -45,7 +45,8 @@ public:
     {
         MULTIPLE_VALUE, // syntax INSERT VALUES (data), (data), (data)
         LIMIT,          // LIMIT in queries with DELETE and UPDATE
-        FTS             // Full Text Search
+        FTS,            // Full Text Search
+        COMPARE_BINARY  // Use BINARY for comparing name in DB
     };
 
     /* ---------------------------------------------------------------------- */
@@ -157,6 +158,14 @@ public:
         return oss.str();
     }
 
+    void add_binary(std::ostringstream& oss)
+    {
+        if (supports(SqlFeature::COMPARE_BINARY))
+        {
+            oss << "BINARY ";
+        }
+    }
+
 protected:
     /**
      *  Performs a DB transaction
@@ -189,7 +198,8 @@ protected:
     std::map<SqlFeature, bool> features = {
         {SqlFeature::MULTIPLE_VALUE, false},
         {SqlFeature::LIMIT, false},
-        {SqlFeature::FTS, false}
+        {SqlFeature::FTS, false},
+        {SqlFeature::COMPARE_BINARY, false}
     };
 };
 
