@@ -63,7 +63,8 @@ SqliteDB::SqliteDB(const string& db_name)
     features = {
         {SqlFeature::MULTIPLE_VALUE, false},
         {SqlFeature::LIMIT, enable_limit == 1},
-        {SqlFeature::FTS, false}
+        {SqlFeature::FTS, false},
+        {SqlFeature::COMPARE_BINARY, false}
     };
 }
 

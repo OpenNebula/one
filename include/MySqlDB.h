@@ -47,7 +47,8 @@ public:
             const std::string& _password,
             const std::string& _database,
             const std::string& _encoding,
-            int                _connections);
+            int                _connections,
+            std::string&       _compare_binary);
 
     ~MySqlDB();
 

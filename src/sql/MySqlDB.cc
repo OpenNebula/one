@@ -175,8 +175,9 @@ int MySqlDB::db_encoding(string& error)
 /* -------------------------------------------------------------------------- */
 
 MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
-    const string& d, const string& e, int m):max_connections(m), server(s),
-     port(p), user(u), password(_p), database(d), encoding(e)
+    const string& d, const string& e, int m, string& _compare_binary)
+    : max_connections(m), server(s), port(p), user(u), password(_p),
+      database(d), encoding(e)
 {
     vector<MYSQL *> connections(max_connections);
     MYSQL * rc;
@@ -309,7 +310,8 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
     features = {
         {SqlFeature::MULTIPLE_VALUE, true},
         {SqlFeature::LIMIT, true},
-        {SqlFeature::FTS, version >= min_fts_version}
+        {SqlFeature::FTS, version >= min_fts_version},
+        {SqlFeature::COMPARE_BINARY, one_util::toupper(_compare_binary) == "YES"}
     };
 
     pthread_mutex_init(&mutex,0);
