@@ -88,7 +88,7 @@ module NSXDriver
         def section_by_name(section_name)
             url = @url_sections + '?name=' + section_name
             result = @nsx_client.get(url) rescue nil
-            return nil if result.nil?
+            return if result.nil?
 
             xp = NSXConstants::NSXV_DFW_SECTION_XPATH
             section = result.xpath(xp)
