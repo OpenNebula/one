@@ -1,0 +1,10 @@
+--- ../views/login.erb	2020-06-03 15:49:58.458807190 +0200
++++ ../views/login_enterprise.erb	2020-06-03 15:49:50.546626875 +0200
+@@ -79,6 +79,7 @@
+ 
+     <div id="footer" style="overflow:visible;">
+       <a href="http://opennebula.io" target="_blank">OpenNebula <%= OpenNebula::VERSION %></a>
++      &nbsp;<a href="http://opennebula.io/enterprise" target="_blank">Enterprise Edition</a>
+     </div>
+   </body>
+ </html>
