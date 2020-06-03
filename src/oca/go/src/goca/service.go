@@ -44,10 +44,10 @@ func NewService(docJSON map[string]interface{}) *service.Service {
 // OpenNebula Actions
 
 // Show the SERVICE resource identified by <id>
-func (sc *ServiceController) Show() (*service.Service, error) {
+func (sc *ServiceController) Info() (*service.Service, error) {
 	url := urlService(sc.ID)
 
-	response, e := sc.c.ClientREST.HTTPMethod("GET", url)
+	response, e := sc.c.ClientFlow.HTTPMethod("GET", url)
 
 	if e != nil {
 		return &service.Service{}, e
@@ -86,14 +86,13 @@ func (sc *ServiceController) Recover() (bool, string) {
 }
 
 // List the contents of the SERVICE collection.
-func (ssc *ServicesController) List() (*[]*service.Service, error) {
+func (ssc *ServicesController) Info() ([]*service.Service, error) {
 	var services []*service.Service
 
-	response, e := ssc.c.ClientREST.HTTPMethod("GET", endpointFService)
+	response, e := ssc.c.ClientFlow.HTTPMethod("GET", endpointFService)
 
 	if e != nil {
-		services = append(services, &service.Service{})
-		return &services, e
+		return services, e
 	}
 
 	documents := response.BodyMap()["DOCUMENT_POOL"].(map[string]interface{})
@@ -103,7 +102,7 @@ func (ssc *ServicesController) List() (*[]*service.Service, error) {
 		services = append(services, service)
 	}
 
-	return &services, e
+	return services, e
 }
 
 // Role operations
@@ -223,7 +222,7 @@ func (sc *ServiceController) Action(action map[string]interface{}) (bool, string
 }
 
 func (c *Controller) boolResponse(method string, url string, body map[string]interface{}) (bool, string) {
-	response, e := c.ClientREST.HTTPMethod(method, url, body)
+	response, e := c.ClientFlow.HTTPMethod(method, url, body)
 
 	if e != nil {
 		return false, e.Error()

@@ -24,7 +24,7 @@ func createController() *Controller {
 
 	controller := NewController(nil)
 
-	controller.ClientREST = client
+	controller.ClientFlow = client
 
 	return controller
 }

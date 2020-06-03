@@ -78,7 +78,7 @@ func (tc *STemplateController) Map(st *service.Template) map[string]interface{} 
 func (tc *STemplateController) Create(st *service.Template) (*service.Template, error) {
 	body := tc.Map(st)
 
-	response, e := tc.c.ClientREST.HTTPMethod("POST", endpointFTemplate, body)
+	response, e := tc.c.ClientFlow.HTTPMethod("POST", endpointFTemplate, body)
 
 	if e != nil {
 		return &service.Template{}, e
@@ -106,7 +106,7 @@ func (tc *STemplateController) Update(st *service.Template) (bool, string) {
 func (tc *STemplateController) Show() (*service.Template, error) {
 	url := urlTemplate(tc.ID)
 
-	response, e := tc.c.ClientREST.HTTPMethod("GET", url)
+	response, e := tc.c.ClientFlow.HTTPMethod("GET", url)
 
 	if e != nil {
 		return &service.Template{}, e
@@ -119,7 +119,7 @@ func (tc *STemplateController) Show() (*service.Template, error) {
 func (tsc *STemplatesController) List() (*[]*service.Template, error) {
 	var templates []*service.Template
 
-	response, e := tsc.c.ClientREST.HTTPMethod("GET", endpointFTemplate)
+	response, e := tsc.c.ClientFlow.HTTPMethod("GET", endpointFTemplate)
 
 	if e != nil {
 		templates = append(templates, &service.Template{})
