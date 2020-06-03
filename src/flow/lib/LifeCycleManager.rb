@@ -43,7 +43,9 @@ class ServiceLCM
         # WD callbacks
         'ERROR_WD_CB'   => :error_wd_cb,
         'DONE_WD_CB'    => :done_wd_cb,
-        'RUNNING_WD_CB' => :running_wd_cb
+        'RUNNING_WD_CB' => :running_wd_cb,
+
+        'WAIT_READY' => :wait_ready
     }
 
     def initialize(client, concurrency, cloud_auth)
@@ -86,12 +88,16 @@ class ServiceLCM
                             method('done_wd_cb'))
         @am.register_action(ACTIONS['RUNNING_WD_CB'],
                             method('running_wd_cb'))
+        @am.register_action(ACTIONS['WAIT_READY'],
+                            method('wait_ready'))
 
         Thread.new { @am.start_listener }
 
         Thread.new { catch_up(client) }
 
         Thread.new { @wd.start(@srv_pool) }
+
+        Thread.new { @wd.wait_ready }
 
         Thread.new do
             auto_scaler = ServiceAutoScaler.new(@srv_pool,
@@ -718,6 +724,10 @@ class ServiceLCM
         end
 
         Log.error 'WD', rc.message if OpenNebula.is_error?(rc)
+    end
+
+    def wait_ready(service_id, role_name, nodes)
+        @wd.add_wait_ready(service_id, role_name, nodes)
     end
 
     ############################################################################

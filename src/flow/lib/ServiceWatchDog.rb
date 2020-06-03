@@ -57,6 +57,12 @@ class ServiceWD
         # Array of running services to watch
         @mutex    = Mutex.new
         @services = []
+
+        # Services to wait until ready
+        #   service_id => :role  => role_name
+        #                 :nodes => [nodes]
+        @mutex_ready = Mutex.new
+        @ready       = {}
     end
 
     # Start services WD
@@ -150,6 +156,89 @@ class ServiceWD
         end
     end
 
+    def wait_ready
+        subscriber = gen_subscriber
+
+        subscriber.setsockopt(ZMQ::SUBSCRIBE, 'EVENT API one.vm.update 1')
+
+        key     = ''
+        content = ''
+
+        loop do
+            rc = subscriber.recv_string(key)
+            rc = subscriber.recv_string(content) if rc != -1
+
+            # rubocop:disable Style/GuardClause
+            if rc == -1 && ZMQ::Util.errno != ZMQ::EAGAIN
+                next Log.error LOG_COMP, 'Error reading from subscriber.'
+            elsif rc == -1
+                check_nodes_report
+                check_ready
+
+                next
+            end
+
+            # rubocop:enable Style/GuardClause
+
+            xml = Nokogiri::XML(Base64.decode64(content))
+
+            id = xml.xpath(
+                '//PARAMETER[POSITION=2 and TYPE=\'IN\']/VALUE'
+            ).text.to_i
+            data = xml.xpath(
+                '//PARAMETER[POSITION=3 and TYPE=\'IN\']/VALUE'
+            ).text
+            data = data.split("\n").map do |part|
+                part.match(/(.+)="(.+)"/)[1..2]
+            end
+
+            ready = data.find {|v| v[0] == 'READY' }[1]
+
+            # rubocop:disable Style/StringLiterals
+            # Remove extra quotes
+            ready.gsub!("\"", '')
+            ready.gsub!('"', '')
+            ready.gsub!(' ', '')
+            # rubocop:enable Style/StringLiterals
+
+            next unless ready == 'YES'
+
+            Log.info LOG_COMP, "Node #{id} reported ready"
+
+            @mutex_ready.synchronize do
+                service_id = @ready.find do |_, d|
+                    next unless d
+
+                    d[:nodes].include?(id)
+                end
+
+                if service_id
+                    service_id = service_id[0]
+
+                    @ready[service_id][:nodes].delete(id)
+                end
+            end
+
+            check_ready
+        end
+
+        subscriber.setsockopt(ZMQ::UNSUBSCRIBE, 'EVENT API one.vm.update 1')
+
+        subscriber.close
+    end
+
+    def add_wait_ready(service_id, role_name, nodes)
+        @mutex_ready.synchronize do
+            @ready[service_id.to_i] = {}
+
+            @ready[service_id.to_i][:role]  = role_name
+            @ready[service_id.to_i][:nodes] = nodes
+        end
+
+        check_nodes_report
+        check_ready
+    end
+
     private
 
     # Get OpenNebula client
@@ -207,6 +296,55 @@ class ServiceWD
                 role.nodes_ids.each do |node|
                     check_role_state(client, service.id, name, node)
                 end
+            end
+        end
+    end
+
+    def check_nodes_report
+        client = @cloud_auth.client
+
+        @mutex_ready.synchronize do
+            @ready.each do |_service_id, data|
+                data[:nodes].delete_if do |node|
+                    vm = OpenNebula::VirtualMachine.new_with_id(node, client)
+
+                    vm.info
+
+                    if vm['/VM/USER_TEMPLATE/READY'] == 'YES'
+                        next true
+                    end
+
+                    vm_lcm_state = OpenNebula::VirtualMachine::LCM_STATE[
+                        vm.lcm_state
+                    ]
+
+                    # if the VM is in failure, it won't report ready
+                    if EventManager::FAILURE_STATES.include? vm_lcm_state
+                        Log.error LOG_COMP, "Node #{node} is in FAILURE state"
+                        next false
+                    end
+
+                    # if !READY and VM is not in failure state, keep waiting
+                    false
+                end
+            end
+        end
+    end
+
+    def check_ready
+        @mutex_ready.synchronize do
+            @ready.each do |service_id, data|
+                next unless data
+
+                next unless data[:nodes].empty?
+
+                @lcm.trigger_action(:deploy_cb,
+                                    service_id,
+                                    client,
+                                    service_id,
+                                    data[:role])
+
+                @ready.delete(service_id)
             end
         end
     end
