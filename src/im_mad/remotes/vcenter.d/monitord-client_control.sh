@@ -27,29 +27,6 @@ else
 fi
 
 #-------------------------------------------------------------------------------
-# Check if vcenter_monitor is running
-#-------------------------------------------------------------------------------
-if [ ! -p $IO_FIFO_PATH ]; then
-    rm -f $IO_FIFO_PATH > /dev/null 2>&1
-    mkfifo $IO_FIFO_PATH
-fi
-
-pid=`ps auxx | grep vcenter_monitor.rb | grep -v grep | awk '{print $2}'`
-
-if [ -z $pid ]; then
-    ruby $BIN > $LOG 2>&1 &
-
-    sleep 3
-
-    pid=`ps auxx | grep vcenter_monitor.rb | grep -v grep | awk '{print $2}'`
-
-    if [ -z $pid ]; then
-        echo "Cannot start vcenter_monitor service: `cat $LOG`"
-        exit 1
-    fi
-fi
-
-#-------------------------------------------------------------------------------
 # Process Arguments
 #-------------------------------------------------------------------------------
 ACTION="start"

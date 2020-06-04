@@ -71,9 +71,6 @@ class VcenterMonitorManager
     #
     #---------------------------------------------------------------------------
     def initialize
-        # Sanitize previous instances
-        kill_other_instances
-
         @clusters = ClusterSet.new
 
         @clusters.bootstrap
@@ -83,17 +80,6 @@ class VcenterMonitorManager
 
         # Create timer thread to monitor vcenters
         Thread.new { timer }
-    end
-
-    # Kills previous monitor instances
-    def kill_other_instances
-        path = File.expand_path(__FILE__)
-        ps_str = "ps auxwww|grep \"ruby #{path}\"|grep -v grep|awk {'print $2'}"
-        ids = `#{ps_str}`
-        return if ids.nil?
-
-        ids = ids.split("\n").map{|pid| pid.to_i}
-        ids.each{ |pid| Process.kill('KILL', pid) if pid!=Process.pid }
     end
 
     #---------------------------------------------------------------------------
@@ -174,11 +160,6 @@ class IOThread
         end
     end
 
-end
-
-Thread.new do
-    exit unless system('pgrep oned')
-    sleep 5
 end
 
 vcentermm = VcenterMonitorManager.new
