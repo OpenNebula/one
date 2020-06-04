@@ -80,6 +80,7 @@ conf[:action_number]       ||= 1
 conf[:action_period]       ||= 60
 conf[:vm_name_template]    ||= DEFAULT_VM_NAME_TEMPLATE
 conf[:wait_timeout]        ||= 30
+conf[:concurrency]         ||= 10
 conf[:auth]                = 'opennebula'
 
 set :bind, conf[:host]
@@ -181,7 +182,7 @@ GENERAL_EC    = 500 # general error
 ##############################################################################
 
 # TODO: make thread number configurable?
-lcm = ServiceLCM.new(@client, 10, cloud_auth)
+lcm = ServiceLCM.new(@client, conf[:concurrency], cloud_auth)
 
 ##############################################################################
 # Service
