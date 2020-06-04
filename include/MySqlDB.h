@@ -150,7 +150,7 @@ public:
             const std::string& _database,
             const std::string& _encoding,
             int                _connections,
-            std::string&       _compare_binary);
+            std::string&       _compare_binary)
     {
         throw runtime_error("Aborting oned, MySQL support not compiled!");
     };
