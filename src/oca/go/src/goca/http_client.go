@@ -89,7 +89,6 @@ func (c *RESTClient) post(eurl string, message map[string]interface{}) (*Respons
 	url := genurl(c.address, eurl)
 
 	return newHTTPResponse(httpReq(c, "POST", url, message))
-
 }
 
 // Put http
@@ -97,7 +96,6 @@ func (c *RESTClient) put(eurl string, message map[string]interface{}) (*Response
 	url := genurl(c.address, eurl)
 
 	return newHTTPResponse(httpReq(c, "PUT", url, message))
-
 }
 
 // BodyMap accesses the body of the response and returns it as a map

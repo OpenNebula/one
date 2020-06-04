@@ -12,8 +12,8 @@ type Pool struct {
 // Service represents an OpenNebula Service
 type Service struct {
     ID          int                 `json:"ID,string"`
-    UID	        int                 `json:"UID,string"`
-    GID	        int                 `json:"GID,string"`
+    UID         int                 `json:"UID,string"`
+    GID         int                 `json:"GID,string"`
     UName       string              `json:"UNAME"`
     GName       string              `json:"GNAME"`
     Name        string              `json:"NAME"`
