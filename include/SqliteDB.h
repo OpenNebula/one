@@ -45,7 +45,7 @@ class SqliteDB : public SqlDB
 {
 public:
 
-    SqliteDB(const string& db_name);
+    SqliteDB(const string& db_name, int timeout);
 
     ~SqliteDB();
 
@@ -107,7 +107,7 @@ class SqliteDB : public SqlDB
 {
 public:
 
-    SqliteDB(const string& db_name)
+    SqliteDB(const string& db_name, int timeout)
     {
         throw runtime_error("Aborting oned, Sqlite support not compiled!");
     }

@@ -100,7 +100,10 @@ void Monitor::start()
 
     if (db_backend == "sqlite")
     {
-        sqlDB.reset(new SqliteDB(get_var_location() + "one.db"));
+        int    timeout;
+        _db->vector_value("TIMEOUT", timeout, 2500);
+
+        sqlDB.reset(new SqliteDB(get_var_location() + "one.db", timeout));
     }
     else
     {
