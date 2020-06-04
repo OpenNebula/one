@@ -144,12 +144,13 @@ class MySqlDB : public SqlDB
 public:
 
     MySqlDB(const std::string& _server,
-            int           _port,
+            int                _port,
             const std::string& _user,
             const std::string& _password,
             const std::string& _database,
             const std::string& _encoding,
-            int           _connections)
+            int                _connections,
+            std::string&       _compare_binary);
     {
         throw runtime_error("Aborting oned, MySQL support not compiled!");
     };
