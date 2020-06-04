@@ -56,7 +56,6 @@ class EventManager
     # --------------------------------------------------------------------------
     DEFAULT_CONF = {
         :subscriber_endpoint  => 'tcp://localhost:2101',
-        :concurrency => 10,
         :cloud_auth  => nil,
         :am          => nil
     }
@@ -64,11 +63,11 @@ class EventManager
     def initialize(options)
         @conf = DEFAULT_CONF.merge(options)
 
-        @lcm = options[:lcm]
-        @am  = ActionManager.new(@conf[:concurrency], true)
+        @cloud_auth = @conf[:cloud_auth]
+        @lcm        = options[:lcm]
+        @am         = ActionManager.new(@cloud_auth.conf[:concurrency], true)
 
         @context      = ZMQ::Context.new(1)
-        @cloud_auth   = @conf[:cloud_auth]
         @wait_timeout = @cloud_auth.conf[:wait_timeout]
 
         # Register Action Manager actions

@@ -53,7 +53,6 @@ class ServiceLCM
 
         em_conf = {
             :cloud_auth  => @cloud_auth,
-            :concurrency => 10,
             :lcm         => @am
         }
 
