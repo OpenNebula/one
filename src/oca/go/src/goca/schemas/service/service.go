@@ -22,7 +22,7 @@ type Service struct {
         Body struct	{
             Deployment      string                   `json:"deployment,omitempty"`
             Description     string                   `json:"description,omitempty"`
-            Roles		    []Role                   `json:"roles,omitempty"`
+            Roles           []Role                   `json:"roles,omitempty"`
             Networks        map[string]string        `json:"networks,omitempty"`
             CustomAttrs     map[string]string        `json:"custom_attrs,omitempty"`
             CustomAttrsVals map[string]string        `json:"custom_attrs_values,omitempty"`
