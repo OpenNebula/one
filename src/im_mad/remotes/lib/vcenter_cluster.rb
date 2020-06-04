@@ -100,6 +100,7 @@ class Cluster
     def initialize(hid, onec)
         @host = OpenNebula::Host.new_with_id(hid, onec)
         @onec = onec
+        @hid = hid
 
         rc = @host.info(true)
 
@@ -109,10 +110,16 @@ class Cluster
 
         @monitordc = nil
 
-        #-----------------------------------------------------------------------
-        #  VI Client Initialization
-        #-----------------------------------------------------------------------
-        @vic     = VCenterDriver::VIClient.new(connection, hid)
+        connect_vcenter
+    end
+
+    #-----------------------------------------------------------------------
+    #  VI Client Initialization
+    #-----------------------------------------------------------------------
+    def connect_vcenter
+        # Avoid leaving open sessions to vCenter
+        @vic.close_connection if @vic
+        @vic     = VCenterDriver::VIClient.new(connection, @hid)
         @cluster = VCenterDriver::ClusterComputeResource
                    .new_from_ref(connection[:ccr], @vic)
     end
@@ -813,6 +820,11 @@ class ClusterSet
                     last_mon = c["last_#{probe_name}".to_sym]
                     probe_frequency = conf[probe_name].to_i
                     next unless (Time.now.to_i - last_mon) > probe_frequency
+
+                    # Refresh the vCenter connection in the least frequent probe
+                    if probe_name.eql?('system_host')
+                        c[:cluster].connect_vcenter
+                    end
 
                     $logger.info("\tRunning #{probe_name} probe")
 

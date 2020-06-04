@@ -24,4 +24,9 @@ fi
 
 export DRIVER_NAME="one_im_sh_${BASH_ARGV##* }"
 
+# Explicitly execute the vCenter monitor driver in the background
+# This way we don't have to wait until OpenNebula
+# issues the add_hosts commands to know about missing hosts
+#(/usr/bin/env ruby $VAR_LOCATION/remotes/im/lib/vcenter_monitor.rb &)
+
 exec $MAD_LOCATION/one_im_exec -l $*

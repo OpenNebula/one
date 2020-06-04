@@ -38,7 +38,6 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 require 'yaml'
 require 'rexml/document'
 
-
 require_relative './vcenter_cluster'
 require_relative './monitord_client'
 
@@ -47,10 +46,12 @@ require_relative './monitord_client'
 #
 #---------------------------------------------------------------------------
 class VcenterMonitorManager
+
     #---------------------------------------------------------------------------
     # Constants
     #    BASE_TIMER: for monitor loop, periods CANNOT be less than this value
-    #    DEFAULT_CONFIGURATION
+    #    DEFAULT_CONFIGURATION: hash with probes intervals and endpoint
+    #    MINIMUM_INTERVAL: minimum value for the interval of any of the probes
     #---------------------------------------------------------------------------
     BASE_TIMER = 10
 
@@ -64,16 +65,15 @@ class VcenterMonitorManager
         :port         => 4124
     }.freeze
 
-    # Minimum interval for vCenter probes
-    # They run in the front-end and are RAM consuming
-    # so this is the minimum grain for the intervals
     MINIMUM_INTERVAL = 30
-
 
     #---------------------------------------------------------------------------
     #
     #---------------------------------------------------------------------------
     def initialize
+        # Sanitize previous instances
+        kill_other_instances
+
         @clusters = ClusterSet.new
 
         @clusters.bootstrap
@@ -83,6 +83,17 @@ class VcenterMonitorManager
 
         # Create timer thread to monitor vcenters
         Thread.new { timer }
+    end
+
+    # Kills previous monitor instances
+    def kill_other_instances
+        path = File.expand_path(__FILE__)
+        ps_str = "ps auxwww|grep \"ruby #{path}\"|grep -v grep|awk {'print $2'}"
+        ids = `#{ps_str}`
+        return if ids.nil?
+
+        ids = ids.split("\n").map{|pid| pid.to_i}
+        ids.each{ |pid| Process.kill('KILL', pid) if pid!=Process.pid }
     end
 
     #---------------------------------------------------------------------------
@@ -102,6 +113,7 @@ class VcenterMonitorManager
                 :port         => conf.elements['NETWORK/PORT'].text.to_s
             }
 
+            # Don't allow intervals lower than the minimum default
             @conf.each{ |k,v| @conf[k] = 30 if v.is_a?(Integer) && v < MINIMUM_INTERVAL }
         end
 
