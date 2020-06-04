@@ -26,8 +26,8 @@ type HTTPAuth struct {
 }
 
 // newHTTPResponse Creates Response from http response
-func newHTTPResponse(r *http.Response, e error) (*Response, error) {
-	if e != nil {
+func newHTTPResponse(r *http.Response, err error) (*Response, error) {
+	if err != nil {
 		return &Response{}, e
 	}
 
@@ -46,19 +46,19 @@ func newHTTPResponse(r *http.Response, e error) (*Response, error) {
 
 // HTTPMethod interface to client internals
 func (c *RESTClient) HTTPMethod(method string, url string, args ...interface{}) (*Response, error) {
-	var e error
+	var err error
 	var response Response
 	r := &response
 
 	switch method {
 	case "GET":
-		r, e = c.get(string(url))
+		r, err = c.get(string(url))
 	case "DELETE":
-		r, e = c.delete(string(url))
+		r, err = c.delete(string(url))
 	case "POST":
-		r, e = c.post(string(url), args[1].(map[string]interface{}))
+		r, err = c.post(string(url), args[0].(map[string]interface{}))
 	case "PUT":
-		r, e = c.put(string(url), args[1].(map[string]interface{}))
+		r, err = c.put(string(url), args[0].(map[string]interface{}))
 	case "":
 		return &Response{}, e
 	}

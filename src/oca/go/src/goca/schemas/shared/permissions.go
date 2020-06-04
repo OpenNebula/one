@@ -59,3 +59,11 @@ func (p Permissions) String() string {
 	other := permStr[p.OtherU<<2|p.OtherM<<1|p.OtherA]
 	return owner + group + other
 }
+
+func (p Permissions) Octet() int {
+	owner := int(p.OwnerU<<2|p.OwnerM<<1|p.OwnerA)
+	group := int(p.GroupU<<2|p.GroupM<<1|p.GroupA)
+	other := int(p.OtherU<<2|p.OtherM<<1|p.OtherA)
+
+	return owner * 100 + group * 10 + other
+}

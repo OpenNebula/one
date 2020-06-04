@@ -1,73 +1,32 @@
 package main
 
 import (
-	"fmt"
-	"log"
+    "fmt"
+    "log"
 
-	"github.com/OpenNebula/one/src/oca/go/src/goca"
+    "github.com/OpenNebula/one/src/oca/go/src/goca"
 )
 
-var rclient *goca.RESTClient
-var controller *goca.Controller
-
-func init() {
-	rclient = goca.NewRESTClient(
-		goca.NewFlowConfig("", "", ""),
-	)
-	xclient := goca.NewDefaultClient(
-		goca.NewConfig("", "", ""),
-	)
-
-	controller = goca.NewController(xclient, rclient)
-}
-
 func main() {
-	testClient()
-	testGoca()
-}
+    // Get a Flow client
+    client := goca.NewDefaultFlowClient(
+        goca.NewFlowConfig("", "", ""),
+    )
 
-// Shows oneflow server up and running
-func testClient() {
-	response, e := rclient.Get("service")
+    // Get a Flow controller
+    controller := goca.NewControllerFlow(client)
 
-	if e == nil {
-		body := response.BodyMap()
+    service_pool, err := controller.Services().Info();
+    if err != nil {
+        log.Fatal(err)
+    }
 
-		fmt.Println(body)
+    for i := 0; i < len(service_pool.Services); i++ {
+        service, err := controller.Service(service_pool.Services[i].ID).Info()
+        if err != nil {
+            log.Fatal(err)
+        }
 
-	} else {
-		fmt.Println(e)
-	}
-}
-
-func testGoca() {
-	id := 4
-
-	serviceCtrl := controller.Service(id)
-	serv, e := serviceCtrl.Show(id)
-
-	if e != nil {
-		log.Fatalln(e)
-	}
-
-	fmt.Println(serv.ID)
-	fmt.Println(serv.Name)
-
-	fmt.Println("============")
-
-	var status bool
-	var body string
-
-	status, body = serviceCtrl.Shutdown(id)
-
-	fmt.Println(status)
-	fmt.Println(body)
-
-	fmt.Println("============")
-
-	status, body = serviceCtrl.Delete(id)
-	fmt.Println(status)
-	fmt.Println(body)
-
-	fmt.Println("============")
+        fmt.Println(service.Name)
+    }
 }

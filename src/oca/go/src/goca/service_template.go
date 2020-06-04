@@ -210,3 +210,9 @@ func urlTemplateAction(id int) string {
 func urlTemplate(id int) string {
 	return fmt.Sprintf("%s/%s", endpointFTemplate, strconv.Itoa(id))
 }
+
+func documentJSON(response *Response) map[string]interface{} {
+	responseJSON := response.BodyMap()
+
+	return responseJSON["DOCUMENT"].(map[string]interface{})
+}
