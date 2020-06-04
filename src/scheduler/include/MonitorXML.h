@@ -94,7 +94,7 @@ protected:
     {
         try
         {
-            client->call("one.hostpool.monitoring", "i", &result, 1);
+            client->call("one.hostpool.monitoring", "i", &result, 0);
 
             return 0;
         }

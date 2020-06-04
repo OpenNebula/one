@@ -512,19 +512,27 @@ void VirtualMachinePoolMonitoring::request_execute(
     if (paramList.size() > 2)
     {
         ostringstream oss;
-        int num_rows = xmlrpc_c::value_int(paramList.getInt(2));
+        int s = xmlrpc_c::value_int(paramList.getInt(2));
 
-        oss << one_db::vm_monitor_table << ".last_poll in "
-            << "(select last_poll from " << one_db::vm_monitor_table << " as t "
-            << "where t.vmid = " << one_db::vm_monitor_table << ".vmid "
-            << "ORDER by last_poll DESC";
-
-        if (num_rows != -1)
+        switch (s)
         {
-            oss << " LIMIT " << num_rows << ")";
-        }
+            case 0: //Get last monitor value
+                oss << one_db::vm_monitor_table << ".last_poll = "
+                    <<  "(SELECT MAX(last_poll) FROM " << one_db::vm_monitor_table
+                    << " AS t WHERE t.vmid = " << one_db::vm_monitor_table << ".vmid)";
 
-        and_clause = oss.str();
+                and_clause = oss.str();
+                break;
+
+            case -1: //Get all monitoring
+                and_clause = "";
+                break;
+
+            default: //Get monitor in last s seconds
+                oss << one_db::vm_monitor_table << ".last_poll > " << time(nullptr) - s;
+                and_clause = oss.str();
+                break;
+        }
     }
 
     where_filter(att, filter_flag, -1, -1, and_clause, "", false, false, false, where);
@@ -718,17 +726,26 @@ void HostPoolMonitoring::request_execute(
     if (paramList.size() > 1)
     {
         ostringstream oss;
-        int num_rows = xmlrpc_c::value_int(paramList.getInt(1));
+        int s = xmlrpc_c::value_int(paramList.getInt(1));
 
-        oss << one_db::host_monitor_table << ".last_mon_time in "
-            << "(select last_mon_time "
-            << "from " << one_db::host_monitor_table << " as t "
-            << "where t.hid = " << one_db::host_monitor_table << ".hid "
-            << "ORDER by last_mon_time DESC";
-
-        if (num_rows != -1)
+        switch (s)
         {
-            oss << " LIMIT " << num_rows << ")";
+            case 0: //Get last monitor value
+                oss << one_db::host_monitor_table << ".last_mon_time = "
+                    <<  "(SELECT MAX(last_mon_time) FROM " << one_db::host_monitor_table
+                    << " AS t WHERE t.hid = " << one_db::host_monitor_table << ".hid)";
+
+                and_clause = oss.str();
+                break;
+
+            case -1: //Get all monitoring
+                and_clause = "";
+                break;
+
+            default: //Get monitor in last s seconds
+                oss << one_db::host_monitor_table << ".last_mon_time > " << time(nullptr) - s;
+                and_clause = oss.str();
+                break;
         }
 
         and_clause = oss.str();

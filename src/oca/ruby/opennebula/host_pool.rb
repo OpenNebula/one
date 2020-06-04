@@ -99,8 +99,8 @@ module OpenNebula
 
         # Retrieves the monitoring data for all the Hosts in the pool, in XML
         #
-        # @param [Integer] num Optional number of monitoring records to be
-        #   retrieved. If nill all records are retrieved
+        # @param [Integer] num Optional Retrieve monitor records in the last num
+        #   seconds. 0 just the last record, -1 or nil all records
         #
         # @return [String] VM monitoring data, in XML
         def monitoring_xml(num = nil)
