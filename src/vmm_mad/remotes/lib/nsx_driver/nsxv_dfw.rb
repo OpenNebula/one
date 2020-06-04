@@ -106,7 +106,8 @@ module NSXDriver
                 stateless=\"false\" tcpStrict=\"true\" useSid=\"false\">\
                 </section>"
 
-            section = @nsx_client.post(@url_sections, section_spec)
+            section = Nokogiri::XML @nsx_client
+                      .post(@url_sections, section_spec)
             section_id = section.xpath('//section/@id').text
             result = section_by_id(section_id)
             raise 'Section was not created in DFW' unless result
