@@ -388,6 +388,7 @@ void OpenNebulaTemplate::set_conf_default()
 
     //DB CONFIGURATION
     vvalue.insert(make_pair("BACKEND","sqlite"));
+    vvalue.insert(make_pair("TIMEOUT","2500"));
 
     vattribute = new VectorAttribute("DB",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));
