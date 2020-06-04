@@ -1,27 +1,27 @@
 package service
 
 import (
-	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+    "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
 // Pool represents an OpenNebula Service pool
 type Pool struct {
-	Services	[]Service `json:"DOCUMENT,omitempty"`
+    Services	[]Service `json:"DOCUMENT,omitempty"`
 }
 
 // Service represents an OpenNebula Service
 type Service struct {
-	ID          int                 `json:"ID,string"`
-	UID	        int                 `json:"UID,string"`
-	GID	        int                 `json:"GID,string"`
-	UName       string              `json:"UNAME"`
-	GName       string              `json:"GNAME"`
+    ID          int                 `json:"ID,string"`
+    UID	        int                 `json:"UID,string"`
+    GID	        int                 `json:"GID,string"`
+    UName       string              `json:"UNAME"`
+    GName       string              `json:"GNAME"`
     Name        string              `json:"NAME"`
     Permissions *shared.Permissions `json:"PERMISSIONS"`
-	Template struct {
-		Body struct	{
-			Deployment      string                   `json:"deployment,omitempty"`
-			Description     string                   `json:"description,omitempty"`
+    Template struct {
+        Body struct	{
+            Deployment      string                   `json:"deployment,omitempty"`
+            Description     string                   `json:"description,omitempty"`
             Roles		    []Role                   `json:"roles,omitempty"`
             Networks        map[string]string        `json:"networks,omitempty"`
             CustomAttrs     map[string]string        `json:"custom_attrs,omitempty"`
@@ -29,8 +29,8 @@ type Service struct {
             ReadyGate       bool                     `json:"ready_status_gate,omitempty"`
             NetworksVals    []map[string]interface{} `json:"networks_values,omitempty"`
             StateRaw        int                      `json:"state,omitempty"`
-		}`json:"BODY,omitempty"`
-	} `json:"TEMPLATE,omitempty"`
+        }`json:"BODY,omitempty"`
+    } `json:"TEMPLATE,omitempty"`
 }
 
 type Role struct {
