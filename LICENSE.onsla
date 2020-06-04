@@ -1,0 +1,58 @@
+OPENNEBULA SOFTWARE LICENSE AGREEMENT
+
+JUNE 2020 - REV20200602
+
+This Software License Agreement (“Agreement“), is a binding agreement between OpenNebula Systems (“OpenNebula”), and the Customer (“Licensee”) accessing and otherwise using this software in source or binary form and its associated documentation (“Product”).
+
+LICENSOR PROVIDES THE SOFTWARE SOLELY ON THE TERMS AND CONDITIONS SET FORTH IN THIS AGREEMENT AND ON THE CONDITION THAT YOU ACCEPT THEM. BY DOWNLOADING OR USING THE SOFTWARE YOU (A) ACCEPT THIS AGREEMENT AND AGREE TO BE LEGALLY BOUND BY ITS TERMS; AND (B) REPRESENT AND WARRANT THAT YOU HAVE THE LEGAL CAPACITY TO ENTER INTO A BINDING AGREEMENT. IF YOU DO NOT AGREE TO THE TERMS OF THIS AGREEMENT, YOU MUST NOT INSTALL OR USE THE SOFTWARE.
+
+Definitions
+
+“Partner” means an authorized OpenNebula partner to resell OpenNebula Support Subscriptions or distribute OpenNebula as part of an Integrated Solution as permitted in a current Partner Agreement.
+
+“Product” covered under this License Agreement includes without limitation, all object code, source code, help files, publications, documentation and other programs, products or tools owned by OpenNebula that are available for download as from the OpenNebula Enterprise Repository.
+
+“Proof of Authorization” for the Product is the written and signed Support Subscription Agreement between the Licensee and OpenNebula, or between the Licensee and a Partner, providing evidence of the extent of authorizations the Licensee has acquired to use the Product.
+
+1. License Grant and Scope
+
+Subject to the terms and conditions of this License Agreement, OpenNebula hereby grants Licensee a non-exclusive, non-transferable license to use and distribute the Product to the extent of authorizations Licensee has acquired through Proof of Authorization. Licensee shall reproduce this License Agreement and any other legends of ownership on each copy, or partial copy, of the Product. Licensee will ensure that anyone who uses the Product does so only in compliance with the terms of this License Agreement. Licensee shall not
+
+Use, copy, install, compile, modify or distribute the Product except as provided in the Proof of Authorization
+Copy Product onto any public or distributed network or otherwise distribute or disclose Product to any third parties; or change any proprietary rights notices which appear in Product
+Rent, sublicense or lease the Product.
+2. Authorizations
+
+The extent of authorization depends on the ownership of a Proof of Authorization for the Product. Only Customers with an active Support Subscription are authorized to use the Product. Usage of the Product for any other purpose not explicitly covered by this License Agreement or granted by the Proof of Authorization is not permitted and requires the written prior permission from OpenNebula.
+
+3. Support
+
+Support shall be subject to the terms of this Agreement and the terms of the Proof of Authorization for the Product.
+
+4. Disclaimer of Warranty
+
+SOFTWARE IS PROVIDED ON "AS IS" BASIS, WITHOUT ANY WARRANTIES OF ANY KIND, INCLUDING, BUT NOT LIMITED TO, WARRANTIES CONCERNING THE INSTALLATION, USE OR PERFORMANCE OF PRODUCT. OPENNEBULA AND ITS SUPPLIERS DISCLAIM ANY AND ALL WARRANTIES, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY OF MERCHANTABILITY FITNESS FOR A PARTICULAR PURPOSE AND/OR NON-INFRINGEMENT. OPENNEBULA AND ITS SUPPLIERS DO NOT WARRANT THAT PRODUCT WILL MEET USER'S REQUIREMENTS OR THAT THE OPERATION THEREOF WILL BE UNINTERRUPTED OR ERROR-FREE, OR THAT ERRORS WILL BE CORRECTED. YOU ARE SOLELY RESPONSIBLE FOR DETERMINING THE APPROPRIATENESS OF USING THE WORK AND ASSUME ANY RISKS ASSOCIATED WITH YOUR EXERCISE OF PERMISSIONS UNDER THIS LICENSE.
+
+5. Limitation of Liability
+
+TO THE FULLEST EXTENT PERMITTED UNDER APPLICABLE LAW: IN NO EVENT WILL OPENNEBULA OR ITS AFFILIATES, OR ANY OF ITS OR THEIR RESPECTIVE LICENSORS OR SERVICE PROVIDERS, BE LIABLE TO YOU FOR ANY CONSEQUENTIAL, INCIDENTAL, INDIRECT, EXEMPLARY, SPECIAL, OR PUNITIVE DAMAGES, WHETHER ARISING OUT OF OR IN CONNECTION WITH THIS AGREEMENT, BREACH OF CONTRACT, TORT (INCLUDING NEGLIGENCE), OR OTHERWISE, REGARDLESS OF WHETHER SUCH DAMAGES WERE FORESEEABLE AND WHETHER OR NOT OPENNEBULA WAS ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. YOU MAY HAVE ADDITIONAL RIGHTS THAT VARY FROM STATE TO STATE.
+
+6. Indemnification
+
+Licensee hereby agrees to indemnify OpenNebula against and hold harmless OpenNebula from any claims, lawsuits or other losses that arise out of Licensee’s breach of any provision of this License Agreement.
+
+7. Third Party Rights
+
+Any software or documentation in source or binary form provided along with the Product that is associated with a separate license agreement is licensed to Licensee under the terms of that license agreement.
+
+8. Intellectual Property
+
+ONS will retain exclusive interest in and ownership of its Intellectual Property rights in and to the Product and expressly reserves all rights not expressly granted under this agreement.
+
+9. General Nothing
+
+in this License Agreement affects any statutory rights of consumers that cannot be waived or limited by contract. Nothing in this License Agreement shall be deemed to create any relationship of agency, partnership, or joint venture between OpenNebula and Licensee. If any provision of this License Agreement shall be unlawful, void, or for any reason unenforceable, such provision shall be modified to the extent necessary to render it enforceable without losing its intent, or, if no such modification is possible, be severed from this License Agreement and shall not affect the validity and enforceability of the remaining provisions of this License Agreement. This License Agreement does not grant permission to useOpenNebula trademarks or trade names in a trademark sense to endorse or promote products or services of Licensee, or any third party. The controlling language of this License Agreement is English. If Licensee has received a translation into another language, it has been provided for Licensee’s convenience only.
+
+10. Agreement
+
+By downloading, copying, installing, distributing or otherwise using the Product, Licensee agrees to be bound by the terms and conditions of this License Agreement.
