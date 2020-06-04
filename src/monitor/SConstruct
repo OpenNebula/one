@@ -33,6 +33,9 @@ env.Append(LIBPATH=[
     cwd+'/src/monitor'
 ])
 
+if env['enterprise']=='yes':
+    env.Append(CPPDEFINES=['ENTERPRISE'])
+
 ################################################################################
 # SCONS scripts to build
 ################################################################################

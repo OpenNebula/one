@@ -22,12 +22,26 @@
 
 using namespace std;
 
-static void print_license()
+static void print_license(bool enterprise)
 {
-    cout<< "Copyright 2002-2020, OpenNebula Project, OpenNebula Systems        \n\n"
-        << Nebula::version() << " is distributed and licensed for use under the"
-        << " terms of the\nApache License, Version 2.0 "
-        << "(http://www.apache.org/licenses/LICENSE-2.0).\n";
+    ostringstream oss;
+
+    oss << Nebula::version();
+
+    if (enterprise) {
+        oss << " Enterprise Edition \n";
+    } else {
+        oss << "\n";
+    }
+
+    oss << "Copyright 2002-2020, OpenNebula Project, OpenNebula Systems \n\n"
+        << "Licensed under the Apache License, Version 2.0 "
+        << "(the \"License\"); you may \nnot use this file "
+        << "except in compliance with the License. You may obtain\n"
+        << "a copy of the License at "
+        << "http://www.apache.org/licenses/LICENSE-2.0\n";
+
+    cout << oss.str();
 }
 
 static void print_usage(ostream& str)
@@ -91,7 +105,11 @@ int main(int argc, char **argv)
             switch(opt)
             {
                 case 'v':
-                    print_license();
+                    #ifdef ENTERPRISE
+                    print_license(true);
+                    #else
+                    print_license(false);
+                    #endif
                     exit(0);
                     break;
                 case 'h':
