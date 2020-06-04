@@ -389,6 +389,7 @@ void Nebula::start(bool bootstrap_only)
         string db_name;
         string encoding;
         string compare_binary;
+        int    timeout;
         int    connections;
 
         const VectorAttribute * _db = nebula_configuration->get("DB");
@@ -404,12 +405,13 @@ void Nebula::start(bool bootstrap_only)
             _db->vector_value<string>("DB_NAME", db_name, "opennebula");
             _db->vector_value<string>("ENCODING", encoding, "");
             _db->vector_value<string>("COMPARE_BINARY", compare_binary, "NO");
+            _db->vector_value("TIMEOUT", timeout, 2500);
             _db->vector_value("CONNECTIONS", connections, 25);
         }
 
         if ( db_backend_type == "sqlite" )
         {
-            db_backend = new SqliteDB(var_location + "one.db");
+            db_backend = new SqliteDB(var_location + "one.db", timeout);
         }
         else if ( db_backend_type == "mysql" )
         {

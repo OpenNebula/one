@@ -39,7 +39,7 @@ extern "C" int sqlite_callback (
 
 /* -------------------------------------------------------------------------- */
 
-SqliteDB::SqliteDB(const string& db_name)
+SqliteDB::SqliteDB(const string& db_name, int timeout)
 {
     pthread_mutex_init(&mutex,0);
 
@@ -59,6 +59,8 @@ SqliteDB::SqliteDB(const string& db_name)
     }
 
     sqlite3_extended_result_codes(db, 1);
+
+    sqlite3_busy_timeout(db, timeout);
 
     features = {
         {SqlFeature::MULTIPLE_VALUE, false},
@@ -87,7 +89,6 @@ int SqliteDB::exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
     const char * c_str;
     string       str;
 
-    int    counter = 0;
     char * err_msg = 0;
 
     int   (*callback)(void*,int,char**,char**);
@@ -110,22 +111,7 @@ int SqliteDB::exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
 
     lock();
 
-    do
-    {
-        counter++;
-
-        rc = sqlite3_exec(db, c_str, callback, arg, &err_msg);
-
-        if (rc == SQLITE_BUSY || rc == SQLITE_IOERR)
-        {
-            struct timeval timeout;
-
-            timeout.tv_sec  = 0;
-            timeout.tv_usec = 250000;
-
-            select(0, NULL, NULL, NULL, &timeout);
-        }
-    }while((rc == SQLITE_BUSY || rc == SQLITE_IOERR) && (counter < 10));
+    rc = sqlite3_exec(db, c_str, callback, arg, &err_msg);
 
     if (obj != 0 && obj->get_affected_rows() == 0)
     {
