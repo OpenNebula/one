@@ -555,12 +555,12 @@ define(function(require) {
         if(
           vmgroup && 
           vmgroup.VM_GROUP && 
-          vmgroup.VM_GROUP.GNAME && 
+          vmgroup.VM_GROUP.NAME && 
           vmgroup.VM_GROUP.ID &&
-          vmgroup.VM_GROUP.TEMPLATE &&
-          typeof vmgroup.VM_GROUP.TEMPLATE.DESCRIPTION !== 'undefined'
+          vmgroup.VM_GROUP.TEMPLATE
         ){
-          options += "<option value='"+vmgroup.VM_GROUP.ID+"'>"+vmgroup.VM_GROUP.GNAME+" ("+vmgroup.VM_GROUP.TEMPLATE.DESCRIPTION+")</option>"
+          vmGroupDescription = vmgroup.VM_GROUP.TEMPLATE.DESCRIPTION? "("+vmgroup.VM_GROUP.TEMPLATE.DESCRIPTION+")": "";
+          options += "<option value='"+vmgroup.VM_GROUP.ID+"'>"+vmgroup.VM_GROUP.NAME+vmGroupDescription+"</option>"
         }
       });
 
