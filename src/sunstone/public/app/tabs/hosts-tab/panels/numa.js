@@ -95,8 +95,6 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
-    console.log(that);
-
     // Hide NUMA tab if hypervisor is vcenter
     if( that.element &&
         that.element.VM_MAD &&
