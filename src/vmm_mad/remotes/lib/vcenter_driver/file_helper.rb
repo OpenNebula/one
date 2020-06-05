@@ -173,7 +173,7 @@ class FileHelper
             file_to_download = file.split(" ")[3][1..-2]
             files_to_download << file_to_download
             image_path = File.dirname(descriptor_url.host+descriptor_url.path)
-            if ds.is_descriptor?(image_path + "/" + file_to_download)
+            if ds.descriptor?(image_path + "/" + file_to_download)
                 files_to_download << download_all_filenames_in_descriptor(image_path + "/" + file_to_download)
             end
         end
@@ -197,7 +197,7 @@ class FileHelper
     # related files, creates a tar.gz and dumps it in stdout
     def self.dump_vmdk_tar_gz(vcenter_url, ds)
         image_source = vcenter_url.host + vcenter_url.path
-        if ds.is_descriptor?(image_source)
+        if ds.descriptor?(image_source)
             files_to_download = self.get_all_filenames_in_descriptor(vcenter_url, ds)
 
             descriptor_name = File.basename vcenter_url.path

@@ -258,8 +258,18 @@ class Template
                     break
                 end
 
-                opts = {:persistent => vm? ? "YES":"NO"}
-                image_import, image_name = VCenterDriver::Datastore.get_image_import_template(disk, ipool, type, datastore_found["ID"], opts, images)
+                params = {
+                    :disk => disk,
+                    :ipool => ipool,
+                    :_type => type,
+                    :ds_id => datastore_found["ID"],
+                    :opts => {
+                        :persistent => vm? ? "YES":"NO"
+                    },
+                    :images => images
+                }
+
+                image_import, image_name = VCenterDriver::Datastore.get_image_import_template(params)
                 #Image is already in the datastore
                 if image_import[:one]
                     # This is the disk info
@@ -700,7 +710,7 @@ class Template
         @item["config.hardware.device"].each do |device|
             disk = {}
 
-            if is_disk_or_iso?(device)
+            if disk_or_iso?(device)
                 disk[:device]    = device
                 if device.controllerKey == controller_key &&
                    device.unitNumber == unit_number
@@ -740,7 +750,7 @@ class Template
                 controller[device.key] = "scsi#{device.busNumber}"
             end
 
-            if is_disk_or_iso?(device)
+            if disk_or_iso?(device)
                 disk[:device]    = device
 
                 raise "datastore not found for VM's device" unless device.backing.datastore
@@ -970,7 +980,7 @@ class Template
     end
 
     #  Checks if a RbVmomi::VIM::VirtualDevice is a disk or an iso file
-    def is_disk_or_iso?(device)
+    def disk_or_iso?(device)
         is_disk  = !(device.class.ancestors.index(RbVmomi::VIM::VirtualDisk)).nil?
         is_iso = device.backing.is_a? RbVmomi::VIM::VirtualCdromIsoBackingInfo
         is_disk || is_iso
