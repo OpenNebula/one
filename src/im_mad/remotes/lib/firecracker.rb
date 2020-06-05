@@ -59,6 +59,9 @@ module Firecracker
 
         # Read metrics
         metrics_f = File.read(metrics_path).split("\n")[-1]
+
+        return if metrics_f.nil?
+
         metrics_f.tr!("\u0000", '')
 
         JSON.parse(metrics_f)
