@@ -136,7 +136,7 @@ UserPool::UserPool(SqlDB * db, time_t __session_expiration_time, bool is_slave,
 
         if ( stat(filenames[i].c_str(), &file_stat) == 0 )
         {
-            goto erro_exists;
+            goto error_exists;
         }
 
         int cfile = creat(filenames[i].c_str(), S_IRUSR | S_IWUSR);
@@ -204,7 +204,7 @@ error_no_open:
     oss << "Could not create configuration file "<< filenames[i];
     goto error_common;
 
-erro_exists:
+error_exists:
     oss << "Password file " << filenames[i] << " already exists "
         << "but OpenNebula is boostraping the database. Check your "
         << "database configuration in oned.conf.";
