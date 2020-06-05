@@ -1,0 +1,19 @@
+---
+
+# Install qemu-ev on CentOS
+opennebula_node_kvm_use_ev: true
+
+# Create bridge with tap0 bridge port
+bridged_networking_iface: tap0
+
+# Tap0 is already managed by tuntap role
+bridged_networking_iface_manage: false
+
+# Configure static IP on bridge, works as gateway
+bridged_networking_static_ip: 192.168.150.1
+
+# Enable Masquerade
+iptables_masquerade_enabled: true
+
+# Disable iptables strict rules which drop all not matching the base rules
+iptables_base_rules_strict: false
