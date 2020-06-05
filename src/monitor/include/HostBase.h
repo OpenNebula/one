@@ -84,12 +84,22 @@ public:
     };
 
     time_t last_monitored() const { return _last_monitored; }
-
     void last_monitored(time_t lm) { _last_monitored = lm; }
 
     bool monitor_in_progress() const { return _monitor_in_progress; }
-
     void monitor_in_progress(bool mip) { _monitor_in_progress = mip; }
+
+    time_t last_state_vm() const { return _last_state_vm; }
+    void last_state_vm(time_t lsv) { _last_state_vm = lsv; }
+
+    time_t last_monitor_vm() const { return _last_monitor_vm; }
+    void last_monitor_vm(time_t lmv) { _last_monitor_vm = lmv; }
+
+    time_t last_monitor_host() const { return _last_monitor_host; }
+    void last_monitor_host(time_t lmh) { _last_monitor_host = lmh; }
+
+    time_t last_system_host() const { return _last_system_host; }
+    void last_system_host(time_t lsh) { _last_system_host = lsh; }
 
     /**
      *  Prints the Host information to an output stream. This function is used
@@ -111,6 +121,12 @@ private:
 
     time_t _last_monitored  = 0;
     bool   _monitor_in_progress = false;
+
+    time_t _last_state_vm     = 0;
+    time_t _last_monitor_vm   = 0;
+
+    time_t _last_monitor_host = 0;
+    time_t _last_system_host  = 0;
 };
 
 #endif // HOST_BASE_H_

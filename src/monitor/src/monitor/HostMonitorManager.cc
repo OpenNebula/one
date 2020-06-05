@@ -251,6 +251,7 @@ void HostMonitorManager::monitor_host(int oid, const Template &tmpl)
         return;
     }
 
+
     HostMonitoringTemplate monitoring;
 
     monitoring.oid(oid);
@@ -569,4 +570,78 @@ void HostMonitorManager::error_monitor(int oid, const string& msg)
     oss << Host::state_to_str(Host::ERROR) << " " << msg;
 
     oned_driver->host_state(oid, oss.str());
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool HostMonitorManager::test_set_timestamp(MonitorDriverMessages type, int oid,
+        time_t ts) const
+{
+    time_t last_ts;
+
+    if (ts == 0)
+    {
+        return true;
+    }
+
+    auto host = hpool->get(oid);
+
+    if (!host.valid())
+    {
+        NebulaLog::warn("HMM", "message ignored for unknown host "
+            + to_string(oid));
+        return false;
+    }
+
+    switch(type)
+    {
+        case MonitorDriverMessages::MONITOR_VM:
+            last_ts = host->last_monitor_vm();
+            break;
+        case MonitorDriverMessages::SYSTEM_HOST:
+            last_ts = host->last_system_host();
+            break;
+
+        case MonitorDriverMessages::STATE_VM:
+            last_ts = host->last_state_vm();
+            break;
+
+        case MonitorDriverMessages::MONITOR_HOST:
+            last_ts = host->last_monitor_host();
+            break;
+
+        default:
+            return true;
+    }
+
+    if ( last_ts > ts )
+    {
+        NebulaLog::warn("HMM", "out of order message ignored for host "
+            + to_string(oid));
+        return false;
+    }
+
+    switch(type)
+    {
+        case MonitorDriverMessages::MONITOR_VM:
+            host->last_monitor_vm(ts);
+            break;
+        case MonitorDriverMessages::SYSTEM_HOST:
+            host->last_system_host(ts);
+            break;
+
+        case MonitorDriverMessages::STATE_VM:
+            host->last_state_vm(ts);
+            break;
+
+        case MonitorDriverMessages::MONITOR_HOST:
+            host->last_monitor_host(ts);
+            break;
+
+        default:
+            break;
+    }
+
+    return true;
 }

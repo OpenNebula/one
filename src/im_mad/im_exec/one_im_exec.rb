@@ -56,12 +56,14 @@ class InformationManagerDriver < OpenNebulaDriver
 
         @hypervisor = hypervisor
 
+        @stdout_mutex = Mutex.new
+
         # register actions
         register_action(:START_MONITOR, method('start_monitor'))
         register_action(:STOP_MONITOR, method('stop_monitor'))
     end
 
-    def start_monitor(_not_used, _hostid, zaction64)
+    def start_monitor(_not_used, _hostid, _timestamp, zaction64)
         rc, input = parse_input(:START_MONITOR, zaction64)
 
         return if rc == -1
@@ -73,29 +75,31 @@ class InformationManagerDriver < OpenNebulaDriver
             return if rc == -1
         end
 
-        do_action(input[:im_mad],
+        result, info = do_action(input[:im_mad],
                   input[:host_id],
                   input[:hostname],
                   :START_MONITOR,
-                  :stdin => input[:stdin],
+                  :stdin       => input[:stdin],
                   :script_name => 'run_monitord_client',
-                  :zip => true,
-                  :base64 => true)
+                  :respond     => false)
+
+        write_respond(:START_MONITOR, result, input[:host_id], info)
     end
 
-    def stop_monitor(_not_used, _hostid, zaction64)
+    def stop_monitor(_not_used, _hostid, _timestamp, zaction64)
         rc, input = parse_input(:STOP_MONITOR, zaction64)
 
         return if rc == -1
 
-        do_action(input[:im_mad],
+        result, info = do_action(input[:im_mad],
                   input[:host_id],
                   input[:hostname],
                   :STOP_MONITOR,
                   :script_name => 'stop_monitord_client',
-                  :stdin => input[:stdin],
-                  :zip => true,
-                  :base64 => true)
+                  :stdin       => input[:stdin],
+                  :respond     => false)
+
+        write_respond(:STOP_MONITOR, result, input[:host_id], info)
     end
 
     private
@@ -212,6 +216,15 @@ class InformationManagerDriver < OpenNebulaDriver
         end
     end
 
+    def write_respond(action="-", result=RESULT[:failure], id="-", info="-")
+        info = Zlib::Deflate.deflate(info, Zlib::BEST_COMPRESSION)
+        info = Base64.strict_encode64(info)
+
+        @stdout_mutex.synchronize {
+            STDOUT.puts "#{action} #{result} #{id} #{Time.now.to_i} #{info}"
+            STDOUT.flush
+        }
+    end
 end
 
 # Information Manager main program

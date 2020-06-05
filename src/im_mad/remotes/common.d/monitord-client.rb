@@ -104,7 +104,9 @@ class ProbeRunner
             return rc, ret if rc == -1
         end
 
-        ret+='</MONITOR_MESSAGES>'
+        ret += "<TIMESTAMP>#{Time.now.to_i}</TIMESTAMP>"
+
+        ret += '</MONITOR_MESSAGES>'
 
         [rc, ret]
     end
