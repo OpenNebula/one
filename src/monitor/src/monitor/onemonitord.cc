@@ -24,10 +24,24 @@ using namespace std;
 
 static void print_license()
 {
-    cout<< "Copyright 2002-2020, OpenNebula Project, OpenNebula Systems        \n\n"
-        << Nebula::version() << " is distributed and licensed for use under the"
-        << " terms of the\nApache License, Version 2.0 "
-        << "(http://www.apache.org/licenses/LICENSE-2.0).\n";
+    ostringstream oss;
+
+    oss << Nebula::version();
+
+#ifdef ENTERPRISE
+    oss << " Enterprise Edition \n";
+#else
+    oss << "\n";
+#endif
+
+    oss << "Copyright 2002-2020, OpenNebula Project, OpenNebula Systems \n\n"
+        << "Licensed under the Apache License, Version 2.0 "
+        << "(the \"License\"); you may \nnot use this file "
+        << "except in compliance with the License. You may obtain\n"
+        << "a copy of the License at "
+        << "http://www.apache.org/licenses/LICENSE-2.0\n";
+
+    cout << oss.str();
 }
 
 static void print_usage(ostream& str)
