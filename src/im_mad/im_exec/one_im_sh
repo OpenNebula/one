@@ -39,7 +39,7 @@ if [ "${BASH_ARGV##* }" = "vcenter" ]; then
     VMON_PATH="$VAR_LOCATION/remotes/im/lib/vcenter_monitor.rb"
 
     # Sanitize previous instances
-    VMON_PIDS=$(ps axuww | grep "ruby $VMON_PATH" | grep -v grep | awk '{print $2}')
+    VMON_PIDS=$(ps axuww | grep "ruby[^ ]* $VMON_PATH" | grep -v grep | awk '{print $2}')
 
     if [ -n "$VMON_PIDS" ]; then
         kill $VMON_PIDS
@@ -54,7 +54,7 @@ if [ "${BASH_ARGV##* }" = "vcenter" ]; then
 
     sleep 3
 
-    VMON_PIDS=$(ps axuww | grep "ruby $VMON_PATH" | grep -v grep | awk '{print $2}')
+    VMON_PIDS=$(ps axuww | grep "ruby[^ ]* $VMON_PATH" | grep -v grep | awk '{print $2}')
 
     if [ -z "$VMON_PIDS" ]; then
         echo "Cannot start vcenter_monitor service"
