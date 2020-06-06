@@ -85,7 +85,7 @@ class Template
         @item.Destroy_Task.wait_for_completion
     end
 
-    def get_vcenter_instance_uuid
+    def vcenter_instance_uuid
         @vi_client.vim.serviceContent.about.instanceUuid rescue nil
     end
 
@@ -445,24 +445,6 @@ class Template
         return ipv4, ipv6
     end
 
-    # Get vSwitch of Standard PortGroup
-    # If there is differents vSwitches returns the first.
-    def vSwitch(vc_pg)
-        vswitch = []
-        vc_hosts = vc_pg.host
-        vc_hosts.each do |vc_host|
-            host_pgs = vc_host.configManager.networkSystem.networkInfo.portgroup rescue []
-            host_pgs.each do |pg|
-                if vc_pg.name == pg.spec.name
-                    vswitch << pg.spec.vswitchName
-                end
-            end
-        end
-        vswitch.uniq!
-        vswitch << 'Invalid configuration' if vswitch.length > 1
-        vswitch.join(" / ")
-    end
-
     def import_vcenter_nics(vi_client, vc_uuid, npool, hpool, vcenter_instance_name,
                             template_ref, vm_object, vm_id=nil, dc_name=nil)
         nic_info = ''
@@ -584,7 +566,7 @@ class Template
                         # There is no uplinks for standard portgroups, so all Standard
                         # PortGroups are networks and no uplinks
                         config[:uplink] = false
-                        config[:sw_name] = vSwitch(nic[:network])
+                        config[:sw_name] = VCenterDriver::Network.virtual_switch(nic[:network])
                     # NSX-T PortGroups
                     when VCenterDriver::Network::NETWORK_TYPE_NSXT
                         config[:sw_name] = \

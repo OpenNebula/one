@@ -219,7 +219,7 @@ module VCenterDriver
             vm_ref = self['_ref']
             return nil if !vm_ref
 
-            vc_uuid = get_vcenter_instance_uuid
+            vc_uuid = vcenter_instance_uuid
 
             one_vm = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualMachinePool,
                                                         "DEPLOY_ID",
@@ -232,7 +232,7 @@ module VCenterDriver
             return @vm_id
         end
 
-        def get_vcenter_instance_uuid
+        def vcenter_instance_uuid
             @vi_client.vim.serviceContent.about.instanceUuid
         end
 

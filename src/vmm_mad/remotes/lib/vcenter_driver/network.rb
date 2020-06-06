@@ -325,6 +325,28 @@ module VCenterDriver
             end
         end
 
+        # Get vSwitch of Standard PortGroup
+        # If there is differents vSwitches returns the first.
+        def self.virtual_switch(vc_pg)
+            vswitch = []
+            vc_hosts = vc_pg.host
+            vc_hosts.each do |vc_host|
+                host_pgs = vc_host
+                           .configManager
+                           .networkSystem
+                           .networkInfo
+                           .portgroup
+                host_pgs.each do |pg|
+                    if vc_pg.name == pg.spec.name
+                        vswitch << pg.spec.vswitchName
+                    end
+                end
+            end
+            vswitch.uniq!
+            vswitch << 'Invalid configuration' if vswitch.length > 1
+            vswitch.join(' / ')
+        end
+
         def self.remove_net_ref(network_id)
             one_vnet = VCenterDriver::VIHelper
                        .one_item(
