@@ -226,8 +226,16 @@ class EventManager
         subscriber = gen_subscriber
 
         rc_nodes = { :successful => [], :failure => [] }
+        rc       = check_nodes(nodes, state, lcm_state, subscriber)
 
-        return [true, rc_nodes] if nodes.empty?
+        rc_nodes[:successful].concat(rc[:successful])
+        rc_nodes[:failure].concat(rc[:failure])
+
+        if nodes.empty? && rc_nodes[:failure].empty?
+            subscriber.close
+
+            return [true, rc_nodes]
+        end
 
         nodes.each do |node|
             subscribe(node, state, lcm_state, subscriber)
@@ -277,11 +285,15 @@ class EventManager
     end
 
     def wait_report_ready(nodes)
-        subscriber = gen_subscriber
-
         rc_nodes = { :successful => [], :failure => [] }
+        rc       = check_nodes_report(nodes)
 
-        return [true, rc_nodes] if nodes.empty?
+        rc_nodes[:successful].concat(rc[:successful])
+        rc_nodes[:failure].concat(rc[:failure])
+
+        return [true, rc_nodes] if nodes.empty? && rc_nodes[:failure].empty?
+
+        subscriber = gen_subscriber
 
         subscriber.setsockopt(ZMQ::SUBSCRIBE, 'EVENT API one.vm.update 1')
 
@@ -392,7 +404,8 @@ class EventManager
 
             vm_lcm_state = OpenNebula::VirtualMachine::LCM_STATE[vm.lcm_state]
 
-            if vm['/VM/USER_TEMPLATE/READY'] == 'YES'
+            if vm['/VM/USER_TEMPLATE/READY'] &&
+               vm['/VM/USER_TEMPLATE/READY'].strip == 'YES'
                 rc_nodes[:successful] << node
 
                 next true
