@@ -42,7 +42,7 @@ if [ "${BASH_ARGV##* }" = "vcenter" ]; then
     VMON_PIDS=$(ps axuww | grep "ruby[^ ]* $VMON_PATH" | grep -v grep | awk '{print $2}')
 
     if [ -n "$VMON_PIDS" ]; then
-        kill $VMON_PIDS
+        kill -9 $VMON_PIDS
     fi
 
     # Create server FIFO
