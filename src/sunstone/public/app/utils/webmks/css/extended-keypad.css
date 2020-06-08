@@ -1,0 +1,314 @@
+/******************************************************************************
+ * Copyright 2013 VMware, Inc.  All rights reserved.
+ *****************************************************************************/
+
+/*
+ * extended-keypad.css
+ *
+ *     Defines style for the virtual keys on the control pane.
+ */
+
+.ctrl-pane-wrapper {
+   width: 290px !important; /* Needed as the default is a bit larger than this */
+   border: 1px solid #333 !important;
+   -moz-border-radius: 6px; -webkit-border-radius: 6px; -khtml-border-radius: 6px; border-radius: 6px;
+   background: rgb(170,171,182); /* Old browsers */
+   background: -webkit-linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* IE10+ */
+   background: linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* W3C */
+}
+
+.fnKey-pane-wrapper {
+   width: 427px;
+   border: 1px solid #333;
+   -moz-border-radius: 6px; -webkit-border-radius: 6px; -khtml-border-radius: 6px; border-radius: 6px;
+   background: #c1c4d1; /* Old browsers */
+   background: -webkit-linear-gradient(top, #c1c4d1 0%,#b0b1bd 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, #c1c4d1 0%,#b0b1bd 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, #c1c4d1 0%,#b0b1bd 100%); /* IE10+ */
+   background: linear-gradient(top, #c1c4d1 0%, #b0b1bd 100%); /* W3C */
+   position: absolute;
+   padding: 0;
+   -moz-box-shadow: 0px 5px 7px    rgba(0,0,0,.5);
+   -webkit-box-shadow: 0px 5px 7px rgba(0,0,0,.5);
+   box-shadow: 0px 5px 7px         rgba(0,0,0,.5);
+}
+
+.fnKey-pane-wrapper-down {
+   width: 427px;
+   border: 1px solid #333;
+   -moz-border-radius: 6px; -webkit-border-radius: 6px; -khtml-border-radius: 6px; border-radius: 6px;
+   background: #6e6e77; /* Old browsers */
+   background: -webkit-linear-gradient(top,  #6e6e77 0%,#656565 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top,  #6e6e77 0%,#656565 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top,  #6e6e77 0%,#656565 100%); /* IE10+ */
+   background: linear-gradient(top, #6e6e77 0%, #656565 100%); /* W3C */
+   position: absolute;
+   padding: 0;
+   -moz-box-shadow: 0px 5px 7px    rgba(0,0,0,.5);
+   -webkit-box-shadow: 0px 5px 7px rgba(0,0,0,.5);
+   box-shadow: 0px 5px 7px         rgba(0,0,0,.5);
+}
+
+/* Hide jquery ui title bar. */
+.ctrl-pane-wrapper .ui-dialog-titlebar {
+   border-top: 1px solid #ccc;
+   border-left: 1px solid #aaa;
+   border-right: 1px solid #aaa;
+   border-bottom: 0;
+   padding: .6em .8em 0 .8em;
+   background: none !important;
+   -moz-border-radius-topleft: 5px; -webkit-border-top-left-radius: 5px; -khtml-border-top-left-radius: 5px; border-top-left-radius: 5px;
+   -moz-border-radius-topright: 5px; -webkit-border-top-right-radius: 5px; -khtml-border-top-right-radius: 5px; border-top-right-radius: 5px;
+}
+
+/* Replace jquery ui title bar close icon. */
+.ctrl-pane-wrapper .ui-dialog-titlebar-close {
+   margin-top: -9px;
+   border: 0 !important;
+   background: none !important;
+}
+
+/* Background-image is defined along with touch-sprite in 1 place. */
+.ctrl-pane-wrapper .ui-dialog-titlebar-close .ui-icon {
+   background-position: -9px -239px;
+   background-repeat: no-repeat;
+}
+
+.ctrl-pane-wrapper .ui-dialog-titlebar-close .ui-icon:active {
+   background-position-x: -24px;
+   background-repeat: no-repeat;
+}
+
+/* The grabber icon indicating the dialog could be moved around */
+.ctrl-pane-wrapper .ui-dialog-titlebar .ui-dialog-title {
+   background-position: -10px -255px;
+   background-repeat: no-repeat;
+   width: 40px;
+   height: 14px;
+   margin: 0 0 0 42%;
+}
+
+.ctrl-pane-wrapper .ui-dialog-titlebar .ui-dialog-title:active {
+   background-position-x: -52px;
+}
+
+.ctrl-pane-wrapper .ui-dialog-content {
+   background: none !important;
+   padding: 0 0;
+   border-style: solid;
+   border-color: #aaaaaa;
+   border-width: 0 1px 1px 1px;
+   -moz-border-radius-bottomleft: 5px; -webkit-border-bottom-left-radius: 5px; -khtml-border-bottom-left-radius: 5px; border-bottom-left-radius: 5px;
+   -moz-border-radius-bottomright: 5px; -webkit-border-bottom-right-radius: 5px; -khtml-border-bottom-right-radius: 5px; border-bottom-right-radius: 5px;
+}
+
+.fnKey-inner-border-helper {
+   position: relative;
+   background: none !important;
+   border-style: solid;
+   border-color: #d5d5d5;
+   border-width: 1px;
+   -moz-border-radius: 5px; -webkit-border-radius: 5px; -khtml-border-radius: 5px; border-radius: 5px;
+   pointer-events:none;
+}
+
+.ctrl-pane-wrapper .ctrl-pane {
+   padding: 3px 0 3px 6px;
+   height: 140px;
+   width: 280px;
+}
+
+.ctrl-pane .baseKey {
+   float: left;
+   border: 0;
+   padding: 0;
+   width: 57px;
+   height: 57px;
+   margin: 6px;
+   -moz-border-radius: 6px; -webkit-border-radius: 6px; -khtml-border-radius: 6px; border-radius: 6px;
+   font-family: "HelveticaNeue", "Helvetica Neue", "HelveticaNeue", "Helvetica Neue", 'TeXGyreHeros', "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
+   font-size: 18px;
+   text-shadow: 0 1px 1px #eeeeee;
+   -moz-box-shadow: 0px 1px 3px rgba(0, 0, 0, .7);
+   -webkit-box-shadow: 0px 1px 3px rgba(0,0,0,.7);
+   box-shadow: 0px 1px 3px         rgba(0,0,0,.7);
+}
+
+.ctrl-pane .ctrl-key-top-row {
+   background: -webkit-linear-gradient(top, #fff 0%,#f3f5fb 2%,#d2d2d8 98%,#999 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, #fff 0%,#f3f5fb 2%,#d2d2d8 98%,#999 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, #fff 0%,#f3f5fb 2%,#d2d2d8 98%,#999 100%); /* IE10+ */
+   background: linear-gradient(top, #fff 0%,#f3f5fb 2%,#d2d2d8 98%,#999 100%); /* W3C */
+}
+
+.ctrl-pane .ctrl-key-bottom-row {
+   background: -webkit-linear-gradient(top, #fff 0%,#e1e1e3 2%,#d1d1d4 50%,#bebec3 98%,#838387 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, #fff 0%,#e1e1e3 2%,#d1d1d4 50%,#bebec3 98%,#838387 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, #fff 0%,#e1e1e3 2%,#d1d1d4 50%,#bebec3 98%,#838387 100%); /* IE10+ */
+   background: linear-gradient(top, #fff 0%,#e1e1e3 2%,#d1d1d4 50%,#bebec3 98%,#838387 100%); /* W3C */
+}
+
+.ctrl-pane .up-position .fn-key-top-row {
+   color:#333;
+   background: #ffffff; /* Old browsers */
+   background: -webkit-linear-gradient(top, #ffffff 0%,#f7f7f7 2%,#dcdde3 96%,#999999 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, #ffffff 0%,#f7f7f7 2%,#dcdde3 96%,#999999 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, #ffffff 0%,#f7f7f7 2%,#dcdde3 96%,#999999 100%); /* IE10+ */
+   background: linear-gradient(top, #ffffff 0%,#f7f7f7 2%,#dcdde3 96%,#999999 100%); /* W3C */
+}
+
+.ctrl-pane .up-position .fn-key-bottom-row {
+   color:#333;
+   background: #ffffff; /* Old browsers */
+   background: -webkit-linear-gradient(top, #ffffff 0%,#f3f5fb 2%,#d2d2d8 98%,#999999 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, #ffffff 0%,#f3f5fb 2%,#d2d2d8 98%,#999999 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, #ffffff 0%,#f3f5fb 2%,#d2d2d8 98%,#999999 100%); /* IE10+ */
+   background: linear-gradient(top, #ffffff 0%,#f3f5fb 2%,#d2d2d8 98%,#999999 100%); /* W3C */
+}
+
+.ctrl-pane .down-position .fn-key-top-row {
+   color:#333;
+   background: #ffffff; /* Old browsers */
+   background: -webkit-linear-gradient(top, #ffffff 0%,#e1e1e3 4%,#d1d1d4 45%,#b7b8bd 98%,#838387 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, #ffffff 0%,#e1e1e3 4%,#d1d1d4 45%,#b7b8bd 98%,#838387 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, #ffffff 0%,#e1e1e3 4%,#d1d1d4 45%,#b7b8bd 98%,#838387 100%); /* IE10+ */
+   background: linear-gradient(top, #ffffff 0%,#e1e1e3 4%,#d1d1d4 45%,#b7b8bd 98%,#838387 100%); /* W3C */
+}
+
+.ctrl-pane .down-position .fn-key-bottom-row {
+   color:#333;
+   background: #ffffff; /* Old browsers */
+   background: -webkit-linear-gradient(top, #ffffff 0%,#d9dadd 4%,#c8c8cd 45%,#b0b0b7 98%,#838387 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, #ffffff 0%,#d9dadd 4%,#c8c8cd 45%,#b0b0b7 98%,#838387 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, #ffffff 0%,#d9dadd 4%,#c8c8cd 45%,#b0b0b7 98%,#838387 100%); /* IE10+ */
+   background: linear-gradient(top, #ffffff 0%,#d9dadd 4%,#c8c8cd 45%,#b0b0b7 98%,#838387 100%); /* W3C */
+}
+
+.ctrl-pane .fn-key-top-row {
+   margin: 12px 6px 6px 6px;
+}
+
+.ctrl-pane .border-key-top-left .fn-key-top-row {
+   margin: 12px 6px 6px 12px;
+}
+
+.ctrl-pane .border-key-top-right .fn-key-top-row {
+   margin: 12px 12px 6px 6px;
+}
+
+.ctrl-pane .fn-key-bottom-row {
+   margin: 5px 6px 12px 6px;
+}
+
+.ctrl-pane .border-key-bottom-left .fn-key-bottom-row {
+   margin: 5px 6px 12px 12px;
+}
+
+.ctrl-pane .border-key-bottom-right .fn-key-bottom-row {
+   margin: 5px 12px 12px 6px;
+}
+
+.ctrl-pane .ctrl-key-top-row:active, .ctrl-pane .fn-key-top-row:active,
+.ctrl-pane .ctrl-key-bottom-row:active, .ctrl-pane .fn-key-bottom-row:active {
+   background: #bbbbbb;
+   background: -webkit-linear-gradient(bottom, #888888 25%, #CCCCCC 68%);
+   background:     -ms-linear-gradient(bottom, #888888 25%, #CCCCCC 68%);
+   background:      -o-linear-gradient(bottom, #888888 25%, #CCCCCC 68%);
+   background:         linear-gradient(bottom, #888888 25%, #CCCCCC 68%);
+}
+
+.ctrl-pane .ctrl-key-top-row div, .ctrl-pane .ctrl-key-bottom-row div,
+.ctrl-pane .fn-key-top-row div, .ctrl-pane .fn-key-bottom-row div {
+   width: 100%;
+   text-align: center;
+   padding-top: 17px;
+   overflow-x: hidden;
+}
+
+/* Highlight selected modifier key */
+.ctrl-pane .ab-modifier-key-down {
+   color: #4D8DFF;
+}
+
+.ctrl-pane .baseKey img { /* use .touch-sprite for image */
+   background-repeat: no-repeat;
+   width: 57px;
+   height: 57px;
+   border: 0;
+   -moz-border-radius: 6px; -webkit-border-radius: 6px; -khtml-border-radius: 6px; border-radius: 6px;
+}
+
+.ctrl-pane .baseKey .right-arrow {
+   background-position: -242px -182px;
+}
+
+.ctrl-pane .baseKey .left-arrow {
+   background-position: -126px -182px;
+}
+
+.ctrl-pane .baseKey .up-arrow {
+   background-position: -299px -182px;
+}
+
+.ctrl-pane .baseKey .down-arrow {
+   background-position: -183px -182px;
+}
+
+.ctrl-pane .baseKey .more-keys {
+   background-position: -10px -182px;
+}
+
+/* Ctrl - pane flip transition. */
+.ctrl-pane.flip-container {
+   perspective: 1000;
+   -webkit-perspective: 1000;
+   -moz-perspective: 1000;
+   -ms-perspective: 1000;
+}
+
+  /* flip the ctrl-pane when this class toggles. */
+.flip-container.perform-flip .flipper {
+   transform: rotateY(180deg);
+   -webkit-transform: rotateY(180deg);
+   -moz-transform: rotateY(180deg);
+   -ms-transform: rotateY(180deg);
+}
+
+/* flip speed goes here */
+.flip-container .flipper {
+   transition: 0.6s;
+   transform-style: preserve-3d;
+   -webkit-transition: 0.6s;
+   -webkit-transform-style: preserve-3d;
+   -moz-transition: 0.6s;
+   -moz-transform-style: preserve-3d;
+   -ms-transition: 0.6s;
+   -ms-transform-style: preserve-3d;
+   position: relative;
+}
+
+/* hide back of pane during swap */
+.flip-container .front, .flip-container .back {
+   backface-visibility: hidden;
+   -webkit-backface-visibility: hidden;
+   -moz-backface-visibility: hidden;
+   -ms-backface-visibility: hidden;
+   position: absolute;
+   top: 0;
+   left: 0;
+}
+
+/* front pane, placed above back */
+.flip-container .front {
+   z-index: 200;
+}
+
+/* back, initially hidden pane */
+.flip-container .back {
+   transform: rotateY(180deg);
+   -webkit-transform: rotateY(180deg);
+   -moz-transform: rotateY(180deg);
+   -ms-transform: rotateY(180deg);
+}

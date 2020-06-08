@@ -71,6 +71,9 @@ require.config({
     "flot.time": "../bower_components/flot/jquery.flot.time",
     "flot.tooltip": "../bower_components/flot.tooltip/js/jquery.flot.tooltip",
 
+    /* WMKS */
+    "wmks" : "../bower_components/wmks/wmks.min",  
+
     /* VNC */
     "vnc-rfb": "../bower_components/no-vnc/lib/rfb",
 
@@ -119,6 +122,8 @@ require.config({
       deps: [
         "foundation",
         "jquery",
+        "jquery-ui",
+        "wmks",
         "tabs/provision-tab",
         "tabs/dashboard-tab",
         "tabs/system-top-tab",
@@ -166,6 +171,16 @@ require.config({
     /* jGrowl */
     "jgrowl": {
       deps: ["jquery"]
+    },
+
+    /* JQuery-UI */
+    "jquery-ui": {
+      deps: ["jquery"]
+    },
+
+    /* WMKS */
+    "wmks": {
+      deps: ["jquery", "jquery-ui"]
     },
 
     /* Foundation */

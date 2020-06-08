@@ -525,6 +525,27 @@ define(function(require) {
         }
       });
     },
+    "vmrc" : function(params, startstop) {
+      var callback = params.success;
+      var callback_error = params.error;
+      var id = params.data.id;
+      var resource = RESOURCE;
+
+      var method = startstop;
+      var request = OpenNebulaHelper.request(resource, method, params.data);
+      $.ajax({
+        url: "vm/" + id + "/startvnc",
+        type: "POST",
+        dataType: "json",
+        success: function(response) {
+          return callback ? callback(request, response) : null;
+        },
+        error: function(response) {
+          return callback_error ?
+              callback_error(request, OpenNebulaError(response)) : null;
+        }
+      });
+    },
     "append": function(params) {
       var action_obj = {"template_raw" : params.data.extra_param, append : true};
       OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj);

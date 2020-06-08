@@ -1,0 +1,192 @@
+/******************************************************************************
+ * Copyright 2013 VMware, Inc.  All rights reserved.
+ *****************************************************************************/
+
+/*
+ * trackpad.css
+ *
+ *     Defines style for the trackpad widget.
+ */
+
+/*
+ * jQuery UI Dialog 1.8.16
+ */
+.ui-dialog {
+   padding: 0;
+   box-shadow: 0px 5px 7px         rgba(0,0,0,.5);
+}
+
+.ui-dialog .ui-dialog-titlebar {
+   padding: .8em .8em;
+   border-bottom-left-radius: 0;
+   border-bottom-right-radius: 0;
+}
+
+.ui-dialog .ui-dialog-titlebar-close {
+   right: .4em;
+   margin-top: -11px;
+}
+
+.ui-widget-content {
+   border: 0;
+   background: #ffffff;
+   color: #333333;
+}
+
+.ui-widget-header a {
+   color: #333333;
+}
+
+/*
+ * Touch sprite is loaded in a single class (as we have disabled caching images).
+ * We do this for the iOS case, due to extreme limitations in terms of image size.
+ * This form of grouped declaration forces all these definitions to load the same
+ * sprite. (This is also loaded upfront for the navbar so its always visible).
+ * For details see PR - 978390.
+ */
+.trackpad-wrapper  .ui-dialog-titlebar-close .ui-icon,
+.trackpad-wrapper  .ui-dialog-titlebar .ui-dialog-title,
+.touch-sprite {
+   background-image: url('../img/touch_sprite.png');
+}
+
+/* Replace jquery ui title bar close icon. */
+.trackpad-wrapper .ui-dialog-titlebar-close {
+   margin-top: -9px;
+   border: 0 !important;
+   background: none !important;
+}
+
+.trackpad-wrapper .ui-dialog-titlebar-close {
+   margin-top: -11px;
+}
+
+/* Background-image is defined along with touch-sprite in 1 place. */
+.trackpad-wrapper .ui-dialog-titlebar-close .ui-icon {
+   background-position: -9px -239px;
+   background-repeat: no-repeat;
+}
+
+.trackpad-wrapper .ui-dialog-titlebar-close .ui-icon:active {
+   background-position-x: -24px;
+   background-repeat: no-repeat;
+}
+
+/* The grabber icon indicating the dialog could be moved around */
+.trackpad-wrapper .ui-dialog-titlebar .ui-dialog-title {
+   background-position: -10px -255px;
+   background-repeat: no-repeat;
+   width: 40px;
+   height: 14px;
+   margin: 0 0 0 42%;
+}
+.trackpad-wrapper .ui-dialog-titlebar .ui-dialog-title:active {
+   background-position-x: -52px;
+}
+
+.trackpad-wrapper {
+   width: 289px !important;   /* As this is less than the default value */
+   border: 1px solid #333 !important;
+   background: none !important;
+   border-radius: 6px;
+   box-shadow: 0px 4px 9px rgba(0,0,0,.6);
+}
+
+.trackpad-wrapper .ui-dialog-titlebar {
+   border-top: 1px solid #ccc;
+   border-left: 1px solid #aaa;
+   border-right: 1px solid #aaa;
+   border-bottom: 0;
+   padding: .5em .8em .4em .8em;
+   background: rgb(175,176,187); /* Old browsers */
+   background: -webkit-linear-gradient(top, rgba(175,176,187,.93) 0%,rgba(170,171,182,.93) 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, rgba(175,176,187,.93) 0%,rgba(170,171,182,.93) 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, rgba(175,176,187,.93) 0%,rgba(170,171,182,.93) 100%); /* IE10+ */
+   background: linear-gradient(top, rgba(175,176,187,.93) 0%,rgba(170,171,182,.93) 100%); /* W3C */
+   border-top-left-radius: 5px;
+   border-top-right-radius: 5px;
+}
+
+.trackpad-wrapper .trackpad-container {
+   padding: 0 !important;
+}
+
+.trackpad-wrapper .left-border {
+   background: rgb(170,171,182); /* Old browsers */
+   background: -webkit-linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* IE10+ */
+   background: linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* W3C */
+   margin-top: -1px;
+   float: left;
+   width: 12px;
+   height: 209px;
+   border: 0;
+}
+
+.trackpad-wrapper .touch-area {
+   background: rgba(255,255,255,0.8);
+   background: -webkit-linear-gradient(-70deg, rgba(255,255,255,0.8) 0%, rgba(238,238,240,0.8) 22%, rgba(210,210,216,0.8) 71%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(-70deg, rgba(255,255,255,0.8) 0%, rgba(238,238,240,0.8) 22%, rgba(210,210,216,0.8) 71%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(-70deg, rgba(255,255,255,0.8) 0%, rgba(238,238,240,0.8) 22%, rgba(210,210,216,0.8) 71%); /* IE10+ */
+   background: linear-gradient(110deg, rgba(255,255,255,0.8) 0%, rgba(238,238,240,0.8) 22%, rgba(210,210,216,0.8) 71%); /* W3C */
+   border: 1px solid #555;
+   box-shadow: 0 2px 6px 1px #888 inset;
+   float: left;
+   width: 263px;
+   height: 206px;
+}
+
+.trackpad-wrapper .right-border {
+   background: rgb(170,171,182); /* Old browsers */
+   background: -webkit-linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* IE10+ */
+   background: linear-gradient(top, rgba(170,171,182,.93) 0%,rgba(123,123,133,.93) 100%); /* W3C */
+   margin-top: -1px;
+   float: left;
+   width: 12px;
+   height: 209px;
+   border: 0;
+ }
+
+.trackpad-wrapper .bottom-border {
+   background: rgb(123,123,133); /* Old browsers */
+   background: -webkit-linear-gradient(top, rgba(123,123,133,.93) 0%,rgba(110,110,119,.93) 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, rgba(123,123,133,.93) 0%,rgba(110,110,119,.93) 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, rgba(123,123,133,.93) 0%,rgba(110,110,119,.93) 100%); /* IE10+ */
+   background: linear-gradient(top, rgba(123,123,133,.93) 0%,rgba(110,110,119,.93) 100%); /* W3C */
+   width: 289px;
+   height: 73px;
+   margin-top: 208px;
+   border: 0;
+}
+
+.trackpad-wrapper .button-left, .trackpad-wrapper .button-right {
+   background: rgb(255,255,255); /* Old browsers */
+   background: -webkit-linear-gradient(top, rgba(255,255,255,.7) 0%,rgba(225,225,227,.7) 3%,rgba(204,204,204,.7) 45%,rgba(190,190,195,.7) 96%,rgba(131,131,135,.7) 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, rgba(255,255,255,.7) 0%,rgba(225,225,227,.7) 3%,rgba(204,204,204,.7) 45%,rgba(190,190,195,.7) 96%,rgba(131,131,135,.7) 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, rgba(255,255,255,.7) 0%,rgba(225,225,227,.7) 3%,rgba(204,204,204,.7) 45%,rgba(190,190,195,.7) 96%,rgba(131,131,135,.7) 100%); /* IE10+ */
+   background: linear-gradient(top, rgba(255,255,255,.7) 0%,rgba(225,225,227,.7) 3%,rgba(204,204,204,.7) 45%,rgba(190,190,195,.7) 96%,rgba(131,131,135,.7) 100%); /* W3C */
+   border-radius: 6px;
+   box-shadow: 0 2px 5px #333;
+   float: left;
+   width: 126px;
+   height: 47px;
+}
+
+.trackpad-wrapper .button-left {
+   margin: 12px 0px auto 12px;
+}
+
+.trackpad-wrapper .button-right {
+   margin: 12px;
+}
+
+.trackpad-wrapper .button-left.button-highlight,
+.trackpad-wrapper .button-right.button-highlight {
+   background: -webkit-linear-gradient(top, rgba(170,171,182,.7) 0%,rgba(123,123,133,.7) 100%); /* Chrome10+,Safari5.1+ */
+   background: -o-linear-gradient(top, rgba(170,171,182,.7) 0%,rgba(123,123,133,.7) 100%); /* Opera 11.10+ */
+   background: -ms-linear-gradient(top, rgba(170,171,182,.7) 0%,rgba(123,123,133,.7) 100%); /* IE10+ */
+   background: linear-gradient(top, rgba(170,171,182,.7) 0%,rgba(123,123,133,.7) 100%); /* W3C */
+}
