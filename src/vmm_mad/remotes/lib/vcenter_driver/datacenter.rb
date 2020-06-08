@@ -453,7 +453,6 @@ module VCenterDriver
                                        template,
                                        vcenter_uuid,
                                        vi_client,
-                                       vcenter_instance_name,
                                        dc_name,
                                        rp_cache
                                    )
