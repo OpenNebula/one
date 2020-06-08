@@ -143,9 +143,9 @@ mkdir -p $dockerdir/mnt
 
 # Check distro
 if [ -z $distro ]; then
-distro=`docker run --rm \
+distro=`docker run --rm --entrypoint cat \
         -e "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-        $docker_hub cat /etc/os-release | grep "^ID=.*\n" | cut -d= -f 2 | xargs`
+        $docker_hub /etc/os-release | grep "^ID=.*\n" | cut -d= -f 2 | xargs`
 fi
 
 if [ -z $distro ]; then
