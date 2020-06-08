@@ -34,8 +34,8 @@ func (c *Controller) Services() *ServicesController {
 // OpenNebula Actions
 
 // Get the service pool
-func (ssc *ServicesController) Info() (*service.Pool, error) {
-	response, err := ssc.c.ClientFlow.HTTPMethod("GET", endpointFService)
+func (sc *ServicesController) Info() (*service.Pool, error) {
+	response, err := sc.c.ClientFlow.HTTPMethod("GET", endpointFService)
 	if err != nil {
 		return nil, err
 	}
@@ -49,12 +49,12 @@ func (ssc *ServicesController) Info() (*service.Pool, error) {
 	return servicepool, err
 }
 
-// Show the SERVICE resource identified by <id>
+// Get the service resource identified by <id>
 func (sc *ServiceController) Info() (*service.Service, error) {
 	url := urlService(sc.ID)
 	response, err := sc.c.ClientFlow.HTTPMethod("GET", url)
 	if err != nil {
-		return &service.Service{}, err
+		return nil, err
 	}
 	service := &service.Service{}
 	service_str, err := json.Marshal(response.BodyMap()["DOCUMENT"])
@@ -63,7 +63,7 @@ func (sc *ServiceController) Info() (*service.Service, error) {
 	return service, nil
 }
 
-// Delete the SERVICE resource identified by <id>
+// Delete the service resource identified by <id>
 func (sc *ServiceController) Delete() (bool, string) {
 	url := urlService(sc.ID)
 
