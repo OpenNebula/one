@@ -78,8 +78,8 @@ public class HostPool extends Pool implements Iterable<Host>{
      * Retrieves the monitoring data for all the hosts in the pool.
      *
      * @param client XML-RPC Client.
-     * @param num number of monitoring records to be retrieved, if -1
-     * every record will be retrieved.
+     * @param num: Retrieve monitor records in the last num seconds.
+     * 0 just the last record, -1 all records.
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
      */

@@ -265,8 +265,8 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
      * <li>{@link Pool#GROUP}: User's primary group Virtual Machines</li>
      * <li>&gt;= 0 UID User's Virtual Machines</li>
      * </ul>
-     * @param num number of monitoring records to be retrieved, if -1
-     * every record will be retrieved.
+     * @param num: Retrieve monitor records in the last num seconds.
+     * 0 just the last record, -1 all records.
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
      */

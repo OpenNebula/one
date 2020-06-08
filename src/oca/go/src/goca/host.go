@@ -111,7 +111,8 @@ func (hc *HostsController) Create(name, im, vm string, clusterID int) (int, erro
 }
 
 // Monitoring Returns the Hosts monitoring records
-// * num: The number of records to be retrieved. If it is -1, all the records will be retrieved.
+// num: Retrieve monitor records in the last num seconds.
+// 0 just the last record, -1 all records
 func (hc *HostsController) Monitoring(num int) (string, error) {
 	monitorData, err := hc.c.Client.Call("one.hostpool.monitoring", num)
 	if err != nil {
