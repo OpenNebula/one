@@ -28,7 +28,7 @@ type HTTPAuth struct {
 // newHTTPResponse Creates Response from http response
 func newHTTPResponse(r *http.Response, err error) (*Response, error) {
 	if err != nil {
-		return &Response{}, e
+		return &Response{}, err
 	}
 
 	status := true
@@ -60,10 +60,10 @@ func (c *RESTClient) HTTPMethod(method string, url string, args ...interface{}) 
 	case "PUT":
 		r, err = c.put(string(url), args[0].(map[string]interface{}))
 	case "":
-		return &Response{}, e
+		return &Response{}, err
 	}
 
-	return r, e
+	return r, err
 }
 
 // HTTP METHODS
