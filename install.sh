@@ -114,7 +114,7 @@ if [ -z "$ROOT" ] ; then
     SHARE_LOCATION="/usr/share/one"
     MAN_LOCATION="/usr/share/man/man1"
     VM_LOCATION="/var/lib/one/vms"
-    DOCS_LOCATION="/usr/share/docs/one"
+    DOCS_LOCATION="/usr/share/doc/one"
     MAIN_JS_LOCATION="$VAR_LOCATION/sunstone"
     DOCKER_MACHINE_LOCATION="src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula"
 
@@ -181,7 +181,7 @@ else
     SHARE_LOCATION="$ROOT/share"
     MAN_LOCATION="$ROOT/share/man/man1"
     VM_LOCATION="$VAR_LOCATION/vms"
-    DOCS_LOCATION="$ROOT/share/docs"
+    DOCS_LOCATION="$ROOT/share/doc"
     MAIN_JS_LOCATION="$VAR_LOCATION/sunstone"
     DOCKER_MACHINE_LOCATION="src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula"
 
