@@ -58,23 +58,13 @@ CURL="curl -L"
 # OpenNebula version
 #-------------------------------------------------------------------------------
 function get_tag_name {
-    local version=`oned -v | grep "is distributed" | awk '{print $2}' | tr -d .`
-
-    if [ `echo $version | wc -c` -eq 4 ]; then
-        version=$(($version * 10))
-    fi
+    local version=`oned --version 2>/dev/null | grep '^OpenNebula [0-9.]\+ ' | cut -d' ' -f2`
 
     local creleases=`curl -sSL $CONTEXT_API | grep "\"tag_name\":" | \
          awk '{print $2}' | cut -d 'v' -f 2 | cut -d '"' -f 1`
 
     for tag in `echo $creleases`; do
-        local cversion=`echo $tag | tr -d .`
-
-        if [ `echo $cversion | wc -c` -eq 4 ]; then
-            cversion=$(($cversion * 10))
-        fi
-
-        if [ $cversion -le $version ]; then
+        if [ "$tag" = "`echo -e "$tag\n$version" | sort -V | head -n1`" ]; then
             echo "$tag"
             break
         fi
@@ -99,13 +89,14 @@ set -e -o pipefail
 # Parse downloader URL
 #-------------------------------------------------------------------------------
 #  URL is in the form
-#  docker://<conatiner_name>[:tags]?size=&filesystem=&format=&distro=
+#  docker://<conatiner_name>?size=&filesystem=&format=&distro=&tag=
 #
-#  consinter_name:tags : As listed in docker hub. e.g. alpine:3.9
+#  consinter_name: As listed in docker hub. e.g. alpine
 #  size: in MB for the resulting image
 #  filesystem: filesystem type e.g. ext4
 #  format: image format e.g. raw or qcow2
 #  distro: base image distro to install contents
+#  tag: one of the image supported tags
 #-------------------------------------------------------------------------------
 id=`echo "$RANDOM-$RANDOM-$RANDOM-$RANDOM-$RANDOM"`
 sid=`echo $id | cut -d '-' -f 1`
