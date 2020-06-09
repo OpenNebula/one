@@ -29,7 +29,7 @@ type HTTPCaller interface {
 // Controller is the controller used to make requets on various entities
 type Controller struct {
 	Client     RPCCaller
-	ClientREST HTTPCaller
+	ClientFlow HTTPCaller
 }
 
 // entitiesController is a controller for entitites
@@ -60,6 +60,19 @@ type subEntityController struct {
 func NewController(c RPCCaller) *Controller {
 	return &Controller{
 		Client: c,
+	}
+}
+
+func NewControllerFlow(c HTTPCaller) *Controller {
+	return &Controller{
+		ClientFlow: c,
+	}
+}
+
+func NewGenericController(cone RPCCaller, cflow HTTPCaller) *Controller {
+	return &Controller{
+		Client:     cone,
+		ClientFlow: cflow,
 	}
 }
 

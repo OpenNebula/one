@@ -1,10 +1,28 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/*--------------------------------------------------------------------------- */
+
 package goca
 
 import (
 	"fmt"
 	"strconv"
+	"encoding/json"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/service"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
 var endpointFService string
@@ -29,178 +47,164 @@ func (c *Controller) Services() *ServicesController {
 	return &ServicesController{c}
 }
 
-// NewService constructor
-func NewService(docJSON map[string]interface{}) *service.Service {
-	var serv service.Service
-
-	template := NewTemplate(docJSON)
-
-	serv.Template = *template
-	serv.State = template.JSON["state"].(int)
-
-	return &serv
-}
-
 // OpenNebula Actions
 
-// Show the SERVICE resource identified by <id>
-func (sc *ServiceController) Show() (*service.Service, error) {
-	url := urlService(sc.ID)
-
-	response, e := sc.c.ClientREST.HTTPMethod("GET", url)
-
-	if e != nil {
-		return &service.Service{}, e
+// Get the service pool
+func (sc *ServicesController) Info() (*service.Pool, error) {
+	response, err := sc.c.ClientFlow.HTTPMethod("GET", endpointFService)
+	if err != nil {
+		return nil, err
+	}
+	servicepool := &service.Pool{}
+	pool_str, err := json.Marshal(response.BodyMap()["DOCUMENT_POOL"])
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(pool_str, servicepool)
+	if err != nil {
+		return nil, err
 	}
 
-	return NewService(documentJSON(response)), nil
+	return servicepool, err
 }
 
-// Delete the SERVICE resource identified by <id>
-func (sc *ServiceController) Delete() (bool, string) {
+// Get the service resource identified by <id>
+func (sc *ServiceController) Info() (*service.Service, error) {
+	url := urlService(sc.ID)
+	response, err := sc.c.ClientFlow.HTTPMethod("GET", url)
+	if err != nil {
+		return nil, err
+	}
+
+	service := &service.Service{}
+	service_str, err := json.Marshal(response.BodyMap()["DOCUMENT"])
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(service_str, service)
+	if err != nil {
+		return nil, err
+	}
+
+	return service, nil
+}
+
+// Delete the service resource identified by <id>
+func (sc *ServiceController) Delete() (bool, error) {
 	url := urlService(sc.ID)
 
 	return sc.c.boolResponse("DELETE", url, nil)
 }
 
-// Shutdown running services
-func (sc *ServiceController) Shutdown() (bool, string) {
-	action := make(map[string]interface{})
-
-	action["action"] = map[string]interface{}{
-		"perform": "shutdown",
-	}
-
-	return sc.Action(action)
-}
-
-// Recover existing service
-func (sc *ServiceController) Recover() (bool, string) {
+// Recover existing service if delete de service is recover and deleted
+func (sc *ServiceController) Recover(delete bool) (bool, error) {
 	action := make(map[string]interface{})
 
 	action["action"] = map[string]interface{}{
 		"perform": "recover",
+		"params":  map[string]interface{}{
+			"delete": delete,
+		},
 	}
 
-	return sc.Action(action)
+	return sc.action(action)
 }
 
-// List the contents of the SERVICE collection.
-func (ssc *ServicesController) List() (*[]*service.Service, error) {
-	var services []*service.Service
+// Permissions operations
 
-	response, e := ssc.c.ClientREST.HTTPMethod("GET", endpointFService)
+// Chgrp service
+func (sc *ServiceController) Chgrp(gid int) (bool, error) {
+	action := make(map[string]interface{})
 
-	if e != nil {
-		services = append(services, &service.Service{})
-		return &services, e
+	action["action"] = map[string]interface{}{
+		"perform": "chgrp",
+		"params": map[string]interface{}{
+			"group_id": gid,
+		},
 	}
 
-	documents := response.BodyMap()["DOCUMENT_POOL"].(map[string]interface{})
-
-	for _, v := range documents {
-		service := NewService(v.(map[string]interface{}))
-		services = append(services, service)
-	}
-
-	return &services, e
+	return sc.action(action)
 }
 
-// Role operations
+// Chown service
+func (sc *ServiceController) Chown(uid, gid int) (bool, error) {
+	action := make(map[string]interface{})
+
+	action["action"] = map[string]interface{}{
+		"perform": "chown",
+		"params": map[string]interface{}{
+			"group_id": gid,
+			"owner_id": uid,
+		},
+	}
+
+	return sc.action(action)
+}
+
+// Chmod service
+func (sc *ServiceController) Chmod(perm shared.Permissions) (bool, error) {
+	action := make(map[string]interface{})
+
+	action["action"] = map[string]interface{}{
+		"perform": "chmod",
+		"params": map[string]interface{}{
+			"octet": strconv.Itoa(perm.Octet()),
+		},
+	}
+
+	return sc.action(action)
+}
+
+// Rename service
+func (sc *ServiceController) Rename(new_name string) (bool, error) {
+	action := make(map[string]interface{})
+
+	action["action"] = map[string]interface{}{
+		"perform": "rename",
+		"params": map[string]interface{}{
+			"name": new_name,
+		},
+	}
+
+	return sc.action(action)
+}
+
+// Role level actions
 
 // Scale the cardinality of a service role
-func (sc *ServiceController) Scale(role string, cardinal int) (bool, string) {
+func (sc *ServiceController) Scale(role string, cardinality int, force bool) (bool, error) {
+	url := fmt.Sprintf("%s/scale", urlService(sc.ID))
 
-	roleBody := make(map[string]interface{})
+	body := make(map[string]interface{})
+	body["role_name"] = role
+	body["cardinality"] = cardinality
+	body["force"] = force
 
-	roleBody["cardinality"] = 2
-	roleBody["force"] = true
-
-	return sc.UpdateRole(role, roleBody)
+	return sc.c.boolResponse("POST", url, body)
 }
 
 // VMAction performs the action on every VM belonging to role. Available actions:
-// shutdown, shutdown-hard, undeploy, undeploy-hard, hold, release, stop, suspend, resume, boot, delete, delete-recreate, reboot, reboot-hard, poweroff, poweroff-hard, snapshot-create.
+// shutdown, shutdown-hard, undeploy, undeploy-hard, hold, release, stop, suspend,
+// resume, boot, delete, delete-recreate, reboot, reboot-hard, poweroff, poweroff-hard, snapshot-create.
 // Example params. Read the flow API docu.
 // map[string]interface{}{
 // 			"period": 60,
 // 			"number": 2,
 // 		},
 // TODO: enforce only available actions
-func (sc *ServiceController) VMAction(role, name string, params map[string]interface{}) (bool, string) {
+func (sc *ServiceController) VMAction(role, action string, params map[string]interface{}) (bool, error) {
 	url := fmt.Sprintf("%s/action", urlRole(sc.ID, role))
 
-	action := make(map[string]interface{})
-
-	action["action"] = map[string]interface{}{
-		"perform": name,
+	body := make(map[string]interface{})
+	body["action"] = map[string]interface{}{
+		"perform": action,
 		"params":  params,
 	}
 
-	return sc.c.boolResponse("POST", url, action)
-}
-
-// UpdateRole of a given Service
-func (sc *ServiceController) UpdateRole(name string, body map[string]interface{}) (bool, string) {
-	url := urlRole(sc.ID, name)
-
-	return sc.c.boolResponse("PUT", url, body)
-}
-
-// Permissions operations
-
-// Chgrp service
-func (sc *ServiceController) Chgrp(gid int) (bool, string) {
-	action := make(map[string]interface{})
-
-	action["action"] = map[string]interface{}{
-		"perform": "chgrp",
-		"params": map[string]interface{}{
-			"group_id": gid,
-		},
-	}
-
-	return sc.Action(action)
-}
-
-// Chown service
-func (sc *ServiceController) Chown(uid, gid int) (bool, string) {
-	action := make(map[string]interface{})
-
-	action["action"] = map[string]interface{}{
-		"perform": "chgrp",
-		"params": map[string]interface{}{
-			"group_id": gid,
-			"user_id":  uid,
-		},
-	}
-
-	return sc.Action(action)
-}
-
-// Chmod service
-func (sc *ServiceController) Chmod(owner, group, other int) (bool, string) {
-	action := make(map[string]interface{})
-
-	action["action"] = map[string]interface{}{
-		"perform": "chgrp",
-		"params": map[string]interface{}{
-			"owner": owner,
-			"group": group,
-			"other": other,
-		},
-	}
-
-	return sc.Action(action)
+	return sc.c.boolResponse("POST", url, body)
 }
 
 // Helpers
-
-func documentJSON(response *Response) map[string]interface{} {
-	responseJSON := response.BodyMap()
-
-	return responseJSON["DOCUMENT"].(map[string]interface{})
-}
 
 func urlServiceAction(id int) string {
 	return fmt.Sprintf("%s/action", urlService(id))
@@ -216,18 +220,18 @@ func urlService(id int) string {
 }
 
 // Action handler for existing flow services. Requires the action body.
-func (sc *ServiceController) Action(action map[string]interface{}) (bool, string) {
+func (sc *ServiceController) action(action map[string]interface{}) (bool, error) {
 	url := urlServiceAction(sc.ID)
 
 	return sc.c.boolResponse("POST", url, action)
 }
 
-func (c *Controller) boolResponse(method string, url string, body map[string]interface{}) (bool, string) {
-	response, e := c.ClientREST.HTTPMethod(method, url, body)
+func (c *Controller) boolResponse(method string, url string, body map[string]interface{}) (bool, error) {
+	response, err := c.ClientFlow.HTTPMethod(method, url, body)
 
-	if e != nil {
-		return false, e.Error()
+	if err != nil {
+		return false, err
 	}
 
-	return response.status, response.Body()
+	return response.status, nil
 }

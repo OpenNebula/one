@@ -25,7 +25,8 @@ import (
 )
 
 var testClient = NewDefaultClient(NewConfig("", "", ""))
-var testCtrl = NewController(testClient)
+var testClientFlow = NewDefaultFlowClient(NewFlowConfig("", "", ""))
+var testCtrl = NewGenericController(testClient, testClientFlow)
 
 // Appends a random string to a name
 func GenName(name string) string {

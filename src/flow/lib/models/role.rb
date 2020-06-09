@@ -302,7 +302,7 @@ module OpenNebula
                 return false
             end
 
-            @body['state'] = state.to_s
+            @body['state'] = state.to_i
 
             if state == STATE['SCALING']
 

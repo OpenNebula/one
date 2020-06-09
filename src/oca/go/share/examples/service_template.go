@@ -17,30 +17,45 @@
 package main
 
 import (
-	"fmt"
-	"log"
+    "fmt"
 
-	"github.com/OpenNebula/one/src/oca/go/src/goca"
+    "github.com/OpenNebula/one/src/oca/go/src/goca"
+    srv_tmpl "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/service_template"
 )
 
 func main() {
-	client := goca.NewDefaultClient(
-		goca.NewConfig("", "", ""),
-	)
-	controller := goca.NewController(client)
+    // Get a Flow client
+    client := goca.NewDefaultFlowClient(
+        goca.NewFlowConfig("", "", ""),
+    )
 
-	// Get VM id by name
-	id, err := controller.VMs().ByName("vm_name")
-	if err != nil {
-		log.Fatal(err)
+    // Get a Flow controller
+    controller := goca.NewControllerFlow(client)
+
+	// Create a basic Service Template
+    tmpl := srv_tmpl.ServiceTemplate{
+                Template: srv_tmpl.Template {
+                    Body: srv_tmpl.Body {
+                        Name: "NewTemplate",
+                        Deployment: "straight",
+                        Roles: []srv_tmpl.Role {
+                            {
+                                Name: "master",
+                                Cardinality: 1,
+                                VMTemplate: 0, //VM Template 0 needs to exists
+                                MinVMs: 1,
+                            },
+                        },
+                    },
+                },
+             }
+
+	// Allocates a new serive template from tmpl
+    _, err := controller.STemplates().Create(&tmpl)
+    if err != nil {
+        return
 	}
 
-	// Fetch VM informations
-	vm, err := controller.VM(id).Info(false)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Do some stuffs on vm
-	fmt.Printf("%+v\n", vm)
+	// Print allocated service template
+    fmt.Printf("%+v\n",tmpl)
 }

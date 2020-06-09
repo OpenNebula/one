@@ -165,7 +165,7 @@ module OpenNebula
                 return false
             end
 
-            @body['state'] = state
+            @body['state'] = state.to_i
 
             msg = "New state: #{STATE_STR[state]}"
             Log.info LOG_COMP, msg, id
