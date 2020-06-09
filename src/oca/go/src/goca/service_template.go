@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 
 	srv_tmpl "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/service_template"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/service"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
@@ -60,7 +61,7 @@ func (tc *STemplateController) Info() (*srv_tmpl.ServiceTemplate, error) {
 
 	stemplate := &srv_tmpl.ServiceTemplate{}
 	stemplate_str, err := json.Marshal(response.BodyMap()["DOCUMENT"])
-	err = json.Unmarshal([]byte(stemplate_str), stemplate)
+	err = json.Unmarshal(stemplate_str, stemplate)
 	if err != nil {
 		return nil, err
 	}
@@ -69,17 +70,29 @@ func (tc *STemplateController) Info() (*srv_tmpl.ServiceTemplate, error) {
 }
 
 // Allocate a service template
+// st will be filled with the new ServiceTemplate information
 func (tc *STemplatesController) Create(st *srv_tmpl.ServiceTemplate) (bool, error) {
 	body :=  make(map[string]interface{})
 
+	// Get Template.Body as map
 	tmpl_byte, err := json.Marshal(st.Template.Body)
 	if err != nil {
 		return false, err
 	}
-
     json.Unmarshal(tmpl_byte, &body)
 
-	_, err = tc.c.ClientFlow.HTTPMethod("POST", endpointFTemplate, body)
+	// Get response
+	response, err := tc.c.ClientFlow.HTTPMethod("POST", endpointFTemplate, body)
+	if err != nil {
+		return false, err
+	}
+
+	// Update current ServiceTemplate with new values
+	stemplate_str, err := json.Marshal(response.BodyMap()["DOCUMENT"])
+	if err != nil {
+		return false, err
+	}
+	err = json.Unmarshal(stemplate_str, st)
 	if err != nil {
 		return false, err
 	}
@@ -88,17 +101,19 @@ func (tc *STemplatesController) Create(st *srv_tmpl.ServiceTemplate) (bool, erro
 }
 
 // Delete the service resource identified by <id>
-func (tc *STemplateController) Delete() (bool, string) {
+func (tc *STemplateController) Delete() (bool, error) {
 	url := urlTemplate(tc.ID)
 
 	return tc.c.boolResponse("DELETE", url, nil)
 }
 
 // Instantiate the service_template resource identified by <id>
-func (tc *STemplateController) Instantiate(extra_tmpl string) (bool, string) {
+func (tc *STemplateController) Instantiate(extra_tmpl string) (*service.Service, error) {
+	url := urlTemplateAction(tc.ID)
 	action := make(map[string]interface{})
 	args   := make(map[string]interface{})
 
+	// Create request
 	json.Unmarshal([]byte(extra_tmpl), &args)
 	action["action"] = map[string]interface{}{
 		"perform": "instantiate",
@@ -107,14 +122,31 @@ func (tc *STemplateController) Instantiate(extra_tmpl string) (bool, string) {
 		},
 	}
 
-	return tc.action(action)
+	//Get response
+	response, err := tc.c.ClientFlow.HTTPMethod("POST", url, action)
+	if err != nil {
+		return nil, err
+	}
+
+	//Build Service from response
+	service := &service.Service{}
+	service_str, err := json.Marshal(response.BodyMap()["DOCUMENT"])
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(service_str, service)
+	if err != nil {
+		return nil, err
+	}
+
+	return service, nil
 }
 
 // Update service template
-func (tc *STemplateController) Update(st *srv_tmpl.ServiceTemplate, append bool) (bool, string) {
+func (tc *STemplateController) Update(st *srv_tmpl.ServiceTemplate, append bool) (bool, error) {
 	tmpl_byte, err := json.Marshal(st.Template.Body)
 	if err != nil {
-		return false, err.Error()
+		return false, err
 	}
 
 	action := make(map[string]interface{})
@@ -130,7 +162,7 @@ func (tc *STemplateController) Update(st *srv_tmpl.ServiceTemplate, append bool)
 }
 
 // Rename service template
-func (tc *STemplateController) Rename(new_name string) (bool, string) {
+func (tc *STemplateController) Rename(new_name string) (bool, error) {
 	action := make(map[string]interface{})
 
 	action["action"] = map[string]interface{}{
@@ -144,7 +176,8 @@ func (tc *STemplateController) Rename(new_name string) (bool, string) {
 }
 
 // Clone a service template
-func (tc *STemplateController) Clone(clone_name string, recursive bool) (bool, string) {
+func (tc *STemplateController) Clone(clone_name string, recursive bool) (*srv_tmpl.ServiceTemplate, error) {
+	url := urlTemplateAction(tc.ID)
 	action := make(map[string]interface{})
 
 	action["action"] = map[string]interface{}{
@@ -155,13 +188,30 @@ func (tc *STemplateController) Clone(clone_name string, recursive bool) (bool, s
 		},
 	}
 
-	return tc.action(action)
+	//Get response
+	response, err := tc.c.ClientFlow.HTTPMethod("POST", url, action)
+	if err != nil {
+		return nil, err
+	}
+
+	//Build Service from response
+	stemplate := &srv_tmpl.ServiceTemplate{}
+	stemplate_str, err := json.Marshal(response.BodyMap()["DOCUMENT"])
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(stemplate_str, stemplate)
+	if err != nil {
+		return nil, err
+	}
+
+	return stemplate, nil
 }
 
 // Permissions operations
 
 // Chgrp template
-func (tc *STemplateController) Chgrp(gid int) (bool, string) {
+func (tc *STemplateController) Chgrp(gid int) (bool, error) {
 	action := make(map[string]interface{})
 
 	action["action"] = map[string]interface{}{
@@ -175,7 +225,7 @@ func (tc *STemplateController) Chgrp(gid int) (bool, string) {
 }
 
 // Chown template
-func (tc *STemplateController) Chown(uid, gid int) (bool, string) {
+func (tc *STemplateController) Chown(uid, gid int) (bool, error) {
 	action := make(map[string]interface{})
 
 	action["action"] = map[string]interface{}{
@@ -190,7 +240,7 @@ func (tc *STemplateController) Chown(uid, gid int) (bool, string) {
 }
 
 // Chmod template
-func (tc *STemplateController) Chmod(perm shared.Permissions) (bool, string) {
+func (tc *STemplateController) Chmod(perm shared.Permissions) (bool, error) {
 	action := make(map[string]interface{})
 
 	action["action"] = map[string]interface{}{
@@ -205,7 +255,7 @@ func (tc *STemplateController) Chmod(perm shared.Permissions) (bool, string) {
 
 // Helpers
 // Action handler for service_templates identified by <id>
-func (tc *STemplateController) action(action map[string]interface{}) (bool, string) {
+func (tc *STemplateController) action(action map[string]interface{}) (bool, error) {
 	url := urlTemplateAction(tc.ID)
 
 	return tc.c.boolResponse("POST", url, action)
