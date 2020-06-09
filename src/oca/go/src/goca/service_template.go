@@ -68,7 +68,7 @@ func (tc *STemplateController) Info() (*srv_tmpl.ServiceTemplate, error) {
 	return stemplate, nil
 }
 
-// Create service template
+// Allocate a service template
 func (tc *STemplatesController) Create(st *srv_tmpl.ServiceTemplate) (bool, error) {
 	body :=  make(map[string]interface{})
 
@@ -94,14 +94,6 @@ func (tc *STemplateController) Delete() (bool, string) {
 	return tc.c.boolResponse("DELETE", url, nil)
 }
 
-// Update service template
-//func (tc *STemplateController) Update(st *service.Template) (bool, string) {
-//	url := urlTemplate(tc.ID)
-//	body := tc.Map(st)
-//
-//	return tc.c.boolResponse("PUT", url, body)
-//}
-
 // Instantiate the service_template resource identified by <id>
 func (tc *STemplateController) Instantiate(extra_tmpl string) (bool, string) {
 	action := make(map[string]interface{})
@@ -112,6 +104,54 @@ func (tc *STemplateController) Instantiate(extra_tmpl string) (bool, string) {
 		"perform": "instantiate",
 		"params": map[string]interface{}{
 			"merge_template": args,
+		},
+	}
+
+	return tc.action(action)
+}
+
+// Update service template
+func (tc *STemplateController) Update(st *srv_tmpl.ServiceTemplate, append bool) (bool, string) {
+	tmpl_byte, err := json.Marshal(st.Template.Body)
+	if err != nil {
+		return false, err.Error()
+	}
+
+	action := make(map[string]interface{})
+	action["action"] = map[string]interface{}{
+		"perform": "update",
+		"params": map[string]interface{}{
+			"append": append,
+			"template_json": string(tmpl_byte),
+		},
+	}
+
+	return tc.action(action)
+}
+
+// Rename service template
+func (tc *STemplateController) Rename(new_name string) (bool, string) {
+	action := make(map[string]interface{})
+
+	action["action"] = map[string]interface{}{
+		"perform": "rename",
+		"params": map[string]interface{}{
+			"name": new_name,
+		},
+	}
+
+	return tc.action(action)
+}
+
+// Clone a service template
+func (tc *STemplateController) Clone(clone_name string, recursive bool) (bool, string) {
+	action := make(map[string]interface{})
+
+	action["action"] = map[string]interface{}{
+		"perform": "clone",
+		"params": map[string]interface{}{
+			"name": clone_name,
+			"recursive": recursive,
 		},
 	}
 
