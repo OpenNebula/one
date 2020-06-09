@@ -34,12 +34,20 @@ static void print_license()
     oss << "\n";
 #endif
 
-    oss << "Copyright 2002-2020, OpenNebula Project, OpenNebula Systems \n\n"
-        << "Licensed under the Apache License, Version 2.0 "
+    oss << "Copyright 2002-2020, OpenNebula Project, OpenNebula Systems \n\n";
+
+#ifdef ENTERPRISE
+    oss << "Licensed under the OpenNebula Software License  (the \"License\"); "
+        << "you may \nnot use this file except in compliance with the License. "
+        << "You may obtain\na copy of the License at "
+        << "https://github.com/OpenNebula/one/blob/master/LICENSE.onsla\n";
+#else
+    oss << "Licensed under the Apache License, Version 2.0 "
         << "(the \"License\"); you may \nnot use this file "
         << "except in compliance with the License. You may obtain\n"
         << "a copy of the License at "
         << "http://www.apache.org/licenses/LICENSE-2.0\n";
+#endif
 
     cout << oss.str();
 }
