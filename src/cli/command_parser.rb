@@ -649,7 +649,7 @@ module CommandParser
             print_formatters
             puts
             if @version
-                puts "## LICENSE"
+                puts "## VERSION"
                 puts @version
             end
         end
