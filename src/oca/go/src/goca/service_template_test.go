@@ -19,12 +19,11 @@ package goca
 import (
 	"testing"
 
-	sv "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/service"
 	srv_tmpl "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/service_template"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
-func createService(t *testing.T) (*sv.Service, int) {
+func createServiceTemplate(t *testing.T) (*srv_tmpl.ServiceTemplate, int) {
 	_, vmtmpl_id := createTemplate(t)
 
 	tmpl := srv_tmpl.ServiceTemplate{
@@ -49,74 +48,93 @@ func createService(t *testing.T) (*sv.Service, int) {
 		t.Fatal(err)
 	}
 
-	service, _ := testCtrl.STemplate(tmpl.ID).Instantiate("")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return service, service.ID
+	return &tmpl, tmpl.ID
 }
 
-func TestService(t *testing.T) {
-	service, service_id := createService(t)
+func TestServiceTemplate(t *testing.T) {
+	tmpl, tmpl_id := createServiceTemplate(t)
 
 	// Check information returned by Create() is correct
-	service, err := testCtrl.Service(service.ID).Info()
-	if service.ID != service_id {
-		t.Errorf("Service ID does not match.")
+	tmpl, err := testCtrl.STemplate(tmpl.ID).Info()
+	if tmpl.ID != tmpl_id {
+		t.Fatal("Template ID does not match.")
 	}
 
-	service_ctrl := testCtrl.Service(service.ID)
+	tmpl_ctrl := testCtrl.STemplate(tmpl.ID)
 
 	// Test Chgrp
-	if service.GID != 0 || service.GName != "oneadmin" {
+	if tmpl.GID != 0 || tmpl.GName != "oneadmin" {
 		t.Errorf("Unexpected service group.")
 	}
-	service_ctrl.Chgrp(1)
-	service, err = service_ctrl.Info()
+	tmpl_ctrl.Chgrp(1)
+	tmpl, err = tmpl_ctrl.Info()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if service.GID != 1 || service.GName != "users" {
-		t.Errorf("Unexpected service group after Chgrp().")
+	if tmpl.GID != 1 || tmpl.GName != "users" {
+		t.Errorf("Unexpected service template group after Chgrp().")
 	}
 
 	// Test Chown
-	if service.GID != 1 || service.UID != 0 {
+	if tmpl.GID != 1 || tmpl.UID != 0 {
 		t.Errorf("Unexpected owner.")
 	}
-	service_ctrl.Chown(1, 0)
-	service, err = service_ctrl.Info()
+	tmpl_ctrl.Chown(1, 0)
+	tmpl, err = tmpl_ctrl.Info()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if service.GID != 0 || service.UID != 1  {
-		t.Errorf("Unexpected service owner after Chown().")
+	if tmpl.GID != 0 || tmpl.UID != 1  {
+		t.Errorf("Unexpected service template owner after Chown().")
 	}
 
 	// Tests Chmod
-	service_ctrl.Chmod(shared.Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1})
-	service, err = service_ctrl.Info()
+	tmpl_ctrl.Chmod(shared.Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1})
+	tmpl, err = tmpl_ctrl.Info()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if service.Permissions.Octet() != 777 {
-		t.Errorf("Unexpected service permissions.")
+	if tmpl.Permissions.Octet() != 777 {
+		t.Errorf("Unexpected service template permissions.")
 	}
 
 	// Test Rename
-	service_ctrl.Rename("renamed")
-	service, err = service_ctrl.Info()
+	tmpl_ctrl.Rename("renamed")
+	tmpl, err = tmpl_ctrl.Info()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if service.Name != "renamed" {
+	if tmpl.Name != "renamed" {
 		t.Errorf("Unexpected name after rename action.")
 	}
 
-	// Check the Service is correctly deleted
-	_, err = service_ctrl.Delete()
+	// Test Update
+	tmpl_update := srv_tmpl.ServiceTemplate{
+		Template: srv_tmpl.Template {
+			Body: srv_tmpl.Body {
+				Roles: []srv_tmpl.Role {
+					{
+						Name: "masterRenamed",
+					},
+				},
+			},
+		},
+	}
+	_, err = tmpl_ctrl.Update(&tmpl_update, true)
 	if err != nil {
-		t.Errorf("Failure deleting the service.")
+		t.Fatal(err)
+	}
+	tmpl, err = tmpl_ctrl.Info()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if tmpl.Template.Body.Roles[0].Name != "masterRenamed" {
+		t.Errorf("Unexpected role name after update action.")
+	}
+
+	// Check the Service is correctly deleted
+	_, err = tmpl_ctrl.Delete()
+	if err != nil {
+		t.Errorf("Failure deleting the service template.")
 	}
 }
