@@ -42,13 +42,14 @@ HID=$2
 
 STDIN=`cat -`
 
-MONITOR_ACTION="$ACTION $HID $STDIN"
+ACTION=${ACTION//[$'\t\r\n']}
+HID=${HID//[$'\t\r\n']}
+STDIN=${STDIN//[$'\t\r\n']}
 
-#todo check it is running wait for fifo
+MONITOR_ACTION="$ACTION $HID $STDIN"
 
 echo $MONITOR_ACTION > $IO_FIFO_PATH
 
 echo "<MONITOR_MESSAGES></MONITOR_MESSAGES>"
 
 exit 0
-
