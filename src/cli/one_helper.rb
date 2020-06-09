@@ -1203,6 +1203,18 @@ EOT
         end
     end
 
+    def OpenNebulaHelper.bytes_to_unit(value, unit = 'K')
+        j = 0
+        i = BinarySufix.index(unit).to_i
+
+        while j < i do
+            value /= 1024.0
+            j += 1
+        end
+
+        value
+    end
+
     # If the cluster name is empty, returns a '-' char.
     #
     # @param str [String || Hash] Cluster name, or empty Hash (when <CLUSTER/>)
@@ -1885,6 +1897,59 @@ EOT
         end
 
         answers
+    end
+
+    # Returns plot object to print it on the CLI
+    #
+    # @param x     [Array]  Data to x axis (Time axis)
+    # @param y     [Array]  Data to y axis
+    # @param attr  [String] Parameter to y axis
+    # @param title [String] Plot title
+    #
+    # @return Gnuplot plot object
+    def OpenNebulaHelper.get_plot(x, y, attr, title)
+        # Require gnuplot gem only here
+        begin
+            require 'gnuplot'
+        rescue LoadError, Gem::LoadError
+            STDERR.puts(
+                'Gnuplot gem is not installed, run `gem install gnuplot` '\
+                'to install it'
+            )
+            exit(-1)
+        end
+
+        # Check if gnuplot is installed on the system
+        unless system('gnuplot --version')
+            STDERR.puts(
+                'Gnuplot is not installed, install it depending on your distro'
+            )
+            exit(-1)
+        end
+
+        Gnuplot.open do |gp|
+            Gnuplot::Plot.new(gp) do |p|
+                p.title title
+
+                p.xlabel 'Time'
+                p.ylabel attr
+
+                p.xdata   'time'
+                p.timefmt "'%H:%M'"
+                p.format  "x '%H:%M'"
+
+                p.style    'data lines'
+                p.terminal 'dumb'
+
+                p.data << Gnuplot::DataSet.new([x, y]) do |ds|
+                    ds.with      = 'linespoints'
+                    ds.linewidth = '3'
+                    ds.using     = '1:2'
+
+                    ds.notitle
+                end
+            end
+        end
     end
 
 end
