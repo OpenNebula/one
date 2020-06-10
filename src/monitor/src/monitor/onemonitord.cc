@@ -38,14 +38,14 @@ static void print_license()
 
 #ifdef ENTERPRISE
     oss << "Licensed under the OpenNebula Software License  (the \"License\"); "
-        << "you may \nnot use this file except in compliance with the License. "
-        << "You may obtain\na copy of the License at "
+        << "you may not\nuse this file except in compliance with the License. "
+        << "You may obtain a copy\nof the License at "
         << "https://github.com/OpenNebula/one/blob/master/LICENSE.onsla\n";
 #else
     oss << "Licensed under the Apache License, Version 2.0 "
-        << "(the \"License\"); you may \nnot use this file "
-        << "except in compliance with the License. You may obtain\n"
-        << "a copy of the License at "
+        << "(the \"License\"); you may not\nuse this file "
+        << "except in compliance with the License. You may obtain"
+        << " a copy\nof the License at "
         << "http://www.apache.org/licenses/LICENSE-2.0\n";
 #endif
 
