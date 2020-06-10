@@ -218,6 +218,8 @@ module OneProvision
         # @param user  [Integer] UID
         # @param group [Integer] GID
         def chown(user, group)
+            return if @one.id == -1
+
             user  ||= 0
             group ||= 0
 
@@ -243,6 +245,8 @@ module OneProvision
         #
         # @param mode [String] Permissions in octet format
         def chmod(mode)
+            return if @one.id == -1
+
             OneProvisionLogger.debug("Chmod #{@type} #{@one.id} #{mode}")
 
             rc = @one.chmod_octet(mode.to_s)
