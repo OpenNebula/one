@@ -477,7 +477,7 @@ module CLIHelper
 
         # Get header in string format
         def header_str
-            @default_columns.collect do |c|
+            @cli_columns.collect do |c|
                 if @columns[c]
                     format_str(c, c.to_s)
                 else
@@ -495,12 +495,12 @@ module CLIHelper
 
             update_columns_size(options)
 
+            options[:csv_del] ? del = options[:csv_del] : del = ','
+
             if !options[:csv] && (!options.key? :no_header)
                 CLIHelper.print_header(header_str)
-            end
-
-            if options[:csv] && (!options.key? :no_header)
-                print_csv_data([@default_columns], options[:csv_del])
+            elsif options[:csv] && (!options.key? :no_header)
+                puts CSV.generate_line(@cli_columns, :col_sep => del)
             end
 
             @res_data ? print_data(@res_data, options) : puts
@@ -528,7 +528,13 @@ module CLIHelper
             del ? del = del : del = ','
 
             data.each do |l|
-                puts CSV.generate_line(l, :col_sep => del)
+                result = []
+
+                @cli_columns.each do |col|
+                    result << l[@default_columns.index(col)]
+                end
+
+                puts CSV.generate_line(result, :col_sep => del)
             end
         end
 
@@ -537,25 +543,24 @@ module CLIHelper
         # @param data        [Array]  Array with data to show
         # @param stat_column [String] Name of the state column
         def print_normal_data(data, stat_column)
-            ncolumns = @default_columns.length
-
             if stat_column
                 stat        = stat_column.upcase.to_sym
-                stat_column = @default_columns.index(stat)
+                stat_column = @cli_columns.index(stat)
             else
-                stat_column = @default_columns.index(:STAT)
+                stat        = :STAT
+                stat_column = @cli_columns.index(:STAT)
             end
 
             data.each do |l|
                 result = []
 
-                ncolumns.times do |i|
+                @cli_columns.each do |col|
+                    i   = @default_columns.index(col)
                     dat = l[i]
-                    col = @default_columns[i]
 
                     str = format_str(col, dat)
 
-                    str = CLIHelper.color_state(str) if i == stat_column
+                    str = CLIHelper.color_state(str) if col == stat
 
                     result << str
                 end
@@ -580,9 +585,11 @@ module CLIHelper
                 filter_data!(res_data, options) if options[:filter]
             end
 
+            @cli_columns = @default_columns
+
             return res_data unless options[:list]
 
-            @default_columns = options[:list].collect {|o| o.upcase.to_sym }
+            @cli_columns = options[:list].collect {|o| o.upcase.to_sym }
 
             res_data
         end
@@ -821,7 +828,7 @@ module CLIHelper
                 m = s.match(/^(.*?)#{operators}(.*?)$/)
 
                 if m
-                    index = @columns.keys.index(m[1].to_sym)
+                    index = @columns.keys.index(m[1].upcase.to_sym)
 
                     if index
                         {
