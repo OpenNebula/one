@@ -724,48 +724,58 @@ define(function(require) {
           _attributeInput(attr) +
         "</div><div class=\"input-group-button\">"+
           "<select class=\"mb_input_unit\">" +
-            "<option value=\"MB\">"+Locale.tr("MB")+"</option>" +
-            "<option value=\"GB\" selected>"+Locale.tr("GB")+"</option>" +
+            "<option value=\"MB\" selected>"+Locale.tr("MB")+"</option>" +
+            "<option value=\"GB\">"+Locale.tr("GB")+"</option>" +
             "<option value=\"TB\">"+Locale.tr("TB")+"</option>" +
           "</select>" +
         "</div>"+
       "</div>");
     _setupAttributeInputMB(div);
-    $("input, select", $("div.mb_input", div)).trigger("input");
-    var input_val = $("input, select", $("div.mb_input", div)).val();
-    
-    if (input_val == ""){
-      $(".mb_input_unit", div).val("GB").change();
-    }else{
-      if (
-        (input_val >= 1024) && 
-        (input_val < 1048576) && 
-        (input_val % 1024 == 0)
-      ){
-        $(".mb_input_unit", div).val("GB").change();
-      } else if ((input_val >= 1048576) && (input_val % 1048576 == 0)){
-        $(".mb_input_unit", div).val("TB").change();
-      } else {
-        $(".mb_input_unit", div).val("MB").change();
-      }
-    }
   }
 
   function _setupAttributeInputMB(context) {
+    var base = 1024;
+    var baseCal = 1;
+    var unit = "MB";
+    var valueInMB = 0;
+    var contextElement = $("div.mb_input", context);
+    // Fill in the input with your unit the first time
+    $("input, select", contextElement).trigger("input");
+    var element = $("input.uinput-slider-val", contextElement);
+    var value = element.val();
+    var min = parseInt(element.attr("min"),10);
+    var max = parseInt(element.attr("max"),10);
+    if (value == ""){
+      $(".mb_input_unit", context).val("MB").change();
+    }else{
+      // If you are going to put a new unit you must put it up in the html, here and down in the change
+      if(value / (base**2) >= 1){
+        baseCal = base**2;
+        unit = "TB";
+      }else if(value / base >= 1){
+        baseCal = base;
+        unit = "GB";
+      }
+      if (value && value.length > 0) {
+        valueInMB = value
+        if(!isNaN(min) && parseInt(min, 10) > valueInMB ){
+          valueInMB = min;
+        }
+        $("input, select", contextElement).val(valueInMB);
+        valueInUnit = valueInMB / baseCal;
+      }
+      $("input.visor", contextElement).val(valueInUnit);
+      var contextUnit = contextElement.siblings(".input-group-button");
+      $(".mb_input_unit", contextUnit).val(unit).change();
+    }
+
     $("div.mb_input", context).on("change", "input.visor, select", function(e){
-      var base = 1024;
-      var baseCal = 1;
-      var unit = "MB";
-      var valueInMB = 0;
       var element = $(this);
       var min = parseInt(element.attr("data-min"),10);
       var max = parseInt(element.attr("data-max"),10);
       var value = element.val();
       var valueInUnit = value;
-
-      var contextElement = $("div.mb_input", context);
       var mb_input_unit_val = $(".mb_input_unit :selected", context).val();
-
       switch (mb_input_unit_val) {
         case 'TB':
           baseCal = base**2;
@@ -778,9 +788,7 @@ define(function(require) {
         default:
         break;
       }
-
       if (value && value.length > 0) {
-        //aca se puede colocar el div de validation de min and max
         valueInMB = value * baseCal;
         if(!isNaN(min) && parseInt(min, 10) > valueInMB ){
           valueInMB = min;
@@ -788,7 +796,6 @@ define(function(require) {
         $("input, select", contextElement).val(valueInMB);
         valueInUnit = valueInMB / baseCal;
       }
-
       $("input.visor", contextElement).val(valueInUnit);
       var contextUnit = contextElement.siblings(".input-group-button");
       $(".mb_input_unit", contextUnit).val(unit);
