@@ -128,14 +128,21 @@ func (tc *STemplateController) Instantiate(extra_tmpl string) (*service.Service,
 	url := urlTemplateAction(tc.ID)
 	action := make(map[string]interface{})
 	args   := make(map[string]interface{})
+	params := make(map[string]interface{})
+
+	if extra_tmpl != "" {
+		err := json.Unmarshal([]byte(extra_tmpl), &args)
+		if err != nil {
+			return nil, err
+		}
+
+		params["merge_template"] = args
+	}
 
 	// Create request
-	json.Unmarshal([]byte(extra_tmpl), &args)
 	action["action"] = map[string]interface{}{
 		"perform": "instantiate",
-		"params": map[string]interface{}{
-			"merge_template": args,
-		},
+		"params": params,
 	}
 
 	//Get response
