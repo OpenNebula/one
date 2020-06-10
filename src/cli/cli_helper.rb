@@ -544,11 +544,9 @@ module CLIHelper
         # @param stat_column [String] Name of the state column
         def print_normal_data(data, stat_column)
             if stat_column
-                stat        = stat_column.upcase.to_sym
-                stat_column = @cli_columns.index(stat)
+                stat = stat_column.upcase.to_sym
             else
-                stat        = :STAT
-                stat_column = @cli_columns.index(:STAT)
+                stat = :STAT
             end
 
             data.each do |l|
