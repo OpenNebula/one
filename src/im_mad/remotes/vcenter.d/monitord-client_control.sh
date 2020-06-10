@@ -21,9 +21,11 @@ IO_FIFO_PATH="/tmp/vcenter_monitor.fifo"
 if [ -z "$ONE_LOCATION" ]; then
     LOG=/var/log/one/vcenter_monitor.log
     BIN=/var/lib/one/remotes/im/lib/vcenter_monitor.rb
+    LOCK_FILE=/var/lock/one/vcenter_monitor
 else
     BIN=$ONE_LOCATION/var/remotes/im/lib/vcenter_monitor.rb
     LOG=$ONE_LOCATION/var/vcenter_monitor.log
+    LOCK_FILE=$ONE_LOCATION/var/.vcenter_monitor_lock
 fi
 
 #-------------------------------------------------------------------------------
@@ -48,7 +50,7 @@ STDIN=${STDIN//[$'\t\r\n']}
 
 MONITOR_ACTION="$ACTION $HID $STDIN"
 
-echo $MONITOR_ACTION > $IO_FIFO_PATH
+flock $LOCK_FILE echo $MONITOR_ACTION > $IO_FIFO_PATH
 
 echo "<MONITOR_MESSAGES></MONITOR_MESSAGES>"
 

@@ -19,9 +19,11 @@
 if [ -z "${ONE_LOCATION}" ]; then
     MAD_LOCATION=/usr/lib/one/mads
     VAR_LOCATION=/var/lib/one
+    LOCK_FILE=/var/lock/one/vcenter_monitor
 else
     MAD_LOCATION=$ONE_LOCATION/lib/mads
     VAR_LOCATION=$ONE_LOCATION/var
+    LOCK_FILE=$ONE_LOCATION/var/.vcenter_monitor_lock
 fi
 
 export DRIVER_NAME="one_im_sh_${BASH_ARGV##* }"
@@ -45,9 +47,11 @@ if [ "${BASH_ARGV##* }" = "vcenter" ]; then
         kill -9 $VMON_PIDS
     fi
 
-    # Create server FIFO
+    # Create server FIFO & lockfile
     rm -f $FIFO_PATH > /dev/null 2>&1
     mkfifo $FIFO_PATH
+
+    touch $LOCK_FILE
 
     # Start & check vcenter monitor service
     /usr/bin/env ruby $VMON_PATH </dev/null &>/dev/null &
