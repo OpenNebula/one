@@ -21,11 +21,13 @@ if !ONE_LOCATION
     GEMS_LOCATION     ||= '/usr/share/one/gems'
     ETC_LOCATION      ||= '/etc/one/'
     VAR_LOCATION      ||= '/var/lib/one/'
+    RUN_LOCATION      ||= '/var/run/one'
 else
     RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
     ETC_LOCATION      ||= ONE_LOCATION + '/etc/'
     VAR_LOCATION      ||= ONE_LOCATION + '/var/'
+    RUN_LOCATION      ||= ONE_LOCATION + '/var/run'
 end
 
 if File.directory?(GEMS_LOCATION)
@@ -87,20 +89,22 @@ class VcenterMonitorManager
     #---------------------------------------------------------------------------
     def update_conf(conf64)
         conftxt = Base64.decode64(conf64)
-        conf    = REXML::Document.new(conftxt).root
+        conf    = REXML::Document.new(conftxt).root.elements
         @mutex.synchronize do
             @conf = {
-                :system_host  => conf.elements['PROBES_PERIOD/SYSTEM_HOST'].text.to_i,
-                :monitor_host => conf.elements['PROBES_PERIOD/MONITOR_HOST'].text.to_i,
-                :state_vms    => conf.elements['PROBES_PERIOD/STATE_VM'].text.to_i,
-                :monitor_vm   => conf.elements['PROBES_PERIOD/MONITOR_VM'].text.to_i,
-                :beacon_host  => conf.elements['PROBES_PERIOD/BEACON_HOST'].text.to_i,
-                :address      => conf.elements['NETWORK/MONITOR_ADDRESS'].text.to_s,
-                :port         => conf.elements['NETWORK/PORT'].text.to_s
+                :system_host  => conf['PROBES_PERIOD/SYSTEM_HOST'].text.to_i,
+                :monitor_host => conf['PROBES_PERIOD/MONITOR_HOST'].text.to_i,
+                :state_vms    => conf['PROBES_PERIOD/STATE_VM'].text.to_i,
+                :monitor_vm   => conf['PROBES_PERIOD/MONITOR_VM'].text.to_i,
+                :beacon_host  => conf['PROBES_PERIOD/BEACON_HOST'].text.to_i,
+                :address      => conf['NETWORK/MONITOR_ADDRESS'].text.to_s,
+                :port         => conf['NETWORK/PORT'].text.to_s
             }
 
-            # Don't allow intervals lower than the minimum default
-            @conf.each{ |k,v| @conf[k] = 30 if v.is_a?(Integer) && v < MINIMUM_INTERVAL }
+            # Don't allow intervals lower than the minimum default
+            @conf.each do |k, v|
+                @conf[k] = 30 if v.is_a?(Integer) && v < MINIMUM_INTERVAL
+            end
         end
 
         @conf[:address] = '127.0.0.1' if @conf[:address] == 'auto'
@@ -142,20 +146,24 @@ end
 # to monitord client and trigger operations on the Vcenter logic thread
 # --------------------------------------------------------------------------
 class IOThread
-    IO_FIFO = '/tmp/vcenter_monitor.fifo'
+
+    IO_FIFO = RUN_LOCATION + '/vcenter_monitor.fifo'
 
     def initialize(vcentermm)
         @vcentermm = vcentermm
     end
 
     def command_loop
+        fifo = File.open(IO_FIFO)
         loop do
-            fifo = File.open(IO_FIFO)
-
             fifo.each_line do |line|
-                action, hid, conf = line.split
-
-                @vcentermm.send(action.to_sym, hid.to_i, conf)
+                begin
+                    action, hid, conf = line.split
+                    @vcentermm.send(action.to_sym, hid.to_i, conf)
+                rescue StandardError => e
+                    STDERR.puts 'vcenter_monitor.rb error processing line ' \
+                                "#{line}. Error: #{e.message}"
+                end
             end
         end
     end
