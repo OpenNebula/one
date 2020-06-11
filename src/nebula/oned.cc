@@ -184,7 +184,7 @@ int main(int argc, char **argv)
         var_location = nl;
         var_location += "/var/";
 
-        lockfile = var_location + ".lock";
+        lockfile = var_location + "/lock/.lock";
     }
 
     fd = open(lockfile.c_str(), O_CREAT|O_EXCL, 0640);

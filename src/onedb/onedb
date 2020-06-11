@@ -41,7 +41,7 @@ else
     GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
     VAR_LOCATION      = ONE_LOCATION + '/var'
     ETC_LOCATION      = ONE_LOCATION + '/etc'
-    LOCK_FILE         = VAR_LOCATION + '/.lock'
+    LOCK_FILE         = VAR_LOCATION + '/lock/.lock'
 end
 
 ONED_CONF = "#{ETC_LOCATION}/oned.conf"

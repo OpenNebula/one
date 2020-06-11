@@ -16,17 +16,24 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-IO_FIFO_PATH="/tmp/vcenter_monitor.fifo"
-
-if [ -z "$ONE_LOCATION" ]; then
-    LOG=/var/log/one/vcenter_monitor.log
-    BIN=/var/lib/one/remotes/im/lib/vcenter_monitor.rb
-    LOCK_FILE=/var/lock/one/vcenter_monitor
+if [ -z "${ONE_LOCATION}" ]; then
+    MAD_LOCATION=/usr/lib/one/mads
+    VAR_LOCATION=/var/lib/one
+    RUN_LOCATION=/var/run/one
+    LOCK_LOCATION=/var/lock/one
+    LOG_LOCATION=/var/log/one
 else
-    BIN=$ONE_LOCATION/var/remotes/im/lib/vcenter_monitor.rb
-    LOG=$ONE_LOCATION/var/vcenter_monitor.log
-    LOCK_FILE=$ONE_LOCATION/var/.vcenter_monitor_lock
+    MAD_LOCATION=$ONE_LOCATION/lib/mads
+    VAR_LOCATION=$ONE_LOCATION/var
+    RUN_LOCATION=$ONE_LOCATION/var/run
+    LOCK_LOCATION=$ONE_LOCATION/var/lock
+    LOG_LOCATION=$ONE_LOCATION/var
 fi
+
+LOG="$LOG_LOCATION/vcenter_monitor.log"
+LOCK_FILE="$LOCK_LOCATION/vcenter_monitor"
+FIFO_PATH="$RUN_LOCATION/vcenter_monitor.fifo"
+VMON_PATH="$VAR_LOCATION/remotes/im/lib/vcenter_monitor.rb"
 
 #-------------------------------------------------------------------------------
 # Process Arguments
@@ -50,7 +57,7 @@ STDIN=${STDIN//[$'\t\r\n']}
 
 MONITOR_ACTION="$ACTION $HID $STDIN"
 
-flock $LOCK_FILE echo $MONITOR_ACTION > $IO_FIFO_PATH
+flock $LOCK_FILE echo $MONITOR_ACTION > $FIFO_PATH
 
 echo "<MONITOR_MESSAGES></MONITOR_MESSAGES>"
 

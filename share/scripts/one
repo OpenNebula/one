@@ -49,7 +49,7 @@ else
     ONE_SCHEDULER=$ONE_LOCATION/bin/mm_sched
     ONE_HEM=$ONE_LOCATION/bin/onehem-server
 
-    LOCK_FILE=$ONE_LOCATION/var/.lock
+    LOCK_FILE=$ONE_LOCATION/var/lock/.lock
 fi
 
 KILL_9_SECONDS=10

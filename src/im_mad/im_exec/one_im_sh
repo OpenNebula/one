@@ -19,11 +19,13 @@
 if [ -z "${ONE_LOCATION}" ]; then
     MAD_LOCATION=/usr/lib/one/mads
     VAR_LOCATION=/var/lib/one
-    LOCK_FILE=/var/lock/one/vcenter_monitor
+    RUN_LOCATION=/var/run/one
+    LOCK_LOCATION=/var/lock/one/
 else
     MAD_LOCATION=$ONE_LOCATION/lib/mads
     VAR_LOCATION=$ONE_LOCATION/var
-    LOCK_FILE=$ONE_LOCATION/var/.vcenter_monitor_lock
+    RUN_LOCATION=$ONE_LOCATION/var/run
+    LOCK_LOCATION=$ONE_LOCATION/var/lock
 fi
 
 export DRIVER_NAME="one_im_sh_${BASH_ARGV##* }"
@@ -37,7 +39,8 @@ export DRIVER_NAME="one_im_sh_${BASH_ARGV##* }"
 #-------------------------------------------------------------------------------
 if [ "${BASH_ARGV##* }" = "vcenter" ]; then
 
-    FIFO_PATH="/tmp/vcenter_monitor.fifo"
+    LOCK_FILE="$LOCK_LOCATION/vcenter_monitor"
+    FIFO_PATH="$RUN_LOCATION/vcenter_monitor.fifo"
     VMON_PATH="$VAR_LOCATION/remotes/im/lib/vcenter_monitor.rb"
 
     # Sanitize previous instances
