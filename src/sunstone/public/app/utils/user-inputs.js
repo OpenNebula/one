@@ -743,6 +743,7 @@ define(function(require) {
     $("input, select", contextElement).trigger("input");
     var element = $("input.uinput-slider-val", contextElement);
     var value = element.val();
+    var valueInUnit = value;
     var min = parseInt(element.attr("min"),10);
     var max = parseInt(element.attr("max"),10);
     if (value == ""){
