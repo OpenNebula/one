@@ -578,7 +578,7 @@ post '/service_template/:id/action' do
             networks_values.each do |net|
                 net.map do |_, value|
                     value.map do |_, value1|
-                        value1.gsub!('\\"', '')
+                        value1.gsub!('\\"', '') if value1.is_a? String
                     end
                 end
             end
