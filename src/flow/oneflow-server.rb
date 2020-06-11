@@ -241,7 +241,7 @@ post '/service/:id/action' do
     case action['perform']
     when 'recover'
         if opts && opts['delete']
-            rc = lcm.undeploy_action(@client, params[:id], true)
+            rc = lcm.recover_action(@client, params[:id], true)
         else
             rc = lcm.recover_action(@client, params[:id])
         end
