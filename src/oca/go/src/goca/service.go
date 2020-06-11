@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"strconv"
 	"encoding/json"
+	"errors"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/service"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
@@ -55,6 +56,9 @@ func (sc *ServicesController) Info() (*service.Pool, error) {
 	if err != nil {
 		return nil, err
 	}
+	if !response.status {
+		return nil, errors.New(response.body)
+	}
 	servicepool := &service.Pool{}
 	pool_str, err := json.Marshal(response.BodyMap()["DOCUMENT_POOL"])
 	if err != nil {
@@ -75,6 +79,9 @@ func (sc *ServiceController) Info() (*service.Service, error) {
 	if err != nil {
 		return nil, err
 	}
+	if !response.status {
+		return nil, errors.New(response.body)
+	}
 
 	service := &service.Service{}
 	service_str, err := json.Marshal(response.BodyMap()["DOCUMENT"])
@@ -90,14 +97,14 @@ func (sc *ServiceController) Info() (*service.Service, error) {
 }
 
 // Delete the service resource identified by <id>
-func (sc *ServiceController) Delete() (bool, error) {
+func (sc *ServiceController) Delete() error {
 	url := urlService(sc.ID)
 
 	return sc.c.boolResponse("DELETE", url, nil)
 }
 
 // Recover existing service if delete de service is recover and deleted
-func (sc *ServiceController) Recover(delete bool) (bool, error) {
+func (sc *ServiceController) Recover(delete bool) error {
 	action := make(map[string]interface{})
 
 	action["action"] = map[string]interface{}{
@@ -113,7 +120,7 @@ func (sc *ServiceController) Recover(delete bool) (bool, error) {
 // Permissions operations
 
 // Chgrp service
-func (sc *ServiceController) Chgrp(gid int) (bool, error) {
+func (sc *ServiceController) Chgrp(gid int) error {
 	action := make(map[string]interface{})
 
 	action["action"] = map[string]interface{}{
@@ -127,7 +134,7 @@ func (sc *ServiceController) Chgrp(gid int) (bool, error) {
 }
 
 // Chown service
-func (sc *ServiceController) Chown(uid, gid int) (bool, error) {
+func (sc *ServiceController) Chown(uid, gid int) error {
 	action := make(map[string]interface{})
 
 	action["action"] = map[string]interface{}{
@@ -142,7 +149,7 @@ func (sc *ServiceController) Chown(uid, gid int) (bool, error) {
 }
 
 // Chmod service
-func (sc *ServiceController) Chmod(perm shared.Permissions) (bool, error) {
+func (sc *ServiceController) Chmod(perm shared.Permissions) error {
 	action := make(map[string]interface{})
 
 	action["action"] = map[string]interface{}{
@@ -156,7 +163,7 @@ func (sc *ServiceController) Chmod(perm shared.Permissions) (bool, error) {
 }
 
 // Rename service
-func (sc *ServiceController) Rename(new_name string) (bool, error) {
+func (sc *ServiceController) Rename(new_name string) error {
 	action := make(map[string]interface{})
 
 	action["action"] = map[string]interface{}{
@@ -172,7 +179,7 @@ func (sc *ServiceController) Rename(new_name string) (bool, error) {
 // Role level actions
 
 // Scale the cardinality of a service role
-func (sc *ServiceController) Scale(role string, cardinality int, force bool) (bool, error) {
+func (sc *ServiceController) Scale(role string, cardinality int, force bool) error {
 	url := fmt.Sprintf("%s/scale", urlService(sc.ID))
 
 	body := make(map[string]interface{})
@@ -192,7 +199,7 @@ func (sc *ServiceController) Scale(role string, cardinality int, force bool) (bo
 // 			"number": 2,
 // 		},
 // TODO: enforce only available actions
-func (sc *ServiceController) VMAction(role, action string, params map[string]interface{}) (bool, error) {
+func (sc *ServiceController) VMAction(role, action string, params map[string]interface{}) error {
 	url := fmt.Sprintf("%s/action", urlRole(sc.ID, role))
 
 	body := make(map[string]interface{})
@@ -220,18 +227,22 @@ func urlService(id int) string {
 }
 
 // Action handler for existing flow services. Requires the action body.
-func (sc *ServiceController) action(action map[string]interface{}) (bool, error) {
+func (sc *ServiceController) action(action map[string]interface{}) error {
 	url := urlServiceAction(sc.ID)
 
 	return sc.c.boolResponse("POST", url, action)
 }
 
-func (c *Controller) boolResponse(method string, url string, body map[string]interface{}) (bool, error) {
+func (c *Controller) boolResponse(method string, url string, body map[string]interface{}) error {
 	response, err := c.ClientFlow.HTTPMethod(method, url, body)
 
 	if err != nil {
-		return false, err
+		return err
 	}
 
-	return response.status, nil
+	if !response.status {
+		return errors.New(response.body)
+	}
+
+	return nil
 }

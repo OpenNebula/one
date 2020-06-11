@@ -23,6 +23,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"errors"
 )
 
 // RESTClient
@@ -44,7 +45,7 @@ type HTTPAuth struct {
 // newHTTPResponse Creates Response from http response
 func newHTTPResponse(r *http.Response, err error) (*Response, error) {
 	if err != nil {
-		return &Response{}, err
+		return nil, err
 	}
 
 	status := true
@@ -76,7 +77,7 @@ func (c *RESTClient) HTTPMethod(method string, url string, args ...interface{}) 
 	case "PUT":
 		r, err = c.put(string(url), args[0].(map[string]interface{}))
 	case "":
-		return &Response{}, err
+		return nil, errors.New("Unsupported method.")
 	}
 
 	return r, err
