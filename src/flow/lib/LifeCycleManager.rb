@@ -404,10 +404,14 @@ class ServiceLCM
     #
     # @param client     [OpenNebula::Client] Client executing action
     # @param service_id [Integer]            Service ID
+    # @param delete     [Boolean]            True to recover delete a service
     #
     # @return [OpenNebula::Error] Error if any
-    def recover_action(client, service_id)
-        # TODO, kill other proceses? (other recovers)
+    def recover_action(client, service_id, delete = false)
+        @event_manager.cancel_action(service_id.to_i)
+
+        return undeploy_action(client, service_id, true) if delete
+
         rc = @srv_pool.get(service_id, client) do |service|
             if service.can_recover_deploy?
                 recover_deploy(client, service)
