@@ -43,7 +43,7 @@ func createServiceTemplate(t *testing.T) (*srv_tmpl.ServiceTemplate, int) {
 		},
 	}
 
-	_, err := testCtrl.STemplates().Create(&tmpl)
+	err := testCtrl.STemplates().Create(&tmpl)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -120,7 +120,7 @@ func TestServiceTemplate(t *testing.T) {
 			},
 		},
 	}
-	_, err = tmpl_ctrl.Update(&tmpl_update, true)
+	err = tmpl_ctrl.Update(&tmpl_update, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -133,7 +133,7 @@ func TestServiceTemplate(t *testing.T) {
 	}
 
 	// Check the Service is correctly deleted
-	_, err = tmpl_ctrl.Delete()
+	err = tmpl_ctrl.Delete()
 	if err != nil {
 		t.Errorf("Failure deleting the service template.")
 	}
