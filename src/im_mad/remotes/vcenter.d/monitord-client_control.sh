@@ -35,6 +35,16 @@ LOCK_FILE="$LOCK_LOCATION/vcenter_monitor"
 FIFO_PATH="$RUN_LOCATION/vcenter_monitor.fifo"
 VMON_PATH="$VAR_LOCATION/remotes/im/lib/vcenter_monitor.rb"
 
+function vcenter_running {
+    VMON_PIDS=$(ps axuww | grep "ruby[^ ]* $VMON_PATH" | grep -v grep | awk '{print $2}')
+
+    if [ -z "$VMON_PIDS" ]; then
+        return 1
+    fi
+
+    return 0
+}
+
 #-------------------------------------------------------------------------------
 # Process Arguments
 #-------------------------------------------------------------------------------
@@ -51,13 +61,30 @@ HID=$2
 
 STDIN=`cat -`
 
-ACTION=${ACTION//[$'\t\r\n']}
-HID=${HID//[$'\t\r\n']}
-STDIN=${STDIN//[$'\t\r\n']}
+# Start of critical section (opens LOCK_FILE with fd 45)
+exec 45>$LOCK_FILE
+
+flock 45
+
+# Check if vcenter_monitor is running and restart if needed
+vcenter_running
+
+if [ $? -eq 1 ]; then
+    /usr/bin/env ruby $VMON_PATH </dev/null &>$LOG &
+
+    sleep 3
+
+    vcenter_running
+
+    if [  $? -eq 1 ]; then
+        echo "Cannot start vcenter_monitor service"
+        exit 1
+    fi
+fi
 
 MONITOR_ACTION="$ACTION $HID $STDIN"
 
-flock $LOCK_FILE echo $MONITOR_ACTION > $FIFO_PATH
+echo $MONITOR_ACTION > $FIFO_PATH
 
 echo "<MONITOR_MESSAGES></MONITOR_MESSAGES>"
 
