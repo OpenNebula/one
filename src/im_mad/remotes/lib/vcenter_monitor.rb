@@ -94,7 +94,7 @@ class VcenterMonitorManager
             @conf = {
                 :system_host  => conf['PROBES_PERIOD/SYSTEM_HOST'].text.to_i,
                 :monitor_host => conf['PROBES_PERIOD/MONITOR_HOST'].text.to_i,
-                :state_vms    => conf['PROBES_PERIOD/STATE_VM'].text.to_i,
+                :state_vm     => conf['PROBES_PERIOD/STATE_VM'].text.to_i,
                 :monitor_vm   => conf['PROBES_PERIOD/MONITOR_VM'].text.to_i,
                 :beacon_host  => conf['PROBES_PERIOD/BEACON_HOST'].text.to_i,
                 :address      => conf['NETWORK/MONITOR_ADDRESS'].text.to_s,
@@ -154,8 +154,8 @@ class IOThread
     end
 
     def command_loop
-        fifo = File.open(IO_FIFO)
         loop do
+            fifo = File.open(IO_FIFO)
             fifo.each_line do |line|
                 begin
                     action, hid, conf = line.split
