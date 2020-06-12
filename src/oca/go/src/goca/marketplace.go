@@ -47,7 +47,7 @@ func (c *MarketPlacesController) ByName(name string) (int, error) {
 
 	marketPool, err := c.Info()
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	match := false
@@ -56,13 +56,13 @@ func (c *MarketPlacesController) ByName(name string) (int, error) {
 			continue
 		}
 		if match {
-			return 0, errors.New("multiple resources with that name")
+			return -1, errors.New("multiple resources with that name")
 		}
 		id = marketPool.MarketPlaces[i].ID
 		match = true
 	}
 	if !match {
-		return 0, errors.New("resource not found")
+		return -1, errors.New("resource not found")
 	}
 
 	return id, nil
@@ -111,7 +111,7 @@ func (mc *MarketPlaceController) Info(decrypt bool) (*marketplace.MarketPlace, e
 func (mc *MarketPlacesController) Create(tpl string) (int, error) {
 	response, err := mc.c.Client.Call("one.market.allocate", tpl)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	return response.BodyInt(), nil

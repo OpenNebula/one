@@ -47,7 +47,7 @@ func (c *SecurityGroupsController) ByName(name string, args ...int) (int, error)
 
 	secgroupPool, err := c.Info(args...)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	match := false
@@ -56,13 +56,13 @@ func (c *SecurityGroupsController) ByName(name string, args ...int) (int, error)
 			continue
 		}
 		if match {
-			return 0, errors.New("multiple resources with that name")
+			return -1, errors.New("multiple resources with that name")
 		}
 		id = secgroupPool.SecurityGroups[i].ID
 		match = true
 	}
 	if !match {
-		return 0, errors.New("resource not found")
+		return -1, errors.New("resource not found")
 	}
 
 	return id, nil
@@ -111,7 +111,7 @@ func (sc *SecurityGroupController) Info(decrypt bool) (*securitygroup.SecurityGr
 func (sc *SecurityGroupsController) Create(tpl string) (int, error) {
 	response, err := sc.c.Client.Call("one.secgroup.allocate", tpl)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	return response.BodyInt(), nil
@@ -121,7 +121,7 @@ func (sc *SecurityGroupsController) Create(tpl string) (int, error) {
 func (sc *SecurityGroupController) Clone(cloneName string) (int, error) {
 	response, err := sc.c.Client.Call("one.secgroup.clone", sc.ID, cloneName)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	return response.BodyInt(), nil

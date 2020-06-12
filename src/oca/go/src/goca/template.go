@@ -47,7 +47,7 @@ func (c *TemplatesController) ByName(name string, args ...int) (int, error) {
 
 	templatePool, err := c.Info(args...)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	match := false
@@ -56,13 +56,13 @@ func (c *TemplatesController) ByName(name string, args ...int) (int, error) {
 			continue
 		}
 		if match {
-			return 0, errors.New("multiple resources with that name")
+			return -1, errors.New("multiple resources with that name")
 		}
 		id = templatePool.Templates[i].ID
 		match = true
 	}
 	if !match {
-		return 0, errors.New("resource not found")
+		return -1, errors.New("resource not found")
 	}
 
 	return id, nil
@@ -110,7 +110,7 @@ func (tc *TemplateController) Info(extended, decrypt bool) (*template.Template, 
 func (tc *TemplatesController) Create(template string) (int, error) {
 	response, err := tc.c.Client.Call("one.template.allocate", template)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	return response.BodyInt(), nil
@@ -157,7 +157,7 @@ func (tc *TemplateController) Instantiate(name string, pending bool, extra strin
 	response, err := tc.c.Client.Call("one.template.instantiate", tc.ID, name, pending, extra, clone)
 
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	return response.BodyInt(), nil

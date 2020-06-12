@@ -46,7 +46,7 @@ func (c *VMGroupsController) ByName(name string, args ...int) (int, error) {
 
 	vmGroupPool, err := c.Info(args...)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	match := false
@@ -55,13 +55,13 @@ func (c *VMGroupsController) ByName(name string, args ...int) (int, error) {
 			continue
 		}
 		if match {
-			return 0, errors.New("multiple resources with that name")
+			return -1, errors.New("multiple resources with that name")
 		}
 		id = vmGroupPool.VMGroups[i].ID
 		match = true
 	}
 	if !match {
-		return 0, errors.New("resource not found")
+		return -1, errors.New("resource not found")
 	}
 
 	return id, nil
@@ -109,7 +109,7 @@ func (vc *VMGroupController) Info(decrypt bool) (*vmgroup.VMGroup, error) {
 func (vc *VMGroupsController) Create(tpl string) (int, error) {
 	response, err := vc.c.Client.Call("one.vmgroup.allocate", tpl)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	return response.BodyInt(), nil

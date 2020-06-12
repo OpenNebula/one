@@ -55,7 +55,7 @@ func (c *ImagesController) ByName(name string, args ...int) (int, error) {
 
 	imagePool, err := c.Info(args...)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	match := false
@@ -64,13 +64,13 @@ func (c *ImagesController) ByName(name string, args ...int) (int, error) {
 			continue
 		}
 		if match {
-			return 0, errors.New("multiple resources with that name")
+			return -1, errors.New("multiple resources with that name")
 		}
 		id = imagePool.Images[i].ID
 		match = true
 	}
 	if !match {
-		return 0, errors.New("resource not found")
+		return -1, errors.New("resource not found")
 	}
 
 	return id, nil
@@ -117,7 +117,7 @@ func (ic *ImageController) Info(decrypt bool) (*image.Image, error) {
 func (ic *ImagesController) Create(template string, dsid uint) (int, error) {
 	response, err := ic.c.Client.Call("one.image.allocate", template, dsid)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	return response.BodyInt(), nil
@@ -127,7 +127,7 @@ func (ic *ImagesController) Create(template string, dsid uint) (int, error) {
 func (ic *ImageController) Clone(cloneName string, dsid int) (int, error) {
 	response, err := ic.c.Client.Call("one.image.clone", ic.ID, cloneName, dsid)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	return response.BodyInt(), nil

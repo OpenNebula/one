@@ -57,7 +57,7 @@ func (c *UsersController) ByName(name string) (int, error) {
 
 	userPool, err := c.Info()
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	match := false
@@ -66,13 +66,13 @@ func (c *UsersController) ByName(name string) (int, error) {
 			continue
 		}
 		if match {
-			return 0, errors.New("multiple resources with that name")
+			return -1, errors.New("multiple resources with that name")
 		}
 		id = userPool.Users[i].ID
 		match = true
 	}
 	if !match {
-		return 0, errors.New("resource not found")
+		return -1, errors.New("resource not found")
 	}
 
 	return id, err
@@ -118,7 +118,7 @@ func (uc *UserController) Info(decrypt bool) (*user.User, error) {
 func (uc *UsersController) Create(name, password, authDriver string, groupIDs []int) (int, error) {
 	response, err := uc.c.Client.Call("one.user.allocate", name, password, authDriver, groupIDs)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	return response.BodyInt(), nil
