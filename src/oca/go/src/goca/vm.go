@@ -325,7 +325,7 @@ func (vc *VMController) Resize(template string, enforce bool) error {
 func (vc *VMDiskController) Saveas(imageName, imageType string, snapID int) (int, error) {
 	response, err := vc.c.Client.Call("one.vm.disksaveas", vc.entityID, vc.ID, imageName, imageType, snapID)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	return response.BodyInt(), nil
