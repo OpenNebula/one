@@ -325,16 +325,20 @@ func (vc *VMController) Resize(template string, enforce bool) error {
 func (vc *VMDiskController) Saveas(imageName, imageType string, snapID int) (int, error) {
 	response, err := vc.c.Client.Call("one.vm.disksaveas", vc.entityID, vc.ID, imageName, imageType, snapID)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	return response.BodyInt(), nil
 }
 
 // SnapshotCreate will create a snapshot of the disk image
-func (vc *VMDiskController) SnapshotCreate(description string) error {
-	_, err := vc.c.Client.Call("one.vm.disksnapshotcreate", vc.entityID, vc.ID, description)
-	return err
+func (vc *VMDiskController) SnapshotCreate(description string) (int, error) {
+	response, err := vc.c.Client.Call("one.vm.disksnapshotcreate", vc.entityID, vc.ID, description)
+	if err != nil {
+		return -1, err
+	}
+
+	return response.BodyInt(), err
 }
 
 // SnapshotDelete will delete a snapshot
