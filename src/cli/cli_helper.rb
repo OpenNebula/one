@@ -356,6 +356,12 @@ module CLIHelper
         # @param options [Hash] Object with CLI user options
         # @param top     [Boolean]     True to not update columns again
         def show(data, options = {}, top = false)
+            if options[:list]
+                @cli_columns = options[:list].collect {|o| o.upcase.to_sym }
+            else
+                @cli_columns = @default_columns
+            end
+
             update_columns(options) unless top
 
             if data.is_a? Hash
@@ -553,7 +559,11 @@ module CLIHelper
                 result = []
 
                 @cli_columns.each do |col|
-                    i   = @default_columns.index(col)
+                    i = @default_columns.index(col)
+
+                    # Column might not exist
+                    next unless i
+
                     dat = l[i]
 
                     str = format_str(col, dat)
@@ -573,8 +583,17 @@ module CLIHelper
         #
         # @return        [Array] Array with selected columns information
         def data_array(data, options)
+            # Take default table columns and desired ones by the user
+            cols = @default_columns
+
+            @cli_columns.each do |col|
+                next if @default_columns.include?(col)
+
+                @default_columns.insert(@cli_columns.index(col) + 1, col)
+            end
+
             res_data = data.collect do |d|
-                @default_columns.collect do |c|
+                cols.collect do |c|
                     @columns[c][:proc].call(d).to_s if @columns[c]
                 end
             end
@@ -582,12 +601,6 @@ module CLIHelper
             if options
                 filter_data!(res_data, options) if options[:filter]
             end
-
-            @cli_columns = @default_columns
-
-            return res_data unless options[:list]
-
-            @cli_columns = options[:list].collect {|o| o.upcase.to_sym }
 
             res_data
         end
@@ -617,7 +630,7 @@ module CLIHelper
         def config_expand_data
             ret = []
 
-            @default_columns.each do |column|
+            @cli_columns.each do |column|
                 expand_c = @columns[column][:expand]
 
                 next unless expand_c
@@ -638,7 +651,7 @@ module CLIHelper
         def config_adjust_data
             ret = []
 
-            @default_columns.each do |column|
+            @cli_columns.each do |column|
                 next unless @columns[column][:adjust]
 
                 ret << column.to_s.downcase
@@ -662,13 +675,13 @@ module CLIHelper
 
             return if terminal_size.nil?
 
-            default_columns = columns_info(@default_columns)
+            default_columns = columns_info(@cli_columns)
             expand_columns  = columns_info(expand_columns)
 
             total_size     = total_columns_size(default_columns)
             columns_size   = total_columns_size(expand_columns)
 
-            terminal_size -= (@default_columns.size - 1)
+            terminal_size -= (@cli_columns.size - 1)
             left_size      = terminal_size - total_size
             remaining_size = left_size
 
@@ -740,7 +753,7 @@ module CLIHelper
             expand_data = []
 
             if expand_all
-                expand_data = @default_columns
+                expand_data = @cli_columns
             elsif expand
                 expand_data += options[:expand]
             end
@@ -754,7 +767,7 @@ module CLIHelper
             unless expand_all
                 adjust.each do |column|
                     column = column.upcase.to_sym
-                    size   = max_size(@default_columns.index(column))
+                    size   = max_size(@cli_columns.index(column))
 
                     if size && size > @columns[column][:size]
                         @columns[column][:adjust] = true
@@ -826,7 +839,7 @@ module CLIHelper
                 m = s.match(/^(.*?)#{operators}(.*?)$/)
 
                 if m
-                    index = @columns.keys.index(m[1].upcase.to_sym)
+                    index = @default_columns.index(m[1].upcase.to_sym)
 
                     if index
                         {
