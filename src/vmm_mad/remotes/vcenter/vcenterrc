@@ -25,7 +25,7 @@
 # Show stacktraces on every exception
 :debug_information: false
 
-# Number of retries if a soported driver action is unsuccessful
+# Number of retries if a supported driver action is unsuccessful
 :retries: 3
 
 # Amount of time to wait between retry attempts (seconds)
