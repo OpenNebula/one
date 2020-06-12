@@ -46,7 +46,7 @@ func (c *GroupsController) ByName(name string) (int, error) {
 
 	groupPool, err := c.Info()
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	match := false
@@ -55,13 +55,13 @@ func (c *GroupsController) ByName(name string) (int, error) {
 			continue
 		}
 		if match {
-			return 0, errors.New("multiple resources with that name")
+			return -1, errors.New("multiple resources with that name")
 		}
 		id = groupPool.Groups[i].ID
 		match = true
 	}
 	if !match {
-		return 0, errors.New("resource not found")
+		return -1, errors.New("resource not found")
 	}
 
 	return id, nil
@@ -102,7 +102,7 @@ func (gc *GroupController) Info(decrypt bool) (*group.Group, error) {
 func (gc *GroupsController) Create(name string) (int, error) {
 	response, err := gc.c.Client.Call("one.group.allocate", name)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	return response.BodyInt(), nil

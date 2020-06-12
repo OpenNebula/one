@@ -46,7 +46,7 @@ func (c *ZonesController) ByName(name string) (int, error) {
 
 	zonePool, err := c.Info()
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	match := false
@@ -55,13 +55,13 @@ func (c *ZonesController) ByName(name string) (int, error) {
 			continue
 		}
 		if match {
-			return 0, errors.New("multiple resources with that name")
+			return -1, errors.New("multiple resources with that name")
 		}
 		id = zonePool.Zones[i].ID
 		match = true
 	}
 	if !match {
-		return 0, errors.New("resource not found")
+		return -1, errors.New("resource not found")
 	}
 
 	return id, err
@@ -105,7 +105,7 @@ func (zc *ZoneController) Info(decrypt bool) (*zone.Zone, error) {
 func (zc *ZonesController) Create(tpl string, clusterID int) (int, error) {
 	response, err := zc.c.Client.Call("one.zone.allocate", tpl, clusterID)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	return response.BodyInt(), nil

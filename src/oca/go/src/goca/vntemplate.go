@@ -49,7 +49,7 @@ func (c *VNTemplatesController) ByName(name string) (int, error) {
 
 	vnTemplatePool, err := c.Info()
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	match := false
@@ -58,13 +58,13 @@ func (c *VNTemplatesController) ByName(name string) (int, error) {
 			continue
 		}
 		if match {
-			return 0, errors.New("multiple resources with that name")
+			return -1, errors.New("multiple resources with that name")
 		}
 		id = vnTemplatePool.VNTemplates[i].ID
 		match = true
 	}
 	if !match {
-		return 0, errors.New("resource not found")
+		return -1, errors.New("resource not found")
 	}
 
 	return id, nil
@@ -113,7 +113,7 @@ func (vc *VNTemplateController) Info(decrypt bool) (*vntemplate.VNTemplate, erro
 func (vc *VNTemplateController) Create(vntemplate string) (int, error) {
 	response, err := vc.c.Client.Call("one.vntemplate.allocate", vntemplate)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	return response.BodyInt(), nil
@@ -160,7 +160,7 @@ func (vc *VNTemplateController) Instantiate(name string, extra string) (int, err
 	response, err := vc.c.Client.Call("one.vntemplate.instantiate", vc.ID, name, extra)
 
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	return response.BodyInt(), nil

@@ -46,7 +46,7 @@ func (c *ClustersController) ByName(name string) (int, error) {
 
 	clusterPool, err := c.Info(false)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	match := false
@@ -55,13 +55,13 @@ func (c *ClustersController) ByName(name string) (int, error) {
 			continue
 		}
 		if match {
-			return 0, errors.New("multiple resources with that name")
+			return -1, errors.New("multiple resources with that name")
 		}
 		id = clusterPool.Clusters[i].ID
 		match = true
 	}
 	if !match {
-		return 0, errors.New("resource not found")
+		return -1, errors.New("resource not found")
 	}
 
 	return id, nil
@@ -102,7 +102,7 @@ func (cc *ClusterController) Info() (*cluster.Cluster, error) {
 func (cc *ClustersController) Create(name string) (int, error) {
 	response, err := cc.c.Client.Call("one.cluster.allocate", name)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	return response.BodyInt(), nil

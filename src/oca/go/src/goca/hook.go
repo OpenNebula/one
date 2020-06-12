@@ -21,8 +21,8 @@ import (
 	"errors"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
-	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/hook"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
 // HooksController is a controller for create a hook or a pool of hooks
@@ -47,7 +47,7 @@ func (c *HooksController) ByName(name string) (int, error) {
 
 	hookPool, err := c.Info()
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	match := false
@@ -56,13 +56,13 @@ func (c *HooksController) ByName(name string) (int, error) {
 			continue
 		}
 		if match {
-			return 0, errors.New("multiple resources with that name")
+			return -1, errors.New("multiple resources with that name")
 		}
 		id = hookPool.Hooks[i].ID
 		match = true
 	}
 	if !match {
-		return 0, errors.New("resource not found")
+		return -1, errors.New("resource not found")
 	}
 	return id, nil
 }
@@ -109,7 +109,7 @@ func (hc *HookController) Info(decrypt bool) (*hook.Hook, error) {
 func (hc *HooksController) Create(template string) (int, error) {
 	response, err := hc.c.Client.Call("one.hook.allocate", template)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	return response.BodyInt(), nil
@@ -152,5 +152,5 @@ func (hc *HookController) Unlock() error {
 // Retry retry a hook execution
 func (hc *HookController) Retry(exec_id int) error {
 	_, err := hc.c.Client.Call("one.hook.retry", hc.ID, exec_id)
-	return err;
+	return err
 }
