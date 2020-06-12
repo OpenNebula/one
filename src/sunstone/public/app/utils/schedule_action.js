@@ -630,10 +630,17 @@ define(function (require) {
     }
     sched_action.ACTION = String(new_action);
     if(sched_action.ACTION && actionsWithARGS.includes(sched_action.ACTION)){
-      var snap_name = $("#snapname",context).val();
-      var snap_id = $("#snapid",context).val();
-      var disk_id = $("#diskid",context).val();
-      var rawData = [disk_id,snap_id,snap_name];
+      var snap_name = $("#snapname",context);
+      var snap_id = $("#snapid",context);
+      var disk_id = $("#diskid",context);
+      var snap_name_val = snap_name.val();
+      var snap_id_val = snap_id.val();
+      var disk_id_val = disk_id.val();
+      if(validateScheduleInputsEmpty(sched_action.ACTION, snap_name_val, snap_id_val, disk_id)){
+        Notifier.notifyError("Check arguments for schedule action");
+        return false;
+      }
+      var rawData = [disk_id_val,snap_id_val,snap_name_val];
       sched_action.ARGS = rawData.filter(function (e) {return e;}).join();
     }
     $("#scheduling_" + this.res + "_actions_table .create", context).remove();
@@ -642,6 +649,33 @@ define(function (require) {
     $("#no_relative_time_form", context).addClass("hide");
     $("#add_scheduling_" + this.res + "_action", context).removeAttr("disabled");
     return sched_action;
+  }
+
+  function validateScheduleInputsEmpty(action, snap_name, snap_id, disk_id){
+    switch (action) {
+      case 'snapshot-create':
+        rtn = snap_name.length<=0
+      break;
+      case 'snapshot-revert':
+        rtn = snap_id.length<=0
+      break;
+      case 'snapshot-delete':
+        rtn = snap_id.length<=0
+      break;
+      case 'disk-snapshot-create':
+        rtn = snap_name.length<=0 || disk_id.length<=0
+      break;
+      case 'disk-snapshot-revert':
+        rtn = snap_id.length<=0 || disk_id.length<=0
+      break;
+      case 'disk-snapshot-delete':
+        rtn = snap_id.length<=0 || disk_id.length<=0
+      break;
+      default:
+        rtn = false;
+      break;
+    }
+    return rtn;
   }
 
   function _fromJSONtoActionsTable(actions_array, action_id, minus) {
