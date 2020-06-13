@@ -510,13 +510,7 @@ class ClusterComputeResource
         cluster_ref = self["_ref"]
 
         # Get info of the host where the VM/template is located
-        one_host = VCenterDriver::VIHelper.one_item(OpenNebula::Host, host_id)
-        if !one_host
-            STDERR.puts "Failed to retieve host with id #{host.id}"
-            if VCenterDriver::CONFIG[:debug_information]
-                STDERR.puts "#{message} #{e.backtrace}"
-            end
-        end
+        one_host = VCenterDriver::VIHelper.one_item(OpenNebula::Host, host_id, false)
 
         esx_hosts = {}
         @item.host.each do |esx_host|
@@ -624,7 +618,7 @@ class ClusterComputeResource
 
         @rp_list = get_resource_pool_list if !@rp_list
 
-        vm_pool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualMachinePool)
+        vm_pool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualMachinePool, false)
         # We filter to retrieve only those VMs running in the host that we are monitoring
         host_vms = vm_pool.retrieve_xmlelements("/VM_POOL/VM[HISTORY_RECORDS/HISTORY/HID='#{host_id}']")
 
