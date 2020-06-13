@@ -815,20 +815,20 @@ class ClusterSet
                 $logger.info("Monitoring cluster #{id}")
 
                 CLUSTER_PROBES.each do |probe_name|
-                    # Check if the last monitoring time is older than the
-                    # configured monitoring frequency for the probe
-                    last_mon = c["last_#{probe_name}".to_sym]
-                    probe_frequency = conf[probe_name].to_i
-                    next unless (Time.now.to_i - last_mon) > probe_frequency
-
-                    # Refresh the vCenter connection in the least frequent probe
-                    if probe_name.eql?('system_host')
-                        c[:cluster].connect_vcenter
-                    end
-
-                    $logger.info("\tRunning #{probe_name} probe")
-
                     begin
+                        # Check if the last monitoring time is older than the
+                        # configured monitoring frequency for the probe
+                        last_mon = c["last_#{probe_name}".to_sym]
+                        probe_frequency = conf[probe_name].to_i
+                        next unless (Time.now.to_i - last_mon) > probe_frequency
+
+                        # Refresh the vCenter connection in the least frequent probe
+                        if probe_name.eql?('system_host')
+                            c[:cluster].connect_vcenter
+                        end
+
+                        $logger.info("\tRunning #{probe_name} probe")
+
                         probe_result = c[:cluster].send(probe_name).strip
                         next if probe_result.empty?
 
