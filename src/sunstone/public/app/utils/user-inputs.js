@@ -724,7 +724,7 @@ define(function(require) {
           _attributeInput(attr) +
         "</div><div class=\"input-group-button\">"+
           "<select class=\"mb_input_unit\">" +
-            "<option value=\"MB\" selected>"+Locale.tr("MB")+"</option>" +
+            "<option value=\"MB\">"+Locale.tr("MB")+"</option>" +
             "<option value=\"GB\">"+Locale.tr("GB")+"</option>" +
             "<option value=\"TB\">"+Locale.tr("TB")+"</option>" +
           "</select>" +
@@ -787,6 +787,8 @@ define(function(require) {
           unit = "GB";
         break;
         default:
+          baseCal = 1;
+          unit = "MB";
         break;
       }
       if (value && value.length > 0) {
