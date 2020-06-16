@@ -1297,6 +1297,86 @@ CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    ########################### Charters Management ############################
+
+    create_chart_desc = <<-EOT.unindent
+        Adds a charter to the VM, these are some consecutive scheduled actions
+
+        You can configure the actions in /etc/one/cli/onevm.yaml
+    EOT
+
+    command :'create-chart', create_chart_desc, [:range, :vmid_list] do
+        charters = helper.get_charters
+
+        if charters.nil?
+            STDERR.puts 'No charters found on configuration file'
+            exit(-1)
+        end
+
+        acc_t = 0
+        acc_w = 0
+
+        charters.each do |action, time|
+            sched = "+#{time[:time].to_i + acc_t}"
+
+            helper.schedule_actions(args[0],
+                                    { :schedule => sched },
+                                    action.to_s,
+                                    time[:warning][:time] + acc_w)
+
+            acc_t += time[:time].to_i
+            acc_w += time[:warning][:time].to_i
+        end
+
+        0
+    end
+
+    delete_chart_desc = <<-EOT.unindent
+        Deletes a charter from the VM
+    EOT
+
+    command :'delete-chart', delete_chart_desc, :vmid, :sched_id do
+        helper.perform_action(args[0], {}, 'Charter deleted') do |vm|
+            rc = vm.info
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts "Error #{rc.message}"
+                exit(-1)
+            end
+
+            xpath = "USER_TEMPLATE/SCHED_ACTION[ID=#{args[1]}]"
+
+            unless vm.retrieve_elements(xpath)
+                STDERR.puts "Sched action #{args[1]} not found"
+                exit(-1)
+            end
+
+            vm.delete_element(xpath)
+            rc = vm.update(vm.user_template_str)
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts "Error deleting: #{rc.message}"
+                exit(-1)
+            end
+        end
+
+        0
+    end
+
+    update_chart_desc = <<-EOT.unindent
+        Updates a charter from a VM
+    EOT
+
+    command :'update-chart',
+            update_chart_desc,
+            :vmid,
+            :sched_id,
+            [:file, nil] do
+        helper.update_schedule_action(args[0], args[1], args[2])
+
+        0
+    end
+
     # Deprecated commands
 
     deprecated_command(:shutdown, 'terminate')
