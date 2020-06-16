@@ -73,3 +73,13 @@
     - :MEM
     - :HOST
     - :TIME
+
+:charters:
+  :suspend:
+    :time: "+1209600"
+    :warning:
+      :time: 86400
+  :terminate:
+    :time: "+1209600"
+    :warning:
+      :time: 86400
