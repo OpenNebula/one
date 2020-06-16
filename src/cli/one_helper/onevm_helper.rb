@@ -402,7 +402,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         table
     end
 
-    def schedule_actions(ids, options, action)
+    def schedule_actions(ids, options, action, warning = nil)
         # Verbose by default
         options[:verbose] = true
 
@@ -453,15 +453,66 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 id = ids.max + 1
             end
 
+            unless options[:schedule].include?('+')
+                options[:schedule] = options[:schedule].to_i
+            end
+
             tmp_str = vm.user_template_str
 
             tmp_str << "\nSCHED_ACTION = "
             tmp_str << "[ID = #{id}, ACTION = #{action}, "
+            tmp_str << "WARNING = #{warning}," if warning
             tmp_str << "ARGS = \"#{options[:args]}\"," if options[:args]
-            tmp_str << "TIME = #{options[:schedule].to_i}"
+            tmp_str << "TIME = #{options[:schedule]}"
             tmp_str << str_periodic << ']'
 
             vm.update(tmp_str)
+        end
+    end
+
+    # Update schedule action
+    #
+    # @param vm_id     [Integer] Virtual Machine ID
+    # @param action_id [Integer] Sched action ID
+    # @param file      [String]  File path with update content
+    def update_schedule_action(vm_id, action_id, file)
+        perform_action(vm_id, {}, 'Sched action updated') do |vm|
+            rc = vm.info
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts "Error #{rc.message}"
+                exit(-1)
+            end
+
+            xpath = "USER_TEMPLATE/SCHED_ACTION[ID=#{action_id}]"
+
+            unless vm.retrieve_elements(xpath)
+                STDERR.puts "Sched action #{action_id} not found"
+                exit(-1)
+            end
+
+            # Get user information
+            if file
+                str = File.read(file)
+            else
+                str = OpenNebulaHelper.update_template(vm_id, vm, nil, xpath)
+            end
+
+            # Delete the current sched action
+            vm.delete_element(xpath)
+
+            # Add the modified sched action
+            tmp_str = vm.user_template_str
+            tmp_str << "\nSCHED_ACTION = ["
+            tmp_str << str.split("\n").join(',')
+            tmp_str << ']'
+
+            rc = vm.update(tmp_str)
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts "Error updating: #{rc.message}"
+                exit(-1)
+            end
         end
     end
 
@@ -600,6 +651,16 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         else
             0
         end
+    end
+
+    # Get charters configuration
+    #
+    #   @return [Array]
+    #       - action
+    #           - time
+    #           - warning
+    def get_charters
+        YAML.load_file(self.class.table_conf)[:charters]
     end
 
     private
@@ -1144,24 +1205,24 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             CLIHelper.print_header(str_h1 % 'SCHEDULED ACTIONS', false)
 
             CLIHelper::ShowTable.new(nil, self) do
-                column :ID, '', :size => 2 do |d|
+                column :ID, '', :adjust => true do |d|
                     d['ID'] unless d.nil?
                 end
 
-                column :ACTION, '', :left, :size => 15 do |d|
+                column :ACTION, '', :adjust => true do |d|
                     d['ACTION'] unless d.nil?
                 end
 
-                column :ARGS, '', :left, :size => 15 do |d|
+                column :ARGS, '', :adjust => true do |d|
                     d['ARGS'] ? d['ARGS'] : '-'
                 end
 
-                column :SCHEDULED, '', :size => 12 do |d|
+                column :SCHEDULED, '', :adjust => true do |d|
                     OpenNebulaHelper.time_to_str(d['TIME'], false) \
                         unless d.nil?
                 end
 
-                column :REPEAT, '', :size => 20 do |d|
+                column :REPEAT, '', :adjust => true do |d|
                     str_rep = ''
                     if !d.nil? && d.key?('REPEAT')
                         if d['REPEAT'] == '0'
@@ -1180,7 +1241,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     str_rep unless d.nil?
                 end
 
-                column :END, '', :size => 20 do |d|
+                column :END, '', :adjust => true do |d|
                     str_end = ''
                     if !d.nil? && d.key?('END_TYPE')
                         if d['END_TYPE'] == '0'
@@ -1197,24 +1258,49 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     str_end unless d.nil?
                 end
 
-                column :DONE, '', :size => 12 do |d|
+                column :DONE, '', :adjust => true do |d|
                     OpenNebulaHelper.time_to_str(d['DONE'], false) \
                         unless d.nil?
                 end
 
-                column :MESSAGE, '', :left, :adjust, :size => 35 do |d|
-                    d['MESSAGE'] unless d.nil?
+                column :MESSAGE, '', :size => 35 do |d|
+                    d['MESSAGE'] ? d['MESSAGE'] : '-'
+                end
+
+                column :CHARTER, '', :left, :adjust, :size => 15 do |d|
+                    t1 = Time.now
+                    t2 = Time.at(vm['STIME'].to_i + d['TIME'].to_i)
+
+                    days    = ((t2 - t1) / (24 * 3600)).round(2)
+                    hours   = ((t2 - t1) / 3600).round(2)
+                    minutes = ((t2 - t1) / 60).round(2)
+
+                    if days > 1
+                        show = "In #{days} days"
+                    elsif days < 1 && hours > 1
+                        show = "In #{hours} hours"
+                    elsif minutes > 0
+                        show = "In #{minutes} minutes"
+                    else
+                        show = 'Already done'
+                    end
+
+                    if (t1 - vm['STIME'].to_i).to_i > d['WARNING'].to_i
+                        "#{show} *"
+                    else
+                        show
+                    end
                 end
             end.show([vm_hash['VM']['USER_TEMPLATE']['SCHED_ACTION']].flatten,
                      {})
         end
 
+        if !options[:all]
+            vm.delete_element('/VM/USER_TEMPLATE/SCHED_ACTION')
+        end
+
         if vm.has_elements?('/VM/USER_TEMPLATE')
             puts
-
-            if !options[:all]
-                vm.delete_element('/VM/USER_TEMPLATE/SCHED_ACTION')
-            end
 
             CLIHelper.print_header(str_h1 % 'USER TEMPLATE', false)
             puts vm.template_like_str('USER_TEMPLATE')
