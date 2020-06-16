@@ -718,7 +718,6 @@ class EC2Driver
             # rubocop:disable Layout/LineLength
             vpool = OpenNebula::VirtualMachinePool.new(OpenNebula::Client.new,
                                                        OpenNebula::VirtualMachinePool::INFO_ALL_VM)
-            # rubocop:enable Layout/LineLength
             vpool.info
 
             vpool.each do |vm|
@@ -728,16 +727,17 @@ class EC2Driver
             @ec2.instances.each {|i| work_q.push i }
         else
             # The same but just for a single VM
-            vm = OpenNebula::VirtualMachine.new_with_id(deploy_id,
-                                                        OpenNebula::Client.new)
-            vm.info
-            onevm_info[deploy_id] = vm
+            one_vm = OpenNebula::VirtualMachine.new_with_id(deploy_id,
+                                                            OpenNebula::Client.new)
+            one_vm.info
+            onevm_info[deploy_id] = one_vm
 
             work_q.push get_instance(deploy_id)
+            # rubocop:enable Layout/LineLength
         end
 
         vms = []
-        workers = (0...20).map do
+        workers = (0...[work_q.length, 20].min).map do
             Thread.new do
                 begin
                     while (i = work_q.pop(true))
