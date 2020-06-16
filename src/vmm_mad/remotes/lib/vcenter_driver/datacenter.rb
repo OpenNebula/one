@@ -359,6 +359,8 @@ class DatacenterFolder
         vswitch = []
         vc_hosts = vc_pg.host
         vc_hosts.each do |vc_host|
+            next if vc_host.configManager.nil?
+
             host_pgs = vc_host.configManager.networkSystem.networkInfo.portgroup
             host_pgs.each do |pg|
                 if vc_pg.name == pg.spec.name
