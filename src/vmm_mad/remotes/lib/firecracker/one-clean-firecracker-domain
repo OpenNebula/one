@@ -21,6 +21,9 @@
 # running) or the timeout is reached.
 function retry
 {
+    # Disable exit on error
+    set +e
+
     times=$1
     function=$2
 
@@ -36,6 +39,8 @@ function retry
         error=$?
     done
 
+    # enable exit on error back
+    set -e
     [ "x$error" = "x0" ]
 }
 
