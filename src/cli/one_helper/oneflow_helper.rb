@@ -406,7 +406,11 @@ class OneFlowHelper < OpenNebulaHelper::OneHelper
 
             column :TIME, '', :left, :size => 67 do |d|
                 if d['start_time']
-                    Time.parse(d['start_time']).to_s
+                    if !d['start_time'].match(/^\d+$/)
+                        Time.parse(d['start_time']).to_s
+                    else
+                        d['start_time']
+                    end
                 else
                     d['recurrence']
                 end
