@@ -773,7 +773,9 @@ class ServiceLCM
 
             if !rc[0]
                 role.set_state(Role::STATE[error_state])
-                break OpenNebula::Error.new("Error deploying role #{name}")
+                break OpenNebula::Error.new(
+                    "Error deploying role #{name}: #{rc[1]}"
+                )
             end
 
             role.set_state(Role::STATE[success_state])
@@ -802,7 +804,9 @@ class ServiceLCM
 
             if !rc[0]
                 role.set_state(Role::STATE[error_state])
-                break OpenNebula::Error.new("Error undeploying role #{name}")
+                break OpenNebula::Error.new(
+                    "Error undeploying role #{name}: #{rc[1]}"
+                )
             end
 
             role.set_state(Role::STATE[success_state])
