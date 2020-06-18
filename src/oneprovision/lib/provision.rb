@@ -199,10 +199,13 @@ module OneProvision
                 cluster = nil
                 cid     = nil
 
-                Driver.retry_loop 'Failed to create cluster' do
+                rc = Driver.retry_loop 'Failed to create cluster' do
                     cluster = create_cluster(cfg)
                     cid     = cluster.id
                 end
+
+                # If cluster fails to create and user select skip, exit
+                exit if rc == :skip
 
                 Mode.new_cleanup(true)
 
