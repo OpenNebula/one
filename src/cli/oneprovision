@@ -47,6 +47,7 @@ PING_RETRIES_DEFAULT  = 10
 MAX_RETRIES_DEFAULT   = 3
 RUN_MODE_DEFAULT      = :interactive
 FAIL_CHOICE_DEFAULT   = :quit
+DEFAULT_FAIL_MODES    = [:cleanup, :retry, :skip, :quit]
 CLEANUP_DEFAULT       = false
 THREADS_DEFAULT       = 3
 WAIT_TIMEOUT_DEFAULT  = 60
@@ -76,6 +77,8 @@ CommandParser::CmdParser.new(ARGV) do
     # Global Options
     ########################################################################
 
+    ############################ Output Modes ##############################
+
     VERBOSE = {
         :name => 'verbose',
         :short => '-d',
@@ -91,12 +94,35 @@ CommandParser::CmdParser.new(ARGV) do
         :format => String
     }
 
+    ############################# Run Modes ################################
+
     BATCH = {
         :name => 'batch',
         :short => '-b',
         :large => '--batch',
         :description => 'Run in non-interactive mode (no questions)',
         :format => String
+    }
+
+    FAIL_MODES = {
+        :name => 'fail_modes',
+        :large => '--fail-modes mode1,mode2',
+        :description => 'Fail modes to apply in order',
+        :format => Array,
+        :proc => lambda do |_, options|
+            options = options[:fail_modes].map do |v|
+                v = v.downcase.to_sym
+
+                unless DEFAULT_FAIL_MODES.include?(v)
+                    STDERR.puts "Wrong fail mode `#{v}`"
+                    exit(-1)
+                end
+
+                v
+            end
+
+            [0, options]
+        end
     }
 
     FAIL_RETRY = {
@@ -124,21 +150,16 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Set batch failover mode to quit (default)'
     }
 
-    FORCE = {
-        :name => 'force',
-        :short => '-F',
-        :large => '--force',
-        :description => 'Force configure to execute',
-        :format => String
+
+    FAIL_SLEEP = {
+        :name => 'fail_sleep',
+        :large => '--fail-sleep seconds',
+        :description => 'Time in seconds between each fail mode is executed ' \
+                        'and between each retry',
+        :format => Integer
     }
 
-    HARD = {
-        :name => 'hard',
-        :short => '-H',
-        :large => '--hard',
-        :description => 'Reset the host',
-        :format => String
-    }
+    ############################## Create ##################################
 
     PING_TIMEOUT = {
         :name => 'ping_timeout',
@@ -154,40 +175,6 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Set retries for ping ' \
                         "(default: #{PING_RETRIES_DEFAULT})",
         :format => Integer
-    }
-
-    THREADS = {
-        :name => 'threads',
-        :short => '-t threads',
-        :large => '--threads threads',
-        :description => "Set threads for create (default: #{THREADS_DEFAULT})",
-        :format => Integer
-    }
-
-    CLEANUP = {
-        :name => 'cleanup',
-        :large => '--cleanup',
-        :description => 'Delete all vms and images first, ' \
-                        'then delete the resources.'
-    }
-
-    CLEANUP_TIMEOUT = {
-        :name => 'cleanup_timeout',
-        :large => '--cleanup-timeout timeout',
-        :description => 'Change the default timeout when deleting VMs/Images.'
-    }
-
-    INCREMENTAL = {
-        :name => 'incremental',
-        :large => '--incremental',
-        :description => 'Configure just new hosts, default ' \
-                        'is configure the whole provision.'
-    }
-
-    DUMP = {
-        :name => 'dump',
-        :large => '--dump',
-        :description => 'Dump the configuration file result.'
     }
 
     SKIP_PROVISION = {
@@ -215,6 +202,53 @@ CommandParser::CmdParser.new(ARGV) do
         :format      => Integer
     }
 
+    ########################################################################
+
+    THREADS = {
+        :name => 'threads',
+        :short => '-t threads',
+        :large => '--threads threads',
+        :description => "Set threads for create (default: #{THREADS_DEFAULT})",
+        :format => Integer
+    }
+
+    FORCE = {
+        :name => 'force',
+        :short => '-F',
+        :large => '--force',
+        :description => 'Force configure to execute',
+        :format => String
+    }
+
+    HARD = {
+        :name => 'hard',
+        :short => '-H',
+        :large => '--hard',
+        :description => 'Reset the host',
+        :format => String
+    }
+
+    CLEANUP = {
+        :name => 'cleanup',
+        :large => '--cleanup',
+        :description => 'Delete all vms and images first, ' \
+                        'then delete the resources.'
+    }
+
+    CLEANUP_TIMEOUT = {
+        :name => 'cleanup_timeout',
+        :large => '--cleanup-timeout timeout',
+        :description => 'Change the default timeout when deleting VMs/Images.'
+    }
+
+    DUMP = {
+        :name => 'dump',
+        :large => '--dump',
+        :description => 'Dump the configuration file result.'
+    }
+
+    ########################################################################
+
     MODES = CommandParser::OPTIONS - [CommandParser::VERBOSE] +
             [VERBOSE,
              DEBUG,
@@ -222,7 +256,9 @@ CommandParser::CmdParser.new(ARGV) do
              FAIL_RETRY,
              FAIL_CLEANUP,
              FAIL_SKIP,
-             FAIL_QUIT]
+             FAIL_QUIT,
+             FAIL_MODES,
+             FAIL_SLEEP]
 
     CREATE_OPTIONS = [THREADS,
                       MODES,

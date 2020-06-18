@@ -350,43 +350,9 @@ CommandParser::CmdParser.new(ARGV) do
         Update Address Range variables. SIZE, IP, MAC and TYPE cannot be updated
     EOT
 
-    command :updatear, update_ar_desc, :vnetid, :ar_id, [:file, nil] do
-        helper.perform_action(args[0], options, 'modified') do |obj|
-            rc = obj.info
-
-            if OpenNebula.is_error?(rc)
-                puts rc.message
-                exit(-1)
-            end
-
-            obj.delete_element("AR_POOL/AR[AR_ID!=#{args[1]}]")
-            obj.delete_element('AR_POOL/AR/LEASES')
-            obj.delete_element('AR_POOL/AR/USED_LEASES')
-            obj.delete_element('AR_POOL/AR/MAC_END')
-            obj.delete_element('AR_POOL/AR/IP_END')
-            obj.delete_element('AR_POOL/AR/IP6_ULA')
-            obj.delete_element('AR_POOL/AR/IP6_ULA_END')
-            obj.delete_element('AR_POOL/AR/IP6_GLOBAL')
-            obj.delete_element('AR_POOL/AR/IP6_GLOBAL_END')
-
-            if obj.template_like_str('AR_POOL').empty?
-                puts "Address Range #{args[1]} does not exist for " \
-                     "Virtual Network #{args[0]}"
-                exit(-1)
-            end
-
-            str = OpenNebulaHelper.update_template_helper(false,
-                                                          args[0],
-                                                          obj,
-                                                          args[2],
-                                                          'AR_POOL',
-                                                          false)
-
-            helper.set_client(options)
-            obj = helper.retrieve_resource(obj.id)
-
-            obj.update_ar(str)
-        end
+    command :updatear, update_ar_desc, :vnetid, :ar_id, [:file, nil],
+            :options => OpenNebulaHelper::APPEND do
+        helper.update_ar(args[0], args[1], args[2], options)
     end
 
     rename_desc = <<-EOT.unindent

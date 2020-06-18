@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-
 require 'one_helper'
 require 'one_helper/onevm_helper'
 
@@ -213,6 +212,71 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         end
 
         orphans
+    end
+
+    # Update VNet address range
+    #
+    # @param vnet_id [Intenger] Virtual Network ID
+    # @param ar_id   [Intenger] Address Range ID
+    # @param file    [String]   Path to file to read
+    # @param options [Hash]     User CLI options
+    def update_ar(vnet_id, ar_id, file, options)
+        perform_action(vnet_id, options, 'AR updated') do |obj|
+            rc = obj.info
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts rc.message
+                exit(-1)
+            end
+
+            obj.delete_element("AR_POOL/AR[AR_ID!=#{ar_id}]")
+            obj.delete_element('AR_POOL/AR/LEASES')
+            obj.delete_element('AR_POOL/AR/USED_LEASES')
+            obj.delete_element('AR_POOL/AR/MAC_END')
+            obj.delete_element('AR_POOL/AR/IP_END')
+            obj.delete_element('AR_POOL/AR/IP6_ULA')
+            obj.delete_element('AR_POOL/AR/IP6_ULA_END')
+            obj.delete_element('AR_POOL/AR/IP6_GLOBAL')
+            obj.delete_element('AR_POOL/AR/IP6_GLOBAL_END')
+
+            if obj.template_like_str('AR_POOL').empty?
+                STDERR.puts "Address Range #{ar_id} does not exist for " \
+                            "Virtual Network #{vnet_id}"
+                exit(-1)
+            end
+
+            xpath = "AR_POOL/AR[AR_ID=#{ar_id}]"
+
+            if options[:append]
+                str = OpenNebulaHelper.append_template(vnet_id,
+                                                       obj,
+                                                       file,
+                                                       xpath)
+            else
+                str = OpenNebulaHelper.update_template(vnet_id,
+                                                       obj,
+                                                       file,
+                                                       xpath)
+            end
+
+            if options[:append]
+                # Insert element in current template
+                parts = obj.template_like_str('AR_POOL').split("\n")
+
+                # Insert it in second position, OpenNebula will sort it
+                parts.insert(1, "#{str.strip},")
+
+                parts = parts.join("\n")
+                str   = parts
+            else
+                # Use the information from user
+                unless str.gsub(' ', '').match(/AR=\[/)
+                    str = "AR=[\n#{str.split("\n").join(",\n")}]"
+                end
+            end
+
+            obj.update_ar(str)
+        end
     end
 
     private

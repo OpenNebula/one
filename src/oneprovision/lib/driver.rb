@@ -40,12 +40,15 @@ module OneProvision
                     STDERR.puts "ERROR: #{text}\n#{e.text}"
 
                     retries += 1
+                    choice   = Mode.fail_choice
+                    seconds  = Mode.fail_sleep
 
                     if retries > Mode.max_retries && Mode.mode == :batch
-                        exit(-1)
-                    end
+                        retries = 0
+                        choice  = Mode.next_fail_choice
 
-                    choice = Mode.fail_choice
+                        sleep(seconds) if seconds && choice
+                    end
 
                     if Mode.mode == :interactive
                         begin
@@ -67,11 +70,13 @@ module OneProvision
                     end
 
                     if choice == :retry
+                        sleep(seconds) if seconds
+
                         retry
                     elsif choice == :quit
                         exit(-1)
                     elsif choice == :skip
-                        return
+                        return :skip
                     elsif choice == :cleanup
                         raise OneProvisionCleanupException if cleanup
 

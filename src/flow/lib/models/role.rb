@@ -916,7 +916,11 @@ module OpenNebula
 
             if !(start_time.nil? || start_time.empty?)
                 begin
-                    start_time = Time.parse(start_time).to_i
+                    if !start_time.match(/^\d+$/)
+                        start_time = Time.parse(start_time).to_i
+                    else
+                        start_time = start_time.to_i
+                    end
                 rescue ArgumentError
                     # TODO: error msg
                     return 0
