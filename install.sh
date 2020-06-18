@@ -236,7 +236,8 @@ SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/schemas \
             $SHARE_LOCATION/schemas/libvirt \
             $SHARE_LOCATION/ssh \
-            $SHARE_LOCATION/start-scripts"
+            $SHARE_LOCATION/start-scripts \
+            $SHARE_LOCATION/conf"
 
 ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/hm \
@@ -785,6 +786,7 @@ INSTALL_DOCKER_MACHINE_FILES=(
 
 INSTALL_ETC_FILES=(
     ETC_FILES:$ETC_LOCATION
+    ETC_FILES:$SHARE_LOCATION/conf
     EC2_ETC_FILES:$ETC_LOCATION
     VCENTER_ETC_FILES:$ETC_LOCATION
     AZ_ETC_FILES:$ETC_LOCATION
