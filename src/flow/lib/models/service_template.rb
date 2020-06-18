@@ -468,6 +468,8 @@ module OpenNebula
                         end
 
                         begin
+                            next if start_time.match(/^\d+$/)
+
                             Time.parse(start_time)
                         rescue ArgumentError
                             raise Validator::ParseException,
