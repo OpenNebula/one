@@ -130,6 +130,15 @@ class MicroVM
         get_pid < 0
     end
 
+    def wait_deploy
+        t_start = Time.now
+        timeout = 5
+
+        next while (Time.now - t_start < timeout) && (get_pid < 0)
+
+        get_pid > 0
+    end
+
     # rubocop:disable Lint/RedundantCopDisableDirective
     # rubocop:disable Lint/SuppressedException
     def wait_cgroup(path)
