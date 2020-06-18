@@ -354,7 +354,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
             column :MEM, 'Memory asigned to the VM', :size => 7 do |d|
                 OpenNebulaHelper.unit_to_str(d['TEMPLATE']['MEMORY'].to_i,
-                                             options)
+                                             options, 'M')
             end
 
             column :HOST, 'Host where the VM is running',
