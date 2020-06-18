@@ -13,6 +13,7 @@
 # if NOT, we expect this is the very first access and accept the key.
 # All further accesses already use strict host key checking.
 Match !exec "ssh-keygen -F %h 2>/dev/null || ssh-keygen -F %h -f /etc/ssh/ssh_known_hosts 2>/dev/null"
+  HashKnownHosts no
   StrictHostKeyChecking no
   ServerAliveInterval 10
   #############################################################################
@@ -34,6 +35,7 @@ Match !exec "ssh-keygen -F %h 2>/dev/null || ssh-keygen -F %h -f /etc/ssh/ssh_kn
   ControlPath /run/one/ssh-socks/ctl-M-%C.sock
 
 Host *
+  HashKnownHosts no
   StrictHostKeyChecking yes
   ServerAliveInterval 10
   # IMPORTANT: set the following 'Control*' options the same way as above
