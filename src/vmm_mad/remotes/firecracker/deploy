@@ -42,11 +42,19 @@ microvm.gen_logs_files
 
 # Create microVM
 rc = microvm.create
-sleep(1)
+
+if !rc
+    STDERR.puts 'There was an error deploying the microVM. Check oned.log.'
+    microvm.clean(false)
+
+    exit(-1)
+end
 
 # Make sure process have started
-if !rc || microvm.get_pid == -1
-    STDERR.puts 'MicroVM failed to start.'
+rc = microvm.wait_deploy
+
+if !rc
+    STDERR.puts 'MicroVM process did not start.'
     microvm.clean(false)
 
     exit(-1)
