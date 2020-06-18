@@ -237,11 +237,11 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
                 d[:import_id]
             end
 
-            column :REF, "ref", :left, :size=>config[:REF] || 15 do |d|
+            column :REF, "ref", :left, :adjust, :size=>config[:REF] || 15 do |d|
                 d[:ref]
             end
 
-            column :NAME, "Name", :left, :size=>config[:NAME] || 20 do |d|
+            column :NAME, "Name", :left, :expand, :size=>config[:NAME] || 20 do |d|
                 d[:name] || d[:simple_name]
             end
 
@@ -250,7 +250,7 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
                 d[:one_ids] || d[:cluster].to_s
             end
 
-            column :PATH, "PATH", :left, :size=>config[:PATH] || 10 do |d|
+            column :PATH, "PATH", :left, :expand, :size=>config[:PATH] || 10 do |d|
                 d[:path]
             end
 
