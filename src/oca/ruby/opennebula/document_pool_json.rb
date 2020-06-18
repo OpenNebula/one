@@ -41,7 +41,7 @@ module OpenNebula
 
                 hash['DOCUMENT_POOL']['DOCUMENT'].each { |doc|
                     body = doc['TEMPLATE']["#{TEMPLATE_TAG}"]
-                    if body
+                    if body && !body.empty?
                         b_hash = JSON.parse(body)
                         doc['TEMPLATE']["#{TEMPLATE_TAG}"] = b_hash
                     end
