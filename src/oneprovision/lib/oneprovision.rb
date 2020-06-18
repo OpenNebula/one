@@ -108,16 +108,28 @@ module OneProvision
                 instance.run_mode[:mode] = RUN_MODE_DEFAULT
             end
 
-            if options.key? :fail_cleanup
-                instance.run_mode[:fail_choice] = :cleanup
-            elsif options.key? :fail_retry
-                instance.run_mode[:fail_choice] = :retry
-            elsif options.key? :fail_skip
-                instance.run_mode[:fail_choice] = :skip
-            elsif options.key? :fail_quit
-                instance.run_mode[:fail_choice] = :quit
-            else
-                instance.run_mode[:fail_choice] = FAIL_CHOICE_DEFAULT
+            instance.run_mode[:fail_modes] = []
+
+            if options.key? :fail_modes
+                instance.run_mode[:fail_modes] << options[:fail_modes]
+            end
+
+            options.each do |key, _|
+                next unless key =~ /^fail_/
+
+                next if key =~ /sleep/ || key =~ /modes/
+
+                instance.run_mode[:fail_modes] << key.to_s.split('_')[1].to_sym
+            end
+
+            if instance.run_mode[:fail_modes].empty?
+                instance.run_mode[:fail_modes] << FAIL_CHOICE_DEFAULT
+            end
+
+            instance.run_mode[:fail_modes].flatten!
+
+            if options.key? :fail_sleep
+                instance.run_mode[:fail_sleep] = options[:fail_sleep]
             end
 
             if options[:fail_retry]
@@ -140,7 +152,21 @@ module OneProvision
         #
         # @return [Sym] Choice value
         def self.fail_choice
-            instance.run_mode[:fail_choice]
+            instance.run_mode[:fail_modes][0]
+        end
+
+        # Gets time between fail modes
+        #
+        # @return [Integer] Time in seconds
+        def self.fail_sleep
+            instance.run_mode[:fail_sleep]
+        end
+
+        # Gets next fail choice value
+        #
+        # @return [Sym] Choice value
+        def self.next_fail_choice
+            instance.run_mode[:fail_modes].shift
         end
 
         # Gets max retries value
