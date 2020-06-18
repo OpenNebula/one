@@ -161,12 +161,12 @@ class OneDB
         ops[:db_name] = aug.get('DB/DB_NAME')
 
         ops.each do |k, v|
-            next unless v
+            next if !v || !(v.is_a? String)
 
             ops[k] = v.chomp('"').reverse.chomp('"').reverse
         end
 
-        ops.each {|_, v| v.gsub!("\\", '') if v }
+        ops.each {|_, v| v.gsub!("\\", '') if v && (v.is_a? String) }
 
         ops[:backend] = ops[:backend].to_sym unless ops[:backend].nil?
         ops[:port]    = ops[:port].to_i
