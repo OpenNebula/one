@@ -32,7 +32,17 @@ table {
     border-bottom: 1px solid smart-scale($table-background, $table-hover-scale);
     border-left: 0;
     border-right: 0;
-    td{
+    td {
+      &.overflow {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        &::before {
+          content: attr(title);
+          display: none;
+        }
+      }
+
       .cpu{
         margin: 0px;
         padding: 0px;

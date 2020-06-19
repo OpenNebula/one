@@ -54,30 +54,37 @@ define(function(require) {
       "bSortClasses" : false,
       "bDeferRender": true,
       "aoColumnDefs": [
-          {"bSortable": false, "aTargets": ["check"]},
-          {"sWidth": "35px", "aTargets": [0]},
-          {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(tabId)},
-          {"bVisible": false, "aTargets": ['_all']},
-          {"sType": "file-size", "aTargets": [ 6 ] },
-          {"sType": "num", "aTargets": [1, 11]}
+        {
+          "aTargets": [2, 3, 4, 5, 6, 7, 8, 9, 10],
+          "sClass": "overflow",
+          "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+            $(nTd).attr('title', sData)
+          }
+        },
+        {"bSortable": false, "aTargets": ["check"]},
+        {"sWidth": "35px", "aTargets": [0]},
+        {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(tabId)},
+        {"bVisible": false, "aTargets": ['_all']},
+        {"sType": "file-size", "aTargets": [ 6 ] },
+        {"sType": "num", "aTargets": [1, 11]}
       ]
     }
 
     this.columns = [
-      Locale.tr("ID"),
-      Locale.tr("Name"),
-      Locale.tr("Owner"),
-      Locale.tr("Group"),
-      Locale.tr("Datastore"),
-      Locale.tr("Size"),
-      Locale.tr("Type"),
-      Locale.tr("Registration time"),
-      Locale.tr("Persistent"),
-      Locale.tr("Status"),
-      Locale.tr("#VMS"),
-      Locale.tr("Target"),
-      Locale.tr("Labels"),
-      "search_data"
+      /* 1 */   Locale.tr("ID"),
+      /* 2 */   Locale.tr("Name"),
+      /* 3 */   Locale.tr("Owner"),
+      /* 4 */   Locale.tr("Group"),
+      /* 5 */   Locale.tr("Datastore"),
+      /* 6 */   Locale.tr("Size"),
+      /* 7 */   Locale.tr("Type"),
+      /* 8 */   Locale.tr("Registration time"),
+      /* 9 */   Locale.tr("Persistent"),
+      /* 10 */  Locale.tr("Status"),
+      /* 11 */  Locale.tr("#VMS"),
+      /* 12 */  Locale.tr("Target"),
+      /* 13 */  Locale.tr("Labels"),
+      /* 14 */  "search_data"
     ]
 
     this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});

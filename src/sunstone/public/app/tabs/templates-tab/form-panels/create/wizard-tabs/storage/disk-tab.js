@@ -90,6 +90,7 @@ define(function(require) {
         }
       }
     });
+    $("table#"+this.imageTable.dataTableId).css("table-layout", "fixed")
     that.imageTable.refreshResourceTableSelect();
 
     // Select Image or Volatile disk. The div is hidden depending on the selection, and the
