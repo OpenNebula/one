@@ -59,10 +59,7 @@ define(function(require) {
           "sClass": "overflow",
           "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
             $(nTd).attr('title', sData)
-          },
-          "mRender": function ( data, type, full ) {
-            return null;
-          },
+          }
         },
         {"bSortable": false, "aTargets": ["check"]},
         {"sWidth": "35px", "aTargets": [0]},
