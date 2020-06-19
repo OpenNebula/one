@@ -145,8 +145,10 @@ class Cluster
         cluster_monitoring
     end
 
+    # Try connectivity to a vCenter instance and close the connection
     def beacon_host
-        VCenterDriver::VIClient.new(connection, @host.id)
+        vi_client = VCenterDriver::VIClient.new(connection, @host.id)
+        vi_client.close_connection
         Time.now.to_s
     end
 
