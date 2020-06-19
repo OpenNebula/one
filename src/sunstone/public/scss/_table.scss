@@ -39,6 +39,7 @@ table {
         overflow: hidden;
         &::before {
           content: attr(title);
+          display: none;
         }
       }
 
