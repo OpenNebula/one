@@ -41,8 +41,9 @@ TEMPLATE_LOCATION  = ETC_LOCATION + '/ec2query_templates'
 VIEWS_LOCATION     = RUBY_LIB_LOCATION + '/cloud/econe/views'
 
 if File.directory?(GEMS_LOCATION)
-    Gem.use_paths(GEMS_LOCATION)
-    $LOAD_PATH.reject! {|l| l =~ /(vendor|site)_ruby/ }
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
