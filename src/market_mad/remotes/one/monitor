@@ -28,10 +28,23 @@ class OneMarket
     ONE_MARKET_URL = 'https://marketplace.opennebula.io/'
     AGENT          = 'Market Driver'
     VERSION        = File.dirname(__FILE__) + '/../../VERSION'
+    EDITION        = File.dirname(__FILE__) + '/../../EDITION'
 
     def initialize(url)
-        @url   = url || ONE_MARKET_URL
-        @agent = "OpenNebula #{File.read(VERSION)} (#{AGENT})"
+        if File.exist?(EDITION)
+            edition = File.read(EDITION).strip
+        else
+            edition = nil
+        end
+
+        @url    = url || ONE_MARKET_URL
+        version = File.read(VERSION).strip
+
+        if edition && !edition.empty?
+            @agent = "OpenNebula #{version} #{edition} (#{AGENT})"
+        else
+            @agent = "OpenNebula #{version} (#{AGENT})"
+        end
     end
 
     def get(path)
