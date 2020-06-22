@@ -453,8 +453,13 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 id = ids.max + 1
             end
 
-            unless options[:schedule].include?('+')
-                options[:schedule] = options[:schedule].to_i
+            sched = options[:schedule]
+
+            # If the action is set to be executed from VM start to an specific
+            # amount of time later, we should preserve the + symbol
+            if ((sched.is_a? String) && !sched.include?('+')) ||
+                !(sched.is_a? String)
+                sched = sched.to_i
             end
 
             tmp_str = vm.user_template_str
@@ -463,7 +468,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             tmp_str << "[ID = #{id}, ACTION = #{action}, "
             tmp_str << "WARNING = #{warning}," if warning
             tmp_str << "ARGS = \"#{options[:args]}\"," if options[:args]
-            tmp_str << "TIME = #{options[:schedule]}"
+            tmp_str << "TIME = #{sched}"
             tmp_str << str_periodic << ']'
 
             vm.update(tmp_str)
