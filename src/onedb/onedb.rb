@@ -305,8 +305,22 @@ class OneDB
             puts
             puts "Total time: #{"%0.02f" % (timeb - timea).to_s}s" if ops[:verbose]
 
-            return 0
+            db_version = @backend.read_db_version
+            local      = db_version[:local_version]
+            shared     = db_version[:version]
 
+            return 0 if local == OneDBBacKEnd::LATEST_DB_VERSION &&
+                        shared == OneDBBacKEnd::LATEST_DB_VERSION
+
+            STDERR.puts 'ERROR: Database upgrade to the latest versions ' \
+                        "(local #{local}, shared #{shared})\nwasn't successful " \
+                        'due to missing migration descriptors. Migrators ' \
+                        "are\nprovided as part of Enterprise Edition for " \
+                        "customers with active subscription.\nFor community " \
+                        'with non-commercial deployments they are provided ' \
+                        "via a\ndedicated migration package, which must be " \
+                        'obtained separately.'
+            0
         rescue Exception => e
             puts
             puts e.message
