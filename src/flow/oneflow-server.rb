@@ -38,8 +38,9 @@ ONEFLOW_LOG        = LOG_LOCATION + '/oneflow.log'
 CONFIGURATION_FILE = ETC_LOCATION + '/oneflow-server.conf'
 
 if File.directory?(GEMS_LOCATION)
-    Gem.use_paths(GEMS_LOCATION)
-    $LOAD_PATH.reject! {|l| l =~ /(vendor|site)_ruby/ }
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
