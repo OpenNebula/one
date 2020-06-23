@@ -46,6 +46,10 @@ define(function(require) {
       isWFileSupported = OpenNebulaVM.isWFileSupported(element),
       isRDPSupported = OpenNebulaVM.isRDPSupported(element);
 
+    // All remote buttons are disabled
+    var allDisabled = (!isVNCSupported && !isSPICESupported && !isWFileSupported && !isRDPSupported);
+    $("#vmsremote_buttons").toggle(!allDisabled);
+
     if (isVNCSupported) {
       $(".vnc-sunstone-info").show();
       $(".spice-sunstone-info").hide();
@@ -59,16 +63,11 @@ define(function(require) {
       $(".vnc-sunstone-info").hide();
     }
     
-    // Enable / disable virt-viewer button
-    isWFileSupported ? $(".vv-sunstone-info").show() : $(".vv-sunstone-info").hide();
+    // Show / hide virt-viewer button
+    $(".vv-sunstone-info").toggle(isWFileSupported);
 
-    // Enable / disable rdp button
-    isRDPSupported ? $(".rdp-sunstone-info").show() : $(".rdp-sunstone-info").hide();
-
-    // All remote buttons are disabled
-    if (!isVNCSupported && !isSPICESupported && !isWFileSupported && !isRDPSupported) {
-      $("#vmsremote_buttons").hide()
-    }
+    // Show / hide rdp button
+    $(".rdp-sunstone-info").toggle(isRDPSupported);
 
     if(config && 
       config["system_config"] && 
