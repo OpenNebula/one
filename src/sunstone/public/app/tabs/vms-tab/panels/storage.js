@@ -652,8 +652,18 @@ define(function(require) {
       });
     }
     if (Config.isTabActionEnabled("vms-tab", "VM.disk_resize")) {
-    context.off('click', '.disk_resize');
+      context.off('click', '.disk_resize');
       context.on('click', '.disk_resize', function() {
+        
+        // Error message when try to resize a disk on a 
+        // VM with VCenter hypervisor and snapshots.
+        if (that && that.element && 
+            that.element.TEMPLATE && that.element.TEMPLATE.SNAPSHOT &&
+            that.element.USER_TEMPLATE && that.element.USER_TEMPLATE.HYPERVISOR=="vcenter"){
+          Notifier.notifyError("'disk-resize' operation not supported for VMs with snapshots");
+          return false;
+        }
+
         var disk_id = $(this).parents('tr').attr('disk_id');
         var disk_size = "";
         if(Array.isArray(that.element.TEMPLATE.DISK)){
