@@ -60,7 +60,10 @@ if [ `is_disk $DST_PATH` -eq 1 ]; then
     exit 0
 fi
 
-if [ "$SRC" == "$DST" ]; then
+DST_INODE=$(ssh "$DST_HOST" "ls -d -i \"$DST_DIR\" | awk '{print \$1}'")
+SRC_INODE=$(ls -d -i "$SRC_DIR" | awk '{print $1}')
+
+if [ "$SRC_INODE" = "$DST_INODE" ]; then
     log "Not moving $SRC to $DST, they are the same path"
     exit 0
 fi
