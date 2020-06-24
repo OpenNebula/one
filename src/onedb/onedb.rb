@@ -320,7 +320,12 @@ class OneDB
                         'with non-commercial deployments they are provided ' \
                         "via a\ndedicated migration package, which must be " \
                         'obtained separately.'
-            0
+
+            puts
+            puts 'The database will be restored'
+            restore(ops[:backup], :force => true)
+
+            -1
         rescue Exception => e
             puts
             puts e.message
