@@ -26,17 +26,21 @@ require 'pp'
 
 opts = opts = GetoptLong.new(
     [ '--stdin',   '-s', GetoptLong::NO_ARGUMENT ],
+    [ '--subtree', '-t', GetoptLong::NO_ARGUMENT ],
     [ '--base64',  '-b', GetoptLong::REQUIRED_ARGUMENT ]
 )
 
 source = :stdin
 tmp64  = ""
+subtree = false
 
 begin
     opts.each do |opt, arg|
         case opt
             when '--stdin'
                 source = :stdin
+            when '--subtree'
+                subtree = true
             when '--base64'
                 source = :b64
                 tmp64  = arg
@@ -65,10 +69,10 @@ ARGV.each do |xpath|
     else
         element = xml.elements[xpath.dup]
         if !element.nil?
-            if element.class.method_defined?(:text)
-                values << ( element.text || '' )
-            else
+            if subtree
                 values << ( element.to_s || '' )
+            else
+                values << ( element.text || '' )
             end
         end
     end
