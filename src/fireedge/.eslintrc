@@ -1,0 +1,22 @@
+{
+  "extends": [
+    "./node_modules/jloboescalona-eslint-config/index.js"
+  ],
+  "parser": "babel-eslint",
+  "env": {
+    "browser": true
+  },
+  "globals": {},
+  "plugins": [],
+  "rules": {
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        "devDependencies": [
+          "*.js"
+        ]
+      }
+    ],
+    "default-case": 0
+  }
+}
