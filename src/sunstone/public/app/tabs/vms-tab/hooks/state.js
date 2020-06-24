@@ -64,10 +64,10 @@ define(function(require) {
     }
     
     // Show / hide virt-viewer button
-    $(".vv-sunstone-info").toggle(isWFileSupported);
+    $(".vv-sunstone-info").toggle(Boolean(isWFileSupported));
 
     // Show / hide rdp button
-    $(".rdp-sunstone-info").toggle(isRDPSupported);
+    $(".rdp-sunstone-info").toggle(Boolean(isRDPSupported));
 
     if(config && 
       config["system_config"] && 
