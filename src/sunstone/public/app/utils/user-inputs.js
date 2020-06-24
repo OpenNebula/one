@@ -241,7 +241,7 @@ define(function(require) {
     delete inputs["VCPU"];
 
     opts.div = div;
-    opts.user_inputs = inputs;
+    opts.customs = inputs;
     opts.defaults = $.extend({}, template_json.VMTEMPLATE.TEMPLATE);
     return _generateInstantiateUserInputs(opts);
   }
@@ -284,7 +284,7 @@ define(function(require) {
 
   // It will replace the div's html with a row for each USER_INPUTS
   // opts.div: where to insert the html
-  // opts.user_inputs: Object with the USER_INPUTS section
+  // opts.customs: Object with the USER_INPUTS section
   // opts.defaults: Object with the first level attributes (TEMPLATE)
   // opts.text_header: header text for the text & password inputs
   // opts.network_header: header text for the network inputs
