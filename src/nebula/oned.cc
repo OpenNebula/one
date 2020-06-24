@@ -44,7 +44,7 @@ static void print_license()
     oss << "Copyright 2002-2020, OpenNebula Project, OpenNebula Systems \n\n";
 
 #ifdef ENTERPRISE
-    oss << "Licensed under the OpenNebula Software License  (the \"License\"); "
+    oss << "Licensed under the OpenNebula Software License (the \"License\"); "
         << "you may not\nuse this file except in compliance with the License. "
         << "You may obtain a copy\nof the License at "
         << "https://github.com/OpenNebula/one/blob/master/LICENSE.onsla\n";
