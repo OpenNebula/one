@@ -209,6 +209,9 @@ main_env.Append(marshal=ARGUMENTS.get('marshal', 'no'))
 # Docker-machine addon generation
 main_env.Append(docker_machine=ARGUMENTS.get('docker_machine', 'no'))
 
+# Context packages download
+main_env.Append(context=ARGUMENTS.get('context', 'no'))
+
 if not main_env.GetOption('clean'):
     try:
         if mysql == 'yes':
@@ -313,7 +316,8 @@ build_scripts = [
     'src/docker_machine/SConstruct',
     'src/monitor/SConstruct',
     'src/onedb/SConstruct',
-    svncterm_path
+    svncterm_path,
+    'share/context/SConstruct'
 ]
 
 # disable svncterm
