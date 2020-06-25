@@ -262,6 +262,7 @@ class Cluster
             }
 
             one_id = ids[0]["ID"] if ids[0]
+            next if one_id.to_i == -1
 
             vms[vm_ref] = {
                 :id        => one_id,
