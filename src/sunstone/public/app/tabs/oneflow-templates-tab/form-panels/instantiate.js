@@ -47,6 +47,7 @@ define(function(require) {
   var FORM_PANEL_ID = require("./instantiate/formPanelId");
   var TAB_ID = require("../tabId");
   var vm_group = "VM_GROUP";
+  var classButton = 'small button leases right radius';
 
   /*
     CONSTRUCTOR
@@ -83,9 +84,22 @@ define(function(require) {
    */
 
   function _html() {
-    return TemplateHTML({
-      "formPanelId": this.formPanelId
-    });
+    var values_hbs = {
+      'formPanelId': this.formPanelId,
+      'userInputsHTML': UserInputs.html(),
+    };
+    if(config && config.system_config && config.system_config.leases){
+      values_hbs.userInputsCharters = $("<div/>").append(
+        $("<div/>",{style:"display:inline-block;clear:both;width:100%"}).append(
+          $("<button />", {class: classButton, id:"addCharters"}).append(
+            $("<i/>", {class: 'fa fa-clock'})
+          )
+        ).add(
+          $("<table/>", {class: "service-charters"})
+        )
+      ).prop('outerHTML');
+    }
+    return TemplateHTML(values_hbs);
   }
 
   function _setup(context) {
@@ -95,6 +109,46 @@ define(function(require) {
   }
 
   function _onShow(context) {
+    $(".service-charters", context).empty();
+    if(config && config.system_config && config.system_config.leases ){
+      function remove_leases(){
+        $(".remove-lease", context).off("click").on("click", function(e){
+          e.preventDefault();
+          e.stopPropagation();
+          $(this).closest("tr").remove();
+        });
+      }
+      remove_leases();
+      $("#addCharters",context).off("click").on("click", function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        var leases = config.system_config.leases;
+        var confLeasesKeys = Object.keys(leases);
+        var last = 0;
+        confLeasesKeys.forEach(function(schedAction){
+          if(leases[schedAction] && leases[schedAction].time){
+            var schedActionTime = parseInt(leases[schedAction].time,10);
+            last = last + schedActionTime;
+            var time = (last>=0? "+":"-")+last;
+            $(".service-charters", context).append(
+              $("<tr/>").attr("data-time", time).attr("data-action", schedAction).append(
+                $("<td/>").text(schedAction).add(
+                  $("<td/>").text(time)
+                ).add(
+                  $("<td>").append(
+                    $("<button/>", {class: "remove-lease"}).append(
+                      $("<i>",{class: "fas fa-trash-alt"})
+                    )
+                  )
+                )
+              )
+            );
+            remove_leases();
+          }
+        });
+      });
+    }
+
     var vmgroups = OpenNebulaAction.cache(vm_group)
     if(!vmgroups){
       Sunstone.runAction("VMGroup.list");
@@ -244,8 +298,19 @@ define(function(require) {
       that.service_template_json.DOCUMENT.TEMPLATE.BODY &&
       that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles
     ){
+      var charters = "";
+      if(config && config.system_config && config.system_config.leases ){
+        $(".service-charters", context).find("tr").each(function(index){
+          var time = $(this).attr("data-time");
+          var action = $(this).attr("data-action");
+          if(time.length>0 && action.length>0){
+            charters += TemplateUtils.templateToString({SCHED_ACTION:{ACTION:action, TIME: time, ID: index.toString()}});
+          }
+        });
+      }
       $.each(that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
-        var temp_role = role;
+        var temp_role = {};
+        $.extend( temp_role, role);
         var div_id = "user_input_role_"+index;
         var tmp_json = {};
         var stringCustomValues = TemplateUtils.templateToString(extra_info.merge_template.custom_attrs_values);
@@ -267,8 +332,11 @@ define(function(require) {
             temp_role.vm_template_contents += TemplateUtils.templateToString({VMGROUP:{ROLE:role.name,VMGROUP_ID:vm_group_value}});
           }
         });
+
+        temp_role.vm_template_contents += charters;
         extra_info.merge_template.roles.push(temp_role);
       });
+      charters = "";
     }
     if (!service_name.length){ //empty name
       for (var i=0; i< n_times_int; i++){

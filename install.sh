@@ -237,7 +237,8 @@ SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/schemas/libvirt \
             $SHARE_LOCATION/ssh \
             $SHARE_LOCATION/start-scripts \
-            $SHARE_LOCATION/conf"
+            $SHARE_LOCATION/conf \
+            $SHARE_LOCATION/context"
 
 ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/hm \
@@ -668,6 +669,7 @@ INSTALL_FILES=(
     SSH_SH_LIB_FILES:$LIB_LOCATION/sh
     SSH_SH_OVERRIDE_LIB_FILES:$LIB_LOCATION/sh/override
     SSH_SHARE_FILES:$SHARE_LOCATION/ssh
+    CONTEXT_SHARE:$SHARE_LOCATION/context
 )
 
 INSTALL_CLIENT_FILES=(
@@ -2681,6 +2683,8 @@ LIBVIRT_RNG_SHARE_MODULE_FILES="share/schemas/libvirt/basictypes.rng \
                                share/schemas/libvirt/networkcommon.rng \
                                share/schemas/libvirt/nwfilter_params.rng \
                                share/schemas/libvirt/storagecommon.rng"
+
+CONTEXT_SHARE=$(find share/context/ -type f \( ! -iname "*.sh" ! -iname "SConstruct" \))
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
