@@ -3,12 +3,18 @@
   targetNamespace="http://opennebula.org/XMLSchema" xmlns="http://opennebula.org/XMLSchema">
     <xs:include schemaLocation="acct.xsd"/>
     <xs:include schemaLocation="acl_pool.xsd"/>
+    <xs:include schemaLocation="api_info.xsd"/>
     <xs:include schemaLocation="cluster_pool.xsd"/>
     <xs:include schemaLocation="cluster.xsd"/>
     <xs:include schemaLocation="datastore_pool.xsd"/>
     <xs:include schemaLocation="datastore.xsd"/>
+    <xs:include schemaLocation="document_pool.xsd"/>
+    <xs:include schemaLocation="document.xsd"/>
     <xs:include schemaLocation="group_pool.xsd"/>
     <xs:include schemaLocation="group.xsd"/>
+    <xs:include schemaLocation="hook_message_api.xsd"/>
+    <xs:include schemaLocation="hook_pool.xsd"/>
+    <xs:include schemaLocation="hook.xsd"/>
     <xs:include schemaLocation="host_pool.xsd"/>
     <xs:include schemaLocation="host.xsd"/>
     <xs:include schemaLocation="image_pool.xsd"/>
@@ -17,6 +23,11 @@
     <xs:include schemaLocation="marketplaceapp.xsd"/>
     <xs:include schemaLocation="marketplace_pool.xsd"/>
     <xs:include schemaLocation="marketplace.xsd"/>
+    <xs:include schemaLocation="opennebula_configuration.xsd"/>
+    <xs:include schemaLocation="raftstatus.xsd"/>
+    <xs:include schemaLocation="security_group_pool.xsd"/>
+    <xs:include schemaLocation="security_group.xsd"/>
+    <xs:include schemaLocation="showback.xsd"/>
     <xs:include schemaLocation="user_pool.xsd"/>
     <xs:include schemaLocation="user.xsd"/>
     <xs:include schemaLocation="vdc_pool.xsd"/>
@@ -35,6 +46,4 @@
     <xs:include schemaLocation="vrouter.xsd"/>
     <xs:include schemaLocation="zone_pool.xsd"/>
     <xs:include schemaLocation="zone.xsd"/>
-    <xs:include schemaLocation="showback.xsd"/>
-    <xs:include schemaLocation="raftstatus.xsd"/>
 </xs:schema>
