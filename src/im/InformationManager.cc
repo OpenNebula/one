@@ -448,7 +448,7 @@ void InformationManager::_vm_state(unique_ptr<Message<OpenNebulaMessages>> msg)
             if (id < 0)
             {
                 // Not imported wild, ignore VM state
-                return;
+                continue;
             }
         }
 
