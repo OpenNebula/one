@@ -1,5 +1,5 @@
-<!-- The information sent to the hook when $API is used in an API Hook follos the following schema   -->
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- The information sent to the hook when $API is used in an API Hook follos the following schema   -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://opennebula.org/XMLSchema" elementFormDefault="qualified" targetNamespace="http://opennebula.org/XMLSchema">
   <xs:element name="CALL_INFO">
     <xs:complexType>
@@ -24,6 +24,7 @@
                     <xs:element name="VALUE" type="xs:string"/>
                   </xs:sequence>
                 </xs:complexType>
+              </xs:element>
             </xs:sequence>
           </xs:complexType>
         </xs:element>
