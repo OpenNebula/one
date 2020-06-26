@@ -295,6 +295,11 @@ module CommandParser
                     cmd[:arity]+=1 unless args.include?(nil)
                     cmd[:args_format] << args
                 elsif args.instance_of?(Hash) && args[:options]
+                    if args[:options].is_a? Array
+                        args[:options].flatten!
+                        args[:options] = args[:options].sort_by {|o| o[:name] }
+                    end
+
                     cmd[:options] << args[:options]
                 else
                     cmd[:arity]+=1
@@ -679,7 +684,9 @@ module CommandParser
         def print_options
             puts "## OPTIONS"
 
-            shown_opts = Array.new
+            shown_opts = []
+            options    = []
+
             @command_list.each do |key|
                 value = @commands[key]
 
@@ -688,14 +695,17 @@ module CommandParser
                         next
                     else
                         shown_opts << o[:name]
-
-                        print_option(o)
+                        options << o
                     end
                 end
             end
 
-            @available_options.each do |o|
-                print_option o
+            options << @available_options
+            options.flatten!
+            options = options.sort_by {|o| o[:name] }
+
+            options.each do |o|
+                print_option(o)
             end
         end
 
@@ -723,6 +733,8 @@ module CommandParser
                 print_command(@main)
             else
                 puts "## COMMANDS"
+
+                @command_list.sort! if @command_list
 
                 @command_list.each do |key|
                     value = @commands[key]
@@ -766,6 +778,9 @@ module CommandParser
 
             cmd_format5 =  "#{' '*3}%s"
             cmd_format10 =  "#{' '*8}%s"
+
+            @formats = @formats.sort_by {|key, _| key } if @formats
+
             @formats.each{ |key,value|
                 printf cmd_format5, "* #{key}"
                 puts
