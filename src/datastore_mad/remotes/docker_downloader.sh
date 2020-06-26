@@ -123,6 +123,7 @@ fi
 case "$distro" in
 debian|ubuntu)
     commands=$(cat <<EOC
+RUN [ ! -e /sbin/init ] && ln -s /lib/systemd/systemd /sbin/init
 RUN apt-get update
 RUN apt-get update && apt-get install -y \
       curl \
@@ -147,6 +148,7 @@ EOC
     ;;
 centos)
     commands=$(cat <<EOC
+RUN [ ! -e /sbin/init ] && ln -s /lib/systemd/systemd /sbin/init
 RUN yum update -y
 RUN yum install -y epel-release
 RUN yum install -y initscripts \
