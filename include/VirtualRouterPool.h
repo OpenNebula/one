@@ -19,6 +19,7 @@
 
 #include "PoolSQL.h"
 #include "VirtualRouter.h"
+#include "OneDB.h"
 
 /**
  *  The VirtualRouter Pool class.
@@ -27,7 +28,7 @@ class VirtualRouterPool : public PoolSQL
 {
 public:
 
-    VirtualRouterPool(SqlDB * db) : PoolSQL(db, VirtualRouter::table){};
+    VirtualRouterPool(SqlDB * db) : PoolSQL(db, one_db::vn_table){};
 
     ~VirtualRouterPool(){};
 
@@ -69,7 +70,7 @@ public:
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    VirtualRouter * get(int oid) 
+    VirtualRouter * get(int oid)
     {
         return static_cast<VirtualRouter *>(PoolSQL::get(oid));
     };
@@ -101,7 +102,7 @@ public:
     int dump(std::string& oss, const std::string& where, int sid, int eid,
         bool desc)
     {
-        return PoolSQL::dump(oss, "VROUTER_POOL", "body", VirtualRouter::table,
+        return PoolSQL::dump(oss, "VROUTER_POOL", "body", one_db::vr_table,
                 where, sid, eid, desc);
     };
 
@@ -122,7 +123,7 @@ public:
      */
     int search(vector<int>& oids, const string& where)
     {
-        return PoolSQL::search(oids, VirtualRouter::table, where);
+        return PoolSQL::search(oids, one_db::vr_table, where);
     };
 
 private:

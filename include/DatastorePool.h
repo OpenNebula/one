@@ -19,6 +19,7 @@
 
 #include "Datastore.h"
 #include "PoolSQL.h"
+#include "OneDB.h"
 
 using namespace std;
 
@@ -152,7 +153,7 @@ public:
     int dump(std::string& oss, const std::string& where, int sid, int eid,
         bool desc)
     {
-        return PoolSQL::dump(oss, "DATASTORE_POOL", "body", Datastore::table,
+        return PoolSQL::dump(oss, "DATASTORE_POOL", "body", one_db::ds_table,
                 where, sid, eid, desc);
     };
 
@@ -164,7 +165,7 @@ public:
      */
      int list(vector<int>& oids)
      {
-        return PoolSQL::list(oids, Datastore::table);
+        return PoolSQL::list(oids, one_db::ds_table);
      }
 
      /**

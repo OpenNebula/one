@@ -20,6 +20,7 @@
 #include "PoolSQL.h"
 #include "Hook.h"
 #include "HookAPI.h"
+#include "OneDB.h"
 
 using namespace std;
 
@@ -27,7 +28,7 @@ class HookPool : public PoolSQL
 {
 public:
 
-    HookPool(SqlDB * db) : PoolSQL(db, Hook::table){};
+    HookPool(SqlDB * db) : PoolSQL(db, one_db::hook_table){};
 
     ~HookPool(){};
 
@@ -83,8 +84,8 @@ public:
     int dump(std::string& oss, const std::string& where, int sid, int eid,
         bool desc)
     {
-        return PoolSQL::dump(oss, "HOOK_POOL", "body", Hook::table, where,
-                sid, eid, desc);
+        return PoolSQL::dump(oss, "HOOK_POOL", "body", one_db::hook_table,
+                             where, sid, eid, desc);
     };
 
     /**

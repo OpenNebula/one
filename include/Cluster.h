@@ -18,7 +18,6 @@
 #define CLUSTER_H_
 
 #include "PoolObjectSQL.h"
-#include "ObjectCollection.h"
 #include "DatastorePool.h"
 #include "ClusterTemplate.h"
 #include "BitMap.h"
@@ -161,19 +160,7 @@ private:
     // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************
-    static const char * db_names;
-    static const char * db_bootstrap;
-    static const char * table;
 
-    static const char * datastore_table;
-    static const char * datastore_db_names;
-    static const char * datastore_db_bootstrap;
-
-    static const char * network_table;
-    static const char * network_db_names;
-    static const char * network_db_bootstrap;
-
-    static const char * bitmap_table;
     /**
      *  Execute an INSERT or REPLACE Sql query.
      *    @param db The SQL DB
@@ -187,22 +174,7 @@ private:
      *  Bootstraps the database table(s) associated to the Cluster
      *    @return 0 on success
      */
-    static int bootstrap(SqlDB * db)
-    {
-        int rc;
-        ostringstream oss;
-
-        oss.str(Cluster::db_bootstrap);
-        rc = db->exec_local_wr(oss);
-
-        oss.str(Cluster::datastore_db_bootstrap);
-        rc += db->exec_local_wr(oss);
-
-        oss.str(Cluster::network_db_bootstrap);
-        rc += db->exec_local_wr(oss);
-
-        return rc;
-    };
+    static int bootstrap(SqlDB * db);
 
     /**
      *  Writes the Cluster in the database.

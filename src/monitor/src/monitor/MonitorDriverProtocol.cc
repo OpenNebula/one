@@ -19,22 +19,24 @@
 #include "NebulaLog.h"
 #include "HostMonitorManager.h"
 #include "OneMonitorDriver.h"
-
 #include "MonitorDriverMessages.h"
+#include "SSLUtil.h"
 
 #include <iomanip>
+
+using namespace std;
 
 HostMonitorManager * MonitorDriverProtocol::hm = nullptr;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void MonitorDriverProtocol::_undefined(message_t msg)
+void MonitorDriverProtocol::_undefined(unique_ptr<monitor_msg_t> msg)
 {
     NebulaLog::info("MDP", "Received UNDEFINED msg: " + msg->payload());
 }
 
-static void log_message(const std::unique_ptr<Message<MonitorDriverMessages>>& msg)
+static void log_message(const monitor_msg_t& msg)
 {
     if ( NebulaLog::log_level() < Log::DDEBUG )
     {
@@ -44,13 +46,13 @@ static void log_message(const std::unique_ptr<Message<MonitorDriverMessages>>& m
     ostringstream oss;
 
     struct tm tms;
-    time_t    ts = msg->timestamp();
+    time_t    ts = msg.timestamp();
 
     localtime_r(&ts, &tms);
 
     oss << "[" << tms.tm_hour << ":" << tms.tm_min << ":" << tms.tm_sec
-        << "] Recieved " << msg->type_str() << " message from host "
-        << msg->oid() << ":\n" << msg->payload();
+        << "] Recieved " << msg.type_str() << " message from host "
+        << msg.oid() << ":\n" << msg.payload();
 
     NebulaLog::ddebug("MDP", oss.str());
 }
@@ -58,9 +60,9 @@ static void log_message(const std::unique_ptr<Message<MonitorDriverMessages>>& m
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void MonitorDriverProtocol::_monitor_vm(message_t msg)
+void MonitorDriverProtocol::_monitor_vm(unique_ptr<monitor_msg_t> msg)
 {
-    log_message(msg);
+    log_message(*msg);
 
     if (msg->status() != "SUCCESS")
     {
@@ -155,7 +157,7 @@ void MonitorDriverProtocol::_monitor_vm(message_t msg)
 
             if (it == vms_templ.end())
             {
-                vms_templ[id] = std::move(mon_tmpl);
+                vms_templ[id] = move(mon_tmpl);
             }
             else
             {
@@ -174,9 +176,9 @@ void MonitorDriverProtocol::_monitor_vm(message_t msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void MonitorDriverProtocol::_beacon_host(message_t msg)
+void MonitorDriverProtocol::_beacon_host(unique_ptr<monitor_msg_t> msg)
 {
-    log_message(msg);
+    log_message(*msg);
 
     if (msg->status() != "SUCCESS")
     {
@@ -196,9 +198,9 @@ void MonitorDriverProtocol::_beacon_host(message_t msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void MonitorDriverProtocol::_monitor_host(message_t msg)
+void MonitorDriverProtocol::_monitor_host(unique_ptr<monitor_msg_t> msg)
 {
-    log_message(msg);
+    log_message(*msg);
 
     if (msg->status() != "SUCCESS")
     {
@@ -241,9 +243,9 @@ void MonitorDriverProtocol::_monitor_host(message_t msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void MonitorDriverProtocol::_system_host(message_t msg)
+void MonitorDriverProtocol::_system_host(unique_ptr<monitor_msg_t> msg)
 {
-    log_message(msg);
+    log_message(*msg);
 
     if (msg->status() != "SUCCESS")
     {
@@ -267,9 +269,9 @@ void MonitorDriverProtocol::_system_host(message_t msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void MonitorDriverProtocol::_state_vm(message_t msg)
+void MonitorDriverProtocol::_state_vm(unique_ptr<monitor_msg_t> msg)
 {
-    log_message(msg);
+    log_message(*msg);
 
     if (msg->status() != "SUCCESS")
     {
@@ -303,9 +305,9 @@ void MonitorDriverProtocol::_state_vm(message_t msg)
  * It includes all messages that may be sent by probes, defined in
  * MonitorDriverMessages. This message is constructed in monitord_client.rb
  */
-void MonitorDriverProtocol::_start_monitor(message_t msg)
+void MonitorDriverProtocol::_start_monitor(unique_ptr<monitor_msg_t> msg)
 {
-    log_message(msg);
+    log_message(*msg);
 
     if (msg->status() != "SUCCESS")
     {
@@ -340,7 +342,7 @@ void MonitorDriverProtocol::_start_monitor(message_t msg)
 
     msg_xml.xpath(ts, "/MONITOR_MESSAGES/TIMESTAMP", static_cast<time_t>(0));
 
-    const std::vector<MonitorDriverMessages> stypes = {
+    const vector<MonitorDriverMessages> stypes = {
         MonitorDriverMessages::MONITOR_VM,
         MonitorDriverMessages::BEACON_HOST,
         MonitorDriverMessages::MONITOR_HOST,
@@ -350,19 +352,19 @@ void MonitorDriverProtocol::_start_monitor(message_t msg)
 
     for (const auto& it : stypes)
     {
-        std::string payload64, payload;
+        string payload64, payload;
 
-        std::string xpath = "/MONITOR_MESSAGES/" +
-            Message<MonitorDriverMessages>::type_str(it);
+        string xpath = "/MONITOR_MESSAGES/" +
+             monitor_msg_t::type_str(it);
 
         if ( msg_xml.xpath(payload64, xpath.c_str(), "") != 0 )
         {
             continue;
         }
 
-        base64_decode(payload64, payload);
+        ssl_util::base64_decode(payload64, payload);
 
-        message_t m(new Message<MonitorDriverMessages>);
+        unique_ptr<monitor_msg_t> m(new monitor_msg_t);
 
         m->type(it);
 
@@ -377,13 +379,13 @@ void MonitorDriverProtocol::_start_monitor(message_t msg)
         switch(it)
         {
             case MonitorDriverMessages::MONITOR_VM:
-                _monitor_vm(std::move(m));
+                _monitor_vm(move(m));
                 break;
             case MonitorDriverMessages::BEACON_HOST:
-                _beacon_host(std::move(m));
+                _beacon_host(move(m));
                 break;
             case MonitorDriverMessages::MONITOR_HOST:
-                _monitor_host(std::move(m));
+                _monitor_host(move(m));
                 break;
             case MonitorDriverMessages::SYSTEM_HOST:
                 _system_host(move(m));
@@ -402,7 +404,7 @@ void MonitorDriverProtocol::_start_monitor(message_t msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void MonitorDriverProtocol::_log(message_t msg)
+void MonitorDriverProtocol::_log(unique_ptr<monitor_msg_t> msg)
 {
     auto log_type = Log::INFO;
 

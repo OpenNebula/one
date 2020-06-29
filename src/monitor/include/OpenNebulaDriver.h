@@ -21,7 +21,8 @@
 #include <string>
 #include <unistd.h>
 
-#include "OpenNebulaMessages.h"
+#include "Message.h"
+#include "StreamManager.h"
 #include "NebulaLog.h"
 
 /**
@@ -42,16 +43,16 @@
  *   Template parameter is a enumeration of protocol message types that
  *   MUST include UNDEFINED, INIT and FINALIZE message types.
  */
-template <typename E>
+template <typename MSG>
 class OpenNebulaDriver
 {
 public:
 
     OpenNebulaDriver() : oned_reader(0, &OpenNebulaDriver::_undefined)
     {
-        register_action(E::INIT, &OpenNebulaDriver::_init);
+        register_action(MSG::msg_enum::INIT, &OpenNebulaDriver::_init);
 
-        register_action(E::FINALIZE, &OpenNebulaDriver::_finalize);
+        register_action(MSG::msg_enum::FINALIZE, &OpenNebulaDriver::_finalize);
     }
 
     virtual ~OpenNebulaDriver() = default;
@@ -66,19 +67,20 @@ public:
     }
 
 protected:
-    using message_t = std::unique_ptr<Message<E>>;
+    using message_t = MSG;
 
     /**
      *  Streamer for stdin
      */
-    StreamManager<E> oned_reader;
+    StreamManager<MSG> oned_reader;
 
     /**
      *  Register an action when a message is received in the driver stream
      *    @param m the OpenNebulaMessage recevied
      *    @param f the message callback
      */
-    void register_action(E m, std::function<void(message_t)> f)
+    void register_action(typename MSG::msg_enum m,
+                         std::function<void(std::unique_ptr<message_t>)> f)
     {
         oned_reader.register_action(m, f);
     }
@@ -86,7 +88,7 @@ protected:
     /**
      * Process INIT message from oned, send SUCCESS response
      */
-    static void _init(message_t msg)
+    static void _init(std::unique_ptr<message_t> msg)
     {
         write2one("INIT SUCCESS\n");
     }
@@ -95,7 +97,7 @@ protected:
      * Process FINALIZE message from oned, send SUCCESS response,
      * terminate execution loop
      */
-    static void _finalize(message_t msg)
+    static void _finalize(std::unique_ptr<message_t> msg)
     {
         write2one("FINALIZE SUCCESS\n");
 
@@ -105,7 +107,7 @@ protected:
     /**
      * Default action for undefined messages
      */
-    static void _undefined(message_t msg)
+    static void _undefined(std::unique_ptr<message_t> msg)
     {
         NebulaLog::warn("MON", "Undefined message: " + msg->payload());
     }
@@ -121,9 +123,9 @@ protected:
     /**
      * Write an OpenNebulaMessage to oned (stdout)
      */
-    static void write2one(const Message<E>& msg)
+    static void write2one(const message_t& msg)
     {
-        msg.write_to(1, false);
+        msg.write_to(1);
     }
 };
 

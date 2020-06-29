@@ -21,6 +21,7 @@
 #include "Image.h"
 #include "NebulaLog.h"
 #include "Datastore.h"
+#include "OneDB.h"
 
 #include <time.h>
 #include <sstream>
@@ -164,8 +165,8 @@ public:
     int dump(std::string& oss, const std::string& where, int sid, int eid,
         bool desc)
     {
-        return PoolSQL::dump(oss, "IMAGE_POOL", "body", Image::table, where, sid,
-                eid, desc);
+        return PoolSQL::dump(oss, "IMAGE_POOL", "body", one_db::image_table,
+                             where, sid, eid, desc);
     }
 
     /**

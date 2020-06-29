@@ -18,13 +18,14 @@
 #define MARKETPLACEAPP_POOL_H_
 
 #include "MarketPlaceApp.h"
+#include "OneDB.h"
 
 class SqlDB;
 
 class MarketPlaceAppPool : public PoolSQL
 {
 public:
-    MarketPlaceAppPool(SqlDB * db):PoolSQL(db, MarketPlaceApp::table){};
+    MarketPlaceAppPool(SqlDB * db):PoolSQL(db, one_db::mp_app_table) {};
 
     ~MarketPlaceAppPool(){};
 
@@ -154,7 +155,7 @@ public:
         bool desc)
     {
         return PoolSQL::dump(oss, "MARKETPLACEAPP_POOL", "body",
-                MarketPlaceApp::table, where, sid, eid, desc);
+                             one_db::mp_app_table, where, sid, eid, desc);
     };
 
     /** Update a particular MarketPlaceApp

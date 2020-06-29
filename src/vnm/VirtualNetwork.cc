@@ -44,7 +44,7 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
                                int                      _pvid,
                                const set<int>           &_cluster_ids,
                                VirtualNetworkTemplate * _vn_template):
-            PoolObjectSQL(-1,NET,"",_uid,_gid,_uname,_gname,table),
+            PoolObjectSQL(-1,NET,"",_uid,_gid,_uname,_gname,one_db::vn_table),
             Clusterable(_cluster_ids),
             bridge(""),
             vlan_id_automatic(false),
@@ -77,21 +77,6 @@ void VirtualNetwork::get_permissions(PoolObjectAuth& auths)
         auths.disable_all_acl     = true;
     }
 }
-
-/* ************************************************************************** */
-/* Virtual Network :: Database Access Functions                               */
-/* ************************************************************************** */
-
-const char * VirtualNetwork::table    = "network_pool";
-
-const char * VirtualNetwork::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u, pid";
-
-const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
-    " network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128),"
-    " body MEDIUMTEXT, uid INTEGER, gid INTEGER,"
-    " owner_u INTEGER, group_u INTEGER, other_u INTEGER,"
-    " pid INTEGER, UNIQUE(name,uid))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -198,8 +183,9 @@ int VirtualNetwork::parse_phydev_vlans(const Template* tmpl, const string& vn_ma
     return 0;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ************************************************************************** */
+/* Virtual Network :: Database Access Functions                               */
+/* ************************************************************************** */
 
 int VirtualNetwork::insert(SqlDB * db, string& error_str)
 {
@@ -499,7 +485,7 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace, string& error_str)
     // Construct the SQL statement to Insert or Replace
     if(replace)
     {
-        oss << "UPDATE " << table << " SET "
+        oss << "UPDATE " << one_db::vn_table << " SET "
             << "name = '"    <<   sql_name    << "', "
             << "body = '"    <<   sql_xml     << "', "
             << "uid = "      <<   uid         << ", "
@@ -512,7 +498,8 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace, string& error_str)
     }
     else
     {
-        oss << "INSERT INTO " << table << " (" << db_names << ") VALUES ("
+        oss << "INSERT INTO " << one_db::vn_table
+            << " (" << one_db::vn_db_names << ") VALUES ("
             <<          oid         << ","
             << "'" <<   sql_name    << "',"
             << "'" <<   sql_xml     << "',"
@@ -551,6 +538,15 @@ error_generic:
 error_common:
     return -1;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+int VirtualNetwork::bootstrap(SqlDB * db)
+{
+    ostringstream oss_vnet(one_db::vn_db_bootstrap);
+
+    return db->exec_local_wr(oss_vnet);
+};
 
 /* ************************************************************************** */
 /* Virtual Network :: Misc                                                    */

@@ -40,7 +40,7 @@ Image::Image(int             _uid,
              const string&   _gname,
              int             _umask,
              ImageTemplate * _image_template):
-        PoolObjectSQL(-1,IMAGE,"",_uid,_gid,_uname,_gname,table),
+        PoolObjectSQL(-1,IMAGE,"",_uid,_gid,_uname,_gname,one_db::image_table),
         type(OS),
         disk_type(FILE),
         regtime(time(0)),
@@ -75,19 +75,6 @@ Image::Image(int             _uid,
 /* ************************************************************************ */
 /* Image :: Database Access Functions                                       */
 /* ************************************************************************ */
-
-const char * Image::table = "image_pool";
-
-const char * Image::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * Image::db_bootstrap = "CREATE TABLE IF NOT EXISTS image_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
-    "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
-    "UNIQUE(name,uid) )";
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
 
 int Image::insert(SqlDB *db, string& error_str)
 {
@@ -286,7 +273,7 @@ int Image::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if (replace)
     {
-        oss << "UPDATE " << table << " SET "
+        oss << "UPDATE " << one_db::image_table << " SET "
             << "name = '"    << sql_name << "', "
             << "body = '"    << sql_xml  << "', "
             << "uid = "      << uid      << ", "
@@ -298,7 +285,8 @@ int Image::insert_replace(SqlDB *db, bool replace, string& error_str)
     }
     else
     {
-        oss << "INSERT INTO " << table << " (" << db_names << ") VALUES ("
+        oss << "INSERT INTO " << one_db::image_table
+            << " (" << one_db::image_db_names << ") VALUES ("
             <<          oid             << ","
             << "'" <<   sql_name        << "',"
             << "'" <<   sql_xml         << "',"
@@ -337,8 +325,18 @@ error_common:
     return -1;
 }
 
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Image::bootstrap(SqlDB * db)
+{
+    ostringstream oss_image(one_db::image_db_bootstrap);
+
+    return db->exec_local_wr(oss_image);
+};
+
 /* ************************************************************************ */
-/* Image :: Misc                                                             */
+/* Image :: Misc                                                            */
 /* ************************************************************************ */
 
 string& Image::to_xml(string& xml) const

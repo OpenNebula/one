@@ -86,14 +86,12 @@ public:
         am.loop(t);
     };
 
-protected:
-
-    friend class MadManager;
-
     /**
      *  Time in seconds when this request will expire
      */
     time_t  time_out;
+
+protected:
 
     /**
      *  The ActionManager that will be notify when the request is ready.

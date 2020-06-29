@@ -91,4 +91,286 @@ namespace one_db
     const char * vm_import_db_bootstrap =
         "CREATE TABLE IF NOT EXISTS vm_import "
         "(deploy_id VARCHAR(128), vmid INTEGER, PRIMARY KEY(deploy_id))";
+
+
+    const char * vm_group_table = "vmgroup_pool";
+
+    const char * vm_group_db_names = "oid, name, body, uid, gid, owner_u, group_u, "
+        "other_u";
+
+    const char * vm_group_db_bootstrap = "CREATE TABLE IF NOT EXISTS vmgroup_pool "
+        "(oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, "
+        "uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, "
+        "other_u INTEGER, UNIQUE(name,uid))";
+
+    const char * vm_template_table = "template_pool";
+
+    const char * vm_template_db_names =
+            "oid, name, body, uid, gid, owner_u, group_u, other_u";
+
+    const char * vm_template_db_bootstrap =
+        "CREATE TABLE IF NOT EXISTS template_pool (oid INTEGER PRIMARY KEY, "
+        "name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, "
+        "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
+
+    /* ---------------------------------------------------------------------- */
+    /* Cluster tables                                                         */
+    /* ---------------------------------------------------------------------- */
+    const char * cluster_table = "cluster_pool";
+
+    const char * cluster_db_names =
+        "oid, name, body, uid, gid, owner_u, group_u, other_u";
+
+    const char * cluster_db_bootstrap = "CREATE TABLE IF NOT EXISTS cluster_pool ("
+        "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
+        "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
+        "UNIQUE(name))";
+
+    const char * cluster_datastore_table = "cluster_datastore_relation";
+    const char * cluster_datastore_db_names = "cid, oid";
+    const char * cluster_datastore_db_bootstrap =
+        "CREATE TABLE IF NOT EXISTS cluster_datastore_relation ("
+        "cid INTEGER, oid INTEGER, PRIMARY KEY(cid, oid))";
+
+    const char * cluster_network_table = "cluster_network_relation";
+    const char * cluster_network_db_names = "cid, oid";
+    const char * cluster_network_db_bootstrap =
+        "CREATE TABLE IF NOT EXISTS cluster_network_relation ("
+        "cid INTEGER, oid INTEGER, PRIMARY KEY(cid, oid))";
+
+    const char * cluster_bitmap_table = "cluster_vnc_bitmap";
+
+    /* ---------------------------------------------------------------------- */
+    /* ACL tables                                                             */
+    /* ---------------------------------------------------------------------- */
+    const char * acl_table = "acl";
+
+    const char * acl_db_names = "oid, user, resource, rights, zone";
+
+    const char * acl_db_bootstrap = "CREATE TABLE IF NOT EXISTS "
+        "acl (oid INT PRIMARY KEY, user BIGINT, resource BIGINT, "
+        "rights BIGINT, zone BIGINT, UNIQUE(user, resource, rights, zone))";
+
+    /* ---------------------------------------------------------------------- */
+    /* Datastore tables                                                       */
+    /* ---------------------------------------------------------------------- */
+    const char * ds_table = "datastore_pool";
+
+    const char * ds_db_names =
+            "oid, name, body, uid, gid, owner_u, group_u, other_u";
+
+    const char * ds_db_bootstrap =
+        "CREATE TABLE IF NOT EXISTS datastore_pool ("
+        "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
+        "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
+
+    /* ---------------------------------------------------------------------- */
+    /* Document tables                                                        */
+    /* ---------------------------------------------------------------------- */
+    const char * doc_table = "document_pool";
+
+    const char * doc_db_names =
+            "oid, name, body, type, uid, gid, owner_u, group_u, other_u";
+
+    const char * doc_db_bootstrap =
+        "CREATE TABLE IF NOT EXISTS document_pool (oid INTEGER PRIMARY KEY, "
+        "name VARCHAR(128), body MEDIUMTEXT, type INTEGER, uid INTEGER, gid INTEGER, "
+        "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
+
+    /* ---------------------------------------------------------------------- */
+    /* Group tables                                                           */
+    /* ---------------------------------------------------------------------- */
+    const char * group_table = "group_pool";
+
+    const char * group_db_names =
+            "oid, name, body, uid, gid, owner_u, group_u, other_u";
+
+    const char * group_db_bootstrap = "CREATE TABLE IF NOT EXISTS group_pool ("
+        "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
+        "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
+        "UNIQUE(name))";
+
+    /* ---------------------------------------------------------------------- */
+    /* History tables                                                         */
+    /* ---------------------------------------------------------------------- */
+    const char * history_table = "history";
+
+    const char * history_db_names = "vid, seq, body, stime, etime";
+
+    const char * history_db_bootstrap = "CREATE TABLE IF NOT EXISTS "
+        "history (vid INTEGER, seq INTEGER, body MEDIUMTEXT, "
+        "stime INTEGER, etime INTEGER,PRIMARY KEY(vid,seq))";
+
+    /* ---------------------------------------------------------------------- */
+    /* Hook tables                                                            */
+    /* ---------------------------------------------------------------------- */
+    const char * hook_table = "hook_pool";
+
+    const char * hook_db_names =
+        "oid, name, body, uid, gid, owner_u, group_u, other_u, type";
+
+    const char * hook_db_bootstrap = "CREATE TABLE IF NOT EXISTS hook_pool ("
+        "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER,"
+        "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, type INTEGER)";
+
+    const char * hook_log_table = "hook_log";
+
+    const char * hook_log_db_names = "hkid, exeid, timestamp, rc, body";
+
+    const char * hook_log_db_bootstrap = "CREATE TABLE IF NOT EXISTS hook_log"
+        " (hkid INTEGER, exeid INTEGER, timestamp INTEGER, rc INTEGER,"
+        " body MEDIUMTEXT,PRIMARY KEY(hkid, exeid))";
+
+    /* ---------------------------------------------------------------------- */
+    /* Image tables                                                           */
+    /* ---------------------------------------------------------------------- */
+    const char * image_table = "image_pool";
+
+    const char * image_db_names =
+            "oid, name, body, uid, gid, owner_u, group_u, other_u";
+
+    const char * image_db_bootstrap = "CREATE TABLE IF NOT EXISTS image_pool ("
+        "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
+        "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
+        "UNIQUE(name,uid) )";
+
+    /* ---------------------------------------------------------------------- */
+    /* Log tables                                                             */
+    /* ---------------------------------------------------------------------- */
+    const char * log_table = "logdb";
+
+    const char * log_db_names = "log_index, term, sqlcmd, timestamp, fed_index, applied";
+
+    const char * log_db_bootstrap = "CREATE TABLE IF NOT EXISTS "
+        "logdb (log_index BIGINT UNSIGNED PRIMARY KEY, term INTEGER, sqlcmd MEDIUMTEXT, "
+        "timestamp INTEGER, fed_index BIGINT UNSIGNED, applied BOOLEAN)";
+
+    /* ---------------------------------------------------------------------- */
+    /* Marketplace tables                                                     */
+    /* ---------------------------------------------------------------------- */
+    const char * mp_table = "marketplace_pool";
+
+    const char * mp_db_names =
+            "oid, name, body, uid, gid, owner_u, group_u, other_u";
+
+    const char * mp_db_bootstrap =
+        "CREATE TABLE IF NOT EXISTS marketplace_pool (oid INTEGER PRIMARY KEY, "
+        "name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, "
+        "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
+
+    const char * mp_app_table = "marketplaceapp_pool";
+
+    const char * mp_app_db_names =
+            "oid, name, body, uid, gid, owner_u, group_u, other_u";
+
+    const char * mp_app_db_bootstrap =
+        "CREATE TABLE IF NOT EXISTS marketplaceapp_pool (oid INTEGER PRIMARY KEY, "
+        "name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, "
+        "owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid))";
+
+    /* ---------------------------------------------------------------------- */
+    /* Quotas tables                                                          */
+    /* ---------------------------------------------------------------------- */
+    const char * group_quotas_db_table = "group_quotas";
+    const char * group_quotas_db_names = "group_oid, body";
+    const char * group_quotas_db_oid_column = "group_oid";
+    const char * group_quotas_db_bootstrap =
+        "CREATE TABLE IF NOT EXISTS group_quotas ("
+        "group_oid INTEGER PRIMARY KEY, body MEDIUMTEXT)";
+
+    const char * user_quotas_db_table = "user_quotas";
+    const char * user_quotas_db_names = "user_oid, body";
+    const char * user_quotas_db_oid_column = "user_oid";
+    const char * user_quotas_db_bootstrap =
+        "CREATE TABLE IF NOT EXISTS user_quotas ("
+        "user_oid INTEGER PRIMARY KEY, body MEDIUMTEXT)";
+
+    /* ---------------------------------------------------------------------- */
+    /* Security Group tables                                                  */
+    /* ---------------------------------------------------------------------- */
+    const char * sg_table = "secgroup_pool";
+
+    const char * sg_db_names =
+            "oid, name, body, uid, gid, owner_u, group_u, other_u";
+
+    const char * sg_db_bootstrap = "CREATE TABLE IF NOT EXISTS secgroup_pool ("
+        "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
+        "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
+        "UNIQUE(name,uid))";
+
+    /* ---------------------------------------------------------------------- */
+    /* User tables                                                            */
+    /* ---------------------------------------------------------------------- */
+    const char * user_table = "user_pool";
+
+    const char * user_db_names =
+            "oid, name, body, uid, gid, owner_u, group_u, other_u";
+
+    const char * user_db_bootstrap = "CREATE TABLE IF NOT EXISTS user_pool ("
+        "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
+        "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
+        "UNIQUE(name))";
+
+    /* ---------------------------------------------------------------------- */
+    /* VDC tables                                                             */
+    /* ---------------------------------------------------------------------- */
+    const char * vdc_table = "vdc_pool";
+
+    const char * vdc_db_names =
+            "oid, name, body, uid, gid, owner_u, group_u, other_u";
+
+    const char * vdc_db_bootstrap = "CREATE TABLE IF NOT EXISTS vdc_pool ("
+        "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
+        "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
+        "UNIQUE(name))";
+
+    /* ---------------------------------------------------------------------- */
+    /* Virtual Network tables                                                 */
+    /* ---------------------------------------------------------------------- */
+    const char * vn_table    = "network_pool";
+
+    const char * vn_db_names =
+            "oid, name, body, uid, gid, owner_u, group_u, other_u, pid";
+
+    const char * vn_db_bootstrap = "CREATE TABLE IF NOT EXISTS"
+        " network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128),"
+        " body MEDIUMTEXT, uid INTEGER, gid INTEGER,"
+        " owner_u INTEGER, group_u INTEGER, other_u INTEGER,"
+        " pid INTEGER, UNIQUE(name,uid))";
+
+    const char * vn_template_table = "vn_template_pool";
+
+    const char * vn_template_db_names =
+            "oid, name, body, uid, gid, owner_u, group_u, other_u";
+
+    const char * vn_template_db_bootstrap =
+        "CREATE TABLE IF NOT EXISTS vn_template_pool (oid INTEGER PRIMARY KEY, "
+        "name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, "
+        "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
+
+    /* ---------------------------------------------------------------------- */
+    /* Virtual Router tables                                                  */
+    /* ---------------------------------------------------------------------- */
+    const char * vr_table = "vrouter_pool";
+
+    const char * vr_db_names =
+            "oid, name, body, uid, gid, owner_u, group_u, other_u";
+
+    const char * vr_db_bootstrap =
+        "CREATE TABLE IF NOT EXISTS vrouter_pool (oid INTEGER PRIMARY KEY, "
+        "name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, "
+        "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
+
+    /* ---------------------------------------------------------------------- */
+    /* Zone tables                                                            */
+    /* ---------------------------------------------------------------------- */
+    const char * zone_table = "zone_pool";
+
+    const char * zone_db_names =
+            "oid, name, body, uid, gid, owner_u, group_u, other_u";
+
+    const char * zone_db_bootstrap = "CREATE TABLE IF NOT EXISTS zone_pool ("
+        "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
+        "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
+        "UNIQUE(name))";
 }

@@ -189,7 +189,7 @@ void Monitor::start()
     config->get("MANAGER_TIMER", timer_period);
     config->get("MONITORING_INTERVAL_HOST", monitor_interval_host);
 
-    init_rsa_keys(pub_key, pri_key);
+    ssl_util::init_rsa_keys(pub_key, pri_key);
 
     // Replace the PUBKEY with the content of the PUBKEY file
     ifstream f(pub_key);

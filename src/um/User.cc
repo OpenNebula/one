@@ -28,19 +28,6 @@ const string User::INVALID_PASS_CHARS = " \t\n\v\f\r";
 /* User :: Database Access Functions                                          */
 /* ************************************************************************** */
 
-const char * User::table = "user_pool";
-
-const char * User::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * User::db_bootstrap = "CREATE TABLE IF NOT EXISTS user_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
-    "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
-    "UNIQUE(name))";
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int User::select(SqlDB * db)
 {
     int rc;
@@ -145,7 +132,7 @@ int User::insert_replace(SqlDB *db, bool replace, string& error_str)
     // Construct the SQL statement to Insert or Replace
     if (replace)
     {
-        oss << "UPDATE " << table << " SET "
+        oss << "UPDATE " << one_db::user_table << " SET "
             << "name = '"    <<   sql_username    << "', "
             << "body = '"    <<   sql_xml         << "', "
             << "uid = "      <<   uid             << ", "
@@ -157,7 +144,8 @@ int User::insert_replace(SqlDB *db, bool replace, string& error_str)
     }
     else
     {
-        oss << "INSERT INTO " << table << " (" << db_names << ") VALUES ("
+        oss << "INSERT INTO " << one_db::user_table
+            << " (" << one_db::user_db_names << ") VALUES ("
             <<          oid             << ","
             << "'" <<   sql_username    << "',"
             << "'" <<   sql_xml         << "',"

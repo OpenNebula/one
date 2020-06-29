@@ -26,7 +26,8 @@ source_files=[
     'Attribute.cc',
     'ExtendedAttribute.cc',
     'NebulaService.cc',
-    'NebulaUtil.cc'
+    'NebulaUtil.cc',
+    'SSLUtil.cc'
 ]
 
 # Build library

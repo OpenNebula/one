@@ -93,18 +93,7 @@ private:
     // Constructor/Destructor
     // *************************************************************************
 
-    Hook(Template * tmpl): PoolObjectSQL(-1, HOOK, "", -1, -1, "", "", table),
-        type(HookType::UNDEFINED), cmd(""), remote(false), _hook(0)
-    {
-        if (tmpl != 0)
-        {
-            obj_template = tmpl;
-        }
-        else
-        {
-            obj_template = new Template();
-        }
-    };
+    Hook(Template * tmpl);
 
     ~Hook();
 
@@ -164,12 +153,6 @@ private:
     // Database implementation
     // *************************************************************************
 
-    static const char * db_names;
-
-    static const char * db_bootstrap;
-
-    static const char * table;
-
     /**
      *  Construct the XML representation of the hook
      *  @param xml the resulting XML string
@@ -183,12 +166,7 @@ private:
      *  Bootstraps the database table(s) associated to the Host
      *    @return 0 on success
      */
-    static int bootstrap(SqlDB * db)
-    {
-        std::ostringstream oss_hook(Hook::db_bootstrap);
-
-        return db->exec_local_wr(oss_hook);
-    };
+    static int bootstrap(SqlDB * db);
 
     /**
      *  Writes/updates the Hosts data fields in the database.

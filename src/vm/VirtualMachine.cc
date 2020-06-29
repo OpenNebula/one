@@ -469,7 +469,7 @@ int VirtualMachine::bootstrap(SqlDB * db)
     }
 
     ostringstream oss_monit(one_db::vm_monitor_db_bootstrap);
-    ostringstream oss_hist(History::db_bootstrap);
+    ostringstream oss_hist(one_db::history_db_bootstrap);
     ostringstream oss_showback(one_db::vm_showback_db_bootstrap);
 
     ostringstream oss_index("CREATE INDEX state_oid_idx on vm_pool (state, oid);");

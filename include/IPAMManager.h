@@ -19,14 +19,14 @@
 
 #include <time.h>
 
-#include "MadManager.h"
+#include "ProtocolMessages.h"
+#include "DriverManager.h"
 #include "ActionManager.h"
-#include "IPAMManagerDriver.h"
-#include "Attribute.h"
 #include "NebulaLog.h"
 
 //Forward definitions
 class IPAMRequest;
+class VectorAttribute;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -75,12 +75,14 @@ private:
 
 extern "C" void * ipamm_action_loop(void *arg);
 
-class IPAMManager : public MadManager, public ActionListener
+class IPAMManager :
+    public DriverManager<Driver<ipam_msg_t>>,
+    public ActionListener
 {
 public:
 
-    IPAMManager(time_t timer, std::vector<const VectorAttribute*>& _mads):
-            MadManager(_mads), timer_period(timer)
+    IPAMManager(time_t timer, const std::string mad_location):
+            DriverManager(mad_location), timer_period(timer)
     {
         am.addListener(this);
     };
@@ -110,11 +112,9 @@ public:
 
     /**
      *  Loads IPAM Manager Mads defined in configuration file
-     *   @param uid of the user executing the driver. When uid is 0 the nebula
-     *   identity will be used. Otherwise the Mad will be loaded through the
-     *   sudo application.
+     *   @param _mads configuration of drivers
      */
-    int load_mads(int uid);
+    int load_drivers(const std::vector<const VectorAttribute*>& _mads);
 
     /**
      *  Gets the thread identification.
@@ -155,32 +155,15 @@ private:
     static const char *    ipam_driver_name;
 
     /**
-     *  Returns a pointer to a IPAM Manager driver.
-     *    @param name of an attribute of the driver (e.g. its type)
-     *    @param value of the attribute
-     *    @return the IPAM driver with attribute name equal to value
-     *    or 0 in not found
-     */
-    const IPAMManagerDriver * get(const std::string& name,
-        const std::string& value)
-    {
-        return static_cast<const IPAMManagerDriver *>
-               (MadManager::get(0, name, value));
-    };
-
-    /**
      *  Returns a pointer to a IPAM Manager driver. The driver is
      *  searched by its name.
      *    @param name the name of the driver
      *    @return the IPAM driver owned by uid with attribute name equal to value
      *    or 0 in not found
      */
-    const IPAMManagerDriver * get()
+    const Driver<ipam_msg_t> * get()
     {
-        std::string name("NAME");
-
-        return static_cast<const IPAMManagerDriver *>
-               (MadManager::get(0, name, ipam_driver_name));
+        return DriverManager::get_driver(ipam_driver_name);
     };
 
     /**
@@ -213,13 +196,31 @@ private:
      *    @param ir the IPAM request
      *    @return pointer to the IPAM driver to use, 0 on failure
      */
-    const IPAMManagerDriver * setup_request(IPAMRequest * ir);
+    void send_request(IPAMManagerMessages type, IPAMRequest * ir);
 
     /**
      *  Function to execute the Manager action loop method within a new pthread
      *  (requires C linkage)
      */
     friend void * ipamm_action_loop(void *arg);
+
+    // -------------------------------------------------------------------------
+    // Protocol implementation, procesing messages from driver
+    // -------------------------------------------------------------------------
+    /**
+     *
+     */
+    static void _undefined(unique_ptr<ipam_msg_t> msg);
+
+    /**
+     *
+     */
+    void _notify_request(unique_ptr<ipam_msg_t> msg);
+
+    /**
+     *
+     */
+    static void _log(unique_ptr<ipam_msg_t> msg);
 
     // -------------------------------------------------------------------------
     // Action Listener interface
@@ -229,11 +230,13 @@ private:
         check_time_outs_action();
     };
 
+    static const int drivers_timeout = 10;
+
     void finalize_action(const ActionRequest& ar)
     {
         NebulaLog::log("IPM",Log::INFO,"Stopping IPAM Manager...");
 
-        MadManager::stop();
+        DriverManager::stop(drivers_timeout);
     };
 
     void user_action(const ActionRequest& ar);

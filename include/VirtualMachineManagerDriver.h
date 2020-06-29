@@ -21,14 +21,13 @@
 #include <string>
 #include <sstream>
 
-#include "Mad.h"
+#include "ProtocolMessages.h"
+#include "Driver.h"
 #include "ActionSet.h"
-#include "VirtualMachinePool.h"
 #include "VMActions.h"
 #include "Host.h"
 #include "Cluster.h"
-
-using namespace std;
+#include "VirtualMachine.h"
 
 /**
  *  VirtualMachineManagerDriver provides a base class to implement VM Manager
@@ -37,29 +36,14 @@ using namespace std;
  *  must implement the deployment function to generate specific VM
  *  deployment information for the unerlying MAD.
  */
-class VirtualMachineManagerDriver : public Mad
+class VirtualMachineManagerDriver : public Driver<vm_msg_t>
 {
 public:
 
-    VirtualMachineManagerDriver(
-        int                         userid,
-        const map<string,string>&   attrs,
-        bool                        sudo,
-        VirtualMachinePool *        pool);
+    VirtualMachineManagerDriver(const std::string& mad_location,
+            const std::map<std::string,std::string>& attrs);
 
     virtual ~VirtualMachineManagerDriver() = default;
-
-    /**
-     *  Implements the VM Manager driver protocol.
-     *    @param message the string read from the driver
-     */
-    void protocol(const string& message) const;
-
-    /**
-     *  TODO: What do we need here? just poll the active VMs to recover
-     *  connections? Or an specific recover action from the MAD?
-     */
-    void recover();
 
     /**
      *  Generates a driver-specific deployment file:
@@ -69,7 +53,7 @@ public:
      */
     virtual int deployment_description(
         const VirtualMachine *  vm,
-        const string&           file_name) const = 0;
+        const std::string&      file_name) const = 0;
 
     /**
      *  Validates de VM raws section
@@ -77,7 +61,7 @@ public:
      *    @param error description on error
      *    @return 0 on success
      */
-    virtual int validate_raw(const string& raw, string& error) const
+    virtual int validate_raw(const std::string& raw, std::string& error) const
     {
         return 0;
     }
@@ -123,7 +107,7 @@ protected:
      *    @param value of the attribute
      */
     template<typename T>
-    void get_default(const string& name, T& value) const
+    void get_default(const std::string& name, T& value) const
     {
         driver_conf.get(name, value);
     }
@@ -162,7 +146,7 @@ protected:
     bool get_attribute(const VirtualMachine * vm,
                        const Host * host,
                        const Cluster * cluster,
-                       const string& name,
+                       const std::string& name,
                        T& value) const
     {
         // Get value from VM
@@ -201,8 +185,8 @@ protected:
     bool get_attribute(const VirtualMachine * vm,
                        const Host * host,
                        const Cluster* cluster,
-                       const string& name,
-                       const string& vname,
+                       const std::string& name,
+                       const std::string& vname,
                        T& value) const
     {
         const VectorAttribute * vattr;
@@ -249,8 +233,8 @@ protected:
 private:
     friend class VirtualMachineManager;
 
-    static const string imported_actions_default;
-    static const string imported_actions_default_public;
+    static const std::string imported_actions_default;
+    static const std::string imported_actions_default_public;
 
     /**
      *  Configuration file for the driver
@@ -280,20 +264,15 @@ private:
     bool cold_nic_attach;
 
     /**
-     *  Pointer to the Virtual Machine Pool, to access VMs
-     */
-    VirtualMachinePool * vmpool;
-
-    /**
      *  Sends a deploy request to the MAD: "DEPLOY ID XML_DRV_MSG"
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation
      */
     void deploy(
-        const int     oid,
-        const string& drv_msg) const
+        const int          oid,
+        const std::string& drv_msg) const
     {
-        write_drv("DEPLOY", oid, drv_msg);
+        write_drv(VMManagerMessages::DEPLOY, oid, drv_msg);
     }
 
     /**
@@ -302,10 +281,10 @@ private:
      *    @param drv_msg xml data for the mad operation
      */
     void shutdown(
-        const int     oid,
-        const string& drv_msg) const
+        const int          oid,
+        const std::string& drv_msg) const
     {
-        write_drv("SHUTDOWN", oid, drv_msg);
+        write_drv(VMManagerMessages::SHUTDOWN, oid, drv_msg);
     }
 
     /**
@@ -314,10 +293,10 @@ private:
      *    @param drv_msg xml data for the mad operation
      */
     void reset(
-        const int     oid,
-        const string& drv_msg) const
+        const int          oid,
+        const std::string& drv_msg) const
     {
-        write_drv("RESET", oid, drv_msg);
+        write_drv(VMManagerMessages::RESET, oid, drv_msg);
     }
 
     /**
@@ -326,10 +305,10 @@ private:
      *    @param drv_msg xml data for the mad operation
      */
     void reboot(
-        const int     oid,
-        const string& drv_msg) const
+        const int          oid,
+        const std::string& drv_msg) const
     {
-        write_drv("REBOOT", oid, drv_msg);
+        write_drv(VMManagerMessages::REBOOT, oid, drv_msg);
     }
 
     /**
@@ -338,10 +317,10 @@ private:
      *    @param drv_msg xml data for the mad operation
      */
     void cancel(
-        const int     oid,
-        const string& drv_msg) const
+        const int          oid,
+        const std::string& drv_msg) const
     {
-        write_drv("CANCEL", oid, drv_msg);
+        write_drv(VMManagerMessages::CANCEL, oid, drv_msg);
     }
 
     /**
@@ -350,10 +329,10 @@ private:
      *    @param drv_msg xml data for the mad operation
      */
     void cleanup(
-        const int     oid,
-        const string& drv_msg) const
+        const int          oid,
+        const std::string& drv_msg) const
     {
-        write_drv("CLEANUP", oid, drv_msg);
+        write_drv(VMManagerMessages::CLEANUP, oid, drv_msg);
     }
 
     /**
@@ -362,10 +341,10 @@ private:
      *    @param drv_msg xml data for the mad operation
      */
     void checkpoint(
-        const int     oid,
-        const string& drv_msg) const
+        const int          oid,
+        const std::string& drv_msg) const
     {
-        write_drv("CHECKPOINT", oid, drv_msg);
+        write_drv(VMManagerMessages::CHECKPOINT, oid, drv_msg);
     }
 
     /**
@@ -374,12 +353,20 @@ private:
      *    @param drv_msg xml data for the mad operation
      */
     void save(
-        const int     oid,
-        const string& drv_msg) const
+        const int          oid,
+        const std::string& drv_msg) const
     {
-        write_drv("SAVE", oid, drv_msg);
+        write_drv(VMManagerMessages::SAVE, oid, drv_msg);
     }
 
+    /**
+     *  Sends a save request to the MAD: "SAVE ID XML_DRV_MSG"
+     *    @param oid the virtual machine id.
+     */
+    void driver_cancel(const int     oid) const
+    {
+        write_drv(VMManagerMessages::DRIVER_CANCEL, oid, "");
+    }
 
     /**
      *  Sends a save request to the MAD: "RESTORE ID XML_DRV_MSG"
@@ -387,10 +374,10 @@ private:
      *    @param drv_msg xml data for the mad operation
      */
     void restore(
-        const int     oid,
-        const string& drv_msg) const
+        const int          oid,
+        const std::string& drv_msg) const
     {
-        write_drv("RESTORE", oid, drv_msg);
+        write_drv(VMManagerMessages::RESTORE, oid, drv_msg);
     }
 
 
@@ -400,22 +387,10 @@ private:
      *    @param drv_msg xml data for the mad operation
      */
     void migrate(
-        const int     oid,
-        const string& drv_msg) const
+        const int          oid,
+        const std::string& drv_msg) const
     {
-        write_drv("MIGRATE", oid, drv_msg);
-    }
-
-    /**
-     *  Sends a poll request to the MAD: "POLL ID XML_DRV_MSG"
-     *    @param oid the virtual machine id.
-     *    @param drv_msg xml data for the mad operation
-     */
-    void poll(
-        const int     oid,
-        const string& drv_msg) const
-    {
-        write_drv("POLL", oid, drv_msg);
+        write_drv(VMManagerMessages::MIGRATE, oid, drv_msg);
     }
 
     /**
@@ -424,10 +399,10 @@ private:
      *    @param drv_msg xml data for the mad operation
      */
     void attach(
-        const int     oid,
-        const string& drv_msg) const
+        const int          oid,
+        const std::string& drv_msg) const
     {
-        write_drv("ATTACHDISK", oid, drv_msg);
+        write_drv(VMManagerMessages::ATTACHDISK, oid, drv_msg);
     }
 
     /**
@@ -436,10 +411,10 @@ private:
      *    @param drv_msg xml data for the mad operation
      */
     void detach(
-        const int     oid,
-        const string& drv_msg) const
+        const int          oid,
+        const std::string& drv_msg) const
     {
-        write_drv("DETACHDISK", oid, drv_msg);
+        write_drv(VMManagerMessages::DETACHDISK, oid, drv_msg);
     }
 
     /**
@@ -448,10 +423,10 @@ private:
      *    @param drv_msg xml data for the mad operation
      */
     void attach_nic(
-        const int     oid,
-        const string& drv_msg) const
+        const int          oid,
+        const std::string& drv_msg) const
     {
-        write_drv("ATTACHNIC", oid, drv_msg);
+        write_drv(VMManagerMessages::ATTACHNIC, oid, drv_msg);
     }
 
     /**
@@ -460,10 +435,10 @@ private:
      *    @param drv_msg xml data for the mad operation
      */
     void detach_nic(
-        const int     oid,
-        const string& drv_msg) const
+        const int          oid,
+        const std::string& drv_msg) const
     {
-        write_drv("DETACHNIC", oid, drv_msg);
+        write_drv(VMManagerMessages::DETACHNIC, oid, drv_msg);
     }
 
     /**
@@ -473,10 +448,10 @@ private:
      *    @param drv_msg xml data for the mad operation
      */
     void snapshot_create(
-        const int     oid,
-        const string& drv_msg) const
+        const int          oid,
+        const std::string& drv_msg) const
     {
-        write_drv("SNAPSHOTCREATE", oid, drv_msg);
+        write_drv(VMManagerMessages::SNAPSHOTCREATE, oid, drv_msg);
     }
 
     /**
@@ -486,10 +461,10 @@ private:
      *    @param drv_msg xml data for the mad operation
      */
     void snapshot_revert(
-        const int     oid,
-        const string& drv_msg) const
+        const int          oid,
+        const std::string& drv_msg) const
     {
-        write_drv("SNAPSHOTREVERT", oid, drv_msg);
+        write_drv(VMManagerMessages::SNAPSHOTREVERT, oid, drv_msg);
     }
 
     /**
@@ -499,10 +474,10 @@ private:
      *    @param drv_msg xml data for the mad operation
      */
     void snapshot_delete(
-        const int     oid,
-        const string& drv_msg) const
+        const int          oid,
+        const std::string& drv_msg) const
     {
-        write_drv("SNAPSHOTDELETE", oid, drv_msg);
+        write_drv(VMManagerMessages::SNAPSHOTDELETE, oid, drv_msg);
     }
 
     /**
@@ -512,10 +487,10 @@ private:
      *    @param drv_msg xml data for the mad operation
      */
     void disk_snapshot_create(
-        const int     oid,
-        const string& drv_msg) const
+        const int          oid,
+        const std::string& drv_msg) const
     {
-        write_drv("DISKSNAPSHOTCREATE", oid, drv_msg);
+        write_drv(VMManagerMessages::DISKSNAPSHOTCREATE, oid, drv_msg);
     }
 
     /**
@@ -525,10 +500,10 @@ private:
      *    @param drv_msg xml data for the mad operation
      */
     void disk_resize(
-        const int     oid,
-        const string& drv_msg) const
+        const int          oid,
+        const std::string& drv_msg) const
     {
-        write_drv("RESIZEDISK", oid, drv_msg);
+        write_drv(VMManagerMessages::RESIZEDISK, oid, drv_msg);
     }
 
     /**
@@ -537,10 +512,10 @@ private:
      *    @param drv_msg xml data for the mad operation
      */
     void update_conf(
-        const int     oid,
-        const string& drv_msg) const
+        const int          oid,
+        const std::string& drv_msg) const
     {
-        write_drv("UPDATECONF", oid, drv_msg);
+        write_drv(VMManagerMessages::UPDATECONF, oid, drv_msg);
     }
 
     /**
@@ -550,22 +525,21 @@ private:
      *    @param drv_msg xml data for the mad operation
      */
     void updatesg(
-        const int     oid,
-        const string& drv_msg) const
+        const int          oid,
+        const std::string& drv_msg) const
     {
-        write_drv("UPDATESG", oid, drv_msg);
+        write_drv(VMManagerMessages::UPDATESG, oid, drv_msg);
     }
 
     /**
      *
      */
-    void write_drv(const char * aname, const int oid, const string& msg) const
+    void write_drv(VMManagerMessages type,
+                   const int oid,
+                   const std::string& msg) const
     {
-        ostringstream os;
-
-        os << aname << " " << oid << " " << msg << endl;
-
-        write(os);
+        vm_msg_t drv_msg(type, "", oid, msg);
+        write(drv_msg);
     }
 };
 

@@ -19,10 +19,7 @@
 
 #include <map>
 #include <string>
-#include <sstream>
 #include "VirtualMachineManagerDriver.h"
-
-using namespace std;
 
 /**
  *  XML Driver class implements a Generic VM Manager Driver that uses a neutral
@@ -32,15 +29,12 @@ class XMLDriver : public VirtualMachineManagerDriver
 {
 public:
 
-    XMLDriver(
-        int userid,
-        const map<string,string> &attrs,
-        bool sudo,
-        VirtualMachinePool *    pool):
-            VirtualMachineManagerDriver(userid, attrs,sudo,pool)
-    {};
+    XMLDriver(const std::string& mad_location,
+              const std::map<std::string, std::string> &attrs):
+        VirtualMachineManagerDriver(mad_location, attrs)
+    {}
 
-    ~XMLDriver(){};
+    ~XMLDriver() = default;
 
 private:
     /**
@@ -51,7 +45,7 @@ private:
      */
     int deployment_description(
         const VirtualMachine *  vm,
-        const string&           file_name) const override;
+        const std::string&      file_name) const override;
 };
 
 #endif /*XML_DRIVER_H_*/

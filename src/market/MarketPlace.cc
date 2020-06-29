@@ -19,20 +19,7 @@
 #include "NebulaLog.h"
 #include "NebulaUtil.h"
 #include "Nebula.h"
-
-/* ************************************************************************ */
-/* MarketPlace:: Database Definition                                        */
-/* ************************************************************************ */
-
-const char * MarketPlace::table = "marketplace_pool";
-
-const char * MarketPlace::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * MarketPlace::db_bootstrap =
-    "CREATE TABLE IF NOT EXISTS marketplace_pool (oid INTEGER PRIMARY KEY, "
-    "name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, "
-    "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
+#include "OneDB.h"
 
 /* ************************************************************************ */
 /* MarketPlace:: Constructor / Destructor                                   */
@@ -45,7 +32,7 @@ MarketPlace::MarketPlace(
     const std::string&    gname,
     int                   umask,
     MarketPlaceTemplate * mp_template):
-        PoolObjectSQL(-1, MARKETPLACE, "", uid, gid, uname, gname, table),
+        PoolObjectSQL(-1, MARKETPLACE, "", uid, gid, uname, gname, one_db::mp_table),
         market_mad(""),
         total_mb(0),
         free_mb(0),
@@ -159,6 +146,9 @@ error_common:
     return -1;
 }
 
+/* --------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------- */
+
 int MarketPlace::insert(SqlDB *db, string& error_str)
 {
     return insert_replace(db, false, error_str);
@@ -198,7 +188,7 @@ int MarketPlace::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if ( replace )
     {
-        oss << "UPDATE " << table << " SET "
+        oss << "UPDATE " << one_db::mp_table << " SET "
             << "name = '"   << sql_name << "', "
             << "body = '"   << sql_xml  << "', "
             << "gid = "     << gid      << ", "
@@ -210,7 +200,8 @@ int MarketPlace::insert_replace(SqlDB *db, bool replace, string& error_str)
     }
     else
     {
-        oss << "INSERT INTO " << table << " (" << db_names << ") VALUES ("
+        oss << "INSERT INTO " << one_db::mp_table
+            << " (" << one_db::mp_db_names << ") VALUES ("
             <<          oid                 << ","
             << "'" <<   sql_name            << "',"
             << "'" <<   sql_xml             << "',"
@@ -251,6 +242,13 @@ error_common:
 
 /* --------------------------------------------------------------------------- */
 /* --------------------------------------------------------------------------- */
+
+int MarketPlace::bootstrap(SqlDB * db)
+{
+    ostringstream oss(one_db::mp_db_bootstrap);
+
+    return db->exec_local_wr(oss);
+};
 
 /* *************************************************************************** */
 /* MartketPlace :: Template Functions                                          */

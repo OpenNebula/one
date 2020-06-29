@@ -22,21 +22,11 @@
 
 const int    Vdc::ALL_RESOURCES = -10;
 
-const char * Vdc::table = "vdc_pool";
-
-const char * Vdc::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * Vdc::db_bootstrap = "CREATE TABLE IF NOT EXISTS vdc_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
-    "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
-    "UNIQUE(name))";
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 Vdc::Vdc(int id, Template* vdc_template):
-        PoolObjectSQL(id, VDC, "", -1, -1, "", "", table),
+        PoolObjectSQL(id, VDC, "", -1, -1, "", "", one_db::vdc_table),
         clusters(PoolObjectSQL::CLUSTER),
         hosts(PoolObjectSQL::HOST),
         datastores(PoolObjectSQL::DATASTORE),
@@ -124,7 +114,7 @@ int Vdc::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if ( replace )
     {
-        oss << "UPDATE " << table << " SET "
+        oss << "UPDATE " << one_db::vdc_table << " SET "
             << "name = '"    <<   sql_name   << "', "
             << "body = '"    <<   sql_xml    << "', "
             << "uid = "      <<   uid        << ", "
@@ -136,7 +126,8 @@ int Vdc::insert_replace(SqlDB *db, bool replace, string& error_str)
     }
     else
     {
-        oss << "INSERT INTO " << table << " (" << db_names << ") VALUES ("
+        oss << "INSERT INTO " << one_db::vdc_table
+            << " (" << one_db::vdc_db_names << ") VALUES ("
             <<          oid                 << ","
             << "'" <<   sql_name            << "',"
             << "'" <<   sql_xml             << "',"
@@ -174,6 +165,15 @@ error_generic:
 error_common:
     return -1;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+int Vdc::bootstrap(SqlDB * db)
+{
+    ostringstream oss(one_db::vdc_db_bootstrap);
+
+    return db->exec_local_wr(oss);
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

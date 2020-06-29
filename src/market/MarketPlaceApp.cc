@@ -18,20 +18,7 @@
 #include "MarketPlaceApp.h"
 #include "NebulaLog.h"
 #include "NebulaUtil.h"
-
-/* ************************************************************************ */
-/* MarketPlaceApp:: Database Definition                                     */
-/* ************************************************************************ */
-
-const char * MarketPlaceApp::table = "marketplaceapp_pool";
-
-const char * MarketPlaceApp::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * MarketPlaceApp::db_bootstrap =
-    "CREATE TABLE IF NOT EXISTS marketplaceapp_pool (oid INTEGER PRIMARY KEY, "
-    "name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, "
-    "owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid))";
+#include "OneDB.h"
 
 /* ************************************************************************ */
 /* MarketPlaceApp:: Constructor / Destructor                                */
@@ -44,7 +31,7 @@ MarketPlaceApp::MarketPlaceApp(
     const std::string&       gname,
     int                      umask,
     MarketPlaceAppTemplate * app_template):
-        PoolObjectSQL(-1, MARKETPLACEAPP, "", uid, gid, uname, gname, table),
+        PoolObjectSQL(-1, MARKETPLACEAPP, "", uid, gid, uname, gname, one_db::mp_app_table),
         source(""),
         md5(""),
         size_mb(0),
@@ -174,7 +161,7 @@ int MarketPlaceApp::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if ( replace )
     {
-        oss << "UPDATE " << table << " SET "
+        oss << "UPDATE " << one_db::mp_app_table << " SET "
             << "name = '"   << sql_name << "', "
             << "body = '"   << sql_xml  << "', "
             << "uid = "     << uid      << ", "
@@ -186,7 +173,8 @@ int MarketPlaceApp::insert_replace(SqlDB *db, bool replace, string& error_str)
     }
     else
     {
-        oss << "INSERT INTO " << table <<" (" << db_names << ") VALUES ("
+        oss << "INSERT INTO " << one_db::mp_app_table
+            << " (" <<  one_db::mp_app_db_names << ") VALUES ("
             <<          oid                 << ","
             << "'" <<   sql_name            << "',"
             << "'" <<   sql_xml             << "',"
@@ -224,6 +212,16 @@ error_generic:
 error_common:
     return -1;
 }
+
+/* --------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------- */
+
+int MarketPlaceApp::bootstrap(SqlDB * db)
+{
+    ostringstream oss(one_db::mp_app_db_bootstrap);
+
+    return db->exec_local_wr(oss);
+};
 
 /* --------------------------------------------------------------------------- */
 /* --------------------------------------------------------------------------- */

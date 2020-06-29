@@ -19,22 +19,22 @@
 
 #include <map>
 #include <string>
-#include <sstream>
-
 #include "VirtualMachineManagerDriver.h"
 
 class LibVirtDriver : public VirtualMachineManagerDriver
 {
 public:
 
-    LibVirtDriver(int userid, const map<string,string> &attrs, bool sudo,
-        VirtualMachinePool * pool, const string& emu)
-        :VirtualMachineManagerDriver(userid, attrs,sudo,pool), emulator(emu)
-    {};
+    LibVirtDriver(const std::string& mad_location,
+                  const std::map<std::string, std::string> &attrs,
+                  const std::string& emu)
+        : VirtualMachineManagerDriver(mad_location, attrs), emulator(emu)
+    {}
 
-    ~LibVirtDriver(){};
+    ~LibVirtDriver() = default;
 
-    int validate_raw(const string& raw_section, string& error) const override;
+    int validate_raw(const std::string& raw_section,
+                     std::string& error) const override;
 
 private:
     static const float  CGROUP_BASE_CPU_SHARES;
@@ -47,7 +47,8 @@ private:
 
     static const char * XML_DOMAIN_RNG_PATH;
 
-    int deployment_description(const VirtualMachine * vm, const string& fn) const override
+    int deployment_description(const VirtualMachine * vm,
+                               const std::string& fn) const override
     {
         int   rc = -1;
 
@@ -59,9 +60,10 @@ private:
         return rc;
     }
 
-    int deployment_description_kvm(const VirtualMachine * v, const string& f) const;
+    int deployment_description_kvm(const VirtualMachine * v,
+                                   const std::string& f) const;
 
-    const string emulator;
+    const std::string emulator;
 };
 
 #endif /*LIBVIRT_DRIVER_H_*/

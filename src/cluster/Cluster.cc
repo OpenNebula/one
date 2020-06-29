@@ -17,32 +17,9 @@
 #include "Cluster.h"
 #include "GroupPool.h"
 #include "Nebula.h"
+#include "OneDB.h"
 
 #include <sstream>
-
-const char * Cluster::table = "cluster_pool";
-
-const char * Cluster::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * Cluster::db_bootstrap = "CREATE TABLE IF NOT EXISTS cluster_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
-    "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
-    "UNIQUE(name))";
-
-const char * Cluster::datastore_table = "cluster_datastore_relation";
-const char * Cluster::datastore_db_names = "cid, oid";
-const char * Cluster::datastore_db_bootstrap =
-    "CREATE TABLE IF NOT EXISTS cluster_datastore_relation ("
-    "cid INTEGER, oid INTEGER, PRIMARY KEY(cid, oid))";
-
-const char * Cluster::network_table = "cluster_network_relation";
-const char * Cluster::network_db_names = "cid, oid";
-const char * Cluster::network_db_bootstrap =
-    "CREATE TABLE IF NOT EXISTS cluster_network_relation ("
-    "cid INTEGER, oid INTEGER, PRIMARY KEY(cid, oid))";
-
-const char * Cluster::bitmap_table = "cluster_vnc_bitmap";
 
 /* ************************************************************************** */
 /* Cluster :: Constructor/Destructor                                          */
@@ -53,11 +30,11 @@ Cluster::Cluster(
         const string& name,
         ClusterTemplate*  cl_template,
         const VectorAttribute& vnc_conf):
-            PoolObjectSQL(id,CLUSTER,name,-1,-1,"","",table),
+            PoolObjectSQL(id,CLUSTER,name,-1,-1,"","",one_db::cluster_table),
             hosts("HOSTS"),
             datastores("DATASTORES"),
             vnets("VNETS"),
-            vnc_bitmap(vnc_conf, id, bitmap_table)
+            vnc_bitmap(vnc_conf, id, one_db::cluster_bitmap_table)
 {
     if (cl_template != 0)
     {
@@ -184,7 +161,7 @@ int Cluster::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if ( replace )
     {
-        oss << "UPDATE " << table << " SET "
+        oss << "UPDATE " << one_db::cluster_table << " SET "
             << "name = '"   << sql_name << "', "
             << "body = '"   << sql_xml  << "', "
             << "uid =  "    << uid      << ", "
@@ -197,7 +174,8 @@ int Cluster::insert_replace(SqlDB *db, bool replace, string& error_str)
     }
     else
     {
-        oss << "INSERT INTO " << table << " (" << db_names << ") VALUES ("
+        oss << "INSERT INTO " << one_db::cluster_table
+            << " (" << one_db::cluster_db_names << ") VALUES ("
             <<          oid                 << ","
             << "'" <<   sql_name            << "',"
             << "'" <<   sql_xml             << "',"
@@ -234,6 +212,26 @@ error_generic:
     error_str = "Error inserting Cluster in DB.";
 error_common:
     return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Cluster::bootstrap(SqlDB * db)
+{
+    int rc;
+    ostringstream oss;
+
+    oss.str(one_db::cluster_db_bootstrap);
+    rc = db->exec_local_wr(oss);
+
+    oss.str(one_db::cluster_datastore_db_bootstrap);
+    rc += db->exec_local_wr(oss);
+
+    oss.str(one_db::cluster_network_db_bootstrap);
+    rc += db->exec_local_wr(oss);
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -19,6 +19,7 @@
 
 #include "PoolSQL.h"
 #include "VMTemplate.h"
+#include "OneDB.h"
 
 /**
  *  The VMTemplate Pool class.
@@ -27,7 +28,7 @@ class VMTemplatePool : public PoolSQL
 {
 public:
 
-    VMTemplatePool(SqlDB * db) : PoolSQL(db, VMTemplate::table){};
+    VMTemplatePool(SqlDB * db) : PoolSQL(db, one_db::vm_template_table){};
 
     ~VMTemplatePool(){};
 
@@ -93,8 +94,8 @@ public:
     int dump(std::string& oss, const std::string& where, int sid, int eid,
         bool desc)
     {
-        return PoolSQL::dump(oss, "VMTEMPLATE_POOL", "body", VMTemplate::table,
-                where, sid, eid, desc);
+        return PoolSQL::dump(oss, "VMTEMPLATE_POOL", "body",
+            one_db::vm_template_table, where, sid, eid, desc);
     };
 
     /**

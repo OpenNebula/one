@@ -19,6 +19,7 @@
 
 #include "PoolSQL.h"
 #include "Zone.h"
+#include "OneDB.h"
 
 using namespace std;
 
@@ -100,8 +101,8 @@ public:
     int dump(std::string& oss, const std::string& where, int sid, int eid,
         bool desc)
     {
-        return PoolSQL::dump(oss, "ZONE_POOL", "body", Zone::table, where,
-                sid, eid, desc);
+        return PoolSQL::dump(oss, "ZONE_POOL", "body", one_db::zone_table,
+                where, sid, eid, desc);
     };
 
     /**
@@ -119,7 +120,7 @@ public:
      */
     int list_zones(vector<int>& zone_ids)
     {
-        return list( zone_ids, Zone::table);
+        return list( zone_ids, one_db::zone_table);
     }
 
     /**

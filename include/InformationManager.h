@@ -19,7 +19,7 @@
 
 #include "DriverManager.h"
 #include "ActionManager.h"
-#include "OpenNebulaMessages.h"
+#include "ProtocolMessages.h"
 #include "RaftManager.h"
 
 class HostPool;
@@ -27,11 +27,10 @@ class Host;
 class VirtualMachinePool;
 
 class InformationManager :
-    public DriverManager<OpenNebulaMessages, Driver<OpenNebulaMessages>>,
+    public DriverManager<Driver<im_msg_t>>,
     public ActionListener
 {
 public:
-
     InformationManager(
         HostPool * _hpool,
         VirtualMachinePool * _vmpool,
@@ -104,22 +103,22 @@ protected:
     /**
      *  Received undefined message -> print error
      */
-    static void _undefined(unique_ptr<Message<OpenNebulaMessages>> msg);
+    static void _undefined(unique_ptr<im_msg_t> msg);
 
     /**
      *  Message HOST_STATE update from monitor
      */
-    void _host_state(unique_ptr<Message<OpenNebulaMessages>> msg);
+    void _host_state(unique_ptr<im_msg_t> msg);
 
     /**
      *  Message HOST_SYSTEM update from monitor
      */
-    void _host_system(unique_ptr<Message<OpenNebulaMessages>> msg);
+    void _host_system(unique_ptr<im_msg_t> msg);
 
     /**
      *  Message VM_STATE from monitor
      */
-    void _vm_state(unique_ptr<Message<OpenNebulaMessages>> msg);
+    void _vm_state(unique_ptr<im_msg_t> msg);
 
 private:
     /**

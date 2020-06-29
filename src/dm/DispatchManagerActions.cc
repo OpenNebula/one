@@ -20,6 +20,7 @@
 #include "VirtualMachineManager.h"
 #include "TransferManager.h"
 #include "ImageManager.h"
+#include "LifeCycleManager.h"
 #include "Quotas.h"
 #include "Request.h"
 #include "Nebula.h"
@@ -1311,7 +1312,7 @@ int DispatchManager::delete_vm_db(VirtualMachine * vm,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void close_cp_history(VirtualMachinePool *vmpool, VirtualMachine *vm, 
+static void close_cp_history(VirtualMachinePool *vmpool, VirtualMachine *vm,
         VMActions::Action action, const RequestAttributes& ra)
 {
     time_t the_time = time(0);

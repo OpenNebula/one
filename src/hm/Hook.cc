@@ -21,21 +21,26 @@
 #include "HookStateHost.h"
 #include "HookStateVM.h"
 #include "HookLog.h"
+#include "OneDB.h"
 
 #include <string>
 
-/* ************************************************************************ */
-/* Hook :: Database Access Functions                                        */
-/* ************************************************************************ */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-const char * Hook::table = "hook_pool";
-
-const char * Hook::db_names =
-    "oid, name, body, uid, gid, owner_u, group_u, other_u, type";
-
-const char * Hook::db_bootstrap = "CREATE TABLE IF NOT EXISTS hook_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER,"
-    "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, type INTEGER)";
+Hook::Hook(Template * tmpl):
+    PoolObjectSQL(-1, HOOK, "", -1, -1, "", "", one_db::hook_table),
+    type(HookType::UNDEFINED), cmd(""), remote(false), _hook(0)
+{
+    if (tmpl != 0)
+    {
+        obj_template = tmpl;
+    }
+    else
+    {
+        obj_template = new Template();
+    }
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -175,6 +180,16 @@ int Hook::post_update_template(string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int Hook::bootstrap(SqlDB * db)
+{
+    std::ostringstream oss_hook(one_db::hook_db_bootstrap);
+
+    return db->exec_local_wr(oss_hook);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int Hook::insert(SqlDB *db, std::string& error_str)
 {
     std::string type_str;
@@ -286,7 +301,8 @@ int Hook::insert_replace(SqlDB *db, bool replace, std::string& error_str)
     }
 
     // Construct the SQL statement to Insert or Replace
-    oss <<" INTO "<<table <<" ("<< db_names <<") VALUES ("
+    oss <<" INTO "<<one_db::hook_table
+        << " (" <<  one_db::hook_db_names << ") VALUES ("
         <<          oid            << ","
         << "'" <<   sql_name       << "',"
         << "'" <<   sql_xml        << "',"
@@ -391,7 +407,7 @@ int Hook::drop(SqlDB *db)
     ostringstream oss;
     int rc;
 
-    oss << "DELETE FROM " << table << " WHERE oid=" << oid;
+    oss << "DELETE FROM " << one_db::hook_table << " WHERE oid=" << oid;
 
     rc = db->exec_wr(oss);
 

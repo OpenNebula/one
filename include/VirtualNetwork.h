@@ -753,12 +753,7 @@ private:
      *  Bootstraps the database table(s) associated to the Virtual Network
      *    @return 0 on success
      */
-    static int bootstrap(SqlDB * db)
-    {
-        ostringstream oss_vnet(VirtualNetwork::db_bootstrap);
-
-        return db->exec_local_wr(oss_vnet);
-    };
+    static int bootstrap(SqlDB * db);
 
     /**
      * Function to print the VirtualNetwork object into a string in
@@ -804,12 +799,6 @@ private:
     // *************************************************************************
     // DataBase implementation
     // *************************************************************************
-
-    static const char * table;
-
-    static const char * db_names;
-
-    static const char * db_bootstrap;
 
     /**
      *  Writes the Virtual Network and its associated template and leases in the database.

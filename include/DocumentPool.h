@@ -19,6 +19,7 @@
 
 #include "PoolSQL.h"
 #include "Document.h"
+#include "OneDB.h"
 
 /**
  *  The Document Pool class.
@@ -27,7 +28,7 @@ class DocumentPool : public PoolSQL
 {
 public:
 
-    DocumentPool(SqlDB * db) : PoolSQL(db, Document::table){};
+    DocumentPool(SqlDB * db) : PoolSQL(db, one_db::doc_table) {};
 
     ~DocumentPool(){};
 
@@ -103,8 +104,8 @@ public:
     int dump(std::string& oss, const std::string& where, int sid, int eid,
         bool desc)
     {
-        return PoolSQL::dump(oss, "DOCUMENT_POOL", "body", Document::table, where,
-                             sid, eid, desc);
+        return PoolSQL::dump(oss, "DOCUMENT_POOL", "body", one_db::doc_table,
+                             where, sid, eid, desc);
     };
 
     /**

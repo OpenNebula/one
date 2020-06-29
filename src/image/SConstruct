@@ -24,7 +24,7 @@ lib_name='nebula_image'
 source_files=[
     'Image.cc',
     'ImagePool.cc',
-    'ImageManagerDriver.cc',
+    'ImageManagerProtocol.cc',
     'ImageManager.cc',
     'ImageManagerActions.cc',
     'ImageTemplate.cc'

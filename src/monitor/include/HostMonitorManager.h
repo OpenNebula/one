@@ -25,7 +25,7 @@
 class Template;
 class VectorAttribute;
 
-template<typename E, typename D>
+template<typename D>
 class DriverManager;
 
 class VMRPCPool;
@@ -163,7 +163,7 @@ public:
     void timer_action();
 
 private:
-    using driver_manager_t = DriverManager<MonitorDriverMessages, MonitorDriver>;
+    using driver_manager_t = DriverManager<MonitorDriver>;
 
     driver_manager_t* driver_manager;
 

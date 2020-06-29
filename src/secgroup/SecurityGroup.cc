@@ -18,19 +18,8 @@
 #include "NebulaUtil.h"
 #include "Nebula.h"
 #include "LifeCycleManager.h"
+#include "OneDB.h"
 #include <arpa/inet.h>
-
-/* ------------------------------------------------------------------------ */
-
-const char * SecurityGroup::table = "secgroup_pool";
-
-const char * SecurityGroup::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * SecurityGroup::db_bootstrap = "CREATE TABLE IF NOT EXISTS secgroup_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
-    "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
-    "UNIQUE(name,uid))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -42,12 +31,11 @@ SecurityGroup::SecurityGroup(
         const string&   _gname,
         int             _umask,
         Template*       sgroup_template):
-        PoolObjectSQL(-1, SECGROUP, "", _uid,_gid,_uname,_gname,table),
-        updated("UPDATED_VMS"),
-        outdated("OUTDATED_VMS"),
-        updating("UPDATING_VMS"),
-        error("ERROR_VMS")
-
+    PoolObjectSQL(-1, SECGROUP, "", _uid,_gid,_uname,_gname,one_db::sg_table),
+    updated("UPDATED_VMS"),
+    outdated("OUTDATED_VMS"),
+    updating("UPDATING_VMS"),
+    error("ERROR_VMS")
 {
     if (sgroup_template != 0)
     {
@@ -140,7 +128,7 @@ int SecurityGroup::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if ( replace )
     {
-        oss << "UPDATE " << table << " SET "
+        oss << "UPDATE " << one_db::sg_table << " SET "
             << "name = '"    << sql_name << "', "
             << "body = '"    << sql_xml  << "', "
             << "uid = "      <<  uid     << ", "
@@ -152,7 +140,8 @@ int SecurityGroup::insert_replace(SqlDB *db, bool replace, string& error_str)
     }
     else
     {
-        oss << "INSERT INTO " << table << " (" << db_names << ") VALUES ("
+        oss << "INSERT INTO " << one_db::sg_table
+            << " (" << one_db::sg_db_names << ") VALUES ("
             <<          oid                 << ","
             << "'" <<   sql_name            << "',"
             << "'" <<   sql_xml             << "',"
@@ -190,6 +179,16 @@ error_generic:
 error_common:
     return -1;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int SecurityGroup::bootstrap(SqlDB * db)
+{
+    ostringstream oss(one_db::sg_db_bootstrap);
+
+    return db->exec_local_wr(oss);
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

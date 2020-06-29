@@ -19,6 +19,7 @@
 
 #include "Cluster.h"
 #include "PoolSQL.h"
+#include "OneDB.h"
 
 using namespace std;
 
@@ -190,7 +191,7 @@ public:
 
         rc  = Cluster::bootstrap(_db);
         rc += _db->exec_local_wr(
-                BitMap<0>::bootstrap(Cluster::bitmap_table, oss_bitmap));
+                BitMap<0>::bootstrap(one_db::cluster_bitmap_table, oss_bitmap));
 
         return rc;
     };
@@ -209,7 +210,8 @@ public:
     int dump(std::string& oss, const std::string& where, int sid, int eid,
         bool desc)
     {
-        return PoolSQL::dump(oss, "CLUSTER_POOL", "body", Cluster::table, where,
+        return PoolSQL::dump(oss, "CLUSTER_POOL", "body",
+                             one_db::cluster_table, where,
                              sid, eid, desc);
     };
 

@@ -20,18 +20,21 @@
 #include "Driver.h"
 #include "Attribute.h"
 #include "NebulaLog.h"
+#include "SyncRequest.h"
 #include <string>
 
-template<typename E, typename D>
+template<typename D>
 class DriverManager
 {
 public:
-    explicit DriverManager(const string& mad_location)
+    explicit DriverManager(const std::string& mad_location)
         : mad_location(mad_location)
     {
     }
 
     virtual ~DriverManager() = default;
+
+    int load_driver(const VectorAttribute* mad_config);
 
     int load_drivers(const vector<const VectorAttribute*>& mads_config);
 
@@ -41,8 +44,8 @@ public:
      *  Register an action for a given message type. The action is registered
      *  for all installed drivers. Must be called after load_drivers method.
      */
-    void register_action(E t,
-        std::function<void(std::unique_ptr<Message<E>>)> a);
+    void register_action(typename D::message_t::msg_enum t,
+        std::function<void(std::unique_ptr<typename D::message_t>)> a);
 
     /**
      *  Start all drivers
@@ -55,60 +58,95 @@ public:
      */
     void stop(int secs);
 
+protected:
+    int add(const std::string& name, std::unique_ptr<D> driver);
+
+    /* SyncReqeust methods implementation */
+
+    /**
+     *  This function can be periodically executed to check time_outs on
+     *  request. It will fail requests with an expired timeout and will notify
+     *  the clients.
+     */
+    void check_time_outs_action();
+
+    /**
+     *  Add a new request to the Request map
+     *    @param ar pointer to the request
+     *    @return the id for the request
+     */
+    void add_request(SyncRequest *ar);
+
+    /**
+     *  Gets request from the Request map
+     *    @param id for the request
+     *    @return pointer to the Request
+     */
+    SyncRequest * get_request(int id);
+
+    /**
+     *  Notify the result of an auth request
+     */
+    void notify_request(int id, bool result, const std::string& message);
+
+    static Log::MessageType log_type(char type);
+
 private:
     std::map<std::string, std::unique_ptr<D>> drivers;
 
-    string mad_location;
+    std::string mad_location;
+
+    /**
+     *  List of pending requests
+     */
+    std::map<int, SyncRequest *> sync_requests;
+
+    std::mutex _mutex;
 };
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-template<typename E, typename D>
-int DriverManager<E, D>::load_drivers(const vector<const VectorAttribute*>& mads_config)
+template<typename D>
+int DriverManager<D>::load_driver(const VectorAttribute* mad_config)
 {
-    NebulaLog::info("DrM", "Loading drivers.");
+    auto name = mad_config->vector_value("NAME");
+    auto exec = mad_config->vector_value("EXECUTABLE");
+    auto args = mad_config->vector_value("ARGUMENTS");
+    int  threads;
 
-    for (const auto& vattr : mads_config)
+    mad_config->vector_value("THREADS", threads, 0);
+
+    NebulaLog::info("DrM", "Loading driver: " + name);
+
+    if (exec.empty())
     {
-        auto name = vattr->vector_value("NAME");
-        auto exec = vattr->vector_value("EXECUTABLE");
-        auto args = vattr->vector_value("ARGUMENTS");
-        int  threads;
+        NebulaLog::error("DrM", "\tEmpty executable for driver: " + name);
+        return -1;
+    }
 
-        vattr->vector_value("THREADS", threads, 0);
+    if (exec[0] != '/') //Look in ONE_LOCATION/lib/mads or in "/usr/lib/one/mads"
+    {
+        exec = mad_location + exec;
+    }
 
-        NebulaLog::info("InM", "Loading driver: " + name);
+    if (access(exec.c_str(), F_OK) != 0)
+    {
+        NebulaLog::error("DrM", "File not exists: " + exec);
+        return -1;
+    }
 
-        if (exec.empty())
-        {
-            NebulaLog::error("InM", "\tEmpty executable for driver: " + name);
-            return -1;
-        }
+    auto rc = drivers.insert(std::make_pair(name,
+                std::unique_ptr<D>(new D(exec, args, threads))));
 
-        if (exec[0] != '/') //Look in ONE_LOCATION/lib/mads or in "/usr/lib/one/mads"
-        {
-            exec = mad_location + exec;
-        }
-
-        if (access(exec.c_str(), F_OK) != 0)
-        {
-            NebulaLog::error("InM", "File not exists: " + exec);
-            return -1;
-        }
-
-        auto rc = drivers.insert(std::make_pair(name,
-                    std::unique_ptr<D>(new D(exec, args, threads))));
-
-        if (rc.second)
-        {
-            NebulaLog::info("InM", "\tDriver loaded: " + name);
-        }
-        else
-        {
-            NebulaLog::error("InM", "\tDriver already exists: " + name);
-            return -1;
-        }
+    if (rc.second)
+    {
+        NebulaLog::info("DrM", "\tDriver loaded: " + name);
+    }
+    else
+    {
+        NebulaLog::error("DrM", "\tDriver already exists: " + name);
+        return -1;
     }
 
     return 0;
@@ -117,8 +155,26 @@ int DriverManager<E, D>::load_drivers(const vector<const VectorAttribute*>& mads
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-template<typename E, typename D>
-D * DriverManager<E, D>::get_driver(const std::string& name) const
+template<typename D>
+int DriverManager<D>::load_drivers(const vector<const VectorAttribute*>& mads_config)
+{
+    NebulaLog::info("DrM", "Loading drivers.");
+
+    int rc = 0;
+
+    for (const auto& vattr : mads_config)
+    {
+        rc += load_driver(vattr);
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+template<typename D>
+D * DriverManager<D>::get_driver(const std::string& name) const
 {
     auto driver = drivers.find(name);
 
@@ -133,9 +189,9 @@ D * DriverManager<E, D>::get_driver(const std::string& name) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-template<typename E, typename D>
-void DriverManager<E, D>::register_action(E t,
-    std::function<void(std::unique_ptr<Message<E>>)> a)
+template<typename D>
+void DriverManager<D>::register_action(typename D::message_t::msg_enum t,
+    std::function<void(std::unique_ptr<typename D::message_t>)> a)
 {
     for (auto& driver : drivers)
     {
@@ -146,15 +202,16 @@ void DriverManager<E, D>::register_action(E t,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-template<typename E, typename D>
-int DriverManager<E, D>::start(std::string& error)
+template<typename D>
+int DriverManager<D>::start(std::string& error)
 {
     for (auto& driver : drivers)
     {
         auto rc = driver.second->start(error);
         if (rc != 0)
         {
-            NebulaLog::error("DrM", "Unable to start driver: " + error);
+            NebulaLog::error("DrM", "Unable to start driver '" + driver.first
+                + "': " + error);
             return rc;
         }
     }
@@ -164,8 +221,8 @@ int DriverManager<E, D>::start(std::string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-template<typename E, typename D>
-void DriverManager<E, D>::stop(int secs)
+template<typename D>
+void DriverManager<D>::stop(int secs)
 {
     vector<thread> threads;
 
@@ -181,6 +238,143 @@ void DriverManager<E, D>::stop(int secs)
     {
         thr.join();
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+template<typename D>
+int DriverManager<D>::add(const std::string& name, std::unique_ptr<D> driver)
+{
+    auto rc = drivers.insert(std::make_pair(name, std::move(driver)));
+
+    if (!rc.second)
+    {
+        // Driver already exists
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+template<typename D>
+void DriverManager<D>::check_time_outs_action()
+{
+    time_t the_time = time(0);
+
+    std::lock_guard<std::mutex> lock(_mutex);
+
+    auto it = sync_requests.begin();
+
+    while (it != sync_requests.end())
+    {
+        if ((it->second->time_out != 0) && (the_time > it->second->time_out))
+        {
+            SyncRequest * ar = it->second;
+            sync_requests.erase(it++);
+
+            ar->result  = false;
+            ar->timeout = true;
+            ar->message = "Request timeout";
+
+            ar->notify();
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+template<typename D>
+void DriverManager<D>::add_request(SyncRequest *ar)
+{
+    static int request_id = 0;
+
+    std::lock_guard<std::mutex> lock(_mutex);
+
+    ar->id = request_id++;
+
+    sync_requests.insert(sync_requests.end(),make_pair(ar->id,ar));
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+template<typename D>
+SyncRequest * DriverManager<D>::get_request(int id)
+{
+    SyncRequest * ar = nullptr;
+
+    std::lock_guard<std::mutex> lock(_mutex);
+
+    auto it = sync_requests.find(id);
+
+    if (it != sync_requests.end())
+    {
+        ar = it->second;
+
+        sync_requests.erase(it);
+    }
+
+    return ar;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+template<typename D>
+void DriverManager<D>::notify_request(int id, bool result, const std::string& message)
+{
+    SyncRequest * ar = get_request(id);
+
+    if (ar == 0)
+    {
+        return;
+    }
+
+    ar->result = result;
+
+    if (message != "-")
+    {
+        if (!ar->message.empty())
+        {
+            ar->message.append("; ");
+        }
+
+        ar->message.append(message);
+    }
+
+    ar->notify();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+template<typename D>
+Log::MessageType DriverManager<D>::log_type(char type)
+{
+    auto log_type = Log::INFO;
+
+    switch (type)
+    {
+        case 'E':
+            log_type = Log::ERROR;
+            break;
+        case 'W':
+            log_type = Log::WARNING;
+            break;
+        case 'D':
+            log_type = Log::DEBUG;
+            break;
+    }
+
+    return log_type;
 }
 
 #endif // DRIVER_MANAGER_H_

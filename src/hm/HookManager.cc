@@ -26,7 +26,7 @@ extern "C" void * hm_action_loop(void *arg)
 {
     HookManager *  hm;
 
-    if ( arg == 0 )
+    if ( arg == nullptr )
     {
         return 0;
     }
@@ -47,22 +47,35 @@ extern "C" void * hm_action_loop(void *arg)
 
 int HookManager::start()
 {
-    int               rc;
     pthread_attr_t    pattr;
 
-    rc = MadManager::start();
+    using namespace std::placeholders; // for _1
 
-    if ( rc != 0 )
+    register_action(HookManagerMessages::UNDEFINED,
+            &HookManager::_undefined);
+
+    register_action(HookManagerMessages::EXECUTE,
+            bind(&HookManager::_execute, this, _1));
+
+    register_action(HookManagerMessages::RETRY,
+            bind(&HookManager::_retry, this, _1));
+
+    register_action(HookManagerMessages::LOG,
+            &HookManager::_log);
+
+    string error;
+    if ( DriverManager::start(error) != 0 )
     {
+        NebulaLog::error("HKM", error);
         return -1;
     }
 
     NebulaLog::log("HKM",Log::INFO,"Starting Hook Manager...");
 
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
+    pthread_attr_init(&pattr);
+    pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
 
-    rc = pthread_create(&hm_thread,&pattr,hm_action_loop,(void *) this);
+    int rc = pthread_create(&hm_thread,&pattr,hm_action_loop,(void *) this);
 
     return rc;
 }
@@ -70,21 +83,18 @@ int HookManager::start()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int HookManager::load_mads(int uid)
+int HookManager::load_drivers(const std::vector<const VectorAttribute*>& _mads)
 {
-    HookManagerDriver *     hm_mad;
-    ostringstream           oss;
-    const VectorAttribute * vattr = 0;
-    int                     rc;
+    const VectorAttribute * vattr = nullptr;
 
     NebulaLog::log("HKM",Log::INFO,"Loading Hook Manager driver.");
 
-    if ( mad_conf.size() > 0 )
+    if ( _mads.size() > 0 )
     {
-        vattr = static_cast<const VectorAttribute *>(mad_conf[0]);
+        vattr = static_cast<const VectorAttribute *>(_mads[0]);
     }
 
-    if ( vattr == 0 )
+    if ( vattr == nullptr )
     {
         NebulaLog::log("HKM",Log::INFO,"Failed to load Hook Manager driver.");
         return -1;
@@ -94,19 +104,15 @@ int HookManager::load_mads(int uid)
 
     hook_conf.replace("NAME",hook_driver_name);
 
-    hm_mad = new HookManagerDriver(0,hook_conf.value(),false);
-
-    rc = add(hm_mad);
-
-    if ( rc == 0 )
+    if ( load_driver(&hook_conf) != 0 )
     {
-        oss.str("");
-        oss << "\tHook Manager loaded";
-
-        NebulaLog::log("HKM",Log::INFO,oss);
+        NebulaLog::error("HKM", "Unable to load Hook Manager driver");
+        return -1;
     }
 
-    return rc;
+    NebulaLog::log("HKM",Log::INFO,"\tHook Manager loaded");
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -133,14 +139,15 @@ void HookManager::user_action(const ActionRequest& ar)
 
 void HookManager::send_event_action(const std::string& message)
 {
-    const HookManagerDriver* hmd = get();
+    auto hmd = get();
 
     if ( hmd == nullptr )
     {
         return;
     }
 
-    hmd->execute(message);
+    hook_msg_t msg(HookManagerMessages::EXECUTE, "", -1, message);
+    hmd->write(msg);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -148,14 +155,15 @@ void HookManager::send_event_action(const std::string& message)
 
 void HookManager::retry_action(const std::string& message)
 {
-    const HookManagerDriver* hmd = get();
+    auto hmd = get();
 
     if ( hmd == nullptr )
     {
         return;
     }
 
-    hmd->retry(message);
+    hook_msg_t msg(HookManagerMessages::RETRY, "", -1, message);
+    hmd->write(msg);
 }
 
 /* -------------------------------------------------------------------------- */

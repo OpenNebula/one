@@ -34,21 +34,21 @@ const string VirtualMachineManagerDriver::imported_actions_default_public =
     "nic-detach, snap-create, snap-delete, poweroff, poweroff-hard";
 
 VirtualMachineManagerDriver::VirtualMachineManagerDriver(
-    int                         userid,
-    const map<string,string>&   attrs,
-    bool                        sudo,
-    VirtualMachinePool *        pool):
-        Mad(userid,attrs,sudo), driver_conf(true), keep_snapshots(false),
-        ds_live_migration(false), cold_nic_attach(false), vmpool(pool)
+    const string             &mad_location,
+    const map<string,string> &attrs):
+        Driver(),
+        driver_conf(true),
+        keep_snapshots(false),
+        ds_live_migration(false),
+        cold_nic_attach(false)
 {
-    map<string,string>::const_iterator  it;
     char *          error_msg = nullptr;
     const char *    cfile;
     string          file;
     int             rc;
     string          action_defaults;
 
-    it = attrs.find("DEFAULT");
+    auto it = attrs.find("DEFAULT");
 
     if ( it != attrs.end() )
     {
@@ -139,16 +139,14 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
     }
 
     vector<string> actions;
-    vector<string>::iterator vit;
 
-    string action;
     VMActions::Action id;
 
     actions = one_util::split(action_defaults, ',');
 
-    for (vit = actions.begin() ; vit != actions.end() ; ++vit)
+    for (auto action : actions)
     {
-        action = one_util::trim(*vit);
+        action = one_util::trim(action);
 
         if ( VMActions::action_from_str(action, id) != 0 )
         {
@@ -159,535 +157,33 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
         imported_actions.set(id);
     }
 
-}
+    string name, exec, args;
+    driver_conf.get("NAME", name);
+    driver_conf.get("EXECUTABLE", exec);
+    driver_conf.get("ARGUMENTS", args);
+    int  threads;
 
-/* ************************************************************************** */
-/* MAD Interface                                                              */
-/* ************************************************************************** */
+    driver_conf.get("THREADS", threads);
 
-/* -------------------------------------------------------------------------- */
-/* Helpers for the protocol function                                          */
-/* -------------------------------------------------------------------------- */
+    //NebulaLog::info("DrM", "Loading driver: " + name);
 
-static void log_error(VirtualMachine* vm,
-                      ostringstream&  os,
-                      istringstream&  is,
-                      const char *    msg)
-{
-    string info;
-
-    getline(is,info);
-
-    os.str("");
-    os << msg;
-
-    if (!info.empty() && info[0] != '-')
+    if (exec.empty())
     {
-        os << ": " << info;
-        vm->set_template_error_message(os.str());
-    }
-
-    vm->log("VMM",Log::ERROR,os);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineManagerDriver::protocol(const string& message) const
-{
-    istringstream is(message);
-    ostringstream os;
-
-    string action;
-    string result;
-
-    int              id;
-    VirtualMachine * vm;
-
-    Nebula              &ne = Nebula::instance();
-    LifeCycleManager *  lcm = ne.get_lcm();
-
-    os << "Message received: " << message;
-    NebulaLog::log("VMM", Log::DEBUG, os);
-
-    // -------------------------------------------------------------------------
-    // Parse the driver message: action, result and VM id
-    // -------------------------------------------------------------------------
-    if ( is.good() )
-    {
-        is >> action >> ws;
-    }
-    else
-    {
+        NebulaLog::error("VMM", "\tEmpty executable for driver: " + name);
         return;
     }
 
-    if ( is.good() )
+    if (exec[0] != '/') //Look in ONE_LOCATION/lib/mads or in "/usr/lib/one/mads"
     {
-        is >> result >> ws;
-    }
-    else
-    {
-        return;
+        exec = mad_location + exec;
     }
 
-    if ( is.good() )
+    if (access(exec.c_str(), F_OK) != 0)
     {
-        is >> id >> ws;
-
-        if ( is.fail() )
-        {
-            if ( action == "LOG" )
-            {
-                string info;
-
-                is.clear();
-                getline(is,info);
-                NebulaLog::log("VMM", log_type(result[0]), info.c_str());
-            }
-
-            return;
-        }
-    }
-    else
-    {
-        return;
+        NebulaLog::error("VMM", "File not exists: " + exec);
     }
 
-    // -------------------------------------------------------------------------
-    // VMM actions not associated to a single VM: UPDATESG
-    // -------------------------------------------------------------------------
-    if ( action == "UPDATESG" )
-    {
-        int sgid;
-
-        is >> sgid >> ws;
-
-        if ( is.fail() )
-        {
-            NebulaLog::log("VMM", Log::ERROR, "Missing or wrong security group"
-                    " id in driver message");
-            return;
-        }
-
-        SecurityGroupPool* sgpool = ne.get_secgrouppool();
-        SecurityGroup*     sg     = sgpool->get(sgid);
-
-        if ( sg != nullptr )
-        {
-            sg->del_updating(id);
-
-            if ( result == "SUCCESS" )
-            {
-                sg->add_vm(id);
-            }
-            else
-            {
-                sg->add_error(id);
-            }
-
-            sgpool->update(sg);
-
-            sg->unlock();
-        }
-
-        vm = vmpool->get(id);
-
-        if ( vm != nullptr )
-        {
-            if ( result == "SUCCESS" )
-            {
-                vm->log("VMM", Log::INFO, "VM security group updated.");
-            }
-            else
-            {
-                log_error(vm, os, is, "Error updating security groups.");
-
-                vmpool->update(vm);
-            }
-
-            vm->unlock();
-        }
-
-        lcm->trigger(LCMAction::UPDATESG, sgid);
-        return;
-    }
-
-    // -------------------------------------------------------------------------
-    // VMM actions associated to a single VM
-    // -------------------------------------------------------------------------
-    vm = vmpool->get(id);
-
-    if ( vm == nullptr )
-    {
-        return;
-    }
-
-    if ( vm->get_lcm_state() == VirtualMachine::LCM_INIT )
-    {
-        os.str("");
-        os << "Ignored: " << message;
-        vm->log("VMM",Log::WARNING,os);
-
-        vm->unlock();
-        return;
-    }
-
-    if ( action == "DEPLOY" )
-    {
-        LCMAction::Actions action = LCMAction::DEPLOY_SUCCESS;
-
-        if (result == "SUCCESS")
-        {
-            string deploy_id;
-
-            is >> deploy_id;
-
-            if ( !deploy_id.empty() )
-            {
-                vm->set_deploy_id(deploy_id);
-            }
-            else
-            {
-                action = LCMAction::DEPLOY_FAILURE;
-                log_error(vm,os,is,"Empty deploy ID for virtual machine");
-            }
-        }
-        else
-        {
-            action = LCMAction::DEPLOY_FAILURE;
-            log_error(vm,os,is,"Error deploying virtual machine");
-        }
-
-        vmpool->update(vm);
-
-        lcm->trigger(action, id);
-    }
-    else if (action == "SHUTDOWN" )
-    {
-        if (result == "SUCCESS")
-        {
-            lcm->trigger(LCMAction::SHUTDOWN_SUCCESS, id);
-        }
-        else
-        {
-            log_error(vm,os,is,"Error shutting down VM");
-            vmpool->update(vm);
-
-            lcm->trigger(LCMAction::SHUTDOWN_FAILURE, id);
-        }
-    }
-    else if ( action == "CANCEL" )
-    {
-        if (result == "SUCCESS")
-        {
-            lcm->trigger(LCMAction::CANCEL_SUCCESS, id);
-        }
-        else
-        {
-            log_error(vm,os,is,"Error canceling VM");
-            vmpool->update(vm);
-
-            lcm->trigger(LCMAction::CANCEL_FAILURE, id);
-        }
-    }
-    else if ( action == "SAVE" )
-    {
-        if (result == "SUCCESS")
-        {
-            lcm->trigger(LCMAction::SAVE_SUCCESS, id);
-        }
-        else
-        {
-            log_error(vm,os,is,"Error saving VM state");
-            vmpool->update(vm);
-
-            lcm->trigger(LCMAction::SAVE_FAILURE, id);
-        }
-    }
-    else if ( action == "RESTORE" )
-    {
-        if (result == "SUCCESS")
-        {
-            lcm->trigger(LCMAction::DEPLOY_SUCCESS, id);
-        }
-        else
-        {
-            log_error(vm,os,is,"Error restoring VM");
-            vmpool->update(vm);
-
-            lcm->trigger(LCMAction::DEPLOY_FAILURE, id);
-        }
-    }
-    else if ( action == "MIGRATE" )
-    {
-        if (result == "SUCCESS")
-        {
-            lcm->trigger(LCMAction::DEPLOY_SUCCESS, id);
-        }
-        else
-        {
-            log_error(vm, os, is, "Error live migrating VM");
-            vmpool->update(vm);
-
-            lcm->trigger(LCMAction::DEPLOY_FAILURE, id);
-        }
-    }
-    else if ( action == "REBOOT" )
-    {
-        if (result == "SUCCESS")
-        {
-            vm->log("VMM",Log::INFO,"VM successfully rebooted.");
-        }
-        else
-        {
-            log_error(vm,os,is,"Error rebooting VM, assume it's still running");
-            vmpool->update(vm);
-        }
-    }
-    else if ( action == "RESET" )
-    {
-        if (result == "SUCCESS")
-        {
-            vm->log("VMM",Log::INFO,"VM successfully rebooted-hard.");
-        }
-        else
-        {
-            log_error(vm,os,is,"Error rebooting-hard VM, assume it's still running");
-            vmpool->update(vm);
-        }
-    }
-    else if ( action == "ATTACHDISK" )
-    {
-        if ( result == "SUCCESS" )
-        {
-            vm->log("VMM", Log::INFO, "VM Disk successfully attached.");
-
-            lcm->trigger(LCMAction::ATTACH_SUCCESS, id);
-        }
-        else
-        {
-            log_error(vm, os, is, "Error attaching new VM Disk");
-            vmpool->update(vm);
-
-            lcm->trigger(LCMAction::ATTACH_FAILURE, id);
-        }
-    }
-    else if ( action == "DETACHDISK" )
-    {
-        if ( result == "SUCCESS" )
-        {
-            vm->log("VMM",Log::INFO,"VM Disk successfully detached.");
-
-            lcm->trigger(LCMAction::DETACH_SUCCESS, id);
-        }
-        else
-        {
-            log_error(vm,os,is,"Error detaching VM Disk");
-            vmpool->update(vm);
-
-            lcm->trigger(LCMAction::DETACH_FAILURE, id);
-        }
-    }
-    else if ( action == "ATTACHNIC" )
-    {
-        if ( result == "SUCCESS" )
-        {
-            vm->log("VMM", Log::INFO, "VM NIC Successfully attached.");
-
-            lcm->trigger(LCMAction::ATTACH_NIC_SUCCESS, id);
-        }
-        else
-        {
-            log_error(vm, os, is, "Error attaching new VM NIC");
-            vmpool->update(vm);
-
-            lcm->trigger(LCMAction::ATTACH_NIC_FAILURE, id);
-        }
-    }
-    else if ( action == "DETACHNIC" )
-    {
-        if ( result == "SUCCESS" )
-        {
-            vm->log("VMM",Log::INFO, "VM NIC Successfully detached.");
-
-            lcm->trigger(LCMAction::DETACH_NIC_SUCCESS, id);
-        }
-        else
-        {
-            log_error(vm,os,is,"Error detaching VM NIC");
-            vmpool->update(vm);
-
-            lcm->trigger(LCMAction::DETACH_NIC_FAILURE, id);
-        }
-    }
-    else if ( action == "SNAPSHOTCREATE" )
-    {
-        if ( result == "SUCCESS" )
-        {
-            string hypervisor_id;
-
-            is >> hypervisor_id;
-
-            vm->update_snapshot_id(hypervisor_id);
-
-            vmpool->update(vm);
-
-            vm->log("VMM", Log::INFO, "VM Snapshot successfully created.");
-
-            lcm->trigger(LCMAction::SNAPSHOT_CREATE_SUCCESS, id);
-        }
-        else
-        {
-            log_error(vm, os, is, "Error creating new VM Snapshot");
-            vmpool->update(vm);
-
-            lcm->trigger(LCMAction::SNAPSHOT_CREATE_FAILURE, id);
-        }
-    }
-    else if ( action == "SNAPSHOTREVERT" )
-    {
-        if ( result == "SUCCESS" )
-        {
-            vm->log("VMM",Log::INFO,"VM Snapshot successfully reverted.");
-
-            lcm->trigger(LCMAction::SNAPSHOT_REVERT_SUCCESS, id);
-        }
-        else
-        {
-            log_error(vm,os,is,"Error reverting VM Snapshot");
-            vmpool->update(vm);
-
-            lcm->trigger(LCMAction::SNAPSHOT_REVERT_FAILURE, id);
-        }
-    }
-    else if ( action == "SNAPSHOTDELETE" )
-    {
-        if ( result == "SUCCESS" )
-        {
-            vm->log("VMM",Log::INFO,"VM Snapshot successfully deleted.");
-
-            lcm->trigger(LCMAction::SNAPSHOT_DELETE_SUCCESS, id);
-        }
-        else
-        {
-            log_error(vm,os,is,"Error deleting VM Snapshot");
-            vmpool->update(vm);
-
-            lcm->trigger(LCMAction::SNAPSHOT_DELETE_FAILURE, id);
-        }
-    }
-    else if ( action == "DISKSNAPSHOTCREATE" )
-    {
-        if ( result == "SUCCESS" )
-        {
-            vm->log("VMM", Log::INFO, "VM disk snapshot successfully created.");
-
-            lcm->trigger(LCMAction::DISK_SNAPSHOT_SUCCESS, id);
-        }
-        else
-        {
-            log_error(vm, os, is, "Error creating new disk snapshot");
-            vmpool->update(vm);
-
-            lcm->trigger(LCMAction::DISK_SNAPSHOT_FAILURE, id);
-        }
-    }
-    else if ( action == "DISKSNAPSHOTREVERT" )
-    {
-        if ( result == "SUCCESS" )
-        {
-            vm->log("VMM", Log::INFO, "VM disk state reverted.");
-
-            lcm->trigger(LCMAction::DISK_SNAPSHOT_SUCCESS, id);
-        }
-        else
-        {
-            log_error(vm, os, is, "Error reverting disk snapshot");
-            vmpool->update(vm);
-
-            lcm->trigger(LCMAction::DISK_SNAPSHOT_FAILURE, id);
-        }
-    }
-    else if ( action == "RESIZEDISK" )
-    {
-        if ( result == "SUCCESS" )
-        {
-            vm->log("VMM", Log::INFO, "VM disk successfully resized");
-
-            lcm->trigger(LCMAction::DISK_RESIZE_SUCCESS, id);
-        }
-        else
-        {
-            log_error(vm, os, is, "Error resizing disk");
-            vmpool->update(vm);
-
-            lcm->trigger(LCMAction::DISK_RESIZE_FAILURE, id);
-        }
-    }
-    else if ( action == "UPDATECONF" )
-    {
-        if ( result == "SUCCESS" )
-        {
-            vm->log("VMM", Log::INFO, "VM update conf succesfull.");
-
-            lcm->trigger(LCMAction::UPDATE_CONF_SUCCESS, id);
-        }
-        else
-        {
-            log_error(vm, os, is, "Error updating conf for VM");
-            vmpool->update(vm);
-
-            lcm->trigger(LCMAction::UPDATE_CONF_FAILURE, id);
-        }
-    }
-    else if ( action == "CLEANUP" )
-    {
-        if ( result == "SUCCESS" )
-        {
-            vm->log("VMM", Log::INFO, "Host successfully cleaned.");
-
-            lcm->trigger(LCMAction::CLEANUP_SUCCESS, id);
-        }
-        else
-        {
-            log_error(vm, os, is, "Error cleaning Host");
-            vmpool->update(vm);
-
-            lcm->trigger(LCMAction::CLEANUP_FAILURE, id);
-        }
-    }
-    else if ( action == "POLL" )
-    {
-        // if (result == "SUCCESS")
-        // {
-        //     string monitor_str;
-        //     getline(is, monitor_str);
-
-        //     process_poll(vm, monitor_str);
-        // }
-        // else
-        // {
-        //     log_monitor_error(vm, os, is, "Error monitoring VM");
-
-        //     lcm->trigger(LCMAction::MONITOR_DONE, vm->get_oid());
-        // }
-    }
-    else if (action == "LOG")
-    {
-        string info;
-
-        getline(is,info);
-        vm->log("VMM",log_type(result[0]),info.c_str());
-    }
-
-    vm->unlock();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineManagerDriver::recover()
-{
-    NebulaLog::log("VMM",Log::INFO,"Recovering VMM drivers");
+    cmd_(exec);
+    arg_(args);
+    concurency_(threads);
 }

@@ -45,7 +45,7 @@ DatastorePool::DatastorePool(
         SqlDB * db,
         const vector<const SingleAttribute *>& _inherit_attrs,
         vector<const SingleAttribute *>& encrypted_attrs) :
-    PoolSQL(db, Datastore::table)
+    PoolSQL(db, one_db::ds_table)
 
 {
     ostringstream oss;

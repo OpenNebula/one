@@ -213,7 +213,7 @@ class InformationManagerDriver < OpenNebulaDriver
             zline   = Zlib::Deflate.deflate(line.strip, Zlib::BEST_COMPRESSION)
             zline64 = Base64.strict_encode64(zline)
 
-            send_message('LOG', severity, id, zline64)
+            send_message('LOG', severity, id, "#{Time.now.to_i} #{zline64}")
         end
     end
 

@@ -70,15 +70,6 @@ private:
     friend class VirtualMachine;
     friend class VirtualMachinePool;
 
-    // ----------------------------------------
-    // DataBase implementation variables
-    // ----------------------------------------
-    static const char * table;
-
-    static const char * db_names;
-
-    static const char * db_bootstrap;
-
     void non_persistent_data();
 
     // ----------------------------------------

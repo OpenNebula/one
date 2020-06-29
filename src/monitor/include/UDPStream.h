@@ -35,14 +35,17 @@
 /**
  *
  */
-template<typename E>
-class UDPStream : public StreamManager<E>
+template<typename MSG>
+class UDPStream : public StreamManager<MSG>
 {
 public:
-    using callback_t = std::function<void(std::unique_ptr<Message<E>>)>;
+    using callback_t = std::function<void(std::unique_ptr<MSG>)>;
 
     UDPStream(const std::string &address, unsigned int port, callback_t error):
-        StreamManager<E>(error), _socket(-1), _address(address), _port(port)
+        StreamManager<MSG>(error),
+        _socket(-1),
+        _address(address),
+        _port(port)
     {
     }
 
@@ -98,8 +101,9 @@ private:
 /* UDPStream Implementation                                                   */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-template<typename E>
-int UDPStream<E>::action_loop(int threads, std::string& error)
+template<typename MSG>
+int UDPStream<MSG>
+    ::action_loop(int threads, std::string& error)
 {
     struct addrinfo hints;
     struct addrinfo *res;
@@ -138,7 +142,7 @@ int UDPStream<E>::action_loop(int threads, std::string& error)
         return -1;
     }
 
-    StreamManager<E>::fd(_socket);
+    this->fd(_socket);
 
     /* ---------------------------------------------------------------------- */
     /* Start a pool of threads to read incoming UDP driver messages           */
@@ -161,11 +165,11 @@ int UDPStream<E>::action_loop(int threads, std::string& error)
                     continue;
                 }
 
-                std::unique_ptr<Message<E>> msg{new Message<E>};
+                std::unique_ptr<MSG> msg{new MSG};
 
-                msg->parse_from(line, true);
+                msg->parse_from(line);
 
-                StreamManager<E>::do_action(msg, false);
+                this->do_action(msg, false);
             }
         });
 
@@ -179,8 +183,9 @@ int UDPStream<E>::action_loop(int threads, std::string& error)
 /* -------------------------------------------------------------------------- */
 #define MESSAGE_SIZE 65536
 
-template<typename E>
-int UDPStream<E>::read_line(std::string& line)
+template<typename MSG>
+int UDPStream<MSG>
+    ::read_line(std::string& line)
 {
     char   buffer[MESSAGE_SIZE];
 

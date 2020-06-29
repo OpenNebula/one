@@ -17,17 +17,16 @@
 #ifndef TRANSFER_MANAGER_H_
 #define TRANSFER_MANAGER_H_
 
-#include "MadManager.h"
+#include "ProtocolMessages.h"
+#include "DriverManager.h"
 #include "ActionManager.h"
-#include "VirtualMachinePool.h"
-#include "LifeCycleManager.h"
-#include "TransferManagerDriver.h"
-
-using namespace std;
 
 extern "C" void * tm_action_loop(void *arg);
 
+class HostPool;
+class VirtualMachine;
 class VirtualMachineDisk;
+class VirtualMachinePool;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -85,15 +84,17 @@ private:
     int     _vm_id;
 };
 
-class TransferManager : public MadManager, public ActionListener
+class TransferManager :
+    public DriverManager<Driver<transfer_msg_t>>,
+    public ActionListener
 {
 public:
 
     TransferManager(
         VirtualMachinePool * _vmpool,
         HostPool *           _hpool,
-        vector<const VectorAttribute*>& _mads):
-            MadManager(_mads),
+        const std::string&   _mad_location):
+            DriverManager(_mad_location),
             vmpool(_vmpool),
             hpool(_hpool)
     {
@@ -130,12 +131,10 @@ public:
     int start();
 
     /**
-     *  Loads Virtual Machine Manager Mads defined in configuration file
-     *   @param uid of the user executing the driver. When uid is 0 the nebula
-     *   identity will be used. Otherwise the Mad will be loaded through the
-     *   sudo application.
+     *  Loads Transfer Manager Drivers in configuration file
+     *   @param _mads configuration of drivers
      */
-    int load_mads(int uid);
+    int load_drivers(const std::vector<const VectorAttribute*>& _mads);
 
     /**
      *  Gets the thread identification.
@@ -162,10 +161,10 @@ public:
     int prolog_transfer_command(
             VirtualMachine *        vm,
             const VirtualMachineDisk* disk,
-            string&                 system_tm_mad,
-            string&                 opennebula_hostname,
-            ostream&                xfr,
-            ostringstream&          error);
+            std::string&            system_tm_mad,
+            std::string&            opennebula_hostname,
+            std::ostream&           xfr,
+            std::ostringstream&     error);
 
     /**
      * Inserts a context command in the xfs stream
@@ -180,10 +179,10 @@ public:
      */
     int prolog_context_command(
             VirtualMachine *        vm,
-            const string&           token_password,
-            string&                 system_tm_mad,
+            const std::string&      token_password,
+            std::string&            system_tm_mad,
             int&                    disk_id,
-            ostream&                xfr);
+            std::ostream&           xfr);
 
     /**
      * Inserts a transfer command in the xfs stream
@@ -196,9 +195,9 @@ public:
      */
     void epilog_transfer_command(
             VirtualMachine *        vm,
-            const string&           host,
+            const std::string&      host,
             const VirtualMachineDisk * disk,
-            ostream&                xfr);
+            std::ostream&           xfr);
     /**
      * Inserts a transfer command in the xfs stream, for live migration
      *
@@ -207,7 +206,7 @@ public:
      */
     void migrate_transfer_command(
         VirtualMachine *        vm,
-        ostream&                xfr);
+        std::ostream&           xfr);
 
     /**
      *  This function generates the epilog_delete sequence for current,
@@ -220,7 +219,7 @@ public:
      *    @return 0 on success
      */
     int epilog_delete_commands(VirtualMachine *vm,
-                               ostream&        xfr,
+                               std::ostream&   xfr,
                                bool            local,
                                bool            previous);
     /**
@@ -233,7 +232,7 @@ public:
      */
     int snapshot_transfer_command(VirtualMachine * vm,
                                   const char * snap_action,
-                                  ostream& xfr);
+                                  std::ostream& xfr);
 
     /**
      *  Inserts a resize command in the xfr stream
@@ -244,7 +243,7 @@ public:
     void resize_command(
             VirtualMachine *           vm,
             const VirtualMachineDisk * disk,
-            ostream&                   xfr);
+            std::ostream&              xfr);
 private:
     /**
      *  Thread id for the Transfer Manager
@@ -272,33 +271,15 @@ private:
      static const char *  transfer_driver_name;
 
     /**
-     *  Returns a pointer to a Transfer Manager driver.
-     *    @param name of an attribute of the driver (e.g. its type)
-     *    @param value of the attribute
-     *    @return the TM driver owned by uid with attribute name equal to value
-     *    or 0 in not found
-     */
-    const TransferManagerDriver * get(
-        const string&   name,
-        const string&   value)
-    {
-        return static_cast<const TransferManagerDriver *>
-               (MadManager::get(0,name,value));
-    };
-
-    /**
      *  Returns a pointer to a Transfer Manager driver. The driver is
      *  searched by its name.
      *    @param name the name of the driver
      *    @return the TM driver owned by uid with attribute name equal to value
      *    or 0 in not found
      */
-    const TransferManagerDriver * get(
-        const string&   name)
+    const Driver<transfer_msg_t> * get(const std::string& name)
     {
-        string _name("NAME");
-        return static_cast<const TransferManagerDriver *>
-               (MadManager::get(0,_name,name));
+        return DriverManager::get_driver(name);
     };
 
     /**
@@ -306,11 +287,9 @@ private:
      *  searched by its name.
      *    @return the TM driver for the Transfer Manager
      */
-    const TransferManagerDriver * get()
+    const Driver<transfer_msg_t> * get()
     {
-        string _name("NAME");
-        return static_cast<const TransferManagerDriver *>
-               (MadManager::get(0,_name,transfer_driver_name));
+        return DriverManager::get_driver(transfer_driver_name);
     };
 
     /**
@@ -320,13 +299,22 @@ private:
     friend void * tm_action_loop(void *arg);
 
     // -------------------------------------------------------------------------
+    // Protocol implementation, procesing messages from driver
+    // -------------------------------------------------------------------------
+    static void _undefined(unique_ptr<transfer_msg_t> msg);
+    void _transfer(unique_ptr<transfer_msg_t> msg);
+    static void _log(unique_ptr<transfer_msg_t> msg);
+
+    // -------------------------------------------------------------------------
     // Action Listener interface
     // -------------------------------------------------------------------------
+    static const int drivers_timeout = 10;
+
     void finalize_action(const ActionRequest& ar)
     {
         NebulaLog::log("TM",Log::INFO,"Stopping Transfer Manager...");
 
-        MadManager::stop();
+        DriverManager::stop(drivers_timeout);
     };
 
     void user_action(const ActionRequest& ar);

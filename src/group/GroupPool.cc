@@ -17,6 +17,7 @@
 #include "GroupPool.h"
 #include "Nebula.h"
 #include "NebulaLog.h"
+#include "OneDB.h"
 
 #include <stdexcept>
 
@@ -38,7 +39,8 @@ const int    GroupPool::USERS_ID      = 1;
 /* -------------------------------------------------------------------------- */
 
 GroupPool::GroupPool(SqlDB * db, bool is_slave,
-        vector<const SingleAttribute *>& restricted_attrs):PoolSQL(db, Group::table)
+        vector<const SingleAttribute *>& restricted_attrs)
+    : PoolSQL(db, one_db::group_table)
 {
     ostringstream oss;
     string        error_str;
@@ -225,10 +227,10 @@ int GroupPool::dump(string& oss, const string& where, int sid, int eid, bool des
 
     ostringstream cmd;
 
-    cmd << "SELECT " << Group::table << ".body, "
-        << GroupQuotas::db_table << ".body" << " FROM " << Group::table
-        << " LEFT JOIN " << GroupQuotas::db_table << " ON "
-        << Group::table << ".oid=" << GroupQuotas::db_table << ".group_oid";
+    cmd << "SELECT " << one_db::group_table << ".body, "
+        << one_db::group_quotas_db_table << ".body" << " FROM " << one_db::group_table
+        << " LEFT JOIN " << one_db::group_quotas_db_table << " ON "
+        << one_db::group_table << ".oid=" << one_db::group_quotas_db_table << ".group_oid";
 
     if ( !where.empty() )
     {

@@ -16,20 +16,10 @@
 
 #include "VirtualMachine.h"
 #include "Nebula.h"
+#include "OneDB.h"
 
 #include <iostream>
 #include <sstream>
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-const char * History::table = "history";
-
-const char * History::db_names = "vid, seq, body, stime, etime";
-
-const char * History::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-    "history (vid INTEGER, seq INTEGER, body MEDIUMTEXT, "
-    "stime INTEGER, etime INTEGER,PRIMARY KEY(vid,seq))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -177,7 +167,7 @@ int History::insert_replace(SqlDB *db, bool replace)
 
     if(replace)
     {
-        oss << "UPDATE " << table << " SET "
+        oss << "UPDATE " << one_db::history_table << " SET "
             << "body = '"  <<  sql_xml  << "', "
             << "stime = "  <<  stime    << ", "
             << "etime = "  <<  etime
@@ -185,7 +175,8 @@ int History::insert_replace(SqlDB *db, bool replace)
     }
     else
     {
-        oss << "INSERT INTO " << table << " (" << db_names << ") VALUES ("
+        oss << "INSERT INTO " << one_db::history_table
+            << " (" << one_db::history_db_names << ") VALUES ("
             <<          oid             << ","
             <<          seq             << ","
             << "'" <<   sql_xml         << "',"
@@ -266,7 +257,7 @@ int History::drop(SqlDB * db)
 {
     ostringstream   oss;
 
-    oss << "DELETE FROM " << table << " WHERE vid= "<< oid;
+    oss << "DELETE FROM " << one_db::history_table << " WHERE vid= "<< oid;
 
     return db->exec_wr(oss);
 }

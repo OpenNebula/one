@@ -92,12 +92,7 @@ private:
      *  Bootstraps the database table(s) associated to the VNTemplate
      *    @return 0 on success
      */
-    static int bootstrap(SqlDB * db)
-    {
-        ostringstream oss(VNTemplate::db_bootstrap);
-
-        return db->exec_local_wr(oss);
-    };
+    static int bootstrap(SqlDB * db);
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -125,12 +120,6 @@ protected:
     // *************************************************************************
     // DataBase implementation
     // *************************************************************************
-
-    static const char * db_names;
-
-    static const char * db_bootstrap;
-
-    static const char * table;
 
     /**
      *  Writes the VNTemplate in the database.

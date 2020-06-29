@@ -34,8 +34,8 @@
 VirtualMachineManager::VirtualMachineManager(
     time_t                          _timer_period,
     int                             _vm_limit,
-    vector<const VectorAttribute*>&       _mads):
-        MadManager(_mads),
+    const string&                   _mad_location):
+        DriverManager(_mad_location),
         timer_period(_timer_period),
         vm_limit(_vm_limit)
 {
@@ -76,12 +76,81 @@ extern "C" void * vmm_action_loop(void *arg)
 
 int VirtualMachineManager::start()
 {
-    int               rc;
     pthread_attr_t    pattr;
 
-    rc = MadManager::start();
+    using namespace std::placeholders; // for _1
 
-    if ( rc != 0 )
+    register_action(VMManagerMessages::UNDEFINED,
+            &VirtualMachineManager::_undefined);
+
+    register_action(VMManagerMessages::DEPLOY,
+            bind(&VirtualMachineManager::_deploy, this, _1));
+
+    register_action(VMManagerMessages::SHUTDOWN,
+            bind(&VirtualMachineManager::_shutdown, this, _1));
+
+    register_action(VMManagerMessages::RESET,
+            bind(&VirtualMachineManager::_reboot, this, _1));
+
+    register_action(VMManagerMessages::CANCEL,
+            bind(&VirtualMachineManager::_cancel, this, _1));
+
+    register_action(VMManagerMessages::CLEANUP,
+            bind(&VirtualMachineManager::_cleanup, this, _1));
+
+    register_action(VMManagerMessages::CHECKPOINT,
+            bind(&VirtualMachineManager::_checkpoint, this, _1));
+
+    register_action(VMManagerMessages::SAVE,
+            bind(&VirtualMachineManager::_save, this, _1));
+
+    register_action(VMManagerMessages::RESTORE,
+            bind(&VirtualMachineManager::_restore, this, _1));
+
+    register_action(VMManagerMessages::MIGRATE,
+            bind(&VirtualMachineManager::_migrate, this, _1));
+
+    register_action(VMManagerMessages::ATTACHDISK,
+            bind(&VirtualMachineManager::_attachdisk, this, _1));
+
+    register_action(VMManagerMessages::DETACHDISK,
+            bind(&VirtualMachineManager::_detachdisk, this, _1));
+
+    register_action(VMManagerMessages::ATTACHNIC,
+            bind(&VirtualMachineManager::_attachnic, this, _1));
+
+    register_action(VMManagerMessages::DETACHNIC,
+            bind(&VirtualMachineManager::_detachnic, this, _1));
+
+    register_action(VMManagerMessages::SNAPSHOTCREATE,
+            bind(&VirtualMachineManager::_snapshotcreate, this, _1));
+
+    register_action(VMManagerMessages::SNAPSHOTREVERT,
+            bind(&VirtualMachineManager::_snapshotrevert, this, _1));
+
+    register_action(VMManagerMessages::SNAPSHOTDELETE,
+            bind(&VirtualMachineManager::_snapshotdelete, this, _1));
+
+    register_action(VMManagerMessages::DISKSNAPSHOTCREATE,
+            bind(&VirtualMachineManager::_disksnapshotcreate, this, _1));
+
+    register_action(VMManagerMessages::RESIZEDISK,
+            bind(&VirtualMachineManager::_resizedisk, this, _1));
+
+    register_action(VMManagerMessages::UPDATECONF,
+            bind(&VirtualMachineManager::_updateconf, this, _1));
+
+    register_action(VMManagerMessages::UPDATESG,
+            bind(&VirtualMachineManager::_updatesg, this, _1));
+
+    register_action(VMManagerMessages::DRIVER_CANCEL,
+            bind(&VirtualMachineManager::_driver_cancel, this, _1));
+
+    register_action(VMManagerMessages::LOG,
+            &VirtualMachineManager::_log);
+
+    string error;
+    if ( DriverManager::start(error) != 0 )
     {
         return -1;
     }
@@ -91,7 +160,7 @@ int VirtualMachineManager::start()
     pthread_attr_init(&pattr);
     pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
 
-    rc = pthread_create(&vmm_thread,&pattr,vmm_action_loop,(void *) this);
+    int rc = pthread_create(&vmm_thread,&pattr,vmm_action_loop,(void *) this);
 
     return rc;
 };
@@ -197,7 +266,7 @@ int VirtualMachineManager::validate_raw(const Template * vmt, string& error_str)
 
     const VirtualMachineManagerDriver * vmd = get(value);
 
-    if ( vmd == 0 )
+    if ( vmd == nullptr )
     {
         error_str = "Invalid RAW section: unsupported TYPE";
         return -1;
@@ -2477,28 +2546,22 @@ int VirtualMachineManager::updatesg(VirtualMachine * vm, int sgid)
 /* MAD Loading                                                                */
 /* ************************************************************************** */
 
-int VirtualMachineManager::load_mads(int uid)
+int VirtualMachineManager::load_drivers(const vector<const VectorAttribute*>& _mads)
 {
-    unsigned int                    i;
-    ostringstream                   oss;
-    const VectorAttribute *         vattr;
-    int                             rc;
-    string                          name;
-    string                          type;
-    VirtualMachineManagerDriver *   vmm_driver = nullptr;
+    int           rc;
+    const string& mad_location = Nebula::instance().get_mad_location();
 
-    oss << "Loading Virtual Machine Manager drivers.";
+    NebulaLog::info("VMM", "Loading Virtual Machine Manager drivers.");
 
-    NebulaLog::log("VMM",Log::INFO,oss);
-
-    for (i=0, oss.str(""); i<mad_conf.size(); i++, oss.str(""), vmm_driver=0)
+    for (auto vattr : _mads)
     {
-        vattr = static_cast<const VectorAttribute *>(mad_conf[i]);
+        ostringstream                   oss;
+        VirtualMachineManagerDriver *   vmm_driver = nullptr;
 
-        name  = vattr->vector_value("NAME");
-        type  = vattr->vector_value("TYPE");
+        string name  = vattr->vector_value("NAME");
+        string type  = vattr->vector_value("TYPE");
 
-        transform(type.begin(), type.end(), type.begin(), (int(*)(int))toupper);
+        one_util::toupper(type);
 
         oss << "\tLoading driver: " << name << " (" << type << ")";
 
@@ -2506,21 +2569,19 @@ int VirtualMachineManager::load_mads(int uid)
 
         if ( type == "XEN" )
         {
-            vmm_driver = new XenDriver(uid, vattr->value(),(uid != 0),vmpool);
+            vmm_driver = new XenDriver(mad_location, vattr->value());
         }
         else if ( type == "KVM" )
         {
-            vmm_driver = new LibVirtDriver(uid, vattr->value(),
-                                           (uid != 0),vmpool,"kvm");
+            vmm_driver = new LibVirtDriver(mad_location, vattr->value(), "kvm");
         }
         else if ( type == "QEMU" )
         {
-            vmm_driver = new LibVirtDriver(uid, vattr->value(),
-                                           (uid != 0),vmpool,"qemu");
+            vmm_driver = new LibVirtDriver(mad_location, vattr->value(), "qemu");
         }
         else if ( type == "XML" )
         {
-            vmm_driver = new XMLDriver(uid, vattr->value(),(uid != 0),vmpool);
+            vmm_driver = new XMLDriver(mad_location, vattr->value());
         }
         else
         {
@@ -2532,19 +2593,17 @@ int VirtualMachineManager::load_mads(int uid)
             continue;
         }
 
-        rc = add(vmm_driver);
+        rc = add(name, unique_ptr<VirtualMachineManagerDriver>(vmm_driver));
 
-        if ( rc == 0 )
-        {
-            oss.str("");
-            oss << "\tDriver " << name << " loaded.";
-
-            NebulaLog::log("VMM",Log::INFO,oss);
-        }
-        else
+        if ( rc != 0 )
         {
             return rc;
         }
+
+        oss.str("");
+        oss << "\tDriver " << name << " loaded.";
+
+        NebulaLog::log("VMM",Log::INFO,oss);
     }
 
     return 0;

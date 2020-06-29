@@ -25,7 +25,8 @@ const int    VdcPool::DEFAULT_ID   = 0;
 
 /* -------------------------------------------------------------------------- */
 
-VdcPool::VdcPool(SqlDB * db, bool is_federation_slave): PoolSQL(db, Vdc::table)
+VdcPool::VdcPool(SqlDB * db, bool is_federation_slave)
+    : PoolSQL(db, one_db::vdc_table)
 {
     string error_str;
 
