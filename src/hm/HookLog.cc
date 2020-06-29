@@ -27,20 +27,9 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const char * HookLog::table = "hook_log";
-
-const char * HookLog::db_names = "hkid, exeid, timestamp, rc, body";
-
-const char * HookLog::db_bootstrap = "CREATE TABLE IF NOT EXISTS hook_log"
-    " (hkid INTEGER, exeid INTEGER, timestamp INTEGER, rc INTEGER,"
-    " body MEDIUMTEXT,PRIMARY KEY(hkid, exeid))";
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int HookLog::bootstrap(SqlDB * db)
 {
-    std::ostringstream oss_hook(HookLog::db_bootstrap);
+    std::ostringstream oss_hook(one_db::hook_log_db_bootstrap);
 
     return db->exec_local_wr(oss_hook);
 }
@@ -64,7 +53,7 @@ int HookLog::_dump_log(int hkid, int exec_id, std::string &xml_log)
 
     string_cb cb(1);
 
-    cmd << "SELECT body FROM "<< table;
+    cmd << "SELECT body FROM "<< one_db::hook_log_table;
 
     if ( hkid == -1 )
     {
@@ -99,7 +88,7 @@ int HookLog::dump_log(const std::string &where_clause, std::string &xml_log)
 
     string_cb cb(1);
 
-    cmd << "SELECT body FROM "<< table;
+    cmd << "SELECT body FROM "<< one_db::hook_log_table;
 
     if (!where_clause.empty())
     {
@@ -141,8 +130,9 @@ int HookLog::dump_log(std::string &xml_log)
 int HookLog::drop(SqlDB *db, const int hook_id)
 {
     ostringstream oss;
-    
-    oss << "DELETE FROM " << table << " WHERE hkid =" << hook_id;
+
+    oss << "DELETE FROM " << one_db::hook_log_table
+        << " WHERE hkid =" << hook_id;
 
     return db->exec_wr(oss);
 }
@@ -204,7 +194,8 @@ int HookLog::add(int hkid, int hkrc, std::string &xml_result)
 
     oss.str("");
 
-    oss <<"INSERT INTO "<< table <<" ("<< db_names <<") VALUES ("
+    oss << "INSERT INTO " << one_db::hook_log_table
+        << " (" << one_db::hook_log_db_names << ") VALUES ("
         << hkid       << ","
         << last_exeid << ","
         << the_time   << ","
@@ -217,7 +208,8 @@ int HookLog::add(int hkid, int hkrc, std::string &xml_result)
     {
         oss.str("");
 
-        oss << "DELETE FROM " << table << " WHERE hkid = " << hkid
+        oss << "DELETE FROM " << one_db::hook_log_table
+            << " WHERE hkid = " << hkid
             << " AND exeid <= " << last_exeid - log_retention;
 
         rc = db->exec_wr(oss);

@@ -261,7 +261,8 @@ int VirtualMachinePool::dump_acct(string& oss, const string&  where,
 {
     ostringstream cmd;
 
-    cmd << "SELECT " << History::table << ".body FROM " << History::table
+    cmd << "SELECT " << one_db::history_table << ".body FROM "
+        << one_db::history_table
         << " INNER JOIN " << one_db::vm_table << " ON vid=oid";
 
     if ( !where.empty() )
@@ -549,7 +550,7 @@ int VirtualMachinePool::calculate_showback(
 
         cb.set_callback(&start_time);
 
-        oss << "SELECT MIN(stime) FROM " << History::table;
+        oss << "SELECT MIN(stime) FROM " << one_db::history_table;
 
         rc = db->exec_rd(oss, &cb);
 

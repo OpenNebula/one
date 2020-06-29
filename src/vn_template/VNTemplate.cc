@@ -16,6 +16,7 @@
 
 #include "VNTemplate.h"
 #include "VirtualNetwork.h"
+#include "OneDB.h"
 
 /* ************************************************************************ */
 /* VNTemplate :: Constructor/Destructor                                     */
@@ -28,8 +29,8 @@ VNTemplate::VNTemplate(int id,
                        const string& _gname,
                        int umask,
                        VirtualNetworkTemplate * _template_contents):
-        PoolObjectSQL(id,VNTEMPLATE,"",_uid,_gid,_uname,_gname,table),
-        regtime(time(0))
+    PoolObjectSQL(id,VNTEMPLATE,"",_uid,_gid,_uname,_gname,one_db::vn_template_table),
+    regtime(time(0))
 {
     if (_template_contents != 0)
     {
@@ -46,19 +47,6 @@ VNTemplate::VNTemplate(int id,
 /* ************************************************************************ */
 /* VNTemplate :: Database Access Functions                                  */
 /* ************************************************************************ */
-
-const char * VNTemplate::table = "vn_template_pool";
-
-const char * VNTemplate::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * VNTemplate::db_bootstrap =
-    "CREATE TABLE IF NOT EXISTS vn_template_pool (oid INTEGER PRIMARY KEY, "
-    "name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, "
-    "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
 
 int VNTemplate::insert(SqlDB *db, string& error_str)
 {
@@ -151,7 +139,7 @@ int VNTemplate::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if (replace)
     {
-        oss << "UPDATE " << table << " SET "
+        oss << "UPDATE " << one_db::vn_template_table << " SET "
             << "name = '"    << sql_name   << "', "
             << "body = '"    << sql_xml    << "', "
             << "uid = "      << uid        << ", "
@@ -163,7 +151,8 @@ int VNTemplate::insert_replace(SqlDB *db, bool replace, string& error_str)
     }
     else
     {
-        oss << "INSERT INTO " << table << " (" << db_names << ") VALUES ("
+        oss << "INSERT INTO " << one_db::vn_template_table
+            << " (" << one_db::vn_template_db_names << ") VALUES ("
             <<            oid        << ","
             << "'"     << sql_name   << "',"
             << "'"     << sql_xml    << "',"
@@ -200,6 +189,16 @@ error_generic:
 error_common:
     return -1;
 }
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VNTemplate::bootstrap(SqlDB * db)
+{
+    ostringstream oss(one_db::vn_template_db_bootstrap);
+
+    return db->exec_local_wr(oss);
+};
 
 /* ************************************************************************ */
 /* VNTemplate :: Misc                                                       */

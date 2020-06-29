@@ -14,19 +14,12 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include <openssl/bio.h>
-#include <openssl/evp.h>
-#include <openssl/rsa.h>
-#include <openssl/pem.h>
-
-#include <zlib.h>
-
 #include "Message.h"
 #include "MonitorDriverMessages.h"
-#include "OpenNebulaMessages.h"
+#include "ProtocolMessages.h"
 
 template<>
-const EString<MonitorDriverMessages> Message<MonitorDriverMessages>::_type_str({
+const EString<MonitorDriverMessages> monitor_msg_t::_type_str({
     {"UNDEFINED", MonitorDriverMessages::UNDEFINED},
     {"INIT", MonitorDriverMessages::INIT},
     {"FINALIZE", MonitorDriverMessages::FINALIZE},
@@ -41,322 +34,119 @@ const EString<MonitorDriverMessages> Message<MonitorDriverMessages>::_type_str({
 });
 
 template<>
-const EString<OpenNebulaMessages> Message<OpenNebulaMessages>::_type_str({
-    {"UNDEFINED", OpenNebulaMessages::UNDEFINED},
-    {"INIT", OpenNebulaMessages::INIT},
-    {"FINALIZE", OpenNebulaMessages::FINALIZE},
-    {"HOST_LIST", OpenNebulaMessages::HOST_LIST},
-    {"UPDATE_HOST", OpenNebulaMessages::UPDATE_HOST},
-    {"DEL_HOST", OpenNebulaMessages::DEL_HOST},
-    {"START_MONITOR", OpenNebulaMessages::START_MONITOR},
-    {"STOP_MONITOR", OpenNebulaMessages::STOP_MONITOR},
-    {"HOST_STATE", OpenNebulaMessages::HOST_STATE},
-    {"VM_STATE", OpenNebulaMessages::VM_STATE},
-    {"HOST_SYSTEM", OpenNebulaMessages::HOST_SYSTEM},
-    {"RAFT_STATUS", OpenNebulaMessages::RAFT_STATUS},
+const EString<InformationManagerMessages> im_msg_t::_type_str({
+    {"UNDEFINED", InformationManagerMessages::UNDEFINED},
+    {"INIT", InformationManagerMessages::INIT},
+    {"FINALIZE", InformationManagerMessages::FINALIZE},
+    {"HOST_LIST", InformationManagerMessages::HOST_LIST},
+    {"UPDATE_HOST", InformationManagerMessages::UPDATE_HOST},
+    {"DEL_HOST", InformationManagerMessages::DEL_HOST},
+    {"START_MONITOR", InformationManagerMessages::START_MONITOR},
+    {"STOP_MONITOR", InformationManagerMessages::STOP_MONITOR},
+    {"HOST_STATE", InformationManagerMessages::HOST_STATE},
+    {"VM_STATE", InformationManagerMessages::VM_STATE},
+    {"HOST_SYSTEM", InformationManagerMessages::HOST_SYSTEM},
+    {"RAFT_STATUS", InformationManagerMessages::RAFT_STATUS},
 });
 
-/* ************************************************************************** */
-/* ************************************************************************** */
-/* Message helper functions                                                   */
-/* ************************************************************************** */
-/* ************************************************************************** */
-
-void base64_decode(const std::string& in, std::string& out)
-{
-    BIO * bio_64  = BIO_new(BIO_f_base64());
-
-    BIO * bio_mem_in  = BIO_new(BIO_s_mem());
-    BIO * bio_mem_out = BIO_new(BIO_s_mem());
-
-    bio_64 = BIO_push(bio_64, bio_mem_in);
-
-    BIO_set_flags(bio_64, BIO_FLAGS_BASE64_NO_NL);
-
-    BIO_write(bio_mem_in, in.c_str(), in.length());
-
-    char inbuf[512];
-    int  inlen;
-
-    while ((inlen = BIO_read(bio_64, inbuf, 512)) > 0)
-    {
-        BIO_write(bio_mem_out, inbuf, inlen);
-    }
-
-    char * decoded_c;
-
-    long int size = BIO_get_mem_data(bio_mem_out, &decoded_c);
-
-    out.assign(decoded_c, size);
-
-    BIO_free_all(bio_64);
-    BIO_free_all(bio_mem_out);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int base64_encode(const std::string& in, std::string &out)
-{
-    BIO * bio_64  = BIO_new(BIO_f_base64());
-    BIO * bio_mem = BIO_new(BIO_s_mem());
-
-    BIO_push(bio_64, bio_mem);
-
-    BIO_set_flags(bio_64, BIO_FLAGS_BASE64_NO_NL);
-
-    BIO_write(bio_64, in.c_str(), in.length());
-
-    if (BIO_flush(bio_64) != 1)
-    {
-        return -1;
-    }
-
-    char * encoded_c;
-
-    long int size = BIO_get_mem_data(bio_mem, &encoded_c);
-
-    out.assign(encoded_c, size);
-
-    BIO_free_all(bio_64);
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-/**
- *  Buffer length for zlib inflate/deflate
- */
-#define ZBUFFER 16384
-
-int zlib_decompress(const std::string& in, std::string& out)
-{
-    if ( in.empty() )
-    {
-        return -1;
-    }
-
-    z_stream zs;
-
-    zs.zalloc = Z_NULL;
-    zs.zfree  = Z_NULL;
-    zs.opaque = Z_NULL;
-
-    zs.avail_in = 0;
-    zs.next_in  = Z_NULL;
-
-    if ( inflateInit(&zs) != Z_OK)
-    {
-        return -1;
-    }
-
-    zs.avail_in = in.size();
-    zs.next_in  = (unsigned char *) const_cast<char *>(in.c_str());
-
-    if ( zs.avail_in <= 2 ) //At least 2 byte header
-    {
-        inflateEnd(&zs);
-
-        return -1;
-    }
-
-    unsigned char zbuf[ZBUFFER];
-    std::string result;
-    int rc;
-
-    do
-    {
-        zs.avail_out = ZBUFFER;
-        zs.next_out  = zbuf;
-
-        rc = inflate(&zs, Z_FINISH);
-
-        if ( rc != Z_STREAM_END && rc != Z_OK && rc != Z_BUF_ERROR )
-        {
-            inflateEnd(&zs);
-
-            return -1;
-        }
-
-        result.append((const char *) zbuf, (size_t) (ZBUFFER - zs.avail_out));
-    } while (rc != Z_STREAM_END);
-
-    inflateEnd(&zs);
-
-    out = result;
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int zlib_compress(const std::string& in, std::string& out)
-{
-    if ( in.empty() )
-    {
-        return -1;
-    }
-
-    z_stream zs;
-
-    zs.zalloc = Z_NULL;
-    zs.zfree  = Z_NULL;
-    zs.opaque = Z_NULL;
-
-    if ( deflateInit(&zs, Z_DEFAULT_COMPRESSION) != Z_OK )
-    {
-        return -1;
-    }
-
-    zs.avail_in = in.size();
-    zs.next_in  = (unsigned char *) const_cast<char *>(in.c_str());
-
-    unsigned char zbuf[ZBUFFER];
-    std::string result;
-
-    do
-    {
-        zs.avail_out = ZBUFFER;
-        zs.next_out  = zbuf;
-
-        if ( deflate(&zs, Z_FINISH) == Z_STREAM_ERROR )
-        {
-            deflateEnd(&zs);
-            return -1;
-        }
-
-        result.append((const char *) zbuf, (size_t) (ZBUFFER - zs.avail_out));
-    } while (zs.avail_out == 0);
-
-    deflateEnd(&zs);
-
-    out = result;
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-static std::string pubk_path;
-static std::string prik_path;
-
-void init_rsa_keys(const std::string& pub_key, const std::string& pri_key)
-{
-    pubk_path = pub_key;
-    prik_path = pri_key;
-}
-
-bool is_rsa_set()
-{
-    return !prik_path.empty();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int rsa_public_encrypt(const std::string& in, std::string& out)
-{
-    static RSA * rsa = nullptr;
-
-    if ( rsa == nullptr) //initialize RSA structure
-    {
-        FILE * fp = fopen(pubk_path.c_str(), "r");
-
-        if ( fp == nullptr )
-        {
-            return -1;
-        }
-
-        rsa = PEM_read_RSAPublicKey(fp, &rsa, nullptr, nullptr);
-
-        if ( rsa == nullptr )
-        {
-            return -1;
-        }
-
-        fclose(fp);
-    }
-
-    char * out_c = (char *) malloc(sizeof(char) * RSA_size(rsa));
-
-    int rc = RSA_public_encrypt(in.length(), (const unsigned char *) in.c_str(),
-            (unsigned char *) out_c, rsa, RSA_PKCS1_PADDING);
-
-    if ( rc != -1 )
-    {
-        out.assign(out_c, rc);
-        rc = 0;
-    }
-
-    free(out_c);
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int rsa_private_decrypt(const std::string& in, std::string& out)
-{
-    static RSA * rsa = nullptr;
-
-    if ( rsa == nullptr) //initialize RSA structure
-    {
-        FILE * fp = fopen(prik_path.c_str(), "r");
-
-        if ( fp == nullptr )
-        {
-            return -1;
-        }
-
-        rsa = PEM_read_RSAPrivateKey(fp, &rsa, nullptr, nullptr);
-
-        if ( rsa == nullptr )
-        {
-            return -1;
-        }
-
-        fclose(fp);
-    }
-
-    std::string result;
-
-    int key_size = RSA_size(rsa);
-    int in_size  = in.length();
-    char * out_c = (char *) malloc(sizeof(char) * RSA_size(rsa));
-
-    const char * in_c = in.c_str();
-
-    for (int index = 0; index < in_size; index += key_size)
-    {
-        int block_size = key_size;
-
-        if ( index + key_size > in_size )
-        {
-            block_size = in_size - index;
-        }
-
-        int rc = RSA_private_decrypt(block_size, (const unsigned char *)
-                in_c + index, (unsigned char *) out_c, rsa, RSA_PKCS1_PADDING);
-
-        if ( rc != -1 )
-        {
-            result.append(out_c, rc);
-            rc = 0;
-        }
-        else
-        {
-            free(out_c);
-            return -1;
-        }
-    }
-
-    free(out_c);
-
-    out = result;
-
-    return 0;
-}
+template<>
+const EString<ImageManagerMessages> image_msg_t::_type_str({
+    {"UNDEFINED", ImageManagerMessages::UNDEFINED},
+    {"INIT", ImageManagerMessages::INIT},
+    {"FINALIZE", ImageManagerMessages::FINALIZE},
+    {"CP", ImageManagerMessages::CP},
+    {"CLONE", ImageManagerMessages::CLONE},
+    {"STAT", ImageManagerMessages::STAT},
+    {"MKFS", ImageManagerMessages::MKFS},
+    {"RM", ImageManagerMessages::RM},
+    {"MONITOR", ImageManagerMessages::MONITOR},
+    {"SNAP_DELETE", ImageManagerMessages::SNAP_DELETE},
+    {"SNAP_REVERT", ImageManagerMessages::SNAP_REVERT},
+    {"SNAP_FLATTEN", ImageManagerMessages::SNAP_FLATTEN},
+    {"LOG", ImageManagerMessages::LOG},
+});
+
+template<>
+const EString<AuthManagerMessages> auth_msg_t::_type_str({
+    {"UNDEFINED", AuthManagerMessages::UNDEFINED},
+    {"INIT", AuthManagerMessages::INIT},
+    {"FINALIZE", AuthManagerMessages::FINALIZE},
+    {"AUTHORIZE", AuthManagerMessages::AUTHORIZE},
+    {"AUTHENTICATE", AuthManagerMessages::AUTHENTICATE},
+    {"LOG", AuthManagerMessages::LOG},
+});
+
+template<>
+const EString<IPAMManagerMessages> ipam_msg_t::_type_str({
+    {"UNDEFINED", IPAMManagerMessages::UNDEFINED},
+    {"INIT", IPAMManagerMessages::INIT},
+    {"FINALIZE", IPAMManagerMessages::FINALIZE},
+    {"REGISTER_ADDRESS_RANGE", IPAMManagerMessages::REGISTER_ADDRESS_RANGE},
+    {"UNREGISTER_ADDRESS_RANGE", IPAMManagerMessages::UNREGISTER_ADDRESS_RANGE},
+    {"GET_ADDRESS", IPAMManagerMessages::GET_ADDRESS},
+    {"ALLOCATE_ADDRESS", IPAMManagerMessages::ALLOCATE_ADDRESS},
+    {"FREE_ADDRESS", IPAMManagerMessages::FREE_ADDRESS},
+    {"LOG", IPAMManagerMessages::LOG},
+});
+
+template<>
+const EString<MarketPlaceManagerMessages> market_msg_t::_type_str({
+    {"UNDEFINED", MarketPlaceManagerMessages::UNDEFINED},
+    {"INIT", MarketPlaceManagerMessages::INIT},
+    {"FINALIZE", MarketPlaceManagerMessages::FINALIZE},
+    {"IMPORT", MarketPlaceManagerMessages::IMPORT},
+    {"DELETE", MarketPlaceManagerMessages::DELETE},
+    {"MONITOR", MarketPlaceManagerMessages::MONITOR},
+    {"LOG", MarketPlaceManagerMessages::LOG},
+});
+
+template<>
+const EString<TransferManagerMessages> transfer_msg_t::_type_str({
+    {"UNDEFINED", TransferManagerMessages::UNDEFINED},
+    {"INIT", TransferManagerMessages::INIT},
+    {"FINALIZE", TransferManagerMessages::FINALIZE},
+    {"TRANSFER", TransferManagerMessages::TRANSFER},
+    {"DRIVER_CANCEL", TransferManagerMessages::DRIVER_CANCEL},
+    {"LOG", TransferManagerMessages::LOG},
+});
+
+template<>
+const EString<VMManagerMessages> vm_msg_t::_type_str({
+    {"UNDEFINED", VMManagerMessages::UNDEFINED},
+    {"INIT", VMManagerMessages::INIT},
+    {"FINALIZE", VMManagerMessages::FINALIZE},
+    {"DEPLOY", VMManagerMessages::DEPLOY},
+    {"SHUTDOWN", VMManagerMessages::SHUTDOWN},
+    {"RESET", VMManagerMessages::RESET},
+    {"REBOOT", VMManagerMessages::REBOOT},
+    {"CANCEL", VMManagerMessages::CANCEL},
+    {"CLEANUP", VMManagerMessages::CLEANUP},
+    {"CHECKPOINT", VMManagerMessages::CHECKPOINT},
+    {"SAVE", VMManagerMessages::SAVE},
+    {"RESTORE", VMManagerMessages::RESTORE},
+    {"MIGRATE", VMManagerMessages::MIGRATE},
+    {"ATTACHDISK", VMManagerMessages::ATTACHDISK},
+    {"DETACHDISK", VMManagerMessages::DETACHDISK},
+    {"ATTACHNIC", VMManagerMessages::ATTACHNIC},
+    {"DETACHNIC", VMManagerMessages::DETACHNIC},
+    {"SNAPSHOTCREATE", VMManagerMessages::SNAPSHOTCREATE},
+    {"SNAPSHOTREVERT", VMManagerMessages::SNAPSHOTREVERT},
+    {"SNAPSHOTDELETE", VMManagerMessages::SNAPSHOTDELETE},
+    {"DISKSNAPSHOTCREATE", VMManagerMessages::DISKSNAPSHOTCREATE},
+    {"DISKSNAPSHOTREVERT", VMManagerMessages::DISKSNAPSHOTREVERT},
+    {"RESIZEDISK", VMManagerMessages::RESIZEDISK},
+    {"UPDATECONF", VMManagerMessages::UPDATECONF},
+    {"UPDATESG", VMManagerMessages::UPDATESG},
+    {"DRIVER_CANCEL", VMManagerMessages::DRIVER_CANCEL},
+    {"LOG", VMManagerMessages::LOG},
+});
+
+template<>
+const EString<HookManagerMessages> hook_msg_t::_type_str({
+    {"UNDEFINED", HookManagerMessages::UNDEFINED},
+    {"INIT", HookManagerMessages::INIT},
+    {"FINALIZE", HookManagerMessages::FINALIZE},
+    {"EXECUTE", HookManagerMessages::EXECUTE},
+    {"RETRY", HookManagerMessages::RETRY},
+    {"LOG", HookManagerMessages::LOG},
+});

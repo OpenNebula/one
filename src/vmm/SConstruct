@@ -24,6 +24,7 @@ lib_name='nebula_vmm'
 source_files=[
     'VirtualMachineManager.cc',
     'VirtualMachineManagerDriver.cc',
+    'VirtualMachineManagerProtocol.cc',
     'XenDriver.cc',
     'LibVirtDriverKVM.cc',
     'XMLDriver.cc'

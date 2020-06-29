@@ -19,6 +19,7 @@
 
 #include "PoolSQL.h"
 #include "SecurityGroup.h"
+#include "OneDB.h"
 
 using namespace std;
 
@@ -115,7 +116,7 @@ public:
     int dump(std::string& oss, const std::string& where, int sid, int eid,
         bool desc)
     {
-        return PoolSQL::dump(oss, "SECURITY_GROUP_POOL", "body", SecurityGroup::table,
+        return PoolSQL::dump(oss, "SECURITY_GROUP_POOL", "body", one_db::sg_table,
                 where, sid, eid, desc);
     };
 

@@ -19,17 +19,7 @@
 #include "AclManager.h"
 #include "PoolObjectAuth.h"
 #include "SqlDB.h"
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-const char * AclManager::table = "acl";
-
-const char * AclManager::db_names = "oid, userset, resource, rights, zone";
-
-const char * AclManager::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-    "acl (oid INT PRIMARY KEY, userset BIGINT, resource BIGINT, "
-    "rights BIGINT, zone BIGINT, UNIQUE(userset, resource, rights, zone))";
+#include "OneDB.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -1135,7 +1125,7 @@ void AclManager::reverse_search(int                       uid,
 
 int AclManager::bootstrap(SqlDB * _db)
 {
-    ostringstream oss(db_bootstrap);
+    ostringstream oss(one_db::acl_db_bootstrap);
 
     return _db->exec_local_wr(oss);
 }
@@ -1206,7 +1196,7 @@ int AclManager::select()
     ostringstream   oss;
     int             rc;
 
-    oss << "SELECT " << db_names << " FROM " << table;
+    oss << "SELECT " << one_db::acl_db_names << " FROM " << one_db::acl_table;
 
     set_callback(static_cast<Callbackable::Callback>(&AclManager::select_cb));
 
@@ -1239,7 +1229,8 @@ int AclManager::insert(AclRule * rule, SqlDB * db)
 
     // Construct the SQL statement to Insert
 
-    oss <<  "INSERT INTO "  << table <<" ("<< db_names <<") VALUES ("
+    oss <<  "INSERT INTO "  << one_db::acl_table
+        << " (" << one_db::acl_db_names << ") VALUES ("
         <<  rule->oid       << ","
         <<  rule->user      << ","
         <<  rule->resource  << ","
@@ -1260,7 +1251,7 @@ int AclManager::drop(int oid)
     ostringstream   oss;
     int             rc;
 
-    oss << "DELETE FROM " << table << " WHERE "
+    oss << "DELETE FROM " << one_db::acl_table << " WHERE "
         << "oid=" << oid;
 
     rc = db->exec_wr(oss);

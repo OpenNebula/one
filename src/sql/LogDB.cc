@@ -21,25 +21,16 @@
 #include "Callbackable.h"
 #include "RaftManager.h"
 #include "FedReplicaManager.h"
+#include "OneDB.h"
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-const char * LogDB::table = "logdb";
-
-const char * LogDB::db_names = "log_index, term, sqlcmd, timestamp, fed_index, applied";
-
-const char * LogDB::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-    "logdb (log_index BIGINT UNSIGNED PRIMARY KEY, term INTEGER, sqlcmd MEDIUMTEXT, "
-    "timestamp INTEGER, fed_index BIGINT UNSIGNED, applied BOOLEAN)";
-
 /* -------------------------------------------------------------------------- */
 
 int LogDB::bootstrap(SqlDB *_db)
 {
     int rc;
 
-    std::ostringstream oss(db_bootstrap);
+    std::ostringstream oss(one_db::log_db_bootstrap);
 
     rc = _db->exec_local_wr(oss);
 
@@ -337,13 +328,14 @@ int LogDB::insert(uint64_t index, unsigned int term, const std::string& sql,
         oss << "INSERT";
     }
 
-    oss << " INTO " << table << " ("<< db_names <<") VALUES ("
-            <<        index     << ","
-            <<        term      << ","
-            << "'" << sql_db    << "',"
-            <<        tstamp    << ","
-            <<        fed_index << ","
-            << "'" << applied   << "')";
+    oss << " INTO " << one_db::log_table
+        << " ("<< one_db::log_db_names <<") VALUES ("
+        <<        index     << ","
+        <<        term      << ","
+        << "'" << sql_db    << "',"
+        <<        tstamp    << ","
+        <<        fed_index << ","
+        << "'" << applied   << "')";
 
     int rc = db->exec_wr(oss);
 
@@ -565,7 +557,8 @@ int LogDB::delete_log_records(uint64_t start_index)
 
     pthread_mutex_lock(&mutex);
 
-    oss << "DELETE FROM " << table << " WHERE log_index >= " << start_index;
+    oss << "DELETE FROM " << one_db::log_table
+        << " WHERE log_index >= " << start_index;
 
     rc = db->exec_wr(oss);
 
@@ -825,7 +818,8 @@ void LogDB::build_federated_index()
 
     cb.set_callback(&fed_log);
 
-    oss << "SELECT fed_index FROM " << table << " WHERE fed_index != " << UINT64_MAX;
+    oss << "SELECT fed_index FROM " << one_db::log_table
+        << " WHERE fed_index != " << UINT64_MAX;
 
     db->exec_rd(oss, &cb);
 

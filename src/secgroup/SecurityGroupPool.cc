@@ -22,7 +22,8 @@
 
 /* -------------------------------------------------------------------------- */
 
-SecurityGroupPool::SecurityGroupPool(SqlDB * db):PoolSQL(db,SecurityGroup::table)
+SecurityGroupPool::SecurityGroupPool(SqlDB * db)
+    : PoolSQL(db, one_db::sg_table)
 {
     //lastOID is set in PoolSQL::init_cb
     if (get_lastOID() == -1)

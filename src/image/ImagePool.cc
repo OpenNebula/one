@@ -43,7 +43,7 @@ ImagePool::ImagePool(
         const string&                    __default_cdrom_dev_prefix,
         vector<const SingleAttribute *>& restricted_attrs,
         const vector<const SingleAttribute *>& _inherit_attrs)
-    :PoolSQL(db, Image::table)
+    : PoolSQL(db, one_db::image_table)
 {
     // Init static defaults
     _default_type       = __default_type;

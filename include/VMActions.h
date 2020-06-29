@@ -80,7 +80,7 @@ public:
         POFF_HARD_MIGRATE_ACTION = 49       // "one.vm.migrate"
     };
 
-    static string action_to_str(Action action);
+    static std::string action_to_str(Action action);
 
     static int action_from_str(const string& st, Action& action);
 
@@ -116,7 +116,7 @@ public:
     /**
      *  Sets the auth operations based on the provided template
      */
-    int set_auth_ops(const Template& tmpl, string& error);
+    int set_auth_ops(const Template& tmpl, std::string& error);
 
 private:
     /**

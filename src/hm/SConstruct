@@ -28,7 +28,7 @@ source_files=[
     'HookStateVM.cc',
     'HookStateHost.cc',
     'HookManager.cc',
-    'HookManagerDriver.cc',
+    'HookManagerProtocol.cc',
     'ExecuteHook.cc',
     'HookLog.cc'
 ]

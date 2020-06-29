@@ -19,6 +19,7 @@
 
 #include "Quotas.h"
 #include "ObjectSQL.h"
+#include "OneDB.h"
 
 class QuotasSQL : public Quotas, ObjectSQL
 {
@@ -165,7 +166,7 @@ public:
      */
     static int bootstrap(SqlDB * db)
     {
-        ostringstream oss_quota(GroupQuotas::db_bootstrap);
+        ostringstream oss_quota(one_db::group_quotas_db_bootstrap);
 
         return db->exec_local_wr(oss_quota);
     };
@@ -174,30 +175,23 @@ protected:
 
     const char * table() const
     {
-        return db_table;
+        return one_db::group_quotas_db_table;
     };
 
     const char * table_names() const
     {
-        return db_names;
+        return one_db::group_quotas_db_names;
     };
 
     const char * table_oid_column() const
     {
-        return db_oid_column;
+        return one_db::group_quotas_db_oid_column;
     };
 
 private:
 
     friend class GroupPool;
 
-    // *************************************************************************
-    // DataBase implementation
-    // *************************************************************************
-    static const char * db_names;
-    static const char * db_bootstrap;
-    static const char * db_table;
-    static const char * db_oid_column;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -218,7 +212,7 @@ public:
      */
     static int bootstrap(SqlDB * db)
     {
-        ostringstream oss_quota(UserQuotas::db_bootstrap);
+        ostringstream oss_quota(one_db::user_quotas_db_bootstrap);
 
         return db->exec_local_wr(oss_quota);
     };
@@ -227,30 +221,22 @@ protected:
 
     const char * table() const
     {
-        return db_table;
+        return one_db::user_quotas_db_table;
     };
 
     const char * table_names() const
     {
-        return db_names;
+        return one_db::user_quotas_db_names;
     };
 
     const char * table_oid_column() const
     {
-        return db_oid_column;
+        return one_db::user_quotas_db_oid_column;
     };
 
 private:
 
     friend class UserPool;
-
-    // *************************************************************************
-    // DataBase implementation
-    // *************************************************************************
-    static const char * db_names;
-    static const char * db_bootstrap;
-    static const char * db_table;
-    static const char * db_oid_column;
 };
 
 #endif /*QUOTAS_SQL_H_*/

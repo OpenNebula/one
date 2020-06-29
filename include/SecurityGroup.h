@@ -194,12 +194,6 @@ private:
     // DataBase implementation (Private)
     // *************************************************************************
 
-    static const char * db_names;
-
-    static const char * db_bootstrap;
-
-    static const char * table;
-
     /**
      *  Execute an INSERT or REPLACE Sql query.
      *    @param db The SQL DB
@@ -213,12 +207,7 @@ private:
      *  Bootstraps the database table(s) associated to the SecurityGroup
      *    @return 0 on success
      */
-    static int bootstrap(SqlDB * db)
-    {
-        ostringstream oss(SecurityGroup::db_bootstrap);
-
-        return db->exec_local_wr(oss);
-    };
+    static int bootstrap(SqlDB * db);
 
     /**
      *  Writes the SecurityGroup in the database.

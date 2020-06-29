@@ -17,18 +17,21 @@
 #include "Group.h"
 #include "Nebula.h"
 #include "AclManager.h"
+#include "OneDB.h"
 
 #include <sstream>
 
-const char * Group::table = "group_pool";
+Group::Group(int id, const string& name):
+    PoolObjectSQL(id,GROUP,name,-1,-1,"","",one_db::group_table),
+    quota(),
+    users("USERS"),
+    admins("ADMINS")
+{
+    // Allow users in this group to see it
+    group_u = 1;
 
-const char * Group::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * Group::db_bootstrap = "CREATE TABLE IF NOT EXISTS group_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
-    "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
-    "UNIQUE(name))";
+    obj_template = new GroupTemplate;
+}
 
 /* ************************************************************************ */
 /* Group :: Database Access Functions                                       */
@@ -138,7 +141,7 @@ int Group::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if ( replace )
     {
-        oss << "UPDATE " << table << " SET "
+        oss << "UPDATE " << one_db::group_table << " SET "
             << "name = '"    << sql_name << "', "
             << "body = '"    << sql_xml  << "', "
             << "uid = "      << uid      << ", "
@@ -150,15 +153,16 @@ int Group::insert_replace(SqlDB *db, bool replace, string& error_str)
     }
     else
     {
-        oss << "INSERT INTO " << table << " (" << db_names << ") VALUES ("
-        <<          oid                 << ","
-        << "'" <<   sql_name            << "',"
-        << "'" <<   sql_xml             << "',"
-        <<          uid                 << ","
-        <<          gid                 << ","
-        <<          owner_u             << ","
-        <<          group_u             << ","
-        <<          other_u             << ")";
+        oss << "INSERT INTO " << one_db::group_table
+            << " (" << one_db::group_db_names << ") VALUES ("
+            <<          oid                 << ","
+            << "'" <<   sql_name            << "',"
+            << "'" <<   sql_xml             << "',"
+            <<          uid                 << ","
+            <<          gid                 << ","
+            <<          owner_u             << ","
+            <<          group_u             << ","
+            <<          other_u             << ")";
     }
 
     rc = db->exec_wr(oss);
@@ -237,6 +241,16 @@ string& Group::to_xml_extended(string& xml, bool extended) const
     xml = oss.str();
 
     return xml;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Group::bootstrap(SqlDB * db)
+{
+    ostringstream oss_group(one_db::group_db_bootstrap);
+
+    return db->exec_local_wr(oss_group);
 }
 
 /* ------------------------------------------------------------------------ */

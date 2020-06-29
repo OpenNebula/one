@@ -20,6 +20,8 @@
 #include "Nebula.h"
 #include "NebulaUtil.h"
 #include "VirtualMachineDisk.h"
+#include "VirtualMachinePool.h"
+#include "LifeCycleManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -56,10 +58,21 @@ int TransferManager::start()
     int               rc;
     pthread_attr_t    pattr;
 
-    rc = MadManager::start();
+    using namespace std::placeholders; // for _1
 
-    if ( rc != 0 )
+    register_action(TransferManagerMessages::UNDEFINED,
+            &TransferManager::_undefined);
+
+    register_action(TransferManagerMessages::TRANSFER,
+            bind(&TransferManager::_transfer, this, _1));
+
+    register_action(TransferManagerMessages::LOG,
+            &TransferManager::_log);
+
+    string error;
+    if ( DriverManager::start(error) != 0 )
     {
+        NebulaLog::error("TrM", error);
         return -1;
     }
 
@@ -104,16 +117,18 @@ void TransferManager::user_action(const ActionRequest& ar)
 
     vm->unlock();
 
+    auto lcm = nd.get_lcm();
+
     switch (tm_ar.action())
     {
         case TMAction::PROLOG:
             if (host_is_cloud)
             {
-                (nd.get_lcm())->trigger(LCMAction::PROLOG_SUCCESS,vid);
+                lcm->trigger(LCMAction::PROLOG_SUCCESS,vid);
             }
             else if (vm_no_history)
             {
-                (nd.get_lcm())->trigger(LCMAction::PROLOG_FAILURE,vid);
+                lcm->trigger(LCMAction::PROLOG_FAILURE,vid);
             }
             else
             {
@@ -124,11 +139,11 @@ void TransferManager::user_action(const ActionRequest& ar)
         case TMAction::PROLOG_MIGR:
             if (host_is_cloud)
             {
-                (nd.get_lcm())->trigger(LCMAction::PROLOG_SUCCESS,vid);
+                lcm->trigger(LCMAction::PROLOG_SUCCESS,vid);
             }
             else if (vm_no_history)
             {
-                (nd.get_lcm())->trigger(LCMAction::PROLOG_FAILURE,vid);
+                lcm->trigger(LCMAction::PROLOG_FAILURE,vid);
             }
             else
             {
@@ -139,11 +154,11 @@ void TransferManager::user_action(const ActionRequest& ar)
         case TMAction::PROLOG_RESUME:
             if (host_is_cloud)
             {
-                (nd.get_lcm())->trigger(LCMAction::PROLOG_SUCCESS,vid);
+                lcm->trigger(LCMAction::PROLOG_SUCCESS,vid);
             }
             else if (vm_no_history)
             {
-                (nd.get_lcm())->trigger(LCMAction::PROLOG_FAILURE,vid);
+                lcm->trigger(LCMAction::PROLOG_FAILURE,vid);
             }
             else
             {
@@ -154,11 +169,11 @@ void TransferManager::user_action(const ActionRequest& ar)
         case TMAction::PROLOG_ATTACH:
             if (host_is_cloud)
             {
-                (nd.get_lcm())->trigger(LCMAction::ATTACH_SUCCESS,vid);
+                lcm->trigger(LCMAction::ATTACH_SUCCESS,vid);
             }
             else if (vm_no_history)
             {
-                (nd.get_lcm())->trigger(LCMAction::ATTACH_FAILURE,vid);
+                lcm->trigger(LCMAction::ATTACH_FAILURE,vid);
             }
             else
             {
@@ -169,11 +184,11 @@ void TransferManager::user_action(const ActionRequest& ar)
         case TMAction::EPILOG:
             if (host_is_cloud)
             {
-                (nd.get_lcm())->trigger(LCMAction::EPILOG_SUCCESS,vid);
+                lcm->trigger(LCMAction::EPILOG_SUCCESS,vid);
             }
             else if (vm_no_history)
             {
-                (nd.get_lcm())->trigger(LCMAction::EPILOG_FAILURE,vid);
+                lcm->trigger(LCMAction::EPILOG_FAILURE,vid);
             }
             else
             {
@@ -184,11 +199,11 @@ void TransferManager::user_action(const ActionRequest& ar)
         case TMAction::EPILOG_LOCAL:
             if (host_is_cloud)
             {
-                (nd.get_lcm())->trigger(LCMAction::EPILOG_SUCCESS,vid);
+                lcm->trigger(LCMAction::EPILOG_SUCCESS,vid);
             }
             else if (vm_no_history)
             {
-                (nd.get_lcm())->trigger(LCMAction::EPILOG_FAILURE,vid);
+                lcm->trigger(LCMAction::EPILOG_FAILURE,vid);
             }
             else
             {
@@ -199,11 +214,11 @@ void TransferManager::user_action(const ActionRequest& ar)
         case TMAction::EPILOG_STOP:
             if (host_is_cloud)
             {
-                (nd.get_lcm())->trigger(LCMAction::EPILOG_SUCCESS,vid);
+                lcm->trigger(LCMAction::EPILOG_SUCCESS,vid);
             }
             else if (vm_no_history)
             {
-                (nd.get_lcm())->trigger(LCMAction::EPILOG_FAILURE,vid);
+                lcm->trigger(LCMAction::EPILOG_FAILURE,vid);
             }
             else
             {
@@ -214,11 +229,11 @@ void TransferManager::user_action(const ActionRequest& ar)
         case TMAction::EPILOG_DELETE:
             if (host_is_cloud)
             {
-                (nd.get_lcm())->trigger(LCMAction::EPILOG_SUCCESS,vid);
+                lcm->trigger(LCMAction::EPILOG_SUCCESS,vid);
             }
             else if (vm_no_history)
             {
-                (nd.get_lcm())->trigger(LCMAction::EPILOG_FAILURE,vid);
+                lcm->trigger(LCMAction::EPILOG_FAILURE,vid);
             }
             else
             {
@@ -229,11 +244,11 @@ void TransferManager::user_action(const ActionRequest& ar)
         case TMAction::EPILOG_DELETE_STOP:
             if (host_is_cloud)
             {
-                (nd.get_lcm())->trigger(LCMAction::EPILOG_SUCCESS,vid);
+                lcm->trigger(LCMAction::EPILOG_SUCCESS,vid);
             }
             else if (vm_no_history)
             {
-                (nd.get_lcm())->trigger(LCMAction::EPILOG_FAILURE,vid);
+                lcm->trigger(LCMAction::EPILOG_FAILURE,vid);
             }
             else
             {
@@ -244,11 +259,11 @@ void TransferManager::user_action(const ActionRequest& ar)
         case TMAction::EPILOG_DELETE_PREVIOUS:
             if (host_is_cloud)
             {
-                (nd.get_lcm())->trigger(LCMAction::EPILOG_SUCCESS,vid);
+                lcm->trigger(LCMAction::EPILOG_SUCCESS,vid);
             }
             else if (vm_no_history)
             {
-                (nd.get_lcm())->trigger(LCMAction::EPILOG_FAILURE,vid);
+                lcm->trigger(LCMAction::EPILOG_FAILURE,vid);
             }
             else
             {
@@ -259,11 +274,11 @@ void TransferManager::user_action(const ActionRequest& ar)
         case TMAction::EPILOG_DELETE_BOTH:
             if (host_is_cloud)
             {
-                (nd.get_lcm())->trigger(LCMAction::EPILOG_SUCCESS,vid);
+                lcm->trigger(LCMAction::EPILOG_SUCCESS,vid);
             }
             else if (vm_no_history)
             {
-                (nd.get_lcm())->trigger(LCMAction::EPILOG_FAILURE,vid);
+                lcm->trigger(LCMAction::EPILOG_FAILURE,vid);
             }
             else
             {
@@ -274,11 +289,11 @@ void TransferManager::user_action(const ActionRequest& ar)
         case TMAction::EPILOG_DETACH:
             if (host_is_cloud)
             {
-                (nd.get_lcm())->trigger(LCMAction::DETACH_SUCCESS,vid);
+                lcm->trigger(LCMAction::DETACH_SUCCESS,vid);
             }
             else if (vm_no_history)
             {
-                (nd.get_lcm())->trigger(LCMAction::DETACH_FAILURE,vid);
+                lcm->trigger(LCMAction::DETACH_FAILURE,vid);
             }
             else
             {
@@ -352,7 +367,7 @@ int TransferManager::prolog_transfer_command(
         if ( size.empty() )
         {
             os << "No size in swap image";
-            vm->log("TM", Log::WARNING, "No size in swap image, skipping");
+            vm->log("TrM", Log::WARNING, "No size in swap image, skipping");
             return 0;
         }
 
@@ -382,7 +397,7 @@ int TransferManager::prolog_transfer_command(
         if ( size.empty() )
         {
             os << "No size in FS";
-            vm->log("TM", Log::WARNING, "No size in FS, skipping");
+            vm->log("TrM", Log::WARNING, "No size in FS, skipping");
             return 0;
         }
 
@@ -570,13 +585,11 @@ void TransferManager::prolog_action(int vid)
     VirtualMachine * vm;
     Nebula&          nd = Nebula::instance();
 
-    const TransferManagerDriver * tm_md;
+    const Driver<transfer_msg_t> * tm_md;
 
     const VectorAttribute * os_attr;
 
     string token_password;
-
-    VirtualMachineDisks::disk_iterator disk;
 
     // -------------------------------------------------------------------------
     // Setup & Transfer script
@@ -622,9 +635,9 @@ void TransferManager::prolog_action(int vid)
     // Image Transfer Commands
     // -------------------------------------------------------------------------
 
-    for ( disk = disks.begin() ; disk != disks.end() ; ++disk )
+    for (auto disk : disks)
     {
-        rc = prolog_transfer_command(vm, *disk, vm_tm_mad, opennebula_hostname,
+        rc = prolog_transfer_command(vm, disk, vm_tm_mad, opennebula_hostname,
                 xfr, os);
 
         if ( rc != 0 )
@@ -681,9 +694,13 @@ void TransferManager::prolog_action(int vid)
 
     xfr.close();
 
-    tm_md->transfer(vid,xfr_name);
-
     vm->unlock();
+
+    {
+        transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
+        tm_md->write(msg);
+    }
+
     return;
 
 error_history:
@@ -705,7 +722,7 @@ error_attributes:
 
 error_common:
     (nd.get_lcm())->trigger(LCMAction::PROLOG_FAILURE,vid);
-    vm->log("TM", Log::ERROR, os);
+    vm->log("TrM", Log::ERROR, os);
 
     vm->unlock();
     return;
@@ -727,12 +744,9 @@ void TransferManager::prolog_migr_action(int vid)
     int ds_id;
     int disk_id;
 
-    VirtualMachineDisks::disk_iterator disk;
-
     VirtualMachine *    vm;
-    Nebula&             nd = Nebula::instance();
 
-    const TransferManagerDriver * tm_md;
+    const Driver<transfer_msg_t> * tm_md;
 
     // -------------------------------------------------------------------------
     // Setup & Transfer script
@@ -771,19 +785,19 @@ void TransferManager::prolog_migr_action(int vid)
     // Move system directory and disks
     // ------------------------------------------------------------------------
 
-    for ( disk = disks.begin() ; disk != disks.end() ; ++disk )
+    for (auto disk : disks)
     {
-        disk_id = (*disk)->get_disk_id();
+        disk_id = disk->get_disk_id();
 
-        if ( (*disk)->is_volatile() == true )
+        if ( disk->is_volatile() == true )
         {
             tm_mad = vm_tm_mad;
             ds_id  = vm->get_ds_id();
         }
         else
         {
-            tm_mad    = (*disk)->vector_value("TM_MAD");
-            int vv_rc = (*disk)->vector_value("DATASTORE_ID", ds_id);
+            tm_mad    = disk->vector_value("TM_MAD");
+            int vv_rc = disk->vector_value("DATASTORE_ID", ds_id);
 
             if (tm_mad.empty() || vv_rc == -1)
             {
@@ -791,7 +805,7 @@ void TransferManager::prolog_migr_action(int vid)
             }
         }
 
-        string tsys = (*disk)->vector_value("TM_MAD_SYSTEM");
+        string tsys = disk->vector_value("TM_MAD_SYSTEM");
         if (!tsys.empty())
         {
             tm_mad_system = "." + tsys;
@@ -821,9 +835,13 @@ void TransferManager::prolog_migr_action(int vid)
 
     xfr.close();
 
-    tm_md->transfer(vid,xfr_name);
-
     vm->unlock();
+
+    {
+        transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
+        tm_md->write(msg);
+    }
+
     return;
 
 error_history:
@@ -842,8 +860,8 @@ error_file:
     goto error_common;
 
 error_common:
-    (nd.get_lcm())->trigger(LCMAction::PROLOG_FAILURE,vid);
-    vm->log("TM", Log::ERROR, os);
+    (Nebula::instance().get_lcm())->trigger(LCMAction::PROLOG_FAILURE,vid);
+    vm->log("TrM", Log::ERROR, os);
 
     vm->unlock();
     return;
@@ -866,12 +884,10 @@ void TransferManager::prolog_resume_action(int vid)
     int ds_id;
     int disk_id;
 
-    VirtualMachineDisks::disk_iterator disk;
-
     VirtualMachine * vm;
     Nebula&          nd = Nebula::instance();
 
-    const TransferManagerDriver * tm_md;
+    const Driver<transfer_msg_t> * tm_md;
 
     // -------------------------------------------------------------------------
     // Setup & Transfer script
@@ -914,19 +930,19 @@ void TransferManager::prolog_resume_action(int vid)
     // ------------------------------------------------------------------------
     // Move system directory and disks
     // ------------------------------------------------------------------------
-    for (disk = disks.begin(); disk != disks.end(); ++disk)
+    for (auto disk : disks)
     {
-        disk_id = (*disk)->get_disk_id();
+        disk_id = disk->get_disk_id();
 
-        if ( (*disk)->is_volatile() == true )
+        if ( disk->is_volatile() == true )
         {
             tm_mad = vm_tm_mad;
             ds_id  = vm->get_ds_id();
         }
         else
         {
-            tm_mad    = (*disk)->vector_value("TM_MAD");
-            int vv_rc = (*disk)->vector_value("DATASTORE_ID", ds_id);
+            tm_mad    = disk->vector_value("TM_MAD");
+            int vv_rc = disk->vector_value("DATASTORE_ID", ds_id);
 
             if ( tm_mad.empty() || vv_rc == -1)
             {
@@ -934,7 +950,7 @@ void TransferManager::prolog_resume_action(int vid)
             }
         }
 
-        string tsys = (*disk)->vector_value("TM_MAD_SYSTEM");
+        string tsys = disk->vector_value("TM_MAD_SYSTEM");
         if (!tsys.empty())
         {
             tm_mad_system = "." + tsys;
@@ -962,9 +978,13 @@ void TransferManager::prolog_resume_action(int vid)
 
     xfr.close();
 
-    tm_md->transfer(vid,xfr_name);
-
     vm->unlock();
+
+    {
+        transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
+        tm_md->write(msg);
+    }
+
     return;
 
 error_history:
@@ -985,7 +1005,7 @@ error_file:
 error_common:
     (nd.get_lcm())->trigger(LCMAction::PROLOG_FAILURE,vid);
 
-    vm->log("TM", Log::ERROR, os);
+    vm->log("TrM", Log::ERROR, os);
 
     vm->unlock();
     return;
@@ -1011,7 +1031,7 @@ void TransferManager::prolog_attach_action(int vid)
     VirtualMachine * vm;
     Nebula&          nd = Nebula::instance();
 
-    const TransferManagerDriver * tm_md;
+    const Driver<transfer_msg_t> * tm_md;
 
     // -------------------------------------------------------------------------
     // Setup & Transfer script
@@ -1071,9 +1091,13 @@ void TransferManager::prolog_attach_action(int vid)
 
     xfr.close();
 
-    tm_md->transfer(vid,xfr_name);
-
     vm->unlock();
+
+    {
+        transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
+        tm_md->write(msg);
+    }
+
     return;
 
 error_history:
@@ -1100,7 +1124,7 @@ error_attributes:
 
 error_common:
     (nd.get_lcm())->trigger(LCMAction::PROLOG_FAILURE,vid);
-    vm->log("TM", Log::ERROR, os);
+    vm->log("TrM", Log::ERROR, os);
 
     vm->unlock();
     return;
@@ -1127,13 +1151,13 @@ void TransferManager::epilog_transfer_command(
 
         if ( ds_id.empty() || tm_mad.empty() )
         {
-            vm->log("TM", Log::ERROR, "No DS_ID or TM_MAD to save disk image");
+            vm->log("TrM", Log::ERROR, "No DS_ID or TM_MAD to save disk image");
             return;
         }
 
         if (source.empty())
         {
-            vm->log("TM", Log::ERROR, "No SOURCE to save disk image");
+            vm->log("TrM", Log::ERROR, "No SOURCE to save disk image");
             return;
         }
 
@@ -1206,9 +1230,7 @@ void TransferManager::epilog_action(bool local, int vid)
     VirtualMachine *    vm;
     Nebula&             nd = Nebula::instance();
 
-    const TransferManagerDriver * tm_md;
-
-    VirtualMachineDisks::disk_iterator disk;
+    const Driver<transfer_msg_t> * tm_md;
 
     // ------------------------------------------------------------------------
     // Setup & Transfer script
@@ -1255,9 +1277,9 @@ void TransferManager::epilog_action(bool local, int vid)
     // -------------------------------------------------------------------------
     // copy back VM image (DISK with SAVE="yes")
     // -------------------------------------------------------------------------
-    for ( disk = disks.begin() ; disk != disks.end() ; ++disk )
+    for (auto disk : disks)
     {
-        epilog_transfer_command(vm, host, *disk, xfr);
+        epilog_transfer_command(vm, host, disk, xfr);
     }
 
     //DELETE vm_tm_mad hostname:remote_system_dir vmid ds_id
@@ -1269,9 +1291,14 @@ void TransferManager::epilog_action(bool local, int vid)
 
     xfr.close();
 
-    tm_md->transfer(vid,xfr_name);
-
     vm->unlock();
+
+    {
+        transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
+        tm_md->write(msg);
+    }
+
+
     return;
 
 error_history:
@@ -1291,7 +1318,7 @@ error_file:
 
 error_common:
     (nd.get_lcm())->trigger(LCMAction::EPILOG_FAILURE,vid);
-    vm->log("TM", Log::ERROR, os);
+    vm->log("TrM", Log::ERROR, os);
 
     vm->unlock();
     return;
@@ -1316,9 +1343,7 @@ void TransferManager::epilog_stop_action(int vid)
     VirtualMachine * vm;
     Nebula&          nd = Nebula::instance();
 
-    const TransferManagerDriver * tm_md;
-
-    VirtualMachineDisks::disk_iterator disk;
+    const Driver<transfer_msg_t> * tm_md;
 
     // ------------------------------------------------------------------------
     // Setup & Transfer script
@@ -1356,19 +1381,19 @@ void TransferManager::epilog_stop_action(int vid)
     // ------------------------------------------------------------------------
     // Move system directory and disks
     // ------------------------------------------------------------------------
-    for (disk = disks.begin(); disk != disks.end(); ++disk)
+    for (auto disk : disks)
     {
-        disk_id = (*disk)->get_disk_id();
+        disk_id = disk->get_disk_id();
 
-        if ( (*disk)->is_volatile() == true )
+        if ( disk->is_volatile() == true )
         {
             tm_mad = vm_tm_mad;
             ds_id  = vm->get_ds_id();
         }
         else
         {
-            tm_mad    = (*disk)->vector_value("TM_MAD");
-            int vv_rc = (*disk)->vector_value("DATASTORE_ID", ds_id);
+            tm_mad    = disk->vector_value("TM_MAD");
+            int vv_rc = disk->vector_value("DATASTORE_ID", ds_id);
 
             if (tm_mad.empty() || vv_rc == -1)
             {
@@ -1376,7 +1401,7 @@ void TransferManager::epilog_stop_action(int vid)
             }
         }
 
-        string tsys = (*disk)->vector_value("TM_MAD_SYSTEM");
+        string tsys = disk->vector_value("TM_MAD_SYSTEM");
         if (!tsys.empty())
         {
             tm_mad_system = "." + tsys;
@@ -1404,9 +1429,12 @@ void TransferManager::epilog_stop_action(int vid)
 
     xfr.close();
 
-    tm_md->transfer(vid,xfr_name);
-
     vm->unlock();
+
+    {
+        transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
+        tm_md->write(msg);
+    }
 
     return;
 
@@ -1427,7 +1455,7 @@ error_file:
 
 error_common:
     (nd.get_lcm())->trigger(LCMAction::EPILOG_FAILURE,vid);
-    vm->log("TM", Log::ERROR, os);
+    vm->log("TrM", Log::ERROR, os);
 
     vm->unlock();
     return;
@@ -1456,7 +1484,6 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
 
     Nebula& nd = Nebula::instance();
 
-    VirtualMachineDisks::disk_iterator disk;
     VirtualMachineDisks& disks = vm->get_disks();
 
     // ------------------------------------------------------------------------
@@ -1505,19 +1532,19 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
     // -------------------------------------------------------------------------
     // Delete disk images and the remote system Directory
     // -------------------------------------------------------------------------
-    for ( disk = disks.begin() ; disk != disks.end() ; ++disk )
+    for (auto disk : disks)
     {
-        disk_id = (*disk)->get_disk_id();
+        disk_id = disk->get_disk_id();
 
-        if ( (*disk)->is_volatile() == true )
+        if ( disk->is_volatile() == true )
         {
             tm_mad = vm_tm_mad;
             ds_id  = vm_ds_id;
         }
         else
         {
-            tm_mad    = (*disk)->vector_value("TM_MAD");
-            int vv_rc = (*disk)->vector_value("DATASTORE_ID", ds_id);
+            tm_mad    = disk->vector_value("TM_MAD");
+            int vv_rc = disk->vector_value("DATASTORE_ID", ds_id);
 
             if (tm_mad.empty() || vv_rc == -1)
             {
@@ -1525,7 +1552,7 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
             }
         }
 
-        string tsys = (*disk)->vector_value("TM_MAD_SYSTEM");
+        string tsys = disk->vector_value("TM_MAD_SYSTEM");
         if (!tsys.empty())
         {
            tm_mad_system = "." + tsys;
@@ -1562,7 +1589,7 @@ error_drivers:
     goto error_common;
 
 error_common:
-    vm->log("TM", Log::ERROR, os);
+    vm->log("TrM", Log::ERROR, os);
     return -1;
 }
 
@@ -1579,7 +1606,7 @@ void TransferManager::epilog_delete_action(bool local, int vid)
     VirtualMachine * vm;
     Nebula&          nd = Nebula::instance();
 
-    const TransferManagerDriver * tm_md;
+    const Driver<transfer_msg_t> * tm_md;
 
     int rc;
 
@@ -1617,9 +1644,13 @@ void TransferManager::epilog_delete_action(bool local, int vid)
 
     xfr.close();
 
-    tm_md->transfer(vid,xfr_name);
-
     vm->unlock();
+
+    {
+        transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
+        tm_md->write(msg);
+    }
+
     return;
 
 error_driver:
@@ -1632,7 +1663,7 @@ error_file:
     goto error_common;
 
 error_common:
-    vm->log("TM", Log::ERROR, os);
+    vm->log("TrM", Log::ERROR, os);
     (nd.get_lcm())->trigger(LCMAction::EPILOG_FAILURE, vid);
 
     vm->unlock();
@@ -1652,7 +1683,7 @@ void TransferManager::epilog_delete_previous_action(int vid)
     VirtualMachine * vm;
     Nebula&          nd = Nebula::instance();
 
-    const TransferManagerDriver * tm_md;
+    const Driver<transfer_msg_t> * tm_md;
 
     int rc;
 
@@ -1690,9 +1721,13 @@ void TransferManager::epilog_delete_previous_action(int vid)
 
     xfr.close();
 
-    tm_md->transfer(vid, xfr_name);
-
     vm->unlock();
+
+    {
+        transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
+        tm_md->write(msg);
+    }
+
     return;
 
 error_driver:
@@ -1705,7 +1740,7 @@ error_file:
     goto error_common;
 
 error_common:
-    vm->log("TM", Log::ERROR, os);
+    vm->log("TrM", Log::ERROR, os);
     (nd.get_lcm())->trigger(LCMAction::EPILOG_FAILURE, vid);
 
     vm->unlock();
@@ -1725,7 +1760,7 @@ void TransferManager::epilog_delete_both_action(int vid)
     VirtualMachine * vm;
     Nebula&          nd = Nebula::instance();
 
-    const TransferManagerDriver * tm_md;
+    const Driver<transfer_msg_t> * tm_md;
 
     int rc;
 
@@ -1764,9 +1799,13 @@ void TransferManager::epilog_delete_both_action(int vid)
 
     xfr.close();
 
-    tm_md->transfer(vid, xfr_name);
-
     vm->unlock();
+
+    {
+        transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
+        tm_md->write(msg);
+    }
+
     return;
 
 error_driver:
@@ -1779,7 +1818,7 @@ error_file:
     goto error_common;
 
 error_common:
-    vm->log("TM", Log::ERROR, os);
+    vm->log("TrM", Log::ERROR, os);
     (nd.get_lcm())->trigger(LCMAction::EPILOG_FAILURE, vid);
 
     vm->unlock();
@@ -1802,7 +1841,7 @@ void TransferManager::epilog_detach_action(int vid)
     VirtualMachine *    vm;
     Nebula&             nd = Nebula::instance();
 
-    const TransferManagerDriver * tm_md;
+    const Driver<transfer_msg_t> * tm_md;
 
     // ------------------------------------------------------------------------
     // Setup & Transfer script
@@ -1850,9 +1889,13 @@ void TransferManager::epilog_detach_action(int vid)
 
     xfr.close();
 
-    tm_md->transfer(vid,xfr_name);
-
     vm->unlock();
+
+    {
+        transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
+        tm_md->write(msg);
+    }
+
     return;
 
 error_history:
@@ -1877,7 +1920,7 @@ error_disk:
 
 error_common:
     (nd.get_lcm())->trigger(LCMAction::EPILOG_FAILURE,vid);
-    vm->log("TM", Log::ERROR, os);
+    vm->log("TrM", Log::ERROR, os);
 
     vm->unlock();
     return;
@@ -1888,38 +1931,32 @@ error_common:
 
 void TransferManager::driver_cancel_action(int vid)
 {
-    ofstream        xfr;
-    ostringstream   os;
-    string          xfr_name;
-
-    VirtualMachine *    vm;
-
-    const TransferManagerDriver * tm_md;
-
     // ------------------------------------------------------------------------
     // Get the Driver for this host
     // ------------------------------------------------------------------------
-    tm_md = get();
+    auto tm_md = get();
 
-    if ( tm_md == nullptr )
+    if (tm_md == nullptr)
     {
         return;
     }
 
-    vm = vmpool->get(vid);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if (vm == nullptr)
     {
         return;
     }
 
+    vm->unlock();
+
     // ------------------------------------------------------------------------
     // Cancel the current operation
     // ------------------------------------------------------------------------
 
-    tm_md->driver_cancel(vid);
+    transfer_msg_t msg(TransferManagerMessages::DRIVER_CANCEL, "", vid, "");
+    tm_md->write(msg);
 
-    vm->unlock();
     return;
 }
 
@@ -1951,7 +1988,7 @@ void TransferManager::saveas_hot_action(int vid)
     string   xfr_name;
 
     VirtualMachine * vm;
-    const TransferManagerDriver * tm_md;
+    const Driver<transfer_msg_t> * tm_md;
     VirtualMachineDisk * disk;
 
     Nebula& nd = Nebula::instance();
@@ -2015,9 +2052,12 @@ void TransferManager::saveas_hot_action(int vid)
 
     xfr.close();
 
-    tm_md->transfer(vid, xfr_name);
-
     vm->unlock();
+
+    {
+        transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
+        tm_md->write(msg);
+    }
 
     return;
 
@@ -2039,7 +2079,7 @@ error_file:
     goto error_common;
 
 error_common:
-    vm->log("TM", Log::ERROR, os);
+    vm->log("TrM", Log::ERROR, os);
 
     (nd.get_lcm())->trigger(LCMAction::SAVEAS_FAILURE, vid);
 
@@ -2082,7 +2122,7 @@ int TransferManager::snapshot_transfer_command(
 
     if (vm->get_snapshot_disk(ds_id, tm_mad, disk_id, snap_id) == -1)
     {
-        vm->log("TM", Log::ERROR, "Could not get disk information to "
+        vm->log("TrM", Log::ERROR, "Could not get disk information to "
                 "take snapshot");
         return -1;
     }
@@ -2124,11 +2164,9 @@ void TransferManager::do_snapshot_action(int vid, const char * snap_action)
     VirtualMachine * vm;
     int rc;
 
-    const TransferManagerDriver * tm_md;
-
     Nebula& nd = Nebula::instance();
 
-    tm_md = get();
+    auto tm_md = get();
 
     if (tm_md == nullptr)
     {
@@ -2164,9 +2202,12 @@ void TransferManager::do_snapshot_action(int vid, const char * snap_action)
         goto error_common;
     }
 
-    tm_md->transfer(vid, xfr_name);
-
     vm->unlock();
+
+    {
+        transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
+        tm_md->write(msg);
+    }
 
     return;
 
@@ -2183,7 +2224,7 @@ error_file:
     goto error_common;
 
 error_common:
-    vm->log("TM", Log::ERROR, os);
+    vm->log("TrM", Log::ERROR, os);
 
     (nd.get_lcm())->trigger(LCMAction::DISK_SNAPSHOT_FAILURE, vid);
 
@@ -2259,7 +2300,7 @@ void TransferManager::resize_action(int vid)
 
     Nebula& nd = Nebula::instance();
 
-    const TransferManagerDriver * tm_md = get();
+    auto tm_md = get();
 
     if (tm_md == nullptr)
     {
@@ -2297,9 +2338,12 @@ void TransferManager::resize_action(int vid)
 
     xfr.close();
 
-    tm_md->transfer(vid, xfr_name);
-
     vm->unlock();
+
+    {
+        transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
+        tm_md->write(msg);
+    }
 
     return;
 
@@ -2320,7 +2364,7 @@ error_disk:
     goto error_common;
 
 error_common:
-    vm->log("TM", Log::ERROR, os);
+    vm->log("TrM", Log::ERROR, os);
 
     (nd.get_lcm())->trigger(LCMAction::DISK_RESIZE_FAILURE, vid);
 
@@ -2332,48 +2376,34 @@ error_common:
 /* MAD Loading                                                                */
 /* ************************************************************************** */
 
-int TransferManager::load_mads(int uid)
+int TransferManager::load_drivers(const std::vector<const VectorAttribute*>& _mads)
 {
-    ostringstream oss;
-
-    int    rc;
-    string name;
-
     const VectorAttribute * vattr = nullptr;
-    TransferManagerDriver * tm_driver = nullptr;
 
-    oss << "Loading Transfer Manager driver.";
+    NebulaLog::info("TrM", "Loading Transfer Manager driver.");
 
-    NebulaLog::log("TM",Log::INFO,oss);
-
-    if ( mad_conf.size() > 0 )
+    if ( _mads.size() > 0 )
     {
-        vattr = mad_conf[0];
+        vattr = _mads[0];
     }
 
     if ( vattr == nullptr )
     {
-        NebulaLog::log("TM",Log::ERROR,"Failed to load Transfer Manager driver.");
+        NebulaLog::log("TrM",Log::ERROR,"Failed to load Transfer Manager driver.");
         return -1;
     }
 
     VectorAttribute tm_conf("TM_MAD", vattr->value());
 
-    tm_conf.replace("NAME",transfer_driver_name);
+    tm_conf.replace("NAME", transfer_driver_name);
 
-    tm_driver = new TransferManagerDriver(uid,
-                                          tm_conf.value(),
-                                          (uid != 0),
-                                          vmpool);
-    rc = add(tm_driver);
-
-    if ( rc == 0 )
+    if ( load_driver(&tm_conf) != 0 )
     {
-        oss.str("");
-        oss << "\tTransfer manager driver loaded";
-
-        NebulaLog::log("TM",Log::INFO,oss);
+        NebulaLog::error("TrM", "Unable to load Transfer Manager driver");
+        return -1;
     }
 
-    return rc;
+    NebulaLog::info("TrM", "\tTransfer manager driver loaded");
+
+    return 0;
 }

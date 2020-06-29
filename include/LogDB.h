@@ -341,11 +341,6 @@ private:
     // -------------------------------------------------------------------------
     // DataBase implementation
     // -------------------------------------------------------------------------
-    static const char * table;
-
-    static const char * db_names;
-
-    static const char * db_bootstrap;
 
     /**
      *  Replicates writes in the followers and apply changes to DB state once

@@ -19,6 +19,7 @@
 
 #include "PoolSQL.h"
 #include "VNTemplate.h"
+#include "OneDB.h"
 
 /**
  *  The VNetTemplate Pool class.
@@ -27,7 +28,7 @@ class VNTemplatePool : public PoolSQL
 {
 public:
 
-    VNTemplatePool(SqlDB * db) : PoolSQL(db, VNTemplate::table){};
+    VNTemplatePool(SqlDB * db) : PoolSQL(db, one_db::vn_template_table){};
 
     ~VNTemplatePool(){};
 
@@ -93,8 +94,8 @@ public:
     int dump(std::string& oss, const std::string& where, int sid, int eid,
         bool desc)
     {
-        return PoolSQL::dump(oss, "VNTEMPLATE_POOL", "body", VNTemplate::table,
-                where, sid, eid, desc);
+        return PoolSQL::dump(oss, "VNTEMPLATE_POOL", "body",
+                             one_db::vn_template_table, where, sid, eid, desc);
     };
 
     /**

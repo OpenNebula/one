@@ -375,15 +375,6 @@ private:
     SqlDB * db;
 
     /**
-     *  Tablename for the ACL rules
-     */
-    static const char * table;
-
-    static const char * db_names;
-
-    static const char * db_bootstrap;
-
-    /**
      *  Callback function to unmarshall the ACL rules
      *    @param num the number of columns read from the DB
      *    @param names the column names

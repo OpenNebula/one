@@ -20,16 +20,7 @@
 #include "NebulaLog.h"
 #include "Nebula.h"
 #include "VirtualMachineDisk.h"
-
-const char * Datastore::table = "datastore_pool";
-
-const char * Datastore::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * Datastore::db_bootstrap =
-    "CREATE TABLE IF NOT EXISTS datastore_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
-    "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
+#include "OneDB.h"
 
 /* ************************************************************************ */
 /* Datastore :: Constructor/Destructor                                      */
@@ -43,7 +34,7 @@ Datastore::Datastore(
         int                 umask,
         DatastoreTemplate*  ds_template,
         const set<int>      &cluster_ids):
-            PoolObjectSQL(-1,DATASTORE,"",uid,gid,uname,gname,table),
+            PoolObjectSQL(-1,DATASTORE,"",uid,gid,uname,gname,one_db::ds_table),
             Clusterable(cluster_ids),
             ds_mad(""),
             tm_mad(""),
@@ -704,7 +695,7 @@ int Datastore::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if ( replace )
     {
-        oss << "UPDATE " << table << " SET "
+        oss << "UPDATE " << one_db::ds_table << " SET "
             << "name = '"    << sql_name << "', "
             << "body = '"    << sql_xml  << "', "
             << "uid = "      << uid      << ", "
@@ -716,7 +707,8 @@ int Datastore::insert_replace(SqlDB *db, bool replace, string& error_str)
     }
     else
     {
-        oss << "INSERT INTO " << table  << " ("<< db_names <<") VALUES ("
+        oss << "INSERT INTO " << one_db::ds_table
+            << " ("<< one_db::ds_db_names << ") VALUES ("
             <<          oid                 << ","
             << "'" <<   sql_name            << "',"
             << "'" <<   sql_xml             << "',"
@@ -754,6 +746,16 @@ error_generic:
 error_common:
     return -1;
 }
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Datastore::bootstrap(SqlDB * db)
+{
+    ostringstream oss(one_db::ds_db_bootstrap);
+
+    return db->exec_local_wr(oss);
+};
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */

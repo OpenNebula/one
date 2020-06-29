@@ -202,12 +202,7 @@ private:
      *  Bootstraps the database table(s) associated to the VirtualRouter
      *    @return 0 on success
      */
-    static int bootstrap(SqlDB * db)
-    {
-        ostringstream oss(VirtualRouter::db_bootstrap);
-
-        return db->exec_local_wr(oss);
-    };
+    static int bootstrap(SqlDB * db);
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -233,12 +228,6 @@ private:
     // *************************************************************************
     // DataBase implementation
     // *************************************************************************
-
-    static const char * db_names;
-
-    static const char * db_bootstrap;
-
-    static const char * table;
 
     /**
      *  Writes the VirtualRouter in the database.

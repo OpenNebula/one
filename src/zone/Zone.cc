@@ -16,18 +16,9 @@
 
 #include "Zone.h"
 #include "ZoneServer.h"
+#include "OneDB.h"
 
 /* ------------------------------------------------------------------------ */
-
-const char * Zone::table = "zone_pool";
-
-const char * Zone::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * Zone::db_bootstrap = "CREATE TABLE IF NOT EXISTS zone_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
-    "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
-    "UNIQUE(name))";
 
 const char * ZoneServers::SERVER_NAME    = "SERVER";
 
@@ -37,8 +28,9 @@ const char * ZoneServers::SERVER_ID_NAME = "ID";
 /* -------------------------------------------------------------------------- */
 
 Zone::Zone(int id, Template* zone_template):
-        PoolObjectSQL(id, ZONE, "", -1, -1, "", "", table), servers_template(
-                false, '=', "SERVER_POOL"), servers(0)
+    PoolObjectSQL(id, ZONE, "", -1, -1, "", "", one_db::zone_table),
+    servers_template(false, '=', "SERVER_POOL"),
+    servers(0)
 {
     if (zone_template != 0)
     {
@@ -147,7 +139,7 @@ int Zone::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if ( replace )
     {
-        oss << "UPDATE " << table << " SET "
+        oss << "UPDATE " << one_db::zone_table << " SET "
             << "name = '"    <<   sql_name  << "', "
             << "body = '"    <<   sql_xml   << "', "
             << "uid = "      <<   uid       << ", "
@@ -159,7 +151,8 @@ int Zone::insert_replace(SqlDB *db, bool replace, string& error_str)
     }
     else
     {
-        oss << "INSERT INTO " << table << " (" << db_names << ") VALUES ("
+        oss << "INSERT INTO " << one_db::zone_table
+            << " (" << one_db::zone_db_names << ") VALUES ("
             <<          oid                 << ","
             << "'" <<   sql_name            << "',"
             << "'" <<   sql_xml             << "',"
@@ -197,6 +190,15 @@ error_generic:
 error_common:
     return -1;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+int Zone::bootstrap(SqlDB * db)
+{
+    ostringstream oss(one_db::zone_db_bootstrap);
+
+    return db->exec_local_wr(oss);
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

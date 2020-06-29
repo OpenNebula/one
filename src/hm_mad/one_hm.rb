@@ -83,7 +83,7 @@ class HookManagerDriver < OpenNebulaDriver
         end
     end
 
-    def action_execute(*arguments)
+    def action_execute(_not_used, *arguments)
         arg_xml = Nokogiri::XML(Base64.decode64(arguments.flatten[0]))
         type    = arg_xml.xpath('//HOOK_TYPE').text
 
@@ -97,7 +97,7 @@ class HookManagerDriver < OpenNebulaDriver
         end
     end
 
-    def action_retry(*arguments)
+    def action_retry(_not_used, *arguments)
         arguments.flatten!
 
         command = arguments[0]

@@ -17,15 +17,13 @@
 #ifndef VIRTUAL_MACHINE_MANAGER_H_
 #define VIRTUAL_MACHINE_MANAGER_H_
 
-#include "MadManager.h"
-#include "ActionManager.h"
 #include "VirtualMachineManagerDriver.h"
-#include "VirtualMachinePool.h"
-#include "HostPool.h"
-#include "DatastorePool.h"
-#include "NebulaTemplate.h"
+#include "DriverManager.h"
+#include "ActionManager.h"
 
-using namespace std;
+class DatastorePool;
+class HostPool;
+class VirtualMachinePool;
 
 extern "C" void * vmm_action_loop(void *arg);
 
@@ -89,16 +87,18 @@ private:
     int     _vm_id;
 };
 
-class VirtualMachineManager : public MadManager, public ActionListener
+class VirtualMachineManager :
+    public DriverManager<VirtualMachineManagerDriver>,
+    public ActionListener
 {
 public:
 
     VirtualMachineManager(
         time_t                    _timer_period,
         int                       _vm_limit,
-        vector<const VectorAttribute*>& _mads);
+        const std::string&        _mads);
 
-    ~VirtualMachineManager(){};
+    ~VirtualMachineManager() = default;
 
     /**
      *  Triggers specific actions to the Virtual Machine Manager. This function
@@ -138,11 +138,9 @@ public:
 
     /**
      *  Loads Virtual Machine Manager Mads defined in configuration file
-     *   @param uid of the user executing the driver. When uid is 0 the nebula
-     *   identity will be used. Otherwise the Mad will be loaded through the
-     *   sudo application.
+     *   @param _mads configuration of drivers
      */
-    int load_mads(int uid);
+    int load_drivers(const std::vector<const VectorAttribute*>& _mads);
 
     /**
      *  Check if action is supported for imported VMs
@@ -154,7 +152,7 @@ public:
     {
         const VirtualMachineManagerDriver * vmd = get(mad);
 
-        if ( vmd == 0 )
+        if ( vmd == nullptr )
         {
             return false;
         }
@@ -212,9 +210,7 @@ public:
     const VirtualMachineManagerDriver * get(
         const string&   name)
     {
-        string _name("NAME");
-        return static_cast<const VirtualMachineManagerDriver *>
-               (MadManager::get(0,_name,name));
+        return DriverManager::get_driver(name);
     };
 
     /**
@@ -269,31 +265,160 @@ private:
      */
     friend void * vmm_action_loop(void *arg);
 
+    // -------------------------------------------------------------------------
+    // Protocol implementation, procesing messages from driver
+    // -------------------------------------------------------------------------
+    static void _undefined(unique_ptr<vm_msg_t> msg);
+
     /**
-     *  Returns a pointer to a Virtual Machine Manager driver.
-     *    @param uid of the owner of the driver
-     *    @param name of an attribute of the driver (e.g. its type)
-     *    @param value of the attribute
-     *    @return the VM driver owned by uid with attribute name equal to value
-     *    or 0 in not found
+     *
      */
-    const VirtualMachineManagerDriver * get(
-        const string&   name,
-        const string&   value)
-    {
-        return static_cast<const VirtualMachineManagerDriver *>
-               (MadManager::get(0,name,value));
-    };
+    void _deploy(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _shutdown(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _reset(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _reboot(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _cancel(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _cleanup(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _checkpoint(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _save(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _restore(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _migrate(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _attachdisk(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _detachdisk(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _attachnic(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _detachnic(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _snapshotcreate(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _snapshotrevert(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _snapshotdelete(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _disksnapshotcreate(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _disksnapshotrevert(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _resizedisk(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _updateconf(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _updatesg(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _driver_cancel(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    static void _log(unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void log_error(VirtualMachine* vm_id,
+                   const std::string& payload,
+                   const char* msg);
+
+    /**
+     *
+     */
+    void log_error(int vm_id, const std::string& payload, const char* msg);
+
+
+    /**
+     *
+     */
+    bool check_vm_state(int vm_id, vm_msg_t* msg);
 
     // -------------------------------------------------------------------------
     // Action Listener interface
     // -------------------------------------------------------------------------
 
+    static const int drivers_timeout = 10;
+
     void finalize_action(const ActionRequest& ar)
     {
         NebulaLog::log("VMM",Log::INFO,"Stopping Virtual Machine Manager...");
 
-        MadManager::stop();
+        DriverManager::stop(drivers_timeout);
     };
 
     void user_action(const ActionRequest& ar);

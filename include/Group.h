@@ -177,17 +177,7 @@ private:
     // Constructor
     // *************************************************************************
 
-    Group(int id, const string& name):
-        PoolObjectSQL(id,GROUP,name,-1,-1,"","",table),
-        quota(),
-        users("USERS"),
-        admins("ADMINS")
-    {
-        // Allow users in this group to see it
-        group_u = 1;
-
-        obj_template = new GroupTemplate;
-    }
+    Group(int id, const string& name);
 
     virtual ~Group() = default;
 
@@ -217,12 +207,6 @@ private:
     // DataBase implementation (Private)
     // *************************************************************************
 
-    static const char * db_names;
-
-    static const char * db_bootstrap;
-
-    static const char * table;
-
     /**
      *  Execute an INSERT or REPLACE Sql query.
      *    @param db The SQL DB
@@ -236,12 +220,7 @@ private:
      *  Bootstraps the database table(s) associated to the Group
      *    @return 0 on success
      */
-    static int bootstrap(SqlDB * db)
-    {
-        ostringstream oss_group(Group::db_bootstrap);
-
-        return db->exec_local_wr(oss_group);
-    }
+    static int bootstrap(SqlDB * db);
 
     /**
      *  Reads the Group (identified with its OID) from the database.

@@ -25,25 +25,25 @@ OneMonitorDriver::OneMonitorDriver(HostMonitorManager * _hm)
 {
     hm = _hm;
 
-    register_action(OpenNebulaMessages::UNDEFINED,
+    register_action(InformationManagerMessages::UNDEFINED,
             &OneMonitorDriver::_undefined);
 
-    register_action(OpenNebulaMessages::HOST_LIST,
+    register_action(InformationManagerMessages::HOST_LIST,
             &OneMonitorDriver::_host_list);
 
-    register_action(OpenNebulaMessages::UPDATE_HOST,
+    register_action(InformationManagerMessages::UPDATE_HOST,
             &OneMonitorDriver::_update_host);
 
-    register_action(OpenNebulaMessages::DEL_HOST,
+    register_action(InformationManagerMessages::DEL_HOST,
             &OneMonitorDriver::_del_host);
 
-    register_action(OpenNebulaMessages::START_MONITOR,
+    register_action(InformationManagerMessages::START_MONITOR,
             &OneMonitorDriver::_start_monitor);
 
-    register_action(OpenNebulaMessages::STOP_MONITOR,
+    register_action(InformationManagerMessages::STOP_MONITOR,
             &OneMonitorDriver::_stop_monitor);
 
-    register_action(OpenNebulaMessages::RAFT_STATUS,
+    register_action(InformationManagerMessages::RAFT_STATUS,
             &OneMonitorDriver::_raft_status);
 }
 
@@ -52,9 +52,9 @@ OneMonitorDriver::OneMonitorDriver(HostMonitorManager * _hm)
 
 void OneMonitorDriver::host_state(int oid, const std::string& state)
 {
-    Message<OpenNebulaMessages> oned_msg;
+    im_msg_t oned_msg;
 
-    oned_msg.type(OpenNebulaMessages::HOST_STATE);
+    oned_msg.type(InformationManagerMessages::HOST_STATE);
     oned_msg.oid(oid);
     oned_msg.payload(state);
 
@@ -66,9 +66,9 @@ void OneMonitorDriver::host_state(int oid, const std::string& state)
 
 void OneMonitorDriver::vm_state(int oid, const std::string& state)
 {
-    Message<OpenNebulaMessages> oned_msg;
+    im_msg_t oned_msg;
 
-    oned_msg.type(OpenNebulaMessages::VM_STATE);
+    oned_msg.type(InformationManagerMessages::VM_STATE);
     oned_msg.oid(oid);
     oned_msg.payload(state);
 
@@ -81,9 +81,9 @@ void OneMonitorDriver::vm_state(int oid, const std::string& state)
 void OneMonitorDriver::host_system_info(int oid, const std::string& status,
         const std::string& payload)
 {
-    Message<OpenNebulaMessages> oned_msg;
+    im_msg_t oned_msg;
 
-    oned_msg.type(OpenNebulaMessages::HOST_SYSTEM);
+    oned_msg.type(InformationManagerMessages::HOST_SYSTEM);
     oned_msg.oid(oid);
     oned_msg.status(status);
     oned_msg.payload(payload);
@@ -94,7 +94,7 @@ void OneMonitorDriver::host_system_info(int oid, const std::string& status,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void OneMonitorDriver::_undefined(message_t msg)
+void OneMonitorDriver::_undefined(std::unique_ptr<im_msg_t> msg)
 {
     NebulaLog::info("MDR", "Received UNDEFINED msg: " + msg->payload());
 }
@@ -102,7 +102,7 @@ void OneMonitorDriver::_undefined(message_t msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void OneMonitorDriver::_host_list(message_t msg)
+void OneMonitorDriver::_host_list(std::unique_ptr<im_msg_t> msg)
 {
     ObjectXML xml(msg->payload());
 
@@ -128,7 +128,7 @@ void OneMonitorDriver::_host_list(message_t msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void OneMonitorDriver::_update_host(message_t msg)
+void OneMonitorDriver::_update_host(std::unique_ptr<im_msg_t> msg)
 {
     hm->update_host(msg->oid(), msg->payload());
 }
@@ -136,7 +136,7 @@ void OneMonitorDriver::_update_host(message_t msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void OneMonitorDriver::_del_host(message_t msg)
+void OneMonitorDriver::_del_host(std::unique_ptr<im_msg_t> msg)
 {
     hm->delete_host(msg->oid());
 }
@@ -144,7 +144,7 @@ void OneMonitorDriver::_del_host(message_t msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void OneMonitorDriver::_start_monitor(message_t msg)
+void OneMonitorDriver::_start_monitor(std::unique_ptr<im_msg_t> msg)
 {
     hm->start_host_monitor(msg->oid());
 }
@@ -152,7 +152,7 @@ void OneMonitorDriver::_start_monitor(message_t msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void OneMonitorDriver::_stop_monitor(message_t msg)
+void OneMonitorDriver::_stop_monitor(std::unique_ptr<im_msg_t> msg)
 {
     hm->stop_host_monitor(msg->oid());
 }
@@ -160,7 +160,7 @@ void OneMonitorDriver::_stop_monitor(message_t msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void OneMonitorDriver::_raft_status(message_t msg)
+void OneMonitorDriver::_raft_status(std::unique_ptr<im_msg_t> msg)
 {
     hm->raft_status(msg->payload());
 }

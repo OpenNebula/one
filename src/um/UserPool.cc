@@ -52,7 +52,8 @@ string UserPool::oneadmin_name;
 /* -------------------------------------------------------------------------- */
 
 UserPool::UserPool(SqlDB * db, time_t __session_expiration_time, bool is_slave,
-        vector<const SingleAttribute *>& restricted_attrs):PoolSQL(db, User::table)
+        vector<const SingleAttribute *>& restricted_attrs)
+    : PoolSQL(db, one_db::user_table)
 {
     int one_uid    = -1;
     int server_uid = -1;
@@ -1442,10 +1443,10 @@ int UserPool::dump(string& oss, const string& where, int sid, int eid, bool desc
 
     ostringstream cmd;
 
-    cmd << "SELECT " << User::table << ".body, "
-        << UserQuotas::db_table << ".body"<< " FROM " << User::table
-        << " LEFT JOIN " << UserQuotas::db_table << " ON "
-        << User::table << ".oid=" << UserQuotas::db_table << ".user_oid";
+    cmd << "SELECT " << one_db::user_table << ".body, "
+        << one_db::user_quotas_db_table << ".body"<< " FROM " << one_db::user_table
+        << " LEFT JOIN " << one_db::user_quotas_db_table << " ON "
+        << one_db::user_table << ".oid=" << one_db::user_quotas_db_table << ".user_oid";
 
     if ( !where.empty() )
     {

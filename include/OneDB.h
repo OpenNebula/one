@@ -38,7 +38,7 @@ namespace one_db
     extern const char * host_monitor_db_bootstrap;
 
     /* ---------------------------------------------------------------------- */
-    /* VM TABLES                                                            */
+    /* VM TABLES                                                              */
     /* ---------------------------------------------------------------------- */
     extern const char * vm_table;
 
@@ -58,6 +58,18 @@ namespace one_db
 
     extern const char * vm_showback_db_bootstrap;
 
+    extern const char * vm_group_db_names;
+
+    extern const char * vm_group_db_bootstrap;
+
+    extern const char * vm_group_table;
+
+    extern const char * vm_template_db_names;
+
+    extern const char * vm_template_db_bootstrap;
+
+    extern const char * vm_template_table;
+
     // -------------------------------------------------------------------------
     // Virtual Machine ID - Deploy ID index for imported VMs
     // The index is managed by the VirtualMachinePool
@@ -67,6 +79,190 @@ namespace one_db
     extern const char * vm_import_db_names;
 
     extern const char * vm_import_db_bootstrap;
+
+    /* ---------------------------------------------------------------------- */
+    /* Cluster tables                                                         */
+    /* ---------------------------------------------------------------------- */
+    extern const char * cluster_db_names;
+    extern const char * cluster_db_bootstrap;
+    extern const char * cluster_table;
+
+    extern const char * cluster_datastore_table;
+    extern const char * cluster_datastore_db_names;
+    extern const char * cluster_datastore_db_bootstrap;
+
+    extern const char * cluster_network_table;
+    extern const char * cluster_network_db_names;
+    extern const char * cluster_network_db_bootstrap;
+
+    extern const char * cluster_bitmap_table;
+
+    /* ---------------------------------------------------------------------- */
+    /* ACL tables                                                             */
+    /* ---------------------------------------------------------------------- */
+    extern const char * acl_table;
+
+    extern const char * acl_db_names;
+
+    extern const char * acl_db_bootstrap;
+
+    /* ---------------------------------------------------------------------- */
+    /* Datastore tables                                                       */
+    /* ---------------------------------------------------------------------- */
+    extern const char * ds_db_names;
+
+    extern const char * ds_db_bootstrap;
+
+    extern const char * ds_table;
+
+    /* ---------------------------------------------------------------------- */
+    /* Document tables                                                        */
+    /* ---------------------------------------------------------------------- */
+    extern const char * doc_db_names;
+
+    extern const char * doc_db_bootstrap;
+
+    extern const char * doc_table;
+
+    /* ---------------------------------------------------------------------- */
+    /* Group tables                                                           */
+    /* ---------------------------------------------------------------------- */
+    extern const char * group_db_names;
+
+    extern const char * group_db_bootstrap;
+
+    extern const char * group_table;
+
+    /* ---------------------------------------------------------------------- */
+    /* History tables                                                         */
+    /* ---------------------------------------------------------------------- */
+    extern const char * history_table;
+
+    extern const char * history_db_names;
+
+    extern const char * history_db_bootstrap;
+
+    /* ---------------------------------------------------------------------- */
+    /* Hook tables                                                            */
+    /* ---------------------------------------------------------------------- */
+    extern const char * hook_db_names;
+
+    extern const char * hook_db_bootstrap;
+
+    extern const char * hook_table;
+
+    extern const char * hook_log_table;
+
+    extern const char * hook_log_db_names;
+
+    extern const char * hook_log_db_bootstrap;
+
+    /* ---------------------------------------------------------------------- */
+    /* Image tables                                                           */
+    /* ---------------------------------------------------------------------- */
+    extern const char * image_db_names;
+
+    extern const char * image_db_bootstrap;
+
+    extern const char * image_table;
+
+    /* ---------------------------------------------------------------------- */
+    /* Log tables                                                             */
+    /* ---------------------------------------------------------------------- */
+    extern const char * log_table;
+
+    extern const char * log_db_names;
+
+    extern const char * log_db_bootstrap;
+
+    /* ---------------------------------------------------------------------- */
+    /* Marketplace tables                                                     */
+    /* ---------------------------------------------------------------------- */
+    extern const char * mp_db_names;
+
+    extern const char * mp_db_bootstrap;
+
+    extern const char * mp_table;
+
+    extern const char * mp_app_db_names;
+
+    extern const char * mp_app_db_bootstrap;
+
+    extern const char * mp_app_table;
+
+    /* ---------------------------------------------------------------------- */
+    /* Quotas tables                                                          */
+    /* ---------------------------------------------------------------------- */
+    extern const char * group_quotas_db_names;
+    extern const char * group_quotas_db_bootstrap;
+    extern const char * group_quotas_db_table;
+    extern const char * group_quotas_db_oid_column;
+
+    extern const char * user_quotas_db_names;
+    extern const char * user_quotas_db_bootstrap;
+    extern const char * user_quotas_db_table;
+    extern const char * user_quotas_db_oid_column;
+
+    /* ---------------------------------------------------------------------- */
+    /* Security Group tables                                                  */
+    /* ---------------------------------------------------------------------- */
+    extern const char * sg_db_names;
+
+    extern const char * sg_db_bootstrap;
+
+    extern const char * sg_table;
+
+    /* ---------------------------------------------------------------------- */
+    /* User tables                                                            */
+    /* ---------------------------------------------------------------------- */
+    extern const char * user_db_names;
+
+    extern const char * user_db_bootstrap;
+
+    extern const char * user_table;
+
+    /* ---------------------------------------------------------------------- */
+    /* VDC tables                                                             */
+    /* ---------------------------------------------------------------------- */
+    extern const char * vdc_db_names;
+
+    extern const char * vdc_db_bootstrap;
+
+    extern const char * vdc_table;
+
+    /* ---------------------------------------------------------------------- */
+    /* Virtual Network tables                                                 */
+    /* ---------------------------------------------------------------------- */
+    extern const char * vn_table;
+
+    extern const char * vn_db_names;
+
+    extern const char * vn_db_bootstrap;
+
+    extern const char * vn_template_db_names;
+
+    extern const char * vn_template_db_bootstrap;
+
+    extern const char * vn_template_table;
+
+    /* ---------------------------------------------------------------------- */
+    /* Virtual Router tables                                                  */
+    /* ---------------------------------------------------------------------- */
+    extern const char * vr_db_names;
+
+    extern const char * vr_db_bootstrap;
+
+    extern const char * vr_table;
+
+    /* ---------------------------------------------------------------------- */
+    /* Zone tables                                                            */
+    /* ---------------------------------------------------------------------- */
+    extern const char * zone_db_names;
+
+    extern const char * zone_db_bootstrap;
+
+    extern const char * zone_table;
 }
+
 
 #endif /*ONE_DB_H_*/

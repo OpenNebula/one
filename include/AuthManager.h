@@ -19,17 +19,13 @@
 
 #include <time.h>
 
-#include "MadManager.h"
 #include "NebulaLog.h"
 #include "ActionManager.h"
-#include "AuthManagerDriver.h"
-#include "PoolObjectSQL.h"
-
-using namespace std;
+#include "ProtocolMessages.h"
+#include "DriverManager.h"
 
 //Forward definitions
 class AuthRequest;
-class PoolObjectAuth;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -44,10 +40,10 @@ public:
     };
 
     AMAction(Actions a, AuthRequest *r):ActionRequest(ActionRequest::USER),
-        _action(a), _request(r){};
+        _action(a), _request(r) {}
 
     AMAction(const AMAction& o):ActionRequest(o._type), _action(o._action),
-        _request(o._request){};
+        _request(o._request) {}
 
     Actions action() const
     {
@@ -75,19 +71,22 @@ private:
 
 extern "C" void * authm_action_loop(void *arg);
 
-class AuthManager : public MadManager, public ActionListener
+class AuthManager :
+    public DriverManager<Driver<auth_msg_t>>,
+    public ActionListener
 {
 public:
 
     AuthManager(
         time_t                    timer,
-        vector<const VectorAttribute*>& _mads):
-            MadManager(_mads), timer_period(timer)
+        const std::string&        mads_location):
+            DriverManager(mads_location),
+            timer_period(timer)
     {
         am.addListener(this);
-    };
+    }
 
-    ~AuthManager(){};
+    ~AuthManager() {}
 
     /**
      *  Triggers specific actions to the Auth Manager. This function
@@ -116,15 +115,13 @@ public:
     void finalize()
     {
         am.finalize();
-    };
+    }
 
     /**
      *  Loads Virtual Machine Manager Mads defined in configuration file
-     *   @param uid of the user executing the driver. When uid is 0 the nebula
-     *   identity will be used. Otherwise the Mad will be loaded through the
-     *   sudo application.
+     *   @param _mads configuration of drivers
      */
-    int load_mads(int uid);
+    int load_drivers(const std::vector<const VectorAttribute*>& _mads);
 
     /**
      *  Gets the thread identification.
@@ -133,7 +130,7 @@ public:
     pthread_t get_thread_id() const
     {
         return authm_thread;
-    };
+    }
 
     /**
      * Returns true if there is an authorization driver enabled
@@ -143,7 +140,7 @@ public:
     bool is_authz_enabled()
     {
         return authz_enabled;
-    };
+    }
 
 private:
     /**
@@ -164,12 +161,12 @@ private:
     /**
      *  Generic name for the Auth driver
      */
-     static const char *    auth_driver_name;
+    static const char *    auth_driver_name;
 
      /**
       * True if there is an authorization driver enabled
       */
-     bool                   authz_enabled;
+    bool                   authz_enabled;
 
     /**
      *  Returns a pointer to a Auth Manager driver.
@@ -178,13 +175,10 @@ private:
      *    @return the Auth driver with attribute name equal to value
      *    or 0 in not found
      */
-    const AuthManagerDriver * get(
-        const string&   name,
-        const string&   value)
+    const Driver<auth_msg_t> * get(const string&   name)
     {
-        return static_cast<const AuthManagerDriver *>
-               (MadManager::get(0,name,value));
-    };
+        return DriverManager::get_driver(name);
+    }
 
     /**
      *  Returns a pointer to a Auth Manager driver. The driver is
@@ -193,13 +187,10 @@ private:
      *    @return the TM driver owned by uid with attribute name equal to value
      *    or 0 in not found
      */
-    const AuthManagerDriver * get()
+    const Driver<auth_msg_t> * get()
     {
-        string name("NAME");
-
-        return static_cast<const AuthManagerDriver *>
-               (MadManager::get(0,name,auth_driver_name));
-    };
+        return DriverManager::get_driver(auth_driver_name);
+    }
 
     /**
      *  This function authenticates a user
@@ -218,19 +209,44 @@ private:
     friend void * authm_action_loop(void *arg);
 
     // -------------------------------------------------------------------------
+    // Protocol implementation, procesing messages from driver
+    // -------------------------------------------------------------------------
+    /**
+     *
+     */
+    static void _undefined(unique_ptr<auth_msg_t> msg);
+
+    /**
+     *
+     */
+    void _authorize(unique_ptr<auth_msg_t> msg);
+
+    /**
+     *
+     */
+    void _authenticate(unique_ptr<auth_msg_t> msg);
+
+    /**
+     *
+     */
+    static void _log(unique_ptr<auth_msg_t> msg);
+
+    // -------------------------------------------------------------------------
     // Action Listener interface
     // -------------------------------------------------------------------------
     void timer_action(const ActionRequest& ar)
     {
         check_time_outs_action();
-    };
+    }
+
+    static const int drivers_timeout = 10;
 
     void finalize_action(const ActionRequest& ar)
     {
         NebulaLog::log("AuM",Log::INFO,"Stopping Authorization Manager...");
 
-        MadManager::stop();
-    };
+        DriverManager::stop(drivers_timeout);
+    }
 
     void user_action(const ActionRequest& ar);
 };

@@ -605,8 +605,6 @@ void Nebula::start(bool bootstrap_only)
     //Managers
     // -----------------------------------------------------------
 
-    MadManager::mad_manager_system_init();
-
     time_t timer_period;
     time_t monitor_interval_datastore;
     time_t monitor_interval_market;
@@ -807,20 +805,18 @@ void Nebula::start(bool bootstrap_only)
     // ---- Hook Manager and log----
     if (!cache)
     {
-        try
-        {
-            vector<const VectorAttribute *> hm_mads;
-            const VectorAttribute * hl_conf;
+        vector<const VectorAttribute *> hm_mads;
+        const VectorAttribute * hl_conf;
 
-            nebula_configuration->get("HM_MAD", hm_mads);
-            hl_conf = nebula_configuration->get("HOOK_LOG_CONF");
+        nebula_configuration->get("HM_MAD", hm_mads);
+        hl_conf = nebula_configuration->get("HOOK_LOG_CONF");
 
-            hm = new HookManager(hm_mads);
-            hl = new HookLog(logdb, hl_conf);
-        }
-        catch (bad_alloc&)
+        hm = new HookManager(mad_location);
+        hl = new HookLog(logdb, hl_conf);
+
+        if (hm->load_drivers(hm_mads) != 0)
         {
-            throw;
+            goto error_mad;
         }
 
         rc = hm->start();
@@ -828,11 +824,6 @@ void Nebula::start(bool bootstrap_only)
         if ( rc != 0 )
         {
            throw runtime_error("Could not start the Hook Manager");
-        }
-
-        if (hm->load_mads(0) != 0)
-        {
-            goto error_mad;
         }
     }
 
@@ -893,23 +884,21 @@ void Nebula::start(bool bootstrap_only)
     // ---- Virtual Machine Manager ----
     if (!cache)
     {
-        try
+        vector<const VectorAttribute *> vmm_mads;
+        int    vm_limit;
+
+        nebula_configuration->get("VM_PER_INTERVAL", vm_limit);
+
+        nebula_configuration->get("VM_MAD", vmm_mads);
+
+        vmm = new VirtualMachineManager(
+            timer_period,
+            vm_limit,
+            mad_location);
+
+        if (vmm->load_drivers(vmm_mads) != 0)
         {
-            vector<const VectorAttribute *> vmm_mads;
-            int    vm_limit;
-
-            nebula_configuration->get("VM_PER_INTERVAL", vm_limit);
-
-            nebula_configuration->get("VM_MAD", vmm_mads);
-
-            vmm = new VirtualMachineManager(
-                timer_period,
-                vm_limit,
-                vmm_mads);
-        }
-        catch (bad_alloc&)
-        {
-            throw;
+            goto error_mad;
         }
 
         rc = vmm->start();
@@ -953,23 +942,20 @@ void Nebula::start(bool bootstrap_only)
         {
             goto error_mad;
         }
-
     }
 
     // ---- Transfer Manager ----
     if (!cache)
     {
-        try
-        {
-            vector<const VectorAttribute *> tm_mads;
+        vector<const VectorAttribute *> tm_mads;
 
-            nebula_configuration->get("TM_MAD", tm_mads);
+        nebula_configuration->get("TM_MAD", tm_mads);
 
-            tm = new TransferManager(vmpool, hpool, tm_mads);
-        }
-        catch (bad_alloc&)
+        tm = new TransferManager(vmpool, hpool, mad_location);
+
+        if (tm->load_drivers(tm_mads) != 0)
         {
-            throw;
+            goto error_mad;
         }
 
         rc = tm->start();
@@ -1001,7 +987,6 @@ void Nebula::start(bool bootstrap_only)
     }
 
     // ---- Auth Manager ----
-    try
     {
         vector<const VectorAttribute *> auth_mads;
 
@@ -1009,50 +994,46 @@ void Nebula::start(bool bootstrap_only)
 
         if (!auth_mads.empty())
         {
-            authm = new AuthManager(timer_period, auth_mads);
+            authm = new AuthManager(timer_period, mad_location);
+
+            if (authm->load_drivers(auth_mads) != 0)
+            {
+                goto error_mad;
+            }
+
+            rc = authm->start();
+
+            if (rc != 0)
+            {
+                throw runtime_error("Could not start the Auth Manager");
+            }
         }
         else
         {
             authm = 0; //Built-in authm/authz
         }
     }
-    catch (bad_alloc&)
-    {
-        throw;
-    }
-
-    if (authm != 0)
-    {
-        rc = authm->start();
-
-        if ( rc != 0 )
-        {
-          throw runtime_error("Could not start the Auth Manager");
-        }
-    }
 
     // ---- Image Manager ----
     if (!cache)
     {
-        try
+        vector<const VectorAttribute *> image_mads;
+
+        nebula_configuration->get("DATASTORE_MAD", image_mads);
+
+        int monitor_vm_disk;
+        nebula_configuration->get("DS_MONITOR_VM_DISK", monitor_vm_disk);
+
+        imagem = new ImageManager(timer_period,
+                                  monitor_interval_datastore,
+                                  ipool,
+                                  dspool,
+                                  mad_location,
+                                  monitor_vm_disk);
+
+        if (imagem->load_drivers(image_mads) != 0)
         {
-            vector<const VectorAttribute *> image_mads;
-
-            nebula_configuration->get("DATASTORE_MAD", image_mads);
-
-            int monitor_vm_disk;
-            nebula_configuration->get("DS_MONITOR_VM_DISK", monitor_vm_disk);
-
-            imagem = new ImageManager(timer_period,
-                                      monitor_interval_datastore,
-                                      ipool,
-                                      dspool,
-                                      image_mads,
-                                      monitor_vm_disk);
-        }
-        catch (bad_alloc&)
-        {
-            throw;
+            goto error_mad;
         }
 
         rc = imagem->start();
@@ -1066,17 +1047,16 @@ void Nebula::start(bool bootstrap_only)
     // ---- Marketplace Manager ----
     if (!cache)
     {
-        try
-        {
-            vector<const VectorAttribute *> mmads;
+        vector<const VectorAttribute *> mmads;
 
-            nebula_configuration->get("MARKET_MAD", mmads);
+        nebula_configuration->get("MARKET_MAD", mmads);
 
-            marketm = new MarketPlaceManager(timer_period, monitor_interval_market, mmads);
-        }
-        catch (bad_alloc&)
+        marketm = new MarketPlaceManager(timer_period, monitor_interval_market,
+                                         mad_location);
+
+        if (marketm->load_drivers(mmads) != 0)
         {
-            throw;
+            goto error_mad;
         }
 
         rc = marketm->start();
@@ -1090,17 +1070,15 @@ void Nebula::start(bool bootstrap_only)
     // ---- IPAM Manager ----
     if (!cache)
     {
-        try
-        {
-            vector<const VectorAttribute *> ipam_mads;
+        vector<const VectorAttribute *> ipam_mads;
 
-            nebula_configuration->get("IPAM_MAD", ipam_mads);
+        nebula_configuration->get("IPAM_MAD", ipam_mads);
 
-            ipamm = new IPAMManager(timer_period, ipam_mads);
-        }
-        catch (bad_alloc&)
+        ipamm = new IPAMManager(timer_period, mad_location);
+
+        if (ipamm->load_drivers(ipam_mads) != 0)
         {
-            throw;
+            goto error_mad;
         }
 
         rc = ipamm->start();
@@ -1118,42 +1096,6 @@ void Nebula::start(bool bootstrap_only)
     usleep(2500000);
 
     rc = 0;
-
-    if (!cache)
-    {
-        if (vmm->load_mads(0) != 0)
-        {
-            goto error_mad;
-        }
-
-        if (tm->load_mads(0) != 0)
-        {
-            goto error_mad;
-        }
-
-        if (imagem->load_mads(0) != 0)
-        {
-            goto error_mad;
-        }
-
-        if (marketm->load_mads(0) != 0)
-        {
-            goto error_mad;
-        }
-
-        if (ipamm->load_mads(0) != 0)
-        {
-            goto error_mad;
-        }
-    }
-
-    if ( authm != 0 )
-    {
-        if (authm->load_mads(0) != 0)
-        {
-            goto error_mad;
-        }
-    }
 
     // ---- Request Manager ----
     try

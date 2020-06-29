@@ -17,9 +17,9 @@
 #ifndef HOOK_MANAGER_H_
 #define HOOK_MANAGER_H_
 
-#include "MadManager.h"
+#include "ProtocolMessages.h"
+#include "DriverManager.h"
 #include "ActionManager.h"
-#include "HookManagerDriver.h"
 
 #include <vector>
 
@@ -67,14 +67,16 @@ private:
 
 extern "C" void * hm_action_loop(void *arg);
 
-class HookManager : public MadManager, public ActionListener
+class HookManager :
+    public DriverManager<Driver<hook_msg_t>>,
+    public ActionListener
 {
 public:
 
-    HookManager(std::vector<const VectorAttribute*>& _mads):MadManager(_mads)
+    HookManager(const std::string& mad_location): DriverManager(mad_location)
     {
         am.addListener(this);
-    };
+    }
 
     virtual ~HookManager() = default;
 
@@ -97,11 +99,9 @@ public:
 
     /**
      *  Loads Hook Manager Mads defined in configuration file
-     *   @param uid of the user executing the driver. When uid is 0 the nebula
-     *   identity will be used. Otherwise the Mad will be loaded through the
-     *   sudo application.
+     *   @param _mads configuration of drivers
      */
-    int load_mads(int uid=0);
+    int load_drivers(const std::vector<const VectorAttribute*>& _mads);
 
     /**
      *  Triggers specific actions to the Hook Manager.
@@ -121,7 +121,7 @@ public:
     void finalize()
     {
         am.finalize();
-    };
+    }
 
     /**
      *  Returns a pointer to a Information Manager MAD. The driver is
@@ -130,13 +130,10 @@ public:
      *    @return the Hook driver owned by uid 0, with attribute "NAME" equal to
      *    name or 0 in not found
      */
-    const HookManagerDriver * get()
+    const Driver<hook_msg_t> * get()
     {
-        std::string name("NAME");
-
-        return static_cast<const HookManagerDriver *>
-               (MadManager::get(0, name,hook_driver_name));
-    };
+        return DriverManager::get_driver(hook_driver_name);
+    }
 
     static std::string * format_message(const string& args, const string&remote_host,
                                         int hook_id);
@@ -151,7 +148,7 @@ private:
     /**
      *  Generic name for the Hook driver
      */
-     static const char *  hook_driver_name;
+    static const char *  hook_driver_name;
 
     /**
      *  Thread id for the HookManager
@@ -176,13 +173,38 @@ private:
     void retry_action(const std::string& message);
 
     // -------------------------------------------------------------------------
+    // Protocol implementation, procesing messages from driver
+    // -------------------------------------------------------------------------
+    /**
+     *
+     */
+    static void _undefined(unique_ptr<hook_msg_t> msg);
+
+    /**
+     *
+     */
+    void _execute(unique_ptr<hook_msg_t> msg);
+
+    /**
+     *
+     */
+    void _retry(unique_ptr<hook_msg_t> msg);
+
+    /**
+     *
+     */
+    static void _log(unique_ptr<hook_msg_t> msg);
+
+    // -------------------------------------------------------------------------
     // Action Listener interface
     // -------------------------------------------------------------------------
+    static const int drivers_timeout = 10;
+
     void finalize_action(const ActionRequest& ar)
     {
         NebulaLog::log("HKM",Log::INFO,"Stopping Hook Manager...");
 
-        MadManager::stop();
+        DriverManager::stop(drivers_timeout);
     };
 
     void user_action(const ActionRequest& ar);

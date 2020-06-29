@@ -76,7 +76,7 @@ VirtualRouter::VirtualRouter(   int             id,
                                 const string&   _gname,
                                 int             _umask,
                                 Template * _template_contents):
-        PoolObjectSQL(id,VROUTER,"",_uid,_gid,_uname,_gname,table),
+        PoolObjectSQL(id,VROUTER,"",_uid,_gid,_uname,_gname,one_db::vr_table),
         vms("VMS")
 {
     if (_template_contents != 0)
@@ -92,21 +92,8 @@ VirtualRouter::VirtualRouter(   int             id,
 }
 
 /* ************************************************************************ */
-/* VirtualRouter :: Database Access Functions                                    */
+/* VirtualRouter :: Database Access Functions                               */
 /* ************************************************************************ */
-
-const char * VirtualRouter::table = "vrouter_pool";
-
-const char * VirtualRouter::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * VirtualRouter::db_bootstrap =
-    "CREATE TABLE IF NOT EXISTS vrouter_pool (oid INTEGER PRIMARY KEY, "
-    "name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, "
-    "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
 
 int VirtualRouter::insert(SqlDB *db, string& error_str)
 {
@@ -270,7 +257,7 @@ int VirtualRouter::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if (replace)
     {
-        oss << "UPDATE " << table << " SET "
+        oss << "UPDATE " << one_db::vr_table << " SET "
             << "name = '"    << sql_name   << "', "
             << "body = '"    << sql_xml    << "', "
             << "uid = "      << uid        << ", "
@@ -282,7 +269,8 @@ int VirtualRouter::insert_replace(SqlDB *db, bool replace, string& error_str)
     }
     else
     {
-        oss << "INSERT INTO " << table << " (" << db_names << ") VALUES ("
+        oss << "INSERT INTO " << one_db::vr_table
+            << " (" << one_db::vr_db_names << ") VALUES ("
             <<            oid        << ","
             << "'"     << sql_name   << "',"
             << "'"     << sql_xml    << "',"
@@ -320,6 +308,16 @@ error_generic:
 error_common:
     return -1;
 }
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VirtualRouter::bootstrap(SqlDB * db)
+{
+    ostringstream oss(one_db::vr_db_bootstrap);
+
+    return db->exec_local_wr(oss);
+};
 
 /* ************************************************************************ */
 /* VirtualRouter :: Misc                                                         */

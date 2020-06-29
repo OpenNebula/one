@@ -18,14 +18,15 @@
 #define ONE_MONITOR_DRIVER_H_
 
 #include "OpenNebulaDriver.h"
-#include "OpenNebulaMessages.h"
+#include "ProtocolMessages.h"
 
 class HostMonitorManager;
 
 /**
  *  This class implements the Monitor Driver interface for oned.
  */
-class OneMonitorDriver : public OpenNebulaDriver<OpenNebulaMessages>
+class OneMonitorDriver :
+    public OpenNebulaDriver<im_msg_t>
 {
 public:
     OneMonitorDriver(HostMonitorManager * _hm);
@@ -53,42 +54,40 @@ public:
     void host_system_info(int oid, const std::string& status, const std::string& payload);
 
 private:
-    using message_t = std::unique_ptr<Message<OpenNebulaMessages>>;
-
     //--------------------------------------------------------------------------
     // Message callbacks, implements the driver protocol
     //--------------------------------------------------------------------------
-    static void _undefined(message_t msg);
+    static void _undefined(std::unique_ptr<im_msg_t> msg);
 
     /**
      *  List of all hosts in xml format
      */
-    static void _host_list(message_t msg);
+    static void _host_list(std::unique_ptr<im_msg_t> msg);
 
     /**
      *  Update information from a host
      */
-    static void _update_host(message_t msg);
+    static void _update_host(std::unique_ptr<im_msg_t> msg);
 
     /**
      *  Remove host from the pool
      */
-    static void _del_host(message_t msg);
+    static void _del_host(std::unique_ptr<im_msg_t> msg);
 
     /**
      *  Start the monitor agent/ or active monitor the host
      */
-    static void _start_monitor(message_t msg);
+    static void _start_monitor(std::unique_ptr<im_msg_t> msg);
 
     /**
      *  Stop the monitor agent/ or stop monitor the host
      */
-    static void _stop_monitor(message_t msg);
+    static void _stop_monitor(std::unique_ptr<im_msg_t> msg);
 
     /**
      *  Raft status changed
      */
-    static void _raft_status(message_t msg);
+    static void _raft_status(std::unique_ptr<im_msg_t> msg);
 
 private:
     static HostMonitorManager * hm;

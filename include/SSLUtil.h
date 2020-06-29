@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -14,31 +14,31 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef OPENNEBULA_MESSAGES_H
-#define OPENNEBULA_MESSAGES_H
+#ifndef SSL_UTIL_H
+#define SSL_UTIL_H
 
-#include "StreamManager.h"
+#include <string>
 
-/**
- * Messages between the Monitor daemon and OpenNebula daemon
- */
-enum class OpenNebulaMessages : unsigned short int
+namespace ssl_util
 {
-    UNDEFINED = 0,
-    INIT,
-    FINALIZE,
-    HOST_LIST,
-    UPDATE_HOST,
-    DEL_HOST,
-    START_MONITOR,
-    STOP_MONITOR,
-    HOST_STATE,
-    VM_STATE,
-    HOST_SYSTEM,
-    RAFT_STATUS,
-    ENUM_MAX
-};
+    void base64_decode(const std::string& in, std::string& out);
 
-typedef StreamManager<OpenNebulaMessages> one_stream_t;
+    int base64_encode(const std::string& in, std::string &out);
 
-#endif /*OPENNEBULA_MESSAGES_H*/
+    int zlib_decompress(const std::string& in, std::string& out);
+
+    int zlib_compress(const std::string& in, std::string& out);
+
+    /**
+     *  Set path to public and private rsa keys
+     */
+    void init_rsa_keys(const std::string& pub_key, const std::string& pri_key);
+
+    bool is_rsa_set();
+
+    int rsa_public_encrypt(const std::string& in, std::string& out);
+
+    int rsa_private_decrypt(const std::string& in, std::string& out);
+} // namespace ssl_util
+
+#endif /*SSL_UTIL_H_*/

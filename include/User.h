@@ -323,7 +323,7 @@ private:
      */
     static int bootstrap(SqlDB * db)
     {
-        ostringstream oss_user(User::db_bootstrap);
+        ostringstream oss_user(one_db::user_db_bootstrap);
 
         return db->exec_local_wr(oss_user);
     }
@@ -382,7 +382,7 @@ protected:
          const string& _password,
          const string& _auth_driver,
          bool          _enabled):
-        PoolObjectSQL(id,USER,_uname,-1,_gid,"",_gname,table),
+        PoolObjectSQL(id,USER,_uname,-1,_gid,"",_gname,one_db::user_table),
         quota(),
         password(_password),
         auth_driver(_auth_driver),
@@ -398,12 +398,6 @@ protected:
     // *************************************************************************
     // DataBase implementation
     // *************************************************************************
-
-    static const char * db_names;
-
-    static const char * db_bootstrap;
-
-    static const char * table;
 
     /**
      *  Writes the User in the database.

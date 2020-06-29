@@ -361,12 +361,6 @@ private:
     // DataBase implementation (Private)
     // *************************************************************************
 
-    static const char * db_names;
-
-    static const char * db_bootstrap;
-
-    static const char * table;
-
     /**
      *  Builds the market app from the template. This function MUST be called
      *  with apptemplate initialized
@@ -388,12 +382,7 @@ private:
      *  Bootstraps the database table(s) associated to the MarketPlace
      *    @return 0 on success
      */
-    static int bootstrap(SqlDB * db)
-    {
-        ostringstream oss(db_bootstrap);
-
-        return db->exec_local_wr(oss);
-    };
+    static int bootstrap(SqlDB * db);
 
     /**
      *  Writes the MarketPlace in the database.

@@ -48,7 +48,7 @@ VirtualNetworkPool::VirtualNetworkPool(
     const vector<const SingleAttribute *>& _inherit_attrs,
     const VectorAttribute *             _vlan_conf,
     const VectorAttribute *             _vxlan_conf):
-        PoolSQL(db, VirtualNetwork::table), vlan_conf(_vlan_conf),
+        PoolSQL(db, one_db::vn_table), vlan_conf(_vlan_conf),
         vxlan_conf(_vxlan_conf)
 {
     istringstream iss;

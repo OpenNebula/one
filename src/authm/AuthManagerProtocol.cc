@@ -14,84 +14,53 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "IPAMManagerDriver.h"
-#include "IPAMManager.h"
+#include "AuthManager.h"
 #include "NebulaLog.h"
 
-#include <sstream>
-
 /* ************************************************************************** */
-/* MAD Interface                                                              */
+/* Driver Protocol Implementation                                             */
 /* ************************************************************************** */
 
-void IPAMManagerDriver::protocol(const string& message) const
+void AuthManager::_undefined(unique_ptr<auth_msg_t> msg)
 {
-    istringstream is(message);
-    ostringstream os;
-
-    string action;
-    string result;
-    string info="";
-
-    int id;
-
-    os << "Message received: " << message;
-    NebulaLog::log("IPM", Log::DEBUG, os);
-
-    // Parse the driver message
-    if ( is.good() )
-        is >> action >> ws;
-    else
-        return;
-
-    if ( is.good() )
-        is >> result >> ws;
-    else
-        return;
-
-    if ( is.good() )
-    {
-        is >> id >> ws;
-
-        if ( is.fail() )
-        {
-            if ( action == "LOG" )
-            {
-                is.clear();
-                getline(is,info);
-
-                NebulaLog::log("IPM", log_type(result[0]), info.c_str());
-            }
-
-            return;
-        }
-    }
-    else
-        return;
-
-    getline(is, info);
-
-    if (action == "LOG")
-    {
-        NebulaLog::log("IPM", Log::INFO, info.c_str());
-    }
-    else if (result == "SUCCESS")
-    {
-        ipamm->notify_request(id, true, info);
-    }
-    else
-    {
-        ipamm->notify_request(id, false, info);
-    }
-
-    return;
+    NebulaLog::warn("AuM", "Received UNDEFINED msg: " + msg->payload());
 }
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
-void IPAMManagerDriver::recover()
+void AuthManager::_authorize(unique_ptr<auth_msg_t> msg)
 {
-    NebulaLog::log("IPM",Log::INFO,"Recovering IPAM drivers");
+    NebulaLog::debug("AuM", "_authorize: " + msg->payload());
+
+    if (msg->status() == "SUCCESS")
+    {
+        notify_request(msg->oid(), true, msg->payload());
+    }
+    else
+    {
+        notify_request(msg->oid(), false, msg->payload());
+    }
 }
 
+/* -------------------------------------------------------------------------- */
+
+void AuthManager::_authenticate(unique_ptr<auth_msg_t> msg)
+{
+    NebulaLog::debug("AuM", "_authenticate: " + msg->payload());
+
+    if (msg->status() == "SUCCESS")
+    {
+        notify_request(msg->oid(), true, msg->payload());
+    }
+    else
+    {
+        notify_request(msg->oid(), false, msg->payload());
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+void AuthManager::_log(unique_ptr<auth_msg_t> msg)
+{
+    NebulaLog::log("AuM", log_type(msg->status()[0]), msg->payload());
+}

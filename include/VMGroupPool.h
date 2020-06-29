@@ -19,13 +19,14 @@
 
 #include "PoolSQL.h"
 #include "VMGroup.h"
+#include "OneDB.h"
 
 class AuthRequest;
 
 class VMGroupPool : public PoolSQL
 {
 public:
-    VMGroupPool(SqlDB * db):PoolSQL(db, VMGroup::table){};
+    VMGroupPool(SqlDB * db):PoolSQL(db, one_db::vm_group_table){};
 
     ~VMGroupPool(){};
 
@@ -108,8 +109,8 @@ public:
     int dump(std::string& oss, const std::string& where, int sid, int eid,
         bool desc)
     {
-        return PoolSQL::dump(oss, "VM_GROUP_POOL", "body", VMGroup::table, where,
-                sid, eid, desc);
+        return PoolSQL::dump(oss, "VM_GROUP_POOL", "body",
+            one_db::vm_group_table, where, sid, eid, desc);
     };
 
     /**

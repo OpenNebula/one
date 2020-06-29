@@ -17,20 +17,23 @@
 #ifndef IMAGE_MANAGER_H_
 #define IMAGE_MANAGER_H_
 
-#include "MadManager.h"
+#include "DriverManager.h"
+#include "ProtocolMessages.h"
 #include "ActionManager.h"
-#include "ImageManagerDriver.h"
 #include "NebulaLog.h"
-
-using namespace std;
 
 extern "C" void * image_action_loop(void *arg);
 
+class DatastorePool;
 class Image;
+class ImagePool;
 class Snapshots;
 class Template;
 
-class ImageManager : public MadManager, public ActionListener
+
+class ImageManager :
+    public DriverManager<Driver<image_msg_t>>,
+    public ActionListener
 {
 public:
 
@@ -38,9 +41,9 @@ public:
                  time_t                    _monitor_period,
                  ImagePool *               _ipool,
                  DatastorePool *           _dspool,
-                 vector<const VectorAttribute*>& _mads,
+                 const std::string&        _mads_location,
                  int                       _monitor_vm_disk):
-            MadManager(_mads),
+            DriverManager(_mads_location),
             timer_period(_timer_period),
             monitor_period(_monitor_period),
             monitor_vm_disk(_monitor_vm_disk),
@@ -62,11 +65,9 @@ public:
 
     /**
      *  Loads the Image Driver defined in configuration file
-     *   @param uid of the user executing the driver. When uid is 0 the nebula
-     *   identity will be used. Otherwise the Mad will be loaded through the
-     *   sudo application.
+     *   @param _mads configuration of drivers
      */
-    int load_mads(int uid=0);
+    int load_drivers(const std::vector<const VectorAttribute*>& _mads);
 
     /**
      *  Gets the thread identification.
@@ -99,7 +100,7 @@ public:
      *    @param attach true if attaching the image to a VM
      *    @return pointer to the image or 0 if could not be acquired
      */
-    Image * acquire_image(int vm_id, int image_id, bool attach, string& error);
+    Image * acquire_image(int vm_id, int image_id, bool attach, std::string& error);
 
     /**
      *  Try to acquire an image from the repository for a VM.
@@ -109,7 +110,8 @@ public:
      *    @param attach true if attaching the image to a VM
      *    @return pointer to the image or 0 if could not be acquired
      */
-    Image * acquire_image(int vm_id, const string& name, int uid, bool attach, string& error);
+    Image * acquire_image(int vm_id, const std::string& name,
+                          int uid, bool attach, std::string& error);
 
     /**
      *  Releases an image and triggers any needed operations in the repo
@@ -153,7 +155,7 @@ public:
      *    @param error_str Error reason, if any
      *    @return 0 on success
      */
-    int enable_image(int iid, bool to_enable, string& error_str);
+    int enable_image(int iid, bool to_enable, std::string& error_str);
 
     /**
      *  Adds a new image to the repository copying or creating it as needed
@@ -165,9 +167,9 @@ public:
      *    @return 0 on success
      */
     int register_image(int iid,
-                       const string& ds_data,
-                       const string& extra_data,
-                       string& error);
+                       const std::string& ds_data,
+                       const std::string& extra_data,
+                       std::string& error);
 
     /**
      * Checks if an image is ready to be cloned
@@ -177,7 +179,7 @@ public:
      *
      * @return 0 if the image can be cloned, -1 otherwise
      */
-    int can_clone_image(int cloning_id, ostringstream&  oss_error);
+    int can_clone_image(int cloning_id, std::ostringstream&  oss_error);
 
     /**
      * Sets the state to CLONE for the given image
@@ -225,9 +227,9 @@ public:
      */
     int clone_image(int new_id,
                     int cloning_id,
-                    const string& ds_data,
-                    const string& extra_data,
-                    string& error);
+                    const std::string& ds_data,
+                    const std::string& extra_data,
+                    std::string& error);
     /**
      *  Deletes an image from the repository and the DB. The Datastore image list
      *  is also updated
@@ -235,7 +237,7 @@ public:
      *    @param error_str Error reason, if any
      *    @return 0 on success
      */
-    int delete_image(int iid, string& error_str);
+    int delete_image(int iid, std::string& error_str);
 
     /**
      *  Gets the size of an image by calling the STAT action of the associated
@@ -247,7 +249,9 @@ public:
      *         occurred describing the error.
      *  @result 0 on success
      */
-     int stat_image(Template* img_tmpl, const string& ds_tmpl, string& res);
+     int stat_image(Template* img_tmpl,
+                    const std::string& ds_tmpl,
+                    std::string& res);
 
      /**
       *  Trigger a monitor action for the datastore.
@@ -284,7 +288,7 @@ public:
       *    @param error_str Error reason, if any
       *    @return 0 on success
       */
-     int delete_snapshot(int iid, int sid, string& error);
+     int delete_snapshot(int iid, int sid, std::string& error);
 
      /**
       *  Reverts image state to a previous snapshot
@@ -293,7 +297,7 @@ public:
       *    @param error_str Error reason, if any
       *    @return 0 on success
       */
-     int revert_snapshot(int iid, int sid, string& error);
+     int revert_snapshot(int iid, int sid, std::string& error);
 
      /**
       *  Flattens ths snapshot by commiting changes to base image.
@@ -302,13 +306,13 @@ public:
       *    @param error_str Error reason, if any
       *    @return 0 on success
       */
-     int flatten_snapshot(int iid, int sid, string& error);
+     int flatten_snapshot(int iid, int sid, std::string& error);
 
 private:
     /**
      *  Generic name for the Image driver
      */
-     static const char *  image_driver_name;
+    static const char *  image_driver_name;
 
     /**
      *  Thread id for the Image Manager
@@ -350,12 +354,9 @@ private:
      *  Returns a pointer to the Image Manager Driver used for the Repository
      *    @return the Image Manager driver or 0 in not found
      */
-    const ImageManagerDriver * get()
+    const Driver<image_msg_t> * get()
     {
-        string name("NAME");
-
-        return static_cast<const ImageManagerDriver *>
-               (MadManager::get(0,name,image_driver_name));
+        return DriverManager::get_driver(image_driver_name);
     };
 
     /**
@@ -369,7 +370,7 @@ private:
      *    @param action the name of the action
      *    @param arg arguments for the action function
      */
-    void do_action(const string& action, void * arg);
+    void do_action(const std::string& action, void * arg);
 
     /**
      *  Acquires an image updating its state.
@@ -377,14 +378,14 @@ private:
      *    @param attach true if attaching the image to a VM
      *    @return 0 on success
      */
-    int acquire_image(int vm_id, Image *img, bool attach, string& error);
+    int acquire_image(int vm_id, Image *img, bool attach, std::string& error);
 
     /**
      *  Moves a file to an image in the repository
      *    @param image to be updated (it's source attribute)
      *    @param source path of the disk file
      */
-    void move_image(Image *img, const string& source);
+    void move_image(Image *img, const std::string& source);
 
     /**
      * Formats an XML message for the MAD
@@ -394,9 +395,67 @@ private:
      *    @param extra_data additional XML formatted data for the driver
      *    @return the XML message
      */
-    static string * format_message(const string& img_data,
-            const string& ds_data,
-            const string& extra_data);
+    static std::string* format_message(const std::string& img_data,
+            const std::string& ds_data,
+            const std::string& extra_data);
+
+    // -------------------------------------------------------------------------
+    // Protocol implementation, procesing messages from driver
+    // -------------------------------------------------------------------------
+    /**
+     *
+     */
+    static void _undefined(unique_ptr<image_msg_t> msg);
+
+    /**
+     *
+     */
+    void _stat(unique_ptr<image_msg_t> msg);
+
+    /**
+     *
+     */
+    void _cp(unique_ptr<image_msg_t> msg);
+
+    /**
+     *
+     */
+    void _clone(unique_ptr<image_msg_t> msg);
+
+    /**
+     *
+     */
+    void _mkfs(unique_ptr<image_msg_t> msg);
+
+    /**
+     *
+     */
+    void _rm(unique_ptr<image_msg_t> msg);
+
+    /**
+     *
+     */
+    void _monitor(unique_ptr<image_msg_t> msg);
+
+    /**
+     *
+     */
+    void _snap_delete(unique_ptr<image_msg_t> msg);
+
+    /**
+     *
+     */
+    void _snap_revert(unique_ptr<image_msg_t> msg);
+
+    /**
+     *
+     */
+    void _snap_flatten(unique_ptr<image_msg_t> msg);
+
+    /**
+     *
+     */
+    static void _log(unique_ptr<image_msg_t> msg);
 
     // -------------------------------------------------------------------------
     // Action Listener interface
@@ -406,10 +465,12 @@ private:
      */
     void timer_action(const ActionRequest& ar);
 
+    static const int drivers_timeout = 10;
+
     void finalize_action(const ActionRequest& ar)
     {
         NebulaLog::log("ImM",Log::INFO,"Stopping Image Manager...");
-        MadManager::stop();
+        stop(drivers_timeout);
     };
 };
 

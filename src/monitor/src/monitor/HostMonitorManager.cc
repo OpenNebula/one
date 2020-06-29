@@ -58,6 +58,9 @@ HostMonitorManager::HostMonitorManager(
     driver_manager = new driver_manager_t(driver_path);
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 HostMonitorManager::~HostMonitorManager()
 {
     delete oned_driver;
@@ -74,6 +77,9 @@ int HostMonitorManager::load_monitor_drivers(
 {
     return driver_manager->load_drivers(mads_config);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int HostMonitorManager::start(std::string& error)
 {

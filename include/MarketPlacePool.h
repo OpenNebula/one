@@ -19,6 +19,7 @@
 
 #include "MarketPlace.h"
 #include "PoolSQL.h"
+#include "OneDB.h"
 
 class MarketPlaceApp;
 
@@ -120,7 +121,7 @@ public:
     int dump(std::string& oss, const std::string& where, int sid, int eid,
         bool desc)
     {
-        return PoolSQL::dump(oss, "MARKETPLACE_POOL", "body", MarketPlace::table,
+        return PoolSQL::dump(oss, "MARKETPLACE_POOL", "body", one_db::mp_table,
                 where, sid, eid, desc);
     };
 
@@ -132,7 +133,7 @@ public:
      */
      int list(std::vector<int>& oids)
      {
-        return PoolSQL::list(oids, MarketPlace::table);
+        return PoolSQL::list(oids, one_db::mp_table);
      }
 
     /**

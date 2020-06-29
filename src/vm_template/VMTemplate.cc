@@ -18,6 +18,7 @@
 #include "Nebula.h"
 #include "VirtualMachineManager.h"
 #include "ScheduledAction.h"
+#include "OneDB.h"
 
 /* ************************************************************************ */
 /* VMTemplate :: Constructor/Destructor                                     */
@@ -30,8 +31,8 @@ VMTemplate::VMTemplate(int id,
                        const string& _gname,
                        int umask,
                        VirtualMachineTemplate * _template_contents):
-        PoolObjectSQL(id,TEMPLATE,"",_uid,_gid,_uname,_gname,table),
-        regtime(time(0))
+    PoolObjectSQL(id,TEMPLATE,"",_uid,_gid,_uname,_gname,one_db::vm_template_table),
+    regtime(time(0))
 {
     if (_template_contents != 0)
     {
@@ -48,19 +49,6 @@ VMTemplate::VMTemplate(int id,
 /* ************************************************************************ */
 /* VMTemplate :: Database Access Functions                                  */
 /* ************************************************************************ */
-
-const char * VMTemplate::table = "template_pool";
-
-const char * VMTemplate::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * VMTemplate::db_bootstrap =
-    "CREATE TABLE IF NOT EXISTS template_pool (oid INTEGER PRIMARY KEY, "
-    "name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, "
-    "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
 
 int VMTemplate::insert(SqlDB *db, string& error_str)
 {
@@ -131,7 +119,7 @@ int VMTemplate::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if(replace)
     {
-        oss << "UPDATE " << table << " SET "
+        oss << "UPDATE " << one_db::vm_template_table << " SET "
             << "name = '"      << sql_name   << "', "
             << "body = '"      << sql_xml    << "', "
             << "uid = "        << uid        << ", "
@@ -143,7 +131,8 @@ int VMTemplate::insert_replace(SqlDB *db, bool replace, string& error_str)
     }
     else
     {
-        oss << "INSERT INTO " << table << " (" << db_names << ") VALUES ("
+        oss << "INSERT INTO " << one_db::vm_template_table
+            << " (" << one_db::vm_template_db_names << ") VALUES ("
             <<            oid        << ","
             << "'"     << sql_name   << "',"
             << "'"     << sql_xml    << "',"
@@ -181,6 +170,19 @@ error_generic:
 error_common:
     return -1;
 }
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VMTemplate::bootstrap(SqlDB * db)
+{
+    ostringstream oss(one_db::vm_template_db_bootstrap);
+
+    return db->exec_local_wr(oss);
+};
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 int VMTemplate::parse_sched_action(string& error_str)
 {

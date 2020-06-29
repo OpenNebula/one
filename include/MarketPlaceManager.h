@@ -17,9 +17,9 @@
 #ifndef MARKETPLACE_MANAGER_H_
 #define MARKETPLACE_MANAGER_H_
 
-#include "MadManager.h"
+#include "ProtocolMessages.h"
+#include "DriverManager.h"
 #include "ActionManager.h"
-#include "MarketPlaceManagerDriver.h"
 #include "NebulaLog.h"
 
 extern "C" void * marketplace_action_loop(void *arg);
@@ -32,7 +32,9 @@ class DatastorePool;
 class ImageManager;
 class RaftManager;
 
-class MarketPlaceManager : public MadManager, public ActionListener
+class MarketPlaceManager :
+    public DriverManager<Driver<market_msg_t>>,
+    public ActionListener
 {
 public:
 
@@ -42,7 +44,7 @@ public:
      *    @param m, monitor_period to monitor marketplaces
      *    @param mad, list of drivers for the manager
      */
-    MarketPlaceManager(time_t t, time_t m, std::vector<const VectorAttribute*>& mad);
+    MarketPlaceManager(time_t t, time_t m, const std::string& _mad_location);
 
     ~MarketPlaceManager(){};
 
@@ -62,11 +64,9 @@ public:
 
     /**
      *  Loads the MarketPlace Driver defined in configuration file
-     *   @param uid of the user executing the driver. When uid is 0 the nebula
-     *   identity will be used. Otherwise the Mad will be loaded through the
-     *   sudo application.
+     *   @param _mads configuration of drivers
      */
-    int load_mads(int uid=0);
+    int load_drivers(const std::vector<const VectorAttribute*>& _mads);
 
     /**
      *  Gets the thread identification.
@@ -190,12 +190,9 @@ private:
      *  Returns a pointer to the marketplace driver.
      *    @return the marketplace manager driver or 0 in not found
      */
-    const MarketPlaceManagerDriver * get()
+    const Driver<market_msg_t> * get()
     {
-        std::string name("NAME");
-
-        return static_cast<const MarketPlaceManagerDriver *>
-               (MadManager::get(0, name, market_driver_name));
+        return DriverManager::get_driver(market_driver_name);
     };
 
     /**
@@ -219,6 +216,15 @@ private:
             const std::string& extra_data);
 
     // -------------------------------------------------------------------------
+    // Protocol implementation, procesing messages from driver
+    // -------------------------------------------------------------------------
+    static void _undefined(unique_ptr<market_msg_t> msg);
+    void _import(unique_ptr<market_msg_t> msg);
+    void _delete(unique_ptr<market_msg_t> msg);
+    void _monitor(unique_ptr<market_msg_t> msg);
+    static void _log(unique_ptr<market_msg_t> msg);
+
+    // -------------------------------------------------------------------------
     // Action Listener interface
     // -------------------------------------------------------------------------
     /**
@@ -226,10 +232,12 @@ private:
      */
     void timer_action(const ActionRequest& ar);
 
+    static const int drivers_timeout = 10;
+
     void finalize_action(const ActionRequest& ar)
     {
         NebulaLog::log("MKP", Log::INFO, "Stopping Marketplace Manager...");
-        MadManager::stop();
+        DriverManager::stop(drivers_timeout);
     };
 };
 

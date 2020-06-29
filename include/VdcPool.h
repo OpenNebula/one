@@ -19,6 +19,7 @@
 
 #include "PoolSQL.h"
 #include "Vdc.h"
+#include "OneDB.h"
 
 using namespace std;
 
@@ -99,8 +100,8 @@ public:
     int dump(std::string& oss, const std::string& where, int sid, int eid,
         bool desc)
     {
-        return PoolSQL::dump(oss, "VDC_POOL", "body", Vdc::table, where, sid,
-                eid, desc);
+        return PoolSQL::dump(oss, "VDC_POOL", "body", one_db::vdc_table,
+                             where, sid, eid, desc);
     };
 
     /**
@@ -111,7 +112,7 @@ public:
      */
      int list(std::vector<int>& oids)
      {
-        return PoolSQL::list(oids, Vdc::table);
+        return PoolSQL::list(oids, one_db::vdc_table);
      }
 
     /**

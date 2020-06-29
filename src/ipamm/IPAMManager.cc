@@ -29,7 +29,7 @@ extern "C" void * ipamm_action_loop(void *arg)
 {
     IPAMManager * ipamm;
 
-    if ( arg == 0 )
+    if ( arg == nullptr )
     {
         return 0;
     }
@@ -49,13 +49,35 @@ extern "C" void * ipamm_action_loop(void *arg)
 
 int IPAMManager::start()
 {
-    int            rc;
     pthread_attr_t pattr;
 
-    rc = MadManager::start();
+    using namespace std::placeholders; // for _1
 
-    if ( rc != 0 )
+    register_action(IPAMManagerMessages::UNDEFINED,
+            &IPAMManager::_undefined);
+
+    register_action(IPAMManagerMessages::REGISTER_ADDRESS_RANGE,
+            bind(&IPAMManager::_notify_request, this, _1));
+
+    register_action(IPAMManagerMessages::UNREGISTER_ADDRESS_RANGE,
+            bind(&IPAMManager::_notify_request, this, _1));
+
+    register_action(IPAMManagerMessages::GET_ADDRESS,
+            bind(&IPAMManager::_notify_request, this, _1));
+
+    register_action(IPAMManagerMessages::ALLOCATE_ADDRESS,
+            bind(&IPAMManager::_notify_request, this, _1));
+
+    register_action(IPAMManagerMessages::FREE_ADDRESS,
+            bind(&IPAMManager::_notify_request, this, _1));
+
+    register_action(IPAMManagerMessages::LOG,
+            &IPAMManager::_log);
+
+    string error;
+    if ( DriverManager::start(error) != 0 )
     {
+        NebulaLog::error("IPM", error);
         return -1;
     }
 
@@ -64,7 +86,7 @@ int IPAMManager::start()
     pthread_attr_init(&pattr);
     pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
 
-    rc = pthread_create(&ipamm_thread, &pattr, ipamm_action_loop, (void *)this);
+    int rc = pthread_create(&ipamm_thread, &pattr, ipamm_action_loop, (void *)this);
 
     return rc;
 }
@@ -78,7 +100,7 @@ void IPAMManager::user_action(const ActionRequest& ar)
 
     IPAMRequest * request = ipam_ar.request();
 
-    if ( request == 0 )
+    if ( request == nullptr )
     {
         return;
     }
@@ -110,120 +132,79 @@ void IPAMManager::user_action(const ActionRequest& ar)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const IPAMManagerDriver * IPAMManager::setup_request(IPAMRequest * ir)
+void IPAMManager::send_request(IPAMManagerMessages type, IPAMRequest * ir)
 {
-    const IPAMManagerDriver * ipammd = get();
+    auto ipammd = get();
 
-    if (ipammd == 0)
+    if (ipammd == nullptr)
     {
         ir->result  = false;
         ir->message = "Could not find the IPAM driver";
 
         ir->notify();
 
-        return 0;
+        return;
     }
 
     add_request(ir);
 
-    return ipammd;
+    string action_data;
+    ipam_msg_t msg(type, "", ir->id, ir->to_xml64(action_data));
+
+    ipammd->write(msg);
 }
 
 /* -------------------------------------------------------------------------- */
 
 void IPAMManager::register_address_range_action(IPAMRequest * ir)
 {
-    std::string action_data;
-    const IPAMManagerDriver * ipammd = setup_request(ir);
-
-    if (ipammd == 0)
-    {
-        return;
-    }
-
-    ipammd->register_address_range(ir->id, ir->to_xml64(action_data));
+    send_request(IPAMManagerMessages::REGISTER_ADDRESS_RANGE, ir);
 }
-
 
 /* -------------------------------------------------------------------------- */
 
 void IPAMManager::unregister_address_range_action(IPAMRequest * ir)
 {
-    std::string action_data;
-    const IPAMManagerDriver * ipammd = setup_request(ir);
-
-    if (ipammd == 0)
-    {
-        return;
-    }
-
-    ipammd->unregister_address_range(ir->id, ir->to_xml64(action_data));
+    send_request(IPAMManagerMessages::UNREGISTER_ADDRESS_RANGE, ir);
 }
 
 /* -------------------------------------------------------------------------- */
 
 void IPAMManager::get_address_action(IPAMRequest * ir)
 {
-    std::string action_data;
-    const IPAMManagerDriver * ipammd = setup_request(ir);
-
-    if (ipammd == 0)
-    {
-        return;
-    }
-
-    ipammd->get_address(ir->id, ir->to_xml64(action_data));
+    send_request(IPAMManagerMessages::GET_ADDRESS, ir);
 }
 
 /* -------------------------------------------------------------------------- */
 
 void IPAMManager::allocate_address_action(IPAMRequest * ir)
 {
-    std::string action_data;
-    const IPAMManagerDriver * ipammd = setup_request(ir);
-
-    if (ipammd == 0)
-    {
-        return;
-    }
-
-    ipammd->allocate_address(ir->id, ir->to_xml64(action_data));
+    send_request(IPAMManagerMessages::ALLOCATE_ADDRESS, ir);
 }
 
 /* -------------------------------------------------------------------------- */
 
 void IPAMManager::free_address_action(IPAMRequest * ir)
 {
-    std::string action_data;
-    const IPAMManagerDriver * ipammd = setup_request(ir);
-
-    if (ipammd == 0)
-    {
-        return;
-    }
-
-    ipammd->free_address(ir->id, ir->to_xml64(action_data));
+    send_request(IPAMManagerMessages::FREE_ADDRESS, ir);
 }
 
 /* ************************************************************************** */
 /* MAD Loading                                                                */
 /* ************************************************************************** */
 
-int IPAMManager::load_mads(int uid)
+int IPAMManager::load_drivers(const std::vector<const VectorAttribute*>& _mads)
 {
-    const VectorAttribute * vattr;
-    IPAMManagerDriver *     ipamm_driver;
-
-    if ( mad_conf.size() == 0 )
+    if ( _mads.size() == 0 )
     {
         return 0;
     }
 
     NebulaLog::log("IPM", Log::INFO, "Loading IPAM Manager driver.");
 
-    vattr = dynamic_cast<const VectorAttribute *>(mad_conf[0]);
+    const VectorAttribute * vattr = _mads[0];
 
-    if ( vattr == 0 )
+    if ( vattr == nullptr )
     {
         NebulaLog::log("IPM", Log::ERROR, "Failed to load IPAM Manager driver.");
         return -1;
@@ -233,10 +214,9 @@ int IPAMManager::load_mads(int uid)
 
     ipam_conf.replace("NAME", ipam_driver_name);
 
-    ipamm_driver = new IPAMManagerDriver(uid, ipam_conf.value(), false, this);
-
-    if ( add(ipamm_driver) != 0 )
+    if ( load_driver(&ipam_conf) != 0 )
     {
+        NebulaLog::error("ImM", "Unable to load IPAM Manager driver");
         return -1;
     }
 

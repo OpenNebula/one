@@ -15,6 +15,7 @@
 /* ------------------------------------------------------------------------ */
 
 #include "Document.h"
+#include "OneDB.h"
 
 /* ************************************************************************ */
 /* Document :: Constructor/Destructor                                       */
@@ -27,8 +28,9 @@ Document::Document( int id,
                     const string& _gname,
                     int _umask,
                     int _type,
-                    Template * _template_contents):
-        PoolObjectSQL(id,DOCUMENT,"",_uid,_gid,_uname,_gname,table), type(_type)
+                    Template * _template_contents)
+    : PoolObjectSQL(id,DOCUMENT,"",_uid,_gid,_uname,_gname,one_db::doc_table)
+    , type(_type)
 {
     if (_template_contents != 0)
     {
@@ -45,19 +47,6 @@ Document::Document( int id,
 /* ************************************************************************ */
 /* Document :: Database Access Functions                                    */
 /* ************************************************************************ */
-
-const char * Document::table = "document_pool";
-
-const char * Document::db_names =
-        "oid, name, body, type, uid, gid, owner_u, group_u, other_u";
-
-const char * Document::db_bootstrap =
-    "CREATE TABLE IF NOT EXISTS document_pool (oid INTEGER PRIMARY KEY, "
-    "name VARCHAR(128), body MEDIUMTEXT, type INTEGER, uid INTEGER, gid INTEGER, "
-    "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
 
 int Document::insert(SqlDB *db, string& error_str)
 {
@@ -126,7 +115,7 @@ int Document::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if(replace)
     {
-        oss << "UPDATE " << table << " SET "
+        oss << "UPDATE " << one_db::doc_table << " SET "
             << "name = '"    << sql_name << "', "
             << "body = '"    << sql_xml  << "', "
             << "type = "     << type     << ", "
@@ -139,7 +128,8 @@ int Document::insert_replace(SqlDB *db, bool replace, string& error_str)
     }
     else
     {
-        oss << "INSERT INTO " << table << " (" << db_names << ") VALUES ("
+        oss << "INSERT INTO " << one_db::doc_table
+            << " (" << one_db::doc_db_names << ") VALUES ("
             <<            oid        << ","
             << "'"     << sql_name   << "',"
             << "'"     << sql_xml    << "',"
@@ -177,6 +167,16 @@ error_generic:
     error_str = "Error inserting Document in DB.";
 error_common:
     return -1;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Document::bootstrap(SqlDB * db)
+{
+    ostringstream oss(one_db::doc_db_bootstrap);
+
+    return db->exec_local_wr(oss);
 }
 
 /* ************************************************************************ */

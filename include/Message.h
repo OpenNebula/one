@@ -14,8 +14,8 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef MONITOR_MESSAGE_H
-#define MONITOR_MESSAGE_H
+#ifndef DRIVER_MESSAGE_H
+#define DRIVER_MESSAGE_H
 
 #include <unistd.h>
 
@@ -24,25 +24,7 @@
 #include <sstream>
 
 #include "EnumString.h"
-
-void base64_decode(const std::string& in, std::string& out);
-
-int base64_encode(const std::string& in, std::string &out);
-
-int zlib_decompress(const std::string& in, std::string& out);
-
-int zlib_compress(const std::string& in, std::string& out);
-
-/**
- *  Set path to public and private rsa keys
- */
-void init_rsa_keys(const std::string& pub_key, const std::string& pri_key);
-
-bool is_rsa_set();
-
-int rsa_public_encrypt(const std::string& in, std::string& out);
-
-int rsa_private_decrypt(const std::string& in, std::string& out);
+#include "SSLUtil.h"
 
 /**
  *  This class represents a generic message used by the Monitoring Protocol.
@@ -62,30 +44,40 @@ int rsa_private_decrypt(const std::string& in, std::string& out);
  *    '\n' End of message delimiter
  *
  */
-template<typename E>
+template<typename E, //Enum class for the message types
+         bool encode   = false, //Payload is base64 encoded
+         bool compress = false, //Payload is compressed
+         bool encrypt  = false, //Payload is encrypted
+         bool has_timestamp = false> //Message includes timestamp
 class Message
 {
 public:
+    using msg_enum = E;
+
+    Message() = default;
+
+    Message(E type, std::string &&status, int oid, const std::string& msg_payload);
+
     /**
      *  Parse the Message from an input string
      *    @param input string with the message
      */
-    int parse_from(const std::string& input, bool decrypt);
+    int parse_from(const std::string& input);
 
     /**
      *  Writes this object to the given string
      */
-    int write_to(std::string& out, bool encrypt) const;
+    int write_to(std::string& out) const;
 
     /**
      *  Writes this object to the given file descriptor
      */
-    int write_to(int fd, bool encrypt) const;
+    int write_to(int fd) const;
 
     /**
      *  Writes this object to the given output stream
      */
-    int write_to(std::ostream& oss, bool encrypt) const;
+    int write_to(std::ostream& oss) const;
 
     /**
      *
@@ -160,11 +152,13 @@ public:
      */
     time_t timestamp() const
     {
+        static_assert(has_timestamp == true, "Timestamp disabled");
         return _timestamp;
     }
 
     void timestamp(time_t ts)
     {
+        static_assert(has_timestamp == true, "Timestamp disabled");
         _timestamp = ts;
     }
 
@@ -187,15 +181,26 @@ private:
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-/* Message Template Implementation                                             */
+/* Message Template Implementation                                            */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-template<typename E>
-int Message<E>::parse_from(const std::string& input, bool decrypt)
+template<typename E, bool compress, bool encode, bool encrypt, bool has_timestamp>
+Message<E, compress, encode, encrypt, has_timestamp>
+    ::Message(E type, std::string &&status, int oid, const std::string& payload)
+        : _type(type)
+        , _status(std::move(status))
+        , _oid(oid)
+        , _payload(payload)
+{
+}
+
+template<typename E, bool compress, bool encode, bool encrypt, bool has_timestamp>
+int Message<E, compress, encode, encrypt, has_timestamp>
+    ::parse_from(const std::string& input)
 {
     std::istringstream is(input);
-    std::string buffer, payloaz;
+    std::string buffer;
 
     if (!is.good())
     {
@@ -215,11 +220,14 @@ int Message<E>::parse_from(const std::string& input, bool decrypt)
 
     is >> _status;
 
-    is >> _oid;
+    is >> _oid >> std::ws;
 
-    is >> _timestamp;
+    if (has_timestamp)
+    {
+        is >> _timestamp >> std::ws;
+    }
 
-    is >> buffer;
+    getline(is, buffer);
 
     if (buffer.empty())
     {
@@ -227,19 +235,26 @@ int Message<E>::parse_from(const std::string& input, bool decrypt)
         return 0;
     }
 
-    base64_decode(buffer, payloaz);
-
-    if ( zlib_decompress(payloaz, _payload) == -1 )
+    if (encode)
     {
-        goto error;
-    }
+        ssl_util::base64_decode(buffer, _payload);
 
-    if ( decrypt && is_rsa_set() )
-    {
-        if ( rsa_private_decrypt(_payload, _payload) == -1 )
+        if ( compress && ssl_util::zlib_decompress(_payload, _payload) == -1 )
         {
             goto error;
         }
+
+        if ( encrypt && ssl_util::is_rsa_set() )
+        {
+            if ( ssl_util::rsa_private_decrypt(_payload, _payload) == -1 )
+            {
+                // Accept also not encrypted messages
+            }
+        }
+    }
+    else
+    {
+        _payload = buffer;
     }
 
     return 0;
@@ -253,49 +268,51 @@ error:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-template<typename E>
-int Message<E>::write_to(std::string& out, bool encrypt) const
+template<typename E, bool compress, bool encode, bool encrypt, bool has_timestamp>
+int Message<E, compress, encode, encrypt, has_timestamp>
+    ::write_to(std::string& out) const
 {
     out.clear();
 
-    std::string secret;
-    std::string payloaz;
-    std::string payloaz64;
-
-    if (!_payload.empty())
-    {
-        if (encrypt)
-        {
-            if (rsa_public_encrypt(_payload, secret) != 0)
-            {
-                return -1;
-            }
-        }
-        else
-        {
-            secret = _payload;
-        }
-
-        if (zlib_compress(secret, payloaz) == -1)
-        {
-            return -1;
-        }
-
-        if ( base64_encode(payloaz, payloaz64) == -1)
-        {
-            return -1;
-        }
-    }
-
     out = _type_str._to_str(_type);
     out += ' ';
-    out += _status.empty() ? "-" : _status;
+    out += _status;
     out += ' ';
     out += std::to_string(_oid);
     out += ' ';
-    out += std::to_string(_timestamp);
-    out += ' ';
-    out += payloaz64;
+
+    if (has_timestamp)
+    {
+        out += std::to_string(_timestamp);
+        out += ' ';
+    }
+
+    if (!_payload.empty())
+    {
+        if (encode)
+        {
+            std::string msg;
+
+            msg = _payload;
+
+            if (compress && ssl_util::zlib_compress(msg, msg) == -1)
+            {
+                return -1;
+            }
+
+            if ( ssl_util::base64_encode(msg, msg) == -1)
+            {
+                return -1;
+            }
+
+            out += msg;
+        }
+        else
+        {
+            out += _payload;
+        }
+    }
+
     out += '\n';
 
     return 0;
@@ -304,12 +321,13 @@ int Message<E>::write_to(std::string& out, bool encrypt) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-template<typename E>
-int Message<E>::write_to(int fd, bool encrypt) const
+template<typename E, bool compress, bool encode, bool encrypt, bool has_timestamp>
+int Message<E, compress, encode, encrypt, has_timestamp>
+    ::write_to(int fd) const
 {
     std::string out;
 
-    if ( write_to(out, encrypt) == -1)
+    if ( write_to(out) == -1)
     {
         return -1;
     }
@@ -322,12 +340,13 @@ int Message<E>::write_to(int fd, bool encrypt) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-template<typename E>
-int Message<E>::write_to(std::ostream& oss, bool encrypt) const
+template<typename E, bool compress, bool encode, bool encrypt, bool has_timestamp>
+int Message<E, compress, encode, encrypt, has_timestamp>
+    ::write_to(std::ostream& oss) const
 {
     std::string out;
 
-    if ( write_to(out, encrypt) == -1)
+    if ( write_to(out) == -1)
     {
         return -1;
     }
@@ -337,4 +356,4 @@ int Message<E>::write_to(std::ostream& oss, bool encrypt) const
     return 0;
 }
 
-#endif /*MONITOR_MESSAGE_H_*/
+#endif /*DRIVER_MESSAGE_H_*/

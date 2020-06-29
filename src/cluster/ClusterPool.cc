@@ -39,7 +39,7 @@ const int    ClusterPool::DEFAULT_CLUSTER_ID   = 0;
 ClusterPool::ClusterPool(SqlDB * db,
                          const VectorAttribute * _vnc_conf,
                          vector<const SingleAttribute *>& encrypted_attrs):
-    PoolSQL(db, Cluster::table), vnc_conf(_vnc_conf)
+    PoolSQL(db, one_db::cluster_table), vnc_conf(_vnc_conf)
 {
     ostringstream oss;
     string        error_str;
@@ -192,13 +192,13 @@ void ClusterPool::cluster_acl_filter(ostringstream& filter,
             break;
 
         case PoolObjectSQL::DATASTORE:
-            filter << " OR oid IN ( SELECT oid from " << Cluster::datastore_table
-                   << " WHERE ";
+            filter << " OR oid IN ( SELECT oid from "
+                   << one_db::cluster_datastore_table << " WHERE ";
             fc = ")";
             break;
 
         case PoolObjectSQL::NET:
-            filter << " OR oid IN ( SELECT oid from " << Cluster::network_table
+            filter << " OR oid IN ( SELECT oid from " << one_db::cluster_network_table
                    << " WHERE ";
             fc = ")";
             break;
@@ -230,8 +230,8 @@ int ClusterPool::query_datastore_clusters(int oid, set<int> &cluster_ids)
 
     cb.set_callback(&cluster_ids);
 
-    oss << "SELECT cid FROM " << Cluster::datastore_table << " WHERE oid = "
-        << oid;
+    oss << "SELECT cid FROM " << one_db::cluster_datastore_table
+        << " WHERE oid = " << oid;
 
     int rc = db->exec_rd(oss, &cb);
 
@@ -255,7 +255,7 @@ int ClusterPool::query_vnet_clusters(int oid, set<int> &cluster_ids)
 
     cb.set_callback(&cluster_ids);
 
-    oss << "SELECT cid FROM " << Cluster::network_table << " WHERE oid = "<<oid;
+    oss << "SELECT cid FROM " << one_db::cluster_network_table << " WHERE oid = "<<oid;
 
     int rc = db->exec_rd(oss, &cb);
 
@@ -280,12 +280,12 @@ int ClusterPool::add_to_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster
     switch (type)
     {
         case PoolObjectSQL::DATASTORE:
-            table = cluster->datastore_table;
-            names = cluster->datastore_db_names;
+            table = one_db::cluster_datastore_table;
+            names = one_db::cluster_datastore_db_names;
             break;
         case PoolObjectSQL::NET:
-            table = cluster->network_table;
-            names = cluster->network_db_names;
+            table = one_db::cluster_network_table;
+            names = one_db::cluster_network_db_names;
             break;
         case PoolObjectSQL::HOST:
             break;
@@ -337,10 +337,10 @@ int ClusterPool::del_from_cluster(PoolObjectSQL::ObjectType type, Cluster* clust
     switch (type)
     {
         case PoolObjectSQL::DATASTORE:
-            table = cluster->datastore_table;
+            table = one_db::cluster_datastore_table;
             break;
         case PoolObjectSQL::NET:
-            table = cluster->network_table;
+            table = one_db::cluster_network_table;
             break;
         case PoolObjectSQL::HOST:
             break;

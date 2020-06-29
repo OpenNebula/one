@@ -17,7 +17,6 @@
 #include "MarketPlaceManager.h"
 #include "MarketPlacePool.h"
 #include "MarketPlaceAppPool.h"
-#include "MarketPlaceManagerDriver.h"
 
 #include "ImagePool.h"
 #include "DatastorePool.h"
@@ -36,18 +35,18 @@ int MarketPlaceManager::import_app(
         std::string&       err)
 {
     std::string app_data, image_data, ds_data;
-	std::string * msg;
+    std::string * drv_msg;
 
-	Image * image;
-	Datastore * ds;
+    Image * image;
+    Datastore * ds;
 
-	int ds_id;
+    int ds_id;
 
-    const MarketPlaceManagerDriver* mpmd;
+    market_msg_t msg(MarketPlaceManagerMessages::IMPORT, "", appid, "");
 
     MarketPlaceApp * app = apppool->get_ro(appid);
 
-    if ( app == 0 )
+    if ( app == nullptr )
     {
         err = "Marketplace app no longer exists";
         return -1;
@@ -57,20 +56,27 @@ int MarketPlaceManager::import_app(
 
     MarketPlaceApp::Type type = app->get_type();
 
-	int app_id    = app->get_oid();
+    int app_id    = app->get_oid();
     int origin_id = app->get_origin_id();
 
     app->unlock();
+
+    auto mpmd = get();
+
+    if ( mpmd == nullptr )
+    {
+        goto error_driver;
+    }
 
     switch (type)
     {
         case MarketPlaceApp::IMAGE:
             image = ipool->get_ro(origin_id);
 
-			if ( image == 0 )
-			{
+            if ( image == nullptr )
+            {
                 goto error_noimage;
-			}
+            }
 
             image->to_xml(image_data);
 
@@ -80,20 +86,20 @@ int MarketPlaceManager::import_app(
 
             ds = dspool->get_ro(ds_id);
 
-			if ( ds == 0 )
-			{
+            if ( ds == nullptr )
+            {
                 goto error_nods;
-			}
+            }
 
             ds->to_xml(ds_data);
 
             ds->unlock();
 
-			if (imagem->set_app_clone_state(app_id, origin_id, err) != 0)
-			{
-				goto error_clone;
-			}
-			break;
+            if (imagem->set_app_clone_state(app_id, origin_id, err) != 0)
+            {
+                goto error_clone;
+            }
+            break;
 
         case MarketPlaceApp::VMTEMPLATE:
         case MarketPlaceApp::SERVICE_TEMPLATE:
@@ -101,18 +107,11 @@ int MarketPlaceManager::import_app(
             goto error_type;
     }
 
-    mpmd = get();
+    unique_ptr<string> drv_msg(format_message(app_data, market_data,
+                image_data + ds_data));
 
-    if ( mpmd == 0 )
-    {
-        goto error_driver;
-    }
-
-    msg = format_message(app_data, market_data, image_data + ds_data);
-
-    mpmd->importapp(appid, *msg);
-
-    delete msg;
+    msg.payload(*drv_msg);
+    mpmd->write(msg);
 
     return 0;
 
@@ -135,7 +134,7 @@ error_clone:
 error_common:
     app = apppool->get(appid);
 
-    if ( app == 0 )
+    if ( app == nullptr )
     {
         return -1;
     }
@@ -160,7 +159,7 @@ void MarketPlaceManager::release_app_resources(int appid)
 {
     MarketPlaceApp * app = apppool->get_ro(appid);
 
-    if (app == 0)
+    if (app == nullptr)
     {
         return;
     }
@@ -190,23 +189,19 @@ void MarketPlaceManager::release_app_resources(int appid)
 int MarketPlaceManager::delete_app(int appid, const std::string& market_data,
         std::string& error_str)
 {
-    MarketPlaceApp * app;
-    MarketPlace *    mp;
-
     std::string app_data;
-    std::string * msg;
 
-    const MarketPlaceManagerDriver* mpmd = get();
+    auto mpmd = get();
 
-    if ( mpmd == 0 )
+    if ( mpmd == nullptr )
     {
         error_str = "Error getting MarketPlaceManagerDriver";
         return -1;
     }
 
-    app = apppool->get_ro(appid);
+    MarketPlaceApp * app = apppool->get_ro(appid);
 
-    if (app == 0)
+    if (app == nullptr)
     {
         error_str = "Marketplace app no longer exists";
         return -1;
@@ -243,9 +238,9 @@ int MarketPlaceManager::delete_app(int appid, const std::string& market_data,
             return -1;
     }
 
-    mp = mppool->get(market_id);
+    MarketPlace * mp = mppool->get(market_id);
 
-    if ( mp != 0 )
+    if ( mp != nullptr )
     {
         mp->del_marketapp(appid);
 
@@ -254,11 +249,10 @@ int MarketPlaceManager::delete_app(int appid, const std::string& market_data,
         mp->unlock();
     }
 
-    msg = format_message(app_data, market_data, "");
+    unique_ptr<string> drv_msg(format_message(app_data, market_data, ""));
 
-    mpmd->deleteapp(appid, *msg);
-
-    delete msg;
+    market_msg_t msg(MarketPlaceManagerMessages::DELETE, "", appid, *drv_msg);
+    mpmd->write(msg);
 
     return 0;
 }

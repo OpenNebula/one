@@ -170,31 +170,3 @@ int QuotasSQL::drop(SqlDB *db)
 
     return rc;
 }
-
-/* ************************************************************************** */
-/* UserQuotas :: Database Access Functions                                    */
-/* ************************************************************************** */
-
-const char * UserQuotas::db_table = "user_quotas";
-
-const char * UserQuotas::db_names = "user_oid, body";
-
-const char * UserQuotas::db_oid_column = "user_oid";
-
-const char * UserQuotas::db_bootstrap =
-    "CREATE TABLE IF NOT EXISTS user_quotas ("
-    "user_oid INTEGER PRIMARY KEY, body MEDIUMTEXT)";
-
-/* ************************************************************************** */
-/* GroupQuotas :: Database Access Functions                                   */
-/* ************************************************************************** */
-
-const char * GroupQuotas::db_table = "group_quotas";
-
-const char * GroupQuotas::db_names = "group_oid, body";
-
-const char * GroupQuotas::db_oid_column = "group_oid";
-
-const char * GroupQuotas::db_bootstrap =
-    "CREATE TABLE IF NOT EXISTS group_quotas ("
-    "group_oid INTEGER PRIMARY KEY, body MEDIUMTEXT)";

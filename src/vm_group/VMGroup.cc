@@ -17,6 +17,7 @@
 #include "VMGroup.h"
 #include "VMGroupRole.h"
 #include "VMGroupRule.h"
+#include "OneDB.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -24,21 +25,9 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const char * VMGroup::table = "vmgroup_pool";
-
-const char * VMGroup::db_names = "oid, name, body, uid, gid, owner_u, group_u, "
-    "other_u";
-
-const char * VMGroup::db_bootstrap = "CREATE TABLE IF NOT EXISTS vmgroup_pool "
-    "(oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, "
-    "uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, "
-    "other_u INTEGER, UNIQUE(name,uid))";
-
-/* ------------------------------------------------------------------------ */
-
 VMGroup::VMGroup(int _uid, int _gid, const string& _uname, const string& _gname,
         int _umask, Template * group_template):
-    PoolObjectSQL(-1, VMGROUP, "", _uid, _gid, _uname, _gname, table)
+    PoolObjectSQL(-1, VMGROUP, "", _uid, _gid, _uname, _gname, one_db::vm_group_table)
 {
     if (group_template != 0)
     {
@@ -174,7 +163,7 @@ int VMGroup::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if ( replace )
     {
-        oss << "UPDATE " << table << " SET "
+        oss << "UPDATE " << one_db::vm_group_table << " SET "
             << "name = '"    <<  sql_name  << "', "
             << "body = '"    <<  sql_xml   << "', "
             << "uid = "      <<  uid       << ", "
@@ -186,7 +175,8 @@ int VMGroup::insert_replace(SqlDB *db, bool replace, string& error_str)
     }
     else
     {
-        oss << "INSERT INTO " << table << " (" << db_names << ") VALUES ("
+        oss << "INSERT INTO " << one_db::vm_group_table
+            << " (" << one_db::vm_group_db_names << ") VALUES ("
             <<          oid                 << ","
             << "'" <<   sql_name            << "',"
             << "'" <<   sql_xml             << "',"
@@ -224,6 +214,16 @@ error_generic:
 error_common:
     return -1;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VMGroup::bootstrap(SqlDB * db)
+{
+    ostringstream oss(one_db::vm_group_db_bootstrap);
+
+    return db->exec_local_wr(oss);
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

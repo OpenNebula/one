@@ -20,6 +20,7 @@
 #include "PoolSQL.h"
 #include "VirtualNetwork.h"
 #include "BitMap.h"
+#include "OneDB.h"
 
 #include <time.h>
 
@@ -166,7 +167,7 @@ public:
     int dump(std::string& oss, const std::string& where, int sid, int eid,
         bool desc)
     {
-        return PoolSQL::dump(oss, "VNET_POOL", "body", VirtualNetwork::table,
+        return PoolSQL::dump(oss, "VNET_POOL", "body", one_db::vn_table,
                 where, sid, eid, desc);
     }
 
@@ -196,7 +197,7 @@ public:
      */
     int search(vector<int>& oids, const string& where)
     {
-        return PoolSQL::search(oids, VirtualNetwork::table, where);
+        return PoolSQL::search(oids, one_db::vn_table, where);
     };
 
     //--------------------------------------------------------------------------

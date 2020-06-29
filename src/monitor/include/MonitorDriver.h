@@ -27,13 +27,11 @@
 #include <cstdarg>
 
 
-class MonitorDriver : public Driver<MonitorDriverMessages>
+class MonitorDriver : public Driver<monitor_msg_t>
 {
 public:
-    using message_t = Message<MonitorDriverMessages>;
-
     MonitorDriver(const std::string& c, const std::string& a, int ct):
-        Driver<MonitorDriverMessages>(c, a, ct)
+        Driver(c, a, ct)
     {
         register_action(MonitorDriverMessages::UNDEFINED,
                 &MonitorDriverProtocol::_undefined);
@@ -59,7 +57,7 @@ public:
 
     void start_monitor(int oid, const std::string& host_xml)
     {
-        message_t msg;
+        monitor_msg_t msg;
         NebulaService& ns = Monitor::instance();
 
         msg.type(MonitorDriverMessages::START_MONITOR);
@@ -71,7 +69,7 @@ public:
 
     void stop_monitor(int oid, const std::string& host_xml)
     {
-        message_t msg;
+        monitor_msg_t msg;
         NebulaService& ns = Monitor::instance();
 
         msg.type(MonitorDriverMessages::STOP_MONITOR);
