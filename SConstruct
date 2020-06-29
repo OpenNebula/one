@@ -111,7 +111,7 @@ main_env.Append(LIBPATH=[
     cwd+'/src/market',
     cwd+'/src/ipamm',
     cwd+'/src/data_model',
-    cwd+'/src/monitor/src/protocol'
+    cwd+'/src/protocol'
 ])
 
 # Compile flags
@@ -314,6 +314,7 @@ build_scripts = [
     'src/docker_machine/SConstruct',
     'src/monitor/SConstruct',
     'src/onedb/SConstruct',
+    'src/protocol/SConstruct',
     svncterm_path,
     'share/context/SConstruct'
 ]

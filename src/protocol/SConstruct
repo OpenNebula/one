@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('mon_env')
+Import('env')
 
 lib_name='nebula_protocol'
 
@@ -26,4 +26,4 @@ source_files=[
 ]
 
 # Build library
-mon_env.StaticLibrary(lib_name, source_files)
+env.StaticLibrary(lib_name, source_files)

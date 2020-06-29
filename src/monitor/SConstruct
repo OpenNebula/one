@@ -29,7 +29,6 @@ env.Append(CPPPATH=[
 
 env.Append(LIBPATH=[
     cwd+'/src/data_model',
-    cwd+'/src/protocol',
     cwd+'/src/monitor'
 ])
 
