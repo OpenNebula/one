@@ -35,7 +35,6 @@ int MarketPlaceManager::import_app(
         std::string&       err)
 {
     std::string app_data, image_data, ds_data;
-    std::string * drv_msg;
 
     Image * image;
     Datastore * ds;
@@ -107,11 +106,13 @@ int MarketPlaceManager::import_app(
             goto error_type;
     }
 
-    unique_ptr<string> drv_msg(format_message(app_data, market_data,
-                image_data + ds_data));
+    {
+        unique_ptr<string> drv_msg(format_message(app_data, market_data,
+                    image_data + ds_data));
 
-    msg.payload(*drv_msg);
-    mpmd->write(msg);
+        msg.payload(*drv_msg);
+        mpmd->write(msg);
+    }
 
     return 0;
 
