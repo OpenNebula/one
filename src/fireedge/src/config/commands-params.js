@@ -1,4 +1,4 @@
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -24,7 +24,7 @@ const hook = require('./commands/hook-commands');
 const host = require('./commands/host-commands');
 const image = require('./commands/image-commands');
 const market = require('./commands/market-commands');
-const system = require('./commands/system-commans');
+const system = require('./commands/system-commands');
 const template = require('./commands/template-commands');
 const user = require('./commands/user-commands');
 const vdc = require('./commands/vdc-commans');
