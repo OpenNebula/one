@@ -1,709 +1,131 @@
-#!/usr/bin/env ruby
+#!/bin/bash
 
-# Add '/usr/local/bin' to $PATH. In CentOS 7.3 gem bins are installed installed
-# in that path, but it's not in the $PATH.
-ENV['PATH'] += ENV['PATH'] + ':/usr/local/bin'
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
 
-require 'pp'
+set -e -o pipefail
 
-DEFAULT_PRE=%w{sunstone quota cloud auth_ldap vmware oneflow ec2_hybrid oca onedb market hooks serversync}
+if [ $# -gt 0 ] && [ "$*" != '--yes' ]; then
+    echo "Syntax: TARGET=[debian|redhat] $(basename "$0") [--yes]" >&2
+    exit 1
+fi
 
-if defined?(RUBY_VERSION) && RUBY_VERSION>="1.8.7"
-    SQLITE='sqlite3'
-else
-    SQLITE='sqlite3-ruby --version 1.2.0'
-end
+# Detect packaged gems and show a warning message
+GEMS_LOCATION='/usr/share/one/gems'
+if [ -d "$GEMS_LOCATION" ]; then
+    cat << EOF >&2
+WARNING: Running install_gems is not necessary anymore, as all the
+required dependencies are already installed by your packaging
+system into symlinked location $GEMS_LOCATION. Ruby gems
+installed by this script won't be used until this symlink exists.
+Remove the symlink before starting the OpenNebula services
+to use Ruby gems installed by this script. E.g. execute
 
-if !defined?(RUBY_VERSION) || RUBY_VERSION < '1.9.0'
-    $nokogiri='nokogiri --version "< 1.6.0"'
-    LDAP='net-ldap --version "< 0.9"'
-    ZENDESK_API='zendesk_api --version "< 1.5"'
-else
-    $nokogiri='nokogiri'
-    DEFAULT = DEFAULT_PRE + %w{hybrid}
-    LDAP='net-ldap --version "< 0.13"'
-    ZENDESK_API='zendesk_api --version "< 1.14.0"'
-end
+    # unlink $GEMS_LOCATION
 
-if !defined?(RUBY_VERSION) || RUBY_VERSION < '2.2.0'
-    RACK = 'rack --version "< 2.0.0"'
-    PG = 'pg --version "< 1.2.0"'
-else
-    RACK = 'rack'
-    PG = 'pg'
-end
+Execution continues in 15 seconds ...
+EOF
 
-TREETOP = 'treetop --version ">= 1.6.3"'
-DEFAULT = DEFAULT_PRE if !defined?(DEFAULT)
+    sleep 15
+    echo
+fi
 
+# detect target
+if command -v dpkg >/dev/null; then
+    TARGET=${TARGET:-debian}
+elif command -v rpm >/dev/null; then
+    TARGET=${TARGET:-redhat}
+fi
 
+# Install packages
+case "${TARGET}" in
+    'debian')
+        echo "* Install Build Dependencies for ${TARGET}"
 
-VMWARE = ['rbvmomi --version "~> 2.2.0"', 'json']
-if defined?(RUBY_VERSION) && RUBY_VERSION>="2.3"
-    VMWARE.push('vsphere-automation-cis')
-    VMWARE.push('vsphere-automation-vcenter')
-end
+        export DEBIAN_FRONTEND=noninteractive
 
-GROUPS={
-    :quota      => [SQLITE, 'sequel'],
-    :sunstone   => [RACK, 'sinatra', 'thin', 'memcache-client',
-                    'rotp', 'rqrcode', 'dalli', 'ipaddress',
-                    ZENDESK_API, SQLITE],
-    :cloud      => %w{amazon-ec2 sinatra thin uuidtools curb} << RACK,
-    :hybrid     => %w{configparser azure},
-    :auth_ldap  => LDAP,
-    :vmware     => VMWARE,
-    :oneflow    => ['sinatra', TREETOP, 'parse-cron'],
-    :ec2_hybrid => 'aws-sdk --version "~> 2.5"',
-    :oca        => 'ox',
-    :market     => 'aws-sdk',
-    :onedb      => ['mysql2', PG],
-    :hooks      => %w[zeromq ffi-rzmq],
-    :serversync => "augeas",
-    :gnuplot    => "gnuplot"
-}
+        apt-get update >/dev/null
 
-PACKAGES=GROUPS.keys
+        apt-get -y install \
+            ruby-dev make gcc libsqlite3-dev libcurl4-openssl-dev \
+            rake libxml2-dev libxslt1-dev patch g++ build-essential \
+            libssl-dev libaugeas-dev \
+            postgresql-server-dev-all \
+            >/dev/null
 
-GEM_TEST={
-    LDAP => 'net/ldap',
-    ZENDESK_API => 'zendesk_api'
-}
+        # default-libmysqlclient-dev OR libmysqlclient-dev
+        apt-get -y install default-libmysqlclient-dev >/dev/null 2>&1 || \
+            apt-get -y install libmysqlclient-dev >/dev/null
 
-DISTRIBUTIONS={
-    :debian => {
-        :id => ['Ubuntu', 'Debian'],
-        :dependencies_common => ['ruby-dev', 'make'],
-        :dependencies => {
-            SQLITE      => ['gcc', 'libsqlite3-dev'],
-            'mysql2'     => ['gcc', 'libssl-dev', ['default-libmysqlclient-dev', 'libmysqlclient-dev']],
-            PG          => ['gcc', 'postgresql-server-dev-all'],
-            'curb'      => ['gcc', 'libcurl4-openssl-dev'],
-            $nokogiri   => %w{gcc rake libxml2-dev libxslt1-dev patch},
-            'xmlparser' => ['gcc', 'libexpat1-dev'],
-            'thin'      => ['g++'],
-            'json'      => ['gcc'],
-            'zeromq'    => ['gcc', 'libzmq5', 'libzmq3-dev'],
-            'augeas'    => ['gcc', 'libaugeas-dev'],
-            'gnuplot'   => ['gcc']
-        },
-        :install_command_interactive => 'apt-get install',
-        :install_command => 'apt-get -y install',
-        :check_command => 'apt-cache show',
-        :gem_env    => {
-            'rake'      => '/usr/bin/rake'
-        }
-    },
-    :redhat => {
-        :id => ['CentOS', /^RedHat/, /^Scientific/, 'Fedora'],
-        :dependencies_common => ['ruby-devel', 'make', 'redhat-rpm-config'],
-        :dependencies => {
-            SQLITE      => ['gcc', 'sqlite-devel'],
-            'mysql2'     => ['gcc', 'mysql-devel', 'openssl-devel'],
-            PG          => ['gcc', 'postgresql-devel'],
-            'curb'      => ['gcc', 'curl-devel'],
-            $nokogiri   => %w{gcc rubygem-rake libxml2-devel libxslt-devel patch},
-            'xmlparser' => ['gcc', 'expat-devel'],
-            'thin'      => ['gcc-c++'],
-            'json'      => ['gcc'],
-            'zeromq'    => ['gcc', 'zeromq', 'zeromq-devel'],
-            'augeas'    => ['gcc', 'augeas-devel'],
-            'gnuplot'   => ['gcc']
-        },
-        :install_command_interactive => 'yum install',
-        :install_command => 'yum -y install',
-        :check_command => 'yum info',
-    }
-}
+        # workaround missing libxml2 headers on some Ubuntu/Debian
+        ln -s /usr/include/libxml2/libxml /usr/include/libxml || :
+        ;;
+    'redhat')
+        echo "* Install Build Dependencies for ${TARGET}"
 
+        yum -y install ruby-devel make gcc sqlite-devel mysql-devel \
+            openssl-devel curl-devel rubygem-rake libxml2-devel \
+            libxslt-devel patch expat-devel gcc-c++ rpm-build augeas-devel \
+            postgresql-devel rubygems \
+            >/dev/null
+        ;;
+    *)
+        echo "ERROR: Unknown target ${TARGET}" >&2
+        exit 1
+        ;;
+esac
 
-class String
-    def unindent(spaces=4)
-        self.gsub!(/^ {#{spaces}}/, '')
-    end
-end
+# Install Bundler
+if ! command -v bundler >/dev/null; then
+    echo '* Install Bundler'
 
-def good_gem_version?
-    v=`gem --version`.strip
-    version=Gem::Version.new(v)
-    version>=Gem::Version.new('1.3.6')
-end
-
-def select_distribution
-    items=[]
-    counter=0
-
-    puts(<<-EOT.unindent(8))
-        Select your distribution or press enter to continue without
-        installing dependencies.
-
-EOT
-
-    DISTRIBUTIONS.each do |name, dist|
-        names=dist[:id].map do |r|
-            if Regexp===r
-                r.source.gsub(/[^\w\d]/, '')
-            else
-                r
-            end
-        end.join('/')
-        text="#{items.length}. #{names}"
-
-        items << name
-
-        puts text
-    end
-
-    puts
-
-    options=(0..items.length).to_a.map {|k| k.to_s }
-
-    option=STDIN.readline[0,1]
-
-    if options.include?(option)
-        item=items[option.to_i]
-        [item, DISTRIBUTIONS[items[option.to_i]]]
-    else
-        nil
-    end
-end
-
-def install_rubygems
-    if !good_gem_version?
-        puts(<<-EOT.unindent())
-            The rubygems version installed is too old to install some required
-            libraries. We are about to update your rubygems version. If you
-            want to do this by other means cancel this installation with
-            CTRL+C now.
-
-            Press ENTER to continue...
-
-EOT
-
-        if @interactive
-            STDIN.readline
-        end
-
-        `gem install rubygems-update --version '= 1.3.6'`
-
-        if $?.exitstatus!=0
-            STDERR.puts "Error updating rubygems"
-            exit(-1)
-        end
-
-        update_rubygems_path=[
-            '/usr/bin/update_rubygems',
-            '/var/lib/gems/1.8/bin/update_rubygems',
-            '/var/lib/gems/1.9/bin/update_rubygems'
-        ]
-
-        installed=false
-
-        update_rubygems_path.each do |path|
-            if File.exist?(path)
-                `#{path}`
-
-                if $?.exitstatus!=0
-                    STDERR.puts "Error executing update_rubygems"
-                    exit(-1)
-                end
-
-                installed=true
+    for VERSION in '' '~>2' '<2'; do
+        if [ -z "$VERSION" ]; then
+            if gem install bundler >/dev/null 2>&1; then
                 break
-             end
-        end
-
-        if !installed
-            STDERR.puts "Could not find update_rubygems executable"
-            exit(-1)
-        end
-    end
-end
-
-def installed_gems
-    text=`gem list --no-versions`
-    if $?.exitstatus!=0
-        nil
-    else
-        text.split(/\s+/)
-    end
-end
-
-def try_library(name, error_message)
-    if GEM_TEST[name.to_s]
-        lib_test=GEM_TEST[name.to_s]
-    else
-        lib_test=name.to_s
-    end
-
-    begin
-        require lib_test
-    rescue LoadError, Exception
-        STDERR.puts error_message
-        exit(-1)
-    end
-end
-
-def install_warning(packages)
-#    puts "Use -h for help"
-#    puts
-    puts "About to install the gems for these components:"
-    puts "* " << packages.join("\n* ")
-    puts
-    puts "Press enter to continue..."
-
-    if @interactive
-        yes=STDIN.readline
-    end
-end
-
-def help
-    puts "Specify the package dependencies from this list:"
-    puts "* " << PACKAGES.join("\n* ")
-    puts
-    puts "If no parameters are specified then this list will be used:"
-    puts DEFAULT.join(' ')
-    puts
-    puts "Use --check parameter to search for non installed libraries."
-    puts "Use --no-nokogiri parameter if you don't want to install"
-    puts "nokogiri gem."
-    puts "Use --showallpackages to show the list of packages required"
-    puts "to compile the gems."
-    puts "Use --showallgems to show the complete list of required gems."
-end
-
-def which_gems(packages)
-    ([$nokogiri]+packages.map do |package|
-        GROUPS[package.to_sym]
-    end).flatten.uniq
-end
-
-def get_gems(packages)
-    ([$nokogiri]+packages.map do |package|
-        GROUPS[package.to_sym]
-    end).flatten.uniq-installed_gems
-end
-
-
-def detect_distro
-    begin
-        lsb_info=`lsb_release -a 2>/dev/null`
-    rescue
-    end
-
-    if $?.exitstatus!=0
-        STDERR.puts(<<-EOT.unindent(12))
-            lsb_release command not found. If you are using a RedHat based
-            distribution install redhat-lsb
-
-EOT
-        return nil
-    end
-
-    distribution_id=nil
-
-    lsb_info.scan(/^Distributor ID:\s*(.*?)$/) do |m|
-        distribution_id=m.first.strip
-    end
-
-    return nil if !distribution_id
-
-    distro=nil
-
-    DISTRIBUTIONS.find do |dist, info|
-        info[:id].find do |dist_id|
-            dist_id===distribution_id
-        end
-    end
-end
-
-def get_dependencies(gems, dependencies, check_command)
-    deps=[]
-
-    gems.each do |gem_name|
-        next unless dependencies.has_key?(gem_name)
-
-        dependencies[gem_name].each do |pkg|
-            if pkg.is_a? Array
-                alt_pkg = nil
-
-                pkg.each do |p|
-                    out = `#{check_command} #{p} 2>/dev/null`
-
-                    if $?.exitstatus==0 && !out.empty?
-                        alt_pkg = p
-                        break
-                    end
-                end
-
-                if alt_pkg
-                    deps << alt_pkg
-                else
-                    STDERR.puts "Could not find any suitable package from candidates:"
-                    STDERR.puts pkg.join(", ")
-                    exit(-1)
-                end
-            else
-                deps << pkg
-            end
-        end
-    end
-
-    deps.flatten!
-    deps.compact!
-    deps.uniq!
-
-    deps
-end
-
-def install_dependencies(gems, distro)
-    if !distro
-        puts(<<-EOT.unindent(12))
-            Distribution not detected. Make sure you manually install the
-            dependencies described in Building from Source from the OpenNebula
-            documentation.
-
-            Press enter to continue...
-        EOT
-        STDIN.readline
-    else
-        puts "Distribution \"#{distro.first}\" detected."
-        deps=get_dependencies(gems, distro.last[:dependencies],
-                              distro.last[:check_command])
-        deps+=distro.last[:dependencies_common]
-
-        if deps.length==0
-            return
-        end
-
-        puts "About to install these dependencies:"
-        puts "* " << deps.join("\n* ")
-        puts
-        puts "Press enter to continue..."
-
-        if @interactive
-            STDIN.readline
-        end
-
-        if @interactive
-            install_command = distro.last[:install_command_interactive]
+            fi
         else
-            install_command = distro.last[:install_command]
-        end
+            if gem install bundler --version "$VERSION" >/dev/null 2>&1; then
+                break
+            fi
+        fi
+    done
 
-        command=install_command+" " << deps.join(' ')
-        puts command
-        rc = system command
+    if ! command -v bundler >/dev/null; then
+        echo "ERROR: Failed to install Bundler" >&2
+        exit 1
+    fi
+fi
 
-        if !rc
-            STDERR.puts 'Error installing dependencies'
-            exit(-1)
-        end
+# Find Gemfile location and pass to Bundler
+echo '* Install Gem Dependencies'
 
-        if distro.first == :debian
-            # on Debian-like platforms, the augeas gem build might fail
-            # due to incompatible libxml include paths
-            unless File.exists?('/usr/include/libxml')
-                require 'fileutils'
+for GEMFILE in \
+    "${PWD}/Gemfile" \
+    "${ONE_LOCATION}/share/Gemfile" \
+    "/usr/share/one/Gemfile"
+do
+    if [ -f "${GEMFILE}" ]; then
+        bundle install --system --gemfile="${GEMFILE}" >/dev/null
 
-                FileUtils.ln_s('/usr/include/libxml2/libxml',
-                               '/usr/include/libxml')
-            end
-        end
-    end
-end
+        echo 'Successfully done!'
+        exit 0
+    fi
+done
 
-def run_command(cmd)
-    puts cmd
-    system cmd
-    #system "true"
-
-    if $?!=0
-        STDERR.puts "Error executing #{cmd}"
-        exit(-1)
-    end
-end
-
-def bundler_install
-    rc = system("bundler install --system --gemfile='#{$gemfile}'")
-
-    if !rc
-        STDERR.puts "Error installing gems"
-        exit(-1)
-    end
-end
-
-def bundler_check
-    rc = system("bundler check --gemfile='#{$gemfile}'")
-
-    if !rc
-        exit(-1)
-    end
-end
-
-def install_bundler_gem
-    require "rubygems"
-    gems = Gem::Dependency.new("bundler")
-
-    if gems.matching_specs.empty?
-        rc = nil
-
-        # Bundler 2.0.x requires Ruby 2.3+
-        # https://github.com/OpenNebula/one/issues/2778
-        [nil, '~>2', '<2'].each do |version|
-            if version
-                rc = system("gem install bundler --version '#{version}'")
-            else
-                rc = system("gem install bundler")
-            end
-
-            break if rc
-        end
-
-        if !rc
-            STDERR.puts "Error installing bundler"
-            exit(-1)
-        end
-    end
-end
-
-def install_gems(packages, bundler = false)
-    gems_location = '/usr/share/one/gems'
-    if File.directory?(gems_location)
-        STDERR.puts(<<-EOT.unindent(12))
-            WARNING: Running install_gems is not necessary anymore, as all the
-            required dependencies are already installed by your packaging
-            system into symlinked location #{gems_location}. Ruby gems
-            installed by this script won't be used until this symlink exists.
-            Remove the symlink before starting the OpenNebula services
-            to use Ruby gems installed by this script. E.g. execute
-
-                # unlink #{gems_location}
-
-            Execution continues in 15 seconds ...
-EOT
-
-        sleep(15)
-    end
-
-    if bundler
-        gems_list=which_gems(packages)
-    else
-        gems_list=get_gems(packages)
-    end
-
-    if gems_list.empty?
-        puts "Gems already installed"
-        exit(0)
-    end
-
-    dist=detect_distro
-    if !dist
-        if !@interactive
-            STDERR.puts "Distribution not detected"
-            exit 1
-        else
-            dist=select_distribution
-        end
-    end
-
-    install_dependencies(gems_list, dist)
-
-    if bundler
-        bundler_install
-        return
-    end
-
-    packages_string=gems_list.join(' ')
-
-    prefix=""
-
-    if dist && dist.last[:gem_env]
-        prefix=dist.last[:gem_env].collect do |name, value|
-            "#{name}=\"#{value}\""
-        end.join(' ')+' '
-    end
-
-    command_string = "#{prefix}gem install --no-document"
-
-    install_warning(packages)
-
-    special_gems=gems_list.select {|g| g.match(/\s/) }
-    special_gems.each do |gem|
-        cmd=command_string+" " << gem
-        run_command(cmd)
-    end
-
-    simple_gems=gems_list.select {|g| !(g.match(/\s/)) }
-    if simple_gems and !simple_gems.empty?
-        cmd=command_string+" " << simple_gems.join(' ')
-        run_command(cmd)
-    end
-end
-
-def check_lib(lib)
-    begin
-        require lib
-        true
-    rescue LoadError, Exception
-        false
-    end
-end
-
-def show_allgems(packages)
-    all=which_gems(packages)
-    puts all.join("\n")
-end
-
-def show_allpackages(packages)
-    gems=which_gems(packages)
-    distro=detect_distro
-
-    if !distro
-        distro=select_distribution
-    end
-
-    deps=get_dependencies(gems, distro.last[:dependencies],
-                          distro.last[:check_command])
-    deps+=distro.last[:dependencies_common]
-
-    if deps.length==0
-        return
-    end
-    puts deps.join("\n")
-end
-
-def check_gems(packages, bundler = false)
-    if bundler
-        bundler_check
-        return
-    end
-
-    list=get_gems(packages).compact
-    gems=list.map {|g| g.strip.split(/\s+/).first }
-
-    not_installed=Array.new
-
-    gems.each do |lib_name|
-        if !check_lib(lib_name)
-            not_installed << lib_name
-        end
-    end
-
-    if not_installed.empty?
-        puts "All ruby libraries installed"
-        exit(0)
-    else
-        STDERR.puts "These ruby libraries are not installed:"
-        STDERR.puts ""
-        STDERR.puts "* "+not_installed.join("\n* ")
-        exit(-1)
-    end
-end
-
-def find_gemfile_path
-    paths = []
-    paths << "#{Dir.pwd}/Gemfile"
-    paths << "#{File.expand_path(File.dirname(__FILE__))}/Gemfile"
-    paths << "#{ENV["ONE_LOCATION"]}/share/install_gems/Gemfile" \
-             if ENV["ONE_LOCATION"]
-    paths << "/usr/share/one/install_gems/Gemfile"
-
-    path = nil
-
-    paths.each do |p|
-        if File.exist?(p)
-            path = p
-            break
-        end
-    end
-
-    path
-end
-
-try_library :rubygems, <<-EOT.unindent
-    rubygems required to use this tool
-
-    Use one of these methods:
-
-        * Debian/Ubuntu
-            apt-get install rubygems libopenssl-ruby
-
-        * RHEL/CENTOS
-            yum install rubygems
-
-        * Specific rubygems package for your distro
-
-        * Follow the instructions from http://rubygems.org/pages/download
-EOT
-
-try_library :openssl, <<-EOT.unindent
-    ruby openssl libraries are needed. They usually come as companion
-    package to ruby.
-EOT
-
-install_rubygems
-
-command=''
-params=ARGV
-
-bundler = true
-
-if params.include?('--no-nokogiri')
-    params-=['--no-nokogiri']
-    $nokogiri=nil
-end
-
-if params.include?('--no-bundler')
-    params-=['--no-bundler']
-    bundler = false
-else
-    install_bundler_gem
-    $gemfile = find_gemfile_path
-
-    if !$gemfile
-       STDERR.puts "Can not find Gemfile"
-       exit(-1)
-    end
-end
-
-if params.include?('-h')
-    params-=['-h']
-    command='help'
-elsif params.include?('--check')
-    params-=['--check']
-    command='check'
-elsif params.include?('--showallgems')
-    params-=['--showallgems']
-    command='showallgems'
-elsif params.include?('--showallpackages')
-    params-=['--showallpackages']
-    command='showallpackages'
-elsif params.include?('--yes')
-    params-=['--yes']
-    @interactive = false
-    command='install'
-else
-    @interactive = true
-    command='install'
-end
-
-if params.length>0
-    packages=params
-else
-    packages=DEFAULT
-end
-
-case command
-when 'help'
-    help
-    exit(0)
-when 'check'
-    check_gems(packages, bundler)
-when 'showallgems'
-    show_allgems(packages)
-when 'showallpackages'
-    show_allpackages(packages)
-when 'install'
-    install_gems(packages, bundler)
-end
+# Fail if no Gemfile found
+echo "ERROR: No Gemfile found" >&2
+exit 1
