@@ -28,7 +28,7 @@ const Header = ({ display, displayMenu: displayMenuFromProps, title }) => {
     displayMenuFromProps(!display);
   };
   return (
-    <AppBar position="sticky" className={classnames('header')}>
+    <AppBar position="fixed" className={classnames('header')}>
       <Toolbar>
         <IconButton
           onClick={displayMenu}
