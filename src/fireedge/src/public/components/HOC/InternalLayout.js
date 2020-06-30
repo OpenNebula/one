@@ -14,7 +14,7 @@
 /* -------------------------------------------------------------------------- */
 
 import React from 'react';
-import { Drawer, Box, Grid } from '@material-ui/core';
+import { Drawer, Box, Container } from '@material-ui/core';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Header from '../containers/Header';
@@ -23,30 +23,15 @@ import PrincipalMenu from '../containers/PrincipalMenu';
 import { showMenu } from '../../actions';
 
 const InternalLayout = ({ children, display, displayMenu, title }) => (
-  <Box
-    style={{
-      display: 'flex',
-      flexDirection: 'column',
-      flexBasis: '100%'
-    }}
-  >
+  <Box display="flex" width="100%">
     <Header title={title} />
     <Drawer anchor="left" open={display} onClose={() => displayMenu(false)}>
       <PrincipalMenu />
     </Drawer>
-    <Grid container style={{ flexGrow: 1 }}>
-      <Grid item xs={12} style={{ flexGrow: 1, height: '100%' }}>
-        {children}
-      </Grid>
-      <Grid
-        item
-        xs={12}
-        className={'footer'}
-        style={{ bottom: 0, position: 'sticky' }}
-      >
-        <Footer />
-      </Grid>
-    </Grid>
+    <Container component="main" style={{ paddingTop: 96, paddingBottom: 96, height: '100vh' }}>
+      {children}
+    </Container>
+    <Footer />
   </Box>
 );
 

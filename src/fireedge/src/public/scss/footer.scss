@@ -13,10 +13,16 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-.footer{
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: auto;
+  right: 0;
+  width: 100%;
+  z-index: 1100;
   background-color: $quaternary;
   text-align: center;
-  padding: .3rem;
+  padding: .5rem;
   a{
     color: $secondary
   }

@@ -14,18 +14,16 @@
 /* -------------------------------------------------------------------------- */
 
 import React from 'react';
-import { Grid, Link } from '@material-ui/core';
+import { Box, Link } from '@material-ui/core';
 import classnames from 'classnames';
 import constants from '../../../constants';
 
 const { by } = constants;
 const { text, url } = by;
 const Footer = () => (
-  <Grid className={classnames('footer')}>
-    <Grid item>
+  <Box className={classnames('footer')}>
       <Link href={url}>{text}</Link>
-    </Grid>
-  </Grid>
+  </Box>
 );
 
 export default Footer;
