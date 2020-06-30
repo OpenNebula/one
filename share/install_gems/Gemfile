@@ -1,90 +1,139 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+################################################################################
+# Defaults
+################################################################################
+
+ruby '~> 2'
 source 'https://rubygems.org'
+ruby_version = Gem::Version.new(RUBY_VERSION)
 
-if RUBY_VERSION < '2.1.0'
-    gem 'nokogiri', '< 1.7'
-elsif RUBY_VERSION < '2.3.0'
-    gem 'nokogiri', '< 1.10'
-else
-    gem 'nokogiri'
-end
+################################################################################
+# Gems only in one ruby version
+################################################################################
 
-if RUBY_VERSION < '2.0.0'
-    gem 'net-ldap', '< 0.13'              # auth
-    gem 'mysql2', '< 0.5.0'               # onedb
-    gem 'mime-types', '< 3.0'             # hybrid (azure)
-else
-    gem 'net-ldap'                        # auth
-    gem 'mysql2'                          # onedb
-end
-
-if RUBY_VERSION < '2.0.0'
-    gem 'public_suffix', '< 1.5.0'
-elsif RUBY_VERSION < '2.1.0'
-    gem 'public_suffix', '< 3.0.0'
-else
-    gem 'public_suffix'
-end
-
-if RUBY_VERSION < '2.2.0'
-    gem 'rack', '< 2.0.0'                 # sunstone, cloud, oneflow
-    gem 'minitest', '< 5.12.0'            # packethost
-    gem 'pg', '< 1.2.0'                   # onedb
-else
-    gem 'rack'                            # sunstone, cloud, oneflow
-    gem 'pg'                              # onedb
-end
-
-if RUBY_VERSION >= '2.4.0'
+if ruby_version >= Gem::Version.new('2.4.0')
     gem 'xmlrpc'
-    gem 'webauthn'                        # sunstone
 end
 
-if RUBY_VERSION < '2.1'
+if ruby_version < Gem::Version.new('2.1.0')
     gem 'scrub_rb'
 end
 
-if RUBY_VERSION < '2.3'
-    gem 'zendesk_api', '< 1.17.0'         # sunstone
-    gem 'rqrcode', '< 1.0.0'              # sunstone
-else
-    gem 'zendesk_api'                     # sunstone
-    gem 'rqrcode'                         # sunstone
+################################################################################
+# gems groups
+################################################################################
+
+if ruby_version < Gem::Version.new('2.1.0')
+    nokogiri = '< 1.7'
+elsif ruby_version < Gem::Version.new('2.3.0')
+    nokogiri = '< 1.10'
 end
 
-if RUBY_VERSION >= '2.3'
-    gem 'vsphere-automation-cis', '~> 0.4.6'
-    gem 'vsphere-automation-vcenter', '~> 0.4.6'
+ps = '< 3.0.0' if ruby_version < Gem::Version.new('2.1.0')
+
+if ruby_version < Gem::Version.new('2.2.0')
+    rack     = '< 2.0.0'
+    minitest = '< 5.12.0'
+    pg       = '< 1.2.0'
 end
 
-gem 'json'                                # sunstone, oneflow, cloud, ...
-gem 'sqlite3'                             # quota, onedb
-gem 'treetop', '>= 1.6.3'                 # oneflow
-gem 'sequel'                              # quota, oneb
-gem 'sinatra'                             # sunstone, cloud, oneflow
-gem 'thin'                                # sunstone, cloud
-gem 'memcache-client'                     # sunstone
-gem 'dalli'                               # sunstone
-gem 'rotp'                                # sunstone
-gem 'amazon-ec2'                          # cloud
-gem 'uuidtools'                           # cloud
-gem 'curb'                                # cloud
-gem 'configparser'                        # hybrid
-gem 'azure_mgmt_compute'                  # hybrid
-gem 'azure_mgmt_monitor'                  # hybrid
-gem 'azure_mgmt_network'                  # hybrid
-gem 'azure_mgmt_resources'                # hybrid
-gem 'azure_mgmt_storage'                  # hybrid
-gem 'rbvmomi', '~> 2.2.0'                 # vmware
-gem 'parse-cron'                          # oneflow
-gem 'aws-sdk-ec2', '>=1.151'              # ec2_hybrid
-gem 'aws-sdk-cloudwatch'                  # ec2_hybrid
-gem 'ox'                                  # oca
-gem 'highline', '~> 1.7'                  # oneprovision
-gem 'faraday', '~> 0.15'                  # packethost
-gem 'faraday_middleware', '~> 0.12'       # packethost
-gem 'activesupport', '~> 4.2'             # packethost
-gem 'i18n', '~> 0.9'                      # packethost
-gem 'ffi-rzmq', '~> 2.0.7'                # onehem (hooks)
-gem 'ipaddress', '~> 0.8.3'               # sunstone, oneflow
-gem 'augeas', '~> 0.6'                    # serversync
-gem 'gnuplot'                             # monitoring host plot
+if ruby_version < Gem::Version.new('2.3.0')
+    zendesk = '< 1.17.0'
+    rq      = '< 1.0.0'
+end
+
+gem 'ffi-rzmq', '~> 2.0.7'
+gem 'net-ldap'
+gem 'nokogiri', nokogiri
+gem 'public_suffix', ps
+
+group :cli do
+    gem 'augeas', '~> 0.6'
+    gem 'gnuplot'
+    gem 'highline', '~> 1.7'
+    gem 'mysql2'
+    gem 'pg', pg
+    gem 'sqlite3'
+    gem 'sequel'
+end
+
+group :hybrid do
+    gem 'aws-sdk-ec2', '>=1.151'
+    gem 'aws-sdk-cloudwatch'
+    gem 'azure_mgmt_compute'
+    gem 'azure_mgmt_monitor'
+    gem 'azure_mgmt_network'
+    gem 'azure_mgmt_resources'
+    gem 'azure_mgmt_storage'
+    gem 'configparser'
+end
+
+group :packethost do
+    gem 'minitest', minitest
+    gem 'faraday', '~> 0.15'
+    gem 'faraday_middleware', '~> 0.12'
+    gem 'activesupport', '~> 4.2'
+    gem 'i18n', '~> 0.9'
+end
+
+group :cloud, :oneflow, :sunstone do
+    gem 'rack', rack
+    gem 'json'
+    gem 'sinatra'
+end
+
+group :cloud do
+    gem 'thin'
+    gem 'amazon-ec2'
+    gem 'uuidtools'
+    gem 'curb'
+end
+
+group :oneflow, :sunstone do
+    gem 'ipaddress', '~> 0.8.3'
+end
+
+group :oneflow do
+    gem 'treetop', '>= 1.6.3'
+    gem 'parse-cron'
+end
+
+group :sunstone do
+    if ruby_version >= Gem::Version.new('2.4.0')
+        gem 'webauthn'
+    end
+
+    gem 'zendesk_api', zendesk
+    gem 'rqrcode', rq
+    gem 'memcache-client'
+    gem 'dalli'
+    gem 'rotp'
+end
+
+group :oca do
+    gem 'ox'
+end
+
+group :vmware do
+    if ruby_version >= Gem::Version.new('2.3.0')
+        gem 'vsphere-automation-cis', '~> 0.4.6'
+        gem 'vsphere-automation-vcenter', '~> 0.4.6'
+    end
+
+    gem 'rbvmomi', '~> 2.2.0'
+end
