@@ -33,6 +33,7 @@ AllCops:
     - share/vendor/ruby/gems/packethost/packethost.gemspec
     - share/install_gems/Gemfile
     - share/install_gems/install_gems
+    - share/install_gems/install_gems-obsolete
     - src/authm_mad/remotes/dummy/authenticate
     - src/authm_mad/remotes/plain/authenticate
     - src/authm_mad/remotes/ldap/authenticate
