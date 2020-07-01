@@ -117,7 +117,7 @@ class Cluster
     #  VI Client Initialization
     #-----------------------------------------------------------------------
     def connect_vcenter
-        # Avoid leaving open sessions to vCenter
+        # Avoid leaving open sessions to vCenter
         @vic.close_connection if @vic
         @vic     = VCenterDriver::VIClient.new(connection, @hid)
         @cluster = VCenterDriver::ClusterComputeResource
