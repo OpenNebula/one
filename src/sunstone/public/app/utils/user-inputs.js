@@ -262,19 +262,19 @@ define(function(require) {
     opts.networks = {};
     opts.custom_attrs = {};
     if(
-      template_json && 
-      template_json.DOCUMENT && 
-      template_json.DOCUMENT.TEMPLATE && 
-      template_json.DOCUMENT.TEMPLATE.BODY && 
+      template_json &&
+      template_json.DOCUMENT &&
+      template_json.DOCUMENT.TEMPLATE &&
+      template_json.DOCUMENT.TEMPLATE.BODY &&
       template_json.DOCUMENT.TEMPLATE.BODY.networks
     ){
       opts.networks = template_json.DOCUMENT.TEMPLATE.BODY.networks;
     }
     if(
-      template_json && 
-      template_json.DOCUMENT && 
-      template_json.DOCUMENT.TEMPLATE && 
-      template_json.DOCUMENT.TEMPLATE.BODY && 
+      template_json &&
+      template_json.DOCUMENT &&
+      template_json.DOCUMENT.TEMPLATE &&
+      template_json.DOCUMENT.TEMPLATE.BODY &&
       template_json.DOCUMENT.TEMPLATE.BODY.custom_attrs
     ){
       opts.customs = template_json.DOCUMENT.TEMPLATE.BODY.custom_attrs;
@@ -391,7 +391,7 @@ define(function(require) {
                     $("<div>",{class: "row"}).append(
                       $("<div>",{class:"columns small-12"}).append(
                         $("<select>",{
-                          class: "changePlaceDatatable", 
+                          class: "changePlaceDatatable",
                           wizard_field: 'type_'+vnet_attr.name,
                           'data-nametable': vnet_attr.name,
                           'data-idtable': unique_id,
@@ -407,7 +407,7 @@ define(function(require) {
                       ).add(
                         $("<div>",
                           {
-                            class:"columns small-12", 
+                            class:"columns small-12",
                             id:"placeDatatable_"+index
                           }
                         ).html(table.dataTableHTML)
@@ -553,9 +553,9 @@ define(function(require) {
       var options = '<option value="">'+Locale.tr("Without VM Group")+'</option>';
       vmgroups_attrs.map(function(vmgroup){
         if(
-          vmgroup && 
-          vmgroup.VM_GROUP && 
-          vmgroup.VM_GROUP.NAME && 
+          vmgroup &&
+          vmgroup.VM_GROUP &&
+          vmgroup.VM_GROUP.NAME &&
           vmgroup.VM_GROUP.ID &&
           vmgroup.VM_GROUP.TEMPLATE
         ){
@@ -571,7 +571,6 @@ define(function(require) {
       html += "<select data-role='"+opts.role+"'>"+options+"</select>";
       html += "</div>";
       div.append(html);
-      html = "";
     }
 
     network_attrs = [];
