@@ -295,16 +295,6 @@ define(function(require) {
     "SL_PRIMARYIPADDRESS"
   ];
 
-  var NIC_IP_ATTRS = [
-    "IP",
-    "IP6",
-    "IP6_GLOBAL",
-    "IP6_ULA",
-    "VROUTER_IP",
-    "VROUTER_IP6_GLOBAL",
-    "VROUTER_IP6_ULA"
-  ];
-
   var NIC_ALIAS_IP_ATTRS = [
     "IP",
     "IP6",
@@ -417,9 +407,6 @@ define(function(require) {
     },
     "suspend": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "suspend");
-    },
-    "save_as_template": function(params) {
-      OpenNebulaAction.simple_action(params, RESOURCE, "save_as_template");
     },
     "resume": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "resume");
@@ -810,7 +797,7 @@ define(function(require) {
     // infoextended: alias will be group by nic
     return Config.isExtendedVmInfo
       ? groupStrFuntion(element, nics)
-      : (ips.length == 0 && nics && nics.length > 0)
+      : (ips.length == 0 && nics.length > 0)
         ? $.map(nics, function(nic) {
           if (nic["IP"]) {
             return nic["IP"];
@@ -839,7 +826,7 @@ define(function(require) {
     if ((ips.length < numIPs)) return ipsStr;
 
     // Take the first x 
-    insideHtml = "";
+    var insideHtml = "";
     for (let i = 0; i < numIPs-1; i++) {
       insideHtml += ips.shift();
       if (i != numIPs-2){insideHtml+="<br>";}
