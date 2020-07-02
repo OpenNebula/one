@@ -765,22 +765,22 @@ private:
     /**
      *  First MAC in the range
      */
-    unsigned int mac[2];
+    unsigned int mac[2] = {0};
 
     /**
      *  Binary representation of the IPv6 address global unicast prefix
      */
-    unsigned int global6[2];
+    unsigned int global6[2] = {0};
 
     /**
      *  Binary representation of the IPv6 address site unicast prefix
      */
-    unsigned int ula6[2];
+    unsigned int ula6[2] = {0};
 
     /**
      *  Binary representation of the first IPv6 address in the AR. No SLAAC ARs
      */
-    unsigned int ip6[4];
+    unsigned int ip6[4] = {0};
 
     /**
      *  Security Group IDs for this Address Range

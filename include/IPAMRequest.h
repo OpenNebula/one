@@ -190,7 +190,7 @@ private:
 
         int rc = response.parse_str_or_xml(*msg, error);
 
-        free(msg);
+        delete msg;
 
         return rc;
     }

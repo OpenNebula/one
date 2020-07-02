@@ -52,8 +52,6 @@ int Template::parse(const char * filename, char **error_msg)
 
     YY_BUFFER_STATE file_buffer = 0;
 
-    template_lex_init(&scanner);
-
     *error_msg = 0;
 
     FILE * template_in = fopen (filename, "r");
@@ -64,6 +62,8 @@ int Template::parse(const char * filename, char **error_msg)
 
         return -1;
     }
+
+    template_lex_init(&scanner);
 
     file_buffer = template__create_buffer(template_in, YY_BUF_SIZE, scanner);
 

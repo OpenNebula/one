@@ -295,7 +295,7 @@ protected:
     std::string   method_name;
 
     // Configuration for authentication level of the API call
-    PoolObjectSQL::ObjectType auth_object;
+    PoolObjectSQL::ObjectType auth_object = PoolObjectSQL::ObjectType::NONE;
     AuthRequest::Operation    auth_op;
 
     VMActions::Action vm_action;
