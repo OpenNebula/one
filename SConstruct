@@ -201,6 +201,9 @@ main_env.Append(enterprise=ARGUMENTS.get('enterprise', 'no'))
 # Sunstone minified files generation
 main_env.Append(sunstone=ARGUMENTS.get('sunstone', 'no'))
 
+# FireEdge minified files generation
+main_env.Append(fireedge=ARGUMENTS.get('fireedge', 'no'))
+
 # TODO this should be aligned with one-ee-tools workflows
 # Onedb Marshal files generation
 main_env.Append(marshal=ARGUMENTS.get('marshal', 'no'))
@@ -309,6 +312,7 @@ build_scripts = [
     'src/ipamm/SConstruct',
     'src/sunstone/public/locale/languages/SConstruct',
     'src/sunstone/public/SConstruct',
+    'src/fireedge/SConstruct',
     'share/rubygems/SConstruct',
     'src/client/SConstruct',
     'src/docker_machine/SConstruct',

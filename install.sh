@@ -43,6 +43,8 @@ usage() {
  echo "-c: install client utilities: OpenNebula cli and ec2 client files"
  echo "-s: install OpenNebula Sunstone"
  echo "-p: do not install OpenNebula Sunstone non-minified files"
+ echo "-F: install OpenNebula FireEdge"
+ echo "-P: do not install OpenNebula FireEdge non-minified files"
  echo "-G: install only OpenNebula Gate"
  echo "-f: install only OpenNebula Flow"
  echo "-r: remove Opennebula, only useful if -d was not specified, otherwise"
@@ -53,7 +55,7 @@ usage() {
 }
 #-------------------------------------------------------------------------------
 
-PARAMETERS=":u:g:d:ehkrlcsporlfG"
+PARAMETERS=":u:g:d:ehkrlcspFPorlfG"
 
 INSTALL_ETC="yes"
 UNINSTALL="no"
@@ -62,6 +64,8 @@ CLIENT="no"
 ONEGATE="no"
 SUNSTONE="no"
 SUNSTONE_DEV="yes"
+FIREEDGE="no"
+FIREEDGE_DEV="yes"
 ONEFLOW="no"
 ONEADMIN_USER=`id -u`
 ONEADMIN_GROUP=`id -g`
@@ -79,6 +83,8 @@ while getopts $PARAMETERS opt; do
         G) ONEGATE="yes" ;;
         s) SUNSTONE="yes" ;;
         p) SUNSTONE_DEV="no" ;;
+        F) FIREEDGE="yes" ;;
+        P) FIREEDGE_DEV="no" ;;
         f) ONEFLOW="yes" ;;
         u) ONEADMIN_USER="$OPTARG" ;;
         g) ONEADMIN_GROUP="$OPTARG" ;;
@@ -104,6 +110,7 @@ if [ -z "$ROOT" ] ; then
     VAR_LOCATION="/var/lib/one"
     ONEGATE_LOCATION="$LIB_LOCATION/onegate"
     SUNSTONE_LOCATION="$LIB_LOCATION/sunstone"
+    FIREEDGE_LOCATION="$LIB_LOCATION/fireedge"
     ONEFLOW_LOCATION="$LIB_LOCATION/oneflow"
     ONEHEM_LOCATION="$LIB_LOCATION/onehem"
     SYSTEM_DS_LOCATION="$VAR_LOCATION/datastores/0"
@@ -115,7 +122,7 @@ if [ -z "$ROOT" ] ; then
     MAN_LOCATION="/usr/share/man/man1"
     VM_LOCATION="/var/lib/one/vms"
     DOCS_LOCATION="/usr/share/doc/one"
-    MAIN_JS_LOCATION="$VAR_LOCATION/sunstone"
+    SUNSTONE_MAIN_JS_LOCATION="$VAR_LOCATION/sunstone"
     DOCKER_MACHINE_LOCATION="src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula"
 
     if [ "$CLIENT" = "yes" ]; then
@@ -126,7 +133,14 @@ if [ -z "$ROOT" ] ; then
         CHOWN_DIRS=""
     elif [ "$SUNSTONE" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION \
-                   $SUNSTONE_LOCATION $ETC_LOCATION $MAIN_JS_LOCATION"
+                   $SUNSTONE_LOCATION $ETC_LOCATION $SUNSTONE_MAIN_JS_LOCATION"
+
+        DELETE_DIRS="$MAKE_DIRS"
+
+        CHOWN_DIRS=""
+    elif [ "$FIREEDGE" = "yes" ]; then
+        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION \
+                   $ETC_LOCATION $FIREEDGE_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
 
@@ -157,7 +171,7 @@ if [ -z "$ROOT" ] ; then
                    $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION \
                    $SYSTEM_DS_LOCATION $DEFAULT_DS_LOCATION $MAN_LOCATION \
                    $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION \
-                   $MAIN_JS_LOCATION $ONEHEM_LOCATION"
+                   $SUNSTONE_MAIN_JS_LOCATION $ONEHEM_LOCATION"
 
         DELETE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION $VAR_LOCATION \
                      $RUN_LOCATION $SHARE_DIRS"
@@ -175,6 +189,7 @@ else
     LOCK_LOCATION="$VAR_LOCATION/lock"
     ONEGATE_LOCATION="$LIB_LOCATION/onegate"
     SUNSTONE_LOCATION="$LIB_LOCATION/sunstone"
+    FIREEDGE_LOCATION="$LIB_LOCATION/fireedge"
     ONEFLOW_LOCATION="$LIB_LOCATION/oneflow"
     ONEHEM_LOCATION="$LIB_LOCATION/onehem"
     SYSTEM_DS_LOCATION="$VAR_LOCATION/datastores/0"
@@ -184,7 +199,7 @@ else
     MAN_LOCATION="$ROOT/share/man/man1"
     VM_LOCATION="$VAR_LOCATION/vms"
     DOCS_LOCATION="$ROOT/share/doc"
-    MAIN_JS_LOCATION="$VAR_LOCATION/sunstone"
+    SUNSTONE_MAIN_JS_LOCATION="$VAR_LOCATION/sunstone"
     DOCKER_MACHINE_LOCATION="src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula"
 
     if [ "$CLIENT" = "yes" ]; then
@@ -198,7 +213,12 @@ else
         DELETE_DIRS="$MAKE_DIRS"
     elif [ "$SUNSTONE" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION \
-                   $SUNSTONE_LOCATION $ETC_LOCATION $MAIN_JS_LOCATION"
+                   $SUNSTONE_LOCATION $ETC_LOCATION $SUNSTONE_MAIN_JS_LOCATION"
+
+        DELETE_DIRS="$MAKE_DIRS"
+    elif [ "$FIREEDGE" = "yes" ]; then
+        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION \
+                   $FIREEDGE_LOCATION $ETC_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
     elif [ "$ONEFLOW" = "yes" ]; then
@@ -215,7 +235,7 @@ else
                    $INCLUDE_LOCATION $SHARE_LOCATION $SYSTEM_DS_LOCATION \
                    $DEFAULT_DS_LOCATION $MAN_LOCATION $DOCS_LOCATION \
                    $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION \
-                   $MAIN_JS_LOCATION $ONEHEM_LOCATION $LOCK_LOCATION $RUN_LOCATION"
+                   $SUNSTONE_MAIN_JS_LOCATION $ONEHEM_LOCATION $LOCK_LOCATION $RUN_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
 
@@ -453,6 +473,8 @@ SUNSTONE_MINIFIED_DIRS="$SUNSTONE_LOCATION/public \
                $SUNSTONE_LOCATION/public/images \
                $SUNSTONE_LOCATION/public/images/logos"
 
+FIREEDGE_DIRS="$FIREEDGE_LOCATION"
+
 ONEFLOW_DIRS="$ONEFLOW_LOCATION/lib \
               $ONEFLOW_LOCATION/lib/strategy \
               $ONEFLOW_LOCATION/lib/models"
@@ -489,7 +511,7 @@ elif [ "$SUNSTONE_DEV" = "no" ]; then
                 $SUNSTONE_DIRS $SUNSTONE_MINIFIED_DIRS $ONEFLOW_DIRS"
 else
     MAKE_DIRS="$MAKE_DIRS $SHARE_DIRS $ETC_DIRS $LIB_DIRS $VAR_DIRS \
-                $SUNSTONE_DIRS $ONEFLOW_DIRS"
+                $SUNSTONE_DIRS $FIREEDGE_DIRS $ONEFLOW_DIRS"
 fi
 
 #-------------------------------------------------------------------------------
@@ -750,6 +772,15 @@ INSTALL_SUNSTONE_ETC_FILES=(
     SUNSTONE_ETC_VIEW_KVM:$ETC_LOCATION/sunstone-views/kvm
     SUNSTONE_ETC_VIEW_VCENTER:$ETC_LOCATION/sunstone-views/vcenter
     SUNSTONE_ETC_VIEW_MIXED:$ETC_LOCATION/sunstone-views/mixed
+)
+
+INSTALL_FIREEDGE_MINIFIED_DIRS=(
+  FIREEDGE_MINIFIED_FILES:$FIREEDGE_LOCATION
+  FIREEDGE_BIN_FILES:$BIN_LOCATION
+)
+
+INSTALL_FIREEDGE_DEV_DIRS=(
+  FIREEDGE_DEV_FILES:$FIREEDGE_LOCATION
 )
 
 INSTALL_ONEGATE_FILES=(
@@ -2538,6 +2569,20 @@ src/sunstone/public/locale/languages/tr_TR.js \
 src/sunstone/public/locale/languages/tr_datatable.txt"
 
 #-----------------------------------------------------------------------------
+# FireEdge files
+#-----------------------------------------------------------------------------
+
+FIREEDGE_BIN_FILES="src/fireedge/bin/fireedge-server"
+
+FIREEDGE_MINIFIED_FILES="src/fireedge/dist"
+
+FIREEDGE_DEV_FILES="src/fireedge/src \
+                src/fireedge/webpack.config.js \
+                src/fireedge/copyStaticAssets.js \
+                src/fireedge/package.json \
+                src/fireedge/config.yaml"
+
+#-----------------------------------------------------------------------------
 # OneGate files
 #-----------------------------------------------------------------------------
 
@@ -2714,7 +2759,6 @@ do_file() {
     fi
 }
 
-
 if [ "$CLIENT" = "yes" ]; then
     INSTALL_SET=${INSTALL_CLIENT_FILES[@]}
 elif [ "$ONEGATE" = "yes" ]; then
@@ -2729,6 +2773,13 @@ elif [ "$SUNSTONE" = "yes" ]; then
                  ${INSTALL_SUNSTONE_PUBLIC_DEV_DIR[@]}
                  ${INSTALL_SUNSTONE_FILES[@]}"
   fi
+elif [ "$FIREEDGE" = "yes" ]; then
+  if [ "$FIREEDGE_DEV" = "no" ]; then
+    INSTALL_SET="${INSTALL_FIREEDGE_MINIFIED_DIRS[@]}"
+  else
+    INSTALL_SET="${INSTALL_FIREEDGE_DEV_DIRS[@]} \
+                 ${INSTALL_FIREEDGE_MINIFIED_DIRS[@]}"
+  fi
 elif [ "$ONEFLOW" = "yes" ]; then
     INSTALL_SET="${INSTALL_ONEFLOW_FILES[@]}"
 elif [ "$DOCKER_MACHINE" = "yes" ]; then
@@ -2740,9 +2791,17 @@ elif [ "$SUNSTONE_DEV" = "no" ]; then
                  ${INSTALL_ONEFLOW_FILES[@]} \
                  ${INSTALL_ONEHEM_FILES[@]} \
                  ${INSTALL_ONEPROVISION_FILES[@]}"
+elif [ "$FIREEDGE_DEV" = "no" ]; then
+    INSTALL_SET="${INSTALL_FILES[@]} \
+                 ${INSTALL_FIREEDGE_MINIFIED_DIRS[@]}\
+                 ${INSTALL_ONEGATE_FILES[@]} \
+                 ${INSTALL_ONEFLOW_FILES[@]} \
+                 ${INSTALL_ONEHEM_FILES[@]} \
+                 ${INSTALL_ONEPROVISION_FILES[@]}"
 else
     INSTALL_SET="${INSTALL_FILES[@]} \
                  ${INSTALL_SUNSTONE_FILES[@]} ${INSTALL_SUNSTONE_PUBLIC_DEV_DIR[@]}\
+                 ${INSTALL_FIREEDGE_MINIFIED_DIRS[@]} ${INSTALL_FIREEDGE_DEV_DIRS[@]}\
                  ${INSTALL_ONEGATE_FILES[@]} \
                  ${INSTALL_ONEFLOW_FILES[@]} \
                  ${INSTALL_ONEHEM_FILES[@]} \
