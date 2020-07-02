@@ -292,6 +292,8 @@ void VirtualMachineManager::_cleanup(unique_ptr<vm_msg_t> msg)
 
         vm->log("VMM", Log::INFO, "Host successfully cleaned.");
 
+        vm->unlock();
+
         lcm->trigger(LCMAction::CLEANUP_SUCCESS, id);
     }
     else
@@ -386,13 +388,6 @@ void VirtualMachineManager::_migrate(unique_ptr<vm_msg_t> msg)
         lcm->trigger(LCMAction::DEPLOY_FAILURE, id);
     }
 }
-
-/* -------------------------------------------------------------------------- */
-
-// void VirtualMachineManager::_poll(unique_ptr<vm_msg_t> msg)
-// {
-
-// }
 
 /* -------------------------------------------------------------------------- */
 
@@ -550,6 +545,8 @@ void VirtualMachineManager::_snapshotcreate(unique_ptr<vm_msg_t> msg)
         vmpool->update(vm);
 
         vm->log("VMM", Log::INFO, "VM Snapshot successfully created.");
+
+        vm->unlock();
 
         lcm->trigger(LCMAction::SNAPSHOT_CREATE_SUCCESS, id);
     }
