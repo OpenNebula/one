@@ -222,3 +222,64 @@ class OpenNebula::LdapAuth
         groups.compact.uniq
     end
 end
+
+
+# ---------------------------------------------------------------------------- #
+# Helper functions to parse ldap_auth.conf server entries
+# ---------------------------------------------------------------------------- #
+def to_array(name)
+    if name.is_a? Array
+        name
+    elsif name.is_a? Hash
+        if name.keys.size == 1
+            [name.values].flatten
+        else
+            STDERR.puts "invalid group configuration: #{name}"
+            exit(-1)
+        end
+    else
+        [name]
+    end
+end
+
+def get_server_order(opts, user)
+    order = []
+
+    if opts[:order] && opts[:match_user_regex]
+        STDERR.puts ":order and :match_user_regex are mutually exclusive"
+        exit(-1)
+    end
+
+    if opts[:order]
+        if opts[:order].class != Array
+            STDERR.puts ":order value malformed, must be an Array"
+            exit(-1)
+        end
+
+        opts[:order].each do |name|
+            order << to_array(name)
+        end
+
+    elsif opts[:match_user_regex]
+        if opts[:match_user_regex].class != Hash || opts[:match_user_regex].empty?
+            STDERR.puts ":match_user_regex value malformed, must be an Hash"
+            exit(-1)
+        end
+
+        opts[:match_user_regex].each do |regex, server|
+            if user =~ /#{regex}/i
+                order << to_array(server)
+            end
+        end
+
+        if order.empty?
+            STDERR.puts "User #{user} does not mach any regex"
+        end
+
+    else
+        STDERR.puts "missing either :order or :match_user_regex in configuration"
+        exit(-1)
+    end
+
+    return order
+end

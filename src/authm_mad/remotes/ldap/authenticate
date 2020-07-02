@@ -63,32 +63,11 @@ end
 
 options=YAML.load(File.read(ETC_LOCATION+'/auth/ldap_auth.conf'))
 
-order=options[:order]
+order = get_server_order(options, user)
 
-if !order
-    STDERR.puts ":order value not found, the configuration file could be malformed"
-    order=options.keys
-elsif order.class != Array
-    STDERR.puts ":order value malformed, must be an Array"
-    exit(-1)
-end
+STDERR.puts "Using group of servers: #{servers.join(', ')}" if order.length>1
 
-order.each do |name|
-    if name.is_a? Array
-        servers = name
-    elsif name.is_a? Hash
-        if name.keys.size == 1
-            servers = [name.values].flatten
-        else
-            STDERR.puts ":order contains invalid group configuration: #{name}"
-            exit(-1)
-        end
-    else
-        servers = [name]
-    end
-
-    STDERR.puts "Using group of servers: #{servers.join(', ')}" if servers.length>1
-
+order.each do |servers|
     servers.each do |server_name|
         STDERR.puts "Trying LDAP server #{server_name} "
 
