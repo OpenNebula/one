@@ -21,7 +21,6 @@
 #include "ObjectXML.h"
 #include "VMActions.h"
 
-using namespace std;
 
 /**
  *  The History class, it represents an execution record of a Virtual Machine.
@@ -36,19 +35,19 @@ public:
         int oid,
         int seq,
         int hid,
-        const string& hostname,
+        const std::string& hostname,
         int cid,
-        const string& vmm,
-        const string& tmm,
+        const std::string& vmm,
+        const std::string& tmm,
         int           ds_id,
-        const string& vm_info);
+        const std::string& vm_info);
 
     ~History(){};
 
     /**
      *  Function to write the History Record in an output stream
      */
-    friend ostream& operator<<(ostream& os, const History& history);
+    friend std::ostream& operator<<(std::ostream& os, const History& history);
 
     /**
      * Function to print the History object into a string in
@@ -56,7 +55,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    std::string& to_xml(std::string& xml) const;
 
     /**
      * Function to print the History object into a string in
@@ -64,7 +63,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml_short(string& xml) const;
+    std::string& to_xml_short(std::string& xml) const;
 
 private:
     friend class VirtualMachine;
@@ -75,58 +74,58 @@ private:
     // ----------------------------------------
     // History fields
     // ----------------------------------------
-    int     oid;
-    int     seq;
+    int          oid;
+    int          seq;
 
-    int     uid;
-    int     gid;
-    int     req_id;
+    int          uid;
+    int          gid;
+    int          req_id;
 
-    int     hid;
-    string  hostname;
-    int     cid;
+    int          hid;
+    std::string  hostname;
+    int          cid;
 
-    string  vmm_mad_name;
-    string  tm_mad_name;
+    std::string  vmm_mad_name;
+    std::string  tm_mad_name;
 
-    int     ds_id;
+    int          ds_id;
 
-    time_t  stime;
-    time_t  etime;
+    time_t       stime;
+    time_t       etime;
 
-    time_t  prolog_stime;
-    time_t  prolog_etime;
+    time_t       prolog_stime;
+    time_t       prolog_etime;
 
-    time_t  running_stime;
-    time_t  running_etime;
+    time_t       running_stime;
+    time_t       running_etime;
 
-    time_t  epilog_stime;
-    time_t  epilog_etime;
+    time_t       epilog_stime;
+    time_t       epilog_etime;
 
     VMActions::Action action;
 
-    string  vm_info;
+    std::string  vm_info;
 
     // -------------------------------------------------------------------------
     // Non-persistent history fields
     // -------------------------------------------------------------------------
     // Local paths
-    string  transfer_file;
-    string  deployment_file;
-    string  context_file;
-    string  token_file;
+    std::string  transfer_file;
+    std::string  deployment_file;
+    std::string  context_file;
+    std::string  token_file;
 
     // Remote paths
-    string  checkpoint_file;
-    string  rdeployment_file;
-    string  system_dir;
+    std::string  checkpoint_file;
+    std::string  rdeployment_file;
+    std::string  system_dir;
 
     /**
      *  Writes the history record in the DB
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-    int insert(SqlDB * db, string& error_str)
+    int insert(SqlDB * db, std::string& error_str)
     {
         error_str.clear();
 
@@ -180,7 +179,7 @@ private:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_db_xml(string& xml) const;
+    std::string& to_db_xml(std::string& xml) const;
 
     /**
      * Function to print the History object into a string in
@@ -189,11 +188,11 @@ private:
      *  @param database If it is true, the TEMPLATE element will be included
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml, bool database) const;
+    std::string& to_xml(std::string& xml, bool database) const;
 
-    string& to_json(string& json) const;
+    std::string& to_json(std::string& json) const;
 
-    string& to_token(string& text) const;
+    std::string& to_token(std::string& text) const;
 
     /**
      *  Rebuilds the object from an xml node
@@ -214,7 +213,7 @@ private:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str)
+    int from_xml(const std::string &xml_str)
     {
         ObjectXML::update_from_str(xml_str);
 

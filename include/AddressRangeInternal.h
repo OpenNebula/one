@@ -20,7 +20,6 @@
 #include <string>
 
 #include "AddressRange.h"
-#include "AddressRangePool.h"
 
 class VectorAttribute;
 
@@ -53,7 +52,8 @@ public:
      *
      *    @return 0 if success
      */
-    int allocate_addr(unsigned int index, unsigned int rsize, string& error_msg)
+    int allocate_addr(unsigned int index, unsigned int rsize,
+                      std::string& error_msg)
     {
         return 0;
     }
@@ -66,7 +66,8 @@ public:
      *
      *    @return 0 if success
      */
-    int get_addr(unsigned int& index, unsigned int rsize, string& error_msg)
+    int get_addr(unsigned int& index, unsigned int rsize,
+                 std::string& error_msg)
     {
         if ( rsize == 1 )
         {
@@ -83,7 +84,7 @@ public:
      *
      *    @return 0 if success
      */
-    int free_addr(unsigned int index, string& msg)
+    int free_addr(unsigned int index, std::string& msg)
     {
         return 0;
     };

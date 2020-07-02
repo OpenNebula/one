@@ -24,7 +24,6 @@
 class ClusterPoolXML;
 class MonitorPoolXML;
 
-using namespace std;
 
 class HostPoolXML : public PoolXML
 {
@@ -64,7 +63,7 @@ public:
 
 protected:
 
-    int get_suitable_nodes(vector<xmlNodePtr>& content)
+    int get_suitable_nodes(std::vector<xmlNodePtr>& content)
     {
         return get_nodes("/HOST_POOL/HOST[STATE=1 or STATE=2]", content);
     };

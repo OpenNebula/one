@@ -21,12 +21,11 @@
 #include "ObjectXML.h"
 #include "PoolObjectAuth.h"
 
-using namespace std;
 
 class DatastoreXML : public ObjectXML
 {
 public:
-    DatastoreXML(const string &xml_doc):ObjectXML(xml_doc)
+    DatastoreXML(const std::string &xml_doc):ObjectXML(xml_doc)
     {
         init_attributes();
     };
@@ -42,7 +41,7 @@ public:
      *    @param error error message
      *    @return true if the datastore can host the VM
      */
-    bool test_capacity(long long vm_disk_mb, string & error) const;
+    bool test_capacity(long long vm_disk_mb, std::string & error) const;
 
     /**
      *  Tests whether a new VM can be hosted by the datastore
@@ -51,7 +50,7 @@ public:
      */
     bool test_capacity(long long vm_disk_mb) const
     {
-        string tmp_st;
+        std::string tmp_st;
         return test_capacity(vm_disk_mb, tmp_st);
     }
 
@@ -103,7 +102,7 @@ public:
 private:
 
     int oid;
-    set<int> cluster_ids;
+    std::set<int> cluster_ids;
 
     int uid;
     int gid;

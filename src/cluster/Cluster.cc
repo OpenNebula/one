@@ -18,8 +18,11 @@
 #include "GroupPool.h"
 #include "Nebula.h"
 #include "OneDB.h"
+#include "DatastorePool.h"
 
 #include <sstream>
+
+using namespace std;
 
 /* ************************************************************************** */
 /* Cluster :: Constructor/Destructor                                          */

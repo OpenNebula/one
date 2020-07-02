@@ -22,7 +22,6 @@
 #include "ObjectXML.h"
 #include "Client.h"
 
-using namespace std;
 
 class PoolXML : public ObjectXML
 {
@@ -31,7 +30,7 @@ public:
      *
      *
      */
-    const map<int, ObjectXML*>& get_objects() const
+    const std::map<int, ObjectXML*>& get_objects() const
     {
         return objects;
     };
@@ -67,17 +66,17 @@ public:
             return -1;
         }
 
-        vector<xmlrpc_c::value> values =
+        std::vector<xmlrpc_c::value> values =
                         xmlrpc_c::value_array(result).vectorValueValue();
 
         bool   success = xmlrpc_c::value_boolean( values[0] );
-        string message = xmlrpc_c::value_string(  values[1] );
+        std::string message = xmlrpc_c::value_string(  values[1] );
 
         if( !success )
         {
-            ostringstream oss;
+            std::ostringstream oss;
 
-            oss << "ONE returned error while retrieving pool info:" << endl;
+            oss << "ONE returned error while retrieving pool info:" << std::endl;
             oss << message;
 
             NebulaLog::log("POOL", Log::ERROR, oss);
@@ -86,7 +85,7 @@ public:
 
         update_from_str(message);
 
-        vector<xmlNodePtr> nodes;
+        std::vector<xmlNodePtr> nodes;
 
         get_suitable_nodes(nodes);
 
@@ -110,9 +109,7 @@ public:
      */
     virtual ObjectXML * get(int oid) const
     {
-        map<int, ObjectXML *>::const_iterator it;
-
-        it = objects.find(oid);
+        auto it = objects.find(oid);
 
         if ( it == objects.end() )
         {
@@ -133,9 +130,7 @@ public:
      */
     virtual ObjectXML * erase(int oid)
     {
-        map<int, ObjectXML *>::iterator it;
-
-        it = objects.find(oid);
+        auto it = objects.find(oid);
 
         if ( it == objects.end() )
         {
@@ -159,9 +154,7 @@ public:
      */
     virtual bool insert(int oid, ObjectXML * obj)
     {
-        pair<map<int, ObjectXML *>::iterator, bool> rc;
-
-        rc = objects.insert(pair<int,ObjectXML*>(oid, obj));
+        auto rc = objects.insert(std::pair<int,ObjectXML*>(oid, obj));
 
         return rc.second;
     }
@@ -189,7 +182,7 @@ protected:
     /**
      *
      */
-    virtual int get_suitable_nodes(vector<xmlNodePtr>& content) = 0;
+    virtual int get_suitable_nodes(std::vector<xmlNodePtr>& content) = 0;
 
     /**
      *
@@ -201,9 +194,7 @@ protected:
      */
     void flush()
     {
-        map<int,ObjectXML*>::iterator it;
-
-        for (it=objects.begin();it!=objects.end();it++)
+        for (auto it=objects.begin();it!=objects.end();it++)
         {
             delete it->second;
         }
@@ -228,7 +219,7 @@ protected:
     /**
      * Hash map contains the suitable [id, object] pairs.
      */
-    map<int, ObjectXML *> objects;
+    std::map<int, ObjectXML *> objects;
 };
 
 #endif /* POOL_XML_H_ */

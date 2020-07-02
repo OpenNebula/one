@@ -163,12 +163,12 @@ private:
     /**
      *  XML representation for this request <AR>...</AR>
      */
-    string ar_xml;
+    std::string ar_xml;
 
     /**
      * Address request representation
      */
-    string address_xml;
+    std::string address_xml;
 
     /**
      *  Parse a response from an IPAM driver OpenNebula template or XML

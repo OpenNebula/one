@@ -48,12 +48,12 @@ public:
      */
     int allocate(int                      uid,
                  int                      gid,
-                 const string&            uname,
-                 const string&            gname,
+                 const std::string&       uname,
+                 const std::string&       gname,
                  int                      umask,
                  Template *               template_contents,
                  int *                    oid,
-                 string&                  error_str)
+                 std::string&             error_str)
     {
         *oid = PoolSQL::allocate(
             new VirtualRouter(-1, uid, gid, uname, gname, umask, template_contents),
@@ -121,7 +121,7 @@ public:
      *    @param where SQL clause
      *    @return 0 on success
      */
-    int search(vector<int>& oids, const string& where)
+    int search(std::vector<int>& oids, const std::string& where)
     {
         return PoolSQL::search(oids, one_db::vr_table, where);
     };

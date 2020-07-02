@@ -71,7 +71,7 @@ void ExtendedAttributeSet::init_attribute_map(const std::string& id_name,
 
         ExtendedAttribute * a = attribute_factory(*it, id);
 
-        a_set.insert(make_pair(id, a));
+        a_set.insert(std::make_pair(id, a));
     }
 };
 

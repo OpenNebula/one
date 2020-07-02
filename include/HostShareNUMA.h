@@ -122,7 +122,7 @@ public:
     /**
      *  Prints the NUMA node to an output stream.
      */
-    friend ostream& operator<<(ostream& o, const HostShareNode& n);
+    friend std::ostream& operator<<(std::ostream& o, const HostShareNode& n);
 
 private:
     friend class HostShareNUMA;
@@ -337,7 +337,7 @@ public:
      *    @param _vt vms_thread
      *    @return 0 on success
      */
-    int from_xml_node(const vector<xmlNodePtr> &ns, unsigned int _vt);
+    int from_xml_node(const std::vector<xmlNodePtr> &ns, unsigned int _vt);
 
     /**
      *  Updates the NUMA node information with monitor data
@@ -358,7 +358,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    std::string& to_xml(std::string& xml) const;
 
     /**
      *  Test if the virtual nodes and topology request fits in the host.
@@ -418,7 +418,7 @@ public:
     /**
      *  Prints the NUMA nodes to an output stream.
      */
-    friend ostream& operator<<(ostream& o, const HostShareNUMA& n);
+    friend std::ostream& operator<<(std::ostream& o, const HostShareNUMA& n);
 
     HostShareNUMA& operator=(const HostShareNUMA& other);
 

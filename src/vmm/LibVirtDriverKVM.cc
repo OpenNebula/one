@@ -28,6 +28,8 @@
 #include <libgen.h>
 #include <math.h>
 
+using namespace std;
+
 const float LibVirtDriver::CGROUP_BASE_CPU_SHARES = 1024;
 
 const int LibVirtDriver::CEPH_DEFAULT_PORT = 6789;

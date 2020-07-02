@@ -65,7 +65,7 @@ public:
      *   @param discovered hosts
      *   @param target_time Filters hosts with last_mon_time <= target_time
      */
-    void discover(set<int> * discovered_hosts, time_t target_time);
+    void discover(std::set<int> * discovered_hosts, time_t target_time);
 
 protected:
     void add_object(xmlNodePtr node) override

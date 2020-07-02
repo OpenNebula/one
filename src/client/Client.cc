@@ -27,6 +27,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 
+using namespace std;
+
 Client * Client::_client = 0;
 
 /* -------------------------------------------------------------------------- */

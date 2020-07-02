@@ -18,13 +18,8 @@
 #define DISPATCH_MANAGER_H_
 
 #include "ActionManager.h"
-#include "HostPool.h"
 #include "VirtualMachinePool.h"
-#include "VirtualRouterPool.h"
-#include "ClusterPool.h"
-#include "UserPool.h"
 
-using namespace std;
 
 extern "C" void * dm_action_loop(void *arg);
 
@@ -33,6 +28,10 @@ class TransferManager;
 class LifeCycleManager;
 class VirtualMachineManager;
 class ImageManager;
+class ClusterPool;
+class HostPool;
+class VirtualRouterPool;
+class UserPool;
 
 struct RequestAttributes;
 
@@ -192,7 +191,7 @@ public:
      *    in a wrong a state
      */
     int terminate(int vid, bool hard, const RequestAttributes& request,
-        string& error_str);
+        std::string& error_str);
 
     /**
      *  Shuts down a VM, but it is saved in the system DS instead of destroyed.
@@ -203,7 +202,7 @@ public:
      *    in a wrong a state
      */
     int undeploy(int vid, bool hard, const RequestAttributes& ra,
-            string& error_str);
+            std::string& error_str);
 
     /**
      *  Powers off a VM.
@@ -214,7 +213,7 @@ public:
      *    in a wrong a state
      */
     int poweroff(int vid, bool hard, const RequestAttributes& ra,
-            string& error_str);
+            std::string& error_str);
 
     /**
      *  Holds a VM.
@@ -223,7 +222,7 @@ public:
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
-    int hold(int vid, const RequestAttributes& ra, string& error_str);
+    int hold(int vid, const RequestAttributes& ra, std::string& error_str);
 
     /**
      *  Releases a VM.
@@ -232,7 +231,7 @@ public:
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
-    int release(int vid, const RequestAttributes& ra, string& error_str);
+    int release(int vid, const RequestAttributes& ra, std::string& error_str);
 
     /**
      *  Stops a VM.
@@ -241,7 +240,7 @@ public:
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
-    int stop(int vid, const RequestAttributes& ra, string& error_str);
+    int stop(int vid, const RequestAttributes& ra, std::string& error_str);
 
     /**
      *  Suspends a VM.
@@ -250,7 +249,7 @@ public:
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
-    int suspend(int vid, const RequestAttributes& ra, string& error_str);
+    int suspend(int vid, const RequestAttributes& ra, std::string& error_str);
 
     /**
      *  Resumes a VM.
@@ -259,7 +258,7 @@ public:
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
-    int resume(int vid, const RequestAttributes& ra, string& error_str);
+    int resume(int vid, const RequestAttributes& ra, std::string& error_str);
 
     /**
      *  Ends a VM life cycle inside ONE.
@@ -268,12 +267,12 @@ public:
      *    @return 0 on success, the VM mutex is unlocked
      */
     int delete_vm(VirtualMachine * vm, const RequestAttributes& ra,
-            string& error_str);
+            std::string& error_str);
 
     /**
      *  VM ID interface
      */
-    int delete_vm(int vid, const RequestAttributes& ra, string& error_str)
+    int delete_vm(int vid, const RequestAttributes& ra, std::string& error_str)
     {
         VirtualMachine * vm;
 
@@ -295,7 +294,7 @@ public:
      *    @return 0 on success
      */
     int delete_recreate(VirtualMachine * vm, const RequestAttributes& ra,
-            string& error_str);
+            std::string& error_str);
 
     /**
      *  Ends a VM life cycle inside ONE but let the VM running at the Hipervisor.
@@ -304,7 +303,7 @@ public:
      *    @return 0 on success, the VM mutex is unlocked
      */
     int delete_vm_db(VirtualMachine * vm, const RequestAttributes& ra,
-            string& error_str);
+            std::string& error_str);
 
     /**
      *  Recover the last operation on the VM
@@ -314,7 +313,7 @@ public:
      *    @return 0 on success
      */
     int recover(VirtualMachine * vm, bool success, const RequestAttributes& ra,
-            string& error_str);
+            std::string& error_str);
 
     /**
      *  Retry the last operation on the VM
@@ -323,7 +322,7 @@ public:
      *    @return 0 on success
      */
     int retry(VirtualMachine * vm, const RequestAttributes& ra,
-            string& error_str);
+            std::string& error_str);
 
     /**
      *  Reboots a VM preserving any resource and RUNNING state
@@ -334,7 +333,7 @@ public:
      *    in a wrong a state
      */
     int reboot(int vid, bool hard, const RequestAttributes& ra,
-            string& error_str);
+            std::string& error_str);
 
     /**
      *  Set the re-scheduling flag for the VM (must be in RUNNING state)
@@ -346,7 +345,7 @@ public:
      *    in a wrong a state
      */
     int resched(int vid, bool do_resched, const RequestAttributes& ra,
-            string& error_str);
+            std::string& error_str);
 
     /**
      *  Starts the attach disk action.
@@ -358,7 +357,7 @@ public:
      *    @return 0 on success, -1 otherwise
      */
     int attach(int vid, VirtualMachineTemplate * tmpl,
-            const RequestAttributes& ra, string& error_str);
+            const RequestAttributes& ra, std::string& error_str);
 
     /**
      * Starts the detach disk action.
@@ -370,7 +369,7 @@ public:
      *    @return 0 on success, -1 otherwise
      */
     int detach(int id, int disk_id, const RequestAttributes& ra,
-            string&  error_str);
+            std::string&  error_str);
 
     /**
      *  Starts the attach NIC action.
@@ -382,7 +381,7 @@ public:
      *    @return 0 on success, -1 otherwise
      */
     int attach_nic(int vid, VirtualMachineTemplate * tmpl,
-            const RequestAttributes& ra, string& error_str);
+            const RequestAttributes& ra, std::string& error_str);
 
     /**
      * Starts the detach NIC action.
@@ -394,7 +393,7 @@ public:
      *    @return 0 on success, -1 otherwise
      */
     int detach_nic(int id, int nic_id, const RequestAttributes& ra,
-            string& error_str);
+            std::string& error_str);
 
     /**
      * Starts the snapshot create action
@@ -407,8 +406,8 @@ public:
      *
      * @return 0 on success, -1 otherwise
      */
-    int snapshot_create(int vid, string& name, int& snap_id,
-            const RequestAttributes& ra, string& error_str);
+    int snapshot_create(int vid, std::string& name, int& snap_id,
+            const RequestAttributes& ra, std::string& error_str);
 
     /**
      * Starts the snapshot revert action
@@ -421,7 +420,7 @@ public:
      * @return 0 on success, -1 otherwise
      */
     int snapshot_revert(int vid, int snap_id, const RequestAttributes& ra,
-            string& error_str);
+            std::string& error_str);
 
     /**
      * Starts the snapshot delete action
@@ -434,7 +433,7 @@ public:
      * @return 0 on success, -1 otherwise
      */
     int snapshot_delete(int vid, int snap_id, const RequestAttributes& ra,
-            string& error_str);
+            std::string& error_str);
 
     /**
      * Starts the disk snapshot create action
@@ -448,8 +447,8 @@ public:
      *
      * @return 0 on success, -1 otherwise
      */
-    int disk_snapshot_create(int vid, int did, const string& name, int& snap_id,
-            const RequestAttributes& ra, string& error_str);
+    int disk_snapshot_create(int vid, int did, const std::string& name,
+            int& snap_id, const RequestAttributes& ra, std::string& error_str);
 
     /**
      * Reverts the disk state to a previous snapshot
@@ -463,7 +462,7 @@ public:
      * @return 0 on success, -1 otherwise
      */
     int disk_snapshot_revert(int vid, int did, int snap_id,
-            const RequestAttributes& ra, string& error_str);
+            const RequestAttributes& ra, std::string& error_str);
 
     /**
      * Deletes a disk snapshot
@@ -477,7 +476,7 @@ public:
      * @return 0 on success, -1 otherwise
      */
     int disk_snapshot_delete(int vid, int did, int snap_id,
-            const RequestAttributes& ra, string& error_str);
+            const RequestAttributes& ra, std::string& error_str);
 
     /**
      * Starts the disk resize create action
@@ -491,7 +490,7 @@ public:
      * @return 0 on success, -1 otherwise
      */
     int disk_resize(int vid, int did, long long new_size,
-            const RequestAttributes& ra, string& error_str);
+            const RequestAttributes& ra, std::string& error_str);
 
     /**
      * Update virtual machine context
@@ -502,7 +501,8 @@ public:
      *
      * @return 0 on success, -1 otherwise
      */
-    int live_updateconf(int vid, const RequestAttributes& ra, string& error_str);
+    int live_updateconf(int vid, const RequestAttributes& ra,
+                        std::string& error_str);
 
 private:
     /**
@@ -528,7 +528,7 @@ private:
     /**
      *  Pointer to the Cluster Pool
      */
-     ClusterPool *    clpool;
+    ClusterPool *    clpool;
 
     /**
      *  Pointer to the Virtual Router Pool

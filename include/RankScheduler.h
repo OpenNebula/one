@@ -18,16 +18,7 @@
 #include "SchedulerTemplate.h"
 #include "RankPolicy.h"
 #include "UserPriorityPolicy.h"
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 
-#include <iostream>
-#include <sstream>
-
-
-using namespace std;
 
 class RankScheduler : public Scheduler
 {

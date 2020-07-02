@@ -83,7 +83,7 @@ public:
      *  Return a reference to the resources of the object
      *    @return vector of resources.
      */
-    const vector<Resource *>& get_resources() const
+    const std::vector<Resource *>& get_resources() const
     {
         return resources;
     };
@@ -94,11 +94,9 @@ public:
      */
     void clear()
     {
-        vector<Resource *>::iterator jt;
-
-        for (jt=resources.begin(); jt!=resources.end(); jt++)
+        for (auto res : resources)
         {
-            delete *jt;
+            delete res;
         }
 
         resources.clear();
@@ -106,7 +104,7 @@ public:
 
 protected:
 
-    vector<Resource *> resources;
+    std::vector<Resource *> resources;
 };
 
 /**

@@ -33,8 +33,6 @@
 #include "VMTemplatePool.h"
 #include "VNTemplatePool.h"
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -42,8 +40,8 @@ using namespace std;
 class RequestManagerChmod : public Request
 {
 protected:
-    RequestManagerChmod(const string& method_name, const string& help,
-        const string& params = "A:siiiiiiiiii"):
+    RequestManagerChmod(const std::string& method_name, const std::string& help,
+        const std::string& params = "A:siiiiiiiiii"):
             Request(method_name, params, help){};
 
     ~RequestManagerChmod(){};

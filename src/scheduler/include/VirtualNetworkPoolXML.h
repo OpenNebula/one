@@ -21,7 +21,6 @@
 #include "PoolXML.h"
 #include "VirtualNetworkXML.h"
 
-using namespace std;
 
 class VirtualNetworkPoolXML : public PoolXML
 {
@@ -46,7 +45,7 @@ public:
 
 protected:
 
-    int get_suitable_nodes(vector<xmlNodePtr>& content)
+    int get_suitable_nodes(std::vector<xmlNodePtr>& content)
     {
         return get_nodes("/VNET_POOL/VNET", content);
     };

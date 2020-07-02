@@ -62,7 +62,7 @@ public:
      *  not defined the nebula location is "/".
      *      @return the nebula location.
      */
-    const string& get_nebula_location() const
+    const std::string& get_nebula_location() const
     {
         return nebula_location;
     };
@@ -73,7 +73,7 @@ public:
      *  /usr/lib/one/mads.
      *      @return the mad execs location.
      */
-    const string& get_mad_location() const
+    const std::string& get_mad_location() const
     {
         return mad_location;
     };
@@ -83,7 +83,7 @@ public:
      *  defined this path points to $ONE_LOCATION/etc, otherwise it is /etc/one
      *      @return the mad defaults location.
      */
-    const string& get_defaults_location() const
+    const std::string& get_defaults_location() const
     {
         return etc_location;
     };
@@ -94,7 +94,7 @@ public:
      *  otherwise it is /var/log/one.
      *      @return the log location.
      */
-    const string& get_log_location() const
+    const std::string& get_log_location() const
     {
         return log_location;
     };
@@ -104,7 +104,7 @@ public:
      *  points to $ONE_LOCATION/var, otherwise it is /var/lib/one.
      *      @return the log location.
      */
-    const string& get_var_location() const
+    const std::string& get_var_location() const
     {
         return var_location;
     };
@@ -116,7 +116,7 @@ public:
      *  logs (in self-contained mode only)
      *      @return the vms location.
      */
-    const string& get_vms_location() const
+    const std::string& get_vms_location() const
     {
         return vms_location;
     };
@@ -125,9 +125,9 @@ public:
      *  Returns the version of oned
      *    @return the version
      */
-    static string version()
+    static std::string version()
     {
-       ostringstream os;
+       std::ostringstream os;
        os << "OpenNebula " << code_version();
        os << " (" << GITVERSION << ")";
 
@@ -138,7 +138,7 @@ public:
      *  Returns the version of oned
      * @return
      */
-    static string code_version()
+    static std::string code_version()
     {
         return "5.9.90"; // bump version
     }
@@ -147,7 +147,7 @@ public:
      * Version needed for the DB, shared tables
      * @return
      */
-    static string shared_db_version()
+    static std::string shared_db_version()
     {
         return "5.12.0";
     }
@@ -156,7 +156,7 @@ public:
      * Version needed for the DB, local tables
      * @return
      */
-    static string local_db_version()
+    static std::string local_db_version()
     {
         return "5.12.0";
     }
@@ -170,7 +170,7 @@ public:
      *    @param value of the attribute
      */
     template<typename T>
-    void get_configuration_attribute(const string& name, T& value) const
+    void get_configuration_attribute(const std::string& name, T& value) const
     {
         config->get(name, value);
     };
@@ -179,9 +179,9 @@ public:
      *  Gets an XML document with all of the configuration attributes
      *    @return the XML
      */
-    string get_configuration_xml() const
+    std::string get_configuration_xml() const
     {
-        string xml;
+        std::string xml;
         return config->to_xml(xml);
     };
 
@@ -241,14 +241,14 @@ private:
     // Environment variables
     // ---------------------------------------------------------------
 
-    string  nebula_location;
+    std::string  nebula_location;
 
-    string  mad_location;
-    string  etc_location;
-    string  log_location;
-    string  var_location;
-    string  remotes_location;
-    string  vms_location;
+    std::string  mad_location;
+    std::string  etc_location;
+    std::string  log_location;
+    std::string  var_location;
+    std::string  remotes_location;
+    std::string  vms_location;
 };
 
 #endif /*NEBULA_SERVICE_H_*/

@@ -21,15 +21,13 @@
 #include "PoolSQL.h"
 #include "OneDB.h"
 
-using namespace std;
-
 
 class ClusterPool : public PoolSQL
 {
 public:
     ClusterPool(SqlDB * db,
                 const VectorAttribute * vnc_conf,
-                vector<const SingleAttribute *>& encrypted_attrs);
+                std::vector<const SingleAttribute *>& encrypted_attrs);
 
     ~ClusterPool(){};
 
@@ -40,7 +38,7 @@ public:
     /**
      *  Name for the "none" cluster
      */
-    static const string NONE_CLUSTER_NAME;
+    static const std::string NONE_CLUSTER_NAME;
 
     /**
      *  Identifier for the "none" cluster
@@ -50,7 +48,7 @@ public:
     /**
      *  Name for the default cluster
      */
-    static const string DEFAULT_CLUSTER_NAME;
+    static const std::string DEFAULT_CLUSTER_NAME;
 
     /**
      *  Identifier for the default cluster
@@ -141,7 +139,7 @@ public:
      *
      *    @return the oid assigned to the object, -1 in case of failure
      */
-    int allocate(string name, int * oid, string& error_str);
+    int allocate(std::string name, int * oid, std::string& error_str);
 
     /**
      *  Function to get a cluster from the pool, if the object is not in memory
@@ -178,7 +176,7 @@ public:
      *          -2 object is a system cluster (ID < 100)
      *          -3 Cluster's User IDs set is not empty
      */
-    int drop(PoolObjectSQL * objsql, string& error_msg);
+    int drop(PoolObjectSQL * objsql, std::string& error_msg);
 
     /**
      *  Bootstraps the database table(s) associated to the Cluster pool
@@ -186,7 +184,7 @@ public:
      */
     static int bootstrap(SqlDB * _db)
     {
-        ostringstream oss_bitmap;
+        std::ostringstream oss_bitmap;
         int rc;
 
         rc  = Cluster::bootstrap(_db);
@@ -222,8 +220,8 @@ public:
      *    @param auth_object to generate the filter for
      *    @param cids vector of cluster ids
      */
-    static void cluster_acl_filter(ostringstream& filter,
-            PoolObjectSQL::ObjectType auth_object, const vector<int>& cids);
+    static void cluster_acl_filter(std::ostringstream& filter,
+            PoolObjectSQL::ObjectType auth_object, const std::vector<int>& cids);
 
     /**
      * Returns the Datastore Clusters performing a DB query
@@ -231,7 +229,7 @@ public:
      * @param cluster_ids Will contain the Cluster IDs
      * @return 0 on success
      */
-    int query_datastore_clusters(int oid, set<int> &cluster_ids);
+    int query_datastore_clusters(int oid, std::set<int> &cluster_ids);
 
     /**
      * Returns the VNet Clusters performing a DB query
@@ -239,7 +237,7 @@ public:
      * @param cluster_ids Will contain the Cluster IDs
      * @return 0 on success
      */
-    int query_vnet_clusters(int oid, set<int> &cluster_ids);
+    int query_vnet_clusters(int oid, std::set<int> &cluster_ids);
 
     /**
      * Adds a resource to the specifyed cluster and update the clusters body.
@@ -250,7 +248,7 @@ public:
      * @return 0 on success
      */
     int add_to_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster,
-                       int resource_id, string& error_msg);
+                       int resource_id, std::string& error_msg);
 
     /**
      * Removes a resource from the specifyed cluster and update the clusters body.
@@ -261,7 +259,7 @@ public:
      * @return 0 on success
      */
     int del_from_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster,
-                         int resource_id, string& error_msg);
+                         int resource_id, std::string& error_msg);
 
     /**
      * Updates the cluster vnc bitmap.

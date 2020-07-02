@@ -19,8 +19,6 @@
 
 #include "Request.h"
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -28,8 +26,8 @@ using namespace std;
 class RequestManagerLock: public Request
 {
 protected:
-    RequestManagerLock(const string& method_name,
-                       const string& help)
+    RequestManagerLock(const std::string& method_name,
+                       const std::string& help)
         :Request(method_name, "A:sis", help)
     {
         auth_op = AuthRequest::MANAGE_NO_LCK;
@@ -54,8 +52,8 @@ protected:
 class RequestManagerUnlock: public Request
 {
 protected:
-    RequestManagerUnlock(const string& method_name,
-                         const string& help)
+    RequestManagerUnlock(const std::string& method_name,
+                         const std::string& help)
         :Request(method_name, "A:sii", help)
     {
         auth_op = AuthRequest::MANAGE_NO_LCK;

@@ -21,10 +21,8 @@
 #include "GroupTemplate.h"
 #include "ObjectCollection.h"
 #include "QuotasSQL.h"
-#include "Template.h"
 #include "VMActions.h"
 
-using namespace std;
 
 /**
  *  The Group class.
@@ -38,7 +36,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const override;
+    std::string& to_xml(std::string& xml) const override;
 
     /**
      * Function to print the Group object into a string in
@@ -46,7 +44,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml_extended(string& xml) const;
+    std::string& to_xml_extended(std::string& xml) const;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -54,7 +52,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str) override;
+    int from_xml(const std::string &xml_str) override;
 
     /**
      *  Adds this user's ID to the set.
@@ -75,7 +73,7 @@ public:
     {
         if (admins.contains(id))
         {
-            string error;
+            std::string error;
 
             del_admin(id, error);
         }
@@ -91,7 +89,7 @@ public:
      *
      * @return 0 on success
      */
-    int add_admin(int user_id, string& error_msg);
+    int add_admin(int user_id, std::string& error_msg);
 
     /**
      * Deletes a User from the admin set. ACL Rules are updated only for this user.
@@ -101,7 +99,7 @@ public:
      *
      * @return 0 on success
      */
-    int del_admin(int user_id, string& error_msg);
+    int del_admin(int user_id, std::string& error_msg);
 
     /**
      * Retrun true if User is an admin member of the group
@@ -146,8 +144,10 @@ public:
      *     GROUP_ADMIN_VIEWS        = "cloud,groupadmin",
      *     VIEWS                    = "cloud" ]
      */
-    void sunstone_views(const string& user_default, const string& user_views,
-            const string& admin_default, const string& admin_views);
+    void sunstone_views(const std::string& user_default,
+                        const std::string& user_views,
+                        const std::string& admin_default,
+                        const std::string& admin_views);
 
     /**
      *  @return the operation level (admin, manage or use) associated to the
@@ -163,7 +163,7 @@ protected:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int post_update_template(string& error) override;
+    int post_update_template(std::string& error) override;
 
 private:
 
@@ -177,7 +177,7 @@ private:
     // Constructor
     // *************************************************************************
 
-    Group(int id, const string& name);
+    Group(int id, const std::string& name);
 
     virtual ~Group() = default;
 
@@ -214,7 +214,7 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(SqlDB *db, bool replace, string& error_str);
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the Group
@@ -237,7 +237,7 @@ private:
      *
      *    @return 0 on success
      */
-    int select(SqlDB * db, const string& name, int uid) override;
+    int select(SqlDB * db, const std::string& name, int uid) override;
 
     /**
      *  Reads the Group quotas from the database.
@@ -258,7 +258,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str) override;
+    int insert(SqlDB *db, std::string& error_str) override;
 
     /**
      *  Writes/updates the Group's data fields in the database. This method does
@@ -268,7 +268,7 @@ private:
      */
     int update(SqlDB *db) override
     {
-        string error_str;
+        std::string error_str;
         return insert_replace(db, true, error_str);
     }
 
@@ -279,7 +279,7 @@ private:
      *  @param extended If true, default quotas are included
      *  @return a reference to the generated string
      */
-    string& to_xml_extended(string& xml, bool extended) const;
+    std::string& to_xml_extended(std::string& xml, bool extended) const;
 };
 
 #endif /*GROUP_H_*/

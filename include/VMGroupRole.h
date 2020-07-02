@@ -17,8 +17,7 @@
 #ifndef VMGROUP_ROLE_H_
 #define VMGROUP_ROLE_H_
 
-#include "PoolObjectSQL.h"
-#include "NebulaUtil.h"
+#include "Template.h"
 
 class VMGroupPool;
 
@@ -202,7 +201,7 @@ public:
      *
      *    @return 0 on success
      */
-    int add_role(VectorAttribute * vrole, string& error);
+    int add_role(VectorAttribute * vrole, std::string& error);
 
     /**
      *  Generates the ids corresponding to a set of role names

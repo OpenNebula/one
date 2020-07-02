@@ -22,12 +22,8 @@
 #include "BitMap.h"
 #include "OneDB.h"
 
-#include <time.h>
-
 class AuthRequest;
 class VirtualMachineNic;
-
-using namespace std;
 
 /**
  *  The Virtual Network Pool class. ...
@@ -37,11 +33,11 @@ class VirtualNetworkPool : public PoolSQL
 public:
 
     VirtualNetworkPool(SqlDB * db,
-            const string& str_mac_prefix,
+            const std::string& str_mac_prefix,
             int default_size,
-            vector<const SingleAttribute *>& restricted_attrs,
-            vector<const SingleAttribute *>& encrypted_attrs,
-            const vector<const SingleAttribute *>& _inherit_attrs,
+            std::vector<const SingleAttribute *>& restricted_attrs,
+            std::vector<const SingleAttribute *>& encrypted_attrs,
+            const std::vector<const SingleAttribute *>& _inherit_attrs,
             const VectorAttribute * vlan_conf,
             const VectorAttribute * vxlan_conf);
 
@@ -66,19 +62,19 @@ public:
     int allocate (
         int                         uid,
         int                         gid,
-        const string&               uname,
-        const string&               gname,
+        const std::string&          uname,
+        const std::string&          gname,
         int                         umask,
         int                         parent_vid,
         VirtualNetworkTemplate *    vn_template,
         int *                       oid,
-        const set<int>              &cluster_ids,
-        string&                     error_str);
+        const std::set<int>         &cluster_ids,
+        std::string&                error_str);
 
     /**
      *  Drops a Virtual Network and the associated VLAN_ID if needed
      */
-    int drop(PoolObjectSQL * vn, string& error_msg)
+    int drop(PoolObjectSQL * vn, std::string& error_msg)
     {
         release_vlan_id(static_cast<VirtualNetwork *>(vn));
 
@@ -118,7 +114,7 @@ public:
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    VirtualNetwork * get(const string& name, int uid)
+    VirtualNetwork * get(const std::string& name, int uid)
     {
         return static_cast<VirtualNetwork *>(PoolSQL::get(name,uid));
     };
@@ -132,7 +128,7 @@ public:
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    VirtualNetwork * get_ro(const string& name, int uid)
+    VirtualNetwork * get_ro(const std::string& name, int uid)
     {
         return static_cast<VirtualNetwork *>(PoolSQL::get_ro(name,uid));
     };
@@ -143,7 +139,7 @@ public:
      */
     static int bootstrap(SqlDB * _db)
     {
-        ostringstream oss;
+        std::ostringstream oss;
 
         int rc;
 
@@ -195,7 +191,7 @@ public:
      *    @param where SQL clause
      *    @return 0 on success
      */
-    int search(vector<int>& oids, const string& where)
+    int search(std::vector<int>& oids, const std::string& where)
     {
         return PoolSQL::search(oids, one_db::vn_table, where);
     };
@@ -221,7 +217,7 @@ public:
             int                         nic_id,
             int                         uid,
             int                         vid,
-            string&                     error_str);
+            std::string&                error_str);
 
     /**
      *  Generates an Authorization token for a NIC attribute
@@ -236,8 +232,8 @@ public:
             VirtualMachineNic *         nic,
             int                         uid,
             AuthRequest *               ar,
-            set<int> &                  sgs,
-            bool                 check_lock);
+            std::set<int> &             sgs,
+            bool                        check_lock);
 
     //--------------------------------------------------------------------------
     // VNET Reservation interface
@@ -250,7 +246,7 @@ public:
      *    @param err error message
      *    @return 0 on success
      */
-    int reserve_addr(int pid, int rid, unsigned int rsize, string& err);
+    int reserve_addr(int pid, int rid, unsigned int rsize, std::string& err);
 
     /**
      *  Reserve an address range
@@ -262,7 +258,7 @@ public:
      *    @return 0 on success
      */
     int reserve_addr(int pid, int rid, unsigned int rsize, unsigned int ar_id,
-            string& err);
+            std::string& err);
 
     /**
      *  Reserve an address range
@@ -275,13 +271,13 @@ public:
      *    @return 0 on success
      */
     int reserve_addr_by_ip(int pid, int rid, unsigned int rsize,
-            unsigned int ar_id, const string& ip, string& err);
+            unsigned int ar_id, const std::string& ip, std::string& err);
 
     int reserve_addr_by_ip6(int pid, int rid, unsigned int rsize,
-            unsigned int ar_id, const string& ip, string& err);
+            unsigned int ar_id, const std::string& ip, std::string& err);
 
     int reserve_addr_by_mac(int pid, int rid, unsigned int rsize,
-            unsigned int ar_id, const string& mac, string& err);
+            unsigned int ar_id, const std::string& mac, std::string& err);
 
 private:
     /**
@@ -297,7 +293,7 @@ private:
     /**
      * VNet attributes to be injected into the VM nic
      */
-    vector<string> inherit_attrs;
+    std::vector<std::string> inherit_attrs;
 
     /**
      *  Configuration attributes for the vlan_id pool
@@ -327,14 +323,15 @@ private:
      *  template
      */
     VirtualNetwork * get_nic_by_name(VirtualMachineNic * nic,
-                                     const string&     name,
-                                     int               _uidi,
-                                     bool              ro,
-                                     string&           error);
+                                     const std::string&  name,
+                                     int                 _uidi,
+                                     bool                ro,
+                                     std::string&        error);
     /**
      *  Function to get a VirtualNetwork by its id, as provided by a VM template
      */
-    VirtualNetwork * get_nic_by_id(const string& id_s, bool ro, string& error);
+    VirtualNetwork * get_nic_by_id(const std::string& id_s, bool ro,
+                                   std::string& error);
 
     //--------------------------------------------------------------------------
     // VLAN ID management functions
@@ -353,9 +350,9 @@ private:
      *    @param vlan_var, attribute to store the vlan_id
      *    @param auto_var, attribute to flag this vlan_id as auto generated
      */
-    int set_8021Q_id(int vnid, string& vlan_var, bool& auto_var);
+    int set_8021Q_id(int vnid, std::string& vlan_var, bool& auto_var);
 
-    int set_vxlan_id(int vnid, string& vlan_var, bool& auto_var);
+    int set_vxlan_id(int vnid, std::string& vlan_var, bool& auto_var);
 
     /**
      *  Free a previously allocated VLAN ID if needed
@@ -372,7 +369,7 @@ private:
      *    @param err string if any
      *    @return pointer to the allocated AR
      */
-    AddressRange * allocate_ar(int rid, string &err);
+    AddressRange * allocate_ar(int rid, std::string &err);
 
     /**
      *  Adds a new AR to a VNET
@@ -381,7 +378,7 @@ private:
      *    @param err string if any
      *    @return 0 on success
      */
-    int add_ar(int rid, AddressRange *rar, string &err);
+    int add_ar(int rid, AddressRange *rar, std::string &err);
 
     /**
      *  Factory method to produce VN objects
@@ -389,7 +386,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        set <int> empty;
+        std::set <int> empty;
         return new VirtualNetwork(-1,-1,"","",0,-1,empty,0);
     };
 };

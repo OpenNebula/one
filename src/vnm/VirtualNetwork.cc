@@ -30,7 +30,7 @@
 
 #include "Nebula.h"
 
-#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
+using namespace std;
 
 /* ************************************************************************** */
 /* Virtual Network :: Constructor/Destructor                                  */

@@ -21,15 +21,13 @@
 #include "PoolSQL.h"
 #include "OneDB.h"
 
-using namespace std;
-
 
 class DatastorePool : public PoolSQL
 {
 public:
     DatastorePool(SqlDB * db,
-                  const vector<const SingleAttribute *>& _inherit_attrs,
-                  vector<const SingleAttribute *>& encrypted_attrs);
+                  const std::vector<const SingleAttribute *>& _inherit_attrs,
+                  std::vector<const SingleAttribute *>& encrypted_attrs);
 
     ~DatastorePool(){};
 
@@ -40,7 +38,7 @@ public:
     /**
      *  Name for the system datastore
      */
-    static const string SYSTEM_DS_NAME;
+    static const std::string SYSTEM_DS_NAME;
 
     /**
      *  Identifier for the system datastore
@@ -50,7 +48,7 @@ public:
     /**
      *  Name for the default datastore
      */
-    static const string DEFAULT_DS_NAME;
+    static const std::string DEFAULT_DS_NAME;
 
     /**
      *  Identifier for the default datastore
@@ -60,7 +58,7 @@ public:
     /**
      *  Name for the file datastore
      */
-    static const string FILE_DS_NAME;
+    static const std::string FILE_DS_NAME;
 
     /**
      *  Identifier for the file datastore
@@ -87,15 +85,15 @@ public:
      *    @return the oid assigned to the object, -1 in case of failure
      */
     int allocate(
-            int                 uid,
-            int                 gid,
-            const string&       uname,
-            const string&       gname,
-            int                 umask,
-            DatastoreTemplate * ds_template,
-            int *               oid,
-            const set<int>      &cluster_ids,
-            string&             error_str);
+            int                  uid,
+            int                  gid,
+            const std::string&   uname,
+            const std::string&   gname,
+            int                  umask,
+            DatastoreTemplate *  ds_template,
+            int *                oid,
+            const std::set<int>& cluster_ids,
+            std::string&         error_str);
 
     /**
      *  Function to get a Datastore from the pool, if the object is not in memory
@@ -128,7 +126,7 @@ public:
      *    @return 0 on success, -1 DB error
      *            -3 Datastore's Image IDs set is not empty
      */
-    int drop(PoolObjectSQL * objsql, string& error_msg);
+    int drop(PoolObjectSQL * objsql, std::string& error_msg);
 
     /**
      *  Bootstraps the database table(s) associated to the Datastore pool
@@ -163,7 +161,7 @@ public:
      *
      *  @return 0 on success
      */
-     int list(vector<int>& oids)
+     int list(std::vector<int>& oids)
      {
         return PoolSQL::list(oids, one_db::ds_table);
      }
@@ -181,7 +179,7 @@ private:
     /**
      * Datastore attributes to be inherited into the VM disk
      */
-    vector<string> inherit_attrs;
+    std::vector<std::string> inherit_attrs;
 
     /**
      *  Factory method to produce objects
@@ -189,7 +187,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        set<int> empty;
+        std::set<int> empty;
 
         return new Datastore(-1,-1,"","", 0, 0, empty);
     };

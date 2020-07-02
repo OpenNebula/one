@@ -24,6 +24,8 @@
 #include "History.h"
 #include "RankScheduler.h"
 
+using namespace std;
+
 /******************************************************************************/
 /******************************************************************************/
 /*  INITIALIZE VM object attributes from its XML representation               */

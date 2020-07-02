@@ -85,7 +85,7 @@ public:
      *  Raft status changed
      *   @param state SOLO, CANDIDATE, FOLLOWER, LEADER
      */
-    void raft_status(const string& state);
+    void raft_status(const std::string& state);
 
     /**
      *  Updates the information of the given host. If it does not exist it is
@@ -155,7 +155,7 @@ public:
      *    @param oid of the host
      *    @param message describing the error
      */
-    void error_monitor(int oid, const string& message);
+    void error_monitor(int oid, const std::string& message);
 
     /**
      *  This function is executed periodically to update host monitor status

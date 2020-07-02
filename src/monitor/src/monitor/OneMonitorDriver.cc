@@ -19,6 +19,9 @@
 #include "HostMonitorManager.h"
 #include "NebulaLog.h"
 
+using namespace std;
+
+
 HostMonitorManager * OneMonitorDriver::hm = nullptr;
 
 OneMonitorDriver::OneMonitorDriver(HostMonitorManager * _hm)

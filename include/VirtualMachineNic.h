@@ -58,7 +58,7 @@ public:
      *    @param nic NIC to get the security groups from
      *    @param sgs a set of security group IDs
      */
-    void get_security_groups(set<int>& sgs) const
+    void get_security_groups(std::set<int>& sgs) const
     {
         one_util::split_unique(vector_value("SECURITY_GROUPS"), ',', sgs);
     }
@@ -66,7 +66,7 @@ public:
     /**
      *  Get the effective uid to get the VirtualNetwork.
      */
-    int get_uid(int _uid, string& error);
+    int get_uid(int _uid, std::string& error);
 
     /* ---------------------------------------------------------------------- */
     /* Network Manager Interface                                                */
@@ -218,7 +218,7 @@ public:
      *    @param dispose true to delete the VectorAttributes when the set is
      *    destroyed
      */
-    VirtualMachineNics(vector<VectorAttribute *>& va, bool has_id, bool dispose):
+    VirtualMachineNics(std::vector<VectorAttribute *>& va, bool has_id, bool dispose):
         VirtualMachineAttributeSet(dispose)
     {
         init(va, has_id);
@@ -307,7 +307,7 @@ public:
      * Returns a set of the security group IDs in use in this set.
      *     @param sgs a set of security group IDs
      */
-    void get_security_groups(set<int>& sgs);
+    void get_security_groups(std::set<int>& sgs);
 
     /* ---------------------------------------------------------------------- */
     /* Network Manager Interface                                              */
@@ -326,8 +326,8 @@ public:
             VectorAttribute * nic_default, std::vector<VectorAttribute *>& sgs,
             std::string& estr);
 
-    int get_auto_network_leases(int vm_id, int uid, VectorAttribute * nic_default, 
-            vector<VectorAttribute*>& sgs, std::string& error_str);
+    int get_auto_network_leases(int vm_id, int uid, VectorAttribute * nic_default,
+            std::vector<VectorAttribute*>& sgs, std::string& error_str);
 
     /**
      *  Release all the network leases and SG associated to the set
@@ -376,7 +376,7 @@ public:
      */
     int set_up_attach_nic(int vmid, int uid, int cluster_id,
         VectorAttribute * vnic, VectorAttribute * nic_default,
-        vector<VectorAttribute*>& sgs, std::string& error_str);
+        std::vector<VectorAttribute*>& sgs, std::string& error_str);
     /**
      *  Marshall NICs in XML format with just essential information
      *    @param xml string to write the NIC XML description

@@ -21,6 +21,8 @@
 #include "Clusterable.h"
 #include "ClusterableSingle.h"
 
+using namespace std;
+
 const string PoolObjectSQL::INVALID_NAME_CHARS = "&|:\\\";/'#{}$<>";
 
 const int PoolObjectSQL::LOCK_DB_EXPIRATION = 120;

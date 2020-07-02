@@ -48,11 +48,11 @@ struct HostShareCapacity
     long long mem;
     long long disk;
 
-    vector<VectorAttribute *> pci;
+    std::vector<VectorAttribute *> pci;
 
     VectorAttribute * topology;
 
-    vector<VectorAttribute *> nodes;
+    std::vector<VectorAttribute *> nodes;
 };
 
 #endif /*HOST_SHARE_CAPACITY_H_*/

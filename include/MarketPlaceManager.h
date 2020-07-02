@@ -218,11 +218,11 @@ private:
     // -------------------------------------------------------------------------
     // Protocol implementation, procesing messages from driver
     // -------------------------------------------------------------------------
-    static void _undefined(unique_ptr<market_msg_t> msg);
-    void _import(unique_ptr<market_msg_t> msg);
-    void _delete(unique_ptr<market_msg_t> msg);
-    void _monitor(unique_ptr<market_msg_t> msg);
-    static void _log(unique_ptr<market_msg_t> msg);
+    static void _undefined(std::unique_ptr<market_msg_t> msg);
+    void _import(std::unique_ptr<market_msg_t> msg);
+    void _delete(std::unique_ptr<market_msg_t> msg);
+    void _monitor(std::unique_ptr<market_msg_t> msg);
+    static void _log(std::unique_ptr<market_msg_t> msg);
 
     // -------------------------------------------------------------------------
     // Action Listener interface

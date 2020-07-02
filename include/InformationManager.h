@@ -34,7 +34,7 @@ public:
     InformationManager(
         HostPool * _hpool,
         VirtualMachinePool * _vmpool,
-        const string& mad_location)
+        const std::string& mad_location)
             : DriverManager(mad_location)
             , hpool(_hpool)
             , vmpool(_vmpool)
@@ -74,7 +74,9 @@ public:
      *    @param name of the host
      *    @param im_mad the driver name
      */
-    void stop_monitor(int hid, const string& name, const string& im_mad);
+    void stop_monitor(int hid,
+                      const std::string& name,
+                      const std::string& im_mad);
 
     /**
      *  Starts the monitor process on the host
@@ -103,22 +105,22 @@ protected:
     /**
      *  Received undefined message -> print error
      */
-    static void _undefined(unique_ptr<im_msg_t> msg);
+    static void _undefined(std::unique_ptr<im_msg_t> msg);
 
     /**
      *  Message HOST_STATE update from monitor
      */
-    void _host_state(unique_ptr<im_msg_t> msg);
+    void _host_state(std::unique_ptr<im_msg_t> msg);
 
     /**
      *  Message HOST_SYSTEM update from monitor
      */
-    void _host_system(unique_ptr<im_msg_t> msg);
+    void _host_system(std::unique_ptr<im_msg_t> msg);
 
     /**
      *  Message VM_STATE from monitor
      */
-    void _vm_state(unique_ptr<im_msg_t> msg);
+    void _vm_state(std::unique_ptr<im_msg_t> msg);
 
 private:
     /**

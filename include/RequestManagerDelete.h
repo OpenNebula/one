@@ -19,12 +19,11 @@
 
 #include "Request.h"
 #include "ClusterPool.h"
+#include "Datastore.h"
 #include "Host.h"
 #include "VirtualNetwork.h"
 
 class AclManager;
-
-using namespace std;
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -33,12 +32,12 @@ using namespace std;
 class RequestManagerDelete: public Request
 {
 protected:
-    RequestManagerDelete(const string& method_name,
-                         const string& params,
-                         const string& help);
+    RequestManagerDelete(const std::string& method_name,
+                         const std::string& params,
+                         const std::string& help);
 
-    RequestManagerDelete(const string& method_name,
-                         const string& help);
+    RequestManagerDelete(const std::string& method_name,
+                         const std::string& help);
 
     ~RequestManagerDelete() = default;
 
@@ -52,13 +51,13 @@ protected:
 
     virtual int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
 
-    virtual set<int> get_cluster_ids(PoolObjectSQL * object)
+    virtual std::set<int> get_cluster_ids(PoolObjectSQL * object)
     {
-        set<int> empty;
+        std::set<int> empty;
         return empty;
     };
 
-    virtual int del_from_cluster(Cluster* cluster, int id, string& error_msg)
+    virtual int del_from_cluster(Cluster* cluster, int id, std::string& error_msg)
     {
         return -1;
     };
@@ -120,12 +119,12 @@ public:
 
 protected:
 
-    set<int> get_cluster_ids(PoolObjectSQL * object) override
+    std::set<int> get_cluster_ids(PoolObjectSQL * object) override
     {
         return static_cast<VirtualNetwork*>(object)->get_cluster_ids();
     };
 
-    int del_from_cluster(Cluster* cluster, int id, string& error_msg) override
+    int del_from_cluster(Cluster* cluster, int id, std::string& error_msg) override
     {
         return clpool->del_from_cluster(PoolObjectSQL::NET, cluster, id, error_msg);
     };
@@ -168,16 +167,16 @@ public:
 
 protected:
 
-    set<int> get_cluster_ids(PoolObjectSQL * object) override
+    std::set<int> get_cluster_ids(PoolObjectSQL * object) override
     {
-        set<int> ids;
+        std::set<int> ids;
 
         ids.insert( static_cast<Host*>(object)->get_cluster_id() );
 
         return ids;
     };
 
-    int del_from_cluster(Cluster* cluster, int id, string& error_msg) override
+    int del_from_cluster(Cluster* cluster, int id, std::string& error_msg) override
     {
         return clpool->del_from_cluster(PoolObjectSQL::HOST, cluster, id, error_msg);
     };
@@ -229,12 +228,12 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    set<int> get_cluster_ids(PoolObjectSQL * object) override
+    std::set<int> get_cluster_ids(PoolObjectSQL * object) override
     {
         return static_cast<Datastore*>(object)->get_cluster_ids();
     };
 
-    int del_from_cluster(Cluster* cluster, int id, string& error_msg) override
+    int del_from_cluster(Cluster* cluster, int id, std::string& error_msg) override
     {
         return clpool->del_from_cluster(PoolObjectSQL::DATASTORE, cluster, id, error_msg);
     };

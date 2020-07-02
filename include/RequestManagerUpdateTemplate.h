@@ -38,8 +38,6 @@
 #include "VNTemplatePool.h"
 #include "ZonePool.h"
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -47,8 +45,8 @@ using namespace std;
 class RequestManagerUpdateTemplate: public Request
 {
 protected:
-    RequestManagerUpdateTemplate(const string& method_name,
-                                 const string& help)
+    RequestManagerUpdateTemplate(const std::string& method_name,
+                                 const std::string& help)
         :Request(method_name, "A:sis", help)
     {
         auth_op = AuthRequest::MANAGE;
@@ -61,11 +59,15 @@ protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
 
-    virtual int replace_template(PoolObjectSQL * object, const string & tmpl,
-            const RequestAttributes &att, string &error_str);
+    virtual int replace_template(PoolObjectSQL * object,
+                                 const std::string & tmpl,
+                                 const RequestAttributes &att,
+                                 std::string &error_str);
 
-    virtual int append_template(PoolObjectSQL * object, const string & tmpl,
-            const RequestAttributes &att, string &error_str);
+    virtual int append_template(PoolObjectSQL * object,
+                                const std::string & tmpl,
+                                const RequestAttributes &att,
+                                std::string &error_str);
 
     /**
      *  Method por updating custom values not included in PoolSQL::update

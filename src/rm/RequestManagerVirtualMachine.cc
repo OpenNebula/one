@@ -20,9 +20,13 @@
 #include "Nebula.h"
 #include "Quotas.h"
 #include "ClusterPool.h"
+#include "DatastorePool.h"
+#include "HostPool.h"
 #include "ImagePool.h"
 #include "DispatchManager.h"
 #include "VirtualMachineManager.h"
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

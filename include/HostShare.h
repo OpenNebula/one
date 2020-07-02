@@ -19,9 +19,6 @@
 
 #include "ObjectXML.h"
 #include "Template.h"
-#include <time.h>
-#include <set>
-#include <map>
 
 #include "HostSharePCI.h"
 #include "HostShareNUMA.h"
@@ -85,12 +82,12 @@ public:
      *    @return true if the share can host the VM or it is the only one
      *    configured
      */
-    bool test(HostShareCapacity& sr, string& error) const;
+    bool test(HostShareCapacity& sr, std::string& error) const;
 
     /**
      *  Function to write a HostShare to an output stream
      */
-    friend ostream& operator<<(ostream& os, const HostShare& hs);
+    friend std::ostream& operator<<(std::ostream& os, const HostShare& hs);
 
     /**
      * Function to print the HostShare object into a string in
@@ -98,7 +95,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    std::string& to_xml(std::string& xml) const;
 
     /**
      * Set the capacity attributes of the share. CPU and Memory may reserve some
@@ -116,7 +113,7 @@ public:
      *
      * NOTE: reserved strings will be modified
      */
-    void set_monitorization(Template& ht, string& rcpu, string& rmem);
+    void set_monitorization(Template& ht, std::string& rcpu, std::string& rmem);
 
 
     /**
@@ -146,7 +143,7 @@ public:
      *
      * NOTE: reserved strings will be modified
      */
-    void update_capacity(Template& ht, string& rcpu, string& rmem);
+    void update_capacity(Template& ht, std::string& rcpu, std::string& rmem);
 
     /**
      *  Return the number of running VMs in this host
@@ -193,9 +190,9 @@ private:
      */
     bool test_compute(int cpu, long long mem, std::string &error) const;
 
-    bool test_pci(vector<VectorAttribute *>& pci_devs, string& error) const;
+    bool test_pci(std::vector<VectorAttribute *>& pci_devs, std::string& error) const;
 
-    bool test_numa(HostShareCapacity &sr, string& error) const;
+    bool test_numa(HostShareCapacity &sr, std::string& error) const;
 };
 
 #endif /*HOST_SHARE_H_*/

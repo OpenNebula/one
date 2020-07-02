@@ -18,15 +18,13 @@
 #define RANK_POLICY_H_
 
 #include "SchedulerPolicy.h"
-#include "Scheduler.h"
 
-using namespace std;
 
 class RankPolicy : public SchedulerPolicy
 {
 public:
 
-    RankPolicy(PoolXML * _pool, const string&  dr, float  w = 1.0):
+    RankPolicy(PoolXML * _pool, const std::string&  dr, float  w = 1.0):
             SchedulerPolicy(w), default_rank(dr), pool(_pool) {};
 
     virtual ~RankPolicy(){};
@@ -36,12 +34,12 @@ protected:
     /**
      *  Gets the rank to apply.
      */
-    virtual const string& get_rank(ObjectXML *obj) = 0;
+    virtual const std::string& get_rank(ObjectXML *obj) = 0;
 
     /**
      *  Default rank for resources
      */
-    string default_rank;
+    std::string default_rank;
 
     /**
      *  Pool of matched resources
@@ -54,16 +52,16 @@ private:
      *    @param obj The Schedulable object
      *    @param priority for each resource.
      */
-    void policy(ObjectXML * obj, vector<float>& priority)
+    void policy(ObjectXML * obj, std::vector<float>& priority)
     {
         ObjectXML * resource;
         char *      errmsg = 0;
 
         int rc, rank = 0;
 
-        const vector<Resource *> resources = get_match_resources(obj);
+        const std::vector<Resource *> resources = get_match_resources(obj);
 
-        string srank = get_rank(obj);
+        std::string srank = get_rank(obj);
 
         priority.clear();
 
@@ -89,7 +87,7 @@ private:
 
             if (rc != 0)
             {
-                ostringstream oss;
+                std::ostringstream oss;
 
                 oss << "Computing rank, expression: " << srank;
 
@@ -106,7 +104,7 @@ private:
 
             if (NebulaLog::log_level() >= Log::DDEBUG)
             {
-                ostringstream oss;
+                std::ostringstream oss;
 
                 oss << "ID: " << resources[i]->oid << " Rank: " << rank;
 
@@ -123,21 +121,21 @@ class RankHostPolicy : public RankPolicy
 {
 public:
 
-    RankHostPolicy(HostPoolXML * pool, const string&  dr, float  w = 1.0):
+    RankHostPolicy(HostPoolXML * pool, const std::string&  dr, float  w = 1.0):
             RankPolicy(pool, dr, w){};
 
     ~RankHostPolicy(){};
 
 private:
 
-    const vector<Resource *> get_match_resources(ObjectXML *obj)
+    const std::vector<Resource *> get_match_resources(ObjectXML *obj)
     {
         VirtualMachineXML * vm = static_cast<VirtualMachineXML *>(obj);
 
         return vm->get_match_hosts();
     };
 
-    const string& get_rank(ObjectXML *obj)
+    const std::string& get_rank(ObjectXML *obj)
     {
         VirtualMachineXML * vm = static_cast<VirtualMachineXML *>(obj);
 
@@ -155,21 +153,21 @@ class RankDatastorePolicy : public RankPolicy
 {
 public:
 
-    RankDatastorePolicy(DatastorePoolXML * pool, const string&  dr,float w=1.0):
+    RankDatastorePolicy(DatastorePoolXML * pool, const std::string&  dr,float w=1.0):
             RankPolicy(pool, dr, w){};
 
     ~RankDatastorePolicy(){};
 
 private:
 
-    const vector<Resource *> get_match_resources(ObjectXML *obj)
+    const std::vector<Resource *> get_match_resources(ObjectXML *obj)
     {
         VirtualMachineXML * vm = static_cast<VirtualMachineXML *>(obj);
 
         return vm->get_match_datastores();
     };
 
-    const string& get_rank(ObjectXML *obj)
+    const std::string& get_rank(ObjectXML *obj)
     {
         VirtualMachineXML * vm = static_cast<VirtualMachineXML *>(obj);
 
@@ -186,21 +184,21 @@ class RankNetworkPolicy : public RankPolicy
 {
 public:
 
-    RankNetworkPolicy(VirtualNetworkPoolXML * pool, const string&  dr,float w=1.0):
+    RankNetworkPolicy(VirtualNetworkPoolXML * pool, const std::string&  dr,float w=1.0):
             RankPolicy(pool, dr, w){};
 
     ~RankNetworkPolicy(){};
 
 private:
 
-    const vector<Resource *> get_match_resources(ObjectXML *obj)
+    const std::vector<Resource *> get_match_resources(ObjectXML *obj)
     {
         VirtualMachineNicXML * nic = static_cast<VirtualMachineNicXML *>(obj);
 
         return nic->get_match_networks();
     };
 
-    const string& get_rank(ObjectXML *obj)
+    const std::string& get_rank(ObjectXML *obj)
     {
         VirtualMachineNicXML * nic = static_cast<VirtualMachineNicXML *>(obj);
 

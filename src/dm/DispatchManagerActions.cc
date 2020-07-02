@@ -24,6 +24,11 @@
 #include "Quotas.h"
 #include "Request.h"
 #include "Nebula.h"
+#include "ClusterPool.h"
+#include "HostPool.h"
+#include "VirtualRouterPool.h"
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

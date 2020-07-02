@@ -27,7 +27,7 @@
 class NebulaTemplate : public Template
 {
 public:
-    NebulaTemplate(const string& etc_location, const char * _conf_name,
+    NebulaTemplate(const std::string& etc_location, const char * _conf_name,
             const char * root_name) : Template(false, '=', root_name)
     {
         conf_file = etc_location + _conf_name;
@@ -44,12 +44,12 @@ protected:
     /**
      *  Full path to the configuration file
      */
-    string                  conf_file;
+    std::string                  conf_file;
 
     /**
      *  Defaults for the configuration file
      */
-    multimap<string, Attribute*> conf_default;
+    std::multimap<std::string, Attribute*> conf_default;
 
     /**
      *  Sets the defaults value for the template

@@ -20,12 +20,11 @@
 #include "Request.h"
 #include "Nebula.h"
 #include "ClusterPool.h"
+#include "DatastorePool.h"
 #include "HostPool.h"
 #include "VdcPool.h"
 #include "VirtualNetworkPool.h"
 #include "ZonePool.h"
-
-using namespace std;
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -38,10 +37,10 @@ public:
                          RequestAttributes& att);
 
 protected:
-    VdcEditGroup(   const string& method_name,
-                    const string& help,
-                    const string& params,
-                    bool          _check_obj_exist)
+    VdcEditGroup(const std::string& method_name,
+                 const std::string& help,
+                 const std::string& params,
+                 bool          _check_obj_exist)
         :Request(method_name,params,help),
          check_obj_exist(_check_obj_exist)
     {
@@ -60,7 +59,7 @@ protected:
     bool check_obj_exist;
 
     virtual int edit_group(
-            Vdc* vdc, int group_id, string& error_msg) = 0;
+            Vdc* vdc, int group_id, std::string& error_msg) = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -75,7 +74,7 @@ public:
     ~VdcAddGroup() = default;
 
     int edit_group(
-            Vdc* vdc, int group_id, string& error_msg) override;
+            Vdc* vdc, int group_id, std::string& error_msg) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -90,7 +89,7 @@ public:
     ~VdcDelGroup() = default;
 
     int edit_group(
-            Vdc* vdc, int group_id, string& error_msg) override;
+            Vdc* vdc, int group_id, std::string& error_msg) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -103,11 +102,11 @@ public:
                          RequestAttributes& att);
 
 protected:
-    VdcEditResource(const string& method_name,
-                    const string& help,
-                    const string& params,
-                    bool          _check_obj_exist,
-                    PoolSQL*      respool,
+    VdcEditResource(const std::string& method_name,
+                    const std::string& help,
+                    const std::string& params,
+                    bool               _check_obj_exist,
+                    PoolSQL*           respool,
                     PoolObjectSQL::ObjectType res_obj_type)
         :Request(method_name,params,help),
          check_obj_exist(_check_obj_exist),
@@ -133,7 +132,7 @@ protected:
     PoolObjectSQL::ObjectType res_obj_type;
 
     virtual int edit_resource(Vdc* vdc, int zone_id, int res_id,
-            string& error_msg) = 0;
+                              std::string& error_msg) = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -148,7 +147,8 @@ public:
 
     ~VdcAddCluster() = default;
 
-    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
+    int edit_resource(Vdc* vdc, int zone_id, int res_id,
+                      std::string& error_msg) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -163,7 +163,8 @@ public:
 
     ~VdcDelCluster() = default;
 
-    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
+    int edit_resource(Vdc* vdc, int zone_id, int res_id,
+                      std::string& error_msg) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -177,7 +178,8 @@ public:
 
     ~VdcAddHost() = default;
 
-    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
+    int edit_resource(Vdc* vdc, int zone_id, int res_id,
+                      std::string& error_msg) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -191,7 +193,8 @@ public:
 
     ~VdcDelHost() = default;
 
-    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
+    int edit_resource(Vdc* vdc, int zone_id, int res_id,
+                      std::string& error_msg) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -206,7 +209,8 @@ public:
 
     ~VdcAddDatastore() = default;
 
-    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
+    int edit_resource(Vdc* vdc, int zone_id, int res_id,
+                      std::string& error_msg) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -221,7 +225,8 @@ public:
 
     ~VdcDelDatastore() = default;
 
-    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
+    int edit_resource(Vdc* vdc, int zone_id, int res_id,
+                      std::string& error_msg) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -236,7 +241,8 @@ public:
 
     ~VdcAddVNet() = default;
 
-    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
+    int edit_resource(Vdc* vdc, int zone_id, int res_id,
+                      std::string& error_msg) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -251,7 +257,8 @@ public:
 
     ~VdcDelVNet() = default;
 
-    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg) override;
+    int edit_resource(Vdc* vdc, int zone_id, int res_id,
+                      std::string& error_msg) override;
 };
 
 /* -------------------------------------------------------------------------- */

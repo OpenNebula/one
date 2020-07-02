@@ -18,6 +18,8 @@
 #include "NebulaLog.h"
 #include "Nebula.h"
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 
 const string VdcPool::DEFAULT_NAME = "default";

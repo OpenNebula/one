@@ -20,6 +20,8 @@
 #include "NebulaLog.h"
 #include "VirtualNetworkPool.h"
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 
 SecurityGroupPool::SecurityGroupPool(SqlDB * db)

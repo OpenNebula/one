@@ -175,7 +175,7 @@ private:
      *    @return the Auth driver with attribute name equal to value
      *    or 0 in not found
      */
-    const Driver<auth_msg_t> * get(const string&   name)
+    const Driver<auth_msg_t> * get(const std::string&   name)
     {
         return DriverManager::get_driver(name);
     }
@@ -214,22 +214,22 @@ private:
     /**
      *
      */
-    static void _undefined(unique_ptr<auth_msg_t> msg);
+    static void _undefined(std::unique_ptr<auth_msg_t> msg);
 
     /**
      *
      */
-    void _authorize(unique_ptr<auth_msg_t> msg);
+    void _authorize(std::unique_ptr<auth_msg_t> msg);
 
     /**
      *
      */
-    void _authenticate(unique_ptr<auth_msg_t> msg);
+    void _authenticate(std::unique_ptr<auth_msg_t> msg);
 
     /**
      *
      */
-    static void _log(unique_ptr<auth_msg_t> msg);
+    static void _log(std::unique_ptr<auth_msg_t> msg);
 
     // -------------------------------------------------------------------------
     // Action Listener interface

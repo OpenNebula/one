@@ -46,7 +46,7 @@ public:
      *    @param ob the type
      *    @return the string
      */
-    static string type_to_str(DatastoreType ob)
+    static std::string type_to_str(DatastoreType ob)
     {
         switch (ob)
         {
@@ -62,7 +62,7 @@ public:
      *    @param str_type string representing the DatastoreTypr
      *    @return the DatastoreType (defaults to IMAGE_DS)
      */
-    static DatastoreType str_to_type(string& str_type);
+    static DatastoreType str_to_type(std::string& str_type);
 
     /**
      *  Datastore State
@@ -78,7 +78,7 @@ public:
      * @param state The state
      * @return the string representation
      */
-    static string state_to_str(DatastoreState state)
+    static std::string state_to_str(DatastoreState state)
     {
         switch (state)
         {
@@ -93,7 +93,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const override;
+    std::string& to_xml(std::string& xml) const override;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -101,7 +101,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str) override;
+    int from_xml(const std::string &xml_str) override;
 
     /**
      *  Adds this image's ID to the set.
@@ -126,7 +126,7 @@ public:
     /**
      *  Returns a copy of the Image IDs set
      */
-    set<int> get_image_ids()
+    std::set<int> get_image_ids()
     {
         return images.clone();
     }
@@ -143,7 +143,7 @@ public:
      *  Retrieves TM mad name
      *    @return string tm mad name
      */
-    const string& get_tm_mad() const
+    const std::string& get_tm_mad() const
     {
         return tm_mad;
     };
@@ -152,7 +152,7 @@ public:
      *  Retrieves DS mad name
      *    @return string ds mad name
      */
-    const string& get_ds_mad() const
+    const std::string& get_ds_mad() const
     {
         return ds_mad;
     };
@@ -161,7 +161,7 @@ public:
      *  Retrieves the base path
      *    @return base path string
      */
-    const string& get_base_path() const
+    const std::string& get_base_path() const
     {
         return base_path;
     };
@@ -193,8 +193,8 @@ public:
      *   into the disk
      */
     void disk_attribute(
-            VirtualMachineDisk *    disk,
-            const vector<string>&   inherit_attrs);
+            VirtualMachineDisk *            disk,
+            const std::vector<std::string>& inherit_attrs);
 
     /**
      *  Set monitor information for the Datastore
@@ -246,14 +246,14 @@ public:
      *
      * @return 0 on success
      */
-    int enable(bool enable, string& error_str);
+    int enable(bool enable, std::string& error_str);
 
     /**
      * Return a set with compatible system ds for an image ds
      */
-    void get_compatible_system_ds(set<int> &compatible_sys_ds)
+    void get_compatible_system_ds(std::set<int> &compatible_sys_ds)
     {
-        string compatible_sys_ds_str;
+        std::string compatible_sys_ds_str;
 
         get_template_attribute("COMPATIBLE_SYS_DS", compatible_sys_ds_str);
 
@@ -264,7 +264,10 @@ public:
      *  Verify the proper definition of the TM_MAD by checking the attributes
      *  related to the TM defined in TM_MAD_CONF
      */
-    int get_tm_mad_targets(const string &tm_mad, string& ln_target, string& clone_target, string& disk_type);
+    int get_tm_mad_targets(const std::string &tm_mad,
+                           std::string& ln_target,
+                           std::string& clone_target,
+                           std::string& disk_type);
 
 private:
 
@@ -281,17 +284,17 @@ private:
     /**
      * Name of the datastore driver used to register new images
      */
-    string ds_mad;
+    std::string ds_mad;
 
     /**
      *  Name of the TM driver used to transfer file to and from the hosts
      */
-    string tm_mad;
+    std::string tm_mad;
 
     /**
      * Base path for the storage
      */
-    string base_path;
+    std::string base_path;
 
     /**
      * The datastore type
@@ -335,11 +338,11 @@ private:
     Datastore(
             int                 uid,
             int                 gid,
-            const string&       uname,
-            const string&       gname,
+            const std::string&  uname,
+            const std::string&  gname,
             int                 umask,
             DatastoreTemplate*  ds_template,
-            const set<int>      &cluster_ids);
+            const std::set<int> &cluster_ids);
 
     virtual ~Datastore() = default;
 
@@ -353,7 +356,7 @@ private:
      *    @return -1 if an inconsistent assigment is found
      *
      */
-    int set_ds_disk_type(string& s_dt, string& error);
+    int set_ds_disk_type(std::string& s_dt, std::string& error);
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -366,7 +369,7 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(SqlDB *db, bool replace, string& error_str);
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the Datastore
@@ -379,7 +382,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str) override;
+    int insert(SqlDB *db, std::string& error_str) override;
 
     /**
      *  Writes/updates the Datastore's data fields in the database.
@@ -388,7 +391,7 @@ private:
      */
     int update(SqlDB *db) override
     {
-        string error_str;
+        std::string error_str;
         return insert_replace(db, true, error_str);
     }
 
@@ -405,13 +408,13 @@ private:
      *  related to the DS defined in DS_MAD_CONF specified in the Datastore
      *  template
      */
-    int set_ds_mad(string &ds_mad, string &error_str);
+    int set_ds_mad(std::string &ds_mad, std::string &error_str);
 
     /**
      *  Verify the proper definition of the TM_MAD by checking the attributes
      *  related to the TM defined in TM_MAD_CONF
      */
-    int set_tm_mad(string &tm_mad, string &error_str);
+    int set_tm_mad(std::string &tm_mad, std::string &error_str);
 
     /**
      * Child classes can process the new template set with replace_template or
@@ -420,7 +423,7 @@ private:
      *    @return 0 on success
      * - encrypt secret attributes.
      */
-    int post_update_template(string& error) override;
+    int post_update_template(std::string& error) override;
 };
 
 #endif /*DATASTORE_H_*/

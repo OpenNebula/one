@@ -21,7 +21,6 @@
 #include "PoolXML.h"
 #include "ClusterXML.h"
 
-using namespace std;
 
 class ClusterPoolXML : public PoolXML
 {
@@ -49,7 +48,7 @@ public:
 
 protected:
 
-    int get_suitable_nodes(vector<xmlNodePtr>& content)
+    int get_suitable_nodes(std::vector<xmlNodePtr>& content)
     {
         return get_nodes("/CLUSTER_POOL/CLUSTER", content);
     };

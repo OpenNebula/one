@@ -58,6 +58,8 @@ static string& unescape (string &str);
 
 #include "Template.h"
 
+using namespace std;
+
 typedef void * yyscan_t;
 
 int template_parse(Template * tmpl, char ** errmsg, yyscan_t scanner);

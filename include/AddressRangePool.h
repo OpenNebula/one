@@ -22,15 +22,12 @@
 #include <map>
 #include <set>
 
-#include <libxml/parser.h>
-
 #include "VirtualNetworkTemplate.h"
 #include "PoolObjectSQL.h"
 
 class VectorAttribute;
 class AddressRange;
 
-using namespace std;
 
 class AddressRangePool
 {
@@ -50,7 +47,7 @@ public:
      *    @param error_msg describing the error
      *    @return 0 on success
      */
-    int from_vattr(VectorAttribute * ar, string& error_msg);
+    int from_vattr(VectorAttribute * ar, std::string& error_msg);
 
     /**
      *  Builds the address range set from its XML representation. This function
@@ -71,14 +68,14 @@ public:
      *    @param force force remove, even if active leases exists
      *    @return 0 on success, -1 if not exists or has used addresses
      */
-    int rm_ar(unsigned int ar_id, bool force, string& error_msg);
+    int rm_ar(unsigned int ar_id, bool force, std::string& error_msg);
 
     /**
      *  Removes all address ranges from the pool if it does not contain any used
      *  leases
      *    @return 0 on success, -1 if not exists or has used addresses
      */
-    int rm_ars(string& error_msg);
+    int rm_ars(std::string& error_msg);
 
     /**
      *  Updates the given address ranges
@@ -90,8 +87,8 @@ public:
      *    the reason.
      *    @return 0 on success
      */
-    int update_ar(vector<VectorAttribute *> ars, bool keep_restricted,
-            string& error_msg);
+    int update_ar(std::vector<VectorAttribute *> ars, bool keep_restricted,
+            std::string& error_msg);
     /**
      *  Allocates a new *empty* address range. It is not added to the pool as it
      *  needs to be initialized. Only the AR_ID is set.
@@ -99,7 +96,7 @@ public:
      *    IPAM...
      *    @return the new address range.
      */
-    AddressRange * allocate_ar(const string& ipam_mad);
+    AddressRange * allocate_ar(const std::string& ipam_mad);
 
     /**
      *  Adds a new address range to the pool. It should be allocated by the
@@ -122,7 +119,7 @@ public:
      *    @return 0 if success
      */
     int allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
-        VectorAttribute * nic, const vector<string> &inherit);
+        VectorAttribute * nic, const std::vector<std::string> &inherit);
 
     /**
      *  Allocates an address in a suitable address range from the pool by mac/ip
@@ -133,14 +130,17 @@ public:
      *    @param inherit attributes to be added to the NIC
      *    @return 0 if success
      */
-    int allocate_by_mac(const string &mac, PoolObjectSQL::ObjectType ot, int obid,
-        VectorAttribute * nic, const vector<string> &inherit);
+    int allocate_by_mac(const std::string &mac, PoolObjectSQL::ObjectType ot,
+                        int obid, VectorAttribute * nic,
+                        const std::vector<std::string> &inherit);
 
-    int allocate_by_ip(const string &ip, PoolObjectSQL::ObjectType ot, int obid,
-        VectorAttribute * nic, const vector<string> &inherit);
+    int allocate_by_ip(const std::string &ip, PoolObjectSQL::ObjectType ot,
+                       int obid, VectorAttribute * nic,
+                       const std::vector<std::string> &inherit);
 
-    int allocate_by_ip6(const string &ip, PoolObjectSQL::ObjectType ot, int obid,
-        VectorAttribute * nic, const vector<string> &inherit);
+    int allocate_by_ip6(const std::string &ip, PoolObjectSQL::ObjectType ot,
+                        int obid, VectorAttribute * nic,
+                        const std::vector<std::string> &inherit);
 
     /**
      *  Holds an address from the specified address range.
@@ -148,22 +148,22 @@ public:
      *    @param mac/ip the mac/ip to hold
      *    @return 0 on success
      */
-    int hold_by_mac(unsigned int arid, const string& mac);
+    int hold_by_mac(unsigned int arid, const std::string& mac);
 
-    int hold_by_ip(unsigned int arid, const string& ip);
+    int hold_by_ip(unsigned int arid, const std::string& ip);
 
-    int hold_by_ip6(unsigned int arid, const string& ip);
+    int hold_by_ip6(unsigned int arid, const std::string& ip);
 
     /**
      *  Holds an address from the first address range containing the MAC
      *    @param mac/ip the mac/ip to hold
      *    @return 0 on success
      */
-    int hold_by_mac(const string& mac);
+    int hold_by_mac(const std::string& mac);
 
-    int hold_by_ip(const string& ip);
+    int hold_by_ip(const std::string& ip);
 
-    int hold_by_ip6(const string& ip);
+    int hold_by_ip6(const std::string& ip);
 
     /**
      *  Frees the given address by MAC/IP on the given address range
@@ -173,13 +173,13 @@ public:
      *    @param mac/ip the specific MAC/IP address requested
      */
     void free_addr(unsigned int arid, PoolObjectSQL::ObjectType ot, int obid,
-        const string& mac);
+        const std::string& mac);
 
     void free_addr_by_ip(unsigned int arid, PoolObjectSQL::ObjectType ot,
-        int obid, const string& ip);
+        int obid, const std::string& ip);
 
     void free_addr_by_ip6(unsigned int arid, PoolObjectSQL::ObjectType ot,
-        int obid, const string& ip);
+        int obid, const std::string& ip);
 
     /**
      *  Frees the given address by MAC/IP from all address ranges containing
@@ -188,11 +188,14 @@ public:
      *    @param obid the id of the object requesting the address
      *    @param mac/ip the specific MAC/IP address requested
      */
-    void free_addr(PoolObjectSQL::ObjectType ot, int obid, const string& mac);
+    void free_addr(PoolObjectSQL::ObjectType ot, int obid,
+                   const std::string& mac);
 
-    void free_addr_by_ip(PoolObjectSQL::ObjectType ot, int id, const string& ip);
+    void free_addr_by_ip(PoolObjectSQL::ObjectType ot, int id,
+                         const std::string& ip);
 
-    void free_addr_by_ip6(PoolObjectSQL::ObjectType ot, int id,const string& ip);
+    void free_addr_by_ip6(PoolObjectSQL::ObjectType ot, int id,
+                          const std::string& ip);
 
     /**
      *  Frees all the addressed owned by the given object
@@ -211,7 +214,7 @@ public:
      *    @param rsize size of the address range
      */
     int free_addr_by_range(unsigned int arid, PoolObjectSQL::ObjectType ot,
-            int obid, const string& mac, unsigned int rsize);
+            int obid, const std::string& mac, unsigned int rsize);
 
     /**
      * From a Security Group rule that uses this vnet, creates a new rule
@@ -222,8 +225,8 @@ public:
      * be deleted by the caller
      */
     void process_security_rule(
-            VectorAttribute *        rule,
-            vector<VectorAttribute*> &new_rules);
+            VectorAttribute *              rule,
+            std::vector<VectorAttribute*> &new_rules);
 
     // *************************************************************************
     // Address reservation
@@ -260,13 +263,13 @@ public:
      *    @return 0 on success
      */
     int reserve_addr_by_mac(int vid, unsigned int rsize, unsigned int ar_id,
-        const string& mac, AddressRange *rar);
+        const std::string& mac, AddressRange *rar);
 
     int reserve_addr_by_ip(int vid, unsigned int rsize, unsigned int ar_id,
-        const string& ip, AddressRange *rar);
+        const std::string& ip, AddressRange *rar);
 
     int reserve_addr_by_ip6(int vid, unsigned int rsize, unsigned int ar_id,
-        const string& ip, AddressRange *rar);
+        const std::string& ip, AddressRange *rar);
 
 
     // *************************************************************************
@@ -299,7 +302,7 @@ public:
      *    @param value of the attribute
      *    @param ar_id to get the attribute from
      */
-    void get_attribute(const string& name, string& value, int ar_id) const;
+    void get_attribute(const std::string& name, std::string& value, int ar_id) const;
 
     /**
      *  Gets an attribute from the Address Range, int version
@@ -308,19 +311,19 @@ public:
      *    @param ar_id to get the attribute from
      *    @return 0 on success
      */
-    int get_attribute(const string& name, int& value, int ar_id) const;
+    int get_attribute(const std::string& name, int& value, int ar_id) const;
 
     /**
      *  Gets a reference to a the security group set of an AR
      *    @return a reference to the security group set or empty set if error
      */
-    const set<int>& get_security_groups(int ar_id) const;
+    const std::set<int>& get_security_groups(int ar_id) const;
 
     /**
      *  Gets a the security group set of all ARs
      *    @param sgs set with all the SG ids
      */
-    void get_all_security_groups(set<int>& sgs);
+    void get_all_security_groups(std::set<int>& sgs);
 
     /**
      *  Generate a XML representation of the Address Range Pool
@@ -334,8 +337,11 @@ public:
      *      A vector containing just -1 means all VRouters.
      *    @return the string with the XML
      */
-    string& to_xml(string& sstream, bool extended, const vector<int>& vms,
-        const vector<int>& vnets, const vector<int>& vrs) const;
+    std::string& to_xml(std::string& sstream,
+                        bool extended,
+                        const std::vector<int>& vms,
+                        const std::vector<int>& vnets,
+                        const std::vector<int>& vrs) const;
 
     /**
      *  Encrypt all secret attributes
@@ -368,7 +374,7 @@ private:
     /**
      *  Map to access each range
      */
-    map<unsigned int, AddressRange *> ar_pool;
+    std::map<unsigned int, AddressRange *> ar_pool;
 
     /**
      *  Used addresses
@@ -383,7 +389,7 @@ private:
      *    @param ar_id for the AddressRange
      *    @return the new address range.
      */
-    AddressRange * allocate_ar(const string& ipam_mad, unsigned int ar_id);
+    AddressRange * allocate_ar(const std::string& ipam_mad, unsigned int ar_id);
 };
 
 #endif

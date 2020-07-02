@@ -135,7 +135,8 @@ public:
         return DriverManager::get_driver(hook_driver_name);
     }
 
-    static std::string * format_message(const string& args, const string&remote_host,
+    static std::string * format_message(const std::string& args,
+                                        const std::string& remote_host,
                                         int hook_id);
 
 private:
@@ -178,22 +179,22 @@ private:
     /**
      *
      */
-    static void _undefined(unique_ptr<hook_msg_t> msg);
+    static void _undefined(std::unique_ptr<hook_msg_t> msg);
 
     /**
      *
      */
-    void _execute(unique_ptr<hook_msg_t> msg);
+    void _execute(std::unique_ptr<hook_msg_t> msg);
 
     /**
      *
      */
-    void _retry(unique_ptr<hook_msg_t> msg);
+    void _retry(std::unique_ptr<hook_msg_t> msg);
 
     /**
      *
      */
-    static void _log(unique_ptr<hook_msg_t> msg);
+    static void _log(std::unique_ptr<hook_msg_t> msg);
 
     // -------------------------------------------------------------------------
     // Action Listener interface

@@ -25,10 +25,6 @@
 #include "VMActions.h"
 #include "AuthRequest.h"
 
-class UserQuotas;
-
-using namespace std;
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -42,19 +38,19 @@ public:
     /**
      *  Characters that can not be in a name
      */
-    static const string INVALID_NAME_CHARS;
+    static const std::string INVALID_NAME_CHARS;
 
     /**
      *  Characters that can not be in a password
      */
-    static const string INVALID_PASS_CHARS;
+    static const std::string INVALID_PASS_CHARS;
 
     /**
      * Function to print the User object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const override;
+    std::string& to_xml(std::string& xml) const override;
 
     /**
      * Function to print the User object into a string in
@@ -62,7 +58,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml_extended(string& xml) const;
+    std::string& to_xml_extended(std::string& xml) const;
 
     /**
      *  Check if the user is enabled
@@ -77,7 +73,7 @@ public:
      *  Returns user password
      *     @return the User's password
      */
-    const string& get_password() const
+    const std::string& get_password() const
     {
         return password;
     };
@@ -109,7 +105,7 @@ public:
      *    @param error_str Returns the error reason, if any
      *    @return true if the string is valid
      */
-    static bool pass_is_valid(const string& pass, string& error_str);
+    static bool pass_is_valid(const std::string& pass, std::string& error_str);
 
     /**
      *  Sets user password. It checks that the new password does not contain
@@ -118,13 +114,13 @@ public:
      *    @param error_str Returns the error reason, if any
      *    @returns -1 if the password is not valid
      */
-    int set_password(const string& passwd, string& error_str);
+    int set_password(const std::string& passwd, std::string& error_str);
 
     /**
      *  Returns user password
      *     @return the user's auth driver
      */
-    const string& get_auth_driver() const
+    const std::string& get_auth_driver() const
     {
         return auth_driver;
     };
@@ -136,7 +132,7 @@ public:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success, -1 otherwise
      */
-    int set_auth_driver(const string& _auth_driver, string& error_str)
+    int set_auth_driver(const std::string& _auth_driver, std::string& error_str)
     {
         auth_driver = _auth_driver;
         session->reset();
@@ -151,7 +147,9 @@ public:
      *    @param password
      *    @return 0 on success
      **/
-    static int split_secret(const string secret, string& user, string& pass);
+    static int split_secret(const std::string secret,
+                            std::string& user,
+                            std::string& pass);
 
     /**
      *  Factory method for image templates
@@ -179,7 +177,7 @@ public:
     /**
      *  Returns a copy of the groups for the user
      */
-    set<int> get_groups()
+    std::set<int> get_groups()
     {
         return groups.clone();
     };
@@ -277,12 +275,12 @@ private:
     /**
      *  User's password
      */
-    string      password;
+    std::string password;
 
     /**
      *  Authentication driver for this user
      */
-    string      auth_driver;
+    std::string auth_driver;
 
     /**
      * Flag marking user enabled/disabled
@@ -315,7 +313,7 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(SqlDB *db, bool replace, string& error_str);
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the User
@@ -323,7 +321,7 @@ private:
      */
     static int bootstrap(SqlDB * db)
     {
-        ostringstream oss_user(one_db::user_db_bootstrap);
+        std::ostringstream oss_user(one_db::user_db_bootstrap);
 
         return db->exec_local_wr(oss_user);
     }
@@ -343,7 +341,7 @@ private:
      *
      *    @return 0 on success
      */
-    int select(SqlDB * db, const string& name, int uid) override;
+    int select(SqlDB * db, const std::string& name, int uid) override;
 
     /**
      *  Drops the user from the database
@@ -358,7 +356,7 @@ private:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str) override;
+    int from_xml(const std::string &xml_str) override;
 
     /**
      * Function to print the User object into a string in
@@ -367,7 +365,7 @@ private:
      *  @param extended If true, default quotas are included
      *  @return a reference to the generated string
      */
-    string& to_xml_extended(string& xml, bool extended) const;
+    std::string& to_xml_extended(std::string& xml, bool extended) const;
 
 protected:
 
@@ -375,13 +373,13 @@ protected:
     // Constructor
     // *************************************************************************
 
-    User(int           id,
-         int           _gid,
-         const string& _uname,
-         const string& _gname,
-         const string& _password,
-         const string& _auth_driver,
-         bool          _enabled):
+    User(int                id,
+         int                _gid,
+         const std::string& _uname,
+         const std::string& _gname,
+         const std::string& _password,
+         const std::string& _auth_driver,
+         bool               _enabled):
         PoolObjectSQL(id,USER,_uname,-1,_gid,"",_gname,one_db::user_table),
         quota(),
         password(_password),
@@ -404,7 +402,7 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str) override;
+    int insert(SqlDB *db, std::string& error_str) override;
 
     /**
      *  Writes/updates the User data fields in the database. This method does
@@ -414,7 +412,7 @@ protected:
      */
     int update(SqlDB *db) override
     {
-        string error_str;
+        std::string error_str;
         return insert_replace(db, true, error_str);
     }
 
@@ -422,7 +420,7 @@ protected:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int post_update_template(string& error) override;
+    int post_update_template(std::string& error) override;
 };
 
 #endif /*USER_H_*/

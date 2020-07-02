@@ -18,7 +18,13 @@
 #include "TransferManager.h"
 #include "DispatchManager.h"
 #include "VirtualMachineManager.h"
+#include "ClusterPool.h"
+#include "HostPool.h"
+#include "ImagePool.h"
+#include "SecurityGroupPool.h"
 #include "Request.h"
+
+using namespace std;
 
 void  LifeCycleManager::deploy_action(const LCMAction& la)
 {

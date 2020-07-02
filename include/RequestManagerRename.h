@@ -38,8 +38,6 @@
 #include "ZonePool.h"
 
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -47,9 +45,9 @@ using namespace std;
 class RequestManagerRename : public Request
 {
 protected:
-    RequestManagerRename(const string& method_name,
-                         const string& help,
-                         const string& params = "A:sis")
+    RequestManagerRename(const std::string& method_name,
+                         const std::string& help,
+                         const std::string& params = "A:sis")
         :Request(method_name,params,help)
     {
         pthread_mutex_init(&mutex, 0);
@@ -68,7 +66,7 @@ protected:
      *  Gets and object by name and owner. Default implementation returns no
      *  object
      */
-    virtual int exist(const string& name, int uid) = 0;
+    virtual int exist(const std::string& name, int uid) = 0;
 
     /**
      *  Batch rename of related objects. Default implementation does nothing
@@ -81,7 +79,7 @@ protected:
      */
     bool test_and_set_rename(int oid)
     {
-        pair<set<int>::iterator,bool> rc;
+        std::pair<std::set<int>::iterator,bool> rc;
 
         pthread_mutex_lock(&mutex);
 
@@ -124,7 +122,7 @@ private:
     /**
      *  Set of IDs being renamed;
      */
-    set<int> rename_ids;
+    std::set<int> rename_ids;
 
 };
 
@@ -145,7 +143,7 @@ public:
 
     ~VirtualMachineRename() = default;
 
-    int exist(const string& name, int uid) override
+    int exist(const std::string& name, int uid) override
     {
         return -1;
     }
@@ -184,7 +182,7 @@ public:
 
     ~TemplateRename() = default;
 
-    int exist(const string& name, int uid) override
+    int exist(const std::string& name, int uid) override
     {
         return pool->exist(name, uid);
     }
@@ -207,7 +205,7 @@ public:
 
     ~VirtualNetworkTemplateRename() = default;
 
-    int exist(const string& name, int uid) override
+    int exist(const std::string& name, int uid) override
     {
         return pool->exist(name, uid);
     }
@@ -230,7 +228,7 @@ public:
 
     ~VirtualNetworkRename() = default;
 
-    int exist(const string& name, int uid) override
+    int exist(const std::string& name, int uid) override
     {
         return pool->exist(name, uid);
     }
@@ -252,7 +250,7 @@ public:
 
     ~ImageRename() = default;
 
-    int exist(const string& name, int uid) override
+    int exist(const std::string& name, int uid) override
     {
         return pool->exist(name, uid);
     }
@@ -274,7 +272,7 @@ public:
 
     ~DocumentRename() = default;
 
-    int exist(const string& name, int uid) override
+    int exist(const std::string& name, int uid) override
     {
         return -1;
     }
@@ -296,7 +294,7 @@ public:
 
     ~ClusterRename() = default;
 
-    int exist(const string& name, int uid) override
+    int exist(const std::string& name, int uid) override
     {
         return pool->exist(name);
     }
@@ -320,7 +318,7 @@ public:
 
     ~DatastoreRename() = default;
 
-    int exist(const string& name, int uid) override
+    int exist(const std::string& name, int uid) override
     {
         return pool->exist(name);
     }
@@ -345,7 +343,7 @@ public:
     };
     ~HostRename() = default;
 
-    int exist(const string& name, int uid) override
+    int exist(const std::string& name, int uid) override
     {
         return pool->exist(name);
     }
@@ -369,7 +367,7 @@ public:
 
     ~ZoneRename() = default;
 
-    int exist(const string& name, int uid) override
+    int exist(const std::string& name, int uid) override
     {
         return pool->exist(name);
     }
@@ -391,7 +389,7 @@ public:
 
     ~SecurityGroupRename() = default;
 
-    int exist(const string& name, int uid) override
+    int exist(const std::string& name, int uid) override
     {
         return pool->exist(name, uid);
     }
@@ -413,7 +411,7 @@ public:
 
     ~VdcRename() = default;
 
-    int exist(const string& name, int uid) override
+    int exist(const std::string& name, int uid) override
     {
         return pool->exist(name);
     }
@@ -435,7 +433,7 @@ public:
 
     ~VirtualRouterRename() = default;
 
-    int exist(const string& name, int uid) override
+    int exist(const std::string& name, int uid) override
     {
         return -1;
     }
@@ -457,7 +455,7 @@ public:
 
     ~MarketPlaceRename() = default;
 
-    int exist(const string& name, int uid) override
+    int exist(const std::string& name, int uid) override
     {
         return pool->exist(name);
     }
@@ -481,7 +479,7 @@ public:
 
     ~MarketPlaceAppRename() = default;
 
-    int exist(const string& name, int uid) override
+    int exist(const std::string& name, int uid) override
     {
         return pool->exist(name, uid);
     }
@@ -503,7 +501,7 @@ public:
 
     ~VMGroupRename() = default;
 
-    int exist(const string& name, int uid) override
+    int exist(const std::string& name, int uid) override
     {
         return pool->exist(name, uid);
     }
@@ -525,7 +523,7 @@ public:
 
     ~HookRename() = default;
 
-    int exist(const string& name, int uid)
+    int exist(const std::string& name, int uid)
     {
         return pool->exist(name, uid);
     }

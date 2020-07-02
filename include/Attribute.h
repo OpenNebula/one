@@ -24,8 +24,6 @@
 
 #include "NebulaUtil.h"
 
-using namespace std;
-
 /**
  *  Attribute base class for name-value pairs. This class provides a generic
  *  interface to implement
@@ -34,7 +32,7 @@ class Attribute
 {
 public:
 
-    Attribute(const string& aname):attribute_name(aname)
+    Attribute(const std::string& aname):attribute_name(aname)
     {
         transform (
             attribute_name.begin(),
@@ -66,7 +64,7 @@ public:
      *  Gets the name of the attribute.
      *    @return the attribute name
      */
-    const string& name() const
+    const std::string& name() const
     {
         return attribute_name;
     };
@@ -76,7 +74,7 @@ public:
      *  by the calling function.
      *    @return a string (allocated in the heap) holding the attribute value.
      */
-    virtual string * marshall(const char * _sep = 0) const = 0;
+    virtual std::string * marshall(const char * _sep = 0) const = 0;
 
     /**
      *  Write the attribute using a simple XML format. The string MUST be freed
@@ -92,7 +90,7 @@ public:
     /**
      *  Builds a new attribute from a string.
      */
-    virtual void unmarshall(const string& sattr, const char * _sep = 0) = 0;
+    virtual void unmarshall(const std::string& sattr, const char * _sep = 0) = 0;
 
     /**
      *  Returns the attribute type
@@ -107,19 +105,19 @@ public:
     /**
      *  Encrypt all secret attributes
      */
-    virtual void encrypt(const string& one_key, const set<string>& eas) {};
+    virtual void encrypt(const std::string& one_key, const std::set<std::string>& eas) {};
 
     /**
      *  Decrypt all secret attributes
      */
-    virtual void decrypt(const string& one_key, const set<string>& eas) {};
+    virtual void decrypt(const std::string& one_key, const std::set<std::string>& eas) {};
 
 protected:
 
     /**
      *  The attribute name.
      */
-    string attribute_name;
+    std::string attribute_name;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -134,9 +132,9 @@ class SingleAttribute : public Attribute
 {
 public:
 
-    SingleAttribute(const string& name):Attribute(name){};
+    SingleAttribute(const std::string& name):Attribute(name){};
 
-    SingleAttribute(const string& name, const string& value):
+    SingleAttribute(const std::string& name, const std::string& value):
         Attribute(name),attribute_value(value){};
 
     SingleAttribute(const SingleAttribute& sa):Attribute(sa.attribute_name)
@@ -149,7 +147,7 @@ public:
     /**
      *  Returns the attribute value, a string.
      */
-    const string& value() const
+    const std::string& value() const
     {
         return attribute_value;
     };
@@ -159,9 +157,9 @@ public:
      *  by the calling function.
      *    @return a string (allocated in the heap) holding the attribute value.
      */
-    string * marshall(const char * _sep = 0) const override
+    std::string * marshall(const char * _sep = 0) const override
     {
-        string * rs = new string;
+        auto rs = new std::string;
 
         *rs = attribute_value;
 
@@ -203,7 +201,7 @@ public:
     /**
      *  Builds a new attribute from a string.
      */
-    void unmarshall(const string& sattr, const char * _sep = 0) override
+    void unmarshall(const std::string& sattr, const char * _sep = 0) override
     {
         attribute_value = sattr;
     };
@@ -211,7 +209,7 @@ public:
     /**
      *  Replaces the attribute value from a string.
      */
-    void replace(const string& sattr)
+    void replace(const std::string& sattr)
     {
         attribute_value = sattr;
     };
@@ -235,16 +233,18 @@ public:
     /**
      *  Encrypt all secret attributes
      */
-    virtual void encrypt(const string& one_key, const set<string>& eas) override;
+    void encrypt(const std::string& one_key,
+                 const std::set<std::string>& eas) override;
 
     /**
      *  Decrypt all secret attributes
      */
-    virtual void decrypt(const string& one_key, const set<string>& eas) override;
+    void decrypt(const std::string& one_key,
+                 const std::set<std::string>& eas) override;
 
 private:
 
-    string attribute_value;
+    std::string attribute_value;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -259,9 +259,10 @@ class VectorAttribute : public Attribute
 {
 public:
 
-    VectorAttribute(const string& name):Attribute(name){};
+    VectorAttribute(const std::string& name):Attribute(name){};
 
-    VectorAttribute(const string& name,const  map<string,string>& value):
+    VectorAttribute(const std::string& name,
+                    const  std::map<std::string,std::string>& value):
             Attribute(name),attribute_value(value){};
 
     VectorAttribute(const VectorAttribute& va):Attribute(va.attribute_name)
@@ -279,7 +280,7 @@ public:
     /**
      *  Returns the attribute value, a string.
      */
-    const map<string,string>& value() const
+    const std::map<std::string,std::string>& value() const
     {
         return attribute_value;
     };
@@ -290,7 +291,7 @@ public:
      *
      *    @return the value of the attribute if found, empty otherwise
      */
-    string vector_value(const string& name) const;
+    std::string vector_value(const std::string& name) const;
 
     /**
      * Returns the value of the given element of the VectorAttribute
@@ -301,11 +302,9 @@ public:
      * @return 0 on success, -1 otherwise
      */
     template<typename T>
-    int vector_value(const string& name, T& value) const
+    int vector_value(const std::string& name, T& value) const
     {
-        map<string,string>::const_iterator it;
-
-        it = attribute_value.find(name);
+        auto it = attribute_value.find(name);
 
         if ( it == attribute_value.end() )
         {
@@ -317,7 +316,7 @@ public:
             return -1;
         }
 
-        istringstream iss(it->second);
+        std::istringstream iss(it->second);
         iss >> value;
 
         if (iss.fail() || !iss.eof())
@@ -337,7 +336,9 @@ public:
      * @param default_value used if element is invalid
      */
     template<typename T>
-    void vector_value(const string& name, T& value, const T& default_value) const
+    void vector_value(const std::string& name,
+                      T& value,
+                      const T& default_value) const
     {
         if (vector_value(name, value) != 0)
         {
@@ -345,9 +346,9 @@ public:
         }
     }
 
-    int vector_value(const string& name, string& value) const;
+    int vector_value(const std::string& name, std::string& value) const;
 
-    int vector_value(const string& name, bool& value) const;
+    int vector_value(const std::string& name, bool& value) const;
 
     /**
      * Returns the value of the given element of the VectorAttribute
@@ -359,11 +360,9 @@ public:
      * @return the value in string form on success, "" otherwise
      */
     template<typename T>
-    string vector_value_str(const string& name, T& value) const
+    std::string vector_value_str(const std::string& name, T& value) const
     {
-        map<string,string>::const_iterator it;
-
-        it = attribute_value.find(name);
+        auto it = attribute_value.find(name);
 
         if ( it == attribute_value.end() )
         {
@@ -375,7 +374,7 @@ public:
             return "";
         }
 
-        istringstream iss(it->second);
+        std::istringstream iss(it->second);
         iss >> value;
 
         if (iss.fail() || !iss.eof())
@@ -392,7 +391,7 @@ public:
      *  "VAL_NAME_1=VAL_VALUE_1,...,VAL_NAME_N=VAL_VALUE_N".
      *    @return a string (allocated in the heap) holding the attribute value.
      */
-    string * marshall(const char * _sep = 0) const override;
+    std::string * marshall(const char * _sep = 0) const override;
 
     /**
      *  Write the attribute using a simple XML format:
@@ -416,12 +415,12 @@ public:
      *  Builds a new attribute from a string of the form:
      *  "VAL_NAME_1=VAL_VALUE_1,...,VAL_NAME_N=VAL_VALUE_N".
      */
-    void unmarshall(const string& sattr, const char * _sep = 0) override;
+    void unmarshall(const std::string& sattr, const char * _sep = 0) override;
 
     /**
      *  Replace the value of the given attribute with the provided map
      */
-    void replace(const map<string,string>& attr);
+    void replace(const std::map<std::string,std::string>& attr);
 
     /**
      * The attributes from vattr will be copied to this vector
@@ -435,16 +434,16 @@ public:
      *  Replace the value of the given vector attribute
      */
     template<typename T>
-    void replace(const string& name, T value)
+    void replace(const std::string& name, T value)
     {
-        ostringstream oss;
+        std::ostringstream oss;
 
         oss << value;
 
         replace(name, oss.str());
     }
 
-    void replace(const string& name, bool value)
+    void replace(const std::string& name, bool value)
     {
         if (value == true)
         {
@@ -456,13 +455,13 @@ public:
         }
     }
 
-    void replace(const string& name, const string& value);
+    void replace(const std::string& name, const std::string& value);
 
     /**
      * Removes given the vector attribute
      * @param name of the vector attribute
      */
-    void remove(const string& name);
+    void remove(const std::string& name);
 
     /**
      *  Returns the attribute type
@@ -499,12 +498,14 @@ public:
     /**
      *  Encrypt all secret attributes
      */
-    virtual void encrypt(const string& one_key, const set<string>& eas) override;
+    void encrypt(const std::string& one_key,
+                 const std::set<std::string>& eas) override;
 
     /**
      *  Decrypt all secret attributes
      */
-    virtual void decrypt(const string& one_key, const set<string>& eas) override;
+    void decrypt(const std::string& one_key,
+                 const std::set<std::string>& eas) override;
 
 private:
 
@@ -512,7 +513,7 @@ private:
 
     static const int    magic_sep_size;
 
-    map<string,string> attribute_value;
+    std::map<std::string,std::string> attribute_value;
 };
 
 #endif /*ATTRIBUTE_H_*/

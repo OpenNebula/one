@@ -19,6 +19,8 @@
 #include <iomanip>
 #include <queue>
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 /**
  * Parses value from string to given type

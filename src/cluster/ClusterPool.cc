@@ -18,8 +18,11 @@
 #include "Nebula.h"
 #include "NebulaLog.h"
 #include "ClusterTemplate.h"
+#include "DatastorePool.h"
 
 #include <stdexcept>
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* There is a default cluster boostrapped by the core: 0, default             */

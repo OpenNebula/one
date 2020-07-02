@@ -15,10 +15,9 @@
 /* -------------------------------------------------------------------------- */
 
 #include "XMLDriver.h"
-#include "Nebula.h"
-#include <sstream>
 #include <fstream>
-#include <math.h>
+
+using namespace std;
 
 int XMLDriver::deployment_description(
     const VirtualMachine *  vm,

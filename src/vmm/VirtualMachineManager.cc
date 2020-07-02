@@ -22,10 +22,14 @@
 #include "NebulaUtil.h"
 #include "TransferManager.h"
 #include "LifeCycleManager.h"
+#include "DatastorePool.h"
+#include "VirtualMachinePool.h"
 
 #include "Nebula.h"
 
 #include <time.h>
+
+using namespace std;
 
 /* ************************************************************************** */
 /* Constructor                                                                */

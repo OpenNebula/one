@@ -20,8 +20,6 @@
 #include "Callbackable.h"
 #include "SqlDB.h"
 
-using namespace std;
-
 /**
  * ObjectSQL class. Provides a SQL backend interface, it should be implemented
  * by persistent objects.
@@ -50,7 +48,7 @@ protected:
      */
     virtual int insert(
         SqlDB * db,
-        string& error_str) = 0;
+        std::string& error_str) = 0;
 
     /**
      *  Updates the ObjectSQL in the database.

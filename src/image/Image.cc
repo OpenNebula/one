@@ -21,14 +21,14 @@
 #include "UserPool.h"
 #include "NebulaUtil.h"
 #include "LifeCycleManager.h"
+#include "VirtualMachineDisk.h"
 #include "Nebula.h"
 
 #include <sstream>
 #include <openssl/evp.h>
 #include <iomanip>
 
-
-#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
+using namespace std;
 
 /* ************************************************************************ */
 /* Image :: Constructor/Destructor                                          */
@@ -120,7 +120,7 @@ int Image::insert(SqlDB *db, string& error_str)
         case OS:
         case DATABLOCK:
         case CDROM:
-            TO_UPPER(persistent_attr);
+            one_util::toupper(persistent_attr);
             persistent_img = (persistent_attr == "YES");
 
             get_template_attribute("DEV_PREFIX", dev_prefix);
@@ -511,7 +511,7 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
     get_template_attribute("DRIVER", template_driver);
     get_template_attribute("PERSISTENT_TYPE", template_ptype);
 
-    TO_UPPER(template_ptype);
+    one_util::toupper(template_ptype);
 
     //---------------------------------------------------------------------------
     //                       DEV_PREFIX ATTRIBUTE
@@ -672,7 +672,7 @@ int Image::set_type(string& _type, string& error)
 {
     int rc = 0;
 
-    TO_UPPER(_type);
+    one_util::toupper(_type);
 
     if ((_type != "OS" && _type != "DATABLOCK") && (snapshots.size() > 0))
     {
@@ -753,7 +753,7 @@ Image::ImageType Image::str_to_type(string& str_type)
         str_type = ImagePool::default_type();
     }
 
-    TO_UPPER(str_type);
+    one_util::toupper(str_type);
 
     if ( str_type == "OS" )
     {

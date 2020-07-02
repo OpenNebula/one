@@ -21,12 +21,11 @@
 #include "ObjectXML.h"
 #include "PoolObjectAuth.h"
 
-using namespace std;
 
 class VirtualNetworkXML : public ObjectXML
 {
 public:
-    VirtualNetworkXML(const string &xml_doc):ObjectXML(xml_doc)
+    VirtualNetworkXML(const std::string &xml_doc):ObjectXML(xml_doc)
     {
         init_attributes();
     };
@@ -41,7 +40,7 @@ public:
      *    @param error error message
      *    @return true if the VNET can host the VM
      */
-    bool test_leases(string & error) const;
+    bool test_leases(std::string & error) const;
 
     /**
      *  Tests whether a new NIC can be attached to a vnet
@@ -50,7 +49,7 @@ public:
      */
     bool test_leases() const
     {
-        string tmp_st;
+        std::string tmp_st;
         return test_leases(tmp_st);
     }
 
@@ -88,12 +87,12 @@ public:
      *  Prints the Virtual Network information to an output stream. This function is used
      *  for logging purposes.
      */
-    friend ostream& operator<<(ostream& o, const VirtualNetworkXML& p);
+    friend std::ostream& operator<<(std::ostream& o, const VirtualNetworkXML& p);
 
 private:
 
     int oid;
-    set<int> cluster_ids;
+    std::set<int> cluster_ids;
 
     int uid;
     int gid;

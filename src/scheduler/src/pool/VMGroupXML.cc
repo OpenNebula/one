@@ -18,6 +18,8 @@
 #include "VirtualMachinePoolXML.h"
 #include <iomanip>
 
+using namespace std;
+
 static ostream& operator<<(ostream& os, VMGroupRule::rule_set rules);
 
 void VMGroupXML::init_attributes()

@@ -58,7 +58,7 @@ public:
     RaftManager(int server_id, const VectorAttribute * leader_hook_mad,
         const VectorAttribute * follower_hook_mad, time_t log_purge,
         long long bcast, long long election, time_t xmlrpc,
-        const string& remotes_location);
+        const std::string& remotes_location);
 
     ~RaftManager()
     {
@@ -136,7 +136,7 @@ public:
 
     static std::string state_to_str(State _state)
     {
-        string st;
+        std::string st;
 
         switch (_state)
         {
@@ -409,7 +409,7 @@ private:
     /**
      * Value for name column in system_attributes table for raft state.
      */
-    static const string raft_state_name;
+    static const std::string raft_state_name;
 
     /**
      *  After becoming a leader it is replicating and applying any pending

@@ -18,13 +18,7 @@
 #define LIFE_CYCLE_MANAGER_H_
 
 #include "ActionManager.h"
-#include "VirtualMachinePool.h"
-#include "HostPool.h"
-#include "ImagePool.h"
-#include "SecurityGroupPool.h"
-#include "ClusterPool.h"
-
-using namespace std;
+#include "NebulaLog.h"
 
 extern "C" void * lcm_action_loop(void *arg);
 
@@ -33,6 +27,12 @@ class TransferManager;
 class DispatchManager;
 class VirtualMachineManager;
 class ImageManager;
+class ClusterPool;
+class HostPool;
+class ImagePool;
+class SecurityGroupPool;
+class VirtualMachinePool;
+class VirtualMachine;
 struct RequestAttributes;
 
 /* -------------------------------------------------------------------------- */

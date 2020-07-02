@@ -23,7 +23,8 @@ class MonitorConfigTemplate : public NebulaTemplate
 {
 public:
 
-    explicit MonitorConfigTemplate(const string& etc, const string& filename):
+    explicit MonitorConfigTemplate(const std::string& etc,
+                                   const std::string& filename):
         NebulaTemplate(etc, filename.c_str(), "MONITOR_CONFIGURATION")
         {};
 

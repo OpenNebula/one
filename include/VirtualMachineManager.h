@@ -148,7 +148,7 @@ public:
      *    @param action
      *    @return True if it is supported
      */
-    bool is_imported_action_supported(const string& mad, VMActions::Action action)
+    bool is_imported_action_supported(const std::string& mad, VMActions::Action action)
     {
         const VirtualMachineManagerDriver * vmd = get(mad);
 
@@ -172,7 +172,7 @@ public:
     /**
      * Get keep_snapshots capability from driver
      */
-    bool is_keep_snapshots(const string& name)
+    bool is_keep_snapshots(const std::string& name)
     {
         const VirtualMachineManagerDriver * vmd = get(name);
 
@@ -188,7 +188,7 @@ public:
      * Get cold_nic_attach behavior for the driver. When true the driver will be
      * invoked in cold NIC attach operations
      */
-    bool is_cold_nic_attach(const string& name)
+    bool is_cold_nic_attach(const std::string& name)
     {
         const VirtualMachineManagerDriver * vmd = get(name);
 
@@ -207,8 +207,7 @@ public:
      *    @return the VM driver owned by uid with attribute name equal to value
      *    or 0 in not found
      */
-    const VirtualMachineManagerDriver * get(
-        const string&   name)
+    const VirtualMachineManagerDriver * get(const std::string& name)
     {
         return DriverManager::get_driver(name);
     };
@@ -221,7 +220,7 @@ public:
      *
      *  @return 0 on success (valid raw)
      */
-    int validate_raw(const Template * vmt, string& error_str);
+    int validate_raw(const Template * vmt, std::string& error_str);
 
 private:
     /**
@@ -268,127 +267,127 @@ private:
     // -------------------------------------------------------------------------
     // Protocol implementation, procesing messages from driver
     // -------------------------------------------------------------------------
-    static void _undefined(unique_ptr<vm_msg_t> msg);
+    static void _undefined(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _deploy(unique_ptr<vm_msg_t> msg);
+    void _deploy(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _shutdown(unique_ptr<vm_msg_t> msg);
+    void _shutdown(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _reset(unique_ptr<vm_msg_t> msg);
+    void _reset(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _reboot(unique_ptr<vm_msg_t> msg);
+    void _reboot(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _cancel(unique_ptr<vm_msg_t> msg);
+    void _cancel(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _cleanup(unique_ptr<vm_msg_t> msg);
+    void _cleanup(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _checkpoint(unique_ptr<vm_msg_t> msg);
+    void _checkpoint(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _save(unique_ptr<vm_msg_t> msg);
+    void _save(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _restore(unique_ptr<vm_msg_t> msg);
+    void _restore(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _migrate(unique_ptr<vm_msg_t> msg);
+    void _migrate(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _attachdisk(unique_ptr<vm_msg_t> msg);
+    void _attachdisk(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _detachdisk(unique_ptr<vm_msg_t> msg);
+    void _detachdisk(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _attachnic(unique_ptr<vm_msg_t> msg);
+    void _attachnic(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _detachnic(unique_ptr<vm_msg_t> msg);
+    void _detachnic(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _snapshotcreate(unique_ptr<vm_msg_t> msg);
+    void _snapshotcreate(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _snapshotrevert(unique_ptr<vm_msg_t> msg);
+    void _snapshotrevert(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _snapshotdelete(unique_ptr<vm_msg_t> msg);
+    void _snapshotdelete(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _disksnapshotcreate(unique_ptr<vm_msg_t> msg);
+    void _disksnapshotcreate(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _disksnapshotrevert(unique_ptr<vm_msg_t> msg);
+    void _disksnapshotrevert(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _resizedisk(unique_ptr<vm_msg_t> msg);
+    void _resizedisk(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _updateconf(unique_ptr<vm_msg_t> msg);
+    void _updateconf(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _updatesg(unique_ptr<vm_msg_t> msg);
+    void _updatesg(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    void _driver_cancel(unique_ptr<vm_msg_t> msg);
+    void _driver_cancel(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
      */
-    static void _log(unique_ptr<vm_msg_t> msg);
+    static void _log(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
@@ -452,17 +451,17 @@ private:
      *    @param ds_id of the system datastore
      *    @param id of the security group
      */
-    string * format_message(
-        const string& hostname,
-        const string& m_hostname,
-        const string& domain,
-        const string& ldfile,
-        const string& rdfile,
-        const string& cfile,
-        const string& tm_command,
-        const string& tm_command_rollback,
-        const string& disk_target_path,
-        const string& tmpl,
+    std::string * format_message(
+        const std::string& hostname,
+        const std::string& m_hostname,
+        const std::string& domain,
+        const std::string& ldfile,
+        const std::string& rdfile,
+        const std::string& cfile,
+        const std::string& tm_command,
+        const std::string& tm_command_rollback,
+        const std::string& disk_target_path,
+        const std::string& tmpl,
         int ds_id,
         int sgid);
 

@@ -25,7 +25,6 @@
 
 #include <set>
 
-using namespace std;
 
 extern "C" void * rm_action_loop(void *arg);
 
@@ -36,15 +35,15 @@ class RequestManager : public ActionListener
 public:
 
     RequestManager(
-            const string& _port,
+            const std::string& _port,
             int _max_conn,
             int _max_conn_backlog,
             int _keepalive_timeout,
             int _keepalive_max_conn,
             int _timeout,
-            const string& _xml_log_file,
-            const string& call_log_format,
-            const string& _listen_address,
+            const std::string& _xml_log_file,
+            const std::string& call_log_format,
+            const std::string& _listen_address,
             int message_size);
 
     ~RequestManager(){};
@@ -79,7 +78,7 @@ public:
      */
     xmlrpc_c::serverAbyss * create_abyss();
 
-    bool exist_method(const string& call)
+    bool exist_method(const std::string& call)
     {
         return RequestManagerRegistry.exist(call);
     }
@@ -97,7 +96,7 @@ private:
             registry.addMethod(name, methodP);
         };
 
-        bool exist(const string& call)
+        bool exist(const std::string& call)
         {
             return registered_methods.find(call) != registered_methods.end();
         }
@@ -124,7 +123,7 @@ private:
     /**
      *  Port number where the connection will be open
      */
-    string port;
+    std::string port;
 
     /*
      *  FD for the XML server socket
@@ -159,12 +158,12 @@ private:
     /**
      *  Filename for the log of the xmlrpc server that listens
      */
-    string xml_log_file;
+    std::string xml_log_file;
 
     /**
      *  Specifies the address xmlrpc server will bind to
      */
-    string listen_address;
+    std::string listen_address;
 
     /**
      *  Action engine for the Manager

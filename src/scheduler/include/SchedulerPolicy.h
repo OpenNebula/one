@@ -22,7 +22,6 @@
 #include <cmath>
 #include <algorithm>
 
-using namespace std;
 
 /**
  *  Abstract class that represents a Scheduling policy
@@ -43,8 +42,8 @@ public:
      */
     const void schedule(ObjectXML * obj)
     {
-        vector<float> priority;
-        const vector<Resource *> resources = get_match_resources(obj);
+        std::vector<float> priority;
+        const std::vector<Resource *> resources = get_match_resources(obj);
 
         if (resources.empty())
         {
@@ -73,13 +72,13 @@ protected:
      *    @param obj pointer to the object
      *    @return a reference to the vector
      */
-     virtual const vector<Resource *> get_match_resources(ObjectXML *obj) = 0;
+     virtual const std::vector<Resource *> get_match_resources(ObjectXML *obj) = 0;
 
     /**
      *  Implements the actual schedule by computing the priority of each
      *  matching resource.
      */
-    virtual void policy(ObjectXML * obj, vector<float>& priority) = 0;
+    virtual void policy(ObjectXML * obj, std::vector<float>& priority) = 0;
 
 private:
     /**

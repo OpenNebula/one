@@ -105,7 +105,7 @@ public:
      *  Prints the Host information to an output stream. This function is used
      *  for logging purposes.
      */
-    friend ostream& operator<<(ostream& o, const HostBase& host);
+    friend std::ostream& operator<<(std::ostream& o, const HostBase& host);
 
 protected:
     int init_attributes();

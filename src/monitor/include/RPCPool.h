@@ -145,7 +145,7 @@ protected:
     /**
      * Hash map contains the suitable [id, object] pairs.
      */
-    map<int, std::unique_ptr<BaseObject>> objects;
+    std::map<int, std::unique_ptr<BaseObject>> objects;
 
 };
 

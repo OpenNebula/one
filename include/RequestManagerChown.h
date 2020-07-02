@@ -33,8 +33,6 @@
 #include "VMTemplatePool.h"
 #include "VNTemplatePool.h"
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -42,9 +40,9 @@ using namespace std;
 class RequestManagerChown : public Request
 {
 protected:
-    RequestManagerChown(const string& method_name,
-                        const string& help,
-                        const string& params = "A:siii")
+    RequestManagerChown(const std::string& method_name,
+                        const std::string& help,
+                        const std::string& params = "A:siii")
         :Request(method_name,params,help)
     {
         auth_op = AuthRequest::MANAGE;

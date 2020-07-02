@@ -39,7 +39,7 @@ public:
      *    @param xml the string to store the XML
      *    @return the same xml string to use it in << compounds
      */
-    string& to_xml(string& xml) const;
+    std::string& to_xml(std::string& xml) const;
 
     /**
      *  Writes the quotas in the database.
@@ -73,7 +73,7 @@ private:
      *    @param xml The xml-formatted string
      *    @return 0 on success
      */
-    int from_xml(const string& xml);
+    int from_xml(const std::string& xml);
 };
 
 #endif /*DEFAULT_QUOTAS_H_*/

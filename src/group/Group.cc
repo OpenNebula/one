@@ -21,6 +21,9 @@
 
 #include <sstream>
 
+using namespace std;
+
+
 Group::Group(int id, const string& name):
     PoolObjectSQL(id,GROUP,name,-1,-1,"","",one_db::group_table),
     quota(),

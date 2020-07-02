@@ -21,6 +21,8 @@
 #include <fstream>
 #include <math.h>
 
+using namespace std;
+
 
 string on_off_string(bool value)
 {

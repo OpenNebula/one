@@ -22,6 +22,8 @@
 #include "NebulaUtil.h"
 #include <sstream>
 
+using namespace std;
+
 
 const string VirtualMachineManagerDriver::imported_actions_default =
     "shutdown, shutdown-hard, hold, release, suspend, resume, delete, reboot, "

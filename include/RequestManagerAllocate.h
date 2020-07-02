@@ -27,6 +27,7 @@
 #include "MarketPlaceTemplate.h"
 
 #include "ClusterPool.h"
+#include "DatastorePool.h"
 #include "DocumentPool.h"
 #include "HookPool.h"
 #include "HostPool.h"
@@ -43,7 +44,6 @@
 #include "VNTemplatePool.h"
 #include "ZonePool.h"
 
-using namespace std;
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -52,9 +52,9 @@ using namespace std;
 class RequestManagerAllocate: public Request
 {
 protected:
-    RequestManagerAllocate(const string& method_name,
-                           const string& help,
-                           const string& xml_args,
+    RequestManagerAllocate(const std::string& method_name,
+                           const std::string& help,
+                           const std::string& xml_args,
                            bool          _do_template)
         :Request(method_name,xml_args,help), do_template(_do_template)
     {
@@ -94,7 +94,7 @@ protected:
                               int& id,
                               RequestAttributes& att,
                               int cluster_id,
-                              const string& cluster_name)
+                              const std::string& cluster_name)
     {
         return pool_allocate(_paramList, tmpl, id, att);
     };
@@ -107,7 +107,7 @@ protected:
     virtual int add_to_cluster(
             Cluster* cluster,
             int id,
-            string& error_msg)
+            std::string& error_msg)
     {
         return -1;
     };
@@ -204,7 +204,7 @@ public:
                       int& id,
                       RequestAttributes& att,
                       int cluster_id,
-                      const string& cluster_name) override;
+                      const std::string& cluster_name) override;
 
     int get_cluster_id(xmlrpc_c::paramList const& paramList) override
     {
@@ -214,7 +214,7 @@ public:
     int add_to_cluster(
             Cluster* cluster,
             int id,
-            string& error_msg) override
+            std::string& error_msg) override
     {
         return clpool->add_to_cluster(PoolObjectSQL::NET, cluster, id, error_msg);
     };
@@ -340,7 +340,7 @@ public:
                       int& id,
                       RequestAttributes& att,
                       int cluster_id,
-                      const string& cluster_name) override;
+                      const std::string& cluster_name) override;
 
     int get_cluster_id(xmlrpc_c::paramList const& paramList) override
     {
@@ -350,7 +350,7 @@ public:
     int add_to_cluster(
             Cluster* cluster,
             int id,
-            string& error_msg) override
+            std::string& error_msg) override
     {
         return clpool->add_to_cluster(PoolObjectSQL::HOST, cluster, id, error_msg);;
     };
@@ -451,7 +451,7 @@ public:
                       int& id,
                       RequestAttributes& att,
                       int cluster_id,
-                      const string& cluster_name) override;
+                      const std::string& cluster_name) override;
 
     int get_cluster_id(xmlrpc_c::paramList const& paramList) override
     {
@@ -461,7 +461,7 @@ public:
     int add_to_cluster(
             Cluster* cluster,
             int id,
-            string& error_msg) override
+            std::string& error_msg) override
     {
         return clpool->add_to_cluster(PoolObjectSQL::DATASTORE, cluster, id, error_msg);
     };

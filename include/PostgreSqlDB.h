@@ -36,12 +36,12 @@ class PostgreSqlDB : public SqlDB
 {
 public:
     PostgreSqlDB(
-        const string& _server,
-        int           _port,
-        const string& _user,
-        const string& _password,
-        const string& _database,
-        int           _connections);
+        const std::string& _server,
+        int                _port,
+        const std::string& _user,
+        const std::string& _password,
+        const std::string& _database,
+        int                _connections);
 
     ~PostgreSqlDB();
 
@@ -51,7 +51,7 @@ public:
      *    @param str the string to be escaped
      *    @return a valid SQL string or NULL in case of failure
      */
-    char * escape_str(const string& str) override;
+    char * escape_str(const std::string& str) override;
 
     /**
      *  Frees a previously scaped string
@@ -64,7 +64,7 @@ public:
      *  @param eid the rowcount
      *  @return string with compatible LIMIT clause syntax
      *  LIMIT row_count OFFSET offset
-     *  
+     *
      *  +---+---+---+---+---+---+---+---+--
      *  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |...
      *  +---+---+---+---+---+---+---+---+--
@@ -102,7 +102,7 @@ private:
     /**
      *  Connection pool
      */
-    queue<PGconn *> db_connect;
+    std::queue<PGconn *> db_connect;
 
     /**
      *  DB connection to escape strings
@@ -112,11 +112,11 @@ private:
     /**
      *  Connection parameters
      */
-    string  server;
-    int     port;
-    string  user;
-    string  password;
-    string  database;
+    std::string  server;
+    int          port;
+    std::string  user;
+    std::string  password;
+    std::string  database;
 
     /**
      *  Fine-grain mutex for DB access (pool of DB connections)
@@ -169,18 +169,18 @@ class PostgreSqlDB : public SqlDB
 {
 public:
     PostgreSqlDB(
-        const string& _server,
-        int           _port,
-        const string& _user,
-        const string& _password,
-        const string& _database,
-        int           _connections)
+        const std::string& _server,
+        int                _port,
+        const std::string& _user,
+        const std::string& _password,
+        const std::string& _database,
+        int                _connections)
     {
-        throw runtime_error("Aborting oned, PostgreSQL support not compiled!");
+        throw std::runtime_error("Aborting oned, PostgreSQL support not compiled!");
     }
     ~PostgreSqlDB(){}
 
-    char * escape_str(const string& str) override {return 0;};
+    char * escape_str(const std::string& str) override {return 0;};
 
     void free_str(char * str) override {};
 

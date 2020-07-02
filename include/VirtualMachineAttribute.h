@@ -49,7 +49,7 @@ protected:
     /**
      *  Sets the flag in the attribute in the form (FLAG="YES")
      */
-    void set_flag(const string& flag)
+    void set_flag(const std::string& flag)
     {
         replace(flag, true);
     };
@@ -57,12 +57,12 @@ protected:
     /**
      *  Clears a previously set flag
      */
-    void clear_flag(const string& flag)
+    void clear_flag(const std::string& flag)
     {
         remove(flag);
     };
 
-    bool is_flag(const string& flag) const
+    bool is_flag(const std::string& flag) const
     {
         bool value;
 
@@ -105,13 +105,13 @@ protected:
     /**
      *  @return attribute with the given flag set or 0 if not found
      */
-    VirtualMachineAttribute * get_attribute(const string& flag) const;
+    VirtualMachineAttribute * get_attribute(const std::string& flag) const;
 
     /**
      *  Deletes the attribute with the given flag set.
      *  @return Pointer to the attribute or 0 if not found
      */
-    VirtualMachineAttribute * remove_attribute(const string& flag);
+    VirtualMachineAttribute * remove_attribute(const std::string& flag);
 
     /**
      *  Sets flag in a VirtualMachineAttribute
@@ -119,13 +119,13 @@ protected:
      *    @param flag_name
      *    @return 0 on success
      */
-    int set_flag(int a_id, const string& flag_name);
+    int set_flag(int a_id, const std::string& flag_name);
 
     /**
      *  Clears the flag from the VirtualMachineAttributes in the set.
      *    @return the attribute for which the flag was cleared, 0 if none
      */
-    VirtualMachineAttribute * clear_flag(const string& flag_name);
+    VirtualMachineAttribute * clear_flag(const std::string& flag_name);
 
     /* ---------------------------------------------------------------------- */
     /* Attribute map interface                                                */

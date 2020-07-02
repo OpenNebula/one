@@ -17,15 +17,9 @@
 #ifndef CACHE_POOL_H_
 #define CACHE_POOL_H_
 
-#include <time.h>
-#include <sstream>
 #include <pthread.h>
+#include <map>
 
-#include <iostream>
-
-#include <vector>
-
-using namespace std;
 
 /**
  *  The Cache Pool class. This class is used to store volatile pool data.
@@ -40,11 +34,9 @@ public:
 
     ~CachePool()
     {
-        typename std::map<int, T *>::iterator it;
-
         pthread_mutex_lock(&resource_lock);
 
-        for (it=resources.begin(); it != resources.end() ; ++it)
+        for (auto it = resources.begin(); it != resources.end() ; ++it)
         {
             delete it->second;
         }
@@ -60,7 +52,7 @@ public:
 
         pthread_mutex_lock(&resource_lock);
 
-        typename std::map<int, T *>::iterator it = resources.find(oid);
+        auto it = resources.find(oid);
 
         if ( it == resources.end() )
         {
@@ -83,7 +75,7 @@ public:
     {
         pthread_mutex_lock(&resource_lock);
 
-        typename std::map<int, T *>::iterator it = resources.find(oid);
+        auto it = resources.find(oid);
 
         if ( it != resources.end() )
         {

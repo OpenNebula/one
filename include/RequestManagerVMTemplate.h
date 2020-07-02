@@ -21,8 +21,6 @@
 #include "Nebula.h"
 #include "VMTemplatePool.h"
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -30,9 +28,9 @@ using namespace std;
 class RequestManagerVMTemplate: public Request
 {
 protected:
-    RequestManagerVMTemplate(const string& method_name,
-                             const string& help,
-                             const string& params)
+    RequestManagerVMTemplate(const std::string& method_name,
+                             const std::string& help,
+                             const std::string& params)
         :Request(method_name,params,help)
     {
         Nebula& nd  = Nebula::instance();
@@ -79,8 +77,8 @@ public:
      *
      * @return ErroCode for the request.
      */
-    ErrorCode request_execute(int id, string name, bool on_hold,
-        const string& s_uattr, Template* extra_attrs, int& vid,
+    ErrorCode request_execute(int id, std::string name, bool on_hold,
+        const std::string& s_uattr, Template* extra_attrs, int& vid,
         RequestAttributes& att);
 
 	/**
@@ -90,7 +88,8 @@ public:
      *  contents. Can be empty
      *  @param att the specific request attributes
      */
-    ErrorCode merge(Template * tmpl, const string &s_uattr, RequestAttributes& att);
+    ErrorCode merge(Template * tmpl, const std::string &s_uattr,
+                    RequestAttributes& att);
 
 protected:
 

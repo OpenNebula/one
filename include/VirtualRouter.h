@@ -22,8 +22,6 @@
 #include "ObjectCollection.h"
 #include "VirtualMachineTemplate.h"
 #include "AuthRequest.h"
-#include "History.h"
-#include "ActionSet.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -41,7 +39,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const override;
+    std::string& to_xml(std::string& xml) const override;
 
     int add_vmid(int vmid)
     {
@@ -61,7 +59,7 @@ public:
     /**
      *  Returns a copy of the VM IDs set
      */
-    set<int> get_vms() const
+    std::set<int> get_vms() const
     {
         return vms.clone();
     }
@@ -97,7 +95,8 @@ public:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int replace_template(const string& tmpl_str, bool keep_restricted, string& error) override;
+    int replace_template(const std::string& tmpl_str, bool keep_restricted,
+                         std::string& error) override;
 
     /**
      *  Append new attributes to this object's template. Object should be updated
@@ -108,7 +107,8 @@ public:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int append_template(const string& tmpl_str, bool keep_restricted, string& error) override;
+    int append_template(const std::string& tmpl_str, bool keep_restricted,
+                        std::string& error) override;
 
     /**
      * Set the template ID to instantiate new VMs
@@ -135,7 +135,8 @@ public:
      *
      * @return 0 on failure, the NIC to attach to each VM on success
      */
-    VectorAttribute * attach_nic(VirtualMachineTemplate * tmpl, string& error);
+    VectorAttribute * attach_nic(VirtualMachineTemplate * tmpl,
+                                 std::string& error);
 
     /**
      * Deletes the NIC from the virtual router template.
@@ -172,7 +173,8 @@ public:
      *    @param nics IP leased to the VirtualRouter
      *    @return 0 on success, -1 otherwise
      */
-    static int shutdown_vms(const set<int>& vms, const RequestAttributes& ra);
+    static int shutdown_vms(const std::set<int>& vms,
+                            const RequestAttributes& ra);
 
 private:
     // -------------------------------------------------------------------------
@@ -196,7 +198,7 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(SqlDB *db, bool replace, string& error_str);
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the VirtualRouter
@@ -210,7 +212,7 @@ private:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const std::string &xml_str);
 
     // *************************************************************************
     // Constructor
@@ -218,8 +220,8 @@ private:
     VirtualRouter(int id,
                   int uid,
                   int gid,
-                  const string& uname,
-                  const string& gname,
+                  const std::string& uname,
+                  const std::string& gname,
                   int umask,
                   Template * _template_contents);
 
@@ -235,14 +237,14 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str) override;
+    int insert(SqlDB *db, std::string& error_str) override;
 
     /**
      *  Drops object from the database
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int drop(SqlDB *db) override;
+    int drop(SqlDB *db) override;
 
     /**
      *  Writes/updates the VirtualRouter data fields in the database.
@@ -251,7 +253,7 @@ private:
      */
     int update(SqlDB *db) override
     {
-        string err;
+        std::string err;
         return insert_replace(db, true, err);
     };
 
@@ -263,7 +265,7 @@ private:
      *  Get all network leases for this Virtual Router
      *  @return 0 onsuccess
      */
-    int get_network_leases(string& estr);
+    int get_network_leases(std::string& estr);
 
     /**
      *  Releases all network leases taken by this Virtual Router

@@ -24,8 +24,6 @@
 #include <pthread.h>
 #include <string>
 
-using namespace std;
-
 class PoolObjectAuth;
 
 /**
@@ -85,7 +83,7 @@ public:
 
     static const long int LockableObject;
 
-    static string type_to_str(ObjectType ob)
+    static std::string type_to_str(ObjectType ob)
     {
         switch (ob)
         {
@@ -113,7 +111,7 @@ public:
         }
     };
 
-    static ObjectType str_to_type(const string& type)
+    static ObjectType str_to_type(const std::string& type)
     {
         if ( type == "VM" )                  return VM;
         else if ( type == "HOST" )           return HOST;
@@ -138,7 +136,7 @@ public:
         else                                 return NONE;
     };
 
-    static string lock_state_to_str(LockStates ob)
+    static std::string lock_state_to_str(LockStates ob)
     {
         switch (ob)
         {
@@ -152,14 +150,14 @@ public:
 
     /* ---------------------------------------------------------------------- */
 
-    PoolObjectSQL(int            id,
-                  ObjectType    _obj_type,
-                  const string& _name,
-                  int           _uid,
-                  int           _gid,
-                  const string& _uname,
-                  const string& _gname,
-                  const char *  _table)
+    PoolObjectSQL(int                id,
+                  ObjectType         _obj_type,
+                  const std::string& _name,
+                  int                _uid,
+                  int                _gid,
+                  const std::string& _uname,
+                  const std::string& _gname,
+                  const char *       _table)
             :ObjectSQL(),
              ObjectXML(),
              oid(id),
@@ -213,19 +211,21 @@ public:
      *    @param error_str describing the error
      *    @return true if the name is valid
      */
-    static bool name_is_valid(const string& obj_name, const string& extra_chars,
-                              string& error_str);
+    static bool name_is_valid(const std::string& obj_name,
+                              const std::string& extra_chars,
+                              std::string& error_str);
 
     /**
      *  Check if the object name is valid, no extra characters needed to be
      *  tested.
      */
-    static bool name_is_valid(const string& obj_name, string& error_str)
+    static bool name_is_valid(const std::string& obj_name,
+                              std::string& error_str)
     {
         return name_is_valid(obj_name, "", error_str);
     }
 
-    const string& get_name() const
+    const std::string& get_name() const
     {
         return name;
     };
@@ -237,7 +237,7 @@ public:
      *
      *    @return 0 if the name was changed
      */
-    int set_name(const string& _name, string& error_str)
+    int set_name(const std::string& _name, std::string& error_str)
     {
         if (!name_is_valid(_name, error_str))
         {
@@ -259,12 +259,12 @@ public:
         return gid;
     };
 
-    const string& get_uname() const
+    const std::string& get_uname() const
     {
         return uname;
     };
 
-    const string& get_gname() const
+    const std::string& get_gname() const
     {
         return gname;
     };
@@ -274,7 +274,7 @@ public:
      * @param _uid New User ID
      * @param _uname Name of the new user
      */
-    void set_user(int _uid, const string& _uname)
+    void set_user(int _uid, const std::string& _uname)
     {
         uid   = _uid;
         uname = _uname;
@@ -285,7 +285,7 @@ public:
      * @param _gid New Group ID
      * @param _gname Name of the new group
      */
-    void set_group(int _gid, const string& _gname)
+    void set_group(int _gid, const std::string& _gname)
     {
         gid   = _gid;
         gname = _gname;
@@ -316,7 +316,7 @@ public:
                                 int _other_u,
                                 int _other_m,
                                 int _other_a,
-                                string& error_str);
+                                std::string& error_str);
 
     /* --------------------------------------------------------------------- */
     /**
@@ -339,14 +339,14 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    virtual string& to_xml64(string &xml64);
+    virtual std::string& to_xml64(std::string &xml64);
 
     /**
      * Function to print the object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    virtual string& to_xml(string& xml) const = 0;
+    virtual std::string& to_xml(std::string& xml) const = 0;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -354,7 +354,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    virtual int from_xml(const string &xml_str) = 0;
+    virtual int from_xml(const std::string &xml_str) = 0;
 
     // ------------------------------------------------------------------------
     // Template
@@ -365,12 +365,12 @@ public:
      *    @param name the attribute name.
      *    @return true first attribute or 0 if not found or wrong type
      */
-    const VectorAttribute * get_template_attribute(const string& s) const
+    const VectorAttribute * get_template_attribute(const std::string& s) const
     {
         return obj_template->get(s);
     }
 
-    VectorAttribute * get_template_attribute(const string& s)
+    VectorAttribute * get_template_attribute(const std::string& s)
     {
         return obj_template->get(s);
     }
@@ -382,13 +382,8 @@ public:
      *    @return the number of values
      */
 	template<typename T>
-    int get_template_attribute(const string& name, vector<const T*>& values) const
-    {
-        return obj_template->get(name, values);
-    };
-
-	template<typename T>
-    int get_template_attribute(const string& name, vector<T*>& values) const
+    int get_template_attribute(const std::string& name,
+                               std::vector<const T*>& values) const
     {
         return obj_template->get(name, values);
     };
@@ -404,7 +399,7 @@ public:
 	 *    target value
      */
 	template<typename T>
-    bool get_template_attribute(const string& name, T& value) const
+    bool get_template_attribute(const std::string& name, T& value) const
     {
         return obj_template->get(name, value);
     }
@@ -417,7 +412,7 @@ public:
      *    @return the number of attributes erased
      */
 	template<typename T>
-    int erase_template_attribute(const string& name, T& value)
+    int erase_template_attribute(const std::string& name, T& value)
     {
         obj_template->get(name, value);
         return obj_template->erase(name);
@@ -431,7 +426,7 @@ public:
      *    @return 0 on success
      */
 	template<typename T>
-    int replace_template_attribute(const string& name, const T& value)
+    int replace_template_attribute(const std::string& name, const T& value)
     {
         return obj_template->replace(name, value);
     }
@@ -444,7 +439,7 @@ public:
      *    @return the number of attributes removed
      */
 	template<typename T>
-    int remove_template_attribute(const string& n, vector<T *>& v)
+    int remove_template_attribute(const std::string& n, std::vector<T *>& v)
     {
         return obj_template->remove(n, v);
     }
@@ -453,7 +448,7 @@ public:
      *  Generates a XML string for the template of the Object
      *    @param xml the string to store the XML description.
      */
-    string& template_to_xml(string &xml) const
+    std::string& template_to_xml(std::string &xml) const
     {
         return obj_template->to_xml(xml);
     }
@@ -462,7 +457,7 @@ public:
      *  Removes an attribute
      *    @param name of the attribute
      */
-    int remove_template_attribute(const string& name)
+    int remove_template_attribute(const std::string& name)
     {
         return obj_template->erase(name);
     }
@@ -471,7 +466,7 @@ public:
      *  Sets an error message with timestamp in the template
      *    @param message Message string
      */
-    virtual void set_template_error_message(const string& message);
+    virtual void set_template_error_message(const std::string& message);
 
     /**
      *  Deletes the error message from the template
@@ -484,13 +479,13 @@ public:
      *    @param att_val Message string
      */
 	template<typename T>
-    void add_template_attribute(const string& name, const T& value)
+    void add_template_attribute(const std::string& name, const T& value)
     {
         obj_template->add(name, value);
     }
 
     template<typename T>
-    void add_template_attribute(vector<T *>& values)
+    void add_template_attribute(std::vector<T *>& values)
     {
         obj_template->set(values);
     }
@@ -514,7 +509,9 @@ public:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    virtual int replace_template(const string& tmpl_str, bool keep_restricted, string& error);
+    virtual int replace_template(const std::string& tmpl_str,
+                                 bool keep_restricted,
+                                 std::string& error);
 
     /**
      *  Append new attributes to this object's template. Object should be updated
@@ -525,7 +522,9 @@ public:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    virtual int append_template(const string& tmpl_str, bool keep_restricted, string& error);
+    virtual int append_template(const std::string& tmpl_str,
+                                bool keep_restricted,
+                                std::string& error);
 
     /**
      *  Fills a auth class to perform an authZ/authN request based on the object
@@ -606,7 +605,7 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int select(SqlDB *db, const string& _name, int _uid);
+    virtual int select(SqlDB *db, const std::string& _name, int _uid);
 
     /**
      *  Search oid by its name and owner
@@ -616,7 +615,7 @@ protected:
      *    @param _uid of owner
      *    @return -1 if not found or oid otherwise
      */
-    static int select_oid(SqlDB *db, const char * _table, const string& _name,
+    static int select_oid(SqlDB *db, const char * _table, const std::string& _name,
             int _uid);
 
     /**
@@ -644,7 +643,7 @@ protected:
      *    @param vaues the column values
      *    @return 0 on success
      */
-    static int dump(ostringstream& oss, int num, char **values, char **names)
+    static int dump(std::ostringstream& oss, int num, char **values, char **names)
     {
         if ( (!values[0]) || (num != 1) )
         {
@@ -660,7 +659,7 @@ protected:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& perms_to_xml(string& xml) const;
+    std::string& perms_to_xml(std::string& xml) const;
 
     /**
      *  Rebuilds the object permissions from the xml. ObjectXML::update_from_str
@@ -699,7 +698,8 @@ protected:
      *    @param name of the error attribute
      *    @param message Message string
      */
-    virtual void set_template_error_message(const string& name, const string& message);
+    virtual void set_template_error_message(const std::string& name,
+                                            const std::string& message);
 
     /**
      * Child classes can process the new template set with replace_template or
@@ -707,7 +707,7 @@ protected:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    virtual int post_update_template(string& error)
+    virtual int post_update_template(std::string& error)
     {
         return 0;
     };
@@ -717,7 +717,7 @@ protected:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& lock_db_to_xml(string& xml) const;
+    std::string& lock_db_to_xml(std::string& xml) const;
 
     /**
      *  Rebuilds the lock info from the xml. ObjectXML::update_from_str
@@ -741,7 +741,7 @@ protected:
     /**
      *  The object's name
      */
-    string  name;
+    std::string  name;
 
     /**
      *  Object's owner, set it to -1 if owner is not used
@@ -756,12 +756,12 @@ protected:
     /**
      *  Name of the object's owner, empty if owner is not used
      */
-    string  uname;
+    std::string  uname;
 
     /**
      *  Name of the object's group,, empty if group is not used
      */
-    string  gname;
+    std::string  gname;
 
     /**
      *  Permissions for the owner user
@@ -818,7 +818,7 @@ private:
     /**
      *  Characters that can not be in a name
      */
-    static const string INVALID_NAME_CHARS;
+    static const std::string INVALID_NAME_CHARS;
 
     /**
      * Expiration time for the lock stored in the DB

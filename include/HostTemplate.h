@@ -19,7 +19,6 @@
 
 #include "Template.h"
 
-using namespace std;
 
 /**
  *  Host Template class, it represents the attributes of a Host
@@ -46,7 +45,7 @@ public:
         Template::decrypt(one_key, encrypted);
     }
 
-    static void parse_encrypted(vector<const SingleAttribute *>& ea)
+    static void parse_encrypted(std::vector<const SingleAttribute *>& ea)
     {
         Template::parse_encrypted(ea, encrypted);
     }

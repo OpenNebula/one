@@ -32,9 +32,9 @@ int main(int argc, char **argv)
     {
         sched.start();
     }
-    catch (exception &e)
+    catch (std::exception &e)
     {
-        cout << e.what() << endl;
+        std::cout << e.what() << std::endl;
 
         return -1;
     }

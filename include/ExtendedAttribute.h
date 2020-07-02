@@ -48,7 +48,7 @@ public:
         return va->vector_value(name, value);
     }
 
-    string vector_value(const std::string& name) const
+    std::string vector_value(const std::string& name) const
     {
         return va->vector_value(name);
     }
@@ -87,7 +87,7 @@ protected:
     /* ---------------------------------------------------------------------- */
     /* Attribute Interface                                                    */
     /* ---------------------------------------------------------------------- */
-    string * marshall(const char * _sep = 0) const
+    std::string * marshall(const char * _sep = 0) const
     {
         return va->marshall(_sep);
     };
@@ -234,7 +234,7 @@ protected:
      */
     void add_attribute(ExtendedAttribute * a, int id)
     {
-        a_set.insert(make_pair(id, a));
+        a_set.insert(std::make_pair(id, a));
     }
 
     /**

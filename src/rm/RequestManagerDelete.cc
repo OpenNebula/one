@@ -26,6 +26,7 @@
 #include "MarketPlaceManager.h"
 
 #include "ClusterPool.h"
+#include "DatastorePool.h"
 #include "DocumentPool.h"
 #include "HookPool.h"
 #include "HostPool.h"
@@ -40,6 +41,8 @@
 #include "VMTemplatePool.h"
 #include "VNTemplatePool.h"
 #include "ZonePool.h"
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

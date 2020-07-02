@@ -17,6 +17,8 @@
 #include "HookManager.h"
 #include "NebulaLog.h"
 
+using namespace std;
+
 const char * HookManager::hook_driver_name = "hook_exe";
 
 /* -------------------------------------------------------------------------- */

@@ -21,6 +21,8 @@
 #include "Attribute.h"
 #include "NebulaUtil.h"
 
+using namespace std;
+
 const char * VectorAttribute::magic_sep      = "@^_^@";
 const int    VectorAttribute::magic_sep_size = 5;
 

@@ -169,37 +169,37 @@ public:
      *  This function replicates the DB changes on followers before updating
      *  the DB state
      */
-    int exec_wr(ostringstream& cmd)
+    int exec_wr(std::ostringstream& cmd)
     {
         return _exec_wr(cmd, UINT64_MAX);
     }
 
-    int exec_wr(ostringstream& cmd, Callbackable* obj)
+    int exec_wr(std::ostringstream& cmd, Callbackable* obj)
     {
         return exec_wr(cmd);
     }
 
-    int exec_federated_wr(ostringstream& cmd)
+    int exec_federated_wr(std::ostringstream& cmd)
     {
         return _exec_wr(cmd, 0);
     }
 
-    int exec_federated_wr(ostringstream& cmd, uint64_t index)
+    int exec_federated_wr(std::ostringstream& cmd, uint64_t index)
     {
         return _exec_wr(cmd, index);
     }
 
-    int exec_local_wr(ostringstream& cmd)
+    int exec_local_wr(std::ostringstream& cmd)
     {
         return db->exec_local_wr(cmd);
     }
 
-    int exec_rd(ostringstream& cmd, Callbackable* obj)
+    int exec_rd(std::ostringstream& cmd, Callbackable* obj)
     {
         return db->exec_rd(cmd, obj);
     }
 
-    char * escape_str(const string& str)
+    char * escape_str(const std::string& str)
     {
         return db->escape_str(str);
     }
@@ -349,7 +349,7 @@ private:
      *  @param federated UINT64_MAX not federated (fed_index = UINT64_MAX), 0
      *  generate fed index (fed_index = index), > 0 set (fed_index = federated)
      */
-    int _exec_wr(ostringstream& cmd, uint64_t federated);
+    int _exec_wr(std::ostringstream& cmd, uint64_t federated);
 
     /**
      *  Applies the SQL command of the given record to the database. The
@@ -397,19 +397,19 @@ public:
 
     virtual ~FedLogDB(){};
 
-    int exec_wr(ostringstream& cmd);
+    int exec_wr(std::ostringstream& cmd);
 
-    int exec_local_wr(ostringstream& cmd)
+    int exec_local_wr(std::ostringstream& cmd)
     {
         return _logdb->exec_local_wr(cmd);
     }
 
-    int exec_rd(ostringstream& cmd, Callbackable* obj)
+    int exec_rd(std::ostringstream& cmd, Callbackable* obj)
     {
         return _logdb->exec_rd(cmd, obj);
     }
 
-    char * escape_str(const string& str)
+    char * escape_str(const std::string& str)
     {
         return _logdb->escape_str(str);
     }

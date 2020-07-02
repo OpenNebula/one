@@ -30,6 +30,7 @@
 #include "GroupPool.h"
 #include "HookPool.h"
 #include "HostPool.h"
+#include "ImagePool.h"
 #include "MarketPlacePool.h"
 #include "MarketPlaceAppPool.h"
 #include "SecurityGroupPool.h"

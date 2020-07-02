@@ -25,7 +25,7 @@
 class RequestManagerDropDB: public Request
 {
 protected:
-    RequestManagerDropDB(const string& name): Request(name, "A:si",
+    RequestManagerDropDB(const std::string& name): Request(name, "A:si",
             "Drops an object from DB")
     {
         auth_op = AuthRequest::MANAGE;

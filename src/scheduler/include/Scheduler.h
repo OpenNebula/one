@@ -30,8 +30,6 @@
 #include "AclXML.h"
 #include "MonitorXML.h"
 
-using namespace std;
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -195,10 +193,10 @@ private:
     // Scheduling Policies
     // ---------------------------------------------------------------
 
-    vector<SchedulerPolicy *> host_policies;
-    vector<SchedulerPolicy *> ds_policies;
-    vector<SchedulerPolicy *> vm_policies;
-    vector<SchedulerPolicy *> nic_policies;
+    std::vector<SchedulerPolicy *> host_policies;
+    std::vector<SchedulerPolicy *> ds_policies;
+    std::vector<SchedulerPolicy *> vm_policies;
+    std::vector<SchedulerPolicy *> nic_policies;
 
     // ---------------------------------------------------------------
     // Configuration attributes
@@ -206,7 +204,7 @@ private:
 
     time_t  timer;
 
-    string  one_xmlrpc;
+    std::string  one_xmlrpc;
 
     /**
      *  Limit of pending virtual machines to process from the pool.

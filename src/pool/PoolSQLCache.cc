@@ -43,7 +43,7 @@ pthread_mutex_t * PoolSQLCache::lock_line(int oid)
     {
         cl = new CacheLine();
 
-        cache.insert(make_pair(oid, cl));
+        cache.insert(std::make_pair(oid, cl));
     }
     else
     {

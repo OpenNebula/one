@@ -123,7 +123,7 @@ public:
      *
      *    @return 0 on success
      */
-    int vmgroup_attribute(VectorAttribute * va, int uid, int vid, string& err);
+    int vmgroup_attribute(VectorAttribute * va, int uid, int vid, std::string& err);
 
     /**
      *  Removes VM from the VMGroup

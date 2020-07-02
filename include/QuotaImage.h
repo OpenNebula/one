@@ -52,7 +52,7 @@ public:
      *    @param error string
      *    @return true if the operation can be performed
      */
-    bool check(Template* tmpl, Quotas& default_quotas, string& error);
+    bool check(Template* tmpl, Quotas& default_quotas, std::string& error);
 
     /**
      *  Decrement usage counters when deallocating image
@@ -71,7 +71,7 @@ protected:
      *
      *    @return 0 on success, -1 if not found
      */
-    int get_default_quota(const string& id,
+    int get_default_quota(const std::string& id,
                         Quotas& default_quotas,
                         VectorAttribute **va);
 

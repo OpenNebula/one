@@ -19,6 +19,13 @@
 #include "DispatchManager.h"
 #include "VirtualMachineManager.h"
 #include "ImageManager.h"
+#include "Quotas.h"
+#include "ClusterPool.h"
+#include "HostPool.h"
+#include "ImagePool.h"
+
+using namespace std;
+
 
 void LifeCycleManager::start_prolog_migrate(VirtualMachine* vm)
 {

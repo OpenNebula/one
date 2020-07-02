@@ -25,8 +25,6 @@
 #include "SecurityGroupPool.h"
 #include "VNTemplatePool.h"
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -34,8 +32,8 @@ using namespace std;
 class RequestManagerClone: public Request
 {
 protected:
-    RequestManagerClone(const string& method_name, const string& help,
-        const string& params = "A:sis"):
+    RequestManagerClone(const std::string& method_name, const std::string& help,
+        const std::string& params = "A:sis"):
         Request(method_name,params,help){};
 
     ~RequestManagerClone(){};
@@ -52,8 +50,8 @@ protected:
 	/**
      *  Function to clone the object
      */
-    virtual ErrorCode clone(int source_id, const string &name, int &new_id,
-            bool recursive, const string& s_uattr, RequestAttributes& att);
+    virtual ErrorCode clone(int source_id, const std::string &name, int &new_id,
+            bool recursive, const std::string& s_uattr, RequestAttributes& att);
 
 	/**
      *  Function to clone the base template
@@ -63,7 +61,7 @@ protected:
 	/**
      *  Function to merge user/additional attributes in the cloned object
      */
-    virtual ErrorCode merge(Template * tmpl, const string &str_uattrs,
+    virtual ErrorCode merge(Template * tmpl, const std::string &str_uattrs,
             RequestAttributes& att)
     {
         return SUCCESS;
@@ -95,23 +93,27 @@ public:
 
     ~VMTemplateClone(){};
 
-    ErrorCode request_execute(int source_id, const string &name, int &new_id,
-            bool recursive, const string& s_uattrs, RequestAttributes& att)
+    ErrorCode request_execute(int source_id, const std::string &name,
+                              int &new_id, bool recursive,
+                              const std::string& s_uattrs,
+                              RequestAttributes& att)
     {
         return clone(source_id, name, new_id, recursive, s_uattrs, att);
     };
 
 protected:
 
-    ErrorCode clone(int source_id, const string &name, int &new_id,
-            bool recursive, const string& s_a, RequestAttributes& att) override;
+    ErrorCode clone(int source_id, const std::string &name, int &new_id,
+                    bool recursive, const std::string& s_a,
+                    RequestAttributes& att) override;
 
     Template * clone_template(PoolObjectSQL* obj) override
     {
         return static_cast<VMTemplate*>(obj)->clone_template();
     };
 
-    int pool_allocate(int sid, Template * tmpl, int& id, RequestAttributes& att) override
+    int pool_allocate(int sid, Template * tmpl, int& id,
+                      RequestAttributes& att) override
     {
         VMTemplatePool * tpool     = static_cast<VMTemplatePool *>(pool);
         VirtualMachineTemplate * t = static_cast<VirtualMachineTemplate*>(tmpl);
@@ -120,7 +122,8 @@ protected:
                 t, &id, att.resp_msg);
     };
 
-    ErrorCode merge(Template * tmpl, const string &s_a, RequestAttributes& att) override
+    ErrorCode merge(Template * tmpl, const std::string &s_a,
+                    RequestAttributes& att) override
     {
         VMTemplateInstantiate vm_instantiate;
 
@@ -147,8 +150,9 @@ public:
 
     ~VNTemplateClone(){};
 
-    ErrorCode request_execute(int source_id, const string &name, int &new_id,
-            const string& s_uattrs, RequestAttributes& att)
+    ErrorCode request_execute(int source_id, const std::string &name,
+                              int &new_id, const std::string& s_uattrs,
+                              RequestAttributes& att)
     {
         return clone(source_id, name, new_id, false, s_uattrs, att);
     };

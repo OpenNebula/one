@@ -82,7 +82,7 @@ public:
 
     static std::string action_to_str(Action action);
 
-    static int action_from_str(const string& st, Action& action);
+    static int action_from_str(const std::string& st, Action& action);
 
     /**
      * @return true if action requires ADMIN right

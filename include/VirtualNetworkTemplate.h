@@ -19,8 +19,6 @@
 
 #include "Template.h"
 
-using namespace std;
-
 /**
  *  Virtual Network Template class, it represents a VN configuration file.
  */
@@ -31,9 +29,8 @@ public:
 
     VirtualNetworkTemplate(bool replace_mode,
                            const char   separator,
-                           const char * xml_root):Template(replace_mode,
-                                                           separator,
-                                                           xml_root){};
+                           const char * xml_root)
+        : Template(replace_mode, separator, xml_root) {}
 
     ~VirtualNetworkTemplate(){};
 
@@ -42,17 +39,17 @@ public:
     // -------------------------------------------------------------------------
     // Restricted attributes interface implementation
     // -------------------------------------------------------------------------
-    virtual bool check_restricted(string& rs_attr, const Template* base)
+    virtual bool check_restricted(std::string& rs_attr, const Template* base)
     {
         return Template::check_restricted(rs_attr, base, restricted);
     }
 
-    virtual bool check_restricted(string& rs_attr)
+    virtual bool check_restricted(std::string& rs_attr)
     {
         return Template::check_restricted(rs_attr, restricted);
     }
 
-    static void parse_restricted(vector<const SingleAttribute *>& ra)
+    static void parse_restricted(std::vector<const SingleAttribute *>& ra)
     {
         Template::parse_restricted(ra, restricted);
     }
@@ -71,7 +68,7 @@ public:
     }
 
     // One-time execution
-    static void parse_encrypted(vector<const SingleAttribute *>& ea)
+    static void parse_encrypted(std::vector<const SingleAttribute *>& ea)
     {
         auto eas = const_cast<std::map<std::string, std::set<std::string>> *>(&encrypted);
 

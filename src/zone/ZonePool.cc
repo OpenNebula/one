@@ -22,6 +22,8 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 
 const int ZonePool::STANDALONE_ZONE_ID = 0;

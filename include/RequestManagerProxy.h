@@ -18,9 +18,6 @@
 #define REQUEST_MANAGER_PROXY_H_
 
 #include "Request.h"
-#include "Client.h"
-
-using namespace std;
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -28,8 +25,10 @@ using namespace std;
 class RequestManagerProxy: public Request
 {
 public:
-    RequestManagerProxy(string _method): Request("RequestManagerProxy", "?",
-        "Forwards the request to another OpenNebula"), method(_method)
+    RequestManagerProxy(std::string _method)
+        : Request("RequestManagerProxy", "?",
+                  "Forwards the request to another OpenNebula")
+        , method(_method)
     {
         method_name = method;
     };
@@ -45,7 +44,7 @@ public:
     };
 
 private:
-    string    method;
+    std::string    method;
 };
 
 #endif

@@ -20,8 +20,6 @@
 #include "Request.h"
 #include "Nebula.h"
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -29,9 +27,9 @@ using namespace std;
 class RequestManagerAcl: public Request
 {
 protected:
-    RequestManagerAcl( const string& method_name,
-                       const string& help,
-                       const string& params)
+    RequestManagerAcl( const std::string& method_name,
+                       const std::string& help,
+                       const std::string& params)
         :Request(method_name,params,help)
     {
         auth_object = PoolObjectSQL::ACL;

@@ -36,7 +36,7 @@ public:
      *    @param error string
      *    @return true if the operation can be performed
      */
-    virtual bool check(Template* tmpl, Quotas& default_quotas, string& error) = 0;
+    virtual bool check(Template* tmpl, Quotas& default_quotas, std::string& error) = 0;
 
     /**
      *  Decrement usage counters when deallocating image
@@ -50,7 +50,7 @@ public:
      *
      *    @return 0 on success -1 otherwise
      */
-    virtual int set(vector<VectorAttribute*> * quotas, string& error) = 0;
+    virtual int set(std::vector<VectorAttribute*> * quotas, std::string& error) = 0;
 
     /**
      *  Check if a resource update in usage counters will exceed the
@@ -60,7 +60,7 @@ public:
      *    @param error string
      *    @return true if the operation can be performed
      */
-    virtual bool update(Template * tmpl, Quotas& default_quotas, string& error) = 0;
+    virtual bool update(Template * tmpl, Quotas& default_quotas, std::string& error) = 0;
 
     /**
      * Returns the name that identifies the quota in a template
@@ -73,7 +73,7 @@ public:
       *    @param va The quota, if it is found
       *    @return 0 on success, -1 if not found
       */
-     virtual int get_quota(const string& id, VectorAttribute **va) = 0;
+     virtual int get_quota(const std::string& id, VectorAttribute **va) = 0;
 
 protected:
     QuotaInterface(){};
@@ -88,7 +88,7 @@ protected:
  */
 class QuotaDecorator : public QuotaInterface
 {
-    virtual bool check(Template* tmpl, Quotas& default_quotas, string& error)
+    virtual bool check(Template* tmpl, Quotas& default_quotas, std::string& error)
     {
         return quota->check(tmpl, default_quotas, error);
     }
@@ -98,12 +98,12 @@ class QuotaDecorator : public QuotaInterface
         return quota->del(tmpl);
     }
 
-    virtual int set(vector<VectorAttribute*> * quotas, string& error)
+    virtual int set(std::vector<VectorAttribute*> * quotas, std::string& error)
     {
         return quota->set(quotas, error);
     }
 
-    virtual bool update(Template * tmpl, Quotas& default_quotas, string& error)
+    virtual bool update(Template * tmpl, Quotas& default_quotas, std::string& error)
     {
         return quota->update(tmpl, default_quotas, error);
     }
@@ -113,7 +113,7 @@ class QuotaDecorator : public QuotaInterface
         return quota->get_quota_name();
     }
 
-    virtual int get_quota(const string& id, VectorAttribute **va)
+    virtual int get_quota(const std::string& id, VectorAttribute **va)
     {
         return quota->get_quota(id, va);
     }
@@ -142,7 +142,7 @@ public:
      *
      *    @return 0 on success -1 otherwise
      */
-    int set(vector<VectorAttribute*> * quotas, string& error);
+    int set(std::vector<VectorAttribute*> * quotas, std::string& error);
 
     /**
      *  Check if a resource update in usage counters will exceed the
@@ -152,7 +152,7 @@ public:
      *    @param error string
      *    @return true if the operation can be performed
      */
-    virtual bool update(Template * tmpl, Quotas& default_quotas, string& error)
+    virtual bool update(Template * tmpl, Quotas& default_quotas, std::string& error)
     {
         error = "Update operation for quotas not supported.";
         return false;
@@ -172,17 +172,17 @@ public:
       *    @param va The quota, if it is found
       *    @return 0 on success, -1 if not found
       */
-     virtual int get_quota(const string& id, VectorAttribute **va)
+     virtual int get_quota(const std::string& id, VectorAttribute **va)
      {
-         map<string, Attribute *>::iterator it;
+         std::map<std::string, Attribute *>::iterator it;
          return get_quota(id, va, it);
      }
 
      /**
       * Value for limit default
       */
-     static const int    DEFAULT;
-     static const string DEFAULT_STR;
+     static const int         DEFAULT;
+     static const std::string DEFAULT_STR;
 
      /**
       * Value for "unlimited" limit
@@ -246,18 +246,18 @@ protected:
      *    @param error string describing the error
      *    @return true if the request does not exceed current limits
      */
-    bool check_quota(const string& qid,
-                     map<string, float>& usage_req,
+    bool check_quota(const std::string& qid,
+                     std::map<std::string, float>& usage_req,
                      Quotas& default_quotas,
-                     string& error);
+                     std::string& error);
 
     /**
      *  Reduce usage from a given quota based on the current consumption
      *    @param qid id that identifies the quota, to be used by get_quota
      *    @param usage_req usage for each metric
      */
-    void del_quota(const string& qid,
-                   map<string, float>& usage_req);
+    void del_quota(const std::string& qid,
+                   std::map<std::string, float>& usage_req);
 
     /**
      * Gets the default quota identified by its ID.
@@ -268,7 +268,7 @@ protected:
      *
      *    @return 0 on success, -1 if not found
      */
-    virtual int get_default_quota(const string& id,
+    virtual int get_default_quota(const std::string& id,
                                 Quotas& default_quotas,
                                 VectorAttribute **va) = 0;
 
@@ -282,16 +282,16 @@ protected:
      *    @return 0 on success, -1 if not found
      */
     virtual int get_quota(
-            const string& id,
+            const std::string& id,
             VectorAttribute **va,
-            map<string, Attribute *>::iterator& it);
+            std::map<std::string, Attribute *>::iterator& it);
 
     /**
      * Checks if a quota has 0 limit and usage, and deletes it
      *
      * @param qid id of the quota
      */
-    void cleanup_quota(const string& qid);
+    void cleanup_quota(const std::string& qid);
 
 private:
     /**
@@ -319,7 +319,9 @@ private:
      *    @param va_name name of the quota in the vector attribute
      *    @param num value to add to the current quota;
      */
-    void add_to_quota(VectorAttribute * attr, const string& va_name, float num);
+    void add_to_quota(VectorAttribute * attr,
+                      const std::string& va_name,
+                      float num);
 
     /**
      *  Sets new limit values for the quota
@@ -337,7 +339,8 @@ private:
      *    @param limits stores the known limits
      *    @return 0 on success
      */
-    int get_limits(const VectorAttribute * va, map<string, string>& limits);
+    int get_limits(const VectorAttribute * va,
+                   std::map<std::string, std::string>& limits);
 };
 
 #endif /*QUOTA_H_*/

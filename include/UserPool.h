@@ -30,8 +30,6 @@
 
 #include <vector>
 
-using namespace std;
-
 class AuthRequest; //Forward definition of AuthRequest
 
 /**
@@ -42,7 +40,7 @@ class UserPool : public PoolSQL
 public:
 
     UserPool(SqlDB * db, time_t  __session_expiration_time, bool is_slave,
-        vector<const SingleAttribute *>& restricted_attrs);
+        std::vector<const SingleAttribute *>& restricted_attrs);
 
     ~UserPool() = default;
 
@@ -53,14 +51,14 @@ public:
      */
     int allocate(
         int * oid,
-        const string& uname,
+        const std::string& uname,
         int   gid,
-        const string& password,
-        const string& auth,
+        const std::string& password,
+        const std::string& auth,
         bool  enabled,
-        const set<int>& gids,
-        const set<int>& agids,
-        string& error_str);
+        const std::set<int>& gids,
+        const std::set<int>& agids,
+        std::string& error_str);
 
     /**
      *  Drops the object's data in the data base. The object mutex SHOULD be
@@ -69,7 +67,7 @@ public:
      *    @param error_msg Error reason, if any
      *    @return 0 on success, -1 DB error
      */
-    int drop(PoolObjectSQL * objsql, string& error_msg);
+    int drop(PoolObjectSQL * objsql, std::string& error_msg);
 
     /**
      *  Function to get a User from the pool, if the object is not in memory
@@ -115,7 +113,7 @@ public:
      *    @param lock locks the User mutex
      *    @return a pointer to the User, 0 if the User could not be loaded
      */
-    User * get(string name)
+    User * get(std::string name)
     {
         // The owner is set to -1, because it is not used in the key() method
         User * u = static_cast<User *>(PoolSQL::get(name,-1));
@@ -134,7 +132,7 @@ public:
      *    @param username
      *    @return a pointer to the User, 0 if the User could not be loaded
      */
-    User * get_ro(string name)
+    User * get_ro(std::string name)
     {
         // The owner is set to -1, because it is not used in the key() method
         User * u = static_cast<User *>(PoolSQL::get_ro(name,-1));
@@ -154,7 +152,7 @@ public:
      *
      *    @return the user's token password
      */
-    string get_token_password(int oid, int bck_oid);
+    std::string get_token_password(int oid, int bck_oid);
 
     /**
      * Update a particular User. This method does not update the user's quotas
@@ -191,14 +189,14 @@ public:
      *
      *   @return false if authn failed, true otherwise
      */
-    bool authenticate(const string& session,
-                      string&       password,
-                      int&          uid,
-                      int&          gid,
-                      string&       uname,
-                      string&       gname,
-                      set<int>&     group_ids,
-                      int&          umask);
+    bool authenticate(const std::string& session,
+                      std::string&       password,
+                      int&               uid,
+                      int&               gid,
+                      std::string&       uname,
+                      std::string&       gname,
+                      std::set<int>&     group_ids,
+                      int&               umask);
     /**
      * Returns whether the operations described in a authorization request are
      * authorized ot not.
@@ -218,7 +216,8 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(string& oss, const string& where, int sid, int eid, bool desc);
+    int dump(std::string& oss, const std::string& where,
+             int sid, int eid, bool desc);
 
     /**
      *  Name for the OpenNebula core authentication process
@@ -244,7 +243,7 @@ public:
     /**
      *  Name of the oneadmin user
      */
-    static string oneadmin_name;
+    static std::string oneadmin_name;
 
     /**
      *  Identifier for the oneadmin user
@@ -276,42 +275,42 @@ private:
     /**
      *  Function to authenticate internal (known) users
      */
-    bool authenticate_internal(User *        user,
-                               const string& token,
-                               string&       password,
-                               int&          user_id,
-                               int&          group_id,
-                               string&       uname,
-                               string&       gname,
-                               set<int>&     group_ids,
-                               int&          umask);
+    bool authenticate_internal(User *             user,
+                               const std::string& token,
+                               std::string&       password,
+                               int&               user_id,
+                               int&               group_id,
+                               std::string&       uname,
+                               std::string&       gname,
+                               std::set<int>&     group_ids,
+                               int&               umask);
 
     /**
      *  Function to authenticate internal users using a server driver
      */
-    bool authenticate_server(User *        user,
-                             const string& token,
-                             string&       password,
-                             int&          user_id,
-                             int&          group_id,
-                             string&       uname,
-                             string&       gname,
-                             set<int>&     group_ids,
-                             int&          umask);
+    bool authenticate_server(User *             user,
+                             const std::string& token,
+                             std::string&       password,
+                             int&               user_id,
+                             int&               group_id,
+                             std::string&       uname,
+                             std::string&       gname,
+                             std::set<int>&     group_ids,
+                             int&               umask);
 
 
     /**
      *  Function to authenticate external (not known) users
      */
-    bool authenticate_external(const string&    username,
-                               const string&    token,
-                               string&          password,
-                               int&             user_id,
-                               int&             group_id,
-                               string&          uname,
-                               string&          gname,
-                               set<int>&        group_ids,
-                               int&             umask);
+    bool authenticate_external(const std::string& username,
+                               const std::string& token,
+                               std::string&       password,
+                               int&               user_id,
+                               int&               group_id,
+                               std::string&       uname,
+                               std::string&       gname,
+                               std::set<int>&     group_ids,
+                               int&               umask);
     /**
      *  Factory method to produce User objects
      *    @return a pointer to the new User

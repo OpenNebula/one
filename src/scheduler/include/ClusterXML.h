@@ -20,12 +20,11 @@
 
 #include "ObjectXML.h"
 
-using namespace std;
 
 class ClusterXML : public ObjectXML
 {
 public:
-    ClusterXML(const string &xml_doc):ObjectXML(xml_doc)
+    ClusterXML(const std::string &xml_doc):ObjectXML(xml_doc)
     {
         init_attributes();
     };

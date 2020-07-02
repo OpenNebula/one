@@ -301,9 +301,9 @@ private:
     // -------------------------------------------------------------------------
     // Protocol implementation, procesing messages from driver
     // -------------------------------------------------------------------------
-    static void _undefined(unique_ptr<transfer_msg_t> msg);
-    void _transfer(unique_ptr<transfer_msg_t> msg);
-    static void _log(unique_ptr<transfer_msg_t> msg);
+    static void _undefined(std::unique_ptr<transfer_msg_t> msg);
+    void _transfer(std::unique_ptr<transfer_msg_t> msg);
+    static void _log(std::unique_ptr<transfer_msg_t> msg);
 
     // -------------------------------------------------------------------------
     // Action Listener interface

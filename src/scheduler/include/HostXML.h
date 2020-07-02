@@ -25,7 +25,7 @@
 #include "PoolObjectAuth.h"
 
 /**
- *  This class represents the needed information HostShare for a Host to 
+ *  This class represents the needed information HostShare for a Host to
  *  perform the scheduling
  */
 class HostShareXML
@@ -40,7 +40,7 @@ public:
      *    @param sr the share request including CPU, memory, PCI and NUMA nodes
      *    @return true if the share can host the VM
      */
-    bool test_capacity(HostShareCapacity& sr, string & error);
+    bool test_capacity(HostShareCapacity& sr, std::string & error);
 
     /**
      *  Adds a new VM to the given share by incrementing the cpu,mem and disk
@@ -111,7 +111,7 @@ public:
     /**
      *  Prints the share information to an output stream.
      */
-    friend ostream& operator<<(ostream& o, const HostShareXML& p);
+    friend std::ostream& operator<<(std::ostream& o, const HostShareXML& p);
 
 private:
     friend class HostXML;
@@ -130,7 +130,7 @@ private:
 
     // System datastore
     long long free_disk;
-    map<int, long long> ds_free_disk;
+    std::map<int, long long> ds_free_disk;
 
     //Numa Nodes
     HostShareNUMA numa;
@@ -146,7 +146,7 @@ private:
 class HostXML : public ObjectXML
 {
 public:
-    HostXML(const string &xml_doc):ObjectXML(xml_doc)
+    HostXML(const std::string &xml_doc):ObjectXML(xml_doc)
     {
         init_attributes();
     };
@@ -190,7 +190,7 @@ public:
      *    @param error error message
      *    @return true if the share can host the VM
      */
-    bool test_capacity(HostShareCapacity &sr, string & error)
+    bool test_capacity(HostShareCapacity &sr, std::string & error)
     {
         return share.test_capacity(sr, error);
     }
@@ -269,7 +269,7 @@ public:
      *  Prints the Host information to an output stream. This function is used
      *  for logging purposes.
      */
-    friend ostream& operator<<(ostream& o, const HostXML& p);
+    friend std::ostream& operator<<(std::ostream& o, const HostXML& p);
 
 private:
     int oid;
@@ -282,7 +282,7 @@ private:
     // ---------------------------------------------------------------------- //
     // Scheduling statistics                                                  //
     // ---------------------------------------------------------------------- //
-    set<int> dispatched_vms;
+    std::set<int> dispatched_vms;
 
     bool is_dispatched(const std::string& vm_id) const
     {
@@ -323,7 +323,7 @@ private:
     template<typename T>
     int __search(const char *name, T& value)
     {
-        string s_name(name);
+        std::string s_name(name);
 
         if (s_name == "CURRENT_VMS")
         {

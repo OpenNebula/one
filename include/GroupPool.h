@@ -20,15 +20,13 @@
 #include "Group.h"
 #include "PoolSQL.h"
 
-using namespace std;
-
 
 class GroupPool : public PoolSQL
 {
 public:
 
     GroupPool(SqlDB * db, bool is_federation_slave,
-        vector<const SingleAttribute *>& restricted_attrs);
+        std::vector<const SingleAttribute *>& restricted_attrs);
 
     ~GroupPool() = default;
 
@@ -39,7 +37,7 @@ public:
     /**
      *  Default name for the oneadmin group
      */
-    static const string ONEADMIN_NAME;
+    static const std::string ONEADMIN_NAME;
 
     /**
      *  Identifier for the oneadmin group
@@ -49,7 +47,7 @@ public:
     /**
      *  Default name for the users group
      */
-    static const string USERS_NAME;
+    static const std::string USERS_NAME;
 
     /**
      *  Identifier for the user group
@@ -69,9 +67,9 @@ public:
      *
      *    @return the oid assigned to the object, -1 in case of failure
      */
-    int allocate(string                   name,
+    int allocate(std::string              name,
                  int *                    oid,
-                 string&                  error_str);
+                 std::string&             error_str);
 
     /**
      *  Function to get a group from the pool, if the object is not in memory
@@ -102,9 +100,9 @@ public:
      *    @param id of the group
      *    @return name of the group
      */
-    const string get_name(int gid)
+    const std::string get_name(int gid)
     {
-        static string error_str = "";
+        static std::string error_str = "";
 
         Group * group = get_ro(gid);
 
@@ -113,7 +111,7 @@ public:
             return error_str;
         }
 
-        const string gname = group->get_name();
+        const std::string gname = group->get_name();
 
         group->unlock();
 
@@ -144,7 +142,7 @@ public:
      *          -2 object is a system group (ID < 100)
      *          -3 Group's User IDs set is not empty
      */
-    int drop(PoolObjectSQL * objsql, string& error_msg);
+    int drop(PoolObjectSQL * objsql, std::string& error_msg);
 
     /**
      *  Bootstraps the database table(s) associated to the Group pool
@@ -166,7 +164,8 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(string& oss, const string& where, int sid, int eid, bool desc);
+    int dump(std::string& oss, const std::string& where,
+             int sid, int eid, bool desc);
 
 private:
 

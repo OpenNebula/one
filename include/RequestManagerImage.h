@@ -21,8 +21,6 @@
 #include "Nebula.h"
 #include "ImagePool.h"
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -30,9 +28,9 @@ using namespace std;
 class RequestManagerImage: public Request
 {
 protected:
-    RequestManagerImage(const string& method_name,
-                        const string& help,
-                        const string& params)
+    RequestManagerImage(const std::string& method_name,
+                        const std::string& help,
+                        const std::string& params)
         :Request(method_name,params,help)
     {
         Nebula& nd  = Nebula::instance();
@@ -121,7 +119,7 @@ public:
 
     ~ImageClone(){};
 
-    ErrorCode request_execute(int clone_id, const string &name, int ds_id,
+    ErrorCode request_execute(int clone_id, const std::string &name, int ds_id,
         bool persistent, int &new_id, RequestAttributes& att);
 
 protected:

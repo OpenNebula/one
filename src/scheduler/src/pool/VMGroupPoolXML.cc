@@ -16,6 +16,9 @@
 
 #include "VMGroupPoolXML.h"
 
+using namespace std;
+
+
 void VMGroupPoolXML::add_object(xmlNodePtr node)
 {
     if ( node == 0 || node->children == 0 )
