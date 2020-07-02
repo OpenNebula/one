@@ -87,7 +87,7 @@ protected:
 
         MonitorXML* monitor = new MonitorXML(node);
 
-        objects.insert(pair<int,ObjectXML*>(monitor->get_oid(), monitor));
+        objects.insert(std::pair<int,ObjectXML*>(monitor->get_oid(), monitor));
     }
 
     int load_info(xmlrpc_c::value &result)
@@ -98,9 +98,9 @@ protected:
 
             return 0;
         }
-        catch (exception const& e)
+        catch (std::exception const& e)
         {
-            ostringstream   oss;
+            std::ostringstream   oss;
             oss << "Exception raised: " << e.what();
 
             NebulaLog::log("MONITOR", Log::ERROR, oss);

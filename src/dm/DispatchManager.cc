@@ -18,6 +18,8 @@
 #include "Nebula.h"
 #include "NebulaLog.h"
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -117,7 +119,7 @@ void DispatchManager::init_managers()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void DispatchManager::get_quota_template(VirtualMachine * vm, 
+void DispatchManager::get_quota_template(VirtualMachine * vm,
         VirtualMachineTemplate& quota_tmpl, bool only_running)
 {
     std::string memory, cpu;

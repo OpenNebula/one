@@ -25,13 +25,15 @@
 #include "LifeCycleManager.h"
 #include "ClusterPool.h"
 #include "DatastorePool.h"
-
+#include "SecurityGroupPool.h"
 #include "Nebula.h"
 
 #include "vm_file_var_syntax.h"
 #include "vm_var_syntax.h"
 
 #include <sys/stat.h>
+
+using namespace std;
 
 /* ************************************************************************** */
 /* Virtual Machine :: Constructor/Destructor                                  */

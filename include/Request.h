@@ -26,8 +26,6 @@
 #include "Quotas.h"
 #include "UserPool.h"
 
-using namespace std;
-
 /**
  * This class represents the dynamic attributes: specific for a request of the
  * same method.
@@ -38,25 +36,25 @@ public:
     int uid;                  /**< id of the user */
     int gid;                  /**< id of the user's group */
 
-    string uname;             /**< name of the user */
-    string gname;             /**< name of the user's group */
+    std::string uname;        /**< name of the user */
+    std::string gname;        /**< name of the user's group */
 
-    string password;          /**< password of the user */
+    std::string password;     /**< password of the user */
 
-    set<int> group_ids;       /**< set of user's group ids */
+    std::set<int> group_ids;  /**< set of user's group ids */
 
-    string session;           /**< Session from ONE XML-RPC API */
+    std::string session;      /**< Session from ONE XML-RPC API */
     int    req_id;            /**< Request ID for log messages */
 
     int umask;                /**< User umask for new objects */
 
     xmlrpc_c::value * retval; /**< Return value from libxmlrpc-c */
-    string retval_xml;        /**< Return value in XML format */
-    string extra_xml;         /**< Extra information returned for API Hooks */
+    std::string retval_xml;   /**< Return value in XML format */
+    std::string extra_xml;    /**< Extra information returned for API Hooks */
 
     PoolObjectSQL::ObjectType resp_obj; /**< object type */
     int                       resp_id;  /**< Id of the object */
-    string                    resp_msg; /**< Additional response message */
+    std::string               resp_msg; /**< Additional response message */
 
     uint64_t replication_idx;
 
@@ -161,12 +159,13 @@ class ParamList
 {
 public:
 
-    ParamList(const xmlrpc_c::paramList * paramList, const set<int>& hidden):
+    ParamList(const xmlrpc_c::paramList * paramList,
+              const std::set<int>& hidden):
         _paramList(paramList), _hidden(hidden){};
 
-    string& to_string(string& str) const
+    std::string& to_string(std::string& str) const
     {
-        ostringstream oss;
+        std::ostringstream oss;
 
         oss << get_value_as_string(0);
 
@@ -180,14 +179,14 @@ public:
         return str;
     };
 
-    string get_value_as_string(int index) const
+    std::string get_value_as_string(int index) const
     {
         if ( index == 0 || _hidden.count(index) == 1 )
         {
             return "****";
         }
 
-        ostringstream oss;
+        std::ostringstream oss;
         xmlrpc_c::value::type_t type((*_paramList)[index].type());
 
         if( type == xmlrpc_c::value::TYPE_INT)
@@ -227,7 +226,7 @@ public:
 private:
     const xmlrpc_c::paramList * _paramList;
 
-    const set<int>& _hidden;
+    const std::set<int>& _hidden;
 };
 
 /**
@@ -259,7 +258,7 @@ public:
      *    @param ob object for the auth operation
      *    @return string equivalent of the object
      */
-    static string object_name(PoolObjectSQL::ObjectType ob);
+    static std::string object_name(PoolObjectSQL::ObjectType ob);
 
     /**
      *  Sets the format string to log xml-rpc method calls. The format string
@@ -277,7 +276,7 @@ public:
      *    %a -- client port (only IPv4)
      *    %% -- %
      */
-    static void set_call_log_format(const string& log_format)
+    static void set_call_log_format(const std::string& log_format)
     {
         format_str = log_format;
     }
@@ -286,14 +285,14 @@ protected:
     /* ---------------------------------------------------------------------- */
     /* Global configuration attributes por API calls                          */
     /* ---------------------------------------------------------------------- */
-    static string format_str;
+    static std::string format_str;
     static const long long xmlrpc_timeout; //Timeout (ms) for request forwarding
 
     /* ---------------------------------------------------------------------- */
     /* Static Request Attributes: shared among request of the same method     */
     /* ---------------------------------------------------------------------- */
-    PoolSQL * pool;
-    string    method_name;
+    PoolSQL *     pool;
+    std::string   method_name;
 
     // Configuration for authentication level of the API call
     PoolObjectSQL::ObjectType auth_object;
@@ -302,8 +301,8 @@ protected:
     VMActions::Action vm_action;
 
     // Logging configuration fot the API call
-    set<int> hidden_params;
-    bool     log_method_call;
+    std::set<int> hidden_params;
+    bool          log_method_call;
 
     //Method can be only execute by leaders or solo servers
     bool leader_only;
@@ -311,7 +310,9 @@ protected:
     /* ---------------------------------------------------------------------- */
     /* Class Constructors                                                     */
     /* ---------------------------------------------------------------------- */
-    Request(const string& mn, const string& signature, const string& help)
+    Request(const std::string& mn,
+            const std::string& signature,
+            const std::string& help)
     {
         pool = nullptr;
 
@@ -369,7 +370,7 @@ protected:
                  PoolObjectSQL::ObjectType type,
                  RequestAttributes&        att,
                  PoolObjectAuth&           perms,
-                 string&                   name,
+                 std::string&              name,
                  bool                      throw_error);
 
     /* ---------------------------------------------------------------------- */
@@ -389,7 +390,7 @@ protected:
      *    @param val string to be returned to the client
      *    @param att the specific request attributes
      */
-    void success_response(const string& val, RequestAttributes& att);
+    void success_response(const std::string& val, RequestAttributes& att);
 
     /**
      *  Builds an XML-RPC response updating retval. After calling this function
@@ -424,7 +425,7 @@ protected:
      *    @param ec error code for this call
      *    @param att the specific request attributes
      */
-    string failure_message(ErrorCode ec, RequestAttributes& att);
+    std::string failure_message(ErrorCode ec, RequestAttributes& att);
 
     /* ---------------------------------------------------------------------- */
     /* Authorization methods for requests                                     */
@@ -488,7 +489,7 @@ protected:
      *    @return true if the user is authorized.
      */
     static bool quota_authorization(Template * tmpl, Quotas::QuotaType qtype,
-        RequestAttributes& att, string& error_str);
+        RequestAttributes& att, std::string& error_str);
 
     /**
      *  Performs rollback on usage counters for a previous  quota check operation
@@ -510,10 +511,10 @@ private:
     /* Functions to manage user and group quotas                              */
     /* ---------------------------------------------------------------------- */
     static bool user_quota_authorization(Template * tmpl, Quotas::QuotaType  qtype,
-        RequestAttributes& att, string& error_str);
+        RequestAttributes& att, std::string& error_str);
 
     static bool group_quota_authorization(Template * tmpl, Quotas::QuotaType  qtype,
-        RequestAttributes& att, string& error_str);
+        RequestAttributes& att, std::string& error_str);
 
     static void user_quota_rollback(Template * tmpl, Quotas::QuotaType  qtype,
         RequestAttributes& att);
@@ -528,7 +529,7 @@ private:
      *    @param va string representation of the error
      *    @param ra the specific request attributes
      */
-    void failure_response(ErrorCode ec, const string& va, RequestAttributes& ra);
+    void failure_response(ErrorCode ec, const std::string& va, RequestAttributes& ra);
 
     /**
      * Logs the method invocation, including the arguments
@@ -539,7 +540,7 @@ private:
      * @param callInfoP information of client
      */
     static void log_method_invoked(const RequestAttributes& att,
-        const xmlrpc_c::paramList&  paramList, const string& format_str,
+        const xmlrpc_c::paramList&  paramList, const std::string& format_str,
         const std::string& method_name, const std::set<int>& hidden_params,
         const xmlrpc_c::callInfo * callInfoP);
 

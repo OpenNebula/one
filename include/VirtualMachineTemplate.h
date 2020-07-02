@@ -21,8 +21,6 @@
 
 #include <string>
 
-using namespace std;
-
 /**
  *  Virtual Machine Template class, it represents a VM configuration file.
  */
@@ -54,24 +52,24 @@ public:
      *   @param new_name of the new image
      *   @param new_uname of the owner of the new image
      */
-    int replace_disk_image(int target_id, const string&
-        target_name, const string& target_uname, const string& new_name,
-        const string& new_uname);
+    int replace_disk_image(int target_id, const std::string&
+        target_name, const std::string& target_uname,
+        const std::string& new_name, const std::string& new_uname);
 
     // -------------------------------------------------------------------------
     // Restricted attributes interface implementation
     // -------------------------------------------------------------------------
-    virtual bool check_restricted(string& rs_attr, const Template* base)
+    virtual bool check_restricted(std::string& rs_attr, const Template* base)
     {
         return Template::check_restricted(rs_attr, base, restricted);
     }
 
-    virtual bool check_restricted(string& rs_attr)
+    virtual bool check_restricted(std::string& rs_attr)
     {
         return Template::check_restricted(rs_attr, restricted);
     }
 
-    static void parse_restricted(vector<const SingleAttribute *>& ra)
+    static void parse_restricted(std::vector<const SingleAttribute *>& ra)
     {
         Template::parse_restricted(ra, restricted);
     }
@@ -89,12 +87,12 @@ public:
         Template::decrypt(one_key, encrypted);
     }
 
-    static void parse_encrypted(vector<const SingleAttribute *>& ea)
+    static void parse_encrypted(std::vector<const SingleAttribute *>& ea)
     {
         Template::parse_encrypted(ea, encrypted);
     }
 
-    string& to_xml_short(string& xml) const;
+    std::string& to_xml_short(std::string& xml) const;
 
     /**
      *  Get restricted attributes for NIC
@@ -129,9 +127,7 @@ private:
      */
     static void get_restricted(const std::string& name, std::set<std::string>& rs)
     {
-        std::map<std::string, std::set<std::string> >::iterator it;
-
-        it = restricted.find(name);
+        auto it = restricted.find(name);
 
         if ( it != restricted.end())
         {

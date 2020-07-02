@@ -18,11 +18,10 @@
 #define CLUSTER_H_
 
 #include "PoolObjectSQL.h"
-#include "DatastorePool.h"
 #include "ClusterTemplate.h"
 #include "BitMap.h"
+#include "ObjectCollection.h"
 
-using namespace std;
 
 /**
  *  The Cluster class.
@@ -37,7 +36,7 @@ public:
     /**
      *  Returns a copy of the datastore IDs set
      */
-    set<int> get_datastores()
+    std::set<int> get_datastores()
     {
         return datastores.clone();
     };
@@ -46,12 +45,12 @@ public:
      *  Returns a system DS for the cluster when none is set at the API level
      *    @return the ID of the System
      */
-    static int get_default_system_ds(const set<int>& ds_collection);
+    static int get_default_system_ds(const std::set<int>& ds_collection);
 
     /**
      *  Returns a copy of the host IDs set
      */
-    set<int> get_host_ids()
+    std::set<int> get_host_ids()
     {
         return hosts.clone();
     }
@@ -59,7 +58,7 @@ public:
     /**
      *  Returns a copy of the datastore IDs set
      */
-    set<int> get_datastore_ids()
+    std::set<int> get_datastore_ids()
     {
         return datastores.clone();
     }
@@ -67,7 +66,7 @@ public:
     /**
      *  Returns a copy of the vnet IDs set
      */
-    set<int> get_vnet_ids()
+    std::set<int> get_vnet_ids()
     {
         return vnets.clone();
     }
@@ -78,7 +77,7 @@ public:
      *    @param cpu reserved cpu (percentage, or absolute)
      *    @param mem reserved mem (in KB)
      */
-    void get_reserved_capacity(string& cpu, string& mem) const
+    void get_reserved_capacity(std::string& cpu, std::string& mem) const
     {
         get_template_attribute("RESERVED_CPU", cpu);
 
@@ -93,7 +92,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const override;
+    std::string& to_xml(std::string& xml) const override;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -101,7 +100,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str) override;
+    int from_xml(const std::string &xml_str) override;
 
 private:
 
@@ -143,7 +142,7 @@ private:
     // *************************************************************************
     // Constructor
     // *************************************************************************
-    Cluster(int id, const string& name, ClusterTemplate*  cl_template,
+    Cluster(int id, const std::string& name, ClusterTemplate*  cl_template,
             const VectorAttribute& vnc_conf);
 
     virtual ~Cluster() = default;
@@ -168,7 +167,7 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(SqlDB *db, bool replace, string& error_str);
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the Cluster
@@ -181,7 +180,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str) override
+    int insert(SqlDB *db, std::string& error_str) override
     {
         int rc;
 
@@ -202,7 +201,7 @@ private:
      */
     int update(SqlDB *db) override
     {
-        string error_str;
+        std::string error_str;
 
         return insert_replace(db, true, error_str);
     }
@@ -239,7 +238,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-     int select(SqlDB *db, const string& _name, int _uid) override
+     int select(SqlDB *db, const std::string& _name, int _uid) override
      {
          int rc = PoolObjectSQL::select(db, _name, _uid);
 
@@ -258,7 +257,7 @@ private:
      * @param error_msg Error message, if any.
      * @return 0 if cluster can be dropped, -1 otherwise
      */
-    int check_drop(string& error_msg);
+    int check_drop(std::string& error_msg);
 
     /**
      *  Factory method for cluster templates
@@ -272,9 +271,10 @@ private:
      * Add a resource to the corresponding set.
      * @return 0 on success
      */
-    int add_resource(PoolObjectSQL::ObjectType type, int resource_id, string& error_msg)
+    int add_resource(PoolObjectSQL::ObjectType type, int resource_id,
+                     std::string& error_msg)
     {
-        ostringstream oss;
+        std::ostringstream oss;
 
         int rc;
 
@@ -308,7 +308,8 @@ private:
      * Remove a resource from the corresponding set.
      * @return 0 on success
      */
-    int del_resource(PoolObjectSQL::ObjectType type, int resource_id, string& error_msg)
+    int del_resource(PoolObjectSQL::ObjectType type, int resource_id,
+                     std::string& error_msg)
     {
         int rc;
 

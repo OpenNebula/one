@@ -21,7 +21,6 @@
 #include "PoolXML.h"
 #include "DatastoreXML.h"
 
-using namespace std;
 
 class DatastorePoolXML : public PoolXML
 {
@@ -44,7 +43,7 @@ public:
 
 protected:
 
-    virtual int get_suitable_nodes(vector<xmlNodePtr>& content) = 0;
+    virtual int get_suitable_nodes(std::vector<xmlNodePtr>& content) = 0;
 
     void add_object(xmlNodePtr node);
 
@@ -60,7 +59,7 @@ public:
     SystemDatastorePoolXML(Client* client):DatastorePoolXML(client){};
 
 protected:
-    int get_suitable_nodes(vector<xmlNodePtr>& content)
+    int get_suitable_nodes(std::vector<xmlNodePtr>& content)
     {
         return get_nodes("/DATASTORE_POOL/DATASTORE[TYPE=1 and STATE=0]", content);
     };
@@ -75,7 +74,7 @@ public:
     ImageDatastorePoolXML(Client* client):DatastorePoolXML(client){};
 
 protected:
-    int get_suitable_nodes(vector<xmlNodePtr>& content)
+    int get_suitable_nodes(std::vector<xmlNodePtr>& content)
     {
         return get_nodes("/DATASTORE_POOL/DATASTORE[TYPE=0]", content);
     };

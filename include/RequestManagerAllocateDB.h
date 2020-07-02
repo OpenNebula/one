@@ -25,7 +25,7 @@
 class RequestManagerAllocateDB: public Request
 {
 protected:
-    RequestManagerAllocateDB(const string& name): Request(name, "A:ss",
+    RequestManagerAllocateDB(const std::string& name): Request(name, "A:ss",
             "Allocates a new object from its template representation")
     {
         auth_op = AuthRequest::MANAGE;

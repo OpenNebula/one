@@ -280,7 +280,7 @@ public:
      *  not defined the nebula location is "/".
      *      @return the nebula location.
      */
-    const string& get_nebula_location()
+    const std::string& get_nebula_location()
     {
         return nebula_location;
     };
@@ -291,7 +291,7 @@ public:
      *  /usr/lib/one/mads.
      *      @return the mad execs location.
      */
-    const string& get_mad_location()
+    const std::string& get_mad_location()
     {
         return mad_location;
     };
@@ -301,7 +301,7 @@ public:
      *  defined this path points to $ONE_LOCATION/etc, otherwise it is /etc/one
      *      @return the mad defaults location.
      */
-    const string& get_defaults_location()
+    const std::string& get_defaults_location()
     {
         return etc_location;
     };
@@ -312,7 +312,7 @@ public:
      *  otherwise it is /var/log/one.
      *      @return the log location.
      */
-    const string& get_log_location()
+    const std::string& get_log_location()
     {
         return log_location;
     };
@@ -322,7 +322,7 @@ public:
      *  points to $ONE_LOCATION/var, otherwise it is /var/lib/one.
      *      @return the log location.
      */
-    const string& get_var_location()
+    const std::string& get_var_location()
     {
         return var_location;
     };
@@ -332,7 +332,7 @@ public:
      *  points to $ONE_LOCATION/share, otherwise it is /usr/share/one.
      *      @return the log location.
      */
-    const string& get_share_location()
+    const std::string& get_share_location()
     {
         return share_location;
     };
@@ -341,7 +341,7 @@ public:
      *
      *
      */
-    void get_ds_location(string& dsloc);
+    void get_ds_location(std::string& dsloc);
 
     /**
      *  Returns the default vms location. When ONE_LOCATION is defined this path
@@ -350,7 +350,7 @@ public:
      *  logs (in self-contained mode only)
      *      @return the vms location.
      */
-    const string& get_vms_location()
+    const std::string& get_vms_location()
     {
         return vms_location;
     };
@@ -363,13 +363,13 @@ public:
      *     /var/log/one/$VM_ID.log
      *  @return the log location for the VM.
      */
-    string get_vm_log_filename(int oid);
+    std::string get_vm_log_filename(int oid);
 
     /**
      *  Returns the name of the host running oned
      *    @return the name
      */
-    const string& get_nebula_hostname()
+    const std::string& get_nebula_hostname()
     {
         return hostname;
     };
@@ -378,9 +378,9 @@ public:
      *  Returns the version of oned
      *    @return the version
      */
-    static string version()
+    static std::string version()
     {
-       ostringstream os;
+       std::ostringstream os;
        os << "OpenNebula " << code_version();
        os << " (" << GITVERSION << ")";
 
@@ -391,7 +391,7 @@ public:
      *  Returns the version of oned
      * @return
      */
-    static string code_version()
+    static std::string code_version()
     {
         return "5.13.80"; // bump version
     }
@@ -400,7 +400,7 @@ public:
      * Version needed for the DB, shared tables
      * @return
      */
-    static string shared_db_version()
+    static std::string shared_db_version()
     {
         return "5.12.0";
     }
@@ -409,7 +409,7 @@ public:
      * Version needed for the DB, local tables
      * @return
      */
-    static string local_db_version()
+    static std::string local_db_version()
     {
         return "5.12.0";
     }
@@ -462,7 +462,7 @@ public:
         return server_id;
     };
 
-    const string& get_master_oned()
+    const std::string& get_master_oned()
     {
         return master_oned;
     };
@@ -477,7 +477,7 @@ public:
      *    @param value of the attribute
      */
     template<typename T>
-    void get_configuration_attribute(const string& name, T& value) const
+    void get_configuration_attribute(const std::string& name, T& value) const
     {
         nebula_configuration->get(name, value);
     };
@@ -570,7 +570,7 @@ public:
     /**
      *  Gets a TM configuration attribute
      */
-    int get_tm_conf_attribute(const string& tm_name,
+    int get_tm_conf_attribute(const std::string& tm_name,
         const VectorAttribute* &value) const
     {
         return get_conf_attribute("TM_MAD_CONF", tm_name, value);
@@ -579,7 +579,7 @@ public:
     /**
      *  Gets a Market configuration attribute
      */
-    int get_market_conf_attribute( const string& mk_name,
+    int get_market_conf_attribute( const std::string& mk_name,
         const VectorAttribute* &value) const
     {
         return get_conf_attribute("MARKET_MAD_CONF", mk_name, value);
@@ -589,7 +589,8 @@ public:
      *  Gets an Auth driver configuration attribute
      */
     template<typename T>
-    int get_auth_conf_attribute(const string& driver, const string& attribute,
+    int get_auth_conf_attribute(const std::string& driver,
+        const std::string& attribute,
         T& value) const
     {
         return get_conf_attribute("AUTH_MAD_CONF", driver, attribute, value);
@@ -608,9 +609,9 @@ public:
      *  Gets an XML document with all of the configuration attributes
      *    @return the XML
      */
-    string get_configuration_xml() const
+    std::string get_configuration_xml() const
     {
-        string xml;
+        std::string xml;
         return nebula_configuration->to_xml(xml);
     };
 
@@ -618,7 +619,7 @@ public:
      *  Gets the database backend type
      *    @return database backend type
      */
-    string get_db_backend() const
+    const std::string& get_db_backend() const
     {
         return db_backend_type;
     }
@@ -643,7 +644,7 @@ public:
      *
      *    @return 0 if success
      */
-    int set_default_user_quota(Template *tmpl, string& error)
+    int set_default_user_quota(Template *tmpl, std::string& error)
     {
         int rc = default_user_quota.set(tmpl, error);
 
@@ -671,7 +672,7 @@ public:
      *
      *    @return 0 if success
      */
-    int set_default_group_quota(Template *tmpl, string& error)
+    int set_default_group_quota(Template *tmpl, std::string& error)
     {
         int rc = default_group_quota.set(tmpl, error);
 
@@ -692,7 +693,7 @@ public:
      *    @param cb Callback that will receive the attribute in XML
      *    @return 0 on success
      */
-    int select_sys_attribute(const string& attr_name, string& attr_xml)
+    int select_sys_attribute(const std::string& attr_name, std::string& attr_xml)
     {
         return system_db->select_sys_attribute(attr_name, attr_xml);
     };
@@ -703,9 +704,9 @@ public:
      *    @return 0 on success
      */
     int insert_sys_attribute(
-        const string& attr_name,
-        const string& xml_attr,
-        string&       error_str)
+        const std::string& attr_name,
+        const std::string& xml_attr,
+        std::string&       error_str)
     {
         return system_db->insert_sys_attribute(attr_name, xml_attr, error_str);
     };
@@ -716,9 +717,9 @@ public:
      *    @return 0 on success
      */
     int update_sys_attribute(
-        const string& attr_name,
-        const string& xml_attr,
-        string&       error_str)
+        const std::string& attr_name,
+        const std::string& xml_attr,
+        std::string&       error_str)
     {
         return system_db->update_sys_attribute(attr_name, xml_attr, error_str);
     };
@@ -788,17 +789,17 @@ private:
     // Environment variables
     // ---------------------------------------------------------------
 
-    string  nebula_location;
+    std::string  nebula_location;
 
-    string  mad_location;
-    string  etc_location;
-    string  log_location;
-    string  var_location;
-    string  remotes_location;
-    string  vms_location;
-    string  share_location;
+    std::string  mad_location;
+    std::string  etc_location;
+    std::string  log_location;
+    std::string  var_location;
+    std::string  remotes_location;
+    std::string  vms_location;
+    std::string  share_location;
 
-    string  hostname;
+    std::string  hostname;
 
     // ---------------------------------------------------------------
     // Configuration
@@ -810,12 +811,12 @@ private:
     // Federation - HA
     // ---------------------------------------------------------------
 
-    bool    federation_enabled;
-    bool    federation_master;
-    bool    cache;
-    int     zone_id;
-    int     server_id;
-    string  master_oned;
+    bool        federation_enabled;
+    bool        federation_master;
+    bool        cache;
+    int         zone_id;
+    int         server_id;
+    std::string master_oned;
 
     // ---------------------------------------------------------------
     // Default quotas
@@ -828,8 +829,8 @@ private:
     // The system database
     // ---------------------------------------------------------------
 
-    SystemDB * system_db;
-    string     db_backend_type;
+    SystemDB *  system_db;
+    std::string db_backend_type;
 
     // ---------------------------------------------------------------
     // Nebula Pools

@@ -21,8 +21,6 @@
 #include "Nebula.h"
 #include "VirtualMachinePool.h"
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -30,9 +28,9 @@ using namespace std;
 class RequestManagerVirtualMachine: public Request
 {
 protected:
-    RequestManagerVirtualMachine(const string& method_name,
-                       const string& help,
-                       const string& params)
+    RequestManagerVirtualMachine(const std::string& method_name,
+                                 const std::string& help,
+                                 const std::string& params)
         :Request(method_name, params, help)
     {
         Nebula& nd  = Nebula::instance();
@@ -68,39 +66,39 @@ protected:
             RequestAttributes&  att);
 
     int get_host_information(
-        int     hid,
-        string& name,
-        string& vmm,
-        int&    cluster_id,
-        bool&   is_public_cloud,
+        int                hid,
+        std::string&       name,
+        std::string&       vmm,
+        int&               cluster_id,
+        bool&              is_public_cloud,
         PoolObjectAuth&    host_perms,
         RequestAttributes& att);
 
     int get_ds_information(
         int ds_id,
-        set<int>& ds_cluster_ids,
-        string& tm_mad,
+        std::set<int>& ds_cluster_ids,
+        std::string& tm_mad,
         RequestAttributes& att,
         bool& ds_migr);
 
     int get_default_ds_information(
         int cluster_id,
         int& ds_id,
-        string& tm_mad,
+        std::string& tm_mad,
         RequestAttributes& att);
 
     bool check_host(int hid,
                     bool enforce,
                     VirtualMachine* vm,
-                    string& error);
+                    std::string& error);
 
-    int add_history(VirtualMachine * vm,
-                    int              hid,
-                    int              cid,
-                    const string&    hostname,
-                    const string&    vmm_mad,
-                    const string&    tm_mad,
-                    int              ds_id,
+    int add_history(VirtualMachine *   vm,
+                    int                hid,
+                    int                cid,
+                    const std::string& hostname,
+                    const std::string& vmm_mad,
+                    const std::string& tm_mad,
+                    int                ds_id,
                     RequestAttributes& att);
 
     VirtualMachine * get_vm(int id, RequestAttributes& att);

@@ -21,7 +21,6 @@
 #include "PoolXML.h"
 #include "VirtualMachineXML.h"
 
-using namespace std;
 
 class VirtualMachinePoolXML : public PoolXML
 {
@@ -61,7 +60,8 @@ public:
      *    @param resched the machine is going to be rescheduled
      *    @param extra template with result nics
      */
-    int dispatch(int vid, int hid, int dsid, bool resched, const string& extra_template) const;
+    int dispatch(int vid, int hid, int dsid, bool resched,
+                 const std::string& extra_template) const;
 
     /**
      *  Update the VM template
@@ -70,7 +70,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int update(int vid, const string &st) const;
+    int update(int vid, const std::string &st) const;
 
     /**
      *  Update the VM template
@@ -80,7 +80,7 @@ public:
      */
     int update(VirtualMachineXML * vm) const
     {
-        string xml;
+        std::string xml;
 
         return update(vm->get_oid(), vm->get_template(xml));
     };
@@ -88,7 +88,7 @@ public:
     /**
      *  Returns a vector of matched hosts
      */
-    const vector<Resource *> get_vm_resources()
+    const std::vector<Resource *> get_vm_resources()
     {
         return vm_resources.get_resources();
     }
@@ -103,7 +103,7 @@ public:
 
 protected:
 
-    int get_suitable_nodes(vector<xmlNodePtr>& content)
+    int get_suitable_nodes(std::vector<xmlNodePtr>& content)
     {
         // Pending or ((running or unknown) and resched))
         return get_nodes("/VM_POOL/VM[STATE=1 or "
@@ -159,15 +159,15 @@ public:
      * @return 0 on success, -1 otherwise
      */
     int action(int vid,
-               const string &action,
-               const string &args,
-               string &error_msg) const;
+               const std::string &action,
+               const std::string &args,
+               std::string &error_msg) const;
 
 protected:
 
-    int get_suitable_nodes(vector<xmlNodePtr>& content)
+    int get_suitable_nodes(std::vector<xmlNodePtr>& content)
     {
-        ostringstream oss;
+        std::ostringstream oss;
 
         oss << "/VM_POOL/VM/USER_TEMPLATE/SCHED_ACTION[(TIME < " << time(0)
             << " and (not(DONE > 0) or boolean(REPEAT))) or ( TIME[starts-with(text(),\"+\")] and not(DONE>0) ) ]/../..";
@@ -199,9 +199,9 @@ public:
 
 protected:
 
-    int get_suitable_nodes(vector<xmlNodePtr>& content)
+    int get_suitable_nodes(std::vector<xmlNodePtr>& content)
     {
-        ostringstream oss;
+        std::ostringstream oss;
 
         oss << "/VM_POOL/VM[TEMPLATE/VMGROUP/ROLE]";
 

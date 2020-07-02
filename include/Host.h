@@ -86,9 +86,9 @@ public:
         return 0;
     }
 
-    static string state_to_str(HostState state)
+    static std::string state_to_str(HostState state)
     {
-        string st = "";
+        std::string st = "";
 
         switch (state)
         {
@@ -117,7 +117,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    std::string& to_xml(string& xml) const override;
+    std::string& to_xml(std::string& xml) const override;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -206,7 +206,7 @@ public:
      * Retrieves VMM mad name
      *    @return string vmm mad name
      */
-    const string& get_vmm_mad() const
+    const std::string& get_vmm_mad() const
     {
         return vmm_mad_name;
     };
@@ -215,7 +215,7 @@ public:
      * Retrieves IM mad name
      *    @return string im mad name
      */
-    const string& get_im_mad() const
+    const std::string& get_im_mad() const
     {
         return im_mad_name;
     };
@@ -276,7 +276,7 @@ public:
      *
      *    @return true if the share can host the VM
      */
-    bool test_capacity(HostShareCapacity &sr, string& error)
+    bool test_capacity(HostShareCapacity &sr, std::string& error)
     {
         return host_share.test(sr, error);
     }
@@ -289,12 +289,12 @@ public:
      *    @return true capacity was updated,
      *            false if host has its own reservations
      */
-    bool update_reserved_capacity(const string& ccpu, const string& cmem);
+    bool update_reserved_capacity(const std::string& ccpu, const std::string& cmem);
 
     /**
      *  Returns a copy of the VM IDs set
      */
-    set<int> get_vm_ids()
+    std::set<int> get_vm_ids()
     {
         return vm_collection.clone();
     }
@@ -332,8 +332,8 @@ private:
     /**
      *  Name of the IM and VMM drivers
      */
-    string im_mad_name;
-    string vmm_mad_name;
+    std::string im_mad_name;
+    std::string vmm_mad_name;
 
     /**
      *  The Share represents the logical capacity associated with the host

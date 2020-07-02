@@ -46,7 +46,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int set(Template *tmpl, string& error);
+    int set(Template *tmpl, std::string& error);
 
     /**
      *  Delete usage from quota counters.
@@ -65,7 +65,7 @@ public:
       *
       *    @return 0 on success, -1 if not found
       */
-     int ds_get(const string& id, VectorAttribute **va)
+     int ds_get(const std::string& id, VectorAttribute **va)
      {
          return datastore_quota.get_quota(id, va);
      }
@@ -78,7 +78,7 @@ public:
       *
       *    @return 0 on success, -1 if not found
       */
-     int vm_get(const string& id, VectorAttribute **va)
+     int vm_get(const std::string& id, VectorAttribute **va)
      {
          return vm_quota.get_quota(id, va);
      }
@@ -91,7 +91,7 @@ public:
       *
       *    @return 0 on success, -1 if not found
       */
-     int network_get(const string& id, VectorAttribute **va)
+     int network_get(const std::string& id, VectorAttribute **va)
      {
          return network_quota.get_quota(id, va);
      }
@@ -104,7 +104,7 @@ public:
       *
       *    @return 0 on success, -1 if not found
       */
-     int image_get(const string& id, VectorAttribute **va)
+     int image_get(const std::string& id, VectorAttribute **va)
      {
          return image_quota.get_quota(id, va);
      }
@@ -120,7 +120,7 @@ public:
      bool quota_check(QuotaType type,
                      Template *tmpl,
                      Quotas& default_quotas,
-                     string& error_str);
+                     std::string& error_str);
 
     /**
      *  Update usage of an existing quota (e.g. size of an image), it updates
@@ -134,7 +134,7 @@ public:
      bool quota_update(QuotaType type,
                        Template *tmpl,
                        Quotas& default_quotas,
-                       string& error_str);
+                       std::string& error_str);
 
     /**
      *  Delete usage from the given quota counters.
@@ -148,7 +148,7 @@ public:
      *    @param xml the string to store the XML
      *    @return the same xml string to use it in << compounds
      */
-    string& to_xml(string& xml) const;
+    std::string& to_xml(std::string& xml) const;
 
     /**
      *  Builds quota object from an ObjectXML
@@ -177,7 +177,7 @@ public:
      *    @param tmpl template for the vm with usage
      *    @param error string
      */
-    static void vm_check(int uid, int gid, Template * tmpl, string& error)
+    static void vm_check(int uid, int gid, Template * tmpl, std::string& error)
     {
         quota_check(VIRTUALMACHINE, uid, gid, tmpl, error);
     }
@@ -201,11 +201,9 @@ public:
      *    @param gid of the group
      *    @param tmpl template for the image, with usage
      */
-    static void ds_del(int uid, int gid, vector<Template *> tmpls)
+    static void ds_del(int uid, int gid, std::vector<Template *> tmpls)
     {
-        vector<Template *>::iterator it;
-
-        for ( it = tmpls.begin(); it != tmpls.end() ; ++it )
+        for ( auto it = tmpls.begin(); it != tmpls.end() ; ++it )
         {
             quota_del(DATASTORE, uid, gid, *it);
 
@@ -219,7 +217,7 @@ public:
       *  *ARE FREED* by this function
       *    @param ds_quotas a map with image_id and a tmpl with usage attributes
       */
-    static void ds_del_recreate(int uid, int gid, vector<Template *>& ds_quotas);
+    static void ds_del_recreate(int uid, int gid, std::vector<Template *>& ds_quotas);
 
     /**
      *  Delete usage from the given quota counters for the given user and group
@@ -238,7 +236,7 @@ public:
      *    @param tmpl template for the image, with usage
      */
     static void quota_check(QuotaType type, int uid, int gid, Template * tmpl,
-        string& error);
+        std::string& error);
 
 protected:
     /**

@@ -23,8 +23,6 @@
 #include "DatastorePool.h"
 #include "VirtualNetworkPool.h"
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -32,9 +30,9 @@ using namespace std;
 class RequestManagerCluster: public Request
 {
 protected:
-    RequestManagerCluster(const string& method_name,
-                          const string& help,
-                          const string& params)
+    RequestManagerCluster(const std::string& method_name,
+                          const std::string& help,
+                          const std::string& params)
         :Request(method_name,params,help)
     {
         Nebula& nd = Nebula::instance();
@@ -98,9 +96,9 @@ protected:
     virtual int add_object(
             Cluster* cluster,
             int id,
-            string& error_msg) = 0;
+            std::string& error_msg) = 0;
 
-    virtual int del_object(Cluster* cluster, int id, string& error_msg) = 0;
+    virtual int del_object(Cluster* cluster, int id, std::string& error_msg) = 0;
 
     virtual void get(int oid, PoolObjectSQL ** object, Clusterable ** cluster_obj) = 0;
 };
@@ -112,9 +110,9 @@ class RequestManagerClusterHost: public Request
 {
 protected:
     RequestManagerClusterHost(
-            const string& method_name,
-            const string& help,
-            const string& params)
+            const std::string& method_name,
+            const std::string& help,
+            const std::string& params)
                 :Request(method_name,params,help)
             {
                 Nebula& nd = Nebula::instance();
@@ -195,9 +193,9 @@ class RequestManagerClusterDatastore : public RequestManagerCluster
 {
 public:
     RequestManagerClusterDatastore(
-        const string& method_name,
-        const string& help,
-        const string& params):
+        const std::string& method_name,
+        const std::string& help,
+        const std::string& params):
             RequestManagerCluster(method_name, help, params){};
 
     ~RequestManagerClusterDatastore(){};
@@ -205,12 +203,12 @@ public:
     virtual int add_object(
             Cluster* cluster,
             int id,
-            string& error_msg) override
+            std::string& error_msg) override
     {
         return clpool->add_to_cluster(PoolObjectSQL::DATASTORE, cluster, id, error_msg);
     };
 
-    virtual int del_object(Cluster* cluster, int id, string& error_msg) override
+    virtual int del_object(Cluster* cluster, int id, std::string& error_msg) override
     {
         return clpool->del_from_cluster(PoolObjectSQL::DATASTORE, cluster, id, error_msg);
     };
@@ -280,9 +278,9 @@ class RequestManagerClusterVNet : public RequestManagerCluster
 public:
 
     RequestManagerClusterVNet(
-            const string& method_name,
-            const string& help,
-            const string& params):
+            const std::string& method_name,
+            const std::string& help,
+            const std::string& params):
                 RequestManagerCluster(method_name, help, params){};
 
     ~RequestManagerClusterVNet(){};
@@ -290,12 +288,12 @@ public:
     virtual int add_object(
             Cluster* cluster,
             int id,
-            string& error_msg) override
+            std::string& error_msg) override
     {
         return clpool->add_to_cluster(PoolObjectSQL::NET, cluster, id, error_msg);
     };
 
-    virtual int del_object(Cluster* cluster, int id, string& error_msg) override
+    virtual int del_object(Cluster* cluster, int id, std::string& error_msg) override
     {
         return clpool->del_from_cluster(PoolObjectSQL::NET, cluster, id, error_msg);
     };

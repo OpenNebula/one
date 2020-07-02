@@ -63,6 +63,8 @@ extern int vm_var_debug;
 
 #include "mem_collector.h"
 
+using namespace std;
+
 typedef void * yyscan_t;
 
 int vm_var_parse (VirtualMachine * vm, ostringstream * parsed, char ** errmsg,

@@ -22,7 +22,6 @@
 #include "HostMonitoringTemplate.h"
 #include "OneDB.h"
 
-#include <time.h>
 #include <sstream>
 
 #include <vector>
@@ -43,13 +42,13 @@ public:
      *    @return the oid assigned to the object or -1 in case of failure
      */
     int allocate (
-        int *  oid,
-        const string& hostname,
-        const string& im_mad_name,
-        const string& vmm_mad_name,
-        int           cluster_id,
-        const string& cluster_name,
-        string& error_str);
+        int *              oid,
+        const std::string& hostname,
+        const std::string& im_mad_name,
+        const std::string& vmm_mad_name,
+        int                cluster_id,
+        const std::string& cluster_name,
+        std::string&       error_str);
 
     /**
      *  Updates a Host in the data base. It also updates the previous state
@@ -90,7 +89,7 @@ public:
      *    @param lock locks the Host mutex
      *    @return a pointer to the Host, 0 if the Host could not be loaded
      */
-    Host * get(string name)
+    Host * get(std::string name)
     {
         // The owner is set to -1, because it is not used in the key() method
         return static_cast<Host *>(PoolSQL::get(name,-1));
@@ -103,7 +102,7 @@ public:
      *    @param lock locks the Host mutex
      *    @return a pointer to the Host, 0 if the Host could not be loaded
      */
-    Host * get_ro(string name)
+    Host * get_ro(std::string name)
     {
         // The owner is set to -1, because it is not used in the key() method
         return static_cast<Host *>(PoolSQL::get_ro(name,-1));
@@ -116,7 +115,7 @@ public:
      *
      *    @return the key, a string
      */
-    string key(const string& name, int uid)
+    std::string key(const std::string& name, int uid)
     {
         // Name is enough key because Hosts can't repeat names.
         return name;
@@ -130,8 +129,8 @@ public:
     {
         int rc;
 
-        ostringstream oss_host(one_db::host_db_bootstrap);
-        ostringstream oss_monitor(one_db::host_monitor_db_bootstrap);
+        std::ostringstream oss_host(one_db::host_db_bootstrap);
+        std::ostringstream oss_monitor(one_db::host_monitor_db_bootstrap);
 
         rc =  _db->exec_local_wr(oss_host);
         rc += _db->exec_local_wr(oss_monitor);
@@ -194,7 +193,7 @@ public:
         }
     };
 
-    int drop(PoolObjectSQL * objsql, string& error_msg)
+    int drop(PoolObjectSQL * objsql, std::string& error_msg)
     {
         Host * host = static_cast<Host *>(objsql);
 
@@ -233,7 +232,7 @@ public:
      *
      *   @return 0 on success
      */
-    int search(vector<int>& oids, const string& where)
+    int search(std::vector<int>& oids, const std::string& where)
     {
         return PoolSQL::search(oids, one_db::host_table, where);
     };
@@ -247,7 +246,7 @@ public:
      *
      *  @return 0 on success
      */
-    int dump_monitoring(string& oss, const string&  where);
+    int dump_monitoring(std::string& oss, const std::string&  where);
 
     /**
      *  Dumps the HOST monitoring information for a single HOST
@@ -257,9 +256,9 @@ public:
      *
      *  @return 0 on success
      */
-    int dump_monitoring(string& oss, int hostid)
+    int dump_monitoring(std::string& oss, int hostid)
     {
-        ostringstream filter;
+        std::ostringstream filter;
 
         filter << "oid = " << hostid;
 

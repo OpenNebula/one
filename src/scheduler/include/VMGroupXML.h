@@ -52,7 +52,7 @@ public:
     /**
      *  Dumps a Group, its roles and affinity rules to an output stream
      */
-    friend ostream& operator<<(ostream& os, VMGroupXML& vmg);
+    friend std::ostream& operator<<(std::ostream& os, VMGroupXML& vmg);
 
     /**
      *  Adds the internal role placement rules to each VM in the role

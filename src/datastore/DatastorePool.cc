@@ -23,6 +23,8 @@
 
 #include <stdexcept>
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 /* There is a default datastore boostrapped by the core:                      */
 /* The first 100 IDs are reserved for system datastores. Regular ones start   */

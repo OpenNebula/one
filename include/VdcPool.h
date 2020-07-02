@@ -21,7 +21,6 @@
 #include "Vdc.h"
 #include "OneDB.h"
 
-using namespace std;
 
 class VdcPool : public PoolSQL
 {
@@ -44,9 +43,9 @@ public:
      *
      *    @return the oid assigned to the object, -1 in case of failure
      */
-    int allocate(Template * vdc_template,
-                 int *      oid,
-                 string&    error_str);
+    int allocate(Template *   vdc_template,
+                 int *        oid,
+                 std::string& error_str);
 
     /**
      *  Function to get a Vdc from the pool, if the object is not in memory
@@ -75,7 +74,7 @@ public:
      *          -1 DB error,
      *          -2 object is a default Vdc (ID < 100)
      */
-    int drop(PoolObjectSQL * objsql, string& error_msg);
+    int drop(PoolObjectSQL * objsql, std::string& error_msg);
 
     /**
      *  Bootstraps the database table(s) associated to the Vdc pool
@@ -118,7 +117,7 @@ public:
     /**
      *  Default name for the default VDC
      */
-    static const string DEFAULT_NAME;
+    static const std::string DEFAULT_NAME;
 
     /**
      *  Identifier for the default VDC

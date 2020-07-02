@@ -21,6 +21,8 @@
 #include "NebulaLog.h"
 // #include "Template.h"
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 /* Helper functions for failure and error conditions                          */
 /* -------------------------------------------------------------------------- */

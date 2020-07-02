@@ -210,17 +210,17 @@ private:
     /**
      *
      */
-    static void _undefined(unique_ptr<ipam_msg_t> msg);
+    static void _undefined(std::unique_ptr<ipam_msg_t> msg);
 
     /**
      *
      */
-    void _notify_request(unique_ptr<ipam_msg_t> msg);
+    void _notify_request(std::unique_ptr<ipam_msg_t> msg);
 
     /**
      *
      */
-    static void _log(unique_ptr<ipam_msg_t> msg);
+    static void _log(std::unique_ptr<ipam_msg_t> msg);
 
     // -------------------------------------------------------------------------
     // Action Listener interface

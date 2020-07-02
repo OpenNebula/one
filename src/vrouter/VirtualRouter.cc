@@ -22,6 +22,8 @@
 #include "VirtualMachineTemplate.h"
 #include "DispatchManager.h"
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 
 static void vrouter_prefix(VectorAttribute* nic, const string& attr)

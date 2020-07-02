@@ -20,8 +20,6 @@
 #include "Request.h"
 #include "DefaultQuotas.h"
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -29,8 +27,10 @@ using namespace std;
 class RequestManagerSystem: public Request
 {
 protected:
-    RequestManagerSystem(const string& method_name, const string& help,
-            const string& params) :Request(method_name,params,help) 
+    RequestManagerSystem(const std::string& method_name,
+                         const std::string& help,
+                         const std::string& params)
+        : Request(method_name, params, help)
     {
         auth_op = AuthRequest::ADMIN;
     };
@@ -170,8 +170,8 @@ public:
 class QuotaUpdate : public RequestManagerSystem
 {
 protected:
-    QuotaUpdate(const string& method_name,
-            const string& help):
+    QuotaUpdate(const std::string& method_name,
+                const std::string& help):
         RequestManagerSystem(method_name,
                             help,
                            "A:ss") { }
@@ -181,7 +181,7 @@ protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
 
-    virtual int set_default_quota(Template *tmpl, string& error) = 0;
+    virtual int set_default_quota(Template *tmpl, std::string& error) = 0;
 
     const virtual DefaultQuotas* get_default_quota() = 0;
 };
@@ -196,7 +196,7 @@ public:
         QuotaUpdate("one.userquota.update",
                    "Updates the default user quota limits") { }
 
-    int set_default_quota(Template *tmpl, string& error) override;
+    int set_default_quota(Template *tmpl, std::string& error) override;
 
     const DefaultQuotas* get_default_quota() override;
 };
@@ -211,7 +211,7 @@ public:
         QuotaUpdate("one.groupquota.update",
                    "Updates the default group quota limits") { }
 
-    int set_default_quota(Template *tmpl, string& error) override;
+    int set_default_quota(Template *tmpl, std::string& error) override;
 
     const DefaultQuotas* get_default_quota() override;
 };

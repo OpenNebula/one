@@ -23,8 +23,6 @@
 #include "AclRule.h"
 #include "NebulaLog.h"
 
-using namespace std;
-
 class PoolObjectAuth;
 class SqlDB;
 
@@ -80,7 +78,7 @@ public:
      *    @return true if the authorization is granted by any rule
      */
     const bool authorize(int                    uid,
-                         const set<int>&        user_groups,
+                         const std::set<int>&   user_groups,
                          const PoolObjectAuth&  obj_perms,
                          AuthRequest::Operation op);
 
@@ -113,7 +111,7 @@ public:
                          long long resource,
                          long long rights,
                          long long zone,
-                         string&   error_str);
+                         std::string& error_str);
     /**
      *  Deletes a rule from the ACL rule set
      *
@@ -121,7 +119,7 @@ public:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    virtual int del_rule(int oid, string& error_str);
+    virtual int del_rule(int oid, std::string& error_str);
 
     /**
      *  Deletes a new rule from the ACL rule set
@@ -138,7 +136,7 @@ public:
                          long long resource,
                          long long rights,
                          long long zone,
-                         string&   error_str);
+                         std::string& error_str);
 
     /**
      * Deletes rules that apply to this user id
@@ -190,16 +188,16 @@ public:
      *    @param cids Set of object cluster IDs over which the user can operate
      */
     void reverse_search(int                       uid,
-                        const set<int>&           user_groups,
+                        const std::set<int>&      user_groups,
                         PoolObjectSQL::ObjectType obj_type,
                         AuthRequest::Operation    op,
                         bool                      disable_all_acl,
                         bool                      disable_cluster_acl,
                         bool                      disable_group_acl,
                         bool&                     all,
-                        vector<int>&              oids,
-                        vector<int>&              gids,
-                        vector<int>&              cids);
+                        std::vector<int>&         oids,
+                        std::vector<int>&         gids,
+                        std::vector<int>&         cids);
 
     /* ---------------------------------------------------------------------- */
     /* DB management                                                          */
@@ -215,7 +213,7 @@ public:
      *    @param oss The output stream to dump the rule set contents
      *    @return 0 on success
      */
-    virtual int dump(ostringstream& oss);
+    virtual int dump(std::ostringstream& oss);
 
     // -------------------------------------------------------------------------
     // Refresh loop thread
@@ -249,12 +247,12 @@ protected:
      *  ACL rules. Each rule is indexed by its 'user' long long attibute,
      *  several rules can apply to the same user
      */
-    multimap<long long, AclRule*> acl_rules;
+    std::multimap<long long, AclRule*> acl_rules;
 
     /**
      *  Rules indexed by oid. Stores the same rules as acl_rules
      */
-    map<int, AclRule *> acl_rules_oids;
+    std::map<int, AclRule *> acl_rules_oids;
 
 private:
 
@@ -276,16 +274,16 @@ private:
      *    @return true if any rule grants permission
      */
     bool match_rules(
-            long long             user_req,
-            long long             resource_oid_req,
-            long long             resource_gid_req,
-            const set<long long>& resource_cid_req,
-            long long             resource_all_req,
-            long long             rights_req,
-            long long             resource_oid_mask,
-            long long             resource_gid_mask,
-            long long             resource_cid_mask,
-            const multimap<long long, AclRule*>& rules);
+            long long                   user_req,
+            long long                   resource_oid_req,
+            long long                   resource_gid_req,
+            const std::set<long long>&  resource_cid_req,
+            long long                   resource_all_req,
+            long long                   rights_req,
+            long long                   resource_oid_mask,
+            long long                   resource_gid_mask,
+            long long                   resource_cid_mask,
+            const std::multimap<long long, AclRule*>& rules);
     /**
      *  Wrapper for match_rules. It will check if any rules in the temporary
      *  multimap or in the internal one grants permission.
@@ -304,16 +302,16 @@ private:
      *    @return true if any rule grants permission
      */
     bool match_rules_wrapper(
-            long long             user_req,
-            long long             resource_oid_req,
-            long long             resource_gid_req,
-            const set<long long>& resource_cid_req,
-            long long             resource_all_req,
-            long long             rights_req,
-            long long             individual_obj_type,
-            long long             group_obj_type,
-            long long             cluster_obj_type,
-            const multimap<long long, AclRule*> &tmp_rules);
+            long long                   user_req,
+            long long                   resource_oid_req,
+            long long                   resource_gid_req,
+            const std::set<long long>&  resource_cid_req,
+            long long                   resource_all_req,
+            long long                   rights_req,
+            long long                   individual_obj_type,
+            long long                   group_obj_type,
+            long long                   cluster_obj_type,
+            const std::multimap<long long, AclRule*> &tmp_rules);
     /**
      * Deletes all rules that match the user mask
      *

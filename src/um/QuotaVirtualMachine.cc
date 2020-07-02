@@ -19,10 +19,12 @@
 #include "VirtualMachine.h"
 #include "VirtualMachineDisk.h"
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const char * QuotaVirtualMachine::VM_METRICS[] = {"VMS", "RUNNING_VMS", "CPU", 
+const char * QuotaVirtualMachine::VM_METRICS[] = {"VMS", "RUNNING_VMS", "CPU",
     "RUNNING_CPU", "MEMORY", "RUNNING_MEMORY", "SYSTEM_DISK_SIZE"};
 
 const int QuotaVirtualMachine::NUM_VM_METRICS  = 7;

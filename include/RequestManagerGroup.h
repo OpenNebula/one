@@ -20,8 +20,6 @@
 #include "Request.h"
 #include "Nebula.h"
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -29,9 +27,9 @@ using namespace std;
 class RequestManagerGroup: public Request
 {
 protected:
-    RequestManagerGroup(const string& method_name,
-                        const string& help,
-                        const string& params)
+    RequestManagerGroup(const std::string& method_name,
+                        const std::string& help,
+                        const std::string& params)
         :Request(method_name,params,help)
     {
         Nebula& nd  = Nebula::instance();
@@ -76,9 +74,9 @@ public:
                          RequestAttributes& att) override;
 
 protected:
-    GroupEditAdmin( const string& method_name,
-                    const string& help,
-                    const string& params)
+    GroupEditAdmin( const std::string& method_name,
+                    const std::string& help,
+                    const std::string& params)
         :Request(method_name,params,help)
     {
         Nebula& nd  = Nebula::instance();
@@ -91,7 +89,7 @@ protected:
 
     UserPool*   upool;
 
-    virtual int edit_admin(Group* group, int user_id, string& error_msg) = 0;
+    virtual int edit_admin(Group* group, int user_id, std::string& error_msg) = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -107,7 +105,7 @@ public:
 
     ~GroupAddAdmin(){};
 
-    int edit_admin(Group* group, int user_id, string& error_msg) override;
+    int edit_admin(Group* group, int user_id, std::string& error_msg) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -123,7 +121,7 @@ public:
 
     ~GroupDelAdmin(){};
 
-    int edit_admin(Group* group, int user_id, string& error_msg) override;
+    int edit_admin(Group* group, int user_id, std::string& error_msg) override;
 };
 
 /* -------------------------------------------------------------------------- */

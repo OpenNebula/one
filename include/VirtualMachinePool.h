@@ -23,8 +23,6 @@
 
 #include <time.h>
 
-using namespace std;
-
 /**
  *  The Virtual Machine Pool class. ...
  */
@@ -33,8 +31,8 @@ class VirtualMachinePool : public PoolSQL
 public:
 
     VirtualMachinePool(SqlDB * db,
-                       vector<const SingleAttribute *>& restricted_attrs,
-                       vector<const SingleAttribute *>& encrypted_attrs,
+                       std::vector<const SingleAttribute *>& restricted_attrs,
+                       std::vector<const SingleAttribute *>& encrypted_attrs,
                        bool                         on_hold,
                        float                        default_cpu_cost,
                        float                        default_mem_cost,
@@ -60,12 +58,12 @@ public:
     int allocate (
         int                      uid,
         int                      gid,
-        const string&            uname,
-        const string&            gname,
+        const std::string&       uname,
+        const std::string&       gname,
         int                      umask,
         VirtualMachineTemplate * vm_template,
         int *                    oid,
-        string&                  error_str,
+        std::string&             error_str,
         bool                     on_hold = false);
 
     /**
@@ -96,11 +94,10 @@ public:
     /**
      *  Function to get a VM from the pool, string version for VM ID
      */
-    VirtualMachine * get(
-        const string& oid_s)
+    VirtualMachine * get(const std::string& oid_s)
     {
-        istringstream iss(oid_s);
-        int           oid;
+        std::istringstream iss(oid_s);
+        int                oid;
 
         iss >> oid;
 
@@ -115,11 +112,10 @@ public:
     /**
      *  Function to get a read only VM from the pool, string version for VM ID
      */
-    VirtualMachine * get_ro(
-        const string& oid_s)
+    VirtualMachine * get_ro(const std::string& oid_s)
     {
-        istringstream iss(oid_s);
-        int           oid;
+        std::istringstream iss(oid_s);
+        int                oid;
 
         iss >> oid;
 
@@ -147,7 +143,7 @@ public:
      *    @return -1 if not found or VMID
      *
      */
-    int get_vmid(const string& deploy_id);
+    int get_vmid(const std::string& deploy_id);
 
     /**
      *  Function to get the IDs of running VMs
@@ -158,7 +154,7 @@ public:
      *   @return 0 on success
      */
     int get_running(
-        vector<int>&    oids,
+        std::vector<int>&    oids,
         int             vm_limit,
         time_t          last_poll);
 
@@ -168,7 +164,7 @@ public:
      *   @return 0 on success
      */
     int get_pending(
-        vector<int>&    oids);
+        std::vector<int>&    oids);
 
     /**
      *  Gets the IDs of VMs matching the given SQL where string.
@@ -176,7 +172,7 @@ public:
      *    @param where SQL clause
      *    @return 0 on success
      */
-    int search(vector<int>& oids, const string& where)
+    int search(std::vector<int>& oids, const std::string& where)
     {
         return PoolSQL::search(oids, one_db::vm_table, where);
     };
@@ -236,7 +232,7 @@ public:
     static int bootstrap(SqlDB * _db)
     {
         int rc;
-        ostringstream oss_import(one_db::vm_import_db_bootstrap);
+        std::ostringstream oss_import(one_db::vm_import_db_bootstrap);
 
         rc  = VirtualMachine::bootstrap(_db);
         rc += _db->exec_local_wr(oss_import);
@@ -275,8 +271,9 @@ public:
      *
      *  @return 0 on success
      */
-    int dump_extended(string& oss, const string& where, int sid, int eid,
-            bool desc)
+    int dump_extended(std::string& oss, const std::string& where,
+                      int sid, int eid,
+                      bool desc)
     {
         return PoolSQL::dump(oss, "VM_POOL", "body", one_db::vm_table, where,
                              sid, eid, desc);
@@ -290,10 +287,10 @@ public:
      *
      *  @return 0 on success
      */
-    int dump_acct(string& oss,
-                  const string&  where,
-                  int            time_start,
-                  int            time_end);
+    int dump_acct(std::string&       oss,
+                  const std::string& where,
+                  int                time_start,
+                  int                time_end);
 
     /**
      *  Dumps the VM showback information in XML format. A filter can be also
@@ -311,12 +308,12 @@ public:
      *
      *  @return 0 on success
      */
-    int dump_showback(string& oss,
-                      const string&  where,
-                      int            start_month,
-                      int            start_year,
-                      int            end_month,
-                      int            end_year);
+    int dump_showback(std::string&       oss,
+                      const std::string& where,
+                      int                start_month,
+                      int                start_year,
+                      int                end_month,
+                      int                end_year);
 
     /**
      *  Dumps the VM monitoring information entries in XML format. A filter
@@ -327,7 +324,7 @@ public:
      *
      *  @return 0 on success
      */
-    int dump_monitoring(string& oss, const string&  where);
+    int dump_monitoring(std::string& oss, const std::string&  where);
 
     /**
      *  Dumps the VM monitoring information  for a single VM
@@ -337,9 +334,9 @@ public:
      *
      *  @return 0 on success
      */
-    int dump_monitoring(string& oss, int vmid)
+    int dump_monitoring(std::string& oss, int vmid)
     {
-        ostringstream filter;
+        std::ostringstream filter;
 
         filter << "oid = " << vmid;
 
@@ -372,7 +369,7 @@ public:
                 int start_year,
                 int end_month,
                 int end_year,
-                string &error_str);
+                std::string &error_str);
 
     /**
      * Deletes the DISK that was in the process of being attached. Releases
@@ -393,7 +390,7 @@ public:
      * Deletes an entry in the HV-2-vmid mapping table for imported VMs
      *   @param deploy_id of the VM
      */
-    void drop_index(const string& deploy_id);
+    void drop_index(const std::string& deploy_id);
 
 private:
     /**
@@ -429,7 +426,7 @@ private:
      *   @param replace will replace and not insert
      *   @return 0 on success
      */
-    int insert_index(const string& deploy_id, int vm_id, bool replace);
+    int insert_index(const std::string& deploy_id, int vm_id, bool replace);
 };
 
 #endif /*VIRTUAL_MACHINE_POOL_H_*/

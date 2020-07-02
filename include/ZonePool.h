@@ -21,8 +21,6 @@
 #include "Zone.h"
 #include "OneDB.h"
 
-using namespace std;
-
 
 class ZonePool : public PoolSQL
 {
@@ -45,9 +43,9 @@ public:
      *
      *    @return the oid assigned to the object, -1 in case of failure
      */
-    int allocate(Template * zone_template,
-                 int *      oid,
-                 string&    error_str);
+    int allocate(Template *   zone_template,
+                 int *        oid,
+                 std::string& error_str);
 
     /**
      *  Function to get a Zone from the pool, if the object is not in memory
@@ -76,7 +74,7 @@ public:
      *          -1 DB error,
      *          -2 object is a default Zone (ID < 100)
      */
-    int drop(PoolObjectSQL * objsql, string& error_msg);
+    int drop(PoolObjectSQL * objsql, std::string& error_msg);
 
     /**
      *  Bootstraps the database table(s) associated to the Zone pool
@@ -118,7 +116,7 @@ public:
      *    @param zone_ids of the zones
      *    @return 0 on success
      */
-    int list_zones(vector<int>& zone_ids)
+    int list_zones(std::vector<int>& zone_ids)
     {
         return list( zone_ids, one_db::zone_table);
     }

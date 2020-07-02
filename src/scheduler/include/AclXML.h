@@ -20,8 +20,6 @@
 #include "AclManager.h"
 #include "Client.h"
 
-using namespace std;
-
 /**
  *  This class manages the ACL rules and the authorization engine
  */
@@ -51,17 +49,17 @@ private:
     int add_rule(long long user,
                  long long resource,
                  long long rights,
-                 string&   error_str)
+                 std::string&   error_str)
     {
         return -1;
     };
 
-    int del_rule(int oid, string& error_str)
+    int del_rule(int oid, std::string& error_str)
     {
         return -1;
     };
 
-    int dump(ostringstream& oss)
+    int dump(std::ostringstream& oss)
     {
         return -1;
     };
@@ -75,7 +73,7 @@ private:
      *    @param xml_str string with the XML document for the ACL
      *    @return 0 on success.
      */
-    int load_rules(const string& xml_str);
+    int load_rules(const std::string& xml_str);
 
     void flush_rules();
 };

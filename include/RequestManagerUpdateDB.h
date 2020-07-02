@@ -25,7 +25,7 @@
 class RequestManagerUpdateDB: public Request
 {
 protected:
-    RequestManagerUpdateDB(const string& name): Request(name, "A:sis",
+    RequestManagerUpdateDB(const std::string& name): Request(name, "A:sis",
             "Updates the DB object from a XML document")
     {
         auth_op = AuthRequest::MANAGE;
@@ -73,7 +73,7 @@ protected:
             return NO_EXISTS;
         }
 
-        string old_xml;
+        std::string old_xml;
 
         object->to_xml(old_xml);
 

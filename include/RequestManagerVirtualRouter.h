@@ -19,8 +19,6 @@
 
 #include "Request.h"
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -28,9 +26,9 @@ using namespace std;
 class RequestManagerVirtualRouter: public Request
 {
 protected:
-    RequestManagerVirtualRouter(const string& method_name,
-                                const string& help,
-                                const string& params);
+    RequestManagerVirtualRouter(const std::string& method_name,
+                                const std::string& help,
+                                const std::string& params);
 
     ~RequestManagerVirtualRouter() = default;
 

@@ -26,12 +26,6 @@
 
 #include <vector>
 #include <string>
-#include <map>
-
-#include <time.h>
-#include <sstream>
-
-using namespace std;
 
 class VirtualMachineNic;
 
@@ -73,7 +67,7 @@ public:
         BRNONE              = 5
     };
 
-    static string driver_to_str(VirtualNetworkDriver ob)
+    static std::string driver_to_str(VirtualNetworkDriver ob)
     {
         switch (ob)
         {
@@ -90,7 +84,7 @@ public:
         }
     };
 
-    static VirtualNetworkDriver str_to_driver(const string& ob)
+    static VirtualNetworkDriver str_to_driver(const std::string& ob)
     {
         if ( ob == "dummy" )
         {
@@ -134,7 +128,7 @@ public:
         }
     };
 
-    static string bridge_type_to_str(BridgeType ob)
+    static std::string bridge_type_to_str(BridgeType ob)
     {
         switch (ob)
         {
@@ -153,7 +147,7 @@ public:
         }
     };
 
-    static BridgeType str_to_bridge_type(const string& ob)
+    static BridgeType str_to_bridge_type(const std::string& ob)
     {
         if ( ob == "linux" )
         {
@@ -187,9 +181,15 @@ public:
      *    @param error_str describing the error
      *    @return 0 on success -1 otherwise
      */
-    static int parse_phydev_vlans(const Template* tmpl, const string& vn_mad, const string& phydev,
-                                  const string& bridge, const bool auto_id, const string& vlan_id,
-                                  const bool auto_outer, const string& outer_id, string& estr);
+    static int parse_phydev_vlans(const Template* tmpl,
+                                  const std::string& vn_mad,
+                                  const std::string& phydev,
+                                  const std::string& bridge,
+                                  const bool auto_id,
+                                  const std::string& vlan_id,
+                                  const bool auto_outer,
+                                  const std::string& outer_id,
+                                  std::string& estr);
 
     // *************************************************************************
     // Virtual Network Public Methods
@@ -221,7 +221,7 @@ public:
      *  @param error_msg If the action fails, this message contains the reason.
      *  @return 0 on success
      */
-    int add_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg);
+    int add_ar(VirtualNetworkTemplate * ars_tmpl, std::string& error_msg);
 
     /**
      * Adds a set of address ranges
@@ -229,7 +229,7 @@ public:
      *  @param error_msg If the action fails, this message contains the reason.
      *  @return 0 on success
      */
-    int add_var(vector<VectorAttribute *> &var, string& error_msg);
+    int add_var(std::vector<VectorAttribute *> &var, std::string& error_msg);
 
     /**
      * Removes an address range from the VNET
@@ -238,21 +238,21 @@ public:
      *  @param error_msg If the action fails, this message contains the reason.
      *  @return 0 on success
      */
-    int rm_ar(unsigned int ar_id, bool force, string& error_msg);
+    int rm_ar(unsigned int ar_id, bool force, std::string& error_msg);
 
     /**
      * Removes all address ranges from the VNET
      *  @param error_msg If the action fails, this message contains the reason.
      *  @return 0 on success
      */
-    int rm_ars(string& error_msg);
+    int rm_ars(std::string& error_msg);
 
     /**
      *  Allocates a new (and empty) address range. It is not added to the
      *  ar_pool
      *    @return pointer to the new address range
      */
-    AddressRange * allocate_ar(const string& ipam_mad)
+    AddressRange * allocate_ar(const std::string& ipam_mad)
     {
         return ar_pool.allocate_ar(ipam_mad);
     }
@@ -280,7 +280,7 @@ public:
     int update_ar(
             VirtualNetworkTemplate* ars_tmpl,
             bool                    keep_restricted,
-            string&                 error_msg);
+            std::string&            error_msg);
 
     // *************************************************************************
     // Address hold/release interface
@@ -293,7 +293,7 @@ public:
      *  @param error_msg If the action fails, this message contains the reason.
      *  @return 0 on success
      */
-    int hold_leases(VirtualNetworkTemplate * leases, string& error_msg);
+    int hold_leases(VirtualNetworkTemplate * leases, std::string& error_msg);
 
     /**
      * Releases a Lease on hold
@@ -303,7 +303,7 @@ public:
      *         the reason.
      *  @return 0 on success
      */
-    int free_leases(VirtualNetworkTemplate* leases, string& error_msg);
+    int free_leases(VirtualNetworkTemplate* leases, std::string& error_msg);
 
     // *************************************************************************
     // Address allocation funtions
@@ -317,7 +317,7 @@ public:
      *    @param mac MAC address identifying the lease
      */
     void free_addr(unsigned int arid, PoolObjectSQL::ObjectType ot, int oid,
-                    const string& mac)
+                   const std::string& mac)
     {
         ar_pool.free_addr(arid, ot, oid, mac);
 
@@ -333,7 +333,7 @@ public:
      *    @param oid the id of the object requesting the address
      *    @param mac MAC address identifying the lease
      */
-    void free_addr(PoolObjectSQL::ObjectType ot, int oid, const string& mac)
+    void free_addr(PoolObjectSQL::ObjectType ot, int oid, const std::string& mac)
     {
         ar_pool.free_addr(ot, oid, mac);
 
@@ -361,7 +361,7 @@ public:
      *    @return the number of addresses freed
      */
     int free_addr_by_range(unsigned int arid, PoolObjectSQL::ObjectType ot,
-            int obid, const string& mac, unsigned int rsize)
+            int obid, const std::string& mac, unsigned int rsize)
     {
         return ar_pool.free_addr_by_range(arid, ot, obid, mac, rsize);
     }
@@ -378,9 +378,9 @@ public:
      *  @return 0 on success
      */
     int nic_attribute(
-            VirtualMachineNic *     nic,
-            int                     vid,
-            const vector<string>&   inherit_attrs);
+            VirtualMachineNic *             nic,
+            int                             vid,
+            const std::vector<std::string>& inherit_attrs);
 
     /**
      * Modifies the given nic attribute adding the following attributes:
@@ -393,9 +393,9 @@ public:
      *  @return 0 on success
      */
     int vrouter_nic_attribute(
-            VirtualMachineNic *     nic,
-            int                     vrid,
-            const vector<string>&   inherit_attrs);
+            VirtualMachineNic *             nic,
+            int                             vrid,
+            const std::vector<std::string>& inherit_attrs);
 
     /**
      * From a Security Group rule that uses this vnet, creates a new rule
@@ -406,8 +406,8 @@ public:
      * be deleted by the caller
      */
     void process_security_rule(
-            VectorAttribute *        rule,
-            vector<VectorAttribute*> &new_rules);
+            VectorAttribute *             rule,
+            std::vector<VectorAttribute*> &new_rules);
 
     // *************************************************************************
     // Network Reservation functions
@@ -421,7 +421,8 @@ public:
      *    @param err error message
      *    @return 0 on success
      */
-    int reserve_addr(int rid, unsigned int rsize, AddressRange *rar, string& err);
+    int reserve_addr(int rid, unsigned int rsize, AddressRange *rar,
+                     std::string& err);
 
     /**
      *  Reserve an address range for this network and add it to the given AR
@@ -433,7 +434,7 @@ public:
      *    @return 0 on success
      */
     int reserve_addr(int rid, unsigned int rsize, unsigned int ar_id,
-        AddressRange *rar, string& error_str);
+        AddressRange *rar, std::string& error_str);
 
     /**
      *  Reserve an address range for this network and add it to the given vnet
@@ -446,13 +447,13 @@ public:
      *    @return 0 on success
      */
     int reserve_addr_by_mac(int rid, unsigned int rsize, unsigned int ar_id,
-            const string& mac, AddressRange *rar, string& error_str);
+            const std::string& mac, AddressRange *rar, std::string& error_str);
 
     int reserve_addr_by_ip(int rid, unsigned int rsize, unsigned int ar_id,
-            const string& ip, AddressRange *rar, string& error_str);
+            const std::string& ip, AddressRange *rar, std::string& error_str);
 
     int reserve_addr_by_ip6(int rid, unsigned int rsize, unsigned int ar_id,
-            const string& ip6, AddressRange *rar, string& error_str);
+            const std::string& ip6, AddressRange *rar, std::string& error_str);
 
     /**
      * Returns true if this VNET is a reservation
@@ -505,7 +506,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const override;
+    std::string& to_xml(std::string& xml) const override;
 
     /**
      * Function to print the VirtualNetwork object into a string in
@@ -519,8 +520,8 @@ public:
      *  A vector containing just -1 means all VRouters.
      *  @return a reference to the generated string
      */
-    string& to_xml_extended(string& xml, const vector<int>& vms,
-        const vector<int>& vnets, const vector<int>& vrs) const;
+    std::string& to_xml_extended(std::string& xml, const std::vector<int>& vms,
+        const std::vector<int>& vnets, const std::vector<int>& vrs) const;
 
     /**
      *  Gets a string based attribute (single) from an address range. If the
@@ -531,19 +532,21 @@ public:
      *    not a single attribute
      *    @param ar_id of the address attribute.
      */
-    void get_template_attribute(const string& name, string& value, int ar_id) const;
+    void get_template_attribute(const std::string& name, std::string& value,
+                                int ar_id) const;
 
     /**
      *  int version of get_template_attribute
      *    @return 0 on success
      */
-    int get_template_attribute(const string& name, int& value, int ar_id) const;
+    int get_template_attribute(const std::string& name, int& value,
+                               int ar_id) const;
 
     /**
      *  Adds the security group of the VNet and its ARs to the given set
      *    @param sgs to put the sg ids in
      */
-    void get_security_groups(set<int> & sgs);
+    void get_security_groups(std::set<int> & sgs);
 
     /**
      *    @return A copy of the VNET Template
@@ -605,29 +608,29 @@ private:
     /**
      * Name of the vn mad
      */
-    string vn_mad;
+    std::string vn_mad;
 
     /**
      *  Name of the bridge this VNW binds to
      */
-    string  bridge;
+    std::string  bridge;
 
     /**
      *  Name of the physical device the bridge should be attached to
      */
-    string  phydev;
+    std::string  phydev;
 
     /**
      *  VLAN ID of the NIC. When more than VLAN ID is used this refers to the
      *  link layer or outer/service VLAN_ID
      */
-    string  vlan_id;
+    std::string  vlan_id;
 
     /**
      *  Used for double tagging of VM traffic. This id refers to the transport
      *  layer or outer/service VLAN_ID
      */
-    string outer_vlan_id;
+    std::string outer_vlan_id;
 
     /**
      *  If the VLAN has been set automatically
@@ -647,7 +650,7 @@ private:
     /**
      *  Security Groups
      */
-    set<int> security_groups;
+    std::set<int> security_groups;
 
     /**
      *  The Address Range Pool
@@ -662,7 +665,7 @@ private:
     /**
      *  Bridge type of the VirtualNetwork
      */
-    string bridge_type;
+    std::string bridge_type;
 
     // *************************************************************************
     // VLAN ID functions
@@ -678,7 +681,7 @@ private:
      *    @param auto the associated automatic variable
      */
     void parse_vlan_id(const char * id_name, const char * auto_name,
-            string& id, bool& auto_id);
+            std::string& id, bool& auto_id);
 
     // *************************************************************************
     // Address allocation funtions
@@ -693,7 +696,7 @@ private:
      *    @return 0 if success
      */
     int allocate_addr(PoolObjectSQL::ObjectType ot, int oid,
-            VectorAttribute * nic, const vector<string>& inherit)
+            VectorAttribute * nic, const std::vector<std::string>& inherit)
     {
         return ar_pool.allocate_addr(ot, oid, nic, inherit);
     }
@@ -707,20 +710,29 @@ private:
      *    @param inherit attributes from the address range to include in the NIC
      *    @return 0 if success
      */
-    int allocate_by_mac(PoolObjectSQL::ObjectType ot, int oid, const string& mac,
-            VectorAttribute * nic, const vector<string>& inherit)
+    int allocate_by_mac(PoolObjectSQL::ObjectType ot,
+                        int oid,
+                        const std::string& mac,
+                        VectorAttribute * nic,
+                        const std::vector<std::string>& inherit)
     {
         return ar_pool.allocate_by_mac(mac, ot, oid, nic, inherit);
     }
 
-    int allocate_by_ip(PoolObjectSQL::ObjectType ot, int oid, const string& ip,
-            VectorAttribute * nic, const vector<string>& inherit)
+    int allocate_by_ip(PoolObjectSQL::ObjectType ot,
+                       int oid,
+                       const std::string& ip,
+                       VectorAttribute * nic,
+                       const std::vector<std::string>& inherit)
     {
         return ar_pool.allocate_by_ip(ip, ot, oid, nic, inherit);
     }
 
-    int allocate_by_ip6(PoolObjectSQL::ObjectType ot, int oid, const string& ip,
-            VectorAttribute * nic, const vector<string>& inherit)
+    int allocate_by_ip6(PoolObjectSQL::ObjectType ot,
+                        int oid,
+                        const std::string& ip,
+                        VectorAttribute * nic,
+                        const std::vector<std::string>& inherit)
     {
         return ar_pool.allocate_by_ip6(ip, ot, oid, nic, inherit);
     }
@@ -734,7 +746,7 @@ private:
      *
      *    @param br_type the bridge type associated to the nic
      */
-    int parse_bridge_type(const string &vn_mad, string &error_str);
+    int parse_bridge_type(const std::string &vn_mad, std::string &error_str);
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -747,7 +759,7 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int insert_replace(SqlDB *db, bool replace, string& error_str);
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the Virtual Network
@@ -762,9 +774,9 @@ private:
      *  @param extended_and_check If true, leases are included and permissions are checked
      *  @return a reference to the generated string
      */
-    string& to_xml_extended(string& xml, bool extended_and_check,
-        const vector<int>& vm_ids, const vector<int>& vnet_oids,
-        const vector<int>& vr_ids) const;
+    std::string& to_xml_extended(std::string& xml, bool extended_and_check,
+        const std::vector<int>& vm_ids, const std::vector<int>& vnet_oids,
+        const std::vector<int>& vr_ids) const;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -772,14 +784,14 @@ private:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str) override;
+    int from_xml(const std::string &xml_str) override;
 
     /**
      * Updates the BRIDGE, PHYDEV, and VLAN_ID attributes.
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int post_update_template(string& error) override;
+    int post_update_template(std::string& error) override;
 
     //**************************************************************************
     // Constructor
@@ -787,11 +799,11 @@ private:
 
     VirtualNetwork(int                      uid,
                    int                      gid,
-                   const string&            _uname,
-                   const string&            _gname,
+                   const std::string&       _uname,
+                   const std::string&       _gname,
                    int                      _umask,
                    int                      _parent_vid,
-                   const set<int>           &_cluster_ids,
+                   const std::set<int>      &_cluster_ids,
                    VirtualNetworkTemplate * _vn_template = 0);
 
     virtual ~VirtualNetwork() = default;
@@ -805,7 +817,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB * db, string& error_str) override;
+    int insert(SqlDB * db, std::string& error_str) override;
 
     /**
      *  Writes/updates the Virtual Network data fields in the database.
@@ -814,7 +826,7 @@ private:
      */
     int update(SqlDB * db) override
     {
-        string error_str;
+        std::string error_str;
         return insert_replace(db, true, error_str);
     }
 };

@@ -22,7 +22,8 @@
 #include "HookAPI.h"
 #include "OneDB.h"
 
-using namespace std;
+class SqlDB;
+
 
 class HookPool : public PoolSQL
 {
@@ -37,7 +38,7 @@ public:
      *    @param oid the id assigned to the Hook
      *    @return the oid assigned to the object or -1 in case of failure
      */
-    int allocate (Template * tmpl, string& error_str);
+    int allocate (Template * tmpl, std::string& error_str);
 
     /**
      *  Function to get a Hook from the pool, if the object is not in memory

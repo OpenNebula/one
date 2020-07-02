@@ -14,6 +14,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 #include "SqliteDB.h"
+#include "NebulaLog.h"
 
 using namespace std;
 

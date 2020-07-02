@@ -18,6 +18,9 @@
 #include "HookAPI.h"
 #include "HookPool.h"
 
+using namespace std;
+
+
 int HookPool::allocate (Template * tmpl, string& error_str)
 {
     Hook * hook;

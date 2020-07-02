@@ -17,6 +17,8 @@
 #include "AuthManager.h"
 #include "NebulaLog.h"
 
+using namespace std;
+
 /* ************************************************************************** */
 /* Driver Protocol Implementation                                             */
 /* ************************************************************************** */

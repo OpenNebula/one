@@ -21,8 +21,6 @@
 #include "SecurityGroup.h"
 #include "OneDB.h"
 
-using namespace std;
-
 
 class SecurityGroupPool : public PoolSQL
 {
@@ -52,14 +50,14 @@ public:
      * @return
      */
     int allocate(
-            int             uid,
-            int             gid,
-            const string&   uname,
-            const string&   gname,
-            int             umask,
-            Template *      sgroup_template,
-            int *           oid,
-            string&         error_str);
+            int                uid,
+            int                gid,
+            const std::string& uname,
+            const std::string& gname,
+            int                umask,
+            Template *         sgroup_template,
+            int *              oid,
+            std::string&       error_str);
 
     /**
      *  Function to get a SecurityGroup from the pool, if the object is not in memory
@@ -128,19 +126,18 @@ public:
      * @param sgs security group ID set
      * @param rules Security Group rules will be added at the end of this vector
      */
-    void get_security_group_rules(int vmid, set<int>& sgs,
-        vector<VectorAttribute*> &rules)
+    void get_security_group_rules(int vmid, std::set<int>& sgs,
+                                  std::vector<VectorAttribute*> &rules)
     {
-        set<int>::iterator sg_it;
-
-        for (sg_it = sgs.begin(); sg_it != sgs.end(); ++sg_it)
+        for (auto sg : sgs)
         {
-            get_security_group_rules(vmid, *sg_it, rules);
+            get_security_group_rules(vmid, sg, rules);
         }
 
     };
 
-    void get_security_group_rules(int vid, int sid, vector<VectorAttribute*> &rs);
+    void get_security_group_rules(int vid, int sid,
+                                  std::vector<VectorAttribute*> &rs);
 
     /**
      * Removes the VM from the security groups

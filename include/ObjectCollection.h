@@ -21,8 +21,6 @@
 
 #include "PoolObjectSQL.h"
 
-using namespace std;
-
 /**
  *  Class to store a set of PoolObjectSQL IDs.
  */
@@ -30,10 +28,10 @@ class ObjectCollection
 {
 public:
 
-    ObjectCollection(const string& _collection_name)
+    ObjectCollection(const std::string& _collection_name)
         :collection_name(_collection_name){};
 
-    ObjectCollection(const string& cname, const set<int>& cset)
+    ObjectCollection(const std::string& cname, const std::set<int>& cset)
         :collection_name(cname), collection_set(cset){};
 
     ~ObjectCollection(){};
@@ -78,7 +76,7 @@ public:
      *
      * @return 0 on success, -1 otherwise
      */
-    int from_xml(const ObjectXML* xml, const string& xpath_prefix);
+    int from_xml(const ObjectXML* xml, const std::string& xpath_prefix);
 
     /**
      * Function to print the Collection object into a string in
@@ -86,20 +84,20 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    std::string& to_xml(std::string& xml) const;
 
     /**
      *  Returns a copy of the IDs set
      */
-    set<int> clone() const
+    std::set<int> clone() const
     {
-        return set<int>(collection_set);
+        return std::set<int>(collection_set);
     };
 
     /**
      *  Returns a reference to the IDs set
      */
-    const set<int>& get_collection() const
+    const std::set<int>& get_collection() const
     {
         return collection_set;
     };
@@ -132,12 +130,12 @@ private:
     /**
      *  The collection's name
      */
-    string  collection_name;
+    std::string  collection_name;
 
     /**
      *  Set containing the relations IDs
      */
-    set<int> collection_set;
+    std::set<int> collection_set;
 
     /**
      *  Rebuilds the object from an xml node

@@ -39,7 +39,7 @@ public:
         MONITOR = 3
     };
 
-    static int action_from_str(string& st, Action& action)
+    static int action_from_str(std::string& st, Action& action)
     {
         if (st == "create")
         {
@@ -79,7 +79,7 @@ public:
      * @param state The state
      * @return the string representation
      */
-    static string state_to_str(State state)
+    static std::string state_to_str(State state)
     {
         switch (state)
         {
@@ -108,7 +108,7 @@ public:
      *    @param ob the type
      *    @return the string
      */
-    static string type_to_str(Type ob)
+    static std::string type_to_str(Type ob)
     {
         switch (ob)
         {
@@ -125,14 +125,14 @@ public:
      *    @param str_type string representing the type
      *    @return the MarketPlaceType
      */
-    static Type str_to_type(string& str_type);
+    static Type str_to_type(std::string& str_type);
 
     /**
      * Function to print the MarketPlaceApp object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(std::string& xml) const override;
+    std::string& to_xml(std::string& xml) const override;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -209,12 +209,12 @@ public:
         return origin_id;
     };
 
-    const string& get_source() const
+    const std::string& get_source() const
     {
         return source;
     }
 
-    const string& get_md5() const
+    const std::string& get_md5() const
     {
         return md5;
     }
@@ -224,7 +224,7 @@ public:
         return size_mb;
     }
 
-    const string& get_format() const
+    const std::string& get_format() const
     {
         return format;
     }
@@ -367,7 +367,7 @@ private:
      *    @param error_str describing the error
      *    @return 0 on success;
      */
-    int parse_template(string& error_str);
+    int parse_template(std::string& error_str);
 
     /**
      *  Execute an INSERT or REPLACE Sql query.

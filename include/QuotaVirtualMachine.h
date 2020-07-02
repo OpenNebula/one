@@ -63,7 +63,7 @@ public:
      *    @param error string
      *    @return true if the operation can be performed
      */
-    bool check(Template* tmpl, Quotas& default_quotas, string& error);
+    bool check(Template* tmpl, Quotas& default_quotas, std::string& error);
 
     /**
      *  Check if the resource update (change in MEMORY or CPU) will exceed the
@@ -73,7 +73,7 @@ public:
      *    @param error string
      *    @return true if the operation can be performed
      */
-    bool update(Template * tmpl, Quotas& default_quotas, string& error);
+    bool update(Template * tmpl, Quotas& default_quotas, std::string& error);
 
     /**
      *  Decrement usage counters when deallocating image
@@ -88,7 +88,7 @@ public:
      *
      *    @return a pointer to the quota or 0 if not found
      */
-    int get_quota(const string& id, VectorAttribute **va);
+    int get_quota(const std::string& id, VectorAttribute **va);
 
 protected:
 
@@ -102,9 +102,9 @@ protected:
      *    @return 0 on success, -1 if not found
      */
     int get_quota(
-            const string& id,
+            const std::string& id,
             VectorAttribute **va,
-            map<string, Attribute *>::iterator& it)
+            std::map<std::string, Attribute *>::iterator& it)
     {
         it = attributes.begin();
         return get_quota(id, va);
@@ -120,7 +120,7 @@ protected:
      *    @return 0 on success, -1 if not found
      */
     int get_default_quota(
-        const string& id,
+        const std::string& id,
         Quotas& default_quotas,
         VectorAttribute **va);
 

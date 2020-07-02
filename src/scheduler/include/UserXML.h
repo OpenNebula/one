@@ -22,7 +22,7 @@
 class UserXML : public ObjectXML
 {
 public:
-    UserXML(const string &xml_doc):ObjectXML(xml_doc)
+    UserXML(const std::string &xml_doc):ObjectXML(xml_doc)
     {
         init_attributes();
     };

@@ -17,14 +17,12 @@
 #ifndef ACL_RULE_H_
 #define ACL_RULE_H_
 
-#include <set>
 #include <string>
 #include <libxml/tree.h>
 
 #include "PoolObjectSQL.h"
 #include "AuthRequest.h"
 
-using namespace std;
 
 /**
  *  An ACL Rule is composed of three 64 bit numbers: user, resource and rights.
@@ -97,7 +95,7 @@ public:
      *
      *    @return a human readable string for this rule
      */
-    const string& to_str() const
+    const std::string& to_str() const
     {
         return str;
     };
@@ -108,7 +106,7 @@ public:
      *    @param error_str Returns the error message, if any
      *    @return true if the rule is wrong
      */
-    bool malformed(string& error_str) const;
+    bool malformed(std::string& error_str) const;
 
     /**
      *  Function to print the object into a string in XML format
@@ -116,7 +114,7 @@ public:
      *    @param xml the resulting XML string
      *    @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    std::string& to_xml(std::string& xml) const;
 
     /**
      *  Rebuilds the rule from an xml formatted string
@@ -247,7 +245,7 @@ private:
     /**
      *  Human readable representation of the rule
      */
-    string str;
+    std::string str;
 
     /**
      *  Builds the human representation of the ACL

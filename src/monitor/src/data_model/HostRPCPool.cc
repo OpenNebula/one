@@ -19,6 +19,8 @@
 #include "OneDB.h"
 #include "NebulaLog.h"
 
+using namespace std;
+
 
 int HostRPCPool::update_monitoring(const HostMonitoringTemplate& monitoring)
 {

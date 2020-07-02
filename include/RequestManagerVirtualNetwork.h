@@ -21,8 +21,6 @@
 #include "Nebula.h"
 #include "VirtualNetworkPool.h"
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -30,8 +28,8 @@ using namespace std;
 class RequestManagerVirtualNetwork: public Request
 {
 protected:
-    RequestManagerVirtualNetwork(const string& method_name,
-                                 const string& help)
+    RequestManagerVirtualNetwork(const std::string& method_name,
+                                 const std::string& help)
         :Request(method_name,"A:sis",help)
     {
         Nebula& nd  = Nebula::instance();
@@ -51,10 +49,10 @@ protected:
     virtual int leases_action(VirtualNetwork * vn,
                               VirtualNetworkTemplate * tmpl,
                               RequestAttributes& att,
-                              string& error_str) = 0;
+                              std::string& error_str) = 0;
     /* -------------------------------------------------------------------- */
 
-    string leases_error (const string& error);
+    std::string leases_error(const std::string& error);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -75,7 +73,7 @@ public:
     int leases_action(VirtualNetwork * vn,
                       VirtualNetworkTemplate * tmpl,
                       RequestAttributes& att,
-                      string& error_str) override
+                      std::string& error_str) override
     {
         return vn->add_ar(tmpl, error_str);
     }
@@ -90,9 +88,9 @@ public:
 
 
     VirtualNetworkRmAddressRange(
-      const string& name = "one.vn.rm_ar",
-      const string& sign = "A:sii",
-      const string& help = "Removes an address range from a virtual network")
+      const std::string& name = "one.vn.rm_ar",
+      const std::string& sign = "A:sii",
+      const std::string& help = "Removes an address range from a virtual network")
         : Request(name, sign, help)
     {
         Nebula& nd  = Nebula::instance();
@@ -153,7 +151,7 @@ public:
     int leases_action(VirtualNetwork * vn,
                       VirtualNetworkTemplate * tmpl,
                       RequestAttributes& att,
-                      string& error_str) override
+                      std::string& error_str) override
     {
         if (!att.is_admin())
         {
@@ -180,7 +178,7 @@ public:
     int leases_action(VirtualNetwork * vn,
                       VirtualNetworkTemplate * tmpl,
                       RequestAttributes& att,
-                      string& error_str) override
+                      std::string& error_str) override
     {
         return vn->hold_leases(tmpl, error_str);
     }
@@ -200,7 +198,7 @@ public:
     int leases_action(VirtualNetwork * vn,
                       VirtualNetworkTemplate * tmpl,
                       RequestAttributes& att,
-                      string& error_str) override
+                      std::string& error_str) override
     {
         return vn->free_leases(tmpl, error_str);
     }

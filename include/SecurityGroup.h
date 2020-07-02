@@ -20,8 +20,6 @@
 #include "PoolObjectSQL.h"
 #include "ObjectCollection.h"
 
-using namespace std;
-
 /**
  *  The SecurityGroup class.
  */
@@ -34,7 +32,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const override;
+    std::string& to_xml(std::string& xml) const override;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -42,7 +40,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str) override;
+    int from_xml(const std::string &xml_str) override;
 
     /**
      *  Returns a copy of the Template
@@ -109,7 +107,7 @@ public:
      *
      * @return a group of vector attributes
      */
-     void get_rules(vector<VectorAttribute*>& result) const;
+     void get_rules(std::vector<VectorAttribute*>& result) const;
 
      /**
       * Commit SG changes to associated VMs
@@ -166,12 +164,12 @@ private:
     // Constructor
     // *************************************************************************
 
-    SecurityGroup(  int             _uid,
-                    int             _gid,
-                    const string&   _uname,
-                    const string&   _gname,
-                    int             _umask,
-                    Template*       sgroup_template);
+    SecurityGroup(  int                _uid,
+                    int                _gid,
+                    const std::string& _uname,
+                    const std::string& _gname,
+                    int                _umask,
+                    Template*          sgroup_template);
 
     virtual ~SecurityGroup() = default;
 
@@ -181,14 +179,14 @@ private:
      *    @param error describing the problem if any
      *    @return true if the rule is valid
      */
-    bool isValidRule(const VectorAttribute * rule, string& error) const;
+    bool isValidRule(const VectorAttribute * rule, std::string& error) const;
 
     /**
      * Checks the new rules
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int post_update_template(string& error) override;
+    int post_update_template(std::string& error) override;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -201,7 +199,7 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(SqlDB *db, bool replace, string& error_str);
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the SecurityGroup
@@ -214,7 +212,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str) override;
+    int insert(SqlDB *db, std::string& error_str) override;
 
     /**
      *  Writes/updates the SecurityGroup's data fields in the database.
@@ -223,7 +221,7 @@ private:
      */
     int update(SqlDB *db) override
     {
-        string error_str;
+        std::string error_str;
         return insert_replace(db, true, error_str);
     }
 

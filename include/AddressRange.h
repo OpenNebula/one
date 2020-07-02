@@ -24,8 +24,6 @@
 #include "PoolObjectSQL.h"
 #include "AddressRangePool.h"
 
-using namespace std;
-
 class VectorAttribute;
 
 /**
@@ -70,14 +68,14 @@ public:
      *    @param ob the type
      *    @return the string
      */
-    static string type_to_str(AddressType ob);
+    static std::string type_to_str(AddressType ob);
 
     /**
      *  Return the string representation of an AddressType
      *    @param ob the type
      *    @return the string
      */
-    static AddressType str_to_type(string& str_type);
+    static AddressType str_to_type(std::string& str_type);
 
     /**
      *  Return true if the address range includes IPv4 addresses
@@ -148,7 +146,7 @@ public:
      * implementation may contact an external IPAM to complete or validate
      * the AR allocation request.
      */
-    virtual int from_vattr(VectorAttribute * attr, string& error_msg) = 0;
+    virtual int from_vattr(VectorAttribute * attr, std::string& error_msg) = 0;
 
     /**
      *  Builds an Address Range from a vector attribute stored in the DB
@@ -167,13 +165,13 @@ public:
      *    @param vrs list of VRouter the user can access VNET usage info from.
      *      A vector containing just -1 means all VRouters.
      */
-    void to_xml(ostringstream &oss, const vector<int>& vms,
-        const vector<int>& vnets, const vector<int>& vrs) const;
+    void to_xml(std::ostringstream &oss, const std::vector<int>& vms,
+        const std::vector<int>& vnets, const std::vector<int>& vrs) const;
 
     /**
      *  Same as above but without the LEASES section
      */
-    void to_xml(ostringstream &oss) const;
+    void to_xml(std::ostringstream &oss) const;
 
 
     // *************************************************************************
@@ -190,7 +188,7 @@ public:
      *    @return 0 if success
      */
     int allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
-        VectorAttribute * nic, const vector<string> &inherit);
+        VectorAttribute * nic, const std::vector<std::string> &inherit);
 
     /**
      *  Returns the specific address by mac/ip if is not allocated. The NIC attr
@@ -202,25 +200,25 @@ public:
      *    @param inherit attributes to be added to the NIC attribute
      *    @return 0 if success
      */
-    int allocate_by_mac(const string& mac, PoolObjectSQL::ObjectType ot,
-        int obid, VectorAttribute * nic, const vector<string> &inherit);
+    int allocate_by_mac(const std::string& mac, PoolObjectSQL::ObjectType ot,
+        int obid, VectorAttribute * nic, const std::vector<std::string> &inherit);
 
-    int allocate_by_ip(const string& ip, PoolObjectSQL::ObjectType ot,
-        int obid, VectorAttribute * nic, const vector<string> &inherit);
+    int allocate_by_ip(const std::string& ip, PoolObjectSQL::ObjectType ot,
+        int obid, VectorAttribute * nic, const std::vector<std::string> &inherit);
 
-    int allocate_by_ip6(const string& ip6, PoolObjectSQL::ObjectType ot,
-        int obid, VectorAttribute * nic, const vector<string> &inherit);
+    int allocate_by_ip6(const std::string& ip6, PoolObjectSQL::ObjectType ot,
+        int obid, VectorAttribute * nic, const std::vector<std::string> &inherit);
 
     /**
      *  Sets the given ip/mac on hold, the address is associated to a VM of
      *  id -1.
      *    @param ip/mac the ip to hold
      */
-    int hold_by_mac(const string& mac);
+    int hold_by_mac(const std::string& mac);
 
-    int hold_by_ip(const string& ip);
+    int hold_by_ip(const std::string& ip);
 
-    int hold_by_ip6(const string& ip);
+    int hold_by_ip6(const std::string& ip);
 
     /**
      *  Frees a previous allocated address, referenced by its MAC/IP address
@@ -229,11 +227,11 @@ public:
      *  @param mac/ip the MAC/IP address in string form
      *  @return 0 if the address was freed
      */
-    int free_addr(PoolObjectSQL::ObjectType ot, int obid, const string& mac);
+    int free_addr(PoolObjectSQL::ObjectType ot, int obid, const std::string& mac);
 
-    int free_addr_by_ip(PoolObjectSQL::ObjectType ot, int id, const string& ip);
+    int free_addr_by_ip(PoolObjectSQL::ObjectType ot, int id, const std::string& ip);
 
-    int free_addr_by_ip6(PoolObjectSQL::ObjectType ot, int id,const string& ip);
+    int free_addr_by_ip6(PoolObjectSQL::ObjectType ot, int id,const std::string& ip);
 
     /**
      *  Frees all previous allocated address to the given object
@@ -253,7 +251,7 @@ public:
      *  @return the number of addresses freed
      */
     int free_addr_by_range(PoolObjectSQL::ObjectType ot, int obid,
-        const string& mac, unsigned int rsize);
+        const std::string& mac, unsigned int rsize);
 
     /**
      * Adds the relevant AR definition attributes to the Security Group rule
@@ -283,13 +281,13 @@ public:
      *    @param ip/mac the firs ip in the Reservation
      *    @return 0 on success
      */
-    int reserve_addr_by_mac(int vid, unsigned int rsize, const string& mac,
+    int reserve_addr_by_mac(int vid, unsigned int rsize, const std::string& mac,
         AddressRange *rar);
 
-    int reserve_addr_by_ip(int vid, unsigned int rsize, const string& ip,
+    int reserve_addr_by_ip(int vid, unsigned int rsize, const std::string& ip,
         AddressRange *rar);
 
-    int reserve_addr_by_ip6(int vid, unsigned int rsize, const string& ip,
+    int reserve_addr_by_ip6(int vid, unsigned int rsize, const std::string& ip,
         AddressRange *rar);
 
     // *************************************************************************
@@ -333,7 +331,7 @@ public:
      *    @param name of the attribute
      *    @return the value of the attribute if found, empty otherwise
      */
-    string get_attribute(const string& name) const
+    std::string get_attribute(const std::string& name) const
     {
         return attr->vector_value(name);
     }
@@ -344,7 +342,7 @@ public:
      *    @param value of the attribute
      *    @return 0 on success
      */
-    int get_attribute(const string& name, int& value) const
+    int get_attribute(const std::string& name, int& value) const
     {
         return attr->vector_value(name, value);
     }
@@ -361,18 +359,18 @@ public:
     int update_attributes(
             VectorAttribute *   vup,
             bool                keep_restricted,
-            string&             error_msg);
+            std::string&        error_msg);
 
     /**
      *  Helper function to initialize restricte attributes of an AddressRange
      */
-    static void set_restricted_attributes(vector<const SingleAttribute *>& ras);
+    static void set_restricted_attributes(std::vector<const SingleAttribute *>& ras);
 
     /**
      *  Get the security groups for this AR.
      *    @return a reference to the security group set
      */
-    const set<int>& get_security_groups() const
+    const std::set<int>& get_security_groups() const
     {
         return security_groups;
     }
@@ -380,13 +378,11 @@ public:
     /**
      *  Copy security groups into set
      */
-    void get_security_groups(set<int>& sgs)
+    void get_security_groups(std::set<int>& sgs)
     {
-        std::set<int>::const_iterator it;
-
-        for (it = security_groups.begin(); it != security_groups.end(); ++it)
+        for (auto sg : security_groups)
         {
-            sgs.insert(*it);
+            sgs.insert(sg);
         }
     }
 
@@ -405,13 +401,14 @@ public:
      *  rm_ar from AddressRangePool needs to access the internal representation
      *  of the AR to remove it from the ARPool template.
      */
-    friend int AddressRangePool::rm_ar(unsigned int ar_id, bool force, string& error_msg);
+    friend int AddressRangePool::rm_ar(unsigned int ar_id, bool force,
+                                       std::string& error_msg);
 
     /*
      *  rm_ars from AddressRangePool needs to access the internal representation
      *  of the AR to remove it from the ARPool template.
      */
-    friend int AddressRangePool::rm_ars(string& error_msg);
+    friend int AddressRangePool::rm_ars(std::string& error_msg);
 
 protected:
     /**
@@ -426,7 +423,7 @@ protected:
     /**
      * Builds the AddressRange from its vector attribute representation
      */
-    int from_attr(VectorAttribute * attr, string& error_msg);
+    int from_attr(VectorAttribute * attr, std::string& error_msg);
 
     /**
      *  Builds an address request representation in XML form:
@@ -443,7 +440,7 @@ protected:
      *    @param oss string stream to write the request to
      */
     void addr_to_xml(unsigned int index, unsigned int size,
-            ostringstream& oss) const;
+            std::ostringstream& oss) const;
 
     /**
      *  Check if the given MAC is valid for this address range by verifying:
@@ -456,7 +453,8 @@ protected:
      *
      *    @return true if the MAC is valid
      */
-    bool is_valid_mac(unsigned int& index, const string& mac_s, bool check_free);
+    bool is_valid_mac(unsigned int& index, const std::string& mac_s,
+                      bool check_free);
 
     /**
      *  Check if the given IP is valid for this address range by verifying:
@@ -470,7 +468,8 @@ protected:
      *
      *    @return true if the IP is valid
      */
-    bool is_valid_ip(unsigned int& index, const string& ip_s, bool check_free);
+    bool is_valid_ip(unsigned int& index, const std::string& ip_s,
+                     bool check_free);
 
     /**
      *  Check if the given IP is valid for this address range by verifying:
@@ -484,7 +483,8 @@ protected:
      *
      *    @return true if the IP is valid
      */
-    bool is_valid_ip6(unsigned int& index, const string& ip_s, bool check_free);
+    bool is_valid_ip6(unsigned int& index, const std::string& ip_s,
+                      bool check_free);
 
     /* ---------------------------------------------------------------------- */
     /* Implementation specific address management interface                   */
@@ -497,7 +497,8 @@ protected:
      *
      *    @return 0 if success
      */
-    virtual int allocate_addr(unsigned int ix, unsigned int sz, string& mg) = 0;
+    virtual int allocate_addr(unsigned int ix, unsigned int sz,
+                              std::string& mg) = 0;
     /**
      *  Gets a range of free addresses
      *    @param index the first address in the range
@@ -506,7 +507,8 @@ protected:
      *
      *    @return 0 if success
      */
-    virtual int get_addr(unsigned int& index, unsigned int sz, string& msg) = 0;
+    virtual int get_addr(unsigned int& index, unsigned int sz,
+                         std::string& msg) = 0;
 
     /**
      *  Sets the given address (by index) as free
@@ -515,7 +517,7 @@ protected:
      *
      *    @return 0 if success
      */
-    virtual int free_addr(unsigned int index, string& msg) = 0;
+    virtual int free_addr(unsigned int index, std::string& msg) = 0;
 
     /* ---------------------------------------------------------------------- */
     /* Allocated addresses                                                    */
@@ -531,7 +533,7 @@ protected:
      *
      *  Address = First Address + index
      */
-    map<unsigned int, long long> allocated;
+    std::map<unsigned int, long long> allocated;
 
 private:
     /* ---------------------------------------------------------------------- */
@@ -542,27 +544,27 @@ private:
      *    @param mac in string form 00:02:01:02:03:04
      *    @return 0 on success
      */
-    int mac_to_i(string mac, unsigned int i_mac[]) const;
+    int mac_to_i(std::string mac, unsigned int i_mac[]) const;
 
     /**
      *  MAC to string
      *    @param mac in array form
      */
-    string mac_to_s(const unsigned int mac[]) const;
+    std::string mac_to_s(const unsigned int mac[]) const;
 
     /**
      *  IP version 4 to binary (32 bits)
      *    @param ip in string form 192.168.0.2
      *    @return 0 on success
      */
-    int ip_to_i(const string& _ip, unsigned int& i_ip) const;
+    int ip_to_i(const std::string& _ip, unsigned int& i_ip) const;
 
     /**
      *  IP version 6 to binary (32 bits)
      *    @param ip string form 2a00:1bc0:b001:A::3
      *    @return 0 on success
      */
-    int ip6_to_i(const string& _ip, unsigned int i_ip[]) const;
+    int ip6_to_i(const std::string& _ip, unsigned int i_ip[]) const;
 
     /**
      * IP version 4 to dot notation
@@ -570,14 +572,14 @@ private:
      * @param i_ip Numeric (32 bits) IP
      * @return dot notation
      */
-    string ip_to_s(unsigned int i_ip) const;
+    std::string ip_to_s(unsigned int i_ip) const;
 
     /**
      *  IPv6 64bits prefix conversion
      *    @param prefix in string form 2a00:1bc0:b001:A::
      *    @return 0 on success
      */
-    int prefix6_to_i(const string& prefix, unsigned int ip[]) const;
+    int prefix6_to_i(const std::string& prefix, unsigned int ip[]) const;
 
     /**
      * IPv6 to string
@@ -587,9 +589,9 @@ private:
      * @return 0 on success
      */
     int ip6_to_s(const unsigned int prefix[], const unsigned int mac[],
-        string& ip6_s) const;
+        std::string& ip6_s) const;
 
-    int ip6_to_s(const unsigned int ip6_i[], string& ip6_s) const;
+    int ip6_to_s(const unsigned int ip6_i[], std::string& ip6_s) const;
 
     /* ---------------------------------------------------------------------- */
     /* NIC setup functions                                                    */
@@ -629,7 +631,8 @@ private:
      *    @param addr_index internal index for the lease
      *    @param nic attribute of a VMTemplate
      */
-    void set_vnet(VectorAttribute *nic, const vector<string> &inherit) const;
+    void set_vnet(VectorAttribute *nic,
+                  const std::vector<std::string> &inherit) const;
 
     /* ---------------------------------------------------------------------- */
     /* Address index map helper functions                                     */
@@ -647,7 +650,7 @@ private:
      *    generated by allocated_to_attr()
      *    @return 0 on success
      */
-    int  attr_to_allocated(const string& allocated_s);
+    int  attr_to_allocated(const std::string& allocated_s);
 
     /**
      *  Adds a new allocated address to the map. Updates the ALLOCATED attribute
@@ -666,10 +669,10 @@ private:
      *    @return 0 if success
      */
     void allocate_by_index(unsigned int index,
-        PoolObjectSQL::ObjectType ot,
-        int                       obid,
-        VectorAttribute*          nic,
-        const vector<string>&     inherit);
+        PoolObjectSQL::ObjectType       ot,
+        int                             obid,
+        VectorAttribute*                nic,
+        const std::vector<std::string>& inherit);
 
     /**
      *  Frees an address from the map. Updates the ALLOCATED attribute
@@ -696,7 +699,7 @@ private:
      *    @param error_msg if any
      *    @return 0 on success
      */
-    int init_ipv4(string& error_msg);
+    int init_ipv4(std::string& error_msg);
 
     /**
      *  Function to parse the IPv6 attributes ("GLOBAL_PREFIX" and "ULA_PREFIX")
@@ -704,7 +707,7 @@ private:
      *    @param error_msg if any
      *    @return 0 on success
      */
-    int init_ipv6(string& error_msg);
+    int init_ipv6(std::string& error_msg);
 
     /**
      *  Function to parse the IPv6 attributes no slaac ("IP6") for IP6_STATIC
@@ -712,19 +715,19 @@ private:
      *    @param error_msg if any
      *    @return 0 on success
      */
-    int init_ipv6_static(string& error_msg);
+    int init_ipv6_static(std::string& error_msg);
 
     /**
      *  Function to parse the MAC attributes ("MAC") for all AR types
      *    @param error_msg if any
      *    @return 0 on success
      */
-    int init_mac(string& error_msg);
+    int init_mac(std::string& error_msg);
 
     /**
      *  Checks for restricted attributes, returns the first one found
      */
-    bool check(string& rs_attr) const;
+    bool check(std::string& rs_attr) const;
 
     /**
      * Deletes all restricted attributes
@@ -782,7 +785,7 @@ private:
     /**
      *  Security Group IDs for this Address Range
      */
-    set<int> security_groups;
+    std::set<int> security_groups;
 
     /**
      *  The Address Range attributes as a Template VectorAttribute. This is
@@ -801,7 +804,7 @@ private:
     /**
      *  The restricted attributes from oned.conf
      */
-    static set<string> restricted_attributes;
+    static std::set<std::string> restricted_attributes;
 
     /**
      *  Attributes to be process for Security Group rules

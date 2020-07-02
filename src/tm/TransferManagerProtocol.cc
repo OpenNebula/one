@@ -16,8 +16,11 @@
 
 #include "TransferManager.h"
 #include "LifeCycleManager.h"
+#include "VirtualMachinePool.h"
 #include "Nebula.h"
 #include "NebulaLog.h"
+
+using namespace std;
 
 /* ************************************************************************** */
 /* Driver Protocol Implementation                                             */

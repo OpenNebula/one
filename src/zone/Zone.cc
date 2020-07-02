@@ -17,6 +17,9 @@
 #include "Zone.h"
 #include "ZoneServer.h"
 #include "OneDB.h"
+#include "NebulaLog.h"
+
+using namespace std;
 
 /* ------------------------------------------------------------------------ */
 

@@ -150,7 +150,7 @@ int UDPStream<MSG>
 
     for (int i = 0 ; i < threads; ++i)
     {
-        std::thread action_thread = thread([this]{
+        std::thread action_thread = std::thread([this]{
             while (true)
             {
                 std::string line;

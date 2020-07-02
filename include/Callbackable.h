@@ -24,8 +24,6 @@
 
 #include <string>
 
-using namespace std;
-
 /**
  *  This class represents a SQL callback
  */
@@ -233,7 +231,7 @@ public:
 
 private:
 
-    set<T> * ids;
+    std::set<T> * ids;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -243,7 +241,7 @@ template<class T>
 class vector_cb : public Callbackable
 {
 public:
-    void set_callback(vector<T> * _oids)
+    void set_callback(std::vector<T> * _oids)
     {
         oids = _oids;
 
@@ -271,7 +269,7 @@ public:
 
 private:
 
-    vector<T> *  oids;
+    std::vector<T> *  oids;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -322,7 +320,7 @@ class stream_cb : public Callbackable
 public:
     stream_cb(int _total): total_values(_total){};
 
-    void set_callback(ostringstream * _oss)
+    void set_callback(std::ostringstream * _oss)
     {
         oss = _oss;
 
@@ -352,7 +350,7 @@ private:
 
     int total_values;
 
-    ostringstream * oss;
+    std::ostringstream * oss;
 };
 
 /* -------------------------------------------------------------------------- */

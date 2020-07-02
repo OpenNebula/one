@@ -20,6 +20,9 @@
 #include "NebulaLog.h"
 #include <sstream>
 
+using namespace std;
+
+
 static void log_msg(hook_msg_t *msg)
 {
     ostringstream oss;

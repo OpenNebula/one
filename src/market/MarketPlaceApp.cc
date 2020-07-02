@@ -20,6 +20,8 @@
 #include "NebulaUtil.h"
 #include "OneDB.h"
 
+using namespace std;
+
 /* ************************************************************************ */
 /* MarketPlaceApp:: Constructor / Destructor                                */
 /* ************************************************************************ */

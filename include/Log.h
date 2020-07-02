@@ -24,8 +24,6 @@
 
 #include "PoolObjectSQL.h"
 
-using namespace std;
-
 /**
  *  The Logger class is an interface used by OpenNebula components to log
  *  messages
@@ -111,9 +109,9 @@ protected:
 class FileLog : public Log
 {
 public:
-    FileLog(const string&       file_name,
-            const MessageType   level    = WARNING,
-            ios_base::openmode  mode     = ios_base::app);
+    FileLog(const std::string&      file_name,
+            const MessageType       level    = WARNING,
+            std::ios_base::openmode mode     = std::ios_base::app);
 
     virtual ~FileLog();
 
@@ -123,7 +121,7 @@ public:
         const char *            message);
 
 private:
-    string log_file_name;
+    std::string log_file_name;
 };
 
 /**
@@ -132,9 +130,9 @@ private:
 class FileLogTS : public FileLog
 {
 public:
-    FileLogTS(const string&       file_name,
-                    const MessageType   level    = WARNING,
-                    ios_base::openmode  mode     = ios_base::app)
+    FileLogTS(const std::string&       file_name,
+              const MessageType        level    = WARNING,
+              std::ios_base::openmode  mode     = std::ios_base::app)
                        :FileLog(file_name,level,mode)
     {
         pthread_mutex_init(&log_mutex,0);
@@ -183,7 +181,7 @@ public:
         const char *            message);
 
 private:
-    string resource_label;
+    std::string resource_label;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -195,8 +193,8 @@ private:
 class SysLog : public Log
 {
 public:
-    SysLog(const MessageType level,
-           const string&     label);
+    SysLog(const MessageType  level,
+           const std::string& label);
 
     SysLog(const MessageType level,
            int oid,
@@ -232,7 +230,7 @@ public:
     }
 
 private:
-    string resource_label;
+    std::string resource_label;
 };
 
 #endif /* _LOG_H_ */

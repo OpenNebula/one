@@ -24,17 +24,17 @@ class SchedulerTemplate : public NebulaTemplate
 {
 public:
 
-    SchedulerTemplate(const string& etc_location):
+    SchedulerTemplate(const std::string& etc_location):
         NebulaTemplate(etc_location, conf_name, "SCHEDULER_CONFIGURATION")
         {};
 
     ~SchedulerTemplate(){};
 
-    string get_policy() const;
+    std::string get_policy() const;
 
-    string get_ds_policy() const;
+    std::string get_ds_policy() const;
 
-    string get_nics_policy() const;
+    std::string get_nics_policy() const;
 
 private:
     /**

@@ -22,6 +22,8 @@
 #include "VirtualMachineDisk.h"
 #include "OneDB.h"
 
+using namespace std;
+
 /* ************************************************************************ */
 /* Datastore :: Constructor/Destructor                                      */
 /* ************************************************************************ */

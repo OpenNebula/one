@@ -16,6 +16,8 @@
 
 #include "NebulaService.h"
 
+using std::string;
+
 NebulaService* NebulaService::nebula_service = nullptr;
 
 Log::MessageType NebulaService::get_debug_level(Log::MessageType default_) const

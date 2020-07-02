@@ -17,6 +17,8 @@
 #include "ScheduledAction.h"
 #include "NebulaUtil.h"
 
+using namespace std;
+
 int SchedAction::repeat(Repeat& r)
 {
     r = NONE;

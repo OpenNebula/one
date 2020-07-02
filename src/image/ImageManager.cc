@@ -20,6 +20,8 @@
 #include "DatastorePool.h"
 #include "RaftManager.h"
 
+using namespace std;
+
 const char * ImageManager::image_driver_name = "image_exe";
 
 /* -------------------------------------------------------------------------- */

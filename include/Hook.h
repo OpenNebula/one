@@ -39,7 +39,7 @@ public:
         UNDEFINED = 0x04
     };
 
-    static string hook_type_to_str(HookType ht)
+    static std::string hook_type_to_str(HookType ht)
     {
         switch(ht)
         {
@@ -137,7 +137,7 @@ private:
     /**
      *  The command to be executed
      */
-    string   cmd;
+    std::string   cmd;
 
     /**
      *  True if the command is to be executed remotely
@@ -175,7 +175,7 @@ private:
      */
     int update(SqlDB *db) override
     {
-        string error_str;
+        std::string error_str;
         return insert_replace(db, true, error_str);
     };
 
@@ -184,7 +184,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str) override;
+    int insert(SqlDB *db, std::string& error_str) override;
 
     /**
      *  Execute an INSERT or REPLACE Sql query.
@@ -193,7 +193,7 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(SqlDB *db, bool replace, string& error_str);
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
      *  Drops object from the database

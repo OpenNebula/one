@@ -20,9 +20,6 @@
 #include <set>
 
 #include "PoolObjectSQL.h"
-#include "NebulaLog.h"
-
-using namespace std;
 
 /**
  *  Represents a set of resources in a zone. The class is able to manage
@@ -31,7 +28,7 @@ using namespace std;
 class ResourceSet
 {
 public:
-    static string type_to_vdc_str(PoolObjectSQL::ObjectType type)
+    static std::string type_to_vdc_str(PoolObjectSQL::ObjectType type)
     {
         switch (type)
         {
@@ -58,14 +55,14 @@ public:
      *  RESOURCE is set from xml_name attribute.
      *    @param oss the outpur string stream
      */
-    void to_xml(ostringstream &oss) const;
+    void to_xml(std::ostringstream &oss) const;
 
     /**
      *  Builds the ResourceSet from the xml node
      *    @param content of the resource set
      *    @return 0 on success
      */
-    int from_xml_node(vector<xmlNodePtr>& content);
+    int from_xml_node(std::vector<xmlNodePtr>& content);
 
     /**
      * Adds a resource to the set. The ACL rules are updated for the groups
@@ -77,7 +74,7 @@ public:
      *
      * @return 0 on success
      */
-    int add(const set<int>& groups, int zone_id, int id,string& error);
+    int add(const std::set<int>& groups, int zone_id, int id, std::string& error);
 
     /**
      * Deletes a resource from the set. The ACL rules are updated
@@ -89,7 +86,7 @@ public:
      *
      * @return 0 on success
      */
-    int del(const set<int>& groups, int zone_id, int id, string& error);
+    int del(const std::set<int>& groups, int zone_id, int id, std::string& error);
 
     /**
      * Set ACL rules for a group to access this resource set
@@ -124,12 +121,12 @@ private:
     /**
      *  <ZONE_ID, RESOURCE_ID> pairs for the resource set
      */
-    set<pair<int, int> > resources;
+    std::set<std::pair<int, int> > resources;
 
     /**
      *  <resource, rights> pairs to add/remove to ACL list for this set.
      */
-    set<pair<long long, long long> > rules;
+    std::set<std::pair<long long, long long> > rules;
 
     /**
      *  The resource type of this set.
@@ -139,7 +136,7 @@ private:
     /**
      *  XML Name of the resource
      */
-     string xml_name;
+     std::string xml_name;
 
     /**
      *  Insert acl rules into rules attribute.
@@ -147,7 +144,8 @@ private:
      *  @param default_vdc_acl the mask for the acls.
      *  @param type Object type for the acls.
      */
-     void insert_default_rules(string default_vdc_acl, PoolObjectSQL::ObjectType type);
+     void insert_default_rules(std::string default_vdc_acl,
+                               PoolObjectSQL::ObjectType type);
  };
 
 /**
@@ -162,7 +160,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const override;
+    std::string& to_xml(std::string& xml) const override;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -170,7 +168,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str) override;
+    int from_xml(const std::string &xml_str) override;
 
     /**
      * Adds a Group to the VDC. ACL Rules are updated only for this group.
@@ -180,7 +178,7 @@ public:
      *
      * @return 0 on success
      */
-    int add_group(int group_id, string& error_msg);
+    int add_group(int group_id, std::string& error_msg);
 
     /**
      * Deletes a Group from the VDC. ACL Rules are updated only for this group.
@@ -190,7 +188,7 @@ public:
      *
      * @return 0 on success
      */
-    int del_group(int group_id, string& error_msg);
+    int del_group(int group_id, std::string& error_msg);
 
     /**
      * Adds a cluster to the VDC
@@ -201,7 +199,7 @@ public:
      *
      * @return 0 on success
      */
-    int add_cluster(int zone_id, int cluster_id, string& error_msg)
+    int add_cluster(int zone_id, int cluster_id, std::string& error_msg)
     {
         return clusters.add(groups, zone_id, cluster_id, error_msg);
     }
@@ -215,7 +213,7 @@ public:
      *
      * @return 0 on success
      */
-    int del_cluster(int zone_id, int cluster_id, string& error_msg)
+    int del_cluster(int zone_id, int cluster_id, std::string& error_msg)
     {
         return clusters.del(groups, zone_id, cluster_id, error_msg);
     }
@@ -229,7 +227,7 @@ public:
      *
      * @return 0 on success
      */
-    int add_host(int zone_id, int host_id, string& error_msg)
+    int add_host(int zone_id, int host_id, std::string& error_msg)
     {
         return hosts.add(groups, zone_id, host_id, error_msg);
     }
@@ -243,7 +241,7 @@ public:
      *
      * @return 0 on success
      */
-    int del_host(int zone_id, int host_id, string& error_msg)
+    int del_host(int zone_id, int host_id, std::string& error_msg)
     {
         return hosts.del(groups, zone_id, host_id, error_msg);
     }
@@ -257,7 +255,7 @@ public:
      *
      * @return 0 on success
      */
-    int add_datastore(int zone_id, int datastore_id, string& error_msg)
+    int add_datastore(int zone_id, int datastore_id, std::string& error_msg)
     {
         return datastores.add(groups, zone_id, datastore_id, error_msg);
     }
@@ -271,7 +269,7 @@ public:
      *
      * @return 0 on success
      */
-    int del_datastore(int zone_id, int datastore_id, string& error_msg)
+    int del_datastore(int zone_id, int datastore_id, std::string& error_msg)
     {
         return datastores.del(groups, zone_id, datastore_id, error_msg);
     }
@@ -285,7 +283,7 @@ public:
      *
      * @return 0 on success
      */
-    int add_vnet(int zone_id, int vnet_id, string& error_msg)
+    int add_vnet(int zone_id, int vnet_id, std::string& error_msg)
     {
         return vnets.add(groups, zone_id, vnet_id, error_msg);
     }
@@ -299,7 +297,7 @@ public:
      *
      * @return 0 on success
      */
-    int del_vnet(int zone_id, int vnet_id, string& error_msg)
+    int del_vnet(int zone_id, int vnet_id, std::string& error_msg)
     {
         return vnets.del(groups, zone_id, vnet_id, error_msg);
     }
@@ -330,7 +328,7 @@ private:
     // Attributes (Private)
     // *************************************************************************
 
-    set<int> groups;
+    std::set<int> groups;
 
     ResourceSet clusters;
     ResourceSet hosts;
@@ -348,7 +346,7 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(SqlDB *db, bool replace, string& error_str);
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the Vdc
@@ -361,7 +359,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str) override;
+    int insert(SqlDB *db, std::string& error_str) override;
 
     /**
      *  Writes/updates the Vdc's data fields in the database.
@@ -370,7 +368,7 @@ private:
      */
     int update(SqlDB *db) override
     {
-        string error_str;
+        std::string error_str;
         return insert_replace(db, true, error_str);
     }
 

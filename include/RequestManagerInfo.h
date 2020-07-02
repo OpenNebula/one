@@ -38,8 +38,6 @@
 #include "ZonePool.h"
 
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -47,8 +45,8 @@ using namespace std;
 class RequestManagerInfo: public Request
 {
 protected:
-    RequestManagerInfo(const string& method_name,
-                       const string& help)
+    RequestManagerInfo(const std::string& method_name,
+                       const std::string& help)
         :Request(method_name, "A:si", help)
     {
         auth_op = AuthRequest::USE_NO_LCK;
@@ -64,7 +62,7 @@ protected:
     /* -------------------------------------------------------------------- */
 
     virtual void to_xml(RequestAttributes& att, PoolObjectSQL * object,
-        string& str)
+        std::string& str)
     {
         object->to_xml(str);
     };
@@ -93,7 +91,7 @@ public:
 
 protected:
     void to_xml(RequestAttributes& att, PoolObjectSQL * object,
-            string& str) override
+            std::string& str) override
     {
         static_cast<VirtualMachine *>(object)->to_xml_extended(str);
     };
@@ -145,7 +143,8 @@ public:
     /* -------------------------------------------------------------------- */
 
 protected:
-    void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str) override;
+    void to_xml(RequestAttributes& att, PoolObjectSQL * object,
+                std::string& str) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -228,7 +227,8 @@ public:
     /* -------------------------------------------------------------------- */
 
 protected:
-    void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str) override
+    void to_xml(RequestAttributes& att, PoolObjectSQL * object,
+                std::string& str) override
     {
         static_cast<Group*>(object)->to_xml_extended(str);
     };
@@ -252,7 +252,8 @@ public:
     /* -------------------------------------------------------------------- */
 
 protected:
-    void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str) override
+    void to_xml(RequestAttributes& att, PoolObjectSQL * object,
+                std::string& str) override
     {
         static_cast<User*>(object)->to_xml_extended(str);
     };
@@ -437,7 +438,7 @@ public:
 
 protected:
     void to_xml(RequestAttributes& att, PoolObjectSQL * object,
-        string& str)
+                std::string& str)
     {
         (static_cast<Hook *>(object))->to_xml_extended(str);
     };

@@ -21,8 +21,6 @@
 #include "Nebula.h"
 #include "ZonePool.h"
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -30,9 +28,9 @@ using namespace std;
 class RequestManagerZone: public Request
 {
 protected:
-    RequestManagerZone(const string& method_name,
-                       const string& help,
-                       const string& params)
+    RequestManagerZone(const std::string& method_name,
+                       const std::string& help,
+                       const std::string& params)
         :Request(method_name,params,help)
     {
         Nebula& nd = Nebula::instance();

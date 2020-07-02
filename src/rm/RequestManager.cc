@@ -66,6 +66,8 @@
 #include <fcntl.h>
 #include <cstring>
 
+using namespace std;
+
 
 RequestManager::RequestManager(
         const string& _port,

@@ -17,15 +17,10 @@
 #ifndef SNAPSHOTS_H_
 #define SNAPSHOTS_H_
 
-#include <iostream>
 #include <string>
 #include <map>
 
-#include <libxml/parser.h>
-
 #include "Template.h"
-
-using namespace std;
 
 class VectorAttribute;
 
@@ -70,7 +65,7 @@ public:
         MIXED = 2
     };
 
-    static string allow_orphans_mode_to_str(AllowOrphansMode aom)
+    static std::string allow_orphans_mode_to_str(AllowOrphansMode aom)
     {
         switch (aom)
         {
@@ -82,7 +77,7 @@ public:
         return "NO";
     };
 
-    static AllowOrphansMode str_to_allow_orphans_mode(const string& aom)
+    static AllowOrphansMode str_to_allow_orphans_mode(const std::string& aom)
     {
         if (aom == "YES")
         {
@@ -121,7 +116,7 @@ public:
     /**
      *  XML Representation of the Snapshots
      */
-    string& to_xml(string& xml) const
+    std::string& to_xml(std::string& xml) const
     {
         return snapshot_template.to_xml(xml);
     };
@@ -132,7 +127,7 @@ public:
      *   @param size_mb of the snapshot (virtual size)
      *   @return id of the new snapshot
      */
-    int create_snapshot(const string& name, long long size_mb);
+    int create_snapshot(const std::string& name, long long size_mb);
 
     /**
      *  Check if an snapshot can be deleted (no children, no active)
@@ -140,7 +135,7 @@ public:
      *    @param error if any
      *    @return true if can be deleted, false otherwise
      */
-    bool test_delete(int id, string& error) const;
+    bool test_delete(int id, std::string& error) const;
 
     /**
      *  Removes the snapshot from the list
@@ -162,7 +157,7 @@ public:
      * Rename the given snapshot by the given name
      */
 
-    int rename_snapshot(int id, const string& name, string& str_error);
+    int rename_snapshot(int id, const std::string& name, std::string& str_error);
 
     /**
      *  Clear all the snapshots in the list
@@ -258,7 +253,7 @@ public:
      *
      *    @return value or empty if not found
      */
-    string get_snapshot_attribute(int id, const char* name) const;
+    std::string get_snapshot_attribute(int id, const char* name) const;
 
 private:
 
@@ -323,7 +318,7 @@ private:
     /**
      * Snapshot pointer map
      */
-    map<int, VectorAttribute *> snapshot_pool;
+    std::map<int, VectorAttribute *> snapshot_pool;
 
     /**
      * Current snaphsot base for mixed mode

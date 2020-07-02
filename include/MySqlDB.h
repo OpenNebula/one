@@ -95,7 +95,7 @@ private:
     /**
      * The MySql connection pool handler
      */
-    queue<MYSQL *> db_connect;
+    std::queue<MYSQL *> db_connect;
 
     /**
      * Cached DB connection to escape strings (it uses the server character set)

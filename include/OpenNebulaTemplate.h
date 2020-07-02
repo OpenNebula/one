@@ -29,7 +29,8 @@ class OpenNebulaTemplate : public NebulaTemplate
 {
 public:
 
-    OpenNebulaTemplate(const string& etc_location, const string& _var_location):
+    OpenNebulaTemplate(const std::string& etc_location,
+                       const std::string& _var_location):
         NebulaTemplate(etc_location, conf_name, "OPENNEBULA_CONFIGURATION"),
         var_location(_var_location)
         {};
@@ -79,7 +80,7 @@ private:
     /**
      *  Path for the var directory, for defaults
      */
-    string var_location;
+    std::string var_location;
 
     /**
      *  Default set of VM action permissions

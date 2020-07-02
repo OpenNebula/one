@@ -19,8 +19,6 @@
 
 #include "Request.h"
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -28,9 +26,9 @@ using namespace std;
 class RequestManagerVNTemplate: public Request
 {
 protected:
-    RequestManagerVNTemplate(const string& method_name,
-                             const string& help,
-                             const string& params);
+    RequestManagerVNTemplate(const std::string& method_name,
+                             const std::string& help,
+                             const std::string& params);
 
     ~RequestManagerVNTemplate() = default;
 
@@ -67,8 +65,8 @@ public:
      *
      * @return ErroCode for the request.
      */
-    ErrorCode request_execute(int id, string name,
-        const string& s_uattr, Template* extra_attrs, int& vid,
+    ErrorCode request_execute(int id, std::string name,
+        const std::string& s_uattr, Template* extra_attrs, int& vid,
         RequestAttributes& att);
 
     /**
@@ -78,7 +76,8 @@ public:
      *  contents. Can be empty
      *  @param att the specific request attributes
      */
-    ErrorCode merge(Template * tmpl, const string &s_uattr, RequestAttributes& att);
+    ErrorCode merge(Template * tmpl, const std::string &s_uattr,
+                    RequestAttributes& att);
 
 protected:
 

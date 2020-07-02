@@ -18,6 +18,9 @@
 #include "VirtualMachine.h"
 #include "NebulaUtil.h"
 
+using namespace std;
+
+
 bool HookStateVM::trigger(VirtualMachine * vm)
 {
     return vm->has_changed_state();

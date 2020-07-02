@@ -23,8 +23,6 @@
 #include "PoolObjectSQL.h"
 #include "PoolSQLCache.h"
 
-using namespace std;
-
 /**
  * PoolSQL class. Provides a base class to implement persistent generic pools.
  * The PoolSQL provides a synchronization mechanism (mutex) to operate in
@@ -54,7 +52,7 @@ public:
      */
     virtual int allocate(
         PoolObjectSQL   *objsql,
-        string&          error_str);
+        std::string&     error_str);
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
@@ -81,12 +79,12 @@ public:
      *
      *    @return oid of the object if it exists, -1 otherwise
      */
-    int exist(const string& name, int ouid)
+    int exist(const std::string& name, int ouid)
     {
         return PoolObjectSQL::select_oid(db, table.c_str(), name, ouid);
     }
 
-    int exist(const string& name)
+    int exist(const std::string& name)
     {
         return PoolObjectSQL::select_oid(db, table.c_str(), name, -1);
     }
@@ -96,7 +94,7 @@ public:
         return PoolObjectSQL::exist(db, table.c_str(), oid);
     }
 
-    void exist(const string& id_str, std::set<int>& id_list);
+    void exist(const std::string& id_str, std::set<int>& id_list);
 
     /**
      *  Finds a set objects that satisfies a given condition
@@ -107,9 +105,9 @@ public:
      *   @return 0 on success
      */
     virtual int search(
-        vector<int>&    oids,
-        const char *    table,
-        const string&   where);
+        std::vector<int>&   oids,
+        const char *        table,
+        const std::string&  where);
 
     /**
      *  List the objects in the pool
@@ -119,8 +117,8 @@ public:
      *   @return 0 on success
      */
     int list(
-        vector<int>&    oids,
-        const char *    table)
+        std::vector<int>&   oids,
+        const char *        table)
     {
         return search(oids, table, "");
     }
@@ -145,7 +143,7 @@ public:
      *    @param error_msg Error reason, if any
      *    @return 0 on success, -1 DB error
      */
-    virtual int drop(PoolObjectSQL * objsql, string& error_msg)
+    virtual int drop(PoolObjectSQL * objsql, std::string& error_msg)
     {
         int rc  = objsql->drop(db);
 
@@ -167,7 +165,7 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(string& oss, const string& where, bool desc)
+    int dump(std::string& oss, const std::string& where, bool desc)
     {
         return dump(oss, where, 0, -1, desc);
     }
@@ -183,8 +181,9 @@ public:
      *
      *  @return 0 on success
      */
-    virtual int dump(string& oss, const string& where, int sid, int eid,
-            bool desc) = 0;
+    virtual int dump(std::string& oss, const std::string& where,
+                     int sid, int eid,
+                     bool desc) = 0;
 
     /**
      *  Dumps the pool in extended XML format
@@ -197,8 +196,8 @@ public:
      *
      *  @return 0 on success
      */
-    virtual int dump_extended(string& oss,
-                      const string& where,
+    virtual int dump_extended(std::string& oss,
+                      const std::string& where,
                       int sid,
                       int eid,
                       bool desc)
@@ -224,13 +223,13 @@ public:
      *
      */
     static void acl_filter(int                       uid,
-                           const set<int>&           user_groups,
+                           const std::set<int>&      user_groups,
                            PoolObjectSQL::ObjectType auth_object,
                            bool&                     all,
                            bool                      disable_all_acl,
                            bool                      disable_cluster_acl,
                            bool                      disable_group_acl,
-                           string&                   filter);
+                           std::string&              filter);
     /**
      *  Creates a filter for the objects owned by a given user/group
      *    @param uid the user id
@@ -240,22 +239,22 @@ public:
      *    @param all user can access all objects
      *    @param filter the resulting filter string
      */
-    static void usr_filter(int              uid,
-                           int              gid,
-                           const set<int>&  user_groups,
-                           int              filter_flag,
-                           bool             all,
-                           const string&    acl_str,
-                           string&          filter);
+    static void usr_filter(int                  uid,
+                           int                  gid,
+                           const std::set<int>& user_groups,
+                           int                  filter_flag,
+                           bool                 all,
+                           const std::string&   acl_str,
+                           std::string&         filter);
     /**
      *  Creates a filter for a given set of objects based on their id
      *    @param start_id first id
      *    @param end_id last id
      *    @param filter the resulting filter string
      */
-    static void oid_filter(int     start_id,
-                           int     end_id,
-                           string& filter);
+    static void oid_filter(int          start_id,
+                           int          end_id,
+                           std::string& filter);
 
     /**
      *  This function returns a legal SQL string that can be used in an SQL
@@ -264,7 +263,7 @@ public:
      *    @param str the string to be escaped
      *    @return a valid SQL string or NULL in case of failure
      */
-    char * escape_str(const string& str)
+    char * escape_str(const std::string& str)
     {
         return db->escape_str(str);
     }
@@ -296,7 +295,7 @@ protected:
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    PoolObjectSQL * get(const string& name, int uid);
+    PoolObjectSQL * get(const std::string& name, int uid);
 
     /**
      *  Gets a read only object from the pool (if needed the object is loaded from the
@@ -306,7 +305,7 @@ protected:
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    PoolObjectSQL * get_ro(const string& name, int uid);
+    PoolObjectSQL * get_ro(const std::string& name, int uid);
 
     /**
      *  Pointer to the database.
@@ -326,14 +325,14 @@ protected:
      *
      *  @return 0 on success
      */
-    int dump(string& oss,
-             const string&  elem_name,
-             const string&  column,
-             const char *   table,
-             const string&  where,
-             int            start_id,
-             int            end_id,
-             bool           desc);
+    int dump(std::string&       oss,
+             const std::string& elem_name,
+             const std::string& column,
+             const char *       table,
+             const std::string& where,
+             int                start_id,
+             int                end_id,
+             bool               desc);
 
     /**
      *  Dumps the pool in XML format. A filter can be also added to the
@@ -346,11 +345,11 @@ protected:
      *
      *  @return 0 on success
      */
-    int dump(string& oss,
-             const string&  elem_name,
-             const char *   table,
-             const string&  where,
-             bool           desc)
+    int dump(std::string&       oss,
+             const std::string& elem_name,
+             const char *       table,
+             const std::string& where,
+             bool               desc)
     {
         return dump(oss, elem_name, "body", table, where, 0, -1, desc);
     }
@@ -364,9 +363,9 @@ protected:
      *
      *   @return 0 on success
      */
-    int dump(string&  oss,
-             const string&   root_elem_name,
-             ostringstream&  sql_query);
+    int dump(std::string&        oss,
+             const std::string&  root_elem_name,
+             std::ostringstream& sql_query);
 
     /* ---------------------------------------------------------------------- */
     /* Interface to access the lastOID assigned by the pool                   */
@@ -390,7 +389,7 @@ private:
     /**
      *  Tablename for this pool
      */
-    string table;
+    std::string table;
 
     /**
      *  The pool cache is implemented with a Map of SQL object pointers,

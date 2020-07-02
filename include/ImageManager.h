@@ -405,57 +405,57 @@ private:
     /**
      *
      */
-    static void _undefined(unique_ptr<image_msg_t> msg);
+    static void _undefined(std::unique_ptr<image_msg_t> msg);
 
     /**
      *
      */
-    void _stat(unique_ptr<image_msg_t> msg);
+    void _stat(std::unique_ptr<image_msg_t> msg);
 
     /**
      *
      */
-    void _cp(unique_ptr<image_msg_t> msg);
+    void _cp(std::unique_ptr<image_msg_t> msg);
 
     /**
      *
      */
-    void _clone(unique_ptr<image_msg_t> msg);
+    void _clone(std::unique_ptr<image_msg_t> msg);
 
     /**
      *
      */
-    void _mkfs(unique_ptr<image_msg_t> msg);
+    void _mkfs(std::unique_ptr<image_msg_t> msg);
 
     /**
      *
      */
-    void _rm(unique_ptr<image_msg_t> msg);
+    void _rm(std::unique_ptr<image_msg_t> msg);
 
     /**
      *
      */
-    void _monitor(unique_ptr<image_msg_t> msg);
+    void _monitor(std::unique_ptr<image_msg_t> msg);
 
     /**
      *
      */
-    void _snap_delete(unique_ptr<image_msg_t> msg);
+    void _snap_delete(std::unique_ptr<image_msg_t> msg);
 
     /**
      *
      */
-    void _snap_revert(unique_ptr<image_msg_t> msg);
+    void _snap_revert(std::unique_ptr<image_msg_t> msg);
 
     /**
      *
      */
-    void _snap_flatten(unique_ptr<image_msg_t> msg);
+    void _snap_flatten(std::unique_ptr<image_msg_t> msg);
 
     /**
      *
      */
-    static void _log(unique_ptr<image_msg_t> msg);
+    static void _log(std::unique_ptr<image_msg_t> msg);
 
     // -------------------------------------------------------------------------
     // Action Listener interface

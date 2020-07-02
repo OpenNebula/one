@@ -21,6 +21,8 @@
 
 #include <stdexcept>
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 /* There are two default groups boostrapped by the core:                      */
 /*   - oneadmin cannot be removed                                            */

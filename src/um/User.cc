@@ -21,6 +21,8 @@
 
 #include <sstream>
 
+using namespace std;
+
 const string User::INVALID_NAME_CHARS = " :\t\n\v\f\r";
 const string User::INVALID_PASS_CHARS = " \t\n\v\f\r";
 

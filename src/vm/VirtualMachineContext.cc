@@ -19,13 +19,14 @@
 #include "NebulaLog.h"
 #include "NebulaUtil.h"
 #include "Snapshots.h"
-
 #include "Nebula.h"
 
 #include "vm_file_var_syntax.h"
 #include "vm_var_syntax.h"
 
 #include <sstream>
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* Context constants                                                          */
@@ -351,7 +352,7 @@ int VirtualMachine::generate_network_context(VectorAttribute* context,
                 continue;
             }
             else if (get_nic(nic_id)->is_alias()) // If nic was detached and current is alias
-	    { 
+	    {
                 int parent_id;
 
                 vatts[i]->vector_value("PARENT_ID", parent_id);

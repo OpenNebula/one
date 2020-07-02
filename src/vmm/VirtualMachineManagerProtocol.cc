@@ -16,10 +16,12 @@
 
 #include "VirtualMachineManager.h"
 #include "VirtualMachinePool.h"
+#include "SecurityGroupPool.h"
 #include "LifeCycleManager.h"
 #include "Nebula.h"
 #include "NebulaLog.h"
 
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* Helpers for the protocol function                                          */

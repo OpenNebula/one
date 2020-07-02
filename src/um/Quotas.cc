@@ -19,6 +19,9 @@
 #include "ImagePool.h"
 #include "ObjectXML.h"
 
+using namespace std;
+
+
 int Quotas::set(Template *tmpl, string& error)
 {
     vector<VectorAttribute *> vquotas;

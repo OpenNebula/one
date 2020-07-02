@@ -56,14 +56,14 @@ public:
      *   @param xml the resulting XML string
      *   @return a reference to the generated string
      */
-    string& to_xml(string& xml) const override;
+    std::string& to_xml(std::string& xml) const override;
 
     /**
      *  Rebuilds the object from an xml formatted string
      *    @param xml_str The xml-formatted string
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str) override;
+    int from_xml(const std::string &xml_str) override;
 
     /**
      *  Returns a copy of the Template
@@ -110,7 +110,8 @@ private:
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
-    VMGroup(int _uid, int _gid, const string& _uname, const string& _gname,
+    VMGroup(int _uid, int _gid,
+            const std::string& _uname, const std::string& _gname,
             int _umask, Template * group_template);
 
     virtual ~VMGroup() = default;
@@ -151,7 +152,7 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(SqlDB *db, bool replace, string& error_str);
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the VMGroup
@@ -164,7 +165,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str) override;
+    int insert(SqlDB *db, std::string& error_str) override;
 
     /**
      *  Writes/updates the VMGroup's data fields in the database.
@@ -173,7 +174,7 @@ private:
      */
     int update(SqlDB *db) override
     {
-        string error_str;
+        std::string error_str;
         return insert_replace(db, true, error_str);
     }
 
@@ -182,7 +183,7 @@ private:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int post_update_template(string& error) override;
+    int post_update_template(std::string& error) override;
 
     /**
      *  Factory method for VMGroup templates

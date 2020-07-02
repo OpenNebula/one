@@ -21,6 +21,8 @@
 #include "Nebula.h"
 #include "RaftManager.h"
 
+using namespace std;
+
 const char * MarketPlaceManager::market_driver_name = "market_exe";
 
 /* -------------------------------------------------------------------------- */

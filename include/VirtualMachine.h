@@ -30,8 +30,6 @@
 #include <set>
 #include <sstream>
 
-using namespace std;
-
 class AuthRequest;
 class Snapshots;
 class HostShareCapacity;
@@ -143,20 +141,20 @@ public:
     /**
      *  Functions to convert to/from string the VM states
      */
-    static int vm_state_from_str(string& st, VmState& state);
+    static int vm_state_from_str(std::string& st, VmState& state);
 
-    static string& vm_state_to_str(string& st, VmState state);
+    static std::string& vm_state_to_str(std::string& st, VmState state);
 
-    static int lcm_state_from_str(string& st, LcmState& state);
+    static int lcm_state_from_str(std::string& st, LcmState& state);
 
-    static string& lcm_state_to_str(string& st, LcmState state);
+    static std::string& lcm_state_to_str(std::string& st, LcmState state);
 
     /**
      * Returns the VM state to string, using the lcm state if the current state
      * is ACTIVE.
      * @return the state sting
      */
-    string state_str();
+    std::string state_str();
 
     /**
      *  Returns the VM state (Dispatch Manager)
@@ -192,7 +190,7 @@ public:
      */
     void set_state(VmState s)
     {
-        string st;
+        std::string st;
 
         state = s;
 
@@ -205,7 +203,7 @@ public:
      */
     void set_state(LcmState s)
     {
-        string st;
+        std::string st;
 
         lcm_state = s;
 
@@ -249,7 +247,7 @@ public:
     void log(
         const char *            module,
         const Log::MessageType  type,
-        const ostringstream&    message) const
+        const std::ostringstream&    message) const
     {
         if (_log != 0)
         {
@@ -279,7 +277,7 @@ public:
     void log(
         const char *            module,
         const Log::MessageType  type,
-        const string&           message) const
+        const std::string&      message) const
     {
         log(module, type, message.c_str());
     };
@@ -291,7 +289,7 @@ public:
      *  Updates VM dynamic information (id).
      *   @param _deploy_id the VMM driver specific id
      */
-    void set_deploy_id(const string& _deploy_id)
+    void set_deploy_id(const std::string& _deploy_id)
     {
         deploy_id = _deploy_id;
     };
@@ -313,7 +311,7 @@ public:
      *  Returns the deployment ID
      *    @return the VMM driver specific ID
      */
-    const string& get_deploy_id() const
+    const std::string& get_deploy_id() const
     {
         return deploy_id;
     };
@@ -332,7 +330,7 @@ public:
      *  the template is using a FILE Datastore for it
      *    @param path to the kernel (in the remote host)
      */
-    void set_kernel(const string& kernel)
+    void set_kernel(const std::string& kernel)
     {
         VectorAttribute * os = obj_template->get("OS");
 
@@ -349,7 +347,7 @@ public:
      *  the template is using a FILE Datastore for it
      *    @param path to the initrd (in the remote host)
      */
-    void set_initrd(const string& initrd)
+    void set_initrd(const std::string& initrd)
     {
         VectorAttribute * os = obj_template->get("OS");
 
@@ -370,7 +368,7 @@ public:
      *  disks for a running VM in the target host.
      *    @return the remote system directory for the VM
      */
-    const string& get_system_dir() const
+    const std::string& get_system_dir() const
     {
         return history->system_dir;
     }
@@ -381,7 +379,7 @@ public:
      *  The hasPreviousHistory() function MUST be called before this one.
      *    @return the remote system directory for the VM
      */
-    const string & get_previous_system_dir() const
+    const std::string & get_previous_system_dir() const
     {
         return previous_history->system_dir;
     };
@@ -393,12 +391,12 @@ public:
      *  Adds a new history record an writes it in the database.
      */
     void add_history(
-        int     hid,
-        int     cid,
-        const string& hostname,
-        const string& vmm_mad,
-        const string& tm_mad,
-        int           ds_id);
+        int                hid,
+        int                cid,
+        const std::string& hostname,
+        const std::string& vmm_mad,
+        const std::string& tm_mad,
+        int                ds_id);
 
     /**
      *  Duplicates the last history record. Only the host related fields are
@@ -449,7 +447,7 @@ public:
      *  function MUST be called before this one.
      *    @return the VMM mad name
      */
-    const string & get_vmm_mad() const
+    const std::string & get_vmm_mad() const
     {
         return history->vmm_mad_name;
     };
@@ -459,7 +457,7 @@ public:
      *  function MUST be called before this one.
      *    @return the VMM mad name
      */
-    const string & get_previous_vmm_mad() const
+    const std::string & get_previous_vmm_mad() const
     {
         return previous_history->vmm_mad_name;
     };
@@ -489,7 +487,7 @@ public:
      *  function MUST be called before this one.
      *    @return the TM mad name
      */
-    const string & get_tm_mad() const
+    const std::string & get_tm_mad() const
     {
         return history->tm_mad_name;
     };
@@ -499,7 +497,7 @@ public:
      *  hasPreviousHistory() function MUST be called before this one.
      *    @return the TM mad name
      */
-    const string & get_previous_tm_mad() const
+    const std::string & get_previous_tm_mad() const
     {
         return previous_history->tm_mad_name;
     };
@@ -512,7 +510,7 @@ public:
      *  The hasHistory() function MUST be called before this one.
      *    @return the transfer filename
      */
-    const string & get_transfer_file() const
+    const std::string & get_transfer_file() const
     {
         return history->transfer_file;
     };
@@ -525,7 +523,7 @@ public:
      *  The hasHistory() function MUST be called before this one.
      *    @return the deployment file path
      */
-    const string & get_deployment_file() const
+    const std::string & get_deployment_file() const
     {
         return history->deployment_file;
     };
@@ -538,7 +536,7 @@ public:
      *  The hasHistory() function MUST be called before this one.
      *    @return the context file path
      */
-    const string & get_context_file() const
+    const std::string & get_context_file() const
     {
         return history->context_file;
     }
@@ -551,7 +549,7 @@ public:
      *  The hasHistory() function MUST be called before this one.
      *    @return the token file path
      */
-    const string & get_token_file() const
+    const std::string & get_token_file() const
     {
         return history->token_file;
     }
@@ -562,7 +560,7 @@ public:
      *  The hasHistory() function MUST be called before this one.
      *    @return the deployment filename
      */
-    const string & get_remote_deployment_file() const
+    const std::string & get_remote_deployment_file() const
     {
         return history->rdeployment_file;
     };
@@ -574,7 +572,7 @@ public:
      *  The hasHistory() function MUST be called before this one.
      *    @return the checkpoint filename
      */
-    const string & get_checkpoint_file() const
+    const std::string & get_checkpoint_file() const
     {
         return history->checkpoint_file;
     };
@@ -584,7 +582,7 @@ public:
      *  The hasPreviousHistory() function MUST be called before this one.
      *    @return the checkpoint filename
      */
-    const string & get_previous_checkpoint_file() const
+    const std::string & get_previous_checkpoint_file() const
     {
         return previous_history->checkpoint_file;
     };
@@ -594,7 +592,7 @@ public:
      *  function MUST be called before this one.
      *    @return the hostname
      */
-    const string & get_hostname() const
+    const std::string & get_hostname() const
     {
         return history->hostname;
     };
@@ -614,7 +612,7 @@ public:
      *  function MUST be called before this one.
      * @param hostname New hostname
      */
-    void set_hostname(const string& hostname)
+    void set_hostname(const std::string& hostname)
     {
         history->hostname = hostname;
     };
@@ -624,7 +622,7 @@ public:
      *  function MUST be called before this one.
      *    @return the hostname
      */
-    const string & get_previous_hostname() const
+    const std::string & get_previous_hostname() const
     {
         return previous_history->hostname;
     };
@@ -721,7 +719,7 @@ public:
     };
 
     /**
-     *  Sets end time of a VM in the previous Host. It also sets the vm_info 
+     *  Sets end time of a VM in the previous Host. It also sets the vm_info
      *  when the record is closed
      *    @param _etime time when the VM finished
      */
@@ -856,7 +854,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const override
+    std::string& to_xml(std::string& xml) const override
     {
         return to_xml_extended(xml, 1);
     }
@@ -867,7 +865,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml_short(string& xml);
+    std::string& to_xml_short(std::string& xml);
 
     /**
      * Function to print the VirtualMachine object into a string in
@@ -875,7 +873,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml_extended(string& xml) const
+    std::string& to_xml_extended(std::string& xml) const
     {
         return to_xml_extended(xml, 2);
     }
@@ -886,7 +884,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str) override;
+    int from_xml(const std::string &xml_str) override;
 
     /**
      *  Factory method for virtual machine templates
@@ -914,8 +912,8 @@ public:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int replace_template(const string& tmpl_str, bool keep_restricted,
-            string& error) override;
+    int replace_template(const std::string& tmpl_str, bool keep_restricted,
+            std::string& error) override;
 
     /**
      *  Append new attributes to the *user template*.
@@ -925,15 +923,16 @@ public:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int append_template(const string& tmpl_str, bool keep_restricted,
-            string& error) override;
+    int append_template(const std::string& tmpl_str, bool keep_restricted,
+            std::string& error) override;
 
     /**
      *  This function gets an attribute from the user template
      *    @param name of the attribute
      *    @param value of the attribute
      */
-    void get_user_template_attribute(const string& name, string& value) const
+    void get_user_template_attribute(const std::string& name,
+                                     std::string& value) const
     {
         user_obj_template->get(name, value);
     }
@@ -942,14 +941,15 @@ public:
      *  Sets an error message with timestamp in the template
      *    @param message Message string
      */
-    void set_template_error_message(const string& message) override;
+    void set_template_error_message(const std::string& message) override;
 
     /**
      *  Sets an error message with timestamp in the template
      *    @param name of the error attribute
      *    @param message Message string
      */
-    void set_template_error_message(const string& name, const string& message);
+    void set_template_error_message(const std::string& name,
+                                    const std::string& message);
 
     /**
      *  Deletes the error message from the template
@@ -960,7 +960,7 @@ public:
      *  Sets an error message with timestamp in the template (ERROR_MONITOR)
      *    @param message Message string
      */
-    void set_template_monitor_error(const string& message);
+    void set_template_monitor_error(const std::string& message);
 
     /**
      *  Deletes the error message from the template (ERROR_MONITOR)
@@ -991,7 +991,7 @@ public:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int automatic_requirements(set<int>& cluster_ids, string& error_str)
+    int automatic_requirements(std::set<int>& cluster_ids, std::string& error_str)
     {
         std::set<int> datastore_ids;
 
@@ -1004,7 +1004,7 @@ public:
      *    @param memory
      *    @param vcpu
      */
-     int resize(float cpu, long int memory, unsigned int vcpu, string& error);
+     int resize(float cpu, long int memory, unsigned int vcpu, std::string& error);
 
     /**
      *  Parse TOPOLOGY and NUMA_NODE
@@ -1028,7 +1028,7 @@ public:
      *    @param quotas disk space to free from image datastores
      *    @param check_state to update image state based on VM state
      */
-    void release_disk_images(vector<Template *>& quotas, bool check_state);
+    void release_disk_images(std::vector<Template *>& quotas, bool check_state);
 
     /**
      *  @return reference to the VirtualMachine disks
@@ -1062,7 +1062,7 @@ public:
      * Returns a set of the security group IDs in use in this VM.
      *     @param sgs a set of security group IDs
      */
-    void get_security_groups(set<int>& sgs)
+    void get_security_groups(std::set<int>& sgs)
     {
         nics.get_security_groups(sgs);
     }
@@ -1100,7 +1100,7 @@ public:
     /**
      *  Return state of the VM right before import
      */
-    string get_import_state() const;
+    std::string get_import_state() const;
 
     /**
      * Checks if the current VM MAD supports the given action for imported VMs
@@ -1137,7 +1137,8 @@ public:
      *            with NETWORK_MODE = auto
      *    @return -1 in case of error, 0 if the VM has no context, 1 on success
      */
-    int generate_context(string &files, int &disk_id, const string& password);
+    int generate_context(std::string &files, int &disk_id,
+                         const std::string& password);
 
     /**
      * Returns the CREATED_BY template attribute, or the uid if it does not exist
@@ -1154,7 +1155,7 @@ public:
      *
      *    @return 0 on success
      */
-    int updateconf(VirtualMachineTemplate& tmpl, string &err);
+    int updateconf(VirtualMachineTemplate& tmpl, std::string &err);
 
     /**
      *  Get the configuration attributes used in an updateconf API call.
@@ -1177,7 +1178,7 @@ public:
      *    @return -1 if the image cannot saveas, 0 on success
      */
     int set_saveas_disk(int disk_id, int snap_id, int &img_id, long long &size,
-            string& err_str)
+            std::string& err_str)
     {
         return disks.set_saveas(disk_id, snap_id, img_id, size, err_str);
     }
@@ -1188,7 +1189,7 @@ public:
      *    @param  source to save the disk
      *    @param  img_id ID of the image this disk will be saved to
      */
-    int set_saveas_disk(int disk_id, const string& source, int img_id)
+    int set_saveas_disk(int disk_id, const std::string& source, int img_id)
     {
         if (lcm_state != HOTPLUG_SAVEAS && lcm_state != HOTPLUG_SAVEAS_SUSPENDED
             && lcm_state != HOTPLUG_SAVEAS_POWEROFF )
@@ -1231,8 +1232,8 @@ public:
      *    @param  ds_id of the datastore in use by the disk
      *    @return -1 if failure
      */
-    int get_saveas_disk(int& disk_id, string& source, int& image_id,
-            string& snap_id, string& tm_mad, string& ds_id) const
+    int get_saveas_disk(int& disk_id, std::string& source, int& image_id,
+            std::string& snap_id, std::string& tm_mad, std::string& ds_id) const
     {
         return disks.get_saveas_info(disk_id, source, image_id, snap_id,
                 tm_mad, ds_id);
@@ -1264,7 +1265,7 @@ public:
      *
      *   @return 0 if success
      */
-    int set_up_attach_disk(VirtualMachineTemplate * tmpl, string& error_str);
+    int set_up_attach_disk(VirtualMachineTemplate * tmpl, std::string& error_str);
 
     /**
      * Returns the disk that is waiting for an attachment action
@@ -1359,7 +1360,7 @@ public:
      *
      *     @return 0 on success
      */
-    int set_up_resize_disk(int disk_id, long size, string& error)
+    int set_up_resize_disk(int disk_id, long size, std::string& error)
     {
         return disks.set_up_resize(disk_id, size, error);
     }
@@ -1376,7 +1377,7 @@ public:
      *
      *   @return 0 on success, -1 otherwise
      */
-    int set_up_attach_nic(VirtualMachineTemplate *tmpl, string& error_str);
+    int set_up_attach_nic(VirtualMachineTemplate *tmpl, std::string& error_str);
 
     /**
      *  Sets the attach attribute to the given NIC
@@ -1426,7 +1427,7 @@ public:
      *    @param error if any
      *    @return pointer to Snapshots or 0 if not found
      */
-    const Snapshots * get_disk_snapshots(int did, string& err) const
+    const Snapshots * get_disk_snapshots(int did, std::string& err) const
     {
         return disks.get_snapshots(did, err);
     }
@@ -1438,7 +1439,7 @@ public:
      *    @param error if any
      *    @return the id of the new snapshot or -1 if error
      */
-    int new_disk_snapshot(int disk_id, const string& name, string& error)
+    int new_disk_snapshot(int disk_id, const std::string& name, std::string& error)
     {
         return disks.create_snapshot(disk_id, name, error);
     }
@@ -1479,8 +1480,9 @@ public:
      *    @param new_name of the snapshot
      *    @return 0 on success
      */
-    int rename_disk_snapshot(int disk_id, int snap_id, const string& new_name,
-            string& error_str)
+    int rename_disk_snapshot(int disk_id, int snap_id,
+                             const std::string& new_name,
+                             std::string& error_str)
     {
         return disks.rename_snapshot(disk_id, snap_id, new_name, error_str);
     }
@@ -1492,7 +1494,7 @@ public:
      *     @param ds_quotas The DS SIZE freed from image datastores.
      */
     void delete_non_persistent_disk_snapshots(Template **vm_quotas,
-        vector<Template *>& ds_quotas)
+        std::vector<Template *>& ds_quotas)
     {
         disks.delete_non_persistent_snapshots(vm_quotas, ds_quotas);
     }
@@ -1504,7 +1506,7 @@ public:
      *    @param disk_id of the disk
      *    @param snap_id of the snapshot
      */
-    int get_snapshot_disk(int& ds_id, string& tm_mad, int& disk_id,
+    int get_snapshot_disk(int& ds_id, std::string& tm_mad, int& disk_id,
             int& snap_id) const
     {
         return disks.get_active_snapshot(ds_id, tm_mad, disk_id, snap_id);
@@ -1540,7 +1542,7 @@ public:
      *
      * @return 0 on success
      */
-    int new_snapshot(string& name, int& snap_id);
+    int new_snapshot(std::string& name, int& snap_id);
 
     /**
      * Sets the given Snapshot as ACTIVE=YES
@@ -1556,7 +1558,7 @@ public:
     /**
      *  @return the on-going ACTION associated to the ACTIVE snapshot
      */
-    string get_snapshot_action() const;
+    std::string get_snapshot_action() const;
 
     /**
      * Replaces HYPERVISOR_ID for the active SNAPSHOT
@@ -1564,7 +1566,7 @@ public:
      * @param hypervisor_id Id returned by the hypervisor for the newly
      * created snapshot. The no hypervisor_id version uses the snap_id.
      */
-    void update_snapshot_id(const string& hypervisor_id);
+    void update_snapshot_id(const std::string& hypervisor_id);
 
     void update_snapshot_id();
 
@@ -1599,7 +1601,7 @@ public:
      * Returns the image IDs for the disks waiting for the LOCKED state to finish
      * @param ids image ID set
      */
-    void get_cloning_image_ids(set<int>& ids)
+    void get_cloning_image_ids(std::set<int>& ids)
     {
         disks.get_cloning_image_ids(ids);
     }
@@ -1607,7 +1609,7 @@ public:
     /**
      * Clears the flag for the disks waiting for the given image
      */
-    void clear_cloning_image_id(int image_id, const string& source)
+    void clear_cloning_image_id(int image_id, const std::string& source)
     {
         disks.clear_cloning_image_id(image_id, source);
     }
@@ -1618,14 +1620,14 @@ public:
      *    @param estr description if any
      *    @return 0 if success
      */
-    int get_auto_network_leases(VirtualMachineTemplate * tmpl, string &estr);
+    int get_auto_network_leases(VirtualMachineTemplate * tmpl, std::string &estr);
 
     /**
      *  Check if a tm_mad is valid for the Virtual Machine Disks and set
      *  clone_target and ln_target
      *  @param tm_mad is the tm_mad for system datastore chosen
      */
-    int check_tm_mad_disks(const string& tm_mad, string& error);
+    int check_tm_mad_disks(const std::string& tm_mad, std::string& error);
 
 private:
 
@@ -1679,7 +1681,7 @@ private:
     /**
      *  Deployment specific identification string, as returned by the VM driver
      */
-    string      deploy_id;
+    std::string      deploy_id;
 
     /**
      *  Memory in MB used by the VM
@@ -1724,7 +1726,7 @@ private:
     /**
      *  Complete set of history records for the VM
      */
-    vector<History *> history_records;
+    std::vector<History *> history_records;
 
     /**
      *  VirtualMachine disks
@@ -1771,7 +1773,7 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(SqlDB *db, bool replace, string& error_str);
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
      *  Updates the VM history record
@@ -1838,11 +1840,11 @@ private:
      *      2: all
      *  @return a reference to the generated string
      */
-    string& to_xml_extended(string& xml, int n_history) const;
+    std::string& to_xml_extended(std::string& xml, int n_history) const;
 
-    string& to_json(string& json) const;
+    std::string& to_json(std::string& json) const;
 
-    string& to_token(string& text) const;
+    std::string& to_token(std::string& text) const;
 
     // -------------------------------------------------------------------------
     // Attribute Parser
@@ -1870,9 +1872,9 @@ private:
      *    @param error description in case of failure
      *    @return 0 on success.
      */
-    int  parse_template_attribute(const string& attribute,
-                                  string&       parsed,
-                                  string&       error);
+    int  parse_template_attribute(const std::string& attribute,
+                                  std::string&       parsed,
+                                  std::string&       error);
 
     /**
      *  Parse a file string variable (i.e. $FILE) using the FILE_DS datastores.
@@ -1882,9 +1884,9 @@ private:
      *    @param error description in case of failure
      *    @return 0 on success.
      */
-    int  parse_file_attribute(string       attribute,
-                              vector<int>& img_ids,
-                              string&      error);
+    int  parse_file_attribute(std::string       attribute,
+                              std::vector<int>& img_ids,
+                              std::string&      error);
 
     /**
      *  Generates image attributes (DS_ID, TM_MAD, SOURCE...) for KERNEL and
@@ -1895,8 +1897,8 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on succes
      */
-    int set_os_file(VectorAttribute* os, const string& base_name,
-            Image::ImageType base_type, string& error_str);
+    int set_os_file(VectorAttribute* os, const std::string& base_name,
+            Image::ImageType base_type, std::string& error_str);
 
     /**
      *  Parse the "OS" attribute of the template by substituting
@@ -1904,7 +1906,7 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int parse_os(string& error_str);
+    int parse_os(std::string& error_str);
 
     /**
      *  Parse the "CPU_MODEL" attribute of the template
@@ -1917,21 +1919,21 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int parse_defaults(string& error_str, Template * tmpl);
+    int parse_defaults(std::string& error_str, Template * tmpl);
 
     /**
      * Parse virtual router related attributes
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int parse_vrouter(string& error_str, Template * tmpl);
+    int parse_vrouter(std::string& error_str, Template * tmpl);
 
     /**
      * Parse the "PCI" attribute of the template and checks mandatory attributes
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int parse_pci(string& error_str, Template * tmpl);
+    int parse_pci(std::string& error_str, Template * tmpl);
 
     /**
      *  Parse the "SCHED_REQUIREMENTS" attribute of the template by substituting
@@ -1939,13 +1941,13 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int parse_requirements(string& error_str);
+    int parse_requirements(std::string& error_str);
 
     /**
      *  Parse the "GRAPHICS" attribute and generates a default PORT if not
      *  defined
      */
-    int parse_graphics(string& error_str, Template * tmpl);
+    int parse_graphics(std::string& error_str, Template * tmpl);
 
     /**
      * Searches the meaningful attributes and moves them from the user template
@@ -1966,7 +1968,7 @@ private:
      *            with NETWORK_MODE = auto
      *    @return 0 on success
      */
-    int generate_network_context(VectorAttribute * context, string& error,
+    int generate_network_context(VectorAttribute * context, std::string& error,
             bool only_auto);
 
     /**
@@ -1998,7 +2000,8 @@ private:
      *    @param error_str describing the error
      *    @return 0 if success
      */
-    int generate_token_context(VectorAttribute * context, string& error_str);
+    int generate_token_context(VectorAttribute * context,
+                               std::string& error_str);
 
     /**
      *  Parse the "CONTEXT" attribute of the template by substituting
@@ -2008,7 +2011,7 @@ private:
      *            with NETWORK_MODE = auto
      *    @return 0 on success
      */
-    int parse_context(string& error_str, bool all_nics);
+    int parse_context(std::string& error_str, bool all_nics);
 
     /**
      * Parses the current contents of the context vector attribute, without
@@ -2019,7 +2022,8 @@ private:
      *   @param error_str description in case of error
      *   @return 0 on success
      */
-    int parse_context_variables(VectorAttribute ** context, string& error_str);
+    int parse_context_variables(VectorAttribute ** context,
+                                std::string& error_str);
 
     // -------------------------------------------------------------------------
     // Management helpers: NIC, DISK and VMGROUP
@@ -2028,21 +2032,21 @@ private:
      *  Get network leases (no auto NICs, NETWORK_MODE != auto) for this VM
      *  @return 0 if success
      */
-    int get_network_leases(string &error_str);
+    int get_network_leases(std::string &error_str);
 
     /**
      *  Get all disk images for this Virtual Machine
      *  @param error_str Returns the error reason, if any
      *  @return 0 if success
      */
-    int get_disk_images(string &error_str);
+    int get_disk_images(std::string &error_str);
 
     /**
      *  Adds the VM to the VM group if needed
      *  @param error_str Returns the error reason, if any
      *  @return 0 if success
      */
-    int get_vmgroup(string& error);
+    int get_vmgroup(std::string& error);
 
     /**
      * Adds automatic placement requirements: Datastore and Cluster
@@ -2051,8 +2055,9 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int automatic_requirements(set<int>& cluster_ids, set<int>& ds_ids,
-            string& error_str);
+    int automatic_requirements(std::set<int>& cluster_ids,
+                               std::set<int>& ds_ids,
+                               std::string& error_str);
 
     // ------------------------------------------------------------------------
     // Public cloud templates related functions
@@ -2062,7 +2067,7 @@ private:
      * @param clouds list to store the cloud hypervisors in the template
      * @return the number of public cloud hypervisors
      */
-    int get_public_clouds(set<string> &clouds) const
+    int get_public_clouds(std::set<std::string> &clouds) const
     {
         get_public_clouds("PUBLIC_CLOUD", clouds);
 
@@ -2074,7 +2079,8 @@ private:
      * @param name Attribute name
      * @param clouds list to store the cloud hypervisors in the template
      */
-    void get_public_clouds(const string& name, set<string> &clouds) const;
+    void get_public_clouds(const std::string& name,
+                           std::set<std::string> &clouds) const;
 
     /**
      *  Parse the public cloud attributes and subsititue variable definition
@@ -2086,7 +2092,7 @@ private:
      *  @param error description if any
      *  @return -1 in case of error
      */
-    int parse_public_clouds(string& error)
+    int parse_public_clouds(std::string& error)
     {
         int rc = parse_public_clouds("PUBLIC_CLOUD", error);
 
@@ -2101,14 +2107,14 @@ private:
     /**
      * Same as above but specifies the attribute name to handle old versions
      */
-    int parse_public_clouds(const char *name, string& error);
+    int parse_public_clouds(const char *name, std::string& error);
 
     /**
      *  This method removes sched_action DONE/MESSAGE attributes
      *    @param error_str with error description
      *    @return -1 in case of error 0 otherwise
      */
-    int parse_sched_action(string& error_str);
+    int parse_sched_action(std::string& error_str);
 
     /**
      *  Encrypt all secret attributes
@@ -2129,8 +2135,8 @@ protected:
     VirtualMachine(int id,
                    int uid,
                    int gid,
-                   const string& uname,
-                   const string& gname,
+                   const std::string& uname,
+                   const std::string& gname,
                    int umask,
                    VirtualMachineTemplate * _vm_template);
 
@@ -2152,7 +2158,7 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB * db, string& error_str) override;
+    int insert(SqlDB * db, std::string& error_str) override;
 
     /**
      *  Writes/updates the Virtual Machine data fields in the database.
@@ -2161,7 +2167,7 @@ protected:
      */
     int update(SqlDB * db) override
     {
-        string error_str;
+        std::string error_str;
         return insert_replace(db, true, error_str);
     }
 

@@ -19,6 +19,9 @@
 #include "Quotas.h"
 #include "Nebula.h"
 
+using namespace std;
+
+
 void  DispatchManager::suspend_success_action(int vid)
 {
     VirtualMachine *    vm;

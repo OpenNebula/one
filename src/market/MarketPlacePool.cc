@@ -19,6 +19,8 @@
 #include "Client.h"
 #include "Nebula.h"
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 
 MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)

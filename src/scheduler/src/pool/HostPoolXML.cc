@@ -18,6 +18,8 @@
 #include "MonitorXML.h"
 #include "ClusterPoolXML.h"
 
+using namespace std;
+
 int HostPoolXML::set_up()
 {
     ostringstream   oss;

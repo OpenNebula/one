@@ -33,6 +33,8 @@
 #include <stdlib.h>
 #include <fnmatch.h>
 
+using namespace std;
+
 const char * UserPool::CORE_AUTH    = "core";
 const char * UserPool::SERVER_AUTH  = "server*";
 const char * UserPool::PUBLIC_AUTH  = "public";

@@ -53,7 +53,7 @@ public:
                        AclRule& other_rule,
                        int zone_id) const;
 
-    string type_to_str() const
+    std::string type_to_str() const
     {
         return PoolObjectSQL::type_to_str(obj_type);
     };
@@ -65,7 +65,7 @@ public:
     int oid;
     int uid;
     int gid;
-    set<int> cids;
+    std::set<int> cids;
 
     int owner_u;
     int owner_m;

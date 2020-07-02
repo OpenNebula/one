@@ -19,11 +19,8 @@
 
 #include "PoolSQL.h"
 #include "ImageTemplate.h"
-#include "NebulaLog.h"
 #include "ObjectCollection.h"
 #include "Snapshots.h"
-
-using namespace std;
 
 class VirtualMachineDisk;
 
@@ -51,7 +48,7 @@ public:
      *    @param ob the type
      *    @return the string
      */
-    static string type_to_str(ImageType ob)
+    static std::string type_to_str(ImageType ob)
     {
         switch (ob)
         {
@@ -70,7 +67,7 @@ public:
      *    @param ob the type
      *    @return the string
      */
-    static ImageType str_to_type(string& str_type);
+    static ImageType str_to_type(std::string& str_type);
 
     /**
      *  Type of Disks (used by the VMM_MAD). Values: BLOCK, CDROM or
@@ -96,7 +93,7 @@ public:
      *    @param ob the type
      *    @return the string
      */
-    static string disk_type_to_str(DiskType ob)
+    static std::string disk_type_to_str(DiskType ob)
     {
         switch (ob)
         {
@@ -119,7 +116,7 @@ public:
      *    @param s_disk_type string representing the DiskTypr
      *    @return the DiskType (defaults to FILE)
      */
-    static DiskType str_to_disk_type(string& s_disk_type);
+    static DiskType str_to_disk_type(std::string& s_disk_type);
 
     /**
      *  Image State
@@ -144,7 +141,7 @@ public:
      * @param state The state
      * @return the string representation
      */
-    static string state_to_str(ImageState state)
+    static std::string state_to_str(ImageState state)
     {
         switch (state)
         {
@@ -172,7 +169,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const override;
+    std::string& to_xml(std::string& xml) const override;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -180,7 +177,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str) override;
+    int from_xml(const std::string &xml_str) override;
 
     /**
      *  Returns true if the image is persistent
@@ -215,7 +212,7 @@ public:
      *  Returns the source path of the image
      *     @return source of image
      */
-    const string& get_source() const
+    const std::string& get_source() const
     {
         return source;
     }
@@ -224,7 +221,7 @@ public:
      *  Returns the original path of the image
      *     @return path of image
      */
-    const string& get_path() const
+    const std::string& get_path() const
     {
         return path;
     }
@@ -233,7 +230,7 @@ public:
      *  Returns the fs_type for the image (defined for datablocks)
      *     @return fs_type
      */
-    const string& get_fstype() const
+    const std::string& get_fstype() const
     {
         return fs_type;
     }
@@ -251,7 +248,7 @@ public:
     /**
      *  Sets the source path of the image
      */
-    void set_source(const string& _source)
+    void set_source(const std::string& _source)
     {
         source = _source;
     }
@@ -345,7 +342,7 @@ public:
         return running_vms;
     }
 
-    set<int> get_running_ids() const
+    std::set<int> get_running_ids() const
     {
         return vm_collection.clone();
     }
@@ -403,7 +400,7 @@ public:
      * @param _type the new type. It will be transformed to upper case
      * @return 0 on success, -1 otherwise
      */
-    int set_type(string& _type, string& error);
+    int set_type(std::string& _type, std::string& error);
 
     /**
      *  Check if the image is used for saving_as a current one
@@ -421,9 +418,9 @@ public:
      *
      *    @return 0 on success
      */
-    int persistent(bool persis, string& error_str)
+    int persistent(bool persis, std::string& error_str)
     {
-        ostringstream oss;
+        std::ostringstream oss;
 
         if ((snapshots.size() > 0) && !persis)
         {
@@ -476,10 +473,10 @@ public:
      *   into the disk
      *
      */
-    void disk_attribute(VirtualMachineDisk *  disk,
-                        ImageType&            img_type,
-                        string&               dev_prefix,
-                        const vector<string>& inherit_attrs);
+    void disk_attribute(VirtualMachineDisk *            disk,
+                        ImageType&                      img_type,
+                        std::string&                    dev_prefix,
+                        const std::vector<std::string>& inherit_attrs);
     /**
      *  Factory method for image templates
      */
@@ -499,7 +496,7 @@ public:
     /**
      * Returns the Datastore name
      */
-    const string& get_ds_name() const
+    const std::string& get_ds_name() const
     {
         return ds_name;
     };
@@ -507,7 +504,7 @@ public:
     /**
      * Updates the Datastore name
      */
-    void set_ds_name(const string& name)
+    void set_ds_name(const std::string& name)
     {
         ds_name = name;
     };
@@ -518,7 +515,7 @@ public:
      * @param new_name Value for the NAME attribute
      * @return Pointer to the new tempalte 0 in case of success
      */
-    ImageTemplate * clone_template(const string& new_name) const;
+    ImageTemplate * clone_template(const std::string& new_name) const;
 
     /* ---------------------------------------------------------------------- */
     /* Snapshots functions                                                    */
@@ -609,17 +606,17 @@ private:
     /**
      *  Path to the image
      */
-    string       source;
+    std::string       source;
 
     /**
      *  Original Path to the image (optional if source is given or datablock)
      */
-    string       path;
+    std::string       path;
 
     /**
      *  File system type for the image (mandatory for datablocks)
      */
-    string       fs_type;
+    std::string       fs_type;
 
     /**
      *  Size of the image in MB
@@ -655,7 +652,7 @@ private:
     /**
      * Datastore name
      */
-    string ds_name;
+    std::string ds_name;
 
     /**
      *  Stores a collection with the VMs using the image
@@ -693,7 +690,7 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int insert_replace(SqlDB *db, bool replace, string& error_str);
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the Image
@@ -706,7 +703,7 @@ private:
      *  @param password
      *  @return sha256 encrypted password
      */
-    static string sha256_digest(const string& pass);
+    static std::string sha256_digest(const std::string& pass);
 
 protected:
 
@@ -714,12 +711,12 @@ protected:
     // Constructor
     // *************************************************************************
 
-    Image(int            uid,
-          int            gid,
-          const string&  uname,
-          const string&  gname,
-          int            umask,
-          ImageTemplate* img_template);
+    Image(int                 uid,
+          int                 gid,
+          const std::string&  uname,
+          const std::string&  gname,
+          int                 umask,
+          ImageTemplate*      img_template);
 
     virtual ~Image() = default;
 
@@ -732,7 +729,7 @@ protected:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str) override;
+    int insert(SqlDB *db, std::string& error_str) override;
 
     /**
      *  Writes/updates the Images data fields in the database.

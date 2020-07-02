@@ -18,6 +18,8 @@
 #include "VirtualNetwork.h"
 #include "OneDB.h"
 
+using namespace std;
+
 /* ************************************************************************ */
 /* VNTemplate :: Constructor/Destructor                                     */
 /* ************************************************************************ */

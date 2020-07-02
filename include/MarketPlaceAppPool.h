@@ -191,7 +191,7 @@ private:
     /**
      *  Hash to store the number of times an app was missing from monitor data
      */
-    map<int, int> map_check;
+    std::map<int, int> map_check;
 
     /**
      *  Max number of monitor that an app may be missing before deleting it

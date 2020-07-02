@@ -18,7 +18,7 @@
 #include "Nebula.h"
 #include "AclManager.h"
 
-/* -------------------------------------------------------------------------- */
+using namespace std;
 
 const int    Vdc::ALL_RESOURCES = -10;
 

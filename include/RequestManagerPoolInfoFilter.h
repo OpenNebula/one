@@ -19,8 +19,6 @@
 
 #include "Request.h"
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -53,8 +51,8 @@ public:
           bool disable_all_acl,
           bool disable_cluster_acl,
           bool disable_group_acl,
-          const string& and_str,
-          string& where_str);
+          const std::string& and_str,
+          std::string& where_str);
 
 protected:
     /*
@@ -62,9 +60,9 @@ protected:
     */
     bool extended;
 
-    RequestManagerPoolInfoFilter(const string& method_name,
-                                 const string& help,
-                                 const string& signature)
+    RequestManagerPoolInfoFilter(const std::string& method_name,
+                                 const std::string& help,
+                                 const std::string& signature)
         :Request(method_name,signature,help)
     {
         leader_only = false;
@@ -78,19 +76,19 @@ protected:
               int                filter_flag,
               int                start_id,
               int                end_id,
-              const string&      and_clause,
-              const string&      or_clause,
+              const std::string& and_clause,
+              const std::string& or_clause,
               bool               disable_all_acl,
               bool               disable_cluster_acl,
               bool               disable_group_acl,
-              string&            where_string);
+              std::string&       where_string);
 
     void dump(RequestAttributes& att,
               int                filter_flag,
               int                start_id,
               int                end_id,
-              const string&      and_clause,
-              const string&      or_clause);
+              const std::string& and_clause,
+              const std::string& or_clause);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -108,9 +106,9 @@ public:
 
     VirtualMachinePoolInfo();
 
-    VirtualMachinePoolInfo(const string& method_name,
-                           const string& help,
-                           const string& signature);
+    VirtualMachinePoolInfo(const std::string& method_name,
+                           const std::string& help,
+                           const std::string& signature);
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;

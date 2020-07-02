@@ -36,7 +36,7 @@ public:
 
     int load_driver(const VectorAttribute* mad_config);
 
-    int load_drivers(const vector<const VectorAttribute*>& mads_config);
+    int load_drivers(const std::vector<const VectorAttribute*>& mads_config);
 
     D * get_driver(const std::string& name) const;
 
@@ -156,7 +156,7 @@ int DriverManager<D>::load_driver(const VectorAttribute* mad_config)
 /* -------------------------------------------------------------------------- */
 
 template<typename D>
-int DriverManager<D>::load_drivers(const vector<const VectorAttribute*>& mads_config)
+int DriverManager<D>::load_drivers(const std::vector<const VectorAttribute*>& mads_config)
 {
     NebulaLog::info("DrM", "Loading drivers.");
 
@@ -224,12 +224,12 @@ int DriverManager<D>::start(std::string& error)
 template<typename D>
 void DriverManager<D>::stop(int secs)
 {
-    vector<thread> threads;
+    std::vector<std::thread> threads;
 
     for (auto& driver : drivers)
     {
         int _secs = secs;
-        threads.push_back(thread([_secs, &driver] () {
+        threads.push_back(std::thread([_secs, &driver] () {
             driver.second->stop(_secs);
         }));
     }
@@ -300,7 +300,7 @@ void DriverManager<D>::add_request(SyncRequest *ar)
 
     ar->id = request_id++;
 
-    sync_requests.insert(sync_requests.end(),make_pair(ar->id,ar));
+    sync_requests.insert(sync_requests.end(),std::make_pair(ar->id,ar));
 }
 
 /* -------------------------------------------------------------------------- */

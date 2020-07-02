@@ -23,8 +23,6 @@
 
 #include <string>
 
-using namespace std;
-
 // =============================================================================
 // Doc:
 // http://xmlrpc-c.sourceforge.net/doc/#clientexamplepp
@@ -118,11 +116,11 @@ private:
      * @param message_size for XML elements in the client library (in bytes)
      * @throws Exception if the authorization options are invalid
      */
-    Client(const string& secret, const string& endpoint, size_t message_size,
+    Client(const std::string& secret, const std::string& endpoint, size_t message_size,
 		unsigned int tout);
 
-    string  one_auth;
-    string  one_endpoint;
+    std::string  one_auth;
+    std::string  one_endpoint;
 
 	unsigned int timeout;
 

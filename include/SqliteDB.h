@@ -21,16 +21,8 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <sys/time.h>
-#include <sys/types.h>
-#include <unistd.h>
-
-#include "NebulaLog.h"
-
 #include "SqlDB.h"
 #include "ObjectSQL.h"
-
-using namespace std;
 
 #ifdef SQLITE_DB
 
@@ -45,7 +37,7 @@ class SqliteDB : public SqlDB
 {
 public:
 
-    SqliteDB(const string& db_name, int timeout);
+    SqliteDB(const std::string& db_name, int timeout);
 
     ~SqliteDB();
 
@@ -55,7 +47,7 @@ public:
      *    @param str the string to be escaped
      *    @return a valid SQL string or NULL in case of failure
      */
-    char * escape_str(const string& str) override;
+    char * escape_str(const std::string& str) override;
 
     /**
      *  Frees a previously scaped string
@@ -107,14 +99,14 @@ class SqliteDB : public SqlDB
 {
 public:
 
-    SqliteDB(const string& db_name, int timeout)
+    SqliteDB(const std::string& db_name, int timeout)
     {
         throw runtime_error("Aborting oned, Sqlite support not compiled!");
     }
 
     ~SqliteDB() = default;
 
-    char * escape_str(const string& str) override { return 0; }
+    char * escape_str(const std::string& str) override { return 0; }
 
     void free_str(char * str) override {};
 

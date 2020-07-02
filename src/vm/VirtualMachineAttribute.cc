@@ -16,17 +16,17 @@
 
 #include "VirtualMachineAttribute.h"
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 VirtualMachineAttribute * VirtualMachineAttributeSet::get_attribute(
         const string& flag) const
 {
-    std::map<int, ExtendedAttribute*>::const_iterator it;
-
     VirtualMachineAttribute * vma;
 
-    for( it = a_set.begin(); it != a_set.end(); ++it)
+    for (auto it = a_set.begin(); it != a_set.end(); ++it)
     {
         vma = static_cast<VirtualMachineAttribute *>(it->second);
 

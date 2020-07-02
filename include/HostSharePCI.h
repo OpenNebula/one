@@ -69,7 +69,7 @@ public:
      *    @param devs list of requested devices by the VM.
      *    @return true if all the devices are available.
      */
-    bool test(const vector<VectorAttribute *> &devs) const;
+    bool test(const std::vector<VectorAttribute *> &devs) const;
 
     /**
      *  Assign the requested devices to the given VM. The assigned devices will
@@ -79,12 +79,12 @@ public:
      *    assigned devices.
      *    @param vmid of the VM
      */
-    void add(vector<VectorAttribute *> &devs, int vmid);
+    void add(std::vector<VectorAttribute *> &devs, int vmid);
 
     /**
      *  Remove the VM assignment from the PCI device list
      */
-    void del(const vector<VectorAttribute *> &devs);
+    void del(const std::vector<VectorAttribute *> &devs);
 
     /**
      *  Updates the PCI list with monitor data, it will create or
@@ -98,7 +98,7 @@ public:
      *  Prints the PCI device list to an output stream. This function is used
      *  for logging purposes and *not* for generating DB content.
      */
-    friend ostream& operator<<(ostream& o, const HostSharePCI& p);
+    friend std::ostream& operator<<(std::ostream& o, const HostSharePCI& p);
 
     HostSharePCI& operator=(const HostSharePCI& other);
 
@@ -125,7 +125,7 @@ public:
      *   in oned.conf)
      *  @return -1 if wrong bus 0 on success
      */
-    static int set_pci_address(VectorAttribute * pci_device, const string& dbus);
+    static int set_pci_address(VectorAttribute * pci_device, const std::string& dbus);
 
 private:
     /**
@@ -151,12 +151,12 @@ private:
 
         int vmid;
 
-        string address;
+        std::string address;
 
         VectorAttribute * attrs;
     };
 
-    map <string, PCIDevice *> pci_devices;
+    std::map<std::string, PCIDevice *> pci_devices;
 };
 
 #endif /*HOST_SHARE_PCI_H_*/

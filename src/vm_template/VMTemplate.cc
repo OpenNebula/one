@@ -20,6 +20,8 @@
 #include "ScheduledAction.h"
 #include "OneDB.h"
 
+using namespace std;
+
 /* ************************************************************************ */
 /* VMTemplate :: Constructor/Destructor                                     */
 /* ************************************************************************ */
@@ -204,7 +206,7 @@ int VMTemplate::post_update_template(string& error)
     {
         return rc;
     }
-    
+
     rc = Nebula::instance().get_vmm()->validate_raw(obj_template, error);
 
     if (rc != 0)

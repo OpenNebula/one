@@ -16,6 +16,8 @@
 
 #include "UserPoolXML.h"
 
+using namespace std;
+
 void UserPoolXML::add_object(xmlNodePtr node)
 {
     if ( node == 0 || node->children == 0 )

@@ -27,6 +27,8 @@
 #include "VirtualMachineDisk.h"
 #include "DatastorePool.h"
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 string ImagePool::_default_type;

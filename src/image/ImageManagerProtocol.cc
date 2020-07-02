@@ -23,6 +23,8 @@
 #include "VirtualMachinePool.h"
 #include "Nebula.h"
 
+using namespace std;
+
 /* ************************************************************************** */
 /* Driver Protocol Implementation                                             */
 /* ************************************************************************** */

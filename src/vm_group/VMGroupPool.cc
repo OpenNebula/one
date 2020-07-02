@@ -17,6 +17,8 @@
 #include "VMGroupPool.h"
 #include "AuthRequest.h"
 
+using namespace std;
+
 int VMGroupPool::allocate(int uid, int gid, const string& uname,
         const string& gname, int umask, Template * vmgroup_template, int * oid,
         string& error_str)

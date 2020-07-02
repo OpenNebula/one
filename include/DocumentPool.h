@@ -49,13 +49,13 @@ public:
      */
     int allocate(int                      uid,
                  int                      gid,
-                 const string&            uname,
-                 const string&            gname,
+                 const std::string&       uname,
+                 const std::string&       gname,
                  int                      umask,
                  int                      type,
                  Template *               template_contents,
                  int *                    oid,
-                 string&                  error_str)
+                 std::string&             error_str)
     {
         *oid = PoolSQL::allocate(
             new Document(-1, uid, gid, uname, gname, umask, type, template_contents),

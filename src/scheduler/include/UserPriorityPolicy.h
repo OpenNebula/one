@@ -18,14 +18,12 @@
 #define USER_PRIORITY_POLICY_H_
 
 #include "SchedulerPolicy.h"
-#include "Scheduler.h"
 
-using namespace std;
 
 /**
  * The UserPriority Scheduler prioritizes  PENDING and RESCHEDULER VMs according
  * to a fixed priority. This priority can be set manually or by external program
- * 
+ *
  *
  */
 class UserPriorityPolicy : public SchedulerPolicy
@@ -43,7 +41,7 @@ protected:
      *    @param obj pointer to the object
      *    @return a reference to the vector
      */
-    const vector<Resource *> get_match_resources(ObjectXML *null)
+    const std::vector<Resource *> get_match_resources(ObjectXML *null)
     {
         return vm_pool->get_vm_resources();
     }
@@ -52,11 +50,11 @@ protected:
      *  Implements the actual schedule by computing the priority of each
      *  matching resource.
      */
-    void policy(ObjectXML * null, vector<float>& priority)
+    void policy(ObjectXML * null, std::vector<float>& priority)
     {
         float up;
 
-        const vector<Resource *> resources = get_match_resources(0);
+        const std::vector<Resource *> resources = get_match_resources(0);
 
         priority.clear();
 

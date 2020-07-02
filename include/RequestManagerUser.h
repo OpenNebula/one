@@ -20,8 +20,6 @@
 #include "Request.h"
 #include "Nebula.h"
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -29,9 +27,9 @@ using namespace std;
 class RequestManagerUser: public Request
 {
 protected:
-    RequestManagerUser(const string& method_name,
-                       const string& help,
-                       const string& params)
+    RequestManagerUser(const std::string& method_name,
+                       const std::string& help,
+                       const std::string& params)
         :Request(method_name,params,help)
     {
         Nebula& nd  = Nebula::instance();
@@ -51,7 +49,7 @@ protected:
     virtual int user_action(int                        user_id,
                             xmlrpc_c::paramList const& _paramList,
                             RequestAttributes&         att,
-                            string&                    error_str ) = 0;
+                            std::string&               error_str ) = 0;
 
     /* -------------------------------------------------------------------- */
 };
@@ -76,7 +74,7 @@ public:
     int user_action(int                        user_id,
                     xmlrpc_c::paramList const& _paramList,
                     RequestAttributes&         att,
-                    string&                    err) override;
+                    std::string&               err) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -99,7 +97,7 @@ public:
     int user_action(int                        user_id,
                     xmlrpc_c::paramList const& _paramList,
                     RequestAttributes&         att,
-                    string&                    err) override;
+                    std::string&               err) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -121,7 +119,7 @@ public:
     int user_action(int                        user_id,
                     xmlrpc_c::paramList const& _paramList,
                     RequestAttributes&         att,
-                    string&                    err) override;
+                    std::string&               err) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -156,9 +154,9 @@ class UserEditGroup : public Request
 {
 public:
     UserEditGroup(
-            const string& method_name,
-            const string& help,
-            const string& params):
+            const std::string& method_name,
+            const std::string& help,
+            const std::string& params):
                 Request(method_name,params,help)
     {
         auth_object = PoolObjectSQL::USER;
@@ -181,7 +179,7 @@ protected:
             int                        user_id,
             int                        group_id,
             xmlrpc_c::paramList const& _paramList,
-            string&                    error_str) = 0;
+            std::string&               error_str) = 0;
 
     GroupPool * gpool;
 
@@ -205,7 +203,7 @@ public:
                 int                        user_id,
                 int                        group_id,
                 xmlrpc_c::paramList const& _paramList,
-                string&                    error_str) override;
+                std::string&               error_str) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -225,7 +223,7 @@ public:
             int                        user_id,
             int                        group_id,
             xmlrpc_c::paramList const& _paramList,
-            string&                    error_str) override;
+            std::string&               error_str) override;
 };
 
 /* -------------------------------------------------------------------------- */
