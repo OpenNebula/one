@@ -132,10 +132,6 @@ define(function(require) {
       }
     },
 
-    "tableOrder": function() {
-      return _config["user_config"]["table_order"];
-    },
-
     "provision": {
       "dashboard": {
         "isEnabled": function(widget) {
