@@ -91,7 +91,6 @@ define(function(require) {
             {
               monitor_resources : "CAPACITY/USED_MEMORY,CAPACITY/FREE_MEMORY",
               labels : Locale.tr("Used MEMORY") + "," + Locale.tr("Free MEMORY"),
-              humanize_figures : false,
               humanize_figures : true,
               div_graph : $("#host_mem_graph"),
               div_legend : $("#host_mem_legend")
