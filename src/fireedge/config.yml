@@ -36,15 +36,3 @@ OPENNEBULA_ZONES:
     RPC: http://localhost:2633/RPC2
     ZEROMQ:
     VNC:
-
-
-# Presentation information system (Config information)
-SYSTEM_DATA:
-  NO_AUTH:
-    - MODE
-  AUTH:
-    - MODE
-    - OPENNEBULA_ZONES:
-        - ID
-        - VNC
-        - ZEROMQ

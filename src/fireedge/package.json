@@ -1,7 +1,7 @@
 {
-  "name": "sunstone_react",
+  "name": "FireEdge",
   "version": "1.0.0",
-  "description": "Backend",
+  "description": "Opennebula FireEdge",
   "main": "dist/index.js",
   "scripts": {
     "build": "webpack --mode=production && concurrently \"npm run copy_static_assets\" \"npm run build:css\"",
@@ -10,14 +10,16 @@
     "build:css": "node-sass src/public/scss/main.scss dist/public/app.css --output-style compressed",
     "dev": "webpack --mode=development && npm run copy_static_assets && concurrently \"webpack --watch\" \"npm run build:css\" \"nodemon --inspect dist\"",
     "start": "node dist/index",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run --headless --browser chromium --spec \"cypress/integration/**/*.spec.js\"",
     "copy_static_assets": "node copyStaticAssets.js"
   },
   "keywords": [
-    "sunstone",
-    "vm",
+    "flow",
+    "vms",
     "opennebula"
   ],
-  "author": "Jorge Lobo",
+  "author": "OpenNebula.io",
   "license": "ISC",
   "engines": {
     "node": ">=12.18.2"
@@ -82,13 +84,13 @@
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",
     "css-loader": "^3.2.0",
-    "cypress": "^3.4.1",
+    "cypress": "^3.8.1",
     "enzyme": "^3.9.0",
     "enzyme-adapter-react-16": "^1.10.0",
     "eslint": "^6.1.0",
     "jloboescalona-eslint-config": "^1.1.0",
     "node-sass": "^4.12.0",
-    "nodemon": "^2.0.4",
+    "nodemon": "^1.18.10",
     "react-addons-test-utils": "^15.6.2",
     "style-loader": "^1.0.0",
     "webpack": "^4.43.0",

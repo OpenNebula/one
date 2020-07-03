@@ -100,6 +100,7 @@ const validateRouteFunction = (routeFunction, httpMethod = '') => {
     typeof routeFunction.action === 'function'
   ) {
     rtn = routeFunction.action;
+    console.log("aca llama la ruta--->", rtn.toString())
   }
   return rtn;
 };
