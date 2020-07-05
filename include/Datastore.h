@@ -126,9 +126,9 @@ public:
     /**
      *  Returns a copy of the Image IDs set
      */
-    std::set<int> get_image_ids()
+    const std::set<int>& get_image_ids() const
     {
-        return images.clone();
+        return images.get_collection();
     }
 
     /**
@@ -215,7 +215,7 @@ public:
      *    @return true if the datastore is configured to enforce capacity
      *    checkings
      */
-    bool get_avail_mb(long long &avail);
+    bool get_avail_mb(long long &avail) const;
 
     /**
      * Returns true if the DS contains the SHARED = YES attribute
@@ -237,7 +237,7 @@ public:
      * Returns true if the DS_MAD_CONF has PERSISTENT_ONLY = "YES" flag
      * @return true if persistent only
      */
-    bool is_persistent_only();
+    bool is_persistent_only() const;
 
     /**
      * Enable or disable the DS. Only for System DS.
@@ -251,7 +251,7 @@ public:
     /**
      * Return a set with compatible system ds for an image ds
      */
-    void get_compatible_system_ds(std::set<int> &compatible_sys_ds)
+    void get_compatible_system_ds(std::set<int> &compatible_sys_ds) const
     {
         std::string compatible_sys_ds_str;
 
@@ -267,7 +267,7 @@ public:
     int get_tm_mad_targets(const std::string &tm_mad,
                            std::string& ln_target,
                            std::string& clone_target,
-                           std::string& disk_type);
+                           std::string& disk_type) const;
 
 private:
 

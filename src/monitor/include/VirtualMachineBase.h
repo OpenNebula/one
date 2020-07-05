@@ -83,7 +83,7 @@ public:
     /**
      *  @return storage usage for the VM
      */
-    std::map<int, long long> get_storage_usage()
+    const std::map<int, long long>& get_storage_usage() const
     {
         return ds_usage;
     }

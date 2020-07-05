@@ -103,7 +103,7 @@ public:
     /**
      *  get affected rows variable
      */
-    int get_affected_rows()
+    int get_affected_rows() const
     {
         return affected_rows;
     }

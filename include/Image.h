@@ -342,9 +342,9 @@ public:
         return running_vms;
     }
 
-    std::set<int> get_running_ids() const
+    const std::set<int>& get_running_ids() const
     {
-        return vm_collection.clone();
+        return vm_collection.get_collection();
     }
 
     int get_cloning() const
@@ -561,7 +561,7 @@ public:
         target_snapshot = snap_id;
     };
 
-    int get_target_snapshot()
+    int get_target_snapshot() const
     {
         return target_snapshot;
     };

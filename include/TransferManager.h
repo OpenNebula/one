@@ -277,7 +277,7 @@ private:
      *    @return the TM driver owned by uid with attribute name equal to value
      *    or 0 in not found
      */
-    const Driver<transfer_msg_t> * get(const std::string& name)
+    const Driver<transfer_msg_t> * get(const std::string& name) const
     {
         return DriverManager::get_driver(name);
     };
@@ -287,7 +287,7 @@ private:
      *  searched by its name.
      *    @return the TM driver for the Transfer Manager
      */
-    const Driver<transfer_msg_t> * get()
+    const Driver<transfer_msg_t> * get() const
     {
         return DriverManager::get_driver(transfer_driver_name);
     };

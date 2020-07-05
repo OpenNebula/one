@@ -1349,9 +1349,11 @@ void HostShareNUMA::del(HostShareCapacity &sr)
 
             if ( pt != mem_node.pages.end()  )
             {
-                pt->second.usage -= num_hp;
-
-                if ( pt->second.usage < 0 )
+                if (pt->second.usage > num_hp)
+                {
+                    pt->second.usage -= num_hp;
+                }
+                else
                 {
                     pt->second.usage = 0;
                 }

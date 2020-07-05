@@ -494,7 +494,7 @@ int MySqlDB::exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-char * MySqlDB::escape_str(const string& str)
+char * MySqlDB::escape_str(const string& str) const
 {
     char * result = new char[str.size()*2+1];
 

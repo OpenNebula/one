@@ -161,7 +161,7 @@ private:
      *    @return the IPAM driver owned by uid with attribute name equal to value
      *    or 0 in not found
      */
-    const Driver<ipam_msg_t> * get()
+    const Driver<ipam_msg_t> * get() const
     {
         return DriverManager::get_driver(ipam_driver_name);
     };

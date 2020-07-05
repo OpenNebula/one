@@ -91,16 +91,11 @@ void MarketPlaceManager::_import(unique_ptr<market_msg_t> msg)
         return;
     }
 
-    unique_ptr<string> info(one_util::base64_decode(msg->payload()));
+    string info;
 
-    if (info.get() == nullptr)
-    {
-        app_failure_action(apppool, id,
-            "Error importing app into marketplace. Bad base64 encoding.");
-        return;
-    }
+    ssl_util::base64_decode(msg->payload(), info);
 
-    rci = tmpl.parse_str_or_xml(*info, error);
+    rci = tmpl.parse_str_or_xml(info, error);
 
     if (rci != 0)
     {
@@ -221,26 +216,19 @@ void MarketPlaceManager::_monitor(unique_ptr<market_msg_t> msg)
         return;
     }
 
-    unique_ptr<string> info(one_util::base64_decode(msg->payload()));
+    string info;
 
-    if (info.get() == nullptr)
-    {
-        oss << "Error monitoring marketplace " << id << ". Bad monitor data: "
-            << msg->payload();
-
-        NebulaLog::log("MKP", Log::ERROR, oss);
-        return;
-    }
+    ssl_util::base64_decode(msg->payload(), info);
 
     Template monitor_data;
 
     char * error_msg;
-    int    rc = monitor_data.parse(*info, &error_msg);
+    int    rc = monitor_data.parse(info, &error_msg);
 
     if (rc != 0)
     {
         oss << "Error parsing marketplace information: " << error_msg
-            << ". Monitoring information: " << endl << *info;
+            << ". Monitoring information: " << endl << info;
 
         NebulaLog::log("MKP", Log::ERROR, oss);
 

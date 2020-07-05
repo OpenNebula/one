@@ -51,7 +51,7 @@ protected:
 
     virtual int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
 
-    virtual std::set<int> get_cluster_ids(PoolObjectSQL * object)
+    virtual std::set<int> get_cluster_ids(PoolObjectSQL * object) const
     {
         std::set<int> empty;
         return empty;
@@ -119,7 +119,7 @@ public:
 
 protected:
 
-    std::set<int> get_cluster_ids(PoolObjectSQL * object) override
+    std::set<int> get_cluster_ids(PoolObjectSQL * object) const override
     {
         return static_cast<VirtualNetwork*>(object)->get_cluster_ids();
     };
@@ -167,7 +167,7 @@ public:
 
 protected:
 
-    std::set<int> get_cluster_ids(PoolObjectSQL * object) override
+    std::set<int> get_cluster_ids(PoolObjectSQL * object) const override
     {
         std::set<int> ids;
 
@@ -228,7 +228,7 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    std::set<int> get_cluster_ids(PoolObjectSQL * object) override
+    std::set<int> get_cluster_ids(PoolObjectSQL * object) const override
     {
         return static_cast<Datastore*>(object)->get_cluster_ids();
     };

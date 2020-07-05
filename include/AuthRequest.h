@@ -142,7 +142,7 @@ public:
      *  @return a space separated list of auth requests, or an empty string if
      *          no auth requests were added
      */
-    std::string get_auths()
+    std::string get_auths() const
     {
         std::ostringstream oss;
         unsigned int  i;

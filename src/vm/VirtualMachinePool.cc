@@ -63,11 +63,9 @@ int VirtualMachinePool::update(PoolObjectSQL * objsql)
 
     if ( HookStateVM::trigger(vm) )
     {
-        std::string * event = HookStateVM::format_message(vm);
+        std::string event = HookStateVM::format_message(vm);
 
-        Nebula::instance().get_hm()->trigger(HMAction::SEND_EVENT, *event);
-
-        delete event;
+        Nebula::instance().get_hm()->trigger(HMAction::SEND_EVENT, event);
     }
 
     vm->set_prev_state();
@@ -203,11 +201,9 @@ int VirtualMachinePool::allocate(
 
         if ( vm != nullptr)
         {
-            std::string * event = HookStateVM::format_message(vm);
+            std::string event = HookStateVM::format_message(vm);
 
-            Nebula::instance().get_hm()->trigger(HMAction::SEND_EVENT, *event);
-
-            delete event;
+            Nebula::instance().get_hm()->trigger(HMAction::SEND_EVENT, event);
 
             vm->unlock();
         }

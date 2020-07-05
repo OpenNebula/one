@@ -529,7 +529,7 @@ private:
      *    @param va string representation of the error
      *    @param ra the specific request attributes
      */
-    void failure_response(ErrorCode ec, const std::string& va, RequestAttributes& ra);
+    void failure_response(ErrorCode ec, const std::string& va, RequestAttributes& ra) const;
 
     /**
      * Logs the method invocation, including the arguments

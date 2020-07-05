@@ -41,7 +41,7 @@ protected:
      *    @param obj pointer to the object
      *    @return a reference to the vector
      */
-    const std::vector<Resource *> get_match_resources(ObjectXML *null)
+    const std::vector<Resource *>& get_match_resources(ObjectXML *null) const override
     {
         return vm_pool->get_vm_resources();
     }
@@ -54,7 +54,7 @@ protected:
     {
         float up;
 
-        const std::vector<Resource *> resources = get_match_resources(0);
+        const std::vector<Resource *>& resources = get_match_resources(0);
 
         priority.clear();
 

@@ -120,7 +120,7 @@ void DispatchManager::init_managers()
 /* -------------------------------------------------------------------------- */
 
 void DispatchManager::get_quota_template(VirtualMachine * vm,
-        VirtualMachineTemplate& quota_tmpl, bool only_running)
+        VirtualMachineTemplate& quota_tmpl, bool only_running) const
 {
     std::string memory, cpu;
 

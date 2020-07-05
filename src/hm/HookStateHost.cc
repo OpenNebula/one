@@ -17,6 +17,7 @@
 #include "HookStateHost.h"
 #include "NebulaLog.h"
 #include "Host.h"
+#include "SSLUtil.h"
 
 using std::string;
 
@@ -31,7 +32,7 @@ bool HookStateHost::trigger(Host * host)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string * HookStateHost::format_message(Host * host)
+string HookStateHost::format_message(Host * host)
 {
     std::ostringstream oss;
     std::string host_xml;
@@ -45,7 +46,10 @@ string * HookStateHost::format_message(Host * host)
         << host->to_xml(host_xml)
         << "</HOOK_MESSAGE>";
 
-    return one_util::base64_encode(oss.str());
+    string base64;
+    ssl_util::base64_encode(oss.str(), base64);
+
+    return base64;
 }
 
 /* -------------------------------------------------------------------------- */

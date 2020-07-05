@@ -385,7 +385,7 @@ void VirtualMachineXML::add_requirements(const string& reqs)
 
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineXML::get_capacity(HostShareCapacity &sr)
+void VirtualMachineXML::get_capacity(HostShareCapacity &sr) const
 {
     sr.vmid = oid;
 
@@ -491,11 +491,11 @@ void VirtualMachineXML::add_image_datastore_capacity(
 // Functions to schedule network interfaces (NIC)
 //******************************************************************************
 
-VirtualMachineNicXML * VirtualMachineXML::get_nic(int nic_id)
+VirtualMachineNicXML * VirtualMachineXML::get_nic(int nic_id) const
 {
     VirtualMachineNicXML * n = 0;
 
-    std::map<int, VirtualMachineNicXML *>::iterator it = nics.find(nic_id);
+    auto it = nics.find(nic_id);
 
     if ( it != nics.end() )
     {
@@ -507,11 +507,11 @@ VirtualMachineNicXML * VirtualMachineXML::get_nic(int nic_id)
 
 /* -------------------------------------------------------------------------- */
 
-const string& VirtualMachineXML::get_nic_rank(int nic_id)
+const string& VirtualMachineXML::get_nic_rank(int nic_id) const
 {
     static std::string es;
 
-    std::map<int, VirtualMachineNicXML *>::iterator it = nics.find(nic_id);
+    auto it = nics.find(nic_id);
 
     if ( it != nics.end() )
     {
@@ -523,11 +523,11 @@ const string& VirtualMachineXML::get_nic_rank(int nic_id)
 
 /* -------------------------------------------------------------------------- */
 
-const string& VirtualMachineXML::get_nic_requirements(int nic_id)
+const string& VirtualMachineXML::get_nic_requirements(int nic_id) const
 {
     static std::string es;
 
-    std::map<int, VirtualMachineNicXML *>::iterator it = nics.find(nic_id);
+    auto it = nics.find(nic_id);
 
     if ( it != nics.end() )
     {
@@ -576,16 +576,16 @@ ostream& operator<<(ostream& os, VirtualMachineXML& vm)
 
     os << endl;
 
-    set<int> nics_ids = vm.get_nics_ids();
+    const set<int>& nics_ids = vm.get_nics_ids();
 
-    for (set<int>::iterator it = nics_ids.begin(); it != nics_ids.end(); it++)
+    for (auto nic_id : nics_ids)
     {
-        os << "\tNIC_ID: "<< *it << endl
+        os << "\tNIC_ID: "<< nic_id << endl
         << "\t-----------------------------------"  << endl;
         os << "\tPRI\tID - NETWORKS"<< endl
         << "\t------------------------"  << endl;
 
-        const vector<Resource *> net_resources = vm.nics[*it]->get_match_networks();
+        const vector<Resource *> net_resources = vm.nics[nic_id]->get_match_networks();
 
         for (i = net_resources.rbegin(); i != net_resources.rend() ; i++)
         {

@@ -64,7 +64,7 @@ public:
      *
      * @return the document type
      */
-    int get_document_type()
+    int get_document_type() const
     {
         return type;
     };

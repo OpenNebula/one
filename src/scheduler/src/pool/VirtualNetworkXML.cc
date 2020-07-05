@@ -44,7 +44,7 @@ void VirtualNetworkXML::init_attributes()
     ObjectCollection cluster_collection("CLUSTERS");
     cluster_collection.from_xml(this, "/VNET/");
 
-    cluster_ids = cluster_collection.clone();
+    cluster_ids = cluster_collection.get_collection();
 
     xpath(uid,      "/VNET/UID",  -1);
     xpath(gid,      "/VNET/GID",  -1);
@@ -114,7 +114,7 @@ bool VirtualNetworkXML::test_leases(string & error) const
 }
 
 
-void VirtualNetworkXML::get_permissions(PoolObjectAuth& auth)
+void VirtualNetworkXML::get_permissions(PoolObjectAuth& auth) const
 {
     auth.obj_type = PoolObjectSQL::NET;
 

@@ -182,7 +182,7 @@ protected:
     /**
      *
      */
-    virtual int get_suitable_nodes(std::vector<xmlNodePtr>& content) = 0;
+    virtual int get_suitable_nodes(std::vector<xmlNodePtr>& content) const = 0;
 
     /**
      *

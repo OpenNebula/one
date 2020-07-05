@@ -17,6 +17,7 @@
 #include "HookAPI.h"
 #include "Nebula.h"
 #include "Request.h"
+#include "SSLUtil.h"
 
 using namespace std;
 
@@ -70,14 +71,14 @@ const string HookAPI::unsupported_calls[] =  {"one.vm.info",
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-std::string * HookAPI::format_message(std::string method, ParamList& paramList,
+std::string HookAPI::format_message(std::string method, ParamList& paramList,
             const RequestAttributes& att)
 {
     ostringstream oss;
 
     if (!supported_call(method))
     {
-        return nullptr;
+        return string();
     }
 
     oss << "<HOOK_MESSAGE>"
@@ -104,7 +105,10 @@ std::string * HookAPI::format_message(std::string method, ParamList& paramList,
         << "</CALL_INFO>"
         << "</HOOK_MESSAGE>";
 
-    return one_util::base64_encode(oss.str());
+    string base64;
+    ssl_util::base64_encode(oss.str(), base64);
+
+    return base64;
 }
 
 /* -------------------------------------------------------------------------- */

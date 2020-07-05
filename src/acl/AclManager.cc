@@ -209,7 +209,7 @@ AclManager::~AclManager()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const bool AclManager::authorize(
+bool AclManager::authorize(
         int                     uid,
         const set<int>&         user_groups,
         const PoolObjectAuth&   obj_perms,
@@ -412,7 +412,7 @@ const bool AclManager::authorize(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const bool AclManager::oneadmin_authorize(
+bool AclManager::oneadmin_authorize(
         const PoolObjectAuth&   obj_perms,
         AuthRequest::Operation  op)
 {

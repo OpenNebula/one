@@ -32,7 +32,7 @@ public:
     /**
      *  Function to build a XML message for an API hook
      */
-    static std::string * format_message(std::string method, ParamList& paramList,
+    static std::string format_message(std::string method, ParamList& paramList,
             const RequestAttributes& att);
 
     /**

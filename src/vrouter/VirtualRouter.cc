@@ -196,7 +196,7 @@ int VirtualRouter::shutdown_vms(const set<int>& _vms, const RequestAttributes& r
     return result;
 }
 
-int VirtualRouter::get_network_leases(string& estr)
+int VirtualRouter::get_network_leases(string& estr) const
 {
     vector<VectorAttribute  *> nics;
     VirtualNetworkPool *  vnpool;
@@ -724,7 +724,7 @@ void VirtualRouter::set_template_id(int tmpl_id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualRouter::get_template_id()
+int VirtualRouter::get_template_id() const
 {
     int tmpl_id;
 

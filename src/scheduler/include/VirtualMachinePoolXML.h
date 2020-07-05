@@ -88,7 +88,7 @@ public:
     /**
      *  Returns a vector of matched hosts
      */
-    const std::vector<Resource *> get_vm_resources()
+    const std::vector<Resource *>& get_vm_resources() const
     {
         return vm_resources.get_resources();
     }
@@ -103,7 +103,7 @@ public:
 
 protected:
 
-    int get_suitable_nodes(std::vector<xmlNodePtr>& content)
+    int get_suitable_nodes(std::vector<xmlNodePtr>& content) const override
     {
         // Pending or ((running or unknown) and resched))
         return get_nodes("/VM_POOL/VM[STATE=1 or "
@@ -165,7 +165,7 @@ public:
 
 protected:
 
-    int get_suitable_nodes(std::vector<xmlNodePtr>& content)
+    int get_suitable_nodes(std::vector<xmlNodePtr>& content) const override
     {
         std::ostringstream oss;
 
@@ -199,7 +199,7 @@ public:
 
 protected:
 
-    int get_suitable_nodes(std::vector<xmlNodePtr>& content)
+    int get_suitable_nodes(std::vector<xmlNodePtr>& content) const override
     {
         std::ostringstream oss;
 

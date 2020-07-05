@@ -38,7 +38,7 @@ public:
 
 protected:
 
-    int get_suitable_nodes(std::vector<xmlNodePtr>& content)
+    int get_suitable_nodes(std::vector<xmlNodePtr>& content) const override
     {
         return get_nodes("/VM_GROUP_POOL/VM_GROUP", content);
     };

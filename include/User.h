@@ -177,9 +177,9 @@ public:
     /**
      *  Returns a copy of the groups for the user
      */
-    std::set<int> get_groups()
+    const std::set<int>& get_groups() const
     {
-        return groups.clone();
+        return groups.get_collection();
     };
 
     // *************************************************************************

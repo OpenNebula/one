@@ -51,13 +51,13 @@ public:
      *    @param str the string to be escaped
      *    @return a valid SQL string or NULL in case of failure
      */
-    char * escape_str(const std::string& str) override;
+    char * escape_str(const std::string& str) const override;
 
     /**
      *  Frees a previously scaped string
      *    @param str pointer to the str
      */
-    void free_str(char * str) override;
+    void free_str(char * str) const override;
 
     /**
      *  @param sid the offset
@@ -73,7 +73,7 @@ public:
      *            LIMIT 5 OFFSET 3
      */
 
-    std::string limit_string(int sid, int eid) override
+    std::string limit_string(int sid, int eid) const override
     {
         std::ostringstream oss;
         oss << "LIMIT " << eid << " OFFSET " << sid;
@@ -81,7 +81,7 @@ public:
         return oss.str();
     }
 
-    std::string limit_string(int sid) override
+    std::string limit_string(int sid) const override
     {
         std::ostringstream oss;
         oss << "LIMIT " << sid << " OFFSET 0";
@@ -180,11 +180,11 @@ public:
     }
     ~PostgreSqlDB(){}
 
-    char * escape_str(const std::string& str) override {return 0;};
+    char * escape_str(const std::string& str) const override {return 0;};
 
-    void free_str(char * str) override {};
+    void free_str(char * str) const override {};
 
-    std::string limit_string(int sid, int eid) override {return "";}
+    std::string limit_string(int sid, int eid) const override {return "";}
 
 protected:
     int exec_ext(std::ostringstream& c, Callbackable *o, bool q) override {

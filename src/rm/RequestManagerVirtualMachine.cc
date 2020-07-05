@@ -238,7 +238,7 @@ int RequestManagerVirtualMachine::get_default_ds_information(
         return -1;
     }
 
-    set<int> ds_ids = cluster->get_datastores();
+    set<int> ds_ids = cluster->get_datastore_ids();
 
     cluster->unlock();
 

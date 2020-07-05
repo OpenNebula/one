@@ -274,13 +274,13 @@ void ImageManager::monitor_datastore(int ds_id)
             break;
     }
 
-    unique_ptr<string> drv_msg(ImageManager::format_message("", ds_data, ds_location));
+    string drv_msg(ImageManager::format_message("", ds_data, ds_location));
 
     oss.str("");
     oss << "Monitoring datastore " << ds_name  << " (" << ds_id << ")";
 
     NebulaLog::log("InM", Log::DEBUG, oss);
 
-    image_msg_t msg(ImageManagerMessages::MONITOR, "", ds_id, *drv_msg);
+    image_msg_t msg(ImageManagerMessages::MONITOR, "", ds_id, drv_msg);
     imd->write(msg);
 }

@@ -108,10 +108,10 @@ int MarketPlaceManager::import_app(
     }
 
     {
-        unique_ptr<string> drv_msg(format_message(app_data, market_data,
+        string drv_msg(format_message(app_data, market_data,
                     image_data + ds_data));
 
-        msg.payload(*drv_msg);
+        msg.payload(drv_msg);
         mpmd->write(msg);
     }
 
@@ -251,9 +251,9 @@ int MarketPlaceManager::delete_app(int appid, const std::string& market_data,
         mp->unlock();
     }
 
-    unique_ptr<string> drv_msg(format_message(app_data, market_data, ""));
+    string drv_msg(format_message(app_data, market_data, ""));
 
-    market_msg_t msg(MarketPlaceManagerMessages::DELETE, "", appid, *drv_msg);
+    market_msg_t msg(MarketPlaceManagerMessages::DELETE, "", appid, drv_msg);
     mpmd->write(msg);
 
     return 0;

@@ -59,13 +59,13 @@ public:
      *    @param str the string to be escaped
      *    @return a valid SQL string or NULL in case of failure
      */
-    char * escape_str(const std::string& str);
+    char * escape_str(const std::string& str) const;
 
     /**
      *  Frees a previously scaped string
      *    @param str pointer to the str
      */
-    void free_str(char * str)
+    void free_str(char * str) const
     {
         delete[] str;
     }
@@ -157,9 +157,9 @@ public:
 
     ~MySqlDB(){};
 
-    char * escape_str(const std::string& str) override {return nullptr;};
+    char * escape_str(const std::string& str) const override {return nullptr;};
 
-    void free_str(char * str) override {};
+    void free_str(char * str) const override {};
 
 protected:
     int exec_ext(std::ostringstream& c, Callbackable *o, bool q) override {

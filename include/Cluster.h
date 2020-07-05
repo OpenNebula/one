@@ -34,14 +34,6 @@ public:
     // *************************************************************************
 
     /**
-     *  Returns a copy of the datastore IDs set
-     */
-    std::set<int> get_datastores()
-    {
-        return datastores.clone();
-    };
-
-    /**
      *  Returns a system DS for the cluster when none is set at the API level
      *    @return the ID of the System
      */
@@ -50,25 +42,25 @@ public:
     /**
      *  Returns a copy of the host IDs set
      */
-    std::set<int> get_host_ids()
+    const std::set<int>& get_host_ids() const
     {
-        return hosts.clone();
+        return hosts.get_collection();
     }
 
     /**
      *  Returns a copy of the datastore IDs set
      */
-    std::set<int> get_datastore_ids()
+    const std::set<int>& get_datastore_ids() const
     {
-        return datastores.clone();
+        return datastores.get_collection();
     }
 
     /**
      *  Returns a copy of the vnet IDs set
      */
-    std::set<int> get_vnet_ids()
+    const std::set<int>& get_vnet_ids() const
     {
-        return vnets.clone();
+        return vnets.get_collection();
     }
 
     /**
@@ -121,7 +113,7 @@ private:
      *    @param port reserved
      *    @return 0 on success
      */
-    int get_vnc_port(int vmid, unsigned int& port)
+    int get_vnc_port(int vmid, unsigned int& port) const
     {
         unsigned int base_port = vnc_bitmap.get_start_bit();
         unsigned int hint_port = base_port + (vmid % (65535 - base_port));

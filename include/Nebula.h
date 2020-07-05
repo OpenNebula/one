@@ -81,102 +81,102 @@ public:
     // --------------------------------------------------------------
     // Pool Accessors
     // --------------------------------------------------------------
-    LogDB * get_logdb()
+    LogDB * get_logdb() const
     {
         return logdb;
     };
 
-    VirtualMachinePool * get_vmpool()
+    VirtualMachinePool * get_vmpool() const
     {
         return vmpool;
     };
 
-    HostPool * get_hpool()
+    HostPool * get_hpool() const
     {
         return hpool;
     };
 
-    VirtualNetworkPool * get_vnpool()
+    VirtualNetworkPool * get_vnpool() const
     {
         return vnpool;
     };
 
-    UserPool * get_upool()
+    UserPool * get_upool() const
     {
         return upool;
     };
 
-    ImagePool * get_ipool()
+    ImagePool * get_ipool() const
     {
         return ipool;
     };
 
-    GroupPool * get_gpool()
+    GroupPool * get_gpool() const
     {
         return gpool;
     };
 
-    VMTemplatePool * get_tpool()
+    VMTemplatePool * get_tpool() const
     {
         return tpool;
     };
 
-    DatastorePool * get_dspool()
+    DatastorePool * get_dspool() const
     {
         return dspool;
     };
 
-    ClusterPool * get_clpool()
+    ClusterPool * get_clpool() const
     {
         return clpool;
     };
 
-    DocumentPool * get_docpool()
+    DocumentPool * get_docpool() const
     {
         return docpool;
     };
 
-    ZonePool * get_zonepool()
+    ZonePool * get_zonepool() const
     {
         return zonepool;
     };
 
-    SecurityGroupPool * get_secgrouppool()
+    SecurityGroupPool * get_secgrouppool() const
     {
         return secgrouppool;
     };
 
-    VdcPool * get_vdcpool()
+    VdcPool * get_vdcpool() const
     {
         return vdcpool;
     };
 
-    VirtualRouterPool * get_vrouterpool()
+    VirtualRouterPool * get_vrouterpool() const
     {
         return vrouterpool;
     };
 
-    MarketPlacePool * get_marketpool()
+    MarketPlacePool * get_marketpool() const
     {
         return marketpool;
     };
 
-    MarketPlaceAppPool * get_apppool()
+    MarketPlaceAppPool * get_apppool() const
     {
         return apppool;
     };
 
-    VMGroupPool * get_vmgrouppool()
+    VMGroupPool * get_vmgrouppool() const
     {
         return vmgrouppool;
     };
 
-    VNTemplatePool * get_vntpool()
+    VNTemplatePool * get_vntpool() const
     {
         return vntpool;
     }
 
-    HookPool * get_hkpool()
+    HookPool * get_hkpool() const
     {
         return hkpool;
     }
@@ -184,77 +184,77 @@ public:
     // Manager Accessors
     // --------------------------------------------------------------
 
-    VirtualMachineManager * get_vmm()
+    VirtualMachineManager * get_vmm() const
     {
         return vmm;
     };
 
-    LifeCycleManager * get_lcm()
+    LifeCycleManager * get_lcm() const
     {
         return lcm;
     };
 
-    InformationManager * get_im()
+    InformationManager * get_im() const
     {
         return im;
     };
 
-    TransferManager * get_tm()
+    TransferManager * get_tm() const
     {
         return tm;
     };
 
-    DispatchManager * get_dm()
+    DispatchManager * get_dm() const
     {
         return dm;
     };
 
-    HookManager * get_hm()
+    HookManager * get_hm() const
     {
         return hm;
     };
 
-    HookLog * get_hl()
+    HookLog * get_hl() const
     {
         return hl;
     };
 
-    AuthManager * get_authm()
+    AuthManager * get_authm() const
     {
         return authm;
     };
 
-    ImageManager * get_imagem()
+    ImageManager * get_imagem() const
     {
         return imagem;
     };
 
-    AclManager * get_aclm()
+    AclManager * get_aclm() const
     {
         return aclm;
     };
 
-    MarketPlaceManager * get_marketm()
+    MarketPlaceManager * get_marketm() const
     {
         return marketm;
     };
 
-    IPAMManager * get_ipamm()
+    IPAMManager * get_ipamm() const
     {
         return ipamm;
     };
 
-    RaftManager * get_raftm()
+    RaftManager * get_raftm() const
     {
         return raftm;
     };
 
-    FedReplicaManager * get_frm()
+    FedReplicaManager * get_frm() const
     {
         return frm;
     };
 
-    RequestManager * get_rm()
+    RequestManager * get_rm() const
     {
         return rm;
     };
@@ -280,7 +280,7 @@ public:
      *  not defined the nebula location is "/".
      *      @return the nebula location.
      */
-    const std::string& get_nebula_location()
+    const std::string& get_nebula_location() const
     {
         return nebula_location;
     };
@@ -291,7 +291,7 @@ public:
      *  /usr/lib/one/mads.
      *      @return the mad execs location.
      */
-    const std::string& get_mad_location()
+    const std::string& get_mad_location() const
     {
         return mad_location;
     };
@@ -301,7 +301,7 @@ public:
      *  defined this path points to $ONE_LOCATION/etc, otherwise it is /etc/one
      *      @return the mad defaults location.
      */
-    const std::string& get_defaults_location()
+    const std::string& get_defaults_location() const
     {
         return etc_location;
     };
@@ -312,7 +312,7 @@ public:
      *  otherwise it is /var/log/one.
      *      @return the log location.
      */
-    const std::string& get_log_location()
+    const std::string& get_log_location() const
     {
         return log_location;
     };
@@ -322,7 +322,7 @@ public:
      *  points to $ONE_LOCATION/var, otherwise it is /var/lib/one.
      *      @return the log location.
      */
-    const std::string& get_var_location()
+    const std::string& get_var_location() const
     {
         return var_location;
     };
@@ -332,7 +332,7 @@ public:
      *  points to $ONE_LOCATION/share, otherwise it is /usr/share/one.
      *      @return the log location.
      */
-    const std::string& get_share_location()
+    const std::string& get_share_location() const
     {
         return share_location;
     };
@@ -341,7 +341,7 @@ public:
      *
      *
      */
-    void get_ds_location(std::string& dsloc);
+    void get_ds_location(std::string& dsloc) const;
 
     /**
      *  Returns the default vms location. When ONE_LOCATION is defined this path
@@ -350,7 +350,7 @@ public:
      *  logs (in self-contained mode only)
      *      @return the vms location.
      */
-    const std::string& get_vms_location()
+    const std::string& get_vms_location() const
     {
         return vms_location;
     };
@@ -363,13 +363,13 @@ public:
      *     /var/log/one/$VM_ID.log
      *  @return the log location for the VM.
      */
-    std::string get_vm_log_filename(int oid);
+    std::string get_vm_log_filename(int oid) const;
 
     /**
      *  Returns the name of the host running oned
      *    @return the name
      */
-    const std::string& get_nebula_hostname()
+    const std::string& get_nebula_hostname() const
     {
         return hostname;
     };
@@ -452,17 +452,17 @@ public:
         return cache;
     };
 
-    int get_zone_id()
+    int get_zone_id() const
     {
         return zone_id;
     };
 
-    int get_server_id()
+    int get_server_id() const
     {
         return server_id;
     };
 
-    const std::string& get_master_oned()
+    const std::string& get_master_oned() const
     {
         return master_oned;
     };
@@ -600,7 +600,7 @@ public:
      *  Return the Authorization operation for a VM action
      *
      */
-    AuthRequest::Operation get_vm_auth_op(VMActions::Action action)
+    AuthRequest::Operation get_vm_auth_op(VMActions::Action action) const
     {
         return nebula_configuration->get_vm_auth_op(action);
     }
@@ -632,7 +632,7 @@ public:
      *  Get the default quotas for OpenNebula users
      *    @return the default quotas
      */
-    const DefaultQuotas& get_default_user_quota()
+    const DefaultQuotas& get_default_user_quota() const
     {
         return default_user_quota;
     };
@@ -660,7 +660,7 @@ public:
      *  Get the default quotas for OpenNebula for groups
      *    @return the default quotas
      */
-    const DefaultQuotas& get_default_group_quota()
+    const DefaultQuotas& get_default_group_quota() const
     {
         return default_group_quota;
     };

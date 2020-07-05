@@ -227,11 +227,7 @@ int HookLog::add(int hkid, int hkrc, std::string &xml_result)
 
 int HookLog::retry(int hkid, int exeid, std::string& err_msg)
 {
-    std::string xml, command, args, host, as_stdin_str;
-
-    string * message;
-
-    ostringstream oss;
+    std::string xml, args, host;
 
     Nebula& nd  = Nebula::instance();
 
@@ -261,15 +257,12 @@ int HookLog::retry(int hkid, int exeid, std::string& err_msg)
     obj_xml.xpath(host, "/HOOKLOG/HOOK_EXECUTION_RECORD/REMOTE_HOST", "");
 
 
-    std::string* args64  = one_util::base64_encode(args);
+    std::string args64;
+    ssl_util::base64_encode(args, args64);
 
-    message = HookManager::format_message(*args64, host, hkid);
+    string message = HookManager::format_message(args64, host, hkid);
 
-    hm->trigger(HMAction::RETRY, *message);
-
-    delete message;
-
-    delete args64;
+    hm->trigger(HMAction::RETRY, message);
 
     return 0;
 }

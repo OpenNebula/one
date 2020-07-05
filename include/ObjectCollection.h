@@ -18,8 +18,10 @@
 #define OBJECT_COLLECTION_H_
 
 #include <set>
+#include <string>
+#include <libxml/tree.h>
 
-#include "PoolObjectSQL.h"
+class ObjectXML;
 
 /**
  *  Class to store a set of PoolObjectSQL IDs.
@@ -85,14 +87,6 @@ public:
      *  @return a reference to the generated string
      */
     std::string& to_xml(std::string& xml) const;
-
-    /**
-     *  Returns a copy of the IDs set
-     */
-    std::set<int> clone() const
-    {
-        return std::set<int>(collection_set);
-    };
 
     /**
      *  Returns a reference to the IDs set

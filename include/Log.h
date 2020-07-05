@@ -46,7 +46,7 @@ public:
 
     virtual ~Log(){};
 
-    MessageType get_log_level()
+    MessageType get_log_level() const
     {
         return log_level;
     }

@@ -27,6 +27,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <signal.h>
+#include "SSLUtil.h"
 
 using namespace std;
 
@@ -161,7 +162,7 @@ void Monitor::start()
     fcntl(1, F_SETFD, FD_CLOEXEC);
     fcntl(2, F_SETFD, FD_CLOEXEC);
 
-    one_util::SSLMutex::initialize();
+    ssl_util::SSLMutex::initialize();
 
     // -------------------------------------------------------------------------
     // Drivers
@@ -227,7 +228,7 @@ void Monitor::start()
 
     xmlCleanupParser();
 
-    one_util::SSLMutex::finalize();
+    ssl_util::SSLMutex::finalize();
 
     NebulaLog::info("MON", "All monitor drivers finalized, exiting");
 

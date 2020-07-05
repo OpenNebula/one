@@ -40,10 +40,10 @@ public:
      *    @param obj, pointer to the object to schedule
      *
      */
-    const void schedule(ObjectXML * obj)
+    void schedule(ObjectXML * obj)
     {
         std::vector<float> priority;
-        const std::vector<Resource *> resources = get_match_resources(obj);
+        const std::vector<Resource *>& resources = get_match_resources(obj);
 
         if (resources.empty())
         {
@@ -72,7 +72,7 @@ protected:
      *    @param obj pointer to the object
      *    @return a reference to the vector
      */
-     virtual const std::vector<Resource *> get_match_resources(ObjectXML *obj) = 0;
+     virtual const std::vector<Resource *>& get_match_resources(ObjectXML *obj) const = 0;
 
     /**
      *  Implements the actual schedule by computing the priority of each

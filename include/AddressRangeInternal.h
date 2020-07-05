@@ -110,7 +110,7 @@ private:
      *    @param msg with error description if any
      *    @return 0 on success -1 otherwise
      */
-    int get_range_addr(unsigned int& index, unsigned int sz, std::string& msg);
+    int get_range_addr(unsigned int& index, unsigned int sz, std::string& msg) const;
 };
 
 #endif

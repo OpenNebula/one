@@ -148,7 +148,7 @@ public:
     /**
      *  Return the number of running VMs in this host
      */
-    long long get_running_vms()
+    long long get_running_vms() const
     {
         return running_vms;
     };

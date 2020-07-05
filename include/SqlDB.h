@@ -100,16 +100,16 @@ public:
      *    @param str the string to be escaped
      *    @return a valid SQL string or NULL in case of failure
      */
-    virtual char * escape_str(const std::string& str) = 0;
+    virtual char * escape_str(const std::string& str) const = 0;
 
     /**
      *  Frees a previously scaped string
      *    @param str pointer to the str
      */
-    virtual void free_str(char * str) = 0;
+    virtual void free_str(char * str) const = 0;
 
 
-    virtual bool supports(SqlFeature ft)
+    virtual bool supports(SqlFeature ft) const
     {
         auto it = features.find(ft);
 
@@ -140,7 +140,7 @@ public:
      *          /-------------------/
      *              LIMIT 3, 5
      */
-    virtual std::string limit_string(int sid, int eid)
+    virtual std::string limit_string(int sid, int eid) const
     {
         std::ostringstream oss;
 
@@ -149,7 +149,7 @@ public:
         return oss.str();
     }
 
-    virtual std::string limit_string(int sid)
+    virtual std::string limit_string(int sid) const
     {
         std::ostringstream oss;
 

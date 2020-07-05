@@ -175,7 +175,7 @@ private:
      *    @return the Auth driver with attribute name equal to value
      *    or 0 in not found
      */
-    const Driver<auth_msg_t> * get(const std::string&   name)
+    const Driver<auth_msg_t> * get(const std::string& name) const
     {
         return DriverManager::get_driver(name);
     }
@@ -187,7 +187,7 @@ private:
      *    @return the TM driver owned by uid with attribute name equal to value
      *    or 0 in not found
      */
-    const Driver<auth_msg_t> * get()
+    const Driver<auth_msg_t> * get() const
     {
         return DriverManager::get_driver(auth_driver_name);
     }

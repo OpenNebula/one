@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "ObjectCollection.h"
+#include "ObjectXML.h"
 
 using namespace std;
 
@@ -28,7 +29,6 @@ int ObjectCollection::from_xml_node(const xmlNodePtr node)
    int           rc = 0;
    ostringstream oss;
 
-   vector<string>::iterator it;
    vector<string> ids;
 
    ObjectXML oxml(node);
@@ -37,10 +37,10 @@ int ObjectCollection::from_xml_node(const xmlNodePtr node)
 
    oxml.xpaths(ids, oss.str().c_str());
 
-   for (it = ids.begin(); it != ids.end(); it++)
+   for (auto id_str : ids)
    {
        iss.clear();
-       iss.str(*it);
+       iss.str(id_str);
        iss >> dec >> id;
 
        if ( iss.fail() )
@@ -86,13 +86,12 @@ int ObjectCollection::from_xml(const ObjectXML* xml, const string& xpath_prefix)
 string& ObjectCollection::to_xml(string& xml) const
 {
     ostringstream       oss;
-    set<int>::iterator  it;
 
     oss << "<" << collection_name << ">";
 
-    for ( it = collection_set.begin(); it != collection_set.end(); it++ )
+    for (auto id : collection_set)
     {
-        oss << "<ID>" << *it << "</ID>";
+        oss << "<ID>" << id << "</ID>";
     }
 
     oss << "</" << collection_name << ">";
@@ -157,11 +156,9 @@ int ObjectCollection::pop(int& elem)
 
 ObjectCollection& ObjectCollection::operator<<(const ObjectCollection& r)
 {
-    set<int>::const_iterator i;
-
-    for (i = r.collection_set.begin(); i != r.collection_set.end(); ++i)
+    for (auto id : r.collection_set)
     {
-        collection_set.insert(*i);
+        collection_set.insert(id);
     }
 
     return *this;

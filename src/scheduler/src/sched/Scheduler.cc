@@ -1143,11 +1143,11 @@ void Scheduler::match_schedule()
         profile(true);
 
         set<int>::iterator it_nic;
-        set<int> nics_ids = vm->get_nics_ids();
+        const set<int>& nics_ids = vm->get_nics_ids();
 
         bool not_matched = false;
 
-        for (it_nic = nics_ids.begin(); it_nic != nics_ids.end(); ++it_nic)
+        for (auto nic_id : nics_ids)
         {
             n_resources = 0;
 
@@ -1156,7 +1156,6 @@ void Scheduler::match_schedule()
             n_error   = 0;
             n_fits    = 0;
 
-            int nic_id = *it_nic;
 
             for (obj_it = nets.begin(); obj_it != nets.end(); ++obj_it)
             {
@@ -1330,7 +1329,7 @@ void Scheduler::dispatch()
 
     vmpool->sort_vm_resources();
 
-    const vector<Resource *> vm_rs = vmpool->get_vm_resources();
+    const vector<Resource *>& vm_rs = vmpool->get_vm_resources();
 
     //--------------------------------------------------------------------------
     dss << "Dispatching VMs to hosts:\n"
@@ -1524,19 +1523,15 @@ void Scheduler::dispatch()
             //------------------------------------------------------------------
             extra.str("");
 
-            set<int> nics_ids = vm->get_nics_ids();
+            const set<int>& nics_ids = vm->get_nics_ids();
 
             map<int, int> matched_networks;
 
             unsigned int num_matched_networks = 0;
 
-            set<int>::iterator it;
-
-            for(it = nics_ids.begin(); it != nics_ids.end(); ++it)
+            for(auto nic_id : nics_ids)
             {
-                int nic_id = *it;
-
-                const vector<Resource *> net_resources = vm->get_match_networks(nic_id);
+                const vector<Resource *>& net_resources = vm->get_match_networks(nic_id);
 
                 netid = -1;
 

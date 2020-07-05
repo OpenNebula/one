@@ -18,6 +18,7 @@
 #include "MarketPlaceApp.h"
 #include "NebulaLog.h"
 #include "NebulaUtil.h"
+#include "SSLUtil.h"
 #include "OneDB.h"
 
 using namespace std;
@@ -429,21 +430,15 @@ void MarketPlaceApp::to_template(Template * tmpl) const
 
 int MarketPlaceApp::from_template64(const std::string &info64, std::string& err)
 {
-    std::string * info = one_util::base64_decode(info64);
+    std::string info;
 
-    if (info == 0)
-    {
-        err = "Error decoding driver message";
-        return -1;
-    }
+    ssl_util::base64_decode(info64, info);
 
     char * error_msg;
 
     obj_template->clear();
 
-    int rc = obj_template->parse(*info, &error_msg);
-
-    delete info;
+    int rc = obj_template->parse(info, &error_msg);
 
     if ( rc != 0 )
     {

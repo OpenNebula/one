@@ -125,15 +125,13 @@ int SystemSqlQuery::select_cb::callback(void *nil, int num, char **values,
         if (values[i] != 0 && values[i][0] == '<')
         {
             std::string val(values[i]);
-            std::string * val64 = one_util::base64_encode(val);
+            std::string val64;
 
-            if ( val64 != 0 )
+            if (ssl_util::base64_encode(val, val64) == 0)
             {
                 oss << "<" << names[i] << "64>"
-                    << "<![CDATA[" << *val64 << "]]>"
+                    << "<![CDATA[" << val64 << "]]>"
                     << "</"<< names[i] << "64>";
-
-                delete val64;
             }
         }
         else

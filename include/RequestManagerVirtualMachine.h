@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #ifndef REQUEST_MANAGER_VIRTUAL_MACHINE_H_
-#define REQUEST_MANAGER_VIRTUAL_MACHINE_H
+#define REQUEST_MANAGER_VIRTUAL_MACHINE_H_
 
 #include "Request.h"
 #include "Nebula.h"

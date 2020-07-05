@@ -323,7 +323,7 @@ public:
      *  Gets a the security group set of all ARs
      *    @param sgs set with all the SG ids
      */
-    void get_all_security_groups(std::set<int>& sgs);
+    void get_all_security_groups(std::set<int>& sgs) const;
 
     /**
      *  Generate a XML representation of the Address Range Pool

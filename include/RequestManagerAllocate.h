@@ -77,7 +77,7 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    virtual Template * get_object_template() { return 0; };
+    virtual Template * get_object_template() const { return 0; };
 
     virtual Request::ErrorCode pool_allocate(
                               xmlrpc_c::paramList const& _paramList,
@@ -99,7 +99,7 @@ protected:
         return pool_allocate(_paramList, tmpl, id, att);
     };
 
-    virtual int get_cluster_id(xmlrpc_c::paramList const& paramList)
+    virtual int get_cluster_id(xmlrpc_c::paramList const& paramList) const
     {
         return ClusterPool::NONE_CLUSTER_ID;
     };
@@ -112,7 +112,7 @@ protected:
         return -1;
     };
 
-    virtual Datastore::DatastoreType get_ds_type(int oid)
+    virtual Datastore::DatastoreType get_ds_type(int oid) const
     {
         return Datastore::FILE_DS;
     };
@@ -120,7 +120,7 @@ protected:
 protected:
     ClusterPool * clpool;
 
-    int get_cluster_id(xmlrpc_c::paramList const& paramList, int cluster_pos)
+    int get_cluster_id(xmlrpc_c::paramList const& paramList, int cluster_pos) const
     {
         int cid = xmlrpc_c::value_int(paramList.getInt(cluster_pos));
 
@@ -158,7 +158,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() override
+    Template * get_object_template() const override
     {
         return new VirtualMachineTemplate;
     };
@@ -194,7 +194,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() override
+    Template * get_object_template() const override
     {
         return new VirtualNetworkTemplate;
     };
@@ -206,7 +206,7 @@ public:
                       int cluster_id,
                       const std::string& cluster_name) override;
 
-    int get_cluster_id(xmlrpc_c::paramList const& paramList) override
+    int get_cluster_id(xmlrpc_c::paramList const& paramList) const override
     {
         return RequestManagerAllocate::get_cluster_id(paramList, 2);
     };
@@ -266,7 +266,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() override
+    Template * get_object_template() const override
     {
         return new VirtualMachineTemplate;
     };
@@ -299,7 +299,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() override
+    Template * get_object_template() const override
     {
         return new VirtualMachineTemplate;
     };
@@ -342,7 +342,7 @@ public:
                       int cluster_id,
                       const std::string& cluster_name) override;
 
-    int get_cluster_id(xmlrpc_c::paramList const& paramList) override
+    int get_cluster_id(xmlrpc_c::paramList const& paramList) const override
     {
         return RequestManagerAllocate::get_cluster_id(paramList, 4);
     };
@@ -441,7 +441,7 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    Template * get_object_template() override
+    Template * get_object_template() const override
     {
         return new DatastoreTemplate;
     };
@@ -453,7 +453,7 @@ public:
                       int cluster_id,
                       const std::string& cluster_name) override;
 
-    int get_cluster_id(xmlrpc_c::paramList const& paramList) override
+    int get_cluster_id(xmlrpc_c::paramList const& paramList) const override
     {
         return RequestManagerAllocate::get_cluster_id(paramList, 2);
     };
@@ -513,7 +513,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() override
+    Template * get_object_template() const override
     {
         return new Template;
     };
@@ -548,7 +548,7 @@ public:
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
 
-    Template * get_object_template() override
+    Template * get_object_template() const override
     {
         return new Template;
     };
@@ -580,7 +580,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() override
+    Template * get_object_template() const override
     {
         return new Template;
     };
@@ -612,7 +612,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() override
+    Template * get_object_template() const override
     {
         return new Template;
     };
@@ -645,7 +645,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() override
+    Template * get_object_template() const override
     {
         return new Template;
     };
@@ -681,7 +681,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() override
+    Template * get_object_template() const override
     {
         return new MarketPlaceTemplate;
     };
@@ -714,7 +714,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() override
+    Template * get_object_template() const override
     {
         return new MarketPlaceAppTemplate;
     };
@@ -748,7 +748,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() override
+    Template * get_object_template() const override
     {
         return new Template;
     };
@@ -781,7 +781,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template()
+    Template * get_object_template() const
     {
         return new Template;
     };
