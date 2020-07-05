@@ -38,9 +38,9 @@ public:
      *
      * @return The cluster IDs set
      */
-    std::set<int> get_cluster_ids() const
+    const std::set<int>& get_cluster_ids() const
     {
-        return cluster_ids.clone();
+        return cluster_ids.get_collection();
     };
 
     /**

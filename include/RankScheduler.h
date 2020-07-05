@@ -14,6 +14,9 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+#ifndef RANK_SCHEDULER_H_
+#define RANK_SCHEDULER_H_
+
 #include "Scheduler.h"
 #include "SchedulerTemplate.h"
 #include "RankPolicy.h"
@@ -61,3 +64,5 @@ private:
 
     UserPriorityPolicy * rp_vm;
 };
+
+#endif // RANK_SCHEDULER_H_

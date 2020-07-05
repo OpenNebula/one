@@ -145,7 +145,7 @@ void ClusterRename::batch_rename(int oid)
         return;
     }
 
-    const set<int> & hosts = cluster->get_host_ids();
+    set<int> hosts = cluster->get_host_ids();
 
     string cluster_name    = cluster->get_name();
 
@@ -183,7 +183,7 @@ void DatastoreRename::batch_rename(int oid)
         return;
     }
 
-    const set<int> & images = datastore->get_image_ids();
+    set<int> images = datastore->get_image_ids();
 
     set<int>::iterator it;
 

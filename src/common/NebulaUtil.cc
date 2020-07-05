@@ -15,15 +15,11 @@
 /* -------------------------------------------------------------------------- */
 
 #include "NebulaUtil.h"
+#include "SSLUtil.h"
 
 #include <openssl/sha.h>
-#include <openssl/hmac.h>
 #include <openssl/evp.h>
-#include <openssl/bio.h>
-#include <openssl/buffer.h>
 #include <openssl/aes.h>
-
-#include <zlib.h>
 
 #include <string>
 #include <sstream>
@@ -93,81 +89,6 @@ string one_util::xml_escape(const string& in)
 
     return result;
 };
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string * one_util::base64_encode(const string& in)
-{
-    BIO *     bio_mem;
-    BIO *     bio_64;
-
-    char *    encoded_c;
-    long int  size;
-
-    bio_64  = BIO_new(BIO_f_base64());
-    bio_mem = BIO_new(BIO_s_mem());
-
-    BIO_push(bio_64, bio_mem);
-
-    BIO_set_flags(bio_64, BIO_FLAGS_BASE64_NO_NL);
-
-    BIO_write(bio_64, in.c_str(), in.length());
-
-    if (BIO_flush(bio_64) != 1)
-    {
-        return nullptr;
-    }
-
-    size = BIO_get_mem_data(bio_mem,&encoded_c);
-
-    string * encoded = new string(encoded_c,size);
-
-    BIO_free_all(bio_64);
-
-    return encoded;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string * one_util::base64_decode(const string& in)
-{
-    BIO *  bio_mem_in;
-    BIO *  bio_mem_out;
-    BIO *  bio_64;
-
-    char inbuf[512];
-    int  inlen;
-
-    char *   decoded_c;
-    long int size;
-
-    bio_64  = BIO_new(BIO_f_base64());
-
-    bio_mem_in  = BIO_new(BIO_s_mem());
-    bio_mem_out = BIO_new(BIO_s_mem());
-
-    bio_64 = BIO_push(bio_64, bio_mem_in);
-
-    BIO_set_flags(bio_64, BIO_FLAGS_BASE64_NO_NL);
-
-    BIO_write(bio_mem_in, in.c_str(), in.length());
-
-    while ((inlen = BIO_read(bio_64, inbuf, 512)) > 0)
-    {
-        BIO_write(bio_mem_out, inbuf, inlen);
-    }
-
-    size = BIO_get_mem_data(bio_mem_out, &decoded_c);
-
-    string * decoded = new string(decoded_c, size);
-
-    BIO_free_all(bio_64);
-    BIO_free_all(bio_mem_out);
-
-    return decoded;
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -259,7 +180,16 @@ string * one_util::aes256cbc_encrypt(const string& in, const string& password)
 
     string encrypt((char*) out, (size_t)(outlen1+outlen2));
 
-    return base64_encode(encrypt);;
+    string* aes256 = new string();
+
+    if (ssl_util::base64_encode(encrypt, *aes256) == 0)
+    {
+        return aes256;
+    }
+    else
+    {
+        return nullptr;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -267,11 +197,12 @@ string * one_util::aes256cbc_encrypt(const string& in, const string& password)
 
 string * one_util::aes256cbc_decrypt(const string& in, const string& password)
 {
-    string *crypted = base64_decode(in);
+    string crypted;
 
-    if (!crypted || crypted->empty())
+    ssl_util::base64_decode(in, crypted);
+
+    if (crypted.empty())
     {
-        delete crypted;
         return nullptr;
     }
 
@@ -279,7 +210,7 @@ string * one_util::aes256cbc_decrypt(const string& in, const string& password)
     EVP_CIPHER_CTX *ctx;
 
     const unsigned char *key     = (unsigned char*) password.c_str();
-    const unsigned char *in_data = (unsigned char*) crypted->c_str();
+    const unsigned char *in_data = (unsigned char*) crypted.c_str();
 
     unsigned char out[in.length() + AES_BLOCK_SIZE];
 
@@ -293,7 +224,7 @@ string * one_util::aes256cbc_decrypt(const string& in, const string& password)
 #endif
 
     EVP_DecryptInit(ctx, EVP_aes_256_cbc(), key, NULL);
-    EVP_DecryptUpdate(ctx, out, &outlen1, in_data, crypted->length());
+    EVP_DecryptUpdate(ctx, out, &outlen1, in_data, crypted.length());
     if (1 != EVP_DecryptFinal_ex(ctx, out + outlen1, &outlen2))
     {
         success = false;
@@ -305,8 +236,6 @@ string * one_util::aes256cbc_decrypt(const string& in, const string& password)
 #else
     EVP_CIPHER_CTX_free(ctx);
 #endif
-
-    delete crypted;
 
     if (!success)
     {
@@ -507,229 +436,4 @@ void one_util::split_unique(const string& st, char delim, set<string>& res)
     {
         res.insert(*it);
     }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-/**
- *  Buffer length for zlib inflate/deflate
- */
-#define ZBUFFER 16384
-
-string * one_util::zlib_compress(const string& in, bool base64)
-{
-    z_stream zs;
-
-    ostringstream oss;
-    unsigned char      out[ZBUFFER];
-
-    string * zstr;
-
-    if ( in.empty() )
-    {
-        return nullptr;
-    }
-
-    zs.zalloc = Z_NULL;
-    zs.zfree  = Z_NULL;
-    zs.opaque = Z_NULL;
-
-    if ( deflateInit(&zs, Z_DEFAULT_COMPRESSION) != Z_OK )
-    {
-        return nullptr;
-    }
-
-    zs.avail_in = in.size();
-    zs.next_in  = (unsigned char *) const_cast<char *>(in.c_str());
-
-    do
-    {
-        zs.avail_out = ZBUFFER;
-        zs.next_out  = out;
-
-        if ( deflate(&zs, Z_FINISH) == Z_STREAM_ERROR )
-        {
-            deflateEnd(&zs);
-            return nullptr;
-        }
-
-        oss.write((const char *)out, ZBUFFER - zs.avail_out);
-    } while (zs.avail_out == 0);
-
-    deflateEnd(&zs);
-
-    if ( base64 )
-    {
-        zstr = one_util::base64_encode(oss.str());
-    }
-    else
-    {
-        zstr = new string(oss.str());
-    }
-
-    return zstr;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string * one_util::zlib_decompress(const string& in, bool base64)
-{
-    int rc;
-
-    z_stream zs;
-
-    ostringstream oss;
-    unsigned char      out[ZBUFFER];
-
-    string * in64;
-
-    if ( in.empty() )
-    {
-        return nullptr;
-    }
-
-    zs.zalloc = Z_NULL;
-    zs.zfree  = Z_NULL;
-    zs.opaque = Z_NULL;
-
-    zs.avail_in = 0;
-    zs.next_in  = Z_NULL;
-
-    if ( inflateInit(&zs) != Z_OK)
-    {
-        return nullptr;
-    }
-
-    if ( base64 )
-    {
-        in64 = one_util::base64_decode(in);
-
-        if (in64 == 0)
-        {
-            inflateEnd(&zs);
-
-            return nullptr;
-        }
-
-        zs.avail_in = in64->size();
-        zs.next_in  = (unsigned char *) const_cast<char *>(in64->c_str());
-    }
-    else
-    {
-        zs.avail_in = in.size();
-        zs.next_in  = (unsigned char *) const_cast<char *>(in.c_str());
-    }
-
-    if ( zs.avail_in <= 2 ) //At least 2 byte header
-    {
-        inflateEnd(&zs);
-
-        if ( base64 )
-        {
-            delete in64;
-        }
-
-        return nullptr;
-    }
-
-    do
-    {
-        zs.avail_out = ZBUFFER;
-        zs.next_out  = out;
-
-        rc = inflate(&zs, Z_FINISH);
-
-        if ( rc != Z_STREAM_END && rc != Z_OK && rc != Z_BUF_ERROR )
-        {
-            inflateEnd(&zs);
-
-            if ( base64 )
-            {
-                delete in64;
-            }
-
-            return nullptr;
-        }
-
-        oss.write((const char *)out, ZBUFFER - zs.avail_out);
-    } while (rc != Z_STREAM_END);
-
-    inflateEnd(&zs);
-
-    if ( base64 )
-    {
-        delete in64;
-    }
-
-    return new string(oss.str());
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-extern "C" void one_util::sslmutex_lock_callback(int mode, int type, char *file,
-    int line)
-{
-    pthread_mutex_t * pm = SSLMutex::ssl_mutex->vmutex[type];
-
-    if (mode & CRYPTO_LOCK)
-    {
-        pthread_mutex_lock(pm);
-    }
-    else
-    {
-        pthread_mutex_unlock(pm);
-    }
-}
-
-extern "C" unsigned long one_util::sslmutex_id_callback()
-{
-    return (unsigned long) pthread_self();
-}
-
-one_util::SSLMutex * one_util::SSLMutex::ssl_mutex;
-
-vector<pthread_mutex_t *> one_util::SSLMutex::vmutex;
-
-void one_util::SSLMutex::initialize()
-{
-    if ( ssl_mutex == nullptr )
-    {
-        ssl_mutex = new SSLMutex();
-    }
-};
-
-void one_util::SSLMutex::finalize()
-{
-    delete ssl_mutex;
-}
-
-one_util::SSLMutex::SSLMutex()
-{
-    pthread_mutex_t * pm;
-    for (int i=0; i<CRYPTO_num_locks(); i++)
-    {
-        pm = (pthread_mutex_t *) malloc(sizeof(pthread_mutex_t));
-        pthread_mutex_init(pm, NULL);
-
-        vmutex.push_back(pm);
-    }
-
-    CRYPTO_set_id_callback((unsigned long (*)()) sslmutex_id_callback);
-
-    CRYPTO_set_locking_callback(
-        (void (*)(int, int, const char*, int))sslmutex_lock_callback);
-}
-
-one_util::SSLMutex::~SSLMutex()
-{
-    for (int i=0; i<CRYPTO_num_locks(); i++)
-    {
-        pthread_mutex_destroy(vmutex[i]);
-        free(vmutex[i]);
-    }
-
-    CRYPTO_set_locking_callback(NULL);
 }

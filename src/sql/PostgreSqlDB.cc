@@ -125,7 +125,7 @@ PostgreSqlDB::~PostgreSqlDB()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-char * PostgreSqlDB::escape_str(const string& str)
+char * PostgreSqlDB::escape_str(const string& str) const
 {
     char* buf = new char[str.size() * 2 + 1];
     int err;
@@ -144,7 +144,7 @@ char * PostgreSqlDB::escape_str(const string& str)
 
 /* -------------------------------------------------------------------------- */
 
-void PostgreSqlDB::free_str(char * str)
+void PostgreSqlDB::free_str(char * str) const
 {
     delete[] str;
 }

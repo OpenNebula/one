@@ -600,7 +600,7 @@ void Nebula::start(bool bootstrap_only)
 
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
 
-    one_util::SSLMutex::initialize();
+    ssl_util::SSLMutex::initialize();
 
     // -----------------------------------------------------------
     //Managers
@@ -1237,7 +1237,7 @@ void Nebula::start(bool bootstrap_only)
     //XML Library
     xmlCleanupParser();
 
-    one_util::SSLMutex::finalize();
+    ssl_util::SSLMutex::finalize();
 
     NebulaLog::log("ONE", Log::INFO, "All modules finalized, exiting.\n");
 
@@ -1295,7 +1295,7 @@ NebulaLog::LogType Nebula::get_log_system() const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Nebula::get_ds_location(string& dsloc)
+void Nebula::get_ds_location(string& dsloc) const
 {
     get_configuration_attribute("DATASTORE_LOCATION", dsloc);
 }
@@ -1303,7 +1303,7 @@ void Nebula::get_ds_location(string& dsloc)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string Nebula::get_vm_log_filename(int oid)
+string Nebula::get_vm_log_filename(int oid) const
 {
     ostringstream oss;
 

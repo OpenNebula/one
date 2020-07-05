@@ -34,7 +34,7 @@ int AddressRangeInternal::get_single_addr(unsigned int& index, std::string& msg)
 }
 
 int AddressRangeInternal::get_range_addr(unsigned int& index,
-        unsigned int rsize, std::string& msg)
+        unsigned int rsize, std::string& msg) const
 {
     unsigned int ar_size = get_size();
     bool valid;

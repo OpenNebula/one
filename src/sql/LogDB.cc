@@ -61,8 +61,6 @@ int LogDBRecord::select_cb(void *nil, int num, char **values, char **names)
 
     std::string zsql;
 
-    std::string * _sql;
-
     std::istringstream iss;
 
     iss.str(string(values[0]));
@@ -89,9 +87,7 @@ int LogDBRecord::select_cb(void *nil, int num, char **values, char **names)
 
     prev_term  = static_cast<unsigned int>(atoi(values[6]));
 
-    _sql = one_util::zlib_decompress(zsql, true);
-
-    if ( _sql == 0 )
+    if ( ssl_util::zlib_decompress64(zsql, sql) != 0 )
     {
 
         std::ostringstream oss;
@@ -103,10 +99,6 @@ int LogDBRecord::select_cb(void *nil, int num, char **values, char **names)
 
         return -1;
     }
-
-    sql = *_sql;
-
-    delete _sql;
 
     return 0;
 }
@@ -301,18 +293,14 @@ int LogDB::insert(uint64_t index, unsigned int term, const std::string& sql,
 {
     std::ostringstream oss;
 
-    std::string * zsql;
+    std::string zsql;
 
-    zsql = one_util::zlib_compress(sql, true);
-
-    if ( zsql == 0 )
+    if ( ssl_util::zlib_compress64(sql, zsql) != 0 )
     {
         return -1;
     }
 
-    char * sql_db = db->escape_str(*zsql);
-
-    delete zsql;
+    char * sql_db = db->escape_str(zsql);
 
     if ( sql_db == 0 )
     {

@@ -160,7 +160,7 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
 
     os->replace(base_name_tm, ds->get_tm_mad());
 
-    set<int> cluster_ids = ds->get_cluster_ids();
+    const set<int>& cluster_ids = ds->get_cluster_ids();
 
     if (!cluster_ids.empty())
     {

@@ -42,15 +42,9 @@ const long int PoolObjectSQL::LockableObject = PoolObjectSQL::ObjectType::VM
 
 string& PoolObjectSQL::to_xml64(string &xml64)
 {
-    string *str64;
-
     to_xml(xml64);
 
-    str64 = one_util::base64_encode(xml64);
-
-    xml64 = *str64;
-
-    delete str64;
+    ssl_util::base64_encode(xml64, xml64);
 
     return xml64;
 }

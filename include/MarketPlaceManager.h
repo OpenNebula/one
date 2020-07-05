@@ -190,7 +190,7 @@ private:
      *  Returns a pointer to the marketplace driver.
      *    @return the marketplace manager driver or 0 in not found
      */
-    const Driver<market_msg_t> * get()
+    const Driver<market_msg_t> * get() const
     {
         return DriverManager::get_driver(market_driver_name);
     };
@@ -210,7 +210,7 @@ private:
      *
      *    @return the XML message
      */
-    static std::string * format_message(
+    static std::string format_message(
             const std::string& app_data,
             const std::string& market_data,
             const std::string& extra_data);

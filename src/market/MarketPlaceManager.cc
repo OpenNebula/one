@@ -163,7 +163,7 @@ int MarketPlaceManager::start()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string * MarketPlaceManager::format_message(
+string MarketPlaceManager::format_message(
     const string& app_data,
     const string& market_data,
     const string& extra_data)
@@ -176,7 +176,10 @@ string * MarketPlaceManager::format_message(
         << extra_data
         << "</MARKET_DRIVER_ACTION_DATA>";
 
-    return one_util::base64_encode(oss.str());
+    string base64;
+    ssl_util::base64_encode(oss.str(), base64);
+
+    return base64;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -276,12 +279,12 @@ void MarketPlaceManager::monitor_market(int mp_id)
 
     mp->unlock();
 
-    unique_ptr<string> drv_msg(MarketPlaceManager::format_message("", mp_data, ""));
+    string drv_msg(MarketPlaceManager::format_message("", mp_data, ""));
 
     oss << "Monitoring marketplace " << mp_name  << " (" << mp_id << ")";
 
     NebulaLog::log("MKP", Log::DEBUG, oss);
 
-    market_msg_t msg(MarketPlaceManagerMessages::MONITOR, "", mp_id, *drv_msg);
+    market_msg_t msg(MarketPlaceManagerMessages::MONITOR, "", mp_id, drv_msg);
     mpmd->write(msg);
 }

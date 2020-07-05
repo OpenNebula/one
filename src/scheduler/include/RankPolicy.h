@@ -34,7 +34,7 @@ protected:
     /**
      *  Gets the rank to apply.
      */
-    virtual const std::string& get_rank(ObjectXML *obj) = 0;
+    virtual const std::string& get_rank(ObjectXML *obj) const = 0;
 
     /**
      *  Default rank for resources
@@ -59,7 +59,7 @@ private:
 
         int rc, rank = 0;
 
-        const std::vector<Resource *> resources = get_match_resources(obj);
+        const std::vector<Resource *>& resources = get_match_resources(obj);
 
         std::string srank = get_rank(obj);
 
@@ -128,14 +128,14 @@ public:
 
 private:
 
-    const std::vector<Resource *> get_match_resources(ObjectXML *obj)
+    const std::vector<Resource *>& get_match_resources(ObjectXML *obj) const override
     {
         VirtualMachineXML * vm = static_cast<VirtualMachineXML *>(obj);
 
         return vm->get_match_hosts();
     };
 
-    const std::string& get_rank(ObjectXML *obj)
+    const std::string& get_rank(ObjectXML *obj) const override
     {
         VirtualMachineXML * vm = static_cast<VirtualMachineXML *>(obj);
 
@@ -160,14 +160,14 @@ public:
 
 private:
 
-    const std::vector<Resource *> get_match_resources(ObjectXML *obj)
+    const std::vector<Resource *>& get_match_resources(ObjectXML *obj) const override
     {
         VirtualMachineXML * vm = static_cast<VirtualMachineXML *>(obj);
 
         return vm->get_match_datastores();
     };
 
-    const std::string& get_rank(ObjectXML *obj)
+    const std::string& get_rank(ObjectXML *obj) const override
     {
         VirtualMachineXML * vm = static_cast<VirtualMachineXML *>(obj);
 
@@ -191,14 +191,14 @@ public:
 
 private:
 
-    const std::vector<Resource *> get_match_resources(ObjectXML *obj)
+    const std::vector<Resource *>& get_match_resources(ObjectXML *obj) const override
     {
         VirtualMachineNicXML * nic = static_cast<VirtualMachineNicXML *>(obj);
 
         return nic->get_match_networks();
     };
 
-    const std::string& get_rank(ObjectXML *obj)
+    const std::string& get_rank(ObjectXML *obj) const override
     {
         VirtualMachineNicXML * nic = static_cast<VirtualMachineNicXML *>(obj);
 

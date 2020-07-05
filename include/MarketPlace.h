@@ -68,9 +68,9 @@ public:
     /**
      *  Returns a copy of the Image IDs set
      */
-    std::set<int> get_marketapp_ids()
+    const std::set<int>& get_marketapp_ids() const
     {
-        return marketapps.clone();
+        return marketapps.get_collection();
     }
 
     /**

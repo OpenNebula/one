@@ -81,6 +81,7 @@ public:
             case VCENTER:        return "vcenter";
             case OVSWITCH_VXLAN: return "ovswitch_vxlan";
             case BRIDGE:         return "bridge";
+            default:             return "";
         }
     };
 
@@ -143,7 +144,8 @@ public:
                 return "vcenter_port_groups";
             case BRNONE:
                 return "none";
-                break;
+            default:
+                return "none";
         }
     };
 
@@ -468,7 +470,7 @@ public:
      *    Gets used leases
      *    @return number of network leases in used
      */
-    unsigned int get_used()
+    unsigned int get_used() const
     {
         return ar_pool.get_used_addr();
     };
@@ -477,7 +479,7 @@ public:
      *    Gets total number of addresses
      *    @return the number of addresses
      */
-    unsigned int get_size()
+    unsigned int get_size() const
     {
         return ar_pool.get_size();
     };

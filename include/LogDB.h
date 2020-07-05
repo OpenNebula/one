@@ -199,22 +199,22 @@ public:
         return db->exec_rd(cmd, obj);
     }
 
-    char * escape_str(const std::string& str)
+    char * escape_str(const std::string& str) const
     {
         return db->escape_str(str);
     }
 
-    void free_str(char * str)
+    void free_str(char * str) const
     {
         db->free_str(str);
     }
 
-    bool supports(SqlDB::SqlFeature ft)
+    bool supports(SqlDB::SqlFeature ft) const
     {
         return db->supports(ft);
     }
 
-    std::string limit_string(int start_id, int end_id)
+    std::string limit_string(int start_id, int end_id) const
     {
         return db->limit_string(start_id, end_id);
     }
@@ -409,17 +409,17 @@ public:
         return _logdb->exec_rd(cmd, obj);
     }
 
-    char * escape_str(const std::string& str)
+    char * escape_str(const std::string& str) const
     {
         return _logdb->escape_str(str);
     }
 
-    void free_str(char * str)
+    void free_str(char * str) const
     {
         _logdb->free_str(str);
     }
 
-    bool supports(SqlDB::SqlFeature ft)
+    bool supports(SqlDB::SqlFeature ft) const
     {
         return _logdb->supports(ft);
     }

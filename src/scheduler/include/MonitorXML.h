@@ -71,7 +71,7 @@ public:
 
 protected:
 
-    int get_suitable_nodes(std::vector<xmlNodePtr>& content)
+    int get_suitable_nodes(std::vector<xmlNodePtr>& content) const override
     {
         return get_nodes("/MONITORING_DATA/MONITORING", content);
     };

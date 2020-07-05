@@ -59,9 +59,9 @@ public:
     /**
      *  Returns a copy of the VM IDs set
      */
-    std::set<int> get_vms() const
+    const std::set<int>& get_vms() const
     {
-        return vms.clone();
+        return vms.get_collection();
     }
 
     // ------------------------------------------------------------------------
@@ -122,7 +122,7 @@ public:
      *
      * @return VM Template ID, or -1 if it was not found
      */
-    int get_template_id();
+    int get_template_id() const;
 
     // ------------------------------------------------------------------------
     // Attach and detach NIC
@@ -265,7 +265,7 @@ private:
      *  Get all network leases for this Virtual Router
      *  @return 0 onsuccess
      */
-    int get_network_leases(std::string& estr);
+    int get_network_leases(std::string& estr) const;
 
     /**
      *  Releases all network leases taken by this Virtual Router

@@ -119,31 +119,22 @@ void MonitorDriverProtocol::_monitor_vm(unique_ptr<monitor_msg_t> msg)
         vm->vector_value("MONITOR", monitor_b64);
         vm->vector_value("DEPLOY_ID", deploy_id);
 
-        auto monitor_plain = one_util::base64_decode(monitor_b64);
+        string monitor_plain;
 
-        if (monitor_plain == nullptr)
-        {
-            NebulaLog::error("MDP", "Error decoding VM monitor attribute: "
-                + monitor_b64);
-            continue;
-        }
+        ssl_util::base64_decode(monitor_b64, monitor_plain);
 
         Template mon_tmpl;
 
-        rc = mon_tmpl.parse(*monitor_plain, &error_msg);
+        rc = mon_tmpl.parse(monitor_plain, &error_msg);
 
         if (rc != 0)
         {
             NebulaLog::error("MDP", "Error parsing VM monitor attribute: "
-                + *monitor_plain + ", error: " + error_msg);
-
-            delete monitor_plain;
+                + monitor_plain + ", error: " + error_msg);
 
             free(error_msg);
             continue;
         }
-
-        delete monitor_plain;
 
         if (id < 0)
         {

@@ -81,7 +81,7 @@ public:
      *  attributes
      *    @param auths to be filled
      */
-    void get_permissions(PoolObjectAuth& auth);
+    void get_permissions(PoolObjectAuth& auth) const;
 
     /**
      *  Prints the Virtual Network information to an output stream. This function is used

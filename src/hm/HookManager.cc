@@ -171,7 +171,7 @@ void HookManager::retry_action(const std::string& message)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string * HookManager::format_message(const string& args, const string&remote_host,
+string HookManager::format_message(const string& args, const string&remote_host,
                                      int hook_id)
 {
     std::ostringstream oss;
@@ -187,7 +187,10 @@ string * HookManager::format_message(const string& args, const string&remote_hos
 
     oss << "</HOOK_MESSAGE>";
 
-    return one_util::base64_encode(oss.str());
+    string base64;
+    ssl_util::base64_encode(oss.str(), base64);
+
+    return base64;
 }
 
 /* -------------------------------------------------------------------------- */

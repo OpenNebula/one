@@ -118,7 +118,7 @@ private:
                     static_cast<Callbackable::Callback>(&select_cb::callback));
         }
 
-        std::string get_result()
+        std::string get_result() const
         {
             return oss.str();
         }

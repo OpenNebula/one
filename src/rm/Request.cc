@@ -447,13 +447,11 @@ void Request::execute(
     //--------------------------------------------------------------------------
     ParamList pl(&_paramList, hidden_params);
 
-    std::string * event = HookAPI::format_message(method_name, pl, att);
+    std::string event = HookAPI::format_message(method_name, pl, att);
 
-    if (event != nullptr)
+    if (!event.empty())
     {
-        hm->trigger(HMAction::SEND_EVENT, *event);
-
-        delete event;
+        hm->trigger(HMAction::SEND_EVENT, event);
     }
 
     if ( log_method_call )
@@ -755,7 +753,7 @@ static void make_parameter(std::ostringstream& oss, int pos, const T& val)
 }
 
 void Request::failure_response(ErrorCode ec, const string& str_val,
-                               RequestAttributes& att)
+                               RequestAttributes& att) const
 {
     vector<xmlrpc_c::value> arrayData;
     ostringstream oss;

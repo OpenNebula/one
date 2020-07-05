@@ -22,6 +22,8 @@
 #include <openssl/pem.h>
 #include <zlib.h>
 
+using std::string;
+
 namespace ssl_util
 {
 
@@ -148,9 +150,26 @@ namespace ssl_util
 
         inflateEnd(&zs);
 
-        out = result;
+        out = std::move(result);
 
         return 0;
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------------- */
+
+    int zlib_decompress64(const string& in, string& out)
+    {
+        if ( in.empty() )
+        {
+            return -1;
+        }
+
+        string zin;
+
+        ssl_util::base64_decode(in, zin);
+
+        return ssl_util::zlib_decompress(zin, out);
     }
 
     /* -------------------------------------------------------------------------- */
@@ -196,9 +215,24 @@ namespace ssl_util
 
         deflateEnd(&zs);
 
-        out = result;
+        out = std::move(result);
 
         return 0;
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------------- */
+
+    int zlib_compress64(const string& in, string& out)
+    {
+        string compressed;
+
+        if (ssl_util::zlib_compress(in, compressed) != 0)
+        {
+            return -1;
+        }
+
+        return ssl_util::base64_encode(compressed, out);
     }
 
     /* -------------------------------------------------------------------------- */
@@ -319,9 +353,92 @@ namespace ssl_util
 
         free(out_c);
 
-        out = result;
+        out = std::move(result);
 
         return 0;
     }
 
-} // namespase ssl_util
+    /* -------------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------------- */
+
+    extern "C" void sslmutex_lock_callback(int mode, int type, char *file,
+        int line)
+    {
+        pthread_mutex_t * pm = SSLMutex::ssl_mutex->vmutex[type];
+
+        if (mode & CRYPTO_LOCK)
+        {
+            pthread_mutex_lock(pm);
+        }
+        else
+        {
+            pthread_mutex_unlock(pm);
+        }
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------------- */
+
+    extern "C" unsigned long sslmutex_id_callback()
+    {
+        return (unsigned long) pthread_self();
+    }
+
+    SSLMutex * SSLMutex::ssl_mutex;
+
+    std::vector<pthread_mutex_t *> SSLMutex::vmutex;
+
+    /* -------------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------------- */
+
+    void SSLMutex::initialize()
+    {
+        if ( ssl_mutex == nullptr )
+        {
+            ssl_mutex = new SSLMutex();
+        }
+    };
+
+    /* -------------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------------- */
+
+    void SSLMutex::finalize()
+    {
+        delete ssl_mutex;
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------------- */
+
+    SSLMutex::SSLMutex()
+    {
+        pthread_mutex_t * pm;
+        for (int i=0; i<CRYPTO_num_locks(); i++)
+        {
+            pm = (pthread_mutex_t *) malloc(sizeof(pthread_mutex_t));
+            pthread_mutex_init(pm, NULL);
+
+            vmutex.push_back(pm);
+        }
+
+        CRYPTO_set_id_callback((unsigned long (*)()) sslmutex_id_callback);
+
+        CRYPTO_set_locking_callback(
+            (void (*)(int, int, const char*, int))sslmutex_lock_callback);
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------------- */
+
+    SSLMutex::~SSLMutex()
+    {
+        for (int i=0; i<CRYPTO_num_locks(); i++)
+        {
+            pthread_mutex_destroy(vmutex[i]);
+            free(vmutex[i]);
+        }
+
+        CRYPTO_set_locking_callback(NULL);
+    }
+
+} // namespace ssl_util

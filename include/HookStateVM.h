@@ -31,7 +31,7 @@ public:
     /**
      *  Function to build a XML message for a state hook
      */
-    static std::string * format_message(VirtualMachine * vm);
+    static std::string format_message(VirtualMachine * vm);
 
 private:
     friend class Hook;

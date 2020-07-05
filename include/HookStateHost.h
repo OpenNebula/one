@@ -31,7 +31,7 @@ public:
     /**
      *  Function to build a XML message for a state hook
      */
-    static std::string * format_message(Host * host);
+    static std::string format_message(Host * host);
 
 private:
     friend class Hook;

@@ -65,7 +65,7 @@ public:
     /**
      * Returns the name that identifies the quota in a template
      */
-     virtual const char * get_quota_name() = 0;
+     virtual const char * get_quota_name() const = 0;
 
      /**
       *  Gets a quota identified by its ID.
@@ -108,7 +108,7 @@ class QuotaDecorator : public QuotaInterface
         return quota->update(tmpl, default_quotas, error);
     }
 
-    virtual const char * get_quota_name()
+    virtual const char * get_quota_name() const
     {
         return quota->get_quota_name();
     }
@@ -161,7 +161,7 @@ public:
     /**
      * Returns the name that identifies the quota in a template
      */
-     const char * get_quota_name()
+     const char * get_quota_name() const
      {
         return template_name;
      }
@@ -340,7 +340,7 @@ private:
      *    @return 0 on success
      */
     int get_limits(const VectorAttribute * va,
-                   std::map<std::string, std::string>& limits);
+                   std::map<std::string, std::string>& limits) const;
 };
 
 #endif /*QUOTA_H_*/

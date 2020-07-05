@@ -454,7 +454,7 @@ void ImageManager::_monitor(unique_ptr<image_msg_t> msg)
 
     ostringstream oss;
 
-    string  dsinfo64 = msg->payload();
+    string dsinfo64 = msg->payload();
 
     if (dsinfo64.empty())
     {
@@ -465,24 +465,17 @@ void ImageManager::_monitor(unique_ptr<image_msg_t> msg)
         return;
     }
 
-    unique_ptr<string> dsinfo(one_util::base64_decode(dsinfo64));
+    string dsinfo;
 
-    if (dsinfo == nullptr)
-    {
-        oss << "Error monitoring datastore " << msg->oid()
-            << ". Bad monitor data: " << dsinfo64;
-
-        NebulaLog::log("ImM", Log::ERROR, oss);
-        return;
-    }
+    ssl_util::base64_decode(dsinfo64, dsinfo);
 
     if (msg->status() != "SUCCESS")
     {
         oss << "Error monitoring datastore " << msg->oid() << ": " << dsinfo64;
 
-        if (!(*dsinfo).empty())
+        if (!dsinfo.empty())
         {
-            oss << ". Decoded info: " << *dsinfo;
+            oss << ". Decoded info: " << dsinfo;
         }
 
         NebulaLog::log("ImM", Log::ERROR, oss);
@@ -493,12 +486,12 @@ void ImageManager::_monitor(unique_ptr<image_msg_t> msg)
     Template monitor_data;
 
     char*  error_msg;
-    int    rc = monitor_data.parse(*dsinfo, &error_msg);
+    int    rc = monitor_data.parse(dsinfo, &error_msg);
 
     if (rc != 0)
     {
         oss << "Error parsing datastore information: " << error_msg
-            << ". Monitoring information: " << endl << *dsinfo;
+            << ". Monitoring information: " << endl << dsinfo;
 
         NebulaLog::log("ImM", Log::ERROR, oss);
 

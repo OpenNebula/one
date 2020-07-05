@@ -836,7 +836,7 @@ int VirtualNetwork::nic_attribute(
         nic->replace("TARGET", oss.str());
     }
 
-    set<int> cluster_ids = get_cluster_ids();
+    const set<int>& cluster_ids = get_cluster_ids();
 
     nic->replace("CLUSTER_ID", one_util::join(cluster_ids, ','));
 

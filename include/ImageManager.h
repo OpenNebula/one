@@ -354,7 +354,7 @@ private:
      *  Returns a pointer to the Image Manager Driver used for the Repository
      *    @return the Image Manager driver or 0 in not found
      */
-    const Driver<image_msg_t> * get()
+    const Driver<image_msg_t> * get() const
     {
         return DriverManager::get_driver(image_driver_name);
     };
@@ -395,7 +395,7 @@ private:
      *    @param extra_data additional XML formatted data for the driver
      *    @return the XML message
      */
-    static std::string* format_message(const std::string& img_data,
+    static std::string format_message(const std::string& img_data,
             const std::string& ds_data,
             const std::string& extra_data);
 

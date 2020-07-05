@@ -77,10 +77,10 @@ public:
      *    @param op The operation to be authorized
      *    @return true if the authorization is granted by any rule
      */
-    const bool authorize(int                    uid,
-                         const std::set<int>&   user_groups,
-                         const PoolObjectAuth&  obj_perms,
-                         AuthRequest::Operation op);
+    bool authorize(int                    uid,
+                   const std::set<int>&   user_groups,
+                   const PoolObjectAuth&  obj_perms,
+                   AuthRequest::Operation op);
 
     /**
      *  Takes an authorization request for oneadmin
@@ -90,7 +90,7 @@ public:
      *    @param op The operation to be authorized
      *    @return true if the authorization is granted for oneadmin
      */
-    const bool oneadmin_authorize(const PoolObjectAuth&  obj_perms,
+    bool oneadmin_authorize(const PoolObjectAuth&  obj_perms,
                          AuthRequest::Operation op);
 
     /**

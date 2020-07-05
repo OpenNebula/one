@@ -559,7 +559,7 @@ public:
      *
      * @param owner String to identify who requested the lock
      */
-    LockStates get_lock_state()
+    LockStates get_lock_state() const
     {
         return locked;
     }

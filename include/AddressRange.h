@@ -378,7 +378,7 @@ public:
     /**
      *  Copy security groups into set
      */
-    void get_security_groups(std::set<int>& sgs)
+    void get_security_groups(std::set<int>& sgs) const
     {
         for (auto sg : security_groups)
         {
@@ -469,7 +469,7 @@ protected:
      *    @return true if the IP is valid
      */
     bool is_valid_ip(unsigned int& index, const std::string& ip_s,
-                     bool check_free);
+                     bool check_free) const;
 
     /**
      *  Check if the given IP is valid for this address range by verifying:

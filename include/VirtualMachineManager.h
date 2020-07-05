@@ -207,7 +207,7 @@ public:
      *    @return the VM driver owned by uid with attribute name equal to value
      *    or 0 in not found
      */
-    const VirtualMachineManagerDriver * get(const std::string& name)
+    const VirtualMachineManagerDriver * get(const std::string& name) const
     {
         return DriverManager::get_driver(name);
     };
@@ -451,7 +451,7 @@ private:
      *    @param ds_id of the system datastore
      *    @param id of the security group
      */
-    std::string * format_message(
+    std::string format_message(
         const std::string& hostname,
         const std::string& m_hostname,
         const std::string& domain,

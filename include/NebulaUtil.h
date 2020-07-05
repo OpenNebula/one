@@ -57,21 +57,6 @@ namespace one_util
      */
     std::string sha256_digest(const std::string& in);
 
-    /**
-    *  Base 64 encoding
-    *    @param in the string to encoded
-    *    @return a pointer to the encoded string (must be freed) or nullptr in case of
-    *    error
-    */
-    std::string * base64_encode(const std::string& in);
-
-   /**
-    *  Base 64 decoding
-    *    @param in the string to decode
-    *    @return a pointer to the decoded string (must be freed) or nullptr in case of
-    *    error
-    */
-    std::string * base64_decode(const std::string& in);
 
    /**
     *  AES256 encryption
@@ -346,48 +331,6 @@ namespace one_util
         return output;
     }
 
-    /**
-     *  Compress the input string unsing zlib
-     *    @param in input string
-     *    @param bool64 true to base64 encode output
-     *    @return pointer to the compressed sting (must be freed) or 0 in case
-     *    of error
-     */
-    std::string * zlib_compress(const std::string& in, bool base64);
-
-    /**
-     *  Decompress the input string unsing zlib
-     *    @param in input string
-     *    @param base64 true if the input is base64 encoded
-     *    @return pointer to the decompressed sting (must be freed) or 0 in case
-     *    of error
-     */
-    std::string * zlib_decompress(const std::string& in, bool base64);
-
-    extern "C" void sslmutex_lock_callback(int mode, int type, char *file,
-        int line);
-
-    extern "C" unsigned long sslmutex_id_callback();
-
-    class SSLMutex
-    {
-    public:
-        static void initialize();
-
-        static void finalize();
-
-    private:
-        friend void sslmutex_lock_callback(int mode, int type, char *file,
-            int line);
-
-        SSLMutex();
-
-        ~SSLMutex();
-
-        static SSLMutex * ssl_mutex;
-
-        static std::vector<pthread_mutex_t *> vmutex;
-    };
 } // namespace one_util
 
 #endif /* _NEBULA_UTIL_H_ */

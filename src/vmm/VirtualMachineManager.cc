@@ -286,7 +286,7 @@ int VirtualMachineManager::validate_raw(const Template * vmt, string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string * VirtualMachineManager::format_message(
+string VirtualMachineManager::format_message(
     const string& hostname,
     const string& m_hostname,
     const string& domain,
@@ -389,7 +389,11 @@ string * VirtualMachineManager::format_message(
         << ds_tmpl
         << "</VMM_DRIVER_ACTION_DATA>";
 
-    return one_util::base64_encode(oss.str());
+
+    string base64;
+    ssl_util::base64_encode(oss.str(), base64);
+
+    return base64;
 }
 
 static int do_context_command(VirtualMachine * vm, const string& password,
@@ -445,7 +449,7 @@ void VirtualMachineManager::deploy_action(int vid)
     string        disk_path;
     string        prolog_cmd;
     string        vm_tmpl;
-    string *      drv_msg;
+    string        drv_msg;
 
     vm = vmpool->get(vid);
 
@@ -515,9 +519,7 @@ void VirtualMachineManager::deploy_action(int vid)
         vm->get_ds_id(),
         -1);
 
-    vmd->deploy(vid, *drv_msg);
-
-    delete drv_msg;
+    vmd->deploy(vid, drv_msg);
 
     vmpool->update(vm);
 
@@ -563,7 +565,7 @@ void VirtualMachineManager::save_action(
 
     string   hostname, checkpoint_file;
     string   vm_tmpl;
-    string * drv_msg;
+    string   drv_msg;
     int      ds_id;
 
     ostringstream os;
@@ -623,9 +625,7 @@ void VirtualMachineManager::save_action(
         ds_id,
         -1);
 
-    vmd->save(vid, *drv_msg);
-
-    delete drv_msg;
+    vmd->save(vid, drv_msg);
 
     vm->unlock();
 
@@ -664,7 +664,7 @@ void VirtualMachineManager::shutdown_action(
 
     string        hostname;
     string        vm_tmpl;
-    string *      drv_msg;
+    string        drv_msg;
     ostringstream os;
 
     int      ds_id;
@@ -722,9 +722,7 @@ void VirtualMachineManager::shutdown_action(
         ds_id,
         -1);
 
-    vmd->shutdown(vid, *drv_msg);
-
-    delete drv_msg;
+    vmd->shutdown(vid, drv_msg);
 
     vm->unlock();
 
@@ -762,7 +760,7 @@ void VirtualMachineManager::reboot_action(
     const VirtualMachineManagerDriver * vmd;
 
     string        vm_tmpl;
-    string *      drv_msg;
+    string        drv_msg;
     ostringstream os;
 
     // Get the VM from the pool
@@ -801,9 +799,7 @@ void VirtualMachineManager::reboot_action(
         vm->get_ds_id(),
         -1);
 
-    vmd->reboot(vid, *drv_msg);
-
-    delete drv_msg;
+    vmd->reboot(vid, drv_msg);
 
     vm->unlock();
 
@@ -832,7 +828,7 @@ void VirtualMachineManager::reset_action(
     const VirtualMachineManagerDriver * vmd;
 
     string        vm_tmpl;
-    string *      drv_msg;
+    string        drv_msg;
     ostringstream os;
 
     // Get the VM from the pool
@@ -871,9 +867,7 @@ void VirtualMachineManager::reset_action(
         vm->get_ds_id(),
         -1);
 
-    vmd->reset(vid, *drv_msg);
-
-    delete drv_msg;
+    vmd->reset(vid, drv_msg);
 
     vm->unlock();
 
@@ -903,7 +897,7 @@ void VirtualMachineManager::cancel_action(
 
     string   hostname;
     string   vm_tmpl;
-    string * drv_msg;
+    string   drv_msg;
     int ds_id;
 
     const VirtualMachineManagerDriver *   vmd;
@@ -961,9 +955,7 @@ void VirtualMachineManager::cancel_action(
         ds_id,
         -1);
 
-    vmd->cancel(vid, *drv_msg);
-
-    delete drv_msg;
+    vmd->cancel(vid, drv_msg);
 
     vm->unlock();
 
@@ -1001,7 +993,7 @@ void VirtualMachineManager::cancel_previous_action(
     ostringstream    os;
 
     string   vm_tmpl;
-    string * drv_msg;
+    string   drv_msg;
 
     const VirtualMachineManagerDriver * vmd;
 
@@ -1041,9 +1033,7 @@ void VirtualMachineManager::cancel_previous_action(
         vm->get_ds_id(),
         -1);
 
-    vmd->cancel(vid, *drv_msg);
-
-    delete drv_msg;
+    vmd->cancel(vid, drv_msg);
 
     vm->unlock();
 
@@ -1072,7 +1062,7 @@ void VirtualMachineManager::cleanup_action(
     ostringstream    os;
 
     string   vm_tmpl;
-    string * drv_msg;
+    string   drv_msg;
     string   tm_command = "";
 
     string m_hostname = "";
@@ -1132,9 +1122,7 @@ void VirtualMachineManager::cleanup_action(
         vm->get_ds_id(),
         -1);
 
-    vmd->cleanup(vid, *drv_msg);
-
-    delete drv_msg;
+    vmd->cleanup(vid, drv_msg);
 
     vm->unlock();
 
@@ -1168,7 +1156,7 @@ void VirtualMachineManager::cleanup_previous_action(int vid)
     ostringstream    os;
 
     string   vm_tmpl;
-    string * drv_msg;
+    string   drv_msg;
     string   tm_command = "";
 
     const VirtualMachineManagerDriver *   vmd;
@@ -1218,9 +1206,7 @@ void VirtualMachineManager::cleanup_previous_action(int vid)
         vm->get_ds_id(),
         -1);
 
-    vmd->cleanup(vid, *drv_msg);
-
-    delete drv_msg;
+    vmd->cleanup(vid, drv_msg);
 
     vm->unlock();
 
@@ -1256,7 +1242,7 @@ void VirtualMachineManager::migrate_action(
 
     ostringstream os;
     string   vm_tmpl;
-    string * drv_msg;
+    string   drv_msg;
 
     // Get the VM from the pool
     vm = vmpool->get(vid);
@@ -1301,9 +1287,7 @@ void VirtualMachineManager::migrate_action(
         vm->get_previous_ds_id(),
         -1);
 
-    vmd->migrate(vid, *drv_msg);
-
-    delete drv_msg;
+    vmd->migrate(vid, drv_msg);
 
     vm->unlock();
 
@@ -1348,7 +1332,7 @@ void VirtualMachineManager::restore_action(
     string prolog_cmd;
     string disk_path;
 
-    string* drv_msg;
+    string drv_msg;
 
     vm = vmpool->get(vid);
 
@@ -1403,9 +1387,7 @@ void VirtualMachineManager::restore_action(
         vm->get_ds_id(),
         -1);
 
-    vmd->restore(vid, *drv_msg);
-
-    delete drv_msg;
+    vmd->restore(vid, drv_msg);
 
     vmpool->update(vm);
 
@@ -1498,7 +1480,7 @@ void VirtualMachineManager::attach_action(
     ostringstream os, error_os;
 
     string  vm_tmpl;
-    string* drv_msg;
+    string  drv_msg;
     string  tm_command;
     string  vm_tm_mad;
     string  opennebula_hostname;
@@ -1590,9 +1572,7 @@ void VirtualMachineManager::attach_action(
         vm->get_ds_id(),
         -1);
 
-    vmd->attach(vid, *drv_msg);
-
-    delete drv_msg;
+    vmd->attach(vid, drv_msg);
 
     vm->unlock();
 
@@ -1640,7 +1620,7 @@ void VirtualMachineManager::detach_action(
 
     ostringstream os;
     string        vm_tmpl;
-    string *      drv_msg;
+    string        drv_msg;
     string        tm_command;
     string        vm_tm_mad;
     string        opennebula_hostname;
@@ -1711,9 +1691,7 @@ void VirtualMachineManager::detach_action(
         vm->get_ds_id(),
         -1);
 
-    vmd->detach(vid, *drv_msg);
-
-    delete drv_msg;
+    vmd->detach(vid, drv_msg);
 
     vm->unlock();
 
@@ -1756,7 +1734,7 @@ void VirtualMachineManager::snapshot_create_action(int vid)
     ostringstream os;
 
     string  vm_tmpl;
-    string* drv_msg;
+    string  drv_msg;
 
     // Get the VM from the pool
     vm = vmpool->get(vid);
@@ -1793,9 +1771,7 @@ void VirtualMachineManager::snapshot_create_action(int vid)
         vm->get_ds_id(),
         -1);
 
-    vmd->snapshot_create(vid, *drv_msg);
-
-    delete drv_msg;
+    vmd->snapshot_create(vid, drv_msg);
 
     vm->unlock();
 
@@ -1834,7 +1810,7 @@ void VirtualMachineManager::snapshot_revert_action(int vid)
     ostringstream os;
 
     string  vm_tmpl;
-    string* drv_msg;
+    string  drv_msg;
 
     // Get the VM from the pool
     vm = vmpool->get(vid);
@@ -1871,9 +1847,7 @@ void VirtualMachineManager::snapshot_revert_action(int vid)
         vm->get_ds_id(),
         -1);
 
-    vmd->snapshot_revert(vid, *drv_msg);
-
-    delete drv_msg;
+    vmd->snapshot_revert(vid, drv_msg);
 
     vm->unlock();
 
@@ -1912,7 +1886,7 @@ void VirtualMachineManager::snapshot_delete_action(int vid)
     ostringstream os;
 
     string  vm_tmpl;
-    string* drv_msg;
+    string  drv_msg;
 
     // Get the VM from the pool
     vm = vmpool->get(vid);
@@ -1949,9 +1923,7 @@ void VirtualMachineManager::snapshot_delete_action(int vid)
         vm->get_ds_id(),
         -1);
 
-    vmd->snapshot_delete(vid, *drv_msg);
-
-    delete drv_msg;
+    vmd->snapshot_delete(vid, drv_msg);
 
     vm->unlock();
 
@@ -1990,7 +1962,7 @@ void VirtualMachineManager::disk_snapshot_create_action(int vid)
     ostringstream os;
 
     string  vm_tmpl;
-    string* drv_msg;
+    string  drv_msg;
 
     string  vm_tm_mad;
     string  snap_cmd;
@@ -2058,11 +2030,9 @@ void VirtualMachineManager::disk_snapshot_create_action(int vid)
         vm->get_ds_id(),
         -1);
 
-    vmd->disk_snapshot_create(vid, *drv_msg);
+    vmd->disk_snapshot_create(vid, drv_msg);
 
     vm->unlock();
-
-    delete drv_msg;
 
     return;
 
@@ -2106,7 +2076,7 @@ void VirtualMachineManager::disk_resize_action(int vid)
     ostringstream os;
 
     string  vm_tmpl;
-    string* drv_msg;
+    string  drv_msg;
 
     string  resize_cmd;
     string  disk_path;
@@ -2170,11 +2140,9 @@ void VirtualMachineManager::disk_resize_action(int vid)
         vm->get_ds_id(),
         -1);
 
-    vmd->disk_resize(vid, *drv_msg);
+    vmd->disk_resize(vid, drv_msg);
 
     vm->unlock();
-
-    delete drv_msg;
 
     return;
 
@@ -2213,7 +2181,7 @@ void VirtualMachineManager::update_conf_action(int vid)
     ostringstream os;
 
     string  vm_tmpl;
-    string* drv_msg;
+    string  drv_msg;
 
     string  password;
     string  prolog_cmd;
@@ -2269,11 +2237,9 @@ void VirtualMachineManager::update_conf_action(int vid)
         vm->get_ds_id(),
         -1);
 
-    vmd->update_conf(vid, *drv_msg);
+    vmd->update_conf(vid, drv_msg);
 
     vm->unlock();
-
-    delete drv_msg;
 
     return;
 
@@ -2300,7 +2266,7 @@ void VirtualMachineManager::attach_nic_action(
     ostringstream os;
 
     string  vm_tmpl;
-    string* drv_msg;
+    string  drv_msg;
     string  opennebula_hostname;
     string  prolog_cmd;
     string  disk_path;
@@ -2360,9 +2326,7 @@ void VirtualMachineManager::attach_nic_action(
         vm->get_ds_id(),
         -1);
 
-    vmd->attach_nic(vid, *drv_msg);
-
-    delete drv_msg;
+    vmd->attach_nic(vid, drv_msg);
 
     vmpool->update(vm);
 
@@ -2407,7 +2371,7 @@ void VirtualMachineManager::detach_nic_action(
 
     ostringstream os;
     string        vm_tmpl;
-    string *      drv_msg;
+    string        drv_msg;
     string        error_str;
     string  prolog_cmd;
     string  disk_path;
@@ -2467,9 +2431,7 @@ void VirtualMachineManager::detach_nic_action(
         vm->get_ds_id(),
         -1);
 
-    vmd->detach_nic(vid, *drv_msg);
-
-    delete drv_msg;
+    vmd->detach_nic(vid, drv_msg);
 
     vm->unlock();
 
@@ -2507,7 +2469,7 @@ error_common:
 int VirtualMachineManager::updatesg(VirtualMachine * vm, int sgid)
 {
     string   vm_tmpl;
-    string * drv_msg;
+    string   drv_msg;
 
     ostringstream os;
 
@@ -2539,9 +2501,7 @@ int VirtualMachineManager::updatesg(VirtualMachine * vm, int sgid)
         vm->get_ds_id(),
         sgid);
 
-    vmd->updatesg(vm->get_oid(), *drv_msg);
-
-    delete drv_msg;
+    vmd->updatesg(vm->get_oid(), drv_msg);
 
     return 0;
 }

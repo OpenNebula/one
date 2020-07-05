@@ -143,7 +143,7 @@ int ClusterUpdateTemplate::extra_updates(PoolObjectSQL * obj)
 
     auto cluster = static_cast<Cluster*>(obj);
 
-    std::set<int> hosts = cluster->get_host_ids();
+    const std::set<int>& hosts = cluster->get_host_ids();
 
     cluster->get_reserved_capacity(ccpu, cmem);
 

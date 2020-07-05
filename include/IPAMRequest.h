@@ -18,7 +18,7 @@
 #define IPAM_REQUEST_H_
 
 #include "SyncRequest.h"
-#include "NebulaUtil.h"
+#include "SSLUtil.h"
 #include "Attribute.h"
 #include "Template.h"
 
@@ -79,17 +79,13 @@ public:
     std::string& to_xml64(std::string& action_data) const
     {
         std::ostringstream oss;
-        std::string * aux_str;
 
         oss << "<IPAM_DRIVER_ACTION_DATA>"
             << ar_xml
             << address_xml
             << "</IPAM_DRIVER_ACTION_DATA>";
 
-        aux_str     = one_util::base64_encode(oss.str());
-        action_data = *aux_str;
-
-        delete aux_str;
+        ssl_util::base64_encode(oss.str(), action_data);
 
         return action_data;
     }
@@ -180,19 +176,11 @@ private:
      */
     int parse_response(Template& response, std::string& error) const
     {
-        std::string * msg = one_util::base64_decode(message);
+        std::string msg;
 
-        if ( msg == 0 )
-        {
-            error = "Error decoding base64 IPAM driver response";
-            return -1;
-        }
+        ssl_util::base64_decode(message, msg);
 
-        int rc = response.parse_str_or_xml(*msg, error);
-
-        delete msg;
-
-        return rc;
+        return response.parse_str_or_xml(msg, error);
     }
 };
 

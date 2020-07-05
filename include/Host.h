@@ -224,7 +224,7 @@ public:
     // Share functions.
     // -------------------------------------------------------------------------
 
-    long long get_share_running_vms()
+    long long get_share_running_vms() const
     {
         return host_share.get_running_vms();
     }
@@ -294,9 +294,9 @@ public:
     /**
      *  Returns a copy of the VM IDs set
      */
-    std::set<int> get_vm_ids()
+    const std::set<int>& get_vm_ids() const
     {
-        return vm_collection.clone();
+        return vm_collection.get_collection();
     }
 
     /**

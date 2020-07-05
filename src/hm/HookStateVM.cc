@@ -29,7 +29,7 @@ bool HookStateVM::trigger(VirtualMachine * vm)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string * HookStateVM::format_message(VirtualMachine * vm)
+string HookStateVM::format_message(VirtualMachine * vm)
 {
     std::ostringstream oss;
     std::string vm_xml;
@@ -61,7 +61,10 @@ string * HookStateVM::format_message(VirtualMachine * vm)
     oss << vm->to_xml_extended(vm_xml)
         << "</HOOK_MESSAGE>";
 
-    return one_util::base64_encode(oss.str());
+    string base64;
+    ssl_util::base64_encode(oss.str(), base64);
+
+    return base64;
 }
 
 /* -------------------------------------------------------------------------- */

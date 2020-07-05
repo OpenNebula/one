@@ -45,7 +45,7 @@ public:
     /**
      *  @return the role id
      */
-    int id()
+    int id() const
     {
         int rid;
 
@@ -57,7 +57,7 @@ public:
     /**
      *  @return the role name
      */
-    std::string name()
+    std::string name() const
     {
         return va->vector_value("NAME");
     }
@@ -65,7 +65,7 @@ public:
     /**
      *  @return the set of VMs in a string in a comma separated list
      */
-    std::string vms_s()
+    std::string vms_s() const
     {
         return va->vector_value("VMS");
     }
@@ -83,12 +83,12 @@ public:
     /* ---------------------------------------------------------------------- */
     /* VMS set Interface                                                      */
     /* ---------------------------------------------------------------------- */
-    const std::set<int>& get_vms()
+    const std::set<int>& get_vms() const
     {
         return vms;
     };
 
-    int size_vms()
+    int size_vms() const
     {
         return vms.size();
     }

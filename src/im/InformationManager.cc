@@ -522,7 +522,7 @@ void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
         return;
     }
 
-    set<int> host_ids = host->get_vm_ids();
+    const set<int>& host_ids = host->get_vm_ids();
     set<int> missing;
     set<int> zombies;
 

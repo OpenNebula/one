@@ -604,7 +604,7 @@ private:
     *   @param only_running true to not add CPU, MEMORY and VMS counters
     */
     void get_quota_template(VirtualMachine * vm,
-            VirtualMachineTemplate& quota_tmpl, bool only_running);
+            VirtualMachineTemplate& quota_tmpl, bool only_running) const;
 };
 
 #endif /*DISPATCH_MANAGER_H*/

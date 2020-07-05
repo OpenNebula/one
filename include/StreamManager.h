@@ -60,7 +60,7 @@ public:
 
     StreamManager():StreamManager(-1, [](std::unique_ptr<MSG> m){}){};
 
-    ~StreamManager()
+    virtual ~StreamManager()
     {
         close(_fd);
     };

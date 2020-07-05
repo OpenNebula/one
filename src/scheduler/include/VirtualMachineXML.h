@@ -39,7 +39,7 @@ public:
     /**
      *  Returns a vector of matched datastores
     */
-    const std::vector<Resource *>& get_match_networks()
+    const std::vector<Resource *>& get_match_networks() const
     {
         return match_networks.get_resources();
     }
@@ -72,7 +72,7 @@ public:
     //--------------------------------------------------------------------------
     // Rank & requirements set & get
     //--------------------------------------------------------------------------
-    const std::string& get_rank()
+    const std::string& get_rank() const
     {
         return rank;
     };
@@ -82,7 +82,7 @@ public:
         rank = r;
     }
 
-    const std::string& get_requirements()
+    const std::string& get_requirements() const
     {
         return requirements;
     };
@@ -165,13 +165,13 @@ public:
     //--------------------------------------------------------------------------
     // Scheduling requirements and rank
     //--------------------------------------------------------------------------
-    const std::string& get_requirements() { return requirements; };
+    const std::string& get_requirements() const { return requirements; };
 
-    const std::string& get_ds_requirements() { return ds_requirements; }
+    const std::string& get_ds_requirements() const { return ds_requirements; }
 
-    const std::string& get_rank() { return rank; };
+    const std::string& get_rank() const { return rank; };
 
-    const std::string& get_ds_rank() { return ds_rank; };
+    const std::string& get_ds_rank() const { return ds_rank; };
 
     /**
      *  Adds (logical AND) new placement requirements to the current ones
@@ -182,16 +182,16 @@ public:
     //--------------------------------------------------------------------------
     // Functions to schedule network interfaces (NIC)
     //--------------------------------------------------------------------------
-    VirtualMachineNicXML * get_nic(int nic_id);
+    VirtualMachineNicXML * get_nic(int nic_id) const;
 
-    const std::string& get_nic_rank(int nic_id);
+    const std::string& get_nic_rank(int nic_id) const;
 
-    const std::string& get_nic_requirements(int nic_id);
+    const std::string& get_nic_requirements(int nic_id) const;
 
     /**
      *  Return ids of NICs with NETWORK_MODE=auto (i.e. need to schedule networks)
      */
-    std::set<int> get_nics_ids()
+    const std::set<int>& get_nics_ids() const
     {
         return nics_ids_auto;
     }
@@ -207,7 +207,7 @@ public:
      *    - PCI devices
      *    - NUMA node topology
      */
-    void get_capacity(HostShareCapacity &sr);
+    void get_capacity(HostShareCapacity &sr) const;
 
     /**
      *  Add capacity to (cpu, mem, system_ds disk, numa_nodes) this VM
@@ -239,7 +239,7 @@ public:
     /**
      *  @return storage usage for the VM
      */
-    std::map<int,long long> get_storage_usage()
+    const std::map<int,long long>& get_storage_usage() const
     {
         return ds_usage;
     }
@@ -285,7 +285,7 @@ public:
     /**
      *  Returns a vector of matched hosts
      */
-    const std::vector<Resource *> get_match_hosts()
+    const std::vector<Resource *>& get_match_hosts() const
     {
         return match_hosts.get_resources();
     }
@@ -293,7 +293,7 @@ public:
     /**
      *  Returns a vector of matched datastores
      */
-    const std::vector<Resource *> get_match_datastores()
+    const std::vector<Resource *>& get_match_datastores() const
     {
         return match_datastores.get_resources();
     }
@@ -301,7 +301,7 @@ public:
     /**
      *  Returns a vector of matched networks
      */
-    const std::vector<Resource *>& get_match_networks(int nic_id)
+    const std::vector<Resource *>& get_match_networks(int nic_id) const
     {
         static std::vector<Resource *> ev;
 
@@ -395,7 +395,7 @@ public:
      *  Get the user template of the VM
      *    @return the template as a XML string
      */
-    std::string& get_template(std::string& xml_str)
+    std::string& get_template(std::string& xml_str) const
     {
         if (user_template != 0)
         {
@@ -414,7 +414,7 @@ public:
      *
      * @param attributes to hold the VM actions
      */
-    SchedActions * get_actions()
+    SchedActions * get_actions() const
     {
         return new SchedActions(user_template);
     }

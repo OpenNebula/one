@@ -43,7 +43,7 @@ void DatastoreXML::init_attributes()
     ObjectCollection cluster_collection("CLUSTERS");
     cluster_collection.from_xml(this, "/DATASTORE/");
 
-    cluster_ids = cluster_collection.clone();
+    cluster_ids = cluster_collection.get_collection();
 
     xpath(uid,      "/DATASTORE/UID",  -1);
     xpath(gid,      "/DATASTORE/GID",  -1);

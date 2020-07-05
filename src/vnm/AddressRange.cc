@@ -1089,7 +1089,7 @@ bool AddressRange::is_valid_mac(unsigned int& index, const string& mac_s,
 /* -------------------------------------------------------------------------- */
 
 bool AddressRange::is_valid_ip(unsigned int& index, const string& ip_s,
-    bool check_free)
+    bool check_free) const
 {
     if (!is_ipv4())//Not of type IP4 or IP4_6
     {

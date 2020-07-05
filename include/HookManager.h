@@ -130,14 +130,14 @@ public:
      *    @return the Hook driver owned by uid 0, with attribute "NAME" equal to
      *    name or 0 in not found
      */
-    const Driver<hook_msg_t> * get()
+    const Driver<hook_msg_t> * get() const
     {
         return DriverManager::get_driver(hook_driver_name);
     }
 
-    static std::string * format_message(const std::string& args,
-                                        const std::string& remote_host,
-                                        int hook_id);
+    static std::string format_message(const std::string& args,
+                                      const std::string& remote_host,
+                                      int hook_id);
 
 private:
     /**

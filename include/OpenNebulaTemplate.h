@@ -59,7 +59,7 @@ public:
      *  @param  action
      *  @return authorization operation configured for the given VM action
      */
-    AuthRequest::Operation get_vm_auth_op(VMActions::Action action)
+    AuthRequest::Operation get_vm_auth_op(VMActions::Action action) const
     {
         AuthRequest::Operation aop = vm_actions.get_auth_op(action);
 

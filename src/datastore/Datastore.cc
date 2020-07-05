@@ -105,7 +105,7 @@ void Datastore::disk_attribute(
     disk->replace("DATASTORE_ID", oid);
     disk->replace("TM_MAD",       get_tm_mad());
 
-    set<int> cluster_ids = get_cluster_ids();
+    const set<int>& cluster_ids = get_cluster_ids();
 
     disk->replace("CLUSTER_ID", one_util::join(cluster_ids, ','));
 
@@ -1018,7 +1018,7 @@ int Datastore::post_update_template(string& error_str)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-bool Datastore::get_avail_mb(long long &avail)
+bool Datastore::get_avail_mb(long long &avail) const
 {
     long long   limit_mb;
     long long   free_limited;
@@ -1054,7 +1054,7 @@ bool Datastore::get_avail_mb(long long &avail)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-bool Datastore::is_persistent_only()
+bool Datastore::is_persistent_only() const
 {
     int rc;
     bool persistent_only = false;
@@ -1078,7 +1078,8 @@ bool Datastore::is_persistent_only()
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Datastore::get_tm_mad_targets(const string &tm_mad, string& ln_target, string& clone_target, string& disk_type)
+int Datastore::get_tm_mad_targets(const string &tm_mad, string& ln_target,
+        string& clone_target, string& disk_type) const
 {
     if (!tm_mad.empty())
     {

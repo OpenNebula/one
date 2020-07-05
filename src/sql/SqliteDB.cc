@@ -162,14 +162,14 @@ int SqliteDB::exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
 
 /* -------------------------------------------------------------------------- */
 
-char * SqliteDB::escape_str(const string& str)
+char * SqliteDB::escape_str(const string& str) const
 {
     return sqlite3_mprintf("%q",str.c_str());
 }
 
 /* -------------------------------------------------------------------------- */
 
-void SqliteDB::free_str(char * str)
+void SqliteDB::free_str(char * str) const
 {
     sqlite3_free(str);
 }

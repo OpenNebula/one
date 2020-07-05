@@ -100,11 +100,9 @@ int HostPool::allocate (
 
         if (host != nullptr)
         {
-            std::string * event = HookStateHost::format_message(host);
+            std::string event = HookStateHost::format_message(host);
 
-            Nebula::instance().get_hm()->trigger(HMAction::SEND_EVENT, *event);
-
-            delete event;
+            Nebula::instance().get_hm()->trigger(HMAction::SEND_EVENT, event);
 
             auto *im = Nebula::instance().get_im();
             im->update_host(host);
@@ -148,11 +146,9 @@ int HostPool::update(PoolObjectSQL * objsql)
 
     if ( HookStateHost::trigger(host) )
     {
-        std::string * event = HookStateHost::format_message(host);
+        std::string event = HookStateHost::format_message(host);
 
-        Nebula::instance().get_hm()->trigger(HMAction::SEND_EVENT, *event);
-
-        delete event;
+        Nebula::instance().get_hm()->trigger(HMAction::SEND_EVENT, event);
     }
 
     host->set_prev_state();

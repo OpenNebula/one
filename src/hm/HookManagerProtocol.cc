@@ -76,15 +76,12 @@ void HookManager::_execute(unique_ptr<hook_msg_t> msg)
     std::string info_b64;
     getline(is, info_b64);
 
-    string* info = one_util::base64_decode(info_b64);
+    string info;
+    ssl_util::base64_decode(info_b64, info);
 
-    if (info != nullptr)
-    {
-        HookLog* hl = Nebula::instance().get_hl();
+    HookLog* hl = Nebula::instance().get_hl();
 
-        hl->add(hook_id, hook_rc, *info);
-        delete info;
-    }
+    hl->add(hook_id, hook_rc, info);
 }
 
 /* -------------------------------------------------------------------------- */

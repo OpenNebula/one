@@ -43,12 +43,11 @@ void AuthRequest::add_auth(Operation             op,
 
     if ( !ob_template.empty() )
     {
-        string * encoded_id = one_util::base64_encode(ob_template);
+        string encoded_id;
 
-        if (encoded_id != nullptr)
+        if (ssl_util::base64_encode(ob_template, encoded_id) == 0)
         {
-            oss << *encoded_id << ":";
-            delete encoded_id;
+            oss << encoded_id << ":";
         }
         else
         {

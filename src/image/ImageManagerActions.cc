@@ -575,9 +575,9 @@ int ImageManager::delete_image(int iid, string& error_str)
     }
     else
     {
-        unique_ptr<string> drv_msg(format_message(img->to_xml(img_tmpl), ds_data, ""));
+        string drv_msg(format_message(img->to_xml(img_tmpl), ds_data, ""));
 
-        image_msg_t msg(ImageManagerMessages::RM, "", iid, *drv_msg);
+        image_msg_t msg(ImageManagerMessages::RM, "", iid, drv_msg);
 
         imd->write(msg);
 
@@ -783,9 +783,9 @@ int ImageManager::clone_image(int   new_id,
         return -1;
     }
 
-    unique_ptr<string> drv_msg(format_message(img->to_xml(img_tmpl), ds_data, extra_data));
+    string drv_msg(format_message(img->to_xml(img_tmpl), ds_data, extra_data));
 
-    image_msg_t msg(ImageManagerMessages::CLONE, "", img->get_oid(), *drv_msg);
+    image_msg_t msg(ImageManagerMessages::CLONE, "", img->get_oid(), drv_msg);
 
     imd->write(msg);
 
@@ -831,7 +831,7 @@ int ImageManager::register_image(int iid,
         return -1;
     }
 
-    unique_ptr<string> drv_msg(format_message(img->to_xml(img_tmpl), ds_data, extra_data));
+    string drv_msg(format_message(img->to_xml(img_tmpl), ds_data, extra_data));
     path    = img->get_path();
 
     if ( path.empty() == true ) //NO PATH
@@ -849,7 +849,7 @@ int ImageManager::register_image(int iid,
         else if ( img->is_saving() || img->get_type() == Image::DATABLOCK
                 || img->get_type() == Image::OS)
         {
-            image_msg_t msg(ImageManagerMessages::MKFS, "", img->get_oid(), *drv_msg);
+            image_msg_t msg(ImageManagerMessages::MKFS, "", img->get_oid(), drv_msg);
             imd->write(msg);
 
             oss << "Creating disk at " << source << " of "<<  img->get_size()
@@ -858,7 +858,7 @@ int ImageManager::register_image(int iid,
     }
     else //PATH -> COPY TO REPOSITORY AS SOURCE
     {
-        image_msg_t msg(ImageManagerMessages::CP, "", img->get_oid(), *drv_msg);
+        image_msg_t msg(ImageManagerMessages::CP, "", img->get_oid(), drv_msg);
         imd->write(msg);
 
         oss << "Copying " << path <<" to repository for image "<<img->get_oid();
@@ -978,9 +978,9 @@ int ImageManager::stat_image(Template*     img_tmpl,
 
     add_request(&sr);
 
-    unique_ptr<string> drv_msg(format_message(img_data.str(), ds_data, ""));
+    string drv_msg(format_message(img_data.str(), ds_data, ""));
 
-    image_msg_t msg(ImageManagerMessages::STAT, "", sr.id, *drv_msg);
+    image_msg_t msg(ImageManagerMessages::STAT, "", sr.id, drv_msg);
     imd->write(msg);
 
     sr.wait();
@@ -998,7 +998,7 @@ int ImageManager::stat_image(Template*     img_tmpl,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string* ImageManager::format_message(
+string ImageManager::format_message(
     const string& img_data,
     const string& ds_data,
     const string& extra_data)
@@ -1011,7 +1011,10 @@ string* ImageManager::format_message(
         << extra_data
         << "</DS_DRIVER_ACTION_DATA>";
 
-    return one_util::base64_encode(oss.str());
+    string base64;
+    ssl_util::base64_encode(oss.str(), base64);
+
+    return base64;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1187,9 +1190,9 @@ int ImageManager::delete_snapshot(int iid, int sid, string& error)
     img->set_target_snapshot(sid);
 
     string img_tmpl;
-    unique_ptr<string> drv_msg(format_message(img->to_xml(img_tmpl), ds_data, ""));
+    string drv_msg(format_message(img->to_xml(img_tmpl), ds_data, ""));
 
-    image_msg_t msg(ImageManagerMessages::SNAP_DELETE, "", iid, *drv_msg);
+    image_msg_t msg(ImageManagerMessages::SNAP_DELETE, "", iid, drv_msg);
 
     imd->write(msg);
 
@@ -1291,9 +1294,9 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
     img->set_target_snapshot(sid);
 
     string   img_tmpl;
-    unique_ptr<string> drv_msg(format_message(img->to_xml(img_tmpl), ds_data, ""));
+    string drv_msg(format_message(img->to_xml(img_tmpl), ds_data, ""));
 
-    image_msg_t msg(ImageManagerMessages::SNAP_REVERT, "", iid, *drv_msg);
+    image_msg_t msg(ImageManagerMessages::SNAP_REVERT, "", iid, drv_msg);
 
     imd->write(msg);
 
@@ -1388,9 +1391,9 @@ int ImageManager::flatten_snapshot(int iid, int sid, string& error)
     img->set_target_snapshot(sid);
 
     string   img_tmpl;
-    unique_ptr<string> drv_msg(format_message(img->to_xml(img_tmpl), ds_data, ""));
+    string   drv_msg(format_message(img->to_xml(img_tmpl), ds_data, ""));
 
-    image_msg_t msg(ImageManagerMessages::SNAP_FLATTEN, "", iid, *drv_msg);
+    image_msg_t msg(ImageManagerMessages::SNAP_FLATTEN, "", iid, drv_msg);
 
     imd->write(msg);
 

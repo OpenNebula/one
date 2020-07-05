@@ -47,13 +47,13 @@ public:
      *    @param str the string to be escaped
      *    @return a valid SQL string or NULL in case of failure
      */
-    char * escape_str(const std::string& str) override;
+    char * escape_str(const std::string& str) const override;
 
     /**
      *  Frees a previously scaped string
      *    @param str pointer to the str
      */
-    void free_str(char * str) override;
+    void free_str(char * str) const override;
 
 protected:
     /**
@@ -106,11 +106,11 @@ public:
 
     ~SqliteDB() = default;
 
-    char * escape_str(const std::string& str) override { return 0; }
+    char * escape_str(const std::string& str) const override { return 0; }
 
-    void free_str(char * str) override {};
+    void free_str(char * str) const override {};
 
-    std::string get_limit_string(const std::string& str) override { return str; }
+    std::string get_limit_string(const std::string& str) const override { return str; }
 
 protected:
     int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet) override
