@@ -15,16 +15,16 @@
 {{! -------------------------------------------------------------------------- }}
 
 <br>
+<h6 style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+  {{element.NAME}}<br>
+  <span class="total_cost_div" hidden>
+    <small class="cost_value">0.00</small>
+    <small>{{tr "COST"}} / {{tr "HOUR"}}</small>
+  </span>
+</h6>
 <div class="template-row" element-id="{{element.ID}}">
   <div class="row">
     <div class="medium-2 small-12 columns">
-      <h6>
-        {{element.NAME}}<br>
-        <span class="total_cost_div" hidden>
-          <small class="cost_value">0.00</small>
-          <small>{{tr "COST"}} / {{tr "HOUR"}}</small>
-        </span>
-      </h6>
       <span>
         <img src="{{element.TEMPLATE.LOGO}}">
       </span>
