@@ -63,7 +63,8 @@ end
 
 options=YAML.load(File.read(ETC_LOCATION+'/auth/ldap_auth.conf'))
 
-order = get_server_order(options, user)
+user_full = user
+order,user = get_server_order(options, user)
 
 STDERR.puts "Using group of servers: #{servers.join(', ')}" if order.length>1
 
@@ -119,7 +120,7 @@ order.each do |servers|
                     # authentication success
                     group_list = groups.join(' ')
 
-                    escaped_user = URI_PARSER.escape(user).downcase
+                    escaped_user = URI_PARSER.escape(user_full).downcase
                     escaped_secret = URI_PARSER.escape(user_dn)
 
                     puts "ldap #{escaped_user} #{escaped_secret} #{group_list}"
