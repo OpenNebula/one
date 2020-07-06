@@ -217,7 +217,7 @@ int RaftReplicaThread::replicate()
     {
         std::ostringstream oss;
 
-        oss << "Faild to replicate log record at index: " << next_index
+        oss << "Failed to replicate log record at index: " << next_index
             << " on follower: " << follower_id << ", error: " << error;
 
         NebulaLog::log("RCM", Log::DEBUG, oss);
