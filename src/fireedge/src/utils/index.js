@@ -14,13 +14,13 @@
 /* -------------------------------------------------------------------------- */
 
 const fs = require('fs-extra');
-const params = require('../config/params');
-const { defaultTypeLog } = require('../config/defaults');
-const functionRoutes = require('../config/function-routes');
-const { validateAuth } = require('./jwt-functions');
-const { messageTerminal } = require('./general-functions');
+const params = require('./contants/params');
+const { defaultTypeLog } = require('./contants/defaults');
+const functionRoutes = require('../routes/api');
+const { validateAuth } = require('./jwt');
+const { messageTerminal } = require('./general');
 const { addWsServer } = require('./ws-zeromq');
-const { getConfig } = require('./yml-connect');
+const { getConfig } = require('./yml');
 
 // user config
 const appConfig = getConfig();
@@ -35,12 +35,12 @@ const {
   getAllowedQueryParams,
   getRouteForOpennebulaCommand,
   checkOpennebulaCommand
-} = require('./opennebula-functions');
+} = require('./opennebula');
 
 const createParamsState = () => {
   const rtn = {};
   if (params && Array.isArray(params)) {
-    params.map(param => {
+    params.forEach(param => {
       rtn[param] = null;
     });
   }
@@ -51,7 +51,7 @@ const createQueriesState = () => {
   const rtn = {};
   const queries = getAllowedQueryParams();
   if (queries && Array.isArray(queries)) {
-    queries.map(query => {
+    queries.forEach(query => {
       rtn[query] = null;
     });
   }
@@ -61,7 +61,7 @@ const createQueriesState = () => {
 const includeMAPSJSbyHTML = (path = '') => {
   let scripts = '';
   if (mode === defaultTypeLog) {
-    fs.readdirSync(path).map(file => {
+    fs.readdirSync(path).forEach(file => {
       if (file.match(/\w*\.js\.map+$\b/gi)) {
         scripts += `<script src="/static/${file}" type="application/json"></script>`;
       }
@@ -72,7 +72,7 @@ const includeMAPSJSbyHTML = (path = '') => {
 
 const includeJSbyHTML = (path = '') => {
   let scripts = '';
-  fs.readdirSync(path).map(file => {
+  fs.readdirSync(path).forEach(file => {
     if (file.match(/\w*\.js+$\b/gi)) {
       scripts += `<script src="/static/${file}"></script>`;
     }
@@ -82,7 +82,7 @@ const includeJSbyHTML = (path = '') => {
 
 const includeCSSbyHTML = (path = '') => {
   let scripts = '';
-  fs.readdirSync(path).map(file => {
+  fs.readdirSync(path).forEach(file => {
     if (file.match(/\w*\.css+$\b/gi)) {
       scripts += `<link rel="stylesheet" href="/static/${file}"></link>`;
     }
@@ -100,13 +100,12 @@ const validateRouteFunction = (routeFunction, httpMethod = '') => {
     typeof routeFunction.action === 'function'
   ) {
     rtn = routeFunction.action;
-    console.log("aca llama la ruta--->", rtn.toString())
   }
   return rtn;
 };
 
 const checkRouteFunction = route => {
-  let rtn;
+  let rtn = false;
   const { private: functionPrivate, public: functionPublic } = functionRoutes;
   const functions = { ...functionPrivate, ...functionPublic };
   if (route in functions) {
@@ -132,5 +131,6 @@ module.exports = {
   checkRouteFunction,
   checkOpennebulaCommand,
   validateRouteFunction,
-  responseOpennebula
+  responseOpennebula,
+  getConfig
 };

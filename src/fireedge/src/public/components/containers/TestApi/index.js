@@ -15,18 +15,17 @@
 
 import React, { useState, useMemo } from 'react';
 import { TextField, Grid, MenuItem } from '@material-ui/core';
-import ResponseForm from './form';
-import Commands from '../../../../config/commands-params'
-import { Translate } from '../../HOC';
+import Commands from '../../../../utils/contants/commands';
+import { Translate } from '../../../components/HOC';
+import ResponseForm from './ResponseForm';
 import InputCode from '../../FormControl/inputCode';
 
-export default function TestApi() {
-  const [name, setName] = useState('acl.addrule')
-  const [response, setResponse] = useState('')
+const TestApi = () => {
+  const [name, setName] = useState('acl.addrule');
+  const [response, setResponse] = useState('');
 
-  const handleChangeCommand = evt => setName(evt?.target?.value)
-  const handleChangeResponse = res => setResponse(res)
-
+  const handleChangeCommand = evt => setName(evt?.target?.value);
+  const handleChangeResponse = res => setResponse(res);
   return (
     <Grid container direction="row" spacing={2}>
       <Grid item xs={12} md={6}>
@@ -41,22 +40,32 @@ export default function TestApi() {
           <MenuItem value="">
             <Translate word="none" />
           </MenuItem>
-          { useMemo(() => Object.keys(Commands)?.map(name => (
-              <MenuItem key={`selector-request-${name}`} value={name}>
-                {name}
-              </MenuItem>
-            ), []))
-          }
+          {useMemo(() =>
+            Object.keys(Commands)?.map(
+              commandName => (
+                <MenuItem
+                  key={`selector-request-${commandName}`}
+                  value={commandName}
+                >
+                  {commandName}
+                </MenuItem>
+              ),
+              []
+            )
+          )}
         </TextField>
-        { name && name !== '' && (
+        {name && name !== '' && (
           <ResponseForm
             handleChangeResponse={handleChangeResponse}
-            command={{ name: name, ...Commands[name] }} />
+            command={{ name, ...Commands[name] }}
+          />
         )}
       </Grid>
       <Grid item xs={12} md={6}>
         <InputCode code={response} />
       </Grid>
     </Grid>
-  )
-}
+  );
+};
+
+export default TestApi;

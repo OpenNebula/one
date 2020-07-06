@@ -13,16 +13,14 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { getRouteForOpennebulaCommand } = require('../utils');
-const {
-  private: functionPrivate,
-  public: functionPublic
-} = require('./function-routes');
+const defaults = require('./defaults');
+const httpCodes = require('./http-codes');
+const params = require('./params');
+const opennebulaCommands = require('./commands');
 
-const opennebulaActions = getRouteForOpennebulaCommand();
-
-const routes = {
-  private: [...opennebulaActions, ...Object.keys(functionPrivate)],
-  public: [...Object.keys(functionPublic)]
+module.exports = {
+  defaults,
+  httpCodes,
+  params,
+  opennebulaCommands
 };
-module.exports = routes;

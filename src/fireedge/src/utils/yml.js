@@ -15,7 +15,7 @@
 
 const fs = require('fs-extra');
 const YAML = require('yaml');
-const { defaultConfigFile } = require('../config/defaults');
+const { defaultConfigFile } = require('./contants/defaults');
 
 const getConfig = () => {
   let rtn = {};

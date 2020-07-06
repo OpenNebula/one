@@ -15,14 +15,14 @@
 
 const nodeExternals = require('webpack-node-externals');
 const path = require('path');
-const { getConfig } = require('./src/utils/yml-connect');
-const { defaultWebpackMode } = require('./src/config/defaults');
-
-const appConfig = getConfig();
+const { getConfig } = require('./src/utils/');
+const { defaultWebpackMode } = require('./src/utils/contants');
 
 // settings
+const appConfig = getConfig();
 const mode = appConfig.MODE || defaultWebpackMode;
 const devtool = mode === defaultWebpackMode ? 'inline-source-map' : '';
+
 const js = {
   test: /\.js$/,
   exclude: /node_modules/,
@@ -38,6 +38,15 @@ const js = {
       ]
     }
   }
+};
+const alias = {
+  alias: {
+    server: path.resolve(__dirname, 'src/'),
+    client: path.resolve(__dirname, 'src/public/'),
+    'server-entrypoints': path.resolve(__dirname, 'src/routes/entrypoints/'),
+    'server-api': path.resolve(__dirname, 'src/routes/api/')
+  },
+  extensions: [".js"]
 };
 
 const serverConfig = {
@@ -57,6 +66,7 @@ const serverConfig = {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name]'
   },
+  resolve: alias,
   devtool
 };
 
@@ -78,6 +88,7 @@ const clientConfig = {
     path: path.resolve(__dirname, 'dist/public'),
     filename: '[name]'
   },
+  resolve: alias,
   devtool
 };
 

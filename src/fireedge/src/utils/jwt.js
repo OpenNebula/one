@@ -15,8 +15,8 @@
 
 const jwt = require('jwt-simple');
 const moment = require('moment');
-const { messageTerminal } = require('../utils/general-functions');
-const { getConfig } = require('./yml-connect');
+const { messageTerminal } = require('./general');
+const { getConfig } = require('./yml');
 
 // user config
 const appConfig = getConfig();

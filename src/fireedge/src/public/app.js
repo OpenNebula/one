@@ -17,7 +17,7 @@ import React from 'react';
 import { StaticRouter, BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
-import { TranslateProvider } from './components/HOC';
+import { TranslateProvider } from 'client/components/HOC';
 import Router from './components/router';
 
 const App = ({ location, context, store }) => (

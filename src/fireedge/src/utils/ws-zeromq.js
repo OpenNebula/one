@@ -19,10 +19,10 @@ const { server: Server } = require('websocket');
 const { socket } = require('zeromq');
 const xml2js = require('xml2js');
 
-const { messageTerminal } = require('./general-functions');
-const { getConfig } = require('./yml-connect');
-const { validateAuth } = require('./jwt-functions');
-const { unauthorized } = require('../config/http-codes');
+const { messageTerminal } = require('./general');
+const { getConfig } = require('./yml');
+const { validateAuth } = require('./jwt');
+const { unauthorized } = require('./contants/http-codes');
 
 // user config
 const appConfig = getConfig();
@@ -67,7 +67,7 @@ const addWsServer = appServer => {
           zeromqSock.on('message', (...args) => {
             const mssgs = [];
             // broadcast
-            clients.map(client => {
+            clients.forEach(client => {
               Array.prototype.slice.call(args).forEach(arg => {
                 mssgs.push(arg.toString());
               });

@@ -13,23 +13,13 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React from 'react';
-import { hydrate } from 'react-dom';
-import { createStore } from 'redux';
-import root from 'window-or-global';
-import rootReducer from 'client/reducers';
-import App from 'client/app';
+const privateRoutes = {};
 
-const preloadedState = root.__PRELOADED_STATE__;
+const publicRoutes = {};
 
-delete root.__PRELOADED_STATE__;
+const functionRoutes = {
+  private: privateRoutes,
+  public: publicRoutes
+};
 
-const store = createStore(
-  rootReducer(),
-  preloadedState,
-  root.__REDUX_DEVTOOLS_EXTENSION__ && root.__REDUX_DEVTOOLS_EXTENSION__()
-);
-
-document.getElementById('preloadState').remove();
-
-hydrate(<App store={store} />, document.getElementById('root'));
+module.exports = functionRoutes;

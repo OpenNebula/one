@@ -14,40 +14,32 @@
 /* -------------------------------------------------------------------------- */
 
 const { Map } = require('immutable');
-const { getConfig } = require('../utils/yml-connect');
-const moment = require('moment');
 const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
-
+const { getConfig } = require('../../../../utils/yml');
 const {
   httpMethod,
-  defaultNamespace,
-  defaultMethodLogin,
   defaultMethodUserInfo,
   defaultMethodUserUpdate,
   default2FAIssuer,
   default2FAOpennebulaVar,
   default2FAOpennebulaTmpVar
-} = require('./defaults');
+} = require('../../../../utils/contants/defaults');
 const {
   ok,
   unauthorized,
   internalServerError
-} = require('../config/http-codes');
-const { from: fromData } = require('../config/defaults');
-const { createToken } = require('../utils/jwt-functions');
+} = require('../../../../utils/contants/http-codes');
+const { from: fromData } = require('../../../../utils/contants/defaults');
 const {
   responseOpennebula,
   checkOpennebulaCommand,
-  paramsDefaultByCommandOpennebula,
   generateNewTemplate
-} = require('../utils/opennebula-functions');
+} = require('../../../../utils/opennebula');
 
 // user config
 const appConfig = getConfig();
 
-const limitToken = appConfig.LIMIT_TOKEN;
-const namespace = appConfig.NAMESPACE || defaultNamespace;
 const twoFactorAuthIssuer =
   appConfig.TWO_FACTOR_AUTH_ISSUER || default2FAIssuer;
 
@@ -298,216 +290,7 @@ const privateRoutes = {
   }
 };
 
-const publicRoutes = {
-  auth: {
-    httpMethod: POST,
-    action: (req, res, next, connect) => {
-      const updaterResponse = code => {
-        if (
-          'id' in code &&
-          'message' in code &&
-          res &&
-          res.locals &&
-          res.locals.httpCode
-        ) {
-          res.locals.httpCode = code;
-        }
-      };
-      updaterResponse(Map(internalServerError).toObject());
-
-      const getOpennebulaMethod = checkOpennebulaCommand(
-        defaultMethodLogin,
-        POST
-      );
-
-      if (req && getOpennebulaMethod) {
-        const user =
-          (req &&
-            fromData.postBody &&
-            req[fromData.postBody] &&
-            req[fromData.postBody].user) ||
-          '';
-
-        const pass =
-          (req &&
-            fromData.postBody &&
-            req[fromData.postBody] &&
-            req[fromData.postBody].pass) ||
-          '';
-
-        const token =
-          (req && req[fromData.postBody] && req[fromData.postBody].token) || '';
-
-        const extended =
-          (req && req[fromData.postBody] && req[fromData.postBody].extended) ||
-          '';
-
-        if (user && pass && connect && limitToken) {
-          const { MIN, MAX } = limitToken;
-
-          const now = moment();
-          const nowUnix = now.unix();
-          const nowWithDays = moment().add(extended ? MAX : MIN, 'days');
-          const relativeTime = nowWithDays.diff(now, 'seconds');
-
-          let opennebulaToken;
-          const connectOpennebula = connect(
-            user,
-            pass
-          );
-          const dataSourceWithExpirateDate = Map(req).toObject();
-
-          const userInfo = userData => {
-            if (user && opennebulaToken && userData && userData.USER) {
-              const informationUser = userData.USER;
-
-              // remove opennebula user tokens
-              if (
-                informationUser.LOGIN_TOKEN &&
-                Array.isArray(informationUser.LOGIN_TOKEN)
-              ) {
-                informationUser.LOGIN_TOKEN.map(loginToken => {
-                  if (
-                    loginToken &&
-                    loginToken.TOKEN &&
-                    loginToken.TOKEN !== opennebulaToken
-                  ) {
-                    dataSourceWithExpirateDate[fromData.postBody].expire = 0;
-                    dataSourceWithExpirateDate[fromData.postBody].token =
-                      loginToken.TOKEN;
-
-                    connectOpennebula(
-                      defaultMethodLogin,
-                      getOpennebulaMethod(dataSourceWithExpirateDate),
-                      (err, value) => {
-                        responseOpennebula(
-                          () => undefined,
-                          err,
-                          value,
-                          () => undefined,
-                          next
-                        );
-                      }
-                    );
-                  }
-                });
-              }
-
-              // validate 2fa token
-              if (
-                informationUser.TEMPLATE &&
-                informationUser.TEMPLATE.SUNSTONE &&
-                informationUser.TEMPLATE.SUNSTONE[default2FAOpennebulaVar]
-              ) {
-                const secret =
-                  informationUser.TEMPLATE.SUNSTONE[default2FAOpennebulaVar];
-                const verified = speakeasy.totp.verify({
-                  secret,
-                  encoding: 'base32',
-                  token
-                });
-                if (!verified) {
-                  const codeUnauthorized = Map(unauthorized).toObject();
-                  codeUnauthorized.data = { message: 'invalid 2fa token' };
-                  updaterResponse(codeUnauthorized);
-                  next();
-                }
-              }
-
-              // generate jwt
-              const { ID: id } = informationUser;
-              const dataJWT = { id, user, token: opennebulaToken };
-              const jwt = createToken(
-                dataJWT,
-                nowUnix,
-                nowWithDays.format('X')
-              );
-              if (jwt) {
-                const codeOK = Map(ok).toObject();
-                codeOK.data = { token: jwt };
-                updaterResponse(codeOK);
-              }
-              next();
-            } else {
-              next();
-            }
-          };
-
-          const authenticated = val => {
-            const findTextError = `[${namespace + defaultMethodLogin}]`;
-            if (val) {
-              if (val.indexOf(findTextError) >= 0) {
-                const codeUnauthorized = Map(unauthorized).toObject();
-                updaterResponse(codeUnauthorized);
-                next();
-              } else {
-                opennebulaToken = val;
-                connectOpennebula(
-                  defaultMethodUserInfo,
-                  paramsDefaultByCommandOpennebula(defaultMethodUserInfo, GET),
-                  (err, value) => {
-                    responseOpennebula(
-                      updaterResponse,
-                      err,
-                      value,
-                      userInfo,
-                      next
-                    );
-                  }
-                );
-              }
-            } else {
-              next();
-            }
-          };
-
-          // add expire time unix for opennebula creation token
-          dataSourceWithExpirateDate[fromData.postBody].expire = relativeTime;
-
-          connectOpennebula(
-            defaultMethodLogin,
-            getOpennebulaMethod(dataSourceWithExpirateDate),
-            (err, value) => {
-              responseOpennebula(
-                updaterResponse,
-                err,
-                value,
-                authenticated,
-                next
-              );
-            }
-          );
-        } else {
-          res.locals.httpCode = Map(unauthorized).toObject();
-          next();
-        }
-      } else {
-        next();
-      }
-    }
-  },
-  zendesk: {
-    httpMethod: POST,
-    action: (req, res, next) => {
-      next();
-      console.log('zendesk');
-    }
-  },
-  latest: {
-    httpMethod: POST,
-    action: (req, res, next) => {
-      next();
-      console.log('latest version opennebula');
-    }
-  },
-  support: {
-    httpMethod: POST,
-    action: (req, res, next) => {
-      next();
-      console.log('support token');
-    }
-  }
-};
+const publicRoutes = {};
 
 const functionRoutes = {
   private: privateRoutes,

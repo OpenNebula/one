@@ -30,22 +30,22 @@ const {
 const { createServer: unsecureServer } = require('http');
 const { createServer: secureServer } = require('https');
 const bodyParser = require('body-parser');
-const { getConfig } = require('./utils/yml-connect');
 const {
   defaultConfigLogPath,
   defaultConfigLogFile,
   defaultTypeLog
-} = require('./config/defaults');
-const publicRoutes = require('./routes/public');
-const apiRoutes = require('./routes/api');
-const { messageTerminal, addWsServer } = require('./utils');
+} = require('./utils/contants');
+const {
+  entrypoint404,
+  entrypointApi,
+  entrypointApp
+} = require('./routes/entrypoints');
+const { messageTerminal, addWsServer, getConfig } = require('./utils');
 
 const app = express();
 
-// user config
-const appConfig = getConfig();
-
 // settings
+const appConfig = getConfig();
 const port = appConfig.PORT || 3000;
 const userLog = appConfig.LOG || 'dev';
 
@@ -88,19 +88,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // routes
-app.use('/api', apiRoutes);
-app.use('/', publicRoutes);
+app.use('/api', entrypointApi); // opennebula Api routes
+app.use('/', entrypointApp); // html for react app frontend
 
 // 404 - public
-app.get('*', (req, res) =>
-  res
-    .status(404)
-    .send(
-      `<body style="background-color: #3c3c3c;"><h1 style="font-family: sans-serif; color: #c7c7c7; text-align: center;">404 - Not Found</h1></body>`
-    )
-);
+app.get('*', entrypoint404);
 
-// server
+// server certificates
 const appServer =
   existsSync && key && cert && existsSync(key) && existsSync(cert)
     ? secureServer(

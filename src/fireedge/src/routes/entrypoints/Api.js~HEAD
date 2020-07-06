@@ -15,59 +15,45 @@
 
 const express = require('express');
 const { Map } = require('immutable');
-const {
-  private: authenticated,
-  public: nonAuthenticated
-} = require('../config/routes-api');
-const params = require('../config/params');
-const { getConfig } = require('../utils/yml-connect');
+const { defaults, httpCodes, params } = require('../../utils/contants');
+const { getConfig } = require('../../utils/yml');
 const {
   opennebulaConnect,
-  validateAuth,
-  createParamsState,
-  createQueriesState,
   checkRouteFunction,
   commandXML,
   checkOpennebulaCommand,
-  getAllowedQueryParams,
   validateRouteFunction,
   responseOpennebula
-} = require('../utils');
+} = require('../../utils');
+
+const {
+  validateResource,
+  optionalParameters,
+  optionalQueries,
+  clearStates,
+  getParamsState,
+  getQueriesState,
+  getIdUserOpennebula,
+  getUserOpennebula,
+  getPassOpennebula
+} = require('./middlewares');
+
 const {
   defaultOpennebulaZones,
   defaultMessageInvalidZone,
   defaultGetMethod,
-  httpMethod: httpMethods
-} = require('../config/defaults');
-
-const httpCodes = require('../config/http-codes');
-const { from: fromData } = require('../config/defaults');
+  httpMethod: httpMethods,
+  from: fromData
+} = defaults;
 
 const router = express.Router();
 
 express();
 
-const defaultParams = Map(createParamsState());
-const defaultQueries = Map(createQueriesState());
-
-let paramsState = defaultParams.toObject();
-let queriesState = defaultQueries.toObject();
-let idUserOpennebula = '';
-let userOpennebula = '';
-let passOpennebula = '';
-
 // user config
 const appConfig = getConfig();
 
 const opennebulaZones = appConfig.OPENNEBULA_ZONES || defaultOpennebulaZones;
-
-const clearStates = () => {
-  paramsState = defaultParams.toObject();
-  queriesState = defaultQueries.toObject();
-  idUserOpennebula = '';
-  userOpennebula = '';
-  passOpennebula = '';
-};
 
 const paramsToRoutes = () =>
   Object.keys(params).reduce(
@@ -75,90 +61,10 @@ const paramsToRoutes = () =>
     '/:resource?'
   );
 
-const validateResource = (req, res, next) => {
-  const { badRequest, unauthorized, serviceUnavailable } = httpCodes;
-  let status = badRequest;
-  if (req && req.params && req.params.resource) {
-    const resource = req.params.resource;
-    status = serviceUnavailable;
-    if (authenticated.includes(resource)) {
-      const session = validateAuth(req);
-      if (
-        session &&
-        'iss' in session &&
-        'aud' in session &&
-        'jti' in session &&
-        'iat' in session &&
-        'exp' in session
-      ) {
-        idUserOpennebula = session.iss;
-        userOpennebula = session.aud;
-        passOpennebula = session.jti;
-        next();
-        return;
-      }
-      status = unauthorized;
-    }
-    if (nonAuthenticated.includes(resource)) {
-      next();
-      return;
-    }
-  }
-  res.status(status.id).json(status);
-};
-
-const optionalParameters = (req, res, next) => {
-  if (req && req.params) {
-    let start = true;
-    const keys = Object.keys(req.params);
-    keys.map(param => {
-      if (start) {
-        start = false;
-        return start;
-      }
-      if (req.params[param]) {
-        const matches = req.params[param].match(/(^[\w]*=)/gi);
-        if (matches && matches[0]) {
-          params.map(parameter => {
-            if (
-              matches[0].replace(/=/g, '').toLowerCase() ===
-              parameter.toLowerCase()
-            ) {
-              const removeKey = new RegExp(`^${parameter}=`, 'i');
-              if (paramsState[parameter] === null) {
-                paramsState[parameter] = req.params[param].replace(
-                  removeKey,
-                  ''
-                );
-              }
-            }
-          });
-        } else {
-          paramsState[param] = req.params[param];
-        }
-      }
-    });
-  }
-  next();
-};
-
-const optionalQueries = (req, res, next) => {
-  if (req && req.query) {
-    const keys = Object.keys(req.query);
-    const queries = getAllowedQueryParams();
-    keys.map(query => {
-      if (req.query[query] && queries.includes(query)) {
-        queriesState[query] = req.query[query];
-      }
-    });
-  }
-  next();
-};
-
 const getDataZone = () => {
   let rtn;
   if (opennebulaZones && Array.isArray(opennebulaZones)) {
-    const { federation } = paramsState;
+    const { federation } = getParamsState();
     rtn = opennebulaZones[0];
     if (federation !== null) {
       rtn = opennebulaZones.find(
@@ -180,18 +86,18 @@ router.all(
     if (zone) {
       const { RPC } = zone;
       const connectOpennebula = (
-        user = userOpennebula,
-        pass = passOpennebula
+        user = getUserOpennebula(),
+        pass = getPassOpennebula()
       ) => opennebulaConnect(user, pass, RPC);
       const { resource } = req.params;
       const routeFunction = checkRouteFunction(resource);
       res.locals.httpCode = Map(methodNotAllowed).toObject();
       const dataSources = {
-        [fromData.resource]: paramsState,
-        [fromData.query]: queriesState,
+        [fromData.resource]: getParamsState(),
+        [fromData.query]: getQueriesState(),
         [fromData.postBody]: req.body
       };
-      if (routeFunction !== undefined) {
+      if (routeFunction) {
         const valRouteFunction = validateRouteFunction(
           routeFunction,
           httpMethod
@@ -202,13 +108,13 @@ router.all(
             res,
             next,
             connectOpennebula,
-            idUserOpennebula
+            getIdUserOpennebula()
           );
         } else {
           next();
         }
       } else {
-        const { method } = paramsState;
+        const { method } = getParamsState();
         const command = commandXML(
           resource,
           method,
@@ -232,8 +138,8 @@ router.all(
             }
           };
           const connect = connectOpennebula(
-            userOpennebula,
-            passOpennebula,
+            getUserOpennebula(),
+            getPassOpennebula(),
             RPC
           );
           connect(

@@ -13,23 +13,12 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React from 'react';
-import { hydrate } from 'react-dom';
-import { createStore } from 'redux';
-import root from 'window-or-global';
-import rootReducer from 'client/reducers';
-import App from 'client/app';
+const entrypoint404 = require('server-entrypoints/404');
+const entrypointApi = require('server-entrypoints/Api');
+const entrypointApp = require('server-entrypoints/App');
 
-const preloadedState = root.__PRELOADED_STATE__;
-
-delete root.__PRELOADED_STATE__;
-
-const store = createStore(
-  rootReducer(),
-  preloadedState,
-  root.__REDUX_DEVTOOLS_EXTENSION__ && root.__REDUX_DEVTOOLS_EXTENSION__()
-);
-
-document.getElementById('preloadState').remove();
-
-hydrate(<App store={store} />, document.getElementById('root'));
+module.exports = {
+  entrypoint404,
+  entrypointApi,
+  entrypointApp
+};
