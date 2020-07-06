@@ -267,7 +267,11 @@ def get_server_order(opts, user)
         end
 
         opts[:match_user_regex].each do |regex, server|
-            if user =~ /#{regex}/i
+            if m = user.match(/#{regex}/i)
+
+                # update user with the capture
+                user = m[1] if m[1]
+
                 order << to_array(server)
             end
         end
@@ -281,5 +285,5 @@ def get_server_order(opts, user)
         exit(-1)
     end
 
-    return order
+    return [order, user]
 end
