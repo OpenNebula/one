@@ -101,7 +101,7 @@ public:
 
     SqliteDB(const std::string& db_name, int timeout)
     {
-        throw runtime_error("Aborting oned, Sqlite support not compiled!");
+        throw std::runtime_error("Aborting oned, Sqlite support not compiled!");
     }
 
     ~SqliteDB() = default;
@@ -109,8 +109,6 @@ public:
     char * escape_str(const std::string& str) const override { return 0; }
 
     void free_str(char * str) const override {};
-
-    std::string get_limit_string(const std::string& str) const override { return str; }
 
 protected:
     int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet) override

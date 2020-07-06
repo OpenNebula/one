@@ -152,7 +152,7 @@ public:
             int                _connections,
             std::string&       _compare_binary)
     {
-        throw runtime_error("Aborting oned, MySQL support not compiled!");
+        throw std::runtime_error("Aborting oned, MySQL support not compiled!");
     };
 
     ~MySqlDB(){};

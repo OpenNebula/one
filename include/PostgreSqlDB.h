@@ -178,13 +178,12 @@ public:
     {
         throw std::runtime_error("Aborting oned, PostgreSQL support not compiled!");
     }
+
     ~PostgreSqlDB(){}
 
     char * escape_str(const std::string& str) const override {return 0;};
 
     void free_str(char * str) const override {};
-
-    std::string limit_string(int sid, int eid) const override {return "";}
 
 protected:
     int exec_ext(std::ostringstream& c, Callbackable *o, bool q) override {
