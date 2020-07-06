@@ -21,14 +21,14 @@ const { createStore, compose, applyMiddleware } = require('redux');
 const thunk = require('redux-thunk').default;
 const classnames = require('classnames');
 const { ServerStyleSheets } = require('@material-ui/core/styles');
-const rootReducer = require('../public/reducers');
-const App = require('../public/app').default;
-const { getConfig } = require('../utils/yml-connect');
+const rootReducer = require('../../public/reducers');
+const App = require('../../public/app').default;
+const { getConfig } = require('../../utils/yml');
 const {
   includeMAPSJSbyHTML,
   includeJSbyHTML,
   includeCSSbyHTML
-} = require('../utils');
+} = require('../../utils');
 
 const router = express.Router();
 
@@ -37,6 +37,7 @@ router.get('*', (req, res) => {
   const pathPublic = `${__dirname}/public`;
 
   const composeEnhancer =
+    // eslint-disable-next-line no-underscore-dangle
     (root && root.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
 
   const store = createStore(

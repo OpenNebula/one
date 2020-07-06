@@ -1,17 +1,19 @@
-import React from 'react'
-import { Box } from '@material-ui/core'
-import AceEditor from 'react-ace'
+import React from 'react';
+import { Box } from '@material-ui/core';
+import AceEditor from 'react-ace';
+import PropTypes from 'prop-types';
+import 'ace-builds/src-noconflict/mode-json';
+import 'ace-builds/src-noconflict/theme-github';
 
-import 'ace-builds/src-noconflict/mode-json'
-import 'ace-builds/src-noconflict/theme-github'
+const { string } = PropTypes;
 
-export default function InputCode({ code = '', language = 'json', ...props }) {
+const InputCode = ({ code, language, ...props }) => {
   const handleChange = newValue => {
-    console.log("change", newValue);
-  }
+    console.log('change', newValue);
+  };
 
   return (
-    <Box border='1px solid lightgray'>
+    <Box border="1px solid lightgray">
       <AceEditor
         wrapEnabled
         value={code}
@@ -32,5 +34,17 @@ export default function InputCode({ code = '', language = 'json', ...props }) {
         {...props}
       />
     </Box>
-  )
-}
+  );
+};
+
+InputCode.propTypes = {
+  code: string,
+  language: string
+};
+
+InputCode.defaultProps = {
+  code: '',
+  language: 'json'
+};
+
+export default InputCode;

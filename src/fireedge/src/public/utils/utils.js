@@ -16,7 +16,7 @@
 import axios from 'axios';
 import root from 'window-or-global';
 import constants from '../constants';
-import { messageTerminal } from '../../utils/general-functions';
+import { messageTerminal } from '../../utils/general';
 
 export const storage = (name = '', data = '', keepData = false) => {
   if (name && data && root && root.localStorage && root.sessionStorage) {

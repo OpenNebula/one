@@ -16,7 +16,7 @@
 import React, { Component } from 'react';
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
 import JSONPretty from 'react-json-pretty';
-import { messageTerminal } from '../../../../utils/general-functions';
+import { messageTerminal } from '../../../../utils/general';
 
 class WSConsole extends Component {
   constructor(props) {

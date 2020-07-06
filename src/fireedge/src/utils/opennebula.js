@@ -19,16 +19,16 @@ const rpc = require('xmlrpc');
 const xml2js = require('xml2js');
 const { Map } = require('immutable');
 const { sprintf } = require('sprintf-js');
-const httpCodes = require('../config/http-codes');
-const commandsParams = require('../config/commands-params');
+const httpCodes = require('./contants/http-codes');
+const commandsParams = require('./contants/commands');
 const {
   from,
   defaultNamespace,
   defaultMessageProblemOpennebula
-} = require('../config/defaults');
+} = require('./contants/defaults');
 
 // user config
-const { getConfig } = require('./yml-connect');
+const { getConfig } = require('./yml');
 
 const appConfig = getConfig();
 const namespace = appConfig.namespace || defaultNamespace;
@@ -104,7 +104,7 @@ const getMethodForOpennebulaCommand = () => {
   const rtn = [];
   if (commandsParams) {
     const commands = Object.keys(commandsParams);
-    commands.map(command => {
+    commands.forEach(command => {
       if (command && command.length) {
         const commandString = command.split('.');
         if (!rtn.includes(commandString[1])) {
@@ -135,11 +135,11 @@ const getAllowedQueryParams = () => {
   const allowedQuerys = Object.keys(commandsParams);
   if (from && from.query) {
     const { query } = from;
-    allowedQuerys.map(allowedQuery => {
+    allowedQuerys.forEach(allowedQuery => {
       const command = commandsParams[allowedQuery];
       if (command && command.params) {
         const internalParams = Object.keys(command.params);
-        internalParams.map(internalParam => {
+        internalParams.forEach(internalParam => {
           if (
             command.params[internalParam] &&
             command.params[internalParam].from &&
@@ -156,14 +156,14 @@ const getAllowedQueryParams = () => {
 };
 
 const getRouteForOpennebulaCommand = () => {
-  const rtn = [];
+  const rtn = {};
   if (commandsParams) {
     const commands = Object.keys(commandsParams);
-    commands.map(command => {
+    commands.forEach(command => {
       if (command && command.length) {
         const commandString = command.split('.');
-        if (!rtn.includes(commandString[0])) {
-          rtn.push(commandString[0]);
+        if (!(commandString[0] in rtn)) {
+          rtn[commandString[0]] = false; // false is a opennebula command
         }
       }
     });
@@ -175,7 +175,7 @@ const checkPositionInDataSource = dataSource => {
   let rtn = true;
   if (dataSource && from) {
     const fromKeys = Object.values(from);
-    fromKeys.map(key => {
+    fromKeys.forEach(key => {
       if (!(key && dataSource && key in dataSource)) {
         rtn = false;
       }
@@ -204,7 +204,7 @@ const checkOpennebulaCommand = (
             if (dataSource && checkPositionInDataSource(dataSource)) {
               const { params: paramsForCommand } = commandsParams[command];
               const internalParams = [];
-              Object.keys(paramsForCommand).map(param => {
+              Object.keys(paramsForCommand).forEach(param => {
                 const parameter = paramsForCommand[param];
                 if (
                   'default' in parameter &&
@@ -241,7 +241,7 @@ const paramsDefaultByCommandOpennebula = (command = '', httpCode = '') => {
     const getDefaultValues = checkOpennebulaCommand(command, httpCode, false);
     if (getDefaultValues && getDefaultValues.params) {
       const defaultParams = Object.keys(getDefaultValues.params);
-      defaultParams.map(defaultParam => {
+      defaultParams.forEach(defaultParam => {
         if (
           getDefaultValues.params &&
           defaultParam &&

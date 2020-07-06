@@ -13,27 +13,27 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { from, httpMethod } = require('./defaults');
-const acl = require('./commands/acl-commands');
-const cluster = require('./commands/cluster-commands');
-const datastore = require('./commands/datastore-commands');
-const document = require('./commands/document-commands');
-const group = require('./commands/group-commands');
-const groupsec = require('./commands/groupsec-commands');
-const hook = require('./commands/hook-commands');
-const host = require('./commands/host-commands');
-const image = require('./commands/image-commands');
-const market = require('./commands/market-commands');
-const system = require('./commands/system-commands');
-const template = require('./commands/template-commands');
-const user = require('./commands/user-commands');
-const vdc = require('./commands/vdc-commans');
-const vm = require('./commands/vm-commands');
-const vmgroup = require('./commands/vmgroup-commands');
-const vn = require('./commands/vn-commands');
-const vntemplate = require('./commands/vntemplate-commands');
-const vrouter = require('./commands/vrouter-commands');
-const zone = require('./commands/zone-commands');
+const { from, httpMethod } = require('../defaults');
+const acl = require('./acl');
+const cluster = require('./cluster');
+const datastore = require('./datastore');
+const document = require('./document');
+const group = require('./group');
+const groupsec = require('./groupsec');
+const hook = require('./hook');
+const host = require('./host');
+const image = require('./image');
+const market = require('./market');
+const system = require('./system');
+const template = require('./template');
+const user = require('./user');
+const vdc = require('./vdc');
+const vm = require('./vm');
+const vmgroup = require('./vmgroup');
+const vn = require('./vn');
+const vntemplate = require('./vntemplate');
+const vrouter = require('./vrouter');
+const zone = require('./zone');
 
 module.exports = {
   ...acl(from, httpMethod),
