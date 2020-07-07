@@ -81,7 +81,7 @@
     <div class="row" id="src_path_select">
       <div class="large-12 columns text-center">
         <input type="radio" name="src_path" id="path_image" value="path">
-        <label for="path_image">{{tr "Path in OpenNebula server"}}</label>
+        <label for="path_image">{{tr "Path/URL"}}</label>
         <input type="radio" name="src_path" id="upload_image" value="upload">
         <label for="upload_image">{{tr "Upload"}}</label>
         {{#if images}}
@@ -94,7 +94,7 @@
     <div class="row">
       <div class="large-12 columns">
         <label for="img_path">
-          {{tr "Path"}}
+          {{tr "Path in OpenNebula server or URL"}}
         </label>
         <input type="text" name="img_path" id="img_path" />
       </div>
