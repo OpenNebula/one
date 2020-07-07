@@ -275,7 +275,7 @@ define(function(require) {
       hostname,
       OpenNebulaVM.ipsDropdown(element),
       Humanize.prettyTimeDatatable(element.STIME),
-      actions,
+      actions && "<div style='display: inline-flex'>"+actions+"</div>",
       TemplateUtils.htmlEncode(TemplateUtils.templateToString(element)),
       (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
       btoa(unescape(encodeURIComponent(JSON.stringify(search)))),
