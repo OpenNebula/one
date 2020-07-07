@@ -11,7 +11,7 @@ CORS: true
 # Webpack mode:
 #   - development
 #   - production 
-MODE: development
+MODE: production
 
 # JWT user password encryption key (AUTH)
 TOKEN_SECRET: token_secreto
@@ -20,19 +20,3 @@ TOKEN_SECRET: token_secreto
 LIMIT_TOKEN:
   MIN: 14
   MAX: 30
-
-# Zones Opeennebula
-# -ID: identificator zone
-# -RPC: URL connect to RPC (OPENNEBULA)
-# -ZEROMQ: URL connect to socket ZEROMQ
-# -VNC: URL connect to socket VNC
-
-OPENNEBULA_ZONES: 
-  - ID: 0
-    RPC: http://127.0.0.1:2633/RPC2
-    ZEROMQ:
-    VNC:
-  - ID: 1
-    RPC: http://localhost:2633/RPC2
-    ZEROMQ:
-    VNC:

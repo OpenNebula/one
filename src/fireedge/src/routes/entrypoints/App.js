@@ -19,7 +19,6 @@ const { renderToString } = require('react-dom/server');
 const root = require('window-or-global');
 const { createStore, compose, applyMiddleware } = require('redux');
 const thunk = require('redux-thunk').default;
-const classnames = require('classnames');
 const { ServerStyleSheets } = require('@material-ui/core/styles');
 const rootReducer = require('../../public/reducers');
 const App = require('../../public/app').default;

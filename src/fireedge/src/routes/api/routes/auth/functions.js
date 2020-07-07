@@ -18,6 +18,8 @@ const { Map } = require('immutable');
 const {
   httpMethod,
   defaultMethodLogin,
+  defaultMethodZones,
+  defaultMethodConfig,
   defaultMethodUserInfo,
   default2FAOpennebulaVar,
   defaultNamespace,
@@ -31,8 +33,6 @@ const {
   paramsDefaultByCommandOpennebula,
   checkOpennebulaCommand
 } = require('../../../../utils/opennebula');
-
-const { zones, oneConfig } = global;
 
 const appConfig = getConfig();
 
@@ -156,13 +156,45 @@ const genJWT = informationUser => {
 };
 
 const setZones = () => {
-  if (!zones) {
-    console.log('setZones');
+  if (global && !global.zones) {
+    const oneConnect = connectOpennebula();
+    const dataSource = dataSourceWithExpirateDate();
+    oneConnect(
+      defaultMethodZones,
+      getOpennebulaMethod(dataSource),
+      (err, value) => {
+        // res, err, value, response, next
+        responseOpennebula(
+          () => undefined,
+          err,
+          value,
+          zonesOpennebula => {
+            if (
+              zonesOpennebula &&
+              zonesOpennebula.ZONE_POOL &&
+              zonesOpennebula.ZONE_POOL.ZONE
+            ) {
+              const oneZones = !Array.isArray(zonesOpennebula.ZONE_POOL.ZONE)
+                ? [zonesOpennebula.ZONE_POOL.ZONE]
+                : zonesOpennebula.ZONE_POOL.ZONE;
+              global.zones = oneZones.map(oneZone => ({
+                ID: oneZone.ID || '',
+                NAME: oneZone.NAME || '',
+                RPC:
+                  (oneZone && oneZone.TEMPLATE && oneZone.TEMPLATE.ENDPOINT) ||
+                  ''
+              }));
+            }
+          },
+          next
+        );
+      }
+    );
   }
 };
 
 const setOneConfig = () => {
-  if (!oneConfig) {
+  if (global && global.oneConfig && global.oneConfig.length === 0) {
     console.log('setConfig');
   }
 };
