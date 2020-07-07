@@ -50,11 +50,6 @@ const router = express.Router();
 
 express();
 
-// user config
-const appConfig = getConfig();
-
-const opennebulaZones = appConfig.OPENNEBULA_ZONES || defaultOpennebulaZones;
-
 const paramsToRoutes = () =>
   Object.keys(params).reduce(
     (resources, param) => String(resources).concat(`/:${params[param]}?`),
@@ -63,11 +58,12 @@ const paramsToRoutes = () =>
 
 const getDataZone = () => {
   let rtn;
-  if (opennebulaZones && Array.isArray(opennebulaZones)) {
+  const Zones = (global && global.zones) || defaultOpennebulaZones;
+  if (Zones && Array.isArray(Zones)) {
     const { federation } = getParamsState();
-    rtn = opennebulaZones[0];
+    rtn = Zones[0];
     if (federation !== null) {
-      rtn = opennebulaZones.find(
+      rtn = Zones.find(
         zone => zone && zone.ID !== undefined && String(zone.ID) === federation
       );
     }

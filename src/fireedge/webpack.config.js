@@ -39,6 +39,7 @@ const js = {
     }
   }
 };
+
 const alias = {
   alias: {
     server: path.resolve(__dirname, 'src/'),
@@ -46,7 +47,7 @@ const alias = {
     'server-entrypoints': path.resolve(__dirname, 'src/routes/entrypoints/'),
     'server-api': path.resolve(__dirname, 'src/routes/api/')
   },
-  extensions: [".js"]
+  extensions: ['.js']
 };
 
 const serverConfig = {

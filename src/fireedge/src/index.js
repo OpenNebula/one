@@ -34,7 +34,7 @@ const {
   defaultConfigLogPath,
   defaultConfigLogFile,
   defaultTypeLog
-} = require('./utils/contants');
+} = require('./utils/contants/defaults');
 const {
   entrypoint404,
   entrypointApi,
@@ -56,7 +56,7 @@ const cert = `${__dirname}/../cert/cert.pem`;
 let log = morgan('dev');
 if (userLog === defaultTypeLog) {
   let logPath = `${defaultConfigLogPath}`;
-  if (env?.ONE_LOCATION) {
+  if (env && env.ONE_LOCATION) {
     logPath = env.ONE_LOCATION + logPath;
   }
   try {

@@ -14,7 +14,8 @@
 /* -------------------------------------------------------------------------- */
 
 const default2FAOpennebulaVar = 'TWO_FACTOR_AUTH_SECRET';
-module.exports = {
+const defaultIp = 'http://127.0.0.1';
+const defaults = {
   httpMethod: {
     GET: 'GET',
     POST: 'POST',
@@ -29,7 +30,8 @@ module.exports = {
   defaultOpennebulaZones: [
     {
       ID: 0,
-      RPC: 'http://localhost:2633/RPC2',
+      NAME: 'OpenNebula',
+      RPC: `${defaultIp}:2633/RPC2`,
       VNC: ''
     }
   ],
@@ -37,16 +39,18 @@ module.exports = {
   defaultTypeLog: 'prod',
   defaultWebpackMode: 'development',
   defaultConfigLogPath: '/var/log/one/',
-  defaultConfigLogFile: 'sunstone.log',
+  defaultConfigLogFile: 'fireedge.log',
   defaultBaseURL: '',
   defaultNamespace: 'one.',
   defaultMessageInvalidZone: 'Invalid Zone',
-  default2FAIssuer: 'sunstone-UI',
+  default2FAIssuer: 'fireedge-UI',
   default2FAOpennebulaVar,
   default2FAOpennebulaTmpVar: `TMP_${default2FAOpennebulaVar}`,
   defaultGetMethod: 'info',
   defaultMessageProblemOpennebula: 'Problem with conection or xml parser',
   defaultMethodLogin: 'user.login',
+  defaultMethodZones: 'zonepool.info',
+  defaultMethodConfig: 'system.config',
   defaultMethodUserUpdate: 'user.update',
   defaultMethodUserInfo: 'user.info',
   defaultLang: 'en_US',
@@ -72,3 +76,5 @@ module.exports = {
     es_ES: 'Spanish'
   }
 };
+
+module.exports = defaults;
