@@ -1410,7 +1410,7 @@ yyreduce:
 
   case 4:
 #line 103 "expr_arith.y"
-    { float val; oxml->search((yyvsp[0].val_str), val); (yyval.val_float) = val; }
+    { float val = 0; oxml->search((yyvsp[0].val_str), val); (yyval.val_float) = val; }
 #line 1415 "expr_arith.cc"
     break;
 
