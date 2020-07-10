@@ -100,7 +100,7 @@ stmt:   expr                { result = static_cast<int>($1);}
         |                   { result = 0; }
         ;
 
-expr:   STRING              { float val; oxml->search($1, val); $$ = val; }
+expr:   STRING              { float val = 0; oxml->search($1, val); $$ = val; }
         | FLOAT             { $$ = $1; }
         | INTEGER           { $$ = static_cast<float>($1); }
         | expr '+' expr     { $$ = $1 + $3;}
