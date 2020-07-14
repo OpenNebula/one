@@ -327,7 +327,7 @@ CommandParser::CmdParser.new(ARGV) do
             provision_list_desc,
             :options => CommandParser::OPTIONS +
                         CLIHelper::OPTIONS +
-                        [OpenNebulaHelper::XML] do
+                        [OpenNebulaHelper::FORMAT] do
         helper.list(options)
     end
 
@@ -340,8 +340,8 @@ CommandParser::CmdParser.new(ARGV) do
     command :show,
             provision_show_desc,
             :provisionid,
-            :options => CommandParser::OPTIONS + [OpenNebulaHelper::XML] do
-        helper.show(args[0], (options.key? :xml))
+            :options => CommandParser::OPTIONS + OpenNebulaHelper::FORMAT do
+        helper.show(args[0], options)
     end
 
     ###

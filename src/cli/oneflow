@@ -113,7 +113,7 @@ CommandParser::CmdParser.new(ARGV) do
         List the available services
     EOT
 
-    command :list, list_desc, :options => [Service::JSON_FORMAT, DONE] do
+    command :list, list_desc, :options => OpenNebulaHelper::FORMAT + [DONE] do
         helper.list_service_pool(helper.client(options), options)
     end
 
@@ -137,7 +137,10 @@ CommandParser::CmdParser.new(ARGV) do
         Show detailed information of a given service
     EOT
 
-    command :show, show_desc, :service_id, :options => Service::JSON_FORMAT do
+    command :show,
+            show_desc,
+            :service_id,
+            :options => OpenNebulaHelper::FORMAT do
         helper.format_resource(helper.client(options), args[0], options)
     end
 

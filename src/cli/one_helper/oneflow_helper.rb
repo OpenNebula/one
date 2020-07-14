@@ -74,6 +74,8 @@ class OneFlowHelper < OpenNebulaHelper::OneHelper
 
         if CloudClient.is_error?(response)
             [response.code.to_i, response.to_s]
+        elsif options[:yaml]
+            [0, JSON.parse(response.body).to_yaml(:indent => 4)]
         else
             array_list = JSON.parse(response.body)
             array_list = array_list['DOCUMENT_POOL']['DOCUMENT']
@@ -93,6 +95,8 @@ class OneFlowHelper < OpenNebulaHelper::OneHelper
                 else
                     [0, JSON.pretty_generate(array_list)]
                 end
+            elsif options[:yaml]
+                [0, array_list.to_yaml(:indent => 4)]
             else
                 format_service_pool.show(array_list)
 
@@ -139,6 +143,8 @@ class OneFlowHelper < OpenNebulaHelper::OneHelper
         else
             if options[:json]
                 [0, response.body]
+            elsif options[:yaml]
+                [0, JSON.parse(response.body).to_yaml(:indent => 4)]
             else
                 str_h1   = '%-80s'
                 document = JSON.parse(response.body)['DOCUMENT']

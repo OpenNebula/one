@@ -283,7 +283,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :show, show_desc, :hostid,
-            :options => [OpenNebulaHelper::XML, OpenNebulaHelper::DECRYPT] do
+            :options => [OpenNebulaHelper::FORMAT, OpenNebulaHelper::DECRYPT] do
         helper.show_resource(args[0], options)
     end
 

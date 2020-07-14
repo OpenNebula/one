@@ -95,6 +95,9 @@ GEM_DESCRIPTION={
     :cli => {
         :name => 'opennebula-cli',
         :files => [
+            # Needed for JSON and YAML outputs
+            ['share/doc/xsd/*.xsd', '/share/schemas/xsd'],
+
             ['src/cli/one[a-z]*', '/bin', 'oneprovision'],
             ['src/cli/*.rb', '/lib'],
             ['src/cli/one_helper/*.rb', '/lib/one_helper'],
@@ -104,7 +107,8 @@ GEM_DESCRIPTION={
         :summary => 'OpenNebula Command Line Interface',
         :description => 'Commands used to talk to OpenNebula',
         :dependencies => [
-            ['opennebula', "= #{DEFAULTS[:version]}"]
+            ['opennebula', "= #{DEFAULTS[:version]}"],
+            'activesupport'
         ]
     }
 }
