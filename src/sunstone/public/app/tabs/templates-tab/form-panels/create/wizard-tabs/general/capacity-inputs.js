@@ -224,6 +224,7 @@ define(function(require) {
       $("div.memory_input_wrapper", context).addClass("large-6").addClass("medium-8");
     }
 
+    attr.visor = true;
     UserInputs.insertAttributeInputMB(attr, $("div.memory_input", context));
 
     if (Config.isFeatureEnabled("instantiate_hide_cpu")){
