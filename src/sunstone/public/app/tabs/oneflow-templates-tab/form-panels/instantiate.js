@@ -332,8 +332,13 @@ define(function(require) {
             temp_role.vm_template_contents += TemplateUtils.templateToString({VMGROUP:{ROLE:role.name,VMGROUP_ID:vm_group_value}});
           }
         });
-
-        temp_role.vm_template_contents += charters;
+        if(charters.length){
+          if(temp_role.vm_template_contents !== undefined){
+            temp_role.vm_template_contents += charters;
+          }else{
+            temp_role.vm_template_contents = charters;
+          }
+        }
         extra_info.merge_template.roles.push(temp_role);
       });
       charters = "";
