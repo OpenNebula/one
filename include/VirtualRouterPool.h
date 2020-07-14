@@ -28,7 +28,7 @@ class VirtualRouterPool : public PoolSQL
 {
 public:
 
-    VirtualRouterPool(SqlDB * db) : PoolSQL(db, one_db::vn_table){};
+    VirtualRouterPool(SqlDB * db) : PoolSQL(db, one_db::vr_table){};
 
     ~VirtualRouterPool(){};
 
