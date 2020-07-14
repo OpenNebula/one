@@ -242,7 +242,7 @@ class Cluster
         view.DestroyView
 
         vmpool = OpenNebula::VirtualMachinePool.new(@onec)
-        rc     = vmpool.info
+        rc     = vmpool.info(-2)
 
         return {} if OpenNebula.is_error?(rc)
 
