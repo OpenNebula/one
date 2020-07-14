@@ -237,8 +237,8 @@ define(function(require) {
     var extra_info = ServiceUtils.getExtraInfo(context);
 
     if(
-      that && 
-      that.service_template_json && 
+      that &&
+      that.service_template_json &&
       that.service_template_json.DOCUMENT &&
       that.service_template_json.DOCUMENT.TEMPLATE &&
       that.service_template_json.DOCUMENT.TEMPLATE.BODY &&
@@ -253,7 +253,7 @@ define(function(require) {
         role.user_inputs_values = tmp_json;
         if (stringCustomValues) {
           (temp_role.vm_template_contents)
-            ? temp_role.vm_template_contents += stringCustomValues 
+            ? temp_role.vm_template_contents += stringCustomValues
             : temp_role.vm_template_contents = stringCustomValues;
         }
         $("#instantiate_service_role_user_inputs").find("select").each(function(key, vm_group){
@@ -267,6 +267,13 @@ define(function(require) {
             temp_role.vm_template_contents += TemplateUtils.templateToString({VMGROUP:{ROLE:role.name,VMGROUP_ID:vm_group_value}});
           }
         });
+        if(charters.length){
+          if(temp_role.vm_template_contents !== undefined){
+            temp_role.vm_template_contents += charters;
+          }else{
+            temp_role.vm_template_contents = charters;
+          }
+        }
         extra_info.merge_template.roles.push(temp_role);
       });
     }
