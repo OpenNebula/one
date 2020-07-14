@@ -133,8 +133,8 @@ CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     set :option, CommandParser::OPTIONS + OpenNebulaHelper::CLIENT_OPTIONS
 
-    list_options = CLIHelper::OPTIONS
-    list_options << OpenNebulaHelper::XML
+    list_options  = CLIHelper::OPTIONS
+    list_options += OpenNebulaHelper::FORMAT
     list_options << OpenNebulaHelper::NUMERIC
     list_options << OpenNebulaHelper::DESCRIBE
 
@@ -228,7 +228,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :show, show_desc, :hookid,
-            :options => [OpenNebulaHelper::XML, OpenNebulaHelper::EXTENDED,
+            :options => [OpenNebulaHelper::FORMAT, OpenNebulaHelper::EXTENDED,
                          EXECUTION] do
         helper.show_resource(args[0], options)
     end

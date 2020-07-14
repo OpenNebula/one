@@ -91,28 +91,19 @@ class AcctHelper < OpenNebulaHelper::OneHelper
         :format => String
     }
 
-    XML = {
-        :name  => "xml",
-        :short => "-x",
-        :large => "--xml",
-        :description => "Show the resource in xml format"
-    }
-
-    JSON = {
-        :name  => "json",
-        :short => "-j",
-        :large => "--json",
-        :description => "Show the resource in json format"
-    }
-
     SPLIT={
         :name  => "split",
         :large => "--split",
         :description => "Split the output in a table for each VM"
     }
 
-    ACCT_OPTIONS     = [START_TIME_ACCT, END_TIME_ACCT, USERFILTER, GROUP, HOST, XPATH, XML, JSON, SPLIT]
-    SHOWBACK_OPTIONS = [START_TIME_SHOWBACK, END_TIME_SHOWBACK, USERFILTER, GROUP, XML, JSON]
+    ACCT_OPTIONS     = [START_TIME_ACCT, END_TIME_ACCT, USERFILTER, GROUP, HOST, XPATH, SPLIT]
+    SHOWBACK_OPTIONS = [START_TIME_SHOWBACK, END_TIME_SHOWBACK, USERFILTER, GROUP]
+
+    ACCT_OPTIONS << OpenNebulaHelper::XML
+    ACCT_OPTIONS << OpenNebulaHelper::JSON
+
+    SHOWBACK_OPTIONS += OpenNebulaHelper::FORMAT
 
     ACCT_TABLE = CLIHelper::ShowTable.new(self.table_conf("oneacct.yaml"), nil) do
         column :UID, "User ID", :size=>4 do |d|

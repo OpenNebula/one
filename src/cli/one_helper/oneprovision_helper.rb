@@ -274,6 +274,10 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
         if options.key? :xml
             list.map {|e| to_xml(e) }
+        elsif options.key? :json
+            puts JSON.pretty_generate(list)
+        elsif options.key? :yaml
+            puts list.to_yaml(:indent => 4)
         else
             format_pool.show(list, options)
         end
@@ -281,7 +285,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         0
     end
 
-    def show(provision_id, xml)
+    def show(provision_id, options)
         provision = OneProvision::Provision.new(provision_id)
 
         provision.refresh
@@ -305,8 +309,12 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
             ret[r] = obj_ids
         end
 
-        if xml
+        if options.key? :xml
             to_xml(ret)
+        elsif options.key? :json
+            puts JSON.pretty_generate(ret)
+        elsif options.key? :yaml
+            puts ret.to_yaml(:indent => 4)
         else
             format_resource(ret)
         end

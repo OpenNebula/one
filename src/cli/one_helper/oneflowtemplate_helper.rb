@@ -73,6 +73,8 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
         else
             if options[:json]
                 [0, response.body]
+            elsif options[:yaml]
+                [0, JSON.parse(response.body).to_yaml(:indent => 4)]
             else
                 documents = JSON.parse(response.body)['DOCUMENT_POOL']
                 format_service_template_pool.show(documents['DOCUMENT'])
@@ -120,6 +122,8 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
         else
             if options[:json]
                 [0, response.body]
+            elsif options[:yaml]
+                [0, JSON.parse(response.body).to_yaml(:indent => 4)]
             else
                 str    = '%-20s: %-20s'
                 str_h1 = '%-80s'

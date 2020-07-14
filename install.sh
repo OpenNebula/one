@@ -255,6 +255,7 @@ SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/oneprovision \
             $SHARE_LOCATION/schemas \
             $SHARE_LOCATION/schemas/libvirt \
+            $SHARE_LOCATION/schemas/xsd \
             $SHARE_LOCATION/ssh \
             $SHARE_LOCATION/start-scripts \
             $SHARE_LOCATION/conf \
@@ -688,6 +689,7 @@ INSTALL_FILES=(
     VENDOR_DIRS:$LIB_LOCATION/ruby/vendors
     START_SCRIPT_SHARE_FILES:$SHARE_LOCATION/start-scripts
     LIBVIRT_RNG_SHARE_MODULE_FILES:$SHARE_LOCATION/schemas/libvirt
+    XSD_FILES:$SHARE_LOCATION/schemas/xsd
     SSH_SH_LIB_FILES:$LIB_LOCATION/sh
     SSH_SH_OVERRIDE_LIB_FILES:$LIB_LOCATION/sh/override
     SSH_SHARE_FILES:$SHARE_LOCATION/ssh
@@ -2729,6 +2731,58 @@ LIBVIRT_RNG_SHARE_MODULE_FILES="share/schemas/libvirt/basictypes.rng \
                                share/schemas/libvirt/nwfilter_params.rng \
                                share/schemas/libvirt/storagecommon.rng"
 
+#-------------------------------------------------------------------------------
+# XSD
+#-------------------------------------------------------------------------------
+
+XSD_FILES="share/doc/xsd/acct.xsd \
+           share/doc/xsd/acl_pool.xsd
+           share/doc/xsd/api_info.xsd
+           share/doc/xsd/cluster.xsd
+           share/doc/xsd/cluster_pool.xsd
+           share/doc/xsd/datastore.xsd
+           share/doc/xsd/datastore_pool.xsd
+           share/doc/xsd/document.xsd
+           share/doc/xsd/document_pool.xsd
+           share/doc/xsd/group.xsd
+           share/doc/xsd/group_pool.xsd
+           share/doc/xsd/hook.xsd
+           share/doc/xsd/hook_message_api.xsd
+           share/doc/xsd/hook_message_retry.xsd
+           share/doc/xsd/hook_message_state.xsd
+           share/doc/xsd/hook_pool.xsd
+           share/doc/xsd/host.xsd
+           share/doc/xsd/host_pool.xsd
+           share/doc/xsd/image.xsd
+           share/doc/xsd/image_pool.xsd
+           share/doc/xsd/index.xsd
+           share/doc/xsd/marketplace.xsd
+           share/doc/xsd/marketplace_pool.xsd
+           share/doc/xsd/marketplaceapp.xsd
+           share/doc/xsd/marketplaceapp_pool.xsd
+           share/doc/xsd/raftstatus.xsd
+           share/doc/xsd/security_group.xsd
+           share/doc/xsd/security_group_pool.xsd
+           share/doc/xsd/showback.xsd
+           share/doc/xsd/user.xsd
+           share/doc/xsd/user_pool.xsd
+           share/doc/xsd/vdc.xsd
+           share/doc/xsd/vdc_pool.xsd
+           share/doc/xsd/vm.xsd
+           share/doc/xsd/vm_group.xsd
+           share/doc/xsd/vm_group_pool.xsd
+           share/doc/xsd/vm_pool.xsd
+           share/doc/xsd/vmtemplate.xsd
+           share/doc/xsd/vmtemplate_pool.xsd
+           share/doc/xsd/vnet.xsd
+           share/doc/xsd/vnet_pool.xsd
+           share/doc/xsd/vntemplate.xsd
+           share/doc/xsd/vntemplate_pool.xsd
+           share/doc/xsd/vrouter.xsd
+           share/doc/xsd/vrouter_pool.xsd
+           share/doc/xsd/zone.xsd
+           share/doc/xsd/zone_pool.xsd"
+           
 CONTEXT_SHARE=$(find share/context/ -type f \( ! -iname "*.sh" ! -iname "SConstruct" \))
 
 #-----------------------------------------------------------------------------

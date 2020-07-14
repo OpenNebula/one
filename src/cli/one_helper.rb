@@ -34,13 +34,15 @@ Copyright 2002-2020, OpenNebula Project, OpenNebula Systems
 EOT
 
     if ONE_LOCATION
-        TABLE_CONF_PATH=ONE_LOCATION+"/etc/cli"
-        VAR_LOCATION=ONE_LOCATION+"/var" if !defined?(VAR_LOCATION)
-        CLI_ADDONS_LOCATION=ONE_LOCATION+"/lib/ruby/cli/addons"
+        TABLE_CONF_PATH     = ONE_LOCATION + "/etc/cli"
+        VAR_LOCATION        = ONE_LOCATION + "/var" if !defined?(VAR_LOCATION)
+        CLI_ADDONS_LOCATION = ONE_LOCATION + "/lib/ruby/cli/addons"
+        XSD_PATH            = ONE_LOCATION + '/share/schemas/xsd'
     else
-        TABLE_CONF_PATH="/etc/one/cli"
-        VAR_LOCATION="/var/lib/one" if !defined?(VAR_LOCATION)
-        CLI_ADDONS_LOCATION="/usr/lib/one/ruby/cli/addons"
+        TABLE_CONF_PATH     = "/etc/one/cli"
+        VAR_LOCATION        = "/var/lib/one" if !defined?(VAR_LOCATION)
+        CLI_ADDONS_LOCATION = "/usr/lib/one/ruby/cli/addons"
+        XSD_PATH            = '/usr/share/one/schemas/xsd'
     end
 
     EDITOR_PATH='/usr/bin/vi'
@@ -53,6 +55,23 @@ EOT
         :short => "-x",
         :large => "--xml",
         :description => "Show the resource in xml format"
+    }
+
+    JSON = {
+        :name => 'json',
+        :short => '-j',
+        :large => '--json',
+        :description => 'Show the resource in JSON format',
+        :proc        => lambda do |_, _|
+            require 'json'
+        end
+    }
+
+    YAML = {
+        :name => 'yaml',
+        :short => '-y',
+        :large => '--yaml',
+        :description => 'Show the resource in YAML format'
     }
 
     NUMERIC={
@@ -422,7 +441,9 @@ EOT
     UPDATECONF_OPTIONS_VM = TEMPLATE_OPTIONS[6..15] + [TEMPLATE_OPTIONS[2],
       TEMPLATE_OPTIONS[17], TEMPLATE_OPTIONS[18]]
 
-    OPTIONS = XML, EXTENDED, NUMERIC, KILOBYTES
+    FORMAT = [XML, JSON, YAML]
+
+    OPTIONS = FORMAT, EXTENDED, NUMERIC, KILOBYTES
 
     class OneHelper
         attr_accessor :client
@@ -580,12 +601,10 @@ EOT
         end
 
         def print_page(pool, options)
-            page = nil
+            elements = 0
+            page     = ""
 
             if options[:xml]
-                elements = 0
-                page     = ""
-
                 pool.each {|e|
                     elements += 1
                     page << e.to_xml(true) << "\n"
@@ -770,6 +789,82 @@ EOT
         end
 
         #-----------------------------------------------------------------------
+        # List pool in JSON format, pagination is used in interactive output
+        #-----------------------------------------------------------------------
+        def list_pool_format(pool, options, filter_flag)
+            extended = options.include?(:extended) && options[:extended]
+
+            if $stdout.isatty and (!options.key?:no_pager)
+                size = $stdout.winsize[0] - 1
+
+                # ----------- First page, check if pager is needed -------------
+                rc = pool.get_page(size, 0, extended)
+                ps = ""
+
+                return -1, rc.message if OpenNebula.is_error?(rc)
+
+                elements = get_format_size(pool, options)
+                ppid     = -1
+
+                if elements >= size
+                    ppid = start_pager
+                end
+
+                yield(pool) if block_given?
+
+                if elements < size
+                    return 0
+                end
+
+                if elements < size
+                    return 0
+                elsif !pool.is_paginated?
+                    stop_pager(ppid)
+                    return 0
+                end
+
+                # ------- Rest of the pages in the pool, piped to pager --------
+                current = size
+
+                loop do
+                    rc = pool.get_page(size, current, extended)
+
+                    return -1, rc.message if OpenNebula.is_error?(rc)
+
+                    current += size
+
+                    begin
+                        Process.waitpid(ppid, Process::WNOHANG)
+                    rescue Errno::ECHILD
+                        break
+                    end
+
+                    elements = get_format_size(pool, options)
+
+                    break if elements < size
+
+                    yield(pool) if block_given?
+
+                    $stdout.flush
+                end
+
+                stop_pager(ppid)
+            else
+                if pool.pool_name == "VM_POOL" && extended
+                    rc = pool.info_all_extended
+                else
+                    rc = pool.info
+                end
+
+                return -1, rc.message if OpenNebula.is_error?(rc)
+
+                yield(pool) if block_given?
+            end
+
+            return 0
+        end
+
+        #-----------------------------------------------------------------------
         # List pool table in top-like form
         #-----------------------------------------------------------------------
         def list_pool_top(table, pool, options)
@@ -797,11 +892,27 @@ EOT
             filter_flag ||= OpenNebula::Pool::INFO_ALL
 
             pool  = factory_pool(filter_flag)
+            pname = pool.pool_name
+            ename = pool.element_name
 
             if top
                 return list_pool_top(table, pool, options)
             elsif options[:xml]
                 return list_pool_xml(pool, options, filter_flag)
+            elsif options[:json]
+                list_pool_format(pool, options, filter_flag) do |pool|
+                    hash        = check_resource_xsd(pool, pname)
+                    hash[pname] = check_resource_xsd(hash[pname], ename)
+
+                    puts ::JSON.pretty_generate(hash)
+                end
+            elsif options[:yaml]
+                list_pool_format(pool, options, filter_flag) do |pool|
+                    hash        = check_resource_xsd(pool, pname)
+                    hash[pname] = check_resource_xsd(hash[pname], ename)
+
+                    puts hash.to_yaml(:indent => 4)
+                end
             else
                 return list_pool_table(table, pool, options, filter_flag)
             end
@@ -845,6 +956,10 @@ EOT
 
             if options[:xml]
                 return 0, resource.to_xml(true)
+            elsif options[:json]
+                return 0, ::JSON.pretty_generate(check_resource_xsd(resource))
+            elsif options[:yaml]
+                return 0, check_resource_xsd(resource).to_yaml(:indent => 4)
             else
                 format_resource(resource, options)
                 return 0
@@ -1053,6 +1168,185 @@ EOT
             end
 
             return 0, pool
+        end
+
+        def get_format_size(pool, options)
+            if options[:json]
+                ::JSON.pretty_generate(pool.to_hash).split("\n").size
+            elsif options[:yaml]
+                pool.to_hash.to_yaml.split("\n").size
+            else
+                STDERR.puts 'ERROR: Format not found'
+                exit(-1)
+            end
+        end
+
+        ########################################################################
+        # XSD check and fix
+        ########################################################################
+
+        # Check XSD values for a single resource
+        #
+        # @param resource [OpenNebula::Object] Resource to check
+        # @param ename    [String]             Resource name
+        #
+        # @return [Object] Hash with correct values
+        def check_resource_xsd(resource, ename = nil)
+            hash  = resource.to_hash
+            ename = hash.keys.first unless ename
+            xsd   = read_xsd(ename)
+
+            return hash unless xsd
+
+            hash[ename] = check_xsd(hash[ename], nil, ename, xsd)
+
+            hash
+        end
+
+        # Read XSD file and parse to XML
+        #
+        # @param ename [String] Element name to read XSD
+        #
+        # @return [Hash] XSD in hash format, nil if not found
+        def read_xsd(ename)
+            require 'active_support/core_ext/hash/conversions'
+
+            # Try GEM directory
+            file = File.expand_path(
+                "../share/schemas/xsd/#{ename.downcase}.xsd",
+                File.dirname(__FILE__)
+            )
+
+            file = "#{XSD_PATH}/#{ename.downcase}.xsd" unless File.exist?(file)
+
+            unless File.exist?(file)
+                STDERR.puts "WARNING: XSD for #{ename} not found, skipping check"
+                return nil
+            end
+
+            hash = Hash.from_xml(Nokogiri::XML(File.read(file)).to_s)
+            hash = hash['schema']['element']
+
+            if hash.keys.include?('complexType')
+                hash['complexType']['sequence']['element']
+            else
+                hash['element']
+            end
+        end
+
+        # Check values XSD
+        #
+        # @param hash     [Object] Resource information in hash format
+        # @param elements [Array]  Keys to check
+        # @param ename    [String] Element name to take XSD
+        # @param xsd      [Hash]   XSD file content
+        def check_xsd(hash, elements, ename, xsd)
+            return unless hash
+
+            if (hash.is_a? Hash) && !hash.empty?
+                hash.map do |ki, vi|
+                    vi = [vi].flatten if is_array?(xsd, [ki])
+
+                    if (vi.is_a? Hash) && !vi.empty?
+                        vi.map do |kj, vj|
+                            vj = [vj].flatten if is_array?(xsd, [ki, kj])
+
+                            hash[ki][kj] = check_xsd(vj, [ki, kj], ename, xsd)
+                        end
+                    elsif vi.is_a? Array
+                        hash[ki] = check_xsd(vi, [ki], ename, xsd)
+                    else
+                        hash[ki] = check_xsd(vi, [ki], ename, xsd)
+                    end
+                end
+
+                hash
+            elsif hash.is_a? Array
+                ret = []
+
+                hash.each {|v| ret << check_xsd(v, elements, ename, xsd) }
+
+                ret
+            else
+                check_type(hash) do
+                    type = get_xsd_path(xsd, elements)
+                    type['type'] unless type.nil?
+                end
+            end
+        end
+
+        # Get xsd path value
+        #
+        # @param xsd      [Hash]  XSD information
+        # @param elements [Array] Path to get
+        #
+        # @return [Hash] Path information
+        def get_xsd_path(xsd, elements)
+            return unless elements
+
+            element = elements.shift
+
+            # Return nil, because is an empty complexType
+            return unless element
+
+            element = [xsd].flatten.find do |v|
+                v['name'] == element || v['ref'] == element
+            end
+
+            # Return nil, because element was not find in XSD
+            return unless element
+
+            if element.keys.include?('complexType') && !elements.empty?
+                if element['complexType']['all']
+                    element = element['complexType']['all']['element']
+                else
+                    element = element['complexType']['sequence']['element']
+                end
+
+                get_xsd_path(element, elements)
+            else
+                element
+            end
+        end
+
+        # CHeck if current element is an array
+        #
+        # @param xsd      [Hash]  XSD information
+        # @param elements [Array] Path to check
+        #
+        # @return [Boolean] True if it's an array, false otherwise
+        def is_array?(xsd, elements)
+            max = get_xsd_path(xsd, elements)
+            max = max['maxOccurs'] if max
+
+            max == 'unbounded' || max.to_i > 1
+        end
+
+        # Check XSD type for especific value
+        #
+        # @param value [Object] Value to check
+        #
+        # @return [Object] nil if the type is not correct, value otherwise
+        def check_type(value)
+            type = yield if block_given?
+
+            # If there is no type, return current value
+            return value unless type
+
+            types = %w[string decimal integer boolean date time]
+            type  = type.split(':')[1]
+
+            if types.include?(type)
+                # If the current type is different, return string
+                # because this value doesn't respect the type
+                if (value.is_a? Hash) || (value.is_a? Array)
+                    ''
+                else
+                    value
+                end
+            else
+                value
+            end
         end
     end
 
