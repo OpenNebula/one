@@ -119,6 +119,9 @@ Request::ErrorCode RequestManagerClone::clone(int source_id, const string &name,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+const std::vector<const char*> VMTemplateClone::REMOVE_DISK_ATTRS = {
+    "IMAGE", "IMAGE_UNAME", "IMAGE_UID", "OPENNEBULA_MANAGED"};
+
 Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
         int &new_id, bool recursive, const string& s_uattr, RequestAttributes& att)
 {
@@ -198,9 +201,10 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
                 goto error_images;
             }
 
-            (*disk)->remove("IMAGE");
-            (*disk)->remove("IMAGE_UNAME");
-            (*disk)->remove("IMAGE_UID");
+            for (auto attr : REMOVE_DISK_ATTRS)
+            {
+                (*disk)->remove(attr);
+            }
 
             (*disk)->replace("IMAGE_ID", new_img_id);
 
