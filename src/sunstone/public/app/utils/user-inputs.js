@@ -818,6 +818,7 @@ define(function(require) {
    */
   function _attributeInput(attr) {
     var input;
+    var clss = "";
     var defaultInput = attr && attr.type ? attr.type : "";
     var required = (attr.mandatory ? "required" : "");
     var wizard_field = "wizard_field='" + TemplateUtils.htmlEncode(attr.name) + "'";
@@ -827,6 +828,9 @@ define(function(require) {
     var value = "";
     if (attr.initial != undefined){
       value = TemplateUtils.htmlEncode(attr.initial);
+    }
+    if(attr.visor){
+      clss = "hide"
     }
     switch (attr.type) {
       case "text64":
@@ -857,7 +861,7 @@ define(function(require) {
       case "number-float":
         var min = attr.min != undefined ? "min='"+attr.min+"'" : "";
         var max = attr.max != undefined ? "max='"+attr.max+"'" : "";
-        input = "<input type='number' step='"+attr.step+"' "+min+" "+max+" value='"+value+"' "+wizard_field+" "+required+"/>";
+        input = "<input class='uinput-slider-val "+clss+"' type='number' step='"+attr.step+"' "+min+" "+max+" value='"+value+"' "+wizard_field+" "+required+"/>";
         break;
       case "range":
       case "range-float":
@@ -890,7 +894,11 @@ define(function(require) {
           input = "<textarea type='text' rows='1' default='"+defaultInput+"' "+wizard_field+" "+required+">"+TemplateUtils.htmlEncode(value)+"</textarea>";
       break;
     }
-
+    if(attr.visor){
+      var min = attr.min != undefined ? attr.min : "";
+      var max = attr.max != undefined ? attr.max : "";
+      input += '<input type="number" class="visor" value="'+value+'" required>';
+    }
     return input;
   }
 
