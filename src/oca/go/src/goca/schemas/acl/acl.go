@@ -19,7 +19,6 @@ package acl
 import (
 	"encoding/xml"
 	"fmt"
-	"oca/go/src/goca/schemas/acl"
 	"regexp"
 	"strconv"
 	"strings"
@@ -129,7 +128,7 @@ func CalculateIDs(idString string) (int64, error) {
 		if err != nil {
 			return 0, err
 		}
-		value = int64(acl.UID) + int64(id)
+		value = int64(UID) + int64(id)
 	}
 
 	// Match by GID
@@ -138,12 +137,12 @@ func CalculateIDs(idString string) (int64, error) {
 		if err != nil {
 			return 0, err
 		}
-		value = int64(acl.GID) + int64(id)
+		value = int64(GID) + int64(id)
 	}
 
 	// Match all
 	if strings.HasPrefix(idString, "*") {
-		value = int64(acl.All)
+		value = int64(All)
 	}
 
 	// Match by cluster
@@ -152,7 +151,7 @@ func CalculateIDs(idString string) (int64, error) {
 		if err != nil {
 			return 0, err
 		}
-		value = int64(acl.ClusterUsr) + int64(id)
+		value = int64(ClusterUsr) + int64(id)
 	}
 
 	return value, nil
