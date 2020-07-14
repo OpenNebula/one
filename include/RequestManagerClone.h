@@ -126,6 +126,8 @@ protected:
 
         return vm_instantiate.merge(tmpl, s_a, att);
     };
+
+    static const std::vector<const char*> REMOVE_DISK_ATTRS;
 };
 
 /* ------------------------------------------------------------------------- */
