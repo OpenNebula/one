@@ -69,7 +69,7 @@ else
     begin
         operation = container.start
         raise operation if container.status != 'Running'
-    rescue e
+    rescue StandardError => e
         # TODO: Improve wait condition
         sleep 5 # Wait for LXD to revert non-rootfs disks mountpoint
 
