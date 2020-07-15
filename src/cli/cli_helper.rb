@@ -667,7 +667,9 @@ module CLIHelper
         def expand_columns(expand_columns, all = false)
             return if expand_columns.empty?
 
-            if $stdout.tty? || (IO.console && IO.console.tty?)
+            if $stdout.isatty
+                terminal_size = $stdout.winsize[1]
+            elsif IO.console && IO.console.tty?
                 terminal_size = IO.console.winsize[1]
             else
                 terminal_size = nil
