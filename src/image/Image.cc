@@ -798,29 +798,41 @@ Image::DiskType Image::str_to_disk_type(string& s_disk_type)
     {
         type = Image::FILE;
     }
-    else if (s_disk_type == "BLOCK")
-    {
-        type = Image::BLOCK;
-    }
-    else if (s_disk_type == "ISCSI")
-    {
-        type = Image::ISCSI;
-    }
     else if (s_disk_type == "CDROM")
     {
         type = Image::CD_ROM;
+    }
+    else if (s_disk_type == "BLOCK")
+    {
+        type = Image::BLOCK;
     }
     else if (s_disk_type == "RBD")
     {
         type = Image::RBD;
     }
-    else if (s_disk_type == "SHEEPDOG")
+    else if (s_disk_type == "RBD_CDROM")
     {
-        type = Image::SHEEPDOG;
+        type = Image::RBD_CDROM;
     }
     else if (s_disk_type == "GLUSTER")
     {
         type = Image::GLUSTER;
+    }
+    else if (s_disk_type == "GLUSTER_CDROM")
+    {
+        type = Image::GLUSTER_CDROM;
+    }
+    else if (s_disk_type == "SHEEPDOG")
+    {
+        type = Image::SHEEPDOG;
+    }
+    else if (s_disk_type == "SHEEPDOG_CDROM")
+    {
+        type = Image::SHEEPDOG_CDROM;
+    }
+    else if (s_disk_type == "ISCSI")
+    {
+        type = Image::ISCSI;
     }
 
     return type;
