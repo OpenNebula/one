@@ -57,7 +57,7 @@ CURL="curl -L"
 # OpenNebula version
 #-------------------------------------------------------------------------------
 function get_tag_name {
-    local version=`oned -v | grep "is distributed" | awk '{print $2}' | tr -d .`
+    local version=`oned -v | grep -E "OpenNebula [0-9]+.[0-9]+.[0-9]+" | cut -d " " -f 2 | tr -d .`
 
     if [ `echo $version | wc -c` -eq 4 ]; then
         version=$(($version * 10))
@@ -174,7 +174,7 @@ echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 apt-get update >> /var/log/chroot.log 2>&1
 apt-get install $PKG_DEB -y >> /var/log/chroot.log 2>&1
 
-$CURL $CONTEXT_URL/v$selected_tag/one-context_$selected_tag-1.deb -Lsfo /root/context.deb >> /var/log/chroot.log 2>&1
+$CURL $CONTEXT_URL/v$selected_tag/one-context_$selected_tag-1.deb -Lfo /root/context.deb >> /var/log/chroot.log 2>&1
 apt-get install -y /root/context.deb >> /var/log/chroot.log 2>&1
 rm /root/context.deb
 
@@ -194,7 +194,7 @@ echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
 yum install $PKG_CENTOS6 -y  >> /var/log/chroot.log 2>&1
 
-$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el6.noarch.rpm -Lsfo /root/context.rpm  >> /var/log/chroot.log 2>&1
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el6.noarch.rpm -Lfo /root/context.rpm  >> /var/log/chroot.log 2>&1
 yum install /root/context.rpm -y  >> /var/log/chroot.log 2>&1
 rm /root/context.rpm
 
@@ -212,7 +212,7 @@ echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
 yum install $PKG_RPM -y >> /var/log/chroot.log 2>&1
 
-$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lsfo /root/context.rpm >> /var/log/chroot.log 2>&1
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
 yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
 rm /root/context.rpm
 
@@ -230,7 +230,7 @@ echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
 yum install $PKG_RPM -y >> /var/log/chroot.log 2>&1
 
-$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el8.noarch.rpm -Lsfo /root/context.rpm >> /var/log/chroot.log 2>&1
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el8.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
 yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
 rm /root/context.rpm
 
@@ -248,7 +248,7 @@ echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
 yum install $PKG_RPM -y >> /var/log/chroot.log 2>&1
 
-$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lsfo /root/context.rpm >> /var/log/chroot.log 2>&1
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
 yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
 rm /root/context.rpm
 
@@ -267,7 +267,7 @@ echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
 yum install $PKG_FEDORA -y >> /var/log/chroot.log 2>&1
 
-$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lsfo /root/context.rpm >> /var/log/chroot.log 2>&1
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
 yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
 rm /root/context.rpm
 
@@ -287,7 +287,7 @@ apk add $PKG_APK >> /var/log/chroot.log 2>&1
 
 rc-update add sshd >> /var/log/chroot.log 2>&1
 
-$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-r1.apk -Lsfo /root/context.apk >> /var/log/chroot.log 2>&1
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-r1.apk -Lfo /root/context.apk >> /var/log/chroot.log 2>&1
 apk add --allow-untrusted /root/context.apk >> /var/log/chroot.log 2>&1
 rm /root/context.apk
 
@@ -309,7 +309,7 @@ echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 apt-get update >> /var/log/chroot.log 2>&1
 apt-get install $PKG_ALT -y >> /var/log/chroot.log 2>&1
 
-$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-alt1.noarch.rpm -Lsfo /root/context.rpm >> /var/log/chroot.log 2>&1
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-alt1.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
 apt-get install /root/context.rpm -y >> /var/log/chroot.log 2>&1
 rm /root/context.rpm
 
