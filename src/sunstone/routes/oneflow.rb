@@ -64,6 +64,14 @@ get '/service/:id' do
     af_format_response(resp)
 end
 
+put '/service/:id' do
+    client = af_build_client
+
+    resp = client.put('/service/' + params[:id], @request_body)
+
+    af_format_response(resp)
+end
+
 delete '/service/:id' do
     client = af_build_client
 

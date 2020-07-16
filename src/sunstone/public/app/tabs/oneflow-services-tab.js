@@ -40,7 +40,8 @@ define(function(require) {
   ];
 
   var _formPanels = [
-    require('./oneflow-services-tab/form-panels/create')
+    require('./oneflow-services-tab/form-panels/create'),
+    require('./oneflow-services-tab/form-panels/update')
   ];
 
   var Tab = {

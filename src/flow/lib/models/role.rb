@@ -120,6 +120,22 @@ module OpenNebula
             'DOWN' => 1
         }
 
+        # List of attributes that can't be changed in update operation
+        # cardinality: this is internal information managed by OneFlow server
+        # last_vmname: this is internal information managed by OneFlow server
+        # nodes: this is internal information managed by OneFlow server
+        # parents: this has only sense in deploy operation
+        # state: this is internal information managed by OneFlow server
+        # vm_template: this will affect scale operation
+        IMMUTABLE_ATTRS = %w[
+            cardinality
+            last_vmname
+            nodes
+            parents
+            state
+            vm_template
+        ]
+
         # VM information to save in document
         VM_INFO = %w[ID UID GID UNAME GNAME NAME]
 
@@ -673,6 +689,22 @@ module OpenNebula
             set_cardinality(new_cardinality)
 
             nil
+        end
+
+        # Check that changes values are correct
+        #
+        # @param template_json [String] New template
+        #
+        # @return [Boolean, String] True, nil if everything is correct
+        #                           False, attr if attr was changed
+        def check_new_template(template)
+            IMMUTABLE_ATTRS.each do |attr|
+                next if template[attr] == @body[attr]
+
+                return [false, "role/#{attr}"]
+            end
+
+            [true, nil]
         end
 
         ########################################################################

@@ -203,7 +203,7 @@ class EventManager
         Log.info LOG_COMP, "Waiting #{cooldown_time}s for cooldown for " \
                            "service #{service_id} and role #{role_name}."
 
-        sleep cooldown_time
+        sleep cooldown_time.to_i
 
         @lcm.trigger_action(:cooldown_cb,
                             service_id,

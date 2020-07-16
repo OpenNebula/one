@@ -440,6 +440,41 @@ class ServiceLCM
         rc
     end
 
+    # Update service template
+    #
+    # @param client       [OpenNebula::Client] Client executing action
+    # @param service_id   [Integer]            Service ID
+    # @param new_tempalte [String]             New template
+    def service_update(client, service_id, new_template)
+        rc = @srv_pool.get(service_id, client) do |service|
+            unless service.can_update?
+                break OpenNebula::Error.new(
+                    "Service cannot be updated in state: #{service.state_str}"
+                )
+            end
+
+            rc = service.check_new_template(new_template)
+
+            unless rc[0]
+                if rc[1] == 'name'
+                    break OpenNebula::Error.new(
+                        'To change `service/name` use rename operation'
+                    )
+                else
+                    break OpenNebula::Error.new(
+                        "Immutable value: `#{rc[1]}` can not be changed"
+                    )
+                end
+            end
+
+            service.update(new_template)
+        end
+
+        Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
+
+        rc
+    end
+
     # Update role elasticity/schedule policies
     #
     # @param client      [OpenNebula::Client] Client executing action

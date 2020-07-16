@@ -36,6 +36,7 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 
 require 'json'
+require 'tempfile'
 
 require 'command_parser'
 require 'opennebula/oneflow_client'
@@ -346,6 +347,60 @@ CommandParser::CmdParser.new(ARGV) do
             client = helper.client(options)
 
             client.post("#{RESOURCE_PATH}/#{service_id}/action", json)
+        end
+    end
+
+    ###
+
+    update_desc = <<-EOT.unindent
+        Update the template contents. If a path is not provided the editor will
+        be launched to modify the current content.
+    EOT
+
+    command :update, update_desc, :service_id, [:file, nil] do
+        service_id = args[0]
+        client     = helper.client(options)
+
+        if args[1]
+            path = args[1]
+        else
+            response = client.get("#{RESOURCE_PATH}/#{service_id}")
+
+            if CloudClient.is_error?(response)
+                exit_with_code response.code.to_i, response.to_s
+            else
+                document = JSON.parse(response.body)['DOCUMENT']
+                template = document['TEMPLATE']['BODY']
+
+                tmp  = Tempfile.new(service_id.to_s)
+                path = tmp.path
+
+                tmp.write(JSON.pretty_generate(template))
+                tmp.flush
+
+                if ENV['EDITOR']
+                    editor_path = ENV['EDITOR']
+                else
+                    editor_path = OpenNebulaHelper::EDITOR_PATH
+                end
+
+                system("#{editor_path} #{path}")
+
+                unless $CHILD_STATUS.exitstatus.zero?
+                    STDERR.puts 'Editor not defined'
+                    exit(-1)
+                end
+
+                tmp.close
+            end
+        end
+
+        response = client.put("#{RESOURCE_PATH}/#{service_id}", File.read(path))
+
+        if CloudClient.is_error?(response)
+            [response.code.to_i, response.to_s]
+        else
+            0
         end
     end
 end

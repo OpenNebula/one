@@ -30,6 +30,7 @@ define(function(require) {
   var ROLES_PANEL_ID = require('./panels/roles/panelId');
   var SCALE_DIALOG_ID = require('./dialogs/scale/dialogId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
+  var UPDATE_DIALOG_ID = require('./form-panels/update/formPanelId');
 
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
     XML_ROOT, Locale.tr("Service created"));
@@ -96,6 +97,9 @@ define(function(require) {
     "Service.shutdown": _commonActions.multipleAction('shutdown'),
     "Service.recover":    _commonActions.multipleAction('recover'),
     "Service.recover_delete":    _commonActions.multipleAction('recover_delete'),
+    "Service.update" : _commonActions.update(),
+    "Service.update_dialog" : _commonActions.checkAndShowUpdate(),
+
     "Service.create_dialog" : {
       type: "custom",
       call: function() {
@@ -113,6 +117,21 @@ define(function(require) {
       error: function(request, error_json) {
         Notifier.onError(request, error_json, $(".oneflow_services_error_message"));
       }
+    },
+
+    "Service.show_to_update" :  {
+      type: "single",
+      call: function(params) {
+        OpenNebulaResource.show(params);
+      },
+      callback: function(request, response) {
+        Sunstone.showFormPanel(TAB_ID, UPDATE_DIALOG_ID, "update",
+          function(formPanelInstance, context) {
+            formPanelInstance.fill(context, response[XML_ROOT]);
+          }
+        );
+      },
+      error: Notifier.onError
     },
 
     //--------------------------------------------------------------------------
