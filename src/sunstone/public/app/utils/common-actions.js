@@ -221,6 +221,7 @@ define(function(require) {
         }
 
         var resourceId = '' + selectedNodes[0];
+        window.ServiceId = resourceId;
         Sunstone.runAction(that.resourceStr + '.show_to_update', resourceId);
       }
     }

@@ -16,6 +16,8 @@
 
 define(function(require) {
   var OpenNebulaAction = require('./action');
+  var OpenNebulaHelper = require("./helper");
+  var OpenNebulaError  = require("./error");
   var Locale = require('utils/locale');
 
   var RESOURCE = "DOCUMENT";
@@ -111,6 +113,35 @@ define(function(require) {
 
       OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj, PATH);
     },
+    "update": function(params){
+      params.cache_name = CACHE_NAME;
+
+      var json_aux = JSON.parse(params.data.extra_param);
+      var action_obj = JSON.stringify(json_aux);
+
+      var callback = params.success;
+      var callbackError = params.error;
+      var id = params.data.id;
+      var request = OpenNebulaHelper.request(RESOURCE, "update", [id, action_obj]);
+
+      var reqPath = PATH ? PATH : RESOURCE.toLowerCase();
+      var cache_name = params.cache_name ? params.cache_name : RESOURCE;
+      $.ajax({
+        url: reqPath + "/" + id,
+        type: "PUT",
+        contentType: "application/json; charset=utf-8",
+        data: action_obj,
+        success: function(response) {
+          //_clearCache(cache_name); 
+
+          return callback ? callback(request, response) : null;
+        },
+        error: function(response) {
+          return callbackError ?
+              callbackError(request, OpenNebulaError(response)) : null;
+        }
+      });
+    },
     "stateStr" : function(stateId) {
       return STATES_STR[stateId];
     },
@@ -129,4 +160,3 @@ define(function(require) {
 
   return Service;
 })
-

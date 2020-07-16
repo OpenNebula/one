@@ -279,26 +279,6 @@ post '/service/:id/action' do
             rc = OpenNebula::Error.new("Action #{action['perform']}: " \
                                        'You have to specify a name')
         end
-    #     when 'update'
-    #         if opts && opts['append']
-    #             if opts['template_json']
-    #                 begin
-    #                     service.update(opts['template_json'], true)
-    #                     status 204
-    #                 rescue Validator::ParseException, JSON::ParserError => e
-    #                     OpenNebula::Error.new(e.message)
-    #                 end
-    #             elsif opts['template_raw']
-    #                 service.update_raw(opts['template_raw'], true)
-    #                 status 204
-    #             else
-    #                 OpenNebula::Error.new("Action #{action['perform']}: " \
-    #                                       'You have to provide a template')
-    #             end
-    #         else
-    #             OpenNebula::Error.new("Action #{action['perform']}: " \
-    #                                   'Only supported for append')
-    #         end
     when *Role::SCHEDULE_ACTIONS
         # Use defaults only if one of the options is supplied
         opts['period'] ||= conf[:action_period]
@@ -315,6 +295,28 @@ post '/service/:id/action' do
             "Action #{action['perform']} not supported"
         )
     end
+
+    if OpenNebula.is_error?(rc)
+        return internal_error(rc.message, one_error_to_http(rc.errno))
+    end
+
+    status 204
+end
+
+put '/service/:id' do
+    new_template = request.body.read
+
+    begin
+        # Check that the JSON is valid
+        json_template = JSON.parse(new_template)
+
+        # Check the schema of the new template
+        ServiceTemplate.validate(json_template)
+    rescue Validator::ParseException, JSON::ParserError => e
+        return internal_error(e.message, VALIDATION_EC)
+    end
+
+    rc = lcm.service_update(@client, params[:id], new_template)
 
     if OpenNebula.is_error?(rc)
         return internal_error(rc.message, one_error_to_http(rc.errno))

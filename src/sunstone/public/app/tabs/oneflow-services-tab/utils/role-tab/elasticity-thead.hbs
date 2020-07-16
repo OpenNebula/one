@@ -1,0 +1,50 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
+<thead style="background:#dfdfdf">
+  <tr>
+    <th colspan="8">
+      {{tr "Elasticity policies"}}
+    </th>
+  </tr>
+</thead>
+<thead>
+  <tr>
+    <th class="has-tip" title="{{tr "Type of adjustment."}}
+  {{tr "CHANGE: Add/subtract the given number of VMs."}}
+  {{tr "CARDINALITY: Set the cardinality to the given number."}}
+  {{tr "PERCENTAGE_CHANGE: Add/subtract the given percentage to the current cardinality."}}" style="width:14%">{{tr "Type"}}
+    </th>
+    <th class="has-tip" title="{{tr "Positive or negative adjustment. Its meaning depends on 'type'"}}
+  {{tr "CHANGE: -2, will subtract 2 VMs from the role"}}
+  {{tr "CARDINALITY: 8, will set cardinality to 8"}}
+  {{tr "PERCENTAGE_CHANGE: 20, will increment cardinality by 20%"}}" style="width:12%">{{tr "Adjust"}}
+    </th>
+    <th class="has-tip" title="{{tr "Optional parameter for PERCENTAGE_CHANGE adjustment type."}}
+{{tr " If present, the policy will change the cardinality by at least the number of VMs set in this attribute."}}" style="width:9%">{{tr "Min"}}
+    </th>
+    <th class="has-tip" title="{{tr "Expression to trigger the elasticity"}}
+  {{tr "Example: ATT < 20"}}" style="width:30%">{{tr "Expression"}}
+    </th>
+    <th class="has-tip" title="{{tr "Number of periods that the expression must be true before the elasticity is triggered"}}" style="width:8%">#
+    </th>
+    <th class="has-tip" title="{{tr "Duration, in seconds, of each period in '# Periods'"}}" style="width:9%">{{tr "Period"}}
+    </th>
+    <th class="has-tip" title="{{tr "Cooldown period duration after a scale operation, in seconds"}}" style="width:15%">{{tr "Cooldown"}}
+    </th>
+    <th style="width:3%"></th>
+  </tr>
+</thead>

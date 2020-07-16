@@ -1,0 +1,47 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
+<thead style="background:#dfdfdf">
+  <tr>
+    <th colspan="6">
+      {{tr "Scheduled policies"}}
+    </th>
+  </tr>
+</thead>
+<thead>
+  <tr>
+    <th class="has-tip" title="{{tr "Type of adjustment."}}
+  {{tr "CHANGE: Add/subtract the given number of VMs."}}
+  {{tr "CARDINALITY: Set the cardinality to the given number."}}
+  {{tr "PERCENTAGE_CHANGE: Add/subtract the given percentage to the current cardinality."}}" style="width:14%">{{tr "Type"}}
+    </th>
+    <th class="has-tip" title="{{tr "Positive or negative adjustment. Its meaning depends on 'type'"}}
+  {{tr "CHANGE: -2, will subtract 2 VMs from the role"}}
+  {{tr "CARDINALITY: 8, will set cardinality to 8"}}
+  {{tr "PERCENTAGE_CHANGE: 20, will increment cardinality by 20%"}}" style="width:12%">{{tr "Adjust"}}
+    </th>
+    <th class="has-tip" title="{{tr "Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute."}}" style="width:9%">{{tr "Min"}}
+    </th>
+    <th class="has-tip" title="{{tr "Recurrence: Time for recurring adjustments. Time is specified with the Unix cron syntax"}}
+  {{tr "Start time: Exact time for the adjustment"}}" style="width:28%">{{tr "Time format"}}
+    </th>
+    <th class="has-tip" title="{{tr "Time expression depends on the the time format selected"}}
+  {{tr "Recurrence: Time for recurring adjustments. Time is specified with the Unix cron syntax"}}
+  {{tr "Start time: Exact time for the adjustment"}}" style="width:33%">{{tr "Time expression"}}
+    </th>
+    <th style="width:3%"></th>
+  </tr>
+</thead>

@@ -80,6 +80,29 @@ module OpenNebula
             SCALING
         ]
 
+        # List of attributes that can't be changed in update operation
+        #
+        # custom_attrs: it only has sense when deploying, not in running
+        # custom_attrs_values: it only has sense when deploying, not in running
+        # deployment: changing this, changes the undeploy operation
+        # log: this is just internal information, no sense to change it
+        # name: this has to be changed using rename operation
+        # networks: it only has sense when deploying, not in running
+        # networks_values: it only has sense when deploying, not in running
+        # ready_status_gate: it only has sense when deploying, not in running
+        # state: this is internal information managed by OneFlow server
+        IMMUTABLE_ATTRS = %w[
+            custom_attrs
+            custom_attrs_values
+            deployment
+            log
+            name
+            networks
+            networks_values
+            ready_status_gate
+            state
+        ]
+
         LOG_COMP = 'SER'
 
         # Returns the service state
@@ -121,6 +144,12 @@ module OpenNebula
             else
                 true
             end
+        end
+
+        # Return true if the service can be updated
+        # @return true if the service can be updated, false otherwise
+        def can_update?
+            !transient_state? && !failed_state?
         end
 
         def can_recover_deploy?
@@ -469,6 +498,38 @@ module OpenNebula
         #   otherwise
         def update_raw(template_raw, append = false)
             super(template_raw, append)
+        end
+
+        # Check that changes values are correct
+        #
+        # @param template_json [String] New template
+        #
+        # @return [Boolean, String] True, nil if everything is correct
+        #                           False, attr if attr was changed
+        def check_new_template(template_json)
+            template = JSON.parse(template_json)
+
+            if template['roles'].size != @roles.size
+                return [false, 'service/roles size']
+            end
+
+            IMMUTABLE_ATTRS.each do |attr|
+                next if template[attr] == @body[attr]
+
+                return [false, "service/#{attr}"]
+            end
+
+            template['roles'].each do |role|
+                # Role name can't be changed, if it is changed some problems
+                # may appear, as name is used to reference roles
+                return [false, 'name'] unless @roles[role['name']]
+
+                rc = @roles[role['name']].check_new_template(role)
+
+                return rc unless rc[0]
+            end
+
+            [true, nil]
         end
 
         def deploy_networks

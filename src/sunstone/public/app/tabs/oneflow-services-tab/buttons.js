@@ -23,6 +23,11 @@ define(function(require) {
       layout: "refresh",
       alwaysActive: true
     },
+    "Service.update_dialog" : {
+      type: "action",
+      text: Locale.tr("Update"),
+      layout: "main",
+    },
     "Service.create_dialog" : {
       type: "action",
       layout: "create",
