@@ -94,7 +94,7 @@ class OneHookHelper < OpenNebulaHelper::OneHelper
     def format_pool(_options)
         config_file = self.class.table_conf
 
-        table = CLIHelper::ShowTable.new(config_file, self) do
+        CLIHelper::ShowTable.new(config_file, self) do
             column :ID, 'ONE identifier for the Hook', :size => 5 do |d|
                 d['ID']
             end
@@ -109,8 +109,6 @@ class OneHookHelper < OpenNebulaHelper::OneHelper
 
             default :ID, :NAME, :TYPE
         end
-
-        table
     end
 
     # Function to print Execution Log records as sent by oned using:

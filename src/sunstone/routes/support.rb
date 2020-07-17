@@ -144,9 +144,10 @@ get '/support/request' do
     end
 
     zrequests.each do |zrequest|
-        if zrequest.status == 'pending'
+        case zrequest.status
+        when 'pending'
             pending_requests += 1
-        elsif zrequest.status == 'open'
+        when 'open'
             open_requests += 1
         end
 

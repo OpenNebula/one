@@ -325,9 +325,10 @@ module CLIHelper
             column[:size] = 5
 
             conf.each do |c|
-                if c.is_a? Symbol
+                case c.is_a?
+                when Symbol
                     column[c] = true
-                elsif c.is_a? Hash
+                when Hash
                     c.each do |key, value|
                         column[key] = value
                     end

@@ -155,7 +155,7 @@ module NSXDriver
                 break
             end
 
-            nic_data = {
+            {
                 :id => nic_id,
                 :name => nic_name,
                 :network_name => network_name,
@@ -163,8 +163,6 @@ module NSXDriver
                 :network_vcref => network_vcref,
                 :lp => nic_lp
             }
-
-            nic_data
         end
 
         # Create OpenNebula fw rules for an instance (given a template)

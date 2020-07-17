@@ -115,7 +115,7 @@ class OneAclHelper < OpenNebulaHelper::OneHelper
     def format_pool(_options)
         config_file = self.class.table_conf
 
-        table = CLIHelper::ShowTable.new(config_file, self) do
+        CLIHelper::ShowTable.new(config_file, self) do
             column :ID,
                    'Rule Identifier',
                    :size => 5 do |d|
@@ -157,8 +157,6 @@ class OneAclHelper < OpenNebulaHelper::OneHelper
 
             default :ID, :USER, :RES_VHNIUTGDCOZSvRMAPt, :RID, :OPE_UMAC, :ZONE
         end
-
-        table
     end
     # rubocop:enable Lint/IneffectiveAccessModifier
 

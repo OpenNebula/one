@@ -25,8 +25,8 @@ require 'opennebula/document_pool_json'
 
 require 'validator'
 
-require 'models/role.rb'
-require 'models/service_pool.rb'
-require 'models/service.rb'
-require 'models/service_template_pool.rb'
-require 'models/service_template.rb'
+require 'models/role'
+require 'models/service_pool'
+require 'models/service'
+require 'models/service_template_pool'
+require 'models/service_template'

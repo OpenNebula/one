@@ -119,11 +119,10 @@ module NSXDriver
                 err_msg = rc.message
                 raise CreateNetworkError, err_msg
             end
-            vnet_data = {
+            {
                 :nsxid => one_vnet['TEMPLATE/NSX_ID'],
                 :name => one_vnet['NAME']
             }
-            vnet_data
         end
 
         def extract_rule_data(xml_rule)
@@ -161,7 +160,7 @@ module NSXDriver
                 end
             end
             # Create hash with data
-            rule_data = {
+            {
                 :id => sg_id,
                 :name => sg_name,
                 :direction => sg_direction,
@@ -173,8 +172,6 @@ module NSXDriver
                 :subnets => sg_subnets,
                 :ports => sg_ports.split(',')
             }
-
-            rule_data
         end
 
         def rule_spec(rule, vm_data, nic_data, nsx_client)
