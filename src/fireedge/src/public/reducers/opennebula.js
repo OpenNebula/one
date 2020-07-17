@@ -13,10 +13,10 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+const actions = require('../actions/opennebula');
+
 const initial = {
-  user: {
-    name: ''
-  },
+  user: null,
   vm: [],
   templates: [],
   services: [],
@@ -40,12 +40,10 @@ const initial = {
 
 const Opennebula = (state = initial, action) => {
   switch (action.type) {
-    case 'SETUSER': {
-      const { user } = state; // extract position and rename
-      const newUserState = { ...user, ...action.payload }; // merge all data user with new
+    case actions.SET_USER: {
       return {
         ...state,
-        user: newUserState
+        user: action.payload
       };
     }
     default:

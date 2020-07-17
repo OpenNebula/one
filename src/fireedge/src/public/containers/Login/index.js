@@ -13,48 +13,8 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { Suspense } from 'react';
-import { StaticRouter, BrowserRouter } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import PropTypes from 'prop-types';
+import Login from './Login';
 
-import { LinearProgress } from '@material-ui/core';
-
-import { TranslateProvider } from 'client/components/HOC';
-import Router from './router';
-
-const App = ({ location, context, store }) => (
-  <Provider store={store}>
-    {location && context ? (
-      // server build
-      <StaticRouter location={location} context={context}>
-        <TranslateProvider>
-          <Router />
-        </TranslateProvider>
-      </StaticRouter>
-    ) : (
-      // browser build
-      <Suspense fallback={<LinearProgress />}>
-        <BrowserRouter>
-          <TranslateProvider>
-            <Router />
-          </TranslateProvider>
-        </BrowserRouter>
-      </Suspense>
-    )}
-  </Provider>
-);
-
-App.propTypes = {
-  location: PropTypes.string,
-  context: PropTypes.shape({}),
-  store: PropTypes.shape({})
+export {
+  Login
 };
-
-App.defaultProps = {
-  location: '',
-  context: {},
-  store: {}
-};
-
-export default App;

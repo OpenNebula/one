@@ -13,48 +13,23 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { Suspense } from 'react';
-import { StaticRouter, BrowserRouter } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import PropTypes from 'prop-types';
+import React from 'react';
+import { Box, Link, useTheme } from '@material-ui/core';
+import classnames from 'classnames';
 
-import { LinearProgress } from '@material-ui/core';
+import { by } from 'client/constants';
 
-import { TranslateProvider } from 'client/components/HOC';
-import Router from './router';
+const { text, url } = by;
 
-const App = ({ location, context, store }) => (
-  <Provider store={store}>
-    {location && context ? (
-      // server build
-      <StaticRouter location={location} context={context}>
-        <TranslateProvider>
-          <Router />
-        </TranslateProvider>
-      </StaticRouter>
-    ) : (
-      // browser build
-      <Suspense fallback={<LinearProgress />}>
-        <BrowserRouter>
-          <TranslateProvider>
-            <Router />
-          </TranslateProvider>
-        </BrowserRouter>
-      </Suspense>
-    )}
-  </Provider>
-);
+const Footer = () => {
+  const theme = useTheme();
 
-App.propTypes = {
-  location: PropTypes.string,
-  context: PropTypes.shape({}),
-  store: PropTypes.shape({})
+  return (
+    <Box color={theme.palette.primary.light} className={classnames('footer')}>
+      {`❤️ by `}
+      <Link href={url}>{text}</Link>
+    </Box>
+  );
 };
 
-App.defaultProps = {
-  location: '',
-  context: {},
-  store: {}
-};
-
-export default App;
+export default Footer;

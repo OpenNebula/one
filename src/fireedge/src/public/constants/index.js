@@ -13,6 +13,26 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import constants from './constants';
-
-export default { ...constants };
+module.exports = {
+  checkbox: 'checkbox',
+  classInputInvalid: 'is-invalid',
+  NotFound: 'Not found',
+  SignIn: 'Sign In',
+  Language: 'Language',
+  Username: 'Username',
+  Password: 'Password',
+  keepLoggedIn: 'Keep me logged in',
+  Token2FA: '2FA Token',
+  SignOut: 'Sign Out',
+  jwtName: 'SunstoneToken',
+  Submit: 'Submit',
+  Respose: 'Response',
+  by: {
+    text: 'Opennebula Systems',
+    url: 'https://opennebula.org/'
+  },
+  endpointsRoutes: {
+    login: '/api/auth/',
+    userInfo: '/api/user/info'
+  }
+};

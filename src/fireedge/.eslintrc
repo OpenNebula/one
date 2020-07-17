@@ -1,6 +1,7 @@
 {
   "extends": [
-    "./node_modules/jloboescalona-eslint-config/index.js"
+    "./node_modules/jloboescalona-eslint-config/index.js",
+    "plugin:cypress/recommended"
   ],
   "parser": "babel-eslint",
   "env": {
@@ -18,5 +19,16 @@
       }
     ],
     "default-case": 0
+  },
+  "settings": {
+    "import/resolver": {
+      "alias" : {
+        "map" : [
+          ["client","./src/public/"],
+          ["server","./src/"]
+        ],
+        "extensions": [".js"]
+      }
+    }
   }
 }

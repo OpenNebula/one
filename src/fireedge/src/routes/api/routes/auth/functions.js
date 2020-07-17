@@ -24,9 +24,9 @@ const {
   default2FAOpennebulaVar,
   defaultNamespace,
   from: fromData
-} = require('../../../../utils/contants/defaults');
+} = require('../../../../utils/constants/defaults');
 const { getConfig } = require('../../../../utils/yml');
-const { ok, unauthorized } = require('../../../../utils/contants/http-codes');
+const { ok, unauthorized } = require('../../../../utils/constants/http-codes');
 const { createToken } = require('../../../../utils/jwt');
 const {
   responseOpennebula,

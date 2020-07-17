@@ -34,7 +34,7 @@ const {
   defaultConfigLogPath,
   defaultConfigLogFile,
   defaultTypeLog
-} = require('./utils/contants/defaults');
+} = require('./utils/constants/defaults');
 const {
   entrypoint404,
   entrypointApi,

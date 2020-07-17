@@ -13,70 +13,38 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { requestData, removeStoreData, findStorageData } from '../../utils';
-import constants from '../../constants';
-import components from '../router/endpoints';
-import { setUser } from '../../actions';
+import { useHistory } from 'react-router-dom';
 
-const AuthLayout = ({ children, history, changeName }) => {
-  const [show, setShow] = useState(false);
+import useAuth from 'client/hooks/auth/useAuth';
+import routes from 'client/router/endpoints';
 
-  const redirectToLogin = () => {
-    const { jwtName } = constants;
-    removeStoreData(jwtName);
-    const { login } = components;
-    history.push(login.path);
-  };
+const AuthLayout = ({ children }) => {
+  const history = useHistory();
+  const { getAuthUser, jwt, isLogged } = useAuth();
 
   useEffect(() => {
-    const { jwtName, endpointsRoutes } = constants;
-    if (findStorageData && findStorageData(jwtName)) {
-      requestData(endpointsRoutes.userInfo).then(response => {
-        if (response && response.data && response.data.USER) {
-          const { USER: userInfo } = response.data;
-          setShow(true);
-          changeName(userInfo.NAME);
-        } else {
-          redirectToLogin();
-        }
-      });
-    } else {
-      redirectToLogin();
+    if (jwt) {
+      getAuthUser();
+    } else if (!isLogged) {
+      history.push(routes.login.path);
     }
-  }, []);
+  }, [jwt, isLogged]);
 
-  return show ? <Fragment>{children}</Fragment> : <Fragment />;
+  return isLogged ? <Fragment>{children}</Fragment> : <Fragment />;
 };
+
 AuthLayout.propTypes = {
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
     PropTypes.string
-  ]),
-  history: PropTypes.shape({
-    push: PropTypes.func
-  }),
-  changeName: PropTypes.func
+  ])
 };
 
 AuthLayout.defaultProps = {
-  children: '',
-  history: {
-    push: () => undefined
-  },
-  changeName: () => undefined
+  children: ''
 };
 
-const mapStateToProps = () => ({});
-
-const mapDispatchToProps = dispatch => ({
-  changeName: name => dispatch(setUser(name))
-});
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(AuthLayout);
+export default AuthLayout;

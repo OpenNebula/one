@@ -16,7 +16,7 @@
 const nodeExternals = require('webpack-node-externals');
 const path = require('path');
 const { getConfig } = require('./src/utils/');
-const { defaultWebpackMode } = require('./src/utils/contants');
+const { defaultWebpackMode } = require('./src/utils/constants');
 
 // settings
 const appConfig = getConfig();

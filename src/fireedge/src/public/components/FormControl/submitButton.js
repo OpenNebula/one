@@ -8,11 +8,11 @@ import * as CONSTANT from '../../constants'
 const useStyles = makeStyles(theme => ({
   button: {
     transition: 'disabled 0.5s ease',
-  },
+    margin: theme.spacing(3, 0, 2)
+  }
 }));
 
-
-export default function ButtonSubmit({ isSubmitting }) {
+export default function ButtonSubmit({ isSubmitting, label }) {
   const classes = useStyles();
 
   return (
@@ -24,7 +24,7 @@ export default function ButtonSubmit({ isSubmitting }) {
       className={classes.button}
     >
       {isSubmitting && <CircularProgress size={24} />}
-      {!isSubmitting && <Translate word={CONSTANT.default.Submit} />}
+      {!isSubmitting && (label ?? <Translate word={CONSTANT.default.Submit} />)}
     </Button>
   )
 }

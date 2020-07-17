@@ -19,13 +19,13 @@ const rpc = require('xmlrpc');
 const xml2js = require('xml2js');
 const { Map } = require('immutable');
 const { sprintf } = require('sprintf-js');
-const httpCodes = require('./contants/http-codes');
-const commandsParams = require('./contants/commands');
+const httpCodes = require('./constants/http-codes');
+const commandsParams = require('./constants/commands');
 const {
   from,
   defaultNamespace,
   defaultMessageProblemOpennebula
-} = require('./contants/defaults');
+} = require('./constants/defaults');
 
 // user config
 const { getConfig } = require('./yml');

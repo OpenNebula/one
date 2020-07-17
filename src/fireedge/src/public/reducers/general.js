@@ -13,42 +13,24 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+const actions = require('../actions/general');
+
 const initial = {
-  logoff: false,
-  displayMenu: false,
+  isOpenMenu: false,
   zone: 0,
   loading: true
 };
 
 const General = (state = initial, action) => {
   switch (action.type) {
-    case 'DISPLAY _LOADING': {
-      const { loading } = action.payload;
-      return {
-        ...state,
-        loading
-      };
+    case actions.DISPLAY_LOADING: {
+      return { ...state, ...action.payload };
     }
-    case 'CHANGE_ZONE': {
-      const { zone } = action.payload;
-      return {
-        ...state,
-        zone
-      };
+    case actions.CHANGE_ZONE: {
+      return { ...state, ...action.payload };
     }
-    case 'LOG_OFF': {
-      const { logoff } = action.payload;
-      return {
-        ...state,
-        logoff
-      };
-    }
-    case 'DISPLAY_MENU': {
-      const { displayMenu } = action.payload;
-      return {
-        ...state,
-        displayMenu
-      };
+    case actions.DISPLAY_MENU: {
+      return { ...state, ...action.payload };
     }
     default:
       return state;
