@@ -97,7 +97,8 @@ module VirtualMachineDevice
 
             config = {}
 
-            if action == :delete
+            case action
+            when :delete
                 if managed?
                     key = "opennebula.mdisk.#{@id}"
                 else
@@ -106,14 +107,14 @@ module VirtualMachineDevice
 
                 config[:key] = key
                 config[:value] = ''
-            elsif action == :resize
+            when :resize
                 if new_size
                     d = device
                     d.capacityInKB = new_size
                     config[:device] = d
                     config[:operation] = :edit
                 end
-            elsif action == :attach
+            when :attach
                 puts 'not supported'
             end
 

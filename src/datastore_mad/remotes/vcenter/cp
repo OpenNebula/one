@@ -176,7 +176,7 @@ files_to_upload.each_with_index do |f, index|
     if last_file_to_upload?(index, files_to_upload)
         puts stdout_str
     end
-    
+
     next if status.success?
 
     STDERR.puts "Cannot upload file #{f}"

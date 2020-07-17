@@ -103,7 +103,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
     def format_pool(options)
         config_file = self.class.table_conf
 
-        table = CLIHelper::ShowTable.new(config_file, self) do
+        CLIHelper::ShowTable.new(config_file, self) do
             column :ID, 'ONE identifier for Host', :size => 4 do |d|
                 d['ID']
             end
@@ -233,8 +233,6 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             default :ID, :NAME, :CLUSTER, :TVM,
                     :ALLOCATED_CPU, :ALLOCATED_MEM, :STAT
         end
-
-        table
     end
 
     def set_hybrid(type, path)
