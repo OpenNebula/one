@@ -1250,7 +1250,12 @@ CommandParser::CmdParser.new(ARGV) do
         helper.perform_action(args[0], options,
                               'Updating VM configuration') do |vm|
             if template.empty?
-                vm.info
+                rc = vm.info
+
+                if OpenNebula.is_error?(rc)
+                    STDERR.puts "ERROR: #{rc.message}"
+                    exit(-1)
+                end
 
                 template = vm.template_like_str('TEMPLATE', true,
                                                 'OS | FEATURES | INPUT | '\
