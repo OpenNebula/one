@@ -156,7 +156,7 @@ module LXD
             cpu = cpu.chomp('%').to_f / 100
             mem = parse_memory(mem)
 
-            template = <<-EOT
+            <<-EOT
                 NAME   = "#{@deploy_id}"
                 CPU    = #{cpu}
                 VCPU   = #{vcpu}
@@ -166,8 +166,6 @@ module LXD
                 DEPLOY_ID  = "#{@deploy_id}"
                 OS = [ ARCH="#{arch}" ]
             EOT
-
-            template
         end
 
         private

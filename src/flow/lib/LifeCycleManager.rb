@@ -803,7 +803,7 @@ class ServiceLCM
             action = :wait_deploy
         end
 
-        rc = roles.each do |name, role|
+        roles.each do |name, role|
             rc = role.deploy
 
             if !rc[0]
@@ -823,8 +823,6 @@ class ServiceLCM
                                           rc[0],
                                           report)
         end
-
-        rc
     end
 
     def undeploy_roles(client, roles, success_state, error_state, scale)
@@ -834,7 +832,7 @@ class ServiceLCM
             action = :wait_undeploy
         end
 
-        rc = roles.each do |name, role|
+        roles.each do |name, role|
             rc = role.shutdown(false)
 
             if !rc[0]
@@ -855,8 +853,6 @@ class ServiceLCM
                                           role.name,
                                           rc[0])
         end
-
-        rc
     end
 
     def set_cardinality(role, cardinality, force)

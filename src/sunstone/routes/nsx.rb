@@ -57,10 +57,11 @@ post '/nsx/auth' do
                                                 nsxuser,
                                                 nsxpassword,
                                                 nsx_type)
-    if nsx_type == 'NSX-T'
+    case nsx_type
+    when 'NSX-T'
         url = NSXDriver::NSXConstants::NSXT_AUTH
         response = nsx_client.get_token(url)
-    elsif nsx_type == 'NSX-V'
+    when 'NSX-V'
         url = NSXDriver::NSXConstants::NSXV_AUTH
         response = nsx_client.get_token(url)
     else

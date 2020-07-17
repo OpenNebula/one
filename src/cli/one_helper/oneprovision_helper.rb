@@ -49,7 +49,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     def format_pool
         config_file = self.class.table_conf
 
-        table = CLIHelper::ShowTable.new(config_file, self) do
+        CLIHelper::ShowTable.new(config_file, self) do
             column :ID, 'Identifier for the Provision', :size => 36 do |p|
                 p['ID']
             end
@@ -80,8 +80,6 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
             default :ID, :NAME, :CLUSTERS, :HOSTS, :NETWORKS, :DATASTORES, :STAT
         end
-
-        table
     end
 
     #######################################################################
@@ -228,11 +226,9 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     end
 
     def names_to_ids(objects, type)
-        objects = [objects].flatten.map do |obj|
+        [objects].flatten.map do |obj|
             OpenNebulaHelper.rname_to_id(obj.to_s, type)[1]
         end
-
-        objects
     end
 
     def get_list(provision_list)
