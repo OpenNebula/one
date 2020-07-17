@@ -17,12 +17,12 @@ const { Map } = require('immutable');
 const {
   httpMethod,
   defaultMethodLogin
-} = require('../../../../utils/contants/defaults');
+} = require('../../../../utils/constants/defaults');
 const {
   unauthorized,
   internalServerError
-} = require('../../../../utils/contants/http-codes');
-const { from: fromData } = require('../../../../utils/contants/defaults');
+} = require('../../../../utils/constants/http-codes');
+const { from: fromData } = require('../../../../utils/constants/defaults');
 
 const {
   responseOpennebula,

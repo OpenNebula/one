@@ -13,48 +13,59 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { Suspense } from 'react';
-import { StaticRouter, BrowserRouter } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import PropTypes from 'prop-types';
+import { Login } from 'client/containers/Login';
+import { Clusters, Hosts, Zones } from 'client/containers/Infrastructure';
+import Settings from 'client/containers/Settings';
+import TestApi from 'client/containers/TestApi';
+import Dashboard from 'client/containers/Dashboard';
 
-import { LinearProgress } from '@material-ui/core';
-
-import { TranslateProvider } from 'client/components/HOC';
-import Router from './router';
-
-const App = ({ location, context, store }) => (
-  <Provider store={store}>
-    {location && context ? (
-      // server build
-      <StaticRouter location={location} context={context}>
-        <TranslateProvider>
-          <Router />
-        </TranslateProvider>
-      </StaticRouter>
-    ) : (
-      // browser build
-      <Suspense fallback={<LinearProgress />}>
-        <BrowserRouter>
-          <TranslateProvider>
-            <Router />
-          </TranslateProvider>
-        </BrowserRouter>
-      </Suspense>
-    )}
-  </Provider>
-);
-
-App.propTypes = {
-  location: PropTypes.string,
-  context: PropTypes.shape({}),
-  store: PropTypes.shape({})
+export default {
+  login: {
+    path: '/',
+    authenticated: false,
+    menu: false,
+    component: Login
+  },
+  dashboard: {
+    path: '/dashboard',
+    component: Dashboard
+  },
+  settings: {
+    path: '/settings',
+    component: Settings
+  },
+  test_api: {
+    path: '/test-api',
+    component: TestApi
+  },
+  // infrastructure
+  infrastructure: {
+    clusters: {
+      path: '/clusters',
+      component: Clusters
+    },
+    hosts: {
+      path: '/hosts',
+      component: Hosts
+    },
+    zones: {
+      path: '/zones',
+      component: Zones
+    }
+  },
+  // networks
+  networks: {
+    vnets: {
+      path: '/vnets'
+    },
+    vnets_templates: {
+      path: '/vnets-templates'
+    },
+    vnets_topology: {
+      path: '/vnets-topology'
+    },
+    vnets_secgroup: {
+      path: '/secgroup'
+    }
+  }
 };
-
-App.defaultProps = {
-  location: '',
-  context: {},
-  store: {}
-};
-
-export default App;

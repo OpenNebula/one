@@ -13,48 +13,21 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { Suspense } from 'react';
-import { StaticRouter, BrowserRouter } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import PropTypes from 'prop-types';
+import React, { Fragment } from 'react';
 
-import { LinearProgress } from '@material-ui/core';
+import { Translate } from 'client/components/HOC/Translate';
+import { NotFound } from 'client/constants';
 
-import { TranslateProvider } from 'client/components/HOC';
-import Router from './router';
+function Error404() {
+  return (
+    <Fragment>
+      <Translate word={NotFound} />
+    </Fragment>
+  );
+}
 
-const App = ({ location, context, store }) => (
-  <Provider store={store}>
-    {location && context ? (
-      // server build
-      <StaticRouter location={location} context={context}>
-        <TranslateProvider>
-          <Router />
-        </TranslateProvider>
-      </StaticRouter>
-    ) : (
-      // browser build
-      <Suspense fallback={<LinearProgress />}>
-        <BrowserRouter>
-          <TranslateProvider>
-            <Router />
-          </TranslateProvider>
-        </BrowserRouter>
-      </Suspense>
-    )}
-  </Provider>
-);
+Error404.propTypes = {};
 
-App.propTypes = {
-  location: PropTypes.string,
-  context: PropTypes.shape({}),
-  store: PropTypes.shape({})
-};
+Error404.defaultProps = {};
 
-App.defaultProps = {
-  location: '',
-  context: {},
-  store: {}
-};
-
-export default App;
+export default Error404;

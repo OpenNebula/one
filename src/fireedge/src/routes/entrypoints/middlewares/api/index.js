@@ -17,7 +17,7 @@ const {
   private: authenticated,
   public: nonAuthenticated
 } = require('../../../api');
-const { httpCodes, params } = require('../../../../utils/contants');
+const { httpCodes, params } = require('../../../../utils/constants');
 const {
   validateAuth,
   getAllowedQueryParams,

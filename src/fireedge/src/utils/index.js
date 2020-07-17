@@ -14,8 +14,8 @@
 /* -------------------------------------------------------------------------- */
 
 const fs = require('fs-extra');
-const params = require('./contants/params');
-const { defaultTypeLog } = require('./contants/defaults');
+const params = require('./constants/params');
+const { defaultTypeLog } = require('./constants/defaults');
 const functionRoutes = require('../routes/api');
 const { validateAuth } = require('./jwt');
 const { messageTerminal } = require('./general');

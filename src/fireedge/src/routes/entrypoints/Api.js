@@ -15,7 +15,7 @@
 
 const express = require('express');
 const { Map } = require('immutable');
-const { defaults, httpCodes, params } = require('../../utils/contants');
+const { defaults, httpCodes, params } = require('../../utils/constants');
 const { getConfig } = require('../../utils/yml');
 const {
   opennebulaConnect,

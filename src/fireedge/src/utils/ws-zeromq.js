@@ -22,7 +22,7 @@ const xml2js = require('xml2js');
 const { messageTerminal } = require('./general');
 const { getConfig } = require('./yml');
 const { validateAuth } = require('./jwt');
-const { unauthorized } = require('./contants/http-codes');
+const { unauthorized } = require('./constants/http-codes');
 
 // user config
 const appConfig = getConfig();

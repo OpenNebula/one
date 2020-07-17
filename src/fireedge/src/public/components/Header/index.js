@@ -13,48 +13,49 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { Suspense } from 'react';
-import { StaticRouter, BrowserRouter } from 'react-router-dom';
-import { Provider } from 'react-redux';
+import React from 'react';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 
-import { LinearProgress } from '@material-ui/core';
+import { AppBar, Toolbar, IconButton, Typography } from '@material-ui/core';
+import MenuIcon from '@material-ui/icons/Menu';
 
-import { TranslateProvider } from 'client/components/HOC';
-import Router from './router';
+import useGeneral from 'client/hooks/useGeneral';
 
-const App = ({ location, context, store }) => (
-  <Provider store={store}>
-    {location && context ? (
-      // server build
-      <StaticRouter location={location} context={context}>
-        <TranslateProvider>
-          <Router />
-        </TranslateProvider>
-      </StaticRouter>
-    ) : (
-      // browser build
-      <Suspense fallback={<LinearProgress />}>
-        <BrowserRouter>
-          <TranslateProvider>
-            <Router />
-          </TranslateProvider>
-        </BrowserRouter>
-      </Suspense>
-    )}
-  </Provider>
-);
+import User from './User';
+import Zone from './Zone';
 
-App.propTypes = {
-  location: PropTypes.string,
-  context: PropTypes.shape({}),
-  store: PropTypes.shape({})
+const Header = ({ title }) => {
+  const { isOpenMenu, changeMenu } = useGeneral();
+
+  return (
+    <AppBar position="fixed" className={classnames('header')}>
+      <Toolbar>
+        <IconButton
+          onClick={() => changeMenu(!isOpenMenu)}
+          edge="start"
+          className=""
+          color="inherit"
+          aria-label="menu"
+        >
+          <MenuIcon />
+        </IconButton>
+        <Typography variant="h6" style={{ flexGrow: 1 }}>
+          <b className={classnames('title')}>{title}</b>
+        </Typography>
+        <User />
+        <Zone />
+      </Toolbar>
+    </AppBar>
+  );
 };
 
-App.defaultProps = {
-  location: '',
-  context: {},
-  store: {}
+Header.propTypes = {
+  title: PropTypes.string
 };
 
-export default App;
+Header.defaultProps = {
+  title: ''
+};
+
+export default Header;

@@ -17,6 +17,7 @@ import React from 'react';
 import { hydrate } from 'react-dom';
 import { createStore } from 'redux';
 import root from 'window-or-global';
+
 import rootReducer from 'client/reducers';
 import App from 'client/app';
 

@@ -18,7 +18,7 @@ import PropTypes from 'prop-types';
 import { Select } from '@material-ui/core';
 import { sprintf } from 'sprintf-js';
 import root from 'window-or-global';
-import { translations, defaultLang } from '../../../utils/contants/defaults';
+import { translations, defaultLang } from '../../../utils/constants/defaults';
 
 const langDefault = defaultLang;
 const TranslateContext = new CreateContext();
