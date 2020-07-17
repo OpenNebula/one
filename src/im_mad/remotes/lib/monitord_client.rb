@@ -96,10 +96,8 @@ class MonitorClient
             data = edata
         end
 
-        zdata  = Zlib::Deflate.deflate(data, Zlib::BEST_COMPRESSION)
-        data64 = Base64.strict_encode64(zdata)
-
-        data64
+        zdata = Zlib::Deflate.deflate(data, Zlib::BEST_COMPRESSION)
+        Base64.strict_encode64(zdata)
     end
 
 end

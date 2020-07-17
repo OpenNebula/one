@@ -69,15 +69,16 @@ module OneProvision
                         end
                     end
 
-                    if choice == :retry
+                    case choice
+                    when :retry
                         sleep(seconds) if seconds
 
                         retry
-                    elsif choice == :quit
+                    when :quit
                         exit(-1)
-                    elsif choice == :skip
+                    when :skip
                         return :skip
-                    elsif choice == :cleanup
+                    when :cleanup
                         raise OneProvisionCleanupException if cleanup
 
                         Utils.fail('Cleanup unsupported for this operation')

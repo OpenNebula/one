@@ -290,9 +290,10 @@ module OneProvision
                 timeout = meta['wait_timeout']
             end
 
-            if wait == false
+            case wait
+            when false
                 [wait, nil]
-            elsif wait == true
+            when true
                 if timeout
                     [wait, timeout]
                 else
