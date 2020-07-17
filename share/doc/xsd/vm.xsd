@@ -71,6 +71,14 @@
               <xs:element name="NETRX" type="xs:integer" minOccurs="0" maxOccurs="1"/>
               <!-- Exact time when monitoring info were retieved -->
               <xs:element name="TIMESTAMP" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- vCetner information -->
+              <xs:element name="VCENTER_ESX_HOST" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_GUEST_STATE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_RP_NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_VMWARETOOLS_RUNNING_STATUS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_VMWARETOOLS_VERSION" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_VMWARETOOLS_VERSION_STATUS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_VM_NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
             </xs:all>
           </xs:complexType>
         </xs:element>
