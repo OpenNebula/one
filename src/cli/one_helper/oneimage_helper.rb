@@ -192,7 +192,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
     def format_pool(options)
         config_file = self.class.table_conf
 
-        table = CLIHelper::ShowTable.new(config_file, self) do
+        CLIHelper::ShowTable.new(config_file, self) do
             column :ID, 'ONE identifier for the Image', :size=>4 do |d|
                 d['ID']
             end
@@ -246,8 +246,6 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             default :ID, :USER, :GROUP, :NAME, :DATASTORE, :SIZE, :TYPE,
                     :PERSISTENT, :STAT, :RVMS
         end
-
-        table
     end
 
     def check_orphans

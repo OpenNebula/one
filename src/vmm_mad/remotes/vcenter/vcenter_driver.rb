@@ -82,7 +82,7 @@ require 'resolv'
 # vCenter Library                                                              #
 # ---------------------------------------------------------------------------- #
 
-require 'vcenter_importer.rb'
+require 'vcenter_importer:'
 require 'memoize'
 require 'vi_client'
 begin

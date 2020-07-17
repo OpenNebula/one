@@ -91,8 +91,7 @@ module NSXDriver
             return if result.nil?
 
             xp = NSXConstants::NSXV_DFW_SECTION_XPATH
-            section = result.xpath(xp)
-            section
+            result.xpath(xp)
         end
 
         # Create new section

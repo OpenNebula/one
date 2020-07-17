@@ -528,6 +528,8 @@ AllCops:
     - src/flow/lib/grammar.rb
     - src/flow/lib/validator.rb
 
+
+
 ########
 # LAYOUT
 ########
@@ -684,6 +686,38 @@ Style/ExponentialNotation:
 Style/SlicingWithRange:
     Enabled: true
 
+Style/AccessorGrouping:
+  Enabled: False
+
+Style/ArrayCoercion:
+  Enabled: True
+
+Style/BisectedAttrAccessor:
+  Enabled: True
+
+Style/CaseLikeIf:
+  Enabled: True
+
+Style/HashAsLastArrayItem:
+  Enabled: True
+
+Style/HashLikeCase:
+  Enabled: True
+
+Style/RedundantAssignment:
+  Enabled: True
+
+Style/RedundantFetchBlock:
+  Enabled: True
+
+Style/RedundantFileExtensionInRequire:
+  Enabled: True
+
+Style/RedundantRegexpCharacterClass:
+  Enabled: True
+
+Style/RedundantRegexpEscape:
+  Enabled: False
 
 ######
 # LINT
@@ -736,6 +770,12 @@ Lint/Debugger:
 # Check file permissions
 Lint/ScriptPermission:
     Enabled: false
+
+Lint/DuplicateElsifCondition:
+  Enabled: True
+
+Lint/MixedRegexpCaptureTypes:
+  Enabled: True
 
 #########
 # METRICS

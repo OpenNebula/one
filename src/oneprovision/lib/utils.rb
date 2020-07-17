@@ -306,13 +306,14 @@ module OneProvision
             def evaluate_erb(provision, root)
                 if root.is_a? Hash
                     root.each_pair do |key, value|
-                        if value.is_a? Array
+                        case value.is_a?
+                        when Array
                             root[key] = value.map do |x|
                                 evaluate_erb(provision, x)
                             end
-                        elsif value.is_a? Hash
+                        when Hash
                             root[key] = evaluate_erb(provision, value)
-                        elsif value.is_a? String
+                        when String
                             if value =~ /<%= /
                                 root[key] = get_erb_value(provision, value)
                             end
@@ -439,7 +440,7 @@ module OneProvision
                     ind_tab = ' '
                 end
 
-                str = attributes.collect do |key, value|
+                attributes.collect do |key, value|
                     next unless value
 
                     str_line = ''
@@ -483,8 +484,6 @@ module OneProvision
                     end
                     str_line
                 end.compact.join("\n")
-
-                str
             end
 
         end
