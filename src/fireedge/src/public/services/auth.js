@@ -2,7 +2,7 @@ import { endpointsRoutes } from 'client/constants';
 import { requestData } from 'client/utils';
 import httpCodes from 'server/utils/constants/http-codes';
 
-export const loginService = (user, baseURL = '') =>
+export const login = (user, baseURL = '') =>
   requestData(endpointsRoutes.login, {
     data: user,
     method: 'POST',
@@ -10,21 +10,19 @@ export const loginService = (user, baseURL = '') =>
     baseURL,
     error: console.error
   }).then(res => {
-    if (!res?.id || res?.id !== httpCodes.ok.id)
-      throw new Error('Response is NOT ok');
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw new Error(res?.message);
 
     return res;
   });
 
-export const authUserService = () =>
+export const getUser = () =>
   requestData(endpointsRoutes.userInfo).then(res => {
-    if (!res?.id || res?.id !== httpCodes.ok.id)
-      throw new Error('Response is NOT ok');
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw new Error(res?.message);
 
     return res;
   });
 
 export default {
-  loginService,
-  authUserService
+  login,
+  getUser
 };

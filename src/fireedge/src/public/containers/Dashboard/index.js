@@ -15,11 +15,15 @@
 
 import React from 'react';
 
+import { Box, Typography } from '@material-ui/core';
+
 function Dashboard() {
   return (
-    <div>
-      <h2>Dashboard</h2>
-    </div>
+    <Box>
+      <Typography variant="h2" data-cy="dashboard-title">
+        Dashboard
+      </Typography>
+    </Box>
   );
 }
 

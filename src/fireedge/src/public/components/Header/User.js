@@ -35,7 +35,7 @@ import { SignOut, Groups } from 'client/constants';
 import useAuth from 'client/hooks/auth/useAuth';
 
 const User = () => {
-  const { logout, userAuth } = useAuth();
+  const { logout, authUser } = useAuth();
   const [open, setOpen] = useState(false);
   const anchorRef = useRef(null);
   const { current } = anchorRef;
@@ -51,7 +51,7 @@ const User = () => {
     setOpen(false);
   };
 
-  const handleSignOut = evt => {
+  const handleLogout = evt => {
     evt.preventDefault();
     logout();
   };
@@ -64,6 +64,7 @@ const User = () => {
         aria-controls={open ? 'menu-list-grow' : undefined}
         aria-haspopup="true"
         onClick={handleToggle}
+        data-cy="header-user-button"
       >
         <AccountCircleIcon />
       </Button>
@@ -85,11 +86,16 @@ const User = () => {
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList autoFocusItem={open} id="menu-list-grow">
-                  <MenuItem onClick={handleClose}>{userAuth?.NAME}</MenuItem>
+                  <MenuItem onClick={handleClose} data-cy="header-username">
+                    {authUser?.NAME}
+                  </MenuItem>
                   <Divider />
                   <MenuItem onClick={handleClose}>Settings</MenuItem>
                   <Divider />
-                  <MenuItem onClick={handleSignOut}>
+                  <MenuItem
+                    onClick={handleLogout}
+                    data-cy="header-logout-button"
+                  >
                     <Translate word={SignOut} />
                   </MenuItem>
                   <Divider />

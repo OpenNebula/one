@@ -18,9 +18,11 @@ const Opennebula = require('./opennebula');
 const Zendesk = require('./zendesk');
 const General = require('./general');
 const GetConfigSystem = require('./system');
+const Authenticated = require('./auth');
 
 const rootReducers = config =>
   combineReducers({
+    Authenticated,
     System: GetConfigSystem(config),
     Opennebula,
     Zendesk,

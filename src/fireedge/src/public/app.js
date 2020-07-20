@@ -18,31 +18,40 @@ import { StaticRouter, BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { LinearProgress } from '@material-ui/core';
+import {
+  CssBaseline,
+  ThemeProvider,
+  createMuiTheme,
+  responsiveFontSizes
+} from '@material-ui/core';
 
+import themeOne from 'client/assets/theme';
 import { TranslateProvider } from 'client/components/HOC';
-import Router from './router';
+import Router from 'client/router';
+
+const theme = createMuiTheme(themeOne);
 
 const App = ({ location, context, store }) => (
-  <Provider store={store}>
-    {location && context ? (
-      // server build
-      <StaticRouter location={location} context={context}>
-        <TranslateProvider>
-          <Router />
-        </TranslateProvider>
-      </StaticRouter>
-    ) : (
-      // browser build
-      <Suspense fallback={<LinearProgress />}>
+  <ThemeProvider theme={responsiveFontSizes(theme)}>
+    <CssBaseline />
+    <Provider store={store}>
+      {location && context ? (
+        // server build
+        <StaticRouter location={location} context={context}>
+          <TranslateProvider>
+            <Router />
+          </TranslateProvider>
+        </StaticRouter>
+      ) : (
+        // browser build
         <BrowserRouter>
           <TranslateProvider>
             <Router />
           </TranslateProvider>
         </BrowserRouter>
-      </Suspense>
-    )}
-  </Provider>
+      )}
+    </Provider>
+  </ThemeProvider>
 );
 
 App.propTypes = {

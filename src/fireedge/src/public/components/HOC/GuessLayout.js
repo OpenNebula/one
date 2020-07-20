@@ -13,6 +13,39 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-module.exports = {
-  SET_USER: 'SET_USER'
+import React, { Fragment } from 'react';
+import PropTypes from 'prop-types';
+import { Redirect } from 'react-router-dom';
+
+import { LinearProgress } from '@material-ui/core';
+
+import useAuth from 'client/hooks/auth/useAuth';
+import routes from 'client/router/endpoints';
+
+const GuessLayout = ({ children }) => {
+  const { isLogged, firstRender } = useAuth();
+
+  if (isLogged) {
+    return <Redirect to={routes.dashboard.path} />;
+  }
+
+  if (firstRender) {
+    return <LinearProgress style={{ width: '100%' }} />;
+  }
+
+  return <Fragment>{children}</Fragment>;
 };
+
+GuessLayout.propTypes = {
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+    PropTypes.string
+  ])
+};
+
+GuessLayout.defaultProps = {
+  children: ''
+};
+
+export default GuessLayout;

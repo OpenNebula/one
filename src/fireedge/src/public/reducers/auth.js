@@ -13,31 +13,67 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const actions = require('../actions/general');
+const actions = require('client/actions/user');
+const { jwtName } = require('client/constants');
+const { console } = require('window-or-global');
+
+const jwt =
+  typeof window !== 'undefined'
+    ? window.localStorage.getItem(jwtName) ??
+      window.sessionStorage.getItem(jwtName) ??
+      null
+    : null;
 
 const initial = {
-  zone: 0,
+  jwt,
+  user: null,
+  error: null,
   isLoading: false,
-  isOpenMenu: false
+  firstRender: true
 };
 
-const General = (state = initial, action) => {
+const authentication = (state = initial, action) => {
   switch (action.type) {
-    case actions.DISPLAY_LOADING: {
-      return { ...state, ...action.payload };
-    }
-    case actions.CHANGE_ZONE: {
-      return { ...state, ...action.payload };
-    }
-    case actions.TOGGLE_MENU: {
+    case actions.LOGIN_REQUEST:
+      return {
+        isLoading: true
+      };
+    case actions.LOGIN_SUCCESS:
+      return {
+        isLoading: false,
+        jwt: action.jwt
+      };
+    case actions.LOGIN_FAILURE:
+      return {
+        isLoading: false,
+        error: action.message
+      };
+    case actions.LOGOUT:
       return {
         ...state,
-        isOpenMenu: action.isOpen
+        jwt: null,
+        user: null,
+        error: null
       };
-    }
+    case actions.USER_REQUEST:
+      return {
+        ...state,
+        isLoading: true
+      };
+    case actions.USER_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        user: action.user
+      };
+    case actions.USER_FAILURE:
+      return {
+        isLoading: false,
+        error: action.message
+      };
     default:
       return state;
   }
 };
 
-module.exports = General;
+module.exports = authentication;

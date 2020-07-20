@@ -17,7 +17,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
-import { AppBar, Toolbar, IconButton, Typography } from '@material-ui/core';
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  LinearProgress
+} from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 
 import useGeneral from 'client/hooks/useGeneral';
@@ -26,13 +32,13 @@ import User from './User';
 import Zone from './Zone';
 
 const Header = ({ title }) => {
-  const { isOpenMenu, changeMenu } = useGeneral();
+  const { isLoading, isOpenMenu, openMenu } = useGeneral();
 
   return (
-    <AppBar position="fixed" className={classnames('header')}>
+    <AppBar position="fixed" className={classnames('header')} data-cy="header">
       <Toolbar>
         <IconButton
-          onClick={() => changeMenu(!isOpenMenu)}
+          onClick={() => openMenu(!isOpenMenu)}
           edge="start"
           className=""
           color="inherit"
@@ -40,12 +46,18 @@ const Header = ({ title }) => {
         >
           <MenuIcon />
         </IconButton>
-        <Typography variant="h6" style={{ flexGrow: 1 }}>
-          <b className={classnames('title')}>{title}</b>
+        <Typography
+          variant="h6"
+          style={{ flexGrow: 1 }}
+          className={classnames('title')}
+          data-cy="header-title"
+        >
+          {title}
         </Typography>
         <User />
         <Zone />
       </Toolbar>
+      {isLoading && <LinearProgress />}
     </AppBar>
   );
 };

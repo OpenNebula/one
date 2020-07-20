@@ -55,7 +55,6 @@ const Zone = () => {
         onClick={handleToggle}
       >
         <LanguageIcon />
-        pepe
       </Button>
       <Popper
         open={open}
@@ -75,15 +74,7 @@ const Zone = () => {
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList autoFocusItem={open} id="menu-list-grow">
-                  <MenuItem onClick={handleClose}>Settings</MenuItem>
-                  <Divider />
-                  <MenuItem onClick={handleClose}>
-                    <Translate word={SignOut} />
-                  </MenuItem>
-                  <Divider />
-                  <MenuItem onClick={handleClose}>
-                    <Translate word={Groups} />
-                  </MenuItem>
+                  <MenuItem onClick={handleClose}>Zone</MenuItem>
                 </MenuList>
               </ClickAwayListener>
             </Paper>
