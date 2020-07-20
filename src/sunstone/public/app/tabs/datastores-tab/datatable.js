@@ -83,7 +83,7 @@ define(function(require) {
       Locale.tr("ID"),
       Locale.tr("Name"),
       Locale.tr("Owner"),
-      Locale.tr("Group"),      
+      Locale.tr("Group"),
       Locale.tr("Capacity"),
       Locale.tr("Cluster"),
       Locale.tr("Basepath"),
