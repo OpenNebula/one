@@ -178,6 +178,10 @@ define(function(require) {
           delete nic["PARENT"];
       }
 
+      (Boolean($("input#" + that.id + "_rdp", context).prop("checked")))
+        ? nic["RDP"] = "YES"
+        : delete nic["RDP"];
+
       if ( !nic["NETWORK_MODE"] || ( nic["NETWORK_MODE"] && nic["NETWORK_MODE"] !== "auto" ) )
       {
         var val = $(this).data("vnetsTable").retrieveResourceTableSelect();
