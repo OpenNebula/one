@@ -22,13 +22,13 @@ define(function(require) {
 
   var RESOURCE = "DATASTORE";
   var STATES_STR = [
-    Locale.tr("ON"),
-    Locale.tr("OFF")];
+    "ON",
+    "OFF"];
 
   var TYPES_STR = [
-    Locale.tr("IMAGE"),
-    Locale.tr("SYSTEM"),
-    Locale.tr("FILE")
+    "IMAGE",
+    "SYSTEM",
+    "FILE"
   ];
 
   var STATES = {
