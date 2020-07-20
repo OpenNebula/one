@@ -27,9 +27,9 @@ import {
 import classnames from 'classnames';
 import { Link } from 'react-router-dom';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import endpoints from '../../router/endpoints';
+import endpoints from 'client/router/endpoints';
 
-const PrincipalMenu = () => {
+const Sidebar = () => {
   const [expanded, setExpanded] = useState('');
 
   const handleChange = panel => (event, newExpanded) => {
@@ -113,4 +113,4 @@ const PrincipalMenu = () => {
   );
 };
 
-export default PrincipalMenu;
+export default Sidebar;

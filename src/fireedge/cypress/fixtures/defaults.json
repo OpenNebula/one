@@ -1,6 +1,7 @@
 {
   "auth": {
-    "name": "oneadmin",
+    "jwtName": "SunstoneToken",
+    "username": "oneadmin",
     "password": "opennebula"
   },
   "endpoints": {

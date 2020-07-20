@@ -13,26 +13,25 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { useEffect, Fragment } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { useHistory } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 
 import useAuth from 'client/hooks/auth/useAuth';
 import routes from 'client/router/endpoints';
 
 const AuthLayout = ({ children }) => {
-  const history = useHistory();
-  const { getAuthUser, jwt, isLogged } = useAuth();
+  const { isLogged, getAuthUser } = useAuth();
 
   useEffect(() => {
-    if (jwt) {
-      getAuthUser();
-    } else if (!isLogged) {
-      history.push(routes.login.path);
-    }
-  }, [jwt, isLogged]);
+    if (isLogged) getAuthUser();
+  }, [isLogged, getAuthUser]);
 
-  return isLogged ? <Fragment>{children}</Fragment> : <Fragment />;
+  if (!isLogged) {
+    return <Redirect to={routes.login.path} />;
+  }
+
+  return <Fragment>{children}</Fragment>;
 };
 
 AuthLayout.propTypes = {

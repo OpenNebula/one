@@ -1,32 +1,30 @@
 import { useCallback } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 
-import actions from 'client/actions/general';
+import * as actions from 'client/actions/general';
 
 export default function useGeneral() {
+  const { isLoading, isOpenMenu } = useSelector(state => state?.General, shallowEqual);
   const dispatch = useDispatch();
-  const { isOpenMenu } = useSelector(state => state?.General);
 
-  const changeZone = useCallback(
-    zone => dispatch({ type: actions.CHANGE_ZONE, payload: zone }),
-    [dispatch]
-  );
+  const openMenu = useCallback(isOpen => dispatch(actions.openMenu(isOpen)), [
+    dispatch
+  ]);
+
+  const changeZone = useCallback(zone => dispatch(actions.changeZone(zone)), [
+    dispatch
+  ]);
 
   const changeLoading = useCallback(
-    isLoading =>
-      dispatch({ type: actions.DISPLAY_LOADING, payload: isLoading }),
-    [dispatch]
-  );
-
-  const changeMenu = useCallback(
-    isOpen => dispatch({ type: actions.DISPLAY_MENU, payload: isOpen }),
+    loading => dispatch(actions.changeLoading(loading)),
     [dispatch]
   );
 
   return {
+    isLoading,
     isOpenMenu,
     changeZone,
-    changeLoading,
-    changeMenu
+    openMenu,
+    changeLoading
   };
 }

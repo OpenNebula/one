@@ -13,6 +13,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+import GuessLayout from './GuessLayout';
 import AuthLayout from './AuthLayout';
 import InternalLayout from './InternalLayout';
 import {
@@ -23,6 +24,7 @@ import {
 } from './Translate';
 
 export {
+  GuessLayout,
   AuthLayout,
   InternalLayout,
   TranslateContext,

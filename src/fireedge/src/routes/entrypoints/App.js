@@ -51,7 +51,7 @@ router.get('*', (req, res) => {
   const css = sheets.toString();
 
   const html = `
-  <!doctype html>
+  <!DOCTYPE html>
     <html>
     <head>
       <link rel='shortcut icon' type='image/png' href='/static/favicon.png' />

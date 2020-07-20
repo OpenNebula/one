@@ -13,10 +13,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const actions = require('../actions/opennebula');
-
 const initial = {
-  user: null,
   vm: [],
   templates: [],
   services: [],
@@ -40,12 +37,6 @@ const initial = {
 
 const Opennebula = (state = initial, action) => {
   switch (action.type) {
-    case actions.SET_USER: {
-      return {
-        ...state,
-        user: action.payload
-      };
-    }
     default:
       return state;
   }

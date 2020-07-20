@@ -20,17 +20,17 @@ import { Drawer, Box, Container } from '@material-ui/core';
 
 import Header from 'client/components/Header';
 import Footer from 'client/components/Footer';
-import PrincipalMenu from 'client/containers/PrincipalMenu';
+import Sidebar from 'client/components/Sidebar';
 import useGeneral from 'client/hooks/useGeneral';
 
 const InternalLayout = ({ children, title }) => {
-  const { showMenu, changeMenu } = useGeneral();
+  const { isOpenMenu, openMenu } = useGeneral();
 
   return (
     <Box display="flex" width="100%">
       <Header title={title} />
-      <Drawer anchor="left" open={showMenu} onClose={() => changeMenu(false)}>
-        <PrincipalMenu />
+      <Drawer anchor="left" open={isOpenMenu} onClose={() => openMenu(false)}>
+        <Sidebar />
       </Drawer>
       <Container
         component="main"
@@ -41,7 +41,7 @@ const InternalLayout = ({ children, title }) => {
       <Footer />
     </Box>
   );
-}
+};
 
 InternalLayout.propTypes = {
   children: PropTypes.oneOfType([

@@ -13,10 +13,10 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { createElement } from 'react';
+import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 
-import { AuthLayout } from 'client/components/HOC';
+import { AuthLayout, GuessLayout } from 'client/components/HOC';
 import InternalLayout from 'client/components/HOC/InternalLayout';
 import Error404 from 'client/containers/Error404';
 
@@ -24,7 +24,7 @@ import endpoints from './endpoints';
 
 const routeElement = (
   title = '',
-  { path = '/', authenticated = true, component }
+  { path = '/', authenticated = true, component: Component }
 ) => (
   <Route
     key={`key-${title.replace(' ', '-')}`}
@@ -34,11 +34,13 @@ const routeElement = (
       authenticated ? (
         <AuthLayout>
           <InternalLayout title={title.replace('_', ' ')}>
-            {createElement(component)}
+            <Component />
           </InternalLayout>
         </AuthLayout>
       ) : (
-        createElement(component)
+        <GuessLayout>
+          <Component />
+        </GuessLayout>
       )
     }
   />

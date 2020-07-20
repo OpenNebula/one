@@ -1,9 +1,9 @@
-import React from 'react'
+import React from 'react';
 
 import { makeStyles, CircularProgress, Button } from '@material-ui/core';
 
-import { Translate } from '../HOC'
-import * as CONSTANT from '../../constants'
+import { Translate } from 'client/components/HOC';
+import * as CONSTANT from 'client/constants';
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -12,7 +12,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ButtonSubmit({ isSubmitting, label }) {
+export default function ButtonSubmit({ isSubmitting, label, ...rest }) {
   const classes = useStyles();
 
   return (
@@ -22,9 +22,10 @@ export default function ButtonSubmit({ isSubmitting, label }) {
       type="submit"
       variant="contained"
       className={classes.button}
+      {...rest}
     >
       {isSubmitting && <CircularProgress size={24} />}
       {!isSubmitting && (label ?? <Translate word={CONSTANT.default.Submit} />)}
     </Button>
-  )
+  );
 }
