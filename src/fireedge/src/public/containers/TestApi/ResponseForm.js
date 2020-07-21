@@ -11,9 +11,9 @@ import {
   Checkbox
 } from '@material-ui/core';
 
-import ButtonSubmit from '../../components/FormControl/submitButton';
-import { requestData } from '../../utils';
-import { from as resourceFrom } from '../../../utils/constants/defaults';
+import ButtonSubmit from 'client/components/FormControl/SubmitButton';
+import { requestData } from 'client/utils';
+import { from as resourceFrom } from 'server/utils/constants/defaults';
 
 const getQueries = params =>
   Object.entries(params)

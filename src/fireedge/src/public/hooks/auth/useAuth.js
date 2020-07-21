@@ -8,7 +8,7 @@ import * as servicesAuth from 'client/services/auth';
 import * as actions from 'client/actions/user';
 
 export default function useAuth() {
-  const { isLoading, jwt, user: authUser, firstRender } = useSelector(
+  const { isLoading, jwt, user: authUser, firstRender, error } = useSelector(
     state => state?.Authenticated,
     shallowEqual
   );
@@ -31,9 +31,9 @@ export default function useAuth() {
           storage(jwtName, data?.token, remember);
           dispatch(actions.loginSuccess(data?.token));
         })
-        .catch(message => {
+        .catch(res => {
           removeStoreData(jwtName);
-          dispatch(actions.loginFailure(message));
+          dispatch(actions.loginFailure('Unauthenticated'));
         });
     },
     [baseURL, jwtName]
@@ -61,9 +61,9 @@ export default function useAuth() {
     logout,
     getAuthUser,
     authUser,
-    jwt,
     isLogged: Boolean(jwt),
     isLoading,
-    firstRender
+    firstRender,
+    error
   };
 }

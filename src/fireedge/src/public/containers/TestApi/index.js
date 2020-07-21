@@ -15,10 +15,10 @@
 
 import React, { useState, useMemo } from 'react';
 import { TextField, Grid, MenuItem } from '@material-ui/core';
-import Commands from '../../../utils/constants/commands';
-import { Translate } from '../../components/HOC';
-import ResponseForm from './ResponseForm';
-import InputCode from '../../components/FormControl/inputCode';
+import Commands from 'server/utils/constants/commands';
+import { Translate } from 'client/components/HOC';
+import InputCode from 'client/components/FormControl/InputCode';
+import ResponseForm from 'client/containers/TestApi/ResponseForm';
 
 const TestApi = () => {
   const [name, setName] = useState('acl.addrule');
