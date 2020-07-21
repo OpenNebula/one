@@ -63,7 +63,7 @@ fi
 DST_INODE=$(timeout 10 ssh "$DST_HOST" "ls -d -i \"$DST_DIR\" | awk '{print \$1}'")
 SRC_INODE=$(timeout 10 ssh "$SRC_HOST" "ls -d -i \"$SRC_DIR\" | awk '{print \$1}'")
 
-if [ -n "$SRC_INODE"] && [ -n "$DST_INODE" ] && [ "$SRC_INODE" = "$DST_INODE" ]; then
+if [ -n "$SRC_INODE" ] && [ -n "$DST_INODE" ] && [ "$SRC_INODE" = "$DST_INODE" ]; then
     log "Not moving $SRC to $DST, they are the same path"
     exit 0
 fi
