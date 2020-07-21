@@ -10,14 +10,14 @@ export const login = (user, baseURL = '') =>
     baseURL,
     error: console.error
   }).then(res => {
-    if (!res?.id || res?.id !== httpCodes.ok.id) throw new Error(res?.message);
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw new Error(res);
 
     return res;
   });
 
 export const getUser = () =>
   requestData(endpointsRoutes.userInfo).then(res => {
-    if (!res?.id || res?.id !== httpCodes.ok.id) throw new Error(res?.message);
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw new Error(res);
 
     return res;
   });

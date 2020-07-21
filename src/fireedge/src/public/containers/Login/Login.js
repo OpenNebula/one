@@ -23,31 +23,39 @@ import {
   FormControlLabel
 } from '@material-ui/core';
 import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers';
 import * as yup from 'yup';
 
 import { SignIn, Username, Password, keepLoggedIn } from 'client/constants';
 import { Translate, Tr } from 'client/components/HOC';
-import ButtonSubmit from 'client/components/FormControl/submitButton';
+import ButtonSubmit from 'client/components/FormControl/SubmitButton';
+import ErrorHelper from 'client/components/FormControl/ErrorHelper';
 import useAuth from 'client/hooks/auth/useAuth';
 
 import loginStyles from './styles';
 
 function Login() {
   const classes = loginStyles();
-  const { isLoading, login } = useAuth();
+  const { isLoading, login, error } = useAuth();
 
-  const { register, handleSubmit, errors } = useForm(
-    yup.object().shape({
-      user: yup.string().required(),
-      pass: yup.string().required(),
-      remember: yup.boolean()
-    })
-  );
+  const { register, handleSubmit, errors } = useForm({
+    reValidateMode: 'onSubmit',
+    resolver: yupResolver(
+      yup.object().shape({
+        user: yup.string().required('Username is a required field'),
+        pass: yup.string().required('Password is a required field'),
+        remember: yup.boolean()
+      })
+    )
+  });
 
   const onSubmit = dataForm => {
     const { remember, ...user } = dataForm;
     login(user, remember);
   };
+
+  const userError = Boolean(errors.user || error);
+  const passError = Boolean(errors.pass);
 
   return (
     <Container component="main" maxWidth="xs" className={classes.root}>
@@ -67,24 +75,30 @@ function Login() {
             fullWidth
             required
             name="user"
-            error={Boolean(errors.user)}
-            helperText={errors.user?.message}
             label={Tr(Username)}
             variant="outlined"
             inputRef={register}
             inputProps={{ 'data-cy': 'login-username' }}
+            error={userError}
+            helperText={
+              userError && <ErrorHelper label={errors.user?.message || error} />
+            }
+            FormHelperTextProps={{ 'data-cy': 'login-username-error' }}
           />
           <TextField
             fullWidth
             required
             name="pass"
             type="password"
-            error={Boolean(errors.password)}
-            helperText={errors.password?.message}
             label={Tr(Password)}
             variant="outlined"
             inputRef={register}
             inputProps={{ 'data-cy': 'login-password' }}
+            error={passError}
+            helperText={
+              passError && <ErrorHelper label={errors.pass?.message} />
+            }
+            FormHelperTextProps={{ 'data-cy': 'login-password-error' }}
           />
           <FormControlLabel
             control={
@@ -93,6 +107,7 @@ function Login() {
                 defaultValue={false}
                 color="primary"
                 inputRef={register}
+                inputProps={{ 'data-cy': 'login-remember' }}
               />
             }
             label={Tr(keepLoggedIn)}

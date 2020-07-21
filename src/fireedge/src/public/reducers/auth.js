@@ -15,7 +15,6 @@
 
 const actions = require('client/actions/user');
 const { jwtName } = require('client/constants');
-const { console } = require('window-or-global');
 
 const jwt =
   typeof window !== 'undefined'
@@ -36,6 +35,7 @@ const authentication = (state = initial, action) => {
   switch (action.type) {
     case actions.LOGIN_REQUEST:
       return {
+        ...state,
         isLoading: true
       };
     case actions.LOGIN_SUCCESS:

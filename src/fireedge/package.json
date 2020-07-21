@@ -25,6 +25,7 @@
     "node": ">=12.18.2"
   },
   "dependencies": {
+    "@hookform/resolvers": "0.0.6",
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
     "ace-builds": "^1.4.11",
