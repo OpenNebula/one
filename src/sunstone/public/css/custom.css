@@ -105,8 +105,12 @@ fieldset legend {
 }
 
 #top-row .user-zone-info a{
-	font-weight:bold;
-	color:#555;
+	font-weight: bold;
+  color: #555;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
 }
 #top-row .user-zone-info .submenu a{
 	color:#8a8a8a;
