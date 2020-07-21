@@ -129,7 +129,7 @@ define(function(require) {
 
   function _submitWizard() {
     var context = ".sunstone-content > #vms-tab #vms-tab-wizardForms.is-active";
-    var templateJSON = {};
+    var templateJSON = this.template;
     $.each(this.wizardTabs, function(index, wizardTab) {
       $.extend(
         true, 
@@ -154,6 +154,7 @@ define(function(require) {
   function _fill(context, element) {
     this.setHeader(element);
     this.resourceId = element.ID;
+    this.template = element.TEMPLATE;
 
     var templateJSON = element.TEMPLATE;
 
