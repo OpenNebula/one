@@ -94,6 +94,9 @@ tabs:
             VM.unlock: true
             VM.startvnc: true
             VM.startspice: true
+            VM.vnc: true
+            VM.ssh: true
+            VM.rdp: true
             VM.save_rdp: true
             VM.save_virt_viewer: true
         dashboard:

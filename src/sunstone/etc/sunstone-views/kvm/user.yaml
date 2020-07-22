@@ -410,10 +410,13 @@ tabs:
             VM.unlock: true
             VM.edit_labels: true
             VM.menu_labels: true
-            VM.save_rdp: true
-            VM.save_virt_viewer: true
             VM.startvnc: true
             VM.startspice: true
+            VM.vnc: true
+            VM.ssh: true
+            VM.rdp: true
+            VM.save_rdp: true
+            VM.save_virt_viewer: true
     oneflow-services-tab:
         panel_tabs:
             service_info_tab: true

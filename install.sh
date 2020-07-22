@@ -739,6 +739,7 @@ INSTALL_SUNSTONE_FILES=(
 
 INSTALL_SUNSTONE_PUBLIC_MINIFIED_FILES=(
   SUNSTONE_PUBLIC_JS_FILES:$SUNSTONE_LOCATION/public/dist
+  SUNSTONE_PUBLIC_JS_GUAC_FILES:$SUNSTONE_LOCATION/guac/dist
   SUNSTONE_PUBLIC_JS_CONSOLE_FILES:$SUNSTONE_LOCATION/public/dist/console
   SUNSTONE_PUBLIC_FONT_AWSOME:$SUNSTONE_LOCATION/public/bower_components/fontawesome/web-fonts-with-css/webfonts
   SUNSTONE_PUBLIC_CSS_FILES:$SUNSTONE_LOCATION/public/css
@@ -767,6 +768,7 @@ INSTALL_SUNSTONE_PUBLIC_MINIFIED_FILES=(
 
 INSTALL_SUNSTONE_PUBLIC_DEV_DIR=(
   SUNSTONE_PUBLIC_DEV_DIR:$SUNSTONE_LOCATION
+  SUNSTONE_GUAC_DEV_DIR:$SUNSTONE_LOCATION
 )
 
 INSTALL_SUNSTONE_ETC_FILES=(
@@ -895,6 +897,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/vnm_mad/one_vnm.rb \
                 src/oca/ruby/opennebula.rb \
                 src/sunstone/OpenNebulaVNC.rb \
+                src/sunstone/OpenNebulaGuac.rb \
                 src/sunstone/OpenNebulaAddons.rb \
                 src/vmm_mad/remotes/vcenter/vcenter_driver.rb \
                 src/vmm_mad/remotes/nsx/nsx_driver.rb \
@@ -2373,6 +2376,7 @@ SUNSTONE_FILES="src/sunstone/sunstone-server.rb \
                 src/sunstone/config.ru"
 
 SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server \
+                    src/sunstone/bin/guac-server \
                     src/sunstone/bin/novnc-server"
 
 SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf \
@@ -2435,6 +2439,10 @@ SUNSTONE_PUBLIC_JS_FILES="src/sunstone/public/dist/login.js \
                         src/sunstone/public/dist/main.js \
                         src/sunstone/public/dist/main.js.map \
                         src/sunstone/public/dist/main-dist.js"
+
+SUNSTONE_PUBLIC_JS_GUAC_FILES="src/sunstone/guac/dist/guac.js"
+
+SUNSTONE_GUAC_DEV_DIR="src/sunstone/guac"
 
 SUNSTONE_PUBLIC_JS_CONSOLE_FILES="src/sunstone/public/dist/console/vnc.js \
                         src/sunstone/public/dist/console/vnc.js.map \

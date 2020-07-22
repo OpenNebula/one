@@ -23,61 +23,79 @@
   <div id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}" class="accordion-content nic-section-entry" data-tab-content>
     <div class="only_template">
       <div class="row autoContainer">
-        <div class="large-12 large-centered columns" style="margin:0px;display:inline-flex;justify-content:start;">
-            {{#if displayType}}
-              <fieldset class="small-12 large-4 columns" id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_interface_type_section">
-                  <legend style="margin:0px;">{{tr "Interface type"}}</legend>
-                  <div class="switch left">
-                    <input class="switch-input" id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_interface_type" type="checkbox">
-                    <label class="switch-paddle" for="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_interface_type">
-                    </label>
-                  </div>
-                  <label class="left">
-                    &nbsp;&nbsp;
-                    {{tr "Alias"}}
-                    {{{tip (tr "The NIC will be attached as an alias")}}}
-                  </label>
-                  &nbsp;&nbsp;
-                  <span id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_no_alias" class="radius warning label">
-                  <i class="fas fa-exclamation-triangle"/> {{tr "NIC has alias"}}
-                  </span>
-                  <select id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_alias_parent" style="width: 200px; margin-left: 5px"></select>
-              </fieldset>
-            {{/if}}
-            {{#if displaySelection}}
-              <fieldset class="small-12 large-4 columns" style="margin:0px;">
-                  <legend style="margin:0px;">{{tr "Network selection"}}</legend>
-                  <div id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_network_selection">
-                      <div class="switch left">
-                        <input class="switch-input" id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_network_mode" type="checkbox">
-                        <label class="switch-paddle" for="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_network_mode">
-                        </label>
-                      </div>
-                      <label class="left">
-                        &nbsp;&nbsp;
-                        {{tr "Automatic selection"}}
-                        {{{tip (tr "The Schedule will decide which is the best virtual network")}}}
-                      </label>
-                  </div>
-              </fieldset>
-            {{/if}}
-            {{#if displayRDP}}
-              <fieldset id="rdp_connection" class="small-12 large-4 columns" style="margin:0px;">
-                  <legend style="margin:0px;">{{tr "RDP connection"}}</legend>
-                  <div id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_rdp_wrapper">  
-                    <div class="switch left">
-                      <input class="switch-input" id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_rdp" type="checkbox">
-                      <label class="switch-paddle" for="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_rdp">
-                      </label>
-                    </div>
-                    <label class="left">
-                      &nbsp;&nbsp;
-                      {{tr "Activate"}}
-                      {{{tip (tr "RDP will be enabled in this network")}}}
-                    </label>
-                  </div>
-              </fieldset>
-            {{/if}}
+        {{#if displayType}}
+          <fieldset class="small-12 large-6 columns" id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_interface_type_section">
+            <legend style="margin:0px;">{{tr "Interface type"}}</legend>
+            <div class="switch left">
+              <input class="switch-input" id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_interface_type" type="checkbox">
+              <label class="switch-paddle" for="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_interface_type">
+              </label>
+            </div>
+            <label class="left">
+              &nbsp;&nbsp;
+              {{tr "Alias"}}
+              {{{tip (tr "The NIC will be attached as an alias")}}}
+            </label>
+            &nbsp;&nbsp;
+            <span id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_no_alias" class="radius warning label">
+            <i class="fas fa-exclamation-triangle"/> {{tr "NIC has alias"}}
+            </span>
+            <select id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_alias_parent" style="width: 200px; margin-left: 5px"></select>
+          </fieldset>
+        {{/if}}
+        {{#if displaySelection}}
+          <fieldset class="small-12 large-6 columns" style="margin:0px;">
+            <legend style="margin:0px;">{{tr "Network selection"}}</legend>
+            <div id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_network_selection">
+              <div class="switch left">
+                <input class="switch-input" id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_network_mode" type="checkbox">
+                <label class="switch-paddle" for="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_network_mode">
+                </label>
+              </div>
+              <label class="left">
+                &nbsp;&nbsp;
+                {{tr "Automatic selection"}}
+                {{{tip (tr "The Schedule will decide which is the best virtual network")}}}
+              </label>
+            </div>
+          </fieldset>
+        {{/if}}
+      </div>
+      <div class="row autoContainer">
+        {{#if displayRDP}}
+          <fieldset id="rdp_connection" class="small-12 large-6 columns" style="margin:0px;">
+            <legend style="margin:0px;">{{tr "RDP connection"}}</legend>
+            <div id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_rdp_wrapper">  
+              <div class="switch left">
+                <input class="switch-input" id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_rdp" type="checkbox">
+                <label class="switch-paddle" for="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_rdp">
+                </label>
+              </div>
+              <label class="left">
+                &nbsp;&nbsp;
+                {{tr "Activate"}}
+                {{{tip (tr "RDP will be enabled in this network")}}}
+              </label>
+            </div>
+          </fieldset>
+        {{/if}}
+        {{#if displaySSH}}
+          <fieldset id="ssh_connection" class="small-12 large-6 columns" style="margin:0px;">
+            <legend style="margin:0px;">{{tr "SSH connection"}}</legend>
+            <div id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_ssh_wrapper">  
+              <div class="switch left">
+                <input class="switch-input" id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_ssh" type="checkbox">
+                <label class="switch-paddle" for="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_ssh">
+                </label>
+              </div>
+              <label class="left">
+                &nbsp;&nbsp;
+                {{tr "Activate"}}
+                {{{tip (tr "SSH will be enabled in this network")}}}
+              </label>
+            </div>
+          </fieldset>
+        {{/if}}
       </div>
       <div class="auto">
         <fieldset>

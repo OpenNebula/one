@@ -285,6 +285,8 @@ class OpenNebulaVNC
             end
 
             delete_token_dir
+
+            STDOUT.puts "VNC proxy stopped"
         else
             message="VNC server is not running"
             @logger.info message

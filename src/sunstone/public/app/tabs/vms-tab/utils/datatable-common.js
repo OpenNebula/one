@@ -218,9 +218,13 @@ define(function(require) {
       actions = '';
     }
 
-    // RDP icon
-    var rdp = OpenNebulaVM.isRDPSupported(element);
-    rdp && (actions += OpenNebulaVM.buttonRDP(rdp.IP, element));
+    // RDP icons
+    var rdp = OpenNebulaVM.isConnectionSupported(element, 'rdp');
+    rdp && (actions += OpenNebulaVM.dropdownRDP(element.ID, rdp.IP, element));
+
+    // SSH icon
+    var ssh = OpenNebulaVM.isConnectionSupported(element, 'ssh');
+    ssh && (actions += OpenNebulaVM.buttonSSH(element.ID));
 
     var cpuMonitoring = 0, memoryMonitoring = 0;
     if (element.MONITORING) {
@@ -275,7 +279,7 @@ define(function(require) {
       hostname,
       OpenNebulaVM.ipsDropdown(element),
       Humanize.prettyTimeDatatable(element.STIME),
-      actions && "<div style='display: inline-flex'>"+actions+"</div>",
+      actions && "<div style='display: flex; align-items: end;'>"+actions+"</div>",
       TemplateUtils.htmlEncode(TemplateUtils.templateToString(element)),
       (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
       btoa(unescape(encodeURIComponent(JSON.stringify(search)))),

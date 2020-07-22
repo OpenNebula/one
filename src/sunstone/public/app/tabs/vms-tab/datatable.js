@@ -167,6 +167,8 @@ define(function(require) {
     $(".off_vms").text(this.offVms);
 
     VMsTableUtils.tooltipCharters()
+
+    $("#rdp-buttons").foundation();
   }
 
   function _initialize(opts) {
@@ -175,7 +177,7 @@ define(function(require) {
     TabDataTable.prototype.initialize.call(this, opts);
     
     //download virt-viewer file 
-    $('#' + this.dataTableId).on("click", '.w_file', function(){
+    $('#' + this.dataTableId).on("click", '.w-file', function(){
       var data = $(this).data();
 
       (data.hasOwnProperty("id") && data.hasOwnProperty("hostname") && data.hasOwnProperty("type") && data.hasOwnProperty("port"))
@@ -190,12 +192,42 @@ define(function(require) {
     });
 
     //download RDP file
-    $('#' + this.dataTableId).on("click", '.rdp', function() {
+    $('#' + this.dataTableId).on("click", '.save-rdp', function() {
       var data = $(this).data();
 
       (data.hasOwnProperty("ip") && data.hasOwnProperty("name"))
         ? Sunstone.runAction("VM.save_rdp", data)
         : Notifier.notifyError(Locale.tr("This VM needs a nic with rdp active"));
+
+      return false;
+    });
+
+    $('#' + this.dataTableId).on("click", ".rdp", function() {
+      var data = $(this).data();
+
+      (data.hasOwnProperty("id"))
+        ? Sunstone.runAction("VM.startguac_action", String(data.id), 'rdp')
+        : Notifier.notifyError(Locale.tr("RDP - Invalid action"));
+
+      return false;
+    });
+
+    $('#' + this.dataTableId).on("click", ".ssh", function() {
+      var data = $(this).data();
+
+      (data.hasOwnProperty("id"))
+        ? Sunstone.runAction("VM.startguac_action", String(data.id), 'ssh')
+        : Notifier.notifyError(Locale.tr("SSH - Invalid action"));
+
+      return false;
+    });
+
+    $('#' + this.dataTableId).on("click", ".guac-vnc", function() {
+      var data = $(this).data();
+
+      (data.hasOwnProperty("id"))
+        ? Sunstone.runAction("VM.startguac_action", String(data.id), 'vnc')
+        : Notifier.notifyError(Locale.tr("VNC - Invalid action"));
 
       return false;
     });

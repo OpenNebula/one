@@ -512,6 +512,27 @@ define(function(require) {
         }
       });
     },
+    "guac" : function(params) {
+      var callback = params.success;
+      var callback_error = params.error;
+      var id = params.data.id;
+      var typeConnection = params.data.extra_param;
+      var resource = RESOURCE;
+
+      var request = OpenNebulaHelper.request(resource, null, params.data);
+      $.ajax({
+        url: "vm/" + id + "/guac/" + typeConnection,
+        type: "POST",
+        dataType: "json",
+        success: function(response) {
+          return callback ? callback(request, response) : null;
+        },
+        error: function(response) {
+          return callback_error ?
+              callback_error(request, OpenNebulaError(response)) : null;
+        }
+      });
+    },
     "append": function(params) {
       var action_obj = {"template_raw" : params.data.extra_param, append : true};
       OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj);
@@ -666,13 +687,14 @@ define(function(require) {
     "isDiskGraphsSupported": isDiskGraphsSupported,
     "isNICAttachSupported": isNICAttachSupported,
     "isVNCSupported": isVNCSupported,
-    "isRDPSupported": isRDPSupported,
+    "isConnectionSupported": isConnectionSupported,
     "isSPICESupported": isSPICESupported,
     "isWFileSupported": isWFileSupported,
     "buttonVnc": buttonVnc,
     "buttonSpice": buttonSpice,
     "buttonWFile": buttonWFile,
-    "buttonRDP": buttonRDP,
+    "dropdownRDP": dropdownRDP,
+    "buttonSSH": buttonSSH,
     "getName": function(id){
       return OpenNebulaAction.getName(id, RESOURCE);
     }
@@ -925,7 +947,7 @@ define(function(require) {
 
   // returns true if the vnc button should be enabled
   function isVNCSupported(element) {
-    return (Config.isTabActionEnabled("vms-tab", "VM.startvnc") && graphicSupported(element, "vnc"))
+    return (Config.isTabActionEnabled("vms-tab", "VM.vnc") && graphicSupported(element, "vnc"))
       ? true : false;
   }
 
@@ -948,34 +970,43 @@ define(function(require) {
       : false;
   }
 
-  // returns true if the RDP button should be enabled
-  function isRDPSupported(element) {
-    var hasRdp = false;
+  /**
+   * returns NIC object if the SSH/RDP should be enabled
+   * @param {Object} element 
+   * @param {String} typeConnection 
+   */
+  function isConnectionSupported(element, typeConnection) {
+    var isEnabled = false;
     if (
-      Config.isTabActionEnabled("vms-tab", "VM.save_rdp") &&
+      $.inArray(String(typeConnection).toLowerCase(), ['rdp', 'ssh']) > -1 &&
+      Config.isTabActionEnabled("vms-tab", "VM."+ String(typeConnection).toLowerCase()) &&
       element && element.TEMPLATE && element.TEMPLATE.GRAPHICS && element.LCM_STATE
     ) {
       var template = element.TEMPLATE;
       var state = parseInt(element.LCM_STATE);
 
-      if ($.inArray(state, RDP_STATES) != -1 && template.NIC) {
-        hasRdp = hasRDP(template.NIC);
+      if ($.inArray(state, RDP_STATES) > -1 && template.NIC) {
+        isEnabled = hasConnection(template.NIC, typeConnection);
 
-        if (!hasRdp && template.NIC_ALIAS) {
-          hasRdp = hasRDP(template.NIC_ALIAS);
+        if (!isEnabled && template.NIC_ALIAS) {
+          isEnabled = hasConnection(template.NIC_ALIAS, typeConnection);
         }
       }
     }
 
-    return hasRdp;
+    return isEnabled;
   }
 
-  function hasRDP(nics) {
+  function hasConnection(nics, typeConnection) {
+    typeConnection = String(typeConnection).toUpperCase();
     var activated = false;
     nics = Array.isArray(nics) ? nics : [nics];
 
     $.each(nics, function(_, nic) {
-      if (nic.RDP && String(nic.RDP).toLowerCase() === "yes") {
+      if (
+        nic[typeConnection] &&
+        String(nic[typeConnection]).toLowerCase() === "yes"
+      ) {
         activated = nic;
       }
     });
@@ -997,23 +1028,48 @@ define(function(require) {
   }
 
   function buttonVnc(id = "") {
-    return '<button class="vnc remote_vm" data-id="' + id + '">\
+    return '<button class="vnc remote-vm" data-id="' + id + '">\
       <i class="fas fa-desktop"></i></button>';
   }
 
+  function buttonSSH(id = "") {
+    return '<button class="ssh remote-vm" data-id="' + id + '">\
+      <i class="fas fa-terminal"></i></button>';
+  }
+
   function buttonSpice(id = "") {
-    return '<button class="spice remote_vm" data-id="' + id + '">\
+    return '<button class="spice remote-vm" data-id="' + id + '">\
       <i class="fas fa-desktop"></i></button>';
   }
 
   function buttonWFile(id = "", data = {}) {
-    return '<button class="w_file remote_vm" data-id="' + id + '"\
+    return '<button class="w-file remote-vm" data-id="' + id + '"\
     data-type="' + data.type + '" data-port="' + data.port + '" data-hostname="' + data.hostname + '">\
       <i class="fas fa-external-link-square-alt"></i></button>';
   }
 
-  function buttonRDP(ip = "", vm = {}) {
-    var username, password;
+  function dropdownRDP(id = "", ip = "", vm = {}) {
+    return '<ul class="dropdown menu" id="rdp-buttons" data-dropdown-menu> \
+      <li>\
+        <button type="button" class="remote-vm"> \
+          <i class="fab fa-windows"></i> \
+        </button>\
+        <ul class="menu">\
+          <li>' + buttonRDP(id) + '</li> \
+          <li>' + buttonSaveRDP(ip, vm) + '</li> \
+        </ul>\
+      </li>\
+   </ul>';
+  }
+
+  function buttonRDP(id = "") {
+    var styleIcon = 'style="width: 2em;text-align: center;"';
+    return '<a class="rdp" data-id="' + id + '"> \
+      <i class="fas fa-desktop" ' + styleIcon + '></i><span>' + Locale.tr("HTML") + '</span></a>';
+  }
+
+  function buttonSaveRDP(ip = "", vm = {}) {
+    var username, password, styleIcon = 'style="width: 2em;text-align: center;"';
 
     if (vm && vm.TEMPLATE && vm.TEMPLATE.CONTEXT) {
       var context = vm.TEMPLATE.CONTEXT;
@@ -1023,13 +1079,14 @@ define(function(require) {
         (propUpperCase === "PASSWORD") && (password = context[prop]);
       }
     }
-    var button = '<button class="rdp remote_vm" data-name="' + vm.NAME + '" data-ip="' + ip + '"';
+    var button = '<a class="save-rdp" data-name="' + vm.NAME + '" data-ip="' + ip + '"';
     username && (button += ' data-username="' + username + '"');
     password && (button += ' data-password="' + password + '"');
-    button += '><i class="fab fa-windows"></i></button>';
+    button += '><i class="fas fa-file" ' + styleIcon + '></i><span>' + Locale.tr("RDP Client") + '</span></a>';
 
     return button;
   }
+
 
   return VM;
 });

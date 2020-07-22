@@ -227,8 +227,11 @@ define(function(require) {
             var wFile = OpenNebulaVM.isWFileSupported(data.VM);
             actions += wFile ? OpenNebulaVM.buttonWFile(id, wFile) : "";
 
-            var rdp = OpenNebulaVM.isRDPSupported(data.VM);
-            actions += rdp ? OpenNebulaVM.buttonRDP(rdp.IP, data.VM) : "";
+            var rdp = OpenNebulaVM.isConnectionSupported(data.VM, 'rdp');
+            actions += rdp ? OpenNebulaVM.dropdownRDP(id, rdp.ID, data.VM) : "";
+
+            var ssh = OpenNebulaVM.isConnectionSupported(data.VM, 'ssh');
+            actions += ssh ? OpenNebulaVM.buttonSSH(id) : "";
           }
 
           roleVms[index] = rowInfoRoleVm(id, name, uname, gname, ips, actions);
