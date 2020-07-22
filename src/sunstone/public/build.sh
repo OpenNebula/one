@@ -16,6 +16,7 @@ usage() {
 
 clean() {
     rm -rf dist node_modules bower_components
+    rm -rf ../guac/dist ../guac/node_modules
 }
 
 dependencies() {
@@ -44,6 +45,13 @@ install_enterprise_patch() {
             fi
         fi
     done
+}
+
+install_guac() {
+    GUAC_DIR="../guac"
+
+    npm i --prefix $GUAC_DIR
+    npm run build --prefix $GUAC_DIR
 }
 
 install_patch() {
@@ -78,6 +86,7 @@ install_patch() {
         mv ./main.js dist/main.js
     fi
 
+    install_guac
 }
 #-------------------------------------------------------------------------------
 

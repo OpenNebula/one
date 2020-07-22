@@ -160,3 +160,16 @@ progress{
     }
   }
 }
+
+.guacamole-display {
+  cursor: none;
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  place-content: center;
+  background-color: #282828;
+  & > div {
+    z-index: 1;
+  }
+}

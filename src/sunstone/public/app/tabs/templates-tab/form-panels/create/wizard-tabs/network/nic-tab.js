@@ -317,7 +317,12 @@ define(function(require) {
 
     context.on("change", "#" + that.nicTabId + "_rdp", function() {
       const isRDPActivated = $(this).prop('checked');
-      _hide_rdp(that.nicTabId, isRDPActivated, context);
+      _hide_connection(that.nicTabId, isRDPActivated, context, 'rdp');
+    });
+
+    context.on("change", "#" + that.nicTabId + "_ssh", function() {
+      const isSSHActivated = $(this).prop('checked');
+      _hide_connection(that.nicTabId, isSSHActivated, context, 'ssh');
     });
   }
 
@@ -370,6 +375,10 @@ define(function(require) {
 
     if($("input#" + this.nicTabId + "_rdp", context).prop("checked")) {
         nicJSON["RDP"] = "YES";
+    }
+
+    if($("input#" + this.nicTabId + "_ssh", context).prop("checked")) {
+      nicJSON["SSH"] = "YES";
     }
 
     return nicJSON;
@@ -488,6 +497,14 @@ define(function(require) {
 
     $("input#" + this.nicTabId + "_rdp", context).prop("checked", isRDPActivated);
 
+    const isSSHActivated = (
+      templateJSON["SSH"] &&
+      templateJSON["SSH"] === "YES" &&
+      $("fieldset#ssh_connection input:not(#" + that.nicTabId + "_ssh):checked", context).length === 0
+    ) ? true : false;
+
+    $("input#" + this.nicTabId + "_ssh", context).prop("checked", isSSHActivated);
+
     WizardFields.fill(context, templateJSON);
   }
 
@@ -526,9 +543,12 @@ define(function(require) {
     });
   }
 
-  function _hide_rdp(nicTabId, isRDPActivated, context) {
-    $("#template_create_network_tabs_content > div:not(#" + nicTabId + ") fieldset#rdp_connection", context).each(function() {
-      if (isRDPActivated) {
+  function _hide_connection(nicTabId, isActivated, context, typeConnection) {
+    tabSelector = "#template_create_network_tabs_content";
+    fieldsetSelector = "fieldset#" + typeConnection + "_connection";
+
+    $(tabSelector + " > div:not(#" + nicTabId + ") " + fieldsetSelector, context).each(function() {
+      if (isActivated) {
         $(this).hide();
       } else {
         $(this).show();

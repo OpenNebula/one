@@ -212,9 +212,27 @@ define(function(require) {
       layout: "vmsremote_buttons",
       custom_classes: "only-sunstone-info vv-sunstone-info"
     },
+    "VM.guac_vnc" : {
+      type: "action",
+      text: Locale.tr("GUAC VNC"),
+      layout: "vmsremote_buttons",
+      custom_classes: "only-sunstone-info vnc-sunstone-info"
+    },
+    "VM.guac_ssh" : {
+      type: "action",
+      text: Locale.tr("GUAC SSH"),
+      layout: "vmsremote_buttons",
+      custom_classes: "only-sunstone-info ssh-sunstone-info"
+    },
+    "VM.guac_rdp" : {
+      type: "action",
+      text: Locale.tr("GUAC RDP"),
+      layout: "vmsremote_buttons",
+      custom_classes: "only-sunstone-info rdp-sunstone-info"
+    },
     "VM.save_rdp" : {
       type: "action",
-      text: Locale.tr("RDP"),
+      text: Locale.tr("RDP Client"),
       layout: "vmsremote_buttons",
       custom_classes: "only-sunstone-info rdp-sunstone-info"
     },

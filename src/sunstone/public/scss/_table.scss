@@ -136,12 +136,22 @@ button.search-dropdown {
   border-style: none !important;
 }
 
-button.remote_vm {
+button.remote-vm {
   margin: 0 5px;
-  font-size: 1.2em;
+  font-size: 1.4em;
 
   &.spice i {
     -webkit-text-stroke: 0.7px;
+  }
+
+  &.ssh {
+    border: .15em solid $anchor-color;
+    padding: .16em .2em;
+    font-size: .8em;
+
+    &:hover {
+      border-color: $anchor-color-hover;
+    }
   }
 
   i {
@@ -157,5 +167,17 @@ button.remote_vm {
   &:focus i,
   &:active i {
     outline: 0;
+  }
+}
+
+a.rdp,
+a.save-rdp {
+  display: flex !important;
+  align-items: baseline;
+
+  &:hover {
+    background-color: rgba($color: $anchor-color-hover, $alpha: .6);
+    color: #ffffff;
+    font-weight: 600;
   }
 }

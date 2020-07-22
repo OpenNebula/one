@@ -412,6 +412,9 @@ tabs:
             VM.menu_labels: true
             VM.startvnc: true
             VM.startspice: true
+            VM.vnc: true
+            VM.ssh: true
+            VM.rdp: true
             VM.save_rdp: true
             VM.save_virt_viewer: true
     oneflow-services-tab:

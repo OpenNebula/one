@@ -29,6 +29,9 @@ require.config({
     /** Wickedpicker */
     "wickedpicker": "../bower_components/wickedpicker/dist/wickedpicker.min",
 
+    /** Guacamole-common-js */
+    "guacamole-common-js": "../bower_components/guacamole-common-js/dist/guacamole-common.min",
+
     /* DataTables */
     "datatables.net": "../bower_components/datatables/media/js/jquery.dataTables",
     "datatables.foundation": "../bower_components/datatables/media/js/dataTables.foundation",

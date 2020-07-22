@@ -71,6 +71,7 @@ define(function(require) {
   WizardTab.prototype.addNicTab = _addNicTab;
   WizardTab.prototype.notify = _notify;
   WizardTab.prototype.enableRDP = _enableRDP;
+  WizardTab.prototype.enableSSH = _enableSSH;
 
   return WizardTab;
 
@@ -210,6 +211,7 @@ define(function(require) {
 
     that.renameTabLinks(context);
     that.enableRDP(context);
+    that.enableSSH(context);
 
     if (templateJSON.NIC) {
       delete templateJSON.NIC;
@@ -282,6 +284,7 @@ define(function(require) {
 
     that.renameTabLinks(context);
     that.enableRDP(context);
+    that.enableSSH(context);
     that.nicTabObjects[that.numberOfNics] = nicTab;
 
     // close icon: removing the tab on click
@@ -331,6 +334,13 @@ define(function(require) {
 
     if (canRDP) $("fieldset#rdp_connection").show();
     else $("fieldset#rdp_connection", that.context).hide();
+  }
+
+  function _enableSSH(context) {
+    const canSSH = $("fieldset#ssh_connection input[type='checkbox']:not(#" + that.nicTabId + "_ssh):checked", context).length === 0;
+
+    if (canSSH) $("fieldset#ssh_connection").show();
+    else $("fieldset#ssh_connection", that.context).hide();
   }
 
   function _notify(context, templateJSON) {

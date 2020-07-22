@@ -251,8 +251,10 @@ if $conf[:webauthn_avail]
 end
 
 #start VNC proxy
-
 $vnc = OpenNebulaVNC.new($conf, logger)
+
+#init Guacamole server
+$guac = OpenNebulaGuac.new($conf, logger)
 
 configure do
     set :run, false
@@ -1033,6 +1035,16 @@ end
 post '/vm/:id/startvnc' do
     vm_id = params[:id]
     @SunstoneServer.startvnc(vm_id, $vnc)
+end
+
+##############################################################################
+# Start Guacamole Session for a target VM
+##############################################################################
+post '/vm/:id/guac/:type' do
+    vm_id = params[:id]
+    type_connection = params[:type]
+
+    @SunstoneServer.startguac(vm_id, type_connection, $guac)
 end
 
 ##############################################################################

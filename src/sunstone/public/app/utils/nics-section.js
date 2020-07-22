@@ -297,6 +297,7 @@ define(function(require) {
     var displayType = true;
     var displaySelection = true;
     var displayRDP = true;
+    var displaySSH = true;
     if(
       template_json && 
       template_json.VMTEMPLATE && 
@@ -306,9 +307,11 @@ define(function(require) {
       var templateType = template_json.VMTEMPLATE.TEMPLATE.SUNSTONE.NETWORK_ALIAS;
       var templateSelection = template_json.VMTEMPLATE.TEMPLATE.SUNSTONE.NETWORK_AUTO;
       var templateRDP = template_json.VMTEMPLATE.TEMPLATE.SUNSTONE.NETWORK_RDP;
+      var templateSSH = template_json.VMTEMPLATE.TEMPLATE.SUNSTONE.NETWORK_SSH;
       displayType = templateType && templateType.toUpperCase()==='NO'? false : true;
       displaySelection = templateSelection && templateSelection.toUpperCase()==='NO'? false : true;
       displayRDP = templateRDP && templateRDP.toUpperCase()==='NO'? false : true;
+      displaySSH = templateSSH && templateSSH.toUpperCase()==='NO'? false : true;
     }
     var dd_context = $(TemplateDD({
       vnetsTableHTML: vnetsTable.dataTableHTML,
@@ -318,7 +321,8 @@ define(function(require) {
       options: options,
       displayType: displayType,
       displaySelection: displaySelection,
-      displayRDP: displayRDP
+      displayRDP: displayRDP,
+      displaySSH: displaySSH,
     })).appendTo(context);
 
     dd_context["nic_id"] = nicId;
@@ -468,7 +472,13 @@ define(function(require) {
     $("input#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_rdp", dd_context).on("change", function() {
       const isRDPActivated = $(this).prop('checked');
       const idAccordion = "#provision_accordion_dd_" + dd_context["dd_id"];
-      _hide_rdp(idAccordion, isRDPActivated, context);
+      _hide_connection(idAccordion, isRDPActivated, context, 'rdp');
+    });
+
+    $("input#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_ssh", dd_context).on("change", function() {
+      const isSSHActivated = $(this).prop('checked');
+      const idAccordion = "#provision_accordion_dd_" + dd_context["dd_id"];
+      _hide_connection(idAccordion, isSSHActivated, context, 'ssh');
     });
 
     if ( options.nic && options.nic["NETWORK_MODE"] && options.nic["NETWORK_MODE"] === "auto" ) {
@@ -535,6 +545,17 @@ define(function(require) {
     $("input#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_rdp", context).prop("checked", isRDPActivated);
     _enableRDP("#provision_accordion_dd_" + provision_nic_accordion_dd_id, context)
 
+    // fill ssh connection
+    const isSSHActivated = (
+      options.nic &&
+      options.nic["SSH"] &&
+      options.nic["SSH"] === "YES" &&
+      $("fieldset#ssh_connection input:not(#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_ssh):checked", context).length === 0
+    ) ? true : false;
+    
+    $("input#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_ssh", context).prop("checked", isSSHActivated);
+    _enableSSH("#provision_accordion_dd_" + provision_nic_accordion_dd_id, context)
+
     provision_nic_accordion_dd_id += 1;
 
     vnetsTable.initialize();
@@ -584,6 +605,7 @@ define(function(require) {
       nicId --;
 
       _enableRDP("#provision_accordion_dd_"+dd_context["nic_id"], context)
+      _enableSSH("#provision_accordion_dd_"+dd_context["nic_id"], context)
 
       return false;
     });
@@ -637,6 +659,7 @@ define(function(require) {
       nicId ++;
 
       _enableRDP("#provision_accordion_dd_" + provision_nic_accordion_dd_id, context)
+      _enableSSH("#provision_accordion_dd_" + provision_nic_accordion_dd_id, context)
     });
 
     if (options.click_add_button == true){
@@ -704,9 +727,11 @@ define(function(require) {
     });
   }
 
-  function _hide_rdp(idAccordion, isRDPActivated, context) {
-    $(".accordion-item > div:not(" + idAccordion + ") fieldset#rdp_connection", context).each(function() {
-      if (isRDPActivated) {
+  function _hide_connection(idAccordion, isActivated, context, typeConnection) {
+    fieldsetSelector = "fieldset#" + typeConnection + "_connection";
+    
+    $(".accordion-item > div:not(" + idAccordion + ") " + fieldsetSelector, context).each(function() {
+      if (isActivated) {
         $(this).hide();
       } else {
         $(this).show();
@@ -719,5 +744,12 @@ define(function(require) {
 
     if (canRDP) $("fieldset#rdp_connection", context).has("input:not(:checked)").show();
     else $("fieldset#rdp_connection", context).has("input:not(:checked)").hide();
+  }
+
+  function _enableSSH(idAccordion, context) {
+    const canSSH = $("fieldset#ssh_connection input[type='checkbox']:not(" + idAccordion + "_ssh):checked", context).length === 0;
+
+    if (canSSH) $("fieldset#ssh_connection", context).has("input:not(:checked)").show();
+    else $("fieldset#ssh_connection", context).has("input:not(:checked)").hide();
   }
 });
