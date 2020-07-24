@@ -20,85 +20,27 @@
 #include <time.h>
 
 #include "NebulaLog.h"
-#include "ActionManager.h"
+#include "Listener.h"
 #include "ProtocolMessages.h"
 #include "DriverManager.h"
 
 //Forward definitions
 class AuthRequest;
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-class AMAction : public ActionRequest
-{
-public:
-    enum Actions
-    {
-        AUTHENTICATE,
-        AUTHORIZE
-    };
-
-    AMAction(Actions a, AuthRequest *r):ActionRequest(ActionRequest::USER),
-        _action(a), _request(r) {}
-
-    AMAction(const AMAction& o):ActionRequest(o._type), _action(o._action),
-        _request(o._request) {}
-
-    Actions action() const
-    {
-        return _action;
-    }
-
-    AuthRequest * request() const
-    {
-        return _request;
-    }
-
-    ActionRequest * clone() const
-    {
-        return new AMAction(*this);
-    }
-
-private:
-    Actions       _action;
-
-    AuthRequest * _request;
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-extern "C" void * authm_action_loop(void *arg);
 
 class AuthManager :
     public DriverManager<Driver<auth_msg_t>>,
-    public ActionListener
+    public Listener
 {
 public:
 
     AuthManager(
-        time_t                    timer,
-        const std::string&        mads_location):
+        time_t             timer,
+        const std::string& mads_location):
             DriverManager(mads_location),
-            timer_period(timer)
+            Listener("Authorization Manager"),
+            timer_thread(timer, [this](){timer_action();})
     {
-        am.addListener(this);
-    }
-
-    ~AuthManager() {}
-
-    /**
-     *  Triggers specific actions to the Auth Manager. This function
-     *  wraps the ActionManager trigger function.
-     *    @param action the Auth Manager action
-     *    @param request an auth request
-     */
-    void trigger(AMAction::Actions action, AuthRequest*  request)
-    {
-        AMAction auth_ar(action, request);
-
-        am.trigger(auth_ar);
     }
 
     /**
@@ -110,27 +52,10 @@ public:
     int start();
 
     /**
-     *
-     */
-    void finalize()
-    {
-        am.finalize();
-    }
-
-    /**
      *  Loads Virtual Machine Manager Mads defined in configuration file
      *   @param _mads configuration of drivers
      */
     int load_drivers(const std::vector<const VectorAttribute*>& _mads);
-
-    /**
-     *  Gets the thread identification.
-     *    @return pthread_t for the manager thread (that in the action loop).
-     */
-    pthread_t get_thread_id() const
-    {
-        return authm_thread;
-    }
 
     /**
      * Returns true if there is an authorization driver enabled
@@ -142,31 +67,36 @@ public:
         return authz_enabled;
     }
 
+    /**
+     *  This function authenticates a user
+     */
+    void trigger_authenticate(AuthRequest& ar);
+
+    /**
+     *  This function authorizes a user request
+     */
+    void trigger_authorize(AuthRequest& ar);
+
 private:
     /**
-     *  Thread id for the Transfer Manager
+     *  Timer action async execution
      */
-    pthread_t               authm_thread;
-
-    /**
-     *  Action engine for the Manager
-     */
-    ActionManager           am;
-
-    /**
-     *  Timer for the Manager (periocally triggers timer action)
-     */
-    time_t                  timer_period;
+    Timer timer_thread;
 
     /**
      *  Generic name for the Auth driver
      */
-    static const char *    auth_driver_name;
+    static const char * auth_driver_name;
 
      /**
       * True if there is an authorization driver enabled
       */
-    bool                   authz_enabled;
+    bool authz_enabled;
+
+    /**
+     *
+     */
+    static const int drivers_timeout = 10;
 
     /**
      *  Returns a pointer to a Auth Manager driver.
@@ -191,22 +121,6 @@ private:
     {
         return DriverManager::get_driver(auth_driver_name);
     }
-
-    /**
-     *  This function authenticates a user
-     */
-    void authenticate_action(AuthRequest * ar);
-
-    /**
-     *  This function authorizes a user request
-     */
-    void authorize_action(AuthRequest * ar);
-
-    /**
-     *  Function to execute the Manager action loop method within a new pthread
-     * (requires C linkage)
-     */
-    friend void * authm_action_loop(void *arg);
 
     // -------------------------------------------------------------------------
     // Protocol implementation, procesing messages from driver
@@ -234,21 +148,12 @@ private:
     // -------------------------------------------------------------------------
     // Action Listener interface
     // -------------------------------------------------------------------------
-    void timer_action(const ActionRequest& ar)
+    void timer_action()
     {
         check_time_outs_action();
     }
 
-    static const int drivers_timeout = 10;
-
-    void finalize_action(const ActionRequest& ar)
-    {
-        NebulaLog::log("AuM",Log::INFO,"Stopping Authorization Manager...");
-
-        DriverManager::stop(drivers_timeout);
-    }
-
-    void user_action(const ActionRequest& ar);
+    void finalize_action() override;
 };
 
 #endif /*AUTH_MANAGER_H*/

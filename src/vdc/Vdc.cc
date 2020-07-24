@@ -17,6 +17,7 @@
 #include "Vdc.h"
 #include "Nebula.h"
 #include "AclManager.h"
+#include "AclRule.h"
 
 using namespace std;
 

@@ -21,7 +21,7 @@
 
 #include "ProtocolMessages.h"
 #include "DriverManager.h"
-#include "ActionManager.h"
+#include "Listener.h"
 #include "NebulaLog.h"
 
 //Forward definitions
@@ -31,76 +31,20 @@ class VectorAttribute;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-class IPMAction : public ActionRequest
-{
-public:
-    enum Actions
-    {
-        REGISTER_ADDRESS_RANGE,   /**< Register/Request a new IP network    */
-        UNREGISTER_ADDRESS_RANGE, /**< Unregister IP network                */
-        ALLOCATE_ADDRESS,         /**< Request a specific IP (or range)     */
-        GET_ADDRESS,              /**< Request any free  IP (or range)      */
-        FREE_ADDRESS              /**< Frees a previously requested IP      */
-    };
-
-    IPMAction(Actions a, IPAMRequest *r):ActionRequest(ActionRequest::USER),
-        _action(a), _request(r){};
-
-    IPMAction(const IPMAction& o):ActionRequest(o._type), _action(o._action),
-        _request(o._request){};
-
-    Actions action() const
-    {
-        return _action;
-    }
-
-    IPAMRequest * request() const
-    {
-        return _request;
-    }
-
-    ActionRequest * clone() const
-    {
-        return new IPMAction(*this);
-    }
-
-private:
-    Actions       _action;
-
-    IPAMRequest * _request;
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-extern "C" void * ipamm_action_loop(void *arg);
-
 class IPAMManager :
     public DriverManager<Driver<ipam_msg_t>>,
-    public ActionListener
+    public Listener
 {
 public:
 
-    IPAMManager(time_t timer, const std::string mad_location):
-            DriverManager(mad_location), timer_period(timer)
+    IPAMManager(time_t timer, const std::string mad_location)
+        : DriverManager(mad_location)
+        , Listener("IPAM Manager")
+        , timer_thread(timer, [this](){timer_action();})
     {
-        am.addListener(this);
-    };
-
-    ~IPAMManager(){};
-
-    /**
-     * Triggers specific action to the IPAM Manager. This function
-     * wraps the ActionManager trigger function.
-     *   @param action to the IPAM Manager action
-     *   @param request an IPAM request
-     */
-    void trigger(IPMAction::Actions action, IPAMRequest* request)
-    {
-        IPMAction ipam_ar(action, request);
-
-        am.trigger(ipam_ar);
     }
+
+    ~IPAMManager() = default;
 
     /**
      *  This functions starts the associated listener thread, and creates a
@@ -117,42 +61,40 @@ public:
     int load_drivers(const std::vector<const VectorAttribute*>& _mads);
 
     /**
-     *  Gets the thread identification.
-     *    @return pthread_t for the manager thread (that in the action loop).
+     *  Register (or requests) a new address range to the IPAM.
      */
-    pthread_t get_thread_id() const
-    {
-        return ipamm_thread;
-    };
+    void trigger_register_address_range(IPAMRequest& ir);
 
     /**
-     *  Finalizes the IPAM Manager
+     *  Unregisters an address range.
      */
-    void finalize()
-    {
-        am.finalize();
-    };
+    void trigger_unregister_address_range(IPAMRequest& ir);
+
+    /**
+     *  Requests the IPAM a free address (or range)
+     */
+    void trigger_get_address(IPAMRequest& ir);
+
+    /**
+     *  Requests to set an address (or range) as used
+     */
+    void trigger_allocate_address(IPAMRequest& ir);
+
+    /**
+     * Free an address in the IPAM
+     */
+    void trigger_free_address(IPAMRequest& ir);
 
 private:
     /**
-     *  Thread id for the IPAM Manager
+     *  Timer action async execution
      */
-    pthread_t               ipamm_thread;
-
-    /**
-     *  Action engine for the Manager
-     */
-    ActionManager           am;
-
-    /**
-     *  Timer for the Manager (periocally triggers timer action)
-     */
-    time_t                  timer_period;
+    Timer timer_thread;
 
     /**
      *  Generic name for the IPAM driver
      */
-    static const char *    ipam_driver_name;
+    static const char * ipam_driver_name;
 
     /**
      *  Returns a pointer to a IPAM Manager driver. The driver is
@@ -164,45 +106,14 @@ private:
     const Driver<ipam_msg_t> * get() const
     {
         return DriverManager::get_driver(ipam_driver_name);
-    };
-
-    /**
-     *  Register (or requests) a new address range to the IPAM.
-     */
-    void register_address_range_action(IPAMRequest * ir);
-
-    /**
-     *  Unregisters an address range.
-     */
-    void unregister_address_range_action(IPAMRequest * ir);
-
-    /**
-     *  Requests the IPAM a free address (or range)
-     */
-    void get_address_action(IPAMRequest * ir);
-
-    /**
-     *  Requests to set an address (or range) as used
-     */
-    void allocate_address_action(IPAMRequest * ir);
-
-    /**
-     * Free an address in the IPAM
-     */
-    void free_address_action(IPAMRequest * ir);
+    }
 
     /**
      *  This function initializes a request to call the IPAM driver
      *    @param ir the IPAM request
      *    @return pointer to the IPAM driver to use, 0 on failure
      */
-    void send_request(IPAMManagerMessages type, IPAMRequest * ir);
-
-    /**
-     *  Function to execute the Manager action loop method within a new pthread
-     *  (requires C linkage)
-     */
-    friend void * ipamm_action_loop(void *arg);
+    void send_request(IPAMManagerMessages type, IPAMRequest& ir);
 
     // -------------------------------------------------------------------------
     // Protocol implementation, procesing messages from driver
@@ -225,21 +136,17 @@ private:
     // -------------------------------------------------------------------------
     // Action Listener interface
     // -------------------------------------------------------------------------
-    void timer_action(const ActionRequest& ar)
+    void timer_action()
     {
         check_time_outs_action();
-    };
+    }
 
     static const int drivers_timeout = 10;
 
-    void finalize_action(const ActionRequest& ar)
+    void finalize_action() override
     {
-        NebulaLog::log("IPM",Log::INFO,"Stopping IPAM Manager...");
-
         DriverManager::stop(drivers_timeout);
-    };
-
-    void user_action(const ActionRequest& ar);
+    }
 };
 
 #endif /*IPAM_MANAGER_H*/

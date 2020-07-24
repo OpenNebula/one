@@ -18,7 +18,7 @@
 #define INFORMATION_MANAGER_H_
 
 #include "DriverManager.h"
-#include "ActionManager.h"
+#include "Listener.h"
 #include "ProtocolMessages.h"
 #include "RaftManager.h"
 
@@ -26,9 +26,7 @@ class HostPool;
 class Host;
 class VirtualMachinePool;
 
-class InformationManager :
-    public DriverManager<Driver<im_msg_t>>,
-    public ActionListener
+class InformationManager : public DriverManager<Driver<im_msg_t>>
 {
 public:
     InformationManager(
@@ -39,7 +37,6 @@ public:
             , hpool(_hpool)
             , vmpool(_vmpool)
     {
-        am.addListener(this);
     }
 
     ~InformationManager() = default;
@@ -52,20 +49,9 @@ public:
      */
     int start();
 
-    /**
-     *  Join the action loop thread
-     */
-    void join_thread()
-    {
-        return im_thread.join();
-    };
-
-    /**
-     *
-     */
     void finalize()
     {
-        am.finalize();
+        stop(drivers_timeout);
     };
 
     /**
@@ -124,11 +110,6 @@ protected:
 
 private:
     /**
-     *  Thread for the Information Manager
-     */
-    std::thread     im_thread;
-
-    /**
      *  Pointer to the Host Pool
      */
     HostPool *      hpool;
@@ -139,25 +120,10 @@ private:
     VirtualMachinePool * vmpool;
 
     /**
-     *  Action engine for the Manager
-     */
-    ActionManager   am;
-
-    /**
      *  Default timeout to wait for Information Driver (monitord)
      */
     static const int drivers_timeout = 10;
-
-    // ------------------------------------------------------------------------
-    // ActioListener Interface
-    // ------------------------------------------------------------------------
-    void finalize_action(const ActionRequest& ar) override
-    {
-        NebulaLog::log("InM",Log::INFO,"Stopping Information Manager...");
-
-        stop(drivers_timeout);
-    };
 };
 
-#endif /*VIRTUAL_MACHINE_MANAGER_H*/
+#endif /*INFORMATION_MANAGER_H_*/
 

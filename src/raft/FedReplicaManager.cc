@@ -33,10 +33,7 @@ const time_t FedReplicaManager::xmlrpc_timeout_ms = 10000;
 
 FedReplicaManager::FedReplicaManager(LogDB * d): ReplicaManager(), logdb(d)
 {
-    pthread_mutex_init(&mutex, 0);
-
-    am.addListener(this);
-};
+}
 
 /* -------------------------------------------------------------------------- */
 
@@ -57,7 +54,7 @@ FedReplicaManager::~FedReplicaManager()
     {
         stop_replica_threads();
     }
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -65,78 +62,23 @@ FedReplicaManager::~FedReplicaManager()
 uint64_t FedReplicaManager::apply_log_record(uint64_t index, uint64_t prev,
         const std::string& sql)
 {
-    uint64_t rc;
-
-    pthread_mutex_lock(&mutex);
+    lock_guard<mutex> ul(fed_mutex);
 
     uint64_t last_index = logdb->last_federated();
 
     if ( prev != last_index )
     {
-        rc = last_index;
-
-        pthread_mutex_unlock(&mutex);
-        return rc;
+        return last_index;
     }
 
     std::ostringstream oss(sql);
 
     if ( logdb->exec_federated_wr(oss, index) != 0 )
     {
-        pthread_mutex_unlock(&mutex);
         return UINT64_MAX;
     }
 
-    pthread_mutex_unlock(&mutex);
-
     return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-extern "C" void * frm_loop(void *arg)
-{
-    FedReplicaManager * fedrm;
-
-    if ( arg == 0 )
-    {
-        return 0;
-    }
-
-    fedrm = static_cast<FedReplicaManager *>(arg);
-
-    NebulaLog::log("FRM",Log::INFO,"Federation Replica Manger started.");
-
-    fedrm->am.loop();
-
-    NebulaLog::log("FRM",Log::INFO,"Federation Replica Manger stopped.");
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-
-int FedReplicaManager::start()
-{
-    int               rc;
-    pthread_attr_t    pattr;
-
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
-
-    NebulaLog::log("FRM",Log::INFO,"Starting Federation Replica Manager...");
-
-    rc = pthread_create(&frm_thread, &pattr, frm_loop,(void *) this);
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-
-void FedReplicaManager::finalize_action(const ActionRequest& ar)
-{
-    NebulaLog::log("FRM", Log::INFO, "Federation Replica Manager...");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -156,7 +98,7 @@ void FedReplicaManager::update_zones(std::vector<int>& zone_ids)
         return;
     }
 
-    pthread_mutex_lock(&mutex);
+    lock_guard<mutex> ul(fed_mutex);
 
     uint64_t last_index = logdb->last_federated();
 
@@ -192,8 +134,6 @@ void FedReplicaManager::update_zones(std::vector<int>& zone_ids)
             }
         }
     }
-
-    pthread_mutex_unlock(&mutex);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -219,7 +159,7 @@ void FedReplicaManager::add_zone(int zone_id)
 
     zone->unlock();
 
-    pthread_mutex_lock(&mutex);
+    lock_guard<mutex> ul(fed_mutex);
 
     int last_index = logdb->last_federated();
 
@@ -232,8 +172,6 @@ void FedReplicaManager::add_zone(int zone_id)
     NebulaLog::log("FRM", Log::INFO, oss);
 
     add_replica_thread(zone_id);
-
-    pthread_mutex_unlock(&mutex);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -244,7 +182,7 @@ void FedReplicaManager::delete_zone(int zone_id)
 
     std::map<int, ZoneServers *>::iterator it;
 
-    pthread_mutex_lock(&mutex);
+    lock_guard<mutex> ul(fed_mutex);
 
     it = zones.find(zone_id);
 
@@ -262,8 +200,6 @@ void FedReplicaManager::delete_zone(int zone_id)
     NebulaLog::log("FRM", Log::INFO, oss);
 
     delete_replica_thread(zone_id);
-
-    pthread_mutex_unlock(&mutex);
 };
 
 /* -------------------------------------------------------------------------- */
@@ -280,13 +216,12 @@ ReplicaThread * FedReplicaManager::thread_factory(int zone_id)
 int FedReplicaManager::get_next_record(int zone_id, std::string& zedp,
         LogDBRecord& lr, std::string& error)
 {
-    pthread_mutex_lock(&mutex);
+    lock_guard<mutex> ul(fed_mutex);
 
     std::map<int, ZoneServers *>::iterator it = zones.find(zone_id);
 
     if ( it == zones.end() )
     {
-        pthread_mutex_unlock(&mutex);
         return -1;
     }
 
@@ -308,7 +243,6 @@ int FedReplicaManager::get_next_record(int zone_id, std::string& zedp,
 
     if ( zs->next == UINT64_MAX ) //no new records
     {
-        pthread_mutex_unlock(&mutex);
         return -2;
     }
 
@@ -321,8 +255,6 @@ int FedReplicaManager::get_next_record(int zone_id, std::string& zedp,
         oss << "Missing federation record previous to: " << zs->next;
 
         error = oss.str();
-
-        pthread_mutex_unlock(&mutex);
 
         return -1;
     }
@@ -339,8 +271,6 @@ int FedReplicaManager::get_next_record(int zone_id, std::string& zedp,
         error = oss.str();
     }
 
-    pthread_mutex_unlock(&mutex);
-
     return rc;
 }
 
@@ -349,13 +279,12 @@ int FedReplicaManager::get_next_record(int zone_id, std::string& zedp,
 
 void FedReplicaManager::replicate_success(int zone_id)
 {
-    pthread_mutex_lock(&mutex);
+    lock_guard<mutex> ul(fed_mutex);
 
     std::map<int, ZoneServers *>::iterator it = zones.find(zone_id);
 
     if ( it == zones.end() )
     {
-        pthread_mutex_unlock(&mutex);
         return;
     }
 
@@ -369,15 +298,13 @@ void FedReplicaManager::replicate_success(int zone_id)
     {
         ReplicaManager::replicate(zone_id);
     }
-
-    pthread_mutex_unlock(&mutex);
 }
 
 /* -------------------------------------------------------------------------- */
 
 void FedReplicaManager::replicate_failure(int zone_id, uint64_t last_zone)
 {
-    pthread_mutex_lock(&mutex);
+    lock_guard<mutex> ul(fed_mutex);
 
     std::map<int, ZoneServers *>::iterator it = zones.find(zone_id);
 
@@ -397,8 +324,6 @@ void FedReplicaManager::replicate_failure(int zone_id, uint64_t last_zone)
             ReplicaManager::replicate(zone_id);
         }
     }
-
-    pthread_mutex_unlock(&mutex);
 }
 
 

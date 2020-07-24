@@ -17,11 +17,7 @@
 #ifndef DISPATCH_MANAGER_H_
 #define DISPATCH_MANAGER_H_
 
-#include "ActionManager.h"
-#include "VirtualMachinePool.h"
-
-
-extern "C" void * dm_action_loop(void *arg);
+#include "Listener.h"
 
 //Forward definitions
 class TransferManager;
@@ -30,63 +26,23 @@ class VirtualMachineManager;
 class ImageManager;
 class ClusterPool;
 class HostPool;
+class VirtualMachinePool;
 class VirtualRouterPool;
 class UserPool;
+class VirtualMachine;
+class VirtualMachineTemplate;
 
 struct RequestAttributes;
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
-class DMAction : public ActionRequest
-{
-public:
-    enum Actions
-    {
-        SUSPEND_SUCCESS,  /**< Send by LCM when a VM is suspended*/
-        STOP_SUCCESS,     /**< Send by LCM when a VM is stopped*/
-        UNDEPLOY_SUCCESS, /**< Send by LCM when a VM is undeployed and saved*/
-        POWEROFF_SUCCESS, /**< Send by LCM when a VM is powered off */
-        DONE,             /**< Send by LCM when a VM is shut down*/
-        RESUBMIT          /**< Send by LCM when a VM is ready for resubmission*/
-    };
-
-    DMAction(Actions a, int v):ActionRequest(ActionRequest::USER),
-        _action(a), _vm_id(v){}
-
-    DMAction(const DMAction& o):ActionRequest(o._type), _action(o._action),
-        _vm_id(o._vm_id){}
-
-    Actions action() const
-    {
-        return _action;
-    }
-
-    int vm_id() const
-    {
-        return _vm_id;
-    }
-
-    ActionRequest * clone() const
-    {
-        return new DMAction(*this);
-    }
-
-private:
-    Actions _action;
-
-    int     _vm_id;
-};
-
-class DispatchManager : public ActionListener
+class DispatchManager : public Listener
 {
 public:
 
-    DispatchManager():
-            hpool(0), vmpool(0), clpool(0), vrouterpool(0), tm(0), vmm(0), lcm(0), imagem(0)
+    DispatchManager()
+        : Listener("Dispatch Manager")
     {
-        am.addListener(this);
-    };
+    }
 
     ~DispatchManager() = default;
 
@@ -97,39 +53,11 @@ public:
     void init_managers();
 
     /**
-     *  Triggers specific actions to the Dispatch Manager. This function
-     *  wraps the ActionManager trigger function.
-     *    @param action the DM action
-     *    @param vid VM unique id. This is the argument of the passed to the
-     *    invoked action.
-     */
-    void trigger(DMAction::Actions action, int vid)
-    {
-        DMAction dm_ar(action, vid);
-
-        am.trigger(dm_ar);
-    }
-
-    void finalize()
-    {
-        am.finalize();
-    }
-
-    /**
      *  This functions creates a new thread for the Dispatch Manager. This
      *  thread will wait in an action loop till it receives ACTION_FINALIZE.
      *    @return 0 on success.
      */
     int start();
-
-    /**
-     *  Gets the thread identification.
-     *    @return pthread_t for the manager thread (that in the action loop).
-     */
-    pthread_t get_thread_id() const
-    {
-        return dm_thread;
-    };
 
     //--------------------------------------------------------------------------
     // DM Actions, the RM and the Scheduler will invoke this methods
@@ -272,20 +200,7 @@ public:
     /**
      *  VM ID interface
      */
-    int delete_vm(int vid, const RequestAttributes& ra, std::string& error_str)
-    {
-        VirtualMachine * vm;
-
-        vm = vmpool->get(vid);
-
-        if ( vm == 0 )
-        {
-            error_str = "Virtual machine does not exist";
-            return -1;
-        }
-
-        return delete_vm(vm, ra, error_str);
-    }
+    int delete_vm(int vid, const RequestAttributes& ra, std::string& error_str);
 
     /**
      *  Moves a VM to PENDING state preserving any resource (i.e. leases) and id
@@ -504,98 +419,72 @@ public:
     int live_updateconf(int vid, const RequestAttributes& ra,
                         std::string& error_str);
 
-private:
-    /**
-     *  Thread id for the Dispatch Manager
-     */
-    pthread_t               dm_thread;
+    //--------------------------------------------------------------------------
+    // DM Actions associated with a VM state transition
+    //--------------------------------------------------------------------------
 
+    void trigger_suspend_success(int vid);
+
+    void trigger_stop_success(int vid);
+
+    void trigger_undeploy_success(int vid);
+
+    void trigger_poweroff_success(int vid);
+
+    void trigger_done(int vid);
+
+    void trigger_resubmit(int vid);
+
+private:
     /**
      *  Pointer to the Host Pool, to access hosts
      */
-    HostPool *              hpool;
+    HostPool *              hpool = nullptr;
 
     /**
      *  Pointer to the Virtual Machine Pool, to access VMs
      */
-    VirtualMachinePool *    vmpool;
+    VirtualMachinePool *    vmpool = nullptr;
 
     /**
      *  Pointer to the User Pool, to access user
      */
-    UserPool *    upool;
+    UserPool *              upool = nullptr;
 
     /**
      *  Pointer to the Cluster Pool
      */
-    ClusterPool *    clpool;
+    ClusterPool *           clpool = nullptr;
 
     /**
      *  Pointer to the Virtual Router Pool
      */
-    VirtualRouterPool *     vrouterpool;
+    VirtualRouterPool *     vrouterpool = nullptr;
 
     /**
      * Pointer to TransferManager
      */
-    TransferManager *       tm;
+    TransferManager *       tm = nullptr;
 
     /**
      * Pointer to VirtualMachineManager
      */
-    VirtualMachineManager * vmm;
+    VirtualMachineManager * vmm = nullptr;
 
     /**
      * Pointer to LifeCycleManager
      */
-    LifeCycleManager *       lcm;
+    LifeCycleManager *       lcm = nullptr;
 
     /**
      * Pointer to ImageManager
      */
-    ImageManager *          imagem;
-
-    /**
-     *  Action engine for the Manager
-     */
-    ActionManager           am;
+    ImageManager *          imagem = nullptr;
 
     /**
      *  Frees the resources associated to a VM: disks, ip addresses and Quotas
      */
     void free_vm_resources(VirtualMachine * vm, bool check_images);
-
-    //--------------------------------------------------------------------------
-    // DM Actions associated with a VM state transition
-    //--------------------------------------------------------------------------
-
-    void  suspend_success_action(int vid);
-
-    void  stop_success_action(int vid);
-
-    void  undeploy_success_action(int vid);
-
-    void  poweroff_success_action(int vid);
-
-    void  done_action(int vid);
-
-    void  resubmit_action(int vid);
-
-    /**
-     *  Function to execute the Manager action loop method within a new pthread
-     * (requires C linkage)
-     */
-    friend void * dm_action_loop(void *arg);
-
-    // -------------------------------------------------------------------------
-    // Action Listener interface
-    // -------------------------------------------------------------------------
-    void finalize_action(const ActionRequest& ar)
-    {
-        NebulaLog::log("DiM",Log::INFO,"Stopping Dispatch Manager...");
-    };
-
-    void user_action(const ActionRequest& ar);
 
     /**
     * Fill a template only with the necessary attributes to update the quotas

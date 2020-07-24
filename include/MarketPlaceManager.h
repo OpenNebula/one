@@ -19,10 +19,7 @@
 
 #include "ProtocolMessages.h"
 #include "DriverManager.h"
-#include "ActionManager.h"
-#include "NebulaLog.h"
-
-extern "C" void * marketplace_action_loop(void *arg);
+#include "Listener.h"
 
 class MarketPlacePool;
 class MarketPlaceAppPool;
@@ -32,9 +29,7 @@ class DatastorePool;
 class ImageManager;
 class RaftManager;
 
-class MarketPlaceManager :
-    public DriverManager<Driver<market_msg_t>>,
-    public ActionListener
+class MarketPlaceManager : public DriverManager<Driver<market_msg_t>>
 {
 public:
 
@@ -46,7 +41,7 @@ public:
      */
     MarketPlaceManager(time_t t, time_t m, const std::string& _mad_location);
 
-    ~MarketPlaceManager(){};
+    ~MarketPlaceManager() = default;
 
     /**
      * Initializes internal pointers to other managers. Must be called when
@@ -55,35 +50,26 @@ public:
     void init_managers();
 
     /**
-     *  This functions starts the associated listener thread, and creates a
-     *  new thread for the MarketPlace Manager. This thread will wait in
-     *  an action loop till it receives ACTION_FINALIZE.
+     *  This functions starts the associated timer thread and drivers.
      *    @return 0 on success.
      */
     int start();
+
+    /**
+     *  Stops timer and drivers
+     */
+    void finalize()
+    {
+        timer_thread.stop();
+
+        DriverManager::stop(drivers_timeout);
+    };
 
     /**
      *  Loads the MarketPlace Driver defined in configuration file
      *   @param _mads configuration of drivers
      */
     int load_drivers(const std::vector<const VectorAttribute*>& _mads);
-
-    /**
-     *  Gets the thread identification.
-     *    @return pthread_t for the manager thread (that in the action loop).
-     */
-    pthread_t get_thread_id() const
-    {
-        return marketm_thread;
-    };
-
-    /**
-     *  Finalizes the Image Manager
-     */
-    void finalize()
-    {
-        am.finalize();
-    };
 
     /**
      *  Imports a new app into the marketplace. The marketplace app needs to
@@ -137,9 +123,9 @@ private:
      static const char *  market_driver_name;
 
     /**
-     *  Thread id for the MarketPlace Manager
+     *  Timer action async execution
      */
-    pthread_t             marketm_thread;
+    Timer                 timer_thread;
 
     /**
      *  Timer period for the Image Manager.
@@ -154,37 +140,32 @@ private:
     /**
      *  Pointer to the marketplace pool
      */
-    MarketPlacePool *     mppool;
+    MarketPlacePool *     mppool = nullptr;
 
     /**
      *  Pointer to the app pool
      */
-    MarketPlaceAppPool * apppool;
-
-	/**
-     *  Pointer to the image pool
-     */
-	ImagePool *          ipool;
-
-	/**
-     * Pointer to the image pool
-     */
-	DatastorePool *      dspool;
-
-	/**
-	 *  Pointer to the Image Manger
-     */
-	ImageManager *       imagem;
-
-	/**
-	 *  Pointer to the Raft Manger
-     */
-	RaftManager *        raftm;
+    MarketPlaceAppPool * apppool = nullptr;
 
     /**
-     *  Action engine for the Manager
+     *  Pointer to the image pool
      */
-    ActionManager         am;
+    ImagePool *          ipool = nullptr;
+
+    /**
+     * Pointer to the image pool
+     */
+    DatastorePool *      dspool = nullptr;
+
+    /**
+     *  Pointer to the Image Manger
+     */
+    ImageManager *       imagem = nullptr;
+
+    /**
+     *  Pointer to the Raft Manger
+     */
+    RaftManager *        raftm = nullptr;
 
     /**
      *  Returns a pointer to the marketplace driver.
@@ -193,13 +174,7 @@ private:
     const Driver<market_msg_t> * get() const
     {
         return DriverManager::get_driver(market_driver_name);
-    };
-
-    /**
-     *  Function to execute the Manager action loop method within a new pthread
-     * (requires C linkage)
-     */
-    friend void * marketplace_action_loop(void *arg);
+    }
 
     /**
      * Formats an XML message for the MAD
@@ -230,15 +205,9 @@ private:
     /**
      *  This function is executed periodically to monitor marketplaces..
      */
-    void timer_action(const ActionRequest& ar);
+    void timer_action();
 
     static const int drivers_timeout = 10;
-
-    void finalize_action(const ActionRequest& ar)
-    {
-        NebulaLog::log("MKP", Log::INFO, "Stopping Marketplace Manager...");
-        DriverManager::stop(drivers_timeout);
-    };
 };
 
 #endif /*MARKETPLACE_MANAGER_H*/

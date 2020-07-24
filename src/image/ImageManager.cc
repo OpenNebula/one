@@ -27,29 +27,6 @@ const char * ImageManager::image_driver_name = "image_exe";
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C" void * image_action_loop(void *arg)
-{
-    ImageManager *  im;
-
-    if ( arg == 0 )
-    {
-        return 0;
-    }
-
-    NebulaLog::log("ImM",Log::INFO,"Image Manager started.");
-
-    im = static_cast<ImageManager *>(arg);
-
-    im->am.loop(im->timer_period);
-
-    NebulaLog::log("ImM",Log::INFO,"Image Manager stopped.");
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int ImageManager::load_drivers(const std::vector<const VectorAttribute*>& _mads)
 {
     const VectorAttribute * vattr = 0;
@@ -87,9 +64,6 @@ int ImageManager::load_drivers(const std::vector<const VectorAttribute*>& _mads)
 
 int ImageManager::start()
 {
-    int               rc;
-    pthread_attr_t    pattr;
-
     using namespace std::placeholders; // for _1
 
     register_action(ImageManagerMessages::UNDEFINED,
@@ -135,18 +109,13 @@ int ImageManager::start()
         return -1;
     }
 
-    pthread_attr_init(&pattr);
-    pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
-
-    rc = pthread_create(&imagem_thread,&pattr,image_action_loop,(void *) this);
-
-    return rc;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ImageManager::timer_action(const ActionRequest& ar)
+void ImageManager::timer_action()
 {
     static int mark = 0;
     static int tics = monitor_period;

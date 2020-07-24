@@ -19,15 +19,9 @@
 
 #include <string>
 
-#include "ActionManager.h"
 #include "Attribute.h"
 
 class SqlDB;
-
-/**
- *  Thread loop (timer action to purge the log)
- */
-extern "C" void * hlog_action_loop(void *arg);
 
 /**
  *  This class represents the execution log of Hooks. It writes/reads execution

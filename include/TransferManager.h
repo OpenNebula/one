@@ -19,74 +19,20 @@
 
 #include "ProtocolMessages.h"
 #include "DriverManager.h"
-#include "ActionManager.h"
-
-extern "C" void * tm_action_loop(void *arg);
+#include "Listener.h"
 
 class HostPool;
 class VirtualMachine;
 class VirtualMachineDisk;
 class VirtualMachinePool;
+class LifeCycleManager;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-class TMAction : public ActionRequest
-{
-public:
-    enum Actions
-    {
-        PROLOG,
-        PROLOG_MIGR,
-        PROLOG_RESUME,
-        PROLOG_ATTACH,
-        EPILOG,
-        EPILOG_LOCAL,
-        EPILOG_STOP,
-        EPILOG_DELETE,
-        EPILOG_DELETE_PREVIOUS,
-        EPILOG_DELETE_STOP,
-        EPILOG_DELETE_BOTH,
-        EPILOG_DETACH,
-        CHECKPOINT,
-        DRIVER_CANCEL,
-        SAVEAS_HOT,
-        SNAPSHOT_CREATE,
-        SNAPSHOT_REVERT,
-        SNAPSHOT_DELETE,
-        RESIZE
-    };
-
-    TMAction(Actions a, int v):ActionRequest(ActionRequest::USER),
-        _action(a), _vm_id(v){}
-
-    TMAction(const TMAction& o):ActionRequest(o._type), _action(o._action),
-        _vm_id(o._vm_id){}
-
-    Actions action() const
-    {
-        return _action;
-    }
-
-    int vm_id() const
-    {
-        return _vm_id;
-    }
-
-    ActionRequest * clone() const
-    {
-        return new TMAction(*this);
-    }
-
-private:
-    Actions _action;
-
-    int     _vm_id;
-};
 
 class TransferManager :
     public DriverManager<Driver<transfer_msg_t>>,
-    public ActionListener
+    public Listener
 {
 public:
 
@@ -95,32 +41,13 @@ public:
         HostPool *           _hpool,
         const std::string&   _mad_location):
             DriverManager(_mad_location),
+            Listener("Transfer Manager"),
             vmpool(_vmpool),
             hpool(_hpool)
     {
-        am.addListener(this);
     };
 
     ~TransferManager() = default;
-
-    /**
-     *  Triggers specific actions to the Information Manager. This function
-     *  wraps the ActionManager trigger function.
-     *    @param action the IM action
-     *    @param vid VM unique id. This is the argument of the passed to the
-     *    invoked action.
-     */
-    void trigger(TMAction::Actions action, int vid)
-    {
-        TMAction tm_ar(action, vid);
-
-        am.trigger(tm_ar);
-    }
-
-    void finalize()
-    {
-        am.finalize();
-    }
 
     /**
      *  This functions starts the associated listener thread, and creates a
@@ -135,15 +62,6 @@ public:
      *   @param _mads configuration of drivers
      */
     int load_drivers(const std::vector<const VectorAttribute*>& _mads);
-
-    /**
-     *  Gets the thread identification.
-     *    @return pthread_t for the manager thread (that in the action loop).
-     */
-    pthread_t get_thread_id() const
-    {
-        return tm_thread;
-    };
 
     /**
      * Inserts a transfer command in the xfs stream
@@ -246,11 +164,6 @@ public:
             std::ostream&              xfr);
 private:
     /**
-     *  Thread id for the Transfer Manager
-     */
-    pthread_t               tm_thread;
-
-    /**
      *  Pointer to the Virtual Machine Pool, to access VMs
      */
     VirtualMachinePool *    vmpool;
@@ -259,11 +172,6 @@ private:
      *  Pointer to the Host Pool, to access hosts
      */
     HostPool *              hpool;
-
-    /**
-     *  Action engine for the Manager
-     */
-    ActionManager           am;
 
     /**
      *  Generic name for the TransferManager driver
@@ -292,17 +200,13 @@ private:
         return DriverManager::get_driver(transfer_driver_name);
     };
 
-    /**
-     *  Function to execute the Manager action loop method within a new pthread
-     * (requires C linkage)
-     */
-    friend void * tm_action_loop(void *arg);
-
     // -------------------------------------------------------------------------
     // Protocol implementation, procesing messages from driver
     // -------------------------------------------------------------------------
     static void _undefined(std::unique_ptr<transfer_msg_t> msg);
+
     void _transfer(std::unique_ptr<transfer_msg_t> msg);
+
     static void _log(std::unique_ptr<transfer_msg_t> msg);
 
     // -------------------------------------------------------------------------
@@ -310,52 +214,49 @@ private:
     // -------------------------------------------------------------------------
     static const int drivers_timeout = 10;
 
-    void finalize_action(const ActionRequest& ar)
+    void finalize_action()
     {
-        NebulaLog::log("TM",Log::INFO,"Stopping Transfer Manager...");
-
         DriverManager::stop(drivers_timeout);
     };
 
-    void user_action(const ActionRequest& ar);
-
+public:
     /**
      *  This function starts the prolog sequence
      */
-    void prolog_action(int vid);
+    void trigger_prolog(VirtualMachine * vm);
 
     /**
      *  This function starts the prolog migration sequence
      */
-    void prolog_migr_action(int vid);
+    void trigger_prolog_migr(VirtualMachine * vm);
 
     /**
      *  This function starts the prolog resume sequence
      */
-    void prolog_resume_action(int vid);
+    void trigger_prolog_resume(VirtualMachine * vm);
 
     /**
      *  This function starts the prolog attach sequence
      */
-    void prolog_attach_action(int vid);
+    void trigger_prolog_attach(VirtualMachine * vm);
 
     /**
      *  This function starts the epilog sequence
      */
-    void epilog_action(bool local, int vid);
+    void trigger_epilog(bool local, VirtualMachine * vm);
 
     /**
      *  This function starts the epilog_stop sequence
      */
-    void epilog_stop_action(int vid);
+    void trigger_epilog_stop(VirtualMachine * vm);
 
     /**
      *  This function starts the epilog_delete sequence in the current host
      *    @param vid the Virtual Machine ID
      */
-    void epilog_delete_action(int vid)
+    void trigger_epilog_delete(VirtualMachine * vm)
     {
-        epilog_delete_action(false, vid);
+        trigger_epilog_delete(false, vm);
     }
 
     /**
@@ -363,48 +264,48 @@ private:
      *  i.e. the front-end (the VM is not running)
      *    @param vid the Virtual Machine ID
      */
-    void epilog_delete_stop_action(int vid)
+    void trigger_epilog_delete_stop(VirtualMachine * vm)
     {
-        epilog_delete_action(true, vid);
+        trigger_epilog_delete(true, vm);
     }
 
     /**
      *  This function starts the epilog_delete sequence on the previous host
      *    @param vid the Virtual Machine ID
      */
-    void epilog_delete_previous_action(int vid);
+    void trigger_epilog_delete_previous(VirtualMachine * vm);
 
     /**
      *  This function starts the epilog_delete sequence on the current and
      *  previous hosts
      *    @param vid the Virtual Machine ID
      */
-    void epilog_delete_both_action(int vid);
+    void trigger_epilog_delete_both(VirtualMachine * vm);
 
     /**
      *  This function starts the epilog_delete sequence
      */
-    void epilog_delete_action(bool local, int vid);
+    void trigger_epilog_delete(bool local, VirtualMachine * vm);
 
     /**
      *  This function starts the epilog detach sequence
      */
-    void epilog_detach_action(int vid);
+    void trigger_epilog_detach(VirtualMachine * vm);
 
     /**
      *  This function starts the epilog sequence
      */
-    void checkpoint_action(int vid);
+    void trigger_checkpoint(int vid);
 
     /**
      * This function cancels the operation being performed by the driver
      */
-    void driver_cancel_action(int vid);
+    void trigger_driver_cancel(int vid);
 
     /**
      * This function starts the saveas of the given disk
      */
-    void saveas_hot_action(int vid);
+    void trigger_saveas_hot(int vid);
 
     /**
      * This function performs a generic snapshot action
@@ -414,22 +315,22 @@ private:
     /**
      * This function takes an snapshot of a disk
      */
-    void snapshot_create_action(int vid);
+    void trigger_snapshot_create(int vid);
 
     /**
      * This function takes an snapshot of a disk
      */
-    void snapshot_revert_action(int vid);
+    void trigger_snapshot_revert(int vid);
 
     /**
      * This function deletes an snapshot of a disk
      */
-    void snapshot_delete_action(int vid);
+    void trigger_snapshot_delete(int vid);
 
     /**
      * This function resizes a VM disk
      */
-    void resize_action(int vid);
+    void trigger_resize(int vid);
 };
 
 #endif /*TRANSFER_MANAGER_H*/

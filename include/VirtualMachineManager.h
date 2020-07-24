@@ -19,105 +19,26 @@
 
 #include "VirtualMachineManagerDriver.h"
 #include "DriverManager.h"
-#include "ActionManager.h"
+#include "Listener.h"
 
 class DatastorePool;
 class HostPool;
 class VirtualMachinePool;
 
-extern "C" void * vmm_action_loop(void *arg);
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-class VMMAction : public ActionRequest
-{
-public:
-    enum Actions
-    {
-        DEPLOY,
-        SAVE,
-        SHUTDOWN,
-        CANCEL,
-        CANCEL_PREVIOUS,
-        CLEANUP,
-        CLEANUP_BOTH,
-        CLEANUP_PREVIOUS,
-        MIGRATE,
-        RESTORE,
-        REBOOT,
-        RESET,
-        DRIVER_CANCEL,
-        ATTACH,
-        DETACH,
-        ATTACH_NIC,
-        DETACH_NIC,
-        SNAPSHOT_CREATE,
-        SNAPSHOT_REVERT,
-        SNAPSHOT_DELETE,
-        DISK_SNAPSHOT_CREATE,
-        DISK_RESIZE,
-        UPDATE_CONF
-    };
-
-    VMMAction(Actions a, int v):ActionRequest(ActionRequest::USER),
-        _action(a), _vm_id(v){};
-
-    VMMAction(const VMMAction& o):ActionRequest(o._type), _action(o._action),
-        _vm_id(o._vm_id){};
-
-    Actions action() const
-    {
-        return _action;
-    }
-
-    int vm_id() const
-    {
-        return _vm_id;
-    }
-
-    ActionRequest * clone() const
-    {
-        return new VMMAction(*this);
-    }
-
-private:
-    Actions _action;
-
-    int     _vm_id;
-};
 
 class VirtualMachineManager :
     public DriverManager<VirtualMachineManagerDriver>,
-    public ActionListener
+    public Listener
 {
 public:
 
     VirtualMachineManager(
-        time_t                    _timer_period,
         int                       _vm_limit,
         const std::string&        _mads);
 
     ~VirtualMachineManager() = default;
-
-    /**
-     *  Triggers specific actions to the Virtual Machine Manager. This function
-     *  wraps the ActionManager trigger function.
-     *    @param action the VMM action
-     *    @param vid VM unique id. This is the argument of the passed to the
-     *    invoked action.
-     */
-    void trigger(VMMAction::Actions action, int vid)
-    {
-        VMMAction vmm_ar(action, vid);
-
-        am.trigger(vmm_ar);
-    }
-
-    void finalize()
-    {
-        am.finalize();
-    }
 
     /**
      *  This functions starts the associated listener thread, and creates a
@@ -126,15 +47,6 @@ public:
      *    @return 0 on success.
      */
     int start();
-
-    /**
-     *  Gets the thread identification.
-     *    @return pthread_t for the manager thread (that in the action loop).
-     */
-    pthread_t get_thread_id() const
-    {
-        return vmm_thread;
-    };
 
     /**
      *  Loads Virtual Machine Manager Mads defined in configuration file
@@ -224,11 +136,6 @@ public:
 
 private:
     /**
-     *  Thread id for the Virtual Machine Manager
-     */
-    pthread_t               vmm_thread;
-
-    /**
      *  Pointer to the Virtual Machine Pool, to access VMs
      */
     VirtualMachinePool *    vmpool;
@@ -244,25 +151,9 @@ private:
     DatastorePool *         ds_pool;
 
     /**
-     *  Timer period for the Virtual Machine Manager.
-     */
-    time_t                  timer_period;
-
-    /**
      *  Virtual Machine polling limit
      */
     int                     vm_limit;
-
-    /**
-     *  Action engine for the Manager
-     */
-    ActionManager           am;
-
-    /**
-     *  Function to execute the Manager action loop method within a new pthread
-     * (requires C linkage)
-     */
-    friend void * vmm_action_loop(void *arg);
 
     // -------------------------------------------------------------------------
     // Protocol implementation, procesing messages from driver
@@ -413,14 +304,10 @@ private:
 
     static const int drivers_timeout = 10;
 
-    void finalize_action(const ActionRequest& ar)
+    void finalize_action()
     {
-        NebulaLog::log("VMM",Log::INFO,"Stopping Virtual Machine Manager...");
-
         DriverManager::stop(drivers_timeout);
     };
-
-    void user_action(const ActionRequest& ar);
 
     /**
      *  Function to format a VMM Driver message in the form:
@@ -465,43 +352,39 @@ private:
         int ds_id,
         int sgid);
 
+public:
     /**
      *  Function executed when a DEPLOY action is received. It deploys a VM on
      *  a Host.
      *    @param vid the id of the VM to be deployed.
      */
-    void deploy_action(
-        int vid);
+    void trigger_deploy(int vid);
 
     /**
      *  Function to stop a running VM and generate a checkpoint file. This
      *  function is executed when a SAVE action is triggered.
      *    @param vid the id of the VM.
      */
-    void save_action(
-        int vid);
+    void trigger_save(int vid);
 
     /**
      *  Shutdowns a VM when a SHUTDOWN action is received.
      *    @param vid the id of the VM.
      */
-    void shutdown_action(
-        int vid);
+    void trigger_shutdown(int vid);
 
     /**
      *  Cancels a VM when a CANCEL action is received.
      *    @param vid the id of the VM.
      */
-    void cancel_action(
-        int vid);
+    void trigger_cancel(int vid);
 
     /**
      *  Cancels a VM (in the previous host) when a CANCEL action is received.
      *  Note that the domain-id is the last one returned by a boot action
      *    @param vid the id of the VM.
      */
-    void cancel_previous_action(
-        int vid);
+    void trigger_cancel_previous(int vid);
 
     /**
      *  Cleanups a host (cancel VM + delete disk images).
@@ -509,81 +392,70 @@ private:
      *    @param cancel_previous if true the VM will be canceled in the previous
      *    host (only relevant to delete VM's in MIGRATE state)
      */
-    void cleanup_action(
-        int vid, bool cancel_previous);
+    void trigger_cleanup(int vid, bool cancel_previous);
 
     /**
      *  Cleanups the previous host (cancel VM + delete disk images).
      *    @param vid the id of the VM.
      */
-    void cleanup_previous_action(
-        int vid);
+    void trigger_cleanup_previous(int vid);
 
     /**
      *  Function to migrate (live) a VM (MIGRATE action).
      *    @param vid the id of the VM.
      */
-    void migrate_action(
-        int vid);
+    void trigger_migrate(int vid);
 
     /**
      *  Restores a VM from a checkpoint file.
      *    @param vid the id of the VM.
      */
-    void restore_action(
-        int vid);
+    void trigger_restore(int vid);
 
     /**
      *  Reboots a running VM.
      *    @param vid the id of the VM.
      */
-    void reboot_action(
-        int vid);
+    void trigger_reboot(int vid);
 
     /**
      *  Resets a running VM.
      *    @param vid the id of the VM.
      */
-    void reset_action(
-        int vid);
+    void trigger_reset(int vid);
 
     /**
      * Attaches a new disk to a VM. The VM must have a disk with the
      * attribute ATTACH = YES
      *    @param vid the id of the VM.
      */
-    void attach_action(
-        int vid);
+    void trigger_attach(int vid);
 
     /**
      * Detaches a disk from a VM. The VM must have a disk with the
      * attribute ATTACH = YES
      *    @param vid the id of the VM.
      */
-    void detach_action(
-        int vid);
+    void trigger_detach(int vid);
 
     /**
      * Attaches a new NIC to a VM. The VM must have a NIC with the
      * attribute ATTACH = YES
      *    @param vid the id of the VM.
      */
-    void attach_nic_action(
-        int vid);
+    void trigger_attach_nic(int vid);
 
     /**
      * Detaches a NIC from a VM. The VM must have a NIC with the
      * attribute ATTACH = YES
      *    @param vid the id of the VM.
      */
-    void detach_nic_action(
-        int vid);
+    void trigger_detach_nic(int vid);
 
     /**
      *  This function cancels the current driver operation
      */
-    void driver_cancel_action(
-        int vid);
+    void trigger_driver_cancel(int vid);
 
     /**
      * Creates a new system snapshot. The VM must have a snapshot with the
@@ -591,8 +463,7 @@ private:
      *
      * @param vid the id of the VM.
      */
-    void snapshot_create_action(
-        int vid);
+    void trigger_snapshot_create(int vid);
 
     /**
      * Reverts to a snapshot. The VM must have a snapshot with the
@@ -600,8 +471,7 @@ private:
      *
      * @param vid the id of the VM.
      */
-    void snapshot_revert_action(
-        int vid);
+    void trigger_snapshot_revert(int vid);
 
     /**
      * Deletes a snapshot. The VM must have a snapshot with the
@@ -609,32 +479,28 @@ private:
      *
      * @param vid the id of the VM.
      */
-    void snapshot_delete_action(
-        int vid);
+    void trigger_snapshot_delete(int vid);
 
     /**
      * Creates a new disk system snapshot.
      *
      * @param vid the id of the VM.
      */
-    void disk_snapshot_create_action(
-        int vid);
+    void trigger_disk_snapshot_create(int vid);
 
     /**
      * Resize a VM disk
      *
      * @param vid the id of the VM.
      */
-    void disk_resize_action(
-        int vid);
+    void trigger_disk_resize(int vid);
 
     /**
      * Update VM context
      *
      * @param vid the id of the VM.
      */
-    void update_conf_action(
-        int vid);
+    void trigger_update_conf(int vid);
 };
 
 #endif /*VIRTUAL_MACHINE_MANAGER_H*/

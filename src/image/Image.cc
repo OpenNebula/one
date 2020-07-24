@@ -848,7 +848,7 @@ void Image::set_state(ImageState _state)
 
         for (set<int>::iterator i = vms.begin(); i != vms.end(); i++)
         {
-            lcm->trigger(LCMAction::DISK_LOCK_FAILURE, *i);
+            lcm->trigger_disk_lock_failure(*i);
         }
     }
     else if (state == LOCKED)
@@ -918,7 +918,7 @@ void Image::set_state_unlock()
 
         for (set<int>::iterator i = vms.begin(); i != vms.end(); i++)
         {
-            lcm->trigger(LCMAction::DISK_LOCK_SUCCESS, *i);
+            lcm->trigger_disk_lock_success(*i);
         }
     }
 }

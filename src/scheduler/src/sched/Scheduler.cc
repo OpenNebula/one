@@ -77,41 +77,14 @@ static double profile(bool start, const string& message="")
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C" void * scheduler_action_loop(void *arg)
-{
-    Scheduler *  sched;
-
-    if ( arg == 0 )
-    {
-        return 0;
-    }
-
-    sched = static_cast<Scheduler *>(arg);
-
-    NebulaLog::log("SCHED",Log::INFO,"Scheduler loop started.");
-
-    sched->am.loop(sched->timer);
-
-    NebulaLog::log("SCHED",Log::INFO,"Scheduler loop stopped.");
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void Scheduler::start()
 {
-    int rc;
-
     ifstream      file;
     ostringstream oss;
 
     string etc_path;
 
     unsigned int live_rescheds;
-
-    pthread_attr_t pattr;
 
     // -----------------------------------------------------------
     // Configuration File
@@ -375,18 +348,7 @@ void Scheduler::start()
 
     NebulaLog::log("SCHED",Log::INFO,"Starting scheduler loop...");
 
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
-
-    rc = pthread_create(&sched_thread,&pattr,scheduler_action_loop,(void *) this);
-
-    if ( rc != 0 )
-    {
-        NebulaLog::log("SCHED",Log::ERROR,
-            "Could not start scheduler loop, exiting");
-
-        return;
-    }
+    timer_thread.reset(new Timer(timer, [this](){timer_action();}));
 
     // -----------------------------------------------------------
     // Wait for a SIGTERM or SIGINT signal
@@ -399,9 +361,7 @@ void Scheduler::start()
 
     sigwait(&mask, &signal);
 
-    am.finalize();
-
-    pthread_join(sched_thread,0);
+    finalize();
 
     xmlCleanupParser();
 
@@ -1835,7 +1795,7 @@ void Scheduler::do_vm_groups()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Scheduler::timer_action(const ActionRequest& ar)
+void Scheduler::timer_action()
 {
     int rc;
 

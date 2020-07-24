@@ -17,21 +17,18 @@
 #ifndef ACL_MANAGER_H_
 #define ACL_MANAGER_H_
 
-#include "AuthManager.h"
+#include "Listener.h"
 #include "AuthRequest.h"
 #include "PoolObjectSQL.h"
-#include "AclRule.h"
-#include "NebulaLog.h"
 
+class AclRule;
 class PoolObjectAuth;
 class SqlDB;
-
-extern "C" void * acl_action_loop(void *arg);
 
 /**
  *  This class manages the ACL rules and the authorization engine
  */
-class AclManager : public Callbackable, public ActionListener
+class AclManager : public Callbackable
 {
 public:
     /**
@@ -53,6 +50,8 @@ public:
     int start();
 
     void finalize();
+
+    void join_thread();
 
     /**
      *  Reload the ACL rules from the DB. This function needs to be used when
@@ -215,19 +214,6 @@ public:
      */
     virtual int dump(std::ostringstream& oss);
 
-    // -------------------------------------------------------------------------
-    // Refresh loop thread
-    // -------------------------------------------------------------------------
-    /**
-     *  Gets the AclManager thread identification. The thread is only
-     *  initialized if the refresh_cache flag is true.
-     *    @return pthread_t for the manager thread (that in the action loop).
-     */
-    pthread_t get_thread_id() const
-    {
-        return acl_thread;
-    };
-
 protected:
     /**
      *  Constructor for derived ACL managers. Classes derived from this one
@@ -235,9 +221,11 @@ protected:
      *  from DB)
      */
     AclManager(int _zone_id)
-        :zone_id(_zone_id), db(0), is_federation_slave(false)
+        : zone_id(_zone_id)
+        , db(0)
+        , is_federation_slave(false)
+        , timer_period(-1)
     {
-       pthread_mutex_init(&mutex, 0);
     };
 
     // -------------------------------------------------------------------------
@@ -346,23 +334,7 @@ private:
     // Mutex synchronization
     // -------------------------------------------------------------------------
 
-    pthread_mutex_t mutex;
-
-    /**
-     *  Function to lock the manager
-     */
-    void lock()
-    {
-        pthread_mutex_lock(&mutex);
-    };
-
-    /**
-     *  Function to unlock the manager
-     */
-    void unlock()
-    {
-        pthread_mutex_unlock(&mutex);
-    };
+    std::mutex acl_mutex;
 
     // -------------------------------------------------------------------------
     // DataBase implementation variables
@@ -429,33 +401,18 @@ private:
     time_t          timer_period;
 
     /**
-     *  Thread id for the ACL Manager
+     *  Timer action async execution
      */
-    pthread_t       acl_thread;
-
-    /**
-     *  Action engine for the Manager
-     */
-    ActionManager   am;
-
-    /**
-     *  Function to execute the Manager action loop method within a new pthread
-     *  (requires C linkage)
-     */
-    friend void * acl_action_loop(void *arg);
+    std::unique_ptr<Timer> timer_thread;
 
     // -------------------------------------------------------------------------
     // Action Listener interface
     // -------------------------------------------------------------------------
-    void timer_action(const ActionRequest& ar)
+    void timer_action()
     {
         select();
     };
 
-    void finalize_action(const ActionRequest& ar)
-    {
-        NebulaLog::log("ACL",Log::INFO,"Stopping ACL Manager...");
-    };
 };
 
 #endif /*ACL_MANAGER_H*/

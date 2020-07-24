@@ -845,16 +845,6 @@ void Nebula::start(bool bootstrap_only)
         throw;
     }
 
-    if (!cache)
-    {
-        rc = raftm->start();
-
-        if ( rc != 0 )
-        {
-           throw runtime_error("Could not start the Raft Consensus Manager");
-        }
-    }
-
     // ---- FedReplica Manager ----
     if (!cache)
     {
@@ -867,18 +857,11 @@ void Nebula::start(bool bootstrap_only)
             throw;
         }
 
-        rc = frm->start();
-
         if ( is_federation_master() && solo )
         {
             // Replica threads are started on master in solo mode.
             // HA start/stop the replica threads on leader/follower states
             frm->start_replica_threads();
-        }
-
-        if ( rc != 0 )
-        {
-           throw runtime_error("Could not start the Federation Replica Manager");
         }
     }
 
@@ -893,7 +876,6 @@ void Nebula::start(bool bootstrap_only)
         nebula_configuration->get("VM_MAD", vmm_mads);
 
         vmm = new VirtualMachineManager(
-            timer_period,
             vm_limit,
             mad_location);
 
@@ -1202,20 +1184,15 @@ void Nebula::start(bool bootstrap_only)
         marketm->finalize();
 
         ipamm->finalize();
-        frm->finalize();
 
         //sleep to wait drivers???
-        pthread_join(vmm->get_thread_id(),0);
-        pthread_join(lcm->get_thread_id(),0);
-        pthread_join(tm->get_thread_id(),0);
-        pthread_join(dm->get_thread_id(),0);
+        vmm->join_thread();
+        lcm->join_thread();
+        tm->join_thread();
+        dm->join_thread();
 
-        im->join_thread();
-        pthread_join(hm->get_thread_id(),0);
-        pthread_join(imagem->get_thread_id(),0);
-        pthread_join(marketm->get_thread_id(),0);
-        pthread_join(ipamm->get_thread_id(),0);
-        pthread_join(frm->get_thread_id(),0);
+        hm->join_thread();
+        ipamm->join_thread();
     }
 
     raftm->finalize();
@@ -1224,13 +1201,11 @@ void Nebula::start(bool bootstrap_only)
     rm->finalize();
     authm->finalize();
 
-    pthread_join(rm->get_thread_id(),0);
-    pthread_join(authm->get_thread_id(),0);
-    pthread_join(raftm->get_thread_id(),0);
+    authm->join_thread();
 
     if (is_federation_slave())
     {
-        pthread_join(aclm->get_thread_id(),0);
+        aclm->join_thread();
     }
 
 

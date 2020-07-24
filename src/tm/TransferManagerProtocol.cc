@@ -44,8 +44,6 @@ void TransferManager::_transfer(unique_ptr<transfer_msg_t> msg)
 
     LifeCycleManager * lcm = Nebula::instance().get_lcm();
 
-    LCMAction::Actions lcm_action;
-
     int id = msg->oid();
 
     // Get the VM from the pool
@@ -77,28 +75,28 @@ void TransferManager::_transfer(unique_ptr<transfer_msg_t> msg)
             case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
             case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
             case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
-                lcm_action = LCMAction::PROLOG_SUCCESS;
+                lcm->trigger_prolog_success(id);
                 break;
 
             case VirtualMachine::EPILOG:
             case VirtualMachine::EPILOG_STOP:
             case VirtualMachine::EPILOG_UNDEPLOY:
             case VirtualMachine::CLEANUP_RESUBMIT:
-                lcm_action = LCMAction::EPILOG_SUCCESS;
+                lcm->trigger_epilog_success(id);
                 break;
 
             case VirtualMachine::HOTPLUG_SAVEAS:
             case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
             case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
-                lcm_action = LCMAction::SAVEAS_SUCCESS;
+                lcm->trigger_saveas_success(id);
                 break;
 
             case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
-                lcm_action = LCMAction::ATTACH_SUCCESS;
+                lcm->trigger_attach_success(id);
                 break;
 
             case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
-                lcm_action = LCMAction::DETACH_SUCCESS;
+                lcm->trigger_detach_success(id);
                 break;
 
             case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
@@ -108,12 +106,12 @@ void TransferManager::_transfer(unique_ptr<transfer_msg_t> msg)
             case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
             case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
             case VirtualMachine::DISK_SNAPSHOT_DELETE:
-                lcm_action = LCMAction::DISK_SNAPSHOT_SUCCESS;
+                lcm->trigger_disk_snapshot_success(id);
                 break;
 
             case VirtualMachine::DISK_RESIZE_POWEROFF:
             case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
-                lcm_action = LCMAction::DISK_RESIZE_SUCCESS;
+                lcm->trigger_disk_resize_success(id);
                 break;
 
             default:
@@ -146,28 +144,28 @@ void TransferManager::_transfer(unique_ptr<transfer_msg_t> msg)
             case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
             case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
             case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
-                lcm_action = LCMAction::PROLOG_FAILURE;
+                lcm->trigger_prolog_failure(id);
                 break;
 
             case VirtualMachine::EPILOG:
             case VirtualMachine::EPILOG_STOP:
             case VirtualMachine::EPILOG_UNDEPLOY:
             case VirtualMachine::CLEANUP_RESUBMIT:
-                lcm_action = LCMAction::EPILOG_FAILURE;
+                lcm->trigger_epilog_failure(id);
                 break;
 
             case VirtualMachine::HOTPLUG_SAVEAS:
             case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
             case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
-                lcm_action = LCMAction::SAVEAS_FAILURE;
+                lcm->trigger_saveas_failure(id);
                 break;
 
             case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
-                lcm_action = LCMAction::ATTACH_FAILURE;
+                lcm->trigger_attach_failure(id);
                 break;
 
             case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
-                lcm_action = LCMAction::DETACH_FAILURE;
+                lcm->trigger_detach_failure(id);
                 break;
 
             case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
@@ -177,20 +175,18 @@ void TransferManager::_transfer(unique_ptr<transfer_msg_t> msg)
             case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
             case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
             case VirtualMachine::DISK_SNAPSHOT_DELETE:
-                lcm_action = LCMAction::DISK_SNAPSHOT_FAILURE;
+                lcm->trigger_disk_snapshot_failure(id);
                 break;
 
             case VirtualMachine::DISK_RESIZE_POWEROFF:
             case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
-                lcm_action = LCMAction::DISK_RESIZE_FAILURE;
+                lcm->trigger_disk_resize_failure(id);
                 break;
 
             default:
                 goto error_state;
         }
     }
-
-    lcm->trigger(lcm_action, id);
 
     vm->unlock();
 

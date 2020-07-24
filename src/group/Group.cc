@@ -17,6 +17,7 @@
 #include "Group.h"
 #include "Nebula.h"
 #include "AclManager.h"
+#include "AclRule.h"
 #include "OneDB.h"
 
 #include <sstream>

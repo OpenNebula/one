@@ -93,36 +93,12 @@ RequestManager::RequestManager(
     Request::set_call_log_format(call_log_format);
 
     xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID, message_size);
-
-    am.addListener(this);
-};
-
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-extern "C" void * rm_action_loop(void *arg)
-{
-    RequestManager *  rm;
-
-    if ( arg == 0 )
-    {
-        return 0;
-    }
-
-    NebulaLog::log("ReM",Log::INFO,"Request Manager started.");
-
-    rm = static_cast<RequestManager *>(arg);
-
-    rm->am.loop();
-
-    NebulaLog::log("ReM",Log::INFO,"Request Manager stopped.");
-
-    return 0;
 }
 
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
 /**
  *  Connection class is used to pass arguments to connection threads.
  */
@@ -320,7 +296,6 @@ int RequestManager::setup_socket()
 
 int RequestManager::start()
 {
-    pthread_attr_t  pattr;
     ostringstream   oss;
 
     NebulaLog::log("ReM",Log::INFO,"Starting Request Manager...");
@@ -334,13 +309,9 @@ int RequestManager::start()
 
     register_xml_methods();
 
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
-
-    pthread_create(&rm_thread,&pattr,rm_action_loop,(void *)this);
-
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
+    pthread_attr_t  pattr;
+    pthread_attr_init(&pattr);
+    pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
 
     oss << "Starting XML-RPC server, port " << port << " ...";
     NebulaLog::log("ReM",Log::INFO,oss);
@@ -1240,10 +1211,8 @@ void RequestManager::register_xml_methods()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RequestManager::finalize_action(const ActionRequest& ar)
+void RequestManager::finalize()
 {
-    NebulaLog::log("ReM",Log::INFO,"Stopping Request Manager...");
-
     pthread_cancel(rm_xml_server_thread);
 
     pthread_join(rm_xml_server_thread,0);

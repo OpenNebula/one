@@ -17,10 +17,8 @@
 #ifndef LIFE_CYCLE_MANAGER_H_
 #define LIFE_CYCLE_MANAGER_H_
 
-#include "ActionManager.h"
-#include "NebulaLog.h"
-
-extern "C" void * lcm_action_loop(void *arg);
+#include "Listener.h"
+#include "VMActions.h"
 
 //Forward definitions
 class TransferManager;
@@ -38,157 +36,20 @@ struct RequestAttributes;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-class LCMAction : public ActionRequest
-{
-public:
-
-    enum Actions
-    {
-        NONE,
-        SAVE_SUCCESS,     /**< Sent by the VMM when a save action succeeds    */
-        SAVE_FAILURE,     /**< Sent by the VMM when a save action fails       */
-        DEPLOY_SUCCESS,   /**< Sent by the VMM deploy/restore/migrate succeeds*/
-        DEPLOY_FAILURE,   /**< Sent by the VMM deploy/restore/migrate fails   */
-        SHUTDOWN_SUCCESS, /**< Sent by the VMM when a shutdown action succeeds*/
-        SHUTDOWN_FAILURE, /**< Sent by the VMM when a shutdown action fails   */
-        CANCEL_SUCCESS,   /**< Sent by the VMM when a cancel action succeeds  */
-        CANCEL_FAILURE,   /**< Sent by the VMM when a cancel action fails     */
-        MONITOR_SUSPEND,  /**< Sent by the VMM when a VM is paused in active  */
-        MONITOR_DONE,     /**< Sent by the VMM when a Host cannot be monitored*/
-        MONITOR_POWEROFF, /**< Sent by the VMM when a VM is not found         */
-        MONITOR_POWERON,  /**< Sent by the VMM when a VM is found again       */
-        PROLOG_SUCCESS,   /**< Sent by the TM when the prolog phase succeeds  */
-        PROLOG_FAILURE,   /**< Sent by the TM when the prolog phase fails     */
-        EPILOG_SUCCESS,   /**< Sent by the TM when the epilog phase succeeds  */
-        EPILOG_FAILURE,   /**< Sent by the TM when the epilog phase fails     */
-        ATTACH_SUCCESS,   /**< Sent by the VMM when an attach action succeeds */
-        ATTACH_FAILURE,   /**< Sent by the VMM when an attach action fails    */
-        DETACH_SUCCESS,   /**< Sent by the VMM when a detach action succeeds  */
-        DETACH_FAILURE,   /**< Sent by the VMM when a detach action fails     */
-        ATTACH_NIC_SUCCESS,/**< Sent by the VMM when attach nic action succeeds*/
-        ATTACH_NIC_FAILURE,/**< Sent by the VMM when attach nic action fails   */
-        DETACH_NIC_SUCCESS,/**< Sent by the VMM when detach nic action succeeds*/
-        DETACH_NIC_FAILURE,/**< Sent by the VMM when detach nic action fails   */
-        CLEANUP_SUCCESS,  /**< Sent by the VMM when a cleanup action succeeds */
-        CLEANUP_FAILURE,  /**< Sent by the VMM when a cleanup action fails    */
-        SAVEAS_SUCCESS,        /**< Sent by the VMM when saveas succeeds      */
-        SAVEAS_FAILURE,        /**< Sent by the VMM when saveas fails         */
-        SNAPSHOT_CREATE_SUCCESS, /**< Sent by the VMM on snap. create success */
-        SNAPSHOT_CREATE_FAILURE, /**< Sent by the VMM on snap. create failure */
-        SNAPSHOT_REVERT_SUCCESS, /**< Sent by the VMM on snap. revert success */
-        SNAPSHOT_REVERT_FAILURE, /**< Sent by the VMM on snap. revert failure */
-        SNAPSHOT_DELETE_SUCCESS, /**< Sent by the VMM on snap. revert success */
-        SNAPSHOT_DELETE_FAILURE, /**< Sent by the VMM on snap. revert failure */
-        DISK_SNAPSHOT_SUCCESS,   /**< Sent by TM when a snap. succeeds        */
-        DISK_SNAPSHOT_FAILURE,   /**< Sent by TM when a snap. fails           */
-        DEPLOY,           /**< Sent by the DM to deploy a VM on a host        */
-        SUSPEND,          /**< Sent by the DM to suspend an running VM        */
-        RESTORE,          /**< Sent by the DM to restore a suspended VM       */
-        STOP,             /**< Sent by the DM to stop an running VM           */
-        CANCEL,           /**< Sent by the DM to cancel an running VM         */
-        MIGRATE,          /**< Sent by the DM to migrate a VM to other host   */
-        LIVE_MIGRATE,     /**< Sent by the DM to live-migrate a VM            */
-        POFF_MIGRATE,     /**< Sent by the DM to migrate a VM in a poff cycle */
-        POFF_HARD_MIGRATE,/**< Sent by the DM to migrate a VM in a poff hard cycle */
-        SHUTDOWN,         /**< Sent by the DM to shutdown a running VM        */
-        UNDEPLOY,         /**< Sent by the DM to undeploy a running VM        */
-        UNDEPLOY_HARD,    /**< Sent by the DM to force undeploy a running VM  */
-        POWEROFF,         /**< Sent by the DM to power off a running VM       */
-        POWEROFF_HARD,    /**< Sent by the DM to power off hard a running VM  */
-        RESTART,          /**< Sent by the DM to restart a deployed VM        */
-        DELETE,           /**< Sent by the DM to delete a VM                  */
-        DELETE_RECREATE,  /**< Sent by the DM to cleanup a VM for resubmission*/
-        UPDATESG,           /**< Sent by RM/VMM to trigger the secgroup update*/
-        DISK_LOCK_SUCCESS,  /**< Sent by IM, image moves from locked to ready */
-        DISK_LOCK_FAILURE,  /**< Sent by IM, image moves from locked to error */
-        DISK_RESIZE_SUCCESS,/**< Sent by TM/VMM when a disk resize succeeds   */
-        DISK_RESIZE_FAILURE,/**< Sent by TM/VMM when a disk resize fails      */
-        UPDATE_CONF_SUCCESS,/**< Sent by TM/VMM when a update conf succeeds   */
-        UPDATE_CONF_FAILURE /**< Sent by TM/VMM when a update conf fails      */
-    };
-
-    LCMAction(Actions a, int v, int u, int g, int r):
-        ActionRequest(ActionRequest::USER), _action(a), _vm_id(v), _uid(u),
-        _gid(g), _req_id(r){}
-
-    LCMAction(const LCMAction& o):ActionRequest(o._type), _action(o._action),
-        _vm_id(o._vm_id), _uid(o._uid), _gid(o._gid), _req_id(o._req_id){}
-
-    Actions action() const
-    {
-        return _action;
-    }
-
-    int vm_id() const
-    {
-        return _vm_id;
-    }
-
-    int uid() const
-    {
-        return _uid;
-    }
-
-    int gid() const
-    {
-        return _gid;
-    }
-
-    int req_id() const
-    {
-        return _req_id;
-    }
-
-    ActionRequest * clone() const
-    {
-        return new LCMAction(*this);
-    }
-
-private:
-    Actions _action;
-
-    int _vm_id;
-
-    int _uid;
-    int _gid;
-
-    int _req_id;
-};
-
 /**
  *  The Virtual Machine Life-cycle Manager module. This class is responsible for
  *  managing the life-cycle of a Virtual Machine.
  */
-class LifeCycleManager : public ActionListener
+class LifeCycleManager : public Listener
 {
 public:
 
-    LifeCycleManager():
-        vmpool(0), hpool(0), ipool(0), sgpool(0), clpool(0), tm(0), vmm(0),
-        dm(0), imagem(0)
+    LifeCycleManager()
+        : Listener("Life Cycle Manager")
     {
-        am.addListener(this);
     };
 
     ~LifeCycleManager() = default;
-
-    /**
-     *  Triggers specific actions to the Life-cycle Manager. This function
-     *  wraps the ActionManager trigger function.
-     *    @param action the LCM action
-     *    @param vid VM unique id. This is the argument of the passed to the
-     *    invoked action.
-     *    @param r RM request attributes to copy to the action request: uid,
-     *    gid and request_id.
-     */
-    void trigger(LCMAction::Actions action, int id, const RequestAttributes& r);
-
-    void trigger(LCMAction::Actions action, int id);
-
-    void finalize()
-    {
-        am.finalize();
-    }
 
     /**
      *  This functions starts a new thread for the Life-cycle Manager. This
@@ -204,15 +65,6 @@ public:
     void init_managers();
 
     /**
-     *  Gets the thread identification.
-     *    @return pthread_t for the manager thread (that in the action loop).
-     */
-    pthread_t get_thread_id() const
-    {
-        return lcm_thread;
-    };
-
-    /**
      *  Recovers a VM by self-triggering the associated lost transition.
      *    @param vm to be recovered
      *    @param success trigger successful transition if true, fail otherwise
@@ -225,77 +77,157 @@ public:
      */
     void retry(VirtualMachine * vm);
 
-private:
-    /**
-     *  Thread id for the Virtual Machine Manager
-     */
-    pthread_t               lcm_thread;
+    // -------------------------------------------------------------------------
+    // Internal Actions, triggered by OpenNebula components & drivers
+    // -------------------------------------------------------------------------
+    void start_prolog_migrate(VirtualMachine* vm);
 
+    void revert_migrate_after_failure(VirtualMachine* vm);
+
+    void trigger_save_success(int vid);
+    void trigger_save_failure(int vid);
+
+    void trigger_deploy_success(int vid);
+    void trigger_deploy_failure(int vid);
+
+    void trigger_shutdown_success(int vid);
+    void trigger_shutdown_failure(int vid);
+
+    void trigger_monitor_suspend(int vid);
+    void trigger_monitor_done(int vid);
+    void trigger_monitor_poweroff(int vid);
+    void trigger_monitor_poweron(int vid);
+
+    void trigger_prolog_success(int vid);
+    void trigger_prolog_failure(int vid);
+
+    void trigger_epilog_success(int vid);
+    void trigger_epilog_failure(int vid);
+
+    void trigger_attach_success(int vid);
+    void trigger_attach_failure(int vid);
+
+    void trigger_detach_success(int vid);
+    void trigger_detach_failure(int vid);
+
+    void trigger_saveas_success(int vid);
+    void trigger_saveas_failure(int vid);
+
+    void trigger_attach_nic_success(int vid);
+    void trigger_attach_nic_failure(int vid);
+
+    void trigger_detach_nic_success(int vid);
+    void trigger_detach_nic_failure(int vid);
+
+    void trigger_cleanup_callback(int vid);
+
+    void trigger_snapshot_create_success(int vid);
+    void trigger_snapshot_create_failure(int vid);
+
+    void trigger_snapshot_revert_success(int vid);
+    void trigger_snapshot_revert_failure(int vid);
+
+    void trigger_snapshot_delete_success(int vid);
+    void trigger_snapshot_delete_failure(int vid);
+
+    void trigger_disk_snapshot_success(int vid);
+    void trigger_disk_snapshot_failure(int vid);
+
+    void trigger_disk_lock_success(int vid);
+    void trigger_disk_lock_failure(int vid);
+
+    void trigger_disk_resize_success(int vid);
+    void trigger_disk_resize_failure(int vid);
+
+    void trigger_update_conf_success(int vid);
+    void trigger_update_conf_failure(int vid);
+
+    // -------------------------------------------------------------------------
+    // External Actions, triggered by user requests
+    // -------------------------------------------------------------------------
+    void trigger_deploy(int vid);
+    void trigger_suspend(int vid, const RequestAttributes& ra);
+    void trigger_restore(int vid, const RequestAttributes& ra);
+    void trigger_stop(int vid, const RequestAttributes& ra);
+    void trigger_checkpoint(int vid);
+    void trigger_migrate(int vid, const RequestAttributes& ra,
+                         VMActions::Action vm_action);
+    void trigger_migrate(int vid, const RequestAttributes& ra)
+    {
+        trigger_migrate(vid, ra, VMActions::MIGRATE_ACTION);
+    }
+    void trigger_migrate_poweroff(int vid, const RequestAttributes& ra)
+    {
+        trigger_migrate(vid, ra, VMActions::POFF_MIGRATE_ACTION);
+    }
+    void trigger_migrate_poweroff_hard(int vid, const RequestAttributes& ra)
+    {
+        trigger_migrate(vid, ra, VMActions::POFF_HARD_MIGRATE_ACTION);
+    }
+    void trigger_live_migrate(int vid, const RequestAttributes& ra);
+    void trigger_shutdown(int vid, bool hard, const RequestAttributes& ra);
+    void trigger_undeploy(int vid, bool hard, const RequestAttributes& ra);
+    void trigger_undeploy(int vid, const RequestAttributes& ra)
+    {
+        trigger_undeploy(vid, false, ra);
+    }
+    void trigger_undeploy_hard(int vid, const RequestAttributes& ra)
+    {
+        trigger_undeploy(vid, true, ra);
+    }
+    void trigger_poweroff(int vid, const RequestAttributes& ra);
+    void trigger_poweroff_hard(int vid, const RequestAttributes& ra);
+    void trigger_poweroff(int vid, bool hard, const RequestAttributes& ra);
+    void trigger_updatesg(int vid);
+    void trigger_restart(int vid, const RequestAttributes& ra);
+    void trigger_delete(int vid, const RequestAttributes& ra);
+    void trigger_delete_recreate(int vid, const RequestAttributes& ra);
+
+private:
     /**
      *  Pointer to the Virtual Machine Pool, to access VMs
      */
-    VirtualMachinePool *    vmpool;
+    VirtualMachinePool *    vmpool = nullptr;
 
     /**
      *  Pointer to the Host Pool, to access hosts
      */
-    HostPool *              hpool;
+    HostPool *              hpool = nullptr;
 
     /**
      *  Pointer to the Image Pool, to access images
      */
-    ImagePool *             ipool;
+    ImagePool *             ipool = nullptr;
 
     /**
      *  Pointer to the SecurityGroup Pool
      */
-    SecurityGroupPool *     sgpool;
+    SecurityGroupPool *     sgpool = nullptr;
 
     /**
      *  Pointer to the Cluster Pool
      */
-    ClusterPool *           clpool;
+    ClusterPool *           clpool = nullptr;
 
     /**
      * Pointer to TransferManager
      */
-    TransferManager *       tm;
+    TransferManager *       tm = nullptr;
 
     /**
      * Pointer to VirtualMachineManager
      */
-    VirtualMachineManager * vmm;
+    VirtualMachineManager * vmm = nullptr;
 
     /**
      * Pointer to DispatchManager
      */
-    DispatchManager *       dm;
-
-    /**
-     *  Action engine for the Manager
-     */
-    ActionManager           am;
+    DispatchManager *       dm = nullptr;
 
     /**
      * Pointer to ImageManager
      */
-    ImageManager *          imagem;
-
-    /**
-     *  Function to execute the Manager action loop method within a new pthread
-     * (requires C linkage)
-     */
-    friend void * lcm_action_loop(void *arg);
-
-    // -------------------------------------------------------------------------
-    // Action Listener interface
-    // -------------------------------------------------------------------------
-    void finalize_action(const ActionRequest& ar)
-    {
-        NebulaLog::log("LCM",Log::INFO,"Stopping Life-cycle Manager...");
-    };
-
-    void user_action(const ActionRequest& ar);
+    ImageManager *          imagem = nullptr;
 
     /**
      *  Cleans up a VM, canceling any pending or ongoing action and closing
@@ -307,107 +239,7 @@ private:
      * image may need to be set to error state.
      */
     void clean_up_vm(VirtualMachine *vm, bool dispose, int& image_id,
-            const LCMAction& la);
-
-    // -------------------------------------------------------------------------
-    // Internal Actions, triggered by OpenNebula components & drivers
-    // -------------------------------------------------------------------------
-    void start_prolog_migrate(VirtualMachine* vm);
-
-    void revert_migrate_after_failure(VirtualMachine* vm);
-
-    void save_success_action(int vid);
-    void save_failure_action(int vid);
-
-    void deploy_success_action(int vid);
-    void deploy_failure_action(int vid);
-
-    void shutdown_success_action(int vid);
-    void shutdown_failure_action(int vid);
-
-    void monitor_suspend_action(int vid);
-    void monitor_done_action(int vid);
-    void monitor_poweroff_action(int vid);
-    void monitor_poweron_action(int vid);
-
-    void prolog_success_action(int vid);
-    void prolog_failure_action(int vid);
-
-    void epilog_success_action(int vid);
-    void epilog_failure_action(int vid);
-
-    void attach_success_action(int vid);
-    void attach_failure_action(int vid);
-
-    void detach_success_action(int vid);
-    void detach_failure_action(int vid);
-
-    void saveas_success_action(int vid);
-    void saveas_failure_action(int vid);
-
-    void attach_nic_success_action(int vid);
-    void attach_nic_failure_action(int vid);
-
-    void detach_nic_success_action(int vid);
-    void detach_nic_failure_action(int vid);
-
-    void cleanup_callback_action(int vid);
-
-    void snapshot_create_success(int vid);
-    void snapshot_create_failure(int vid);
-
-    void snapshot_revert_success(int vid);
-    void snapshot_revert_failure(int vid);
-
-    void snapshot_delete_success(int vid);
-    void snapshot_delete_failure(int vid);
-
-    void disk_snapshot_success(int vid);
-    void disk_snapshot_failure(int vid);
-
-    void disk_lock_success(int vid);
-    void disk_lock_failure(int vid);
-
-    void disk_resize_success(int vid);
-    void disk_resize_failure(int vid);
-
-    void update_conf_success(int vid);
-    void update_conf_failure(int vid);
-
-    // -------------------------------------------------------------------------
-    // External Actions, triggered by user requests
-    // -------------------------------------------------------------------------
-    void deploy_action(const LCMAction& la);
-
-    void suspend_action(const LCMAction& la);
-
-    void restore_action(const LCMAction& la);
-
-    void stop_action(const LCMAction& la);
-
-    void checkpoint_action(const LCMAction& la);
-
-    void migrate_action(const LCMAction& la);
-
-    void live_migrate_action(const LCMAction& la);
-
-    void shutdown_action(const LCMAction& la, bool hard);
-
-    void undeploy_action(const LCMAction& la, bool hard);
-
-    void poweroff_action(const LCMAction& la);
-
-    void poweroff_hard_action(const LCMAction& la);
-
-    void poweroff_action(int vid, bool hard, const LCMAction& la);
-
-    void updatesg_action(const LCMAction& la);
-
-    void restart_action(const LCMAction& la);
-
-    void delete_action(const LCMAction& la);
-
-    void delete_recreate_action(const LCMAction& la);
+            int uid, int gid, int req_id);
 };
 
 #endif /*LIFE_CYCLE_MANAGER_H_*/

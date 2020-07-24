@@ -262,7 +262,7 @@ int HookLog::retry(int hkid, int exeid, std::string& err_msg)
 
     string message = HookManager::format_message(args64, host, hkid);
 
-    hm->trigger(HMAction::RETRY, message);
+    hm->trigger_retry(message);
 
     return 0;
 }

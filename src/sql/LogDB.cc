@@ -16,7 +16,7 @@
 
 #include "LogDB.h"
 #include "Nebula.h"
-#include "NebulaUtil.h"
+#include "SSLUtil.h"
 #include "ZoneServer.h"
 #include "Callbackable.h"
 #include "RaftManager.h"

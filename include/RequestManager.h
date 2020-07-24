@@ -17,8 +17,6 @@
 #ifndef REQUEST_MANAGER_H_
 #define REQUEST_MANAGER_H_
 
-#include "ActionManager.h"
-
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/registry.hpp>
 #include <xmlrpc-c/server_abyss.hpp>
@@ -26,11 +24,9 @@
 #include <set>
 
 
-extern "C" void * rm_action_loop(void *arg);
-
 extern "C" void * rm_xml_server_loop(void *arg);
 
-class RequestManager : public ActionListener
+class RequestManager
 {
 public:
 
@@ -46,7 +42,7 @@ public:
             const std::string& _listen_address,
             int message_size);
 
-    ~RequestManager(){};
+    ~RequestManager() = default;
 
     /**
      *  This functions starts the associated listener thread (XML server), and
@@ -56,22 +52,7 @@ public:
      */
     int start();
 
-    /**
-     *  Gets the thread identification.
-     *    @return pthread_t for the manager thread (that in the action loop).
-     */
-    pthread_t get_thread_id() const
-    {
-        return rm_thread;
-    };
-
-    /**
-     *  Stops the main RM thread.
-     */
-    void finalize()
-    {
-        am.finalize();
-    };
+    void finalize();
 
     /**
      *  @return an AbyssServer to run xmlrpc connections
@@ -107,13 +88,6 @@ private:
     //--------------------------------------------------------------------------
 
     friend void * rm_xml_server_loop(void *arg);
-
-    friend void * rm_action_loop(void *arg);
-
-    /**
-     *  Thread id for the RequestManager
-     */
-    pthread_t rm_thread;
 
     /**
      *  Thread id for the XML Server
@@ -166,11 +140,6 @@ private:
     std::string listen_address;
 
     /**
-     *  Action engine for the Manager
-     */
-    ActionManager am;
-
-    /**
      *  To register XML-RPC methods
      */
     NebulaRegistry RequestManagerRegistry;
@@ -181,11 +150,6 @@ private:
     void register_xml_methods();
 
     int setup_socket();
-
-    // ------------------------------------------------------------------------
-    // ActioListener Interface
-    // ------------------------------------------------------------------------
-    void finalize_action(const ActionRequest& ar) override;
 };
 
 #endif

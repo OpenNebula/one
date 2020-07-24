@@ -55,17 +55,20 @@ static unsigned int get_zone_servers(std::map<int, std::string>& _s);
 RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
         const VectorAttribute * follower_hook_mad, time_t log_purge,
         long long bcast, long long elect, time_t xmlrpc,
-        const string& remotes_location):server_id(id), term(0), num_servers(0),
-        reconciling(false), commit(0), leader_hook(0), follower_hook(0)
+        const string& remotes_location)
+    : server_id(id)
+    , term(0)
+    , num_servers(0)
+    , reconciling(false)
+    , timer_thread(timer_period_ms / 1000.0, [this](){timer_action();})
+    , commit(0)
+    , leader_hook(0)
+    , follower_hook(0)
 {
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
 
     std::string raft_xml, cmd, arg;
-
-	pthread_mutex_init(&mutex, 0);
-
-	am.addListener(this);
 
     // -------------------------------------------------------------------------
     // Initialize Raft variables:
@@ -105,16 +108,16 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
 
     num_servers = get_zone_servers(servers);
 
-	if ( server_id == -1 )
-	{
+    if ( server_id == -1 )
+    {
         NebulaLog::log("ONE", Log::INFO, "oned started in solo mode.");
-		state = SOLO;
-	}
-	else
-	{
+        state = SOLO;
+    }
+    else
+    {
         NebulaLog::log("RCM", Log::INFO, "oned started in follower mode");
-		state = FOLLOWER;
-	}
+        state = FOLLOWER;
+    }
 
     // -------------------------------------------------------------------------
     // Initialize Raft timers
@@ -182,55 +185,13 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
     }
 };
 
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C" void * raft_manager_loop(void *arg)
+void RaftManager::finalize()
 {
-    RaftManager * raftm;
-    struct timespec timeout;
-
-    if ( arg == 0 )
-    {
-        return 0;
-    }
-
-    raftm = static_cast<RaftManager *>(arg);
-
-    timeout.tv_sec  = 0;
-    timeout.tv_nsec = raftm->timer_period_ms * 1000000;
-
-    NebulaLog::log("RCM",Log::INFO,"Raft Consensus Manager started.");
-
-    raftm->am.loop(timeout);
-
-    NebulaLog::log("RCM",Log::INFO,"Raft Consensus Manager stopped.");
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-
-int RaftManager::start()
-{
-    int               rc;
-    pthread_attr_t    pattr;
-
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
-
-    NebulaLog::log("RCM",Log::INFO,"Starting Raft Consensus Manager...");
-
-    rc = pthread_create(&raft_thread, &pattr, raft_manager_loop,(void *) this);
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-
-void RaftManager::finalize_action(const ActionRequest& ar)
-{
-    NebulaLog::log("RCM", Log::INFO, "Raft Consensus Manager...");
+    timer_thread.stop();
 
     if (is_leader())
     {
@@ -258,7 +219,7 @@ int RaftManager::get_leader_endpoint(std::string& endpoint)
 {
     int rc;
 
-    pthread_mutex_lock(&mutex);
+    std::lock_guard<mutex> lock(raft_mutex);
 
     if ( leader_id == -1 )
     {
@@ -281,8 +242,6 @@ int RaftManager::get_leader_endpoint(std::string& endpoint)
         }
     }
 
-    pthread_mutex_unlock(&mutex);
-
     return rc;
 }
 
@@ -293,18 +252,17 @@ void RaftManager::add_server(int follower_id, const std::string& endpoint)
 {
     std::ostringstream oss;
 
-	LogDB * logdb = Nebula::instance().get_logdb();
+    LogDB * logdb = Nebula::instance().get_logdb();
 
-	unsigned int log_term;
+    unsigned int log_term;
     uint64_t log_index;
 
     logdb->get_last_record_index(log_index, log_term);
 
-	pthread_mutex_lock(&mutex);
+    std::lock_guard<mutex> lock(raft_mutex);
 
     if ( state != LEADER )
     {
-        pthread_mutex_unlock(&mutex);
         return;
     }
 
@@ -312,21 +270,19 @@ void RaftManager::add_server(int follower_id, const std::string& endpoint)
 
     servers.insert(std::make_pair(follower_id, endpoint));
 
-	next.insert(std::make_pair(follower_id, log_index + 1));
+    next.insert(std::make_pair(follower_id, log_index + 1));
 
-	match.insert(std::make_pair(follower_id, 0));
+    match.insert(std::make_pair(follower_id, 0));
 
     oss << "Starting replication and heartbeat threads for follower: "
         << follower_id;
 
     NebulaLog::log("RCM", Log::INFO, oss);
 
-	replica_manager.add_replica_thread(follower_id);
+    replica_manager.add_replica_thread(follower_id);
 
-	heartbeat_manager.add_replica_thread(follower_id);
-
-	pthread_mutex_unlock(&mutex);
-};
+    heartbeat_manager.add_replica_thread(follower_id);
+}
 
 /* -------------------------------------------------------------------------- */
 
@@ -335,64 +291,35 @@ void RaftManager::delete_server(int follower_id)
     std::ostringstream oss;
     std::map<int, std::string> _servers;
 
-	pthread_mutex_lock(&mutex);
+    std::lock_guard<mutex> lock(raft_mutex);
 
     if ( state != LEADER )
     {
-        pthread_mutex_unlock(&mutex);
         return;
     }
 
     num_servers--;
     servers.erase(follower_id);
 
-	next.erase(follower_id);
+    next.erase(follower_id);
 
-	match.erase(follower_id);
+    match.erase(follower_id);
 
     oss << "Stopping replication and heartbeat threads for follower: "
         << follower_id;
 
     NebulaLog::log("RCM", Log::INFO, oss);
 
-	replica_manager.delete_replica_thread(follower_id);
+    replica_manager.delete_replica_thread(follower_id);
 
-	heartbeat_manager.delete_replica_thread(follower_id);
-
-	pthread_mutex_unlock(&mutex);
-};
+    heartbeat_manager.delete_replica_thread(follower_id);
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* State transitions & and callbacks                                          */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-extern "C" void * reconciling_thread(void *arg)
-{
-    Nebula& nd = Nebula::instance();
-
-    LogDB * logdb    = nd.get_logdb();
-    RaftManager * rm = nd.get_raftm();
-
-    uint64_t * index = static_cast<uint64_t *>(arg);
-
-    NebulaLog::log("RCM", Log::INFO, "Replicating log to followers");
-
-    logdb->replicate(*index);
-
-    NebulaLog::log("RCM", Log::INFO, "Leader log replicated");
-
-    pthread_mutex_lock(&(rm->mutex));
-
-    rm->reconciling = false;
-
-    pthread_mutex_unlock(&(rm->mutex));
-
-    free(index);
-
-    return 0;
-}
 
 void RaftManager::leader()
 {
@@ -414,67 +341,67 @@ void RaftManager::leader()
 
     logdb->setup_index(_applied, index);
 
-    pthread_mutex_lock(&mutex);
-
-    if ( state != CANDIDATE )
     {
-        pthread_mutex_unlock(&mutex);
-        return;
-    }
+        std::lock_guard<mutex> lock(raft_mutex);
 
-    oss << "Becoming leader of the zone. Last log record: " << index << " last "
-        << "applied record: " << _applied;
 
-    NebulaLog::log("RCM", Log::INFO, oss);
-
-    next.clear();
-    match.clear();
-
-    requests.clear();
-
-    if ( leader_hook != 0 )
-    {
-        leader_hook->execute();
-    }
-
-    state  = LEADER;
-
-    commit = _applied;
-
-    leader_id = server_id;
-
-    if ( _applied < index )
-    {
-        reconciling = true;
-        _next_index = index;
-    }
-    else
-    {
-        _next_index = index + 1;
-    }
-
-    for (it = servers.begin(); it != servers.end() ; ++it )
-    {
-        if ( it->first == server_id )
+        if ( state != CANDIDATE )
         {
-            continue;
+            return;
         }
 
-        next.insert(std::make_pair(it->first, _next_index));
+        oss << "Becoming leader of the zone. Last log record: " << index << " last "
+            << "applied record: " << _applied;
 
-        match.insert(std::make_pair(it->first, 0));
+        NebulaLog::log("RCM", Log::INFO, oss);
 
-        _follower_ids.push_back(it->first);
+        next.clear();
+        match.clear();
+
+        requests.clear();
+
+        if ( leader_hook != 0 )
+        {
+            leader_hook->execute();
+        }
+
+        state  = LEADER;
+
+        commit = _applied;
+
+        leader_id = server_id;
+
+        if ( _applied < index )
+        {
+            reconciling = true;
+            _next_index = index;
+        }
+        else
+        {
+            _next_index = index + 1;
+        }
+
+        for (it = servers.begin(); it != servers.end() ; ++it )
+        {
+            if ( it->first == server_id )
+            {
+                continue;
+            }
+
+            next.insert(std::make_pair(it->first, _next_index));
+
+            match.insert(std::make_pair(it->first, 0));
+
+            _follower_ids.push_back(it->first);
+        }
+
+        replica_manager.start_replica_threads(_follower_ids);
+        heartbeat_manager.start_replica_threads(_follower_ids);
+
+        heartbeat_manager.replicate();
+
+        clock_gettime(CLOCK_REALTIME, &last_heartbeat);
     }
-
-    replica_manager.start_replica_threads(_follower_ids);
-    heartbeat_manager.start_replica_threads(_follower_ids);
-
-    heartbeat_manager.replicate();
-
-    clock_gettime(CLOCK_REALTIME, &last_heartbeat);
-
-    pthread_mutex_unlock(&mutex);
 
     aclm->reload_rules();
 
@@ -488,19 +415,23 @@ void RaftManager::leader()
 
     if ( _applied < index )
     {
-        pthread_attr_t pattr;
-        pthread_t thid;
+        std::thread t([this, _next_index] {
+            Nebula& nd = Nebula::instance();
 
-        pthread_attr_init (&pattr);
-        pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_DETACHED);
+            LogDB * logdb    = nd.get_logdb();
 
-        uint64_t * _index = (uint64_t *) malloc(sizeof(uint64_t));
+            NebulaLog::log("RCM", Log::INFO, "Replicating log to followers");
 
-        *_index = _next_index;
+            logdb->replicate(_next_index);
 
-        pthread_create(&thid, &pattr, reconciling_thread, (void *) _index);
+            NebulaLog::log("RCM", Log::INFO, "Leader log replicated");
 
-        pthread_attr_destroy(&pattr);
+            std::lock_guard<mutex> lock(raft_mutex);
+
+            reconciling = false;
+        });
+
+        t.detach();
     }
 
     NebulaLog::log("RCM", Log::INFO, "oned is now the leader of the zone");
@@ -522,43 +453,43 @@ void RaftManager::follower(unsigned int _term)
 
     logdb->setup_index(lapplied, lindex);
 
-    pthread_mutex_lock(&mutex);
-
-    if ( state == LEADER && follower_hook != 0 )
     {
-        follower_hook->execute();
+        std::lock_guard<mutex> lock(raft_mutex);
+
+        if ( state == LEADER && follower_hook != 0 )
+        {
+            follower_hook->execute();
+        }
+
+        replica_manager.stop_replica_threads();
+        heartbeat_manager.stop_replica_threads();
+
+        state = FOLLOWER;
+
+        if ( _term > term )
+        {
+            term     = _term;
+            votedfor = -1;
+
+            raft_state.replace("VOTEDFOR", votedfor);
+            raft_state.replace("TERM", term);
+
+            raft_state.to_xml(raft_state_xml);
+        }
+
+        commit    = lapplied;
+        leader_id = -1;
+
+        auto im = nd.get_im();
+        im->raft_status(state);
+
+        NebulaLog::log("RCM", Log::INFO, "oned is set to follower mode");
+
+        next.clear();
+        match.clear();
+
+        requests.clear();
     }
-
-    replica_manager.stop_replica_threads();
-    heartbeat_manager.stop_replica_threads();
-
-    state = FOLLOWER;
-
-    if ( _term > term )
-    {
-        term     = _term;
-        votedfor = -1;
-
-        raft_state.replace("VOTEDFOR", votedfor);
-        raft_state.replace("TERM", term);
-
-        raft_state.to_xml(raft_state_xml);
-    }
-
-    commit    = lapplied;
-    leader_id = -1;
-
-    auto im = nd.get_im();
-    im->raft_status(state);
-
-    NebulaLog::log("RCM", Log::INFO, "oned is set to follower mode");
-
-    next.clear();
-    match.clear();
-
-    requests.clear();
-
-    pthread_mutex_unlock(&mutex);
 
     if ( nd.is_federation_master() )
     {
@@ -576,7 +507,7 @@ void RaftManager::follower(unsigned int _term)
 
 void RaftManager::replicate_log(ReplicaRequest * request)
 {
-    pthread_mutex_lock(&mutex);
+    std::lock_guard<mutex> lock(raft_mutex);
 
     if ( state != LEADER )
     {
@@ -584,7 +515,6 @@ void RaftManager::replicate_log(ReplicaRequest * request)
 
         requests.remove(request->index());
 
-        pthread_mutex_unlock(&mutex);
         return;
     }
 
@@ -622,8 +552,6 @@ void RaftManager::replicate_log(ReplicaRequest * request)
 
         requests.set(request->index(), request);
     }
-
-    pthread_mutex_unlock(&mutex);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -639,19 +567,18 @@ void RaftManager::replicate_success(int follower_id)
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
 
-	unsigned int db_lterm;
+    unsigned int db_lterm;
     uint64_t db_lindex;
 
     logdb->get_last_record_index(db_lindex, db_lterm);
 
-    pthread_mutex_lock(&mutex);
+    std::lock_guard<mutex> lock(raft_mutex);
 
     next_it  = next.find(follower_id);
     match_it = match.find(follower_id);
 
     if ( next_it == next.end() || match_it == match.end() )
     {
-        pthread_mutex_unlock(&mutex);
         return;
     }
 
@@ -670,8 +597,6 @@ void RaftManager::replicate_success(int follower_id)
     {
         replica_manager.replicate(follower_id);
     }
-
-    pthread_mutex_unlock(&mutex);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -681,7 +606,7 @@ void RaftManager::replicate_failure(int follower_id)
 {
     std::map<int, uint64_t>::iterator next_it;
 
-    pthread_mutex_lock(&mutex);
+    std::lock_guard<mutex> lock(raft_mutex);
 
     next_it = next.find(follower_id);
 
@@ -697,8 +622,6 @@ void RaftManager::replicate_failure(int follower_id)
     {
         replica_manager.replicate(follower_id);
     }
-
-    pthread_mutex_unlock(&mutex);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -709,13 +632,11 @@ void RaftManager::replicate_failure(int follower_id)
 
 void RaftManager::update_last_heartbeat(int _leader_id)
 {
-    pthread_mutex_lock(&mutex);
+    std::lock_guard<mutex> lock(raft_mutex);
 
     leader_id = _leader_id;
 
-	clock_gettime(CLOCK_REALTIME, &last_heartbeat);
-
-    pthread_mutex_unlock(&mutex);
+    clock_gettime(CLOCK_REALTIME, &last_heartbeat);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -723,9 +644,7 @@ void RaftManager::update_last_heartbeat(int _leader_id)
 
 uint64_t RaftManager::update_commit(uint64_t leader_commit, uint64_t index)
 {
-    uint64_t _commit;
-
-    pthread_mutex_lock(&mutex);
+    std::lock_guard<mutex> lock(raft_mutex);
 
     if ( leader_commit > commit )
     {
@@ -739,11 +658,7 @@ uint64_t RaftManager::update_commit(uint64_t leader_commit, uint64_t index)
         }
     }
 
-    _commit = commit;
-
-    pthread_mutex_unlock(&mutex);
-
-    return _commit;
+    return commit;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -756,22 +671,20 @@ int RaftManager::update_votedfor(int _votedfor)
 
     std::string raft_state_xml;
 
-    pthread_mutex_lock(&mutex);
-
-    if ( votedfor != -1 && votedfor != _votedfor )
     {
-        pthread_mutex_unlock(&mutex);
+        std::lock_guard<mutex> lock(raft_mutex);
 
-        return -1;
+        if ( votedfor != -1 && votedfor != _votedfor )
+        {
+            return -1;
+        }
+
+        votedfor = _votedfor;
+
+        raft_state.replace("VOTEDFOR", votedfor);
+
+        raft_state.to_xml(raft_state_xml);
     }
-
-    votedfor = _votedfor;
-
-    raft_state.replace("VOTEDFOR", votedfor);
-
-    raft_state.to_xml(raft_state_xml);
-
-    pthread_mutex_unlock(&mutex);
 
     logdb->update_raft_state(raft_state_name, raft_state_xml);
 
@@ -781,7 +694,7 @@ int RaftManager::update_votedfor(int _votedfor)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RaftManager::timer_action(const ActionRequest& ar)
+void RaftManager::timer_action()
 {
     static int mark_tics  = 0;
     static int purge_tics = 0;
@@ -824,7 +737,7 @@ void RaftManager::timer_action(const ActionRequest& ar)
 
     clock_gettime(CLOCK_REALTIME, &the_time);
 
-    pthread_mutex_lock(&mutex);
+    std::unique_lock<mutex> lock(raft_mutex);
 
     if ( state == LEADER ) // Send the heartbeat
     {
@@ -837,12 +750,6 @@ void RaftManager::timer_action(const ActionRequest& ar)
             heartbeat_manager.replicate();
 
             clock_gettime(CLOCK_REALTIME, &last_heartbeat);
-
-            pthread_mutex_unlock(&mutex);
-        }
-        else
-        {
-            pthread_mutex_unlock(&mutex);
         }
     }
     else if ( state == FOLLOWER )
@@ -858,18 +765,13 @@ void RaftManager::timer_action(const ActionRequest& ar)
 
             state = CANDIDATE;
 
-            pthread_mutex_unlock(&mutex);
+            lock.unlock();
 
             request_vote();
-        }
-        else
-        {
-            pthread_mutex_unlock(&mutex);
         }
     }
     else //SOLO or CANDIDATE, do nothing
     {
-        pthread_mutex_unlock(&mutex);
     }
 
     return;
@@ -916,34 +818,33 @@ void RaftManager::request_vote()
         /* ------------------------------------------------------------------ */
         /* Initialize election variables                                      */
         /* ------------------------------------------------------------------ */
-        pthread_mutex_lock(&mutex);
-
-        if ( state != CANDIDATE )
         {
-            pthread_mutex_unlock(&mutex);
-            break;
+            std::lock_guard<mutex> lock(raft_mutex);
+
+            if ( state != CANDIDATE )
+            {
+                break;
+            }
+
+            servers     = _servers;
+            num_servers = _num_servers;
+
+            term     = term + 1;
+            votedfor = server_id;
+
+            leader_id = -1;
+
+            raft_state.replace("TERM", term);
+            raft_state.replace("VOTEDFOR", votedfor);
+
+            raft_state.to_xml(raft_state_xml);
+
+            votes2go      = num_servers / 2;
+            granted_votes = 0;
+
+            _term      = term;
+            _server_id = server_id;
         }
-
-        servers     = _servers;
-        num_servers = _num_servers;
-
-        term     = term + 1;
-        votedfor = server_id;
-
-        leader_id = -1;
-
-        raft_state.replace("TERM", term);
-        raft_state.replace("VOTEDFOR", votedfor);
-
-        raft_state.to_xml(raft_state_xml);
-
-        votes2go      = num_servers / 2;
-        granted_votes = 0;
-
-        _term      = term;
-        _server_id = server_id;
-
-        pthread_mutex_unlock(&mutex);
 
         logdb->update_raft_state(raft_state_name, raft_state_xml);
 
@@ -1016,21 +917,20 @@ void RaftManager::request_vote()
         /* ------------------------------------------------------------------ */
         /* Timeout for a new election process (blocking timer thread)         */
         /* ------------------------------------------------------------------ */
-        pthread_mutex_lock(&mutex);
-
-        if ( state != CANDIDATE )
         {
-            pthread_mutex_unlock(&mutex);
-            break;
+            std::lock_guard<mutex> lock(raft_mutex);
+
+            if ( state != CANDIDATE )
+            {
+                break;
+            }
+
+            votedfor = -1;
+
+            raft_state.replace("VOTEDFOR", votedfor);
+
+            raft_state.to_xml(raft_state_xml);
         }
-
-        votedfor = -1;
-
-        raft_state.replace("VOTEDFOR", votedfor);
-
-        raft_state.to_xml(raft_state_xml);
-
-        pthread_mutex_unlock(&mutex);
 
         logdb->update_raft_state(raft_state_name, raft_state_xml);
 
@@ -1053,10 +953,10 @@ void RaftManager::request_vote()
 /* -------------------------------------------------------------------------- */
 
 int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
-		bool& success, unsigned int& fterm, std::string& error)
+        bool& success, unsigned int& fterm, std::string& error)
 {
-	int _server_id;
-	uint64_t _commit;
+    int _server_id;
+    uint64_t _commit;
     unsigned int _term;
     std::string xmlrpc_secret;
 
@@ -1066,27 +966,26 @@ int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
 
     std::map<int, std::string>::iterator it;
 
-	int xml_rc = 0;
+    int xml_rc = 0;
 
-	pthread_mutex_lock(&mutex);
-
-    it = servers.find(follower_id);
-
-    if ( it == servers.end() )
     {
-        error = "Cannot find follower end point";
-        pthread_mutex_unlock(&mutex);
+        std::lock_guard<mutex> lock(raft_mutex);
 
-        return -1;
+        it = servers.find(follower_id);
+
+        if ( it == servers.end() )
+        {
+            error = "Cannot find follower end point";
+
+            return -1;
+        }
+
+        follower_edp = it->second;
+
+        _commit    = commit;
+        _term      = term;
+        _server_id = server_id;
     }
-
-    follower_edp = it->second;
-
-	_commit    = commit;
-    _term      = term;
-	_server_id = server_id;
-
-	pthread_mutex_unlock(&mutex);
 
     // -------------------------------------------------------------------------
     // Get parameters to call append entries on follower
@@ -1153,7 +1052,7 @@ int RaftManager::xmlrpc_request_vote(int follower_id, uint64_t lindex,
         unsigned int lterm, bool& success, unsigned int& fterm,
         std::string& error)
 {
-	int _server_id;
+    int _server_id;
     unsigned int _term;
     std::string xmlrpc_secret;
 
@@ -1163,26 +1062,25 @@ int RaftManager::xmlrpc_request_vote(int follower_id, uint64_t lindex,
 
     std::map<int, std::string>::iterator it;
 
-	int xml_rc = 0;
+    int xml_rc = 0;
 
-	pthread_mutex_lock(&mutex);
-
-    it = servers.find(follower_id);
-
-    if ( it == servers.end() )
     {
-        error = "Cannot find follower end point";
-        pthread_mutex_unlock(&mutex);
+        std::lock_guard<mutex> lock(raft_mutex);
 
-        return -1;
+        it = servers.find(follower_id);
+
+        if ( it == servers.end() )
+        {
+            error = "Cannot find follower end point";
+
+            return -1;
+        }
+
+        follower_edp = it->second;
+
+        _term      = term;
+        _server_id = server_id;
     }
-
-    follower_edp = it->second;
-
-	_term      = term;
-	_server_id = server_id;
-
-	pthread_mutex_unlock(&mutex);
 
     // -------------------------------------------------------------------------
     // Get parameters to call append entries on follower
@@ -1251,7 +1149,7 @@ std::string& RaftManager::to_xml(std::string& raft_xml)
 
     logdb->get_last_record_index(lindex, lterm);
 
-	pthread_mutex_lock(&mutex);
+    std::lock_guard<mutex> lock(raft_mutex);
 
     oss << "<RAFT>"
         << "<SERVER_ID>" << server_id << "</SERVER_ID>"
@@ -1260,11 +1158,11 @@ std::string& RaftManager::to_xml(std::string& raft_xml)
         << "<VOTEDFOR>"  << votedfor << "</VOTEDFOR>"
         << "<COMMIT>"    << commit << "</COMMIT>";
 
-	if ( state == SOLO )
-	{
+    if ( state == SOLO )
+    {
         oss << "<LOG_INDEX>-1</LOG_INDEX>"
             << "<LOG_TERM>-1</LOG_TERM>";
-	}
+    }
     else
     {
         oss << "<LOG_INDEX>" << lindex << "</LOG_INDEX>"
@@ -1282,8 +1180,6 @@ std::string& RaftManager::to_xml(std::string& raft_xml)
 
     oss << "</RAFT>";
 
-	pthread_mutex_unlock(&mutex);
-
     raft_xml = oss.str();
 
     return raft_xml;
@@ -1296,14 +1192,14 @@ void RaftManager::reset_index(int follower_id)
 {
     std::map<int, uint64_t>::iterator next_it;
 
-	unsigned int log_term;
+    unsigned int log_term;
     uint64_t log_index;
 
-	LogDB * logdb = Nebula::instance().get_logdb();
+    LogDB * logdb = Nebula::instance().get_logdb();
 
     logdb->get_last_record_index(log_index, log_term);
 
-    pthread_mutex_lock(&mutex);
+    std::lock_guard<mutex> lock(raft_mutex);
 
     next_it = next.find(follower_id);
 
@@ -1311,8 +1207,6 @@ void RaftManager::reset_index(int follower_id)
     {
         next_it->second = log_index + 1;
     }
-
-    pthread_mutex_unlock(&mutex);
 }
 
 /* -------------------------------------------------------------------------- */

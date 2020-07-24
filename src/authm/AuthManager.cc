@@ -120,32 +120,8 @@ void AuthRequest::add_auth(Operation             op,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C" void * authm_action_loop(void *arg)
-{
-    AuthManager *  authm;
-
-    if ( arg == nullptr )
-    {
-        return 0;
-    }
-
-    authm = static_cast<AuthManager *>(arg);
-
-    NebulaLog::log("AuM",Log::INFO,"Authorization Manager started.");
-
-    authm->am.loop(authm->timer_period);
-
-    NebulaLog::log("AuM",Log::INFO,"Authorization Manager stopped.");
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-
 int AuthManager::start()
 {
-    pthread_attr_t    pattr;
-
     using namespace std::placeholders; // for _1
 
     register_action(AuthManagerMessages::UNDEFINED,
@@ -171,132 +147,108 @@ int AuthManager::start()
 
     NebulaLog::log("AuM",Log::INFO,"Starting Auth Manager...");
 
-    pthread_attr_init(&pattr);
-    pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
+    Listener::start();
 
-    int rc = pthread_create(&authm_thread,&pattr,authm_action_loop,(void *) this);
-
-    return rc;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AuthManager::user_action(const ActionRequest& ar)
+void AuthManager::trigger_authenticate(AuthRequest& ar)
 {
-    const AMAction& auth_ar = static_cast<const AMAction& >(ar);
-    AuthRequest * request   = auth_ar.request();
+    trigger([&] {
+        // ------------------------------------------------------------------------
+        // Get the driver
+        // ------------------------------------------------------------------------
 
-    if ( request == nullptr )
-    {
-        return;
-    }
+        auto authm_md = get();
 
-    switch (auth_ar.action())
-    {
-        case AMAction::AUTHENTICATE:
-            authenticate_action(request);
-        break;
+        if (authm_md == nullptr)
+        {
+            ar.result  = false;
+            ar.message = "Could not find Authorization driver";
+            ar.notify();
 
-        case AMAction::AUTHORIZE:
-            authorize_action(request);
-        break;
-    }
+            return;
+        }
+
+        // ------------------------------------------------------------------------
+        // Queue the request
+        // ------------------------------------------------------------------------
+
+        add_request(&ar);
+
+        // ------------------------------------------------------------------------
+        // Make the request to the driver
+        // ---- --------------------------------------------------------------------
+
+        ostringstream oss;
+
+        oss << ar.uid << " "
+            << ar.driver << " "
+            << ar.username << " "
+            << ar.password << " "
+            << ar.session << " " << endl;
+
+        auth_msg_t msg(AuthManagerMessages::AUTHENTICATE, "", ar.id, oss.str());
+
+        authm_md->write(msg);
+    });
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AuthManager::authenticate_action(AuthRequest * ar)
+void AuthManager::trigger_authorize(AuthRequest& ar)
 {
-    // ------------------------------------------------------------------------
-    // Get the driver
-    // ------------------------------------------------------------------------
+    trigger([&] {
+        // ------------------------------------------------------------------------
+        // Get the driver
+        // ------------------------------------------------------------------------
 
-    auto authm_md = get();
+        auto authm_md = get();
 
-    if (authm_md == nullptr)
-    {
-        ar->result  = false;
-        ar->message = "Could not find Authorization driver";
-        ar->notify();
+        if (authm_md == nullptr)
+        {
+            ar.message = "Could not find Authorization driver";
+            ar.result = false;
+            ar.notify();
 
-        return;
-    }
+            return;
+        }
 
-    // ------------------------------------------------------------------------
-    // Queue the request
-    // ------------------------------------------------------------------------
+        auto auths = ar.get_auths();
 
-    add_request(ar);
+        if (auths.empty())
+        {
+            ar.message = "Empty authorization string";
+            ar.result = false;
+            ar.notify();
 
-    // ------------------------------------------------------------------------
-    // Make the request to the driver
-    // ---- --------------------------------------------------------------------
+            return;
+        }
 
-    ostringstream oss;
+        // ------------------------------------------------------------------------
+        // Queue the request
+        // ------------------------------------------------------------------------
 
-    oss << ar->uid << " "
-        << ar->driver << " "
-        << ar->username << " "
-        << ar->password << " "
-        << ar->session << " " << endl;
+        add_request(&ar);
 
-    auth_msg_t msg(AuthManagerMessages::AUTHENTICATE, "", ar->id, oss.str());
+        // ------------------------------------------------------------------------
+        // Make the request to the driver
+        // ------------------------------------------------------------------------
 
-    authm_md->write(msg);
-}
+        ostringstream oss;
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+        oss << ar.uid << " "
+            << auths << " "
+            << ar.self_authorize << endl;
 
-void AuthManager::authorize_action(AuthRequest * ar)
-{
-    // ------------------------------------------------------------------------
-    // Get the driver
-    // ------------------------------------------------------------------------
+        auth_msg_t msg(AuthManagerMessages::AUTHORIZE, "", ar.id, oss.str());
 
-    auto authm_md = get();
-
-    if (authm_md == nullptr)
-    {
-        ar->message = "Could not find Authorization driver";
-        ar->result = false;
-        ar->notify();
-
-        return;
-    }
-
-    auto auths = ar->get_auths();
-
-    if (auths.empty())
-    {
-        ar->message = "Empty authorization string";
-        ar->result = false;
-        ar->notify();
-
-        return;
-    }
-
-    // ------------------------------------------------------------------------
-    // Queue the request
-    // ------------------------------------------------------------------------
-
-    add_request(ar);
-
-    // ------------------------------------------------------------------------
-    // Make the request to the driver
-    // ------------------------------------------------------------------------
-
-    ostringstream oss;
-
-    oss << ar->uid << " "
-        << auths << " "
-        << ar->self_authorize << endl;
-
-    auth_msg_t msg(AuthManagerMessages::AUTHORIZE, "", ar->id, oss.str());
-
-    authm_md->write(msg);
+        authm_md->write(msg);
+    });
 }
 
 /* ************************************************************************** */
@@ -357,4 +309,14 @@ int AuthManager::load_drivers(const std::vector<const VectorAttribute*>& _mads)
     NebulaLog::log("AuM", Log::INFO, "\tAuth Manager loaded");
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AuthManager::finalize_action()
+{
+    timer_thread.stop();
+
+    DriverManager::stop(drivers_timeout);
 }

@@ -17,6 +17,7 @@
 #include "HookStateVM.h"
 #include "VirtualMachine.h"
 #include "NebulaUtil.h"
+#include "SSLUtil.h"
 
 using namespace std;
 

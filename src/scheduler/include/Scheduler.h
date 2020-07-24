@@ -26,23 +26,30 @@
 #include "VirtualMachinePoolXML.h"
 #include "VirtualNetworkPoolXML.h"
 #include "SchedulerPolicy.h"
-#include "ActionManager.h"
+#include "Listener.h"
 #include "AclXML.h"
 #include "MonitorXML.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C" void * scheduler_action_loop(void *arg);
 class  SchedulerTemplate;
+
 /**
  *  The Scheduler class. It represents the scheduler ...
  */
-
-class Scheduler: public ActionListener
+class Scheduler
 {
 public:
     void start();
+
+    void finalize()
+    {
+        if (timer_thread.get())
+        {
+            timer_thread->stop();
+        }
+    }
 
     virtual void register_policies(const SchedulerTemplate& conf){};
 
@@ -66,18 +73,6 @@ public:
 protected:
 
     Scheduler():
-        acls(0),
-        upool(0),
-        hpool(0),
-        clpool(0),
-        dspool(0),
-        img_dspool(0),
-        vmpool(0),
-        vm_roles_pool(0),
-        vnetpool(0),
-        vmgpool(0),
-        vmapool(0),
-        hmonpool(0),
         timer(0),
         one_xmlrpc(""),
         machines_limit(0),
@@ -86,8 +81,7 @@ protected:
         mem_ds_scale(0),
         diff_vnets(false)
     {
-        am.addListener(this);
-    };
+    }
 
     virtual ~Scheduler()
     {
@@ -107,30 +101,30 @@ protected:
         delete vmgpool;
 
         delete acls;
-    };
+    }
 
     // ---------------------------------------------------------------
     // Pools
     // ---------------------------------------------------------------
-    AclXML *      acls;
-    UserPoolXML * upool;
+    AclXML *      acls = nullptr;
+    UserPoolXML * upool = nullptr;
 
-    HostPoolXML *    hpool;
-    ClusterPoolXML * clpool;
+    HostPoolXML *    hpool = nullptr;
+    ClusterPoolXML * clpool = nullptr;
 
-    SystemDatastorePoolXML * dspool;
-    ImageDatastorePoolXML *  img_dspool;
+    SystemDatastorePoolXML * dspool = nullptr;
+    ImageDatastorePoolXML *  img_dspool = nullptr;
 
-    VirtualMachinePoolXML *     vmpool;
-    VirtualMachineRolePoolXML * vm_roles_pool;
+    VirtualMachinePoolXML *     vmpool = nullptr;
+    VirtualMachineRolePoolXML * vm_roles_pool = nullptr;
 
-    VirtualNetworkPoolXML *     vnetpool;
+    VirtualNetworkPoolXML *     vnetpool = nullptr;
 
-    VMGroupPoolXML * vmgpool;
+    VMGroupPoolXML * vmgpool = nullptr;
 
-    VirtualMachineActionsPoolXML* vmapool;
+    VirtualMachineActionsPoolXML* vmapool = nullptr;
 
-    MonitorPoolXML * hmonpool;
+    MonitorPoolXML * hmonpool = nullptr;
 
     // ---------------------------------------------------------------
     // Scheduler Policies
@@ -183,11 +177,9 @@ protected:
     virtual void do_vm_groups();
 
 private:
-    Scheduler(Scheduler const&){};
+    Scheduler(Scheduler const&) = delete;
 
-    Scheduler& operator=(Scheduler const&){return *this;};
-
-    friend void * scheduler_action_loop(void *arg);
+    Scheduler& operator=(Scheduler const&) = delete;
 
     // ---------------------------------------------------------------
     // Scheduling Policies
@@ -239,24 +231,17 @@ private:
     /**
      * oned runtime configuration values
      */
-     Template oned_conf;
+    Template oned_conf;
 
     // ---------------------------------------------------------------
     // Timer to periodically schedule and dispatch VMs
     // ---------------------------------------------------------------
-
-    pthread_t       sched_thread;
-    ActionManager   am;
+    std::unique_ptr<Timer> timer_thread;
 
     // -------------------------------------------------------------------------
     // Action Listener interface
     // -------------------------------------------------------------------------
-    void timer_action(const ActionRequest& ar);
-
-    void finalize_action(const ActionRequest& ar)
-    {
-        NebulaLog::log("SCHED",Log::INFO,"Stopping the scheduler...");
-    };
+    void timer_action();
 };
 
 #endif /*SCHEDULER_H_*/
