@@ -747,7 +747,7 @@ define(function(require) {
     var min = parseInt(element.attr("min"),10);
     var max = parseInt(element.attr("max"),10);
     if (value == ""){
-      $(".mb_input_unit", context).val("MB").change();
+      $(".mb_input_unit", context).val("MB").trigger("change");
     }else{
       // If you are going to put a new unit you must put it up in the html, here and down in the change
       if(value / (base**2) >= 1){
@@ -767,7 +767,7 @@ define(function(require) {
       }
       $("input.visor", contextElement).val(valueInUnit);
       var contextUnit = contextElement.siblings(".input-group-button");
-      $(".mb_input_unit", contextUnit).val(unit).change();
+      $(".mb_input_unit", contextUnit).val(unit).trigger("change");
     }
 
     $("div.mb_input", context).on("change", "input.visor, select", function(e){
