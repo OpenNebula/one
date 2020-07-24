@@ -606,11 +606,19 @@ define(function(require) {
           CapacityInputs.setup(capacityContext);
           CapacityInputs.fill(capacityContext, template_json.VMTEMPLATE);
 
-          if (template_json.VMTEMPLATE.TEMPLATE.HYPERVISOR == "vcenter"){
-            $(".memory_input .mb_input input", context).attr("pattern", "^([048]|\\d*[13579][26]|\\d*[24680][048])$");
-          } else {
-            $(".memory_input .mb_input input", context).removeAttr("pattern");
-          }
+          var mb_input_unit = $(".memory_input .mb_input_unit", context);
+          mb_input_unit.off("change");
+          mb_input_unit.on("change", function() {
+            var isMB = $(this).val() === "MB";
+            var isVCenter = template_json.VMTEMPLATE.TEMPLATE.HYPERVISOR == "vcenter";
+
+            if (isMB && isVCenter) {
+              $(".memory_input .mb_input input", context).attr("pattern", "^([048]|\\d*[13579][26]|\\d*[24680][048])$");
+            } else {
+              $(".memory_input .mb_input input", context).removeAttr("pattern");
+            }
+          });
+          mb_input_unit.trigger("change");
 
           var cpuCost    = template_json.VMTEMPLATE.TEMPLATE.CPU_COST;
           var memoryCost = template_json.VMTEMPLATE.TEMPLATE.MEMORY_COST;
