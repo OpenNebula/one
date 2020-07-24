@@ -842,7 +842,7 @@ class ClusterSet
 
                     $logger.debug("\tResult(#{success})\n#{probe_result}\n")
 
-                    c[:monitordc].send("#{probe_name}_udp".to_sym,
+                    c[:monitordc].send("#{probe_name}_tcp".to_sym,
                                        success,
                                        probe_result)
 
