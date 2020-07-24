@@ -67,7 +67,7 @@ void SecurityGroupCommit::request_execute(xmlrpc_c::paramList const& paramList,
 
     sg->unlock();
 
-    lcm->trigger(LCMAction::UPDATESG, oid, att);
+    lcm->trigger_updatesg(oid);
 
     success_response(oid, att);
 

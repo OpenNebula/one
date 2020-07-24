@@ -17,6 +17,7 @@
 #include "PoolObjectSQL.h"
 #include "PoolObjectAuth.h"
 #include "NebulaUtil.h"
+#include "SSLUtil.h"
 #include "Nebula.h"
 #include "Clusterable.h"
 #include "ClusterableSingle.h"

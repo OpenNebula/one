@@ -24,33 +24,8 @@ const char * HookManager::hook_driver_name = "hook_exe";
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C" void * hm_action_loop(void *arg)
-{
-    HookManager *  hm;
-
-    if ( arg == nullptr )
-    {
-        return 0;
-    }
-
-    NebulaLog::log("HKM",Log::INFO,"Hook Manager started.");
-
-    hm = static_cast<HookManager *>(arg);
-
-    hm->am.loop();
-
-    NebulaLog::log("HKM",Log::INFO,"Hook Manager stopped.");
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int HookManager::start()
 {
-    pthread_attr_t    pattr;
-
     using namespace std::placeholders; // for _1
 
     register_action(HookManagerMessages::UNDEFINED,
@@ -74,12 +49,9 @@ int HookManager::start()
 
     NebulaLog::log("HKM",Log::INFO,"Starting Hook Manager...");
 
-    pthread_attr_init(&pattr);
-    pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
+    Listener::start();
 
-    int rc = pthread_create(&hm_thread,&pattr,hm_action_loop,(void *) this);
-
-    return rc;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -120,52 +92,37 @@ int HookManager::load_drivers(const std::vector<const VectorAttribute*>& _mads)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void HookManager::user_action(const ActionRequest& ar)
+void HookManager::trigger_send_event(const std::string& message)
 {
-    const HMAction& hm_ar      = static_cast<const HMAction& >(ar);
-    const std::string& message = hm_ar.message();
+    trigger([this, message] {
+        auto hmd = get();
 
-    switch (hm_ar.action())
-    {
-        case HMAction::SEND_EVENT:
-            send_event_action(message);
-            break;
-        case HMAction::RETRY:
-            retry_action(message);
-            break;
-    }
+        if ( hmd == nullptr )
+        {
+            return;
+        }
+
+        hook_msg_t msg(HookManagerMessages::EXECUTE, "", -1, message);
+        hmd->write(msg);
+    });
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void HookManager::send_event_action(const std::string& message)
+void HookManager::trigger_retry(const std::string& message)
 {
-    auto hmd = get();
+    trigger([this, message] {
+        auto hmd = get();
 
-    if ( hmd == nullptr )
-    {
-        return;
-    }
+        if ( hmd == nullptr )
+        {
+            return;
+        }
 
-    hook_msg_t msg(HookManagerMessages::EXECUTE, "", -1, message);
-    hmd->write(msg);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void HookManager::retry_action(const std::string& message)
-{
-    auto hmd = get();
-
-    if ( hmd == nullptr )
-    {
-        return;
-    }
-
-    hook_msg_t msg(HookManagerMessages::RETRY, "", -1, message);
-    hmd->write(msg);
+        hook_msg_t msg(HookManagerMessages::RETRY, "", -1, message);
+        hmd->write(msg);
+    });
 }
 
 /* -------------------------------------------------------------------------- */

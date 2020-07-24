@@ -26,6 +26,7 @@
 #include "Nebula.h"
 #include "ClusterPool.h"
 #include "HostPool.h"
+#include "VirtualMachinePool.h"
 #include "VirtualRouterPool.h"
 
 using namespace std;
@@ -75,7 +76,7 @@ int DispatchManager::deploy(VirtualMachine * vm, const RequestAttributes& ra)
             get_quota_template(vm, quota_tmpl, true);
         }
 
-        lcm->trigger(LCMAction::DEPLOY, vid, ra);
+        lcm->trigger_deploy(vid);
     }
     else
     {
@@ -208,17 +209,17 @@ int DispatchManager::migrate(VirtualMachine * vm, int poff_migrate,
     {
         switch (poff_migrate) {
             case 0:
-                lcm->trigger(LCMAction::MIGRATE, vid, ra);
+                lcm->trigger_migrate(vid, ra);
                 break;
             case 1:
-                lcm->trigger(LCMAction::POFF_MIGRATE, vid, ra);
+                lcm->trigger_migrate_poweroff(vid, ra);
                 break;
             case 2:
-                lcm->trigger(LCMAction::POFF_HARD_MIGRATE, vid, ra);
+                lcm->trigger_migrate_poweroff_hard(vid, ra);
                 break;
 
             default: /* Defaults to <5.8 behavior */
-                lcm->trigger(LCMAction::MIGRATE, vid, ra);
+                lcm->trigger_migrate(vid, ra);
                 break;
         }
     }
@@ -260,7 +261,7 @@ int DispatchManager::live_migrate(VirtualMachine * vm,
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
-        lcm->trigger(LCMAction::LIVE_MIGRATE, vid, ra);
+        lcm->trigger_live_migrate(vid, ra);
     }
     else
     {
@@ -406,7 +407,7 @@ int DispatchManager::terminate(int vid, bool hard, const RequestAttributes& ra,
         case VirtualMachine::POWEROFF:
         case VirtualMachine::STOPPED:
         case VirtualMachine::UNDEPLOYED:
-            lcm->trigger(LCMAction::SHUTDOWN, vid, ra);
+            lcm->trigger_shutdown(vid, false, ra);
             vm->unlock();
             break;
 
@@ -427,14 +428,7 @@ int DispatchManager::terminate(int vid, bool hard, const RequestAttributes& ra,
             {
                 case VirtualMachine::RUNNING:
                 case VirtualMachine::UNKNOWN:
-                    if (hard)
-                    {
-                        lcm->trigger(LCMAction::CANCEL, vid, ra);
-                    }
-                    else
-                    {
-                        lcm->trigger(LCMAction::SHUTDOWN, vid, ra);
-                    }
+                    lcm->trigger_shutdown(vid, hard, ra);
                     break;
 
                 case VirtualMachine::BOOT_FAILURE:
@@ -451,7 +445,7 @@ int DispatchManager::terminate(int vid, bool hard, const RequestAttributes& ra,
                 case VirtualMachine::PROLOG_RESUME_FAILURE:
                 case VirtualMachine::PROLOG_UNDEPLOY_FAILURE:
                 case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
-                    lcm->trigger(LCMAction::DELETE, vid, ra);
+                    lcm->trigger_delete(vid, ra);
                     break;
 
                 default:
@@ -497,11 +491,11 @@ int DispatchManager::undeploy(int vid, bool hard, const RequestAttributes& ra,
     {
         if (hard)
         {
-            lcm->trigger(LCMAction::UNDEPLOY_HARD, vid, ra);
+            lcm->trigger_undeploy_hard(vid, ra);
         }
         else
         {
-            lcm->trigger(LCMAction::UNDEPLOY, vid, ra);
+            lcm->trigger_undeploy(vid, ra);
         }
     }
     else
@@ -551,11 +545,11 @@ int DispatchManager::poweroff(int vid, bool hard, const RequestAttributes& ra,
     {
         if (hard)
         {
-            lcm->trigger(LCMAction::POWEROFF_HARD, vid, ra);
+            lcm->trigger_poweroff_hard(vid, ra);
         }
         else
         {
-            lcm->trigger(LCMAction::POWEROFF, vid, ra);
+            lcm->trigger_poweroff(vid, ra);
         }
     }
     else
@@ -720,7 +714,7 @@ int DispatchManager::stop(int vid, const RequestAttributes& ra,
         (vm->get_state()       == VirtualMachine::ACTIVE &&
          vm->get_lcm_state() == VirtualMachine::RUNNING ))
     {
-        lcm->trigger(LCMAction::STOP, vid, ra);
+        lcm->trigger_stop(vid, ra);
     }
     else
     {
@@ -766,7 +760,7 @@ int DispatchManager::suspend(int vid, const RequestAttributes& ra,
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
-        lcm->trigger(LCMAction::SUSPEND, vid, ra);
+        lcm->trigger_suspend(vid, ra);
     }
     else
     {
@@ -828,13 +822,13 @@ int DispatchManager::resume(int vid, const RequestAttributes& ra,
     }
     else if (vm->get_state() == VirtualMachine::SUSPENDED)
     {
-        lcm->trigger(LCMAction::RESTORE, vid, ra);
+        lcm->trigger_restore(vid, ra);
     }
     else if ( vm->get_state() == VirtualMachine::POWEROFF ||
              (vm->get_state() == VirtualMachine::ACTIVE &&
               vm->get_lcm_state() == VirtualMachine::UNKNOWN))
     {
-        lcm->trigger(LCMAction::RESTART, vid, ra);
+        lcm->trigger_restart(vid, ra);
     }
     else
     {
@@ -893,11 +887,11 @@ int DispatchManager::reboot(int vid, bool hard, const RequestAttributes& ra,
     {
         if (hard)
         {
-            vmm->trigger(VMMAction::RESET, vid);
+            vmm->trigger_reset(vid);
         }
         else
         {
-            vmm->trigger(VMMAction::REBOOT, vid);
+            vmm->trigger_reboot(vid);
         }
 
         vm->set_resched(false); //Rebooting cancels re-scheduling actions
@@ -1016,11 +1010,11 @@ int DispatchManager::recover(VirtualMachine * vm, bool success,
         case VirtualMachine::CLONING_FAILURE:
             if (success)
             {
-                lcm->trigger(LCMAction::DISK_LOCK_SUCCESS, vid, ra);
+                lcm->trigger_disk_lock_success(vid);
             }
             else
             {
-                lcm->trigger(LCMAction::DISK_LOCK_FAILURE, vid, ra);
+                lcm->trigger_disk_lock_failure(vid);
             }
             break;
 
@@ -1126,11 +1120,11 @@ int DispatchManager::delete_vm(VirtualMachine * vm, const RequestAttributes& ra,
 
             if (is_public_host)
             {
-                vmm->trigger(VMMAction::CLEANUP, vid);
+                vmm->trigger_cleanup(vid, false);
             }
             else
             {
-                tm->trigger(TMAction::EPILOG_DELETE, vid);
+                tm->trigger_epilog_delete(vm);
             }
 
             free_vm_resources(vm, true);
@@ -1140,11 +1134,11 @@ int DispatchManager::delete_vm(VirtualMachine * vm, const RequestAttributes& ra,
         case VirtualMachine::UNDEPLOYED:
             if (is_public_host)
             {
-                vmm->trigger(VMMAction::CLEANUP, vid);
+                vmm->trigger_cleanup(vid, false);
             }
             else
             {
-                tm->trigger(TMAction::EPILOG_DELETE, vid);
+                tm->trigger_epilog_delete(vm);
             }
 
             free_vm_resources(vm, true);
@@ -1159,7 +1153,7 @@ int DispatchManager::delete_vm(VirtualMachine * vm, const RequestAttributes& ra,
         break;
 
         case VirtualMachine::ACTIVE:
-            lcm->trigger(LCMAction::DELETE, vid, ra);
+            lcm->trigger_delete(vid, ra);
             vm->unlock();
         break;
 
@@ -1169,6 +1163,23 @@ int DispatchManager::delete_vm(VirtualMachine * vm, const RequestAttributes& ra,
     }
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::delete_vm(int vid, const RequestAttributes& ra,
+        std::string& error_str)
+{
+    VirtualMachine * vm = vmpool->get(vid);
+
+    if ( vm == nullptr )
+    {
+        error_str = "Virtual machine does not exist";
+        return -1;
+    }
+
+    return delete_vm(vm, ra, error_str);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1242,7 +1253,7 @@ int DispatchManager::delete_recreate(VirtualMachine * vm,
         break;
 
         case VirtualMachine::ACTIVE: //Cleanup VM resources before PENDING
-            lcm->trigger(LCMAction::DELETE_RECREATE, vm->get_oid(), ra);
+            lcm->trigger_delete_recreate(vm->get_oid(), ra);
         break;
 
         case VirtualMachine::DONE:
@@ -1411,11 +1422,11 @@ int DispatchManager::attach(int vid, VirtualMachineTemplate * tmpl,
 
     if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
     {
-        vmm->trigger(VMMAction::ATTACH, vid);
+        vmm->trigger_attach(vid);
     }
     else
     {
-        tm->trigger(TMAction::PROLOG_ATTACH, vid);
+        tm->trigger_prolog_attach(vm);
     }
 
     vmpool->update(vm);
@@ -1479,14 +1490,14 @@ int DispatchManager::detach(int vid, int disk_id, const RequestAttributes& ra,
     {
         vm->set_state(VirtualMachine::HOTPLUG);
 
-        vmm->trigger(VMMAction::DETACH, vid);
+        vmm->trigger_detach(vid);
     }
     else
     {
         vm->set_state(VirtualMachine::ACTIVE);
         vm->set_state(VirtualMachine::HOTPLUG_EPILOG_POWEROFF);
 
-        tm->trigger(TMAction::EPILOG_DETACH, vid);
+        tm->trigger_epilog_detach(vm);
     }
 
     vmpool->update(vm);
@@ -1540,7 +1551,7 @@ int DispatchManager::snapshot_create(int vid, string& name, int& snap_id,
 
     vm->unlock();
 
-    vmm->trigger(VMMAction::SNAPSHOT_CREATE, vid);
+    vmm->trigger_snapshot_create(vid);
 
     return 0;
 }
@@ -1603,7 +1614,7 @@ int DispatchManager::snapshot_revert(int vid, int snap_id,
 
     vm->unlock();
 
-    vmm->trigger(VMMAction::SNAPSHOT_REVERT, vid);
+    vmm->trigger_snapshot_revert(vid);
 
     return 0;
 }
@@ -1675,7 +1686,7 @@ int DispatchManager::snapshot_delete(int vid, int snap_id,
 
     vm->unlock();
 
-    vmm->trigger(VMMAction::SNAPSHOT_DELETE, vid);
+    vmm->trigger_snapshot_delete(vid);
 
     return 0;
 }
@@ -1781,7 +1792,7 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
 
     if (vm->get_state() == VirtualMachine::ACTIVE)
     {
-        vmm->trigger(VMMAction::ATTACH_NIC, vid);
+        vmm->trigger_attach_nic(vid);
     }
     else
     {
@@ -1890,7 +1901,7 @@ int DispatchManager::detach_nic(int vid, int nic_id, const RequestAttributes& ra
 
         vm->unlock();
 
-        vmm->trigger(VMMAction::DETACH_NIC, vid);
+        vmm->trigger_detach_nic(vid);
     }
     else
     {
@@ -1984,12 +1995,12 @@ int DispatchManager::disk_snapshot_create(int vid, int did, const string& name,
     {
         case VirtualMachine::POWEROFF:
         case VirtualMachine::SUSPENDED:
-            tm->trigger(TMAction::SNAPSHOT_CREATE, vid);
+            tm->trigger_snapshot_create(vid);
             break;
 
         case VirtualMachine::ACTIVE:
 
-            vmm->trigger(VMMAction::DISK_SNAPSHOT_CREATE, vid);
+            vmm->trigger_disk_snapshot_create(vid);
             break;
 
         default: break;
@@ -2080,7 +2091,7 @@ int DispatchManager::disk_snapshot_revert(int vid, int did, int snap_id,
 
     vm->unlock();
 
-    tm->trigger(TMAction::SNAPSHOT_REVERT, vid);
+    tm->trigger_snapshot_revert(vid);
 
     return 0;
 }
@@ -2171,7 +2182,7 @@ int DispatchManager::disk_snapshot_delete(int vid, int did, int snap_id,
 
     close_cp_history(vmpool, vm, VMActions::DISK_SNAPSHOT_DELETE_ACTION, ra);
 
-    tm->trigger(TMAction::SNAPSHOT_DELETE, vid);
+    tm->trigger_snapshot_delete(vid);
 
     vmpool->update(vm);
 
@@ -2254,11 +2265,11 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
     {
         case VirtualMachine::POWEROFF:
         case VirtualMachine::UNDEPLOYED:
-            tm->trigger(TMAction::RESIZE, vid);
+            tm->trigger_resize(vid);
             break;
 
         case VirtualMachine::ACTIVE:
-            vmm->trigger(VMMAction::DISK_RESIZE, vid);
+            vmm->trigger_disk_resize(vid);
             break;
 
         default: break;
@@ -2303,7 +2314,7 @@ int DispatchManager::live_updateconf(int vid, const RequestAttributes& ra, strin
     vm->set_resched(false);
 
     // Trigger UPDATE CONF action
-    vmm->trigger(VMMAction::UPDATE_CONF, vid);
+    vmm->trigger_update_conf(vid);
 
     vmpool->update(vm);
     vmpool->update_search(vm);

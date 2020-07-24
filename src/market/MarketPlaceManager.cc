@@ -28,37 +28,14 @@ const char * MarketPlaceManager::market_driver_name = "market_exe";
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C" void * marketplace_action_loop(void *arg)
-{
-    MarketPlaceManager * mpm;
-
-    if ( arg == nullptr )
-    {
-        return 0;
-    }
-
-    NebulaLog::log("MKP", Log::INFO, "Marketplace Manager started.");
-
-    mpm = static_cast<MarketPlaceManager *>(arg);
-
-    mpm->am.loop(mpm->timer_period);
-
-    NebulaLog::log("MKP", Log::INFO, "Marketplace Manager stopped.");
-
-    return 0;
-}
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 MarketPlaceManager::MarketPlaceManager(
             time_t _timer_period,
             time_t _monitor_period,
-            const string& _mad_location):
-        DriverManager(_mad_location),
-        timer_period(_timer_period),
-        monitor_period(_monitor_period),
-        imagem(0),
-        raftm(0)
+            const string& _mad_location)
+    : DriverManager(_mad_location)
+    , timer_thread(_timer_period, [this](){timer_action();})
+    , timer_period(_timer_period)
+    , monitor_period(_monitor_period)
 {
     Nebula& nd = Nebula::instance();
 
@@ -66,9 +43,7 @@ MarketPlaceManager::MarketPlaceManager(
     apppool = nd.get_apppool();
     dspool  = nd.get_dspool();
     ipool   = nd.get_ipool();
-
-    am.addListener(this);
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -122,10 +97,9 @@ void MarketPlaceManager::init_managers()
 
 int MarketPlaceManager::start()
 {
-    int            rc;
-    pthread_attr_t pattr;
-
     using namespace std::placeholders; // for _1
+
+    NebulaLog::log("MKP",Log::INFO,"Starting Marketplace Manager...");
 
     register_action(MarketPlaceManagerMessages::UNDEFINED,
             &MarketPlaceManager::_undefined);
@@ -143,21 +117,14 @@ int MarketPlaceManager::start()
             &MarketPlaceManager::_log);
 
     string error;
+
     if ( DriverManager::start(error) != 0 )
     {
         NebulaLog::error("MKP", error);
         return -1;
     }
 
-    NebulaLog::log("MKP",Log::INFO,"Starting Marketplace Manager...");
-
-    pthread_attr_init(&pattr);
-    pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
-
-    rc = pthread_create(&marketm_thread, &pattr, marketplace_action_loop,
-            (void *) this);
-
-    return rc;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -185,7 +152,7 @@ string MarketPlaceManager::format_message(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void MarketPlaceManager::timer_action(const ActionRequest& ar)
+void MarketPlaceManager::timer_action()
 {
     static int mark = 0;
     static int tics = monitor_period - 5; //first monitor in 5 secs

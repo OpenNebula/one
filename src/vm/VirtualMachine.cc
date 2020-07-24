@@ -1065,7 +1065,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     //-------------------------------------------------------------------------
     if ( state == VirtualMachine::CLONING )
     {
-        Nebula::instance().get_lcm()->trigger(LCMAction::DISK_LOCK_SUCCESS,oid);
+        Nebula::instance().get_lcm()->trigger_disk_lock_success(oid);
     }
 
     return 0;

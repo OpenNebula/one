@@ -131,7 +131,7 @@ void VirtualMachineManager::_deploy(unique_ptr<vm_msg_t> msg)
         return;
     }
 
-    LCMAction::Actions action = LCMAction::DEPLOY_SUCCESS;
+    void (LifeCycleManager::*action)(int) = &LifeCycleManager::trigger_deploy_success;
 
     if (msg->status() == "SUCCESS")
     {
@@ -149,7 +149,7 @@ void VirtualMachineManager::_deploy(unique_ptr<vm_msg_t> msg)
         }
         else
         {
-            action = LCMAction::DEPLOY_FAILURE;
+            action = &LifeCycleManager::trigger_deploy_failure;
             log_error(vm, msg->payload(), "Empty deploy ID for virtual machine");
         }
 
@@ -159,13 +159,13 @@ void VirtualMachineManager::_deploy(unique_ptr<vm_msg_t> msg)
     }
     else
     {
-        action = LCMAction::DEPLOY_FAILURE;
+        action = &LifeCycleManager::trigger_deploy_failure;
         log_error(id, msg->payload(), "Error deploying virtual machine");
     }
 
     LifeCycleManager * lcm = Nebula::instance().get_lcm();
 
-    lcm->trigger(action, msg->oid());
+    (lcm->*action)(msg->oid());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -184,13 +184,13 @@ void VirtualMachineManager::_shutdown(unique_ptr<vm_msg_t> msg)
 
     if (msg->status() == "SUCCESS")
     {
-        lcm->trigger(LCMAction::SHUTDOWN_SUCCESS, id);
+        lcm->trigger_shutdown_success(id);
     }
     else
     {
         log_error(id, msg->payload(), "Error shutting down VM");
 
-        lcm->trigger(LCMAction::SHUTDOWN_FAILURE, msg->oid());
+        lcm->trigger_shutdown_failure(msg->oid());
     }
 }
 
@@ -262,13 +262,13 @@ void VirtualMachineManager::_cancel(unique_ptr<vm_msg_t> msg)
 
     if (msg->status() == "SUCCESS")
     {
-        lcm->trigger(LCMAction::CANCEL_SUCCESS, id);
+        lcm->trigger_shutdown_success(id);
     }
     else
     {
         log_error(msg->oid(), msg->payload(), "Error canceling VM");
 
-        lcm->trigger(LCMAction::CANCEL_FAILURE, id);
+        lcm->trigger_shutdown_failure(id);
     }
 }
 
@@ -293,15 +293,13 @@ void VirtualMachineManager::_cleanup(unique_ptr<vm_msg_t> msg)
         vm->log("VMM", Log::INFO, "Host successfully cleaned.");
 
         vm->unlock();
-
-        lcm->trigger(LCMAction::CLEANUP_SUCCESS, id);
     }
     else
     {
         log_error(id, msg->payload(), "Error cleaning Host");
-
-        lcm->trigger(LCMAction::CLEANUP_FAILURE, id);
     }
+
+    lcm->trigger_cleanup_callback(id);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -327,13 +325,13 @@ void VirtualMachineManager::_save(unique_ptr<vm_msg_t> msg)
 
     if (msg->status() == "SUCCESS")
     {
-        lcm->trigger(LCMAction::SAVE_SUCCESS, id);
+        lcm->trigger_save_success(id);
     }
     else
     {
         log_error(id, msg->payload(), "Error saving VM state");
 
-        lcm->trigger(LCMAction::SAVE_FAILURE, id);
+        lcm->trigger_save_failure(id);
     }
 }
 
@@ -353,13 +351,13 @@ void VirtualMachineManager::_restore(unique_ptr<vm_msg_t> msg)
 
     if (msg->status() == "SUCCESS")
     {
-        lcm->trigger(LCMAction::DEPLOY_SUCCESS, id);
+        lcm->trigger_deploy_success(id);
     }
     else
     {
         log_error(id, msg->payload(), "Error restoring VM");
 
-        lcm->trigger(LCMAction::DEPLOY_FAILURE, id);
+        lcm->trigger_deploy_failure(id);
     }
 }
 
@@ -379,13 +377,13 @@ void VirtualMachineManager::_migrate(unique_ptr<vm_msg_t> msg)
 
     if (msg->status() == "SUCCESS")
     {
-        lcm->trigger(LCMAction::DEPLOY_SUCCESS, id);
+        lcm->trigger_deploy_success(id);
     }
     else
     {
         log_error(msg->oid(), msg->payload(), "Error live migrating VM");
 
-        lcm->trigger(LCMAction::DEPLOY_FAILURE, id);
+        lcm->trigger_deploy_failure(id);
     }
 }
 
@@ -411,13 +409,13 @@ void VirtualMachineManager::_attachdisk(unique_ptr<vm_msg_t> msg)
 
         vm->unlock();
 
-        lcm->trigger(LCMAction::ATTACH_SUCCESS, id);
+        lcm->trigger_attach_success(id);
     }
     else
     {
         log_error(id, msg->payload(), "Error attaching new VM Disk");
 
-        lcm->trigger(LCMAction::ATTACH_FAILURE, id);
+        lcm->trigger_attach_failure(id);
     }
 }
 
@@ -443,13 +441,13 @@ void VirtualMachineManager::_detachdisk(unique_ptr<vm_msg_t> msg)
 
         vm->unlock();
 
-        lcm->trigger(LCMAction::DETACH_SUCCESS, id);
+        lcm->trigger_detach_success(id);
     }
     else
     {
         log_error(id, msg->payload(), "Error detaching VM Disk");
 
-        lcm->trigger(LCMAction::DETACH_FAILURE, id);
+        lcm->trigger_detach_failure(id);
     }
 }
 
@@ -475,13 +473,13 @@ void VirtualMachineManager::_attachnic(unique_ptr<vm_msg_t> msg)
 
         vm->unlock();
 
-        lcm->trigger(LCMAction::ATTACH_NIC_SUCCESS, id);
+        lcm->trigger_attach_nic_success(id);
     }
     else
     {
         log_error(id, msg->payload(), "Error attaching new VM NIC");
 
-        lcm->trigger(LCMAction::ATTACH_NIC_FAILURE, id);
+        lcm->trigger_attach_nic_failure(id);
     }
 }
 
@@ -507,13 +505,13 @@ void VirtualMachineManager::_detachnic(unique_ptr<vm_msg_t> msg)
 
         vm->unlock();
 
-        lcm->trigger(LCMAction::DETACH_NIC_SUCCESS, id);
+        lcm->trigger_detach_nic_success(id);
     }
     else
     {
         log_error(id, msg->payload(), "Error detaching VM NIC");
 
-        lcm->trigger(LCMAction::DETACH_NIC_FAILURE, id);
+        lcm->trigger_detach_nic_failure(id);
     }
 }
 
@@ -548,13 +546,13 @@ void VirtualMachineManager::_snapshotcreate(unique_ptr<vm_msg_t> msg)
 
         vm->unlock();
 
-        lcm->trigger(LCMAction::SNAPSHOT_CREATE_SUCCESS, id);
+        lcm->trigger_snapshot_create_success(id);
     }
     else
     {
         log_error(msg->oid(), msg->payload(), "Error creating new VM Snapshot");
 
-        lcm->trigger(LCMAction::SNAPSHOT_CREATE_FAILURE, id);
+        lcm->trigger_snapshot_create_failure(id);
     }
 }
 
@@ -580,13 +578,13 @@ void VirtualMachineManager::_snapshotrevert(unique_ptr<vm_msg_t> msg)
 
         vm->unlock();
 
-        lcm->trigger(LCMAction::SNAPSHOT_REVERT_SUCCESS, id);
+        lcm->trigger_snapshot_revert_success(id);
     }
     else
     {
         log_error(id, msg->payload(), "Error reverting VM Snapshot");
 
-        lcm->trigger(LCMAction::SNAPSHOT_REVERT_FAILURE, id);
+        lcm->trigger_snapshot_revert_failure(id);
     }
 }
 
@@ -612,13 +610,13 @@ void VirtualMachineManager::_snapshotdelete(unique_ptr<vm_msg_t> msg)
 
         vm->unlock();
 
-        lcm->trigger(LCMAction::SNAPSHOT_DELETE_SUCCESS, id);
+        lcm->trigger_snapshot_delete_success(id);
     }
     else
     {
         log_error(id, msg->payload(), "Error deleting VM Snapshot");
 
-        lcm->trigger(LCMAction::SNAPSHOT_DELETE_FAILURE, id);
+        lcm->trigger_snapshot_delete_failure(id);
     }
 }
 
@@ -644,13 +642,13 @@ void VirtualMachineManager::_disksnapshotcreate(unique_ptr<vm_msg_t> msg)
 
         vm->unlock();
 
-        lcm->trigger(LCMAction::DISK_SNAPSHOT_SUCCESS, id);
+        lcm->trigger_disk_snapshot_success(id);
     }
     else
     {
         log_error(id, msg->payload(), "Error creating new disk snapshot");
 
-        lcm->trigger(LCMAction::DISK_SNAPSHOT_FAILURE, id);
+        lcm->trigger_disk_snapshot_failure(id);
     }
 }
 
@@ -676,13 +674,13 @@ void VirtualMachineManager::_disksnapshotrevert(unique_ptr<vm_msg_t> msg)
 
         vm->unlock();
 
-        lcm->trigger(LCMAction::DISK_SNAPSHOT_SUCCESS, id);
+        lcm->trigger_disk_snapshot_success(id);
     }
     else
     {
         log_error(id, msg->payload(), "Error reverting disk snapshot");
 
-        lcm->trigger(LCMAction::DISK_SNAPSHOT_FAILURE, id);
+        lcm->trigger_disk_snapshot_failure(id);
     }
 }
 
@@ -708,13 +706,13 @@ void VirtualMachineManager::_resizedisk(unique_ptr<vm_msg_t> msg)
 
         vm->unlock();
 
-        lcm->trigger(LCMAction::DISK_RESIZE_SUCCESS, id);
+        lcm->trigger_disk_resize_success(id);
     }
     else
     {
         log_error(id, msg->payload(), "Error resizing disk");
 
-        lcm->trigger(LCMAction::DISK_RESIZE_FAILURE, id);
+        lcm->trigger_disk_resize_failure(id);
     }
 }
 
@@ -740,13 +738,13 @@ void VirtualMachineManager::_updateconf(unique_ptr<vm_msg_t> msg)
 
         vm->unlock();
 
-        lcm->trigger(LCMAction::UPDATE_CONF_SUCCESS, id);
+        lcm->trigger_update_conf_success(id);
     }
     else
     {
         log_error(id, msg->payload(), "Error updating conf for VM");
 
-        lcm->trigger(LCMAction::UPDATE_CONF_FAILURE, id);
+        lcm->trigger_update_conf_failure(id);
     }
 }
 
@@ -816,7 +814,7 @@ void VirtualMachineManager::_updatesg(unique_ptr<vm_msg_t> msg)
         vm->unlock();
     }
 
-    lcm->trigger(LCMAction::UPDATESG, sgid);
+    lcm->trigger_updatesg(sgid);
     return;
 }
 

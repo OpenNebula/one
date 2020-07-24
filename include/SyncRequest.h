@@ -19,26 +19,26 @@
 
 #include <time.h>
 
-#include "ActionManager.h"
+#include "Listener.h"
 
 /**
  *  Base class to implement synchronous operation in the MadManagers. This class
  *  cannot be directly instantiated.
  */
-class SyncRequest: public ActionListener
+class SyncRequest: public Listener
 {
 public:
     SyncRequest():
+        Listener(""),
         result(false),
         message(""),
         timeout(false),
         id(-1),
         time_out(0)
     {
-        am.addListener(this);
-    };
+    }
 
-    virtual ~SyncRequest(){};
+    virtual ~SyncRequest() = default;
 
     /**
      *  The result of the request, true if the operation succeeded
@@ -65,8 +65,8 @@ public:
      */
     void notify()
     {
-        am.finalize();
-    };
+        finalize();
+    }
 
     /**
      *  Wait for the AuthRequest to be completed
@@ -75,40 +75,13 @@ public:
     {
         time_out = time(0) + 90;//Requests will expire in 1.5 minutes
 
-        am.loop();
-    };
-
-    /**
-     *  Wait for the AuthRequest to be completed
-     */
-    void wait(time_t t)
-    {
-        am.loop(t);
-    };
+        loop();
+    }
 
     /**
      *  Time in seconds when this request will expire
      */
     time_t  time_out;
-
-protected:
-
-    /**
-     *  The ActionManager that will be notify when the request is ready.
-     */
-    ActionManager am;
-
-    /**
-     *  Timer action to finalize time-out waits
-     */
-    void timer_action(const ActionRequest& ar)
-    {
-        result  = false;
-        timeout = true;
-        message = "Operation time out";
-
-        am.finalize();
-    };
 };
 
 #endif /*SYNC_REQUEST_H_*/

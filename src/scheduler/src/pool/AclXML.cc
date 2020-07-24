@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "AclXML.h"
+#include "AclRule.h"
 #include "ObjectXML.h"
 #include <vector>
 

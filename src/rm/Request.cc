@@ -451,7 +451,7 @@ void Request::execute(
 
     if (!event.empty())
     {
-        hm->trigger(HMAction::SEND_EVENT, event);
+        hm->trigger_send_event(event);
     }
 
     if ( log_method_call )

@@ -31,6 +31,8 @@ int InformationManager::start()
 
     using namespace std::placeholders; // for _1
 
+    NebulaLog::info("InM", "Starting Information Manager...");
+
     register_action(InformationManagerMessages::UNDEFINED,
             &InformationManager::_undefined);
 
@@ -50,16 +52,6 @@ int InformationManager::start()
         NebulaLog::error("InM", "Error starting Information Manager: " + error);
         return -1;
     }
-
-    NebulaLog::info("InM", "Starting Information Manager...");
-
-    im_thread = std::thread([&] {
-        NebulaLog::info("InM", "Information Manager started.");
-
-        am.loop();
-
-        NebulaLog::info("InM", "Information Manager stopped.");
-    });
 
     auto rftm = Nebula::instance().get_raftm();
     raft_status(rftm->get_state());
@@ -265,7 +257,7 @@ void InformationManager::_host_state(unique_ptr<im_msg_t> msg)
 
             for (const auto& vmid : host->get_vm_ids())
             {
-                lcm->trigger(LCMAction::MONITOR_DONE, vmid);
+                lcm->trigger_monitor_done(vmid);
             }
         }
         else
@@ -334,10 +326,12 @@ void InformationManager::_host_system(unique_ptr<im_msg_t> msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static LCMAction::Actions test_and_trigger(const string& state_str,
-        VirtualMachine::VmState state, VirtualMachine::LcmState lcm_state,
-        string& vm_message)
+static void test_and_trigger(const string& state_str, VirtualMachine * vm)
 {
+    auto state = vm->get_state();
+    auto lcm_state = vm->get_lcm_state();
+    auto lcm = Nebula::instance().get_lcm();
+
     if (state_str == "RUNNING")
     {
         if (state == VirtualMachine::POWEROFF ||
@@ -356,7 +350,8 @@ static LCMAction::Actions test_and_trigger(const string& state_str,
               lcm_state == VirtualMachine::BOOT_UNDEPLOY_FAILURE ||
               lcm_state == VirtualMachine::BOOT_FAILURE)))
         {
-            return LCMAction::MONITOR_POWERON;
+            lcm->trigger_monitor_poweron(vm->get_oid());
+            return;
         }
     }
     else if (state_str == "FAILURE")
@@ -365,9 +360,12 @@ static LCMAction::Actions test_and_trigger(const string& state_str,
             (lcm_state == VirtualMachine::RUNNING ||
              lcm_state == VirtualMachine::UNKNOWN))
         {
-            vm_message = "VM running but monitor state is ERROR.";
+            lcm->trigger_monitor_done(vm->get_oid());
 
-            return LCMAction::MONITOR_DONE;
+            vm->log("VMM", Log::INFO,
+                    "VM running but monitor state is ERROR.");
+
+            return;
         }
     }
     else if (state_str == "SUSPENDED")
@@ -376,9 +374,12 @@ static LCMAction::Actions test_and_trigger(const string& state_str,
             (lcm_state == VirtualMachine::RUNNING ||
              lcm_state == VirtualMachine::UNKNOWN))
         {
-            vm_message = "VM running but monitor state is PAUSED.";
+            lcm->trigger_monitor_suspend(vm->get_oid());
 
-            return LCMAction::MONITOR_SUSPEND;
+            vm->log("VMM", Log::INFO,
+                    "VM running but monitor state is PAUSED.");
+
+            return;
         }
     }
     else if (state_str == "POWEROFF")
@@ -390,11 +391,10 @@ static LCMAction::Actions test_and_trigger(const string& state_str,
              lcm_state == VirtualMachine::SHUTDOWN_POWEROFF ||
              lcm_state == VirtualMachine::SHUTDOWN_UNDEPLOY))
         {
-            return LCMAction::MONITOR_POWEROFF;
+            lcm->trigger_monitor_poweroff(vm->get_oid());
+            return;
         }
     }
-
-    return LCMAction::NONE;
 }
 
 
@@ -424,7 +424,6 @@ void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
 
     string deploy_id;
     string state_str;
-    string vm_msg;
 
     vector<VectorAttribute*> vms;
     tmpl.get("VM", vms);
@@ -483,18 +482,7 @@ void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
         /* ------------------------------------------------------------------ */
         /* Apply state changes                                                */
         /* ------------------------------------------------------------------ */
-        LCMAction::Actions action = test_and_trigger(state_str, vm->get_state(),
-                vm->get_lcm_state(), vm_msg);
-
-        if ( action != LCMAction::NONE )
-        {
-            lcm->trigger(action, vm->get_oid());
-
-            if ( !vm_msg.empty() )
-            {
-                vm->log("VMM", Log::INFO, vm_msg);
-            }
-        }
+        test_and_trigger(state_str, vm);
 
         vm->unlock();
     }
@@ -562,26 +550,18 @@ void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
             continue;
         }
 
-        LCMAction::Actions action;
-
-        if ( missing_state == "POWEROFF" )
-        {
-            action = LCMAction::MONITOR_POWEROFF;
-        }
-        else if ( missing_state == "UNKNOWN" )
-        {
-            action = LCMAction::MONITOR_DONE;
-        }
-        else
-        {
-            action = LCMAction::MONITOR_POWEROFF;
-        }
-
         NebulaLog::debug("InM", "VM_STATE update from host: " +
             to_string(msg->oid()) + ". VM id: " + to_string(vm->get_oid()) +
             ", state: " + missing_state);
 
-        lcm->trigger(action, vm->get_oid());
+        if (missing_state == "UNKNOWN")
+        {
+            lcm->trigger_monitor_done(vm->get_oid());
+        }
+        else
+        {
+            lcm->trigger_monitor_poweroff(vm->get_oid());
+        }
 
         vm->unlock();
     }

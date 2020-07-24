@@ -20,16 +20,15 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <mutex>
 
 #include "ReplicaManager.h"
-#include "ActionManager.h"
-
-extern "C" void * frm_loop(void *arg);
 
 class LogDB;
 class LogDBRecord;
 
-class FedReplicaManager : public ReplicaManager, ActionListener
+
+class FedReplicaManager : public ReplicaManager
 {
 public:
 
@@ -84,19 +83,6 @@ public:
             std::string& err);
 
     /**
-     *  Finalizes the Federation Replica Manager
-     */
-    void finalize()
-    {
-        am.finalize();
-    }
-
-    /**
-     *  Starts the Federation Replica Manager
-     */
-    int start();
-
-    /**
      *  Start the replication threads, and updates the server list of the zone
      */
     void start_replica_threads()
@@ -130,31 +116,16 @@ public:
      */
     void delete_zone(int zone_id);
 
-    /**
-     *  @return the id of fed. replica thread
-     */
-    pthread_t get_thread_id() const
-    {
-        return frm_thread;
-    };
-
 private:
-    friend void * frm_loop(void *arg);
-
     /**
      *  Creates federation replica thread objects
      */
     ReplicaThread * thread_factory(int follower_id);
 
     /**
-     *  Thread id of the main event loop
-     */
-    pthread_t frm_thread;
-
-    /**
      *  Controls access to the zone list and server data
      */
-    pthread_mutex_t mutex;
+    std::mutex fed_mutex;
 
     // -------------------------------------------------------------------------
     // Synchronization variables
@@ -184,16 +155,6 @@ private:
     std::map<int, ZoneServers *> zones;
 
     LogDB * logdb;
-
-    // -------------------------------------------------------------------------
-    // Action Listener interface
-    // -------------------------------------------------------------------------
-    ActionManager am;
-
-    /**
-     *  Termination function
-     */
-    void finalize_action(const ActionRequest& ar);
 
     /**
      *  Get the nerxt record to replicate in a zone

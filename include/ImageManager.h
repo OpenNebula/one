@@ -19,10 +19,7 @@
 
 #include "DriverManager.h"
 #include "ProtocolMessages.h"
-#include "ActionManager.h"
-#include "NebulaLog.h"
-
-extern "C" void * image_action_loop(void *arg);
+#include "Listener.h"
 
 class DatastorePool;
 class Image;
@@ -31,9 +28,7 @@ class Snapshots;
 class Template;
 
 
-class ImageManager :
-    public DriverManager<Driver<image_msg_t>>,
-    public ActionListener
+class ImageManager : public DriverManager<Driver<image_msg_t>>
 {
 public:
 
@@ -44,16 +39,16 @@ public:
                  const std::string&        _mads_location,
                  int                       _monitor_vm_disk):
             DriverManager(_mads_location),
-            timer_period(_timer_period),
+            timer_thread(_timer_period, [this](){timer_action();}),
+            timer_period(_monitor_period),
             monitor_period(_monitor_period),
             monitor_vm_disk(_monitor_vm_disk),
             ipool(_ipool),
             dspool(_dspool)
     {
-        am.addListener(this);
-    };
+    }
 
-    ~ImageManager(){};
+    ~ImageManager() = default;
 
     /**
      *  This functions starts the associated listener thread, and creates a
@@ -63,28 +58,18 @@ public:
      */
     int start();
 
+    void finalize()
+    {
+        timer_thread.stop();
+
+        stop(drivers_timeout);
+    };
+
     /**
      *  Loads the Image Driver defined in configuration file
      *   @param _mads configuration of drivers
      */
     int load_drivers(const std::vector<const VectorAttribute*>& _mads);
-
-    /**
-     *  Gets the thread identification.
-     *    @return pthread_t for the manager thread (that in the action loop).
-     */
-    pthread_t get_thread_id() const
-    {
-        return imagem_thread;
-    };
-
-    /**
-     *  Finalizes the Image Manager
-     */
-    void finalize()
-    {
-        am.finalize();
-    };
 
     /**************************************************************************/
     /*                           Image Manager Actions                        */
@@ -315,9 +300,9 @@ private:
     static const char *  image_driver_name;
 
     /**
-     *  Thread id for the Image Manager
+     *  Timer action async execution
      */
-    pthread_t             imagem_thread;
+    Timer                 timer_thread;
 
     /**
      *  Timer period for the Image Manager.
@@ -346,9 +331,9 @@ private:
     DatastorePool *       dspool;
 
     /**
-     *  Action engine for the Manager
+     *
      */
-    ActionManager         am;
+    static const int drivers_timeout = 10;
 
     /**
      *  Returns a pointer to the Image Manager Driver used for the Repository
@@ -358,12 +343,6 @@ private:
     {
         return DriverManager::get_driver(image_driver_name);
     };
-
-    /**
-     *  Function to execute the Manager action loop method within a new pthread
-     * (requires C linkage)
-     */
-    friend void * image_action_loop(void *arg);
 
     /**
      *  The action function executed when an action is triggered.
@@ -457,21 +436,12 @@ private:
      */
     static void _log(std::unique_ptr<image_msg_t> msg);
 
-    // -------------------------------------------------------------------------
-    // Action Listener interface
-    // -------------------------------------------------------------------------
     /**
      *  This function is executed periodically to monitor Datastores.
      */
-    void timer_action(const ActionRequest& ar);
+    void timer_action();
 
-    static const int drivers_timeout = 10;
 
-    void finalize_action(const ActionRequest& ar)
-    {
-        NebulaLog::log("ImM",Log::INFO,"Stopping Image Manager...");
-        stop(drivers_timeout);
-    };
 };
 
 #endif /*IMAGE_MANAGER_H*/

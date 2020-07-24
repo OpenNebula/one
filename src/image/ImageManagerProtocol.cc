@@ -314,7 +314,7 @@ void ImageManager::_mkfs(unique_ptr<image_msg_t> msg)
         goto error_save_state;
     }
 
-    tm->trigger(TMAction::SAVEAS_HOT, vm_id);
+    tm->trigger_saveas_hot(vm_id);
 
     vmpool->update(vm);
 

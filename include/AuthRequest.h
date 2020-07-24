@@ -19,12 +19,12 @@
 
 #include <set>
 
-#include "ActionManager.h"
 #include "PoolObjectAuth.h"
-#include "AuthManager.h"
 #include "NebulaUtil.h"
 
 #include "SyncRequest.h"
+
+class AuthManager;
 
 /**
  *  The AuthRequest class is used to pass an Authorization or Authentication

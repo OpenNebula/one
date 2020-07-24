@@ -778,7 +778,7 @@ bool UserPool::authenticate_internal(User *        user,
     {
         ar.add_authenticate(auth_driver,username,password,token);
 
-        authm->trigger(AMAction::AUTHENTICATE,&ar);
+        authm->trigger_authenticate(ar);
 
         ar.wait();
 
@@ -1134,7 +1134,7 @@ bool UserPool::authenticate_server(User *        user,
                         server_password,
                         second_token);
 
-    authm->trigger(AMAction::AUTHENTICATE,&ar);
+    authm->trigger_authenticate(ar);
     ar.wait();
 
     if (ar.result!=true) //User was not authenticated
@@ -1239,7 +1239,7 @@ bool UserPool::authenticate_external(const string&  username,
 
     ar.add_authenticate(default_auth, username,"-",token);
 
-    authm->trigger(AMAction::AUTHENTICATE, &ar);
+    authm->trigger_authenticate(ar);
     ar.wait();
 
     if (ar.result != true) //User was not authenticated
@@ -1416,7 +1416,7 @@ int UserPool::authorize(AuthRequest& ar)
     }
     else
     {
-        authm->trigger(AMAction::AUTHORIZE,&ar);
+        authm->trigger_authorize(ar);
         ar.wait();
 
         if (ar.result==true)

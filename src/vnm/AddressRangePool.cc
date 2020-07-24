@@ -218,7 +218,7 @@ int AddressRangePool::rm_ar(unsigned int ar_id, bool force, string& error_msg)
 
         IPAMRequest ir(ar_ptr);
 
-        ipamm->trigger(IPMAction::UNREGISTER_ADDRESS_RANGE, &ir);
+        ipamm->trigger_unregister_address_range(ir);
 
         ir.wait();
 
@@ -256,7 +256,7 @@ int AddressRangePool::rm_ars(string& error_msg)
 
             IPAMRequest ir(it->second->attr);
 
-            ipamm->trigger(IPMAction::UNREGISTER_ADDRESS_RANGE, &ir);
+            ipamm->trigger_unregister_address_range(ir);
 
             ir.wait();
 

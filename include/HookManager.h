@@ -19,63 +19,23 @@
 
 #include "ProtocolMessages.h"
 #include "DriverManager.h"
-#include "ActionManager.h"
+#include "Listener.h"
 
 #include <vector>
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-class HMAction : public ActionRequest
-{
-public:
-    enum Actions
-    {
-        SEND_EVENT,  /**< Send event to hook manager driver*/
-        RETRY       /**< Send RETRY action to hook manager driver*/
-    };
-
-    HMAction(Actions a, const std::string& m):ActionRequest(ActionRequest::USER),
-        _action(a), _message(m){};
-
-    HMAction(const HMAction& o):ActionRequest(o._type), _action(o._action),
-        _message(o._message){};
-
-    Actions action() const
-    {
-        return _action;
-    }
-
-    const std::string& message() const
-    {
-        return _message;
-    }
-
-    ActionRequest * clone() const
-    {
-        return new HMAction(*this);
-    }
-
-private:
-    Actions _action;
-
-    std::string _message;
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-extern "C" void * hm_action_loop(void *arg);
-
 class HookManager :
     public DriverManager<Driver<hook_msg_t>>,
-    public ActionListener
+    public Listener
 {
 public:
 
-    HookManager(const std::string& mad_location): DriverManager(mad_location)
+    HookManager(const std::string& mad_location)
+        : DriverManager(mad_location)
+        , Listener("Hook Manager")
     {
-        am.addListener(this);
     }
 
     virtual ~HookManager() = default;
@@ -89,39 +49,10 @@ public:
     int start();
 
     /**
-     *  Gets the HookManager thread identification.
-     *    @return pthread_t for the manager thread (that in the action loop).
-     */
-    pthread_t get_thread_id() const
-    {
-        return hm_thread;
-    };
-
-    /**
      *  Loads Hook Manager Mads defined in configuration file
      *   @param _mads configuration of drivers
      */
     int load_drivers(const std::vector<const VectorAttribute*>& _mads);
-
-    /**
-     *  Triggers specific actions to the Hook Manager.
-     *    @param action the HM action
-     *    @param message to send to the driver
-     */
-    void trigger(HMAction::Actions action, const std::string& message)
-    {
-        HMAction hm_ar(action, message);
-
-        am.trigger(hm_ar);
-    }
-
-    /**
-     *  Terminates the hook manager thread listener
-     */
-    void finalize()
-    {
-        am.finalize();
-    }
 
     /**
      *  Returns a pointer to a Information Manager MAD. The driver is
@@ -139,40 +70,24 @@ public:
                                       const std::string& remote_host,
                                       int hook_id);
 
-private:
-    /**
-     *  Function to execute the Manager action loop method within a new pthread
-     *  (requires C linkage)
-     */
-    friend void * hm_action_loop(void *arg);
-
     /**
      *  Generic name for the Hook driver
      */
     static const char *  hook_driver_name;
 
     /**
-     *  Thread id for the HookManager
-     */
-    pthread_t             hm_thread;
-
-    /**
-     *  Action engine for the Manager
-     */
-    ActionManager         am;
-
-    /**
      *  Send event message to the driver
      *    @param message to pass to the driver
      */
-    void send_event_action(const std::string& message);
+    void trigger_send_event(const std::string& message);
 
     /**
      *  Send retry message to the driver
      *    @param message to pass to the driver
      */
-    void retry_action(const std::string& message);
+    void trigger_retry(const std::string& message);
 
+private:
     // -------------------------------------------------------------------------
     // Protocol implementation, procesing messages from driver
     // -------------------------------------------------------------------------
@@ -201,14 +116,10 @@ private:
     // -------------------------------------------------------------------------
     static const int drivers_timeout = 10;
 
-    void finalize_action(const ActionRequest& ar)
+    void finalize_action() override
     {
-        NebulaLog::log("HKM",Log::INFO,"Stopping Hook Manager...");
-
         DriverManager::stop(drivers_timeout);
     };
-
-    void user_action(const ActionRequest& ar);
 };
 
 #endif /*HOOK_MANAGER_H*/

@@ -16,6 +16,7 @@
 
 #include "RequestManagerAcl.h"
 #include "AclManager.h"
+#include "AclRule.h"
 
 using namespace std;
 

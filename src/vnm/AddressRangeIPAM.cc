@@ -30,7 +30,7 @@ int AddressRangeIPAM::from_vattr(VectorAttribute * attr, std::string& error_msg)
 
     IPAMRequest ir(attr);
 
-    ipamm->trigger(IPMAction::REGISTER_ADDRESS_RANGE, &ir);
+    ipamm->trigger_register_address_range(ir);
 
     ir.wait();
 
@@ -69,7 +69,7 @@ int AddressRangeIPAM::allocate_addr(unsigned int index, unsigned int rsize,
 
     IPAMRequest ir(this, address_xml);
 
-    ipamm->trigger(IPMAction::ALLOCATE_ADDRESS, &ir);
+    ipamm->trigger_allocate_address(ir);
 
     ir.wait();
 
@@ -103,7 +103,7 @@ int AddressRangeIPAM::get_addr(unsigned int& index, unsigned int rsize,
 
     IPAMRequest ir(this, address_xml);
 
-    ipamm->trigger(IPMAction::GET_ADDRESS, &ir);
+    ipamm->trigger_get_address(ir);
 
     ir.wait();
 
@@ -160,7 +160,7 @@ int AddressRangeIPAM::free_addr(unsigned int index, std::string& error_msg)
 
     IPAMRequest ir(this, address_xml);
 
-    ipamm->trigger(IPMAction::FREE_ADDRESS, &ir);
+    ipamm->trigger_free_address(ir);
 
     ir.wait();
 
