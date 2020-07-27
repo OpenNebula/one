@@ -63,9 +63,9 @@
         <optional>
           <ref name="idmap"/>
         </optional>
-        <optional>
+        <zeroOrMore>
           <ref name="devices"/>
-        </optional>
+        </zeroOrMore>
         <zeroOrMore>
           <ref name="seclabel"/>
         </zeroOrMore>
