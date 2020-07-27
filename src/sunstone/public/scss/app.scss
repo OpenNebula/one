@@ -234,8 +234,22 @@ meter {
   color: $alert-color;
 }
 
+.memory_input .mb_input_wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.mb_input {
+  width: 100%;
+}
+
 .mb_input_unit {
   width: 4em;
+}
+
+span.mb_input_unit {
+  width: auto;
+  margin-left: 0.5em;
 }
 
 .superHide{
