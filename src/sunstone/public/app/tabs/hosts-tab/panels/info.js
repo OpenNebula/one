@@ -36,6 +36,7 @@ define(function(require) {
   var CapacityTable = require("utils/custom-tags-table");
   var EC2Tr = require("utils/panel/ec2-tr");
   var OpenNebulaAction = require("opennebula/action");
+  var Notifier = require("utils/notifier");
 
   /*
     TEMPLATES
@@ -205,23 +206,23 @@ define(function(require) {
 
     //.off and .on prevent multiple clicks events
     $(context).off("click", "#update_reserved_hosts").on("click", "#update_reserved_hosts", function(){
-      var positionFreeAndUsed = that && that.element && that.element.MONITORING && that.element.MONITORING.CAPACITY;
-      if(positionFreeAndUsed){
+      var CPU = that && that.element && that.element.HOST_SHARE && that.element.HOST_SHARE.TOTAL_CPU;
+      var MEMORY = that && that.element && that.element.MONITORING && that.element.MONITORING.CAPACITY;
+      if(CPU && MEMORY){
         $("#update_reserved_hosts", context).prop("disabled", true);
         var reservedCPU = parseInt($("#textInput_reserved_cpu_hosts", context).val());
-        var CPU = parseInt(positionFreeAndUsed.FREE_CPU||0);
         var reservedMem = parseInt(Humanize.sizeToMB($("#textInput_reserved_mem_hosts").val()) * 1024);
-        var MEM = parseInt((positionFreeAndUsed.FREE_MEMORY)||0);
-        if (parseInt(positionFreeAndUsed.USED_CPU||0) > 0){
-          CPU += parseInt(positionFreeAndUsed.USED_CPU||0);
-        }
+
+        var CPU = parseInt(CPU||0,10);
+        var MEM = parseInt((MEMORY.FREE_MEMORY)||0);
+
         reservedCPU = CPU - reservedCPU;
-        if (parseInt(positionFreeAndUsed.USED_MEMORY||0) > 0){
-          MEM += parseInt(positionFreeAndUsed.USED_MEMORY||0);
+
+        if (parseInt(MEMORY.USED_MEMORY||0) > 0){
+          MEM += parseInt(MEMORY.USED_MEMORY||0);
         }
         reservedMem = MEM - reservedMem;
 
-      var obj = { RESERVED_CPU: reservedCPU, RESERVED_MEM: reservedMem };
         var obj = { RESERVED_CPU: reservedCPU, RESERVED_MEM: reservedMem };
         Sunstone.runAction("Host.append_template", that.element.ID, TemplateUtils.templateToString(obj));
       }
@@ -232,7 +233,21 @@ define(function(require) {
       $("#textInput_reserved_cpu_hosts", context).val($("#change_bar_cpu_hosts", context).val());
     });
 
-    $("#textInput_reserved_cpu_hosts", context).on("input", function(){
+    $("#textInput_reserved_cpu_hosts", context).on("keyup", function(){
+      var element = $(this);
+      var slider = $("#change_bar_cpu_hosts", context);
+      var min = slider.attr("min");
+      var max = slider.attr("max");
+      if(parseInt(element.val(),10) >= parseInt(min, 10) && parseInt(element.val(),10) <= parseInt(max, 10)){
+        slider.prop("disabled", false);
+        slider.attr("value", element.val());
+      }else{
+        if(parseInt(element.val(),10) <= parseInt(min, 10)){
+          Notifier.notifyError(Locale.tr("it must not be a negative number"));
+        }
+        slider.attr("value", element.attr("mid"));
+        slider.prop("disabled", true);
+      }
       changeInputCPU(that.element.HOST_SHARE.TOTAL_CPU);
     });
 
