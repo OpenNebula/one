@@ -223,9 +223,9 @@ define(function(require) {
     if (attr.type != "range"){
       $("div.memory_input_wrapper", context).addClass("large-6").addClass("medium-8");
     }
-
-    attr.visor = true;
-    UserInputs.insertAttributeInputMB(attr, $("div.memory_input", context));
+    
+    attr.visor = attr.type === "number";
+    UserInputs.insertAttributeInputMB(attr, $("div.memory_input", context), false);
 
     if (Config.isFeatureEnabled("instantiate_hide_cpu")){
       $(".vcpu_input input", context).prop("required", true);
