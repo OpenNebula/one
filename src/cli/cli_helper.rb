@@ -325,7 +325,7 @@ module CLIHelper
             column[:size] = 5
 
             conf.each do |c|
-                case c.class
+                case c
                 when Symbol
                     column[c] = true
                 when Hash
