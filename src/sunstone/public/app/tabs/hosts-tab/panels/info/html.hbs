@@ -95,7 +95,7 @@
           <td class="key_td">{{tr "CPU"}}</td>
           <td><input type="range" name="rangeInput" id="change_bar_cpu_hosts" min="0" value="{{element.HOST_SHARE.MAX_CPU}}" max="{{maxReservedCPU}}">
           <label align="center">{{realCPU}}</label></td>
-          <td><input type="text" id="textInput_reserved_cpu_hosts" value="{{element.HOST_SHARE.MAX_CPU}}" min="0" size="1"></td>
+          <td><input type="number" id="textInput_reserved_cpu_hosts" value="{{element.HOST_SHARE.MAX_CPU}}" min="0" mid={{realCPU}} size="1"></td>
         </tr>
         <tr colspan="3">
           <td class="key_td">{{tr "Memory"}}</td>
