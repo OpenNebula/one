@@ -25,6 +25,7 @@ define(function(require) {
   var WizardFields = require('utils/wizard-fields');
   var UserInputs = require('utils/user-inputs');
   var Config = require('sunstone-config');
+  var Notifier = require("utils/notifier");
 
   /*
     TEMPLATES
@@ -72,13 +73,15 @@ define(function(require) {
     else{
       $("div.socket_info").hide();
     }
-
   }
 
   function _generateCores(context){
     $("#CORES_PER_SOCKET", context).find('option').remove();
     $("#CORES_PER_SOCKET", context).append($('<option>').val("").text(""));
-    var vcpuValue = $("div.vcpu_input input").val();
+    var visor = $("div.vcpu_input input.visor")
+    var slider = $("div.vcpu_input input");
+    var from = visor.length? visor : slider;
+    var vcpuValue = from.val();
     for (var i = 1; i <= vcpuValue; i++){
       if (vcpuValue%i === 0){
         $("#CORES_PER_SOCKET", context).append($('<option>').val(i).text((i).toString()));
@@ -157,6 +160,7 @@ define(function(require) {
     }
 
     $("div.vcpu_input", context).html(input);
+    $("div.vcpu_input input", context).val(attr.min);
 
     if (Config.isFeatureEnabled("instantiate_cpu_factor")){
       $("div.cpu_input input", context).prop("disabled", true);
@@ -186,10 +190,27 @@ define(function(require) {
         $('#CORES_PER_SOCKET option[value="' + element.TEMPLATE.CORES_PER_SOCKET + '"]').prop('selected', true);
       }
 
-      $("div.vcpu_input input", context).on("change", function(){
-        _generateCores(context);
-        $('#CORES_PER_SOCKET option[value=""]').prop('selected', true);
-        _calculateSockets(context);
+      $("div.vcpu_input input", context).off().on("change keyup", function(e){
+        element = $("div.vcpu_input input.visor", context);
+        if(element.length){
+          min = element.attr("data-min");
+          max = element.attr("data-max");
+          if(parseInt(element.val(),10) >= parseInt(min,10) && parseInt(element.val(),10)<= parseInt(max,10)){
+            $("div.vcpu_input input", context).val(element.val());
+            _generateCores(context);
+            $('#CORES_PER_SOCKET option[value=""]').prop('selected', true);
+            _calculateSockets(context);
+          }else{
+            element.val(max);
+            $("div.vcpu_input input", context).val(max);
+            Notifier.notifyError(Locale.tr("The value goes out of the allowed limits"));
+          }
+        }else{
+          _generateCores(context);
+          $('#CORES_PER_SOCKET option[value=""]').prop('selected', true);
+          _calculateSockets(context);
+        }
+        
       });
 
       $("#CORES_PER_SOCKET", context).on("change", function(){
