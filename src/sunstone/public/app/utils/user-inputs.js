@@ -711,28 +711,32 @@ define(function(require) {
    * @param  {object} attr structure as returned by parse
    * @param  {jQuery} div jQuery selector for the div to attach the html to
    */
-  function _insertAttributeInputMB(attr, div) {
+  function _insertAttributeInputMB(attr, div, inputUnit = true) {
     // Modified input for GB
     var attr_gb = $.extend({}, attr);
     if (attr.type == "range"){
       attr.tick_size = 1024;
     }
+
+    var selectInput = inputUnit
+      ? "<div class=\"input-group-button\">"+
+        "<select class=\"mb_input_unit\">" +
+          "<option value=\"MB\">"+Locale.tr("MB")+"</option>" +
+          "<option value=\"GB\">"+Locale.tr("GB")+"</option>" +
+          "<option value=\"TB\">"+Locale.tr("TB")+"</option>" +
+        "</select>" +
+      "</div>" : "<span style='margin-left:0.5rem'>MB</span>";
+
     div.html(
-      "<div class=\"input-group mb_input_wrapper\">"+
+      "<div class=\"input-group mb_input_wrapper\"" +
+        (!inputUnit && " style='display:flex;align-items:center;'") + ">"+
         "<div class=\"mb_input input-group-field\">" +
           _attributeInput(attr) +
-        "</div><div class=\"input-group-button\">"+
-          "<select class=\"mb_input_unit\">" +
-            "<option value=\"MB\">"+Locale.tr("MB")+"</option>" +
-            "<option value=\"GB\">"+Locale.tr("GB")+"</option>" +
-            "<option value=\"TB\">"+Locale.tr("TB")+"</option>" +
-          "</select>" +
-        "</div>"+
-      "</div>");
-    _setupAttributeInputMB(div);
+        "</div>" + selectInput + "</div>");
+    _setupAttributeInputMB(div, inputUnit);
   }
 
-  function _setupAttributeInputMB(context) {
+  function _setupAttributeInputMB(context, inputUnit) {
     var base = 1024;
     var baseCal = 1;
     var unit = "MB";
@@ -764,7 +768,7 @@ define(function(require) {
         $("input, select", contextElement).val(valueInMB);
         valueInUnit = valueInMB / baseCal;
       }
-      $("input.visor", contextElement).val(valueInUnit);
+      $("input.visor", contextElement).val(inputUnit ? valueInUnit : valueInMB);
       var contextUnit = contextElement.siblings(".input-group-button");
       $(".mb_input_unit", contextUnit).val(unit).trigger("change");
     }
