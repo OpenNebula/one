@@ -306,7 +306,7 @@ module OneProvision
             def evaluate_erb(provision, root)
                 if root.is_a? Hash
                     root.each_pair do |key, value|
-                        case value.class
+                        case value
                         when Array
                             root[key] = value.map do |x|
                                 evaluate_erb(provision, x)
