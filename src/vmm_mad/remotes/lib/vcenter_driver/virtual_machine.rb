@@ -1267,7 +1267,7 @@ module VCenterDriver
                 :extraConfig  => extraconfig,
                 :deviceChange => device_change
             }
-            num_cores = one_item["TOPOLOGY/CORES"] || num_cpus.to_i
+            num_cores = one_item["TEMPLATE/TOPOLOGY/CORES"] || num_cpus.to_i
             if num_cpus.to_i % num_cores.to_i != 0
                 num_cores = num_cpus.to_i
             end
