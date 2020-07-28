@@ -690,6 +690,7 @@ define(function(require) {
     "isConnectionSupported": isConnectionSupported,
     "isSPICESupported": isSPICESupported,
     "isWFileSupported": isWFileSupported,
+    "hasConnection": hasConnection,
     "buttonVnc": buttonVnc,
     "buttonSpice": buttonSpice,
     "buttonWFile": buttonWFile,
