@@ -1,25 +1,48 @@
 <div class="row">
   <div class="medium-6 columns">
     <label>
-      {{tr "Image"}}
-      {{{tip (tr "Specifies the base OS of the VM.")}}}
-      <input required wizard_field="IMAGE" type="text">
+      {{tr "Instance type"}}
+      {{{tip (tr "Specifies the capacity of the VM in terms of CPU and memory")}}}
+      <input required wizard_field="INSTANCE_TYPE" type="text">
     </label>
   </div>
   <div class="medium-6 columns">
     <label>
-      {{tr "Instance type"}}
-      {{{tip (tr "Specifies the capacity of the VM in terms of CPU and memory")}}}
-      <input required wizard_field="INSTANCE_TYPE" type="text">
+      {{tr "Location"}}
+      {{{tip (tr "Azure datacenter where the VM will be sent.")}}}
+      <input required wizard_field="LOCATION" type="text">
     </label>
   </div>
 </div>
 <div class="row">
   <div class="medium-6 columns">
     <label>
-      {{tr "Location"}}
-      {{{tip (tr "Azure datacenter where the VM will be sent. See /etc/one/az_driver.conf for possible values (under region_name)")}}}
-      <input required wizard_field="LOCATION" type="text">
+      {{tr "Image offer"}}
+      {{{tip (tr "Specifies the OS image offer of the VM.")}}}
+      <input required wizard_field="IMAGE_OFFER" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Image publisher"}}
+      {{{tip (tr "Specifies the image publisher.")}}}
+      <input required wizard_field="IMAGE_PUBLISHER" type="text">
+    </label>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Image SKU"}}
+      {{{tip (tr "Specifies the image SKU (stock keeping unit).")}}}
+      <input required wizard_field="IMAGE_SKU" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Image version"}}
+      {{{tip (tr "Specifies the image version.")}}}
+      <input required wizard_field="IMAGE_VERSION" type="text">
     </label>
   </div>
 </div>
@@ -39,74 +62,80 @@
     </label>
   </div>
 </div>
-<br/>
 <div class="row">
-  <div class="medium-6 columns">
-    <label>
-      {{tr "Affinity group"}}
-      {{{tip (tr "Affinity groups allow you to group your Azure services to optimize performance. All services and VMs within an affinity group will be located in the same region")}}}
-      <input wizard_field="AFFINITY_GROUP" type="text">
-    </label>
-  </div>
-  <div class="medium-6 columns">
-    <label>
-      {{tr "Availability set"}}
-      <input wizard_field="AVAILABILITY_SET" type="text">
-    </label>
-  </div>
-</div>
-<div class="row">
-  <div class="medium-6 columns">
-    <label>
-      {{tr "Cloud service"}}
-      {{{tip (tr "Specifies the name of the cloud service where this VM will be linked. Defaults to 'OpennebulaDefaultCloudServiceName'")}}}
-      <input wizard_field="CLOUD_SERVICE" type="text">
-    </label>
-  </div>
-  <div class="medium-6 columns">
-    <label>
-      {{tr "SSH port"}}
-      {{{tip (tr "Port where the VMs ssh server will listen on")}}}
-      <input wizard_field="SSHPORT" type="text">
-    </label>
-  </div>
-</div>
-<div class="row">
-  <div class="medium-6 columns">
-    <label>
-      {{tr "Storage account"}}
-      <input wizard_field="STORAGE_ACCOUNT" type="text">
-    </label>
-  </div>
-  <div class="medium-6 columns">
-    <label>
-      {{tr "Subnet name"}}
-      {{{tip (tr "Name of the particular Subnet where this VM will be connected to")}}}
-      <input wizard_field="SUBNET" type="text">
-    </label>
-  </div>
-</div>
-<div class="row">
-  <div class="medium-6 columns">
-    <label>
-      {{tr "TCP endpoints"}}
-      {{{tip (tr "Comma-separated list of TCP ports to be accessible from the public internet to this VM")}}}
-      <input wizard_field="TCP_ENDPOINTS" type="text">
-    </label>
-  </div>
   <div class="medium-6 columns">
     <label>
       {{tr "Virtual Network name"}}
+      {{{tip (tr "Name of the virtual network, which is already created in Azure. If not given virtual network will be created based on VNET_* attributes below or using defaults.")}}}
       <input wizard_field="VIRTUAL_NETWORK_NAME" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Public IP"}}
+      {{{tip (tr "Whether to assgin public IP to the VM")}}}
+      <select wizard_field="PUBLIC_IP" id="PUBLIC_IP" name="PUBLIC_IP">
+        <option value="YES">yes</option>
+        <option value="NO">no</option>
+      </select>
     </label>
   </div>
 </div>
 <div class="row">
   <div class="medium-6 columns">
     <label>
-      {{tr "Win RM"}}
-      {{{tip (tr "Comma-separated list of possible protocols to access this Windows VM")}}}
-      <input wizard_field="WIN_RM" type="text">
+      {{tr "VNET name"}}
+      {{{tip (tr "Name of virtual network which will be created on Azure. Default: one-vnet")}}}
+      <input wizard_field="VNET_NAME" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "VNET addr prefix"}}
+      {{{tip (tr "Vnet address prefix on. Default: 10.0.0.0/16.")}}}
+      <input wizard_field="VNET_ADDR_PREFIX" type="text">
     </label>
   </div>
 </div>
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "VNET dns"}}
+      {{{tip (tr "DNS server. Default: 8.8.8.8.")}}}
+      <input wizard_field="VNET_DNS" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "VNET subname"}}
+      {{{tip (tr "Subnet name. Default: default.")}}}
+      <input wizard_field="VNET_SUBNAME" type="text">
+    </label>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "VNET sub prefix"}}
+      {{{tip (tr "Vnet subnet prefix. Default: 10.0.0.0/24.")}}}
+      <input wizard_field="VNET_SUB_PREFIX" type="text">
+    </label>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Availability set"}}
+      {{{tip (tr "Name of the availability set to which this VM will belong.")}}}
+      <input wizard_field="AVAILABILITY_SET" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Proximity group"}}
+      {{{tip (tr "Name of proximity groups which is already created in Azure. Proximity groups allow you to group your Azure services to optimize performance. All services and VMs within an affinity group will be located in the same region belong.")}}}
+      <input wizard_field="PROXIMITY_GROUP" type="text">
+    </label>
+  </div>
+</div>
+<br/>
