@@ -23,8 +23,17 @@
   <div class="confirm-resources-header"></div>
   <div class="reveal-body">
     <form id="{{dialogId}}Form" action="">
-      <input type="checkbox" id="attach_alias" style="margin-left: 15px"> Attach as an alias
-      <select id="parent" style="width: 200px"></select><br>
+      <div class="attach_rdp">
+        <label>
+          <input type="checkbox" id="cb_attach_rdp" style="margin-left: 15px"> {{tr "RDP"}}
+        </label>
+      </div>
+      <div class="attach_alias" style="display: flex; align-items: center; min-height: 50px;">
+        <label style="margin-right: 10px;">
+          <input type="checkbox" id="cb_attach_alias" style="margin-left: 15px"> {{tr "Attach as an alias"}}
+        </label>
+        <select id="parent" style="width: 200px; margin-bottom: 0;"></select><br>
+      </div>
       {{{nicTabHTML}}}
       <div class="reveal-footer">
         <div class="form_buttons">
