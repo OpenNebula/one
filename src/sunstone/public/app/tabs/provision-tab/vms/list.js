@@ -329,9 +329,11 @@ define(function(require) {
             $(".provision_save_as_template_confirm_button_disabled", context).hide();
           }
 
-          if (OpenNebula.VM.isVNCSupported(data) ||
-             OpenNebula.VM.isSPICESupported(data)) {
+          $(".provision_rdp_button", context).toggle(Boolean(OpenNebulaVM.isRDPSupported(data)));
+          $(".provision_wfile_button", context).toggle(Boolean(OpenNebulaVM.isWFileSupported(data)));
 
+          if (OpenNebulaVM.isVNCSupported(data) ||
+             OpenNebulaVM.isSPICESupported(data)) {
             $(".provision_vnc_button", context).show();
             $(".provision_vnc_button_disabled", context).hide();
           }else{
@@ -755,25 +757,56 @@ define(function(require) {
       return false;
     });
 
+    context.on("click", ".provision_rdp_button", function() {
+      var vm = $(".provision_info_vm", context).data("vm") || {};
+      var rdp = OpenNebulaVM.isRDPSupported(vm) || {};
+
+      var username, password;
+      if (vm.TEMPLATE && vm.TEMPLATE.CONTEXT) {
+        var context = vm.TEMPLATE.CONTEXT;
+        for (var prop in context) {
+          var propUpperCase = String(prop).toUpperCase();
+          (propUpperCase === "USERNAME") && (username = context[prop]);
+          (propUpperCase === "PASSWORD") && (password = context[prop]);
+        }
+      }
+
+      Sunstone.runAction("VM.save_rdp", JSON.parse(JSON.stringify({
+        name: vm.NAME,
+        ip: rdp.IP,
+        username: username,
+        password: password,
+      })));
+    });
+
+    context.on("click", ".provision_wfile_button", function() {
+      var vm_id = $(".provision_info_vm", context).attr("vm_id") || '';
+      var vm = $(".provision_info_vm", context).data("vm") || {};
+      var wFile = OpenNebulaVM.isWFileSupported(vm) || {};
+
+      ("VM.save_virt_viewer_action", vm.ID, wFile);
+      Sunstone.runAction("VM.save_virt_viewer_action", vm_id, wFile);
+    });
+
     context.on("click", ".provision_vnc_button", function(){
       var button = $(this);
       button.attr("disabled", "disabled");
       var vm_id = $(".provision_info_vm", context).attr("vm_id");
       var vm_data = $(".provision_info_vm", context).data("vm");
 
-      OpenNebula.VM.vnc({
+      OpenNebulaVM.vnc({
         data : {
           id: vm_id
         },
         success: function(request, response){
-          if (OpenNebula.VM.isVNCSupported(vm_data)) {
+          if (OpenNebulaVM.isVNCSupported(vm_data)) {
 
             var dialog = Sunstone.getDialog(VNC_DIALOG_ID);
             dialog.setElement(response);
             dialog.show();
 
             button.removeAttr("disabled");
-          } else if (OpenNebula.VM.isSPICESupported(vm_data)) {
+          } else if (OpenNebulaVM.isSPICESupported(vm_data)) {
             var dialog = Sunstone.getDialog(SPICE_DIALOG_ID);
             dialog.setElement(response);
             dialog.show();

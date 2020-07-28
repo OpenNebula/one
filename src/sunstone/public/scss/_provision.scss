@@ -137,3 +137,16 @@
 .running-color {
   color: $running-color;
 }
+
+.menu.provision_action_icons {
+  display: flex;
+  flex-wrap: wrap;
+
+  li {
+    margin: 0.5em 0;    
+  }
+
+  .provision_rdp_button {
+    font-weight: normal;
+  }
+}
