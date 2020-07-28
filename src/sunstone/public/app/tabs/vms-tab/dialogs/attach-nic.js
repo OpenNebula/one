@@ -19,6 +19,7 @@ define(function(require) {
     DEPENDENCIES
    */
 
+  var OpennebulaVM = require('opennebula/vm');
   var BaseDialog = require('utils/dialogs/dialog');
   var TemplateHTML = require('hbs!./attach-nic/html');
   var Sunstone = require('sunstone');
@@ -79,18 +80,18 @@ define(function(require) {
 
     $("#parent", context).hide();
 
-    $("#attach_alias", context).change(function() {
-        if(this.checked) {
-            $("#parent", context).show();
-        } else {
-            $("#parent", context).hide();
-        }
+    $("#cb_attach_alias", context).change(function() {
+      $("#parent", context).toggle(this.checked);
     });
 
     $('#' + DIALOG_ID + 'Form', context).submit(function() {
       var templateJSON = that.nicTab.retrieve(context);
 
-      if($("#attach_alias", context).prop("checked")) {
+      if($("#cb_attach_rdp", context).prop("checked")) {
+        templateJSON.RDP = "YES";
+      }
+
+      if($("#cb_attach_alias", context).prop("checked")) {
         templateJSON.PARENT = $("#parent").val();
 
         var obj = {
@@ -116,6 +117,17 @@ define(function(require) {
     this.setNames( {tabId: TAB_ID} );
 
     this.nicTab.onShow(context);
+    $('#cb_attach_alias').prop('checked', false).change();
+    
+    var showRdp = false, template = this.element.TEMPLATE
+    if (template.NIC) {
+      showRdp = OpennebulaVM.hasConnection(template.NIC, "rdp");
+
+      if (!showRdp && template.NIC_ALIAS) {
+        showRdp = OpennebulaVM.hasConnection(template.NIC_ALIAS, "rdp");
+      }
+    }
+    $(".attach_rdp").toggle(!showRdp);
 
     return false;
   }
