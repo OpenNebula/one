@@ -33,7 +33,7 @@ const TestApi = () => {
           fullWidth
           select
           variant="outlined"
-          label={<Translate word="Select resquest" />}
+          label={<Translate word="Select request" />}
           value={name}
           onChange={handleChangeCommand}
         >

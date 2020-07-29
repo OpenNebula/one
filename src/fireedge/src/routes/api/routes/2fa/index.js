@@ -34,8 +34,10 @@ const { from: fromData } = require('../../../../utils/constants/defaults');
 const {
   responseOpennebula,
   checkOpennebulaCommand,
-  generateNewTemplate
+  generateNewTemplate,
+  check2Fa
 } = require('../../../../utils/opennebula');
+const { httpResponse } = require('../../../../utils/server');
 
 // user config
 const appConfig = getConfig();
@@ -101,7 +103,7 @@ const privateRoutes = {
         const { otpauth_url: otpURL, base32 } = secret;
         qrcode.toDataURL(otpURL, (err, dataURL) => {
           if (err) {
-            res.locals.httpCode = Map(internalServerError).toObject();
+            res.locals.httpCode = httpResponse(internalServerError);
             next();
           } else {
             const connectOpennebula = connect();
@@ -115,7 +117,9 @@ const privateRoutes = {
                   emptyTemplate[default2FAOpennebulaTmpVar] = base32;
 
                   dataUser[fromData.resource].id = userId;
-                  dataUser[fromData.postBody].template = generateNewTemplate(
+                  dataUser[
+                    fromData.postBody
+                  ].template = generateNewTemplate(
                     info.USER.TEMPLATE.SUNSTONE || {},
                     emptyTemplate,
                     [default2FAOpennebulaVar]
@@ -134,11 +138,9 @@ const privateRoutes = {
                         value,
                         pass => {
                           if (pass !== undefined && pass !== null) {
-                            const codeOK = Map(ok).toObject();
-                            codeOK.data = {
+                            res.locals.httpCode = httpResponse(ok, {
                               img: dataURL
-                            };
-                            res.locals.httpCode = codeOK;
+                            });
                             next();
                           } else {
                             next();
@@ -184,22 +186,17 @@ const privateRoutes = {
             const sunstone = info.USER.TEMPLATE.SUNSTONE;
             const token = req[fromData.postBody].token;
             const secret = sunstone[default2FAOpennebulaTmpVar];
-            const verified = speakeasy.totp.verify({
-              secret,
-              encoding: 'base32',
-              token
-            });
-            if (verified) {
+            if (check2Fa(secret, token)) {
               const emptyTemplate = {};
               emptyTemplate[default2FAOpennebulaVar] = secret;
 
               const dataUser = Map(req).toObject();
               dataUser[fromData.resource].id = userId;
-              dataUser[fromData.postBody].template = generateNewTemplate(
-                sunstone || {},
-                emptyTemplate,
-                [default2FAOpennebulaTmpVar]
-              );
+              dataUser[
+                fromData.postBody
+              ].template = generateNewTemplate(sunstone || {}, emptyTemplate, [
+                default2FAOpennebulaTmpVar
+              ]);
               const getOpennebulaMethodUpdate = checkOpennebulaCommand(
                 defaultMethodUserUpdate,
                 POST
@@ -214,8 +211,7 @@ const privateRoutes = {
                     value,
                     pass => {
                       if (pass !== undefined && pass !== null) {
-                        const codeOK = Map(ok).toObject();
-                        res.locals.httpCode = codeOK;
+                        res.locals.httpCode = httpResponse(ok);
                       }
                       next();
                     },
@@ -224,7 +220,7 @@ const privateRoutes = {
                 }
               );
             } else {
-              res.locals.httpCode = Map(unauthorized).toObject();
+              res.locals.httpCode = httpResponse(unauthorized);
               next();
             }
           } else {
@@ -271,8 +267,7 @@ const privateRoutes = {
                   value,
                   pass => {
                     if (pass !== undefined && pass !== null) {
-                      const codeOK = Map(ok).toObject();
-                      res.locals.httpCode = codeOK;
+                      res.locals.httpCode = httpResponse(ok);
                     }
                     next();
                   },

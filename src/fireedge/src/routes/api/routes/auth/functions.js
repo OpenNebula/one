@@ -12,26 +12,30 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-const speakeasy = require('speakeasy');
 const moment = require('moment');
 const { Map } = require('immutable');
 const {
   httpMethod,
   defaultMethodLogin,
   defaultMethodZones,
-  defaultMethodConfig,
   defaultMethodUserInfo,
   default2FAOpennebulaVar,
   defaultNamespace,
   from: fromData
 } = require('../../../../utils/constants/defaults');
 const { getConfig } = require('../../../../utils/yml');
-const { ok, unauthorized } = require('../../../../utils/constants/http-codes');
+const {
+  ok,
+  unauthorized,
+  accepted
+} = require('../../../../utils/constants/http-codes');
 const { createToken } = require('../../../../utils/jwt');
+const { httpResponse } = require('../../../../utils/server');
 const {
   responseOpennebula,
   paramsDefaultByCommandOpennebula,
-  checkOpennebulaCommand
+  checkOpennebulaCommand,
+  check2Fa
 } = require('../../../../utils/opennebula');
 
 const appConfig = getConfig();
@@ -127,30 +131,31 @@ const validate2faAuthentication = informationUser => {
     informationUser.TEMPLATE.SUNSTONE &&
     informationUser.TEMPLATE.SUNSTONE[default2FAOpennebulaVar]
   ) {
+    if (tfatoken.length <= 0) {
+      updaterResponse(httpResponse(accepted));
+      next();
+      return;
+    }
+
     const secret = informationUser.TEMPLATE.SUNSTONE[default2FAOpennebulaVar];
-    const verified = speakeasy.totp.verify({
-      secret,
-      encoding: 'base32',
-      tfatoken
-    });
-    if (!verified) {
-      const codeUnauthorized = Map(unauthorized).toObject();
-      codeUnauthorized.data = { message: 'invalid 2fa token' };
-      updaterResponse(codeUnauthorized);
+    if (!check2Fa(secret, tfatoken)) {
+      updaterResponse(httpResponse(unauthorized, '', 'invalid 2fa token'));
       next();
     }
   }
 };
 
 const genJWT = informationUser => {
-  if (informationUser && informationUser.ID) {
+  if (informationUser && informationUser.ID && informationUser.PASSWORD) {
     const { ID: id } = informationUser;
     const dataJWT = { id, user, token: opennebulaToken };
     const jwt = createToken(dataJWT, nowUnix, nowWithDays.format('X'));
     if (jwt) {
-      const codeOK = Map(ok).toObject();
-      codeOK.data = { token: jwt };
-      updaterResponse(codeOK);
+      if (!global.users) {
+        global.users = {};
+      }
+      global.users[user] = opennebulaToken;
+      updaterResponse(httpResponse(ok, { token: jwt, id: informationUser.ID }));
     }
   }
 };
@@ -221,15 +226,13 @@ const userInfo = userData => {
             defaultMethodLogin,
             getOpennebulaMethod(dataSource),
             (err, value) => {
-              // res, err, value, response, next
               responseOpennebula(
                 () => undefined,
                 err,
                 value,
                 () => {
                   setZones();
-                  setOneConfig();
-                  // aca se tiene que hacer la llamada a las zonas y a system.config
+                  setOneConfig(); // esto debe de estar antes de hacer el JWT
                 },
                 next
               );
@@ -250,8 +253,7 @@ const authenticate = val => {
   const findTextError = `[${namespace + defaultMethodLogin}]`;
   if (val) {
     if (val.indexOf(findTextError) >= 0) {
-      const codeUnauthorized = Map(unauthorized).toObject();
-      updaterResponse(codeUnauthorized);
+      updaterResponse(httpResponse(unauthorized));
       next();
     } else {
       const oneConnect = connectOpennebula();

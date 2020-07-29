@@ -27,6 +27,18 @@ const messageTerminal = ({ color, type, error, message }) => {
   console.log(consoleColor, typeConsole, errorConsole);
 };
 
+const addPrintf = (string = '', args = '') => {
+  let rtn = string;
+  if (string && args) {
+    const replacers = Array.isArray(args) ? args : [args];
+    rtn = string.replace(/{(\d+)}/g, (match, number) =>
+      typeof replacers[number] !== 'undefined' ? replacers[number] : match
+    );
+  }
+  return rtn;
+};
+
 module.exports = {
-  messageTerminal
+  messageTerminal,
+  addPrintf
 };

@@ -16,6 +16,12 @@ MODE: production
 # JWT user password encryption key (AUTH)
 TOKEN_SECRET: token_secreto
 
+# Flow Server
+# ONE_FLOW_SERVER:
+#   PROTOCOL: 'https'
+#   HOST: '0.0.0.0'
+#   POST: 2474
+
 # JWT life time
 LIMIT_TOKEN:
   MIN: 14
