@@ -14,16 +14,15 @@
 /* -------------------------------------------------------------------------- */
 
 const express = require('express');
-const { Map } = require('immutable');
 const { defaults, httpCodes, params } = require('../../utils/constants');
-const { getConfig } = require('../../utils/yml');
 const {
   opennebulaConnect,
   checkRouteFunction,
   commandXML,
   checkOpennebulaCommand,
   validateRouteFunction,
-  responseOpennebula
+  responseOpennebula,
+  httpResponse
 } = require('../../utils');
 
 const {
@@ -77,7 +76,7 @@ router.all(
   (req, res, next) => {
     const { internalServerError, ok, methodNotAllowed } = httpCodes;
     const { method: httpMethod } = req;
-    res.locals.httpCode = Map(internalServerError).toObject();
+    res.locals.httpCode = httpResponse(internalServerError);
     const zone = getDataZone();
     if (zone) {
       const { RPC } = zone;
@@ -87,7 +86,7 @@ router.all(
       ) => opennebulaConnect(user, pass, RPC);
       const { resource } = req.params;
       const routeFunction = checkRouteFunction(resource);
-      res.locals.httpCode = Map(methodNotAllowed).toObject();
+      res.locals.httpCode = httpResponse(methodNotAllowed);
       const dataSources = {
         [fromData.resource]: getParamsState(),
         [fromData.query]: getQueriesState(),
@@ -104,7 +103,8 @@ router.all(
             res,
             next,
             connectOpennebula,
-            getIdUserOpennebula()
+            getIdUserOpennebula(),
+            `${getUserOpennebula()}:${getPassOpennebula()}`
           );
         } else {
           next();
@@ -118,12 +118,10 @@ router.all(
         );
         const getOpennebulaMethod = checkOpennebulaCommand(command, httpMethod);
         if (getOpennebulaMethod) {
-          const response = val => {
-            res.locals.httpCode = Map(ok).toObject();
-            res.locals.httpCode.data = val || {};
+          const response = (val = {}) => {
+            res.locals.httpCode = httpResponse(ok, val || val === 0 ? val : {});
             if (typeof val === 'string') {
-              res.locals.httpCode.data = {};
-              res.locals.httpCode.message = val;
+              res.locals.httpCode = httpResponse(ok, undefined, val);
             }
             next();
           };
@@ -138,11 +136,8 @@ router.all(
             getPassOpennebula(),
             RPC
           );
-          connect(
-            command,
-            getOpennebulaMethod(dataSources),
-            (err, value) =>
-              responseOpennebula(updaterResponse, err, value, response, next)
+          connect(command, getOpennebulaMethod(dataSources), (err, value) =>
+            responseOpennebula(updaterResponse, err, value, response, next)
           );
         } else {
           next();

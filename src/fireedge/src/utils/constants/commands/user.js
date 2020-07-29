@@ -159,7 +159,7 @@ module.exports = (
       },
       group: {
         from: postBody,
-        default: ''
+        default: 0
       }
     }
   },

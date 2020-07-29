@@ -14,7 +14,8 @@
 /* -------------------------------------------------------------------------- */
 
 const default2FAOpennebulaVar = 'TWO_FACTOR_AUTH_SECRET';
-const defaultIp = 'http://127.0.0.1';
+const defaultIp = '127.0.0.1';
+const protocol = 'http';
 const defaults = {
   httpMethod: {
     GET: 'GET',
@@ -31,10 +32,15 @@ const defaults = {
     {
       ID: 0,
       NAME: 'OpenNebula',
-      RPC: `${defaultIp}:2633/RPC2`,
+      RPC: `${protocol}://${defaultIp}:2633/RPC2`,
       VNC: ''
     }
   ],
+  defaultOneFlowServer: {
+    PROTOCOL: protocol,
+    HOST: defaultIp,
+    PORT: 2474
+  },
   defaultConfigFile: `${__dirname}/../config.yml`,
   defaultTypeLog: 'prod',
   defaultWebpackMode: 'development',

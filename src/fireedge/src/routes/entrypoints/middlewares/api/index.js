@@ -59,8 +59,16 @@ const validateResource = (req, res, next) => {
         idUserOpennebula = session.iss;
         userOpennebula = session.aud;
         passOpennebula = session.jti;
-        next();
-        return;
+        // deberia estar condicionado por la variable de entorno dev
+        if (
+          global &&
+          global.users &&
+          global.users[userOpennebula] &&
+          global.users[userOpennebula] === passOpennebula
+        ) {
+          next();
+          return;
+        }
       }
       status = unauthorized;
     }

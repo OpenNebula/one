@@ -12,8 +12,76 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
+const {
+  serviceAll,
+  service,
+  serviceDelete,
+  serviceAddAction,
+  serviceAddScale,
+  serviceAddRoleAction
+} = require('./service');
+const {
+  serviceTemplateAll,
+  serviceTemplate,
+  serviceTemplateDelete,
+  serviceTemplateCreate,
+  serviceTemplateUpdate,
+  serviceTemplateAction
+} = require('./service_template');
+const { httpMethod } = require('../../../../utils/constants/defaults');
 
-const privateRoutes = {};
+const { GET, POST, DELETE, PUT } = httpMethod;
+
+const privateRoutes = {
+  'service-all': {
+    httpMethod: GET,
+    action: serviceAll
+  },
+  service: {
+    httpMethod: GET,
+    action: service
+  },
+  'service-delete': {
+    httpMethod: DELETE,
+    action: serviceDelete
+  },
+  'service-add-action': {
+    httpMethod: POST,
+    action: serviceAddAction
+  },
+  'service-add-scale': {
+    httpMethod: POST,
+    action: serviceAddScale
+  },
+  'service-add-role-action': {
+    httpMethod: POST,
+    action: serviceAddRoleAction
+  },
+  'service_template-all': {
+    httpMethod: GET,
+    action: serviceTemplateAll
+  },
+  service_template: {
+    httpMethod: GET,
+    action: serviceTemplate
+  },
+  'service_template-delete': {
+    httpMethod: DELETE,
+    action: serviceTemplateDelete
+  },
+  'service_template-create': {
+    httpMethod: POST,
+    action: serviceTemplateCreate
+  },
+  'service_template-update': {
+    httpMethod: PUT,
+    action: serviceTemplateUpdate
+  },
+  'service_template-action': {
+    httpMethod: POST,
+    action: serviceTemplateAction
+  }
+};
 
 const publicRoutes = {};
 

@@ -19,6 +19,7 @@ const rpc = require('xmlrpc');
 const xml2js = require('xml2js');
 const { Map } = require('immutable');
 const { sprintf } = require('sprintf-js');
+const speakeasy = require('speakeasy');
 const httpCodes = require('./constants/http-codes');
 const commandsParams = require('./constants/commands');
 const {
@@ -263,11 +264,28 @@ const generateNewTemplate = (
   wrapper = 'SUNSTONE=[%1$s]'
 ) => {
   const positions = Object.entries({ ...current, ...addPositions })
-    .filter(position => position && !removedPositions.includes(position))
+    .filter(position => {
+      let element = position;
+      if (Array.isArray(position)) {
+        element = position[0];
+      }
+      return element && !removedPositions.includes(element);
+    })
     .map(([position, value]) => `${position}=${value}`)
     .join(', ');
-
   return sprintf(wrapper, positions);
+};
+
+const check2Fa = (secret = '', token = '') => {
+  let rtn = false;
+  if (secret && token) {
+    rtn = speakeasy.totp.verify({
+      secret,
+      encoding: 'base32',
+      token
+    });
+  }
+  return rtn;
 };
 
 module.exports = {
@@ -280,5 +298,6 @@ module.exports = {
   checkPositionInDataSource,
   checkOpennebulaCommand,
   paramsDefaultByCommandOpennebula,
-  generateNewTemplate
+  generateNewTemplate,
+  check2Fa
 };

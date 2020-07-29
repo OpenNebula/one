@@ -12,31 +12,24 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
+const { Map } = require('immutable');
+const { internalServerError } = require('./constants/http-codes');
 
-import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
-import { findStorageData } from '../../../utils';
-import constants from '../../../constants';
+const httpResponse = (response, data, message) => {
+  let rtn = Map(internalServerError).toObject();
+  rtn.data = data;
+  if (response) {
+    rtn = Map(response).toObject();
+  }
+  if (data || data === 0) {
+    rtn.data = data;
+  }
+  if (message) {
+    rtn.message = message;
+  }
+  return rtn;
+};
 
-const { jwtName } = constants;
-
-const ENDPOINT = 'http://127.0.0.1:3000';
-
-function Webconsole() {
-  const [response, setResponse] = useState({});
-
-  useEffect(() => {
-    const socket = io(ENDPOINT, {
-      query: {
-        token: findStorageData(jwtName)
-      }
-    });
-    socket.on('zeroMQ', data => {
-      setResponse(data);
-    });
-  }, []);
-  console.log('-->', response);
-  return <p />;
-}
-
-export default Webconsole;
+module.exports = {
+  httpResponse
+};

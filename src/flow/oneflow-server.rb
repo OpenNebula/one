@@ -236,6 +236,8 @@ delete '/service/:id' do
 end
 
 post '/service/:id/action' do
+    #require 'pry-byebug'
+    #binding.pry
     action = JSON.parse(request.body.read)['action']
     opts   = action['params']
 
@@ -458,6 +460,8 @@ post '/service_template' do
     s_template = OpenNebula::ServiceTemplate.new(xml, @client)
 
     begin
+        # require 'pry-byebug'
+        # binding.pry
         rc = s_template.allocate(request.body.read)
     rescue Validator::ParseException, JSON::ParserError => e
         return internal_error(e.message, VALIDATION_EC)

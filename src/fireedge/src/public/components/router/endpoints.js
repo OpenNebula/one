@@ -13,35 +13,62 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const httpCodes = {
-  badRequest: {
-    id: 400,
-    message: 'Bad Request'
+import React from 'react';
+import Login from './login';
+import Settings from '../containers/Settings';
+import TestApi from '../containers/TestApi';
+import Dashboard from '../containers/Dashboard';
+import { Clusters, Hosts, Zones } from '../containers/Infrastructure';
+
+const endpoints = {
+  login: {
+    path: '/',
+    authenticated: false,
+    menu: false,
+    component: Login
   },
-  unauthorized: {
-    id: 401,
-    message: 'Unauthorized'
+  dashboard: {
+    path: '/dashboard',
+    component: () => <Dashboard />
   },
-  methodNotAllowed: {
-    id: 405,
-    message: 'Method not Allowed'
+  settings: {
+    path: '/settings',
+    component: () => <Settings />
   },
-  internalServerError: {
-    id: 500,
-    message: 'Internal Server Error'
+  test_api: {
+    path: '/test-api',
+    component: () => <TestApi />
   },
-  serviceUnavailable: {
-    id: 503,
-    message: 'Service Unavailable'
+  // infrastructure
+  infrastructure: {
+    clusters: {
+      path: '/clusters',
+      component: () => <Clusters />
+    },
+    hosts: {
+      path: '/hosts',
+      component: () => <Hosts />
+    },
+    zones: {
+      path: '/zones',
+      component: () => <Zones />
+    }
   },
-  accepted: {
-    id: 202,
-    message: 'Accepted'
-  },
-  ok: {
-    id: 200,
-    message: 'OK'
+  // networks
+  networks: {
+    vnets: {
+      path: '/vnets'
+    },
+    vnets_templates: {
+      path: '/vnets-templates'
+    },
+    vnets_topology: {
+      path: '/vnets-topology'
+    },
+    vnets_secgroup: {
+      path: '/secgroup'
+    }
   }
 };
 
-module.exports = httpCodes;
+export default endpoints;

@@ -19,7 +19,6 @@ const {
   defaultMethodLogin
 } = require('../../../../utils/constants/defaults');
 const {
-  unauthorized,
   internalServerError
 } = require('../../../../utils/constants/http-codes');
 const { from: fromData } = require('../../../../utils/constants/defaults');
@@ -97,6 +96,7 @@ const publicRoutes = {
             const dataSourceWithExpirateDate = Map(req).toObject();
             // add expire time unix for opennebula creation token
             dataSourceWithExpirateDate[fromData.postBody].expire = relativeTime;
+            dataSourceWithExpirateDate[fromData.postBody].token = '';
             oneConnect(
               defaultMethodLogin,
               getOpennebulaMethod(dataSourceWithExpirateDate),

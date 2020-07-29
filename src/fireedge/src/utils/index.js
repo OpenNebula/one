@@ -18,7 +18,8 @@ const params = require('./constants/params');
 const { defaultTypeLog } = require('./constants/defaults');
 const functionRoutes = require('../routes/api');
 const { validateAuth } = require('./jwt');
-const { messageTerminal } = require('./general');
+const { httpResponse } = require('./server');
+const { messageTerminal, addPrintf } = require('./general');
 const { addWsServer } = require('./ws-zeromq');
 const { getConfig } = require('./yml');
 
@@ -125,6 +126,7 @@ module.exports = {
   includeJSbyHTML,
   includeCSSbyHTML,
   messageTerminal,
+  addPrintf,
   getRouteForOpennebulaCommand,
   getMethodForOpennebulaCommand,
   commandXML,
@@ -132,5 +134,6 @@ module.exports = {
   checkOpennebulaCommand,
   validateRouteFunction,
   responseOpennebula,
-  getConfig
+  getConfig,
+  httpResponse
 };

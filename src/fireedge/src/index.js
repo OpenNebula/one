@@ -19,6 +19,7 @@ const helmet = require('helmet');
 const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
+const socketIO = require('socket.io');
 const cors = require('cors');
 const {
   existsSync,
@@ -106,8 +107,9 @@ const appServer =
       )
     : unsecureServer(app);
 
-// connect to zeromq websocket
-addWsServer(appServer);
+// connect to websocket
+const io = socketIO.listen(appServer);
+addWsServer(io);
 
 appServer.listen(port, () => {
   const config = {
