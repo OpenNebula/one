@@ -329,7 +329,7 @@ define(function(require) {
             $(".provision_save_as_template_confirm_button_disabled", context).hide();
           }
 
-          $(".provision_rdp_button", context).toggle(Boolean(OpenNebulaVM.isRDPSupported(data)));
+          $(".provision_rdp_button", context).toggle(Boolean(OpenNebulaVM.isConnectionSupported(element, 'rdp')));
           $(".provision_wfile_button", context).toggle(Boolean(OpenNebulaVM.isWFileSupported(data)));
 
           if (OpenNebulaVM.isVNCSupported(data) ||
@@ -759,7 +759,7 @@ define(function(require) {
 
     context.on("click", ".provision_rdp_button", function() {
       var vm = $(".provision_info_vm", context).data("vm") || {};
-      var rdp = OpenNebulaVM.isRDPSupported(vm) || {};
+      var rdp = OpenNebulaVM.isConnectionSupported(element, 'rdp') || {};
 
       var username, password;
       if (vm.TEMPLATE && vm.TEMPLATE.CONTEXT) {
