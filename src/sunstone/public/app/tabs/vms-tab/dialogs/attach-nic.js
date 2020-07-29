@@ -121,10 +121,10 @@ define(function(require) {
     
     var showRdp = false, template = this.element.TEMPLATE
     if (template.NIC) {
-      showRdp = OpennebulaVM.hasConnection(template.NIC, "rdp");
+      showRdp = OpennebulaVM.hasRDP(template.NIC);
 
       if (!showRdp && template.NIC_ALIAS) {
-        showRdp = OpennebulaVM.hasConnection(template.NIC_ALIAS, "rdp");
+        showRdp = OpennebulaVM.hasRDP(template.NIC_ALIAS);
       }
     }
     $(".attach_rdp").toggle(!showRdp);
