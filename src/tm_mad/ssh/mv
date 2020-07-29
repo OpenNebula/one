@@ -60,10 +60,9 @@ if [ `is_disk $DST_PATH` -eq 1 ]; then
     exit 0
 fi
 
-DST_INODE=$(timeout 10 ssh "$DST_HOST" "ls -d -i \"$DST_DIR\" | awk '{print \$1}'")
-SRC_INODE=$(timeout 10 ssh "$SRC_HOST" "ls -d -i \"$SRC_DIR\" | awk '{print \$1}'")
-
-if [ -n "$SRC_INODE" ] && [ -n "$DST_INODE" ] && [ "$SRC_INODE" = "$DST_INODE" ]; then
+RANDOM_FILE=$(ssh "$DST_HOST" "mktemp -p \"$DST_DIR\"")
+trap "ssh $DST_HOST \"rm -f $RANDOM_FILE\"" EXIT TERM INT HUP
+if ssh "$SRC_HOST" "test -f $RANDOM_FILE"; then
     log "Not moving $SRC to $DST, they are the same path"
     exit 0
 fi
