@@ -682,7 +682,7 @@ define(function(require) {
     "isRDPSupported": isRDPSupported,
     "isSPICESupported": isSPICESupported,
     "isWFileSupported": isWFileSupported,
-    "hasConnection": hasConnection,
+    "hasRDP": hasRDP,
     "buttonVnc": buttonVnc,
     "buttonSpice": buttonSpice,
     "buttonWFile": buttonWFile,
