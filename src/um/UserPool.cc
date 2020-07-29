@@ -897,11 +897,9 @@ bool UserPool::authenticate_internal(User *        user,
             continue;
         }
 
-        group->add_user(*it);
-
         if ( new_group_admin_ids.find(*it) != new_group_admin_ids.end() )
         {
-            group->add_admin(*it, error_str);
+            group->add_admin(user_id, error_str);
         }
 
         group->add_user(user_id);
