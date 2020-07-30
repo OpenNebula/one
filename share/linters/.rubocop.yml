@@ -88,6 +88,7 @@ AllCops:
     - src/im_mad/remotes/one.d/poll
     - src/im_mad/remotes/az.d/poll
     - src/im_mad/remotes/lib/vcenter_cluster.rb
+    - src/im_mad/remotes/lib/vcenter_monitor.rb
     - src/vnm_mad/remotes/ovswitch/post
     - src/vnm_mad/remotes/ovswitch/clean
     - src/vnm_mad/remotes/ovswitch/pre
@@ -386,17 +387,8 @@ AllCops:
     - src/oca/ruby/deprecated/OpenNebula.rb
     - src/vmm_mad/dummy/one_vmm_dummy.rb
     - src/vmm_mad/remotes/one/opennebula_driver.rb
-    - src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb
-    - src/vmm_mad/remotes/lib/vcenter_driver/vcenter_importer.rb
-    - src/vmm_mad/remotes/lib/vcenter_driver/vi_helper.rb
-    - src/vmm_mad/remotes/lib/vcenter_driver/network.rb
     - src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine.rb
     - src/vmm_mad/remotes/lib/vcenter_driver/vm_template.rb
-    - src/vmm_mad/remotes/lib/vcenter_driver/file_helper.rb
-    - src/vmm_mad/remotes/lib/vcenter_driver/vi_client.rb
-    - src/vmm_mad/remotes/lib/vcenter_driver/host.rb
-    - src/vmm_mad/remotes/lib/vcenter_driver/datacenter.rb
-    - src/vmm_mad/remotes/lib/vcenter_driver/memoize.rb
     - src/vmm_mad/remotes/lib/lxd/mapper/qcow2.rb
     - src/vmm_mad/remotes/lib/lxd/mapper/mapper.rb
     - src/vmm_mad/remotes/lib/lxd/mapper/rbd.rb

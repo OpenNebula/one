@@ -71,7 +71,7 @@ begin
     vm        = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vmid)
     vmperst   = vm.instantiated_as_persistent?
 
-    vm.remove_all_snapshots if vm.has_snapshots?
+    vm.remove_all_snapshots if vm.snapshots?
     disk = vm.disk(disk_id)
 
     # Don't detach persistent disks if the VM has snapshots

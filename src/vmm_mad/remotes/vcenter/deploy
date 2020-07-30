@@ -92,7 +92,7 @@ begin
         end
     end
 
-    if vm.is_powered_off?
+    if vm.powered_off?
         vm.sync(deploy)
         # Only mark the VM as running if we are deploying it for the first time
         set_running = !deploy_id_valid?(deploy_id)

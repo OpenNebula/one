@@ -76,7 +76,7 @@ begin
 
     vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vmid)
 
-    if vm.has_snapshots?
+    if vm.snapshots?
         raise "'disk-saveas' not supported in VMs with system snapshots."
     end
 

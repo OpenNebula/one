@@ -86,7 +86,7 @@ target_path = "#{ds_image_dir}/#{id}"
 # If image is in a remote http location it has to be downloaded
 # or if is a zipped file it has to be unzipped in a temp folder
 
-if VCenterDriver::FileHelper.is_remote_or_needs_unpack?(img_path)
+if VCenterDriver::FileHelper.remote_or_needs_unpack?(img_path)
     temp_folder = File.join(VAR_LOCATION, "vcenter/#{target_path}")
     temp_file = File.join(temp_folder, File.basename(img_path))
     # if the original file doesnt have the vmdk extension, add it
@@ -140,25 +140,25 @@ files_to_upload.each_with_index do |f, index|
         path = "#{target_path}/#{filename}"
 
         # remove gz or bz2 if part of filename
-        if path.end_with?('gz') && VCenterDriver::FileHelper.is_vmdk?(f)
+        if path.end_with?('gz') && VCenterDriver::FileHelper.vmdk?(f)
             path.gsub!(/gz$/, '')
         end
 
-        if path.end_with?('bz2') && VCenterDriver::FileHelper.is_vmdk?(f)
+        if path.end_with?('bz2') && VCenterDriver::FileHelper.vmdk?(f)
             path.gsub!(/bz2$/, '')
         end
     end
 
     # Change path if vmdk is part of filename but it's not the extension
     # rubocop:disable Style/DoubleNegation
-    if !!/[^.]+vmdk$/.match(path) && VCenterDriver::FileHelper.is_vmdk?(f)
+    if !!/[^.]+vmdk$/.match(path) && VCenterDriver::FileHelper.vmdk?(f)
         path.gsub!(/vmdk$/, '')
         extension = '.vmdk'
     end
     # rubocop:enable Style/DoubleNegation
 
     # Add iso extension if file is an ISO file
-    if VCenterDriver::FileHelper.is_iso?(f)
+    if VCenterDriver::FileHelper.iso?(f)
         path = "#{File.dirname(path)}/#{File.basename(path, '.*')}"
         extension = '.iso'
     end

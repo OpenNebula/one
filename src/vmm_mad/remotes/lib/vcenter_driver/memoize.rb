@@ -14,10 +14,13 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-
+##############################################################################
+# Module Memoize
+##############################################################################
 module Memoize
+
     def [](property)
-        @memoize = {} if !defined?(@memoize)
+        @memoize = {} unless defined?(@memoize)
 
         if (value = @memoize[property])
             return value
@@ -25,13 +28,13 @@ module Memoize
 
         current_item = @item
 
-        property_path = ""
+        property_path = ''
 
-        property.split(".").each do |elem|
+        property.split('.').each do |elem|
             if property_path.empty?
                 property_path << elem
             else
-                property_path << "." << elem
+                property_path << '.' << elem
             end
 
             if (val = @memoize[property_path])
@@ -39,7 +42,7 @@ module Memoize
             else
                 begin
                     current_item = current_item.send(elem)
-                rescue Exception => e
+                rescue StandardError
                     current_item = nil
                 end
             end
@@ -47,14 +50,13 @@ module Memoize
             break if current_item.nil?
 
             @memoize[property_path] = current_item
-
         end
 
         @memoize[property] = current_item
     end
 
     def clear(property)
-        @memoize = {} if !defined?(@memoize)
+        @memoize = {} unless defined?(@memoize)
         @memoize.clear[property] if @memoize[property]
     end
 
@@ -63,8 +65,10 @@ module Memoize
     end
 
     def []=(property, value)
-        @memoize = {} if !defined?(@memoize)
+        @memoize = {} unless defined?(@memoize)
 
         @memoize[property] = value
     end
-end # module Memoize
+
+end
+# module Memoize

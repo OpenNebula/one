@@ -97,10 +97,10 @@ begin
         vm.destroy_disk(disk)
     else
         @error_message = "Error unregistering vm #{vmid} (#{vm_ref})."
-        vm.poweroff_hard if vm.is_powered_on?
+        vm.poweroff_hard if vm.powered_on?
 
         if vm.instantiated_as_persistent?
-            vm.remove_all_snapshots if vm.has_snapshots?
+            vm.remove_all_snapshots if vm.snapshots?
             vm.convert_to_template
         else
             vm.destroy

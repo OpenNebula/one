@@ -126,7 +126,7 @@ module NSXDriver
             # Virtual Machine devices
             vm_devices = vm.item.config.hardware.device
             vm_devices.each do |device|
-                next unless vm.is_nic?(device)
+                next unless VCenterDriver::Network.nic?(device)
 
                 next if device.macAddress != network_mac
 
