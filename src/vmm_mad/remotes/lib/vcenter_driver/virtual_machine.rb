@@ -198,7 +198,7 @@ module VCenterDriver
         ############################################################################
 
         # @return Boolean whether the VM exists in vCenter
-        def is_new?
+        def new?
             one_item["DEPLOY_ID"].empty?
         end
 
@@ -237,7 +237,7 @@ module VCenterDriver
             @vi_client.vim.serviceContent.about.instanceUuid
         end
 
-        def get_disk_keys
+        def disk_keys_get
             unmanaged_keys = {}
             @item.config.extraConfig.each do |val|
                 u = val[:key].include?("opennebula.disk")
@@ -672,7 +672,7 @@ module VCenterDriver
         end
 
         # Queries to OpenNebula the machine nics xml representation
-        def get_one_nics
+        def one_nics_get
             one_item.info if one_item.instance_of?(OpenNebula::VirtualMachine)
             one_item.retrieve_xmlelements("TEMPLATE/NIC")
         end
@@ -682,7 +682,7 @@ module VCenterDriver
         # @param one_disk [XMLelement]  The OpenNebula object representation of the disk
         # @param keys [Hash (String => String)] Hashmap with the unmanaged keys
         # @param vc_disks [Array (vcenter_disks)] Array of the machine real disks
-        # see get_vcenter_disks method
+        # see vcenter_disks_get method
         #
         # @return [vCenter_disk] the proper disk
         def query_disk(one_disk, keys, vc_disks)
@@ -738,8 +738,8 @@ module VCenterDriver
         def info_nics
             @nics = {macs: {}}
 
-            vc_nics  = get_vcenter_nics
-            one_nics = get_one_nics
+            vc_nics  = vcenter_nics_get
+            one_nics = one_nics_get
 
             one_nics.each do |one_nic|
                 index  = one_nic["NIC_ID"]
@@ -785,8 +785,8 @@ module VCenterDriver
         def info_disks
             @disks = {}
 
-            keys = get_disk_keys
-            vc_disks  = get_vcenter_disks
+            keys = disk_keys_get
+            vc_disks  = vcenter_disks_get
             one_disks = get_one_disks
 
             one_disks.each do |one_disk|
@@ -834,7 +834,7 @@ module VCenterDriver
 
             raise "nic #{index} not found" unless one_nic
 
-            vc_nics = get_vcenter_nics
+            vc_nics = vcenter_nics_get
             vc_nic  = query_nic(mac, vc_nics)
 
             if vc_nic
@@ -858,8 +858,8 @@ module VCenterDriver
 
             raise "disk #{index} not found" unless one_disk
 
-            keys = opts[:keys].nil? ? get_disk_keys : opts[:keys]
-            vc_disks = opts[:disks].nil? ? get_vcenter_disks : opts[:disks]
+            keys = opts[:keys].nil? ? disk_keys_get : opts[:keys]
+            vc_disks = opts[:disks].nil? ? vcenter_disks_get : opts[:disks]
             vc_disk = query_disk(one_disk, keys, vc_disks)
 
             if vc_disk
@@ -892,7 +892,7 @@ module VCenterDriver
             # for unmanaged nics
             begin
                 if !unmanaged_nics.empty?
-                    nics = get_vcenter_nics
+                    nics = vcenter_nics_get
 
                     select_net =->(ref){
                         device = nil
@@ -1042,16 +1042,16 @@ module VCenterDriver
             key_prefix = managed ? "opennebula.mdisk" : "opennebula.disk"
 
             # Get vcenter VM disks to know real path of cloned disk
-            vcenter_disks = get_vcenter_disks
+            vcenter_disks = vcenter_disks_get
 
             # Create an array with the paths of the disks in vcenter template
             if !template_ref.nil?
               template = VCenterDriver::Template.new_from_ref(template_ref, vi_client)
-              template_disks = template.get_vcenter_disks
+              template_disks = template.vcenter_disks_get
             else
               # If we are dealing with a Wild VM, we simply use
               # what is available in the vCenter VM
-              template_disks = get_vcenter_disks
+              template_disks = vcenter_disks_get
             end
             template_disks_vector = []
             template_disks.each do |d|
@@ -1386,7 +1386,7 @@ module VCenterDriver
             # start in one, we want the next avaliable id
             card_num = 1
             @item["config.hardware.device"].each do |dv|
-                card_num += 1 if is_nic?(dv)
+                card_num += 1 if VCenterDriver::Network.nic?(dv)
             end
 
             nic_card = Nic.nic_model_class(model)
@@ -1413,7 +1413,7 @@ module VCenterDriver
 
             # grab the last unitNumber to ensure the nic to be added at the end
             if !unumber
-                @unic   = @unic || get_vcenter_nics.map{|d| d.unitNumber}.max || 0
+                @unic   = @unic || vcenter_nics_get.map{|d| d.unitNumber}.max || 0
                 unumber = @unic += 1
             else
                 @unic   = unumber
@@ -1487,7 +1487,7 @@ module VCenterDriver
             card_num = 1 # start in one, we want the next available id
 
             @item["config.hardware.device"].each do |dv|
-                card_num += 1 if is_nic?(dv)
+                card_num += 1 if VCenterDriver::Network.nic?(dv)
             end
 
             nic_card = Nic.nic_model_class(model)
@@ -1644,7 +1644,7 @@ module VCenterDriver
         def detach_disks_specs()
             detach_disk_array = []
             extra_config      = []
-            keys = get_disk_keys.invert
+            keys = disk_keys_get.invert
             ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
             disks_each(:detached?) do |d|
                 key = d.key.to_s
@@ -1675,7 +1675,7 @@ module VCenterDriver
             extraconfig_new = []
             # vCenter mob disks
             vc_disks = @item["config.hardware.device"].select do |vc_device|
-                is_disk?(vc_device)
+                disk?(vc_device)
             end
             return unless vc_disks
             # For each changed disk, compare with vcenter mob disk
@@ -1740,8 +1740,8 @@ module VCenterDriver
             device_change = []
 
             # Extract unmanaged_keys
-            unmanaged_keys = get_disk_keys
-            vc_disks = get_vcenter_disks
+            unmanaged_keys = disk_keys_get
+            vc_disks = vcenter_disks_get
 
             # Check if we're dealing with a StoragePod SYSTEM ds
             storpod = disk["VCENTER_DS_REF"].start_with?('group-')
@@ -1832,7 +1832,7 @@ module VCenterDriver
             end
 
             vm.config.hardware.device.each do |disk|
-                if is_disk_or_cdrom?(disk)
+                if disk_or_cdrom?(disk)
                     # Let's try to find if disks is persistent
                     source_unescaped = disk.backing.fileName.sub(/^\[(.*?)\] /, "") rescue next
                     source = VCenterDriver::FileHelper.escape_path(source_unescaped)
@@ -1922,10 +1922,10 @@ module VCenterDriver
             @used_keys = [] unless @used_keys
 
             if type == "CDROM"
-                bound = "is_cdrom?"
+                bound = "cdrom?"
                 key   = 3000
             else
-                bound = "is_disk?"
+                bound = "disk?"
                 key   = 2000
             end
 
@@ -2395,7 +2395,7 @@ module VCenterDriver
         ############################################################################
 
         def shutdown
-            if !is_powered_off?
+            if !powered_off?
                 begin
                     if vm_tools?
                         @item.ShutdownGuest
@@ -2407,7 +2407,7 @@ module VCenterDriver
                     raise e.message if error != 'InvalidPowerState'
                 end
                 timeout = CONFIG[:vm_poweron_wait_default]
-                wait_timeout(:is_powered_off?, timeout)
+                wait_timeout(:powered_off?, timeout)
             end
         end
 
@@ -2442,14 +2442,14 @@ module VCenterDriver
             set_running(true, true) if set_running
 
             timeout = CONFIG[:vm_poweron_wait_default]
-            wait_timeout(:is_powered_on?, timeout)
+            wait_timeout(:powered_on?, timeout)
         end
 
-        def is_powered_on?
+        def powered_on?
             return @item.runtime.powerState == "poweredOn"
         end
 
-        def is_powered_off?
+        def powered_off?
             return @item.runtime.powerState == "poweredOff"
         end
 

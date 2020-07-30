@@ -123,7 +123,7 @@ def create_dpg(one_vnet, dc, cluster, vi_client)
                     if dvs
                         pnics_available = nil
                         if pnics && !pnics.empty?
-                            pnics_available = esx_host.get_available_pnics
+                            pnics_available = esx_host.available_pnics
                         end
                         esx_host.assign_proxy_switch(dvs,
                                                      sw_name,
@@ -164,7 +164,7 @@ def create_pg(one_vnet, esx_host)
         esx_host.lock # Exclusive lock for ESX host operation
 
         pnics_available = nil
-        pnics_available = esx_host.get_available_pnics if pnics
+        pnics_available = esx_host.available_pnics if pnics
 
         # Get port group if it exists
         pg = esx_host.pg_exists(pg_name)

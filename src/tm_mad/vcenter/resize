@@ -63,7 +63,7 @@ begin
     vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vmid)
 
     # Cannot resize if VM has snapshots
-    if vm.has_snapshots?
+    if vm.snapshots?
         raise "'disk-resize' operation not supported for VMs with snapshots."
     end
 
