@@ -207,22 +207,16 @@ define(function(require) {
     //.off and .on prevent multiple clicks events
     $(context).off("click", "#update_reserved_hosts").on("click", "#update_reserved_hosts", function(){
       var CPU = that && that.element && that.element.HOST_SHARE && that.element.HOST_SHARE.TOTAL_CPU;
-      var MEMORY = that && that.element && that.element.MONITORING && that.element.MONITORING.CAPACITY;
+      var MEMORY = that && that.element && that.element.HOST_SHARE && that.element.HOST_SHARE.MAX_MEM;
       if(CPU && MEMORY){
         $("#update_reserved_hosts", context).prop("disabled", true);
-        var reservedCPU = parseInt($("#textInput_reserved_cpu_hosts", context).val());
-        var reservedMem = parseInt(Humanize.sizeToMB($("#textInput_reserved_mem_hosts").val()) * 1024);
-
+        var reservedCPU = parseInt($("#textInput_reserved_cpu_hosts", context).val(),10);
+        var inputNumber = Humanize.sizeToMB($("#textInput_reserved_mem_hosts").val());
+        var reservedMem = parseInt(inputNumber * 1024, 10);
         var CPU = parseInt(CPU||0,10);
-        var MEM = parseInt((MEMORY.FREE_MEMORY)||0);
-
+        var MEM = parseInt(MEMORY||0,10);
         reservedCPU = CPU - reservedCPU;
-
-        if (parseInt(MEMORY.USED_MEMORY||0) > 0){
-          MEM += parseInt(MEMORY.USED_MEMORY||0);
-        }
         reservedMem = MEM - reservedMem;
-
         var obj = { RESERVED_CPU: reservedCPU, RESERVED_MEM: reservedMem };
         Sunstone.runAction("Host.append_template", that.element.ID, TemplateUtils.templateToString(obj));
       }
