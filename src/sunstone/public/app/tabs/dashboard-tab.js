@@ -152,9 +152,9 @@ define(function(require) {
                 var default_user_quotas = QuotaDefaults.default_quotas(user.DEFAULT_USER_QUOTAS);
 
                 var vms = QuotaWidgets.quotaInfo(
-                    user.VM_QUOTA.VM.VMS_USED,
-                    user.VM_QUOTA.VM.VMS,
-                    default_user_quotas.VM_QUOTA.VM.VMS);
+                  user.VM_QUOTA.VM.RUNNING_VMS_USED,
+                  user.VM_QUOTA.VM.VMS,
+                  default_user_quotas.VM_QUOTA.VM.VMS);
 
                 $("#"+TAB_ID+" #provision_dashboard_rvms_percentage").html(vms["percentage"]);
                 $("#"+TAB_ID+" #provision_dashboard_rvms_str").html(vms["str"]);
