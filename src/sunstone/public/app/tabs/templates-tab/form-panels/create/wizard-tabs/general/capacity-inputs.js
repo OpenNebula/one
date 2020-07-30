@@ -80,7 +80,8 @@ define(function(require) {
     $("#CORES_PER_SOCKET", context).append($('<option>').val("").text(""));
     var visor = $("div.vcpu_input input.visor")
     var slider = $("div.vcpu_input input");
-    var from = visor.length? visor : slider;
+    var select = $("div.vcpu_input select");
+    var from = visor.length? visor : slider.length ? slider : select;
     var vcpuValue = from.val();
     for (var i = 1; i <= vcpuValue; i++){
       if (vcpuValue%i === 0){
@@ -190,7 +191,7 @@ define(function(require) {
         $('#CORES_PER_SOCKET option[value="' + element.TEMPLATE.CORES_PER_SOCKET + '"]').prop('selected', true);
       }
 
-      $("div.vcpu_input input", context).off().on("change keyup", function(e){
+      $("div.vcpu_input input, div.vcpu_input select", context).off().on("change keyup", function(e){
         element = $("div.vcpu_input input.visor", context);
         if(element.length){
           min = element.attr("data-min");
