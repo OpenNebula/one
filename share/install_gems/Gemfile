@@ -74,6 +74,7 @@ end
 
 group :hybrid do
     gem 'aws-sdk-ec2', '>=1.151'
+    gem 'aws-sdk-s3'
     gem 'aws-sdk-cloudwatch'
     gem 'azure_mgmt_compute'
     gem 'azure_mgmt_monitor'
