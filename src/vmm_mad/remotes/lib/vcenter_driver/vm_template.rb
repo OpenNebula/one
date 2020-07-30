@@ -547,6 +547,7 @@ module VCenterDriver
             template_ref,
             dc_ref,
             vm_id,
+            hpool,
             vi_client
         )
             config = {}
@@ -788,6 +789,7 @@ module VCenterDriver
                                                            template_ref,
                                                            dc_ref,
                                                            vm_id,
+                                                           hpool,
                                                            vi_client)
 
                         allocated_networks << one_vn
