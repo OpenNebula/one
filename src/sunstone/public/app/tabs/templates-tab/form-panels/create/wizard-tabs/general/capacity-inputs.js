@@ -63,12 +63,12 @@ define(function(require) {
   }
 
   function _calculateSockets(context){
-    var vcpu = $("div.vcpu_input input", context).val();
+    var vcpu = $("div.vcpu_input input, div.vcpu_input select", context).val();
     var cores_per_socket = $("#CORES_PER_SOCKET").val();
 
     if ((vcpu != "") && (cores_per_socket != "")){
       $("div.socket_info").show();
-      $("#number_sockets").text(vcpu/cores_per_socket);
+      $("#number_sockets").text(parseInt(vcpu, 10)/parseInt(cores_per_socket, 10));
     }
     else{
       $("div.socket_info").hide();
@@ -162,23 +162,24 @@ define(function(require) {
 
     $("div.vcpu_input", context).html(input);
     $("div.vcpu_input input", context).val(attr.min);
+    var vcpuInput = $("div.vcpu_input input, div.vcpu_input select", context);
+    vcpuInput.off();
 
     if (Config.isFeatureEnabled("instantiate_cpu_factor")){
-      $("div.cpu_input input", context).prop("disabled", true);
-      var vcpuValue = $("div.vcpu_input input", context).val();
-      if (vcpuValue !== ""){
-        $("div.cpu_input input", context).val($("div.vcpu_input input", context).val() * Config.scaleFactor);
-      } else {
-        $("div.cpu_input input", context).val("");
-      }
-      $("div.vcpu_input input", context).on("change", function(){
-        var vcpuValue = $("div.vcpu_input input", context).val();
+      vcpuInput.on("change", function() {
+        var vcpuValue = $(this).val();
         if (vcpuValue !== ""){
           $("div.cpu_input input", context).val(vcpuValue * Config.scaleFactor);
         } else {
           $("div.cpu_input input", context).val("");
         }
       });
+      
+      $("div.cpu_input input", context).prop("disabled", true);
+      var vcpuValue = vcpuInput.val();
+      if (vcpuValue && vcpuValue !== "") {
+        vcpuInput.trigger("change")
+      } 
     }
 
     if (element.TEMPLATE.HYPERVISOR == "vcenter"){
@@ -191,7 +192,7 @@ define(function(require) {
         $('#CORES_PER_SOCKET option[value="' + element.TEMPLATE.CORES_PER_SOCKET + '"]').prop('selected', true);
       }
 
-      $("div.vcpu_input input, div.vcpu_input select", context).off().on("change keyup", function(e){
+      vcpuInput.on("change keyup", function(e){
         element = $("div.vcpu_input input.visor", context);
         if(element.length){
           min = element.attr("data-min");
@@ -203,7 +204,7 @@ define(function(require) {
             _calculateSockets(context);
           }else{
             element.val(max);
-            $("div.vcpu_input input", context).val(max);
+            $("div.vcpu_input input", context).val(max).change();
             Notifier.notifyError(Locale.tr("The value goes out of the allowed limits"));
           }
         }else{
