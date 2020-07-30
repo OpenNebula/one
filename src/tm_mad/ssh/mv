@@ -60,13 +60,6 @@ if [ `is_disk $DST_PATH` -eq 1 ]; then
     exit 0
 fi
 
-RANDOM_FILE=$(ssh "$DST_HOST" "mktemp -p \"$DST_DIR\"")
-trap "ssh $DST_HOST \"rm -f $RANDOM_FILE\"" EXIT TERM INT HUP
-if ssh "$SRC_HOST" "test -f $RANDOM_FILE"; then
-    log "Not moving $SRC to $DST, they are the same path"
-    exit 0
-fi
-
 if [ `lcm_state` -eq 60 ]; then
     log "Not moving files from $SRC_HOST in FT mode"
     exit 0
@@ -83,6 +76,13 @@ EOF
 MONITOR=$(ssh_monitor_and_log "$SRC_HOST" "$MONITOR_CMD" 'Get .monitor')
 
 ssh_make_path "$DST_HOST" "$DST_PATH" "$MONITOR"
+
+RANDOM_FILE=$(ssh "$DST_HOST" "mktemp -p \"$DST_DIR\"")
+trap "ssh $DST_HOST \"rm -f $RANDOM_FILE\"" EXIT TERM INT HUP
+if ssh "$SRC_HOST" "test -f $RANDOM_FILE"; then
+    log "Not moving $SRC to $DST, they are the same path"
+    exit 0
+fi
 
 log "Moving $SRC to $DST"
 
