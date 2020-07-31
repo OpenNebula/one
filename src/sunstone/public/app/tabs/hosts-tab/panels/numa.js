@@ -105,11 +105,10 @@ define(function(require) {
     if (
       that && 
       that.element && 
-      that.element.MONITORING && 
-      that.element.MONITORING.HOST_SHARE && 
-      that.element.MONITORING.HOST_SHARE.NUMA_NODES
+      that.element.HOST_SHARE && 
+      that.element.HOST_SHARE.NUMA_NODES
     ) {
-      var numaNodes = that.element.MONITORING.HOST_SHARE.NUMA_NODES.NODE;
+      var numaNodes = that.element.HOST_SHARE.NUMA_NODES.NODE;
       if (!(numaNodes instanceof Array)) {
         numaNodes = [numaNodes];
       }
