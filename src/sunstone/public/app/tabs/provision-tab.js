@@ -572,9 +572,9 @@ define(function(require) {
             if (group && group.VM_QUOTA && !$.isEmptyObject(group.VM_QUOTA)){
                 var default_group_quotas = QuotaDefaults.default_quotas(group.DEFAULT_GROUP_QUOTAS);
                 var vms = QuotaWidgets.quotaInfo(
-                    group.VM_QUOTA.VM.VMS_USED,
-                    group.VM_QUOTA.VM.VMS,
-                    default_group_quotas.VM_QUOTA.VM.VMS);
+                  group.VM_QUOTA.VM.RUNNING_VMS_USED,
+                  group.VM_QUOTA.VM.RUNNING_VMS,
+                  default_group_quotas.VM_QUOTA.VM.VMS);
                 $("#provision_dashboard_group_rvms_percentage").html(vms["percentage"]);
                 $("#provision_dashboard_group_rvms_str").html(vms["str"]);
                 $("#provision_dashboard_group_rvms_meter").val(vms["percentage"]);
