@@ -711,22 +711,21 @@ define(function(require) {
    * @param  {object} attr structure as returned by parse
    * @param  {jQuery} div jQuery selector for the div to attach the html to
    */
-  function _insertAttributeInputMB(attr, div, inputUnit = true) {
+  function _insertAttributeInputMB(attr, div, displayUnit=true, editUnit = true) {
     // Modified input for GB
     var attr_gb = $.extend({}, attr);
     if (attr.type == "range"){
       attr.tick_size = 1024;
     }
     var select = '';
-    var selectInput = inputUnit? '': 'disabled';
-    if(attr && attr.visor){
+    var selectInput = editUnit? '': 'disabled';
+    if(displayUnit){
       var select = "<select class=\"mb_input_unit\" "+selectInput+">" +
         "<option value=\"MB\">"+Locale.tr("MB")+"</option>" +
         "<option value=\"GB\">"+Locale.tr("GB")+"</option>" +
         "<option value=\"TB\">"+Locale.tr("TB")+"</option>" +
       "</select>";
     }
-    
 
     div.html(
       "<div class=\"input-group mb_input_wrapper\" style=\"display:flex;align-items:center;\"" + ">"+
