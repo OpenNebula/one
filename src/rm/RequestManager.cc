@@ -318,6 +318,8 @@ int RequestManager::start()
 
     pthread_create(&rm_xml_server_thread,&pattr,rm_xml_server_loop,(void *)this);
 
+    NebulaLog::log("ReM",Log::INFO,"Request Manager started");
+
     return 0;
 }
 
