@@ -149,8 +149,6 @@ protected:
      */
     void start()
     {
-        end = false;
-
         loop_thread = std::thread([&] {
             NebulaLog::info("Lis", name + " started.");
 
@@ -162,6 +160,8 @@ protected:
 
     void loop()
     {
+        end = false;
+
         std::unique_lock<std::mutex> ul(lock);
 
         while (true)
