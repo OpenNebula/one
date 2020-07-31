@@ -248,7 +248,7 @@ define(function(require) {
     }
     
     attr.visor = attr.type === "number";
-    UserInputs.insertAttributeInputMB(attr, $("div.memory_input", context), false);
+    UserInputs.insertAttributeInputMB(attr, $("div.memory_input", context), true, attr.type === "number");
 
     if (Config.isFeatureEnabled("instantiate_hide_cpu")){
       $(".vcpu_input input", context).prop("required", true);
