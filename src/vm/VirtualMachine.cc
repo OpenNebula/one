@@ -3623,3 +3623,39 @@ void VirtualMachine::decrypt()
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+void VirtualMachine::get_quota_template(VirtualMachineTemplate& quota_tmpl,
+        bool only_running)
+{
+    std::string memory, cpu;
+
+    get_template_attribute("MEMORY", memory);
+    get_template_attribute("CPU", cpu);
+
+    if ((state == VirtualMachine::ACTIVE) ||
+        (state == VirtualMachine::PENDING) ||
+        (state == VirtualMachine::CLONING) ||
+        (state == VirtualMachine::CLONING_FAILURE) ||
+        (state == VirtualMachine::HOLD) )
+    {
+        quota_tmpl.add("RUNNING_MEMORY", memory);
+        quota_tmpl.add("RUNNING_CPU", cpu);
+        quota_tmpl.add("RUNNING_VMS", 1);
+
+        if (only_running)
+        {
+            quota_tmpl.add("MEMORY", 0);
+            quota_tmpl.add("CPU", 0);
+            quota_tmpl.add("VMS", 0);
+        }
+        else
+        {
+            quota_tmpl.add("MEMORY", memory);
+            quota_tmpl.add("CPU", cpu);
+            quota_tmpl.add("VMS", 1);
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+

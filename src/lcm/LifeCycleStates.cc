@@ -1150,9 +1150,7 @@ void LifeCycleManager::trigger_monitor_poweroff(int vid)
 void LifeCycleManager::trigger_monitor_poweron(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine *    vm;
-
-        vm = vmpool->get(vid);
+        VirtualMachine * vm = vmpool->get(vid);
 
         if ( vm == nullptr )
         {
@@ -1162,6 +1160,12 @@ void LifeCycleManager::trigger_monitor_poweron(int vid)
         if ( vm->get_state() == VirtualMachine::POWEROFF ||
             vm->get_state() == VirtualMachine::SUSPENDED )
         {
+            VirtualMachineTemplate quota_tmpl;
+            string error;
+
+            int uid = vm->get_uid();
+            int gid = vm->get_gid();
+
             vm->log("VMM",Log::INFO,"VM found again by the drivers");
 
             time_t the_time = time(0);
@@ -1183,6 +1187,12 @@ void LifeCycleManager::trigger_monitor_poweron(int vid)
             vmpool->insert_history(vm);
 
             vmpool->update(vm);
+
+            vm->get_quota_template(quota_tmpl, true);
+
+            vm->unlock();
+
+            Quotas::vm_check(uid, gid, &quota_tmpl, error);
         }
         else if ( vm->get_state() == VirtualMachine::ACTIVE )
         {
@@ -1213,9 +1223,9 @@ void LifeCycleManager::trigger_monitor_poweron(int vid)
                 default:
                     break;
             }
-        }
 
-        vm->unlock();
+            vm->unlock();
+        }
     });
 }
 

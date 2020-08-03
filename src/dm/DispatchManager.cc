@@ -55,39 +55,3 @@ void DispatchManager::init_managers()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void DispatchManager::get_quota_template(VirtualMachine * vm,
-        VirtualMachineTemplate& quota_tmpl, bool only_running) const
-{
-    std::string memory, cpu;
-
-    vm->get_template_attribute("MEMORY", memory);
-    vm->get_template_attribute("CPU", cpu);
-
-    if ( (vm->get_state() == VirtualMachine::ACTIVE) ||
-         (vm->get_state() == VirtualMachine::PENDING) ||
-         (vm->get_state() == VirtualMachine::CLONING) ||
-         (vm->get_state() == VirtualMachine::CLONING_FAILURE) ||
-         (vm->get_state() == VirtualMachine::HOLD) )
-    {
-        quota_tmpl.add("RUNNING_MEMORY", memory);
-        quota_tmpl.add("RUNNING_CPU", cpu);
-        quota_tmpl.add("RUNNING_VMS", 1);
-
-        if (only_running)
-        {
-            quota_tmpl.add("MEMORY", 0);
-            quota_tmpl.add("CPU", 0);
-            quota_tmpl.add("VMS", 0);
-        }
-        else
-        {
-            quota_tmpl.add("MEMORY", memory);
-            quota_tmpl.add("CPU", cpu);
-            quota_tmpl.add("VMS", 1);
-        }
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
