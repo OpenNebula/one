@@ -14,8 +14,7 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 
-gem 'aws-sdk', '>=2'
-require 'aws-sdk'
+require 'aws-sdk-s3'
 
 # This class is a generic wrapper to the s3 gem.
 # It can either handle simple or multipart uploads, but the logic to decide
