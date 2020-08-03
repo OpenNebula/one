@@ -26,11 +26,6 @@ using namespace std;
 void DispatchManager::trigger_suspend_success(int vid)
 {
     trigger([this, vid] {
-        VirtualMachineTemplate quota_tmpl;
-        string error_str;
-
-        int uid, gid;
-
         VirtualMachine * vm = vmpool->get(vid);
 
         if (vm == nullptr)
@@ -46,13 +41,22 @@ void DispatchManager::trigger_suspend_success(int vid)
             vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED||
             vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED))
         {
-            get_quota_template(vm, quota_tmpl, true);
+            VirtualMachineTemplate quota_tmpl;
+
+            vm->get_quota_template(quota_tmpl, true);
 
             vm->set_state(VirtualMachine::SUSPENDED);
 
             vm->set_state(VirtualMachine::LCM_INIT);
 
             vmpool->update(vm);
+
+            int uid = vm->get_uid();
+            int gid = vm->get_gid();
+
+            vm->unlock();
+
+            Quotas::vm_del(uid, gid, &quota_tmpl);
         }
         else
         {
@@ -65,13 +69,6 @@ void DispatchManager::trigger_suspend_success(int vid)
             vm->unlock();
             return;
         }
-
-        uid = vm->get_uid();
-        gid = vm->get_gid();
-
-        vm->unlock();
-
-        Quotas::vm_del(uid, gid, &quota_tmpl);
     });
 }
 
@@ -81,11 +78,6 @@ void DispatchManager::trigger_suspend_success(int vid)
 void DispatchManager::trigger_stop_success(int vid)
 {
     trigger([this, vid] {
-        VirtualMachineTemplate quota_tmpl;
-        string error_str;
-
-        int uid, gid;
-
         VirtualMachine * vm = vmpool->get(vid);
 
         if (vm == nullptr)
@@ -97,7 +89,9 @@ void DispatchManager::trigger_stop_success(int vid)
             (vm->get_lcm_state() == VirtualMachine::EPILOG_STOP ||
             vm->get_lcm_state() == VirtualMachine::PROLOG_RESUME))
         {
-            get_quota_template(vm, quota_tmpl, true);
+            VirtualMachineTemplate quota_tmpl;
+
+            vm->get_quota_template(quota_tmpl, true);
 
             vm->set_state(VirtualMachine::STOPPED);
 
@@ -112,6 +106,13 @@ void DispatchManager::trigger_stop_success(int vid)
             }
 
             vmpool->update(vm);
+
+            int uid = vm->get_uid();
+            int gid = vm->get_gid();
+
+            vm->unlock();
+
+            Quotas::vm_del(uid, gid, &quota_tmpl);
         }
         else
         {
@@ -123,13 +124,6 @@ void DispatchManager::trigger_stop_success(int vid)
             vm->unlock();
             return;
         }
-
-        uid = vm->get_uid();
-        gid = vm->get_gid();
-
-        vm->unlock();
-
-        Quotas::vm_del(uid, gid, &quota_tmpl);
     });
 }
 
@@ -139,11 +133,6 @@ void DispatchManager::trigger_stop_success(int vid)
 void DispatchManager::trigger_undeploy_success(int vid)
 {
     trigger([this, vid] {
-        VirtualMachineTemplate quota_tmpl;
-        string error_str;
-
-        int uid, gid;
-
         VirtualMachine * vm = vmpool->get(vid);
 
         if (vm == nullptr)
@@ -156,7 +145,9 @@ void DispatchManager::trigger_undeploy_success(int vid)
             vm->get_lcm_state() == VirtualMachine::DISK_RESIZE_UNDEPLOYED ||
             vm->get_lcm_state() == VirtualMachine::PROLOG_UNDEPLOY))
         {
-            get_quota_template(vm, quota_tmpl, true);
+            VirtualMachineTemplate quota_tmpl;
+
+            vm->get_quota_template(quota_tmpl, true);
 
             vm->set_state(VirtualMachine::UNDEPLOYED);
 
@@ -171,6 +162,13 @@ void DispatchManager::trigger_undeploy_success(int vid)
             }
 
             vmpool->update(vm);
+
+            int uid = vm->get_uid();
+            int gid = vm->get_gid();
+
+            vm->unlock();
+
+            Quotas::vm_del(uid, gid, &quota_tmpl);
         }
         else
         {
@@ -183,13 +181,6 @@ void DispatchManager::trigger_undeploy_success(int vid)
             vm->unlock();
             return;
         }
-
-        uid = vm->get_uid();
-        gid = vm->get_gid();
-
-        vm->unlock();
-
-        Quotas::vm_del(uid, gid, &quota_tmpl);
     });
 }
 
@@ -199,11 +190,6 @@ void DispatchManager::trigger_undeploy_success(int vid)
 void DispatchManager::trigger_poweroff_success(int vid)
 {
     trigger([this, vid] {
-        VirtualMachineTemplate quota_tmpl;
-        string error_str;
-
-        int uid, gid;
-
         VirtualMachine * vm = vmpool->get(vid);
 
         if (vm == nullptr)
@@ -225,13 +211,27 @@ void DispatchManager::trigger_poweroff_success(int vid)
             vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC_POWEROFF ||
             vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE))
         {
-            get_quota_template(vm, quota_tmpl, true);
+            VirtualMachineTemplate quota_tmpl;
+
+            vm->get_quota_template(quota_tmpl, true);
 
             vm->set_state(VirtualMachine::POWEROFF);
 
             vm->set_state(VirtualMachine::LCM_INIT);
 
             vmpool->update(vm);
+
+            int uid = vm->get_uid();
+            int gid = vm->get_gid();
+
+            vm->unlock();
+
+            if (prev_state != VirtualMachine::DISK_SNAPSHOT_POWEROFF &&
+                prev_state != VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF &&
+                prev_state != VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF)
+            {
+                Quotas::vm_del(uid, gid, &quota_tmpl);
+            }
         }
         else
         {
@@ -244,18 +244,6 @@ void DispatchManager::trigger_poweroff_success(int vid)
             vm->unlock();
             return;
         }
-
-        uid = vm->get_uid();
-        gid = vm->get_gid();
-
-        vm->unlock();
-
-        if (prev_state != VirtualMachine::DISK_SNAPSHOT_POWEROFF &&
-            prev_state != VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF &&
-            prev_state != VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF)
-        {
-            Quotas::vm_del(uid, gid, &quota_tmpl);
-        }
     });
 }
 
@@ -265,11 +253,6 @@ void DispatchManager::trigger_poweroff_success(int vid)
 void DispatchManager::trigger_done(int vid)
 {
     trigger([this, vid] {
-        string error_str;
-
-        VirtualMachine::LcmState lcm_state;
-        VirtualMachine::VmState  dm_state;
-
         VirtualMachine * vm = vmpool->get(vid);
 
         if (vm == nullptr)
@@ -277,8 +260,8 @@ void DispatchManager::trigger_done(int vid)
             return;
         }
 
-        lcm_state = vm->get_lcm_state();
-        dm_state  = vm->get_state();
+        VirtualMachine::LcmState lcm_state = vm->get_lcm_state();
+        VirtualMachine::VmState  dm_state  = vm->get_state();
 
         if ((dm_state == VirtualMachine::ACTIVE) &&
             (lcm_state == VirtualMachine::EPILOG ||

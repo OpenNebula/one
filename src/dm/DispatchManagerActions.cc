@@ -73,7 +73,7 @@ int DispatchManager::deploy(VirtualMachine * vm, const RequestAttributes& ra)
             uid = vm->get_uid();
             gid = vm->get_gid();
 
-            get_quota_template(vm, quota_tmpl, true);
+            vm->get_quota_template(quota_tmpl, true);
         }
 
         lcm->trigger_deploy(vid);
@@ -156,7 +156,7 @@ int DispatchManager::import(VirtualMachine * vm, const RequestAttributes& ra)
         uid = vm->get_uid();
         gid = vm->get_gid();
 
-        get_quota_template(vm, quota_tmpl, true);
+        vm->get_quota_template(quota_tmpl, true);
 
         do_quotas = true;
     }
@@ -1248,7 +1248,7 @@ int DispatchManager::delete_recreate(VirtualMachine * vm,
 
             if ( do_quotas )
             {
-                get_quota_template(vm, quota_tmpl, true);
+                vm->get_quota_template(quota_tmpl, true);
             }
         break;
 

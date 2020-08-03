@@ -486,14 +486,37 @@ private:
      */
     void free_vm_resources(VirtualMachine * vm, bool check_images);
 
+    //--------------------------------------------------------------------------
+    // DM Actions associated with a VM state transition
+    //--------------------------------------------------------------------------
+
+    void  suspend_success_action(int vid);
+
+    void  stop_success_action(int vid);
+
+    void  undeploy_success_action(int vid);
+
+    void  poweroff_success_action(int vid);
+
+    void  done_action(int vid);
+
+    void  resubmit_action(int vid);
+
     /**
-    * Fill a template only with the necessary attributes to update the quotas
-    *   @param vm with the attributes
-    *   @param template that will be filled
-    *   @param only_running true to not add CPU, MEMORY and VMS counters
-    */
-    void get_quota_template(VirtualMachine * vm,
-            VirtualMachineTemplate& quota_tmpl, bool only_running) const;
+     *  Function to execute the Manager action loop method within a new pthread
+     * (requires C linkage)
+     */
+    friend void * dm_action_loop(void *arg);
+
+    // -------------------------------------------------------------------------
+    // Action Listener interface
+    // -------------------------------------------------------------------------
+    void finalize_action(const ActionRequest& ar)
+    {
+        NebulaLog::log("DiM",Log::INFO,"Stopping Dispatch Manager...");
+    };
+
+    void user_action(const ActionRequest& ar);
 };
 
 #endif /*DISPATCH_MANAGER_H*/
