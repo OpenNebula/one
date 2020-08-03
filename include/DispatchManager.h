@@ -597,14 +597,6 @@ private:
 
     void user_action(const ActionRequest& ar);
 
-    /**
-    * Fill a template only with the necessary attributes to update the quotas
-    *   @param vm with the attributes
-    *   @param template that will be filled
-    *   @param only_running true to not add CPU, MEMORY and VMS counters
-    */
-    void get_quota_template(VirtualMachine * vm,
-            VirtualMachineTemplate& quota_tmpl, bool only_running);
 };
 
 #endif /*DISPATCH_MANAGER_H*/
