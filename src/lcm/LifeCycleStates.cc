@@ -1141,6 +1141,14 @@ void  LifeCycleManager::monitor_poweron_action(int vid)
     {
         vm->log("VMM",Log::INFO,"VM found again by the drivers");
 
+        VirtualMachineTemplate quota_tmpl;
+
+        string error;
+
+        int uid = vm->get_uid();
+
+        int gid = vm->get_gid();
+
         time_t the_time = time(0);
 
         vm->set_state(VirtualMachine::ACTIVE);
@@ -1159,7 +1167,11 @@ void  LifeCycleManager::monitor_poweron_action(int vid)
 
         vmpool->insert_history(vm);
 
+        vm->get_quota_template(quota_tmpl, true);
+
         vmpool->update(vm);
+
+        Quotas::vm_check(uid, gid, &quota_tmpl, error);
     }
     else if ( vm->get_state() == VirtualMachine::ACTIVE )
     {

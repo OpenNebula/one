@@ -1020,6 +1020,13 @@ public:
      */
     bool is_pinned() const;
 
+    /**
+    * Fill a template only with the necessary attributes to update the quotas
+    *   @param qtmpl template that will be filled
+    *   @param only_running true to not add CPU, MEMORY and VMS counters
+    */
+    void get_quota_template(VirtualMachineTemplate& qtmpl, bool only_running);
+
     // ------------------------------------------------------------------------
     // Virtual Machine Disks
     // ------------------------------------------------------------------------
