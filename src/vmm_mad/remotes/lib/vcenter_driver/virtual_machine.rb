@@ -183,6 +183,46 @@ module VCenterDriver
             @target_ds_ref
         end
 
+
+        # Get a recommendation from a provided storagepod
+        # Returns the recommended datastore reference
+        def recommended_ds(ds_ref)
+            # Fail if datastore is not a storage pod
+            raise "Cannot recommend from a non storagepod reference" if !ds_ref.start_with?('group-')
+
+            # Retrieve information needed to create storage_spec hash
+            storage_manager = vi_client.vim.serviceContent.storageResourceManager
+            vcenter_name = get_vcenter_name
+            vc_template = RbVmomi::VIM::VirtualMachine.new(vi_client.vim, get_template_ref)
+            dc = cluster.get_dc
+            vcenter_vm_folder_object = vcenter_folder(vcenter_folder_ref, vc_template, dc)
+			storpod = get_ds(ds_ref)
+            disk_move_type = calculate_disk_move_type(storpod, vc_template, linked_clones)
+            spec_hash = spec_hash_clone(disk_move_type)
+            clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(spec_hash)
+
+            # Create hash needed to get the recommendation
+            storage_spec = RbVmomi::VIM.StoragePlacementSpec(
+                type: 'clone',
+                cloneName: vcenter_name,
+                folder: vcenter_vm_folder_object,
+                podSelectionSpec: RbVmomi::VIM.StorageDrsPodSelectionSpec(storagePod: storpod),
+                vm: vc_template,
+                cloneSpec: clone_spec
+            )
+
+            # Query a storage placement recommendation
+            result = storage_manager
+                       .RecommendDatastores(storageSpec: storage_spec) rescue nil
+            raise "Could not get placement specification for StoragePod" if result.nil?
+            if !result.respond_to?(:recommendations) || result.recommendations.size == 0
+                raise "Could not get placement specification for StoragePod"
+            end
+
+            # Return recommended DS reference
+            result.recommendations.first.action.first.destination._ref
+		end
+
         # Cached cluster
         # @return ClusterComputeResource
         def cluster
@@ -287,10 +327,12 @@ module VCenterDriver
         end
 
         # @return RbVmomi::VIM::Datastore or nil
-        def get_ds
-            current_ds_id  = one_item["HISTORY_RECORDS/HISTORY[last()]/DS_ID"]
-            current_ds     = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, current_ds_id)
-            current_ds_ref = current_ds['TEMPLATE/VCENTER_DS_REF']
+        def get_ds(current_ds_ref = nil)
+            if !current_ds_ref
+                current_ds_id  = one_item["HISTORY_RECORDS/HISTORY[last()]/DS_ID"]
+                current_ds     = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, current_ds_id)
+                current_ds_ref = current_ds['TEMPLATE/VCENTER_DS_REF']
+            end
 
             if current_ds_ref
                 dc = cluster.get_dc
@@ -396,24 +438,10 @@ module VCenterDriver
 
             ds = get_ds
 
-            # Default disk move type (Full Clone)
-            disk_move_type = :moveAllDiskBackingsAndDisallowSharing
-
-            if ds.instance_of? RbVmomi::VIM::Datastore
-                use_linked_clones = drv_action['USER_TEMPLATE/VCENTER_LINKED_CLONES']
-                if use_linked_clones && use_linked_clones.downcase == 'yes'
-                    # Check if all disks in template has delta disks
-                    disks = vc_template.config
-                                    .hardware.device.grep(RbVmomi::VIM::VirtualDisk)
-
-                    disks_no_delta = disks.select { |d| d.backing.parent == nil }
-
-                    # Can use linked clones if all disks have delta disks
-                    if (disks_no_delta.size == 0)
-                        disk_move_type = :moveChildMostDiskBacking
-                    end
-                end
-            end
+            asking_for_linked_clones = drv_action['USER_TEMPLATE/VCENTER_LINKED_CLONES']
+            disk_move_type = calculate_disk_move_type(ds,
+                                                      vc_template,
+                                                      asking_for_linked_clones)
 
             spec_hash = spec_hash_clone(disk_move_type)
 
@@ -422,12 +450,8 @@ module VCenterDriver
             # Specify vm folder in vSpere's VM and Templates view F#4823
             vcenter_vm_folder = nil
             vcenter_vm_folder = drv_action["USER_TEMPLATE/VCENTER_VM_FOLDER"]
-            vcenter_vm_folder_object = nil
             dc = cluster.get_dc
-            if !!vcenter_vm_folder && !vcenter_vm_folder.empty?
-                vcenter_vm_folder_object = dc.item.find_folder(vcenter_vm_folder)
-            end
-            vcenter_vm_folder_object = vc_template.parent if vcenter_vm_folder_object.nil?
+            vcenter_vm_folder_object = vcenter_folder(vcenter_vm_folder, vc_template, dc)
 
             if ds.instance_of? RbVmomi::VIM::StoragePod
                 # VM is cloned using Storage Resource Manager for StoragePods
@@ -557,6 +581,48 @@ module VCenterDriver
             end
         end
 
+
+        # Calculates how to move disk backinggs from the
+        # vCenter VM Template moref
+        def calculate_disk_move_type(ds, vc_template, use_linked_clones)
+            # Default disk move type (Full Clone)
+            disk_move_type = :moveAllDiskBackingsAndDisallowSharing
+
+            if ds.instance_of? RbVmomi::VIM::Datastore
+                if use_linked_clones && use_linked_clones.downcase == 'yes'
+                    # Check if all disks in template has delta disks
+                    disks = vc_template.config
+                                       .hardware
+                                       .device
+                                       .grep(RbVmomi::VIM::VirtualDisk)
+
+                    disks_no_delta = disks.select { |d| d.backing.parent == nil }
+
+                    # Can use linked clones if all disks have delta disks
+                    if (disks_no_delta.size == 0)
+                        disk_move_type = :moveChildMostDiskBacking
+                    end
+                end
+            end
+
+            disk_move_type
+        end
+
+        # Get vcenter folder object from the reference
+        # If folder is not found, the folder of the
+        # vCenter VM Template is returned
+        def vcenter_folder(vcenter_vm_folder, vc_template, dc)
+            vcenter_vm_folder_object = nil
+
+            if !!vcenter_vm_folder && !vcenter_vm_folder.empty?
+                vcenter_vm_folder_object = dc.item.find_folder(vcenter_vm_folder)
+            end
+
+            vcenter_vm_folder_object = vc_template.parent if vcenter_vm_folder_object.nil?
+            vcenter_vm_folder_object
+        end
+
+
         # @return clone parameters spec hash
         def spec_hash_clone(disk_move_type)
             # Relocate spec
@@ -665,6 +731,10 @@ module VCenterDriver
             one_item['USER_TEMPLATE/VCENTER_TEMPLATE_REF']
         end
 
+        def vcenter_folder_ref
+            one_item['USER_TEMPLATE/VCENTER_VM_FOLDER']
+        end
+
         # Queries to OpenNebula the machine disks xml representation
         def get_one_disks
             one_item.info if one_item.instance_of?(OpenNebula::VirtualMachine)
@@ -675,6 +745,10 @@ module VCenterDriver
         def one_nics_get
             one_item.info if one_item.instance_of?(OpenNebula::VirtualMachine)
             one_item.retrieve_xmlelements("TEMPLATE/NIC")
+        end
+
+        def linked_clones
+            one_item['USER_TEMPLATE/VCENTER_LINKED_CLONES']
         end
 
         # perform a query to vCenter asking for the OpenNebula disk
@@ -2012,10 +2086,16 @@ module VCenterDriver
                       :fileName  => ""
                     )
                 else
-                    ds           = get_effective_ds(disk)
-                    ds_name      = ds['name']
+                    ds = get_effective_ds(disk)
+                    if ds.item._ref.start_with?('group-')
+                        ds_object = self.item.datastore.first
+                        ds_name   = ds_object.name
+                    else
+                        ds_object = ds.item
+                        ds_name = ds['name']
+                    end
                     vmdk_backing = RbVmomi::VIM::VirtualDiskFlatVer2BackingInfo(
-                      :datastore => ds.item,
+                      :datastore => ds_object,
                       :diskMode  => 'persistent',
                       :fileName  => "[#{ds_name}] #{img_name}"
                     )

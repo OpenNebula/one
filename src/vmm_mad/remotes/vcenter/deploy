@@ -62,7 +62,7 @@ begin
     one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
 
     if !drv_action.retrieve_xmlelements('USER_TEMPLATE/VCENTER_TAG').empty?
-        raise 'vShepre automation gems are not installed' unless REST_CLIENT
+        raise 'vSphere automation gems are not installed' unless REST_CLIENT
     end
 
     if deploy_id_valid?(deploy_id)

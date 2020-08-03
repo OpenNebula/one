@@ -105,8 +105,12 @@ begin
 
     if !(!disk.managed? || (is_storage_drs && disk.volatile?))
         if is_storage_drs
-            raise 'Non persistent images not supported in StorageDRS'
-        end
+            vm = VCenterDriver::VirtualMachine.new(vi_client, nil, vm_id)
+            # Get a single DS using StoragePod recommendation
+            # We overwrite the reference in target_ds_ref from the StoragePod
+            # to the single recommended DS
+            target_ds_ref = vm.recommended_ds(target_ds_ref)
+       end
 
         source_ds_vc = VCenterDriver::Datastore.new_from_ref(source_ds_ref,
                                                              vi_client)
