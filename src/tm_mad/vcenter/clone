@@ -44,6 +44,7 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
+CONFIG = VCenterConf.new
 
 src          = ARGV[0]
 dst          = ARGV[1]
@@ -89,6 +90,7 @@ target_path_escaped = VCenterDriver::FileHelper
 target_path = VCenterDriver::FileHelper.unescape_path(target_path_escaped)
 
 begin
+    retries ||= 0
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
     disk_xpath ="TEMPLATE/DISK[SOURCE=\"#{src_path_escaped}\"]"
     one_disk = one_vm.retrieve_xmlelements(disk_xpath) rescue nil
@@ -110,7 +112,7 @@ begin
             # We overwrite the reference in target_ds_ref from the StoragePod
             # to the single recommended DS
             target_ds_ref = vm.recommended_ds(target_ds_ref)
-       end
+        end
 
         source_ds_vc = VCenterDriver::Datastore.new_from_ref(source_ds_ref,
                                                              vi_client)
@@ -135,6 +137,10 @@ rescue StandardError => e
     if VCenterDriver::CONFIG[:debug_information]
         STDERR.puts "#{message} #{e.backtrace}"
     end
+
+    sleep 60
+    retry if retries < CONFIG[:retries]
+
     exit(-1)
 ensure
     vi_client.close_connection if vi_client
