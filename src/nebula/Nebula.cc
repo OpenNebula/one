@@ -869,15 +869,10 @@ void Nebula::start(bool bootstrap_only)
     if (!cache)
     {
         vector<const VectorAttribute *> vmm_mads;
-        int    vm_limit;
-
-        nebula_configuration->get("VM_PER_INTERVAL", vm_limit);
 
         nebula_configuration->get("VM_MAD", vmm_mads);
 
-        vmm = new VirtualMachineManager(
-            vm_limit,
-            mad_location);
+        vmm = new VirtualMachineManager(mad_location);
 
         if (vmm->load_drivers(vmm_mads) != 0)
         {
