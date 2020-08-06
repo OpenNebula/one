@@ -32,12 +32,10 @@
 /* ************************************************************************** */
 
 VirtualMachineManager::VirtualMachineManager(
-    time_t                          _timer_period,
-    int                             _vm_limit,
-    vector<const VectorAttribute*>&       _mads):
+    time_t _timer_period,
+    vector<const VectorAttribute*>& _mads):
         MadManager(_mads),
-        timer_period(_timer_period),
-        vm_limit(_vm_limit)
+        timer_period(_timer_period)
 {
     Nebula& nd = Nebula::instance();
 

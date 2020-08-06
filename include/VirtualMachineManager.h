@@ -95,7 +95,6 @@ public:
 
     VirtualMachineManager(
         time_t                    _timer_period,
-        int                       _vm_limit,
         vector<const VectorAttribute*>& _mads);
 
     ~VirtualMachineManager(){};
@@ -252,11 +251,6 @@ private:
      *  Timer period for the Virtual Machine Manager.
      */
     time_t                  timer_period;
-
-    /**
-     *  Virtual Machine polling limit
-     */
-    int                     vm_limit;
 
     /**
      *  Action engine for the Manager
