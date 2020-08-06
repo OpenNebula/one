@@ -35,7 +35,6 @@ class VirtualMachineManager :
 public:
 
     VirtualMachineManager(
-        int                       _vm_limit,
         const std::string&        _mads);
 
     ~VirtualMachineManager() = default;
@@ -149,11 +148,6 @@ private:
      *  Pointer to the Datastore Pool
      */
     DatastorePool *         ds_pool;
-
-    /**
-     *  Virtual Machine polling limit
-     */
-    int                     vm_limit;
 
     // -------------------------------------------------------------------------
     // Protocol implementation, procesing messages from driver

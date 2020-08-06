@@ -36,11 +36,9 @@ using namespace std;
 /* ************************************************************************** */
 
 VirtualMachineManager::VirtualMachineManager(
-    int                             _vm_limit,
     const string&                   _mad_location):
         DriverManager(_mad_location),
-        Listener("Virtual Machine Manager"),
-        vm_limit(_vm_limit)
+        Listener("Virtual Machine Manager")
 {
     Nebula& nd = Nebula::instance();
 
