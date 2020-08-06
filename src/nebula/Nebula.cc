@@ -896,15 +896,11 @@ void Nebula::start(bool bootstrap_only)
         try
         {
             vector<const VectorAttribute *> vmm_mads;
-            int    vm_limit;
-
-            nebula_configuration->get("VM_PER_INTERVAL", vm_limit);
 
             nebula_configuration->get("VM_MAD", vmm_mads);
 
             vmm = new VirtualMachineManager(
                 timer_period,
-                vm_limit,
                 vmm_mads);
         }
         catch (bad_alloc&)

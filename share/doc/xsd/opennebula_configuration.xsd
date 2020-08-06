@@ -164,7 +164,6 @@
         </xs:element>
 
         <xs:element name="HOST_ENCRYPTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element name="HOST_PER_INTERVAL" type="xs:integer" minOccurs="0" maxOccurs="1"/>
         <xs:element name="IMAGE_RESTRICTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 
         <xs:element name="IM_MAD" minOccurs="0" maxOccurs="unbounded">
@@ -352,7 +351,6 @@
 
         <xs:element name="VM_MANAGE_OPERATIONS" type="xs:string" minOccurs="0" maxOccurs="1"/>
         <xs:element name="VM_MONITORING_EXPIRATION_TIME" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element name="VM_PER_INTERVAL" type="xs:integer" minOccurs="0" maxOccurs="1"/>
         <xs:element name="VM_RESTRICTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 
         <xs:element name="VM_SUBMIT_ON_HOLD" minOccurs="0" maxOccurs="1">
