@@ -161,7 +161,11 @@ class OneHookHelper < OpenNebulaHelper::OneHelper
                 end
             end
 
-            default :HOOK, :ID, :TIMESTAMP, :RC, :EXECUTION
+            if !header
+                default :HOOK, :ID, :TIMESTAMP, :RC, :EXECUTION
+            else
+                default :ID, :TIMESTAMP, :RC, :EXECUTION
+            end
         end
 
         table.show(execs, :stat_column => :EXECUTION)
