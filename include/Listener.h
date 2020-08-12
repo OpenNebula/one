@@ -162,19 +162,23 @@ protected:
     {
         end = false;
 
-        std::unique_lock<std::mutex> ul(lock);
-
         while (true)
         {
-            cond.wait(ul, [&]{return (end || !pending.empty());});
+            std::function<void()> fn;
 
-            if (end)
             {
-                break;
-            }
+                std::unique_lock<std::mutex> ul(lock);
 
-            auto fn = pending.front();
-            pending.pop();
+                cond.wait(ul, [&]{return (end || !pending.empty());});
+
+                if (end)
+                {
+                    break;
+                }
+
+                fn = pending.front();
+                pending.pop();
+            }
 
             fn();
         }
