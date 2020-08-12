@@ -454,7 +454,7 @@ class OneDBLive
             break if found_id
         end
 
-        return if options[:id] && found_id
+        return if !options[:id] || found_id
 
         raise "Object with id #{options[:id]} not found"
     end
