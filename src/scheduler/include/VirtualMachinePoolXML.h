@@ -28,8 +28,12 @@ public:
 
     VirtualMachinePoolXML(Client*        client,
                           unsigned int   machines_limit,
-                          bool           _live_resched):
-        PoolXML(client, machines_limit), live_resched(_live_resched){};
+                          bool           _live_resched,
+                          unsigned int   _cold_migrate_mode)
+        : PoolXML(client, machines_limit)
+        , live_resched(_live_resched)
+        , cold_migrate_mode(_cold_migrate_mode)
+    {}
 
     virtual ~VirtualMachinePoolXML(){};
 
@@ -119,6 +123,8 @@ protected:
      */
     bool live_resched;
 
+    unsigned int cold_migrate_mode;
+
 private:
     /**
      *  Stores the list of vms, and it associated user prioty vm_resources.
@@ -135,7 +141,7 @@ public:
 
     VirtualMachineActionsPoolXML(Client*       client,
                                  unsigned int  machines_limit):
-        VirtualMachinePoolXML(client, machines_limit, false){};
+        VirtualMachinePoolXML(client, machines_limit, false, 0){};
 
     virtual ~VirtualMachineActionsPoolXML(){};
 
@@ -184,7 +190,7 @@ class VirtualMachineRolePoolXML : public VirtualMachinePoolXML
 public:
 
     VirtualMachineRolePoolXML(Client * client, unsigned int machines_limit):
-        VirtualMachinePoolXML(client, machines_limit, false){};
+        VirtualMachinePoolXML(client, machines_limit, false, 0){};
 
     virtual ~VirtualMachineRolePoolXML(){};
 

@@ -257,12 +257,15 @@ int VirtualMachinePoolXML::dispatch(int vid, int hid, int dsid, bool resched,con
         if (resched == true)
         {
             client->call("one.vm.migrate",// methodName
-                         "iibb",          // arguments format
+                         "iibbii",        // arguments format
                          &deploy_result,  // resultP
                          vid,             // argument 1 (VM)
                          hid,             // argument 2 (HOST)
                          live_resched,    // argument 3 (LIVE)
-                         false);          // argument 4 (ENFORCE)
+                         false,           // argument 4 (ENFORCE)
+                         -1,              // argument 5 (DS_ID)
+                         cold_migrate_mode // argument 6 (0 save, 1 poweroff, 2 poweroff hard)
+                         );
         }
         else
         {
@@ -272,8 +275,8 @@ int VirtualMachinePoolXML::dispatch(int vid, int hid, int dsid, bool resched,con
                          vid,             // argument 1 (VM)
                          hid,             // argument 2 (HOST)
                          false,           // argument 3 (ENFORCE)
-                         dsid,            // argument 5 (SYSTEM SD)
-                         extra_template.c_str()); // argument 6 (EXTRA TEMPLATE)
+                         dsid,            // argument 4 (SYSTEM SD)
+                         extra_template.c_str()); // argument 5 (EXTRA TEMPLATE)
         }
     }
     catch (exception const& e)
