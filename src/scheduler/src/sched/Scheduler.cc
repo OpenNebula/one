@@ -85,6 +85,7 @@ void Scheduler::start()
     string etc_path;
 
     unsigned int live_rescheds;
+    unsigned int cold_migrate_mode;
 
     // -----------------------------------------------------------
     // Configuration File
@@ -127,6 +128,8 @@ void Scheduler::start()
     conf.get("MAX_HOST", host_dispatch_limit);
 
     conf.get("LIVE_RESCHEDS", live_rescheds);
+
+    conf.get("COLD_MIGRATE_MODE", cold_migrate_mode);
 
     conf.get("MEMORY_SYSTEM_DS_SCALE", mem_ds_scale);
 
@@ -299,7 +302,17 @@ void Scheduler::start()
     img_dspool = new ImageDatastorePoolXML(client);
 
     vm_roles_pool = new VirtualMachineRolePoolXML(client, machines_limit);
-    vmpool = new VirtualMachinePoolXML(client, machines_limit, live_rescheds==1);
+
+    if (cold_migrate_mode > 2)
+    {
+        cold_migrate_mode = 0;
+
+        NebulaLog::warn("SCHED",
+            "Invalid parameter COLD_MIGRATE_MODE, setting default = 0");
+    }
+
+    vmpool = new VirtualMachinePoolXML(client, machines_limit, live_rescheds==1,
+                                       cold_migrate_mode);
 
     vnetpool = new VirtualNetworkPoolXML(client);
 
