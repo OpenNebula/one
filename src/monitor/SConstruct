@@ -41,7 +41,6 @@ if env['enterprise']=='yes':
 
 build_scripts=[
     'src/data_model/SConstruct',
-    'src/protocol/SConstruct',
     'src/monitor/SConstruct'
 ]
 
