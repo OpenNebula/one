@@ -397,6 +397,17 @@ define(function(require) {
           "start_time": start_time,
           "end_time": end_time
         };
+        
+        OpenNebula.VM.accounting({
+          //timeout: true,
+          success: function(req, response){
+            var context = $("#provision_group_vms_dashboard");
+            Accounting.fillAccounting(context, req, response, false);
+          },
+          error: Notifier.onError,
+          data: options
+        });
+
         OpenNebula.VM.list({
           timeout: true,
           success: function (request, item_list){
