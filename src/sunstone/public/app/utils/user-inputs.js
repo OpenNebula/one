@@ -880,7 +880,8 @@ define(function(require) {
         input = "<select "+wizard_field+" "+required+">";
         $.each(attr.options, function(){
           var selected = (attr.initial == this);
-          input +=  "<option value='"+this+"' "+(selected? "selected" : "")+">"+this+"</option>";
+          var trimmedValue = $.trim(this);
+          input +=  "<option value='"+trimmedValue+"' "+(selected? "selected" : "")+">"+trimmedValue+"</option>";
         });
         input += "</select>";
       break;
