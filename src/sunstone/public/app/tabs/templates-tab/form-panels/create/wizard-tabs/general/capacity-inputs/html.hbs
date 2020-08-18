@@ -29,12 +29,14 @@
 </div>
 <div class="row">
   <div class="cpu_input_wrapper small-12 columns">
-    <label style="padding: 0; text-align: left" class="small-5 columns" for="CPU">
-      {{tr "Physical CPU"}}
-      {{{tip (tr "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.")}}}
-    </label>
-    <label style="padding: 0; text-align: right" class="small-7 columns" id="quotas-cpu" hidden>
-    </label>
+    <div class="row small-12 columns">
+      <label style="padding: 0; text-align: left" class="small-5 columns" for="CPU">
+        {{tr "Physical CPU"}}
+        {{{tip (tr "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.")}}}
+      </label>
+      <label style="padding: 0; text-align: right" class="small-7 columns" id="quotas-cpu" hidden>
+      </label>
+    </div>
     <div class="cpu_input">
     </div>
   </div>
