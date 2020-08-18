@@ -161,21 +161,39 @@ define(function(require) {
     }
 
     $("div.vcpu_input", context).html(input);
-    $("div.vcpu_input input", context).val(attr.min);
+
+    var cpuInput = $("div.cpu_input input, div.cpu_input select", context);
     var vcpuInput = $("div.vcpu_input input, div.vcpu_input select", context);
     vcpuInput.off();
 
     if (Config.isFeatureEnabled("instantiate_cpu_factor")){
-      vcpuInput.on("change", function() {
+      vcpuInput.on("change keyup", function() {
         var vcpuValue = $(this).val();
-        if (vcpuValue !== ""){
-          $("div.cpu_input input", context).val(vcpuValue * Config.scaleFactor);
+        if (vcpuValue !== "") {
+          var scaleFactorValue = vcpuValue * Config.scaleFactor
+          var minCpuValue = $("div.cpu_input input.visor", context).attr("min");
+          var maxCpuValue = $("div.cpu_input input.visor", context).attr("max");
+
+          if (scaleFactorValue <= minCpuValue) {
+            cpuInput.val(minCpuValue);
+          }
+          else if (scaleFactorValue >= maxCpuValue) {
+            cpuInput.val(maxCpuValue);
+          }
+          else {
+            if (cpuInput.is("select")) {
+              if ($("option[value='"+ scaleFactorValue +"']", cpuInput).length !== 0) {
+                cpuInput.val(scaleFactorValue);
+              }
+            }
+            else cpuInput.val(scaleFactorValue);
+          }
         } else {
-          $("div.cpu_input input", context).val("");
+          cpuInput.val("");
         }
       });
       
-      $("div.cpu_input input", context).prop("disabled", true);
+      cpuInput.prop("disabled", true);
       var vcpuValue = vcpuInput.val();
       if (vcpuValue && vcpuValue !== "") {
         vcpuInput.trigger("change")
@@ -194,20 +212,20 @@ define(function(require) {
 
       vcpuInput.on("change keyup", function(e){
         element = $("div.vcpu_input input.visor", context);
-        if(element.length){
-          min = element.attr("data-min");
-          max = element.attr("data-max");
+        if (element.length) {
+          min = element.attr("min");
+          max = element.attr("max");
           if(parseInt(element.val(),10) >= parseInt(min,10) && parseInt(element.val(),10)<= parseInt(max,10)){
             $("div.vcpu_input input", context).val(element.val());
             _generateCores(context);
             $('#CORES_PER_SOCKET option[value=""]').prop('selected', true);
             _calculateSockets(context);
-          }else{
+          } else{
             element.val(max);
             $("div.vcpu_input input", context).val(max).change();
             Notifier.notifyError(Locale.tr("The value goes out of the allowed limits"));
           }
-        }else{
+        } else{
           _generateCores(context);
           $('#CORES_PER_SOCKET option[value=""]').prop('selected', true);
           _calculateSockets(context);
