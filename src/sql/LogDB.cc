@@ -611,8 +611,8 @@ int LogDB::purge_log()
 
     multiple_cb<std::vector, uint64_t> cb_info;
     single_cb<string> cb_min_idx;
-    std::vector<uint64_t> maxmin_i;
-    std::vector<uint64_t> maxmin_e;
+    std::vector<uint64_t> maxmin_i{0, 0};
+    std::vector<uint64_t> maxmin_e{0, 0};
     string min_idx;
 
     int rc  = 0;
