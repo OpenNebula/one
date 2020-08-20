@@ -155,7 +155,7 @@ module KVM
                 vm[:name] = uuid
             end
 
-            if (values[:state] == 'a') && (vm[:reason] != 'migrating')
+            if (values[:state] == 'a') && (vm[:reason] != 'migrating') && (vm[:reason] != 'saving')
                 values.merge!(get_io_statistics(name, xml))
             end
 
