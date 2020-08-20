@@ -15,41 +15,38 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 
 import {
+  makeStyles,
   AppBar,
   Toolbar,
   IconButton,
-  Typography,
-  LinearProgress
+  Typography
 } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 
 import useGeneral from 'client/hooks/useGeneral';
-
-import User from './User';
-import Zone from './Zone';
+import User from 'client/components/Header/User';
+import Zone from 'client/components/Header/Zone';
+import headerStyles from 'client/components/Header/styles';
 
 const Header = ({ title }) => {
-  const { isLoading, isOpenMenu, openMenu } = useGeneral();
+  const classes = headerStyles();
+  const { isOpenMenu, openMenu } = useGeneral();
 
   return (
-    <AppBar position="fixed" className={classnames('header')} data-cy="header">
+    <AppBar position="fixed" data-cy="header">
       <Toolbar>
         <IconButton
           onClick={() => openMenu(!isOpenMenu)}
           edge="start"
-          className=""
           color="inherit"
-          aria-label="menu"
         >
           <MenuIcon />
         </IconButton>
         <Typography
           variant="h6"
-          style={{ flexGrow: 1 }}
-          className={classnames('title')}
+          className={classes.title}
           data-cy="header-title"
         >
           {title}
@@ -57,7 +54,6 @@ const Header = ({ title }) => {
         <User />
         <Zone />
       </Toolbar>
-      {isLoading && <LinearProgress />}
     </AppBar>
   );
 };

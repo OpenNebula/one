@@ -15,8 +15,6 @@
 
 import React, { useState, useRef, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { useHistory } from 'react-router-dom';
 
 import {
   Button,
@@ -31,11 +29,12 @@ import {
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 import { Translate } from 'client/components/HOC';
-import { SignOut, Groups } from 'client/constants';
-import useAuth from 'client/hooks/auth/useAuth';
+import { SignOut } from 'client/constants';
+import useAuth from 'client/hooks/useAuth';
+import FilterPoolSelect from './FilterPoolSelect';
 
 const User = () => {
-  const { logout, authUser } = useAuth();
+  const { logout, authUser, isOneAdmin } = useAuth();
   const [open, setOpen] = useState(false);
   const anchorRef = useRef(null);
   const { current } = anchorRef;
@@ -98,10 +97,14 @@ const User = () => {
                   >
                     <Translate word={SignOut} />
                   </MenuItem>
-                  <Divider />
-                  <MenuItem onClick={handleClose}>
-                    <Translate word={Groups} />
-                  </MenuItem>
+                  {!isOneAdmin && (
+                    <>
+                      <Divider />
+                      <MenuItem>
+                        <FilterPoolSelect />
+                      </MenuItem>
+                    </>
+                  )}
                 </MenuList>
               </ClickAwayListener>
             </Paper>

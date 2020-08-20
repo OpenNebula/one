@@ -13,163 +13,196 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-module.exports = (
-  { resource, postBody, query },
-  { GET, POST, PUT, DELETE }
-) => ({
-  'cluster.allocate': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      name: {
-        from: postBody,
-        default: ''
+const {
+  from: { resource, postBody, query },
+  httpMethod: { GET, POST, PUT, DELETE }
+} = require('../defaults');
+
+const CLUSTER_ALLOCATE = 'cluster.allocate';
+const CLUSTER_DELETE = 'cluster.delete';
+const CLUSTER_UPDATE = 'cluster.update';
+const CLUSTER_ADDHOST = 'cluster.addhost';
+const CLUSTER_DELHOST = 'cluster.delhost';
+const CLUSTER_ADDDATASTORE = 'cluster.adddatastore';
+const CLUSTER_DELDATASTORE = 'cluster.deldatastore';
+const CLUSTER_ADDVNET = 'cluster.addvnet';
+const CLUSTER_DELVNET = 'cluster.delvnet';
+const CLUSTER_RENAME = 'cluster.rename';
+const CLUSTER_INFO = 'cluster.info';
+const CLUSTER_POOL_INFO = 'clusterpool.info';
+
+const Actions = {
+  CLUSTER_ALLOCATE,
+  CLUSTER_DELETE,
+  CLUSTER_UPDATE,
+  CLUSTER_ADDHOST,
+  CLUSTER_DELHOST,
+  CLUSTER_ADDDATASTORE,
+  CLUSTER_DELDATASTORE,
+  CLUSTER_ADDVNET,
+  CLUSTER_DELVNET,
+  CLUSTER_RENAME,
+  CLUSTER_INFO,
+  CLUSTER_POOL_INFO
+};
+
+module.exports = {
+  Actions,
+  Commands: {
+    [CLUSTER_ALLOCATE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        name: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'cluster.delete': {
-    // inspected
-    httpMethod: DELETE,
-    params: {
-      id: {
-        from: resource,
-        default: 0
+    },
+    [CLUSTER_DELETE]: {
+      // inspected
+      httpMethod: DELETE,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        }
       }
-    }
-  },
-  'cluster.update': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      template: {
-        from: postBody,
-        default: ''
-      },
-      replace: {
-        from: postBody,
-        default: 0
+    },
+    [CLUSTER_UPDATE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        template: {
+          from: postBody,
+          default: ''
+        },
+        replace: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'cluster.addhost': {
-    // inspected
-    httpMethod: POST,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      host: {
-        from: postBody,
-        default: 0
+    },
+    [CLUSTER_ADDHOST]: {
+      // inspected
+      httpMethod: POST,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        host: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'cluster.delhost': {
-    // inspected
-    httpMethod: DELETE,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      host: {
-        from: query,
-        default: 0
+    },
+    [CLUSTER_DELHOST]: {
+      // inspected
+      httpMethod: DELETE,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        host: {
+          from: query,
+          default: 0
+        }
       }
-    }
-  },
-  'cluster.adddatastore': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      datastore: {
-        from: postBody,
-        default: 0
+    },
+    [CLUSTER_ADDDATASTORE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        datastore: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'cluster.deldatastore': {
-    // inspected
-    httpMethod: DELETE,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      datastore: {
-        from: postBody,
-        default: 0
+    },
+    [CLUSTER_DELDATASTORE]: {
+      // inspected
+      httpMethod: DELETE,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        datastore: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'cluster.addvnet': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      vnet: {
-        from: postBody,
-        default: 0
+    },
+    [CLUSTER_ADDVNET]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        vnet: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'cluster.delvnet': {
-    // inspected
-    httpMethod: DELETE,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      vnet: {
-        from: postBody,
-        default: 0
+    },
+    [CLUSTER_DELVNET]: {
+      // inspected
+      httpMethod: DELETE,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        vnet: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'cluster.rename': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      name: {
-        from: postBody,
-        default: ''
+    },
+    [CLUSTER_RENAME]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        name: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'cluster.info': {
-    // inspected
-    httpMethod: GET,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      decrypt: {
-        from: query,
-        default: false
+    },
+    [CLUSTER_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        decrypt: {
+          from: query,
+          default: false
+        }
       }
+    },
+    [CLUSTER_POOL_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {}
     }
-  },
-  'clusterpool.info': {
-    // inspected
-    httpMethod: GET,
-    params: {}
   }
-});
+};

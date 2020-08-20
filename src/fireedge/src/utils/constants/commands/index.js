@@ -13,47 +13,48 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { from, httpMethod } = require('../defaults');
-const acl = require('./acl');
-const cluster = require('./cluster');
-const datastore = require('./datastore');
-const document = require('./document');
-const group = require('./group');
-const groupsec = require('./groupsec');
-const hook = require('./hook');
-const host = require('./host');
-const image = require('./image');
-const market = require('./market');
-const system = require('./system');
-const template = require('./template');
-const user = require('./user');
-const vdc = require('./vdc');
-const vm = require('./vm');
-const vmgroup = require('./vmgroup');
-const vn = require('./vn');
-const vntemplate = require('./vntemplate');
-const vrouter = require('./vrouter');
-const zone = require('./zone');
+const { Commands: acl } = require('./acl');
+const { Commands: cluster } = require('./cluster');
+const { Commands: datastore } = require('./datastore');
+const { Commands: document } = require('./document');
+const { Commands: group } = require('./group');
+const { Commands: secgroup } = require('./secgroup');
+const { Commands: hook } = require('./hook');
+const { Commands: host } = require('./host');
+const { Commands: image } = require('./image');
+const { Commands: market } = require('./market');
+const { Commands: marketapp } = require('./marketapp');
+const { Commands: system } = require('./system');
+const { Commands: template } = require('./template');
+const { Commands: user } = require('./user');
+const { Commands: vdc } = require('./vdc');
+const { Commands: vm } = require('./vm');
+const { Commands: vmgroup } = require('./vmgroup');
+const { Commands: vn } = require('./vn');
+const { Commands: vntemplate } = require('./vntemplate');
+const { Commands: vrouter } = require('./vrouter');
+const { Commands: zone } = require('./zone');
 
 module.exports = {
-  ...acl(from, httpMethod),
-  ...cluster(from, httpMethod),
-  ...datastore(from, httpMethod),
-  ...document(from, httpMethod),
-  ...group(from, httpMethod),
-  ...groupsec(from, httpMethod),
-  ...hook(from, httpMethod),
-  ...host(from, httpMethod),
-  ...image(from, httpMethod),
-  ...market(from, httpMethod),
-  ...system(from, httpMethod),
-  ...template(from, httpMethod),
-  ...user(from, httpMethod),
-  ...vdc(from, httpMethod),
-  ...vm(from, httpMethod),
-  ...vmgroup(from, httpMethod),
-  ...vn(from, httpMethod),
-  ...vntemplate(from, httpMethod),
-  ...vrouter(from, httpMethod),
-  ...zone(from, httpMethod)
+  ...acl,
+  ...cluster,
+  ...datastore,
+  ...document,
+  ...group,
+  ...secgroup,
+  ...hook,
+  ...host,
+  ...image,
+  ...market,
+  ...marketapp,
+  ...system,
+  ...template,
+  ...user,
+  ...vdc,
+  ...vm,
+  ...vmgroup,
+  ...vn,
+  ...vntemplate,
+  ...vrouter,
+  ...zone
 };

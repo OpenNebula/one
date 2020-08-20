@@ -22,39 +22,37 @@ import Error404 from 'client/containers/Error404';
 
 import endpoints from './endpoints';
 
-const routeElement = (
-  title = '',
-  { path = '/', authenticated = true, component: Component }
-) => (
-  <Route
-    key={`key-${title.replace(' ', '-')}`}
-    exact
-    path={path}
-    component={() =>
-      authenticated ? (
-        <AuthLayout>
-          <InternalLayout title={title.replace('_', ' ')}>
-            <Component />
-          </InternalLayout>
-        </AuthLayout>
-      ) : (
-        <GuessLayout>
-          <Component />
-        </GuessLayout>
-      )
-    }
-  />
-);
-
 function Routes() {
+  const renderRoute = ({
+    label = '',
+    path = '',
+    authenticated = true,
+    component: Component
+  }) => (
+    <Route
+      key={`key-${label.replace(' ', '-')}`}
+      exact
+      path={path}
+      component={() =>
+        authenticated ? (
+          <AuthLayout>
+            <InternalLayout title={label}>
+              <Component />
+            </InternalLayout>
+          </AuthLayout>
+        ) : (
+          <GuessLayout>
+            <Component />
+          </GuessLayout>
+        )
+      }
+    />
+  );
+
   return (
     <Switch>
-      {Object.entries(endpoints)?.map(([title, routes]) =>
-        routes.component
-          ? routeElement(title, routes)
-          : Object.entries(routes)?.map(([internalTitle, route]) =>
-              routeElement(internalTitle, route)
-            )
+      {endpoints?.map(({ routes, ...endpoint }) =>
+        endpoint.path ? renderRoute(endpoint) : routes?.map(renderRoute)
       )}
       <Route component={() => <Error404 />} />
     </Switch>

@@ -13,59 +13,111 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import { Login } from 'client/containers/Login';
+import Login from 'client/containers/Login';
 import { Clusters, Hosts, Zones } from 'client/containers/Infrastructure';
+import { Users, Groups } from 'client/containers/System';
 import Settings from 'client/containers/Settings';
 import TestApi from 'client/containers/TestApi';
 import Dashboard from 'client/containers/Dashboard';
 
-export default {
-  login: {
-    path: '/',
-    authenticated: false,
-    menu: false,
-    component: Login
+export const PATH = {
+  LOGIN: '/',
+  DASHBOARD: '/dashboard',
+  SETTINGS: '/settings',
+  TEST_API: '/test-api',
+  INFRASTRUCTURE: {
+    CLUSTERS: '/clusters',
+    HOSTS: '/hosts',
+    ZONES: '/zones'
   },
-  dashboard: {
-    path: '/dashboard',
-    component: Dashboard
+  SYSTEM: {
+    USERS: '/users',
+    GROUPS: '/groups'
   },
-  settings: {
-    path: '/settings',
-    component: Settings
-  },
-  test_api: {
-    path: '/test-api',
-    component: TestApi
-  },
-  // infrastructure
-  infrastructure: {
-    clusters: {
-      path: '/clusters',
-      component: Clusters
-    },
-    hosts: {
-      path: '/hosts',
-      component: Hosts
-    },
-    zones: {
-      path: '/zones',
-      component: Zones
-    }
-  },
-  // networks
-  networks: {
-    vnets: {
-      path: '/vnets'
-    },
-    vnets_templates: {
-      path: '/vnets-templates'
-    },
-    vnets_topology: {
-      path: '/vnets-topology'
-    },
-    vnets_secgroup: {
-      path: '/secgroup'
-    }
+  NETWORKS: {
+    VNETS: '/vnets',
+    VNETS_TEMPLATES: '/vnets-templates',
+    VNETS_TOPOLOGY: '/vnets-topology',
+    SEC_GROUPS: '/secgroups'
   }
 };
+
+export default [
+  {
+    label: 'login',
+    path: PATH.LOGIN,
+    authenticated: false,
+    component: Login
+  },
+  {
+    label: 'dashboard',
+    path: PATH.DASHBOARD,
+    component: Dashboard
+  },
+  {
+    label: 'settings',
+    path: PATH.SETTINGS,
+    component: Settings
+  },
+  {
+    label: 'test api',
+    path: PATH.TEST_API,
+    component: TestApi
+  },
+  {
+    label: 'infrastructure',
+    routes: [
+      {
+        label: 'clusters',
+        path: PATH.INFRASTRUCTURE.CLUSTERS,
+        component: Clusters
+      },
+      {
+        label: 'hosts',
+        path: PATH.INFRASTRUCTURE.HOSTS,
+        component: Hosts
+      },
+      {
+        label: 'zones',
+        path: PATH.INFRASTRUCTURE.ZONES,
+        component: Zones
+      }
+    ]
+  },
+  {
+    label: 'system',
+    routes: [
+      {
+        label: 'users',
+        path: PATH.SYSTEM.USERS,
+        component: Users
+      },
+      {
+        label: 'groups',
+        path: PATH.SYSTEM.GROUPS,
+        component: Groups
+      }
+    ]
+  },
+  {
+    label: 'networks',
+    routes: [
+      {
+        label: 'vnets',
+        path: PATH.NETWORKS.VNETS
+      },
+      {
+        label: 'vnets templates',
+        path: PATH.NETWORKS.VNETS_TEMPLATES
+      },
+      {
+        label: 'vnets topology',
+        path: PATH.NETWORKS.VNETS_TOPOLOGY
+      },
+      {
+        label: 'vnets secgroup',
+        path: PATH.NETWORKS.SEC_GROUPS
+      }
+    ]
+  }
+];

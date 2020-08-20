@@ -1,6 +1,12 @@
 import React from 'react';
 
-import { Box, darken, lighten, makeStyles, Typography } from '@material-ui/core';
+import {
+  Box,
+  darken,
+  lighten,
+  makeStyles,
+  Typography
+} from '@material-ui/core';
 import { Info as InfoIcon } from '@material-ui/icons';
 
 import { Translate } from 'client/components/HOC';
@@ -32,7 +38,7 @@ const ErrorHelper = ({ label = 'Error', ...rest }) => {
     <Box className={classes.root} {...rest}>
       <InfoIcon className={classes.icon} />
       <Typography className={classes.text} data-cy="error-text">
-        <Translate word={label} />
+        {label}
       </Typography>
     </Box>
   );

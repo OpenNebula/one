@@ -13,282 +13,325 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-module.exports = (
-  { resource, postBody, query },
-  { GET, POST, PUT, DELETE }
-) => ({
-  'vn.allocate': {
-    // inspected
-    httpMethod: POST,
-    params: {
-      template: {
-        from: postBody,
-        default: ''
-      },
-      cluster: {
-        from: postBody,
-        default: -1
+const {
+  from: { resource, postBody, query },
+  httpMethod: { GET, POST, PUT, DELETE }
+} = require('../defaults');
+
+const VN_ALLOCATE = 'vn.allocate';
+const VN_DELETE = 'vn.delete';
+const VN_AR_ADD = 'vn.add_ar';
+const VN_AR_RM = 'vn.rm_ar';
+const VN_AR_UPDATE = 'vn.update_ar';
+const VN_RESERVE = 'vn.reserve';
+const VN_AR_FREE = 'vn.free_ar';
+const VN_HOLD = 'vn.hold';
+const VN_RELEASE = 'vn.release';
+const VN_UPDATE = 'vn.update';
+const VN_CHMOD = 'vn.chmod';
+const VN_CHOWN = 'vn.chown';
+const VN_RENAME = 'vn.rename';
+const VN_INFO = 'vn.info';
+const VN_LOCK = 'vn.lock';
+const VN_UNLOCK = 'vn.unlock';
+const VN_POOL_INFO = 'vnpool.info';
+
+const Actions = {
+  VN_ALLOCATE,
+  VN_DELETE,
+  VN_AR_ADD,
+  VN_AR_RM,
+  VN_AR_UPDATE,
+  VN_RESERVE,
+  VN_AR_FREE,
+  VN_HOLD,
+  VN_RELEASE,
+  VN_UPDATE,
+  VN_CHMOD,
+  VN_CHOWN,
+  VN_RENAME,
+  VN_INFO,
+  VN_LOCK,
+  VN_UNLOCK,
+  VN_POOL_INFO
+};
+
+module.exports = {
+  Actions,
+  Commands: {
+    [VN_ALLOCATE]: {
+      // inspected
+      httpMethod: POST,
+      params: {
+        template: {
+          from: postBody,
+          default: ''
+        },
+        cluster: {
+          from: postBody,
+          default: -1
+        }
       }
-    }
-  },
-  'vn.delete': {
-    // inspected
-    httpMethod: DELETE,
-    params: {
-      id: {
-        from: resource,
-        default: 0
+    },
+    [VN_DELETE]: {
+      // inspected
+      httpMethod: DELETE,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        }
       }
-    }
-  },
-  'vn.add_ar': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      template: {
-        from: postBody,
-        default: ''
+    },
+    [VN_AR_ADD]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        template: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'vn.rm_ar': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      address: {
-        from: postBody,
-        default: 0
+    },
+    [VN_AR_RM]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        address: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'vn.update_ar': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      template: {
-        from: postBody,
-        default: ''
+    },
+    [VN_AR_UPDATE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        template: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'vn.reserve': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      template: {
-        from: postBody,
-        default: ''
+    },
+    [VN_RESERVE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        template: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'vn.free_ar': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      range: {
-        from: postBody,
-        default: 0
+    },
+    [VN_AR_FREE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        range: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'vn.hold': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      template: {
-        from: postBody,
-        default: ''
+    },
+    [VN_HOLD]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        template: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'vn.release': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      template: {
-        from: postBody,
-        default: ''
+    },
+    [VN_RELEASE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        template: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'vn.update': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      template: {
-        from: postBody,
-        default: ''
-      },
-      replace: {
-        from: postBody,
-        default: 0
+    },
+    [VN_UPDATE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        template: {
+          from: postBody,
+          default: ''
+        },
+        replace: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'vn.chmod': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      user_use: {
-        from: postBody,
-        default: -1
-      },
-      user_manage: {
-        from: postBody,
-        default: -1
-      },
-      user_admin: {
-        from: postBody,
-        default: -1
-      },
-      group_use: {
-        from: postBody,
-        default: -1
-      },
-      group_manage: {
-        from: postBody,
-        default: -1
-      },
-      group_admin: {
-        from: postBody,
-        default: -1
-      },
-      other_use: {
-        from: postBody,
-        default: -1
-      },
-      other_manage: {
-        from: postBody,
-        default: -1
-      },
-      other_admin: {
-        from: postBody,
-        default: -1
+    },
+    [VN_CHMOD]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        user_use: {
+          from: postBody,
+          default: -1
+        },
+        user_manage: {
+          from: postBody,
+          default: -1
+        },
+        user_admin: {
+          from: postBody,
+          default: -1
+        },
+        group_use: {
+          from: postBody,
+          default: -1
+        },
+        group_manage: {
+          from: postBody,
+          default: -1
+        },
+        group_admin: {
+          from: postBody,
+          default: -1
+        },
+        other_use: {
+          from: postBody,
+          default: -1
+        },
+        other_manage: {
+          from: postBody,
+          default: -1
+        },
+        other_admin: {
+          from: postBody,
+          default: -1
+        }
       }
-    }
-  },
-  'vn.chown': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      user: {
-        from: postBody,
-        default: -1
-      },
-      group: {
-        from: postBody,
-        default: -1
+    },
+    [VN_CHOWN]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        user: {
+          from: postBody,
+          default: -1
+        },
+        group: {
+          from: postBody,
+          default: -1
+        }
       }
-    }
-  },
-  'vn.rename': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      name: {
-        from: postBody,
-        default: ''
+    },
+    [VN_RENAME]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        name: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'vn.info': {
-    // inspected
-    httpMethod: GET,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      decrypt: {
-        from: query,
-        default: false
+    },
+    [VN_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        decrypt: {
+          from: query,
+          default: false
+        }
       }
-    }
-  },
-  'vn.lock': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      level: {
-        from: postBody,
-        default: 4
+    },
+    [VN_LOCK]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        level: {
+          from: postBody,
+          default: 4
+        }
       }
-    }
-  },
-  'vn.unlock': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
+    },
+    [VN_UNLOCK]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        }
       }
-    }
-  },
-  'vnpool.info': {
-    // inspected
-    httpMethod: GET,
-    params: {
-      filter: {
-        from: query,
-        default: -3
-      },
-      start: {
-        from: query,
-        default: -1
-      },
-      end: {
-        from: query,
-        default: -1
+    },
+    [VN_POOL_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {
+        filter: {
+          from: query,
+          default: -3
+        },
+        start: {
+          from: query,
+          default: -1
+        },
+        end: {
+          from: query,
+          default: -1
+        }
       }
     }
   }
-});
+};

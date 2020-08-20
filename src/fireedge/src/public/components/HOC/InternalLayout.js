@@ -16,22 +16,32 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Drawer, Box, Container } from '@material-ui/core';
+import { Box, Container } from '@material-ui/core';
+import { Skeleton } from '@material-ui/lab';
 
+import useAuth from 'client/hooks/useAuth';
+import useOpenNebula from 'client/hooks/useOpennebula';
 import Header from 'client/components/Header';
 import Footer from 'client/components/Footer';
 import Sidebar from 'client/components/Sidebar';
-import useGeneral from 'client/hooks/useGeneral';
 
 const InternalLayout = ({ children, title }) => {
-  const { isOpenMenu, openMenu } = useGeneral();
+  const { groups } = useOpenNebula();
+  const { authUser } = useAuth();
 
-  return (
+  const isAuthenticating = Boolean(!authUser && !groups?.length);
+
+  return isAuthenticating ? (
+    <Box width="100%" display="flex" flexDirection="column">
+      <Skeleton variant="rect" width="100%" height={64} />
+      <Box padding={2}>
+        <Skeleton variant="rect" width="50%" height={32} />
+      </Box>
+    </Box>
+  ) : (
     <Box display="flex" width="100%">
       <Header title={title} />
-      <Drawer anchor="left" open={isOpenMenu} onClose={() => openMenu(false)}>
-        <Sidebar />
-      </Drawer>
+      <Sidebar />
       <Container
         component="main"
         style={{ paddingTop: 96, paddingBottom: 96, height: '100vh' }}

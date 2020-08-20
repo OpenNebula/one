@@ -13,290 +13,333 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-module.exports = (
-  { resource, postBody, query },
-  { GET, POST, PUT, DELETE }
-) => ({
-  'image.allocate': {
-    // inspected
-    httpMethod: POST,
-    params: {
-      template: {
-        from: postBody,
-        default: ''
-      },
-      datastore: {
-        from: postBody,
-        default: 0
-      },
-      capacity: {
-        from: postBody,
-        default: false
+const {
+  from: { resource, postBody, query },
+  httpMethod: { GET, POST, PUT, DELETE }
+} = require('../defaults');
+
+const IMAGE_ALLOCATE = 'image.allocate';
+const IMAGE_CLONE = 'image.clone';
+const IMAGE_DELETE = 'image.delete';
+const IMAGE_ENABLE = 'image.enable';
+const IMAGE_PERSISTENT = 'image.persistent';
+const IMAGE_CHTYPE = 'image.chtype';
+const IMAGE_UPDATE = 'image.update';
+const IMAGE_CHMOD = 'image.chmod';
+const IMAGE_CHOWN = 'image.chown';
+const IMAGE_RENAME = 'image.rename';
+const IMAGE_SNAPDEL = 'image.snapshotdelete';
+const IMAGE_SNAPREV = 'image.snapshotrevert';
+const IMAGE_SNAPFLAT = 'image.snapshotflatten';
+const IMAGE_INFO = 'image.info';
+const IMAGE_LOCK = 'image.lock';
+const IMAGE_UNLOCK = 'image.unlock';
+const IMAGE_POOL_INFO = 'imagepool.info';
+
+const Actions = {
+  IMAGE_ALLOCATE,
+  IMAGE_CLONE,
+  IMAGE_DELETE,
+  IMAGE_ENABLE,
+  IMAGE_PERSISTENT,
+  IMAGE_CHTYPE,
+  IMAGE_UPDATE,
+  IMAGE_CHMOD,
+  IMAGE_CHOWN,
+  IMAGE_RENAME,
+  IMAGE_SNAPDEL,
+  IMAGE_SNAPREV,
+  IMAGE_SNAPFLAT,
+  IMAGE_INFO,
+  IMAGE_LOCK,
+  IMAGE_UNLOCK,
+  IMAGE_POOL_INFO
+};
+
+module.exports = {
+  Actions,
+  Commands: {
+    [IMAGE_ALLOCATE]: {
+      // inspected
+      httpMethod: POST,
+      params: {
+        template: {
+          from: postBody,
+          default: ''
+        },
+        datastore: {
+          from: postBody,
+          default: 0
+        },
+        capacity: {
+          from: postBody,
+          default: false
+        }
       }
-    }
-  },
-  'image.clone': {
-    // inspected
-    httpMethod: POST,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      name: {
-        from: postBody,
-        default: ''
-      },
-      datastore: {
-        from: postBody,
-        default: -1
+    },
+    [IMAGE_CLONE]: {
+      // inspected
+      httpMethod: POST,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        name: {
+          from: postBody,
+          default: ''
+        },
+        datastore: {
+          from: postBody,
+          default: -1
+        }
       }
-    }
-  },
-  'image.delete': {
-    // inspected
-    httpMethod: DELETE,
-    params: {
-      id: {
-        from: resource,
-        default: 0
+    },
+    [IMAGE_DELETE]: {
+      // inspected
+      httpMethod: DELETE,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        }
       }
-    }
-  },
-  'image.enable': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      enable: {
-        from: postBody,
-        default: true
+    },
+    [IMAGE_ENABLE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        enable: {
+          from: postBody,
+          default: true
+        }
       }
-    }
-  },
-  'image.persistent': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      persistent: {
-        from: postBody,
-        default: true
+    },
+    [IMAGE_PERSISTENT]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        persistent: {
+          from: postBody,
+          default: true
+        }
       }
-    }
-  },
-  'image.chtype': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      type: {
-        from: postBody,
-        default: ''
+    },
+    [IMAGE_CHTYPE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        type: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'image.update': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      template: {
-        from: postBody,
-        default: ''
-      },
-      replace: {
-        from: postBody,
-        default: 0
+    },
+    [IMAGE_UPDATE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        template: {
+          from: postBody,
+          default: ''
+        },
+        replace: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'image.chmod': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      user_use: {
-        from: postBody,
-        default: -1
-      },
-      user_manage: {
-        from: postBody,
-        default: -1
-      },
-      user_admin: {
-        from: postBody,
-        default: -1
-      },
-      group_use: {
-        from: postBody,
-        default: -1
-      },
-      group_manage: {
-        from: postBody,
-        default: -1
-      },
-      group_admin: {
-        from: postBody,
-        default: -1
-      },
-      other_use: {
-        from: postBody,
-        default: -1
-      },
-      other_manage: {
-        from: postBody,
-        default: -1
-      },
-      other_admin: {
-        from: postBody,
-        default: -1
+    },
+    [IMAGE_CHMOD]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        user_use: {
+          from: postBody,
+          default: -1
+        },
+        user_manage: {
+          from: postBody,
+          default: -1
+        },
+        user_admin: {
+          from: postBody,
+          default: -1
+        },
+        group_use: {
+          from: postBody,
+          default: -1
+        },
+        group_manage: {
+          from: postBody,
+          default: -1
+        },
+        group_admin: {
+          from: postBody,
+          default: -1
+        },
+        other_use: {
+          from: postBody,
+          default: -1
+        },
+        other_manage: {
+          from: postBody,
+          default: -1
+        },
+        other_admin: {
+          from: postBody,
+          default: -1
+        }
       }
-    }
-  },
-  'image.chown': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      user: {
-        from: postBody,
-        default: -1
-      },
-      group: {
-        from: postBody,
-        default: -1
+    },
+    [IMAGE_CHOWN]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        user: {
+          from: postBody,
+          default: -1
+        },
+        group: {
+          from: postBody,
+          default: -1
+        }
       }
-    }
-  },
-  'image.rename': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      name: {
-        from: postBody,
-        default: ''
+    },
+    [IMAGE_RENAME]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        name: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'image.snapshotdelete': {
-    // inspected
-    httpMethod: DELETE,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      snapshot: {
-        from: postBody,
-        default: 0
+    },
+    [IMAGE_SNAPDEL]: {
+      // inspected
+      httpMethod: DELETE,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        snapshot: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'image.snapshotrevert': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      snapshot: {
-        from: postBody,
-        default: 0
+    },
+    [IMAGE_SNAPREV]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        snapshot: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'image.snapshotflatten': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      snapshot: {
-        from: postBody,
-        default: 0
+    },
+    [IMAGE_SNAPFLAT]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        snapshot: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'image.info': {
-    // inspected
-    httpMethod: GET,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      decrypt: {
-        from: query,
-        default: false
+    },
+    [IMAGE_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        decrypt: {
+          from: query,
+          default: false
+        }
       }
-    }
-  },
-  'image.lock': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      lock: {
-        from: postBody,
-        default: 4
+    },
+    [IMAGE_LOCK]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        lock: {
+          from: postBody,
+          default: 4
+        }
       }
-    }
-  },
-  'image.unlock': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
+    },
+    [IMAGE_UNLOCK]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        }
       }
-    }
-  },
-  'imagepool.info': {
-    // inspected
-    httpMethod: GET,
-    params: {
-      filter: {
-        from: query,
-        default: -1
-      },
-      start: {
-        from: query,
-        default: -1
-      },
-      end: {
-        from: query,
-        default: -1
+    },
+    [IMAGE_POOL_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {
+        filter: {
+          from: query,
+          default: -1
+        },
+        start: {
+          from: query,
+          default: -1
+        },
+        end: {
+          from: query,
+          default: -1
+        }
       }
     }
   }
-});
+};

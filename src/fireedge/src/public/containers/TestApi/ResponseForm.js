@@ -12,28 +12,7 @@ import {
 } from '@material-ui/core';
 
 import ButtonSubmit from 'client/components/FormControl/SubmitButton';
-import { requestData } from 'client/utils';
-import { from as resourceFrom } from 'server/utils/constants/defaults';
-
-const getQueries = params =>
-  Object.entries(params)
-    ?.filter(([, { from }]) => from === resourceFrom.query)
-    ?.map(([name, { default: value }]) => `${name}=${encodeURI(value)}`)
-    ?.join('&');
-
-const getResources = params =>
-  Object.values(params)
-    ?.filter(({ from }) => from === resourceFrom.resource)
-    ?.map(({ default: value }) => value)
-    ?.join('/');
-
-const getDataBody = params =>
-  Object.entries(params)
-    ?.filter(([, { from }]) => from === resourceFrom.postBody)
-    ?.reduce(
-      (acc, [name, { default: value }]) => ({ ...acc, [name]: value }),
-      {}
-    );
+import { requestData, requestParams } from 'client/utils';
 
 const ResponseForm = ({
   handleChangeResponse,
@@ -42,26 +21,13 @@ const ResponseForm = ({
   const { control, handleSubmit, errors, formState } = useForm();
 
   const onSubmit = dataForm => {
-    /* Spread 'from' values in current params */
-    const reqParams = Object.entries(params)?.reduce(
-      (acc, [param, { from }]) => ({
-        ...acc,
-        [param]: { from, ...dataForm[param] }
-      }),
-      {}
-    );
+    const { url, options } = requestParams(dataForm, {
+      name,
+      httpMethod,
+      params
+    });
 
-    const queries = getQueries(reqParams);
-    const resources = getResources(reqParams);
-    const data = getDataBody(reqParams);
-
-    const url = `api/${name.replace('.', '/')}`;
-
-    requestData(`${url}/${resources}?${queries}`, {
-      data,
-      method: httpMethod,
-      authenticate: true
-    }).then(({ id, ...res }) => {
+    requestData(url, options).then(({ id, ...res }) => {
       id === 401 && console.log('ERROR');
       id === 200 && handleChangeResponse(JSON.stringify(res, null, '\t'));
     });
@@ -102,8 +68,8 @@ const ResponseForm = ({
                 )
               }
               control={control}
-              name={`${nameCommand}.default`}
-              defaultValue={value}
+              name={`${nameCommand}`}
+              defaultValue={String(value)}
             />
           </Grid>
         ))}

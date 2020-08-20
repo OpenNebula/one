@@ -13,152 +13,179 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-module.exports = (
-  { resource, postBody, query },
-  { GET, POST, PUT, DELETE }
-) => ({
-  'hook.allocate': {
-    // inspected
-    httpMethod: POST,
-    params: {
-      template: {
-        from: postBody,
-        default: ''
+const {
+  from: { resource, postBody, query },
+  httpMethod: { GET, POST, PUT, DELETE }
+} = require('../defaults');
+
+const HOOK_ALLOCATE = 'hook.allocate';
+const HOOK_DELETE = 'hook.delete';
+const HOOK_INFO = 'hook.info';
+const HOOK_RENAME = 'hook.rename';
+const HOOK_LOCK = 'hook.lock';
+const HOOK_UNLOCK = 'hook.unlock';
+const HOOK_RETRY = 'hook.retry';
+const HOOK_POOL_INFO = 'hookpool.info';
+const HOOK_LOG_INFO = 'hooklog.info';
+
+const Actions = {
+  HOOK_ALLOCATE,
+  HOOK_DELETE,
+  HOOK_INFO,
+  HOOK_RENAME,
+  HOOK_LOCK,
+  HOOK_UNLOCK,
+  HOOK_RETRY,
+  HOOK_POOL_INFO,
+  HOOK_LOG_INFO
+};
+
+module.exports = {
+  Actions,
+  Commands: {
+    [HOOK_ALLOCATE]: {
+      // inspected
+      httpMethod: POST,
+      params: {
+        template: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'hook.delete': {
-    // inspected
-    httpMethod: DELETE,
-    params: {
-      id: {
-        from: resource,
-        default: 0
+    },
+    [HOOK_DELETE]: {
+      // inspected
+      httpMethod: DELETE,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        }
       }
-    }
-  },
-  'hook.update': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      template: {
-        from: postBody,
-        default: ''
-      },
-      replace: {
-        from: postBody,
-        default: 0
+    },
+    [HOOK_DELETE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        template: {
+          from: postBody,
+          default: ''
+        },
+        replace: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'hook.rename': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      name: {
-        from: postBody,
-        default: ''
+    },
+    [HOOK_RENAME]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        name: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'hook.info': {
-    // inspected
-    httpMethod: GET,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      decrypt: {
-        from: postBody,
-        default: false
+    },
+    [HOOK_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        decrypt: {
+          from: postBody,
+          default: false
+        }
       }
-    }
-  },
-  'hook.lock': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      lock: {
-        from: postBody,
-        default: 4
+    },
+    [HOOK_LOCK]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        lock: {
+          from: postBody,
+          default: 4
+        }
       }
-    }
-  },
-  'hook.unlock': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
+    },
+    [HOOK_UNLOCK]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        }
       }
-    }
-  },
-  'hook.retry': {
-    // inspected
-    httpMethod: POST,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      execution: {
-        from: postBody,
-        default: 0
+    },
+    [HOOK_RETRY]: {
+      // inspected
+      httpMethod: POST,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        execution: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'hookpool.info': {
-    // inspected
-    httpMethod: GET,
-    params: {
-      filter: {
-        from: query,
-        default: -1
-      },
-      start: {
-        from: query,
-        default: -1
-      },
-      end: {
-        from: query,
-        default: -1
+    },
+    [HOOK_POOL_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {
+        filter: {
+          from: query,
+          default: -1
+        },
+        start: {
+          from: query,
+          default: -1
+        },
+        end: {
+          from: query,
+          default: -1
+        }
       }
-    }
-  },
-  'hooklog.info': {
-    // inspected
-    httpMethod: GET,
-    params: {
-      minimun: {
-        from: postBody, // epoch time
-        default: ''
-      },
-      maximun: {
-        from: postBody, // epoch time
-        default: ''
-      },
-      id: {
-        from: postBody,
-        default: '' // check
-      },
-      execution: {
-        from: postBody,
-        default: 0
+    },
+    [HOOK_LOG_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {
+        minimun: {
+          from: postBody, // epoch time
+          default: ''
+        },
+        maximun: {
+          from: postBody, // epoch time
+          default: ''
+        },
+        id: {
+          from: postBody,
+          default: '' // check
+        },
+        execution: {
+          from: postBody,
+          default: 0
+        }
       }
     }
   }
-});
+};

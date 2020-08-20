@@ -14,38 +14,56 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-module.exports = ({ resource, postBody }, { GET, POST, DELETE }) => ({
-  'acl.addrule': {
-    // inspected
-    httpMethod: POST,
-    params: {
-      user: {
-        from: postBody,
-        default: '0x100000000'
-      },
-      resource: {
-        from: postBody,
-        default: '0x1000000000'
-      },
-      right: {
-        from: postBody,
-        default: '0x1'
+const {
+  from: { resource, postBody },
+  httpMethod: { GET, POST, DELETE }
+} = require('../defaults');
+
+const ACL_ADDRULE = 'acl.addrule';
+const ACL_DELRULE = 'acl.delrule';
+const ACL_INFO = 'acl.info';
+
+const Actions = {
+  ACL_ADDRULE,
+  ACL_DELRULE,
+  ACL_INFO
+};
+
+module.exports = {
+  Actions,
+  Commands: {
+    [ACL_ADDRULE]: {
+      // inspected
+      httpMethod: POST,
+      params: {
+        user: {
+          from: postBody,
+          default: '0x100000000'
+        },
+        resource: {
+          from: postBody,
+          default: '0x1000000000'
+        },
+        right: {
+          from: postBody,
+          default: '0x1'
+        }
       }
-    }
-  },
-  'acl.delrule': {
-    // inspected
-    httpMethod: DELETE,
-    params: {
-      id: {
-        from: resource,
-        default: 0
+    },
+    [ACL_DELRULE]: {
+      // inspected
+      httpMethod: DELETE,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        }
       }
+    },
+    [ACL_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {}
     }
-  },
-  'acl.info': {
-    // inspected
-    httpMethod: GET,
-    params: {}
   }
-});
+};

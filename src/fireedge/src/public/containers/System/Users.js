@@ -13,10 +13,45 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-.header{
-  border-bottom: 2px solid $primary;
-  background-color: $secondary;
-  .title{
-    text-transform: capitalize;
+import React, { useEffect } from 'react';
+
+import { makeStyles, Card, CardContent, Typography } from '@material-ui/core';
+
+import useOpennebula from 'client/hooks/useOpennebula';
+
+const useStyles = makeStyles({
+  root: {
+    minWidth: 275
+  },
+  title: {
+    fontSize: 14
   }
+});
+
+function Users() {
+  const classes = useStyles();
+  const { users, getUsers } = useOpennebula();
+
+  useEffect(() => {
+    getUsers();
+  }, [getUsers]);
+
+  console.log(users);
+  return (
+    <div>
+      <Card className={classes.root}>
+        <CardContent>
+          <Typography className={classes.title} gutterBottom>
+            Word of the Day
+          </Typography>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
+
+Users.propTypes = {};
+
+Users.defaultProps = {};
+
+export default Users;
