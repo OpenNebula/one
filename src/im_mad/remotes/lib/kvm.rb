@@ -261,6 +261,7 @@ class Domain < BaseDomain
       'pmsuspended' => 'SUSPENDED',
       'paused' => {
           'migrating' => 'RUNNING',
+          'saving'    => 'RUNNING',
           'starting up' => 'RUNNING',
           'booted'    => 'RUNNING',
           'I/O error' => 'FAILURE',
@@ -272,6 +273,9 @@ class Domain < BaseDomain
       }
     }
 
+    # List of domain state reasons (for RUNNING) when to skip I/O monitoring
+    REASONS_SKIP_IO = ['migrating', 'starting up', 'saving']
+
     # Get the I/O stats of the domain as provided by Libvirt command domstats
     # The metrics are aggregated for all DIKS and NIC
     def io_stats
@@ -282,7 +286,8 @@ class Domain < BaseDomain
         @vm[:diskrdiops]  = 0
         @vm[:diskwriops]  = 0
 
-        return if @vm[:state] != 'RUNNING' || @vm[:reason] == 'migrating'
+        return if @vm[:state] != 'RUNNING' ||
+                  REASONS_SKIP_IO.include?(@vm[:reason])
 
         vm_stats, _e, s = KVM.virsh(:domstats, @name)
 
