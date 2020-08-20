@@ -13,206 +13,237 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-module.exports = (
-  { resource, postBody, query },
-  { GET, POST, PUT, DELETE }
-) => ({
-  'document.allocate': {
-    // inspected
-    httpMethod: POST,
-    params: {
-      template: {
-        from: postBody,
-        default: ''
-      },
-      type: {
-        from: postBody,
-        default: 0
+const {
+  from: { resource, postBody, query },
+  httpMethod: { GET, POST, PUT, DELETE }
+} = require('../defaults');
+
+const DOCUMENT_ALLOCATE = 'document.allocate';
+const DOCUMENT_CLONE = 'document.clone';
+const DOCUMENT_DELETE = 'document.delete';
+const DOCUMENT_UPDATE = 'document.update';
+const DOCUMENT_CHMOD = 'document.chmod';
+const DOCUMENT_CHOWN = 'document.chown';
+const DOCUMENT_RENAME = 'document.rename';
+const DOCUMENT_INFO = 'document.info';
+const DOCUMENT_LOCK = 'document.lock';
+const DOCUMENT_UNLOCK = 'document.unlock';
+const DOCUMENT_POOL_INFO = 'documentpool.info';
+
+const Actions = {
+  DOCUMENT_ALLOCATE,
+  DOCUMENT_CLONE,
+  DOCUMENT_DELETE,
+  DOCUMENT_UPDATE,
+  DOCUMENT_CHMOD,
+  DOCUMENT_CHOWN,
+  DOCUMENT_RENAME,
+  DOCUMENT_INFO,
+  DOCUMENT_LOCK,
+  DOCUMENT_UNLOCK,
+  DOCUMENT_POOL_INFO
+};
+
+module.exports = {
+  Actions,
+  Commands: {
+    [DOCUMENT_ALLOCATE]: {
+      // inspected
+      httpMethod: POST,
+      params: {
+        template: {
+          from: postBody,
+          default: ''
+        },
+        type: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'document.clone': {
-    // inspected
-    httpMethod: POST,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      name: {
-        from: postBody,
-        default: ''
+    },
+    [DOCUMENT_CLONE]: {
+      // inspected
+      httpMethod: POST,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        name: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'document.delete': {
-    // inspected
-    httpMethod: DELETE,
-    params: {
-      id: {
-        from: resource,
-        default: 0
+    },
+    [DOCUMENT_DELETE]: {
+      // inspected
+      httpMethod: DELETE,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        }
       }
-    }
-  },
-  'document.update': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      template: {
-        from: postBody,
-        default: ''
-      },
-      replace: {
-        from: postBody,
-        default: 0
+    },
+    [DOCUMENT_UPDATE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        template: {
+          from: postBody,
+          default: ''
+        },
+        replace: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'document.chmod': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      user_use: {
-        from: postBody,
-        default: -1
-      },
-      user_manage: {
-        from: postBody,
-        default: -1
-      },
-      user_admin: {
-        from: postBody,
-        default: -1
-      },
-      group_use: {
-        from: postBody,
-        default: -1
-      },
-      group_manage: {
-        from: postBody,
-        default: -1
-      },
-      group_admin: {
-        from: postBody,
-        default: -1
-      },
-      other_use: {
-        from: postBody,
-        default: -1
-      },
-      other_manage: {
-        from: postBody,
-        default: -1
-      },
-      other_admin: {
-        from: postBody,
-        default: -1
+    },
+    [DOCUMENT_CHMOD]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        user_use: {
+          from: postBody,
+          default: -1
+        },
+        user_manage: {
+          from: postBody,
+          default: -1
+        },
+        user_admin: {
+          from: postBody,
+          default: -1
+        },
+        group_use: {
+          from: postBody,
+          default: -1
+        },
+        group_manage: {
+          from: postBody,
+          default: -1
+        },
+        group_admin: {
+          from: postBody,
+          default: -1
+        },
+        other_use: {
+          from: postBody,
+          default: -1
+        },
+        other_manage: {
+          from: postBody,
+          default: -1
+        },
+        other_admin: {
+          from: postBody,
+          default: -1
+        }
       }
-    }
-  },
-  'document.chown': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      user: {
-        from: postBody,
-        default: -1
-      },
-      group: {
-        from: postBody,
-        default: -1
+    },
+    [DOCUMENT_CHOWN]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        user: {
+          from: postBody,
+          default: -1
+        },
+        group: {
+          from: postBody,
+          default: -1
+        }
       }
-    }
-  },
-  'document.rename': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      name: {
-        from: postBody,
-        default: ''
+    },
+    [DOCUMENT_RENAME]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        name: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'document.info': {
-    // inspected
-    httpMethod: GET,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      decrypt: {
-        from: postBody,
-        default: false
+    },
+    [DOCUMENT_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        decrypt: {
+          from: postBody,
+          default: false
+        }
       }
-    }
-  },
-  'document.lock': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      lock: {
-        from: postBody,
-        default: 4
+    },
+    [DOCUMENT_LOCK]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        lock: {
+          from: postBody,
+          default: 4
+        }
       }
-    }
-  },
-  'document.unlock': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
+    },
+    [DOCUMENT_UNLOCK]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        }
       }
-    }
-  },
-  'documentpool.info': {
-    // inspected
-    httpMethod: GET,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      filter: {
-        from: query,
-        default: -1
-      },
-      start: {
-        from: query,
-        default: -1
-      },
-      end: {
-        from: query,
-        default: -1
-      },
-      type: {
-        from: query,
-        default: 0
+    },
+    [DOCUMENT_POOL_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        filter: {
+          from: query,
+          default: -1
+        },
+        start: {
+          from: query,
+          default: -1
+        },
+        end: {
+          from: query,
+          default: -1
+        },
+        type: {
+          from: query,
+          default: 0
+        }
       }
     }
   }
-});
+};

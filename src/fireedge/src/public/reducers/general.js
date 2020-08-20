@@ -13,7 +13,9 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const actions = require('../actions/general');
+const { Actions: PoolActions } = require('../actions/pool');
+const { Actions: UserActions } = require('../actions/user');
+const { Actions: GeneralActions } = require('../actions/general');
 
 const initial = {
   zone: 0,
@@ -23,18 +25,18 @@ const initial = {
 
 const General = (state = initial, action) => {
   switch (action.type) {
-    case actions.DISPLAY_LOADING: {
+    case PoolActions.START_ONE_REQUEST:
+      return { ...state, isLoading: true };
+    case PoolActions.SUCCESS_ONE_REQUEST:
+      return { ...state, isLoading: false };
+    case PoolActions.FAILURE_ONE_REQUEST:
+      return { ...state, isLoading: false };
+    case GeneralActions.CHANGE_ZONE:
       return { ...state, ...action.payload };
-    }
-    case actions.CHANGE_ZONE: {
-      return { ...state, ...action.payload };
-    }
-    case actions.TOGGLE_MENU: {
-      return {
-        ...state,
-        isOpenMenu: action.isOpen
-      };
-    }
+    case GeneralActions.TOGGLE_MENU:
+      return { ...state, isOpenMenu: action.isOpen };
+    case UserActions.LOGOUT:
+      return { ...initial };
     default:
       return state;
   }

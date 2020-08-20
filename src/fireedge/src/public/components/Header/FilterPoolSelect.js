@@ -13,43 +13,23 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-$primary: #C7C9C8;
-$secondary: #FFF;
-$tertiary: #FAFAFA;
-$quaternary: #353735;
+import React from 'react';
 
-$font_primary: #353735;
-$font_secondary: red;
+import { Box } from '@material-ui/core';
 
-@font-face {
-  font-family: 'LatoWeb';
-  src: url('fonts/Lato-Regular.eot'); /* IE9 Compat Modes */
-  src: url('fonts/Lato-Regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       url('fonts/Lato-Regular.woff2') format('woff2'), /* Modern Browsers */
-       url('fonts/Lato-Regular.woff') format('woff'), /* Modern Browsers */
-       url('fonts/Lato-Regular.ttf') format('truetype');
-  font-style: normal;
-  font-weight: normal;
-  text-rendering: optimizeLegibility;
-}
+import { FILTER_POOL } from 'client/constants';
+import useAuth from 'client/hooks/useAuth';
+import GroupSelect from '../FormControl/GroupSelect';
 
-@import "login";
-@import "footer";
-@import "menu";
-@import "content";
+const FilterPoolSelect = () => {
+  const { setPrimaryGroup } = useAuth();
 
-html, body{
-  font-family: 'LatoWeb';
-  background-color: $secondary;
-  color: $font_primary;
-  min-height: 100vh;
-  margin: 0px;
-  display: flex;
-  width: 100%;
-  flex-wrap: wrap;
-}
-#root{
-  flex-grow: 1;
-  display: flex;
-  flex-wrap: wrap;
-}
+  const handleChangeFilter = evt => {
+    console.log(evt);
+    // setPrimaryGroup({ group:  });
+  };
+
+  return <GroupSelect handleChange={handleChangeFilter} />;
+};
+
+export default FilterPoolSelect;

@@ -13,212 +13,245 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-module.exports = (
-  { resource, postBody, query },
-  { GET, POST, PUT, DELETE }
-) => ({
-  'vntemplate.allocate': {
-    // inspected
-    httpMethod: POST,
-    params: {
-      template: {
-        from: postBody,
-        default: ''
+const {
+  from: { resource, postBody, query },
+  httpMethod: { GET, POST, PUT, DELETE }
+} = require('../defaults');
+
+const VNTEMPLATE_ALLOCATE = 'vntemplate.allocate';
+const VNTEMPLATE_CLONE = 'vntemplate.clone';
+const VNTEMPLATE_DELETE = 'vntemplate.delete';
+const VNTEMPLATE_INSTANTIATE = 'vntemplate.instantiate';
+const VNTEMPLATE_UPDATE = 'vntemplate.update';
+const VNTEMPLATE_CHMOD = 'vntemplate.chmod';
+const VNTEMPLATE_CHOWN = 'vntemplate.chown';
+const VNTEMPLATE_RENAME = 'vntemplate.rename';
+const VNTEMPLATE_INFO = 'vntemplate.info';
+const VNTEMPLATE_LOCK = 'vntemplate.lock';
+const VNTEMPLATE_UNLOCK = 'vntemplate.unlock';
+const VNTEMPLATE_POOL_INFO = 'vntemplatepool.info';
+
+const Actions = {
+  VNTEMPLATE_ALLOCATE,
+  VNTEMPLATE_CLONE,
+  VNTEMPLATE_DELETE,
+  VNTEMPLATE_INSTANTIATE,
+  VNTEMPLATE_UPDATE,
+  VNTEMPLATE_CHMOD,
+  VNTEMPLATE_CHOWN,
+  VNTEMPLATE_RENAME,
+  VNTEMPLATE_INFO,
+  VNTEMPLATE_LOCK,
+  VNTEMPLATE_UNLOCK,
+  VNTEMPLATE_POOL_INFO
+};
+
+module.exports = {
+  Actions,
+  Commands: {
+    [VNTEMPLATE_ALLOCATE]: {
+      // inspected
+      httpMethod: POST,
+      params: {
+        template: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'vntemplate.clone': {
-    // inspected
-    httpMethod: POST,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      name: {
-        from: postBody,
-        default: ''
+    },
+    [VNTEMPLATE_CLONE]: {
+      // inspected
+      httpMethod: POST,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        name: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'vntemplate.delete': {
-    // inspected
-    httpMethod: DELETE,
-    params: {
-      id: {
-        from: resource,
-        default: 0
+    },
+    [VNTEMPLATE_DELETE]: {
+      // inspected
+      httpMethod: DELETE,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        }
       }
-    }
-  },
-  'vntemplate.instantiate': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      name: {
-        from: postBody,
-        default: ''
-      },
-      template: {
-        from: postBody,
-        default: ''
+    },
+    [VNTEMPLATE_INSTANTIATE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        name: {
+          from: postBody,
+          default: ''
+        },
+        template: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'vntemplate.update': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      template: {
-        from: postBody,
-        default: ''
-      },
-      replace: {
-        from: postBody,
-        default: 0
+    },
+    [VNTEMPLATE_UPDATE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        template: {
+          from: postBody,
+          default: ''
+        },
+        replace: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'vntemplate.chmod': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      user_use: {
-        from: postBody,
-        default: -1
-      },
-      user_manage: {
-        from: postBody,
-        default: -1
-      },
-      user_admin: {
-        from: postBody,
-        default: -1
-      },
-      group_use: {
-        from: postBody,
-        default: -1
-      },
-      group_manage: {
-        from: postBody,
-        default: -1
-      },
-      group_admin: {
-        from: postBody,
-        default: -1
-      },
-      other_use: {
-        from: postBody,
-        default: -1
-      },
-      other_manage: {
-        from: postBody,
-        default: -1
-      },
-      other_admin: {
-        from: postBody,
-        default: -1
+    },
+    [VNTEMPLATE_CHMOD]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        user_use: {
+          from: postBody,
+          default: -1
+        },
+        user_manage: {
+          from: postBody,
+          default: -1
+        },
+        user_admin: {
+          from: postBody,
+          default: -1
+        },
+        group_use: {
+          from: postBody,
+          default: -1
+        },
+        group_manage: {
+          from: postBody,
+          default: -1
+        },
+        group_admin: {
+          from: postBody,
+          default: -1
+        },
+        other_use: {
+          from: postBody,
+          default: -1
+        },
+        other_manage: {
+          from: postBody,
+          default: -1
+        },
+        other_admin: {
+          from: postBody,
+          default: -1
+        }
       }
-    }
-  },
-  'vntemplate.chown': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      user_id: {
-        from: postBody,
-        default: -1
-      },
-      group_id: {
-        from: postBody,
-        default: -1
+    },
+    [VNTEMPLATE_CHOWN]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        user_id: {
+          from: postBody,
+          default: -1
+        },
+        group_id: {
+          from: postBody,
+          default: -1
+        }
       }
-    }
-  },
-  'vntemplate.rename': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      name: {
-        from: postBody,
-        default: ''
+    },
+    [VNTEMPLATE_RENAME]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        name: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'vntemplate.info': {
-    // inspected
-    httpMethod: GET,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      decrypt: {
-        from: query,
-        default: false
+    },
+    [VNTEMPLATE_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        decrypt: {
+          from: query,
+          default: false
+        }
       }
-    }
-  },
-  'vntemplate.lock': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      lock: {
-        from: postBody,
-        default: 4
+    },
+    [VNTEMPLATE_LOCK]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        lock: {
+          from: postBody,
+          default: 4
+        }
       }
-    }
-  },
-  'vntemplate.unlock': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
+    },
+    [VNTEMPLATE_UNLOCK]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        }
       }
-    }
-  },
-  'vntemplatepool.info': {
-    // inspected
-    httpMethod: GET,
-    params: {
-      filter: {
-        from: query,
-        default: -1
-      },
-      start: {
-        from: query,
-        default: -1
-      },
-      end: {
-        from: query,
-        default: -1
+    },
+    [VNTEMPLATE_POOL_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {
+        filter: {
+          from: query,
+          default: -1
+        },
+        start: {
+          from: query,
+          default: -1
+        },
+        end: {
+          from: query,
+          default: -1
+        }
       }
     }
   }
-});
+};

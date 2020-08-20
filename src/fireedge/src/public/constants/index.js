@@ -34,5 +34,12 @@ module.exports = {
   endpointsRoutes: {
     login: '/api/auth/',
     userInfo: '/api/user/info'
+  },
+  ONEADMIN_ID: '0',
+  FILTER_POOL: {
+    PRIMARY_GROUP_RESOURCES: '-4',
+    USER_RESOURCES: '-3',
+    ALL_RESOURCES: '-2',
+    USER_GROUPS_RESOURCES: '-1'
   }
 };

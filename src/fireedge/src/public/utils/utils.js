@@ -17,7 +17,18 @@ import axios from 'axios';
 import root from 'window-or-global';
 
 import { messageTerminal } from 'server/utils/general';
-import constants from 'client/constants';
+import { httpCodes } from 'server/utils/constants';
+import { jwtName } from 'client/constants';
+
+const defaultData = {
+  data: {},
+  json: true,
+  baseURL: '',
+  method: 'GET',
+  authenticate: true,
+  onUploadProgress: null,
+  error: e => e
+};
 
 export const storage = (name = '', data = '', keepData = false) => {
   if (name && data && root && root.localStorage && root.sessionStorage) {
@@ -34,10 +45,10 @@ export const removeStoreData = (items = []) => {
   if (!Array.isArray(items)) {
     itemsToRemove = [items];
   }
-  itemsToRemove.forEach(e => {
+  itemsToRemove.forEach(item => {
     if (root && root.localStorage && root.sessionStorage) {
-      root.localStorage.removeItem(e);
-      root.sessionStorage.removeItem(e);
+      root.localStorage.removeItem(item);
+      root.sessionStorage.removeItem(item);
     }
   });
 };
@@ -57,26 +68,16 @@ export const findStorageData = (name = '') => {
   return rtn;
 };
 
-export const requestData = (
-  url = '',
-  params = {
-    method: 'GET',
-    json: true,
-    data: {},
-    authenticate: true,
-    onUploadProgress: null,
-    baseURL: '',
-    error: e => e
-  }
-) => {
+export const requestData = (url = '', data = {}) => {
+  const params = { ...defaultData, ...data };
   const config = {
     url,
     method: params.method,
     baseURL: params.baseURL,
     headers: {},
-    validateStatus: status => status >= 200 && status <= 401
+    validateStatus: status =>
+      Object.values(httpCodes).some(({ id }) => id === status)
   };
-  const { jwtName } = constants;
   const json = params.json ? params.json : true;
   let rtn = null;
   if (json) {
@@ -100,22 +101,22 @@ export const requestData = (
   return axios
     .request(config)
     .then(response => {
-      if (response && response.statusText && response.data) {
+      if (response?.data && response?.status < httpCodes.badRequest.id) {
         rtn =
           json && typeof response === 'string'
             ? response.data.json()
             : response.data;
         return rtn;
       }
-      throw Error(response.statusText);
+      throw new Error(response.statusText);
     })
-    .catch(e => {
+    .catch(err => {
       const configErrorParser = {
         color: 'red',
-        type: e,
+        type: err.message,
         message: 'Error request: %s'
       };
       messageTerminal(configErrorParser);
-      return params.error(rtn);
+      return params.error(err);
     });
 };

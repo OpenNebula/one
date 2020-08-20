@@ -19,14 +19,14 @@ import { Redirect } from 'react-router-dom';
 
 import { LinearProgress } from '@material-ui/core';
 
-import useAuth from 'client/hooks/auth/useAuth';
-import routes from 'client/router/endpoints';
+import useAuth from 'client/hooks/useAuth';
+import { PATH } from 'client/router/endpoints';
 
 const GuessLayout = ({ children }) => {
-  const { isLogged, firstRender } = useAuth();
+  const { isLogging, isLogged, firstRender } = useAuth();
 
-  if (isLogged) {
-    return <Redirect to={routes.dashboard.path} />;
+  if (isLogged && !isLogging) {
+    return <Redirect to={PATH.DASHBOARD} />;
   }
 
   if (firstRender) {

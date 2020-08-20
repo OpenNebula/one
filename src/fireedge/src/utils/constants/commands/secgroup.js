@@ -18,30 +18,34 @@ const {
   httpMethod: { GET, POST, PUT, DELETE }
 } = require('../defaults');
 
-const MARKET_ALLOCATE = 'market.allocate';
-const MARKET_DELETE = 'market.delete';
-const MARKET_UPDATE = 'market.update';
-const MARKET_CHMOD = 'market.chmod';
-const MARKET_CHOWN = 'market.chown';
-const MARKET_RENAME = 'market.rename';
-const MARKET_INFO = 'market.info';
-const MARKET_POOL_INFO = 'marketpool.info';
+const SECGROUP_ALLOCATE = 'secgroup.allocate';
+const SECGROUP_CLONE = 'secgroup.clone';
+const SECGROUP_DELETE = 'secgroup.delete';
+const SECGROUP_UPDATE = 'secgroup.update';
+const SECGROUP_COMMIT = 'secgroup.commit';
+const SECGROUP_CHMOD = 'secgroup.chmod';
+const SECGROUP_CHOWN = 'secgroup.chown';
+const SECGROUP_RENAME = 'secgroup.rename';
+const SECGROUP_INFO = 'secgroup.info';
+const SECGROUP_POOL_INFO = 'secgrouppool.info';
 
 const Actions = {
-  MARKET_ALLOCATE,
-  MARKET_DELETE,
-  MARKET_UPDATE,
-  MARKET_CHMOD,
-  MARKET_CHOWN,
-  MARKET_RENAME,
-  MARKET_INFO,
-  MARKET_POOL_INFO
+  SECGROUP_ALLOCATE,
+  SECGROUP_CLONE,
+  SECGROUP_DELETE,
+  SECGROUP_UPDATE,
+  SECGROUP_COMMIT,
+  SECGROUP_CHMOD,
+  SECGROUP_CHOWN,
+  SECGROUP_RENAME,
+  SECGROUP_INFO,
+  SECGROUP_POOL_INFO
 };
 
 module.exports = {
   Actions,
   Commands: {
-    [MARKET_ALLOCATE]: {
+    [SECGROUP_ALLOCATE]: {
       // inspected
       httpMethod: POST,
       params: {
@@ -51,7 +55,21 @@ module.exports = {
         }
       }
     },
-    [MARKET_DELETE]: {
+    [SECGROUP_CLONE]: {
+      // inspected
+      httpMethod: POST,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        name: {
+          from: postBody,
+          default: ''
+        }
+      }
+    },
+    [SECGROUP_DELETE]: {
       // inspected
       httpMethod: DELETE,
       params: {
@@ -61,7 +79,7 @@ module.exports = {
         }
       }
     },
-    [MARKET_UPDATE]: {
+    [SECGROUP_UPDATE]: {
       // inspected
       httpMethod: PUT,
       params: {
@@ -73,13 +91,27 @@ module.exports = {
           from: postBody,
           default: ''
         },
-        update: {
+        replace: {
           from: postBody,
           default: 0
         }
       }
     },
-    [MARKET_CHMOD]: {
+    [SECGROUP_COMMIT]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        vms: {
+          from: postBody,
+          default: false
+        }
+      }
+    },
+    [SECGROUP_CHMOD]: {
       // inspected
       httpMethod: PUT,
       params: {
@@ -125,7 +157,7 @@ module.exports = {
         }
       }
     },
-    [MARKET_CHOWN]: {
+    [SECGROUP_CHOWN]: {
       // inspected
       httpMethod: PUT,
       params: {
@@ -133,17 +165,17 @@ module.exports = {
           from: resource,
           default: 0
         },
-        user_id: {
+        user: {
           from: postBody,
           default: -1
         },
-        group_id: {
+        group: {
           from: postBody,
           default: -1
         }
       }
     },
-    [MARKET_RENAME]: {
+    [SECGROUP_RENAME]: {
       // inspected
       httpMethod: PUT,
       params: {
@@ -157,13 +189,13 @@ module.exports = {
         }
       }
     },
-    [MARKET_INFO]: {
+    [SECGROUP_INFO]: {
       // inspected
       httpMethod: GET,
       params: {
         id: {
           from: resource,
-          default: -1
+          default: 0
         },
         decrypt: {
           from: query,
@@ -171,10 +203,23 @@ module.exports = {
         }
       }
     },
-    [MARKET_POOL_INFO]: {
+    [SECGROUP_POOL_INFO]: {
       // inspected
       httpMethod: GET,
-      params: {}
+      params: {
+        filter: {
+          from: query,
+          default: -3
+        },
+        start: {
+          from: query,
+          default: -1
+        },
+        end: {
+          from: query,
+          default: -1
+        }
+      }
     }
   }
 };

@@ -13,6 +13,9 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+const { Actions: PoolActions } = require('../actions/pool');
+const { Actions: UserActions } = require('../actions/user');
+
 const initial = {
   vm: [],
   templates: [],
@@ -30,6 +33,7 @@ const initial = {
   clusters: [],
   hosts: [],
   zones: [],
+  users: [],
   groups: [],
   vdc: [],
   acl: []
@@ -37,6 +41,10 @@ const initial = {
 
 const Opennebula = (state = initial, action) => {
   switch (action.type) {
+    case PoolActions.SUCCESS_ONE_REQUEST:
+      return { ...state, ...action.payload };
+    case UserActions.LOGOUT:
+      return { ...initial };
     default:
       return state;
   }

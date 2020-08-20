@@ -13,43 +13,35 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-$primary: #C7C9C8;
-$secondary: #FFF;
-$tertiary: #FAFAFA;
-$quaternary: #353735;
+import React from 'react';
+import { Box, Button } from '@material-ui/core';
+import { useForm, Controller } from 'react-hook-form';
 
-$font_primary: #353735;
-$font_secondary: red;
+import GroupSelect from 'client/components/FormControl/GroupSelect';
+import ButtonSubmit from 'client/components/FormControl/SubmitButton';
 
-@font-face {
-  font-family: 'LatoWeb';
-  src: url('fonts/Lato-Regular.eot'); /* IE9 Compat Modes */
-  src: url('fonts/Lato-Regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       url('fonts/Lato-Regular.woff2') format('woff2'), /* Modern Browsers */
-       url('fonts/Lato-Regular.woff') format('woff'), /* Modern Browsers */
-       url('fonts/Lato-Regular.ttf') format('truetype');
-  font-style: normal;
-  font-weight: normal;
-  text-rendering: optimizeLegibility;
+function FormGroup({ classes, onBack, onSubmit }) {
+  const { control, handleSubmit } = useForm();
+
+  return (
+    <Box
+      component="form"
+      className={classes?.form}
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      <Controller as={<GroupSelect />} control={control} name="group" />
+      <Button onClick={onBack}>Logout</Button>
+      <ButtonSubmit
+        data-cy="login-group-button"
+        isSubmitting={false}
+        label="Enter"
+      />
+    </Box>
+  );
 }
 
-@import "login";
-@import "footer";
-@import "menu";
-@import "content";
+FormGroup.propTypes = {};
 
-html, body{
-  font-family: 'LatoWeb';
-  background-color: $secondary;
-  color: $font_primary;
-  min-height: 100vh;
-  margin: 0px;
-  display: flex;
-  width: 100%;
-  flex-wrap: wrap;
-}
-#root{
-  flex-grow: 1;
-  display: flex;
-  flex-wrap: wrap;
-}
+FormGroup.defaultProps = {};
+
+export default FormGroup;

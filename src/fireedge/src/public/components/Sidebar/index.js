@@ -14,102 +14,94 @@
 /* -------------------------------------------------------------------------- */
 
 import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
+
 import {
   Grid,
   List,
+  Drawer,
+  Divider,
+  Collapse,
   ListItem,
-  ListItemText,
-  ExpansionPanel,
-  ExpansionPanelSummary,
-  ExpansionPanelDetails,
-  Divider
+  ListItemText
 } from '@material-ui/core';
-import classnames from 'classnames';
-import { Link } from 'react-router-dom';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+
+import sidebarStyles from 'client/components/Sidebar/styles';
+import useGeneral from 'client/hooks/useGeneral';
 import endpoints from 'client/router/endpoints';
 
-const Sidebar = () => {
-  const [expanded, setExpanded] = useState('');
-
-  const handleChange = panel => (event, newExpanded) => {
-    setExpanded(newExpanded ? panel : false);
-  };
-
-  const routeElement = (title = '', { path = '/', menu = true }) =>
-    menu && (
-      <ListItem key={`menu-key-${title}`}>
-        <ListItemText
-          primary={
-            <Link
-              to={path}
-              className={classnames(
-                'link',
-                'MuiTypography-root',
-                'MuiLink-root',
-                'MuiLink-underlineHover',
-                'MuiTypography-colorPrimary'
-              )}
-            >
-              {title.replace('_', ' ')}
-            </Link>
-          }
-        />
-      </ListItem>
-    );
-
-  const routeElements = (title = '', routes = {}) => {
-    const internal = Object.entries(routes)?.map(
-      ([internalTitle, internalRoutes]) =>
-        internalRoutes.component && routeElement(internalTitle, internalRoutes)
-    );
-
-    return (
-      internal.some(components => components !== undefined) && (
-        <ExpansionPanel
-          square
-          expanded={expanded === title}
-          onChange={handleChange(title)}
-          key={`menu-key-${title}`}
-        >
-          <ExpansionPanelSummary
-            aria-controls="panel1d-content"
-            id="panel1d-header"
-            expandIcon={<ExpandMoreIcon />}
-            className={classnames('link')}
-          >
-            {title.replace('_', ' ')}
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails className={classnames('internalNav')}>
-            <List disablePadding style={{ width: '100%' }}>
-              {internal}
-            </List>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
-      )
-    );
-  };
+const LinkItem = React.memo(({ label, path }) => {
+  const history = useHistory();
 
   return (
-    <div className={classnames('menu')}>
-      <Grid container>
-        <Grid item className={classnames('logo-wrapper')}>
-          <img
-            className={classnames('logo')}
-            src="/static/logo.png"
-            alt="Opennebula"
-          />
-        </Grid>
-      </Grid>
-      <Divider />
-      <List>
-        {Object.entries(endpoints)?.map(([title, routes]) =>
-          routes.component
-            ? routeElement(title, routes)
-            : routeElements(title, routes)
-        )}
-      </List>
-    </div>
+    <ListItem button onClick={() => history.push(path)}>
+      <ListItemText primary={label} />
+    </ListItem>
+  );
+});
+
+const CollapseItem = React.memo(({ label, routes }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  const handleExpand = () => setExpanded(!expanded);
+
+  return (
+    <>
+      <ListItem button onClick={handleExpand}>
+        <ListItemText primary={label} />
+        {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+      </ListItem>
+      {routes?.map((subItem, index) => (
+        <Collapse
+          key={`subitem-${index}`}
+          in={expanded}
+          timeout="auto"
+          unmountOnExit
+        >
+          <List component="div" disablePadding>
+            <LinkItem {...subItem} />
+          </List>
+        </Collapse>
+      ))}
+    </>
+  );
+});
+
+const Sidebar = () => {
+  const classes = sidebarStyles();
+  const { isOpenMenu, openMenu } = useGeneral();
+
+  return React.useMemo(
+    () => (
+      <Drawer anchor="left" open={isOpenMenu} onClose={() => openMenu(false)}>
+        <div className={classes.menu}>
+          <Grid container>
+            <Grid item className={classes.logoWrapper}>
+              <img
+                className={classes.logo}
+                src="/static/logo.png"
+                alt="Opennebula"
+              />
+            </Grid>
+          </Grid>
+          <Divider />
+          <List>
+            {endpoints
+              ?.filter(({ authenticated = true }) => authenticated)
+              ?.map((endpoint, index) =>
+                endpoint.routes ? (
+                  <CollapseItem key={`item-${index}`} {...endpoint} />
+                ) : (
+                  <LinkItem key={`item-${index}`} {...endpoint} />
+                )
+              )}
+          </List>
+        </div>
+      </Drawer>
+    ),
+    [isOpenMenu, openMenu]
   );
 };
 

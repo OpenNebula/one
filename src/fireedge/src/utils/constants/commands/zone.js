@@ -13,84 +13,107 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-module.exports = (
-  { resource, postBody, query },
-  { GET, POST, PUT, DELETE }
-) => ({
-  'zone.allocate': {
-    // inspected
-    httpMethod: POST,
-    params: {
-      template: {
-        from: postBody,
-        default: ''
+const {
+  from: { resource, postBody, query },
+  httpMethod: { GET, POST, PUT, DELETE }
+} = require('../defaults');
+
+const ZONE_ALLOCATE = 'zone.allocate';
+const ZONE_DELETE = 'zone.delete';
+const ZONE_UPDATE = 'zone.update';
+const ZONE_RENAME = 'zone.rename';
+const ZONE_INFO = 'zone.info';
+const ZONE_RAFTSTATUS = 'zone.raftstatus';
+const ZONEPOOL_INFO = 'zonepool.info';
+
+const Actions = {
+  ZONE_ALLOCATE,
+  ZONE_DELETE,
+  ZONE_UPDATE,
+  ZONE_RENAME,
+  ZONE_INFO,
+  ZONE_RAFTSTATUS,
+  ZONEPOOL_INFO
+};
+
+module.exports = {
+  Actions,
+  Commands: {
+    [ZONE_ALLOCATE]: {
+      // inspected
+      httpMethod: POST,
+      params: {
+        template: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'zone.delete': {
-    // inspected
-    httpMethod: DELETE,
-    params: {
-      id: {
-        from: resource,
-        default: 0
+    },
+    [ZONE_DELETE]: {
+      // inspected
+      httpMethod: DELETE,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        }
       }
-    }
-  },
-  'zone.update': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      template: {
-        from: postBody,
-        default: ''
-      },
-      replace: {
-        from: postBody,
-        default: 0
+    },
+    [ZONE_UPDATE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        template: {
+          from: postBody,
+          default: ''
+        },
+        replace: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'zone.rename': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      name: {
-        from: postBody,
-        default: ''
+    },
+    [ZONE_RENAME]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        name: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'zone.info': {
-    // inspected
-    httpMethod: GET,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      decrypt: {
-        from: query,
-        default: false
+    },
+    [ZONE_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        decrypt: {
+          from: query,
+          default: false
+        }
       }
+    },
+    [ZONE_RAFTSTATUS]: {
+      // inspected
+      httpMethod: GET,
+      params: {}
+    },
+    [ZONEPOOL_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {}
     }
-  },
-  'zone.raftstatus': {
-    // inspected
-    httpMethod: GET,
-    params: {}
-  },
-  'zonepool.info': {
-    // inspected
-    httpMethod: GET,
-    params: {}
   }
-});
+};

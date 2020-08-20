@@ -13,16 +13,20 @@ export default makeStyles(theme => {
       justifyContent: 'center'
     },
     paper: {
-      padding: theme.spacing(3)
+      overflow: 'hidden',
+      padding: theme.spacing(3),
+      height: 400
+    },
+    logo: {
+      display: 'block',
+      width: '50%',
+      margin: '0 auto',
+      paddingBottom: theme.spacing(3)
     },
     form: {
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center'
-    },
-    logo: {
-      width: '50%',
-      margin: '1.5rem auto'
     },
     helper: {
       animation: '1s ease-out 0s 1'

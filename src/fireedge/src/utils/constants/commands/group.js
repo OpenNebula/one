@@ -13,122 +13,151 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-module.exports = (
-  { resource, postBody, query },
-  { GET, POST, PUT, DELETE }
-) => ({
-  'group.allocate': {
-    // inspected
-    httpMethod: POST,
-    params: {
-      name: {
-        from: postBody,
-        default: ''
+const {
+  from: { resource, postBody, query },
+  httpMethod: { GET, POST, PUT, DELETE }
+} = require('../defaults');
+
+const GROUP_ALLOCATE = 'group.allocate';
+const GROUP_DELETE = 'group.delete';
+const GROUP_INFO = 'group.info';
+const GROUP_UPDATE = 'group.update';
+const GROUP_ADDADMIN = 'group.addadmin';
+const GROUP_DELADMIN = 'group.deladmin';
+const GROUP_QUOTA = 'group.quota';
+const GROUP_POOL_INFO = 'grouppool.info';
+const GROUP_QUOTA_INFO = 'groupquota.info';
+const GROUP_QUOTA_UPDATE = 'groupquota.update';
+
+const Actions = {
+  GROUP_ALLOCATE,
+  GROUP_DELETE,
+  GROUP_INFO,
+  GROUP_UPDATE,
+  GROUP_ADDADMIN,
+  GROUP_DELADMIN,
+  GROUP_QUOTA,
+  GROUP_POOL_INFO,
+  GROUP_QUOTA_INFO,
+  GROUP_QUOTA_UPDATE
+};
+
+module.exports = {
+  Actions,
+  Commands: {
+    [GROUP_ALLOCATE]: {
+      // inspected
+      httpMethod: POST,
+      params: {
+        name: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'group.delete': {
-    // inspected
-    httpMethod: DELETE,
-    params: {
-      id: {
-        from: resource,
-        default: 0
+    },
+    [GROUP_DELETE]: {
+      // inspected
+      httpMethod: DELETE,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        }
       }
-    }
-  },
-  'group.info': {
-    // inspected
-    httpMethod: GET,
-    params: {
-      id: {
-        from: resource,
-        default: -1
-      },
-      decrypt: {
-        from: query,
-        default: false
+    },
+    [GROUP_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {
+        id: {
+          from: resource,
+          default: -1
+        },
+        decrypt: {
+          from: query,
+          default: false
+        }
       }
-    }
-  },
-  'group.update': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      template: {
-        from: postBody,
-        default: ''
-      },
-      replace: {
-        from: postBody,
-        default: 0
+    },
+    [GROUP_UPDATE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        template: {
+          from: postBody,
+          default: ''
+        },
+        replace: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'group.addadmin': {
-    // inspected
-    httpMethod: POST,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      user: {
-        from: postBody,
-        default: 0
+    },
+    [GROUP_ADDADMIN]: {
+      // inspected
+      httpMethod: POST,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        user: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'group.deladmin': {
-    // inspected
-    httpMethod: DELETE,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      user: {
-        from: postBody,
-        default: 0
+    },
+    [GROUP_DELADMIN]: {
+      // inspected
+      httpMethod: DELETE,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        user: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'group.quota': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      template: {
-        from: resource,
-        default: ''
+    },
+    [GROUP_QUOTA]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        template: {
+          from: resource,
+          default: ''
+        }
       }
-    }
-  },
-  'grouppool.info': {
-    // inspected
-    httpMethod: GET,
-    params: {}
-  },
-  'groupquota.info': {
-    // inspected
-    httpMethod: GET,
-    params: {}
-  },
-  'groupquota.update': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      template: {
-        from: postBody,
-        default: ''
+    },
+    [GROUP_POOL_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {}
+    },
+    [GROUP_QUOTA_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {}
+    },
+    [GROUP_QUOTA_UPDATE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        template: {
+          from: postBody,
+          default: ''
+        }
       }
     }
   }
-});
+};

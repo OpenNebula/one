@@ -13,15 +13,30 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-module.exports = (_, { GET }) => ({
-  'system.version': {
-    // inspected
-    httpMethod: GET,
-    params: {}
-  },
-  'system.config': {
-    // inspected
-    httpMethod: GET,
-    params: {}
+const {
+  httpMethod: { GET }
+} = require('../defaults');
+
+const SYSTEM_VERSION = 'system.version';
+const SYSTEM_CONFIG = 'system.config';
+
+const Actions = {
+  SYSTEM_VERSION,
+  SYSTEM_CONFIG
+};
+
+module.exports = {
+  Actions,
+  Commands: {
+    [SYSTEM_VERSION]: {
+      // inspected
+      httpMethod: GET,
+      params: {}
+    },
+    [SYSTEM_CONFIG]: {
+      // inspected
+      httpMethod: GET,
+      params: {}
+    }
   }
-});
+};

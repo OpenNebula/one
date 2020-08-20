@@ -13,161 +13,188 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-module.exports = (
-  { resource, postBody, query },
-  { GET, POST, PUT, DELETE }
-) => ({
-  'datastore.allocate': {
-    // inspected
-    httpMethod: POST,
-    params: {
-      template: {
-        from: postBody,
-        default: ''
-      },
-      cluster: {
-        from: postBody,
-        default: -1
+const {
+  from: { resource, postBody, query },
+  httpMethod: { GET, POST, PUT, DELETE }
+} = require('../defaults');
+
+const DATASTORE_ALLOCATE = 'datastore.allocate';
+const DATASTORE_DELETE = 'datastore.delete';
+const DATASTORE_UPDATE = 'datastore.update';
+const DATASTORE_CHMOD = 'datastore.chmod';
+const DATASTORE_CHOWN = 'datastore.chown';
+const DATASTORE_RENAME = 'datastore.rename';
+const DATASTORE_ENABLE = 'datastore.enable';
+const DATASTORE_INFO = 'datastore.info';
+const DATASTORE_POOL_INFO = 'datastorepool.info';
+
+const Actions = {
+  DATASTORE_ALLOCATE,
+  DATASTORE_DELETE,
+  DATASTORE_UPDATE,
+  DATASTORE_CHMOD,
+  DATASTORE_CHOWN,
+  DATASTORE_RENAME,
+  DATASTORE_ENABLE,
+  DATASTORE_INFO,
+  DATASTORE_POOL_INFO
+};
+
+module.exports = {
+  Actions,
+  Commands: {
+    [DATASTORE_ALLOCATE]: {
+      // inspected
+      httpMethod: POST,
+      params: {
+        template: {
+          from: postBody,
+          default: ''
+        },
+        cluster: {
+          from: postBody,
+          default: -1
+        }
       }
-    }
-  },
-  'datastore.delete': {
-    // inspected
-    httpMethod: DELETE,
-    params: {
-      id: {
-        from: resource,
-        default: 0
+    },
+    [DATASTORE_DELETE]: {
+      // inspected
+      httpMethod: DELETE,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        }
       }
-    }
-  },
-  'datastore.update': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      template: {
-        from: postBody,
-        default: ''
-      },
-      replace: {
-        from: postBody,
-        default: 0
+    },
+    [DATASTORE_UPDATE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        template: {
+          from: postBody,
+          default: ''
+        },
+        replace: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'datastore.chmod': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      user_use: {
-        from: postBody,
-        default: -1
-      },
-      user_manage: {
-        from: postBody,
-        default: -1
-      },
-      user_admin: {
-        from: postBody,
-        default: -1
-      },
-      group_use: {
-        from: postBody,
-        default: -1
-      },
-      group_manage: {
-        from: postBody,
-        default: -1
-      },
-      group_admin: {
-        from: postBody,
-        default: -1
-      },
-      other_use: {
-        from: postBody,
-        default: -1
-      },
-      other_manage: {
-        from: postBody,
-        default: -1
-      },
-      other_admin: {
-        from: postBody,
-        default: -1
+    },
+    [DATASTORE_CHMOD]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        user_use: {
+          from: postBody,
+          default: -1
+        },
+        user_manage: {
+          from: postBody,
+          default: -1
+        },
+        user_admin: {
+          from: postBody,
+          default: -1
+        },
+        group_use: {
+          from: postBody,
+          default: -1
+        },
+        group_manage: {
+          from: postBody,
+          default: -1
+        },
+        group_admin: {
+          from: postBody,
+          default: -1
+        },
+        other_use: {
+          from: postBody,
+          default: -1
+        },
+        other_manage: {
+          from: postBody,
+          default: -1
+        },
+        other_admin: {
+          from: postBody,
+          default: -1
+        }
       }
-    }
-  },
-  'datastore.chown': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      user: {
-        from: postBody,
-        default: -1
-      },
-      group: {
-        from: postBody,
-        default: -1
+    },
+    [DATASTORE_CHOWN]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        user: {
+          from: postBody,
+          default: -1
+        },
+        group: {
+          from: postBody,
+          default: -1
+        }
       }
-    }
-  },
-  'datastore.rename': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      name: {
-        from: postBody,
-        default: ''
+    },
+    [DATASTORE_RENAME]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        name: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'datastore.enable': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      enable: {
-        from: postBody,
-        default: true
+    },
+    [DATASTORE_ENABLE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        enable: {
+          from: postBody,
+          default: true
+        }
       }
-    }
-  },
-  'datastore.info': {
-    // inspected
-    httpMethod: GET,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      decrypt: {
-        from: query,
-        default: false
+    },
+    [DATASTORE_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        decrypt: {
+          from: query,
+          default: false
+        }
       }
+    },
+    [DATASTORE_POOL_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {}
     }
-  },
-  'datastorepool.info': {
-    // inspected
-    httpMethod: GET,
-    params: {}
   }
-});
+};

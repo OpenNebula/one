@@ -13,8 +13,8 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const actions = require('client/actions/user');
-const { jwtName } = require('client/constants');
+const { Actions: UserActions } = require('../actions/user');
+const { jwtName, FILTER_POOL } = require('client/constants');
 
 const jwt =
   typeof window !== 'undefined'
@@ -26,50 +26,44 @@ const jwt =
 const initial = {
   jwt,
   user: null,
+  group: null,
   error: null,
+  filterPool: FILTER_POOL.ALL_RESOURCES,
+  isLogging: false,
   isLoading: false,
   firstRender: true
 };
 
 const authentication = (state = initial, action) => {
   switch (action.type) {
-    case actions.LOGIN_REQUEST:
+    case UserActions.START_AUTH:
       return {
         ...state,
+        error: null,
+        firstRender: false,
         isLoading: true
       };
-    case actions.LOGIN_SUCCESS:
+    case UserActions.SUCCESS_AUTH:
       return {
+        ...state,
+        error: null,
+        firstRender: false,
         isLoading: false,
-        jwt: action.jwt
+        ...action.payload
       };
-    case actions.LOGIN_FAILURE:
-      return {
-        isLoading: false,
-        error: action.message
-      };
-    case actions.LOGOUT:
+    case UserActions.FAILURE_AUTH:
       return {
         ...state,
         jwt: null,
-        user: null,
-        error: null
-      };
-    case actions.USER_REQUEST:
-      return {
-        ...state,
-        isLoading: true
-      };
-    case actions.USER_SUCCESS:
-      return {
-        ...state,
+        firstRender: false,
         isLoading: false,
-        user: action.user
+        ...action.payload
       };
-    case actions.USER_FAILURE:
+    case UserActions.LOGOUT:
       return {
-        isLoading: false,
-        error: action.message
+        ...initial,
+        jwt: null,
+        firstRender: false
       };
     default:
       return state;

@@ -13,117 +13,147 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-module.exports = ({ resource, postBody, query }, { GET, PUT, DELETE }) => ({
-  'host.allocate': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      hostname: {
-        from: postBody,
-        default: ''
-      },
-      information: {
-        from: postBody,
-        default: ''
-      },
-      manager: {
-        from: postBody,
-        default: ''
-      },
-      cluster: {
-        from: postBody,
-        default: -1
+const {
+  from: { resource, postBody, query },
+  httpMethod: { GET, PUT, DELETE }
+} = require('../defaults');
+
+const HOST_ALLOCATE = 'host.allocate';
+const HOST_DELETE = 'host.delete';
+const HOST_STATUS = 'host.status';
+const HOST_UPDATE = 'host.update';
+const HOST_RENAME = 'host.rename';
+const HOST_INFO = 'host.info';
+const HOST_MONITORING = 'host.monitoring';
+const HOST_POOL_INFO = 'hostpool.info';
+const HOST_POOL_MONITORING = 'hostpool.monitoring';
+
+const Actions = {
+  HOST_ALLOCATE,
+  HOST_DELETE,
+  HOST_STATUS,
+  HOST_UPDATE,
+  HOST_RENAME,
+  HOST_INFO,
+  HOST_MONITORING,
+  HOST_POOL_INFO,
+  HOST_POOL_MONITORING
+};
+
+module.exports = {
+  Actions,
+  Commands: {
+    [HOST_ALLOCATE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        hostname: {
+          from: postBody,
+          default: ''
+        },
+        information: {
+          from: postBody,
+          default: ''
+        },
+        manager: {
+          from: postBody,
+          default: ''
+        },
+        cluster: {
+          from: postBody,
+          default: -1
+        }
       }
-    }
-  },
-  'host.delete': {
-    // inspected
-    httpMethod: DELETE,
-    params: {
-      id: {
-        from: resource,
-        default: 0
+    },
+    [HOST_DELETE]: {
+      // inspected
+      httpMethod: DELETE,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        }
       }
-    }
-  },
-  'host.status': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      status: {
-        from: postBody,
-        default: 0
+    },
+    [HOST_STATUS]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        status: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'host.update': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      template: {
-        from: postBody,
-        default: ''
-      },
-      replace: {
-        from: postBody,
-        default: 0
+    },
+    [HOST_UPDATE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        template: {
+          from: postBody,
+          default: ''
+        },
+        replace: {
+          from: postBody,
+          default: 0
+        }
       }
-    }
-  },
-  'host.rename': {
-    // inspected
-    httpMethod: PUT,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      name: {
-        from: postBody,
-        default: ''
+    },
+    [HOST_RENAME]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        name: {
+          from: postBody,
+          default: ''
+        }
       }
-    }
-  },
-  'host.info': {
-    // inspected
-    httpMethod: GET,
-    params: {
-      id: {
-        from: resource,
-        default: 0
-      },
-      decrypt: {
-        from: query,
-        default: false
+    },
+    [HOST_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        decrypt: {
+          from: query,
+          default: false
+        }
       }
-    }
-  },
-  'host.monitoring': {
-    // inspected
-    httpMethod: GET,
-    params: {
-      id: {
-        from: resource,
-        default: 0
+    },
+    [HOST_MONITORING]: {
+      // inspected
+      httpMethod: GET,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        }
       }
+    },
+    [HOST_POOL_INFO]: {
+      // inspected
+      httpMethod: GET,
+      params: {}
+    },
+    [HOST_POOL_MONITORING]: {
+      // inspected
+      httpMethod: GET,
+      params: {}
     }
-  },
-  'hostpool.info': {
-    // inspected
-    httpMethod: GET,
-    params: {}
-  },
-  'hostpool.monitoring': {
-    // inspected
-    httpMethod: GET,
-    params: {}
   }
-});
+};

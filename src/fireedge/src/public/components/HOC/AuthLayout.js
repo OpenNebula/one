@@ -17,18 +17,20 @@ import React, { Fragment, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Redirect } from 'react-router-dom';
 
-import useAuth from 'client/hooks/auth/useAuth';
-import routes from 'client/router/endpoints';
+import useAuth from 'client/hooks/useAuth';
+import { PATH } from 'client/router/endpoints';
 
 const AuthLayout = ({ children }) => {
-  const { isLogged, getAuthUser } = useAuth();
+  const { isLogging, isLogged, getAuthInfo } = useAuth();
 
   useEffect(() => {
-    if (isLogged) getAuthUser();
-  }, [isLogged, getAuthUser]);
+    if (isLogged && !isLogging) {
+      getAuthInfo();
+    }
+  }, [isLogged, isLogging]);
 
   if (!isLogged) {
-    return <Redirect to={routes.login.path} />;
+    return <Redirect to={PATH.LOGIN} />;
   }
 
   return <Fragment>{children}</Fragment>;

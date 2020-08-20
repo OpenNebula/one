@@ -15,43 +15,53 @@
 
 const {
   from: { resource, postBody, query },
-  httpMethod: { GET, POST, PUT, DELETE }
+  httpMethod: { GET, PUT, DELETE }
 } = require('../defaults');
 
-const MARKET_ALLOCATE = 'market.allocate';
-const MARKET_DELETE = 'market.delete';
-const MARKET_UPDATE = 'market.update';
-const MARKET_CHMOD = 'market.chmod';
-const MARKET_CHOWN = 'market.chown';
-const MARKET_RENAME = 'market.rename';
-const MARKET_INFO = 'market.info';
-const MARKET_POOL_INFO = 'marketpool.info';
+const MARKETAPP_ALLOCATE = 'marketapp.allocate';
+const MARKETAPP_DELETE = 'marketapp.delete';
+const MARKETAPP_UPDATE = 'marketapp.update';
+const MARKETAPP_ENABLE = 'marketapp.enable';
+const MARKETAPP_CHMOD = 'marketapp.chmod';
+const MARKETAPP_CHOWN = 'marketapp.chown';
+const MARKETAPP_RENAME = 'marketapp.rename';
+const MARKETAPP_INFO = 'marketapp.info';
+const MARKETAPP_LOCK = 'marketapp.lock';
+const MARKETAPP_UNLOCK = 'marketapp.unlock';
+const MARKETAPP_POOL_INFO = 'marketapppool.info';
 
 const Actions = {
-  MARKET_ALLOCATE,
-  MARKET_DELETE,
-  MARKET_UPDATE,
-  MARKET_CHMOD,
-  MARKET_CHOWN,
-  MARKET_RENAME,
-  MARKET_INFO,
-  MARKET_POOL_INFO
+  MARKETAPP_ALLOCATE,
+  MARKETAPP_DELETE,
+  MARKETAPP_UPDATE,
+  MARKETAPP_ENABLE,
+  MARKETAPP_CHMOD,
+  MARKETAPP_CHOWN,
+  MARKETAPP_RENAME,
+  MARKETAPP_INFO,
+  MARKETAPP_LOCK,
+  MARKETAPP_UNLOCK,
+  MARKETAPP_POOL_INFO
 };
 
 module.exports = {
   Actions,
   Commands: {
-    [MARKET_ALLOCATE]: {
+    [MARKETAPP_ALLOCATE]: {
       // inspected
-      httpMethod: POST,
+      httpMethod: PUT,
       params: {
         template: {
           from: postBody,
           default: ''
+        },
+        id: {
+          from: resource,
+          default: 0
         }
       }
     },
-    [MARKET_DELETE]: {
+    [MARKETAPP_DELETE]: {
       // inspected
       httpMethod: DELETE,
       params: {
@@ -61,7 +71,21 @@ module.exports = {
         }
       }
     },
-    [MARKET_UPDATE]: {
+    [MARKETAPP_ENABLE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        enable: {
+          from: postBody,
+          default: true
+        }
+      }
+    },
+    [MARKETAPP_UPDATE]: {
       // inspected
       httpMethod: PUT,
       params: {
@@ -73,13 +97,13 @@ module.exports = {
           from: postBody,
           default: ''
         },
-        update: {
+        replace: {
           from: postBody,
           default: 0
         }
       }
     },
-    [MARKET_CHMOD]: {
+    [MARKETAPP_CHMOD]: {
       // inspected
       httpMethod: PUT,
       params: {
@@ -125,7 +149,7 @@ module.exports = {
         }
       }
     },
-    [MARKET_CHOWN]: {
+    [MARKETAPP_CHOWN]: {
       // inspected
       httpMethod: PUT,
       params: {
@@ -143,7 +167,7 @@ module.exports = {
         }
       }
     },
-    [MARKET_RENAME]: {
+    [MARKETAPP_RENAME]: {
       // inspected
       httpMethod: PUT,
       params: {
@@ -157,24 +181,57 @@ module.exports = {
         }
       }
     },
-    [MARKET_INFO]: {
+    [MARKETAPP_INFO]: {
       // inspected
       httpMethod: GET,
       params: {
         id: {
           from: resource,
           default: -1
-        },
-        decrypt: {
-          from: query,
-          default: false
         }
       }
     },
-    [MARKET_POOL_INFO]: {
+    [MARKETAPP_LOCK]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        lock: {
+          from: postBody,
+          default: 4
+        }
+      }
+    },
+    [MARKETAPP_UNLOCK]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        }
+      }
+    },
+    [MARKETAPP_POOL_INFO]: {
       // inspected
       httpMethod: GET,
-      params: {}
+      params: {
+        filter: {
+          from: query,
+          default: -1
+        },
+        start: {
+          from: query,
+          default: -1
+        },
+        end: {
+          from: query,
+          default: -1
+        }
+      }
     }
   }
 };
