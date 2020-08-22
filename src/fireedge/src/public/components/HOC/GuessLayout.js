@@ -23,14 +23,12 @@ import useAuth from 'client/hooks/useAuth';
 import { PATH } from 'client/router/endpoints';
 
 const GuessLayout = ({ children }) => {
-  const { isLogging, isLogged, firstRender } = useAuth();
-
-  if (isLogged && !isLogging) {
-    return <Redirect to={PATH.DASHBOARD} />;
-  }
+  const { isLoginInProcess, isLogged, firstRender } = useAuth();
 
   if (firstRender) {
     return <LinearProgress style={{ width: '100%' }} />;
+  } else if (isLogged && !isLoginInProcess) {
+    return <Redirect to={PATH.DASHBOARD} />;
   }
 
   return <Fragment>{children}</Fragment>;

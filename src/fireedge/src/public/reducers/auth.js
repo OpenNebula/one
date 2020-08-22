@@ -29,7 +29,7 @@ const initial = {
   group: null,
   error: null,
   filterPool: FILTER_POOL.ALL_RESOURCES,
-  isLogging: false,
+  isLoginInProcess: false,
   isLoading: false,
   firstRender: true
 };
@@ -51,12 +51,20 @@ const authentication = (state = initial, action) => {
         isLoading: false,
         ...action.payload
       };
+    case UserActions.SELECT_FILTER_GROUP:
+      return {
+        ...state,
+        isLoading: false,
+        isLoginInProcess: false,
+        ...action.payload
+      };
     case UserActions.FAILURE_AUTH:
       return {
         ...state,
         jwt: null,
         firstRender: false,
         isLoading: false,
+        isLoginInProcess: false,
         ...action.payload
       };
     case UserActions.LOGOUT:

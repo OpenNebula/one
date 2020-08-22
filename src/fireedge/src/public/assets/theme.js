@@ -1,4 +1,6 @@
-export default {
+import { createMuiTheme, responsiveFontSizes } from '@material-ui/core';
+
+const theme = createMuiTheme({
   typography: {
     fontFamily: ['Ubuntu', 'Lato'].join(',')
   },
@@ -82,4 +84,6 @@ export default {
       hint: 'rgba(0, 0, 0, 0.38)'
     }
   }
-};
+});
+
+export default responsiveFontSizes(theme);

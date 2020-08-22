@@ -15,13 +15,23 @@
 
 import React, { useEffect } from 'react';
 
-import { makeStyles, Card, CardContent, Typography } from '@material-ui/core';
+import {
+  makeStyles,
+  Card,
+  Chip,
+  CardContent,
+  Typography,
+  LinearProgress,
+  Box
+} from '@material-ui/core';
 
+import useGeneral from 'client/hooks/useGeneral';
 import useOpennebula from 'client/hooks/useOpennebula';
 
 const useStyles = makeStyles({
-  root: {
-    minWidth: 275
+  card: {
+    minWidth: 275,
+    marginBottom: '2em'
   },
   title: {
     fontSize: 14
@@ -30,23 +40,43 @@ const useStyles = makeStyles({
 
 function Users() {
   const classes = useStyles();
-  const { users, getUsers } = useOpennebula();
+  const { isLoading } = useGeneral();
+  const { users, groups, getUsers } = useOpennebula();
 
   useEffect(() => {
-    getUsers();
+    if (!isLoading) {
+      getUsers();
+    }
   }, [getUsers]);
 
-  console.log(users);
+  const getGroupById = id => groups?.find(({ ID }) => ID === id);
+
   return (
-    <div>
-      <Card className={classes.root}>
-        <CardContent>
-          <Typography className={classes.title} gutterBottom>
-            Word of the Day
-          </Typography>
-        </CardContent>
-      </Card>
-    </div>
+    <>
+      {isLoading && <LinearProgress style={{ width: '100%' }} />}
+      {users?.map(({ ID, NAME, GROUPS }, index) => (
+        <Card key={`user-${index}`} className={classes.card}>
+          <CardContent>
+            <Box display="flex" alignItems="center">
+              <Typography className={classes.title}>{NAME}</Typography>
+              {[GROUPS?.ID ?? []].flat().map(id => {
+                const group = getGroupById(id);
+                return group ? (
+                  <Chip
+                    style={{ margin: '0 0.5em' }}
+                    key={`group-${index}-${id}`}
+                    size="small"
+                    color="primary"
+                    clickable
+                    label={group.NAME}
+                  />
+                ) : null;
+              })}
+            </Box>
+          </CardContent>
+        </Card>
+      ))}
+    </>
   );
 }
 
