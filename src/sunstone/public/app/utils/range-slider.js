@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
+  require("jquery");
   var TemplateHTML = require('hbs!./range-slider/html');
 
   var sliderId = 0;
