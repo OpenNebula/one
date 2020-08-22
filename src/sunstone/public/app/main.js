@@ -117,8 +117,8 @@ require.config({
     /* Tabs */
     "app": {
       deps: [
-        "foundation",
         "jquery",
+        "foundation",
         "tabs/provision-tab",
         "tabs/dashboard-tab",
         "tabs/system-top-tab",
@@ -170,7 +170,7 @@ require.config({
 
     /* Foundation */
     "foundation": {
-        deps: ["jquery"]
+      deps: ["jquery"]
     },
     //'foundation.core': {
     //  deps: ['jquery', 'modernizr'],
@@ -242,6 +242,12 @@ require.config({
     /* Flot Graphs */
     "flot": {
       deps: ["jquery"]
+    },
+    "flot.navigate": {
+      deps: ["flot"]
+    },
+    "flot.canvas": {
+      deps: ["flot"]
     },
     "flot.stack": {
       deps: ["flot"]

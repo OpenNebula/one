@@ -1301,27 +1301,34 @@ define(function(require) {
 
   var _setupNavigoRoutes = function() {
     router =  new Navigo(null, true);
+    var routeForm = function(){
+      if(_getTab() == undefined){
+        window.sunstoneNoMultipleRedirects = true;
+        // This will happen if the user opens sunstone directly in a /form url
+        _showTab(this);
+      }
+    };
+    var routeWithID = function(id){
+      window.sunstoneNoMultipleRedirects = true;
+      _routerShowElement(this, id);
+    };
+    var routeNormal = function(){
+      window.sunstoneNoMultipleRedirects = true;
+      _routerShowTab(this);
+    };
+
     for (var tabName in SunstoneCfg["tabs"]) {
-      router.on(new RegExp("(?:#|/)"+tabName+"/form"), function(){
-        if(_getTab() == undefined){
-          window.sunstoneNoMultipleRedirects = true;
-          // This will happen if the user opens sunstone directly in a /form url
-          _showTab(this);
-        }
-      }.bind(tabName));
+      router.on(new RegExp("(?:#|/)"+tabName+"/form"), routeForm.bind(tabName));
+      router.on(new RegExp("^"+tabName+"/form"), routeForm.bind(tabName));
 
-      router.on(new RegExp("(?:#|/)"+tabName+"/(\\w+)"), function(id){
-        window.sunstoneNoMultipleRedirects = true;
-        _routerShowElement(this, id);
-      }.bind(tabName));
+      router.on(new RegExp("(?:#|/)"+tabName+"/(\\w+)"), routeWithID.bind(tabName));
+      router.on(new RegExp("^"+tabName+"/(\\w+)"), routeWithID.bind(tabName));
 
-      router.on(new RegExp("(?:#|/)"+tabName), function(){
-        window.sunstoneNoMultipleRedirects = true;
-        _routerShowTab(this);
-      }.bind(tabName));
+      router.on(new RegExp("(?:#|/)"+tabName), routeNormal.bind(tabName));
+      router.on(new RegExp("^"+tabName), routeNormal.bind(tabName));
     }
 
-    router.on(function(){
+    router.on(function(params){
       _routerShowTab(DASHBOARD_TAB_ID);
     });
 
