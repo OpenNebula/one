@@ -73,11 +73,6 @@ router.get('*', (req, res) => {
     </html>
   `;
 
-  if (context.url) {
-    res.writeHead(301, { Location: context.url });
-    res.end();
-  } else {
-    res.send(html);
-  }
+  res.send(html);
 });
 module.exports = router;

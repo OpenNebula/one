@@ -7,12 +7,9 @@ import {
   startOneRequest,
   failureOneRequest
 } from 'client/actions/pool';
+
 import * as servicesGroups from 'client/services/groups';
 import * as servicesUsers from 'client/services/users';
-
-function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 export default function useOpennebula() {
   const dispatch = useDispatch();
@@ -23,22 +20,18 @@ export default function useOpennebula() {
 
   const getGroups = useCallback(() => {
     dispatch(startOneRequest());
-    return delay(2000).then(() =>
-      servicesGroups
-        .getGroups()
-        .then(data => dispatch(setGroups(data)))
-        .catch(() => dispatch(failureOneRequest('Unauthorized')))
-    );
+    return servicesGroups
+      .getGroups()
+      .then(data => dispatch(setGroups(data)))
+      .catch(err => dispatch(failureOneRequest({ error: err })));
   }, [dispatch]);
 
   const getUsers = useCallback(() => {
     dispatch(startOneRequest());
-    return delay(2000).then(() =>
-      servicesUsers
-        .getUsers()
-        .then(data => dispatch(setUsers(data)))
-        .catch(() => dispatch(failureOneRequest('Unauthorized')))
-    );
+    return servicesUsers
+      .getUsers()
+      .then(data => dispatch(setUsers(data)))
+      .catch(err => dispatch(failureOneRequest({ error: err })));
   }, [dispatch]);
 
   return {

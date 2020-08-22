@@ -13,46 +13,46 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { Suspense } from 'react';
+import React from 'react';
 import { StaticRouter, BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import {
-  CssBaseline,
-  ThemeProvider,
-  createMuiTheme,
-  responsiveFontSizes
-} from '@material-ui/core';
+import { CssBaseline, ThemeProvider } from '@material-ui/core';
 
-import themeOne from 'client/assets/theme';
+import theme from 'client/assets/theme';
 import { TranslateProvider } from 'client/components/HOC';
 import Router from 'client/router';
 
-const theme = createMuiTheme(themeOne);
+const App = ({ location, context, store }) => {
+  React.useEffect(() => {
+    const jssStyles = document.querySelector('#jss-server-side');
+    if (jssStyles) {
+      jssStyles.parentElement.removeChild(jssStyles);
+    }
+  }, []);
 
-const App = ({ location, context, store }) => (
-  <ThemeProvider theme={responsiveFontSizes(theme)}>
-    <CssBaseline />
-    <Provider store={store}>
-      {location && context ? (
-        // server build
-        <StaticRouter location={location} context={context}>
-          <TranslateProvider>
-            <Router />
-          </TranslateProvider>
-        </StaticRouter>
-      ) : (
-        // browser build
-        <BrowserRouter>
-          <TranslateProvider>
-            <Router />
-          </TranslateProvider>
-        </BrowserRouter>
-      )}
-    </Provider>
-  </ThemeProvider>
-);
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Provider store={store}>
+        <TranslateProvider>
+          {location && context ? (
+            // server build
+            <StaticRouter location={location} context={context}>
+              <Router />
+            </StaticRouter>
+          ) : (
+            // browser build
+            <BrowserRouter>
+              <Router />
+            </BrowserRouter>
+          )}
+        </TranslateProvider>
+      </Provider>
+    </ThemeProvider>
+  );
+};
 
 App.propTypes = {
   location: PropTypes.string,

@@ -9,6 +9,7 @@ import * as serviceUsers from 'client/services/users';
 import * as serviceGroups from 'client/services/groups';
 import {
   startAuth,
+  selectFilterGroup,
   successAuth,
   failureAuth,
   logout as logoutRequest
@@ -23,7 +24,7 @@ export default function useAuth() {
   const {
     jwt,
     error,
-    isLogging,
+    isLoginInProcess,
     isLoading,
     firstRender,
     filterPool,
@@ -55,8 +56,9 @@ export default function useAuth() {
               successAuth({
                 jwt: token,
                 user: { ID: id },
-                isLoading: ONEADMIN_ID !== id, // is not oneadmin
-                isLogging: ONEADMIN_ID !== id // is not oneadmin
+                isLoginInProcess: ONEADMIN_ID !== id // is not oneadmin
+                // isLoading: ONEADMIN_ID !== id, // is not oneadmin
+                // isLogging: ONEADMIN_ID !== id // is not oneadmin
               })
             );
           }
@@ -67,13 +69,13 @@ export default function useAuth() {
           dispatch(failureAuth({ error: err }));
         });
     },
-    [baseURL, jwtName]
+    [dispatch, baseURL, jwtName]
   );
 
   const logout = useCallback(() => {
     removeStoreData([jwtName]);
     dispatch(logoutRequest());
-  }, [jwtName]);
+  }, [dispatch, jwtName]);
 
   const getAuthInfo = useCallback(() => {
     dispatch(startAuth());
@@ -87,17 +89,12 @@ export default function useAuth() {
         })
       )
       .catch(err => dispatch(failureAuth({ error: err })));
-  }, [baseURL, jwtName]);
+  }, [dispatch, baseURL, jwtName]);
 
   const setPrimaryGroup = useCallback(
     values => {
       if (values?.group === FILTER_POOL.ALL_RESOURCES) {
-        dispatch(
-          successAuth({
-            isLogging: false,
-            filterPool: FILTER_POOL.ALL_RESOURCES
-          })
-        );
+        dispatch(selectFilterGroup({ filterPool: FILTER_POOL.ALL_RESOURCES }));
       } else {
         dispatch(startAuth());
 
@@ -105,16 +102,15 @@ export default function useAuth() {
           .changeGroup({ id: authUser.ID, ...values })
           .then(() =>
             dispatch(
-              successAuth({
-                filterPool: FILTER_POOL.PRIMARY_GROUP_RESOURCES,
-                isLogging: false
+              selectFilterGroup({
+                filterPool: FILTER_POOL.PRIMARY_GROUP_RESOURCES
               })
             )
           )
           .catch(err => dispatch(failureAuth({ error: err })));
       }
     },
-    [authUser, jwtName]
+    [dispatch, authUser, jwtName]
   );
 
   return {
@@ -125,7 +121,7 @@ export default function useAuth() {
     authUser,
     isOneAdmin: authUser?.ID === ONEADMIN_ID,
     isLogged: Boolean(jwt),
-    isLogging,
+    isLoginInProcess,
     isLoading,
     firstRender,
     error,

@@ -17,19 +17,23 @@ import React, { Fragment, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Redirect } from 'react-router-dom';
 
+import { LinearProgress } from '@material-ui/core';
+
 import useAuth from 'client/hooks/useAuth';
 import { PATH } from 'client/router/endpoints';
 
 const AuthLayout = ({ children }) => {
-  const { isLogging, isLogged, getAuthInfo } = useAuth();
+  const { isLoginInProcess, isLogged, firstRender, getAuthInfo } = useAuth();
 
   useEffect(() => {
-    if (isLogged && !isLogging) {
+    if (isLogged && !isLoginInProcess) {
       getAuthInfo();
     }
-  }, [isLogged, isLogging]);
+  }, [isLogged, isLoginInProcess]);
 
-  if (!isLogged) {
+  if (firstRender) {
+    return <LinearProgress style={{ width: '100%' }} />;
+  } else if (!isLogged && !isLoginInProcess) {
     return <Redirect to={PATH.LOGIN} />;
   }
 

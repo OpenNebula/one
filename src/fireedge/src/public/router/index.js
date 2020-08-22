@@ -22,7 +22,7 @@ import Error404 from 'client/containers/Error404';
 
 import endpoints from './endpoints';
 
-function Routes() {
+function Router() {
   const renderRoute = ({
     label = '',
     path = '',
@@ -54,10 +54,10 @@ function Routes() {
       {endpoints?.map(({ routes, ...endpoint }) =>
         endpoint.path ? renderRoute(endpoint) : routes?.map(renderRoute)
       )}
-      <Route component={() => <Error404 />} />
+      <Route component={Error404} />
     </Switch>
   );
 }
 
-export default Routes;
+export default Router;
 export { endpoints };
