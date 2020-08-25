@@ -8,13 +8,8 @@ LOG: prod
 # Enable cors (cross-origin resource sharing)
 CORS: true
 
-# Webpack mode:
-#   - development
-#   - production 
-MODE: production
-
 # JWT user password encryption key (AUTH)
-TOKEN_SECRET: token_secreto
+TOKEN_SECRET: secret_token
 
 # Flow Server
 # ONE_FLOW_SERVER:
@@ -22,7 +17,7 @@ TOKEN_SECRET: token_secreto
 #   HOST: '0.0.0.0'
 #   POST: 2474
 
-# JWT life time
+# JWT life time (days)
 LIMIT_TOKEN:
   MIN: 14
   MAX: 30

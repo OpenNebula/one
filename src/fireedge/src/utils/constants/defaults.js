@@ -44,6 +44,7 @@ const defaults = {
   defaultConfigFile: `${__dirname}/../config.yml`,
   defaultTypeLog: 'prod',
   defaultWebpackMode: 'development',
+  defaultWebpackDevTool: 'inline-source-map',
   defaultConfigLogPath: '/var/log/one/',
   defaultConfigLogFile: 'fireedge.log',
   defaultBaseURL: '',

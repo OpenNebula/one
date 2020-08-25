@@ -13,9 +13,9 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const entrypoint404 = require('server-entrypoints/404');
-const entrypointApi = require('server-entrypoints/Api');
-const entrypointApp = require('server-entrypoints/App');
+const entrypoint404 = require('./404');
+const entrypointApi = require('./Api');
+const entrypointApp = require('./App');
 
 module.exports = {
   entrypoint404,
