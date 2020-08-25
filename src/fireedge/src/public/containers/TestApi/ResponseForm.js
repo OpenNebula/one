@@ -1,12 +1,11 @@
 import React from 'react';
-import { object, string, shape, func } from 'prop-types';
+import { string, func, objectOf, object } from 'prop-types';
 
 import { useForm, Controller } from 'react-hook-form';
 import {
   TextField,
   Grid,
   Typography,
-  Box,
   FormControlLabel,
   Checkbox
 } from '@material-ui/core';
@@ -34,15 +33,19 @@ const ResponseForm = ({
   };
 
   return (
-    <Box width="100%">
-      <Typography component="h2" variant="h2" style={{ padding: '16px 0' }}>
+    <>
+      <Typography
+        color="textPrimary"
+        component="h2"
+        variant="h2"
+        style={{ padding: '16px 0' }}
+      >
         {name || 'Request'}
       </Typography>
       <Grid
         container
         spacing={3}
         justify="flex-start"
-        style={{ height: '100%' }}
         component="form"
         onSubmit={handleSubmit(onSubmit)}
         autoComplete="off"
@@ -77,25 +80,23 @@ const ResponseForm = ({
           <ButtonSubmit isSubmitting={formState.isSubmitting} />
         </Grid>
       </Grid>
-    </Box>
+    </>
   );
 };
 
 ResponseForm.propTypes = {
-  command: shape({
+  command: objectOf({
     name: string.isRequired,
     httpMethod: string.isRequired,
-    schema: object,
-    params: object
+    params: object.isRequired
   }).isRequired,
-  handleChangeResponse: func
+  handleChangeResponse: func.isRequired
 };
 
 ResponseForm.defaultProps = {
   command: {
     name: '',
     httpMethod: 'GET',
-    schema: {},
     params: {}
   },
   handleChangeResponse: () => undefined

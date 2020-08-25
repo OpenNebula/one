@@ -16,48 +16,49 @@
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 
-import { AuthLayout, GuessLayout } from 'client/components/HOC';
-import InternalLayout from 'client/components/HOC/InternalLayout';
+import { AuthLayout, GuessLayout, InternalLayout } from 'client/components/HOC';
 import Error404 from 'client/containers/Error404';
+import Sidebar from 'client/components/Sidebar';
 
-import endpoints from './endpoints';
+import endpoints from 'client/router/endpoints';
 
-function Router() {
-  const renderRoute = ({
-    label = '',
-    path = '',
-    authenticated = true,
-    component: Component
-  }) => (
-    <Route
-      key={`key-${label.replace(' ', '-')}`}
-      exact
-      path={path}
-      component={() =>
-        authenticated ? (
-          <AuthLayout>
-            <InternalLayout title={label}>
-              <Component />
-            </InternalLayout>
-          </AuthLayout>
-        ) : (
-          <GuessLayout>
+const renderRoute = ({
+  label = '',
+  path = '',
+  authenticated = true,
+  component: Component
+}) => (
+  <Route
+    key={`key-${label.replace(' ', '-')}`}
+    exact
+    path={path}
+    component={() =>
+      authenticated ? (
+        <AuthLayout>
+          <InternalLayout title={label}>
             <Component />
-          </GuessLayout>
-        )
-      }
-    />
-  );
+          </InternalLayout>
+        </AuthLayout>
+      ) : (
+        <GuessLayout>
+          <Component />
+        </GuessLayout>
+      )
+    }
+  />
+);
 
-  return (
+const Router = () => (
+  <>
+    <Sidebar />
     <Switch>
       {endpoints?.map(({ routes, ...endpoint }) =>
         endpoint.path ? renderRoute(endpoint) : routes?.map(renderRoute)
       )}
       <Route component={Error404} />
     </Switch>
-  );
-}
+  </>
+);
 
 export default Router;
 export { endpoints };

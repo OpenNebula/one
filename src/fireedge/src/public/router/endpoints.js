@@ -57,11 +57,13 @@ export default [
   {
     label: 'settings',
     path: PATH.SETTINGS,
+    header: true,
     component: Settings
   },
   {
     label: 'test api',
     path: PATH.TEST_API,
+    devMode: true,
     component: TestApi
   },
   {

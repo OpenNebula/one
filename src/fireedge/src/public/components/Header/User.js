@@ -14,8 +14,7 @@
 /* -------------------------------------------------------------------------- */
 
 import React, { useState, useRef, Fragment } from 'react';
-import PropTypes from 'prop-types';
-
+import { useHistory } from 'react-router-dom';
 import {
   Button,
   Popper,
@@ -29,30 +28,28 @@ import {
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 import { Translate } from 'client/components/HOC';
+import { PATH } from 'client/router/endpoints';
 import { SignOut } from 'client/constants';
 import useAuth from 'client/hooks/useAuth';
-import FilterPoolSelect from './FilterPoolSelect';
+import FilterPoolSelect from 'client/components/Header/FilterPoolSelect';
 
-const User = () => {
+const User = React.memo(() => {
+  const history = useHistory();
   const { logout, authUser, isOneAdmin } = useAuth();
   const [open, setOpen] = useState(false);
   const anchorRef = useRef(null);
   const { current } = anchorRef;
 
-  const handleToggle = () => {
-    setOpen(prevOpen => !prevOpen);
-  };
+  const handleToggle = () => setOpen(prevOpen => !prevOpen);
+
+  const handleLogout = () => logout();
+  const handleGoToSettings = () => history.push(PATH.SETTINGS);
 
   const handleClose = e => {
     if (current && current.contains(e.target)) {
       return;
     }
     setOpen(false);
-  };
-
-  const handleLogout = evt => {
-    evt.preventDefault();
-    logout();
   };
 
   return (
@@ -66,6 +63,7 @@ const User = () => {
         data-cy="header-user-button"
       >
         <AccountCircleIcon />
+        <span style={{ paddingLeft: 5 }}>{authUser?.NAME}</span>
       </Button>
       <Popper
         open={open}
@@ -85,11 +83,7 @@ const User = () => {
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList autoFocusItem={open} id="menu-list-grow">
-                  <MenuItem onClick={handleClose} data-cy="header-username">
-                    {authUser?.NAME}
-                  </MenuItem>
-                  <Divider />
-                  <MenuItem onClick={handleClose}>Settings</MenuItem>
+                  <MenuItem onClick={handleGoToSettings}>Settings</MenuItem>
                   <Divider />
                   <MenuItem
                     onClick={handleLogout}
@@ -113,10 +107,6 @@ const User = () => {
       </Popper>
     </Fragment>
   );
-};
-
-User.propTypes = {};
-
-User.defaultProps = {};
+});
 
 export default User;
