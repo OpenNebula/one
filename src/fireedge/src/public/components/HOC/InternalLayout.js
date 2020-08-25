@@ -16,16 +16,45 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Box, Container } from '@material-ui/core';
+import { makeStyles, Box, Container } from '@material-ui/core';
 import { Skeleton } from '@material-ui/lab';
 
 import useAuth from 'client/hooks/useAuth';
 import useOpenNebula from 'client/hooks/useOpennebula';
 import Header from 'client/components/Header';
 import Footer from 'client/components/Footer';
-import Sidebar from 'client/components/Sidebar';
+
+const internalStyles = makeStyles(theme => ({
+  root: {
+    display: 'flex',
+    width: '100%'
+  },
+  main: {
+    paddingTop: 64,
+    paddingBottom: 30,
+    height: '100vh',
+    width: '100vw'
+  },
+  scrollable: {
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+    height: '100%',
+    overflow: 'auto',
+    '&::-webkit-scrollbar': {
+      width: 14
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundClip: 'content-box',
+      border: '4px solid transparent',
+      borderRadius: 7,
+      boxShadow: 'inset 0 0 0 10px',
+      color: theme.palette.primary.light
+    }
+  }
+}));
 
 const InternalLayout = ({ children, title }) => {
+  const classes = internalStyles();
   const { groups } = useOpenNebula();
   const { authUser } = useAuth();
 
@@ -39,17 +68,15 @@ const InternalLayout = ({ children, title }) => {
       </Box>
     </Box>
   ) : (
-    <Box display="flex" width="100%">
+    <>
       <Header title={title} />
-      <Sidebar />
-      <Container
-        component="main"
-        style={{ paddingTop: 96, paddingBottom: 96, height: '100vh' }}
-      >
-        {children}
-      </Container>
+      <Box component="main" className={classes.main}>
+        <Container component="div" className={classes.scrollable}>
+          {children}
+        </Container>
+      </Box>
       <Footer />
-    </Box>
+    </>
   );
 };
 

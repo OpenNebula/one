@@ -65,6 +65,7 @@ function FormUser({ classes, onSubmit, error }) {
         required
         name="pass"
         type="password"
+        autoComplete="current-password"
         label={Tr(Password)}
         variant="outlined"
         inputRef={register}

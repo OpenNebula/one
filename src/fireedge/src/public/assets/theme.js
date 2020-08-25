@@ -1,10 +1,31 @@
 import { createMuiTheme, responsiveFontSizes } from '@material-ui/core';
 
+const defaultBreakpoints = {
+  xs: 0,
+  sm: 600,
+  md: 960,
+  lg: 1280,
+  xl: 1920,
+  // DEVICES
+  tablet: 640,
+  laptop: 1024,
+  desktop: 1280
+};
+
 const theme = createMuiTheme({
   typography: {
     fontFamily: ['Ubuntu', 'Lato'].join(',')
   },
   overrides: {
+    MuiDrawer: {
+      paper: {
+        width: 360,
+        overflow: 'hidden',
+        [`@media (max-width: ${defaultBreakpoints.tablet}px)`]: {
+          width: '100%'
+        }
+      }
+    },
     MuiFormControl: {
       root: {
         margin: '.5rem 0'
@@ -47,7 +68,7 @@ const theme = createMuiTheme({
     MuiCssBaseline: {
       '@global': {
         body: {
-          height: '100vh'
+          // height: '100vh'
         }
         // '@font-face': [UbuntuFont]
       }

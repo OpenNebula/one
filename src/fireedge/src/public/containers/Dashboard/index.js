@@ -15,12 +15,25 @@
 
 import React from 'react';
 
-import { Box, Typography } from '@material-ui/core';
+import { makeStyles, Box, Typography } from '@material-ui/core';
+
+const dashboardStyles = makeStyles(theme => ({
+  root: {},
+  title: {
+    color: theme.palette.common.black
+  }
+}));
 
 function Dashboard() {
+  const classes = dashboardStyles();
+
   return (
     <Box>
-      <Typography variant="h2" data-cy="dashboard-title">
+      <Typography
+        variant="h2"
+        className={classes.title}
+        data-cy="dashboard-title"
+      >
         Dashboard
       </Typography>
     </Box>

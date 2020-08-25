@@ -10,7 +10,8 @@ export default makeStyles(theme =>
     root: {
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'center'
+      justifyContent: 'center',
+      height: '100vh'
     },
     paper: {
       overflow: 'hidden',

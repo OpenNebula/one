@@ -13,7 +13,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { useState, useRef, Fragment } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Button,
   Popper,
@@ -21,15 +21,11 @@ import {
   Paper,
   MenuItem,
   MenuList,
-  ClickAwayListener,
-  Divider
+  ClickAwayListener
 } from '@material-ui/core';
 import LanguageIcon from '@material-ui/icons/Language';
 
-import { Translate } from 'client/components/HOC';
-import { SignOut, Groups } from 'client/constants';
-
-const Zone = () => {
+const Zone = React.memo(() => {
   const [open, setOpen] = useState(false);
   const anchorRef = useRef(null);
   const { current } = anchorRef;
@@ -46,7 +42,7 @@ const Zone = () => {
   };
 
   return (
-    <Fragment>
+    <>
       <Button
         ref={anchorRef}
         color="inherit"
@@ -81,12 +77,8 @@ const Zone = () => {
           </Grow>
         )}
       </Popper>
-    </Fragment>
+    </>
   );
-};
-
-Zone.propTypes = {};
-
-Zone.defaultProps = {};
+});
 
 export default Zone;

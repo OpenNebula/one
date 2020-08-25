@@ -13,7 +13,7 @@ const InputCode = ({ code, language, ...props }) => {
   };
 
   return (
-    <Box border="1px solid lightgray">
+    <Box border="1px solid lightgray" height="100%" minHeight={200}>
       <AceEditor
         wrapEnabled
         value={code}
@@ -21,10 +21,11 @@ const InputCode = ({ code, language, ...props }) => {
         mode="json"
         theme="github"
         width="100%"
-        maxLines={Infinity}
-        minLines={50}
+        height="100%"
+        // maxLines={Infinity}
+        minLines={10}
         onChange={handleChange}
-        name="UNIQUE_ID_OF_DIV"
+        name="form-control-code"
         showPrintMargin={false}
         editorProps={{ $blockScrolling: true }}
         setOptions={{

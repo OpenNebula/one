@@ -13,61 +13,30 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import React from 'react';
 
-import {
-  Grid,
-  List,
-  Drawer,
-  Divider,
-  Collapse,
-  ListItem,
-  ListItemText
-} from '@material-ui/core';
-import ExpandLessIcon from '@material-ui/icons/ExpandLess';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { List, Drawer, Divider, Box } from '@material-ui/core';
 
-import sidebarStyles from 'client/components/Sidebar/styles';
 import useGeneral from 'client/hooks/useGeneral';
 import endpoints from 'client/router/endpoints';
 
-const LinkItem = React.memo(({ label, path }) => {
-  const history = useHistory();
+import sidebarStyles from 'client/components/Sidebar/styles';
+import SidebarLink from 'client/components/Sidebar/SidebarLink';
+import SidebarCollapseItem from 'client/components/Sidebar/SidebarCollapseItem';
 
-  return (
-    <ListItem button onClick={() => history.push(path)}>
-      <ListItemText primary={label} />
-    </ListItem>
-  );
-});
-
-const CollapseItem = React.memo(({ label, routes }) => {
-  const [expanded, setExpanded] = useState(false);
-
-  const handleExpand = () => setExpanded(!expanded);
-
-  return (
-    <>
-      <ListItem button onClick={handleExpand}>
-        <ListItemText primary={label} />
-        {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-      </ListItem>
-      {routes?.map((subItem, index) => (
-        <Collapse
-          key={`subitem-${index}`}
-          in={expanded}
-          timeout="auto"
-          unmountOnExit
-        >
-          <List component="div" disablePadding>
-            <LinkItem {...subItem} />
-          </List>
-        </Collapse>
-      ))}
-    </>
-  );
-});
+const Endpoints = React.memo(() =>
+  endpoints
+    ?.filter(
+      ({ authenticated = true, header = false }) => authenticated && !header
+    )
+    ?.map((endpoint, index) =>
+      endpoint.routes ? (
+        <SidebarCollapseItem key={`item-${index}`} {...endpoint} />
+      ) : (
+        <SidebarLink key={`item-${index}`} {...endpoint} />
+      )
+    )
+);
 
 const Sidebar = () => {
   const classes = sidebarStyles();
@@ -76,29 +45,19 @@ const Sidebar = () => {
   return React.useMemo(
     () => (
       <Drawer anchor="left" open={isOpenMenu} onClose={() => openMenu(false)}>
-        <div className={classes.menu}>
-          <Grid container>
-            <Grid item className={classes.logoWrapper}>
-              <img
-                className={classes.logo}
-                src="/static/logo.png"
-                alt="Opennebula"
-              />
-            </Grid>
-          </Grid>
-          <Divider />
-          <List>
-            {endpoints
-              ?.filter(({ authenticated = true }) => authenticated)
-              ?.map((endpoint, index) =>
-                endpoint.routes ? (
-                  <CollapseItem key={`item-${index}`} {...endpoint} />
-                ) : (
-                  <LinkItem key={`item-${index}`} {...endpoint} />
-                )
-              )}
+        <Box item className={classes.logo}>
+          <img
+            className={classes.img}
+            src="/static/logo.png"
+            alt="Opennebula"
+          />
+        </Box>
+        <Divider />
+        <Box className={classes.menu}>
+          <List className={classes.list}>
+            <Endpoints />
           </List>
-        </div>
+        </Box>
       </Drawer>
     ),
     [isOpenMenu, openMenu]

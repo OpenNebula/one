@@ -13,14 +13,6 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-$primary: #C7C9C8;
-$secondary: #FFF;
-$tertiary: #FAFAFA;
-$quaternary: #353735;
-
-$font_primary: #353735;
-$font_secondary: red;
-
 @font-face {
   font-family: 'LatoWeb';
   src: url('fonts/Lato-Regular.eot'); /* IE9 Compat Modes */
@@ -31,25 +23,4 @@ $font_secondary: red;
   font-style: normal;
   font-weight: normal;
   text-rendering: optimizeLegibility;
-}
-
-@import "login";
-@import "footer";
-@import "menu";
-@import "content";
-
-html, body{
-  font-family: 'LatoWeb';
-  background-color: $secondary;
-  color: $font_primary;
-  min-height: 100vh;
-  margin: 0px;
-  display: flex;
-  width: 100%;
-  flex-wrap: wrap;
-}
-#root{
-  flex-grow: 1;
-  display: flex;
-  flex-wrap: wrap;
 }
