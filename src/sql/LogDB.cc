@@ -628,8 +628,8 @@ int LogDB::purge_log()
 
     multiple_cb<std::vector, uint64_t> cb_info;
     single_cb<string> cb_min_idx;
-    std::vector<uint64_t> maxmin_i{0, 0};
-    std::vector<uint64_t> maxmin_e{0, 0};
+    std::vector<uint64_t> maxmin_i;
+    std::vector<uint64_t> maxmin_e;
     string min_idx;
 
     int rc  = 0;
@@ -694,11 +694,14 @@ int LogDB::purge_log()
 
     cb_info.unset_callback();
 
-    oss.str("");
-    oss << "Purging obsolete LogDB records: " << rc << " records purged. Log state: "
-        << maxmin_i[0] << "," << maxmin_i[1] << " - " << maxmin_e[0] << "," << maxmin_e[1];
+    if (maxmin_i.size() == 2 && maxmin_e.size() == 2)
+    {
+        oss.str("");
+        oss << "Purging obsolete LogDB records: " << rc << " records purged. Log state: "
+            << maxmin_i[0] << "," << maxmin_i[1] << " - " << maxmin_e[0] << "," << maxmin_e[1];
 
-    NebulaLog::log("DBM", Log::INFO, oss);
+        NebulaLog::log("DBM", Log::INFO, oss);
+    }
 
     /* ---------------------------------------------------------------------- */
     /* Federated records. Keep last log_retention federated records           */
