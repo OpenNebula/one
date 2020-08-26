@@ -23,7 +23,8 @@ import {
   MenuItem,
   MenuList,
   ClickAwayListener,
-  Divider
+  Divider,
+  useMediaQuery
 } from '@material-ui/core';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
@@ -36,6 +37,8 @@ import FilterPoolSelect from 'client/components/Header/FilterPoolSelect';
 const User = React.memo(() => {
   const history = useHistory();
   const { logout, authUser, isOneAdmin } = useAuth();
+  const isUpSm = useMediaQuery(theme => theme.breakpoints.up('sm'));
+
   const [open, setOpen] = useState(false);
   const anchorRef = useRef(null);
   const { current } = anchorRef;
@@ -63,7 +66,7 @@ const User = React.memo(() => {
         data-cy="header-user-button"
       >
         <AccountCircleIcon />
-        <span style={{ paddingLeft: 5 }}>{authUser?.NAME}</span>
+        {isUpSm && <span style={{ paddingLeft: 5 }}>{authUser?.NAME}</span>}
       </Button>
       <Popper
         open={open}

@@ -18,9 +18,9 @@ import { StaticRouter, BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { CssBaseline, ThemeProvider } from '@material-ui/core';
+import { CssBaseline, ThemeProvider, StylesProvider } from '@material-ui/core';
 
-import theme from 'client/assets/theme';
+import theme, { generateClassName } from 'client/assets/theme';
 import { TranslateProvider } from 'client/components/HOC';
 import Router from 'client/router';
 
@@ -35,21 +35,23 @@ const App = ({ location, context, store }) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Provider store={store}>
-        <TranslateProvider>
-          {location && context ? (
-            // server build
-            <StaticRouter location={location} context={context}>
-              <Router />
-            </StaticRouter>
-          ) : (
-            // browser build
-            <BrowserRouter>
-              <Router />
-            </BrowserRouter>
-          )}
-        </TranslateProvider>
-      </Provider>
+      <StylesProvider generateClassName={generateClassName}>
+        <Provider store={store}>
+          <TranslateProvider>
+            {location && context ? (
+              // server build
+              <StaticRouter location={location} context={context}>
+                <Router />
+              </StaticRouter>
+            ) : (
+              // browser build
+              <BrowserRouter>
+                <Router />
+              </BrowserRouter>
+            )}
+          </TranslateProvider>
+        </Provider>
+      </StylesProvider>
     </ThemeProvider>
   );
 };

@@ -3,6 +3,7 @@ import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 
 import { jwtName, FILTER_POOL, ONEADMIN_ID } from 'client/constants';
 import { storage, findStorageData, removeStoreData } from 'client/utils';
+import { fakeDelay } from 'client/utils/helpers';
 
 import * as serviceAuth from 'client/services/auth';
 import * as serviceUsers from 'client/services/users';
@@ -15,10 +16,6 @@ import {
   logout as logoutRequest
 } from 'client/actions/user';
 import { setGroups } from 'client/actions/pool';
-
-// function delay(ms) {
-//   return new Promise(resolve => setTimeout(resolve, ms));
-// }
 
 export default function useAuth() {
   const {
@@ -36,8 +33,9 @@ export default function useAuth() {
   useEffect(() => {
     const tokenStorage = findStorageData(jwtName);
 
-    if ((tokenStorage && jwt && tokenStorage !== jwt) || firstRender)
-      dispatch(successAuth({ jwt: tokenStorage }));
+    if ((tokenStorage && jwt && tokenStorage !== jwt) || firstRender) {
+      fakeDelay(1500).then(() => dispatch(successAuth({ jwt: tokenStorage })));
+    }
   }, [jwt, firstRender]);
 
   const login = useCallback(
@@ -89,7 +87,7 @@ export default function useAuth() {
         })
       )
       .catch(err => dispatch(failureAuth({ error: err })));
-  }, [dispatch, baseURL, jwtName]);
+  }, [dispatch, baseURL, jwtName, authUser]);
 
   const setPrimaryGroup = useCallback(
     values => {

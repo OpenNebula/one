@@ -1,16 +1,20 @@
 import React from 'react';
-
+import { func, string } from 'prop-types';
 import { Box, Button, TextField } from '@material-ui/core';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers';
 import * as yup from 'yup';
 
-import { Token2FA } from 'client/constants';
+import { Token2FA, Next } from 'client/constants';
+import loginStyles from 'client/containers/Login/styles';
+
 import { Tr } from 'client/components/HOC';
 import ButtonSubmit from 'client/components/FormControl/SubmitButton';
 import ErrorHelper from 'client/components/FormControl/ErrorHelper';
 
-const Form2fa = ({ classes, onBack, onSubmit, error }) => {
+const Form2fa = ({ onBack, onSubmit, error }) => {
+  const classes = loginStyles();
+
   const { register, handleSubmit, errors } = useForm({
     reValidateMode: 'onSubmit',
     resolver: yupResolver(
@@ -25,7 +29,7 @@ const Form2fa = ({ classes, onBack, onSubmit, error }) => {
   return (
     <Box
       component="form"
-      className={classes?.form}
+      className={classes.form}
       onSubmit={handleSubmit(onSubmit)}
     >
       <TextField
@@ -50,11 +54,23 @@ const Form2fa = ({ classes, onBack, onSubmit, error }) => {
         <ButtonSubmit
           data-cy="login-2fa-button"
           isSubmitting={false}
-          label="Next"
+          label={Tr(Next)}
         />
       </Box>
     </Box>
   );
+};
+
+Form2fa.propTypes = {
+  onBack: func.isRequired,
+  onSubmit: func.isRequired,
+  error: string
+};
+
+Form2fa.defaultProps = {
+  onBack: () => undefined,
+  onSubmit: () => undefined,
+  error: null
 };
 
 export default Form2fa;

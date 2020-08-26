@@ -14,8 +14,16 @@
 /* -------------------------------------------------------------------------- */
 
 import React from 'react';
-
-import { List, Drawer, Divider, Box } from '@material-ui/core';
+import clsx from 'clsx';
+import {
+  List,
+  Drawer,
+  Divider,
+  Box,
+  IconButton,
+  useMediaQuery
+} from '@material-ui/core';
+import { Menu as MenuIcon, Close as CloseIcon } from '@material-ui/icons';
 
 import useGeneral from 'client/hooks/useGeneral';
 import endpoints from 'client/router/endpoints';
@@ -23,12 +31,11 @@ import endpoints from 'client/router/endpoints';
 import sidebarStyles from 'client/components/Sidebar/styles';
 import SidebarLink from 'client/components/Sidebar/SidebarLink';
 import SidebarCollapseItem from 'client/components/Sidebar/SidebarCollapseItem';
+import Logo from 'client/icons/logo';
 
 const Endpoints = React.memo(() =>
   endpoints
-    ?.filter(
-      ({ authenticated = true, header = false }) => authenticated && !header
-    )
+    ?.filter(({ authenticated, header = false }) => authenticated && !header)
     ?.map((endpoint, index) =>
       endpoint.routes ? (
         <SidebarCollapseItem key={`item-${index}`} {...endpoint} />
@@ -40,27 +47,46 @@ const Endpoints = React.memo(() =>
 
 const Sidebar = () => {
   const classes = sidebarStyles();
-  const { isOpenMenu, openMenu } = useGeneral();
+  const { isFixMenu, fixMenu } = useGeneral();
+  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'));
 
   return React.useMemo(
     () => (
-      <Drawer anchor="left" open={isOpenMenu} onClose={() => openMenu(false)}>
-        <Box item className={classes.logo}>
-          <img
-            className={classes.img}
-            src="/static/logo.png"
-            alt="Opennebula"
+      <Drawer
+        variant={'permanent'}
+        className={clsx({ [classes.drawerFixed]: isFixMenu })}
+        classes={{
+          paper: clsx(classes.drawerPaper, {
+            [classes.drawerFixed]: isFixMenu
+          })
+        }}
+        anchor="left"
+        open={isFixMenu}
+      >
+        <Box item className={classes.header}>
+          <Logo
+            width="100%"
+            height={100}
+            withText
+            viewBox="0 0 640 640"
+            className={classes.svg}
           />
+          <IconButton
+            color={isFixMenu ? 'primary' : 'default'}
+            onClick={() => fixMenu(!isFixMenu)}
+          >
+            {isUpLg ? <MenuIcon /> : <CloseIcon />}
+          </IconButton>
         </Box>
         <Divider />
         <Box className={classes.menu}>
-          <List className={classes.list}>
+          <List className={classes.list} disablePadding>
             <Endpoints />
           </List>
         </Box>
       </Drawer>
     ),
-    [isOpenMenu, openMenu]
+    [isFixMenu, fixMenu, isUpLg]
   );
 };
 

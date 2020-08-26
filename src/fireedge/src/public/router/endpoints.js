@@ -13,6 +13,12 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+import {
+  Dashboard as DashboardIcon,
+  Settings as SettingsIcon,
+  Ballot as BallotIcon
+} from '@material-ui/icons';
+
 import Login from 'client/containers/Login';
 import { Clusters, Hosts, Zones } from 'client/containers/Infrastructure';
 import { Users, Groups } from 'client/containers/System';
@@ -42,7 +48,7 @@ export const PATH = {
   }
 };
 
-export default [
+const ENDPOINTS = [
   {
     label: 'login',
     path: PATH.LOGIN,
@@ -52,74 +58,102 @@ export default [
   {
     label: 'dashboard',
     path: PATH.DASHBOARD,
+    authenticated: true,
+    icon: DashboardIcon,
     component: Dashboard
   },
   {
     label: 'settings',
     path: PATH.SETTINGS,
+    authenticated: true,
     header: true,
+    icon: SettingsIcon,
     component: Settings
   },
   {
     label: 'test api',
     path: PATH.TEST_API,
+    authenticated: true,
     devMode: true,
+    icon: BallotIcon,
     component: TestApi
   },
   {
     label: 'infrastructure',
+    authenticated: true,
+    icon: BallotIcon,
     routes: [
       {
         label: 'clusters',
         path: PATH.INFRASTRUCTURE.CLUSTERS,
+        authenticated: true,
         component: Clusters
       },
       {
         label: 'hosts',
         path: PATH.INFRASTRUCTURE.HOSTS,
+        authenticated: true,
         component: Hosts
       },
       {
         label: 'zones',
         path: PATH.INFRASTRUCTURE.ZONES,
+        authenticated: true,
         component: Zones
       }
     ]
   },
   {
     label: 'system',
+    authenticated: true,
+    icon: BallotIcon,
     routes: [
       {
         label: 'users',
         path: PATH.SYSTEM.USERS,
+        authenticated: true,
         component: Users
       },
       {
         label: 'groups',
         path: PATH.SYSTEM.GROUPS,
+        authenticated: true,
         component: Groups
       }
     ]
   },
   {
     label: 'networks',
+    authenticated: true,
+    icon: BallotIcon,
     routes: [
       {
         label: 'vnets',
-        path: PATH.NETWORKS.VNETS
+        path: PATH.NETWORKS.VNETS,
+        authenticated: true
       },
       {
         label: 'vnets templates',
-        path: PATH.NETWORKS.VNETS_TEMPLATES
+        path: PATH.NETWORKS.VNETS_TEMPLATES,
+        authenticated: true
       },
       {
         label: 'vnets topology',
-        path: PATH.NETWORKS.VNETS_TOPOLOGY
+        path: PATH.NETWORKS.VNETS_TOPOLOGY,
+        authenticated: true
       },
       {
         label: 'vnets secgroup',
-        path: PATH.NETWORKS.SEC_GROUPS
+        path: PATH.NETWORKS.SEC_GROUPS,
+        authenticated: true
       }
     ]
   }
 ];
+
+export const findRouteByPathname = pathname =>
+  ENDPOINTS.flatMap(({ routes, ...item }) => routes ?? item)?.find(
+    ({ path }) => path === pathname
+  ) ?? {};
+
+export default ENDPOINTS;

@@ -26,7 +26,11 @@ const Footer = React.memo(() => {
 
   return (
     <Box className={classes.footer} component="footer">
-      {`❤️ by `}
+      {'Made with'}
+      <span className={classes.heartIcon} role="img" aria-label="heart-emoji">
+        {'❤️'}
+      </span>
+      {'by'}
       <Link href={url} className={classes.link}>
         {text}
       </Link>
