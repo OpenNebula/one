@@ -16,7 +16,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { AppBar, Toolbar, IconButton, Typography } from '@material-ui/core';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
+  useMediaQuery
+} from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 
 import useGeneral from 'client/hooks/useGeneral';
@@ -25,20 +31,23 @@ import Zone from 'client/components/Header/Zone';
 import headerStyles from 'client/components/Header/styles';
 
 const Header = ({ title }) => {
+  const { fixMenu } = useGeneral();
   const classes = headerStyles();
-  const { isOpenMenu, openMenu } = useGeneral();
+  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'));
 
   return React.useMemo(
     () => (
-      <AppBar position="fixed" data-cy="header">
+      <AppBar position="absolute" data-cy="header">
         <Toolbar>
-          <IconButton
-            onClick={() => openMenu(!isOpenMenu)}
-            edge="start"
-            color="inherit"
-          >
-            <MenuIcon />
-          </IconButton>
+          {!isUpLg && (
+            <IconButton
+              onClick={() => fixMenu(true)}
+              edge="start"
+              color="inherit"
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
           <Typography
             variant="h6"
             className={classes.title}
@@ -51,7 +60,7 @@ const Header = ({ title }) => {
         </Toolbar>
       </AppBar>
     ),
-    [isOpenMenu, openMenu]
+    [fixMenu, isUpLg]
   );
 };
 

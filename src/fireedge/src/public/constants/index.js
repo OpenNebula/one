@@ -18,6 +18,7 @@ module.exports = {
   classInputInvalid: 'is-invalid',
   NotFound: 'Not found',
   SignIn: 'Sign In',
+  Next: 'Next',
   Language: 'Language',
   Username: 'Username',
   Password: 'Password',
@@ -26,10 +27,10 @@ module.exports = {
   SignOut: 'Sign Out',
   jwtName: 'SunstoneToken',
   Submit: 'Submit',
-  Respose: 'Response',
+  Response: 'Response',
   by: {
-    text: 'Opennebula Systems',
-    url: 'https://opennebula.org/'
+    text: 'Opennebula',
+    url: 'https://opennebula.io/'
   },
   endpointsRoutes: {
     login: '/api/auth/',

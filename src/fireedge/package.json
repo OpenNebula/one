@@ -36,7 +36,7 @@
     "axios": "^0.19.2",
     "body-parser": "^1.19.0",
     "btoa": "^1.2.1",
-    "classnames": "^2.2.6",
+    "clsx": "^1.1.1",
     "colors": "^1.4.0",
     "compression": "^1.7.4",
     "concurrently": "^5.2.0",

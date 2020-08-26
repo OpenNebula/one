@@ -1,17 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
+import clsx from 'clsx';
 
 import {
   withStyles,
   Badge,
   Typography,
   ListItem,
+  ListItemIcon,
   ListItemText,
   useMediaQuery
 } from '@material-ui/core';
 
 import useGeneral from 'client/hooks/useGeneral';
+import sidebarStyles from 'client/components/Sidebar/styles';
 
 const StyledBadge = withStyles(() => ({
   badge: {
@@ -21,18 +24,33 @@ const StyledBadge = withStyles(() => ({
   }
 }))(Badge);
 
-const SidebarLink = ({ label, path, devMode }) => {
+const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
+  const classes = sidebarStyles();
   const history = useHistory();
-  const isDesktop = useMediaQuery(theme => theme.breakpoints.up('sm'));
-  const { openMenu } = useGeneral();
+  const { pathname } = useLocation();
+  const { fixMenu } = useGeneral();
+  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'));
 
   const handleClick = () => {
     history.push(path);
-    !isDesktop && openMenu(false);
+    !isUpLg && fixMenu(false);
   };
 
+  const isCurrentPathname = pathname === path;
+
   return (
-    <ListItem button onClick={handleClick}>
+    <ListItem
+      button
+      onClick={handleClick}
+      selected={isCurrentPathname}
+      className={clsx({ [classes.subItem]: isSubItem })}
+      classes={{ selected: classes.itemSelected }}
+    >
+      {Icon && (
+        <ListItemIcon>
+          <Icon />
+        </ListItemIcon>
+      )}
       <ListItemText
         primary={
           devMode ? (
@@ -51,13 +69,17 @@ const SidebarLink = ({ label, path, devMode }) => {
 SidebarLink.propTypes = {
   label: PropTypes.string.isRequired,
   path: PropTypes.string.isRequired,
-  devMode: PropTypes.bool
+  icon: PropTypes.node,
+  devMode: PropTypes.bool,
+  isSubItem: PropTypes.bool
 };
 
 SidebarLink.defaultProps = {
   label: '',
   path: '/',
-  devMode: false
+  icon: null,
+  devMode: false,
+  isSubItem: false
 };
 
 export default SidebarLink;

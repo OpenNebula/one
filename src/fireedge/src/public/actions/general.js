@@ -1,11 +1,13 @@
 const CHANGE_ZONE = 'CHANGE_ZONE';
 const DISPLAY_LOADING = 'DISPLAY_LOADING';
 const TOGGLE_MENU = 'TOGGLE_MENU';
+const FIX_MENU = 'FIX_MENU';
 
 const Actions = {
   CHANGE_ZONE,
   DISPLAY_LOADING,
-  TOGGLE_MENU
+  TOGGLE_MENU,
+  FIX_MENU
 };
 
 module.exports = {
@@ -21,5 +23,9 @@ module.exports = {
   openMenu: isOpen => ({
     type: TOGGLE_MENU,
     isOpen
+  }),
+  fixMenu: isFixed => ({
+    type: FIX_MENU,
+    isFixed
   })
 };

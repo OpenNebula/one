@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { makeStyles, CircularProgress, Button } from '@material-ui/core';
 
-import { Translate } from 'client/components/HOC';
+import { Tr } from 'client/components/HOC';
 import * as CONSTANT from 'client/constants';
 
 const useStyles = makeStyles(theme => ({
@@ -26,7 +26,7 @@ const ButtonSubmit = ({ isSubmitting, label, ...rest }) => {
       {...rest}
     >
       {isSubmitting && <CircularProgress size={24} />}
-      {!isSubmitting && <Translate word={label ?? CONSTANT.default.Submit} />}
+      {!isSubmitting && Tr(label)}
     </Button>
   );
 };

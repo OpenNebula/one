@@ -20,7 +20,8 @@ const { Actions: GeneralActions } = require('../actions/general');
 const initial = {
   zone: 0,
   isLoading: false,
-  isOpenMenu: false
+  isOpenMenu: false,
+  isFixMenu: false
 };
 
 const General = (state = initial, action) => {
@@ -35,6 +36,8 @@ const General = (state = initial, action) => {
       return { ...state, ...action.payload };
     case GeneralActions.TOGGLE_MENU:
       return { ...state, isOpenMenu: action.isOpen };
+    case GeneralActions.FIX_MENU:
+      return { ...state, isFixMenu: action.isFixed };
     case UserActions.LOGOUT:
       return { ...initial };
     default:

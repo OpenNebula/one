@@ -1,4 +1,4 @@
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -13,17 +13,27 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { Fragment, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Redirect } from 'react-router-dom';
-
-import { LinearProgress } from '@material-ui/core';
+import { useLocation, Redirect } from 'react-router-dom';
 
 import useAuth from 'client/hooks/useAuth';
-import { PATH } from 'client/router/endpoints';
+import useOpennebula from 'client/hooks/useOpennebula';
 
-const AuthLayout = ({ children }) => {
-  const { isLoginInProcess, isLogged, firstRender, getAuthInfo } = useAuth();
+import LoadingScreen from 'client/components/LoadingScreen';
+import Sidebar from 'client/components/Sidebar';
+import { PATH, findRouteByPathname } from 'client/router/endpoints';
+
+const MainLayout = ({ children }) => {
+  const { pathname } = useLocation();
+  const { groups } = useOpennebula();
+  const {
+    isLogged,
+    isLoginInProcess,
+    getAuthInfo,
+    authUser,
+    firstRender
+  } = useAuth();
 
   useEffect(() => {
     if (isLogged && !isLoginInProcess) {
@@ -31,16 +41,34 @@ const AuthLayout = ({ children }) => {
     }
   }, [isLogged, isLoginInProcess]);
 
-  if (firstRender) {
-    return <LinearProgress style={{ width: '100%' }} />;
-  } else if (!isLogged && !isLoginInProcess) {
+  const { authenticated: authRoute } = findRouteByPathname(pathname);
+
+  // PENDING TO AUTHENTICATING OR FIRST RENDERING
+  if (firstRender || (isLogged && authRoute && !authUser && !groups?.length)) {
+    return <LoadingScreen />;
+  }
+
+  // PROTECTED ROUTE
+  if (authRoute && !isLogged && !isLoginInProcess) {
+    console.log('protected route needs redirect to LOGIN');
     return <Redirect to={PATH.LOGIN} />;
   }
 
-  return <Fragment>{children}</Fragment>;
+  // PUBLIC ROUTE
+  if (!authRoute && isLogged && !isLoginInProcess) {
+    console.log('public route needs redirect to DASHBOARD');
+    return <Redirect to={PATH.DASHBOARD} />;
+  }
+
+  return (
+    <>
+      {authRoute && isLogged && <Sidebar />}
+      {children}
+    </>
+  );
 };
 
-AuthLayout.propTypes = {
+MainLayout.propTypes = {
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
@@ -48,8 +76,8 @@ AuthLayout.propTypes = {
   ])
 };
 
-AuthLayout.defaultProps = {
+MainLayout.defaultProps = {
   children: ''
 };
 
-export default AuthLayout;
+export default MainLayout;

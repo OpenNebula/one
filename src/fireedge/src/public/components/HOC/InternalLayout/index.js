@@ -13,37 +13,51 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { Redirect } from 'react-router-dom';
+import clsx from 'clsx';
 
-import { LinearProgress } from '@material-ui/core';
+import { Box, Container } from '@material-ui/core';
+import useGeneral from 'client/hooks/useGeneral';
 
-import useAuth from 'client/hooks/useAuth';
-import { PATH } from 'client/router/endpoints';
+import Footer from 'client/components/Footer';
+import Header from 'client/components/Header';
 
-const GuessLayout = ({ children }) => {
-  const { isLoginInProcess, isLogged, firstRender } = useAuth();
+import internalStyles from 'client/components/HOC/InternalLayout/styles';
 
-  if (firstRender) {
-    return <LinearProgress style={{ width: '100%' }} />;
-  } else if (isLogged && !isLoginInProcess) {
-    return <Redirect to={PATH.DASHBOARD} />;
-  }
+const InternalLayout = ({ authRoute, label, children }) => {
+  const classes = internalStyles();
+  const { isFixMenu } = useGeneral();
 
-  return <Fragment>{children}</Fragment>;
+  return authRoute ? (
+    <Box className={clsx(classes.root, { [classes.isDrawerFixed]: isFixMenu })}>
+      <Header title={label} />
+      <Box component="main" className={classes.main}>
+        <Container component="div" className={classes.scrollable}>
+          {children}
+        </Container>
+      </Box>
+      <Footer />
+    </Box>
+  ) : (
+    children
+  );
 };
 
-GuessLayout.propTypes = {
+InternalLayout.propTypes = {
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
     PropTypes.string
-  ])
+  ]),
+  authRoute: PropTypes.bool.isRequired,
+  label: PropTypes.string
 };
 
-GuessLayout.defaultProps = {
-  children: ''
+InternalLayout.defaultProps = {
+  children: [],
+  authRoute: false,
+  label: null
 };
 
-export default GuessLayout;
+export default InternalLayout;

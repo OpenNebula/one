@@ -14,17 +14,21 @@
 /* -------------------------------------------------------------------------- */
 
 import React from 'react';
+import { func, string } from 'prop-types';
 import { Box, Checkbox, TextField, FormControlLabel } from '@material-ui/core';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers';
 import * as yup from 'yup';
 
 import { SignIn, Username, Password, keepLoggedIn } from 'client/constants';
-import { Translate, Tr } from 'client/components/HOC';
+import { Tr } from 'client/components/HOC';
 import ButtonSubmit from 'client/components/FormControl/SubmitButton';
 import ErrorHelper from 'client/components/FormControl/ErrorHelper';
+import loginStyles from 'client/containers/Login/styles';
 
-function FormUser({ classes, onSubmit, error }) {
+function FormUser({ onSubmit, error }) {
+  const classes = loginStyles();
+
   const { register, handleSubmit, errors } = useForm({
     reValidateMode: 'onSubmit',
     resolver: yupResolver(
@@ -42,7 +46,7 @@ function FormUser({ classes, onSubmit, error }) {
   return (
     <Box
       component="form"
-      className={classes?.form}
+      className={classes.form}
       onSubmit={handleSubmit(onSubmit)}
     >
       <TextField
@@ -50,6 +54,7 @@ function FormUser({ classes, onSubmit, error }) {
         fullWidth
         required
         name="user"
+        autoComplete="username"
         label={Tr(Username)}
         variant="outlined"
         inputRef={register}
@@ -90,14 +95,20 @@ function FormUser({ classes, onSubmit, error }) {
       <ButtonSubmit
         data-cy="login-button"
         isSubmitting={false}
-        label={<Translate word={SignIn} />}
+        label={Tr(SignIn)}
       />
     </Box>
   );
 }
 
-FormUser.propTypes = {};
+FormUser.propTypes = {
+  onSubmit: func.isRequired,
+  error: string
+};
 
-FormUser.defaultProps = {};
+FormUser.defaultProps = {
+  onSubmit: () => undefined,
+  error: null
+};
 
 export default FormUser;

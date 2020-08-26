@@ -84,11 +84,7 @@ function Login() {
             unmountOnExit
           >
             <Box style={{ opacity: isLoading ? 0.7 : 1 }}>
-              <FormUser
-                classes={classes}
-                onSubmit={handleSubmitUser}
-                error={error}
-              />
+              <FormUser onSubmit={handleSubmitUser} error={error} />
             </Box>
           </Slide>
         </Box>
@@ -102,7 +98,6 @@ function Login() {
           >
             <Box style={{ opacity: isLoading ? 0.7 : 1 }}>
               <Form2fa
-                classes={classes}
                 onBack={handleBack}
                 onSubmit={handleSubmitUser}
                 error={error}
@@ -121,7 +116,6 @@ function Login() {
             <Box style={{ opacity: isLoading ? 0.7 : 1 }}>
               <FormGroup
                 groups={groups}
-                classes={classes}
                 onBack={handleBack}
                 onSubmit={handleSubmitGroup}
               />

@@ -16,10 +16,8 @@
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 
-import { AuthLayout, GuessLayout, InternalLayout } from 'client/components/HOC';
+import { InternalLayout, MainLayout } from 'client/components/HOC';
 import Error404 from 'client/containers/Error404';
-import Sidebar from 'client/components/Sidebar';
-
 import endpoints from 'client/router/endpoints';
 
 const renderRoute = ({
@@ -32,33 +30,23 @@ const renderRoute = ({
     key={`key-${label.replace(' ', '-')}`}
     exact
     path={path}
-    component={() =>
-      authenticated ? (
-        <AuthLayout>
-          <InternalLayout title={label}>
-            <Component />
-          </InternalLayout>
-        </AuthLayout>
-      ) : (
-        <GuessLayout>
-          <Component />
-        </GuessLayout>
-      )
-    }
+    component={() => (
+      <InternalLayout label={label} authRoute={authenticated}>
+        <Component />
+      </InternalLayout>
+    )}
   />
 );
 
 const Router = () => (
-  <>
-    <Sidebar />
+  <MainLayout>
     <Switch>
       {endpoints?.map(({ routes, ...endpoint }) =>
         endpoint.path ? renderRoute(endpoint) : routes?.map(renderRoute)
       )}
       <Route component={Error404} />
     </Switch>
-  </>
+  </MainLayout>
 );
 
 export default Router;
-export { endpoints };

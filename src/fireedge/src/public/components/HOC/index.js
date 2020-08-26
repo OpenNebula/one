@@ -13,20 +13,18 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import GuessLayout from './GuessLayout';
-import AuthLayout from './AuthLayout';
-import InternalLayout from './InternalLayout';
+import InternalLayout from 'client/components/HOC/InternalLayout';
+import MainLayout from 'client/components/HOC/MainLayout';
 import {
   TranslateContext,
   TranslateProvider,
   Translate,
   Tr
-} from './Translate';
+} from 'client/components/HOC/Translate';
 
 export {
-  GuessLayout,
-  AuthLayout,
   InternalLayout,
+  MainLayout,
   TranslateContext,
   TranslateProvider,
   Translate,
