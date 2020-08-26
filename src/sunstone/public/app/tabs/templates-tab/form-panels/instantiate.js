@@ -483,7 +483,14 @@ define(function(require) {
                 usersDatatable: that.usersTable.dataTableHTML,
                 groupDatatable: that.groupTable.dataTableHTML,
                 table_sched_actions: ScheduleActions.htmlTable(RESOURCE, Leases.html())
-              }) );
+              }
+            )
+          );
+          var objLeases = $.extend(true, {}, that);
+          objLeases.formContext = templatesContext;
+          objLeases.resource = "template";
+          objLeases.__proto__ = FormPanel.prototype;
+          Leases.actions(objLeases);
 
           $(".provision_host_selector" + template_json.VMTEMPLATE.ID, context).data("hostsTable", that.hostsTable);
           $(".provision_ds_selector" + template_json.VMTEMPLATE.ID, context).data("dsTable", that.datastoresTable);
