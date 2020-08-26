@@ -52,7 +52,7 @@ define(function(require) {
       config.system_config.leases && 
       (config.system_config.leases.suspense || config.system_config.leases.terminate)
     ){
-      return $("<button />", {class: classButton}).append(
+      return $("<button />", {class: classButton, type:"button"}).append(
         $("<i/>", {class: 'fa fa-clock'})
       ).prop('outerHTML');
     }
