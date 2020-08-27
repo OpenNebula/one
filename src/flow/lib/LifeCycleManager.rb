@@ -58,7 +58,7 @@ class ServiceLCM
 
         @event_manager = EventManager.new(em_conf).am
 
-        @wd = ServiceWD.new(client, em_conf)
+        @wd = ServiceWD.new(em_conf)
 
         # Register Action Manager actions
         @am.register_action(ACTIONS['DEPLOY_CB'],
@@ -94,7 +94,6 @@ class ServiceLCM
 
         Thread.new do
             auto_scaler = ServiceAutoScaler.new(@srv_pool,
-                                                client,
                                                 @cloud_auth,
                                                 self)
             auto_scaler.start
