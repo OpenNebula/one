@@ -395,10 +395,9 @@ class EventManager
 
     def check_nodes_report(nodes)
         rc_nodes = { :successful => [], :failure => [] }
-        client   = @cloud_auth.client
 
         nodes.delete_if do |node|
-            vm = OpenNebula::VirtualMachine.new_with_id(node, client)
+            vm = OpenNebula::VirtualMachine.new_with_id(node, @cloud_auth.client)
 
             vm.info
 

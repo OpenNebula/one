@@ -45,14 +45,13 @@ class ServiceWD
     # Class constructor
     #
     # @param options [Hash] event manager options
-    def initialize(client, options)
+    def initialize(options)
         @conf = DEFAULT_CONF.merge(options)
 
         @lcm          = options[:lcm]
         @context      = ZMQ::Context.new(1)
         @cloud_auth   = @conf[:cloud_auth]
         @wait_timeout = @cloud_auth.conf[:wait_timeout]
-        @client       = client
 
         # Array of running services to watch
         @mutex    = Mutex.new
@@ -154,9 +153,6 @@ class ServiceWD
 
     # Get OpenNebula client
     def client
-        # If there's a client defined use it
-        return @client unless @client.nil?
-
         # If not, get one via cloud_auth
         @cloud_auth.client
     end
