@@ -143,7 +143,7 @@ class CloudAuth
         retrieve_from_userpool(xpath)
     end
 
-    # Selects the username that matches the driver and evaluates to true the 
+    # Selects the username that matches the driver and evaluates to true the
     # block passed to the function
     # block:: { |user| true or false }
     # [return] the username or nil
