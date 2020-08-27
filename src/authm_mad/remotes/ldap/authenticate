@@ -93,7 +93,7 @@ order.each do |servers|
                     break
                 end
 
-                if user_uid.downcase != user.downcase
+                if !user_uid.nil? && user_uid.downcase != user.downcase
                     STDERR.puts "User \"#{user}\" and \"#{user_uid}\" "\
                                 "differes (leading/trailing whitespace)"
                     break
