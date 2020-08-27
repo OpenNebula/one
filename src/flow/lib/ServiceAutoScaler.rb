@@ -23,23 +23,21 @@ class ServiceAutoScaler
     # Class constructor
     #
     # @param service_pool [OpenNebula::ServicePool] Service pool
-    # @param clien        [OpenNebula::Client]      OpenNebula Client
     # @param cloud_auth   [OpenNebula::CloudAuth]   Cloud auth to get clients
     # @param lcm          [LifeCycleManager]        Lcm for flows
-    def initialize(service_pool, client, cloud_auth, lcm)
+    def initialize(service_pool, cloud_auth, lcm)
         @lcm        = lcm
         @interval   = cloud_auth.conf[:autoscaler_interval]
         @srv_pool   = service_pool
-        @vm_pool    = VirtualMachinePool.new(cloud_auth.client)
         @cloud_auth = cloud_auth
-        @client     = client
     end
 
     # Start auto scaler loop
     def start
         loop do
             @srv_pool.info
-            @vm_pool.info_all_extended
+            vm_pool = VirtualMachinePool.new(client)
+            vm_pool.info_all_extended
 
             @srv_pool.each do |service|
                 # fill service roles information
@@ -51,7 +49,7 @@ class ServiceAutoScaler
                          'Checking policies for ' \
                          "service: #{service.id}"
 
-                apply_scaling_policies(service)
+                apply_scaling_policies(service, vm_pool)
             end
 
             sleep(@interval)
@@ -62,9 +60,6 @@ class ServiceAutoScaler
 
     # Get OpenNebula client
     def client
-        # If there's a client defined use it
-        return @client unless @client.nil?
-
         # If not, get one via cloud_auth
         @cloud_auth.client
     end
@@ -73,9 +68,9 @@ class ServiceAutoScaler
     # to SCALING. Only one role is set to scale.
     #
     # @param  [OpenNebula::Service] service
-    def apply_scaling_policies(service)
+    def apply_scaling_policies(service, vm_pool)
         service.roles.each do |name, role|
-            diff, cooldown_duration = role.scale?(@vm_pool)
+            diff, cooldown_duration = role.scale?(vm_pool)
 
             policies = {}
             policies['elasticity_policies'] = role.elasticity_policies
