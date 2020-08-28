@@ -58,8 +58,8 @@ const Logo = ({ width, height, spinner, withText, viewBox, ...props }) => {
             y={280}
             fill={textColor.top}
             fontSize={125}
-            fontFamily="Ubuntu,Lato"
-            fontWeight={500}
+            fontFamily="Ubuntu"
+            fontWeight={800}
           >
             {'Open'}
           </text>
@@ -69,8 +69,8 @@ const Logo = ({ width, height, spinner, withText, viewBox, ...props }) => {
             y={430}
             fill={textColor.bottom}
             fontSize={125}
-            fontFamily="Ubuntu,Lato"
-            fontWeight={500}
+            fontFamily="Ubuntu"
+            fontWeight={800}
           >
             {'Nebula'}
           </text>

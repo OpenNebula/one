@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core';
-import { sidebarWidth } from 'client/assets/theme';
+import { sidebar, toolbar } from 'client/assets/theme/defaults';
 
 export default makeStyles(theme => ({
   // -------------------------------
@@ -7,6 +7,7 @@ export default makeStyles(theme => ({
   // -------------------------------
   drawerPaper: {
     width: 0,
+    visibility: 'hidden',
     whiteSpace: 'nowrap',
     overflowX: 'hidden',
     flexShrink: 0,
@@ -15,10 +16,11 @@ export default makeStyles(theme => ({
       duration: theme.transitions.duration.leavingScreen
     }),
     [theme.breakpoints.up('lg')]: {
-      width: sidebarWidth.minified,
+      width: sidebar.minified,
+      visibility: 'visible',
       // CONTAINER ONLY WHEN EXPANDED
       '&:hover': {
-        width: sidebarWidth.fixed,
+        width: sidebar.fixed,
         transition: theme.transitions.create('width', {
           easing: theme.transitions.easing.sharp,
           duration: theme.transitions.duration.enteringScreen
@@ -42,16 +44,17 @@ export default makeStyles(theme => ({
     }
   },
   drawerFixed: {
-    width: '100%',
+    width: sidebar.fixed,
+    visibility: 'visible',
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen
     }),
-    [theme.breakpoints.only('md')]: {
-      width: sidebarWidth.fixed
+    [theme.breakpoints.only('xs')]: {
+      width: '100%'
     },
     [theme.breakpoints.up('lg')]: {
-      width: sidebarWidth.fixed,
+      width: sidebar.fixed,
       '& #logo__text__top, & #logo__text__bottom': {
         visibility: 'visible !important'
       },
@@ -68,8 +71,14 @@ export default makeStyles(theme => ({
     alignItems: 'center',
     padding: '1rem',
     overflow: 'hidden',
-    height: 64, // appbar height
-    minHeight: 64 // appbar height
+    height: toolbar.regular,
+    minHeight: toolbar.regular,
+    [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
+      minHeight: toolbar.xs
+    },
+    [theme.breakpoints.up('sm')]: {
+      minHeight: toolbar.sm
+    }
   },
   svg: {
     minWidth: 100
