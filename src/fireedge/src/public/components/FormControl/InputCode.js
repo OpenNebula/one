@@ -13,8 +13,9 @@ const InputCode = ({ code, language, ...props }) => {
   };
 
   return (
-    <Box border="1px solid lightgray" height="100%" minHeight={200}>
+    <Box height="100%" minHeight={200}>
       <AceEditor
+        style={{ border: '1px solid lightgray' }}
         wrapEnabled
         value={code}
         fontSize={16}

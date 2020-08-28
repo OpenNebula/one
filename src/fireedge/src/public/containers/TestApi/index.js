@@ -15,19 +15,22 @@
 
 import React, { useState, useMemo } from 'react';
 import { TextField, Grid, MenuItem } from '@material-ui/core';
+
 import Commands from 'server/utils/constants/commands';
 import { Translate, Tr } from 'client/components/HOC';
 import InputCode from 'client/components/FormControl/InputCode';
 import ResponseForm from 'client/containers/TestApi/ResponseForm';
+import testapiStyles from 'client/containers/TestApi/styles';
 
 const TestApi = () => {
+  const classes = testapiStyles();
   const [name, setName] = useState('acl.addrule');
   const [response, setResponse] = useState('');
 
   const handleChangeCommand = evt => setName(evt?.target?.value);
   const handleChangeResponse = res => setResponse(res);
   return (
-    <Grid container direction="row" spacing={2}>
+    <Grid container direction="row" spacing={2} className={classes.root}>
       <Grid item xs={12} md={6}>
         <TextField
           fullWidth

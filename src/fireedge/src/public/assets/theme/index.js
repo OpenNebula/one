@@ -4,31 +4,40 @@ import {
   createGenerateClassName
 } from '@material-ui/core';
 
+import UbuntuFont from 'client/assets/theme/fonts';
+import { toolbar, breakpoints } from 'client/assets/theme/defaults';
+
+const { xs, sm } = breakpoints;
+
 export const generateClassName = createGenerateClassName({
   productionPrefix: 'one-'
 });
 
-export const defaultBreakpoints = {
-  xs: 0,
-  sm: 600,
-  md: 960,
-  lg: 1280,
-  xl: 1920,
-  // DEVICES
-  tablet: 640,
-  laptop: 1024,
-  desktop: 1280
-};
-
-export const sidebarWidth = {
-  minified: 60,
-  fixed: 240
-};
-
 export default responsiveFontSizes(
   createMuiTheme({
+    breakpoints: {
+      values: breakpoints,
+      keys: Object.keys(breakpoints)
+    },
     typography: {
-      fontFamily: ['Ubuntu', 'Lato'].join(',')
+      fontFamily: [
+        '"Ubuntu"',
+        'Roboto',
+        'Helvetica',
+        'Arial',
+        'sans-serif'
+      ].join(',')
+    },
+    mixins: {
+      toolbar: {
+        minHeight: toolbar.regular,
+        [`@media (min-width:${xs}px) and (orientation: landscape)`]: {
+          minHeight: toolbar.xs
+        },
+        [`@media (min-width:${sm}px)`]: {
+          minHeight: toolbar.sm
+        }
+      }
     },
     overrides: {
       MuiFormControl: {
@@ -72,10 +81,7 @@ export default responsiveFontSizes(
       },
       MuiCssBaseline: {
         '@global': {
-          body: {
-            // height: '100vh'
-          }
-          // '@font-face': [UbuntuFont]
+          '@font-face': [UbuntuFont]
         }
       }
     },

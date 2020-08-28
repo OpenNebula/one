@@ -15,6 +15,7 @@
 
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
+import { TransitionGroup } from 'react-transition-group';
 
 import { InternalLayout, MainLayout } from 'client/components/HOC';
 import Error404 from 'client/containers/Error404';
@@ -24,28 +25,32 @@ const renderRoute = ({
   label = '',
   path = '',
   authenticated = true,
-  component: Component
+  component: Component,
+  ...route
 }) => (
   <Route
     key={`key-${label.replace(' ', '-')}`}
     exact
     path={path}
-    component={() => (
-      <InternalLayout label={label} authRoute={authenticated}>
+    component={props => (
+      <InternalLayout label={label} authRoute={authenticated} {...props}>
         <Component />
       </InternalLayout>
     )}
+    {...route}
   />
 );
 
 const Router = () => (
   <MainLayout>
-    <Switch>
-      {endpoints?.map(({ routes, ...endpoint }) =>
-        endpoint.path ? renderRoute(endpoint) : routes?.map(renderRoute)
-      )}
-      <Route component={Error404} />
-    </Switch>
+    <TransitionGroup>
+      <Switch>
+        {endpoints?.map(({ routes, ...endpoint }) =>
+          endpoint.path ? renderRoute(endpoint) : routes?.map(renderRoute)
+        )}
+        <Route component={Error404} />
+      </Switch>
+    </TransitionGroup>
   </MainLayout>
 );
 

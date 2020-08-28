@@ -19,7 +19,8 @@ import {
   Box,
   Container,
   Slide,
-  LinearProgress
+  LinearProgress,
+  useMediaQuery
 } from '@material-ui/core';
 
 import useAuth from 'client/hooks/useAuth';
@@ -29,6 +30,7 @@ import FormUser from 'client/containers/Login/FormUser';
 import Form2fa from 'client/containers/Login/Form2fa';
 import FormGroup from 'client/containers/Login/FormGroup';
 import loginStyles from 'client/containers/Login/styles';
+import Logo from 'client/icons/logo';
 
 const STEP = {
   USER_FORM: 0,
@@ -38,6 +40,7 @@ const STEP = {
 
 function Login() {
   const classes = loginStyles();
+  const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'));
   const [user, setUser] = useState(undefined);
   const [step, setStep] = useState(STEP.USER_FORM);
   const {
@@ -70,10 +73,15 @@ function Login() {
   };
 
   return (
-    <Container component="main" maxWidth="xs" className={classes.root}>
-      {isLoading && <LinearProgress style={{ width: '100%' }} />}
+    <Container
+      component="main"
+      disableGutters={isMobile}
+      maxWidth={isMobile || 'xs'}
+      className={classes.root}
+    >
+      {isLoading && <LinearProgress className={classes.loading} />}
       <Paper variant="outlined" className={classes.paper}>
-        <img className={classes.logo} src="/static/logo.png" alt="Opennebula" />
+        <Logo width="100%" height={100} withText viewBox="140 140 380 360" />
         <Box className={classes.wrapper}>
           <Slide
             direction="right"

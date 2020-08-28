@@ -31,20 +31,18 @@ import Zone from 'client/components/Header/Zone';
 import headerStyles from 'client/components/Header/styles';
 
 const Header = ({ title }) => {
-  const { fixMenu } = useGeneral();
+  const { isFixMenu, fixMenu } = useGeneral();
   const classes = headerStyles();
   const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'));
+
+  const handleFixMenu = () => fixMenu(true);
 
   return React.useMemo(
     () => (
       <AppBar position="absolute" data-cy="header">
         <Toolbar>
           {!isUpLg && (
-            <IconButton
-              onClick={() => fixMenu(true)}
-              edge="start"
-              color="inherit"
-            >
+            <IconButton onClick={handleFixMenu} edge="start" color="inherit">
               <MenuIcon />
             </IconButton>
           )}
@@ -60,7 +58,7 @@ const Header = ({ title }) => {
         </Toolbar>
       </AppBar>
     ),
-    [fixMenu, isUpLg]
+    [isFixMenu, fixMenu, isUpLg]
   );
 };
 

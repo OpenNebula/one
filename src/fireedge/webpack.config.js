@@ -38,6 +38,18 @@ const js = {
   }
 };
 
+const fonts = {
+  test: /\.(ttf|woff|woff2|svg|eot)$/i,
+  include: [path.resolve(__dirname, 'src/public/assets/fonts/')],
+  use: {
+    loader: 'file-loader',
+    options: {
+      name: '[name].[ext]',
+      outputPath: 'fonts'
+    }
+  }
+};
+
 const alias = {
   alias: {
     server: path.resolve(__dirname, 'src/'),
@@ -57,7 +69,7 @@ const serverConfig = {
     'index.js': path.resolve(__dirname, 'src/index.js')
   },
   module: {
-    rules: [js]
+    rules: [js, fonts]
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -74,7 +86,7 @@ const clientConfig = {
     'app.js': path.resolve(__dirname, 'src/public/front-app.js')
   },
   module: {
-    rules: [js]
+    rules: [js, fonts]
   },
   optimization: {
     splitChunks: {

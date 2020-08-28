@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core';
-import { sidebarWidth } from 'client/assets/theme';
+import { sidebar, toolbar } from 'client/assets/theme/defaults';
 
 export default makeStyles(theme => ({
   root: {
@@ -14,19 +14,26 @@ export default makeStyles(theme => ({
       duration: theme.transitions.duration.enteringScreen
     }),
     [theme.breakpoints.up('lg')]: {
-      marginLeft: sidebarWidth.minified
+      marginLeft: sidebar.minified
     }
   },
   isDrawerFixed: {
     [theme.breakpoints.up('lg')]: {
-      marginLeft: sidebarWidth.fixed
+      marginLeft: sidebar.fixed
     }
   },
   main: {
-    paddingTop: 64,
     paddingBottom: 30,
     height: '100vh',
-    width: '100%'
+    width: '100%',
+    // paddingTop: 64
+    paddingTop: toolbar.regular,
+    [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
+      paddingTop: toolbar.xs
+    },
+    [theme.breakpoints.up('sm')]: {
+      paddingTop: toolbar.sm
+    }
   },
   scrollable: {
     paddingTop: theme.spacing(2),
@@ -43,5 +50,25 @@ export default makeStyles(theme => ({
       boxShadow: 'inset 0 0 0 10px',
       color: theme.palette.primary.light
     }
-  }
+  },
+  /* ROUTES TRANSITIONS */
+  appear: {},
+  appearActive: {},
+  enter: {
+    opacity: 0
+  },
+  enterActive: {
+    opacity: 1,
+    transition: 'opacity 300ms'
+  },
+  exit: {
+    opacity: 1,
+    transform: 'scale(1)'
+  },
+  exitActive: {
+    opacity: 0,
+    transition: 'opacity 300ms'
+  },
+  enterDone: {},
+  exitDone: {}
 }));

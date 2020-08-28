@@ -50,6 +50,8 @@ const Sidebar = () => {
   const { isFixMenu, fixMenu } = useGeneral();
   const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'));
 
+  const handleSwapMenu = () => fixMenu(!isFixMenu);
+
   return React.useMemo(
     () => (
       <Drawer
@@ -73,7 +75,7 @@ const Sidebar = () => {
           />
           <IconButton
             color={isFixMenu ? 'primary' : 'default'}
-            onClick={() => fixMenu(!isFixMenu)}
+            onClick={handleSwapMenu}
           >
             {isUpLg ? <MenuIcon /> : <CloseIcon />}
           </IconButton>

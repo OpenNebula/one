@@ -13,16 +13,23 @@ export default makeStyles(theme =>
       justifyContent: 'center',
       height: '100vh'
     },
+    loading: {
+      height: 4,
+      width: '100%',
+      [theme.breakpoints.only('xs')]: {
+        top: 0,
+        position: 'fixed'
+      }
+    },
     paper: {
       overflow: 'hidden',
       padding: theme.spacing(3),
-      minHeight: 400
-    },
-    logo: {
-      display: 'block',
-      width: '50%',
-      margin: '0 auto',
-      paddingBottom: theme.spacing(3)
+      minHeight: 400,
+      [theme.breakpoints.only('xs')]: {
+        border: 'none',
+        height: 'calc(100vh - 4px)',
+        backgroundColor: 'transparent'
+      }
     },
     form: {
       display: 'flex',

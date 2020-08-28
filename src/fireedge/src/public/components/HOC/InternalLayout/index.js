@@ -18,11 +18,11 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 
 import { Box, Container } from '@material-ui/core';
-import useGeneral from 'client/hooks/useGeneral';
+import { CSSTransition } from 'react-transition-group';
 
+import useGeneral from 'client/hooks/useGeneral';
 import Footer from 'client/components/Footer';
 import Header from 'client/components/Header';
-
 import internalStyles from 'client/components/HOC/InternalLayout/styles';
 
 const InternalLayout = ({ authRoute, label, children }) => {
@@ -33,9 +33,25 @@ const InternalLayout = ({ authRoute, label, children }) => {
     <Box className={clsx(classes.root, { [classes.isDrawerFixed]: isFixMenu })}>
       <Header title={label} />
       <Box component="main" className={classes.main}>
-        <Container component="div" className={classes.scrollable}>
-          {children}
-        </Container>
+        <CSSTransition
+          in
+          classNames={{
+            appear: classes.appear,
+            appearActive: classes.appearActive,
+            enter: classes.enter,
+            enterActive: classes.enterActive,
+            enterDone: classes.enterDone,
+            exit: classes.exit,
+            exitActive: classes.exitActive,
+            exitDone: classes.exitDone
+          }}
+          timeout={300}
+          unmountOnExit
+        >
+          <Container maxWidth={false} className={classes.scrollable}>
+            {children}
+          </Container>
+        </CSSTransition>
       </Box>
       <Footer />
     </Box>

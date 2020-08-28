@@ -80,12 +80,9 @@ export default function useAuth() {
 
     return serviceAuth
       .getUser(baseURL)
-      .then(user =>
-        serviceGroups.getGroups().then(groups => {
-          dispatch(setGroups(groups));
-          dispatch(successAuth({ user }));
-        })
-      )
+      .then(user => dispatch(successAuth({ user })))
+      .then(serviceGroups.getGroups)
+      .then(groups => dispatch(setGroups(groups)))
       .catch(err => dispatch(failureAuth({ error: err })));
   }, [dispatch, baseURL, jwtName, authUser]);
 
