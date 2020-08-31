@@ -484,7 +484,7 @@ module OpenNebula
             rc = shutdown_nodes(nodes, n_nodes, recover)
 
             unless rc[0]
-                return [false, "Error undeploying nodes for role #{id}"]
+                return [false, "Error undeploying nodes for role `#{name}`"]
             end
 
             [rc[1], nil]
