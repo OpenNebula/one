@@ -1372,7 +1372,7 @@ module VCenterDriver
             one_item.each('TEMPLATE/CONTEXT/*') do |context_element|
                 # next if !context_element.text
                 context_text += context_element.name + "='" +
-                                context_element.text.gsub("'", "\\'") + "'\n"
+                                context_element.text.gsub("'", "\'") + "'\n"
             end
 
             # token
