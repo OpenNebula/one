@@ -2,9 +2,8 @@ import { httpCodes } from 'server/utils/constants';
 import { jwtName, endpointsRoutes } from 'client/constants';
 import { requestData, removeStoreData } from 'client/utils';
 
-export const login = (user, baseURL = '') =>
+export const login = user =>
   requestData(endpointsRoutes.login, {
-    baseURL,
     data: user,
     method: 'POST',
     authenticate: false,
@@ -21,9 +20,8 @@ export const login = (user, baseURL = '') =>
     return res?.data;
   });
 
-export const getUser = (baseURL = '') =>
+export const getUser = () =>
   requestData(endpointsRoutes.userInfo, {
-    baseURL,
     error: err => {
       removeStoreData(jwtName);
       return err?.message;

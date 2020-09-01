@@ -27,7 +27,6 @@ export default function useAuth() {
     filterPool,
     user: authUser
   } = useSelector(state => state?.Authenticated, shallowEqual);
-  const baseURL = useSelector(state => state?.System?.baseURL, shallowEqual);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -43,7 +42,7 @@ export default function useAuth() {
       dispatch(startAuth());
 
       return serviceAuth
-        .login(user, baseURL)
+        .login(user)
         .then(data => {
           const { id, token } = data;
           dispatch(successAuth());
@@ -67,7 +66,7 @@ export default function useAuth() {
           dispatch(failureAuth({ error: err }));
         });
     },
-    [dispatch, baseURL, jwtName]
+    [dispatch, jwtName]
   );
 
   const logout = useCallback(() => {
@@ -79,22 +78,22 @@ export default function useAuth() {
     dispatch(startAuth());
 
     return serviceAuth
-      .getUser(baseURL)
+      .getUser()
       .then(user => dispatch(successAuth({ user })))
       .then(serviceGroups.getGroups)
       .then(groups => dispatch(setGroups(groups)))
       .catch(err => dispatch(failureAuth({ error: err })));
-  }, [dispatch, baseURL, jwtName, authUser]);
+  }, [dispatch, jwtName, authUser]);
 
   const setPrimaryGroup = useCallback(
-    values => {
-      if (values?.group === FILTER_POOL.ALL_RESOURCES) {
+    ({ group }) => {
+      if (group === FILTER_POOL.ALL_RESOURCES) {
         dispatch(selectFilterGroup({ filterPool: FILTER_POOL.ALL_RESOURCES }));
       } else {
         dispatch(startAuth());
 
         serviceUsers
-          .changeGroup({ id: authUser.ID, ...values })
+          .changeGroup({ id: authUser.ID, group })
           .then(() =>
             dispatch(
               selectFilterGroup({
@@ -102,10 +101,11 @@ export default function useAuth() {
               })
             )
           )
+          .then(getAuthInfo)
           .catch(err => dispatch(failureAuth({ error: err })));
       }
     },
-    [dispatch, authUser, jwtName]
+    [dispatch, authUser]
   );
 
   return {

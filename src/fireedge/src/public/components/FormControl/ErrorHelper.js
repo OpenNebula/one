@@ -1,4 +1,5 @@
 import React from 'react';
+import { string } from 'prop-types';
 
 import {
   Box,
@@ -26,12 +27,13 @@ const useStyles = makeStyles(theme => {
     },
     text: {
       ...theme.typography.body1,
-      paddingLeft: theme.spacing(1)
+      paddingLeft: theme.spacing(1),
+      overflowWrap: 'anywhere'
     }
   };
 });
 
-const ErrorHelper = ({ label = 'Error', ...rest }) => {
+const ErrorHelper = ({ label, ...rest }) => {
   const classes = useStyles();
 
   return (
@@ -42,6 +44,14 @@ const ErrorHelper = ({ label = 'Error', ...rest }) => {
       </Typography>
     </Box>
   );
+};
+
+ErrorHelper.propTypes = {
+  label: string
+};
+
+ErrorHelper.defaultProps = {
+  label: 'Error'
 };
 
 export default ErrorHelper;

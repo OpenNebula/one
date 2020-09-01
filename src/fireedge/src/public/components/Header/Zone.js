@@ -13,72 +13,27 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { useState, useRef } from 'react';
-import {
-  Button,
-  Popper,
-  Grow,
-  Paper,
-  MenuItem,
-  MenuList,
-  ClickAwayListener
-} from '@material-ui/core';
+import React from 'react';
+
+import { MenuItem, MenuList } from '@material-ui/core';
 import LanguageIcon from '@material-ui/icons/Language';
 
-const Zone = React.memo(() => {
-  const [open, setOpen] = useState(false);
-  const anchorRef = useRef(null);
-  const { current } = anchorRef;
+import { Tr } from 'client/components/HOC';
+import HeaderPopover from 'client/components/Header/Popover';
 
-  const handleToggle = () => {
-    setOpen(prevOpen => !prevOpen);
-  };
-
-  const handleClose = e => {
-    if (current && current.contains(e.target)) {
-      return;
-    }
-    setOpen(false);
-  };
-
-  return (
-    <>
-      <Button
-        ref={anchorRef}
-        color="inherit"
-        aria-controls={open ? 'menu-list-grow' : undefined}
-        aria-haspopup="true"
-        onClick={handleToggle}
-      >
-        <LanguageIcon />
-      </Button>
-      <Popper
-        open={open}
-        anchorEl={current}
-        role={undefined}
-        transition
-        disablePortal
-      >
-        {({ TransitionProps, placement }) => (
-          <Grow
-            {...TransitionProps}
-            style={{
-              transformOrigin:
-                placement === 'bottom' ? 'center top' : 'center bottom'
-            }}
-          >
-            <Paper>
-              <ClickAwayListener onClickAway={handleClose}>
-                <MenuList autoFocusItem={open} id="menu-list-grow">
-                  <MenuItem onClick={handleClose}>Zone</MenuItem>
-                </MenuList>
-              </ClickAwayListener>
-            </Paper>
-          </Grow>
-        )}
-      </Popper>
-    </>
-  );
-});
+const Zone = React.memo(() => (
+  <HeaderPopover
+    id="zone-menu"
+    icon={<LanguageIcon />}
+    IconProps={{ 'data-cy': 'header-zone-button' }}
+    disablePadding
+  >
+    {({ handleClose }) => (
+      <MenuList>
+        <MenuItem onClick={handleClose}>{Tr('Zone')}</MenuItem>
+      </MenuList>
+    )}
+  </HeaderPopover>
+));
 
 export default Zone;
