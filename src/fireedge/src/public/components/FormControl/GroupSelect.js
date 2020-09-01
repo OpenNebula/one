@@ -14,17 +14,16 @@
 /* -------------------------------------------------------------------------- */
 
 import React from 'react';
-import { func } from 'prop-types';
 
 import { MenuItem, TextField } from '@material-ui/core';
 import { FilterVintage } from '@material-ui/icons';
 
 import useAuth from 'client/hooks/useAuth';
 import useOpennebula from 'client/hooks/useOpennebula';
-import { Translate } from 'client/components/HOC';
+import { Tr } from 'client/components/HOC';
 import { FILTER_POOL } from 'client/constants';
 
-const GroupSelect = ({ handleChange }) => {
+const GroupSelect = props => {
   const { filterPool, authUser } = useAuth();
   const { groups } = useOpennebula();
 
@@ -53,25 +52,21 @@ const GroupSelect = ({ handleChange }) => {
     <TextField
       select
       fullWidth
-      onChange={handleChange}
       defaultValue={defaultValue}
       variant="outlined"
       inputProps={{ 'data-cy': 'select-group' }}
-      label={<Translate word="Select a group" />}
+      label={Tr('Select a group')}
       FormHelperTextProps={{ 'data-cy': 'select-group-error' }}
+      {...props}
     >
-      <MenuItem value={FILTER_POOL.ALL_RESOURCES}>{`Show all`}</MenuItem>
+      <MenuItem value={FILTER_POOL.ALL_RESOURCES}>{Tr('Show all')}</MenuItem>
       {orderGroups}
     </TextField>
   );
 };
 
-GroupSelect.propTypes = {
-  handleChange: func
-};
+GroupSelect.propTypes = {};
 
-GroupSelect.defaultProps = {
-  handleChange: () => undefined
-};
+GroupSelect.defaultProps = {};
 
 export default GroupSelect;

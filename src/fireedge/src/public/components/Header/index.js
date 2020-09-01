@@ -25,12 +25,15 @@ import {
 } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 
+import useAuth from 'client/hooks/useAuth';
 import useGeneral from 'client/hooks/useGeneral';
 import User from 'client/components/Header/User';
+import Group from 'client/components/Header/Group';
 import Zone from 'client/components/Header/Zone';
 import headerStyles from 'client/components/Header/styles';
 
 const Header = ({ title }) => {
+  const { isOneAdmin } = useAuth();
   const { isFixMenu, fixMenu } = useGeneral();
   const classes = headerStyles();
   const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'));
@@ -54,11 +57,12 @@ const Header = ({ title }) => {
             {title}
           </Typography>
           <User />
+          {!isOneAdmin && <Group />}
           <Zone />
         </Toolbar>
       </AppBar>
     ),
-    [isFixMenu, fixMenu, isUpLg]
+    [isFixMenu, fixMenu, isUpLg, isOneAdmin]
   );
 };
 

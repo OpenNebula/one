@@ -37,7 +37,7 @@ export const requestParams = (data, command) => {
   const resources = getResources(mappedParams);
   const body = getDataBody(mappedParams);
 
-  const url = `api/${name.replace('.', '/')}`;
+  const url = `/api/${name.replace('.', '/')}`;
 
   return {
     url: `${url}/${resources}?${queries}`,

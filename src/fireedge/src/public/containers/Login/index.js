@@ -24,7 +24,6 @@ import {
 } from '@material-ui/core';
 
 import useAuth from 'client/hooks/useAuth';
-import useOpennebula from 'client/hooks/useOpennebula';
 
 import FormUser from 'client/containers/Login/FormUser';
 import Form2fa from 'client/containers/Login/Form2fa';
@@ -51,7 +50,6 @@ function Login() {
     getAuthInfo,
     setPrimaryGroup
   } = useAuth();
-  const { groups } = useOpennebula();
 
   const handleSubmitUser = dataForm => {
     login({ ...user, ...dataForm }).then(data => {
@@ -122,11 +120,7 @@ function Login() {
             unmountOnExit
           >
             <Box style={{ opacity: isLoading ? 0.7 : 1 }}>
-              <FormGroup
-                groups={groups}
-                onBack={handleBack}
-                onSubmit={handleSubmitGroup}
-              />
+              <FormGroup onBack={handleBack} onSubmit={handleSubmitGroup} />
             </Box>
           </Slide>
         </Box>

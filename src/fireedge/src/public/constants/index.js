@@ -26,6 +26,7 @@ module.exports = {
   Token2FA: '2FA Token',
   SignOut: 'Sign Out',
   jwtName: 'SunstoneToken',
+  filterPool: 'FilterPool',
   Submit: 'Submit',
   Response: 'Response',
   by: {
