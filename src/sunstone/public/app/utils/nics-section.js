@@ -184,6 +184,20 @@ define(function(require) {
 
       if ( !nic["NETWORK_MODE"] || ( nic["NETWORK_MODE"] && nic["NETWORK_MODE"] !== "auto" ) )
       {
+        var ip4 = $("input.manual_ip4", $(this)).val();
+        if (ip4 != undefined){
+          delete nic["IP"];
+          if (ip4 != ""){
+            nic["IP"] = ip4;
+          }
+        }
+        var ip6 = $("input.manual_ip6", $(this)).val();
+        if (ip6 != undefined){
+          delete nic["IP6"];
+          if (ip6 != ""){
+            nic["IP6"] = ip6;
+          }
+        }
         var val = $(this).data("vnetsTable").retrieveResourceTableSelect();
         var tempNetwork = nic["NETWORK"];
         var preserveNetwork = false;
@@ -216,20 +230,6 @@ define(function(require) {
         delete nic["FLOATING_IP"];
         if ($("input.floating_ip", $(this)).prop("checked")){
           nic["FLOATING_IP"] = "YES";
-        }
-        var ip4 = $("input.manual_ip4", $(this)).val();
-        if (ip4 != undefined){
-          delete nic["IP"];
-          if (ip4 != ""){
-            nic["IP"] = ip4;
-          }
-        }
-        var ip6 = $("input.manual_ip6", $(this)).val();
-        if (ip6 != undefined){
-          delete nic["IP6"];
-          if (ip6 != ""){
-            nic["IP6"] = ip6;
-          }
         }
         delete nic["VROUTER_MANAGEMENT"];
         if ($("input.management", $(this)).prop("checked")){
