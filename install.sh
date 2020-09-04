@@ -460,7 +460,8 @@ VAR_DIRS="$VAR_LOCATION/remotes \
 SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/models/OpenNebulaJSON \
-               $SUNSTONE_LOCATION/views"
+               $SUNSTONE_LOCATION/views \
+               $SUNSTONE_LOCATION/services"
 
 SUNSTONE_MINIFIED_DIRS="$SUNSTONE_LOCATION/public \
                $SUNSTONE_LOCATION/public/dist \
@@ -735,6 +736,7 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_MODELS_JSON_FILES:$SUNSTONE_LOCATION/models/OpenNebulaJSON
     SUNSTONE_VIEWS_FILES:$SUNSTONE_LOCATION/views
     SUNSTONE_ROUTES_FILES:$SUNSTONE_LOCATION/routes
+    SUNSTONE_SERVICES_FILES:$SUNSTONE_LOCATION/services
 )
 
 INSTALL_SUNSTONE_PUBLIC_MINIFIED_FILES=(
@@ -769,6 +771,7 @@ INSTALL_SUNSTONE_PUBLIC_MINIFIED_FILES=(
 INSTALL_SUNSTONE_PUBLIC_DEV_DIR=(
   SUNSTONE_PUBLIC_DEV_DIR:$SUNSTONE_LOCATION
   SUNSTONE_GUAC_DEV_DIR:$SUNSTONE_LOCATION
+  SUNSTONE_AUTOREFRESH_DEV_DIR:$SUNSTONE_LOCATION/services/autorefresh
 )
 
 INSTALL_SUNSTONE_ETC_FILES=(
@@ -898,6 +901,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/oca/ruby/opennebula.rb \
                 src/sunstone/OpenNebulaVNC.rb \
                 src/sunstone/OpenNebulaGuac.rb \
+                src/sunstone/OpenNebulaAutorefresh.rb \
                 src/sunstone/OpenNebulaAddons.rb \
                 src/vmm_mad/remotes/vcenter/vcenter_driver.rb \
                 src/vmm_mad/remotes/nsx/nsx_driver.rb \
@@ -2377,7 +2381,8 @@ SUNSTONE_FILES="src/sunstone/sunstone-server.rb \
 
 SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server \
                     src/sunstone/bin/guac-server \
-                    src/sunstone/bin/novnc-server"
+                    src/sunstone/bin/novnc-server\ 
+                    src/sunstone/bin/autorefresh-server"
 
 SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf \
                     src/sunstone/etc/sunstone-views.yaml \
@@ -2450,6 +2455,8 @@ SUNSTONE_PUBLIC_JS_CONSOLE_FILES="src/sunstone/public/dist/console/vnc.js \
                         src/sunstone/public/dist/console/spice.js.map"
 
 SUNSTONE_PUBLIC_DEV_DIR="src/sunstone/public"
+
+SUNSTONE_AUTOREFRESH_DEV_DIR="src/sunstone/services/autorefresh"
 
 SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb \
   src/sunstone/routes/vcenter.rb \
