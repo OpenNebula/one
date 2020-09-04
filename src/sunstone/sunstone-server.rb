@@ -262,16 +262,6 @@ configure do
     set :erb, :trim => '-'
 end
 
-#start Autorefresh server
-
-$autorefresh = OpenNebulaAutorefresh.new($conf, logger)
-
-configure do
-    set :run, false
-    set :autorefresh, $autorefresh
-    set :erb, :trim => '-'
-end
-
 $addons = OpenNebulaAddons.new(logger)
 
 DEFAULT_TABLE_ORDER = "desc"
@@ -471,9 +461,6 @@ helpers do
         else
             session[:default_view] = $views_config.available_views(session[:user], session[:user_gname]).first
         end
-
-        autorefresh_wss = $conf[:autorefresh_support_wss]
-        session[:autorefresh_wss] = autorefresh_wss == 'yes'? 'wss' : 'ws'
 
         # end user options
 

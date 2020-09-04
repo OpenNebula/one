@@ -27,7 +27,6 @@ define(function(require) {
   var TemplateTableVcenter = require("utils/panel/template-table");
   var OpenNebula = require("opennebula");
   var Navigation = require("utils/navigation");
-  var Websocket = require("utils/websocket");
 
   /*
     TEMPLATES
@@ -170,8 +169,5 @@ define(function(require) {
     }
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, unshownValues, strippedTemplateVcenter);
     TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, unshownValues, strippedTemplate);
-    
-    Websocket.subscribe(this.element.ID);
-
   }
 });

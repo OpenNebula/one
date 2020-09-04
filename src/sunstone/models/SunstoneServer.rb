@@ -21,7 +21,6 @@ include OpenNebulaJSON
 
 require 'OpenNebulaVNC'
 require 'OpenNebulaGuac'
-require 'OpenNebulaAutorefresh'
 require 'OpenNebulaAddons'
 require 'OpenNebulaJSON/JSONUtils'
 #include JSONUtils

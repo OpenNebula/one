@@ -26,7 +26,6 @@ if [ -z "$ONE_LOCATION" ]; then
     SUNSTONE_CONF=/etc/one/sunstone-server.conf
     NOVNC_SERVER=/usr/bin/novnc-server
     GUACAMOLE_SERVER=/usr/bin/guac-server
-    AUTOREFRESH_SERVER=/usr/bin/autorefresh-server
 else
     SUNSTONE_PID=$ONE_LOCATION/var/sunstone.pid
     SUNSTONE_SERVER=$ONE_LOCATION/lib/sunstone/sunstone-server.rb
@@ -36,7 +35,6 @@ else
     SUNSTONE_CONF=$ONE_LOCATION/etc/sunstone-server.conf
     NOVNC_SERVER=$ONE_LOCATION/bin/novnc-server
     GUACAMOLE_SERVER=$ONE_LOCATION/bin/guac-server
-    AUTOREFRESH_SERVER=$ONE_LOCATION/bin/autorefresh-server
 fi
 
 setup()
@@ -65,11 +63,10 @@ setup()
 
 start()
 {
-  while getopts "ngr" opt; do
+  while getopts "ng" opt; do
     case "${opt}" in
       n) novnc=1 ;;
       g) guacamole=1 ;;
-      r) autorefresh=1 ;;
       *) echo "Invalid option: $OPTARG" 1>&2 ;;
     esac
   done
@@ -97,15 +94,6 @@ start()
     fi
   fi
 
-  if [ "$autorefresh" = "1" ]; then
-    # Start Autorefresh server
-    $AUTOREFRESH_SERVER start
-
-    if [ "$?" != "0" ]; then
-      echo "Could not start Autorefresh server" 1>&2
-    fi
-  fi
-
   # Start the sunstone daemon
   touch $SUNSTONE_LOCK_FILE
 
@@ -114,7 +102,6 @@ start()
 
     $NOVNC_SERVER stop
     $GUACAMOLE_SERVER stop
-    $AUTOREFRESH_SERVER stop
     exit 1
   fi
 
@@ -126,7 +113,6 @@ start()
     echo "Check $SUNSTONE_LOG_ERROR and $SUNSTONE_LOG for more information"
     [ "$novnc" = "1" ] && $NOVNC_SERVER stop
     [ "$guacamole" = "1" ] && $GUACAMOLE_SERVER stop
-    [ "$autorefresh" = "1" ] && $AUTOREFRESH_SERVER stop
     exit 1
   else
     echo $LASTPID > $SUNSTONE_PID
@@ -140,7 +126,6 @@ start()
     echo "Check $SUNSTONE_LOG_ERROR and $SUNSTONE_LOG for more information"
     [ "$novnc" = "1" ] && $NOVNC_SERVER stop
     [ "$guacamole" = "1" ] && $GUACAMOLE_SERVER stop
-    [ "$autorefresh" = "1" ] && $AUTOREFRESH_SERVER stop
     exit 1
   fi
 
@@ -152,11 +137,10 @@ start()
 #
 stop()
 {
-  while getopts "ngr" opt; do
+  while getopts "ng" opt; do
     case "${opt}" in
       n) novnc=1 ;;
       g) guacamole=1 ;;
-      r) autorefresh=1 ;;
       *) echo "Invalid option: $OPTARG" 1>&2 ;;
     esac
   done
@@ -166,9 +150,6 @@ stop()
 
   # Stop guacamole server
   [ "$guacamole" = "1" ] && $GUACAMOLE_SERVER stop
-
-  # Stop autorefresh server
-  [ "$autorefresh" = "1" ] && $AUTOREFRESH_SERVER stop
 
   if [ ! -f $SUNSTONE_PID ]; then
     echo "Couldn't find sunstone-server process pid." >&2
@@ -189,16 +170,16 @@ stop()
 case "$1" in
   start)
     setup
-    start -ngr
+    start -ng
     ;;
   stop)
-    stop -ngr
+    stop -ng
     exit $?
     ;;
   restart)
-    stop -ngr 2> /dev/null
+    stop -ng 2> /dev/null
     setup
-    start -ngr
+    start -ng
     ;;
   start-sunstone)
     setup
@@ -208,7 +189,7 @@ case "$1" in
     stop
     ;;
   restart-sunstone)
-    stop -ngr 2> /dev/null
+    stop -ng 2> /dev/null
     setup
     start
     ;;

@@ -181,9 +181,6 @@ define(function(require) {
     },
     "isExtendedVmInfo": _config["system_config"] && _config["system_config"]["get_extended_vm_info"] && _config["system_config"]["get_extended_vm_info"] === "true",
     "isLogEnabled": _config["zone_id"] === _config["id_own_federation"] ? true : false,
-    "autorefreshWSS": _config["system_config"]["autorefresh_wss"],
-    "autorefreshIP": _config["system_config"]["autorefresh_ip"],
-    "autorefreshPort": _config["system_config"]["autorefresh_port"],
   };
 
   return Config;

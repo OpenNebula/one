@@ -811,7 +811,7 @@ define(function(require) {
     return context.data("element");
   };
 
-  var _insertPanels = function(tabName, info, contextTabId, context, autorefresh=false) {
+  var _insertPanels = function(tabName, info, contextTabId, context) {
     var context = context || $(".sunstone-info", $("#" + tabName));
 
     context.data("element", info[Object.keys(info)[0]]);
@@ -885,12 +885,10 @@ define(function(require) {
 
     context.html(html);
     $.each(SunstoneCfg["tabs"][tabName]["panelInstances"], function(panelName, panel) {
-      if (!autorefresh || panelName == "vm_info_tab"){
-        panel.setup(context);
+      panel.setup(context);
 
-        if(isRefresh && prevPanelStates[panelName] && panel.setState){
-          panel.setState( prevPanelStates[panelName], context );
-        }
+      if(isRefresh && prevPanelStates[panelName] && panel.setState){
+        panel.setState( prevPanelStates[panelName], context );
       }
     });
 
@@ -915,11 +913,6 @@ define(function(require) {
       });
     }
   };
-
-  var _autorefreshVM = function(tabName, info, contextTabId, context) {
-    _insertPanels(tabName, info, contextTabId, context, true);
-  };
-
 
   //Runs a predefined action. Wraps the calls to opennebula.js and
   //can be use to run action depending on conditions and notify them
@@ -1365,7 +1358,6 @@ define(function(require) {
 
     "insertTabs": _insertTabs,
     "insertPanels": _insertPanels,
-    "autorefreshVM": _autorefreshVM,
     "getElementRightInfo": _getElementRightInfo,
 
     "showTab": _showTab,
