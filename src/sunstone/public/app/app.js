@@ -39,7 +39,6 @@ define(function(require) {
   var Menu = require('utils/menu');
   var Locale = require('utils/locale');
   var UserAndZoneTemplate = require('hbs!sunstone/user_and_zone');
-  var Websocket = require("utils/websocket");
 
   var _commonDialogs = [
     require('utils/dialogs/confirm'),
@@ -73,8 +72,6 @@ define(function(require) {
     if (Config.isTabEnabled(PROVISION_TAB_ID)) {
       Sunstone.showTab(PROVISION_TAB_ID);
     }
-
-    Websocket.start();
 
     $('#loading').hide();
   });
