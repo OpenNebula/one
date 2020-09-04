@@ -29,7 +29,7 @@ module DomainList
 
             vm[:name]  = name
             vm[:uuid]  = "#{name}-#{Socket.gethostname}"
-            vm[:state] = Domain.one_status(container)
+            vm[:state] = LXD::Domain.one_status(container)
 
             vm[:deploy_id] = name
 
