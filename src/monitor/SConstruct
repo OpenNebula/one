@@ -42,7 +42,8 @@ if env['enterprise']=='yes':
 
 build_scripts=[
     'src/data_model/SConstruct',
-    'src/monitor/SConstruct'
+    'src/monitor/SConstruct',
+    'src/protocol/SConstruct'
 ]
 
 for script in build_scripts:
