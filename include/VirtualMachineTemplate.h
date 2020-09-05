@@ -41,6 +41,16 @@ public:
 
     VirtualMachineTemplate(VirtualMachineTemplate& vmt):Template(vmt){};
 
+    VirtualMachineTemplate& operator=(const VirtualMachineTemplate& t)
+    {
+        if (this != &t)
+        {
+            Template::operator=(t);
+        }
+
+        return *this;
+    }
+
     void set_xml_root(const char * _xml_root)
     {
         Template::set_xml_root(_xml_root);
