@@ -79,7 +79,7 @@ public:
     bool authorize(int                    uid,
                    const std::set<int>&   user_groups,
                    const PoolObjectAuth&  obj_perms,
-                   AuthRequest::Operation op);
+                   AuthRequest::Operation op) const;
 
     /**
      *  Takes an authorization request for oneadmin
@@ -90,7 +90,7 @@ public:
      *    @return true if the authorization is granted for oneadmin
      */
     bool oneadmin_authorize(const PoolObjectAuth&  obj_perms,
-                         AuthRequest::Operation op);
+                         AuthRequest::Operation op) const;
 
     /**
      *  Adds a new rule to the ACL rule set
@@ -271,7 +271,8 @@ private:
             long long                   resource_oid_mask,
             long long                   resource_gid_mask,
             long long                   resource_cid_mask,
-            const std::multimap<long long, AclRule*>& rules);
+            const std::multimap<long long, AclRule*>& rules) const;
+
     /**
      *  Wrapper for match_rules. It will check if any rules in the temporary
      *  multimap or in the internal one grants permission.
@@ -299,7 +300,7 @@ private:
             long long                   individual_obj_type,
             long long                   group_obj_type,
             long long                   cluster_obj_type,
-            const std::multimap<long long, AclRule*> &tmp_rules);
+            const std::multimap<long long, AclRule*> &tmp_rules) const;
     /**
      * Deletes all rules that match the user mask
      *
@@ -334,7 +335,7 @@ private:
     // Mutex synchronization
     // -------------------------------------------------------------------------
 
-    std::mutex acl_mutex;
+    mutable std::mutex acl_mutex;
 
     // -------------------------------------------------------------------------
     // DataBase implementation variables

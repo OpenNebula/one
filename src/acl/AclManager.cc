@@ -187,7 +187,7 @@ bool AclManager::authorize(
         int                     uid,
         const set<int>&         user_groups,
         const PoolObjectAuth&   obj_perms,
-        AuthRequest::Operation  op)
+        AuthRequest::Operation  op) const
 {
     bool auth = false;
 
@@ -388,7 +388,7 @@ bool AclManager::authorize(
 
 bool AclManager::oneadmin_authorize(
         const PoolObjectAuth&   obj_perms,
-        AuthRequest::Operation  op)
+        AuthRequest::Operation  op) const
 {
     if (static_cast<long long int>(op) & 0x10LL) //No lockable object
     {
@@ -415,7 +415,7 @@ bool AclManager::match_rules_wrapper(
         long long             individual_obj_type,
         long long             group_obj_type,
         long long             cluster_obj_type,
-        const multimap<long long, AclRule*> &tmp_rules)
+        const multimap<long long, AclRule*> &tmp_rules) const
 {
     bool auth = false;
 
@@ -489,7 +489,7 @@ bool AclManager::match_rules(
         long long             resource_oid_mask,
         long long             resource_gid_mask,
         long long             resource_cid_mask,
-        const multimap<long long, AclRule*> &rules)
+        const multimap<long long, AclRule*> &rules) const
 
 {
     bool auth = false;

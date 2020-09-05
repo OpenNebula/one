@@ -90,7 +90,7 @@ public:
      */
     void write(const std::string&  str) const
     {
-        ::write(to_drv, str.c_str(), str.size());
+        (void) ::write(to_drv, str.c_str(), str.size());
     };
 
     /**
