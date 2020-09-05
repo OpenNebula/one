@@ -642,7 +642,7 @@ void HostShareNode::set_hugepage(unsigned long size, unsigned int nr,
         return;
     }
 
-    HugePage h = {size, nr, fr, usage};
+    HugePage h = {size, nr, fr, usage, 0};
 
     pages.insert(make_pair(h.size_kb, h));
 
