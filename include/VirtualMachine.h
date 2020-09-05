@@ -634,7 +634,7 @@ public:
      *  function MUST be called before this one.
      *    @return the action that closed the current history record
      */
-    const VMActions::Action get_action() const
+    VMActions::Action get_action() const
     {
         return history->action;
     };
@@ -643,7 +643,7 @@ public:
      *  Returns the action that closed the history record in the previous host
      *    @return the action that closed the history record in the previous host
      */
-    const VMActions::Action get_previous_action() const
+    VMActions::Action get_previous_action() const
     {
         return previous_history->action;
     };

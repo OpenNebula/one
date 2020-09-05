@@ -642,7 +642,7 @@ void HostShareNode::set_hugepage(unsigned long size, unsigned int nr,
         return;
     }
 
-    HugePage h = {size, nr, fr, usage};
+    HugePage h = {size, nr, fr, usage, 0};
 
     pages.insert(make_pair(h.size_kb, h));
 
@@ -1349,11 +1349,13 @@ void HostShareNUMA::del(HostShareCapacity &sr)
 
             if ( pt != mem_node.pages.end()  )
             {
-                pt->second.usage -= num_hp;
-
-                if ( pt->second.usage < 0 )
+                if ( pt->second.usage < num_hp )
                 {
                     pt->second.usage = 0;
+                }
+                else
+                {
+                    pt->second.usage -= num_hp;
                 }
 
                 mem_node.update_hugepages();
