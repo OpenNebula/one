@@ -16,54 +16,50 @@
 import {
   Dashboard as DashboardIcon,
   Settings as SettingsIcon,
-  Ballot as BallotIcon
+  Ballot as BallotIcon,
+  Palette as PaletteIcon,
+  Reddit as RedditIcon,
+  Build as BuildIcon
 } from '@material-ui/icons';
 
 import Login from 'client/containers/Login';
-import { Clusters, Hosts, Zones } from 'client/containers/Infrastructure';
-import { Users, Groups } from 'client/containers/System';
+import Dashboard from 'client/containers/Dashboard';
 import Settings from 'client/containers/Settings';
 import TestApi from 'client/containers/TestApi';
-import Dashboard from 'client/containers/Dashboard';
+import {
+  ApplicationCreate,
+  ApplicationDeploy,
+  ApplicationManage
+} from 'client/containers/Application';
 
 export const PATH = {
   LOGIN: '/',
   DASHBOARD: '/dashboard',
+  APPLICATION: {
+    CREATE: '/application/create',
+    MANAGE: '/application/manage',
+    DEPLOY: '/application/deploy'
+  },
   SETTINGS: '/settings',
-  TEST_API: '/test-api',
-  INFRASTRUCTURE: {
-    CLUSTERS: '/clusters',
-    HOSTS: '/hosts',
-    ZONES: '/zones'
-  },
-  SYSTEM: {
-    USERS: '/users',
-    GROUPS: '/groups'
-  },
-  NETWORKS: {
-    VNETS: '/vnets',
-    VNETS_TEMPLATES: '/vnets-templates',
-    VNETS_TOPOLOGY: '/vnets-topology',
-    SEC_GROUPS: '/secgroups'
-  }
+  TEST_API: '/test-api'
 };
 
 const ENDPOINTS = [
   {
-    label: 'login',
+    label: 'Login',
     path: PATH.LOGIN,
     authenticated: false,
     component: Login
   },
   {
-    label: 'dashboard',
+    label: 'Dashboard',
     path: PATH.DASHBOARD,
     authenticated: true,
     icon: DashboardIcon,
     component: Dashboard
   },
   {
-    label: 'settings',
+    label: 'Settings',
     path: PATH.SETTINGS,
     authenticated: true,
     header: true,
@@ -71,7 +67,7 @@ const ENDPOINTS = [
     component: Settings
   },
   {
-    label: 'test api',
+    label: 'Test API',
     path: PATH.TEST_API,
     authenticated: true,
     devMode: true,
@@ -79,75 +75,25 @@ const ENDPOINTS = [
     component: TestApi
   },
   {
-    label: 'infrastructure',
+    label: 'Create Application',
+    path: PATH.APPLICATION.CREATE,
     authenticated: true,
-    icon: BallotIcon,
-    routes: [
-      {
-        label: 'clusters',
-        path: PATH.INFRASTRUCTURE.CLUSTERS,
-        authenticated: true,
-        component: Clusters
-      },
-      {
-        label: 'hosts',
-        path: PATH.INFRASTRUCTURE.HOSTS,
-        authenticated: true,
-        component: Hosts
-      },
-      {
-        label: 'zones',
-        path: PATH.INFRASTRUCTURE.ZONES,
-        authenticated: true,
-        component: Zones
-      }
-    ]
+    icon: PaletteIcon,
+    component: ApplicationCreate
   },
   {
-    label: 'system',
+    label: 'Deploy Application',
+    path: PATH.APPLICATION.DEPLOY,
     authenticated: true,
-    icon: BallotIcon,
-    routes: [
-      {
-        label: 'users',
-        path: PATH.SYSTEM.USERS,
-        authenticated: true,
-        component: Users
-      },
-      {
-        label: 'groups',
-        path: PATH.SYSTEM.GROUPS,
-        authenticated: true,
-        component: Groups
-      }
-    ]
+    icon: RedditIcon,
+    component: ApplicationDeploy
   },
   {
-    label: 'networks',
+    label: 'Manage Application',
+    path: PATH.APPLICATION.MANAGE,
     authenticated: true,
-    icon: BallotIcon,
-    routes: [
-      {
-        label: 'vnets',
-        path: PATH.NETWORKS.VNETS,
-        authenticated: true
-      },
-      {
-        label: 'vnets templates',
-        path: PATH.NETWORKS.VNETS_TEMPLATES,
-        authenticated: true
-      },
-      {
-        label: 'vnets topology',
-        path: PATH.NETWORKS.VNETS_TOPOLOGY,
-        authenticated: true
-      },
-      {
-        label: 'vnets secgroup',
-        path: PATH.NETWORKS.SEC_GROUPS,
-        authenticated: true
-      }
-    ]
+    icon: BuildIcon,
+    component: ApplicationManage
   }
 ];
 

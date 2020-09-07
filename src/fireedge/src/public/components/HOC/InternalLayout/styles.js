@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core';
-import { sidebar, toolbar } from 'client/assets/theme/defaults';
+import { sidebar, toolbar, footer } from 'client/assets/theme/defaults';
 
 export default makeStyles(theme => ({
   root: {
@@ -23,10 +23,9 @@ export default makeStyles(theme => ({
     }
   },
   main: {
-    paddingBottom: 30,
     height: '100vh',
     width: '100%',
-    // paddingTop: 64
+    paddingBottom: footer.regular,
     paddingTop: toolbar.regular,
     [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
       paddingTop: toolbar.xs

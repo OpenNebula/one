@@ -13,18 +13,6 @@ export const changeGroup = values => {
   });
 };
 
-export const getUsers = () => {
-  const name = Actions.USER_POOL_INFO;
-  const { url, options } = requestParams({}, { name, ...Commands[name] });
-
-  return requestData(url, options).then(res => {
-    if (!res?.id || res?.id !== httpCodes.ok.id) throw res;
-
-    return [res?.data?.USER_POOL?.USER ?? []].flat();
-  });
-};
-
 export default {
-  changeGroup,
-  getUsers
+  changeGroup
 };

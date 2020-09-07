@@ -4,7 +4,9 @@ import { from as resourceFrom } from 'server/utils/constants/defaults';
 
 export const getQueries = params =>
   Object.entries(params)
-    ?.filter(([, { from }]) => from === resourceFrom.query)
+    ?.filter(([, { from, value }]) =>
+      Boolean(from === resourceFrom.query && value)
+    )
     ?.map(([name, { value }]) => `${name}=${encodeURI(value)}`)
     ?.join('&');
 

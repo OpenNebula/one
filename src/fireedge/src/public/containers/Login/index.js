@@ -25,9 +25,9 @@ import {
 
 import useAuth from 'client/hooks/useAuth';
 
-import FormUser from 'client/containers/Login/FormUser';
-import Form2fa from 'client/containers/Login/Form2fa';
-import FormGroup from 'client/containers/Login/FormGroup';
+import FormUser from 'client/containers/Login/Forms/FormUser';
+import Form2fa from 'client/containers/Login/Forms/Form2fa';
+import FormGroup from 'client/containers/Login/Forms/FormGroup';
 import loginStyles from 'client/containers/Login/styles';
 import Logo from 'client/icons/logo';
 
