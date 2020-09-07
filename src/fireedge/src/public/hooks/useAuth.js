@@ -7,7 +7,7 @@ import { fakeDelay } from 'client/utils/helpers';
 
 import * as serviceAuth from 'client/services/auth';
 import * as serviceUsers from 'client/services/users';
-import * as serviceGroups from 'client/services/groups';
+import * as servicePool from 'client/services/pool';
 import {
   startAuth,
   selectFilterGroup,
@@ -80,7 +80,7 @@ export default function useAuth() {
     return serviceAuth
       .getUser()
       .then(user => dispatch(successAuth({ user })))
-      .then(serviceGroups.getGroups)
+      .then(servicePool.getGroups)
       .then(groups => dispatch(setGroups(groups)))
       .catch(err => dispatch(failureAuth({ error: err })));
   }, [dispatch, jwtName, authUser]);

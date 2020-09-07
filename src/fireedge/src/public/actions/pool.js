@@ -50,13 +50,13 @@ module.exports = {
     type: SUCCESS_ONE_REQUEST,
     payload: { apps }
   }),
-  setVNetworks: virtualNetworks => ({
+  setVNetworks: vNetworks => ({
     type: SUCCESS_ONE_REQUEST,
-    payload: { virtualNetworks }
+    payload: { vNetworks }
   }),
-  setNetworkTemplates: networkTemplates => ({
+  setVNetworkTemplates: vNetworksTemplates => ({
     type: SUCCESS_ONE_REQUEST,
-    payload: { networkTemplates }
+    payload: { vNetworksTemplates }
   }),
   setSecGroups: securityGroups => ({
     type: SUCCESS_ONE_REQUEST,

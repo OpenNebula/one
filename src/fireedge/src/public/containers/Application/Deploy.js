@@ -38,7 +38,7 @@ const useStyles = makeStyles({
   }
 });
 
-function Users() {
+function ApplicationDeploy() {
   const classes = useStyles();
   const { isLoading } = useGeneral();
   const { users, groups, getUsers } = useOpennebula();
@@ -49,22 +49,22 @@ function Users() {
     }
   }, [getUsers]);
 
-  const getGroupById = id => groups?.find(({ ID }) => ID === id);
+  const getGroupById = findId => groups?.find(({ ID }) => ID === findId);
 
   return (
     <>
       {isLoading && <LinearProgress style={{ width: '100%' }} />}
-      {users?.map(({ ID, NAME, GROUPS }, index) => (
+      {users?.map(({ NAME, GROUPS }, index) => (
         <Card key={`user-${index}`} className={classes.card}>
           <CardContent>
             <Box display="flex" alignItems="center">
               <Typography className={classes.title}>{NAME}</Typography>
-              {[GROUPS?.ID ?? []].flat().map(id => {
-                const group = getGroupById(id);
+              {[GROUPS?.ID ?? []].flat().map(ID => {
+                const group = getGroupById(ID);
                 return group ? (
                   <Chip
                     style={{ margin: '0 0.5em' }}
-                    key={`group-${index}-${id}`}
+                    key={`group-${index}-${ID}`}
                     size="small"
                     color="primary"
                     clickable
@@ -80,8 +80,8 @@ function Users() {
   );
 }
 
-Users.propTypes = {};
+ApplicationDeploy.propTypes = {};
 
-Users.defaultProps = {};
+ApplicationDeploy.defaultProps = {};
 
-export default Users;
+export default ApplicationDeploy;

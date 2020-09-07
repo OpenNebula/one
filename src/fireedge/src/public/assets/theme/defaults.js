@@ -16,6 +16,10 @@ export const toolbar = {
   sm: 64
 };
 
+export const footer = {
+  regular: 30
+};
+
 export const sidebar = {
   minified: 60,
   fixed: 240

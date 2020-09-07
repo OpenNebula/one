@@ -14,7 +14,7 @@
 /* -------------------------------------------------------------------------- */
 
 import React from 'react';
-import { Box, Link } from '@material-ui/core';
+import { Box, Link, Typography } from '@material-ui/core';
 
 import footerStyles from 'client/components/Footer/styles';
 import { by } from 'client/constants';
@@ -26,14 +26,16 @@ const Footer = React.memo(() => {
 
   return (
     <Box className={classes.footer} component="footer">
-      {'Made with'}
-      <span className={classes.heartIcon} role="img" aria-label="heart-emoji">
-        {'❤️'}
-      </span>
-      {'by'}
-      <Link href={url} className={classes.link}>
-        {text}
-      </Link>
+      <Typography variant="body2">
+        {'Made with'}
+        <span className={classes.heartIcon} role="img" aria-label="heart-emoji">
+          {'❤️'}
+        </span>
+        {'by'}
+        <Link href={url} className={classes.link}>
+          {text}
+        </Link>
+      </Typography>
     </Box>
   );
 });

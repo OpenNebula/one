@@ -16,21 +16,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-function Groups() {
-
-  return (
-    <div>
-      Groups
-    </div>
-  );
+function ApplicationManage() {
+  return <div>Manage</div>;
 }
 
-Groups.propTypes = {
-  name: PropTypes.string
-};
+ApplicationManage.propTypes = {};
 
-Groups.defaultProps = {
-  name: ''
-};
+ApplicationManage.defaultProps = {};
 
-export default Groups;
+export default ApplicationManage;

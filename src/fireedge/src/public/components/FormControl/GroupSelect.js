@@ -42,7 +42,14 @@ const GroupSelect = props => {
         ?.map(({ ID, NAME }) => (
           <MenuItem key={`selector-group-${ID}`} value={String(ID)}>
             {`${ID} - ${String(NAME)}`}
-            {authUser?.GID === ID && <FilterVintage fontSize="small" />}
+            {authUser?.GID === ID && (
+              <FilterVintage
+                style={{
+                  fontSize: '1rem',
+                  marginLeft: 16
+                }}
+              />
+            )}
           </MenuItem>
         )),
     [groups]

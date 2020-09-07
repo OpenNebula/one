@@ -15,14 +15,9 @@
 
 import React from 'react';
 
-import { makeStyles, Box, Typography } from '@material-ui/core';
+import { Box, Typography } from '@material-ui/core';
 
-const dashboardStyles = makeStyles(theme => ({
-  root: {},
-  title: {
-    color: theme.palette.common.black
-  }
-}));
+import dashboardStyles from 'client/containers/Dashboard/styles';
 
 function Dashboard() {
   const classes = dashboardStyles();
