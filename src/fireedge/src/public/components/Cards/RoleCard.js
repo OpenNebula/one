@@ -46,31 +46,21 @@ const RoleCard = React.memo(
       scheduled_policies
     } = info;
 
-    const ConditionalWrapper = ({ condition, wrapper, children }) =>
-      condition ? wrapper(children) : children;
-    console.log(info);
     return (
       <Fade in unmountOnExit={false}>
         <Card className={classes.root}>
           <CardHeader
             avatar={
-              <ConditionalWrapper
-                condition={cardinality > 1}
-                wrapper={children => (
-                  <Badge
-                    badgeContent={cardinality}
-                    color="primary"
-                    anchorOrigin={{
-                      vertical: 'top',
-                      horizontal: 'left'
-                    }}
-                  >
-                    {children}
-                  </Badge>
-                )}
+              <Badge
+                badgeContent={cardinality}
+                color="primary"
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'left'
+                }}
               >
                 <DesktopWindowsIcon />
-              </ConditionalWrapper>
+              </Badge>
             }
             className={classes.header}
             classes={{ content: classes.headerContent }}
@@ -91,6 +81,9 @@ const RoleCard = React.memo(
           <CardActions>
             <Button variant="contained" size="small" onClick={handleEdit}>
               {Tr('Edit')}
+            </Button>
+            <Button variant="contained" size="small" onClick={handleClone}>
+              {Tr('Clone')}
             </Button>
             <Button size="small" onClick={handleRemove}>
               {Tr('Remove')}

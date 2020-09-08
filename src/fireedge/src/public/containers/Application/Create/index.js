@@ -1,43 +1,31 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import { useForm, FormProvider } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers';
 
 import FormStepper from 'client/components/FormStepper';
 import Steps from 'client/containers/Application/Create/steps';
-import useOpennebula from 'client/hooks/useOpennebula';
-
-const INITIAL_VALUE = {
-  networks: [],
-  roles: []
-};
+import { Container } from '@material-ui/core';
 
 function ApplicationCreate() {
-  const { getVNetworks, getVNetworksTemplates, getTemplates } = useOpennebula();
+  const { steps, defaultValues } = Steps();
   const methods = useForm({
-    mode: 'onBlur'
+    mode: 'onBlur',
+    defaultValues
   });
-  const { watch, errors } = methods;
-
-  useEffect(() => {
-    getVNetworks();
-    getVNetworksTemplates();
-    getTemplates();
-  }, []);
-
-  useEffect(() => {
-    // console.log('FORM CONTEXT', watch(), errors);
-  }, [watch, errors]);
 
   const onSubmit = formData => console.log('submit', formData);
 
   return (
-    <FormProvider {...methods}>
-      <FormStepper
-        steps={Steps}
-        initialValue={INITIAL_VALUE}
-        onSubmit={onSubmit}
-      />
-    </FormProvider>
+    <Container disableGutters>
+      <FormProvider {...methods}>
+        <FormStepper
+          steps={steps}
+          initialValue={defaultValues}
+          onSubmit={onSubmit}
+        />
+      </FormProvider>
+    </Container>
   );
 }
 

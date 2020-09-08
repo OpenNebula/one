@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 
 import { makeStyles, CircularProgress, Button } from '@material-ui/core';
 
+import { Submit } from 'client/constants/translates';
 import { Tr } from 'client/components/HOC';
-import * as CONSTANT from 'client/constants';
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const ButtonSubmit = ({ isSubmitting, label, ...rest }) => {
+const SubmitButton = ({ isSubmitting, label, ...rest }) => {
   const classes = useStyles();
 
   return (
@@ -26,19 +26,19 @@ const ButtonSubmit = ({ isSubmitting, label, ...rest }) => {
       {...rest}
     >
       {isSubmitting && <CircularProgress size={24} />}
-      {!isSubmitting && Tr(label)}
+      {!isSubmitting && (label ?? Tr(Submit))}
     </Button>
   );
 };
 
-ButtonSubmit.propTypes = {
+SubmitButton.propTypes = {
   isSubmitting: PropTypes.bool,
   label: PropTypes.string
 };
 
-ButtonSubmit.defaultProps = {
+SubmitButton.defaultProps = {
   isSubmitting: false,
-  label: CONSTANT.default.Submit
+  label: undefined
 };
 
-export default ButtonSubmit;
+export default SubmitButton;

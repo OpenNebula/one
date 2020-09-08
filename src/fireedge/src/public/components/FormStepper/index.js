@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { useFormContext } from 'react-hook-form';
@@ -12,7 +12,11 @@ const FIRST_STEP = 0;
 
 const FormStepper = ({ steps, initialValue, onSubmit }) => {
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'));
-  const { watch } = useFormContext();
+  const {
+    watch,
+    formState: { isValid }
+  } = useFormContext();
+
   const [activeStep, setActiveStep] = useState(FIRST_STEP);
   const [formData, setFormData] = useState(initialValue);
 
@@ -20,19 +24,20 @@ const FormStepper = ({ steps, initialValue, onSubmit }) => {
   const lastStep = useMemo(() => totalSteps - 1, [totalSteps]);
   const disabledBack = useMemo(() => activeStep === FIRST_STEP, [activeStep]);
 
-  const handleNext = useCallback(() => {
-    setFormData(data => ({ ...data, ...watch() }));
-
+  const handleNext = () => {
+    // TODO check if errors
     if (activeStep === lastStep) {
       onSubmit(formData);
-    } else setActiveStep(prevActiveStep => prevActiveStep + 1);
-  }, [activeStep]);
+    } else if (isValid) {
+      setFormData(prevData => ({ ...prevData, ...watch() }));
+      setActiveStep(prevActiveStep => prevActiveStep + 1);
+    }
+  };
 
   const handleBack = useCallback(() => {
     if (activeStep <= FIRST_STEP) return;
 
     setActiveStep(prevActiveStep => prevActiveStep - 1);
-    setFormData(data => ({ ...data, ...watch() }));
   }, [activeStep]);
 
   return (
@@ -60,16 +65,19 @@ const FormStepper = ({ steps, initialValue, onSubmit }) => {
 
       {/* FORM CONTENT */}
       {React.useMemo(() => {
-        const { content: Content, ...rest } = steps[activeStep];
+        const { id, content: Content } = steps[activeStep];
 
         return (
-          <Content
-            data={formData}
-            setFormData={setFormData}
-            step={{ ...rest }}
-          />
+          Content && (
+            <Content
+              formData={formData}
+              data={formData[id]}
+              setFormData={setFormData}
+              step={steps[activeStep]}
+            />
+          )
         );
-      }, [activeStep, formData, setFormData])}
+      }, [steps, formData, activeStep, setFormData])}
     </>
   );
 };
@@ -77,13 +85,12 @@ const FormStepper = ({ steps, initialValue, onSubmit }) => {
 FormStepper.propTypes = {
   steps: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.number.isRequired,
+      id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
       label: PropTypes.string.isRequired,
-      content: PropTypes.node.isRequired,
-      dependOf: PropTypes.bool
+      content: PropTypes.func.isRequired
     })
   ),
-  initialValue: PropTypes.objectOf(PropTypes.object),
+  initialValue: PropTypes.objectOf(PropTypes.any),
   onSubmit: PropTypes.func
 };
 

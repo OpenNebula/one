@@ -41,7 +41,7 @@ const useStyles = makeStyles({
 function ApplicationDeploy() {
   const classes = useStyles();
   const { isLoading } = useGeneral();
-  const { users, groups, getUsers } = useOpennebula();
+  const { groups, getUsers } = useOpennebula();
 
   useEffect(() => {
     if (!isLoading) {
@@ -54,28 +54,7 @@ function ApplicationDeploy() {
   return (
     <>
       {isLoading && <LinearProgress style={{ width: '100%' }} />}
-      {users?.map(({ NAME, GROUPS }, index) => (
-        <Card key={`user-${index}`} className={classes.card}>
-          <CardContent>
-            <Box display="flex" alignItems="center">
-              <Typography className={classes.title}>{NAME}</Typography>
-              {[GROUPS?.ID ?? []].flat().map(ID => {
-                const group = getGroupById(ID);
-                return group ? (
-                  <Chip
-                    style={{ margin: '0 0.5em' }}
-                    key={`group-${index}-${ID}`}
-                    size="small"
-                    color="primary"
-                    clickable
-                    label={group.NAME}
-                  />
-                ) : null;
-              })}
-            </Box>
-          </CardContent>
-        </Card>
-      ))}
+      Deploy
     </>
   );
 }
