@@ -3248,15 +3248,6 @@ void VirtualMachineDiskResize::request_execute(
         return;
     }
 
-    if ( disk->has_snapshots() )
-    {
-        att.resp_msg = "Cannot resize a disk with snapshots";
-        failure_response(ACTION, att);
-
-        vm->unlock();
-
-        return;
-    }
 
     /* ------------- Get information about the disk and image --------------- */
     bool img_ds_quota, vm_ds_quota;
