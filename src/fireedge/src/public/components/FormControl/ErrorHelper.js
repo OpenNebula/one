@@ -10,8 +10,6 @@ import {
 } from '@material-ui/core';
 import { Info as InfoIcon } from '@material-ui/icons';
 
-import { Translate } from 'client/components/HOC';
-
 const useStyles = makeStyles(theme => {
   const getColor = theme.palette.type === 'light' ? darken : lighten;
   const getBackgroundColor = theme.palette.type === 'light' ? lighten : darken;
@@ -37,9 +35,13 @@ const ErrorHelper = ({ label, ...rest }) => {
   const classes = useStyles();
 
   return (
-    <Box className={classes.root} {...rest}>
+    <Box component="span" className={classes.root} {...rest}>
       <InfoIcon className={classes.icon} />
-      <Typography className={classes.text} data-cy="error-text">
+      <Typography
+        className={classes.text}
+        component="span"
+        data-cy="error-text"
+      >
         {label}
       </Typography>
     </Box>

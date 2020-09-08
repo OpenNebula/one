@@ -1,4 +1,5 @@
-import NetworkCard from './NetworkCard';
-import RoleCard from './RoleCard';
+import ClusterCard from 'client/components/Cards/ClusterCard';
+import NetworkCard from 'client/components/Cards/NetworkCard';
+import RoleCard from 'client/components/Cards/RoleCard';
 
-export { NetworkCard, RoleCard };
+export { ClusterCard, NetworkCard, RoleCard };
