@@ -532,7 +532,7 @@ module CLIHelper
         # @param data [Array] Array with data to show
         # @param del  [Char]  CSV delimiter
         def print_csv_data(data, del)
-            del ? del = del : del = ','
+            del ||= ','
 
             data.each do |l|
                 result = []
@@ -599,9 +599,7 @@ module CLIHelper
                 end
             end
 
-            if options
-                filter_data!(res_data, options) if options[:filter]
-            end
+            filter_data!(res_data, options) if options && options[:filter]
 
             res_data
         end

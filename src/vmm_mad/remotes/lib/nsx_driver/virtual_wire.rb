@@ -24,29 +24,25 @@ module NSXDriver
             if ls_id
                 initialize_with_id(ls_id)
             else
-                if tz_id
-                    if ls_data
-                        begin
-                            @ls_id = new_logical_switch(ls_data, tz_id)
-                        rescue NSXError::
-                               IncorrectResponseCodeError => e
-                            raise 'VirtualWire not created in NSX Manager: ' \
-                                  "#{e.message}"
-                        end
-                        unless @ls_id
-                            raise 'Virtual Wire not created in NSX Manager: ' \
-                                  'generic error'
-                        end
-
-                        # Construct URL of the created logical switch
-                        @url_ls = NSXConstants::NSXV_LS_SECTION + \
-                                  @ls_id
-                        @ls_vni = ls_vni
-                        @ls_name = ls_name
-                        @tz_id = ls_tz
-                        @tenant_id = 'virtual wire tenant'
-                        @guest_vlan_allowed = false
+                if tz_id && ls_data
+                    begin
+                        @ls_id = new_logical_switch(ls_data, tz_id)
+                    rescue NSXError::IncorrectResponseCodeError => e
+                        raise 'VirtualWire not created in NSX Manager: ' \
+                              "#{e.message}"
                     end
+                    unless @ls_id
+                        raise 'Virtual Wire not created in NSX Manager: ' \
+                              'generic error'
+                    end
+
+                    # Construct URL of the created logical switch
+                    @url_ls = NSXConstants::NSXV_LS_SECTION + @ls_id
+                    @ls_vni = ls_vni
+                    @ls_name = ls_name
+                    @tz_id = ls_tz
+                    @tenant_id = 'virtual wire tenant'
+                    @guest_vlan_allowed = false
                 end
             end
         end
@@ -98,9 +94,9 @@ module NSXDriver
                 lsname_arr = name.split(/-sid-/)
                 lsname = lsname_arr[-1].split('-', 2)[-1]
                 lsid = lsname_arr[0].split(/vxw-dvs-\w.-/)[-1]
-                if virtualwire.xpath('name').text == lsname
-                    return virtualwire.xpath('objectId').text \
-                            if virtualwire.xpath('objectId').text == lsid
+                if virtualwire.xpath('name').text == lsname &&
+                   virtualwire.xpath('objectId').text == lsid
+                    return virtualwire.xpath('objectId').text
                 end
             end
             nil

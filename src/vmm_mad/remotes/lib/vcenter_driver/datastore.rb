@@ -347,8 +347,9 @@ module VCenterDriver
 
         def initialize(item, _vi_client = nil)
             check_item(item, RbVmomi::VIM::StoragePod)
-
             @item = item
+
+            super
         end
 
         # This is never cached
@@ -371,6 +372,8 @@ module VCenterDriver
             @vi_client = vi_client
             @item = item
             @one_item = {}
+
+            super
         end
 
         def delete_virtual_disk(img_name)

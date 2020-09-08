@@ -61,8 +61,9 @@ begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
     one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
 
-    if !drv_action.retrieve_xmlelements('USER_TEMPLATE/VCENTER_TAG').empty?
-        raise 'vSphere automation gems are not installed' unless REST_CLIENT
+    if !drv_action.retrieve_xmlelements('USER_TEMPLATE/VCENTER_TAG').empty? &&
+       !REST_CLIENT
+        raise 'vSphere automation gems are not installed'
     end
 
     if deploy_id_valid?(deploy_id)
@@ -104,23 +105,23 @@ rescue StandardError => e
     message =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " \
                "with #{dfile} failed due to \"#{e.message}\"" \
                "on attempt \##{retries}."
-    unless (retries += 1) < CONFIG[:retries]
-        if e.message.include?('ManagedObjectNotFound')
-            template_id = drv_action['TEMPLATE/TEMPLATE_ID'].to_i
 
-            client = OpenNebula::Client.new
-            resource = OpenNebula::Template.new_with_id(template_id, client)
-            rc = resource.info
+    if (retries += 1) > CONFIG[:retries] &&
+       e.message.include?('ManagedObjectNotFound')
+        template_id = drv_action['TEMPLATE/TEMPLATE_ID'].to_i
 
-            if OpenNebula.is_error?(rc)
-                message << "\n#{rc.message}"
-            else
-                template_name = resource.name
+        client = OpenNebula::Client.new
+        resource = OpenNebula::Template.new_with_id(template_id, client)
+        rc = resource.info
 
-                message << "\nVerify inside vCenter cluster #{cluster_name} " \
-                           "that template #{template_name} currently " \
-                           'exists and has not been deleted'
-            end
+        if OpenNebula.is_error?(rc)
+            message << "\n#{rc.message}"
+        else
+            template_name = resource.name
+
+            message << "\nVerify inside vCenter cluster #{cluster_name} " \
+                       "that template #{template_name} currently " \
+                       'exists and has not been deleted'
         end
     end
     OpenNebula.log_error(message)

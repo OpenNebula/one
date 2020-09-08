@@ -418,18 +418,16 @@ module OpenNebula
                           "lower than or equal to 'max_vms'"
                 end
 
-                if (role['elasticity_policies'] &&
+                if ((role['elasticity_policies'] &&
                     !role['elasticity_policies'].empty?) ||
                    (role['scheduled_policies'] &&
-                   !role['scheduled_policies'].empty?)
-
-                    if role['min_vms'].nil? || role['max_vms'].nil?
-                        raise Validator::ParseException,
-                              "Role '#{role['name']}' with " \
-                              " 'elasticity_policies' or " \
-                              "'scheduled_policies'must define both 'min_vms'" \
-                              " and 'max_vms'"
-                    end
+                   !role['scheduled_policies'].empty?)) &&
+                   role['min_vms'].nil? || role['max_vms'].nil?
+                    raise Validator::ParseException,
+                          "Role '#{role['name']}' with " \
+                          " 'elasticity_policies' or " \
+                          "'scheduled_policies'must define both 'min_vms'" \
+                          " and 'max_vms'"
                 end
 
                 if role['elasticity_policies']

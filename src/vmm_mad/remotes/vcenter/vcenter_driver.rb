@@ -66,6 +66,8 @@ class VCenterConf < Hash
             STDERR.puts error_message("Couldn't load vcenterrc. \
                                        Reason #{e.message}.")
         end
+
+        super
     end
 
 end
@@ -136,11 +138,9 @@ end
 
 def check_item(item, target_class)
     item.name if CHECK_REFS
-    if target_class
-        if !item.instance_of?(target_class)
-            raise "Expecting type 'RbVmomi::VIM::#{target_class}'. " \
-                    "Got '#{item.class} instead."
-        end
+    if target_class && !item.instance_of?(target_class)
+        raise "Expecting type 'RbVmomi::VIM::#{target_class}'. " \
+              "Got '#{item.class} instead."
     end
 rescue RbVmomi::Fault => e
     raise "Reference \"#{item._ref}\" error [#{e.message}]. \

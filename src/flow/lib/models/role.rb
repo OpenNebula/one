@@ -177,8 +177,9 @@ module OpenNebula
                 @service.roles.each do |role_name, role|
                     next if role_name == name
 
-                    if role.parents.include? name
-                        return false if role.state != STATE['DONE']
+                    if role.parents.include?(name) &&
+                       role.state != STATE['DONE']
+                        return false
                     end
                 end
             end
@@ -1005,10 +1006,8 @@ module OpenNebula
             true_evals      = elasticity_pol['true_evals'].to_i
             expression      = elasticity_pol['expression']
 
-            if !last_eval.nil?
-                if now < (last_eval + period_duration)
-                    return [0, 0]
-                end
+            if !last_eval.nil? && now < (last_eval + period_duration)
+                return [0, 0]
             end
 
             elasticity_pol['last_eval'] = now

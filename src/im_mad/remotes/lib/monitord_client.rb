@@ -39,9 +39,7 @@ class MonitorClient
                   "#{Time.now.to_i} #{pack(payload)}"
             @socket_udp.send(msg, 0, @host, @port)
         end
-    end
 
-    MESSAGE_TYPES.each do |mt|
         define_method("#{mt}_tcp".downcase.to_sym) do |rc, payload|
             msg = "#{mt} #{MESSAGE_STATUS[rc]} #{@hostid} " \
                   "#{Time.now.to_i} #{pack(payload)}"

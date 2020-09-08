@@ -47,4 +47,6 @@ nics.each do |nic|
     end
 end
 
+# rubocop:disable Style/CombinableLoops
 nics.each {|nic| clean_host_nic(nic[:nic][:target]) }
+# rubocop:enable Style/CombinableLoops
