@@ -6,7 +6,7 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import useAuth from 'client/hooks/useAuth';
 import { Tr } from 'client/components/HOC';
 
-import { SignOut } from 'client/constants';
+import { SignOut } from 'client/constants/translates';
 import { PATH } from 'client/router/endpoints';
 import HeaderPopover from 'client/components/Header/Popover';
 

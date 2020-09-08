@@ -8,7 +8,7 @@ import GroupSelect from 'client/components/FormControl/GroupSelect';
 import ButtonSubmit from 'client/components/FormControl/SubmitButton';
 import { Tr } from 'client/components/HOC';
 import loginStyles from 'client/containers/Login/styles';
-import { Next } from 'client/constants';
+import { Next } from 'client/constants/translates';
 
 function FormGroup({ onBack, onSubmit }) {
   const classes = loginStyles();

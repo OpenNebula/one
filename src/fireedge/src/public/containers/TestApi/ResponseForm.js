@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, func, objectOf, object } from 'prop-types';
+import { string, func, shape, object } from 'prop-types';
 
 import { useForm, Controller } from 'react-hook-form';
 import {
@@ -85,7 +85,7 @@ const ResponseForm = ({
 };
 
 ResponseForm.propTypes = {
-  command: objectOf({
+  command: shape({
     name: string.isRequired,
     httpMethod: string.isRequired,
     params: object.isRequired

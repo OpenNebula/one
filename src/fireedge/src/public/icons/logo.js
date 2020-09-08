@@ -1,5 +1,5 @@
 import React from 'react';
-import { number, string, bool } from 'prop-types';
+import { number, string, bool, oneOfType } from 'prop-types';
 
 const Logo = ({ width, height, spinner, withText, viewBox, ...props }) => {
   const cloudColor = {
@@ -18,7 +18,12 @@ const Logo = ({ width, height, spinner, withText, viewBox, ...props }) => {
       <defs>
         {spinner &&
           Object.entries(cloudColor)?.map(([key, color]) => (
-            <linearGradient id={`gradient__${key}`} x1="0%" x2="200%">
+            <linearGradient
+              key={`gradient-${key}`}
+              id={`gradient__${key}`}
+              x1="0%"
+              x2="200%"
+            >
               <stop offset="0%" stopColor={color.from} />
               <stop offset="200%" stopColor={color.to} />
               <animate
@@ -81,7 +86,7 @@ const Logo = ({ width, height, spinner, withText, viewBox, ...props }) => {
 };
 
 Logo.propTypes = {
-  width: number.isRequired,
+  width: oneOfType([number, string]).isRequired,
   height: number.isRequired,
   viewBox: string,
   spinner: bool,

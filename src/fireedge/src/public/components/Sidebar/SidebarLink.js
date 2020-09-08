@@ -69,7 +69,14 @@ const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
 SidebarLink.propTypes = {
   label: PropTypes.string.isRequired,
   path: PropTypes.string.isRequired,
-  icon: PropTypes.node,
+  icon: PropTypes.oneOfType([
+    PropTypes.element,
+    PropTypes.node,
+    PropTypes.func,
+    PropTypes.string,
+    PropTypes.symbol,
+    PropTypes.object
+  ]),
   devMode: PropTypes.bool,
   isSubItem: PropTypes.bool
 };
@@ -77,7 +84,7 @@ SidebarLink.propTypes = {
 SidebarLink.defaultProps = {
   label: '',
   path: '/',
-  icon: null,
+  icon: undefined,
   devMode: false,
   isSubItem: false
 };

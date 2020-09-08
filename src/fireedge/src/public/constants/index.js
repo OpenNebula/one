@@ -14,21 +14,7 @@
 /* -------------------------------------------------------------------------- */
 
 module.exports = {
-  checkbox: 'checkbox',
-  classInputInvalid: 'is-invalid',
-  NotFound: 'Not found',
-  SignIn: 'Sign In',
-  Next: 'Next',
-  Language: 'Language',
-  Username: 'Username',
-  Password: 'Password',
-  keepLoggedIn: 'Keep me logged in',
-  Token2FA: '2FA Token',
-  SignOut: 'Sign Out',
   jwtName: 'SunstoneToken',
-  filterPool: 'FilterPool',
-  Submit: 'Submit',
-  Response: 'Response',
   by: {
     text: 'Opennebula',
     url: 'https://opennebula.io/'
@@ -43,5 +29,10 @@ module.exports = {
     USER_RESOURCES: '-3',
     ALL_RESOURCES: '-2',
     USER_GROUPS_RESOURCES: '-1'
+  },
+  TYPE_INPUT: {
+    TEXT: 'text',
+    SELECT: 'select',
+    CHECKBOX: 'checkbox'
   }
 };

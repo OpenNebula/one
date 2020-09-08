@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React from 'react';
 
 import {
   makeStyles,
