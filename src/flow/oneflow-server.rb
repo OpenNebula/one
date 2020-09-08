@@ -236,8 +236,6 @@ delete '/service/:id' do
 end
 
 post '/service/:id/action' do
-    # require 'pry-byebug'
-    # binding.pry
     action = JSON.parse(request.body.read)['action']
     opts   = action['params']
 
