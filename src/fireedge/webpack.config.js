@@ -15,10 +15,15 @@
 
 const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
+const LiveReloadPlugin = require('webpack-livereload-plugin');
 const path = require('path');
+const { defaultProtocolHotReload } = require('./src/utils/server');
+
 const {
   defaultWebpackMode,
-  defaultWebpackDevTool
+  defaultWebpackDevTool,
+  defaultIP,
+  defaultPortHotReload
 } = require('./src/utils/constants/defaults');
 
 const js = {
@@ -102,32 +107,40 @@ const clientConfig = {
 };
 
 module.exports = (env, argv) => {
+  const build = [];
+  const systemVars = {};
+  const plugins = [];
+
   if (argv && argv.mode !== defaultWebpackMode) {
     [clientConfig.mode, serverConfig.mode] = Array(2).fill('production');
     [clientConfig.devtool, serverConfig.devtool] = Array(2).fill('');
-  } else if (argv && argv.session && argv.session === 'false') {
-    const pluginProcessEnv = [
-      new webpack.DefinePlugin({
-        'process.env': {
-          session: JSON.stringify(argv.session)
-        }
-      })
-    ];
-    clientConfig.plugins = pluginProcessEnv;
-    serverConfig.plugins = pluginProcessEnv;
   }
-  let build = [];
+
   if (env) {
-    switch (env) {
-      case 'front':
-        build.push(clientConfig);
-        break;
-      case 'node':
-        build.push(serverConfig);
-        break;
+    if (env.ssr) {
+      systemVars['process.env.ssr'] = true;
     }
-  } else {
-    build = [serverConfig, clientConfig];
+    if (env.hotreload) {
+      systemVars['process.env.hotreload'] = true;
+      plugins.push(
+        new LiveReloadPlugin({
+          port: parseInt(defaultPortHotReload, 10),
+          host: defaultIP,
+          protocol: defaultProtocolHotReload
+        })
+      );
+    }
+
+    plugins.push(new webpack.DefinePlugin(systemVars));
+    clientConfig.plugins = plugins;
+    serverConfig.plugins = plugins;
+
+    if (env.front) {
+      build.push(clientConfig);
+    }
+    if (env.node) {
+      build.push(serverConfig);
+    }
   }
   return build;
 };

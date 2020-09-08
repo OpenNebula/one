@@ -21,13 +21,16 @@ const { createStore, compose, applyMiddleware } = require('redux');
 const thunk = require('redux-thunk').default;
 const { ServerStyleSheets } = require('@material-ui/core/styles');
 const rootReducer = require('../../public/reducers');
-const App = require('../../public/app').default;
 const { getConfig } = require('../../utils/yml');
 const {
   includeMAPSJSbyHTML,
   includeJSbyHTML,
   includeCSSbyHTML
 } = require('../../utils');
+const {
+  defaultIP,
+  defaultPortHotReload
+} = require('../../utils/constants/defaults');
 
 const router = express.Router();
 
@@ -35,21 +38,30 @@ router.get('*', (req, res) => {
   const context = {};
   const pathPublic = `${__dirname}/public`;
 
-  const composeEnhancer =
-    // eslint-disable-next-line no-underscore-dangle
-    (root && root.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
+  let store = '';
+  let storeRender = '';
+  let component = '';
+  let css = '';
+  if (process.env.ssr) {
+    const composeEnhancer =
+      // eslint-disable-next-line no-underscore-dangle
+      (root && root.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
+    store = createStore(
+      rootReducer(getConfig),
+      composeEnhancer(applyMiddleware(thunk))
+    );
+    storeRender = `<script id="preloadState">window.__PRELOADED_STATE__ = ${JSON.stringify(
+      store.getState()
+    ).replace(/</g, '\\u003c')}</script>`;
 
-  const store = createStore(
-    rootReducer(getConfig),
-    composeEnhancer(applyMiddleware(thunk))
-  );
-
-  const sheets = new ServerStyleSheets();
-  const component = renderToString(
-    sheets.collect(<App location={req.url} context={context} store={store} />)
-  );
-  const css = sheets.toString();
-
+    // eslint-disable-next-line global-require
+    const App = require('../../public/app').default;
+    const sheets = new ServerStyleSheets();
+    component = renderToString(
+      sheets.collect(<App location={req.url} context={context} store={store} />)
+    );
+    css = `<style id="jss-server-side">${sheets.toString()}</style>`;
+  }
   const html = `
   <!DOCTYPE html>
     <html>
@@ -57,17 +69,17 @@ router.get('*', (req, res) => {
       <link rel='shortcut icon' type='image/png' href='/static/favicon.png' />
       <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width">
       <meta http-equiv="X-UA-Compatible" content="ie=edge">
-      <style id="jss-server-side">${css}</style>
+      ${css}
       ${includeCSSbyHTML(pathPublic)}
+      ${
+        process.env.hotreload
+          ? `<script src="http://${defaultIP}:${defaultPortHotReload}/livereload.js"></script>`
+          : ''
+      }
     </head>
     <body>
       <div id="root">${component}</div>
-      <script id="preloadState">
-        window.__PRELOADED_STATE__ = ${JSON.stringify(store.getState()).replace(
-          /</g,
-          '\\u003c'
-        )}
-      </script>
+      ${storeRender}
       ${includeJSbyHTML(pathPublic) + includeMAPSJSbyHTML(pathPublic)}
     </body>
     </html>

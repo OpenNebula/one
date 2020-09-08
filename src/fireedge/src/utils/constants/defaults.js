@@ -61,6 +61,9 @@ const defaults = {
   defaultMethodUserUpdate: 'user.update',
   defaultMethodUserInfo: 'user.info',
   defaultLang: 'en_US',
+  defaultIP: defaultIp,
+  defaultProtocolHotReload: 'http',
+  defaultPortHotReload: '3001',
   translations: {
     en_US: 'English',
     ca: 'Catalan',

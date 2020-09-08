@@ -59,8 +59,7 @@ const validateResource = (req, res, next) => {
         idUserOpennebula = session.iss;
         userOpennebula = session.aud;
         passOpennebula = session.jti;
-
-        if (!process.env.session) {
+        if (process.env.ssr) {
           if (
             global &&
             global.users &&

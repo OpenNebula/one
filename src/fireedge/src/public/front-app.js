@@ -21,16 +21,22 @@ import root from 'window-or-global';
 import rootReducer from 'client/reducers';
 import App from 'client/app';
 
+// eslint-disable-next-line no-underscore-dangle
 const preloadedState = root.__PRELOADED_STATE__;
 
+// eslint-disable-next-line no-underscore-dangle
 delete root.__PRELOADED_STATE__;
 
 const store = createStore(
   rootReducer(),
   preloadedState,
+  // eslint-disable-next-line no-underscore-dangle
   root.__REDUX_DEVTOOLS_EXTENSION__ && root.__REDUX_DEVTOOLS_EXTENSION__()
 );
 
-document.getElementById('preloadState').remove();
+const element = document.getElementById('preloadState');
+if (element) {
+  element.remove();
+}
 
 hydrate(<App store={store} />, document.getElementById('root'));

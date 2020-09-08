@@ -14,7 +14,7 @@
 /* -------------------------------------------------------------------------- */
 
 const jwt = require('jwt-simple');
-const moment = require('moment');
+const { DateTime } = require('luxon');
 const { messageTerminal } = require('./general');
 const { getConfig } = require('./yml');
 
@@ -50,6 +50,7 @@ const validateAuth = req => {
     const token = authorization.replace(removeBearer, '');
     try {
       const payload = jwt.decode(token, tokenSecret);
+      const now = DateTime.local();
       if (
         payload &&
         'iss' in payload &&
@@ -57,7 +58,7 @@ const validateAuth = req => {
         'jti' in payload &&
         'iat' in payload &&
         'exp' in payload &&
-        payload.exp >= moment().unix()
+        payload.exp >= now.toSeconds()
       ) {
         const { iss, aud, jti, iat, exp } = payload;
         rtn = {
