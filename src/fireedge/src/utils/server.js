@@ -13,7 +13,20 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 const { Map } = require('immutable');
+const { existsSync } = require('fs-extra');
 const { internalServerError } = require('./constants/http-codes');
+
+let cert = '';
+let key = '';
+
+const validateServerIsSecure = () => {
+  cert = `${__dirname}/../cert/cert.pem`;
+  key = `${__dirname}/../cert/key.pem`;
+  return existsSync && key && cert && existsSync(key) && existsSync(cert);
+};
+
+const getCert = () => cert;
+const getKey = () => key;
 
 const httpResponse = (response, data, message) => {
   let rtn = Map(internalServerError).toObject();
@@ -31,5 +44,8 @@ const httpResponse = (response, data, message) => {
 };
 
 module.exports = {
-  httpResponse
+  httpResponse,
+  validateServerIsSecure,
+  getCert,
+  getKey
 };

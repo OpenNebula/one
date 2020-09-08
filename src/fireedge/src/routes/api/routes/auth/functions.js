@@ -12,7 +12,7 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-const moment = require('moment');
+const { DateTime } = require('luxon');
 const { Map } = require('immutable');
 const {
   httpMethod,
@@ -105,10 +105,11 @@ const setRes = newRes => {
 const setDates = () => {
   const limitToken = appConfig.LIMIT_TOKEN;
   const { MIN, MAX } = limitToken;
-  now = moment();
-  nowUnix = now.unix();
-  nowWithDays = moment().add(extended ? MAX : MIN, 'days');
-  relativeTime = nowWithDays.diff(now, 'seconds');
+  now = DateTime.local();
+  nowUnix = now.toSeconds();
+  nowWithDays = now.plus({"days": extended ? MAX : MIN});
+  const diff = nowWithDays.diff(now, 'seconds');
+  relativeTime = diff.seconds;
 };
 
 const connectOpennebula = () => nodeConnect(user, pass);
@@ -149,7 +150,7 @@ const genJWT = informationUser => {
   if (informationUser && informationUser.ID && informationUser.PASSWORD) {
     const { ID: id } = informationUser;
     const dataJWT = { id, user, token: opennebulaToken };
-    const jwt = createToken(dataJWT, nowUnix, nowWithDays.format('X'));
+    const jwt = createToken(dataJWT, nowUnix, nowWithDays.toSeconds());
     if (jwt) {
       if (!global.users) {
         global.users = {};

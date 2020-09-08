@@ -22,7 +22,6 @@ const path = require('path');
 const socketIO = require('socket.io');
 const cors = require('cors');
 const {
-  existsSync,
   accessSync,
   constants: fsConstants,
   createWriteStream,
@@ -36,6 +35,7 @@ const {
   defaultConfigLogFile,
   defaultTypeLog
 } = require('./utils/constants/defaults');
+const { validateServerIsSecure, getCert, getKey } = require('./utils/server');
 const {
   entrypoint404,
   entrypointApi,
@@ -49,10 +49,6 @@ const app = express();
 const appConfig = getConfig();
 const port = appConfig.PORT || 3000;
 const userLog = appConfig.LOG || 'dev';
-
-// ssl
-const key = `${__dirname}/../cert/key.pem`;
-const cert = `${__dirname}/../cert/cert.pem`;
 
 let log = morgan('dev');
 if (userLog === defaultTypeLog) {
@@ -96,16 +92,15 @@ app.use('/', entrypointApp); // html for react app frontend
 app.get('*', entrypoint404);
 
 // server certificates
-const appServer =
-  existsSync && key && cert && existsSync(key) && existsSync(cert)
-    ? secureServer(
-        {
-          key: readFileSync(key, 'utf8'),
-          cert: readFileSync(cert, 'utf8')
-        },
-        app
-      )
-    : unsecureServer(app);
+const appServer = validateServerIsSecure()
+  ? secureServer(
+      {
+        key: readFileSync(getKey(), 'utf8'),
+        cert: readFileSync(getCert(), 'utf8')
+      },
+      app
+    )
+  : unsecureServer(app);
 
 // connect to websocket
 const io = socketIO.listen(appServer);
