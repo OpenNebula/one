@@ -29,55 +29,69 @@ const {
   serviceTemplateAction
 } = require('./service_template');
 const { httpMethod } = require('../../../../utils/constants/defaults');
+const {
+  SERVICE_ALL,
+  SERVICE,
+  SERVICE_DELETE,
+  SERVICE_ADD_ACTION,
+  SERVICE_ADD_SCALE,
+  SERVICE_ADD_ROLE_ACTION,
+  SERVICE_TEMPLATE_ALL,
+  SERVICE_TEMPLATE,
+  SERVICE_TEMPLATE_DELETE,
+  SERVICE_TEMPLATE_CREATE,
+  SERVICE_TEMPLATE_UPDATE,
+  SERVICE_TEMPLATE_ACTION
+} = require('./oneflow-routes');
 
 const { GET, POST, DELETE, PUT } = httpMethod;
 
 const privateRoutes = {
-  'service-all': {
+  [SERVICE_ALL]: {
     httpMethod: GET,
     action: serviceAll
   },
-  service: {
+  [SERVICE]: {
     httpMethod: GET,
     action: service
   },
-  'service-delete': {
+  [SERVICE_DELETE]: {
     httpMethod: DELETE,
     action: serviceDelete
   },
-  'service-add-action': {
+  [SERVICE_ADD_ACTION]: {
     httpMethod: POST,
     action: serviceAddAction
   },
-  'service-add-scale': {
+  [SERVICE_ADD_SCALE]: {
     httpMethod: POST,
     action: serviceAddScale
   },
-  'service-add-role-action': {
+  [SERVICE_ADD_ROLE_ACTION]: {
     httpMethod: POST,
     action: serviceAddRoleAction
   },
-  'service_template-all': {
+  [SERVICE_TEMPLATE_ALL]: {
     httpMethod: GET,
     action: serviceTemplateAll
   },
-  service_template: {
+  [SERVICE_TEMPLATE]: {
     httpMethod: GET,
     action: serviceTemplate
   },
-  'service_template-delete': {
+  [SERVICE_TEMPLATE_DELETE]: {
     httpMethod: DELETE,
     action: serviceTemplateDelete
   },
-  'service_template-create': {
+  [SERVICE_TEMPLATE_CREATE]: {
     httpMethod: POST,
     action: serviceTemplateCreate
   },
-  'service_template-update': {
+  [SERVICE_TEMPLATE_UPDATE]: {
     httpMethod: PUT,
     action: serviceTemplateUpdate
   },
-  'service_template-action': {
+  [SERVICE_TEMPLATE_ACTION]: {
     httpMethod: POST,
     action: serviceTemplateAction
   }
