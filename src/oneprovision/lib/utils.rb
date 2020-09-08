@@ -33,6 +33,8 @@ class OneProvisionLoopException < RuntimeError
 
     def initialize(text = nil)
         @text = text
+
+        super
     end
 
 end

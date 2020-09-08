@@ -377,8 +377,7 @@ module VCenterDriver
         def initialize(item, vi_client = nil)
             check_item(item, RbVmomi::VIM::Network)
 
-            @vi_client = vi_client
-            @item = item
+            super
         end
 
         def clusters
@@ -407,8 +406,7 @@ module VCenterDriver
         def initialize(item, vi_client = nil)
             check_item(item, RbVmomi::VIM::DistributedVirtualPortgroup)
 
-            @vi_client = vi_client
-            @item = item
+            super
         end
 
         def clusters
@@ -440,8 +438,7 @@ module VCenterDriver
         def initialize(item, vi_client = nil)
             check_item(item, RbVmomi::VIM::OpaqueNetwork)
 
-            @vi_client = vi_client
-            @item = item
+            super
         end
 
         def clusters
@@ -470,8 +467,7 @@ module VCenterDriver
         def initialize(item, vi_client = nil)
             check_item(item, RbVmomi::VIM::VmwareDistributedVirtualSwitch)
 
-            @vi_client = vi_client
-            @item = item
+            super
         end
 
     end

@@ -46,6 +46,8 @@ class FirecrackerConfiguration < Hash
         rescue StandardError => e
             OpenNebula.log_error e
         end
+
+        super
     end
 
 end

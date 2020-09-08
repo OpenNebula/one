@@ -745,10 +745,9 @@ class ServiceLCM
                 service.roles[role_name].set_state(Role::STATE['RUNNING'])
             end
 
-            if service.all_roles_running?
-                if service.state != Service::STATE['RUNNING']
-                    service.set_state(Service::STATE['RUNNING'])
-                end
+            if service.all_roles_running? &&
+               service.state != Service::STATE['RUNNING']
+                service.set_state(Service::STATE['RUNNING'])
             end
 
             service.update

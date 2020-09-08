@@ -27,28 +27,24 @@ module NSXDriver
             if ls_id
                 initialize_with_id(ls_id)
             else
-                if tz_id
-                    if ls_data
-                        begin
-                            @ls_id = new_logical_switch(ls_data)
-                        rescue NSXError::
-                               IncorrectResponseCodeError => e
-                            raise 'Opaque Network not created in ' \
-                                  "NSX Manager: #{e.message}"
-                        end
-                        unless @ls_id
-                            raise 'Opaque Network not created in NSX Manager: '\
-                                  'generic error'
-                        end
-
-                        # Construct URL of the created logical switch
-                        @url_ls = NSXConstants::NSXT_LS_SECTION + \
-                                  @ls_id
-                        @ls_vni = ls_vni
-                        @ls_name = ls_name
-                        @tz_id = ls_tz
-                        @admin_display = 'UP'
+                if tz_id && ls_data
+                    begin
+                        @ls_id = new_logical_switch(ls_data)
+                    rescue NSXError::IncorrectResponseCodeError => e
+                        raise 'Opaque Network not created in ' \
+                              "NSX Manager: #{e.message}"
                     end
+                    unless @ls_id
+                        raise 'Opaque Network not created in NSX Manager: '\
+                              'generic error'
+                    end
+
+                    # Construct URL of the created logical switch
+                    @url_ls = NSXConstants::NSXT_LS_SECTION + @ls_id
+                    @ls_vni = ls_vni
+                    @ls_name = ls_name
+                    @tz_id = ls_tz
+                    @admin_display = 'UP'
                 end
             end
         end
@@ -95,8 +91,8 @@ module NSXDriver
             lswitches.each do |lswitch|
                 lsname = lswitch['display_name']
                 lsid = lswitch['id']
-                if lsname == name
-                    return lsid if lsid
+                if lsname == name && lsid
+                    return lsid
                 end
             end
             nil

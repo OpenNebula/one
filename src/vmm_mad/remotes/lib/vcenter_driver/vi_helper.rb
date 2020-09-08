@@ -274,8 +274,9 @@ module VCenterDriver
             folders = []
             until item.instance_of? RbVmomi::VIM::Datacenter
                 item = item.parent
-                if !item.instance_of? RbVmomi::VIM::Datacenter
-                    folders << item.name if item.name != 'host'
+                if !item.instance_of?(RbVmomi::VIM::Datacenter) &&
+                   item.name != 'host'
+                    folders << item.name
                 end
                 raise 'Could not find the location' if item.nil?
             end

@@ -280,9 +280,9 @@ module VCenterDriver
 
                 rs.each do |dc, clusters|
                     if !use_defaults
-                        # rubocop:disable Metrics/LineLength
+                        # rubocop:disable Layout/LineLength
                         STDOUT.print "Do you want to process datacenter #{dc} (y/[n])? "
-                        # rubocop:enable Metrics/LineLength
+                        # rubocop:enable Layout/LineLength
                         next if STDIN.gets.strip.downcase != 'y'
                     end
 
@@ -297,18 +297,18 @@ module VCenterDriver
 
                         # Handle OpenNebula cluster creation or reuse
                         if !use_defaults
-                            # rubocop:disable Metrics/LineLength
+                            # rubocop:disable Layout/LineLength
                             STDOUT.print "\n  * vCenter cluster found:\n"\
                                          "      - Name       : \e[92m#{cluster[:simple_name]}\e[39m\n"\
                                          "      - Location   : #{cluster[:cluster_location]}\n"\
                                          '    Import cluster (y/[n])? '
-                            # rubocop:enable Metrics/LineLength
+                            # rubocop:enable Layout/LineLength
                             next if STDIN.gets.strip.downcase != 'y'
 
                             if !cluster_list.empty?
-                                # rubocop:disable Metrics/LineLength
+                                # rubocop:disable Layout/LineLength
                                 STDOUT.print "\n    In which OpenNebula cluster do you want the vCenter cluster to be included?\n "
-                                # rubocop:enable Metrics/LineLength
+                                # rubocop:enable Layout/LineLength
 
                                 cluster_list_str = "\n"
                                 cluster_list.each do |key, value|
@@ -319,9 +319,9 @@ module VCenterDriver
                                 end
 
                                 STDOUT.print "\n    #{cluster_list_str}"
-                                # rubocop:disable Metrics/LineLength
+                                # rubocop:disable Layout/LineLength
                                 STDOUT.print "\n    Specify the ID of the cluster or press Enter if you want OpenNebula to create a new cluster for you: "
-                                # rubocop:enable Metrics/LineLength
+                                # rubocop:enable Layout/LineLength
                                 answer = STDIN.gets.strip
 
                                 if !answer.empty?
@@ -340,9 +340,9 @@ module VCenterDriver
                             rc = one_cluster
                                  .allocate((cluster[:cluster_name]).to_s)
                             if ::OpenNebula.is_error?(rc)
-                                # rubocop:disable Metrics/LineLength
+                                # rubocop:disable Layout/LineLength
                                 STDOUT.puts "    Error creating OpenNebula cluster: #{rc.message}\n"
-                                # rubocop:enable Metrics/LineLength
+                                # rubocop:enable Layout/LineLength
                                 next
                             end
                             one_cluster_id = one_cluster.id
@@ -354,11 +354,11 @@ module VCenterDriver
                                            con_ops,
                                            rpool,
                                            one_cluster_id)
-                        # rubocop:disable Metrics/LineLength
+                        # rubocop:disable Layout/LineLength
                         STDOUT.puts "\n    OpenNebula host \e[92m#{cluster[:cluster_name]}\e[39m with"\
                                     " ID \e[94m#{one_host.id}\e[39m successfully created."
                         STDOUT.puts
-                        # rubocop:enable Metrics/LineLength
+                        # rubocop:enable Layout/LineLength
                     end
                 end
                 VCenterDriver::VcImporter.register_hooks
