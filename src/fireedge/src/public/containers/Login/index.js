@@ -13,7 +13,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Paper,
   Box,
@@ -30,6 +30,7 @@ import Form2fa from 'client/containers/Login/Forms/Form2fa';
 import FormGroup from 'client/containers/Login/Forms/FormGroup';
 import loginStyles from 'client/containers/Login/styles';
 import Logo from 'client/icons/logo';
+import { ONEADMIN_ID } from 'client/constants';
 
 const STEP = {
   USER_FORM: 0,
@@ -54,7 +55,9 @@ function Login() {
   const handleSubmitUser = dataForm => {
     login({ ...user, ...dataForm }).then(data => {
       if (data?.token) {
-        getAuthInfo().then(() => setStep(STEP.GROUP_FORM));
+        getAuthInfo().then(() => {
+          data?.id !== ONEADMIN_ID && setStep(STEP.GROUP_FORM);
+        });
       } else {
         setStep(data ? STEP.FA2_FORM : step);
         setUser(data ? dataForm : user);
@@ -74,7 +77,7 @@ function Login() {
     <Container
       component="main"
       disableGutters={isMobile}
-      maxWidth={isMobile || 'xs'}
+      maxWidth={isMobile ? 'lg' : 'xs'}
       className={classes.root}
     >
       {isLoading && <LinearProgress className={classes.loading} />}

@@ -105,7 +105,7 @@ HeaderPopover.propTypes = {
   id: PropTypes.string,
   icon: PropTypes.node,
   buttonLabel: PropTypes.string,
-  IconProps: PropTypes.objectOf(PropTypes.object),
+  IconProps: PropTypes.objectOf(PropTypes.any),
   headerTitle: PropTypes.string,
   disablePadding: PropTypes.bool,
   children: PropTypes.func

@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers';
 import * as yup from 'yup';
 
-import { Token2FA, Next } from 'client/constants';
+import { Token2FA, Next } from 'client/constants/translates';
 import loginStyles from 'client/containers/Login/styles';
 
 import { Tr } from 'client/components/HOC';

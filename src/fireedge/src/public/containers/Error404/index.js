@@ -16,7 +16,7 @@
 import React, { Fragment } from 'react';
 
 import { Translate } from 'client/components/HOC/Translate';
-import { NotFound } from 'client/constants';
+import { NotFound } from 'client/constants/translates';
 
 function Error404() {
   return (

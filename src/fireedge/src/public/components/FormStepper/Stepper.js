@@ -43,7 +43,7 @@ const CustomStepper = ({
 CustomStepper.propTypes = {
   steps: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.oneOf([PropTypes.string, PropTypes.number]).isRequired,
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       label: PropTypes.string.isRequired
     })
   ),

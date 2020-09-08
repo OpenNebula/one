@@ -5,7 +5,12 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers';
 import * as yup from 'yup';
 
-import { SignIn, Username, Password, keepLoggedIn } from 'client/constants';
+import {
+  SignIn,
+  Username,
+  Password,
+  KeepLoggedIn
+} from 'client/constants/translates';
 import { Tr } from 'client/components/HOC';
 import ButtonSubmit from 'client/components/FormControl/SubmitButton';
 import ErrorHelper from 'client/components/FormControl/ErrorHelper';
@@ -74,7 +79,7 @@ function FormUser({ onSubmit, error }) {
             inputProps={{ 'data-cy': 'login-remember' }}
           />
         }
-        label={Tr(keepLoggedIn)}
+        label={Tr(KeepLoggedIn)}
         labelPlacement="end"
       />
       <ButtonSubmit

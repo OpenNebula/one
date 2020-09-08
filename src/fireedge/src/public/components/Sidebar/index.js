@@ -65,7 +65,7 @@ const Sidebar = () => {
         anchor="left"
         open={isFixMenu}
       >
-        <Box item className={classes.header}>
+        <Box className={classes.header}>
           <Logo
             width="100%"
             height={100}
