@@ -532,6 +532,11 @@ module VCenterDriver
             nic_tmp
         end
 
+
+        # Creates an OpenNebula Virtual Network as part of the VM Template
+        # import process. This only need to  happen if no VNET in OpenNebula
+        # is present that refers to the network where the NIC of the VM Template
+        # is hooked to.
         def create_network_for_import(
             nic,
             ccr_ref,
@@ -545,14 +550,6 @@ module VCenterDriver
         )
             config = {}
             config[:refs] = nic[:refs]
-
-            # # Then the network has to be created
-            # # as it's not in OpenNebula
-            # one_vn =
-            #     VCenterDriver::VIHelper
-            #     .new_one_item(
-            #         OpenNebula::VirtualNetwork
-            #     )
 
             # Let's get the OpenNebula hosts ids
             # associated to the clusters references
@@ -651,11 +648,7 @@ module VCenterDriver
                 host_id = vi_client.instance_variable_get '@host_id'
 
                 begin
-                    nsx_client =
-                        NSXDriver::NSXClient
-                            .new_from_id(
-                                host_id
-                            )
+                    nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
                 rescue StandardError
                     nsx_client = nil
                 end
@@ -711,11 +704,7 @@ module VCenterDriver
             end
 
             # Prepare the Virtual Network template
-            one_vnet =
-                VCenterDriver::Network
-                    .to_one_template(
-                        import_opts
-                    )
+            one_vnet = VCenterDriver::Network.to_one_template(import_opts)
 
             # always has to be created because of
             # templates when they are instantiated
@@ -731,26 +720,17 @@ module VCenterDriver
 
             one_vnet[:one] << ar_tmp
             config[:one_object] = one_vnet[:one]
-            _cluster_id =
-                VCenterDriver::VIHelper
-                    .get_cluster_id(
-                        config[:one_ids]
-                    )
+            _cluster_id = VCenterDriver::VIHelper
+                          .get_cluster_id(config[:one_ids])
 
-            one_vn =
-                VCenterDriver::Network
-                    .create_one_network(
-                        config
-                    )
+            one_vn = VCenterDriver::Network.create_one_network(config)
             allocated_networks << one_vn
             VCenterDriver::VIHelper.clean_ref_hash
             one_vn.info
 
-            nic_info << nic_from_network_created(one_vn, nic)
+            one_vn
 
-            # Refresh npool
-            npool.info_all
-        end
+       end
 
         def import_vcenter_nics(
             vi_client,
@@ -793,18 +773,26 @@ module VCenterDriver
                                                                         npool)
                     # Network is already in OpenNebula
                     if network_found
-                        nic_info << nic_from_network_found(network_found, vm_object, nic, ar_ids)
+                        nic_info << nic_from_network_found(network_found,
+                                                           vm_object,
+                                                           nic,
+                                                           ar_ids)
                     # Network not found
                     else
-                        create_network_for_import(nic,
-                                                  ccr_ref,
-                                                  ccr_name,
-                                                  vc_uuid,
-                                                  vcenter_instance_name,
-                                                  dc_name,
-                                                  template_ref,
-                                                  dc_ref,
-                                                  vm_id)
+                        one_vn = create_network_for_import(nic,
+                                                           ccr_ref,
+                                                           ccr_name,
+                                                           vc_uuid,
+                                                           vcenter_instance_name,
+                                                           dc_name,
+                                                           template_ref,
+                                                           dc_ref,
+                                                           vm_id)
+
+                        nic_info << nic_from_network_created(one_vn, nic)
+
+                        # Refresh npool
+                        npool.info_all
                     end
                 end
             rescue StandardError => e
